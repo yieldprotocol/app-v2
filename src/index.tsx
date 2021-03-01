@@ -1,14 +1,40 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { ethers } from 'ethers';
+import { createWeb3ReactRoot, Web3ReactProvider } from '@web3-react/core';
+
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { ChainProvider } from './contexts/ChainContext';
 
+
+/* Init the signing web3 environment */
+function getLibrary( provider: ethers.providers.ExternalProvider,connector: any ) {
+  const library = new ethers.providers.Web3Provider(provider);
+  library.pollingInterval = 12000;
+  return library;
+}
+
+/* Init the calling web3 environment */
+const Web3FallbackProvider = createWeb3ReactRoot('fallback');
+function getCallLibrary(provider: any, connector: any) {
+  const library = new ethers.providers.InfuraProvider( provider.chainId , '646dc0f33d2449878b28e0afa25267f6' );
+  library.pollingInterval = 12000;
+  return library;
+}
+ 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <Web3FallbackProvider getLibrary={getCallLibrary}>
+      <Web3ReactProvider getLibrary={getLibrary}>
+        <ChainProvider>
+          <App />
+        </ChainProvider>
+      </Web3ReactProvider>
+    </Web3FallbackProvider>
   </React.StrictMode>,
-  document.getElementById('root')
+  document.getElementById("root")
 );
 
 // If you want to start measuring performance in your app, pass a function
