@@ -1,17 +1,23 @@
 import { ethers, BigNumber } from 'ethers';
 import { Decimal } from 'decimal.js';
-import { TransactionDescription } from 'ethers/lib/utils';
+
+import { TradeType } from '../types';
 
 Decimal.set({ precision: 64 });
 
-export const ZERO: Decimal = new Decimal(0);
-export const ONE: Decimal = new Decimal(1);
-export const TWO: Decimal = new Decimal(2);
+/* constants exposed for export */
+export const ZERO_DEC: Decimal = new Decimal(0);
+export const ONE_DEC: Decimal = new Decimal(1);
+export const TWO_DEC: Decimal = new Decimal(2);
 export const SECONDS_PER_YEAR: number = (365 * 24 * 60 * 60);
 
-export const k = new Decimal(1 / 126144000 ); // inv of seconds in 4 years
-export const g1 = new Decimal(950 / 1000);
-export const g2 = new Decimal(1000 / 950);
+/* locally used constants */ 
+const ZERO = ZERO_DEC;
+const ONE = ONE_DEC;
+const TWO = TWO_DEC;
+const k = new Decimal(1 / 126144000 ); // inv of seconds in 4 years
+const g1 = new Decimal(950 / 1000);
+const g2 = new Decimal(1000 / 950);
 const precisionFee = new Decimal(1000000000000);
 
 export function mint(
@@ -394,10 +400,6 @@ export const secondsToFrom  = (
   return to_.sub(from_).toString();
 };
 
-enum TradeType {
-  BUY = 'BUY',
-  SELL = 'SELL',
-}
 
 /* eg. Dai(X) Obtained from SELLING  USDC (Y) */
 export const psmXOut = ( 
@@ -430,7 +432,6 @@ export const psmYOut = (
  * Math Support fns:
  * 
  * */
-
 export const mulDecimal = (
   multiplicant: BigNumber | string, 
   multiplier: BigNumber | string, 
