@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 /* Simple Hook for caching & retrieved data */
 export const useCachedState = (key:string, initialValue:any) => {
   const genKey = key;
-  
   const [storedValue, setStoredValue] = useState(
     () => {
       try {
@@ -16,7 +15,6 @@ export const useCachedState = (key:string, initialValue:any) => {
       }
     }
   );
-  
   const setValue = (value:any) => {
     try {
       // For same API as useState
@@ -29,7 +27,6 @@ export const useCachedState = (key:string, initialValue:any) => {
       console.log(error);
     }
   };
-
   return [storedValue, setValue] as const;
 };
 
@@ -50,6 +47,5 @@ export const useDebounce = (value:any, delay:number) => {
     },
     [value, delay] /* Only re-call effect if value or delay changes */ 
   );
-
   return debouncedValue;
 };
