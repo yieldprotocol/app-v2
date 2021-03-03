@@ -20,6 +20,43 @@ const g1 = new Decimal(950 / 1000);
 const g2 = new Decimal(1000 / 950);
 const precisionFee = new Decimal(1000000000000);
 
+/**
+ *
+ * Math Support fns:
+ *
+ * */
+export const mulDecimal = (
+  multiplicant: BigNumber | string,
+  multiplier: BigNumber | string,
+  precisionDifference: string = '1', // Difference between multiplicant and mulitplier precision (eg. wei vs ray '1e-27' )
+): string => {
+  const multiplicant_ = new Decimal(multiplicant.toString());
+  const multiplier_ = new Decimal(multiplier.toString());
+  const _preDif = new Decimal(precisionDifference.toString());
+  const _normalisedMul = multiplier_.mul(_preDif);
+  return multiplicant_.mul(_normalisedMul).toFixed();
+};
+
+export const divDecimal = (
+  numerator:BigNumber | string,
+  divisor:BigNumber | string,
+  precisionDifference: string = '1', // Difference between multiplicant and mulitplier precision (eg. wei vs ray '1e-27' )
+): string => {
+  const numerator_ = new Decimal(numerator.toString());
+  const divisor_ = new Decimal(divisor.toString());
+  const _preDif = new Decimal(precisionDifference.toString());
+  const _normalisedDiv = divisor_.mul(_preDif);
+  return numerator_.div(_normalisedDiv).toFixed();
+};
+
+export const floorDecimal = (val: BigNumber | string): string => Decimal.floor(val.toString()).toFixed();
+
+/**
+ *
+ * Yield functions
+ *
+ * */
+
 export function mint(
   daiReserves: BigNumber | string,
   fyDaiReserves: BigNumber | string,
@@ -413,34 +450,3 @@ export const psmYOut = (
   const wad = new Decimal(1e18);
   return x_.div(wad.sub(tin_)).toFixed(18); // dai/(1-tin)
 };
-
-/**
- *
- * Math Support fns:
- *
- * */
-export const mulDecimal = (
-  multiplicant: BigNumber | string,
-  multiplier: BigNumber | string,
-  precisionDifference: string = '1', // Difference between multiplicant and mulitplier precision (eg. wei vs ray '1e-27' )
-): string => {
-  const multiplicant_ = new Decimal(multiplicant.toString());
-  const multiplier_ = new Decimal(multiplier.toString());
-  const _preDif = new Decimal(precisionDifference.toString());
-  const _normalisedMul = multiplier_.mul(_preDif);
-  return multiplicant_.mul(_normalisedMul).toFixed();
-};
-
-export const divDecimal = (
-  numerator:BigNumber | string,
-  divisor:BigNumber | string,
-  precisionDifference: string = '1', // Difference between multiplicant and mulitplier precision (eg. wei vs ray '1e-27' )
-): string => {
-  const numerator_ = new Decimal(numerator.toString());
-  const divisor_ = new Decimal(divisor.toString());
-  const _preDif = new Decimal(precisionDifference.toString());
-  const _normalisedDiv = divisor_.mul(_preDif);
-  return numerator_.div(_normalisedDiv).toFixed();
-};
-
-export const floorDecimal = (val: BigNumber | string): string => Decimal.floor(val.toString()).toFixed();

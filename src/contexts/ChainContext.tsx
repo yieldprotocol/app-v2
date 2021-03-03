@@ -4,8 +4,6 @@ import { useWeb3React } from '@web3-react/core';
 import { InjectedConnector } from '@web3-react/injected-connector';
 import { NetworkConnector } from '@web3-react/network-connector';
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector';
-import { JsonRpcProvider, Web3Provider } from '@ethersproject/providers';
-
 import { useCachedState } from '../hooks';
 
 /* Set up web3react config */
@@ -56,9 +54,14 @@ const initState = {
   connectOnLoad: true as boolean,
 };
 
-function _chainReducer(state: any, action: any) {
+function chainReducer(state: any, action: any) {
   /* Helper: only change the state if different from existing */
-  const onlyIfChanged = (action: any) => (state[action.type] === action.payload ? state[action.type] : action.payload);
+  const onlyIfChanged = (_action: any) => (
+    state[action.type] === _action.payload
+      ? state[action.type]
+      : _action.payload
+  );
+
   /* Reducer switch */
   switch (action.type) {
     case 'provider': return { ...state, provider: onlyIfChanged(action) };
@@ -76,20 +79,20 @@ function _chainReducer(state: any, action: any) {
 }
 
 const ChainProvider = ({ children }: any) => {
-  const [state, updateState] = React.useReducer(_chainReducer, initState);
+  const [state, updateState] = React.useReducer(chainReducer, initState);
   const [lastChainId, setLastChainId] = useCachedState('lastChainId', 1);
-  const primaryConnection = useWeb3React<Web3Provider>();
+  const primaryConnection = useWeb3React<ethers.providers.Web3Provider>();
   const {
     connector, library, chainId, account, activate, deactivate, active, error,
   } = primaryConnection;
 
-  const fallbackConnection = useWeb3React<JsonRpcProvider>('fallback');
+  const fallbackConnection = useWeb3React<ethers.providers.JsonRpcProvider>('fallback');
   const {
-    library: library_fb,
-    chainId: chainId_fb,
-    activate: activate_fb,
-    active: active_fb,
-    error: error_fb,
+    library: fallbackLibrary,
+    chainId: fallbackChainId,
+    activate: fallbackActivate,
+    active: fallbackActive,
+    error: fallbackError,
   } = fallbackConnection;
 
   /* Update state chainContext when primaryConnection (likely metamask/walletConnect) updates */
@@ -108,25 +111,26 @@ const ChainProvider = ({ children }: any) => {
   */
   useEffect(() => {
     /* cache the change of networkId */
-    chainId && setLastChainId(chainId);
-    /* update the fallback provider */
-    chainId !== chainId_fb && (async () => activate_fb(
-      new NetworkConnector({
-        urls: { 1: RPC_URLS[1], 42: RPC_URLS[42], 31337: RPC_URLS[31337] },
-        defaultChainId: chainId || lastChainId,
-      }),
-      (e:any) => console.log(e), true,
-    )
-    )();
+    if (chainId) {
+      setLastChainId(chainId);
+      chainId !== fallbackChainId && (async () => fallbackActivate(
+        new NetworkConnector({
+          urls: { 1: RPC_URLS[1], 42: RPC_URLS[42], 31337: RPC_URLS[31337] },
+          defaultChainId: chainId || lastChainId,
+        }), (e:any) => console.log(e), true,
+      )
+      )();
+    }
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chainId, activate_fb, lastChainId]);
+  }, [chainId, fallbackActivate, lastChainId]);
 
   /* Update context state when fallbackConnection changes */
   useEffect(() => {
-    updateState({ type: 'fallbackProvider', payload: library_fb || null });
-    updateState({ type: 'fallbackActive', payload: active_fb });
-    chainId_fb && console.log('fallback chainID :', chainId_fb);
-  }, [library_fb, active_fb, chainId_fb]);
+    updateState({ type: 'fallbackProvider', payload: fallbackLibrary || null });
+    updateState({ type: 'fallbackActive', payload: fallbackActive });
+    fallbackChainId && console.log('fallback chainID :', fallbackChainId);
+  }, [fallbackLibrary, fallbackActive, fallbackChainId]);
 
   /* Handle logic to recognize the connector currently being activated */
   const [activatingConnector, setActivatingConnector] = useState<any>();

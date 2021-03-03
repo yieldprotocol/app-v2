@@ -16,8 +16,8 @@ function App() {
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
 
-        <button onClick={() => actions.connect('injected')}> connect metamask </button>
-        <button onClick={() => actions.disconnect()}> disconnect metamask </button>
+        <button type="button" onClick={() => actions.connect('injected')}> connect metamask </button>
+        <button type="button" onClick={() => actions.disconnect()}> disconnect metamask </button>
         <p>{chainState.account}</p>
         <p>{chainState.chainId}</p>
         <p>
@@ -25,7 +25,7 @@ function App() {
           something
           { mint('2234', '3122', '2000', '123').toString() }
         </p>
-        <button onClick={() => toast('Hello')}> notify example</button>
+        <button type="button" onClick={() => toast('Hello')}> notify example</button>
 
       </header>
 
