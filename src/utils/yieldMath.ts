@@ -53,10 +53,9 @@ export const floorDecimal = (val: BigNumber | string): string => Decimal.floor(v
 
 /**
  *
- * Yield functions
+ * YieldMath functions
  *
  * */
-
 export function mint(
   daiReserves: BigNumber | string,
   fyDaiReserves: BigNumber | string,
@@ -234,7 +233,14 @@ export function fyDaiForMint(
 
   let i = 0;
   while (true) {
-    const zIn = new Decimal(buyFYDai(daiReserves, fyDaiVirtualReserves, BigNumber.from(yOut.toFixed(0)), timeTillMaturity_.toString()));
+    const zIn = new Decimal(
+      buyFYDai(
+        daiReserves,
+        fyDaiVirtualReserves,
+        BigNumber.from(yOut.toFixed(0)),
+        timeTillMaturity_.toString(),
+      ),
+    );
     const Z_1 = daiReserves_.add(zIn); // New dai reserves
     const Y_1 = fyDaiRealReserves_.sub(yOut); // New fyDai reserves
     const pz = (dai_.sub(zIn)).div((dai_.sub(zIn)).add(yOut)); // dai proportion in my assets
@@ -297,7 +303,6 @@ export const calcTokensMinted = (
   const _totalSupply = new Decimal(totalSupply.toString());
   const _yReserves = new Decimal(yReserves.toString());
   const _xInput = new Decimal(xInput.toString());
-
   const xOffered = (_xInput.mul(xReserves_)).div(_yReserves.add(xReserves_));
   // const [xOffered, ] =  splitLiquidity(xReserves, yReserves, xInput);
 
@@ -431,7 +436,7 @@ export const secondsToFrom = (
 export const psmXOut = (
   y :BigNumber| string, // WAD precision
   tin: BigNumber| string,
-  tradeType: TradeType = TradeType.SELL, // TODO add in buy (instead of sell)
+  tradeType: TradeType = TradeType.SELL, // TODO add in buy (in addition to sell)
 ) : string => {
   const y_ = new Decimal(y.toString());
   const tin_ = new Decimal(tin.toString());
@@ -443,7 +448,7 @@ export const psmXOut = (
 export const psmYOut = (
   x:BigNumber| string, // WAD precision
   tin: BigNumber| string,
-  tradeType: TradeType = TradeType.SELL, // TODO add in buy (instead of sell)
+  tradeType: TradeType = TradeType.SELL, // TODO add in buy (in addition to sell)
 ) : string => {
   const x_ = new Decimal(x.toString());
   const tin_ = new Decimal(tin.toString());
