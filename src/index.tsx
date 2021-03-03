@@ -4,7 +4,11 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import { ethers } from 'ethers';
 import { createWeb3ReactRoot, Web3ReactProvider } from '@web3-react/core';
 
-import './index.css';
+import { Grommet, base } from 'grommet';
+import { deepMerge } from 'grommet/utils';
+import { yieldTheme } from './themes';
+
+// import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { ChainProvider } from './contexts/ChainContext';
@@ -30,7 +34,9 @@ ReactDOM.render(
       <Web3FallbackProvider getLibrary={getCallLibrary}>
         <Web3ReactProvider getLibrary={getLibrary}>
           <ChainProvider>
-            <App />
+            <Grommet theme={deepMerge(base, yieldTheme)}>
+              <App />
+            </Grommet>
           </ChainProvider>
         </Web3ReactProvider>
       </Web3FallbackProvider>
