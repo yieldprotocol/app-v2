@@ -20,7 +20,9 @@ module.exports = {
         leadingUnderscore: 'allow',
         trailingUnderscore: 'allow',
       }],
-      "object-curly-spacing": ["warn", "always"],   
+      "object-curly-spacing": ["warn", "always"], 
+      "object-curly-newline": "off",
+
       "max-len": [
         "warn",
         {
