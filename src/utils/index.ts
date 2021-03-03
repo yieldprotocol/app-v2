@@ -2,11 +2,9 @@ import { format, subDays } from 'date-fns';
 import './constants';
 
 /* creates internal tracking code of a transaction type */
-export const genTxCode = (txType: string, series:string|null) => {
-  return `${txType}${series || ''}`; 
-};
+export const genTxCode = (txType: string, series:string|null) => `${txType}${series || ''}`;
 
-export const copyToClipboard=(str:string)=> {
+export const copyToClipboard = (str:string) => {
   const el = document.createElement('textarea');
   el.value = str;
   document.body.appendChild(el);
@@ -22,7 +20,7 @@ export const toLog = (message: string, type: string = 'info') => {
 };
 
 /* Trunctate a string value to a certain number of 'decimal' point */
-export const cleanValue = (input:string, decimals:number=12) => {
+export const cleanValue = (input:string, decimals:number = 12) => {
   const re = new RegExp(`(\\d+\\.\\d{${decimals}})(\\d)`);
   const inpu = input.match(re); // inpu = truncated 'input'... get it?
   if (inpu) {
@@ -32,16 +30,12 @@ export const cleanValue = (input:string, decimals:number=12) => {
 };
 
 /* handle Address/hash shortening */
-export const abbreviateHash = (addr:string, buffer:number=4) => {
-  return `${addr?.substring(0, buffer)}...${addr?.substring(addr.length - buffer)}`; 
-};
+export const abbreviateHash = (addr:string, buffer:number = 4) => `${addr?.substring(0, buffer)}...${addr?.substring(addr.length - buffer)}`;
 
-/* Generate the series name from the maturity number. 
-    Examples: full (defualt) : 'MMMM yyyy' ,  apr badge  : 'MMM yy' , mobile: 'MMM yyyy' 
+/* Generate the series name from the maturity number.
+    Examples: full (defualt) : 'MMMM yyyy' ,  apr badge  : 'MMM yy' , mobile: 'MMM yyyy'
 */
-export const nameFromMaturity = ( maturity: number, style:string='MMMM yyyy') => {
-  return format( subDays( new Date(maturity*1000), 2), style);
-};
+export const nameFromMaturity = (maturity: number, style:string = 'MMMM yyyy') => format(subDays(new Date(maturity * 1000), 2), style);
 
 /**
  * Number formatting if reqd.
@@ -54,7 +48,7 @@ export const nFormatter = (num:number, digits:number) => {
     { value: 1E9, symbol: 'G' },
     { value: 1E12, symbol: 'T' },
     { value: 1E15, symbol: 'P' },
-    { value: 1E18, symbol: 'E' }
+    { value: 1E18, symbol: 'E' },
   ];
   const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
   let i;
@@ -72,15 +66,15 @@ export const nFormatter = (num:number, digits:number) => {
 export const modColor = (color:any, amount:any) => {
   let c;
   let cT;
-  if (color.length === 9 || color.length === 8 ) {
-    c=color.substring(0, color.length - 2);
-    cT=color.slice(-2);
+  if (color.length === 9 || color.length === 8) {
+    c = color.substring(0, color.length - 2);
+    cT = color.slice(-2);
   } else {
-    c=color;
-    cT='FF';
+    c = color;
+    cT = 'FF';
   }
   // eslint-disable-next-line prefer-template
-  return '#' + c.replace(/^#/, '').replace(/../g, (col:any) => ('0'+Math.min(255, Math.max(0, parseInt(col, 16) + amount)).toString(16)).substr(-2))+ cT;
+  return '#' + c.replace(/^#/, '').replace(/../g, (col:any) => ('0' + Math.min(255, Math.max(0, parseInt(col, 16) + amount)).toString(16)).substr(-2)) + cT;
 };
 
 export const contrastColor = (hex:any) => {
@@ -106,25 +100,23 @@ export const invertColor = (hex:any) => {
   if (hex_.length !== 6) {
     throw new Error('Invalid HEX color.');
   }
-  const r = (255 - parseInt(hex_.slice(0, 2), 16) ).toString(16);
+  const r = (255 - parseInt(hex_.slice(0, 2), 16)).toString(16);
   const g = (255 - parseInt(hex_.slice(2, 4), 16)).toString(16);
   const b = (255 - parseInt(hex_.slice(4, 6), 16)).toString(16);
   // pad each with zeros and return
-  return `#${  padZero(r)  }${padZero(g)  }${padZero(b)}`;
+  return `#${padZero(r)}${padZero(g)}${padZero(b)}`;
 };
 
-export const buildGradient = (colorFrom:string, colorTo:string  ) => {
-  return `linear-gradient(to bottom right,
-    ${modColor( colorFrom || '#add8e6', -50) }, 
-    ${modColor( colorFrom || '#add8e6', 0) },
-    ${modColor( colorFrom || '#add8e6', 0) },
-    ${modColor( colorTo, 50)}, 
-    ${modColor( colorTo, 50)}, 
-    ${modColor( colorTo, 50)},
-    ${modColor( colorTo, 25)}, 
-    ${modColor( colorTo, 0)}, 
-    ${modColor( colorTo, 0)})`;
-};
+export const buildGradient = (colorFrom:string, colorTo:string) => `linear-gradient(to bottom right,
+    ${modColor(colorFrom || '#add8e6', -50)}, 
+    ${modColor(colorFrom || '#add8e6', 0)},
+    ${modColor(colorFrom || '#add8e6', 0)},
+    ${modColor(colorTo, 50)}, 
+    ${modColor(colorTo, 50)}, 
+    ${modColor(colorTo, 50)},
+    ${modColor(colorTo, 25)}, 
+    ${modColor(colorTo, 0)}, 
+    ${modColor(colorTo, 0)})`;
 
 // /* google analytics log event */
 // export const analyticsLogEvent = (eventName: string, eventParams: any ) => {

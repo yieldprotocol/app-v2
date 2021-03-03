@@ -13,7 +13,7 @@ export const useCachedState = (key:string, initialValue:any) => {
         // If error also return initialValue and handle error - needs work
         return initialValue;
       }
-    }
+    },
   );
   const setValue = (value:any) => {
     try {
@@ -45,7 +45,7 @@ export const useDebounce = (value:any, delay:number) => {
         clearTimeout(handler);
       };
     },
-    [value, delay] /* Only re-call effect if value or delay changes */ 
+    [value, delay], /* Only re-call effect if value or delay changes */
   );
   return debouncedValue;
 };
