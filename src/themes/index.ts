@@ -23,7 +23,22 @@ export const yieldTheme = {
       darkBackground: {
         text: '#AAAAAA',
       },
+    },
+    input: { weight: 100 },
 
+  },
+  textInput: {
+    extend: ({ theme }: any) => (
+      theme.dark
+        ? `color: ${theme.global.colors.text.dark}`
+        : `color: ${theme.global.colors.text.light}`
+    ),
+  },
+  select: {
+    options: {
+      container: {
+        pad: undefined,
+      },
     },
   },
   button: {
@@ -47,9 +62,9 @@ export const yieldTheme = {
     border: {
       radius: '8px',
     },
-    font: {
-      color: 'text-xweak',
-    },
+    // font: {
+    //   color: 'text-xweak',
+    // },
   },
   grommet: {
     // @ts-ignore
