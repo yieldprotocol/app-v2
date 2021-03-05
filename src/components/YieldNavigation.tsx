@@ -6,6 +6,7 @@ import {
   Box,
   ThemeContext,
   ResponsiveContext,
+  defaultProps,
 } from 'grommet';
 
 const StyledLink = styled(NavLink)`
@@ -34,13 +35,15 @@ const YieldNavigation = (props: any) => {
   const loc = useLocation();
 
   const theme = useContext<any>(ThemeContext);
-  const textColor = theme.dark ? theme.global.colors.text.dark : theme.global.colors.text.light;
+  const textColor = theme.global.colors.brand;
+  // const textColor = theme.dark ? theme.global.colors.text.dark : theme.global.colors.text.light;
+  const textBack = theme.global.colors['light-1'];
 
   const activeStyle = {
     transform: 'scale(1.1)',
-    fontWeight: 'bold',
+    // fontWeight: 'bold',
     color: `${textColor}`,
-    background: `${theme.global.colors['light-2']}`,
+    background: `${textBack}`,
   } as CSSProperties;
 
   return (
@@ -55,7 +58,7 @@ const YieldNavigation = (props: any) => {
           activeStyle={activeStyle}
           isActive={(match, location:any) => (location.pathname.includes('borrow'))}
         >
-          <Text weight="bold" size={mobile ? 'small' : 'medium'}>
+          <Text size={mobile ? 'small' : 'medium'}>
             Borrow
           </Text>
         </StyledLink>
@@ -65,7 +68,6 @@ const YieldNavigation = (props: any) => {
           activeStyle={activeStyle}
         >
           <Text
-            weight="bold"
             size={mobile ? 'small' : 'medium'}
           > Lend
           </Text>
@@ -76,11 +78,22 @@ const YieldNavigation = (props: any) => {
           activeStyle={activeStyle}
         >
           <Text
-            weight="bold"
             size={mobile ? 'small' : 'medium'}
           > Pool
           </Text>
         </StyledLink>
+
+        <StyledLink
+          to="/market"
+          activeStyle={activeStyle}
+          isActive={() => false}
+        >
+          <Text
+            size={mobile ? 'small' : 'medium'}
+          > Market
+          </Text>
+        </StyledLink>
+
       </Box>
     </>
   );
