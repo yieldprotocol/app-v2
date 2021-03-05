@@ -2,3 +2,16 @@ export enum TradeType {
   BUY = 'BUY',
   SELL = 'SELL',
 }
+
+export interface IYieldSeries {
+  // reqd/fixed:
+  symbol: string;
+  displayName: string;
+  displayNameMobile: string;
+  maturity: number;
+  fyDaiAddress:string;
+  poolAddress:string;
+  // optional/calculated/mutable:
+  maturityDate?: Date;
+  apr?: string;
+}
