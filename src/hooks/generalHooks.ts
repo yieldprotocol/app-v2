@@ -30,6 +30,7 @@ export const useCachedState = (key:string, initialValue:any) => {
   return [storedValue, setValue] as const;
 };
 
+/* Hook to debounce input */
 export const useDebounce = (value:any, delay:number) => {
   const [debouncedValue, setDebouncedValue] = useState(value);
   useEffect(
