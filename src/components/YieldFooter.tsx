@@ -21,7 +21,7 @@ const YieldFooter = (props: any) => {
       <Box gap="medium" fill="horizontal">
 
         <Box onClick={() => setTestOpen(!testOpen)} alignSelf="end">
-          <Text size="xsmall"> {testOpen ? 'close test panel' : 'open test panel'} </Text>
+          <Text size="xsmall"> {testOpen ? 'test panel - ' : 'test panel + '} </Text>
         </Box>
 
         <Collapsible open={testOpen}>

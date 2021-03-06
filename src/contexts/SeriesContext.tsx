@@ -26,7 +26,7 @@ function seriesReducer(state:any, action:any) {
         ...state,
         activeSeries: action.payload,
       };
-    case 'updateSeries':
+    case 'seriesMap':
       return {
         ...state,
         seriesMap: action.payload,
@@ -47,9 +47,11 @@ const SeriesProvider = ({ children }:any) => {
       const _x = { ...x, isMature: () => (x.maturity < Math.round(new Date().getTime() / 1000)) };
       return acc.set(x.maturity, { ..._x });
     }, new Map());
-    updateState({ type: 'updateSeries', payload: staticDataMap });
+    updateState({ type: 'seriesMap', payload: staticDataMap });
 
-    console.log(staticDataMap);
+    /* update first active series logic */
+    updateState({ type: 'activeSeries', payload: staticDataMap.entries().next().value });
+
     return staticDataMap;
   }, []);
 

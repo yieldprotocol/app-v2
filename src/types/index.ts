@@ -15,3 +15,11 @@ export interface IYieldSeries {
   maturityDate?: Date;
   apr?: string;
 }
+
+export interface IYieldAsset {
+  // reqd/fixed:
+  symbol: string;
+  displayName: string;
+  displayNameMobile: string;
+  // optional/calculated/mutable:
+}
