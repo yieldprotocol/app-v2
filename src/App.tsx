@@ -33,7 +33,10 @@ function App() {
           {
           mobile
             ? <Text> = </Text>
-            : <Box onClick={() => setAccountOpen(true)}> Account and vaults</Box>
+            : (
+              <Box border pad="xsmall" onClick={() => setAccountOpen(true)}>
+                <Text size="small" color="text">Account and vaults </Text>
+              </Box>)
           }
         </Box>
       </Header>
