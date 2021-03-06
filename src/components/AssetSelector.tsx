@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, Select, Text } from 'grommet';
 
-import { IYieldSeries } from '../types';
+import { IYieldSeries, IYieldAsset } from '../types';
 
 const assetMap = new Map([
   ['DAI', { name: 'Dai', symbol: 'DAI', icon: null }],
@@ -9,12 +9,6 @@ const assetMap = new Map([
   ['DOGE', { name: 'Doge Coin', symbol: 'DOGE', icon: null }],
   ['UNI', { name: 'Uni coin', symbol: 'UNI', icon: null }],
 ]);
-
-const AssetOption = ({ symbol, icon }: any) => (
-  <Box pad="small">
-    <Text color="text"> {symbol} </Text>
-  </Box>
-);
 
 function AssetSelector() {
   // const { seriesState: { seriesMap, activeSeries }, seriesActions } = useContext(SeriesContext);
@@ -25,7 +19,6 @@ function AssetSelector() {
 
   return (
     <Box fill>
-
       <Select
         id="assetSelectc"
         name="assetSelect"

@@ -8,6 +8,7 @@ function SeriesSelector() {
   const { seriesState: { seriesMap, activeSeries }, seriesActions } = useContext(SeriesContext);
 
   const options: any[] = Array.from(seriesMap.values());
+
   const optionText = (series: IYieldSeries) => `${series.displayName}  ● APR: ${series.apr}%`;
 
   return (

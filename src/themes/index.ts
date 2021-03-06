@@ -11,9 +11,13 @@ export const yieldTheme = {
       selected: '#3f53d9',
       'accent-1': '#FFCA58',
       'accent-2': '#81FCED',
+      text: {
+        dark: '#EEEEEE',
+        light: '#555555',
+      },
       'text-weak': {
         dark: '#DDDDDD',
-        light: '#AAAAAA',
+        light: '#999999',
       },
       'text-xweak': {
         dark: '#999999',
@@ -56,6 +60,7 @@ export const yieldTheme = {
       large: {
         border: { radius: '8px' },
       },
+
     },
   },
   input: {
