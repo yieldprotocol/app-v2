@@ -31,11 +31,7 @@ const StyledLink = styled(NavLink)`
   }
 `;
 
-interface IYieldNavigation {
-  callbackFn?: any;
-}
-
-const YieldNavigation = ({ callbackFn }: IYieldNavigation) => {
+const YieldMobileNavigation = (props: any) => {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
   const loc = useLocation();
 
@@ -50,30 +46,46 @@ const YieldNavigation = ({ callbackFn }: IYieldNavigation) => {
   } as CSSProperties;
 
   const linksArr = [
-    { label: 'Borrow', to: '/borrow' },
-    { label: 'Lend', to: '/lend' },
-    { label: 'Pool', to: '/pool' },
-    { label: 'Market', to: '/market' },
+    { label: 'Borrow', to: '/borrow', isActive: true },
+    { label: 'Lend', to: '/lend', isActive: true },
+    { label: 'Pool', to: '/pool', isActive: true },
+    { label: 'Market', to: '/market', isActive: false },
+
   ];
 
   return (
 
-    <Box
-      direction={mobile ? 'column' : 'row'}
-      gap="medium"
-      align="center"
-      justify="center"
-      fill={mobile}
-    >
-      { linksArr.map((x: any) => (
-        <StyledLink to={x.to} activeStyle={activeStyle} key={x.label} onClick={() => callbackFn()}>
-          <Text color={mobile ? 'text' : undefined} size={mobile ? 'small' : undefined}> {x.label} </Text>
-        </StyledLink>
-      ))}
-    </Box>
+    <>
+      {
+        !mobile &&
+        <Box
+          direction="row"
+          gap="medium"
+          align="center"
+          justify="center"
+        >
+          { linksArr.map((x: any) => (
+            <StyledLink to={x.to} activeStyle={activeStyle} key={x.label}>
+              <Text> {x.label} </Text>
+            </StyledLink>
+          ))}
+        </Box>
+      }
+      {
+        mobile &&
+        <Layer>
+          <Box align="center">
+            { linksArr.map((x: any) => (
+              <NavLink to={x.to} activeStyle={activeStyle} key={x.label}>
+                <Text> {x.label} </Text>
+              </NavLink>
+            ))}
+          </Box>
+        </Layer>
+      }
+
+    </>
   );
 };
 
-YieldNavigation.defaultProps = { callbackFn: () => null };
-
-export default YieldNavigation;
+export default YieldMobileNavigation;

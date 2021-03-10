@@ -18,8 +18,27 @@ export interface IYieldSeries {
 
 export interface IYieldAsset {
   // reqd/fixed:
+  id: number;
   symbol: string;
   displayName: string;
   displayNameMobile: string;
+  address: string;
   // optional/calculated/mutable:
+}
+
+export interface IYieldVault {
+  id: string;
+  asset: IYieldAsset;
+  series: IYieldSeries;
+  collateralBalance: string;
+  assetBalance: string;
+}
+
+export interface IMenuProps {
+  toggleMenu: ()=>void;
+}
+
+export enum View {
+  account = 'ACCOUNT',
+  vaults = 'VAULTS',
 }

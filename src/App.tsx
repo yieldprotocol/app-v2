@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import { Box, Button, Footer, Header, Main, Text, ThemeContext, ResponsiveContext } from 'grommet';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -14,45 +14,30 @@ import Lend from './views/Lend';
 import Pool from './views/Pool';
 
 import YieldNavigation from './components/YieldNavigation';
-import AccountLayer from './layers/AccountLayer';
+import MenuLayer from './layers/MenuLayer';
 import YieldFooter from './components/YieldFooter';
+import Vault from './views/Vault';
+import YieldHeader from './components/YieldHeader';
 
 function App() {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
-  const { state: chainState, actions } = useContext(ChainContext);
-
-  const [accountOpen, setAccountOpen] = useState<boolean>(false);
+  const [menuLayerOpen, setMenuLayerOpen] = useState<boolean>(false);
 
   return (
     <Box fill>
-      <Header pad="medium" height="xsmall" justify="between">
-        { !mobile && <Box background="brand" pad="xsmall"> <Text> YIELD</Text> </Box> }
-        <YieldNavigation />
+      <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
 
-        <Box>
-          {
-          mobile
-            ? <Text> = </Text>
-            : (
-              <Box border pad="xsmall" onClick={() => setAccountOpen(true)}>
-                <Text size="small" color="text">Account and vaults </Text>
-              </Box>)
-          }
-        </Box>
-      </Header>
-
-      <Main flex overflow="auto">
+      <Box flex={!mobile} overflow="auto" margin={{ top: 'xlarge' }}>
         <ToastContainer />
-        { accountOpen && <AccountLayer close={() => setAccountOpen(false)} />}
-
+        { menuLayerOpen && <MenuLayer toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} />}
         <Switch>
-          <Route path="/borrow/:series?/:amnt?"> <Borrow /> </Route>
-          <Route path="/lend/:series?/:amnt?"> <Lend /> </Route>
-          <Route path="/pool/:series?/:amnt?"> <Pool /> </Route>
+          <Route path="/borrow/:series?/:asset?/:amnt?"> <Borrow /> </Route>
+          <Route path="/lend/:series?/:asset?/:amnt?"> <Lend /> </Route>
+          <Route path="/pool/:series?/:asset?/:amnt?"> <Pool /> </Route>
+          <Route path="/vault/:vault?/:series?"> <Vault /> </Route>
           <Route path="/*"> 404 </Route>
         </Switch>
-
-      </Main>
+      </Box>
 
       <YieldFooter />
 

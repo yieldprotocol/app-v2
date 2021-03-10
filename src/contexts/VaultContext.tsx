@@ -2,15 +2,38 @@ import React, { useState, useContext, useEffect, useReducer, useCallback } from 
 import { ethers } from 'ethers';
 import { toast } from 'react-toastify';
 
-import { IYieldSeries } from '../types';
+import { IYieldAsset, IYieldSeries, IYieldVault } from '../types';
 
 import { staticSeriesData } from './yieldEnv.json';
 
-const SeriesContext = React.createContext<any>({});
+const testAssetMap = new Map([
+  [1, { id: 1, displayName: 'Eth', symbol: 'ETH', address: null }],
+  [2, { id: 2, displayName: 'Dai', symbol: 'DAI', address: null }],
+  [3, { id: 3, displayName: 'USD Coin', symbol: 'USDC', address: null }],
+  [4, { id: 4, displayName: 'Doge Coin', symbol: 'DOGE', address: null }],
+]);
+
+const testVaultMap = new Map([
+  ['0x143a165a53968125b0e179b7', { id: '0x143a165a53968125b0e179b7', assetId: 2, collateralId: 1, collateralBalance: 234.12312, assetValue: 23.344 }],
+  ['0x89480c92dfae8210f7616d2c', { id: '0x89480c92dfae8210f7616d2c', assetId: 3, collateralId: 1, collateralBalance: 1211.12312, assetValue: 6786.344 }],
+  ['0x7b4c24b05f868ef47e3d8a49', { id: '0x7b4c24b05f868ef47e3d8a49', assetId: 4, collateralId: 1, collateralBalance: 34.12312, assetValue: 678.344 }],
+]);
+
+const VaultContext = React.createContext<any>({});
 
 const initState = {
   seriesMap: new Map() as Map< string, IYieldSeries>,
+
+  // assetMap: new Map() as Map<string, IYieldAsset>,
+  assetMap: testAssetMap,
+
+  // vaultMap: new Map() as Map<string, IYieldVault>,
+  vaultMap: testVaultMap, // for testing only
+
   activeSeries: null as IYieldSeries | null,
+  activeAsset: null as IYieldAsset | null,
+  activeVault: null as IYieldVault | null,
+
   seriesLoading: false as boolean,
 };
 
@@ -31,14 +54,24 @@ function seriesReducer(state:any, action:any) {
         ...state,
         seriesMap: action.payload,
       };
+    case 'assetMap':
+      return {
+        ...state,
+        assetMap: action.payload,
+      };
+    case 'vaultMap':
+      return {
+        ...state,
+        vaultMap: action.payload,
+      };
 
     default:
       return state;
   }
 }
 
-const SeriesProvider = ({ children }:any) => {
-  const [seriesState, updateState] = useReducer(seriesReducer, initState);
+const VaultProvider = ({ children }:any) => {
+  const [vaultState, updateState] = useReducer(seriesReducer, initState);
 
   /* Populate the series data with any available the cached/static info */
   const _loadStaticSeriesData = useCallback((seriesArr:IYieldSeries[]) => {
@@ -50,7 +83,7 @@ const SeriesProvider = ({ children }:any) => {
     updateState({ type: 'seriesMap', payload: staticDataMap });
 
     /* update first active series logic */
-    updateState({ type: 'activeSeries', payload: staticDataMap.entries().next().value });
+    updateState({ type: 'activeSeries', payload: staticDataMap.values().next().value });
 
     return staticDataMap;
   }, []);
@@ -69,16 +102,16 @@ const SeriesProvider = ({ children }:any) => {
     _loadStaticSeriesData(staticSeriesData);
   }, [_loadStaticSeriesData]);
 
-  const seriesActions = {
+  const vaultActions = {
     setActiveSeries: (series:IYieldSeries) => updateState({ type: 'activeSeries', payload: series }),
     updateSeries: (seriesList: IYieldSeries[]) => updateSeries(seriesList),
   };
 
   return (
-    <SeriesContext.Provider value={{ seriesState, seriesActions }}>
+    <VaultContext.Provider value={{ vaultState, vaultActions }}>
       {children}
-    </SeriesContext.Provider>
+    </VaultContext.Provider>
   );
 };
 
-export { SeriesContext, SeriesProvider };
+export { VaultContext, VaultProvider };

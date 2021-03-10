@@ -22,6 +22,7 @@ module.exports = {
       }],
       "object-curly-spacing": ["warn", "always"], 
       "object-curly-newline": "off",
+      "operator-linebreak" : "off",
 
       "max-len": [
         "warn",

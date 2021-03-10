@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, BoxProps, Text } from 'grommet';
+import { Box, BoxProps } from 'grommet';
 
 interface IInputWrap extends BoxProps {
   action?: ()=>void;
@@ -10,15 +10,13 @@ function InputWrap({ action, children, ...props }: IInputWrap) {
   return (
     <Box
       {...props}
-      // onClick={() => action && action()}
-      hoverIndicator={{ size: 'large' }}
       direction="row"
-      round="xxsmall"
+      round="xsmall"
       border
       pad={{ horizontal: 'small' }}
       align="center"
     >
-      {children}
+      { children }
     </Box>
   );
 }
