@@ -18,6 +18,7 @@ import MenuLayer from './layers/MenuLayer';
 import YieldFooter from './components/YieldFooter';
 import Vault from './views/Vault';
 import YieldHeader from './components/YieldHeader';
+import Markets from './views/Markets';
 
 function App() {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -35,6 +36,7 @@ function App() {
           <Route path="/lend/:series?/:asset?/:amnt?"> <Lend /> </Route>
           <Route path="/pool/:series?/:asset?/:amnt?"> <Pool /> </Route>
           <Route path="/vault/:vault?/:series?"> <Vault /> </Route>
+          <Route path="/markets"> <Markets /> </Route>
           <Route path="/*"> 404 </Route>
         </Switch>
       </Box>

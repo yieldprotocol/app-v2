@@ -138,6 +138,16 @@ export const yieldTheme = {
     //   color: 'text-xweak',
     // },
   },
+  table: {
+    size: 'small',
+  },
+  list: {
+    item: {
+      pad: { horizontal: 'xsmall', vertical: undefined },
+      background: 'background',
+      border: false,
+    },
+  },
   grommet: {
     // @ts-ignore
     extend: () => css`

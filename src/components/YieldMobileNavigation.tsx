@@ -49,7 +49,7 @@ const YieldMobileNavigation = (props: any) => {
     { label: 'Borrow', to: '/borrow', isActive: true },
     { label: 'Lend', to: '/lend', isActive: true },
     { label: 'Pool', to: '/pool', isActive: true },
-    { label: 'Market', to: '/market', isActive: false },
+    { label: 'Markets', to: '/markets', isActive: false },
 
   ];
 
