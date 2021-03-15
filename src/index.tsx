@@ -24,7 +24,13 @@ function getLibrary(provider: ethers.providers.ExternalProvider, connector: any)
 /* Init the calling web3 environment */
 const Web3FallbackProvider = createWeb3ReactRoot('fallback');
 function getCallLibrary(provider: any, connector: any) {
-  const library = new ethers.providers.InfuraProvider(provider.chainId, '646dc0f33d2449878b28e0afa25267f6');
+  let library: ethers.providers.JsonRpcProvider;
+  if (provider.chainId === 31337) {
+    library = new ethers.providers.JsonRpcProvider(process.env.REACT_APP_RPC_URL_31337 as string);
+    library.pollingInterval = 12000;
+    return library;
+  }
+  library = new ethers.providers.InfuraProvider(provider.chainId, '646dc0f33d2449878b28e0afa25267f6');
   library.pollingInterval = 12000;
   return library;
 }

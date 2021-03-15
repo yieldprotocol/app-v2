@@ -10,9 +10,11 @@ import {
 import { toast } from 'react-toastify';
 import { ChainContext } from '../contexts/ChainContext';
 
+import { useChainTx } from '../hooks/transactionHooks';
+
 const YieldFooter = (props: any) => {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
-  const { state: chainState, actions } = useContext(ChainContext);
+  const { chainState, chainActions } = useContext(ChainContext);
   const [testOpen, setTestOpen] = useState<boolean>(false);
 
   return (
@@ -26,8 +28,8 @@ const YieldFooter = (props: any) => {
 
         <Collapsible open={testOpen}>
           <Box direction="row" gap="small">
-            <Button type="button" onClick={() => actions.connect('injected')} label="Connect web3" />
-            <Button type="button" onClick={() => actions.disconnect()} label="Disconnect web3" />
+            <Button type="button" onClick={() => chainActions.connect('injected')} label="Connect web3" />
+            <Button type="button" onClick={() => chainActions.disconnect()} label="Disconnect web3" />
             <p>{chainState.account}</p>
             <p>{chainState.chainId}</p>
             <Button primary onClick={() => toast('Transaction complete')} label="Notify Example" />

@@ -1,4 +1,9 @@
 {
+  "contractList" : [
+    "Cauldron",
+    "Ladle",
+    "Witch"
+  ],
 
   "staticAssetData" : [
     {
@@ -19,7 +24,6 @@
       "address" : "0x6B175474E89094C44Da98b954EedeAC495271d0F",
       "name":"DOGE Coin"
     }
-
   ],
 
   "staticSeriesData" : [
@@ -30,7 +34,6 @@
       "poolAddress": "0x2b004AF29102Ab5f1ca977a45AF24A26eaa683Ca",
       "displayName": "December 2020",
       "displayNameMobile": "Dec 2020",
-
       "apr": "3.2"
     },
     {
@@ -40,7 +43,6 @@
       "poolAddress": "0x08cc239a994A10118CfdeEa9B849C9c674C093d3",
       "displayName": "March 2021",
       "displayNameMobile": "Mar 2021",
-
       "apr": "2.12"
     },
     {
@@ -50,7 +52,6 @@
       "poolAddress": "0xe10dEe848fD3Cf7eAC7Da5c59a5060d99Efd93BA",
       "displayName": "June 2021",
       "displayNameMobile": "Jun 2021",
-
       "apr": "3.23"
     },
     {
@@ -60,7 +61,6 @@
       "poolAddress": "0x06e9493BfA938a5630b6Eee116eD01A31Ec7dDA7",
       "displayName": "September 2021",
       "displayNameMobile": "Sep 2021",
-
       "apr": "4.34"
     },
     {
@@ -70,28 +70,8 @@
       "poolAddress": "0xBa51e4Df86333D53Df3c734D12038722EA9Bf559",
       "displayName": "December 2021",
       "displayNameMobile": "Dec 2021",
-
       "apr": "5.45"
     }
-  ],
-
-  "contractsList" : [
-    "Controller",
-    "Treasury",
-    "Dai",
-    "Vat",
-    "ProxyRegistry",
-    "ProxyFactory",
-    "GetCdps",
-    "DssCdpManager",
-    "PoolProxy",
-    "BorrowProxy",
-    "ImportProxy",
-    "ImportCdpProxy", 
-    "RollProxy", 
-    "USDCProxy",
-    "USDC", 
-    "DssPsm"
   ],
 
   "addresses" : { 
@@ -172,6 +152,11 @@
         "USDC":           "0xF47e7B0b911523aB30D282Cfa229373a964e1Bb7",
         "USDCProxy":      "0xA5ABf416e95bb34c11C6F5348951239689fE909e",
         "DssPsm":         "0x5414e1ACBe734a4a71901e35Edb5eF8Dd06e56c2"
+    },
+    "31337" : {
+      "Cauldron": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
+      "Ladle" : "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
+      "Witch" : "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318"
     }
   }
 }
