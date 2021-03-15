@@ -51,9 +51,13 @@ function txReducer(state:any, action:any) {
       return {
         ...state,
         /* remove the tx from the pending tx list */
-        pendingTxs: state.pendingTxs?.filter((x:any) => x.tx.hash !== (action.payload.receipt.transactionHash || action.payload.receipt.hash)),
+        pendingTxs: state.pendingTxs
+          .filter((x:any) => x.tx.hash !== (action.payload.receipt.transactionHash || action.payload.receipt.hash)),
         /* set the last completed tx to the one just finished */
-        lastCompletedTx: { ...action.payload.receipt, transactionHash: action.payload.receipt.transactionHash || action.payload.receipt.hash },
+        lastCompletedTx: { 
+          ...action.payload.receipt,
+          transactionHash: action.payload.receipt.transactionHash || action.payload.receipt.hash 
+        },
         /* if the txCode is the same as the current activeProcces,. then reset that process */
         txProcessActive: (action.payload.txCode === state?.txProcessActive) ? null : state?.txProcessActive,
       };
