@@ -100,7 +100,7 @@ const Borrow = () => {
             gap="medium"
             direction="row"
             alignSelf="center"
-
+            key="tertiary"
           >
             <FiArrowLeftCircle />
             <Text size="small"> back to vault: {routerState.from} </Text>
