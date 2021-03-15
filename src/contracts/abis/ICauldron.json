@@ -1,0 +1,270 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "bytes12",
+        "name": "vault",
+        "type": "bytes12"
+      }
+    ],
+    "name": "_grab",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes12",
+        "name": "vault",
+        "type": "bytes12"
+      },
+      {
+        "internalType": "int128",
+        "name": "ink",
+        "type": "int128"
+      },
+      {
+        "internalType": "int128",
+        "name": "art",
+        "type": "int128"
+      }
+    ],
+    "name": "_slurp",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint128",
+            "name": "art",
+            "type": "uint128"
+          },
+          {
+            "internalType": "uint128",
+            "name": "ink",
+            "type": "uint128"
+          }
+        ],
+        "internalType": "struct DataTypes.Balances",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes12",
+        "name": "vault",
+        "type": "bytes12"
+      },
+      {
+        "internalType": "int128",
+        "name": "ink",
+        "type": "int128"
+      },
+      {
+        "internalType": "int128",
+        "name": "art",
+        "type": "int128"
+      }
+    ],
+    "name": "_stir",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint128",
+            "name": "art",
+            "type": "uint128"
+          },
+          {
+            "internalType": "uint128",
+            "name": "ink",
+            "type": "uint128"
+          }
+        ],
+        "internalType": "struct DataTypes.Balances",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes6",
+        "name": "assetsDd",
+        "type": "bytes6"
+      }
+    ],
+    "name": "assets",
+    "outputs": [
+      {
+        "internalType": "contract IERC20",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes12",
+        "name": "vault",
+        "type": "bytes12"
+      }
+    ],
+    "name": "balances",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint128",
+            "name": "art",
+            "type": "uint128"
+          },
+          {
+            "internalType": "uint128",
+            "name": "ink",
+            "type": "uint128"
+          }
+        ],
+        "internalType": "struct DataTypes.Balances",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes12",
+        "name": "vault",
+        "type": "bytes12"
+      }
+    ],
+    "name": "destroy",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes6",
+        "name": "baseId",
+        "type": "bytes6"
+      }
+    ],
+    "name": "rateOracles",
+    "outputs": [
+      {
+        "internalType": "contract IOracle",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes6",
+        "name": "seriesId",
+        "type": "bytes6"
+      }
+    ],
+    "name": "series",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "contract IFYToken",
+            "name": "fyToken",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes6",
+            "name": "baseId",
+            "type": "bytes6"
+          },
+          {
+            "internalType": "uint32",
+            "name": "maturity",
+            "type": "uint32"
+          }
+        ],
+        "internalType": "struct DataTypes.Series",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes12",
+        "name": "vault",
+        "type": "bytes12"
+      }
+    ],
+    "name": "timestamps",
+    "outputs": [
+      {
+        "internalType": "uint32",
+        "name": "",
+        "type": "uint32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes12",
+        "name": "vault",
+        "type": "bytes12"
+      }
+    ],
+    "name": "vaults",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "owner",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes6",
+            "name": "seriesId",
+            "type": "bytes6"
+          },
+          {
+            "internalType": "bytes6",
+            "name": "ilkId",
+            "type": "bytes6"
+          }
+        ],
+        "internalType": "struct DataTypes.Vault",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

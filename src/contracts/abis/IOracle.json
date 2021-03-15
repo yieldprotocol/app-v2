@@ -1,0 +1,47 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "maturity",
+        "type": "uint32"
+      }
+    ],
+    "name": "accrual",
+    "outputs": [
+      {
+        "internalType": "uint128",
+        "name": "",
+        "type": "uint128"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "maturity",
+        "type": "uint32"
+      }
+    ],
+    "name": "record",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "spot",
+    "outputs": [
+      {
+        "internalType": "uint128",
+        "name": "",
+        "type": "uint128"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]
