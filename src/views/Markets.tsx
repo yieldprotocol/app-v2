@@ -38,6 +38,7 @@ const Markets = () => {
           justify="between"
           fill="horizontal"
           align="center"
+          gap="large"
         >
           <Text size={mobile ? 'small' : undefined}> Markets overview</Text>
           <Box border pad="xsmall">
