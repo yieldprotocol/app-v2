@@ -1,3 +1,5 @@
+import { ContractFactory } from 'ethers';
+
 export enum TradeType {
   BUY = 'BUY',
   SELL = 'SELL',
@@ -11,6 +13,9 @@ export interface IYieldSeries {
   maturity: number;
   fyDaiAddress:string;
   poolAddress:string;
+
+  contract?: ContractFactory;
+
   // optional/calculated/mutable:
   maturityDate?: Date;
   apr?: string;
@@ -32,6 +37,16 @@ export interface IYieldVault {
   series: IYieldSeries;
   collateralBalance: string;
   assetBalance: string;
+}
+
+export interface IYieldUser {
+  // reqd/fixed:
+  id: number;
+  symbol: string;
+  displayName: string;
+  displayNameMobile: string;
+  address: string;
+  // optional/calculated/mutable:
 }
 
 export interface IMenuProps {

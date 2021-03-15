@@ -53,7 +53,7 @@ const initState = {
   connectOnLoad: true as boolean,
 
   /* Connected Contract Maps */
-  baseMap: new Map<string, { name: string, callContract: ContractFactory, txContract: ContractFactory }>(),
+  baseContractMap: new Map<string, { id: string, contract: ContractFactory }>(),
   assetMap: new Map<string, IYieldAsset>(),
   seriesMap: new Map<string, IYieldSeries>(),
 
@@ -76,7 +76,7 @@ function chainReducer(state: any, action: any) {
     case 'account': return { ...state, account: onlyIfChanged(action) };
     case 'web3Active': return { ...state, web3Active: onlyIfChanged(action) };
 
-    case 'baseMap': return { ...state, baseMap: onlyIfChanged(action) };
+    case 'baseContractMap': return { ...state, baseContractMap: onlyIfChanged(action) };
     case 'assetMap': return { ...state, assetMap: onlyIfChanged(action) };
     case 'seriesMap': return { ...state, seriesMap: onlyIfChanged(action) };
 
@@ -134,19 +134,25 @@ const ChainProvider = ({ children }: any) => {
   }, [chainId, fallbackActivate, lastChainId]);
 
   /**
-   * Update on FALLBACK connection on network changes (id/library)
+   * Update on FALLBACK connection/state on network changes (id/library)
    */
+  // TODO add in caching
   useEffect(() => {
     fallbackLibrary && updateState({ type: 'fallbackProvider', payload: fallbackLibrary });
     fallbackChainId && console.log('fallback chainID :', fallbackChainId);
 
     if (fallbackLibrary && fallbackChainId) {
-      /* Get the instance of the Cauldron contract */
+      /* Get the instance of the Base contracts */
       const addrs = (yieldEnv.addresses as any)[fallbackChainId];
-      const Cauldron = contracts.Cauldron__factory.connect(
-        addrs.Cauldron,
-        fallbackLibrary,
-      );
+      const Cauldron = contracts.Cauldron__factory.connect(addrs.Cauldron, fallbackLibrary);
+      const Ladle = contracts.Ladle__factory.connect(addrs.Ladle, fallbackLibrary);
+
+      /* Update the baseContracts state */
+      const newBaseMap = chainState.baseContractMap;
+      newBaseMap.set('Cauldron', { ...{ contract: Cauldron } });
+      newBaseMap.set('Ladle', { ...{ contract: Ladle } });
+      updateState({ type: 'baseMap', payload: newBaseMap });
+
       (async () => {
         await Promise.all([
           /* Update the available assetsMap based on Cauldron events, */
@@ -160,7 +166,7 @@ const ChainProvider = ({ children }: any) => {
                 {
                   id: assetId,
                   address: asset,
-                  callContract: contracts.ERC20__factory.connect(asset, fallbackLibrary),
+                  contract: contracts.ERC20__factory.connect(asset, fallbackLibrary),
                 },
               );
               return _map;
@@ -181,7 +187,7 @@ const ChainProvider = ({ children }: any) => {
                   id: seriesId,
                   base: baseId,
                   address: fyToken,
-                  callContract: contracts.FYToken__factory.connect(fyToken, fallbackLibrary),
+                  contract: contracts.FYToken__factory.connect(fyToken, fallbackLibrary),
                 },
               );
               return _map;
@@ -192,10 +198,10 @@ const ChainProvider = ({ children }: any) => {
         ]);
       })();
     }
-  }, [fallbackChainId, chainState.assetMap, fallbackLibrary, chainState.seriesMap]);
+  }, [fallbackChainId, chainState.assetMap, fallbackLibrary, chainState.seriesMap, chainState.baseContractMap]);
 
   /**
-   * Update on PRIMARY connection network changes (likely via metamask/walletConnect)
+   * Update on PRIMARY connection any network changes (likely via metamask/walletConnect)
    */
   useEffect(() => {
     console.log('Metamask/WalletConnect Active: ', active);
@@ -204,20 +210,7 @@ const ChainProvider = ({ children }: any) => {
     updateState({ type: 'provider', payload: library || null });
     updateState({ type: 'account', payload: account || null });
     updateState({ type: 'signer', payload: library?.getSigner(account!) || null });
-
-    if (library && chainId) {
-      /* Get the instance of the Cauldron contract */
-      const addrs = (yieldEnv.addresses as any)[chainId];
-      const Cauldron = contracts.Cauldron__factory.connect(
-        addrs.Cauldron,
-        library.getSigner(),
-      );
-
-      updateState({ type: 'baseMap', payload: chainState.baseMap });
-      console.log(chainState.assetMap, chainState.seriesMap);
-      // console.log(library.getSigner());
-    }
-  }, [active, account, chainId, library, chainState.assetMap, chainState.seriesMap]);
+  }, [active, account, chainId, library]);
 
   /* Try connect automatically to an injected provider on first load */
   const [tried, setTried] = useState<boolean>(false);

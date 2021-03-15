@@ -86,7 +86,6 @@ const TxProvider = ({ children }:any) => {
 
   /* action on successfull or failed transaction */
   const txComplete = () => {
-
   };
 
   /* handle case when user or wallet rejects the tx (before submission) */
