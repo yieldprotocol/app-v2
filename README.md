@@ -1,13 +1,14 @@
 ## Yield app v2 ## 
 yarn && yarn start
 
-ec2-34-224-38-26.compute-1.amazonaws.com
+setup a new metamask network with --
+url: https://kcdou8hqih.execute-api.us-east-1.amazonaws.com
+chainId: 31337
 
+aws_hardat instance via API:   https://kcdou8hqih.execute-api.us-east-1.amazonaws.com
+aws_hardat instance:  34.224.38.26:8545
 
-34.224.38.26
-
-
-Run on AWS >   34.224.38.26:8545
+// manage aws_hardhat
 sign in: 
 `ssh -i aws_hardhat.pem ubuntu@ec2-34-224-38-26.compute-1.amazonaws.com`
 Start a hardhat node: 

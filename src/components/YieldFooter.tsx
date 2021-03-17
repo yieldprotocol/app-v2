@@ -18,7 +18,12 @@ import { Cauldron, Ladle } from '../contracts';
 const YieldFooter = (props: any) => {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
   const { chainState, chainActions } = useContext(ChainContext);
-  const { account, chainId, contractMap } = chainState;
+  const { account, chainId, contractMap, seriesMap, assetMap } = chainState;
+
+  const seriesList = Array.from(seriesMap.values()) as any;
+  const assetList = Array.from(assetMap.values()) as any;
+
+  console.log(assetList);
 
   const cauldron = contractMap.get('Cauldron') as Cauldron;
   const ladle = contractMap.get('Ladle') as Ladle;
@@ -46,15 +51,15 @@ const YieldFooter = (props: any) => {
                 () => multiCall(
                   ladle,
                   [
-                    { fnName: 'build', args: ['0xf4f617882cb7f4f617882312', utils.arrayify('0x172a0a114016'), utils.arrayify('0x6c656015e091')] },
-                    { fnName: 'build', args: ['0xf4f617882cb7f4f617882c45', utils.arrayify('0x172a0a114016'), utils.arrayify('0x6c656015e091')] },
+                    { fnName: 'build', args: ['0xf4f617882cb7f4f617882312', seriesList[0].seriesId, assetList[1].id] },
+                    { fnName: 'build', args: ['0xf4f617882cb7f4f617882c45', seriesList[1].seriesId, assetList[2].id] },
                   ],
                 )
               }
               label="multicall"
             />
             <Button primary onClick={() => toast('Transaction complete')} label="Notify Example" />
-            <Button primary onClick={() => transact(ladle, 'build', ['0xf4f617882cb7f4f617882cb7', utils.arrayify('0x172a0a114016'), utils.arrayify('0x6c656015e091')])} label="Ladle interact" />
+            <Button primary onClick={() => transact(ladle, 'build', ['0xf4f617882cb7f4f617882cb7', seriesList[0].seriesId, assetList[1].id])} label="Ladle interact" />
             <Button primary onClick={() => console.log(utils.arrayify('0xf4f617882cb7'))} label="Notify Example" />
           </Box>
         </Collapsible>
