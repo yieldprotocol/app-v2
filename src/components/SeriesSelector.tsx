@@ -1,12 +1,13 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, ResponsiveContext, Select, Text, ThemeContext } from 'grommet';
 
-import { VaultContext } from '../contexts/VaultContext';
+import { ChainContext } from '../contexts/ChainContext';
 import { IYieldSeries } from '../types';
 
 function SeriesSelector() {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
-  const { vaultState: { seriesMap, activeSeries }, vaultActions } = useContext(VaultContext);
+  const { chainState: { seriesMap, activeSeries }, chainActions } = useContext(ChainContext);
+
   const [options, setOptions] = useState<IYieldSeries[]>([]);
   const optionText = (series: IYieldSeries) => `${series?.displayName}  ● APR: ${series?.apr}%` || '';
 
@@ -26,7 +27,7 @@ function SeriesSelector() {
         value={activeSeries}
         labelKey={(x:any) => optionText(x)}
         valueLabel={<Box pad={mobile ? 'medium' : 'small'}><Text size="small" color="text"> {optionText(activeSeries)} </Text></Box>}
-        onChange={({ option }: any) => vaultActions.setActiveSeries(option)}
+        onChange={({ option }: any) => chainActions.setActiveSeries(option)}
         // eslint-disable-next-line react/no-children-prop
         children={(x:any) => <Box pad={mobile ? 'medium' : 'small'} gap="small" direction="row"> <Text color="text" size="small"> { optionText(x) } </Text> </Box>}
       />
