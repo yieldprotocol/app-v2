@@ -13,6 +13,8 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { ChainProvider } from './contexts/ChainContext';
 import { VaultProvider } from './contexts/VaultContext';
+import { TxProvider } from './contexts/TxContext';
+import { UserProvider } from './contexts/UserContext';
 
 /* Init the signing web3 environment */
 function getLibrary(provider: ethers.providers.ExternalProvider, connector: any) {
@@ -42,9 +44,13 @@ ReactDOM.render(
         <Web3ReactProvider getLibrary={getLibrary}>
           <ChainProvider>
             <VaultProvider>
-              <Grommet theme={deepMerge(base, yieldTheme)} full>
-                <App />
-              </Grommet>
+              <UserProvider>
+                <TxProvider>
+                  <Grommet theme={deepMerge(base, yieldTheme)} full>
+                    <App />
+                  </Grommet>
+                </TxProvider>
+              </UserProvider>
             </VaultProvider>
           </ChainProvider>
         </Web3ReactProvider>

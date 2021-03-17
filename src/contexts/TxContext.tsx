@@ -8,45 +8,47 @@ import { toast } from 'react-toastify';
 const TxContext = React.createContext<any>({});
 
 const initState = {
-  requestedSigs: [] as IYieldSig[],
+  pendingSigs: [] as IYieldSignature[],
   pendingTxs: [] as IYieldTx[],
-  currentTxs: [] as IYieldTx[],
+  currentProcesses: [] as IYieldProcess[],
   lastCompletedTx: null as IYieldTx | null,
   useFallbackTxs: false,
 };
 
-interface IYieldSig {
-  sigId: string;
+/* yieldProcesses are collections of txs and signatures that are tracked together */
+interface IYieldProcess {
+  pid: string;
+  sigs: IYieldSignature[];
+  txs: IYieldTx[];
+  state: string;
+}
+
+interface IYieldSignature {
+  id: string;
+  pid?:number|null;
 }
 
 interface IYieldTx extends ethers.Transaction {
-  txId: string;
+  id: string;
+  pid?: number|null;
 }
 
 function txReducer(state:any, action:any) {
   switch (action.type) {
-    case 'setTxProcessActive':
+    case 'newProcess':
       return {
         ...state,
         /* set tthe current active process */
-        txProcessActive: action.payload.txCode,
+        currentProcesses: action.payload.process,
         /* set the list of sigs required for the current process */
         requestedSigs: action.payload.sigs.map((x:any) => ({ ...x })),
       };
-    case 'txPending':
+    case 'updateProcess':
       return {
         ...state,
         /* add the tx to the list of pending txs */
         pendingTxs: [...state.pendingTxs, action.payload],
       };
-    case 'forceClear':
-      return {
-        ...state,
-        /* add the tx to the list of pending txs */
-        pendingTxs: [],
-        txProcessActive: null,
-      };
-
     case 'txComplete':
       return {
         ...state,
@@ -54,9 +56,9 @@ function txReducer(state:any, action:any) {
         pendingTxs: state.pendingTxs
           .filter((x:any) => x.tx.hash !== (action.payload.receipt.transactionHash || action.payload.receipt.hash)),
         /* set the last completed tx to the one just finished */
-        lastCompletedTx: { 
+        lastCompletedTx: {
           ...action.payload.receipt,
-          transactionHash: action.payload.receipt.transactionHash || action.payload.receipt.hash 
+          transactionHash: action.payload.receipt.transactionHash || action.payload.receipt.hash,
         },
         /* if the txCode is the same as the current activeProcces,. then reset that process */
         txProcessActive: (action.payload.txCode === state?.txProcessActive) ? null : state?.txProcessActive,
@@ -89,34 +91,43 @@ const TxProvider = ({ children }:any) => {
   };
 
   /* handle case when user or wallet rejects the tx (before submission) */
-  const handleRejection = (error:any) => {
-    /* If user cancelled/rejected the tx, then silence the errors */
-    if (error.code === 4001) {
+  const handleTxRejection = (err:any) => {
+    /* If user cancelled/rejected the tx */
+    if (err.code === 4001) {
       toast.warning('Transaction rejected by user');
     } else {
-      /* Else, the transaction was cancelled by the wallet provider */
-      toast.error('The transaction was rejected by the wallet provider. Please see console');
-
-      // eslint-disable-next-line no-console
-      console.log(error.message);
+      /* Else, the transaction was cancelled by the wallet/provider before getting submitted */
+      try {
+        toast.error(`${err.data.message.split('VM Exception while processing transaction: revert').pop()}`);
+        console.log(err);
+      } catch (e) { console.log(err); }
     }
+  };
 
-    /* handle an error from a tx that was successfully submitted */
-    const handleTxError = (msg:string, receipt: any, error:any) => {
-    };
+  /* handle an error from a tx that was successfully submitted */
+  const handleTxError = (msg:string, receipt: any, txError:any) => {
+  };
 
-    /* handle a tx */
-    const handleTx = async (tx:any) => {
-    };
+  /* handle a tx */
+  const handleTx = async (tx:any, pid:number) => {
+    console.log(tx, pid);
+  };
 
-    /* handle a sig */
-    const handleSig = async () => {
-    };
+  /* handle a tx */
+  const handleProcess = async () => {
+
+  };
+
+  /* handle a sig */
+  const handleSignature = async (tx:any, pid:number) => {
+
   };
 
   const txActions = {
-    // handleTx: () => handleTx('some tx'),
-    // handleSig: () => handleSig(),
+    handleTx: (x:any) => handleTx(x, 1),
+    handleSignature: () => handleSignature('sdfsd', 1),
+    // handleProcess: (pid:number, actions: any[]) => console.log(3),
+    handleTxRejection: (e:any) => handleTxRejection(e),
   };
 
   return (

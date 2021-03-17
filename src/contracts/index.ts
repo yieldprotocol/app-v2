@@ -2,6 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { AccessControl } from "./AccessControl";
+export type { Batchable } from "./Batchable";
 export type { Cauldron } from "./Cauldron";
 export type { ERC20 } from "./ERC20";
 export type { ERC20Mock } from "./ERC20Mock";
@@ -24,6 +25,7 @@ export type { RestrictedERC20Mock } from "./RestrictedERC20Mock";
 export type { Witch } from "./Witch";
 
 export { AccessControl__factory } from "./factories/AccessControl__factory";
+export { Batchable__factory } from "./factories/Batchable__factory";
 export { Cauldron__factory } from "./factories/Cauldron__factory";
 export { ERC20__factory } from "./factories/ERC20__factory";
 export { ERC20Mock__factory } from "./factories/ERC20Mock__factory";

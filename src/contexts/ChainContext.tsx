@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ContractFactory, ethers } from 'ethers';
+import { ContractFactory, ethers, utils } from 'ethers';
 import { useWeb3React } from '@web3-react/core';
 import { InjectedConnector } from '@web3-react/injected-connector';
 import { NetworkConnector } from '@web3-react/network-connector';
@@ -9,6 +9,7 @@ import { useCachedState } from '../hooks';
 import * as yieldEnv from './yieldEnv.json';
 import * as contracts from '../contracts';
 import { IYieldAsset, IYieldSeries } from '../types';
+import { nameFromMaturity } from '../utils/displayUtils';
 
 /* Set up web3react config */
 const POLLING_INTERVAL = 12000;
@@ -53,9 +54,11 @@ const initState = {
   connectOnLoad: true as boolean,
 
   /* Connected Contract Maps */
-  baseContractMap: new Map<string, { id: string, contract: ContractFactory }>(),
+  contractMap: new Map<string, ContractFactory>(),
   assetMap: new Map<string, IYieldAsset>(),
+  activeAsset: null as IYieldAsset| null,
   seriesMap: new Map<string, IYieldSeries>(),
+  activeSeries: null as IYieldSeries | null,
 
 };
 
@@ -76,9 +79,11 @@ function chainReducer(state: any, action: any) {
     case 'account': return { ...state, account: onlyIfChanged(action) };
     case 'web3Active': return { ...state, web3Active: onlyIfChanged(action) };
 
-    case 'baseContractMap': return { ...state, baseContractMap: onlyIfChanged(action) };
+    case 'contractMap': return { ...state, contractMap: onlyIfChanged(action) };
     case 'assetMap': return { ...state, assetMap: onlyIfChanged(action) };
+    case 'activeAsset': return { ...state, activeAsset: onlyIfChanged(action) };
     case 'seriesMap': return { ...state, seriesMap: onlyIfChanged(action) };
+    case 'activeSeries': return { ...state, activeSeries: onlyIfChanged(action) };
 
     /* special internal case for multi-updates - might remove from this context if not needed */
     case '_any': return { ...state, ...action.payload };
@@ -112,6 +117,113 @@ const ChainProvider = ({ children }: any) => {
     error: fallbackError,
   } = fallbackConnection;
 
+  /**
+   * Update on FALLBACK connection/state on network changes (id/library)
+   */
+  // TODO add in caching
+  useEffect(() => {
+    fallbackLibrary && updateState({ type: 'fallbackProvider', payload: fallbackLibrary });
+    fallbackChainId && console.log('fallback chainID :', fallbackChainId);
+
+    if (fallbackLibrary && fallbackChainId) {
+      /* Get the instance of the Base contracts */
+      const addrs = (yieldEnv.addresses as any)[fallbackChainId];
+      const Cauldron = contracts.Cauldron__factory.connect(addrs.Cauldron, fallbackLibrary);
+      const Ladle = contracts.Ladle__factory.connect(addrs.Ladle, fallbackLibrary);
+
+      /* Update the baseContracts state */
+      const newContractMap = chainState.contractMap;
+      newContractMap.set('Cauldron', Cauldron);
+      newContractMap.set('Ladle', Ladle);
+      updateState({ type: 'contractMap', payload: newContractMap });
+
+      /* Update the 'dynamic' contracts */
+      (async () => {
+        await Promise.all([
+          /* Update the available assetsMap based on Cauldron events, */
+          (async () => {
+            const _assetList = await Cauldron.queryFilter('AssetAdded' as any);
+            /* Add in any extra static asset Data */ // TODO is there any other fixed series data?
+            const _assetListMod = await Promise.all(_assetList.map(async (x:any) => {
+              const { assetId: id, asset: address } = Cauldron.interface.parseLog(x).args;
+
+              const ERC20 = contracts.ERC20__factory.connect(address, fallbackLibrary);
+              const [displayName, symbol] = await Promise.all([ERC20.name(), ERC20.symbol()]);
+
+              return {
+                id,
+                address,
+                displayName,
+                symbol,
+              };
+            }));
+            const newAssetMap = _assetListMod.reduce((acc:any, item:any) => {
+              const _map = acc;
+              _map.set(item.id, item);
+              return _map;
+            }, chainState.assetMap);
+
+            console.log(newAssetMap);
+
+            updateState({ type: 'assetMap', payload: newAssetMap });
+            // TODO improve initially selected asset logic (possibly based vaults)
+            updateState({ type: 'activeAsset', payload: newAssetMap.get(_assetListMod[0].id) });
+          })(),
+
+          /* ... at the same time update the available seriesMap based on Cauldron events */
+          (async () => {
+            const _seriesList = await Cauldron.queryFilter('SeriesAdded' as any);
+            /* Add in any extra static series */ // TODO is there any other fixed series data?
+            const _seriesListMod = await Promise.all(_seriesList.map(async (x:any) => {
+              const { seriesId, baseId, fyToken } = Cauldron.interface.parseLog(x).args;
+
+              const { maturity } = await Cauldron.series(seriesId);
+
+              return {
+                seriesId,
+                baseId,
+                fyToken,
+                maturity,
+                displayName: nameFromMaturity(maturity),
+                displayNameMobile: nameFromMaturity(maturity, 'MMM yyyy'),
+              };
+            }));
+
+            const newSeriesMap = _seriesListMod.reduce((acc:any, item:any) => {
+              const _map = acc;
+              _map.set(item.seriesId, item);
+              return _map;
+            }, chainState.seriesMap);
+
+            console.log(newSeriesMap);
+
+            updateState({ type: 'seriesMap', payload: newSeriesMap });
+            // TODO improve initially selected series logic (possibly based vaults)
+            updateState({ type: 'activeSeries', payload: newSeriesMap.get(_seriesListMod[0].seriesId) });
+          })(),
+        ]);
+      })();
+    }
+  }, [
+    fallbackChainId,
+    chainState.assetMap,
+    fallbackLibrary,
+    chainState.seriesMap,
+    chainState.contractMap,
+  ]);
+
+  /**
+   * Update on PRIMARY connection any network changes (likely via metamask/walletConnect)
+   */
+  useEffect(() => {
+    console.log('Metamask/WalletConnect Active: ', active);
+    updateState({ type: 'chainId', payload: chainId });
+    updateState({ type: 'web3Active', payload: active });
+    updateState({ type: 'provider', payload: library || null });
+    updateState({ type: 'account', payload: account || null });
+    updateState({ type: 'signer', payload: library?.getSigner(account!) || null });
+  }, [active, account, chainId, library]);
+
   /*
       Watch the chainId for changes (most likely instigated by metamask),
       and change the FALLBACK provider accordingly.
@@ -130,87 +242,8 @@ const ChainProvider = ({ children }: any) => {
       )
       )();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId, fallbackActivate, lastChainId]);
-
-  /**
-   * Update on FALLBACK connection/state on network changes (id/library)
-   */
-  // TODO add in caching
-  useEffect(() => {
-    fallbackLibrary && updateState({ type: 'fallbackProvider', payload: fallbackLibrary });
-    fallbackChainId && console.log('fallback chainID :', fallbackChainId);
-
-    if (fallbackLibrary && fallbackChainId) {
-      /* Get the instance of the Base contracts */
-      const addrs = (yieldEnv.addresses as any)[fallbackChainId];
-      const Cauldron = contracts.Cauldron__factory.connect(addrs.Cauldron, fallbackLibrary);
-      const Ladle = contracts.Ladle__factory.connect(addrs.Ladle, fallbackLibrary);
-
-      /* Update the baseContracts state */
-      const newBaseMap = chainState.baseContractMap;
-      newBaseMap.set('Cauldron', { ...{ contract: Cauldron } });
-      newBaseMap.set('Ladle', { ...{ contract: Ladle } });
-      updateState({ type: 'baseMap', payload: newBaseMap });
-
-      (async () => {
-        await Promise.all([
-          /* Update the available assetsMap based on Cauldron events, */
-          (async () => {
-            const _assetList = await Cauldron.queryFilter('AssetAdded' as any);
-            const newAssetMap = _assetList.reduce((acc:any, item:any) => {
-              const _map = acc;
-              const { assetId, asset } = Cauldron.interface.parseLog(item).args;
-              _map.set(
-                assetId,
-                {
-                  id: assetId,
-                  address: asset,
-                  contract: contracts.ERC20__factory.connect(asset, fallbackLibrary),
-                },
-              );
-              return _map;
-            }, chainState.assetMap);
-            console.log(newAssetMap);
-            updateState({ type: 'assetMap', payload: newAssetMap });
-          })(),
-
-          /* ... at the same time update the available seriesMap based on Cauldron events */
-          (async () => {
-            const _seriesList = await Cauldron.queryFilter('SeriesAdded' as any);
-            const newSeriesMap = _seriesList.reduce((acc:any, item:any) => {
-              const _map = acc;
-              const { seriesId, baseId, fyToken } = Cauldron.interface.parseLog(item).args;
-              _map.set(
-                seriesId,
-                {
-                  id: seriesId,
-                  base: baseId,
-                  address: fyToken,
-                  contract: contracts.FYToken__factory.connect(fyToken, fallbackLibrary),
-                },
-              );
-              return _map;
-            }, chainState.seriesMap);
-            console.log(newSeriesMap);
-            updateState({ type: 'seriesMap', payload: newSeriesMap });
-          })(),
-        ]);
-      })();
-    }
-  }, [fallbackChainId, chainState.assetMap, fallbackLibrary, chainState.seriesMap, chainState.baseContractMap]);
-
-  /**
-   * Update on PRIMARY connection any network changes (likely via metamask/walletConnect)
-   */
-  useEffect(() => {
-    console.log('Metamask/WalletConnect Active: ', active);
-    updateState({ type: 'chainId', payload: chainId });
-    updateState({ type: 'web3Active', payload: active });
-    updateState({ type: 'provider', payload: library || null });
-    updateState({ type: 'account', payload: account || null });
-    updateState({ type: 'signer', payload: library?.getSigner(account!) || null });
-  }, [active, account, chainId, library]);
 
   /* Try connect automatically to an injected provider on first load */
   const [tried, setTried] = useState<boolean>(false);
@@ -238,6 +271,9 @@ const ChainProvider = ({ children }: any) => {
     isConnected: (connection:string) => connectors.get(connection) === connector,
     connect: (connection:string) => activate(connectors.get(connection)),
     disconnect: () => connector && deactivate(),
+
+    setActiveSeries: (series:IYieldSeries) => updateState({ type: 'activeSeries', payload: series }),
+    setActiveAsset: (asset:IYieldAsset) => updateState({ type: 'activeAsset', payload: asset }),
   };
 
   return (
