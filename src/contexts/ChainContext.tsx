@@ -38,6 +38,14 @@ connectors.set(
   }),
 );
 
+// connectors.set(
+//   'networkconnect',
+//   new NetworkConnector({
+//     urls: { 1: RPC_URLS[1], 42: RPC_URLS[42], 31337: RPC_URLS[31337] },
+//     defaultChainId: 31337,
+//   }),
+// );
+
 /* Build the context */
 const ChainContext = React.createContext<any>({});
 
@@ -96,8 +104,10 @@ const ChainProvider = ({ children }: any) => {
   const [chainState, updateState] = React.useReducer(chainReducer, initState);
   const [lastChainId, setLastChainId] = useCachedState('lastChainId', 1);
   const [lastBlock, setLastBlock] = useCachedState('lastBlock', 1);
-  const primaryConnection = useWeb3React<ethers.providers.Web3Provider>();
 
+  const [tried, setTried] = useState<boolean>(false);
+
+  const primaryConnection = useWeb3React<ethers.providers.Web3Provider>();
   const {
     connector,
     library,
@@ -114,6 +124,7 @@ const ChainProvider = ({ children }: any) => {
     library: fallbackLibrary,
     chainId: fallbackChainId,
     activate: fallbackActivate,
+    active: fallbackActive,
     error: fallbackError,
   } = fallbackConnection;
 
@@ -206,8 +217,8 @@ const ChainProvider = ({ children }: any) => {
     }
   }, [
     fallbackChainId,
-    chainState.assetMap,
     fallbackLibrary,
+    chainState.assetMap,
     chainState.seriesMap,
     chainState.contractMap,
   ]);
@@ -242,11 +253,20 @@ const ChainProvider = ({ children }: any) => {
       )
       )();
     }
+
+    if (!chainId && tried) {
+      fallbackActivate(
+        new NetworkConnector({
+          urls: { 1: RPC_URLS[1], 42: RPC_URLS[42], 31337: RPC_URLS[31337] },
+          defaultChainId: lastChainId,
+        }), (e:any) => console.log(e), true,
+      );
+    }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chainId, fallbackActivate, lastChainId]);
+  }, [chainId, fallbackActivate, lastChainId, tried]);
 
   /* Try connect automatically to an injected provider on first load */
-  const [tried, setTried] = useState<boolean>(false);
   useEffect(() => {
     chainState.connectOnLoad && connectors.get('injected').isAuthorized().then((isAuthorized: boolean) => {
       if (isAuthorized) {
@@ -269,7 +289,7 @@ const ChainProvider = ({ children }: any) => {
 
   const chainActions = {
     isConnected: (connection:string) => connectors.get(connection) === connector,
-    connect: (connection:string) => activate(connectors.get(connection)),
+    connect: (connection:string = 'injected') => activate(connectors.get(connection)),
     disconnect: () => connector && deactivate(),
 
     setActiveSeries: (series:IYieldSeries) => updateState({ type: 'activeSeries', payload: series }),

@@ -1,19 +1,13 @@
-import React, { useContext, useRef, useState } from 'react';
-import { Box, Button, Footer, Header, Main, Text, ThemeContext, ResponsiveContext } from 'grommet';
-import { ToastContainer, toast } from 'react-toastify';
+import React, { useContext, useState } from 'react';
+import { Box, ResponsiveContext } from 'grommet';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Redirect, Route, Switch } from 'react-router-dom';
-
-import logo from './logo.svg';
-import { mint } from './utils/yieldMath';
-
-import { ChainContext } from './contexts/ChainContext';
 
 import Borrow from './views/Borrow';
 import Lend from './views/Lend';
 import Pool from './views/Pool';
 
-import YieldNavigation from './components/YieldNavigation';
 import MenuLayer from './layers/MenuLayer';
 import YieldFooter from './components/YieldFooter';
 import Vault from './views/Vault';
