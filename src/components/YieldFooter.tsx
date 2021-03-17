@@ -23,8 +23,6 @@ const YieldFooter = (props: any) => {
   const seriesList = Array.from(seriesMap.values()) as any;
   const assetList = Array.from(assetMap.values()) as any;
 
-  console.log(assetList);
-
   const cauldron = contractMap.get('Cauldron') as Cauldron;
   const ladle = contractMap.get('Ladle') as Ladle;
 
