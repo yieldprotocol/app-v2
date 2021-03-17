@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { HashRouter as Router } from 'react-router-dom';
 import { ethers } from 'ethers';
 import { createWeb3ReactRoot, Web3ReactProvider } from '@web3-react/core';
 
