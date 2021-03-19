@@ -61,6 +61,9 @@ const initState = {
   /* settings */
   connectOnLoad: true as boolean,
 
+  /* flags */
+  chainLoading: true,
+
   /* Connected Contract Maps */
   contractMap: new Map<string, ContractFactory>(),
   assetMap: new Map<string, IYieldAsset>(),
@@ -80,6 +83,8 @@ function chainReducer(state: any, action: any) {
 
   /* Reducer switch */
   switch (action.type) {
+    case 'chainLoading': return { ...state, chainLoading: onlyIfChanged(action) };
+
     case 'provider': return { ...state, provider: onlyIfChanged(action) };
     case 'fallbackProvider': return { ...state, fallbackProvider: onlyIfChanged(action) };
     case 'signer': return { ...state, signer: onlyIfChanged(action) };
@@ -149,71 +154,66 @@ const ChainProvider = ({ children }: any) => {
       updateState({ type: 'contractMap', payload: newContractMap });
 
       /* Update the 'dynamic' contracts */
-      (async () => {
-        await Promise.all([
-          /* Update the available assetsMap based on Cauldron events, */
-          (async () => {
-            const _assetList = await Cauldron.queryFilter('AssetAdded' as any);
+      Promise.all([
+        /* Update the available assetsMap based on Cauldron events */
+        (async () => {
+          const eventList = await Cauldron.queryFilter('AssetAdded' as any);
+          const assetList = await Promise.all(eventList.map(async (x:any) => {
+            const { assetId: id, asset: address } = Cauldron.interface.parseLog(x).args;
+            const ERC20 = contracts.ERC20__factory.connect(address, fallbackLibrary);
             /* Add in any extra static asset Data */ // TODO is there any other fixed series data?
-            const _assetListMod = await Promise.all(_assetList.map(async (x:any) => {
-              const { assetId: id, asset: address } = Cauldron.interface.parseLog(x).args;
+            const [displayName, symbol] = await Promise.all([ERC20.name(), ERC20.symbol()]);
+            return {
+              id,
+              address,
+              displayName,
+              symbol,
+            };
+          }));
+          const newAssetMap = assetList.reduce((acc:any, item:any) => {
+            const _map = acc;
+            _map.set(item.id, item);
+            return _map;
+          }, chainState.assetMap);
 
-              const ERC20 = contracts.ERC20__factory.connect(address, fallbackLibrary);
-              const [displayName, symbol] = await Promise.all([ERC20.name(), ERC20.symbol()]);
+          console.log(newAssetMap);
 
-              return {
-                id,
-                address,
-                displayName,
-                symbol,
-              };
-            }));
-            const newAssetMap = _assetListMod.reduce((acc:any, item:any) => {
-              const _map = acc;
-              _map.set(item.id, item);
-              return _map;
-            }, chainState.assetMap);
+          updateState({ type: 'assetMap', payload: newAssetMap });
+          // TODO improve initially selected asset logic (possibly based vaults)
+          updateState({ type: 'activeAsset', payload: newAssetMap.get(assetList[0].id) });
+        })(),
 
-            console.log(newAssetMap);
+        /* ... at the same time update the available seriesMap based on Cauldron events */
+        (async () => {
+          const eventList = await Cauldron.queryFilter('SeriesAdded' as any);
+          /* Add in any extra static series */ // TODO is there any other fixed series data?
+          const seriesList = await Promise.all(eventList.map(async (x:any) => {
+            const { seriesId, baseId, fyToken } = Cauldron.interface.parseLog(x).args;
+            const { maturity } = await Cauldron.series(seriesId);
+            return {
+              seriesId,
+              baseId,
+              fyToken,
+              maturity,
+              displayName: nameFromMaturity(maturity),
+              displayNameMobile: nameFromMaturity(maturity, 'MMM yyyy'),
+            };
+          }));
 
-            updateState({ type: 'assetMap', payload: newAssetMap });
-            // TODO improve initially selected asset logic (possibly based vaults)
-            updateState({ type: 'activeAsset', payload: newAssetMap.get(_assetListMod[0].id) });
-          })(),
+          const newSeriesMap = seriesList.reduce((acc:any, item:any) => {
+            const _map = acc;
+            _map.set(item.seriesId, item);
+            return _map;
+          }, chainState.seriesMap);
 
-          /* ... at the same time update the available seriesMap based on Cauldron events */
-          (async () => {
-            const _seriesList = await Cauldron.queryFilter('SeriesAdded' as any);
-            /* Add in any extra static series */ // TODO is there any other fixed series data?
-            const _seriesListMod = await Promise.all(_seriesList.map(async (x:any) => {
-              const { seriesId, baseId, fyToken } = Cauldron.interface.parseLog(x).args;
+          console.log(newSeriesMap);
 
-              const { maturity } = await Cauldron.series(seriesId);
-
-              return {
-                seriesId,
-                baseId,
-                fyToken,
-                maturity,
-                displayName: nameFromMaturity(maturity),
-                displayNameMobile: nameFromMaturity(maturity, 'MMM yyyy'),
-              };
-            }));
-
-            const newSeriesMap = _seriesListMod.reduce((acc:any, item:any) => {
-              const _map = acc;
-              _map.set(item.seriesId, item);
-              return _map;
-            }, chainState.seriesMap);
-
-            console.log(newSeriesMap);
-
-            updateState({ type: 'seriesMap', payload: newSeriesMap });
-            // TODO improve initially selected series logic (possibly based vaults)
-            updateState({ type: 'activeSeries', payload: newSeriesMap.get(_seriesListMod[0].seriesId) });
-          })(),
-        ]);
-      })();
+          updateState({ type: 'seriesMap', payload: newSeriesMap });
+          // TODO improve initially selected series logic (possibly based vaults)
+          updateState({ type: 'activeSeries', payload: newSeriesMap.get(seriesList[0].seriesId) });
+        })(),
+      ])
+        .then(() => updateState({ type: 'chainLoading', payload: false }));
     }
   }, [
     fallbackChainId,
@@ -241,42 +241,36 @@ const ChainProvider = ({ children }: any) => {
       NOTE: Currently, there is no way to change the fallback provider manually, but the last chainId is cached.
   */
   useEffect(() => {
-    if (chainId) {
-      /* cache the change of networkId */
-      setLastChainId(chainId);
-      /* align the fallback and primary chainIds */
-      chainId !== fallbackChainId && (async () => fallbackActivate(
-        new NetworkConnector({
-          urls: { 1: RPC_URLS[1], 42: RPC_URLS[42], 31337: RPC_URLS[31337] },
-          defaultChainId: chainId || lastChainId,
-        }), (e:any) => console.log(e), true,
-      )
-      )();
-    }
+    const _chainId = chainId || lastChainId;
 
-    if (!chainId && tried) {
-      fallbackActivate(
-        new NetworkConnector({
-          urls: { 1: RPC_URLS[1], 42: RPC_URLS[42], 31337: RPC_URLS[31337] },
-          defaultChainId: lastChainId,
-        }), (e:any) => console.log(e), true,
-      );
-    }
+    /* cache the change of networkId */
+    chainId && setLastChainId(chainId);
+
+    /* Connect the fallback */
+    tried && fallbackActivate(
+      new NetworkConnector({
+        urls: { 1: RPC_URLS[1], 42: RPC_URLS[42], 31337: RPC_URLS[31337] },
+        defaultChainId: _chainId,
+      }), (e:any) => console.log(e), true,
+    );
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId, fallbackActivate, lastChainId, tried]);
 
   /* Try connect automatically to an injected provider on first load */
   useEffect(() => {
-    chainState.connectOnLoad && connectors.get('injected').isAuthorized().then((isAuthorized: boolean) => {
-      if (isAuthorized) {
-        activate(connectors.get('injected'), undefined, true).catch(() => {
-          setTried(true);
-        });
-      } else {
-        setTried(true);
-      }
-    });
+    chainState.connectOnLoad &&
+    connectors.get('injected')
+      .isAuthorized()
+      .then((isAuthorized: boolean) => {
+        if (isAuthorized) {
+          activate(connectors.get('injected'), undefined, true).catch(() => {
+            setTried(true);
+          });
+        } else {
+          setTried(true); // just move on do nothing nore
+        }
+      });
   }, [activate, chainState.connectOnLoad]);
   /* If web3 connected, wait until we get confirmation of that to flip the flag */
   useEffect(() => { if (!tried && active) { setTried(true); } }, [tried, active]);
