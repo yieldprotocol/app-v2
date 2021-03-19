@@ -28,10 +28,11 @@ interface LadleInterface extends ethers.utils.Interface {
     "ROOT()": FunctionFragment;
     "_join(bytes12,address,int128,int128)": FunctionFragment;
     "addJoin(bytes6,address)": FunctionFragment;
+    "addPool(bytes6,address)": FunctionFragment;
     "batch(bytes[],bool)": FunctionFragment;
     "build(bytes12,bytes6,bytes6)": FunctionFragment;
     "cauldron()": FunctionFragment;
-    "close(bytes12,int128,int128)": FunctionFragment;
+    "close(bytes12,address,int128,int128)": FunctionFragment;
     "destroy(bytes12)": FunctionFragment;
     "getRoleAdmin(bytes4)": FunctionFragment;
     "give(bytes12,address)": FunctionFragment;
@@ -40,10 +41,12 @@ interface LadleInterface extends ethers.utils.Interface {
     "hasRole(bytes4,address)": FunctionFragment;
     "joins(bytes6)": FunctionFragment;
     "lockRole(bytes4)": FunctionFragment;
-    "pour(bytes12,int128,int128)": FunctionFragment;
+    "pools(bytes6)": FunctionFragment;
+    "pour(bytes12,address,int128,int128)": FunctionFragment;
     "renounceRole(bytes4,address)": FunctionFragment;
     "revokeRole(bytes4,address)": FunctionFragment;
     "roll(bytes12,bytes6,int128)": FunctionFragment;
+    "serve(bytes12,address,int128,int128,uint128)": FunctionFragment;
     "setRoleAdmin(bytes4,bytes4)": FunctionFragment;
     "stir(bytes12,bytes12,uint128)": FunctionFragment;
     "tweak(bytes12,bytes6,bytes6)": FunctionFragment;
@@ -60,6 +63,10 @@ interface LadleInterface extends ethers.utils.Interface {
     values: [BytesLike, string]
   ): string;
   encodeFunctionData(
+    functionFragment: "addPool",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
     functionFragment: "batch",
     values: [BytesLike[], boolean]
   ): string;
@@ -70,7 +77,7 @@ interface LadleInterface extends ethers.utils.Interface {
   encodeFunctionData(functionFragment: "cauldron", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "close",
-    values: [BytesLike, BigNumberish, BigNumberish]
+    values: [BytesLike, string, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "destroy", values: [BytesLike]): string;
   encodeFunctionData(
@@ -95,9 +102,10 @@ interface LadleInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "joins", values: [BytesLike]): string;
   encodeFunctionData(functionFragment: "lockRole", values: [BytesLike]): string;
+  encodeFunctionData(functionFragment: "pools", values: [BytesLike]): string;
   encodeFunctionData(
     functionFragment: "pour",
-    values: [BytesLike, BigNumberish, BigNumberish]
+    values: [BytesLike, string, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "renounceRole",
@@ -110,6 +118,10 @@ interface LadleInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "roll",
     values: [BytesLike, BytesLike, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "serve",
+    values: [BytesLike, string, BigNumberish, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "setRoleAdmin",
@@ -128,6 +140,7 @@ interface LadleInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "ROOT", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "_join", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "addJoin", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "addPool", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "batch", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "build", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "cauldron", data: BytesLike): Result;
@@ -143,6 +156,7 @@ interface LadleInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "joins", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "lockRole", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "pools", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "pour", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "renounceRole",
@@ -150,6 +164,7 @@ interface LadleInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "roll", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "serve", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setRoleAdmin",
     data: BytesLike
@@ -159,12 +174,14 @@ interface LadleInterface extends ethers.utils.Interface {
 
   events: {
     "JoinAdded(bytes6,address)": EventFragment;
+    "PoolAdded(bytes6,address)": EventFragment;
     "RoleAdminChanged(bytes4,bytes4)": EventFragment;
     "RoleGranted(bytes4,address,address)": EventFragment;
     "RoleRevoked(bytes4,address,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "JoinAdded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "PoolAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleRevoked"): EventFragment;
@@ -250,6 +267,18 @@ export class Ladle extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
+    addPool(
+      seriesId: BytesLike,
+      pool: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "addPool(bytes6,address)"(
+      seriesId: BytesLike,
+      pool: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
     batch(
       calls: BytesLike[],
       revertOnFail: boolean,
@@ -282,13 +311,15 @@ export class Ladle extends Contract {
 
     close(
       vaultId: BytesLike,
+      to: string,
       ink: BigNumberish,
       art: BigNumberish,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    "close(bytes12,int128,int128)"(
+    "close(bytes12,address,int128,int128)"(
       vaultId: BytesLike,
+      to: string,
       ink: BigNumberish,
       art: BigNumberish,
       overrides?: Overrides
@@ -376,15 +407,24 @@ export class Ladle extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
+    pools(arg0: BytesLike, overrides?: CallOverrides): Promise<[string]>;
+
+    "pools(bytes6)"(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
     pour(
       vaultId: BytesLike,
+      to: string,
       ink: BigNumberish,
       art: BigNumberish,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    "pour(bytes12,int128,int128)"(
+    "pour(bytes12,address,int128,int128)"(
       vaultId: BytesLike,
+      to: string,
       ink: BigNumberish,
       art: BigNumberish,
       overrides?: Overrides
@@ -425,6 +465,24 @@ export class Ladle extends Contract {
       vaultId: BytesLike,
       seriesId: BytesLike,
       art: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    serve(
+      vaultId: BytesLike,
+      to: string,
+      ink: BigNumberish,
+      art: BigNumberish,
+      min: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "serve(bytes12,address,int128,int128,uint128)"(
+      vaultId: BytesLike,
+      to: string,
+      ink: BigNumberish,
+      art: BigNumberish,
+      min: BigNumberish,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
@@ -505,6 +563,18 @@ export class Ladle extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
+  addPool(
+    seriesId: BytesLike,
+    pool: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "addPool(bytes6,address)"(
+    seriesId: BytesLike,
+    pool: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
   batch(
     calls: BytesLike[],
     revertOnFail: boolean,
@@ -537,13 +607,15 @@ export class Ladle extends Contract {
 
   close(
     vaultId: BytesLike,
+    to: string,
     ink: BigNumberish,
     art: BigNumberish,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  "close(bytes12,int128,int128)"(
+  "close(bytes12,address,int128,int128)"(
     vaultId: BytesLike,
+    to: string,
     ink: BigNumberish,
     art: BigNumberish,
     overrides?: Overrides
@@ -628,15 +700,21 @@ export class Ladle extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
+  pools(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
+
+  "pools(bytes6)"(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
+
   pour(
     vaultId: BytesLike,
+    to: string,
     ink: BigNumberish,
     art: BigNumberish,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  "pour(bytes12,int128,int128)"(
+  "pour(bytes12,address,int128,int128)"(
     vaultId: BytesLike,
+    to: string,
     ink: BigNumberish,
     art: BigNumberish,
     overrides?: Overrides
@@ -677,6 +755,24 @@ export class Ladle extends Contract {
     vaultId: BytesLike,
     seriesId: BytesLike,
     art: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  serve(
+    vaultId: BytesLike,
+    to: string,
+    ink: BigNumberish,
+    art: BigNumberish,
+    min: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "serve(bytes12,address,int128,int128,uint128)"(
+    vaultId: BytesLike,
+    to: string,
+    ink: BigNumberish,
+    art: BigNumberish,
+    min: BigNumberish,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
@@ -757,6 +853,18 @@ export class Ladle extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    addPool(
+      seriesId: BytesLike,
+      pool: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "addPool(bytes6,address)"(
+      seriesId: BytesLike,
+      pool: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     batch(
       calls: BytesLike[],
       revertOnFail: boolean,
@@ -793,13 +901,15 @@ export class Ladle extends Contract {
 
     close(
       vaultId: BytesLike,
+      to: string,
       ink: BigNumberish,
       art: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber, BigNumber] & { art: BigNumber; ink: BigNumber }>;
 
-    "close(bytes12,int128,int128)"(
+    "close(bytes12,address,int128,int128)"(
       vaultId: BytesLike,
+      to: string,
       ink: BigNumberish,
       art: BigNumberish,
       overrides?: CallOverrides
@@ -881,15 +991,24 @@ export class Ladle extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    pools(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
+
+    "pools(bytes6)"(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
     pour(
       vaultId: BytesLike,
+      to: string,
       ink: BigNumberish,
       art: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber, BigNumber] & { art: BigNumber; ink: BigNumber }>;
 
-    "pour(bytes12,int128,int128)"(
+    "pour(bytes12,address,int128,int128)"(
       vaultId: BytesLike,
+      to: string,
       ink: BigNumberish,
       art: BigNumberish,
       overrides?: CallOverrides
@@ -932,6 +1051,40 @@ export class Ladle extends Contract {
       art: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    serve(
+      vaultId: BytesLike,
+      to: string,
+      ink: BigNumberish,
+      art: BigNumberish,
+      min: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<
+      [
+        [BigNumber, BigNumber] & { art: BigNumber; ink: BigNumber },
+        BigNumber
+      ] & {
+        balances_: [BigNumber, BigNumber] & { art: BigNumber; ink: BigNumber };
+        base_: BigNumber;
+      }
+    >;
+
+    "serve(bytes12,address,int128,int128,uint128)"(
+      vaultId: BytesLike,
+      to: string,
+      ink: BigNumberish,
+      art: BigNumberish,
+      min: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<
+      [
+        [BigNumber, BigNumber] & { art: BigNumber; ink: BigNumber },
+        BigNumber
+      ] & {
+        balances_: [BigNumber, BigNumber] & { art: BigNumber; ink: BigNumber };
+        base_: BigNumber;
+      }
+    >;
 
     setRoleAdmin(
       role: BytesLike,
@@ -989,6 +1142,11 @@ export class Ladle extends Contract {
       assetId: BytesLike | null,
       join: string | null
     ): TypedEventFilter<[string, string], { assetId: string; join: string }>;
+
+    PoolAdded(
+      seriesId: BytesLike | null,
+      pool: string | null
+    ): TypedEventFilter<[string, string], { seriesId: string; pool: string }>;
 
     RoleAdminChanged(
       role: BytesLike | null,
@@ -1054,6 +1212,18 @@ export class Ladle extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
+    addPool(
+      seriesId: BytesLike,
+      pool: string,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "addPool(bytes6,address)"(
+      seriesId: BytesLike,
+      pool: string,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
     batch(
       calls: BytesLike[],
       revertOnFail: boolean,
@@ -1086,13 +1256,15 @@ export class Ladle extends Contract {
 
     close(
       vaultId: BytesLike,
+      to: string,
       ink: BigNumberish,
       art: BigNumberish,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    "close(bytes12,int128,int128)"(
+    "close(bytes12,address,int128,int128)"(
       vaultId: BytesLike,
+      to: string,
       ink: BigNumberish,
       art: BigNumberish,
       overrides?: Overrides
@@ -1177,15 +1349,24 @@ export class Ladle extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
+    pools(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
+
+    "pools(bytes6)"(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     pour(
       vaultId: BytesLike,
+      to: string,
       ink: BigNumberish,
       art: BigNumberish,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    "pour(bytes12,int128,int128)"(
+    "pour(bytes12,address,int128,int128)"(
       vaultId: BytesLike,
+      to: string,
       ink: BigNumberish,
       art: BigNumberish,
       overrides?: Overrides
@@ -1226,6 +1407,24 @@ export class Ladle extends Contract {
       vaultId: BytesLike,
       seriesId: BytesLike,
       art: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    serve(
+      vaultId: BytesLike,
+      to: string,
+      ink: BigNumberish,
+      art: BigNumberish,
+      min: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "serve(bytes12,address,int128,int128,uint128)"(
+      vaultId: BytesLike,
+      to: string,
+      ink: BigNumberish,
+      art: BigNumberish,
+      min: BigNumberish,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
@@ -1307,6 +1506,18 @@ export class Ladle extends Contract {
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
+    addPool(
+      seriesId: BytesLike,
+      pool: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "addPool(bytes6,address)"(
+      seriesId: BytesLike,
+      pool: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
     batch(
       calls: BytesLike[],
       revertOnFail: boolean,
@@ -1339,13 +1550,15 @@ export class Ladle extends Contract {
 
     close(
       vaultId: BytesLike,
+      to: string,
       ink: BigNumberish,
       art: BigNumberish,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    "close(bytes12,int128,int128)"(
+    "close(bytes12,address,int128,int128)"(
       vaultId: BytesLike,
+      to: string,
       ink: BigNumberish,
       art: BigNumberish,
       overrides?: Overrides
@@ -1439,15 +1652,27 @@ export class Ladle extends Contract {
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
+    pools(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "pools(bytes6)"(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     pour(
       vaultId: BytesLike,
+      to: string,
       ink: BigNumberish,
       art: BigNumberish,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    "pour(bytes12,int128,int128)"(
+    "pour(bytes12,address,int128,int128)"(
       vaultId: BytesLike,
+      to: string,
       ink: BigNumberish,
       art: BigNumberish,
       overrides?: Overrides
@@ -1488,6 +1713,24 @@ export class Ladle extends Contract {
       vaultId: BytesLike,
       seriesId: BytesLike,
       art: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    serve(
+      vaultId: BytesLike,
+      to: string,
+      ink: BigNumberish,
+      art: BigNumberish,
+      min: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "serve(bytes12,address,int128,int128,uint128)"(
+      vaultId: BytesLike,
+      to: string,
+      ink: BigNumberish,
+      art: BigNumberish,
+      min: BigNumberish,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 

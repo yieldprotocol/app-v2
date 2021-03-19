@@ -120,7 +120,7 @@ const _abi = [
     name: "asset",
     outputs: [
       {
-        internalType: "contract IERC20",
+        internalType: "address",
         name: "",
         type: "address",
       },
@@ -177,9 +177,9 @@ const _abi = [
     name: "maturity",
     outputs: [
       {
-        internalType: "uint32",
+        internalType: "uint256",
         name: "",
-        type: "uint32",
+        type: "uint256",
       },
     ],
     stateMutability: "view",
@@ -204,16 +204,27 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "oracle",
-    outputs: [
+    inputs: [
       {
-        internalType: "contract IOracle",
-        name: "",
+        internalType: "address",
+        name: "to",
         type: "address",
       },
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
     ],
-    stateMutability: "view",
+    name: "redeem",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {

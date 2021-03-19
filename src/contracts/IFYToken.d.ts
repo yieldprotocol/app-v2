@@ -31,7 +31,7 @@ interface IFYTokenInterface extends ethers.utils.Interface {
     "mature()": FunctionFragment;
     "maturity()": FunctionFragment;
     "mint(address,uint256)": FunctionFragment;
-    "oracle()": FunctionFragment;
+    "redeem(address,uint256)": FunctionFragment;
     "totalSupply()": FunctionFragment;
     "transfer(address,uint256)": FunctionFragment;
     "transferFrom(address,address,uint256)": FunctionFragment;
@@ -57,7 +57,10 @@ interface IFYTokenInterface extends ethers.utils.Interface {
     functionFragment: "mint",
     values: [string, BigNumberish]
   ): string;
-  encodeFunctionData(functionFragment: "oracle", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "redeem",
+    values: [string, BigNumberish]
+  ): string;
   encodeFunctionData(
     functionFragment: "totalSupply",
     values?: undefined
@@ -79,7 +82,7 @@ interface IFYTokenInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "mature", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "maturity", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "oracle", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "redeem", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "totalSupply",
     data: BytesLike
@@ -194,9 +197,9 @@ export class IFYToken extends Contract {
 
     "mature()"(overrides?: Overrides): Promise<ContractTransaction>;
 
-    maturity(overrides?: CallOverrides): Promise<[number]>;
+    maturity(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "maturity()"(overrides?: CallOverrides): Promise<[number]>;
+    "maturity()"(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     mint(
       to: string,
@@ -210,9 +213,17 @@ export class IFYToken extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    oracle(overrides?: CallOverrides): Promise<[string]>;
+    redeem(
+      to: string,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
 
-    "oracle()"(overrides?: CallOverrides): Promise<[string]>;
+    "redeem(address,uint256)"(
+      to: string,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
 
     totalSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -296,9 +307,9 @@ export class IFYToken extends Contract {
 
   "mature()"(overrides?: Overrides): Promise<ContractTransaction>;
 
-  maturity(overrides?: CallOverrides): Promise<number>;
+  maturity(overrides?: CallOverrides): Promise<BigNumber>;
 
-  "maturity()"(overrides?: CallOverrides): Promise<number>;
+  "maturity()"(overrides?: CallOverrides): Promise<BigNumber>;
 
   mint(
     to: string,
@@ -312,9 +323,17 @@ export class IFYToken extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  oracle(overrides?: CallOverrides): Promise<string>;
+  redeem(
+    to: string,
+    amount: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
 
-  "oracle()"(overrides?: CallOverrides): Promise<string>;
+  "redeem(address,uint256)"(
+    to: string,
+    amount: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
 
   totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -398,9 +417,9 @@ export class IFYToken extends Contract {
 
     "mature()"(overrides?: CallOverrides): Promise<void>;
 
-    maturity(overrides?: CallOverrides): Promise<number>;
+    maturity(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "maturity()"(overrides?: CallOverrides): Promise<number>;
+    "maturity()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     mint(
       to: string,
@@ -414,9 +433,17 @@ export class IFYToken extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    oracle(overrides?: CallOverrides): Promise<string>;
+    redeem(
+      to: string,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
-    "oracle()"(overrides?: CallOverrides): Promise<string>;
+    "redeem(address,uint256)"(
+      to: string,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -537,9 +564,17 @@ export class IFYToken extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    oracle(overrides?: CallOverrides): Promise<BigNumber>;
+    redeem(
+      to: string,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
 
-    "oracle()"(overrides?: CallOverrides): Promise<BigNumber>;
+    "redeem(address,uint256)"(
+      to: string,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
 
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -643,9 +678,17 @@ export class IFYToken extends Contract {
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    oracle(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    redeem(
+      to: string,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
 
-    "oracle()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    "redeem(address,uint256)"(
+      to: string,
+      amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
 
     totalSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

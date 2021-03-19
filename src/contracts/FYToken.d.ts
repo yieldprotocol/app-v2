@@ -29,6 +29,7 @@ interface FYTokenInterface extends ethers.utils.Interface {
     "ROOT()": FunctionFragment;
     "allowance(address,address)": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
+    "asset()": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "burn(address,uint256)": FunctionFragment;
     "decimals()": FunctionFragment;
@@ -48,7 +49,7 @@ interface FYTokenInterface extends ethers.utils.Interface {
     "nonces(address)": FunctionFragment;
     "oracle()": FunctionFragment;
     "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)": FunctionFragment;
-    "redeem(address,uint128)": FunctionFragment;
+    "redeem(address,uint256)": FunctionFragment;
     "renounceRole(bytes4,address)": FunctionFragment;
     "revokeRole(bytes4,address)": FunctionFragment;
     "setRoleAdmin(bytes4,bytes4)": FunctionFragment;
@@ -77,6 +78,7 @@ interface FYTokenInterface extends ethers.utils.Interface {
     functionFragment: "approve",
     values: [string, BigNumberish]
   ): string;
+  encodeFunctionData(functionFragment: "asset", values?: undefined): string;
   encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
   encodeFunctionData(
     functionFragment: "burn",
@@ -177,6 +179,7 @@ interface FYTokenInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "ROOT", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "allowance", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "asset", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "burn", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
@@ -325,6 +328,10 @@ export class FYToken extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
+    asset(overrides?: CallOverrides): Promise<[string]>;
+
+    "asset()"(overrides?: CallOverrides): Promise<[string]>;
+
     balanceOf(guy: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
     "balanceOf(address)"(
@@ -437,9 +444,9 @@ export class FYToken extends Contract {
 
     "mature()"(overrides?: Overrides): Promise<ContractTransaction>;
 
-    maturity(overrides?: CallOverrides): Promise<[number]>;
+    maturity(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "maturity()"(overrides?: CallOverrides): Promise<[number]>;
+    "maturity()"(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     maxFlashLoan(
       token: string,
@@ -506,7 +513,7 @@ export class FYToken extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    "redeem(address,uint128)"(
+    "redeem(address,uint256)"(
       to: string,
       amount: BigNumberish,
       overrides?: Overrides
@@ -627,6 +634,10 @@ export class FYToken extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
+  asset(overrides?: CallOverrides): Promise<string>;
+
+  "asset()"(overrides?: CallOverrides): Promise<string>;
+
   balanceOf(guy: string, overrides?: CallOverrides): Promise<BigNumber>;
 
   "balanceOf(address)"(
@@ -739,9 +750,9 @@ export class FYToken extends Contract {
 
   "mature()"(overrides?: Overrides): Promise<ContractTransaction>;
 
-  maturity(overrides?: CallOverrides): Promise<number>;
+  maturity(overrides?: CallOverrides): Promise<BigNumber>;
 
-  "maturity()"(overrides?: CallOverrides): Promise<number>;
+  "maturity()"(overrides?: CallOverrides): Promise<BigNumber>;
 
   maxFlashLoan(token: string, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -805,7 +816,7 @@ export class FYToken extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  "redeem(address,uint128)"(
+  "redeem(address,uint256)"(
     to: string,
     amount: BigNumberish,
     overrides?: Overrides
@@ -926,6 +937,10 @@ export class FYToken extends Contract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
+    asset(overrides?: CallOverrides): Promise<string>;
+
+    "asset()"(overrides?: CallOverrides): Promise<string>;
+
     balanceOf(guy: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     "balanceOf(address)"(
@@ -1035,9 +1050,9 @@ export class FYToken extends Contract {
 
     "mature()"(overrides?: CallOverrides): Promise<void>;
 
-    maturity(overrides?: CallOverrides): Promise<number>;
+    maturity(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "maturity()"(overrides?: CallOverrides): Promise<number>;
+    "maturity()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     maxFlashLoan(token: string, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1101,7 +1116,7 @@ export class FYToken extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "redeem(address,uint128)"(
+    "redeem(address,uint256)"(
       to: string,
       amount: BigNumberish,
       overrides?: CallOverrides
@@ -1278,6 +1293,10 @@ export class FYToken extends Contract {
       wad: BigNumberish,
       overrides?: Overrides
     ): Promise<BigNumber>;
+
+    asset(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "asset()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     balanceOf(guy: string, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1457,7 +1476,7 @@ export class FYToken extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    "redeem(address,uint128)"(
+    "redeem(address,uint256)"(
       to: string,
       amount: BigNumberish,
       overrides?: Overrides
@@ -1582,6 +1601,10 @@ export class FYToken extends Contract {
       wad: BigNumberish,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
+
+    asset(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "asset()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     balanceOf(
       guy: string,
@@ -1773,7 +1796,7 @@ export class FYToken extends Contract {
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    "redeem(address,uint128)"(
+    "redeem(address,uint256)"(
       to: string,
       amount: BigNumberish,
       overrides?: Overrides
