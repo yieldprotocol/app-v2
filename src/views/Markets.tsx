@@ -2,7 +2,7 @@ import React, { useContext, useState, useRef, useEffect } from 'react';
 import { Box, Button, Collapsible, Menu, ResponsiveContext, Text, TextInput } from 'grommet';
 
 import { useHistory } from 'react-router-dom';
-import { VaultContext } from '../contexts/VaultContext';
+import { UserContext } from '../contexts/UserContext';
 import MainViewWrap from '../components/wraps/MainViewWrap';
 import { IYieldSeries } from '../types';
 import SectionWrap from '../components/wraps/SectionWrap';
@@ -15,19 +15,18 @@ const Markets = () => {
   const routerHistory = useHistory();
 
   /* state from context */
-  const { vaultState } = useContext(VaultContext);
-  const { seriesMap } = vaultState;
+  const { userState: { vaultMap } } = useContext(UserContext);
 
   /* local state */
   const [inputValue, setInputValue] = useState<any>(undefined);
   const [expanded, setExpanded] = useState<any>(undefined);
 
-  const [availableSeries, setAvailableSeries] = useState<IYieldSeries[]>([]);
+  const [availableVault, setAvailableVaults] = useState<IYieldSeries[]>([]);
 
   /* init effects */
   useEffect(() => {
-    setAvailableSeries(Array.from(seriesMap.values())); // add some filtering here
-  }, [seriesMap]);
+    setAvailableVaults(Array.from(vaultMap.values())); // add some filtering here
+  }, [vaultMap]);
 
   return (
     <MainViewWrap fullWidth>

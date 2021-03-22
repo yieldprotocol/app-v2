@@ -12,7 +12,6 @@ import { yieldTheme } from './themes';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { ChainProvider } from './contexts/ChainContext';
-import { VaultProvider } from './contexts/VaultContext';
 import { TxProvider } from './contexts/TxContext';
 import { UserProvider } from './contexts/UserContext';
 
@@ -43,15 +42,13 @@ ReactDOM.render(
       <Web3FallbackProvider getLibrary={getCallLibrary}>
         <Web3ReactProvider getLibrary={getLibrary}>
           <ChainProvider>
-            <VaultProvider>
-              <UserProvider>
-                <TxProvider>
-                  <Grommet theme={deepMerge(base, yieldTheme)} full>
-                    <App />
-                  </Grommet>
-                </TxProvider>
-              </UserProvider>
-            </VaultProvider>
+            <UserProvider>
+              <TxProvider>
+                <Grommet theme={deepMerge(base, yieldTheme)} full>
+                  <App />
+                </Grommet>
+              </TxProvider>
+            </UserProvider>
           </ChainProvider>
         </Web3ReactProvider>
       </Web3FallbackProvider>
