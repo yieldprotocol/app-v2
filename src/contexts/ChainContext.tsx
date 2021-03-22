@@ -176,7 +176,7 @@ const ChainProvider = ({ children }: any) => {
             return _map;
           }, chainState.assetMap);
 
-          console.log(newAssetMap);
+          console.log('ASSETS: ', newAssetMap);
 
           updateState({ type: 'assetMap', payload: newAssetMap });
           // TODO improve initially selected asset logic (possibly based vaults)
@@ -206,7 +206,7 @@ const ChainProvider = ({ children }: any) => {
             return _map;
           }, chainState.seriesMap);
 
-          console.log(newSeriesMap);
+          console.log('SERIES: ', newSeriesMap);
 
           updateState({ type: 'seriesMap', payload: newSeriesMap });
           // TODO improve initially selected series logic (possibly based vaults)

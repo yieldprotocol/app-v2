@@ -4,14 +4,14 @@ import { Box, Button, Collapsible, Menu, ResponsiveContext, Text, TextInput } fr
 import { useHistory } from 'react-router-dom';
 import { cleanValue } from '../utils/displayUtils';
 
-import { VaultContext } from '../contexts/VaultContext';
+import { UserContext } from '../contexts/UserContext';
 
 import AssetSelector from '../components/AssetSelector';
 import MainViewWrap from '../components/wraps/MainViewWrap';
 import SeriesSelector from '../components/SeriesSelector';
 import InputWrap from '../components/wraps/InputWrap';
 import InfoBite from '../components/InfoBite';
-import { IYieldSeries } from '../types';
+import { IYieldSeries, IYieldVault } from '../types';
 import { borrowingPower } from '../utils/yieldMath';
 import Borrow from './Borrow';
 import ActionButtonGroup from '../components/ActionButtonGroup';
@@ -23,29 +23,26 @@ const Vault = () => {
   const routerHistory = useHistory();
 
   /* state from context */
-  const { vaultState } = useContext(VaultContext);
-  const { seriesMap } = vaultState;
+  const { userState: { vaultMap, activeVault } } = useContext(UserContext);
 
   /* local state */
   const [inputValue, setInputValue] = useState<any>(undefined);
   const [expanded, setExpanded] = useState<any>(undefined);
 
-  const [availableSeries, setAvailableSeries] = useState<IYieldSeries[]>([]);
+  const [availableVaults, setAvailableVaults] = useState<IYieldVault[]>([]);
 
   /* init effects */
   useEffect(() => {
-    setAvailableSeries(Array.from(seriesMap.values())); // add some filtering here
-  }, [seriesMap]);
+    setAvailableVaults(Array.from(vaultMap.values())); // add some filtering here
+  }, [vaultMap]);
 
   return (
     <MainViewWrap fullWidth>
 
       <Box gap="medium">
-
         <Box direction="row-responsive" gap="medium" justify="between" fill="horizontal">
-
           <Box direction="row" align="center" justify="between">
-            <Text size={mobile ? 'small' : 'medium'}> Vault 0x14...9b7  </Text>
+            <Text size={mobile ? 'small' : 'medium'}> {activeVault?.id} </Text>
             <Menu
               label={<Box pad="xsmall" alignSelf="end" fill><Text size="xsmall" color="brand"> Change Vault </Text></Box>}
               dropProps={{
@@ -54,7 +51,7 @@ const Vault = () => {
               }}
               icon={false}
               items={
-                availableSeries.map((x:any) => ({ label: <Text size="small"> - {x.displayName} • APR: {x.apr}% </Text> }))
+                availableVaults.map((x:any) => ({ label: <Text size="small"> {x.id} </Text> }))
             }
             />
           </Box>
