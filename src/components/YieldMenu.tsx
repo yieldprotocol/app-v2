@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { Box, Button, Header, Text } from 'grommet';
 import styled, { CSSProperties, ThemeContext } from 'styled-components';
 import { useHistory } from 'react-router-dom';
-import { VaultContext } from '../contexts/VaultContext';
+import { UserContext } from '../contexts/UserContext';
 import { IMenuProps, View } from '../types';
 
 const StyledBox = styled(Box)`
@@ -20,7 +20,7 @@ const StyledBox = styled(Box)`
 
 const YieldMenu = ({ toggleMenu }: IMenuProps) => {
   const [view, setView] = useState<View>(View.vaults);
-  const { vaultState } = useContext(VaultContext);
+  const { userState: { vaultMap, activeVault } } = useContext(UserContext);
   const routerHistory = useHistory();
 
   const theme = useContext<any>(ThemeContext);
@@ -68,7 +68,7 @@ const YieldMenu = ({ toggleMenu }: IMenuProps) => {
         {
           view === View.vaults &&
           <Box gap="medium">
-            { Array.from(vaultState.vaultMap.values()).map((x:any) => (
+            { Array.from(vaultMap.values()).map((x:any) => (
               <Box
                 key={x.id}
                 pad="small"

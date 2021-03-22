@@ -4,7 +4,7 @@ import styled, { CSSProperties, ThemeContext } from 'styled-components';
 import { NavLink, useHistory } from 'react-router-dom';
 import { FiX } from 'react-icons/fi';
 import { IYieldVault } from '../types';
-import { VaultContext } from '../contexts/VaultContext';
+import { UserContext } from '../contexts/UserContext';
 import YieldNavigation from '../components/YieldNavigation';
 import YieldHeader from '../components/YieldHeader';
 
@@ -24,7 +24,7 @@ const MenuLayer = ({ toggleMenu, callback }: ILayerProps) => {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
   const [view, setView] = useState<View>(View.vaults);
 
-  const { vaultState } = useContext(VaultContext);
+  const { userState: { vaultMap } } = useContext(UserContext);
 
   const routerHistory = useHistory();
 

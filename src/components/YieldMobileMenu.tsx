@@ -4,7 +4,7 @@ import { NavLink, useHistory } from 'react-router-dom';
 import { FiX, FiArrowLeftCircle } from 'react-icons/fi';
 import styled, { CSSProperties, ThemeContext } from 'styled-components';
 
-import { VaultContext } from '../contexts/VaultContext';
+import { UserContext } from '../contexts/UserContext';
 import { IMenuProps, View } from '../types';
 import YieldNavigation from './YieldNavigation';
 import YieldMenu from './YieldMenu';
@@ -24,7 +24,7 @@ const StyledBox = styled(Box)`
 
 const YieldMobileMenu = ({ toggleMenu }: IMenuProps) => {
   const [view, setView] = useState<string | undefined>(undefined);
-  const { vaultState } = useContext(VaultContext);
+  const { userState: { vaultMap } } = useContext(UserContext);
   const routerHistory = useHistory();
 
   const theme = useContext<any>(ThemeContext);
@@ -93,7 +93,7 @@ const YieldMobileMenu = ({ toggleMenu }: IMenuProps) => {
           {
           view === View.vaults &&
           <Box gap="medium">
-            { Array.from(vaultState.vaultMap.values()).map((x:any) => (
+            { Array.from(vaultMap.values()).map((x:any) => (
               <Box
                 key={x.id}
                 pad="small"
