@@ -24,7 +24,7 @@ const MenuLayer = ({ toggleMenu, callback }: ILayerProps) => {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
   const [view, setView] = useState<View>(View.vaults);
 
-  const { userState: { vaultMap } } = useContext(UserContext);
+  const { userState: { vaultMap }, userActions: { setActiveVault } } = useContext(UserContext);
 
   const routerHistory = useHistory();
 
@@ -39,6 +39,7 @@ const MenuLayer = ({ toggleMenu, callback }: ILayerProps) => {
   } as CSSProperties;
 
   const handleSelect = (vaultId:string) => {
+    setActiveVault(vaultMap.get(vaultId));
     routerHistory.push(`/vault/${vaultId}`);
     toggleMenu();
   };

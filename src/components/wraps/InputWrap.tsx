@@ -1,5 +1,5 @@
-import React from 'react';
-import { Box, BoxProps } from 'grommet';
+import React, { useContext } from 'react';
+import { Box, BoxProps, ResponsiveContext } from 'grommet';
 
 interface IInputWrap extends BoxProps {
   action?: ()=>void;
@@ -7,6 +7,8 @@ interface IInputWrap extends BoxProps {
 }
 
 function InputWrap({ action, children, ...props }: IInputWrap) {
+  const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
+
   return (
     <Box
       {...props}
@@ -15,6 +17,7 @@ function InputWrap({ action, children, ...props }: IInputWrap) {
       border
       pad={{ horizontal: 'small' }}
       align="center"
+      basis={mobile ? '50%' : '65%'}
     >
       { children }
     </Box>

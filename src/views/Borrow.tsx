@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Box, Button, Heading, Keyboard, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import { Router, useHistory } from 'react-router-dom';
 
@@ -14,6 +14,7 @@ import ActionButtonGroup from '../components/ActionButtonGroup';
 import PlaceholderWrap from '../components/wraps/PlaceholderWrap';
 import { useDebounce } from '../hooks';
 import SectionWrap from '../components/wraps/SectionWrap';
+import { useActions } from '../hooks/actionHooks';
 
 const Borrow = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -21,9 +22,19 @@ const Borrow = () => {
   const routerState = routerHistory.location.state as { from: string };
 
   const [inputValue, setInputValue] = useState<string|undefined>(undefined);
-  // const [inputRef, setInputRef] = useState<any>(null);
   const debouncedInput = useDebounce(inputValue, 300);
   const [collInputValue, setCollInputValue] = useState<string>();
+  const [createNewVault, setCreateNewVault] = useState<boolean>(false);
+
+  const { borrow } = useActions();
+  const handleBorrow = () => {
+    borrow(inputValue, collInputValue, createNewVault);
+  };
+
+  /* Borrow form logic */
+  useEffect(() => {
+    console.log('something changed');
+  }, [inputValue, collInputValue, createNewVault]);
 
   return (
 
@@ -37,7 +48,7 @@ const Borrow = () => {
         <SectionWrap title="1. Asset to Borrow" subtitle="Choose an asset and period to borrow for">
 
           <Box direction="row" gap="small" fill="horizontal">
-            <InputWrap basis="65%" action={() => console.log('maxAction')}>
+            <InputWrap action={() => console.log('maxAction')}>
               <TextInput
                 plain
                 type="number"
@@ -47,7 +58,7 @@ const Borrow = () => {
                 autoFocus={!mobile}
               />
             </InputWrap>
-            <Box basis="35%" fill>
+            <Box basis={mobile ? '50%' : '35%'} fill>
               <AssetSelector />
             </Box>
           </Box>
@@ -86,6 +97,7 @@ const Borrow = () => {
             primary
             label={<Text size={mobile ? 'small' : undefined}> {`Borrow  ${inputValue || ''} Dai`}</Text>}
             key="primary"
+            onClick={() => handleBorrow()}
           />,
 
           (!routerState && <Button

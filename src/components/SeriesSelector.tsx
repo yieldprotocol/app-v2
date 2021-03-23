@@ -9,7 +9,7 @@ function SeriesSelector() {
   const { chainState: { seriesMap, activeSeries }, chainActions } = useContext(ChainContext);
 
   const [options, setOptions] = useState<IYieldSeries[]>([]);
-  const optionText = (series: IYieldSeries) => `${series?.displayName}  ● APR: ${series?.apr}%` || '';
+  const optionText = (series: IYieldSeries) => `${mobile ? series?.displayNameMobile : series?.displayName}  ● APR: ${series?.apr}%` || '';
 
   useEffect(() => {
     const opts = Array.from(seriesMap.values()) as IYieldSeries[];
