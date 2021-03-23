@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { Box, Button, Heading, Keyboard, ResponsiveContext, Select, Text, TextInput } from 'grommet';
+import { Box, Button, CheckBox, Heading, Keyboard, RadioButtonGroup, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import { Router, useHistory } from 'react-router-dom';
 
 import { FiArrowLeftCircle } from 'react-icons/fi';
@@ -91,6 +91,16 @@ const Borrow = () => {
             </Box>
           </Box>
         </SectionWrap>
+
+        <Box direction="row" justify="end">
+          <CheckBox
+            reverse
+            // disabled
+            checked={createNewVault}
+            label={<Text size="small">Create new vault</Text>}
+            onChange={(event:any) => setCreateNewVault(event.target.checked)}
+          />
+        </Box>
 
         <ActionButtonGroup buttonList={[
           <Button
