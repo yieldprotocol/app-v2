@@ -35,8 +35,9 @@ export interface IYieldVault {
   id: string;
   asset: IYieldAsset;
   series: IYieldSeries;
-  collateralBalance: string;
-  assetBalance: string;
+  ink: string;
+  art: string;
+
 }
 
 export interface IYieldUser {

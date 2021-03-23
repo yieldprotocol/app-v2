@@ -45,7 +45,15 @@ function userReducer(state:any, action:any) {
 const UserProvider = ({ children }:any) => {
   const [userState, updateState] = useReducer(userReducer, initState);
   // const [cachedVaults, setCachedVaults] = useCachedState('vaults', { data: [], lastBlock: Number(process.env.REACT_APP_DEPLOY_BLOCK) });
-  const { chainState: { contractMap, account, chainLoading, fallbackProvider } } = useContext(ChainContext);
+  const { chainState } = useContext(ChainContext);
+  const {
+    contractMap,
+    account,
+    chainLoading,
+    fallbackProvider,
+    seriesMap,
+    assetMap,
+  } = chainState;
 
   useEffect(() => {
     /* when chainContext is finsihed Loading get the vaults */
@@ -61,10 +69,11 @@ const UserProvider = ({ children }:any) => {
         const { ink, art } = await Cauldron.balances(id);
         return {
           id,
-          seriesId,
-          ilkId,
           ink,
           art,
+          series: seriesMap.get(seriesId),
+          asset: assetMap.get(ilkId),
+          assetBalance: ethers.BigNumber.from('0'),
           ink_: cleanValue(ethers.utils.formatEther(ink), 2), // for display purposes only
           art_: cleanValue(ethers.utils.formatEther(art), 2), // for display purposes only
         };
@@ -72,7 +81,6 @@ const UserProvider = ({ children }:any) => {
 
       // const _combined = [...cachedVaults.data, ...vaultList];
       const _combined = [...vaultList] as IYieldVault[];
-
       const newVaultMap = _combined.reduce((acc:any, item:any) => {
         const _map = acc;
         _map.set(item.id, item);
@@ -80,7 +88,6 @@ const UserProvider = ({ children }:any) => {
       }, userState.vaultMap) as Map<string, IYieldVault>;
 
       console.log('VAULTS: ', newVaultMap);
-
       updateState({ type: 'vaultMap', payload: newVaultMap });
       updateState({ type: 'activeVault', payload: newVaultMap.get(_combined[0]?.id) });
 
@@ -94,13 +101,13 @@ const UserProvider = ({ children }:any) => {
 
   }, []);
 
-  const vaultActions = {
-    setActiveSeries: (series:IYieldSeries) => updateState({ type: 'activeSeries', payload: series }),
+  const userActions = {
+    setActiveVault: (vault:IYieldVault) => updateState({ type: 'activeVault', payload: vault }),
     // updateSeries: (seriesList: IYieldSeries[]) => updateSeries(seriesList),
   };
 
   return (
-    <UserContext.Provider value={{ userState, vaultActions }}>
+    <UserContext.Provider value={{ userState, userActions }}>
       {children}
     </UserContext.Provider>
   );
