@@ -5,6 +5,7 @@ import { useHistory } from 'react-router-dom';
 import { cleanValue } from '../utils/displayUtils';
 
 import { UserContext } from '../contexts/UserContext';
+import { ChainContext } from '../contexts/ChainContext';
 
 import AssetSelector from '../components/AssetSelector';
 import MainViewWrap from '../components/wraps/MainViewWrap';
@@ -23,22 +24,22 @@ const Vault = () => {
   const routerHistory = useHistory();
 
   /* state from context */
-  const { userState: { vaultMap, activeVault } } = useContext(UserContext);
+  const { userState: { vaultMap, activeVault }, userActions: { setActiveVault } } = useContext(UserContext);
+  const { chainState: { assetMap, seriesMap } } = useContext(ChainContext);
 
   /* local state */
+  const [availableVaults, setAvailableVaults] = useState<IYieldVault[]>();
+
   const [inputValue, setInputValue] = useState<any>(undefined);
   const [expanded, setExpanded] = useState<any>(undefined);
-
-  const [availableVaults, setAvailableVaults] = useState<IYieldVault[]>([]);
 
   /* init effects */
   useEffect(() => {
     setAvailableVaults(Array.from(vaultMap.values())); // add some filtering here
-  }, [vaultMap]);
+  }, [vaultMap, activeVault]);
 
   return (
     <MainViewWrap fullWidth>
-
       <Box gap="medium">
         <Box direction="row-responsive" gap="medium" justify="between" fill="horizontal">
           <Box direction="row" align="center" justify="between">
@@ -51,26 +52,29 @@ const Vault = () => {
               }}
               icon={false}
               items={
-                availableVaults.map((x:any) => ({ label: <Text size="small"> {x.id} </Text> }))
-            }
+                availableVaults?.map((x:any) => (
+                  { label: <Text size="small"> {x.id} </Text>, onClick: () => setActiveVault(vaultMap.get(x.id)) }
+                )) || []
+              }
+              onSelect={(x:any) => console.log(x)}
             />
           </Box>
 
           <Box direction="row" justify="between" gap="small">
             <Text size="small"> Maturity date: </Text>
-            <Text size="small"> April 2021 </Text>
+            <Text size="small"> { activeVault?.series?.displayName } </Text>
           </Box>
         </Box>
 
-        <InfoBite label="Total value in $DOGE" value="2345.23" />
-        <InfoBite label="Total value in USD" value="293.23" />
+        <InfoBite label={`Total value in ${activeVault?.asset?.symbol}`} value={activeVault?.art_} />
+        <InfoBite label="Total value in USD" value="0.0" />
 
       </Box>
 
       <MainViewWrap>
         <SectionWrap>
           <Box direction="row" justify="between" fill="horizontal">
-            <Text size={mobile ? 'small' : 'medium'}> Debt: 332 $DOGE </Text> <Text size={mobile ? 'small' : 'medium'}> ($2343,00 USD) </Text>
+            <Text size={mobile ? 'small' : 'medium'}> Debt: {activeVault?.art_} {activeVault?.asset?.symbol} </Text> <Text size={mobile ? 'small' : 'medium'}> ($0,00 USD) </Text>
           </Box>
 
           <Box gap="small" fill="horizontal">
