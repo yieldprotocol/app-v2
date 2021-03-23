@@ -24,11 +24,11 @@ const Borrow = () => {
   const [inputValue, setInputValue] = useState<string|undefined>(undefined);
   const debouncedInput = useDebounce(inputValue, 300);
   const [collInputValue, setCollInputValue] = useState<string>();
-  const [createNewVault, setCreateNewVault] = useState<boolean>(false);
+  const [createNewVault, setCreateNewVault] = useState<boolean>(true);
 
   const { borrow } = useActions();
   const handleBorrow = () => {
-    borrow(inputValue, collInputValue, createNewVault);
+    borrow(inputValue, collInputValue, createNewVault ? null : '345345');
   };
 
   /* Borrow form logic */
@@ -95,7 +95,7 @@ const Borrow = () => {
         <Box direction="row" justify="end">
           <CheckBox
             reverse
-            // disabled
+            disabled
             checked={createNewVault}
             label={<Text size="small">Create new vault</Text>}
             onChange={(event:any) => setCreateNewVault(event.target.checked)}
