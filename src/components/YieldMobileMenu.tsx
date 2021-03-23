@@ -5,7 +5,7 @@ import { FiX, FiArrowLeftCircle } from 'react-icons/fi';
 import styled, { CSSProperties, ThemeContext } from 'styled-components';
 
 import { UserContext } from '../contexts/UserContext';
-import { IMenuProps, View } from '../types';
+import { IMenuProps, IYieldVault, View } from '../types';
 import YieldNavigation from './YieldNavigation';
 import YieldMenu from './YieldMenu';
 
@@ -24,7 +24,7 @@ const StyledBox = styled(Box)`
 
 const YieldMobileMenu = ({ toggleMenu }: IMenuProps) => {
   const [view, setView] = useState<string | undefined>(undefined);
-  const { userState: { vaultMap } } = useContext(UserContext);
+  const { userState: { vaultMap }, userActions: { setActiveVault } } = useContext(UserContext);
   const routerHistory = useHistory();
 
   const theme = useContext<any>(ThemeContext);
@@ -32,6 +32,7 @@ const YieldMobileMenu = ({ toggleMenu }: IMenuProps) => {
   const textBack = theme.global.colors['light-1'];
 
   const handleSelect = (vaultId:string) => {
+    setActiveVault(vaultMap.get(vaultId));
     routerHistory.push(`/vault/${vaultId}`);
     toggleMenu();
   };
@@ -93,14 +94,14 @@ const YieldMobileMenu = ({ toggleMenu }: IMenuProps) => {
           {
           view === View.vaults &&
           <Box gap="medium">
-            { Array.from(vaultMap.values()).map((x:any) => (
+            { Array.from(vaultMap.values() as IYieldVault[]).map((x:IYieldVault) => (
               <Box
                 key={x.id}
                 pad="small"
                 border
-                onClick={() => handleSelect(x)}
+                onClick={() => handleSelect(x.id)}
               >
-                {x.id}
+                <Text size="small"> {x.id} {x.series.displayNameMobile} </Text>
               </Box>
             ))}
           </Box>
