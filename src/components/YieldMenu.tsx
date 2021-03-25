@@ -1,9 +1,11 @@
 import React, { useContext, useState } from 'react';
-import { Box, Button, Header, Text } from 'grommet';
+import { Box, Button, Header, Image, Text } from 'grommet';
 import styled, { CSSProperties, ThemeContext } from 'styled-components';
 import { useHistory } from 'react-router-dom';
 import { UserContext } from '../contexts/UserContext';
 import { IMenuProps, IYieldVault, View } from '../types';
+import VaultImage from './VaultImage';
+import { genVaultImage } from '../utils/displayUtils';
 
 const StyledBox = styled(Box)`
   text-decoration: none;
@@ -82,8 +84,15 @@ const YieldMenu = ({ toggleMenu }: IMenuProps) => {
                 pad="small"
                 border
                 onClick={() => handleSelect(x.id)}
+                direction="row"
+                align="center"
               >
-                <Text size="small"> {x.id} {x.series.displayNameMobile} </Text>
+                <Box width="xxsmall">
+                  <Image src={genVaultImage(x.id)} />
+                </Box>
+                <Box align="center" fill="horizontal">
+                  <Text size="small"> {x.id} {x.series.displayNameMobile} </Text>
+                </Box>
               </Box>
             ))}
             {vaultsArray.length === 0 &&
