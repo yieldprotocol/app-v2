@@ -13,12 +13,12 @@ export interface IYieldSeries {
   maturity: number;
   fyDaiAddress:string;
   poolAddress:string;
+  baseId: string;
 
   contract?: ContractFactory;
-
   // optional/calculated/mutable:
-  maturityDate?: Date;
-  apr?: string;
+  maturityDate: Date;
+  apr: string;
 }
 
 export interface IYieldAsset {
@@ -37,7 +37,7 @@ export interface IYieldVault {
   series: IYieldSeries;
   ink: string;
   art: string;
-
+  image:string;
 }
 
 export interface IYieldUser {

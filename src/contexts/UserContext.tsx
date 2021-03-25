@@ -6,39 +6,41 @@ import { IYieldAsset, IYieldSeries, IYieldVault } from '../types';
 
 import { ChainContext } from './ChainContext';
 import { useCachedState } from '../hooks';
-import { cleanValue } from '../utils/displayUtils';
+import { cleanValue, genVaultImage } from '../utils/displayUtils';
 
 const UserContext = React.createContext<any>({});
 
 const initState = {
   vaultMap: new Map() as Map<string, IYieldVault>,
-
   activeVault: null as IYieldVault | null,
 
-  activeSeries: null as IYieldSeries | null,
-  activeAsset: null as IYieldAsset | null,
+  /* user selections */
+  selectedSeries: null as IYieldSeries | null,
+  selectedIlk: null as IYieldAsset| null,
+  selectedBase: null as IYieldAsset| null,
 
 };
 
 function userReducer(state:any, action:any) {
+  /* Helper: only change the state if different from existing */
+  const onlyIfChanged = (_action: any) => (
+    state[action.type] === _action.payload
+      ? state[action.type]
+      : _action.payload
+  );
+
+  /* Reducer switch */
   switch (action.type) {
-    case 'userLoading':
-      return {
-        ...state,
-        seriesLoading: action.payload,
-      };
-    case 'activeVault':
-      return {
-        ...state,
-        activeVault: action.payload,
-      };
-    case 'vaultMap':
-      return {
-        ...state,
-        vaultMap: action.payload,
-      };
-    default:
-      return state;
+    case 'userLoading': return { ...state, seriesLoading: onlyIfChanged(action) };
+
+    case 'vaultMap': return { ...state, vaultMap: onlyIfChanged(action) };
+    case 'activeVault': return { ...state, activeVault: onlyIfChanged(action) };
+
+    case 'selectedSeries': return { ...state, selectedSeries: onlyIfChanged(action) };
+    case 'selectedIlk': return { ...state, selectedIlk: onlyIfChanged(action) };
+    case 'selectedBase': return { ...state, selectedBase: onlyIfChanged(action) };
+
+    default: return state;
   }
 }
 
@@ -76,6 +78,7 @@ const UserProvider = ({ children }:any) => {
           assetBalance: ethers.BigNumber.from('0'),
           ink_: cleanValue(ethers.utils.formatEther(ink), 2), // for display purposes only
           art_: cleanValue(ethers.utils.formatEther(art), 2), // for display purposes only
+          image: genVaultImage(id),
         };
       }));
 
@@ -94,16 +97,25 @@ const UserProvider = ({ children }:any) => {
       /* Update the local cache storage */
       // setCachedVaults({ data: Array.from(newVaultMap.values()), lastBlock: await fallbackProvider.getBlockNumber() });
     })();
-  }, [account, chainLoading, contractMap, userState.vaultMap]);
+  }, [account, chainLoading, contractMap, userState.vaultMap, assetMap, seriesMap]);
 
   /* subscribe to vault event listeners */
   useEffect(() => {
 
   }, []);
 
+  /* set initial state */
+  useEffect(() => {
+    account && !chainLoading && updateState({ type: 'selectedBase', payload: assetMap.values().next().value });
+    account && !chainLoading && updateState({ type: 'selectedIlk', payload: assetMap.values().next().value });
+  }, [account, chainLoading, assetMap]);
+
   const userActions = {
     setActiveVault: (vault:IYieldVault) => updateState({ type: 'activeVault', payload: vault }),
-    // updateSeries: (seriesList: IYieldSeries[]) => updateSeries(seriesList),
+    setSelectedIlk: (asset:IYieldAsset) => updateState({ type: 'selectedIlk', payload: asset }),
+    setSelectedSeries: (series:IYieldSeries) => updateState({ type: 'selectedSeries', payload: series }),
+    setSelectedBase: (asset:IYieldAsset) => updateState({ type: 'selectedBase', payload: asset }),
+
   };
 
   return (
