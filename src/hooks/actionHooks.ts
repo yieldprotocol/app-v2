@@ -5,6 +5,7 @@ import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
 import { UserContext } from '../contexts/UserContext';
 import { Ladle } from '../contracts/Ladle';
+import { IYieldVault } from '../types';
 import { useChain } from './chainHooks';
 
 interface callData {
@@ -25,6 +26,8 @@ export const useActions = () => {
   const ladle = contractMap.get('Ladle') as Ladle;
   const { transact, multiCall } = useChain();
 
+  const buildVaultObject = (vaultId:string) => ({ fnName: 'build', args: [vaultId, activeSeries.seriesId, activeAsset.id] });
+
   const borrow = async (
     input:string|undefined,
     collInput:string|undefined,
@@ -33,18 +36,26 @@ export const useActions = () => {
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
     const _collInput = collInput ? ethers.utils.parseEther(collInput) : ethers.constants.Zero;
 
-    console.log(userState, vault);
+    const randVault = ethers.utils.hexlify(ethers.utils.randomBytes(12));
 
-    const _newVault = '0x78f617882cb7f4f617345367'; // vault name gnerator
-    vault && transact(ladle, 'pour', [userState.activeVault.id, account, _input, _collInput]);
+    vault && transact(ladle, 'pour', [vault, account, _input, _collInput]);
+    !vault && console.log(randVault, activeSeries.seriesId, activeAsset.id);
+
     !vault && multiCall(
       ladle,
       [
-        { fnName: 'build', args: [_newVault, activeSeries.seriesId, activeAsset.id] },
-        { fnName: 'pour', args: ['0xf4f617882cb7f4f617882c45', account, _input, _collInput] },
+        { fnName: 'build', args: [randVault, activeSeries.seriesId, activeAsset.id] },
+        { fnName: 'pour', args: [randVault, account, _input, _collInput] },
       ],
     );
   };
 
-  return { borrow };
+  const checkVault = async (
+    id:string|null = null,
+  ) => {
+    const _id = id ? ethers.utils.hexlify(id) : userState?.activeVault?.id || 'nothing';
+    console.log(_id);
+  };
+
+  return { borrow, checkVault };
 };
