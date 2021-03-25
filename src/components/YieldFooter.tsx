@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { utils } from 'ethers';
+import { ethers, utils } from 'ethers';
 
 import {
   Text,
@@ -29,6 +29,8 @@ const YieldFooter = (props: any) => {
   const [testOpen, setTestOpen] = useState<boolean>(false);
   const { transact, multiCall } = useChain();
 
+  const randVault = ethers.utils.hexlify(ethers.utils.randomBytes(12));
+
   return (
     <Footer pad="small">
 
@@ -49,15 +51,15 @@ const YieldFooter = (props: any) => {
                 () => multiCall(
                   ladle,
                   [
-                    { fnName: 'build', args: ['0xf4f617882cb7f4f617882312', seriesList[0].seriesId, assetList[1].id] },
-                    { fnName: 'build', args: ['0xf4f617882cb7f4f617882c45', seriesList[1].seriesId, assetList[2].id] },
+                    { fnName: 'build', args: [randVault, seriesList[0].seriesId, assetList[1].id] },
+                    { fnName: 'build', args: [randVault, seriesList[1].seriesId, assetList[2].id] },
                   ],
                 )
               }
               label="multicall"
             />
             <Button primary onClick={() => toast('Transaction complete')} label="Notify Example" />
-            <Button primary onClick={() => transact(ladle, 'build', ['0xf4f617882cb7f4f617882cb7', seriesList[0].seriesId, assetList[1].id])} label="Ladle interact" />
+            <Button primary onClick={() => transact(ladle, 'build', [randVault, seriesList[0].seriesId, assetList[1].id])} label="Ladle interact" />
             <Button primary onClick={() => console.log(utils.arrayify('0xf4f617882cb7'))} label="Notify Example" />
           </Box>
         </Collapsible>
