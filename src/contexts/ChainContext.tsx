@@ -67,9 +67,7 @@ const initState = {
   /* Connected Contract Maps */
   contractMap: new Map<string, ContractFactory>(),
   assetMap: new Map<string, IYieldAsset>(),
-  activeAsset: null as IYieldAsset| null,
   seriesMap: new Map<string, IYieldSeries>(),
-  activeSeries: null as IYieldSeries | null,
 
 };
 
@@ -94,14 +92,11 @@ function chainReducer(state: any, action: any) {
 
     case 'contractMap': return { ...state, contractMap: onlyIfChanged(action) };
     case 'assetMap': return { ...state, assetMap: onlyIfChanged(action) };
-    case 'activeAsset': return { ...state, activeAsset: onlyIfChanged(action) };
     case 'seriesMap': return { ...state, seriesMap: onlyIfChanged(action) };
-    case 'activeSeries': return { ...state, activeSeries: onlyIfChanged(action) };
 
     /* special internal case for multi-updates - might remove from this context if not needed */
     case '_any': return { ...state, ...action.payload };
-    default:
-      return state;
+    default: return state;
   }
 }
 
@@ -162,7 +157,13 @@ const ChainProvider = ({ children }: any) => {
             const { assetId: id, asset: address } = Cauldron.interface.parseLog(x).args;
             const ERC20 = contracts.ERC20__factory.connect(address, fallbackLibrary);
             /* Add in any extra static asset Data */ // TODO is there any other fixed series data?
-            const [displayName, symbol] = await Promise.all([ERC20.name(), ERC20.symbol()]);
+            let displayName: String;
+            let symbol: String;
+            try {
+              [displayName, symbol] = await Promise.all([ERC20.name(), ERC20.symbol()]);
+            } catch (e) {
+              [displayName, symbol] = ['ETH', 'ETH'];
+            }
             return {
               id,
               address,
@@ -179,8 +180,6 @@ const ChainProvider = ({ children }: any) => {
           console.log('ASSETS: ', newAssetMap);
 
           updateState({ type: 'assetMap', payload: newAssetMap });
-          // TODO improve initially selected asset logic (possibly based vaults)
-          updateState({ type: 'activeAsset', payload: newAssetMap.get(assetList[0].id) });
         })(),
 
         /* ... at the same time update the available seriesMap based on Cauldron events */
@@ -209,8 +208,6 @@ const ChainProvider = ({ children }: any) => {
           console.log('SERIES: ', newSeriesMap);
 
           updateState({ type: 'seriesMap', payload: newSeriesMap });
-          // TODO improve initially selected series logic (possibly based vaults)
-          updateState({ type: 'activeSeries', payload: newSeriesMap.get(seriesList[0].seriesId) });
         })(),
       ])
         .then(() => updateState({ type: 'chainLoading', payload: false }));
@@ -285,9 +282,6 @@ const ChainProvider = ({ children }: any) => {
     isConnected: (connection:string) => connectors.get(connection) === connector,
     connect: (connection:string = 'injected') => activate(connectors.get(connection)),
     disconnect: () => connector && deactivate(),
-
-    setActiveSeries: (series:IYieldSeries) => updateState({ type: 'activeSeries', payload: series }),
-    setActiveAsset: (asset:IYieldAsset) => updateState({ type: 'activeAsset', payload: asset }),
   };
 
   return (
