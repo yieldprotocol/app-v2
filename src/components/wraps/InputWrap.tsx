@@ -3,10 +3,11 @@ import { Box, BoxProps, ResponsiveContext } from 'grommet';
 
 interface IInputWrap extends BoxProps {
   action?: ()=>void;
+  disabled?: boolean;
   children: any;
 }
 
-function InputWrap({ action, children, ...props }: IInputWrap) {
+function InputWrap({ action, disabled, children, ...props }: IInputWrap) {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
 
   return (
@@ -24,6 +25,6 @@ function InputWrap({ action, children, ...props }: IInputWrap) {
   );
 }
 
-InputWrap.defaultProps = { action: () => null };
+InputWrap.defaultProps = { action: () => null, disabled: false };
 
 export default InputWrap;

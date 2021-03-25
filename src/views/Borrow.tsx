@@ -15,13 +15,16 @@ import PlaceholderWrap from '../components/wraps/PlaceholderWrap';
 import { useDebounce } from '../hooks';
 import SectionWrap from '../components/wraps/SectionWrap';
 import { useActions } from '../hooks/actionHooks';
+import { UserContext } from '../contexts/UserContext';
 
 const Borrow = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
   const routerHistory = useHistory();
   const routerState = routerHistory.location.state as { from: string };
 
-  const [inputValue, setInputValue] = useState<string|undefined>(undefined);
+  const { userState: { selectedSeries } } = useContext(UserContext);
+
+  const [inputValue, setInputValue] = useState<number>();
   const debouncedInput = useDebounce(inputValue, 300);
   const [collInputValue, setCollInputValue] = useState<string>();
   const [vaultIdValue, setVaultIdValue] = useState<string>();
@@ -30,7 +33,7 @@ const Borrow = () => {
 
   const { borrow, checkVault } = useActions();
   const handleBorrow = () => {
-    borrow(inputValue, collInputValue, createNewVault ? null : '345345');
+    borrow(inputValue?.toString(), collInputValue, createNewVault ? null : '345345');
   };
 
   /* Borrow form logic */
@@ -41,7 +44,7 @@ const Borrow = () => {
   useEffect(() => {
     if (vaultIdValue && vaultIdValue.length === 12) {
       checkVault();
-      console.log('max leagnth reasched');
+      console.log('max length reached');
     }
   }, [vaultIdValue, checkVault]);
 
@@ -63,7 +66,7 @@ const Borrow = () => {
                 type="number"
                 placeholder={<PlaceholderWrap label="Enter amount" />}
                 value={inputValue || ''}
-                onChange={(event:any) => setInputValue(event.target.value)}
+                onChange={(event:any) => setInputValue(Number(event.target.value))}
                 autoFocus={!mobile}
               />
             </InputWrap>
@@ -85,14 +88,15 @@ const Borrow = () => {
 
         <SectionWrap title="3. Add Collateral">
           <Box direction="row" gap="small" fill="horizontal" align="center">
-            <InputWrap basis="75%" action={() => console.log('maxAction')}>
+            <InputWrap action={() => console.log('maxAction')} disabled={!selectedSeries}>
               <TextInput
                 plain
                 type="number"
-                placeholder={<PlaceholderWrap label="Enter amount" />}
+                placeholder={<PlaceholderWrap label="Enter amount" disabled={!selectedSeries} />}
                 // ref={(el:any) => { el && el.focus(); }}
                 value={collInputValue || ''}
                 onChange={(event:any) => setCollInputValue(cleanValue(event.target.value))}
+                disabled={!selectedSeries}
               />
             </InputWrap>
             <Box basis={mobile ? '50%' : '35%'} fill>

@@ -189,6 +189,7 @@ const ChainProvider = ({ children }: any) => {
           const seriesList = await Promise.all(eventList.map(async (x:any) => {
             const { seriesId, baseId, fyToken } = Cauldron.interface.parseLog(x).args;
             const { maturity } = await Cauldron.series(seriesId);
+
             return {
               seriesId,
               baseId,

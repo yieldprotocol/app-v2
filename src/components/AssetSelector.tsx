@@ -23,18 +23,14 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   const [options, setOptions] = useState<IYieldAsset[]>([]);
   const optionText = (asset: IYieldAsset | undefined) => `${asset?.symbol}` || '';
 
-  const [currentAsset, setCurrentAsset] = useState<IYieldAsset>();
-
   useEffect(() => {
     const opts = Array.from(assetMap.values()) as IYieldAsset[];
-    const filteredOptions = selectCollateral ? opts : opts; // TODO fix this filtereing
 
-    setOptions(opts);
-  }, [currentAsset, assetMap, selectCollateral]);
-
-  useEffect(() => {
-    !selectCollateral && setCurrentAsset(selectedBase);
-  }, [selectCollateral, selectedBase, selectedIlk, options]);
+    const filteredOptions = selectCollateral
+      ? opts.filter((a:IYieldAsset) => a.id !== selectedBase.id)
+      : opts;
+    setOptions(filteredOptions);
+  }, [selectedBase, assetMap, selectCollateral]);
 
   return (
     <Box fill>
@@ -43,13 +39,13 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
         name="assetSelect"
         placeholder="Select Asset"
         options={options}
-        value={currentAsset}
+        value={selectCollateral ? selectedIlk : selectedBase}
         labelKey={(x:any) => optionText(x)}
-        valueLabel={<Box pad={mobile ? 'medium' : 'small'}><Text size="small" color="text"> { optionText(currentAsset)} </Text></Box>}
+        valueLabel={<Box pad={mobile ? 'medium' : 'small'}><Text size="small" color="text"> { optionText(selectCollateral ? selectedIlk : selectedBase)} </Text></Box>}
         onChange={({ option }: any) => {
           selectCollateral ? userActions.setSelectedIlk(option) : userActions.setSelectedBase(option);
         }}
-        disabled={selectCollateral && selectedSeries === null}
+        disabled={selectCollateral && !selectedSeries}
         // eslint-disable-next-line react/no-children-prop
         children={(x:any) => <Box pad={mobile ? 'medium' : 'small'} gap="small" direction="row"> <Text color="text" size="small"> { optionText(x) } </Text> </Box>}
       />

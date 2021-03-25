@@ -7,28 +7,22 @@ import { UserContext } from '../contexts/UserContext';
 
 function SeriesSelector() {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
-  const { chainState: { seriesMap }, chainActions } = useContext(ChainContext);
+  const { chainState: { seriesMap } } = useContext(ChainContext);
 
   const { userState: { selectedSeries, selectedIlk, selectedBase }, userActions } = useContext(UserContext);
-  const [currentSeries, setCurrentSeries] = useState<IYieldSeries>();
 
   const [options, setOptions] = useState<IYieldSeries[]>([]);
-  const optionText = (series: IYieldSeries|undefined) => `${mobile ? series?.displayNameMobile : series?.displayName}  ● APR: ${series?.apr}%` || '';
+  const optionText = (series: IYieldSeries|undefined) => (
+    series
+      ? `${mobile ? series?.displayNameMobile : series?.displayName}  ● APR: ${series?.apr}%`
+      : 'Select a series'
+  );
 
   useEffect(() => {
     const opts = Array.from(seriesMap.values()) as IYieldSeries[];
     const filteredOpts = opts.filter((series:IYieldSeries) => series.baseId === selectedBase.id);
-    console.log(filteredOpts);
     setOptions(filteredOpts);
   }, [seriesMap, selectedBase, selectedIlk]);
-
-  useEffect(() => {
-    if (selectedSeries) {
-      setCurrentSeries(selectedSeries);
-    } else {
-      userActions.setSelectedSeries(options[0]);
-    }
-  }, [selectedSeries, options, userActions]);
 
   return (
     <Box fill>
@@ -37,11 +31,11 @@ function SeriesSelector() {
         name="assetSelect"
         placeholder="Select Series"
         options={options}
-        value={currentSeries}
+        value={selectedSeries}
         labelKey={(x:any) => optionText(x)}
         valueLabel={
           options.length ?
-            <Box pad={mobile ? 'medium' : 'small'}><Text size="small" color="text"> {optionText(currentSeries)} </Text></Box>
+            <Box pad={mobile ? 'medium' : 'small'}><Text size="small" color="text"> {optionText(selectedSeries)} </Text></Box>
             : <Box pad={mobile ? 'medium' : 'small'}><Text size="small" color="text"> No available series.</Text></Box>
         }
         disabled={options.length === 0}

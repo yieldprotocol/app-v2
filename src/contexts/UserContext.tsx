@@ -58,7 +58,7 @@ const UserProvider = ({ children }:any) => {
   } = chainState;
 
   useEffect(() => {
-    /* when chainContext is finsihed Loading get the vaults */
+    /* when there is an account and the chainContext is finsihed loading get the vaults */
     account && !chainLoading && (async () => {
       const Cauldron = contractMap.get('Cauldron');
       const filter = Cauldron.filters.VaultBuilt(null, account, null);
@@ -107,7 +107,7 @@ const UserProvider = ({ children }:any) => {
   /* set initial state */
   useEffect(() => {
     account && !chainLoading && updateState({ type: 'selectedBase', payload: assetMap.values().next().value });
-    account && !chainLoading && updateState({ type: 'selectedIlk', payload: assetMap.values().next().value });
+    account && !chainLoading && updateState({ type: 'selectedIlk', payload: assetMap.get('0x455448000000') });
   }, [account, chainLoading, assetMap]);
 
   const userActions = {
@@ -115,7 +115,6 @@ const UserProvider = ({ children }:any) => {
     setSelectedIlk: (asset:IYieldAsset) => updateState({ type: 'selectedIlk', payload: asset }),
     setSelectedSeries: (series:IYieldSeries) => updateState({ type: 'selectedSeries', payload: series }),
     setSelectedBase: (asset:IYieldAsset) => updateState({ type: 'selectedBase', payload: asset }),
-
   };
 
   return (
