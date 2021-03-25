@@ -24,9 +24,11 @@ const Borrow = () => {
   const [inputValue, setInputValue] = useState<string|undefined>(undefined);
   const debouncedInput = useDebounce(inputValue, 300);
   const [collInputValue, setCollInputValue] = useState<string>();
+  const [vaultIdValue, setVaultIdValue] = useState<string>();
+
   const [createNewVault, setCreateNewVault] = useState<boolean>(true);
 
-  const { borrow } = useActions();
+  const { borrow, checkVault } = useActions();
   const handleBorrow = () => {
     borrow(inputValue, collInputValue, createNewVault ? null : '345345');
   };
@@ -35,6 +37,13 @@ const Borrow = () => {
   useEffect(() => {
     console.log('something changed');
   }, [inputValue, collInputValue, createNewVault]);
+
+  useEffect(() => {
+    if (vaultIdValue && vaultIdValue.length === 12) {
+      checkVault();
+      console.log('max leagnth reasched');
+    }
+  }, [vaultIdValue, checkVault]);
 
   return (
 
@@ -86,8 +95,8 @@ const Borrow = () => {
                 onChange={(event:any) => setCollInputValue(cleanValue(event.target.value))}
               />
             </InputWrap>
-            <Box round="xsmall" pad="xsmall">
-              <Text color="text" size="small"> ETH </Text>
+            <Box basis={mobile ? '50%' : '35%'} fill>
+              <AssetSelector selectCollateral />
             </Box>
           </Box>
         </SectionWrap>
@@ -101,6 +110,26 @@ const Borrow = () => {
             onChange={(event:any) => setCreateNewVault(event.target.checked)}
           />
         </Box>
+        {/*
+        <SectionWrap>
+          <InputWrap>
+            <TextInput
+              plain
+              placeholder={<PlaceholderWrap label="Enter vaultID" />}
+                // ref={(el:any) => { el && el.focus(); }}
+              maxLength={12}
+              value={vaultIdValue || ''}
+              onChange={(event:any) => setVaultIdValue(event.target.value)}
+            />
+            <CheckBox
+              reverse
+              disabled
+              checked={createNewVault}
+              label={<Text size="small">Random</Text>}
+              onChange={(event:any) => setCreateNewVault(event.target.checked)}
+            />
+          </InputWrap>
+        </SectionWrap> */}
 
         <ActionButtonGroup buttonList={[
           <Button
