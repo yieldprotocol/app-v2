@@ -7,6 +7,7 @@ export enum TradeType {
 
 export interface IYieldSeries {
   // reqd/fixed:
+  id: string;
   symbol: string;
   displayName: string;
   displayNameMobile: string;
@@ -43,9 +44,6 @@ export interface IYieldVault {
 export interface IYieldUser {
   // reqd/fixed:
   id: number;
-  symbol: string;
-  displayName: string;
-  displayNameMobile: string;
   address: string;
   // optional/calculated/mutable:
 }

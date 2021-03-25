@@ -9,13 +9,11 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-} from "ethers";
-import {
   Contract,
   ContractTransaction,
   Overrides,
   CallOverrides,
-} from "@ethersproject/contracts";
+} from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
 import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
@@ -151,12 +149,12 @@ export class ICauldron extends Contract {
   functions: {
     assets(
       assetsDd: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "assets(bytes6)"(
       assetsDd: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     balances(
@@ -174,7 +172,7 @@ export class ICauldron extends Contract {
       vaultId: BytesLike,
       seriesId: BytesLike,
       ilkId: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "build(address,bytes12,bytes6,bytes6)"(
@@ -182,112 +180,115 @@ export class ICauldron extends Contract {
       vaultId: BytesLike,
       seriesId: BytesLike,
       ilkId: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     destroy(
       vault: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "destroy(bytes12)"(
       vault: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     give(
       vaultId: BytesLike,
       user: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "give(bytes12,address)"(
       vaultId: BytesLike,
       user: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    grab(vault: BytesLike, overrides?: Overrides): Promise<ContractTransaction>;
+    grab(
+      vault: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     "grab(bytes12)"(
       vault: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     pour(
       vaultId: BytesLike,
       ink: BigNumberish,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "pour(bytes12,int128,int128)"(
       vaultId: BytesLike,
       ink: BigNumberish,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     rateOracles(
       baseId: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "rateOracles(bytes6)"(
       baseId: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     roll(
       vaultId: BytesLike,
       seriesId: BytesLike,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "roll(bytes12,bytes6,int128)"(
       vaultId: BytesLike,
       seriesId: BytesLike,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     series(
       seriesId: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "series(bytes6)"(
       seriesId: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     slurp(
       vaultId: BytesLike,
       ink: BigNumberish,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "slurp(bytes12,int128,int128)"(
       vaultId: BytesLike,
       ink: BigNumberish,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     stir(
       from: BytesLike,
       to: BytesLike,
       ink: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "stir(bytes12,bytes12,uint128)"(
       from: BytesLike,
       to: BytesLike,
       ink: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     timestamps(vault: BytesLike, overrides?: CallOverrides): Promise<[number]>;
@@ -301,14 +302,14 @@ export class ICauldron extends Contract {
       vaultId: BytesLike,
       seriesId: BytesLike,
       ilkId: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "tweak(bytes12,bytes6,bytes6)"(
       vaultId: BytesLike,
       seriesId: BytesLike,
       ilkId: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     vaults(
@@ -340,12 +341,12 @@ export class ICauldron extends Contract {
 
   assets(
     assetsDd: BytesLike,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "assets(bytes6)"(
     assetsDd: BytesLike,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   balances(
@@ -363,7 +364,7 @@ export class ICauldron extends Contract {
     vaultId: BytesLike,
     seriesId: BytesLike,
     ilkId: BytesLike,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "build(address,bytes12,bytes6,bytes6)"(
@@ -371,112 +372,115 @@ export class ICauldron extends Contract {
     vaultId: BytesLike,
     seriesId: BytesLike,
     ilkId: BytesLike,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   destroy(
     vault: BytesLike,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "destroy(bytes12)"(
     vault: BytesLike,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   give(
     vaultId: BytesLike,
     user: string,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "give(bytes12,address)"(
     vaultId: BytesLike,
     user: string,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  grab(vault: BytesLike, overrides?: Overrides): Promise<ContractTransaction>;
+  grab(
+    vault: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   "grab(bytes12)"(
     vault: BytesLike,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   pour(
     vaultId: BytesLike,
     ink: BigNumberish,
     art: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "pour(bytes12,int128,int128)"(
     vaultId: BytesLike,
     ink: BigNumberish,
     art: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   rateOracles(
     baseId: BytesLike,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "rateOracles(bytes6)"(
     baseId: BytesLike,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   roll(
     vaultId: BytesLike,
     seriesId: BytesLike,
     art: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "roll(bytes12,bytes6,int128)"(
     vaultId: BytesLike,
     seriesId: BytesLike,
     art: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   series(
     seriesId: BytesLike,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "series(bytes6)"(
     seriesId: BytesLike,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   slurp(
     vaultId: BytesLike,
     ink: BigNumberish,
     art: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "slurp(bytes12,int128,int128)"(
     vaultId: BytesLike,
     ink: BigNumberish,
     art: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   stir(
     from: BytesLike,
     to: BytesLike,
     ink: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "stir(bytes12,bytes12,uint128)"(
     from: BytesLike,
     to: BytesLike,
     ink: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   timestamps(vault: BytesLike, overrides?: CallOverrides): Promise<number>;
@@ -490,14 +494,14 @@ export class ICauldron extends Contract {
     vaultId: BytesLike,
     seriesId: BytesLike,
     ilkId: BytesLike,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "tweak(bytes12,bytes6,bytes6)"(
     vaultId: BytesLike,
     seriesId: BytesLike,
     ilkId: BytesLike,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   vaults(
@@ -721,11 +725,14 @@ export class ICauldron extends Contract {
   filters: {};
 
   estimateGas: {
-    assets(assetsDd: BytesLike, overrides?: Overrides): Promise<BigNumber>;
+    assets(
+      assetsDd: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     "assets(bytes6)"(
       assetsDd: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     balances(vault: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
@@ -740,7 +747,7 @@ export class ICauldron extends Contract {
       vaultId: BytesLike,
       seriesId: BytesLike,
       ilkId: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "build(address,bytes12,bytes6,bytes6)"(
@@ -748,103 +755,115 @@ export class ICauldron extends Contract {
       vaultId: BytesLike,
       seriesId: BytesLike,
       ilkId: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    destroy(vault: BytesLike, overrides?: Overrides): Promise<BigNumber>;
+    destroy(
+      vault: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     "destroy(bytes12)"(
       vault: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     give(
       vaultId: BytesLike,
       user: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "give(bytes12,address)"(
       vaultId: BytesLike,
       user: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    grab(vault: BytesLike, overrides?: Overrides): Promise<BigNumber>;
+    grab(
+      vault: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     "grab(bytes12)"(
       vault: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     pour(
       vaultId: BytesLike,
       ink: BigNumberish,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "pour(bytes12,int128,int128)"(
       vaultId: BytesLike,
       ink: BigNumberish,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    rateOracles(baseId: BytesLike, overrides?: Overrides): Promise<BigNumber>;
+    rateOracles(
+      baseId: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     "rateOracles(bytes6)"(
       baseId: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     roll(
       vaultId: BytesLike,
       seriesId: BytesLike,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "roll(bytes12,bytes6,int128)"(
       vaultId: BytesLike,
       seriesId: BytesLike,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    series(seriesId: BytesLike, overrides?: Overrides): Promise<BigNumber>;
+    series(
+      seriesId: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     "series(bytes6)"(
       seriesId: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     slurp(
       vaultId: BytesLike,
       ink: BigNumberish,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "slurp(bytes12,int128,int128)"(
       vaultId: BytesLike,
       ink: BigNumberish,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     stir(
       from: BytesLike,
       to: BytesLike,
       ink: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "stir(bytes12,bytes12,uint128)"(
       from: BytesLike,
       to: BytesLike,
       ink: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     timestamps(vault: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
@@ -858,14 +877,14 @@ export class ICauldron extends Contract {
       vaultId: BytesLike,
       seriesId: BytesLike,
       ilkId: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "tweak(bytes12,bytes6,bytes6)"(
       vaultId: BytesLike,
       seriesId: BytesLike,
       ilkId: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     vaults(vault: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
@@ -879,12 +898,12 @@ export class ICauldron extends Contract {
   populateTransaction: {
     assets(
       assetsDd: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "assets(bytes6)"(
       assetsDd: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     balances(
@@ -902,7 +921,7 @@ export class ICauldron extends Contract {
       vaultId: BytesLike,
       seriesId: BytesLike,
       ilkId: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "build(address,bytes12,bytes6,bytes6)"(
@@ -910,115 +929,115 @@ export class ICauldron extends Contract {
       vaultId: BytesLike,
       seriesId: BytesLike,
       ilkId: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     destroy(
       vault: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "destroy(bytes12)"(
       vault: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     give(
       vaultId: BytesLike,
       user: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "give(bytes12,address)"(
       vaultId: BytesLike,
       user: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     grab(
       vault: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "grab(bytes12)"(
       vault: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     pour(
       vaultId: BytesLike,
       ink: BigNumberish,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "pour(bytes12,int128,int128)"(
       vaultId: BytesLike,
       ink: BigNumberish,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     rateOracles(
       baseId: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "rateOracles(bytes6)"(
       baseId: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     roll(
       vaultId: BytesLike,
       seriesId: BytesLike,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "roll(bytes12,bytes6,int128)"(
       vaultId: BytesLike,
       seriesId: BytesLike,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     series(
       seriesId: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "series(bytes6)"(
       seriesId: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     slurp(
       vaultId: BytesLike,
       ink: BigNumberish,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "slurp(bytes12,int128,int128)"(
       vaultId: BytesLike,
       ink: BigNumberish,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     stir(
       from: BytesLike,
       to: BytesLike,
       ink: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "stir(bytes12,bytes12,uint128)"(
       from: BytesLike,
       to: BytesLike,
       ink: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     timestamps(
@@ -1035,14 +1054,14 @@ export class ICauldron extends Contract {
       vaultId: BytesLike,
       seriesId: BytesLike,
       ilkId: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "tweak(bytes12,bytes6,bytes6)"(
       vaultId: BytesLike,
       seriesId: BytesLike,
       ilkId: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     vaults(

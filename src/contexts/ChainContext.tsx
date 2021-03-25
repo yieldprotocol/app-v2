@@ -191,7 +191,7 @@ const ChainProvider = ({ children }: any) => {
             const { maturity } = await Cauldron.series(seriesId);
 
             return {
-              seriesId,
+              id: seriesId,
               baseId,
               fyToken,
               maturity,
@@ -202,7 +202,7 @@ const ChainProvider = ({ children }: any) => {
 
           const newSeriesMap = seriesList.reduce((acc:any, item:any) => {
             const _map = acc;
-            _map.set(item.seriesId, item);
+            _map.set(item.id, item);
             return _map;
           }, chainState.seriesMap);
 

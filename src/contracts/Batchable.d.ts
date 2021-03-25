@@ -9,13 +9,11 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-} from "ethers";
-import {
   Contract,
   ContractTransaction,
   PayableOverrides,
   CallOverrides,
-} from "@ethersproject/contracts";
+} from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
 import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
@@ -83,26 +81,26 @@ export class Batchable extends Contract {
     batch(
       calls: BytesLike[],
       revertOnFail: boolean,
-      overrides?: PayableOverrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "batch(bytes[],bool)"(
       calls: BytesLike[],
       revertOnFail: boolean,
-      overrides?: PayableOverrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
 
   batch(
     calls: BytesLike[],
     revertOnFail: boolean,
-    overrides?: PayableOverrides
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "batch(bytes[],bool)"(
     calls: BytesLike[],
     revertOnFail: boolean,
-    overrides?: PayableOverrides
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -129,13 +127,13 @@ export class Batchable extends Contract {
     batch(
       calls: BytesLike[],
       revertOnFail: boolean,
-      overrides?: PayableOverrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "batch(bytes[],bool)"(
       calls: BytesLike[],
       revertOnFail: boolean,
-      overrides?: PayableOverrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
 
@@ -143,13 +141,13 @@ export class Batchable extends Contract {
     batch(
       calls: BytesLike[],
       revertOnFail: boolean,
-      overrides?: PayableOverrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "batch(bytes[],bool)"(
       calls: BytesLike[],
       revertOnFail: boolean,
-      overrides?: PayableOverrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

@@ -19,7 +19,7 @@ import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
-interface ERC20MockInterface extends ethers.utils.Interface {
+interface DaiMockInterface extends ethers.utils.Interface {
   functions: {
     "DOMAIN_SEPARATOR()": FunctionFragment;
     "PERMIT_TYPEHASH()": FunctionFragment;
@@ -30,7 +30,7 @@ interface ERC20MockInterface extends ethers.utils.Interface {
     "mint(address,uint256)": FunctionFragment;
     "name()": FunctionFragment;
     "nonces(address)": FunctionFragment;
-    "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)": FunctionFragment;
+    "permit(address,address,uint256,uint256,bool,uint8,bytes32,bytes32)": FunctionFragment;
     "symbol()": FunctionFragment;
     "totalSupply()": FunctionFragment;
     "transfer(address,uint256)": FunctionFragment;
@@ -69,6 +69,7 @@ interface ERC20MockInterface extends ethers.utils.Interface {
       string,
       BigNumberish,
       BigNumberish,
+      boolean,
       BigNumberish,
       BytesLike,
       BytesLike
@@ -126,7 +127,7 @@ interface ERC20MockInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
 }
 
-export class ERC20Mock extends Contract {
+export class DaiMock extends Contract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -167,7 +168,7 @@ export class ERC20Mock extends Contract {
     toBlock?: string | number | undefined
   ): Promise<Array<TypedEvent<EventArgsArray & EventArgsObject>>>;
 
-  interface: ERC20MockInterface;
+  interface: DaiMockInterface;
 
   functions: {
     DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<[string]>;
@@ -237,21 +238,23 @@ export class ERC20Mock extends Contract {
     ): Promise<[BigNumber]>;
 
     permit(
-      owner: string,
+      holder: string,
       spender: string,
-      amount: BigNumberish,
-      deadline: BigNumberish,
+      nonce: BigNumberish,
+      expiry: BigNumberish,
+      allowed: boolean,
       v: BigNumberish,
       r: BytesLike,
       s: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"(
-      owner: string,
+    "permit(address,address,uint256,uint256,bool,uint8,bytes32,bytes32)"(
+      holder: string,
       spender: string,
-      amount: BigNumberish,
-      deadline: BigNumberish,
+      nonce: BigNumberish,
+      expiry: BigNumberish,
+      allowed: boolean,
       v: BigNumberish,
       r: BytesLike,
       s: BytesLike,
@@ -364,21 +367,23 @@ export class ERC20Mock extends Contract {
   ): Promise<BigNumber>;
 
   permit(
-    owner: string,
+    holder: string,
     spender: string,
-    amount: BigNumberish,
-    deadline: BigNumberish,
+    nonce: BigNumberish,
+    expiry: BigNumberish,
+    allowed: boolean,
     v: BigNumberish,
     r: BytesLike,
     s: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"(
-    owner: string,
+  "permit(address,address,uint256,uint256,bool,uint8,bytes32,bytes32)"(
+    holder: string,
     spender: string,
-    amount: BigNumberish,
-    deadline: BigNumberish,
+    nonce: BigNumberish,
+    expiry: BigNumberish,
+    allowed: boolean,
     v: BigNumberish,
     r: BytesLike,
     s: BytesLike,
@@ -491,21 +496,23 @@ export class ERC20Mock extends Contract {
     ): Promise<BigNumber>;
 
     permit(
-      owner: string,
+      holder: string,
       spender: string,
-      amount: BigNumberish,
-      deadline: BigNumberish,
+      nonce: BigNumberish,
+      expiry: BigNumberish,
+      allowed: boolean,
       v: BigNumberish,
       r: BytesLike,
       s: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"(
-      owner: string,
+    "permit(address,address,uint256,uint256,bool,uint8,bytes32,bytes32)"(
+      holder: string,
       spender: string,
-      amount: BigNumberish,
-      deadline: BigNumberish,
+      nonce: BigNumberish,
+      expiry: BigNumberish,
+      allowed: boolean,
       v: BigNumberish,
       r: BytesLike,
       s: BytesLike,
@@ -639,21 +646,23 @@ export class ERC20Mock extends Contract {
     ): Promise<BigNumber>;
 
     permit(
-      owner: string,
+      holder: string,
       spender: string,
-      amount: BigNumberish,
-      deadline: BigNumberish,
+      nonce: BigNumberish,
+      expiry: BigNumberish,
+      allowed: boolean,
       v: BigNumberish,
       r: BytesLike,
       s: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"(
-      owner: string,
+    "permit(address,address,uint256,uint256,bool,uint8,bytes32,bytes32)"(
+      holder: string,
       spender: string,
-      amount: BigNumberish,
-      deadline: BigNumberish,
+      nonce: BigNumberish,
+      expiry: BigNumberish,
+      allowed: boolean,
       v: BigNumberish,
       r: BytesLike,
       s: BytesLike,
@@ -777,21 +786,23 @@ export class ERC20Mock extends Contract {
     ): Promise<PopulatedTransaction>;
 
     permit(
-      owner: string,
+      holder: string,
       spender: string,
-      amount: BigNumberish,
-      deadline: BigNumberish,
+      nonce: BigNumberish,
+      expiry: BigNumberish,
+      allowed: boolean,
       v: BigNumberish,
       r: BytesLike,
       s: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"(
-      owner: string,
+    "permit(address,address,uint256,uint256,bool,uint8,bytes32,bytes32)"(
+      holder: string,
       spender: string,
-      amount: BigNumberish,
-      deadline: BigNumberish,
+      nonce: BigNumberish,
+      expiry: BigNumberish,
+      allowed: boolean,
       v: BigNumberish,
       r: BytesLike,
       s: BytesLike,

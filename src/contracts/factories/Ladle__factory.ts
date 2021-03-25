@@ -271,7 +271,7 @@ const _abi = [
     ],
     name: "build",
     outputs: [],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
     type: "function",
   },
   {
@@ -330,7 +330,7 @@ const _abi = [
         type: "tuple",
       },
     ],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
     type: "function",
   },
   {
@@ -342,6 +342,126 @@ const _abi = [
       },
     ],
     name: "destroy",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address payable",
+        name: "to",
+        type: "address",
+      },
+    ],
+    name: "exitEther",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "ethTransferred",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes6",
+        name: "id",
+        type: "bytes6",
+      },
+      {
+        internalType: "bool",
+        name: "asset",
+        type: "bool",
+      },
+      {
+        internalType: "address",
+        name: "spender",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "nonce",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "deadline",
+        type: "uint256",
+      },
+      {
+        internalType: "bool",
+        name: "allowed",
+        type: "bool",
+      },
+      {
+        internalType: "uint8",
+        name: "v",
+        type: "uint8",
+      },
+      {
+        internalType: "bytes32",
+        name: "r",
+        type: "bytes32",
+      },
+      {
+        internalType: "bytes32",
+        name: "s",
+        type: "bytes32",
+      },
+    ],
+    name: "forwardDaiPermit",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes6",
+        name: "id",
+        type: "bytes6",
+      },
+      {
+        internalType: "bool",
+        name: "asset",
+        type: "bool",
+      },
+      {
+        internalType: "address",
+        name: "spender",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "deadline",
+        type: "uint256",
+      },
+      {
+        internalType: "uint8",
+        name: "v",
+        type: "uint8",
+      },
+      {
+        internalType: "bytes32",
+        name: "r",
+        type: "bytes32",
+      },
+      {
+        internalType: "bytes32",
+        name: "s",
+        type: "bytes32",
+      },
+    ],
+    name: "forwardPermit",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -380,7 +500,7 @@ const _abi = [
     ],
     name: "give",
     outputs: [],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
     type: "function",
   },
   {
@@ -441,6 +561,25 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes6",
+        name: "etherId",
+        type: "bytes6",
+      },
+    ],
+    name: "joinEther",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "ethTransferred",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "payable",
     type: "function",
   },
   {
@@ -537,7 +676,7 @@ const _abi = [
         type: "tuple",
       },
     ],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
     type: "function",
   },
   {
@@ -602,7 +741,7 @@ const _abi = [
         type: "uint128",
       },
     ],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
     type: "function",
   },
   {
@@ -658,7 +797,7 @@ const _abi = [
         type: "uint128",
       },
     ],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
     type: "function",
   },
   {
@@ -675,6 +814,19 @@ const _abi = [
       },
     ],
     name: "setRoleAdmin",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "contract IWETH9",
+        name: "weth_",
+        type: "address",
+      },
+    ],
+    name: "setWeth",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -734,7 +886,7 @@ const _abi = [
         type: "tuple",
       },
     ],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
     type: "function",
   },
   {
@@ -757,7 +909,24 @@ const _abi = [
     ],
     name: "tweak",
     outputs: [],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
     type: "function",
+  },
+  {
+    inputs: [],
+    name: "weth",
+    outputs: [
+      {
+        internalType: "contract IWETH9",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    stateMutability: "payable",
+    type: "receive",
   },
 ];

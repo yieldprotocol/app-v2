@@ -9,13 +9,11 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-} from "ethers";
-import {
   Contract,
   ContractTransaction,
   Overrides,
   CallOverrides,
-} from "@ethersproject/contracts";
+} from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
 import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
@@ -101,12 +99,12 @@ export class IOracle extends Contract {
 
     record(
       maturity: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "record(uint32)"(
       maturity: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     spot(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -126,12 +124,12 @@ export class IOracle extends Contract {
 
   record(
     maturity: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "record(uint32)"(
     maturity: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   spot(overrides?: CallOverrides): Promise<BigNumber>;
@@ -174,11 +172,14 @@ export class IOracle extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    record(maturity: BigNumberish, overrides?: Overrides): Promise<BigNumber>;
+    record(
+      maturity: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     "record(uint32)"(
       maturity: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     spot(overrides?: CallOverrides): Promise<BigNumber>;
@@ -199,12 +200,12 @@ export class IOracle extends Contract {
 
     record(
       maturity: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "record(uint32)"(
       maturity: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     spot(overrides?: CallOverrides): Promise<PopulatedTransaction>;

@@ -9,13 +9,11 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-} from "ethers";
-import {
   Contract,
   ContractTransaction,
   Overrides,
   CallOverrides,
-} from "@ethersproject/contracts";
+} from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
 import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
@@ -112,7 +110,7 @@ export class IERC3156FlashLender extends Contract {
       token: string,
       amount: BigNumberish,
       data: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "flashLoan(address,address,uint256,bytes)"(
@@ -120,7 +118,7 @@ export class IERC3156FlashLender extends Contract {
       token: string,
       amount: BigNumberish,
       data: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     maxFlashLoan(
@@ -151,7 +149,7 @@ export class IERC3156FlashLender extends Contract {
     token: string,
     amount: BigNumberish,
     data: BytesLike,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "flashLoan(address,address,uint256,bytes)"(
@@ -159,7 +157,7 @@ export class IERC3156FlashLender extends Contract {
     token: string,
     amount: BigNumberish,
     data: BytesLike,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   maxFlashLoan(token: string, overrides?: CallOverrides): Promise<BigNumber>;
@@ -226,7 +224,7 @@ export class IERC3156FlashLender extends Contract {
       token: string,
       amount: BigNumberish,
       data: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "flashLoan(address,address,uint256,bytes)"(
@@ -234,7 +232,7 @@ export class IERC3156FlashLender extends Contract {
       token: string,
       amount: BigNumberish,
       data: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     maxFlashLoan(token: string, overrides?: CallOverrides): Promise<BigNumber>;
@@ -263,7 +261,7 @@ export class IERC3156FlashLender extends Contract {
       token: string,
       amount: BigNumberish,
       data: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "flashLoan(address,address,uint256,bytes)"(
@@ -271,7 +269,7 @@ export class IERC3156FlashLender extends Contract {
       token: string,
       amount: BigNumberish,
       data: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     maxFlashLoan(

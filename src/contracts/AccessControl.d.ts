@@ -9,13 +9,11 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-} from "ethers";
-import {
   Contract,
   ContractTransaction,
   Overrides,
   CallOverrides,
-} from "@ethersproject/contracts";
+} from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
 import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
@@ -160,25 +158,25 @@ export class AccessControl extends Contract {
     grantRole(
       role: BytesLike,
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "grantRole(bytes4,address)"(
       role: BytesLike,
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     grantRoles(
       roles: BytesLike[],
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "grantRoles(bytes4[],address)"(
       roles: BytesLike[],
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     hasRole(
@@ -195,48 +193,48 @@ export class AccessControl extends Contract {
 
     lockRole(
       role: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "lockRole(bytes4)"(
       role: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     renounceRole(
       role: BytesLike,
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "renounceRole(bytes4,address)"(
       role: BytesLike,
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     revokeRole(
       role: BytesLike,
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "revokeRole(bytes4,address)"(
       role: BytesLike,
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     setRoleAdmin(
       role: BytesLike,
       adminRole: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "setRoleAdmin(bytes4,bytes4)"(
       role: BytesLike,
       adminRole: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
 
@@ -258,25 +256,25 @@ export class AccessControl extends Contract {
   grantRole(
     role: BytesLike,
     account: string,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "grantRole(bytes4,address)"(
     role: BytesLike,
     account: string,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   grantRoles(
     roles: BytesLike[],
     account: string,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "grantRoles(bytes4[],address)"(
     roles: BytesLike[],
     account: string,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   hasRole(
@@ -293,48 +291,48 @@ export class AccessControl extends Contract {
 
   lockRole(
     role: BytesLike,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "lockRole(bytes4)"(
     role: BytesLike,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   renounceRole(
     role: BytesLike,
     account: string,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "renounceRole(bytes4,address)"(
     role: BytesLike,
     account: string,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   revokeRole(
     role: BytesLike,
     account: string,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "revokeRole(bytes4,address)"(
     role: BytesLike,
     account: string,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   setRoleAdmin(
     role: BytesLike,
     adminRole: BytesLike,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "setRoleAdmin(bytes4,bytes4)"(
     role: BytesLike,
     adminRole: BytesLike,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -483,25 +481,25 @@ export class AccessControl extends Contract {
     grantRole(
       role: BytesLike,
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "grantRole(bytes4,address)"(
       role: BytesLike,
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     grantRoles(
       roles: BytesLike[],
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "grantRoles(bytes4[],address)"(
       roles: BytesLike[],
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     hasRole(
@@ -516,47 +514,50 @@ export class AccessControl extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    lockRole(role: BytesLike, overrides?: Overrides): Promise<BigNumber>;
+    lockRole(
+      role: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     "lockRole(bytes4)"(
       role: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     renounceRole(
       role: BytesLike,
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "renounceRole(bytes4,address)"(
       role: BytesLike,
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     revokeRole(
       role: BytesLike,
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "revokeRole(bytes4,address)"(
       role: BytesLike,
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     setRoleAdmin(
       role: BytesLike,
       adminRole: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "setRoleAdmin(bytes4,bytes4)"(
       role: BytesLike,
       adminRole: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
 
@@ -582,25 +583,25 @@ export class AccessControl extends Contract {
     grantRole(
       role: BytesLike,
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "grantRole(bytes4,address)"(
       role: BytesLike,
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     grantRoles(
       roles: BytesLike[],
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "grantRoles(bytes4[],address)"(
       roles: BytesLike[],
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     hasRole(
@@ -617,48 +618,48 @@ export class AccessControl extends Contract {
 
     lockRole(
       role: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "lockRole(bytes4)"(
       role: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     renounceRole(
       role: BytesLike,
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "renounceRole(bytes4,address)"(
       role: BytesLike,
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     revokeRole(
       role: BytesLike,
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "revokeRole(bytes4,address)"(
       role: BytesLike,
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     setRoleAdmin(
       role: BytesLike,
       adminRole: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "setRoleAdmin(bytes4,bytes4)"(
       role: BytesLike,
       adminRole: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

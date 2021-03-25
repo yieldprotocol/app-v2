@@ -9,13 +9,11 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-} from "ethers";
-import {
   Contract,
   ContractTransaction,
   Overrides,
   CallOverrides,
-} from "@ethersproject/contracts";
+} from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
 import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
@@ -163,25 +161,25 @@ export class PoolMock extends Contract {
     buyBaseToken(
       to: string,
       tokenOut: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "buyBaseToken(address,uint128)"(
       to: string,
       tokenOut: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     buyFYToken(
       to: string,
       fyTokenOut: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "buyFYToken(address,uint128)"(
       to: string,
       fyTokenOut: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     fyToken(overrides?: CallOverrides): Promise<[string]>;
@@ -206,27 +204,31 @@ export class PoolMock extends Contract {
 
     sellBaseToken(
       to: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "sellBaseToken(address)"(
       to: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     sellFYToken(
       to: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "sellFYToken(address)"(
       to: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    update(overrides?: Overrides): Promise<ContractTransaction>;
+    update(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
-    "update()"(overrides?: Overrides): Promise<ContractTransaction>;
+    "update()"(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
   };
 
   baseToken(overrides?: CallOverrides): Promise<string>;
@@ -240,25 +242,25 @@ export class PoolMock extends Contract {
   buyBaseToken(
     to: string,
     tokenOut: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "buyBaseToken(address,uint128)"(
     to: string,
     tokenOut: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   buyFYToken(
     to: string,
     fyTokenOut: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "buyFYToken(address,uint128)"(
     to: string,
     fyTokenOut: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   fyToken(overrides?: CallOverrides): Promise<string>;
@@ -283,24 +285,31 @@ export class PoolMock extends Contract {
 
   sellBaseToken(
     to: string,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "sellBaseToken(address)"(
     to: string,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  sellFYToken(to: string, overrides?: Overrides): Promise<ContractTransaction>;
+  sellFYToken(
+    to: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   "sellFYToken(address)"(
     to: string,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  update(overrides?: Overrides): Promise<ContractTransaction>;
+  update(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
-  "update()"(overrides?: Overrides): Promise<ContractTransaction>;
+  "update()"(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   callStatic: {
     baseToken(overrides?: CallOverrides): Promise<string>;
@@ -388,25 +397,25 @@ export class PoolMock extends Contract {
     buyBaseToken(
       to: string,
       tokenOut: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "buyBaseToken(address,uint128)"(
       to: string,
       tokenOut: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     buyFYToken(
       to: string,
       fyTokenOut: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "buyFYToken(address,uint128)"(
       to: string,
       fyTokenOut: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     fyToken(overrides?: CallOverrides): Promise<BigNumber>;
@@ -429,23 +438,33 @@ export class PoolMock extends Contract {
 
     "rate()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    sellBaseToken(to: string, overrides?: Overrides): Promise<BigNumber>;
+    sellBaseToken(
+      to: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     "sellBaseToken(address)"(
       to: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    sellFYToken(to: string, overrides?: Overrides): Promise<BigNumber>;
+    sellFYToken(
+      to: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     "sellFYToken(address)"(
       to: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    update(overrides?: Overrides): Promise<BigNumber>;
+    update(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
-    "update()"(overrides?: Overrides): Promise<BigNumber>;
+    "update()"(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -462,25 +481,25 @@ export class PoolMock extends Contract {
     buyBaseToken(
       to: string,
       tokenOut: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "buyBaseToken(address,uint128)"(
       to: string,
       tokenOut: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     buyFYToken(
       to: string,
       fyTokenOut: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "buyFYToken(address,uint128)"(
       to: string,
       fyTokenOut: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     fyToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -515,26 +534,30 @@ export class PoolMock extends Contract {
 
     sellBaseToken(
       to: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "sellBaseToken(address)"(
       to: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     sellFYToken(
       to: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "sellFYToken(address)"(
       to: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    update(overrides?: Overrides): Promise<PopulatedTransaction>;
+    update(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
 
-    "update()"(overrides?: Overrides): Promise<PopulatedTransaction>;
+    "update()"(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
   };
 }

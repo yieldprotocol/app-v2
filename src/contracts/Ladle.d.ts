@@ -9,14 +9,12 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-} from "ethers";
-import {
   Contract,
   ContractTransaction,
   Overrides,
   PayableOverrides,
   CallOverrides,
-} from "@ethersproject/contracts";
+} from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
 import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
@@ -34,11 +32,15 @@ interface LadleInterface extends ethers.utils.Interface {
     "cauldron()": FunctionFragment;
     "close(bytes12,address,int128,int128)": FunctionFragment;
     "destroy(bytes12)": FunctionFragment;
+    "exitEther(address)": FunctionFragment;
+    "forwardDaiPermit(bytes6,bool,address,uint256,uint256,bool,uint8,bytes32,bytes32)": FunctionFragment;
+    "forwardPermit(bytes6,bool,address,uint256,uint256,uint8,bytes32,bytes32)": FunctionFragment;
     "getRoleAdmin(bytes4)": FunctionFragment;
     "give(bytes12,address)": FunctionFragment;
     "grantRole(bytes4,address)": FunctionFragment;
     "grantRoles(bytes4[],address)": FunctionFragment;
     "hasRole(bytes4,address)": FunctionFragment;
+    "joinEther(bytes6)": FunctionFragment;
     "joins(bytes6)": FunctionFragment;
     "lockRole(bytes4)": FunctionFragment;
     "pools(bytes6)": FunctionFragment;
@@ -48,8 +50,10 @@ interface LadleInterface extends ethers.utils.Interface {
     "roll(bytes12,bytes6,int128)": FunctionFragment;
     "serve(bytes12,address,int128,int128,uint128)": FunctionFragment;
     "setRoleAdmin(bytes4,bytes4)": FunctionFragment;
+    "setWeth(address)": FunctionFragment;
     "stir(bytes12,bytes12,uint128)": FunctionFragment;
     "tweak(bytes12,bytes6,bytes6)": FunctionFragment;
+    "weth()": FunctionFragment;
   };
 
   encodeFunctionData(functionFragment: "LOCK", values?: undefined): string;
@@ -80,6 +84,34 @@ interface LadleInterface extends ethers.utils.Interface {
     values: [BytesLike, string, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "destroy", values: [BytesLike]): string;
+  encodeFunctionData(functionFragment: "exitEther", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "forwardDaiPermit",
+    values: [
+      BytesLike,
+      boolean,
+      string,
+      BigNumberish,
+      BigNumberish,
+      boolean,
+      BigNumberish,
+      BytesLike,
+      BytesLike
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "forwardPermit",
+    values: [
+      BytesLike,
+      boolean,
+      string,
+      BigNumberish,
+      BigNumberish,
+      BigNumberish,
+      BytesLike,
+      BytesLike
+    ]
+  ): string;
   encodeFunctionData(
     functionFragment: "getRoleAdmin",
     values: [BytesLike]
@@ -99,6 +131,10 @@ interface LadleInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "hasRole",
     values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "joinEther",
+    values: [BytesLike]
   ): string;
   encodeFunctionData(functionFragment: "joins", values: [BytesLike]): string;
   encodeFunctionData(functionFragment: "lockRole", values: [BytesLike]): string;
@@ -127,6 +163,7 @@ interface LadleInterface extends ethers.utils.Interface {
     functionFragment: "setRoleAdmin",
     values: [BytesLike, BytesLike]
   ): string;
+  encodeFunctionData(functionFragment: "setWeth", values: [string]): string;
   encodeFunctionData(
     functionFragment: "stir",
     values: [BytesLike, BytesLike, BigNumberish]
@@ -135,6 +172,7 @@ interface LadleInterface extends ethers.utils.Interface {
     functionFragment: "tweak",
     values: [BytesLike, BytesLike, BytesLike]
   ): string;
+  encodeFunctionData(functionFragment: "weth", values?: undefined): string;
 
   decodeFunctionResult(functionFragment: "LOCK", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "ROOT", data: BytesLike): Result;
@@ -146,6 +184,15 @@ interface LadleInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "cauldron", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "close", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "destroy", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "exitEther", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "forwardDaiPermit",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "forwardPermit",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "getRoleAdmin",
     data: BytesLike
@@ -154,6 +201,7 @@ interface LadleInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "grantRoles", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "joinEther", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "joins", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "lockRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "pools", data: BytesLike): Result;
@@ -169,8 +217,10 @@ interface LadleInterface extends ethers.utils.Interface {
     functionFragment: "setRoleAdmin",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "setWeth", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "stir", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "tweak", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "weth", data: BytesLike): Result;
 
   events: {
     "JoinAdded(bytes6,address)": EventFragment;
@@ -244,7 +294,7 @@ export class Ladle extends Contract {
       user: string,
       ink: BigNumberish,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "_join(bytes12,address,int128,int128)"(
@@ -252,57 +302,57 @@ export class Ladle extends Contract {
       user: string,
       ink: BigNumberish,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     addJoin(
       assetId: BytesLike,
       join: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "addJoin(bytes6,address)"(
       assetId: BytesLike,
       join: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     addPool(
       seriesId: BytesLike,
       pool: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "addPool(bytes6,address)"(
       seriesId: BytesLike,
       pool: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     batch(
       calls: BytesLike[],
       revertOnFail: boolean,
-      overrides?: PayableOverrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "batch(bytes[],bool)"(
       calls: BytesLike[],
       revertOnFail: boolean,
-      overrides?: PayableOverrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     build(
       vaultId: BytesLike,
       seriesId: BytesLike,
       ilkId: BytesLike,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "build(bytes12,bytes6,bytes6)"(
       vaultId: BytesLike,
       seriesId: BytesLike,
       ilkId: BytesLike,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     cauldron(overrides?: CallOverrides): Promise<[string]>;
@@ -314,7 +364,7 @@ export class Ladle extends Contract {
       to: string,
       ink: BigNumberish,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "close(bytes12,address,int128,int128)"(
@@ -322,17 +372,77 @@ export class Ladle extends Contract {
       to: string,
       ink: BigNumberish,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     destroy(
       vaultId: BytesLike,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "destroy(bytes12)"(
       vaultId: BytesLike,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    exitEther(
+      to: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "exitEther(address)"(
+      to: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    forwardDaiPermit(
+      id: BytesLike,
+      asset: boolean,
+      spender: string,
+      nonce: BigNumberish,
+      deadline: BigNumberish,
+      allowed: boolean,
+      v: BigNumberish,
+      r: BytesLike,
+      s: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "forwardDaiPermit(bytes6,bool,address,uint256,uint256,bool,uint8,bytes32,bytes32)"(
+      id: BytesLike,
+      asset: boolean,
+      spender: string,
+      nonce: BigNumberish,
+      deadline: BigNumberish,
+      allowed: boolean,
+      v: BigNumberish,
+      r: BytesLike,
+      s: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    forwardPermit(
+      id: BytesLike,
+      asset: boolean,
+      spender: string,
+      amount: BigNumberish,
+      deadline: BigNumberish,
+      v: BigNumberish,
+      r: BytesLike,
+      s: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "forwardPermit(bytes6,bool,address,uint256,uint256,uint8,bytes32,bytes32)"(
+      id: BytesLike,
+      asset: boolean,
+      spender: string,
+      amount: BigNumberish,
+      deadline: BigNumberish,
+      v: BigNumberish,
+      r: BytesLike,
+      s: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<[string]>;
@@ -345,37 +455,37 @@ export class Ladle extends Contract {
     give(
       vaultId: BytesLike,
       receiver: string,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "give(bytes12,address)"(
       vaultId: BytesLike,
       receiver: string,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     grantRole(
       role: BytesLike,
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "grantRole(bytes4,address)"(
       role: BytesLike,
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     grantRoles(
       roles: BytesLike[],
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "grantRoles(bytes4[],address)"(
       roles: BytesLike[],
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     hasRole(
@@ -390,6 +500,16 @@ export class Ladle extends Contract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    joinEther(
+      etherId: BytesLike,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "joinEther(bytes6)"(
+      etherId: BytesLike,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     joins(arg0: BytesLike, overrides?: CallOverrides): Promise<[string]>;
 
     "joins(bytes6)"(
@@ -399,12 +519,12 @@ export class Ladle extends Contract {
 
     lockRole(
       role: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "lockRole(bytes4)"(
       role: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     pools(arg0: BytesLike, overrides?: CallOverrides): Promise<[string]>;
@@ -419,7 +539,7 @@ export class Ladle extends Contract {
       to: string,
       ink: BigNumberish,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "pour(bytes12,address,int128,int128)"(
@@ -427,45 +547,45 @@ export class Ladle extends Contract {
       to: string,
       ink: BigNumberish,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     renounceRole(
       role: BytesLike,
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "renounceRole(bytes4,address)"(
       role: BytesLike,
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     revokeRole(
       role: BytesLike,
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "revokeRole(bytes4,address)"(
       role: BytesLike,
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     roll(
       vaultId: BytesLike,
       seriesId: BytesLike,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "roll(bytes12,bytes6,int128)"(
       vaultId: BytesLike,
       seriesId: BytesLike,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     serve(
@@ -474,7 +594,7 @@ export class Ladle extends Contract {
       ink: BigNumberish,
       art: BigNumberish,
       min: BigNumberish,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "serve(bytes12,address,int128,int128,uint128)"(
@@ -483,48 +603,62 @@ export class Ladle extends Contract {
       ink: BigNumberish,
       art: BigNumberish,
       min: BigNumberish,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     setRoleAdmin(
       role: BytesLike,
       adminRole: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "setRoleAdmin(bytes4,bytes4)"(
       role: BytesLike,
       adminRole: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setWeth(
+      weth_: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "setWeth(address)"(
+      weth_: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     stir(
       from: BytesLike,
       to: BytesLike,
       ink: BigNumberish,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "stir(bytes12,bytes12,uint128)"(
       from: BytesLike,
       to: BytesLike,
       ink: BigNumberish,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     tweak(
       vaultId: BytesLike,
       seriesId: BytesLike,
       ilkId: BytesLike,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "tweak(bytes12,bytes6,bytes6)"(
       vaultId: BytesLike,
       seriesId: BytesLike,
       ilkId: BytesLike,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    weth(overrides?: CallOverrides): Promise<[string]>;
+
+    "weth()"(overrides?: CallOverrides): Promise<[string]>;
   };
 
   LOCK(overrides?: CallOverrides): Promise<string>;
@@ -540,7 +674,7 @@ export class Ladle extends Contract {
     user: string,
     ink: BigNumberish,
     art: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "_join(bytes12,address,int128,int128)"(
@@ -548,57 +682,57 @@ export class Ladle extends Contract {
     user: string,
     ink: BigNumberish,
     art: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   addJoin(
     assetId: BytesLike,
     join: string,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "addJoin(bytes6,address)"(
     assetId: BytesLike,
     join: string,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   addPool(
     seriesId: BytesLike,
     pool: string,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "addPool(bytes6,address)"(
     seriesId: BytesLike,
     pool: string,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   batch(
     calls: BytesLike[],
     revertOnFail: boolean,
-    overrides?: PayableOverrides
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "batch(bytes[],bool)"(
     calls: BytesLike[],
     revertOnFail: boolean,
-    overrides?: PayableOverrides
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   build(
     vaultId: BytesLike,
     seriesId: BytesLike,
     ilkId: BytesLike,
-    overrides?: Overrides
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "build(bytes12,bytes6,bytes6)"(
     vaultId: BytesLike,
     seriesId: BytesLike,
     ilkId: BytesLike,
-    overrides?: Overrides
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   cauldron(overrides?: CallOverrides): Promise<string>;
@@ -610,7 +744,7 @@ export class Ladle extends Contract {
     to: string,
     ink: BigNumberish,
     art: BigNumberish,
-    overrides?: Overrides
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "close(bytes12,address,int128,int128)"(
@@ -618,17 +752,77 @@ export class Ladle extends Contract {
     to: string,
     ink: BigNumberish,
     art: BigNumberish,
-    overrides?: Overrides
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   destroy(
     vaultId: BytesLike,
-    overrides?: Overrides
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "destroy(bytes12)"(
     vaultId: BytesLike,
-    overrides?: Overrides
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  exitEther(
+    to: string,
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "exitEther(address)"(
+    to: string,
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  forwardDaiPermit(
+    id: BytesLike,
+    asset: boolean,
+    spender: string,
+    nonce: BigNumberish,
+    deadline: BigNumberish,
+    allowed: boolean,
+    v: BigNumberish,
+    r: BytesLike,
+    s: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "forwardDaiPermit(bytes6,bool,address,uint256,uint256,bool,uint8,bytes32,bytes32)"(
+    id: BytesLike,
+    asset: boolean,
+    spender: string,
+    nonce: BigNumberish,
+    deadline: BigNumberish,
+    allowed: boolean,
+    v: BigNumberish,
+    r: BytesLike,
+    s: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  forwardPermit(
+    id: BytesLike,
+    asset: boolean,
+    spender: string,
+    amount: BigNumberish,
+    deadline: BigNumberish,
+    v: BigNumberish,
+    r: BytesLike,
+    s: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "forwardPermit(bytes6,bool,address,uint256,uint256,uint8,bytes32,bytes32)"(
+    id: BytesLike,
+    asset: boolean,
+    spender: string,
+    amount: BigNumberish,
+    deadline: BigNumberish,
+    v: BigNumberish,
+    r: BytesLike,
+    s: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
@@ -641,37 +835,37 @@ export class Ladle extends Contract {
   give(
     vaultId: BytesLike,
     receiver: string,
-    overrides?: Overrides
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "give(bytes12,address)"(
     vaultId: BytesLike,
     receiver: string,
-    overrides?: Overrides
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   grantRole(
     role: BytesLike,
     account: string,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "grantRole(bytes4,address)"(
     role: BytesLike,
     account: string,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   grantRoles(
     roles: BytesLike[],
     account: string,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "grantRoles(bytes4[],address)"(
     roles: BytesLike[],
     account: string,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   hasRole(
@@ -686,18 +880,28 @@ export class Ladle extends Contract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
+  joinEther(
+    etherId: BytesLike,
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "joinEther(bytes6)"(
+    etherId: BytesLike,
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   joins(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
 
   "joins(bytes6)"(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
 
   lockRole(
     role: BytesLike,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "lockRole(bytes4)"(
     role: BytesLike,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   pools(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
@@ -709,7 +913,7 @@ export class Ladle extends Contract {
     to: string,
     ink: BigNumberish,
     art: BigNumberish,
-    overrides?: Overrides
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "pour(bytes12,address,int128,int128)"(
@@ -717,45 +921,45 @@ export class Ladle extends Contract {
     to: string,
     ink: BigNumberish,
     art: BigNumberish,
-    overrides?: Overrides
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   renounceRole(
     role: BytesLike,
     account: string,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "renounceRole(bytes4,address)"(
     role: BytesLike,
     account: string,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   revokeRole(
     role: BytesLike,
     account: string,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "revokeRole(bytes4,address)"(
     role: BytesLike,
     account: string,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   roll(
     vaultId: BytesLike,
     seriesId: BytesLike,
     art: BigNumberish,
-    overrides?: Overrides
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "roll(bytes12,bytes6,int128)"(
     vaultId: BytesLike,
     seriesId: BytesLike,
     art: BigNumberish,
-    overrides?: Overrides
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   serve(
@@ -764,7 +968,7 @@ export class Ladle extends Contract {
     ink: BigNumberish,
     art: BigNumberish,
     min: BigNumberish,
-    overrides?: Overrides
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "serve(bytes12,address,int128,int128,uint128)"(
@@ -773,48 +977,62 @@ export class Ladle extends Contract {
     ink: BigNumberish,
     art: BigNumberish,
     min: BigNumberish,
-    overrides?: Overrides
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   setRoleAdmin(
     role: BytesLike,
     adminRole: BytesLike,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "setRoleAdmin(bytes4,bytes4)"(
     role: BytesLike,
     adminRole: BytesLike,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setWeth(
+    weth_: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "setWeth(address)"(
+    weth_: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   stir(
     from: BytesLike,
     to: BytesLike,
     ink: BigNumberish,
-    overrides?: Overrides
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "stir(bytes12,bytes12,uint128)"(
     from: BytesLike,
     to: BytesLike,
     ink: BigNumberish,
-    overrides?: Overrides
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   tweak(
     vaultId: BytesLike,
     seriesId: BytesLike,
     ilkId: BytesLike,
-    overrides?: Overrides
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "tweak(bytes12,bytes6,bytes6)"(
     vaultId: BytesLike,
     seriesId: BytesLike,
     ilkId: BytesLike,
-    overrides?: Overrides
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  weth(overrides?: CallOverrides): Promise<string>;
+
+  "weth()"(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
     LOCK(overrides?: CallOverrides): Promise<string>;
@@ -922,6 +1140,63 @@ export class Ladle extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    exitEther(to: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    "exitEther(address)"(
+      to: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    forwardDaiPermit(
+      id: BytesLike,
+      asset: boolean,
+      spender: string,
+      nonce: BigNumberish,
+      deadline: BigNumberish,
+      allowed: boolean,
+      v: BigNumberish,
+      r: BytesLike,
+      s: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "forwardDaiPermit(bytes6,bool,address,uint256,uint256,bool,uint8,bytes32,bytes32)"(
+      id: BytesLike,
+      asset: boolean,
+      spender: string,
+      nonce: BigNumberish,
+      deadline: BigNumberish,
+      allowed: boolean,
+      v: BigNumberish,
+      r: BytesLike,
+      s: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    forwardPermit(
+      id: BytesLike,
+      asset: boolean,
+      spender: string,
+      amount: BigNumberish,
+      deadline: BigNumberish,
+      v: BigNumberish,
+      r: BytesLike,
+      s: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "forwardPermit(bytes6,bool,address,uint256,uint256,uint8,bytes32,bytes32)"(
+      id: BytesLike,
+      asset: boolean,
+      spender: string,
+      amount: BigNumberish,
+      deadline: BigNumberish,
+      v: BigNumberish,
+      r: BytesLike,
+      s: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
 
     "getRoleAdmin(bytes4)"(
@@ -976,6 +1251,16 @@ export class Ladle extends Contract {
       account: string,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    joinEther(
+      etherId: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "joinEther(bytes6)"(
+      etherId: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     joins(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
 
@@ -1098,6 +1383,10 @@ export class Ladle extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    setWeth(weth_: string, overrides?: CallOverrides): Promise<void>;
+
+    "setWeth(address)"(weth_: string, overrides?: CallOverrides): Promise<void>;
+
     stir(
       from: BytesLike,
       to: BytesLike,
@@ -1135,6 +1424,10 @@ export class Ladle extends Contract {
       ilkId: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    weth(overrides?: CallOverrides): Promise<string>;
+
+    "weth()"(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {
@@ -1189,7 +1482,7 @@ export class Ladle extends Contract {
       user: string,
       ink: BigNumberish,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "_join(bytes12,address,int128,int128)"(
@@ -1197,57 +1490,57 @@ export class Ladle extends Contract {
       user: string,
       ink: BigNumberish,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     addJoin(
       assetId: BytesLike,
       join: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "addJoin(bytes6,address)"(
       assetId: BytesLike,
       join: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     addPool(
       seriesId: BytesLike,
       pool: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "addPool(bytes6,address)"(
       seriesId: BytesLike,
       pool: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     batch(
       calls: BytesLike[],
       revertOnFail: boolean,
-      overrides?: PayableOverrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "batch(bytes[],bool)"(
       calls: BytesLike[],
       revertOnFail: boolean,
-      overrides?: PayableOverrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     build(
       vaultId: BytesLike,
       seriesId: BytesLike,
       ilkId: BytesLike,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "build(bytes12,bytes6,bytes6)"(
       vaultId: BytesLike,
       seriesId: BytesLike,
       ilkId: BytesLike,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     cauldron(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1259,7 +1552,7 @@ export class Ladle extends Contract {
       to: string,
       ink: BigNumberish,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "close(bytes12,address,int128,int128)"(
@@ -1267,14 +1560,77 @@ export class Ladle extends Contract {
       to: string,
       ink: BigNumberish,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    destroy(vaultId: BytesLike, overrides?: Overrides): Promise<BigNumber>;
+    destroy(
+      vaultId: BytesLike,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     "destroy(bytes12)"(
       vaultId: BytesLike,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    exitEther(
+      to: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "exitEther(address)"(
+      to: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    forwardDaiPermit(
+      id: BytesLike,
+      asset: boolean,
+      spender: string,
+      nonce: BigNumberish,
+      deadline: BigNumberish,
+      allowed: boolean,
+      v: BigNumberish,
+      r: BytesLike,
+      s: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "forwardDaiPermit(bytes6,bool,address,uint256,uint256,bool,uint8,bytes32,bytes32)"(
+      id: BytesLike,
+      asset: boolean,
+      spender: string,
+      nonce: BigNumberish,
+      deadline: BigNumberish,
+      allowed: boolean,
+      v: BigNumberish,
+      r: BytesLike,
+      s: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    forwardPermit(
+      id: BytesLike,
+      asset: boolean,
+      spender: string,
+      amount: BigNumberish,
+      deadline: BigNumberish,
+      v: BigNumberish,
+      r: BytesLike,
+      s: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "forwardPermit(bytes6,bool,address,uint256,uint256,uint8,bytes32,bytes32)"(
+      id: BytesLike,
+      asset: boolean,
+      spender: string,
+      amount: BigNumberish,
+      deadline: BigNumberish,
+      v: BigNumberish,
+      r: BytesLike,
+      s: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     getRoleAdmin(
@@ -1290,37 +1646,37 @@ export class Ladle extends Contract {
     give(
       vaultId: BytesLike,
       receiver: string,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "give(bytes12,address)"(
       vaultId: BytesLike,
       receiver: string,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     grantRole(
       role: BytesLike,
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "grantRole(bytes4,address)"(
       role: BytesLike,
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     grantRoles(
       roles: BytesLike[],
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "grantRoles(bytes4[],address)"(
       roles: BytesLike[],
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     hasRole(
@@ -1335,6 +1691,16 @@ export class Ladle extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    joinEther(
+      etherId: BytesLike,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "joinEther(bytes6)"(
+      etherId: BytesLike,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     joins(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
 
     "joins(bytes6)"(
@@ -1342,11 +1708,14 @@ export class Ladle extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    lockRole(role: BytesLike, overrides?: Overrides): Promise<BigNumber>;
+    lockRole(
+      role: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     "lockRole(bytes4)"(
       role: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     pools(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
@@ -1361,7 +1730,7 @@ export class Ladle extends Contract {
       to: string,
       ink: BigNumberish,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "pour(bytes12,address,int128,int128)"(
@@ -1369,45 +1738,45 @@ export class Ladle extends Contract {
       to: string,
       ink: BigNumberish,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     renounceRole(
       role: BytesLike,
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "renounceRole(bytes4,address)"(
       role: BytesLike,
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     revokeRole(
       role: BytesLike,
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "revokeRole(bytes4,address)"(
       role: BytesLike,
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     roll(
       vaultId: BytesLike,
       seriesId: BytesLike,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "roll(bytes12,bytes6,int128)"(
       vaultId: BytesLike,
       seriesId: BytesLike,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     serve(
@@ -1416,7 +1785,7 @@ export class Ladle extends Contract {
       ink: BigNumberish,
       art: BigNumberish,
       min: BigNumberish,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "serve(bytes12,address,int128,int128,uint128)"(
@@ -1425,48 +1794,62 @@ export class Ladle extends Contract {
       ink: BigNumberish,
       art: BigNumberish,
       min: BigNumberish,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     setRoleAdmin(
       role: BytesLike,
       adminRole: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "setRoleAdmin(bytes4,bytes4)"(
       role: BytesLike,
       adminRole: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setWeth(
+      weth_: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "setWeth(address)"(
+      weth_: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     stir(
       from: BytesLike,
       to: BytesLike,
       ink: BigNumberish,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "stir(bytes12,bytes12,uint128)"(
       from: BytesLike,
       to: BytesLike,
       ink: BigNumberish,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     tweak(
       vaultId: BytesLike,
       seriesId: BytesLike,
       ilkId: BytesLike,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "tweak(bytes12,bytes6,bytes6)"(
       vaultId: BytesLike,
       seriesId: BytesLike,
       ilkId: BytesLike,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    weth(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "weth()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -1483,7 +1866,7 @@ export class Ladle extends Contract {
       user: string,
       ink: BigNumberish,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "_join(bytes12,address,int128,int128)"(
@@ -1491,57 +1874,57 @@ export class Ladle extends Contract {
       user: string,
       ink: BigNumberish,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     addJoin(
       assetId: BytesLike,
       join: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "addJoin(bytes6,address)"(
       assetId: BytesLike,
       join: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     addPool(
       seriesId: BytesLike,
       pool: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "addPool(bytes6,address)"(
       seriesId: BytesLike,
       pool: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     batch(
       calls: BytesLike[],
       revertOnFail: boolean,
-      overrides?: PayableOverrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "batch(bytes[],bool)"(
       calls: BytesLike[],
       revertOnFail: boolean,
-      overrides?: PayableOverrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     build(
       vaultId: BytesLike,
       seriesId: BytesLike,
       ilkId: BytesLike,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "build(bytes12,bytes6,bytes6)"(
       vaultId: BytesLike,
       seriesId: BytesLike,
       ilkId: BytesLike,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     cauldron(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1553,7 +1936,7 @@ export class Ladle extends Contract {
       to: string,
       ink: BigNumberish,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "close(bytes12,address,int128,int128)"(
@@ -1561,17 +1944,77 @@ export class Ladle extends Contract {
       to: string,
       ink: BigNumberish,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     destroy(
       vaultId: BytesLike,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "destroy(bytes12)"(
       vaultId: BytesLike,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    exitEther(
+      to: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "exitEther(address)"(
+      to: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    forwardDaiPermit(
+      id: BytesLike,
+      asset: boolean,
+      spender: string,
+      nonce: BigNumberish,
+      deadline: BigNumberish,
+      allowed: boolean,
+      v: BigNumberish,
+      r: BytesLike,
+      s: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "forwardDaiPermit(bytes6,bool,address,uint256,uint256,bool,uint8,bytes32,bytes32)"(
+      id: BytesLike,
+      asset: boolean,
+      spender: string,
+      nonce: BigNumberish,
+      deadline: BigNumberish,
+      allowed: boolean,
+      v: BigNumberish,
+      r: BytesLike,
+      s: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    forwardPermit(
+      id: BytesLike,
+      asset: boolean,
+      spender: string,
+      amount: BigNumberish,
+      deadline: BigNumberish,
+      v: BigNumberish,
+      r: BytesLike,
+      s: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "forwardPermit(bytes6,bool,address,uint256,uint256,uint8,bytes32,bytes32)"(
+      id: BytesLike,
+      asset: boolean,
+      spender: string,
+      amount: BigNumberish,
+      deadline: BigNumberish,
+      v: BigNumberish,
+      r: BytesLike,
+      s: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     getRoleAdmin(
@@ -1587,37 +2030,37 @@ export class Ladle extends Contract {
     give(
       vaultId: BytesLike,
       receiver: string,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "give(bytes12,address)"(
       vaultId: BytesLike,
       receiver: string,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     grantRole(
       role: BytesLike,
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "grantRole(bytes4,address)"(
       role: BytesLike,
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     grantRoles(
       roles: BytesLike[],
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "grantRoles(bytes4[],address)"(
       roles: BytesLike[],
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     hasRole(
@@ -1632,6 +2075,16 @@ export class Ladle extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    joinEther(
+      etherId: BytesLike,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "joinEther(bytes6)"(
+      etherId: BytesLike,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     joins(
       arg0: BytesLike,
       overrides?: CallOverrides
@@ -1644,12 +2097,12 @@ export class Ladle extends Contract {
 
     lockRole(
       role: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "lockRole(bytes4)"(
       role: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     pools(
@@ -1667,7 +2120,7 @@ export class Ladle extends Contract {
       to: string,
       ink: BigNumberish,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "pour(bytes12,address,int128,int128)"(
@@ -1675,45 +2128,45 @@ export class Ladle extends Contract {
       to: string,
       ink: BigNumberish,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     renounceRole(
       role: BytesLike,
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "renounceRole(bytes4,address)"(
       role: BytesLike,
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     revokeRole(
       role: BytesLike,
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "revokeRole(bytes4,address)"(
       role: BytesLike,
       account: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     roll(
       vaultId: BytesLike,
       seriesId: BytesLike,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "roll(bytes12,bytes6,int128)"(
       vaultId: BytesLike,
       seriesId: BytesLike,
       art: BigNumberish,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     serve(
@@ -1722,7 +2175,7 @@ export class Ladle extends Contract {
       ink: BigNumberish,
       art: BigNumberish,
       min: BigNumberish,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "serve(bytes12,address,int128,int128,uint128)"(
@@ -1731,47 +2184,61 @@ export class Ladle extends Contract {
       ink: BigNumberish,
       art: BigNumberish,
       min: BigNumberish,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     setRoleAdmin(
       role: BytesLike,
       adminRole: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "setRoleAdmin(bytes4,bytes4)"(
       role: BytesLike,
       adminRole: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setWeth(
+      weth_: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "setWeth(address)"(
+      weth_: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     stir(
       from: BytesLike,
       to: BytesLike,
       ink: BigNumberish,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "stir(bytes12,bytes12,uint128)"(
       from: BytesLike,
       to: BytesLike,
       ink: BigNumberish,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     tweak(
       vaultId: BytesLike,
       seriesId: BytesLike,
       ilkId: BytesLike,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "tweak(bytes12,bytes6,bytes6)"(
       vaultId: BytesLike,
       seriesId: BytesLike,
       ilkId: BytesLike,
-      overrides?: Overrides
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    weth(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "weth()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

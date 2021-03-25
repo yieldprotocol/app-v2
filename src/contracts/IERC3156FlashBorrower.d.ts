@@ -9,13 +9,11 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-} from "ethers";
-import {
   Contract,
   ContractTransaction,
   Overrides,
   CallOverrides,
-} from "@ethersproject/contracts";
+} from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
 import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
@@ -89,7 +87,7 @@ export class IERC3156FlashBorrower extends Contract {
       amount: BigNumberish,
       fee: BigNumberish,
       data: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "onFlashLoan(address,address,uint256,uint256,bytes)"(
@@ -98,7 +96,7 @@ export class IERC3156FlashBorrower extends Contract {
       amount: BigNumberish,
       fee: BigNumberish,
       data: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
 
@@ -108,7 +106,7 @@ export class IERC3156FlashBorrower extends Contract {
     amount: BigNumberish,
     fee: BigNumberish,
     data: BytesLike,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "onFlashLoan(address,address,uint256,uint256,bytes)"(
@@ -117,7 +115,7 @@ export class IERC3156FlashBorrower extends Contract {
     amount: BigNumberish,
     fee: BigNumberish,
     data: BytesLike,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -149,7 +147,7 @@ export class IERC3156FlashBorrower extends Contract {
       amount: BigNumberish,
       fee: BigNumberish,
       data: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "onFlashLoan(address,address,uint256,uint256,bytes)"(
@@ -158,7 +156,7 @@ export class IERC3156FlashBorrower extends Contract {
       amount: BigNumberish,
       fee: BigNumberish,
       data: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
 
@@ -169,7 +167,7 @@ export class IERC3156FlashBorrower extends Contract {
       amount: BigNumberish,
       fee: BigNumberish,
       data: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "onFlashLoan(address,address,uint256,uint256,bytes)"(
@@ -178,7 +176,7 @@ export class IERC3156FlashBorrower extends Contract {
       amount: BigNumberish,
       fee: BigNumberish,
       data: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

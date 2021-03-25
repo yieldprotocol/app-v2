@@ -9,13 +9,11 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-} from "ethers";
-import {
   Contract,
   ContractTransaction,
   Overrides,
   CallOverrides,
-} from "@ethersproject/contracts";
+} from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
 import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
@@ -117,12 +115,12 @@ export class OracleMock extends Contract {
 
     record(
       maturity: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "record(uint32)"(
       maturity: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     recorded(
@@ -137,12 +135,12 @@ export class OracleMock extends Contract {
 
     setSpot(
       spot_: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "setSpot(uint128)"(
       spot_: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     spot(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -162,12 +160,12 @@ export class OracleMock extends Contract {
 
   record(
     maturity: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "record(uint32)"(
     maturity: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   recorded(arg0: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
@@ -179,12 +177,12 @@ export class OracleMock extends Contract {
 
   setSpot(
     spot_: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "setSpot(uint128)"(
     spot_: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   spot(overrides?: CallOverrides): Promise<BigNumber>;
@@ -249,11 +247,14 @@ export class OracleMock extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    record(maturity: BigNumberish, overrides?: Overrides): Promise<BigNumber>;
+    record(
+      maturity: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     "record(uint32)"(
       maturity: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     recorded(arg0: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
@@ -263,11 +264,14 @@ export class OracleMock extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    setSpot(spot_: BigNumberish, overrides?: Overrides): Promise<BigNumber>;
+    setSpot(
+      spot_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     "setSpot(uint128)"(
       spot_: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     spot(overrides?: CallOverrides): Promise<BigNumber>;
@@ -288,12 +292,12 @@ export class OracleMock extends Contract {
 
     record(
       maturity: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "record(uint32)"(
       maturity: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     recorded(
@@ -308,12 +312,12 @@ export class OracleMock extends Contract {
 
     setSpot(
       spot_: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "setSpot(uint128)"(
       spot_: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     spot(overrides?: CallOverrides): Promise<PopulatedTransaction>;

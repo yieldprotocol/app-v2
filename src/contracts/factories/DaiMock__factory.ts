@@ -5,15 +5,34 @@
 import { Contract, Signer } from "ethers";
 import { Provider } from "@ethersproject/providers";
 
-import type { IPool } from "../IPool";
+import type { DaiMock } from "../DaiMock";
 
-export class IPool__factory {
-  static connect(address: string, signerOrProvider: Signer | Provider): IPool {
-    return new Contract(address, _abi, signerOrProvider) as IPool;
+export class DaiMock__factory {
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): DaiMock {
+    return new Contract(address, _abi, signerOrProvider) as DaiMock;
   }
 }
 
 const _abi = [
+  {
+    inputs: [
+      {
+        internalType: "string",
+        name: "name",
+        type: "string",
+      },
+      {
+        internalType: "string",
+        name: "symbol",
+        type: "string",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "constructor",
+  },
   {
     anonymous: false,
     inputs: [
@@ -65,6 +84,32 @@ const _abi = [
     type: "event",
   },
   {
+    inputs: [],
+    name: "DOMAIN_SEPARATOR",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "PERMIT_TYPEHASH",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "address",
@@ -97,7 +142,7 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "amount",
+        name: "wad",
         type: "uint256",
       },
     ],
@@ -116,7 +161,7 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "account",
+        name: "guy",
         type: "address",
       },
     ],
@@ -133,180 +178,13 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "baseToken",
-    outputs: [
-      {
-        internalType: "contract IERC20",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "to",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "tokensBurned",
-        type: "uint256",
-      },
-    ],
-    name: "burn",
+    name: "decimals",
     outputs: [
       {
         internalType: "uint256",
         name: "",
         type: "uint256",
       },
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "to",
-        type: "address",
-      },
-      {
-        internalType: "uint128",
-        name: "baseTokenOut",
-        type: "uint128",
-      },
-    ],
-    name: "buyBaseToken",
-    outputs: [
-      {
-        internalType: "uint128",
-        name: "",
-        type: "uint128",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint128",
-        name: "baseTokenOut",
-        type: "uint128",
-      },
-    ],
-    name: "buyBaseTokenPreview",
-    outputs: [
-      {
-        internalType: "uint128",
-        name: "",
-        type: "uint128",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "to",
-        type: "address",
-      },
-      {
-        internalType: "uint128",
-        name: "fyTokenOut",
-        type: "uint128",
-      },
-    ],
-    name: "buyFYToken",
-    outputs: [
-      {
-        internalType: "uint128",
-        name: "",
-        type: "uint128",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint128",
-        name: "fyTokenOut",
-        type: "uint128",
-      },
-    ],
-    name: "buyFYTokenPreview",
-    outputs: [
-      {
-        internalType: "uint128",
-        name: "",
-        type: "uint128",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "fyToken",
-    outputs: [
-      {
-        internalType: "contract IFYToken",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "getBaseTokenReserves",
-    outputs: [
-      {
-        internalType: "uint112",
-        name: "",
-        type: "uint112",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "getFYTokenReserves",
-    outputs: [
-      {
-        internalType: "uint112",
-        name: "",
-        type: "uint112",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "maturity",
-    outputs: [
-      {
-        internalType: "uint32",
-        name: "",
-        type: "uint32",
-      },
     ],
     stateMutability: "view",
     type: "function",
@@ -320,26 +198,33 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "tokenOffered",
+        name: "amount",
         type: "uint256",
       },
     ],
     name: "mint",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "name",
     outputs: [
       {
-        internalType: "uint256",
+        internalType: "string",
         name: "",
-        type: "uint256",
+        type: "string",
       },
     ],
-    stateMutability: "nonpayable",
+    stateMutability: "view",
     type: "function",
   },
   {
     inputs: [
       {
         internalType: "address",
-        name: "owner",
+        name: "",
         type: "address",
       },
     ],
@@ -358,7 +243,7 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "owner",
+        name: "holder",
         type: "address",
       },
       {
@@ -368,13 +253,18 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "amount",
+        name: "nonce",
         type: "uint256",
       },
       {
         internalType: "uint256",
-        name: "deadline",
+        name: "expiry",
         type: "uint256",
+      },
+      {
+        internalType: "bool",
+        name: "allowed",
+        type: "bool",
       },
       {
         internalType: "uint8",
@@ -398,76 +288,13 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "address",
-        name: "to",
-        type: "address",
-      },
-    ],
-    name: "sellBaseToken",
+    inputs: [],
+    name: "symbol",
     outputs: [
       {
-        internalType: "uint128",
+        internalType: "string",
         name: "",
-        type: "uint128",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint128",
-        name: "baseTokenIn",
-        type: "uint128",
-      },
-    ],
-    name: "sellBaseTokenPreview",
-    outputs: [
-      {
-        internalType: "uint128",
-        name: "",
-        type: "uint128",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "to",
-        type: "address",
-      },
-    ],
-    name: "sellFYToken",
-    outputs: [
-      {
-        internalType: "uint128",
-        name: "",
-        type: "uint128",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint128",
-        name: "fyTokenIn",
-        type: "uint128",
-      },
-    ],
-    name: "sellFYTokenPreview",
-    outputs: [
-      {
-        internalType: "uint128",
-        name: "",
-        type: "uint128",
+        type: "string",
       },
     ],
     stateMutability: "view",
@@ -490,12 +317,12 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "recipient",
+        name: "dst",
         type: "address",
       },
       {
         internalType: "uint256",
-        name: "amount",
+        name: "wad",
         type: "uint256",
       },
     ],
@@ -514,17 +341,17 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "sender",
+        name: "src",
         type: "address",
       },
       {
         internalType: "address",
-        name: "recipient",
+        name: "dst",
         type: "address",
       },
       {
         internalType: "uint256",
-        name: "amount",
+        name: "wad",
         type: "uint256",
       },
     ],
@@ -537,6 +364,19 @@ const _abi = [
       },
     ],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "version",
+    outputs: [
+      {
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
 ];

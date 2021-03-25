@@ -9,13 +9,11 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-} from "ethers";
-import {
   Contract,
   ContractTransaction,
   Overrides,
   CallOverrides,
-} from "@ethersproject/contracts";
+} from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
 import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
@@ -189,13 +187,13 @@ export class ERC20Permit extends Contract {
     approve(
       spender: string,
       wad: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "approve(address,uint256)"(
       spender: string,
       wad: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     balanceOf(guy: string, overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -228,7 +226,7 @@ export class ERC20Permit extends Contract {
       v: BigNumberish,
       r: BytesLike,
       s: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"(
@@ -239,7 +237,7 @@ export class ERC20Permit extends Contract {
       v: BigNumberish,
       r: BytesLike,
       s: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     symbol(overrides?: CallOverrides): Promise<[string]>;
@@ -253,27 +251,27 @@ export class ERC20Permit extends Contract {
     transfer(
       dst: string,
       wad: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "transfer(address,uint256)"(
       dst: string,
       wad: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     transferFrom(
       src: string,
       dst: string,
       wad: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "transferFrom(address,address,uint256)"(
       src: string,
       dst: string,
       wad: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     version(overrides?: CallOverrides): Promise<[string]>;
@@ -304,13 +302,13 @@ export class ERC20Permit extends Contract {
   approve(
     spender: string,
     wad: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "approve(address,uint256)"(
     spender: string,
     wad: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   balanceOf(guy: string, overrides?: CallOverrides): Promise<BigNumber>;
@@ -343,7 +341,7 @@ export class ERC20Permit extends Contract {
     v: BigNumberish,
     r: BytesLike,
     s: BytesLike,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"(
@@ -354,7 +352,7 @@ export class ERC20Permit extends Contract {
     v: BigNumberish,
     r: BytesLike,
     s: BytesLike,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   symbol(overrides?: CallOverrides): Promise<string>;
@@ -368,27 +366,27 @@ export class ERC20Permit extends Contract {
   transfer(
     dst: string,
     wad: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "transfer(address,uint256)"(
     dst: string,
     wad: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   transferFrom(
     src: string,
     dst: string,
     wad: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "transferFrom(address,address,uint256)"(
     src: string,
     dst: string,
     wad: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   version(overrides?: CallOverrides): Promise<string>;
@@ -555,13 +553,13 @@ export class ERC20Permit extends Contract {
     approve(
       spender: string,
       wad: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "approve(address,uint256)"(
       spender: string,
       wad: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     balanceOf(guy: string, overrides?: CallOverrides): Promise<BigNumber>;
@@ -594,7 +592,7 @@ export class ERC20Permit extends Contract {
       v: BigNumberish,
       r: BytesLike,
       s: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"(
@@ -605,7 +603,7 @@ export class ERC20Permit extends Contract {
       v: BigNumberish,
       r: BytesLike,
       s: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     symbol(overrides?: CallOverrides): Promise<BigNumber>;
@@ -619,27 +617,27 @@ export class ERC20Permit extends Contract {
     transfer(
       dst: string,
       wad: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "transfer(address,uint256)"(
       dst: string,
       wad: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     transferFrom(
       src: string,
       dst: string,
       wad: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "transferFrom(address,address,uint256)"(
       src: string,
       dst: string,
       wad: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     version(overrides?: CallOverrides): Promise<BigNumber>;
@@ -675,13 +673,13 @@ export class ERC20Permit extends Contract {
     approve(
       spender: string,
       wad: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "approve(address,uint256)"(
       spender: string,
       wad: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     balanceOf(
@@ -720,7 +718,7 @@ export class ERC20Permit extends Contract {
       v: BigNumberish,
       r: BytesLike,
       s: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"(
@@ -731,7 +729,7 @@ export class ERC20Permit extends Contract {
       v: BigNumberish,
       r: BytesLike,
       s: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     symbol(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -745,27 +743,27 @@ export class ERC20Permit extends Contract {
     transfer(
       dst: string,
       wad: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "transfer(address,uint256)"(
       dst: string,
       wad: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     transferFrom(
       src: string,
       dst: string,
       wad: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "transferFrom(address,address,uint256)"(
       src: string,
       dst: string,
       wad: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     version(overrides?: CallOverrides): Promise<PopulatedTransaction>;

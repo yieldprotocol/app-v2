@@ -9,13 +9,11 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-} from "ethers";
-import {
   Contract,
   ContractTransaction,
   Overrides,
   CallOverrides,
-} from "@ethersproject/contracts";
+} from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
 import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
@@ -161,13 +159,13 @@ export class IFYToken extends Contract {
     approve(
       spender: string,
       amount: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "approve(address,uint256)"(
       spender: string,
       amount: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     asset(overrides?: CallOverrides): Promise<[string]>;
@@ -184,18 +182,22 @@ export class IFYToken extends Contract {
     burn(
       from: string,
       fyTokenAmount: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "burn(address,uint256)"(
       from: string,
       fyTokenAmount: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    mature(overrides?: Overrides): Promise<ContractTransaction>;
+    mature(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
-    "mature()"(overrides?: Overrides): Promise<ContractTransaction>;
+    "mature()"(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     maturity(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -204,25 +206,25 @@ export class IFYToken extends Contract {
     mint(
       to: string,
       fyTokenAmount: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "mint(address,uint256)"(
       to: string,
       fyTokenAmount: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     redeem(
       to: string,
       amount: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "redeem(address,uint256)"(
       to: string,
       amount: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     totalSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -232,27 +234,27 @@ export class IFYToken extends Contract {
     transfer(
       recipient: string,
       amount: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "transfer(address,uint256)"(
       recipient: string,
       amount: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     transferFrom(
       sender: string,
       recipient: string,
       amount: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "transferFrom(address,address,uint256)"(
       sender: string,
       recipient: string,
       amount: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
 
@@ -271,13 +273,13 @@ export class IFYToken extends Contract {
   approve(
     spender: string,
     amount: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "approve(address,uint256)"(
     spender: string,
     amount: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   asset(overrides?: CallOverrides): Promise<string>;
@@ -294,18 +296,22 @@ export class IFYToken extends Contract {
   burn(
     from: string,
     fyTokenAmount: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "burn(address,uint256)"(
     from: string,
     fyTokenAmount: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  mature(overrides?: Overrides): Promise<ContractTransaction>;
+  mature(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
-  "mature()"(overrides?: Overrides): Promise<ContractTransaction>;
+  "mature()"(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   maturity(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -314,25 +320,25 @@ export class IFYToken extends Contract {
   mint(
     to: string,
     fyTokenAmount: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "mint(address,uint256)"(
     to: string,
     fyTokenAmount: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   redeem(
     to: string,
     amount: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "redeem(address,uint256)"(
     to: string,
     amount: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
@@ -342,27 +348,27 @@ export class IFYToken extends Contract {
   transfer(
     recipient: string,
     amount: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "transfer(address,uint256)"(
     recipient: string,
     amount: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   transferFrom(
     sender: string,
     recipient: string,
     amount: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "transferFrom(address,address,uint256)"(
     sender: string,
     recipient: string,
     amount: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -512,13 +518,13 @@ export class IFYToken extends Contract {
     approve(
       spender: string,
       amount: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "approve(address,uint256)"(
       spender: string,
       amount: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     asset(overrides?: CallOverrides): Promise<BigNumber>;
@@ -535,18 +541,22 @@ export class IFYToken extends Contract {
     burn(
       from: string,
       fyTokenAmount: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "burn(address,uint256)"(
       from: string,
       fyTokenAmount: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    mature(overrides?: Overrides): Promise<BigNumber>;
+    mature(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
-    "mature()"(overrides?: Overrides): Promise<BigNumber>;
+    "mature()"(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     maturity(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -555,25 +565,25 @@ export class IFYToken extends Contract {
     mint(
       to: string,
       fyTokenAmount: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "mint(address,uint256)"(
       to: string,
       fyTokenAmount: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     redeem(
       to: string,
       amount: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "redeem(address,uint256)"(
       to: string,
       amount: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
@@ -583,27 +593,27 @@ export class IFYToken extends Contract {
     transfer(
       recipient: string,
       amount: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "transfer(address,uint256)"(
       recipient: string,
       amount: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     transferFrom(
       sender: string,
       recipient: string,
       amount: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "transferFrom(address,address,uint256)"(
       sender: string,
       recipient: string,
       amount: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
 
@@ -623,13 +633,13 @@ export class IFYToken extends Contract {
     approve(
       spender: string,
       amount: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "approve(address,uint256)"(
       spender: string,
       amount: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     asset(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -649,18 +659,22 @@ export class IFYToken extends Contract {
     burn(
       from: string,
       fyTokenAmount: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "burn(address,uint256)"(
       from: string,
       fyTokenAmount: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    mature(overrides?: Overrides): Promise<PopulatedTransaction>;
+    mature(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
 
-    "mature()"(overrides?: Overrides): Promise<PopulatedTransaction>;
+    "mature()"(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
 
     maturity(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -669,25 +683,25 @@ export class IFYToken extends Contract {
     mint(
       to: string,
       fyTokenAmount: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "mint(address,uint256)"(
       to: string,
       fyTokenAmount: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     redeem(
       to: string,
       amount: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "redeem(address,uint256)"(
       to: string,
       amount: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     totalSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -697,27 +711,27 @@ export class IFYToken extends Contract {
     transfer(
       recipient: string,
       amount: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "transfer(address,uint256)"(
       recipient: string,
       amount: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     transferFrom(
       sender: string,
       recipient: string,
       amount: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "transferFrom(address,address,uint256)"(
       sender: string,
       recipient: string,
       amount: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

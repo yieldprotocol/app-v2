@@ -9,13 +9,11 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-} from "ethers";
-import {
   Contract,
   ContractTransaction,
   Overrides,
   CallOverrides,
-} from "@ethersproject/contracts";
+} from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
 import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
@@ -110,14 +108,14 @@ export class Witch extends Contract {
       vaultId: BytesLike,
       art: BigNumberish,
       min: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "buy(bytes12,uint128,uint128)"(
       vaultId: BytesLike,
       art: BigNumberish,
       min: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     cauldron(overrides?: CallOverrides): Promise<[string]>;
@@ -126,12 +124,12 @@ export class Witch extends Contract {
 
     grab(
       vaultId: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "grab(bytes12)"(
       vaultId: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     ladle(overrides?: CallOverrides): Promise<[string]>;
@@ -147,25 +145,28 @@ export class Witch extends Contract {
     vaultId: BytesLike,
     art: BigNumberish,
     min: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "buy(bytes12,uint128,uint128)"(
     vaultId: BytesLike,
     art: BigNumberish,
     min: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   cauldron(overrides?: CallOverrides): Promise<string>;
 
   "cauldron()"(overrides?: CallOverrides): Promise<string>;
 
-  grab(vaultId: BytesLike, overrides?: Overrides): Promise<ContractTransaction>;
+  grab(
+    vaultId: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   "grab(bytes12)"(
     vaultId: BytesLike,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   ladle(overrides?: CallOverrides): Promise<string>;
@@ -228,25 +229,28 @@ export class Witch extends Contract {
       vaultId: BytesLike,
       art: BigNumberish,
       min: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "buy(bytes12,uint128,uint128)"(
       vaultId: BytesLike,
       art: BigNumberish,
       min: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     cauldron(overrides?: CallOverrides): Promise<BigNumber>;
 
     "cauldron()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    grab(vaultId: BytesLike, overrides?: Overrides): Promise<BigNumber>;
+    grab(
+      vaultId: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     "grab(bytes12)"(
       vaultId: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     ladle(overrides?: CallOverrides): Promise<BigNumber>;
@@ -263,14 +267,14 @@ export class Witch extends Contract {
       vaultId: BytesLike,
       art: BigNumberish,
       min: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "buy(bytes12,uint128,uint128)"(
       vaultId: BytesLike,
       art: BigNumberish,
       min: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     cauldron(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -279,12 +283,12 @@ export class Witch extends Contract {
 
     grab(
       vaultId: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "grab(bytes12)"(
       vaultId: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     ladle(overrides?: CallOverrides): Promise<PopulatedTransaction>;

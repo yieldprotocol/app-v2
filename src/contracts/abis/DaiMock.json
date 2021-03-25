@@ -1,5 +1,21 @@
 [
   {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "symbol",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {
@@ -50,6 +66,32 @@
     "type": "event"
   },
   {
+    "inputs": [],
+    "name": "DOMAIN_SEPARATOR",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "PERMIT_TYPEHASH",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -82,7 +124,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "amount",
+        "name": "wad",
         "type": "uint256"
       }
     ],
@@ -101,7 +143,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "account",
+        "name": "guy",
         "type": "address"
       }
     ],
@@ -118,179 +160,12 @@
   },
   {
     "inputs": [],
-    "name": "baseToken",
-    "outputs": [
-      {
-        "internalType": "contract IERC20",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "tokensBurned",
-        "type": "uint256"
-      }
-    ],
-    "name": "burn",
+    "name": "decimals",
     "outputs": [
       {
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
-      },
-      {
-        "internalType": "uint128",
-        "name": "baseTokenOut",
-        "type": "uint128"
-      }
-    ],
-    "name": "buyBaseToken",
-    "outputs": [
-      {
-        "internalType": "uint128",
-        "name": "",
-        "type": "uint128"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint128",
-        "name": "baseTokenOut",
-        "type": "uint128"
-      }
-    ],
-    "name": "buyBaseTokenPreview",
-    "outputs": [
-      {
-        "internalType": "uint128",
-        "name": "",
-        "type": "uint128"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
-      },
-      {
-        "internalType": "uint128",
-        "name": "fyTokenOut",
-        "type": "uint128"
-      }
-    ],
-    "name": "buyFYToken",
-    "outputs": [
-      {
-        "internalType": "uint128",
-        "name": "",
-        "type": "uint128"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint128",
-        "name": "fyTokenOut",
-        "type": "uint128"
-      }
-    ],
-    "name": "buyFYTokenPreview",
-    "outputs": [
-      {
-        "internalType": "uint128",
-        "name": "",
-        "type": "uint128"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "fyToken",
-    "outputs": [
-      {
-        "internalType": "contract IFYToken",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getBaseTokenReserves",
-    "outputs": [
-      {
-        "internalType": "uint112",
-        "name": "",
-        "type": "uint112"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getFYTokenReserves",
-    "outputs": [
-      {
-        "internalType": "uint112",
-        "name": "",
-        "type": "uint112"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "maturity",
-    "outputs": [
-      {
-        "internalType": "uint32",
-        "name": "",
-        "type": "uint32"
       }
     ],
     "stateMutability": "view",
@@ -305,26 +180,33 @@
       },
       {
         "internalType": "uint256",
-        "name": "tokenOffered",
+        "name": "amount",
         "type": "uint256"
       }
     ],
     "name": "mint",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "name",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "string",
         "name": "",
-        "type": "uint256"
+        "type": "string"
       }
     ],
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
       {
         "internalType": "address",
-        "name": "owner",
+        "name": "",
         "type": "address"
       }
     ],
@@ -343,7 +225,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "owner",
+        "name": "holder",
         "type": "address"
       },
       {
@@ -353,13 +235,18 @@
       },
       {
         "internalType": "uint256",
-        "name": "amount",
+        "name": "nonce",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "deadline",
+        "name": "expiry",
         "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "allowed",
+        "type": "bool"
       },
       {
         "internalType": "uint8",
@@ -383,76 +270,13 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
-      }
-    ],
-    "name": "sellBaseToken",
+    "inputs": [],
+    "name": "symbol",
     "outputs": [
       {
-        "internalType": "uint128",
+        "internalType": "string",
         "name": "",
-        "type": "uint128"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint128",
-        "name": "baseTokenIn",
-        "type": "uint128"
-      }
-    ],
-    "name": "sellBaseTokenPreview",
-    "outputs": [
-      {
-        "internalType": "uint128",
-        "name": "",
-        "type": "uint128"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
-      }
-    ],
-    "name": "sellFYToken",
-    "outputs": [
-      {
-        "internalType": "uint128",
-        "name": "",
-        "type": "uint128"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint128",
-        "name": "fyTokenIn",
-        "type": "uint128"
-      }
-    ],
-    "name": "sellFYTokenPreview",
-    "outputs": [
-      {
-        "internalType": "uint128",
-        "name": "",
-        "type": "uint128"
+        "type": "string"
       }
     ],
     "stateMutability": "view",
@@ -475,12 +299,12 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "recipient",
+        "name": "dst",
         "type": "address"
       },
       {
         "internalType": "uint256",
-        "name": "amount",
+        "name": "wad",
         "type": "uint256"
       }
     ],
@@ -499,17 +323,17 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "sender",
+        "name": "src",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "recipient",
+        "name": "dst",
         "type": "address"
       },
       {
         "internalType": "uint256",
-        "name": "amount",
+        "name": "wad",
         "type": "uint256"
       }
     ],
@@ -522,6 +346,19 @@
       }
     ],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "version",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   }
 ]
