@@ -12,6 +12,7 @@
     "@web3-react/walletconnect-connector": "^6.1.9",
     "date-fns": "^2.18.0",
     "decimal.js": "^10.2.1",
+    "eth-permit": "^0.1.9",
     "ethers": "^5.0.32",
     "grommet": "^2.17.0",
     "identicon.js": "^2.3.3",
