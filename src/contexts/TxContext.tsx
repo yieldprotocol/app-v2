@@ -20,11 +20,18 @@ interface IYieldProcess {
   pid: string;
   sigs: IYieldSignature[];
   txs: IYieldTx[];
-  state: string;
+  status: Status;
+}
+
+enum Status {
+  waiting = 0,
+  success = 1,
+  failed = 2,
 }
 
 interface IYieldSignature {
   id: string;
+  status: Status;
   pid?:number|null;
 }
 

@@ -65,6 +65,8 @@ const UserProvider = ({ children }:any) => {
       const eventList = await Cauldron.queryFilter(filter, 1);
       // const eventList = await Cauldron.queryFilter(filter, cachedVaults.lastBlock);
 
+      console.log(eventList);
+
       const vaultList = await Promise.all(eventList.map(async (x:any) => {
         const { vaultId: id, ilkId, seriesId } = Cauldron.interface.parseLog(x).args;
         /* Add in the extra variable vault data */

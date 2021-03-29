@@ -142,18 +142,29 @@ const ChainProvider = ({ children }: any) => {
       const Cauldron = contracts.Cauldron__factory.connect(addrs.Cauldron, fallbackLibrary);
       const Ladle = contracts.Ladle__factory.connect(addrs.Ladle, fallbackLibrary);
 
-      /* Update the baseContracts state */
+      /* Update the baseContracts state : ( hardcoded based on networkId ) */
       const newContractMap = chainState.contractMap;
       newContractMap.set('Cauldron', Cauldron);
       newContractMap.set('Ladle', Ladle);
       updateState({ type: 'contractMap', payload: newContractMap });
 
-      /* Update the 'dynamic' contracts */
+      /* Update the 'dynamic' contracts (series and assets) */
       Promise.all([
+
         /* Update the available assetsMap based on Cauldron events */
         (async () => {
-          const eventList = await Cauldron.queryFilter('AssetAdded' as any);
-          const assetList = await Promise.all(eventList.map(async (x:any) => {
+          /* get both poolAdded events and series events at the same time */
+          const [assetAddedEvents, joinAddedEvents] = await Promise.all([
+            await Cauldron.queryFilter('AssetAdded' as any),
+            Ladle.queryFilter('JoinAdded' as any),
+          ]);
+
+          /* Create a map from the joinAdded event data */
+          const joinMap: Map<string, string> = new Map(
+            joinAddedEvents.map((log:any) => Ladle.interface.parseLog(log).args) as [[string, string]],
+          );
+
+          const assetList = await Promise.all(assetAddedEvents.map(async (x:any) => {
             const { assetId: id, asset: address } = Cauldron.interface.parseLog(x).args;
             const ERC20 = contracts.ERC20__factory.connect(address, fallbackLibrary);
             /* Add in any extra static asset Data */ // TODO is there any other fixed series data?
@@ -162,13 +173,14 @@ const ChainProvider = ({ children }: any) => {
             try {
               [displayName, symbol] = await Promise.all([ERC20.name(), ERC20.symbol()]);
             } catch (e) {
-              [displayName, symbol] = ['ETH', 'ETH'];
+              [displayName, symbol] = ['ETH', 'ETH']; // TODO get rid of this... weth9 should handle this capability
             }
             return {
               id,
               address,
               displayName,
               symbol,
+              joinAddress: joinMap.get(id),
             };
           }));
           const newAssetMap = assetList.reduce((acc:any, item:any) => {
@@ -182,21 +194,31 @@ const ChainProvider = ({ children }: any) => {
           updateState({ type: 'assetMap', payload: newAssetMap });
         })(),
 
-        /* ... at the same time update the available seriesMap based on Cauldron events */
+        /* ... AT THE SAME TIME update the available seriesMap based on Cauldron events */
         (async () => {
-          const eventList = await Cauldron.queryFilter('SeriesAdded' as any);
-          /* Add in any extra static series */ // TODO is there any other fixed series data?
-          const seriesList = await Promise.all(eventList.map(async (x:any) => {
-            const { seriesId, baseId, fyToken } = Cauldron.interface.parseLog(x).args;
-            const { maturity } = await Cauldron.series(seriesId);
+          /* get both poolAdded events and series events at the same time */
+          const [seriesAddedEvents, poolAddedEvents] = await Promise.all([
+            Cauldron.queryFilter('SeriesAdded' as any),
+            Ladle.queryFilter('PoolAdded' as any),
+          ]);
 
+          /* create a map from the poolAdded event data */
+          const poolMap: Map<string, string> = new Map(
+            poolAddedEvents.map((log:any) => Ladle.interface.parseLog(log).args) as [[string, string]],
+          );
+
+          /* Add in any extra static series */ // TODO is there any other fixed series data?
+          const seriesList = await Promise.all(seriesAddedEvents.map(async (x:any) => {
+            const { seriesId: id, baseId, fyToken } = Cauldron.interface.parseLog(x).args;
+            const { maturity } = await Cauldron.series(id);
             return {
-              id: seriesId,
+              id,
               baseId,
               fyToken,
               maturity,
               displayName: nameFromMaturity(maturity),
               displayNameMobile: nameFromMaturity(maturity, 'MMM yyyy'),
+              poolAddress: poolMap.get(id),
             };
           }));
 
@@ -207,9 +229,9 @@ const ChainProvider = ({ children }: any) => {
           }, chainState.seriesMap);
 
           console.log('SERIES: ', newSeriesMap);
-
           updateState({ type: 'seriesMap', payload: newSeriesMap });
         })(),
+
       ])
         .then(() => updateState({ type: 'chainLoading', payload: false }));
     }
@@ -220,6 +242,14 @@ const ChainProvider = ({ children }: any) => {
     chainState.seriesMap,
     chainState.contractMap,
   ]);
+
+  /**
+   * Once the series list updates, update the list with the associated joins > this needs to be seperate from above to
+   * allow for caching - and watching for any newly added assets
+   */
+  useEffect(() => {
+    chainState.seriesMap && console.log(chainState.seriesMap);
+  }, [chainState.seriesMap]);
 
   /**
    * Update on PRIMARY connection any network changes (likely via metamask/walletConnect)
@@ -240,10 +270,8 @@ const ChainProvider = ({ children }: any) => {
   */
   useEffect(() => {
     const _chainId = chainId || lastChainId;
-
     /* cache the change of networkId */
     chainId && setLastChainId(chainId);
-
     /* Connect the fallback */
     tried && fallbackActivate(
       new NetworkConnector({
@@ -251,11 +279,12 @@ const ChainProvider = ({ children }: any) => {
         defaultChainId: _chainId,
       }), (e:any) => console.log(e), true,
     );
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId, fallbackActivate, lastChainId, tried]);
 
-  /* Try connect automatically to an injected provider on first load */
+  /**
+   * Try connect automatically to an injected provider on first load
+   * */
   useEffect(() => {
     chainState.connectOnLoad &&
     connectors.get('injected')
