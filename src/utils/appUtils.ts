@@ -14,7 +14,7 @@ export const toLog = (message: string, type: string = 'info') => {
 };
 
 /* creates internal tracking code of a transaction type */
-export const genTxCode = (txType: string, series:string|null) => `${txType}${series || ''}`;
+export const getTxCode = (txType: string, vaultId:string|null) => `${txType.toUpperCase()}${vaultId}`;
 
 // /* google analytics log event */
 // export const analyticsLogEvent = (eventName: string, eventParams: any ) => {

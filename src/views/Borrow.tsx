@@ -22,31 +22,40 @@ const Borrow = () => {
   const routerHistory = useHistory();
   const routerState = routerHistory.location.state as { from: string };
 
-  const { userState: { selectedSeries } } = useContext(UserContext);
+  const { userState: { selectedSeries, selectedIlk } } = useContext(UserContext);
 
-  const [inputValue, setInputValue] = useState<number>();
+  const [inputValue, setInputValue] = useState<string>();
   const debouncedInput = useDebounce(inputValue, 300);
   const [collInputValue, setCollInputValue] = useState<string>();
   const [vaultIdValue, setVaultIdValue] = useState<string>();
 
+  const [borrowDisabled, setBorrowDisabled] = useState<boolean>(true);
+
   const [createNewVault, setCreateNewVault] = useState<boolean>(true);
 
-  const { borrow, checkVault } = useActions();
-  const handleBorrow = () => {
-    borrow(inputValue?.toString(), collInputValue, createNewVault ? null : '345345');
-  };
+  const { borrow } = useActions();
 
-  /* Borrow form logic */
-  useEffect(() => {
-    console.log('something changed');
-  }, [inputValue, collInputValue, createNewVault]);
+  const handleBorrow = () => {
+    !borrowDisabled && borrow(inputValue?.toString(), collInputValue?.toString());
+  };
 
   useEffect(() => {
     if (vaultIdValue && vaultIdValue.length === 12) {
-      checkVault();
+      // checkVault();
       console.log('max length reached');
     }
-  }, [vaultIdValue, checkVault]);
+  }, [vaultIdValue]);
+
+  /* Action disabling logic: */
+  useEffect(() => {
+    /* if ANY of the following conditions are met: block action */
+    (
+      (!inputValue) || (!collInputValue) || (!selectedSeries) || (!selectedIlk)
+    )
+      ? setBorrowDisabled(true)
+    /* else if all pass, then unlock borrowing */
+      : setBorrowDisabled(false);
+  }, [inputValue, collInputValue, selectedSeries, selectedIlk]);
 
   return (
 
@@ -66,7 +75,7 @@ const Borrow = () => {
                 type="number"
                 placeholder={<PlaceholderWrap label="Enter amount" />}
                 value={inputValue || ''}
-                onChange={(event:any) => setInputValue(Number(event.target.value))}
+                onChange={(event:any) => setInputValue(event.target.value)}
                 autoFocus={!mobile}
               />
             </InputWrap>

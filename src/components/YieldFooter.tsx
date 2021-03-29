@@ -27,7 +27,7 @@ const YieldFooter = (props: any) => {
   const ladle = contractMap.get('Ladle') as Ladle;
 
   const [testOpen, setTestOpen] = useState<boolean>(false);
-  const { transact, multiCall } = useChain();
+  const { transact } = useChain();
 
   const randVault = ethers.utils.hexlify(ethers.utils.randomBytes(12));
 
@@ -48,18 +48,18 @@ const YieldFooter = (props: any) => {
             <Button
               primary
               onClick={
-                () => multiCall(
+                () => transact(
                   ladle,
                   [
-                    { fnName: 'build', args: [randVault, seriesList[0].seriesId, assetList[1].id] },
-                    { fnName: 'build', args: [randVault, seriesList[1].seriesId, assetList[2].id] },
+                    { fn: 'build', args: [randVault, seriesList[0].id, assetList[1].id], ignore: false },
+                    { fn: 'build', args: [randVault, seriesList[1].id, assetList[2].id], ignore: false },
                   ],
                 )
               }
               label="multicall"
             />
             <Button primary onClick={() => toast('Transaction complete')} label="Notify Example" />
-            <Button primary onClick={() => transact(ladle, 'build', [randVault, seriesList[0].seriesId, assetList[1].id])} label="Ladle interact" />
+            <Button primary onClick={() => transact(ladle, [{ fn: 'build', args: [randVault, seriesList[0].id, assetList[4].id], ignore: false }])} label="Ladle interact" />
             <Button primary onClick={() => console.log(utils.arrayify('0xf4f617882cb7'))} label="Notify Example" />
           </Box>
         </Collapsible>
