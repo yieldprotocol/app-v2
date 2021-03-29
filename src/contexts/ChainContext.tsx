@@ -208,19 +208,21 @@ const ChainProvider = ({ children }: any) => {
           );
 
           /* Add in any extra static series */ // TODO is there any other fixed series data?
-          const seriesList = await Promise.all(seriesAddedEvents.map(async (x:any) => {
-            const { seriesId: id, baseId, fyToken } = Cauldron.interface.parseLog(x).args;
-            const { maturity } = await Cauldron.series(id);
-            return {
-              id,
-              baseId,
-              fyToken,
-              maturity,
-              displayName: nameFromMaturity(maturity),
-              displayNameMobile: nameFromMaturity(maturity, 'MMM yyyy'),
-              poolAddress: poolMap.get(id),
-            };
-          }));
+          const seriesList: IYieldSeries[] = await Promise.all(
+            seriesAddedEvents.map(async (x:any) : Promise<IYieldSeries> => {
+              const { seriesId: id, baseId, fyToken } = Cauldron.interface.parseLog(x).args;
+              const { maturity } = await Cauldron.series(id);
+              return {
+                id,
+                baseId,
+                fyToken,
+                maturity,
+                displayName: nameFromMaturity(maturity),
+                displayNameMobile: nameFromMaturity(maturity, 'MMM yyyy'),
+                pool: poolMap.get(id) || '',
+              };
+            }),
+          );
 
           const newSeriesMap = seriesList.reduce((acc:any, item:any) => {
             const _map = acc;

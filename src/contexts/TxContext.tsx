@@ -107,7 +107,9 @@ const TxProvider = ({ children }:any) => {
       try {
         toast.error(`${err.data.message.split('VM Exception while processing transaction: revert').pop()}`);
         console.log(err);
-      } catch (e) { console.log(err); }
+      } catch (e) {
+        console.log('Something went wrong: ', err);
+      }
     }
   };
 

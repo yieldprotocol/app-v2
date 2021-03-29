@@ -67,17 +67,18 @@ const UserProvider = ({ children }:any) => {
 
       console.log(eventList);
 
-      const vaultList = await Promise.all(eventList.map(async (x:any) => {
+      const vaultList : IYieldVault[] = await Promise.all(eventList.map(async (x:any) : Promise<IYieldVault> => {
         const { vaultId: id, ilkId, seriesId } = Cauldron.interface.parseLog(x).args;
         /* Add in the extra variable vault data */
         const { ink, art } = await Cauldron.balances(id);
+        const series = seriesMap.get(seriesId);
         return {
           id,
+          series,
           ink,
           art,
-          series: seriesMap.get(seriesId),
-          asset: assetMap.get(ilkId),
-          assetBalance: ethers.BigNumber.from('0'),
+          ilk: assetMap.get(ilkId),
+          base: assetMap.get(series.baseId),
           ink_: cleanValue(ethers.utils.formatEther(ink), 2), // for display purposes only
           art_: cleanValue(ethers.utils.formatEther(art), 2), // for display purposes only
           image: genVaultImage(id),
@@ -85,7 +86,7 @@ const UserProvider = ({ children }:any) => {
       }));
 
       // const _combined = [...cachedVaults.data, ...vaultList];
-      const _combined = [...vaultList] as IYieldVault[];
+      const _combined: IYieldVault[] = [...vaultList];
       const newVaultMap = _combined.reduce((acc:any, item:any) => {
         const _map = acc;
         _map.set(item.id, item);

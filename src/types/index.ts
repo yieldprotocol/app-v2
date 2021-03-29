@@ -1,4 +1,4 @@
-import { ContractFactory } from 'ethers';
+import { BigNumber, ContractFactory } from 'ethers';
 
 export enum TradeType {
   BUY = 'BUY',
@@ -8,18 +8,17 @@ export enum TradeType {
 export interface IYieldSeries {
   // reqd/fixed:
   id: string;
-  symbol: string;
   displayName: string;
   displayNameMobile: string;
   maturity: number;
-  fyDaiAddress:string;
-  poolAddress:string;
+  fyToken:string;
+  pool:string;
   baseId: string;
 
   contract?: ContractFactory;
   // optional/calculated/mutable:
-  maturityDate: Date;
-  apr: string;
+  maturityDate?: Date;
+  apr?: string;
 }
 
 export interface IYieldAsset {
@@ -34,11 +33,18 @@ export interface IYieldAsset {
 
 export interface IYieldVault {
   id: string;
-  asset: IYieldAsset;
+  ilk: IYieldAsset;
+  base: IYieldAsset;
   series: IYieldSeries;
-  ink: string;
-  art: string;
-  image:string;
+  ink: BigNumber;
+  art: BigNumber;
+
+  ink_: string;
+  art_: string;
+
+  image: string;
+  displayId? : string;
+
 }
 
 export interface IYieldUser {
