@@ -3,6 +3,7 @@ import { useContext } from 'react';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
 import { Ladle } from '../contracts/Ladle';
+import { IYieldVault } from '../types';
 import { getTxCode } from '../utils/appUtils';
 import { useChain, ICallData, SignType } from './chainHooks';
 
@@ -35,12 +36,12 @@ export const useActions = () => {
   const borrow = async (
     input:string|undefined,
     collInput:string|undefined,
-    vault: string| null = null,
+    vault: IYieldVault|null = null,
   ) => {
     /* Get a random vault number ready if reqd. */
     const randVault = ethers.utils.hexlify(ethers.utils.randomBytes(12));
     /* generate the reproducible txCode for tx tracking and tracing */
-    const txCode = getTxCode('BORROW', vault || randVault);
+    const txCode = getTxCode('BORROW', vault?.id || randVault);
 
     /* parse/clean inputs */
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
@@ -50,19 +51,19 @@ export const useActions = () => {
     const sigs: ICallData[] = await sign(
       [
         {
-          tokenId: selectedIlk.id,
+          assetOrSeriesId: selectedIlk.id,
           type: SignType.ERC2612,
           fallbackCall: { fn: 'approve', args: [], ignore: false },
           ignore: selectedIlk.id === '0x455448000000',
         },
         {
-          tokenId: '0xb17e4aebd805',
+          assetOrSeriesId: '0xb17e4aebd805',
           fallbackCall: { fn: 'approve', args: [], ignore: false },
           ignore: true,
           type: SignType.DAI,
         },
         {
-          tokenId: '0xb17e4aebd805',
+          assetOrSeriesId: '0xb17e4aebd805',
           fallbackCall: { fn: 'approve', args: [], ignore: false },
           ignore: true,
           type: SignType.FYTOKEN,
@@ -82,12 +83,50 @@ export const useActions = () => {
       /* Then add all the CALLS you want to make: */
       {
         fn: 'pour',
-        args: [vault || randVault, account, _collInput, _input],
+        args: [(vault?.id || randVault), account, _collInput, _input],
         ignore: false,
       },
     ];
     transact(ladle, calls, txCode);
   };
 
-  return { borrow };
+  const repay = async (
+    input:string|undefined,
+    vault: IYieldVault,
+  ) => {
+    /* generate the reproducible txCode for tx tracking and tracing */
+    const txCode = getTxCode('REPAY', vault.series.id);
+    /* Parse/clean inputs */
+    const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
+
+    /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
+    const sigs: ICallData[] = await sign(
+      [
+        {
+          assetOrSeriesId: vault.series.id,
+          type: SignType.FYTOKEN,
+          fallbackCall: { fn: 'approve', args: [], ignore: false },
+          ignore: false,
+        },
+      ],
+      txCode,
+    );
+
+    /* Collate all the calls required for the process (including depositing ETH, signing permits, and building vault if needed) */
+    const calls: ICallData[] = [
+      /* Include all the signatures gathered, if required  */
+      ...sigs,
+      /* Then add all the CALLS you want to make: */
+      {
+        fn: 'pour',
+        args: [vault.id, account, ethers.constants.Zero, _input.mul(BigNumber.from('-1'))],
+        ignore: false,
+      },
+      /* immediatly release collateral, if required */
+
+    ];
+    transact(ladle, calls, txCode);
+  };
+
+  return { borrow, repay };
 };

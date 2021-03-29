@@ -14,10 +14,11 @@ import InputWrap from '../components/wraps/InputWrap';
 import InfoBite from '../components/InfoBite';
 import { IYieldSeries, IYieldVault } from '../types';
 import { borrowingPower } from '../utils/yieldMath';
-import Borrow from './Borrow';
+
 import ActionButtonGroup from '../components/ActionButtonGroup';
 import PlaceholderWrap from '../components/wraps/PlaceholderWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
+import { useActions } from '../hooks/actionHooks';
 
 const Vault = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -33,10 +34,16 @@ const Vault = () => {
   const [inputValue, setInputValue] = useState<any>(undefined);
   const [expanded, setExpanded] = useState<any>(undefined);
 
+  const { repay } = useActions();
+
   /* init effects */
   useEffect(() => {
     setAvailableVaults(Array.from(vaultMap.values())); // add some filtering here
   }, [vaultMap, activeVault]);
+
+  const handleRepay = () => {
+    repay(inputValue?.toString(), activeVault);
+  };
 
   return (
     <MainViewWrap fullWidth>
@@ -66,15 +73,17 @@ const Vault = () => {
           </Box>
         </Box>
 
-        <InfoBite label={`Total value in ${activeVault?.asset?.symbol}`} value={activeVault?.art_} />
+        <InfoBite label={`Total value in ${activeVault?.base?.symbol}`} value={activeVault?.art_} />
         <InfoBite label="Total value in USD" value="0.0" />
+
+        <InfoBite label="Collateral value:" value={`${activeVault?.ink_} ${activeVault?.ilk?.symbol}`} />
 
       </Box>
 
       <MainViewWrap>
         <SectionWrap>
           <Box direction="row" justify="between" fill="horizontal">
-            <Text size={mobile ? 'small' : 'medium'}> Debt: {activeVault?.art_} {activeVault?.asset?.symbol} </Text> <Text size={mobile ? 'small' : 'medium'}> ($0,00 USD) </Text>
+            <Text size={mobile ? 'small' : 'medium'}> Debt: {activeVault?.art_} {activeVault?.base?.symbol} </Text> <Text size={mobile ? 'small' : 'medium'}> ($0,00 USD) </Text>
           </Box>
 
           <Box gap="small" fill="horizontal">
@@ -99,6 +108,7 @@ const Vault = () => {
             primary
             label={<Text size={mobile ? 'small' : undefined}> {`Repay ${inputValue || ''} Dai`} </Text>}
             key="primary"
+            onClick={() => handleRepay()}
           />,
 
           <Button

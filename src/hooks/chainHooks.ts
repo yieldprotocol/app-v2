@@ -20,7 +20,7 @@ export interface ICallData {
 }
 
 export interface ISigData {
-  tokenId: string,
+  assetOrSeriesId: string,
   fallbackCall: ICallData; // calldata to process if fallback
   ignore: boolean; // conditional for ignoring
 
@@ -105,7 +105,7 @@ export const useChain = () => {
       /*  if more than one call in list then use batching: */
       if (calls.length > 1) res = await _contract.batch(encodedCalls, true, { value: _value, gasLimit: _gasTotal });
       /* else, if _calls list === 1 simply use direct contract call */
-      if (calls.length === 1) res = await _contract[_calls[0].fn](..._calls[0].args, _calls[0].overrides);
+      if (calls.length === 1) res = await _contract[_calls[0].fn](..._calls[0].args, { ..._calls[0].overrides });
       /* ** */
     } catch (e) {
       handleTxRejection(e);
@@ -124,11 +124,15 @@ export const useChain = () => {
 
     const signedList = await Promise.all(
       _reqSigs.map(async (reqSig: ISigData) => {
-        /* parse input and gather data */
-        const ladleAddress = chainState.contractMap.get('Ladle').address;
-        const joinAddress = reqSig.tokenAddress || chainState.assetMap.get(reqSig.tokenId).joinAddress;
-        const tokenAddress = reqSig.tokenAddress || chainState.assetMap.get(reqSig.tokenId).address;
-        const spender = reqSig.spender || chainState.assetMap.get(reqSig.tokenId).joinAddress;
+        /* set the token address: used arg address if provided, else use either asset address or fyDai Address (fyDaiType) */
+        const tokenAddress = reqSig.type === 'FYTOKEN_TYPE'
+          ? reqSig.tokenAddress || chainState.seriesMap.get(reqSig.assetOrSeriesId).fyToken
+          : reqSig.tokenAddress || chainState.assetMap.get(reqSig.assetOrSeriesId).address;
+
+        /* Set the spender as the provided spender address or either 'Ladle' or the associated 'Join' */
+        const spender = reqSig.type === 'FYTOKEN_TYPE'
+          ? reqSig.spender || chainState.contractMap.get('Ladle').address // spender as ladle
+          : reqSig.spender || chainState.assetMap.get(reqSig.assetOrSeriesId).joinAddress; // spender as join
 
         /* Request the signature if using DaiType permit style */
         if (reqSig.type === 'DAI_TYPE') {
@@ -136,13 +140,13 @@ export const useChain = () => {
             chainState.provider,
             tokenAddress,
             chainState.account,
-            spender, // ladleAddress?
+            spender,
           );
           const { v, r, s, nonce, expiry, allowed } = _sig;
           // FN > ladle.forwardDaiPermit(daiId, true, ladle.address, nonce, deadline, true, v, r, s)
           return {
             fn: 'forwardDaiPermit',
-            args: [reqSig.tokenId, true, ladleAddress, nonce, expiry, allowed, v, r, s],
+            args: [reqSig.assetOrSeriesId, true, spender, nonce, expiry, allowed, v, r, s],
             ignore: false,
           };
         }
@@ -150,9 +154,9 @@ export const useChain = () => {
         /* Or else, request the signature using ERC2612 Permit style  - NB!! take note of the FYTOKEN TYPE CAHNGES */
         const _sig = await signERC2612Permit(
           chainState.provider,
-          reqSig.domain || tokenAddress, // uses custom domain if provided or reqd eg. USDC needs version 2
+          reqSig.domain || tokenAddress, // uses custom domain if provided (eg. USDC needs version 2) else, use token address
           chainState.account,
-          reqSig.type === 'FYTOKEN_TYPE' ? ladleAddress : spender,
+          spender,
           MAX_INT,
         );
         const { v, r, s, value, deadline } = _sig;
@@ -160,9 +164,9 @@ export const useChain = () => {
         return {
           fn: 'forwardPermit',
           args: [
-            reqSig.tokenId,
+            reqSig.assetOrSeriesId,
             reqSig.type !== 'FYTOKEN_TYPE', // true or false
-            reqSig.type === 'FYTOKEN_TYPE' ? ladleAddress : joinAddress,
+            spender,
             value, deadline, v, r, s],
           ignore: false,
         };
