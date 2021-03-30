@@ -21,18 +21,24 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface IJoinInterface extends ethers.utils.Interface {
   functions: {
-    "join(address,int128)": FunctionFragment;
-    "token()": FunctionFragment;
+    "asset()": FunctionFragment;
+    "exit(address,uint128)": FunctionFragment;
+    "join(address,uint128)": FunctionFragment;
   };
 
+  encodeFunctionData(functionFragment: "asset", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "exit",
+    values: [string, BigNumberish]
+  ): string;
   encodeFunctionData(
     functionFragment: "join",
     values: [string, BigNumberish]
   ): string;
-  encodeFunctionData(functionFragment: "token", values?: undefined): string;
 
+  decodeFunctionResult(functionFragment: "asset", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "exit", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "join", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "token", data: BytesLike): Result;
 
   events: {};
 }
@@ -81,22 +87,50 @@ export class IJoin extends Contract {
   interface: IJoinInterface;
 
   functions: {
+    asset(overrides?: CallOverrides): Promise<[string]>;
+
+    "asset()"(overrides?: CallOverrides): Promise<[string]>;
+
+    exit(
+      user: string,
+      wad: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "exit(address,uint128)"(
+      user: string,
+      wad: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     join(
       user: string,
       wad: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "join(address,int128)"(
+    "join(address,uint128)"(
       user: string,
       wad: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    token(overrides?: CallOverrides): Promise<[string]>;
-
-    "token()"(overrides?: CallOverrides): Promise<[string]>;
   };
+
+  asset(overrides?: CallOverrides): Promise<string>;
+
+  "asset()"(overrides?: CallOverrides): Promise<string>;
+
+  exit(
+    user: string,
+    wad: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "exit(address,uint128)"(
+    user: string,
+    wad: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   join(
     user: string,
@@ -104,69 +138,101 @@ export class IJoin extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "join(address,int128)"(
+  "join(address,uint128)"(
     user: string,
     wad: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  token(overrides?: CallOverrides): Promise<string>;
-
-  "token()"(overrides?: CallOverrides): Promise<string>;
-
   callStatic: {
+    asset(overrides?: CallOverrides): Promise<string>;
+
+    "asset()"(overrides?: CallOverrides): Promise<string>;
+
+    exit(
+      user: string,
+      wad: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "exit(address,uint128)"(
+      user: string,
+      wad: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     join(
       user: string,
       wad: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "join(address,int128)"(
+    "join(address,uint128)"(
       user: string,
       wad: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    token(overrides?: CallOverrides): Promise<string>;
-
-    "token()"(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {};
 
   estimateGas: {
+    asset(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "asset()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    exit(
+      user: string,
+      wad: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "exit(address,uint128)"(
+      user: string,
+      wad: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     join(
       user: string,
       wad: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "join(address,int128)"(
+    "join(address,uint128)"(
       user: string,
       wad: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
-
-    token(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "token()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
+    asset(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "asset()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    exit(
+      user: string,
+      wad: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "exit(address,uint128)"(
+      user: string,
+      wad: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     join(
       user: string,
       wad: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "join(address,int128)"(
+    "join(address,uint128)"(
       user: string,
       wad: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
-
-    token(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "token()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

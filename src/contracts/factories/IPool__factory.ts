@@ -185,6 +185,11 @@ const _abi = [
         name: "baseTokenOut",
         type: "uint128",
       },
+      {
+        internalType: "uint128",
+        name: "max",
+        type: "uint128",
+      },
     ],
     name: "buyBaseToken",
     outputs: [
@@ -226,6 +231,11 @@ const _abi = [
       {
         internalType: "uint128",
         name: "fyTokenOut",
+        type: "uint128",
+      },
+      {
+        internalType: "uint128",
+        name: "max",
         type: "uint128",
       },
     ],
@@ -405,6 +415,49 @@ const _abi = [
         type: "address",
       },
     ],
+    name: "retrieveBaseToken",
+    outputs: [
+      {
+        internalType: "uint128",
+        name: "retrieved",
+        type: "uint128",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+    ],
+    name: "retrieveFYToken",
+    outputs: [
+      {
+        internalType: "uint128",
+        name: "retrieved",
+        type: "uint128",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        internalType: "uint128",
+        name: "min",
+        type: "uint128",
+      },
+    ],
     name: "sellBaseToken",
     outputs: [
       {
@@ -441,6 +494,11 @@ const _abi = [
         internalType: "address",
         name: "to",
         type: "address",
+      },
+      {
+        internalType: "uint128",
+        name: "min",
+        type: "uint128",
       },
     ],
     name: "sellFYToken",

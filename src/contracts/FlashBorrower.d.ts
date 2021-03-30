@@ -21,13 +21,9 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface FlashBorrowerInterface extends ethers.utils.Interface {
   functions: {
-    "approveRepayment(address,uint256)": FunctionFragment;
     "flashAmount()": FunctionFragment;
     "flashBalance()": FunctionFragment;
-    "flashBorrow(address,uint256)": FunctionFragment;
-    "flashBorrowAndNotApprove(address,uint256)": FunctionFragment;
-    "flashBorrowAndReenter(address,uint256)": FunctionFragment;
-    "flashBorrowAndSteal(address,uint256)": FunctionFragment;
+    "flashBorrow(address,uint256,uint8)": FunctionFragment;
     "flashFee()": FunctionFragment;
     "flashInitiator()": FunctionFragment;
     "flashToken()": FunctionFragment;
@@ -35,10 +31,6 @@ interface FlashBorrowerInterface extends ethers.utils.Interface {
     "onFlashLoan(address,address,uint256,uint256,bytes)": FunctionFragment;
   };
 
-  encodeFunctionData(
-    functionFragment: "approveRepayment",
-    values: [string, BigNumberish]
-  ): string;
   encodeFunctionData(
     functionFragment: "flashAmount",
     values?: undefined
@@ -49,19 +41,7 @@ interface FlashBorrowerInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "flashBorrow",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "flashBorrowAndNotApprove",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "flashBorrowAndReenter",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "flashBorrowAndSteal",
-    values: [string, BigNumberish]
+    values: [string, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "flashFee", values?: undefined): string;
   encodeFunctionData(
@@ -79,10 +59,6 @@ interface FlashBorrowerInterface extends ethers.utils.Interface {
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "approveRepayment",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "flashAmount",
     data: BytesLike
   ): Result;
@@ -92,18 +68,6 @@ interface FlashBorrowerInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "flashBorrow",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "flashBorrowAndNotApprove",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "flashBorrowAndReenter",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "flashBorrowAndSteal",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "flashFee", data: BytesLike): Result;
@@ -165,18 +129,6 @@ export class FlashBorrower extends Contract {
   interface: FlashBorrowerInterface;
 
   functions: {
-    approveRepayment(
-      token: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "approveRepayment(address,uint256)"(
-      token: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     flashAmount(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     "flashAmount()"(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -188,48 +140,14 @@ export class FlashBorrower extends Contract {
     flashBorrow(
       token: string,
       amount: BigNumberish,
+      action: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "flashBorrow(address,uint256)"(
+    "flashBorrow(address,uint256,uint8)"(
       token: string,
       amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    flashBorrowAndNotApprove(
-      token: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "flashBorrowAndNotApprove(address,uint256)"(
-      token: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    flashBorrowAndReenter(
-      token: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "flashBorrowAndReenter(address,uint256)"(
-      token: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    flashBorrowAndSteal(
-      token: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "flashBorrowAndSteal(address,uint256)"(
-      token: string,
-      amount: BigNumberish,
+      action: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -268,18 +186,6 @@ export class FlashBorrower extends Contract {
     ): Promise<ContractTransaction>;
   };
 
-  approveRepayment(
-    token: string,
-    amount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "approveRepayment(address,uint256)"(
-    token: string,
-    amount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   flashAmount(overrides?: CallOverrides): Promise<BigNumber>;
 
   "flashAmount()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -291,48 +197,14 @@ export class FlashBorrower extends Contract {
   flashBorrow(
     token: string,
     amount: BigNumberish,
+    action: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "flashBorrow(address,uint256)"(
+  "flashBorrow(address,uint256,uint8)"(
     token: string,
     amount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  flashBorrowAndNotApprove(
-    token: string,
-    amount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "flashBorrowAndNotApprove(address,uint256)"(
-    token: string,
-    amount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  flashBorrowAndReenter(
-    token: string,
-    amount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "flashBorrowAndReenter(address,uint256)"(
-    token: string,
-    amount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  flashBorrowAndSteal(
-    token: string,
-    amount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "flashBorrowAndSteal(address,uint256)"(
-    token: string,
-    amount: BigNumberish,
+    action: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -371,18 +243,6 @@ export class FlashBorrower extends Contract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    approveRepayment(
-      token: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "approveRepayment(address,uint256)"(
-      token: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     flashAmount(overrides?: CallOverrides): Promise<BigNumber>;
 
     "flashAmount()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -394,48 +254,14 @@ export class FlashBorrower extends Contract {
     flashBorrow(
       token: string,
       amount: BigNumberish,
+      action: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "flashBorrow(address,uint256)"(
+    "flashBorrow(address,uint256,uint8)"(
       token: string,
       amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    flashBorrowAndNotApprove(
-      token: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "flashBorrowAndNotApprove(address,uint256)"(
-      token: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    flashBorrowAndReenter(
-      token: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "flashBorrowAndReenter(address,uint256)"(
-      token: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    flashBorrowAndSteal(
-      token: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "flashBorrowAndSteal(address,uint256)"(
-      token: string,
-      amount: BigNumberish,
+      action: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -477,18 +303,6 @@ export class FlashBorrower extends Contract {
   filters: {};
 
   estimateGas: {
-    approveRepayment(
-      token: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "approveRepayment(address,uint256)"(
-      token: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     flashAmount(overrides?: CallOverrides): Promise<BigNumber>;
 
     "flashAmount()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -500,48 +314,14 @@ export class FlashBorrower extends Contract {
     flashBorrow(
       token: string,
       amount: BigNumberish,
+      action: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "flashBorrow(address,uint256)"(
+    "flashBorrow(address,uint256,uint8)"(
       token: string,
       amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    flashBorrowAndNotApprove(
-      token: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "flashBorrowAndNotApprove(address,uint256)"(
-      token: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    flashBorrowAndReenter(
-      token: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "flashBorrowAndReenter(address,uint256)"(
-      token: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    flashBorrowAndSteal(
-      token: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "flashBorrowAndSteal(address,uint256)"(
-      token: string,
-      amount: BigNumberish,
+      action: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -581,18 +361,6 @@ export class FlashBorrower extends Contract {
   };
 
   populateTransaction: {
-    approveRepayment(
-      token: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "approveRepayment(address,uint256)"(
-      token: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     flashAmount(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "flashAmount()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -604,48 +372,14 @@ export class FlashBorrower extends Contract {
     flashBorrow(
       token: string,
       amount: BigNumberish,
+      action: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "flashBorrow(address,uint256)"(
+    "flashBorrow(address,uint256,uint8)"(
       token: string,
       amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    flashBorrowAndNotApprove(
-      token: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "flashBorrowAndNotApprove(address,uint256)"(
-      token: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    flashBorrowAndReenter(
-      token: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "flashBorrowAndReenter(address,uint256)"(
-      token: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    flashBorrowAndSteal(
-      token: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "flashBorrowAndSteal(address,uint256)"(
-      token: string,
-      amount: BigNumberish,
+      action: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

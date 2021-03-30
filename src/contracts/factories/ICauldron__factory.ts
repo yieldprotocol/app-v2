@@ -21,19 +21,19 @@ const _abi = [
     inputs: [
       {
         internalType: "bytes6",
-        name: "assetsDd",
+        name: "assetsId",
         type: "bytes6",
       },
     ],
     name: "assets",
     outputs: [
       {
-        internalType: "contract IERC20",
+        internalType: "address",
         name: "",
         type: "address",
       },
     ],
-    stateMutability: "nonpayable",
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -196,7 +196,7 @@ const _abi = [
         type: "address",
       },
     ],
-    stateMutability: "nonpayable",
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -261,7 +261,7 @@ const _abi = [
         type: "tuple",
       },
     ],
-    stateMutability: "nonpayable",
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -272,14 +272,14 @@ const _abi = [
         type: "bytes12",
       },
       {
-        internalType: "int128",
+        internalType: "uint128",
         name: "ink",
-        type: "int128",
+        type: "uint128",
       },
       {
-        internalType: "int128",
+        internalType: "uint128",
         name: "art",
-        type: "int128",
+        type: "uint128",
       },
     ],
     name: "slurp",
@@ -320,6 +320,11 @@ const _abi = [
       {
         internalType: "uint128",
         name: "ink",
+        type: "uint128",
+      },
+      {
+        internalType: "uint128",
+        name: "art",
         type: "uint128",
       },
     ],

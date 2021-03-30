@@ -161,34 +161,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes12",
-        name: "vaultId",
-        type: "bytes12",
-      },
-      {
-        internalType: "address",
-        name: "user",
-        type: "address",
-      },
-      {
-        internalType: "int128",
-        name: "ink",
-        type: "int128",
-      },
-      {
-        internalType: "int128",
-        name: "art",
-        type: "int128",
-      },
-    ],
-    name: "_join",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "bytes6",
         name: "assetId",
         type: "bytes6",
@@ -275,6 +247,45 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "bytes6",
+        name: "seriesId",
+        type: "bytes6",
+      },
+      {
+        internalType: "bool",
+        name: "base",
+        type: "bool",
+      },
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        internalType: "uint128",
+        name: "tokenOut",
+        type: "uint128",
+      },
+      {
+        internalType: "uint128",
+        name: "max",
+        type: "uint128",
+      },
+    ],
+    name: "buyToken",
+    outputs: [
+      {
+        internalType: "uint128",
+        name: "tokenIn",
+        type: "uint128",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "cauldron",
     outputs: [
@@ -326,7 +337,7 @@ const _abi = [
           },
         ],
         internalType: "struct DataTypes.Balances",
-        name: "balances_",
+        name: "balances",
         type: "tuple",
       },
     ],
@@ -348,6 +359,11 @@ const _abi = [
   },
   {
     inputs: [
+      {
+        internalType: "bytes6",
+        name: "etherId",
+        type: "bytes6",
+      },
       {
         internalType: "address payable",
         name: "to",
@@ -672,7 +688,7 @@ const _abi = [
           },
         ],
         internalType: "struct DataTypes.Balances",
-        name: "balances_",
+        name: "balances",
         type: "tuple",
       },
     ],
@@ -694,6 +710,137 @@ const _abi = [
     ],
     name: "renounceRole",
     outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes12",
+        name: "vaultId",
+        type: "bytes12",
+      },
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        internalType: "int128",
+        name: "ink",
+        type: "int128",
+      },
+      {
+        internalType: "uint128",
+        name: "min",
+        type: "uint128",
+      },
+    ],
+    name: "repay",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "uint128",
+            name: "art",
+            type: "uint128",
+          },
+          {
+            internalType: "uint128",
+            name: "ink",
+            type: "uint128",
+          },
+        ],
+        internalType: "struct DataTypes.Balances",
+        name: "balances",
+        type: "tuple",
+      },
+      {
+        internalType: "uint128",
+        name: "art",
+        type: "uint128",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes12",
+        name: "vaultId",
+        type: "bytes12",
+      },
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        internalType: "int128",
+        name: "ink",
+        type: "int128",
+      },
+      {
+        internalType: "uint128",
+        name: "max",
+        type: "uint128",
+      },
+    ],
+    name: "repayVault",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "uint128",
+            name: "art",
+            type: "uint128",
+          },
+          {
+            internalType: "uint128",
+            name: "ink",
+            type: "uint128",
+          },
+        ],
+        internalType: "struct DataTypes.Balances",
+        name: "balances",
+        type: "tuple",
+      },
+      {
+        internalType: "uint128",
+        name: "base",
+        type: "uint128",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes6",
+        name: "seriesId",
+        type: "bytes6",
+      },
+      {
+        internalType: "bool",
+        name: "base",
+        type: "bool",
+      },
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+    ],
+    name: "retrieveToken",
+    outputs: [
+      {
+        internalType: "uint128",
+        name: "retrieved",
+        type: "uint128",
+      },
+    ],
     stateMutability: "nonpayable",
     type: "function",
   },
@@ -747,6 +894,40 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes6",
+        name: "seriesId",
+        type: "bytes6",
+      },
+      {
+        internalType: "bool",
+        name: "base",
+        type: "bool",
+      },
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        internalType: "uint128",
+        name: "min",
+        type: "uint128",
+      },
+    ],
+    name: "sellToken",
+    outputs: [
+      {
+        internalType: "uint128",
+        name: "tokenOut",
+        type: "uint128",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes12",
         name: "vaultId",
         type: "bytes12",
@@ -757,18 +938,18 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "int128",
+        internalType: "uint128",
         name: "ink",
-        type: "int128",
-      },
-      {
-        internalType: "int128",
-        name: "art",
-        type: "int128",
+        type: "uint128",
       },
       {
         internalType: "uint128",
-        name: "min",
+        name: "base",
+        type: "uint128",
+      },
+      {
+        internalType: "uint128",
+        name: "max",
         type: "uint128",
       },
     ],
@@ -788,12 +969,12 @@ const _abi = [
           },
         ],
         internalType: "struct DataTypes.Balances",
-        name: "balances_",
+        name: "balances",
         type: "tuple",
       },
       {
         internalType: "uint128",
-        name: "base_",
+        name: "art",
         type: "uint128",
       },
     ],
@@ -821,12 +1002,27 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "contract IWETH9",
-        name: "weth_",
+        internalType: "bytes12",
+        name: "vaultId",
+        type: "bytes12",
+      },
+      {
+        internalType: "address",
+        name: "user",
         type: "address",
       },
+      {
+        internalType: "uint128",
+        name: "ink",
+        type: "uint128",
+      },
+      {
+        internalType: "uint128",
+        name: "art",
+        type: "uint128",
+      },
     ],
-    name: "setWeth",
+    name: "settle",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -846,6 +1042,11 @@ const _abi = [
       {
         internalType: "uint128",
         name: "ink",
+        type: "uint128",
+      },
+      {
+        internalType: "uint128",
+        name: "art",
         type: "uint128",
       },
     ],
@@ -892,6 +1093,35 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes6",
+        name: "seriesId",
+        type: "bytes6",
+      },
+      {
+        internalType: "bool",
+        name: "base",
+        type: "bool",
+      },
+      {
+        internalType: "uint128",
+        name: "wad",
+        type: "uint128",
+      },
+    ],
+    name: "transferToPool",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes12",
         name: "vaultId",
         type: "bytes12",
@@ -910,19 +1140,6 @@ const _abi = [
     name: "tweak",
     outputs: [],
     stateMutability: "payable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "weth",
-    outputs: [
-      {
-        internalType: "contract IWETH9",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {

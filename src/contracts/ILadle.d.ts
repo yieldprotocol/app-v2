@@ -21,15 +21,15 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface ILadleInterface extends ethers.utils.Interface {
   functions: {
-    "_join(bytes12,address,int128,int128)": FunctionFragment;
+    "settle(bytes12,address,uint128,uint128)": FunctionFragment;
   };
 
   encodeFunctionData(
-    functionFragment: "_join",
+    functionFragment: "settle",
     values: [BytesLike, string, BigNumberish, BigNumberish]
   ): string;
 
-  decodeFunctionResult(functionFragment: "_join", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "settle", data: BytesLike): Result;
 
   events: {};
 }
@@ -78,7 +78,7 @@ export class ILadle extends Contract {
   interface: ILadleInterface;
 
   functions: {
-    _join(
+    settle(
       vaultId: BytesLike,
       user: string,
       ink: BigNumberish,
@@ -86,7 +86,7 @@ export class ILadle extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "_join(bytes12,address,int128,int128)"(
+    "settle(bytes12,address,uint128,uint128)"(
       vaultId: BytesLike,
       user: string,
       ink: BigNumberish,
@@ -95,7 +95,7 @@ export class ILadle extends Contract {
     ): Promise<ContractTransaction>;
   };
 
-  _join(
+  settle(
     vaultId: BytesLike,
     user: string,
     ink: BigNumberish,
@@ -103,7 +103,7 @@ export class ILadle extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "_join(bytes12,address,int128,int128)"(
+  "settle(bytes12,address,uint128,uint128)"(
     vaultId: BytesLike,
     user: string,
     ink: BigNumberish,
@@ -112,7 +112,7 @@ export class ILadle extends Contract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    _join(
+    settle(
       vaultId: BytesLike,
       user: string,
       ink: BigNumberish,
@@ -120,7 +120,7 @@ export class ILadle extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "_join(bytes12,address,int128,int128)"(
+    "settle(bytes12,address,uint128,uint128)"(
       vaultId: BytesLike,
       user: string,
       ink: BigNumberish,
@@ -132,7 +132,7 @@ export class ILadle extends Contract {
   filters: {};
 
   estimateGas: {
-    _join(
+    settle(
       vaultId: BytesLike,
       user: string,
       ink: BigNumberish,
@@ -140,7 +140,7 @@ export class ILadle extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "_join(bytes12,address,int128,int128)"(
+    "settle(bytes12,address,uint128,uint128)"(
       vaultId: BytesLike,
       user: string,
       ink: BigNumberish,
@@ -150,7 +150,7 @@ export class ILadle extends Contract {
   };
 
   populateTransaction: {
-    _join(
+    settle(
       vaultId: BytesLike,
       user: string,
       ink: BigNumberish,
@@ -158,7 +158,7 @@ export class ILadle extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "_join(bytes12,address,int128,int128)"(
+    "settle(bytes12,address,uint128,uint128)"(
       vaultId: BytesLike,
       user: string,
       ink: BigNumberish,

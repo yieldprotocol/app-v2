@@ -40,7 +40,6 @@ interface CauldronInterface extends ethers.utils.Interface {
     "ilks(bytes6,bytes6)": FunctionFragment;
     "level(bytes12)": FunctionFragment;
     "lockRole(bytes4)": FunctionFragment;
-    "mature(bytes6)": FunctionFragment;
     "pour(bytes12,int128,int128)": FunctionFragment;
     "rateOracles(bytes6)": FunctionFragment;
     "renounceRole(bytes4,address)": FunctionFragment;
@@ -51,9 +50,9 @@ interface CauldronInterface extends ethers.utils.Interface {
     "setRateOracle(bytes6,address)": FunctionFragment;
     "setRoleAdmin(bytes4,bytes4)": FunctionFragment;
     "setSpotOracle(bytes6,bytes6,address,uint32)": FunctionFragment;
-    "slurp(bytes12,int128,int128)": FunctionFragment;
+    "slurp(bytes12,uint128,uint128)": FunctionFragment;
     "spotOracles(bytes6,bytes6)": FunctionFragment;
-    "stir(bytes12,bytes12,uint128)": FunctionFragment;
+    "stir(bytes12,bytes12,uint128,uint128)": FunctionFragment;
     "timestamps(bytes12)": FunctionFragment;
     "tweak(bytes12,bytes6,bytes6)": FunctionFragment;
     "vaults(bytes12)": FunctionFragment;
@@ -111,7 +110,6 @@ interface CauldronInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "level", values: [BytesLike]): string;
   encodeFunctionData(functionFragment: "lockRole", values: [BytesLike]): string;
-  encodeFunctionData(functionFragment: "mature", values: [BytesLike]): string;
   encodeFunctionData(
     functionFragment: "pour",
     values: [BytesLike, BigNumberish, BigNumberish]
@@ -159,7 +157,7 @@ interface CauldronInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "stir",
-    values: [BytesLike, BytesLike, BigNumberish]
+    values: [BytesLike, BytesLike, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "timestamps",
@@ -193,7 +191,6 @@ interface CauldronInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "ilks", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "level", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "lockRole", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "mature", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "pour", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "rateOracles",
@@ -243,7 +240,7 @@ interface CauldronInterface extends ethers.utils.Interface {
     "VaultDestroyed(bytes12)": EventFragment;
     "VaultPoured(bytes12,bytes6,bytes6,int128,int128)": EventFragment;
     "VaultRolled(bytes12,bytes6,uint128)": EventFragment;
-    "VaultStirred(bytes12,bytes12,uint128)": EventFragment;
+    "VaultStirred(bytes12,bytes12,uint128,uint128)": EventFragment;
     "VaultTimestamped(bytes12,uint256)": EventFragment;
     "VaultTransfer(bytes12,address)": EventFragment;
     "VaultTweaked(bytes12,bytes6,bytes6)": EventFragment;
@@ -507,16 +504,6 @@ export class Cauldron extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    mature(
-      seriesId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "mature(bytes6)"(
-      seriesId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     pour(
       vaultId: BytesLike,
       ink: BigNumberish,
@@ -659,7 +646,7 @@ export class Cauldron extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "slurp(bytes12,int128,int128)"(
+    "slurp(bytes12,uint128,uint128)"(
       vaultId: BytesLike,
       ink: BigNumberish,
       art: BigNumberish,
@@ -682,13 +669,15 @@ export class Cauldron extends Contract {
       from: BytesLike,
       to: BytesLike,
       ink: BigNumberish,
+      art: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "stir(bytes12,bytes12,uint128)"(
+    "stir(bytes12,bytes12,uint128,uint128)"(
       from: BytesLike,
       to: BytesLike,
       ink: BigNumberish,
+      art: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -928,16 +917,6 @@ export class Cauldron extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  mature(
-    seriesId: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "mature(bytes6)"(
-    seriesId: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   pour(
     vaultId: BytesLike,
     ink: BigNumberish,
@@ -1080,7 +1059,7 @@ export class Cauldron extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "slurp(bytes12,int128,int128)"(
+  "slurp(bytes12,uint128,uint128)"(
     vaultId: BytesLike,
     ink: BigNumberish,
     art: BigNumberish,
@@ -1103,13 +1082,15 @@ export class Cauldron extends Contract {
     from: BytesLike,
     to: BytesLike,
     ink: BigNumberish,
+    art: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "stir(bytes12,bytes12,uint128)"(
+  "stir(bytes12,bytes12,uint128,uint128)"(
     from: BytesLike,
     to: BytesLike,
     ink: BigNumberish,
+    art: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -1343,13 +1324,6 @@ export class Cauldron extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    mature(seriesId: BytesLike, overrides?: CallOverrides): Promise<void>;
-
-    "mature(bytes6)"(
-      seriesId: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     pour(
       vaultId: BytesLike,
       ink: BigNumberish,
@@ -1492,7 +1466,7 @@ export class Cauldron extends Contract {
       overrides?: CallOverrides
     ): Promise<[BigNumber, BigNumber] & { art: BigNumber; ink: BigNumber }>;
 
-    "slurp(bytes12,int128,int128)"(
+    "slurp(bytes12,uint128,uint128)"(
       vaultId: BytesLike,
       ink: BigNumberish,
       art: BigNumberish,
@@ -1515,6 +1489,7 @@ export class Cauldron extends Contract {
       from: BytesLike,
       to: BytesLike,
       ink: BigNumberish,
+      art: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
       [
@@ -1523,10 +1498,11 @@ export class Cauldron extends Contract {
       ]
     >;
 
-    "stir(bytes12,bytes12,uint128)"(
+    "stir(bytes12,bytes12,uint128,uint128)"(
       from: BytesLike,
       to: BytesLike,
       ink: BigNumberish,
+      art: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
       [
@@ -1692,10 +1668,11 @@ export class Cauldron extends Contract {
     VaultStirred(
       from: BytesLike | null,
       to: BytesLike | null,
-      ink: null
+      ink: null,
+      art: null
     ): TypedEventFilter<
-      [string, string, BigNumber],
-      { from: string; to: string; ink: BigNumber }
+      [string, string, BigNumber, BigNumber],
+      { from: string; to: string; ink: BigNumber; art: BigNumber }
     >;
 
     VaultTimestamped(
@@ -1920,16 +1897,6 @@ export class Cauldron extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    mature(
-      seriesId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "mature(bytes6)"(
-      seriesId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     pour(
       vaultId: BytesLike,
       ink: BigNumberish,
@@ -2057,7 +2024,7 @@ export class Cauldron extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "slurp(bytes12,int128,int128)"(
+    "slurp(bytes12,uint128,uint128)"(
       vaultId: BytesLike,
       ink: BigNumberish,
       art: BigNumberish,
@@ -2080,13 +2047,15 @@ export class Cauldron extends Contract {
       from: BytesLike,
       to: BytesLike,
       ink: BigNumberish,
+      art: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "stir(bytes12,bytes12,uint128)"(
+    "stir(bytes12,bytes12,uint128,uint128)"(
       from: BytesLike,
       to: BytesLike,
       ink: BigNumberish,
+      art: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -2324,16 +2293,6 @@ export class Cauldron extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    mature(
-      seriesId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "mature(bytes6)"(
-      seriesId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     pour(
       vaultId: BytesLike,
       ink: BigNumberish,
@@ -2467,7 +2426,7 @@ export class Cauldron extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "slurp(bytes12,int128,int128)"(
+    "slurp(bytes12,uint128,uint128)"(
       vaultId: BytesLike,
       ink: BigNumberish,
       art: BigNumberish,
@@ -2490,13 +2449,15 @@ export class Cauldron extends Contract {
       from: BytesLike,
       to: BytesLike,
       ink: BigNumberish,
+      art: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "stir(bytes12,bytes12,uint128)"(
+    "stir(bytes12,bytes12,uint128,uint128)"(
       from: BytesLike,
       to: BytesLike,
       ink: BigNumberish,
+      art: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

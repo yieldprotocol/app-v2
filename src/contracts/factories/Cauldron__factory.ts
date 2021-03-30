@@ -351,6 +351,12 @@ const _abi = [
         name: "ink",
         type: "uint128",
       },
+      {
+        indexed: false,
+        internalType: "uint128",
+        name: "art",
+        type: "uint128",
+      },
     ],
     name: "VaultStirred",
     type: "event",
@@ -452,7 +458,7 @@ const _abi = [
         type: "bytes6",
       },
       {
-        internalType: "contract IERC20",
+        internalType: "address",
         name: "asset",
         type: "address",
       },
@@ -514,7 +520,7 @@ const _abi = [
     name: "assets",
     outputs: [
       {
-        internalType: "contract IERC20",
+        internalType: "address",
         name: "",
         type: "address",
       },
@@ -785,19 +791,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes6",
-        name: "seriesId",
-        type: "bytes6",
-      },
-    ],
-    name: "mature",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "bytes12",
         name: "vaultId",
         type: "bytes12",
@@ -1044,14 +1037,14 @@ const _abi = [
         type: "bytes12",
       },
       {
-        internalType: "int128",
+        internalType: "uint128",
         name: "ink",
-        type: "int128",
+        type: "uint128",
       },
       {
-        internalType: "int128",
+        internalType: "uint128",
         name: "art",
-        type: "int128",
+        type: "uint128",
       },
     ],
     name: "slurp",
@@ -1121,6 +1114,11 @@ const _abi = [
       {
         internalType: "uint128",
         name: "ink",
+        type: "uint128",
+      },
+      {
+        internalType: "uint128",
+        name: "art",
         type: "uint128",
       },
     ],

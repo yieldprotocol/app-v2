@@ -15,6 +15,19 @@ export class IJoin__factory {
 
 const _abi = [
   {
+    inputs: [],
+    name: "asset",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "address",
@@ -22,33 +35,44 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "int128",
+        internalType: "uint128",
         name: "wad",
-        type: "int128",
+        type: "uint128",
       },
     ],
-    name: "join",
+    name: "exit",
     outputs: [
       {
-        internalType: "int128",
+        internalType: "uint128",
         name: "",
-        type: "int128",
+        type: "uint128",
       },
     ],
     stateMutability: "nonpayable",
     type: "function",
   },
   {
-    inputs: [],
-    name: "token",
-    outputs: [
+    inputs: [
       {
-        internalType: "contract IERC20",
-        name: "",
+        internalType: "address",
+        name: "user",
         type: "address",
       },
+      {
+        internalType: "uint128",
+        name: "wad",
+        type: "uint128",
+      },
     ],
-    stateMutability: "view",
+    name: "join",
+    outputs: [
+      {
+        internalType: "uint128",
+        name: "",
+        type: "uint128",
+      },
+    ],
+    stateMutability: "nonpayable",
     type: "function",
   },
 ];

@@ -23,21 +23,27 @@ interface JoinInterface extends ethers.utils.Interface {
   functions: {
     "LOCK()": FunctionFragment;
     "ROOT()": FunctionFragment;
+    "asset()": FunctionFragment;
+    "exit(address,uint128)": FunctionFragment;
     "getRoleAdmin(bytes4)": FunctionFragment;
     "grantRole(bytes4,address)": FunctionFragment;
     "grantRoles(bytes4[],address)": FunctionFragment;
     "hasRole(bytes4,address)": FunctionFragment;
-    "join(address,int128)": FunctionFragment;
+    "join(address,uint128)": FunctionFragment;
     "lockRole(bytes4)": FunctionFragment;
     "renounceRole(bytes4,address)": FunctionFragment;
     "revokeRole(bytes4,address)": FunctionFragment;
     "setRoleAdmin(bytes4,bytes4)": FunctionFragment;
     "storedBalance()": FunctionFragment;
-    "token()": FunctionFragment;
   };
 
   encodeFunctionData(functionFragment: "LOCK", values?: undefined): string;
   encodeFunctionData(functionFragment: "ROOT", values?: undefined): string;
+  encodeFunctionData(functionFragment: "asset", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "exit",
+    values: [string, BigNumberish]
+  ): string;
   encodeFunctionData(
     functionFragment: "getRoleAdmin",
     values: [BytesLike]
@@ -75,10 +81,11 @@ interface JoinInterface extends ethers.utils.Interface {
     functionFragment: "storedBalance",
     values?: undefined
   ): string;
-  encodeFunctionData(functionFragment: "token", values?: undefined): string;
 
   decodeFunctionResult(functionFragment: "LOCK", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "ROOT", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "asset", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "exit", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getRoleAdmin",
     data: BytesLike
@@ -101,7 +108,6 @@ interface JoinInterface extends ethers.utils.Interface {
     functionFragment: "storedBalance",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "token", data: BytesLike): Result;
 
   events: {
     "RoleAdminChanged(bytes4,bytes4)": EventFragment;
@@ -166,6 +172,22 @@ export class Join extends Contract {
 
     "ROOT()"(overrides?: CallOverrides): Promise<[string]>;
 
+    asset(overrides?: CallOverrides): Promise<[string]>;
+
+    "asset()"(overrides?: CallOverrides): Promise<[string]>;
+
+    exit(
+      user: string,
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "exit(address,uint128)"(
+      user: string,
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<[string]>;
 
     "getRoleAdmin(bytes4)"(
@@ -215,7 +237,7 @@ export class Join extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "join(address,int128)"(
+    "join(address,uint128)"(
       user: string,
       amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -270,10 +292,6 @@ export class Join extends Contract {
     storedBalance(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     "storedBalance()"(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    token(overrides?: CallOverrides): Promise<[string]>;
-
-    "token()"(overrides?: CallOverrides): Promise<[string]>;
   };
 
   LOCK(overrides?: CallOverrides): Promise<string>;
@@ -283,6 +301,22 @@ export class Join extends Contract {
   ROOT(overrides?: CallOverrides): Promise<string>;
 
   "ROOT()"(overrides?: CallOverrides): Promise<string>;
+
+  asset(overrides?: CallOverrides): Promise<string>;
+
+  "asset()"(overrides?: CallOverrides): Promise<string>;
+
+  exit(
+    user: string,
+    amount: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "exit(address,uint128)"(
+    user: string,
+    amount: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
 
@@ -333,7 +367,7 @@ export class Join extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "join(address,int128)"(
+  "join(address,uint128)"(
     user: string,
     amount: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -389,10 +423,6 @@ export class Join extends Contract {
 
   "storedBalance()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-  token(overrides?: CallOverrides): Promise<string>;
-
-  "token()"(overrides?: CallOverrides): Promise<string>;
-
   callStatic: {
     LOCK(overrides?: CallOverrides): Promise<string>;
 
@@ -401,6 +431,22 @@ export class Join extends Contract {
     ROOT(overrides?: CallOverrides): Promise<string>;
 
     "ROOT()"(overrides?: CallOverrides): Promise<string>;
+
+    asset(overrides?: CallOverrides): Promise<string>;
+
+    "asset()"(overrides?: CallOverrides): Promise<string>;
+
+    exit(
+      user: string,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "exit(address,uint128)"(
+      user: string,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
 
@@ -451,7 +497,7 @@ export class Join extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "join(address,int128)"(
+    "join(address,uint128)"(
       user: string,
       amount: BigNumberish,
       overrides?: CallOverrides
@@ -503,10 +549,6 @@ export class Join extends Contract {
     storedBalance(overrides?: CallOverrides): Promise<BigNumber>;
 
     "storedBalance()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    token(overrides?: CallOverrides): Promise<string>;
-
-    "token()"(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {
@@ -545,6 +587,22 @@ export class Join extends Contract {
     ROOT(overrides?: CallOverrides): Promise<BigNumber>;
 
     "ROOT()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    asset(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "asset()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    exit(
+      user: string,
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "exit(address,uint128)"(
+      user: string,
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     getRoleAdmin(
       role: BytesLike,
@@ -598,7 +656,7 @@ export class Join extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "join(address,int128)"(
+    "join(address,uint128)"(
       user: string,
       amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -653,10 +711,6 @@ export class Join extends Contract {
     storedBalance(overrides?: CallOverrides): Promise<BigNumber>;
 
     "storedBalance()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    token(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "token()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -667,6 +721,22 @@ export class Join extends Contract {
     ROOT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "ROOT()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    asset(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "asset()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    exit(
+      user: string,
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "exit(address,uint128)"(
+      user: string,
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
 
     getRoleAdmin(
       role: BytesLike,
@@ -720,7 +790,7 @@ export class Join extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "join(address,int128)"(
+    "join(address,uint128)"(
       user: string,
       amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -775,9 +845,5 @@ export class Join extends Contract {
     storedBalance(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "storedBalance()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    token(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "token()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

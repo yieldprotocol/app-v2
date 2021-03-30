@@ -34,6 +34,43 @@ const _abi = [
     type: "constructor",
   },
   {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint32",
+        name: "maturity",
+        type: "uint32",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "from",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "int256",
+        name: "baseTokens",
+        type: "int256",
+      },
+      {
+        indexed: false,
+        internalType: "int256",
+        name: "fyTokenTokens",
+        type: "int256",
+      },
+    ],
+    name: "Trade",
+    type: "event",
+  },
+  {
     inputs: [],
     name: "baseToken",
     outputs: [
@@ -68,7 +105,12 @@ const _abi = [
       },
       {
         internalType: "uint128",
-        name: "tokenOut",
+        name: "baseTokenOut",
+        type: "uint128",
+      },
+      {
+        internalType: "uint128",
+        name: "max",
         type: "uint128",
       },
     ],
@@ -86,6 +128,25 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "uint128",
+        name: "baseTokenOut",
+        type: "uint128",
+      },
+    ],
+    name: "buyBaseTokenPreview",
+    outputs: [
+      {
+        internalType: "uint128",
+        name: "",
+        type: "uint128",
+      },
+    ],
+    stateMutability: "pure",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "address",
         name: "to",
         type: "address",
@@ -93,6 +154,11 @@ const _abi = [
       {
         internalType: "uint128",
         name: "fyTokenOut",
+        type: "uint128",
+      },
+      {
+        internalType: "uint128",
+        name: "max",
         type: "uint128",
       },
     ],
@@ -105,6 +171,25 @@ const _abi = [
       },
     ],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint128",
+        name: "fyTokenOut",
+        type: "uint128",
+      },
+    ],
+    name: "buyFYTokenPreview",
+    outputs: [
+      {
+        internalType: "uint128",
+        name: "",
+        type: "uint128",
+      },
+    ],
+    stateMutability: "pure",
     type: "function",
   },
   {
@@ -180,11 +265,11 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "sellBaseToken",
+    name: "retrieveBaseToken",
     outputs: [
       {
         internalType: "uint128",
-        name: "",
+        name: "surplus",
         type: "uint128",
       },
     ],
@@ -199,6 +284,73 @@ const _abi = [
         type: "address",
       },
     ],
+    name: "retrieveFYToken",
+    outputs: [
+      {
+        internalType: "uint128",
+        name: "surplus",
+        type: "uint128",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        internalType: "uint128",
+        name: "min",
+        type: "uint128",
+      },
+    ],
+    name: "sellBaseToken",
+    outputs: [
+      {
+        internalType: "uint128",
+        name: "",
+        type: "uint128",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint128",
+        name: "baseTokenIn",
+        type: "uint128",
+      },
+    ],
+    name: "sellBaseTokenPreview",
+    outputs: [
+      {
+        internalType: "uint128",
+        name: "",
+        type: "uint128",
+      },
+    ],
+    stateMutability: "pure",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        internalType: "uint128",
+        name: "min",
+        type: "uint128",
+      },
+    ],
     name: "sellFYToken",
     outputs: [
       {
@@ -211,7 +363,44 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "uint128",
+        name: "fyTokenIn",
+        type: "uint128",
+      },
+    ],
+    name: "sellFYTokenPreview",
+    outputs: [
+      {
+        internalType: "uint128",
+        name: "",
+        type: "uint128",
+      },
+    ],
+    stateMutability: "pure",
+    type: "function",
+  },
+  {
     inputs: [],
+    name: "sync",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint112",
+        name: "baseTokenReserves_",
+        type: "uint112",
+      },
+      {
+        internalType: "uint112",
+        name: "fyTokenReserves_",
+        type: "uint112",
+      },
+    ],
     name: "update",
     outputs: [],
     stateMutability: "nonpayable",

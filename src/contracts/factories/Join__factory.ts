@@ -17,8 +17,8 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "contract IERC20",
-        name: "token_",
+        internalType: "address",
+        name: "asset_",
         type: "address",
       },
     ],
@@ -121,6 +121,43 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "asset",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+      {
+        internalType: "uint128",
+        name: "amount",
+        type: "uint128",
+      },
+    ],
+    name: "exit",
+    outputs: [
+      {
+        internalType: "uint128",
+        name: "",
+        type: "uint128",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "bytes4",
@@ -207,17 +244,17 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "int128",
+        internalType: "uint128",
         name: "amount",
-        type: "int128",
+        type: "uint128",
       },
     ],
     name: "join",
     outputs: [
       {
-        internalType: "int128",
+        internalType: "uint128",
         name: "",
-        type: "int128",
+        type: "uint128",
       },
     ],
     stateMutability: "nonpayable",
@@ -298,19 +335,6 @@ const _abi = [
         internalType: "uint256",
         name: "",
         type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "token",
-    outputs: [
-      {
-        internalType: "contract IERC20",
-        name: "",
-        type: "address",
       },
     ],
     stateMutability: "view",
