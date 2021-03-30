@@ -4,7 +4,7 @@ import { useContext } from 'react';
 import { toast } from 'react-toastify';
 import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
-import { MAX_INT } from '../utils/constants';
+import { MAX_256 } from '../utils/constants';
 
 export enum SignType {
   ERC2612 = 'ERC2612_TYPE',
@@ -157,7 +157,7 @@ export const useChain = () => {
           reqSig.domain || tokenAddress, // uses custom domain if provided (eg. USDC needs version 2) else, use token address
           chainState.account,
           spender,
-          MAX_INT,
+          MAX_256,
         );
         const { v, r, s, value, deadline } = _sig;
         // FN > ladle.forwardPermit(ilkId, true, ilkJoin.address, amount, deadline, v, r, s)

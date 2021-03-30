@@ -5,7 +5,7 @@ import { UserContext } from '../contexts/UserContext';
 import { Ladle } from '../contracts/Ladle';
 import { IYieldVault } from '../types';
 import { getTxCode } from '../utils/appUtils';
-import { MAX_INT } from '../utils/constants';
+import { MAX_128 } from '../utils/constants';
 import { useChain, ICallData, SignType } from './chainHooks';
 
 /* Generic hook for chain transactions */
@@ -79,6 +79,7 @@ export const useActions = () => {
       txCode,
     );
 
+    console.log(_collInput, _input, MAX_128);
     /* Collate all the calls required for the process (including depositing ETH, signing permits, and building vault if needed) */
     const calls: ICallData[] = [
       /* handle ETH,  if required */
@@ -95,7 +96,7 @@ export const useActions = () => {
       },
       {
         fn: 'serve',
-        args: [(vault?.id || randVault), account, _collInput, _input, ethers.constants.Zero],
+        args: [(vault?.id || randVault), account, _collInput, _input, MAX_128],
         ignore: false,
       },
     ];
