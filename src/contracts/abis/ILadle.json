@@ -12,17 +12,17 @@
         "type": "address"
       },
       {
-        "internalType": "int128",
+        "internalType": "uint128",
         "name": "ink",
-        "type": "int128"
+        "type": "uint128"
       },
       {
-        "internalType": "int128",
+        "internalType": "uint128",
         "name": "art",
-        "type": "int128"
+        "type": "uint128"
       }
     ],
-    "name": "_join",
+    "name": "settle",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

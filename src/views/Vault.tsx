@@ -73,10 +73,10 @@ const Vault = () => {
           </Box>
         </Box>
 
-        <InfoBite label={`Total value in ${activeVault?.base?.symbol}`} value={activeVault?.art_} />
-        <InfoBite label="Total value in USD" value="0.0" />
+        <InfoBite label="Vault debt:" value={`${activeVault?.art_} ${activeVault?.base?.symbol}`} />
+        <InfoBite label="Debt in USD" value="0.0" />
 
-        <InfoBite label="Collateral value:" value={`${activeVault?.ink_} ${activeVault?.ilk?.symbol}`} />
+        <InfoBite label="Collateral posted:" value={`${activeVault?.ink_} ${activeVault?.ilk?.symbol}`} />
 
       </Box>
 

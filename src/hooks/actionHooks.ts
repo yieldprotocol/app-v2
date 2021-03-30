@@ -5,6 +5,7 @@ import { UserContext } from '../contexts/UserContext';
 import { Ladle } from '../contracts/Ladle';
 import { IYieldVault } from '../types';
 import { getTxCode } from '../utils/appUtils';
+import { MAX_INT } from '../utils/constants';
 import { useChain, ICallData, SignType } from './chainHooks';
 
 /* Generic hook for chain transactions */
@@ -68,6 +69,12 @@ export const useActions = () => {
           ignore: true,
           type: SignType.FYTOKEN,
         },
+        {
+          assetOrSeriesId: '0x30b8ca49a88c',
+          type: SignType.FYTOKEN,
+          fallbackCall: { fn: 'approve', args: [], ignore: false },
+          ignore: true,
+        },
       ],
       txCode,
     );
@@ -84,6 +91,11 @@ export const useActions = () => {
       {
         fn: 'pour',
         args: [(vault?.id || randVault), account, _collInput, _input],
+        ignore: true,
+      },
+      {
+        fn: 'serve',
+        args: [(vault?.id || randVault), account, _collInput, _input, ethers.constants.Zero],
         ignore: false,
       },
     ];
@@ -99,7 +111,7 @@ export const useActions = () => {
     /* Parse/clean inputs */
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
 
-    /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
+    /* Gather all the required signatures - sign() processes them and returns them as ICallData */
     const sigs: ICallData[] = await sign(
       [
         {
@@ -122,7 +134,15 @@ export const useActions = () => {
         args: [vault.id, account, ethers.constants.Zero, _input.mul(BigNumber.from('-1'))],
         ignore: false,
       },
-      /* immediatly release collateral, if required */
+      /* immediatly release collateral, if required pour to weth, then exit */
+      { fn: 'pour',
+        args: [vault.id, ladle.address, _input.div(BigNumber.from('-2')), ethers.constants.Zero],
+        ignore: true,
+      },
+      { fn: 'exitEther',
+        args: [account],
+        ignore: true,
+      },
 
     ];
     transact(ladle, calls, txCode);
