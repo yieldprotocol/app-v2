@@ -92,13 +92,13 @@ export const useActions = () => {
       {
         fn: 'pour',
         args: [(vault?.id || randVault), account, _collInput, _input],
-        ignore: true,
-      },
-      {
-        fn: 'serve',
-        args: [(vault?.id || randVault), account, _collInput, _input, MAX_128],
         ignore: false,
       },
+      // {
+      //   fn: 'serve',
+      //   args: [(vault?.id || randVault), account, _collInput, _input, MAX_128],
+      //   ignore: false,
+      // },
     ];
     transact(ladle, calls, txCode);
   };
