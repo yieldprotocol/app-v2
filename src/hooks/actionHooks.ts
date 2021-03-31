@@ -3,7 +3,7 @@ import { useContext } from 'react';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
 import { Ladle } from '../contracts/Ladle';
-import { IYieldVault } from '../types';
+import { IYieldSeries, IYieldVault } from '../types';
 import { getTxCode } from '../utils/appUtils';
 import { MAX_128 } from '../utils/constants';
 import { useChain, ICallData, SignType } from './chainHooks';
@@ -11,7 +11,7 @@ import { useChain, ICallData, SignType } from './chainHooks';
 /* Generic hook for chain transactions */
 export const useActions = () => {
   const { chainState: { account, contractMap } } = useContext(ChainContext);
-  const { userState: { selectedIlk, selectedSeries } } = useContext(UserContext);
+  const { userState: { selectedBase, selectedIlk, selectedSeries } } = useContext(UserContext);
 
   const ladle = contractMap.get('Ladle') as Ladle;
   const { sign, transact } = useChain();
@@ -27,9 +27,9 @@ export const useActions = () => {
   };
 
   const _depositEth = (value: BigNumber): ICallData[] => {
-    console.log('_depositETH: ', selectedIlk.id, value); // TODO remove console Log
+    console.log('Depositing ETH: ', selectedIlk.id, value); // TODO remove console Log
     /* First check if the selected Ilk is an ETH variety :  */
-    return ['0x455448000000', 'ETH_B_forexample.HEx'].includes(selectedIlk.id)
+    return ['0x455448000000', 'ETH_B_forexample'].includes(selectedIlk.id)
       ? [{ fn: 'joinEther', args: [selectedIlk.id], ignore: false, overrides: { value } }]
       : [];
   };
@@ -38,6 +38,7 @@ export const useActions = () => {
     input:string|undefined,
     collInput:string|undefined,
     vault: IYieldVault|null = null,
+    // autoSell: boolean = true,
   ) => {
     /* Get a random vault number ready if reqd. */
     const randVault = ethers.utils.hexlify(ethers.utils.randomBytes(12));
@@ -57,20 +58,15 @@ export const useActions = () => {
           fallbackCall: { fn: 'approve', args: [], ignore: false },
           ignore: selectedIlk.id === '0x455448000000',
         },
+        /* BELOW are EXAMPLES for future */
         {
-          assetOrSeriesId: '0xb17e4aebd805',
-          fallbackCall: { fn: 'approve', args: [], ignore: false },
-          ignore: true,
+          assetOrSeriesId: selectedBase.id,
           type: SignType.DAI,
-        },
-        {
-          assetOrSeriesId: '0xb17e4aebd805',
           fallbackCall: { fn: 'approve', args: [], ignore: false },
           ignore: true,
-          type: SignType.FYTOKEN,
         },
         {
-          assetOrSeriesId: '0x30b8ca49a88c',
+          assetOrSeriesId: selectedSeries.id,
           type: SignType.FYTOKEN,
           fallbackCall: { fn: 'approve', args: [], ignore: false },
           ignore: true,
@@ -79,7 +75,6 @@ export const useActions = () => {
       txCode,
     );
 
-    console.log(_collInput, _input, MAX_128);
     /* Collate all the calls required for the process (including depositing ETH, signing permits, and building vault if needed) */
     const calls: ICallData[] = [
       /* handle ETH,  if required */
@@ -91,14 +86,14 @@ export const useActions = () => {
       /* Then add all the CALLS you want to make: */
       {
         fn: 'pour',
-        args: [(vault?.id || randVault), account, _collInput, _input],
+        args: [(vault?.id || randVault), account, _collInput, ethers.constants.Zero],
         ignore: false,
       },
-      // {
-      //   fn: 'serve',
-      //   args: [(vault?.id || randVault), account, _collInput, _input, MAX_128],
-      //   ignore: false,
-      // },
+      {
+        fn: 'serve',
+        args: [(vault?.id || randVault), account, ethers.constants.Zero, _input, MAX_128],
+        ignore: false,
+      },
     ];
     transact(ladle, calls, txCode);
   };
