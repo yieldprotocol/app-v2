@@ -91,7 +91,7 @@ const Vault = () => {
               <TextInput
                 plain
                 type="number"
-                placeholder={<PlaceholderWrap label="Enter amount" />}
+                placeholder={<PlaceholderWrap label="Enter amount to Repay" />}
               // ref={(el:any) => { el && !repayOpen && !rateLockOpen && !mobile && el.focus(); setInputRef(el); }}
                 value={inputValue || ''}
                 onChange={(event:any) => setInputValue(cleanValue(event.target.value))}

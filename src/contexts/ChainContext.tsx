@@ -179,7 +179,7 @@ const ChainProvider = ({ children }: any) => {
               id,
               address,
               displayName,
-              symbol: Buffer.from(id.slice(2), 'hex').toString('utf8'),
+              symbol,
               joinAddress: joinMap.get(id),
             };
           }));

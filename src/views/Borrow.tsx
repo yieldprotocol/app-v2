@@ -22,10 +22,9 @@ const Borrow = () => {
   const routerHistory = useHistory();
   const routerState = routerHistory.location.state as { from: string };
 
-  const { userState: { selectedSeries, selectedIlk } } = useContext(UserContext);
+  const { userState: { selectedSeries, selectedIlk, selectedBase } } = useContext(UserContext);
 
   const [inputValue, setInputValue] = useState<string>();
-  const debouncedInput = useDebounce(inputValue, 300);
   const [collInputValue, setCollInputValue] = useState<string>();
   const [vaultIdValue, setVaultIdValue] = useState<string>();
 
@@ -36,13 +35,13 @@ const Borrow = () => {
   const { borrow } = useActions();
 
   const handleBorrow = () => {
-    !borrowDisabled && borrow(inputValue?.toString(), collInputValue?.toString());
+    !borrowDisabled && borrow(inputValue, collInputValue);
   };
 
   useEffect(() => {
     if (vaultIdValue && vaultIdValue.length === 12) {
       // checkVault();
-      console.log('max length reached');
+      console.log('Max length reached');
     }
   }, [vaultIdValue]);
 
@@ -104,7 +103,7 @@ const Borrow = () => {
                 placeholder={<PlaceholderWrap label="Enter amount" disabled={!selectedSeries} />}
                 // ref={(el:any) => { el && el.focus(); }}
                 value={collInputValue || ''}
-                onChange={(event:any) => setCollInputValue(cleanValue(event.target.value))}
+                onChange={(event:any) => setCollInputValue(event.target.value)}
                 disabled={!selectedSeries}
               />
             </InputWrap>
@@ -147,9 +146,10 @@ const Borrow = () => {
         <ActionButtonGroup buttonList={[
           <Button
             primary
-            label={<Text size={mobile ? 'small' : undefined}> {`Borrow  ${inputValue || ''} Dai`}</Text>}
+            label={<Text size={mobile ? 'small' : undefined}> {`Borrow  ${inputValue || ''} ${selectedBase?.symbol || ''}`}</Text>}
             key="primary"
             onClick={() => handleBorrow()}
+            disabled={borrowDisabled}
           />,
 
           (!routerState && <Button
