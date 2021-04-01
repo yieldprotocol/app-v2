@@ -91,8 +91,14 @@ function chainReducer(state: any, action: any) {
     case 'web3Active': return { ...state, web3Active: onlyIfChanged(action) };
 
     case 'contractMap': return { ...state, contractMap: onlyIfChanged(action) };
-    case 'assetMap': return { ...state, assetMap: onlyIfChanged(action) };
-    case 'seriesMap': return { ...state, seriesMap: onlyIfChanged(action) };
+    case 'addSeries': return {
+      ...state,
+      seriesMap: state.seriesMap.set(action.payload.id, action.payload),
+    };
+    case 'addAsset': return {
+      ...state,
+      assetMap: state.assetMap.set(action.payload.id, action.payload),
+    };
 
     /* special internal case for multi-updates - might remove from this context if not needed */
     case '_any': return { ...state, ...action.payload };
@@ -164,7 +170,7 @@ const ChainProvider = ({ children }: any) => {
             joinAddedEvents.map((log:any) => Ladle.interface.parseLog(log).args) as [[string, string]],
           );
 
-          const assetList = await Promise.all(assetAddedEvents.map(async (x:any) => {
+          await Promise.all(assetAddedEvents.map(async (x:any) => {
             const { assetId: id, asset: address } = Cauldron.interface.parseLog(x).args;
             const ERC20 = contracts.ERC20__factory.connect(address, fallbackLibrary);
             /* Add in any extra static asset Data */ // TODO is there any other fixed series data?
@@ -175,23 +181,21 @@ const ChainProvider = ({ children }: any) => {
             } catch (e) {
               [displayName, symbol] = ['ETH', 'ETH']; // TODO get rid of this... weth9 should handle this capability
             }
-            return {
-              id,
+            console.log(id,
               address,
               displayName,
               symbol,
-              joinAddress: joinMap.get(id),
-            };
+              joinMap.get(id));
+
+            updateState({ type: 'addAsset',
+              payload: {
+                id,
+                address,
+                displayName,
+                symbol,
+                joinAddress: joinMap.get(id),
+              } });
           }));
-          const newAssetMap = assetList.reduce((acc:any, item:any) => {
-            const _map = acc;
-            _map.set(item.id, item);
-            return _map;
-          }, chainState.assetMap);
-
-          console.log('ASSETS: ', newAssetMap);
-
-          updateState({ type: 'assetMap', payload: newAssetMap });
         })(),
 
         /* ... AT THE SAME TIME update the available seriesMap based on Cauldron events */
@@ -208,34 +212,31 @@ const ChainProvider = ({ children }: any) => {
           );
 
           /* Add in any extra static series */ // TODO is there any other fixed series data?
-          const seriesList: IYieldSeries[] = await Promise.all(
-            seriesAddedEvents.map(async (x:any) : Promise<IYieldSeries> => {
+          await Promise.all(
+            seriesAddedEvents.map(async (x:any) : Promise<void> => {
               const { seriesId: id, baseId, fyToken } = Cauldron.interface.parseLog(x).args;
               const { maturity } = await Cauldron.series(id);
-              return {
-                id,
-                baseId,
-                fyToken,
-                maturity,
-                displayName: nameFromMaturity(maturity),
-                displayNameMobile: nameFromMaturity(maturity, 'MMM yyyy'),
-                pool: poolMap.get(id) || '',
-              };
+              updateState({
+                type: 'addSeries',
+                payload: {
+                  id,
+                  baseId,
+                  fyToken,
+                  maturity,
+                  displayName: nameFromMaturity(maturity),
+                  displayNameMobile: nameFromMaturity(maturity, 'MMM yyyy'),
+                  pool: poolMap.get(id) || '',
+                } });
             }),
           );
-
-          const newSeriesMap = seriesList.reduce((acc:any, item:any) => {
-            const _map = acc;
-            _map.set(item.id, item);
-            return _map;
-          }, chainState.seriesMap);
-
-          console.log('SERIES: ', newSeriesMap);
-          updateState({ type: 'seriesMap', payload: newSeriesMap });
         })(),
 
       ])
-        .then(() => updateState({ type: 'chainLoading', payload: false }));
+        .then(() => {
+          updateState({ type: 'chainLoading', payload: false });
+          console.log('ASSETS:', chainState.assetMap);
+          console.log('SERIES:', chainState.seriesMap);
+        });
     }
   }, [
     fallbackChainId,
