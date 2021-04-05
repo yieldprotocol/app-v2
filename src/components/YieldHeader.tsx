@@ -3,6 +3,7 @@ import React, { useContext, useState, useRef } from 'react';
 
 import { FiMenu, FiX } from 'react-icons/fi';
 import { ChainContext } from '../contexts/ChainContext';
+import { TxContext } from '../contexts/TxContext';
 
 import YieldNavigation from './YieldNavigation';
 
@@ -12,6 +13,7 @@ interface IYieldHeaderProps {
 const YieldHeader = ({ actionList } : IYieldHeaderProps) => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
   const { chainState: { account }, chainActions: { connect } } = useContext(ChainContext);
+  const { txState: { txPending, signPending } } = useContext(TxContext);
   const [toggleMenu] = actionList;
 
   return (
@@ -29,6 +31,10 @@ const YieldHeader = ({ actionList } : IYieldHeaderProps) => {
       </Box>
 
       { !mobile && <YieldNavigation /> }
+
+      { signPending && <Box>sign pednign</Box>}
+
+      { txPending && <Box>sign pednign</Box>}
 
       {
       account ?

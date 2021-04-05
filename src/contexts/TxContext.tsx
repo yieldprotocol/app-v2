@@ -1,104 +1,87 @@
-import React, {
-  useState, useContext, useEffect, useReducer,
-} from 'react';
-import { useWeb3React } from '@web3-react/core';
-import { ethers } from 'ethers';
+import React, { useReducer, useEffect } from 'react';
+import { ethers, ContractTransaction } from 'ethers';
 import { toast } from 'react-toastify';
+import { ISigData } from '../types';
 
 const TxContext = React.createContext<any>({});
 
 const initState = {
-  pendingSigs: [] as IYieldSignature[],
-  pendingTxs: [] as IYieldTx[],
-  currentProcesses: [] as IYieldProcess[],
-  lastCompletedTx: null as IYieldTx | null,
-  useFallbackTxs: false,
+  signatures: new Map([]) as Map<string, IYieldSignature>,
+  transactions: new Map([]) as Map<string, IYieldTx>,
+  processes: [] as string[],
+
+  /* flags and trackers */
+  txPending: false as boolean,
+  signPending: false as boolean,
+
+  /* user settings */
+  useFallbackTxs: false as boolean,
 };
 
-/* yieldProcesses are collections of txs and signatures that are tracked together */
-interface IYieldProcess {
-  pid: string;
-  sigs: IYieldSignature[];
-  txs: IYieldTx[];
-  status: Status;
-}
-
-enum Status {
-  waiting = 0,
-  success = 1,
-  failed = 2,
-}
-
 interface IYieldSignature {
-  id: string;
-  status: Status;
-  pid?:number|null;
+  uid: string;
+  txCode: string;
+  sigData: ISigData;
+  status: 'pending'| 'success' | 'rejected' | 'failed';
 }
 
-interface IYieldTx extends ethers.Transaction {
+interface IYieldTx extends ContractTransaction {
   id: string;
-  pid?: number|null;
+  txCode: string;
+  receipt: any|null;
+  status: 'pending'| 'success' | 'rejected' | 'failed'
 }
 
-function txReducer(state:any, action:any) {
+function txReducer(_state:any, action:any) {
+  /* Helper: only change the state if different from existing */
+  const _onlyIfChanged = (_action: any) => (
+    _state[action.type] === _action.payload
+      ? _state[action.type]
+      : _action.payload
+  );
+
+  /* Reducer switch */
   switch (action.type) {
-    case 'newProcess':
+    case 'transactions':
       return {
-        ...state,
-        /* set tthe current active process */
-        currentProcesses: action.payload.process,
-        /* set the list of sigs required for the current process */
-        requestedSigs: action.payload.sigs.map((x:any) => ({ ...x })),
+        ..._state,
+        transactions: new Map(_state.transactions.set(action.payload.tx.hash, action.payload)),
       };
-    case 'updateProcess':
+    case 'signatures':
       return {
-        ...state,
-        /* add the tx to the list of pending txs */
-        pendingTxs: [...state.pendingTxs, action.payload],
+        ..._state,
+        signatures: new Map(_state.signatures.set(action.payload.txCode, action.payload)),
       };
-    case 'txComplete':
+
+    case '_startProcess':
       return {
-        ...state,
-        /* remove the tx from the pending tx list */
-        pendingTxs: state.pendingTxs
-          .filter((x:any) => x.tx.hash !== (action.payload.receipt.transactionHash || action.payload.receipt.hash)),
-        /* set the last completed tx to the one just finished */
-        lastCompletedTx: {
-          ...action.payload.receipt,
-          transactionHash: action.payload.receipt.transactionHash || action.payload.receipt.hash,
-        },
-        /* if the txCode is the same as the current activeProcces,. then reset that process */
-        txProcessActive: (action.payload.txCode === state?.txProcessActive) ? null : state?.txProcessActive,
+        ..._state,
+        processes:
+          !(_state.processes.indexOf(action.payload) > -1)
+            ? [..._state.processes, action.payload]
+            : _state.processes,
       };
-    case 'setFallbackActive':
+    case '_endProcess':
       return {
-        ...state,
-        fallbackActive: action.payload,
+        ..._state,
+        processes:
+          _state.processes.filter((x:any) => x.txCode === action.payload),
       };
-    case 'signed':
-      return {
-        ...state,
-        /* mark the signature as signed */
-        requestedSigs: state.requestedSigs.map((x:any) => {
-          if (x.id === action.payload.id) {
-            return { ...x, signed: true };
-          } return x;
-        }),
-      };
+
+    /* optionally remove these and use the logic at the compoennts?  - check refreshes */
+    case 'txPending': return { ..._state, txPending: _onlyIfChanged(action) };
+    case 'signPending': return { ..._state, signPending: _onlyIfChanged(action) };
+
     default:
-      return state;
+      return _state;
   }
 }
 
 const TxProvider = ({ children }:any) => {
   const [txState, updateState] = useReducer(txReducer, initState);
-
-  /* action on successfull or failed transaction */
-  const txComplete = () => {
-  };
-
   /* handle case when user or wallet rejects the tx (before submission) */
-  const handleTxRejection = (err:any) => {
+  const _handleTxRejection = (err:any, txCode:string) => {
+    updateState({ type: '_endProcess', payload: txCode });
     /* If user cancelled/rejected the tx */
     if (err.code === 4001) {
       toast.warning('Transaction rejected by user');
@@ -114,29 +97,93 @@ const TxProvider = ({ children }:any) => {
   };
 
   /* handle an error from a tx that was successfully submitted */
-  const handleTxError = (msg:string, receipt: any, txError:any) => {
+  const _handleTxError = (msg:string, receipt: any, txError:any) => {
   };
 
-  /* handle a tx */
-  const handleTx = async (tx:any, pid:number) => {
-    console.log(tx, pid);
+  /* handle an error from a tx that was successfully submitted */
+  const _handleSignError = (msg:string, receipt: any, txError:any) => {
   };
 
-  /* handle a tx */
-  const handleProcess = async () => {
+  /* Handle a tx */
+  const handleTx = async (
+    txFn:()=>Promise<any>,
+    txCode:string,
+    _isfallback:boolean = false,
+  ) : Promise<ethers.ContractReceipt|null> => {
+    /* start a new process */
+    updateState({ type: '_startProcess', payload: txCode });
+    let tx: ContractTransaction;
+    try {
+      tx = await txFn();
+      updateState({ type: 'transactions', payload: { tx, txCode, receipt: null, status: 'pending' } });
+      const res = await tx.wait();
+      const txSuccess: boolean = res.status === 1;
+      updateState({ type: 'transactions', payload: { tx, txCode, receipt: res, status: txSuccess ? 'success' : 'failure' } });
 
+      /* if the handleTx is NOT a fallback tx (from signing) - then end the process */
+      if (!_isfallback) {
+        /* transaction complettion : success OR failure */
+        txSuccess ? toast.success('Transaction successfull') : toast.error('Transaction failed :| ');
+        updateState({ type: '_endProcess', payload: txCode });
+        return res;
+      }
+      /* this is the case when the tx was a fallback from a permit/allowance tx */
+      return res;
+    } catch (e) {
+      /* this case is when user rejects tx OR wallet rejectcs tx */
+      _handleTxRejection(e, txCode);
+      return null;
+    }
   };
 
-  /* handle a sig */
-  const handleSignature = async (tx:any, pid:number) => {
-
+  /* handle a sig and sig fallbacks */
+  const handleSign = async (
+    signFn:()=>Promise<any>,
+    fallbackFn:()=>Promise<any>,
+    sigData: ISigData,
+    txCode: string,
+  ) => {
+    const uid = ethers.utils.hexlify(ethers.utils.randomBytes(6));
+    updateState({ type: '_startProcess', payload: txCode });
+    updateState({ type: 'signatures', payload: { uid, txCode, sigData, status: 'pending' } as IYieldSignature });
+    const _sig = await signFn()
+      .catch((err:any) => {
+        console.log(err);
+        updateState({ type: 'signatures', payload: { uid, txCode, sigData, status: 'rejected' } as IYieldSignature });
+        /* end the process on signature rejection */
+        updateState({ type: '_endProcess', payload: txCode });
+        return Promise.reject(err);
+      });
+    updateState({ type: 'signatures', payload: { uid, txCode, sigData, status: 'success' } as IYieldSignature });
+    console.log(_sig);
+    return _sig;
   };
 
+  /* process watcher */
+  useEffect(() => {
+    console.log(txState.processes);
+  }, [txState.processes]);
+
+  /* signing watcher */
+  useEffect(() => {
+    const _isSignPending = Array.from(txState.signatures.values()).findIndex((x:any) => x.status === 'pending') > -1;
+    updateState({
+      type: 'signPending',
+      payload: _isSignPending });
+  }, [txState.signatures]);
+
+  /* tx watcher */
+  useEffect(() => {
+    const _isTxPending = Array.from(txState.transactions.values()).findIndex((x:any) => x.status === 'pending') > -1;
+    updateState({
+      type: 'txPending',
+      payload: _isTxPending });
+  }, [txState.transactions]);
+
+  /* expose the required actions */
   const txActions = {
-    handleTx: (x:any) => handleTx(x, 1),
-    handleSignature: () => handleSignature('sdfsd', 1),
-    // handleProcess: (pid:number, actions: any[]) => console.log(3),
-    handleTxRejection: (e:any) => handleTxRejection(e),
+    handleTx,
+    handleSign,
   };
 
   return (
