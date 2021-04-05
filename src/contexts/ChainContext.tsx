@@ -181,12 +181,6 @@ const ChainProvider = ({ children }: any) => {
             } catch (e) {
               [displayName, symbol] = ['ETH', 'ETH']; // TODO get rid of this... weth9 should handle this capability
             }
-            console.log(id,
-              address,
-              displayName,
-              symbol,
-              joinMap.get(id));
-
             updateState({ type: 'addAsset',
               payload: {
                 id,
@@ -211,7 +205,7 @@ const ChainProvider = ({ children }: any) => {
             poolAddedEvents.map((log:any) => Ladle.interface.parseLog(log).args) as [[string, string]],
           );
 
-          /* Add in any extra static series */ // TODO is there any other fixed series data?
+          /* Add in any extra static series */
           await Promise.all(
             seriesAddedEvents.map(async (x:any) : Promise<void> => {
               const { seriesId: id, baseId, fyToken } = Cauldron.interface.parseLog(x).args;

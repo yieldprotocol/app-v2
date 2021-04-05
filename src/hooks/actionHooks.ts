@@ -3,10 +3,10 @@ import { useContext } from 'react';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
 import { Ladle } from '../contracts/Ladle';
-import { IYieldSeries, IYieldVault } from '../types';
+import { ICallData, IYieldSeries, IYieldVault, SignType } from '../types';
 import { getTxCode } from '../utils/appUtils';
 import { MAX_128 } from '../utils/constants';
-import { useChain, ICallData, SignType } from './chainHooks';
+import { useChain } from './chainHooks';
 
 /* Generic hook for chain transactions */
 export const useActions = () => {
@@ -21,18 +21,13 @@ export const useActions = () => {
    *  - Create a call that builds a new Vault
    *  - Create a call that takes ETH, wraps it, and adds it as collateral
    * */
-  const _buildVault = (vault:string, ignore:boolean): ICallData[] => {
-    console.log('Building vault', vault, ignore, selectedSeries.id, selectedIlk.id); // TODO remove console Log
-    return [{ fn: 'build', args: [vault, selectedSeries.id, selectedIlk.id], ignore }];
-  };
-
-  const _depositEth = (value: BigNumber): ICallData[] => {
-    console.log('Depositing ETH: ', selectedIlk.id, value); // TODO remove console Log
+  const _buildVault = (vault:string, ignore:boolean): ICallData[] => [{ fn: 'build', args: [vault, selectedSeries.id, selectedIlk.id], ignore }];
+  const _depositEth = (value: BigNumber): ICallData[] => (
     /* First check if the selected Ilk is an ETH variety :  */
-    return ['0x455448000000', 'ETH_B_forexample'].includes(selectedIlk.id)
+    ['0x455448000000', 'ETH_B_forexample'].includes(selectedIlk.id)
       ? [{ fn: 'joinEther', args: [selectedIlk.id], ignore: false, overrides: { value } }]
-      : [];
-  };
+      : []
+  );
 
   const borrow = async (
     input:string|undefined,
@@ -43,47 +38,44 @@ export const useActions = () => {
     /* Get a random vault number ready if reqd. */
     const randVault = ethers.utils.hexlify(ethers.utils.randomBytes(12));
     /* generate the reproducible txCode for tx tracking and tracing */
-    const txCode = getTxCode('BORROW', vault?.id || randVault);
+    const txCode = getTxCode('010_', vault?.id || randVault);
 
     /* parse/clean inputs */
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
     const _collInput = collInput ? ethers.utils.parseEther(collInput) : ethers.constants.Zero;
 
     /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
-    const sigs: ICallData[] = await sign(
-      [
-        {
-          assetOrSeriesId: selectedIlk.id,
-          type: SignType.ERC2612,
-          fallbackCall: { fn: 'approve', args: [], ignore: false },
-          ignore: selectedIlk.id === '0x455448000000',
-        },
-        /* BELOW are EXAMPLES for future */
-        {
-          assetOrSeriesId: selectedBase.id,
-          type: SignType.DAI,
-          fallbackCall: { fn: 'approve', args: [], ignore: false },
-          ignore: true,
-        },
-        {
-          assetOrSeriesId: selectedSeries.id,
-          type: SignType.FYTOKEN,
-          fallbackCall: { fn: 'approve', args: [], ignore: false },
-          ignore: true,
-        },
-      ],
-      txCode,
-    );
+    const permits: ICallData[] = await sign([
+      {
+        assetOrSeriesId: selectedIlk.id,
+        type: SignType.ERC2612,
+        fallbackCall: { fn: 'approve', args: [], ignore: false },
+        ignore: selectedIlk.id === '0x455448000000',
+      },
+      /* BELOW are EXAMPLES for future */
+      {
+        assetOrSeriesId: selectedBase.id,
+        type: SignType.DAI,
+        fallbackCall: { fn: 'approve', args: [], ignore: false },
+        ignore: true,
+      },
+      {
+        assetOrSeriesId: selectedSeries.id,
+        type: SignType.FYTOKEN,
+        fallbackCall: { fn: 'approve', args: [], ignore: false },
+        ignore: true,
+      },
+    ], txCode); // assign the processCode to the signings
 
     /* Collate all the calls required for the process (including depositing ETH, signing permits, and building vault if needed) */
     const calls: ICallData[] = [
-      /* handle ETH,  if required */
+      /* handle ETH deposit, if required */
       ..._depositEth(_collInput),
       /* Include all the signatures gathered, if required  */
-      ...sigs,
-      /* If vault is null, build a new vault, else ignore ( // TODO easy to add building more than one vault) */
+      ...permits,
+      /* If vault is null, build a new vault, else ignore */
       ..._buildVault(randVault, !!vault),
-      /* Then add all the CALLS you want to make: */
+      /* Then add all the ladle CALLS you want to make: */
       {
         fn: 'pour',
         args: [(vault?.id || randVault), account, _collInput, ethers.constants.Zero],
@@ -95,6 +87,7 @@ export const useActions = () => {
         ignore: false,
       },
     ];
+    /* handle the transaction */
     transact(ladle, calls, txCode);
   };
 
@@ -103,40 +96,50 @@ export const useActions = () => {
     vault: IYieldVault,
   ) => {
     /* generate the reproducible txCode for tx tracking and tracing */
-    const txCode = getTxCode('REPAY', vault.series.id);
+    const txCode = getTxCode('020_', vault.series.id);
     /* Parse/clean inputs */
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
 
     /* Gather all the required signatures - sign() processes them and returns them as ICallData */
-    const sigs: ICallData[] = await sign(
-      [
-        {
-          assetOrSeriesId: vault.series.id,
-          type: SignType.FYTOKEN,
-          fallbackCall: { fn: 'approve', args: [], ignore: false },
-          ignore: false,
-        },
-      ],
-      txCode,
-    );
+    const permits: ICallData[] = await sign([
+      {
+        assetOrSeriesId: vault.series.id,
+        type: SignType.FYTOKEN,
+        fallbackCall: { fn: 'approve', args: [], ignore: false },
+        message: 'Signing fytoken approval',
+        ignore: false,
+      },
+    ], txCode);
 
     /* Collate all the calls required for the process (including depositing ETH, signing permits, and building vault if needed) */
     const calls: ICallData[] = [
       /* Include all the signatures gathered, if required  */
-      ...sigs,
-      /* Then add all the CALLS you want to make: */
+      ...permits,
+      /* Then add all the ladle CALLS you want to make: */
       {
         fn: 'pour',
-        args: [vault.id, account, ethers.constants.Zero, _input.mul(BigNumber.from('-1'))],
+        args: [vault.id, account, _input.mul(BigNumber.from('1')), _input.mul(BigNumber.from('-1'))],
         ignore: false,
       },
-      /* immediatly release collateral, if required pour to weth, then exit */
-      { fn: 'pour',
-        args: [vault.id, ladle.address, _input.div(BigNumber.from('-2')), ethers.constants.Zero],
-        ignore: true,
+      // /* immediatly release collateral, if required pour to weth, then exit */
+      // { fn: 'pour',
+      //   args: [vault.id, ladle.address, _input.div(BigNumber.from('-2')), ethers.constants.Zero],
+      //   ignore: false,
+      // },
+      // { fn: 'exitEther',
+      //   args: [account],
+      //   ignore: true,
+      // },
+
+      /* ladle.repay(vaultId, owner, inkRetrieved, 0) */
+      { fn: 'repay',
+        args: [vault.id, account, BigNumber.from('1'), ethers.constants.Zero],
+        ignore: false,
       },
-      { fn: 'exitEther',
-        args: [account],
+
+      /* ladle.repayVault(vaultId, owner, inkRetrieved, MAX) */
+      { fn: 'repayVault',
+        args: [vault.id, account, BigNumber.from('1'), MAX_128],
         ignore: true,
       },
 

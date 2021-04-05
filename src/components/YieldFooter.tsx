@@ -54,12 +54,13 @@ const YieldFooter = (props: any) => {
                     { fn: 'build', args: [randVault, seriesList[0].id, assetList[1].id], ignore: false },
                     { fn: 'build', args: [randVault, seriesList[1].id, assetList[2].id], ignore: false },
                   ],
+                  'footer1',
                 )
               }
               label="multicall"
             />
             <Button primary onClick={() => toast('Transaction complete')} label="Notify Example" />
-            <Button primary onClick={() => transact(ladle, [{ fn: 'build', args: [randVault, seriesList[0].id, assetList[4].id], ignore: false }])} label="Ladle interact" />
+            <Button primary onClick={() => transact(ladle, [{ fn: 'build', args: [randVault, seriesList[0].id, assetList[4].id], ignore: false }], 'footer2')} label="Ladle interact" />
             <Button primary onClick={() => console.log(utils.arrayify('0xf4f617882cb7'))} label="Notify Example" />
           </Box>
         </Collapsible>

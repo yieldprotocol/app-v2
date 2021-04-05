@@ -51,14 +51,14 @@ export const yieldTheme = {
     },
   },
 
-  layer: {
-    container: {
-      zIndex: '20',
-    },
-    zIndex: '20',
-    // @ts-ignore
-    extend: () => css`backdrop-filter: blur(3px);`,
-  },
+  // layer: {
+  //   container: {
+  //     zIndex: '20',
+  //   },
+  //   zIndex: '20',
+  //   // @ts-ignore
+  //   extend: () => css`backdrop-filter: blur(3px);`,
+  // },
 
   button: {
     // default: {
