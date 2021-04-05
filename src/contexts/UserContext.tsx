@@ -11,13 +11,15 @@ import { cleanValue, genVaultImage } from '../utils/displayUtils';
 const UserContext = React.createContext<any>({});
 
 const initState = {
+
   vaultMap: new Map() as Map<string, IYieldVault>,
-  activeVault: null as IYieldVault | null,
+  activeVault: null as IYieldVault|null,
+  activeAccount: null as string|null,
 
   /* user selections */
-  selectedSeries: null as IYieldSeries | null,
-  selectedIlk: null as IYieldAsset| null,
-  selectedBase: null as IYieldAsset| null,
+  selectedSeries: null as IYieldSeries|null,
+  selectedIlk: null as IYieldAsset|null,
+  selectedBase: null as IYieldAsset|null,
 
 };
 
@@ -35,6 +37,7 @@ function userReducer(state:any, action:any) {
 
     case 'vaultMap': return { ...state, vaultMap: onlyIfChanged(action) };
     case 'activeVault': return { ...state, activeVault: onlyIfChanged(action) };
+    case 'activeAccount': return { ...state, activeAccount: onlyIfChanged(action) };
 
     case 'selectedSeries': return { ...state, selectedSeries: onlyIfChanged(action) };
     case 'selectedIlk': return { ...state, selectedIlk: onlyIfChanged(action) };
@@ -45,7 +48,6 @@ function userReducer(state:any, action:any) {
 }
 
 const UserProvider = ({ children }:any) => {
-  const [userState, updateState] = useReducer(userReducer, initState);
   // const [cachedVaults, setCachedVaults] = useCachedState('vaults', { data: [], lastBlock: Number(process.env.REACT_APP_DEPLOY_BLOCK) });
   const { chainState } = useContext(ChainContext);
   const {
@@ -57,9 +59,13 @@ const UserProvider = ({ children }:any) => {
     assetMap,
   } = chainState;
 
+  const [userState, updateState] = useReducer(userReducer, initState);
+
   useEffect(() => {
     /* when there is an account and the chainContext is finsihed loading get the vaults */
-    account && !chainLoading && (async () => {
+    account &&
+    !chainLoading &&
+    (async () => {
       const Cauldron = contractMap.get('Cauldron');
       const filter = Cauldron.filters.VaultBuilt(null, account, null);
       const eventList = await Cauldron.queryFilter(filter, 1);
@@ -102,14 +108,14 @@ const UserProvider = ({ children }:any) => {
 
   /* subscribe to vault event listeners */
   useEffect(() => {
-
-  }, []);
+    updateState({ type: 'activeAccount', payload: account });
+  }, [account]);
 
   /* set initial state */
   useEffect(() => {
-    account && !chainLoading && updateState({ type: 'selectedBase', payload: assetMap.values().next().value });
-    account && !chainLoading && updateState({ type: 'selectedIlk', payload: assetMap.get('0x455448000000') });
-  }, [account, chainLoading, assetMap]);
+    !chainLoading && updateState({ type: 'selectedBase', payload: assetMap.get('0x444149000000') });
+    !chainLoading && updateState({ type: 'selectedIlk', payload: assetMap.get('0x455448000000') });
+  }, [chainLoading, assetMap]);
 
   const userActions = {
     setActiveVault: (vault:IYieldVault) => updateState({ type: 'activeVault', payload: vault }),

@@ -22,7 +22,7 @@ const Borrow = () => {
   const routerHistory = useHistory();
   const routerState = routerHistory.location.state as { from: string };
 
-  const { userState: { selectedSeries, selectedIlk, selectedBase } } = useContext(UserContext);
+  const { userState: { activeAccount, selectedSeries, selectedIlk, selectedBase } } = useContext(UserContext);
 
   const [inputValue, setInputValue] = useState<string>();
   const [collInputValue, setCollInputValue] = useState<string>();
@@ -49,7 +49,11 @@ const Borrow = () => {
   useEffect(() => {
     /* if ANY of the following conditions are met: block action */
     (
-      (!inputValue) || (!collInputValue) || (!selectedSeries) || (!selectedIlk)
+      !activeAccount ||
+      !inputValue ||
+      !collInputValue ||
+      !selectedSeries ||
+      !selectedIlk
     )
       ? setBorrowDisabled(true)
     /* else if all pass, then unlock borrowing */
