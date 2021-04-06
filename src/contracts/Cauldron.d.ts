@@ -1207,7 +1207,13 @@ export class Cauldron extends Contract {
       seriesId: BytesLike,
       ilkId: BytesLike,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<
+      [string, string, string] & {
+        owner: string;
+        seriesId: string;
+        ilkId: string;
+      }
+    >;
 
     "build(address,bytes12,bytes6,bytes6)"(
       owner: string,
@@ -1215,7 +1221,13 @@ export class Cauldron extends Contract {
       seriesId: BytesLike,
       ilkId: BytesLike,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<
+      [string, string, string] & {
+        owner: string;
+        seriesId: string;
+        ilkId: string;
+      }
+    >;
 
     debt(
       arg0: BytesLike,
@@ -1247,13 +1259,25 @@ export class Cauldron extends Contract {
       vaultId: BytesLike,
       receiver: string,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<
+      [string, string, string] & {
+        owner: string;
+        seriesId: string;
+        ilkId: string;
+      }
+    >;
 
     "give(bytes12,address)"(
       vaultId: BytesLike,
       receiver: string,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<
+      [string, string, string] & {
+        owner: string;
+        seriesId: string;
+        ilkId: string;
+      }
+    >;
 
     grab(vaultId: BytesLike, overrides?: CallOverrides): Promise<void>;
 
@@ -1523,14 +1547,26 @@ export class Cauldron extends Contract {
       seriesId: BytesLike,
       ilkId: BytesLike,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<
+      [string, string, string] & {
+        owner: string;
+        seriesId: string;
+        ilkId: string;
+      }
+    >;
 
     "tweak(bytes12,bytes6,bytes6)"(
       vaultId: BytesLike,
       seriesId: BytesLike,
       ilkId: BytesLike,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<
+      [string, string, string] & {
+        owner: string;
+        seriesId: string;
+        ilkId: string;
+      }
+    >;
 
     vaults(
       arg0: BytesLike,

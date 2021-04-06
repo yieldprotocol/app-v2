@@ -57,7 +57,7 @@ export const useChain = () => {
     /* if more than one call in list then use batching: */
     if (calls.length > 1) {
       handleTx(
-        () => _contract.batch(encodedCalls, true, { value: _value, gasLimit: _gasTotal }),
+        () => _contract.multicall(encodedCalls, true, { value: _value, gasLimit: _gasTotal }),
         txCode,
       );
     }

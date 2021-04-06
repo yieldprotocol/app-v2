@@ -25,14 +25,19 @@ interface JoinInterface extends ethers.utils.Interface {
     "ROOT()": FunctionFragment;
     "asset()": FunctionFragment;
     "exit(address,uint128)": FunctionFragment;
+    "flashFee(address,uint256)": FunctionFragment;
+    "flashFeeFactor()": FunctionFragment;
+    "flashLoan(address,address,uint256,bytes)": FunctionFragment;
     "getRoleAdmin(bytes4)": FunctionFragment;
     "grantRole(bytes4,address)": FunctionFragment;
     "grantRoles(bytes4[],address)": FunctionFragment;
     "hasRole(bytes4,address)": FunctionFragment;
     "join(address,uint128)": FunctionFragment;
     "lockRole(bytes4)": FunctionFragment;
+    "maxFlashLoan(address)": FunctionFragment;
     "renounceRole(bytes4,address)": FunctionFragment;
     "revokeRole(bytes4,address)": FunctionFragment;
+    "setFlashFeeFactor(uint256)": FunctionFragment;
     "setRoleAdmin(bytes4,bytes4)": FunctionFragment;
     "storedBalance()": FunctionFragment;
   };
@@ -43,6 +48,18 @@ interface JoinInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "exit",
     values: [string, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "flashFee",
+    values: [string, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "flashFeeFactor",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "flashLoan",
+    values: [string, string, BigNumberish, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "getRoleAdmin",
@@ -66,12 +83,20 @@ interface JoinInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "lockRole", values: [BytesLike]): string;
   encodeFunctionData(
+    functionFragment: "maxFlashLoan",
+    values: [string]
+  ): string;
+  encodeFunctionData(
     functionFragment: "renounceRole",
     values: [BytesLike, string]
   ): string;
   encodeFunctionData(
     functionFragment: "revokeRole",
     values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setFlashFeeFactor",
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "setRoleAdmin",
@@ -86,6 +111,12 @@ interface JoinInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "ROOT", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "asset", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "exit", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "flashFee", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "flashFeeFactor",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "flashLoan", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getRoleAdmin",
     data: BytesLike
@@ -96,10 +127,18 @@ interface JoinInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "join", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "lockRole", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "maxFlashLoan",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "renounceRole",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setFlashFeeFactor",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "setRoleAdmin",
     data: BytesLike
@@ -110,11 +149,13 @@ interface JoinInterface extends ethers.utils.Interface {
   ): Result;
 
   events: {
+    "FlashFeeFactorSet(uint256)": EventFragment;
     "RoleAdminChanged(bytes4,bytes4)": EventFragment;
     "RoleGranted(bytes4,address,address)": EventFragment;
     "RoleRevoked(bytes4,address,address)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "FlashFeeFactorSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleRevoked"): EventFragment;
@@ -188,6 +229,38 @@ export class Join extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    flashFee(
+      token: string,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    "flashFee(address,uint256)"(
+      token: string,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    flashFeeFactor(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    "flashFeeFactor()"(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    flashLoan(
+      receiver: string,
+      token: string,
+      amount: BigNumberish,
+      data: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "flashLoan(address,address,uint256,bytes)"(
+      receiver: string,
+      token: string,
+      amount: BigNumberish,
+      data: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<[string]>;
 
     "getRoleAdmin(bytes4)"(
@@ -253,6 +326,16 @@ export class Join extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    maxFlashLoan(
+      token: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    "maxFlashLoan(address)"(
+      token: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
     renounceRole(
       role: BytesLike,
       account: string,
@@ -274,6 +357,16 @@ export class Join extends Contract {
     "revokeRole(bytes4,address)"(
       role: BytesLike,
       account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setFlashFeeFactor(
+      flashFeeFactor_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "setFlashFeeFactor(uint256)"(
+      flashFeeFactor_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -315,6 +408,38 @@ export class Join extends Contract {
   "exit(address,uint128)"(
     user: string,
     amount: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  flashFee(
+    token: string,
+    amount: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  "flashFee(address,uint256)"(
+    token: string,
+    amount: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  flashFeeFactor(overrides?: CallOverrides): Promise<BigNumber>;
+
+  "flashFeeFactor()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+  flashLoan(
+    receiver: string,
+    token: string,
+    amount: BigNumberish,
+    data: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "flashLoan(address,address,uint256,bytes)"(
+    receiver: string,
+    token: string,
+    amount: BigNumberish,
+    data: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -383,6 +508,13 @@ export class Join extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  maxFlashLoan(token: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+  "maxFlashLoan(address)"(
+    token: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   renounceRole(
     role: BytesLike,
     account: string,
@@ -404,6 +536,16 @@ export class Join extends Contract {
   "revokeRole(bytes4,address)"(
     role: BytesLike,
     account: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setFlashFeeFactor(
+    flashFeeFactor_: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "setFlashFeeFactor(uint256)"(
+    flashFeeFactor_: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -447,6 +589,38 @@ export class Join extends Contract {
       amount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    flashFee(
+      token: string,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "flashFee(address,uint256)"(
+      token: string,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    flashFeeFactor(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "flashFeeFactor()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    flashLoan(
+      receiver: string,
+      token: string,
+      amount: BigNumberish,
+      data: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "flashLoan(address,address,uint256,bytes)"(
+      receiver: string,
+      token: string,
+      amount: BigNumberish,
+      data: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
 
@@ -510,6 +684,13 @@ export class Join extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    maxFlashLoan(token: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    "maxFlashLoan(address)"(
+      token: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     renounceRole(
       role: BytesLike,
       account: string,
@@ -534,6 +715,16 @@ export class Join extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    setFlashFeeFactor(
+      flashFeeFactor_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "setFlashFeeFactor(uint256)"(
+      flashFeeFactor_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     setRoleAdmin(
       role: BytesLike,
       adminRole: BytesLike,
@@ -552,6 +743,10 @@ export class Join extends Contract {
   };
 
   filters: {
+    FlashFeeFactorSet(
+      fee: BigNumberish | null
+    ): TypedEventFilter<[BigNumber], { fee: BigNumber }>;
+
     RoleAdminChanged(
       role: BytesLike | null,
       newAdminRole: BytesLike | null
@@ -604,6 +799,38 @@ export class Join extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    flashFee(
+      token: string,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "flashFee(address,uint256)"(
+      token: string,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    flashFeeFactor(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "flashFeeFactor()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    flashLoan(
+      receiver: string,
+      token: string,
+      amount: BigNumberish,
+      data: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "flashLoan(address,address,uint256,bytes)"(
+      receiver: string,
+      token: string,
+      amount: BigNumberish,
+      data: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     getRoleAdmin(
       role: BytesLike,
       overrides?: CallOverrides
@@ -672,6 +899,13 @@ export class Join extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    maxFlashLoan(token: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    "maxFlashLoan(address)"(
+      token: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     renounceRole(
       role: BytesLike,
       account: string,
@@ -693,6 +927,16 @@ export class Join extends Contract {
     "revokeRole(bytes4,address)"(
       role: BytesLike,
       account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setFlashFeeFactor(
+      flashFeeFactor_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "setFlashFeeFactor(uint256)"(
+      flashFeeFactor_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -738,6 +982,40 @@ export class Join extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    flashFee(
+      token: string,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "flashFee(address,uint256)"(
+      token: string,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    flashFeeFactor(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "flashFeeFactor()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    flashLoan(
+      receiver: string,
+      token: string,
+      amount: BigNumberish,
+      data: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "flashLoan(address,address,uint256,bytes)"(
+      receiver: string,
+      token: string,
+      amount: BigNumberish,
+      data: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     getRoleAdmin(
       role: BytesLike,
       overrides?: CallOverrides
@@ -806,6 +1084,16 @@ export class Join extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    maxFlashLoan(
+      token: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "maxFlashLoan(address)"(
+      token: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     renounceRole(
       role: BytesLike,
       account: string,
@@ -827,6 +1115,16 @@ export class Join extends Contract {
     "revokeRole(bytes4,address)"(
       role: BytesLike,
       account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setFlashFeeFactor(
+      flashFeeFactor_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "setFlashFeeFactor(uint256)"(
+      flashFeeFactor_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

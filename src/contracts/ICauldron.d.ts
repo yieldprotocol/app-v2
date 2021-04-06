@@ -573,7 +573,13 @@ export class ICauldron extends Contract {
       seriesId: BytesLike,
       ilkId: BytesLike,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<
+      [string, string, string] & {
+        owner: string;
+        seriesId: string;
+        ilkId: string;
+      }
+    >;
 
     "build(address,bytes12,bytes6,bytes6)"(
       owner: string,
@@ -581,7 +587,13 @@ export class ICauldron extends Contract {
       seriesId: BytesLike,
       ilkId: BytesLike,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<
+      [string, string, string] & {
+        owner: string;
+        seriesId: string;
+        ilkId: string;
+      }
+    >;
 
     destroy(vault: BytesLike, overrides?: CallOverrides): Promise<void>;
 
@@ -594,13 +606,25 @@ export class ICauldron extends Contract {
       vaultId: BytesLike,
       user: string,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<
+      [string, string, string] & {
+        owner: string;
+        seriesId: string;
+        ilkId: string;
+      }
+    >;
 
     "give(bytes12,address)"(
       vaultId: BytesLike,
       user: string,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<
+      [string, string, string] & {
+        owner: string;
+        seriesId: string;
+        ilkId: string;
+      }
+    >;
 
     grab(vault: BytesLike, overrides?: CallOverrides): Promise<void>;
 
@@ -715,14 +739,26 @@ export class ICauldron extends Contract {
       seriesId: BytesLike,
       ilkId: BytesLike,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<
+      [string, string, string] & {
+        owner: string;
+        seriesId: string;
+        ilkId: string;
+      }
+    >;
 
     "tweak(bytes12,bytes6,bytes6)"(
       vaultId: BytesLike,
       seriesId: BytesLike,
       ilkId: BytesLike,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<
+      [string, string, string] & {
+        owner: string;
+        seriesId: string;
+        ilkId: string;
+      }
+    >;
 
     vaults(
       vault: BytesLike,

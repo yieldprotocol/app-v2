@@ -68,6 +68,19 @@ const _abi = [
     inputs: [
       {
         indexed: true,
+        internalType: "address",
+        name: "poolRouter",
+        type: "address",
+      },
+    ],
+    name: "PoolRouterSet",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
         internalType: "bytes4",
         name: "role",
         type: "bytes4",
@@ -161,6 +174,74 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes12",
+        name: "vaultId",
+        type: "bytes12",
+      },
+      {
+        components: [
+          {
+            internalType: "address",
+            name: "owner",
+            type: "address",
+          },
+          {
+            internalType: "bytes6",
+            name: "seriesId",
+            type: "bytes6",
+          },
+          {
+            internalType: "bytes6",
+            name: "ilkId",
+            type: "bytes6",
+          },
+        ],
+        internalType: "struct DataTypes.Vault",
+        name: "vault",
+        type: "tuple",
+      },
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        internalType: "int128",
+        name: "ink",
+        type: "int128",
+      },
+      {
+        internalType: "int128",
+        name: "art",
+        type: "int128",
+      },
+    ],
+    name: "_pour",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "uint128",
+            name: "art",
+            type: "uint128",
+          },
+          {
+            internalType: "uint128",
+            name: "ink",
+            type: "uint128",
+          },
+        ],
+        internalType: "struct DataTypes.Balances",
+        name: "balances",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes6",
         name: "assetId",
         type: "bytes6",
@@ -197,29 +278,23 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes[]",
-        name: "calls",
-        type: "bytes[]",
+        internalType: "bytes12",
+        name: "vaultId",
+        type: "bytes12",
       },
       {
-        internalType: "bool",
-        name: "revertOnFail",
-        type: "bool",
+        internalType: "enum Ladle.Operation[]",
+        name: "operations",
+        type: "uint8[]",
+      },
+      {
+        internalType: "bytes[]",
+        name: "data",
+        type: "bytes[]",
       },
     ],
     name: "batch",
-    outputs: [
-      {
-        internalType: "bool[]",
-        name: "successes",
-        type: "bool[]",
-      },
-      {
-        internalType: "bytes[]",
-        name: "results",
-        type: "bytes[]",
-      },
-    ],
+    outputs: [],
     stateMutability: "payable",
     type: "function",
   },
@@ -242,44 +317,28 @@ const _abi = [
       },
     ],
     name: "build",
-    outputs: [],
-    stateMutability: "payable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes6",
-        name: "seriesId",
-        type: "bytes6",
-      },
-      {
-        internalType: "bool",
-        name: "base",
-        type: "bool",
-      },
-      {
-        internalType: "address",
-        name: "to",
-        type: "address",
-      },
-      {
-        internalType: "uint128",
-        name: "tokenOut",
-        type: "uint128",
-      },
-      {
-        internalType: "uint128",
-        name: "max",
-        type: "uint128",
-      },
-    ],
-    name: "buyToken",
     outputs: [
       {
-        internalType: "uint128",
-        name: "tokenIn",
-        type: "uint128",
+        components: [
+          {
+            internalType: "address",
+            name: "owner",
+            type: "address",
+          },
+          {
+            internalType: "bytes6",
+            name: "seriesId",
+            type: "bytes6",
+          },
+          {
+            internalType: "bytes6",
+            name: "ilkId",
+            type: "bytes6",
+          },
+        ],
+        internalType: "struct DataTypes.Vault",
+        name: "vault",
+        type: "tuple",
       },
     ],
     stateMutability: "payable",
@@ -431,7 +490,7 @@ const _abi = [
     ],
     name: "forwardDaiPermit",
     outputs: [],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
     type: "function",
   },
   {
@@ -479,7 +538,7 @@ const _abi = [
     ],
     name: "forwardPermit",
     outputs: [],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
     type: "function",
   },
   {
@@ -515,7 +574,30 @@ const _abi = [
       },
     ],
     name: "give",
-    outputs: [],
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "address",
+            name: "owner",
+            type: "address",
+          },
+          {
+            internalType: "bytes6",
+            name: "seriesId",
+            type: "bytes6",
+          },
+          {
+            internalType: "bytes6",
+            name: "ilkId",
+            type: "bytes6",
+          },
+        ],
+        internalType: "struct DataTypes.Vault",
+        name: "vault",
+        type: "tuple",
+      },
+    ],
     stateMutability: "payable",
     type: "function",
   },
@@ -628,6 +710,48 @@ const _abi = [
     name: "lockRole",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes[]",
+        name: "calls",
+        type: "bytes[]",
+      },
+      {
+        internalType: "bool",
+        name: "revertOnFail",
+        type: "bool",
+      },
+    ],
+    name: "multicall",
+    outputs: [
+      {
+        internalType: "bool[]",
+        name: "successes",
+        type: "bool[]",
+      },
+      {
+        internalType: "bytes[]",
+        name: "results",
+        type: "bytes[]",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "poolRouter",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -818,35 +942,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes6",
-        name: "seriesId",
-        type: "bytes6",
-      },
-      {
-        internalType: "bool",
-        name: "base",
-        type: "bool",
-      },
-      {
-        internalType: "address",
-        name: "to",
-        type: "address",
-      },
-    ],
-    name: "retrieveToken",
-    outputs: [
-      {
-        internalType: "uint128",
-        name: "retrieved",
-        type: "uint128",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "bytes4",
         name: "role",
         type: "bytes4",
@@ -894,32 +989,22 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes6",
-        name: "seriesId",
-        type: "bytes6",
+        internalType: "bytes",
+        name: "data",
+        type: "bytes",
       },
+    ],
+    name: "route",
+    outputs: [
       {
         internalType: "bool",
-        name: "base",
+        name: "success",
         type: "bool",
       },
       {
-        internalType: "address",
-        name: "to",
-        type: "address",
-      },
-      {
-        internalType: "uint128",
-        name: "min",
-        type: "uint128",
-      },
-    ],
-    name: "sellToken",
-    outputs: [
-      {
-        internalType: "uint128",
-        name: "tokenOut",
-        type: "uint128",
+        internalType: "bytes",
+        name: "result",
+        type: "bytes",
       },
     ],
     stateMutability: "payable",
@@ -979,6 +1064,19 @@ const _abi = [
       },
     ],
     stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "poolRouter_",
+        type: "address",
+      },
+    ],
+    name: "setPoolRouter",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -1093,35 +1191,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes6",
-        name: "seriesId",
-        type: "bytes6",
-      },
-      {
-        internalType: "bool",
-        name: "base",
-        type: "bool",
-      },
-      {
-        internalType: "uint128",
-        name: "wad",
-        type: "uint128",
-      },
-    ],
-    name: "transferToPool",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "payable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "bytes12",
         name: "vaultId",
         type: "bytes12",
@@ -1138,7 +1207,30 @@ const _abi = [
       },
     ],
     name: "tweak",
-    outputs: [],
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "address",
+            name: "owner",
+            type: "address",
+          },
+          {
+            internalType: "bytes6",
+            name: "seriesId",
+            type: "bytes6",
+          },
+          {
+            internalType: "bytes6",
+            name: "ilkId",
+            type: "bytes6",
+          },
+        ],
+        internalType: "struct DataTypes.Vault",
+        name: "vault",
+        type: "tuple",
+      },
+    ],
     stateMutability: "payable",
     type: "function",
   },

@@ -30,6 +30,19 @@ const _abi = [
     inputs: [
       {
         indexed: true,
+        internalType: "uint256",
+        name: "fee",
+        type: "uint256",
+      },
+    ],
+    name: "FlashFeeFactorSet",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
         internalType: "bytes4",
         name: "role",
         type: "bytes4",
@@ -160,6 +173,77 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "token",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "flashFee",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "flashFeeFactor",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "contract IERC3156FlashBorrower",
+        name: "receiver",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "token",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+      {
+        internalType: "bytes",
+        name: "data",
+        type: "bytes",
+      },
+    ],
+    name: "flashLoan",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes4",
         name: "role",
         type: "bytes4",
@@ -276,6 +360,25 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "token",
+        type: "address",
+      },
+    ],
+    name: "maxFlashLoan",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes4",
         name: "role",
         type: "bytes4",
@@ -305,6 +408,19 @@ const _abi = [
       },
     ],
     name: "revokeRole",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "flashFeeFactor_",
+        type: "uint256",
+      },
+    ],
+    name: "setFlashFeeFactor",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

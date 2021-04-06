@@ -2,7 +2,6 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { AccessControl } from "./AccessControl";
-export type { Batchable } from "./Batchable";
 export type { Cauldron } from "./Cauldron";
 export type { DaiAbstract } from "./DaiAbstract";
 export type { DaiMock } from "./DaiMock";
@@ -24,6 +23,7 @@ export type { IPool } from "./IPool";
 export type { IWETH9 } from "./IWETH9";
 export type { Join } from "./Join";
 export type { Ladle } from "./Ladle";
+export type { Multicall } from "./Multicall";
 export type { OracleMock } from "./OracleMock";
 export type { PoolMock } from "./PoolMock";
 export type { RestrictedERC20Mock } from "./RestrictedERC20Mock";
@@ -31,7 +31,6 @@ export type { WETH9Mock } from "./WETH9Mock";
 export type { Witch } from "./Witch";
 
 export { AccessControl__factory } from "./factories/AccessControl__factory";
-export { Batchable__factory } from "./factories/Batchable__factory";
 export { Cauldron__factory } from "./factories/Cauldron__factory";
 export { DaiAbstract__factory } from "./factories/DaiAbstract__factory";
 export { DaiMock__factory } from "./factories/DaiMock__factory";
@@ -53,6 +52,7 @@ export { IPool__factory } from "./factories/IPool__factory";
 export { IWETH9__factory } from "./factories/IWETH9__factory";
 export { Join__factory } from "./factories/Join__factory";
 export { Ladle__factory } from "./factories/Ladle__factory";
+export { Multicall__factory } from "./factories/Multicall__factory";
 export { OracleMock__factory } from "./factories/OracleMock__factory";
 export { PoolMock__factory } from "./factories/PoolMock__factory";
 export { RestrictedERC20Mock__factory } from "./factories/RestrictedERC20Mock__factory";

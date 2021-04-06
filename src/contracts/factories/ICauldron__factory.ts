@@ -91,7 +91,30 @@ const _abi = [
       },
     ],
     name: "build",
-    outputs: [],
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "address",
+            name: "owner",
+            type: "address",
+          },
+          {
+            internalType: "bytes6",
+            name: "seriesId",
+            type: "bytes6",
+          },
+          {
+            internalType: "bytes6",
+            name: "ilkId",
+            type: "bytes6",
+          },
+        ],
+        internalType: "struct DataTypes.Vault",
+        name: "",
+        type: "tuple",
+      },
+    ],
     stateMutability: "nonpayable",
     type: "function",
   },
@@ -122,7 +145,30 @@ const _abi = [
       },
     ],
     name: "give",
-    outputs: [],
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "address",
+            name: "owner",
+            type: "address",
+          },
+          {
+            internalType: "bytes6",
+            name: "seriesId",
+            type: "bytes6",
+          },
+          {
+            internalType: "bytes6",
+            name: "ilkId",
+            type: "bytes6",
+          },
+        ],
+        internalType: "struct DataTypes.Vault",
+        name: "",
+        type: "tuple",
+      },
+    ],
     stateMutability: "nonpayable",
     type: "function",
   },
@@ -406,7 +452,30 @@ const _abi = [
       },
     ],
     name: "tweak",
-    outputs: [],
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "address",
+            name: "owner",
+            type: "address",
+          },
+          {
+            internalType: "bytes6",
+            name: "seriesId",
+            type: "bytes6",
+          },
+          {
+            internalType: "bytes6",
+            name: "ilkId",
+            type: "bytes6",
+          },
+        ],
+        internalType: "struct DataTypes.Vault",
+        name: "",
+        type: "tuple",
+      },
+    ],
     stateMutability: "nonpayable",
     type: "function",
   },

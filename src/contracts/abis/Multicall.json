@@ -12,7 +12,7 @@
         "type": "bool"
       }
     ],
-    "name": "batch",
+    "name": "multicall",
     "outputs": [
       {
         "internalType": "bool[]",
