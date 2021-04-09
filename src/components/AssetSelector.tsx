@@ -18,7 +18,7 @@ interface IAssetSelectorProps {
 function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
   const { chainState: { assetMap }, chainActions } = useContext(ChainContext);
-  const { userState: { selectedIlk, selectedSeries, selectedBase }, userActions } = useContext(UserContext);
+  const { userState: { activeVault, selectedIlk, selectedSeries, selectedBase }, userActions } = useContext(UserContext);
 
   const [options, setOptions] = useState<IYieldAsset[]>([]);
   const optionText = (asset: IYieldAsset | undefined) => `${asset?.symbol}` || '';
@@ -31,6 +31,10 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
       : opts;
     setOptions(filteredOptions);
   }, [selectedBase, assetMap, selectCollateral]);
+
+  useEffect(() => {
+    activeVault?.series && userActions.setSelectedBase(activeVault.base);
+  }, [activeVault]);
 
   return (
     <Box fill>
@@ -45,7 +49,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
         onChange={({ option }: any) => {
           selectCollateral ? userActions.setSelectedIlk(option) : userActions.setSelectedBase(option);
         }}
-        disabled={selectCollateral && !selectedSeries}
+        disabled={(selectCollateral && !selectedSeries) || (!selectCollateral && !!activeVault)}
         // eslint-disable-next-line react/no-children-prop
         children={(x:any) => <Box pad={mobile ? 'medium' : 'small'} gap="small" direction="row"> <Text color="text" size="small"> { optionText(x) } </Text> </Box>}
       />

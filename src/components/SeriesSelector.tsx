@@ -9,7 +9,7 @@ function SeriesSelector() {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
   const { chainState: { seriesMap } } = useContext(ChainContext);
 
-  const { userState: { selectedSeries, selectedIlk, selectedBase }, userActions } = useContext(UserContext);
+  const { userState: { activeVault, selectedSeries, selectedIlk, selectedBase }, userActions } = useContext(UserContext);
 
   const [options, setOptions] = useState<IYieldSeries[]>([]);
   const optionText = (series: IYieldSeries|undefined) => (
@@ -23,6 +23,10 @@ function SeriesSelector() {
     const filteredOpts = opts.filter((series:IYieldSeries) => series.baseId === selectedBase.id);
     setOptions(filteredOpts);
   }, [seriesMap, selectedBase, selectedIlk]);
+
+  useEffect(() => {
+    activeVault?.series && userActions.setSelectedSeries(activeVault.series);
+  }, [activeVault]);
 
   return (
     <Box fill>
@@ -38,7 +42,7 @@ function SeriesSelector() {
             <Box pad={mobile ? 'medium' : 'small'}><Text size="small" color="text"> {optionText(selectedSeries)} </Text></Box>
             : <Box pad={mobile ? 'medium' : 'small'}><Text size="small" color="text"> No available series.</Text></Box>
         }
-        disabled={options.length === 0}
+        disabled={options.length === 0 || !!activeVault}
         onChange={({ option }: any) => userActions.setSelectedSeries(option)}
         // eslint-disable-next-line react/no-children-prop
         children={(x:any) => <Box pad={mobile ? 'medium' : 'small'} gap="small" direction="row"> <Text color="text" size="small"> { optionText(x) } </Text> </Box>}
