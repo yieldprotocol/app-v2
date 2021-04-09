@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { Box, Button, CheckBox, Heading, Keyboard, RadioButtonGroup, ResponsiveContext, Select, Text, TextInput } from 'grommet';
+import { Box, Button, CheckBox, Image, Keyboard, RadioButtonGroup, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import { Router, useHistory } from 'react-router-dom';
 
 import { FiArrowLeftCircle } from 'react-icons/fi';
@@ -22,7 +22,14 @@ const Borrow = () => {
   const routerHistory = useHistory();
   const routerState = routerHistory.location.state as { from: string };
 
-  const { userState: { activeAccount, selectedSeries, selectedIlk, selectedBase } } = useContext(UserContext);
+  const { userState: {
+    activeAccount,
+    activeVault,
+    selectedSeries,
+    selectedIlk,
+    selectedBase,
+  },
+  } = useContext(UserContext);
 
   const [inputValue, setInputValue] = useState<string>();
   const [collInputValue, setCollInputValue] = useState<string>();
@@ -35,7 +42,7 @@ const Borrow = () => {
   const { borrow } = useActions();
 
   const handleBorrow = () => {
-    !borrowDisabled && borrow(inputValue, collInputValue);
+    !borrowDisabled && borrow(inputValue, collInputValue, activeVault);
   };
 
   useEffect(() => {
@@ -68,6 +75,14 @@ const Borrow = () => {
       target="document"
     >
       <MainViewWrap>
+
+        {
+          activeVault &&
+          <Box direction="row">
+            <Image src={activeVault.image} />
+            <Text>{ activeVault?.id} </Text>
+          </Box>
+        }
 
         <SectionWrap title="1. Asset to Borrow" subtitle="Choose an asset and period to borrow for">
 
@@ -156,23 +171,25 @@ const Borrow = () => {
             disabled={borrowDisabled}
           />,
 
-          (!routerState && <Button
-            secondary
-            label={<Text size={mobile ? 'small' : undefined}> Migrate Maker Vault</Text>}
-            key="secondary"
-          />),
-
-          (routerState && (
-          <Box
-            onClick={() => routerHistory.push(`/vault/${routerState.from}`)}
-            gap="medium"
-            direction="row"
-            alignSelf="center"
-            key="tertiary"
-          >
-            <FiArrowLeftCircle />
-            <Text size="small"> back to vault: {routerState.from} </Text>
-          </Box>)
+          (
+            !activeVault
+              ?
+                <Button
+                  secondary
+                  label={<Text size={mobile ? 'small' : undefined}> Migrate Maker Vault</Text>}
+                  key="secondary"
+                />
+              :
+                <Box
+                  onClick={() => routerHistory.push(`/vault/${activeVault.id}`)}
+                  gap="medium"
+                  direction="row"
+                  alignSelf="center"
+                  key="tertiary"
+                >
+                  <FiArrowLeftCircle />
+                  <Text size="small"> back to vault: {activeVault.id} </Text>
+                </Box>
           ),
         ]}
         />

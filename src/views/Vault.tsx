@@ -92,7 +92,7 @@ const Vault = () => {
                 plain
                 type="number"
                 placeholder={<PlaceholderWrap label="Enter amount to Repay" />}
-              // ref={(el:any) => { el && !repayOpen && !rateLockOpen && !mobile && el.focus(); setInputRef(el); }}
+                // ref={(el:any) => { el && !repayOpen && !rateLockOpen && !mobile && el.focus(); setInputRef(el); }}
                 value={inputValue || ''}
                 onChange={(event:any) => setInputValue(cleanValue(event.target.value))}
               />
@@ -120,7 +120,7 @@ const Vault = () => {
           <Button
             label={mobile ? <Text size="xsmall"> Borrow more </Text> : <Text>Borrow more & add additional collateral</Text>}
             style={{ border: 0 }}
-            onClick={() => routerHistory.push('/borrow/', { from: 'vault' })}
+            onClick={() => routerHistory.push('/borrow', { from: 'vault' })}
             key="tertiary"
           />,
         ]}
