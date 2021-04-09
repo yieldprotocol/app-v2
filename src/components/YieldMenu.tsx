@@ -88,7 +88,7 @@ const YieldMenu = ({ toggleMenu }: IMenuProps) => {
                 align="center"
               >
                 <Box width="xxsmall">
-                  <Image src={genVaultImage(x.id)} />
+                  <Image src={x.image} />
                 </Box>
                 <Box align="center" fill="horizontal">
                   <Text size="small"> {x.id} {x.series.displayNameMobile} </Text>
@@ -104,9 +104,14 @@ const YieldMenu = ({ toggleMenu }: IMenuProps) => {
               <Text size="small"> You don't have any vaults yet, create one by:  </Text>
               <Box direction="row" justify="evenly" fill>
                 <Box pad="small" border onClick={() => handleRouting('borrow')}>Borrowing</Box>
+              </Box>
+
+              <Text size="small"> Or try:  </Text>
+              <Box direction="row" justify="evenly" fill>
                 <Box pad="small" border onClick={() => handleRouting('lend')}>Lending</Box>
                 <Box pad="small" border onClick={() => handleRouting('pool')}>Pooling</Box>
               </Box>
+
             </Box>}
           </Box>
           }

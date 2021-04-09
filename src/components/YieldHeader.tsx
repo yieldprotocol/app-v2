@@ -32,9 +32,9 @@ const YieldHeader = ({ actionList } : IYieldHeaderProps) => {
 
       { !mobile && <YieldNavigation /> }
 
-      { signPending && <Box>sign pednign</Box>}
+      { signPending && <Box>Signature required</Box>}
 
-      { txPending && <Box>sign pednign</Box>}
+      { txPending && <Box>Transaction Pending</Box>}
 
       {
       account ?
