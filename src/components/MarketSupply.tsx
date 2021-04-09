@@ -22,9 +22,9 @@ const MarketSupply = () => {
       </Box>
 
       <List
-        primaryKey={(x:any) => <Text size="small"> { x.market }</Text>}
+        primaryKey={(x:any) => <Box key={x.market}><Text size="small"> { x.market }</Text></Box>}
         secondaryKey={(datum) => (
-          <Box pad={{ vertical: 'xsmall' }}>
+          <Box pad={{ vertical: 'xsmall' }} key={datum}>
             <Meter
               values={[{ value: datum.percent }]}
               thickness="small"

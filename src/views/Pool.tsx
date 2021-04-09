@@ -21,7 +21,7 @@ function Pool() {
 
       <SectionWrap title="1. Asset to Pool" subtitle="Choose an asset and series to pool">
         <Box direction="row" gap="small" fill="horizontal">
-          <InputWrap basis="65%" action={() => console.log('maxAction')}>
+          <InputWrap action={() => console.log('maxAction')}>
             <TextInput
               plain
               type="number"
@@ -36,7 +36,7 @@ function Pool() {
               </Box>
             }
           </InputWrap>
-          <Box basis="35%">
+          <Box basis={mobile ? '50%' : '35%'}>
             <AssetSelector />
           </Box>
         </Box>

@@ -12,9 +12,9 @@
         "type": "address"
       },
       {
-        "internalType": "uint32",
+        "internalType": "uint256",
         "name": "maturity_",
-        "type": "uint32"
+        "type": "uint256"
       },
       {
         "internalType": "string",
@@ -281,6 +281,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "asset",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -505,9 +518,9 @@
     "name": "maturity",
     "outputs": [
       {
-        "internalType": "uint32",
+        "internalType": "uint256",
         "name": "",
-        "type": "uint32"
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -646,17 +659,17 @@
         "type": "address"
       },
       {
-        "internalType": "uint128",
+        "internalType": "uint256",
         "name": "amount",
-        "type": "uint128"
+        "type": "uint256"
       }
     ],
     "name": "redeem",
     "outputs": [
       {
-        "internalType": "uint128",
+        "internalType": "uint256",
         "name": "",
-        "type": "uint128"
+        "type": "uint256"
       }
     ],
     "stateMutability": "nonpayable",

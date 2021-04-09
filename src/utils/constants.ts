@@ -1,7 +1,9 @@
 import { ethers, BigNumber } from 'ethers';
 
 /* constants */
-export const MAX_INT = '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff';
+export const MAX_256 = '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff';
+export const MAX_128 = '0xffffffffffffffffffffffffffffffff';
+
 export const SECONDS_PER_YEAR: number = (365 * 24 * 60 * 60);
 export const ETH_BYTES = ethers.utils.formatBytes32String('ETH-A');
 export const CHAI_BYTES = ethers.utils.formatBytes32String('CHAI');

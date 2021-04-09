@@ -1,9 +1,11 @@
 import React, { useContext, useState } from 'react';
-import { Box, Button, Header, Text } from 'grommet';
+import { Box, Button, Header, Image, Text } from 'grommet';
 import styled, { CSSProperties, ThemeContext } from 'styled-components';
 import { useHistory } from 'react-router-dom';
-import { VaultContext } from '../contexts/VaultContext';
-import { IMenuProps, View } from '../types';
+import { UserContext } from '../contexts/UserContext';
+import { IMenuProps, IYieldVault, View } from '../types';
+import VaultImage from './VaultImage';
+import { genVaultImage } from '../utils/displayUtils';
 
 const StyledBox = styled(Box)`
   text-decoration: none;
@@ -19,10 +21,9 @@ const StyledBox = styled(Box)`
 `;
 
 const YieldMenu = ({ toggleMenu }: IMenuProps) => {
-  const [view, setView] = useState<View>(View.vaults);
-  const { vaultState } = useContext(VaultContext);
+  /* state from contexts */
+  const { userState: { vaultMap, activeVault }, userActions: { setActiveVault } } = useContext(UserContext);
   const routerHistory = useHistory();
-
   const theme = useContext<any>(ThemeContext);
   const textColor = theme.global.colors.brand;
   const textBack = theme.global.colors['light-1'];
@@ -32,8 +33,18 @@ const YieldMenu = ({ toggleMenu }: IMenuProps) => {
     background: `${textBack}`,
   } as CSSProperties;
 
+  /* local state */
+  const [vaultsArray, setVaultsArray] = useState<IYieldVault[]>(Array.from(vaultMap.values() as IYieldVault[]));
+  const [view, setView] = useState<View>(vaultsArray.length > 0 ? View.vaults : View.account);
+
   const handleSelect = (vaultId:string) => {
+    setActiveVault(vaultMap.get(vaultId));
     routerHistory.push(`/vault/${vaultId}`);
+    toggleMenu();
+  };
+
+  const handleRouting = (route:string) => {
+    routerHistory.push(`/${route}`);
     toggleMenu();
   };
 
@@ -62,22 +73,46 @@ const YieldMenu = ({ toggleMenu }: IMenuProps) => {
       </Header>
 
       <Box flex overflow="auto" pad="medium" fill="horizontal">
-
         { view === View.account && <Box> Accounts view </Box>}
 
         {
           view === View.vaults &&
           <Box gap="medium">
-            { Array.from(vaultState.vaultMap.values()).map((x:any) => (
+            { vaultsArray.map((x:IYieldVault) => (
               <Box
                 key={x.id}
                 pad="small"
                 border
-                onClick={() => handleSelect(x)}
+                onClick={() => handleSelect(x.id)}
+                direction="row"
+                align="center"
               >
-                {x.id}
+                <Box width="xxsmall">
+                  <Image src={x.image} />
+                </Box>
+                <Box align="center" fill="horizontal">
+                  <Text size="small"> {x.id} {x.series.displayNameMobile} </Text>
+                </Box>
               </Box>
             ))}
+            {vaultsArray.length === 0 &&
+            <Box
+              gap="large"
+              pad="large"
+              align="center"
+            >
+              <Text size="small"> You don't have any vaults yet, create one by:  </Text>
+              <Box direction="row" justify="evenly" fill>
+                <Box pad="small" border onClick={() => handleRouting('borrow')}>Borrowing</Box>
+              </Box>
+
+              <Text size="small"> Or try:  </Text>
+              <Box direction="row" justify="evenly" fill>
+                <Box pad="small" border onClick={() => handleRouting('lend')}>Lending</Box>
+                <Box pad="small" border onClick={() => handleRouting('pool')}>Pooling</Box>
+              </Box>
+
+            </Box>}
           </Box>
           }
       </Box>

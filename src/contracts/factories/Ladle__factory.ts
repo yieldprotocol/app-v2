@@ -49,6 +49,38 @@ const _abi = [
     inputs: [
       {
         indexed: true,
+        internalType: "bytes6",
+        name: "seriesId",
+        type: "bytes6",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "pool",
+        type: "address",
+      },
+    ],
+    name: "PoolAdded",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "poolRouter",
+        type: "address",
+      },
+    ],
+    name: "PoolRouterSet",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
         internalType: "bytes4",
         name: "role",
         type: "bytes4",
@@ -147,8 +179,30 @@ const _abi = [
         type: "bytes12",
       },
       {
+        components: [
+          {
+            internalType: "address",
+            name: "owner",
+            type: "address",
+          },
+          {
+            internalType: "bytes6",
+            name: "seriesId",
+            type: "bytes6",
+          },
+          {
+            internalType: "bytes6",
+            name: "ilkId",
+            type: "bytes6",
+          },
+        ],
+        internalType: "struct DataTypes.Vault",
+        name: "vault",
+        type: "tuple",
+      },
+      {
         internalType: "address",
-        name: "user",
+        name: "to",
         type: "address",
       },
       {
@@ -162,9 +216,27 @@ const _abi = [
         type: "int128",
       },
     ],
-    name: "_join",
-    outputs: [],
-    stateMutability: "nonpayable",
+    name: "_pour",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "uint128",
+            name: "art",
+            type: "uint128",
+          },
+          {
+            internalType: "uint128",
+            name: "ink",
+            type: "uint128",
+          },
+        ],
+        internalType: "struct DataTypes.Balances",
+        name: "balances",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "payable",
     type: "function",
   },
   {
@@ -186,6 +258,93 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "bytes6",
+        name: "seriesId",
+        type: "bytes6",
+      },
+      {
+        internalType: "contract IPool",
+        name: "pool",
+        type: "address",
+      },
+    ],
+    name: "addPool",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes12",
+        name: "vaultId",
+        type: "bytes12",
+      },
+      {
+        internalType: "enum Ladle.Operation[]",
+        name: "operations",
+        type: "uint8[]",
+      },
+      {
+        internalType: "bytes[]",
+        name: "data",
+        type: "bytes[]",
+      },
+    ],
+    name: "batch",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes12",
+        name: "vaultId",
+        type: "bytes12",
+      },
+      {
+        internalType: "bytes6",
+        name: "seriesId",
+        type: "bytes6",
+      },
+      {
+        internalType: "bytes6",
+        name: "ilkId",
+        type: "bytes6",
+      },
+    ],
+    name: "build",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "address",
+            name: "owner",
+            type: "address",
+          },
+          {
+            internalType: "bytes6",
+            name: "seriesId",
+            type: "bytes6",
+          },
+          {
+            internalType: "bytes6",
+            name: "ilkId",
+            type: "bytes6",
+          },
+        ],
+        internalType: "struct DataTypes.Vault",
+        name: "vault",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "cauldron",
     outputs: [
@@ -204,6 +363,11 @@ const _abi = [
         internalType: "bytes12",
         name: "vaultId",
         type: "bytes12",
+      },
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
       },
       {
         internalType: "int128",
@@ -232,11 +396,149 @@ const _abi = [
           },
         ],
         internalType: "struct DataTypes.Balances",
-        name: "balances_",
+        name: "balances",
         type: "tuple",
       },
     ],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes12",
+        name: "vaultId",
+        type: "bytes12",
+      },
+    ],
+    name: "destroy",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes6",
+        name: "etherId",
+        type: "bytes6",
+      },
+      {
+        internalType: "address payable",
+        name: "to",
+        type: "address",
+      },
+    ],
+    name: "exitEther",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "ethTransferred",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes6",
+        name: "id",
+        type: "bytes6",
+      },
+      {
+        internalType: "bool",
+        name: "asset",
+        type: "bool",
+      },
+      {
+        internalType: "address",
+        name: "spender",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "nonce",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "deadline",
+        type: "uint256",
+      },
+      {
+        internalType: "bool",
+        name: "allowed",
+        type: "bool",
+      },
+      {
+        internalType: "uint8",
+        name: "v",
+        type: "uint8",
+      },
+      {
+        internalType: "bytes32",
+        name: "r",
+        type: "bytes32",
+      },
+      {
+        internalType: "bytes32",
+        name: "s",
+        type: "bytes32",
+      },
+    ],
+    name: "forwardDaiPermit",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes6",
+        name: "id",
+        type: "bytes6",
+      },
+      {
+        internalType: "bool",
+        name: "asset",
+        type: "bool",
+      },
+      {
+        internalType: "address",
+        name: "spender",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "deadline",
+        type: "uint256",
+      },
+      {
+        internalType: "uint8",
+        name: "v",
+        type: "uint8",
+      },
+      {
+        internalType: "bytes32",
+        name: "r",
+        type: "bytes32",
+      },
+      {
+        internalType: "bytes32",
+        name: "s",
+        type: "bytes32",
+      },
+    ],
+    name: "forwardPermit",
+    outputs: [],
+    stateMutability: "payable",
     type: "function",
   },
   {
@@ -256,6 +558,47 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes12",
+        name: "vaultId",
+        type: "bytes12",
+      },
+      {
+        internalType: "address",
+        name: "receiver",
+        type: "address",
+      },
+    ],
+    name: "give",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "address",
+            name: "owner",
+            type: "address",
+          },
+          {
+            internalType: "bytes6",
+            name: "seriesId",
+            type: "bytes6",
+          },
+          {
+            internalType: "bytes6",
+            name: "ilkId",
+            type: "bytes6",
+          },
+        ],
+        internalType: "struct DataTypes.Vault",
+        name: "vault",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "payable",
     type: "function",
   },
   {
@@ -322,6 +665,25 @@ const _abi = [
     inputs: [
       {
         internalType: "bytes6",
+        name: "etherId",
+        type: "bytes6",
+      },
+    ],
+    name: "joinEther",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "ethTransferred",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes6",
         name: "",
         type: "bytes6",
       },
@@ -353,6 +715,113 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes[]",
+        name: "calls",
+        type: "bytes[]",
+      },
+      {
+        internalType: "bool",
+        name: "revertOnFail",
+        type: "bool",
+      },
+    ],
+    name: "multicall",
+    outputs: [
+      {
+        internalType: "bool[]",
+        name: "successes",
+        type: "bool[]",
+      },
+      {
+        internalType: "bytes[]",
+        name: "results",
+        type: "bytes[]",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "poolRouter",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes6",
+        name: "",
+        type: "bytes6",
+      },
+    ],
+    name: "pools",
+    outputs: [
+      {
+        internalType: "contract IPool",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes12",
+        name: "vaultId",
+        type: "bytes12",
+      },
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        internalType: "int128",
+        name: "ink",
+        type: "int128",
+      },
+      {
+        internalType: "int128",
+        name: "art",
+        type: "int128",
+      },
+    ],
+    name: "pour",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "uint128",
+            name: "art",
+            type: "uint128",
+          },
+          {
+            internalType: "uint128",
+            name: "ink",
+            type: "uint128",
+          },
+        ],
+        internalType: "struct DataTypes.Balances",
+        name: "balances",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes4",
         name: "role",
         type: "bytes4",
@@ -371,6 +840,108 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes12",
+        name: "vaultId",
+        type: "bytes12",
+      },
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        internalType: "int128",
+        name: "ink",
+        type: "int128",
+      },
+      {
+        internalType: "uint128",
+        name: "min",
+        type: "uint128",
+      },
+    ],
+    name: "repay",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "uint128",
+            name: "art",
+            type: "uint128",
+          },
+          {
+            internalType: "uint128",
+            name: "ink",
+            type: "uint128",
+          },
+        ],
+        internalType: "struct DataTypes.Balances",
+        name: "balances",
+        type: "tuple",
+      },
+      {
+        internalType: "uint128",
+        name: "art",
+        type: "uint128",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes12",
+        name: "vaultId",
+        type: "bytes12",
+      },
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        internalType: "int128",
+        name: "ink",
+        type: "int128",
+      },
+      {
+        internalType: "uint128",
+        name: "max",
+        type: "uint128",
+      },
+    ],
+    name: "repayVault",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "uint128",
+            name: "art",
+            type: "uint128",
+          },
+          {
+            internalType: "uint128",
+            name: "ink",
+            type: "uint128",
+          },
+        ],
+        internalType: "struct DataTypes.Balances",
+        name: "balances",
+        type: "tuple",
+      },
+      {
+        internalType: "uint128",
+        name: "base",
+        type: "uint128",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes4",
         name: "role",
         type: "bytes4",
@@ -382,6 +953,128 @@ const _abi = [
       },
     ],
     name: "revokeRole",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes12",
+        name: "vaultId",
+        type: "bytes12",
+      },
+      {
+        internalType: "bytes6",
+        name: "seriesId",
+        type: "bytes6",
+      },
+      {
+        internalType: "int128",
+        name: "art",
+        type: "int128",
+      },
+    ],
+    name: "roll",
+    outputs: [
+      {
+        internalType: "uint128",
+        name: "",
+        type: "uint128",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes",
+        name: "data",
+        type: "bytes",
+      },
+    ],
+    name: "route",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "success",
+        type: "bool",
+      },
+      {
+        internalType: "bytes",
+        name: "result",
+        type: "bytes",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes12",
+        name: "vaultId",
+        type: "bytes12",
+      },
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        internalType: "uint128",
+        name: "ink",
+        type: "uint128",
+      },
+      {
+        internalType: "uint128",
+        name: "base",
+        type: "uint128",
+      },
+      {
+        internalType: "uint128",
+        name: "max",
+        type: "uint128",
+      },
+    ],
+    name: "serve",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "uint128",
+            name: "art",
+            type: "uint128",
+          },
+          {
+            internalType: "uint128",
+            name: "ink",
+            type: "uint128",
+          },
+        ],
+        internalType: "struct DataTypes.Balances",
+        name: "balances",
+        type: "tuple",
+      },
+      {
+        internalType: "uint128",
+        name: "art",
+        type: "uint128",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "poolRouter_",
+        type: "address",
+      },
+    ],
+    name: "setPoolRouter",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -412,14 +1105,47 @@ const _abi = [
         type: "bytes12",
       },
       {
-        internalType: "int128",
-        name: "ink",
-        type: "int128",
+        internalType: "address",
+        name: "user",
+        type: "address",
       },
       {
-        internalType: "int128",
+        internalType: "uint128",
+        name: "ink",
+        type: "uint128",
+      },
+      {
+        internalType: "uint128",
         name: "art",
-        type: "int128",
+        type: "uint128",
+      },
+    ],
+    name: "settle",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes12",
+        name: "from",
+        type: "bytes12",
+      },
+      {
+        internalType: "bytes12",
+        name: "to",
+        type: "bytes12",
+      },
+      {
+        internalType: "uint128",
+        name: "ink",
+        type: "uint128",
+      },
+      {
+        internalType: "uint128",
+        name: "art",
+        type: "uint128",
       },
     ],
     name: "stir",
@@ -438,11 +1164,78 @@ const _abi = [
           },
         ],
         internalType: "struct DataTypes.Balances",
-        name: "balances_",
+        name: "",
+        type: "tuple",
+      },
+      {
+        components: [
+          {
+            internalType: "uint128",
+            name: "art",
+            type: "uint128",
+          },
+          {
+            internalType: "uint128",
+            name: "ink",
+            type: "uint128",
+          },
+        ],
+        internalType: "struct DataTypes.Balances",
+        name: "",
         type: "tuple",
       },
     ],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
     type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes12",
+        name: "vaultId",
+        type: "bytes12",
+      },
+      {
+        internalType: "bytes6",
+        name: "seriesId",
+        type: "bytes6",
+      },
+      {
+        internalType: "bytes6",
+        name: "ilkId",
+        type: "bytes6",
+      },
+    ],
+    name: "tweak",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "address",
+            name: "owner",
+            type: "address",
+          },
+          {
+            internalType: "bytes6",
+            name: "seriesId",
+            type: "bytes6",
+          },
+          {
+            internalType: "bytes6",
+            name: "ilkId",
+            type: "bytes6",
+          },
+        ],
+        internalType: "struct DataTypes.Vault",
+        name: "vault",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    stateMutability: "payable",
+    type: "receive",
   },
 ];

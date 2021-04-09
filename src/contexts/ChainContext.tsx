@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ContractFactory, ethers } from 'ethers';
+import { ContractFactory, ethers, utils } from 'ethers';
 import { useWeb3React } from '@web3-react/core';
 import { InjectedConnector } from '@web3-react/injected-connector';
 import { NetworkConnector } from '@web3-react/network-connector';
@@ -9,6 +9,7 @@ import { useCachedState } from '../hooks';
 import * as yieldEnv from './yieldEnv.json';
 import * as contracts from '../contracts';
 import { IYieldAsset, IYieldSeries } from '../types';
+import { nameFromMaturity } from '../utils/displayUtils';
 
 /* Set up web3react config */
 const POLLING_INTERVAL = 12000;
@@ -37,6 +38,14 @@ connectors.set(
   }),
 );
 
+// connectors.set(
+//   'networkconnect',
+//   new NetworkConnector({
+//     urls: { 1: RPC_URLS[1], 42: RPC_URLS[42], 31337: RPC_URLS[31337] },
+//     defaultChainId: 31337,
+//   }),
+// );
+
 /* Build the context */
 const ChainContext = React.createContext<any>({});
 
@@ -52,8 +61,11 @@ const initState = {
   /* settings */
   connectOnLoad: true as boolean,
 
+  /* flags */
+  chainLoading: true,
+
   /* Connected Contract Maps */
-  baseMap: new Map<string, { name: string, callContract: ContractFactory, txContract: ContractFactory }>(),
+  contractMap: new Map<string, ContractFactory>(),
   assetMap: new Map<string, IYieldAsset>(),
   seriesMap: new Map<string, IYieldSeries>(),
 
@@ -69,6 +81,8 @@ function chainReducer(state: any, action: any) {
 
   /* Reducer switch */
   switch (action.type) {
+    case 'chainLoading': return { ...state, chainLoading: onlyIfChanged(action) };
+
     case 'provider': return { ...state, provider: onlyIfChanged(action) };
     case 'fallbackProvider': return { ...state, fallbackProvider: onlyIfChanged(action) };
     case 'signer': return { ...state, signer: onlyIfChanged(action) };
@@ -76,23 +90,30 @@ function chainReducer(state: any, action: any) {
     case 'account': return { ...state, account: onlyIfChanged(action) };
     case 'web3Active': return { ...state, web3Active: onlyIfChanged(action) };
 
-    case 'baseMap': return { ...state, baseMap: onlyIfChanged(action) };
-    case 'assetMap': return { ...state, assetMap: onlyIfChanged(action) };
-    case 'seriesMap': return { ...state, seriesMap: onlyIfChanged(action) };
+    case 'contractMap': return { ...state, contractMap: onlyIfChanged(action) };
+    case 'addSeries': return {
+      ...state,
+      seriesMap: state.seriesMap.set(action.payload.id, action.payload),
+    };
+    case 'addAsset': return {
+      ...state,
+      assetMap: state.assetMap.set(action.payload.id, action.payload),
+    };
 
     /* special internal case for multi-updates - might remove from this context if not needed */
     case '_any': return { ...state, ...action.payload };
-    default:
-      return state;
+    default: return state;
   }
 }
 
 const ChainProvider = ({ children }: any) => {
   const [chainState, updateState] = React.useReducer(chainReducer, initState);
-  const [lastChainId, setLastChainId] = useCachedState('lastChainId', 1);
+  const [lastChainId, setLastChainId] = useCachedState('lastChainId', 31337);
   const [lastBlock, setLastBlock] = useCachedState('lastBlock', 1);
-  const primaryConnection = useWeb3React<ethers.providers.Web3Provider>();
 
+  const [tried, setTried] = useState<boolean>(false);
+
+  const primaryConnection = useWeb3React<ethers.providers.Web3Provider>();
   const {
     connector,
     library,
@@ -109,93 +130,126 @@ const ChainProvider = ({ children }: any) => {
     library: fallbackLibrary,
     chainId: fallbackChainId,
     activate: fallbackActivate,
+    active: fallbackActive,
     error: fallbackError,
   } = fallbackConnection;
 
-  /*
-      Watch the chainId for changes (most likely instigated by metamask),
-      and change the FALLBACK provider accordingly.
-      NOTE: Currently, there is no way to change the fallback provider manually, but the last chainId is cached.
-  */
-  useEffect(() => {
-    if (chainId) {
-      /* cache the change of networkId */
-      setLastChainId(chainId);
-      /* align the fallback and primary chainIds */
-      chainId !== fallbackChainId && (async () => fallbackActivate(
-        new NetworkConnector({
-          urls: { 1: RPC_URLS[1], 42: RPC_URLS[42], 31337: RPC_URLS[31337] },
-          defaultChainId: chainId || lastChainId,
-        }), (e:any) => console.log(e), true,
-      )
-      )();
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chainId, fallbackActivate, lastChainId]);
-
   /**
-   * Update on FALLBACK connection on network changes (id/library)
+   * Update on FALLBACK connection/state on network changes (id/library)
    */
+  // TODO add in caching
   useEffect(() => {
     fallbackLibrary && updateState({ type: 'fallbackProvider', payload: fallbackLibrary });
     fallbackChainId && console.log('fallback chainID :', fallbackChainId);
 
     if (fallbackLibrary && fallbackChainId) {
-      /* Get the instance of the Cauldron contract */
+      /* Get the instance of the Base contracts */
       const addrs = (yieldEnv.addresses as any)[fallbackChainId];
-      const Cauldron = contracts.Cauldron__factory.connect(
-        addrs.Cauldron,
-        fallbackLibrary,
-      );
-      (async () => {
-        await Promise.all([
-          /* Update the available assetsMap based on Cauldron events, */
-          (async () => {
-            const _assetList = await Cauldron.queryFilter('AssetAdded' as any);
-            const newAssetMap = _assetList.reduce((acc:any, item:any) => {
-              const _map = acc;
-              const { assetId, asset } = Cauldron.interface.parseLog(item).args;
-              _map.set(
-                assetId,
-                {
-                  id: assetId,
-                  address: asset,
-                  callContract: contracts.ERC20__factory.connect(asset, fallbackLibrary),
-                },
-              );
-              return _map;
-            }, chainState.assetMap);
-            console.log(newAssetMap);
-            updateState({ type: 'assetMap', payload: newAssetMap });
-          })(),
+      const Cauldron = contracts.Cauldron__factory.connect(addrs.Cauldron, fallbackLibrary);
+      const Ladle = contracts.Ladle__factory.connect(addrs.Ladle, fallbackLibrary);
 
-          /* ... at the same time update the available seriesMap based on Cauldron events */
-          (async () => {
-            const _seriesList = await Cauldron.queryFilter('SeriesAdded' as any);
-            const newSeriesMap = _seriesList.reduce((acc:any, item:any) => {
-              const _map = acc;
-              const { seriesId, baseId, fyToken } = Cauldron.interface.parseLog(item).args;
-              _map.set(
-                seriesId,
-                {
-                  id: seriesId,
-                  base: baseId,
-                  address: fyToken,
-                  callContract: contracts.FYToken__factory.connect(fyToken, fallbackLibrary),
-                },
-              );
-              return _map;
-            }, chainState.seriesMap);
-            console.log(newSeriesMap);
-            updateState({ type: 'seriesMap', payload: newSeriesMap });
-          })(),
-        ]);
-      })();
+      /* Update the baseContracts state : ( hardcoded based on networkId ) */
+      const newContractMap = chainState.contractMap;
+      newContractMap.set('Cauldron', Cauldron);
+      newContractMap.set('Ladle', Ladle);
+      updateState({ type: 'contractMap', payload: newContractMap });
+
+      /* Update the 'dynamic' contracts (series and assets) */
+      Promise.all([
+
+        /* Update the available assetsMap based on Cauldron events */
+        (async () => {
+          /* get both poolAdded events and series events at the same time */
+          const [assetAddedEvents, joinAddedEvents] = await Promise.all([
+            await Cauldron.queryFilter('AssetAdded' as any),
+            Ladle.queryFilter('JoinAdded' as any),
+          ]);
+
+          /* Create a map from the joinAdded event data */
+          const joinMap: Map<string, string> = new Map(
+            joinAddedEvents.map((log:any) => Ladle.interface.parseLog(log).args) as [[string, string]],
+          );
+
+          await Promise.all(assetAddedEvents.map(async (x:any) => {
+            const { assetId: id, asset: address } = Cauldron.interface.parseLog(x).args;
+            const ERC20 = contracts.ERC20__factory.connect(address, fallbackLibrary);
+            /* Add in any extra static asset Data */ // TODO is there any other fixed series data?
+            let displayName: String;
+            let symbol: String;
+            try {
+              [displayName, symbol] = await Promise.all([ERC20.name(), ERC20.symbol()]);
+            } catch (e) {
+              [displayName, symbol] = ['ETH', 'ETH']; // TODO get rid of this... weth9 should handle this capability
+            }
+            updateState({ type: 'addAsset',
+              payload: {
+                id,
+                address,
+                displayName,
+                symbol,
+                joinAddress: joinMap.get(id),
+              } });
+          }));
+        })(),
+
+        /* ... AT THE SAME TIME update the available seriesMap based on Cauldron events */
+        (async () => {
+          /* get both poolAdded events and series events at the same time */
+          const [seriesAddedEvents, poolAddedEvents] = await Promise.all([
+            Cauldron.queryFilter('SeriesAdded' as any),
+            Ladle.queryFilter('PoolAdded' as any),
+          ]);
+
+          /* create a map from the poolAdded event data */
+          const poolMap: Map<string, string> = new Map(
+            poolAddedEvents.map((log:any) => Ladle.interface.parseLog(log).args) as [[string, string]],
+          );
+
+          /* Add in any extra static series */
+          await Promise.all(
+            seriesAddedEvents.map(async (x:any) : Promise<void> => {
+              const { seriesId: id, baseId, fyToken } = Cauldron.interface.parseLog(x).args;
+              const { maturity } = await Cauldron.series(id);
+              updateState({
+                type: 'addSeries',
+                payload: {
+                  id,
+                  baseId,
+                  fyToken,
+                  maturity,
+                  displayName: nameFromMaturity(maturity),
+                  displayNameMobile: nameFromMaturity(maturity, 'MMM yyyy'),
+                  pool: poolMap.get(id) || '',
+                } });
+            }),
+          );
+        })(),
+
+      ])
+        .then(() => {
+          updateState({ type: 'chainLoading', payload: false });
+          console.log('ASSETS:', chainState.assetMap);
+          console.log('SERIES:', chainState.seriesMap);
+        });
     }
-  }, [fallbackChainId, chainState.assetMap, fallbackLibrary, chainState.seriesMap]);
+  }, [
+    fallbackChainId,
+    fallbackLibrary,
+    chainState.assetMap,
+    chainState.seriesMap,
+    chainState.contractMap,
+  ]);
 
   /**
-   * Update on PRIMARY connection network changes (likely via metamask/walletConnect)
+   * Once the series list updates, update the list with the associated joins > this needs to be seperate from above to
+   * allow for caching - and watching for any newly added assets
+   */
+  useEffect(() => {
+    chainState.seriesMap && console.log(chainState.seriesMap);
+  }, [chainState.seriesMap]);
+
+  /**
+   * Update on PRIMARY connection any network changes (likely via metamask/walletConnect)
    */
   useEffect(() => {
     console.log('Metamask/WalletConnect Active: ', active);
@@ -204,33 +258,43 @@ const ChainProvider = ({ children }: any) => {
     updateState({ type: 'provider', payload: library || null });
     updateState({ type: 'account', payload: account || null });
     updateState({ type: 'signer', payload: library?.getSigner(account!) || null });
+  }, [active, account, chainId, library]);
 
-    if (library && chainId) {
-      /* Get the instance of the Cauldron contract */
-      const addrs = (yieldEnv.addresses as any)[chainId];
-      const Cauldron = contracts.Cauldron__factory.connect(
-        addrs.Cauldron,
-        library.getSigner(),
-      );
-
-      updateState({ type: 'baseMap', payload: chainState.baseMap });
-      console.log(chainState.assetMap, chainState.seriesMap);
-      // console.log(library.getSigner());
-    }
-  }, [active, account, chainId, library, chainState.assetMap, chainState.seriesMap]);
-
-  /* Try connect automatically to an injected provider on first load */
-  const [tried, setTried] = useState<boolean>(false);
+  /*
+      Watch the chainId for changes (most likely instigated by metamask),
+      and change the FALLBACK provider accordingly.
+      NOTE: Currently, there is no way to change the fallback provider manually, but the last chainId is cached.
+  */
   useEffect(() => {
-    chainState.connectOnLoad && connectors.get('injected').isAuthorized().then((isAuthorized: boolean) => {
-      if (isAuthorized) {
-        activate(connectors.get('injected'), undefined, true).catch(() => {
-          setTried(true);
-        });
-      } else {
-        setTried(true);
-      }
-    });
+    const _chainId = chainId || lastChainId;
+    /* cache the change of networkId */
+    chainId && setLastChainId(chainId);
+    /* Connect the fallback */
+    tried && fallbackActivate(
+      new NetworkConnector({
+        urls: { 1: RPC_URLS[1], 42: RPC_URLS[42], 31337: RPC_URLS[31337] },
+        defaultChainId: _chainId,
+      }), (e:any) => console.log(e), true,
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chainId, fallbackActivate, lastChainId, tried]);
+
+  /**
+   * Try connect automatically to an injected provider on first load
+   * */
+  useEffect(() => {
+    chainState.connectOnLoad &&
+    connectors.get('injected')
+      .isAuthorized()
+      .then((isAuthorized: boolean) => {
+        if (isAuthorized) {
+          activate(connectors.get('injected'), undefined, true).catch(() => {
+            setTried(true);
+          });
+        } else {
+          setTried(true); // just move on do nothing nore
+        }
+      });
   }, [activate, chainState.connectOnLoad]);
   /* If web3 connected, wait until we get confirmation of that to flip the flag */
   useEffect(() => { if (!tried && active) { setTried(true); } }, [tried, active]);
@@ -243,7 +307,7 @@ const ChainProvider = ({ children }: any) => {
 
   const chainActions = {
     isConnected: (connection:string) => connectors.get(connection) === connector,
-    connect: (connection:string) => activate(connectors.get(connection)),
+    connect: (connection:string = 'injected') => activate(connectors.get(connection)),
     disconnect: () => connector && deactivate(),
   };
 

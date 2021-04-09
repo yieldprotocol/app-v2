@@ -274,31 +274,6 @@ const _abi = [
       {
         indexed: true,
         internalType: "bytes12",
-        name: "from",
-        type: "bytes12",
-      },
-      {
-        indexed: true,
-        internalType: "bytes12",
-        name: "to",
-        type: "bytes12",
-      },
-      {
-        indexed: false,
-        internalType: "uint128",
-        name: "ink",
-        type: "uint128",
-      },
-    ],
-    name: "VaultShaken",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "bytes12",
         name: "vaultId",
         type: "bytes12",
       },
@@ -325,6 +300,62 @@ const _abi = [
         internalType: "int128",
         name: "art",
         type: "int128",
+      },
+    ],
+    name: "VaultPoured",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes12",
+        name: "vaultId",
+        type: "bytes12",
+      },
+      {
+        indexed: true,
+        internalType: "bytes6",
+        name: "seriesId",
+        type: "bytes6",
+      },
+      {
+        indexed: false,
+        internalType: "uint128",
+        name: "art",
+        type: "uint128",
+      },
+    ],
+    name: "VaultRolled",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes12",
+        name: "from",
+        type: "bytes12",
+      },
+      {
+        indexed: true,
+        internalType: "bytes12",
+        name: "to",
+        type: "bytes12",
+      },
+      {
+        indexed: false,
+        internalType: "uint128",
+        name: "ink",
+        type: "uint128",
+      },
+      {
+        indexed: false,
+        internalType: "uint128",
+        name: "art",
+        type: "uint128",
       },
     ],
     name: "VaultStirred",
@@ -422,107 +453,12 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes12",
-        name: "vaultId",
-        type: "bytes12",
-      },
-    ],
-    name: "_grab",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes12",
-        name: "vaultId",
-        type: "bytes12",
-      },
-      {
-        internalType: "int128",
-        name: "ink",
-        type: "int128",
-      },
-      {
-        internalType: "int128",
-        name: "art",
-        type: "int128",
-      },
-    ],
-    name: "_slurp",
-    outputs: [
-      {
-        components: [
-          {
-            internalType: "uint128",
-            name: "art",
-            type: "uint128",
-          },
-          {
-            internalType: "uint128",
-            name: "ink",
-            type: "uint128",
-          },
-        ],
-        internalType: "struct DataTypes.Balances",
-        name: "balances_",
-        type: "tuple",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes12",
-        name: "vaultId",
-        type: "bytes12",
-      },
-      {
-        internalType: "int128",
-        name: "ink",
-        type: "int128",
-      },
-      {
-        internalType: "int128",
-        name: "art",
-        type: "int128",
-      },
-    ],
-    name: "_stir",
-    outputs: [
-      {
-        components: [
-          {
-            internalType: "uint128",
-            name: "art",
-            type: "uint128",
-          },
-          {
-            internalType: "uint128",
-            name: "ink",
-            type: "uint128",
-          },
-        ],
-        internalType: "struct DataTypes.Balances",
-        name: "balances_",
-        type: "tuple",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "bytes6",
         name: "assetId",
         type: "bytes6",
       },
       {
-        internalType: "contract IERC20",
+        internalType: "address",
         name: "asset",
         type: "address",
       },
@@ -584,7 +520,7 @@ const _abi = [
     name: "assets",
     outputs: [
       {
-        internalType: "contract IERC20",
+        internalType: "address",
         name: "",
         type: "address",
       },
@@ -619,6 +555,16 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "owner",
+        type: "address",
+      },
+      {
+        internalType: "bytes12",
+        name: "vaultId",
+        type: "bytes12",
+      },
+      {
         internalType: "bytes6",
         name: "seriesId",
         type: "bytes6",
@@ -632,9 +578,26 @@ const _abi = [
     name: "build",
     outputs: [
       {
-        internalType: "bytes12",
-        name: "vaultId",
-        type: "bytes12",
+        components: [
+          {
+            internalType: "address",
+            name: "owner",
+            type: "address",
+          },
+          {
+            internalType: "bytes6",
+            name: "seriesId",
+            type: "bytes6",
+          },
+          {
+            internalType: "bytes6",
+            name: "ilkId",
+            type: "bytes6",
+          },
+        ],
+        internalType: "struct DataTypes.Vault",
+        name: "vault",
+        type: "tuple",
       },
     ],
     stateMutability: "nonpayable",
@@ -710,11 +673,47 @@ const _abi = [
       },
       {
         internalType: "address",
-        name: "user",
+        name: "receiver",
         type: "address",
       },
     ],
     name: "give",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "address",
+            name: "owner",
+            type: "address",
+          },
+          {
+            internalType: "bytes6",
+            name: "seriesId",
+            type: "bytes6",
+          },
+          {
+            internalType: "bytes6",
+            name: "ilkId",
+            type: "bytes6",
+          },
+        ],
+        internalType: "struct DataTypes.Vault",
+        name: "vault",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes12",
+        name: "vaultId",
+        type: "bytes12",
+      },
+    ],
+    name: "grab",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -838,13 +837,41 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes6",
-        name: "seriesId",
-        type: "bytes6",
+        internalType: "bytes12",
+        name: "vaultId",
+        type: "bytes12",
+      },
+      {
+        internalType: "int128",
+        name: "ink",
+        type: "int128",
+      },
+      {
+        internalType: "int128",
+        name: "art",
+        type: "int128",
       },
     ],
-    name: "mature",
-    outputs: [],
+    name: "pour",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "uint128",
+            name: "art",
+            type: "uint128",
+          },
+          {
+            internalType: "uint128",
+            name: "ink",
+            type: "uint128",
+          },
+        ],
+        internalType: "struct DataTypes.Balances",
+        name: "balances_",
+        type: "tuple",
+      },
+    ],
     stateMutability: "nonpayable",
     type: "function",
   },
@@ -900,6 +927,35 @@ const _abi = [
     ],
     name: "revokeRole",
     outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes12",
+        name: "vaultId",
+        type: "bytes12",
+      },
+      {
+        internalType: "bytes6",
+        name: "seriesId",
+        type: "bytes6",
+      },
+      {
+        internalType: "int128",
+        name: "art",
+        type: "int128",
+      },
+    ],
+    name: "roll",
+    outputs: [
+      {
+        internalType: "uint128",
+        name: "",
+        type: "uint128",
+      },
+    ],
     stateMutability: "nonpayable",
     type: "function",
   },
@@ -1023,6 +1079,76 @@ const _abi = [
     inputs: [
       {
         internalType: "bytes12",
+        name: "vaultId",
+        type: "bytes12",
+      },
+      {
+        internalType: "uint128",
+        name: "ink",
+        type: "uint128",
+      },
+      {
+        internalType: "uint128",
+        name: "art",
+        type: "uint128",
+      },
+    ],
+    name: "slurp",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "uint128",
+            name: "art",
+            type: "uint128",
+          },
+          {
+            internalType: "uint128",
+            name: "ink",
+            type: "uint128",
+          },
+        ],
+        internalType: "struct DataTypes.Balances",
+        name: "balances_",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes6",
+        name: "",
+        type: "bytes6",
+      },
+      {
+        internalType: "bytes6",
+        name: "",
+        type: "bytes6",
+      },
+    ],
+    name: "spotOracles",
+    outputs: [
+      {
+        internalType: "contract IOracle",
+        name: "oracle",
+        type: "address",
+      },
+      {
+        internalType: "uint32",
+        name: "ratio",
+        type: "uint32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes12",
         name: "from",
         type: "bytes12",
       },
@@ -1036,8 +1162,13 @@ const _abi = [
         name: "ink",
         type: "uint128",
       },
+      {
+        internalType: "uint128",
+        name: "art",
+        type: "uint128",
+      },
     ],
-    name: "shake",
+    name: "stir",
     outputs: [
       {
         components: [
@@ -1080,35 +1211,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes6",
-        name: "",
-        type: "bytes6",
-      },
-      {
-        internalType: "bytes6",
-        name: "",
-        type: "bytes6",
-      },
-    ],
-    name: "spotOracles",
-    outputs: [
-      {
-        internalType: "contract IOracle",
-        name: "oracle",
-        type: "address",
-      },
-      {
-        internalType: "uint32",
-        name: "ratio",
-        type: "uint32",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "bytes12",
         name: "",
         type: "bytes12",
@@ -1144,7 +1246,30 @@ const _abi = [
       },
     ],
     name: "tweak",
-    outputs: [],
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "address",
+            name: "owner",
+            type: "address",
+          },
+          {
+            internalType: "bytes6",
+            name: "seriesId",
+            type: "bytes6",
+          },
+          {
+            internalType: "bytes6",
+            name: "ilkId",
+            type: "bytes6",
+          },
+        ],
+        internalType: "struct DataTypes.Vault",
+        name: "vault",
+        type: "tuple",
+      },
+    ],
     stateMutability: "nonpayable",
     type: "function",
   },

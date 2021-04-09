@@ -5,158 +5,34 @@
     "Witch"
   ],
 
-  "staticAssetData" : [
-    {
-      "id" : 1 ,
-      "symbol" : "DAI",
-      "address" : "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-      "name":"Dai"
-    },
-    {
-      "id" : 2 ,
-      "symbol" : "USDC",
-      "address" : "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-      "name":"USD Coin"
-    },
-    {
-      "id" : 3 ,
-      "symbol" : "DOGE",
-      "address" : "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-      "name":"DOGE Coin"
-    }
-  ],
-
-  "staticSeriesData" : [
-    {
-      "fyDaiAddress": "0x6B166d6325586c86B44f01509Fc64e649DCfE7C4",
-      "symbol": "fyDai20Dec31",
-      "maturity": 1609459199,
-      "poolAddress": "0x2b004AF29102Ab5f1ca977a45AF24A26eaa683Ca",
-      "displayName": "December 2020",
-      "displayNameMobile": "Dec 2020",
-      "apr": "3.2"
-    },
-    {
-      "fyDaiAddress": "0x42AA68930d4430E2416036966983E6c9Fe8Ff2f8",
-      "symbol": "fyDai21Mar31",
-      "maturity": 1617235199,
-      "poolAddress": "0x08cc239a994A10118CfdeEa9B849C9c674C093d3",
-      "displayName": "March 2021",
-      "displayNameMobile": "Mar 2021",
-      "apr": "2.12"
-    },
-    {
-      "fyDaiAddress": "0x2b67866649AFcEFC63870E02EdefC318fd8760D3",
-      "symbol": "fyDai21Jun30",
-      "maturity": 1625097599,
-      "poolAddress": "0xe10dEe848fD3Cf7eAC7Da5c59a5060d99Efd93BA",
-      "displayName": "June 2021",
-      "displayNameMobile": "Jun 2021",
-      "apr": "3.23"
-    },
-    {
-      "fyDaiAddress": "0x02B06417A3e3CB391970C6074AbcF2745a60b880",
-      "symbol": "fyDai21Sep30",
-      "maturity": 1633046399,
-      "poolAddress": "0x06e9493BfA938a5630b6Eee116eD01A31Ec7dDA7",
-      "displayName": "September 2021",
-      "displayNameMobile": "Sep 2021",
-      "apr": "4.34"
-    },
-    {
-      "fyDaiAddress": "0x6Abb65246346b2A52Faed338cB18880e70A57Cf8",
-      "symbol": "fyDai21Dec31",
-      "maturity": 1640995199,
-      "poolAddress": "0xBa51e4Df86333D53Df3c734D12038722EA9Bf559",
-      "displayName": "December 2021",
-      "displayNameMobile": "Dec 2021",
-      "apr": "5.45"
-    }
-  ],
-
   "addresses" : { 
-    "1": {
-        "Chai" :          "0x06AF07097C9Eeb7fD685c692751D5C66dB49c215",
-        "Controller" :    "0xB94199866Fe06B535d019C11247D3f921460b91A",
-        "Dai" :           "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-        "DaiJoin" :       "0x9759A6Ac90977b93B58547b4A71c78317f391A28",
-        "End" :           "0xaB14d3CE3F733CACB76eC2AbE7d2fcb00c99F3d5",
-        "fyDai20Dec" :    "0xF2C9c61487D796032cdb9d57f770121218AC5F91",
-        "fyDai20Oct" :    "0x92c25C17C0C908E52b16627F353F1004543f8A32",
-        "fyDai21Dec" :    "0x9D7e85d095934471a2788F485A3c765d0A463bD7",
-        "fyDai21Jun" :    "0xe523442a6c083016E2F430ab0780250ef4438536",
-        "fyDai21Mar" :    "0x3DeCA9aF98F59eD5125D1F697aBAd2aF45036332",
-        "fyDai21Sep" :    "0x269A30E0fD5231438017dC0438f818A80dC4464B",
-        "fyDaiLP20Dec" :  "0xF7dB19E0373937A13e4b12287B1C121Dfb2d9BF8",
-        "fyDaiLP20Oct" :  "0x6feb7B2a023C9Bc3ccCdF7c5B5a7b929B9a65E04",
-        "fyDaiLP21Dec" :  "0x5591f644B377eD784e558D4BE1bbA78f5a26bdCd",
-        "fyDaiLP21Jun" :  "0x250f8d88173E0D9b692A9742f54e87E01A9FA54E",
-        "fyDaiLP21Mar" :  "0xb39221E6790Ae8360B7E8C1c7221900fad9397f9",
-        "fyDaiLP21Sep" :  "0x8EcC94a91b5CF03927f5eb8c60ABbDf48F82b0b3",
-        "Liquidations" :  "0x357B7E1Bd44f5e48b988a61eE38Bfe9a76983E33",
-        "Migrations" :    "0xd110Cfe9f35c5fDfB069606842744577577f50e5",
-        "Pot" :           "0x197E90f9FAD81970bA7976f33CbD77088E5D7cf7",
-        "Treasury" :      "0xFa21DE6f225c25b8F13264f1bFF5e1e44a37F96E",
-        "Unwind" :        "0x9876BeF59F1d98E5376B5733583bF840490f5558",
-        "Vat" :           "0x35D1b3F3D7966A1DFe207aa4514C12a259A0492B",
-        "Version" :       "4ee6d9756b027e9d378b2b35ad56ddc9fec2c163",
-        "Weth" :          "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-        "WethJoin" :      "0x2F0b23f53734252Bda2277357e97e1517d6B042A",
-        "ProxyFactory":   "0xA26e15C895EFc0616177B7c1e7270A4C7D51C997",
-        "ProxyRegistry":  "0x4678f0a6958e4D2Bc4F1BAF7Bc52E8F3564f3fE4",
-        "BorrowProxy":    "0xf30B142F50E2b59c4C7ca15eB2bd8427907B7Dca",
-        "PoolProxy":      "0x07cA8D4db0c7462C03cbCaA61bb2712ABC1d5b6D",
-        "GetCdps":        "0x36a724Bd100c39f0Ea4D3A20F7097eE01A8Ff573",
-        "DssCdpManager":  "0x5ef30b9986345249bc32d8928B7ee64DE9435E39",
-        "ImportProxy":    "0x419f8A3Eae18ecFFd956cDa0782610a749e567c8",
-        "ImportCdpProxy": "0xE09E6F95863fAd23488076096F8E5E36657C00dA",
-        "RollProxy":      "0x9FF558d66Fa807aF34Fc89daA203B96c8587584e",
-        "DssPsm":         "0x89B78CfA322F6C5dE0aBcEecab66Aee45393cC5A",
-        "USDC":           "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-        "USDCProxy":      "0x4E9f6d99E627FF97C7e315AC35Ca45c38062C778"       
-    },
-
-    "42": {
-        "Migrations":     "0x27e192eCE7C5CB006Bf4BB1F18387fC9A5a16059",
-        "Vat":            "0xbA987bDB501d131f766fEe8180Da5d81b34b69d9",
-        "Weth":           "0xd0A1E359811322d97991E03f863a0C30C2cF029C",
-        "WethJoin":       "0x775787933e92b709f2a3C70aa87999696e74A9F8",
-        "Dai":            "0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa",
-        "DaiJoin":        "0x5AA71a3ae1C0bd6ac27A1f28e1415fFFB6F15B8c",
-        "Pot":            "0xEA190DBDC7adF265260ec4dA6e9675Fd4f5A78bb",
-        "End":            "0x24728AcF2E2C403F5d2db4Df6834B8998e56aA5F",
-        "Chai":           "0x623f148dabd40dd221807c5e98235bc40e54a106",
-        "Treasury":       "0xcEDb23F6df222E16bBB6070bB4E27A90493e63DB",
-        "fyDai20Dec31":   "0x6B166d6325586c86B44f01509Fc64e649DCfE7C4",
-        "fyDai21Mar31":   "0x42AA68930d4430E2416036966983E6c9Fe8Ff2f8",
-        "fyDai21Jun30":   "0x2b67866649AFcEFC63870E02EdefC318fd8760D3",
-        "fyDai21Sep30":   "0x02B06417A3e3CB391970C6074AbcF2745a60b880",
-        "fyDai21Dec31":   "0x6Abb65246346b2A52Faed338cB18880e70A57Cf8",
-        "Controller":     "0xFCDF6d4de26C53115610D9FBdaFD93CBDb843Ea2",
-        "Unwind":         "0xD8ADbda80801278Bd1Bf8C1107DDF035f81a8F64",
-        "Liquidations":   "0x6E254e9130D4593561161DcFD0Ea7969C096AEfA",
-        "fyDaiLP20Dec31": "0x2b004AF29102Ab5f1ca977a45AF24A26eaa683Ca",
-        "fyDaiLP21Mar31": "0x08cc239a994A10118CfdeEa9B849C9c674C093d3",
-        "fyDaiLP21Jun30": "0xe10dEe848fD3Cf7eAC7Da5c59a5060d99Efd93BA",
-        "fyDaiLP21Sep30": "0x06e9493BfA938a5630b6Eee116eD01A31Ec7dDA7",
-        "fyDaiLP21Dec31": "0xBa51e4Df86333D53Df3c734D12038722EA9Bf559",  
-        "BorrowProxy":    "0xcaA9e150Ab7f26Dad0A0c7aE139C15F4E0f58103",
-        "PoolProxy":      "0x4A38D30F0d451213C51a332773858712cA1dD6E6",
-        "ImportProxy":    "0xe713DA979FaE7470b5216Dca0b287a02BBfe8184",
-        "ImportCdpProxy": "0xA5286e1Cb19Bd62a3369f641C8c3F1e2dEa1089d",
-        "GetCdps":        "0x592301a23d37c591C5856f28726AF820AF8e7014",
-        "DssCdpManager":  "0x1476483dD8C35F25e568113C5f70249D3976ba21",
-        "ProxyFactory":   "0xe11E3b391F7E8bC47247866aF32AF67Dd58Dc800",
-        "ProxyRegistry":  "0x64A436ae831C1672AE81F674CAb8B6775df3475C",
-        "RollProxy":      "0xdB2ed810347f0BE4b88c64787fcA8325C57C0d76",
-        "USDC":           "0xF47e7B0b911523aB30D282Cfa229373a964e1Bb7",
-        "USDCProxy":      "0xA5ABf416e95bb34c11C6F5348951239689fE909e",
-        "DssPsm":         "0x5414e1ACBe734a4a71901e35Edb5eF8Dd06e56c2"
+    "1" : {
+      "Cauldron": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
+      "Ladle" : "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
+      "Witch" : "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318"
     },
     "31337" : {
       "Cauldron": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
       "Ladle" : "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
       "Witch" : "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318"
     }
-  }
+  },
+
+  "staticAssetData" : [
+    {
+      "id" : 1 ,
+      "displayName":"Dai",
+      "image": "s"
+    },
+    {
+      "id" : 2 ,
+      "displayName":"USD Coin",
+      "image": "s"
+    },
+    {
+      "id" : 3 ,
+      "displayName":"DOGE Coin",
+      "image": "s"
+    }
+  ]
 }

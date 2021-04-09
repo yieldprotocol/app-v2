@@ -30,9 +30,9 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "uint32",
+        internalType: "uint256",
         name: "maturity_",
-        type: "uint32",
+        type: "uint256",
       },
       {
         internalType: "string",
@@ -299,6 +299,19 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "asset",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "address",
@@ -523,9 +536,9 @@ const _abi = [
     name: "maturity",
     outputs: [
       {
-        internalType: "uint32",
+        internalType: "uint256",
         name: "",
-        type: "uint32",
+        type: "uint256",
       },
     ],
     stateMutability: "view",
@@ -664,17 +677,17 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "uint128",
+        internalType: "uint256",
         name: "amount",
-        type: "uint128",
+        type: "uint256",
       },
     ],
     name: "redeem",
     outputs: [
       {
-        internalType: "uint128",
+        internalType: "uint256",
         name: "",
-        type: "uint128",
+        type: "uint256",
       },
     ],
     stateMutability: "nonpayable",

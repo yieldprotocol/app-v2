@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { HashRouter as Router } from 'react-router-dom';
 import { ethers } from 'ethers';
 import { createWeb3ReactRoot, Web3ReactProvider } from '@web3-react/core';
 
@@ -12,7 +12,8 @@ import { yieldTheme } from './themes';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { ChainProvider } from './contexts/ChainContext';
-import { VaultProvider } from './contexts/VaultContext';
+import { TxProvider } from './contexts/TxContext';
+import { UserProvider } from './contexts/UserContext';
 
 /* Init the signing web3 environment */
 function getLibrary(provider: ethers.providers.ExternalProvider, connector: any) {
@@ -41,11 +42,13 @@ ReactDOM.render(
       <Web3FallbackProvider getLibrary={getCallLibrary}>
         <Web3ReactProvider getLibrary={getLibrary}>
           <ChainProvider>
-            <VaultProvider>
-              <Grommet theme={deepMerge(base, yieldTheme)} full>
-                <App />
-              </Grommet>
-            </VaultProvider>
+            <UserProvider>
+              <TxProvider>
+                <Grommet theme={deepMerge(base, yieldTheme)} full>
+                  <App />
+                </Grommet>
+              </TxProvider>
+            </UserProvider>
           </ChainProvider>
         </Web3ReactProvider>
       </Web3FallbackProvider>

@@ -19,7 +19,7 @@ const Lend = () => {
 
       <SectionWrap title="1. Asset to Lend" subtitle="Choose an asset and period to lend for">
         <Box direction="row" gap="small" fill="horizontal">
-          <InputWrap basis="65%" action={() => console.log('maxAction')}>
+          <InputWrap action={() => console.log('maxAction')}>
             <TextInput
               plain
               type="number"
@@ -34,7 +34,7 @@ const Lend = () => {
               </Box>
             }
           </InputWrap>
-          <Box basis="35%">
+          <Box basis={mobile ? '50%' : '35%'}>
             <AssetSelector />
           </Box>
         </Box>
