@@ -99,7 +99,7 @@ const UserProvider = ({ children }:any) => {
 
       console.log('VAULTS: ', newVaultMap);
       updateState({ type: 'vaultMap', payload: newVaultMap });
-      updateState({ type: 'activeVault', payload: newVaultMap.get(_combined[0]?.id) });
+      // updateState({ type: 'activeVault', payload: newVaultMap.get(_combined[0]?.id) });
 
       /* Update the local cache storage */
       // setCachedVaults({ data: Array.from(newVaultMap.values()), lastBlock: await fallbackProvider.getBlockNumber() });

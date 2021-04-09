@@ -35,12 +35,15 @@ export const useActions = () => {
     vault: IYieldVault|null = null,
     // autoSell: boolean = true,
   ) => {
-    /* Get a random vault number ready if reqd. */
-    const randVault = ethers.utils.hexlify(ethers.utils.randomBytes(12));
-    /* generate the reproducible txCode for tx tracking and tracing */
-    const txCode = getTxCode('010_', vault?.id || randVault);
+    /* use the vault id provided OR Get a random vault number ready if reqd. */
+    const _vault = vault?.id || ethers.utils.hexlify(ethers.utils.randomBytes(12));
+    const _series = vault ? vault.series : selectedSeries;
+    const _base = vault ? vault.base : selectedBase;
 
-    /* parse/clean inputs */
+    /* generate the reproducible txCode for tx tracking and tracing */
+    const txCode = getTxCode('010_', _vault);
+
+    /* parse inputs */
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
     const _collInput = collInput ? ethers.utils.parseEther(collInput) : ethers.constants.Zero;
 
@@ -54,13 +57,13 @@ export const useActions = () => {
       },
       /* BELOW are EXAMPLES for future */
       {
-        assetOrSeriesId: selectedBase.id,
+        assetOrSeriesId: _base.id,
         type: SignType.DAI,
         fallbackCall: { fn: 'approve', args: [], ignore: false },
         ignore: true,
       },
       {
-        assetOrSeriesId: selectedSeries.id,
+        assetOrSeriesId: _series.id,
         type: SignType.FYTOKEN,
         fallbackCall: { fn: 'approve', args: [], ignore: false },
         ignore: true,
@@ -74,16 +77,16 @@ export const useActions = () => {
       /* Include all the signatures gathered, if required  */
       ...permits,
       /* If vault is null, build a new vault, else ignore */
-      ..._buildVault(randVault, !!vault),
+      ..._buildVault(_vault, !!vault),
       /* Then add all the ladle CALLS you want to make: */
       {
         fn: 'pour',
-        args: [(vault?.id || randVault), account, _collInput, ethers.constants.Zero],
+        args: [_vault, account, _collInput, ethers.constants.Zero],
         ignore: false,
       },
       {
         fn: 'serve',
-        args: [(vault?.id || randVault), account, ethers.constants.Zero, _input, MAX_128],
+        args: [_vault, account, ethers.constants.Zero, _input, MAX_128],
         ignore: false,
       },
     ];
@@ -116,20 +119,8 @@ export const useActions = () => {
       /* Include all the signatures gathered, if required  */
       ...permits,
       /* Then add all the ladle CALLS you want to make: */
-      {
-        fn: 'pour',
-        args: [vault.id, account, _input.mul(BigNumber.from('1')), _input.mul(BigNumber.from('-1'))],
-        ignore: false,
-      },
-      // /* immediatly release collateral, if required pour to weth, then exit */
-      // { fn: 'pour',
-      //   args: [vault.id, ladle.address, _input.div(BigNumber.from('-2')), ethers.constants.Zero],
-      //   ignore: false,
-      // },
-      // { fn: 'exitEther',
-      //   args: [account],
-      //   ignore: true,
-      // },
+
+      /* requires a token transfer to the pool from ladle */
 
       /* ladle.repay(vaultId, owner, inkRetrieved, 0) */
       { fn: 'repay',
@@ -147,5 +138,15 @@ export const useActions = () => {
     transact(ladle, calls, txCode);
   };
 
-  return { borrow, repay };
+  const buySell = async () => {
+    /* generate the reproducible txCode for tx tracking and tracing */
+    // const txCode = getTxCode('020_', vault.series.id);
+  };
+
+  const addRemoveLiquidity = async () => {
+    /* generate the reproducible txCode for tx tracking and tracing */
+    // const txCode = getTxCode('020_', vault.series.id);
+  };
+
+  return { borrow, repay, buySell, addRemoveLiquidity };
 };
