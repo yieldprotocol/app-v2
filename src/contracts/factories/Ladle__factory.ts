@@ -174,74 +174,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes12",
-        name: "vaultId",
-        type: "bytes12",
-      },
-      {
-        components: [
-          {
-            internalType: "address",
-            name: "owner",
-            type: "address",
-          },
-          {
-            internalType: "bytes6",
-            name: "seriesId",
-            type: "bytes6",
-          },
-          {
-            internalType: "bytes6",
-            name: "ilkId",
-            type: "bytes6",
-          },
-        ],
-        internalType: "struct DataTypes.Vault",
-        name: "vault",
-        type: "tuple",
-      },
-      {
-        internalType: "address",
-        name: "to",
-        type: "address",
-      },
-      {
-        internalType: "int128",
-        name: "ink",
-        type: "int128",
-      },
-      {
-        internalType: "int128",
-        name: "art",
-        type: "int128",
-      },
-    ],
-    name: "_pour",
-    outputs: [
-      {
-        components: [
-          {
-            internalType: "uint128",
-            name: "art",
-            type: "uint128",
-          },
-          {
-            internalType: "uint128",
-            name: "ink",
-            type: "uint128",
-          },
-        ],
-        internalType: "struct DataTypes.Balances",
-        name: "balances",
-        type: "tuple",
-      },
-    ],
-    stateMutability: "payable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "bytes6",
         name: "assetId",
         type: "bytes6",
@@ -822,6 +754,35 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes6",
+        name: "seriesId",
+        type: "bytes6",
+      },
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "wad",
+        type: "uint256",
+      },
+    ],
+    name: "redeem",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes4",
         name: "role",
         type: "bytes4",
@@ -933,6 +894,35 @@ const _abi = [
       {
         internalType: "uint128",
         name: "base",
+        type: "uint128",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes6",
+        name: "seriesId",
+        type: "bytes6",
+      },
+      {
+        internalType: "bool",
+        name: "base",
+        type: "bool",
+      },
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+    ],
+    name: "retrieveFromPool",
+    outputs: [
+      {
+        internalType: "uint128",
+        name: "retrieved",
         type: "uint128",
       },
     ],
@@ -1185,6 +1175,47 @@ const _abi = [
         type: "tuple",
       },
     ],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes6",
+        name: "seriesId",
+        type: "bytes6",
+      },
+      {
+        internalType: "uint256",
+        name: "wad",
+        type: "uint256",
+      },
+    ],
+    name: "transferToFYToken",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes6",
+        name: "seriesId",
+        type: "bytes6",
+      },
+      {
+        internalType: "bool",
+        name: "base",
+        type: "bool",
+      },
+      {
+        internalType: "uint128",
+        name: "wad",
+        type: "uint128",
+      },
+    ],
+    name: "transferToPool",
+    outputs: [],
     stateMutability: "payable",
     type: "function",
   },

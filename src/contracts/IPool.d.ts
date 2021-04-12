@@ -25,7 +25,8 @@ interface IPoolInterface extends ethers.utils.Interface {
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "baseToken()": FunctionFragment;
-    "burn(address,uint256)": FunctionFragment;
+    "burn(address,uint256,uint256)": FunctionFragment;
+    "burnForBaseToken(address,uint256,uint256)": FunctionFragment;
     "buyBaseToken(address,uint128,uint128)": FunctionFragment;
     "buyBaseTokenPreview(uint128)": FunctionFragment;
     "buyFYToken(address,uint128,uint128)": FunctionFragment;
@@ -35,6 +36,7 @@ interface IPoolInterface extends ethers.utils.Interface {
     "getFYTokenReserves()": FunctionFragment;
     "maturity()": FunctionFragment;
     "mint(address,uint256)": FunctionFragment;
+    "mintWithBaseToken(address,uint256,uint256)": FunctionFragment;
     "nonces(address)": FunctionFragment;
     "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)": FunctionFragment;
     "retrieveBaseToken(address)": FunctionFragment;
@@ -60,7 +62,11 @@ interface IPoolInterface extends ethers.utils.Interface {
   encodeFunctionData(functionFragment: "baseToken", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "burn",
-    values: [string, BigNumberish]
+    values: [string, BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "burnForBaseToken",
+    values: [string, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "buyBaseToken",
@@ -91,6 +97,10 @@ interface IPoolInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "mint",
     values: [string, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "mintWithBaseToken",
+    values: [string, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "nonces", values: [string]): string;
   encodeFunctionData(
@@ -148,6 +158,10 @@ interface IPoolInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "baseToken", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "burn", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "burnForBaseToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "buyBaseToken",
     data: BytesLike
   ): Result;
@@ -171,6 +185,10 @@ interface IPoolInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "maturity", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "mintWithBaseToken",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "nonces", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "permit", data: BytesLike): Result;
   decodeFunctionResult(
@@ -297,13 +315,29 @@ export class IPool extends Contract {
 
     burn(
       to: string,
-      tokensBurned: BigNumberish,
+      minBaseTokenOut: BigNumberish,
+      minFYTokenOut: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "burn(address,uint256)"(
+    "burn(address,uint256,uint256)"(
       to: string,
-      tokensBurned: BigNumberish,
+      minBaseTokenOut: BigNumberish,
+      minFYTokenOut: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    burnForBaseToken(
+      to: string,
+      minBaseTokenOut: BigNumberish,
+      minFYTokenOut: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "burnForBaseToken(address,uint256,uint256)"(
+      to: string,
+      minBaseTokenOut: BigNumberish,
+      minFYTokenOut: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -373,13 +407,27 @@ export class IPool extends Contract {
 
     mint(
       to: string,
-      tokenOffered: BigNumberish,
+      minTokensMinted: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "mint(address,uint256)"(
       to: string,
-      tokenOffered: BigNumberish,
+      minTokensMinted: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    mintWithBaseToken(
+      to: string,
+      fyTokenToBuy: BigNumberish,
+      minTokensMinted: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "mintWithBaseToken(address,uint256,uint256)"(
+      to: string,
+      fyTokenToBuy: BigNumberish,
+      minTokensMinted: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -544,13 +592,29 @@ export class IPool extends Contract {
 
   burn(
     to: string,
-    tokensBurned: BigNumberish,
+    minBaseTokenOut: BigNumberish,
+    minFYTokenOut: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "burn(address,uint256)"(
+  "burn(address,uint256,uint256)"(
     to: string,
-    tokensBurned: BigNumberish,
+    minBaseTokenOut: BigNumberish,
+    minFYTokenOut: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  burnForBaseToken(
+    to: string,
+    minBaseTokenOut: BigNumberish,
+    minFYTokenOut: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "burnForBaseToken(address,uint256,uint256)"(
+    to: string,
+    minBaseTokenOut: BigNumberish,
+    minFYTokenOut: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -620,13 +684,27 @@ export class IPool extends Contract {
 
   mint(
     to: string,
-    tokenOffered: BigNumberish,
+    minTokensMinted: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "mint(address,uint256)"(
     to: string,
-    tokenOffered: BigNumberish,
+    minTokensMinted: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  mintWithBaseToken(
+    to: string,
+    fyTokenToBuy: BigNumberish,
+    minTokensMinted: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "mintWithBaseToken(address,uint256,uint256)"(
+    to: string,
+    fyTokenToBuy: BigNumberish,
+    minTokensMinted: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -791,15 +869,31 @@ export class IPool extends Contract {
 
     burn(
       to: string,
-      tokensBurned: BigNumberish,
+      minBaseTokenOut: BigNumberish,
+      minFYTokenOut: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber]>;
+    ): Promise<[BigNumber, BigNumber, BigNumber]>;
 
-    "burn(address,uint256)"(
+    "burn(address,uint256,uint256)"(
       to: string,
-      tokensBurned: BigNumberish,
+      minBaseTokenOut: BigNumberish,
+      minFYTokenOut: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber]>;
+    ): Promise<[BigNumber, BigNumber, BigNumber]>;
+
+    burnForBaseToken(
+      to: string,
+      minBaseTokenOut: BigNumberish,
+      minFYTokenOut: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber, BigNumber, BigNumber]>;
+
+    "burnForBaseToken(address,uint256,uint256)"(
+      to: string,
+      minBaseTokenOut: BigNumberish,
+      minFYTokenOut: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber, BigNumber, BigNumber]>;
 
     buyBaseToken(
       to: string,
@@ -867,15 +961,29 @@ export class IPool extends Contract {
 
     mint(
       to: string,
-      tokenOffered: BigNumberish,
+      minTokensMinted: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    ): Promise<[BigNumber, BigNumber, BigNumber]>;
 
     "mint(address,uint256)"(
       to: string,
-      tokenOffered: BigNumberish,
+      minTokensMinted: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    ): Promise<[BigNumber, BigNumber, BigNumber]>;
+
+    mintWithBaseToken(
+      to: string,
+      fyTokenToBuy: BigNumberish,
+      minTokensMinted: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber, BigNumber, BigNumber]>;
+
+    "mintWithBaseToken(address,uint256,uint256)"(
+      to: string,
+      fyTokenToBuy: BigNumberish,
+      minTokensMinted: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber, BigNumber, BigNumber]>;
 
     nonces(owner: string, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1056,13 +1164,29 @@ export class IPool extends Contract {
 
     burn(
       to: string,
-      tokensBurned: BigNumberish,
+      minBaseTokenOut: BigNumberish,
+      minFYTokenOut: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "burn(address,uint256)"(
+    "burn(address,uint256,uint256)"(
       to: string,
-      tokensBurned: BigNumberish,
+      minBaseTokenOut: BigNumberish,
+      minFYTokenOut: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    burnForBaseToken(
+      to: string,
+      minBaseTokenOut: BigNumberish,
+      minFYTokenOut: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "burnForBaseToken(address,uint256,uint256)"(
+      to: string,
+      minBaseTokenOut: BigNumberish,
+      minFYTokenOut: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1132,13 +1256,27 @@ export class IPool extends Contract {
 
     mint(
       to: string,
-      tokenOffered: BigNumberish,
+      minTokensMinted: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "mint(address,uint256)"(
       to: string,
-      tokenOffered: BigNumberish,
+      minTokensMinted: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    mintWithBaseToken(
+      to: string,
+      fyTokenToBuy: BigNumberish,
+      minTokensMinted: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "mintWithBaseToken(address,uint256,uint256)"(
+      to: string,
+      fyTokenToBuy: BigNumberish,
+      minTokensMinted: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1307,13 +1445,29 @@ export class IPool extends Contract {
 
     burn(
       to: string,
-      tokensBurned: BigNumberish,
+      minBaseTokenOut: BigNumberish,
+      minFYTokenOut: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "burn(address,uint256)"(
+    "burn(address,uint256,uint256)"(
       to: string,
-      tokensBurned: BigNumberish,
+      minBaseTokenOut: BigNumberish,
+      minFYTokenOut: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    burnForBaseToken(
+      to: string,
+      minBaseTokenOut: BigNumberish,
+      minFYTokenOut: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "burnForBaseToken(address,uint256,uint256)"(
+      to: string,
+      minBaseTokenOut: BigNumberish,
+      minFYTokenOut: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1391,13 +1545,27 @@ export class IPool extends Contract {
 
     mint(
       to: string,
-      tokenOffered: BigNumberish,
+      minTokensMinted: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "mint(address,uint256)"(
       to: string,
-      tokenOffered: BigNumberish,
+      minTokensMinted: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    mintWithBaseToken(
+      to: string,
+      fyTokenToBuy: BigNumberish,
+      minTokensMinted: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "mintWithBaseToken(address,uint256,uint256)"(
+      to: string,
+      fyTokenToBuy: BigNumberish,
+      minTokensMinted: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
