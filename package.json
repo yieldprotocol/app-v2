@@ -31,7 +31,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "analyze": "source-map-explorer 'build/static/js/*.js'",
-    "type-contracts": "typechain --target=ethers-v5 './src/contracts/abis/*.json' --outDir './src/contracts'"
+    "type-contracts": "typechain --target=ethers-v5 './src/contracts/abis/*.json' --outDir './src/contracts/'"
   },
   "eslintConfig": {
     "extends": [
@@ -62,6 +62,9 @@
     "@types/styled-components": "^5.1.7",
     "@typescript-eslint/eslint-plugin": "^4.16.1",
     "@typescript-eslint/parser": "^4.16.1",
+    "@yield-protocol/utils-v2": "^2.0.2",
+    "@yield-protocol/vault-interfaces": "^2.0.14",
+    "@yield-protocol/yieldspace-interfaces": "^2.0.10",
     "eslint": "^7.21.0",
     "eslint-config-airbnb-typescript": "^12.3.1",
     "eslint-config-react-app": "^6.0.0",
@@ -72,6 +75,7 @@
     "eslint-plugin-react-hooks": "^4.2.0",
     "react-test-renderer": "^17.0.1",
     "source-map-explorer": "^2.5.2",
+    "ts-node": "^9.1.1",
     "typechain": "^4.0.3",
     "typescript": "^4.2.2"
   }

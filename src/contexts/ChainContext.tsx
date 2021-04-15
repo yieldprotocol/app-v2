@@ -68,7 +68,6 @@ const initState = {
   contractMap: new Map<string, ContractFactory>(),
   assetMap: new Map<string, IYieldAsset>(),
   seriesMap: new Map<string, IYieldSeries>(),
-
 };
 
 function chainReducer(state: any, action: any) {
@@ -156,7 +155,6 @@ const ChainProvider = ({ children }: any) => {
 
       /* Update the 'dynamic' contracts (series and assets) */
       Promise.all([
-
         /* Update the available assetsMap based on Cauldron events */
         (async () => {
           /* get both poolAdded events and series events at the same time */
@@ -174,13 +172,15 @@ const ChainProvider = ({ children }: any) => {
             const { assetId: id, asset: address } = Cauldron.interface.parseLog(x).args;
             const ERC20 = contracts.ERC20__factory.connect(address, fallbackLibrary);
             /* Add in any extra static asset Data */ // TODO is there any other fixed series data?
-            let displayName: String;
-            let symbol: String;
-            try {
-              [displayName, symbol] = await Promise.all([ERC20.name(), ERC20.symbol()]);
-            } catch (e) {
-              [displayName, symbol] = ['ETH', 'ETH']; // TODO get rid of this... weth9 should handle this capability
-            }
+
+            const [displayName, symbol] = await Promise.all([ERC20.name(), ERC20.symbol()]);
+
+            // let displayName: String;
+            // let symbol: String;
+            // try {
+            // } catch (e) {
+            //   [displayName, symbol] = ['ETH', 'ETH']; // TODO get rid of this... weth9 should handle this capability
+            // }
             updateState({ type: 'addAsset',
               payload: {
                 id,
@@ -188,6 +188,9 @@ const ChainProvider = ({ children }: any) => {
                 displayName,
                 symbol,
                 joinAddress: joinMap.get(id),
+                /* baked in token fns */
+                balance: async () => account && await ERC20.balanceOf(account),
+                allowance: async (spender:string) => account && await ERC20.allowance(account, spender),
               } });
           }));
         })(),
@@ -200,16 +203,18 @@ const ChainProvider = ({ children }: any) => {
             Ladle.queryFilter('PoolAdded' as any),
           ]);
 
-          /* create a map from the poolAdded event data */
+          /* build a map from the poolAdded event data */
           const poolMap: Map<string, string> = new Map(
             poolAddedEvents.map((log:any) => Ladle.interface.parseLog(log).args) as [[string, string]],
+
           );
 
           /* Add in any extra static series */
-          await Promise.all(
-            seriesAddedEvents.map(async (x:any) : Promise<void> => {
+          await Promise.all([
+            ...seriesAddedEvents.map(async (x:any) : Promise<void> => {
               const { seriesId: id, baseId, fyToken } = Cauldron.interface.parseLog(x).args;
               const { maturity } = await Cauldron.series(id);
+              const poolAddr = poolMap.get(id);
               updateState({
                 type: 'addSeries',
                 payload: {
@@ -219,12 +224,11 @@ const ChainProvider = ({ children }: any) => {
                   maturity,
                   displayName: nameFromMaturity(maturity),
                   displayNameMobile: nameFromMaturity(maturity, 'MMM yyyy'),
-                  pool: poolMap.get(id) || '',
+                  poolAddress: poolAddr,
                 } });
             }),
-          );
+          ]);
         })(),
-
       ])
         .then(() => {
           updateState({ type: 'chainLoading', payload: false });

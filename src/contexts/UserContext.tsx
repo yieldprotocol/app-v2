@@ -16,7 +16,7 @@ const initState = {
   activeVault: null as IYieldVault|null,
   activeAccount: null as string|null,
 
-  /* user selections */
+  /* User selections */
   selectedSeries: null as IYieldSeries|null,
   selectedIlk: null as IYieldAsset|null,
   selectedBase: null as IYieldAsset|null,

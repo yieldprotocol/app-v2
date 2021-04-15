@@ -551,14 +551,14 @@ export class Cauldron extends Contract {
 
     roll(
       vaultId: BytesLike,
-      seriesId: BytesLike,
+      newSeriesId: BytesLike,
       art: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "roll(bytes12,bytes6,int128)"(
       vaultId: BytesLike,
-      seriesId: BytesLike,
+      newSeriesId: BytesLike,
       art: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -964,14 +964,14 @@ export class Cauldron extends Contract {
 
   roll(
     vaultId: BytesLike,
-    seriesId: BytesLike,
+    newSeriesId: BytesLike,
     art: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "roll(bytes12,bytes6,int128)"(
     vaultId: BytesLike,
-    seriesId: BytesLike,
+    newSeriesId: BytesLike,
     art: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -1395,14 +1395,14 @@ export class Cauldron extends Contract {
 
     roll(
       vaultId: BytesLike,
-      seriesId: BytesLike,
+      newSeriesId: BytesLike,
       art: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     "roll(bytes12,bytes6,int128)"(
       vaultId: BytesLike,
-      seriesId: BytesLike,
+      newSeriesId: BytesLike,
       art: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -1980,14 +1980,14 @@ export class Cauldron extends Contract {
 
     roll(
       vaultId: BytesLike,
-      seriesId: BytesLike,
+      newSeriesId: BytesLike,
       art: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "roll(bytes12,bytes6,int128)"(
       vaultId: BytesLike,
-      seriesId: BytesLike,
+      newSeriesId: BytesLike,
       art: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -2379,14 +2379,14 @@ export class Cauldron extends Contract {
 
     roll(
       vaultId: BytesLike,
-      seriesId: BytesLike,
+      newSeriesId: BytesLike,
       art: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "roll(bytes12,bytes6,int128)"(
       vaultId: BytesLike,
-      seriesId: BytesLike,
+      newSeriesId: BytesLike,
       art: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;

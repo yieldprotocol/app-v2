@@ -939,7 +939,7 @@ const _abi = [
       },
       {
         internalType: "bytes6",
-        name: "seriesId",
+        name: "newSeriesId",
         type: "bytes6",
       },
       {
