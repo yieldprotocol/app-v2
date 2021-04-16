@@ -6,7 +6,7 @@ import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
 import { MAX_256 } from '../utils/constants';
 import { ICallData, ISigData } from '../types';
-import { ERC20__factory } from '../contracts';
+import { ERC20__factory, Ladle, PoolRouter } from '../contracts';
 
 /* Generic hook for chain transactions */
 export const useChain = () => {
@@ -34,12 +34,12 @@ export const useChain = () => {
     calls:ICallData[],
     txCode:string,
   ) : Promise<void> => {
-    /* Filter out any ignored calls */
+    /* First, filter out any ignored calls */
     const _calls = calls.filter((c:ICallData) => !c.ignore);
     console.log('Calls to be processed:', _calls);
 
-    /* Create the contract instance on the fly */
-    const _contract = contract.connect(chainState.signer) as any;
+    /* Create the contract instance on the fly - can be either router Ladle or PoolRouter */
+    const _contract = contract.connect(chainState.signer) as Ladle | PoolRouter;
 
     /* Encode each of the calls in the calls list */
     const encodedCalls = _calls.map((call:ICallData) => contract.interface.encodeFunctionData(call.fn, call.args));
@@ -54,7 +54,7 @@ export const useChain = () => {
         ethers.constants.Zero)
       : null;
 
-    /* if more than one call in list then use batching: */
+    /* if more than one call in list then use multicall/batching: */
     if (calls.length > 1) {
       handleTx(
         () => _contract.multicall(encodedCalls, true, { value: _value, gasLimit: _gasTotal }),
@@ -70,16 +70,25 @@ export const useChain = () => {
     }
   };
 
+  /**
+   *
+   * SIGNHOOK
+   *
+   * Does either of two things
+   * 1. build the signatures, given user input and returns ICallData for multicall.
+   * 2. Sends off the approval tx, on completion returns an empty array.
+   *
+   * */
   const sign = async (
     requestedSignatures:ISigData[],
     txCode:string,
   ) : Promise<ICallData[]> => {
-    /* filter out any ignored calls */
-    const _reqSigs = requestedSignatures.filter((_rs:ISigData) => !_rs.ignore);
+    /* First, filter out any ignored calls */
+    const _requestedSigs = requestedSignatures.filter((_rs:ISigData) => !_rs.ignore);
 
     const signedList = await Promise.all(
 
-      _reqSigs.map(async (reqSig: ISigData) => {
+      _requestedSigs.map(async (reqSig: ISigData) => {
         /* Set the token address: used passed address prameter if provided, else use either asset address or fyDai Address (fyDaiType) */
         const tokenAddress = reqSig.tokenAddress ||
           reqSig.type === 'FYTOKEN_TYPE'
