@@ -81,7 +81,7 @@ export const useActions = () => {
       /* Then add all the ladle CALLS you want to make: */
       {
         fn: 'pour',
-        args: [_vault, account, _collInput, ethers.constants.Zero],
+        args: [_vault, account, _collInput, _input],
         ignore: false,
       },
       {
@@ -119,7 +119,6 @@ export const useActions = () => {
       /* Include all the signatures gathered, if required  */
       ...permits,
       /* Then add all the ladle CALLS you want to make: */
-
       /* requires a token transfer to the pool from ladle */
 
       /* ladle.repay(vaultId, owner, inkRetrieved, 0) */
@@ -127,7 +126,6 @@ export const useActions = () => {
         args: [vault.id, account, BigNumber.from('1'), ethers.constants.Zero],
         ignore: false,
       },
-
       /* ladle.repayVault(vaultId, owner, inkRetrieved, MAX) */
       { fn: 'repayVault',
         args: [vault.id, account, BigNumber.from('1'), MAX_128],

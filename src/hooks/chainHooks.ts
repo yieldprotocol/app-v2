@@ -10,10 +10,8 @@ import { ERC20__factory, Ladle, PoolRouter } from '../contracts';
 
 /* Generic hook for chain transactions */
 export const useChain = () => {
-  const { chainState } = useContext(ChainContext);
-  const {
-    txActions: { handleTx, handleSign },
-  } = useContext(TxContext);
+  const { chainState: { account, provider, signer, seriesMap, assetMap, contractMap } } = useContext(ChainContext);
+  const { txActions: { handleTx, handleSign } } = useContext(TxContext);
 
   /* Generic fn for READ ONLY chain calls (public view fns) */
   const read = async (contract:Contract, calls: ICallData[]) => {
@@ -28,6 +26,13 @@ export const useChain = () => {
     return null;
   };
 
+  /**
+   *
+   * TRANSACT HOOK
+   *
+   *
+   */
+
   /* Generic fn for both simple and batched transactions (state changing fns) */
   const transact = async (
     contract:Contract,
@@ -39,7 +44,7 @@ export const useChain = () => {
     console.log('Calls to be processed:', _calls);
 
     /* Create the contract instance on the fly - can be either router Ladle or PoolRouter */
-    const _contract = contract.connect(chainState.signer) as Ladle | PoolRouter;
+    const _contract = contract.connect(signer) as Ladle | PoolRouter;
 
     /* Encode each of the calls in the calls list */
     const encodedCalls = _calls.map((call:ICallData) => contract.interface.encodeFunctionData(call.fn, call.args));
@@ -52,7 +57,7 @@ export const useChain = () => {
     const _gasTotal = _allCallsHaveGas
       ? _calls.reduce((_t: BigNumber, _c: ICallData) => BigNumber.from(_c.overrides?.gasLimit).add(_t),
         ethers.constants.Zero)
-      : null;
+      : undefined;
 
     /* if more than one call in list then use multicall/batching: */
     if (calls.length > 1) {
@@ -74,9 +79,10 @@ export const useChain = () => {
    *
    * SIGNHOOK
    *
-   * Does either of two things
-   * 1. build the signatures, given user input and returns ICallData for multicall.
-   * 2. Sends off the approval tx, on completion returns an empty array.
+   * Does two things:
+   * 1. Build the signatures of provided by ISigData[], returns ICallData for multicall.
+   * 2. Sends off the approval tx, on completion of all txs, returns an empty array.
+   *
    *
    * */
   const sign = async (
@@ -92,26 +98,29 @@ export const useChain = () => {
         /* Set the token address: used passed address prameter if provided, else use either asset address or fyDai Address (fyDaiType) */
         const tokenAddress = reqSig.tokenAddress ||
           reqSig.type === 'FYTOKEN_TYPE'
-          ? chainState.seriesMap.get(reqSig.assetOrSeriesId).fyToken
-          : chainState.assetMap.get(reqSig.assetOrSeriesId).address;
+          ? seriesMap.get(reqSig.assetOrSeriesId).fyToken
+          : assetMap.get(reqSig.assetOrSeriesId).address;
 
         /* get the contract : is only used in the fallback case */
-        const tokenContract = ERC20__factory.connect(tokenAddress, chainState.signer);
+        const tokenContract = ERC20__factory.connect(tokenAddress, signer);
 
         /* Set the spender as the provided spender address OR either 'Ladle' or the associated 'Join' */
         const spender = reqSig.spender ||
           reqSig.type === 'FYTOKEN_TYPE'
-          ? chainState.contractMap.get('Ladle').address // spender as ladle
-          : chainState.assetMap.get(reqSig.assetOrSeriesId).joinAddress; // spender as join
+          ? contractMap.get('Ladle').address // spender as ladle
+          : assetMap.get(reqSig.assetOrSeriesId).joinAddress; // spender as join
 
-        /* Request the signature if using DaiType permit style  ( handleSignature( fn, fn ) wraps the sign function for in app tracking and tracing ) */
+        /*
+          Request the signature if using DaiType permit style
+          ( handleSignature( fn, fn ) wraps the sign function for in app tracking and tracing )
+        */
         if (reqSig.type === 'DAI_TYPE') {
           const { v, r, s, nonce, expiry, allowed } = await handleSign(
             /* We are pass over the generated signFn and sigData to the signatureHandler for tracking/tracing/fallback handling */
             () => signDaiPermit(
-              chainState.provider,
+              provider,
               reqSig.tokenAddress || tokenAddress,
-              chainState.account,
+              account,
               spender,
             ),
             () => handleTx(
@@ -125,7 +134,7 @@ export const useChain = () => {
             txCode,
           );
 
-          // FN we want to call > ladle.forwardDaiPermit(daiId, true, ladle.address, nonce, deadline, true, v, r, s)
+          // router.forwardDaiPermit(daiId, true, ladle.address, nonce, deadline, true, v, r, s)
           return {
             fn: 'forwardDaiPermit',
             args: [reqSig.assetOrSeriesId, true, spender, nonce, expiry, allowed, v, r, s],
@@ -133,12 +142,15 @@ export const useChain = () => {
           };
         }
 
-        /* Or else, request the signature using ERC2612 Permit style - (handleSignature() wraps the sign function for in app tracking and tracing ) */
+        /*
+          Or else, request the signature using ERC2612 Permit style
+          (handleSignature() wraps the sign function for in app tracking and tracing )
+        */
         const { v, r, s, value, deadline } = await handleSign(
           () => signERC2612Permit(
-            chainState.provider,
+            provider,
             reqSig.domain || tokenAddress, // uses custom domain if provided (eg. USDC needs version 2) else, provided tokenADdr, else use token address
-            chainState.account,
+            account,
             spender,
             MAX_256,
           ),
@@ -153,7 +165,7 @@ export const useChain = () => {
           txCode,
         );
 
-        // FN we want to call  > ladle.forwardPermit(ilkId, true, ilkJoin.address, amount, deadline, v, r, s)
+        // router.forwardPermit(ilkId, true, ilkJoin.address, amount, deadline, v, r, s)
         return {
           fn: 'forwardPermit',
           args: [
