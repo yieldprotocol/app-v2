@@ -10,6 +10,7 @@ import * as yieldEnv from './yieldEnv.json';
 import * as contracts from '../contracts';
 import { IYieldAsset, IYieldSeries } from '../types';
 import { nameFromMaturity } from '../utils/displayUtils';
+import { Pool } from '../contracts';
 
 /* Set up web3react config */
 const POLLING_INTERVAL = 12000;
@@ -134,6 +135,15 @@ const ChainProvider = ({ children }: any) => {
   } = fallbackConnection;
 
   /**
+   *
+   * Update series - force an update on one or more series
+   *
+   * */
+  const updateSeries = (seriesList: IYieldSeries[]) => {
+
+  };
+
+  /**
    * Update on FALLBACK connection/state on network changes (id/library)
    */
   // TODO add in caching
@@ -171,16 +181,8 @@ const ChainProvider = ({ children }: any) => {
           await Promise.all(assetAddedEvents.map(async (x:any) => {
             const { assetId: id, asset: address } = Cauldron.interface.parseLog(x).args;
             const ERC20 = contracts.ERC20__factory.connect(address, fallbackLibrary);
-            /* Add in any extra static asset Data */ // TODO is there any other fixed series data?
-
+            /* Add in any extra static asset Data */ // TODO is there any other fixed asset data needed?
             const [displayName, symbol] = await Promise.all([ERC20.name(), ERC20.symbol()]);
-
-            // let displayName: String;
-            // let symbol: String;
-            // try {
-            // } catch (e) {
-            //   [displayName, symbol] = ['ETH', 'ETH']; // TODO get rid of this... weth9 should handle this capability
-            // }
             updateState({ type: 'addAsset',
               payload: {
                 id,
@@ -206,7 +208,6 @@ const ChainProvider = ({ children }: any) => {
           /* build a map from the poolAdded event data */
           const poolMap: Map<string, string> = new Map(
             poolAddedEvents.map((log:any) => Ladle.interface.parseLog(log).args) as [[string, string]],
-
           );
 
           /* Add in any extra static series */
@@ -214,17 +215,29 @@ const ChainProvider = ({ children }: any) => {
             ...seriesAddedEvents.map(async (x:any) : Promise<void> => {
               const { seriesId: id, baseId, fyToken } = Cauldron.interface.parseLog(x).args;
               const { maturity } = await Cauldron.series(id);
-              const poolAddr = poolMap.get(id);
+              // const poolAddr = poolMap.get(id);
+              const poolContract: Pool = contracts.Pool__factory.connect(poolMap.get(id) as string, fallbackLibrary);
+              const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackLibrary);
+
+              console.log((await poolContract?.getStoredReserves()).toString());
+              // console.log((await poolContract?.getBaseTokenReserves()).toString());
+              // console.log((await poolContract?.getFYTokenReserves()).toString());
+              // console.log((await poolContract?.totalSupply()).toString());
+
+              console.log((await fyTokenContract?.balanceOf(poolContract.address)).toString());
+
               updateState({
                 type: 'addSeries',
                 payload: {
                   id,
                   baseId,
                   fyToken,
+                  fyTokenContract,
                   maturity,
                   displayName: nameFromMaturity(maturity),
                   displayNameMobile: nameFromMaturity(maturity, 'MMM yyyy'),
-                  poolAddress: poolAddr,
+                  poolAddress: poolContract.address,
+                  poolContract,
                 } });
             }),
           ]);
@@ -237,6 +250,7 @@ const ChainProvider = ({ children }: any) => {
         });
     }
   }, [
+    account,
     fallbackChainId,
     fallbackLibrary,
     chainState.assetMap,
@@ -313,6 +327,7 @@ const ChainProvider = ({ children }: any) => {
     isConnected: (connection:string) => connectors.get(connection) === connector,
     connect: (connection:string = 'injected') => activate(connectors.get(connection)),
     disconnect: () => connector && deactivate(),
+    updateSeries,
   };
 
   return (
