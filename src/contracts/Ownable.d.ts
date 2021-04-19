@@ -19,25 +19,32 @@ import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
-interface IOracleInterface extends ethers.utils.Interface {
+interface OwnableInterface extends ethers.utils.Interface {
   functions: {
-    "get()": FunctionFragment;
-    "peek()": FunctionFragment;
-    "source()": FunctionFragment;
+    "owner()": FunctionFragment;
+    "transferOwnership(address)": FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: "get", values?: undefined): string;
-  encodeFunctionData(functionFragment: "peek", values?: undefined): string;
-  encodeFunctionData(functionFragment: "source", values?: undefined): string;
+  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "transferOwnership",
+    values: [string]
+  ): string;
 
-  decodeFunctionResult(functionFragment: "get", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "peek", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "source", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "transferOwnership",
+    data: BytesLike
+  ): Result;
 
-  events: {};
+  events: {
+    "OwnershipTransferred(address,address)": EventFragment;
+  };
+
+  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
 }
 
-export class IOracle extends Contract {
+export class Ownable extends Contract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -78,123 +85,93 @@ export class IOracle extends Contract {
     toBlock?: string | number | undefined
   ): Promise<Array<TypedEvent<EventArgsArray & EventArgsObject>>>;
 
-  interface: IOracleInterface;
+  interface: OwnableInterface;
 
   functions: {
-    get(
+    owner(overrides?: CallOverrides): Promise<[string]>;
+
+    "owner()"(overrides?: CallOverrides): Promise<[string]>;
+
+    transferOwnership(
+      newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "get()"(
+    "transferOwnership(address)"(
+      newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    peek(
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { price: BigNumber; updateTime: BigNumber }
-    >;
-
-    "peek()"(
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { price: BigNumber; updateTime: BigNumber }
-    >;
-
-    source(overrides?: CallOverrides): Promise<[string]>;
-
-    "source()"(overrides?: CallOverrides): Promise<[string]>;
   };
 
-  get(
+  owner(overrides?: CallOverrides): Promise<string>;
+
+  "owner()"(overrides?: CallOverrides): Promise<string>;
+
+  transferOwnership(
+    newOwner: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "get()"(
+  "transferOwnership(address)"(
+    newOwner: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
-
-  peek(
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber, BigNumber] & { price: BigNumber; updateTime: BigNumber }
-  >;
-
-  "peek()"(
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber, BigNumber] & { price: BigNumber; updateTime: BigNumber }
-  >;
-
-  source(overrides?: CallOverrides): Promise<string>;
-
-  "source()"(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
-    get(
+    owner(overrides?: CallOverrides): Promise<string>;
+
+    "owner()"(overrides?: CallOverrides): Promise<string>;
+
+    transferOwnership(
+      newOwner: string,
       overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { price: BigNumber; updateTime: BigNumber }
-    >;
+    ): Promise<void>;
 
-    "get()"(
+    "transferOwnership(address)"(
+      newOwner: string,
       overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { price: BigNumber; updateTime: BigNumber }
-    >;
-
-    peek(
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { price: BigNumber; updateTime: BigNumber }
-    >;
-
-    "peek()"(
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { price: BigNumber; updateTime: BigNumber }
-    >;
-
-    source(overrides?: CallOverrides): Promise<string>;
-
-    "source()"(overrides?: CallOverrides): Promise<string>;
+    ): Promise<void>;
   };
 
-  filters: {};
+  filters: {
+    OwnershipTransferred(
+      oldOwner: string | null,
+      newOwner: string | null
+    ): TypedEventFilter<
+      [string, string],
+      { oldOwner: string; newOwner: string }
+    >;
+  };
 
   estimateGas: {
-    get(
+    owner(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "owner()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    transferOwnership(
+      newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "get()"(
+    "transferOwnership(address)"(
+      newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
-
-    peek(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "peek()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    source(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "source()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    get(
+    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "owner()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    transferOwnership(
+      newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "get()"(
+    "transferOwnership(address)"(
+      newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
-
-    peek(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "peek()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    source(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "source()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

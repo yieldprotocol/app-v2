@@ -81,8 +81,8 @@ export const useActions = () => {
       /* Then add all the ladle CALLS you want to make: */
       {
         fn: 'pour',
-        args: [_vault, account, _collInput, _input],
-        ignore: false,
+        args: [_vault, account, _collInput, ethers.constants.Zero],
+        ignore: true,
       },
       {
         fn: 'serve',

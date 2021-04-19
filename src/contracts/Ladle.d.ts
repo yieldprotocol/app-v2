@@ -52,7 +52,7 @@ interface LadleInterface extends ethers.utils.Interface {
     "repayVault(bytes12,address,int128,uint128)": FunctionFragment;
     "retrieveFromPool(bytes6,bool,address)": FunctionFragment;
     "revokeRole(bytes4,address)": FunctionFragment;
-    "roll(bytes12,bytes6,int128)": FunctionFragment;
+    "roll(bytes12,bytes6,uint128)": FunctionFragment;
     "route(bytes)": FunctionFragment;
     "serve(bytes12,address,uint128,uint128,uint128)": FunctionFragment;
     "setPoolRouter(address)": FunctionFragment;
@@ -708,15 +708,15 @@ export class Ladle extends Contract {
 
     roll(
       vaultId: BytesLike,
-      seriesId: BytesLike,
-      art: BigNumberish,
+      newSeriesId: BytesLike,
+      max: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "roll(bytes12,bytes6,int128)"(
+    "roll(bytes12,bytes6,uint128)"(
       vaultId: BytesLike,
-      seriesId: BytesLike,
-      art: BigNumberish,
+      newSeriesId: BytesLike,
+      max: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -1196,15 +1196,15 @@ export class Ladle extends Contract {
 
   roll(
     vaultId: BytesLike,
-    seriesId: BytesLike,
-    art: BigNumberish,
+    newSeriesId: BytesLike,
+    max: BigNumberish,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "roll(bytes12,bytes6,int128)"(
+  "roll(bytes12,bytes6,uint128)"(
     vaultId: BytesLike,
-    seriesId: BytesLike,
-    art: BigNumberish,
+    newSeriesId: BytesLike,
+    max: BigNumberish,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -1744,15 +1744,15 @@ export class Ladle extends Contract {
 
     roll(
       vaultId: BytesLike,
-      seriesId: BytesLike,
-      art: BigNumberish,
+      newSeriesId: BytesLike,
+      max: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "roll(bytes12,bytes6,int128)"(
+    "roll(bytes12,bytes6,uint128)"(
       vaultId: BytesLike,
-      seriesId: BytesLike,
-      art: BigNumberish,
+      newSeriesId: BytesLike,
+      max: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -2322,15 +2322,15 @@ export class Ladle extends Contract {
 
     roll(
       vaultId: BytesLike,
-      seriesId: BytesLike,
-      art: BigNumberish,
+      newSeriesId: BytesLike,
+      max: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "roll(bytes12,bytes6,int128)"(
+    "roll(bytes12,bytes6,uint128)"(
       vaultId: BytesLike,
-      seriesId: BytesLike,
-      art: BigNumberish,
+      newSeriesId: BytesLike,
+      max: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -2826,15 +2826,15 @@ export class Ladle extends Contract {
 
     roll(
       vaultId: BytesLike,
-      seriesId: BytesLike,
-      art: BigNumberish,
+      newSeriesId: BytesLike,
+      max: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "roll(bytes12,bytes6,int128)"(
+    "roll(bytes12,bytes6,uint128)"(
       vaultId: BytesLike,
-      seriesId: BytesLike,
-      art: BigNumberish,
+      newSeriesId: BytesLike,
+      max: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

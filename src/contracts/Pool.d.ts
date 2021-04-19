@@ -43,7 +43,7 @@ interface PoolInterface extends ethers.utils.Interface {
     "getK()": FunctionFragment;
     "getStoredReserves()": FunctionFragment;
     "maturity()": FunctionFragment;
-    "mint(address,uint256)": FunctionFragment;
+    "mint(address,bool,uint256)": FunctionFragment;
     "mintWithBaseToken(address,uint256,uint256)": FunctionFragment;
     "name()": FunctionFragment;
     "nonces(address)": FunctionFragment;
@@ -131,7 +131,7 @@ interface PoolInterface extends ethers.utils.Interface {
   encodeFunctionData(functionFragment: "maturity", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "mint",
-    values: [string, BigNumberish]
+    values: [string, boolean, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "mintWithBaseToken",
@@ -534,12 +534,14 @@ export class Pool extends Contract {
 
     mint(
       to: string,
+      calculateFromBase: boolean,
       minTokensMinted: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "mint(address,uint256)"(
+    "mint(address,bool,uint256)"(
       to: string,
+      calculateFromBase: boolean,
       minTokensMinted: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -893,12 +895,14 @@ export class Pool extends Contract {
 
   mint(
     to: string,
+    calculateFromBase: boolean,
     minTokensMinted: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "mint(address,uint256)"(
+  "mint(address,bool,uint256)"(
     to: string,
+    calculateFromBase: boolean,
     minTokensMinted: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -1252,12 +1256,14 @@ export class Pool extends Contract {
 
     mint(
       to: string,
+      calculateFromBase: boolean,
       minTokensMinted: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber, BigNumber, BigNumber]>;
 
-    "mint(address,uint256)"(
+    "mint(address,bool,uint256)"(
       to: string,
+      calculateFromBase: boolean,
       minTokensMinted: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber, BigNumber, BigNumber]>;
@@ -1686,12 +1692,14 @@ export class Pool extends Contract {
 
     mint(
       to: string,
+      calculateFromBase: boolean,
       minTokensMinted: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "mint(address,uint256)"(
+    "mint(address,bool,uint256)"(
       to: string,
+      calculateFromBase: boolean,
       minTokensMinted: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -2063,12 +2071,14 @@ export class Pool extends Contract {
 
     mint(
       to: string,
+      calculateFromBase: boolean,
       minTokensMinted: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "mint(address,uint256)"(
+    "mint(address,bool,uint256)"(
       to: string,
+      calculateFromBase: boolean,
       minTokensMinted: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;

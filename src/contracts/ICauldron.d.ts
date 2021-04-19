@@ -21,15 +21,17 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface ICauldronInterface extends ethers.utils.Interface {
   functions: {
+    "accrual(bytes6)": FunctionFragment;
     "assets(bytes6)": FunctionFragment;
     "balances(bytes12)": FunctionFragment;
     "build(address,bytes12,bytes6,bytes6)": FunctionFragment;
     "destroy(bytes12)": FunctionFragment;
     "give(bytes12,address)": FunctionFragment;
     "grab(bytes12)": FunctionFragment;
+    "mature(bytes6)": FunctionFragment;
     "pour(bytes12,int128,int128)": FunctionFragment;
     "rateOracles(bytes6)": FunctionFragment;
-    "roll(bytes12,bytes6,int128)": FunctionFragment;
+    "roll(bytes12,bytes6,uint128)": FunctionFragment;
     "series(bytes6)": FunctionFragment;
     "slurp(bytes12,uint128,uint128)": FunctionFragment;
     "stir(bytes12,bytes12,uint128,uint128)": FunctionFragment;
@@ -38,6 +40,7 @@ interface ICauldronInterface extends ethers.utils.Interface {
     "vaults(bytes12)": FunctionFragment;
   };
 
+  encodeFunctionData(functionFragment: "accrual", values: [BytesLike]): string;
   encodeFunctionData(functionFragment: "assets", values: [BytesLike]): string;
   encodeFunctionData(functionFragment: "balances", values: [BytesLike]): string;
   encodeFunctionData(
@@ -50,6 +53,7 @@ interface ICauldronInterface extends ethers.utils.Interface {
     values: [BytesLike, string]
   ): string;
   encodeFunctionData(functionFragment: "grab", values: [BytesLike]): string;
+  encodeFunctionData(functionFragment: "mature", values: [BytesLike]): string;
   encodeFunctionData(
     functionFragment: "pour",
     values: [BytesLike, BigNumberish, BigNumberish]
@@ -81,12 +85,14 @@ interface ICauldronInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "vaults", values: [BytesLike]): string;
 
+  decodeFunctionResult(functionFragment: "accrual", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "assets", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balances", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "build", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "destroy", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "give", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "grab", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "mature", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "pour", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "rateOracles",
@@ -147,6 +153,16 @@ export class ICauldron extends Contract {
   interface: ICauldronInterface;
 
   functions: {
+    accrual(
+      seriesId: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "accrual(bytes6)"(
+      seriesId: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     assets(assetsId: BytesLike, overrides?: CallOverrides): Promise<[string]>;
 
     "assets(bytes6)"(
@@ -212,6 +228,16 @@ export class ICauldron extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    mature(
+      seriesId: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "mature(bytes6)"(
+      seriesId: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     pour(
       vaultId: BytesLike,
       ink: BigNumberish,
@@ -243,7 +269,7 @@ export class ICauldron extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "roll(bytes12,bytes6,int128)"(
+    "roll(bytes12,bytes6,uint128)"(
       vaultId: BytesLike,
       seriesId: BytesLike,
       art: BigNumberish,
@@ -354,6 +380,16 @@ export class ICauldron extends Contract {
     >;
   };
 
+  accrual(
+    seriesId: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "accrual(bytes6)"(
+    seriesId: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   assets(assetsId: BytesLike, overrides?: CallOverrides): Promise<string>;
 
   "assets(bytes6)"(
@@ -419,6 +455,16 @@ export class ICauldron extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  mature(
+    seriesId: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "mature(bytes6)"(
+    seriesId: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   pour(
     vaultId: BytesLike,
     ink: BigNumberish,
@@ -447,7 +493,7 @@ export class ICauldron extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "roll(bytes12,bytes6,int128)"(
+  "roll(bytes12,bytes6,uint128)"(
     vaultId: BytesLike,
     seriesId: BytesLike,
     art: BigNumberish,
@@ -550,6 +596,13 @@ export class ICauldron extends Contract {
   >;
 
   callStatic: {
+    accrual(seriesId: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
+
+    "accrual(bytes6)"(
+      seriesId: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     assets(assetsId: BytesLike, overrides?: CallOverrides): Promise<string>;
 
     "assets(bytes6)"(
@@ -630,6 +683,13 @@ export class ICauldron extends Contract {
 
     "grab(bytes12)"(vault: BytesLike, overrides?: CallOverrides): Promise<void>;
 
+    mature(seriesId: BytesLike, overrides?: CallOverrides): Promise<void>;
+
+    "mature(bytes6)"(
+      seriesId: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     pour(
       vaultId: BytesLike,
       ink: BigNumberish,
@@ -658,7 +718,7 @@ export class ICauldron extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "roll(bytes12,bytes6,int128)"(
+    "roll(bytes12,bytes6,uint128)"(
       vaultId: BytesLike,
       seriesId: BytesLike,
       art: BigNumberish,
@@ -786,6 +846,16 @@ export class ICauldron extends Contract {
   filters: {};
 
   estimateGas: {
+    accrual(
+      seriesId: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "accrual(bytes6)"(
+      seriesId: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     assets(assetsId: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
 
     "assets(bytes6)"(
@@ -848,6 +918,16 @@ export class ICauldron extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    mature(
+      seriesId: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "mature(bytes6)"(
+      seriesId: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     pour(
       vaultId: BytesLike,
       ink: BigNumberish,
@@ -879,7 +959,7 @@ export class ICauldron extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "roll(bytes12,bytes6,int128)"(
+    "roll(bytes12,bytes6,uint128)"(
       vaultId: BytesLike,
       seriesId: BytesLike,
       art: BigNumberish,
@@ -953,6 +1033,16 @@ export class ICauldron extends Contract {
   };
 
   populateTransaction: {
+    accrual(
+      seriesId: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "accrual(bytes6)"(
+      seriesId: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     assets(
       assetsId: BytesLike,
       overrides?: CallOverrides
@@ -1021,6 +1111,16 @@ export class ICauldron extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    mature(
+      seriesId: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "mature(bytes6)"(
+      seriesId: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     pour(
       vaultId: BytesLike,
       ink: BigNumberish,
@@ -1052,7 +1152,7 @@ export class ICauldron extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "roll(bytes12,bytes6,int128)"(
+    "roll(bytes12,bytes6,uint128)"(
       vaultId: BytesLike,
       seriesId: BytesLike,
       art: BigNumberish,

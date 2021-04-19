@@ -21,42 +21,29 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface OracleMockInterface extends ethers.utils.Interface {
   functions: {
-    "accrual(uint32)": FunctionFragment;
-    "record(uint32)": FunctionFragment;
-    "recorded(uint32)": FunctionFragment;
-    "setSpot(uint128)": FunctionFragment;
+    "get()": FunctionFragment;
+    "peek()": FunctionFragment;
+    "set(uint256)": FunctionFragment;
+    "source()": FunctionFragment;
     "spot()": FunctionFragment;
+    "updated()": FunctionFragment;
   };
 
-  encodeFunctionData(
-    functionFragment: "accrual",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "record",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "recorded",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setSpot",
-    values: [BigNumberish]
-  ): string;
+  encodeFunctionData(functionFragment: "get", values?: undefined): string;
+  encodeFunctionData(functionFragment: "peek", values?: undefined): string;
+  encodeFunctionData(functionFragment: "set", values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: "source", values?: undefined): string;
   encodeFunctionData(functionFragment: "spot", values?: undefined): string;
+  encodeFunctionData(functionFragment: "updated", values?: undefined): string;
 
-  decodeFunctionResult(functionFragment: "accrual", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "record", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "recorded", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "setSpot", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "get", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "peek", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "set", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "source", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "spot", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "updated", data: BytesLike): Result;
 
-  events: {
-    "Recorded(uint32,uint128)": EventFragment;
-  };
-
-  getEvent(nameOrSignatureOrTopic: "Recorded"): EventFragment;
+  events: {};
 }
 
 export class OracleMock extends Contract {
@@ -103,225 +90,175 @@ export class OracleMock extends Contract {
   interface: OracleMockInterface;
 
   functions: {
-    accrual(
-      maturity: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    "accrual(uint32)"(
-      maturity: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    record(
-      maturity: BigNumberish,
+    get(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "record(uint32)"(
-      maturity: BigNumberish,
+    "get()"(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    recorded(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    peek(overrides?: CallOverrides): Promise<[BigNumber, BigNumber]>;
 
-    "recorded(uint32)"(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    "peek()"(overrides?: CallOverrides): Promise<[BigNumber, BigNumber]>;
 
-    setSpot(
+    set(
       spot_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "setSpot(uint128)"(
+    "set(uint256)"(
       spot_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    source(overrides?: CallOverrides): Promise<[string]>;
+
+    "source()"(overrides?: CallOverrides): Promise<[string]>;
 
     spot(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     "spot()"(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    updated(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    "updated()"(overrides?: CallOverrides): Promise<[BigNumber]>;
   };
 
-  accrual(
-    maturity: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  "accrual(uint32)"(
-    maturity: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  record(
-    maturity: BigNumberish,
+  get(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "record(uint32)"(
-    maturity: BigNumberish,
+  "get()"(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  recorded(arg0: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
+  peek(overrides?: CallOverrides): Promise<[BigNumber, BigNumber]>;
 
-  "recorded(uint32)"(
-    arg0: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  "peek()"(overrides?: CallOverrides): Promise<[BigNumber, BigNumber]>;
 
-  setSpot(
+  set(
     spot_: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "setSpot(uint128)"(
+  "set(uint256)"(
     spot_: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  source(overrides?: CallOverrides): Promise<string>;
+
+  "source()"(overrides?: CallOverrides): Promise<string>;
 
   spot(overrides?: CallOverrides): Promise<BigNumber>;
 
   "spot()"(overrides?: CallOverrides): Promise<BigNumber>;
 
+  updated(overrides?: CallOverrides): Promise<BigNumber>;
+
+  "updated()"(overrides?: CallOverrides): Promise<BigNumber>;
+
   callStatic: {
-    accrual(
-      maturity: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    get(overrides?: CallOverrides): Promise<[BigNumber, BigNumber]>;
 
-    "accrual(uint32)"(
-      maturity: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    "get()"(overrides?: CallOverrides): Promise<[BigNumber, BigNumber]>;
 
-    record(maturity: BigNumberish, overrides?: CallOverrides): Promise<void>;
+    peek(overrides?: CallOverrides): Promise<[BigNumber, BigNumber]>;
 
-    "record(uint32)"(
-      maturity: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    "peek()"(overrides?: CallOverrides): Promise<[BigNumber, BigNumber]>;
 
-    recorded(arg0: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
+    set(spot_: BigNumberish, overrides?: CallOverrides): Promise<void>;
 
-    "recorded(uint32)"(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    setSpot(spot_: BigNumberish, overrides?: CallOverrides): Promise<void>;
-
-    "setSpot(uint128)"(
+    "set(uint256)"(
       spot_: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
+    source(overrides?: CallOverrides): Promise<string>;
+
+    "source()"(overrides?: CallOverrides): Promise<string>;
+
     spot(overrides?: CallOverrides): Promise<BigNumber>;
 
     "spot()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    updated(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "updated()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
-  filters: {
-    Recorded(
-      maturity: null,
-      spot: null
-    ): TypedEventFilter<
-      [number, BigNumber],
-      { maturity: number; spot: BigNumber }
-    >;
-  };
+  filters: {};
 
   estimateGas: {
-    accrual(
-      maturity: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "accrual(uint32)"(
-      maturity: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    record(
-      maturity: BigNumberish,
+    get(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "record(uint32)"(
-      maturity: BigNumberish,
+    "get()"(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    recorded(arg0: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
+    peek(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "recorded(uint32)"(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    "peek()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    setSpot(
+    set(
       spot_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "setSpot(uint128)"(
+    "set(uint256)"(
       spot_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    source(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "source()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     spot(overrides?: CallOverrides): Promise<BigNumber>;
 
     "spot()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    updated(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "updated()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    accrual(
-      maturity: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "accrual(uint32)"(
-      maturity: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    record(
-      maturity: BigNumberish,
+    get(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "record(uint32)"(
-      maturity: BigNumberish,
+    "get()"(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    recorded(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    peek(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "recorded(uint32)"(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    "peek()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    setSpot(
+    set(
       spot_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "setSpot(uint128)"(
+    "set(uint256)"(
       spot_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    source(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "source()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     spot(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "spot()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    updated(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "updated()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }
