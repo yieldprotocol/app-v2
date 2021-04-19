@@ -640,6 +640,11 @@ const _abi = [
         type: "address",
       },
       {
+        internalType: "bool",
+        name: "calculateFromBase",
+        type: "bool",
+      },
+      {
         internalType: "uint256",
         name: "minTokensMinted",
         type: "uint256",

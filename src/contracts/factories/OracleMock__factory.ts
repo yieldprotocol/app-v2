@@ -18,70 +18,41 @@ export class OracleMock__factory {
 
 const _abi = [
   {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "uint32",
-        name: "maturity",
-        type: "uint32",
-      },
-      {
-        indexed: false,
-        internalType: "uint128",
-        name: "spot",
-        type: "uint128",
-      },
-    ],
-    name: "Recorded",
-    type: "event",
+    inputs: [],
+    stateMutability: "nonpayable",
+    type: "constructor",
   },
   {
-    inputs: [
-      {
-        internalType: "uint32",
-        name: "maturity",
-        type: "uint32",
-      },
-    ],
-    name: "accrual",
+    inputs: [],
+    name: "get",
     outputs: [
       {
-        internalType: "uint128",
+        internalType: "uint256",
         name: "",
-        type: "uint128",
+        type: "uint256",
       },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
       {
-        internalType: "uint32",
-        name: "maturity",
-        type: "uint32",
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
       },
     ],
-    name: "record",
-    outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "uint32",
-        name: "",
-        type: "uint32",
-      },
-    ],
-    name: "recorded",
+    inputs: [],
+    name: "peek",
     outputs: [
       {
-        internalType: "uint128",
+        internalType: "uint256",
         name: "",
-        type: "uint128",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
       },
     ],
     stateMutability: "view",
@@ -90,14 +61,27 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "uint128",
+        internalType: "uint256",
         name: "spot_",
-        type: "uint128",
+        type: "uint256",
       },
     ],
-    name: "setSpot",
+    name: "set",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "source",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -105,9 +89,22 @@ const _abi = [
     name: "spot",
     outputs: [
       {
-        internalType: "uint128",
+        internalType: "uint256",
         name: "",
-        type: "uint128",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "updated",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
       },
     ],
     stateMutability: "view",

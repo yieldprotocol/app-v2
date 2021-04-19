@@ -956,13 +956,13 @@ const _abi = [
       },
       {
         internalType: "bytes6",
-        name: "seriesId",
+        name: "newSeriesId",
         type: "bytes6",
       },
       {
-        internalType: "int128",
-        name: "art",
-        type: "int128",
+        internalType: "uint128",
+        name: "max",
+        type: "uint128",
       },
     ],
     name: "roll",

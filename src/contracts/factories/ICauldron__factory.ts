@@ -21,6 +21,25 @@ const _abi = [
     inputs: [
       {
         internalType: "bytes6",
+        name: "seriesId",
+        type: "bytes6",
+      },
+    ],
+    name: "accrual",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes6",
         name: "assetsId",
         type: "bytes6",
       },
@@ -188,6 +207,19 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes6",
+        name: "seriesId",
+        type: "bytes6",
+      },
+    ],
+    name: "mature",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes12",
         name: "vaultId",
         type: "bytes12",
@@ -258,9 +290,9 @@ const _abi = [
         type: "bytes6",
       },
       {
-        internalType: "int128",
+        internalType: "uint128",
         name: "art",
-        type: "int128",
+        type: "uint128",
       },
     ],
     name: "roll",
