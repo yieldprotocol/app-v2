@@ -1,44 +1,48 @@
 [
   {
-    "inputs": [
-      {
-        "internalType": "uint32",
-        "name": "maturity",
-        "type": "uint32"
-      }
-    ],
-    "name": "accrual",
+    "inputs": [],
+    "name": "get",
     "outputs": [
       {
-        "internalType": "uint128",
-        "name": "",
-        "type": "uint128"
+        "internalType": "uint256",
+        "name": "price",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "updateTime",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "peek",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "price",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "updateTime",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint32",
-        "name": "maturity",
-        "type": "uint32"
-      }
-    ],
-    "name": "record",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [],
-    "name": "spot",
+    "name": "source",
     "outputs": [
       {
-        "internalType": "uint128",
+        "internalType": "address",
         "name": "",
-        "type": "uint128"
+        "type": "address"
       }
     ],
     "stateMutability": "view",
