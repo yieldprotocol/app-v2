@@ -17,12 +17,12 @@ const initState = {
   vaultData: new Map() as Map<string, IVaultData>,
 
   vaultMap: new Map() as Map<string, IVault>,
-  activeVault: null as IVault|null,
+  activeVault: null as IVaultData|null,
 
   /* Current User selections */
-  selectedSeries: null as ISeries|null,
-  selectedIlk: null as IAsset|null,
-  selectedBase: null as IAsset|null,
+  selectedSeries: null as ISeriesData|null,
+  selectedIlk: null as IAssetData|null,
+  selectedBase: null as IAssetData|null,
 
 };
 
@@ -43,6 +43,7 @@ function userReducer(state:any, action:any) {
     case 'vaultData': return { ...state, vaultData: onlyIfChanged(action) };
 
     case 'vaultMap': return { ...state, vaultMap: onlyIfChanged(action) };
+
     case 'activeVault': return { ...state, activeVault: onlyIfChanged(action) };
     case 'activeAccount': return { ...state, activeAccount: onlyIfChanged(action) };
 
@@ -85,7 +86,6 @@ const UserProvider = ({ children }:any) => {
     }));
 
     // TODO const _combined: IVault[] = [...vaultList, ...cachedVaults];
-
     const newVaultMap = vaultList.reduce((acc:any, item:any) => {
       const _map = acc;
       _map.set(item.id, item);
@@ -94,6 +94,7 @@ const UserProvider = ({ children }:any) => {
 
     console.log('VAULTS: ', newVaultMap);
     updateState({ type: 'vaultMap', payload: newVaultMap });
+
     return newVaultMap;
     /* Update the local cache storage */
     // TODO setCachedVaults({ data: Array.from(newVaultMap.values()), lastBlock: await fallbackProvider.getBlockNumber() });
@@ -102,25 +103,48 @@ const UserProvider = ({ children }:any) => {
   /* Updates the series with relevant *user* data */
   const updateSeries = useCallback(async (seriesList: ISeries[]) => {
     /* Add in the dynamic series data of the series in the list */
-    const seriesListMod = await Promise.all(
+    const _publicData = await Promise.all(
       seriesList.map(async (series:ISeries) : Promise<ISeriesData> => {
-        const x = 'y';
+        /* Get all the data simultanenously in a promise.all */
+        const [baseReserves, fyTokenReserves] = await Promise.all([
+          series.poolContract.getBaseTokenReserves(),
+          series.poolContract.getFYTokenReserves(),
+        ]);
+        console.log('updated, public series data');
         return {
           ...series,
+          baseReserves,
+          fyTokenReserves,
           apr: '3.23%',
         };
       }),
     );
 
-    const newSeriesMap = seriesListMod.reduce((acc:any, item:any) => {
+    let _accountData : ISeries[] = [];
+    if (account) {
+      _accountData = await Promise.all(
+        seriesList.map(async (series:ISeries) : Promise<any> => {
+          /* Get all the data simultanenously in a promise.all */
+          const [poolTokens, fyTokenBalance] = await Promise.all([
+            series.poolContract.balanceOf(account),
+            series.fyTokenContract.balanceOf(account),
+          ]);
+          return {
+            ...series,
+            poolTokens,
+            fyTokenBalance,
+          };
+        }),
+      );
+    }
+    const newSeriesMap = [..._publicData, ..._accountData].reduce((acc:any, item:any) => {
       const _map = acc;
       _map.set(item.id, item);
       return _map;
     }, userState.seriesData) as Map<string, ISeriesData>;
-
     updateState({ type: 'seriesData', payload: newSeriesMap });
     console.log('Series with user data: ', newSeriesMap);
-  }, [userState.seriesData]);
+  }, [account, userState.seriesData]);
 
   /* Updates the assets with relevant *user* data */
   const updateAssets = useCallback(async (assetList: IAsset[]) => {
@@ -174,21 +198,24 @@ const UserProvider = ({ children }:any) => {
   }, [userState.vaultData, contractMap]);
 
   useEffect(() => {
-    /* when there is an account and the chainContext is finsihed loading get the vaults */
-    account &&
-    !chainLoading &&
-    getVaults().then((_vaults:any) => updateVaults(Array.from(_vaults.values())));
-    Array.from(seriesMap.values()).length && updateSeries(Array.from(seriesMap.values()));
-    Array.from(assetMap.values()).length && updateAssets(Array.from(assetMap.values()));
+    console.log(account);
+    /* When the chainContext is finished loading get the dynamic series data */
+    !chainLoading && Array.from(seriesMap.values()).length && updateSeries(Array.from(seriesMap.values()));
   }, [
-    account,
-    chainLoading,
-    assetMap,
-    seriesMap,
-    getVaults,
-    updateVaults,
-    updateSeries,
-    updateAssets,
+    account, chainLoading,
+    seriesMap, updateSeries,
+  ]);
+
+  useEffect(() => {
+    /* When the chainContext is finished loading get the dynamic asset data and vaults */
+    if (account && !chainLoading) {
+      Array.from(assetMap.values()).length && updateAssets(Array.from(assetMap.values()));
+      getVaults().then((_vaults:any) => updateVaults(Array.from(_vaults.values())));
+    }
+  }, [
+    account, chainLoading,
+    assetMap, updateAssets,
+    getVaults, updateVaults,
   ]);
 
   /* Subscribe to vault event listeners */

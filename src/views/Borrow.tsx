@@ -36,7 +36,6 @@ const Borrow = () => {
   const [vaultIdValue, setVaultIdValue] = useState<string>();
 
   const [borrowDisabled, setBorrowDisabled] = useState<boolean>(true);
-
   const [createNewVault, setCreateNewVault] = useState<boolean>(false);
 
   const { borrow } = useActions();

@@ -42,7 +42,11 @@ export interface IVault {
 }
 
 export interface ISeriesData extends ISeries {
-  apr?: string;
+  apr: string;
+  baseReserves: BigNumber;
+  fyTokenReserves: BigNumber;
+  poolTokens?: BigNumber|undefined;
+  fyTokenBalance? : BigNumber|undefined;
 }
 
 export interface IAssetData extends IAsset {

@@ -9,12 +9,14 @@ function SeriesSelector() {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
   const { chainState: { seriesMap } } = useContext(ChainContext);
 
-  const { userState: { activeVault, selectedSeries, selectedIlk, selectedBase }, userActions } = useContext(UserContext);
+  const { userState, userActions } = useContext(UserContext);
+  const { activeVault, selectedSeries, selectedIlk, selectedBase } = userState;
 
   const [options, setOptions] = useState<ISeries[]>([]);
+
   const optionText = (series: ISeries|undefined) => (
     series
-      ? `${mobile ? series?.displayNameMobile : series?.displayName}  ● APR: ${series?.apr}%`
+      ? `${mobile ? series.displayNameMobile : series.displayName}  ● APR: ${series.apr}%`
       : 'Select a series'
   );
 
