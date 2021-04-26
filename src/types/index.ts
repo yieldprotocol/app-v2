@@ -1,4 +1,5 @@
 import { ethers, BigNumber, ContractFactory } from 'ethers';
+import { FYToken, Pool } from '../contracts';
 
 export enum TradeType {
   BUY = 'BUY',
@@ -11,11 +12,12 @@ export interface IYieldSeries {
   displayName: string;
   displayNameMobile: string;
   maturity: number;
-  fyToken:string;
-  pool:string;
+  fyTokenContract: FYToken;
+  poolContract:Pool;
   baseId: string;
+  fyTokenAddress: string;
+  getBaseAddress: ()=> string;
 
-  contract?: ContractFactory;
   // optional/calculated/mutable:
   maturityDate?: Date;
   apr?: string;
@@ -23,12 +25,15 @@ export interface IYieldSeries {
 
 export interface IYieldAsset {
   // reqd/fixed:
-  id: number;
+  id: string;
   symbol: string;
   displayName: string;
   displayNameMobile: string;
   address: string;
-  // optional/calculated/mutable:
+  joinAddress: string,
+  /* baked in token fns */
+  balance: ()=>BigNumber,
+  allowance: ()=>BigNumber,
 }
 
 export interface IYieldVault {
@@ -38,30 +43,30 @@ export interface IYieldVault {
   series: IYieldSeries;
   ink: BigNumber;
   art: BigNumber;
-
   ink_: string;
   art_: string;
-
   image: string;
   displayId? : string;
-
 }
 
 export interface ICallData {
-  fn: string;
   args: string[];
+  operation: [ number, string[]];
+  series?: IYieldSeries;
+  fnName?: string;
   ignore?: boolean;
   overrides?: ethers.CallOverrides;
 }
 
 export interface ISigData {
-  assetOrSeriesId: string,
-  fallbackCall: ICallData; // calldata to process if fallbackTx is used
+  series: IYieldSeries,
+  asset: IYieldAsset,
   type: SignType;
-  ignore: boolean; // conditional for ignoring
-  message?: string, // optional messaging for UI
+  fallbackCall: any; // calldata to process if fallbackTx is used
+  ignore?: boolean; // conditional for ignoring
 
   /* optional Extention/advanced use-case options */
+  message?: string, // optional messaging for UI
   tokenAddress?: string;
   spender?: string;
   domain?: IDomain;

@@ -79,6 +79,7 @@ function txReducer(_state:any, action:any) {
 
 const TxProvider = ({ children }:any) => {
   const [txState, updateState] = useReducer(txReducer, initState);
+
   /* handle case when user or wallet rejects the tx (before submission) */
   const _handleTxRejection = (err:any, txCode:string) => {
     updateState({ type: '_endProcess', payload: txCode });
@@ -113,6 +114,7 @@ const TxProvider = ({ children }:any) => {
     /* start a new process */
     updateState({ type: '_startProcess', payload: txCode });
     let tx: ContractTransaction;
+
     try {
       tx = await txFn();
       updateState({ type: 'transactions', payload: { tx, txCode, receipt: null, status: 'pending' } });

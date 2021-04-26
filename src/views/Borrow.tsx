@@ -37,12 +37,17 @@ const Borrow = () => {
 
   const [borrowDisabled, setBorrowDisabled] = useState<boolean>(true);
 
-  const [createNewVault, setCreateNewVault] = useState<boolean>(true);
+  const [createNewVault, setCreateNewVault] = useState<boolean>(false);
 
   const { borrow } = useActions();
 
   const handleBorrow = () => {
-    !borrowDisabled && borrow(inputValue, collInputValue, activeVault);
+    !borrowDisabled &&
+    borrow(
+      createNewVault ? undefined : activeVault,
+      inputValue,
+      collInputValue,
+    );
   };
 
   useEffect(() => {
@@ -135,8 +140,8 @@ const Borrow = () => {
         <Box direction="row" justify="end">
           <CheckBox
             reverse
-            disabled
-            checked={createNewVault}
+            disabled={!activeVault}
+            checked={createNewVault || !activeVault}
             label={<Text size="small">Create new vault</Text>}
             onChange={(event:any) => setCreateNewVault(event.target.checked)}
           />

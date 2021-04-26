@@ -42,7 +42,7 @@ const Vault = () => {
   }, [vaultMap, activeVault]);
 
   const handleRepay = () => {
-    repay(inputValue?.toString(), activeVault);
+    repay(activeVault, inputValue?.toString());
   };
 
   return (

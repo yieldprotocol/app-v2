@@ -1,22 +1,21 @@
-import React, { useState, useContext, useEffect, useReducer, useCallback } from 'react';
+import React, { useState, useContext, useEffect, useReducer } from 'react';
 import { ethers } from 'ethers';
-import { toast } from 'react-toastify';
 
 import { IYieldAsset, IYieldSeries, IYieldVault } from '../types';
 
 import { ChainContext } from './ChainContext';
-import { useCachedState } from '../hooks';
 import { cleanValue, genVaultImage } from '../utils/displayUtils';
 
 const UserContext = React.createContext<any>({});
 
 const initState = {
 
-  vaultMap: new Map() as Map<string, IYieldVault>,
-  activeVault: null as IYieldVault|null,
   activeAccount: null as string|null,
 
-  /* User selections */
+  vaultMap: new Map() as Map<string, IYieldVault>,
+  activeVault: null as IYieldVault|null,
+
+  /* Current User selections */
   selectedSeries: null as IYieldSeries|null,
   selectedIlk: null as IYieldAsset|null,
   selectedBase: null as IYieldAsset|null,
@@ -54,7 +53,6 @@ const UserProvider = ({ children }:any) => {
     contractMap,
     account,
     chainLoading,
-    fallbackProvider,
     seriesMap,
     assetMap,
   } = chainState;
@@ -76,13 +74,14 @@ const UserProvider = ({ children }:any) => {
         /* Add in the extra variable vault data */
         const { ink, art } = await Cauldron.balances(id);
         const series = seriesMap.get(seriesId);
+
         return {
           id,
           series,
-          ink,
-          art,
           ilk: assetMap.get(ilkId),
           base: assetMap.get(series.baseId),
+          ink,
+          art,
           ink_: cleanValue(ethers.utils.formatEther(ink), 2), // for display purposes only
           art_: cleanValue(ethers.utils.formatEther(art), 2), // for display purposes only
           image: genVaultImage(id),

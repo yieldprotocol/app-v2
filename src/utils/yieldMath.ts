@@ -215,99 +215,99 @@ export function getFee(
   return fee_.toString();
 }
 
-export function fyDaiForMint(
-  daiReserves: BigNumber |string,
-  fyDaiRealReserves: BigNumber|string,
-  fyDaiVirtualReserves: BigNumber|string,
-  dai: BigNumber|string,
-  timeTillMaturity: BigNumber|string,
-): string {
-  const daiReserves_ = new Decimal(daiReserves.toString());
-  const fyDaiRealReserves_ = new Decimal(fyDaiRealReserves.toString());
-  const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
-  const dai_ = new Decimal(dai.toString());
+// export function fyDaiForMint(
+//   daiReserves: BigNumber |string,
+//   fyDaiRealReserves: BigNumber|string,
+//   fyDaiVirtualReserves: BigNumber|string,
+//   dai: BigNumber|string,
+//   timeTillMaturity: BigNumber|string,
+// ): string {
+//   const daiReserves_ = new Decimal(daiReserves.toString());
+//   const fyDaiRealReserves_ = new Decimal(fyDaiRealReserves.toString());
+//   const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
+//   const dai_ = new Decimal(dai.toString());
 
-  let min = ZERO;
-  let max = dai_;
-  let yOut = Decimal.floor((min.add(max)).div(TWO));
+//   let min = ZERO;
+//   let max = dai_;
+//   let yOut = Decimal.floor((min.add(max)).div(TWO));
 
-  let i = 0;
-  while (true) {
-    const zIn = new Decimal(
-      buyFYDai(
-        daiReserves,
-        fyDaiVirtualReserves,
-        BigNumber.from(yOut.toFixed(0)),
-        timeTillMaturity_.toString(),
-      ),
-    );
-    const Z_1 = daiReserves_.add(zIn); // New dai reserves
-    const Y_1 = fyDaiRealReserves_.sub(yOut); // New fyDai reserves
-    const pz = (dai_.sub(zIn)).div((dai_.sub(zIn)).add(yOut)); // dai proportion in my assets
-    const PZ = Z_1.div(Z_1.add(Y_1)); // dai proportion in the reserves
+//   let i = 0;
+//   while (true) {
+//     const zIn = new Decimal(
+//       buyFYDai(
+//         daiReserves,
+//         fyDaiVirtualReserves,
+//         BigNumber.from(yOut.toFixed(0)),
+//         timeTillMaturity_.toString(),
+//       ),
+//     );
+//     const Z_1 = daiReserves_.add(zIn); // New dai reserves
+//     const Y_1 = fyDaiRealReserves_.sub(yOut); // New fyDai reserves
+//     const pz = (dai_.sub(zIn)).div((dai_.sub(zIn)).add(yOut)); // dai proportion in my assets
+//     const PZ = Z_1.div(Z_1.add(Y_1)); // dai proportion in the reserves
 
-    // The dai proportion in my assets needs to be higher than but very close to the dai proportion in the reserves, to make sure all the fyDai is used.
-    if (PZ.mul(new Decimal(1.000001)) <= pz) min = yOut;
-    yOut = (yOut.add(max)).div(TWO); // bought too little fyDai, buy some more
+//     // The dai proportion in my assets needs to be higher than but very close to the dai proportion in the reserves, to make sure all the fyDai is used.
+//     if (PZ.mul(new Decimal(1.000001)) <= pz) min = yOut;
+//     yOut = (yOut.add(max)).div(TWO); // bought too little fyDai, buy some more
 
-    if (pz <= PZ) max = yOut;
-    yOut = (yOut.add(min)).div(TWO); // bought too much fyDai, buy a bit less
-    if (PZ.mul(new Decimal(1.000001)) > pz && pz > PZ) return Decimal.floor(yOut).toFixed(); // Just right
+//     if (pz <= PZ) max = yOut;
+//     yOut = (yOut.add(min)).div(TWO); // bought too much fyDai, buy a bit less
+//     if (PZ.mul(new Decimal(1.000001)) > pz && pz > PZ) return Decimal.floor(yOut).toFixed(); // Just right
 
-    // eslint-disable-next-line no-plusplus
-    if (i++ > 10000) return Decimal.floor(yOut).toFixed();
-  }
-}
+//     // eslint-disable-next-line no-plusplus
+//     if (i++ > 10000) return Decimal.floor(yOut).toFixed();
+//   }
+// }
 
-/**
-   * Split a certain amount of X liquidity into its two componetnts (eg. Dai and fyDai)
-   *
-   * @param { BigNumber } xReserves // eg. Dai reserves
-   * @param { BigNumber } yReserves // eg. fyDai reservers
-   * @param {BigNumber} xAmount // amount to split in wei
-   *
-   * @returns  [ BigNumber, BigNumber ] returns an array of [dai, fyDai]
-   */
-export const splitLiquidity = (
-  xReserves: BigNumber | string,
-  yReserves: BigNumber | string,
-  xAmount: BigNumber | string,
-) : [string, string] => {
-  const xReserves_ = new Decimal(xReserves.toString());
-  const yReserves_ = new Decimal(yReserves.toString());
-  const xAmount_ = new Decimal(xAmount.toString());
+// /**
+//    * Split a certain amount of X liquidity into its two componetnts (eg. Dai and fyDai)
+//    *
+//    * @param { BigNumber } xReserves // eg. Dai reserves
+//    * @param { BigNumber } yReserves // eg. fyDai reservers
+//    * @param {BigNumber} xAmount // amount to split in wei
+//    *
+//    * @returns  [ BigNumber, BigNumber ] returns an array of [dai, fyDai]
+//    */
+// export const splitLiquidity = (
+//   xReserves: BigNumber | string,
+//   yReserves: BigNumber | string,
+//   xAmount: BigNumber | string,
+// ) : [string, string] => {
+//   const xReserves_ = new Decimal(xReserves.toString());
+//   const yReserves_ = new Decimal(yReserves.toString());
+//   const xAmount_ = new Decimal(xAmount.toString());
 
-  const xPortion = (xAmount_.mul(xReserves_)).div(yReserves_.add(xReserves_));
+//   const xPortion = (xAmount_.mul(xReserves_)).div(yReserves_.add(xReserves_));
 
-  const yPortion = xAmount_.sub(xPortion);
-  return [xPortion.toFixed(), yPortion.toFixed()];
-};
+//   const yPortion = xAmount_.sub(xPortion);
+//   return [xPortion.toFixed(), yPortion.toFixed()];
+// };
 
-/**
-   * Calculate amount of LP Tokens that will be minted
-   *
-   * @param { BigNumber | string } xReserves // eg. dai balance of pool
-   * @param { BigNumber  | string} yReserves// eg. yDai series balance of Pool
-   * @param { BigNumber | string  } totalSupply // total LP tokens
-   * @param { BigNumber | string } xInput // dai input value by user
-   *
-   * @returns { string } number of tokens minted
-   */
-export const calcTokensMinted = (
-  xReserves: BigNumber | string,
-  yReserves: BigNumber | string,
-  totalSupply: BigNumber| string,
-  xInput: BigNumber | string,
-) : string => {
-  const xReserves_ = new Decimal(xReserves.toString());
-  const _totalSupply = new Decimal(totalSupply.toString());
-  const _yReserves = new Decimal(yReserves.toString());
-  const _xInput = new Decimal(xInput.toString());
-  const xOffered = (_xInput.mul(xReserves_)).div(_yReserves.add(xReserves_));
-  // const [xOffered, ] =  splitLiquidity(xReserves, yReserves, xInput);
+// /**
+//    * Calculate amount of LP Tokens that will be minted
+//    *
+//    * @param { BigNumber | string } xReserves // eg. dai balance of pool
+//    * @param { BigNumber  | string} yReserves// eg. yDai series balance of Pool
+//    * @param { BigNumber | string  } totalSupply // total LP tokens
+//    * @param { BigNumber | string } xInput // dai input value by user
+//    *
+//    * @returns { string } number of tokens minted
+//    */
+// export const calcTokensMinted = (
+//   xReserves: BigNumber | string,
+//   yReserves: BigNumber | string,
+//   totalSupply: BigNumber| string,
+//   xInput: BigNumber | string,
+// ) : string => {
+//   const xReserves_ = new Decimal(xReserves.toString());
+//   const _totalSupply = new Decimal(totalSupply.toString());
+//   const _yReserves = new Decimal(yReserves.toString());
+//   const _xInput = new Decimal(xInput.toString());
+//   const xOffered = (_xInput.mul(xReserves_)).div(_yReserves.add(xReserves_));
+//   // const [xOffered, ] =  splitLiquidity(xReserves, yReserves, xInput);
 
-  return (_totalSupply).mul(xOffered).div(xReserves_).toString();
-};
+//   return (_totalSupply).mul(xOffered).div(xReserves_).toString();
+// };
 
 /**
    * Calculate Slippage

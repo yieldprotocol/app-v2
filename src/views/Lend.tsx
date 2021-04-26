@@ -10,9 +10,24 @@ import { cleanValue } from '../utils/displayUtils';
 import PlaceholderWrap from '../components/wraps/PlaceholderWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
 
+import { useActions } from '../hooks/actionHooks';
+import { UserContext } from '../contexts/UserContext';
+
 const Lend = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
   const [inputValue, setInputValue] = useState<string>();
+
+  const { userState: {
+    selectedSeries,
+  },
+  } = useContext(UserContext);
+
+  const { lend } = useActions();
+
+  const handleLend = () => {
+    // !lendDisabled &&
+    lend('10', selectedSeries);
+  };
 
   return (
     <MainViewWrap>
@@ -51,11 +66,11 @@ const Lend = () => {
       </SectionWrap>
 
       <ActionButtonGroup buttonList={[
-
         <Button
           primary
           label={<Text size={mobile ? 'small' : undefined}> {`Supply ${inputValue || ''} Dai`} </Text>}
           key="primary"
+          onClick={() => handleLend()}
         />,
 
         <Button

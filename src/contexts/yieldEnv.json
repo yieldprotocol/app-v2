@@ -1,44 +1,16 @@
 {
-  "contractList" : [
-    "Cauldron",
-    "Ladle",
-    "Witch"
-  ],
-
   "addresses" : { 
     "1" : {
-      "Cauldron": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
-      "Ladle" : "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
-      "Witch" : "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318"
-    },
-    "31337_" : {
-      "Cauldron": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
-      "Ladle" : "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
-      "Witch" : "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318"
+      "Cauldron": "0x09635F643e140090A9A8Dcd712eD6285858ceBef",
+      "Ladle" : "0xc5a5C42992dECbae36851359345FE25997F5C42d",
+      "Witch" : "0x67d269191c92Caf3cD7723F116c85e6E9bf55933",
+      "PoolRouter" : "0x1613beB3B2C4f22Ee086B2b38C1476A3cE7f78E8"
     },
     "31337" : {
-      "Cauldron": "0x512F7469BcC83089497506b5df64c6E246B39925",
-      "Ladle" : "0x9fD16eA9E31233279975D99D5e8Fc91dd214c7Da",
-      "Witch" : "0xCBBe2A5c3A22BE749D5DDF24e9534f98951983e2",
-      "PoolRouter" : "0x7580708993de7CA120E957A62f26A5dDD4b3D8aC"
+      "Cauldron": "0x4A679253410272dd5232B3Ff7cF5dbB88f295319",
+      "Ladle" : "0x7a2088a1bFc9d81c55368AE168C2C02570cB814F",
+      "Witch" : "0x09635F643e140090A9A8Dcd712eD6285858ceBef",
+      "PoolRouter" : "0x9E545E3C0baAB3E08CdfD552C960A1050f373042"
     }
-  },
-
-  "staticAssetData" : [
-    {
-      "id" : 1 ,
-      "displayName":"Dai",
-      "image": "s"
-    },
-    {
-      "id" : 2 ,
-      "displayName":"USD Coin",
-      "image": "s"
-    },
-    {
-      "id" : 3 ,
-      "displayName":"DOGE Coin",
-      "image": "s"
-    }
-  ]
+  }
 }
