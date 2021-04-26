@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, ResponsiveContext, Select, Text } from 'grommet';
 
-import { IYieldAsset } from '../types';
+import { IAsset } from '../types';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
 
@@ -20,14 +20,14 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   const { chainState: { assetMap }, chainActions } = useContext(ChainContext);
   const { userState: { activeVault, selectedIlk, selectedSeries, selectedBase }, userActions } = useContext(UserContext);
 
-  const [options, setOptions] = useState<IYieldAsset[]>([]);
-  const optionText = (asset: IYieldAsset | undefined) => `${asset?.symbol}` || '';
+  const [options, setOptions] = useState<IAsset[]>([]);
+  const optionText = (asset: IAsset | undefined) => `${asset?.symbol}` || '';
 
   useEffect(() => {
-    const opts = Array.from(assetMap.values()) as IYieldAsset[];
+    const opts = Array.from(assetMap.values()) as IAsset[];
 
     const filteredOptions = selectCollateral
-      ? opts.filter((a:IYieldAsset) => a.id !== selectedBase.id)
+      ? opts.filter((a:IAsset) => a.id !== selectedBase.id)
       : opts;
     setOptions(filteredOptions);
   }, [selectedBase, assetMap, selectCollateral]);

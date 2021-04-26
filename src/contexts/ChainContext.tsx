@@ -8,7 +8,7 @@ import { useCachedState } from '../hooks';
 
 import * as yieldEnv from './yieldEnv.json';
 import * as contracts from '../contracts';
-import { IYieldAsset, IYieldSeries } from '../types';
+import { IAsset, ISeries } from '../types';
 import { nameFromMaturity } from '../utils/displayUtils';
 import { Pool } from '../contracts';
 
@@ -67,8 +67,8 @@ const initState = {
 
   /* Connected Contract Maps */
   contractMap: new Map<string, ContractFactory>(),
-  assetMap: new Map<string, IYieldAsset>(),
-  seriesMap: new Map<string, IYieldSeries>(),
+  assetMap: new Map<string, IAsset>(),
+  seriesMap: new Map<string, ISeries>(),
 };
 
 function chainReducer(state: any, action: any) {
@@ -156,7 +156,6 @@ const ChainProvider = ({ children }: any) => {
       newContractMap.set('Cauldron', Cauldron);
       newContractMap.set('Ladle', Ladle);
       newContractMap.set('PoolRouter', PoolRouter);
-
       updateState({ type: 'contractMap', payload: newContractMap });
 
       /* Update the 'dynamic' contracts (series and assets) */

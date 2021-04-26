@@ -6,7 +6,7 @@ export enum TradeType {
   SELL = 'SELL',
 }
 
-export interface IYieldSeries {
+export interface ISeries {
   // reqd/fixed:
   id: string;
   displayName: string;
@@ -23,7 +23,7 @@ export interface IYieldSeries {
   apr?: string;
 }
 
-export interface IYieldAsset {
+export interface IAsset {
   // reqd/fixed:
   id: string;
   symbol: string;
@@ -36,11 +36,19 @@ export interface IYieldAsset {
   allowance: ()=>BigNumber,
 }
 
-export interface IYieldVault {
+export interface ISeriesData extends ISeries {
+
+}
+
+export interface IAssetData extends IAsset {
+
+}
+
+export interface IVault {
   id: string;
-  ilk: IYieldAsset;
-  base: IYieldAsset;
-  series: IYieldSeries;
+  ilk: IAsset;
+  base: IAsset;
+  series: ISeries;
   ink: BigNumber;
   art: BigNumber;
   ink_: string;
@@ -52,15 +60,15 @@ export interface IYieldVault {
 export interface ICallData {
   args: string[];
   operation: [ number, string[]];
-  series?: IYieldSeries;
+  series?: ISeries;
   fnName?: string;
   ignore?: boolean;
   overrides?: ethers.CallOverrides;
 }
 
 export interface ISigData {
-  series: IYieldSeries,
-  asset: IYieldAsset,
+  series: ISeries,
+  asset: IAsset,
   type: SignType;
   fallbackCall: any; // calldata to process if fallbackTx is used
   ignore?: boolean; // conditional for ignoring

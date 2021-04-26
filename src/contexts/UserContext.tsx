@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect, useReducer } from 'react';
 import { ethers } from 'ethers';
 
-import { IYieldAsset, IYieldSeries, IYieldVault } from '../types';
+import { IAsset, ISeries, IVault, ISeriesData, IAssetData } from '../types';
 
 import { ChainContext } from './ChainContext';
 import { cleanValue, genVaultImage } from '../utils/displayUtils';
@@ -12,13 +12,16 @@ const initState = {
 
   activeAccount: null as string|null,
 
-  vaultMap: new Map() as Map<string, IYieldVault>,
-  activeVault: null as IYieldVault|null,
+  seriesData: new Map() as Map<string, ISeriesData>,
+  assetData: new Map() as Map<string, IAssetData>,
+
+  vaultMap: new Map() as Map<string, IVault>,
+  activeVault: null as IVault|null,
 
   /* Current User selections */
-  selectedSeries: null as IYieldSeries|null,
-  selectedIlk: null as IYieldAsset|null,
-  selectedBase: null as IYieldAsset|null,
+  selectedSeries: null as ISeries|null,
+  selectedIlk: null as IAsset|null,
+  selectedBase: null as IAsset|null,
 
 };
 
@@ -59,6 +62,50 @@ const UserProvider = ({ children }:any) => {
 
   const [userState, updateState] = useReducer(userReducer, initState);
 
+  const updateVaults = async () => {
+    const Cauldron = contractMap.get('Cauldron');
+    const filter = Cauldron.filters.VaultBuilt(null, account, null);
+    const eventList = await Cauldron.queryFilter(filter, 1);
+    // const eventList = await Cauldron.queryFilter(filter, cachedVaults.lastBlock);
+    const vaultList : IVault[] = await Promise.all(eventList.map(async (x:any) : Promise<IVault> => {
+      const { vaultId: id, ilkId, seriesId } = Cauldron.interface.parseLog(x).args;
+      /* Add in the extra variable vault data */
+      const { ink, art } = await Cauldron.balances(id);
+      const series = seriesMap.get(seriesId);
+      return {
+        id,
+        series,
+        ilk: assetMap.get(ilkId),
+        base: assetMap.get(series.baseId),
+        ink,
+        art,
+        ink_: cleanValue(ethers.utils.formatEther(ink), 2), // for display purposes only
+        art_: cleanValue(ethers.utils.formatEther(art), 2), // for display purposes only
+        image: genVaultImage(id),
+      };
+    }));
+    // const _combined = [...cachedVaults.data, ...vaultList];
+    const _combined: IVault[] = [...vaultList];
+    const newVaultMap = _combined.reduce((acc:any, item:any) => {
+      const _map = acc;
+      _map.set(item.id, item);
+      return _map;
+    }, userState.vaultMap) as Map<string, IVault>;
+
+    console.log('VAULTS: ', newVaultMap);
+    updateState({ type: 'vaultMap', payload: newVaultMap });
+    /* Update the local cache storage */
+    // setCachedVaults({ data: Array.from(newVaultMap.values()), lastBlock: await fallbackProvider.getBlockNumber() });
+  };
+
+  const updateSeriesPosition = async () => {
+
+  };
+
+  const updateAssetPosition = async () => {
+
+  };
+
   useEffect(() => {
     /* when there is an account and the chainContext is finsihed loading get the vaults */
     account &&
@@ -68,13 +115,11 @@ const UserProvider = ({ children }:any) => {
       const filter = Cauldron.filters.VaultBuilt(null, account, null);
       const eventList = await Cauldron.queryFilter(filter, 1);
       // const eventList = await Cauldron.queryFilter(filter, cachedVaults.lastBlock);
-
-      const vaultList : IYieldVault[] = await Promise.all(eventList.map(async (x:any) : Promise<IYieldVault> => {
+      const vaultList : IVault[] = await Promise.all(eventList.map(async (x:any) : Promise<IVault> => {
         const { vaultId: id, ilkId, seriesId } = Cauldron.interface.parseLog(x).args;
         /* Add in the extra variable vault data */
         const { ink, art } = await Cauldron.balances(id);
         const series = seriesMap.get(seriesId);
-
         return {
           id,
           series,
@@ -87,19 +132,16 @@ const UserProvider = ({ children }:any) => {
           image: genVaultImage(id),
         };
       }));
-
       // const _combined = [...cachedVaults.data, ...vaultList];
-      const _combined: IYieldVault[] = [...vaultList];
+      const _combined: IVault[] = [...vaultList];
       const newVaultMap = _combined.reduce((acc:any, item:any) => {
         const _map = acc;
         _map.set(item.id, item);
         return _map;
-      }, userState.vaultMap) as Map<string, IYieldVault>;
+      }, userState.vaultMap) as Map<string, IVault>;
 
       console.log('VAULTS: ', newVaultMap);
       updateState({ type: 'vaultMap', payload: newVaultMap });
-      // updateState({ type: 'activeVault', payload: newVaultMap.get(_combined[0]?.id) });
-
       /* Update the local cache storage */
       // setCachedVaults({ data: Array.from(newVaultMap.values()), lastBlock: await fallbackProvider.getBlockNumber() });
     })();
@@ -117,10 +159,10 @@ const UserProvider = ({ children }:any) => {
   }, [chainLoading, assetMap]);
 
   const userActions = {
-    setActiveVault: (vault:IYieldVault) => updateState({ type: 'activeVault', payload: vault }),
-    setSelectedIlk: (asset:IYieldAsset) => updateState({ type: 'selectedIlk', payload: asset }),
-    setSelectedSeries: (series:IYieldSeries) => updateState({ type: 'selectedSeries', payload: series }),
-    setSelectedBase: (asset:IYieldAsset) => updateState({ type: 'selectedBase', payload: asset }),
+    setActiveVault: (vault:IVault) => updateState({ type: 'activeVault', payload: vault }),
+    setSelectedIlk: (asset:IAsset) => updateState({ type: 'selectedIlk', payload: asset }),
+    setSelectedSeries: (series:ISeries) => updateState({ type: 'selectedSeries', payload: series }),
+    setSelectedBase: (asset:IAsset) => updateState({ type: 'selectedBase', payload: asset }),
   };
 
   return (

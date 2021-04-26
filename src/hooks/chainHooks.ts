@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
 import { MAX_256 } from '../utils/constants';
-import { ICallData, ISigData, IYieldSeries, IYieldVault } from '../types';
+import { ICallData, ISigData, ISeries, IVault } from '../types';
 import { ERC20__factory, Ladle, Pool, PoolRouter } from '../contracts';
 import { POOLROUTER_OPS, VAULT_OPS } from '../utils/operations';
 
@@ -64,7 +64,7 @@ export const useChain = () => {
           call.operation === VAULT_OPS.ROUTE ||
           call.operation === POOLROUTER_OPS.ROUTE // TODO check conflict possibility
         ) {
-          const { poolContract } = call.series! as IYieldSeries;
+          const { poolContract } = call.series! as ISeries;
           const { interface: _interface } = poolContract as Contract;
           if (call.fnName) {
             return _interface.encodeFunctionData(call.fnName, call.args);
@@ -169,7 +169,7 @@ export const useChain = () => {
           }
         };
 
-        /* Set the token address: used passed token address parameter (if provided), else use either asset address or fyDai Address (fyDaiType) */
+        /* Get the token address: used passed token address parameter (if provided), else use either asset address or fyDai Address (fyDaiType) */
         const getTokenAddress = () : string => {
           if (reqSig.tokenAddress) return reqSig.tokenAddress;
           if (signingFYToken) return reqSig.series.fyTokenAddress;

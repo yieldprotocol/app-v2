@@ -17,16 +17,23 @@ const Lend = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
   const [inputValue, setInputValue] = useState<string>();
 
+  const [closeInputValue, setCloseInputValue] = useState<string>();
+
   const { userState: {
     selectedSeries,
   },
   } = useContext(UserContext);
 
-  const { lend } = useActions();
+  const { lend, closePosition } = useActions();
 
   const handleLend = () => {
     // !lendDisabled &&
-    lend('10', selectedSeries);
+    lend(inputValue, selectedSeries);
+  };
+
+  const handleClosePosition = () => {
+    // !lendDisabled &&
+    closePosition(closeInputValue, selectedSeries);
   };
 
   return (
@@ -55,7 +62,7 @@ const Lend = () => {
         </Box>
 
         <Box justify="evenly" gap="small" fill="horizontal" direction="row-responsive">
-          <InfoBite label="Portfolio Value:" value="100 DAI" />
+          <InfoBite label="FYToken balance" value="erter" />
           <InfoBite label="Current Value:" value="99.34 DAI" />
         </Box>
 
@@ -77,9 +84,37 @@ const Lend = () => {
           secondary
           label={<Text size={mobile ? 'small' : undefined}>Close Position</Text>}
           key="secondary"
+          onClick={() => handleClosePosition()}
         />,
       ]}
       />
+
+      {/* <SectionWrap title="Testing section: Closing position">
+        <Box direction="row" gap="small" fill="horizontal">
+          <InputWrap action={() => console.log('maxAction')}>
+            <TextInput
+              plain
+              type="number"
+              placeholder={<PlaceholderWrap label="Enter amount" />}
+              value={closeInputValue || ''}
+              onChange={(event:any) => setCloseInputValue(cleanValue(event.target.value))}
+            />
+          </InputWrap>
+          <Box basis={mobile ? '50%' : '35%'}>
+            <AssetSelector />
+          </Box>
+        </Box>
+
+        <ActionButtonGroup buttonList={[
+          <Button
+            secondary
+            label={<Text size={mobile ? 'small' : undefined}>Close Position</Text>}
+            key="secondary"
+            onClick={() => handleClosePosition()}
+          />,
+        ]}
+        />
+      </SectionWrap> */}
 
     </MainViewWrap>
   );

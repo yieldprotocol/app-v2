@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Box, ResponsiveContext, Select, Text, ThemeContext } from 'grommet';
 
 import { ChainContext } from '../contexts/ChainContext';
-import { IYieldSeries } from '../types';
+import { ISeries } from '../types';
 import { UserContext } from '../contexts/UserContext';
 
 function SeriesSelector() {
@@ -11,16 +11,16 @@ function SeriesSelector() {
 
   const { userState: { activeVault, selectedSeries, selectedIlk, selectedBase }, userActions } = useContext(UserContext);
 
-  const [options, setOptions] = useState<IYieldSeries[]>([]);
-  const optionText = (series: IYieldSeries|undefined) => (
+  const [options, setOptions] = useState<ISeries[]>([]);
+  const optionText = (series: ISeries|undefined) => (
     series
       ? `${mobile ? series?.displayNameMobile : series?.displayName}  ● APR: ${series?.apr}%`
       : 'Select a series'
   );
 
   useEffect(() => {
-    const opts = Array.from(seriesMap.values()) as IYieldSeries[];
-    const filteredOpts = opts.filter((series:IYieldSeries) => series.baseId === selectedBase.id);
+    const opts = Array.from(seriesMap.values()) as ISeries[];
+    const filteredOpts = opts.filter((series:ISeries) => series.baseId === selectedBase.id);
     setOptions(filteredOpts);
   }, [seriesMap, selectedBase, selectedIlk]);
 

@@ -12,7 +12,7 @@ import MainViewWrap from '../components/wraps/MainViewWrap';
 import SeriesSelector from '../components/SeriesSelector';
 import InputWrap from '../components/wraps/InputWrap';
 import InfoBite from '../components/InfoBite';
-import { IYieldSeries, IYieldVault } from '../types';
+import { ISeries, IVault } from '../types';
 import { borrowingPower } from '../utils/yieldMath';
 
 import ActionButtonGroup from '../components/ActionButtonGroup';
@@ -29,7 +29,7 @@ const Vault = () => {
   const { chainState: { assetMap, seriesMap } } = useContext(ChainContext);
 
   /* local state */
-  const [availableVaults, setAvailableVaults] = useState<IYieldVault[]>();
+  const [availableVaults, setAvailableVaults] = useState<IVault[]>();
 
   const [inputValue, setInputValue] = useState<any>(undefined);
   const [expanded, setExpanded] = useState<any>(undefined);

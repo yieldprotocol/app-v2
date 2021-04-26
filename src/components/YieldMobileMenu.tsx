@@ -5,7 +5,7 @@ import { FiX, FiArrowLeftCircle } from 'react-icons/fi';
 import styled, { CSSProperties, ThemeContext } from 'styled-components';
 
 import { UserContext } from '../contexts/UserContext';
-import { IMenuProps, IYieldVault, View } from '../types';
+import { IMenuProps, IVault, View } from '../types';
 import YieldNavigation from './YieldNavigation';
 import YieldMenu from './YieldMenu';
 
@@ -94,7 +94,7 @@ const YieldMobileMenu = ({ toggleMenu }: IMenuProps) => {
           {
           view === View.vaults &&
           <Box gap="medium">
-            { Array.from(vaultMap.values() as IYieldVault[]).map((x:IYieldVault) => (
+            { Array.from(vaultMap.values() as IVault[]).map((x:IVault) => (
               <Box
                 key={x.id}
                 pad="small"

@@ -2,7 +2,7 @@ import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
-import { ICallData, IYieldSeries, IYieldVault, SignType } from '../types';
+import { ICallData, ISeries, IVault, SignType } from '../types';
 import { getTxCode } from '../utils/appUtils';
 import { MAX_128, MAX_256 } from '../utils/constants';
 import { useChain } from './chainHooks';
@@ -42,7 +42,7 @@ export const useActions = () => {
   );
 
   const borrow = async (
-    vault: IYieldVault|undefined,
+    vault: IVault|undefined,
     input:string|undefined,
     collInput:string|undefined,
   ) => {
@@ -94,7 +94,7 @@ export const useActions = () => {
   };
 
   const repay = async (
-    vault: IYieldVault,
+    vault: IVault,
     input:string|undefined,
     collInput: string|undefined = '0', // optional - add(+) / remove(-) collateral in same tx.
   ) => {
@@ -140,7 +140,7 @@ export const useActions = () => {
   };
 
   const redeem = async (
-    vault: IYieldVault,
+    vault: IVault,
     input: string|undefined,
   ) => {
     const txCode = getTxCode('030_', vault.series.id);
@@ -186,7 +186,7 @@ export const useActions = () => {
 
   const lend = async (
     input: string|undefined,
-    series: IYieldSeries,
+    series: ISeries,
   ) => {
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
 
@@ -234,7 +234,7 @@ export const useActions = () => {
 
   const closePosition = async (
     input: string|undefined,
-    series: IYieldSeries,
+    series: ISeries,
   ) => {
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
     /* generate the reproducible txCode for tx tracking and tracing */
@@ -261,18 +261,18 @@ export const useActions = () => {
 
     const calls: ICallData[] = [
       ...permits,
-      /* pool.sellBaseToken(address to, uint128 min) */
+      /* pool.sellFyToken(address to, uint128 min) */
       {
         operation: POOLROUTER_OPS.ROUTE,
-        args: [account, _input, MAX_128], // TODO calc min transfer slippage
-        fnName: 'buyBaseToken',
+        args: [account, ethers.constants.Zero], // TODO calc min transfer slippage
+        fnName: 'sellFYToken',
         series,
         ignore: false,
       },
       /* pool.sellBaseToken(address to, uint128 min) */
       {
         operation: POOLROUTER_OPS.ROUTE,
-        args: [account], // TODO calc min transfer slippage
+        args: [account],
         fnName: 'retrieveBaseToken',
         series,
         ignore: false,
@@ -283,7 +283,7 @@ export const useActions = () => {
 
   const addLiquidity = async (
     input: string|undefined,
-    series: IYieldSeries,
+    series: ISeries,
   ) => {
     /* generate the reproducible txCode for tx tracking and tracing */
     // const txCode = getTxCode('020_', vault.series.id);

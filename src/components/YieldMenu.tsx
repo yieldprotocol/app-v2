@@ -3,7 +3,7 @@ import { Box, Button, Header, Image, Text } from 'grommet';
 import styled, { CSSProperties, ThemeContext } from 'styled-components';
 import { useHistory } from 'react-router-dom';
 import { UserContext } from '../contexts/UserContext';
-import { IMenuProps, IYieldVault, View } from '../types';
+import { IMenuProps, IVault, View } from '../types';
 import VaultImage from './VaultImage';
 import { genVaultImage } from '../utils/displayUtils';
 
@@ -34,7 +34,7 @@ const YieldMenu = ({ toggleMenu }: IMenuProps) => {
   } as CSSProperties;
 
   /* local state */
-  const [vaultsArray, setVaultsArray] = useState<IYieldVault[]>(Array.from(vaultMap.values() as IYieldVault[]));
+  const [vaultsArray, setVaultsArray] = useState<IVault[]>(Array.from(vaultMap.values() as IVault[]));
   const [view, setView] = useState<View>(vaultsArray.length > 0 ? View.vaults : View.account);
 
   const handleSelect = (vaultId:string) => {
@@ -78,7 +78,7 @@ const YieldMenu = ({ toggleMenu }: IMenuProps) => {
         {
           view === View.vaults &&
           <Box gap="medium">
-            { vaultsArray.map((x:IYieldVault) => (
+            { vaultsArray.map((x:IVault) => (
               <Box
                 key={x.id}
                 pad="small"
