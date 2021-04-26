@@ -169,7 +169,7 @@ export const useChain = () => {
           }
         };
 
-        /* Get the token address: used passed token address parameter (if provided), else use either asset address or fyDai Address (fyDaiType) */
+        /* Get the token address: used passed token address parameter (if provided), else use either asset address or fyToken Address (fyDaiType) */
         const getTokenAddress = () : string => {
           if (reqSig.tokenAddress) return reqSig.tokenAddress;
           if (signingFYToken) return reqSig.series.fyTokenAddress;

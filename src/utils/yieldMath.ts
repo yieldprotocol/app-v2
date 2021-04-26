@@ -60,12 +60,12 @@ export function mint(
   baseReserves: BigNumber | string,
   fyTokenReserves: BigNumber | string,
   totalSupply: BigNumber | string,
-  dai: BigNumber | string,
+  base: BigNumber | string,
 ) : [ any, any ] {
   const baseReserves_ = new Decimal(baseReserves.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves.toString());
   const supply_ = new Decimal(totalSupply.toString());
-  const dai_ = new Decimal(dai.toString());
+  const dai_ = new Decimal(base.toString());
   const m = (supply_.mul(dai_)).div(baseReserves_);
   const y = (fyTokenReserves_.mul(m)).div(supply_);
   return [m, y];
@@ -89,14 +89,14 @@ export function burn(
 export function sellDai(
   baseReserves: BigNumber | string,
   fyTokenReserves: BigNumber | string,
-  dai: BigNumber | string,
+  base: BigNumber | string,
   timeTillMaturity: BigNumber | string,
   withNoFee: boolean = false, // optional: default === false
 ): string {
   const baseReserves_ = new Decimal(baseReserves.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves.toString());
   const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
-  const dai_ = new Decimal(dai.toString());
+  const dai_ = new Decimal(base.toString());
 
   const g = withNoFee ? ONE : g1;
   const t = k.mul(timeTillMaturity_);
@@ -116,14 +116,14 @@ export function sellDai(
 export function sellFYDai(
   baseReserves: BigNumber | string,
   fyTokenReserves: BigNumber | string,
-  fyDai: BigNumber | string,
+  fyToken: BigNumber | string,
   timeTillMaturity: BigNumber | string,
   withNoFee: boolean = false, // optional: default === false
 ): string {
   const baseReserves_ = new Decimal(baseReserves.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves.toString());
   const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
-  const fyDai_ = new Decimal(fyDai.toString());
+  const fyDai_ = new Decimal(fyToken.toString());
 
   const g = withNoFee ? ONE : g2;
   const t = k.mul(timeTillMaturity_);
@@ -143,14 +143,14 @@ export function sellFYDai(
 export function buyDai(
   baseReserves: BigNumber | string,
   fyTokenReserves: BigNumber | string,
-  dai: BigNumber | string,
+  base: BigNumber | string,
   timeTillMaturity: BigNumber | string,
   withNoFee: boolean = false, // optional: default === false
 ): string {
   const baseReserves_ = new Decimal(baseReserves.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves.toString());
   const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
-  const dai_ = new Decimal(dai.toString());
+  const dai_ = new Decimal(base.toString());
 
   const g = withNoFee ? ONE : g2;
   const t = k.mul(timeTillMaturity_);
@@ -170,14 +170,14 @@ export function buyDai(
 export function buyFYDai(
   baseReserves: BigNumber | string,
   fyTokenReserves: BigNumber | string,
-  fyDai: BigNumber | string,
+  fyToken: BigNumber | string,
   timeTillMaturity: BigNumber | string,
   withNoFee: boolean = false, // optional: default === false
 ): string {
   const baseReserves_ = new Decimal(baseReserves.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves.toString());
   const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
-  const fyDai_ = new Decimal(fyDai.toString());
+  const fyDai_ = new Decimal(fyToken.toString());
 
   const g = withNoFee ? ONE : g1;
   const t = k.mul(timeTillMaturity_);
@@ -197,15 +197,15 @@ export function buyFYDai(
 export function getFee(
   baseReserves: BigNumber | string,
   fyTokenReserves: BigNumber | string,
-  fyDai: BigNumber | string,
+  fyToken: BigNumber | string,
   timeTillMaturity: BigNumber | string,
 ): string {
   let fee_: Decimal = ZERO;
-  const fyDai_: BigNumber = BigNumber.isBigNumber(fyDai) ? fyDai : BigNumber.from(fyDai);
+  const fyDai_: BigNumber = BigNumber.isBigNumber(fyToken) ? fyToken : BigNumber.from(fyToken);
 
   if (fyDai_.gte(ethers.constants.Zero)) {
-    const daiWithFee: string = buyFYDai(baseReserves, fyTokenReserves, fyDai, timeTillMaturity);
-    const daiWithoutFee: string = buyFYDai(baseReserves, fyTokenReserves, fyDai, timeTillMaturity, true);
+    const daiWithFee: string = buyFYDai(baseReserves, fyTokenReserves, fyToken, timeTillMaturity);
+    const daiWithoutFee: string = buyFYDai(baseReserves, fyTokenReserves, fyToken, timeTillMaturity, true);
     fee_ = (new Decimal(daiWithFee)).sub(new Decimal(daiWithoutFee));
   } else {
     const daiWithFee:string = sellFYDai(baseReserves, fyTokenReserves, fyDai_.mul(BigNumber.from('-1')), timeTillMaturity);
@@ -219,13 +219,13 @@ export function getFee(
 //   baseReserves: BigNumber |string,
 //   fyDaiRealReserves: BigNumber|string,
 //   fyDaiVirtualReserves: BigNumber|string,
-//   dai: BigNumber|string,
+//   base: BigNumber|string,
 //   timeTillMaturity: BigNumber|string,
 // ): string {
 //   const baseReserves_ = new Decimal(baseReserves.toString());
 //   const fyDaiRealReserves_ = new Decimal(fyDaiRealReserves.toString());
 //   const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
-//   const dai_ = new Decimal(dai.toString());
+//   const dai_ = new Decimal(base.toString());
 
 //   let min = ZERO;
 //   let max = dai_;
@@ -241,17 +241,17 @@ export function getFee(
 //         timeTillMaturity_.toString(),
 //       ),
 //     );
-//     const Z_1 = baseReserves_.add(zIn); // New dai reserves
-//     const Y_1 = fyDaiRealReserves_.sub(yOut); // New fyDai reserves
-//     const pz = (dai_.sub(zIn)).div((dai_.sub(zIn)).add(yOut)); // dai proportion in my assets
-//     const PZ = Z_1.div(Z_1.add(Y_1)); // dai proportion in the reserves
+//     const Z_1 = baseReserves_.add(zIn); // New base reserves
+//     const Y_1 = fyDaiRealReserves_.sub(yOut); // New fyToken reserves
+//     const pz = (dai_.sub(zIn)).div((dai_.sub(zIn)).add(yOut)); // base proportion in my assets
+//     const PZ = Z_1.div(Z_1.add(Y_1)); // base proportion in the reserves
 
-//     // The dai proportion in my assets needs to be higher than but very close to the dai proportion in the reserves, to make sure all the fyDai is used.
+//     // The base proportion in my assets needs to be higher than but very close to the base proportion in the reserves, to make sure all the fyToken is used.
 //     if (PZ.mul(new Decimal(1.000001)) <= pz) min = yOut;
-//     yOut = (yOut.add(max)).div(TWO); // bought too little fyDai, buy some more
+//     yOut = (yOut.add(max)).div(TWO); // bought too little fyToken, buy some more
 
 //     if (pz <= PZ) max = yOut;
-//     yOut = (yOut.add(min)).div(TWO); // bought too much fyDai, buy a bit less
+//     yOut = (yOut.add(min)).div(TWO); // bought too much fyToken, buy a bit less
 //     if (PZ.mul(new Decimal(1.000001)) > pz && pz > PZ) return Decimal.floor(yOut).toFixed(); // Just right
 
 //     // eslint-disable-next-line no-plusplus
@@ -260,13 +260,13 @@ export function getFee(
 // }
 
 // /**
-//    * Split a certain amount of X liquidity into its two componetnts (eg. Dai and fyDai)
+//    * Split a certain amount of X liquidity into its two componetnts (eg. base and fyToken)
 //    *
-//    * @param { BigNumber } xReserves // eg. Dai reserves
-//    * @param { BigNumber } yReserves // eg. fyDai reservers
+//    * @param { BigNumber } xReserves // eg. base reserves
+//    * @param { BigNumber } yReserves // eg. fyToken reservers
 //    * @param {BigNumber} xAmount // amount to split in wei
 //    *
-//    * @returns  [ BigNumber, BigNumber ] returns an array of [dai, fyDai]
+//    * @returns  [ BigNumber, BigNumber ] returns an array of [base, fyToken]
 //    */
 // export const splitLiquidity = (
 //   xReserves: BigNumber | string,
@@ -286,10 +286,10 @@ export function getFee(
 // /**
 //    * Calculate amount of LP Tokens that will be minted
 //    *
-//    * @param { BigNumber | string } xReserves // eg. dai balance of pool
+//    * @param { BigNumber | string } xReserves // eg. base balance of pool
 //    * @param { BigNumber  | string} yReserves// eg. yDai series balance of Pool
 //    * @param { BigNumber | string  } totalSupply // total LP tokens
-//    * @param { BigNumber | string } xInput // dai input value by user
+//    * @param { BigNumber | string } xInput // base input value by user
 //    *
 //    * @returns { string } number of tokens minted
 //    */
@@ -334,8 +334,8 @@ export const calculateSlippage = (
 /**
    * Calculate Annualised Yield Rate
    *
-   * @param { BigNumber | string } rate // current [Dai] price per unit y[Dai]
-   * @param { BigNumber | string } amount // y[Dai] amount at maturity
+   * @param { BigNumber | string } rate // current [base] price per unit y[base]
+   * @param { BigNumber | string } amount // y[base] amount at maturity
    * @param { number } maturity  // date of maturity
    * @param { number } fromDate // ***optional*** start date - defaults to now()
    *
@@ -373,7 +373,7 @@ export const calculateAPR = (
    *
    * @param { BigNumber | string } collateralAmount  amount of collateral ( in wei)
    * @param { BigNumber | string } collateralPrice price of collateral (in USD)
-   * @param { BigNumber | string } debtValue value of dai debt (in USD)
+   * @param { BigNumber | string } debtValue value of base debt (in USD)
    * @param {boolean} asPercent OPTIONAL: flag to return ratio as a percentage
 
    * @returns { string | undefined }
@@ -399,7 +399,7 @@ export const collateralizationRatio = (
 };
 
 /**
-   * Calcualtes the amount (Dai, or other variant) that can be borrowed based on
+   * Calcualtes the amount (base, or other variant) that can be borrowed based on
    * an amount of collateral (ETH, or other), and collateral price.
    *
    * @param {BigNumber | string} collateralAmount amount of collateral
@@ -432,7 +432,7 @@ export const secondsToFrom = (
   return to_.sub(from_).toString();
 };
 
-/* eg. Dai(X) Obtained from SELLING  USDC (Y) */
+/* eg. base(X) Obtained from SELLING  USDC (Y) */
 export const psmXOut = (
   y :BigNumber| string, // WAD precision
   tin: BigNumber| string,
@@ -444,7 +444,7 @@ export const psmXOut = (
   return Decimal.floor(y_.mul(wad.sub(tin_)).div(wad)).toFixed(); // usdc*(1-tin)
 };
 
-/* eg. USD (Y) Obtained from SELLING Dai (X) */
+/* eg. USD (Y) Obtained from SELLING base (X) */
 export const psmYOut = (
   x:BigNumber| string, // WAD precision
   tin: BigNumber| string,
@@ -453,5 +453,5 @@ export const psmYOut = (
   const x_ = new Decimal(x.toString());
   const tin_ = new Decimal(tin.toString());
   const wad = new Decimal(1e18);
-  return x_.div(wad.sub(tin_)).toFixed(18); // dai/(1-tin)
+  return x_.div(wad.sub(tin_)).toFixed(18); // base/(1-tin)
 };
