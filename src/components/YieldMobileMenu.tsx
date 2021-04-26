@@ -24,7 +24,7 @@ const StyledBox = styled(Box)`
 
 const YieldMobileMenu = ({ toggleMenu }: { toggleMenu: ()=>void }) => {
   const [view, setView] = useState<string | undefined>(undefined);
-  const { userState: { vaultMap }, userActions: { setActiveVault } } = useContext(UserContext);
+  const { userState: { vaultData }, userActions: { setActiveVault } } = useContext(UserContext);
   const routerHistory = useHistory();
 
   const theme = useContext<any>(ThemeContext);
@@ -32,7 +32,7 @@ const YieldMobileMenu = ({ toggleMenu }: { toggleMenu: ()=>void }) => {
   const textBack = theme.global.colors['light-1'];
 
   const handleSelect = (vaultId:string) => {
-    setActiveVault(vaultMap.get(vaultId));
+    setActiveVault(vaultData.get(vaultId));
     routerHistory.push(`/vault/${vaultId}`);
     toggleMenu();
   };
@@ -94,7 +94,7 @@ const YieldMobileMenu = ({ toggleMenu }: { toggleMenu: ()=>void }) => {
           {
           view === View.vaults &&
           <Box gap="medium">
-            { Array.from(vaultMap.values() as IVault[]).map((x:IVault) => (
+            { Array.from(vaultData.values() as IVault[]).map((x:IVault) => (
               <Box
                 key={x.id}
                 pad="small"

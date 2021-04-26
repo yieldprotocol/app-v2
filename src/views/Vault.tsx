@@ -25,7 +25,8 @@ const Vault = () => {
   const routerHistory = useHistory();
 
   /* state from context */
-  const { userState: { vaultMap, activeVault }, userActions: { setActiveVault } } = useContext(UserContext);
+  const { userState, userActions: { setActiveVault } } = useContext(UserContext);
+  const { activeVault, vaultData, seriesData, assetData } = userState;
   const { chainState: { assetMap, seriesMap } } = useContext(ChainContext);
 
   /* local state */
@@ -38,8 +39,8 @@ const Vault = () => {
 
   /* init effects */
   useEffect(() => {
-    setAvailableVaults(Array.from(vaultMap.values())); // add some filtering here
-  }, [vaultMap, activeVault]);
+    setAvailableVaults(Array.from(vaultData.values())); // add some filtering here
+  }, [vaultData, activeVault]);
 
   const handleRepay = () => {
     repay(activeVault, inputValue?.toString());
@@ -60,7 +61,7 @@ const Vault = () => {
               icon={false}
               items={
                 availableVaults?.map((x:any) => (
-                  { label: <Text size="small"> {x.id} </Text>, onClick: () => setActiveVault(vaultMap.get(x.id)) }
+                  { label: <Text size="small"> {x.id} </Text>, onClick: () => setActiveVault(vaultData.get(x.id)) }
                 )) || []
               }
               onSelect={(x:any) => console.log(x)}

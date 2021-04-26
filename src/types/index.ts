@@ -28,8 +28,8 @@ export interface IAsset {
   address: string;
   joinAddress: string,
   // baked in token fns
-  balance: ()=>BigNumber,
-  allowance: ()=>BigNumber,
+  getBalance: ()=>BigNumber,
+  getAllowance: ()=>BigNumber,
 }
 
 export interface IVault {
@@ -37,10 +37,6 @@ export interface IVault {
   ilk: IAsset;
   base: IAsset;
   series: ISeries;
-  ink: BigNumber;
-  art: BigNumber;
-  ink_: string;
-  art_: string;
   image: string;
   displayId? : string;
 }
@@ -50,7 +46,8 @@ export interface ISeriesData extends ISeries {
 }
 
 export interface IAssetData extends IAsset {
-
+  balance: BigNumber;
+  balance_: string;
 }
 
 export interface IVaultData extends IVault {

@@ -20,7 +20,7 @@ const StyledBox = styled(Box)`
 
 const YieldMenu = ({ toggleMenu }: { toggleMenu: ()=>void }) => {
   /* state from contexts */
-  const { userState: { vaultMap, activeVault }, userActions: { setActiveVault } } = useContext(UserContext);
+  const { userState: { vaultData, activeVault }, userActions: { setActiveVault } } = useContext(UserContext);
   const routerHistory = useHistory();
   const theme = useContext<any>(ThemeContext);
   const textColor = theme.global.colors.brand;
@@ -32,11 +32,11 @@ const YieldMenu = ({ toggleMenu }: { toggleMenu: ()=>void }) => {
   } as CSSProperties;
 
   /* local state */
-  const [vaultsArray, setVaultsArray] = useState<IVault[]>(Array.from(vaultMap.values() as IVault[]));
+  const [vaultsArray, setVaultsArray] = useState<IVault[]>(Array.from(vaultData.values() as IVault[]));
   const [view, setView] = useState<View>(vaultsArray.length > 0 ? View.vaults : View.account);
 
   const handleSelect = (vaultId:string) => {
-    setActiveVault(vaultMap.get(vaultId));
+    setActiveVault(vaultData.get(vaultId));
     routerHistory.push(`/vault/${vaultId}`);
     toggleMenu();
   };

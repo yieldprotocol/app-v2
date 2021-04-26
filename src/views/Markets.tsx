@@ -15,7 +15,7 @@ const Markets = () => {
   const routerHistory = useHistory();
 
   /* state from context */
-  const { userState: { vaultMap } } = useContext(UserContext);
+  const { userState: { vaultData } } = useContext(UserContext);
 
   /* local state */
   const [inputValue, setInputValue] = useState<any>(undefined);
@@ -25,8 +25,8 @@ const Markets = () => {
 
   /* init effects */
   useEffect(() => {
-    setAvailableVaults(Array.from(vaultMap.values())); // add some filtering here
-  }, [vaultMap]);
+    setAvailableVaults(Array.from(vaultData.values())); // add some filtering here
+  }, [vaultData]);
 
   return (
     <MainViewWrap fullWidth>

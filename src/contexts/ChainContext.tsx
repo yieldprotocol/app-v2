@@ -204,8 +204,8 @@ const ChainProvider = ({ children }: any) => {
                 symbol,
                 joinAddress: joinMap.get(id),
                 /* baked in token fns */
-                balance: async () => account && await ERC20.balanceOf(account),
-                allowance: async (spender:string) => account && await ERC20.allowance(account, spender),
+                getBalance: async () => account && await ERC20.balanceOf(account),
+                getAllowance: async (spender:string) => account && await ERC20.allowance(account, spender),
               } });
           }));
         })(),
