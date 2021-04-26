@@ -163,7 +163,7 @@ const TxProvider = ({ children }:any) => {
 
   /* process watcher */
   useEffect(() => {
-    console.log(txState.processes);
+    txState.processes.length && console.log(txState.processes);
   }, [txState.processes]);
 
   /* signing watcher */

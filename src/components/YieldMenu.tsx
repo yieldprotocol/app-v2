@@ -3,9 +3,7 @@ import { Box, Button, Header, Image, Text } from 'grommet';
 import styled, { CSSProperties, ThemeContext } from 'styled-components';
 import { useHistory } from 'react-router-dom';
 import { UserContext } from '../contexts/UserContext';
-import { IMenuProps, IVault, View } from '../types';
-import VaultImage from './VaultImage';
-import { genVaultImage } from '../utils/displayUtils';
+import { IVault, View } from '../types';
 
 const StyledBox = styled(Box)`
   text-decoration: none;
@@ -20,7 +18,7 @@ const StyledBox = styled(Box)`
   }
 `;
 
-const YieldMenu = ({ toggleMenu }: IMenuProps) => {
+const YieldMenu = ({ toggleMenu }: { toggleMenu: ()=>void }) => {
   /* state from contexts */
   const { userState: { vaultMap, activeVault }, userActions: { setActiveVault } } = useContext(UserContext);
   const routerHistory = useHistory();

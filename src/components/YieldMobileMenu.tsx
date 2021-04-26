@@ -5,7 +5,7 @@ import { FiX, FiArrowLeftCircle } from 'react-icons/fi';
 import styled, { CSSProperties, ThemeContext } from 'styled-components';
 
 import { UserContext } from '../contexts/UserContext';
-import { IMenuProps, IVault, View } from '../types';
+import { IVault, View } from '../types';
 import YieldNavigation from './YieldNavigation';
 import YieldMenu from './YieldMenu';
 
@@ -22,7 +22,7 @@ const StyledBox = styled(Box)`
   }
 `;
 
-const YieldMobileMenu = ({ toggleMenu }: IMenuProps) => {
+const YieldMobileMenu = ({ toggleMenu }: { toggleMenu: ()=>void }) => {
   const [view, setView] = useState<string | undefined>(undefined);
   const { userState: { vaultMap }, userActions: { setActiveVault } } = useContext(UserContext);
   const routerHistory = useHistory();
@@ -123,6 +123,6 @@ const YieldMobileMenu = ({ toggleMenu }: IMenuProps) => {
   );
 };
 
-YieldMobileMenu.defaultProps = { callback: () => null };
+// YieldMobileMenu.defaultProps = { callback: () => null };
 
 export default YieldMobileMenu;

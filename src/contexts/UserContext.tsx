@@ -1,7 +1,7 @@
-import React, { useState, useContext, useEffect, useReducer } from 'react';
+import React, { useState, useContext, useEffect, useReducer, useCallback } from 'react';
 import { ethers } from 'ethers';
 
-import { IAsset, ISeries, IVault, ISeriesData, IAssetData } from '../types';
+import { IAsset, ISeries, IVault, ISeriesData, IAssetData, IVaultData } from '../types';
 
 import { ChainContext } from './ChainContext';
 import { cleanValue, genVaultImage } from '../utils/displayUtils';
@@ -14,6 +14,7 @@ const initState = {
 
   seriesData: new Map() as Map<string, ISeriesData>,
   assetData: new Map() as Map<string, IAssetData>,
+  vaultData: new Map() as Map<string, IVaultData>,
 
   vaultMap: new Map() as Map<string, IVault>,
   activeVault: null as IVault|null,
@@ -61,8 +62,7 @@ const UserProvider = ({ children }:any) => {
   } = chainState;
 
   const [userState, updateState] = useReducer(userReducer, initState);
-
-  const updateVaults = async () => {
+  const getVaults = useCallback(async () => {
     const Cauldron = contractMap.get('Cauldron');
     const filter = Cauldron.filters.VaultBuilt(null, account, null);
     const eventList = await Cauldron.queryFilter(filter, 1);
@@ -94,58 +94,31 @@ const UserProvider = ({ children }:any) => {
 
     console.log('VAULTS: ', newVaultMap);
     updateState({ type: 'vaultMap', payload: newVaultMap });
+    return newVaultMap;
     /* Update the local cache storage */
     // setCachedVaults({ data: Array.from(newVaultMap.values()), lastBlock: await fallbackProvider.getBlockNumber() });
+  }, [account, contractMap, userState.vaultMap, assetMap, seriesMap]);
+
+  const updateSeries = async (seriesList: ISeries[]) => {
+    seriesList.length && console.log(seriesList);
   };
 
-  const updateSeriesPosition = async () => {
-
+  const updateAssets = async (assetList: IAsset[]) => {
+    assetList.length && console.log(assetList);
   };
 
-  const updateAssetPosition = async () => {
-
+  const updateVaults = async (vaultList: IVault[]) => {
+    vaultList.length && console.log(vaultList);
   };
 
   useEffect(() => {
     /* when there is an account and the chainContext is finsihed loading get the vaults */
     account &&
     !chainLoading &&
-    (async () => {
-      const Cauldron = contractMap.get('Cauldron');
-      const filter = Cauldron.filters.VaultBuilt(null, account, null);
-      const eventList = await Cauldron.queryFilter(filter, 1);
-      // const eventList = await Cauldron.queryFilter(filter, cachedVaults.lastBlock);
-      const vaultList : IVault[] = await Promise.all(eventList.map(async (x:any) : Promise<IVault> => {
-        const { vaultId: id, ilkId, seriesId } = Cauldron.interface.parseLog(x).args;
-        /* Add in the extra variable vault data */
-        const { ink, art } = await Cauldron.balances(id);
-        const series = seriesMap.get(seriesId);
-        return {
-          id,
-          series,
-          ilk: assetMap.get(ilkId),
-          base: assetMap.get(series.baseId),
-          ink,
-          art,
-          ink_: cleanValue(ethers.utils.formatEther(ink), 2), // for display purposes only
-          art_: cleanValue(ethers.utils.formatEther(art), 2), // for display purposes only
-          image: genVaultImage(id),
-        };
-      }));
-      // const _combined = [...cachedVaults.data, ...vaultList];
-      const _combined: IVault[] = [...vaultList];
-      const newVaultMap = _combined.reduce((acc:any, item:any) => {
-        const _map = acc;
-        _map.set(item.id, item);
-        return _map;
-      }, userState.vaultMap) as Map<string, IVault>;
-
-      console.log('VAULTS: ', newVaultMap);
-      updateState({ type: 'vaultMap', payload: newVaultMap });
-      /* Update the local cache storage */
-      // setCachedVaults({ data: Array.from(newVaultMap.values()), lastBlock: await fallbackProvider.getBlockNumber() });
-    })();
-  }, [account, chainLoading, contractMap, userState.vaultMap, assetMap, seriesMap]);
+    getVaults().then((_vaults:any) => updateVaults(Array.from(_vaults.values())));
+    updateSeries(Array.from(seriesMap.values()));
+    updateAssets(Array.from(assetMap.values()));
+  }, [account, getVaults, chainLoading]);
 
   /* subscribe to vault event listeners */
   useEffect(() => {
@@ -159,10 +132,12 @@ const UserProvider = ({ children }:any) => {
   }, [chainLoading, assetMap]);
 
   const userActions = {
+
     setActiveVault: (vault:IVault) => updateState({ type: 'activeVault', payload: vault }),
     setSelectedIlk: (asset:IAsset) => updateState({ type: 'selectedIlk', payload: asset }),
     setSelectedSeries: (series:ISeries) => updateState({ type: 'selectedSeries', payload: series }),
     setSelectedBase: (asset:IAsset) => updateState({ type: 'selectedBase', payload: asset }),
+
   };
 
   return (

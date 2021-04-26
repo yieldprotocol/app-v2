@@ -1,10 +1,5 @@
-import { ethers, BigNumber, ContractFactory } from 'ethers';
+import { ethers, BigNumber } from 'ethers';
 import { FYToken, Pool } from '../contracts';
-
-export enum TradeType {
-  BUY = 'BUY',
-  SELL = 'SELL',
-}
 
 export interface ISeries {
   // reqd/fixed:
@@ -12,14 +7,15 @@ export interface ISeries {
   displayName: string;
   displayNameMobile: string;
   maturity: number;
+  maturityDate: Date;
   fyTokenContract: FYToken;
   poolContract:Pool;
   baseId: string;
   fyTokenAddress: string;
+  // baked in token fns
   getBaseAddress: ()=> string;
 
   // optional/calculated/mutable:
-  maturityDate?: Date;
   apr?: string;
 }
 
@@ -31,17 +27,9 @@ export interface IAsset {
   displayNameMobile: string;
   address: string;
   joinAddress: string,
-  /* baked in token fns */
+  // baked in token fns
   balance: ()=>BigNumber,
   allowance: ()=>BigNumber,
-}
-
-export interface ISeriesData extends ISeries {
-
-}
-
-export interface IAssetData extends IAsset {
-
 }
 
 export interface IVault {
@@ -55,6 +43,21 @@ export interface IVault {
   art_: string;
   image: string;
   displayId? : string;
+}
+
+export interface ISeriesData extends ISeries {
+  apr?: string;
+}
+
+export interface IAssetData extends IAsset {
+
+}
+
+export interface IVaultData extends IVault {
+  ink: BigNumber;
+  art: BigNumber;
+  ink_: string;
+  art_: string;
 }
 
 export interface ICallData {
@@ -109,15 +112,9 @@ export enum SignType {
   FYTOKEN = 'FYTOKEN_TYPE',
 }
 
-export interface IYieldUser {
-  // reqd/fixed:
-  id: number;
-  address: string;
-  // optional/calculated/mutable:
-}
-
-export interface IMenuProps {
-  toggleMenu: ()=>void;
+export enum TradeType {
+  BUY = 'BUY',
+  SELL = 'SELL',
 }
 
 export enum View {

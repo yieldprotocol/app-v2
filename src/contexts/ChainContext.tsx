@@ -270,9 +270,9 @@ const ChainProvider = ({ children }: any) => {
    * Once the series list updates, update the list with the associated joins > this needs to be seperate from above to
    * allow for caching - and watching for any newly added assets
    */
-  useEffect(() => {
-    chainState.seriesMap && console.log(chainState.seriesMap);
-  }, [chainState.seriesMap]);
+  // useEffect(() => {
+  //   chainState.seriesMap && console.log(chainState.seriesMap);
+  // }, [chainState.seriesMap]);
 
   /**
    * Update on PRIMARY connection any network changes (likely via metamask/walletConnect)
