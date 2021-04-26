@@ -37,20 +37,15 @@ function userReducer(state:any, action:any) {
   /* Reducer switch */
   switch (action.type) {
     case 'userLoading': return { ...state, seriesLoading: onlyIfChanged(action) };
-
     case 'assetData': return { ...state, assetData: onlyIfChanged(action) };
     case 'seriesData': return { ...state, seriesData: onlyIfChanged(action) };
     case 'vaultData': return { ...state, vaultData: onlyIfChanged(action) };
-
     case 'vaultMap': return { ...state, vaultMap: onlyIfChanged(action) };
-
     case 'activeVault': return { ...state, activeVault: onlyIfChanged(action) };
     case 'activeAccount': return { ...state, activeAccount: onlyIfChanged(action) };
-
     case 'selectedSeries': return { ...state, selectedSeries: onlyIfChanged(action) };
     case 'selectedIlk': return { ...state, selectedIlk: onlyIfChanged(action) };
     case 'selectedBase': return { ...state, selectedBase: onlyIfChanged(action) };
-
     default: return state;
   }
 }
@@ -68,7 +63,8 @@ const UserProvider = ({ children }:any) => {
 
   const [userState, updateState] = useReducer(userReducer, initState);
 
-  const getVaults = useCallback(async () => {
+  /* internal function for getting the users vaults */
+  const _getVaults = useCallback(async () => {
     const Cauldron = contractMap.get('Cauldron');
     const filter = Cauldron.filters.VaultBuilt(null, account, null);
     const eventList = await Cauldron.queryFilter(filter, 1);
@@ -102,8 +98,11 @@ const UserProvider = ({ children }:any) => {
 
   /* Updates the series with relevant *user* data */
   const updateSeries = useCallback(async (seriesList: ISeries[]) => {
+    let _publicData : ISeries[] = [];
+    let _accountData : ISeries[] = [];
+
     /* Add in the dynamic series data of the series in the list */
-    const _publicData = await Promise.all(
+    _publicData = await Promise.all(
       seriesList.map(async (series:ISeries) : Promise<ISeriesData> => {
         /* Get all the data simultanenously in a promise.all */
         const [baseReserves, fyTokenReserves] = await Promise.all([
@@ -120,7 +119,6 @@ const UserProvider = ({ children }:any) => {
       }),
     );
 
-    let _accountData : ISeries[] = [];
     if (account) {
       _accountData = await Promise.all(
         seriesList.map(async (series:ISeries) : Promise<any> => {
@@ -137,6 +135,8 @@ const UserProvider = ({ children }:any) => {
         }),
       );
     }
+
+    /* combined account and public series data */
     const newSeriesMap = [..._publicData, ..._accountData].reduce((acc:any, item:any) => {
       const _map = acc;
       _map.set(item.id, item);
@@ -210,12 +210,12 @@ const UserProvider = ({ children }:any) => {
     /* When the chainContext is finished loading get the dynamic asset data and vaults */
     if (account && !chainLoading) {
       Array.from(assetMap.values()).length && updateAssets(Array.from(assetMap.values()));
-      getVaults().then((_vaults:any) => updateVaults(Array.from(_vaults.values())));
+      _getVaults().then((_vaults:any) => updateVaults(Array.from(_vaults.values())));
     }
   }, [
     account, chainLoading,
     assetMap, updateAssets,
-    getVaults, updateVaults,
+    _getVaults, updateVaults,
   ]);
 
   /* Subscribe to vault event listeners */

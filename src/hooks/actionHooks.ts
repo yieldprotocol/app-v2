@@ -17,7 +17,7 @@ export const useActions = () => {
   const { sign, transact } = useChain();
 
   /**
-   * Common ICalldata builders:
+   * Common internal ICalldata builders:
    *  - Create a call that builds a new Vault
    *  - Create a call that takes ETH, wraps it, and adds it as collateral
    * */

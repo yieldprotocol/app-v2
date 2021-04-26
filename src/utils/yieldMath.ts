@@ -57,44 +57,44 @@ export const floorDecimal = (val: BigNumber | string): string => Decimal.floor(v
  *
  * */
 export function mint(
-  daiReserves: BigNumber | string,
-  fyDaiReserves: BigNumber | string,
+  baseReserves: BigNumber | string,
+  fyTokenReserves: BigNumber | string,
   totalSupply: BigNumber | string,
   dai: BigNumber | string,
 ) : [ any, any ] {
-  const daiReserves_ = new Decimal(daiReserves.toString());
-  const fyDaiReserves_ = new Decimal(fyDaiReserves.toString());
+  const baseReserves_ = new Decimal(baseReserves.toString());
+  const fyTokenReserves_ = new Decimal(fyTokenReserves.toString());
   const supply_ = new Decimal(totalSupply.toString());
   const dai_ = new Decimal(dai.toString());
-  const m = (supply_.mul(dai_)).div(daiReserves_);
-  const y = (fyDaiReserves_.mul(m)).div(supply_);
+  const m = (supply_.mul(dai_)).div(baseReserves_);
+  const y = (fyTokenReserves_.mul(m)).div(supply_);
   return [m, y];
 }
 
 export function burn(
-  daiReserves: BigNumber | string,
-  fyDaiReserves: BigNumber | string,
+  baseReserves: BigNumber | string,
+  fyTokenReserves: BigNumber | string,
   totalSupply: BigNumber | string,
   lpTokens: BigNumber | string,
 ): [any, any] {
-  const daiReserves_ = new Decimal(daiReserves.toString());
-  const fyDaiReserves_ = new Decimal(fyDaiReserves.toString());
+  const baseReserves_ = new Decimal(baseReserves.toString());
+  const fyTokenReserves_ = new Decimal(fyTokenReserves.toString());
   const supply_ = new Decimal(totalSupply.toString());
   const lpTokens_ = new Decimal(lpTokens.toString());
-  const z = (lpTokens_.mul(daiReserves_)).div(supply_);
-  const y = (lpTokens_.mul(fyDaiReserves_)).div(supply_);
+  const z = (lpTokens_.mul(baseReserves_)).div(supply_);
+  const y = (lpTokens_.mul(fyTokenReserves_)).div(supply_);
   return [z, y];
 }
 
 export function sellDai(
-  daiReserves: BigNumber | string,
-  fyDaiReserves: BigNumber | string,
+  baseReserves: BigNumber | string,
+  fyTokenReserves: BigNumber | string,
   dai: BigNumber | string,
   timeTillMaturity: BigNumber | string,
   withNoFee: boolean = false, // optional: default === false
 ): string {
-  const daiReserves_ = new Decimal(daiReserves.toString());
-  const fyDaiReserves_ = new Decimal(fyDaiReserves.toString());
+  const baseReserves_ = new Decimal(baseReserves.toString());
+  const fyTokenReserves_ = new Decimal(fyTokenReserves.toString());
   const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
   const dai_ = new Decimal(dai.toString());
 
@@ -103,25 +103,25 @@ export function sellDai(
   const a = ONE.sub(g.mul(t));
   const invA = ONE.div(a);
 
-  const Za = daiReserves_.pow(a);
-  const Ya = fyDaiReserves_.pow(a);
-  const Zxa = (daiReserves_.add(dai_)).pow(a);
+  const Za = baseReserves_.pow(a);
+  const Ya = fyTokenReserves_.pow(a);
+  const Zxa = (baseReserves_.add(dai_)).pow(a);
   const sum = (Za.add(Ya)).sub(Zxa);
-  const y = fyDaiReserves_.sub(sum.pow(invA));
+  const y = fyTokenReserves_.sub(sum.pow(invA));
   const yFee = y.sub(precisionFee);
 
   return yFee.toString();
 }
 
 export function sellFYDai(
-  daiReserves: BigNumber | string,
-  fyDaiReserves: BigNumber | string,
+  baseReserves: BigNumber | string,
+  fyTokenReserves: BigNumber | string,
   fyDai: BigNumber | string,
   timeTillMaturity: BigNumber | string,
   withNoFee: boolean = false, // optional: default === false
 ): string {
-  const daiReserves_ = new Decimal(daiReserves.toString());
-  const fyDaiReserves_ = new Decimal(fyDaiReserves.toString());
+  const baseReserves_ = new Decimal(baseReserves.toString());
+  const fyTokenReserves_ = new Decimal(fyTokenReserves.toString());
   const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
   const fyDai_ = new Decimal(fyDai.toString());
 
@@ -130,25 +130,25 @@ export function sellFYDai(
   const a = ONE.sub(g.mul(t));
   const invA = ONE.div(a);
 
-  const Za = daiReserves_.pow(a);
-  const Ya = fyDaiReserves_.pow(a);
-  const Yxa = (fyDaiReserves_.add(fyDai_)).pow(a);
+  const Za = baseReserves_.pow(a);
+  const Ya = fyTokenReserves_.pow(a);
+  const Yxa = (fyTokenReserves_.add(fyDai_)).pow(a);
   const sum = Za.add(Ya.sub(Yxa));
-  const y = daiReserves_.sub(sum.pow(invA));
+  const y = baseReserves_.sub(sum.pow(invA));
   const yFee = y.sub(precisionFee);
 
   return yFee.toString();
 }
 
 export function buyDai(
-  daiReserves: BigNumber | string,
-  fyDaiReserves: BigNumber | string,
+  baseReserves: BigNumber | string,
+  fyTokenReserves: BigNumber | string,
   dai: BigNumber | string,
   timeTillMaturity: BigNumber | string,
   withNoFee: boolean = false, // optional: default === false
 ): string {
-  const daiReserves_ = new Decimal(daiReserves.toString());
-  const fyDaiReserves_ = new Decimal(fyDaiReserves.toString());
+  const baseReserves_ = new Decimal(baseReserves.toString());
+  const fyTokenReserves_ = new Decimal(fyTokenReserves.toString());
   const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
   const dai_ = new Decimal(dai.toString());
 
@@ -157,25 +157,25 @@ export function buyDai(
   const a = ONE.sub(g.mul(t));
   const invA = ONE.div(a);
 
-  const Za = daiReserves_.pow(a);
-  const Ya = fyDaiReserves_.pow(a);
-  const Zxa = (daiReserves_.sub(dai_)).pow(a);
+  const Za = baseReserves_.pow(a);
+  const Ya = fyTokenReserves_.pow(a);
+  const Zxa = (baseReserves_.sub(dai_)).pow(a);
   const sum = (Za.add(Ya)).sub(Zxa);
-  const y = (sum.pow(invA)).sub(fyDaiReserves_);
+  const y = (sum.pow(invA)).sub(fyTokenReserves_);
   const yFee = y.add(precisionFee);
 
   return yFee.toString();
 }
 
 export function buyFYDai(
-  daiReserves: BigNumber | string,
-  fyDaiReserves: BigNumber | string,
+  baseReserves: BigNumber | string,
+  fyTokenReserves: BigNumber | string,
   fyDai: BigNumber | string,
   timeTillMaturity: BigNumber | string,
   withNoFee: boolean = false, // optional: default === false
 ): string {
-  const daiReserves_ = new Decimal(daiReserves.toString());
-  const fyDaiReserves_ = new Decimal(fyDaiReserves.toString());
+  const baseReserves_ = new Decimal(baseReserves.toString());
+  const fyTokenReserves_ = new Decimal(fyTokenReserves.toString());
   const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
   const fyDai_ = new Decimal(fyDai.toString());
 
@@ -184,19 +184,19 @@ export function buyFYDai(
   const a = ONE.sub(g.mul(t));
   const invA = ONE.div(a);
 
-  const Za = daiReserves_.pow(a);
-  const Ya = fyDaiReserves_.pow(a);
-  const Yxa = (fyDaiReserves_.sub(fyDai_)).pow(a);
+  const Za = baseReserves_.pow(a);
+  const Ya = fyTokenReserves_.pow(a);
+  const Yxa = (fyTokenReserves_.sub(fyDai_)).pow(a);
   const sum = Za.add(Ya.sub(Yxa));
-  const y = (sum.pow(invA)).sub(daiReserves_);
+  const y = (sum.pow(invA)).sub(baseReserves_);
   const yFee = y.add(precisionFee);
 
   return yFee.toString();
 }
 
 export function getFee(
-  daiReserves: BigNumber | string,
-  fyDaiReserves: BigNumber | string,
+  baseReserves: BigNumber | string,
+  fyTokenReserves: BigNumber | string,
   fyDai: BigNumber | string,
   timeTillMaturity: BigNumber | string,
 ): string {
@@ -204,25 +204,25 @@ export function getFee(
   const fyDai_: BigNumber = BigNumber.isBigNumber(fyDai) ? fyDai : BigNumber.from(fyDai);
 
   if (fyDai_.gte(ethers.constants.Zero)) {
-    const daiWithFee: string = buyFYDai(daiReserves, fyDaiReserves, fyDai, timeTillMaturity);
-    const daiWithoutFee: string = buyFYDai(daiReserves, fyDaiReserves, fyDai, timeTillMaturity, true);
+    const daiWithFee: string = buyFYDai(baseReserves, fyTokenReserves, fyDai, timeTillMaturity);
+    const daiWithoutFee: string = buyFYDai(baseReserves, fyTokenReserves, fyDai, timeTillMaturity, true);
     fee_ = (new Decimal(daiWithFee)).sub(new Decimal(daiWithoutFee));
   } else {
-    const daiWithFee:string = sellFYDai(daiReserves, fyDaiReserves, fyDai_.mul(BigNumber.from('-1')), timeTillMaturity);
-    const daiWithoutFee:string = sellFYDai(daiReserves, fyDaiReserves, fyDai_.mul(BigNumber.from('-1')), timeTillMaturity, true);
+    const daiWithFee:string = sellFYDai(baseReserves, fyTokenReserves, fyDai_.mul(BigNumber.from('-1')), timeTillMaturity);
+    const daiWithoutFee:string = sellFYDai(baseReserves, fyTokenReserves, fyDai_.mul(BigNumber.from('-1')), timeTillMaturity, true);
     fee_ = (new Decimal(daiWithoutFee)).sub(new Decimal(daiWithFee));
   }
   return fee_.toString();
 }
 
 // export function fyDaiForMint(
-//   daiReserves: BigNumber |string,
+//   baseReserves: BigNumber |string,
 //   fyDaiRealReserves: BigNumber|string,
 //   fyDaiVirtualReserves: BigNumber|string,
 //   dai: BigNumber|string,
 //   timeTillMaturity: BigNumber|string,
 // ): string {
-//   const daiReserves_ = new Decimal(daiReserves.toString());
+//   const baseReserves_ = new Decimal(baseReserves.toString());
 //   const fyDaiRealReserves_ = new Decimal(fyDaiRealReserves.toString());
 //   const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
 //   const dai_ = new Decimal(dai.toString());
@@ -235,13 +235,13 @@ export function getFee(
 //   while (true) {
 //     const zIn = new Decimal(
 //       buyFYDai(
-//         daiReserves,
+//         baseReserves,
 //         fyDaiVirtualReserves,
 //         BigNumber.from(yOut.toFixed(0)),
 //         timeTillMaturity_.toString(),
 //       ),
 //     );
-//     const Z_1 = daiReserves_.add(zIn); // New dai reserves
+//     const Z_1 = baseReserves_.add(zIn); // New dai reserves
 //     const Y_1 = fyDaiRealReserves_.sub(yOut); // New fyDai reserves
 //     const pz = (dai_.sub(zIn)).div((dai_.sub(zIn)).add(yOut)); // dai proportion in my assets
 //     const PZ = Z_1.div(Z_1.add(Y_1)); // dai proportion in the reserves
