@@ -5,6 +5,7 @@ import { IAsset, ISeries, IVault, ISeriesData, IAssetData, IVaultData } from '..
 
 import { ChainContext } from './ChainContext';
 import { cleanValue, genVaultImage } from '../utils/displayUtils';
+import { calculateAPR, floorDecimal, secondsToFrom, sellFYToken } from '../utils/yieldMath';
 
 const UserContext = React.createContext<any>({});
 
@@ -109,12 +110,24 @@ const UserProvider = ({ children }:any) => {
           series.poolContract.getBaseTokenReserves(),
           series.poolContract.getFYTokenReserves(),
         ]);
+        // const unitTrade = sellFYDai(baseReserves, fyTokenReserves, '1', series.maturity.toString());
+        // console.log(baseReserves.toString(), fyTokenReserves.toString(), unitTrade);
+        // const apr = calculateAPR(unitTrade, '1', series.maturity);
+        const _rate = sellFYToken(
+          baseReserves,
+          fyTokenReserves,
+          ethers.utils.parseEther('1'),
+          secondsToFrom(series.maturity.toString()),
+        );
+        const APR = calculateAPR(floorDecimal(_rate), ethers.utils.parseEther('1'), series.maturity) || '0';
+
         console.log('updated, public series data');
         return {
           ...series,
           baseReserves,
           fyTokenReserves,
-          apr: '3.23%',
+          APR: APR || '',
+          APR_: `${Number(APR).toFixed(2)}%`,
         };
       }),
     );
@@ -198,7 +211,6 @@ const UserProvider = ({ children }:any) => {
   }, [userState.vaultData, contractMap]);
 
   useEffect(() => {
-    console.log(account);
     /* When the chainContext is finished loading get the dynamic series data */
     !chainLoading && Array.from(seriesMap.values()).length && updateSeries(Array.from(seriesMap.values()));
   }, [

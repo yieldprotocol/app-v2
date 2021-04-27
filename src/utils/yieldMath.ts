@@ -86,7 +86,7 @@ export function burn(
   return [z, y];
 }
 
-export function sellDai(
+export function sellBase(
   baseReserves: BigNumber | string,
   fyTokenReserves: BigNumber | string,
   base: BigNumber | string,
@@ -113,7 +113,7 @@ export function sellDai(
   return yFee.toString();
 }
 
-export function sellFYDai(
+export function sellFYToken(
   baseReserves: BigNumber | string,
   fyTokenReserves: BigNumber | string,
   fyToken: BigNumber | string,
@@ -140,7 +140,7 @@ export function sellFYDai(
   return yFee.toString();
 }
 
-export function buyDai(
+export function buyBase(
   baseReserves: BigNumber | string,
   fyTokenReserves: BigNumber | string,
   base: BigNumber | string,
@@ -167,7 +167,7 @@ export function buyDai(
   return yFee.toString();
 }
 
-export function buyFYDai(
+export function buyFYToken(
   baseReserves: BigNumber | string,
   fyTokenReserves: BigNumber | string,
   fyToken: BigNumber | string,
@@ -204,12 +204,12 @@ export function getFee(
   const fyDai_: BigNumber = BigNumber.isBigNumber(fyToken) ? fyToken : BigNumber.from(fyToken);
 
   if (fyDai_.gte(ethers.constants.Zero)) {
-    const daiWithFee: string = buyFYDai(baseReserves, fyTokenReserves, fyToken, timeTillMaturity);
-    const daiWithoutFee: string = buyFYDai(baseReserves, fyTokenReserves, fyToken, timeTillMaturity, true);
+    const daiWithFee: string = buyFYToken(baseReserves, fyTokenReserves, fyToken, timeTillMaturity);
+    const daiWithoutFee: string = buyFYToken(baseReserves, fyTokenReserves, fyToken, timeTillMaturity, true);
     fee_ = (new Decimal(daiWithFee)).sub(new Decimal(daiWithoutFee));
   } else {
-    const daiWithFee:string = sellFYDai(baseReserves, fyTokenReserves, fyDai_.mul(BigNumber.from('-1')), timeTillMaturity);
-    const daiWithoutFee:string = sellFYDai(baseReserves, fyTokenReserves, fyDai_.mul(BigNumber.from('-1')), timeTillMaturity, true);
+    const daiWithFee:string = sellFYToken(baseReserves, fyTokenReserves, fyDai_.mul(BigNumber.from('-1')), timeTillMaturity);
+    const daiWithoutFee:string = sellFYToken(baseReserves, fyTokenReserves, fyDai_.mul(BigNumber.from('-1')), timeTillMaturity, true);
     fee_ = (new Decimal(daiWithoutFee)).sub(new Decimal(daiWithFee));
   }
   return fee_.toString();
@@ -259,55 +259,55 @@ export function getFee(
 //   }
 // }
 
-// /**
-//    * Split a certain amount of X liquidity into its two componetnts (eg. base and fyToken)
-//    *
-//    * @param { BigNumber } xReserves // eg. base reserves
-//    * @param { BigNumber } yReserves // eg. fyToken reservers
-//    * @param {BigNumber} xAmount // amount to split in wei
-//    *
-//    * @returns  [ BigNumber, BigNumber ] returns an array of [base, fyToken]
-//    */
-// export const splitLiquidity = (
-//   xReserves: BigNumber | string,
-//   yReserves: BigNumber | string,
-//   xAmount: BigNumber | string,
-// ) : [string, string] => {
-//   const xReserves_ = new Decimal(xReserves.toString());
-//   const yReserves_ = new Decimal(yReserves.toString());
-//   const xAmount_ = new Decimal(xAmount.toString());
+/**
+   * Split a certain amount of X liquidity into its two componetnts (eg. base and fyToken)
+   *
+   * @param { BigNumber } xReserves // eg. base reserves
+   * @param { BigNumber } yReserves // eg. fyToken reservers
+   * @param {BigNumber} xAmount // amount to split in wei
+   *
+   * @returns  [ BigNumber, BigNumber ] returns an array of [base, fyToken]
+   */
+export const splitLiquidity = (
+  xReserves: BigNumber | string,
+  yReserves: BigNumber | string,
+  xAmount: BigNumber | string,
+) : [string, string] => {
+  const xReserves_ = new Decimal(xReserves.toString());
+  const yReserves_ = new Decimal(yReserves.toString());
+  const xAmount_ = new Decimal(xAmount.toString());
 
-//   const xPortion = (xAmount_.mul(xReserves_)).div(yReserves_.add(xReserves_));
+  const xPortion = (xAmount_.mul(xReserves_)).div(yReserves_.add(xReserves_));
 
-//   const yPortion = xAmount_.sub(xPortion);
-//   return [xPortion.toFixed(), yPortion.toFixed()];
-// };
+  const yPortion = xAmount_.sub(xPortion);
+  return [xPortion.toFixed(), yPortion.toFixed()];
+};
 
-// /**
-//    * Calculate amount of LP Tokens that will be minted
-//    *
-//    * @param { BigNumber | string } xReserves // eg. base balance of pool
-//    * @param { BigNumber  | string} yReserves// eg. yDai series balance of Pool
-//    * @param { BigNumber | string  } totalSupply // total LP tokens
-//    * @param { BigNumber | string } xInput // base input value by user
-//    *
-//    * @returns { string } number of tokens minted
-//    */
-// export const calcTokensMinted = (
-//   xReserves: BigNumber | string,
-//   yReserves: BigNumber | string,
-//   totalSupply: BigNumber| string,
-//   xInput: BigNumber | string,
-// ) : string => {
-//   const xReserves_ = new Decimal(xReserves.toString());
-//   const _totalSupply = new Decimal(totalSupply.toString());
-//   const _yReserves = new Decimal(yReserves.toString());
-//   const _xInput = new Decimal(xInput.toString());
-//   const xOffered = (_xInput.mul(xReserves_)).div(_yReserves.add(xReserves_));
-//   // const [xOffered, ] =  splitLiquidity(xReserves, yReserves, xInput);
+/**
+   * Calculate amount of LP Tokens that will be minted
+   *
+   * @param { BigNumber | string } xReserves // eg. base balance of pool
+   * @param { BigNumber  | string} yReserves// eg. yDai series balance of Pool
+   * @param { BigNumber | string  } totalSupply // total LP tokens
+   * @param { BigNumber | string } xInput // base input value by user
+   *
+   * @returns { string } number of tokens minted
+   */
+export const calcTokensMinted = (
+  xReserves: BigNumber | string,
+  yReserves: BigNumber | string,
+  totalSupply: BigNumber| string,
+  xInput: BigNumber | string,
+) : string => {
+  const xReserves_ = new Decimal(xReserves.toString());
+  const _totalSupply = new Decimal(totalSupply.toString());
+  const _yReserves = new Decimal(yReserves.toString());
+  const _xInput = new Decimal(xInput.toString());
+  const xOffered = (_xInput.mul(xReserves_)).div(_yReserves.add(xReserves_));
+  // const [xOffered, ] =  splitLiquidity(xReserves, yReserves, xInput);
 
-//   return (_totalSupply).mul(xOffered).div(xReserves_).toString();
-// };
+  return (_totalSupply).mul(xOffered).div(xReserves_).toString();
+};
 
 /**
    * Calculate Slippage
@@ -349,6 +349,8 @@ export const calculateAPR = (
 ): string | undefined => {
   const tradeValue_ = new Decimal(tradeValue.toString());
   const amount_ = new Decimal(amount.toString());
+
+  console.log(tradeValue_, amount_);
 
   if (
     maturity > Math.round(new Date().getTime() / 1000)
@@ -428,7 +430,6 @@ export const secondsToFrom = (
 ) : string => {
   const to_ = ethers.BigNumber.isBigNumber(to) ? to : BigNumber.from(to);
   const from_ = ethers.BigNumber.isBigNumber(from) ? from : BigNumber.from(from);
-
   return to_.sub(from_).toString();
 };
 
