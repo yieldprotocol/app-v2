@@ -43,7 +43,6 @@ export interface IVault {
 
 export interface ISeriesData extends ISeries {
   APR: string;
-  APR_: string;
   baseReserves: BigNumber;
   fyTokenReserves: BigNumber;
   poolTokens?: BigNumber|undefined;

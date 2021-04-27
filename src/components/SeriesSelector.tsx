@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Box, ResponsiveContext, Select, Text, ThemeContext } from 'grommet';
 
 import { ChainContext } from '../contexts/ChainContext';
-import { ISeries } from '../types';
+import { ISeriesData } from '../types';
 import { UserContext } from '../contexts/UserContext';
 
 function SeriesSelector() {
@@ -10,25 +10,24 @@ function SeriesSelector() {
   const { chainState: { seriesMap } } = useContext(ChainContext);
 
   const { userState, userActions } = useContext(UserContext);
-  const { activeVault, selectedSeries, selectedIlk, selectedBase } = userState;
+  const { activeVault, selectedSeries, selectedBase, seriesData } = userState;
+  const [options, setOptions] = useState<ISeriesData[]>([]);
 
-  const [options, setOptions] = useState<ISeries[]>([]);
-
-  const optionText = (series: ISeries|undefined) => (
+  const optionText = (series: ISeriesData|undefined) => (
     series
-      ? `${mobile ? series.displayNameMobile : series.displayName}  ● APR: ${series.apr}%`
+      ? `${mobile ? series.displayNameMobile : series.displayName}  ● APR: ${series.APR}%`
       : 'Select a series'
   );
 
   useEffect(() => {
-    const opts = Array.from(seriesMap.values()) as ISeries[];
-    const filteredOpts = opts.filter((series:ISeries) => series.baseId === selectedBase.id);
+    const opts = Array.from(seriesData.values()) as ISeriesData[];
+    const filteredOpts = opts.filter((series:ISeriesData) => series.baseId === selectedBase.id);
     setOptions(filteredOpts);
-  }, [seriesMap, selectedBase, selectedIlk]);
+  }, [seriesData, selectedBase]);
 
   useEffect(() => {
     activeVault?.series && userActions.setSelectedSeries(activeVault.series);
-  }, [activeVault]);
+  }, [activeVault, userActions]);
 
   return (
     <Box fill>

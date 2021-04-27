@@ -350,8 +350,6 @@ export const calculateAPR = (
   const tradeValue_ = new Decimal(tradeValue.toString());
   const amount_ = new Decimal(amount.toString());
 
-  console.log(tradeValue_, amount_);
-
   if (
     maturity > Math.round(new Date().getTime() / 1000)
   ) {

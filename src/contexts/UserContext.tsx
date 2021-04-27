@@ -13,11 +13,11 @@ const initState = {
 
   activeAccount: null as string|null,
 
-  seriesData: new Map() as Map<string, ISeriesData>,
-  assetData: new Map() as Map<string, IAssetData>,
-  vaultData: new Map() as Map<string, IVaultData>,
+  assetData: new Map<string, IAssetData>(),
+  seriesData: new Map<string, ISeriesData>(),
+  vaultData: new Map<string, IVaultData>(),
 
-  vaultMap: new Map() as Map<string, IVault>,
+  vaultMap: new Map<string, IVault>(),
   activeVault: null as IVaultData|null,
 
   /* Current User selections */
@@ -38,15 +38,17 @@ function userReducer(state:any, action:any) {
   /* Reducer switch */
   switch (action.type) {
     case 'userLoading': return { ...state, seriesLoading: onlyIfChanged(action) };
-    case 'assetData': return { ...state, assetData: onlyIfChanged(action) };
-    case 'seriesData': return { ...state, seriesData: onlyIfChanged(action) };
-    case 'vaultData': return { ...state, vaultData: onlyIfChanged(action) };
     case 'vaultMap': return { ...state, vaultMap: onlyIfChanged(action) };
     case 'activeVault': return { ...state, activeVault: onlyIfChanged(action) };
     case 'activeAccount': return { ...state, activeAccount: onlyIfChanged(action) };
     case 'selectedSeries': return { ...state, selectedSeries: onlyIfChanged(action) };
     case 'selectedIlk': return { ...state, selectedIlk: onlyIfChanged(action) };
     case 'selectedBase': return { ...state, selectedBase: onlyIfChanged(action) };
+
+    case 'assetData': return { ...state, assetData: onlyIfChanged(action) };
+    case 'seriesData': return { ...state, seriesData: onlyIfChanged(action) };
+    case 'vaultData': return { ...state, vaultData: onlyIfChanged(action) };
+
     default: return state;
   }
 }
@@ -110,9 +112,7 @@ const UserProvider = ({ children }:any) => {
           series.poolContract.getBaseTokenReserves(),
           series.poolContract.getFYTokenReserves(),
         ]);
-        // const unitTrade = sellFYDai(baseReserves, fyTokenReserves, '1', series.maturity.toString());
-        // console.log(baseReserves.toString(), fyTokenReserves.toString(), unitTrade);
-        // const apr = calculateAPR(unitTrade, '1', series.maturity);
+
         const _rate = sellFYToken(
           baseReserves,
           fyTokenReserves,
@@ -121,20 +121,18 @@ const UserProvider = ({ children }:any) => {
         );
         const APR = calculateAPR(floorDecimal(_rate), ethers.utils.parseEther('1'), series.maturity) || '0';
 
-        console.log('updated, public series data');
         return {
           ...series,
           baseReserves,
           fyTokenReserves,
-          APR: APR || '',
-          APR_: `${Number(APR).toFixed(2)}%`,
+          APR: `${Number(APR).toFixed(2)}`,
         };
       }),
     );
 
     if (account) {
       _accountData = await Promise.all(
-        seriesList.map(async (series:ISeries) : Promise<any> => {
+        _publicData.map(async (series:ISeries) : Promise<any> => {
           /* Get all the data simultanenously in a promise.all */
           const [poolTokens, fyTokenBalance] = await Promise.all([
             series.poolContract.balanceOf(account),
@@ -149,15 +147,19 @@ const UserProvider = ({ children }:any) => {
       );
     }
 
+    const _data = _accountData.length ? _accountData : _publicData;
+
     /* combined account and public series data */
-    const newSeriesMap = [..._publicData, ..._accountData].reduce((acc:any, item:any) => {
+    const newSeriesMap = new Map(_data.reduce((acc:any, item:any) => {
       const _map = acc;
       _map.set(item.id, item);
       return _map;
-    }, userState.seriesData) as Map<string, ISeriesData>;
+    }, userState.seriesData));
+
     updateState({ type: 'seriesData', payload: newSeriesMap });
     console.log('Series with user data: ', newSeriesMap);
-  }, [account, userState.seriesData]);
+    return newSeriesMap;
+  }, [account]);
 
   /* Updates the assets with relevant *user* data */
   const updateAssets = useCallback(async (assetList: IAsset[]) => {
@@ -172,16 +174,16 @@ const UserProvider = ({ children }:any) => {
         };
       }),
     );
-    /* get the previous version (Map) of the vaultData and update it */
-    const newAssetMap = assetListMod.reduce((acc:any, item:any) => {
+      /* get the previous version (Map) of the vaultData and update it */
+    const newAssetMap = new Map(assetListMod.reduce((acc:any, item:any) => {
       const _map = acc;
       _map.set(item.id, item);
       return _map;
-    }, userState.assetData) as Map<string, IAssetData>;
+    }, userState.assetData));
 
     updateState({ type: 'assetData', payload: newAssetMap });
     console.log('Assets with user data: ', newAssetMap);
-  }, [userState.assetData]);
+  }, []);
 
   /* Updates the vaults with *user* data */
   const updateVaults = useCallback(async (vaultList: IVault[]) => {
@@ -199,22 +201,25 @@ const UserProvider = ({ children }:any) => {
         };
       }),
     );
-    /* get the previous version (Map) of the vaultData and update it */
-    const newVaultMap = vaultListMod.reduce((acc:any, item:any) => {
+      /* get the previous version (Map) of the vaultData and update it */
+    const newVaultMap = new Map(vaultListMod.reduce((acc:any, item:any) => {
       const _map = acc;
       _map.set(item.id, item);
       return _map;
-    }, userState.vaultData) as Map<string, IVaultData>;
+    }, userState.vaultData));
 
     updateState({ type: 'vaultData', payload: newVaultMap });
     console.log('VAULTS with user data: ', newVaultMap);
-  }, [userState.vaultData, contractMap]);
+  }, [contractMap]);
 
   useEffect(() => {
     /* When the chainContext is finished loading get the dynamic series data */
-    !chainLoading && Array.from(seriesMap.values()).length && updateSeries(Array.from(seriesMap.values()));
+    !chainLoading &&
+    Array.from(seriesMap.values()).length &&
+    updateSeries(Array.from(seriesMap.values()));
   }, [
-    account, chainLoading,
+    account,
+    chainLoading,
     seriesMap, updateSeries,
   ]);
 
