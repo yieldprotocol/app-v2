@@ -6,7 +6,7 @@ import { IAsset } from '../types';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
 
-// const _assetMap = new Map([
+// const _assetStaticData = new Map([
 //   ['DAI', { name: 'Dai', symbol: 'DAI', icon: null }],
 //   ['USD', { name: 'USD Coin', symbol: 'USDC', icon: null }],
 //   ['DOGE', { name: 'Doge Coin', symbol: 'DOGE', icon: null }],
@@ -18,24 +18,24 @@ interface IAssetSelectorProps {
 
 function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
-  const { chainState: { assetMap } } = useContext(ChainContext);
+  const { chainState: { assetStaticData } } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
   const { selectedVaultId, selectedIlkId, selectedSeriesId, selectedBaseId } = userState;
 
-  /* get from assetMap ( not assetData ) so it can be used without account connected */
-  const selectedIlk = assetMap.get(selectedIlkId);
-  const selectedBase = assetMap.get(selectedBaseId);
+  /* get from assetStaticData ( not assetData ) so it can be used without account connected */
+  const selectedIlk = assetStaticData.get(selectedIlkId);
+  const selectedBase = assetStaticData.get(selectedBaseId);
 
   const [options, setOptions] = useState<IAsset[]>([]);
   const optionText = (asset: IAsset | undefined) => `${asset?.symbol}` || '';
 
   useEffect(() => {
-    const opts = Array.from(assetMap.values()) as IAsset[];
+    const opts = Array.from(assetStaticData.values()) as IAsset[];
     const filteredOptions = selectCollateral
       ? opts.filter((a:IAsset) => a.id !== selectedBaseId)
       : opts;
     setOptions(filteredOptions);
-  }, [selectedBaseId, assetMap, selectCollateral]);
+  }, [selectedBaseId, assetStaticData, selectCollateral]);
 
   return (
     <Box fill>

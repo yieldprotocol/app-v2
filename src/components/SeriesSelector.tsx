@@ -7,14 +7,14 @@ import { UserContext } from '../contexts/UserContext';
 
 function SeriesSelector() {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
-  const { chainState: { seriesMap } } = useContext(ChainContext);
+  // const { chainState: { seriesBaseMap } } = useContext(ChainContext);
 
   const { userState, userActions } = useContext(UserContext);
-  const { selectedVaultId, selectedSeriesId, selectedBaseId } = userState;
+  const { selectedVaultId, selectedSeriesId, selectedBaseId, seriesData } = userState;
   const [options, setOptions] = useState<ISeriesData[]>([]);
 
-  /* get from seriesMap (not seriesData) so it can be used without an account connected */
-  const _selectedSeries = seriesMap.get(selectedSeriesId);
+  /* get from seriesBaseMap (not seriesData) so it can be used without an account connected */
+  const _selectedSeries = seriesData.get(selectedSeriesId);
 
   const optionText = (_series: ISeriesData|undefined) => (
     _series
@@ -23,10 +23,10 @@ function SeriesSelector() {
   );
 
   useEffect(() => {
-    const opts = Array.from(seriesMap.values()) as ISeriesData[];
+    const opts = Array.from(seriesData.values()) as ISeriesData[];
     const filteredOpts = opts.filter((_series:ISeriesData) => _series.baseId === selectedBaseId);
     setOptions(filteredOpts);
-  }, [seriesMap, selectedBaseId]);
+  }, [seriesData, selectedBaseId]);
 
   return (
     <Box fill>

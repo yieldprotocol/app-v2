@@ -57,8 +57,8 @@ const initState = {
 
   /* Connected Contract Maps */
   contractMap: new Map<string, ContractFactory>(),
-  assetMap: new Map<string, IAsset>(),
-  seriesMap: new Map<string, ISeries>(),
+  assetStaticData: new Map<string, IAsset>(),
+  seriesStaticData: new Map<string, ISeries>(),
 };
 
 function chainReducer(state: any, action: any) {
@@ -83,11 +83,11 @@ function chainReducer(state: any, action: any) {
     case 'contractMap': return { ...state, contractMap: onlyIfChanged(action) };
     case 'addSeries': return {
       ...state,
-      seriesMap: state.seriesMap.set(action.payload.id, action.payload),
+      seriesStaticData: state.seriesStaticData.set(action.payload.id, action.payload),
     };
     case 'addAsset': return {
       ...state,
-      assetMap: state.assetMap.set(action.payload.id, action.payload),
+      assetStaticData: state.assetStaticData.set(action.payload.id, action.payload),
     };
 
     /* special internal case for multi-updates - might remove from this context if not needed */
@@ -200,7 +200,7 @@ const ChainProvider = ({ children }: any) => {
           }));
         })(),
 
-        /* ... AT THE SAME TIME update the available seriesMap based on Cauldron events */
+        /* ... AT THE SAME TIME update the available seriesStaticData based on Cauldron events */
         (async () => {
           /* get both poolAdded events and series events at the same time */
           const [seriesAddedEvents, poolAddedEvents] = await Promise.all([
@@ -235,7 +235,7 @@ const ChainProvider = ({ children }: any) => {
                   fyTokenAddress: fyToken,
                   poolAddress,
                   poolContract,
-                  getBaseAddress: () => chainState.assetMap.get(baseId).address, // TODO refactor to get this static - if poosible?
+                  getBaseAddress: () => chainState.assetStaticData.get(baseId).address, // TODO refactor to get this static - if poosible?
                 } });
             }),
           ]);
@@ -243,16 +243,16 @@ const ChainProvider = ({ children }: any) => {
       ])
         .then(() => {
           updateState({ type: 'chainLoading', payload: false });
-          console.log('ASSETS:', chainState.assetMap);
-          console.log('SERIES:', chainState.seriesMap);
+          console.log('ASSETS:', chainState.assetStaticData);
+          console.log('SERIES:', chainState.seriesStaticData);
         });
     }
   }, [
     account,
     fallbackChainId,
     fallbackLibrary,
-    chainState.assetMap,
-    chainState.seriesMap,
+    chainState.assetStaticData,
+    chainState.seriesStaticData,
     chainState.contractMap,
   ]);
 
@@ -261,8 +261,8 @@ const ChainProvider = ({ children }: any) => {
    * allow for caching - and watching for any newly added assets
    */
   // useEffect(() => {
-  //   chainState.seriesMap && console.log(chainState.seriesMap);
-  // }, [chainState.seriesMap]);
+  //   chainState.seriesStaticData && console.log(chainState.seriesStaticData);
+  // }, [chainState.seriesStaticData]);
 
   /**
    * Update on PRIMARY connection any network changes (likely via metamask/walletConnect)

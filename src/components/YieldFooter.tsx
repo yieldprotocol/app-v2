@@ -18,10 +18,10 @@ import { Cauldron, Ladle } from '../contracts';
 const YieldFooter = (props: any) => {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
   const { chainState, chainActions } = useContext(ChainContext);
-  const { account, chainId, contractMap, seriesMap, assetMap } = chainState;
+  const { account, chainId, contractMap, seriesStaticData, assetStaticData } = chainState;
 
-  const seriesList = Array.from(seriesMap.values()) as any;
-  const assetList = Array.from(assetMap.values()) as any;
+  const seriesList = Array.from(seriesStaticData.values()) as any;
+  const assetList = Array.from(assetStaticData.values()) as any;
 
   const cauldron = contractMap.get('Cauldron') as Cauldron;
   const ladle = contractMap.get('Ladle') as Ladle;

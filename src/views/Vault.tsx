@@ -27,7 +27,7 @@ const Vault = () => {
   /* state from context */
   const { userState, userActions: { setActiveVault } } = useContext(UserContext);
   const { activeVault, vaultData, seriesData, assetData } = userState;
-  const { chainState: { assetMap, seriesMap } } = useContext(ChainContext);
+  const { chainState: { assetStaticData, seriesStaticData } } = useContext(ChainContext);
 
   /* local state */
   const [availableVaults, setAvailableVaults] = useState<IVault[]>();

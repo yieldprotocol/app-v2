@@ -116,7 +116,7 @@ const Borrow = () => {
 
         </SectionWrap>
 
-        <SectionWrap title={`2. Select a series ${mobile ? '' : '(maturity date)'} `}>
+        <SectionWrap title="2. Select a series">
           <SeriesSelector />
         </SectionWrap>
 

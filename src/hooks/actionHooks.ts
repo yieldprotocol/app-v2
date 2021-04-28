@@ -11,7 +11,7 @@ import { VAULT_OPS, POOLROUTER_OPS } from '../utils/operations';
 
 /* Generic hook for chain transactions */
 export const useActions = () => {
-  const { chainState: { account, contractMap, assetMap } } = useContext(ChainContext);
+  const { chainState: { account, contractMap, assetStaticData } } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
   const { selectedIlkId, selectedSeriesId, seriesData, assetData } = userState;
   const { updateVaults, updateSeries } = userActions;
@@ -157,7 +157,7 @@ export const useActions = () => {
 
     const permits: ICallData[] = await sign([
       {
-        asset: assetMap.get(vault.baseId),
+        asset: assetStaticData.get(vault.baseId),
         series: _series,
         type: SignType.ERC2612,
         fallbackCall: { fn: 'approve', args: [contractMap.get('Ladle').address, MAX_256], ignore: false, opCode: null },
@@ -165,7 +165,7 @@ export const useActions = () => {
         ignore: true,
       },
       {
-        asset: assetMap.get(vault.baseId),
+        asset: assetStaticData.get(vault.baseId),
         series: _series,
         type: SignType.DAI,
         fallbackCall: { fn: 'approve', args: [contractMap.get('Ladle').address, MAX_256], ignore: false, opCode: null },
@@ -203,7 +203,7 @@ export const useActions = () => {
 
     const permits: ICallData[] = await sign([
       {
-        asset: assetMap.get(series.baseId),
+        asset: assetStaticData.get(series.baseId),
         series,
         type: SignType.ERC2612,
         fallbackCall: { fn: 'approve', args: [contractMap.get('Ladle'), MAX_256], ignore: false, opCode: null },
@@ -211,7 +211,7 @@ export const useActions = () => {
         ignore: true,
       },
       {
-        asset: assetMap.get(series.baseId),
+        asset: assetStaticData.get(series.baseId),
         series,
         type: SignType.DAI,
         spender: 'PoolRouter',
@@ -251,7 +251,7 @@ export const useActions = () => {
 
     const permits: ICallData[] = await sign([
       {
-        asset: assetMap.get(series.baseId),
+        asset: assetStaticData.get(series.baseId),
         series,
         type: SignType.ERC2612,
         fallbackCall: { fn: 'approve', args: [contractMap.get('Ladle'), MAX_256], ignore: false, opCode: null },
@@ -259,7 +259,7 @@ export const useActions = () => {
         ignore: true,
       },
       {
-        asset: assetMap.get(series.baseId),
+        asset: assetStaticData.get(series.baseId),
         series,
         type: SignType.DAI,
         spender: 'PoolRouter',
@@ -303,7 +303,7 @@ export const useActions = () => {
 
     const permits: ICallData[] = await sign([
       {
-        asset: assetMap.get(series.baseId),
+        asset: assetStaticData.get(series.baseId),
         series,
         type: SignType.ERC2612,
         fallbackCall: { fn: 'approve', args: [contractMap.get('Ladle'), MAX_256], ignore: false, opCode: null },
@@ -311,7 +311,7 @@ export const useActions = () => {
         ignore: true,
       },
       {
-        asset: assetMap.get(series.baseId),
+        asset: assetStaticData.get(series.baseId),
         series,
         type: SignType.DAI,
         spender: 'PoolRouter',
