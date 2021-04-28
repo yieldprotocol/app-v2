@@ -101,7 +101,7 @@ const YieldMobileMenu = ({ toggleMenu }: { toggleMenu: ()=>void }) => {
                 border
                 onClick={() => handleSelect(x.id)}
               >
-                <Text size="small"> {x.id} {x.series.displayNameMobile} </Text>
+                <Text size="small"> {x.id} {x.seriesId} </Text>
               </Box>
             ))}
           </Box>

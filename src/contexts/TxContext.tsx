@@ -114,7 +114,6 @@ const TxProvider = ({ children }:any) => {
     /* start a new process */
     updateState({ type: '_startProcess', payload: txCode });
     let tx: ContractTransaction;
-
     try {
       tx = await txFn();
       updateState({ type: 'transactions', payload: { tx, txCode, receipt: null, status: 'pending' } });
@@ -163,7 +162,7 @@ const TxProvider = ({ children }:any) => {
 
   /* process watcher */
   useEffect(() => {
-    txState.processes.length && console.log(txState.processes);
+    console.log('Process list: ', txState.processes);
   }, [txState.processes]);
 
   /* signing watcher */

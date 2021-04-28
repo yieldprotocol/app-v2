@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ContractFactory, ethers, utils } from 'ethers';
+import { ContractFactory, ethers } from 'ethers';
 import { useWeb3React } from '@web3-react/core';
 import { InjectedConnector } from '@web3-react/injected-connector';
 import { NetworkConnector } from '@web3-react/network-connector';
@@ -21,14 +21,12 @@ const RPC_URLS: { [chainId: number]: string } = {
 };
 
 const connectors = new Map();
-
 connectors.set(
   'injected',
   new InjectedConnector({
     supportedChainIds: [1, 31337],
   }),
 );
-
 connectors.set(
   'walletconnect',
   new WalletConnectConnector({
@@ -38,14 +36,6 @@ connectors.set(
     pollingInterval: POLLING_INTERVAL,
   }),
 );
-
-// connectors.set(
-//   'networkconnect',
-//   new NetworkConnector({
-//     urls: { 1: RPC_URLS[1], 42: RPC_URLS[42], 31337: RPC_URLS[31337] },
-//     defaultChainId: 31337,
-//   }),
-// );
 
 /* Build the context */
 const ChainContext = React.createContext<any>({});

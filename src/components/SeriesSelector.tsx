@@ -10,24 +10,22 @@ function SeriesSelector() {
   const { chainState: { seriesMap } } = useContext(ChainContext);
 
   const { userState, userActions } = useContext(UserContext);
-  const { activeVault, selectedSeries, selectedBase, seriesData } = userState;
+  const { selectedVaultId, selectedSeriesId, selectedBaseId, seriesData } = userState;
   const [options, setOptions] = useState<ISeriesData[]>([]);
 
-  const optionText = (series: ISeriesData|undefined) => (
-    series
-      ? `${mobile ? series.displayNameMobile : series.displayName}  ● APR: ${series.APR}%`
+  const selectedSeries = seriesData.get(selectedSeriesId);
+
+  const optionText = (_series: ISeriesData|undefined) => (
+    _series
+      ? `${mobile ? _series.displayNameMobile : _series.displayName}  ● APR: ${_series.APR}%`
       : 'Select a series'
   );
 
   useEffect(() => {
     const opts = Array.from(seriesData.values()) as ISeriesData[];
-    const filteredOpts = opts.filter((series:ISeriesData) => series.baseId === selectedBase.id);
+    const filteredOpts = opts.filter((_series:ISeriesData) => _series.baseId === selectedBaseId);
     setOptions(filteredOpts);
-  }, [seriesData, selectedBase]);
-
-  useEffect(() => {
-    activeVault?.series && userActions.setSelectedSeries(activeVault.series);
-  }, [activeVault, userActions]);
+  }, [seriesData, selectedBaseId]);
 
   return (
     <Box fill>
@@ -43,8 +41,8 @@ function SeriesSelector() {
             <Box pad={mobile ? 'medium' : 'small'}><Text size="small" color="text"> {optionText(selectedSeries)} </Text></Box>
             : <Box pad={mobile ? 'medium' : 'small'}><Text size="small" color="text"> No available series.</Text></Box>
         }
-        disabled={options.length === 0 || !!activeVault}
-        onChange={({ option }: any) => userActions.setSelectedSeries(option)}
+        disabled={options.length === 0 || !!selectedVaultId}
+        onChange={({ option }: any) => userActions.setSelectedSeries(option.id)}
         // eslint-disable-next-line react/no-children-prop
         children={(x:any) => <Box pad={mobile ? 'medium' : 'small'} gap="small" direction="row"> <Text color="text" size="small"> { optionText(x) } </Text> </Box>}
       />

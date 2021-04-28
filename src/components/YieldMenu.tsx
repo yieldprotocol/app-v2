@@ -89,7 +89,7 @@ const YieldMenu = ({ toggleMenu }: { toggleMenu: ()=>void }) => {
                   <Image src={x.image} />
                 </Box>
                 <Box align="center" fill="horizontal">
-                  <Text size="small"> {x.id} {x.series.displayNameMobile} </Text>
+                  <Text size="small"> {x.id} {x.seriesId} </Text>
                 </Box>
               </Box>
             ))}

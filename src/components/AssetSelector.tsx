@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, ResponsiveContext, Select, Text } from 'grommet';
 
+import { unstable_renderSubtreeIntoContainer } from 'react-dom';
 import { IAsset } from '../types';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
@@ -18,23 +19,26 @@ interface IAssetSelectorProps {
 function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
   const { chainState: { assetMap }, chainActions } = useContext(ChainContext);
-  const { userState: { activeVault, selectedIlk, selectedSeries, selectedBase }, userActions } = useContext(UserContext);
+  const { userState, userActions } = useContext(UserContext);
+  const { selectedVaultId, selectedIlkId, selectedSeriesId, selectedBaseId } = userState;
+
+  const selectedIlk = assetMap.get(selectedIlkId);
+  const selectedBase = assetMap.get(selectedBaseId);
 
   const [options, setOptions] = useState<IAsset[]>([]);
   const optionText = (asset: IAsset | undefined) => `${asset?.symbol}` || '';
 
   useEffect(() => {
     const opts = Array.from(assetMap.values()) as IAsset[];
-
     const filteredOptions = selectCollateral
-      ? opts.filter((a:IAsset) => a.id !== selectedBase.id)
+      ? opts.filter((a:IAsset) => a.id !== selectedBaseId)
       : opts;
     setOptions(filteredOptions);
-  }, [selectedBase, assetMap, selectCollateral]);
+  }, [selectedBaseId, assetMap, selectCollateral]);
 
-  useEffect(() => {
-    activeVault?.series && userActions.setSelectedBase(activeVault.base);
-  }, [activeVault]);
+  // useEffect(() => {
+  //   activeVault?.series && userActions.setSelectedBase(activeVault.base);
+  // }, [activeVault]);
 
   return (
     <Box fill>
@@ -47,9 +51,9 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
         labelKey={(x:any) => optionText(x)}
         valueLabel={<Box pad={mobile ? 'medium' : 'small'}><Text size="small" color="text"> { optionText(selectCollateral ? selectedIlk : selectedBase)} </Text></Box>}
         onChange={({ option }: any) => {
-          selectCollateral ? userActions.setSelectedIlk(option) : userActions.setSelectedBase(option);
+          selectCollateral ? userActions.setSelectedIlk(option.id) : userActions.setSelectedBase(option.id);
         }}
-        disabled={(selectCollateral && !selectedSeries) || (!selectCollateral && !!activeVault)}
+        disabled={(selectCollateral && !selectedSeriesId) || (!selectCollateral && !!selectedVaultId)}
         // eslint-disable-next-line react/no-children-prop
         children={(x:any) => <Box pad={mobile ? 'medium' : 'small'} gap="small" direction="row"> <Text color="text" size="small"> { optionText(x) } </Text> </Box>}
       />

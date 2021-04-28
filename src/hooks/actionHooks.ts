@@ -2,7 +2,7 @@ import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
-import { ICallData, ISeries, IVault, SignType } from '../types';
+import { ICallData, ISeries, IVault, IVaultData, SignType } from '../types';
 import { getTxCode } from '../utils/appUtils';
 import { MAX_128, MAX_256 } from '../utils/constants';
 import { useChain } from './chainHooks';
@@ -12,7 +12,9 @@ import { VAULT_OPS, POOLROUTER_OPS } from '../utils/operations';
 /* Generic hook for chain transactions */
 export const useActions = () => {
   const { chainState: { account, contractMap, assetMap } } = useContext(ChainContext);
-  const { userState: { selectedBase, selectedIlk, selectedSeries } } = useContext(UserContext);
+  const { userState, userActions } = useContext(UserContext);
+  const { selectedIlk, selectedSeries, seriesData, assetData } = userState;
+  const { updateVaults, updateSeries } = userActions;
 
   const { sign, transact } = useChain();
 
@@ -42,13 +44,13 @@ export const useActions = () => {
   );
 
   const borrow = async (
-    vault: IVault|undefined,
+    vault: IVaultData|undefined,
     input:string|undefined,
     collInput:string|undefined,
   ) => {
     /* use the vault id provided OR Get a random vault number ready if reqd. */
     const _vaultId = vault?.id || ethers.utils.hexlify(ethers.utils.randomBytes(12));
-    const _series = vault ? vault.series : selectedSeries;
+    const _series = vault ? seriesData.get(vault.seriesId) : selectedSeries;
 
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode('010_', _vaultId);
@@ -90,7 +92,9 @@ export const useActions = () => {
       },
     ];
     /* handle the transaction */
-    transact('Ladle', _vaultId, calls, txCode);
+    await transact('Ladle', _vaultId, calls, txCode);
+    // then update the changed elements
+    vault && updateVaults([vault]);
   };
 
   const repay = async (
@@ -98,15 +102,18 @@ export const useActions = () => {
     input:string|undefined,
     collInput: string|undefined = '0', // optional - add(+) / remove(-) collateral in same tx.
   ) => {
-    const txCode = getTxCode('020_', vault.series.id);
+    const txCode = getTxCode('020_', vault.seriesId);
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
     const _collInput = ethers.utils.parseEther(collInput);
 
-    const _series = vault ? vault.series : selectedSeries;
+    const _series = vault ? seriesData.get(vault.seriesId) : selectedSeries;
+
+    console.log(vault);
+    console.log(assetData.get(vault.baseId));
 
     const permits: ICallData[] = await sign([
       {
-        asset: assetMap.get(vault.base.id),
+        asset: assetData.get(vault.baseId),
         series: _series,
         type: SignType.DAI,
         fallbackCall: { fn: 'approve', args: [contractMap.get('Ladle'), MAX_256], ignore: false, opCode: null },
@@ -136,20 +143,21 @@ export const useActions = () => {
         ignore: true, // TODO add in repay all logic
       },
     ];
-    transact('Ladle', vault.id, calls, txCode);
+    await transact('Ladle', vault.id, calls, txCode);
+    updateVaults([vault]);
   };
 
   const redeem = async (
     vault: IVault,
     input: string|undefined,
   ) => {
-    const txCode = getTxCode('030_', vault.series.id);
+    const txCode = getTxCode('030_', vault.seriesId);
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
-    const _series = vault ? vault.series : selectedSeries;
+    const _series = vault ? seriesData.get(vault.seriesId) : selectedSeries;
 
     const permits: ICallData[] = await sign([
       {
-        asset: assetMap.get(vault.base.id),
+        asset: assetMap.get(vault.baseId),
         series: _series,
         type: SignType.ERC2612,
         fallbackCall: { fn: 'approve', args: [contractMap.get('Ladle').address, MAX_256], ignore: false, opCode: null },
@@ -157,7 +165,7 @@ export const useActions = () => {
         ignore: true,
       },
       {
-        asset: assetMap.get(vault.base.id),
+        asset: assetMap.get(vault.baseId),
         series: _series,
         type: SignType.DAI,
         fallbackCall: { fn: 'approve', args: [contractMap.get('Ladle').address, MAX_256], ignore: false, opCode: null },
@@ -229,7 +237,8 @@ export const useActions = () => {
         ignore: false,
       },
     ];
-    transact('PoolRouter', undefined, calls, txCode);
+    await transact('PoolRouter', undefined, calls, txCode);
+    series && updateSeries([series]);
   };
 
   const closePosition = async (

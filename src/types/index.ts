@@ -34,11 +34,14 @@ export interface IAsset {
 
 export interface IVault {
   id: string;
-  ilk: IAsset;
-  base: IAsset;
-  series: ISeries;
+  ilkId: string;
+  baseId: string;
+  seriesId: string;
   image: string;
   displayId? : string;
+  // getSeries : ()=> ISeriesData;
+  // getBase : ()=> IAssetData;
+  // getIlk: ()=>IAssetData;
 }
 
 export interface ISeriesData extends ISeries {
@@ -46,7 +49,9 @@ export interface ISeriesData extends ISeries {
   baseReserves: BigNumber;
   fyTokenReserves: BigNumber;
   poolTokens?: BigNumber|undefined;
+  poolTokens_?: string|undefined;
   fyTokenBalance? : BigNumber|undefined;
+  fyTokenBalance_? : string|undefined;
 }
 
 export interface IAssetData extends IAsset {

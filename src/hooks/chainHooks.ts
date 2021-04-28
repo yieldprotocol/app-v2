@@ -124,7 +124,7 @@ export const useChain = () => {
     const args = (router === 'Ladle') ? ladleArgs : poolRouterArgs;
 
     /* Finally, send out the transaction */
-    handleTx(
+    return handleTx(
       () => _contract.batch.apply(this, args),
       txCode,
     );

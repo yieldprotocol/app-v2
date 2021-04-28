@@ -33,9 +33,12 @@ const Vault = () => {
   const [availableVaults, setAvailableVaults] = useState<IVault[]>();
 
   const [inputValue, setInputValue] = useState<any>(undefined);
+  const [borrowInput, setBorrowInput] = useState<any>(undefined);
+  const [collateralInput, setCollateralInput] = useState<any>(undefined);
+
   const [expanded, setExpanded] = useState<any>(undefined);
 
-  const { repay } = useActions();
+  const { repay, borrow } = useActions();
 
   /* init effects */
   useEffect(() => {
@@ -117,15 +120,73 @@ const Vault = () => {
             label={<Text size={mobile ? 'small' : undefined}> Roll Debt </Text>}
             key="secondary"
           />,
-
-          <Button
-            label={mobile ? <Text size="xsmall"> Borrow more </Text> : <Text>Borrow more & add additional collateral</Text>}
-            style={{ border: 0 }}
-            onClick={() => routerHistory.push('/borrow', { from: 'vault' })}
-            key="tertiary"
-          />,
+          // <Button
+          //   label={mobile ? <Text size="xsmall"> Borrow more </Text> : <Text>Borrow more & add additional collateral</Text>}
+          //   style={{ border: 0 }}
+          //   onClick={() => routerHistory.push('/borrow', { from: 'vault' })}
+          //   key="tertiary"
+          // />,
         ]}
         />
+
+        <SectionWrap title="Borrow more">
+          <Box gap="small" fill="horizontal" direction="row" align="center">
+            <InputWrap basis="65%" action={() => console.log('maxAction')}>
+              <TextInput
+                plain
+                type="number"
+                placeholder={<PlaceholderWrap label="Enter amount to Borrow" />}
+                // ref={(el:any) => { el && !repayOpen && !rateLockOpen && !mobile && el.focus(); setInputRef(el); }}
+                value={borrowInput || ''}
+                onChange={(event:any) => setBorrowInput(cleanValue(event.target.value))}
+              />
+            </InputWrap>
+            <Box basis="35%">
+              <ActionButtonGroup buttonList={[
+                <Button
+                  primary
+                  label={<Text size={mobile ? 'small' : undefined}> Borrow </Text>}
+                  key="primary"
+                  onClick={() => borrow(activeVault, borrowInput, '0')}
+                />,
+              ]}
+              />
+            </Box>
+          </Box>
+        </SectionWrap>
+
+        <SectionWrap title="Manage Collateral">
+          <Box gap="small" fill="horizontal" direction="row" align="center">
+            <InputWrap basis="65%" action={() => console.log('maxAction')}>
+              <TextInput
+                plain
+                type="number"
+                placeholder={<PlaceholderWrap label="Amount to add/remove" />}
+                // ref={(el:any) => { el && !repayOpen && !rateLockOpen && !mobile && el.focus(); setInputRef(el); }}
+                value={collateralInput || ''}
+                onChange={(event:any) => setCollateralInput(cleanValue(event.target.value))}
+              />
+            </InputWrap>
+            <Box basis="35%">
+              <ActionButtonGroup buttonList={[
+                <Button
+                  primary
+                  label={<Text size={mobile ? 'small' : undefined}> Add </Text>}
+                  key="primary"
+                  onClick={() => borrow(activeVault, borrowInput, '0')}
+                />,
+                <Button
+                  primary
+                  label={<Text size={mobile ? 'small' : undefined}> Remove </Text>}
+                  key="secondary"
+                  onClick={() => borrow(activeVault, borrowInput, '0')}
+                />,
+
+              ]}
+              />
+            </Box>
+          </Box>
+        </SectionWrap>
 
       </MainViewWrap>
 

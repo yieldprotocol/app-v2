@@ -19,10 +19,9 @@ const Lend = () => {
 
   const [closeInputValue, setCloseInputValue] = useState<string>();
 
-  const { userState: {
-    selectedSeries,
-  },
-  } = useContext(UserContext);
+  const { userState: { seriesData, selectedSeriesId, selectedBaseId } } = useContext(UserContext);
+
+  const selectedSeries = seriesData.get(selectedSeriesId);
 
   const { lend, closePosition } = useActions();
 
@@ -60,16 +59,16 @@ const Lend = () => {
             <AssetSelector />
           </Box>
         </Box>
-
-        <Box justify="evenly" gap="small" fill="horizontal" direction="row-responsive">
-          <InfoBite label="FYToken balance" value="erter" />
-          <InfoBite label="Current Value:" value="99.34 DAI" />
-        </Box>
-
       </SectionWrap>
 
       <SectionWrap title={`2. Select a series ${mobile ? '' : '(maturity date)'} `}>
         <SeriesSelector />
+        <Box justify="evenly" gap="small" fill="horizontal" direction="row-responsive">
+          {
+            selectedSeries?.baseId === selectedBaseId &&
+            <InfoBite label="FYToken balance" value={selectedSeries?.fyTokenBalance_} />
+          }
+        </Box>
       </SectionWrap>
 
       <ActionButtonGroup buttonList={[
