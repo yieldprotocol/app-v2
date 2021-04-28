@@ -75,7 +75,7 @@ export interface ICallData {
   overrides?: ethers.CallOverrides;
 }
 
-export interface ISigData {
+export interface ISignData {
   series: ISeries,
   asset: IAsset,
   type: SignType;

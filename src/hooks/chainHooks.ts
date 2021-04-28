@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
 import { MAX_256 } from '../utils/constants';
-import { ICallData, ISigData, ISeries, IVault } from '../types';
+import { ICallData, ISignData, ISeries, IVault } from '../types';
 import { ERC20__factory, Ladle, Pool, PoolRouter } from '../contracts';
 import { POOLROUTER_OPS, VAULT_OPS } from '../utils/operations';
 
@@ -135,21 +135,21 @@ export const useChain = () => {
    * SIGNING
    *
    * Does two things:
-   * 1. Build the signatures of provided by ISigData[], returns ICallData for multicall.
+   * 1. Build the signatures of provided by ISignData[], returns ICallData for multicall.
    * 2. Sends off the approval tx, on completion of all txs, returns an empty array.
    *
    *
    * */
   const sign = async (
-    requestedSignatures:ISigData[],
+    requestedSignatures:ISignData[],
     txCode:string,
     viaPoolRouter: boolean = false,
   ) : Promise<ICallData[]> => {
     /* First, filter out any ignored calls */
-    const _requestedSigs = requestedSignatures.filter((_rs:ISigData) => !_rs.ignore);
+    const _requestedSigs = requestedSignatures.filter((_rs:ISignData) => !_rs.ignore);
 
     const signedList = await Promise.all(
-      _requestedSigs.map(async (reqSig: ISigData) => {
+      _requestedSigs.map(async (reqSig: ISignData) => {
         /* check if signing an fyToken, or another erc20 asset */
         const signingFYToken = reqSig.type === 'FYTOKEN_TYPE';
 

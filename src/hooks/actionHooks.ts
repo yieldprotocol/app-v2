@@ -13,7 +13,7 @@ import { VAULT_OPS, POOLROUTER_OPS } from '../utils/operations';
 export const useActions = () => {
   const { chainState: { account, contractMap, assetMap } } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
-  const { selectedIlk, selectedSeries, seriesData, assetData } = userState;
+  const { selectedIlkId, selectedSeriesId, seriesData, assetData } = userState;
   const { updateVaults, updateSeries } = userActions;
 
   const { sign, transact } = useChain();
@@ -26,17 +26,17 @@ export const useActions = () => {
   const _buildVault = (ignore:boolean): ICallData[] => (
     [{
       operation: VAULT_OPS.BUILD,
-      args: [selectedSeries.id, selectedIlk.id],
+      args: [selectedSeriesId, selectedIlkId],
       ignore,
     }]
   );
 
   const _depositEth = (value: BigNumber): ICallData[] => (
     /* First check if the selected Ilk is an ETH variety :  */
-    ['0x455448000000', 'ETH_B_forexample'].includes(selectedIlk.id)
+    ['0x455448000000', 'ETH_B_forexample'].includes(selectedIlkId)
       ? [{
         operation: VAULT_OPS.JOIN_ETHER,
-        args: [selectedIlk.id],
+        args: [selectedIlkId],
         ignore: false,
         overrides: { value },
       }]
@@ -45,12 +45,12 @@ export const useActions = () => {
 
   const borrow = async (
     vault: IVaultData|undefined,
-    input:string|undefined,
-    collInput:string|undefined,
+    input: string|undefined,
+    collInput: string|undefined,
   ) => {
     /* use the vault id provided OR Get a random vault number ready if reqd. */
     const _vaultId = vault?.id || ethers.utils.hexlify(ethers.utils.randomBytes(12));
-    const _series = vault ? seriesData.get(vault.seriesId) : selectedSeries;
+    const _series = vault ? seriesData.get(vault.seriesId) : seriesData.get(selectedSeriesId);
 
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode('010_', _vaultId);
@@ -62,12 +62,12 @@ export const useActions = () => {
     /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
     const permits: ICallData[] = await sign([
       {
-        asset: selectedIlk,
+        asset: assetData.get(selectedIlkId),
         series: _series,
         type: SignType.ERC2612,
         spender: 'JOIN',
         fallbackCall: { fn: 'approve', args: [], ignore: false, opCode: null },
-        ignore: selectedIlk.id === '0x455448000000',
+        ignore: selectedIlkId === '0x455448000000',
       },
     ], txCode);
 
@@ -106,7 +106,7 @@ export const useActions = () => {
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
     const _collInput = ethers.utils.parseEther(collInput);
 
-    const _series = vault ? seriesData.get(vault.seriesId) : selectedSeries;
+    const _series = seriesData.get(vault.seriesId);
 
     console.log(vault);
     console.log(assetData.get(vault.baseId));
@@ -153,7 +153,7 @@ export const useActions = () => {
   ) => {
     const txCode = getTxCode('030_', vault.seriesId);
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
-    const _series = vault ? seriesData.get(vault.seriesId) : selectedSeries;
+    const _series = seriesData.get(vault.seriesId);
 
     const permits: ICallData[] = await sign([
       {

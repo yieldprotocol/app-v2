@@ -1,7 +1,7 @@
 import React, { useReducer, useEffect } from 'react';
 import { ethers, ContractTransaction } from 'ethers';
 import { toast } from 'react-toastify';
-import { ISigData } from '../types';
+import { ISignData } from '../types';
 
 const TxContext = React.createContext<any>({});
 
@@ -21,7 +21,7 @@ const initState = {
 interface IYieldSignature {
   uid: string;
   txCode: string;
-  sigData: ISigData;
+  sigData: ISignData;
   status: 'pending'| 'success' | 'rejected' | 'failed';
 }
 
@@ -141,7 +141,7 @@ const TxProvider = ({ children }:any) => {
   const handleSign = async (
     signFn:()=>Promise<any>,
     fallbackFn:()=>Promise<any>,
-    sigData: ISigData,
+    sigData: ISignData,
     txCode: string,
   ) => {
     const uid = ethers.utils.hexlify(ethers.utils.randomBytes(6));

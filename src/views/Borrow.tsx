@@ -24,12 +24,15 @@ const Borrow = () => {
 
   const { userState: {
     activeAccount,
-    activeVault,
-    selectedSeries,
-    selectedIlk,
-    selectedBase,
+    selectedVaultId,
+    selectedSeriesId,
+    selectedIlkId,
+    selectedBaseId,
+    assetData,
   },
   } = useContext(UserContext);
+
+  const selectedBase = assetData.get(selectedBaseId);
 
   const [inputValue, setInputValue] = useState<string>();
   const [collInputValue, setCollInputValue] = useState<string>();
@@ -43,7 +46,7 @@ const Borrow = () => {
   const handleBorrow = () => {
     !borrowDisabled &&
     borrow(
-      createNewVault ? undefined : activeVault,
+      createNewVault ? undefined : selectedVaultId,
       inputValue,
       collInputValue,
     );
@@ -63,13 +66,13 @@ const Borrow = () => {
       !activeAccount ||
       !inputValue ||
       !collInputValue ||
-      !selectedSeries ||
-      !selectedIlk
+      !selectedSeriesId ||
+      !selectedIlkId
     )
       ? setBorrowDisabled(true)
     /* else if all pass, then unlock borrowing */
       : setBorrowDisabled(false);
-  }, [inputValue, collInputValue, selectedSeries, selectedIlk]);
+  }, [inputValue, collInputValue, selectedSeriesId, selectedIlkId]);
 
   return (
 
@@ -81,10 +84,10 @@ const Borrow = () => {
       <MainViewWrap>
 
         {
-          activeVault &&
+          selectedVaultId &&
           <Box direction="row">
-            <Image src={activeVault.image} />
-            <Text>{ activeVault?.id} </Text>
+            <Image src={selectedVaultId.image} />
+            <Text>{ selectedVaultId } </Text>
           </Box>
         }
 
@@ -119,15 +122,15 @@ const Borrow = () => {
 
         <SectionWrap title="3. Add Collateral">
           <Box direction="row" gap="small" fill="horizontal" align="center">
-            <InputWrap action={() => console.log('maxAction')} disabled={!selectedSeries}>
+            <InputWrap action={() => console.log('maxAction')} disabled={!selectedSeriesId}>
               <TextInput
                 plain
                 type="number"
-                placeholder={<PlaceholderWrap label="Enter amount" disabled={!selectedSeries} />}
+                placeholder={<PlaceholderWrap label="Enter amount" disabled={!selectedSeriesId} />}
                 // ref={(el:any) => { el && el.focus(); }}
                 value={collInputValue || ''}
                 onChange={(event:any) => setCollInputValue(event.target.value)}
-                disabled={!selectedSeries}
+                disabled={!selectedSeriesId}
               />
             </InputWrap>
             <Box basis={mobile ? '50%' : '35%'} fill>
@@ -139,8 +142,8 @@ const Borrow = () => {
         <Box direction="row" justify="end">
           <CheckBox
             reverse
-            disabled={!activeVault}
-            checked={createNewVault || !activeVault}
+            disabled={!selectedVaultId}
+            checked={createNewVault || !selectedVaultId}
             label={<Text size="small">Create new vault</Text>}
             onChange={(event:any) => setCreateNewVault(event.target.checked)}
           />
@@ -174,30 +177,29 @@ const Borrow = () => {
             onClick={() => handleBorrow()}
             disabled={borrowDisabled}
           />,
-
           (
-            !activeVault
+            !selectedVaultId
               ?
                 <Button
                   secondary
+                  disabled
                   label={<Text size={mobile ? 'small' : undefined}> Migrate Maker Vault</Text>}
                   key="secondary"
                 />
               :
                 <Box
-                  onClick={() => routerHistory.push(`/vault/${activeVault.id}`)}
+                  onClick={() => routerHistory.push(`/vault/${selectedVaultId}`)}
                   gap="medium"
                   direction="row"
                   alignSelf="center"
                   key="tertiary"
                 >
                   <FiArrowLeftCircle />
-                  <Text size="small"> back to vault: {activeVault.id} </Text>
+                  <Text size="small"> back to vault: {selectedVaultId} </Text>
                 </Box>
           ),
         ]}
         />
-
       </MainViewWrap>
 
     </Keyboard>
