@@ -32,7 +32,7 @@ const Lend = () => {
 
   const handleClosePosition = () => {
     // !lendDisabled &&
-    closePosition(closeInputValue, selectedSeries);
+    closePosition('1', selectedSeries);
   };
 
   return (

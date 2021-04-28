@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
 import { MAX_256 } from '../utils/constants';
-import { ICallData, ISignData, IseriesRoot, IvaultRoot } from '../types';
+import { ICallData, ISignData, ISeriesRoot, IVaultRoot } from '../types';
 import { ERC20__factory, Ladle, Pool, PoolRouter } from '../contracts';
 import { POOLROUTER_OPS, VAULT_OPS } from '../utils/operations';
 
@@ -64,7 +64,7 @@ export const useChain = () => {
           call.operation === VAULT_OPS.ROUTE ||
           call.operation === POOLROUTER_OPS.ROUTE // TODO check conflict possibility
         ) {
-          const { poolContract } = call.series! as IseriesRoot;
+          const { poolContract } = call.series! as ISeriesRoot;
           const { interface: _interface } = poolContract as Contract;
           if (call.fnName) {
             return _interface.encodeFunctionData(call.fnName, call.args);
@@ -81,7 +81,6 @@ export const useChain = () => {
     const baseAddrList : (string|undefined)[] = _calls.map(
       (call:ICallData, index: number) => call.series && call.series.getBaseAddress(),
     );
-
     /* Get the series fyDaiAddress */
     const fyTokenAddrList : (string|undefined)[] = _calls.map(
       (call:ICallData, index: number) => call.series && call.series.fyTokenAddress,

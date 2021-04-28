@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect, useReducer, useCallback } from 'react';
 import { BigNumber, ethers } from 'ethers';
 
-import { IassetRoot, IseriesRoot, IvaultRoot, ISeries, IAsset, IVault } from '../types';
+import { IAssetRoot, ISeriesRoot, IVaultRoot, ISeries, IAsset, IVault } from '../types';
 
 import { ChainContext } from './ChainContext';
 import { cleanValue, genVaultImage } from '../utils/displayUtils';
@@ -70,7 +70,7 @@ const UserProvider = ({ children }:any) => {
     const filter = Cauldron.filters.VaultBuilt(null, account, null);
     const eventList = await Cauldron.queryFilter(filter, fromBlock);
     // const eventList = await Cauldron.queryFilter(filter, cachedVaults.lastBlock);
-    const vaultList : IvaultRoot[] = await Promise.all(eventList.map(async (x:any) : Promise<IvaultRoot> => {
+    const vaultList : IVaultRoot[] = await Promise.all(eventList.map(async (x:any) : Promise<IVaultRoot> => {
       const { vaultId: id, ilkId, seriesId } = Cauldron.interface.parseLog(x).args;
       const series = seriesRootMap.get(seriesId);
       // const baseId = assetRootMap.get(series.baseId);
@@ -83,12 +83,12 @@ const UserProvider = ({ children }:any) => {
       };
     }));
 
-    // TODO const _combined: IvaultRoot[] = [...vaultList, ...cachedVaults];
+    // TODO const _combined: IVaultRoot[] = [...vaultList, ...cachedVaults];
     const newVaultMap = vaultList.reduce((acc:any, item:any) => {
       const _map = acc;
       _map.set(item.id, item);
       return _map;
-    }, new Map()) as Map<string, IvaultRoot>;
+    }, new Map()) as Map<string, IVaultRoot>;
 
     return newVaultMap;
     /* Update the local cache storage */
@@ -96,13 +96,13 @@ const UserProvider = ({ children }:any) => {
   }, [account, contractMap, seriesRootMap]);
 
   /* Updates the series with relevant *user* data */
-  const updateSeries = useCallback(async (seriesList: IseriesRoot[]) => {
-    let _publicData : IseriesRoot[] = [];
-    let _accountData : IseriesRoot[] = [];
+  const updateSeries = useCallback(async (seriesList: ISeriesRoot[]) => {
+    let _publicData : ISeriesRoot[] = [];
+    let _accountData : ISeriesRoot[] = [];
 
     /* Add in the dynamic series data of the series in the list */
     _publicData = await Promise.all(
-      seriesList.map(async (series:IseriesRoot) : Promise<ISeries> => {
+      seriesList.map(async (series:ISeriesRoot) : Promise<ISeries> => {
         /* Get all the data simultanenously in a promise.all */
         const [baseReserves, fyTokenReserves] = await Promise.all([
           series.poolContract.getBaseTokenReserves(),
@@ -128,7 +128,7 @@ const UserProvider = ({ children }:any) => {
 
     if (account) {
       _accountData = await Promise.all(
-        _publicData.map(async (series:IseriesRoot) : Promise<any> => {
+        _publicData.map(async (series:ISeriesRoot) : Promise<any> => {
           /* Get all the data simultanenously in a promise.all */
           const [poolTokens, fyTokenBalance] = await Promise.all([
             series.poolContract.balanceOf(account),
@@ -160,10 +160,10 @@ const UserProvider = ({ children }:any) => {
   }, [account]);
 
   /* Updates the assets with relevant *user* data */
-  const updateAssets = useCallback(async (assetList: IassetRoot[]) => {
+  const updateAssets = useCallback(async (assetList: IAssetRoot[]) => {
     /* add in the dynamic asset data of the assets in the list */
     const assetListMod = await Promise.all(
-      assetList.map(async (asset:IassetRoot) : Promise<IAsset> => {
+      assetList.map(async (asset:IAssetRoot) : Promise<IAsset> => {
         const balance = asset.getBalance();
         return {
           ...asset,
@@ -184,11 +184,11 @@ const UserProvider = ({ children }:any) => {
   }, []);
 
   /* Updates the vaults with *user* data */
-  const updateVaults = useCallback(async (vaultList: IvaultRoot[]) => {
+  const updateVaults = useCallback(async (vaultList: IVaultRoot[]) => {
     const Cauldron = contractMap.get('Cauldron');
     /* add in the dynamic vault data by mapping the vaults list */
     const vaultListMod = await Promise.all(
-      vaultList.map(async (vault:IvaultRoot) : Promise<IVault> => {
+      vaultList.map(async (vault:IVaultRoot) : Promise<IVault> => {
         const { ink, art } = await Cauldron.balances(vault.id);
         return {
           ...vault,

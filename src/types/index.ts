@@ -1,7 +1,7 @@
 import { ethers, BigNumber } from 'ethers';
 import { FYToken, Pool } from '../contracts';
 
-export interface IseriesRoot {
+export interface ISeriesRoot {
   // reqd/fixed:
   id: string;
   displayName: string;
@@ -19,7 +19,7 @@ export interface IseriesRoot {
   apr?: string;
 }
 
-export interface IassetRoot {
+export interface IAssetRoot {
   // reqd/fixed:
   id: string;
   symbol: string;
@@ -32,7 +32,7 @@ export interface IassetRoot {
   getAllowance: ()=>BigNumber,
 }
 
-export interface IvaultRoot {
+export interface IVaultRoot {
   id: string;
   ilkId: string;
   baseId: string;
@@ -44,7 +44,7 @@ export interface IvaultRoot {
   // getIlk: ()=>IAsset;
 }
 
-export interface ISeries extends IseriesRoot {
+export interface ISeries extends ISeriesRoot {
   APR: string;
   baseReserves: BigNumber;
   fyTokenReserves: BigNumber;
@@ -54,12 +54,12 @@ export interface ISeries extends IseriesRoot {
   fyTokenBalance_? : string|undefined;
 }
 
-export interface IAsset extends IassetRoot {
+export interface IAsset extends IAssetRoot {
   balance: BigNumber;
   balance_: string;
 }
 
-export interface IVault extends IvaultRoot {
+export interface IVault extends IVaultRoot {
   ink: BigNumber;
   art: BigNumber;
   ink_: string;
@@ -69,15 +69,15 @@ export interface IVault extends IvaultRoot {
 export interface ICallData {
   args: string[];
   operation: [ number, string[]];
-  series?: IseriesRoot;
+  series?: ISeriesRoot;
   fnName?: string;
   ignore?: boolean;
   overrides?: ethers.CallOverrides;
 }
 
 export interface ISignData {
-  series: IseriesRoot,
-  asset: IassetRoot,
+  series: ISeriesRoot,
+  asset: IAssetRoot,
   type: SignType;
   fallbackCall: any; // calldata to process if fallbackTx is used
   ignore?: boolean; // conditional for ignoring

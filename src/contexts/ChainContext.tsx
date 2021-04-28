@@ -8,7 +8,7 @@ import { useCachedState } from '../hooks';
 
 import * as yieldEnv from './yieldEnv.json';
 import * as contracts from '../contracts';
-import { IassetRoot, IseriesRoot } from '../types';
+import { IAssetRoot, ISeriesRoot } from '../types';
 import { nameFromMaturity } from '../utils/displayUtils';
 import { Pool } from '../contracts';
 
@@ -57,8 +57,8 @@ const initState = {
 
   /* Connected Contract Maps */
   contractMap: new Map<string, ContractFactory>(),
-  assetRootMap: new Map<string, IassetRoot>(),
-  seriesRootMap: new Map<string, IseriesRoot>(),
+  assetRootMap: new Map<string, IAssetRoot>(),
+  seriesRootMap: new Map<string, ISeriesRoot>(),
 };
 
 function chainReducer(state: any, action: any) {

@@ -66,7 +66,6 @@ const Borrow = () => {
         v.seriesId === selectedSeriesId
       ));
       setMatchingVaults(_matchingVaults);
-      console.log(_matchingVaults);
     }
   }, [vaultMap, selectedBaseId, selectedIlkId, selectedSeriesId]);
 
@@ -146,21 +145,7 @@ const Borrow = () => {
 
         <SectionWrap>
 
-          <Box>
-
-            {
-            matchingVaults.map((x:IVault) => (
-              <CheckBox
-                key={x.id}
-                reverse
-                // disabled={!selectedVaultId}
-                checked={!!vaultIdToUse || matchingVaults.length < 1}
-                label={<Text size="small">{x.id}</Text>}
-                onChange={(event:any) => setVaultIdToUse(event.target.checked)}
-              />
-            ))
-            }
-
+          <Box gap="small" fill="horizontal">
             <Box direction="row" justify="end">
               <CheckBox
                 reverse
@@ -170,6 +155,27 @@ const Borrow = () => {
                 onChange={() => setVaultIdToUse(undefined)}
               />
             </Box>
+
+            {
+              matchingVaults.length > 0 &&
+              <Box alignSelf="center">
+                <Text size="xsmall"> -------- or use existing vault ----------</Text>
+              </Box>
+            }
+
+            {
+              matchingVaults.map((x:IVault) => (
+                <Box direction="row" justify="end" key={x.id}>
+                  <CheckBox
+                    reverse
+                // disabled={!selectedVaultId}
+                    checked={!!vaultIdToUse || matchingVaults.length < 1}
+                    label={<Text size="small">{x.id}</Text>}
+                    onChange={(event:any) => setVaultIdToUse(event.target.checked)}
+                  />
+                </Box>
+              ))
+            }
 
           </Box>
 

@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, ResponsiveContext, Select, Text } from 'grommet';
 
-import { IassetRoot } from '../../types';
+import { IAssetRoot } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 
 // const _assetRootMap = new Map([
@@ -10,11 +10,11 @@ import { UserContext } from '../../contexts/UserContext';
 //   ['DOGE', { name: 'Doge Coin', symbol: 'DOGE', icon: null }],
 //   ['UNI', { name: 'Uni coin', symbol: 'UNI', icon: null }],
 // ]);
-interface IassetRootSelectorProps {
+interface IAssetRootSelectorProps {
   selectCollateral?:boolean;
 }
 
-function AssetSelector({ selectCollateral }: IassetRootSelectorProps) {
+function AssetSelector({ selectCollateral }: IAssetRootSelectorProps) {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
   const { userState, userActions } = useContext(UserContext);
   const { selectedIlkId, selectedSeriesId, selectedBaseId, assetMap } = userState;
@@ -23,13 +23,13 @@ function AssetSelector({ selectCollateral }: IassetRootSelectorProps) {
   const selectedIlk = assetMap.get(selectedIlkId);
   const selectedBase = assetMap.get(selectedBaseId);
 
-  const [options, setOptions] = useState<IassetRoot[]>([]);
-  const optionText = (asset: IassetRoot | undefined) => `${asset?.symbol}` || '';
+  const [options, setOptions] = useState<IAssetRoot[]>([]);
+  const optionText = (asset: IAssetRoot | undefined) => `${asset?.symbol}` || '';
 
   useEffect(() => {
-    const opts = Array.from(assetMap.values()) as IassetRoot[];
+    const opts = Array.from(assetMap.values()) as IAssetRoot[];
     const filteredOptions = selectCollateral
-      ? opts.filter((a:IassetRoot) => a.id !== selectedBaseId)
+      ? opts.filter((a:IAssetRoot) => a.id !== selectedBaseId)
       : opts;
     setOptions(filteredOptions);
   }, [selectedBaseId, assetMap, selectCollateral]);
