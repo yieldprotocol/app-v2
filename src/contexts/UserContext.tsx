@@ -1,7 +1,7 @@
-import React, { useState, useContext, useEffect, useReducer, useCallback } from 'react';
-import { BigNumber, ethers } from 'ethers';
+import React, { useContext, useEffect, useReducer, useCallback } from 'react';
+import { ethers } from 'ethers';
 
-import { IAssetRoot, ISeriesRoot, IVaultRoot, ISeries, IAsset, IVault } from '../types';
+import { IAssetRoot, ISeriesRoot, IVaultRoot, ISeries, IAsset, IVault, IUserContextState } from '../types';
 
 import { ChainContext } from './ChainContext';
 import { cleanValue, genVaultImage } from '../utils/displayUtils';
@@ -9,19 +9,20 @@ import { calculateAPR, floorDecimal, secondsToFrom, sellFYToken } from '../utils
 
 const UserContext = React.createContext<any>({});
 
-const initState = {
+const initState : IUserContextState = {
 
-  activeAccount: null as string|null,
+  activeAccount: null,
 
   assetMap: new Map<string, IAsset>(),
   seriesMap: new Map<string, ISeries>(),
   vaultMap: new Map<string, IVault>(),
 
   /* Current User selections */
-  selectedSeriesId: null as string|null,
-  selectedIlkId: null as string|null,
-  selectedBaseId: null as string|null,
-  selectedVaultId: null as string|null,
+  selectedSeriesId: null,
+  selectedIlkId: null,
+  selectedBaseId: null,
+
+  selectedVaultId: null,
 
 };
 
@@ -257,7 +258,7 @@ const UserProvider = ({ children }:any) => {
     updateSeries,
     updateAssets,
     updateVaults,
-    setActiveVault: (vaultId:string|null) => updateState({ type: 'selectedVaultId', payload: vaultId }),
+    setSelectedVault: (vaultId:string|null) => updateState({ type: 'selectedVaultId', payload: vaultId }),
     setSelectedIlk: (assetId:string) => updateState({ type: 'selectedIlkId', payload: assetId }),
     setSelectedSeries: (seriesId:string) => updateState({ type: 'selectedSeriesId', payload: seriesId }),
     setSelectedBase: (assetId:string) => updateState({ type: 'selectedBaseId', payload: assetId }),

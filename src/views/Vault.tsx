@@ -12,8 +12,7 @@ import MainViewWrap from '../components/wraps/MainViewWrap';
 import SeriesSelector from '../components/selectors/SeriesSelector';
 import InputWrap from '../components/wraps/InputWrap';
 import InfoBite from '../components/InfoBite';
-import { ISeriesRoot, IVaultRoot } from '../types';
-import { borrowingPower } from '../utils/yieldMath';
+import { IUserContext, IVault } from '../types';
 
 import ActionButtonGroup from '../components/ActionButtonGroup';
 import PlaceholderWrap from '../components/wraps/PlaceholderWrap';
@@ -22,21 +21,24 @@ import { useActions } from '../hooks/actionHooks';
 
 const Vault = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
-  const routerHistory = useHistory();
+  // const routerHistory = useHistory();
 
   /* state from context */
-  const { userState, userActions: { setActiveVault } } = useContext(UserContext);
-  const { activeVault, vaultMap, seriesMap, assetMap } = userState;
-  const { chainState: { assetRootMap, seriesRootMap } } = useContext(ChainContext);
+  const { userState, userActions } = useContext(UserContext) as IUserContext;
+  const { assetMap, seriesMap, vaultMap, selectedVaultId } = userState;
+  const { setSelectedVault } = userActions;
+
+  const activeVault = vaultMap.get(selectedVaultId!);
+  const base = assetMap.get(activeVault?.baseId!);
+  const ilk = assetMap.get(activeVault?.ilkId!);
+  const series = seriesMap.get(activeVault?.baseId!);
 
   /* local state */
-  const [availableVaults, setAvailableVaults] = useState<IVaultRoot[]>();
+  const [availableVaults, setAvailableVaults] = useState<IVault[]>();
 
   const [inputValue, setInputValue] = useState<any>(undefined);
   const [borrowInput, setBorrowInput] = useState<any>(undefined);
   const [collateralInput, setCollateralInput] = useState<any>(undefined);
-
-  const [expanded, setExpanded] = useState<any>(undefined);
 
   const { repay, borrow } = useActions();
 
@@ -46,6 +48,7 @@ const Vault = () => {
   }, [vaultMap, activeVault]);
 
   const handleRepay = () => {
+    activeVault &&
     repay(activeVault, inputValue?.toString());
   };
 
@@ -64,7 +67,7 @@ const Vault = () => {
               icon={false}
               items={
                 availableVaults?.map((x:any) => (
-                  { label: <Text size="small"> {x.id} </Text>, onClick: () => setActiveVault(vaultMap.get(x.id)) }
+                  { label: <Text size="small"> {x.id} </Text>, onClick: () => setSelectedVault(x.id) }
                 )) || []
               }
               onSelect={(x:any) => console.log(x)}
@@ -73,21 +76,21 @@ const Vault = () => {
 
           <Box direction="row" justify="between" gap="small">
             <Text size="small"> Maturity date: </Text>
-            <Text size="small"> { activeVault?.series?.displayName } </Text>
+            <Text size="small"> { series?.displayName } </Text>
           </Box>
         </Box>
 
-        <InfoBite label="Vault debt:" value={`${activeVault?.art_} ${activeVault?.base?.symbol}`} />
+        <InfoBite label="Vault debt:" value={`${activeVault?.art_} ${base?.symbol}`} />
         <InfoBite label="Debt in USD" value="0.0" />
 
-        <InfoBite label="Collateral posted:" value={`${activeVault?.ink_} ${activeVault?.ilk?.symbol}`} />
+        <InfoBite label="Collateral posted:" value={`${activeVault?.ink_} ${ilk?.symbol}`} />
 
       </Box>
 
       <MainViewWrap>
         <SectionWrap>
           <Box direction="row" justify="between" fill="horizontal">
-            <Text size={mobile ? 'small' : 'medium'}> Debt: {activeVault?.art_} {activeVault?.base?.symbol} </Text> <Text size={mobile ? 'small' : 'medium'}> ($0,00 USD) </Text>
+            <Text size={mobile ? 'small' : 'medium'}> Debt: {activeVault?.art_} {base?.symbol} </Text> <Text size={mobile ? 'small' : 'medium'}> ($0,00 USD) </Text>
           </Box>
 
           <Box gap="small" fill="horizontal">

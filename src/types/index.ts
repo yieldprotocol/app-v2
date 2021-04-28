@@ -1,8 +1,38 @@
 import { ethers, BigNumber } from 'ethers';
 import { FYToken, Pool } from '../contracts';
 
+export interface IUserContext {
+  userState : IUserContextState;
+  userActions : IUserContextActions;
+}
+
+export interface IUserContextState {
+  activeAccount: string|null;
+
+  assetMap: Map<string, IAsset>;
+  seriesMap: Map<string, ISeries>;
+  vaultMap: Map<string, IVault>;
+
+  selectedSeriesId: string|null;
+  selectedIlkId: string|null;
+  selectedBaseId: string|null;
+  selectedVaultId: string|null;
+}
+
+export interface IUserContextActions {
+
+  updateVaults: (vaultList: IVault[]) => void;
+  updateSeries: (seriesList: ISeries[]) => void;
+  updateAssets: (assetList: IAsset[]) => void;
+
+  setSelectedSeries: (seriesId: string) => void;
+  setSelectedIlk: (ilkId: string) => void;
+  setSelectedBase: (baseId: string) => void;
+  setSelectedVault: (vaultId: string) => void;
+}
+
 export interface ISeriesRoot {
-  // reqd/fixed:
+  // fixed/static:
   id: string;
   displayName: string;
   displayNameMobile: string;
@@ -13,14 +43,11 @@ export interface ISeriesRoot {
   baseId: string;
   fyTokenAddress: string;
   // baked in token fns
-  getBaseAddress: ()=> string;
-
-  // optional/calculated/mutable:
-  apr?: string;
+  getBaseAddress: ()=> string; // antipattern, but required here because app simulatneoulsy gets assets and series
 }
 
 export interface IAssetRoot {
-  // reqd/fixed:
+  // fixed/static:
   id: string;
   symbol: string;
   displayName: string;

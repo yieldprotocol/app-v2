@@ -12,6 +12,7 @@ import SectionWrap from '../components/wraps/SectionWrap';
 
 import { useActions } from '../hooks/actionHooks';
 import { UserContext } from '../contexts/UserContext';
+import { IUserContext } from '../types';
 
 const Lend = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -19,20 +20,22 @@ const Lend = () => {
 
   const [closeInputValue, setCloseInputValue] = useState<string>();
 
-  const { userState: { seriesMap, selectedSeriesId, selectedBaseId } } = useContext(UserContext);
+  /* state from context */
+  const { userState } = useContext(UserContext) as IUserContext;
+  const { selectedSeriesId, selectedBaseId, seriesMap } = userState;
 
-  const selectedSeries = seriesMap.get(selectedSeriesId);
+  const selectedSeries = seriesMap.get(selectedSeriesId!);
 
   const { lend, closePosition } = useActions();
 
   const handleLend = () => {
     // !lendDisabled &&
-    lend(inputValue, selectedSeries);
+    selectedSeries && lend(inputValue, selectedSeries);
   };
 
   const handleClosePosition = () => {
     // !lendDisabled &&
-    closePosition('1', selectedSeries);
+    selectedSeries && closePosition('1', selectedSeries);
   };
 
   return (
@@ -66,7 +69,7 @@ const Lend = () => {
         <Box justify="evenly" gap="small" fill="horizontal" direction="row-responsive">
           {
             selectedSeries?.baseId === selectedBaseId &&
-            <InfoBite label="FYToken balance" value={selectedSeries?.fyTokenBalance_} />
+            <InfoBite label="FYToken balance" value={selectedSeries?.fyTokenBalance_!} />
           }
         </Box>
       </SectionWrap>

@@ -10,15 +10,20 @@ import InfoBite from '../components/InfoBite';
 import ActionButtonGroup from '../components/ActionButtonGroup';
 import PlaceholderWrap from '../components/wraps/PlaceholderWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
+import { UserContext } from '../contexts/UserContext';
+import { IUserContext } from '../types';
 
 function Pool() {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
   const [inputValue, setInputValue] = useState<any>(undefined);
   const [strategy, setStrategy] = useState('c1');
 
+  /* state from context */
+  const { userState } = useContext(UserContext) as IUserContext;
+  const { activeAccount, assetMap, vaultMap, selectedSeriesId, selectedIlkId, selectedBaseId } = userState;
+
   return (
     <MainViewWrap>
-
       <SectionWrap title="1. Asset to Pool" subtitle="Choose an asset and series to pool">
         <Box direction="row" gap="small" fill="horizontal">
           <InputWrap action={() => console.log('maxAction')}>

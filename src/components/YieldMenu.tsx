@@ -3,7 +3,7 @@ import { Box, Button, Header, Image, Text } from 'grommet';
 import styled, { CSSProperties, ThemeContext } from 'styled-components';
 import { useHistory } from 'react-router-dom';
 import { UserContext } from '../contexts/UserContext';
-import { IVaultRoot, View } from '../types';
+import { IUserContext, IVault, IVaultRoot, View } from '../types';
 
 const StyledBox = styled(Box)`
   text-decoration: none;
@@ -20,7 +20,10 @@ const StyledBox = styled(Box)`
 
 const YieldMenu = ({ toggleMenu }: { toggleMenu: ()=>void }) => {
   /* state from contexts */
-  const { userState: { vaultMap, activeVault }, userActions: { setActiveVault } } = useContext(UserContext);
+  const { userState, userActions } = useContext(UserContext) as IUserContext;
+  const { vaultMap } = userState;
+  const { setSelectedVault } = userActions;
+
   const routerHistory = useHistory();
   const theme = useContext<any>(ThemeContext);
   const textColor = theme.global.colors.brand;
@@ -32,11 +35,11 @@ const YieldMenu = ({ toggleMenu }: { toggleMenu: ()=>void }) => {
   } as CSSProperties;
 
   /* local state */
-  const [vaultsArray, setVaultsArray] = useState<IVaultRoot[]>(Array.from(vaultMap.values() as IVaultRoot[]));
+  const [vaultsArray, setVaultsArray] = useState<IVault[]>(Array.from(vaultMap.values()));
   const [view, setView] = useState<View>(vaultsArray.length > 0 ? View.vaults : View.account);
 
   const handleSelect = (vaultId:string) => {
-    setActiveVault(vaultMap.get(vaultId));
+    setSelectedVault(vaultId);
     routerHistory.push(`/vault/${vaultId}`);
     toggleMenu();
   };

@@ -16,41 +16,33 @@ import { useDebounce } from '../hooks';
 import SectionWrap from '../components/wraps/SectionWrap';
 import { useActions } from '../hooks/actionHooks';
 import { UserContext } from '../contexts/UserContext';
-import { IVault } from '../types';
+import { IUserContext, IVault } from '../types';
 
 const Borrow = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
   // const routerHistory = useHistory();
   // const routerState = routerHistory.location.state as { from: string };
 
-  const { userState: {
-    activeAccount,
-    selectedVaultId,
-    selectedSeriesId,
-    selectedIlkId,
-    selectedBaseId,
-    assetMap,
-    vaultMap,
-  },
-  } = useContext(UserContext);
+  /* state from context */
+  const { userState } = useContext(UserContext) as IUserContext;
+  const { activeAccount, assetMap, vaultMap, selectedSeriesId, selectedIlkId, selectedBaseId } = userState;
 
-  const selectedBase = assetMap.get(selectedBaseId);
+  const selectedBase = assetMap.get(selectedBaseId!);
 
   const [inputValue, setInputValue] = useState<string>();
   const [collInputValue, setCollInputValue] = useState<string>();
 
   const [borrowDisabled, setBorrowDisabled] = useState<boolean>(true);
-  const [createNewVault, setCreateNewVault] = useState<boolean>(false);
 
   const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
-  const [vaultIdToUse, setVaultIdToUse] = useState<string|undefined>();
+  const [vaultIdToUse, setVaultIdToUse] = useState<string>('new vault');
 
   const { borrow } = useActions();
 
   const handleBorrow = () => {
     !borrowDisabled &&
     borrow(
-      createNewVault ? undefined : selectedVaultId,
+      vaultMap.get(vaultIdToUse), // get() returns undefined if doesn't exist - and new vault is built.
       inputValue,
       collInputValue,
     );
@@ -152,7 +144,7 @@ const Borrow = () => {
                 disabled={matchingVaults.length < 1}
                 checked={!vaultIdToUse || matchingVaults.length < 1}
                 label={<Text size="small">Create new vault</Text>}
-                onChange={() => setVaultIdToUse(undefined)}
+                onChange={() => setVaultIdToUse('new vault')}
               />
             </Box>
 
