@@ -38,10 +38,10 @@ function userReducer(state:any, action:any) {
     case 'userLoading': return { ...state, seriesLoading: onlyIfChanged(action) };
     case 'activeAccount': return { ...state, activeAccount: onlyIfChanged(action) };
 
-    case 'selectedVault': return { ...state, selectedVaultId: onlyIfChanged(action) };
-    case 'selectedSeries': return { ...state, selectedSeriesId: onlyIfChanged(action) };
-    case 'selectedIlk': return { ...state, selectedIlkId: onlyIfChanged(action) };
-    case 'selectedBase': return { ...state, selectedBaseId: onlyIfChanged(action) };
+    case 'selectedVaultId': return { ...state, selectedVaultId: onlyIfChanged(action) };
+    case 'selectedSeriesId': return { ...state, selectedSeriesId: onlyIfChanged(action) };
+    case 'selectedIlkId': return { ...state, selectedIlkId: onlyIfChanged(action) };
+    case 'selectedBaseId': return { ...state, selectedBaseId: onlyIfChanged(action) };
 
     case 'assetData': return { ...state, assetData: onlyIfChanged(action) };
     case 'seriesData': return { ...state, seriesData: onlyIfChanged(action) };
@@ -241,15 +241,15 @@ const UserProvider = ({ children }:any) => {
   /* Watch the vault selector and chnage selected series/assets accordingly */
   useEffect(() => {
     if (userState.activeVault) {
-      updateState({ type: 'selectedSeries', payload: userState.activeVault.series.id });
-      updateState({ type: 'selectedBase', payload: userState.activeVault.base.id });
+      updateState({ type: 'selectedSeriesId', payload: userState.activeVault.series.id });
+      updateState({ type: 'selectedBaseId', payload: userState.activeVault.base.id });
     }
   }, [userState.activeVault]);
 
   /* set initial state */
   useEffect(() => {
-    !chainLoading && updateState({ type: 'selectedBase', payload: assetMap.get('0x444149000000').id });
-    !chainLoading && updateState({ type: 'selectedIlk', payload: assetMap.get('0x455448000000').id });
+    !chainLoading && updateState({ type: 'selectedBaseId', payload: assetMap.get('0x444149000000').id });
+    !chainLoading && updateState({ type: 'selectedIlkId', payload: assetMap.get('0x455448000000').id });
   }, [chainLoading, assetMap]);
 
   /* Exposed userActions */
@@ -257,10 +257,10 @@ const UserProvider = ({ children }:any) => {
     updateSeries,
     updateAssets,
     updateVaults,
-    setActiveVault: (vault:IVault|null) => updateState({ type: 'activeVault', payload: vault }),
-    setSelectedIlk: (asset:IAsset) => updateState({ type: 'selectedIlk', payload: asset }),
-    setSelectedSeries: (series:ISeries) => updateState({ type: 'selectedSeries', payload: series }),
-    setSelectedBase: (asset:IAsset) => updateState({ type: 'selectedBase', payload: asset }),
+    setActiveVault: (vault:IVault|null) => updateState({ type: 'selectedVaultId', payload: vault }),
+    setSelectedIlk: (asset:IAsset) => updateState({ type: 'selectedIlkId', payload: asset }),
+    setSelectedSeries: (series:ISeries) => updateState({ type: 'selectedSeriesId', payload: series }),
+    setSelectedBase: (asset:IAsset) => updateState({ type: 'selectedBaseId', payload: asset }),
   };
 
   return (

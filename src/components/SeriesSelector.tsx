@@ -10,10 +10,11 @@ function SeriesSelector() {
   const { chainState: { seriesMap } } = useContext(ChainContext);
 
   const { userState, userActions } = useContext(UserContext);
-  const { selectedVaultId, selectedSeriesId, selectedBaseId, seriesData } = userState;
+  const { selectedVaultId, selectedSeriesId, selectedBaseId } = userState;
   const [options, setOptions] = useState<ISeriesData[]>([]);
 
-  const selectedSeries = seriesData.get(selectedSeriesId);
+  /* get from seriesMap (not seriesData) so it can be used without an account connected */
+  const _selectedSeries = seriesMap.get(selectedSeriesId);
 
   const optionText = (_series: ISeriesData|undefined) => (
     _series
@@ -22,10 +23,10 @@ function SeriesSelector() {
   );
 
   useEffect(() => {
-    const opts = Array.from(seriesData.values()) as ISeriesData[];
+    const opts = Array.from(seriesMap.values()) as ISeriesData[];
     const filteredOpts = opts.filter((_series:ISeriesData) => _series.baseId === selectedBaseId);
     setOptions(filteredOpts);
-  }, [seriesData, selectedBaseId]);
+  }, [seriesMap, selectedBaseId]);
 
   return (
     <Box fill>
@@ -34,11 +35,11 @@ function SeriesSelector() {
         name="assetSelect"
         placeholder="Select Series"
         options={options}
-        value={selectedSeries}
+        value={_selectedSeries}
         labelKey={(x:any) => optionText(x)}
         valueLabel={
           options.length ?
-            <Box pad={mobile ? 'medium' : 'small'}><Text size="small" color="text"> {optionText(selectedSeries)} </Text></Box>
+            <Box pad={mobile ? 'medium' : 'small'}><Text size="small" color="text"> {optionText(_selectedSeries)} </Text></Box>
             : <Box pad={mobile ? 'medium' : 'small'}><Text size="small" color="text"> No available series.</Text></Box>
         }
         disabled={options.length === 0 || !!selectedVaultId}

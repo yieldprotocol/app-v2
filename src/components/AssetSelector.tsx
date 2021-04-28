@@ -18,10 +18,11 @@ interface IAssetSelectorProps {
 
 function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
-  const { chainState: { assetMap }, chainActions } = useContext(ChainContext);
+  const { chainState: { assetMap } } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
   const { selectedVaultId, selectedIlkId, selectedSeriesId, selectedBaseId } = userState;
 
+  /* get from assetMap ( not assetData ) so it can be used without account connected */
   const selectedIlk = assetMap.get(selectedIlkId);
   const selectedBase = assetMap.get(selectedBaseId);
 
@@ -35,10 +36,6 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
       : opts;
     setOptions(filteredOptions);
   }, [selectedBaseId, assetMap, selectCollateral]);
-
-  // useEffect(() => {
-  //   activeVault?.series && userActions.setSelectedBase(activeVault.base);
-  // }, [activeVault]);
 
   return (
     <Box fill>
