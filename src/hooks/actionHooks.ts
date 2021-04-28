@@ -56,7 +56,6 @@ export const useActions = () => {
         ignore: value.gte(ethers.constants.Zero),
       }];
     }
-    
     /* else return empty array */
     return [];
   };
@@ -74,8 +73,10 @@ export const useActions = () => {
 
     /* parse inputs */
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
-    const _inputNegative = _input.lt(ethers.constants.Zero);
-    const _pourDestination = _inputNegative ? contractMap.get('Ladle').address : account;
+    const _isInputNegative: boolean = _input.lt(ethers.constants.Zero);
+    const isEth: boolean = selectedIlkId === '0x455448000000';
+
+    const _pourDestination = isEth ? contractMap.get('Ladle').address : account;
 
     /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
     const permits: ICallData[] = await sign([
@@ -85,7 +86,7 @@ export const useActions = () => {
         type: SignType.ERC2612,
         spender: 'JOIN',
         fallbackCall: { fn: 'approve', args: [], ignore: false, opCode: null },
-        ignore: selectedIlkId === '0x455448000000' || _inputNegative,
+        ignore: isEth || _isInputNegative,
       },
     ], txCode);
 
@@ -93,7 +94,7 @@ export const useActions = () => {
     const calls: ICallData[] = [
       /* If vault is null, build a new vault, else ignore */
       ..._buildVault(!!vault),
-      /* handle ETH deposit, if required */
+      /* handle ETH deposit BEFORE pour, if required (ilk is eth) */
       ..._addEth(_input),
       /* Include all the signatures gathered, if required  */
       ...permits,
@@ -103,7 +104,7 @@ export const useActions = () => {
         args: [_vaultId, _pourDestination, _input, ethers.constants.Zero],
         ignore: false,
       },
-      /* removeEth AFTER pour */
+      /* remove Eth AFTER pour, if required (ilk is eth) */
       ..._removeEth(_input),
     ];
     /* handle the transaction */
