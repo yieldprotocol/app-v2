@@ -56,7 +56,7 @@ export interface IAssetRoot {
   joinAddress: string,
   // baked in token fns
   getBalance: ()=>BigNumber,
-  getAllowance: ()=>BigNumber,
+  getAllowance: (spender: string)=>BigNumber,
 }
 
 export interface IVaultRoot {
@@ -66,9 +66,7 @@ export interface IVaultRoot {
   seriesId: string;
   image: string;
   displayId? : string;
-  // getSeries : ()=> ISeries;
-  // getBase : ()=> IAsset;
-  // getIlk: ()=>IAsset;
+  name?: string;
 }
 
 export interface ISeries extends ISeriesRoot {

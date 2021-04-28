@@ -31,17 +31,86 @@ export const useActions = () => {
     }]
   );
 
-  const _depositEth = (value: BigNumber): ICallData[] => (
-    /* First check if the selected Ilk is an ETH variety :  */
-    ['0x455448000000', 'ETH_B_forexample'].includes(selectedIlkId)
-      ? [{
+  const _addEth = (value: BigNumber): ICallData[] => {
+    /* first check if the selected Ilk is, in fact, an ETH variety */
+    if (['0x455448000000', 'ETH_B_forexample'].includes(selectedIlkId)) {
+      /* return the add ETH OP */
+      return [{
         operation: VAULT_OPS.JOIN_ETHER,
         args: [selectedIlkId],
-        ignore: false,
+        ignore: value.lt(ethers.constants.Zero),
         overrides: { value },
-      }]
-      : []
-  );
+      }];
+    }
+    /* else return empty array */
+    return [];
+  };
+
+  const _removeEth = (value: BigNumber): ICallData[] => {
+    /* First check if the selected Ilk is, in fact, an ETH variety */
+    if (['0x455448000000', 'ETH_B_forexample'].includes(selectedIlkId)) {
+      /* return the remove ETH OP */
+      return [{
+        operation: VAULT_OPS.EXIT_ETHER,
+        args: [selectedIlkId, account],
+        ignore: value.gte(ethers.constants.Zero),
+      }];
+    }
+    
+    /* else return empty array */
+    return [];
+  };
+
+  const addRemoveCollateral = async (
+    vault: IVault|undefined,
+    input: string|undefined,
+  ) => {
+    /* use the vault id provided OR Get a random vault number ready if reqd. */
+    const _vaultId = vault?.id || ethers.utils.hexlify(ethers.utils.randomBytes(12));
+    const _series = vault ? seriesMap.get(vault.seriesId) : seriesMap.get(selectedSeriesId);
+
+    /* generate the reproducible txCode for tx tracking and tracing */
+    const txCode = getTxCode('000_', _vaultId);
+
+    /* parse inputs */
+    const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
+    const _inputNegative = _input.lt(ethers.constants.Zero);
+    const _pourDestination = _inputNegative ? contractMap.get('Ladle').address : account;
+
+    /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
+    const permits: ICallData[] = await sign([
+      {
+        asset: assetMap.get(selectedIlkId),
+        series: _series,
+        type: SignType.ERC2612,
+        spender: 'JOIN',
+        fallbackCall: { fn: 'approve', args: [], ignore: false, opCode: null },
+        ignore: selectedIlkId === '0x455448000000' || _inputNegative,
+      },
+    ], txCode);
+
+    /* Collate all the calls required for the process (including depositing ETH, signing permits, and building vault if needed) */
+    const calls: ICallData[] = [
+      /* If vault is null, build a new vault, else ignore */
+      ..._buildVault(!!vault),
+      /* handle ETH deposit, if required */
+      ..._addEth(_input),
+      /* Include all the signatures gathered, if required  */
+      ...permits,
+      /* Then add all the CALLS you want to make: */
+      {
+        operation: VAULT_OPS.POUR,
+        args: [_vaultId, _pourDestination, _input, ethers.constants.Zero],
+        ignore: false,
+      },
+      /* removeEth AFTER pour */
+      ..._removeEth(_input),
+    ];
+    /* handle the transaction */
+    await transact('Ladle', _vaultId, calls, txCode);
+    // then update the changed elements
+    vault && updateVaults([vault]);
+  };
 
   const borrow = async (
     vault: IVault|undefined,
@@ -76,7 +145,7 @@ export const useActions = () => {
       /* If vault is null, build a new vault, else ignore */
       ..._buildVault(!!vault),
       /* handle ETH deposit, if required */
-      ..._depositEth(_collInput),
+      ..._addEth(_collInput),
       /* Include all the signatures gathered, if required  */
       ...permits,
       /* Then add all the CALLS you want to make: */
@@ -351,5 +420,5 @@ export const useActions = () => {
     // const txCode = getTxCode('020_', vault.series.id);
   };
 
-  return { borrow, repay, redeem, lend, closePosition, addLiquidity, removeLiquidity };
+  return { addRemoveCollateral, borrow, repay, redeem, lend, closePosition, addLiquidity, removeLiquidity };
 };

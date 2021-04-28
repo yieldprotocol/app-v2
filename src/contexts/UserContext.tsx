@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useReducer, useCallback } from 'react';
 import { ethers } from 'ethers';
 
-import { IAssetRoot, ISeriesRoot, IVaultRoot, ISeries, IAsset, IVault, IUserContextState } from '../types';
+import { IAssetRoot, ISeriesRoot, IVaultRoot, ISeries, IAsset, IVault, IUserContextState, IUserContext } from '../types';
 
 import { ChainContext } from './ChainContext';
 import { cleanValue, genVaultImage } from '../utils/displayUtils';
@@ -10,20 +10,17 @@ import { calculateAPR, floorDecimal, secondsToFrom, sellFYToken } from '../utils
 const UserContext = React.createContext<any>({});
 
 const initState : IUserContextState = {
-
+  /* activeAccount */
   activeAccount: null,
-
+  /* Item maps */
   assetMap: new Map<string, IAsset>(),
   seriesMap: new Map<string, ISeries>(),
   vaultMap: new Map<string, IVault>(),
-
   /* Current User selections */
   selectedSeriesId: null,
   selectedIlkId: null,
   selectedBaseId: null,
-
   selectedVaultId: null,
-
 };
 
 function userReducer(state:any, action:any) {
@@ -98,8 +95,8 @@ const UserProvider = ({ children }:any) => {
 
   /* Updates the series with relevant *user* data */
   const updateSeries = useCallback(async (seriesList: ISeriesRoot[]) => {
-    let _publicData : ISeriesRoot[] = [];
-    let _accountData : ISeriesRoot[] = [];
+    let _publicData : ISeries[] = [];
+    let _accountData : ISeries[] = [];
 
     /* Add in the dynamic series data of the series in the list */
     _publicData = await Promise.all(
@@ -129,7 +126,7 @@ const UserProvider = ({ children }:any) => {
 
     if (account) {
       _accountData = await Promise.all(
-        _publicData.map(async (series:ISeriesRoot) : Promise<any> => {
+        _publicData.map(async (series:ISeries) : Promise<ISeries> => {
           /* Get all the data simultanenously in a promise.all */
           const [poolTokens, fyTokenBalance] = await Promise.all([
             series.poolContract.balanceOf(account),
@@ -265,7 +262,7 @@ const UserProvider = ({ children }:any) => {
   };
 
   return (
-    <UserContext.Provider value={{ userState, userActions }}>
+    <UserContext.Provider value={{ userState, userActions } as IUserContext}>
       {children}
     </UserContext.Provider>
   );

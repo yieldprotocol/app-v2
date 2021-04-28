@@ -12,7 +12,7 @@ import MainViewWrap from '../components/wraps/MainViewWrap';
 import SeriesSelector from '../components/selectors/SeriesSelector';
 import InputWrap from '../components/wraps/InputWrap';
 import InfoBite from '../components/InfoBite';
-import { IUserContext, IVault } from '../types';
+import { IAsset, ISeries, IUserContext, IVault } from '../types';
 
 import ActionButtonGroup from '../components/ActionButtonGroup';
 import PlaceholderWrap from '../components/wraps/PlaceholderWrap';
@@ -28,10 +28,10 @@ const Vault = () => {
   const { assetMap, seriesMap, vaultMap, selectedVaultId } = userState;
   const { setSelectedVault } = userActions;
 
-  const activeVault = vaultMap.get(selectedVaultId!);
-  const base = assetMap.get(activeVault?.baseId!);
-  const ilk = assetMap.get(activeVault?.ilkId!);
-  const series = seriesMap.get(activeVault?.baseId!);
+  const activeVault: IVault|undefined = vaultMap.get(selectedVaultId!);
+  const base: IAsset|undefined = assetMap.get(activeVault?.baseId!);
+  const ilk: IAsset|undefined = assetMap.get(activeVault?.ilkId!);
+  const series: ISeries|undefined = seriesMap.get(activeVault?.seriesId!);
 
   /* local state */
   const [availableVaults, setAvailableVaults] = useState<IVault[]>();
@@ -50,6 +50,16 @@ const Vault = () => {
   const handleRepay = () => {
     activeVault &&
     repay(activeVault, inputValue?.toString());
+  };
+  const handleBorrowMore = () => {
+    activeVault &&
+    borrow(activeVault, borrowInput, '0');
+  };
+  const handleManageCollateral = (action: 'ADD'|'REMOVE') => {
+    if (activeVault) {
+      action === 'ADD' && borrow(activeVault, borrowInput, '0');
+      action === 'REMOVE' && console.log('remove');
+    }
   };
 
   return (
@@ -81,18 +91,12 @@ const Vault = () => {
         </Box>
 
         <InfoBite label="Vault debt:" value={`${activeVault?.art_} ${base?.symbol}`} />
-        <InfoBite label="Debt in USD" value="0.0" />
-
         <InfoBite label="Collateral posted:" value={`${activeVault?.ink_} ${ilk?.symbol}`} />
 
       </Box>
 
       <MainViewWrap>
         <SectionWrap>
-          <Box direction="row" justify="between" fill="horizontal">
-            <Text size={mobile ? 'small' : 'medium'}> Debt: {activeVault?.art_} {base?.symbol} </Text> <Text size={mobile ? 'small' : 'medium'}> ($0,00 USD) </Text>
-          </Box>
-
           <Box gap="small" fill="horizontal">
             <InputWrap basis="65%" action={() => console.log('maxAction')}>
               <TextInput
@@ -150,7 +154,7 @@ const Vault = () => {
                   primary
                   label={<Text size={mobile ? 'small' : undefined}> Borrow </Text>}
                   key="primary"
-                  onClick={() => borrow(activeVault, borrowInput, '0')}
+                  onClick={() => handleBorrowMore()}
                 />,
               ]}
               />
