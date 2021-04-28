@@ -35,14 +35,14 @@ const Borrow = () => {
   const [borrowDisabled, setBorrowDisabled] = useState<boolean>(true);
 
   const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
-  const [vaultIdToUse, setVaultIdToUse] = useState<string>('new vault');
+  const [vaultIdToUse, setVaultIdToUse] = useState<string|undefined>(undefined);
 
   const { borrow } = useActions();
 
   const handleBorrow = () => {
     !borrowDisabled &&
     borrow(
-      vaultMap.get(vaultIdToUse), // get() returns undefined if doesn't exist - and new vault is built.
+      vaultIdToUse ? vaultMap.get(vaultIdToUse) : undefined,
       inputValue,
       collInputValue,
     );
@@ -144,7 +144,7 @@ const Borrow = () => {
                 disabled={matchingVaults.length < 1}
                 checked={!vaultIdToUse || matchingVaults.length < 1}
                 label={<Text size="small">Create new vault</Text>}
-                onChange={() => setVaultIdToUse('new vault')}
+                onChange={() => setVaultIdToUse(undefined)}
               />
             </Box>
 
