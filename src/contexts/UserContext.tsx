@@ -17,14 +17,7 @@ const initState = {
   seriesData: new Map<string, ISeriesData>(),
   vaultData: new Map<string, IVaultData>(),
 
-  vaultMap: new Map<string, IVault>(),
-  // activeVault: null as IVaultData|null,
-
   /* Current User selections */
-  // selectedSeries: null as ISeriesData|null,
-  // selectedIlk: null as IAssetData|null,
-  // selectedBase: null as IAssetData|null,
-
   selectedSeriesId: null as string|null,
   selectedIlkId: null as string|null,
   selectedBaseId: null as string|null,
@@ -33,7 +26,7 @@ const initState = {
 };
 
 function userReducer(state:any, action:any) {
-  /* Helper: only change the state if different from existing */
+  /* Helper: only change the state if different from existing */ // TODO if even reqd.?
   const onlyIfChanged = (_action: any) => (
     state[action.type] === _action.payload
       ? state[action.type]
@@ -45,28 +38,21 @@ function userReducer(state:any, action:any) {
     case 'userLoading': return { ...state, seriesLoading: onlyIfChanged(action) };
     case 'activeAccount': return { ...state, activeAccount: onlyIfChanged(action) };
 
-      // case 'activeVault': return { ...state, activeVault: onlyIfChanged(action) };
-      // case 'selectedSeries': return { ...state, selectedSeries: onlyIfChanged(action) };
-      // case 'selectedIlk': return { ...state, selectedIlk: onlyIfChanged(action) };
-      // case 'selectedBase': return { ...state, selectedBase: onlyIfChanged(action) };
-
     case 'selectedVault': return { ...state, selectedVaultId: onlyIfChanged(action) };
     case 'selectedSeries': return { ...state, selectedSeriesId: onlyIfChanged(action) };
     case 'selectedIlk': return { ...state, selectedIlkId: onlyIfChanged(action) };
     case 'selectedBase': return { ...state, selectedBaseId: onlyIfChanged(action) };
 
-    case 'assetData': return { ...state, assetData: action.payload };
-    case 'seriesData': return { ...state, seriesData: action.payload };
-    case 'vaultData': return { ...state, vaultData: action.payload };
-
-    case 'vaultMap': return { ...state, vaultMap: onlyIfChanged(action) };
+    case 'assetData': return { ...state, assetData: onlyIfChanged(action) };
+    case 'seriesData': return { ...state, seriesData: onlyIfChanged(action) };
+    case 'vaultData': return { ...state, vaultData: onlyIfChanged(action) };
 
     default: return state;
   }
 }
 
 const UserProvider = ({ children }:any) => {
-  // const [cachedVaults, setCachedVaults] = useCachedState('vaults', { data: [], lastBlock: Number(process.env.REACT_APP_DEPLOY_BLOCK) });
+  // TODO const [cachedVaults, setCachedVaults] = useCachedState('vaults', { data: [], lastBlock: Number(process.env.REACT_APP_DEPLOY_BLOCK) });
   const { chainState } = useContext(ChainContext);
   const {
     contractMap,
@@ -79,10 +65,10 @@ const UserProvider = ({ children }:any) => {
   const [userState, updateState] = useReducer(userReducer, initState);
 
   /* internal function for getting the users vaults */
-  const _getVaults = useCallback(async () => {
+  const _getVaults = useCallback(async (fromBlock:number = 1) => {
     const Cauldron = contractMap.get('Cauldron');
     const filter = Cauldron.filters.VaultBuilt(null, account, null);
-    const eventList = await Cauldron.queryFilter(filter, 1);
+    const eventList = await Cauldron.queryFilter(filter, fromBlock);
     // const eventList = await Cauldron.queryFilter(filter, cachedVaults.lastBlock);
     const vaultList : IVault[] = await Promise.all(eventList.map(async (x:any) : Promise<IVault> => {
       const { vaultId: id, ilkId, seriesId } = Cauldron.interface.parseLog(x).args;
@@ -94,9 +80,6 @@ const UserProvider = ({ children }:any) => {
         baseId: series.baseId,
         ilkId,
         image: genVaultImage(id),
-        // getBase: () => userState.seriesMap.get(seriesId),
-        // getSeries: () => userState.assetMap.get(baseId),
-        // getIlk: () => userState.assetMap.get(ilkId),
       };
     }));
 
@@ -105,13 +88,12 @@ const UserProvider = ({ children }:any) => {
       const _map = acc;
       _map.set(item.id, item);
       return _map;
-    }, userState.vaultMap) as Map<string, IVault>;
+    }, new Map()) as Map<string, IVault>;
 
-    updateState({ type: 'vaultMap', payload: newVaultMap });
     return newVaultMap;
     /* Update the local cache storage */
     // TODO setCachedVaults({ data: Array.from(newVaultMap.values()), lastBlock: await fallbackProvider.getBlockNumber() });
-  }, [account, contractMap, userState.vaultMap, seriesMap]);
+  }, [account, contractMap, seriesMap]);
 
   /* Updates the series with relevant *user* data */
   const updateSeries = useCallback(async (seriesList: ISeries[]) => {
