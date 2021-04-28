@@ -19,8 +19,8 @@ import { UserContext } from '../contexts/UserContext';
 
 const Borrow = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
-  const routerHistory = useHistory();
-  const routerState = routerHistory.location.state as { from: string };
+  // const routerHistory = useHistory();
+  // const routerState = routerHistory.location.state as { from: string };
 
   const { userState: {
     activeAccount,
@@ -72,7 +72,7 @@ const Borrow = () => {
       ? setBorrowDisabled(true)
     /* else if all pass, then unlock borrowing */
       : setBorrowDisabled(false);
-  }, [inputValue, collInputValue, selectedSeriesId, selectedIlkId]);
+  }, [inputValue, collInputValue, selectedSeriesId, selectedIlkId, activeAccount]);
 
   return (
 
@@ -82,14 +82,6 @@ const Borrow = () => {
       target="document"
     >
       <MainViewWrap>
-
-        {
-          selectedVaultId &&
-          <Box direction="row">
-            <Image src={selectedVaultId.image} />
-            <Text>{ selectedVaultId } </Text>
-          </Box>
-        }
 
         <SectionWrap title="1. Asset to Borrow" subtitle="Choose an asset and period to borrow for">
 
@@ -142,7 +134,7 @@ const Borrow = () => {
         <Box direction="row" justify="end">
           <CheckBox
             reverse
-            disabled={!selectedVaultId}
+            // disabled={!selectedVaultId}
             checked={createNewVault || !selectedVaultId}
             label={<Text size="small">Create new vault</Text>}
             onChange={(event:any) => setCreateNewVault(event.target.checked)}
@@ -177,27 +169,13 @@ const Borrow = () => {
             onClick={() => handleBorrow()}
             disabled={borrowDisabled}
           />,
-          (
-            !selectedVaultId
-              ?
-                <Button
-                  secondary
-                  disabled
-                  label={<Text size={mobile ? 'small' : undefined}> Migrate Maker Vault</Text>}
-                  key="secondary"
-                />
-              :
-                <Box
-                  onClick={() => routerHistory.push(`/vault/${selectedVaultId}`)}
-                  gap="medium"
-                  direction="row"
-                  alignSelf="center"
-                  key="tertiary"
-                >
-                  <FiArrowLeftCircle />
-                  <Text size="small"> back to vault: {selectedVaultId} </Text>
-                </Box>
-          ),
+
+          <Button
+            secondary
+            disabled
+            label={<Text size={mobile ? 'small' : undefined}> Migrate Maker Vault</Text>}
+            key="secondary"
+          />,
         ]}
         />
       </MainViewWrap>

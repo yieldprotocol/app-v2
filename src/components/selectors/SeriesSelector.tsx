@@ -10,7 +10,7 @@ function SeriesSelector() {
   // const { chainState: { seriesBaseMap } } = useContext(ChainContext);
 
   const { userState, userActions } = useContext(UserContext);
-  const { selectedVaultId, selectedSeriesId, selectedBaseId, seriesMap } = userState;
+  const { selectedSeriesId, selectedBaseId, seriesMap } = userState;
   const [options, setOptions] = useState<ISeries[]>([]);
 
   /* get from seriesBaseMap (not seriesMap) so it can be used without an account connected */
@@ -42,7 +42,7 @@ function SeriesSelector() {
             <Box pad={mobile ? 'medium' : 'small'}><Text size="small" color="text"> {optionText(_selectedSeries)} </Text></Box>
             : <Box pad={mobile ? 'medium' : 'small'}><Text size="small" color="text"> No available series.</Text></Box>
         }
-        disabled={options.length === 0 || !!selectedVaultId}
+        disabled={options.length === 0}
         onChange={({ option }: any) => userActions.setSelectedSeries(option.id)}
         // eslint-disable-next-line react/no-children-prop
         children={(x:any) => <Box pad={mobile ? 'medium' : 'small'} gap="small" direction="row"> <Text color="text" size="small"> { optionText(x) } </Text> </Box>}

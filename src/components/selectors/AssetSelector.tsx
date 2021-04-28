@@ -17,7 +17,7 @@ interface IassetRootSelectorProps {
 function AssetSelector({ selectCollateral }: IassetRootSelectorProps) {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
   const { userState, userActions } = useContext(UserContext);
-  const { selectedVaultId, selectedIlkId, selectedSeriesId, selectedBaseId, assetMap } = userState;
+  const { selectedIlkId, selectedSeriesId, selectedBaseId, assetMap } = userState;
 
   /* get from assetRootMap ( not assetMap ) so it can be used without account connected */
   const selectedIlk = assetMap.get(selectedIlkId);
@@ -47,7 +47,7 @@ function AssetSelector({ selectCollateral }: IassetRootSelectorProps) {
         onChange={({ option }: any) => {
           selectCollateral ? userActions.setSelectedIlk(option.id) : userActions.setSelectedBase(option.id);
         }}
-        disabled={(selectCollateral && !selectedSeriesId) || (!selectCollateral && !!selectedVaultId)}
+        disabled={(selectCollateral && !selectedSeriesId)}
         // eslint-disable-next-line react/no-children-prop
         children={(x:any) => <Box pad={mobile ? 'medium' : 'small'} gap="small" direction="row"> <Text color="text" size="small"> { optionText(x) } </Text> </Box>}
       />
