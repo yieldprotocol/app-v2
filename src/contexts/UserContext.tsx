@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect, useReducer, useCallback } from 'react';
 import { BigNumber, ethers } from 'ethers';
 
-import { IAsset, ISeries, IVault, ISeriesData, IAssetData, IVaultData } from '../types';
+import { IAssetStatic, ISeriesStatic, IVaultStatic, ISeries, IAsset, IVault } from '../types';
 
 import { ChainContext } from './ChainContext';
 import { cleanValue, genVaultImage } from '../utils/displayUtils';
@@ -13,9 +13,9 @@ const initState = {
 
   activeAccount: null as string|null,
 
-  assetData: new Map<string, IAssetData>(),
-  seriesData: new Map<string, ISeriesData>(),
-  vaultData: new Map<string, IVaultData>(),
+  assetData: new Map<string, IAsset>(),
+  seriesData: new Map<string, ISeries>(),
+  vaultData: new Map<string, IVault>(),
 
   /* Current User selections */
   selectedSeriesId: null as string|null,
@@ -70,7 +70,7 @@ const UserProvider = ({ children }:any) => {
     const filter = Cauldron.filters.VaultBuilt(null, account, null);
     const eventList = await Cauldron.queryFilter(filter, fromBlock);
     // const eventList = await Cauldron.queryFilter(filter, cachedVaults.lastBlock);
-    const vaultList : IVault[] = await Promise.all(eventList.map(async (x:any) : Promise<IVault> => {
+    const vaultList : IVaultStatic[] = await Promise.all(eventList.map(async (x:any) : Promise<IVaultStatic> => {
       const { vaultId: id, ilkId, seriesId } = Cauldron.interface.parseLog(x).args;
       const series = seriesStaticData.get(seriesId);
       // const baseId = assetStaticData.get(series.baseId);
@@ -83,12 +83,12 @@ const UserProvider = ({ children }:any) => {
       };
     }));
 
-    // TODO const _combined: IVault[] = [...vaultList, ...cachedVaults];
+    // TODO const _combined: IVaultStatic[] = [...vaultList, ...cachedVaults];
     const newVaultMap = vaultList.reduce((acc:any, item:any) => {
       const _map = acc;
       _map.set(item.id, item);
       return _map;
-    }, new Map()) as Map<string, IVault>;
+    }, new Map()) as Map<string, IVaultStatic>;
 
     return newVaultMap;
     /* Update the local cache storage */
@@ -96,13 +96,13 @@ const UserProvider = ({ children }:any) => {
   }, [account, contractMap, seriesStaticData]);
 
   /* Updates the series with relevant *user* data */
-  const updateSeries = useCallback(async (seriesList: ISeries[]) => {
-    let _publicData : ISeries[] = [];
-    let _accountData : ISeries[] = [];
+  const updateSeries = useCallback(async (seriesList: ISeriesStatic[]) => {
+    let _publicData : ISeriesStatic[] = [];
+    let _accountData : ISeriesStatic[] = [];
 
     /* Add in the dynamic series data of the series in the list */
     _publicData = await Promise.all(
-      seriesList.map(async (series:ISeries) : Promise<ISeriesData> => {
+      seriesList.map(async (series:ISeriesStatic) : Promise<ISeries> => {
         /* Get all the data simultanenously in a promise.all */
         const [baseReserves, fyTokenReserves] = await Promise.all([
           series.poolContract.getBaseTokenReserves(),
@@ -128,7 +128,7 @@ const UserProvider = ({ children }:any) => {
 
     if (account) {
       _accountData = await Promise.all(
-        _publicData.map(async (series:ISeries) : Promise<any> => {
+        _publicData.map(async (series:ISeriesStatic) : Promise<any> => {
           /* Get all the data simultanenously in a promise.all */
           const [poolTokens, fyTokenBalance] = await Promise.all([
             series.poolContract.balanceOf(account),
@@ -160,10 +160,10 @@ const UserProvider = ({ children }:any) => {
   }, [account]);
 
   /* Updates the assets with relevant *user* data */
-  const updateAssets = useCallback(async (assetList: IAsset[]) => {
+  const updateAssets = useCallback(async (assetList: IAssetStatic[]) => {
     /* add in the dynamic asset data of the assets in the list */
     const assetListMod = await Promise.all(
-      assetList.map(async (asset:IAsset) : Promise<IAssetData> => {
+      assetList.map(async (asset:IAssetStatic) : Promise<IAsset> => {
         const balance = asset.getBalance();
         return {
           ...asset,
@@ -184,11 +184,11 @@ const UserProvider = ({ children }:any) => {
   }, []);
 
   /* Updates the vaults with *user* data */
-  const updateVaults = useCallback(async (vaultList: IVault[]) => {
+  const updateVaults = useCallback(async (vaultList: IVaultStatic[]) => {
     const Cauldron = contractMap.get('Cauldron');
     /* add in the dynamic vault data by mapping the vaults list */
     const vaultListMod = await Promise.all(
-      vaultList.map(async (vault:IVault) : Promise<IVaultData> => {
+      vaultList.map(async (vault:IVaultStatic) : Promise<IVault> => {
         const { ink, art } = await Cauldron.balances(vault.id);
         return {
           ...vault,

@@ -1,7 +1,7 @@
 import { ethers, BigNumber } from 'ethers';
 import { FYToken, Pool } from '../contracts';
 
-export interface ISeries {
+export interface ISeriesStatic {
   // reqd/fixed:
   id: string;
   displayName: string;
@@ -19,7 +19,7 @@ export interface ISeries {
   apr?: string;
 }
 
-export interface IAsset {
+export interface IAssetStatic {
   // reqd/fixed:
   id: string;
   symbol: string;
@@ -32,19 +32,19 @@ export interface IAsset {
   getAllowance: ()=>BigNumber,
 }
 
-export interface IVault {
+export interface IVaultStatic {
   id: string;
   ilkId: string;
   baseId: string;
   seriesId: string;
   image: string;
   displayId? : string;
-  // getSeries : ()=> ISeriesData;
-  // getBase : ()=> IAssetData;
-  // getIlk: ()=>IAssetData;
+  // getSeries : ()=> ISeries;
+  // getBase : ()=> IAsset;
+  // getIlk: ()=>IAsset;
 }
 
-export interface ISeriesData extends ISeries {
+export interface ISeries extends ISeriesStatic {
   APR: string;
   baseReserves: BigNumber;
   fyTokenReserves: BigNumber;
@@ -54,12 +54,12 @@ export interface ISeriesData extends ISeries {
   fyTokenBalance_? : string|undefined;
 }
 
-export interface IAssetData extends IAsset {
+export interface IAsset extends IAssetStatic {
   balance: BigNumber;
   balance_: string;
 }
 
-export interface IVaultData extends IVault {
+export interface IVault extends IVaultStatic {
   ink: BigNumber;
   art: BigNumber;
   ink_: string;
@@ -69,15 +69,15 @@ export interface IVaultData extends IVault {
 export interface ICallData {
   args: string[];
   operation: [ number, string[]];
-  series?: ISeries;
+  series?: ISeriesStatic;
   fnName?: string;
   ignore?: boolean;
   overrides?: ethers.CallOverrides;
 }
 
 export interface ISignData {
-  series: ISeries,
-  asset: IAsset,
+  series: ISeriesStatic,
+  asset: IAssetStatic,
   type: SignType;
   fallbackCall: any; // calldata to process if fallbackTx is used
   ignore?: boolean; // conditional for ignoring

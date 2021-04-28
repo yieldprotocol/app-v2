@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Box, ResponsiveContext, Select, Text } from 'grommet';
 
 import { unstable_renderSubtreeIntoContainer } from 'react-dom';
-import { IAsset } from '../types';
+import { IAssetStatic } from '../types';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
 
@@ -12,11 +12,11 @@ import { UserContext } from '../contexts/UserContext';
 //   ['DOGE', { name: 'Doge Coin', symbol: 'DOGE', icon: null }],
 //   ['UNI', { name: 'Uni coin', symbol: 'UNI', icon: null }],
 // ]);
-interface IAssetSelectorProps {
+interface IAssetStaticSelectorProps {
   selectCollateral?:boolean;
 }
 
-function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
+function AssetSelector({ selectCollateral }: IAssetStaticSelectorProps) {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
   const { chainState: { assetStaticData } } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
@@ -26,13 +26,13 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   const selectedIlk = assetStaticData.get(selectedIlkId);
   const selectedBase = assetStaticData.get(selectedBaseId);
 
-  const [options, setOptions] = useState<IAsset[]>([]);
-  const optionText = (asset: IAsset | undefined) => `${asset?.symbol}` || '';
+  const [options, setOptions] = useState<IAssetStatic[]>([]);
+  const optionText = (asset: IAssetStatic | undefined) => `${asset?.symbol}` || '';
 
   useEffect(() => {
-    const opts = Array.from(assetStaticData.values()) as IAsset[];
+    const opts = Array.from(assetStaticData.values()) as IAssetStatic[];
     const filteredOptions = selectCollateral
-      ? opts.filter((a:IAsset) => a.id !== selectedBaseId)
+      ? opts.filter((a:IAssetStatic) => a.id !== selectedBaseId)
       : opts;
     setOptions(filteredOptions);
   }, [selectedBaseId, assetStaticData, selectCollateral]);

@@ -3,7 +3,7 @@ import { Box, Button, Header, Layer, ResponsiveContext, Text } from 'grommet';
 import styled, { CSSProperties, ThemeContext } from 'styled-components';
 import { NavLink, useHistory } from 'react-router-dom';
 import { FiX } from 'react-icons/fi';
-import { IVault } from '../types';
+import { IVaultStatic } from '../types';
 import { UserContext } from '../contexts/UserContext';
 import YieldNavigation from '../components/YieldNavigation';
 import YieldHeader from '../components/YieldHeader';

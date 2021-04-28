@@ -2,7 +2,7 @@ import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
-import { ICallData, ISeries, IVault, IVaultData, SignType } from '../types';
+import { ICallData, ISeriesStatic, IVaultStatic, IVault, SignType } from '../types';
 import { getTxCode } from '../utils/appUtils';
 import { MAX_128, MAX_256 } from '../utils/constants';
 import { useChain } from './chainHooks';
@@ -44,7 +44,7 @@ export const useActions = () => {
   );
 
   const borrow = async (
-    vault: IVaultData|undefined,
+    vault: IVault|undefined,
     input: string|undefined,
     collInput: string|undefined,
   ) => {
@@ -98,7 +98,7 @@ export const useActions = () => {
   };
 
   const repay = async (
-    vault: IVault,
+    vault: IVaultStatic,
     input:string|undefined,
     collInput: string|undefined = '0', // optional - add(+) / remove(-) collateral in same tx.
   ) => {
@@ -148,7 +148,7 @@ export const useActions = () => {
   };
 
   const redeem = async (
-    vault: IVault,
+    vault: IVaultStatic,
     input: string|undefined,
   ) => {
     const txCode = getTxCode('030_', vault.seriesId);
@@ -194,7 +194,7 @@ export const useActions = () => {
 
   const lend = async (
     input: string|undefined,
-    series: ISeries,
+    series: ISeriesStatic,
   ) => {
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
 
@@ -243,7 +243,7 @@ export const useActions = () => {
 
   const closePosition = async (
     input: string|undefined,
-    series: ISeries,
+    series: ISeriesStatic,
   ) => {
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
     /* generate the reproducible txCode for tx tracking and tracing */
@@ -292,7 +292,7 @@ export const useActions = () => {
 
   const addLiquidity = async (
     input: string|undefined,
-    series: ISeries,
+    series: ISeriesStatic,
   ) => {
     /* generate the reproducible txCode for tx tracking and tracing */
     // const txCode = getTxCode('020_', vault.series.id);
