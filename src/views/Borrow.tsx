@@ -16,6 +16,7 @@ import { useDebounce } from '../hooks';
 import SectionWrap from '../components/wraps/SectionWrap';
 import { useActions } from '../hooks/actionHooks';
 import { UserContext } from '../contexts/UserContext';
+import { IVault } from '../types';
 
 const Borrow = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -29,6 +30,7 @@ const Borrow = () => {
     selectedIlkId,
     selectedBaseId,
     assetMap,
+    vaultMap,
   },
   } = useContext(UserContext);
 
@@ -36,10 +38,12 @@ const Borrow = () => {
 
   const [inputValue, setInputValue] = useState<string>();
   const [collInputValue, setCollInputValue] = useState<string>();
-  const [vaultIdValue, setVaultIdValue] = useState<string>();
 
   const [borrowDisabled, setBorrowDisabled] = useState<boolean>(true);
   const [createNewVault, setCreateNewVault] = useState<boolean>(false);
+
+  const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
+  const [vaultIdToUse, setVaultIdToUse] = useState<string|undefined>();
 
   const { borrow } = useActions();
 
@@ -52,12 +56,21 @@ const Borrow = () => {
     );
   };
 
+  /* checks and sets list of current vaults matching the current selection */
   useEffect(() => {
-    if (vaultIdValue && vaultIdValue.length === 12) {
-      // checkVault();
-      console.log('Max length reached');
+    if (selectedBaseId && selectedSeriesId && selectedIlkId) {
+      const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
+      const _matchingVaults = arr.filter((v:IVault) => (
+        v.ilkId === selectedIlkId &&
+        v.baseId === selectedBaseId &&
+        v.seriesId === selectedSeriesId
+      ));
+      setMatchingVaults(_matchingVaults);
+      console.log(_matchingVaults);
     }
-  }, [vaultIdValue]);
+  }, [vaultMap, selectedBaseId, selectedIlkId, selectedSeriesId]);
+
+  /* TODO create vanity vault ids? */
 
   /* Action disabling logic: */
   useEffect(() => {
@@ -131,35 +144,36 @@ const Borrow = () => {
           </Box>
         </SectionWrap>
 
-        <Box direction="row" justify="end">
-          <CheckBox
-            reverse
-            // disabled={!selectedVaultId}
-            checked={createNewVault || !selectedVaultId}
-            label={<Text size="small">Create new vault</Text>}
-            onChange={(event:any) => setCreateNewVault(event.target.checked)}
-          />
-        </Box>
-        {/*
         <SectionWrap>
-          <InputWrap>
-            <TextInput
-              plain
-              placeholder={<PlaceholderWrap label="Enter vaultID" />}
-                // ref={(el:any) => { el && el.focus(); }}
-              maxLength={12}
-              value={vaultIdValue || ''}
-              onChange={(event:any) => setVaultIdValue(event.target.value)}
-            />
-            <CheckBox
-              reverse
-              disabled
-              checked={createNewVault}
-              label={<Text size="small">Random</Text>}
-              onChange={(event:any) => setCreateNewVault(event.target.checked)}
-            />
-          </InputWrap>
-        </SectionWrap> */}
+
+          <Box>
+
+            {
+            matchingVaults.map((x:IVault) => (
+              <CheckBox
+                key={x.id}
+                reverse
+                // disabled={!selectedVaultId}
+                checked={!!vaultIdToUse || matchingVaults.length < 1}
+                label={<Text size="small">{x.id}</Text>}
+                onChange={(event:any) => setVaultIdToUse(event.target.checked)}
+              />
+            ))
+            }
+
+            <Box direction="row" justify="end">
+              <CheckBox
+                reverse
+                disabled={matchingVaults.length < 1}
+                checked={!vaultIdToUse || matchingVaults.length < 1}
+                label={<Text size="small">Create new vault</Text>}
+                onChange={() => setVaultIdToUse(undefined)}
+              />
+            </Box>
+
+          </Box>
+
+        </SectionWrap>
 
         <ActionButtonGroup buttonList={[
           <Button
