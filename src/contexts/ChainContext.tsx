@@ -8,7 +8,7 @@ import { useCachedState } from '../hooks';
 
 import * as yieldEnv from './yieldEnv.json';
 import * as contracts from '../contracts';
-import { IAssetStatic, ISeriesStatic } from '../types';
+import { IassetRoot, IseriesRoot } from '../types';
 import { nameFromMaturity } from '../utils/displayUtils';
 import { Pool } from '../contracts';
 
@@ -57,8 +57,8 @@ const initState = {
 
   /* Connected Contract Maps */
   contractMap: new Map<string, ContractFactory>(),
-  assetStaticData: new Map<string, IAssetStatic>(),
-  seriesStaticData: new Map<string, ISeriesStatic>(),
+  assetRootMap: new Map<string, IassetRoot>(),
+  seriesRootMap: new Map<string, IseriesRoot>(),
 };
 
 function chainReducer(state: any, action: any) {
@@ -83,11 +83,11 @@ function chainReducer(state: any, action: any) {
     case 'contractMap': return { ...state, contractMap: onlyIfChanged(action) };
     case 'addSeries': return {
       ...state,
-      seriesStaticData: state.seriesStaticData.set(action.payload.id, action.payload),
+      seriesRootMap: state.seriesRootMap.set(action.payload.id, action.payload),
     };
     case 'addAsset': return {
       ...state,
-      assetStaticData: state.assetStaticData.set(action.payload.id, action.payload),
+      assetRootMap: state.assetRootMap.set(action.payload.id, action.payload),
     };
 
     /* special internal case for multi-updates - might remove from this context if not needed */
@@ -200,7 +200,7 @@ const ChainProvider = ({ children }: any) => {
           }));
         })(),
 
-        /* ... AT THE SAME TIME update the available seriesStaticData based on Cauldron events */
+        /* ... AT THE SAME TIME update the available seriesRootMap based on Cauldron events */
         (async () => {
           /* get both poolAdded events and series events at the same time */
           const [seriesAddedEvents, poolAddedEvents] = await Promise.all([
@@ -235,7 +235,7 @@ const ChainProvider = ({ children }: any) => {
                   fyTokenAddress: fyToken,
                   poolAddress,
                   poolContract,
-                  getBaseAddress: () => chainState.assetStaticData.get(baseId).address, // TODO refactor to get this static - if poosible?
+                  getBaseAddress: () => chainState.assetRootMap.get(baseId).address, // TODO refactor to get this static - if poosible?
                 } });
             }),
           ]);
@@ -243,16 +243,16 @@ const ChainProvider = ({ children }: any) => {
       ])
         .then(() => {
           updateState({ type: 'chainLoading', payload: false });
-          console.log('ASSETS:', chainState.assetStaticData);
-          console.log('SERIES:', chainState.seriesStaticData);
+          console.log('ASSETS:', chainState.assetRootMap);
+          console.log('SERIES:', chainState.seriesRootMap);
         });
     }
   }, [
     account,
     fallbackChainId,
     fallbackLibrary,
-    chainState.assetStaticData,
-    chainState.seriesStaticData,
+    chainState.assetRootMap,
+    chainState.seriesRootMap,
     chainState.contractMap,
   ]);
 
@@ -261,8 +261,8 @@ const ChainProvider = ({ children }: any) => {
    * allow for caching - and watching for any newly added assets
    */
   // useEffect(() => {
-  //   chainState.seriesStaticData && console.log(chainState.seriesStaticData);
-  // }, [chainState.seriesStaticData]);
+  //   chainState.seriesRootMap && console.log(chainState.seriesRootMap);
+  // }, [chainState.seriesRootMap]);
 
   /**
    * Update on PRIMARY connection any network changes (likely via metamask/walletConnect)

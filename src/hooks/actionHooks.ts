@@ -2,7 +2,7 @@ import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
-import { ICallData, ISeriesStatic, IVaultStatic, IVault, SignType } from '../types';
+import { ICallData, IseriesRoot, IvaultRoot, IVault, SignType } from '../types';
 import { getTxCode } from '../utils/appUtils';
 import { MAX_128, MAX_256 } from '../utils/constants';
 import { useChain } from './chainHooks';
@@ -11,9 +11,9 @@ import { VAULT_OPS, POOLROUTER_OPS } from '../utils/operations';
 
 /* Generic hook for chain transactions */
 export const useActions = () => {
-  const { chainState: { account, contractMap, assetStaticData } } = useContext(ChainContext);
+  const { chainState: { account, contractMap, assetRootMap } } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
-  const { selectedIlkId, selectedSeriesId, seriesData, assetData } = userState;
+  const { selectedIlkId, selectedSeriesId, seriesMap, assetMap } = userState;
   const { updateVaults, updateSeries } = userActions;
 
   const { sign, transact } = useChain();
@@ -50,7 +50,7 @@ export const useActions = () => {
   ) => {
     /* use the vault id provided OR Get a random vault number ready if reqd. */
     const _vaultId = vault?.id || ethers.utils.hexlify(ethers.utils.randomBytes(12));
-    const _series = vault ? seriesData.get(vault.seriesId) : seriesData.get(selectedSeriesId);
+    const _series = vault ? seriesMap.get(vault.seriesId) : seriesMap.get(selectedSeriesId);
 
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode('010_', _vaultId);
@@ -62,7 +62,7 @@ export const useActions = () => {
     /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
     const permits: ICallData[] = await sign([
       {
-        asset: assetData.get(selectedIlkId),
+        asset: assetMap.get(selectedIlkId),
         series: _series,
         type: SignType.ERC2612,
         spender: 'JOIN',
@@ -98,7 +98,7 @@ export const useActions = () => {
   };
 
   const repay = async (
-    vault: IVaultStatic,
+    vault: IvaultRoot,
     input:string|undefined,
     collInput: string|undefined = '0', // optional - add(+) / remove(-) collateral in same tx.
   ) => {
@@ -106,14 +106,14 @@ export const useActions = () => {
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
     const _collInput = ethers.utils.parseEther(collInput);
 
-    const _series = seriesData.get(vault.seriesId);
+    const _series = seriesMap.get(vault.seriesId);
 
     console.log(vault);
-    console.log(assetData.get(vault.baseId));
+    console.log(assetMap.get(vault.baseId));
 
     const permits: ICallData[] = await sign([
       {
-        asset: assetData.get(vault.baseId),
+        asset: assetMap.get(vault.baseId),
         series: _series,
         type: SignType.DAI,
         fallbackCall: { fn: 'approve', args: [contractMap.get('Ladle'), MAX_256], ignore: false, opCode: null },
@@ -148,16 +148,16 @@ export const useActions = () => {
   };
 
   const redeem = async (
-    vault: IVaultStatic,
+    vault: IvaultRoot,
     input: string|undefined,
   ) => {
     const txCode = getTxCode('030_', vault.seriesId);
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
-    const _series = seriesData.get(vault.seriesId);
+    const _series = seriesMap.get(vault.seriesId);
 
     const permits: ICallData[] = await sign([
       {
-        asset: assetStaticData.get(vault.baseId),
+        asset: assetRootMap.get(vault.baseId),
         series: _series,
         type: SignType.ERC2612,
         fallbackCall: { fn: 'approve', args: [contractMap.get('Ladle').address, MAX_256], ignore: false, opCode: null },
@@ -165,7 +165,7 @@ export const useActions = () => {
         ignore: true,
       },
       {
-        asset: assetStaticData.get(vault.baseId),
+        asset: assetRootMap.get(vault.baseId),
         series: _series,
         type: SignType.DAI,
         fallbackCall: { fn: 'approve', args: [contractMap.get('Ladle').address, MAX_256], ignore: false, opCode: null },
@@ -194,7 +194,7 @@ export const useActions = () => {
 
   const lend = async (
     input: string|undefined,
-    series: ISeriesStatic,
+    series: IseriesRoot,
   ) => {
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
 
@@ -203,7 +203,7 @@ export const useActions = () => {
 
     const permits: ICallData[] = await sign([
       {
-        asset: assetStaticData.get(series.baseId),
+        asset: assetRootMap.get(series.baseId),
         series,
         type: SignType.ERC2612,
         fallbackCall: { fn: 'approve', args: [contractMap.get('Ladle'), MAX_256], ignore: false, opCode: null },
@@ -211,7 +211,7 @@ export const useActions = () => {
         ignore: true,
       },
       {
-        asset: assetStaticData.get(series.baseId),
+        asset: assetRootMap.get(series.baseId),
         series,
         type: SignType.DAI,
         spender: 'PoolRouter',
@@ -243,7 +243,7 @@ export const useActions = () => {
 
   const closePosition = async (
     input: string|undefined,
-    series: ISeriesStatic,
+    series: IseriesRoot,
   ) => {
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
     /* generate the reproducible txCode for tx tracking and tracing */
@@ -251,7 +251,7 @@ export const useActions = () => {
 
     const permits: ICallData[] = await sign([
       {
-        asset: assetStaticData.get(series.baseId),
+        asset: assetRootMap.get(series.baseId),
         series,
         type: SignType.ERC2612,
         fallbackCall: { fn: 'approve', args: [contractMap.get('Ladle'), MAX_256], ignore: false, opCode: null },
@@ -259,7 +259,7 @@ export const useActions = () => {
         ignore: true,
       },
       {
-        asset: assetStaticData.get(series.baseId),
+        asset: assetRootMap.get(series.baseId),
         series,
         type: SignType.DAI,
         spender: 'PoolRouter',
@@ -292,7 +292,7 @@ export const useActions = () => {
 
   const addLiquidity = async (
     input: string|undefined,
-    series: ISeriesStatic,
+    series: IseriesRoot,
   ) => {
     /* generate the reproducible txCode for tx tracking and tracing */
     // const txCode = getTxCode('020_', vault.series.id);
@@ -303,7 +303,7 @@ export const useActions = () => {
 
     const permits: ICallData[] = await sign([
       {
-        asset: assetStaticData.get(series.baseId),
+        asset: assetRootMap.get(series.baseId),
         series,
         type: SignType.ERC2612,
         fallbackCall: { fn: 'approve', args: [contractMap.get('Ladle'), MAX_256], ignore: false, opCode: null },
@@ -311,7 +311,7 @@ export const useActions = () => {
         ignore: true,
       },
       {
-        asset: assetStaticData.get(series.baseId),
+        asset: assetRootMap.get(series.baseId),
         series,
         type: SignType.DAI,
         spender: 'PoolRouter',

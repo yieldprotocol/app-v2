@@ -3,7 +3,7 @@ import { Box, Button, Header, Layer, ResponsiveContext, Text } from 'grommet';
 import styled, { CSSProperties, ThemeContext } from 'styled-components';
 import { NavLink, useHistory } from 'react-router-dom';
 import { FiX } from 'react-icons/fi';
-import { IVaultStatic } from '../types';
+import { IvaultRoot } from '../types';
 import { UserContext } from '../contexts/UserContext';
 import YieldNavigation from '../components/YieldNavigation';
 import YieldHeader from '../components/YieldHeader';
@@ -24,7 +24,7 @@ const MenuLayer = ({ toggleMenu, callback }: ILayerProps) => {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
   const [view, setView] = useState<View>(View.vaults);
 
-  const { userState: { vaultData }, userActions: { setActiveVault } } = useContext(UserContext);
+  const { userState: { vaultMap }, userActions: { setActiveVault } } = useContext(UserContext);
 
   const routerHistory = useHistory();
 
@@ -39,7 +39,7 @@ const MenuLayer = ({ toggleMenu, callback }: ILayerProps) => {
   } as CSSProperties;
 
   const handleSelect = (vaultId:string) => {
-    setActiveVault(vaultData.get(vaultId));
+    setActiveVault(vaultMap.get(vaultId));
     routerHistory.push(`/vault/${vaultId}`);
     toggleMenu();
   };

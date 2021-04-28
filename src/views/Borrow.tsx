@@ -5,9 +5,9 @@ import { Router, useHistory } from 'react-router-dom';
 import { FiArrowLeftCircle } from 'react-icons/fi';
 import { cleanValue } from '../utils/displayUtils';
 
-import SeriesSelector from '../components/SeriesSelector';
+import SeriesSelector from '../components/selectors/SeriesSelector';
 import MainViewWrap from '../components/wraps/MainViewWrap';
-import AssetSelector from '../components/AssetSelector';
+import AssetSelector from '../components/selectors/AssetSelector';
 import InputWrap from '../components/wraps/InputWrap';
 import InfoBite from '../components/InfoBite';
 import ActionButtonGroup from '../components/ActionButtonGroup';
@@ -28,11 +28,11 @@ const Borrow = () => {
     selectedSeriesId,
     selectedIlkId,
     selectedBaseId,
-    assetData,
+    assetMap,
   },
   } = useContext(UserContext);
 
-  const selectedBase = assetData.get(selectedBaseId);
+  const selectedBase = assetMap.get(selectedBaseId);
 
   const [inputValue, setInputValue] = useState<string>();
   const [collInputValue, setCollInputValue] = useState<string>();

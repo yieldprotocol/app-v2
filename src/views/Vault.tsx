@@ -7,12 +7,12 @@ import { cleanValue } from '../utils/displayUtils';
 import { UserContext } from '../contexts/UserContext';
 import { ChainContext } from '../contexts/ChainContext';
 
-import AssetSelector from '../components/AssetSelector';
+import AssetSelector from '../components/selectors/AssetSelector';
 import MainViewWrap from '../components/wraps/MainViewWrap';
-import SeriesSelector from '../components/SeriesSelector';
+import SeriesSelector from '../components/selectors/SeriesSelector';
 import InputWrap from '../components/wraps/InputWrap';
 import InfoBite from '../components/InfoBite';
-import { ISeriesStatic, IVaultStatic } from '../types';
+import { IseriesRoot, IvaultRoot } from '../types';
 import { borrowingPower } from '../utils/yieldMath';
 
 import ActionButtonGroup from '../components/ActionButtonGroup';
@@ -26,11 +26,11 @@ const Vault = () => {
 
   /* state from context */
   const { userState, userActions: { setActiveVault } } = useContext(UserContext);
-  const { activeVault, vaultData, seriesData, assetData } = userState;
-  const { chainState: { assetStaticData, seriesStaticData } } = useContext(ChainContext);
+  const { activeVault, vaultMap, seriesMap, assetMap } = userState;
+  const { chainState: { assetRootMap, seriesRootMap } } = useContext(ChainContext);
 
   /* local state */
-  const [availableVaults, setAvailableVaults] = useState<IVaultStatic[]>();
+  const [availableVaults, setAvailableVaults] = useState<IvaultRoot[]>();
 
   const [inputValue, setInputValue] = useState<any>(undefined);
   const [borrowInput, setBorrowInput] = useState<any>(undefined);
@@ -42,8 +42,8 @@ const Vault = () => {
 
   /* init effects */
   useEffect(() => {
-    setAvailableVaults(Array.from(vaultData.values())); // add some filtering here
-  }, [vaultData, activeVault]);
+    setAvailableVaults(Array.from(vaultMap.values())); // add some filtering here
+  }, [vaultMap, activeVault]);
 
   const handleRepay = () => {
     repay(activeVault, inputValue?.toString());
@@ -64,7 +64,7 @@ const Vault = () => {
               icon={false}
               items={
                 availableVaults?.map((x:any) => (
-                  { label: <Text size="small"> {x.id} </Text>, onClick: () => setActiveVault(vaultData.get(x.id)) }
+                  { label: <Text size="small"> {x.id} </Text>, onClick: () => setActiveVault(vaultMap.get(x.id)) }
                 )) || []
               }
               onSelect={(x:any) => console.log(x)}

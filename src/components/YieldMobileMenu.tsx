@@ -5,7 +5,7 @@ import { FiX, FiArrowLeftCircle } from 'react-icons/fi';
 import styled, { CSSProperties, ThemeContext } from 'styled-components';
 
 import { UserContext } from '../contexts/UserContext';
-import { IVaultStatic, View } from '../types';
+import { IvaultRoot, View } from '../types';
 import YieldNavigation from './YieldNavigation';
 import YieldMenu from './YieldMenu';
 
@@ -24,7 +24,7 @@ const StyledBox = styled(Box)`
 
 const YieldMobileMenu = ({ toggleMenu }: { toggleMenu: ()=>void }) => {
   const [view, setView] = useState<string | undefined>(undefined);
-  const { userState: { vaultData }, userActions: { setActiveVault } } = useContext(UserContext);
+  const { userState: { vaultMap }, userActions: { setActiveVault } } = useContext(UserContext);
   const routerHistory = useHistory();
 
   const theme = useContext<any>(ThemeContext);
@@ -32,7 +32,7 @@ const YieldMobileMenu = ({ toggleMenu }: { toggleMenu: ()=>void }) => {
   const textBack = theme.global.colors['light-1'];
 
   const handleSelect = (vaultId:string) => {
-    setActiveVault(vaultData.get(vaultId));
+    setActiveVault(vaultMap.get(vaultId));
     routerHistory.push(`/vault/${vaultId}`);
     toggleMenu();
   };
@@ -94,7 +94,7 @@ const YieldMobileMenu = ({ toggleMenu }: { toggleMenu: ()=>void }) => {
           {
           view === View.vaults &&
           <Box gap="medium">
-            { Array.from(vaultData.values() as IVaultStatic[]).map((x:IVaultStatic) => (
+            { Array.from(vaultMap.values() as IvaultRoot[]).map((x:IvaultRoot) => (
               <Box
                 key={x.id}
                 pad="small"

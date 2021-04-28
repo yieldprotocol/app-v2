@@ -1,41 +1,38 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, ResponsiveContext, Select, Text } from 'grommet';
 
-import { unstable_renderSubtreeIntoContainer } from 'react-dom';
-import { IAssetStatic } from '../types';
-import { ChainContext } from '../contexts/ChainContext';
-import { UserContext } from '../contexts/UserContext';
+import { IassetRoot } from '../../types';
+import { UserContext } from '../../contexts/UserContext';
 
-// const _assetStaticData = new Map([
+// const _assetRootMap = new Map([
 //   ['DAI', { name: 'Dai', symbol: 'DAI', icon: null }],
 //   ['USD', { name: 'USD Coin', symbol: 'USDC', icon: null }],
 //   ['DOGE', { name: 'Doge Coin', symbol: 'DOGE', icon: null }],
 //   ['UNI', { name: 'Uni coin', symbol: 'UNI', icon: null }],
 // ]);
-interface IAssetStaticSelectorProps {
+interface IassetRootSelectorProps {
   selectCollateral?:boolean;
 }
 
-function AssetSelector({ selectCollateral }: IAssetStaticSelectorProps) {
+function AssetSelector({ selectCollateral }: IassetRootSelectorProps) {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
-  const { chainState: { assetStaticData } } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
-  const { selectedVaultId, selectedIlkId, selectedSeriesId, selectedBaseId } = userState;
+  const { selectedVaultId, selectedIlkId, selectedSeriesId, selectedBaseId, assetMap } = userState;
 
-  /* get from assetStaticData ( not assetData ) so it can be used without account connected */
-  const selectedIlk = assetStaticData.get(selectedIlkId);
-  const selectedBase = assetStaticData.get(selectedBaseId);
+  /* get from assetRootMap ( not assetMap ) so it can be used without account connected */
+  const selectedIlk = assetMap.get(selectedIlkId);
+  const selectedBase = assetMap.get(selectedBaseId);
 
-  const [options, setOptions] = useState<IAssetStatic[]>([]);
-  const optionText = (asset: IAssetStatic | undefined) => `${asset?.symbol}` || '';
+  const [options, setOptions] = useState<IassetRoot[]>([]);
+  const optionText = (asset: IassetRoot | undefined) => `${asset?.symbol}` || '';
 
   useEffect(() => {
-    const opts = Array.from(assetStaticData.values()) as IAssetStatic[];
+    const opts = Array.from(assetMap.values()) as IassetRoot[];
     const filteredOptions = selectCollateral
-      ? opts.filter((a:IAssetStatic) => a.id !== selectedBaseId)
+      ? opts.filter((a:IassetRoot) => a.id !== selectedBaseId)
       : opts;
     setOptions(filteredOptions);
-  }, [selectedBaseId, assetStaticData, selectCollateral]);
+  }, [selectedBaseId, assetMap, selectCollateral]);
 
   return (
     <Box fill>

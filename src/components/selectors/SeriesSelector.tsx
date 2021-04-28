@@ -1,20 +1,20 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, ResponsiveContext, Select, Text, ThemeContext } from 'grommet';
 
-import { ChainContext } from '../contexts/ChainContext';
-import { ISeries } from '../types';
-import { UserContext } from '../contexts/UserContext';
+import { ChainContext } from '../../contexts/ChainContext';
+import { ISeries } from '../../types';
+import { UserContext } from '../../contexts/UserContext';
 
 function SeriesSelector() {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
   // const { chainState: { seriesBaseMap } } = useContext(ChainContext);
 
   const { userState, userActions } = useContext(UserContext);
-  const { selectedVaultId, selectedSeriesId, selectedBaseId, seriesData } = userState;
+  const { selectedVaultId, selectedSeriesId, selectedBaseId, seriesMap } = userState;
   const [options, setOptions] = useState<ISeries[]>([]);
 
-  /* get from seriesBaseMap (not seriesData) so it can be used without an account connected */
-  const _selectedSeries = seriesData.get(selectedSeriesId);
+  /* get from seriesBaseMap (not seriesMap) so it can be used without an account connected */
+  const _selectedSeries = seriesMap.get(selectedSeriesId);
 
   const optionText = (_series: ISeries|undefined) => (
     _series
@@ -23,10 +23,10 @@ function SeriesSelector() {
   );
 
   useEffect(() => {
-    const opts = Array.from(seriesData.values()) as ISeries[];
+    const opts = Array.from(seriesMap.values()) as ISeries[];
     const filteredOpts = opts.filter((_series:ISeries) => _series.baseId === selectedBaseId);
     setOptions(filteredOpts);
-  }, [seriesData, selectedBaseId]);
+  }, [seriesMap, selectedBaseId]);
 
   return (
     <Box fill>

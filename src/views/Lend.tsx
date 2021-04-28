@@ -1,11 +1,11 @@
 import { Box, Button, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import React, { useContext, useState } from 'react';
 import ActionButtonGroup from '../components/ActionButtonGroup';
-import AssetSelector from '../components/AssetSelector';
+import AssetSelector from '../components/selectors/AssetSelector';
 import InfoBite from '../components/InfoBite';
 import InputWrap from '../components/wraps/InputWrap';
 import MainViewWrap from '../components/wraps/MainViewWrap';
-import SeriesSelector from '../components/SeriesSelector';
+import SeriesSelector from '../components/selectors/SeriesSelector';
 import { cleanValue } from '../utils/displayUtils';
 import PlaceholderWrap from '../components/wraps/PlaceholderWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
@@ -19,9 +19,9 @@ const Lend = () => {
 
   const [closeInputValue, setCloseInputValue] = useState<string>();
 
-  const { userState: { seriesData, selectedSeriesId, selectedBaseId } } = useContext(UserContext);
+  const { userState: { seriesMap, selectedSeriesId, selectedBaseId } } = useContext(UserContext);
 
-  const selectedSeries = seriesData.get(selectedSeriesId);
+  const selectedSeries = seriesMap.get(selectedSeriesId);
 
   const { lend, closePosition } = useActions();
 

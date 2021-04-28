@@ -2,9 +2,9 @@ import React, { useContext, useState } from 'react';
 import { Box, Button, RadioButtonGroup, ResponsiveContext, Text, TextInput } from 'grommet';
 
 import { cleanValue } from '../utils/displayUtils';
-import AssetSelector from '../components/AssetSelector';
+import AssetSelector from '../components/selectors/AssetSelector';
 import MainViewWrap from '../components/wraps/MainViewWrap';
-import SeriesSelector from '../components/SeriesSelector';
+import SeriesSelector from '../components/selectors/SeriesSelector';
 import InputWrap from '../components/wraps/InputWrap';
 import InfoBite from '../components/InfoBite';
 import ActionButtonGroup from '../components/ActionButtonGroup';
