@@ -34,6 +34,16 @@ function AssetSelector({ selectCollateral }: IAssetRootSelectorProps) {
     setOptions(filteredOptions);
   }, [selectedBaseId, assetMap, selectCollateral]);
 
+  const handleSelect = (id:string) => {
+    if (selectCollateral) {
+      console.log('Collateral selected: ', id);
+      userActions.setSelectedIlk(id);
+    } else {
+      console.log('Base selected: ', id);
+      userActions.setSelectedBase(id);
+    }
+  };
+
   return (
     <Box fill>
       <Select
@@ -44,9 +54,7 @@ function AssetSelector({ selectCollateral }: IAssetRootSelectorProps) {
         value={selectCollateral ? selectedIlk : selectedBase}
         labelKey={(x:any) => optionText(x)}
         valueLabel={<Box pad={mobile ? 'medium' : 'small'}><Text size="small" color="text"> { optionText(selectCollateral ? selectedIlk : selectedBase)} </Text></Box>}
-        onChange={({ option }: any) => {
-          selectCollateral ? userActions.setSelectedIlk(option.id) : userActions.setSelectedBase(option.id);
-        }}
+        onChange={({ option }: any) => handleSelect(option.id)}
         disabled={(selectCollateral && !selectedSeriesId)}
         // eslint-disable-next-line react/no-children-prop
         children={(x:any) => <Box pad={mobile ? 'medium' : 'small'} gap="small" direction="row"> <Text color="text" size="small"> { optionText(x) } </Text> </Box>}

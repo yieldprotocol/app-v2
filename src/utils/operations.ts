@@ -9,7 +9,7 @@ interface PoolRouter {
   EXIT_ETHER: Operation;
 }
 
-interface VaultRouter {
+interface LadleRouter {
   BUILD:Operation;
   STIR_TO: Operation;
   STIR_FROM:Operation;
@@ -27,6 +27,7 @@ interface VaultRouter {
   ROUTE: Operation;
   TRANSFER_TO_FYTOKEN:Operation;
   REDEEM: Operation;
+  TESTER: Operation;
 }
 
 export const POOLROUTER_OPS: PoolRouter = {
@@ -35,10 +36,10 @@ export const POOLROUTER_OPS: PoolRouter = {
   FORWARD_PERMIT: [2, ['address', 'address', 'uint256', 'uint256', 'uint8', 'bytes32', 'bytes32']],
   FORWARD_DAI_PERMIT: [3, ['address', 'uint256', 'uint256', 'bool', 'uint8', 'bytes32', 'bytes32']],
   JOIN_ETHER: [4, ['bytes6']],
-  EXIT_ETHER: [5, ['still to find out']],
+  EXIT_ETHER: [5, ['bytes6', 'address']],
 };
 
-export const VAULT_OPS: VaultRouter = {
+export const VAULT_OPS: LadleRouter = {
   BUILD: [0, ['bytes6', 'bytes6']],
   STIR_TO: [1, ['still to find out']],
   STIR_FROM: [2, ['still to find out']],
@@ -50,10 +51,11 @@ export const VAULT_OPS: VaultRouter = {
   FORWARD_PERMIT: [8, ['bytes6', 'bool', 'address', 'uint256', 'uint256', 'uint8', 'bytes32', 'bytes32']],
   FORWARD_DAI_PERMIT: [9, ['bytes6', 'bool', 'address', 'uint256', 'uint256', 'bool', 'uint8', 'bytes32', 'bytes32']],
   JOIN_ETHER: [10, ['bytes6']],
-  EXIT_ETHER: [11, ['still to find out']],
+  EXIT_ETHER: [11, ['bytes6', 'address']],
   TRANSFER_TO_POOL: [12, ['bool', 'uint128']],
   RETRIEVE_FROM_POOL: [13, ['still to find out']],
   ROUTE: [14, ['bytes']],
   TRANSFER_TO_FYTOKEN: [15, ['still to find out']],
   REDEEM: [16, ['address', 'uint256']],
+  TESTER: [17, ['address', 'uint128', 'uint128', 'uint128']],
 };

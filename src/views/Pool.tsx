@@ -12,6 +12,7 @@ import PlaceholderWrap from '../components/wraps/PlaceholderWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
 import { UserContext } from '../contexts/UserContext';
 import { IUserContext } from '../types';
+import { useActions } from '../hooks/actionHooks';
 
 function Pool() {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -20,7 +21,21 @@ function Pool() {
 
   /* state from context */
   const { userState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, assetMap, vaultMap, selectedSeriesId, selectedIlkId, selectedBaseId } = userState;
+  const { seriesMap, selectedSeriesId, selectedBaseId } = userState;
+
+  const selectedSeries = seriesMap.get(selectedSeriesId!);
+
+  const { addLiquidity, removeLiquidity } = useActions();
+
+  const handleAdd = () => {
+    // !lendDisabled &&
+    selectedSeries && addLiquidity(inputValue, selectedSeries);
+  };
+
+  const handleRemove = () => {
+    // !lendDisabled &&
+    selectedSeries && removeLiquidity('1', selectedSeries);
+  };
 
   return (
     <MainViewWrap>
@@ -46,16 +61,24 @@ function Pool() {
           </Box>
         </Box>
 
-        <Box justify="evenly" gap="small" fill="horizontal" direction="row-responsive">
-          <InfoBite label="Your pool tokens" value="0.00" />
-          <InfoBite label="Your pool share" value="0.00000%" />
-          <InfoBite label="Total liquidity" value="30.95k tokens" />
-        </Box>
-
       </SectionWrap>
 
       <SectionWrap title={`2. Select a series ${mobile ? '' : '(maturity date)'} `}>
         <SeriesSelector />
+
+        <Box justify="evenly" gap="small" fill="horizontal" direction="row-responsive">
+          {
+            selectedSeries?.baseId === selectedBaseId &&
+            <InfoBite label="Your pool tokens" value={selectedSeries?.poolTokens_!} />
+          }
+        </Box>
+
+        {/* <Box justify="evenly" gap="small" fill="horizontal" direction="row-responsive">
+          <InfoBite label="Your pool tokens" value={"0.00"} />
+          <InfoBite label="Your pool share" value="0.00000%" />
+          <InfoBite label="Total liquidity" value="30.95k tokens" />
+        </Box> */}
+
       </SectionWrap>
 
       <Box direction="row" justify="between">
@@ -64,7 +87,7 @@ function Pool() {
           name="strategy"
           options={[
             { label: <Text size="small"> Buy & Pool </Text>, value: 'c1' },
-            { label: <Text size="small"> Borrow & Pool </Text>, value: 'c2' },
+            // { label: <Text size="small"> Borrow & Pool </Text>, value: 'c2' },
           ]}
           value={strategy}
           onChange={(event:any) => setStrategy(event.target.value)}
@@ -78,11 +101,14 @@ function Pool() {
           primary
           label={<Text size={mobile ? 'small' : undefined}> {`Pool ${inputValue || ''} Dai`}</Text>}
           key="primary"
+          onClick={() => handleAdd()}
+
         />,
         <Button
           secondary
           label={<Text size={mobile ? 'small' : undefined}> Remove Liquidity </Text>}
           key="secondary"
+          onClick={() => handleRemove()}
         />,
       ]}
       />

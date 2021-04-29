@@ -105,10 +105,10 @@ const Borrow = () => {
             </Box>
           </Box>
 
-          <Box justify="evenly" gap="small" fill="horizontal" direction="row-responsive">
+          {/* <Box justify="evenly" gap="small" fill="horizontal" direction="row-responsive">
             <InfoBite label="Borrowing Power:" value="100Dai" />
             <InfoBite label="Collateralization:" value="200%" />
-          </Box>
+          </Box> */}
 
         </SectionWrap>
 
@@ -160,10 +160,10 @@ const Borrow = () => {
                 <Box direction="row" justify="end" key={x.id}>
                   <CheckBox
                     reverse
-                // disabled={!selectedVaultId}
-                    checked={!!vaultIdToUse || matchingVaults.length < 1}
+                    // disabled={!selectedVaultId}
+                    checked={vaultIdToUse === x.id}
                     label={<Text size="small">{x.id}</Text>}
-                    onChange={(event:any) => setVaultIdToUse(event.target.checked)}
+                    onChange={(event:any) => setVaultIdToUse(x.id)}
                   />
                 </Box>
               ))

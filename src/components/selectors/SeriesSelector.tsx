@@ -28,6 +28,11 @@ function SeriesSelector() {
     setOptions(filteredOpts);
   }, [seriesMap, selectedBaseId]);
 
+  const handleSelect = (id:string) => {
+    console.log('Series selected: ', id);
+    userActions.setSelectedSeries(id);
+  };
+
   return (
     <Box fill>
       <Select
@@ -43,7 +48,7 @@ function SeriesSelector() {
             : <Box pad={mobile ? 'medium' : 'small'}><Text size="small" color="text"> No available series.</Text></Box>
         }
         disabled={options.length === 0}
-        onChange={({ option }: any) => userActions.setSelectedSeries(option.id)}
+        onChange={({ option }: any) => handleSelect(option.id)}
         // eslint-disable-next-line react/no-children-prop
         children={(x:any) => <Box pad={mobile ? 'medium' : 'small'} gap="small" direction="row"> <Text color="text" size="small"> { optionText(x) } </Text> </Box>}
       />

@@ -40,7 +40,7 @@ const Vault = () => {
   const [borrowInput, setBorrowInput] = useState<any>(undefined);
   const [collateralInput, setCollateralInput] = useState<any>(undefined);
 
-  const { repay, borrow } = useActions();
+  const { repay, borrow, addRemoveCollateral } = useActions();
 
   /* init effects */
   useEffect(() => {
@@ -55,10 +55,10 @@ const Vault = () => {
     activeVault &&
     borrow(activeVault, borrowInput, '0');
   };
-  const handleManageCollateral = (action: 'ADD'|'REMOVE') => {
+  const handleCollateral = (action: 'ADD'|'REMOVE') => {
+    const removeCollateral: boolean = (action === 'REMOVE');
     if (activeVault) {
-      action === 'ADD' && borrow(activeVault, borrowInput, '0');
-      action === 'REMOVE' && console.log('remove');
+      addRemoveCollateral(activeVault, collateralInput, removeCollateral);
     }
   };
 
@@ -180,13 +180,13 @@ const Vault = () => {
                   primary
                   label={<Text size={mobile ? 'small' : undefined}> Add </Text>}
                   key="primary"
-                  onClick={() => borrow(activeVault, borrowInput, '0')}
+                  onClick={() => handleCollateral('ADD')}
                 />,
                 <Button
                   primary
                   label={<Text size={mobile ? 'small' : undefined}> Remove </Text>}
                   key="secondary"
-                  onClick={() => borrow(activeVault, borrowInput, '0')}
+                  onClick={() => handleCollateral('REMOVE')}
                 />,
 
               ]}

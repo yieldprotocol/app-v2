@@ -98,33 +98,21 @@ export const useChain = () => {
 
     /* Calculate the accumulative gas limit (IF ALL calls have a gaslimit then set the total, else null ) */
     const allCallsHaveGas = _calls.length &&
-      _calls.every((_c:ICallData) => _c.overrides && _c.overrides.gasLimit !== 0);
+      _calls.every((_c:ICallData) => _c.overrides && _c.overrides.gasLimit);
     const _gasLimit = allCallsHaveGas
       ? _calls.reduce((_t: BigNumber, _c: ICallData) => BigNumber.from(_c.overrides?.gasLimit).add(_t),
         ethers.constants.Zero)
       : undefined;
 
-    /* Collate the call args */
-    const commonArgs: any[] = [
-      opsList,
-      encodedCalls,
-      { value: _value, gasLimit: _gasLimit },
-    ];
-    const ladleArgs: any[] = [
-      vaultId,
-      ...commonArgs,
-    ];
-    const poolRouterArgs: any[] = [
-      baseAddrList,
-      fyTokenAddrList,
-      targetList,
-      ...commonArgs,
-    ];
-    const args = (router === 'Ladle') ? ladleArgs : poolRouterArgs;
+    // const joinEthCall = _contract.interface.encodeFunctionData('joinEther', ['0x455448000000']);
+    // const pourCall = _contract.interface.encodeFunctionData('pour', [vaultId, account, BigNumber.from('2'), 0]);
 
     /* Finally, send out the transaction */
     return handleTx(
-      () => _contract.batch.apply(this, args),
+      // () => _contract.multicall([joinEthCall, pourCall], true, { value: BigNumber.from('2') }),
+      (router === 'Ladle') ?
+        () => _contract.batch(vaultId, opsList, encodedCalls, { value: _value, gasLimit: BigNumber.from('500000') }) :
+        () => _contract.batch(baseAddrList, fyTokenAddrList, targetList, opsList, encodedCalls, { value: _value, gasLimit: BigNumber.from('500000') }),
       txCode,
     );
   };
@@ -153,30 +141,18 @@ export const useChain = () => {
         const signingFYToken = reqSig.type === 'FYTOKEN_TYPE';
 
         /* Get the spender, defaults to ladle */
-        const getSpender = (spender:string|undefined) => {
+        const getSpender = (spender: 'POOLROUTER'|'LADLE'| string) => {
           const _ladleAddr = contractMap.get('Ladle').address;
-          if (spender && ethers.utils.isAddress(spender)) {
+          const _poolAddr = contractMap.get('PoolRouter').address;
+          if (ethers.utils.isAddress(spender)) {
             return spender;
           }
-          switch (spender?.toUpperCase()) {
-            case 'POOLROUTER':
-              return contractMap.get('PoolRouter').address;
-            case 'JOIN':
-              return reqSig.asset.joinAddress;
-            default:
-              return _ladleAddr;
-          }
-        };
-
-        /* Get the token address: used passed token address parameter (if provided), else use either asset address or fyToken Address (fyDaiType) */
-        const getTokenAddress = () : string => {
-          if (reqSig.tokenAddress) return reqSig.tokenAddress;
-          if (signingFYToken) return reqSig.series.fyTokenAddress;
-          return reqSig.asset.address;
+          if (spender === 'POOLROUTER') return _poolAddr;
+          return _ladleAddr;
         };
 
         /* get an ERC20 contract instance. This is only used in the case of fallback tx (when signing is not available) */
-        const tokenContract = ERC20__factory.connect(getTokenAddress(), signer);
+        const tokenContract = ERC20__factory.connect(reqSig.targetAddress, signer);
 
         /*
           Request the signature if using DaiType permit style
@@ -187,7 +163,7 @@ export const useChain = () => {
             /* We are pass over the generated signFn and sigData to the signatureHandler for tracking/tracing/fallback handling */
             () => signDaiPermit(
               provider,
-              getTokenAddress(),
+              reqSig.targetAddress,
               account,
               getSpender(reqSig.spender),
             ),
@@ -207,9 +183,10 @@ export const useChain = () => {
             nonce, expiry, allowed, v, r, s,
           ];
           const ladleArgs = [
-            reqSig.asset.id,
+            reqSig.targetId,
             true,
-            ...poolRouterArgs,
+            getSpender(reqSig.spender),
+            nonce, expiry, allowed, v, r, s,
           ];
           const args = viaPoolRouter ? poolRouterArgs : ladleArgs;
           const operation = viaPoolRouter ? POOLROUTER_OPS.FORWARD_DAI_PERMIT : VAULT_OPS.FORWARD_DAI_PERMIT;
@@ -229,7 +206,7 @@ export const useChain = () => {
         const { v, r, s, value, deadline } = await handleSign(
           () => signERC2612Permit(
             provider,
-            reqSig.domain || getTokenAddress(), // uses custom domain if provided (eg. USDC needs version 2) else, provided tokenADdr, else use token address
+            reqSig.domain || reqSig.targetAddress, // uses custom domain if provided (eg. USDC needs version 2) else, provided tokenADdr, else use token address
             account,
             getSpender(reqSig.spender),
             MAX_256,
@@ -247,15 +224,20 @@ export const useChain = () => {
 
         // router.forwardPermit(ilkId, true, ilkJoin.address, amount, deadline, v, r, s)
         const poolRouterArgs = [
+          reqSig.targetAddress,
           getSpender(reqSig.spender),
           value,
           deadline, v, r, s,
         ];
+
         const ladleArgs = [
-          signingFYToken ? reqSig.series.id : reqSig.asset.id, // the asset id OR the seriesId (if signing fyToken)
+          reqSig.targetId, // the asset id OR the seriesId (if signing fyToken)
           !signingFYToken, // true or false=fyToken
-          ...poolRouterArgs,
+          getSpender(reqSig.spender),
+          value,
+          deadline, v, r, s,
         ];
+
         const args = viaPoolRouter ? poolRouterArgs : ladleArgs;
         const operation = viaPoolRouter ? POOLROUTER_OPS.FORWARD_PERMIT : VAULT_OPS.FORWARD_PERMIT;
 

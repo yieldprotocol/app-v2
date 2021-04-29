@@ -2,9 +2,9 @@ import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
-import { ICallData, ISeriesRoot, IVaultRoot, IVault, SignType } from '../types';
+import { ICallData, ISeriesRoot, IVaultRoot, IVault, SignType, ISeries } from '../types';
 import { getTxCode } from '../utils/appUtils';
-import { MAX_128, MAX_256 } from '../utils/constants';
+import { ETH_BASED_ASSETS, DAI_BASED_ASSETS, MAX_128, MAX_256 } from '../utils/constants';
 import { useChain } from './chainHooks';
 
 import { VAULT_OPS, POOLROUTER_OPS } from '../utils/operations';
@@ -32,13 +32,16 @@ export const useActions = () => {
   );
 
   const _addEth = (value: BigNumber): ICallData[] => {
-    /* first check if the selected Ilk is, in fact, an ETH variety */
-    if (['0x455448000000', 'ETH_B_forexample'].includes(selectedIlkId)) {
+    const isPositive = value.gte(ethers.constants.Zero);
+
+    /* Check if the selected Ilk is, in fact, an ETH variety */
+    if (ETH_BASED_ASSETS.includes(selectedIlkId) && isPositive) {
+      console.log(selectedIlkId);
       /* return the add ETH OP */
       return [{
         operation: VAULT_OPS.JOIN_ETHER,
         args: [selectedIlkId],
-        ignore: value.lt(ethers.constants.Zero),
+        ignore: false,
         overrides: { value },
       }];
     }
@@ -48,7 +51,7 @@ export const useActions = () => {
 
   const _removeEth = (value: BigNumber): ICallData[] => {
     /* First check if the selected Ilk is, in fact, an ETH variety */
-    if (['0x455448000000', 'ETH_B_forexample'].includes(selectedIlkId)) {
+    if (ETH_BASED_ASSETS.includes(selectedIlkId)) {
       /* return the remove ETH OP */
       return [{
         operation: VAULT_OPS.EXIT_ETHER,
@@ -61,56 +64,73 @@ export const useActions = () => {
   };
 
   const addRemoveCollateral = async (
-    vault: IVault|undefined,
-    input: string|undefined,
+    vault: IVault,
+    input: string,
+    remove: boolean = false, // add by default
   ) => {
+    // ADD ETH
+    // ladle.joinEtherAction(ethId),
+    // ladle.pourAction(vaultId, ignored, posted, 0),
+    // REMOVE ETH
+    // ladle.pourAction(vaultId, ladle.address, withdrawn.mul(-1), 0),
+    // ladle.exitEtherAction(ethId, owner),
+    // ADD ERC20
+    // ladle.forwardPermitAction(ilkId, true, ilkJoin.address, posted, deadline, v, r, s),
+    // ladle.pourAction(vaultId, ignored, posted, 0),
+    // REMOVE ERC20
+    // ladle.pourAction(vaultId, receiver, withdrawn.mul(-1), 0),
+
     /* use the vault id provided OR Get a random vault number ready if reqd. */
     const _vaultId = vault?.id || ethers.utils.hexlify(ethers.utils.randomBytes(12));
-    const _series = vault ? seriesMap.get(vault.seriesId) : seriesMap.get(selectedSeriesId);
+    const _series = seriesMap.get(vault.seriesId);
+
+    const _ilk = assetMap.get(vault.ilkId);
+    const _isEthBased = ETH_BASED_ASSETS.includes(_ilk.id);
 
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode('000_', _vaultId);
 
-    /* parse inputs */
-    const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
-    const _isInputNegative: boolean = _input.lt(ethers.constants.Zero);
-    const isEth: boolean = selectedIlkId === '0x455448000000';
+    /* parse inputs to BigNumber and then negate if removing collateral */
+    let _input = ethers.utils.parseEther(input);
+    if (remove) _input = _input.mul(-1);
+    console.log(_input);
 
-    const _pourDestination = isEth ? contractMap.get('Ladle').address : account;
+    /* check if the ilk/asset is an eth asset variety */
+    const _pourTo = _isEthBased ? contractMap.get('Ladle').address : account;
 
     /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
     const permits: ICallData[] = await sign([
       {
-        asset: assetMap.get(selectedIlkId),
-        series: _series,
+        targetAddress: _ilk.address,
+        targetId: _ilk.id,
         type: SignType.ERC2612,
-        spender: 'JOIN',
+        spender: _ilk.joinAddress,
+        series: _series,
         fallbackCall: { fn: 'approve', args: [], ignore: false, opCode: null },
-        ignore: isEth || _isInputNegative,
+        ignore: _isEthBased || remove,
       },
     ], txCode);
 
-    /* Collate all the calls required for the process (including depositing ETH, signing permits, and building vault if needed) */
+    console.log(_vaultId, account, _input, 0);
+
     const calls: ICallData[] = [
-      /* If vault is null, build a new vault, else ignore */
-      ..._buildVault(!!vault),
-      /* handle ETH deposit BEFORE pour, if required (ilk is eth) */
       ..._addEth(_input),
-      /* Include all the signatures gathered, if required  */
       ...permits,
-      /* Then add all the CALLS you want to make: */
       {
         operation: VAULT_OPS.POUR,
-        args: [_vaultId, _pourDestination, _input, ethers.constants.Zero],
+        args: [
+          _vaultId,
+          /* pour destination based on ilk/asset is an eth asset variety */
+          _pourTo,
+          _input,
+          ethers.constants.Zero,
+        ],
         ignore: false,
       },
-      /* remove Eth AFTER pour, if required (ilk is eth) */
       ..._removeEth(_input),
     ];
-    /* handle the transaction */
     await transact('Ladle', _vaultId, calls, txCode);
-    // then update the changed elements
-    vault && updateVaults([vault]);
+    updateVaults([vault]);
   };
 
   const borrow = async (
@@ -121,6 +141,7 @@ export const useActions = () => {
     /* use the vault id provided OR Get a random vault number ready if reqd. */
     const _vaultId = vault?.id || ethers.utils.hexlify(ethers.utils.randomBytes(12));
     const _series = vault ? seriesMap.get(vault.seriesId) : seriesMap.get(selectedSeriesId);
+    const _ilk = vault ? assetMap.get(vault.ilkId) : assetMap.get(selectedIlkId);
 
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode('010_', _vaultId);
@@ -132,12 +153,13 @@ export const useActions = () => {
     /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
     const permits: ICallData[] = await sign([
       {
-        asset: assetMap.get(selectedIlkId),
+        targetAddress: _ilk.address,
+        targetId: _ilk.id,
+        spender: _ilk.joinAddress,
         series: _series,
         type: SignType.ERC2612,
-        spender: 'JOIN',
         fallbackCall: { fn: 'approve', args: [], ignore: false, opCode: null },
-        ignore: selectedIlkId === '0x455448000000',
+        ignore: ETH_BASED_ASSETS.includes(selectedIlkId), /* Ignore if Eth varietal */
       },
     ], txCode);
 
@@ -151,11 +173,6 @@ export const useActions = () => {
       ...permits,
       /* Then add all the CALLS you want to make: */
       {
-        operation: VAULT_OPS.POUR,
-        args: [_vaultId, account, _collInput, _input],
-        ignore: true,
-      },
-      {
         operation: VAULT_OPS.SERVE,
         args: [account, _collInput, _input, MAX_128],
         ignore: false,
@@ -168,27 +185,39 @@ export const useActions = () => {
   };
 
   const repay = async (
-    vault: IVaultRoot,
+    vault: IVault,
     input:string|undefined,
     collInput: string|undefined = '0', // optional - add(+) / remove(-) collateral in same tx.
   ) => {
     const txCode = getTxCode('020_', vault.seriesId);
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
     const _collInput = ethers.utils.parseEther(collInput);
-
     const _series = seriesMap.get(vault.seriesId);
-
-    console.log(vault);
-    console.log(assetMap.get(vault.baseId));
+    const _base = assetMap.get(vault.baseId);
+    const _isDaiBased = DAI_BASED_ASSETS.includes(vault.baseId);
 
     const permits: ICallData[] = await sign([
       {
-        asset: assetMap.get(vault.baseId),
+        // before maturity
+        targetAddress: _base.address,
+        targetId: vault.baseId,
+        spender: 'LADLE',
         series: _series,
-        type: SignType.DAI,
+        type: _isDaiBased ? SignType.DAI : SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
         fallbackCall: { fn: 'approve', args: [contractMap.get('Ladle'), MAX_256], ignore: false, opCode: null },
         message: 'Signing Dai Approval',
         ignore: false,
+      },
+      {
+        // after maturity
+        targetAddress: _base.address,
+        targetId: vault.baseId,
+        spender: _base.joinAddress,
+        series: _series,
+        type: _isDaiBased ? SignType.DAI : SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
+        fallbackCall: { fn: 'approve', args: [contractMap.get('Ladle'), MAX_256], ignore: false, opCode: null },
+        message: 'Signing Dai Approval',
+        ignore: true,
       },
     ], txCode);
 
@@ -219,39 +248,9 @@ export const useActions = () => {
 
   const redeem = async (
     vault: IVaultRoot,
-    input: string|undefined,
   ) => {
     const txCode = getTxCode('030_', vault.seriesId);
-    const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
-    const _series = seriesMap.get(vault.seriesId);
-
-    const permits: ICallData[] = await sign([
-      {
-        asset: assetRootMap.get(vault.baseId),
-        series: _series,
-        type: SignType.ERC2612,
-        fallbackCall: { fn: 'approve', args: [contractMap.get('Ladle').address, MAX_256], ignore: false, opCode: null },
-        message: 'Signing ERC20 Token approval',
-        ignore: true,
-      },
-      {
-        asset: assetRootMap.get(vault.baseId),
-        series: _series,
-        type: SignType.DAI,
-        fallbackCall: { fn: 'approve', args: [contractMap.get('Ladle').address, MAX_256], ignore: false, opCode: null },
-        message: 'Signing Dai Approval',
-        ignore: true,
-      },
-    ], txCode);
-
     const calls: ICallData[] = [
-      ...permits,
-      // /* ladle.transferToFYToken(bytes6 seriesId, uint256 wad) */
-      {
-        operation: VAULT_OPS.TRANSFER_TO_FYTOKEN,
-        args: [_input],
-        ignore: false,
-      },
       /* ladle.redeem(bytes6 seriesId, address to, uint256 wad) */
       {
         operation: VAULT_OPS.REDEEM,
@@ -264,28 +263,25 @@ export const useActions = () => {
 
   const lend = async (
     input: string|undefined,
-    series: ISeriesRoot,
+    series: ISeries,
   ) => {
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
+
+    const _base = assetMap.get(series.baseId);
+    const _isDaiBased = DAI_BASED_ASSETS.includes(series.baseId);
 
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode('040_', series.id);
 
     const permits: ICallData[] = await sign([
       {
-        asset: assetRootMap.get(series.baseId),
+        targetAddress: _base.address,
+        targetId: series.baseId,
+        spender: 'POOLROUTER',
         series,
-        type: SignType.ERC2612,
+        type: _isDaiBased ? SignType.DAI : SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
         fallbackCall: { fn: 'approve', args: [contractMap.get('Ladle'), MAX_256], ignore: false, opCode: null },
         message: 'Signing ERC20 Token approval',
-        ignore: true,
-      },
-      {
-        asset: assetRootMap.get(series.baseId),
-        series,
-        type: SignType.DAI,
-        spender: 'PoolRouter',
-        fallbackCall: { fn: 'approve', args: [], ignore: false, opCode: null },
         ignore: false,
       },
     ], txCode, true);
@@ -308,12 +304,12 @@ export const useActions = () => {
       },
     ];
     await transact('PoolRouter', undefined, calls, txCode);
-    series && updateSeries([series]);
+    updateSeries([series]);
   };
 
   const closePosition = async (
     input: string|undefined,
-    series: ISeriesRoot,
+    series: ISeries,
   ) => {
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
     /* generate the reproducible txCode for tx tracking and tracing */
@@ -321,27 +317,13 @@ export const useActions = () => {
 
     const permits: ICallData[] = await sign([
       {
-        asset: assetRootMap.get(series.baseId),
-        series,
-        type: SignType.ERC2612,
-        fallbackCall: { fn: 'approve', args: [contractMap.get('Ladle'), MAX_256], ignore: false, opCode: null },
-        message: 'Signing ERC20 Token approval',
-        ignore: true,
-      },
-      {
-        asset: assetRootMap.get(series.baseId),
-        series,
-        type: SignType.DAI,
-        spender: 'PoolRouter',
-        fallbackCall: { fn: 'approve', args: [], ignore: false, opCode: null },
-        ignore: true,
-      },
-      {
-        asset: assetRootMap.get(series.baseId),
+        targetAddress: series.fyTokenAddress,
+        targetId: series.id,
+        spender: 'POOLROUTER',
         series,
         type: SignType.FYTOKEN,
-        spender: 'PoolRouter',
-        fallbackCall: { fn: 'approve', args: [], ignore: false, opCode: null },
+        fallbackCall: { fn: 'approve', args: [contractMap.get('Ladle'), MAX_256], ignore: false, opCode: null },
+        message: 'Signing ERC20 Token approval',
         ignore: false,
       },
     ], txCode, true);
@@ -350,7 +332,7 @@ export const useActions = () => {
       ...permits,
       {
         operation: POOLROUTER_OPS.TRANSFER_TO_POOL,
-        args: [series.fyTokenAddress, '1'],
+        args: [series.fyTokenAddress, _input],
         series,
         ignore: false,
       },
@@ -363,12 +345,20 @@ export const useActions = () => {
         ignore: false,
       },
     ];
-    transact('PoolRouter', undefined, calls, txCode);
+    await transact('PoolRouter', undefined, calls, txCode);
+    updateSeries([series]);
   };
 
+  /**
+   * @function addLiquitity
+   * @param input
+   * @param series
+   * @param strategy
+   */
   const addLiquidity = async (
     input: string|undefined,
-    series: ISeriesRoot,
+    series: ISeries,
+    strategy: 'BUY'|'BORROW' = 'BUY', // select a strategy default: BUY
   ) => {
     /* generate the reproducible txCode for tx tracking and tracing */
     // const txCode = getTxCode('020_', vault.series.id);
@@ -379,46 +369,98 @@ export const useActions = () => {
 
     const permits: ICallData[] = await sign([
       {
-        asset: assetRootMap.get(series.baseId),
+        targetAddress: assetMap.get(series.baseId).address,
+        targetId: series.baseId,
         series,
-        type: SignType.ERC2612,
+        type: DAI_BASED_ASSETS.includes(series.baseId) ? SignType.DAI : SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
+        spender: 'POOLROUTER',
         fallbackCall: { fn: 'approve', args: [contractMap.get('Ladle'), MAX_256], ignore: false, opCode: null },
         message: 'Signing ERC20 Token approval',
-        ignore: true,
-      },
-      {
-        asset: assetRootMap.get(series.baseId),
-        series,
-        type: SignType.DAI,
-        spender: 'PoolRouter',
-        fallbackCall: { fn: 'approve', args: [], ignore: false, opCode: null },
-        ignore: true,
+        ignore: false,
       },
     ], txCode, true);
 
     const calls: ICallData[] = [
       ...permits,
+      // BUYING STRATEGY:
+      // router.forwardPermitAction( pool.address, base.address, router.address, allowance, deadline, v, r, s),
+      // router.transferToPoolAction(pool.address, base.address, baseWithSlippage),
+      // router.mintWithBaseTokenAction(pool.address, receiver, fyTokenToBuy, minLPReceived),
       {
         operation: POOLROUTER_OPS.TRANSFER_TO_POOL,
         args: [series.getBaseAddress(), _input.toString()],
         series,
-        ignore: false,
+        ignore: strategy === 'BORROW',
       },
-      /* pool.sellBaseToken(address to, uint128 min) */
       {
         operation: POOLROUTER_OPS.ROUTE,
-        args: [account, ethers.constants.Zero], // TODO calc min transfer slippage
-        fnName: 'sellBaseToken',
+        args: [account, _input.toString(), ethers.constants.Zero], // TODO calc min transfer slippage
+        fnName: 'mintWithBaseToken',
         series,
-        ignore: false,
+        ignore: strategy === 'BORROW',
+      },
+
+      // TODO BORROWING STRATEGY:
+      // ladle.serveAction(vaultId, pool.address, 0, borrowed, maximum debt),
+      // ladle.mintWithBaseTokenAction(seriesId, receiver, fyTokenToBuy, minLPReceived),
+      {
+        operation: VAULT_OPS.SERVE,
+        args: [series.getBaseAddress(), _input.toString()],
+        series,
+        ignore: strategy === 'BUY',
+      },
+      {
+        operation: VAULT_OPS.ROUTE,
+        args: [account, ethers.constants.Zero],
+        fnName: 'mintWithBaseTokenAction',
+        series,
+        ignore: strategy === 'BUY',
       },
     ];
-    transact('PoolRouter', undefined, calls, txCode);
+    await transact('PoolRouter', undefined, calls, txCode);
+    updateSeries([series]);
   };
 
-  const removeLiquidity = async () => {
+  const removeLiquidity = async (
+    input: string|undefined,
+    series: ISeries,
+    strategy: null = null, // select a strategy
+  ) => {
     /* generate the reproducible txCode for tx tracking and tracing */
     // const txCode = getTxCode('020_', vault.series.id);
+    const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
+
+    /* generate the reproducible txCode for tx tracking and tracing */
+    const txCode = getTxCode('070_', series.id);
+
+    const permits: ICallData[] = await sign([
+      {
+        targetAddress: series.poolAddress,
+        targetId: series.id,
+        series,
+        type: SignType.ERC2612,
+        spender: 'PoolRouter',
+        fallbackCall: { fn: 'approve', args: [contractMap.get('Pool'), MAX_256], ignore: false, opCode: null },
+        message: 'Signing ERC20 Token approval',
+        ignore: false,
+      },
+    ], txCode);
+
+    const calls: ICallData[] = [
+      ...permits,
+      // REMOVE & SELL
+      // router.forwardPermitAction(pool.address, pool.address, router.address, allowance, deadline, v, r, s),
+      // router.burnForBaseToken(pool.address, receiver, minBaseReceived),
+      {
+        operation: POOLROUTER_OPS.ROUTE,
+        args: [account, ethers.constants.Zero, ethers.constants.Zero], // TODO calc min transfer slippage
+        fnName: 'burnForBaseToken',
+        series,
+        ignore: strategy === 'BORROW',
+      },
+    ];
+    await transact('PoolRouter', undefined, calls, txCode);
+    updateSeries([series]);
   };
 
   return { addRemoveCollateral, borrow, repay, redeem, lend, closePosition, addLiquidity, removeLiquidity };

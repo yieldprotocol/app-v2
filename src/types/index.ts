@@ -1,5 +1,5 @@
 import { ethers, BigNumber } from 'ethers';
-import { FYToken, Pool } from '../contracts';
+import { ERC20, FYToken, Pool } from '../contracts';
 
 export interface IUserContext {
   userState : IUserContextState;
@@ -39,9 +39,10 @@ export interface ISeriesRoot {
   maturity: number;
   maturityDate: Date;
   fyTokenContract: FYToken;
-  poolContract:Pool;
-  baseId: string;
   fyTokenAddress: string;
+  poolContract:Pool;
+  poolAddress: string;
+  baseId: string;
   // baked in token fns
   getBaseAddress: ()=> string; // antipattern, but required here because app simulatneoulsy gets assets and series
 }
@@ -92,25 +93,26 @@ export interface IVault extends IVaultRoot {
 }
 
 export interface ICallData {
-  args: string[];
+  args: (string|BigNumber)[];
   operation: [ number, string[]];
-  series?: ISeriesRoot;
+  series?: ISeries;
   fnName?: string;
   ignore?: boolean;
   overrides?: ethers.CallOverrides;
 }
 
 export interface ISignData {
-  series: ISeriesRoot,
-  asset: IAssetRoot,
+
+  targetAddress: string;
+  targetId: string;
+  spender: 'POOLROUTER'|'LADLE'| string;
   type: SignType;
   fallbackCall: any; // calldata to process if fallbackTx is used
-  ignore?: boolean; // conditional for ignoring
+  series: ISeries,
 
   /* optional Extention/advanced use-case options */
   message?: string, // optional messaging for UI
-  tokenAddress?: string;
-  spender?: string;
+  ignore?: boolean; // conditional for ignoring
   domain?: IDomain;
 }
 

@@ -17,6 +17,7 @@ const POLLING_INTERVAL = 12000;
 const RPC_URLS: { [chainId: number]: string } = {
   1: process.env.REACT_APP_RPC_URL_1 as string,
   42: process.env.REACT_APP_RPC_URL_42 as string,
+  1337: process.env.REACT_APP_RPC_URL_1337 as string,
   31337: process.env.REACT_APP_RPC_URL_31337 as string,
 };
 
@@ -24,7 +25,7 @@ const connectors = new Map();
 connectors.set(
   'injected',
   new InjectedConnector({
-    supportedChainIds: [1, 31337],
+    supportedChainIds: [1, 1337, 31337],
   }),
 );
 connectors.set(
@@ -288,7 +289,7 @@ const ChainProvider = ({ children }: any) => {
     /* Connect the fallback */
     tried && fallbackActivate(
       new NetworkConnector({
-        urls: { 1: RPC_URLS[1], 42: RPC_URLS[42], 31337: RPC_URLS[31337] },
+        urls: { 1: RPC_URLS[1], 42: RPC_URLS[42], 31337: RPC_URLS[31337], 1337: RPC_URLS[1337] },
         defaultChainId: _chainId,
       }), (e:any) => console.log(e), true,
     );
