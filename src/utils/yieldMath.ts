@@ -215,6 +215,33 @@ export function getFee(
   return fee_.toString();
 }
 
+export function mintWithBase(
+  baseReserves: BigNumber|string,
+  fyTokenReservesVirtual: BigNumber|string,
+  fyTokenReservesReal: BigNumber|string,
+  supply: BigNumber|string,
+  fyToken: BigNumber|string,
+  timeTillMaturity: BigNumber|string,
+): [string, string] {
+  const Z = new Decimal(baseReserves.toString());
+  // const YV = new Decimal(fyTokenReservesVirtual.toString());
+  const YR = new Decimal(fyTokenReservesReal.toString());
+  const S = new Decimal(supply.toString());
+  const y = new Decimal(fyToken.toString());
+  // const T = new Decimal(timeTillMaturity.toString());
+
+  // buyFyToken
+  const z1 = new Decimal(buyFYToken(baseReserves, fyTokenReservesVirtual, fyToken, timeTillMaturity));
+
+  // Mint specifying how much fyToken to take in. Reverse of `mint`.
+  const m = (S.mul(y)).div(YR.sub(y));
+  const z2 = ((Z.add(z1)).mul(m)).div(S);
+  // const m = divide(multiply(S, y), subtract(YR, y));
+  // const z2 = divide(multiply(add(Z, z1), m), S);
+
+  return [m.toString(), z1.add(z2).toString()];
+}
+
 // export function fyDaiForMint(
 //   baseReserves: BigNumber |string,
 //   fyDaiRealReserves: BigNumber|string,

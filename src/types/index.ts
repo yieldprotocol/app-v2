@@ -74,6 +74,7 @@ export interface ISeries extends ISeriesRoot {
   APR: string;
   baseReserves: BigNumber;
   fyTokenReserves: BigNumber;
+  fyTokenRealReserves: BigNumber;
   poolTokens?: BigNumber|undefined;
   poolTokens_?: string|undefined;
   fyTokenBalance? : BigNumber|undefined;

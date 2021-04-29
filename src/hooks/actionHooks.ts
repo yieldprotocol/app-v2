@@ -394,7 +394,7 @@ export const useActions = () => {
       },
       {
         operation: POOLROUTER_OPS.ROUTE,
-        args: [account, _input.toString(), ethers.constants.Zero], // TODO calc min transfer slippage
+        args: [account, _input.div(100), ethers.constants.Zero], // TODO calc min transfer slippage
         fnName: 'mintWithBaseToken',
         series,
         ignore: strategy === 'BORROW',
