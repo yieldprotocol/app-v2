@@ -360,9 +360,10 @@ export const useActions = () => {
     series: ISeries,
     strategy: 'BUY'|'BORROW' = 'BUY', // select a strategy default: BUY
   ) => {
-    /* generate the reproducible txCode for tx tracking and tracing */
-    // const txCode = getTxCode('020_', vault.series.id);
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
+
+    /* generate a random vault in case required */
+    const _randVaultId = ethers.utils.hexlify(ethers.utils.randomBytes(12));
 
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode('060_', series.id);
@@ -401,23 +402,33 @@ export const useActions = () => {
       },
 
       // TODO BORROWING STRATEGY:
+      // buildVault required
       // ladle.serveAction(vaultId, pool.address, 0, borrowed, maximum debt),
       // ladle.mintWithBaseTokenAction(seriesId, receiver, fyTokenToBuy, minLPReceived),
+
+      /* If vault is null, build a new vault, else ignore */
+      ..._buildVault(strategy === 'BUY'),
       {
         operation: VAULT_OPS.SERVE,
-        args: [series.getBaseAddress(), _input.toString()],
+        args: [series.poolAddress, ethers.constants.Zero, _input.toString(), MAX_128],
         series,
         ignore: strategy === 'BUY',
       },
       {
         operation: VAULT_OPS.ROUTE,
-        args: [account, ethers.constants.Zero],
-        fnName: 'mintWithBaseTokenAction',
+        args: [account, _input.div(100), ethers.constants.Zero],
+        fnName: 'mintWithBaseToken',
         series,
         ignore: strategy === 'BUY',
       },
     ];
-    await transact('PoolRouter', undefined, calls, txCode);
+
+    await transact(
+      (strategy === 'BUY') ? 'PoolRouter' : 'Ladle',
+      _randVaultId, // random vaultId if building vault is reqd.
+      calls,
+      txCode,
+    );
     updateSeries([series]);
   };
 

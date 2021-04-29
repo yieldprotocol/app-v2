@@ -17,7 +17,7 @@ import { useActions } from '../hooks/actionHooks';
 function Pool() {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
   const [inputValue, setInputValue] = useState<any>(undefined);
-  const [strategy, setStrategy] = useState('c1');
+  const [strategy, setStrategy] = useState<'BUY'|'BORROW'>('BUY');
 
   /* state from context */
   const { userState } = useContext(UserContext) as IUserContext;
@@ -29,7 +29,7 @@ function Pool() {
 
   const handleAdd = () => {
     // !lendDisabled &&
-    selectedSeries && addLiquidity(inputValue, selectedSeries);
+    selectedSeries && addLiquidity(inputValue, selectedSeries, strategy);
   };
 
   const handleRemove = () => {
@@ -86,8 +86,8 @@ function Pool() {
         <RadioButtonGroup
           name="strategy"
           options={[
-            { label: <Text size="small"> Buy & Pool </Text>, value: 'c1' },
-            // { label: <Text size="small"> Borrow & Pool </Text>, value: 'c2' },
+            { label: <Text size="small"> Buy & Pool </Text>, value: 'BUY' },
+            { label: <Text size="small"> Borrow & Pool </Text>, value: 'BORROW' },
           ]}
           value={strategy}
           onChange={(event:any) => setStrategy(event.target.value)}
