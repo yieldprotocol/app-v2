@@ -1,8 +1,6 @@
 import { ethers, BigNumber } from 'ethers';
 import { Decimal } from 'decimal.js';
 
-import { TradeType } from '../types';
-
 Decimal.set({ precision: 64 });
 
 /* constants exposed for export */
@@ -20,15 +18,20 @@ const g1 = new Decimal(950 / 1000);
 const g2 = new Decimal(1000 / 950);
 const precisionFee = new Decimal(1000000000000);
 
+/** *************************
+ Support functions
+ *************************** */
+
 /**
- *
- * Math Support fns:
- *
- * */
+ * @param { BigNumber | string } multiplicant
+ * @param { BigNumber | string } multiplier
+ * @param { string } precisionDifference  // Difference between multiplicant and mulitplier precision (eg. wei vs ray '1e-27' )
+ * @returns { string } in decimal precision of the multiplicant
+ */
 export const mulDecimal = (
   multiplicant: BigNumber | string,
   multiplier: BigNumber | string,
-  precisionDifference: string = '1', // Difference between multiplicant and mulitplier precision (eg. wei vs ray '1e-27' )
+  precisionDifference: string = '1', // DEFAULT = 1 (same precision)
 ): string => {
   const multiplicant_ = new Decimal(multiplicant.toString());
   const multiplier_ = new Decimal(multiplier.toString());
@@ -37,10 +40,16 @@ export const mulDecimal = (
   return multiplicant_.mul(_normalisedMul).toFixed();
 };
 
+/**
+ * @param  { BigNumber | string } numerator
+ * @param { BigNumber | string } divisor
+ * @param { BigNumber | string } precisionDifference // Difference between multiplicant and mulitplier precision (eg. wei vs ray '1e-27' )
+ * @returns { string } in decimal precision of the numerator
+ */
 export const divDecimal = (
-  numerator:BigNumber | string,
-  divisor:BigNumber | string,
-  precisionDifference: string = '1', // Difference between multiplicant and mulitplier precision (eg. wei vs ray '1e-27' )
+  numerator: BigNumber | string,
+  divisor: BigNumber | string,
+  precisionDifference: string = '1', // DEFAULT = 1 (same precision)
 ): string => {
   const numerator_ = new Decimal(numerator.toString());
   const divisor_ = new Decimal(divisor.toString());
@@ -49,43 +58,141 @@ export const divDecimal = (
   return numerator_.div(_normalisedDiv).toFixed();
 };
 
-export const floorDecimal = (val: BigNumber | string): string => Decimal.floor(val.toString()).toFixed();
+/**
+ * @param { BigNumber | string } value
+ * @returns { string }
+ */
+export const floorDecimal = (value: BigNumber | string): string => Decimal.floor(value.toString()).toFixed();
 
 /**
+ * @param { BigNumber | string } to unix time
+ * @param { BigNumber | string } from  unix time *optional* default: now
+ * @returns { string } as number seconds 'from' -> 'to'
+ */
+export const secondsToFrom = (
+  to: BigNumber | string,
+  from: BigNumber | string = BigNumber.from(Math.round(new Date().getTime() / 1000)), // OPTIONAL: FROM defaults to current time if omitted
+) : string => {
+  const to_ = ethers.BigNumber.isBigNumber(to) ? to : BigNumber.from(to);
+  const from_ = ethers.BigNumber.isBigNumber(from) ? from : BigNumber.from(from);
+  return to_.sub(from_).toString();
+};
+
+/** *************************
+ YieldSpace functions
+ *************************** */
+
+/**
+ * @param { BigNumber | string } baseReserves
+ * @param { BigNumber | string } fyTokenReserves
+ * @param { BigNumber | string } totalSupply
+ * @param { BigNumber | string } base
+ * @returns {[string, string]}
  *
- * YieldMath functions
- *
- * */
+ * https://www.desmos.com/calculator/mllhtohxfx
+ */
 export function mint(
   baseReserves: BigNumber | string,
   fyTokenReserves: BigNumber | string,
   totalSupply: BigNumber | string,
   base: BigNumber | string,
-) : [ any, any ] {
+) : [ string, string ] {
   const baseReserves_ = new Decimal(baseReserves.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves.toString());
   const supply_ = new Decimal(totalSupply.toString());
   const dai_ = new Decimal(base.toString());
   const m = (supply_.mul(dai_)).div(baseReserves_);
   const y = (fyTokenReserves_.mul(m)).div(supply_);
-  return [m, y];
+  return [m.toString(), y.toString()];
 }
 
+/**
+ * @param { BigNumber | string } baseReserves
+ * @param { BigNumber | string } fyTokenReserves
+ * @param { BigNumber | string } totalSupply
+ * @param lpTokens { BigNumber | string }
+ * @returns {[string, string]}
+ *
+ * https://www.desmos.com/calculator/ubsalzunpo
+ */
 export function burn(
   baseReserves: BigNumber | string,
   fyTokenReserves: BigNumber | string,
   totalSupply: BigNumber | string,
   lpTokens: BigNumber | string,
-): [any, any] {
-  const baseReserves_ = new Decimal(baseReserves.toString());
-  const fyTokenReserves_ = new Decimal(fyTokenReserves.toString());
-  const supply_ = new Decimal(totalSupply.toString());
-  const lpTokens_ = new Decimal(lpTokens.toString());
-  const z = (lpTokens_.mul(baseReserves_)).div(supply_);
-  const y = (lpTokens_.mul(fyTokenReserves_)).div(supply_);
-  return [z, y];
+): [ string, string ] {
+  const Z = new Decimal(baseReserves.toString());
+  const Y = new Decimal(fyTokenReserves.toString());
+  const S = new Decimal(totalSupply.toString());
+  const x = new Decimal(lpTokens.toString());
+  const z = (x.mul(Z)).div(S);
+  const y = (x.mul(Y)).div(S);
+  return [z.toString(), y.toString()];
 }
 
+/**
+ * @param { BigNumber | string } baseReserves
+ * @param { BigNumber | string } fyTokenReservesVirtual
+ * @param { BigNumber | string } fyTokenReservesReal
+ * @param { BigNumber | string } totalSupply
+ * @param { BigNumber | string } fyToken
+ * @param { BigNumber | string } timeTillMaturity
+ * @returns {[string, string]}
+ */
+export function mintWithBase(
+  baseReserves: BigNumber|string,
+  fyTokenReservesVirtual: BigNumber|string,
+  fyTokenReservesReal: BigNumber|string,
+  supply: BigNumber|string,
+  fyToken: BigNumber|string,
+  timeTillMaturity: BigNumber|string,
+): [string, string] {
+  const Z = new Decimal(baseReserves.toString());
+  const YR = new Decimal(fyTokenReservesReal.toString());
+  const S = new Decimal(supply.toString());
+  const y = new Decimal(fyToken.toString());
+  // buyFyToken:
+  const z1 = new Decimal(buyFYToken(baseReserves, fyTokenReservesVirtual, fyToken, timeTillMaturity));
+  // Mint specifying how much fyToken to take in. Reverse of `mint`.
+  const m = (S.mul(y)).div(YR.sub(y));
+  const z2 = ((Z.add(z1)).mul(m)).div(S);
+  return [m.toString(), z1.add(z2).toString()];
+}
+
+/**
+ * @param { BigNumber | string } baseReserves
+ * @param { BigNumber | string } fyTokenReservesVirtual
+ * @param { BigNumber | string } fyTokenReservesReal
+ * @param { BigNumber | string } totalSupply
+ * @param { BigNumber | string } lpTokens
+ * @param { BigNumber | string } timeTillMaturity
+ * @returns { string }
+ */
+export function burnForBase(
+  baseReserves: BigNumber,
+  fyTokenReservesVirtual: BigNumber,
+  fyTokenReservesReal: BigNumber,
+  supply: BigNumber,
+  lpTokens: BigNumber,
+  timeTillMaturity: BigNumber,
+): string {
+  // Burn FyToken
+  const [z1, y] = burn(baseReserves, fyTokenReservesReal, supply, lpTokens);
+  // Sell FyToken for base
+  const z2 = sellFYToken(baseReserves, fyTokenReservesVirtual, y, timeTillMaturity);
+  const z1D = new Decimal(z1.toString());
+  const z2D = new Decimal(z2.toString());
+  return z1D.add(z2D).toString();
+}
+
+/**
+ * @param { BigNumber | string } baseReserves
+ * @param { BigNumber | string } fyTokenReserves
+ * @param { BigNumber | string } base
+ * @param { BigNumber | string } timeTillMaturity
+ * @param { boolean } withNoFee
+ * @returns { string }
+ */
 export function sellBase(
   baseReserves: BigNumber | string,
   fyTokenReserves: BigNumber | string,
@@ -113,6 +220,14 @@ export function sellBase(
   return yFee.toString();
 }
 
+/**
+ * @param { BigNumber | string } baseReserves
+ * @param { BigNumber | string } fyTokenReserves
+ * @param { BigNumber | string } fyToken
+ * @param { BigNumber | string } timeTillMaturity
+ * @param { boolean } withNoFee
+ * @returns { string }
+ */
 export function sellFYToken(
   baseReserves: BigNumber | string,
   fyTokenReserves: BigNumber | string,
@@ -140,6 +255,14 @@ export function sellFYToken(
   return yFee.toString();
 }
 
+/**
+ * @param { BigNumber | string } baseReserves
+ * @param { BigNumber | string } fyTokenReserves
+ * @param { BigNumber | string } base
+ * @param { BigNumber | string } timeTillMaturity
+ * @param { boolean } withNoFee
+ * @returns { string }
+ */
 export function buyBase(
   baseReserves: BigNumber | string,
   fyTokenReserves: BigNumber | string,
@@ -167,6 +290,14 @@ export function buyBase(
   return yFee.toString();
 }
 
+/**
+ * @param { BigNumber | string } baseReserves
+ * @param { BigNumber | string } fyTokenReserves
+ * @param { BigNumber | string } fyToken
+ * @param { BigNumber | string } timeTillMaturity
+ * @param { boolean } withNoFee
+ * @returns { string }
+ */
 export function buyFYToken(
   baseReserves: BigNumber | string,
   fyTokenReserves: BigNumber | string,
@@ -194,6 +325,13 @@ export function buyFYToken(
   return yFee.toString();
 }
 
+/**
+ * @param { BigNumber | string } baseReserves
+ * @param { BigNumber | string } fyTokenReserves
+ * @param { BigNumber | string } fyToken
+ * @param { BigNumber | string } timeTillMaturity
+ * @returns { string }
+ */
 export function getFee(
   baseReserves: BigNumber | string,
   fyTokenReserves: BigNumber | string,
@@ -213,33 +351,6 @@ export function getFee(
     fee_ = (new Decimal(daiWithoutFee)).sub(new Decimal(daiWithFee));
   }
   return fee_.toString();
-}
-
-export function mintWithBase(
-  baseReserves: BigNumber|string,
-  fyTokenReservesVirtual: BigNumber|string,
-  fyTokenReservesReal: BigNumber|string,
-  supply: BigNumber|string,
-  fyToken: BigNumber|string,
-  timeTillMaturity: BigNumber|string,
-): [string, string] {
-  const Z = new Decimal(baseReserves.toString());
-  // const YV = new Decimal(fyTokenReservesVirtual.toString());
-  const YR = new Decimal(fyTokenReservesReal.toString());
-  const S = new Decimal(supply.toString());
-  const y = new Decimal(fyToken.toString());
-  // const T = new Decimal(timeTillMaturity.toString());
-
-  // buyFyToken
-  const z1 = new Decimal(buyFYToken(baseReserves, fyTokenReservesVirtual, fyToken, timeTillMaturity));
-
-  // Mint specifying how much fyToken to take in. Reverse of `mint`.
-  const m = (S.mul(y)).div(YR.sub(y));
-  const z2 = ((Z.add(z1)).mul(m)).div(S);
-  // const m = divide(multiply(S, y), subtract(YR, y));
-  // const z2 = divide(multiply(add(Z, z1), m), S);
-
-  return [m.toString(), z1.add(z2).toString()];
 }
 
 // export function fyDaiForMint(
@@ -288,11 +399,9 @@ export function mintWithBase(
 
 /**
    * Split a certain amount of X liquidity into its two componetnts (eg. base and fyToken)
-   *
    * @param { BigNumber } xReserves // eg. base reserves
    * @param { BigNumber } yReserves // eg. fyToken reservers
    * @param {BigNumber} xAmount // amount to split in wei
-   *
    * @returns  [ BigNumber, BigNumber ] returns an array of [base, fyToken]
    */
 export const splitLiquidity = (
@@ -303,46 +412,16 @@ export const splitLiquidity = (
   const xReserves_ = new Decimal(xReserves.toString());
   const yReserves_ = new Decimal(yReserves.toString());
   const xAmount_ = new Decimal(xAmount.toString());
-
   const xPortion = (xAmount_.mul(xReserves_)).div(yReserves_.add(xReserves_));
-
   const yPortion = xAmount_.sub(xPortion);
   return [xPortion.toFixed(), yPortion.toFixed()];
 };
 
 /**
-   * Calculate amount of LP Tokens that will be minted
-   *
-   * @param { BigNumber | string } xReserves // eg. base balance of pool
-   * @param { BigNumber  | string} yReserves// eg. yDai series balance of Pool
-   * @param { BigNumber | string  } totalSupply // total LP tokens
-   * @param { BigNumber | string } xInput // base input value by user
-   *
-   * @returns { string } number of tokens minted
-   */
-export const calcTokensMinted = (
-  xReserves: BigNumber | string,
-  yReserves: BigNumber | string,
-  totalSupply: BigNumber| string,
-  xInput: BigNumber | string,
-) : string => {
-  const xReserves_ = new Decimal(xReserves.toString());
-  const _totalSupply = new Decimal(totalSupply.toString());
-  const _yReserves = new Decimal(yReserves.toString());
-  const _xInput = new Decimal(xInput.toString());
-  const xOffered = (_xInput.mul(xReserves_)).div(_yReserves.add(xReserves_));
-  // const [xOffered, ] =  splitLiquidity(xReserves, yReserves, xInput);
-
-  return (_totalSupply).mul(xOffered).div(xReserves_).toString();
-};
-
-/**
    * Calculate Slippage
-   *
    * @param { BigNumber } value
    * @param { BigNumber } slippage optional: defaults to 0.005 (0.5%)
    * @param { number } minimise optional: whether the resutl should be a minimum or maximum (default max)
-   *
    * @returns { string } human readable string
    */
 export const calculateSlippage = (
@@ -360,12 +439,10 @@ export const calculateSlippage = (
 
 /**
    * Calculate Annualised Yield Rate
-   *
    * @param { BigNumber | string } rate // current [base] price per unit y[base]
    * @param { BigNumber | string } amount // y[base] amount at maturity
    * @param { number } maturity  // date of maturity
    * @param { number } fromDate // ***optional*** start date - defaults to now()
-   *
    * @returns { string | undefined } human readable string
    */
 export const calculateAPR = (
@@ -397,12 +474,10 @@ export const calculateAPR = (
 /**
    * Calculates the collateralization ratio
    * based on the collat amount and value and debt value.
-   *
    * @param { BigNumber | string } collateralAmount  amount of collateral ( in wei)
    * @param { BigNumber | string } collateralPrice price of collateral (in USD)
    * @param { BigNumber | string } debtValue value of base debt (in USD)
    * @param {boolean} asPercent OPTIONAL: flag to return ratio as a percentage
-
    * @returns { string | undefined }
    */
 export const collateralizationRatio = (
@@ -447,37 +522,4 @@ export const borrowingPower = (
   const debtValue_ = new Decimal(debtValue.toString());
   const _max = debtValue_.lt(maxSafeDebtValue_) ? maxSafeDebtValue_.sub(debtValue_) : new Decimal('0');
   return _max.toFixed(0);
-};
-
-export const secondsToFrom = (
-  to: BigNumber | string,
-  from: BigNumber | string = BigNumber.from(Math.round(new Date().getTime() / 1000)), // OPTIONAL: FROM defaults to current time if omitted
-) : string => {
-  const to_ = ethers.BigNumber.isBigNumber(to) ? to : BigNumber.from(to);
-  const from_ = ethers.BigNumber.isBigNumber(from) ? from : BigNumber.from(from);
-  return to_.sub(from_).toString();
-};
-
-/* eg. base(X) Obtained from SELLING  USDC (Y) */
-export const psmXOut = (
-  y :BigNumber| string, // WAD precision
-  tin: BigNumber| string,
-  tradeType: TradeType = TradeType.SELL, // TODO add in buy (in addition to sell)
-) : string => {
-  const y_ = new Decimal(y.toString());
-  const tin_ = new Decimal(tin.toString());
-  const wad = new Decimal(1e18);
-  return Decimal.floor(y_.mul(wad.sub(tin_)).div(wad)).toFixed(); // usdc*(1-tin)
-};
-
-/* eg. USD (Y) Obtained from SELLING base (X) */
-export const psmYOut = (
-  x:BigNumber| string, // WAD precision
-  tin: BigNumber| string,
-  tradeType: TradeType = TradeType.SELL, // TODO add in buy (in addition to sell)
-) : string => {
-  const x_ = new Decimal(x.toString());
-  const tin_ = new Decimal(tin.toString());
-  const wad = new Decimal(1e18);
-  return x_.div(wad.sub(tin_)).toFixed(18); // base/(1-tin)
 };
