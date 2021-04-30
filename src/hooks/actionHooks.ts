@@ -93,7 +93,6 @@ export const useActions = () => {
     /* parse inputs to BigNumber and then negate if removing collateral */
     let _input = ethers.utils.parseEther(input);
     if (remove) _input = _input.mul(-1);
-    console.log(_input);
 
     /* check if the ilk/asset is an eth asset variety */
     const _pourTo = _isEthBased ? contractMap.get('Ladle').address : account;
@@ -119,10 +118,9 @@ export const useActions = () => {
       {
         operation: VAULT_OPS.POUR,
         args: [
-          _vaultId,
           /* pour destination based on ilk/asset is an eth asset variety */
           _pourTo,
-          _input,
+          _input.toString(),
           ethers.constants.Zero,
         ],
         ignore: false,
@@ -424,7 +422,7 @@ export const useActions = () => {
     ];
 
     await transact(
-      (strategy === 'BUY') ? 'PoolRouter' : 'Ladle',
+      (strategy === 'BUY') ? 'PoolRouter' : 'Ladle', // select router based on strategy
       _randVaultId, // random vaultId if building vault is reqd.
       calls,
       txCode,
@@ -464,10 +462,10 @@ export const useActions = () => {
       // router.burnForBaseToken(pool.address, receiver, minBaseReceived),
       {
         operation: POOLROUTER_OPS.ROUTE,
-        args: [account, ethers.constants.Zero, ethers.constants.Zero], // TODO calc min transfer slippage
+        args: [account, _input, _input], // TODO calc min transfer slippage
         fnName: 'burnForBaseToken',
         series,
-        ignore: strategy === 'BORROW',
+        ignore: false,
       },
     ];
     await transact('PoolRouter', undefined, calls, txCode);

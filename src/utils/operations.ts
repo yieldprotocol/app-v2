@@ -43,7 +43,7 @@ export const VAULT_OPS: LadleRouter = {
   BUILD: [0, ['bytes6', 'bytes6']],
   STIR_TO: [1, ['still to find out']],
   STIR_FROM: [2, ['still to find out']],
-  POUR: [3, ['bytes12', 'address', 'uint128', 'uint128']],
+  POUR: [3, ['address', 'uint128', 'uint128']],
   SERVE: [4, ['address', 'uint128', 'uint128', 'uint128']],
   CLOSE: [5, ['still to find out']],
   REPAY: [6, ['address', 'int128', 'uint128']],
