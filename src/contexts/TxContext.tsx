@@ -6,6 +6,8 @@ import { ISignData } from '../types';
 const TxContext = React.createContext<any>({});
 
 const initState = {
+
+  /* transaction lists */
   signatures: new Map([]) as Map<string, IYieldSignature>,
   transactions: new Map([]) as Map<string, IYieldTx>,
   processes: [] as string[],

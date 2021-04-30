@@ -22,9 +22,10 @@ const Lend = () => {
 
   /* state from context */
   const { userState } = useContext(UserContext) as IUserContext;
-  const { selectedSeriesId, selectedBaseId, seriesMap } = userState;
+  const { selectedSeriesId, selectedBaseId, seriesMap, assetMap } = userState;
 
   const selectedSeries = seriesMap.get(selectedSeriesId!);
+  const selectedBase = assetMap.get(selectedBaseId!);
 
   const { lend, closePosition } = useActions();
 
@@ -77,21 +78,27 @@ const Lend = () => {
       <ActionButtonGroup buttonList={[
         <Button
           primary
-          label={<Text size={mobile ? 'small' : undefined}> {`Supply ${inputValue || ''} Dai`} </Text>}
+          label={<Text size={mobile ? 'small' : undefined}> {`Supply ${inputValue || ''} ${selectedBase?.symbol || ''}`} </Text>}
           key="primary"
           onClick={() => handleLend()}
         />,
-
-        <Button
-          secondary
-          label={<Text size={mobile ? 'small' : undefined}>Close Position</Text>}
-          key="secondary"
-          onClick={() => handleClosePosition()}
-        />,
+        // <Button
+        //   secondary
+        //   label={<Text size={mobile ? 'small' : undefined}>Close Position</Text>}
+        //   key="secondary"
+        //   onClick={() => handleClosePosition()}
+        // />,
       ]}
       />
 
-      {/* <SectionWrap title="Testing section: Closing position">
+      <SectionWrap
+        title="Closing position"
+        border={{
+          color: 'grey',
+          style: 'dashed',
+          side: 'all',
+        }}
+      >
         <Box direction="row" gap="small" fill="horizontal">
           <InputWrap action={() => console.log('maxAction')}>
             <TextInput
@@ -116,7 +123,7 @@ const Lend = () => {
           />,
         ]}
         />
-      </SectionWrap> */}
+      </SectionWrap>
 
     </MainViewWrap>
   );
