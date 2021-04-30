@@ -47,15 +47,15 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "uint128",
+        internalType: "uint256",
         name: "ink",
-        type: "uint128",
+        type: "uint256",
       },
       {
         indexed: false,
-        internalType: "uint128",
+        internalType: "uint256",
         name: "art",
-        type: "uint128",
+        type: "uint256",
       },
     ],
     name: "Bought",
@@ -66,9 +66,9 @@ const _abi = [
     name: "AUCTION_TIME",
     outputs: [
       {
-        internalType: "uint128",
+        internalType: "uint256",
         name: "",
-        type: "uint128",
+        type: "uint256",
       },
     ],
     stateMutability: "view",

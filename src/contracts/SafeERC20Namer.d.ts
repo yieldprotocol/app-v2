@@ -11,7 +11,6 @@ import {
   PopulatedTransaction,
   Contract,
   ContractTransaction,
-  PayableOverrides,
   CallOverrides,
 } from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
@@ -19,22 +18,25 @@ import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
-interface BatchableInterface extends ethers.utils.Interface {
+interface SafeERC20NamerInterface extends ethers.utils.Interface {
   functions: {
-    "batch(bytes[],bool)": FunctionFragment;
+    "tokenName(address)": FunctionFragment;
+    "tokenSymbol(address)": FunctionFragment;
   };
 
-  encodeFunctionData(
-    functionFragment: "batch",
-    values: [BytesLike[], boolean]
-  ): string;
+  encodeFunctionData(functionFragment: "tokenName", values: [string]): string;
+  encodeFunctionData(functionFragment: "tokenSymbol", values: [string]): string;
 
-  decodeFunctionResult(functionFragment: "batch", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "tokenName", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "tokenSymbol",
+    data: BytesLike
+  ): Result;
 
   events: {};
 }
 
-export class Batchable extends Contract {
+export class SafeERC20Namer extends Contract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -75,79 +77,91 @@ export class Batchable extends Contract {
     toBlock?: string | number | undefined
   ): Promise<Array<TypedEvent<EventArgsArray & EventArgsObject>>>;
 
-  interface: BatchableInterface;
+  interface: SafeERC20NamerInterface;
 
   functions: {
-    batch(
-      calls: BytesLike[],
-      revertOnFail: boolean,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    tokenName(token: string, overrides?: CallOverrides): Promise<[string]>;
 
-    "batch(bytes[],bool)"(
-      calls: BytesLike[],
-      revertOnFail: boolean,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    "tokenName(address)"(
+      token: string,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    tokenSymbol(token: string, overrides?: CallOverrides): Promise<[string]>;
+
+    "tokenSymbol(address)"(
+      token: string,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
   };
 
-  batch(
-    calls: BytesLike[],
-    revertOnFail: boolean,
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  tokenName(token: string, overrides?: CallOverrides): Promise<string>;
 
-  "batch(bytes[],bool)"(
-    calls: BytesLike[],
-    revertOnFail: boolean,
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  "tokenName(address)"(
+    token: string,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  tokenSymbol(token: string, overrides?: CallOverrides): Promise<string>;
+
+  "tokenSymbol(address)"(
+    token: string,
+    overrides?: CallOverrides
+  ): Promise<string>;
 
   callStatic: {
-    batch(
-      calls: BytesLike[],
-      revertOnFail: boolean,
-      overrides?: CallOverrides
-    ): Promise<
-      [boolean[], string[]] & { successes: boolean[]; results: string[] }
-    >;
+    tokenName(token: string, overrides?: CallOverrides): Promise<string>;
 
-    "batch(bytes[],bool)"(
-      calls: BytesLike[],
-      revertOnFail: boolean,
+    "tokenName(address)"(
+      token: string,
       overrides?: CallOverrides
-    ): Promise<
-      [boolean[], string[]] & { successes: boolean[]; results: string[] }
-    >;
+    ): Promise<string>;
+
+    tokenSymbol(token: string, overrides?: CallOverrides): Promise<string>;
+
+    "tokenSymbol(address)"(
+      token: string,
+      overrides?: CallOverrides
+    ): Promise<string>;
   };
 
   filters: {};
 
   estimateGas: {
-    batch(
-      calls: BytesLike[],
-      revertOnFail: boolean,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    tokenName(token: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    "tokenName(address)"(
+      token: string,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "batch(bytes[],bool)"(
-      calls: BytesLike[],
-      revertOnFail: boolean,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    tokenSymbol(token: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    "tokenSymbol(address)"(
+      token: string,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    batch(
-      calls: BytesLike[],
-      revertOnFail: boolean,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    tokenName(
+      token: string,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "batch(bytes[],bool)"(
-      calls: BytesLike[],
-      revertOnFail: boolean,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    "tokenName(address)"(
+      token: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    tokenSymbol(
+      token: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "tokenSymbol(address)"(
+      token: string,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };
 }

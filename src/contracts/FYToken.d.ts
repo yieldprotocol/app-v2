@@ -25,11 +25,13 @@ interface FYTokenInterface extends ethers.utils.Interface {
     "LOCK()": FunctionFragment;
     "PERMIT_TYPEHASH()": FunctionFragment;
     "ROOT()": FunctionFragment;
+    "accrual()": FunctionFragment;
     "allowance(address,address)": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
     "asset()": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "burn(address,uint256)": FunctionFragment;
+    "chiAtMaturity()": FunctionFragment;
     "decimals()": FunctionFragment;
     "flashFee(address,uint256)": FunctionFragment;
     "flashLoan(address,address,uint256,bytes)": FunctionFragment;
@@ -68,6 +70,7 @@ interface FYTokenInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "ROOT", values?: undefined): string;
+  encodeFunctionData(functionFragment: "accrual", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "allowance",
     values: [string, string]
@@ -81,6 +84,10 @@ interface FYTokenInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "burn",
     values: [string, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "chiAtMaturity",
+    values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
   encodeFunctionData(
@@ -175,11 +182,16 @@ interface FYTokenInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "ROOT", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "accrual", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "allowance", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "asset", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "burn", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "chiAtMaturity",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "flashFee", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "flashLoan", data: BytesLike): Result;
@@ -231,6 +243,7 @@ interface FYTokenInterface extends ethers.utils.Interface {
     "RoleAdminChanged(bytes4,bytes4)": EventFragment;
     "RoleGranted(bytes4,address,address)": EventFragment;
     "RoleRevoked(bytes4,address,address)": EventFragment;
+    "SeriesMatured(uint256)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
   };
 
@@ -239,6 +252,7 @@ interface FYTokenInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleRevoked"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SeriesMatured"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
 }
 
@@ -302,6 +316,14 @@ export class FYToken extends Contract {
 
     "ROOT()"(overrides?: CallOverrides): Promise<[string]>;
 
+    accrual(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "accrual()"(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     allowance(
       owner: string,
       spender: string,
@@ -348,6 +370,10 @@ export class FYToken extends Contract {
       amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    chiAtMaturity(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    "chiAtMaturity()"(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     decimals(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -612,6 +638,14 @@ export class FYToken extends Contract {
 
   "ROOT()"(overrides?: CallOverrides): Promise<string>;
 
+  accrual(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "accrual()"(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   allowance(
     owner: string,
     spender: string,
@@ -658,6 +692,10 @@ export class FYToken extends Contract {
     amount: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  chiAtMaturity(overrides?: CallOverrides): Promise<BigNumber>;
+
+  "chiAtMaturity()"(overrides?: CallOverrides): Promise<BigNumber>;
 
   decimals(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -919,6 +957,10 @@ export class FYToken extends Contract {
 
     "ROOT()"(overrides?: CallOverrides): Promise<string>;
 
+    accrual(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "accrual()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     allowance(
       owner: string,
       spender: string,
@@ -965,6 +1007,10 @@ export class FYToken extends Contract {
       amount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    chiAtMaturity(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "chiAtMaturity()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     decimals(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1249,6 +1295,10 @@ export class FYToken extends Contract {
       { role: string; account: string; sender: string }
     >;
 
+    SeriesMatured(
+      chiAtMaturity: null
+    ): TypedEventFilter<[BigNumber], { chiAtMaturity: BigNumber }>;
+
     Transfer(
       from: string | null,
       to: string | null,
@@ -1275,6 +1325,14 @@ export class FYToken extends Contract {
     ROOT(overrides?: CallOverrides): Promise<BigNumber>;
 
     "ROOT()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    accrual(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "accrual()"(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     allowance(
       owner: string,
@@ -1322,6 +1380,10 @@ export class FYToken extends Contract {
       amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    chiAtMaturity(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "chiAtMaturity()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     decimals(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1591,6 +1653,14 @@ export class FYToken extends Contract {
 
     "ROOT()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    accrual(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "accrual()"(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     allowance(
       owner: string,
       spender: string,
@@ -1640,6 +1710,10 @@ export class FYToken extends Contract {
       amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    chiAtMaturity(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "chiAtMaturity()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

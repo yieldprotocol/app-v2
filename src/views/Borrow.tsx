@@ -5,9 +5,9 @@ import { Router, useHistory } from 'react-router-dom';
 import { FiArrowLeftCircle } from 'react-icons/fi';
 import { cleanValue } from '../utils/displayUtils';
 
-import SeriesSelector from '../components/SeriesSelector';
+import SeriesSelector from '../components/selectors/SeriesSelector';
 import MainViewWrap from '../components/wraps/MainViewWrap';
-import AssetSelector from '../components/AssetSelector';
+import AssetSelector from '../components/selectors/AssetSelector';
 import InputWrap from '../components/wraps/InputWrap';
 import InfoBite from '../components/InfoBite';
 import ActionButtonGroup from '../components/ActionButtonGroup';
@@ -16,41 +16,52 @@ import { useDebounce } from '../hooks';
 import SectionWrap from '../components/wraps/SectionWrap';
 import { useActions } from '../hooks/actionHooks';
 import { UserContext } from '../contexts/UserContext';
+import { IUserContext, IVault } from '../types';
 
 const Borrow = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
-  const routerHistory = useHistory();
-  const routerState = routerHistory.location.state as { from: string };
+  // const routerHistory = useHistory();
+  // const routerState = routerHistory.location.state as { from: string };
 
-  const { userState: {
-    activeAccount,
-    activeVault,
-    selectedSeries,
-    selectedIlk,
-    selectedBase,
-  },
-  } = useContext(UserContext);
+  /* state from context */
+  const { userState } = useContext(UserContext) as IUserContext;
+  const { activeAccount, assetMap, vaultMap, selectedSeriesId, selectedIlkId, selectedBaseId } = userState;
+
+  const selectedBase = assetMap.get(selectedBaseId!);
 
   const [inputValue, setInputValue] = useState<string>();
   const [collInputValue, setCollInputValue] = useState<string>();
-  const [vaultIdValue, setVaultIdValue] = useState<string>();
 
   const [borrowDisabled, setBorrowDisabled] = useState<boolean>(true);
 
-  const [createNewVault, setCreateNewVault] = useState<boolean>(true);
+  const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
+  const [vaultIdToUse, setVaultIdToUse] = useState<string|undefined>(undefined);
 
   const { borrow } = useActions();
 
   const handleBorrow = () => {
-    !borrowDisabled && borrow(inputValue, collInputValue, activeVault);
+    !borrowDisabled &&
+    borrow(
+      vaultIdToUse ? vaultMap.get(vaultIdToUse) : undefined,
+      inputValue,
+      collInputValue,
+    );
   };
 
+  /* checks and sets list of current vaults matching the current selection */
   useEffect(() => {
-    if (vaultIdValue && vaultIdValue.length === 12) {
-      // checkVault();
-      console.log('Max length reached');
+    if (selectedBaseId && selectedSeriesId && selectedIlkId) {
+      const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
+      const _matchingVaults = arr.filter((v:IVault) => (
+        v.ilkId === selectedIlkId &&
+        v.baseId === selectedBaseId &&
+        v.seriesId === selectedSeriesId
+      ));
+      setMatchingVaults(_matchingVaults);
     }
-  }, [vaultIdValue]);
+  }, [vaultMap, selectedBaseId, selectedIlkId, selectedSeriesId]);
+
+  /* TODO create vanity vault ids? */
 
   /* Action disabling logic: */
   useEffect(() => {
@@ -59,13 +70,13 @@ const Borrow = () => {
       !activeAccount ||
       !inputValue ||
       !collInputValue ||
-      !selectedSeries ||
-      !selectedIlk
+      !selectedSeriesId ||
+      !selectedIlkId
     )
       ? setBorrowDisabled(true)
     /* else if all pass, then unlock borrowing */
       : setBorrowDisabled(false);
-  }, [inputValue, collInputValue, selectedSeries, selectedIlk]);
+  }, [inputValue, collInputValue, selectedSeriesId, selectedIlkId, activeAccount]);
 
   return (
 
@@ -75,14 +86,6 @@ const Borrow = () => {
       target="document"
     >
       <MainViewWrap>
-
-        {
-          activeVault &&
-          <Box direction="row">
-            <Image src={activeVault.image} />
-            <Text>{ activeVault?.id} </Text>
-          </Box>
-        }
 
         <SectionWrap title="1. Asset to Borrow" subtitle="Choose an asset and period to borrow for">
 
@@ -102,28 +105,28 @@ const Borrow = () => {
             </Box>
           </Box>
 
-          <Box justify="evenly" gap="small" fill="horizontal" direction="row-responsive">
+          {/* <Box justify="evenly" gap="small" fill="horizontal" direction="row-responsive">
             <InfoBite label="Borrowing Power:" value="100Dai" />
             <InfoBite label="Collateralization:" value="200%" />
-          </Box>
+          </Box> */}
 
         </SectionWrap>
 
-        <SectionWrap title={`2. Select a series ${mobile ? '' : '(maturity date)'} `}>
+        <SectionWrap title="2. Select a series">
           <SeriesSelector />
         </SectionWrap>
 
         <SectionWrap title="3. Add Collateral">
           <Box direction="row" gap="small" fill="horizontal" align="center">
-            <InputWrap action={() => console.log('maxAction')} disabled={!selectedSeries}>
+            <InputWrap action={() => console.log('maxAction')} disabled={!selectedSeriesId}>
               <TextInput
                 plain
                 type="number"
-                placeholder={<PlaceholderWrap label="Enter amount" disabled={!selectedSeries} />}
+                placeholder={<PlaceholderWrap label="Enter amount" disabled={!selectedSeriesId} />}
                 // ref={(el:any) => { el && el.focus(); }}
                 value={collInputValue || ''}
                 onChange={(event:any) => setCollInputValue(event.target.value)}
-                disabled={!selectedSeries}
+                disabled={!selectedSeriesId}
               />
             </InputWrap>
             <Box basis={mobile ? '50%' : '35%'} fill>
@@ -132,35 +135,43 @@ const Borrow = () => {
           </Box>
         </SectionWrap>
 
-        <Box direction="row" justify="end">
-          <CheckBox
-            reverse
-            disabled
-            checked={createNewVault}
-            label={<Text size="small">Create new vault</Text>}
-            onChange={(event:any) => setCreateNewVault(event.target.checked)}
-          />
-        </Box>
-        {/*
         <SectionWrap>
-          <InputWrap>
-            <TextInput
-              plain
-              placeholder={<PlaceholderWrap label="Enter vaultID" />}
-                // ref={(el:any) => { el && el.focus(); }}
-              maxLength={12}
-              value={vaultIdValue || ''}
-              onChange={(event:any) => setVaultIdValue(event.target.value)}
-            />
-            <CheckBox
-              reverse
-              disabled
-              checked={createNewVault}
-              label={<Text size="small">Random</Text>}
-              onChange={(event:any) => setCreateNewVault(event.target.checked)}
-            />
-          </InputWrap>
-        </SectionWrap> */}
+
+          <Box gap="small" fill="horizontal">
+            <Box direction="row" justify="end">
+              <CheckBox
+                reverse
+                disabled={matchingVaults.length < 1}
+                checked={!vaultIdToUse || matchingVaults.length < 1}
+                label={<Text size="small">Create new vault</Text>}
+                onChange={() => setVaultIdToUse(undefined)}
+              />
+            </Box>
+
+            {
+              matchingVaults.length > 0 &&
+              <Box alignSelf="center">
+                <Text size="xsmall"> -------- or use existing vault ----------</Text>
+              </Box>
+            }
+
+            {
+              matchingVaults.map((x:IVault) => (
+                <Box direction="row" justify="end" key={x.id}>
+                  <CheckBox
+                    reverse
+                    // disabled={!selectedVaultId}
+                    checked={vaultIdToUse === x.id}
+                    label={<Text size="small">{x.id}</Text>}
+                    onChange={(event:any) => setVaultIdToUse(x.id)}
+                  />
+                </Box>
+              ))
+            }
+
+          </Box>
+
+        </SectionWrap>
 
         <ActionButtonGroup buttonList={[
           <Button
@@ -171,29 +182,14 @@ const Borrow = () => {
             disabled={borrowDisabled}
           />,
 
-          (
-            !activeVault
-              ?
-                <Button
-                  secondary
-                  label={<Text size={mobile ? 'small' : undefined}> Migrate Maker Vault</Text>}
-                  key="secondary"
-                />
-              :
-                <Box
-                  onClick={() => routerHistory.push(`/vault/${activeVault.id}`)}
-                  gap="medium"
-                  direction="row"
-                  alignSelf="center"
-                  key="tertiary"
-                >
-                  <FiArrowLeftCircle />
-                  <Text size="small"> back to vault: {activeVault.id} </Text>
-                </Box>
-          ),
+          <Button
+            secondary
+            disabled
+            label={<Text size={mobile ? 'small' : undefined}> Migrate Maker Vault</Text>}
+            key="secondary"
+          />,
         ]}
         />
-
       </MainViewWrap>
 
     </Keyboard>

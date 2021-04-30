@@ -21,24 +21,18 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface IOracleInterface extends ethers.utils.Interface {
   functions: {
-    "accrual(uint32)": FunctionFragment;
-    "record(uint32)": FunctionFragment;
-    "spot()": FunctionFragment;
+    "get()": FunctionFragment;
+    "peek()": FunctionFragment;
+    "source()": FunctionFragment;
   };
 
-  encodeFunctionData(
-    functionFragment: "accrual",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "record",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(functionFragment: "spot", values?: undefined): string;
+  encodeFunctionData(functionFragment: "get", values?: undefined): string;
+  encodeFunctionData(functionFragment: "peek", values?: undefined): string;
+  encodeFunctionData(functionFragment: "source", values?: undefined): string;
 
-  decodeFunctionResult(functionFragment: "accrual", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "record", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "spot", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "get", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "peek", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "source", data: BytesLike): Result;
 
   events: {};
 }
@@ -87,129 +81,120 @@ export class IOracle extends Contract {
   interface: IOracleInterface;
 
   functions: {
-    accrual(
-      maturity: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    "accrual(uint32)"(
-      maturity: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    record(
-      maturity: BigNumberish,
+    get(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "record(uint32)"(
-      maturity: BigNumberish,
+    "get()"(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    spot(overrides?: CallOverrides): Promise<[BigNumber]>;
+    peek(
+      overrides?: CallOverrides
+    ): Promise<
+      [BigNumber, BigNumber] & { price: BigNumber; updateTime: BigNumber }
+    >;
 
-    "spot()"(overrides?: CallOverrides): Promise<[BigNumber]>;
+    "peek()"(
+      overrides?: CallOverrides
+    ): Promise<
+      [BigNumber, BigNumber] & { price: BigNumber; updateTime: BigNumber }
+    >;
+
+    source(overrides?: CallOverrides): Promise<[string]>;
+
+    "source()"(overrides?: CallOverrides): Promise<[string]>;
   };
 
-  accrual(
-    maturity: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  "accrual(uint32)"(
-    maturity: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  record(
-    maturity: BigNumberish,
+  get(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "record(uint32)"(
-    maturity: BigNumberish,
+  "get()"(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  spot(overrides?: CallOverrides): Promise<BigNumber>;
+  peek(
+    overrides?: CallOverrides
+  ): Promise<
+    [BigNumber, BigNumber] & { price: BigNumber; updateTime: BigNumber }
+  >;
 
-  "spot()"(overrides?: CallOverrides): Promise<BigNumber>;
+  "peek()"(
+    overrides?: CallOverrides
+  ): Promise<
+    [BigNumber, BigNumber] & { price: BigNumber; updateTime: BigNumber }
+  >;
+
+  source(overrides?: CallOverrides): Promise<string>;
+
+  "source()"(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
-    accrual(
-      maturity: BigNumberish,
+    get(
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    ): Promise<
+      [BigNumber, BigNumber] & { price: BigNumber; updateTime: BigNumber }
+    >;
 
-    "accrual(uint32)"(
-      maturity: BigNumberish,
+    "get()"(
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    ): Promise<
+      [BigNumber, BigNumber] & { price: BigNumber; updateTime: BigNumber }
+    >;
 
-    record(maturity: BigNumberish, overrides?: CallOverrides): Promise<void>;
-
-    "record(uint32)"(
-      maturity: BigNumberish,
+    peek(
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<
+      [BigNumber, BigNumber] & { price: BigNumber; updateTime: BigNumber }
+    >;
 
-    spot(overrides?: CallOverrides): Promise<BigNumber>;
+    "peek()"(
+      overrides?: CallOverrides
+    ): Promise<
+      [BigNumber, BigNumber] & { price: BigNumber; updateTime: BigNumber }
+    >;
 
-    "spot()"(overrides?: CallOverrides): Promise<BigNumber>;
+    source(overrides?: CallOverrides): Promise<string>;
+
+    "source()"(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {};
 
   estimateGas: {
-    accrual(
-      maturity: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "accrual(uint32)"(
-      maturity: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    record(
-      maturity: BigNumberish,
+    get(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "record(uint32)"(
-      maturity: BigNumberish,
+    "get()"(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    spot(overrides?: CallOverrides): Promise<BigNumber>;
+    peek(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "spot()"(overrides?: CallOverrides): Promise<BigNumber>;
+    "peek()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    source(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "source()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    accrual(
-      maturity: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "accrual(uint32)"(
-      maturity: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    record(
-      maturity: BigNumberish,
+    get(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "record(uint32)"(
-      maturity: BigNumberish,
+    "get()"(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    spot(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    peek(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "spot()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    "peek()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    source(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "source()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

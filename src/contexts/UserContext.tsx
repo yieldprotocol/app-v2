@@ -1,30 +1,30 @@
-import React, { useState, useContext, useEffect, useReducer, useCallback } from 'react';
+import React, { useContext, useEffect, useReducer, useCallback } from 'react';
 import { ethers } from 'ethers';
-import { toast } from 'react-toastify';
 
-import { IYieldAsset, IYieldSeries, IYieldVault } from '../types';
+import { IAssetRoot, ISeriesRoot, IVaultRoot, ISeries, IAsset, IVault, IUserContextState, IUserContext } from '../types';
 
 import { ChainContext } from './ChainContext';
-import { useCachedState } from '../hooks';
 import { cleanValue, genVaultImage } from '../utils/displayUtils';
+import { calculateAPR, floorDecimal, secondsToFrom, sellFYToken } from '../utils/yieldMath';
 
 const UserContext = React.createContext<any>({});
 
-const initState = {
-
-  vaultMap: new Map() as Map<string, IYieldVault>,
-  activeVault: null as IYieldVault|null,
-  activeAccount: null as string|null,
-
-  /* user selections */
-  selectedSeries: null as IYieldSeries|null,
-  selectedIlk: null as IYieldAsset|null,
-  selectedBase: null as IYieldAsset|null,
-
+const initState : IUserContextState = {
+  /* activeAccount */
+  activeAccount: null,
+  /* Item maps */
+  assetMap: new Map<string, IAsset>(),
+  seriesMap: new Map<string, ISeries>(),
+  vaultMap: new Map<string, IVault>(),
+  /* Current User selections */
+  selectedSeriesId: null,
+  selectedIlkId: null,
+  selectedBaseId: null,
+  selectedVaultId: null,
 };
 
 function userReducer(state:any, action:any) {
-  /* Helper: only change the state if different from existing */
+  /* Helper: only change the state if different from existing */ // TODO if even reqd.?
   const onlyIfChanged = (_action: any) => (
     state[action.type] === _action.payload
       ? state[action.type]
@@ -34,98 +34,237 @@ function userReducer(state:any, action:any) {
   /* Reducer switch */
   switch (action.type) {
     case 'userLoading': return { ...state, seriesLoading: onlyIfChanged(action) };
-
-    case 'vaultMap': return { ...state, vaultMap: onlyIfChanged(action) };
-    case 'activeVault': return { ...state, activeVault: onlyIfChanged(action) };
     case 'activeAccount': return { ...state, activeAccount: onlyIfChanged(action) };
 
-    case 'selectedSeries': return { ...state, selectedSeries: onlyIfChanged(action) };
-    case 'selectedIlk': return { ...state, selectedIlk: onlyIfChanged(action) };
-    case 'selectedBase': return { ...state, selectedBase: onlyIfChanged(action) };
+    case 'selectedVaultId': return { ...state, selectedVaultId: onlyIfChanged(action) };
+    case 'selectedSeriesId': return { ...state, selectedSeriesId: onlyIfChanged(action) };
+    case 'selectedIlkId': return { ...state, selectedIlkId: onlyIfChanged(action) };
+    case 'selectedBaseId': return { ...state, selectedBaseId: onlyIfChanged(action) };
+
+    case 'assetMap': return { ...state, assetMap: onlyIfChanged(action) };
+    case 'seriesMap': return { ...state, seriesMap: onlyIfChanged(action) };
+    case 'vaultMap': return { ...state, vaultMap: onlyIfChanged(action) };
 
     default: return state;
   }
 }
 
 const UserProvider = ({ children }:any) => {
-  // const [cachedVaults, setCachedVaults] = useCachedState('vaults', { data: [], lastBlock: Number(process.env.REACT_APP_DEPLOY_BLOCK) });
+  // TODO const [cachedVaults, setCachedVaults] = useCachedState('vaults', { data: [], lastBlock: Number(process.env.REACT_APP_DEPLOY_BLOCK) });
   const { chainState } = useContext(ChainContext);
   const {
     contractMap,
     account,
     chainLoading,
-    fallbackProvider,
-    seriesMap,
-    assetMap,
+    seriesRootMap,
+    assetRootMap,
   } = chainState;
 
   const [userState, updateState] = useReducer(userReducer, initState);
 
-  useEffect(() => {
-    /* when there is an account and the chainContext is finsihed loading get the vaults */
-    account &&
-    !chainLoading &&
-    (async () => {
-      const Cauldron = contractMap.get('Cauldron');
-      const filter = Cauldron.filters.VaultBuilt(null, account, null);
-      const eventList = await Cauldron.queryFilter(filter, 1);
-      // const eventList = await Cauldron.queryFilter(filter, cachedVaults.lastBlock);
+  /* internal function for getting the users vaults */
+  const _getVaults = useCallback(async (fromBlock:number = 1) => {
+    const Cauldron = contractMap.get('Cauldron');
+    const filter = Cauldron.filters.VaultBuilt(null, account, null);
+    const eventList = await Cauldron.queryFilter(filter, fromBlock);
+    // const eventList = await Cauldron.queryFilter(filter, cachedVaults.lastBlock);
+    const vaultList : IVaultRoot[] = await Promise.all(eventList.map(async (x:any) : Promise<IVaultRoot> => {
+      const { vaultId: id, ilkId, seriesId } = Cauldron.interface.parseLog(x).args;
+      const series = seriesRootMap.get(seriesId);
+      // const baseId = assetRootMap.get(series.baseId);
+      return {
+        id,
+        seriesId,
+        baseId: series.baseId,
+        ilkId,
+        image: genVaultImage(id),
+      };
+    }));
 
-      const vaultList : IYieldVault[] = await Promise.all(eventList.map(async (x:any) : Promise<IYieldVault> => {
-        const { vaultId: id, ilkId, seriesId } = Cauldron.interface.parseLog(x).args;
-        /* Add in the extra variable vault data */
-        const { ink, art } = await Cauldron.balances(id);
-        const series = seriesMap.get(seriesId);
+    // TODO const _combined: IVaultRoot[] = [...vaultList, ...cachedVaults];
+    const newVaultMap = vaultList.reduce((acc:any, item:any) => {
+      const _map = acc;
+      _map.set(item.id, item);
+      return _map;
+    }, new Map()) as Map<string, IVaultRoot>;
+
+    return newVaultMap;
+    /* Update the local cache storage */
+    // TODO setCachedVaults({ data: Array.from(newVaultMap.values()), lastBlock: await fallbackProvider.getBlockNumber() });
+  }, [account, contractMap, seriesRootMap]);
+
+  /* Updates the series with relevant *user* data */
+  const updateSeries = useCallback(async (seriesList: ISeriesRoot[]) => {
+    let _publicData : ISeries[] = [];
+    let _accountData : ISeries[] = [];
+
+    /* Add in the dynamic series data of the series in the list */
+    _publicData = await Promise.all(
+      seriesList.map(async (series:ISeriesRoot) : Promise<ISeries> => {
+        /* Get all the data simultanenously in a promise.all */
+        const [baseReserves, fyTokenReserves, fyTokenRealReserves] = await Promise.all([
+          series.poolContract.getBaseTokenReserves(),
+          series.poolContract.getFYTokenReserves(),
+          series.fyTokenContract.balanceOf(series.poolAddress),
+        ]);
+
+        const _rate = sellFYToken(
+          baseReserves,
+          fyTokenReserves,
+          ethers.utils.parseEther('1'),
+          secondsToFrom(series.maturity.toString()),
+        );
+        const APR = calculateAPR(floorDecimal(_rate), ethers.utils.parseEther('1'), series.maturity) || '0';
+
         return {
-          id,
-          series,
+          ...series,
+          baseReserves,
+          fyTokenReserves,
+          fyTokenRealReserves,
+          APR: `${Number(APR).toFixed(2)}`,
+        };
+      }),
+    );
+
+    if (account) {
+      _accountData = await Promise.all(
+        _publicData.map(async (series:ISeries) : Promise<ISeries> => {
+          /* Get all the data simultanenously in a promise.all */
+          const [poolTokens, fyTokenBalance] = await Promise.all([
+            series.poolContract.balanceOf(account),
+            series.fyTokenContract.balanceOf(account),
+          ]);
+          return {
+            ...series,
+            poolTokens,
+            fyTokenBalance,
+            poolTokens_: ethers.utils.formatEther(poolTokens),
+            fyTokenBalance_: ethers.utils.formatEther(fyTokenBalance),
+          };
+        }),
+      );
+    }
+
+    const _combinedData = _accountData.length ? _accountData : _publicData;
+
+    /* combined account and public series data  reduced into a single Map */
+    const newseriesRootMap = new Map(_combinedData.reduce((acc:any, item:any) => {
+      const _map = acc;
+      _map.set(item.id, item);
+      return _map;
+    }, userState.seriesMap));
+
+    updateState({ type: 'seriesMap', payload: newseriesRootMap });
+    console.log('Series with user data: ', newseriesRootMap);
+    return newseriesRootMap;
+  }, [account]);
+
+  /* Updates the assets with relevant *user* data */
+  const updateAssets = useCallback(async (assetList: IAssetRoot[]) => {
+    /* add in the dynamic asset data of the assets in the list */
+    const assetListMod = await Promise.all(
+      assetList.map(async (asset:IAssetRoot) : Promise<IAsset> => {
+        const balance = asset.getBalance();
+        return {
+          ...asset,
+          balance: balance || ethers.constants.Zero,
+          balance_: cleanValue(ethers.utils.formatEther(ethers.constants.Zero), 2), // for display purposes only
+        };
+      }),
+    );
+      /* get the previous version (Map) of the vaultMap and update it */
+    const newassetRootMap = new Map(assetListMod.reduce((acc:any, item:any) => {
+      const _map = acc;
+      _map.set(item.id, item);
+      return _map;
+    }, userState.assetMap));
+
+    updateState({ type: 'assetMap', payload: newassetRootMap });
+    console.log('Assets with user data: ', newassetRootMap);
+  }, []);
+
+  /* Updates the vaults with *user* data */
+  const updateVaults = useCallback(async (vaultList: IVaultRoot[]) => {
+    const Cauldron = contractMap.get('Cauldron');
+    /* add in the dynamic vault data by mapping the vaults list */
+    const vaultListMod = await Promise.all(
+      vaultList.map(async (vault:IVaultRoot) : Promise<IVault> => {
+        const { ink, art } = await Cauldron.balances(vault.id);
+        return {
+          ...vault,
           ink,
           art,
-          ilk: assetMap.get(ilkId),
-          base: assetMap.get(series.baseId),
           ink_: cleanValue(ethers.utils.formatEther(ink), 2), // for display purposes only
           art_: cleanValue(ethers.utils.formatEther(art), 2), // for display purposes only
-          image: genVaultImage(id),
         };
-      }));
+      }),
+    );
+      /* get the previous version (Map) of the vaultMap and update it */
+    const newVaultMap = new Map(vaultListMod.reduce((acc:any, item:any) => {
+      const _map = acc;
+      _map.set(item.id, item);
+      return _map;
+    }, userState.vaultMap));
 
-      // const _combined = [...cachedVaults.data, ...vaultList];
-      const _combined: IYieldVault[] = [...vaultList];
-      const newVaultMap = _combined.reduce((acc:any, item:any) => {
-        const _map = acc;
-        _map.set(item.id, item);
-        return _map;
-      }, userState.vaultMap) as Map<string, IYieldVault>;
+    updateState({ type: 'vaultMap', payload: newVaultMap });
+    console.log('VAULTS: ', newVaultMap);
+  }, [contractMap]);
 
-      console.log('VAULTS: ', newVaultMap);
-      updateState({ type: 'vaultMap', payload: newVaultMap });
-      // updateState({ type: 'activeVault', payload: newVaultMap.get(_combined[0]?.id) });
+  useEffect(() => {
+    /* When the chainContext is finished loading get the dynamic series data */
+    !chainLoading &&
+    Array.from(seriesRootMap.values()).length &&
+    updateSeries(Array.from(seriesRootMap.values()));
+  }, [
+    account,
+    chainLoading,
+    seriesRootMap, updateSeries,
+  ]);
 
-      /* Update the local cache storage */
-      // setCachedVaults({ data: Array.from(newVaultMap.values()), lastBlock: await fallbackProvider.getBlockNumber() });
-    })();
-  }, [account, chainLoading, contractMap, userState.vaultMap, assetMap, seriesMap]);
+  useEffect(() => {
+    /* When the chainContext is finished loading get the dynamic asset data and vaults */
+    if (account && !chainLoading) {
+      Array.from(assetRootMap.values()).length && updateAssets(Array.from(assetRootMap.values()));
+      _getVaults().then((_vaults:any) => updateVaults(Array.from(_vaults.values())));
+    }
+  }, [
+    account, chainLoading,
+    assetRootMap, updateAssets,
+    _getVaults, updateVaults,
+  ]);
 
-  /* subscribe to vault event listeners */
+  /* Subscribe to vault event listeners */
   useEffect(() => {
     updateState({ type: 'activeAccount', payload: account });
   }, [account]);
 
+  /* Watch the vault selector and chnage selected series/assets accordingly */
+  useEffect(() => {
+    if (userState.activeVault) {
+      updateState({ type: 'selectedSeriesId', payload: userState.activeVault.series.id });
+      updateState({ type: 'selectedBaseId', payload: userState.activeVault.base.id });
+    }
+  }, [userState.activeVault]);
+
   /* set initial state */
   useEffect(() => {
-    !chainLoading && updateState({ type: 'selectedBase', payload: assetMap.get('0x444149000000') });
-    !chainLoading && updateState({ type: 'selectedIlk', payload: assetMap.get('0x455448000000') });
-  }, [chainLoading, assetMap]);
+    !chainLoading && updateState({ type: 'selectedBaseId', payload: assetRootMap.get('0x444149000000').id });
+    !chainLoading && updateState({ type: 'selectedIlkId', payload: assetRootMap.get('0x455448000000').id });
+  }, [chainLoading, assetRootMap]);
 
+  /* Exposed userActions */
   const userActions = {
-    setActiveVault: (vault:IYieldVault) => updateState({ type: 'activeVault', payload: vault }),
-    setSelectedIlk: (asset:IYieldAsset) => updateState({ type: 'selectedIlk', payload: asset }),
-    setSelectedSeries: (series:IYieldSeries) => updateState({ type: 'selectedSeries', payload: series }),
-    setSelectedBase: (asset:IYieldAsset) => updateState({ type: 'selectedBase', payload: asset }),
+    updateSeries,
+    updateAssets,
+    updateVaults,
+    setSelectedVault: (vaultId:string|null) => updateState({ type: 'selectedVaultId', payload: vaultId }),
+    setSelectedIlk: (assetId:string) => updateState({ type: 'selectedIlkId', payload: assetId }),
+    setSelectedSeries: (seriesId:string) => updateState({ type: 'selectedSeriesId', payload: seriesId }),
+    setSelectedBase: (assetId:string) => updateState({ type: 'selectedBaseId', payload: assetId }),
   };
 
   return (
-    <UserContext.Provider value={{ userState, userActions }}>
+    <UserContext.Provider value={{ userState, userActions } as IUserContext}>
       {children}
     </UserContext.Provider>
   );

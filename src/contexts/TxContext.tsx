@@ -1,11 +1,13 @@
 import React, { useReducer, useEffect } from 'react';
 import { ethers, ContractTransaction } from 'ethers';
 import { toast } from 'react-toastify';
-import { ISigData } from '../types';
+import { ISignData } from '../types';
 
 const TxContext = React.createContext<any>({});
 
 const initState = {
+
+  /* transaction lists */
   signatures: new Map([]) as Map<string, IYieldSignature>,
   transactions: new Map([]) as Map<string, IYieldTx>,
   processes: [] as string[],
@@ -21,7 +23,7 @@ const initState = {
 interface IYieldSignature {
   uid: string;
   txCode: string;
-  sigData: ISigData;
+  sigData: ISignData;
   status: 'pending'| 'success' | 'rejected' | 'failed';
 }
 
@@ -79,6 +81,7 @@ function txReducer(_state:any, action:any) {
 
 const TxProvider = ({ children }:any) => {
   const [txState, updateState] = useReducer(txReducer, initState);
+
   /* handle case when user or wallet rejects the tx (before submission) */
   const _handleTxRejection = (err:any, txCode:string) => {
     updateState({ type: '_endProcess', payload: txCode });
@@ -140,7 +143,7 @@ const TxProvider = ({ children }:any) => {
   const handleSign = async (
     signFn:()=>Promise<any>,
     fallbackFn:()=>Promise<any>,
-    sigData: ISigData,
+    sigData: ISignData,
     txCode: string,
   ) => {
     const uid = ethers.utils.hexlify(ethers.utils.randomBytes(6));
@@ -161,7 +164,7 @@ const TxProvider = ({ children }:any) => {
 
   /* process watcher */
   useEffect(() => {
-    console.log(txState.processes);
+    console.log('Process list: ', txState.processes);
   }, [txState.processes]);
 
   /* signing watcher */

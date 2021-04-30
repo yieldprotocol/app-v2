@@ -199,6 +199,25 @@ const _abi = [
       {
         indexed: true,
         internalType: "bytes6",
+        name: "seriesId",
+        type: "bytes6",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "rateAtMaturity",
+        type: "uint256",
+      },
+    ],
+    name: "SeriesMatured",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes6",
         name: "baseId",
         type: "bytes6",
       },
@@ -448,6 +467,25 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes6",
+        name: "seriesId",
+        type: "bytes6",
+      },
+    ],
+    name: "accrual",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -813,12 +851,12 @@ const _abi = [
     name: "level",
     outputs: [
       {
-        internalType: "int128",
+        internalType: "int256",
         name: "",
-        type: "int128",
+        type: "int256",
       },
     ],
-    stateMutability: "view",
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -830,6 +868,19 @@ const _abi = [
       },
     ],
     name: "lockRole",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes6",
+        name: "seriesId",
+        type: "bytes6",
+      },
+    ],
+    name: "mature",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -897,6 +948,25 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes6",
+        name: "",
+        type: "bytes6",
+      },
+    ],
+    name: "ratesAtMaturity",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes4",
         name: "role",
         type: "bytes4",
@@ -939,13 +1009,13 @@ const _abi = [
       },
       {
         internalType: "bytes6",
-        name: "seriesId",
+        name: "newSeriesId",
         type: "bytes6",
       },
       {
-        internalType: "int128",
+        internalType: "uint128",
         name: "art",
-        type: "int128",
+        type: "uint128",
       },
     ],
     name: "roll",

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ContractFactory, ethers, utils } from 'ethers';
+import { ContractFactory, ethers } from 'ethers';
 import { useWeb3React } from '@web3-react/core';
 import { InjectedConnector } from '@web3-react/injected-connector';
 import { NetworkConnector } from '@web3-react/network-connector';
@@ -8,26 +8,26 @@ import { useCachedState } from '../hooks';
 
 import * as yieldEnv from './yieldEnv.json';
 import * as contracts from '../contracts';
-import { IYieldAsset, IYieldSeries } from '../types';
+import { IAssetRoot, ISeriesRoot } from '../types';
 import { nameFromMaturity } from '../utils/displayUtils';
+import { Pool } from '../contracts';
 
 /* Set up web3react config */
 const POLLING_INTERVAL = 12000;
 const RPC_URLS: { [chainId: number]: string } = {
   1: process.env.REACT_APP_RPC_URL_1 as string,
   42: process.env.REACT_APP_RPC_URL_42 as string,
+  1337: process.env.REACT_APP_RPC_URL_1337 as string,
   31337: process.env.REACT_APP_RPC_URL_31337 as string,
 };
 
 const connectors = new Map();
-
 connectors.set(
   'injected',
   new InjectedConnector({
-    supportedChainIds: [31337],
+    supportedChainIds: [1, 1337, 31337],
   }),
 );
-
 connectors.set(
   'walletconnect',
   new WalletConnectConnector({
@@ -37,14 +37,6 @@ connectors.set(
     pollingInterval: POLLING_INTERVAL,
   }),
 );
-
-// connectors.set(
-//   'networkconnect',
-//   new NetworkConnector({
-//     urls: { 1: RPC_URLS[1], 42: RPC_URLS[42], 31337: RPC_URLS[31337] },
-//     defaultChainId: 31337,
-//   }),
-// );
 
 /* Build the context */
 const ChainContext = React.createContext<any>({});
@@ -66,9 +58,8 @@ const initState = {
 
   /* Connected Contract Maps */
   contractMap: new Map<string, ContractFactory>(),
-  assetMap: new Map<string, IYieldAsset>(),
-  seriesMap: new Map<string, IYieldSeries>(),
-
+  assetRootMap: new Map<string, IAssetRoot>(),
+  seriesRootMap: new Map<string, ISeriesRoot>(),
 };
 
 function chainReducer(state: any, action: any) {
@@ -93,11 +84,11 @@ function chainReducer(state: any, action: any) {
     case 'contractMap': return { ...state, contractMap: onlyIfChanged(action) };
     case 'addSeries': return {
       ...state,
-      seriesMap: state.seriesMap.set(action.payload.id, action.payload),
+      seriesRootMap: state.seriesRootMap.set(action.payload.id, action.payload),
     };
     case 'addAsset': return {
       ...state,
-      assetMap: state.assetMap.set(action.payload.id, action.payload),
+      assetRootMap: state.assetRootMap.set(action.payload.id, action.payload),
     };
 
     /* special internal case for multi-updates - might remove from this context if not needed */
@@ -108,7 +99,7 @@ function chainReducer(state: any, action: any) {
 
 const ChainProvider = ({ children }: any) => {
   const [chainState, updateState] = React.useReducer(chainReducer, initState);
-  const [lastChainId, setLastChainId] = useCachedState('lastChainId', 31337);
+  const [lastChainId, setLastChainId] = useCachedState('lastChainId', 1);
   const [lastBlock, setLastBlock] = useCachedState('lastBlock', 1);
 
   const [tried, setTried] = useState<boolean>(false);
@@ -140,28 +131,33 @@ const ChainProvider = ({ children }: any) => {
   // TODO add in caching
   useEffect(() => {
     fallbackLibrary && updateState({ type: 'fallbackProvider', payload: fallbackLibrary });
-    fallbackChainId && console.log('fallback chainID :', fallbackChainId);
+
+    // fallbackChainId && console.log('fallback chainID :', fallbackChainId);
+    // chainId && console.log('chainID :', chainId);
 
     if (fallbackLibrary && fallbackChainId) {
       /* Get the instance of the Base contracts */
       const addrs = (yieldEnv.addresses as any)[fallbackChainId];
       const Cauldron = contracts.Cauldron__factory.connect(addrs.Cauldron, fallbackLibrary);
       const Ladle = contracts.Ladle__factory.connect(addrs.Ladle, fallbackLibrary);
+      const PoolRouter = contracts.PoolRouter__factory.connect(addrs.PoolRouter, fallbackLibrary);
 
       /* Update the baseContracts state : ( hardcoded based on networkId ) */
       const newContractMap = chainState.contractMap;
       newContractMap.set('Cauldron', Cauldron);
       newContractMap.set('Ladle', Ladle);
+      newContractMap.set('PoolRouter', PoolRouter);
       updateState({ type: 'contractMap', payload: newContractMap });
 
       /* Update the 'dynamic' contracts (series and assets) */
       Promise.all([
-
         /* Update the available assetsMap based on Cauldron events */
         (async () => {
-          /* get both poolAdded events and series events at the same time */
-          const [assetAddedEvents, joinAddedEvents] = await Promise.all([
-            await Cauldron.queryFilter('AssetAdded' as any),
+          /* get all the assetAdded, roacleAdded and joinAdded events and series events at the same time */
+          const [assetAddedEvents, spotOracleAddedEvents, rateOracleAddedEvents, joinAddedEvents] = await Promise.all([
+            Cauldron.queryFilter('AssetAdded' as any),
+            Cauldron.queryFilter('SpotOracleAdded' as any),
+            Cauldron.queryFilter('RateOracleAdded' as any),
             Ladle.queryFilter('JoinAdded' as any),
           ]);
 
@@ -170,17 +166,27 @@ const ChainProvider = ({ children }: any) => {
             joinAddedEvents.map((log:any) => Ladle.interface.parseLog(log).args) as [[string, string]],
           );
 
+          /* Create a map from the rateOracleAdded event data */
+          // event RateOracleAdded(bytes6 indexed baseId, address indexed oracle);
+          const rateOracleMap: Map<string, string> = new Map(
+            rateOracleAddedEvents.map((log:any) => Cauldron.interface.parseLog(log).args) as [[string, string]],
+          );
+
+          /* Create a map from the spotOracleAdded event data : structure>  Map[ string, Map[string, [address, string ]]] */
+          // event SpotOracleAdded(bytes6 indexed baseId, bytes6 indexed ilkId, address indexed oracle, uint32 ratio);
+          const spotOracleMap: Map<string, string> = new Map(
+            spotOracleAddedEvents.map((log:any) => {
+              const { args } = Cauldron.interface.parseLog(log);
+              // const _map = new Map([args[1], [args[2], args[3]]]);
+              return [args[0], args[3]];
+            }) as [[string, string]],
+          );
+
           await Promise.all(assetAddedEvents.map(async (x:any) => {
             const { assetId: id, asset: address } = Cauldron.interface.parseLog(x).args;
             const ERC20 = contracts.ERC20__factory.connect(address, fallbackLibrary);
-            /* Add in any extra static asset Data */ // TODO is there any other fixed series data?
-            let displayName: String;
-            let symbol: String;
-            try {
-              [displayName, symbol] = await Promise.all([ERC20.name(), ERC20.symbol()]);
-            } catch (e) {
-              [displayName, symbol] = ['ETH', 'ETH']; // TODO get rid of this... weth9 should handle this capability
-            }
+            /* Add in any extra static asset Data */ // TODO is there any other fixed asset data needed?
+            const [displayName, symbol] = await Promise.all([ERC20.name(), ERC20.symbol()]);
             updateState({ type: 'addAsset',
               payload: {
                 id,
@@ -188,11 +194,14 @@ const ChainProvider = ({ children }: any) => {
                 displayName,
                 symbol,
                 joinAddress: joinMap.get(id),
+                /* baked in token fns */
+                getBalance: async () => account && await ERC20.balanceOf(account),
+                getAllowance: async (spender:string) => account && await ERC20.allowance(account, spender),
               } });
           }));
         })(),
 
-        /* ... AT THE SAME TIME update the available seriesMap based on Cauldron events */
+        /* ... AT THE SAME TIME update the available seriesRootMap based on Cauldron events */
         (async () => {
           /* get both poolAdded events and series events at the same time */
           const [seriesAddedEvents, poolAddedEvents] = await Promise.all([
@@ -200,43 +209,51 @@ const ChainProvider = ({ children }: any) => {
             Ladle.queryFilter('PoolAdded' as any),
           ]);
 
-          /* create a map from the poolAdded event data */
+          /* build a map from the poolAdded event data */
           const poolMap: Map<string, string> = new Map(
             poolAddedEvents.map((log:any) => Ladle.interface.parseLog(log).args) as [[string, string]],
           );
 
           /* Add in any extra static series */
-          await Promise.all(
-            seriesAddedEvents.map(async (x:any) : Promise<void> => {
+          await Promise.all([
+            ...seriesAddedEvents.map(async (x:any) : Promise<void> => {
               const { seriesId: id, baseId, fyToken } = Cauldron.interface.parseLog(x).args;
               const { maturity } = await Cauldron.series(id);
+
+              const poolAddress: string = poolMap.get(id) as string;
+              const poolContract: Pool = contracts.Pool__factory.connect(poolAddress, fallbackLibrary);
+              const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackLibrary);
+
               updateState({
                 type: 'addSeries',
                 payload: {
                   id,
                   baseId,
-                  fyToken,
                   maturity,
                   displayName: nameFromMaturity(maturity),
                   displayNameMobile: nameFromMaturity(maturity, 'MMM yyyy'),
-                  pool: poolMap.get(id) || '',
+                  fyTokenContract,
+                  fyTokenAddress: fyToken,
+                  poolAddress,
+                  poolContract,
+                  getBaseAddress: () => chainState.assetRootMap.get(baseId).address, // TODO refactor to get this static - if poosible?
                 } });
             }),
-          );
+          ]);
         })(),
-
       ])
         .then(() => {
           updateState({ type: 'chainLoading', payload: false });
-          console.log('ASSETS:', chainState.assetMap);
-          console.log('SERIES:', chainState.seriesMap);
+          console.log('ASSETS:', chainState.assetRootMap);
+          console.log('SERIES:', chainState.seriesRootMap);
         });
     }
   }, [
+    account,
     fallbackChainId,
     fallbackLibrary,
-    chainState.assetMap,
-    chainState.seriesMap,
+    chainState.assetRootMap,
+    chainState.seriesRootMap,
     chainState.contractMap,
   ]);
 
@@ -244,9 +261,9 @@ const ChainProvider = ({ children }: any) => {
    * Once the series list updates, update the list with the associated joins > this needs to be seperate from above to
    * allow for caching - and watching for any newly added assets
    */
-  useEffect(() => {
-    chainState.seriesMap && console.log(chainState.seriesMap);
-  }, [chainState.seriesMap]);
+  // useEffect(() => {
+  //   chainState.seriesRootMap && console.log(chainState.seriesRootMap);
+  // }, [chainState.seriesRootMap]);
 
   /**
    * Update on PRIMARY connection any network changes (likely via metamask/walletConnect)
@@ -272,7 +289,7 @@ const ChainProvider = ({ children }: any) => {
     /* Connect the fallback */
     tried && fallbackActivate(
       new NetworkConnector({
-        urls: { 1: RPC_URLS[1], 42: RPC_URLS[42], 31337: RPC_URLS[31337] },
+        urls: { 1: RPC_URLS[1], 42: RPC_URLS[42], 31337: RPC_URLS[31337], 1337: RPC_URLS[1337] },
         defaultChainId: _chainId,
       }), (e:any) => console.log(e), true,
     );

@@ -4,7 +4,7 @@ import { Box, Button, Collapsible, Menu, ResponsiveContext, Text, TextInput } fr
 import { useHistory } from 'react-router-dom';
 import { UserContext } from '../contexts/UserContext';
 import MainViewWrap from '../components/wraps/MainViewWrap';
-import { IYieldSeries } from '../types';
+import { ISeriesRoot } from '../types';
 import SectionWrap from '../components/wraps/SectionWrap';
 import AllMarkets from '../components/AllMarkets';
 import MarketSupply from '../components/MarketSupply';
@@ -21,7 +21,7 @@ const Markets = () => {
   const [inputValue, setInputValue] = useState<any>(undefined);
   const [expanded, setExpanded] = useState<any>(undefined);
 
-  const [availableVault, setAvailableVaults] = useState<IYieldSeries[]>([]);
+  const [availableVault, setAvailableVaults] = useState<ISeriesRoot[]>([]);
 
   /* init effects */
   useEffect(() => {

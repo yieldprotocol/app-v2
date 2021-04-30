@@ -50,7 +50,7 @@ interface WitchInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "ladle", data: BytesLike): Result;
 
   events: {
-    "Bought(address,bytes12,uint128,uint128)": EventFragment;
+    "Bought(address,bytes12,uint256,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Bought"): EventFragment;

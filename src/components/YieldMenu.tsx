@@ -3,9 +3,7 @@ import { Box, Button, Header, Image, Text } from 'grommet';
 import styled, { CSSProperties, ThemeContext } from 'styled-components';
 import { useHistory } from 'react-router-dom';
 import { UserContext } from '../contexts/UserContext';
-import { IMenuProps, IYieldVault, View } from '../types';
-import VaultImage from './VaultImage';
-import { genVaultImage } from '../utils/displayUtils';
+import { IUserContext, IVault, IVaultRoot, View } from '../types';
 
 const StyledBox = styled(Box)`
   text-decoration: none;
@@ -20,9 +18,12 @@ const StyledBox = styled(Box)`
   }
 `;
 
-const YieldMenu = ({ toggleMenu }: IMenuProps) => {
+const YieldMenu = ({ toggleMenu }: { toggleMenu: ()=>void }) => {
   /* state from contexts */
-  const { userState: { vaultMap, activeVault }, userActions: { setActiveVault } } = useContext(UserContext);
+  const { userState, userActions } = useContext(UserContext) as IUserContext;
+  const { vaultMap } = userState;
+  const { setSelectedVault } = userActions;
+
   const routerHistory = useHistory();
   const theme = useContext<any>(ThemeContext);
   const textColor = theme.global.colors.brand;
@@ -34,11 +35,11 @@ const YieldMenu = ({ toggleMenu }: IMenuProps) => {
   } as CSSProperties;
 
   /* local state */
-  const [vaultsArray, setVaultsArray] = useState<IYieldVault[]>(Array.from(vaultMap.values() as IYieldVault[]));
+  const [vaultsArray, setVaultsArray] = useState<IVault[]>(Array.from(vaultMap.values()));
   const [view, setView] = useState<View>(vaultsArray.length > 0 ? View.vaults : View.account);
 
   const handleSelect = (vaultId:string) => {
-    setActiveVault(vaultMap.get(vaultId));
+    setSelectedVault(vaultId);
     routerHistory.push(`/vault/${vaultId}`);
     toggleMenu();
   };
@@ -78,7 +79,7 @@ const YieldMenu = ({ toggleMenu }: IMenuProps) => {
         {
           view === View.vaults &&
           <Box gap="medium">
-            { vaultsArray.map((x:IYieldVault) => (
+            { vaultsArray.map((x:IVaultRoot) => (
               <Box
                 key={x.id}
                 pad="small"
@@ -91,7 +92,7 @@ const YieldMenu = ({ toggleMenu }: IMenuProps) => {
                   <Image src={x.image} />
                 </Box>
                 <Box align="center" fill="horizontal">
-                  <Text size="small"> {x.id} {x.series.displayNameMobile} </Text>
+                  <Text size="small"> {x.id} {x.seriesId} </Text>
                 </Box>
               </Box>
             ))}

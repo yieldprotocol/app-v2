@@ -1,69 +1,117 @@
-import { ethers, BigNumber, ContractFactory } from 'ethers';
+import { ethers, BigNumber } from 'ethers';
+import { ERC20, FYToken, Pool } from '../contracts';
 
-export enum TradeType {
-  BUY = 'BUY',
-  SELL = 'SELL',
+export interface IUserContext {
+  userState : IUserContextState;
+  userActions : IUserContextActions;
 }
 
-export interface IYieldSeries {
-  // reqd/fixed:
+export interface IUserContextState {
+  activeAccount: string|null;
+
+  assetMap: Map<string, IAsset>;
+  seriesMap: Map<string, ISeries>;
+  vaultMap: Map<string, IVault>;
+
+  selectedSeriesId: string|null;
+  selectedIlkId: string|null;
+  selectedBaseId: string|null;
+  selectedVaultId: string|null;
+}
+
+export interface IUserContextActions {
+
+  updateVaults: (vaultList: IVault[]) => void;
+  updateSeries: (seriesList: ISeries[]) => void;
+  updateAssets: (assetList: IAsset[]) => void;
+
+  setSelectedSeries: (seriesId: string) => void;
+  setSelectedIlk: (ilkId: string) => void;
+  setSelectedBase: (baseId: string) => void;
+  setSelectedVault: (vaultId: string) => void;
+}
+
+export interface ISeriesRoot {
+  // fixed/static:
   id: string;
   displayName: string;
   displayNameMobile: string;
   maturity: number;
-  fyToken:string;
-  pool:string;
+  maturityDate: Date;
+  fyTokenContract: FYToken;
+  fyTokenAddress: string;
+  poolContract:Pool;
+  poolAddress: string;
   baseId: string;
-
-  contract?: ContractFactory;
-  // optional/calculated/mutable:
-  maturityDate?: Date;
-  apr?: string;
+  // baked in token fns
+  getBaseAddress: ()=> string; // antipattern, but required here because app simulatneoulsy gets assets and series
 }
 
-export interface IYieldAsset {
-  // reqd/fixed:
-  id: number;
+export interface IAssetRoot {
+  // fixed/static:
+  id: string;
   symbol: string;
   displayName: string;
   displayNameMobile: string;
   address: string;
-  // optional/calculated/mutable:
+  joinAddress: string,
+  // baked in token fns
+  getBalance: ()=>BigNumber,
+  getAllowance: (spender: string)=>BigNumber,
 }
 
-export interface IYieldVault {
+export interface IVaultRoot {
   id: string;
-  ilk: IYieldAsset;
-  base: IYieldAsset;
-  series: IYieldSeries;
-  ink: BigNumber;
-  art: BigNumber;
-
-  ink_: string;
-  art_: string;
-
+  ilkId: string;
+  baseId: string;
+  seriesId: string;
   image: string;
   displayId? : string;
+  name?: string;
+}
 
+export interface ISeries extends ISeriesRoot {
+  APR: string;
+  baseReserves: BigNumber;
+  fyTokenReserves: BigNumber;
+  fyTokenRealReserves: BigNumber;
+  poolTokens?: BigNumber|undefined;
+  poolTokens_?: string|undefined;
+  fyTokenBalance? : BigNumber|undefined;
+  fyTokenBalance_? : string|undefined;
+}
+
+export interface IAsset extends IAssetRoot {
+  balance: BigNumber;
+  balance_: string;
+}
+
+export interface IVault extends IVaultRoot {
+  ink: BigNumber;
+  art: BigNumber;
+  ink_: string;
+  art_: string;
 }
 
 export interface ICallData {
-  fn: string;
-  args: string[];
+  args: (string|BigNumber)[];
+  operation: [ number, string[]];
+  series?: ISeries;
+  fnName?: string;
   ignore?: boolean;
   overrides?: ethers.CallOverrides;
 }
 
-export interface ISigData {
-  assetOrSeriesId: string,
-  fallbackCall: ICallData; // calldata to process if fallbackTx is used
+export interface ISignData {
+  targetAddress: string;
+  targetId: string;
+  spender: 'POOLROUTER'|'LADLE'| string;
   type: SignType;
-  ignore: boolean; // conditional for ignoring
-  message?: string, // optional messaging for UI
-
+  fallbackCall: any; // calldata to process if fallbackTx is used
+  series: ISeries,
   /* optional Extention/advanced use-case options */
-  tokenAddress?: string;
-  spender?: string;
+  message?: string, // optional messaging for UI
+  ignore?: boolean; // conditional for ignoring
   domain?: IDomain;
 }
 
@@ -96,15 +144,9 @@ export enum SignType {
   FYTOKEN = 'FYTOKEN_TYPE',
 }
 
-export interface IYieldUser {
-  // reqd/fixed:
-  id: number;
-  address: string;
-  // optional/calculated/mutable:
-}
-
-export interface IMenuProps {
-  toggleMenu: ()=>void;
+export enum TradeType {
+  BUY = 'BUY',
+  SELL = 'SELL',
 }
 
 export enum View {

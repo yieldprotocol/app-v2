@@ -153,12 +153,61 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "tokensBurned",
+        name: "minBaseTokenOut",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "minFYTokenOut",
         type: "uint256",
       },
     ],
     name: "burn",
     outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "minBaseTokenOut",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "minFYTokenOut",
+        type: "uint256",
+      },
+    ],
+    name: "burnForBaseToken",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
       {
         internalType: "uint256",
         name: "",
@@ -329,13 +378,67 @@ const _abi = [
         type: "address",
       },
       {
+        internalType: "bool",
+        name: "calculateFromBase",
+        type: "bool",
+      },
+      {
         internalType: "uint256",
-        name: "tokenOffered",
+        name: "minTokensMinted",
         type: "uint256",
       },
     ],
     name: "mint",
     outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "fyTokenToBuy",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "minTokensMinted",
+        type: "uint256",
+      },
+    ],
+    name: "mintWithBaseToken",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
       {
         internalType: "uint256",
         name: "",

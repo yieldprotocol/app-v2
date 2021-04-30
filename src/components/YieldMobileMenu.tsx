@@ -5,7 +5,7 @@ import { FiX, FiArrowLeftCircle } from 'react-icons/fi';
 import styled, { CSSProperties, ThemeContext } from 'styled-components';
 
 import { UserContext } from '../contexts/UserContext';
-import { IMenuProps, IYieldVault, View } from '../types';
+import { IUserContext, IVault, IVaultRoot, View } from '../types';
 import YieldNavigation from './YieldNavigation';
 import YieldMenu from './YieldMenu';
 
@@ -22,9 +22,13 @@ const StyledBox = styled(Box)`
   }
 `;
 
-const YieldMobileMenu = ({ toggleMenu }: IMenuProps) => {
+const YieldMobileMenu = ({ toggleMenu }: { toggleMenu: ()=>void }) => {
+  /* state from contexts */
+  const { userState, userActions } = useContext(UserContext) as IUserContext;
+  const { vaultMap } = userState;
+  const { setSelectedVault } = userActions;
+
   const [view, setView] = useState<string | undefined>(undefined);
-  const { userState: { vaultMap }, userActions: { setActiveVault } } = useContext(UserContext);
   const routerHistory = useHistory();
 
   const theme = useContext<any>(ThemeContext);
@@ -32,7 +36,7 @@ const YieldMobileMenu = ({ toggleMenu }: IMenuProps) => {
   const textBack = theme.global.colors['light-1'];
 
   const handleSelect = (vaultId:string) => {
-    setActiveVault(vaultMap.get(vaultId));
+    setSelectedVault(vaultId);
     routerHistory.push(`/vault/${vaultId}`);
     toggleMenu();
   };
@@ -94,14 +98,14 @@ const YieldMobileMenu = ({ toggleMenu }: IMenuProps) => {
           {
           view === View.vaults &&
           <Box gap="medium">
-            { Array.from(vaultMap.values() as IYieldVault[]).map((x:IYieldVault) => (
+            { Array.from(vaultMap.values()).map((x:IVault) => (
               <Box
                 key={x.id}
                 pad="small"
                 border
                 onClick={() => handleSelect(x.id)}
               >
-                <Text size="small"> {x.id} {x.series.displayNameMobile} </Text>
+                <Text size="small"> {x.id} {x.seriesId} </Text>
               </Box>
             ))}
           </Box>
@@ -123,6 +127,6 @@ const YieldMobileMenu = ({ toggleMenu }: IMenuProps) => {
   );
 };
 
-YieldMobileMenu.defaultProps = { callback: () => null };
+// YieldMobileMenu.defaultProps = { callback: () => null };
 
 export default YieldMobileMenu;
