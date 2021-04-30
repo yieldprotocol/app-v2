@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
 import { MAX_256 } from '../utils/constants';
-import { ICallData, ISignData, ISeriesRoot, IVaultRoot } from '../types';
+import { ICallData, ISignData, ISeriesRoot } from '../types';
 import { ERC20__factory, Ladle, Pool, PoolRouter } from '../contracts';
 import { POOLROUTER_OPS, VAULT_OPS } from '../utils/operations';
 
@@ -33,18 +33,17 @@ export const useChain = () => {
   };
 
   /**
-   *
    * TRANSACTING
-   * @param vaultId sfsdfsdf
-   * @param calls list of callData as ICallData
-   * @param txCode internal transaction code
-   *
+   * @param { 'PoolRouter' | 'Ladle' } router
+   * @param { string| undefined } vaultId
+   * @param { ICallsData[] } calls list of callData as ICallData
+   * @param { string } txCode internal transaction code
    */
   const transact = async (
     router: 'PoolRouter' | 'Ladle',
     vaultId: string | undefined,
-    calls:ICallData[],
-    txCode:string,
+    calls: ICallData[],
+    txCode: string,
   ) : Promise<void> => {
     /* Set the router contract instance, ladle by default */
     let _contract: Contract = contractMap.get('Ladle').connect(signer) as Ladle;
@@ -91,17 +90,17 @@ export const useChain = () => {
     );
 
     /* Get ETH value from JOIN_ETHER opCode (LAdle: 10 , PoolRouter: 4 ) , else zero -> N.B. other values are ignored for now */
-    const joinEtherCall = _calls.find(
-      (call:any) => call.operation === VAULT_OPS.JOIN_ETHER || call.operation === POOLROUTER_OPS.JOIN_ETHER,
-    );
+    const joinEtherCall = _calls.find((call:any) => (
+      call.operation === VAULT_OPS.JOIN_ETHER || call.operation === POOLROUTER_OPS.JOIN_ETHER
+    ));
     const _value = joinEtherCall?.overrides?.value || ethers.constants.Zero;
 
     /* Calculate the accumulative gas limit (IF ALL calls have a gaslimit then set the total, else null ) */
-    const allCallsHaveGas = _calls.length &&
-      _calls.every((_c:ICallData) => _c.overrides && _c.overrides.gasLimit);
-    const _gasLimit = allCallsHaveGas
-      ? _calls.reduce((_t: BigNumber, _c: ICallData) => BigNumber.from(_c.overrides?.gasLimit).add(_t),
-        ethers.constants.Zero)
+    const allCallsHaveGas = _calls.length && _calls.every((_c:ICallData) => _c.overrides && _c.overrides.gasLimit);
+    const _gasLimit = allCallsHaveGas ?
+      _calls.reduce(
+        (_t: BigNumber, _c: ICallData) => BigNumber.from(_c.overrides?.gasLimit).add(_t), ethers.constants.Zero,
+      )
       : undefined;
 
     // const joinEthCall = _contract.interface.encodeFunctionData('joinEther', ['0x455448000000']);
@@ -118,15 +117,14 @@ export const useChain = () => {
   };
 
   /**
-   *
    * SIGNING
-   *
-   * Does two things:
    * 1. Build the signatures of provided by ISignData[], returns ICallData for multicall.
    * 2. Sends off the approval tx, on completion of all txs, returns an empty array.
-   *
-   *
-   * */
+   * @param { ISignData[] } requestedSignatures
+   * @param { string } txCode
+   * @param { boolean } viaPoolRouter DEFAULT: false
+   * @returns { Promise<ICallData[]> }
+   */
   const sign = async (
     requestedSignatures:ISignData[],
     txCode:string,
@@ -134,7 +132,6 @@ export const useChain = () => {
   ) : Promise<ICallData[]> => {
     /* First, filter out any ignored calls */
     const _requestedSigs = requestedSignatures.filter((_rs:ISignData) => !_rs.ignore);
-
     const signedList = await Promise.all(
       _requestedSigs.map(async (reqSig: ISignData) => {
         /* check if signing an fyToken, or another erc20 asset */

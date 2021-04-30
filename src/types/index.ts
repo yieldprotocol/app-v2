@@ -103,14 +103,12 @@ export interface ICallData {
 }
 
 export interface ISignData {
-
   targetAddress: string;
   targetId: string;
   spender: 'POOLROUTER'|'LADLE'| string;
   type: SignType;
   fallbackCall: any; // calldata to process if fallbackTx is used
   series: ISeries,
-
   /* optional Extention/advanced use-case options */
   message?: string, // optional messaging for UI
   ignore?: boolean; // conditional for ignoring

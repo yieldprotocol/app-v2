@@ -136,7 +136,14 @@ const Vault = () => {
         ]}
         />
 
-        <SectionWrap title="Borrow more">
+        <SectionWrap
+          title="Borrow more"
+          border={{
+            color: 'grey',
+            style: 'dashed',
+            side: 'all',
+          }}
+        >
           <Box gap="small" fill="horizontal" direction="row" align="center">
             <InputWrap basis="65%" action={() => console.log('maxAction')}>
               <TextInput
@@ -162,7 +169,15 @@ const Vault = () => {
           </Box>
         </SectionWrap>
 
-        <SectionWrap title="Manage Collateral">
+        <SectionWrap
+          title="Manage Collateral"
+          border={{
+            color: 'grey',
+            style: 'dashed',
+            side: 'all',
+          }}
+        >
+
           <Box gap="small" fill="horizontal" direction="row" align="center">
             <InputWrap basis="65%" action={() => console.log('maxAction')}>
               <TextInput
