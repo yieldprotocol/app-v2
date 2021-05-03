@@ -209,9 +209,9 @@ export class ERC20Mock extends Contract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    decimals(overrides?: CallOverrides): Promise<[BigNumber]>;
+    decimals(overrides?: CallOverrides): Promise<[number]>;
 
-    "decimals()"(overrides?: CallOverrides): Promise<[BigNumber]>;
+    "decimals()"(overrides?: CallOverrides): Promise<[number]>;
 
     mint(
       to: string,
@@ -336,9 +336,9 @@ export class ERC20Mock extends Contract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  decimals(overrides?: CallOverrides): Promise<BigNumber>;
+  decimals(overrides?: CallOverrides): Promise<number>;
 
-  "decimals()"(overrides?: CallOverrides): Promise<BigNumber>;
+  "decimals()"(overrides?: CallOverrides): Promise<number>;
 
   mint(
     to: string,
@@ -463,9 +463,9 @@ export class ERC20Mock extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    decimals(overrides?: CallOverrides): Promise<BigNumber>;
+    decimals(overrides?: CallOverrides): Promise<number>;
 
-    "decimals()"(overrides?: CallOverrides): Promise<BigNumber>;
+    "decimals()"(overrides?: CallOverrides): Promise<number>;
 
     mint(
       to: string,

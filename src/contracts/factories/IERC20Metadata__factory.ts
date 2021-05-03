@@ -5,23 +5,18 @@
 import { Contract, Signer } from "ethers";
 import { Provider } from "@ethersproject/providers";
 
-import type { WETH9Mock } from "../WETH9Mock";
+import type { IERC20Metadata } from "../IERC20Metadata";
 
-export class WETH9Mock__factory {
+export class IERC20Metadata__factory {
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
-  ): WETH9Mock {
-    return new Contract(address, _abi, signerOrProvider) as WETH9Mock;
+  ): IERC20Metadata {
+    return new Contract(address, _abi, signerOrProvider) as IERC20Metadata;
   }
 }
 
 const _abi = [
-  {
-    inputs: [],
-    stateMutability: "nonpayable",
-    type: "constructor",
-  },
   {
     anonymous: false,
     inputs: [
@@ -53,25 +48,6 @@ const _abi = [
       {
         indexed: true,
         internalType: "address",
-        name: "dst",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "wad",
-        type: "uint256",
-      },
-    ],
-    name: "Deposit",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
         name: "from",
         type: "address",
       },
@@ -89,25 +65,6 @@ const _abi = [
       },
     ],
     name: "Transfer",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "src",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "wad",
-        type: "uint256",
-      },
-    ],
-    name: "Withdrawal",
     type: "event",
   },
   {
@@ -143,7 +100,7 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "wad",
+        name: "amount",
         type: "uint256",
       },
     ],
@@ -162,7 +119,7 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "guy",
+        name: "account",
         type: "address",
       },
     ],
@@ -188,13 +145,6 @@ const _abi = [
       },
     ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "deposit",
-    outputs: [],
-    stateMutability: "payable",
     type: "function",
   },
   {
@@ -240,12 +190,12 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "dst",
+        name: "recipient",
         type: "address",
       },
       {
         internalType: "uint256",
-        name: "wad",
+        name: "amount",
         type: "uint256",
       },
     ],
@@ -264,17 +214,17 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "src",
+        name: "sender",
         type: "address",
       },
       {
         internalType: "address",
-        name: "dst",
+        name: "recipient",
         type: "address",
       },
       {
         internalType: "uint256",
-        name: "wad",
+        name: "amount",
         type: "uint256",
       },
     ],
@@ -288,22 +238,5 @@ const _abi = [
     ],
     stateMutability: "nonpayable",
     type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "wad",
-        type: "uint256",
-      },
-    ],
-    name: "withdraw",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    stateMutability: "payable",
-    type: "receive",
   },
 ];

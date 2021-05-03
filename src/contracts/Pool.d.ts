@@ -492,9 +492,9 @@ export class Pool extends Contract {
 
     "cumulativeReserveRatio()"(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    decimals(overrides?: CallOverrides): Promise<[BigNumber]>;
+    decimals(overrides?: CallOverrides): Promise<[number]>;
 
-    "decimals()"(overrides?: CallOverrides): Promise<[BigNumber]>;
+    "decimals()"(overrides?: CallOverrides): Promise<[number]>;
 
     fyToken(overrides?: CallOverrides): Promise<[string]>;
 
@@ -853,9 +853,9 @@ export class Pool extends Contract {
 
   "cumulativeReserveRatio()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-  decimals(overrides?: CallOverrides): Promise<BigNumber>;
+  decimals(overrides?: CallOverrides): Promise<number>;
 
-  "decimals()"(overrides?: CallOverrides): Promise<BigNumber>;
+  "decimals()"(overrides?: CallOverrides): Promise<number>;
 
   fyToken(overrides?: CallOverrides): Promise<string>;
 
@@ -1214,9 +1214,9 @@ export class Pool extends Contract {
 
     "cumulativeReserveRatio()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    decimals(overrides?: CallOverrides): Promise<BigNumber>;
+    decimals(overrides?: CallOverrides): Promise<number>;
 
-    "decimals()"(overrides?: CallOverrides): Promise<BigNumber>;
+    "decimals()"(overrides?: CallOverrides): Promise<number>;
 
     fyToken(overrides?: CallOverrides): Promise<string>;
 
