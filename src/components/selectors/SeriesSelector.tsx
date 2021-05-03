@@ -1,13 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, ResponsiveContext, Select, Text, ThemeContext } from 'grommet';
 
-import { ChainContext } from '../../contexts/ChainContext';
 import { ISeries } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 
 function SeriesSelector() {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
-  // const { chainState: { seriesBaseMap } } = useContext(ChainContext);
 
   const { userState, userActions } = useContext(UserContext);
   const { selectedSeriesId, selectedBaseId, seriesMap } = userState;

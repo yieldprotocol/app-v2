@@ -1,15 +1,10 @@
-import React, { useContext, useState, useRef, useEffect } from 'react';
-import { Box, Button, Collapsible, Menu, ResponsiveContext, Text, TextInput } from 'grommet';
+import React, { useContext, useState, useEffect } from 'react';
+import { Box, Button, Menu, ResponsiveContext, Text, TextInput } from 'grommet';
 
-import { useHistory } from 'react-router-dom';
 import { cleanValue } from '../utils/displayUtils';
-
 import { UserContext } from '../contexts/UserContext';
-import { ChainContext } from '../contexts/ChainContext';
 
-import AssetSelector from '../components/selectors/AssetSelector';
 import MainViewWrap from '../components/wraps/MainViewWrap';
-import SeriesSelector from '../components/selectors/SeriesSelector';
 import InputWrap from '../components/wraps/InputWrap';
 import InfoBite from '../components/InfoBite';
 import { IAsset, ISeries, IUserContext, IVault } from '../types';
