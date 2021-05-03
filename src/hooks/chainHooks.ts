@@ -9,6 +9,27 @@ import { ICallData, ISignData, ISeriesRoot } from '../types';
 import { ERC20__factory, Ladle, Pool, PoolRouter } from '../contracts';
 import { POOLROUTER_OPS, VAULT_OPS } from '../utils/operations';
 
+/*  💨 Calculate the accumulative gas limit (IF ALL calls have a gaslimit then set the total, else undefined ) */
+const _getCallGas = (calls: ICallData[]) : BigNumber| undefined => {
+  const allCallsHaveGas = calls.length && calls.every((_c:ICallData) => _c.overrides && _c.overrides.gasLimit);
+  if (allCallsHaveGas) {
+    const accumulatedGas = calls.reduce(
+      (_t: BigNumber, _c: ICallData) => BigNumber.from(_c.overrides?.gasLimit).add(_t),
+      ethers.constants.Zero,
+    );
+    return accumulatedGas.gt(ethers.constants.Zero) ? accumulatedGas : undefined;
+  }
+  return undefined;
+};
+
+/* Get ETH value from JOIN_ETHER OPCode, else zero -> N.B. other values sent in with other OPS are ignored for now */
+const _getCallValue = (calls: ICallData[]) : BigNumber => {
+  const joinEtherCall = calls.find((call:any) => (
+    call.operation === VAULT_OPS.JOIN_ETHER || call.operation === POOLROUTER_OPS.JOIN_ETHER
+  ));
+  return BigNumber.from(joinEtherCall?.overrides?.value) || ethers.constants.Zero;
+};
+
 /* Generic hook for chain transactions */
 export const useChain = () => {
   const { chainState: { account, provider, signer, contractMap } } = useContext(ChainContext);
@@ -41,7 +62,6 @@ export const useChain = () => {
    */
   const transact = async (
     router: 'PoolRouter' | 'Ladle',
-    vaultId: string | undefined,
     calls: ICallData[],
     txCode: string,
   ) : Promise<void> => {
@@ -51,10 +71,6 @@ export const useChain = () => {
 
     /* First, filter out any ignored calls */
     const _calls = calls.filter((call:ICallData) => !call.ignore);
-
-    /* DEV ONLY: check that vaultID is passed when ladle is used as router */ // TODO remove for prod
-    if (router === 'Ladle' && !vaultId) throw Error('Ladle Router requires a vaultId parameter');
-    console.log('Calls to be processed', _calls);
 
     /* Encode each of the calls OR preEncoded route calls */
     const encodedCalls = _calls.map(
@@ -89,29 +105,19 @@ export const useChain = () => {
       (call:ICallData, index: number) => index,
     );
 
-    /* Get ETH value from JOIN_ETHER opCode (LAdle: 10 , PoolRouter: 4 ) , else zero -> N.B. other values are ignored for now */
-    const joinEtherCall = _calls.find((call:any) => (
-      call.operation === VAULT_OPS.JOIN_ETHER || call.operation === POOLROUTER_OPS.JOIN_ETHER
-    ));
-    const _value = joinEtherCall?.overrides?.value || ethers.constants.Zero;
+    /* calculate the value sent */
+    const batchValue = _getCallValue(_calls);
+    console.log('Batch value sent:', batchValue.toString());
 
-    /* Calculate the accumulative gas limit (IF ALL calls have a gaslimit then set the total, else null ) */
-    const allCallsHaveGas = _calls.length && _calls.every((_c:ICallData) => _c.overrides && _c.overrides.gasLimit);
-    const _gasLimit = allCallsHaveGas ?
-      _calls.reduce(
-        (_t: BigNumber, _c: ICallData) => BigNumber.from(_c.overrides?.gasLimit).add(_t), ethers.constants.Zero,
-      )
-      : undefined;
-
-    // const joinEthCall = _contract.interface.encodeFunctionData('joinEther', ['0x455448000000']);
-    // const pourCall = _contract.interface.encodeFunctionData('pour', [vaultId, account, BigNumber.from('2'), 0]);
+    /* calculate the gas required */
+    const batchGas = _getCallGas(_calls);
+    console.log('Batch gas sent: ', batchGas?.toString());
 
     /* Finally, send out the transaction */
     return handleTx(
-      // () => _contract.multicall([joinEthCall, pourCall], true, { value: BigNumber.from('2') }),
-      (router === 'Ladle') ?
-        () => _contract.batch(vaultId, opsList, encodedCalls, { value: _value, gasLimit: BigNumber.from('500000') }) :
-        () => _contract.batch(baseAddrList, fyTokenAddrList, targetList, opsList, encodedCalls, { value: _value, gasLimit: BigNumber.from('500000') }),
+      (router === 'Ladle')
+        ? () => _contract.batch(opsList, encodedCalls, { value: batchValue, gasLimit: BigNumber.from('500000') })
+        : () => _contract.batch(baseAddrList, fyTokenAddrList, targetList, opsList, encodedCalls, { value: batchValue, gasLimit: BigNumber.from('500000') }),
       txCode,
     );
   };

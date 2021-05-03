@@ -22,8 +22,6 @@ const precisionFee = new Decimal(1000000000000);
  Support functions
  *************************** */
 
-export const toBn = (value: Decimal) => BigNumber.from(value.toString());
-
 /**
  * @param { BigNumber | string } multiplicant
  * @param { BigNumber | string } multiplier
@@ -65,6 +63,12 @@ export const divDecimal = (
  * @returns { string }
  */
 export const floorDecimal = (value: BigNumber | string): string => Decimal.floor(value.toString()).toFixed();
+
+/**
+ * @param { Decimal } value
+ * @returns { BigNumber }
+ */
+export const toBn = (value: Decimal): BigNumber => BigNumber.from(floorDecimal(value.toFixed()));
 
 /**
  * @param { BigNumber | string } to unix time

@@ -23,17 +23,16 @@ export const useActions = () => {
    *  - Create a call that builds a new Vault
    *  - Create a call that takes ETH, wraps it, and adds it as collateral
    * */
-  const _buildVault = (ignore:boolean): ICallData[] => (
+  const _buildVault = (vaultId: string, ignore:boolean): ICallData[] => (
     [{
       operation: VAULT_OPS.BUILD,
-      args: [selectedSeriesId, selectedIlkId],
+      args: [vaultId, selectedSeriesId, selectedIlkId],
       ignore,
     }]
   );
 
   const _addEth = (value: BigNumber): ICallData[] => {
     const isPositive = value.gte(ethers.constants.Zero);
-
     /* Check if the selected Ilk is, in fact, an ETH variety */
     if (ETH_BASED_ASSETS.includes(selectedIlkId) && isPositive) {
       console.log(selectedIlkId);
@@ -127,7 +126,7 @@ export const useActions = () => {
       },
       ..._removeEth(_input),
     ];
-    await transact('Ladle', _vaultId, calls, txCode);
+    await transact('Ladle', calls, txCode);
     updateVaults([vault]);
   };
 
@@ -164,7 +163,11 @@ export const useActions = () => {
     /* Collate all the calls required for the process (including depositing ETH, signing permits, and building vault if needed) */
     const calls: ICallData[] = [
       /* If vault is null, build a new vault, else ignore */
-      ..._buildVault(!!vault),
+      {
+        operation: VAULT_OPS.BUILD,
+        args: [_vaultId, selectedSeriesId, selectedIlkId],
+        ignore: !!vault,
+      },
       /* handle ETH deposit, if required */
       ..._addEth(_collInput),
       /* Include all the signatures gathered, if required  */
@@ -172,12 +175,12 @@ export const useActions = () => {
       /* Then add all the CALLS you want to make: */
       {
         operation: VAULT_OPS.SERVE,
-        args: [account, _collInput, _input, MAX_128],
+        args: [_vaultId, account, _collInput, _input, MAX_128],
         ignore: false,
       },
     ];
     /* handle the transaction */
-    await transact('Ladle', _vaultId, calls, txCode);
+    await transact('Ladle', calls, txCode);
     // then update the changed elements
     vault && updateVaults([vault]);
   };
@@ -240,7 +243,7 @@ export const useActions = () => {
         ignore: true, // TODO add in repay all logic
       },
     ];
-    await transact('Ladle', vault.id, calls, txCode);
+    await transact('Ladle', calls, txCode);
     updateVaults([vault]);
   };
 
@@ -256,7 +259,7 @@ export const useActions = () => {
         ignore: false,
       },
     ];
-    transact('Ladle', vault.id, calls, txCode);
+    transact('Ladle', calls, txCode);
   };
 
   const lend = async (
@@ -301,7 +304,7 @@ export const useActions = () => {
         ignore: false,
       },
     ];
-    await transact('PoolRouter', undefined, calls, txCode);
+    await transact('PoolRouter', calls, txCode);
     updateSeries([series]);
   };
 
@@ -343,7 +346,7 @@ export const useActions = () => {
         ignore: false,
       },
     ];
-    await transact('PoolRouter', undefined, calls, txCode);
+    await transact('PoolRouter', calls, txCode);
     updateSeries([series]);
   };
 
@@ -358,13 +361,8 @@ export const useActions = () => {
     series: ISeries,
     strategy: 'BUY'|'BORROW' = 'BUY', // select a strategy default: BUY
   ) => {
-    const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
-
-    /* generate a random vault in case required */
-    const _randVaultId = ethers.utils.hexlify(ethers.utils.randomBytes(12));
-
-    /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode('060_', series.id);
+    const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
 
     const permits: ICallData[] = await sign([
       {
@@ -380,17 +378,21 @@ export const useActions = () => {
     ], txCode, true);
 
     const calls: ICallData[] = [
-      ...permits,
-      // BUYING STRATEGY:
+
+      /**
+       * BUYING STRATEGY FLOW:
+       * */
+
       // router.forwardPermitAction( pool.address, base.address, router.address, allowance, deadline, v, r, s),
+      ...permits,
       // router.transferToPoolAction(pool.address, base.address, baseWithSlippage),
-      // router.mintWithBaseTokenAction(pool.address, receiver, fyTokenToBuy, minLPReceived),
       {
         operation: POOLROUTER_OPS.TRANSFER_TO_POOL,
         args: [series.getBaseAddress(), _input.toString()],
         series,
         ignore: strategy === 'BORROW',
       },
+      // router.mintWithBaseTokenAction(pool.address, receiver, fyTokenToBuy, minLPReceived),
       {
         operation: POOLROUTER_OPS.ROUTE,
         args: [account, _input.div(100), ethers.constants.Zero], // TODO calc min transfer slippage
@@ -399,19 +401,24 @@ export const useActions = () => {
         ignore: strategy === 'BORROW',
       },
 
-      // TODO BORROWING STRATEGY:
-      // buildVault required
-      // ladle.serveAction(vaultId, pool.address, 0, borrowed, maximum debt),
-      // ladle.mintWithBaseTokenAction(seriesId, receiver, fyTokenToBuy, minLPReceived),
+      /**
+       * BORROWING STRATEGY FLOW:
+       * */
 
-      /* If vault is null, build a new vault, else ignore */
-      ..._buildVault(strategy === 'BUY'),
+      // build Vault with random id if required
+      {
+        operation: VAULT_OPS.BUILD,
+        args: [ethers.utils.hexlify(ethers.utils.randomBytes(12)), selectedSeriesId, selectedIlkId],
+        ignore: strategy === 'BUY',
+      },
+      // ladle.serveAction(vaultId, pool.address, 0, borrowed, maximum debt),
       {
         operation: VAULT_OPS.SERVE,
         args: [series.poolAddress, ethers.constants.Zero, _input.toString(), MAX_128],
         series,
         ignore: strategy === 'BUY',
       },
+      // ladle.mintWithBaseTokenAction(seriesId, receiver, fyTokenToBuy, minLPReceived)
       {
         operation: VAULT_OPS.ROUTE,
         args: [account, _input.div(100), ethers.constants.Zero],
@@ -423,10 +430,10 @@ export const useActions = () => {
 
     await transact(
       (strategy === 'BUY') ? 'PoolRouter' : 'Ladle', // select router based on strategy
-      _randVaultId, // random vaultId if building vault is reqd.
       calls,
       txCode,
     );
+
     updateSeries([series]);
   };
 
@@ -468,7 +475,7 @@ export const useActions = () => {
         ignore: false,
       },
     ];
-    await transact('PoolRouter', undefined, calls, txCode);
+    await transact('PoolRouter', calls, txCode);
     updateSeries([series]);
   };
 
