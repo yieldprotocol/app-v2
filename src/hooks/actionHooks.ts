@@ -2,7 +2,7 @@ import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
-import { ICallData, ISeriesRoot, IVaultRoot, IVault, SignType, ISeries } from '../types';
+import { ICallData, IVaultRoot, IVault, SignType, ISeries } from '../types';
 import { getTxCode } from '../utils/appUtils';
 import { ETH_BASED_ASSETS, DAI_BASED_ASSETS, MAX_128, MAX_256 } from '../utils/constants';
 import { useChain } from './chainHooks';
@@ -223,11 +223,11 @@ export const useActions = () => {
     ], txCode);
 
     const calls: ICallData[] = [
-      ...permits,
+      // ...permits,
       /* transferToPool(bytes6 seriesId, bool base, uint128 wad) */
       {
         operation: VAULT_OPS.TRANSFER_TO_POOL,
-        args: [true, _input],
+        args: [vault.baseId, true, _input],
         ignore: false,
       },
       /* ladle.repay(vaultId, owner, inkRetrieved, 0) */
@@ -239,7 +239,7 @@ export const useActions = () => {
       /* ladle.repayVault(vaultId, owner, inkRetrieved, MAX) */
       {
         operation: VAULT_OPS.REPAY_VAULT,
-        args: [account, BigNumber.from('1'), MAX_128],
+        args: [vault.id, account, BigNumber.from('1'), MAX_128],
         ignore: true, // TODO add in repay all logic
       },
     ];

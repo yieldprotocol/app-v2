@@ -94,7 +94,7 @@ export interface IVault extends IVaultRoot {
 }
 
 export interface ICallData {
-  args: (string|BigNumber)[];
+  args: (string|BigNumber|boolean)[];
   operation: [ number, string[]];
   series?: ISeries;
   fnName?: string;
