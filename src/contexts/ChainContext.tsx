@@ -236,7 +236,9 @@ const ChainProvider = ({ children }: any) => {
                   fyTokenAddress: fyToken,
                   poolAddress,
                   poolContract,
-                  getBaseAddress: () => chainState.assetRootMap.get(baseId).address, // TODO refactor to get this static - if poosible?
+                  // built-in helper functions:
+                  getBaseAddress: () => chainState.assetRootMap.get(baseId).address, // TODO refactor to get this static - if possible?
+                  isMature: () => (maturity < Math.round(new Date().getTime() / 1000)),
                 } });
             }),
           ]);

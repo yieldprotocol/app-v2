@@ -44,6 +44,7 @@ export interface ISeriesRoot {
   poolAddress: string;
   baseId: string;
   // baked in token fns
+  isMature: () => boolean;
   getBaseAddress: ()=> string; // antipattern, but required here because app simulatneoulsy gets assets and series
 }
 
@@ -96,7 +97,7 @@ export interface IVault extends IVaultRoot {
 export interface ICallData {
   args: (string|BigNumber|boolean)[];
   operation: [ number, string[]];
-  series?: ISeries;
+  series: ISeries;
   fnName?: string;
   ignore?: boolean;
   overrides?: ethers.CallOverrides;
