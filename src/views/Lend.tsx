@@ -12,13 +12,14 @@ import SectionWrap from '../components/wraps/SectionWrap';
 
 import { useActions } from '../hooks/actionHooks';
 import { UserContext } from '../contexts/UserContext';
-import { IUserContext } from '../types';
+import { ISeries, IUserContext } from '../types';
 
 const Lend = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
-  const [inputValue, setInputValue] = useState<string>();
 
+  const [inputValue, setInputValue] = useState<string>();
   const [closeInputValue, setCloseInputValue] = useState<string>();
+  const [rollToSeries, setRollToSeries] = useState<ISeries|null>(null);
 
   /* state from context */
   const { userState } = useContext(UserContext) as IUserContext;
@@ -27,7 +28,7 @@ const Lend = () => {
   const selectedSeries = seriesMap.get(selectedSeriesId!);
   const selectedBase = assetMap.get(selectedBaseId!);
 
-  const { lend, closePosition } = useActions();
+  const { lend, closePosition, rollPosition } = useActions();
 
   const handleLend = () => {
     // !lendDisabled &&
@@ -37,6 +38,11 @@ const Lend = () => {
   const handleClosePosition = () => {
     // !lendDisabled &&
     selectedSeries && closePosition(inputValue, selectedSeries);
+  };
+
+  const handleRollPosition = () => {
+    // !lendDisabled &&
+    selectedSeries && rollToSeries && rollPosition(inputValue, selectedSeries, rollToSeries);
   };
 
   return (
@@ -123,6 +129,32 @@ const Lend = () => {
           />,
         ]}
         />
+      </SectionWrap>
+
+      <SectionWrap
+        title="Roll Position to:"
+        border={{
+          color: 'grey',
+          style: 'dashed',
+          side: 'all',
+        }}
+      >
+        <Box gap="small" fill="horizontal" direction="row" align="center">
+
+          <SeriesSelector setSeriesLocally={(series:ISeries) => setRollToSeries(series)} />
+
+          <Box basis="35%">
+            <ActionButtonGroup buttonList={[
+              <Button
+                primary
+                label={<Text size={mobile ? 'small' : undefined}> Roll </Text>}
+                key="primary"
+                onClick={() => handleRollPosition()}
+              />,
+            ]}
+            />
+          </Box>
+        </Box>
       </SectionWrap>
 
     </MainViewWrap>

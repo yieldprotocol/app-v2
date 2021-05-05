@@ -273,14 +273,13 @@ export const useActions = () => {
   const rollDebt = async (
     vault: IVault,
     toSeries: ISeries,
-    input:string|undefined,
+    input: string | undefined,
   ) => {
     const txCode = getTxCode('040_', vault.seriesId);
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
     const series = seriesMap.get(vault.seriesId);
     const calls: ICallData[] = [
-      /* ladle.rollAction(vaultId: string, newSeriesId: string, max: BigNumberish) : */
-      {
+      { // ladle.rollAction(vaultId: string, newSeriesId: string, max: BigNumberish)
         operation: VAULT_OPS.ROLL,
         args: [vault.id, toSeries.id, MAX_128],
         ignore: false,
@@ -680,12 +679,12 @@ export const useActions = () => {
     const txCode = getTxCode('110_', series.id);
 
     const permits: ICallData[] = await sign([
-      {
+      { // router.forwardPermitAction(pool.address, pool.address, router.address, allowance, deadline, v, r, s),
         targetAddress: series.poolAddress,
         targetId: series.id,
         series,
         type: SignType.ERC2612,
-        spender: 'PoolRouter',
+        spender: 'POOLROUTER',
         fallbackCall: { fn: 'approve', args: [contractMap.get('Pool'), MAX_256], ignore: false, opCode: null },
         message: 'Signing ERC20 Token approval',
         ignore: false,
@@ -694,10 +693,7 @@ export const useActions = () => {
 
     const calls: ICallData[] = [
       ...permits,
-      // REMOVE & SELL
-      // router.forwardPermitAction(pool.address, pool.address, router.address, allowance, deadline, v, r, s),
-      // router.burnForBaseToken(pool.address, receiver, minBaseReceived),
-      {
+      { // router.burnForBaseToken(pool.address, receiver, minBaseReceived),
         operation: POOLROUTER_OPS.ROUTE,
         args: [account, _input, _input], // TODO calc min transfer slippage
         fnName: 'burnForBaseToken',

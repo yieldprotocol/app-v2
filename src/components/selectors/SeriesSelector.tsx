@@ -5,18 +5,19 @@ import { ISeries } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 
 interface ISeriesSelectorProps {
-  globalSelect?:boolean;
+  setSeriesLocally?: (series: ISeries) => void;
 }
 
-function SeriesSelector({ globalSelect }: ISeriesSelectorProps) {
+function SeriesSelector({ setSeriesLocally }: ISeriesSelectorProps) {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
 
   const { userState, userActions } = useContext(UserContext);
   const { selectedSeriesId, selectedBaseId, seriesMap } = userState;
+  const [localSeriesId, setLocalSeriesId] = useState<string>();
   const [options, setOptions] = useState<ISeries[]>([]);
 
   /* get from seriesBaseMap (not seriesMap) so it can be used without an account connected */
-  const _selectedSeries = seriesMap.get(selectedSeriesId);
+  const _selectedSeries = setSeriesLocally ? seriesMap.get(localSeriesId) : seriesMap.get(selectedSeriesId);
 
   const optionText = (_series: ISeries|undefined) => (
     _series
@@ -31,9 +32,14 @@ function SeriesSelector({ globalSelect }: ISeriesSelectorProps) {
   }, [seriesMap, selectedBaseId]);
 
   const handleSelect = (id:string) => {
-    if (globalSelect) {
+    if (!setSeriesLocally) {
       console.log('Series selected globally: ', id);
-      globalSelect && userActions.setSelectedSeries(id);
+      userActions.setSelectedSeries(id);
+    } else {
+      /* used for passing a selected series to the parent component */
+      console.log('Series set locally: ', id);
+      setSeriesLocally(seriesMap.get(id));
+      setLocalSeriesId(id);
     }
   };
 
@@ -60,6 +66,6 @@ function SeriesSelector({ globalSelect }: ISeriesSelectorProps) {
   );
 }
 
-SeriesSelector.defaultProps = { globalSelect: true };
+SeriesSelector.defaultProps = { setSeriesLocally: null };
 
 export default SeriesSelector;
