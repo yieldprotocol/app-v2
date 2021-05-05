@@ -358,68 +358,98 @@ export const useActions = () => {
 
   const rollPosition = async (
     input: string|undefined,
-    series: ISeries,
-    destinationSeries: ISeries,
+    fromSeries: ISeries,
+    toSeries: ISeries,
   ) => {
-    // BEFORE MATURITY:
-    // router.forwardPermitAction( pool.address, fyToken.address, router.address, allowance, deadline, v, r, s ),
-    // router.transferToPoolAction( base.address, fyToken1.address, fyToken1.address, fyToken1Rolled),
-    // router.sellFYTokenAction( pool.address, pool2.address, minimumBaseReceived),
-    // router.sellBaseTokenAction( pool.address, receiver, minimumFYToken2Received),
-
-    // TODO : AFTER MATURITY:
-    // ladle.forwardPermitAction(seriesId, false, ladle.address, allowance, deadline, v, r, s),
-    // ladle.transferToFYTokenAction(seriesId, fyTokenToRoll),
-    // ladle.redeemAction(seriesId, pool2.address, fyTokenToRoll),
-    // ladle.sellBaseTokenAction(series2Id, receiver, minimumFYTokenToReceive),
-
     /* generate the reproducible txCode for tx tracking and tracing */
-    const txCode = getTxCode('070_', series.id);
-
+    const txCode = getTxCode('070_', fromSeries.id);
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
-    const baseAddress = series.getBaseAddress();
-    const { fyTokenAddress } = series;
-    const destinationAddress = destinationSeries.fyTokenAddress;
+    const baseAddress = fromSeries.getBaseAddress();
+    const { fyTokenAddress } = fromSeries;
+
+    const seriesMature = fromSeries.isMature();
 
     const permits: ICallData[] = await sign([
       { // router.forwardPermit ( fyToken.address, router.address, allowance, deadline, v, r, s )
         targetAddress: fyTokenAddress,
-        targetId: series.id,
+        targetId: fromSeries.id,
         spender: 'POOLROUTER',
-        series,
-        type: SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
+        series: fromSeries,
+        type: SignType.FYTOKEN, // Type based on whether a DAI-TyPE base asset or not.
         fallbackCall: { fn: 'approve', args: [contractMap.get('PoolRouter'), MAX_256], ignore: false, opCode: null },
         message: 'Signing ERC20 Token approval',
-        ignore: series.isMature(),
+        ignore: seriesMature,
+      },
+
+      /* AFTER MATURITY */
+
+      { // ladle.forwardPermitAction(seriesId, false, ladle.address, allowance, deadline, v, r, s)
+        targetAddress: fyTokenAddress,
+        targetId: fromSeries.id,
+        spender: 'LADLE',
+        series: fromSeries,
+        type: SignType.FYTOKEN, // Type based on whether a DAI-TyPE base asset or not.
+        fallbackCall: { fn: 'approve', args: [contractMap.get('PoolRouter'), MAX_256], ignore: false, opCode: null },
+        message: 'Signing ERC20 Token approval',
+        ignore: !seriesMature,
       },
 
     ], txCode, true);
 
     const calls: ICallData[] = [
       ...permits,
-      {
+
+      /* BEFORE MATURITY */
+
+      { // router.transferToPoolAction( base.address, fyToken1.address, fyToken1.address, fyToken1Rolled)
         operation: POOLROUTER_OPS.TRANSFER_TO_POOL,
         args: [baseAddress, fyTokenAddress, fyTokenAddress, _input.toString()],
-        series,
-        ignore: false,
+        series: fromSeries,
+        ignore: seriesMature,
       },
-      { // router.transferToPoolAction( base.address, fyToken1.address, fyToken1.address, fyToken1Rolled),
+      { // router.sellFYTokenAction( pool.address, pool2.address, minimumBaseReceived)
         operation: POOLROUTER_OPS.ROUTE,
-        args: [destinationAddress, ethers.constants.Zero],
+        args: [fromSeries.poolAddress, toSeries.poolAddress, ethers.constants.Zero],
         fnName: 'sellFyToken',
-        series,
-        ignore: false,
+        series: fromSeries,
+        ignore: seriesMature,
       },
-      {
+      { // router.sellBaseTokenAction( pool.address, receiver, minimumFYToken2Received)
         operation: POOLROUTER_OPS.ROUTE,
-        args: [account, ethers.constants.Zero],
+        args: [fromSeries.poolAddress, account, ethers.constants.Zero],
         fnName: 'sellBaseToken',
-        series: destinationSeries,
-        ignore: false,
+        series: toSeries,
+        ignore: seriesMature,
+      },
+
+      /* AFTER MATURITY */
+
+      { // ladle.transferToFYTokenAction(seriesId, fyTokenToRoll)
+        operation: VAULT_OPS.TRANSFER_TO_POOL,
+        args: [fromSeries.id, _input.toString()],
+        series: fromSeries,
+        ignore: seriesMature,
+      },
+      { // ladle.redeemAction(seriesId, pool2.address, fyTokenToRoll)
+        operation: VAULT_OPS.REDEEM,
+        args: [fromSeries.id, toSeries.poolAddress, ethers.constants.Zero],
+        series: fromSeries,
+        ignore: seriesMature,
+      },
+      { // ladle.sellBaseTokenAction(series2Id, receiver, minimumFYTokenToReceive)
+        operation: VAULT_OPS.ROUTE,
+        args: [toSeries.id, account, ethers.constants.Zero],
+        fnName: 'sellBaseToken',
+        series: toSeries,
+        ignore: seriesMature,
       },
     ];
-    await transact('PoolRouter', calls, txCode);
-    updateSeries([series, destinationSeries]);
+    await transact(
+      seriesMature ? 'PoolRouter' : 'Ladle', // select router based on if series is mature
+      calls,
+      txCode,
+    );
+    updateSeries([fromSeries, toSeries]);
   };
 
   const closePosition = async (
@@ -428,7 +458,6 @@ export const useActions = () => {
   ) => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode('080_', series.id);
-
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
     const baseAddress = series.getBaseAddress();
     const { fyTokenAddress } = series;
@@ -513,7 +542,7 @@ export const useActions = () => {
       },
 
       /**
-       * BORROWING STRATEGY FLOW:
+       * MINT  STRATEGY FLOW: // TODO minting strategy
        * */
 
       // build Vault with random id if required
@@ -554,26 +583,14 @@ export const useActions = () => {
     fromSeries: ISeries,
     toSeries: ISeries,
   ) => {
-    // BEFORE MATURITY:
-    //   router.forwardPermitAction(pool.address, pool.address, router.address, allowance, deadline, v, r, s ),
-    //   router.burnForBaseToken(pool.address, pool2.address, minBaseReceived),
-    //   router.mintWithBaseTokenAction( base.address, fyToken2.address, receiver, fyTokenToBuy, minLPReceived),
-
-    // AFTER MATURITY:
-    // ladle.forwardPermitAction(seriesId, false, ladle.address, allowance, deadline, v, r, s),
-    // ladle.transferToFYTokenAction(seriesId, fyTokenToRoll),
-    // ladle.redeemAction(seriesId, pool2.address, fyTokenToRoll),
-    // ladle.mintWithBaseTokenAction(series2Id, receiver, fyTokenToBuy, minLPReceived),
-
-    /* generate the reproducible txCode for tx tracking and tracing */
-    // const txCode = getTxCode('020_', vault.series.id);
-    const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
-
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode('100_', fromSeries.id);
+    const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
+
+    const seriesMature = fromSeries.isMature();
 
     const permits: ICallData[] = await sign([
-      {
+      { // router.forwardPermitAction(pool.address, pool.address, router.address, allowance, deadline, v, r, s )
         targetAddress: fromSeries.poolAddress,
         targetId: fromSeries.id,
         spender: 'POOLROUTER',
@@ -581,34 +598,72 @@ export const useActions = () => {
         type: SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
         fallbackCall: { fn: 'approve', args: [contractMap.get('PoolRouter'), MAX_256], ignore: false, opCode: null },
         message: 'Signing ERC20 Token approval',
-        ignore: false,
+        ignore: seriesMature,
       },
-    ], txCode);
+
+      /* AFTER MATURITY */
+
+      { // ladle.forwardPermitAction(seriesId, false, ladle.address, allowance, deadline, v, r, s)
+        targetAddress: fromSeries.fyTokenAddress,
+        targetId: fromSeries.id,
+        spender: 'LADLE',
+        series: fromSeries,
+        type: SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
+        fallbackCall: { fn: 'approve', args: [contractMap.get('PoolRouter'), MAX_256], ignore: false, opCode: null },
+        message: 'Signing ERC20 Token approval',
+        ignore: !seriesMature,
+      },
+
+    ], txCode, true);
 
     const calls: ICallData[] = [
       ...permits,
-      {
-        operation: POOLROUTER_OPS.ROUTE,
-        args: [toSeries.poolAddress, _input, _input], // TODO calc min transfer slippage
+
+      /* BEFORE MATURITY */
+
+      { // router.burnForBaseToken(pool.address, pool2.address, minBaseReceived)
+        operation: POOLROUTER_OPS.TRANSFER_TO_POOL,
+        args: [fromSeries.poolAddress, toSeries.poolAddress, _input.toString()],
         fnName: 'burnForBaseToken',
         series: fromSeries,
-        ignore: false,
+        ignore: seriesMature,
       },
-      {
+      { // router.mintWithBaseTokenAction( base.address, fyToken2.address, receiver, fyTokenToBuy, minLPReceived)
         operation: POOLROUTER_OPS.ROUTE,
-        args: [
-          fromSeries.getBaseAddress(),
-          toSeries.fyTokenAddress,
-          account,
-          _input.div(100),
-          ethers.constants.Zero,
-        ],
-        fnName: 'mintWithBaseToken',
+        args: [fromSeries.poolAddress, toSeries.fyTokenAddress, account, _input, ethers.constants.Zero],
+        fnName: 'sellFyToken',
         series: fromSeries,
-        ignore: false,
+        ignore: seriesMature,
+      },
+
+      /* AFTER MATURITY */
+
+      { // ladle.transferToFYTokenAction(seriesId, fyTokenToRoll)
+        operation: VAULT_OPS.TRANSFER_TO_POOL,
+        args: [fromSeries.id, true, _input.toString()],
+        series: fromSeries,
+        ignore: seriesMature,
+      },
+      { // ladle.redeemAction(seriesId, pool2.address, fyTokenToRoll)
+        operation: VAULT_OPS.REDEEM,
+        args: [fromSeries.id, toSeries.poolAddress, ethers.constants.Zero],
+        series: fromSeries,
+        ignore: seriesMature,
+      },
+      { // ladle.mintWithBaseTokenAction(series2Id, receiver, fyTokenToBuy, minLPReceived),
+        operation: VAULT_OPS.ROUTE,
+        args: [toSeries.id, account, _input, ethers.constants.Zero],
+        fnName: 'mintWithBaseToken',
+        series: toSeries,
+        ignore: seriesMature,
       },
     ];
-    await transact('PoolRouter', calls, txCode);
+
+    await transact(
+      seriesMature ? 'PoolRouter' : 'Ladle', // select router based on if series is mature
+      calls,
+      txCode,
+    );
     updateSeries([fromSeries, toSeries]);
   };
 

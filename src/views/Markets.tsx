@@ -1,7 +1,6 @@
-import React, { useContext, useState, useRef, useEffect } from 'react';
-import { Box, Button, Collapsible, Menu, ResponsiveContext, Text, TextInput } from 'grommet';
+import React, { useContext, useState, useEffect } from 'react';
+import { Box, ResponsiveContext, Text } from 'grommet';
 
-import { useHistory } from 'react-router-dom';
 import { UserContext } from '../contexts/UserContext';
 import MainViewWrap from '../components/wraps/MainViewWrap';
 import { ISeriesRoot } from '../types';
@@ -12,7 +11,6 @@ import MarketBorrow from '../components/MarketBorrow';
 
 const Markets = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
-  const routerHistory = useHistory();
 
   /* state from context */
   const { userState: { vaultMap } } = useContext(UserContext);
