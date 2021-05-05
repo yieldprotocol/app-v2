@@ -4,7 +4,11 @@ import { Box, ResponsiveContext, Select, Text, ThemeContext } from 'grommet';
 import { ISeries } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 
-function SeriesSelector() {
+interface ISeriesSelectorProps {
+  globalSelect?:boolean;
+}
+
+function SeriesSelector({ globalSelect }: ISeriesSelectorProps) {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
 
   const { userState, userActions } = useContext(UserContext);
@@ -27,8 +31,10 @@ function SeriesSelector() {
   }, [seriesMap, selectedBaseId]);
 
   const handleSelect = (id:string) => {
-    console.log('Series selected: ', id);
-    userActions.setSelectedSeries(id);
+    if (globalSelect) {
+      console.log('Series selected globally: ', id);
+      globalSelect && userActions.setSelectedSeries(id);
+    }
   };
 
   return (
@@ -53,5 +59,7 @@ function SeriesSelector() {
     </Box>
   );
 }
+
+SeriesSelector.defaultProps = { globalSelect: true };
 
 export default SeriesSelector;

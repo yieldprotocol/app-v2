@@ -10,11 +10,11 @@ import { UserContext } from '../../contexts/UserContext';
 //   ['DOGE', { name: 'Doge Coin', symbol: 'DOGE', icon: null }],
 //   ['UNI', { name: 'Uni coin', symbol: 'UNI', icon: null }],
 // ]);
-interface IAssetRootSelectorProps {
+interface IAssetSelectorProps {
   selectCollateral?:boolean;
 }
 
-function AssetSelector({ selectCollateral }: IAssetRootSelectorProps) {
+function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
   const { userState, userActions } = useContext(UserContext);
   const { selectedIlkId, selectedSeriesId, selectedBaseId, assetMap } = userState;
