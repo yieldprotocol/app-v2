@@ -11,44 +11,31 @@ import { VAULT_OPS, POOLROUTER_OPS } from '../utils/operations';
 
 /* Generic hook for chain transactions */
 export const useActions = () => {
-  const { chainState: { account, contractMap, assetRootMap } } = useContext(ChainContext);
+  const { chainState: { account, contractMap } } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
   const { selectedIlkId, selectedSeriesId, seriesMap, assetMap } = userState;
   const { updateVaults, updateSeries } = userActions;
 
   const { sign, transact } = useChain();
 
-  /**
-   * Common internal ICalldata builders:
-   *  - Create a call that builds a new Vault
-   *  - Create a call that takes ETH, wraps it, and adds it as collateral
-   * */
-  const _buildVault = (vaultId: string, ignore:boolean): ICallData[] => (
-    [{
-      operation: VAULT_OPS.BUILD,
-      args: [vaultId, selectedSeriesId, selectedIlkId],
-      ignore,
-    }]
-  );
-
-  const _addEth = (value: BigNumber): ICallData[] => {
+  const _addEth = (value: BigNumber, series:ISeries): ICallData[] => {
     const isPositive = value.gte(ethers.constants.Zero);
     /* Check if the selected Ilk is, in fact, an ETH variety */
     if (ETH_BASED_ASSETS.includes(selectedIlkId) && isPositive) {
-      console.log(selectedIlkId);
       /* return the add ETH OP */
       return [{
         operation: VAULT_OPS.JOIN_ETHER,
         args: [selectedIlkId],
         ignore: false,
         overrides: { value },
+        series,
       }];
     }
     /* else return empty array */
     return [];
   };
 
-  const _removeEth = (value: BigNumber): ICallData[] => {
+  const _removeEth = (value: BigNumber, series:ISeries): ICallData[] => {
     /* First check if the selected Ilk is, in fact, an ETH variety */
     if (ETH_BASED_ASSETS.includes(selectedIlkId)) {
       /* return the remove ETH OP */
@@ -56,76 +43,108 @@ export const useActions = () => {
         operation: VAULT_OPS.EXIT_ETHER,
         args: [selectedIlkId, account],
         ignore: value.gte(ethers.constants.Zero),
+        series,
       }];
     }
     /* else return empty array */
     return [];
   };
 
-  const addRemoveCollateral = async (
-    vault: IVault,
+  const addCollateral = async (
+    vault: IVault|undefined,
     input: string,
-    remove: boolean = false, // add by default
   ) => {
-    // ADD ETH
-    // ladle.joinEtherAction(ethId),
-    // ladle.pourAction(vaultId, ignored, posted, 0),
-    // REMOVE ETH
-    // ladle.pourAction(vaultId, ladle.address, withdrawn.mul(-1), 0),
-    // ladle.exitEtherAction(ethId, owner),
-    // ADD ERC20
-    // ladle.forwardPermitAction(ilkId, true, ilkJoin.address, posted, deadline, v, r, s),
-    // ladle.pourAction(vaultId, ignored, posted, 0),
-    // REMOVE ERC20
-    // ladle.pourAction(vaultId, receiver, withdrawn.mul(-1), 0),
-
     /* use the vault id provided OR Get a random vault number ready if reqd. */
-    const _vaultId = vault?.id || ethers.utils.hexlify(ethers.utils.randomBytes(12));
-    const _series = seriesMap.get(vault.seriesId);
-
-    const _ilk = assetMap.get(vault.ilkId);
-    const _isEthBased = ETH_BASED_ASSETS.includes(_ilk.id);
-
+    const vaultId = vault?.id || ethers.utils.hexlify(ethers.utils.randomBytes(12));
+    /* set the series and ilk based on if a vault has been selected or it's a new vault */
+    const series = vault ? seriesMap.get(vault.seriesId) : seriesMap.get(selectedSeriesId);
+    const ilk = vault ? assetMap.get(vault.ilkId) : assetMap.get(selectedIlkId);
     /* generate the reproducible txCode for tx tracking and tracing */
-    const txCode = getTxCode('000_', _vaultId);
+    const txCode = getTxCode('000_', vaultId);
 
-    /* parse inputs to BigNumber and then negate if removing collateral */
-    let _input = ethers.utils.parseEther(input);
-    if (remove) _input = _input.mul(-1);
+    /* parse inputs to BigNumber in Wei */
+    const _input = ethers.utils.parseEther(input);
 
-    /* check if the ilk/asset is an eth asset variety */
-    const _pourTo = _isEthBased ? contractMap.get('Ladle').address : account;
+    /* check if the ilk/asset is an eth asset variety, if so pour to Ladle */
+    const _isEthBased = ETH_BASED_ASSETS.includes(ilk.id);
+    const _pourTo = ETH_BASED_ASSETS.includes(ilk.id) ? contractMap.get('Ladle').address : account;
 
     /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
     const permits: ICallData[] = await sign([
       {
-        targetAddress: _ilk.address,
-        targetId: _ilk.id,
+        targetAddress: ilk.address,
+        targetId: ilk.id,
         type: SignType.ERC2612,
-        spender: _ilk.joinAddress,
-        series: _series,
+        spender: ilk.joinAddress,
+        series,
         fallbackCall: { fn: 'approve', args: [], ignore: false, opCode: null },
-        ignore: _isEthBased || remove,
+        ignore: _isEthBased,
       },
     ], txCode);
 
-    console.log(_vaultId, account, _input, 0);
-
     const calls: ICallData[] = [
-      ..._addEth(_input),
+      /* If vault is null, build a new vault, else ignore */
+      {
+        operation: VAULT_OPS.BUILD,
+        args: [vaultId, selectedSeriesId, selectedIlkId],
+        series,
+        ignore: !!vault,
+      },
+      // ladle.joinEtherAction(ethId),
+      ..._addEth(_input, series),
+      // ladle.forwardPermitAction(ilkId, true, ilkJoin.address, posted, deadline, v, r, s)
       ...permits,
+      // ladle.pourAction(vaultId, ignored, posted, 0)
       {
         operation: VAULT_OPS.POUR,
         args: [
-          /* pour destination based on ilk/asset is an eth asset variety */
-          _pourTo,
+          vaultId,
+          _pourTo, /* pour destination based on ilk/asset is an eth asset variety */
           _input.toString(),
           ethers.constants.Zero,
         ],
+        series,
         ignore: false,
       },
-      ..._removeEth(_input),
     ];
+
+    await transact('Ladle', calls, txCode);
+    updateVaults([vault]);
+  };
+
+  const removeCollateral = async (
+    vault: IVault,
+    input: string,
+  ) => {
+    /* generate the txCode for tx tracking and tracing */
+    const txCode = getTxCode('010_', vault.id);
+
+    /* get associated series and ilk */
+    const series = seriesMap.get(vault.seriesId);
+    const ilk = assetMap.get(vault.ilkId);
+
+    /* parse inputs to BigNumber in Wei, and NEGATE */
+    const _input = ethers.utils.parseEther(input).mul(-1);
+
+    /* check if the ilk/asset is an eth asset variety, if so pour to Ladle */
+    const _pourTo = ETH_BASED_ASSETS.includes(ilk.id) ? contractMap.get('Ladle').address : account;
+
+    const calls: ICallData[] = [
+      // ladle.pourAction(vaultId, ignored, -posted, 0)
+      {
+        operation: VAULT_OPS.POUR,
+        args: [
+          vault.id,
+          _pourTo, /* pour destination based on ilk/asset is an eth asset variety */
+          _input.toString(),
+          ethers.constants.Zero,
+        ],
+        series,
+        ignore: false,
+      },
+      ..._removeEth(_input, series),
+    ];
+
     await transact('Ladle', calls, txCode);
     updateVaults([vault]);
   };
@@ -136,12 +155,12 @@ export const useActions = () => {
     collInput: string|undefined,
   ) => {
     /* use the vault id provided OR Get a random vault number ready if reqd. */
-    const _vaultId = vault?.id || ethers.utils.hexlify(ethers.utils.randomBytes(12));
-    const _series = vault ? seriesMap.get(vault.seriesId) : seriesMap.get(selectedSeriesId);
-    const _ilk = vault ? assetMap.get(vault.ilkId) : assetMap.get(selectedIlkId);
-
+    const vaultId = vault?.id || ethers.utils.hexlify(ethers.utils.randomBytes(12));
+    /* set the series and ilk based on if a vault has been selected or it's a new vault */
+    const series = vault ? seriesMap.get(vault.seriesId) : seriesMap.get(selectedSeriesId);
+    const ilk = vault ? assetMap.get(vault.ilkId) : assetMap.get(selectedIlkId);
     /* generate the reproducible txCode for tx tracking and tracing */
-    const txCode = getTxCode('010_', _vaultId);
+    const txCode = getTxCode('020_', vaultId);
 
     /* parse inputs */
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
@@ -150,10 +169,10 @@ export const useActions = () => {
     /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
     const permits: ICallData[] = await sign([
       {
-        targetAddress: _ilk.address,
-        targetId: _ilk.id,
-        spender: _ilk.joinAddress,
-        series: _series,
+        targetAddress: ilk.address,
+        targetId: ilk.id,
+        spender: ilk.joinAddress,
+        series,
         type: SignType.ERC2612,
         fallbackCall: { fn: 'approve', args: [], ignore: false, opCode: null },
         ignore: ETH_BASED_ASSETS.includes(selectedIlkId), /* Ignore if Eth varietal */
@@ -165,23 +184,25 @@ export const useActions = () => {
       /* If vault is null, build a new vault, else ignore */
       {
         operation: VAULT_OPS.BUILD,
-        args: [_vaultId, selectedSeriesId, selectedIlkId],
+        args: [vaultId, selectedSeriesId, selectedIlkId],
+        series,
         ignore: !!vault,
       },
       /* handle ETH deposit, if required */
-      ..._addEth(_collInput),
+      ..._addEth(_collInput, series),
       /* Include all the signatures gathered, if required  */
       ...permits,
-      /* Then add all the CALLS you want to make: */
       {
         operation: VAULT_OPS.SERVE,
-        args: [_vaultId, account, _collInput, _input, MAX_128],
+        args: [vaultId, account, _collInput, _input, MAX_128],
         ignore: false,
+        series,
       },
     ];
+
     /* handle the transaction */
     await transact('Ladle', calls, txCode);
-    // then update the changed elements
+    /* when complete, then update the changed elements */
     vault && updateVaults([vault]);
   };
 
@@ -190,20 +211,20 @@ export const useActions = () => {
     input:string|undefined,
     collInput: string|undefined = '0', // optional - add(+) / remove(-) collateral in same tx.
   ) => {
-    const txCode = getTxCode('020_', vault.seriesId);
+    const txCode = getTxCode('030_', vault.id);
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
     const _collInput = ethers.utils.parseEther(collInput);
-    const _series = seriesMap.get(vault.seriesId);
-    const _base = assetMap.get(vault.baseId);
+    const series = seriesMap.get(vault.seriesId);
+    const base = assetMap.get(vault.baseId);
     const _isDaiBased = DAI_BASED_ASSETS.includes(vault.baseId);
 
     const permits: ICallData[] = await sign([
       {
         // before maturity
-        targetAddress: _base.address,
-        targetId: vault.baseId,
+        targetAddress: base.address,
+        targetId: base.id,
         spender: 'LADLE',
-        series: _series,
+        series,
         type: _isDaiBased ? SignType.DAI : SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
         fallbackCall: { fn: 'approve', args: [contractMap.get('Ladle'), MAX_256], ignore: false, opCode: null },
         message: 'Signing Dai Approval',
@@ -211,10 +232,10 @@ export const useActions = () => {
       },
       {
         // after maturity
-        targetAddress: _base.address,
-        targetId: vault.baseId,
-        spender: _base.joinAddress,
-        series: _series,
+        targetAddress: base.address,
+        targetId: base.id,
+        spender: base.joinAddress,
+        series,
         type: _isDaiBased ? SignType.DAI : SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
         fallbackCall: { fn: 'approve', args: [contractMap.get('Ladle'), MAX_256], ignore: false, opCode: null },
         message: 'Signing Dai Approval',
@@ -223,24 +244,47 @@ export const useActions = () => {
     ], txCode);
 
     const calls: ICallData[] = [
-      // ...permits,
-      /* transferToPool(bytes6 seriesId, bool base, uint128 wad) */
+      ...permits,
       {
         operation: VAULT_OPS.TRANSFER_TO_POOL,
-        args: [vault.baseId, true, _input],
+        args: [series.id, true, _input],
+        series,
         ignore: false,
       },
       /* ladle.repay(vaultId, owner, inkRetrieved, 0) */
       {
         operation: VAULT_OPS.REPAY,
-        args: [account, _collInput, ethers.constants.Zero],
+        args: [vault.id, account, _collInput, ethers.constants.Zero],
+        series,
         ignore: false,
       },
       /* ladle.repayVault(vaultId, owner, inkRetrieved, MAX) */
       {
         operation: VAULT_OPS.REPAY_VAULT,
         args: [vault.id, account, BigNumber.from('1'), MAX_128],
+        series,
         ignore: true, // TODO add in repay all logic
+      },
+    ];
+    await transact('Ladle', calls, txCode);
+    updateVaults([vault]);
+  };
+
+  const rollDebt = async (
+    vault: IVault,
+    toSeries: ISeries,
+    input:string|undefined,
+  ) => {
+    const txCode = getTxCode('040_', vault.seriesId);
+    const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
+    const series = seriesMap.get(vault.seriesId);
+    const calls: ICallData[] = [
+      /* ladle.rollAction(vaultId: string, newSeriesId: string, max: BigNumberish) : */
+      {
+        operation: VAULT_OPS.ROLL,
+        args: [vault.id, toSeries.id, MAX_128],
+        ignore: false,
+        series,
       },
     ];
     await transact('Ladle', calls, txCode);
@@ -250,13 +294,16 @@ export const useActions = () => {
   const redeem = async (
     vault: IVaultRoot,
   ) => {
-    const txCode = getTxCode('030_', vault.seriesId);
+    const txCode = getTxCode('050_', vault.seriesId);
+    const series = seriesMap.get(vault.seriesId);
+
     const calls: ICallData[] = [
       /* ladle.redeem(bytes6 seriesId, address to, uint256 wad) */
       {
         operation: VAULT_OPS.REDEEM,
         args: [account, MAX_256], // TODO calc max transfer
         ignore: false,
+        series,
       },
     ];
     transact('Ladle', calls, txCode);
@@ -266,17 +313,18 @@ export const useActions = () => {
     input: string|undefined,
     series: ISeries,
   ) => {
-    const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
-
-    const _base = assetMap.get(series.baseId);
-    const _isDaiBased = DAI_BASED_ASSETS.includes(series.baseId);
-
     /* generate the reproducible txCode for tx tracking and tracing */
-    const txCode = getTxCode('040_', series.id);
+    const txCode = getTxCode('060_', series.id);
+
+    const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
+    const baseAddress = series.getBaseAddress();
+    const { fyTokenAddress } = series;
+
+    const _isDaiBased = DAI_BASED_ASSETS.includes(series.baseId);
 
     const permits: ICallData[] = await sign([
       {
-        targetAddress: _base.address,
+        targetAddress: baseAddress,
         targetId: series.baseId,
         spender: 'POOLROUTER',
         series,
@@ -291,7 +339,7 @@ export const useActions = () => {
       ...permits,
       {
         operation: POOLROUTER_OPS.TRANSFER_TO_POOL,
-        args: [series.getBaseAddress(), _input.toString()],
+        args: [baseAddress, fyTokenAddress, baseAddress, _input.toString()],
         series,
         ignore: false,
       },
@@ -308,17 +356,86 @@ export const useActions = () => {
     updateSeries([series]);
   };
 
+  const rollPosition = async (
+    input: string|undefined,
+    series: ISeries,
+    destinationSeries: ISeries,
+  ) => {
+    // BEFORE MATURITY:
+    // router.forwardPermitAction( pool.address, fyToken.address, router.address, allowance, deadline, v, r, s ),
+    // router.transferToPoolAction( base.address, fyToken1.address, fyToken1.address, fyToken1Rolled),
+    // router.sellFYTokenAction( pool.address, pool2.address, minimumBaseReceived),
+    // router.sellBaseTokenAction( pool.address, receiver, minimumFYToken2Received),
+
+    // TODO : AFTER MATURITY:
+    // ladle.forwardPermitAction(seriesId, false, ladle.address, allowance, deadline, v, r, s),
+    // ladle.transferToFYTokenAction(seriesId, fyTokenToRoll),
+    // ladle.redeemAction(seriesId, pool2.address, fyTokenToRoll),
+    // ladle.sellBaseTokenAction(series2Id, receiver, minimumFYTokenToReceive),
+
+    /* generate the reproducible txCode for tx tracking and tracing */
+    const txCode = getTxCode('070_', series.id);
+
+    const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
+    const baseAddress = series.getBaseAddress();
+    const { fyTokenAddress } = series;
+    const destinationAddress = destinationSeries.fyTokenAddress;
+
+    const permits: ICallData[] = await sign([
+      { // router.forwardPermit ( fyToken.address, router.address, allowance, deadline, v, r, s )
+        targetAddress: fyTokenAddress,
+        targetId: series.id,
+        spender: 'POOLROUTER',
+        series,
+        type: SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
+        fallbackCall: { fn: 'approve', args: [contractMap.get('PoolRouter'), MAX_256], ignore: false, opCode: null },
+        message: 'Signing ERC20 Token approval',
+        ignore: series.isMature(),
+      },
+
+    ], txCode, true);
+
+    const calls: ICallData[] = [
+      ...permits,
+      {
+        operation: POOLROUTER_OPS.TRANSFER_TO_POOL,
+        args: [baseAddress, fyTokenAddress, fyTokenAddress, _input.toString()],
+        series,
+        ignore: false,
+      },
+      { // router.transferToPoolAction( base.address, fyToken1.address, fyToken1.address, fyToken1Rolled),
+        operation: POOLROUTER_OPS.ROUTE,
+        args: [destinationAddress, ethers.constants.Zero],
+        fnName: 'sellFyToken',
+        series,
+        ignore: false,
+      },
+      {
+        operation: POOLROUTER_OPS.ROUTE,
+        args: [account, ethers.constants.Zero],
+        fnName: 'sellBaseToken',
+        series: destinationSeries,
+        ignore: false,
+      },
+    ];
+    await transact('PoolRouter', calls, txCode);
+    updateSeries([series, destinationSeries]);
+  };
+
   const closePosition = async (
     input: string|undefined,
     series: ISeries,
   ) => {
-    const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
     /* generate the reproducible txCode for tx tracking and tracing */
-    const txCode = getTxCode('050_', series.id);
+    const txCode = getTxCode('080_', series.id);
+
+    const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
+    const baseAddress = series.getBaseAddress();
+    const { fyTokenAddress } = series;
 
     const permits: ICallData[] = await sign([
       {
-        targetAddress: series.fyTokenAddress,
+        targetAddress: fyTokenAddress,
         targetId: series.id,
         spender: 'POOLROUTER',
         series,
@@ -333,7 +450,7 @@ export const useActions = () => {
       ...permits,
       {
         operation: POOLROUTER_OPS.TRANSFER_TO_POOL,
-        args: [series.fyTokenAddress, _input],
+        args: [baseAddress, fyTokenAddress, fyTokenAddress, _input],
         series,
         ignore: false,
       },
@@ -350,18 +467,12 @@ export const useActions = () => {
     updateSeries([series]);
   };
 
-  /**
-   * @function addLiquitity
-   * @param input
-   * @param series
-   * @param strategy
-   */
   const addLiquidity = async (
     input: string|undefined,
     series: ISeries,
-    strategy: 'BUY'|'BORROW' = 'BUY', // select a strategy default: BUY
+    strategy: 'BUY'|'MINT' = 'BUY', // select a strategy default: BUY
   ) => {
-    const txCode = getTxCode('060_', series.id);
+    const txCode = getTxCode('090_', series.id);
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
 
     const permits: ICallData[] = await sign([
@@ -388,9 +499,9 @@ export const useActions = () => {
       // router.transferToPoolAction(pool.address, base.address, baseWithSlippage),
       {
         operation: POOLROUTER_OPS.TRANSFER_TO_POOL,
-        args: [series.getBaseAddress(), _input.toString()],
+        args: [series.getBaseAddress(), series.fyTokenAddress, series.getBaseAddress(), _input.toString()],
         series,
-        ignore: strategy === 'BORROW',
+        ignore: strategy !== 'BUY',
       },
       // router.mintWithBaseTokenAction(pool.address, receiver, fyTokenToBuy, minLPReceived),
       {
@@ -398,7 +509,7 @@ export const useActions = () => {
         args: [account, _input.div(100), ethers.constants.Zero], // TODO calc min transfer slippage
         fnName: 'mintWithBaseToken',
         series,
-        ignore: strategy === 'BORROW',
+        ignore: strategy !== 'BUY',
       },
 
       /**
@@ -409,14 +520,15 @@ export const useActions = () => {
       {
         operation: VAULT_OPS.BUILD,
         args: [ethers.utils.hexlify(ethers.utils.randomBytes(12)), selectedSeriesId, selectedIlkId],
-        ignore: strategy === 'BUY',
+        ignore: strategy !== 'MINT',
+        series,
       },
       // ladle.serveAction(vaultId, pool.address, 0, borrowed, maximum debt),
       {
         operation: VAULT_OPS.SERVE,
         args: [series.poolAddress, ethers.constants.Zero, _input.toString(), MAX_128],
         series,
-        ignore: strategy === 'BUY',
+        ignore: strategy !== 'MINT',
       },
       // ladle.mintWithBaseTokenAction(seriesId, receiver, fyTokenToBuy, minLPReceived)
       {
@@ -424,7 +536,7 @@ export const useActions = () => {
         args: [account, _input.div(100), ethers.constants.Zero],
         fnName: 'mintWithBaseToken',
         series,
-        ignore: strategy === 'BUY',
+        ignore: strategy !== 'MINT',
       },
     ];
 
@@ -437,6 +549,69 @@ export const useActions = () => {
     updateSeries([series]);
   };
 
+  const rollLiquidity = async (
+    input: string|undefined,
+    fromSeries: ISeries,
+    toSeries: ISeries,
+  ) => {
+    // BEFORE MATURITY:
+    //   router.forwardPermitAction(pool.address, pool.address, router.address, allowance, deadline, v, r, s ),
+    //   router.burnForBaseToken(pool.address, pool2.address, minBaseReceived),
+    //   router.mintWithBaseTokenAction( base.address, fyToken2.address, receiver, fyTokenToBuy, minLPReceived),
+
+    // AFTER MATURITY:
+    // ladle.forwardPermitAction(seriesId, false, ladle.address, allowance, deadline, v, r, s),
+    // ladle.transferToFYTokenAction(seriesId, fyTokenToRoll),
+    // ladle.redeemAction(seriesId, pool2.address, fyTokenToRoll),
+    // ladle.mintWithBaseTokenAction(series2Id, receiver, fyTokenToBuy, minLPReceived),
+
+    /* generate the reproducible txCode for tx tracking and tracing */
+    // const txCode = getTxCode('020_', vault.series.id);
+    const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
+
+    /* generate the reproducible txCode for tx tracking and tracing */
+    const txCode = getTxCode('100_', fromSeries.id);
+
+    const permits: ICallData[] = await sign([
+      {
+        targetAddress: fromSeries.poolAddress,
+        targetId: fromSeries.id,
+        spender: 'POOLROUTER',
+        series: fromSeries,
+        type: SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
+        fallbackCall: { fn: 'approve', args: [contractMap.get('PoolRouter'), MAX_256], ignore: false, opCode: null },
+        message: 'Signing ERC20 Token approval',
+        ignore: false,
+      },
+    ], txCode);
+
+    const calls: ICallData[] = [
+      ...permits,
+      {
+        operation: POOLROUTER_OPS.ROUTE,
+        args: [toSeries.poolAddress, _input, _input], // TODO calc min transfer slippage
+        fnName: 'burnForBaseToken',
+        series: fromSeries,
+        ignore: false,
+      },
+      {
+        operation: POOLROUTER_OPS.ROUTE,
+        args: [
+          fromSeries.getBaseAddress(),
+          toSeries.fyTokenAddress,
+          account,
+          _input.div(100),
+          ethers.constants.Zero,
+        ],
+        fnName: 'mintWithBaseToken',
+        series: fromSeries,
+        ignore: false,
+      },
+    ];
+    await transact('PoolRouter', calls, txCode);
+    updateSeries([fromSeries, toSeries]);
+  };
+
   const removeLiquidity = async (
     input: string|undefined,
     series: ISeries,
@@ -447,7 +622,7 @@ export const useActions = () => {
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
 
     /* generate the reproducible txCode for tx tracking and tracing */
-    const txCode = getTxCode('070_', series.id);
+    const txCode = getTxCode('110_', series.id);
 
     const permits: ICallData[] = await sign([
       {
@@ -479,5 +654,18 @@ export const useActions = () => {
     updateSeries([series]);
   };
 
-  return { addRemoveCollateral, borrow, repay, redeem, lend, closePosition, addLiquidity, removeLiquidity };
+  return {
+    addCollateral,
+    removeCollateral,
+    borrow,
+    repay,
+    rollDebt,
+    redeem,
+    lend,
+    rollPosition,
+    closePosition,
+    addLiquidity,
+    rollLiquidity,
+    removeLiquidity,
+  };
 };

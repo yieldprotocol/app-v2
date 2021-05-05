@@ -17,7 +17,7 @@ import { useActions } from '../hooks/actionHooks';
 function Pool() {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
   const [inputValue, setInputValue] = useState<any>(undefined);
-  const [strategy, setStrategy] = useState<'BUY'|'BORROW'>('BUY');
+  const [strategy, setStrategy] = useState<'BUY'|'MINT'>('BUY');
 
   /* state from context */
   const { userState } = useContext(UserContext) as IUserContext;
