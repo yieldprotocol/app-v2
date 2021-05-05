@@ -27,7 +27,8 @@ const _getCallValue = (calls: ICallData[]) : BigNumber => {
   const joinEtherCall = calls.find((call:any) => (
     call.operation === VAULT_OPS.JOIN_ETHER || call.operation === POOLROUTER_OPS.JOIN_ETHER
   ));
-  return BigNumber.from(joinEtherCall?.overrides?.value) || ethers.constants.Zero;
+
+  return joinEtherCall ? BigNumber.from(joinEtherCall?.overrides?.value) : ethers.constants.Zero;
 };
 
 /* Generic hook for chain transactions */
@@ -71,39 +72,30 @@ export const useChain = () => {
 
     /* First, filter out any ignored calls */
     const _calls = calls.filter((call:ICallData) => !call.ignore);
+    console.log('Batched calls: ', _calls);
 
     /* Encode each of the calls OR preEncoded route calls */
     const encodedCalls = _calls.map(
       (call:ICallData) => {
-        if (
-          call.operation === VAULT_OPS.ROUTE ||
-          call.operation === POOLROUTER_OPS.ROUTE // TODO check conflict possibility
-        ) {
-          const { poolContract } = call.series! as ISeriesRoot;
-          const { interface: _interface } = poolContract as Contract;
+        const { poolContract, id, getBaseAddress, fyTokenAddress } = call.series! as ISeriesRoot;
+        const { interface: _interface } = poolContract as Contract;
+
+        /* encode routed calls if required */
+        if (call.operation === VAULT_OPS.ROUTE || call.operation === POOLROUTER_OPS.ROUTE) {
           if (call.fnName) {
-            return _interface.encodeFunctionData(call.fnName, call.args);
+            const encodedFn = _interface.encodeFunctionData(call.fnName, call.args);
+            const extraInfo = (call.operation === VAULT_OPS.ROUTE) ? [id] : [getBaseAddress(), fyTokenAddress];
+            return ethers.utils.defaultAbiCoder.encode(call.operation[1], [...extraInfo, encodedFn]);
           }
           throw new Error('Function name required for routing');
         }
+
         return ethers.utils.defaultAbiCoder.encode(call.operation[1], call.args);
       },
     );
 
     /* Get the numeric OPCODES */
     const opsList = _calls.map((call:ICallData) => call.operation[0]);
-    /* Get the series baseAddresses */
-    const baseAddrList : (string|undefined)[] = _calls.map(
-      (call:ICallData, index: number) => call.series && call.series.getBaseAddress(),
-    );
-    /* Get the series fyDaiAddress */
-    const fyTokenAddrList : (string|undefined)[] = _calls.map(
-      (call:ICallData, index: number) => call.series && call.series.fyTokenAddress,
-    );
-    /* Get the series fyDaiAddress */ // TODO add logic to not duplicate
-    const targetList : number[] = _calls.map(
-      (call:ICallData, index: number) => index,
-    );
 
     /* calculate the value sent */
     const batchValue = _getCallValue(_calls);
@@ -115,9 +107,7 @@ export const useChain = () => {
 
     /* Finally, send out the transaction */
     return handleTx(
-      (router === 'Ladle')
-        ? () => _contract.batch(opsList, encodedCalls, { value: batchValue, gasLimit: BigNumber.from('500000') })
-        : () => _contract.batch(baseAddrList, fyTokenAddrList, targetList, opsList, encodedCalls, { value: batchValue, gasLimit: BigNumber.from('500000') }),
+      () => _contract.batch(opsList, encodedCalls, { value: batchValue, gasLimit: BigNumber.from('500000') }),
       txCode,
     );
   };
@@ -182,6 +172,8 @@ export const useChain = () => {
           );
 
           const poolRouterArgs = [
+            reqSig.series.getBaseAddress(),
+            reqSig.series.fyTokenAddress,
             getSpender(reqSig.spender),
             nonce, expiry, allowed, v, r, s,
           ];
@@ -227,6 +219,8 @@ export const useChain = () => {
 
         // router.forwardPermit(ilkId, true, ilkJoin.address, amount, deadline, v, r, s)
         const poolRouterArgs = [
+          reqSig.series.getBaseAddress(),
+          reqSig.series.fyTokenAddress,
           reqSig.targetAddress,
           getSpender(reqSig.spender),
           value,
