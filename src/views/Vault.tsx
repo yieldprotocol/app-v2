@@ -13,6 +13,7 @@ import ActionButtonGroup from '../components/ActionButtonGroup';
 import PlaceholderWrap from '../components/wraps/PlaceholderWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
 import { useActions } from '../hooks/actionHooks';
+import SeriesSelector from '../components/selectors/SeriesSelector';
 
 const Vault = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -20,7 +21,7 @@ const Vault = () => {
 
   /* state from context */
   const { userState, userActions } = useContext(UserContext) as IUserContext;
-  const { assetMap, seriesMap, vaultMap, selectedVaultId } = userState;
+  const { assetMap, seriesMap, vaultMap, selectedVaultId, selectedSeriesId } = userState;
   const { setSelectedVault } = userActions;
 
   const activeVault: IVault|undefined = vaultMap.get(selectedVaultId!);
@@ -35,7 +36,7 @@ const Vault = () => {
   const [borrowInput, setBorrowInput] = useState<any>(undefined);
   const [collateralInput, setCollateralInput] = useState<any>(undefined);
 
-  const { repay, borrow, addRemoveCollateral } = useActions();
+  const { repay, borrow, addCollateral, removeCollateral, rollDebt } = useActions();
 
   /* init effects */
   useEffect(() => {
@@ -51,10 +52,17 @@ const Vault = () => {
     borrow(activeVault, borrowInput, '0');
   };
   const handleCollateral = (action: 'ADD'|'REMOVE') => {
-    const removeCollateral: boolean = (action === 'REMOVE');
+    const remove: boolean = (action === 'REMOVE');
     if (activeVault) {
-      addRemoveCollateral(activeVault, collateralInput, removeCollateral);
+      !remove && addCollateral(activeVault, collateralInput);
+      remove && removeCollateral(activeVault, collateralInput);
     }
+  };
+
+  const handleRollDebt = () => {
+    const selected = selectedSeriesId && seriesMap.get(selectedSeriesId);
+    selected && activeVault &&
+    rollDebt(activeVault, selected, '0');
   };
 
   return (
@@ -91,8 +99,8 @@ const Vault = () => {
       </Box>
 
       <MainViewWrap>
-        <SectionWrap>
-          <Box gap="small" fill="horizontal">
+        <SectionWrap title="Repay debt">
+          <Box gap="small" fill direction="row" align="center">
             <InputWrap basis="65%" action={() => console.log('maxAction')}>
               <TextInput
                 plain
@@ -106,30 +114,46 @@ const Vault = () => {
                 <Text size="xsmall" color="text">MAX</Text>
               </Box>
             </InputWrap>
+            <Box basis="35%">
+              <ActionButtonGroup buttonList={[
+                <Button
+                  primary
+                  label={<Text size={mobile ? 'small' : undefined}> {`Repay ${inputValue || ''} Dai`} </Text>}
+                  key="primary"
+                  onClick={() => handleRepay()}
+                />,
+              ]}
+              />
+            </Box>
           </Box>
+
         </SectionWrap>
 
-        <ActionButtonGroup buttonList={[
-          <Button
-            primary
-            label={<Text size={mobile ? 'small' : undefined}> {`Repay ${inputValue || ''} Dai`} </Text>}
-            key="primary"
-            onClick={() => handleRepay()}
-          />,
+        <SectionWrap
+          title="Roll debt to:"
+          border={{
+            color: 'grey',
+            style: 'dashed',
+            side: 'all',
+          }}
+        >
+          <Box gap="small" fill="horizontal" direction="row" align="center">
 
-          <Button
-            secondary
-            label={<Text size={mobile ? 'small' : undefined}> Roll Debt </Text>}
-            key="secondary"
-          />,
-          // <Button
-          //   label={mobile ? <Text size="xsmall"> Borrow more </Text> : <Text>Borrow more & add additional collateral</Text>}
-          //   style={{ border: 0 }}
-          //   onClick={() => routerHistory.push('/borrow', { from: 'vault' })}
-          //   key="tertiary"
-          // />,
-        ]}
-        />
+            <SeriesSelector />
+
+            <Box basis="35%">
+              <ActionButtonGroup buttonList={[
+                <Button
+                  primary
+                  label={<Text size={mobile ? 'small' : undefined}> Roll </Text>}
+                  key="primary"
+                  onClick={() => handleRollDebt()}
+                />,
+              ]}
+              />
+            </Box>
+          </Box>
+        </SectionWrap>
 
         <SectionWrap
           title="Borrow more"
