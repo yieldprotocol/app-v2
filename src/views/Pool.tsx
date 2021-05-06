@@ -11,7 +11,7 @@ import ActionButtonGroup from '../components/ActionButtonGroup';
 import PlaceholderWrap from '../components/wraps/PlaceholderWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
 import { UserContext } from '../contexts/UserContext';
-import { IUserContext } from '../types';
+import { ISeries, IUserContext } from '../types';
 import { useActions } from '../hooks/actionHooks';
 
 function Pool() {
@@ -19,13 +19,15 @@ function Pool() {
   const [inputValue, setInputValue] = useState<any>(undefined);
   const [strategy, setStrategy] = useState<'BUY'|'MINT'>('BUY');
 
+  const [rollToSeries, setRollToSeries] = useState<ISeries|null>(null);
+
   /* state from context */
   const { userState } = useContext(UserContext) as IUserContext;
   const { seriesMap, selectedSeriesId, selectedBaseId } = userState;
 
   const selectedSeries = seriesMap.get(selectedSeriesId!);
 
-  const { addLiquidity, removeLiquidity } = useActions();
+  const { addLiquidity, removeLiquidity, rollLiquidity } = useActions();
 
   const handleAdd = () => {
     // !lendDisabled &&
@@ -35,6 +37,11 @@ function Pool() {
   const handleRemove = () => {
     // !lendDisabled &&
     selectedSeries && removeLiquidity('1', selectedSeries);
+  };
+
+  const handleRollLiquidity = () => {
+    // !lendDisabled &&
+    selectedSeries && rollToSeries && rollLiquidity(inputValue, selectedSeries, rollToSeries);
   };
 
   return (
@@ -112,6 +119,32 @@ function Pool() {
         />,
       ]}
       />
+
+      <SectionWrap
+        title="Roll Liquidity to:"
+        border={{
+          color: 'grey',
+          style: 'dashed',
+          side: 'all',
+        }}
+      >
+        <Box gap="small" fill="horizontal" direction="row" align="center">
+
+          <SeriesSelector setSeriesLocally={(series:ISeries) => setRollToSeries(series)} />
+
+          <Box basis="35%">
+            <ActionButtonGroup buttonList={[
+              <Button
+                primary
+                label={<Text size={mobile ? 'small' : undefined}> Roll </Text>}
+                key="primary"
+                onClick={() => handleRollLiquidity()}
+              />,
+            ]}
+            />
+          </Box>
+        </Box>
+      </SectionWrap>
 
     </MainViewWrap>
   );

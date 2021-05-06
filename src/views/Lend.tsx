@@ -98,7 +98,7 @@ const Lend = () => {
       />
 
       <SectionWrap
-        title="Closing position"
+        title="Close position"
         border={{
           color: 'grey',
           style: 'dashed',
