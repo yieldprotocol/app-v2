@@ -116,7 +116,7 @@ export function mint(
  * @param { BigNumber | string } baseReserves
  * @param { BigNumber | string } fyTokenReserves
  * @param { BigNumber | string } totalSupply
- * @param lpTokens { BigNumber | string }
+ * @param { BigNumber | string } lpTokens
  * @returns {[BigNumber, BigNumber]}
  *
  * https://www.desmos.com/calculator/ubsalzunpo

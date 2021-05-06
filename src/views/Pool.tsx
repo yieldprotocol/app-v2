@@ -12,13 +12,12 @@ import PlaceholderWrap from '../components/wraps/PlaceholderWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
 import { UserContext } from '../contexts/UserContext';
 import { ISeries, IUserContext } from '../types';
-import { useActions } from '../hooks/actionHooks';
+import { usePoolActions } from '../hooks/poolActions';
 
 function Pool() {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
   const [inputValue, setInputValue] = useState<any>(undefined);
   const [strategy, setStrategy] = useState<'BUY'|'MINT'>('BUY');
-
   const [rollToSeries, setRollToSeries] = useState<ISeries|null>(null);
 
   /* state from context */
@@ -27,7 +26,7 @@ function Pool() {
 
   const selectedSeries = seriesMap.get(selectedSeriesId!);
 
-  const { addLiquidity, removeLiquidity, rollLiquidity } = useActions();
+  const { addLiquidity, removeLiquidity, rollLiquidity } = usePoolActions();
 
   const handleAdd = () => {
     // !lendDisabled &&

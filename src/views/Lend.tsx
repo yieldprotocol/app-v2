@@ -10,7 +10,7 @@ import { cleanValue } from '../utils/displayUtils';
 import PlaceholderWrap from '../components/wraps/PlaceholderWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
 
-import { useActions } from '../hooks/actionHooks';
+import { useLendActions } from '../hooks/lendActions';
 import { UserContext } from '../contexts/UserContext';
 import { ISeries, IUserContext } from '../types';
 
@@ -28,7 +28,7 @@ const Lend = () => {
   const selectedSeries = seriesMap.get(selectedSeriesId!);
   const selectedBase = assetMap.get(selectedBaseId!);
 
-  const { lend, closePosition, rollPosition } = useActions();
+  const { lend, closePosition, rollPosition } = useLendActions();
 
   const handleLend = () => {
     // !lendDisabled &&

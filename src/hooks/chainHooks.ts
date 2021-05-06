@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
 import { MAX_256 } from '../utils/constants';
-import { ICallData, ISignData, ISeriesRoot } from '../types';
+import { ICallData, ISignData, ISeriesRoot, ISeries } from '../types';
 import { ERC20__factory, Ladle, Pool, PoolRouter } from '../contracts';
 import { POOLROUTER_OPS, VAULT_OPS } from '../utils/operations';
 
@@ -36,24 +36,6 @@ export const useChain = () => {
   const { chainState: { account, provider, signer, contractMap } } = useContext(ChainContext);
   const { txActions: { handleTx, handleSign } } = useContext(TxContext);
 
-  /* Generic fn for READ ONLY chain calls (public view fns) */
-  const read = async (contract:Contract, calls: ICallData[]) => {
-    /* filter out ignored calls */
-    const _calls = calls.filter((c:ICallData) => c.ignore);
-    try {
-      const _contract = contract as any;
-      return await Promise.all(_calls.map((_call:ICallData) => {
-        if (_call.fnName) {
-          _contract[_call.fnName](_call.args);
-        }
-        throw new Error('Function name required required');
-      }));
-    } catch (e) {
-      toast.error('Check Network Connection');
-    }
-    return null;
-  };
-
   /**
    * TRANSACTING
    * @param { 'PoolRouter' | 'Ladle' } router
@@ -72,24 +54,22 @@ export const useChain = () => {
 
     /* First, filter out any ignored calls */
     const _calls = calls.filter((call:ICallData) => !call.ignore);
-    console.log('Batched calls: ', _calls);
+    console.log('Batch calls: ', _calls);
 
     /* Encode each of the calls OR preEncoded route calls */
     const encodedCalls = _calls.map(
       (call:ICallData) => {
-        const { poolContract, id, getBaseAddress, fyTokenAddress } = call.series! as ISeriesRoot;
+        const { poolContract, id: seriesId, getBaseAddress, fyTokenAddress } = call.series! as ISeries;
         const { interface: _interface } = poolContract as Contract;
-
         /* encode routed calls if required */
         if (call.operation === VAULT_OPS.ROUTE || call.operation === POOLROUTER_OPS.ROUTE) {
           if (call.fnName) {
             const encodedFn = _interface.encodeFunctionData(call.fnName, call.args);
-            const extraInfo = (call.operation === VAULT_OPS.ROUTE) ? [id] : [getBaseAddress(), fyTokenAddress];
-            return ethers.utils.defaultAbiCoder.encode(call.operation[1], [...extraInfo, encodedFn]);
+            const extraParams = (call.operation === VAULT_OPS.ROUTE) ? [seriesId] : [getBaseAddress(), fyTokenAddress];
+            return ethers.utils.defaultAbiCoder.encode(call.operation[1], [...extraParams, encodedFn]);
           }
           throw new Error('Function name required for routing');
         }
-
         return ethers.utils.defaultAbiCoder.encode(call.operation[1], call.args);
       },
     );
@@ -251,5 +231,5 @@ export const useChain = () => {
     return signedList;
   };
 
-  return { sign, transact, read };
+  return { sign, transact };
 };

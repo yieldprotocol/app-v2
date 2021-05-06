@@ -8,7 +8,7 @@ import InputWrap from '../components/wraps/InputWrap';
 import ActionButtonGroup from '../components/ActionButtonGroup';
 import PlaceholderWrap from '../components/wraps/PlaceholderWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
-import { useActions } from '../hooks/actionHooks';
+import { useBorrowActions } from '../hooks/borrowActions';
 import { UserContext } from '../contexts/UserContext';
 import { IUserContext, IVault } from '../types';
 
@@ -31,7 +31,7 @@ const Borrow = () => {
   const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
   const [vaultIdToUse, setVaultIdToUse] = useState<string|undefined>(undefined);
 
-  const { borrow } = useActions();
+  const { borrow } = useBorrowActions();
 
   const handleBorrow = () => {
     !borrowDisabled &&

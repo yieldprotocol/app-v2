@@ -12,7 +12,8 @@ import { IAsset, ISeries, IUserContext, IVault } from '../types';
 import ActionButtonGroup from '../components/ActionButtonGroup';
 import PlaceholderWrap from '../components/wraps/PlaceholderWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
-import { useActions } from '../hooks/actionHooks';
+import { useCollateralActions } from '../hooks/collateralActions';
+import { useBorrowActions } from '../hooks/borrowActions';
 import SeriesSelector from '../components/selectors/SeriesSelector';
 
 const Vault = () => {
@@ -36,7 +37,8 @@ const Vault = () => {
   const [borrowInput, setBorrowInput] = useState<any>(undefined);
   const [collateralInput, setCollateralInput] = useState<any>(undefined);
 
-  const { repay, borrow, addCollateral, removeCollateral, rollDebt } = useActions();
+  const { repay, borrow, rollDebt } = useBorrowActions();
+  const { addCollateral, removeCollateral } = useCollateralActions();
 
   /* init effects */
   useEffect(() => {
