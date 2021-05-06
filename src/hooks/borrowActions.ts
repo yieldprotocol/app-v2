@@ -2,19 +2,19 @@ import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
-import { ICallData, IVaultRoot, IVault, SignType, ISeries } from '../types';
+import { ICallData, IVault, SignType, ISeries } from '../types';
 import { getTxCode } from '../utils/appUtils';
 import { ETH_BASED_ASSETS, DAI_BASED_ASSETS, MAX_128, MAX_256 } from '../utils/constants';
 import { useChain } from './chainHooks';
 
-import { VAULT_OPS, POOLROUTER_OPS } from '../utils/operations';
+import { VAULT_OPS } from '../utils/operations';
 
 /* Generic hook for chain transactions */
 export const useBorrowActions = () => {
   const { chainState: { account, contractMap } } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
   const { selectedIlkId, selectedSeriesId, seriesMap, assetMap } = userState;
-  const { updateVaults, updateSeries } = userActions;
+  const { updateVaults } = userActions;
 
   const { sign, transact } = useChain();
 
@@ -166,6 +166,7 @@ export const useBorrowActions = () => {
         series,
         ignore: true, // TODO add in repay all logic
       },
+      ..._removeEth(_collInput, series),
     ];
     await transact('Ladle', calls, txCode);
     updateVaults([vault]);
