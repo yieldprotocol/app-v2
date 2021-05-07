@@ -18,8 +18,8 @@ const initState : IUserContextState = {
   vaultMap: new Map<string, IVault>(),
   /* Current User selections */
   selectedSeriesId: null,
-  selectedIlkId: null,
-  selectedBaseId: null,
+  selectedIlkId: '0x455448000000', // initial ilk
+  selectedBaseId: '0x444149000000', // initial base
   selectedVaultId: null,
 };
 
@@ -238,19 +238,13 @@ const UserProvider = ({ children }:any) => {
     updateState({ type: 'activeAccount', payload: account });
   }, [account]);
 
-  /* Watch the vault selector and chnage selected series/assets accordingly */
+  /* Watch the vault selector and change selected series/assets accordingly */
   useEffect(() => {
     if (userState.activeVault) {
       updateState({ type: 'selectedSeriesId', payload: userState.activeVault.series.id });
       updateState({ type: 'selectedBaseId', payload: userState.activeVault.base.id });
     }
   }, [userState.activeVault]);
-
-  /* set initial state */
-  useEffect(() => {
-    !chainLoading && updateState({ type: 'selectedBaseId', payload: assetRootMap.get('0x444149000000').id });
-    !chainLoading && updateState({ type: 'selectedIlkId', payload: assetRootMap.get('0x455448000000').id });
-  }, [chainLoading, assetRootMap]);
 
   /* Exposed userActions */
   const userActions = {

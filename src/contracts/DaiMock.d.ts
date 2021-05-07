@@ -210,9 +210,9 @@ export class DaiMock extends Contract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    decimals(overrides?: CallOverrides): Promise<[BigNumber]>;
+    decimals(overrides?: CallOverrides): Promise<[number]>;
 
-    "decimals()"(overrides?: CallOverrides): Promise<[BigNumber]>;
+    "decimals()"(overrides?: CallOverrides): Promise<[number]>;
 
     mint(
       to: string,
@@ -339,9 +339,9 @@ export class DaiMock extends Contract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  decimals(overrides?: CallOverrides): Promise<BigNumber>;
+  decimals(overrides?: CallOverrides): Promise<number>;
 
-  "decimals()"(overrides?: CallOverrides): Promise<BigNumber>;
+  "decimals()"(overrides?: CallOverrides): Promise<number>;
 
   mint(
     to: string,
@@ -468,9 +468,9 @@ export class DaiMock extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    decimals(overrides?: CallOverrides): Promise<BigNumber>;
+    decimals(overrides?: CallOverrides): Promise<number>;
 
-    "decimals()"(overrides?: CallOverrides): Promise<BigNumber>;
+    "decimals()"(overrides?: CallOverrides): Promise<number>;
 
     mint(
       to: string,

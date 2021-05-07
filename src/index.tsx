@@ -24,7 +24,8 @@ function getLibrary(provider: ethers.providers.ExternalProvider, connector: any)
 
 /* Init the calling web3 environment */
 const Web3FallbackProvider = createWeb3ReactRoot('fallback');
-function getCallLibrary(provider: any, connector: any) {
+
+function getFallbackLibrary(provider: any, connector: any) {
   let library: ethers.providers.JsonRpcProvider;
   if (provider.chainId === 31337) {
     library = new ethers.providers.JsonRpcProvider(process.env.REACT_APP_RPC_URL_31337 as string);
@@ -40,7 +41,7 @@ function getCallLibrary(provider: any, connector: any) {
 ReactDOM.render(
   <React.StrictMode>
     <Router>
-      <Web3FallbackProvider getLibrary={getCallLibrary}>
+      <Web3FallbackProvider getLibrary={getFallbackLibrary}>
         <Web3ReactProvider getLibrary={getLibrary}>
           <ChainProvider>
             <UserProvider>

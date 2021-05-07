@@ -1,20 +1,23 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, ResponsiveContext, Select, Text, ThemeContext } from 'grommet';
 
-import { ChainContext } from '../../contexts/ChainContext';
 import { ISeries } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 
-function SeriesSelector() {
+interface ISeriesSelectorProps {
+  setSeriesLocally?: (series: ISeries) => void;
+}
+
+function SeriesSelector({ setSeriesLocally }: ISeriesSelectorProps) {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
-  // const { chainState: { seriesBaseMap } } = useContext(ChainContext);
 
   const { userState, userActions } = useContext(UserContext);
   const { selectedSeriesId, selectedBaseId, seriesMap } = userState;
+  const [localSeriesId, setLocalSeriesId] = useState<string>();
   const [options, setOptions] = useState<ISeries[]>([]);
 
   /* get from seriesBaseMap (not seriesMap) so it can be used without an account connected */
-  const _selectedSeries = seriesMap.get(selectedSeriesId);
+  const _selectedSeries = setSeriesLocally ? seriesMap.get(localSeriesId) : seriesMap.get(selectedSeriesId);
 
   const optionText = (_series: ISeries|undefined) => (
     _series
@@ -29,8 +32,15 @@ function SeriesSelector() {
   }, [seriesMap, selectedBaseId]);
 
   const handleSelect = (id:string) => {
-    console.log('Series selected: ', id);
-    userActions.setSelectedSeries(id);
+    if (!setSeriesLocally) {
+      console.log('Series selected globally: ', id);
+      userActions.setSelectedSeries(id);
+    } else {
+      /* used for passing a selected series to the parent component */
+      console.log('Series set locally: ', id);
+      setSeriesLocally(seriesMap.get(id));
+      setLocalSeriesId(id);
+    }
   };
 
   return (
@@ -55,5 +65,7 @@ function SeriesSelector() {
     </Box>
   );
 }
+
+SeriesSelector.defaultProps = { setSeriesLocally: null };
 
 export default SeriesSelector;

@@ -42,6 +42,7 @@ connectors.set(
 const ChainContext = React.createContext<any>({});
 
 const initState = {
+  appVersion: '0.0.0' as string,
   chainId: Number(process.env.REACT_APP_DEFAULT_CHAINID) as number,
   provider: null as ethers.providers.Web3Provider | null,
   fallbackProvider: null as ethers.providers.Web3Provider | null,
@@ -73,6 +74,7 @@ function chainReducer(state: any, action: any) {
   /* Reducer switch */
   switch (action.type) {
     case 'chainLoading': return { ...state, chainLoading: onlyIfChanged(action) };
+    case 'appVersion': return { ...state, appVersion: onlyIfChanged(action) };
 
     case 'provider': return { ...state, provider: onlyIfChanged(action) };
     case 'fallbackProvider': return { ...state, fallbackProvider: onlyIfChanged(action) };
@@ -141,6 +143,8 @@ const ChainProvider = ({ children }: any) => {
       const Cauldron = contracts.Cauldron__factory.connect(addrs.Cauldron, fallbackLibrary);
       const Ladle = contracts.Ladle__factory.connect(addrs.Ladle, fallbackLibrary);
       const PoolRouter = contracts.PoolRouter__factory.connect(addrs.PoolRouter, fallbackLibrary);
+
+      updateState({ type: 'appVersion', payload: process.env.REACT_APP_VERSION });
 
       /* Update the baseContracts state : ( hardcoded based on networkId ) */
       const newContractMap = chainState.contractMap;
@@ -236,7 +240,9 @@ const ChainProvider = ({ children }: any) => {
                   fyTokenAddress: fyToken,
                   poolAddress,
                   poolContract,
-                  getBaseAddress: () => chainState.assetRootMap.get(baseId).address, // TODO refactor to get this static - if poosible?
+                  // built-in helper functions:
+                  getBaseAddress: () => chainState.assetRootMap.get(baseId).address, // TODO refactor to get this static - if possible?
+                  isMature: () => (maturity < Math.round(new Date().getTime() / 1000)),
                 } });
             }),
           ]);

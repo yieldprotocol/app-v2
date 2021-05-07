@@ -26,6 +26,11 @@ const _abi = [
         name: "symbol_",
         type: "string",
       },
+      {
+        internalType: "uint8",
+        name: "decimals_",
+        type: "uint8",
+      },
     ],
     stateMutability: "nonpayable",
     type: "constructor",
@@ -152,9 +157,9 @@ const _abi = [
     name: "decimals",
     outputs: [
       {
-        internalType: "uint256",
+        internalType: "uint8",
         name: "",
-        type: "uint256",
+        type: "uint8",
       },
     ],
     stateMutability: "view",

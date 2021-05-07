@@ -1,20 +1,14 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { Box, Button, CheckBox, Image, Keyboard, RadioButtonGroup, ResponsiveContext, Select, Text, TextInput } from 'grommet';
-import { Router, useHistory } from 'react-router-dom';
-
-import { FiArrowLeftCircle } from 'react-icons/fi';
-import { cleanValue } from '../utils/displayUtils';
+import React, { useContext, useEffect, useState } from 'react';
+import { Box, Button, CheckBox, Keyboard, ResponsiveContext, Text, TextInput } from 'grommet';
 
 import SeriesSelector from '../components/selectors/SeriesSelector';
 import MainViewWrap from '../components/wraps/MainViewWrap';
 import AssetSelector from '../components/selectors/AssetSelector';
 import InputWrap from '../components/wraps/InputWrap';
-import InfoBite from '../components/InfoBite';
 import ActionButtonGroup from '../components/ActionButtonGroup';
 import PlaceholderWrap from '../components/wraps/PlaceholderWrap';
-import { useDebounce } from '../hooks';
 import SectionWrap from '../components/wraps/SectionWrap';
-import { useActions } from '../hooks/actionHooks';
+import { useBorrowActions } from '../hooks/borrowActions';
 import { UserContext } from '../contexts/UserContext';
 import { IUserContext, IVault } from '../types';
 
@@ -37,7 +31,7 @@ const Borrow = () => {
   const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
   const [vaultIdToUse, setVaultIdToUse] = useState<string|undefined>(undefined);
 
-  const { borrow } = useActions();
+  const { borrow } = useBorrowActions();
 
   const handleBorrow = () => {
     !borrowDisabled &&
