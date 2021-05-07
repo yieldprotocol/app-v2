@@ -21,15 +21,31 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface WitchInterface extends ethers.utils.Interface {
   functions: {
-    "AUCTION_TIME()": FunctionFragment;
+    "LOCK()": FunctionFragment;
+    "ROOT()": FunctionFragment;
+    "auctionTime()": FunctionFragment;
     "buy(bytes12,uint128,uint128)": FunctionFragment;
     "cauldron()": FunctionFragment;
+    "getRoleAdmin(bytes4)": FunctionFragment;
     "grab(bytes12)": FunctionFragment;
+    "grantRole(bytes4,address)": FunctionFragment;
+    "grantRoles(bytes4[],address)": FunctionFragment;
+    "hasRole(bytes4,address)": FunctionFragment;
+    "initialProportion()": FunctionFragment;
     "ladle()": FunctionFragment;
+    "lockRole(bytes4)": FunctionFragment;
+    "renounceRole(bytes4,address)": FunctionFragment;
+    "revokeRole(bytes4,address)": FunctionFragment;
+    "revokeRoles(bytes4[],address)": FunctionFragment;
+    "setAuctionTime(uint128)": FunctionFragment;
+    "setInitialProportion(uint128)": FunctionFragment;
+    "setRoleAdmin(bytes4,bytes4)": FunctionFragment;
   };
 
+  encodeFunctionData(functionFragment: "LOCK", values?: undefined): string;
+  encodeFunctionData(functionFragment: "ROOT", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "AUCTION_TIME",
+    functionFragment: "auctionTime",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -37,23 +53,113 @@ interface WitchInterface extends ethers.utils.Interface {
     values: [BytesLike, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "cauldron", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "getRoleAdmin",
+    values: [BytesLike]
+  ): string;
   encodeFunctionData(functionFragment: "grab", values: [BytesLike]): string;
+  encodeFunctionData(
+    functionFragment: "grantRole",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "grantRoles",
+    values: [BytesLike[], string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "hasRole",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initialProportion",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "ladle", values?: undefined): string;
+  encodeFunctionData(functionFragment: "lockRole", values: [BytesLike]): string;
+  encodeFunctionData(
+    functionFragment: "renounceRole",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "revokeRole",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "revokeRoles",
+    values: [BytesLike[], string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setAuctionTime",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setInitialProportion",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setRoleAdmin",
+    values: [BytesLike, BytesLike]
+  ): string;
 
+  decodeFunctionResult(functionFragment: "LOCK", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "ROOT", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "AUCTION_TIME",
+    functionFragment: "auctionTime",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "buy", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "cauldron", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getRoleAdmin",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "grab", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "grantRoles", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "initialProportion",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "ladle", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "lockRole", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "renounceRole",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "revokeRoles",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setAuctionTime",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setInitialProportion",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setRoleAdmin",
+    data: BytesLike
+  ): Result;
 
   events: {
+    "AuctionTimeSet(uint128)": EventFragment;
     "Bought(address,bytes12,uint256,uint256)": EventFragment;
+    "InitialProportionSet(uint128)": EventFragment;
+    "RoleAdminChanged(bytes4,bytes4)": EventFragment;
+    "RoleGranted(bytes4,address,address)": EventFragment;
+    "RoleRevoked(bytes4,address,address)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "AuctionTimeSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Bought"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "InitialProportionSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RoleRevoked"): EventFragment;
 }
 
 export class Witch extends Contract {
@@ -100,9 +206,17 @@ export class Witch extends Contract {
   interface: WitchInterface;
 
   functions: {
-    AUCTION_TIME(overrides?: CallOverrides): Promise<[BigNumber]>;
+    LOCK(overrides?: CallOverrides): Promise<[string]>;
 
-    "AUCTION_TIME()"(overrides?: CallOverrides): Promise<[BigNumber]>;
+    "LOCK()"(overrides?: CallOverrides): Promise<[string]>;
+
+    ROOT(overrides?: CallOverrides): Promise<[string]>;
+
+    "ROOT()"(overrides?: CallOverrides): Promise<[string]>;
+
+    auctionTime(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    "auctionTime()"(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     buy(
       vaultId: BytesLike,
@@ -122,6 +236,13 @@ export class Witch extends Contract {
 
     "cauldron()"(overrides?: CallOverrides): Promise<[string]>;
 
+    getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<[string]>;
+
+    "getRoleAdmin(bytes4)"(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
     grab(
       vaultId: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -132,14 +253,140 @@ export class Witch extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    grantRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "grantRole(bytes4,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    grantRoles(
+      roles: BytesLike[],
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "grantRoles(bytes4[],address)"(
+      roles: BytesLike[],
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    hasRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    "hasRole(bytes4,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    initialProportion(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    "initialProportion()"(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     ladle(overrides?: CallOverrides): Promise<[string]>;
 
     "ladle()"(overrides?: CallOverrides): Promise<[string]>;
+
+    lockRole(
+      role: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "lockRole(bytes4)"(
+      role: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    renounceRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "renounceRole(bytes4,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    revokeRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "revokeRole(bytes4,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    revokeRoles(
+      roles: BytesLike[],
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "revokeRoles(bytes4[],address)"(
+      roles: BytesLike[],
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setAuctionTime(
+      auctionTime_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "setAuctionTime(uint128)"(
+      auctionTime_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setInitialProportion(
+      initialProportion_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "setInitialProportion(uint128)"(
+      initialProportion_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setRoleAdmin(
+      role: BytesLike,
+      adminRole: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "setRoleAdmin(bytes4,bytes4)"(
+      role: BytesLike,
+      adminRole: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
   };
 
-  AUCTION_TIME(overrides?: CallOverrides): Promise<BigNumber>;
+  LOCK(overrides?: CallOverrides): Promise<string>;
 
-  "AUCTION_TIME()"(overrides?: CallOverrides): Promise<BigNumber>;
+  "LOCK()"(overrides?: CallOverrides): Promise<string>;
+
+  ROOT(overrides?: CallOverrides): Promise<string>;
+
+  "ROOT()"(overrides?: CallOverrides): Promise<string>;
+
+  auctionTime(overrides?: CallOverrides): Promise<BigNumber>;
+
+  "auctionTime()"(overrides?: CallOverrides): Promise<BigNumber>;
 
   buy(
     vaultId: BytesLike,
@@ -159,6 +406,13 @@ export class Witch extends Contract {
 
   "cauldron()"(overrides?: CallOverrides): Promise<string>;
 
+  getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
+
+  "getRoleAdmin(bytes4)"(
+    role: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
   grab(
     vaultId: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -169,14 +423,140 @@ export class Witch extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  grantRole(
+    role: BytesLike,
+    account: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "grantRole(bytes4,address)"(
+    role: BytesLike,
+    account: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  grantRoles(
+    roles: BytesLike[],
+    account: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "grantRoles(bytes4[],address)"(
+    roles: BytesLike[],
+    account: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  hasRole(
+    role: BytesLike,
+    account: string,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  "hasRole(bytes4,address)"(
+    role: BytesLike,
+    account: string,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  initialProportion(overrides?: CallOverrides): Promise<BigNumber>;
+
+  "initialProportion()"(overrides?: CallOverrides): Promise<BigNumber>;
+
   ladle(overrides?: CallOverrides): Promise<string>;
 
   "ladle()"(overrides?: CallOverrides): Promise<string>;
 
-  callStatic: {
-    AUCTION_TIME(overrides?: CallOverrides): Promise<BigNumber>;
+  lockRole(
+    role: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
-    "AUCTION_TIME()"(overrides?: CallOverrides): Promise<BigNumber>;
+  "lockRole(bytes4)"(
+    role: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  renounceRole(
+    role: BytesLike,
+    account: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "renounceRole(bytes4,address)"(
+    role: BytesLike,
+    account: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  revokeRole(
+    role: BytesLike,
+    account: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "revokeRole(bytes4,address)"(
+    role: BytesLike,
+    account: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  revokeRoles(
+    roles: BytesLike[],
+    account: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "revokeRoles(bytes4[],address)"(
+    roles: BytesLike[],
+    account: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setAuctionTime(
+    auctionTime_: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "setAuctionTime(uint128)"(
+    auctionTime_: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setInitialProportion(
+    initialProportion_: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "setInitialProportion(uint128)"(
+    initialProportion_: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setRoleAdmin(
+    role: BytesLike,
+    adminRole: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "setRoleAdmin(bytes4,bytes4)"(
+    role: BytesLike,
+    adminRole: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  callStatic: {
+    LOCK(overrides?: CallOverrides): Promise<string>;
+
+    "LOCK()"(overrides?: CallOverrides): Promise<string>;
+
+    ROOT(overrides?: CallOverrides): Promise<string>;
+
+    "ROOT()"(overrides?: CallOverrides): Promise<string>;
+
+    auctionTime(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "auctionTime()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     buy(
       vaultId: BytesLike,
@@ -196,6 +576,13 @@ export class Witch extends Contract {
 
     "cauldron()"(overrides?: CallOverrides): Promise<string>;
 
+    getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
+
+    "getRoleAdmin(bytes4)"(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
     grab(vaultId: BytesLike, overrides?: CallOverrides): Promise<void>;
 
     "grab(bytes12)"(
@@ -203,12 +590,131 @@ export class Witch extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    grantRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "grantRole(bytes4,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    grantRoles(
+      roles: BytesLike[],
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "grantRoles(bytes4[],address)"(
+      roles: BytesLike[],
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    hasRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "hasRole(bytes4,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    initialProportion(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "initialProportion()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     ladle(overrides?: CallOverrides): Promise<string>;
 
     "ladle()"(overrides?: CallOverrides): Promise<string>;
+
+    lockRole(role: BytesLike, overrides?: CallOverrides): Promise<void>;
+
+    "lockRole(bytes4)"(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    renounceRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "renounceRole(bytes4,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    revokeRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "revokeRole(bytes4,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    revokeRoles(
+      roles: BytesLike[],
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "revokeRoles(bytes4[],address)"(
+      roles: BytesLike[],
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setAuctionTime(
+      auctionTime_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "setAuctionTime(uint128)"(
+      auctionTime_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setInitialProportion(
+      initialProportion_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "setInitialProportion(uint128)"(
+      initialProportion_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setRoleAdmin(
+      role: BytesLike,
+      adminRole: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "setRoleAdmin(bytes4,bytes4)"(
+      role: BytesLike,
+      adminRole: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {
+    AuctionTimeSet(
+      auctionTime: BigNumberish | null
+    ): TypedEventFilter<[BigNumber], { auctionTime: BigNumber }>;
+
     Bought(
       buyer: string | null,
       vaultId: BytesLike | null,
@@ -218,12 +724,50 @@ export class Witch extends Contract {
       [string, string, BigNumber, BigNumber],
       { buyer: string; vaultId: string; ink: BigNumber; art: BigNumber }
     >;
+
+    InitialProportionSet(
+      initialProportion: BigNumberish | null
+    ): TypedEventFilter<[BigNumber], { initialProportion: BigNumber }>;
+
+    RoleAdminChanged(
+      role: BytesLike | null,
+      newAdminRole: BytesLike | null
+    ): TypedEventFilter<
+      [string, string],
+      { role: string; newAdminRole: string }
+    >;
+
+    RoleGranted(
+      role: BytesLike | null,
+      account: string | null,
+      sender: string | null
+    ): TypedEventFilter<
+      [string, string, string],
+      { role: string; account: string; sender: string }
+    >;
+
+    RoleRevoked(
+      role: BytesLike | null,
+      account: string | null,
+      sender: string | null
+    ): TypedEventFilter<
+      [string, string, string],
+      { role: string; account: string; sender: string }
+    >;
   };
 
   estimateGas: {
-    AUCTION_TIME(overrides?: CallOverrides): Promise<BigNumber>;
+    LOCK(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "AUCTION_TIME()"(overrides?: CallOverrides): Promise<BigNumber>;
+    "LOCK()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    ROOT(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "ROOT()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    auctionTime(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "auctionTime()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     buy(
       vaultId: BytesLike,
@@ -243,6 +787,16 @@ export class Witch extends Contract {
 
     "cauldron()"(overrides?: CallOverrides): Promise<BigNumber>;
 
+    getRoleAdmin(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "getRoleAdmin(bytes4)"(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     grab(
       vaultId: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -253,15 +807,141 @@ export class Witch extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    grantRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "grantRole(bytes4,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    grantRoles(
+      roles: BytesLike[],
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "grantRoles(bytes4[],address)"(
+      roles: BytesLike[],
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    hasRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "hasRole(bytes4,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    initialProportion(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "initialProportion()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     ladle(overrides?: CallOverrides): Promise<BigNumber>;
 
     "ladle()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    lockRole(
+      role: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "lockRole(bytes4)"(
+      role: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    renounceRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "renounceRole(bytes4,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    revokeRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "revokeRole(bytes4,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    revokeRoles(
+      roles: BytesLike[],
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "revokeRoles(bytes4[],address)"(
+      roles: BytesLike[],
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setAuctionTime(
+      auctionTime_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "setAuctionTime(uint128)"(
+      auctionTime_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setInitialProportion(
+      initialProportion_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "setInitialProportion(uint128)"(
+      initialProportion_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setRoleAdmin(
+      role: BytesLike,
+      adminRole: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "setRoleAdmin(bytes4,bytes4)"(
+      role: BytesLike,
+      adminRole: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    AUCTION_TIME(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    LOCK(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "AUCTION_TIME()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    "LOCK()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    ROOT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "ROOT()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    auctionTime(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "auctionTime()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     buy(
       vaultId: BytesLike,
@@ -281,6 +961,16 @@ export class Witch extends Contract {
 
     "cauldron()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    getRoleAdmin(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "getRoleAdmin(bytes4)"(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     grab(
       vaultId: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -291,8 +981,128 @@ export class Witch extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    grantRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "grantRole(bytes4,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    grantRoles(
+      roles: BytesLike[],
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "grantRoles(bytes4[],address)"(
+      roles: BytesLike[],
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    hasRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "hasRole(bytes4,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    initialProportion(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "initialProportion()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     ladle(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "ladle()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    lockRole(
+      role: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "lockRole(bytes4)"(
+      role: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    renounceRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "renounceRole(bytes4,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    revokeRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "revokeRole(bytes4,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    revokeRoles(
+      roles: BytesLike[],
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "revokeRoles(bytes4[],address)"(
+      roles: BytesLike[],
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setAuctionTime(
+      auctionTime_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "setAuctionTime(uint128)"(
+      auctionTime_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setInitialProportion(
+      initialProportion_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "setInitialProportion(uint128)"(
+      initialProportion_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setRoleAdmin(
+      role: BytesLike,
+      adminRole: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "setRoleAdmin(bytes4,bytes4)"(
+      role: BytesLike,
+      adminRole: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
   };
 }

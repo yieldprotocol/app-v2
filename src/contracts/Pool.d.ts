@@ -28,7 +28,7 @@ interface PoolInterface extends ethers.utils.Interface {
     "balanceOf(address)": FunctionFragment;
     "baseToken()": FunctionFragment;
     "burn(address,uint256,uint256)": FunctionFragment;
-    "burnForBaseToken(address,uint256,uint256)": FunctionFragment;
+    "burnForBaseToken(address,uint256)": FunctionFragment;
     "buyBaseToken(address,uint128,uint128)": FunctionFragment;
     "buyBaseTokenPreview(uint128)": FunctionFragment;
     "buyFYToken(address,uint128,uint128)": FunctionFragment;
@@ -89,7 +89,7 @@ interface PoolInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "burnForBaseToken",
-    values: [string, BigNumberish, BigNumberish]
+    values: [string, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "buyBaseToken",
@@ -429,14 +429,12 @@ export class Pool extends Contract {
     burnForBaseToken(
       to: string,
       minBaseTokenOut: BigNumberish,
-      minFYTokenOut: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "burnForBaseToken(address,uint256,uint256)"(
+    "burnForBaseToken(address,uint256)"(
       to: string,
       minBaseTokenOut: BigNumberish,
-      minFYTokenOut: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -790,14 +788,12 @@ export class Pool extends Contract {
   burnForBaseToken(
     to: string,
     minBaseTokenOut: BigNumberish,
-    minFYTokenOut: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "burnForBaseToken(address,uint256,uint256)"(
+  "burnForBaseToken(address,uint256)"(
     to: string,
     minBaseTokenOut: BigNumberish,
-    minFYTokenOut: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -1151,16 +1147,24 @@ export class Pool extends Contract {
     burnForBaseToken(
       to: string,
       minBaseTokenOut: BigNumberish,
-      minFYTokenOut: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber, BigNumber]>;
+    ): Promise<
+      [BigNumber, BigNumber] & {
+        tokensBurned: BigNumber;
+        baseTokenOut: BigNumber;
+      }
+    >;
 
-    "burnForBaseToken(address,uint256,uint256)"(
+    "burnForBaseToken(address,uint256)"(
       to: string,
       minBaseTokenOut: BigNumberish,
-      minFYTokenOut: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber, BigNumber]>;
+    ): Promise<
+      [BigNumber, BigNumber] & {
+        tokensBurned: BigNumber;
+        baseTokenOut: BigNumber;
+      }
+    >;
 
     buyBaseToken(
       to: string,
@@ -1591,14 +1595,12 @@ export class Pool extends Contract {
     burnForBaseToken(
       to: string,
       minBaseTokenOut: BigNumberish,
-      minFYTokenOut: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "burnForBaseToken(address,uint256,uint256)"(
+    "burnForBaseToken(address,uint256)"(
       to: string,
       minBaseTokenOut: BigNumberish,
-      minFYTokenOut: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1956,14 +1958,12 @@ export class Pool extends Contract {
     burnForBaseToken(
       to: string,
       minBaseTokenOut: BigNumberish,
-      minFYTokenOut: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "burnForBaseToken(address,uint256,uint256)"(
+    "burnForBaseToken(address,uint256)"(
       to: string,
       minBaseTokenOut: BigNumberish,
-      minFYTokenOut: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

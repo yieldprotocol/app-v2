@@ -28,13 +28,15 @@ interface CauldronInterface extends ethers.utils.Interface {
     "addIlks(bytes6,bytes6[])": FunctionFragment;
     "addSeries(bytes6,bytes6,address)": FunctionFragment;
     "assets(bytes6)": FunctionFragment;
+    "auctionInterval()": FunctionFragment;
+    "auctions(bytes12)": FunctionFragment;
     "balances(bytes12)": FunctionFragment;
     "build(address,bytes12,bytes6,bytes6)": FunctionFragment;
     "debt(bytes6,bytes6)": FunctionFragment;
     "destroy(bytes12)": FunctionFragment;
     "getRoleAdmin(bytes4)": FunctionFragment;
     "give(bytes12,address)": FunctionFragment;
-    "grab(bytes12)": FunctionFragment;
+    "grab(bytes12,address)": FunctionFragment;
     "grantRole(bytes4,address)": FunctionFragment;
     "grantRoles(bytes4[],address)": FunctionFragment;
     "hasRole(bytes4,address)": FunctionFragment;
@@ -47,8 +49,10 @@ interface CauldronInterface extends ethers.utils.Interface {
     "ratesAtMaturity(bytes6)": FunctionFragment;
     "renounceRole(bytes4,address)": FunctionFragment;
     "revokeRole(bytes4,address)": FunctionFragment;
-    "roll(bytes12,bytes6,uint128)": FunctionFragment;
+    "revokeRoles(bytes4[],address)": FunctionFragment;
+    "roll(bytes12,bytes6,int128)": FunctionFragment;
     "series(bytes6)": FunctionFragment;
+    "setAuctionInterval(uint32)": FunctionFragment;
     "setMaxDebt(bytes6,bytes6,uint128)": FunctionFragment;
     "setRateOracle(bytes6,address)": FunctionFragment;
     "setRoleAdmin(bytes4,bytes4)": FunctionFragment;
@@ -56,7 +60,6 @@ interface CauldronInterface extends ethers.utils.Interface {
     "slurp(bytes12,uint128,uint128)": FunctionFragment;
     "spotOracles(bytes6,bytes6)": FunctionFragment;
     "stir(bytes12,bytes12,uint128,uint128)": FunctionFragment;
-    "timestamps(bytes12)": FunctionFragment;
     "tweak(bytes12,bytes6,bytes6)": FunctionFragment;
     "vaults(bytes12)": FunctionFragment;
   };
@@ -77,6 +80,11 @@ interface CauldronInterface extends ethers.utils.Interface {
     values: [BytesLike, BytesLike, string]
   ): string;
   encodeFunctionData(functionFragment: "assets", values: [BytesLike]): string;
+  encodeFunctionData(
+    functionFragment: "auctionInterval",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "auctions", values: [BytesLike]): string;
   encodeFunctionData(functionFragment: "balances", values: [BytesLike]): string;
   encodeFunctionData(
     functionFragment: "build",
@@ -95,7 +103,10 @@ interface CauldronInterface extends ethers.utils.Interface {
     functionFragment: "give",
     values: [BytesLike, string]
   ): string;
-  encodeFunctionData(functionFragment: "grab", values: [BytesLike]): string;
+  encodeFunctionData(
+    functionFragment: "grab",
+    values: [BytesLike, string]
+  ): string;
   encodeFunctionData(
     functionFragment: "grantRole",
     values: [BytesLike, string]
@@ -136,10 +147,18 @@ interface CauldronInterface extends ethers.utils.Interface {
     values: [BytesLike, string]
   ): string;
   encodeFunctionData(
+    functionFragment: "revokeRoles",
+    values: [BytesLike[], string]
+  ): string;
+  encodeFunctionData(
     functionFragment: "roll",
     values: [BytesLike, BytesLike, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "series", values: [BytesLike]): string;
+  encodeFunctionData(
+    functionFragment: "setAuctionInterval",
+    values: [BigNumberish]
+  ): string;
   encodeFunctionData(
     functionFragment: "setMaxDebt",
     values: [BytesLike, BytesLike, BigNumberish]
@@ -169,10 +188,6 @@ interface CauldronInterface extends ethers.utils.Interface {
     values: [BytesLike, BytesLike, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "timestamps",
-    values: [BytesLike]
-  ): string;
-  encodeFunctionData(
     functionFragment: "tweak",
     values: [BytesLike, BytesLike, BytesLike]
   ): string;
@@ -185,6 +200,11 @@ interface CauldronInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "addIlks", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "addSeries", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "assets", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "auctionInterval",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "auctions", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balances", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "build", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "debt", data: BytesLike): Result;
@@ -216,8 +236,16 @@ interface CauldronInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "revokeRoles",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "roll", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "series", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setAuctionInterval",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "setMaxDebt", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setRateOracle",
@@ -237,12 +265,12 @@ interface CauldronInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "stir", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "timestamps", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "tweak", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "vaults", data: BytesLike): Result;
 
   events: {
     "AssetAdded(bytes6,address)": EventFragment;
+    "AuctionIntervalSet(uint32)": EventFragment;
     "IlkAdded(bytes6,bytes6)": EventFragment;
     "MaxDebtSet(bytes6,bytes6,uint128)": EventFragment;
     "RateOracleAdded(bytes6,address)": EventFragment;
@@ -254,15 +282,16 @@ interface CauldronInterface extends ethers.utils.Interface {
     "SpotOracleAdded(bytes6,bytes6,address,uint32)": EventFragment;
     "VaultBuilt(bytes12,address,bytes6,bytes6)": EventFragment;
     "VaultDestroyed(bytes12)": EventFragment;
+    "VaultGiven(bytes12,address)": EventFragment;
+    "VaultLocked(bytes12,uint256)": EventFragment;
     "VaultPoured(bytes12,bytes6,bytes6,int128,int128)": EventFragment;
     "VaultRolled(bytes12,bytes6,uint128)": EventFragment;
     "VaultStirred(bytes12,bytes12,uint128,uint128)": EventFragment;
-    "VaultTimestamped(bytes12,uint256)": EventFragment;
-    "VaultTransfer(bytes12,address)": EventFragment;
     "VaultTweaked(bytes12,bytes6,bytes6)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "AssetAdded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "AuctionIntervalSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "IlkAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MaxDebtSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RateOracleAdded"): EventFragment;
@@ -274,11 +303,11 @@ interface CauldronInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "SpotOracleAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "VaultBuilt"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "VaultDestroyed"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "VaultGiven"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "VaultLocked"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "VaultPoured"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "VaultRolled"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "VaultStirred"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "VaultTimestamped"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "VaultTransfer"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "VaultTweaked"): EventFragment;
 }
 
@@ -389,6 +418,17 @@ export class Cauldron extends Contract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
+    auctionInterval(overrides?: CallOverrides): Promise<[number]>;
+
+    "auctionInterval()"(overrides?: CallOverrides): Promise<[number]>;
+
+    auctions(arg0: BytesLike, overrides?: CallOverrides): Promise<[number]>;
+
+    "auctions(bytes12)"(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[number]>;
+
     balances(
       arg0: BytesLike,
       overrides?: CallOverrides
@@ -458,11 +498,13 @@ export class Cauldron extends Contract {
 
     grab(
       vaultId: BytesLike,
+      receiver: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "grab(bytes12)"(
+    "grab(bytes12,address)"(
       vaultId: BytesLike,
+      receiver: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -599,6 +641,18 @@ export class Cauldron extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    revokeRoles(
+      roles: BytesLike[],
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "revokeRoles(bytes4[],address)"(
+      roles: BytesLike[],
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     roll(
       vaultId: BytesLike,
       newSeriesId: BytesLike,
@@ -606,7 +660,7 @@ export class Cauldron extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "roll(bytes12,bytes6,uint128)"(
+    "roll(bytes12,bytes6,int128)"(
       vaultId: BytesLike,
       newSeriesId: BytesLike,
       art: BigNumberish,
@@ -634,6 +688,16 @@ export class Cauldron extends Contract {
         maturity: number;
       }
     >;
+
+    setAuctionInterval(
+      auctionInterval_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "setAuctionInterval(uint32)"(
+      auctionInterval_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     setMaxDebt(
       baseId: BytesLike,
@@ -730,13 +794,6 @@ export class Cauldron extends Contract {
       art: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    timestamps(arg0: BytesLike, overrides?: CallOverrides): Promise<[number]>;
-
-    "timestamps(bytes12)"(
-      arg0: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[number]>;
 
     tweak(
       vaultId: BytesLike,
@@ -835,6 +892,17 @@ export class Cauldron extends Contract {
 
   "assets(bytes6)"(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
 
+  auctionInterval(overrides?: CallOverrides): Promise<number>;
+
+  "auctionInterval()"(overrides?: CallOverrides): Promise<number>;
+
+  auctions(arg0: BytesLike, overrides?: CallOverrides): Promise<number>;
+
+  "auctions(bytes12)"(
+    arg0: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<number>;
+
   balances(
     arg0: BytesLike,
     overrides?: CallOverrides
@@ -904,11 +972,13 @@ export class Cauldron extends Contract {
 
   grab(
     vaultId: BytesLike,
+    receiver: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "grab(bytes12)"(
+  "grab(bytes12,address)"(
     vaultId: BytesLike,
+    receiver: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -1045,6 +1115,18 @@ export class Cauldron extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  revokeRoles(
+    roles: BytesLike[],
+    account: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "revokeRoles(bytes4[],address)"(
+    roles: BytesLike[],
+    account: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   roll(
     vaultId: BytesLike,
     newSeriesId: BytesLike,
@@ -1052,7 +1134,7 @@ export class Cauldron extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "roll(bytes12,bytes6,uint128)"(
+  "roll(bytes12,bytes6,int128)"(
     vaultId: BytesLike,
     newSeriesId: BytesLike,
     art: BigNumberish,
@@ -1080,6 +1162,16 @@ export class Cauldron extends Contract {
       maturity: number;
     }
   >;
+
+  setAuctionInterval(
+    auctionInterval_: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "setAuctionInterval(uint32)"(
+    auctionInterval_: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   setMaxDebt(
     baseId: BytesLike,
@@ -1176,13 +1268,6 @@ export class Cauldron extends Contract {
     art: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
-
-  timestamps(arg0: BytesLike, overrides?: CallOverrides): Promise<number>;
-
-  "timestamps(bytes12)"(
-    arg0: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<number>;
 
   tweak(
     vaultId: BytesLike,
@@ -1281,6 +1366,17 @@ export class Cauldron extends Contract {
       overrides?: CallOverrides
     ): Promise<string>;
 
+    auctionInterval(overrides?: CallOverrides): Promise<number>;
+
+    "auctionInterval()"(overrides?: CallOverrides): Promise<number>;
+
+    auctions(arg0: BytesLike, overrides?: CallOverrides): Promise<number>;
+
+    "auctions(bytes12)"(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<number>;
+
     balances(
       arg0: BytesLike,
       overrides?: CallOverrides
@@ -1369,10 +1465,15 @@ export class Cauldron extends Contract {
       }
     >;
 
-    grab(vaultId: BytesLike, overrides?: CallOverrides): Promise<void>;
-
-    "grab(bytes12)"(
+    grab(
       vaultId: BytesLike,
+      receiver: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "grab(bytes12,address)"(
+      vaultId: BytesLike,
+      receiver: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1500,19 +1601,49 @@ export class Cauldron extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    revokeRoles(
+      roles: BytesLike[],
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "revokeRoles(bytes4[],address)"(
+      roles: BytesLike[],
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     roll(
       vaultId: BytesLike,
       newSeriesId: BytesLike,
       art: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    ): Promise<
+      [
+        [string, string, string] & {
+          owner: string;
+          seriesId: string;
+          ilkId: string;
+        },
+        [BigNumber, BigNumber] & { art: BigNumber; ink: BigNumber }
+      ]
+    >;
 
-    "roll(bytes12,bytes6,uint128)"(
+    "roll(bytes12,bytes6,int128)"(
       vaultId: BytesLike,
       newSeriesId: BytesLike,
       art: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    ): Promise<
+      [
+        [string, string, string] & {
+          owner: string;
+          seriesId: string;
+          ilkId: string;
+        },
+        [BigNumber, BigNumber] & { art: BigNumber; ink: BigNumber }
+      ]
+    >;
 
     series(
       arg0: BytesLike,
@@ -1535,6 +1666,16 @@ export class Cauldron extends Contract {
         maturity: number;
       }
     >;
+
+    setAuctionInterval(
+      auctionInterval_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "setAuctionInterval(uint32)"(
+      auctionInterval_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     setMaxDebt(
       baseId: BytesLike,
@@ -1642,13 +1783,6 @@ export class Cauldron extends Contract {
       ]
     >;
 
-    timestamps(arg0: BytesLike, overrides?: CallOverrides): Promise<number>;
-
-    "timestamps(bytes12)"(
-      arg0: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<number>;
-
     tweak(
       vaultId: BytesLike,
       seriesId: BytesLike,
@@ -1703,6 +1837,10 @@ export class Cauldron extends Contract {
       assetId: BytesLike | null,
       asset: string | null
     ): TypedEventFilter<[string, string], { assetId: string; asset: string }>;
+
+    AuctionIntervalSet(
+      auctionInterval: BigNumberish | null
+    ): TypedEventFilter<[number], { auctionInterval: number }>;
 
     IlkAdded(
       seriesId: BytesLike | null,
@@ -1790,6 +1928,22 @@ export class Cauldron extends Contract {
       vaultId: BytesLike | null
     ): TypedEventFilter<[string], { vaultId: string }>;
 
+    VaultGiven(
+      vaultId: BytesLike | null,
+      receiver: string | null
+    ): TypedEventFilter<
+      [string, string],
+      { vaultId: string; receiver: string }
+    >;
+
+    VaultLocked(
+      vaultId: BytesLike | null,
+      timestamp: BigNumberish | null
+    ): TypedEventFilter<
+      [string, BigNumber],
+      { vaultId: string; timestamp: BigNumber }
+    >;
+
     VaultPoured(
       vaultId: BytesLike | null,
       seriesId: BytesLike | null,
@@ -1824,22 +1978,6 @@ export class Cauldron extends Contract {
     ): TypedEventFilter<
       [string, string, BigNumber, BigNumber],
       { from: string; to: string; ink: BigNumber; art: BigNumber }
-    >;
-
-    VaultTimestamped(
-      vaultId: BytesLike | null,
-      timestamp: BigNumberish | null
-    ): TypedEventFilter<
-      [string, BigNumber],
-      { vaultId: string; timestamp: BigNumber }
-    >;
-
-    VaultTransfer(
-      vaultId: BytesLike | null,
-      receiver: string | null
-    ): TypedEventFilter<
-      [string, string],
-      { vaultId: string; receiver: string }
     >;
 
     VaultTweaked(
@@ -1916,6 +2054,17 @@ export class Cauldron extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    auctionInterval(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "auctionInterval()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    auctions(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
+
+    "auctions(bytes12)"(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     balances(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
 
     "balances(bytes12)"(
@@ -1985,11 +2134,13 @@ export class Cauldron extends Contract {
 
     grab(
       vaultId: BytesLike,
+      receiver: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "grab(bytes12)"(
+    "grab(bytes12,address)"(
       vaultId: BytesLike,
+      receiver: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -2126,6 +2277,18 @@ export class Cauldron extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    revokeRoles(
+      roles: BytesLike[],
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "revokeRoles(bytes4[],address)"(
+      roles: BytesLike[],
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     roll(
       vaultId: BytesLike,
       newSeriesId: BytesLike,
@@ -2133,7 +2296,7 @@ export class Cauldron extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "roll(bytes12,bytes6,uint128)"(
+    "roll(bytes12,bytes6,int128)"(
       vaultId: BytesLike,
       newSeriesId: BytesLike,
       art: BigNumberish,
@@ -2145,6 +2308,16 @@ export class Cauldron extends Contract {
     "series(bytes6)"(
       arg0: BytesLike,
       overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    setAuctionInterval(
+      auctionInterval_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "setAuctionInterval(uint32)"(
+      auctionInterval_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     setMaxDebt(
@@ -2243,13 +2416,6 @@ export class Cauldron extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    timestamps(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "timestamps(bytes12)"(
-      arg0: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     tweak(
       vaultId: BytesLike,
       seriesId: BytesLike,
@@ -2339,6 +2505,22 @@ export class Cauldron extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    auctionInterval(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "auctionInterval()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    auctions(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "auctions(bytes12)"(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     balances(
       arg0: BytesLike,
       overrides?: CallOverrides
@@ -2411,11 +2593,13 @@ export class Cauldron extends Contract {
 
     grab(
       vaultId: BytesLike,
+      receiver: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "grab(bytes12)"(
+    "grab(bytes12,address)"(
       vaultId: BytesLike,
+      receiver: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -2555,6 +2739,18 @@ export class Cauldron extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    revokeRoles(
+      roles: BytesLike[],
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "revokeRoles(bytes4[],address)"(
+      roles: BytesLike[],
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     roll(
       vaultId: BytesLike,
       newSeriesId: BytesLike,
@@ -2562,7 +2758,7 @@ export class Cauldron extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "roll(bytes12,bytes6,uint128)"(
+    "roll(bytes12,bytes6,int128)"(
       vaultId: BytesLike,
       newSeriesId: BytesLike,
       art: BigNumberish,
@@ -2577,6 +2773,16 @@ export class Cauldron extends Contract {
     "series(bytes6)"(
       arg0: BytesLike,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    setAuctionInterval(
+      auctionInterval_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "setAuctionInterval(uint32)"(
+      auctionInterval_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     setMaxDebt(
@@ -2673,16 +2879,6 @@ export class Cauldron extends Contract {
       ink: BigNumberish,
       art: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    timestamps(
-      arg0: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "timestamps(bytes12)"(
-      arg0: BytesLike,
-      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     tweak(

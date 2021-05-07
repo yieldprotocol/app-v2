@@ -23,7 +23,6 @@ interface IFYTokenInterface extends ethers.utils.Interface {
   functions: {
     "allowance(address,address)": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
-    "asset()": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "burn(address,uint256)": FunctionFragment;
     "mature()": FunctionFragment;
@@ -33,6 +32,7 @@ interface IFYTokenInterface extends ethers.utils.Interface {
     "totalSupply()": FunctionFragment;
     "transfer(address,uint256)": FunctionFragment;
     "transferFrom(address,address,uint256)": FunctionFragment;
+    "underlying()": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -43,7 +43,6 @@ interface IFYTokenInterface extends ethers.utils.Interface {
     functionFragment: "approve",
     values: [string, BigNumberish]
   ): string;
-  encodeFunctionData(functionFragment: "asset", values?: undefined): string;
   encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
   encodeFunctionData(
     functionFragment: "burn",
@@ -71,10 +70,13 @@ interface IFYTokenInterface extends ethers.utils.Interface {
     functionFragment: "transferFrom",
     values: [string, string, BigNumberish]
   ): string;
+  encodeFunctionData(
+    functionFragment: "underlying",
+    values?: undefined
+  ): string;
 
   decodeFunctionResult(functionFragment: "allowance", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "asset", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "burn", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "mature", data: BytesLike): Result;
@@ -90,6 +92,7 @@ interface IFYTokenInterface extends ethers.utils.Interface {
     functionFragment: "transferFrom",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "underlying", data: BytesLike): Result;
 
   events: {
     "Approval(address,address,uint256)": EventFragment;
@@ -167,10 +170,6 @@ export class IFYToken extends Contract {
       amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    asset(overrides?: CallOverrides): Promise<[string]>;
-
-    "asset()"(overrides?: CallOverrides): Promise<[string]>;
 
     balanceOf(account: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -256,6 +255,10 @@ export class IFYToken extends Contract {
       amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    underlying(overrides?: CallOverrides): Promise<[string]>;
+
+    "underlying()"(overrides?: CallOverrides): Promise<[string]>;
   };
 
   allowance(
@@ -281,10 +284,6 @@ export class IFYToken extends Contract {
     amount: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
-
-  asset(overrides?: CallOverrides): Promise<string>;
-
-  "asset()"(overrides?: CallOverrides): Promise<string>;
 
   balanceOf(account: string, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -371,6 +370,10 @@ export class IFYToken extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  underlying(overrides?: CallOverrides): Promise<string>;
+
+  "underlying()"(overrides?: CallOverrides): Promise<string>;
+
   callStatic: {
     allowance(
       owner: string,
@@ -395,10 +398,6 @@ export class IFYToken extends Contract {
       amount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<boolean>;
-
-    asset(overrides?: CallOverrides): Promise<string>;
-
-    "asset()"(overrides?: CallOverrides): Promise<string>;
 
     balanceOf(account: string, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -480,6 +479,10 @@ export class IFYToken extends Contract {
       amount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    underlying(overrides?: CallOverrides): Promise<string>;
+
+    "underlying()"(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {
@@ -526,10 +529,6 @@ export class IFYToken extends Contract {
       amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
-
-    asset(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "asset()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     balanceOf(account: string, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -615,6 +614,10 @@ export class IFYToken extends Contract {
       amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    underlying(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "underlying()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -641,10 +644,6 @@ export class IFYToken extends Contract {
       amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
-
-    asset(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "asset()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     balanceOf(
       account: string,
@@ -733,5 +732,9 @@ export class IFYToken extends Contract {
       amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    underlying(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "underlying()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

@@ -38,6 +38,7 @@ interface JoinInterface extends ethers.utils.Interface {
     "renounceRole(bytes4,address)": FunctionFragment;
     "retrieve(address,address)": FunctionFragment;
     "revokeRole(bytes4,address)": FunctionFragment;
+    "revokeRoles(bytes4[],address)": FunctionFragment;
     "setFlashFeeFactor(uint256)": FunctionFragment;
     "setRoleAdmin(bytes4,bytes4)": FunctionFragment;
     "storedBalance()": FunctionFragment;
@@ -100,6 +101,10 @@ interface JoinInterface extends ethers.utils.Interface {
     values: [BytesLike, string]
   ): string;
   encodeFunctionData(
+    functionFragment: "revokeRoles",
+    values: [BytesLike[], string]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setFlashFeeFactor",
     values: [BigNumberish]
   ): string;
@@ -141,6 +146,10 @@ interface JoinInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "retrieve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "revokeRoles",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "setFlashFeeFactor",
     data: BytesLike
@@ -378,6 +387,18 @@ export class Join extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    revokeRoles(
+      roles: BytesLike[],
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "revokeRoles(bytes4[],address)"(
+      roles: BytesLike[],
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     setFlashFeeFactor(
       flashFeeFactor_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -569,6 +590,18 @@ export class Join extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  revokeRoles(
+    roles: BytesLike[],
+    account: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "revokeRoles(bytes4[],address)"(
+    roles: BytesLike[],
+    account: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   setFlashFeeFactor(
     flashFeeFactor_: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -753,6 +786,18 @@ export class Join extends Contract {
 
     "revokeRole(bytes4,address)"(
       role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    revokeRoles(
+      roles: BytesLike[],
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "revokeRoles(bytes4[],address)"(
+      roles: BytesLike[],
       account: string,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -984,6 +1029,18 @@ export class Join extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    revokeRoles(
+      roles: BytesLike[],
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "revokeRoles(bytes4[],address)"(
+      roles: BytesLike[],
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     setFlashFeeFactor(
       flashFeeFactor_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1180,6 +1237,18 @@ export class Join extends Contract {
 
     "revokeRole(bytes4,address)"(
       role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    revokeRoles(
+      roles: BytesLike[],
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "revokeRoles(bytes4[],address)"(
+      roles: BytesLike[],
       account: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;

@@ -19,28 +19,37 @@ import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
-interface IOracleInterface extends ethers.utils.Interface {
+interface CTokenChiMockInterface extends ethers.utils.Interface {
   functions: {
-    "get(bytes32,bytes32,uint256)": FunctionFragment;
-    "peek(bytes32,bytes32,uint256)": FunctionFragment;
+    "exchangeRateCurrent()": FunctionFragment;
+    "exchangeRateStored()": FunctionFragment;
+    "set(uint256)": FunctionFragment;
   };
 
   encodeFunctionData(
-    functionFragment: "get",
-    values: [BytesLike, BytesLike, BigNumberish]
+    functionFragment: "exchangeRateCurrent",
+    values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "peek",
-    values: [BytesLike, BytesLike, BigNumberish]
+    functionFragment: "exchangeRateStored",
+    values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "set", values: [BigNumberish]): string;
 
-  decodeFunctionResult(functionFragment: "get", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "peek", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "exchangeRateCurrent",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "exchangeRateStored",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "set", data: BytesLike): Result;
 
   events: {};
 }
 
-export class IOracle extends Contract {
+export class CTokenChiMock extends Contract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -81,171 +90,119 @@ export class IOracle extends Contract {
     toBlock?: string | number | undefined
   ): Promise<Array<TypedEvent<EventArgsArray & EventArgsObject>>>;
 
-  interface: IOracleInterface;
+  interface: CTokenChiMockInterface;
 
   functions: {
-    get(
-      base: BytesLike,
-      quote: BytesLike,
-      amount: BigNumberish,
+    exchangeRateCurrent(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "get(bytes32,bytes32,uint256)"(
-      base: BytesLike,
-      quote: BytesLike,
-      amount: BigNumberish,
+    "exchangeRateCurrent()"(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    peek(
-      base: BytesLike,
-      quote: BytesLike,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
-    >;
+    exchangeRateStored(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "peek(bytes32,bytes32,uint256)"(
-      base: BytesLike,
-      quote: BytesLike,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
-    >;
+    "exchangeRateStored()"(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    set(
+      chi: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "set(uint256)"(
+      chi: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
   };
 
-  get(
-    base: BytesLike,
-    quote: BytesLike,
-    amount: BigNumberish,
+  exchangeRateCurrent(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "get(bytes32,bytes32,uint256)"(
-    base: BytesLike,
-    quote: BytesLike,
-    amount: BigNumberish,
+  "exchangeRateCurrent()"(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  peek(
-    base: BytesLike,
-    quote: BytesLike,
-    amount: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
-  >;
+  exchangeRateStored(overrides?: CallOverrides): Promise<BigNumber>;
 
-  "peek(bytes32,bytes32,uint256)"(
-    base: BytesLike,
-    quote: BytesLike,
-    amount: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
-  >;
+  "exchangeRateStored()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+  set(
+    chi: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "set(uint256)"(
+    chi: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   callStatic: {
-    get(
-      base: BytesLike,
-      quote: BytesLike,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
-    >;
+    exchangeRateCurrent(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "get(bytes32,bytes32,uint256)"(
-      base: BytesLike,
-      quote: BytesLike,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
-    >;
+    "exchangeRateCurrent()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    peek(
-      base: BytesLike,
-      quote: BytesLike,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
-    >;
+    exchangeRateStored(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "peek(bytes32,bytes32,uint256)"(
-      base: BytesLike,
-      quote: BytesLike,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
-    >;
+    "exchangeRateStored()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    set(chi: BigNumberish, overrides?: CallOverrides): Promise<void>;
+
+    "set(uint256)"(chi: BigNumberish, overrides?: CallOverrides): Promise<void>;
   };
 
   filters: {};
 
   estimateGas: {
-    get(
-      base: BytesLike,
-      quote: BytesLike,
-      amount: BigNumberish,
+    exchangeRateCurrent(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "get(bytes32,bytes32,uint256)"(
-      base: BytesLike,
-      quote: BytesLike,
-      amount: BigNumberish,
+    "exchangeRateCurrent()"(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    peek(
-      base: BytesLike,
-      quote: BytesLike,
-      amount: BigNumberish,
-      overrides?: CallOverrides
+    exchangeRateStored(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "exchangeRateStored()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    set(
+      chi: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "peek(bytes32,bytes32,uint256)"(
-      base: BytesLike,
-      quote: BytesLike,
-      amount: BigNumberish,
-      overrides?: CallOverrides
+    "set(uint256)"(
+      chi: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    get(
-      base: BytesLike,
-      quote: BytesLike,
-      amount: BigNumberish,
+    exchangeRateCurrent(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "get(bytes32,bytes32,uint256)"(
-      base: BytesLike,
-      quote: BytesLike,
-      amount: BigNumberish,
+    "exchangeRateCurrent()"(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    peek(
-      base: BytesLike,
-      quote: BytesLike,
-      amount: BigNumberish,
+    exchangeRateStored(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "peek(bytes32,bytes32,uint256)"(
-      base: BytesLike,
-      quote: BytesLike,
-      amount: BigNumberish,
+    "exchangeRateStored()"(
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    set(
+      chi: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "set(uint256)"(
+      chi: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

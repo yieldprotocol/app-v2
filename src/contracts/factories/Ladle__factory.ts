@@ -29,6 +29,19 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
+        indexed: false,
+        internalType: "uint256",
+        name: "fee",
+        type: "uint256",
+      },
+    ],
+    name: "FeeSet",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
         indexed: true,
         internalType: "bytes6",
         name: "assetId",
@@ -61,19 +74,6 @@ const _abi = [
       },
     ],
     name: "PoolAdded",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "poolRouter",
-        type: "address",
-      },
-    ],
-    name: "PoolRouterSet",
     type: "event",
   },
   {
@@ -227,6 +227,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "borrowingFee",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "cauldron",
     outputs: [
       {
@@ -350,19 +363,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "poolRouter",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [
       {
         internalType: "bytes6",
@@ -420,12 +420,30 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes4[]",
+        name: "roles",
+        type: "bytes4[]",
+      },
+      {
         internalType: "address",
-        name: "poolRouter_",
+        name: "account",
         type: "address",
       },
     ],
-    name: "setPoolRouter",
+    name: "revokeRoles",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "fee",
+        type: "uint256",
+      },
+    ],
+    name: "setFee",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

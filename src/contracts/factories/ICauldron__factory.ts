@@ -63,6 +63,25 @@ const _abi = [
         type: "bytes12",
       },
     ],
+    name: "auctions",
+    outputs: [
+      {
+        internalType: "uint32",
+        name: "",
+        type: "uint32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes12",
+        name: "vault",
+        type: "bytes12",
+      },
+    ],
     name: "balances",
     outputs: [
       {
@@ -159,7 +178,7 @@ const _abi = [
       },
       {
         internalType: "address",
-        name: "user",
+        name: "receiver",
         type: "address",
       },
     ],
@@ -197,6 +216,11 @@ const _abi = [
         internalType: "bytes12",
         name: "vault",
         type: "bytes12",
+      },
+      {
+        internalType: "address",
+        name: "receiver",
+        type: "address",
       },
     ],
     name: "grab",
@@ -290,17 +314,51 @@ const _abi = [
         type: "bytes6",
       },
       {
-        internalType: "uint128",
+        internalType: "int128",
         name: "art",
-        type: "uint128",
+        type: "int128",
       },
     ],
     name: "roll",
     outputs: [
       {
-        internalType: "uint128",
+        components: [
+          {
+            internalType: "address",
+            name: "owner",
+            type: "address",
+          },
+          {
+            internalType: "bytes6",
+            name: "seriesId",
+            type: "bytes6",
+          },
+          {
+            internalType: "bytes6",
+            name: "ilkId",
+            type: "bytes6",
+          },
+        ],
+        internalType: "struct DataTypes.Vault",
         name: "",
-        type: "uint128",
+        type: "tuple",
+      },
+      {
+        components: [
+          {
+            internalType: "uint128",
+            name: "art",
+            type: "uint128",
+          },
+          {
+            internalType: "uint128",
+            name: "ink",
+            type: "uint128",
+          },
+        ],
+        internalType: "struct DataTypes.Balances",
+        name: "",
+        type: "tuple",
       },
     ],
     stateMutability: "nonpayable",
@@ -444,25 +502,6 @@ const _abi = [
       },
     ],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes12",
-        name: "vault",
-        type: "bytes12",
-      },
-    ],
-    name: "timestamps",
-    outputs: [
-      {
-        internalType: "uint32",
-        name: "",
-        type: "uint32",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {

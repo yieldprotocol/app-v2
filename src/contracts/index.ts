@@ -2,7 +2,14 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { AccessControl } from "./AccessControl";
+export type { AggregatorV3Interface } from "./AggregatorV3Interface";
 export type { Cauldron } from "./Cauldron";
+export type { ChainlinkAggregatorV3Mock } from "./ChainlinkAggregatorV3Mock";
+export type { ChainlinkMultiOracle } from "./ChainlinkMultiOracle";
+export type { CompoundMultiOracle } from "./CompoundMultiOracle";
+export type { CTokenChiMock } from "./CTokenChiMock";
+export type { CTokenInterface } from "./CTokenInterface";
+export type { CTokenRateMock } from "./CTokenRateMock";
 export type { DaiAbstract } from "./DaiAbstract";
 export type { DaiMock } from "./DaiMock";
 export type { ERC20 } from "./ERC20";
@@ -30,12 +37,20 @@ export type { Pool } from "./Pool";
 export type { PoolFactory } from "./PoolFactory";
 export type { PoolRouter } from "./PoolRouter";
 export type { SafeERC20Namer } from "./SafeERC20Namer";
+export type { SourceMock } from "./SourceMock";
 export type { WETH9Mock } from "./WETH9Mock";
 export type { Witch } from "./Witch";
 export type { YieldMath } from "./YieldMath";
 
 export { AccessControl__factory } from "./factories/AccessControl__factory";
+export { AggregatorV3Interface__factory } from "./factories/AggregatorV3Interface__factory";
 export { Cauldron__factory } from "./factories/Cauldron__factory";
+export { ChainlinkAggregatorV3Mock__factory } from "./factories/ChainlinkAggregatorV3Mock__factory";
+export { ChainlinkMultiOracle__factory } from "./factories/ChainlinkMultiOracle__factory";
+export { CompoundMultiOracle__factory } from "./factories/CompoundMultiOracle__factory";
+export { CTokenChiMock__factory } from "./factories/CTokenChiMock__factory";
+export { CTokenInterface__factory } from "./factories/CTokenInterface__factory";
+export { CTokenRateMock__factory } from "./factories/CTokenRateMock__factory";
 export { DaiAbstract__factory } from "./factories/DaiAbstract__factory";
 export { DaiMock__factory } from "./factories/DaiMock__factory";
 export { ERC20__factory } from "./factories/ERC20__factory";
@@ -63,6 +78,7 @@ export { Pool__factory } from "./factories/Pool__factory";
 export { PoolFactory__factory } from "./factories/PoolFactory__factory";
 export { PoolRouter__factory } from "./factories/PoolRouter__factory";
 export { SafeERC20Namer__factory } from "./factories/SafeERC20Namer__factory";
+export { SourceMock__factory } from "./factories/SourceMock__factory";
 export { WETH9Mock__factory } from "./factories/WETH9Mock__factory";
 export { Witch__factory } from "./factories/Witch__factory";
 export { YieldMath__factory } from "./factories/YieldMath__factory";

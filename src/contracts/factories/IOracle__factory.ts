@@ -18,12 +18,28 @@ export class IOracle__factory {
 
 const _abi = [
   {
-    inputs: [],
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "base",
+        type: "bytes32",
+      },
+      {
+        internalType: "bytes32",
+        name: "quote",
+        type: "bytes32",
+      },
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
     name: "get",
     outputs: [
       {
         internalType: "uint256",
-        name: "price",
+        name: "value",
         type: "uint256",
       },
       {
@@ -36,31 +52,34 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "base",
+        type: "bytes32",
+      },
+      {
+        internalType: "bytes32",
+        name: "quote",
+        type: "bytes32",
+      },
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
     name: "peek",
     outputs: [
       {
         internalType: "uint256",
-        name: "price",
+        name: "value",
         type: "uint256",
       },
       {
         internalType: "uint256",
         name: "updateTime",
         type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "source",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
       },
     ],
     stateMutability: "view",

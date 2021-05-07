@@ -28,7 +28,6 @@ interface FYTokenInterface extends ethers.utils.Interface {
     "accrual()": FunctionFragment;
     "allowance(address,address)": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
-    "asset()": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "burn(address,uint256)": FunctionFragment;
     "chiAtMaturity()": FunctionFragment;
@@ -52,11 +51,15 @@ interface FYTokenInterface extends ethers.utils.Interface {
     "redeem(address,uint256)": FunctionFragment;
     "renounceRole(bytes4,address)": FunctionFragment;
     "revokeRole(bytes4,address)": FunctionFragment;
+    "revokeRoles(bytes4[],address)": FunctionFragment;
+    "setOracle(address)": FunctionFragment;
     "setRoleAdmin(bytes4,bytes4)": FunctionFragment;
     "symbol()": FunctionFragment;
     "totalSupply()": FunctionFragment;
     "transfer(address,uint256)": FunctionFragment;
     "transferFrom(address,address,uint256)": FunctionFragment;
+    "underlying()": FunctionFragment;
+    "underlyingId()": FunctionFragment;
     "version()": FunctionFragment;
   };
 
@@ -79,7 +82,6 @@ interface FYTokenInterface extends ethers.utils.Interface {
     functionFragment: "approve",
     values: [string, BigNumberish]
   ): string;
-  encodeFunctionData(functionFragment: "asset", values?: undefined): string;
   encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
   encodeFunctionData(
     functionFragment: "burn",
@@ -154,6 +156,11 @@ interface FYTokenInterface extends ethers.utils.Interface {
     values: [BytesLike, string]
   ): string;
   encodeFunctionData(
+    functionFragment: "revokeRoles",
+    values: [BytesLike[], string]
+  ): string;
+  encodeFunctionData(functionFragment: "setOracle", values: [string]): string;
+  encodeFunctionData(
     functionFragment: "setRoleAdmin",
     values: [BytesLike, BytesLike]
   ): string;
@@ -170,6 +177,14 @@ interface FYTokenInterface extends ethers.utils.Interface {
     functionFragment: "transferFrom",
     values: [string, string, BigNumberish]
   ): string;
+  encodeFunctionData(
+    functionFragment: "underlying",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "underlyingId",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "version", values?: undefined): string;
 
   decodeFunctionResult(
@@ -185,7 +200,6 @@ interface FYTokenInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "accrual", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "allowance", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "asset", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "burn", data: BytesLike): Result;
   decodeFunctionResult(
@@ -222,6 +236,11 @@ interface FYTokenInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "revokeRoles",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "setOracle", data: BytesLike): Result;
+  decodeFunctionResult(
     functionFragment: "setRoleAdmin",
     data: BytesLike
   ): Result;
@@ -235,10 +254,16 @@ interface FYTokenInterface extends ethers.utils.Interface {
     functionFragment: "transferFrom",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "underlying", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "underlyingId",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "version", data: BytesLike): Result;
 
   events: {
     "Approval(address,address,uint256)": EventFragment;
+    "OracleSet(address)": EventFragment;
     "Redeemed(address,address,uint256,uint256)": EventFragment;
     "RoleAdminChanged(bytes4,bytes4)": EventFragment;
     "RoleGranted(bytes4,address,address)": EventFragment;
@@ -248,6 +273,7 @@ interface FYTokenInterface extends ethers.utils.Interface {
   };
 
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "OracleSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Redeemed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
@@ -347,10 +373,6 @@ export class FYToken extends Contract {
       wad: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    asset(overrides?: CallOverrides): Promise<[string]>;
-
-    "asset()"(overrides?: CallOverrides): Promise<[string]>;
 
     balanceOf(guy: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -571,6 +593,28 @@ export class FYToken extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    revokeRoles(
+      roles: BytesLike[],
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "revokeRoles(bytes4[],address)"(
+      roles: BytesLike[],
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setOracle(
+      oracle_: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "setOracle(address)"(
+      oracle_: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     setRoleAdmin(
       role: BytesLike,
       adminRole: BytesLike,
@@ -616,6 +660,14 @@ export class FYToken extends Contract {
       wad: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    underlying(overrides?: CallOverrides): Promise<[string]>;
+
+    "underlying()"(overrides?: CallOverrides): Promise<[string]>;
+
+    underlyingId(overrides?: CallOverrides): Promise<[string]>;
+
+    "underlyingId()"(overrides?: CallOverrides): Promise<[string]>;
 
     version(overrides?: CallOverrides): Promise<[string]>;
 
@@ -669,10 +721,6 @@ export class FYToken extends Contract {
     wad: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
-
-  asset(overrides?: CallOverrides): Promise<string>;
-
-  "asset()"(overrides?: CallOverrides): Promise<string>;
 
   balanceOf(guy: string, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -890,6 +938,28 @@ export class FYToken extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  revokeRoles(
+    roles: BytesLike[],
+    account: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "revokeRoles(bytes4[],address)"(
+    roles: BytesLike[],
+    account: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setOracle(
+    oracle_: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "setOracle(address)"(
+    oracle_: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   setRoleAdmin(
     role: BytesLike,
     adminRole: BytesLike,
@@ -935,6 +1005,14 @@ export class FYToken extends Contract {
     wad: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  underlying(overrides?: CallOverrides): Promise<string>;
+
+  "underlying()"(overrides?: CallOverrides): Promise<string>;
+
+  underlyingId(overrides?: CallOverrides): Promise<string>;
+
+  "underlyingId()"(overrides?: CallOverrides): Promise<string>;
 
   version(overrides?: CallOverrides): Promise<string>;
 
@@ -984,10 +1062,6 @@ export class FYToken extends Contract {
       wad: BigNumberish,
       overrides?: CallOverrides
     ): Promise<boolean>;
-
-    asset(overrides?: CallOverrides): Promise<string>;
-
-    "asset()"(overrides?: CallOverrides): Promise<string>;
 
     balanceOf(guy: string, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1198,6 +1272,25 @@ export class FYToken extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    revokeRoles(
+      roles: BytesLike[],
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "revokeRoles(bytes4[],address)"(
+      roles: BytesLike[],
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setOracle(oracle_: string, overrides?: CallOverrides): Promise<void>;
+
+    "setOracle(address)"(
+      oracle_: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     setRoleAdmin(
       role: BytesLike,
       adminRole: BytesLike,
@@ -1244,6 +1337,14 @@ export class FYToken extends Contract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
+    underlying(overrides?: CallOverrides): Promise<string>;
+
+    "underlying()"(overrides?: CallOverrides): Promise<string>;
+
+    underlyingId(overrides?: CallOverrides): Promise<string>;
+
+    "underlyingId()"(overrides?: CallOverrides): Promise<string>;
+
     version(overrides?: CallOverrides): Promise<string>;
 
     "version()"(overrides?: CallOverrides): Promise<string>;
@@ -1258,6 +1359,10 @@ export class FYToken extends Contract {
       [string, string, BigNumber],
       { owner: string; spender: string; value: BigNumber }
     >;
+
+    OracleSet(
+      oracle: string | null
+    ): TypedEventFilter<[string], { oracle: string }>;
 
     Redeemed(
       from: string | null,
@@ -1357,10 +1462,6 @@ export class FYToken extends Contract {
       wad: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
-
-    asset(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "asset()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     balanceOf(guy: string, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1581,6 +1682,28 @@ export class FYToken extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    revokeRoles(
+      roles: BytesLike[],
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "revokeRoles(bytes4[],address)"(
+      roles: BytesLike[],
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setOracle(
+      oracle_: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "setOracle(address)"(
+      oracle_: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     setRoleAdmin(
       role: BytesLike,
       adminRole: BytesLike,
@@ -1626,6 +1749,14 @@ export class FYToken extends Contract {
       wad: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    underlying(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "underlying()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    underlyingId(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "underlyingId()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     version(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1684,10 +1815,6 @@ export class FYToken extends Contract {
       wad: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
-
-    asset(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "asset()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     balanceOf(
       guy: string,
@@ -1917,6 +2044,28 @@ export class FYToken extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    revokeRoles(
+      roles: BytesLike[],
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "revokeRoles(bytes4[],address)"(
+      roles: BytesLike[],
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setOracle(
+      oracle_: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "setOracle(address)"(
+      oracle_: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     setRoleAdmin(
       role: BytesLike,
       adminRole: BytesLike,
@@ -1962,6 +2111,14 @@ export class FYToken extends Contract {
       wad: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    underlying(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "underlying()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    underlyingId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "underlyingId()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     version(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

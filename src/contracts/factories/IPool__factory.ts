@@ -195,19 +195,9 @@ const _abi = [
         name: "minBaseTokenOut",
         type: "uint256",
       },
-      {
-        internalType: "uint256",
-        name: "minFYTokenOut",
-        type: "uint256",
-      },
     ],
     name: "burnForBaseToken",
     outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
       {
         internalType: "uint256",
         name: "",
