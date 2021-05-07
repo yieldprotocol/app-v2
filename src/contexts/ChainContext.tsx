@@ -42,9 +42,7 @@ connectors.set(
 const ChainContext = React.createContext<any>({});
 
 const initState = {
-
   appVersion: '0.0.0' as string,
-
   chainId: Number(process.env.REACT_APP_DEFAULT_CHAINID) as number,
   provider: null as ethers.providers.Web3Provider | null,
   fallbackProvider: null as ethers.providers.Web3Provider | null,

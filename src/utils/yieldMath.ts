@@ -68,7 +68,9 @@ export const floorDecimal = (value: BigNumber | string): string => Decimal.floor
  * @param { Decimal } value
  * @returns { BigNumber }
  */
-export const toBn = (value: Decimal): BigNumber => BigNumber.from(floorDecimal(value.toFixed()));
+export const toBn = (value: Decimal): BigNumber => (
+  BigNumber.from(floorDecimal(value.toFixed()))
+);
 
 /**
  * @param { BigNumber | string } to unix time
@@ -223,7 +225,7 @@ export function sellBase(
   const y = fyTokenReserves_.sub(sum.pow(invA));
   const yFee = y.sub(precisionFee);
 
-  return toBn(yFee);
+  return yFee.isNaN() ? ethers.constants.Zero : toBn(yFee);
 }
 
 /**
@@ -258,7 +260,7 @@ export function sellFYToken(
   const y = baseReserves_.sub(sum.pow(invA));
   const yFee = y.sub(precisionFee);
 
-  return toBn(yFee);
+  return yFee.isNaN() ? ethers.constants.Zero : toBn(yFee);
 }
 
 /**
@@ -293,7 +295,7 @@ export function buyBase(
   const y = (sum.pow(invA)).sub(fyTokenReserves_);
   const yFee = y.add(precisionFee);
 
-  return toBn(yFee);
+  return yFee.isNaN() ? ethers.constants.Zero : toBn(yFee);
 }
 
 /**
@@ -328,7 +330,7 @@ export function buyFYToken(
   const y = (sum.pow(invA)).sub(baseReserves_);
   const yFee = y.add(precisionFee);
 
-  return toBn(yFee);
+  return yFee.isNaN() ? ethers.constants.Zero : toBn(yFee);
 }
 
 /**
