@@ -6,7 +6,7 @@ import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
 import { MAX_256 } from '../utils/constants';
 import { ICallData, ISignData, ISeriesRoot, ISeries } from '../types';
-import { ERC20__factory, Ladle, Pool, PoolRouter } from '../contracts';
+import { ERC20, ERC20__factory, Ladle, Pool, PoolRouter } from '../contracts';
 import { POOLROUTER_OPS, VAULT_OPS } from '../utils/operations';
 
 /*  💨 Calculate the accumulative gas limit (IF ALL calls have a gaslimit then set the total, else undefined ) */
@@ -88,7 +88,8 @@ export const useChain = () => {
 
     /* Finally, send out the transaction */
     return handleTx(
-      () => _contract.batch(opsList, encodedCalls, { value: batchValue, gasLimit: BigNumber.from('500000') }),
+      // () => _contract.batch(opsList, encodedCalls, { value: batchValue, gasLimit: BigNumber.from('500000') }),
+      () => _contract.batch(opsList, encodedCalls, { value: batchValue }),
       txCode,
     );
   };
@@ -128,7 +129,7 @@ export const useChain = () => {
         };
 
         /* get an ERC20 contract instance. This is only used in the case of fallback tx (when signing is not available) */
-        const tokenContract = ERC20__factory.connect(reqSig.targetAddress, signer);
+        const tokenContract = ERC20__factory.connect(reqSig.targetAddress, signer) as any;
 
         /*
           Request the signature if using DaiType permit style
