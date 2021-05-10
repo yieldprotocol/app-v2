@@ -2,23 +2,12 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer } from "ethers";
+import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-
-import type { ChainlinkMultiOracle } from "../ChainlinkMultiOracle";
-
-export class ChainlinkMultiOracle__factory {
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): ChainlinkMultiOracle {
-    return new Contract(
-      address,
-      _abi,
-      signerOrProvider
-    ) as ChainlinkMultiOracle;
-  }
-}
+import type {
+  ChainlinkMultiOracle,
+  ChainlinkMultiOracleInterface,
+} from "../ChainlinkMultiOracle";
 
 const _abi = [
   {
@@ -220,3 +209,20 @@ const _abi = [
     type: "function",
   },
 ];
+
+export class ChainlinkMultiOracle__factory {
+  static readonly abi = _abi;
+  static createInterface(): ChainlinkMultiOracleInterface {
+    return new utils.Interface(_abi) as ChainlinkMultiOracleInterface;
+  }
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): ChainlinkMultiOracle {
+    return new Contract(
+      address,
+      _abi,
+      signerOrProvider
+    ) as ChainlinkMultiOracle;
+  }
+}

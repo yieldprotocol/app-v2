@@ -2,16 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer } from "ethers";
+import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-
-import type { Ladle } from "../Ladle";
-
-export class Ladle__factory {
-  static connect(address: string, signerOrProvider: Signer | Provider): Ladle {
-    return new Contract(address, _abi, signerOrProvider) as Ladle;
-  }
-}
+import type { Ladle, LadleInterface } from "../Ladle";
 
 const _abi = [
   {
@@ -499,3 +492,13 @@ const _abi = [
     type: "receive",
   },
 ];
+
+export class Ladle__factory {
+  static readonly abi = _abi;
+  static createInterface(): LadleInterface {
+    return new utils.Interface(_abi) as LadleInterface;
+  }
+  static connect(address: string, signerOrProvider: Signer | Provider): Ladle {
+    return new Contract(address, _abi, signerOrProvider) as Ladle;
+  }
+}

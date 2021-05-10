@@ -9,7 +9,7 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-  Contract,
+  BaseContract,
   ContractTransaction,
   Overrides,
   CallOverrides,
@@ -79,7 +79,7 @@ interface CompoundMultiOracleInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "SourcesSet"): EventFragment;
 }
 
-export class CompoundMultiOracle extends Contract {
+export class CompoundMultiOracle extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -125,18 +125,7 @@ export class CompoundMultiOracle extends Contract {
   functions: {
     SCALE_FACTOR(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "SCALE_FACTOR()"(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     get(
-      base: BytesLike,
-      kind: BytesLike,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
-    >;
-
-    "get(bytes32,bytes32,uint256)"(
       base: BytesLike,
       kind: BytesLike,
       amount: BigNumberish,
@@ -147,18 +136,7 @@ export class CompoundMultiOracle extends Contract {
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
-    "owner()"(overrides?: CallOverrides): Promise<[string]>;
-
     peek(
-      base: BytesLike,
-      kind: BytesLike,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
-    >;
-
-    "peek(bytes32,bytes32,uint256)"(
       base: BytesLike,
       kind: BytesLike,
       amount: BigNumberish,
@@ -174,20 +152,7 @@ export class CompoundMultiOracle extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "setSources(bytes6[],bytes32[],address[])"(
-      bases: BytesLike[],
-      kinds: BytesLike[],
-      sources_: string[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     sources(
-      arg0: BytesLike,
-      arg1: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    "sources(bytes6,bytes32)"(
       arg0: BytesLike,
       arg1: BytesLike,
       overrides?: CallOverrides
@@ -197,16 +162,9 @@ export class CompoundMultiOracle extends Contract {
       newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    "transferOwnership(address)"(
-      newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
   };
 
   SCALE_FACTOR(overrides?: CallOverrides): Promise<BigNumber>;
-
-  "SCALE_FACTOR()"(overrides?: CallOverrides): Promise<BigNumber>;
 
   get(
     base: BytesLike,
@@ -217,29 +175,9 @@ export class CompoundMultiOracle extends Contract {
     [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
   >;
 
-  "get(bytes32,bytes32,uint256)"(
-    base: BytesLike,
-    kind: BytesLike,
-    amount: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
-  >;
-
   owner(overrides?: CallOverrides): Promise<string>;
 
-  "owner()"(overrides?: CallOverrides): Promise<string>;
-
   peek(
-    base: BytesLike,
-    kind: BytesLike,
-    amount: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
-  >;
-
-  "peek(bytes32,bytes32,uint256)"(
     base: BytesLike,
     kind: BytesLike,
     amount: BigNumberish,
@@ -255,20 +193,7 @@ export class CompoundMultiOracle extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "setSources(bytes6[],bytes32[],address[])"(
-    bases: BytesLike[],
-    kinds: BytesLike[],
-    sources_: string[],
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   sources(
-    arg0: BytesLike,
-    arg1: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  "sources(bytes6,bytes32)"(
     arg0: BytesLike,
     arg1: BytesLike,
     overrides?: CallOverrides
@@ -279,26 +204,10 @@ export class CompoundMultiOracle extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "transferOwnership(address)"(
-    newOwner: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   callStatic: {
     SCALE_FACTOR(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "SCALE_FACTOR()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     get(
-      base: BytesLike,
-      kind: BytesLike,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
-    >;
-
-    "get(bytes32,bytes32,uint256)"(
       base: BytesLike,
       kind: BytesLike,
       amount: BigNumberish,
@@ -309,18 +218,7 @@ export class CompoundMultiOracle extends Contract {
 
     owner(overrides?: CallOverrides): Promise<string>;
 
-    "owner()"(overrides?: CallOverrides): Promise<string>;
-
     peek(
-      base: BytesLike,
-      kind: BytesLike,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
-    >;
-
-    "peek(bytes32,bytes32,uint256)"(
       base: BytesLike,
       kind: BytesLike,
       amount: BigNumberish,
@@ -336,20 +234,7 @@ export class CompoundMultiOracle extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "setSources(bytes6[],bytes32[],address[])"(
-      bases: BytesLike[],
-      kinds: BytesLike[],
-      sources_: string[],
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     sources(
-      arg0: BytesLike,
-      arg1: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    "sources(bytes6,bytes32)"(
       arg0: BytesLike,
       arg1: BytesLike,
       overrides?: CallOverrides
@@ -359,26 +244,21 @@ export class CompoundMultiOracle extends Contract {
       newOwner: string,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    "transferOwnership(address)"(
-      newOwner: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
   };
 
   filters: {
     OwnershipTransferred(
-      oldOwner: string | null,
-      newOwner: string | null
+      oldOwner?: string | null,
+      newOwner?: string | null
     ): TypedEventFilter<
       [string, string],
       { oldOwner: string; newOwner: string }
     >;
 
     SourcesSet(
-      bases: BytesLike[] | null,
-      kinds: BytesLike[] | null,
-      sources_: string[] | null
+      bases?: BytesLike[] | null,
+      kinds?: BytesLike[] | null,
+      sources_?: string[] | null
     ): TypedEventFilter<
       [string[], string[], string[]],
       { bases: string[]; kinds: string[]; sources_: string[] }
@@ -388,16 +268,7 @@ export class CompoundMultiOracle extends Contract {
   estimateGas: {
     SCALE_FACTOR(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "SCALE_FACTOR()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     get(
-      base: BytesLike,
-      kind: BytesLike,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "get(bytes32,bytes32,uint256)"(
       base: BytesLike,
       kind: BytesLike,
       amount: BigNumberish,
@@ -406,16 +277,7 @@ export class CompoundMultiOracle extends Contract {
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "owner()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     peek(
-      base: BytesLike,
-      kind: BytesLike,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "peek(bytes32,bytes32,uint256)"(
       base: BytesLike,
       kind: BytesLike,
       amount: BigNumberish,
@@ -429,31 +291,13 @@ export class CompoundMultiOracle extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "setSources(bytes6[],bytes32[],address[])"(
-      bases: BytesLike[],
-      kinds: BytesLike[],
-      sources_: string[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     sources(
       arg0: BytesLike,
       arg1: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "sources(bytes6,bytes32)"(
-      arg0: BytesLike,
-      arg1: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     transferOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "transferOwnership(address)"(
       newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -462,16 +306,7 @@ export class CompoundMultiOracle extends Contract {
   populateTransaction: {
     SCALE_FACTOR(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "SCALE_FACTOR()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     get(
-      base: BytesLike,
-      kind: BytesLike,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "get(bytes32,bytes32,uint256)"(
       base: BytesLike,
       kind: BytesLike,
       amount: BigNumberish,
@@ -480,16 +315,7 @@ export class CompoundMultiOracle extends Contract {
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "owner()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     peek(
-      base: BytesLike,
-      kind: BytesLike,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "peek(bytes32,bytes32,uint256)"(
       base: BytesLike,
       kind: BytesLike,
       amount: BigNumberish,
@@ -503,31 +329,13 @@ export class CompoundMultiOracle extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "setSources(bytes6[],bytes32[],address[])"(
-      bases: BytesLike[],
-      kinds: BytesLike[],
-      sources_: string[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     sources(
       arg0: BytesLike,
       arg1: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "sources(bytes6,bytes32)"(
-      arg0: BytesLike,
-      arg1: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     transferOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "transferOwnership(address)"(
       newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;

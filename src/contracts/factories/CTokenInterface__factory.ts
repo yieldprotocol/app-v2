@@ -2,19 +2,12 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer } from "ethers";
+import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-
-import type { CTokenInterface } from "../CTokenInterface";
-
-export class CTokenInterface__factory {
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): CTokenInterface {
-    return new Contract(address, _abi, signerOrProvider) as CTokenInterface;
-  }
-}
+import type {
+  CTokenInterface,
+  CTokenInterfaceInterface,
+} from "../CTokenInterface";
 
 const _abi = [
   {
@@ -57,3 +50,16 @@ const _abi = [
     type: "function",
   },
 ];
+
+export class CTokenInterface__factory {
+  static readonly abi = _abi;
+  static createInterface(): CTokenInterfaceInterface {
+    return new utils.Interface(_abi) as CTokenInterfaceInterface;
+  }
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): CTokenInterface {
+    return new Contract(address, _abi, signerOrProvider) as CTokenInterface;
+  }
+}

@@ -9,7 +9,7 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-  Contract,
+  BaseContract,
   ContractTransaction,
   Overrides,
   CallOverrides,
@@ -52,7 +52,7 @@ interface OracleMockInterface extends ethers.utils.Interface {
   events: {};
 }
 
-export class OracleMock extends Contract {
+export class OracleMock extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -103,21 +103,7 @@ export class OracleMock extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "get(bytes32,bytes32,uint256)"(
-      arg0: BytesLike,
-      arg1: BytesLike,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     peek(
-      arg0: BytesLike,
-      arg1: BytesLike,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber]>;
-
-    "peek(bytes32,bytes32,uint256)"(
       arg0: BytesLike,
       arg1: BytesLike,
       amount: BigNumberish,
@@ -129,32 +115,14 @@ export class OracleMock extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "set(uint256)"(
-      spot_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     source(overrides?: CallOverrides): Promise<[string]>;
-
-    "source()"(overrides?: CallOverrides): Promise<[string]>;
 
     spot(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "spot()"(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     updated(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    "updated()"(overrides?: CallOverrides): Promise<[BigNumber]>;
   };
 
   get(
-    arg0: BytesLike,
-    arg1: BytesLike,
-    amount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "get(bytes32,bytes32,uint256)"(
     arg0: BytesLike,
     arg1: BytesLike,
     amount: BigNumberish,
@@ -168,44 +136,19 @@ export class OracleMock extends Contract {
     overrides?: CallOverrides
   ): Promise<[BigNumber, BigNumber]>;
 
-  "peek(bytes32,bytes32,uint256)"(
-    arg0: BytesLike,
-    arg1: BytesLike,
-    amount: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<[BigNumber, BigNumber]>;
-
   set(
-    spot_: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "set(uint256)"(
     spot_: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   source(overrides?: CallOverrides): Promise<string>;
 
-  "source()"(overrides?: CallOverrides): Promise<string>;
-
   spot(overrides?: CallOverrides): Promise<BigNumber>;
-
-  "spot()"(overrides?: CallOverrides): Promise<BigNumber>;
 
   updated(overrides?: CallOverrides): Promise<BigNumber>;
 
-  "updated()"(overrides?: CallOverrides): Promise<BigNumber>;
-
   callStatic: {
     get(
-      arg0: BytesLike,
-      arg1: BytesLike,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber]>;
-
-    "get(bytes32,bytes32,uint256)"(
       arg0: BytesLike,
       arg1: BytesLike,
       amount: BigNumberish,
@@ -219,31 +162,13 @@ export class OracleMock extends Contract {
       overrides?: CallOverrides
     ): Promise<[BigNumber, BigNumber]>;
 
-    "peek(bytes32,bytes32,uint256)"(
-      arg0: BytesLike,
-      arg1: BytesLike,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber]>;
-
     set(spot_: BigNumberish, overrides?: CallOverrides): Promise<void>;
-
-    "set(uint256)"(
-      spot_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     source(overrides?: CallOverrides): Promise<string>;
 
-    "source()"(overrides?: CallOverrides): Promise<string>;
-
     spot(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "spot()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     updated(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "updated()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   filters: {};
@@ -256,21 +181,7 @@ export class OracleMock extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "get(bytes32,bytes32,uint256)"(
-      arg0: BytesLike,
-      arg1: BytesLike,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     peek(
-      arg0: BytesLike,
-      arg1: BytesLike,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "peek(bytes32,bytes32,uint256)"(
       arg0: BytesLike,
       arg1: BytesLike,
       amount: BigNumberish,
@@ -282,22 +193,11 @@ export class OracleMock extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "set(uint256)"(
-      spot_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     source(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "source()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     spot(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "spot()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     updated(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "updated()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -308,21 +208,7 @@ export class OracleMock extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "get(bytes32,bytes32,uint256)"(
-      arg0: BytesLike,
-      arg1: BytesLike,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     peek(
-      arg0: BytesLike,
-      arg1: BytesLike,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "peek(bytes32,bytes32,uint256)"(
       arg0: BytesLike,
       arg1: BytesLike,
       amount: BigNumberish,
@@ -334,21 +220,10 @@ export class OracleMock extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "set(uint256)"(
-      spot_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     source(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "source()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     spot(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "spot()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     updated(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "updated()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

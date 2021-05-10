@@ -21,7 +21,6 @@ function App() {
   return (
     <Box fill>
       <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
-
       <Box flex={!mobile} overflow="auto" margin={{ top: 'xlarge' }}>
         <ToastContainer />
         { menuLayerOpen && <MenuLayer toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} />}
@@ -33,12 +32,9 @@ function App() {
           <Route path="/markets"> <Markets /> </Route>
           <Route exact path="/"> <Redirect to="/borrow" /> </Route>
           <Route path="/*"> 404 </Route>
-
         </Switch>
       </Box>
-
       <YieldFooter />
-
     </Box>
   );
 }

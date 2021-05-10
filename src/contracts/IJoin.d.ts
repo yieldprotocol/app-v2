@@ -9,7 +9,7 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-  Contract,
+  BaseContract,
   ContractTransaction,
   Overrides,
   CallOverrides,
@@ -43,7 +43,7 @@ interface IJoinInterface extends ethers.utils.Interface {
   events: {};
 }
 
-export class IJoin extends Contract {
+export class IJoin extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -89,15 +89,7 @@ export class IJoin extends Contract {
   functions: {
     asset(overrides?: CallOverrides): Promise<[string]>;
 
-    "asset()"(overrides?: CallOverrides): Promise<[string]>;
-
     exit(
-      user: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "exit(address,uint128)"(
       user: string,
       wad: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -108,25 +100,11 @@ export class IJoin extends Contract {
       wad: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    "join(address,uint128)"(
-      user: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
   };
 
   asset(overrides?: CallOverrides): Promise<string>;
 
-  "asset()"(overrides?: CallOverrides): Promise<string>;
-
   exit(
-    user: string,
-    wad: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "exit(address,uint128)"(
     user: string,
     wad: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -138,16 +116,8 @@ export class IJoin extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "join(address,uint128)"(
-    user: string,
-    wad: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   callStatic: {
     asset(overrides?: CallOverrides): Promise<string>;
-
-    "asset()"(overrides?: CallOverrides): Promise<string>;
 
     exit(
       user: string,
@@ -155,19 +125,7 @@ export class IJoin extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "exit(address,uint128)"(
-      user: string,
-      wad: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     join(
-      user: string,
-      wad: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "join(address,uint128)"(
       user: string,
       wad: BigNumberish,
       overrides?: CallOverrides
@@ -179,27 +137,13 @@ export class IJoin extends Contract {
   estimateGas: {
     asset(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "asset()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     exit(
       user: string,
       wad: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "exit(address,uint128)"(
-      user: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     join(
-      user: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "join(address,uint128)"(
       user: string,
       wad: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -209,27 +153,13 @@ export class IJoin extends Contract {
   populateTransaction: {
     asset(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "asset()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     exit(
       user: string,
       wad: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "exit(address,uint128)"(
-      user: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     join(
-      user: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "join(address,uint128)"(
       user: string,
       wad: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }

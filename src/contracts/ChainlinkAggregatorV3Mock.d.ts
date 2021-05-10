@@ -9,7 +9,7 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-  Contract,
+  BaseContract,
   ContractTransaction,
   Overrides,
   CallOverrides,
@@ -46,7 +46,7 @@ interface ChainlinkAggregatorV3MockInterface extends ethers.utils.Interface {
   events: {};
 }
 
-export class ChainlinkAggregatorV3Mock extends Contract {
+export class ChainlinkAggregatorV3Mock extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -94,78 +94,39 @@ export class ChainlinkAggregatorV3Mock extends Contract {
       overrides?: CallOverrides
     ): Promise<[BigNumber, BigNumber, BigNumber, BigNumber, BigNumber]>;
 
-    "latestRoundData()"(
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber, BigNumber, BigNumber, BigNumber]>;
-
     price(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    "price()"(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     set(
       price_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "set(uint256)"(
-      price_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     timestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    "timestamp()"(overrides?: CallOverrides): Promise<[BigNumber]>;
   };
 
   latestRoundData(
     overrides?: CallOverrides
   ): Promise<[BigNumber, BigNumber, BigNumber, BigNumber, BigNumber]>;
 
-  "latestRoundData()"(
-    overrides?: CallOverrides
-  ): Promise<[BigNumber, BigNumber, BigNumber, BigNumber, BigNumber]>;
-
   price(overrides?: CallOverrides): Promise<BigNumber>;
-
-  "price()"(overrides?: CallOverrides): Promise<BigNumber>;
 
   set(
     price_: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "set(uint256)"(
-    price_: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   timestamp(overrides?: CallOverrides): Promise<BigNumber>;
-
-  "timestamp()"(overrides?: CallOverrides): Promise<BigNumber>;
 
   callStatic: {
     latestRoundData(
       overrides?: CallOverrides
     ): Promise<[BigNumber, BigNumber, BigNumber, BigNumber, BigNumber]>;
 
-    "latestRoundData()"(
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber, BigNumber, BigNumber, BigNumber]>;
-
     price(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "price()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     set(price_: BigNumberish, overrides?: CallOverrides): Promise<void>;
 
-    "set(uint256)"(
-      price_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     timestamp(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "timestamp()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   filters: {};
@@ -173,50 +134,26 @@ export class ChainlinkAggregatorV3Mock extends Contract {
   estimateGas: {
     latestRoundData(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "latestRoundData()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     price(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "price()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     set(
-      price_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "set(uint256)"(
       price_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     timestamp(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "timestamp()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
     latestRoundData(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "latestRoundData()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     price(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "price()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     set(
       price_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "set(uint256)"(
-      price_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     timestamp(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "timestamp()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

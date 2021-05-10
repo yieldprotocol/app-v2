@@ -2,19 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer } from "ethers";
+import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-
-import type { IOracle } from "../IOracle";
-
-export class IOracle__factory {
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): IOracle {
-    return new Contract(address, _abi, signerOrProvider) as IOracle;
-  }
-}
+import type { IOracle, IOracleInterface } from "../IOracle";
 
 const _abi = [
   {
@@ -86,3 +76,16 @@ const _abi = [
     type: "function",
   },
 ];
+
+export class IOracle__factory {
+  static readonly abi = _abi;
+  static createInterface(): IOracleInterface {
+    return new utils.Interface(_abi) as IOracleInterface;
+  }
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): IOracle {
+    return new Contract(address, _abi, signerOrProvider) as IOracle;
+  }
+}

@@ -9,7 +9,7 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-  Contract,
+  BaseContract,
   ContractTransaction,
   CallOverrides,
 } from "ethers";
@@ -112,7 +112,7 @@ interface YieldMathInterface extends ethers.utils.Interface {
   events: {};
 }
 
-export class YieldMath extends Contract {
+export class YieldMath extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -158,23 +158,9 @@ export class YieldMath extends Contract {
   functions: {
     MAX(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "MAX()"(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     ONE(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "ONE()"(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     baseInForFYTokenOut(
-      baseReserves: BigNumberish,
-      fyTokenReserves: BigNumberish,
-      fyTokenAmount: BigNumberish,
-      timeTillMaturity: BigNumberish,
-      k: BigNumberish,
-      g: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    "baseInForFYTokenOut(uint128,uint128,uint128,uint128,int128,int128)"(
       baseReserves: BigNumberish,
       fyTokenReserves: BigNumberish,
       fyTokenAmount: BigNumberish,
@@ -194,27 +180,7 @@ export class YieldMath extends Contract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    "baseOutForFYTokenIn(uint128,uint128,uint128,uint128,int128,int128)"(
-      baseReserves: BigNumberish,
-      fyTokenReserves: BigNumberish,
-      fyTokenAmount: BigNumberish,
-      timeTillMaturity: BigNumberish,
-      k: BigNumberish,
-      g: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
     fyTokenInForBaseOut(
-      baseReserves: BigNumberish,
-      fyTokenReserves: BigNumberish,
-      baseAmount: BigNumberish,
-      timeTillMaturity: BigNumberish,
-      k: BigNumberish,
-      g: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    "fyTokenInForBaseOut(uint128,uint128,uint128,uint128,int128,int128)"(
       baseReserves: BigNumberish,
       fyTokenReserves: BigNumberish,
       baseAmount: BigNumberish,
@@ -234,26 +200,7 @@ export class YieldMath extends Contract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    "fyTokenOutForBaseIn(uint128,uint128,uint128,uint128,int128,int128)"(
-      baseReserves: BigNumberish,
-      fyTokenReserves: BigNumberish,
-      baseAmount: BigNumberish,
-      timeTillMaturity: BigNumberish,
-      k: BigNumberish,
-      g: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
     initialReservesValue(
-      baseReserves: BigNumberish,
-      fyTokenReserves: BigNumberish,
-      timeTillMaturity: BigNumberish,
-      k: BigNumberish,
-      c0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    "initialReservesValue(uint128,uint128,uint128,int128,int128)"(
       baseReserves: BigNumberish,
       fyTokenReserves: BigNumberish,
       timeTillMaturity: BigNumberish,
@@ -265,23 +212,9 @@ export class YieldMath extends Contract {
 
   MAX(overrides?: CallOverrides): Promise<BigNumber>;
 
-  "MAX()"(overrides?: CallOverrides): Promise<BigNumber>;
-
   ONE(overrides?: CallOverrides): Promise<BigNumber>;
 
-  "ONE()"(overrides?: CallOverrides): Promise<BigNumber>;
-
   baseInForFYTokenOut(
-    baseReserves: BigNumberish,
-    fyTokenReserves: BigNumberish,
-    fyTokenAmount: BigNumberish,
-    timeTillMaturity: BigNumberish,
-    k: BigNumberish,
-    g: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  "baseInForFYTokenOut(uint128,uint128,uint128,uint128,int128,int128)"(
     baseReserves: BigNumberish,
     fyTokenReserves: BigNumberish,
     fyTokenAmount: BigNumberish,
@@ -301,27 +234,7 @@ export class YieldMath extends Contract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  "baseOutForFYTokenIn(uint128,uint128,uint128,uint128,int128,int128)"(
-    baseReserves: BigNumberish,
-    fyTokenReserves: BigNumberish,
-    fyTokenAmount: BigNumberish,
-    timeTillMaturity: BigNumberish,
-    k: BigNumberish,
-    g: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
   fyTokenInForBaseOut(
-    baseReserves: BigNumberish,
-    fyTokenReserves: BigNumberish,
-    baseAmount: BigNumberish,
-    timeTillMaturity: BigNumberish,
-    k: BigNumberish,
-    g: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  "fyTokenInForBaseOut(uint128,uint128,uint128,uint128,int128,int128)"(
     baseReserves: BigNumberish,
     fyTokenReserves: BigNumberish,
     baseAmount: BigNumberish,
@@ -341,26 +254,7 @@ export class YieldMath extends Contract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  "fyTokenOutForBaseIn(uint128,uint128,uint128,uint128,int128,int128)"(
-    baseReserves: BigNumberish,
-    fyTokenReserves: BigNumberish,
-    baseAmount: BigNumberish,
-    timeTillMaturity: BigNumberish,
-    k: BigNumberish,
-    g: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
   initialReservesValue(
-    baseReserves: BigNumberish,
-    fyTokenReserves: BigNumberish,
-    timeTillMaturity: BigNumberish,
-    k: BigNumberish,
-    c0: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  "initialReservesValue(uint128,uint128,uint128,int128,int128)"(
     baseReserves: BigNumberish,
     fyTokenReserves: BigNumberish,
     timeTillMaturity: BigNumberish,
@@ -372,23 +266,9 @@ export class YieldMath extends Contract {
   callStatic: {
     MAX(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "MAX()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     ONE(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "ONE()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     baseInForFYTokenOut(
-      baseReserves: BigNumberish,
-      fyTokenReserves: BigNumberish,
-      fyTokenAmount: BigNumberish,
-      timeTillMaturity: BigNumberish,
-      k: BigNumberish,
-      g: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "baseInForFYTokenOut(uint128,uint128,uint128,uint128,int128,int128)"(
       baseReserves: BigNumberish,
       fyTokenReserves: BigNumberish,
       fyTokenAmount: BigNumberish,
@@ -408,27 +288,7 @@ export class YieldMath extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "baseOutForFYTokenIn(uint128,uint128,uint128,uint128,int128,int128)"(
-      baseReserves: BigNumberish,
-      fyTokenReserves: BigNumberish,
-      fyTokenAmount: BigNumberish,
-      timeTillMaturity: BigNumberish,
-      k: BigNumberish,
-      g: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     fyTokenInForBaseOut(
-      baseReserves: BigNumberish,
-      fyTokenReserves: BigNumberish,
-      baseAmount: BigNumberish,
-      timeTillMaturity: BigNumberish,
-      k: BigNumberish,
-      g: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "fyTokenInForBaseOut(uint128,uint128,uint128,uint128,int128,int128)"(
       baseReserves: BigNumberish,
       fyTokenReserves: BigNumberish,
       baseAmount: BigNumberish,
@@ -448,26 +308,7 @@ export class YieldMath extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "fyTokenOutForBaseIn(uint128,uint128,uint128,uint128,int128,int128)"(
-      baseReserves: BigNumberish,
-      fyTokenReserves: BigNumberish,
-      baseAmount: BigNumberish,
-      timeTillMaturity: BigNumberish,
-      k: BigNumberish,
-      g: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     initialReservesValue(
-      baseReserves: BigNumberish,
-      fyTokenReserves: BigNumberish,
-      timeTillMaturity: BigNumberish,
-      k: BigNumberish,
-      c0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "initialReservesValue(uint128,uint128,uint128,int128,int128)"(
       baseReserves: BigNumberish,
       fyTokenReserves: BigNumberish,
       timeTillMaturity: BigNumberish,
@@ -482,23 +323,9 @@ export class YieldMath extends Contract {
   estimateGas: {
     MAX(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "MAX()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     ONE(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "ONE()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     baseInForFYTokenOut(
-      baseReserves: BigNumberish,
-      fyTokenReserves: BigNumberish,
-      fyTokenAmount: BigNumberish,
-      timeTillMaturity: BigNumberish,
-      k: BigNumberish,
-      g: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "baseInForFYTokenOut(uint128,uint128,uint128,uint128,int128,int128)"(
       baseReserves: BigNumberish,
       fyTokenReserves: BigNumberish,
       fyTokenAmount: BigNumberish,
@@ -518,27 +345,7 @@ export class YieldMath extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "baseOutForFYTokenIn(uint128,uint128,uint128,uint128,int128,int128)"(
-      baseReserves: BigNumberish,
-      fyTokenReserves: BigNumberish,
-      fyTokenAmount: BigNumberish,
-      timeTillMaturity: BigNumberish,
-      k: BigNumberish,
-      g: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     fyTokenInForBaseOut(
-      baseReserves: BigNumberish,
-      fyTokenReserves: BigNumberish,
-      baseAmount: BigNumberish,
-      timeTillMaturity: BigNumberish,
-      k: BigNumberish,
-      g: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "fyTokenInForBaseOut(uint128,uint128,uint128,uint128,int128,int128)"(
       baseReserves: BigNumberish,
       fyTokenReserves: BigNumberish,
       baseAmount: BigNumberish,
@@ -558,26 +365,7 @@ export class YieldMath extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "fyTokenOutForBaseIn(uint128,uint128,uint128,uint128,int128,int128)"(
-      baseReserves: BigNumberish,
-      fyTokenReserves: BigNumberish,
-      baseAmount: BigNumberish,
-      timeTillMaturity: BigNumberish,
-      k: BigNumberish,
-      g: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     initialReservesValue(
-      baseReserves: BigNumberish,
-      fyTokenReserves: BigNumberish,
-      timeTillMaturity: BigNumberish,
-      k: BigNumberish,
-      c0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "initialReservesValue(uint128,uint128,uint128,int128,int128)"(
       baseReserves: BigNumberish,
       fyTokenReserves: BigNumberish,
       timeTillMaturity: BigNumberish,
@@ -590,23 +378,9 @@ export class YieldMath extends Contract {
   populateTransaction: {
     MAX(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "MAX()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     ONE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "ONE()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     baseInForFYTokenOut(
-      baseReserves: BigNumberish,
-      fyTokenReserves: BigNumberish,
-      fyTokenAmount: BigNumberish,
-      timeTillMaturity: BigNumberish,
-      k: BigNumberish,
-      g: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "baseInForFYTokenOut(uint128,uint128,uint128,uint128,int128,int128)"(
       baseReserves: BigNumberish,
       fyTokenReserves: BigNumberish,
       fyTokenAmount: BigNumberish,
@@ -626,27 +400,7 @@ export class YieldMath extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "baseOutForFYTokenIn(uint128,uint128,uint128,uint128,int128,int128)"(
-      baseReserves: BigNumberish,
-      fyTokenReserves: BigNumberish,
-      fyTokenAmount: BigNumberish,
-      timeTillMaturity: BigNumberish,
-      k: BigNumberish,
-      g: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     fyTokenInForBaseOut(
-      baseReserves: BigNumberish,
-      fyTokenReserves: BigNumberish,
-      baseAmount: BigNumberish,
-      timeTillMaturity: BigNumberish,
-      k: BigNumberish,
-      g: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "fyTokenInForBaseOut(uint128,uint128,uint128,uint128,int128,int128)"(
       baseReserves: BigNumberish,
       fyTokenReserves: BigNumberish,
       baseAmount: BigNumberish,
@@ -666,26 +420,7 @@ export class YieldMath extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "fyTokenOutForBaseIn(uint128,uint128,uint128,uint128,int128,int128)"(
-      baseReserves: BigNumberish,
-      fyTokenReserves: BigNumberish,
-      baseAmount: BigNumberish,
-      timeTillMaturity: BigNumberish,
-      k: BigNumberish,
-      g: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     initialReservesValue(
-      baseReserves: BigNumberish,
-      fyTokenReserves: BigNumberish,
-      timeTillMaturity: BigNumberish,
-      k: BigNumberish,
-      c0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "initialReservesValue(uint128,uint128,uint128,int128,int128)"(
       baseReserves: BigNumberish,
       fyTokenReserves: BigNumberish,
       timeTillMaturity: BigNumberish,

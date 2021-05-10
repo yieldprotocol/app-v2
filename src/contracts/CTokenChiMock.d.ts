@@ -9,7 +9,7 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-  Contract,
+  BaseContract,
   ContractTransaction,
   Overrides,
   CallOverrides,
@@ -49,7 +49,7 @@ interface CTokenChiMockInterface extends ethers.utils.Interface {
   events: {};
 }
 
-export class CTokenChiMock extends Contract {
+export class CTokenChiMock extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -97,20 +97,9 @@ export class CTokenChiMock extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "exchangeRateCurrent()"(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     exchangeRateStored(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "exchangeRateStored()"(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     set(
-      chi: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "set(uint256)"(
       chi: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -120,20 +109,9 @@ export class CTokenChiMock extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "exchangeRateCurrent()"(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   exchangeRateStored(overrides?: CallOverrides): Promise<BigNumber>;
 
-  "exchangeRateStored()"(overrides?: CallOverrides): Promise<BigNumber>;
-
   set(
-    chi: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "set(uint256)"(
     chi: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -141,15 +119,9 @@ export class CTokenChiMock extends Contract {
   callStatic: {
     exchangeRateCurrent(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "exchangeRateCurrent()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     exchangeRateStored(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "exchangeRateStored()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     set(chi: BigNumberish, overrides?: CallOverrides): Promise<void>;
-
-    "set(uint256)"(chi: BigNumberish, overrides?: CallOverrides): Promise<void>;
   };
 
   filters: {};
@@ -159,20 +131,9 @@ export class CTokenChiMock extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "exchangeRateCurrent()"(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     exchangeRateStored(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "exchangeRateStored()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     set(
-      chi: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "set(uint256)"(
       chi: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -183,24 +144,11 @@ export class CTokenChiMock extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "exchangeRateCurrent()"(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     exchangeRateStored(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "exchangeRateStored()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     set(
-      chi: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "set(uint256)"(
       chi: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;

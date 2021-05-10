@@ -9,7 +9,7 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-  Contract,
+  BaseContract,
   ContractTransaction,
   Overrides,
   CallOverrides,
@@ -34,7 +34,7 @@ interface ILadleInterface extends ethers.utils.Interface {
   events: {};
 }
 
-export class ILadle extends Contract {
+export class ILadle extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -85,14 +85,6 @@ export class ILadle extends Contract {
       art: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    "settle(bytes12,address,uint128,uint128)"(
-      vaultId: BytesLike,
-      user: string,
-      ink: BigNumberish,
-      art: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
   };
 
   settle(
@@ -103,24 +95,8 @@ export class ILadle extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "settle(bytes12,address,uint128,uint128)"(
-    vaultId: BytesLike,
-    user: string,
-    ink: BigNumberish,
-    art: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   callStatic: {
     settle(
-      vaultId: BytesLike,
-      user: string,
-      ink: BigNumberish,
-      art: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "settle(bytes12,address,uint128,uint128)"(
       vaultId: BytesLike,
       user: string,
       ink: BigNumberish,
@@ -139,26 +115,10 @@ export class ILadle extends Contract {
       art: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
-
-    "settle(bytes12,address,uint128,uint128)"(
-      vaultId: BytesLike,
-      user: string,
-      ink: BigNumberish,
-      art: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     settle(
-      vaultId: BytesLike,
-      user: string,
-      ink: BigNumberish,
-      art: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "settle(bytes12,address,uint128,uint128)"(
       vaultId: BytesLike,
       user: string,
       ink: BigNumberish,

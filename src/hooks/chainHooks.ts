@@ -33,7 +33,7 @@ const _getCallValue = (calls: ICallData[]) : BigNumber => {
 
 /* Generic hook for chain transactions */
 export const useChain = () => {
-  const { chainState: { account, provider, signer, contractMap } } = useContext(ChainContext);
+  const { chainState: { account, provider, contractMap } } = useContext(ChainContext);
   const { txActions: { handleTx, handleSign } } = useContext(TxContext);
 
   /**
@@ -48,6 +48,7 @@ export const useChain = () => {
     calls: ICallData[],
     txCode: string,
   ) : Promise<void> => {
+    const signer = account ? provider.getSigner(account) : provider.getSigner(0);
     /* Set the router contract instance, ladle by default */
     let _contract: Contract = contractMap.get('Ladle').connect(signer) as Ladle;
     if (router === 'PoolRouter') _contract = contractMap.get('PoolRouter').connect(signer) as PoolRouter;
@@ -106,6 +107,8 @@ export const useChain = () => {
     txCode:string,
     viaPoolRouter: boolean = false,
   ) : Promise<ICallData[]> => {
+    const signer = account ? provider.getSigner(account) : provider.getSigner(0);
+
     /* First, filter out any ignored calls */
     const _requestedSigs = requestedSignatures.filter((_rs:ISignData) => !_rs.ignore);
     const signedList = await Promise.all(

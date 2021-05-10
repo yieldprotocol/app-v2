@@ -146,7 +146,7 @@ export const usePoolActions = () => {
 
       { // router.burnForBaseToken(pool.address, pool2.address, minBaseReceived)
         operation: POOLROUTER_OPS.ROUTE,
-        args: [toSeries.poolAddress, _input, _input.div(100)],
+        args: [toSeries.poolAddress, _input.div(100)],
         fnName: 'burnForBaseToken',
         series: fromSeries,
         ignore: seriesMature,

@@ -2,19 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer } from "ethers";
+import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-
-import type { ERC20Mock } from "../ERC20Mock";
-
-export class ERC20Mock__factory {
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): ERC20Mock {
-    return new Contract(address, _abi, signerOrProvider) as ERC20Mock;
-  }
-}
+import type { ERC20Mock, ERC20MockInterface } from "../ERC20Mock";
 
 const _abi = [
   {
@@ -375,3 +365,16 @@ const _abi = [
     type: "function",
   },
 ];
+
+export class ERC20Mock__factory {
+  static readonly abi = _abi;
+  static createInterface(): ERC20MockInterface {
+    return new utils.Interface(_abi) as ERC20MockInterface;
+  }
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): ERC20Mock {
+    return new Contract(address, _abi, signerOrProvider) as ERC20Mock;
+  }
+}

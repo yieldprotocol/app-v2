@@ -9,7 +9,7 @@ import { TxProvider } from '../contexts/TxContext';
 import { UserProvider } from '../contexts/UserContext';
 
 /* Init the signing web3 environment */
-function getLibrary(provider: ethers.providers.ExternalProvider, connector: any) {
+function getLibrary(provider: any, connector: any) {
   const library = new ethers.providers.JsonRpcProvider(process.env.REACT_APP_RPC_URL_31337 as string);
   library.pollingInterval = 12000;
   return library;
@@ -18,15 +18,9 @@ function getLibrary(provider: ethers.providers.ExternalProvider, connector: any)
 /* Init the calling web3 environment */
 const Web3FallbackProvider = createWeb3ReactRoot('fallback');
 
-function getFallbackLibrary(provider: any, connector: any) {
-  const library = new ethers.providers.JsonRpcProvider(process.env.REACT_APP_RPC_URL_31337 as string);
-  library.pollingInterval = 12000;
-  return library;
-}
-
-const AllTheProviders: FC = ({ children }) => (
+const AllProviders: FC = ({ children }) => (
   <Router>
-    <Web3FallbackProvider getLibrary={getFallbackLibrary}>
+    <Web3FallbackProvider getLibrary={getLibrary}>
       <Web3ReactProvider getLibrary={getLibrary}>
         <ChainProvider>
           <UserProvider>
@@ -43,7 +37,7 @@ const AllTheProviders: FC = ({ children }) => (
 const customRender = (
   ui: ReactElement,
   options?: Omit<RenderOptions, 'queries'>,
-) => render(ui, { wrapper: AllTheProviders, ...options });
+) => render(ui, { wrapper: AllProviders, ...options });
 
 export * from '@testing-library/react';
 

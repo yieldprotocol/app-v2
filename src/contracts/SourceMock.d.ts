@@ -9,7 +9,7 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-  Contract,
+  BaseContract,
   ContractTransaction,
   Overrides,
   CallOverrides,
@@ -31,7 +31,7 @@ interface SourceMockInterface extends ethers.utils.Interface {
   events: {};
 }
 
-export class SourceMock extends Contract {
+export class SourceMock extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -79,11 +79,6 @@ export class SourceMock extends Contract {
       arg0: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    "set(uint256)"(
-      arg0: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
   };
 
   set(
@@ -91,18 +86,8 @@ export class SourceMock extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "set(uint256)"(
-    arg0: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   callStatic: {
     set(arg0: BigNumberish, overrides?: CallOverrides): Promise<void>;
-
-    "set(uint256)"(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
   };
 
   filters: {};
@@ -112,20 +97,10 @@ export class SourceMock extends Contract {
       arg0: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
-
-    "set(uint256)"(
-      arg0: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     set(
-      arg0: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "set(uint256)"(
       arg0: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;

@@ -37,6 +37,8 @@ const Vault = () => {
   const [borrowInput, setBorrowInput] = useState<any>(undefined);
   const [collateralInput, setCollateralInput] = useState<any>(undefined);
 
+  const [rollToSeries, setRollToSeries] = useState<ISeries|null>(null);
+
   const { repay, borrow, rollDebt } = useBorrowActions();
   const { addCollateral, removeCollateral } = useCollateralActions();
 
@@ -62,9 +64,8 @@ const Vault = () => {
   };
 
   const handleRollDebt = () => {
-    const selected = selectedSeriesId && seriesMap.get(selectedSeriesId);
-    selected && activeVault &&
-    rollDebt(activeVault, selected, '0');
+    rollToSeries && activeVault &&
+    rollDebt(activeVault, rollToSeries, '0');
   };
 
   return (
@@ -141,7 +142,7 @@ const Vault = () => {
         >
           <Box gap="small" fill="horizontal" direction="row" align="center">
 
-            <SeriesSelector />
+            <SeriesSelector setSeriesLocally={(_series:ISeries) => setRollToSeries(_series)} />
 
             <Box basis="35%">
               <ActionButtonGroup buttonList={[

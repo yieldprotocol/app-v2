@@ -9,7 +9,7 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-  Contract,
+  BaseContract,
   ContractTransaction,
   Overrides,
   CallOverrides,
@@ -126,7 +126,7 @@ interface ERC20MockInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
 }
 
-export class ERC20Mock extends Contract {
+export class ERC20Mock extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -172,19 +172,9 @@ export class ERC20Mock extends Contract {
   functions: {
     DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<[string]>;
 
-    "DOMAIN_SEPARATOR()"(overrides?: CallOverrides): Promise<[string]>;
-
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<[string]>;
 
-    "PERMIT_TYPEHASH()"(overrides?: CallOverrides): Promise<[string]>;
-
     allowance(
-      owner: string,
-      spender: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    "allowance(address,address)"(
       owner: string,
       spender: string,
       overrides?: CallOverrides
@@ -196,22 +186,9 @@ export class ERC20Mock extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "approve(address,uint256)"(
-      spender: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     balanceOf(guy: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "balanceOf(address)"(
-      guy: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
     decimals(overrides?: CallOverrides): Promise<[number]>;
-
-    "decimals()"(overrides?: CallOverrides): Promise<[number]>;
 
     mint(
       to: string,
@@ -219,35 +196,11 @@ export class ERC20Mock extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "mint(address,uint256)"(
-      to: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     name(overrides?: CallOverrides): Promise<[string]>;
-
-    "name()"(overrides?: CallOverrides): Promise<[string]>;
 
     nonces(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "nonces(address)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
     permit(
-      owner: string,
-      spender: string,
-      amount: BigNumberish,
-      deadline: BigNumberish,
-      v: BigNumberish,
-      r: BytesLike,
-      s: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"(
       owner: string,
       spender: string,
       amount: BigNumberish,
@@ -260,19 +213,9 @@ export class ERC20Mock extends Contract {
 
     symbol(overrides?: CallOverrides): Promise<[string]>;
 
-    "symbol()"(overrides?: CallOverrides): Promise<[string]>;
-
     totalSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "totalSupply()"(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     transfer(
-      dst: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "transfer(address,uint256)"(
       dst: string,
       wad: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -285,33 +228,14 @@ export class ERC20Mock extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "transferFrom(address,address,uint256)"(
-      src: string,
-      dst: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     version(overrides?: CallOverrides): Promise<[string]>;
-
-    "version()"(overrides?: CallOverrides): Promise<[string]>;
   };
 
   DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<string>;
 
-  "DOMAIN_SEPARATOR()"(overrides?: CallOverrides): Promise<string>;
-
   PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
-  "PERMIT_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
-
   allowance(
-    owner: string,
-    spender: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  "allowance(address,address)"(
     owner: string,
     spender: string,
     overrides?: CallOverrides
@@ -323,22 +247,9 @@ export class ERC20Mock extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "approve(address,uint256)"(
-    spender: string,
-    wad: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   balanceOf(guy: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-  "balanceOf(address)"(
-    guy: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
   decimals(overrides?: CallOverrides): Promise<number>;
-
-  "decimals()"(overrides?: CallOverrides): Promise<number>;
 
   mint(
     to: string,
@@ -346,22 +257,9 @@ export class ERC20Mock extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "mint(address,uint256)"(
-    to: string,
-    amount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   name(overrides?: CallOverrides): Promise<string>;
 
-  "name()"(overrides?: CallOverrides): Promise<string>;
-
   nonces(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-  "nonces(address)"(
-    arg0: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
 
   permit(
     owner: string,
@@ -374,32 +272,11 @@ export class ERC20Mock extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"(
-    owner: string,
-    spender: string,
-    amount: BigNumberish,
-    deadline: BigNumberish,
-    v: BigNumberish,
-    r: BytesLike,
-    s: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   symbol(overrides?: CallOverrides): Promise<string>;
-
-  "symbol()"(overrides?: CallOverrides): Promise<string>;
 
   totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
-  "totalSupply()"(overrides?: CallOverrides): Promise<BigNumber>;
-
   transfer(
-    dst: string,
-    wad: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "transfer(address,uint256)"(
     dst: string,
     wad: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -412,33 +289,14 @@ export class ERC20Mock extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "transferFrom(address,address,uint256)"(
-    src: string,
-    dst: string,
-    wad: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   version(overrides?: CallOverrides): Promise<string>;
-
-  "version()"(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
     DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<string>;
 
-    "DOMAIN_SEPARATOR()"(overrides?: CallOverrides): Promise<string>;
-
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
-    "PERMIT_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
-
     allowance(
-      owner: string,
-      spender: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "allowance(address,address)"(
       owner: string,
       spender: string,
       overrides?: CallOverrides
@@ -450,22 +308,9 @@ export class ERC20Mock extends Contract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "approve(address,uint256)"(
-      spender: string,
-      wad: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
     balanceOf(guy: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    "balanceOf(address)"(
-      guy: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     decimals(overrides?: CallOverrides): Promise<number>;
-
-    "decimals()"(overrides?: CallOverrides): Promise<number>;
 
     mint(
       to: string,
@@ -473,35 +318,11 @@ export class ERC20Mock extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "mint(address,uint256)"(
-      to: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     name(overrides?: CallOverrides): Promise<string>;
-
-    "name()"(overrides?: CallOverrides): Promise<string>;
 
     nonces(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    "nonces(address)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     permit(
-      owner: string,
-      spender: string,
-      amount: BigNumberish,
-      deadline: BigNumberish,
-      v: BigNumberish,
-      r: BytesLike,
-      s: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"(
       owner: string,
       spender: string,
       amount: BigNumberish,
@@ -514,19 +335,9 @@ export class ERC20Mock extends Contract {
 
     symbol(overrides?: CallOverrides): Promise<string>;
 
-    "symbol()"(overrides?: CallOverrides): Promise<string>;
-
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "totalSupply()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     transfer(
-      dst: string,
-      wad: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "transfer(address,uint256)"(
       dst: string,
       wad: BigNumberish,
       overrides?: CallOverrides
@@ -539,32 +350,23 @@ export class ERC20Mock extends Contract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "transferFrom(address,address,uint256)"(
-      src: string,
-      dst: string,
-      wad: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
     version(overrides?: CallOverrides): Promise<string>;
-
-    "version()"(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {
     Approval(
-      owner: string | null,
-      spender: string | null,
-      value: null
+      owner?: string | null,
+      spender?: string | null,
+      value?: null
     ): TypedEventFilter<
       [string, string, BigNumber],
       { owner: string; spender: string; value: BigNumber }
     >;
 
     Transfer(
-      from: string | null,
-      to: string | null,
-      value: null
+      from?: string | null,
+      to?: string | null,
+      value?: null
     ): TypedEventFilter<
       [string, string, BigNumber],
       { from: string; to: string; value: BigNumber }
@@ -574,19 +376,9 @@ export class ERC20Mock extends Contract {
   estimateGas: {
     DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "DOMAIN_SEPARATOR()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "PERMIT_TYPEHASH()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     allowance(
-      owner: string,
-      spender: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "allowance(address,address)"(
       owner: string,
       spender: string,
       overrides?: CallOverrides
@@ -598,22 +390,9 @@ export class ERC20Mock extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "approve(address,uint256)"(
-      spender: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     balanceOf(guy: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    "balanceOf(address)"(
-      guy: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     decimals(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "decimals()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     mint(
       to: string,
@@ -621,35 +400,11 @@ export class ERC20Mock extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "mint(address,uint256)"(
-      to: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     name(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "name()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     nonces(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    "nonces(address)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     permit(
-      owner: string,
-      spender: string,
-      amount: BigNumberish,
-      deadline: BigNumberish,
-      v: BigNumberish,
-      r: BytesLike,
-      s: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"(
       owner: string,
       spender: string,
       amount: BigNumberish,
@@ -662,19 +417,9 @@ export class ERC20Mock extends Contract {
 
     symbol(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "symbol()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "totalSupply()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     transfer(
-      dst: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "transfer(address,uint256)"(
       dst: string,
       wad: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -687,38 +432,15 @@ export class ERC20Mock extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "transferFrom(address,address,uint256)"(
-      src: string,
-      dst: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     version(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "version()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
     DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "DOMAIN_SEPARATOR()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "PERMIT_TYPEHASH()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     allowance(
-      owner: string,
-      spender: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "allowance(address,address)"(
       owner: string,
       spender: string,
       overrides?: CallOverrides
@@ -730,25 +452,12 @@ export class ERC20Mock extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "approve(address,uint256)"(
-      spender: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     balanceOf(
       guy: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "balanceOf(address)"(
-      guy: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "decimals()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     mint(
       to: string,
@@ -756,22 +465,9 @@ export class ERC20Mock extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "mint(address,uint256)"(
-      to: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     name(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "name()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     nonces(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "nonces(address)"(
       arg0: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -787,32 +483,11 @@ export class ERC20Mock extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"(
-      owner: string,
-      spender: string,
-      amount: BigNumberish,
-      deadline: BigNumberish,
-      v: BigNumberish,
-      r: BytesLike,
-      s: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     symbol(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "symbol()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     totalSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "totalSupply()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     transfer(
-      dst: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "transfer(address,uint256)"(
       dst: string,
       wad: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -825,15 +500,6 @@ export class ERC20Mock extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "transferFrom(address,address,uint256)"(
-      src: string,
-      dst: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     version(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "version()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

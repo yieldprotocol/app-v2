@@ -2,19 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer } from "ethers";
+import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-
-import type { OracleMock } from "../OracleMock";
-
-export class OracleMock__factory {
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): OracleMock {
-    return new Contract(address, _abi, signerOrProvider) as OracleMock;
-  }
-}
+import type { OracleMock, OracleMockInterface } from "../OracleMock";
 
 const _abi = [
   {
@@ -143,3 +133,16 @@ const _abi = [
     type: "function",
   },
 ];
+
+export class OracleMock__factory {
+  static readonly abi = _abi;
+  static createInterface(): OracleMockInterface {
+    return new utils.Interface(_abi) as OracleMockInterface;
+  }
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): OracleMock {
+    return new Contract(address, _abi, signerOrProvider) as OracleMock;
+  }
+}

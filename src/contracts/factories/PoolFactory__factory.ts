@@ -2,19 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer } from "ethers";
+import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-
-import type { PoolFactory } from "../PoolFactory";
-
-export class PoolFactory__factory {
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): PoolFactory {
-    return new Contract(address, _abi, signerOrProvider) as PoolFactory;
-  }
-}
+import type { PoolFactory, PoolFactoryInterface } from "../PoolFactory";
 
 const _abi = [
   {
@@ -154,3 +144,16 @@ const _abi = [
     type: "function",
   },
 ];
+
+export class PoolFactory__factory {
+  static readonly abi = _abi;
+  static createInterface(): PoolFactoryInterface {
+    return new utils.Interface(_abi) as PoolFactoryInterface;
+  }
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): PoolFactory {
+    return new Contract(address, _abi, signerOrProvider) as PoolFactory;
+  }
+}

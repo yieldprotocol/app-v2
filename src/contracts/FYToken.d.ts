@@ -9,7 +9,7 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-  Contract,
+  BaseContract,
   ContractTransaction,
   Overrides,
   CallOverrides,
@@ -282,7 +282,7 @@ interface FYTokenInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
 }
 
-export class FYToken extends Contract {
+export class FYToken extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -328,35 +328,17 @@ export class FYToken extends Contract {
   functions: {
     DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<[string]>;
 
-    "DOMAIN_SEPARATOR()"(overrides?: CallOverrides): Promise<[string]>;
-
     LOCK(overrides?: CallOverrides): Promise<[string]>;
-
-    "LOCK()"(overrides?: CallOverrides): Promise<[string]>;
 
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<[string]>;
 
-    "PERMIT_TYPEHASH()"(overrides?: CallOverrides): Promise<[string]>;
-
     ROOT(overrides?: CallOverrides): Promise<[string]>;
-
-    "ROOT()"(overrides?: CallOverrides): Promise<[string]>;
 
     accrual(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "accrual()"(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     allowance(
-      owner: string,
-      spender: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    "allowance(address,address)"(
       owner: string,
       spender: string,
       overrides?: CallOverrides
@@ -368,18 +350,7 @@ export class FYToken extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "approve(address,uint256)"(
-      spender: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     balanceOf(guy: string, overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    "balanceOf(address)"(
-      guy: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
 
     burn(
       from: string,
@@ -387,27 +358,11 @@ export class FYToken extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "burn(address,uint256)"(
-      from: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     chiAtMaturity(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    "chiAtMaturity()"(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     decimals(overrides?: CallOverrides): Promise<[number]>;
 
-    "decimals()"(overrides?: CallOverrides): Promise<[number]>;
-
     flashFee(
-      token: string,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    "flashFee(address,uint256)"(
       token: string,
       arg1: BigNumberish,
       overrides?: CallOverrides
@@ -421,28 +376,9 @@ export class FYToken extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "flashLoan(address,address,uint256,bytes)"(
-      receiver: string,
-      token: string,
-      amount: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<[string]>;
 
-    "getRoleAdmin(bytes4)"(
-      role: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
     grantRole(
-      role: BytesLike,
-      account: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "grantRole(bytes4,address)"(
       role: BytesLike,
       account: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -454,19 +390,7 @@ export class FYToken extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "grantRoles(bytes4[],address)"(
-      roles: BytesLike[],
-      account: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     hasRole(
-      role: BytesLike,
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    "hasRole(bytes4,address)"(
       role: BytesLike,
       account: string,
       overrides?: CallOverrides
@@ -474,14 +398,7 @@ export class FYToken extends Contract {
 
     join(overrides?: CallOverrides): Promise<[string]>;
 
-    "join()"(overrides?: CallOverrides): Promise<[string]>;
-
     lockRole(
-      role: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "lockRole(bytes4)"(
       role: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -490,20 +407,9 @@ export class FYToken extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "mature()"(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     maturity(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "maturity()"(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     maxFlashLoan(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    "maxFlashLoan(address)"(
       token: string,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
@@ -514,39 +420,13 @@ export class FYToken extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "mint(address,uint256)"(
-      to: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     name(overrides?: CallOverrides): Promise<[string]>;
-
-    "name()"(overrides?: CallOverrides): Promise<[string]>;
 
     nonces(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "nonces(address)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
     oracle(overrides?: CallOverrides): Promise<[string]>;
 
-    "oracle()"(overrides?: CallOverrides): Promise<[string]>;
-
     permit(
-      owner: string,
-      spender: string,
-      amount: BigNumberish,
-      deadline: BigNumberish,
-      v: BigNumberish,
-      r: BytesLike,
-      s: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"(
       owner: string,
       spender: string,
       amount: BigNumberish,
@@ -563,19 +443,7 @@ export class FYToken extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "redeem(address,uint256)"(
-      to: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     renounceRole(
-      role: BytesLike,
-      account: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "renounceRole(bytes4,address)"(
       role: BytesLike,
       account: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -587,19 +455,7 @@ export class FYToken extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "revokeRole(bytes4,address)"(
-      role: BytesLike,
-      account: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     revokeRoles(
-      roles: BytesLike[],
-      account: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "revokeRoles(bytes4[],address)"(
       roles: BytesLike[],
       account: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -610,18 +466,7 @@ export class FYToken extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "setOracle(address)"(
-      oracle_: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     setRoleAdmin(
-      role: BytesLike,
-      adminRole: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "setRoleAdmin(bytes4,bytes4)"(
       role: BytesLike,
       adminRole: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -629,19 +474,9 @@ export class FYToken extends Contract {
 
     symbol(overrides?: CallOverrides): Promise<[string]>;
 
-    "symbol()"(overrides?: CallOverrides): Promise<[string]>;
-
     totalSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "totalSupply()"(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     transfer(
-      dst: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "transfer(address,uint256)"(
       dst: string,
       wad: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -654,57 +489,26 @@ export class FYToken extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "transferFrom(address,address,uint256)"(
-      src: string,
-      dst: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     underlying(overrides?: CallOverrides): Promise<[string]>;
-
-    "underlying()"(overrides?: CallOverrides): Promise<[string]>;
 
     underlyingId(overrides?: CallOverrides): Promise<[string]>;
 
-    "underlyingId()"(overrides?: CallOverrides): Promise<[string]>;
-
     version(overrides?: CallOverrides): Promise<[string]>;
-
-    "version()"(overrides?: CallOverrides): Promise<[string]>;
   };
 
   DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<string>;
 
-  "DOMAIN_SEPARATOR()"(overrides?: CallOverrides): Promise<string>;
-
   LOCK(overrides?: CallOverrides): Promise<string>;
-
-  "LOCK()"(overrides?: CallOverrides): Promise<string>;
 
   PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
-  "PERMIT_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
-
   ROOT(overrides?: CallOverrides): Promise<string>;
-
-  "ROOT()"(overrides?: CallOverrides): Promise<string>;
 
   accrual(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "accrual()"(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   allowance(
-    owner: string,
-    spender: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  "allowance(address,address)"(
     owner: string,
     spender: string,
     overrides?: CallOverrides
@@ -716,18 +520,7 @@ export class FYToken extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "approve(address,uint256)"(
-    spender: string,
-    wad: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   balanceOf(guy: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-  "balanceOf(address)"(
-    guy: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
 
   burn(
     from: string,
@@ -735,27 +528,11 @@ export class FYToken extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "burn(address,uint256)"(
-    from: string,
-    amount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   chiAtMaturity(overrides?: CallOverrides): Promise<BigNumber>;
-
-  "chiAtMaturity()"(overrides?: CallOverrides): Promise<BigNumber>;
 
   decimals(overrides?: CallOverrides): Promise<number>;
 
-  "decimals()"(overrides?: CallOverrides): Promise<number>;
-
   flashFee(
-    token: string,
-    arg1: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  "flashFee(address,uint256)"(
     token: string,
     arg1: BigNumberish,
     overrides?: CallOverrides
@@ -769,28 +546,9 @@ export class FYToken extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "flashLoan(address,address,uint256,bytes)"(
-    receiver: string,
-    token: string,
-    amount: BigNumberish,
-    data: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
 
-  "getRoleAdmin(bytes4)"(
-    role: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<string>;
-
   grantRole(
-    role: BytesLike,
-    account: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "grantRole(bytes4,address)"(
     role: BytesLike,
     account: string,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -802,19 +560,7 @@ export class FYToken extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "grantRoles(bytes4[],address)"(
-    roles: BytesLike[],
-    account: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   hasRole(
-    role: BytesLike,
-    account: string,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  "hasRole(bytes4,address)"(
     role: BytesLike,
     account: string,
     overrides?: CallOverrides
@@ -822,14 +568,7 @@ export class FYToken extends Contract {
 
   join(overrides?: CallOverrides): Promise<string>;
 
-  "join()"(overrides?: CallOverrides): Promise<string>;
-
   lockRole(
-    role: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "lockRole(bytes4)"(
     role: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -838,20 +577,9 @@ export class FYToken extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "mature()"(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   maturity(overrides?: CallOverrides): Promise<BigNumber>;
 
-  "maturity()"(overrides?: CallOverrides): Promise<BigNumber>;
-
   maxFlashLoan(token: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-  "maxFlashLoan(address)"(
-    token: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
 
   mint(
     to: string,
@@ -859,39 +587,13 @@ export class FYToken extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "mint(address,uint256)"(
-    to: string,
-    amount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   name(overrides?: CallOverrides): Promise<string>;
-
-  "name()"(overrides?: CallOverrides): Promise<string>;
 
   nonces(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-  "nonces(address)"(
-    arg0: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
   oracle(overrides?: CallOverrides): Promise<string>;
 
-  "oracle()"(overrides?: CallOverrides): Promise<string>;
-
   permit(
-    owner: string,
-    spender: string,
-    amount: BigNumberish,
-    deadline: BigNumberish,
-    v: BigNumberish,
-    r: BytesLike,
-    s: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"(
     owner: string,
     spender: string,
     amount: BigNumberish,
@@ -908,19 +610,7 @@ export class FYToken extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "redeem(address,uint256)"(
-    to: string,
-    amount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   renounceRole(
-    role: BytesLike,
-    account: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "renounceRole(bytes4,address)"(
     role: BytesLike,
     account: string,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -932,19 +622,7 @@ export class FYToken extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "revokeRole(bytes4,address)"(
-    role: BytesLike,
-    account: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   revokeRoles(
-    roles: BytesLike[],
-    account: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "revokeRoles(bytes4[],address)"(
     roles: BytesLike[],
     account: string,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -955,18 +633,7 @@ export class FYToken extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "setOracle(address)"(
-    oracle_: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   setRoleAdmin(
-    role: BytesLike,
-    adminRole: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "setRoleAdmin(bytes4,bytes4)"(
     role: BytesLike,
     adminRole: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -974,19 +641,9 @@ export class FYToken extends Contract {
 
   symbol(overrides?: CallOverrides): Promise<string>;
 
-  "symbol()"(overrides?: CallOverrides): Promise<string>;
-
   totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
-  "totalSupply()"(overrides?: CallOverrides): Promise<BigNumber>;
-
   transfer(
-    dst: string,
-    wad: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "transfer(address,uint256)"(
     dst: string,
     wad: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -999,53 +656,24 @@ export class FYToken extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "transferFrom(address,address,uint256)"(
-    src: string,
-    dst: string,
-    wad: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   underlying(overrides?: CallOverrides): Promise<string>;
-
-  "underlying()"(overrides?: CallOverrides): Promise<string>;
 
   underlyingId(overrides?: CallOverrides): Promise<string>;
 
-  "underlyingId()"(overrides?: CallOverrides): Promise<string>;
-
   version(overrides?: CallOverrides): Promise<string>;
-
-  "version()"(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
     DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<string>;
 
-    "DOMAIN_SEPARATOR()"(overrides?: CallOverrides): Promise<string>;
-
     LOCK(overrides?: CallOverrides): Promise<string>;
-
-    "LOCK()"(overrides?: CallOverrides): Promise<string>;
 
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
-    "PERMIT_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
-
     ROOT(overrides?: CallOverrides): Promise<string>;
-
-    "ROOT()"(overrides?: CallOverrides): Promise<string>;
 
     accrual(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "accrual()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     allowance(
-      owner: string,
-      spender: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "allowance(address,address)"(
       owner: string,
       spender: string,
       overrides?: CallOverrides
@@ -1057,18 +685,7 @@ export class FYToken extends Contract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "approve(address,uint256)"(
-      spender: string,
-      wad: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
     balanceOf(guy: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "balanceOf(address)"(
-      guy: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     burn(
       from: string,
@@ -1076,27 +693,11 @@ export class FYToken extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "burn(address,uint256)"(
-      from: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     chiAtMaturity(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "chiAtMaturity()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     decimals(overrides?: CallOverrides): Promise<number>;
 
-    "decimals()"(overrides?: CallOverrides): Promise<number>;
-
     flashFee(
-      token: string,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "flashFee(address,uint256)"(
       token: string,
       arg1: BigNumberish,
       overrides?: CallOverrides
@@ -1110,28 +711,9 @@ export class FYToken extends Contract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "flashLoan(address,address,uint256,bytes)"(
-      receiver: string,
-      token: string,
-      amount: BigNumberish,
-      data: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
     getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
 
-    "getRoleAdmin(bytes4)"(
-      role: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
     grantRole(
-      role: BytesLike,
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "grantRole(bytes4,address)"(
       role: BytesLike,
       account: string,
       overrides?: CallOverrides
@@ -1143,19 +725,7 @@ export class FYToken extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "grantRoles(bytes4[],address)"(
-      roles: BytesLike[],
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     hasRole(
-      role: BytesLike,
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "hasRole(bytes4,address)"(
       role: BytesLike,
       account: string,
       overrides?: CallOverrides
@@ -1163,29 +733,13 @@ export class FYToken extends Contract {
 
     join(overrides?: CallOverrides): Promise<string>;
 
-    "join()"(overrides?: CallOverrides): Promise<string>;
-
     lockRole(role: BytesLike, overrides?: CallOverrides): Promise<void>;
-
-    "lockRole(bytes4)"(
-      role: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     mature(overrides?: CallOverrides): Promise<void>;
 
-    "mature()"(overrides?: CallOverrides): Promise<void>;
-
     maturity(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "maturity()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     maxFlashLoan(token: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "maxFlashLoan(address)"(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     mint(
       to: string,
@@ -1193,39 +747,13 @@ export class FYToken extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "mint(address,uint256)"(
-      to: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     name(overrides?: CallOverrides): Promise<string>;
-
-    "name()"(overrides?: CallOverrides): Promise<string>;
 
     nonces(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    "nonces(address)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     oracle(overrides?: CallOverrides): Promise<string>;
 
-    "oracle()"(overrides?: CallOverrides): Promise<string>;
-
     permit(
-      owner: string,
-      spender: string,
-      amount: BigNumberish,
-      deadline: BigNumberish,
-      v: BigNumberish,
-      r: BytesLike,
-      s: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"(
       owner: string,
       spender: string,
       amount: BigNumberish,
@@ -1242,19 +770,7 @@ export class FYToken extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "redeem(address,uint256)"(
-      to: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     renounceRole(
-      role: BytesLike,
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "renounceRole(bytes4,address)"(
       role: BytesLike,
       account: string,
       overrides?: CallOverrides
@@ -1266,19 +782,7 @@ export class FYToken extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "revokeRole(bytes4,address)"(
-      role: BytesLike,
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     revokeRoles(
-      roles: BytesLike[],
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "revokeRoles(bytes4[],address)"(
       roles: BytesLike[],
       account: string,
       overrides?: CallOverrides
@@ -1286,18 +790,7 @@ export class FYToken extends Contract {
 
     setOracle(oracle_: string, overrides?: CallOverrides): Promise<void>;
 
-    "setOracle(address)"(
-      oracle_: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     setRoleAdmin(
-      role: BytesLike,
-      adminRole: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "setRoleAdmin(bytes4,bytes4)"(
       role: BytesLike,
       adminRole: BytesLike,
       overrides?: CallOverrides
@@ -1305,19 +798,9 @@ export class FYToken extends Contract {
 
     symbol(overrides?: CallOverrides): Promise<string>;
 
-    "symbol()"(overrides?: CallOverrides): Promise<string>;
-
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "totalSupply()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     transfer(
-      dst: string,
-      wad: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "transfer(address,uint256)"(
       dst: string,
       wad: BigNumberish,
       overrides?: CallOverrides
@@ -1330,84 +813,71 @@ export class FYToken extends Contract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "transferFrom(address,address,uint256)"(
-      src: string,
-      dst: string,
-      wad: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
     underlying(overrides?: CallOverrides): Promise<string>;
-
-    "underlying()"(overrides?: CallOverrides): Promise<string>;
 
     underlyingId(overrides?: CallOverrides): Promise<string>;
 
-    "underlyingId()"(overrides?: CallOverrides): Promise<string>;
-
     version(overrides?: CallOverrides): Promise<string>;
-
-    "version()"(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {
     Approval(
-      owner: string | null,
-      spender: string | null,
-      value: null
+      owner?: string | null,
+      spender?: string | null,
+      value?: null
     ): TypedEventFilter<
       [string, string, BigNumber],
       { owner: string; spender: string; value: BigNumber }
     >;
 
     OracleSet(
-      oracle: string | null
+      oracle?: string | null
     ): TypedEventFilter<[string], { oracle: string }>;
 
     Redeemed(
-      from: string | null,
-      to: string | null,
-      amount: null,
-      redeemed: null
+      from?: string | null,
+      to?: string | null,
+      amount?: null,
+      redeemed?: null
     ): TypedEventFilter<
       [string, string, BigNumber, BigNumber],
       { from: string; to: string; amount: BigNumber; redeemed: BigNumber }
     >;
 
     RoleAdminChanged(
-      role: BytesLike | null,
-      newAdminRole: BytesLike | null
+      role?: BytesLike | null,
+      newAdminRole?: BytesLike | null
     ): TypedEventFilter<
       [string, string],
       { role: string; newAdminRole: string }
     >;
 
     RoleGranted(
-      role: BytesLike | null,
-      account: string | null,
-      sender: string | null
+      role?: BytesLike | null,
+      account?: string | null,
+      sender?: string | null
     ): TypedEventFilter<
       [string, string, string],
       { role: string; account: string; sender: string }
     >;
 
     RoleRevoked(
-      role: BytesLike | null,
-      account: string | null,
-      sender: string | null
+      role?: BytesLike | null,
+      account?: string | null,
+      sender?: string | null
     ): TypedEventFilter<
       [string, string, string],
       { role: string; account: string; sender: string }
     >;
 
     SeriesMatured(
-      chiAtMaturity: null
+      chiAtMaturity?: null
     ): TypedEventFilter<[BigNumber], { chiAtMaturity: BigNumber }>;
 
     Transfer(
-      from: string | null,
-      to: string | null,
-      value: null
+      from?: string | null,
+      to?: string | null,
+      value?: null
     ): TypedEventFilter<
       [string, string, BigNumber],
       { from: string; to: string; value: BigNumber }
@@ -1417,35 +887,17 @@ export class FYToken extends Contract {
   estimateGas: {
     DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "DOMAIN_SEPARATOR()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     LOCK(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "LOCK()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "PERMIT_TYPEHASH()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     ROOT(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "ROOT()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     accrual(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "accrual()"(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     allowance(
-      owner: string,
-      spender: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "allowance(address,address)"(
       owner: string,
       spender: string,
       overrides?: CallOverrides
@@ -1457,18 +909,7 @@ export class FYToken extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "approve(address,uint256)"(
-      spender: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     balanceOf(guy: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "balanceOf(address)"(
-      guy: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     burn(
       from: string,
@@ -1476,19 +917,9 @@ export class FYToken extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "burn(address,uint256)"(
-      from: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     chiAtMaturity(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "chiAtMaturity()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     decimals(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "decimals()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     flashFee(
       token: string,
@@ -1496,21 +927,7 @@ export class FYToken extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "flashFee(address,uint256)"(
-      token: string,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     flashLoan(
-      receiver: string,
-      token: string,
-      amount: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "flashLoan(address,address,uint256,bytes)"(
       receiver: string,
       token: string,
       amount: BigNumberish,
@@ -1523,18 +940,7 @@ export class FYToken extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "getRoleAdmin(bytes4)"(
-      role: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     grantRole(
-      role: BytesLike,
-      account: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "grantRole(bytes4,address)"(
       role: BytesLike,
       account: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1546,19 +952,7 @@ export class FYToken extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "grantRoles(bytes4[],address)"(
-      roles: BytesLike[],
-      account: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     hasRole(
-      role: BytesLike,
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "hasRole(bytes4,address)"(
       role: BytesLike,
       account: string,
       overrides?: CallOverrides
@@ -1566,14 +960,7 @@ export class FYToken extends Contract {
 
     join(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "join()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     lockRole(
-      role: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "lockRole(bytes4)"(
       role: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -1582,20 +969,9 @@ export class FYToken extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "mature()"(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     maturity(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "maturity()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     maxFlashLoan(token: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "maxFlashLoan(address)"(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     mint(
       to: string,
@@ -1603,39 +979,13 @@ export class FYToken extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "mint(address,uint256)"(
-      to: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     name(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "name()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     nonces(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    "nonces(address)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     oracle(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "oracle()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     permit(
-      owner: string,
-      spender: string,
-      amount: BigNumberish,
-      deadline: BigNumberish,
-      v: BigNumberish,
-      r: BytesLike,
-      s: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"(
       owner: string,
       spender: string,
       amount: BigNumberish,
@@ -1652,19 +1002,7 @@ export class FYToken extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "redeem(address,uint256)"(
-      to: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     renounceRole(
-      role: BytesLike,
-      account: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "renounceRole(bytes4,address)"(
       role: BytesLike,
       account: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1676,19 +1014,7 @@ export class FYToken extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "revokeRole(bytes4,address)"(
-      role: BytesLike,
-      account: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     revokeRoles(
-      roles: BytesLike[],
-      account: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "revokeRoles(bytes4[],address)"(
       roles: BytesLike[],
       account: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1699,18 +1025,7 @@ export class FYToken extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "setOracle(address)"(
-      oracle_: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     setRoleAdmin(
-      role: BytesLike,
-      adminRole: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "setRoleAdmin(bytes4,bytes4)"(
       role: BytesLike,
       adminRole: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1718,19 +1033,9 @@ export class FYToken extends Contract {
 
     symbol(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "symbol()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "totalSupply()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     transfer(
-      dst: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "transfer(address,uint256)"(
       dst: string,
       wad: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1743,52 +1048,23 @@ export class FYToken extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "transferFrom(address,address,uint256)"(
-      src: string,
-      dst: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     underlying(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "underlying()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     underlyingId(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "underlyingId()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     version(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "version()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
     DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "DOMAIN_SEPARATOR()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     LOCK(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "LOCK()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "PERMIT_TYPEHASH()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     ROOT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "ROOT()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     accrual(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "accrual()"(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1798,19 +1074,7 @@ export class FYToken extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "allowance(address,address)"(
-      owner: string,
-      spender: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     approve(
-      spender: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "approve(address,uint256)"(
       spender: string,
       wad: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1821,18 +1085,7 @@ export class FYToken extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "balanceOf(address)"(
-      guy: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     burn(
-      from: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "burn(address,uint256)"(
       from: string,
       amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1840,19 +1093,9 @@ export class FYToken extends Contract {
 
     chiAtMaturity(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "chiAtMaturity()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "decimals()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     flashFee(
-      token: string,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "flashFee(address,uint256)"(
       token: string,
       arg1: BigNumberish,
       overrides?: CallOverrides
@@ -1866,31 +1109,12 @@ export class FYToken extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "flashLoan(address,address,uint256,bytes)"(
-      receiver: string,
-      token: string,
-      amount: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     getRoleAdmin(
       role: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "getRoleAdmin(bytes4)"(
-      role: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     grantRole(
-      role: BytesLike,
-      account: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "grantRole(bytes4,address)"(
       role: BytesLike,
       account: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1902,19 +1126,7 @@ export class FYToken extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "grantRoles(bytes4[],address)"(
-      roles: BytesLike[],
-      account: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     hasRole(
-      role: BytesLike,
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "hasRole(bytes4,address)"(
       role: BytesLike,
       account: string,
       overrides?: CallOverrides
@@ -1922,14 +1134,7 @@ export class FYToken extends Contract {
 
     join(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "join()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     lockRole(
-      role: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "lockRole(bytes4)"(
       role: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
@@ -1938,20 +1143,9 @@ export class FYToken extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "mature()"(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     maturity(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "maturity()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     maxFlashLoan(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "maxFlashLoan(address)"(
       token: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -1962,42 +1156,16 @@ export class FYToken extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "mint(address,uint256)"(
-      to: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     name(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "name()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     nonces(
       arg0: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "nonces(address)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     oracle(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "oracle()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     permit(
-      owner: string,
-      spender: string,
-      amount: BigNumberish,
-      deadline: BigNumberish,
-      v: BigNumberish,
-      r: BytesLike,
-      s: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"(
       owner: string,
       spender: string,
       amount: BigNumberish,
@@ -2014,19 +1182,7 @@ export class FYToken extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "redeem(address,uint256)"(
-      to: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     renounceRole(
-      role: BytesLike,
-      account: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "renounceRole(bytes4,address)"(
       role: BytesLike,
       account: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -2038,19 +1194,7 @@ export class FYToken extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "revokeRole(bytes4,address)"(
-      role: BytesLike,
-      account: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     revokeRoles(
-      roles: BytesLike[],
-      account: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "revokeRoles(bytes4[],address)"(
       roles: BytesLike[],
       account: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -2061,18 +1205,7 @@ export class FYToken extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "setOracle(address)"(
-      oracle_: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     setRoleAdmin(
-      role: BytesLike,
-      adminRole: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "setRoleAdmin(bytes4,bytes4)"(
       role: BytesLike,
       adminRole: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -2080,19 +1213,9 @@ export class FYToken extends Contract {
 
     symbol(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "symbol()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     totalSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "totalSupply()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     transfer(
-      dst: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "transfer(address,uint256)"(
       dst: string,
       wad: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -2105,23 +1228,10 @@ export class FYToken extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "transferFrom(address,address,uint256)"(
-      src: string,
-      dst: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     underlying(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "underlying()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     underlyingId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "underlyingId()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     version(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "version()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

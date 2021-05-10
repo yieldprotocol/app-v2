@@ -2,19 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer } from "ethers";
+import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-
-import type { YieldMath } from "../YieldMath";
-
-export class YieldMath__factory {
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): YieldMath {
-    return new Contract(address, _abi, signerOrProvider) as YieldMath;
-  }
-}
+import type { YieldMath, YieldMathInterface } from "../YieldMath";
 
 const _abi = [
   {
@@ -259,3 +249,16 @@ const _abi = [
     type: "function",
   },
 ];
+
+export class YieldMath__factory {
+  static readonly abi = _abi;
+  static createInterface(): YieldMathInterface {
+    return new utils.Interface(_abi) as YieldMathInterface;
+  }
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): YieldMath {
+    return new Contract(address, _abi, signerOrProvider) as YieldMath;
+  }
+}

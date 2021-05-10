@@ -9,7 +9,7 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-  Contract,
+  BaseContract,
   ContractTransaction,
   Overrides,
   CallOverrides,
@@ -37,7 +37,7 @@ interface IERC3156FlashBorrowerInterface extends ethers.utils.Interface {
   events: {};
 }
 
-export class IERC3156FlashBorrower extends Contract {
+export class IERC3156FlashBorrower extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -89,15 +89,6 @@ export class IERC3156FlashBorrower extends Contract {
       data: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    "onFlashLoan(address,address,uint256,uint256,bytes)"(
-      initiator: string,
-      token: string,
-      amount: BigNumberish,
-      fee: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
   };
 
   onFlashLoan(
@@ -109,26 +100,8 @@ export class IERC3156FlashBorrower extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "onFlashLoan(address,address,uint256,uint256,bytes)"(
-    initiator: string,
-    token: string,
-    amount: BigNumberish,
-    fee: BigNumberish,
-    data: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   callStatic: {
     onFlashLoan(
-      initiator: string,
-      token: string,
-      amount: BigNumberish,
-      fee: BigNumberish,
-      data: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    "onFlashLoan(address,address,uint256,uint256,bytes)"(
       initiator: string,
       token: string,
       amount: BigNumberish,
@@ -149,28 +122,10 @@ export class IERC3156FlashBorrower extends Contract {
       data: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
-
-    "onFlashLoan(address,address,uint256,uint256,bytes)"(
-      initiator: string,
-      token: string,
-      amount: BigNumberish,
-      fee: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     onFlashLoan(
-      initiator: string,
-      token: string,
-      amount: BigNumberish,
-      fee: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "onFlashLoan(address,address,uint256,uint256,bytes)"(
       initiator: string,
       token: string,
       amount: BigNumberish,

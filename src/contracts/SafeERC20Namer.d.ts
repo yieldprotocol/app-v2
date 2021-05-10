@@ -9,7 +9,7 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-  Contract,
+  BaseContract,
   ContractTransaction,
   CallOverrides,
 } from "ethers";
@@ -36,7 +36,7 @@ interface SafeERC20NamerInterface extends ethers.utils.Interface {
   events: {};
 }
 
-export class SafeERC20Namer extends Contract {
+export class SafeERC20Namer extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -82,47 +82,17 @@ export class SafeERC20Namer extends Contract {
   functions: {
     tokenName(token: string, overrides?: CallOverrides): Promise<[string]>;
 
-    "tokenName(address)"(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
     tokenSymbol(token: string, overrides?: CallOverrides): Promise<[string]>;
-
-    "tokenSymbol(address)"(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
   };
 
   tokenName(token: string, overrides?: CallOverrides): Promise<string>;
 
-  "tokenName(address)"(
-    token: string,
-    overrides?: CallOverrides
-  ): Promise<string>;
-
   tokenSymbol(token: string, overrides?: CallOverrides): Promise<string>;
-
-  "tokenSymbol(address)"(
-    token: string,
-    overrides?: CallOverrides
-  ): Promise<string>;
 
   callStatic: {
     tokenName(token: string, overrides?: CallOverrides): Promise<string>;
 
-    "tokenName(address)"(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
     tokenSymbol(token: string, overrides?: CallOverrides): Promise<string>;
-
-    "tokenSymbol(address)"(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<string>;
   };
 
   filters: {};
@@ -130,17 +100,7 @@ export class SafeERC20Namer extends Contract {
   estimateGas: {
     tokenName(token: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    "tokenName(address)"(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     tokenSymbol(token: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "tokenSymbol(address)"(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -149,17 +109,7 @@ export class SafeERC20Namer extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "tokenName(address)"(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     tokenSymbol(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "tokenSymbol(address)"(
       token: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;

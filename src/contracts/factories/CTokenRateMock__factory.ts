@@ -2,19 +2,12 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer } from "ethers";
+import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-
-import type { CTokenRateMock } from "../CTokenRateMock";
-
-export class CTokenRateMock__factory {
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): CTokenRateMock {
-    return new Contract(address, _abi, signerOrProvider) as CTokenRateMock;
-  }
-}
+import type {
+  CTokenRateMock,
+  CTokenRateMockInterface,
+} from "../CTokenRateMock";
 
 const _abi = [
   {
@@ -44,3 +37,16 @@ const _abi = [
     type: "function",
   },
 ];
+
+export class CTokenRateMock__factory {
+  static readonly abi = _abi;
+  static createInterface(): CTokenRateMockInterface {
+    return new utils.Interface(_abi) as CTokenRateMockInterface;
+  }
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): CTokenRateMock {
+    return new Contract(address, _abi, signerOrProvider) as CTokenRateMock;
+  }
+}

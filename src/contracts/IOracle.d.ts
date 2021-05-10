@@ -9,7 +9,7 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-  Contract,
+  BaseContract,
   ContractTransaction,
   Overrides,
   CallOverrides,
@@ -40,7 +40,7 @@ interface IOracleInterface extends ethers.utils.Interface {
   events: {};
 }
 
-export class IOracle extends Contract {
+export class IOracle extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -91,23 +91,7 @@ export class IOracle extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "get(bytes32,bytes32,uint256)"(
-      base: BytesLike,
-      quote: BytesLike,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     peek(
-      base: BytesLike,
-      quote: BytesLike,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
-    >;
-
-    "peek(bytes32,bytes32,uint256)"(
       base: BytesLike,
       quote: BytesLike,
       amount: BigNumberish,
@@ -124,23 +108,7 @@ export class IOracle extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "get(bytes32,bytes32,uint256)"(
-    base: BytesLike,
-    quote: BytesLike,
-    amount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   peek(
-    base: BytesLike,
-    quote: BytesLike,
-    amount: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
-  >;
-
-  "peek(bytes32,bytes32,uint256)"(
     base: BytesLike,
     quote: BytesLike,
     amount: BigNumberish,
@@ -159,25 +127,7 @@ export class IOracle extends Contract {
       [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
     >;
 
-    "get(bytes32,bytes32,uint256)"(
-      base: BytesLike,
-      quote: BytesLike,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
-    >;
-
     peek(
-      base: BytesLike,
-      quote: BytesLike,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
-    >;
-
-    "peek(bytes32,bytes32,uint256)"(
       base: BytesLike,
       quote: BytesLike,
       amount: BigNumberish,
@@ -197,21 +147,7 @@ export class IOracle extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "get(bytes32,bytes32,uint256)"(
-      base: BytesLike,
-      quote: BytesLike,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     peek(
-      base: BytesLike,
-      quote: BytesLike,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "peek(bytes32,bytes32,uint256)"(
       base: BytesLike,
       quote: BytesLike,
       amount: BigNumberish,
@@ -227,21 +163,7 @@ export class IOracle extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "get(bytes32,bytes32,uint256)"(
-      base: BytesLike,
-      quote: BytesLike,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     peek(
-      base: BytesLike,
-      quote: BytesLike,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "peek(bytes32,bytes32,uint256)"(
       base: BytesLike,
       quote: BytesLike,
       amount: BigNumberish,

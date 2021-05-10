@@ -9,7 +9,7 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-  Contract,
+  BaseContract,
   ContractTransaction,
   CallOverrides,
 } from "ethers";
@@ -60,7 +60,7 @@ interface AggregatorV3InterfaceInterface extends ethers.utils.Interface {
   events: {};
 }
 
-export class AggregatorV3Interface extends Contract {
+export class AggregatorV3Interface extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -106,26 +106,9 @@ export class AggregatorV3Interface extends Contract {
   functions: {
     decimals(overrides?: CallOverrides): Promise<[number]>;
 
-    "decimals()"(overrides?: CallOverrides): Promise<[number]>;
-
     description(overrides?: CallOverrides): Promise<[string]>;
 
-    "description()"(overrides?: CallOverrides): Promise<[string]>;
-
     getRoundData(
-      _roundId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-        roundId: BigNumber;
-        answer: BigNumber;
-        startedAt: BigNumber;
-        updatedAt: BigNumber;
-        answeredInRound: BigNumber;
-      }
-    >;
-
-    "getRoundData(uint80)"(
       _roundId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
@@ -150,45 +133,14 @@ export class AggregatorV3Interface extends Contract {
       }
     >;
 
-    "latestRoundData()"(
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-        roundId: BigNumber;
-        answer: BigNumber;
-        startedAt: BigNumber;
-        updatedAt: BigNumber;
-        answeredInRound: BigNumber;
-      }
-    >;
-
     version(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    "version()"(overrides?: CallOverrides): Promise<[BigNumber]>;
   };
 
   decimals(overrides?: CallOverrides): Promise<number>;
 
-  "decimals()"(overrides?: CallOverrides): Promise<number>;
-
   description(overrides?: CallOverrides): Promise<string>;
 
-  "description()"(overrides?: CallOverrides): Promise<string>;
-
   getRoundData(
-    _roundId: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-      roundId: BigNumber;
-      answer: BigNumber;
-      startedAt: BigNumber;
-      updatedAt: BigNumber;
-      answeredInRound: BigNumber;
-    }
-  >;
-
-  "getRoundData(uint80)"(
     _roundId: BigNumberish,
     overrides?: CallOverrides
   ): Promise<
@@ -213,45 +165,14 @@ export class AggregatorV3Interface extends Contract {
     }
   >;
 
-  "latestRoundData()"(
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-      roundId: BigNumber;
-      answer: BigNumber;
-      startedAt: BigNumber;
-      updatedAt: BigNumber;
-      answeredInRound: BigNumber;
-    }
-  >;
-
   version(overrides?: CallOverrides): Promise<BigNumber>;
-
-  "version()"(overrides?: CallOverrides): Promise<BigNumber>;
 
   callStatic: {
     decimals(overrides?: CallOverrides): Promise<number>;
 
-    "decimals()"(overrides?: CallOverrides): Promise<number>;
-
     description(overrides?: CallOverrides): Promise<string>;
 
-    "description()"(overrides?: CallOverrides): Promise<string>;
-
     getRoundData(
-      _roundId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-        roundId: BigNumber;
-        answer: BigNumber;
-        startedAt: BigNumber;
-        updatedAt: BigNumber;
-        answeredInRound: BigNumber;
-      }
-    >;
-
-    "getRoundData(uint80)"(
       _roundId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
@@ -276,21 +197,7 @@ export class AggregatorV3Interface extends Contract {
       }
     >;
 
-    "latestRoundData()"(
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-        roundId: BigNumber;
-        answer: BigNumber;
-        startedAt: BigNumber;
-        updatedAt: BigNumber;
-        answeredInRound: BigNumber;
-      }
-    >;
-
     version(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "version()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   filters: {};
@@ -298,58 +205,30 @@ export class AggregatorV3Interface extends Contract {
   estimateGas: {
     decimals(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "decimals()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     description(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "description()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     getRoundData(
-      _roundId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "getRoundData(uint80)"(
       _roundId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     latestRoundData(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "latestRoundData()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     version(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "version()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
     decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "decimals()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     description(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "description()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getRoundData(
       _roundId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "getRoundData(uint80)"(
-      _roundId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     latestRoundData(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "latestRoundData()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     version(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "version()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

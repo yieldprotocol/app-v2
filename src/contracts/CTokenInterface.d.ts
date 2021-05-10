@@ -9,7 +9,7 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-  Contract,
+  BaseContract,
   ContractTransaction,
   Overrides,
   CallOverrides,
@@ -55,7 +55,7 @@ interface CTokenInterfaceInterface extends ethers.utils.Interface {
   events: {};
 }
 
-export class CTokenInterface extends Contract {
+export class CTokenInterface extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -101,49 +101,27 @@ export class CTokenInterface extends Contract {
   functions: {
     borrowIndex(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "borrowIndex()"(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     exchangeRateCurrent(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "exchangeRateCurrent()"(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     exchangeRateStored(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    "exchangeRateStored()"(overrides?: CallOverrides): Promise<[BigNumber]>;
   };
 
   borrowIndex(overrides?: CallOverrides): Promise<BigNumber>;
-
-  "borrowIndex()"(overrides?: CallOverrides): Promise<BigNumber>;
 
   exchangeRateCurrent(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "exchangeRateCurrent()"(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   exchangeRateStored(overrides?: CallOverrides): Promise<BigNumber>;
-
-  "exchangeRateStored()"(overrides?: CallOverrides): Promise<BigNumber>;
 
   callStatic: {
     borrowIndex(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "borrowIndex()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     exchangeRateCurrent(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "exchangeRateCurrent()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     exchangeRateStored(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "exchangeRateStored()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   filters: {};
@@ -151,39 +129,21 @@ export class CTokenInterface extends Contract {
   estimateGas: {
     borrowIndex(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "borrowIndex()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     exchangeRateCurrent(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "exchangeRateCurrent()"(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     exchangeRateStored(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "exchangeRateStored()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
     borrowIndex(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "borrowIndex()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     exchangeRateCurrent(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "exchangeRateCurrent()"(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     exchangeRateStored(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "exchangeRateStored()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };

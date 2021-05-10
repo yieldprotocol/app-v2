@@ -80,6 +80,8 @@ export const useBorrowActions = () => {
       },
     ], txCode);
 
+    console.log(vaultId, selectedSeriesId, selectedIlkId);
+
     /* Collate all the calls required for the process (including depositing ETH, signing permits, and building vault if needed) */
     const calls: ICallData[] = [
       /* If vault is null, build a new vault, else ignore */
@@ -89,16 +91,19 @@ export const useBorrowActions = () => {
         series,
         ignore: !!vault,
       },
+
+      /* Include all the signatures gathered, if required */
+      ...permits,
+
       /* handle ETH deposit, if required */
       ..._addEth(_collInput, series),
-      /* Include all the signatures gathered, if required  */
-      // ...permits,
-      // {
-      //   operation: VAULT_OPS.SERVE,
-      //   args: [vaultId, account, _collInput, _input, MAX_128],
-      //   ignore: false,
-      //   series,
-      // },
+
+      {
+        operation: VAULT_OPS.SERVE,
+        args: [vaultId, account, _collInput, _input, MAX_128],
+        ignore: false,
+        series,
+      },
     ];
 
     /* handle the transaction */

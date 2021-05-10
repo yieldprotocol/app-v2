@@ -275,7 +275,7 @@ const ChainProvider = ({ children }: any) => {
    * Update on PRIMARY connection any network changes (likely via metamask/walletConnect)
    */
   useEffect(() => {
-    console.log('Metamask/WalletConnect Active: ', active);
+    console.log('Wallet/Account Active: ', active);
     updateState({ type: 'chainId', payload: chainId });
     updateState({ type: 'web3Active', payload: active });
     updateState({ type: 'provider', payload: library || null });
@@ -332,6 +332,12 @@ const ChainProvider = ({ children }: any) => {
     isConnected: (connection:string) => connectors.get(connection) === connector,
     connect: (connection:string = 'injected') => activate(connectors.get(connection)),
     disconnect: () => connector && deactivate(),
+    connectTest: () => activate(
+      new NetworkConnector({
+        urls: { 31337: RPC_URLS[31337], 1337: RPC_URLS[1337] },
+        defaultChainId: 31337,
+      }), (e:any) => console.log(e), true,
+    ),
   };
 
   return (

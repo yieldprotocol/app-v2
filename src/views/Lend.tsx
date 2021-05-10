@@ -19,6 +19,7 @@ const Lend = () => {
 
   const [inputValue, setInputValue] = useState<string>();
   const [closeInputValue, setCloseInputValue] = useState<string>();
+  const [rollInputValue, setRollInputValue] = useState<string>();
   const [rollToSeries, setRollToSeries] = useState<ISeries|null>(null);
 
   /* state from context */
@@ -37,12 +38,12 @@ const Lend = () => {
 
   const handleClosePosition = () => {
     // !lendDisabled &&
-    selectedSeries && closePosition(inputValue, selectedSeries);
+    selectedSeries && closePosition(closeInputValue, selectedSeries);
   };
 
   const handleRollPosition = () => {
     // !lendDisabled &&
-    selectedSeries && rollToSeries && rollPosition(inputValue, selectedSeries, rollToSeries);
+    selectedSeries && rollToSeries && rollPosition(rollInputValue, selectedSeries, rollToSeries);
   };
 
   return (
@@ -115,9 +116,6 @@ const Lend = () => {
               onChange={(event:any) => setCloseInputValue(cleanValue(event.target.value))}
             />
           </InputWrap>
-          <Box basis={mobile ? '50%' : '35%'}>
-            <AssetSelector />
-          </Box>
         </Box>
 
         <ActionButtonGroup buttonList={[
@@ -139,6 +137,19 @@ const Lend = () => {
           side: 'all',
         }}
       >
+
+        <Box direction="row" gap="small" fill="horizontal">
+          <InputWrap action={() => console.log('maxAction')}>
+            <TextInput
+              plain
+              type="number"
+              placeholder={<PlaceholderWrap label="Enter amount to roll" />}
+              value={rollInputValue || ''}
+              onChange={(event:any) => setRollInputValue(cleanValue(event.target.value))}
+            />
+          </InputWrap>
+        </Box>
+
         <Box gap="small" fill="horizontal" direction="row" align="center">
 
           <SeriesSelector setSeriesLocally={(series:ISeries) => setRollToSeries(series)} />

@@ -2,19 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer } from "ethers";
+import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-
-import type { Cauldron } from "../Cauldron";
-
-export class Cauldron__factory {
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): Cauldron {
-    return new Contract(address, _abi, signerOrProvider) as Cauldron;
-  }
-}
+import type { Cauldron, CauldronInterface } from "../Cauldron";
 
 const _abi = [
   {
@@ -1469,3 +1459,16 @@ const _abi = [
     type: "function",
   },
 ];
+
+export class Cauldron__factory {
+  static readonly abi = _abi;
+  static createInterface(): CauldronInterface {
+    return new utils.Interface(_abi) as CauldronInterface;
+  }
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): Cauldron {
+    return new Contract(address, _abi, signerOrProvider) as Cauldron;
+  }
+}

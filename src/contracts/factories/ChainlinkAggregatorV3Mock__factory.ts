@@ -2,23 +2,12 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer } from "ethers";
+import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-
-import type { ChainlinkAggregatorV3Mock } from "../ChainlinkAggregatorV3Mock";
-
-export class ChainlinkAggregatorV3Mock__factory {
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): ChainlinkAggregatorV3Mock {
-    return new Contract(
-      address,
-      _abi,
-      signerOrProvider
-    ) as ChainlinkAggregatorV3Mock;
-  }
-}
+import type {
+  ChainlinkAggregatorV3Mock,
+  ChainlinkAggregatorV3MockInterface,
+} from "../ChainlinkAggregatorV3Mock";
 
 const _abi = [
   {
@@ -94,3 +83,20 @@ const _abi = [
     type: "function",
   },
 ];
+
+export class ChainlinkAggregatorV3Mock__factory {
+  static readonly abi = _abi;
+  static createInterface(): ChainlinkAggregatorV3MockInterface {
+    return new utils.Interface(_abi) as ChainlinkAggregatorV3MockInterface;
+  }
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): ChainlinkAggregatorV3Mock {
+    return new Contract(
+      address,
+      _abi,
+      signerOrProvider
+    ) as ChainlinkAggregatorV3Mock;
+  }
+}
