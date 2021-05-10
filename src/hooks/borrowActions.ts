@@ -92,13 +92,13 @@ export const useBorrowActions = () => {
       /* handle ETH deposit, if required */
       ..._addEth(_collInput, series),
       /* Include all the signatures gathered, if required  */
-      ...permits,
-      {
-        operation: VAULT_OPS.SERVE,
-        args: [vaultId, account, _collInput, _input, MAX_128],
-        ignore: false,
-        series,
-      },
+      // ...permits,
+      // {
+      //   operation: VAULT_OPS.SERVE,
+      //   args: [vaultId, account, _collInput, _input, MAX_128],
+      //   ignore: false,
+      //   series,
+      // },
     ];
 
     /* handle the transaction */
