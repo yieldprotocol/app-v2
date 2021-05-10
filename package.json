@@ -52,10 +52,10 @@
     ]
   },
   "devDependencies": {
-    "@typechain/ethers-v5": "^6.0.2",
+    "@typechain/ethers-v5": "^7.0.0",
     "@types/identicon.js": "^2.3.0",
     "@types/jest": "^26.0.15",
-    "@types/node": "^14.14.35",
+    "@types/node": "^15.0.2",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "@types/react-router-dom": "^5.1.7",
@@ -65,6 +65,7 @@
     "@yield-protocol/utils-v2": "^2.0.2",
     "@yield-protocol/vault-interfaces": "^2.0.14",
     "@yield-protocol/yieldspace-interfaces": "^2.0.10",
+    "audit-ci": "^4.0.0",
     "eslint": "^7.21.0",
     "eslint-config-airbnb-typescript": "^12.3.1",
     "eslint-config-react-app": "^6.0.0",
@@ -76,7 +77,7 @@
     "react-test-renderer": "^17.0.2",
     "source-map-explorer": "^2.5.2",
     "ts-node": "^9.1.1",
-    "typechain": "^4.0.3",
+    "typechain": "^5.0.0",
     "typescript": "^4.2.2"
   },
   "lavamoat": {
