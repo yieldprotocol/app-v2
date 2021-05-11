@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ContractFactory, ethers } from 'ethers';
+import { ContractFactory, ethers, providers } from 'ethers';
 import { useWeb3React } from '@web3-react/core';
 import { InjectedConnector } from '@web3-react/injected-connector';
 import { NetworkConnector } from '@web3-react/network-connector';
@@ -11,6 +11,7 @@ import * as contracts from '../contracts';
 import { IAssetRoot, ISeriesRoot } from '../types';
 import { nameFromMaturity } from '../utils/displayUtils';
 import { Pool } from '../contracts';
+import { ETH_BASED_ASSETS } from '../utils/constants';
 
 /* Set up web3react config */
 const POLLING_INTERVAL = 12000;
@@ -199,8 +200,10 @@ const ChainProvider = ({ children }: any) => {
                 symbol,
                 joinAddress: joinMap.get(id),
                 /* baked in token fns */
-                getBalance: async () => account && await ERC20.balanceOf(account),
-                getAllowance: async (spender:string) => account && await ERC20.allowance(account, spender),
+                getBalance: async (acc: string) => (ETH_BASED_ASSETS.includes(id)
+                  ? library?.getBalance(acc)
+                  : ERC20.balanceOf(acc)),
+                getAllowance: async (acc: string, spender:string) => ERC20.allowance(acc, spender),
               } });
           }));
         })(),

@@ -57,8 +57,8 @@ export interface IAssetRoot {
   address: string;
   joinAddress: string,
   // baked in token fns
-  getBalance: ()=>BigNumber,
-  getAllowance: (spender: string)=>BigNumber,
+  getBalance: (account: string)=>Promise<BigNumber>,
+  getAllowance: (account: string, spender: string)=>Promise<BigNumber>,
 }
 
 export interface IVaultRoot {

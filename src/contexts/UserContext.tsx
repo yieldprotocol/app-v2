@@ -164,11 +164,11 @@ const UserProvider = ({ children }:any) => {
     /* add in the dynamic asset data of the assets in the list */
     const assetListMod = await Promise.all(
       assetList.map(async (asset:IAssetRoot) : Promise<IAsset> => {
-        const balance = asset.getBalance();
+        const balance = await asset.getBalance(account);
         return {
           ...asset,
           balance: balance || ethers.constants.Zero,
-          balance_: cleanValue(ethers.utils.formatEther(ethers.constants.Zero), 2), // for display purposes only
+          balance_: cleanValue(ethers.utils.formatEther(balance), 2), // for display purposes only
         };
       }),
     );
@@ -181,7 +181,7 @@ const UserProvider = ({ children }:any) => {
 
     updateState({ type: 'assetMap', payload: newassetRootMap });
     console.log('Assets with user data: ', newassetRootMap);
-  }, []);
+  }, [account]);
 
   /* Updates the vaults with *user* data */
   const updateVaults = useCallback(async (vaultList: IVaultRoot[]) => {
