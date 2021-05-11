@@ -1,5 +1,6 @@
+import React, { useContext, useState, useEffect } from 'react';
 import { Box, Button, ResponsiveContext, Text, TextInput } from 'grommet';
-import React, { useContext, useState } from 'react';
+import { ethers } from 'ethers';
 import ActionButtonGroup from '../components/ActionButtonGroup';
 import AssetSelector from '../components/selectors/AssetSelector';
 import InfoBite from '../components/InfoBite';
@@ -13,6 +14,7 @@ import SectionWrap from '../components/wraps/SectionWrap';
 import { useLendActions } from '../hooks/lendActions';
 import { UserContext } from '../contexts/UserContext';
 import { ISeries, IUserContext } from '../types';
+import MaxButton from '../components/MaxButton';
 
 const Lend = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -22,14 +24,38 @@ const Lend = () => {
   const [rollInputValue, setRollInputValue] = useState<string>();
   const [rollToSeries, setRollToSeries] = useState<ISeries|null>(null);
 
+  const [maxLend, setMaxLend] = useState<string|undefined>();
+  const [maxClose, setMaxClose] = useState<string|undefined>();
+
   /* state from context */
   const { userState } = useContext(UserContext) as IUserContext;
-  const { selectedSeriesId, selectedBaseId, seriesMap, assetMap } = userState;
+  const { activeAccount, selectedSeriesId, selectedBaseId, seriesMap, assetMap } = userState;
 
   const selectedSeries = seriesMap.get(selectedSeriesId!);
   const selectedBase = assetMap.get(selectedBaseId!);
 
   const { lend, closePosition, rollPosition } = useLendActions();
+
+  /* Check max available lend  */
+  useEffect(() => {
+    activeAccount &&
+      (async () => {
+        /* Checks asset selection and sets the max available value */
+        const max = await selectedBase?.getBalance(activeAccount);
+        if (max) {
+          const max_ = ethers.utils.formatEther(max).toString();
+          setMaxLend(max_);
+          /* if current input is larger than maxLend, set it to max */
+          if (inputValue && ethers.utils.parseEther(inputValue!).gt(max)) setInputValue(max_);
+        }
+      })();
+  }, [activeAccount, inputValue, selectedBase, setMaxLend]);
+
+  /* Check max available to close */
+  useEffect(() => {
+    /* Checks series selection and sets the max close available value */
+    selectedSeries && setMaxClose(ethers.utils.formatEther(selectedSeries?.fyTokenBalance!)?.toString());
+  }, [selectedSeries]);
 
   const handleLend = () => {
     // !lendDisabled &&
@@ -55,16 +81,14 @@ const Lend = () => {
             <TextInput
               plain
               type="number"
-              placeholder={<PlaceholderWrap label="Enter amount" />}
+              placeholder="Enter amount"
               value={inputValue || ''}
               onChange={(event:any) => setInputValue(cleanValue(event.target.value))}
             />
-            {
-              !mobile &&
-              <Box onClick={() => console.log('max clicked ')} pad="xsmall">
-                <Text size="xsmall" color="text">MAX</Text>
-              </Box>
-            }
+            <MaxButton
+              action={() => setInputValue(maxLend)}
+              disabled={maxLend === '0'}
+            />
           </InputWrap>
           <Box basis={mobile ? '50%' : '35%'}>
             <AssetSelector />
@@ -111,9 +135,13 @@ const Lend = () => {
             <TextInput
               plain
               type="number"
-              placeholder={<PlaceholderWrap label="Enter amount" />}
+              placeholder="Enter amount"
               value={closeInputValue || ''}
               onChange={(event:any) => setCloseInputValue(cleanValue(event.target.value))}
+            />
+            <MaxButton
+              action={() => setCloseInputValue(maxClose)}
+              disabled={maxClose === '0.0'}
             />
           </InputWrap>
         </Box>
@@ -143,9 +171,13 @@ const Lend = () => {
             <TextInput
               plain
               type="number"
-              placeholder={<PlaceholderWrap label="Enter amount to roll" />}
+              placeholder="Amount to roll"
               value={rollInputValue || ''}
               onChange={(event:any) => setRollInputValue(cleanValue(event.target.value))}
+            />
+            <MaxButton
+              action={() => setRollInputValue(maxClose)}
+              disabled={maxClose === '0.0'}
             />
           </InputWrap>
         </Box>
