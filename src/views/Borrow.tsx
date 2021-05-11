@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, Button, CheckBox, Keyboard, ResponsiveContext, Text, TextInput } from 'grommet';
+import { ethers } from 'ethers';
 
 import SeriesSelector from '../components/selectors/SeriesSelector';
 import MainViewWrap from '../components/wraps/MainViewWrap';
@@ -11,6 +12,7 @@ import SectionWrap from '../components/wraps/SectionWrap';
 import { useBorrowActions } from '../hooks/borrowActions';
 import { UserContext } from '../contexts/UserContext';
 import { IUserContext, IVault } from '../types';
+import MaxButton from '../components/MaxButton';
 
 const Borrow = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -22,9 +24,11 @@ const Borrow = () => {
   const { activeAccount, assetMap, vaultMap, selectedSeriesId, selectedIlkId, selectedBaseId } = userState;
 
   const selectedBase = assetMap.get(selectedBaseId!);
+  const selectedIlk = assetMap.get(selectedIlkId!);
 
   const [inputValue, setInputValue] = useState<string>();
   const [collInputValue, setCollInputValue] = useState<string>();
+  const [maxCollateral, setMaxCollateral] = useState<string|undefined>();
 
   const [borrowDisabled, setBorrowDisabled] = useState<boolean>(true);
 
@@ -42,7 +46,7 @@ const Borrow = () => {
     );
   };
 
-  /* checks and sets list of current vaults matching the current selection */
+  /* Checks and sets list of current vaults matching the current selection */
   useEffect(() => {
     if (selectedBaseId && selectedSeriesId && selectedIlkId) {
       const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
@@ -55,7 +59,14 @@ const Borrow = () => {
     }
   }, [vaultMap, selectedBaseId, selectedIlkId, selectedSeriesId]);
 
-  /* TODO create vanity vault ids? */
+  /* Checks collateral selection and sets the max available value */
+  useEffect(() => {
+    activeAccount &&
+    (async () => {
+      const _max = await selectedIlk?.getBalance(activeAccount);
+      _max && setMaxCollateral(ethers.utils.formatEther(_max)?.toString());
+    })();
+  }, [activeAccount, selectedIlk, setMaxCollateral]);
 
   /* Action disabling logic: */
   useEffect(() => {
@@ -70,7 +81,14 @@ const Borrow = () => {
       ? setBorrowDisabled(true)
     /* else if all pass, then unlock borrowing */
       : setBorrowDisabled(false);
-  }, [inputValue, collInputValue, selectedSeriesId, selectedIlkId, activeAccount]);
+  },
+  [
+    inputValue,
+    collInputValue,
+    selectedSeriesId,
+    selectedIlkId,
+    activeAccount,
+  ]);
 
   return (
 
@@ -116,10 +134,14 @@ const Borrow = () => {
               <TextInput
                 plain
                 type="number"
-                placeholder={<PlaceholderWrap label="Enter amount" disabled={!selectedSeriesId} />}
+                // placeholder={<PlaceholderWrap label="Enter amount" disabled={!selectedSeriesId} />}
                 // ref={(el:any) => { el && el.focus(); }}
                 value={collInputValue || ''}
                 onChange={(event:any) => setCollInputValue(event.target.value)}
+                disabled={!selectedSeriesId}
+              />
+              <MaxButton
+                action={() => setCollInputValue(maxCollateral)}
                 disabled={!selectedSeriesId}
               />
             </InputWrap>
@@ -136,7 +158,7 @@ const Borrow = () => {
               <CheckBox
                 reverse
                 disabled={matchingVaults.length < 1}
-                checked={!vaultIdToUse || matchingVaults.length < 1}
+                checked={!vaultIdToUse || !matchingVaults.find((v:IVault) => v.id === vaultIdToUse)}
                 label={<Text size="small">Create new vault</Text>}
                 onChange={() => setVaultIdToUse(undefined)}
               />
