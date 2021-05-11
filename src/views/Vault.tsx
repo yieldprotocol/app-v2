@@ -142,7 +142,7 @@ const Vault = () => {
         >
           <Box gap="small" fill="horizontal" direction="row" align="center">
 
-            <SeriesSelector setSeriesLocally={(_series:ISeries) => setRollToSeries(_series)} />
+            <SeriesSelector selectSeriesLocally={(_series:ISeries) => setRollToSeries(_series)} />
 
             <Box basis="35%">
               <ActionButtonGroup buttonList={[

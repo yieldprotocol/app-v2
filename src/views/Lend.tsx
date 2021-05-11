@@ -152,7 +152,7 @@ const Lend = () => {
 
         <Box gap="small" fill="horizontal" direction="row" align="center">
 
-          <SeriesSelector setSeriesLocally={(series:ISeries) => setRollToSeries(series)} />
+          <SeriesSelector selectSeriesLocally={(series:ISeries) => setRollToSeries(series)} />
 
           <Box basis="35%">
             <ActionButtonGroup buttonList={[

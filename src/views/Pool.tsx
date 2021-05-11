@@ -79,12 +79,6 @@ function Pool() {
           }
         </Box>
 
-        {/* <Box justify="evenly" gap="small" fill="horizontal" direction="row-responsive">
-          <InfoBite label="Your pool tokens" value={"0.00"} />
-          <InfoBite label="Your pool share" value="0.00000%" />
-          <InfoBite label="Total liquidity" value="30.95k tokens" />
-        </Box> */}
-
       </SectionWrap>
 
       <Box direction="row" justify="between">
@@ -129,7 +123,7 @@ function Pool() {
       >
         <Box gap="small" fill="horizontal" direction="row" align="center">
 
-          <SeriesSelector setSeriesLocally={(series:ISeries) => setRollToSeries(series)} />
+          <SeriesSelector selectSeriesLocally={(series:ISeries) => setRollToSeries(series)} />
 
           <Box basis="35%">
             <ActionButtonGroup buttonList={[

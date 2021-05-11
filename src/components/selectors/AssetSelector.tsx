@@ -4,12 +4,6 @@ import { Box, ResponsiveContext, Select, Text } from 'grommet';
 import { IAssetRoot } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 
-// const _assetRootMap = new Map([
-//   ['DAI', { name: 'Dai', symbol: 'DAI', icon: null }],
-//   ['USD', { name: 'USD Coin', symbol: 'USDC', icon: null }],
-//   ['DOGE', { name: 'Doge Coin', symbol: 'DOGE', icon: null }],
-//   ['UNI', { name: 'Uni coin', symbol: 'UNI', icon: null }],
-// ]);
 interface IAssetSelectorProps {
   selectCollateral?:boolean;
 }

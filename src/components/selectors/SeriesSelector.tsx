@@ -5,10 +5,11 @@ import { ISeries } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 
 interface ISeriesSelectorProps {
-  setSeriesLocally?: (series: ISeries) => void;
+  /* select series locally filters out the global selection from the list and returns the selected ISeries */
+  selectSeriesLocally?: (series: ISeries) => void;
 }
 
-function SeriesSelector({ setSeriesLocally }: ISeriesSelectorProps) {
+function SeriesSelector({ selectSeriesLocally }: ISeriesSelectorProps) {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
 
   const { userState, userActions } = useContext(UserContext);
@@ -17,7 +18,7 @@ function SeriesSelector({ setSeriesLocally }: ISeriesSelectorProps) {
   const [options, setOptions] = useState<ISeries[]>([]);
 
   /* get from seriesBaseMap (not seriesMap) so it can be used without an account connected */
-  const _selectedSeries = setSeriesLocally ? seriesMap.get(localSeriesId) : seriesMap.get(selectedSeriesId);
+  const _selectedSeries = selectSeriesLocally ? seriesMap.get(localSeriesId) : seriesMap.get(selectedSeriesId);
 
   const optionText = (_series: ISeries|undefined) => (
     _series
@@ -27,18 +28,21 @@ function SeriesSelector({ setSeriesLocally }: ISeriesSelectorProps) {
 
   useEffect(() => {
     const opts = Array.from(seriesMap.values()) as ISeries[];
-    const filteredOpts = opts.filter((_series:ISeries) => _series.baseId === selectedBaseId);
+    /* filter out options based on base Id */
+    let filteredOpts = opts.filter((_series:ISeries) => _series.baseId === selectedBaseId);
+    /* if required, filter out the globally selected asset */
+    if (selectSeriesLocally) filteredOpts = filteredOpts.filter((_series:ISeries) => _series.id !== selectedSeriesId);
     setOptions(filteredOpts);
-  }, [seriesMap, selectedBaseId]);
+  }, [seriesMap, selectedBaseId, selectSeriesLocally, selectedSeriesId]);
 
   const handleSelect = (id:string) => {
-    if (!setSeriesLocally) {
+    if (!selectSeriesLocally) {
       console.log('Series selected globally: ', id);
       userActions.setSelectedSeries(id);
     } else {
       /* used for passing a selected series to the parent component */
       console.log('Series set locally: ', id);
-      setSeriesLocally(seriesMap.get(id));
+      selectSeriesLocally(seriesMap.get(id));
       setLocalSeriesId(id);
     }
   };
@@ -66,6 +70,6 @@ function SeriesSelector({ setSeriesLocally }: ISeriesSelectorProps) {
   );
 }
 
-SeriesSelector.defaultProps = { setSeriesLocally: null };
+SeriesSelector.defaultProps = { selectSeriesLocally: null };
 
 export default SeriesSelector;
