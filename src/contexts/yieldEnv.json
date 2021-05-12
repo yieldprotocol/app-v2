@@ -6,6 +6,12 @@
       "Witch" : "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
       "PoolRouter" : "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853"
     },
+    "42" : {
+      "Cauldron": "0x2e339225cf30075c484E7fb833Acb47981DD2C92",
+      "Ladle" : "0xf7E2BbddB7207FDCA94cA338d6e49BE960112fa9",
+      "Witch" : "0xA0f79C2b3483e2936411b4FA579cEFB7b7f9c166",
+      "PoolRouter" : "0x708dB14F0f77f7e2a63074fA69cc6B67E84E2F06"
+    },
     "31337" : {
       "Cauldron": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
       "Ladle" : "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",

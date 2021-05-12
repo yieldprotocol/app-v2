@@ -26,7 +26,7 @@ const connectors = new Map();
 connectors.set(
   'injected',
   new InjectedConnector({
-    supportedChainIds: [1, 1337, 31337],
+    supportedChainIds: [1, 42, 1337, 31337],
   }),
 );
 connectors.set(
@@ -153,6 +153,15 @@ const ChainProvider = ({ children }: any) => {
       newContractMap.set('Ladle', Ladle);
       newContractMap.set('PoolRouter', PoolRouter);
       updateState({ type: 'contractMap', payload: newContractMap });
+
+      let test :any;
+      (async () => {
+        test = await fallbackLibrary.getBalance('0x885Bc35dC9B10EA39f2d7B3C94a7452a9ea442A7');
+      })();
+
+      console.log(test);
+
+      console.log(fallbackChainId, chainId);
 
       /* Update the 'dynamic' contracts (series and assets) */
       Promise.all([
@@ -302,6 +311,7 @@ const ChainProvider = ({ children }: any) => {
         defaultChainId: _chainId,
       }), (e:any) => console.log(e), true,
     );
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId, fallbackActivate, lastChainId, tried]);
 
