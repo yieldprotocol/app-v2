@@ -62,7 +62,7 @@ const Lend = () => {
     if (activeAccount && (inputValue || inputValue === '')) {
       /* 1. Check if input exceeds balance */
       if (maxLend && parseFloat(inputValue) > parseFloat(maxLend)) setLendError('Amount exceeds balance');
-      /* 2. Check if input is higher than collateralization rate */
+      /* 2. next Check */
       else if (false) setLendError('Insufficient');
       /* if all checks pass, set null error message */
       else {
@@ -74,20 +74,20 @@ const Lend = () => {
   /* CHECK for any closeInput or rollInput errors/warnings */
   useEffect(() => {
     if (activeAccount && (closeInputValue || closeInputValue === '')) {
-      /* 1. Check if input exceeds balance */
+      /* 1. Check if input exceeds fyToken balance */
       if (maxClose && parseFloat(closeInputValue) > parseFloat(maxClose)) setCloseError('Amount exceeds available fyToken balance');
-      /* 2. Check if input is higher than collateralization rate */
-      else if (false) setLendError('Insufficient');
+      /* 2. Check if there is a selected series */
+      else if (closeInputValue && !selectedSeriesId) setCloseError('No base series selected');
       /* if all checks pass, set null error message */
       else {
         setCloseError(null);
       }
     }
     if (activeAccount && (rollInputValue || rollInputValue === '')) {
-      /* 1. Check if input exceeds balance */
+      /* 1. Check if input exceeds fyToken balance */
       if (maxClose && parseFloat(rollInputValue) > parseFloat(maxClose)) setRollError('Amount exceeds available fyToken balance');
-      /* 2. Check if input is higher than collateralization rate */
-      else if (false) setLendError('Insufficient');
+      /* 2. Check if there is a selected series */
+      else if (rollInputValue && !selectedSeriesId) setRollError('No base series selected');
       /* if all checks pass, set null error message */
       else {
         setRollError(null);
@@ -171,7 +171,7 @@ const Lend = () => {
             <TextInput
               plain
               type="number"
-              placeholder={`${selectedBase?.symbol} to reclaim`}
+              placeholder="fyToken Amount" // {`${selectedBase?.symbol} to reclaim`}
               value={closeInputValue || ''}
               onChange={(event:any) => setCloseInputValue(cleanValue(event.target.value))}
             />
@@ -208,7 +208,7 @@ const Lend = () => {
             <TextInput
               plain
               type="number"
-              placeholder={`${selectedBase?.symbol} to roll`}
+              placeholder="fyToken Amount" // {`${selectedBase?.symbol} to roll`}
               value={rollInputValue || ''}
               onChange={(event:any) => setRollInputValue(cleanValue(event.target.value))}
             />
