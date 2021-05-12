@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, Button, CheckBox, Keyboard, ResponsiveContext, Text, TextInput } from 'grommet';
+import { useHistory, useParams } from 'react-router-dom';
 import { ethers } from 'ethers';
 
 import SeriesSelector from '../components/selectors/SeriesSelector';
@@ -7,17 +8,17 @@ import MainViewWrap from '../components/wraps/MainViewWrap';
 import AssetSelector from '../components/selectors/AssetSelector';
 import InputWrap from '../components/wraps/InputWrap';
 import ActionButtonGroup from '../components/ActionButtonGroup';
-import PlaceholderWrap from '../components/wraps/PlaceholderWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
+
+import MaxButton from '../components/MaxButton';
+
 import { useBorrowActions } from '../hooks/borrowActions';
 import { UserContext } from '../contexts/UserContext';
 import { IUserContext, IVault } from '../types';
-import MaxButton from '../components/MaxButton';
+import { collateralizationRatio } from '../utils/yieldMath';
 
 const Borrow = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
-  // const routerHistory = useHistory();
-  // const routerState = routerHistory.location.state as { from: string };
 
   /* state from context */
   const { userState } = useContext(UserContext) as IUserContext;
@@ -26,14 +27,18 @@ const Borrow = () => {
   const selectedBase = assetMap.get(selectedBaseId!);
   const selectedIlk = assetMap.get(selectedIlkId!);
 
-  const [inputValue, setInputValue] = useState<string>();
-  const [collInputValue, setCollInputValue] = useState<string>();
+  const [inputValue, setInputValue] = useState<string>('');
+
+  const [collInputValue, setCollInputValue] = useState<string>('');
   const [maxCollateral, setMaxCollateral] = useState<string|undefined>();
 
   const [borrowDisabled, setBorrowDisabled] = useState<boolean>(true);
 
   const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
   const [vaultIdToUse, setVaultIdToUse] = useState<string|undefined>(undefined);
+
+  const [errorMsg, setErrorMsg] = useState<string|null>(null);
+  const [collErrorMsg, setCollErrorMsg] = useState<string|null>(null);
 
   const { borrow } = useBorrowActions();
 
@@ -46,7 +51,7 @@ const Borrow = () => {
     );
   };
 
-  /* Checks and sets list of current vaults matching the current selection */
+  /* CHECK list of current vaults matching the current selection */
   useEffect(() => {
     if (selectedBaseId && selectedSeriesId && selectedIlkId) {
       const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
@@ -59,7 +64,7 @@ const Borrow = () => {
     }
   }, [vaultMap, selectedBaseId, selectedIlkId, selectedSeriesId]);
 
-  /* Checks collateral selection and sets the max available value */
+  /* CHECK collateral selection and sets the max available collateral */
   useEffect(() => {
     activeAccount &&
     (async () => {
@@ -67,6 +72,20 @@ const Borrow = () => {
       _max && setMaxCollateral(ethers.utils.formatEther(_max)?.toString());
     })();
   }, [activeAccount, selectedIlk, setMaxCollateral]);
+
+  /* CHECK for any collateral input errors/warnings */
+  useEffect(() => {
+    if (activeAccount && (collInputValue || collInputValue === '')) {
+      /* 1. Check if input exceeds balance */
+      if (maxCollateral && parseFloat(collInputValue) > parseFloat(maxCollateral)) setCollErrorMsg('Amount exceeds balance');
+      /* 2. Check if input is higher than collateralization rate */
+      else if (false) setCollErrorMsg('Undercollateralised');
+      /* if all checks pass, set null error message */
+      else {
+        setCollErrorMsg(null);
+      }
+    }
+  }, [activeAccount, collInputValue, maxCollateral, setCollErrorMsg]);
 
   /* Action disabling logic: */
   useEffect(() => {
@@ -93,7 +112,7 @@ const Borrow = () => {
   return (
 
     <Keyboard
-      onEsc={() => setInputValue(undefined)}
+      onEsc={() => setCollInputValue('')}
       onEnter={() => console.log('ENTER smashed')}
       target="document"
     >
@@ -102,12 +121,12 @@ const Borrow = () => {
         <SectionWrap title="1. Asset to Borrow" subtitle="Choose an asset and period to borrow for">
 
           <Box direction="row" gap="small" fill="horizontal">
-            <InputWrap action={() => console.log('maxAction')}>
+            <InputWrap action={() => console.log('maxAction')} isError={errorMsg}>
               <TextInput
                 plain
                 type="number"
-                placeholder={<PlaceholderWrap label="Enter amount" />}
-                value={inputValue || ''}
+                placeholder="Enter amount"
+                value={inputValue}
                 onChange={(event:any) => setInputValue(event.target.value)}
                 autoFocus={!mobile}
               />
@@ -130,19 +149,19 @@ const Borrow = () => {
 
         <SectionWrap title="3. Add Collateral">
           <Box direction="row" gap="small" fill="horizontal" align="center">
-            <InputWrap action={() => console.log('maxAction')} disabled={!selectedSeriesId}>
+            <InputWrap action={() => console.log('maxAction')} disabled={!selectedSeriesId} isError={collErrorMsg}>
               <TextInput
                 plain
                 type="number"
-                // placeholder={<PlaceholderWrap label="Enter amount" disabled={!selectedSeriesId} />}
+                placeholder="Enter amount"
                 // ref={(el:any) => { el && el.focus(); }}
-                value={collInputValue || ''}
+                value={collInputValue}
                 onChange={(event:any) => setCollInputValue(event.target.value)}
                 disabled={!selectedSeriesId}
               />
               <MaxButton
-                action={() => setCollInputValue(maxCollateral)}
-                disabled={!selectedSeriesId}
+                action={() => maxCollateral && setCollInputValue(maxCollateral)}
+                disabled={!selectedSeriesId || collInputValue === maxCollateral} /* disabled if is already Max */
               />
             </InputWrap>
             <Box basis={mobile ? '50%' : '35%'} fill>
