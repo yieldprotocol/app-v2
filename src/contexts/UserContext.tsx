@@ -1,4 +1,5 @@
-import React, { useContext, useEffect, useReducer, useCallback } from 'react';
+import React, { useContext, useEffect, useReducer, useCallback, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { ethers } from 'ethers';
 
 import { IAssetRoot, ISeriesRoot, IVaultRoot, ISeries, IAsset, IVault, IUserContextState, IUserContext } from '../types';
@@ -61,6 +62,15 @@ const UserProvider = ({ children }:any) => {
   } = chainState;
 
   const [userState, updateState] = useReducer(userReducer, initState);
+
+  /* local state */
+  const [vaultFromUrl, setVaultFromUrl] = useState<string|null>(null);
+
+  const { pathname } = useLocation();
+  /* If the url references a series/vault...set that one as active */
+  useEffect(() => {
+    pathname && setVaultFromUrl(pathname.split('/')[2]);
+  }, [pathname]);
 
   /* internal function for getting the users vaults */
   const _getVaults = useCallback(async (fromBlock:number = 1) => {
@@ -207,8 +217,10 @@ const UserProvider = ({ children }:any) => {
     }, userState.vaultMap));
 
     updateState({ type: 'vaultMap', payload: newVaultMap });
+    vaultFromUrl && updateState({ type: 'selectedVaultId', payload: vaultFromUrl });
+
     console.log('VAULTS: ', newVaultMap);
-  }, [contractMap]);
+  }, [contractMap, vaultFromUrl]);
 
   useEffect(() => {
     /* When the chainContext is finished loading get the dynamic series data */
