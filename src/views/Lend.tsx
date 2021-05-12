@@ -27,6 +27,10 @@ const Lend = () => {
   const [maxLend, setMaxLend] = useState<string|undefined>();
   const [maxClose, setMaxClose] = useState<string|undefined>();
 
+  const [lendError, setLendError] = useState<string|null>(null);
+  const [closeError, setCloseError] = useState<string|null>(null);
+  const [rollError, setRollError] = useState<string|null>(null);
+
   /* state from context */
   const { userState } = useContext(UserContext) as IUserContext;
   const { activeAccount, selectedSeriesId, selectedBaseId, seriesMap, assetMap } = userState;
@@ -36,37 +40,69 @@ const Lend = () => {
 
   const { lend, closePosition, rollPosition } = useLendActions();
 
-  /* Check max available lend  */
+  /* Check max available lend */
   useEffect(() => {
     activeAccount &&
       (async () => {
         /* Checks asset selection and sets the max available value */
         const max = await selectedBase?.getBalance(activeAccount);
-        if (max) {
-          const max_ = ethers.utils.formatEther(max).toString();
-          setMaxLend(max_);
-          /* if current input is larger than maxLend, set it to max */
-          if (inputValue && ethers.utils.parseEther(inputValue!).gt(max)) setInputValue(max_);
-        }
+        if (max) setMaxLend(ethers.utils.formatEther(max).toString());
       })();
   }, [activeAccount, inputValue, selectedBase, setMaxLend]);
 
-  /* Check max available to close */
+  /* Check max available to close/roll */
   useEffect(() => {
     /* Checks series selection and sets the max close available value */
-    selectedSeries && setMaxClose(ethers.utils.formatEther(selectedSeries?.fyTokenBalance!)?.toString());
-  }, [selectedSeries]);
+    const max = selectedSeries?.fyTokenBalance;
+    if (max) setMaxClose(ethers.utils.formatEther(max)?.toString());
+  }, [closeInputValue, rollInputValue, selectedSeries]);
+
+  /* CHECK for any lendInput errors/warnings */
+  useEffect(() => {
+    if (activeAccount && (inputValue || inputValue === '')) {
+      /* 1. Check if input exceeds balance */
+      if (maxLend && parseFloat(inputValue) > parseFloat(maxLend)) setLendError('Amount exceeds balance');
+      /* 2. Check if input is higher than collateralization rate */
+      else if (false) setLendError('Insufficient');
+      /* if all checks pass, set null error message */
+      else {
+        setLendError(null);
+      }
+    }
+  }, [activeAccount, inputValue, maxLend, setLendError]);
+
+  /* CHECK for any closeInput or rollInput errors/warnings */
+  useEffect(() => {
+    if (activeAccount && (closeInputValue || closeInputValue === '')) {
+      /* 1. Check if input exceeds balance */
+      if (maxClose && parseFloat(closeInputValue) > parseFloat(maxClose)) setCloseError('Amount exceeds available fyToken balance');
+      /* 2. Check if input is higher than collateralization rate */
+      else if (false) setLendError('Insufficient');
+      /* if all checks pass, set null error message */
+      else {
+        setCloseError(null);
+      }
+    }
+    if (activeAccount && (rollInputValue || rollInputValue === '')) {
+      /* 1. Check if input exceeds balance */
+      if (maxClose && parseFloat(rollInputValue) > parseFloat(maxClose)) setRollError('Amount exceeds available fyToken balance');
+      /* 2. Check if input is higher than collateralization rate */
+      else if (false) setLendError('Insufficient');
+      /* if all checks pass, set null error message */
+      else {
+        setRollError(null);
+      }
+    }
+  }, [activeAccount, closeInputValue, rollInputValue, maxLend, setLendError]);
 
   const handleLend = () => {
     // !lendDisabled &&
     selectedSeries && lend(inputValue, selectedSeries);
   };
-
   const handleClosePosition = () => {
     // !lendDisabled &&
     selectedSeries && closePosition(closeInputValue, selectedSeries);
   };
-
   const handleRollPosition = () => {
     // !lendDisabled &&
     selectedSeries && rollToSeries && rollPosition(rollInputValue, selectedSeries, rollToSeries);
@@ -77,7 +113,7 @@ const Lend = () => {
 
       <SectionWrap title="1. Asset to Lend" subtitle="Choose an asset and period to lend for">
         <Box direction="row" gap="small" fill="horizontal">
-          <InputWrap action={() => console.log('maxAction')}>
+          <InputWrap action={() => console.log('maxAction')} isError={lendError}>
             <TextInput
               plain
               type="number"
@@ -130,12 +166,12 @@ const Lend = () => {
           side: 'all',
         }}
       >
-        <Box direction="row" gap="small" fill="horizontal">
-          <InputWrap action={() => console.log('maxAction')}>
+        <Box direction="row" gap="small" fill="horizontal" align="center">
+          <InputWrap action={() => console.log('maxAction')} isError={closeError}>
             <TextInput
               plain
               type="number"
-              placeholder="Enter amount"
+              placeholder={`${selectedBase?.symbol} to reclaim`}
               value={closeInputValue || ''}
               onChange={(event:any) => setCloseInputValue(cleanValue(event.target.value))}
             />
@@ -144,6 +180,7 @@ const Lend = () => {
               disabled={maxClose === '0.0'}
             />
           </InputWrap>
+          {/* <Text> {selectedBase?.symbol} </Text> */}
         </Box>
 
         <ActionButtonGroup buttonList={[
@@ -166,12 +203,12 @@ const Lend = () => {
         }}
       >
 
-        <Box direction="row" gap="small" fill="horizontal">
-          <InputWrap action={() => console.log('maxAction')}>
+        <Box direction="row" gap="small" fill="horizontal" align="center">
+          <InputWrap action={() => console.log('maxAction')} isError={rollError}>
             <TextInput
               plain
               type="number"
-              placeholder="Amount to roll"
+              placeholder={`${selectedBase?.symbol} to roll`}
               value={rollInputValue || ''}
               onChange={(event:any) => setRollInputValue(cleanValue(event.target.value))}
             />
@@ -180,6 +217,7 @@ const Lend = () => {
               disabled={maxClose === '0.0'}
             />
           </InputWrap>
+          {/* <Text> {selectedBase?.symbol} </Text> */}
         </Box>
 
         <Box gap="small" fill="horizontal" direction="row" align="center">
