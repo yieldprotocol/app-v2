@@ -101,6 +101,10 @@ const Borrow = () => {
   },
   [borrowInput, collatInput, selectedSeriesId, selectedIlkId, activeAccount]);
 
+  useEffect(() => {
+    (!activeAccount || !collatInput || collatError) ? setCollatDisabled(true) : setCollatDisabled(false);
+  }, [collatInput, activeAccount, collatError]);
+
   /**
    * EXTRAS
    * */

@@ -126,7 +126,21 @@ const Lend = () => {
         setRollError(null);
       }
     }
-  }, [activeAccount, closeInput, rollInput, maxLend, setLendError, maxClose, selectedSeriesId]);
+  }, [activeAccount, closeInput, rollInput, maxClose, selectedSeriesId]);
+
+  /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
+
+  useEffect(() => {
+    (!activeAccount || !lendInput || !selectedSeriesId || lendError) ? setLendDisabled(true) : setLendDisabled(false);
+  }, [lendInput, activeAccount, lendError, selectedSeriesId]);
+
+  useEffect(() => {
+    (!activeAccount || !closeInput || closeError) ? setCloseDisabled(true) : setCloseDisabled(false);
+  }, [closeInput, activeAccount, closeError]);
+
+  useEffect(() => {
+    (!activeAccount || !rollInput || rollError) ? setRollDisabled(true) : setRollDisabled(false);
+  }, [rollInput, activeAccount, rollError]);
 
   return (
     <MainViewWrap>
