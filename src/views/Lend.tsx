@@ -62,6 +62,8 @@ const Lend = () => {
     if (activeAccount && (inputValue || inputValue === '')) {
       /* 1. Check if input exceeds balance */
       if (maxLend && parseFloat(inputValue) > parseFloat(maxLend)) setLendError('Amount exceeds balance');
+      /* 2. Check if input is above zero */
+      else if (parseFloat(inputValue) < 0) setLendError('Amount should be expressed as a positive value');
       /* 2. next Check */
       else if (false) setLendError('Insufficient');
       /* if all checks pass, set null error message */
@@ -78,6 +80,8 @@ const Lend = () => {
       if (maxClose && parseFloat(closeInputValue) > parseFloat(maxClose)) setCloseError('Amount exceeds available fyToken balance');
       /* 2. Check if there is a selected series */
       else if (closeInputValue && !selectedSeriesId) setCloseError('No base series selected');
+      /* 2. Check if input is above zero */
+      else if (parseFloat(closeInputValue) < 0) setCloseError('Amount should be expressed as a positive value');
       /* if all checks pass, set null error message */
       else {
         setCloseError(null);
@@ -88,6 +92,8 @@ const Lend = () => {
       if (maxClose && parseFloat(rollInputValue) > parseFloat(maxClose)) setRollError('Amount exceeds available fyToken balance');
       /* 2. Check if there is a selected series */
       else if (rollInputValue && !selectedSeriesId) setRollError('No base series selected');
+      /* 2. Check if input is above zero */
+      else if (parseFloat(rollInputValue) < 0) setRollError('Amount should be expressed as a positive value');
       /* if all checks pass, set null error message */
       else {
         setRollError(null);
@@ -167,17 +173,18 @@ const Lend = () => {
         }}
       >
         <Box direction="row" gap="small" fill="horizontal" align="center">
-          <InputWrap action={() => console.log('maxAction')} isError={closeError}>
+          <InputWrap action={() => console.log('maxAction')} isError={closeError} disabled={!selectedSeriesId}>
             <TextInput
               plain
               type="number"
               placeholder="fyToken Amount" // {`${selectedBase?.symbol} to reclaim`}
               value={closeInputValue || ''}
               onChange={(event:any) => setCloseInputValue(cleanValue(event.target.value))}
+              disabled={!selectedSeriesId}
             />
             <MaxButton
               action={() => setCloseInputValue(maxClose)}
-              disabled={maxClose === '0.0'}
+              disabled={maxClose === '0.0' || !selectedSeriesId}
             />
           </InputWrap>
           {/* <Text> {selectedBase?.symbol} </Text> */}
@@ -189,6 +196,7 @@ const Lend = () => {
             label={<Text size={mobile ? 'small' : undefined}>Close Position</Text>}
             key="secondary"
             onClick={() => handleClosePosition()}
+            disabled={maxClose === '0.0' || !selectedSeriesId}
           />,
         ]}
         />
@@ -204,17 +212,18 @@ const Lend = () => {
       >
 
         <Box direction="row" gap="small" fill="horizontal" align="center">
-          <InputWrap action={() => console.log('maxAction')} isError={rollError}>
+          <InputWrap action={() => console.log('maxAction')} isError={rollError} disabled={!selectedSeriesId}>
             <TextInput
               plain
               type="number"
               placeholder="fyToken Amount" // {`${selectedBase?.symbol} to roll`}
               value={rollInputValue || ''}
               onChange={(event:any) => setRollInputValue(cleanValue(event.target.value))}
+              disabled={!selectedSeriesId}
             />
             <MaxButton
               action={() => setRollInputValue(maxClose)}
-              disabled={maxClose === '0.0'}
+              disabled={maxClose === '0.0' || !selectedSeriesId}
             />
           </InputWrap>
           {/* <Text> {selectedBase?.symbol} </Text> */}
@@ -231,6 +240,7 @@ const Lend = () => {
                 label={<Text size={mobile ? 'small' : undefined}> Roll </Text>}
                 key="primary"
                 onClick={() => handleRollPosition()}
+                disabled={maxClose === '0.0' || !selectedSeriesId}
               />,
             ]}
             />
