@@ -8,7 +8,6 @@ import InputWrap from '../components/wraps/InputWrap';
 import MainViewWrap from '../components/wraps/MainViewWrap';
 import SeriesSelector from '../components/selectors/SeriesSelector';
 import { cleanValue } from '../utils/displayUtils';
-import PlaceholderWrap from '../components/wraps/PlaceholderWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
 
 import { useLendActions } from '../hooks/lendActions';
@@ -19,9 +18,17 @@ import MaxButton from '../components/MaxButton';
 const Lend = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
 
-  const [inputValue, setInputValue] = useState<string>();
-  const [closeInputValue, setCloseInputValue] = useState<string>();
-  const [rollInputValue, setRollInputValue] = useState<string>();
+  /* state from context */
+  const { userState } = useContext(UserContext) as IUserContext;
+  const { activeAccount, selectedSeriesId, selectedBaseId, seriesMap, assetMap } = userState;
+  const selectedSeries = seriesMap.get(selectedSeriesId!);
+  const selectedBase = assetMap.get(selectedBaseId!);
+
+  /* local state */
+  const [lendInput, setLendInput] = useState<string>();
+  const [closeInput, setCloseInput] = useState<string>();
+  const [rollInput, setRollInput] = useState<string>();
+
   const [rollToSeries, setRollToSeries] = useState<ISeries|null>(null);
 
   const [maxLend, setMaxLend] = useState<string|undefined>();
@@ -31,13 +38,11 @@ const Lend = () => {
   const [closeError, setCloseError] = useState<string|null>(null);
   const [rollError, setRollError] = useState<string|null>(null);
 
-  /* state from context */
-  const { userState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, selectedSeriesId, selectedBaseId, seriesMap, assetMap } = userState;
+  const [lendDisabled, setLendDisabled] = useState<boolean>(true);
+  const [closeDisabled, setCloseDisabled] = useState<boolean>(true);
+  const [rollDisabled, setRollDisabled] = useState<boolean>(true);
 
-  const selectedSeries = seriesMap.get(selectedSeriesId!);
-  const selectedBase = assetMap.get(selectedBaseId!);
-
+  /* imported hook fns */
   const { lend, closePosition, rollPosition } = useLendActions();
 
   /* Check max available lend */
@@ -48,22 +53,22 @@ const Lend = () => {
         const max = await selectedBase?.getBalance(activeAccount);
         if (max) setMaxLend(ethers.utils.formatEther(max).toString());
       })();
-  }, [activeAccount, inputValue, selectedBase, setMaxLend]);
+  }, [activeAccount, lendInput, selectedBase, setMaxLend]);
 
   /* Check max available to close/roll */
   useEffect(() => {
     /* Checks series selection and sets the max close available value */
     const max = selectedSeries?.fyTokenBalance;
     if (max) setMaxClose(ethers.utils.formatEther(max)?.toString());
-  }, [closeInputValue, rollInputValue, selectedSeries]);
+  }, [closeInput, rollInput, selectedSeries]);
 
   /* CHECK for any lendInput errors/warnings */
   useEffect(() => {
-    if (activeAccount && (inputValue || inputValue === '')) {
+    if (activeAccount && (lendInput || lendInput === '')) {
       /* 1. Check if input exceeds balance */
-      if (maxLend && parseFloat(inputValue) > parseFloat(maxLend)) setLendError('Amount exceeds balance');
+      if (maxLend && parseFloat(lendInput) > parseFloat(maxLend)) setLendError('Amount exceeds balance');
       /* 2. Check if input is above zero */
-      else if (parseFloat(inputValue) < 0) setLendError('Amount should be expressed as a positive value');
+      else if (parseFloat(lendInput) < 0) setLendError('Amount should be expressed as a positive value');
       /* 2. next Check */
       else if (false) setLendError('Insufficient');
       /* if all checks pass, set null error message */
@@ -71,47 +76,47 @@ const Lend = () => {
         setLendError(null);
       }
     }
-  }, [activeAccount, inputValue, maxLend, setLendError]);
+  }, [activeAccount, lendInput, maxLend, setLendError]);
 
   /* CHECK for any closeInput or rollInput errors/warnings */
   useEffect(() => {
-    if (activeAccount && (closeInputValue || closeInputValue === '')) {
+    if (activeAccount && (closeInput || closeInput === '')) {
       /* 1. Check if input exceeds fyToken balance */
-      if (maxClose && parseFloat(closeInputValue) > parseFloat(maxClose)) setCloseError('Amount exceeds available fyToken balance');
+      if (maxClose && parseFloat(closeInput) > parseFloat(maxClose)) setCloseError('Amount exceeds available fyToken balance');
       /* 2. Check if there is a selected series */
-      else if (closeInputValue && !selectedSeriesId) setCloseError('No base series selected');
+      else if (closeInput && !selectedSeriesId) setCloseError('No base series selected');
       /* 2. Check if input is above zero */
-      else if (parseFloat(closeInputValue) < 0) setCloseError('Amount should be expressed as a positive value');
+      else if (parseFloat(closeInput) < 0) setCloseError('Amount should be expressed as a positive value');
       /* if all checks pass, set null error message */
       else {
         setCloseError(null);
       }
     }
-    if (activeAccount && (rollInputValue || rollInputValue === '')) {
+    if (activeAccount && (rollInput || rollInput === '')) {
       /* 1. Check if input exceeds fyToken balance */
-      if (maxClose && parseFloat(rollInputValue) > parseFloat(maxClose)) setRollError('Amount exceeds available fyToken balance');
+      if (maxClose && parseFloat(rollInput) > parseFloat(maxClose)) setRollError('Amount exceeds available fyToken balance');
       /* 2. Check if there is a selected series */
-      else if (rollInputValue && !selectedSeriesId) setRollError('No base series selected');
+      else if (rollInput && !selectedSeriesId) setRollError('No base series selected');
       /* 2. Check if input is above zero */
-      else if (parseFloat(rollInputValue) < 0) setRollError('Amount should be expressed as a positive value');
+      else if (parseFloat(rollInput) < 0) setRollError('Amount should be expressed as a positive value');
       /* if all checks pass, set null error message */
       else {
         setRollError(null);
       }
     }
-  }, [activeAccount, closeInputValue, rollInputValue, maxLend, setLendError]);
+  }, [activeAccount, closeInput, rollInput, maxLend, setLendError]);
 
   const handleLend = () => {
     // !lendDisabled &&
-    selectedSeries && lend(inputValue, selectedSeries);
+    selectedSeries && lend(lendInput, selectedSeries);
   };
   const handleClosePosition = () => {
     // !lendDisabled &&
-    selectedSeries && closePosition(closeInputValue, selectedSeries);
+    selectedSeries && closePosition(closeInput, selectedSeries);
   };
   const handleRollPosition = () => {
     // !lendDisabled &&
-    selectedSeries && rollToSeries && rollPosition(rollInputValue, selectedSeries, rollToSeries);
+    selectedSeries && rollToSeries && rollPosition(rollInput, selectedSeries, rollToSeries);
   };
 
   return (
@@ -124,11 +129,11 @@ const Lend = () => {
               plain
               type="number"
               placeholder="Enter amount"
-              value={inputValue || ''}
-              onChange={(event:any) => setInputValue(cleanValue(event.target.value))}
+              value={lendInput || ''}
+              onChange={(event:any) => setLendInput(cleanValue(event.target.value))}
             />
             <MaxButton
-              action={() => setInputValue(maxLend)}
+              action={() => setLendInput(maxLend)}
               disabled={maxLend === '0'}
             />
           </InputWrap>
@@ -151,7 +156,7 @@ const Lend = () => {
       <ActionButtonGroup buttonList={[
         <Button
           primary
-          label={<Text size={mobile ? 'small' : undefined}> {`Supply ${inputValue || ''} ${selectedBase?.symbol || ''}`} </Text>}
+          label={<Text size={mobile ? 'small' : undefined}> {`Supply ${lendInput || ''} ${selectedBase?.symbol || ''}`} </Text>}
           key="primary"
           onClick={() => handleLend()}
         />,
@@ -178,12 +183,12 @@ const Lend = () => {
               plain
               type="number"
               placeholder="fyToken Amount" // {`${selectedBase?.symbol} to reclaim`}
-              value={closeInputValue || ''}
-              onChange={(event:any) => setCloseInputValue(cleanValue(event.target.value))}
+              value={closeInput || ''}
+              onChange={(event:any) => setCloseInput(cleanValue(event.target.value))}
               disabled={!selectedSeriesId}
             />
             <MaxButton
-              action={() => setCloseInputValue(maxClose)}
+              action={() => setCloseInput(maxClose)}
               disabled={maxClose === '0.0' || !selectedSeriesId}
             />
           </InputWrap>
@@ -217,12 +222,12 @@ const Lend = () => {
               plain
               type="number"
               placeholder="fyToken Amount" // {`${selectedBase?.symbol} to roll`}
-              value={rollInputValue || ''}
-              onChange={(event:any) => setRollInputValue(cleanValue(event.target.value))}
+              value={rollInput || ''}
+              onChange={(event:any) => setRollInput(cleanValue(event.target.value))}
               disabled={!selectedSeriesId}
             />
             <MaxButton
-              action={() => setRollInputValue(maxClose)}
+              action={() => setRollInput(maxClose)}
               disabled={maxClose === '0.0' || !selectedSeriesId}
             />
           </InputWrap>
