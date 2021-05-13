@@ -123,7 +123,8 @@ const Lend = () => {
     <MainViewWrap>
 
       <SectionWrap title="1. Asset to Lend" subtitle="Choose an asset and period to lend for">
-        <Box direction="row" gap="small" fill="horizontal">
+
+        <Box direction="row" gap="small" fill="horizontal" align="start">
           <InputWrap action={() => console.log('maxAction')} isError={lendError}>
             <TextInput
               plain
@@ -177,7 +178,7 @@ const Lend = () => {
           side: 'all',
         }}
       >
-        <Box direction="row" gap="small" fill="horizontal" align="center">
+        <Box direction="row" gap="small" fill="horizontal" align="start">
           <InputWrap action={() => console.log('maxAction')} isError={closeError} disabled={!selectedSeriesId}>
             <TextInput
               plain
@@ -216,7 +217,7 @@ const Lend = () => {
         }}
       >
 
-        <Box direction="row" gap="small" fill="horizontal" align="center">
+        <Box direction="row" gap="small" fill="horizontal" align="start">
           <InputWrap action={() => console.log('maxAction')} isError={rollError} disabled={!selectedSeriesId}>
             <TextInput
               plain
@@ -231,7 +232,6 @@ const Lend = () => {
               disabled={maxClose === '0.0' || !selectedSeriesId}
             />
           </InputWrap>
-          {/* <Text> {selectedBase?.symbol} </Text> */}
         </Box>
 
         <Box gap="small" fill="horizontal" direction="row" align="center">

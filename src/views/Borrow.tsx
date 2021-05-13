@@ -153,7 +153,7 @@ const Borrow = () => {
         </SectionWrap>
 
         <SectionWrap title="3. Add Collateral">
-          <Box direction="row" gap="small" fill="horizontal" align="center">
+          <Box direction="row" gap="small" fill="horizontal" align="start">
             <InputWrap action={() => console.log('maxAction')} disabled={!selectedSeriesId} isError={collatError}>
               <TextInput
                 plain
@@ -169,7 +169,7 @@ const Borrow = () => {
                 disabled={!selectedSeriesId || collatInput === maxCollateral} /* disabled if is already Max */
               />
             </InputWrap>
-            <Box basis={mobile ? '50%' : '35%'} fill>
+            <Box basis={mobile ? '50%' : '35%'}>
               <AssetSelector selectCollateral />
             </Box>
           </Box>
