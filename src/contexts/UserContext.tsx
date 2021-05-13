@@ -250,19 +250,17 @@ const UserProvider = ({ children }:any) => {
   }, [
     account,
     chainLoading,
-    seriesRootMap, updateSeries,
     assetRootMap, updateAssets,
+    seriesRootMap, updateSeries,
   ]);
 
   useEffect(() => {
-    /* When the chainContext is finished loading get the dynamic asset data and vaults */
+    /* When the chainContext is finished loading get the users vault data */
     if (account && !chainLoading) {
-      Array.from(assetRootMap.values()).length && updateAssets(Array.from(assetRootMap.values()));
       _getVaults().then((_vaults:any) => updateVaults(Array.from(_vaults.values())));
     }
   }, [
     account, chainLoading,
-    assetRootMap, updateAssets,
     _getVaults, updateVaults,
   ]);
 
