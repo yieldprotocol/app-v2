@@ -20,33 +20,31 @@ import { collateralizationRatio } from '../utils/yieldMath';
 const Borrow = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
 
-  /* state from context */
+  /* STATE FROM CONTEXT */
+
   const { userState } = useContext(UserContext) as IUserContext;
   const { activeAccount, assetMap, vaultMap, selectedSeriesId, selectedIlkId, selectedBaseId } = userState;
-
   const selectedBase = assetMap.get(selectedBaseId!);
   const selectedIlk = assetMap.get(selectedIlkId!);
 
+  /* LOCAL STATE */
+
   const [borrowInput, setBorrowInput] = useState<string>('');
-
   const [collatInput, setCollatInput] = useState<string>('');
-
   const [maxCollateral, setMaxCollateral] = useState<string|undefined>();
 
   const [borrowDisabled, setBorrowDisabled] = useState<boolean>(true);
   const [collatDisabled, setCollatDisabled] = useState<boolean>(true);
 
-  const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
-  const [vaultIdToUse, setVaultIdToUse] = useState<string|undefined>(undefined);
-
   const [borrowError, setBorrowError] = useState<string|null>(null);
   const [collatError, setCollatError] = useState<string|null>(null);
 
+  const [vaultIdToUse, setVaultIdToUse] = useState<string|undefined>(undefined);
+  const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
+
   const { borrow } = useBorrowActions();
 
-  /**
-   * HANDLE ACTIONS FNS
-   */
+  /** LOCAL ACTION FNS */
 
   const handleBorrow = () => {
     !borrowDisabled &&
@@ -57,9 +55,7 @@ const Borrow = () => {
     );
   };
 
-  /**
-   * SET MAX VALUES
-   * */
+  /* SET MAX VALUES */
 
   useEffect(() => {
     /* CHECK collateral selection and sets the max available collateral */
@@ -70,9 +66,7 @@ const Borrow = () => {
     })();
   }, [activeAccount, selectedIlk, setMaxCollateral]);
 
-  /**
-   * CHECK WARNINGS AND ERRORS
-   * */
+  /* WATCH FOR WARNINGS AND ERRORS */
 
   /* CHECK for any collateral input errors/warnings */
   useEffect(() => {
@@ -90,9 +84,7 @@ const Borrow = () => {
     }
   }, [activeAccount, collatInput, maxCollateral, setCollatError]);
 
-  /**
-   * ACTION DISABLING LOGIC
-   * */
+  /* ACTION DISABLING LOGIC */
 
   useEffect(() => {
     /* if ANY of the following conditions are met: block action */

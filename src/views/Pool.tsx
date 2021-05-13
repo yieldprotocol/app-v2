@@ -19,7 +19,7 @@ import MaxButton from '../components/MaxButton';
 function Pool() {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
 
-  /* state from context */
+  /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext) as IUserContext;
   const { activeAccount, assetMap, seriesMap, selectedSeriesId, selectedBaseId } = userState;
   const selectedSeries = seriesMap.get(selectedSeriesId!);
@@ -45,43 +45,44 @@ function Pool() {
 
   const [strategy, setStrategy] = useState<'BUY'|'MINT'>('BUY');
 
-  /* import hook fns */
+  /* HOOK FNS */
+
   const { addLiquidity, removeLiquidity, rollLiquidity } = usePoolActions();
 
-  /* Check max available to pool */
-  useEffect(() => {
-    activeAccount &&
-          (async () => {
-            /* Checks asset selection and sets the max available value */
-            const max = await selectedBase?.getBalance(activeAccount);
-            if (max) setMaxPool(ethers.utils.formatEther(max).toString());
-          })();
-  }, [activeAccount, poolInput, selectedBase, setMaxPool]);
-
-  /* Check max available to remove/close */
-  useEffect(() => {
-    activeAccount &&
-            (async () => {
-              /* Checks asset selection and sets the max available value */
-              const max = await selectedBase?.getBalance(activeAccount);
-              if (max) setMaxPool(ethers.utils.formatEther(max).toString());
-            })();
-  }, [activeAccount, removeInput, selectedBase, setMaxRemove]);
+  /* LOCAL ACTION FNS */
 
   const handleAdd = () => {
     // !lendDisabled &&
     selectedSeries && addLiquidity(poolInput, selectedSeries, strategy);
   };
-
   const handleRemove = () => {
     // !lendDisabled &&
     selectedSeries && removeLiquidity(removeInput, selectedSeries);
   };
-
   const handleRoll = () => {
     // !lendDisabled &&
     selectedSeries && rollToSeries && rollLiquidity(rollInput, selectedSeries, rollToSeries);
   };
+
+  /* SET MAX VALUES */
+
+  useEffect(() => {
+    if (activeAccount) {
+      /* Checks asset selection and sets the max available value */
+      (async () => {
+        const max = await selectedBase?.getBalance(activeAccount);
+        if (max) setMaxPool(ethers.utils.formatEther(max).toString());
+      })();
+    }
+  }, [activeAccount, poolInput, selectedBase, setMaxPool]);
+
+  useEffect(() => {
+    /* Checks the max available to roll or move */
+    const max = selectedSeries?.poolTokens;
+    if (max) setMaxRemove(ethers.utils.formatEther(max).toString());
+  }, [rollInput, removeInput, selectedSeries, setMaxRemove]);
+
+  /* WATCH FOR WARNINGS AND ERRORS */
 
   return (
     <MainViewWrap>

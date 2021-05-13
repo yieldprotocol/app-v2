@@ -18,9 +18,9 @@ import SeriesSelector from '../components/selectors/SeriesSelector';
 
 const Vault = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
-  // const routerHistory = useHistory();
 
-  /* state from context */
+  /* STATE FROM CONTEXT */
+
   const { userState, userActions } = useContext(UserContext) as IUserContext;
   const { assetMap, seriesMap, vaultMap, selectedVaultId, selectedSeriesId } = userState;
   const { setSelectedVault } = userActions;
@@ -30,7 +30,8 @@ const Vault = () => {
   const ilk: IAsset|undefined = assetMap.get(activeVault?.ilkId!);
   const series: ISeries|undefined = seriesMap.get(activeVault?.seriesId!);
 
-  /* local state */
+  /* LOCAL STATE */
+
   const [availableVaults, setAvailableVaults] = useState<IVault[]>();
 
   const [inputValue, setInputValue] = useState<any>(undefined);
@@ -39,13 +40,12 @@ const Vault = () => {
 
   const [rollToSeries, setRollToSeries] = useState<ISeries|null>(null);
 
+  /* HOOK FNS */
+
   const { repay, borrow, rollDebt } = useBorrowActions();
   const { addCollateral, removeCollateral } = useCollateralActions();
 
-  /* init effects */
-  useEffect(() => {
-    setAvailableVaults(Array.from(vaultMap.values())); // add some filtering here
-  }, [vaultMap, activeVault]);
+  /* LOCAL FNS */
 
   const handleRepay = () => {
     activeVault &&
@@ -62,11 +62,15 @@ const Vault = () => {
       remove && removeCollateral(activeVault, collateralInput);
     }
   };
-
   const handleRollDebt = () => {
     rollToSeries && activeVault &&
     rollDebt(activeVault, rollToSeries, '0');
   };
+
+  /* init effects */
+  useEffect(() => {
+    setAvailableVaults(Array.from(vaultMap.values())); // add some filtering here
+  }, [vaultMap, activeVault]);
 
   return (
     <MainViewWrap fullWidth>

@@ -18,13 +18,15 @@ import MaxButton from '../components/MaxButton';
 const Lend = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
 
-  /* state from context */
+  /* STATE FROM CONTEXT */
+
   const { userState } = useContext(UserContext) as IUserContext;
   const { activeAccount, selectedSeriesId, selectedBaseId, seriesMap, assetMap } = userState;
   const selectedSeries = seriesMap.get(selectedSeriesId!);
   const selectedBase = assetMap.get(selectedBaseId!);
 
-  /* local state */
+  /* LOCAL STATE */
+
   const [lendInput, setLendInput] = useState<string>();
   const [closeInput, setCloseInput] = useState<string>();
   const [rollInput, setRollInput] = useState<string>();
@@ -42,12 +44,26 @@ const Lend = () => {
   const [closeDisabled, setCloseDisabled] = useState<boolean>(true);
   const [rollDisabled, setRollDisabled] = useState<boolean>(true);
 
-  /* imported hook fns */
+  /* HOOK FNS */
+
   const { lend, closePosition, rollPosition } = useLendActions();
 
-  /**
-   * SET MAX VALUES
-   * */
+  /* LOCAL FNS */
+
+  const handleLend = () => {
+    // !lendDisabled &&
+    selectedSeries && lend(lendInput, selectedSeries);
+  };
+  const handleClosePosition = () => {
+    // !lendDisabled &&
+    selectedSeries && closePosition(closeInput, selectedSeries);
+  };
+  const handleRollPosition = () => {
+    // !lendDisabled &&
+    selectedSeries && rollToSeries && rollPosition(rollInput, selectedSeries, rollToSeries);
+  };
+
+  /* SET MAX VALUES */
 
   useEffect(() => {
     /* Check max available lend (only if activeAccount to save call) */
@@ -65,12 +81,10 @@ const Lend = () => {
     if (max) setMaxClose(ethers.utils.formatEther(max)?.toString());
   }, [closeInput, rollInput, selectedSeries]);
 
-  /**
-   * CHECK WARNINGS AND ERRORS
-   * */
+  /* WATCH FOR WARNINGS AND ERRORS */
 
-  /* CHECK for any lendInput errors/warnings */
   useEffect(() => {
+    /* CHECK for any lendInput errors */
     if (activeAccount && (lendInput || lendInput === '')) {
       /* 1. Check if input exceeds balance */
       if (maxLend && parseFloat(lendInput) > parseFloat(maxLend)) setLendError('Amount exceeds balance');
@@ -85,8 +99,8 @@ const Lend = () => {
     }
   }, [activeAccount, lendInput, maxLend, setLendError]);
 
-  /* CHECK for any closeInput or rollInput errors/warnings */
   useEffect(() => {
+    /* CHECK for any closeInput errors */
     if (activeAccount && (closeInput || closeInput === '')) {
       /* 1. Check if input exceeds fyToken balance */
       if (maxClose && parseFloat(closeInput) > parseFloat(maxClose)) setCloseError('Amount exceeds available fyToken balance');
@@ -99,6 +113,7 @@ const Lend = () => {
         setCloseError(null);
       }
     }
+    /* CHECK for any rollInput errors */
     if (activeAccount && (rollInput || rollInput === '')) {
       /* 1. Check if input exceeds fyToken balance */
       if (maxClose && parseFloat(rollInput) > parseFloat(maxClose)) setRollError('Amount exceeds available fyToken balance');
@@ -112,19 +127,6 @@ const Lend = () => {
       }
     }
   }, [activeAccount, closeInput, rollInput, maxLend, setLendError, maxClose, selectedSeriesId]);
-
-  const handleLend = () => {
-    // !lendDisabled &&
-    selectedSeries && lend(lendInput, selectedSeries);
-  };
-  const handleClosePosition = () => {
-    // !lendDisabled &&
-    selectedSeries && closePosition(closeInput, selectedSeries);
-  };
-  const handleRollPosition = () => {
-    // !lendDisabled &&
-    selectedSeries && rollToSeries && rollPosition(rollInput, selectedSeries, rollToSeries);
-  };
 
   return (
     <MainViewWrap>
