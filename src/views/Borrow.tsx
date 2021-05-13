@@ -27,18 +27,20 @@ const Borrow = () => {
   const selectedBase = assetMap.get(selectedBaseId!);
   const selectedIlk = assetMap.get(selectedIlkId!);
 
-  const [inputValue, setInputValue] = useState<string>('');
+  const [borrowInput, setBorrowInput] = useState<string>('');
 
-  const [collInputValue, setCollInputValue] = useState<string>('');
+  const [collatInput, setCollatInput] = useState<string>('');
+
   const [maxCollateral, setMaxCollateral] = useState<string|undefined>();
 
   const [borrowDisabled, setBorrowDisabled] = useState<boolean>(true);
+  const [collatDisabled, setCollatDisabled] = useState<boolean>(true);
 
   const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
   const [vaultIdToUse, setVaultIdToUse] = useState<string|undefined>(undefined);
 
   const [borrowError, setBorrowError] = useState<string|null>(null);
-  const [collError, setCollError] = useState<string|null>(null);
+  const [collatError, setCollatError] = useState<string|null>(null);
 
   const { borrow } = useBorrowActions();
 
@@ -46,8 +48,8 @@ const Borrow = () => {
     !borrowDisabled &&
     borrow(
       vaultIdToUse ? vaultMap.get(vaultIdToUse) : undefined,
-      inputValue,
-      collInputValue,
+      borrowInput,
+      collatInput,
     );
   };
 
@@ -75,27 +77,27 @@ const Borrow = () => {
 
   /* CHECK for any collateral input errors/warnings */
   useEffect(() => {
-    if (activeAccount && (collInputValue || collInputValue === '')) {
+    if (activeAccount && (collatInput || collatInput === '')) {
       /* 1. Check if input exceeds balance */
-      if (maxCollateral && parseFloat(collInputValue) > parseFloat(maxCollateral)) setCollError('Amount exceeds balance');
+      if (maxCollateral && parseFloat(collatInput) > parseFloat(maxCollateral)) setCollatError('Amount exceeds balance');
       /* 2. Check if input is above zero */
-      else if (parseFloat(collInputValue) < 0) setCollError('Amount should be expressed as a positive value');
+      else if (parseFloat(collatInput) < 0) setCollatError('Amount should be expressed as a positive value');
       /* 2. Check if input is higher than collateralization rate */
-      else if (false) setCollError('Undercollateralised');
+      else if (false) setCollatError('Undercollateralised');
       /* if all checks pass, set null error message */
       else {
-        setCollError(null);
+        setCollatError(null);
       }
     }
-  }, [activeAccount, collInputValue, maxCollateral, setCollError]);
+  }, [activeAccount, collatInput, maxCollateral, setCollatError]);
 
   /* Action disabling logic: */
   useEffect(() => {
     /* if ANY of the following conditions are met: block action */
     (
       !activeAccount ||
-      !inputValue ||
-      !collInputValue ||
+      !borrowInput ||
+      !collatInput ||
       !selectedSeriesId ||
       !selectedIlkId
     )
@@ -104,8 +106,8 @@ const Borrow = () => {
       : setBorrowDisabled(false);
   },
   [
-    inputValue,
-    collInputValue,
+    borrowInput,
+    collatInput,
     selectedSeriesId,
     selectedIlkId,
     activeAccount,
@@ -114,7 +116,7 @@ const Borrow = () => {
   return (
 
     <Keyboard
-      onEsc={() => setCollInputValue('')}
+      onEsc={() => setCollatInput('')}
       onEnter={() => console.log('ENTER smashed')}
       target="document"
     >
@@ -129,8 +131,8 @@ const Borrow = () => {
                 plain
                 type="number"
                 placeholder="Enter amount"
-                value={inputValue}
-                onChange={(event:any) => setInputValue(event.target.value)}
+                value={borrowInput}
+                onChange={(event:any) => setBorrowInput(event.target.value)}
                 autoFocus={!mobile}
               />
             </InputWrap>
@@ -152,19 +154,19 @@ const Borrow = () => {
 
         <SectionWrap title="3. Add Collateral">
           <Box direction="row" gap="small" fill="horizontal" align="center">
-            <InputWrap action={() => console.log('maxAction')} disabled={!selectedSeriesId} isError={collError}>
+            <InputWrap action={() => console.log('maxAction')} disabled={!selectedSeriesId} isError={collatError}>
               <TextInput
                 plain
                 type="number"
                 placeholder="Enter amount"
                 // ref={(el:any) => { el && el.focus(); }}
-                value={collInputValue}
-                onChange={(event:any) => setCollInputValue(event.target.value)}
+                value={collatInput}
+                onChange={(event:any) => setCollatInput(event.target.value)}
                 disabled={!selectedSeriesId}
               />
               <MaxButton
-                action={() => maxCollateral && setCollInputValue(maxCollateral)}
-                disabled={!selectedSeriesId || collInputValue === maxCollateral} /* disabled if is already Max */
+                action={() => maxCollateral && setCollatInput(maxCollateral)}
+                disabled={!selectedSeriesId || collatInput === maxCollateral} /* disabled if is already Max */
               />
             </InputWrap>
             <Box basis={mobile ? '50%' : '35%'} fill>
@@ -211,7 +213,7 @@ const Borrow = () => {
         <ActionButtonGroup buttonList={[
           <Button
             primary
-            label={<Text size={mobile ? 'small' : undefined}> {`Borrow  ${inputValue || ''} ${selectedBase?.symbol || ''}`}</Text>}
+            label={<Text size={mobile ? 'small' : undefined}> {`Borrow  ${borrowInput || ''} ${selectedBase?.symbol || ''}`}</Text>}
             key="primary"
             onClick={() => handleBorrow()}
             disabled={borrowDisabled}
