@@ -31,7 +31,7 @@ const Borrow = () => {
 
   const [borrowInput, setBorrowInput] = useState<string>('');
   const [collatInput, setCollatInput] = useState<string>('');
-  const [maxCollateral, setMaxCollateral] = useState<string|undefined>();
+  const [maxCollat, setMaxCollat] = useState<string|undefined>();
 
   const [borrowDisabled, setBorrowDisabled] = useState<boolean>(true);
   const [collatDisabled, setCollatDisabled] = useState<boolean>(true);
@@ -62,9 +62,9 @@ const Borrow = () => {
     activeAccount &&
     (async () => {
       const _max = await selectedIlk?.getBalance(activeAccount);
-      _max && setMaxCollateral(ethers.utils.formatEther(_max)?.toString());
+      _max && setMaxCollat(ethers.utils.formatEther(_max)?.toString());
     })();
-  }, [activeAccount, selectedIlk, setMaxCollateral]);
+  }, [activeAccount, selectedIlk, setMaxCollat]);
 
   /* WATCH FOR WARNINGS AND ERRORS */
 
@@ -72,7 +72,7 @@ const Borrow = () => {
   useEffect(() => {
     if (activeAccount && (collatInput || collatInput === '')) {
       /* 1. Check if input exceeds balance */
-      if (maxCollateral && parseFloat(collatInput) > parseFloat(maxCollateral)) setCollatError('Amount exceeds balance');
+      if (maxCollat && parseFloat(collatInput) > parseFloat(maxCollat)) setCollatError('Amount exceeds balance');
       /* 2. Check if input is above zero */
       else if (parseFloat(collatInput) < 0) setCollatError('Amount should be expressed as a positive value');
       /* 3. next check */
@@ -82,7 +82,7 @@ const Borrow = () => {
         setCollatError(null);
       }
     }
-  }, [activeAccount, collatInput, maxCollateral, setCollatError]);
+  }, [activeAccount, collatInput, maxCollat, setCollatError]);
 
   /* ACTION DISABLING LOGIC */
 
@@ -174,8 +174,8 @@ const Borrow = () => {
                 disabled={!selectedSeriesId}
               />
               <MaxButton
-                action={() => maxCollateral && setCollatInput(maxCollateral)}
-                disabled={!selectedSeriesId || collatInput === maxCollateral} /* disabled if is already Max */
+                action={() => maxCollat && setCollatInput(maxCollat)}
+                disabled={!selectedSeriesId || collatInput === maxCollat} /* disabled if is already Max */
               />
             </InputWrap>
             <Box basis={mobile ? '50%' : '35%'}>
