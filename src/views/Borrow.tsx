@@ -37,8 +37,8 @@ const Borrow = () => {
   const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
   const [vaultIdToUse, setVaultIdToUse] = useState<string|undefined>(undefined);
 
-  const [errorMsg, setErrorMsg] = useState<string|null>(null);
-  const [collErrorMsg, setCollErrorMsg] = useState<string|null>(null);
+  const [borrowError, setBorrowError] = useState<string|null>(null);
+  const [collError, setCollError] = useState<string|null>(null);
 
   const { borrow } = useBorrowActions();
 
@@ -77,15 +77,17 @@ const Borrow = () => {
   useEffect(() => {
     if (activeAccount && (collInputValue || collInputValue === '')) {
       /* 1. Check if input exceeds balance */
-      if (maxCollateral && parseFloat(collInputValue) > parseFloat(maxCollateral)) setCollErrorMsg('Amount exceeds balance');
+      if (maxCollateral && parseFloat(collInputValue) > parseFloat(maxCollateral)) setCollError('Amount exceeds balance');
+      /* 2. Check if input is above zero */
+      else if (parseFloat(collInputValue) < 0) setCollError('Amount should be expressed as a positive value');
       /* 2. Check if input is higher than collateralization rate */
-      else if (false) setCollErrorMsg('Undercollateralised');
+      else if (false) setCollError('Undercollateralised');
       /* if all checks pass, set null error message */
       else {
-        setCollErrorMsg(null);
+        setCollError(null);
       }
     }
-  }, [activeAccount, collInputValue, maxCollateral, setCollErrorMsg]);
+  }, [activeAccount, collInputValue, maxCollateral, setCollError]);
 
   /* Action disabling logic: */
   useEffect(() => {
@@ -116,12 +118,13 @@ const Borrow = () => {
       onEnter={() => console.log('ENTER smashed')}
       target="document"
     >
+
       <MainViewWrap>
 
         <SectionWrap title="1. Asset to Borrow" subtitle="Choose an asset and period to borrow for">
 
           <Box direction="row" gap="small" fill="horizontal">
-            <InputWrap action={() => console.log('maxAction')} isError={errorMsg}>
+            <InputWrap action={() => console.log('maxAction')} isError={borrowError}>
               <TextInput
                 plain
                 type="number"
@@ -149,7 +152,7 @@ const Borrow = () => {
 
         <SectionWrap title="3. Add Collateral">
           <Box direction="row" gap="small" fill="horizontal" align="center">
-            <InputWrap action={() => console.log('maxAction')} disabled={!selectedSeriesId} isError={collErrorMsg}>
+            <InputWrap action={() => console.log('maxAction')} disabled={!selectedSeriesId} isError={collError}>
               <TextInput
                 plain
                 type="number"
@@ -171,7 +174,6 @@ const Borrow = () => {
         </SectionWrap>
 
         <SectionWrap>
-
           <Box gap="small" fill="horizontal">
             <Box direction="row" justify="end">
               <CheckBox
@@ -182,7 +184,6 @@ const Borrow = () => {
                 onChange={() => setVaultIdToUse(undefined)}
               />
             </Box>
-
             {
               matchingVaults.length > 0 &&
               <Box alignSelf="center">
@@ -205,7 +206,6 @@ const Borrow = () => {
             }
 
           </Box>
-
         </SectionWrap>
 
         <ActionButtonGroup buttonList={[
