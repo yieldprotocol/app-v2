@@ -17,7 +17,7 @@ function InputWrap({ action, disabled, isError, children, ...props }: IInputWrap
         {...props}
         direction="row"
         round="xsmall"
-        border={!disabled}
+        border={disabled ? { color: 'text-xweak' } : true}
         pad={{ horizontal: 'small' }}
         align="center"
         basis={mobile ? '50%' : '65%'}
