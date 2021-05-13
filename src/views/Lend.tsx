@@ -45,22 +45,29 @@ const Lend = () => {
   /* imported hook fns */
   const { lend, closePosition, rollPosition } = useLendActions();
 
-  /* Check max available lend */
+  /**
+   * SET MAX VALUES
+   * */
+
   useEffect(() => {
-    activeAccount &&
+    /* Check max available lend (only if activeAccount to save call) */
+    if (activeAccount) {
       (async () => {
-        /* Checks asset selection and sets the max available value */
         const max = await selectedBase?.getBalance(activeAccount);
         if (max) setMaxLend(ethers.utils.formatEther(max).toString());
       })();
+    }
   }, [activeAccount, lendInput, selectedBase, setMaxLend]);
 
-  /* Check max available to close/roll */
   useEffect(() => {
     /* Checks series selection and sets the max close available value */
     const max = selectedSeries?.fyTokenBalance;
     if (max) setMaxClose(ethers.utils.formatEther(max)?.toString());
   }, [closeInput, rollInput, selectedSeries]);
+
+  /**
+   * CHECK WARNINGS AND ERRORS
+   * */
 
   /* CHECK for any lendInput errors/warnings */
   useEffect(() => {
@@ -104,7 +111,7 @@ const Lend = () => {
         setRollError(null);
       }
     }
-  }, [activeAccount, closeInput, rollInput, maxLend, setLendError]);
+  }, [activeAccount, closeInput, rollInput, maxLend, setLendError, maxClose, selectedSeriesId]);
 
   const handleLend = () => {
     // !lendDisabled &&
