@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Box, Button, Menu, ResponsiveContext, Text, TextInput } from 'grommet';
 
+import { ethers } from 'ethers';
 import { cleanValue } from '../utils/displayUtils';
 import { UserContext } from '../contexts/UserContext';
 
@@ -15,6 +16,7 @@ import SectionWrap from '../components/wraps/SectionWrap';
 import { useCollateralActions } from '../hooks/collateralActions';
 import { useBorrowActions } from '../hooks/borrowActions';
 import SeriesSelector from '../components/selectors/SeriesSelector';
+import MaxButton from '../components/MaxButton';
 
 const Vault = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -22,23 +24,35 @@ const Vault = () => {
   /* STATE FROM CONTEXT */
 
   const { userState, userActions } = useContext(UserContext) as IUserContext;
-  const { assetMap, seriesMap, vaultMap, selectedVaultId, selectedSeriesId } = userState;
+  const { activeAccount, assetMap, seriesMap, vaultMap, selectedVaultId, selectedSeriesId } = userState;
   const { setSelectedVault } = userActions;
 
   const activeVault: IVault|undefined = vaultMap.get(selectedVaultId!);
-  const base: IAsset|undefined = assetMap.get(activeVault?.baseId!);
-  const ilk: IAsset|undefined = assetMap.get(activeVault?.ilkId!);
-  const series: ISeries|undefined = seriesMap.get(activeVault?.seriesId!);
+  const selectedBase: IAsset|undefined = assetMap.get(activeVault?.baseId!);
+  const selectedIlk: IAsset|undefined = assetMap.get(activeVault?.ilkId!);
+  const selectedSeries: ISeries|undefined = seriesMap.get(activeVault?.seriesId!);
 
   /* LOCAL STATE */
 
   const [availableVaults, setAvailableVaults] = useState<IVault[]>();
 
-  const [inputValue, setInputValue] = useState<any>(undefined);
+  const [repayInput, setRepayInput] = useState<any>(undefined);
   const [borrowInput, setBorrowInput] = useState<any>(undefined);
-  const [collateralInput, setCollateralInput] = useState<any>(undefined);
+  const [collatInput, setCollatInput] = useState<any>(undefined);
+  const [rollInput, setRollInput] = useState<string>();
 
   const [rollToSeries, setRollToSeries] = useState<ISeries|null>(null);
+
+  const [maxRepay, setMaxRepay] = useState<string|undefined>();
+  const [maxCollat, setMaxCollat] = useState<string|undefined>();
+
+  const [repayError, setRepayError] = useState<string|null>(null);
+  const [borrowError, setBorrowError] = useState<string|null>(null);
+  const [collatError, setCollatError] = useState<string|null>(null);
+  const [rollError, setRollError] = useState<string|null>(null);
+
+  const [repayDisabled, setRepayDisabled] = useState<boolean>(true);
+  const [rollDisabled, setRollDisabled] = useState<boolean>(true);
 
   /* HOOK FNS */
 
@@ -49,25 +63,107 @@ const Vault = () => {
 
   const handleRepay = () => {
     activeVault &&
-    repay(activeVault, inputValue?.toString());
+    repay(activeVault, repayInput?.toString());
   };
-  const handleBorrowMore = () => {
+  const handleBorrow = () => {
     activeVault &&
     borrow(activeVault, borrowInput, '0');
   };
   const handleCollateral = (action: 'ADD'|'REMOVE') => {
     const remove: boolean = (action === 'REMOVE');
     if (activeVault) {
-      !remove && addCollateral(activeVault, collateralInput);
-      remove && removeCollateral(activeVault, collateralInput);
+      !remove && addCollateral(activeVault, collatInput);
+      remove && removeCollateral(activeVault, collatInput);
     }
   };
-  const handleRollDebt = () => {
+  const handleRoll = () => {
     rollToSeries && activeVault &&
     rollDebt(activeVault, rollToSeries, '0');
   };
 
-  /* init effects */
+  /* SET MAX VALUES */
+
+  useEffect(() => {
+    /* CHECK the max available repay */
+    if (activeAccount) {
+      (async () => {
+        const _maxToken = await selectedBase?.getBalance(activeAccount);
+        const _max = (_maxToken && activeVault?.art.gt(_maxToken)) ? _maxToken : activeVault?.art;
+        _max && setMaxRepay(ethers.utils.formatEther(_max)?.toString());
+      })();
+    }
+  }, [activeAccount, activeVault?.art, selectedBase, setMaxRepay]);
+
+  useEffect(() => {
+    /* CHECK collateral selection and sets the max available collateral */
+    activeAccount &&
+    (async () => {
+      const _max = await selectedIlk?.getBalance(activeAccount);
+      _max && setMaxCollat(ethers.utils.formatEther(_max)?.toString());
+    })();
+  }, [activeAccount, selectedIlk, setMaxCollat]);
+
+  /* WATCH FOR WARNINGS AND ERRORS */
+
+  /* CHECK for any repay input errors/warnings */
+  useEffect(() => {
+    if (repayInput || repayInput === '') {
+      /* 1. Check if input exceeds balance */
+      if (maxRepay && parseFloat(repayInput) > parseFloat(maxRepay)) setRepayError('Repay amount exceeds debt');
+      /* 2. Check if input is above zero */
+      else if (parseFloat(repayInput) < 0) setRepayError('Amount should be expressed as a positive value');
+      /* 3. next check */
+      else if (false) setRepayError('Undercollateralised');
+      /* if all checks pass, set null error message */
+      else {
+        setRepayError(null);
+      }
+    }
+  }, [repayInput, maxRepay, setRepayError]);
+
+  /* CHECK for any roll debt input errors/warnings */
+  useEffect(() => {
+    if (rollInput || rollInput === '') {
+      /* 1. Check if input exceeds balance */
+      if (maxRepay && parseFloat(rollInput) > parseFloat(maxRepay)) setRollError('Roll Amount exceeds debt');
+      /* 2. Check if input is above zero */
+      else if (parseFloat(rollInput) < 0) setRollError('Amount should be expressed as a positive value');
+      /* 3. next check */
+      else if (false) setRollError('Undercollateralised');
+      /* if all checks pass, set null error message */
+      else {
+        setRollError(null);
+      }
+    }
+  }, [rollInput, maxRepay, setRollError]);
+
+  /* CHECK for any collateral input errors/warnings */
+  useEffect(() => {
+    if (collatInput || collatInput === '') {
+      /* 1. Check if input exceeds balance */
+      if (maxCollat && parseFloat(collatInput) > parseFloat(maxCollat)) setCollatError('Amount exceeds balance');
+      /* 2. Check if input is above zero */
+      else if (parseFloat(collatInput) < 0) setCollatError('Amount should be expressed as a positive value');
+      /* 3. next check */
+      else if (false) setCollatError('Undercollateralised');
+      /* if all checks pass, set null error message */
+      else {
+        setCollatError(null);
+      }
+    }
+  }, [collatInput, maxCollat, setCollatError]);
+
+  /* ACTION DISABLING LOGIC */
+
+  useEffect(() => {
+    /* if ANY of the following conditions are met: block action */
+    (!repayInput || repayError) ? setRepayDisabled(true) : setRepayDisabled(false);
+    (!rollInput || rollError) ? setRollDisabled(true) : setRollDisabled(false);
+  },
+  [repayInput, repayError, collatInput, rollInput, rollError]);
+
+  /* EXTRA INITIATIONS */
+
   useEffect(() => {
     setAvailableVaults(Array.from(vaultMap.values())); // add some filtering here
   }, [vaultMap, activeVault]);
@@ -96,57 +192,68 @@ const Vault = () => {
 
           <Box direction="row" justify="between" gap="small">
             <Text size="small"> Maturity date: </Text>
-            <Text size="small"> { series?.displayName } </Text>
+            <Text size="small"> { selectedSeries?.displayName } </Text>
           </Box>
         </Box>
 
-        <InfoBite label="Vault debt:" value={`${activeVault?.art_} ${base?.symbol}`} />
-        <InfoBite label="Collateral posted:" value={`${activeVault?.ink_} ${ilk?.symbol}`} />
+        <InfoBite label="Vault debt:" value={`${activeVault?.art_} ${selectedBase?.symbol}`} />
+        <InfoBite label="Collateral posted:" value={`${activeVault?.ink_} ${selectedIlk?.symbol}`} />
 
       </Box>
 
       <MainViewWrap>
-        <SectionWrap title="Repay debt">
-          <Box gap="small" fill direction="row" align="center">
-            <InputWrap basis="65%" action={() => console.log('maxAction')}>
+
+        <SectionWrap title="[ Repay debt ]">
+
+          <Box gap="small" fill="horizontal" direction="row" align="center">
+            <InputWrap action={() => console.log('maxAction')} isError={repayError}>
               <TextInput
                 plain
                 type="number"
-                placeholder={<PlaceholderWrap label="Enter amount to Repay" />}
+                placeholder="Enter amount to Repay"
                 // ref={(el:any) => { el && !repayOpen && !rateLockOpen && !mobile && el.focus(); setInputRef(el); }}
-                value={inputValue || ''}
-                onChange={(event:any) => setInputValue(cleanValue(event.target.value))}
+                value={repayInput || ''}
+                onChange={(event:any) => setRepayInput(cleanValue(event.target.value))}
               />
-              <Box onClick={() => console.log('max clicked ')} pad="xsmall">
-                <Text size="xsmall" color="text">MAX</Text>
-              </Box>
+              <MaxButton
+                action={() => setRepayInput(maxRepay)}
+              />
             </InputWrap>
-            <Box basis="35%">
-              <ActionButtonGroup buttonList={[
-                <Button
-                  primary
-                  label={<Text size={mobile ? 'small' : undefined}> {`Repay ${inputValue || ''} Dai`} </Text>}
-                  key="primary"
-                  onClick={() => handleRepay()}
-                />,
-              ]}
-              />
-            </Box>
           </Box>
+
+          <ActionButtonGroup buttonList={[
+            <Button
+              primary
+              label={<Text size={mobile ? 'small' : undefined}> {`Repay ${repayInput || ''} Dai`} </Text>}
+              key="primary"
+              onClick={() => handleRepay()}
+              disabled={repayDisabled}
+            />,
+          ]}
+          />
 
         </SectionWrap>
 
-        <SectionWrap
-          title="Roll debt to:"
-          border={{
-            color: 'grey',
-            style: 'dashed',
-            side: 'all',
-          }}
-        >
+        <SectionWrap title="[ Roll Position ]">
+
+          <Box direction="row" gap="small" fill="horizontal" align="start">
+            <InputWrap action={() => console.log('maxAction')} isError={rollError}>
+              <TextInput
+                plain
+                type="number"
+                placeholder="fyToken Amount" // {`${selectedBase?.symbol} to roll`}
+                value={rollInput || ''}
+                onChange={(event:any) => setRollInput(cleanValue(event.target.value))}
+              />
+              <MaxButton
+                action={() => setRollInput(maxRepay)}
+              />
+            </InputWrap>
+          </Box>
+
           <Box gap="small" fill="horizontal" direction="row" align="center">
 
-            <SeriesSelector selectSeriesLocally={(_series:ISeries) => setRollToSeries(_series)} />
+            <SeriesSelector selectSeriesLocally={(series:ISeries) => setRollToSeries(series)} />
 
             <Box basis="35%">
               <ActionButtonGroup buttonList={[
@@ -154,7 +261,8 @@ const Vault = () => {
                   primary
                   label={<Text size={mobile ? 'small' : undefined}> Roll </Text>}
                   key="primary"
-                  onClick={() => handleRollDebt()}
+                  onClick={() => handleRoll()}
+                  disabled={rollDisabled}
                 />,
               ]}
               />
@@ -162,16 +270,10 @@ const Vault = () => {
           </Box>
         </SectionWrap>
 
-        <SectionWrap
-          title="Borrow more"
-          border={{
-            color: 'grey',
-            style: 'dashed',
-            side: 'all',
-          }}
-        >
+        <SectionWrap title="[ Borrow more ]">
+
           <Box gap="small" fill="horizontal" direction="row" align="center">
-            <InputWrap basis="65%" action={() => console.log('maxAction')}>
+            <InputWrap basis="65%" action={() => console.log('maxAction')} isError={borrowError}>
               <TextInput
                 plain
                 type="number"
@@ -187,7 +289,7 @@ const Vault = () => {
                   primary
                   label={<Text size={mobile ? 'small' : undefined}> Borrow </Text>}
                   key="primary"
-                  onClick={() => handleBorrowMore()}
+                  onClick={() => handleBorrow()}
                 />,
               ]}
               />
@@ -196,23 +298,18 @@ const Vault = () => {
         </SectionWrap>
 
         <SectionWrap
-          title="Manage Collateral"
-          border={{
-            color: 'grey',
-            style: 'dashed',
-            side: 'all',
-          }}
+          title="[ Manage Collateral ]"
         >
 
           <Box gap="small" fill="horizontal" direction="row" align="center">
-            <InputWrap basis="65%" action={() => console.log('maxAction')}>
+            <InputWrap basis="65%" action={() => console.log('maxAction')} isError={collatError}>
               <TextInput
                 plain
                 type="number"
                 placeholder={<PlaceholderWrap label="Amount to add/remove" />}
                 // ref={(el:any) => { el && !repayOpen && !rateLockOpen && !mobile && el.focus(); setInputRef(el); }}
-                value={collateralInput || ''}
-                onChange={(event:any) => setCollateralInput(cleanValue(event.target.value))}
+                value={collatInput || ''}
+                onChange={(event:any) => setCollatInput(cleanValue(event.target.value))}
               />
             </InputWrap>
             <Box basis="35%">
