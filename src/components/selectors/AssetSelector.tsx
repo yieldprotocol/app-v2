@@ -39,7 +39,11 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   };
 
   return (
-    <Box fill round="xsmall" border={!(selectCollateral && !selectedSeriesId)}>
+    <Box
+      fill
+      round="xsmall"
+      border={(selectCollateral && !selectedSeriesId) ? { color: 'text-xweak' } : true}
+    >
       <Select
         plain
         id="assetSelectc"
