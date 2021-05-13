@@ -147,7 +147,8 @@ function Pool() {
 
     <MainViewWrap>
 
-      <SectionWrap title="1. Asset to Pool" subtitle="Choose an asset and series to pool">
+      <SectionWrap title="1. Asset to Pool">
+
         <Box direction="row" gap="small" fill="horizontal" align="start">
           <InputWrap action={() => console.log('maxAction')} isError={poolError}>
             <TextInput
@@ -169,7 +170,8 @@ function Pool() {
 
       </SectionWrap>
 
-      <SectionWrap title={`2. Select a series ${mobile ? '' : '(maturity date)'} `}>
+      <SectionWrap title="2. Select a series">
+
         <SeriesSelector />
         <Box justify="evenly" gap="small" fill="horizontal" direction="row-responsive">
           {
@@ -177,43 +179,41 @@ function Pool() {
             <InfoBite label="Your pool tokens" value={selectedSeries?.poolTokens_!} />
           }
         </Box>
+
       </SectionWrap>
 
-      <Box direction="row" justify="between">
-        {!mobile && <Text size="small"> Pooling strategy: </Text>}
-        <RadioButtonGroup
-          name="strategy"
-          options={[
-            { label: <Text size="small"> Buy & Pool </Text>, value: 'BUY' },
-            { label: <Text size="small"> Mint & Pool </Text>, value: 'MINT', disabled: true },
-          ]}
-          value={strategy}
-          onChange={(event:any) => setStrategy(event.target.value)}
-          direction="row"
-          justify="between"
+      <SectionWrap>
+
+        <Box direction="row" justify="between" fill align="center">
+          {!mobile && <Text size="small"> Pooling strategy: </Text>}
+          <RadioButtonGroup
+            name="strategy"
+            options={[
+              { label: <Text size="small"> Buy & Pool </Text>, value: 'BUY' },
+              { label: <Text size="small"> Mint & Pool </Text>, value: 'MINT', disabled: true },
+            ]}
+            value={strategy}
+            onChange={(event:any) => setStrategy(event.target.value)}
+            direction="row"
+            justify="between"
+          />
+        </Box>
+
+        <ActionButtonGroup buttonList={[
+          <Button
+            primary
+            label={<Text size={mobile ? 'small' : undefined}> {`Pool ${poolInput || ''} Dai`}</Text>}
+            key="primary"
+            onClick={() => handleAdd()}
+            disabled={poolDisabled}
+          />,
+
+        ]}
         />
-      </Box>
+      </SectionWrap>
 
-      <ActionButtonGroup buttonList={[
-        <Button
-          primary
-          label={<Text size={mobile ? 'small' : undefined}> {`Pool ${poolInput || ''} Dai`}</Text>}
-          key="primary"
-          onClick={() => handleAdd()}
-          disabled={poolDisabled}
-        />,
+      <SectionWrap title="[ Remove Liquidity ]">
 
-      ]}
-      />
-
-      <SectionWrap
-        title="Remove Liquidity:"
-        border={{
-          color: 'grey',
-          style: 'dashed',
-          side: 'all',
-        }}
-      >
         <Box direction="row" gap="small" fill="horizontal" align="start">
           <InputWrap action={() => console.log('maxAction')} isError={removeError}>
             <TextInput
@@ -245,14 +245,8 @@ function Pool() {
 
       </SectionWrap>
 
-      <SectionWrap
-        title="Roll Liquidity to:"
-        border={{
-          color: 'grey',
-          style: 'dashed',
-          side: 'all',
-        }}
-      >
+      <SectionWrap title="[ Roll Liquidity to ]">
+
         <Box direction="row" gap="small" fill="horizontal">
           <InputWrap action={() => console.log('maxAction')} isError={rollError}>
             <TextInput

@@ -132,7 +132,7 @@ const Borrow = () => {
 
       <MainViewWrap>
 
-        <SectionWrap title="1. Asset to Borrow" subtitle="Choose an asset and period to borrow for">
+        <SectionWrap title="1. Choose an Asset to Borrow">
 
           <Box direction="row" gap="small" fill="horizontal">
             <InputWrap action={() => console.log('maxAction')} isError={borrowError}>

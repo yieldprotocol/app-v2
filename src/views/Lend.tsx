@@ -84,7 +84,7 @@ const Lend = () => {
   /* WATCH FOR WARNINGS AND ERRORS */
 
   useEffect(() => {
-    /* CHECK for any lendInput errors */
+    /* lendInput errors */
     if (activeAccount && (lendInput || lendInput === '')) {
       /* 1. Check if input exceeds balance */
       if (maxLend && parseFloat(lendInput) > parseFloat(maxLend)) setLendError('Amount exceeds balance');
@@ -100,7 +100,7 @@ const Lend = () => {
   }, [activeAccount, lendInput, maxLend, setLendError]);
 
   useEffect(() => {
-    /* CHECK for any closeInput errors */
+    /* closeInput errors */
     if (activeAccount && (closeInput || closeInput === '')) {
       /* 1. Check if input exceeds fyToken balance */
       if (maxClose && parseFloat(closeInput) > parseFloat(maxClose)) setCloseError('Amount exceeds available fyToken balance');
@@ -113,7 +113,7 @@ const Lend = () => {
         setCloseError(null);
       }
     }
-    /* CHECK for any rollInput errors */
+    /* rollInput errors */
     if (activeAccount && (rollInput || rollInput === '')) {
       /* 1. Check if input exceeds fyToken balance */
       if (maxClose && parseFloat(rollInput) > parseFloat(maxClose)) setRollError('Amount exceeds available fyToken balance');
@@ -145,7 +145,7 @@ const Lend = () => {
   return (
     <MainViewWrap>
 
-      <SectionWrap title="1. Asset to Lend" subtitle="Choose an asset and period to lend for">
+      <SectionWrap title="1. Asset to Lend">
 
         <Box direction="row" gap="small" fill="horizontal" align="start">
           <InputWrap action={() => console.log('maxAction')} isError={lendError}>
@@ -167,7 +167,7 @@ const Lend = () => {
         </Box>
       </SectionWrap>
 
-      <SectionWrap title={`2. Select a series ${mobile ? '' : '(maturity date)'} `}>
+      <SectionWrap title="2. Select a series">
         <SeriesSelector />
         <Box justify="evenly" gap="small" fill="horizontal" direction="row-responsive">
           {
@@ -194,12 +194,7 @@ const Lend = () => {
       />
 
       <SectionWrap
-        title="Close position"
-        border={{
-          color: 'grey',
-          style: 'dashed',
-          side: 'all',
-        }}
+        title=" [ Close position ]"
       >
         <Box direction="row" gap="small" fill="horizontal" align="start">
           <InputWrap action={() => console.log('maxAction')} isError={closeError} disabled={!selectedSeriesId}>
@@ -216,7 +211,6 @@ const Lend = () => {
               disabled={maxClose === '0.0' || !selectedSeriesId}
             />
           </InputWrap>
-          {/* <Text> {selectedBase?.symbol} </Text> */}
         </Box>
 
         <ActionButtonGroup buttonList={[
@@ -232,12 +226,7 @@ const Lend = () => {
       </SectionWrap>
 
       <SectionWrap
-        title="Roll Position to:"
-        border={{
-          color: 'grey',
-          style: 'dashed',
-          side: 'all',
-        }}
+        title="[ Roll Position ]"
       >
 
         <Box direction="row" gap="small" fill="horizontal" align="start">
