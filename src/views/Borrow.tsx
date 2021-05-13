@@ -44,6 +44,10 @@ const Borrow = () => {
 
   const { borrow } = useBorrowActions();
 
+  /**
+   * HANDLE ACTIONS FNS
+   */
+
   const handleBorrow = () => {
     !borrowDisabled &&
     borrow(
@@ -53,27 +57,22 @@ const Borrow = () => {
     );
   };
 
-  /* CHECK list of current vaults matching the current selection */
-  useEffect(() => {
-    if (selectedBaseId && selectedSeriesId && selectedIlkId) {
-      const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
-      const _matchingVaults = arr.filter((v:IVault) => (
-        v.ilkId === selectedIlkId &&
-        v.baseId === selectedBaseId &&
-        v.seriesId === selectedSeriesId
-      ));
-      setMatchingVaults(_matchingVaults);
-    }
-  }, [vaultMap, selectedBaseId, selectedIlkId, selectedSeriesId]);
+  /**
+   * SET MAX VALUES
+   * */
 
-  /* CHECK collateral selection and sets the max available collateral */
   useEffect(() => {
+    /* CHECK collateral selection and sets the max available collateral */
     activeAccount &&
     (async () => {
       const _max = await selectedIlk?.getBalance(activeAccount);
       _max && setMaxCollateral(ethers.utils.formatEther(_max)?.toString());
     })();
   }, [activeAccount, selectedIlk, setMaxCollateral]);
+
+  /**
+   * CHECK WARNINGS AND ERRORS
+   * */
 
   /* CHECK for any collateral input errors/warnings */
   useEffect(() => {
@@ -82,7 +81,7 @@ const Borrow = () => {
       if (maxCollateral && parseFloat(collatInput) > parseFloat(maxCollateral)) setCollatError('Amount exceeds balance');
       /* 2. Check if input is above zero */
       else if (parseFloat(collatInput) < 0) setCollatError('Amount should be expressed as a positive value');
-      /* 2. Check if input is higher than collateralization rate */
+      /* 3. next check */
       else if (false) setCollatError('Undercollateralised');
       /* if all checks pass, set null error message */
       else {
@@ -91,7 +90,10 @@ const Borrow = () => {
     }
   }, [activeAccount, collatInput, maxCollateral, setCollatError]);
 
-  /* Action disabling logic: */
+  /**
+   * ACTION DISABLING LOGIC
+   * */
+
   useEffect(() => {
     /* if ANY of the following conditions are met: block action */
     (
@@ -105,13 +107,24 @@ const Borrow = () => {
     /* else if all pass, then unlock borrowing */
       : setBorrowDisabled(false);
   },
-  [
-    borrowInput,
-    collatInput,
-    selectedSeriesId,
-    selectedIlkId,
-    activeAccount,
-  ]);
+  [borrowInput, collatInput, selectedSeriesId, selectedIlkId, activeAccount]);
+
+  /**
+   * EXTRAS
+   * */
+
+  /* CHECK the list of current vaults which match the current series/ilk selection */
+  useEffect(() => {
+    if (selectedBaseId && selectedSeriesId && selectedIlkId) {
+      const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
+      const _matchingVaults = arr.filter((v:IVault) => (
+        v.ilkId === selectedIlkId &&
+          v.baseId === selectedBaseId &&
+          v.seriesId === selectedSeriesId
+      ));
+      setMatchingVaults(_matchingVaults);
+    }
+  }, [vaultMap, selectedBaseId, selectedIlkId, selectedSeriesId]);
 
   return (
 
