@@ -158,10 +158,8 @@ const ChainProvider = ({ children }: any) => {
       (async () => {
         test = await fallbackLibrary.getBalance('0x885Bc35dC9B10EA39f2d7B3C94a7452a9ea442A7');
       })();
-
-      console.log(test);
-
-      console.log(fallbackChainId, chainId);
+      console.log('Fallback ChainId: ', fallbackChainId);
+      console.log('ChainId: ', chainId);
 
       /* Update the 'dynamic' contracts (series and assets) */
       Promise.all([
@@ -262,8 +260,8 @@ const ChainProvider = ({ children }: any) => {
       ])
         .then(() => {
           updateState({ type: 'chainLoading', payload: false });
-          console.log('ASSETS:', chainState.assetRootMap);
-          console.log('SERIES:', chainState.seriesRootMap);
+          console.log('ASSETS (static data):', chainState.assetRootMap);
+          console.log('SERIES (static data):', chainState.seriesRootMap);
         });
     }
   }, [

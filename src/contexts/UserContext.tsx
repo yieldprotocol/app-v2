@@ -157,40 +157,59 @@ const UserProvider = ({ children }:any) => {
 
     const _combinedData = _accountData.length ? _accountData : _publicData;
 
-    /* combined account and public series data  reduced into a single Map */
-    const newseriesRootMap = new Map(_combinedData.reduce((acc:any, item:any) => {
+    /* combined account and public series data reduced into a single Map */
+    const newSeriesMap = new Map(_combinedData.reduce((acc:any, item:any) => {
       const _map = acc;
       _map.set(item.id, item);
       return _map;
     }, userState.seriesMap));
 
-    updateState({ type: 'seriesMap', payload: newseriesRootMap });
-    console.log('Series with user data: ', newseriesRootMap);
-    return newseriesRootMap;
+    updateState({ type: 'seriesMap', payload: newSeriesMap });
+    console.log('SERIES (with dynamic data): ', newSeriesMap);
+    return newSeriesMap;
   }, [account]);
 
   /* Updates the assets with relevant *user* data */
   const updateAssets = useCallback(async (assetList: IAssetRoot[]) => {
-    /* add in the dynamic asset data of the assets in the list */
-    const assetListMod = await Promise.all(
-      assetList.map(async (asset:IAssetRoot) : Promise<IAsset> => {
-        const balance = await asset.getBalance(account);
+    let _publicData : IAssetRoot[] = [];
+    let _accountData : IAsset[] = [];
+
+    _publicData = await Promise.all(
+      assetList.map(async (asset:IAssetRoot) : Promise<IAssetRoot> => {
+        const rate = 'rate';
         return {
           ...asset,
-          balance: balance || ethers.constants.Zero,
-          balance_: cleanValue(ethers.utils.formatEther(balance), 2), // for display purposes only
         };
       }),
     );
-      /* get the previous version (Map) of the vaultMap and update it */
-    const newassetRootMap = new Map(assetListMod.reduce((acc:any, item:any) => {
+
+    /* add in the dynamic asset data of the assets in the list */
+    if (account) {
+      _accountData = await Promise.all(
+        _publicData.map(async (asset:IAssetRoot) : Promise<IAsset> => {
+          const balance = await asset.getBalance(account);
+          return {
+            ...asset,
+            balance: balance || ethers.constants.Zero,
+            balance_: balance
+              ? cleanValue(ethers.utils.formatEther(balance), 2)
+              : cleanValue(ethers.utils.formatEther(ethers.constants.Zero)), // for display purposes only
+          };
+        }),
+      );
+    }
+
+    const _combinedData = _accountData.length ? _accountData : _publicData;
+
+    /* get the previous version (Map) of the vaultMap and update it */
+    const newAssetMap = new Map(_combinedData.reduce((acc:any, item:any) => {
       const _map = acc;
       _map.set(item.id, item);
       return _map;
     }, userState.assetMap));
 
-    updateState({ type: 'assetMap', payload: newassetRootMap });
-    console.log('Assets with user data: ', newassetRootMap);
+    updateState({ type: 'assetMap', payload: newAssetMap });
+    console.log('ASSETS (with dynamic data): ', newAssetMap);
   }, [account]);
 
   /* Updates the vaults with *user* data */
@@ -223,14 +242,16 @@ const UserProvider = ({ children }:any) => {
   }, [contractMap, vaultFromUrl]);
 
   useEffect(() => {
-    /* When the chainContext is finished loading get the dynamic series data */
-    !chainLoading &&
-    Array.from(seriesRootMap.values()).length &&
-    updateSeries(Array.from(seriesRootMap.values()));
+    /* When the chainContext is finished loading get the dynamic series and asset data */
+    if (!chainLoading) {
+      Array.from(seriesRootMap.values()).length && updateSeries(Array.from(seriesRootMap.values()));
+      Array.from(assetRootMap.values()).length && updateAssets(Array.from(assetRootMap.values()));
+    }
   }, [
     account,
     chainLoading,
     seriesRootMap, updateSeries,
+    assetRootMap, updateAssets,
   ]);
 
   useEffect(() => {
