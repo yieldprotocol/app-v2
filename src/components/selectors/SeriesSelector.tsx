@@ -32,8 +32,10 @@ function SeriesSelector({ selectSeriesLocally }: ISeriesSelectorProps) {
     let filteredOpts = opts.filter((_series:ISeries) => _series.baseId === selectedBaseId);
     /* if required, filter out the globally selected asset */
     if (selectSeriesLocally) filteredOpts = filteredOpts.filter((_series:ISeries) => _series.id !== selectedSeriesId);
+    /* if there are no options available, set the selected series to null. */
+    if (selectedSeriesId && !filteredOpts.length) userActions.setSelectedSeries(null);
     setOptions(filteredOpts);
-  }, [seriesMap, selectedBaseId, selectSeriesLocally, selectedSeriesId]);
+  }, [seriesMap, selectedBaseId, selectSeriesLocally, selectedSeriesId, userActions]);
 
   const handleSelect = (id:string) => {
     if (!selectSeriesLocally) {
