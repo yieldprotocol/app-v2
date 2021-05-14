@@ -80,8 +80,15 @@ export const useBorrowActions = () => {
       },
     ], txCode);
 
+    console.log('ETH BASED ILK :', ETH_BASED_ASSETS.includes(selectedIlkId));
+
+    console.log(_collInput, _input, MAX_128);
+
     /* Collate all the calls required for the process (including depositing ETH, signing permits, and building vault if needed) */
     const calls: ICallData[] = [
+
+      /* Include all the signatures gathered, if required */
+      ...permits,
 
       /* If vault is null, build a new vault, else ignore */
       {
@@ -92,8 +99,6 @@ export const useBorrowActions = () => {
       },
       /* handle ETH deposit, if required */
       ..._addEth(_collInput, series),
-      /* Include all the signatures gathered, if required */
-      ...permits,
       {
         operation: VAULT_OPS.SERVE,
         args: [vaultId, account, _collInput, _input, MAX_128],
