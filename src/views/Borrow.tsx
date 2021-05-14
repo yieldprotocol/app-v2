@@ -148,7 +148,7 @@ const Borrow = () => {
 
         <SectionWrap title="1. Choose an Asset to Borrow">
 
-          <Box direction="row" gap="small" fill="horizontal">
+          <Box direction="row" gap="small" fill="horizontal" align="start">
             <InputWrap action={() => console.log('maxAction')} isError={borrowError}>
               <TextInput
                 plain
@@ -159,7 +159,7 @@ const Borrow = () => {
                 autoFocus={!mobile}
               />
             </InputWrap>
-            <Box basis={mobile ? '50%' : '35%'} fill>
+            <Box basis={mobile ? '50%' : '35%'}>
               <AssetSelector />
             </Box>
           </Box>
