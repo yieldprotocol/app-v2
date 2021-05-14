@@ -30,10 +30,16 @@ function SeriesSelector({ selectSeriesLocally }: ISeriesSelectorProps) {
     const opts = Array.from(seriesMap.values()) as ISeries[];
     /* filter out options based on base Id */
     let filteredOpts = opts.filter((_series:ISeries) => _series.baseId === selectedBaseId);
+
     /* if required, filter out the globally selected asset */
     if (selectSeriesLocally) filteredOpts = filteredOpts.filter((_series:ISeries) => _series.id !== selectedSeriesId);
-    /* if there are no options available, set the selected series to null. */
-    if (selectedSeriesId && !filteredOpts.length) userActions.setSelectedSeries(null);
+
+    /* if current selected series is NOT in the list of available series (for a particular base), set the selected series to null. */
+    if (
+      selectedSeriesId &&
+      filteredOpts.findIndex((_series:ISeries) => _series.id !== selectedSeriesId) < 0
+    ) userActions.setSelectedSeries(null);
+
     setOptions(filteredOpts);
   }, [seriesMap, selectedBaseId, selectSeriesLocally, selectedSeriesId, userActions]);
 
