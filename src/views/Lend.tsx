@@ -51,16 +51,19 @@ const Lend = () => {
   /* LOCAL FNS */
 
   const handleLend = () => {
-    // !lendDisabled &&
-    selectedSeries && lend(lendInput, selectedSeries);
+    !lendDisabled &&
+    lend(lendInput, selectedSeries!);
+    setLendInput('');
   };
   const handleClosePosition = () => {
-    // !lendDisabled &&
-    selectedSeries && closePosition(closeInput, selectedSeries);
+    !closeDisabled &&
+    closePosition(closeInput, selectedSeries!);
+    setCloseInput('');
   };
   const handleRollPosition = () => {
-    // !lendDisabled &&
-    selectedSeries && rollToSeries && rollPosition(rollInput, selectedSeries, rollToSeries);
+    !rollDisabled &&
+    rollToSeries && rollPosition(rollInput, selectedSeries!, rollToSeries);
+    setRollInput('');
   };
 
   /* SET MAX VALUES */
@@ -135,12 +138,21 @@ const Lend = () => {
   }, [lendInput, activeAccount, lendError, selectedSeriesId]);
 
   useEffect(() => {
-    (!activeAccount || !closeInput || closeError) ? setCloseDisabled(true) : setCloseDisabled(false);
+    (
+      !activeAccount ||
+      !closeInput ||
+      closeError
+    ) ? setCloseDisabled(true) : setCloseDisabled(false);
   }, [closeInput, activeAccount, closeError]);
 
   useEffect(() => {
-    (!activeAccount || !rollInput || rollError) ? setRollDisabled(true) : setRollDisabled(false);
-  }, [rollInput, activeAccount, rollError]);
+    (
+      !activeAccount ||
+      !rollInput ||
+      !rollToSeries ||
+      rollError
+    ) ? setRollDisabled(true) : setRollDisabled(false);
+  }, [rollInput, activeAccount, rollError, rollToSeries]);
 
   return (
     <MainViewWrap>
@@ -183,6 +195,7 @@ const Lend = () => {
           label={<Text size={mobile ? 'small' : undefined}> {`Supply ${lendInput || ''} ${selectedBase?.symbol || ''}`} </Text>}
           key="primary"
           onClick={() => handleLend()}
+          disabled={lendDisabled}
         />,
         // <Button
         //   secondary
@@ -219,7 +232,7 @@ const Lend = () => {
             label={<Text size={mobile ? 'small' : undefined}>Close Position</Text>}
             key="secondary"
             onClick={() => handleClosePosition()}
-            disabled={maxClose === '0.0' || !selectedSeriesId}
+            disabled={closeDisabled}
           />,
         ]}
         />
@@ -257,7 +270,7 @@ const Lend = () => {
                 label={<Text size={mobile ? 'small' : undefined}> Roll </Text>}
                 key="primary"
                 onClick={() => handleRollPosition()}
-                disabled={maxClose === '0.0' || !selectedSeriesId}
+                disabled={rollDisabled}
               />,
             ]}
             />
