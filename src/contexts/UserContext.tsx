@@ -283,9 +283,9 @@ const UserProvider = ({ children }:any) => {
     updateAssets,
     updateVaults,
     setSelectedVault: (vaultId:string|null) => updateState({ type: 'selectedVaultId', payload: vaultId }),
-    setSelectedIlk: (assetId:string) => updateState({ type: 'selectedIlkId', payload: assetId }),
-    setSelectedSeries: (seriesId:string) => updateState({ type: 'selectedSeriesId', payload: seriesId }),
-    setSelectedBase: (assetId:string) => updateState({ type: 'selectedBaseId', payload: assetId }),
+    setSelectedIlk: (assetId:string|null) => updateState({ type: 'selectedIlkId', payload: assetId }),
+    setSelectedSeries: (seriesId:string|null) => updateState({ type: 'selectedSeriesId', payload: seriesId }),
+    setSelectedBase: (assetId:string|null) => updateState({ type: 'selectedBaseId', payload: assetId }),
   };
 
   return (
