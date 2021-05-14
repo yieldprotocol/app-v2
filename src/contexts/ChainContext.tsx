@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ContractFactory, ethers, providers } from 'ethers';
+import { ContractFactory, ethers } from 'ethers';
 import { useWeb3React } from '@web3-react/core';
 import { InjectedConnector } from '@web3-react/injected-connector';
 import { NetworkConnector } from '@web3-react/network-connector';
@@ -346,7 +346,7 @@ const ChainProvider = ({ children }: any) => {
     connectTest: () => activate(
       new NetworkConnector({
         urls: { 31337: RPC_URLS[31337], 1337: RPC_URLS[1337] },
-        defaultChainId: 31337,
+        defaultChainId: 42,
       }), (e:any) => console.log(e), true,
     ),
   };

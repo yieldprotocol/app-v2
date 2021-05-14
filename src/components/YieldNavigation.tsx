@@ -52,7 +52,7 @@ const YieldNavigation = ({ callbackFn }: IYieldNavigation) => {
     { label: 'Borrow', to: '/borrow' },
     { label: 'Lend', to: '/lend' },
     { label: 'Pool', to: '/pool' },
-    { label: 'Markets', to: '/markets' },
+    // { label: 'Markets', to: '/markets' },
   ];
 
   return (
