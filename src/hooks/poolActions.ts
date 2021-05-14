@@ -8,6 +8,7 @@ import { DAI_BASED_ASSETS, MAX_128, MAX_256 } from '../utils/constants';
 import { useChain } from './chainHooks';
 
 import { VAULT_OPS, POOLROUTER_OPS } from '../utils/operations';
+import { fyTokenForMint } from '../utils/yieldMath';
 
 /* Generic hook for chain transactions */
 export const usePoolActions = () => {
@@ -25,6 +26,14 @@ export const usePoolActions = () => {
   ) => {
     const txCode = getTxCode('090_', series.id);
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
+
+    const _fyTokenToBuy = fyTokenForMint(
+      series.baseReserves,
+      series.fyTokenRealReserves,
+      series.fyTokenReserves,
+      _input,
+      series.getTimeTillMaturity(),
+    );
 
     const permits: ICallData[] = await sign([
       {
@@ -50,14 +59,14 @@ export const usePoolActions = () => {
       // router.transferToPoolAction(pool.address, base.address, baseWithSlippage),
       {
         operation: POOLROUTER_OPS.TRANSFER_TO_POOL,
-        args: [series.getBaseAddress(), series.fyTokenAddress, series.getBaseAddress(), _input.toString()],
+        args: [series.getBaseAddress(), series.fyTokenAddress, series.getBaseAddress(), _input],
         series,
         ignore: strategy !== 'BUY',
       },
       // router.mintWithBaseTokenAction(pool.address, receiver, fyTokenToBuy, minLPReceived),
       {
         operation: POOLROUTER_OPS.ROUTE,
-        args: [account, _input.div(100), ethers.constants.Zero], // TODO calc min transfer slippage
+        args: [account, _fyTokenToBuy, ethers.constants.Zero], // TODO calc min transfer slippage
         fnName: 'mintWithBaseToken',
         series,
         ignore: strategy !== 'BUY',
@@ -84,7 +93,7 @@ export const usePoolActions = () => {
       // ladle.mintWithBaseTokenAction(seriesId, receiver, fyTokenToBuy, minLPReceived)
       {
         operation: VAULT_OPS.ROUTE,
-        args: [account, _input.div(100), ethers.constants.Zero],
+        args: [account, _fyTokenToBuy, ethers.constants.Zero],
         fnName: 'mintWithBaseToken',
         series,
         ignore: strategy !== 'MINT',
