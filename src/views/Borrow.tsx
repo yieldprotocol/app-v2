@@ -68,6 +68,20 @@ const Borrow = () => {
 
   /* WATCH FOR WARNINGS AND ERRORS */
 
+  /* CHECK for any borrow input errors/warnings */
+  useEffect(() => {
+    if (activeAccount && (borrowInput || borrowInput === '')) {
+      /* 1. Check if input exceeds amount available in pools */
+      if (false) setCollatError('Amount exceeds amount available in pool');
+      /* 2. Check if input is above zero */
+      else if (parseFloat(borrowInput) < 0) setBorrowError('Amount should be expressed as a positive value');
+      /* if all checks pass, set null error message */
+      else {
+        setBorrowError(null);
+      }
+    }
+  }, [activeAccount, borrowInput, setBorrowError]);
+
   /* CHECK for any collateral input errors/warnings */
   useEffect(() => {
     if (activeAccount && (collatInput || collatInput === '')) {

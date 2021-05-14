@@ -100,7 +100,7 @@ export const useCollateralActions = () => {
         args: [
           vaultId,
           _pourTo, /* pour destination based on ilk/asset is an eth asset variety */
-          _input.toString(),
+          _input,
           ethers.constants.Zero,
         ],
         series,
@@ -136,7 +136,7 @@ export const useCollateralActions = () => {
         args: [
           vault.id,
           _pourTo, /* pour destination based on ilk/asset is an eth asset variety */
-          _input.toString(),
+          _input,
           ethers.constants.Zero,
         ],
         series,
