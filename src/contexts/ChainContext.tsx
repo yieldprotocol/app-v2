@@ -251,8 +251,10 @@ const ChainProvider = ({ children }: any) => {
                   poolAddress,
                   poolContract,
                   // built-in helper functions:
-                  getBaseAddress: () => chainState.assetRootMap.get(baseId).address, // TODO refactor to get this static - if possible?
+                  getTimeTillMaturity: () => (maturity - Math.round(new Date().getTime() / 1000)),
                   isMature: () => (maturity < Math.round(new Date().getTime() / 1000)),
+
+                  getBaseAddress: () => chainState.assetRootMap.get(baseId).address, // TODO refactor to get this static - if possible?
                 } });
             }),
           ]);
