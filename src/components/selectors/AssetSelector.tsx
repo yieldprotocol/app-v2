@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, ResponsiveContext, Select, Text } from 'grommet';
+import Loader from 'react-spinners/ScaleLoader';
 
 import { IAssetRoot } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
@@ -18,7 +19,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   const selectedBase = assetMap.get(selectedBaseId);
 
   const [options, setOptions] = useState<IAssetRoot[]>([]);
-  const optionText = (asset: IAssetRoot | undefined) => `${asset?.symbol}` || '';
+  const optionText = (asset: IAssetRoot | undefined) => (asset?.symbol ? `${asset?.symbol}` : <Loader height="14" color="lightgrey" margin="0.5" />);
 
   useEffect(() => {
     const opts = Array.from(assetMap.values()) as IAssetRoot[];
