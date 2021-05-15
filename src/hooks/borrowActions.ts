@@ -60,6 +60,7 @@ export const useBorrowActions = () => {
     /* set the series and ilk based on if a vault has been selected or it's a new vault */
     const series = vault ? seriesMap.get(vault.seriesId) : seriesMap.get(selectedSeriesId);
     const ilk = vault ? assetMap.get(vault.ilkId) : assetMap.get(selectedIlkId);
+
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode('020_', vaultId);
 
@@ -79,10 +80,6 @@ export const useBorrowActions = () => {
         ignore: ETH_BASED_ASSETS.includes(selectedIlkId), /* Ignore if Eth varietal */
       },
     ], txCode);
-
-    console.log('ETH BASED ILK :', ETH_BASED_ASSETS.includes(selectedIlkId));
-
-    console.log(_collInput, _input, MAX_128);
 
     /* Collate all the calls required for the process (including depositing ETH, signing permits, and building vault if needed) */
     const calls: ICallData[] = [
@@ -111,8 +108,12 @@ export const useBorrowActions = () => {
 
     /* handle the transaction */
     await transact('Ladle', calls, txCode);
-    /* when complete, then update the changed elements */
-    vault && updateVaults([vault]);
+
+    /* When complete, update vaults.
+      If a vault was provided, update it only,
+      else update ALL vaults (by passing an empty array)
+    */
+    vault ? updateVaults([vault]) : updateVaults([]);
   };
 
   const repay = async (

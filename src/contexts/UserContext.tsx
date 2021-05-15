@@ -216,10 +216,15 @@ const UserProvider = ({ children }:any) => {
 
   /* Updates the vaults with *user* data */
   const updateVaults = useCallback(async (vaultList: IVaultRoot[]) => {
+    let _vaultList: IVaultRoot[] = vaultList;
+
+    /* if vaultList is empty, fetch complete Vaultlist from chain via _getVaults */
+    if (!vaultList.length) _vaultList = Array.from((await _getVaults()).values());
+
     const Cauldron = contractMap.get('Cauldron');
     /* add in the dynamic vault data by mapping the vaults list */
     const vaultListMod = await Promise.all(
-      vaultList.map(async (vault:IVaultRoot) : Promise<IVault> => {
+      _vaultList.map(async (vault:IVaultRoot) : Promise<IVault> => {
         /* update balance and series  ( series - because a vault can have been rolled to another series) */
         const [{ ink, art }, { seriesId }] = await Promise.all([
           await Cauldron.balances(vault.id),
@@ -265,7 +270,9 @@ const UserProvider = ({ children }:any) => {
   useEffect(() => {
     /* When the chainContext is finished loading get the users vault data */
     if (account && !chainLoading) {
-      _getVaults().then((_vaults:any) => updateVaults(Array.from(_vaults.values())));
+      /* trigger update of update all vaults by passing empty array */
+      updateVaults([]);
+      // _getVaults().then((_vaults:any) => updateVaults(Array.from(_vaults.values())));
     }
   }, [
     account, chainLoading,
