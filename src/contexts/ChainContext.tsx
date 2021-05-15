@@ -11,6 +11,7 @@ import * as contracts from '../contracts';
 import { IAssetRoot, ISeriesRoot } from '../types';
 import { nameFromMaturity } from '../utils/displayUtils';
 import { Pool } from '../contracts';
+import { ETH_BASED_ASSETS } from '../utils/constants';
 
 /* Set up web3react config */
 const POLLING_INTERVAL = 12000;
@@ -25,7 +26,7 @@ const connectors = new Map();
 connectors.set(
   'injected',
   new InjectedConnector({
-    supportedChainIds: [1, 1337, 31337],
+    supportedChainIds: [1, 42, 1337, 31337],
   }),
 );
 connectors.set(
@@ -153,6 +154,13 @@ const ChainProvider = ({ children }: any) => {
       newContractMap.set('PoolRouter', PoolRouter);
       updateState({ type: 'contractMap', payload: newContractMap });
 
+      let test :any;
+      (async () => {
+        test = await fallbackLibrary.getBalance('0x885Bc35dC9B10EA39f2d7B3C94a7452a9ea442A7');
+      })();
+      console.log('Fallback ChainId: ', fallbackChainId);
+      console.log('ChainId: ', chainId);
+
       /* Update the 'dynamic' contracts (series and assets) */
       Promise.all([
         /* Update the available assetsMap based on Cauldron events */
@@ -199,8 +207,10 @@ const ChainProvider = ({ children }: any) => {
                 symbol,
                 joinAddress: joinMap.get(id),
                 /* baked in token fns */
-                getBalance: async () => account && await ERC20.balanceOf(account),
-                getAllowance: async (spender:string) => account && await ERC20.allowance(account, spender),
+                getBalance: async (acc: string) => (ETH_BASED_ASSETS.includes(id)
+                  ? library?.getBalance(acc)
+                  : ERC20.balanceOf(acc)),
+                getAllowance: async (acc: string, spender:string) => ERC20.allowance(acc, spender),
               } });
           }));
         })(),
@@ -241,8 +251,10 @@ const ChainProvider = ({ children }: any) => {
                   poolAddress,
                   poolContract,
                   // built-in helper functions:
-                  getBaseAddress: () => chainState.assetRootMap.get(baseId).address, // TODO refactor to get this static - if possible?
+                  getTimeTillMaturity: () => (maturity - Math.round(new Date().getTime() / 1000)),
                   isMature: () => (maturity < Math.round(new Date().getTime() / 1000)),
+
+                  getBaseAddress: () => chainState.assetRootMap.get(baseId).address, // TODO refactor to get this static - if possible?
                 } });
             }),
           ]);
@@ -250,8 +262,8 @@ const ChainProvider = ({ children }: any) => {
       ])
         .then(() => {
           updateState({ type: 'chainLoading', payload: false });
-          console.log('ASSETS:', chainState.assetRootMap);
-          console.log('SERIES:', chainState.seriesRootMap);
+          console.log('ASSETS (static data):', chainState.assetRootMap);
+          console.log('SERIES (static data):', chainState.seriesRootMap);
         });
     }
   }, [
@@ -275,7 +287,7 @@ const ChainProvider = ({ children }: any) => {
    * Update on PRIMARY connection any network changes (likely via metamask/walletConnect)
    */
   useEffect(() => {
-    console.log('Metamask/WalletConnect Active: ', active);
+    console.log('Wallet/Account Active: ', active);
     updateState({ type: 'chainId', payload: chainId });
     updateState({ type: 'web3Active', payload: active });
     updateState({ type: 'provider', payload: library || null });
@@ -299,6 +311,10 @@ const ChainProvider = ({ children }: any) => {
         defaultChainId: _chainId,
       }), (e:any) => console.log(e), true,
     );
+
+    // eslint-disable-next-line no-restricted-globals
+    chainId && chainId !== lastChainId && location.reload();
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId, fallbackActivate, lastChainId, tried]);
 
@@ -322,16 +338,22 @@ const ChainProvider = ({ children }: any) => {
   /* If web3 connected, wait until we get confirmation of that to flip the flag */
   useEffect(() => { if (!tried && active) { setTried(true); } }, [tried, active]);
 
-  // /* Handle logic to recognize the connector currently being activated */
-  // const [activatingConnector, setActivatingConnector] = useState<any>();
-  // useEffect(() => {
-  //   (activatingConnector && activatingConnector === connector) && setActivatingConnector(undefined);
-  // }, [activatingConnector, connector]);
+  /* Handle logic to recognize the connector currently being activated */
+  const [activatingConnector, setActivatingConnector] = useState<any>();
+  useEffect(() => {
+    (activatingConnector && activatingConnector === connector) && setActivatingConnector(undefined);
+  }, [activatingConnector, connector]);
 
   const chainActions = {
     isConnected: (connection:string) => connectors.get(connection) === connector,
     connect: (connection:string = 'injected') => activate(connectors.get(connection)),
     disconnect: () => connector && deactivate(),
+    connectTest: () => activate(
+      new NetworkConnector({
+        urls: { 31337: RPC_URLS[31337], 1337: RPC_URLS[1337] },
+        defaultChainId: 42,
+      }), (e:any) => console.log(e), true,
+    ),
   };
 
   return (

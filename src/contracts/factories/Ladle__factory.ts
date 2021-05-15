@@ -2,16 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer } from "ethers";
+import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-
-import type { Ladle } from "../Ladle";
-
-export class Ladle__factory {
-  static connect(address: string, signerOrProvider: Signer | Provider): Ladle {
-    return new Contract(address, _abi, signerOrProvider) as Ladle;
-  }
-}
+import type { Ladle, LadleInterface } from "../Ladle";
 
 const _abi = [
   {
@@ -24,6 +17,19 @@ const _abi = [
     ],
     stateMutability: "nonpayable",
     type: "constructor",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "fee",
+        type: "uint256",
+      },
+    ],
+    name: "FeeSet",
+    type: "event",
   },
   {
     anonymous: false,
@@ -61,19 +67,6 @@ const _abi = [
       },
     ],
     name: "PoolAdded",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "poolRouter",
-        type: "address",
-      },
-    ],
-    name: "PoolRouterSet",
     type: "event",
   },
   {
@@ -227,6 +220,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "borrowingFee",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "cauldron",
     outputs: [
       {
@@ -350,19 +356,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "poolRouter",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [
       {
         internalType: "bytes6",
@@ -420,12 +413,30 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes4[]",
+        name: "roles",
+        type: "bytes4[]",
+      },
+      {
         internalType: "address",
-        name: "poolRouter_",
+        name: "account",
         type: "address",
       },
     ],
-    name: "setPoolRouter",
+    name: "revokeRoles",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "fee",
+        type: "uint256",
+      },
+    ],
+    name: "setFee",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -481,3 +492,13 @@ const _abi = [
     type: "receive",
   },
 ];
+
+export class Ladle__factory {
+  static readonly abi = _abi;
+  static createInterface(): LadleInterface {
+    return new utils.Interface(_abi) as LadleInterface;
+  }
+  static connect(address: string, signerOrProvider: Signer | Provider): Ladle {
+    return new Contract(address, _abi, signerOrProvider) as Ladle;
+  }
+}

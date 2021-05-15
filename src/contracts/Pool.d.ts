@@ -9,7 +9,7 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-  Contract,
+  BaseContract,
   ContractTransaction,
   Overrides,
   CallOverrides,
@@ -28,7 +28,7 @@ interface PoolInterface extends ethers.utils.Interface {
     "balanceOf(address)": FunctionFragment;
     "baseToken()": FunctionFragment;
     "burn(address,uint256,uint256)": FunctionFragment;
-    "burnForBaseToken(address,uint256,uint256)": FunctionFragment;
+    "burnForBaseToken(address,uint256)": FunctionFragment;
     "buyBaseToken(address,uint128,uint128)": FunctionFragment;
     "buyBaseTokenPreview(uint128)": FunctionFragment;
     "buyFYToken(address,uint128,uint128)": FunctionFragment;
@@ -89,7 +89,7 @@ interface PoolInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "burnForBaseToken",
-    values: [string, BigNumberish, BigNumberish]
+    values: [string, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "buyBaseToken",
@@ -325,7 +325,7 @@ interface PoolInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
 }
 
-export class Pool extends Contract {
+export class Pool extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -371,19 +371,9 @@ export class Pool extends Contract {
   functions: {
     DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<[string]>;
 
-    "DOMAIN_SEPARATOR()"(overrides?: CallOverrides): Promise<[string]>;
-
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<[string]>;
 
-    "PERMIT_TYPEHASH()"(overrides?: CallOverrides): Promise<[string]>;
-
     allowance(
-      owner: string,
-      spender: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    "allowance(address,address)"(
       owner: string,
       spender: string,
       overrides?: CallOverrides
@@ -395,31 +385,11 @@ export class Pool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "approve(address,uint256)"(
-      spender: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     balanceOf(guy: string, overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    "balanceOf(address)"(
-      guy: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
 
     baseToken(overrides?: CallOverrides): Promise<[string]>;
 
-    "baseToken()"(overrides?: CallOverrides): Promise<[string]>;
-
     burn(
-      to: string,
-      minBaseTokenOut: BigNumberish,
-      minFYTokenOut: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "burn(address,uint256,uint256)"(
       to: string,
       minBaseTokenOut: BigNumberish,
       minFYTokenOut: BigNumberish,
@@ -429,25 +399,10 @@ export class Pool extends Contract {
     burnForBaseToken(
       to: string,
       minBaseTokenOut: BigNumberish,
-      minFYTokenOut: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "burnForBaseToken(address,uint256,uint256)"(
-      to: string,
-      minBaseTokenOut: BigNumberish,
-      minFYTokenOut: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     buyBaseToken(
-      to: string,
-      tokenOut: BigNumberish,
-      max: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "buyBaseToken(address,uint128,uint128)"(
       to: string,
       tokenOut: BigNumberish,
       max: BigNumberish,
@@ -459,19 +414,7 @@ export class Pool extends Contract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    "buyBaseTokenPreview(uint128)"(
-      tokenOut: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
     buyFYToken(
-      to: string,
-      fyTokenOut: BigNumberish,
-      max: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "buyFYToken(address,uint128,uint128)"(
       to: string,
       fyTokenOut: BigNumberish,
       max: BigNumberish,
@@ -483,63 +426,29 @@ export class Pool extends Contract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    "buyFYTokenPreview(uint128)"(
-      fyTokenOut: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
     cumulativeReserveRatio(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    "cumulativeReserveRatio()"(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     decimals(overrides?: CallOverrides): Promise<[number]>;
 
-    "decimals()"(overrides?: CallOverrides): Promise<[number]>;
-
     fyToken(overrides?: CallOverrides): Promise<[string]>;
-
-    "fyToken()"(overrides?: CallOverrides): Promise<[string]>;
 
     getBaseTokenReserves(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "getBaseTokenReserves()"(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     getFYTokenReserves(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    "getFYTokenReserves()"(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     getG1(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "getG1()"(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     getG2(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "getG2()"(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     getK(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    "getK()"(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     getStoredReserves(
       overrides?: CallOverrides
     ): Promise<[BigNumber, BigNumber, number]>;
 
-    "getStoredReserves()"(
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber, number]>;
-
     maturity(overrides?: CallOverrides): Promise<[number]>;
 
-    "maturity()"(overrides?: CallOverrides): Promise<[number]>;
-
     mint(
-      to: string,
-      calculateFromBase: boolean,
-      minTokensMinted: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "mint(address,bool,uint256)"(
       to: string,
       calculateFromBase: boolean,
       minTokensMinted: BigNumberish,
@@ -553,40 +462,13 @@ export class Pool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "mintWithBaseToken(address,uint256,uint256)"(
-      to: string,
-      fyTokenToBuy: BigNumberish,
-      minTokensMinted: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     name(overrides?: CallOverrides): Promise<[string]>;
-
-    "name()"(overrides?: CallOverrides): Promise<[string]>;
 
     nonces(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "nonces(address)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
     owner(overrides?: CallOverrides): Promise<[string]>;
 
-    "owner()"(overrides?: CallOverrides): Promise<[string]>;
-
     permit(
-      owner: string,
-      spender: string,
-      amount: BigNumberish,
-      deadline: BigNumberish,
-      v: BigNumberish,
-      r: BytesLike,
-      s: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"(
       owner: string,
       spender: string,
       amount: BigNumberish,
@@ -602,17 +484,7 @@ export class Pool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "retrieveBaseToken(address)"(
-      to: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     retrieveFYToken(
-      to: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "retrieveFYToken(address)"(
       to: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -623,18 +495,7 @@ export class Pool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "sellBaseToken(address,uint128)"(
-      to: string,
-      min: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     sellBaseTokenPreview(
-      baseTokenIn: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    "sellBaseTokenPreview(uint128)"(
       baseTokenIn: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
@@ -645,18 +506,7 @@ export class Pool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "sellFYToken(address,uint128)"(
-      to: string,
-      min: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     sellFYTokenPreview(
-      fyTokenIn: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    "sellFYTokenPreview(uint128)"(
       fyTokenIn: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
@@ -667,35 +517,15 @@ export class Pool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "setParameter(bytes32,int128)"(
-      parameter: BytesLike,
-      value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     symbol(overrides?: CallOverrides): Promise<[string]>;
-
-    "symbol()"(overrides?: CallOverrides): Promise<[string]>;
 
     sync(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "sync()"(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     totalSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "totalSupply()"(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     transfer(
-      dst: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "transfer(address,uint256)"(
       dst: string,
       wad: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -708,43 +538,19 @@ export class Pool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "transferFrom(address,address,uint256)"(
-      src: string,
-      dst: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     transferOwnership(
       newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "transferOwnership(address)"(
-      newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     version(overrides?: CallOverrides): Promise<[string]>;
-
-    "version()"(overrides?: CallOverrides): Promise<[string]>;
   };
 
   DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<string>;
 
-  "DOMAIN_SEPARATOR()"(overrides?: CallOverrides): Promise<string>;
-
   PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
-  "PERMIT_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
-
   allowance(
-    owner: string,
-    spender: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  "allowance(address,address)"(
     owner: string,
     spender: string,
     overrides?: CallOverrides
@@ -756,31 +562,11 @@ export class Pool extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "approve(address,uint256)"(
-    spender: string,
-    wad: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   balanceOf(guy: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-  "balanceOf(address)"(
-    guy: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
 
   baseToken(overrides?: CallOverrides): Promise<string>;
 
-  "baseToken()"(overrides?: CallOverrides): Promise<string>;
-
   burn(
-    to: string,
-    minBaseTokenOut: BigNumberish,
-    minFYTokenOut: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "burn(address,uint256,uint256)"(
     to: string,
     minBaseTokenOut: BigNumberish,
     minFYTokenOut: BigNumberish,
@@ -790,25 +576,10 @@ export class Pool extends Contract {
   burnForBaseToken(
     to: string,
     minBaseTokenOut: BigNumberish,
-    minFYTokenOut: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "burnForBaseToken(address,uint256,uint256)"(
-    to: string,
-    minBaseTokenOut: BigNumberish,
-    minFYTokenOut: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   buyBaseToken(
-    to: string,
-    tokenOut: BigNumberish,
-    max: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "buyBaseToken(address,uint128,uint128)"(
     to: string,
     tokenOut: BigNumberish,
     max: BigNumberish,
@@ -820,19 +591,7 @@ export class Pool extends Contract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  "buyBaseTokenPreview(uint128)"(
-    tokenOut: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
   buyFYToken(
-    to: string,
-    fyTokenOut: BigNumberish,
-    max: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "buyFYToken(address,uint128,uint128)"(
     to: string,
     fyTokenOut: BigNumberish,
     max: BigNumberish,
@@ -844,63 +603,29 @@ export class Pool extends Contract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  "buyFYTokenPreview(uint128)"(
-    fyTokenOut: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
   cumulativeReserveRatio(overrides?: CallOverrides): Promise<BigNumber>;
-
-  "cumulativeReserveRatio()"(overrides?: CallOverrides): Promise<BigNumber>;
 
   decimals(overrides?: CallOverrides): Promise<number>;
 
-  "decimals()"(overrides?: CallOverrides): Promise<number>;
-
   fyToken(overrides?: CallOverrides): Promise<string>;
-
-  "fyToken()"(overrides?: CallOverrides): Promise<string>;
 
   getBaseTokenReserves(overrides?: CallOverrides): Promise<BigNumber>;
 
-  "getBaseTokenReserves()"(overrides?: CallOverrides): Promise<BigNumber>;
-
   getFYTokenReserves(overrides?: CallOverrides): Promise<BigNumber>;
-
-  "getFYTokenReserves()"(overrides?: CallOverrides): Promise<BigNumber>;
 
   getG1(overrides?: CallOverrides): Promise<BigNumber>;
 
-  "getG1()"(overrides?: CallOverrides): Promise<BigNumber>;
-
   getG2(overrides?: CallOverrides): Promise<BigNumber>;
 
-  "getG2()"(overrides?: CallOverrides): Promise<BigNumber>;
-
   getK(overrides?: CallOverrides): Promise<BigNumber>;
-
-  "getK()"(overrides?: CallOverrides): Promise<BigNumber>;
 
   getStoredReserves(
     overrides?: CallOverrides
   ): Promise<[BigNumber, BigNumber, number]>;
 
-  "getStoredReserves()"(
-    overrides?: CallOverrides
-  ): Promise<[BigNumber, BigNumber, number]>;
-
   maturity(overrides?: CallOverrides): Promise<number>;
 
-  "maturity()"(overrides?: CallOverrides): Promise<number>;
-
   mint(
-    to: string,
-    calculateFromBase: boolean,
-    minTokensMinted: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "mint(address,bool,uint256)"(
     to: string,
     calculateFromBase: boolean,
     minTokensMinted: BigNumberish,
@@ -914,40 +639,13 @@ export class Pool extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "mintWithBaseToken(address,uint256,uint256)"(
-    to: string,
-    fyTokenToBuy: BigNumberish,
-    minTokensMinted: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   name(overrides?: CallOverrides): Promise<string>;
-
-  "name()"(overrides?: CallOverrides): Promise<string>;
 
   nonces(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-  "nonces(address)"(
-    arg0: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
   owner(overrides?: CallOverrides): Promise<string>;
 
-  "owner()"(overrides?: CallOverrides): Promise<string>;
-
   permit(
-    owner: string,
-    spender: string,
-    amount: BigNumberish,
-    deadline: BigNumberish,
-    v: BigNumberish,
-    r: BytesLike,
-    s: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"(
     owner: string,
     spender: string,
     amount: BigNumberish,
@@ -963,17 +661,7 @@ export class Pool extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "retrieveBaseToken(address)"(
-    to: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   retrieveFYToken(
-    to: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "retrieveFYToken(address)"(
     to: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -984,18 +672,7 @@ export class Pool extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "sellBaseToken(address,uint128)"(
-    to: string,
-    min: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   sellBaseTokenPreview(
-    baseTokenIn: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  "sellBaseTokenPreview(uint128)"(
     baseTokenIn: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
@@ -1006,18 +683,7 @@ export class Pool extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "sellFYToken(address,uint128)"(
-    to: string,
-    min: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   sellFYTokenPreview(
-    fyTokenIn: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  "sellFYTokenPreview(uint128)"(
     fyTokenIn: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
@@ -1028,35 +694,15 @@ export class Pool extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "setParameter(bytes32,int128)"(
-    parameter: BytesLike,
-    value: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   symbol(overrides?: CallOverrides): Promise<string>;
-
-  "symbol()"(overrides?: CallOverrides): Promise<string>;
 
   sync(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "sync()"(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
-  "totalSupply()"(overrides?: CallOverrides): Promise<BigNumber>;
-
   transfer(
-    dst: string,
-    wad: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "transfer(address,uint256)"(
     dst: string,
     wad: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -1069,43 +715,19 @@ export class Pool extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "transferFrom(address,address,uint256)"(
-    src: string,
-    dst: string,
-    wad: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   transferOwnership(
-    newOwner: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "transferOwnership(address)"(
     newOwner: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   version(overrides?: CallOverrides): Promise<string>;
 
-  "version()"(overrides?: CallOverrides): Promise<string>;
-
   callStatic: {
     DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<string>;
 
-    "DOMAIN_SEPARATOR()"(overrides?: CallOverrides): Promise<string>;
-
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
-    "PERMIT_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
-
     allowance(
-      owner: string,
-      spender: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "allowance(address,address)"(
       owner: string,
       spender: string,
       overrides?: CallOverrides
@@ -1117,31 +739,11 @@ export class Pool extends Contract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "approve(address,uint256)"(
-      spender: string,
-      wad: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
     balanceOf(guy: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "balanceOf(address)"(
-      guy: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     baseToken(overrides?: CallOverrides): Promise<string>;
 
-    "baseToken()"(overrides?: CallOverrides): Promise<string>;
-
     burn(
-      to: string,
-      minBaseTokenOut: BigNumberish,
-      minFYTokenOut: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber, BigNumber]>;
-
-    "burn(address,uint256,uint256)"(
       to: string,
       minBaseTokenOut: BigNumberish,
       minFYTokenOut: BigNumberish,
@@ -1151,25 +753,15 @@ export class Pool extends Contract {
     burnForBaseToken(
       to: string,
       minBaseTokenOut: BigNumberish,
-      minFYTokenOut: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber, BigNumber]>;
-
-    "burnForBaseToken(address,uint256,uint256)"(
-      to: string,
-      minBaseTokenOut: BigNumberish,
-      minFYTokenOut: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber, BigNumber]>;
+    ): Promise<
+      [BigNumber, BigNumber] & {
+        tokensBurned: BigNumber;
+        baseTokenOut: BigNumber;
+      }
+    >;
 
     buyBaseToken(
-      to: string,
-      tokenOut: BigNumberish,
-      max: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "buyBaseToken(address,uint128,uint128)"(
       to: string,
       tokenOut: BigNumberish,
       max: BigNumberish,
@@ -1181,19 +773,7 @@ export class Pool extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "buyBaseTokenPreview(uint128)"(
-      tokenOut: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     buyFYToken(
-      to: string,
-      fyTokenOut: BigNumberish,
-      max: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "buyFYToken(address,uint128,uint128)"(
       to: string,
       fyTokenOut: BigNumberish,
       max: BigNumberish,
@@ -1205,63 +785,29 @@ export class Pool extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "buyFYTokenPreview(uint128)"(
-      fyTokenOut: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     cumulativeReserveRatio(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "cumulativeReserveRatio()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     decimals(overrides?: CallOverrides): Promise<number>;
 
-    "decimals()"(overrides?: CallOverrides): Promise<number>;
-
     fyToken(overrides?: CallOverrides): Promise<string>;
-
-    "fyToken()"(overrides?: CallOverrides): Promise<string>;
 
     getBaseTokenReserves(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "getBaseTokenReserves()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     getFYTokenReserves(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "getFYTokenReserves()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     getG1(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "getG1()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     getG2(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "getG2()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     getK(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "getK()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     getStoredReserves(
       overrides?: CallOverrides
     ): Promise<[BigNumber, BigNumber, number]>;
 
-    "getStoredReserves()"(
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber, number]>;
-
     maturity(overrides?: CallOverrides): Promise<number>;
 
-    "maturity()"(overrides?: CallOverrides): Promise<number>;
-
     mint(
-      to: string,
-      calculateFromBase: boolean,
-      minTokensMinted: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber, BigNumber]>;
-
-    "mint(address,bool,uint256)"(
       to: string,
       calculateFromBase: boolean,
       minTokensMinted: BigNumberish,
@@ -1275,40 +821,13 @@ export class Pool extends Contract {
       overrides?: CallOverrides
     ): Promise<[BigNumber, BigNumber, BigNumber]>;
 
-    "mintWithBaseToken(address,uint256,uint256)"(
-      to: string,
-      fyTokenToBuy: BigNumberish,
-      minTokensMinted: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber, BigNumber]>;
-
     name(overrides?: CallOverrides): Promise<string>;
-
-    "name()"(overrides?: CallOverrides): Promise<string>;
 
     nonces(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    "nonces(address)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     owner(overrides?: CallOverrides): Promise<string>;
 
-    "owner()"(overrides?: CallOverrides): Promise<string>;
-
     permit(
-      owner: string,
-      spender: string,
-      amount: BigNumberish,
-      deadline: BigNumberish,
-      v: BigNumberish,
-      r: BytesLike,
-      s: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"(
       owner: string,
       spender: string,
       amount: BigNumberish,
@@ -1324,25 +843,9 @@ export class Pool extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "retrieveBaseToken(address)"(
-      to: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     retrieveFYToken(to: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    "retrieveFYToken(address)"(
-      to: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     sellBaseToken(
-      to: string,
-      min: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "sellBaseToken(address,uint128)"(
       to: string,
       min: BigNumberish,
       overrides?: CallOverrides
@@ -1353,18 +856,7 @@ export class Pool extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "sellBaseTokenPreview(uint128)"(
-      baseTokenIn: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     sellFYToken(
-      to: string,
-      min: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "sellFYToken(address,uint128)"(
       to: string,
       min: BigNumberish,
       overrides?: CallOverrides
@@ -1375,18 +867,7 @@ export class Pool extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "sellFYTokenPreview(uint128)"(
-      fyTokenIn: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     setParameter(
-      parameter: BytesLike,
-      value: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "setParameter(bytes32,int128)"(
       parameter: BytesLike,
       value: BigNumberish,
       overrides?: CallOverrides
@@ -1394,23 +875,11 @@ export class Pool extends Contract {
 
     symbol(overrides?: CallOverrides): Promise<string>;
 
-    "symbol()"(overrides?: CallOverrides): Promise<string>;
-
     sync(overrides?: CallOverrides): Promise<void>;
-
-    "sync()"(overrides?: CallOverrides): Promise<void>;
 
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "totalSupply()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     transfer(
-      dst: string,
-      wad: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "transfer(address,uint256)"(
       dst: string,
       wad: BigNumberish,
       overrides?: CallOverrides
@@ -1423,45 +892,31 @@ export class Pool extends Contract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "transferFrom(address,address,uint256)"(
-      src: string,
-      dst: string,
-      wad: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
     transferOwnership(
       newOwner: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "transferOwnership(address)"(
-      newOwner: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     version(overrides?: CallOverrides): Promise<string>;
-
-    "version()"(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {
     Approval(
-      owner: string | null,
-      spender: string | null,
-      value: null
+      owner?: string | null,
+      spender?: string | null,
+      value?: null
     ): TypedEventFilter<
       [string, string, BigNumber],
       { owner: string; spender: string; value: BigNumber }
     >;
 
     Liquidity(
-      maturity: null,
-      from: string | null,
-      to: string | null,
-      baseTokens: null,
-      fyTokenTokens: null,
-      poolTokens: null
+      maturity?: null,
+      from?: string | null,
+      to?: string | null,
+      baseTokens?: null,
+      fyTokenTokens?: null,
+      poolTokens?: null
     ): TypedEventFilter<
       [number, string, string, BigNumber, BigNumber, BigNumber],
       {
@@ -1475,25 +930,25 @@ export class Pool extends Contract {
     >;
 
     OwnershipTransferred(
-      oldOwner: string | null,
-      newOwner: string | null
+      oldOwner?: string | null,
+      newOwner?: string | null
     ): TypedEventFilter<
       [string, string],
       { oldOwner: string; newOwner: string }
     >;
 
     ParameterSet(
-      parameter: null,
-      k: null
+      parameter?: null,
+      k?: null
     ): TypedEventFilter<
       [string, BigNumber],
       { parameter: string; k: BigNumber }
     >;
 
     Sync(
-      baseTokenReserve: null,
-      storedFYTokenReserve: null,
-      cumulativeReserveRatio: null
+      baseTokenReserve?: null,
+      storedFYTokenReserve?: null,
+      cumulativeReserveRatio?: null
     ): TypedEventFilter<
       [BigNumber, BigNumber, BigNumber],
       {
@@ -1504,11 +959,11 @@ export class Pool extends Contract {
     >;
 
     Trade(
-      maturity: null,
-      from: string | null,
-      to: string | null,
-      baseTokens: null,
-      fyTokenTokens: null
+      maturity?: null,
+      from?: string | null,
+      to?: string | null,
+      baseTokens?: null,
+      fyTokenTokens?: null
     ): TypedEventFilter<
       [number, string, string, BigNumber, BigNumber],
       {
@@ -1521,9 +976,9 @@ export class Pool extends Contract {
     >;
 
     Transfer(
-      from: string | null,
-      to: string | null,
-      value: null
+      from?: string | null,
+      to?: string | null,
+      value?: null
     ): TypedEventFilter<
       [string, string, BigNumber],
       { from: string; to: string; value: BigNumber }
@@ -1533,19 +988,9 @@ export class Pool extends Contract {
   estimateGas: {
     DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "DOMAIN_SEPARATOR()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "PERMIT_TYPEHASH()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     allowance(
-      owner: string,
-      spender: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "allowance(address,address)"(
       owner: string,
       spender: string,
       overrides?: CallOverrides
@@ -1557,31 +1002,11 @@ export class Pool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "approve(address,uint256)"(
-      spender: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     balanceOf(guy: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "balanceOf(address)"(
-      guy: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     baseToken(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "baseToken()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     burn(
-      to: string,
-      minBaseTokenOut: BigNumberish,
-      minFYTokenOut: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "burn(address,uint256,uint256)"(
       to: string,
       minBaseTokenOut: BigNumberish,
       minFYTokenOut: BigNumberish,
@@ -1591,25 +1016,10 @@ export class Pool extends Contract {
     burnForBaseToken(
       to: string,
       minBaseTokenOut: BigNumberish,
-      minFYTokenOut: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "burnForBaseToken(address,uint256,uint256)"(
-      to: string,
-      minBaseTokenOut: BigNumberish,
-      minFYTokenOut: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     buyBaseToken(
-      to: string,
-      tokenOut: BigNumberish,
-      max: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "buyBaseToken(address,uint128,uint128)"(
       to: string,
       tokenOut: BigNumberish,
       max: BigNumberish,
@@ -1621,19 +1031,7 @@ export class Pool extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "buyBaseTokenPreview(uint128)"(
-      tokenOut: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     buyFYToken(
-      to: string,
-      fyTokenOut: BigNumberish,
-      max: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "buyFYToken(address,uint128,uint128)"(
       to: string,
       fyTokenOut: BigNumberish,
       max: BigNumberish,
@@ -1645,59 +1043,27 @@ export class Pool extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "buyFYTokenPreview(uint128)"(
-      fyTokenOut: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     cumulativeReserveRatio(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "cumulativeReserveRatio()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     decimals(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "decimals()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     fyToken(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "fyToken()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     getBaseTokenReserves(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "getBaseTokenReserves()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     getFYTokenReserves(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "getFYTokenReserves()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     getG1(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "getG1()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     getG2(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "getG2()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     getK(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "getK()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     getStoredReserves(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "getStoredReserves()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     maturity(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "maturity()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     mint(
-      to: string,
-      calculateFromBase: boolean,
-      minTokensMinted: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "mint(address,bool,uint256)"(
       to: string,
       calculateFromBase: boolean,
       minTokensMinted: BigNumberish,
@@ -1711,40 +1077,13 @@ export class Pool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "mintWithBaseToken(address,uint256,uint256)"(
-      to: string,
-      fyTokenToBuy: BigNumberish,
-      minTokensMinted: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     name(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "name()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     nonces(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    "nonces(address)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "owner()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     permit(
-      owner: string,
-      spender: string,
-      amount: BigNumberish,
-      deadline: BigNumberish,
-      v: BigNumberish,
-      r: BytesLike,
-      s: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"(
       owner: string,
       spender: string,
       amount: BigNumberish,
@@ -1760,17 +1099,7 @@ export class Pool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "retrieveBaseToken(address)"(
-      to: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     retrieveFYToken(
-      to: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "retrieveFYToken(address)"(
       to: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -1781,18 +1110,7 @@ export class Pool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "sellBaseToken(address,uint128)"(
-      to: string,
-      min: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     sellBaseTokenPreview(
-      baseTokenIn: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "sellBaseTokenPreview(uint128)"(
       baseTokenIn: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -1803,18 +1121,7 @@ export class Pool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "sellFYToken(address,uint128)"(
-      to: string,
-      min: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     sellFYTokenPreview(
-      fyTokenIn: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "sellFYTokenPreview(uint128)"(
       fyTokenIn: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -1825,35 +1132,15 @@ export class Pool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "setParameter(bytes32,int128)"(
-      parameter: BytesLike,
-      value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     symbol(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "symbol()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     sync(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "sync()"(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "totalSupply()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     transfer(
-      dst: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "transfer(address,uint256)"(
       dst: string,
       wad: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1866,40 +1153,18 @@ export class Pool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "transferFrom(address,address,uint256)"(
-      src: string,
-      dst: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     transferOwnership(
       newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "transferOwnership(address)"(
-      newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     version(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "version()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
     DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "DOMAIN_SEPARATOR()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "PERMIT_TYPEHASH()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
 
     allowance(
       owner: string,
@@ -1907,19 +1172,7 @@ export class Pool extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "allowance(address,address)"(
-      owner: string,
-      spender: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     approve(
-      spender: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "approve(address,uint256)"(
       spender: string,
       wad: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1930,23 +1183,9 @@ export class Pool extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "balanceOf(address)"(
-      guy: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     baseToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "baseToken()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     burn(
-      to: string,
-      minBaseTokenOut: BigNumberish,
-      minFYTokenOut: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "burn(address,uint256,uint256)"(
       to: string,
       minBaseTokenOut: BigNumberish,
       minFYTokenOut: BigNumberish,
@@ -1956,25 +1195,10 @@ export class Pool extends Contract {
     burnForBaseToken(
       to: string,
       minBaseTokenOut: BigNumberish,
-      minFYTokenOut: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "burnForBaseToken(address,uint256,uint256)"(
-      to: string,
-      minBaseTokenOut: BigNumberish,
-      minFYTokenOut: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     buyBaseToken(
-      to: string,
-      tokenOut: BigNumberish,
-      max: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "buyBaseToken(address,uint128,uint128)"(
       to: string,
       tokenOut: BigNumberish,
       max: BigNumberish,
@@ -1986,19 +1210,7 @@ export class Pool extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "buyBaseTokenPreview(uint128)"(
-      tokenOut: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     buyFYToken(
-      to: string,
-      fyTokenOut: BigNumberish,
-      max: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "buyFYToken(address,uint128,uint128)"(
       to: string,
       fyTokenOut: BigNumberish,
       max: BigNumberish,
@@ -2010,32 +1222,15 @@ export class Pool extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "buyFYTokenPreview(uint128)"(
-      fyTokenOut: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     cumulativeReserveRatio(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "cumulativeReserveRatio()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "decimals()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     fyToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "fyToken()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     getBaseTokenReserves(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "getBaseTokenReserves()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -2043,40 +1238,17 @@ export class Pool extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "getFYTokenReserves()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     getG1(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "getG1()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getG2(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "getG2()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     getK(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "getK()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getStoredReserves(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "getStoredReserves()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     maturity(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "maturity()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     mint(
-      to: string,
-      calculateFromBase: boolean,
-      minTokensMinted: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "mint(address,bool,uint256)"(
       to: string,
       calculateFromBase: boolean,
       minTokensMinted: BigNumberish,
@@ -2090,43 +1262,16 @@ export class Pool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "mintWithBaseToken(address,uint256,uint256)"(
-      to: string,
-      fyTokenToBuy: BigNumberish,
-      minTokensMinted: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     name(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "name()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     nonces(
       arg0: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "nonces(address)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "owner()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     permit(
-      owner: string,
-      spender: string,
-      amount: BigNumberish,
-      deadline: BigNumberish,
-      v: BigNumberish,
-      r: BytesLike,
-      s: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"(
       owner: string,
       spender: string,
       amount: BigNumberish,
@@ -2142,17 +1287,7 @@ export class Pool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "retrieveBaseToken(address)"(
-      to: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     retrieveFYToken(
-      to: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "retrieveFYToken(address)"(
       to: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
@@ -2163,18 +1298,7 @@ export class Pool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "sellBaseToken(address,uint128)"(
-      to: string,
-      min: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     sellBaseTokenPreview(
-      baseTokenIn: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "sellBaseTokenPreview(uint128)"(
       baseTokenIn: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -2185,18 +1309,7 @@ export class Pool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "sellFYToken(address,uint128)"(
-      to: string,
-      min: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     sellFYTokenPreview(
-      fyTokenIn: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "sellFYTokenPreview(uint128)"(
       fyTokenIn: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -2207,35 +1320,15 @@ export class Pool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "setParameter(bytes32,int128)"(
-      parameter: BytesLike,
-      value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     symbol(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "symbol()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     sync(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "sync()"(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     totalSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "totalSupply()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     transfer(
-      dst: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "transfer(address,uint256)"(
       dst: string,
       wad: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -2248,25 +1341,11 @@ export class Pool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "transferFrom(address,address,uint256)"(
-      src: string,
-      dst: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     transferOwnership(
       newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "transferOwnership(address)"(
-      newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     version(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "version()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

@@ -9,7 +9,7 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-  Contract,
+  BaseContract,
   ContractTransaction,
   Overrides,
   CallOverrides,
@@ -74,7 +74,7 @@ interface PoolFactoryInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "PoolCreated"): EventFragment;
 }
 
-export class PoolFactory extends Contract {
+export class PoolFactory extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -120,15 +120,7 @@ export class PoolFactory extends Contract {
   functions: {
     POOL_BYTECODE_HASH(overrides?: CallOverrides): Promise<[string]>;
 
-    "POOL_BYTECODE_HASH()"(overrides?: CallOverrides): Promise<[string]>;
-
     calculatePoolAddress(
-      baseToken: string,
-      fyToken: string,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    "calculatePoolAddress(address,address)"(
       baseToken: string,
       fyToken: string,
       overrides?: CallOverrides
@@ -140,19 +132,7 @@ export class PoolFactory extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "createPool(address,address)"(
-      baseToken: string,
-      fyToken: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     getPool(
-      baseToken: string,
-      fyToken: string,
-      overrides?: CallOverrides
-    ): Promise<[string] & { pool: string }>;
-
-    "getPool(address,address)"(
       baseToken: string,
       fyToken: string,
       overrides?: CallOverrides
@@ -160,24 +140,12 @@ export class PoolFactory extends Contract {
 
     nextFYToken(overrides?: CallOverrides): Promise<[string]>;
 
-    "nextFYToken()"(overrides?: CallOverrides): Promise<[string]>;
-
     nextToken(overrides?: CallOverrides): Promise<[string]>;
-
-    "nextToken()"(overrides?: CallOverrides): Promise<[string]>;
   };
 
   POOL_BYTECODE_HASH(overrides?: CallOverrides): Promise<string>;
 
-  "POOL_BYTECODE_HASH()"(overrides?: CallOverrides): Promise<string>;
-
   calculatePoolAddress(
-    baseToken: string,
-    fyToken: string,
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  "calculatePoolAddress(address,address)"(
     baseToken: string,
     fyToken: string,
     overrides?: CallOverrides
@@ -189,19 +157,7 @@ export class PoolFactory extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "createPool(address,address)"(
-    baseToken: string,
-    fyToken: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   getPool(
-    baseToken: string,
-    fyToken: string,
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  "getPool(address,address)"(
     baseToken: string,
     fyToken: string,
     overrides?: CallOverrides
@@ -209,24 +165,12 @@ export class PoolFactory extends Contract {
 
   nextFYToken(overrides?: CallOverrides): Promise<string>;
 
-  "nextFYToken()"(overrides?: CallOverrides): Promise<string>;
-
   nextToken(overrides?: CallOverrides): Promise<string>;
-
-  "nextToken()"(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
     POOL_BYTECODE_HASH(overrides?: CallOverrides): Promise<string>;
 
-    "POOL_BYTECODE_HASH()"(overrides?: CallOverrides): Promise<string>;
-
     calculatePoolAddress(
-      baseToken: string,
-      fyToken: string,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    "calculatePoolAddress(address,address)"(
       baseToken: string,
       fyToken: string,
       overrides?: CallOverrides
@@ -238,19 +182,7 @@ export class PoolFactory extends Contract {
       overrides?: CallOverrides
     ): Promise<string>;
 
-    "createPool(address,address)"(
-      baseToken: string,
-      fyToken: string,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
     getPool(
-      baseToken: string,
-      fyToken: string,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    "getPool(address,address)"(
       baseToken: string,
       fyToken: string,
       overrides?: CallOverrides
@@ -258,18 +190,14 @@ export class PoolFactory extends Contract {
 
     nextFYToken(overrides?: CallOverrides): Promise<string>;
 
-    "nextFYToken()"(overrides?: CallOverrides): Promise<string>;
-
     nextToken(overrides?: CallOverrides): Promise<string>;
-
-    "nextToken()"(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {
     PoolCreated(
-      baseToken: string | null,
-      fyToken: string | null,
-      pool: null
+      baseToken?: string | null,
+      fyToken?: string | null,
+      pool?: null
     ): TypedEventFilter<
       [string, string, string],
       { baseToken: string; fyToken: string; pool: string }
@@ -279,15 +207,7 @@ export class PoolFactory extends Contract {
   estimateGas: {
     POOL_BYTECODE_HASH(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "POOL_BYTECODE_HASH()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     calculatePoolAddress(
-      baseToken: string,
-      fyToken: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "calculatePoolAddress(address,address)"(
       baseToken: string,
       fyToken: string,
       overrides?: CallOverrides
@@ -299,19 +219,7 @@ export class PoolFactory extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "createPool(address,address)"(
-      baseToken: string,
-      fyToken: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     getPool(
-      baseToken: string,
-      fyToken: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "getPool(address,address)"(
       baseToken: string,
       fyToken: string,
       overrides?: CallOverrides
@@ -319,11 +227,7 @@ export class PoolFactory extends Contract {
 
     nextFYToken(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "nextFYToken()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     nextToken(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "nextToken()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -331,17 +235,7 @@ export class PoolFactory extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "POOL_BYTECODE_HASH()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     calculatePoolAddress(
-      baseToken: string,
-      fyToken: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "calculatePoolAddress(address,address)"(
       baseToken: string,
       fyToken: string,
       overrides?: CallOverrides
@@ -353,19 +247,7 @@ export class PoolFactory extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "createPool(address,address)"(
-      baseToken: string,
-      fyToken: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     getPool(
-      baseToken: string,
-      fyToken: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "getPool(address,address)"(
       baseToken: string,
       fyToken: string,
       overrides?: CallOverrides
@@ -373,10 +255,6 @@ export class PoolFactory extends Contract {
 
     nextFYToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "nextFYToken()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     nextToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "nextToken()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

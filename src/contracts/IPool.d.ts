@@ -9,7 +9,7 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-  Contract,
+  BaseContract,
   ContractTransaction,
   Overrides,
   CallOverrides,
@@ -26,7 +26,7 @@ interface IPoolInterface extends ethers.utils.Interface {
     "balanceOf(address)": FunctionFragment;
     "baseToken()": FunctionFragment;
     "burn(address,uint256,uint256)": FunctionFragment;
-    "burnForBaseToken(address,uint256,uint256)": FunctionFragment;
+    "burnForBaseToken(address,uint256)": FunctionFragment;
     "buyBaseToken(address,uint128,uint128)": FunctionFragment;
     "buyBaseTokenPreview(uint128)": FunctionFragment;
     "buyFYToken(address,uint128,uint128)": FunctionFragment;
@@ -66,7 +66,7 @@ interface IPoolInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "burnForBaseToken",
-    values: [string, BigNumberish, BigNumberish]
+    values: [string, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "buyBaseToken",
@@ -234,7 +234,7 @@ interface IPoolInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
 }
 
-export class IPool extends Contract {
+export class IPool extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -284,19 +284,7 @@ export class IPool extends Contract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    "allowance(address,address)"(
-      owner: string,
-      spender: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
     approve(
-      spender: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "approve(address,uint256)"(
       spender: string,
       amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -304,23 +292,9 @@ export class IPool extends Contract {
 
     balanceOf(account: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "balanceOf(address)"(
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
     baseToken(overrides?: CallOverrides): Promise<[string]>;
 
-    "baseToken()"(overrides?: CallOverrides): Promise<[string]>;
-
     burn(
-      to: string,
-      minBaseTokenOut: BigNumberish,
-      minFYTokenOut: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "burn(address,uint256,uint256)"(
       to: string,
       minBaseTokenOut: BigNumberish,
       minFYTokenOut: BigNumberish,
@@ -330,25 +304,10 @@ export class IPool extends Contract {
     burnForBaseToken(
       to: string,
       minBaseTokenOut: BigNumberish,
-      minFYTokenOut: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "burnForBaseToken(address,uint256,uint256)"(
-      to: string,
-      minBaseTokenOut: BigNumberish,
-      minFYTokenOut: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     buyBaseToken(
-      to: string,
-      baseTokenOut: BigNumberish,
-      max: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "buyBaseToken(address,uint128,uint128)"(
       to: string,
       baseTokenOut: BigNumberish,
       max: BigNumberish,
@@ -360,19 +319,7 @@ export class IPool extends Contract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    "buyBaseTokenPreview(uint128)"(
-      baseTokenOut: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
     buyFYToken(
-      to: string,
-      fyTokenOut: BigNumberish,
-      max: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "buyFYToken(address,uint128,uint128)"(
       to: string,
       fyTokenOut: BigNumberish,
       max: BigNumberish,
@@ -384,35 +331,15 @@ export class IPool extends Contract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    "buyFYTokenPreview(uint128)"(
-      fyTokenOut: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
     fyToken(overrides?: CallOverrides): Promise<[string]>;
-
-    "fyToken()"(overrides?: CallOverrides): Promise<[string]>;
 
     getBaseTokenReserves(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "getBaseTokenReserves()"(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     getFYTokenReserves(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    "getFYTokenReserves()"(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     maturity(overrides?: CallOverrides): Promise<[number]>;
 
-    "maturity()"(overrides?: CallOverrides): Promise<[number]>;
-
     mint(
-      to: string,
-      calculateFromBase: boolean,
-      minTokensMinted: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "mint(address,bool,uint256)"(
       to: string,
       calculateFromBase: boolean,
       minTokensMinted: BigNumberish,
@@ -426,32 +353,9 @@ export class IPool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "mintWithBaseToken(address,uint256,uint256)"(
-      to: string,
-      fyTokenToBuy: BigNumberish,
-      minTokensMinted: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     nonces(owner: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "nonces(address)"(
-      owner: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
     permit(
-      owner: string,
-      spender: string,
-      amount: BigNumberish,
-      deadline: BigNumberish,
-      v: BigNumberish,
-      r: BytesLike,
-      s: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"(
       owner: string,
       spender: string,
       amount: BigNumberish,
@@ -467,17 +371,7 @@ export class IPool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "retrieveBaseToken(address)"(
-      to: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     retrieveFYToken(
-      to: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "retrieveFYToken(address)"(
       to: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -488,18 +382,7 @@ export class IPool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "sellBaseToken(address,uint128)"(
-      to: string,
-      min: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     sellBaseTokenPreview(
-      baseTokenIn: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    "sellBaseTokenPreview(uint128)"(
       baseTokenIn: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
@@ -510,25 +393,12 @@ export class IPool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "sellFYToken(address,uint128)"(
-      to: string,
-      min: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     sellFYTokenPreview(
       fyTokenIn: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    "sellFYTokenPreview(uint128)"(
-      fyTokenIn: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
     totalSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    "totalSupply()"(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     transfer(
       recipient: string,
@@ -536,20 +406,7 @@ export class IPool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "transfer(address,uint256)"(
-      recipient: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     transferFrom(
-      sender: string,
-      recipient: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "transferFrom(address,address,uint256)"(
       sender: string,
       recipient: string,
       amount: BigNumberish,
@@ -563,19 +420,7 @@ export class IPool extends Contract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  "allowance(address,address)"(
-    owner: string,
-    spender: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
   approve(
-    spender: string,
-    amount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "approve(address,uint256)"(
     spender: string,
     amount: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -583,23 +428,9 @@ export class IPool extends Contract {
 
   balanceOf(account: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-  "balanceOf(address)"(
-    account: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
   baseToken(overrides?: CallOverrides): Promise<string>;
 
-  "baseToken()"(overrides?: CallOverrides): Promise<string>;
-
   burn(
-    to: string,
-    minBaseTokenOut: BigNumberish,
-    minFYTokenOut: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "burn(address,uint256,uint256)"(
     to: string,
     minBaseTokenOut: BigNumberish,
     minFYTokenOut: BigNumberish,
@@ -609,25 +440,10 @@ export class IPool extends Contract {
   burnForBaseToken(
     to: string,
     minBaseTokenOut: BigNumberish,
-    minFYTokenOut: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "burnForBaseToken(address,uint256,uint256)"(
-    to: string,
-    minBaseTokenOut: BigNumberish,
-    minFYTokenOut: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   buyBaseToken(
-    to: string,
-    baseTokenOut: BigNumberish,
-    max: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "buyBaseToken(address,uint128,uint128)"(
     to: string,
     baseTokenOut: BigNumberish,
     max: BigNumberish,
@@ -639,19 +455,7 @@ export class IPool extends Contract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  "buyBaseTokenPreview(uint128)"(
-    baseTokenOut: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
   buyFYToken(
-    to: string,
-    fyTokenOut: BigNumberish,
-    max: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "buyFYToken(address,uint128,uint128)"(
     to: string,
     fyTokenOut: BigNumberish,
     max: BigNumberish,
@@ -663,35 +467,15 @@ export class IPool extends Contract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  "buyFYTokenPreview(uint128)"(
-    fyTokenOut: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
   fyToken(overrides?: CallOverrides): Promise<string>;
-
-  "fyToken()"(overrides?: CallOverrides): Promise<string>;
 
   getBaseTokenReserves(overrides?: CallOverrides): Promise<BigNumber>;
 
-  "getBaseTokenReserves()"(overrides?: CallOverrides): Promise<BigNumber>;
-
   getFYTokenReserves(overrides?: CallOverrides): Promise<BigNumber>;
-
-  "getFYTokenReserves()"(overrides?: CallOverrides): Promise<BigNumber>;
 
   maturity(overrides?: CallOverrides): Promise<number>;
 
-  "maturity()"(overrides?: CallOverrides): Promise<number>;
-
   mint(
-    to: string,
-    calculateFromBase: boolean,
-    minTokensMinted: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "mint(address,bool,uint256)"(
     to: string,
     calculateFromBase: boolean,
     minTokensMinted: BigNumberish,
@@ -705,32 +489,9 @@ export class IPool extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "mintWithBaseToken(address,uint256,uint256)"(
-    to: string,
-    fyTokenToBuy: BigNumberish,
-    minTokensMinted: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   nonces(owner: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-  "nonces(address)"(
-    owner: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
   permit(
-    owner: string,
-    spender: string,
-    amount: BigNumberish,
-    deadline: BigNumberish,
-    v: BigNumberish,
-    r: BytesLike,
-    s: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"(
     owner: string,
     spender: string,
     amount: BigNumberish,
@@ -746,17 +507,7 @@ export class IPool extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "retrieveBaseToken(address)"(
-    to: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   retrieveFYToken(
-    to: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "retrieveFYToken(address)"(
     to: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -767,18 +518,7 @@ export class IPool extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "sellBaseToken(address,uint128)"(
-    to: string,
-    min: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   sellBaseTokenPreview(
-    baseTokenIn: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  "sellBaseTokenPreview(uint128)"(
     baseTokenIn: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
@@ -789,25 +529,12 @@ export class IPool extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "sellFYToken(address,uint128)"(
-    to: string,
-    min: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   sellFYTokenPreview(
     fyTokenIn: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  "sellFYTokenPreview(uint128)"(
-    fyTokenIn: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
   totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
-
-  "totalSupply()"(overrides?: CallOverrides): Promise<BigNumber>;
 
   transfer(
     recipient: string,
@@ -815,20 +542,7 @@ export class IPool extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "transfer(address,uint256)"(
-    recipient: string,
-    amount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   transferFrom(
-    sender: string,
-    recipient: string,
-    amount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "transferFrom(address,address,uint256)"(
     sender: string,
     recipient: string,
     amount: BigNumberish,
@@ -842,19 +556,7 @@ export class IPool extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "allowance(address,address)"(
-      owner: string,
-      spender: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     approve(
-      spender: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "approve(address,uint256)"(
       spender: string,
       amount: BigNumberish,
       overrides?: CallOverrides
@@ -862,23 +564,9 @@ export class IPool extends Contract {
 
     balanceOf(account: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    "balanceOf(address)"(
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     baseToken(overrides?: CallOverrides): Promise<string>;
 
-    "baseToken()"(overrides?: CallOverrides): Promise<string>;
-
     burn(
-      to: string,
-      minBaseTokenOut: BigNumberish,
-      minFYTokenOut: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber, BigNumber]>;
-
-    "burn(address,uint256,uint256)"(
       to: string,
       minBaseTokenOut: BigNumberish,
       minFYTokenOut: BigNumberish,
@@ -888,25 +576,10 @@ export class IPool extends Contract {
     burnForBaseToken(
       to: string,
       minBaseTokenOut: BigNumberish,
-      minFYTokenOut: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber, BigNumber]>;
-
-    "burnForBaseToken(address,uint256,uint256)"(
-      to: string,
-      minBaseTokenOut: BigNumberish,
-      minFYTokenOut: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber, BigNumber]>;
+    ): Promise<[BigNumber, BigNumber]>;
 
     buyBaseToken(
-      to: string,
-      baseTokenOut: BigNumberish,
-      max: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "buyBaseToken(address,uint128,uint128)"(
       to: string,
       baseTokenOut: BigNumberish,
       max: BigNumberish,
@@ -918,19 +591,7 @@ export class IPool extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "buyBaseTokenPreview(uint128)"(
-      baseTokenOut: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     buyFYToken(
-      to: string,
-      fyTokenOut: BigNumberish,
-      max: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "buyFYToken(address,uint128,uint128)"(
       to: string,
       fyTokenOut: BigNumberish,
       max: BigNumberish,
@@ -942,35 +603,15 @@ export class IPool extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "buyFYTokenPreview(uint128)"(
-      fyTokenOut: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     fyToken(overrides?: CallOverrides): Promise<string>;
-
-    "fyToken()"(overrides?: CallOverrides): Promise<string>;
 
     getBaseTokenReserves(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "getBaseTokenReserves()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     getFYTokenReserves(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "getFYTokenReserves()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     maturity(overrides?: CallOverrides): Promise<number>;
 
-    "maturity()"(overrides?: CallOverrides): Promise<number>;
-
     mint(
-      to: string,
-      calculateFromBase: boolean,
-      minTokensMinted: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber, BigNumber]>;
-
-    "mint(address,bool,uint256)"(
       to: string,
       calculateFromBase: boolean,
       minTokensMinted: BigNumberish,
@@ -984,32 +625,9 @@ export class IPool extends Contract {
       overrides?: CallOverrides
     ): Promise<[BigNumber, BigNumber, BigNumber]>;
 
-    "mintWithBaseToken(address,uint256,uint256)"(
-      to: string,
-      fyTokenToBuy: BigNumberish,
-      minTokensMinted: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber, BigNumber]>;
-
     nonces(owner: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    "nonces(address)"(
-      owner: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     permit(
-      owner: string,
-      spender: string,
-      amount: BigNumberish,
-      deadline: BigNumberish,
-      v: BigNumberish,
-      r: BytesLike,
-      s: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"(
       owner: string,
       spender: string,
       amount: BigNumberish,
@@ -1025,25 +643,9 @@ export class IPool extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "retrieveBaseToken(address)"(
-      to: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     retrieveFYToken(to: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    "retrieveFYToken(address)"(
-      to: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     sellBaseToken(
-      to: string,
-      min: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "sellBaseToken(address,uint128)"(
       to: string,
       min: BigNumberish,
       overrides?: CallOverrides
@@ -1054,18 +656,7 @@ export class IPool extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "sellBaseTokenPreview(uint128)"(
-      baseTokenIn: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     sellFYToken(
-      to: string,
-      min: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "sellFYToken(address,uint128)"(
       to: string,
       min: BigNumberish,
       overrides?: CallOverrides
@@ -1076,22 +667,9 @@ export class IPool extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "sellFYTokenPreview(uint128)"(
-      fyTokenIn: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "totalSupply()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     transfer(
-      recipient: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "transfer(address,uint256)"(
       recipient: string,
       amount: BigNumberish,
       overrides?: CallOverrides
@@ -1103,29 +681,22 @@ export class IPool extends Contract {
       amount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<boolean>;
-
-    "transferFrom(address,address,uint256)"(
-      sender: string,
-      recipient: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
   };
 
   filters: {
     Approval(
-      owner: string | null,
-      spender: string | null,
-      value: null
+      owner?: string | null,
+      spender?: string | null,
+      value?: null
     ): TypedEventFilter<
       [string, string, BigNumber],
       { owner: string; spender: string; value: BigNumber }
     >;
 
     Transfer(
-      from: string | null,
-      to: string | null,
-      value: null
+      from?: string | null,
+      to?: string | null,
+      value?: null
     ): TypedEventFilter<
       [string, string, BigNumber],
       { from: string; to: string; value: BigNumber }
@@ -1139,19 +710,7 @@ export class IPool extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "allowance(address,address)"(
-      owner: string,
-      spender: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     approve(
-      spender: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "approve(address,uint256)"(
       spender: string,
       amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1159,23 +718,9 @@ export class IPool extends Contract {
 
     balanceOf(account: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    "balanceOf(address)"(
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     baseToken(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "baseToken()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     burn(
-      to: string,
-      minBaseTokenOut: BigNumberish,
-      minFYTokenOut: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "burn(address,uint256,uint256)"(
       to: string,
       minBaseTokenOut: BigNumberish,
       minFYTokenOut: BigNumberish,
@@ -1185,25 +730,10 @@ export class IPool extends Contract {
     burnForBaseToken(
       to: string,
       minBaseTokenOut: BigNumberish,
-      minFYTokenOut: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "burnForBaseToken(address,uint256,uint256)"(
-      to: string,
-      minBaseTokenOut: BigNumberish,
-      minFYTokenOut: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     buyBaseToken(
-      to: string,
-      baseTokenOut: BigNumberish,
-      max: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "buyBaseToken(address,uint128,uint128)"(
       to: string,
       baseTokenOut: BigNumberish,
       max: BigNumberish,
@@ -1215,19 +745,7 @@ export class IPool extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "buyBaseTokenPreview(uint128)"(
-      baseTokenOut: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     buyFYToken(
-      to: string,
-      fyTokenOut: BigNumberish,
-      max: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "buyFYToken(address,uint128,uint128)"(
       to: string,
       fyTokenOut: BigNumberish,
       max: BigNumberish,
@@ -1239,35 +757,15 @@ export class IPool extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "buyFYTokenPreview(uint128)"(
-      fyTokenOut: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     fyToken(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "fyToken()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     getBaseTokenReserves(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "getBaseTokenReserves()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     getFYTokenReserves(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "getFYTokenReserves()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     maturity(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "maturity()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     mint(
-      to: string,
-      calculateFromBase: boolean,
-      minTokensMinted: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "mint(address,bool,uint256)"(
       to: string,
       calculateFromBase: boolean,
       minTokensMinted: BigNumberish,
@@ -1281,32 +779,9 @@ export class IPool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "mintWithBaseToken(address,uint256,uint256)"(
-      to: string,
-      fyTokenToBuy: BigNumberish,
-      minTokensMinted: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     nonces(owner: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    "nonces(address)"(
-      owner: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     permit(
-      owner: string,
-      spender: string,
-      amount: BigNumberish,
-      deadline: BigNumberish,
-      v: BigNumberish,
-      r: BytesLike,
-      s: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"(
       owner: string,
       spender: string,
       amount: BigNumberish,
@@ -1322,17 +797,7 @@ export class IPool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "retrieveBaseToken(address)"(
-      to: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     retrieveFYToken(
-      to: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "retrieveFYToken(address)"(
       to: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -1343,18 +808,7 @@ export class IPool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "sellBaseToken(address,uint128)"(
-      to: string,
-      min: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     sellBaseTokenPreview(
-      baseTokenIn: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "sellBaseTokenPreview(uint128)"(
       baseTokenIn: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -1365,25 +819,12 @@ export class IPool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "sellFYToken(address,uint128)"(
-      to: string,
-      min: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     sellFYTokenPreview(
       fyTokenIn: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "sellFYTokenPreview(uint128)"(
-      fyTokenIn: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "totalSupply()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     transfer(
       recipient: string,
@@ -1391,20 +832,7 @@ export class IPool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "transfer(address,uint256)"(
-      recipient: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     transferFrom(
-      sender: string,
-      recipient: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "transferFrom(address,address,uint256)"(
       sender: string,
       recipient: string,
       amount: BigNumberish,
@@ -1419,19 +847,7 @@ export class IPool extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "allowance(address,address)"(
-      owner: string,
-      spender: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     approve(
-      spender: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "approve(address,uint256)"(
       spender: string,
       amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1442,23 +858,9 @@ export class IPool extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "balanceOf(address)"(
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     baseToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "baseToken()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     burn(
-      to: string,
-      minBaseTokenOut: BigNumberish,
-      minFYTokenOut: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "burn(address,uint256,uint256)"(
       to: string,
       minBaseTokenOut: BigNumberish,
       minFYTokenOut: BigNumberish,
@@ -1468,25 +870,10 @@ export class IPool extends Contract {
     burnForBaseToken(
       to: string,
       minBaseTokenOut: BigNumberish,
-      minFYTokenOut: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "burnForBaseToken(address,uint256,uint256)"(
-      to: string,
-      minBaseTokenOut: BigNumberish,
-      minFYTokenOut: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     buyBaseToken(
-      to: string,
-      baseTokenOut: BigNumberish,
-      max: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "buyBaseToken(address,uint128,uint128)"(
       to: string,
       baseTokenOut: BigNumberish,
       max: BigNumberish,
@@ -1498,19 +885,7 @@ export class IPool extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "buyBaseTokenPreview(uint128)"(
-      baseTokenOut: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     buyFYToken(
-      to: string,
-      fyTokenOut: BigNumberish,
-      max: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "buyFYToken(address,uint128,uint128)"(
       to: string,
       fyTokenOut: BigNumberish,
       max: BigNumberish,
@@ -1522,20 +897,9 @@ export class IPool extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "buyFYTokenPreview(uint128)"(
-      fyTokenOut: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     fyToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "fyToken()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     getBaseTokenReserves(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "getBaseTokenReserves()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -1543,22 +907,9 @@ export class IPool extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "getFYTokenReserves()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     maturity(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "maturity()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     mint(
-      to: string,
-      calculateFromBase: boolean,
-      minTokensMinted: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "mint(address,bool,uint256)"(
       to: string,
       calculateFromBase: boolean,
       minTokensMinted: BigNumberish,
@@ -1572,19 +923,7 @@ export class IPool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "mintWithBaseToken(address,uint256,uint256)"(
-      to: string,
-      fyTokenToBuy: BigNumberish,
-      minTokensMinted: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     nonces(
-      owner: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "nonces(address)"(
       owner: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -1600,33 +939,12 @@ export class IPool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"(
-      owner: string,
-      spender: string,
-      amount: BigNumberish,
-      deadline: BigNumberish,
-      v: BigNumberish,
-      r: BytesLike,
-      s: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     retrieveBaseToken(
       to: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "retrieveBaseToken(address)"(
-      to: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     retrieveFYToken(
-      to: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "retrieveFYToken(address)"(
       to: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
@@ -1637,18 +955,7 @@ export class IPool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "sellBaseToken(address,uint128)"(
-      to: string,
-      min: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     sellBaseTokenPreview(
-      baseTokenIn: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "sellBaseTokenPreview(uint128)"(
       baseTokenIn: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -1659,25 +966,12 @@ export class IPool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "sellFYToken(address,uint128)"(
-      to: string,
-      min: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     sellFYTokenPreview(
       fyTokenIn: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "sellFYTokenPreview(uint128)"(
-      fyTokenIn: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     totalSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "totalSupply()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     transfer(
       recipient: string,
@@ -1685,20 +979,7 @@ export class IPool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "transfer(address,uint256)"(
-      recipient: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     transferFrom(
-      sender: string,
-      recipient: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "transferFrom(address,address,uint256)"(
       sender: string,
       recipient: string,
       amount: BigNumberish,

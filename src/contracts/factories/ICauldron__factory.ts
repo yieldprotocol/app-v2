@@ -2,19 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer } from "ethers";
+import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-
-import type { ICauldron } from "../ICauldron";
-
-export class ICauldron__factory {
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): ICauldron {
-    return new Contract(address, _abi, signerOrProvider) as ICauldron;
-  }
-}
+import type { ICauldron, ICauldronInterface } from "../ICauldron";
 
 const _abi = [
   {
@@ -50,6 +40,25 @@ const _abi = [
         internalType: "address",
         name: "",
         type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes12",
+        name: "vault",
+        type: "bytes12",
+      },
+    ],
+    name: "auctions",
+    outputs: [
+      {
+        internalType: "uint32",
+        name: "",
+        type: "uint32",
       },
     ],
     stateMutability: "view",
@@ -159,7 +168,7 @@ const _abi = [
       },
       {
         internalType: "address",
-        name: "user",
+        name: "receiver",
         type: "address",
       },
     ],
@@ -197,6 +206,11 @@ const _abi = [
         internalType: "bytes12",
         name: "vault",
         type: "bytes12",
+      },
+      {
+        internalType: "address",
+        name: "receiver",
+        type: "address",
       },
     ],
     name: "grab",
@@ -290,17 +304,51 @@ const _abi = [
         type: "bytes6",
       },
       {
-        internalType: "uint128",
+        internalType: "int128",
         name: "art",
-        type: "uint128",
+        type: "int128",
       },
     ],
     name: "roll",
     outputs: [
       {
-        internalType: "uint128",
+        components: [
+          {
+            internalType: "address",
+            name: "owner",
+            type: "address",
+          },
+          {
+            internalType: "bytes6",
+            name: "seriesId",
+            type: "bytes6",
+          },
+          {
+            internalType: "bytes6",
+            name: "ilkId",
+            type: "bytes6",
+          },
+        ],
+        internalType: "struct DataTypes.Vault",
         name: "",
-        type: "uint128",
+        type: "tuple",
+      },
+      {
+        components: [
+          {
+            internalType: "uint128",
+            name: "art",
+            type: "uint128",
+          },
+          {
+            internalType: "uint128",
+            name: "ink",
+            type: "uint128",
+          },
+        ],
+        internalType: "struct DataTypes.Balances",
+        name: "",
+        type: "tuple",
       },
     ],
     stateMutability: "nonpayable",
@@ -450,25 +498,6 @@ const _abi = [
     inputs: [
       {
         internalType: "bytes12",
-        name: "vault",
-        type: "bytes12",
-      },
-    ],
-    name: "timestamps",
-    outputs: [
-      {
-        internalType: "uint32",
-        name: "",
-        type: "uint32",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes12",
         name: "vaultId",
         type: "bytes12",
       },
@@ -548,3 +577,16 @@ const _abi = [
     type: "function",
   },
 ];
+
+export class ICauldron__factory {
+  static readonly abi = _abi;
+  static createInterface(): ICauldronInterface {
+    return new utils.Interface(_abi) as ICauldronInterface;
+  }
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): ICauldron {
+    return new Contract(address, _abi, signerOrProvider) as ICauldron;
+  }
+}

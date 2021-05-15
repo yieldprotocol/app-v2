@@ -60,6 +60,7 @@ export const useBorrowActions = () => {
     /* set the series and ilk based on if a vault has been selected or it's a new vault */
     const series = vault ? seriesMap.get(vault.seriesId) : seriesMap.get(selectedSeriesId);
     const ilk = vault ? assetMap.get(vault.ilkId) : assetMap.get(selectedIlkId);
+
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode('020_', vaultId);
 
@@ -82,6 +83,10 @@ export const useBorrowActions = () => {
 
     /* Collate all the calls required for the process (including depositing ETH, signing permits, and building vault if needed) */
     const calls: ICallData[] = [
+
+      /* Include all the signatures gathered, if required */
+      ...permits,
+
       /* If vault is null, build a new vault, else ignore */
       {
         operation: VAULT_OPS.BUILD,
@@ -91,20 +96,24 @@ export const useBorrowActions = () => {
       },
       /* handle ETH deposit, if required */
       ..._addEth(_collInput, series),
-      /* Include all the signatures gathered, if required  */
-      ...permits,
       {
         operation: VAULT_OPS.SERVE,
+        // args: [vaultId, account, MAX_128, MAX_128, MAX_128],
         args: [vaultId, account, _collInput, _input, MAX_128],
         ignore: false,
         series,
       },
+
     ];
 
     /* handle the transaction */
     await transact('Ladle', calls, txCode);
-    /* when complete, then update the changed elements */
-    vault && updateVaults([vault]);
+
+    /* When complete, update vaults.
+      If a vault was provided, update it only,
+      else update ALL vaults (by passing an empty array)
+    */
+    vault ? updateVaults([vault]) : updateVaults([]);
   };
 
   const repay = async (
@@ -175,10 +184,8 @@ export const useBorrowActions = () => {
   const rollDebt = async (
     vault: IVault,
     toSeries: ISeries,
-    input: string | undefined,
   ) => {
     const txCode = getTxCode('040_', vault.seriesId);
-    const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
     const series = seriesMap.get(vault.seriesId);
     const calls: ICallData[] = [
       { // ladle.rollAction(vaultId: string, newSeriesId: string, max: BigNumberish)

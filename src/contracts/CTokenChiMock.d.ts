@@ -9,9 +9,9 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-  Contract,
+  BaseContract,
   ContractTransaction,
-  PayableOverrides,
+  Overrides,
   CallOverrides,
 } from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
@@ -19,22 +19,37 @@ import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
-interface MulticallInterface extends ethers.utils.Interface {
+interface CTokenChiMockInterface extends ethers.utils.Interface {
   functions: {
-    "multicall(bytes[],bool)": FunctionFragment;
+    "exchangeRateCurrent()": FunctionFragment;
+    "exchangeRateStored()": FunctionFragment;
+    "set(uint256)": FunctionFragment;
   };
 
   encodeFunctionData(
-    functionFragment: "multicall",
-    values: [BytesLike[], boolean]
+    functionFragment: "exchangeRateCurrent",
+    values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "exchangeRateStored",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "set", values: [BigNumberish]): string;
 
-  decodeFunctionResult(functionFragment: "multicall", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "exchangeRateCurrent",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "exchangeRateStored",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "set", data: BytesLike): Result;
 
   events: {};
 }
 
-export class Multicall extends Contract {
+export class CTokenChiMock extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -75,79 +90,67 @@ export class Multicall extends Contract {
     toBlock?: string | number | undefined
   ): Promise<Array<TypedEvent<EventArgsArray & EventArgsObject>>>;
 
-  interface: MulticallInterface;
+  interface: CTokenChiMockInterface;
 
   functions: {
-    multicall(
-      calls: BytesLike[],
-      revertOnFail: boolean,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    exchangeRateCurrent(
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "multicall(bytes[],bool)"(
-      calls: BytesLike[],
-      revertOnFail: boolean,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    exchangeRateStored(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    set(
+      chi: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
 
-  multicall(
-    calls: BytesLike[],
-    revertOnFail: boolean,
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  exchangeRateCurrent(
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "multicall(bytes[],bool)"(
-    calls: BytesLike[],
-    revertOnFail: boolean,
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  exchangeRateStored(overrides?: CallOverrides): Promise<BigNumber>;
+
+  set(
+    chi: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    multicall(
-      calls: BytesLike[],
-      revertOnFail: boolean,
-      overrides?: CallOverrides
-    ): Promise<
-      [boolean[], string[]] & { successes: boolean[]; results: string[] }
-    >;
+    exchangeRateCurrent(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "multicall(bytes[],bool)"(
-      calls: BytesLike[],
-      revertOnFail: boolean,
-      overrides?: CallOverrides
-    ): Promise<
-      [boolean[], string[]] & { successes: boolean[]; results: string[] }
-    >;
+    exchangeRateStored(overrides?: CallOverrides): Promise<BigNumber>;
+
+    set(chi: BigNumberish, overrides?: CallOverrides): Promise<void>;
   };
 
   filters: {};
 
   estimateGas: {
-    multicall(
-      calls: BytesLike[],
-      revertOnFail: boolean,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    exchangeRateCurrent(
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "multicall(bytes[],bool)"(
-      calls: BytesLike[],
-      revertOnFail: boolean,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    exchangeRateStored(overrides?: CallOverrides): Promise<BigNumber>;
+
+    set(
+      chi: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    multicall(
-      calls: BytesLike[],
-      revertOnFail: boolean,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    exchangeRateCurrent(
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "multicall(bytes[],bool)"(
-      calls: BytesLike[],
-      revertOnFail: boolean,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    exchangeRateStored(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    set(
+      chi: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

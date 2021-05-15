@@ -4,7 +4,8 @@ export const yieldTheme = {
   global: {
     focus: 'none',
     font: {
-      family: 'Fredoka One',
+      family: 'Oswald',
+      weight: '700',
     },
     colors: {
       brand: '#3f53d9',
@@ -33,9 +34,10 @@ export const yieldTheme = {
         light: '#FFFFFF',
       },
     },
-    input: { weight: 100 },
+    input: { weight: 900 },
 
   },
+
   textInput: {
     extend: ({ theme }: any) => (
       theme.dark
@@ -43,13 +45,14 @@ export const yieldTheme = {
         : `color: ${theme.global.colors.text.light}`
     ),
   },
-  select: {
-    options: {
-      container: {
-        pad: undefined,
-      },
-    },
-  },
+
+  // select: {
+  //   options: {
+  //     container: {
+  //       pad: undefined,
+  //     },
+  //   },
+  // },
 
   // layer: {
   //   container: {
@@ -61,54 +64,6 @@ export const yieldTheme = {
   // },
 
   button: {
-    // default: {
-    //   color: 'brand',
-    //   border: undefined,
-    //   padding: {
-    //     horizontal: '12px',
-    //     vertical: '8px',
-    //   },
-    // },
-    // primary: {
-    //   background: { color: 'brand' },
-    //   border: undefined,
-    //   // color: 'text',
-    //   font: { weight: 'bold' },
-    //   padding: {
-    //     horizontal: '12px',
-    //     vertical: '8px',
-    //   },
-    // },
-    // secondary: {
-    //   border: { color: 'brand', width: '4px' },
-    //   color: 'brand',
-    //   padding: {
-    //     horizontal: '8px',
-    //     vertical: '4px',
-    //   },
-    // },
-    // active: {
-    //   background: { color: 'brand-contrast' },
-    //   color: 'text',
-    //   secondary: {
-    //     background: 'none',
-    //     border: {
-    //       color: 'brand-contrast',
-    //     },
-    //   },
-    // },
-    // disabled: {
-    //   opacity: 0.3,
-    //   secondary: {
-    //     border: { color: 'text-weak' },
-    //   },
-    // },
-    // hover: {
-    //   background: { color: 'brand' },
-    //   secondary: {
-    //     border: { color: 'brand' },
-    //   },
-    // },
 
     border: {
       radius: '8px',
@@ -130,11 +85,13 @@ export const yieldTheme = {
 
     },
   },
+
   input: {
     border: {
       radius: '8px',
     },
     // font: {
+    //   size: 'large',
     //   color: 'text-xweak',
     // },
   },

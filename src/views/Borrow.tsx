@@ -1,100 +1,168 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, Button, CheckBox, Keyboard, ResponsiveContext, Text, TextInput } from 'grommet';
+import { useHistory, useParams } from 'react-router-dom';
+import { ethers } from 'ethers';
 
 import SeriesSelector from '../components/selectors/SeriesSelector';
 import MainViewWrap from '../components/wraps/MainViewWrap';
 import AssetSelector from '../components/selectors/AssetSelector';
 import InputWrap from '../components/wraps/InputWrap';
 import ActionButtonGroup from '../components/ActionButtonGroup';
-import PlaceholderWrap from '../components/wraps/PlaceholderWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
+
+import MaxButton from '../components/MaxButton';
+
 import { useBorrowActions } from '../hooks/borrowActions';
 import { UserContext } from '../contexts/UserContext';
 import { IUserContext, IVault } from '../types';
+import { collateralizationRatio } from '../utils/yieldMath';
 
 const Borrow = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
-  // const routerHistory = useHistory();
-  // const routerState = routerHistory.location.state as { from: string };
 
-  /* state from context */
+  /* STATE FROM CONTEXT */
+
   const { userState } = useContext(UserContext) as IUserContext;
   const { activeAccount, assetMap, vaultMap, selectedSeriesId, selectedIlkId, selectedBaseId } = userState;
-
   const selectedBase = assetMap.get(selectedBaseId!);
+  const selectedIlk = assetMap.get(selectedIlkId!);
 
-  const [inputValue, setInputValue] = useState<string>();
-  const [collInputValue, setCollInputValue] = useState<string>();
+  /* LOCAL STATE */
+
+  const [borrowInput, setBorrowInput] = useState<string>('');
+  const [collatInput, setCollatInput] = useState<string>('');
+  const [maxCollat, setMaxCollat] = useState<string|undefined>();
 
   const [borrowDisabled, setBorrowDisabled] = useState<boolean>(true);
+  const [collatDisabled, setCollatDisabled] = useState<boolean>(true);
 
-  const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
+  const [borrowError, setBorrowError] = useState<string|null>(null);
+  const [collatError, setCollatError] = useState<string|null>(null);
+
   const [vaultIdToUse, setVaultIdToUse] = useState<string|undefined>(undefined);
+  const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
 
   const { borrow } = useBorrowActions();
+
+  /** LOCAL ACTION FNS */
 
   const handleBorrow = () => {
     !borrowDisabled &&
     borrow(
       vaultIdToUse ? vaultMap.get(vaultIdToUse) : undefined,
-      inputValue,
-      collInputValue,
+      borrowInput,
+      collatInput,
     );
   };
 
-  /* checks and sets list of current vaults matching the current selection */
+  /* SET MAX VALUES */
+
   useEffect(() => {
-    if (selectedBaseId && selectedSeriesId && selectedIlkId) {
-      const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
-      const _matchingVaults = arr.filter((v:IVault) => (
-        v.ilkId === selectedIlkId &&
-        v.baseId === selectedBaseId &&
-        v.seriesId === selectedSeriesId
-      ));
-      setMatchingVaults(_matchingVaults);
+    /* CHECK collateral selection and sets the max available collateral */
+    activeAccount &&
+    (async () => {
+      const _max = await selectedIlk?.getBalance(activeAccount);
+      _max && setMaxCollat(ethers.utils.formatEther(_max)?.toString());
+    })();
+  }, [activeAccount, selectedIlk, setMaxCollat]);
+
+  /* WATCH FOR WARNINGS AND ERRORS */
+
+  /* CHECK for any borrow input errors/warnings */
+  useEffect(() => {
+    if (activeAccount && (borrowInput || borrowInput === '')) {
+      /* 1. Check if input exceeds amount available in pools */
+      if (false) setCollatError('Amount exceeds amount available in pool');
+      /* 2. Check if input is above zero */
+      else if (parseFloat(borrowInput) < 0) setBorrowError('Amount should be expressed as a positive value');
+      /* if all checks pass, set null error message */
+      else {
+        setBorrowError(null);
+      }
     }
-  }, [vaultMap, selectedBaseId, selectedIlkId, selectedSeriesId]);
+  }, [activeAccount, borrowInput, setBorrowError]);
 
-  /* TODO create vanity vault ids? */
+  /* CHECK for any collateral input errors/warnings */
+  useEffect(() => {
+    if (activeAccount && (collatInput || collatInput === '')) {
+      /* 1. Check if input exceeds balance */
+      if (maxCollat && parseFloat(collatInput) > parseFloat(maxCollat)) setCollatError('Amount exceeds balance');
+      /* 2. Check if input is above zero */
+      else if (parseFloat(collatInput) < 0) setCollatError('Amount should be expressed as a positive value');
+      /* 3. next check */
+      else if (false) setCollatError('Undercollateralised');
+      /* if all checks pass, set null error message */
+      else {
+        setCollatError(null);
+      }
+    }
+  }, [activeAccount, collatInput, maxCollat, setCollatError]);
 
-  /* Action disabling logic: */
+  /* ACTION DISABLING LOGIC */
+
   useEffect(() => {
     /* if ANY of the following conditions are met: block action */
     (
       !activeAccount ||
-      !inputValue ||
-      !collInputValue ||
+      !borrowInput ||
+      !collatInput ||
       !selectedSeriesId ||
       !selectedIlkId
     )
       ? setBorrowDisabled(true)
     /* else if all pass, then unlock borrowing */
       : setBorrowDisabled(false);
-  }, [inputValue, collInputValue, selectedSeriesId, selectedIlkId, activeAccount]);
+  },
+  [borrowInput, collatInput, selectedSeriesId, selectedIlkId, activeAccount]);
+
+  useEffect(() => {
+    (!activeAccount || !collatInput || collatError) ? setCollatDisabled(true) : setCollatDisabled(false);
+  }, [collatInput, activeAccount, collatError]);
+
+  /**
+   * EXTRAS
+   * */
+
+  /* CHECK the list of current vaults which match the current series/ilk selection */
+  useEffect(() => {
+    if (selectedBaseId && selectedSeriesId && selectedIlkId) {
+      const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
+      const _matchingVaults = arr.filter((v:IVault) => (
+        v.ilkId === selectedIlkId &&
+          v.baseId === selectedBaseId &&
+          v.seriesId === selectedSeriesId
+      ));
+      setMatchingVaults(_matchingVaults);
+    }
+  }, [vaultMap, selectedBaseId, selectedIlkId, selectedSeriesId]);
 
   return (
 
     <Keyboard
-      onEsc={() => setInputValue(undefined)}
+      onEsc={() => setCollatInput('')}
       onEnter={() => console.log('ENTER smashed')}
       target="document"
     >
+
       <MainViewWrap>
 
-        <SectionWrap title="1. Asset to Borrow" subtitle="Choose an asset and period to borrow for">
+        <SectionWrap title="1. Choose an Asset to Borrow">
 
-          <Box direction="row" gap="small" fill="horizontal">
-            <InputWrap action={() => console.log('maxAction')}>
-              <TextInput
-                plain
-                type="number"
-                placeholder={<PlaceholderWrap label="Enter amount" />}
-                value={inputValue || ''}
-                onChange={(event:any) => setInputValue(event.target.value)}
-                autoFocus={!mobile}
-              />
-            </InputWrap>
-            <Box basis={mobile ? '50%' : '35%'} fill>
+          <Box direction="row" gap="small" fill="horizontal" align="start">
+
+            <Box basis={mobile ? '50%' : '65%'}>
+              <InputWrap action={() => console.log('maxAction')} isError={borrowError}>
+                <TextInput
+                  plain
+                  type="number"
+                  placeholder="Enter amount"
+                  value={borrowInput}
+                  onChange={(event:any) => setBorrowInput(event.target.value)}
+                  autoFocus={!mobile}
+                />
+              </InputWrap>
+            </Box>
+            <Box basis={mobile ? '50%' : '35%'}>
               <AssetSelector />
             </Box>
           </Box>
@@ -111,37 +179,41 @@ const Borrow = () => {
         </SectionWrap>
 
         <SectionWrap title="3. Add Collateral">
-          <Box direction="row" gap="small" fill="horizontal" align="center">
-            <InputWrap action={() => console.log('maxAction')} disabled={!selectedSeriesId}>
-              <TextInput
-                plain
-                type="number"
-                placeholder={<PlaceholderWrap label="Enter amount" disabled={!selectedSeriesId} />}
+          <Box direction="row" gap="small" fill="horizontal" align="start">
+            <Box basis={mobile ? '50%' : '65%'}>
+              <InputWrap action={() => console.log('maxAction')} disabled={!selectedSeriesId} isError={collatError}>
+                <TextInput
+                  plain
+                  type="number"
+                  placeholder="Enter amount"
                 // ref={(el:any) => { el && el.focus(); }}
-                value={collInputValue || ''}
-                onChange={(event:any) => setCollInputValue(event.target.value)}
-                disabled={!selectedSeriesId}
-              />
-            </InputWrap>
-            <Box basis={mobile ? '50%' : '35%'} fill>
+                  value={collatInput}
+                  onChange={(event:any) => setCollatInput(event.target.value)}
+                  disabled={!selectedSeriesId}
+                />
+                <MaxButton
+                  action={() => maxCollat && setCollatInput(maxCollat)}
+                  disabled={!selectedSeriesId || collatInput === maxCollat}
+                />
+              </InputWrap>
+            </Box>
+            <Box basis={mobile ? '50%' : '35%'}>
               <AssetSelector selectCollateral />
             </Box>
           </Box>
         </SectionWrap>
 
         <SectionWrap>
-
           <Box gap="small" fill="horizontal">
             <Box direction="row" justify="end">
               <CheckBox
                 reverse
                 disabled={matchingVaults.length < 1}
-                checked={!vaultIdToUse || matchingVaults.length < 1}
+                checked={!vaultIdToUse || !matchingVaults.find((v:IVault) => v.id === vaultIdToUse)}
                 label={<Text size="small">Create new vault</Text>}
                 onChange={() => setVaultIdToUse(undefined)}
               />
             </Box>
-
             {
               matchingVaults.length > 0 &&
               <Box alignSelf="center">
@@ -164,13 +236,12 @@ const Borrow = () => {
             }
 
           </Box>
-
         </SectionWrap>
 
         <ActionButtonGroup buttonList={[
           <Button
             primary
-            label={<Text size={mobile ? 'small' : undefined}> {`Borrow  ${inputValue || ''} ${selectedBase?.symbol || ''}`}</Text>}
+            label={<Text size={mobile ? 'small' : undefined}> {`Borrow  ${borrowInput || ''} ${selectedBase?.symbol || ''}`}</Text>}
             key="primary"
             onClick={() => handleBorrow()}
             disabled={borrowDisabled}

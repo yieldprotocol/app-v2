@@ -2,16 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer } from "ethers";
+import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-
-import type { Join } from "../Join";
-
-export class Join__factory {
-  static connect(address: string, signerOrProvider: Signer | Provider): Join {
-    return new Contract(address, _abi, signerOrProvider) as Join;
-  }
-}
+import type { Join, JoinInterface } from "../Join";
 
 const _abi = [
   {
@@ -433,6 +426,24 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes4[]",
+        name: "roles",
+        type: "bytes4[]",
+      },
+      {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+    ],
+    name: "revokeRoles",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "uint256",
         name: "flashFeeFactor_",
         type: "uint256",
@@ -475,3 +486,13 @@ const _abi = [
     type: "function",
   },
 ];
+
+export class Join__factory {
+  static readonly abi = _abi;
+  static createInterface(): JoinInterface {
+    return new utils.Interface(_abi) as JoinInterface;
+  }
+  static connect(address: string, signerOrProvider: Signer | Provider): Join {
+    return new Contract(address, _abi, signerOrProvider) as Join;
+  }
+}

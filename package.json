@@ -1,11 +1,8 @@
 {
   "name": "app-v2",
-  "version": "0.0.1",
+  "version": "2.4.0",
   "private": true,
   "dependencies": {
-    "@testing-library/jest-dom": "^5.11.4",
-    "@testing-library/react": "^11.1.0",
-    "@testing-library/user-event": "^13.0.8",
     "@web3-react/core": "^6.1.9",
     "@web3-react/injected-connector": "^6.0.7",
     "@web3-react/network-connector": "^6.1.9",
@@ -31,7 +28,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "analyze": "source-map-explorer 'build/static/js/*.js'",
-    "type-contracts": "typechain --target=ethers-v5 './src/contracts/abis/*.json' --outDir './src/contracts/'"
+    "type-contracts": "typechain --target=ethers-v5 './src/contracts/abis/*.json' --out-dir './src/contracts/'"
   },
   "eslintConfig": {
     "extends": [
@@ -52,10 +49,10 @@
     ]
   },
   "devDependencies": {
-    "@typechain/ethers-v5": "^6.0.2",
+    "@typechain/ethers-v5": "^7.0.0",
     "@types/identicon.js": "^2.3.0",
     "@types/jest": "^26.0.15",
-    "@types/node": "^14.14.35",
+    "@types/node": "^15.0.2",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "@types/react-router-dom": "^5.1.7",
@@ -63,8 +60,9 @@
     "@typescript-eslint/eslint-plugin": "^4.16.1",
     "@typescript-eslint/parser": "^4.16.1",
     "@yield-protocol/utils-v2": "^2.0.2",
-    "@yield-protocol/vault-interfaces": "^2.0.14",
-    "@yield-protocol/yieldspace-interfaces": "^2.0.10",
+    "@yield-protocol/vault-interfaces": "^2.0.28",
+    "@yield-protocol/yieldspace-interfaces": "^2.0.13",
+    "audit-ci": "^4.0.0",
     "eslint": "^7.21.0",
     "eslint-config-airbnb-typescript": "^12.3.1",
     "eslint-config-react-app": "^6.0.0",
@@ -73,10 +71,23 @@
     "eslint-plugin-jsx-a11y": "^6.4.1",
     "eslint-plugin-react": "^7.22.0",
     "eslint-plugin-react-hooks": "^4.2.0",
-    "react-test-renderer": "^17.0.1",
+    "react-test-renderer": "^17.0.2",
     "source-map-explorer": "^2.5.2",
     "ts-node": "^9.1.1",
-    "typechain": "^4.0.3",
-    "typescript": "^4.2.2"
+    "typechain": "^5.0.0",
+    "typescript": "^4.2.2",
+    "@testing-library/jest-dom": "^5.11.4",
+    "@testing-library/react": "^11.1.0",
+    "@testing-library/user-event": "^13.0.8"
+  },
+  "lavamoat": {
+    "allowScripts": {
+      "core-js-pure": false,
+      "keccak": false,
+      "secp256k1": false,
+      "core-js": false,
+      "fsevents": false,
+      "ejs": false
+    }
   }
 }

@@ -4,12 +4,6 @@ import { Box, ResponsiveContext, Select, Text } from 'grommet';
 import { IAssetRoot } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 
-// const _assetRootMap = new Map([
-//   ['DAI', { name: 'Dai', symbol: 'DAI', icon: null }],
-//   ['USD', { name: 'USD Coin', symbol: 'USDC', icon: null }],
-//   ['DOGE', { name: 'Doge Coin', symbol: 'DOGE', icon: null }],
-//   ['UNI', { name: 'Uni coin', symbol: 'UNI', icon: null }],
-// ]);
 interface IAssetSelectorProps {
   selectCollateral?:boolean;
 }
@@ -45,19 +39,24 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   };
 
   return (
-    <Box fill>
+    <Box
+      fill
+      round="xsmall"
+      border={(selectCollateral && !selectedSeriesId) ? { color: 'text-xweak' } : true}
+    >
       <Select
+        plain
         id="assetSelectc"
         name="assetSelect"
         placeholder="Select Asset"
         options={options}
         value={selectCollateral ? selectedIlk : selectedBase}
         labelKey={(x:any) => optionText(x)}
-        valueLabel={<Box pad={mobile ? 'medium' : 'small'}><Text size="small" color="text"> { optionText(selectCollateral ? selectedIlk : selectedBase)} </Text></Box>}
+        valueLabel={<Box pad={mobile ? 'medium' : 'small'}><Text color="text"> { optionText(selectCollateral ? selectedIlk : selectedBase)} </Text></Box>}
         onChange={({ option }: any) => handleSelect(option.id)}
         disabled={(selectCollateral && !selectedSeriesId)}
         // eslint-disable-next-line react/no-children-prop
-        children={(x:any) => <Box pad={mobile ? 'medium' : 'small'} gap="small" direction="row"> <Text color="text" size="small"> { optionText(x) } </Text> </Box>}
+        children={(x:any) => <Box pad={mobile ? 'medium' : 'small'} gap="small" direction="row"> <Text color="text"> { optionText(x) } </Text> </Box>}
       />
     </Box>
   );

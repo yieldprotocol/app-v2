@@ -2,23 +2,18 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer } from "ethers";
+import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-
-import type { FYToken } from "../FYToken";
-
-export class FYToken__factory {
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): FYToken {
-    return new Contract(address, _abi, signerOrProvider) as FYToken;
-  }
-}
+import type { FYToken, FYTokenInterface } from "../FYToken";
 
 const _abi = [
   {
     inputs: [
+      {
+        internalType: "bytes6",
+        name: "underlyingId_",
+        type: "bytes6",
+      },
       {
         internalType: "contract IOracle",
         name: "oracle_",
@@ -71,6 +66,19 @@ const _abi = [
       },
     ],
     name: "Approval",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "oracle",
+        type: "address",
+      },
+    ],
+    name: "OracleSet",
     type: "event",
   },
   {
@@ -322,19 +330,6 @@ const _abi = [
       },
     ],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "asset",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {
@@ -771,6 +766,37 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes4[]",
+        name: "roles",
+        type: "bytes4[]",
+      },
+      {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+    ],
+    name: "revokeRoles",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "contract IOracle",
+        name: "oracle_",
+        type: "address",
+      },
+    ],
+    name: "setOracle",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes4",
         name: "role",
         type: "bytes4",
@@ -867,6 +893,32 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "underlying",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "underlyingId",
+    outputs: [
+      {
+        internalType: "bytes6",
+        name: "",
+        type: "bytes6",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "version",
     outputs: [
       {
@@ -879,3 +931,16 @@ const _abi = [
     type: "function",
   },
 ];
+
+export class FYToken__factory {
+  static readonly abi = _abi;
+  static createInterface(): FYTokenInterface {
+    return new utils.Interface(_abi) as FYTokenInterface;
+  }
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): FYToken {
+    return new Contract(address, _abi, signerOrProvider) as FYToken;
+  }
+}

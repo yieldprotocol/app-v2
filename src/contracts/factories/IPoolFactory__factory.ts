@@ -2,19 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer } from "ethers";
+import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-
-import type { IPoolFactory } from "../IPoolFactory";
-
-export class IPoolFactory__factory {
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): IPoolFactory {
-    return new Contract(address, _abi, signerOrProvider) as IPoolFactory;
-  }
-}
+import type { IPoolFactory, IPoolFactoryInterface } from "../IPoolFactory";
 
 const _abi = [
   {
@@ -154,3 +144,16 @@ const _abi = [
     type: "function",
   },
 ];
+
+export class IPoolFactory__factory {
+  static readonly abi = _abi;
+  static createInterface(): IPoolFactoryInterface {
+    return new utils.Interface(_abi) as IPoolFactoryInterface;
+  }
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): IPoolFactory {
+    return new Contract(address, _abi, signerOrProvider) as IPoolFactory;
+  }
+}

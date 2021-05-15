@@ -2,16 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer } from "ethers";
+import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-
-import type { IJoin } from "../IJoin";
-
-export class IJoin__factory {
-  static connect(address: string, signerOrProvider: Signer | Provider): IJoin {
-    return new Contract(address, _abi, signerOrProvider) as IJoin;
-  }
-}
+import type { IJoin, IJoinInterface } from "../IJoin";
 
 const _abi = [
   {
@@ -76,3 +69,13 @@ const _abi = [
     type: "function",
   },
 ];
+
+export class IJoin__factory {
+  static readonly abi = _abi;
+  static createInterface(): IJoinInterface {
+    return new utils.Interface(_abi) as IJoinInterface;
+  }
+  static connect(address: string, signerOrProvider: Signer | Provider): IJoin {
+    return new Contract(address, _abi, signerOrProvider) as IJoin;
+  }
+}

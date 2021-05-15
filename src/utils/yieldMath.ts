@@ -108,8 +108,8 @@ export function mint(
   const baseReserves_ = new Decimal(baseReserves.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves.toString());
   const supply_ = new Decimal(totalSupply.toString());
-  const dai_ = new Decimal(base.toString());
-  const m = (supply_.mul(dai_)).div(baseReserves_);
+  const base_ = new Decimal(base.toString());
+  const m = (supply_.mul(base_)).div(baseReserves_);
   const y = (fyTokenReserves_.mul(m)).div(supply_);
   return [toBn(m), toBn(y)];
 }
@@ -347,66 +347,66 @@ export function getFee(
   timeTillMaturity: BigNumber | string,
 ): BigNumber {
   let fee_: Decimal = ZERO;
-  const fyDai_: BigNumber = BigNumber.isBigNumber(fyToken) ? fyToken : BigNumber.from(fyToken);
+  const fyToken_: BigNumber = BigNumber.isBigNumber(fyToken) ? fyToken : BigNumber.from(fyToken);
 
-  if (fyDai_.gte(ethers.constants.Zero)) {
-    const daiWithFee: BigNumber = buyFYToken(baseReserves, fyTokenReserves, fyToken, timeTillMaturity);
-    const daiWithoutFee: BigNumber = buyFYToken(baseReserves, fyTokenReserves, fyToken, timeTillMaturity, true);
-    fee_ = (new Decimal(daiWithFee.toString())).sub(new Decimal(daiWithoutFee.toString()));
+  if (fyToken_.gte(ethers.constants.Zero)) {
+    const tokenWithFee: BigNumber = buyFYToken(baseReserves, fyTokenReserves, fyToken, timeTillMaturity);
+    const tokenWithoutFee: BigNumber = buyFYToken(baseReserves, fyTokenReserves, fyToken, timeTillMaturity, true);
+    fee_ = (new Decimal(tokenWithFee.toString())).sub(new Decimal(tokenWithoutFee.toString()));
   } else {
-    const daiWithFee:BigNumber = sellFYToken(baseReserves, fyTokenReserves, fyDai_.mul(BigNumber.from('-1')), timeTillMaturity);
-    const daiWithoutFee:BigNumber = sellFYToken(baseReserves, fyTokenReserves, fyDai_.mul(BigNumber.from('-1')), timeTillMaturity, true);
-    fee_ = (new Decimal(daiWithoutFee.toString())).sub(new Decimal(daiWithFee.toString()));
+    const tokenWithFee:BigNumber = sellFYToken(baseReserves, fyTokenReserves, fyToken_.mul(BigNumber.from('-1')), timeTillMaturity);
+    const tokenWithoutFee:BigNumber = sellFYToken(baseReserves, fyTokenReserves, fyToken_.mul(BigNumber.from('-1')), timeTillMaturity, true);
+    fee_ = (new Decimal(tokenWithoutFee.toString())).sub(new Decimal(tokenWithFee.toString()));
   }
   return toBn(fee_);
 }
 
-// export function fyDaiForMint(
-//   baseReserves: BigNumber |string,
-//   fyDaiRealReserves: BigNumber|string,
-//   fyDaiVirtualReserves: BigNumber|string,
-//   base: BigNumber|string,
-//   timeTillMaturity: BigNumber|string,
-// ): string {
-//   const baseReserves_ = new Decimal(baseReserves.toString());
-//   const fyDaiRealReserves_ = new Decimal(fyDaiRealReserves.toString());
-//   const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
-//   const dai_ = new Decimal(base.toString());
+export function fyTokenForMint(
+  baseReserves: BigNumber |string,
+  fyTokenRealReserves: BigNumber|string,
+  fyTokenVirtualReserves: BigNumber|string,
+  base: BigNumber|string,
+  timeTillMaturity: BigNumber|string,
+): string {
+  const baseReserves_ = new Decimal(baseReserves.toString());
+  const fyDaiRealReserves_ = new Decimal(fyTokenRealReserves.toString());
+  const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
+  const base_ = new Decimal(base.toString());
 
-//   let min = ZERO;
-//   let max = dai_;
-//   let yOut = Decimal.floor((min.add(max)).div(TWO));
+  let min = ZERO;
+  let max = base_;
+  let yOut = Decimal.floor((min.add(max)).div(TWO));
 
-//   let i = 0;
-//   while (true) {
-//     const zIn = new Decimal(
-//       buyFYDai(
-//         baseReserves,
-//         fyDaiVirtualReserves,
-//         BigNumber.from(yOut.toFixed(0)),
-//         timeTillMaturity_.toString(),
-//       ),
-//     );
-//     const Z_1 = baseReserves_.add(zIn); // New base reserves
-//     const Y_1 = fyDaiRealReserves_.sub(yOut); // New fyToken reserves
-//     const pz = (dai_.sub(zIn)).div((dai_.sub(zIn)).add(yOut)); // base proportion in my assets
-//     const PZ = Z_1.div(Z_1.add(Y_1)); // base proportion in the reserves
+  let i = 0;
+  while (true) {
+    const zIn = new Decimal(
+      buyFYToken(
+        baseReserves,
+        fyTokenVirtualReserves,
+        BigNumber.from(yOut.toFixed(0)),
+        timeTillMaturity_.toString(),
+      ).toString(),
+    );
+    const Z_1 = baseReserves_.add(zIn); // New base reserves
+    const Y_1 = fyDaiRealReserves_.sub(yOut); // New fyToken reserves
+    const pz = (base_.sub(zIn)).div((base_.sub(zIn)).add(yOut)); // base proportion in my assets
+    const PZ = Z_1.div(Z_1.add(Y_1)); // base proportion in the reserves
 
-//     // The base proportion in my assets needs to be higher than but very close to the base proportion in the reserves, to make sure all the fyToken is used.
-//     if (PZ.mul(new Decimal(1.000001)) <= pz) min = yOut;
-//     yOut = (yOut.add(max)).div(TWO); // bought too little fyToken, buy some more
+    // The base proportion in my assets needs to be higher than but very close to the base proportion in the reserves, to make sure all the fyToken is used.
+    if (PZ.mul(new Decimal(1.000001)) <= pz) min = yOut;
+    yOut = (yOut.add(max)).div(TWO); // bought too little fyToken, buy some more
 
-//     if (pz <= PZ) max = yOut;
-//     yOut = (yOut.add(min)).div(TWO); // bought too much fyToken, buy a bit less
-//     if (PZ.mul(new Decimal(1.000001)) > pz && pz > PZ) return Decimal.floor(yOut).toFixed(); // Just right
+    if (pz <= PZ) max = yOut;
+    yOut = (yOut.add(min)).div(TWO); // bought too much fyToken, buy a bit less
+    if (PZ.mul(new Decimal(1.000001)) > pz && pz > PZ) return Decimal.floor(yOut).toFixed(); // Just right
 
-//     // eslint-disable-next-line no-plusplus
-//     if (i++ > 10000) return Decimal.floor(yOut).toFixed();
-//   }
-// }
+    // eslint-disable-next-line no-plusplus
+    if (i++ > 10000) return Decimal.floor(yOut).toFixed();
+  }
+}
 
 /**
-   * Split a certain amount of X liquidity into its two componetnts (eg. base and fyToken)
+   * Split a certain amount of X liquidity into its two components (eg. base and fyToken)
    * @param { BigNumber } xReserves // eg. base reserves
    * @param { BigNumber } yReserves // eg. fyToken reservers
    * @param {BigNumber} xAmount // amount to split in wei

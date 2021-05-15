@@ -2,19 +2,12 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer } from "ethers";
+import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-
-import type { IERC3156FlashLender } from "../IERC3156FlashLender";
-
-export class IERC3156FlashLender__factory {
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): IERC3156FlashLender {
-    return new Contract(address, _abi, signerOrProvider) as IERC3156FlashLender;
-  }
-}
+import type {
+  IERC3156FlashLender,
+  IERC3156FlashLenderInterface,
+} from "../IERC3156FlashLender";
 
 const _abi = [
   {
@@ -95,3 +88,16 @@ const _abi = [
     type: "function",
   },
 ];
+
+export class IERC3156FlashLender__factory {
+  static readonly abi = _abi;
+  static createInterface(): IERC3156FlashLenderInterface {
+    return new utils.Interface(_abi) as IERC3156FlashLenderInterface;
+  }
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): IERC3156FlashLender {
+    return new Contract(address, _abi, signerOrProvider) as IERC3156FlashLender;
+  }
+}

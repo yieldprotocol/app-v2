@@ -2,19 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer } from "ethers";
+import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-
-import type { DaiMock } from "../DaiMock";
-
-export class DaiMock__factory {
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): DaiMock {
-    return new Contract(address, _abi, signerOrProvider) as DaiMock;
-  }
-}
+import type { DaiMock, DaiMockInterface } from "../DaiMock";
 
 const _abi = [
   {
@@ -380,3 +370,16 @@ const _abi = [
     type: "function",
   },
 ];
+
+export class DaiMock__factory {
+  static readonly abi = _abi;
+  static createInterface(): DaiMockInterface {
+    return new utils.Interface(_abi) as DaiMockInterface;
+  }
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): DaiMock {
+    return new Contract(address, _abi, signerOrProvider) as DaiMock;
+  }
+}

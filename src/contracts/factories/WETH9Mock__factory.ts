@@ -2,19 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer } from "ethers";
+import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-
-import type { WETH9Mock } from "../WETH9Mock";
-
-export class WETH9Mock__factory {
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): WETH9Mock {
-    return new Contract(address, _abi, signerOrProvider) as WETH9Mock;
-  }
-}
+import type { WETH9Mock, WETH9MockInterface } from "../WETH9Mock";
 
 const _abi = [
   {
@@ -307,3 +297,16 @@ const _abi = [
     type: "receive",
   },
 ];
+
+export class WETH9Mock__factory {
+  static readonly abi = _abi;
+  static createInterface(): WETH9MockInterface {
+    return new utils.Interface(_abi) as WETH9MockInterface;
+  }
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): WETH9Mock {
+    return new Contract(address, _abi, signerOrProvider) as WETH9Mock;
+  }
+}

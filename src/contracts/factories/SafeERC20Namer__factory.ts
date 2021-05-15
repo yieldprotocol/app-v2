@@ -2,19 +2,12 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer } from "ethers";
+import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-
-import type { SafeERC20Namer } from "../SafeERC20Namer";
-
-export class SafeERC20Namer__factory {
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): SafeERC20Namer {
-    return new Contract(address, _abi, signerOrProvider) as SafeERC20Namer;
-  }
-}
+import type {
+  SafeERC20Namer,
+  SafeERC20NamerInterface,
+} from "../SafeERC20Namer";
 
 const _abi = [
   {
@@ -56,3 +49,16 @@ const _abi = [
     type: "function",
   },
 ];
+
+export class SafeERC20Namer__factory {
+  static readonly abi = _abi;
+  static createInterface(): SafeERC20NamerInterface {
+    return new utils.Interface(_abi) as SafeERC20NamerInterface;
+  }
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): SafeERC20Namer {
+    return new Contract(address, _abi, signerOrProvider) as SafeERC20Namer;
+  }
+}

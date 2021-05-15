@@ -44,6 +44,7 @@ export interface ISeriesRoot {
   poolAddress: string;
   baseId: string;
   // baked in token fns
+  getTimeTillMaturity: () => string;
   isMature: () => boolean;
   getBaseAddress: ()=> string; // antipattern, but required here because app simulatneoulsy gets assets and series
 }
@@ -57,8 +58,8 @@ export interface IAssetRoot {
   address: string;
   joinAddress: string,
   // baked in token fns
-  getBalance: ()=>BigNumber,
-  getAllowance: (spender: string)=>BigNumber,
+  getBalance: (account: string)=>Promise<BigNumber>,
+  getAllowance: (account: string, spender: string)=>Promise<BigNumber>,
 }
 
 export interface IVaultRoot {
@@ -76,6 +77,7 @@ export interface ISeries extends ISeriesRoot {
   baseReserves: BigNumber;
   fyTokenReserves: BigNumber;
   fyTokenRealReserves: BigNumber;
+  totalSupply: BigNumber;
   poolTokens?: BigNumber|undefined;
   poolTokens_?: string|undefined;
   fyTokenBalance? : BigNumber|undefined;

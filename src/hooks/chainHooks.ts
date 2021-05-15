@@ -6,7 +6,7 @@ import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
 import { MAX_256 } from '../utils/constants';
 import { ICallData, ISignData, ISeriesRoot, ISeries } from '../types';
-import { ERC20__factory, Ladle, Pool, PoolRouter } from '../contracts';
+import { ERC20, ERC20__factory, Ladle, Pool, PoolRouter } from '../contracts';
 import { POOLROUTER_OPS, VAULT_OPS } from '../utils/operations';
 
 /*  💨 Calculate the accumulative gas limit (IF ALL calls have a gaslimit then set the total, else undefined ) */
@@ -27,13 +27,12 @@ const _getCallValue = (calls: ICallData[]) : BigNumber => {
   const joinEtherCall = calls.find((call:any) => (
     call.operation === VAULT_OPS.JOIN_ETHER || call.operation === POOLROUTER_OPS.JOIN_ETHER
   ));
-
   return joinEtherCall ? BigNumber.from(joinEtherCall?.overrides?.value) : ethers.constants.Zero;
 };
 
 /* Generic hook for chain transactions */
 export const useChain = () => {
-  const { chainState: { account, provider, signer, contractMap } } = useContext(ChainContext);
+  const { chainState: { account, provider, contractMap } } = useContext(ChainContext);
   const { txActions: { handleTx, handleSign } } = useContext(TxContext);
 
   /**
@@ -48,6 +47,7 @@ export const useChain = () => {
     calls: ICallData[],
     txCode: string,
   ) : Promise<void> => {
+    const signer = account ? provider.getSigner(account) : provider.getSigner(0);
     /* Set the router contract instance, ladle by default */
     let _contract: Contract = contractMap.get('Ladle').connect(signer) as Ladle;
     if (router === 'PoolRouter') _contract = contractMap.get('PoolRouter').connect(signer) as PoolRouter;
@@ -61,10 +61,11 @@ export const useChain = () => {
       (call:ICallData) => {
         const { poolContract, id: seriesId, getBaseAddress, fyTokenAddress } = call.series! as ISeries;
         const { interface: _interface } = poolContract as Contract;
-        /* encode routed calls if required */
+        /* 'pre-encode' routed calls if required */
         if (call.operation === VAULT_OPS.ROUTE || call.operation === POOLROUTER_OPS.ROUTE) {
           if (call.fnName) {
             const encodedFn = _interface.encodeFunctionData(call.fnName, call.args);
+            /* add in the extra parameters required for each specific rotuer */
             const extraParams = (call.operation === VAULT_OPS.ROUTE) ? [seriesId] : [getBaseAddress(), fyTokenAddress];
             return ethers.utils.defaultAbiCoder.encode(call.operation[1], [...extraParams, encodedFn]);
           }
@@ -87,7 +88,8 @@ export const useChain = () => {
 
     /* Finally, send out the transaction */
     return handleTx(
-      () => _contract.batch(opsList, encodedCalls, { value: batchValue, gasLimit: BigNumber.from('500000') }),
+      // () => _contract.batch(opsList, encodedCalls, { value: batchValue, gasLimit: BigNumber.from('500000') }),
+      () => _contract.batch(opsList, encodedCalls, { value: batchValue }),
       txCode,
     );
   };
@@ -106,6 +108,8 @@ export const useChain = () => {
     txCode:string,
     viaPoolRouter: boolean = false,
   ) : Promise<ICallData[]> => {
+    const signer = account ? provider.getSigner(account) : provider.getSigner(0);
+
     /* First, filter out any ignored calls */
     const _requestedSigs = requestedSignatures.filter((_rs:ISignData) => !_rs.ignore);
     const signedList = await Promise.all(
@@ -125,7 +129,7 @@ export const useChain = () => {
         };
 
         /* get an ERC20 contract instance. This is only used in the case of fallback tx (when signing is not available) */
-        const tokenContract = ERC20__factory.connect(reqSig.targetAddress, signer);
+        const tokenContract = ERC20__factory.connect(reqSig.targetAddress, signer) as any;
 
         /*
           Request the signature if using DaiType permit style

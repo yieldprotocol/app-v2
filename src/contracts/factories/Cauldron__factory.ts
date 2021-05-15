@@ -2,19 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer } from "ethers";
+import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-
-import type { Cauldron } from "../Cauldron";
-
-export class Cauldron__factory {
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): Cauldron {
-    return new Contract(address, _abi, signerOrProvider) as Cauldron;
-  }
-}
+import type { Cauldron, CauldronInterface } from "../Cauldron";
 
 const _abi = [
   {
@@ -34,6 +24,19 @@ const _abi = [
       },
     ],
     name: "AssetAdded",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "uint32",
+        name: "auctionInterval",
+        type: "uint32",
+      },
+    ],
+    name: "AuctionIntervalSet",
     type: "event",
   },
   {
@@ -298,6 +301,44 @@ const _abi = [
       },
       {
         indexed: true,
+        internalType: "address",
+        name: "receiver",
+        type: "address",
+      },
+    ],
+    name: "VaultGiven",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes12",
+        name: "vaultId",
+        type: "bytes12",
+      },
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "timestamp",
+        type: "uint256",
+      },
+    ],
+    name: "VaultLocked",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes12",
+        name: "vaultId",
+        type: "bytes12",
+      },
+      {
+        indexed: true,
         internalType: "bytes6",
         name: "seriesId",
         type: "bytes6",
@@ -378,44 +419,6 @@ const _abi = [
       },
     ],
     name: "VaultStirred",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "bytes12",
-        name: "vaultId",
-        type: "bytes12",
-      },
-      {
-        indexed: true,
-        internalType: "uint256",
-        name: "timestamp",
-        type: "uint256",
-      },
-    ],
-    name: "VaultTimestamped",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "bytes12",
-        name: "vaultId",
-        type: "bytes12",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "receiver",
-        type: "address",
-      },
-    ],
-    name: "VaultTransfer",
     type: "event",
   },
   {
@@ -561,6 +564,38 @@ const _abi = [
         internalType: "address",
         name: "",
         type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "auctionInterval",
+    outputs: [
+      {
+        internalType: "uint32",
+        name: "",
+        type: "uint32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes12",
+        name: "",
+        type: "bytes12",
+      },
+    ],
+    name: "auctions",
+    outputs: [
+      {
+        internalType: "uint32",
+        name: "",
+        type: "uint32",
       },
     ],
     stateMutability: "view",
@@ -750,6 +785,11 @@ const _abi = [
         name: "vaultId",
         type: "bytes12",
       },
+      {
+        internalType: "address",
+        name: "receiver",
+        type: "address",
+      },
     ],
     name: "grab",
     outputs: [],
@@ -919,7 +959,7 @@ const _abi = [
           },
         ],
         internalType: "struct DataTypes.Balances",
-        name: "balances_",
+        name: "",
         type: "tuple",
       },
     ],
@@ -1003,6 +1043,24 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes4[]",
+        name: "roles",
+        type: "bytes4[]",
+      },
+      {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+    ],
+    name: "revokeRoles",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes12",
         name: "vaultId",
         type: "bytes12",
@@ -1013,17 +1071,51 @@ const _abi = [
         type: "bytes6",
       },
       {
-        internalType: "uint128",
+        internalType: "int128",
         name: "art",
-        type: "uint128",
+        type: "int128",
       },
     ],
     name: "roll",
     outputs: [
       {
-        internalType: "uint128",
+        components: [
+          {
+            internalType: "address",
+            name: "owner",
+            type: "address",
+          },
+          {
+            internalType: "bytes6",
+            name: "seriesId",
+            type: "bytes6",
+          },
+          {
+            internalType: "bytes6",
+            name: "ilkId",
+            type: "bytes6",
+          },
+        ],
+        internalType: "struct DataTypes.Vault",
         name: "",
-        type: "uint128",
+        type: "tuple",
+      },
+      {
+        components: [
+          {
+            internalType: "uint128",
+            name: "art",
+            type: "uint128",
+          },
+          {
+            internalType: "uint128",
+            name: "ink",
+            type: "uint128",
+          },
+        ],
+        internalType: "struct DataTypes.Balances",
+        name: "",
+        type: "tuple",
       },
     ],
     stateMutability: "nonpayable",
@@ -1056,6 +1148,19 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint32",
+        name: "auctionInterval_",
+        type: "uint32",
+      },
+    ],
+    name: "setAuctionInterval",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -1179,7 +1284,7 @@ const _abi = [
           },
         ],
         internalType: "struct DataTypes.Balances",
-        name: "balances_",
+        name: "",
         type: "tuple",
       },
     ],
@@ -1282,25 +1387,6 @@ const _abi = [
     inputs: [
       {
         internalType: "bytes12",
-        name: "",
-        type: "bytes12",
-      },
-    ],
-    name: "timestamps",
-    outputs: [
-      {
-        internalType: "uint32",
-        name: "",
-        type: "uint32",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes12",
         name: "vaultId",
         type: "bytes12",
       },
@@ -1373,3 +1459,16 @@ const _abi = [
     type: "function",
   },
 ];
+
+export class Cauldron__factory {
+  static readonly abi = _abi;
+  static createInterface(): CauldronInterface {
+    return new utils.Interface(_abi) as CauldronInterface;
+  }
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): Cauldron {
+    return new Contract(address, _abi, signerOrProvider) as Cauldron;
+  }
+}

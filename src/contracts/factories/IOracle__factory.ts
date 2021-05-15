@@ -2,28 +2,34 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer } from "ethers";
+import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-
-import type { IOracle } from "../IOracle";
-
-export class IOracle__factory {
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): IOracle {
-    return new Contract(address, _abi, signerOrProvider) as IOracle;
-  }
-}
+import type { IOracle, IOracleInterface } from "../IOracle";
 
 const _abi = [
   {
-    inputs: [],
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "base",
+        type: "bytes32",
+      },
+      {
+        internalType: "bytes32",
+        name: "quote",
+        type: "bytes32",
+      },
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
     name: "get",
     outputs: [
       {
         internalType: "uint256",
-        name: "price",
+        name: "value",
         type: "uint256",
       },
       {
@@ -36,12 +42,28 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "base",
+        type: "bytes32",
+      },
+      {
+        internalType: "bytes32",
+        name: "quote",
+        type: "bytes32",
+      },
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
     name: "peek",
     outputs: [
       {
         internalType: "uint256",
-        name: "price",
+        name: "value",
         type: "uint256",
       },
       {
@@ -53,17 +75,17 @@ const _abi = [
     stateMutability: "view",
     type: "function",
   },
-  {
-    inputs: [],
-    name: "source",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
 ];
+
+export class IOracle__factory {
+  static readonly abi = _abi;
+  static createInterface(): IOracleInterface {
+    return new utils.Interface(_abi) as IOracleInterface;
+  }
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): IOracle {
+    return new Contract(address, _abi, signerOrProvider) as IOracle;
+  }
+}

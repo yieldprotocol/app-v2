@@ -9,7 +9,7 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-  Contract,
+  BaseContract,
   ContractTransaction,
   Overrides,
   CallOverrides,
@@ -154,7 +154,7 @@ interface DaiAbstractInterface extends ethers.utils.Interface {
   events: {};
 }
 
-export class DaiAbstract extends Contract {
+export class DaiAbstract extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -200,19 +200,9 @@ export class DaiAbstract extends Contract {
   functions: {
     DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<[string]>;
 
-    "DOMAIN_SEPARATOR()"(overrides?: CallOverrides): Promise<[string]>;
-
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<[string]>;
 
-    "PERMIT_TYPEHASH()"(overrides?: CallOverrides): Promise<[string]>;
-
     allowance(
-      arg0: string,
-      arg1: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    "allowance(address,address)"(
       arg0: string,
       arg1: string,
       overrides?: CallOverrides
@@ -224,18 +214,7 @@ export class DaiAbstract extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "approve(address,uint256)"(
-      arg0: string,
-      arg1: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     balanceOf(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    "balanceOf(address)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
 
     burn(
       arg0: string,
@@ -243,33 +222,14 @@ export class DaiAbstract extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "burn(address,uint256)"(
-      arg0: string,
-      arg1: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     decimals(overrides?: CallOverrides): Promise<[number]>;
-
-    "decimals()"(overrides?: CallOverrides): Promise<[number]>;
 
     deny(
       arg0: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "deny(address)"(
-      arg0: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     mint(
-      arg0: string,
-      arg1: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "mint(address,uint256)"(
       arg0: string,
       arg1: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -282,37 +242,11 @@ export class DaiAbstract extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "move(address,address,uint256)"(
-      arg0: string,
-      arg1: string,
-      arg2: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     name(overrides?: CallOverrides): Promise<[string]>;
-
-    "name()"(overrides?: CallOverrides): Promise<[string]>;
 
     nonces(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "nonces(address)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
     permit(
-      arg0: string,
-      arg1: string,
-      arg2: BigNumberish,
-      arg3: BigNumberish,
-      arg4: boolean,
-      arg5: BigNumberish,
-      arg6: BytesLike,
-      arg7: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "permit(address,address,uint256,uint256,bool,uint8,bytes32,bytes32)"(
       arg0: string,
       arg1: string,
       arg2: BigNumberish,
@@ -330,19 +264,7 @@ export class DaiAbstract extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "pull(address,uint256)"(
-      arg0: string,
-      arg1: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     push(
-      arg0: string,
-      arg1: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "push(address,uint256)"(
       arg0: string,
       arg1: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -353,26 +275,11 @@ export class DaiAbstract extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "rely(address)"(
-      arg0: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     symbol(overrides?: CallOverrides): Promise<[string]>;
-
-    "symbol()"(overrides?: CallOverrides): Promise<[string]>;
 
     totalSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "totalSupply()"(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     transfer(
-      arg0: string,
-      arg1: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "transfer(address,uint256)"(
       arg0: string,
       arg1: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -385,40 +292,16 @@ export class DaiAbstract extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "transferFrom(address,address,uint256)"(
-      arg0: string,
-      arg1: string,
-      arg2: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     version(overrides?: CallOverrides): Promise<[string]>;
 
-    "version()"(overrides?: CallOverrides): Promise<[string]>;
-
     wards(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    "wards(address)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
   };
 
   DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<string>;
 
-  "DOMAIN_SEPARATOR()"(overrides?: CallOverrides): Promise<string>;
-
   PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
-  "PERMIT_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
-
   allowance(
-    arg0: string,
-    arg1: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  "allowance(address,address)"(
     arg0: string,
     arg1: string,
     overrides?: CallOverrides
@@ -430,18 +313,7 @@ export class DaiAbstract extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "approve(address,uint256)"(
-    arg0: string,
-    arg1: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   balanceOf(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-  "balanceOf(address)"(
-    arg0: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
 
   burn(
     arg0: string,
@@ -449,33 +321,14 @@ export class DaiAbstract extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "burn(address,uint256)"(
-    arg0: string,
-    arg1: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   decimals(overrides?: CallOverrides): Promise<number>;
-
-  "decimals()"(overrides?: CallOverrides): Promise<number>;
 
   deny(
     arg0: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "deny(address)"(
-    arg0: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   mint(
-    arg0: string,
-    arg1: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "mint(address,uint256)"(
     arg0: string,
     arg1: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -488,37 +341,11 @@ export class DaiAbstract extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "move(address,address,uint256)"(
-    arg0: string,
-    arg1: string,
-    arg2: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   name(overrides?: CallOverrides): Promise<string>;
-
-  "name()"(overrides?: CallOverrides): Promise<string>;
 
   nonces(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-  "nonces(address)"(
-    arg0: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
   permit(
-    arg0: string,
-    arg1: string,
-    arg2: BigNumberish,
-    arg3: BigNumberish,
-    arg4: boolean,
-    arg5: BigNumberish,
-    arg6: BytesLike,
-    arg7: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "permit(address,address,uint256,uint256,bool,uint8,bytes32,bytes32)"(
     arg0: string,
     arg1: string,
     arg2: BigNumberish,
@@ -536,19 +363,7 @@ export class DaiAbstract extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "pull(address,uint256)"(
-    arg0: string,
-    arg1: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   push(
-    arg0: string,
-    arg1: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "push(address,uint256)"(
     arg0: string,
     arg1: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -559,26 +374,11 @@ export class DaiAbstract extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "rely(address)"(
-    arg0: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   symbol(overrides?: CallOverrides): Promise<string>;
-
-  "symbol()"(overrides?: CallOverrides): Promise<string>;
 
   totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
-  "totalSupply()"(overrides?: CallOverrides): Promise<BigNumber>;
-
   transfer(
-    arg0: string,
-    arg1: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "transfer(address,uint256)"(
     arg0: string,
     arg1: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -591,37 +391,16 @@ export class DaiAbstract extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "transferFrom(address,address,uint256)"(
-    arg0: string,
-    arg1: string,
-    arg2: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   version(overrides?: CallOverrides): Promise<string>;
 
-  "version()"(overrides?: CallOverrides): Promise<string>;
-
   wards(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-  "wards(address)"(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
   callStatic: {
     DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<string>;
 
-    "DOMAIN_SEPARATOR()"(overrides?: CallOverrides): Promise<string>;
-
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
-    "PERMIT_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
-
     allowance(
-      arg0: string,
-      arg1: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "allowance(address,address)"(
       arg0: string,
       arg1: string,
       overrides?: CallOverrides
@@ -633,18 +412,7 @@ export class DaiAbstract extends Contract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "approve(address,uint256)"(
-      arg0: string,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
     balanceOf(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "balanceOf(address)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     burn(
       arg0: string,
@@ -652,27 +420,11 @@ export class DaiAbstract extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "burn(address,uint256)"(
-      arg0: string,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     decimals(overrides?: CallOverrides): Promise<number>;
-
-    "decimals()"(overrides?: CallOverrides): Promise<number>;
 
     deny(arg0: string, overrides?: CallOverrides): Promise<void>;
 
-    "deny(address)"(arg0: string, overrides?: CallOverrides): Promise<void>;
-
     mint(
-      arg0: string,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "mint(address,uint256)"(
       arg0: string,
       arg1: BigNumberish,
       overrides?: CallOverrides
@@ -685,37 +437,11 @@ export class DaiAbstract extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "move(address,address,uint256)"(
-      arg0: string,
-      arg1: string,
-      arg2: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     name(overrides?: CallOverrides): Promise<string>;
-
-    "name()"(overrides?: CallOverrides): Promise<string>;
 
     nonces(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    "nonces(address)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     permit(
-      arg0: string,
-      arg1: string,
-      arg2: BigNumberish,
-      arg3: BigNumberish,
-      arg4: boolean,
-      arg5: BigNumberish,
-      arg6: BytesLike,
-      arg7: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "permit(address,address,uint256,uint256,bool,uint8,bytes32,bytes32)"(
       arg0: string,
       arg1: string,
       arg2: BigNumberish,
@@ -733,19 +459,7 @@ export class DaiAbstract extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "pull(address,uint256)"(
-      arg0: string,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     push(
-      arg0: string,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "push(address,uint256)"(
       arg0: string,
       arg1: BigNumberish,
       overrides?: CallOverrides
@@ -753,23 +467,11 @@ export class DaiAbstract extends Contract {
 
     rely(arg0: string, overrides?: CallOverrides): Promise<void>;
 
-    "rely(address)"(arg0: string, overrides?: CallOverrides): Promise<void>;
-
     symbol(overrides?: CallOverrides): Promise<string>;
-
-    "symbol()"(overrides?: CallOverrides): Promise<string>;
 
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "totalSupply()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     transfer(
-      arg0: string,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "transfer(address,uint256)"(
       arg0: string,
       arg1: BigNumberish,
       overrides?: CallOverrides
@@ -782,23 +484,9 @@ export class DaiAbstract extends Contract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "transferFrom(address,address,uint256)"(
-      arg0: string,
-      arg1: string,
-      arg2: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
     version(overrides?: CallOverrides): Promise<string>;
 
-    "version()"(overrides?: CallOverrides): Promise<string>;
-
     wards(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "wards(address)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
   };
 
   filters: {};
@@ -806,19 +494,9 @@ export class DaiAbstract extends Contract {
   estimateGas: {
     DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "DOMAIN_SEPARATOR()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "PERMIT_TYPEHASH()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     allowance(
-      arg0: string,
-      arg1: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "allowance(address,address)"(
       arg0: string,
       arg1: string,
       overrides?: CallOverrides
@@ -830,18 +508,7 @@ export class DaiAbstract extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "approve(address,uint256)"(
-      arg0: string,
-      arg1: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     balanceOf(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "balanceOf(address)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     burn(
       arg0: string,
@@ -849,33 +516,14 @@ export class DaiAbstract extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "burn(address,uint256)"(
-      arg0: string,
-      arg1: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     decimals(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "decimals()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     deny(
       arg0: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "deny(address)"(
-      arg0: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     mint(
-      arg0: string,
-      arg1: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "mint(address,uint256)"(
       arg0: string,
       arg1: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -888,37 +536,11 @@ export class DaiAbstract extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "move(address,address,uint256)"(
-      arg0: string,
-      arg1: string,
-      arg2: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     name(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "name()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     nonces(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    "nonces(address)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     permit(
-      arg0: string,
-      arg1: string,
-      arg2: BigNumberish,
-      arg3: BigNumberish,
-      arg4: boolean,
-      arg5: BigNumberish,
-      arg6: BytesLike,
-      arg7: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "permit(address,address,uint256,uint256,bool,uint8,bytes32,bytes32)"(
       arg0: string,
       arg1: string,
       arg2: BigNumberish,
@@ -936,19 +558,7 @@ export class DaiAbstract extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "pull(address,uint256)"(
-      arg0: string,
-      arg1: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     push(
-      arg0: string,
-      arg1: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "push(address,uint256)"(
       arg0: string,
       arg1: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -959,26 +569,11 @@ export class DaiAbstract extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "rely(address)"(
-      arg0: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     symbol(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "symbol()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "totalSupply()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     transfer(
-      arg0: string,
-      arg1: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "transfer(address,uint256)"(
       arg0: string,
       arg1: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -991,37 +586,15 @@ export class DaiAbstract extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "transferFrom(address,address,uint256)"(
-      arg0: string,
-      arg1: string,
-      arg2: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     version(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "version()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     wards(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "wards(address)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "DOMAIN_SEPARATOR()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "PERMIT_TYPEHASH()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
 
     allowance(
       arg0: string,
@@ -1029,19 +602,7 @@ export class DaiAbstract extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "allowance(address,address)"(
-      arg0: string,
-      arg1: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     approve(
-      arg0: string,
-      arg1: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "approve(address,uint256)"(
       arg0: string,
       arg1: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1052,18 +613,7 @@ export class DaiAbstract extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "balanceOf(address)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     burn(
-      arg0: string,
-      arg1: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "burn(address,uint256)"(
       arg0: string,
       arg1: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1071,25 +621,12 @@ export class DaiAbstract extends Contract {
 
     decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "decimals()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     deny(
       arg0: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "deny(address)"(
-      arg0: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     mint(
-      arg0: string,
-      arg1: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "mint(address,uint256)"(
       arg0: string,
       arg1: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1102,40 +639,14 @@ export class DaiAbstract extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "move(address,address,uint256)"(
-      arg0: string,
-      arg1: string,
-      arg2: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     name(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "name()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     nonces(
       arg0: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "nonces(address)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     permit(
-      arg0: string,
-      arg1: string,
-      arg2: BigNumberish,
-      arg3: BigNumberish,
-      arg4: boolean,
-      arg5: BigNumberish,
-      arg6: BytesLike,
-      arg7: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "permit(address,address,uint256,uint256,bool,uint8,bytes32,bytes32)"(
       arg0: string,
       arg1: string,
       arg2: BigNumberish,
@@ -1153,19 +664,7 @@ export class DaiAbstract extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "pull(address,uint256)"(
-      arg0: string,
-      arg1: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     push(
-      arg0: string,
-      arg1: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "push(address,uint256)"(
       arg0: string,
       arg1: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1176,26 +675,11 @@ export class DaiAbstract extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "rely(address)"(
-      arg0: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     symbol(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "symbol()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     totalSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "totalSupply()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     transfer(
-      arg0: string,
-      arg1: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "transfer(address,uint256)"(
       arg0: string,
       arg1: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1208,23 +692,9 @@ export class DaiAbstract extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "transferFrom(address,address,uint256)"(
-      arg0: string,
-      arg1: string,
-      arg2: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     version(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "version()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     wards(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "wards(address)"(
       arg0: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;

@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Box, ResponsiveContext, Text } from 'grommet';
+import { Box, Heading, ResponsiveContext, Text } from 'grommet';
 import { BorderType } from 'grommet/utils';
 
 interface ISectionWrap {
@@ -11,8 +11,8 @@ interface ISectionWrap {
 function SectionWrap({ title, subtitle, border, children }: ISectionWrap) {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
   return (
-    <Box align={mobile ? undefined : 'center'} gap="small" fill="horizontal" border={border}>
-      { title && <Text size={mobile ? 'small' : undefined}> {title} </Text>}
+    <Box gap="small" fill="horizontal" border={border}>
+      { title && <Text size={mobile ? 'small' : 'small'}> {title} </Text>}
       { subtitle && <Text color="text-weak" size={mobile ? 'xsmall' : 'small'}> {subtitle} </Text>}
       {children}
     </Box>

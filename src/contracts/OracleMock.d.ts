@@ -9,7 +9,7 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-  Contract,
+  BaseContract,
   ContractTransaction,
   Overrides,
   CallOverrides,
@@ -21,16 +21,22 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface OracleMockInterface extends ethers.utils.Interface {
   functions: {
-    "get()": FunctionFragment;
-    "peek()": FunctionFragment;
+    "get(bytes32,bytes32,uint256)": FunctionFragment;
+    "peek(bytes32,bytes32,uint256)": FunctionFragment;
     "set(uint256)": FunctionFragment;
     "source()": FunctionFragment;
     "spot()": FunctionFragment;
     "updated()": FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: "get", values?: undefined): string;
-  encodeFunctionData(functionFragment: "peek", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "get",
+    values: [BytesLike, BytesLike, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "peek",
+    values: [BytesLike, BytesLike, BigNumberish]
+  ): string;
   encodeFunctionData(functionFragment: "set", values: [BigNumberish]): string;
   encodeFunctionData(functionFragment: "source", values?: undefined): string;
   encodeFunctionData(functionFragment: "spot", values?: undefined): string;
@@ -46,7 +52,7 @@ interface OracleMockInterface extends ethers.utils.Interface {
   events: {};
 }
 
-export class OracleMock extends Contract {
+export class OracleMock extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -91,174 +97,133 @@ export class OracleMock extends Contract {
 
   functions: {
     get(
+      arg0: BytesLike,
+      arg1: BytesLike,
+      amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "get()"(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    peek(overrides?: CallOverrides): Promise<[BigNumber, BigNumber]>;
-
-    "peek()"(overrides?: CallOverrides): Promise<[BigNumber, BigNumber]>;
+    peek(
+      arg0: BytesLike,
+      arg1: BytesLike,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber, BigNumber]>;
 
     set(
-      spot_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "set(uint256)"(
       spot_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     source(overrides?: CallOverrides): Promise<[string]>;
 
-    "source()"(overrides?: CallOverrides): Promise<[string]>;
-
     spot(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "spot()"(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     updated(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    "updated()"(overrides?: CallOverrides): Promise<[BigNumber]>;
   };
 
   get(
+    arg0: BytesLike,
+    arg1: BytesLike,
+    amount: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "get()"(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  peek(overrides?: CallOverrides): Promise<[BigNumber, BigNumber]>;
-
-  "peek()"(overrides?: CallOverrides): Promise<[BigNumber, BigNumber]>;
+  peek(
+    arg0: BytesLike,
+    arg1: BytesLike,
+    amount: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<[BigNumber, BigNumber]>;
 
   set(
     spot_: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "set(uint256)"(
-    spot_: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   source(overrides?: CallOverrides): Promise<string>;
-
-  "source()"(overrides?: CallOverrides): Promise<string>;
 
   spot(overrides?: CallOverrides): Promise<BigNumber>;
 
-  "spot()"(overrides?: CallOverrides): Promise<BigNumber>;
-
   updated(overrides?: CallOverrides): Promise<BigNumber>;
 
-  "updated()"(overrides?: CallOverrides): Promise<BigNumber>;
-
   callStatic: {
-    get(overrides?: CallOverrides): Promise<[BigNumber, BigNumber]>;
+    get(
+      arg0: BytesLike,
+      arg1: BytesLike,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber, BigNumber]>;
 
-    "get()"(overrides?: CallOverrides): Promise<[BigNumber, BigNumber]>;
-
-    peek(overrides?: CallOverrides): Promise<[BigNumber, BigNumber]>;
-
-    "peek()"(overrides?: CallOverrides): Promise<[BigNumber, BigNumber]>;
+    peek(
+      arg0: BytesLike,
+      arg1: BytesLike,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber, BigNumber]>;
 
     set(spot_: BigNumberish, overrides?: CallOverrides): Promise<void>;
 
-    "set(uint256)"(
-      spot_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     source(overrides?: CallOverrides): Promise<string>;
-
-    "source()"(overrides?: CallOverrides): Promise<string>;
 
     spot(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "spot()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     updated(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "updated()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   filters: {};
 
   estimateGas: {
     get(
+      arg0: BytesLike,
+      arg1: BytesLike,
+      amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "get()"(
-      overrides?: Overrides & { from?: string | Promise<string> }
+    peek(
+      arg0: BytesLike,
+      arg1: BytesLike,
+      amount: BigNumberish,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    peek(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "peek()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     set(
-      spot_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "set(uint256)"(
       spot_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     source(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "source()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     spot(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "spot()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     updated(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "updated()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
     get(
+      arg0: BytesLike,
+      arg1: BytesLike,
+      amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "get()"(
-      overrides?: Overrides & { from?: string | Promise<string> }
+    peek(
+      arg0: BytesLike,
+      arg1: BytesLike,
+      amount: BigNumberish,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
-
-    peek(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "peek()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     set(
       spot_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "set(uint256)"(
-      spot_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     source(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "source()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     spot(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "spot()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     updated(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "updated()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

@@ -2,16 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer } from "ethers";
+import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-
-import type { Pool } from "../Pool";
-
-export class Pool__factory {
-  static connect(address: string, signerOrProvider: Signer | Provider): Pool {
-    return new Contract(address, _abi, signerOrProvider) as Pool;
-  }
-}
+import type { Pool, PoolInterface } from "../Pool";
 
 const _abi = [
   {
@@ -369,27 +362,17 @@ const _abi = [
         name: "minBaseTokenOut",
         type: "uint256",
       },
-      {
-        internalType: "uint256",
-        name: "minFYTokenOut",
-        type: "uint256",
-      },
     ],
     name: "burnForBaseToken",
     outputs: [
       {
         internalType: "uint256",
-        name: "",
+        name: "tokensBurned",
         type: "uint256",
       },
       {
         internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "",
+        name: "baseTokenOut",
         type: "uint256",
       },
     ],
@@ -1053,3 +1036,13 @@ const _abi = [
     type: "function",
   },
 ];
+
+export class Pool__factory {
+  static readonly abi = _abi;
+  static createInterface(): PoolInterface {
+    return new utils.Interface(_abi) as PoolInterface;
+  }
+  static connect(address: string, signerOrProvider: Signer | Provider): Pool {
+    return new Contract(address, _abi, signerOrProvider) as Pool;
+  }
+}

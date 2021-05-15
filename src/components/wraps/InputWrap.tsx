@@ -1,30 +1,36 @@
 import React, { useContext } from 'react';
-import { Box, BoxProps, ResponsiveContext } from 'grommet';
+import { Box, BoxProps, Text, ResponsiveContext } from 'grommet';
 
 interface IInputWrap extends BoxProps {
   action?: ()=>void;
   disabled?: boolean;
+  isError?:string|null;
   children: any;
 }
 
-function InputWrap({ action, disabled, children, ...props }: IInputWrap) {
+function InputWrap({ action, disabled, isError, children, ...props }: IInputWrap) {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
 
   return (
-    <Box
-      {...props}
-      direction="row"
-      round="xsmall"
-      border
-      pad={{ horizontal: 'small' }}
-      align="center"
-      basis={mobile ? '50%' : '65%'}
-    >
-      { children }
+    <Box>
+      <Box
+        {...props}
+        direction="row"
+        round="xsmall"
+        border={disabled ? { color: 'text-xweak' } : true}
+        pad={{ horizontal: 'small' }}
+        align="center"
+        basis={mobile ? '50%' : '65%'}
+        background={isError ? 'pink' : undefined}
+      >
+        { children }
+      </Box>
+      <Text color="pink" size="xsmall"> {isError} </Text>
     </Box>
+
   );
 }
 
-InputWrap.defaultProps = { action: () => null, disabled: false };
+InputWrap.defaultProps = { action: () => null, disabled: false, isError: null };
 
 export default InputWrap;

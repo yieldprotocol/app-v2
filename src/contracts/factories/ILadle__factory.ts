@@ -2,16 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer } from "ethers";
+import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-
-import type { ILadle } from "../ILadle";
-
-export class ILadle__factory {
-  static connect(address: string, signerOrProvider: Signer | Provider): ILadle {
-    return new Contract(address, _abi, signerOrProvider) as ILadle;
-  }
-}
+import type { ILadle, ILadleInterface } from "../ILadle";
 
 const _abi = [
   {
@@ -43,3 +36,13 @@ const _abi = [
     type: "function",
   },
 ];
+
+export class ILadle__factory {
+  static readonly abi = _abi;
+  static createInterface(): ILadleInterface {
+    return new utils.Interface(_abi) as ILadleInterface;
+  }
+  static connect(address: string, signerOrProvider: Signer | Provider): ILadle {
+    return new Contract(address, _abi, signerOrProvider) as ILadle;
+  }
+}

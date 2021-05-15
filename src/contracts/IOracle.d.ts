@@ -9,7 +9,7 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-  Contract,
+  BaseContract,
   ContractTransaction,
   Overrides,
   CallOverrides,
@@ -21,23 +21,26 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface IOracleInterface extends ethers.utils.Interface {
   functions: {
-    "get()": FunctionFragment;
-    "peek()": FunctionFragment;
-    "source()": FunctionFragment;
+    "get(bytes32,bytes32,uint256)": FunctionFragment;
+    "peek(bytes32,bytes32,uint256)": FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: "get", values?: undefined): string;
-  encodeFunctionData(functionFragment: "peek", values?: undefined): string;
-  encodeFunctionData(functionFragment: "source", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "get",
+    values: [BytesLike, BytesLike, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "peek",
+    values: [BytesLike, BytesLike, BigNumberish]
+  ): string;
 
   decodeFunctionResult(functionFragment: "get", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "peek", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "source", data: BytesLike): Result;
 
   events: {};
 }
 
-export class IOracle extends Contract {
+export class IOracle extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -82,119 +85,89 @@ export class IOracle extends Contract {
 
   functions: {
     get(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "get()"(
+      base: BytesLike,
+      quote: BytesLike,
+      amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     peek(
+      base: BytesLike,
+      quote: BytesLike,
+      amount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, BigNumber] & { price: BigNumber; updateTime: BigNumber }
+      [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
     >;
-
-    "peek()"(
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { price: BigNumber; updateTime: BigNumber }
-    >;
-
-    source(overrides?: CallOverrides): Promise<[string]>;
-
-    "source()"(overrides?: CallOverrides): Promise<[string]>;
   };
 
   get(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "get()"(
+    base: BytesLike,
+    quote: BytesLike,
+    amount: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   peek(
+    base: BytesLike,
+    quote: BytesLike,
+    amount: BigNumberish,
     overrides?: CallOverrides
   ): Promise<
-    [BigNumber, BigNumber] & { price: BigNumber; updateTime: BigNumber }
+    [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
   >;
-
-  "peek()"(
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber, BigNumber] & { price: BigNumber; updateTime: BigNumber }
-  >;
-
-  source(overrides?: CallOverrides): Promise<string>;
-
-  "source()"(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
     get(
+      base: BytesLike,
+      quote: BytesLike,
+      amount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, BigNumber] & { price: BigNumber; updateTime: BigNumber }
-    >;
-
-    "get()"(
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { price: BigNumber; updateTime: BigNumber }
+      [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
     >;
 
     peek(
+      base: BytesLike,
+      quote: BytesLike,
+      amount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, BigNumber] & { price: BigNumber; updateTime: BigNumber }
+      [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
     >;
-
-    "peek()"(
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { price: BigNumber; updateTime: BigNumber }
-    >;
-
-    source(overrides?: CallOverrides): Promise<string>;
-
-    "source()"(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {};
 
   estimateGas: {
     get(
+      base: BytesLike,
+      quote: BytesLike,
+      amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "get()"(
-      overrides?: Overrides & { from?: string | Promise<string> }
+    peek(
+      base: BytesLike,
+      quote: BytesLike,
+      amount: BigNumberish,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    peek(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "peek()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    source(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "source()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
     get(
+      base: BytesLike,
+      quote: BytesLike,
+      amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "get()"(
-      overrides?: Overrides & { from?: string | Promise<string> }
+    peek(
+      base: BytesLike,
+      quote: BytesLike,
+      amount: BigNumberish,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
-
-    peek(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "peek()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    source(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "source()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

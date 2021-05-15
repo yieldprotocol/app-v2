@@ -1,10 +1,16 @@
 {
   "addresses" : { 
     "1" : {
-      "Cauldron": "0x09635F643e140090A9A8Dcd712eD6285858ceBef",
-      "Ladle" : "0xc5a5C42992dECbae36851359345FE25997F5C42d",
-      "Witch" : "0x67d269191c92Caf3cD7723F116c85e6E9bf55933",
-      "PoolRouter" : "0xa82fF9aFd8f496c3d6ac40E2a0F282E47488CFc9"
+      "Cauldron": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      "Ladle" : "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+      "Witch" : "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+      "PoolRouter" : "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853"
+    },
+    "42" : {
+      "Cauldron": "0x5ff6B059f51e580D1da9924b98Ddc0A3Be5C7D0d",
+      "Ladle" : "0x074B7c78e96c60709733dc319738E3aD1b6E3E6a",
+      "Witch" : "0x701e2Be910ad2b060caa30431c004B25A84be6fC",
+      "PoolRouter" : "0x7787f65C7C825cf5069eBdf0B4C475449774C0da"
     },
     "31337" : {
       "Cauldron": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
