@@ -66,13 +66,13 @@ function SeriesSelector({ selectSeriesLocally }: ISeriesSelectorProps) {
         labelKey={(x:any) => optionText(x)}
         valueLabel={
           options.length ?
-            <Box pad={mobile ? 'medium' : 'small'}><Text size="small" color="text"> {optionText(_selectedSeries)} </Text></Box>
-            : <Box pad={mobile ? 'medium' : 'small'}><Text size="small" color="text"> No available series.</Text></Box>
+            <Box pad={mobile ? 'medium' : 'small'}><Text color="text"> {optionText(_selectedSeries)} </Text></Box>
+            : <Box pad={mobile ? 'medium' : 'small'}><Text color="text"> No available series.</Text></Box>
         }
         disabled={options.length === 0}
         onChange={({ option }: any) => handleSelect(option.id)}
         // eslint-disable-next-line react/no-children-prop
-        children={(x:any) => <Box pad={mobile ? 'medium' : 'small'} gap="small" direction="row"> <Text color="text" size="small"> { optionText(x) } </Text> </Box>}
+        children={(x:any) => <Box pad={mobile ? 'medium' : 'small'} gap="small" direction="row"> <Text color="text"> { optionText(x) } </Text> </Box>}
       />
     </Box>
   );

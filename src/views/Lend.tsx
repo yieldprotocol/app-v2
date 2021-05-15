@@ -158,24 +158,28 @@ const Lend = () => {
     <MainViewWrap>
 
       <SectionWrap title="1. Asset to Lend">
-
         <Box direction="row" gap="small" fill="horizontal" align="start">
-          <InputWrap action={() => console.log('maxAction')} isError={lendError}>
-            <TextInput
-              plain
-              type="number"
-              placeholder="Enter amount"
-              value={lendInput || ''}
-              onChange={(event:any) => setLendInput(cleanValue(event.target.value))}
-            />
-            <MaxButton
-              action={() => setLendInput(maxLend)}
-              disabled={maxLend === '0'}
-            />
-          </InputWrap>
+
+          <Box basis={mobile ? '50%' : '65%'}>
+            <InputWrap action={() => console.log('maxAction')} isError={lendError}>
+              <TextInput
+                plain
+                type="number"
+                placeholder="Enter amount"
+                value={lendInput || ''}
+                onChange={(event:any) => setLendInput(cleanValue(event.target.value))}
+              />
+              <MaxButton
+                action={() => setLendInput(maxLend)}
+                disabled={maxLend === '0'}
+              />
+            </InputWrap>
+          </Box>
+
           <Box basis={mobile ? '50%' : '35%'}>
             <AssetSelector />
           </Box>
+
         </Box>
       </SectionWrap>
 
@@ -184,7 +188,7 @@ const Lend = () => {
         <Box justify="evenly" gap="small" fill="horizontal" direction="row-responsive">
           {
             selectedSeries?.baseId === selectedBaseId &&
-            <InfoBite label="FYToken balance" value={selectedSeries?.fyTokenBalance_!} />
+            <InfoBite label="FYToken balance (Base value at maturity)" value={selectedSeries?.fyTokenBalance_!} />
           }
         </Box>
       </SectionWrap>
@@ -210,20 +214,24 @@ const Lend = () => {
         title=" [ Close position ]"
       >
         <Box direction="row" gap="small" fill="horizontal" align="start">
-          <InputWrap action={() => console.log('maxAction')} isError={closeError} disabled={!selectedSeriesId}>
-            <TextInput
-              plain
-              type="number"
-              placeholder="fyToken Amount" // {`${selectedBase?.symbol} to reclaim`}
-              value={closeInput || ''}
-              onChange={(event:any) => setCloseInput(cleanValue(event.target.value))}
-              disabled={!selectedSeriesId}
-            />
-            <MaxButton
-              action={() => setCloseInput(maxClose)}
-              disabled={maxClose === '0.0' || !selectedSeriesId}
-            />
-          </InputWrap>
+
+          <Box fill>
+            <InputWrap action={() => console.log('maxAction')} isError={closeError} disabled={!selectedSeriesId}>
+              <TextInput
+                plain
+                type="number"
+                placeholder="fyToken Amount" // {`${selectedBase?.symbol} to reclaim`}
+                value={closeInput || ''}
+                onChange={(event:any) => setCloseInput(cleanValue(event.target.value))}
+                disabled={!selectedSeriesId}
+              />
+              <MaxButton
+                action={() => setCloseInput(maxClose)}
+                disabled={maxClose === '0.0' || !selectedSeriesId}
+              />
+            </InputWrap>
+          </Box>
+
         </Box>
 
         <ActionButtonGroup buttonList={[
@@ -243,20 +251,25 @@ const Lend = () => {
       >
 
         <Box direction="row" gap="small" fill="horizontal" align="start">
-          <InputWrap action={() => console.log('maxAction')} isError={rollError} disabled={!selectedSeriesId}>
-            <TextInput
-              plain
-              type="number"
-              placeholder="fyToken Amount" // {`${selectedBase?.symbol} to roll`}
-              value={rollInput || ''}
-              onChange={(event:any) => setRollInput(cleanValue(event.target.value))}
-              disabled={!selectedSeriesId}
-            />
-            <MaxButton
-              action={() => setRollInput(maxClose)}
-              disabled={maxClose === '0.0' || !selectedSeriesId}
-            />
-          </InputWrap>
+
+          <Box fill>
+
+            <InputWrap action={() => console.log('maxAction')} isError={rollError} disabled={!selectedSeriesId}>
+              <TextInput
+                plain
+                type="number"
+                placeholder="fyToken Amount" // {`${selectedBase?.symbol} to roll`}
+                value={rollInput || ''}
+                onChange={(event:any) => setRollInput(cleanValue(event.target.value))}
+                disabled={!selectedSeriesId}
+              />
+              <MaxButton
+                action={() => setRollInput(maxClose)}
+                disabled={maxClose === '0.0' || !selectedSeriesId}
+              />
+            </InputWrap>
+
+          </Box>
         </Box>
 
         <Box gap="small" fill="horizontal" direction="row" align="center">

@@ -52,11 +52,11 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
         options={options}
         value={selectCollateral ? selectedIlk : selectedBase}
         labelKey={(x:any) => optionText(x)}
-        valueLabel={<Box pad={mobile ? 'medium' : 'small'}><Text size="small" color="text"> { optionText(selectCollateral ? selectedIlk : selectedBase)} </Text></Box>}
+        valueLabel={<Box pad={mobile ? 'medium' : 'small'}><Text color="text"> { optionText(selectCollateral ? selectedIlk : selectedBase)} </Text></Box>}
         onChange={({ option }: any) => handleSelect(option.id)}
         disabled={(selectCollateral && !selectedSeriesId)}
         // eslint-disable-next-line react/no-children-prop
-        children={(x:any) => <Box pad={mobile ? 'medium' : 'small'} gap="small" direction="row"> <Text color="text" size="small"> { optionText(x) } </Text> </Box>}
+        children={(x:any) => <Box pad={mobile ? 'medium' : 'small'} gap="small" direction="row"> <Text color="text"> { optionText(x) } </Text> </Box>}
       />
     </Box>
   );

@@ -34,9 +34,10 @@ export const yieldTheme = {
         light: '#FFFFFF',
       },
     },
-    input: { weight: 100 },
+    input: { weight: 900 },
 
   },
+
   textInput: {
     extend: ({ theme }: any) => (
       theme.dark
@@ -44,6 +45,7 @@ export const yieldTheme = {
         : `color: ${theme.global.colors.text.light}`
     ),
   },
+
   select: {
     options: {
       container: {
@@ -83,11 +85,13 @@ export const yieldTheme = {
 
     },
   },
+
   input: {
     border: {
       radius: '8px',
     },
     // font: {
+    //   size: 'large',
     //   color: 'text-xweak',
     // },
   },

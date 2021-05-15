@@ -149,16 +149,19 @@ const Borrow = () => {
         <SectionWrap title="1. Choose an Asset to Borrow">
 
           <Box direction="row" gap="small" fill="horizontal" align="start">
-            <InputWrap action={() => console.log('maxAction')} isError={borrowError}>
-              <TextInput
-                plain
-                type="number"
-                placeholder="Enter amount"
-                value={borrowInput}
-                onChange={(event:any) => setBorrowInput(event.target.value)}
-                autoFocus={!mobile}
-              />
-            </InputWrap>
+
+            <Box basis={mobile ? '50%' : '65%'}>
+              <InputWrap action={() => console.log('maxAction')} isError={borrowError}>
+                <TextInput
+                  plain
+                  type="number"
+                  placeholder="Enter amount"
+                  value={borrowInput}
+                  onChange={(event:any) => setBorrowInput(event.target.value)}
+                  autoFocus={!mobile}
+                />
+              </InputWrap>
+            </Box>
             <Box basis={mobile ? '50%' : '35%'}>
               <AssetSelector />
             </Box>
@@ -177,21 +180,23 @@ const Borrow = () => {
 
         <SectionWrap title="3. Add Collateral">
           <Box direction="row" gap="small" fill="horizontal" align="start">
-            <InputWrap action={() => console.log('maxAction')} disabled={!selectedSeriesId} isError={collatError}>
-              <TextInput
-                plain
-                type="number"
-                placeholder="Enter amount"
+            <Box basis={mobile ? '50%' : '65%'}>
+              <InputWrap action={() => console.log('maxAction')} disabled={!selectedSeriesId} isError={collatError}>
+                <TextInput
+                  plain
+                  type="number"
+                  placeholder="Enter amount"
                 // ref={(el:any) => { el && el.focus(); }}
-                value={collatInput}
-                onChange={(event:any) => setCollatInput(event.target.value)}
-                disabled={!selectedSeriesId}
-              />
-              <MaxButton
-                action={() => maxCollat && setCollatInput(maxCollat)}
-                disabled={!selectedSeriesId || collatInput === maxCollat} /* disabled if is already Max */
-              />
-            </InputWrap>
+                  value={collatInput}
+                  onChange={(event:any) => setCollatInput(event.target.value)}
+                  disabled={!selectedSeriesId}
+                />
+                <MaxButton
+                  action={() => maxCollat && setCollatInput(maxCollat)}
+                  disabled={!selectedSeriesId || collatInput === maxCollat}
+                />
+              </InputWrap>
+            </Box>
             <Box basis={mobile ? '50%' : '35%'}>
               <AssetSelector selectCollateral />
             </Box>

@@ -134,26 +134,29 @@ function Pool() {
     <MainViewWrap>
 
       <SectionWrap title="1. Asset to Pool">
-
         <Box direction="row" gap="small" fill="horizontal" align="start">
-          <InputWrap action={() => console.log('maxAction')} isError={poolError}>
-            <TextInput
-              plain
-              type="number"
-              placeholder="Enter Amount"
-              value={poolInput || ''}
-              onChange={(event:any) => setPoolInput(cleanValue(event.target.value))}
-            />
-            <MaxButton
-              action={() => setPoolInput(maxPool)}
-              disabled={maxPool === '0'}
-            />
-          </InputWrap>
+
+          <Box basis={mobile ? '50%' : '65%'}>
+            <InputWrap action={() => console.log('maxAction')} isError={poolError}>
+              <TextInput
+                plain
+                type="number"
+                placeholder="Enter Amount"
+                value={poolInput || ''}
+                onChange={(event:any) => setPoolInput(cleanValue(event.target.value))}
+              />
+              <MaxButton
+                action={() => setPoolInput(maxPool)}
+                disabled={maxPool === '0'}
+              />
+            </InputWrap>
+          </Box>
+
           <Box basis={mobile ? '50%' : '35%'}>
             <AssetSelector />
           </Box>
-        </Box>
 
+        </Box>
       </SectionWrap>
 
       <SectionWrap title="2. Select a series">
@@ -232,26 +235,28 @@ function Pool() {
       </SectionWrap>
 
       <SectionWrap title="[ Roll Liquidity to ]">
-
         <Box direction="row" gap="small" fill="horizontal">
-          <InputWrap action={() => console.log('maxAction')} isError={rollError}>
-            <TextInput
-              plain
-              type="number"
-              placeholder="Tokens to remove"
-              value={rollInput || ''}
-              onChange={(event:any) => setRollInput(cleanValue(event.target.value))}
-            />
-            <MaxButton
-              action={() => setRollInput(maxRemove)}
-              disabled={maxRemove === '0.0'}
-            />
-          </InputWrap>
+
+          <Box fill>
+            <InputWrap action={() => console.log('maxAction')} isError={rollError}>
+              <TextInput
+                plain
+                type="number"
+                placeholder="Tokens to remove"
+                value={rollInput || ''}
+                onChange={(event:any) => setRollInput(cleanValue(event.target.value))}
+              />
+              <MaxButton
+                action={() => setRollInput(maxRemove)}
+                disabled={maxRemove === '0.0'}
+              />
+            </InputWrap>
+          </Box>
+
         </Box>
 
         <Box gap="small" fill="horizontal" direction="row">
           <SeriesSelector selectSeriesLocally={(series:ISeries) => setRollToSeries(series)} />
-
           <Box basis="35%">
             <ActionButtonGroup buttonList={[
               <Button
