@@ -39,7 +39,6 @@ const Vault = () => {
   const [repayInput, setRepayInput] = useState<any>(undefined);
   const [borrowInput, setBorrowInput] = useState<any>(undefined);
   const [collatInput, setCollatInput] = useState<any>(undefined);
-  const [rollInput, setRollInput] = useState<string>();
 
   const [rollToSeries, setRollToSeries] = useState<ISeries|null>(null);
 
@@ -49,10 +48,9 @@ const Vault = () => {
   const [repayError, setRepayError] = useState<string|null>(null);
   const [borrowError, setBorrowError] = useState<string|null>(null);
   const [collatError, setCollatError] = useState<string|null>(null);
-  const [rollError, setRollError] = useState<string|null>(null);
 
   const [repayDisabled, setRepayDisabled] = useState<boolean>(true);
-  const [rollDisabled, setRollDisabled] = useState<boolean>(true);
+  // const [rollDisabled, setRollDisabled] = useState<boolean>(true);
 
   /* HOOK FNS */
 
@@ -78,7 +76,7 @@ const Vault = () => {
   };
   const handleRoll = () => {
     rollToSeries && activeVault &&
-    rollDebt(activeVault, rollToSeries, '0');
+    rollDebt(activeVault, rollToSeries);
   };
 
   /* SET MAX VALUES */
@@ -121,22 +119,6 @@ const Vault = () => {
     }
   }, [repayInput, maxRepay, setRepayError]);
 
-  /* CHECK for any roll debt input errors/warnings */
-  useEffect(() => {
-    if (rollInput || rollInput === '') {
-      /* 1. Check if input exceeds balance */
-      if (maxRepay && parseFloat(rollInput) > parseFloat(maxRepay)) setRollError('Roll Amount exceeds debt');
-      /* 2. Check if input is above zero */
-      else if (parseFloat(rollInput) < 0) setRollError('Amount should be expressed as a positive value');
-      /* 3. next check */
-      else if (false) setRollError('Undercollateralised');
-      /* if all checks pass, set null error message */
-      else {
-        setRollError(null);
-      }
-    }
-  }, [rollInput, maxRepay, setRollError]);
-
   /* CHECK for any collateral input errors/warnings */
   useEffect(() => {
     if (collatInput || collatInput === '') {
@@ -158,9 +140,8 @@ const Vault = () => {
   useEffect(() => {
     /* if ANY of the following conditions are met: block action */
     (!repayInput || repayError) ? setRepayDisabled(true) : setRepayDisabled(false);
-    (!rollInput || rollError) ? setRollDisabled(true) : setRollDisabled(false);
   },
-  [repayInput, repayError, collatInput, rollInput, rollError]);
+  [repayInput, repayError, collatInput]);
 
   /* EXTRA INITIATIONS */
 
@@ -171,7 +152,7 @@ const Vault = () => {
   return (
     <MainViewWrap fullWidth>
       <Box gap="medium">
-        <Box direction="row-responsive" gap="medium" justify="between" fill="horizontal">
+        <Box direction="row-responsive" justify="evenly" fill="horizontal">
           <Box direction="row" align="center" justify="between">
             <Text size={mobile ? 'small' : 'medium'}> {activeVault?.id} </Text>
             <Menu
@@ -190,146 +171,128 @@ const Vault = () => {
             />
           </Box>
 
-          <Box direction="row" justify="between" gap="small">
-            <Text size="small"> Maturity date: </Text>
-            <Text size="small"> { selectedSeries?.displayName } </Text>
+          <Box direction="row-responsive" gap="medium">
+            <InfoBite label="Vault debt:" value={`${activeVault?.art_} ${selectedBase?.symbol}`} />
+            <InfoBite label="Collateral posted:" value={`${activeVault?.ink_} ${selectedIlk?.symbol}`} />
+            <InfoBite label="Maturity date:" value={`${selectedSeries?.displayName}`} />
           </Box>
         </Box>
-
-        <InfoBite label="Vault debt:" value={`${activeVault?.art_} ${selectedBase?.symbol}`} />
-        <InfoBite label="Collateral posted:" value={`${activeVault?.ink_} ${selectedIlk?.symbol}`} />
-
       </Box>
 
       <MainViewWrap>
 
         <SectionWrap title="[ Repay debt ]">
+          <Box gap="small" fill="horizontal" align="center">
 
-          <Box gap="small" fill="horizontal" direction="row" align="center">
-            <InputWrap action={() => console.log('maxAction')} isError={repayError}>
-              <TextInput
-                plain
-                type="number"
-                placeholder="Enter amount to Repay"
+            <Box fill>
+              <InputWrap action={() => console.log('maxAction')} isError={repayError}>
+                <TextInput
+                  plain
+                  type="number"
+                  placeholder="Enter amount to Repay"
                 // ref={(el:any) => { el && !repayOpen && !rateLockOpen && !mobile && el.focus(); setInputRef(el); }}
-                value={repayInput || ''}
-                onChange={(event:any) => setRepayInput(cleanValue(event.target.value))}
-              />
-              <MaxButton
-                action={() => setRepayInput(maxRepay)}
-              />
-            </InputWrap>
-          </Box>
-
-          <ActionButtonGroup buttonList={[
-            <Button
-              primary
-              label={<Text size={mobile ? 'small' : undefined}> {`Repay ${repayInput || ''} Dai`} </Text>}
-              key="primary"
-              onClick={() => handleRepay()}
-              disabled={repayDisabled}
-            />,
-          ]}
-          />
-
-        </SectionWrap>
-
-        <SectionWrap title="[ Roll Position ]">
-
-          <Box direction="row" gap="small" fill="horizontal" align="start">
-            <InputWrap action={() => console.log('maxAction')} isError={rollError}>
-              <TextInput
-                plain
-                type="number"
-                placeholder="fyToken Amount" // {`${selectedBase?.symbol} to roll`}
-                value={rollInput || ''}
-                onChange={(event:any) => setRollInput(cleanValue(event.target.value))}
-              />
-              <MaxButton
-                action={() => setRollInput(maxRepay)}
-              />
-            </InputWrap>
-          </Box>
-
-          <Box gap="small" fill="horizontal" direction="row" align="center">
-
-            <SeriesSelector selectSeriesLocally={(series:ISeries) => setRollToSeries(series)} />
-
-            <Box basis="35%">
-              <ActionButtonGroup buttonList={[
-                <Button
-                  primary
-                  label={<Text size={mobile ? 'small' : undefined}> Roll </Text>}
-                  key="primary"
-                  onClick={() => handleRoll()}
-                  disabled={rollDisabled}
-                />,
-              ]}
-              />
+                  value={repayInput || ''}
+                  onChange={(event:any) => setRepayInput(cleanValue(event.target.value))}
+                />
+                <MaxButton
+                  action={() => setRepayInput(maxRepay)}
+                />
+              </InputWrap>
             </Box>
+            <ActionButtonGroup buttonList={[
+              <Button
+                primary
+                label={<Text size={mobile ? 'small' : undefined}> {`Repay ${repayInput || ''} Dai`} </Text>}
+                key="primary"
+                onClick={() => handleRepay()}
+                disabled={repayDisabled}
+              />,
+            ]}
+            />
+
           </Box>
+
         </SectionWrap>
 
         <SectionWrap title="[ Borrow more ]">
-
-          <Box gap="small" fill="horizontal" direction="row" align="center">
-            <InputWrap basis="65%" action={() => console.log('maxAction')} isError={borrowError}>
-              <TextInput
-                plain
-                type="number"
-                placeholder={<PlaceholderWrap label="Enter amount to Borrow" />}
+          <Box gap="small" fill="horizontal" direction="row-responsive">
+            <Box basis={mobile ? undefined : '65%'}>
+              <InputWrap action={() => console.log('maxAction')} isError={borrowError}>
+                <TextInput
+                  plain
+                  type="number"
+                  placeholder="Enter extra amount to Borrow"
                 // ref={(el:any) => { el && !repayOpen && !rateLockOpen && !mobile && el.focus(); setInputRef(el); }}
-                value={borrowInput || ''}
-                onChange={(event:any) => setBorrowInput(cleanValue(event.target.value))}
-              />
-            </InputWrap>
-            <Box basis="35%">
-              <ActionButtonGroup buttonList={[
+                  value={borrowInput || ''}
+                  onChange={(event:any) => setBorrowInput(cleanValue(event.target.value))}
+                />
+              </InputWrap>
+            </Box>
+            <Box basis={mobile ? undefined : '35%'}>
+              <Box>
                 <Button
                   primary
                   label={<Text size={mobile ? 'small' : undefined}> Borrow </Text>}
                   key="primary"
                   onClick={() => handleBorrow()}
-                />,
-              ]}
-              />
+                />
+              </Box>
             </Box>
           </Box>
         </SectionWrap>
 
-        <SectionWrap
-          title="[ Manage Collateral ]"
-        >
-
-          <Box gap="small" fill="horizontal" direction="row" align="center">
-            <InputWrap basis="65%" action={() => console.log('maxAction')} isError={collatError}>
-              <TextInput
-                plain
-                type="number"
-                placeholder={<PlaceholderWrap label="Amount to add/remove" />}
+        <SectionWrap title="[ Manage Collateral ]">
+          <Box gap="small" fill="horizontal" direction="row-responsive">
+            <Box basis={mobile ? undefined : '65%'}>
+              <InputWrap action={() => console.log('maxAction')} isError={collatError}>
+                <TextInput
+                  plain
+                  type="number"
+                  placeholder="Amount to add/remove"
                 // ref={(el:any) => { el && !repayOpen && !rateLockOpen && !mobile && el.focus(); setInputRef(el); }}
-                value={collatInput || ''}
-                onChange={(event:any) => setCollatInput(cleanValue(event.target.value))}
-              />
-            </InputWrap>
-            <Box basis="35%">
-              <ActionButtonGroup buttonList={[
+                  value={collatInput || ''}
+                  onChange={(event:any) => setCollatInput(cleanValue(event.target.value))}
+                />
+              </InputWrap>
+            </Box>
+
+            <Box direction="row" basis={mobile ? undefined : '35%'} gap="small">
+              <Box>
                 <Button
                   primary
                   label={<Text size={mobile ? 'small' : undefined}> Add </Text>}
                   key="primary"
                   onClick={() => handleCollateral('ADD')}
-                />,
+                />
+              </Box>
+              <Box>
                 <Button
                   primary
                   label={<Text size={mobile ? 'small' : undefined}> Remove </Text>}
                   key="secondary"
                   onClick={() => handleCollateral('REMOVE')}
-                />,
-
-              ]}
-              />
+                />
+              </Box>
             </Box>
+          </Box>
+        </SectionWrap>
+
+        <SectionWrap title="[ Roll Position to another series ]">
+          <Box gap="small" fill="horizontal" direction="row-responsive">
+
+            <SeriesSelector selectSeriesLocally={(series:ISeries) => setRollToSeries(series)} />
+
+            <Box basis={mobile ? undefined : '35%'}>
+              <Box>
+                <Button
+                  primary
+                  label={<Text size={mobile ? 'small' : undefined}> Roll </Text>}
+                  key="primary"
+                  onClick={() => handleRoll()}
+                />
+              </Box>
+            </Box>
+
           </Box>
         </SectionWrap>
 
