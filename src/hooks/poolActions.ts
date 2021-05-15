@@ -8,7 +8,7 @@ import { DAI_BASED_ASSETS, MAX_128, MAX_256 } from '../utils/constants';
 import { useChain } from './chainHooks';
 
 import { VAULT_OPS, POOLROUTER_OPS } from '../utils/operations';
-import { fyTokenForMint } from '../utils/yieldMath';
+import { calculateSlippage, fyTokenForMint, mint } from '../utils/yieldMath';
 
 /* Generic hook for chain transactions */
 export const usePoolActions = () => {
@@ -35,6 +35,13 @@ export const usePoolActions = () => {
       series.getTimeTillMaturity(),
     );
 
+    // const [_tokens, _fyTokenToBuy] = mint(series.baseReserves, series.fyTokenReserves, series.totalSupply, _input);
+
+    console.log(_input.toString());
+    console.log(calculateSlippage(_input).toString());
+    // console.log(_tokens.toString());
+    console.log(_fyTokenToBuy.toString());
+
     const permits: ICallData[] = await sign([
       {
         targetAddress: assetMap.get(series.baseId).address,
@@ -59,7 +66,7 @@ export const usePoolActions = () => {
       // router.transferToPoolAction(pool.address, base.address, baseWithSlippage),
       {
         operation: POOLROUTER_OPS.TRANSFER_TO_POOL,
-        args: [series.getBaseAddress(), series.fyTokenAddress, series.getBaseAddress(), _input],
+        args: [series.getBaseAddress(), series.fyTokenAddress, series.getBaseAddress(), calculateSlippage(_input)],
         series,
         ignore: strategy !== 'BUY',
       },
@@ -118,6 +125,15 @@ export const usePoolActions = () => {
     const txCode = getTxCode('100_', fromSeries.id);
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
     const seriesMature = fromSeries.isMature();
+
+    const _fyTokenToBuy = fyTokenForMint(
+      toSeries.baseReserves,
+      toSeries.fyTokenRealReserves,
+      toSeries.fyTokenReserves,
+      _input,
+      toSeries.getTimeTillMaturity(),
+    );
+
     const permits: ICallData[] = await sign([
 
       /* BEFORE MATURITY */
@@ -155,14 +171,14 @@ export const usePoolActions = () => {
 
       { // router.burnForBaseToken(pool.address, pool2.address, minBaseReceived)
         operation: POOLROUTER_OPS.ROUTE,
-        args: [toSeries.poolAddress, _input.div(100)],
+        args: [toSeries.poolAddress, _input],
         fnName: 'burnForBaseToken',
         series: fromSeries,
         ignore: seriesMature,
       },
       { // router.mintWithBaseTokenAction( base.address, fyToken2.address, receiver, fyTokenToBuy, minLPReceived)
         operation: POOLROUTER_OPS.ROUTE,
-        args: [account, _input.div(100), ethers.constants.Zero],
+        args: [account, _fyTokenToBuy, ethers.constants.Zero],
         fnName: 'mintWithBaseToken',
         series: toSeries,
         ignore: seriesMature,
@@ -200,13 +216,8 @@ export const usePoolActions = () => {
   };
 
   const removeLiquidity = async (
-    input: string|undefined,
     series: ISeries,
-    strategy: null = null, // select a strategy
   ) => {
-    /* generate the reproducible txCode for tx tracking and tracing */
-    // const txCode = getTxCode('020_', vault.series.id);
-    const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode('110_', series.id);
 
@@ -225,10 +236,10 @@ export const usePoolActions = () => {
 
     const calls: ICallData[] = [
       ...permits,
-      { // router.burnForBaseToken(pool.address, receiver, minBaseReceived),
+      { // burnForBaseToken(receiver, minBaseReceived),
         operation: POOLROUTER_OPS.ROUTE,
-        args: [account, ethers.constants.Zero, ethers.constants.Zero],
-        fnName: 'burn',
+        args: [account, ethers.constants.Zero],
+        fnName: 'burnForBaseToken',
         series,
         ignore: false,
       },

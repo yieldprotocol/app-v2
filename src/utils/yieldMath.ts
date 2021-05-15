@@ -347,16 +347,16 @@ export function getFee(
   timeTillMaturity: BigNumber | string,
 ): BigNumber {
   let fee_: Decimal = ZERO;
-  const fyDai_: BigNumber = BigNumber.isBigNumber(fyToken) ? fyToken : BigNumber.from(fyToken);
+  const fyToken_: BigNumber = BigNumber.isBigNumber(fyToken) ? fyToken : BigNumber.from(fyToken);
 
-  if (fyDai_.gte(ethers.constants.Zero)) {
-    const daiWithFee: BigNumber = buyFYToken(baseReserves, fyTokenReserves, fyToken, timeTillMaturity);
-    const daiWithoutFee: BigNumber = buyFYToken(baseReserves, fyTokenReserves, fyToken, timeTillMaturity, true);
-    fee_ = (new Decimal(daiWithFee.toString())).sub(new Decimal(daiWithoutFee.toString()));
+  if (fyToken_.gte(ethers.constants.Zero)) {
+    const tokenWithFee: BigNumber = buyFYToken(baseReserves, fyTokenReserves, fyToken, timeTillMaturity);
+    const tokenWithoutFee: BigNumber = buyFYToken(baseReserves, fyTokenReserves, fyToken, timeTillMaturity, true);
+    fee_ = (new Decimal(tokenWithFee.toString())).sub(new Decimal(tokenWithoutFee.toString()));
   } else {
-    const daiWithFee:BigNumber = sellFYToken(baseReserves, fyTokenReserves, fyDai_.mul(BigNumber.from('-1')), timeTillMaturity);
-    const daiWithoutFee:BigNumber = sellFYToken(baseReserves, fyTokenReserves, fyDai_.mul(BigNumber.from('-1')), timeTillMaturity, true);
-    fee_ = (new Decimal(daiWithoutFee.toString())).sub(new Decimal(daiWithFee.toString()));
+    const tokenWithFee:BigNumber = sellFYToken(baseReserves, fyTokenReserves, fyToken_.mul(BigNumber.from('-1')), timeTillMaturity);
+    const tokenWithoutFee:BigNumber = sellFYToken(baseReserves, fyTokenReserves, fyToken_.mul(BigNumber.from('-1')), timeTillMaturity, true);
+    fee_ = (new Decimal(tokenWithoutFee.toString())).sub(new Decimal(tokenWithFee.toString()));
   }
   return toBn(fee_);
 }
@@ -406,7 +406,7 @@ export function fyTokenForMint(
 }
 
 /**
-   * Split a certain amount of X liquidity into its two componetnts (eg. base and fyToken)
+   * Split a certain amount of X liquidity into its two components (eg. base and fyToken)
    * @param { BigNumber } xReserves // eg. base reserves
    * @param { BigNumber } yReserves // eg. fyToken reservers
    * @param {BigNumber} xAmount // amount to split in wei
