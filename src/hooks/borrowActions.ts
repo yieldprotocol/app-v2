@@ -183,10 +183,8 @@ export const useBorrowActions = () => {
   const rollDebt = async (
     vault: IVault,
     toSeries: ISeries,
-    input: string | undefined,
   ) => {
     const txCode = getTxCode('040_', vault.seriesId);
-    const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
     const series = seriesMap.get(vault.seriesId);
     const calls: ICallData[] = [
       { // ladle.rollAction(vaultId: string, newSeriesId: string, max: BigNumberish)
