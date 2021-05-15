@@ -56,8 +56,9 @@ function SeriesSelector({ selectSeriesLocally }: ISeriesSelectorProps) {
   };
 
   return (
-    <Box fill>
+    <Box fill border round="xsmall">
       <Select
+        plain
         id="seriesSelect"
         name="assetSelect"
         placeholder="Select Series"

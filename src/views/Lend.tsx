@@ -185,13 +185,14 @@ const Lend = () => {
 
       <SectionWrap title="2. Select a series">
         <SeriesSelector />
-        <Box justify="evenly" gap="small" fill="horizontal" direction="row-responsive">
-          {
+      </SectionWrap>
+
+      <Box justify="evenly" gap="small" fill="horizontal" direction="row-responsive">
+        {
             selectedSeries?.baseId === selectedBaseId &&
             <InfoBite label="FYToken balance (Base value at maturity)" value={selectedSeries?.fyTokenBalance_!} />
           }
-        </Box>
-      </SectionWrap>
+      </Box>
 
       <ActionButtonGroup buttonList={[
         <Button

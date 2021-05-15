@@ -164,7 +164,7 @@ const Vault = () => {
               icon={false}
               items={
                 availableVaults?.map((x:any) => (
-                  { label: <Text size="small"> {x.id} </Text>, onClick: () => setSelectedVault(x.id) }
+                  { label: <Text size="small"> {x.id} </Text>, onClick: () => userActions.setSelectedVault(x.id) }
                 )) || []
               }
               onSelect={(x:any) => console.log(x)}
