@@ -27,7 +27,6 @@ const _getCallValue = (calls: ICallData[]) : BigNumber => {
   const joinEtherCall = calls.find((call:any) => (
     call.operation === VAULT_OPS.JOIN_ETHER || call.operation === POOLROUTER_OPS.JOIN_ETHER
   ));
-
   return joinEtherCall ? BigNumber.from(joinEtherCall?.overrides?.value) : ethers.constants.Zero;
 };
 
@@ -62,10 +61,11 @@ export const useChain = () => {
       (call:ICallData) => {
         const { poolContract, id: seriesId, getBaseAddress, fyTokenAddress } = call.series! as ISeries;
         const { interface: _interface } = poolContract as Contract;
-        /* encode routed calls if required */
+        /* 'pre-encode' routed calls if required */
         if (call.operation === VAULT_OPS.ROUTE || call.operation === POOLROUTER_OPS.ROUTE) {
           if (call.fnName) {
             const encodedFn = _interface.encodeFunctionData(call.fnName, call.args);
+            /* add in the extra parameters required for each specific rotuer */
             const extraParams = (call.operation === VAULT_OPS.ROUTE) ? [seriesId] : [getBaseAddress(), fyTokenAddress];
             return ethers.utils.defaultAbiCoder.encode(call.operation[1], [...extraParams, encodedFn]);
           }
