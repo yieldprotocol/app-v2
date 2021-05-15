@@ -312,6 +312,9 @@ const ChainProvider = ({ children }: any) => {
       }), (e:any) => console.log(e), true,
     );
 
+    // eslint-disable-next-line no-restricted-globals
+    chainId && chainId !== lastChainId && location.reload();
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId, fallbackActivate, lastChainId, tried]);
 
@@ -335,11 +338,11 @@ const ChainProvider = ({ children }: any) => {
   /* If web3 connected, wait until we get confirmation of that to flip the flag */
   useEffect(() => { if (!tried && active) { setTried(true); } }, [tried, active]);
 
-  // /* Handle logic to recognize the connector currently being activated */
-  // const [activatingConnector, setActivatingConnector] = useState<any>();
-  // useEffect(() => {
-  //   (activatingConnector && activatingConnector === connector) && setActivatingConnector(undefined);
-  // }, [activatingConnector, connector]);
+  /* Handle logic to recognize the connector currently being activated */
+  const [activatingConnector, setActivatingConnector] = useState<any>();
+  useEffect(() => {
+    (activatingConnector && activatingConnector === connector) && setActivatingConnector(undefined);
+  }, [activatingConnector, connector]);
 
   const chainActions = {
     isConnected: (connection:string) => connectors.get(connection) === connector,
