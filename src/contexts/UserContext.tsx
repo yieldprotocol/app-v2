@@ -220,9 +220,15 @@ const UserProvider = ({ children }:any) => {
     /* add in the dynamic vault data by mapping the vaults list */
     const vaultListMod = await Promise.all(
       vaultList.map(async (vault:IVaultRoot) : Promise<IVault> => {
-        const { ink, art } = await Cauldron.balances(vault.id);
+        /* update balance and series  ( series - because a vault can have been rolled to another series) */
+        const [{ ink, art }, { seriesId }] = await Promise.all([
+          await Cauldron.balances(vault.id),
+          await Cauldron.vaults(vault.id),
+        ]);
+
         return {
           ...vault,
+          seriesId,
           ink,
           art,
           ink_: cleanValue(ethers.utils.formatEther(ink), 2), // for display purposes only

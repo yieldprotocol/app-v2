@@ -46,13 +46,13 @@ export const yieldTheme = {
     ),
   },
 
-  select: {
-    options: {
-      container: {
-        pad: undefined,
-      },
-    },
-  },
+  // select: {
+  //   options: {
+  //     container: {
+  //       pad: undefined,
+  //     },
+  //   },
+  // },
 
   // layer: {
   //   container: {
