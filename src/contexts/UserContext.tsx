@@ -112,9 +112,10 @@ const UserProvider = ({ children }:any) => {
     _publicData = await Promise.all(
       seriesList.map(async (series:ISeriesRoot) : Promise<ISeries> => {
         /* Get all the data simultanenously in a promise.all */
-        const [baseReserves, fyTokenReserves, fyTokenRealReserves] = await Promise.all([
+        const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves] = await Promise.all([
           series.poolContract.getBaseTokenReserves(),
           series.poolContract.getFYTokenReserves(),
+          series.poolContract.totalSupply(),
           series.fyTokenContract.balanceOf(series.poolAddress),
         ]);
 
@@ -131,6 +132,7 @@ const UserProvider = ({ children }:any) => {
           baseReserves,
           fyTokenReserves,
           fyTokenRealReserves,
+          totalSupply,
           APR: `${Number(APR).toFixed(2)}`,
         };
       }),
