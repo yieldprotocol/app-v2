@@ -1,16 +1,17 @@
 ## Yield app v2 ## 
-yarn && yarn start
 
-setup a new metamask network with --
-url: https://kcdou8hqih.execute-api.us-east-1.amazonaws.com
-chainId: 31337
+### Run development environment locally (recommended for now): ###
 
-aws_hardat instance via API:   https://kcdou8hqih.execute-api.us-east-1.amazonaws.com
-aws_hardat instance:  34.224.38.26:8545
+In a new console: 
+1. **clone** `git clone https://github.com/yieldprotocol/environments-v2.git`
+2. **checkout tagged release** `git checkout RC4`
+3. **install** `yarn`
+4. **Start a local environment**: `npx hardhat node`
+5. optional: **Add your testing account** to the list of accounts to be auto-funded with test tokens (in file `./environments/development.ts` )
 
-// manage aws_hardhat
-sign in: 
-`ssh -i aws_hardhat.pem ubuntu@ec2-34-224-38-26.compute-1.amazonaws.com`
+In a new console
+1. **Run the dev envirnoment deploy/setup** `npx hardhat run ./environments/development.ts --network localhost` 
 
-Start a hardhat node: 
-`cd hardhat && npx hardhat node --hostname 0.0.0.0 &`
+Fire up the UI, (this repo): 
+1. **install and run** `yarn && yarn start`
+2. In the browser, connect metamask to the localhost.
