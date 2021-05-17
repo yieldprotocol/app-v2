@@ -1,6 +1,6 @@
 {
   "name": "app-v2",
-  "version": "2.4.0",
+  "version": "0.4.1",
   "private": true,
   "dependencies": {
     "@web3-react/core": "^6.1.9",
