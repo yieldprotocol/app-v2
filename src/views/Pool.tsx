@@ -27,6 +27,7 @@ function Pool() {
 
   /* LOCAL STATE */
   const [poolInput, setPoolInput] = useState<string>();
+  const [removeInput, setRemoveInput] = useState<string>();
   const [rollInput, setRollInput] = useState<string>();
 
   const [rollToSeries, setRollToSeries] = useState<ISeries|null>(null);
@@ -35,6 +36,7 @@ function Pool() {
   const [maxRemove, setMaxRemove] = useState<string|undefined>();
 
   const [poolError, setPoolError] = useState<string|null>(null);
+  const [removeError, setRemoveError] = useState<string|null>(null);
   const [rollError, setRollError] = useState<string|null>(null);
 
   const [poolDisabled, setPoolDisabled] = useState<boolean>(true);
@@ -56,7 +58,7 @@ function Pool() {
   const handleRemove = () => {
     // !lendDisabled &&
     console.log(selectedSeries?.displayName);
-    selectedSeries && removeLiquidity(selectedSeries);
+    selectedSeries && removeLiquidity(removeInput, selectedSeries);
   };
   const handleRoll = () => {
     // !lendDisabled &&
@@ -203,7 +205,7 @@ function Pool() {
 
       <SectionWrap title="[ Remove Liquidity ]">
 
-        {/* <Box direction="row" gap="small" fill="horizontal" align="start">
+        <Box direction="row" gap="small" fill="horizontal" align="start">
           <InputWrap action={() => console.log('maxAction')} isError={removeError}>
             <TextInput
               plain
@@ -212,12 +214,12 @@ function Pool() {
               value={removeInput || ''}
               onChange={(event:any) => setRemoveInput(cleanValue(event.target.value))}
             />
-            <MaxButton
+            {/* <MaxButton
               action={() => setRemoveInput(maxRemove)}
               disabled={maxRemove === '0.0'}
-            />
+            /> */}
           </InputWrap>
-        </Box> */}
+        </Box>
 
         <Box gap="small" fill="horizontal" direction="row" align="start">
           <ActionButtonGroup buttonList={[

@@ -20,12 +20,12 @@ export const usePoolActions = () => {
   const { sign, transact } = useChain();
 
   const addLiquidity = async (
-    input: string|undefined,
+    input: string,
     series: ISeries,
     strategy: 'BUY'|'MINT' = 'BUY', // select a strategy default: BUY
   ) => {
     const txCode = getTxCode('090_', series.id);
-    const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
+    const _input = ethers.utils.parseEther(input);
 
     const _fyTokenToBuy = fyTokenForMint(
       series.baseReserves,
@@ -35,15 +35,8 @@ export const usePoolActions = () => {
       series.getTimeTillMaturity(),
     );
 
-    // const [_tokens, _fyTokenToBuy] = mint(series.baseReserves, series.fyTokenReserves, series.totalSupply, _input);
-
-    console.log(_input.toString());
-    console.log(calculateSlippage(_input).toString());
-    // console.log(_tokens.toString());
-    console.log(_fyTokenToBuy.toString());
-
     const permits: ICallData[] = await sign([
-      {
+      { // router.forwardPermitAction( pool.address, base.address, router.address, allowance, deadline, v, r, s),
         targetAddress: assetMap.get(series.baseId).address,
         targetId: series.baseId,
         series,
@@ -57,21 +50,19 @@ export const usePoolActions = () => {
 
     const calls: ICallData[] = [
 
+      ...permits,
+
       /**
        * BUYING STRATEGY FLOW:
        * */
 
-      // router.forwardPermitAction( pool.address, base.address, router.address, allowance, deadline, v, r, s),
-      ...permits,
-      // router.transferToPoolAction(pool.address, base.address, baseWithSlippage),
-      {
+      { // router.transferToPoolAction(pool.address, base.address, baseWithSlippage),
         operation: POOLROUTER_OPS.TRANSFER_TO_POOL,
         args: [series.getBaseAddress(), series.fyTokenAddress, series.getBaseAddress(), calculateSlippage(_input)],
         series,
         ignore: strategy !== 'BUY',
       },
-      // router.mintWithBaseAction(pool.address, receiver, fyTokenToBuy, minLPReceived),
-      {
+      { // router.mintWithBaseAction(pool.address, receiver, fyTokenToBuy, minLPReceived),
         operation: POOLROUTER_OPS.ROUTE,
         args: [account, _fyTokenToBuy, ethers.constants.Zero], // TODO calc min transfer slippage
         fnName: 'mintWithBase',
@@ -83,22 +74,19 @@ export const usePoolActions = () => {
        * MINT  STRATEGY FLOW: // TODO minting strategy
        * */
 
-      // build Vault with random id if required
-      {
+      { // build Vault with random id if required
         operation: VAULT_OPS.BUILD,
         args: [ethers.utils.hexlify(ethers.utils.randomBytes(12)), selectedSeriesId, selectedIlkId],
         ignore: strategy !== 'MINT',
         series,
       },
-      // ladle.serveAction(vaultId, pool.address, 0, borrowed, maximum debt),
-      {
+      { // ladle.serveAction(vaultId, pool.address, 0, borrowed, maximum debt),
         operation: VAULT_OPS.SERVE,
         args: [series.poolAddress, ethers.constants.Zero, _input.toString(), MAX_128],
         series,
         ignore: strategy !== 'MINT',
       },
-      // ladle.mintWithBaseAction(seriesId, receiver, fyTokenToBuy, minLPReceived)
-      {
+      { // ladle.mintWithBaseAction(seriesId, receiver, fyTokenToBuy, minLPReceived)
         operation: VAULT_OPS.ROUTE,
         args: [account, _fyTokenToBuy, ethers.constants.Zero],
         fnName: 'mintWithBase',
@@ -117,13 +105,13 @@ export const usePoolActions = () => {
   };
 
   const rollLiquidity = async (
-    input: string|undefined,
+    input: string,
     fromSeries: ISeries,
     toSeries: ISeries,
   ) => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode('100_', fromSeries.id);
-    const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
+    const _input = ethers.utils.parseEther(input);
     const seriesMature = fromSeries.isMature();
 
     const _fyTokenToBuy = fyTokenForMint(
@@ -137,7 +125,6 @@ export const usePoolActions = () => {
     const permits: ICallData[] = await sign([
 
       /* BEFORE MATURITY */
-
       { // router.forwardPermitAction(pool.address, pool.address, router.address, allowance, deadline, v, r, s )
         targetAddress: fromSeries.poolAddress,
         targetId: fromSeries.id,
@@ -150,7 +137,6 @@ export const usePoolActions = () => {
       },
 
       /* AFTER MATURITY */
-
       { // ladle.forwardPermitAction(seriesId, false, ladle.address, allowance, deadline, v, r, s)
         targetAddress: fromSeries.fyTokenAddress,
         targetId: fromSeries.id,
@@ -168,11 +154,16 @@ export const usePoolActions = () => {
       ...permits,
 
       /* BEFORE MATURITY */
-
-      { // router.BurnForBase(pool.address, pool2.address, minBaseReceived)
+      { // router.transferToPool(base.address, fyToken1.address, pool1.address, WAD)
+        operation: POOLROUTER_OPS.TRANSFER_TO_POOL,
+        args: [fromSeries.getBaseAddress(), fromSeries.fyTokenAddress, fromSeries.poolAddress, _input],
+        series: fromSeries,
+        ignore: false,
+      },
+      { // router.burnForBase(pool.address, pool2.address, minBaseReceived)
         operation: POOLROUTER_OPS.ROUTE,
         args: [toSeries.poolAddress, _input],
-        fnName: 'BurnForBase',
+        fnName: 'burnForBase',
         series: fromSeries,
         ignore: seriesMature,
       },
@@ -185,7 +176,6 @@ export const usePoolActions = () => {
       },
 
       /* AFTER MATURITY */
-
       { // ladle.transferToFYTokenAction(seriesId, fyTokenToRoll)
         operation: VAULT_OPS.TRANSFER_TO_FYTOKEN,
         args: [fromSeries.id, true, _input.toString()],
@@ -216,10 +206,13 @@ export const usePoolActions = () => {
   };
 
   const removeLiquidity = async (
+    input: string,
     series: ISeries,
   ) => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode('110_', series.id);
+
+    const _input = ethers.utils.parseEther(input);
 
     const permits: ICallData[] = await sign([
       { // router.forwardPermitAction(pool.address, pool.address, router.address, allowance, deadline, v, r, s),
@@ -236,10 +229,16 @@ export const usePoolActions = () => {
 
     const calls: ICallData[] = [
       ...permits,
-      { // BurnForBase(receiver, minBaseReceived),
+      { // router.transferToPool(base.address, fyToken1.address, pool1.address, WAD)
+        operation: POOLROUTER_OPS.TRANSFER_TO_POOL,
+        args: [series.getBaseAddress(), series.fyTokenAddress, series.poolAddress, _input],
+        series,
+        ignore: false,
+      },
+      { // burnForBase(receiver, minBaseReceived),
         operation: POOLROUTER_OPS.ROUTE,
         args: [account, ethers.constants.Zero],
-        fnName: 'BurnForBase',
+        fnName: 'burnForBase',
         series,
         ignore: false,
       },
