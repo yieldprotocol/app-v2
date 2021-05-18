@@ -8,6 +8,7 @@ import { ETH_BASED_ASSETS, DAI_BASED_ASSETS, MAX_128, MAX_256 } from '../utils/c
 import { useChain } from './chainHooks';
 
 import { VAULT_OPS } from '../utils/operations';
+import { calculateSlippage } from '../utils/yieldMath';
 
 /* Generic hook for chain transactions */
 export const useBorrowActions = () => {
@@ -128,6 +129,8 @@ export const useBorrowActions = () => {
     const base = assetMap.get(vault.baseId);
     const _isDaiBased = DAI_BASED_ASSETS.includes(vault.baseId);
 
+    const _inputWithSlippage = calculateSlippage(_input);
+
     const permits: ICallData[] = await sign([
       {
         // before maturity
@@ -157,7 +160,7 @@ export const useBorrowActions = () => {
       ...permits,
       {
         operation: VAULT_OPS.TRANSFER_TO_POOL,
-        args: [series.id, true, _input],
+        args: [series.id, true, _inputWithSlippage],
         series,
         ignore: false,
       },

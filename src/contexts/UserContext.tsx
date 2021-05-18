@@ -113,8 +113,8 @@ const UserProvider = ({ children }:any) => {
       seriesList.map(async (series:ISeriesRoot) : Promise<ISeries> => {
         /* Get all the data simultanenously in a promise.all */
         const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves] = await Promise.all([
-          series.poolContract.getBaseTokenReserves(),
-          series.poolContract.getFYTokenReserves(),
+          series.poolContract.getBaseBalance(),
+          series.poolContract.getFYTokenBalance(),
           series.poolContract.totalSupply(),
           series.fyTokenContract.balanceOf(series.poolAddress),
         ]);
@@ -241,7 +241,7 @@ const UserProvider = ({ children }:any) => {
         };
       }),
     );
-      /* get the previous version (Map) of the vaultMap and update it */
+    /* Get the previous version (Map) of the vaultMap and update it */
     const newVaultMap = new Map(vaultListMod.reduce((acc:any, item:any) => {
       const _map = acc;
       _map.set(item.id, item);

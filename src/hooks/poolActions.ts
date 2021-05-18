@@ -70,11 +70,11 @@ export const usePoolActions = () => {
         series,
         ignore: strategy !== 'BUY',
       },
-      // router.mintWithBaseTokenAction(pool.address, receiver, fyTokenToBuy, minLPReceived),
+      // router.mintWithBaseAction(pool.address, receiver, fyTokenToBuy, minLPReceived),
       {
         operation: POOLROUTER_OPS.ROUTE,
         args: [account, _fyTokenToBuy, ethers.constants.Zero], // TODO calc min transfer slippage
-        fnName: 'mintWithBaseToken',
+        fnName: 'mintWithBase',
         series,
         ignore: strategy !== 'BUY',
       },
@@ -97,11 +97,11 @@ export const usePoolActions = () => {
         series,
         ignore: strategy !== 'MINT',
       },
-      // ladle.mintWithBaseTokenAction(seriesId, receiver, fyTokenToBuy, minLPReceived)
+      // ladle.mintWithBaseAction(seriesId, receiver, fyTokenToBuy, minLPReceived)
       {
         operation: VAULT_OPS.ROUTE,
         args: [account, _fyTokenToBuy, ethers.constants.Zero],
-        fnName: 'mintWithBaseToken',
+        fnName: 'mintWithBase',
         series,
         ignore: strategy !== 'MINT',
       },
@@ -169,17 +169,17 @@ export const usePoolActions = () => {
 
       /* BEFORE MATURITY */
 
-      { // router.burnForBaseToken(pool.address, pool2.address, minBaseReceived)
+      { // router.BurnForBase(pool.address, pool2.address, minBaseReceived)
         operation: POOLROUTER_OPS.ROUTE,
         args: [toSeries.poolAddress, _input],
-        fnName: 'burnForBaseToken',
+        fnName: 'BurnForBase',
         series: fromSeries,
         ignore: seriesMature,
       },
-      { // router.mintWithBaseTokenAction( base.address, fyToken2.address, receiver, fyTokenToBuy, minLPReceived)
+      { // router.mintWithBaseAction( base.address, fyToken2.address, receiver, fyTokenToBuy, minLPReceived)
         operation: POOLROUTER_OPS.ROUTE,
         args: [account, _fyTokenToBuy, ethers.constants.Zero],
-        fnName: 'mintWithBaseToken',
+        fnName: 'mintWithBase',
         series: toSeries,
         ignore: seriesMature,
       },
@@ -198,10 +198,10 @@ export const usePoolActions = () => {
         series: fromSeries,
         ignore: !seriesMature,
       },
-      { // ladle.mintWithBaseTokenAction(series2Id, receiver, fyTokenToBuy, minLPReceived),
+      { // ladle.mintWithBaseAction(series2Id, receiver, fyTokenToBuy, minLPReceived),
         operation: VAULT_OPS.ROUTE,
         args: [toSeries.id, account, _input, ethers.constants.Zero],
-        fnName: 'mintWithBaseToken',
+        fnName: 'mintWithBase',
         series: toSeries,
         ignore: !seriesMature,
       },
@@ -236,10 +236,10 @@ export const usePoolActions = () => {
 
     const calls: ICallData[] = [
       ...permits,
-      { // burnForBaseToken(receiver, minBaseReceived),
+      { // BurnForBase(receiver, minBaseReceived),
         operation: POOLROUTER_OPS.ROUTE,
         args: [account, ethers.constants.Zero],
-        fnName: 'burnForBaseToken',
+        fnName: 'BurnForBase',
         series,
         ignore: false,
       },

@@ -51,11 +51,11 @@ export const useLendActions = () => {
         series,
         ignore: false,
       },
-      /* pool.sellBaseToken(address to, uint128 min) */
+      /* pool.sellBase(address to, uint128 min) */
       {
         operation: POOLROUTER_OPS.ROUTE,
         args: [account, ethers.constants.Zero], // TODO calc min transfer slippage
-        fnName: 'sellBaseToken',
+        fnName: 'sellBase',
         series,
         ignore: false,
       },
@@ -123,10 +123,10 @@ export const useLendActions = () => {
         series: fromSeries,
         ignore: seriesMature,
       },
-      { // router.sellBaseTokenAction( pool.address, receiver, minimumFYToken2Received)
+      { // router.sellBaseAction( pool.address, receiver, minimumFYToken2Received)
         operation: POOLROUTER_OPS.ROUTE,
         args: [account, ethers.constants.Zero],
-        fnName: 'sellBaseToken',
+        fnName: 'sellBase',
         series: toSeries,
         ignore: seriesMature,
       },
@@ -145,10 +145,10 @@ export const useLendActions = () => {
         series: fromSeries,
         ignore: !seriesMature,
       },
-      { // ladle.sellBaseTokenAction(series2Id, receiver, minimumFYTokenToReceive)
+      { // ladle.sellBaseAction(series2Id, receiver, minimumFYTokenToReceive)
         operation: VAULT_OPS.ROUTE,
         args: [toSeries.id, account, ethers.constants.Zero],
-        fnName: 'sellBaseToken',
+        fnName: 'sellBase',
         series: toSeries,
         ignore: !seriesMature,
       },
