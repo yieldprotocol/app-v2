@@ -5,13 +5,7 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "base",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "fyToken",
+        "name": "asset",
         "type": "address"
       },
       {
@@ -21,12 +15,12 @@
         "type": "address"
       }
     ],
-    "name": "PoolCreated",
+    "name": "JoinCreated",
     "type": "event"
   },
   {
     "inputs": [],
-    "name": "POOL_BYTECODE_HASH",
+    "name": "JOIN_BYTECODE_HASH",
     "outputs": [
       {
         "internalType": "bytes32",
@@ -34,23 +28,18 @@
         "type": "bytes32"
       }
     ],
-    "stateMutability": "pure",
+    "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
       {
         "internalType": "address",
-        "name": "base",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "fyToken",
+        "name": "asset",
         "type": "address"
       }
     ],
-    "name": "calculatePoolAddress",
+    "name": "calculateJoinAddress",
     "outputs": [
       {
         "internalType": "address",
@@ -65,16 +54,11 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "base",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "fyToken",
+        "name": "asset",
         "type": "address"
       }
     ],
-    "name": "createPool",
+    "name": "createJoin",
     "outputs": [
       {
         "internalType": "address",
@@ -89,20 +73,15 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "base",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "fyToken",
+        "name": "asset",
         "type": "address"
       }
     ],
-    "name": "getPool",
+    "name": "getJoin",
     "outputs": [
       {
         "internalType": "address",
-        "name": "",
+        "name": "join",
         "type": "address"
       }
     ],
@@ -111,20 +90,7 @@
   },
   {
     "inputs": [],
-    "name": "nextBase",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "nextFYToken",
+    "name": "nextAsset",
     "outputs": [
       {
         "internalType": "address",
