@@ -4,7 +4,7 @@
 
 import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-import type { IPoolFactory, IPoolFactoryInterface } from "../IPoolFactory";
+import type { IJoinFactory, IJoinFactoryInterface } from "../IJoinFactory";
 
 const _abi = [
   {
@@ -13,13 +13,7 @@ const _abi = [
       {
         indexed: true,
         internalType: "address",
-        name: "base",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "fyToken",
+        name: "asset",
         type: "address",
       },
       {
@@ -29,12 +23,12 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "PoolCreated",
+    name: "JoinCreated",
     type: "event",
   },
   {
     inputs: [],
-    name: "POOL_BYTECODE_HASH",
+    name: "JOIN_BYTECODE_HASH",
     outputs: [
       {
         internalType: "bytes32",
@@ -49,16 +43,11 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "base",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "fyToken",
+        name: "asset",
         type: "address",
       },
     ],
-    name: "calculatePoolAddress",
+    name: "calculateJoinAddress",
     outputs: [
       {
         internalType: "address",
@@ -73,16 +62,11 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "base",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "fyToken",
+        name: "asset",
         type: "address",
       },
     ],
-    name: "createPool",
+    name: "createJoin",
     outputs: [
       {
         internalType: "address",
@@ -97,16 +81,11 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "base",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "fyToken",
+        name: "asset",
         type: "address",
       },
     ],
-    name: "getPool",
+    name: "getJoin",
     outputs: [
       {
         internalType: "address",
@@ -119,20 +98,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "nextBase",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "nextFYToken",
+    name: "nextAsset",
     outputs: [
       {
         internalType: "address",
@@ -145,15 +111,15 @@ const _abi = [
   },
 ];
 
-export class IPoolFactory__factory {
+export class IJoinFactory__factory {
   static readonly abi = _abi;
-  static createInterface(): IPoolFactoryInterface {
-    return new utils.Interface(_abi) as IPoolFactoryInterface;
+  static createInterface(): IJoinFactoryInterface {
+    return new utils.Interface(_abi) as IJoinFactoryInterface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
-  ): IPoolFactory {
-    return new Contract(address, _abi, signerOrProvider) as IPoolFactory;
+  ): IJoinFactory {
+    return new Contract(address, _abi, signerOrProvider) as IJoinFactory;
   }
 }

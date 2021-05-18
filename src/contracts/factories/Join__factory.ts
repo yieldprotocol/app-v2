@@ -8,13 +8,7 @@ import type { Join, JoinInterface } from "../Join";
 
 const _abi = [
   {
-    inputs: [
-      {
-        internalType: "address",
-        name: "asset_",
-        type: "address",
-      },
-    ],
+    inputs: [],
     stateMutability: "nonpayable",
     type: "constructor",
   },

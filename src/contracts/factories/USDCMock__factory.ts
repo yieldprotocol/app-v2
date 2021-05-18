@@ -4,9 +4,14 @@
 
 import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-import type { ERC20Permit, ERC20PermitInterface } from "../ERC20Permit";
+import type { USDCMock, USDCMockInterface } from "../USDCMock";
 
 const _abi = [
+  {
+    inputs: [],
+    stateMutability: "nonpayable",
+    type: "constructor",
+  },
   {
     anonymous: false,
     inputs: [
@@ -174,6 +179,24 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "mint",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -345,15 +368,15 @@ const _abi = [
   },
 ];
 
-export class ERC20Permit__factory {
+export class USDCMock__factory {
   static readonly abi = _abi;
-  static createInterface(): ERC20PermitInterface {
-    return new utils.Interface(_abi) as ERC20PermitInterface;
+  static createInterface(): USDCMockInterface {
+    return new utils.Interface(_abi) as USDCMockInterface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
-  ): ERC20Permit {
-    return new Contract(address, _abi, signerOrProvider) as ERC20Permit;
+  ): USDCMock {
+    return new Contract(address, _abi, signerOrProvider) as USDCMock;
   }
 }

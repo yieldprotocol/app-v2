@@ -4,89 +4,34 @@
 
 import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-import type { Ladle, LadleInterface } from "../Ladle";
+import type { Wand, WandInterface } from "../Wand";
 
 const _abi = [
   {
     inputs: [
       {
-        internalType: "contract ICauldron",
-        name: "cauldron",
+        internalType: "contract ICauldronGov",
+        name: "cauldron_",
+        type: "address",
+      },
+      {
+        internalType: "contract ILadleGov",
+        name: "ladle_",
+        type: "address",
+      },
+      {
+        internalType: "contract IPoolFactory",
+        name: "poolFactory_",
+        type: "address",
+      },
+      {
+        internalType: "contract IJoinFactory",
+        name: "joinFactory_",
         type: "address",
       },
     ],
     stateMutability: "nonpayable",
     type: "constructor",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "fee",
-        type: "uint256",
-      },
-    ],
-    name: "FeeSet",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "bytes6",
-        name: "assetId",
-        type: "bytes6",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "join",
-        type: "address",
-      },
-    ],
-    name: "JoinAdded",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "module",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "bool",
-        name: "set",
-        type: "bool",
-      },
-    ],
-    name: "ModuleSet",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "bytes6",
-        name: "seriesId",
-        type: "bytes6",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "pool",
-        type: "address",
-      },
-    ],
-    name: "PoolAdded",
-    type: "event",
   },
   {
     anonymous: false,
@@ -159,7 +104,59 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "BURN",
+    outputs: [
+      {
+        internalType: "bytes4",
+        name: "",
+        type: "bytes4",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "EXIT",
+    outputs: [
+      {
+        internalType: "bytes4",
+        name: "",
+        type: "bytes4",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "JOIN",
+    outputs: [
+      {
+        internalType: "bytes4",
+        name: "",
+        type: "bytes4",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "LOCK",
+    outputs: [
+      {
+        internalType: "bytes4",
+        name: "",
+        type: "bytes4",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "MINT",
     outputs: [
       {
         internalType: "bytes4",
@@ -191,12 +188,12 @@ const _abi = [
         type: "bytes6",
       },
       {
-        internalType: "contract IJoin",
-        name: "join",
+        internalType: "address",
+        name: "asset",
         type: "address",
       },
     ],
-    name: "addJoin",
+    name: "addAsset",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -209,45 +206,34 @@ const _abi = [
         type: "bytes6",
       },
       {
-        internalType: "contract IPool",
-        name: "pool",
-        type: "address",
+        internalType: "bytes6",
+        name: "baseId",
+        type: "bytes6",
+      },
+      {
+        internalType: "uint32",
+        name: "maturity",
+        type: "uint32",
+      },
+      {
+        internalType: "bytes6[]",
+        name: "ilkIds",
+        type: "bytes6[]",
+      },
+      {
+        internalType: "string",
+        name: "name",
+        type: "string",
+      },
+      {
+        internalType: "string",
+        name: "symbol",
+        type: "string",
       },
     ],
-    name: "addPool",
+    name: "addSeries",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "enum LadleStorage.Operation[]",
-        name: "operations",
-        type: "uint8[]",
-      },
-      {
-        internalType: "bytes[]",
-        name: "data",
-        type: "bytes[]",
-      },
-    ],
-    name: "batch",
-    outputs: [],
-    stateMutability: "payable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "borrowingFee",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {
@@ -255,7 +241,7 @@ const _abi = [
     name: "cauldron",
     outputs: [
       {
-        internalType: "contract ICauldron",
+        internalType: "contract ICauldronGov",
         name: "",
         type: "address",
       },
@@ -343,17 +329,24 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "bytes6",
-        name: "",
-        type: "bytes6",
-      },
-    ],
-    name: "joins",
+    inputs: [],
+    name: "joinFactory",
     outputs: [
       {
-        internalType: "contract IJoin",
+        internalType: "contract IJoinFactory",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "ladle",
+    outputs: [
+      {
+        internalType: "contract ILadleGov",
         name: "",
         type: "address",
       },
@@ -377,34 +370,75 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes6",
+        name: "assetId",
+        type: "bytes6",
+      },
+      {
+        internalType: "contract IRateMultiOracleGov",
+        name: "oracle",
+        type: "address",
+      },
+      {
         internalType: "address",
-        name: "",
+        name: "rateSource",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "chiSource",
         type: "address",
       },
     ],
-    name: "modules",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
+    name: "makeBase",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
     inputs: [
       {
         internalType: "bytes6",
-        name: "",
+        name: "baseId",
         type: "bytes6",
       },
+      {
+        internalType: "bytes6",
+        name: "ilkId",
+        type: "bytes6",
+      },
+      {
+        internalType: "contract ISpotMultiOracleGov",
+        name: "oracle",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "spotSource",
+        type: "address",
+      },
+      {
+        internalType: "uint32",
+        name: "ratio",
+        type: "uint32",
+      },
+      {
+        internalType: "uint128",
+        name: "maxDebt",
+        type: "uint128",
+      },
     ],
-    name: "pools",
+    name: "makeIlk",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "poolFactory",
     outputs: [
       {
-        internalType: "contract IPool",
+        internalType: "contract IPoolFactory",
         name: "",
         type: "address",
       },
@@ -469,37 +503,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "uint256",
-        name: "fee",
-        type: "uint256",
-      },
-    ],
-    name: "setFee",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "module",
-        type: "address",
-      },
-      {
-        internalType: "bool",
-        name: "set",
-        type: "bool",
-      },
-    ],
-    name: "setModule",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "bytes4",
         name: "role",
         type: "bytes4",
@@ -515,46 +518,14 @@ const _abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-  {
-    inputs: [
-      {
-        internalType: "bytes12",
-        name: "vaultId",
-        type: "bytes12",
-      },
-      {
-        internalType: "address",
-        name: "user",
-        type: "address",
-      },
-      {
-        internalType: "uint128",
-        name: "ink",
-        type: "uint128",
-      },
-      {
-        internalType: "uint128",
-        name: "art",
-        type: "uint128",
-      },
-    ],
-    name: "settle",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    stateMutability: "payable",
-    type: "receive",
-  },
 ];
 
-export class Ladle__factory {
+export class Wand__factory {
   static readonly abi = _abi;
-  static createInterface(): LadleInterface {
-    return new utils.Interface(_abi) as LadleInterface;
+  static createInterface(): WandInterface {
+    return new utils.Interface(_abi) as WandInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): Ladle {
-    return new Contract(address, _abi, signerOrProvider) as Ladle;
+  static connect(address: string, signerOrProvider: Signer | Provider): Wand {
+    return new Contract(address, _abi, signerOrProvider) as Wand;
   }
 }

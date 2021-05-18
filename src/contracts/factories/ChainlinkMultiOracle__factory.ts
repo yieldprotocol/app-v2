@@ -33,39 +33,26 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
-        indexed: true,
-        internalType: "bytes6[]",
-        name: "bases",
-        type: "bytes6[]",
+        indexed: false,
+        internalType: "bytes6",
+        name: "baseId",
+        type: "bytes6",
       },
       {
-        indexed: true,
-        internalType: "bytes6[]",
-        name: "quotes",
-        type: "bytes6[]",
+        indexed: false,
+        internalType: "bytes6",
+        name: "quoteId",
+        type: "bytes6",
       },
       {
-        indexed: true,
-        internalType: "address[]",
-        name: "sources_",
-        type: "address[]",
+        indexed: false,
+        internalType: "address",
+        name: "source",
+        type: "address",
       },
     ],
     name: "SourcesSet",
     type: "event",
-  },
-  {
-    inputs: [],
-    name: "SCALE_FACTOR",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
   },
   {
     inputs: [
@@ -151,6 +138,29 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes6",
+        name: "base",
+        type: "bytes6",
+      },
+      {
+        internalType: "bytes6",
+        name: "quote",
+        type: "bytes6",
+      },
+      {
+        internalType: "address",
+        name: "source",
+        type: "address",
+      },
+    ],
+    name: "setSource",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes6[]",
         name: "bases",
         type: "bytes6[]",
@@ -188,8 +198,13 @@ const _abi = [
     outputs: [
       {
         internalType: "address",
-        name: "",
+        name: "source",
         type: "address",
+      },
+      {
+        internalType: "uint8",
+        name: "decimals",
+        type: "uint8",
       },
     ],
     stateMutability: "view",

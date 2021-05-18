@@ -41,15 +41,15 @@ const _abi = [
     inputs: [
       {
         indexed: true,
-        internalType: "address",
-        name: "buyer",
-        type: "address",
-      },
-      {
-        indexed: true,
         internalType: "bytes12",
         name: "vaultId",
         type: "bytes12",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "buyer",
+        type: "address",
       },
       {
         indexed: false,
@@ -451,6 +451,25 @@ const _abi = [
     name: "setRoleAdmin",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes12",
+        name: "",
+        type: "bytes12",
+      },
+    ],
+    name: "vaultOwners",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
 ];

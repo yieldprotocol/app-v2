@@ -11,6 +11,30 @@ import type {
 
 const _abi = [
   {
+    inputs: [
+      {
+        internalType: "uint8",
+        name: "decimals_",
+        type: "uint8",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "constructor",
+  },
+  {
+    inputs: [],
+    name: "decimals",
+    outputs: [
+      {
+        internalType: "uint8",
+        name: "",
+        type: "uint8",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "latestRoundData",
     outputs: [
