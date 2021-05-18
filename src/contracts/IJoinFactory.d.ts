@@ -19,37 +19,47 @@ import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
-interface ChainlinkAggregatorV3MockInterface extends ethers.utils.Interface {
+interface IJoinFactoryInterface extends ethers.utils.Interface {
   functions: {
-    "decimals()": FunctionFragment;
-    "latestRoundData()": FunctionFragment;
-    "price()": FunctionFragment;
-    "set(uint256)": FunctionFragment;
-    "timestamp()": FunctionFragment;
+    "JOIN_BYTECODE_HASH()": FunctionFragment;
+    "calculateJoinAddress(address)": FunctionFragment;
+    "createJoin(address)": FunctionFragment;
+    "getJoin(address)": FunctionFragment;
+    "nextAsset()": FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "latestRoundData",
+    functionFragment: "JOIN_BYTECODE_HASH",
     values?: undefined
   ): string;
-  encodeFunctionData(functionFragment: "price", values?: undefined): string;
-  encodeFunctionData(functionFragment: "set", values: [BigNumberish]): string;
-  encodeFunctionData(functionFragment: "timestamp", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "calculateJoinAddress",
+    values: [string]
+  ): string;
+  encodeFunctionData(functionFragment: "createJoin", values: [string]): string;
+  encodeFunctionData(functionFragment: "getJoin", values: [string]): string;
+  encodeFunctionData(functionFragment: "nextAsset", values?: undefined): string;
 
-  decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "latestRoundData",
+    functionFragment: "JOIN_BYTECODE_HASH",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "price", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "set", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "timestamp", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "calculateJoinAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "createJoin", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "getJoin", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "nextAsset", data: BytesLike): Result;
 
-  events: {};
+  events: {
+    "JoinCreated(address,address)": EventFragment;
+  };
+
+  getEvent(nameOrSignatureOrTopic: "JoinCreated"): EventFragment;
 }
 
-export class ChainlinkAggregatorV3Mock extends BaseContract {
+export class IJoinFactory extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -90,83 +100,102 @@ export class ChainlinkAggregatorV3Mock extends BaseContract {
     toBlock?: string | number | undefined
   ): Promise<Array<TypedEvent<EventArgsArray & EventArgsObject>>>;
 
-  interface: ChainlinkAggregatorV3MockInterface;
+  interface: IJoinFactoryInterface;
 
   functions: {
-    decimals(overrides?: CallOverrides): Promise<[number]>;
+    JOIN_BYTECODE_HASH(overrides?: CallOverrides): Promise<[string]>;
 
-    latestRoundData(
+    calculateJoinAddress(
+      asset: string,
       overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber, BigNumber, BigNumber, BigNumber]>;
+    ): Promise<[string]>;
 
-    price(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    set(
-      price_: BigNumberish,
+    createJoin(
+      asset: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    timestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
+    getJoin(asset: string, overrides?: CallOverrides): Promise<[string]>;
+
+    nextAsset(overrides?: CallOverrides): Promise<[string]>;
   };
 
-  decimals(overrides?: CallOverrides): Promise<number>;
+  JOIN_BYTECODE_HASH(overrides?: CallOverrides): Promise<string>;
 
-  latestRoundData(
+  calculateJoinAddress(
+    asset: string,
     overrides?: CallOverrides
-  ): Promise<[BigNumber, BigNumber, BigNumber, BigNumber, BigNumber]>;
+  ): Promise<string>;
 
-  price(overrides?: CallOverrides): Promise<BigNumber>;
-
-  set(
-    price_: BigNumberish,
+  createJoin(
+    asset: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  timestamp(overrides?: CallOverrides): Promise<BigNumber>;
+  getJoin(asset: string, overrides?: CallOverrides): Promise<string>;
+
+  nextAsset(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
-    decimals(overrides?: CallOverrides): Promise<number>;
+    JOIN_BYTECODE_HASH(overrides?: CallOverrides): Promise<string>;
 
-    latestRoundData(
+    calculateJoinAddress(
+      asset: string,
       overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber, BigNumber, BigNumber, BigNumber]>;
+    ): Promise<string>;
 
-    price(overrides?: CallOverrides): Promise<BigNumber>;
+    createJoin(asset: string, overrides?: CallOverrides): Promise<string>;
 
-    set(price_: BigNumberish, overrides?: CallOverrides): Promise<void>;
+    getJoin(asset: string, overrides?: CallOverrides): Promise<string>;
 
-    timestamp(overrides?: CallOverrides): Promise<BigNumber>;
+    nextAsset(overrides?: CallOverrides): Promise<string>;
   };
 
-  filters: {};
+  filters: {
+    JoinCreated(
+      asset?: string | null,
+      pool?: null
+    ): TypedEventFilter<[string, string], { asset: string; pool: string }>;
+  };
 
   estimateGas: {
-    decimals(overrides?: CallOverrides): Promise<BigNumber>;
+    JOIN_BYTECODE_HASH(overrides?: CallOverrides): Promise<BigNumber>;
 
-    latestRoundData(overrides?: CallOverrides): Promise<BigNumber>;
+    calculateJoinAddress(
+      asset: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
-    price(overrides?: CallOverrides): Promise<BigNumber>;
-
-    set(
-      price_: BigNumberish,
+    createJoin(
+      asset: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    timestamp(overrides?: CallOverrides): Promise<BigNumber>;
+    getJoin(asset: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    nextAsset(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    JOIN_BYTECODE_HASH(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
-    latestRoundData(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    calculateJoinAddress(
+      asset: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
-    price(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    set(
-      price_: BigNumberish,
+    createJoin(
+      asset: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    timestamp(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    getJoin(
+      asset: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    nextAsset(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

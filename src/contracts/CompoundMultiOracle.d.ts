@@ -25,6 +25,7 @@ interface CompoundMultiOracleInterface extends ethers.utils.Interface {
     "get(bytes32,bytes32,uint256)": FunctionFragment;
     "owner()": FunctionFragment;
     "peek(bytes32,bytes32,uint256)": FunctionFragment;
+    "setSource(bytes6,bytes32,address)": FunctionFragment;
     "setSources(bytes6[],bytes32[],address[])": FunctionFragment;
     "sources(bytes6,bytes32)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
@@ -42,6 +43,10 @@ interface CompoundMultiOracleInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "peek",
     values: [BytesLike, BytesLike, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setSource",
+    values: [BytesLike, BytesLike, string]
   ): string;
   encodeFunctionData(
     functionFragment: "setSources",
@@ -63,6 +68,7 @@ interface CompoundMultiOracleInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "get", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "peek", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "setSource", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "setSources", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "sources", data: BytesLike): Result;
   decodeFunctionResult(
@@ -72,7 +78,7 @@ interface CompoundMultiOracleInterface extends ethers.utils.Interface {
 
   events: {
     "OwnershipTransferred(address,address)": EventFragment;
-    "SourcesSet(bytes6[],bytes32[],address[])": EventFragment;
+    "SourcesSet(bytes6,bytes32,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
@@ -145,6 +151,13 @@ export class CompoundMultiOracle extends BaseContract {
       [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
     >;
 
+    setSource(
+      base: BytesLike,
+      kind: BytesLike,
+      source: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     setSources(
       bases: BytesLike[],
       kinds: BytesLike[],
@@ -185,6 +198,13 @@ export class CompoundMultiOracle extends BaseContract {
   ): Promise<
     [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
   >;
+
+  setSource(
+    base: BytesLike,
+    kind: BytesLike,
+    source: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   setSources(
     bases: BytesLike[],
@@ -227,6 +247,13 @@ export class CompoundMultiOracle extends BaseContract {
       [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
     >;
 
+    setSource(
+      base: BytesLike,
+      kind: BytesLike,
+      source: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     setSources(
       bases: BytesLike[],
       kinds: BytesLike[],
@@ -256,12 +283,12 @@ export class CompoundMultiOracle extends BaseContract {
     >;
 
     SourcesSet(
-      bases?: BytesLike[] | null,
-      kinds?: BytesLike[] | null,
-      sources_?: string[] | null
+      baseId?: null,
+      kind?: null,
+      source?: null
     ): TypedEventFilter<
-      [string[], string[], string[]],
-      { bases: string[]; kinds: string[]; sources_: string[] }
+      [string, string, string],
+      { baseId: string; kind: string; source: string }
     >;
   };
 
@@ -282,6 +309,13 @@ export class CompoundMultiOracle extends BaseContract {
       kind: BytesLike,
       amount: BigNumberish,
       overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    setSource(
+      base: BytesLike,
+      kind: BytesLike,
+      source: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     setSources(
@@ -320,6 +354,13 @@ export class CompoundMultiOracle extends BaseContract {
       kind: BytesLike,
       amount: BigNumberish,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    setSource(
+      base: BytesLike,
+      kind: BytesLike,
+      source: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     setSources(

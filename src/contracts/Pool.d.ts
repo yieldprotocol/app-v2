@@ -26,33 +26,34 @@ interface PoolInterface extends ethers.utils.Interface {
     "allowance(address,address)": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
-    "baseToken()": FunctionFragment;
+    "base()": FunctionFragment;
     "burn(address,uint256,uint256)": FunctionFragment;
-    "burnForBaseToken(address,uint256)": FunctionFragment;
-    "buyBaseToken(address,uint128,uint128)": FunctionFragment;
-    "buyBaseTokenPreview(uint128)": FunctionFragment;
+    "burnForBase(address,uint256)": FunctionFragment;
+    "buyBase(address,uint128,uint128)": FunctionFragment;
+    "buyBasePreview(uint128)": FunctionFragment;
     "buyFYToken(address,uint128,uint128)": FunctionFragment;
     "buyFYTokenPreview(uint128)": FunctionFragment;
-    "cumulativeReserveRatio()": FunctionFragment;
+    "cumulativeBalancesRatio()": FunctionFragment;
     "decimals()": FunctionFragment;
+    "deploymentChainId()": FunctionFragment;
     "fyToken()": FunctionFragment;
-    "getBaseTokenReserves()": FunctionFragment;
-    "getFYTokenReserves()": FunctionFragment;
+    "getBaseBalance()": FunctionFragment;
+    "getCache()": FunctionFragment;
+    "getFYTokenBalance()": FunctionFragment;
     "getG1()": FunctionFragment;
     "getG2()": FunctionFragment;
     "getK()": FunctionFragment;
-    "getStoredReserves()": FunctionFragment;
     "maturity()": FunctionFragment;
     "mint(address,bool,uint256)": FunctionFragment;
-    "mintWithBaseToken(address,uint256,uint256)": FunctionFragment;
+    "mintWithBase(address,uint256,uint256)": FunctionFragment;
     "name()": FunctionFragment;
     "nonces(address)": FunctionFragment;
     "owner()": FunctionFragment;
     "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)": FunctionFragment;
-    "retrieveBaseToken(address)": FunctionFragment;
+    "retrieveBase(address)": FunctionFragment;
     "retrieveFYToken(address)": FunctionFragment;
-    "sellBaseToken(address,uint128)": FunctionFragment;
-    "sellBaseTokenPreview(uint128)": FunctionFragment;
+    "sellBase(address,uint128)": FunctionFragment;
+    "sellBasePreview(uint128)": FunctionFragment;
     "sellFYToken(address,uint128)": FunctionFragment;
     "sellFYTokenPreview(uint128)": FunctionFragment;
     "setParameter(bytes32,int128)": FunctionFragment;
@@ -82,21 +83,21 @@ interface PoolInterface extends ethers.utils.Interface {
     values: [string, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
-  encodeFunctionData(functionFragment: "baseToken", values?: undefined): string;
+  encodeFunctionData(functionFragment: "base", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "burn",
     values: [string, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "burnForBaseToken",
+    functionFragment: "burnForBase",
     values: [string, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "buyBaseToken",
+    functionFragment: "buyBase",
     values: [string, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "buyBaseTokenPreview",
+    functionFragment: "buyBasePreview",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
@@ -108,33 +109,34 @@ interface PoolInterface extends ethers.utils.Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "cumulativeReserveRatio",
+    functionFragment: "cumulativeBalancesRatio",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
-  encodeFunctionData(functionFragment: "fyToken", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "getBaseTokenReserves",
+    functionFragment: "deploymentChainId",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "fyToken", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "getFYTokenReserves",
+    functionFragment: "getBaseBalance",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "getCache", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "getFYTokenBalance",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "getG1", values?: undefined): string;
   encodeFunctionData(functionFragment: "getG2", values?: undefined): string;
   encodeFunctionData(functionFragment: "getK", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "getStoredReserves",
-    values?: undefined
-  ): string;
   encodeFunctionData(functionFragment: "maturity", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "mint",
     values: [string, boolean, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "mintWithBaseToken",
+    functionFragment: "mintWithBase",
     values: [string, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
@@ -153,7 +155,7 @@ interface PoolInterface extends ethers.utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "retrieveBaseToken",
+    functionFragment: "retrieveBase",
     values: [string]
   ): string;
   encodeFunctionData(
@@ -161,11 +163,11 @@ interface PoolInterface extends ethers.utils.Interface {
     values: [string]
   ): string;
   encodeFunctionData(
-    functionFragment: "sellBaseToken",
+    functionFragment: "sellBase",
     values: [string, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "sellBaseTokenPreview",
+    functionFragment: "sellBasePreview",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
@@ -211,18 +213,15 @@ interface PoolInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "allowance", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "baseToken", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "base", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "burn", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "burnForBaseToken",
+    functionFragment: "burnForBase",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "buyBase", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "buyBaseToken",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "buyBaseTokenPreview",
+    functionFragment: "buyBasePreview",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "buyFYToken", data: BytesLike): Result;
@@ -231,30 +230,31 @@ interface PoolInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "cumulativeReserveRatio",
+    functionFragment: "cumulativeBalancesRatio",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "fyToken", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "getBaseTokenReserves",
+    functionFragment: "deploymentChainId",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "fyToken", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "getFYTokenReserves",
+    functionFragment: "getBaseBalance",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "getCache", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getFYTokenBalance",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "getG1", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getG2", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getK", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "getStoredReserves",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "maturity", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "mintWithBaseToken",
+    functionFragment: "mintWithBase",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
@@ -262,19 +262,16 @@ interface PoolInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "permit", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "retrieveBaseToken",
+    functionFragment: "retrieveBase",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "retrieveFYToken",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "sellBase", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "sellBaseToken",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "sellBaseTokenPreview",
+    functionFragment: "sellBasePreview",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -387,29 +384,29 @@ export class Pool extends BaseContract {
 
     balanceOf(guy: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    baseToken(overrides?: CallOverrides): Promise<[string]>;
+    base(overrides?: CallOverrides): Promise<[string]>;
 
     burn(
       to: string,
-      minBaseTokenOut: BigNumberish,
+      minBaseOut: BigNumberish,
       minFYTokenOut: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    burnForBaseToken(
+    burnForBase(
       to: string,
-      minBaseTokenOut: BigNumberish,
+      minBaseOut: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    buyBaseToken(
+    buyBase(
       to: string,
       tokenOut: BigNumberish,
       max: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    buyBaseTokenPreview(
+    buyBasePreview(
       tokenOut: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
@@ -426,25 +423,27 @@ export class Pool extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    cumulativeReserveRatio(overrides?: CallOverrides): Promise<[BigNumber]>;
+    cumulativeBalancesRatio(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     decimals(overrides?: CallOverrides): Promise<[number]>;
 
+    deploymentChainId(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     fyToken(overrides?: CallOverrides): Promise<[string]>;
 
-    getBaseTokenReserves(overrides?: CallOverrides): Promise<[BigNumber]>;
+    getBaseBalance(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    getFYTokenReserves(overrides?: CallOverrides): Promise<[BigNumber]>;
+    getCache(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber, BigNumber, number]>;
+
+    getFYTokenBalance(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     getG1(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     getG2(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     getK(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    getStoredReserves(
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber, number]>;
 
     maturity(overrides?: CallOverrides): Promise<[number]>;
 
@@ -455,7 +454,7 @@ export class Pool extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    mintWithBaseToken(
+    mintWithBase(
       to: string,
       fyTokenToBuy: BigNumberish,
       minTokensMinted: BigNumberish,
@@ -479,7 +478,7 @@ export class Pool extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    retrieveBaseToken(
+    retrieveBase(
       to: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -489,14 +488,14 @@ export class Pool extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    sellBaseToken(
+    sellBase(
       to: string,
       min: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    sellBaseTokenPreview(
-      baseTokenIn: BigNumberish,
+    sellBasePreview(
+      baseIn: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
@@ -564,29 +563,29 @@ export class Pool extends BaseContract {
 
   balanceOf(guy: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-  baseToken(overrides?: CallOverrides): Promise<string>;
+  base(overrides?: CallOverrides): Promise<string>;
 
   burn(
     to: string,
-    minBaseTokenOut: BigNumberish,
+    minBaseOut: BigNumberish,
     minFYTokenOut: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  burnForBaseToken(
+  burnForBase(
     to: string,
-    minBaseTokenOut: BigNumberish,
+    minBaseOut: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  buyBaseToken(
+  buyBase(
     to: string,
     tokenOut: BigNumberish,
     max: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  buyBaseTokenPreview(
+  buyBasePreview(
     tokenOut: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
@@ -603,25 +602,25 @@ export class Pool extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  cumulativeReserveRatio(overrides?: CallOverrides): Promise<BigNumber>;
+  cumulativeBalancesRatio(overrides?: CallOverrides): Promise<BigNumber>;
 
   decimals(overrides?: CallOverrides): Promise<number>;
 
+  deploymentChainId(overrides?: CallOverrides): Promise<BigNumber>;
+
   fyToken(overrides?: CallOverrides): Promise<string>;
 
-  getBaseTokenReserves(overrides?: CallOverrides): Promise<BigNumber>;
+  getBaseBalance(overrides?: CallOverrides): Promise<BigNumber>;
 
-  getFYTokenReserves(overrides?: CallOverrides): Promise<BigNumber>;
+  getCache(overrides?: CallOverrides): Promise<[BigNumber, BigNumber, number]>;
+
+  getFYTokenBalance(overrides?: CallOverrides): Promise<BigNumber>;
 
   getG1(overrides?: CallOverrides): Promise<BigNumber>;
 
   getG2(overrides?: CallOverrides): Promise<BigNumber>;
 
   getK(overrides?: CallOverrides): Promise<BigNumber>;
-
-  getStoredReserves(
-    overrides?: CallOverrides
-  ): Promise<[BigNumber, BigNumber, number]>;
 
   maturity(overrides?: CallOverrides): Promise<number>;
 
@@ -632,7 +631,7 @@ export class Pool extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  mintWithBaseToken(
+  mintWithBase(
     to: string,
     fyTokenToBuy: BigNumberish,
     minTokensMinted: BigNumberish,
@@ -656,7 +655,7 @@ export class Pool extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  retrieveBaseToken(
+  retrieveBase(
     to: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -666,14 +665,14 @@ export class Pool extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  sellBaseToken(
+  sellBase(
     to: string,
     min: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  sellBaseTokenPreview(
-    baseTokenIn: BigNumberish,
+  sellBasePreview(
+    baseIn: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
@@ -741,34 +740,31 @@ export class Pool extends BaseContract {
 
     balanceOf(guy: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    baseToken(overrides?: CallOverrides): Promise<string>;
+    base(overrides?: CallOverrides): Promise<string>;
 
     burn(
       to: string,
-      minBaseTokenOut: BigNumberish,
+      minBaseOut: BigNumberish,
       minFYTokenOut: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber, BigNumber, BigNumber]>;
 
-    burnForBaseToken(
+    burnForBase(
       to: string,
-      minBaseTokenOut: BigNumberish,
+      minBaseOut: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, BigNumber] & {
-        tokensBurned: BigNumber;
-        baseTokenOut: BigNumber;
-      }
+      [BigNumber, BigNumber] & { tokensBurned: BigNumber; baseOut: BigNumber }
     >;
 
-    buyBaseToken(
+    buyBase(
       to: string,
       tokenOut: BigNumberish,
       max: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    buyBaseTokenPreview(
+    buyBasePreview(
       tokenOut: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -785,25 +781,27 @@ export class Pool extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    cumulativeReserveRatio(overrides?: CallOverrides): Promise<BigNumber>;
+    cumulativeBalancesRatio(overrides?: CallOverrides): Promise<BigNumber>;
 
     decimals(overrides?: CallOverrides): Promise<number>;
 
+    deploymentChainId(overrides?: CallOverrides): Promise<BigNumber>;
+
     fyToken(overrides?: CallOverrides): Promise<string>;
 
-    getBaseTokenReserves(overrides?: CallOverrides): Promise<BigNumber>;
+    getBaseBalance(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getFYTokenReserves(overrides?: CallOverrides): Promise<BigNumber>;
+    getCache(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber, BigNumber, number]>;
+
+    getFYTokenBalance(overrides?: CallOverrides): Promise<BigNumber>;
 
     getG1(overrides?: CallOverrides): Promise<BigNumber>;
 
     getG2(overrides?: CallOverrides): Promise<BigNumber>;
 
     getK(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getStoredReserves(
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber, number]>;
 
     maturity(overrides?: CallOverrides): Promise<number>;
 
@@ -814,7 +812,7 @@ export class Pool extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber, BigNumber, BigNumber]>;
 
-    mintWithBaseToken(
+    mintWithBase(
       to: string,
       fyTokenToBuy: BigNumberish,
       minTokensMinted: BigNumberish,
@@ -838,21 +836,18 @@ export class Pool extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    retrieveBaseToken(
-      to: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    retrieveBase(to: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     retrieveFYToken(to: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    sellBaseToken(
+    sellBase(
       to: string,
       min: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    sellBaseTokenPreview(
-      baseTokenIn: BigNumberish,
+    sellBasePreview(
+      baseIn: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -914,8 +909,8 @@ export class Pool extends BaseContract {
       maturity?: null,
       from?: string | null,
       to?: string | null,
-      baseTokens?: null,
-      fyTokenTokens?: null,
+      bases?: null,
+      fyTokens?: null,
       poolTokens?: null
     ): TypedEventFilter<
       [number, string, string, BigNumber, BigNumber, BigNumber],
@@ -923,8 +918,8 @@ export class Pool extends BaseContract {
         maturity: number;
         from: string;
         to: string;
-        baseTokens: BigNumber;
-        fyTokenTokens: BigNumber;
+        bases: BigNumber;
+        fyTokens: BigNumber;
         poolTokens: BigNumber;
       }
     >;
@@ -946,15 +941,15 @@ export class Pool extends BaseContract {
     >;
 
     Sync(
-      baseTokenReserve?: null,
-      storedFYTokenReserve?: null,
-      cumulativeReserveRatio?: null
+      baseCached?: null,
+      fyTokenCached?: null,
+      cumulativeBalancesRatio?: null
     ): TypedEventFilter<
       [BigNumber, BigNumber, BigNumber],
       {
-        baseTokenReserve: BigNumber;
-        storedFYTokenReserve: BigNumber;
-        cumulativeReserveRatio: BigNumber;
+        baseCached: BigNumber;
+        fyTokenCached: BigNumber;
+        cumulativeBalancesRatio: BigNumber;
       }
     >;
 
@@ -962,16 +957,16 @@ export class Pool extends BaseContract {
       maturity?: null,
       from?: string | null,
       to?: string | null,
-      baseTokens?: null,
-      fyTokenTokens?: null
+      bases?: null,
+      fyTokens?: null
     ): TypedEventFilter<
       [number, string, string, BigNumber, BigNumber],
       {
         maturity: number;
         from: string;
         to: string;
-        baseTokens: BigNumber;
-        fyTokenTokens: BigNumber;
+        bases: BigNumber;
+        fyTokens: BigNumber;
       }
     >;
 
@@ -1004,29 +999,29 @@ export class Pool extends BaseContract {
 
     balanceOf(guy: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    baseToken(overrides?: CallOverrides): Promise<BigNumber>;
+    base(overrides?: CallOverrides): Promise<BigNumber>;
 
     burn(
       to: string,
-      minBaseTokenOut: BigNumberish,
+      minBaseOut: BigNumberish,
       minFYTokenOut: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    burnForBaseToken(
+    burnForBase(
       to: string,
-      minBaseTokenOut: BigNumberish,
+      minBaseOut: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    buyBaseToken(
+    buyBase(
       to: string,
       tokenOut: BigNumberish,
       max: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    buyBaseTokenPreview(
+    buyBasePreview(
       tokenOut: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -1043,23 +1038,25 @@ export class Pool extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    cumulativeReserveRatio(overrides?: CallOverrides): Promise<BigNumber>;
+    cumulativeBalancesRatio(overrides?: CallOverrides): Promise<BigNumber>;
 
     decimals(overrides?: CallOverrides): Promise<BigNumber>;
 
+    deploymentChainId(overrides?: CallOverrides): Promise<BigNumber>;
+
     fyToken(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getBaseTokenReserves(overrides?: CallOverrides): Promise<BigNumber>;
+    getBaseBalance(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getFYTokenReserves(overrides?: CallOverrides): Promise<BigNumber>;
+    getCache(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getFYTokenBalance(overrides?: CallOverrides): Promise<BigNumber>;
 
     getG1(overrides?: CallOverrides): Promise<BigNumber>;
 
     getG2(overrides?: CallOverrides): Promise<BigNumber>;
 
     getK(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getStoredReserves(overrides?: CallOverrides): Promise<BigNumber>;
 
     maturity(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1070,7 +1067,7 @@ export class Pool extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    mintWithBaseToken(
+    mintWithBase(
       to: string,
       fyTokenToBuy: BigNumberish,
       minTokensMinted: BigNumberish,
@@ -1094,7 +1091,7 @@ export class Pool extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    retrieveBaseToken(
+    retrieveBase(
       to: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -1104,14 +1101,14 @@ export class Pool extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    sellBaseToken(
+    sellBase(
       to: string,
       min: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    sellBaseTokenPreview(
-      baseTokenIn: BigNumberish,
+    sellBasePreview(
+      baseIn: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1183,29 +1180,29 @@ export class Pool extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    baseToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    base(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     burn(
       to: string,
-      minBaseTokenOut: BigNumberish,
+      minBaseOut: BigNumberish,
       minFYTokenOut: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    burnForBaseToken(
+    burnForBase(
       to: string,
-      minBaseTokenOut: BigNumberish,
+      minBaseOut: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    buyBaseToken(
+    buyBase(
       to: string,
       tokenOut: BigNumberish,
       max: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    buyBaseTokenPreview(
+    buyBasePreview(
       tokenOut: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -1222,29 +1219,27 @@ export class Pool extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    cumulativeReserveRatio(
+    cumulativeBalancesRatio(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    deploymentChainId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     fyToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    getBaseTokenReserves(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    getBaseBalance(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    getFYTokenReserves(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    getCache(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getFYTokenBalance(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getG1(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getG2(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getK(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getStoredReserves(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     maturity(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1255,7 +1250,7 @@ export class Pool extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    mintWithBaseToken(
+    mintWithBase(
       to: string,
       fyTokenToBuy: BigNumberish,
       minTokensMinted: BigNumberish,
@@ -1282,7 +1277,7 @@ export class Pool extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    retrieveBaseToken(
+    retrieveBase(
       to: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
@@ -1292,14 +1287,14 @@ export class Pool extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    sellBaseToken(
+    sellBase(
       to: string,
       min: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    sellBaseTokenPreview(
-      baseTokenIn: BigNumberish,
+    sellBasePreview(
+      baseIn: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

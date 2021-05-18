@@ -19,37 +19,22 @@ import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
-interface ChainlinkAggregatorV3MockInterface extends ethers.utils.Interface {
+interface ISpotMultiOracleGovInterface extends ethers.utils.Interface {
   functions: {
-    "decimals()": FunctionFragment;
-    "latestRoundData()": FunctionFragment;
-    "price()": FunctionFragment;
-    "set(uint256)": FunctionFragment;
-    "timestamp()": FunctionFragment;
+    "setSource(bytes6,bytes6,address)": FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "latestRoundData",
-    values?: undefined
+    functionFragment: "setSource",
+    values: [BytesLike, BytesLike, string]
   ): string;
-  encodeFunctionData(functionFragment: "price", values?: undefined): string;
-  encodeFunctionData(functionFragment: "set", values: [BigNumberish]): string;
-  encodeFunctionData(functionFragment: "timestamp", values?: undefined): string;
 
-  decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "latestRoundData",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "price", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "set", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "timestamp", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "setSource", data: BytesLike): Result;
 
   events: {};
 }
 
-export class ChainlinkAggregatorV3Mock extends BaseContract {
+export class ISpotMultiOracleGov extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -90,83 +75,50 @@ export class ChainlinkAggregatorV3Mock extends BaseContract {
     toBlock?: string | number | undefined
   ): Promise<Array<TypedEvent<EventArgsArray & EventArgsObject>>>;
 
-  interface: ChainlinkAggregatorV3MockInterface;
+  interface: ISpotMultiOracleGovInterface;
 
   functions: {
-    decimals(overrides?: CallOverrides): Promise<[number]>;
-
-    latestRoundData(
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber, BigNumber, BigNumber, BigNumber]>;
-
-    price(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    set(
-      price_: BigNumberish,
+    setSource(
+      arg0: BytesLike,
+      arg1: BytesLike,
+      arg2: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    timestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
   };
 
-  decimals(overrides?: CallOverrides): Promise<number>;
-
-  latestRoundData(
-    overrides?: CallOverrides
-  ): Promise<[BigNumber, BigNumber, BigNumber, BigNumber, BigNumber]>;
-
-  price(overrides?: CallOverrides): Promise<BigNumber>;
-
-  set(
-    price_: BigNumberish,
+  setSource(
+    arg0: BytesLike,
+    arg1: BytesLike,
+    arg2: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  timestamp(overrides?: CallOverrides): Promise<BigNumber>;
-
   callStatic: {
-    decimals(overrides?: CallOverrides): Promise<number>;
-
-    latestRoundData(
+    setSource(
+      arg0: BytesLike,
+      arg1: BytesLike,
+      arg2: string,
       overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber, BigNumber, BigNumber, BigNumber]>;
-
-    price(overrides?: CallOverrides): Promise<BigNumber>;
-
-    set(price_: BigNumberish, overrides?: CallOverrides): Promise<void>;
-
-    timestamp(overrides?: CallOverrides): Promise<BigNumber>;
+    ): Promise<void>;
   };
 
   filters: {};
 
   estimateGas: {
-    decimals(overrides?: CallOverrides): Promise<BigNumber>;
-
-    latestRoundData(overrides?: CallOverrides): Promise<BigNumber>;
-
-    price(overrides?: CallOverrides): Promise<BigNumber>;
-
-    set(
-      price_: BigNumberish,
+    setSource(
+      arg0: BytesLike,
+      arg1: BytesLike,
+      arg2: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
-
-    timestamp(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    latestRoundData(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    price(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    set(
-      price_: BigNumberish,
+    setSource(
+      arg0: BytesLike,
+      arg1: BytesLike,
+      arg2: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
-
-    timestamp(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

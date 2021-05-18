@@ -25,8 +25,8 @@ interface IPoolFactoryInterface extends ethers.utils.Interface {
     "calculatePoolAddress(address,address)": FunctionFragment;
     "createPool(address,address)": FunctionFragment;
     "getPool(address,address)": FunctionFragment;
+    "nextBase()": FunctionFragment;
     "nextFYToken()": FunctionFragment;
-    "nextToken()": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -45,11 +45,11 @@ interface IPoolFactoryInterface extends ethers.utils.Interface {
     functionFragment: "getPool",
     values: [string, string]
   ): string;
+  encodeFunctionData(functionFragment: "nextBase", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "nextFYToken",
     values?: undefined
   ): string;
-  encodeFunctionData(functionFragment: "nextToken", values?: undefined): string;
 
   decodeFunctionResult(
     functionFragment: "POOL_BYTECODE_HASH",
@@ -61,11 +61,11 @@ interface IPoolFactoryInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "createPool", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getPool", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "nextBase", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "nextFYToken",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "nextToken", data: BytesLike): Result;
 
   events: {
     "PoolCreated(address,address,address)": EventFragment;
@@ -121,86 +121,86 @@ export class IPoolFactory extends BaseContract {
     POOL_BYTECODE_HASH(overrides?: CallOverrides): Promise<[string]>;
 
     calculatePoolAddress(
-      token: string,
+      base: string,
       fyToken: string,
       overrides?: CallOverrides
     ): Promise<[string]>;
 
     createPool(
-      token: string,
+      base: string,
       fyToken: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     getPool(
-      token: string,
+      base: string,
       fyToken: string,
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    nextFYToken(overrides?: CallOverrides): Promise<[string]>;
+    nextBase(overrides?: CallOverrides): Promise<[string]>;
 
-    nextToken(overrides?: CallOverrides): Promise<[string]>;
+    nextFYToken(overrides?: CallOverrides): Promise<[string]>;
   };
 
   POOL_BYTECODE_HASH(overrides?: CallOverrides): Promise<string>;
 
   calculatePoolAddress(
-    token: string,
+    base: string,
     fyToken: string,
     overrides?: CallOverrides
   ): Promise<string>;
 
   createPool(
-    token: string,
+    base: string,
     fyToken: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   getPool(
-    token: string,
+    base: string,
     fyToken: string,
     overrides?: CallOverrides
   ): Promise<string>;
 
-  nextFYToken(overrides?: CallOverrides): Promise<string>;
+  nextBase(overrides?: CallOverrides): Promise<string>;
 
-  nextToken(overrides?: CallOverrides): Promise<string>;
+  nextFYToken(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
     POOL_BYTECODE_HASH(overrides?: CallOverrides): Promise<string>;
 
     calculatePoolAddress(
-      token: string,
+      base: string,
       fyToken: string,
       overrides?: CallOverrides
     ): Promise<string>;
 
     createPool(
-      token: string,
+      base: string,
       fyToken: string,
       overrides?: CallOverrides
     ): Promise<string>;
 
     getPool(
-      token: string,
+      base: string,
       fyToken: string,
       overrides?: CallOverrides
     ): Promise<string>;
 
-    nextFYToken(overrides?: CallOverrides): Promise<string>;
+    nextBase(overrides?: CallOverrides): Promise<string>;
 
-    nextToken(overrides?: CallOverrides): Promise<string>;
+    nextFYToken(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {
     PoolCreated(
-      baseToken?: string | null,
+      base?: string | null,
       fyToken?: string | null,
       pool?: null
     ): TypedEventFilter<
       [string, string, string],
-      { baseToken: string; fyToken: string; pool: string }
+      { base: string; fyToken: string; pool: string }
     >;
   };
 
@@ -208,26 +208,26 @@ export class IPoolFactory extends BaseContract {
     POOL_BYTECODE_HASH(overrides?: CallOverrides): Promise<BigNumber>;
 
     calculatePoolAddress(
-      token: string,
+      base: string,
       fyToken: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     createPool(
-      token: string,
+      base: string,
       fyToken: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     getPool(
-      token: string,
+      base: string,
       fyToken: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    nextFYToken(overrides?: CallOverrides): Promise<BigNumber>;
+    nextBase(overrides?: CallOverrides): Promise<BigNumber>;
 
-    nextToken(overrides?: CallOverrides): Promise<BigNumber>;
+    nextFYToken(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -236,25 +236,25 @@ export class IPoolFactory extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     calculatePoolAddress(
-      token: string,
+      base: string,
       fyToken: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     createPool(
-      token: string,
+      base: string,
       fyToken: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     getPool(
-      token: string,
+      base: string,
       fyToken: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    nextFYToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    nextBase(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    nextToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    nextFYToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

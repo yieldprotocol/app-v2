@@ -21,19 +21,15 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface ChainlinkMultiOracleInterface extends ethers.utils.Interface {
   functions: {
-    "SCALE_FACTOR()": FunctionFragment;
     "get(bytes32,bytes32,uint256)": FunctionFragment;
     "owner()": FunctionFragment;
     "peek(bytes32,bytes32,uint256)": FunctionFragment;
+    "setSource(bytes6,bytes6,address)": FunctionFragment;
     "setSources(bytes6[],bytes6[],address[])": FunctionFragment;
     "sources(bytes6,bytes6)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
   };
 
-  encodeFunctionData(
-    functionFragment: "SCALE_FACTOR",
-    values?: undefined
-  ): string;
   encodeFunctionData(
     functionFragment: "get",
     values: [BytesLike, BytesLike, BigNumberish]
@@ -42,6 +38,10 @@ interface ChainlinkMultiOracleInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "peek",
     values: [BytesLike, BytesLike, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setSource",
+    values: [BytesLike, BytesLike, string]
   ): string;
   encodeFunctionData(
     functionFragment: "setSources",
@@ -56,13 +56,10 @@ interface ChainlinkMultiOracleInterface extends ethers.utils.Interface {
     values: [string]
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "SCALE_FACTOR",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "get", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "peek", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "setSource", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "setSources", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "sources", data: BytesLike): Result;
   decodeFunctionResult(
@@ -72,7 +69,7 @@ interface ChainlinkMultiOracleInterface extends ethers.utils.Interface {
 
   events: {
     "OwnershipTransferred(address,address)": EventFragment;
-    "SourcesSet(bytes6[],bytes6[],address[])": EventFragment;
+    "SourcesSet(bytes6,bytes6,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
@@ -123,8 +120,6 @@ export class ChainlinkMultiOracle extends BaseContract {
   interface: ChainlinkMultiOracleInterface;
 
   functions: {
-    SCALE_FACTOR(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     get(
       base: BytesLike,
       quote: BytesLike,
@@ -145,6 +140,13 @@ export class ChainlinkMultiOracle extends BaseContract {
       [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
     >;
 
+    setSource(
+      base: BytesLike,
+      quote: BytesLike,
+      source: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     setSources(
       bases: BytesLike[],
       quotes: BytesLike[],
@@ -156,15 +158,13 @@ export class ChainlinkMultiOracle extends BaseContract {
       arg0: BytesLike,
       arg1: BytesLike,
       overrides?: CallOverrides
-    ): Promise<[string]>;
+    ): Promise<[string, number] & { source: string; decimals: number }>;
 
     transferOwnership(
       newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
-
-  SCALE_FACTOR(overrides?: CallOverrides): Promise<BigNumber>;
 
   get(
     base: BytesLike,
@@ -186,6 +186,13 @@ export class ChainlinkMultiOracle extends BaseContract {
     [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
   >;
 
+  setSource(
+    base: BytesLike,
+    quote: BytesLike,
+    source: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   setSources(
     bases: BytesLike[],
     quotes: BytesLike[],
@@ -197,7 +204,7 @@ export class ChainlinkMultiOracle extends BaseContract {
     arg0: BytesLike,
     arg1: BytesLike,
     overrides?: CallOverrides
-  ): Promise<string>;
+  ): Promise<[string, number] & { source: string; decimals: number }>;
 
   transferOwnership(
     newOwner: string,
@@ -205,8 +212,6 @@ export class ChainlinkMultiOracle extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    SCALE_FACTOR(overrides?: CallOverrides): Promise<BigNumber>;
-
     get(
       base: BytesLike,
       quote: BytesLike,
@@ -227,6 +232,13 @@ export class ChainlinkMultiOracle extends BaseContract {
       [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
     >;
 
+    setSource(
+      base: BytesLike,
+      quote: BytesLike,
+      source: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     setSources(
       bases: BytesLike[],
       quotes: BytesLike[],
@@ -238,7 +250,7 @@ export class ChainlinkMultiOracle extends BaseContract {
       arg0: BytesLike,
       arg1: BytesLike,
       overrides?: CallOverrides
-    ): Promise<string>;
+    ): Promise<[string, number] & { source: string; decimals: number }>;
 
     transferOwnership(
       newOwner: string,
@@ -256,18 +268,16 @@ export class ChainlinkMultiOracle extends BaseContract {
     >;
 
     SourcesSet(
-      bases?: BytesLike[] | null,
-      quotes?: BytesLike[] | null,
-      sources_?: string[] | null
+      baseId?: null,
+      quoteId?: null,
+      source?: null
     ): TypedEventFilter<
-      [string[], string[], string[]],
-      { bases: string[]; quotes: string[]; sources_: string[] }
+      [string, string, string],
+      { baseId: string; quoteId: string; source: string }
     >;
   };
 
   estimateGas: {
-    SCALE_FACTOR(overrides?: CallOverrides): Promise<BigNumber>;
-
     get(
       base: BytesLike,
       quote: BytesLike,
@@ -282,6 +292,13 @@ export class ChainlinkMultiOracle extends BaseContract {
       quote: BytesLike,
       amount: BigNumberish,
       overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    setSource(
+      base: BytesLike,
+      quote: BytesLike,
+      source: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     setSources(
@@ -304,8 +321,6 @@ export class ChainlinkMultiOracle extends BaseContract {
   };
 
   populateTransaction: {
-    SCALE_FACTOR(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     get(
       base: BytesLike,
       quote: BytesLike,
@@ -320,6 +335,13 @@ export class ChainlinkMultiOracle extends BaseContract {
       quote: BytesLike,
       amount: BigNumberish,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    setSource(
+      base: BytesLike,
+      quote: BytesLike,
+      source: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     setSources(
