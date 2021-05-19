@@ -72,8 +72,7 @@ export const useCollateralActions = () => {
     /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
     const permits: ICallData[] = await sign([
       {
-        targetAddress: ilk.address,
-        targetId: ilk.id,
+        target: ilk,
         type: SignType.ERC2612,
         spender: ilk.joinAddress,
         series,

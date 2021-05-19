@@ -26,6 +26,7 @@ export const usePoolActions = () => {
   ) => {
     const txCode = getTxCode('090_', series.id);
     const _input = ethers.utils.parseEther(input);
+    const base = assetMap.get(series.baseId);
 
     const _fyTokenToBuy = fyTokenForMint(
       series.baseReserves,
@@ -37,8 +38,7 @@ export const usePoolActions = () => {
 
     const permits: ICallData[] = await sign([
       { // router.forwardPermitAction( pool.address, base.address, router.address, allowance, deadline, v, r, s),
-        targetAddress: assetMap.get(series.baseId).address,
-        targetId: series.baseId,
+        target: base,
         series,
         type: DAI_BASED_ASSETS.includes(series.baseId) ? SignType.DAI : SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
         spender: 'POOLROUTER',
@@ -126,8 +126,12 @@ export const usePoolActions = () => {
 
       /* BEFORE MATURITY */
       { // router.forwardPermitAction(pool.address, pool.address, router.address, allowance, deadline, v, r, s )
-        targetAddress: fromSeries.poolAddress,
-        targetId: fromSeries.id,
+        target: {
+          id: fromSeries.id,
+          address: fromSeries.poolAddress,
+          name: fromSeries.poolName,
+          version: fromSeries.poolVersion,
+        },
         spender: 'POOLROUTER',
         series: fromSeries,
         type: SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
@@ -138,8 +142,7 @@ export const usePoolActions = () => {
 
       /* AFTER MATURITY */
       { // ladle.forwardPermitAction(seriesId, false, ladle.address, allowance, deadline, v, r, s)
-        targetAddress: fromSeries.fyTokenAddress,
-        targetId: fromSeries.id,
+        target: fromSeries,
         spender: 'LADLE',
         series: fromSeries,
         type: SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
@@ -216,8 +219,12 @@ export const usePoolActions = () => {
 
     const permits: ICallData[] = await sign([
       { // router.forwardPermitAction(pool.address, pool.address, router.address, allowance, deadline, v, r, s),
-        targetAddress: series.poolAddress,
-        targetId: series.id,
+        target: {
+          id: series.id,
+          address: series.poolAddress,
+          name: series.poolName,
+          version: series.poolVersion,
+        },
         series,
         type: SignType.ERC2612,
         spender: 'POOLROUTER',

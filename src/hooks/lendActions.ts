@@ -12,7 +12,8 @@ import { VAULT_OPS, POOLROUTER_OPS } from '../utils/operations';
 /* Generic hook for chain transactions */
 export const useLendActions = () => {
   const { chainState: { account, contractMap } } = useContext(ChainContext);
-  const { userActions } = useContext(UserContext);
+  const { userState, userActions } = useContext(UserContext);
+  const { assetMap } = userState;
   const { updateSeries } = userActions;
 
   const { sign, transact } = useChain();
@@ -25,15 +26,16 @@ export const useLendActions = () => {
     const txCode = getTxCode('060_', series.id);
 
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
-    const baseAddress = series.getBaseAddress();
+    // const baseAddress = series.getBaseAddress();
+    const base = assetMap.get(series.getBaseAddress());
+
     const { fyTokenAddress } = series;
 
     const _isDaiBased = DAI_BASED_ASSETS.includes(series.baseId);
 
     const permits: ICallData[] = await sign([
       {
-        targetAddress: baseAddress,
-        targetId: series.baseId,
+        target: base,
         spender: 'POOLROUTER',
         series,
         type: _isDaiBased ? SignType.DAI : SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
@@ -47,7 +49,7 @@ export const useLendActions = () => {
       ...permits,
       {
         operation: POOLROUTER_OPS.TRANSFER_TO_POOL,
-        args: [baseAddress, fyTokenAddress, baseAddress, _input.toString()],
+        args: [base.address, fyTokenAddress, base.address, _input.toString()],
         series,
         ignore: false,
       },
@@ -79,8 +81,7 @@ export const useLendActions = () => {
 
     const permits: ICallData[] = await sign([
       { // router.forwardPermit ( fyToken.address, router.address, allowance, deadline, v, r, s )
-        targetAddress: fyTokenAddress,
-        targetId: fromSeries.id,
+        target: fromSeries,
         spender: 'POOLROUTER',
         series: fromSeries,
         type: SignType.FYTOKEN, // Type based on whether a DAI-TyPE base asset or not.
@@ -92,8 +93,7 @@ export const useLendActions = () => {
       /* AFTER MATURITY */
 
       { // ladle.forwardPermitAction(seriesId, false, ladle.address, allowance, deadline, v, r, s)
-        targetAddress: fyTokenAddress,
-        targetId: fromSeries.id,
+        target: fromSeries,
         spender: 'LADLE',
         series: fromSeries,
         type: SignType.FYTOKEN, // Type based on whether a DAI-TyPE base asset or not.
@@ -173,8 +173,7 @@ export const useLendActions = () => {
 
     const permits: ICallData[] = await sign([
       {
-        targetAddress: fyTokenAddress,
-        targetId: series.id,
+        target: series,
         spender: 'POOLROUTER',
         series,
         type: SignType.FYTOKEN,

@@ -12,7 +12,7 @@ import { calculateSlippage } from '../utils/yieldMath';
 
 /* Generic hook for chain transactions */
 export const useBorrowActions = () => {
-  const { chainState: { account, contractMap } } = useContext(ChainContext);
+  const { chainState: { account, contractMap, chainId } } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
   const { selectedIlkId, selectedSeriesId, seriesMap, assetMap } = userState;
   const { updateVaults } = userActions;
@@ -72,13 +72,22 @@ export const useBorrowActions = () => {
     /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
     const permits: ICallData[] = await sign([
       {
-        targetAddress: ilk.address,
-        targetId: ilk.id,
+        target: ilk,
         spender: ilk.joinAddress,
+        domain: { name: ilk.name, version: ilk.version, chainId, verifyingContract: ilk.address },
         series,
         type: SignType.ERC2612,
         fallbackCall: { fn: 'approve', args: [], ignore: false, opCode: null },
-        ignore: ETH_BASED_ASSETS.includes(selectedIlkId), /* Ignore if Eth varietal */
+        ignore: (ETH_BASED_ASSETS.includes(selectedIlkId) || DAI_BASED_ASSETS.includes(selectedIlkId)), /* Ignore if Eth varietal OR Dai varietal */
+      },
+      {
+        target: ilk,
+        spender: ilk.joinAddress,
+        domain: { name: ilk.name, version: ilk.version, chainId, verifyingContract: ilk.address },
+        series,
+        type: SignType.DAI,
+        fallbackCall: { fn: 'approve', args: [], ignore: false, opCode: null },
+        ignore: !DAI_BASED_ASSETS.includes(selectedIlkId), /* only if Dai varietal */
       },
     ], txCode);
 
@@ -99,7 +108,6 @@ export const useBorrowActions = () => {
       ..._addEth(_collInput, series),
       {
         operation: VAULT_OPS.SERVE,
-        // args: [vaultId, account, MAX_128, MAX_128, MAX_128],
         args: [vaultId, account, _collInput, _input, MAX_128],
         ignore: false,
         series,
@@ -134,8 +142,9 @@ export const useBorrowActions = () => {
     const permits: ICallData[] = await sign([
       {
         // before maturity
-        targetAddress: base.address,
-        targetId: base.id,
+        target: base,
+        // targetAddress: base.address,
+        // targetId: base.id,
         spender: 'LADLE',
         series,
         type: _isDaiBased ? SignType.DAI : SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
@@ -145,8 +154,9 @@ export const useBorrowActions = () => {
       },
       {
         // after maturity
-        targetAddress: base.address,
-        targetId: base.id,
+        // targetAddress: base.address,
+        // targetId: base.id,
+        target: base,
         spender: base.joinAddress,
         series,
         type: _isDaiBased ? SignType.DAI : SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
