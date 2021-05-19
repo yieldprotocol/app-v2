@@ -196,15 +196,18 @@ const ChainProvider = ({ children }: any) => {
 
           await Promise.all(assetAddedEvents.map(async (x:any) => {
             const { assetId: id, asset: address } = Cauldron.interface.parseLog(x).args;
-            const ERC20 = contracts.ERC20__factory.connect(address, fallbackLibrary);
+            const ERC20 = contracts.ERC20Permit__factory.connect(address, fallbackLibrary);
             /* Add in any extra static asset Data */ // TODO is there any other fixed asset data needed?
-            const [displayName, symbol] = await Promise.all([ERC20.name(), ERC20.symbol()]);
+            const [name, symbol] = await Promise.all([ERC20.name(), ERC20.symbol()]);
+            const version = (id === '0x555344430000') ? '2' : '1';
+            // const version = ETH_BASED_ASSETS.includes(id) ? '1' : ERC20.version();
             updateState({ type: 'addAsset',
               payload: {
                 id,
                 address,
-                displayName,
+                name,
                 symbol,
+                version,
                 joinAddress: joinMap.get(id),
                 /* baked in token fns */
                 getBalance: async (acc: string) => (ETH_BASED_ASSETS.includes(id)
@@ -238,18 +241,32 @@ const ChainProvider = ({ children }: any) => {
               const poolContract: Pool = contracts.Pool__factory.connect(poolAddress, fallbackLibrary);
               const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackLibrary);
 
+              const [name, symbol, version, poolName, poolVersion] = await Promise.all([
+                fyTokenContract.name(),
+                fyTokenContract.symbol(),
+                fyTokenContract.version(),
+                poolContract.name(),
+                poolContract.version(),
+              ]);
+
               updateState({
                 type: 'addSeries',
                 payload: {
                   id,
                   baseId,
                   maturity,
+                  name,
+                  symbol,
+                  version,
+                  address: fyToken,
                   displayName: nameFromMaturity(maturity),
                   displayNameMobile: nameFromMaturity(maturity, 'MMM yyyy'),
                   fyTokenContract,
                   fyTokenAddress: fyToken,
                   poolAddress,
                   poolContract,
+                  poolVersion,
+                  poolName,
                   // built-in helper functions:
                   getTimeTillMaturity: () => (maturity - Math.round(new Date().getTime() / 1000)),
                   isMature: () => (maturity < Math.round(new Date().getTime() / 1000)),
