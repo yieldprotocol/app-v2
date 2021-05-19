@@ -1,4 +1,5 @@
 import { ethers, BigNumber } from 'ethers';
+import { Settings } from 'http2';
 import { ERC20, FYToken, Pool } from '../contracts';
 
 export interface IUserContext {
@@ -34,6 +35,10 @@ export interface IUserContextActions {
 export interface ISeriesRoot {
   // fixed/static:
   id: string;
+  name: string;
+  symbol: string;
+  address: string;
+  version: string;
   displayName: string;
   displayNameMobile: string;
   maturity: number;
@@ -42,6 +47,8 @@ export interface ISeriesRoot {
   fyTokenAddress: string;
   poolContract:Pool;
   poolAddress: string;
+  poolName: string;
+  poolVersion: string; // for signing
   baseId: string;
   // baked in token fns
   getTimeTillMaturity: () => string;
@@ -53,6 +60,8 @@ export interface IAssetRoot {
   // fixed/static:
   id: string;
   symbol: string;
+  name: string;
+  version: string;
   displayName: string;
   displayNameMobile: string;
   address: string;
@@ -106,14 +115,14 @@ export interface ICallData {
 }
 
 export interface ISignData {
-  targetAddress: string;
-  targetId: string;
+  target: ISeries | IAsset | { id: string; name:string; version:string; address:string; };
   spender: 'POOLROUTER'|'LADLE'| string;
   type: SignType;
-  fallbackCall: any; // calldata to process if fallbackTx is used
-  series: ISeries,
+  series: ISeries;
+  fallbackCall: any; // TODO make ICallData calldata to process if fallbackTx is used
+
   /* optional Extention/advanced use-case options */
-  message?: string, // optional messaging for UI
+  message?: string; // optional messaging for UI
   ignore?: boolean; // conditional for ignoring
   domain?: IDomain;
 }

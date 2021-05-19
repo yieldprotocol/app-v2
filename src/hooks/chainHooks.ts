@@ -4,7 +4,7 @@ import { useContext } from 'react';
 import { toast } from 'react-toastify';
 import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
-import { MAX_256 } from '../utils/constants';
+import { MAX_128, MAX_256 } from '../utils/constants';
 import { ICallData, ISignData, ISeriesRoot, ISeries } from '../types';
 import { ERC20, ERC20__factory, Ladle, Pool, PoolRouter } from '../contracts';
 import { POOLROUTER_OPS, VAULT_OPS } from '../utils/operations';
@@ -32,7 +32,7 @@ const _getCallValue = (calls: ICallData[]) : BigNumber => {
 
 /* Generic hook for chain transactions */
 export const useChain = () => {
-  const { chainState: { account, provider, contractMap } } = useContext(ChainContext);
+  const { chainState: { account, provider, contractMap, chainId } } = useContext(ChainContext);
   const { txActions: { handleTx, handleSign } } = useContext(TxContext);
 
   /**
@@ -114,10 +114,7 @@ export const useChain = () => {
     const _requestedSigs = requestedSignatures.filter((_rs:ISignData) => !_rs.ignore);
     const signedList = await Promise.all(
       _requestedSigs.map(async (reqSig: ISignData) => {
-        /* check if signing an fyToken, or another erc20 asset */
-        const signingFYToken = reqSig.type === 'FYTOKEN_TYPE';
-
-        /* Get the spender, defaults to ladle */
+        /* Get the spender if not provided, defaults to ladle */
         const getSpender = (spender: 'POOLROUTER'|'LADLE'| string) => {
           const _ladleAddr = contractMap.get('Ladle').address;
           const _poolAddr = contractMap.get('PoolRouter').address;
@@ -129,7 +126,7 @@ export const useChain = () => {
         };
 
         /* get an ERC20 contract instance. This is only used in the case of fallback tx (when signing is not available) */
-        const tokenContract = ERC20__factory.connect(reqSig.targetAddress, signer) as any;
+        const tokenContract = ERC20__factory.connect(reqSig.target.address, signer) as any;
 
         /*
           Request the signature if using DaiType permit style
@@ -140,7 +137,13 @@ export const useChain = () => {
             /* We are pass over the generated signFn and sigData to the signatureHandler for tracking/tracing/fallback handling */
             () => signDaiPermit(
               provider,
-              reqSig.targetAddress,
+              /* build domain */
+              {
+                name: reqSig.target.name,
+                version: reqSig.target.version,
+                chainId,
+                verifyingContract: reqSig.target.address,
+              },
               account,
               getSpender(reqSig.spender),
             ),
@@ -162,7 +165,7 @@ export const useChain = () => {
             nonce, expiry, allowed, v, r, s,
           ];
           const ladleArgs = [
-            reqSig.targetId,
+            reqSig.target.id,
             true,
             getSpender(reqSig.spender),
             nonce, expiry, allowed, v, r, s,
@@ -185,7 +188,7 @@ export const useChain = () => {
         const { v, r, s, value, deadline } = await handleSign(
           () => signERC2612Permit(
             provider,
-            reqSig.domain || reqSig.targetAddress, // uses custom domain if provided (eg. USDC needs version 2) else, provided tokenADdr, else use token address
+            reqSig.domain || reqSig.target.address, // uses custom domain if provided (eg. USDC needs version 2) else, provided tokenADdr, else use token address
             account,
             getSpender(reqSig.spender),
             MAX_256,
@@ -205,15 +208,15 @@ export const useChain = () => {
         const poolRouterArgs = [
           reqSig.series.getBaseAddress(),
           reqSig.series.fyTokenAddress,
-          reqSig.targetAddress,
+          reqSig.target.address,
           getSpender(reqSig.spender),
           value,
           deadline, v, r, s,
         ];
 
         const ladleArgs = [
-          reqSig.targetId, // the asset id OR the seriesId (if signing fyToken)
-          !signingFYToken, // true or false=fyToken
+          reqSig.target.id, // the asset id OR the seriesId (if signing fyToken)
+          reqSig.type === 'FYTOKEN_TYPE', // true or false=fyToken
           getSpender(reqSig.spender),
           value,
           deadline, v, r, s,
