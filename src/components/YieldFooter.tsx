@@ -27,7 +27,7 @@ const YieldFooter = (props: any) => {
   useEffect(() => {
     fallbackProvider &&
     (async () => {
-      const { timestamp: ts } = await fallbackProvider.getBlock('latest');
+      const { timestamp: ts } = await fallbackProvider.getBlock(await fallbackProvider.getBlockNumber());
       setTimestamp(ts);
     })();
   }, [fallbackProvider]);
@@ -42,15 +42,15 @@ const YieldFooter = (props: any) => {
         </Box>
 
         <Collapsible open={testOpen}>
-          <Box direction="row" gap="small">
+          <Box direction="row" gap="small" justify="between">
             <Box>
               <Button disabled={!!account} secondary type="button" onClick={() => chainActions.connect('injected')} label="Connect web3" />
               <Button disabled={!account} secondary type="button" onClick={() => chainActions.disconnect()} label="Disconnect web3" />
             </Box>
 
             <Box>
-              <p>Current blockchain date: { timestamp && new Date(timestamp * 1000).toLocaleDateString() } </p>
-              <p>Acutal date: {new Date().toLocaleDateString()} </p>
+              <Text>Current blockchain date: { timestamp && new Date(timestamp * 1000).toLocaleDateString() } </Text>
+              <Text>Acutal date: {new Date().toLocaleDateString()} </Text>
             </Box>
 
             {/* <Button primary onClick={() => toast('Transaction complete')} label="Notify Example" /> */}
@@ -60,8 +60,9 @@ const YieldFooter = (props: any) => {
               <Button disabled={new Date(timestamp! * 1000) > new Date()} secondary onClick={() => takeSnapshot()} label="Take Time Snapshot" />
               <Button disabled={new Date(timestamp! * 1000) <= new Date()} secondary onClick={() => revertToT0()} label="Revert to snapshot" />
             </Box>
-            <Button primary onClick={() => advanceTimeAndBlock('16_000_000')} label="Jump +-6months" />
-
+            <Box>
+              <Button primary onClick={() => advanceTimeAndBlock('16000000')} label="Jump +-6months" />
+            </Box>
           </Box>
         </Collapsible>
       </Box>
