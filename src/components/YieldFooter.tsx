@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { ethers, utils } from 'ethers';
 
 import {
@@ -17,11 +17,20 @@ import { useTimeTravel } from '../hooks/timeTravel';
 const YieldFooter = (props: any) => {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
   const { chainState, chainActions } = useContext(ChainContext);
-  const { account, allbackProvider } = chainState;
+  const { account, fallbackProvider } = chainState;
 
   const [testOpen, setTestOpen] = useState<boolean>(false);
+  const { advanceTimeAndBlock, takeSnapshot, revertToT0 } = useTimeTravel();
 
-  const { advanceTimeAndBlock } = useTimeTravel();
+  const [timestamp, setTimestamp] = useState<number|null>(null);
+
+  useEffect(() => {
+    fallbackProvider &&
+    (async () => {
+      const { timestamp: ts } = await fallbackProvider.getBlock('latest');
+      setTimestamp(ts);
+    })();
+  }, [fallbackProvider]);
 
   return (
     <Footer pad="small">
@@ -39,11 +48,19 @@ const YieldFooter = (props: any) => {
               <Button disabled={!account} secondary type="button" onClick={() => chainActions.disconnect()} label="Disconnect web3" />
             </Box>
 
-            {/* <p>Current block time: { fallbackProvider && fallbackProvider.getBlock() }</p> */}
+            <Box>
+              <p>Current blockchain date: { timestamp && new Date(timestamp * 1000).toLocaleDateString() } </p>
+              <p>Acutal date: {new Date().toLocaleDateString()} </p>
+            </Box>
 
-            <Button primary onClick={() => toast('Transaction complete')} label="Notify Example" />
+            {/* <Button primary onClick={() => toast('Transaction complete')} label="Notify Example" /> */}
             {/* <Button primary onClick={() => transact(ladle, [{ fn: 'build', args: [randVault, seriesList[0].id, assetList[4].id], ignore: false }], 'footer2')} label="Ladle interact" /> */}
-            <Button primary onClick={() => advanceTimeAndBlock('15780000')} label=" jump 6months" />
+
+            <Box>
+              <Button disabled={new Date(timestamp! * 1000) > new Date()} secondary onClick={() => takeSnapshot()} label="Take Time Snapshot" />
+              <Button disabled={new Date(timestamp! * 1000) <= new Date()} secondary onClick={() => revertToT0()} label="Revert to snapshot" />
+            </Box>
+            <Button primary onClick={() => advanceTimeAndBlock('16_000_000')} label="Jump +-6months" />
 
           </Box>
         </Collapsible>
