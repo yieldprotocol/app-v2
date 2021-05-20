@@ -35,7 +35,7 @@ const YieldFooter = (props: any) => {
         <Collapsible open={testOpen}>
           <Box direction="row" gap="small">
             <Box>
-              <Button disabled={account} secondary type="button" onClick={() => chainActions.connect('injected')} label="Connect web3" />
+              <Button disabled={!!account} secondary type="button" onClick={() => chainActions.connect('injected')} label="Connect web3" />
               <Button disabled={!account} secondary type="button" onClick={() => chainActions.disconnect()} label="Disconnect web3" />
             </Box>
 
