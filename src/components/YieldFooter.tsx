@@ -12,23 +12,16 @@ import {
 import { toast } from 'react-toastify';
 import { ChainContext } from '../contexts/ChainContext';
 
-import { useChain } from '../hooks/chainHooks';
-import { Cauldron, Ladle } from '../contracts';
+import { useTimeTravel } from '../hooks/timeTravel';
 
 const YieldFooter = (props: any) => {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
   const { chainState, chainActions } = useContext(ChainContext);
-  const { account, chainId, contractMap, seriesRootMap, assetRootMap } = chainState;
-
-  const seriesList = Array.from(seriesRootMap.values()) as any;
-  const assetList = Array.from(assetRootMap.values()) as any;
-
-  const cauldron = contractMap.get('Cauldron') as Cauldron;
-  const ladle = contractMap.get('Ladle') as Ladle;
+  const { account, allbackProvider } = chainState;
 
   const [testOpen, setTestOpen] = useState<boolean>(false);
 
-  const randVault = ethers.utils.hexlify(ethers.utils.randomBytes(12));
+  const { advanceTimeAndBlock } = useTimeTravel();
 
   return (
     <Footer pad="small">
@@ -41,26 +34,17 @@ const YieldFooter = (props: any) => {
 
         <Collapsible open={testOpen}>
           <Box direction="row" gap="small">
-            <Button type="button" onClick={() => chainActions.connect('injected')} label="Connect web3" />
-            <Button type="button" onClick={() => chainActions.disconnect()} label="Disconnect web3" />
-            <p>{account}</p>
-            <Button
-              primary
-              // onClick={
-                // () => transact(
-                //   ladle,
-                //   [
-                //     { fn: 'build', args: [randVault, seriesList[0].id, assetList[1].id], ignore: false },
-                //     { fn: 'build', args: [randVault, seriesList[1].id, assetList[2].id], ignore: false },
-                //   ],
-                //   'footer1',
-                // )
-              // }
-              label="multicall"
-            />
+            <Box>
+              <Button disabled={account} secondary type="button" onClick={() => chainActions.connect('injected')} label="Connect web3" />
+              <Button disabled={!account} secondary type="button" onClick={() => chainActions.disconnect()} label="Disconnect web3" />
+            </Box>
+
+            {/* <p>Current block time: { fallbackProvider && fallbackProvider.getBlock() }</p> */}
+
             <Button primary onClick={() => toast('Transaction complete')} label="Notify Example" />
             {/* <Button primary onClick={() => transact(ladle, [{ fn: 'build', args: [randVault, seriesList[0].id, assetList[4].id], ignore: false }], 'footer2')} label="Ladle interact" /> */}
-            <Button primary onClick={() => console.log(utils.arrayify('0xf4f617882cb7'))} label="Notify Example" />
+            <Button primary onClick={() => advanceTimeAndBlock('15780000')} label=" jump 6months" />
+
           </Box>
         </Collapsible>
       </Box>
