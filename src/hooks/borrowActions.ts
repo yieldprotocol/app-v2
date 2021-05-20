@@ -74,20 +74,10 @@ export const useBorrowActions = () => {
       {
         target: ilk,
         spender: ilk.joinAddress,
-        domain: { name: ilk.name, version: ilk.version, chainId, verifyingContract: ilk.address },
         series,
-        type: SignType.ERC2612,
+        type: DAI_BASED_ASSETS.includes(selectedIlkId) ? SignType.DAI : SignType.ERC2612,
         fallbackCall: { fn: 'approve', args: [], ignore: false, opCode: null },
-        ignore: (ETH_BASED_ASSETS.includes(selectedIlkId) || DAI_BASED_ASSETS.includes(selectedIlkId)), /* Ignore if Eth varietal OR Dai varietal */
-      },
-      {
-        target: ilk,
-        spender: ilk.joinAddress,
-        domain: { name: ilk.name, version: ilk.version, chainId, verifyingContract: ilk.address },
-        series,
-        type: SignType.DAI,
-        fallbackCall: { fn: 'approve', args: [], ignore: false, opCode: null },
-        ignore: !DAI_BASED_ASSETS.includes(selectedIlkId), /* only if Dai varietal */
+        ignore: ETH_BASED_ASSETS.includes(selectedIlkId), /* Ignore if Eth varietal OR Dai varietal */
       },
     ], txCode);
 

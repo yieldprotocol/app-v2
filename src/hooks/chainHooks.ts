@@ -188,7 +188,13 @@ export const useChain = () => {
         const { v, r, s, value, deadline } = await handleSign(
           () => signERC2612Permit(
             provider,
-            reqSig.domain || reqSig.target.address, // uses custom domain if provided (eg. USDC needs version 2) else, provided tokenADdr, else use token address
+            /* build domain */
+            reqSig.domain || { // uses custom domain if provided, else use created Domain
+              name: reqSig.target.name,
+              version: reqSig.target.version,
+              chainId,
+              verifyingContract: reqSig.target.address,
+            },
             account,
             getSpender(reqSig.spender),
             MAX_256,
@@ -216,7 +222,7 @@ export const useChain = () => {
 
         const ladleArgs = [
           reqSig.target.id, // the asset id OR the seriesId (if signing fyToken)
-          reqSig.type === 'FYTOKEN_TYPE', // true or false=fyToken
+          reqSig.type !== 'FYTOKEN_TYPE', // true or false=fyToken
           getSpender(reqSig.spender),
           value,
           deadline, v, r, s,
