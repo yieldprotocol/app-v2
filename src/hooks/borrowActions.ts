@@ -12,7 +12,7 @@ import { calculateSlippage } from '../utils/yieldMath';
 
 /* Generic hook for chain transactions */
 export const useBorrowActions = () => {
-  const { chainState: { account, contractMap, chainId } } = useContext(ChainContext);
+  const { chainState: { account, contractMap } } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
   const { selectedIlkId, selectedSeriesId, seriesMap, assetMap } = userState;
   const { updateVaults } = userActions;
