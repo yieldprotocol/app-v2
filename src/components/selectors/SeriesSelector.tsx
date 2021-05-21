@@ -26,8 +26,10 @@ function SeriesSelector({ selectSeriesLocally }: ISeriesSelectorProps) {
       : 'Select a series'
   );
 
+  /* Keeping options/selection fresh and valid: */
   useEffect(() => {
     const opts = Array.from(seriesMap.values()) as ISeries[];
+
     /* filter out options based on base Id */
     let filteredOpts = opts.filter((_series:ISeries) => _series.baseId === selectedBaseId);
 
@@ -37,7 +39,8 @@ function SeriesSelector({ selectSeriesLocally }: ISeriesSelectorProps) {
     /* if current selected series is NOT in the list of available series (for a particular base), set the selected series to null. */
     if (
       selectedSeriesId &&
-      filteredOpts.findIndex((_series:ISeries) => _series.id !== selectedSeriesId) < 0
+      (filteredOpts.findIndex((_series:ISeries) => _series.id !== selectedSeriesId) < 0 ||
+      seriesMap.get(selectedSeriesId).baseId !== selectedBaseId)
     ) userActions.setSelectedSeries(null);
 
     setOptions(filteredOpts);
