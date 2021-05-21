@@ -61,7 +61,7 @@ const YieldFooter = (props: any) => {
               <Button disabled={new Date(timestamp! * 1000) <= new Date()} secondary onClick={() => revertToT0()} label="Revert to snapshot" />
             </Box>
             <Box>
-              <Button primary onClick={() => advanceTimeAndBlock('16000000')} label="Jump +-6months" />
+              <Button primary onClick={() => advanceTimeAndBlock('8000000')} label="Jump +-3months" />
             </Box>
           </Box>
         </Collapsible>

@@ -26,6 +26,8 @@ function SeriesSelector({ selectSeriesLocally }: ISeriesSelectorProps) {
       : 'Select a series'
   );
 
+  const optionComponent = (_series: ISeries|undefined) => <Box> {optionText(_series)}</Box>;
+
   /* Keeping options/selection fresh and valid: */
   useEffect(() => {
     const opts = Array.from(seriesMap.values()) as ISeries[];
@@ -36,7 +38,8 @@ function SeriesSelector({ selectSeriesLocally }: ISeriesSelectorProps) {
     /* if required, filter out the globally selected asset */
     if (selectSeriesLocally) filteredOpts = filteredOpts.filter((_series:ISeries) => _series.id !== selectedSeriesId);
 
-    /* if current selected series is NOT in the list of available series (for a particular base), set the selected series to null. */
+    /* if current selected series is NOT in the list of available series (for a particular base), or bases don't match:
+    set the selected series to null. */
     if (
       selectedSeriesId &&
       (filteredOpts.findIndex((_series:ISeries) => _series.id !== selectedSeriesId) < 0 ||
@@ -70,13 +73,13 @@ function SeriesSelector({ selectSeriesLocally }: ISeriesSelectorProps) {
         labelKey={(x:any) => optionText(x)}
         valueLabel={
           options.length ?
-            <Box pad={mobile ? 'medium' : 'small'}><Text color="text"> {optionText(_selectedSeries)} </Text></Box>
+            <Box pad={mobile ? 'medium' : 'small'}><Text color="text"> {optionText(_selectedSeries)}</Text></Box>
             : <Box pad={mobile ? 'medium' : 'small'}><Text color="text"> No available series.</Text></Box>
         }
         disabled={options.length === 0}
         onChange={({ option }: any) => handleSelect(option.id)}
         // eslint-disable-next-line react/no-children-prop
-        children={(x:any) => <Box pad={mobile ? 'medium' : 'small'} gap="small" direction="row"> <Text color="text"> { optionText(x) } </Text> </Box>}
+        children={(x:any) => <Box pad={mobile ? 'medium' : 'small'} gap="small" direction="row"> <Text color="text"> { optionText(x) } {x.mature && 'mature'} </Text> </Box>}
       />
     </Box>
   );
