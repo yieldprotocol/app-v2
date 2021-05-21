@@ -128,13 +128,12 @@ export const useBorrowActions = () => {
     const _isDaiBased = DAI_BASED_ASSETS.includes(vault.baseId);
 
     const _inputWithSlippage = calculateSlippage(_input);
+    const inputGreaterThanDebt: boolean = ethers.BigNumber.from(_inputWithSlippage).gte(vault.art);
 
     const permits: ICallData[] = await sign([
       {
         // before maturity
         target: base,
-        // targetAddress: base.address,
-        // targetId: base.id,
         spender: 'LADLE',
         series,
         type: _isDaiBased ? SignType.DAI : SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
@@ -144,8 +143,6 @@ export const useBorrowActions = () => {
       },
       {
         // after maturity
-        // targetAddress: base.address,
-        // targetId: base.id,
         target: base,
         spender: base.joinAddress,
         series,
@@ -160,23 +157,21 @@ export const useBorrowActions = () => {
       ...permits,
       {
         operation: VAULT_OPS.TRANSFER_TO_POOL,
-        args: [series.id, true, _inputWithSlippage],
+        args: [series.id, true, _input],
         series,
         ignore: false,
       },
-      /* ladle.repay(vaultId, owner, inkRetrieved, 0) */
-      {
+      { /* ladle.repay(vaultId, owner, inkRetrieved, 0) */
         operation: VAULT_OPS.REPAY,
         args: [vault.id, account, _collInput, ethers.constants.Zero],
         series,
-        ignore: false,
+        ignore: inputGreaterThanDebt,
       },
-      /* ladle.repayVault(vaultId, owner, inkRetrieved, MAX) */
-      {
+      { /* ladle.repayVault(vaultId, owner, inkRetrieved, MAX) */
         operation: VAULT_OPS.REPAY_VAULT,
-        args: [vault.id, account, BigNumber.from('1'), MAX_128],
+        args: [vault.id, account, ethers.constants.Zero, MAX_128],
         series,
-        ignore: true, // TODO add in repay all logic
+        ignore: !inputGreaterThanDebt, // TODO add in repay all logic
       },
       ..._removeEth(_collInput, series),
     ];
