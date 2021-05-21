@@ -157,7 +157,7 @@ export const useBorrowActions = () => {
       ...permits,
       {
         operation: VAULT_OPS.TRANSFER_TO_POOL,
-        args: [series.id, true, _input],
+        args: [series.id, true, _inputWithSlippage],
         series,
         ignore: false,
       },
