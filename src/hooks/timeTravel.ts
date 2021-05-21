@@ -10,8 +10,10 @@ export const useTimeTravel = () => {
 
   useEffect(() => {
     fallbackProvider && (async () => {
-      const { timestamp: ts } = await fallbackProvider.getBlock(await fallbackProvider.blockNumber);
+      const { timestamp: ts } = await fallbackProvider.getBlock('latest');
       setTimestamp(ts);
+
+      console.log(ts);
     })();
   }, [block, fallbackProvider]);
 

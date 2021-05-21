@@ -269,7 +269,8 @@ const ChainProvider = ({ children }: any) => {
                   poolName,
                   // built-in helper functions:
                   getTimeTillMaturity: () => (maturity - Math.round(new Date().getTime() / 1000)),
-                  isMature: () => (maturity < Math.round(new Date().getTime() / 1000)),
+                  // isMature: () => (maturity < Math.round(new Date().getTime() / 1000)),
+                  isMature: async () => (maturity < (await fallbackLibrary.getBlock('latest')).timestamp),
 
                   getBaseAddress: () => chainState.assetRootMap.get(baseId).address, // TODO refactor to get this static - if possible?
                 } });

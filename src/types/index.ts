@@ -50,6 +50,7 @@ export interface ISeriesRoot {
   poolName: string;
   poolVersion: string; // for signing
   baseId: string;
+
   // baked in token fns
   getTimeTillMaturity: () => string;
   isMature: () => boolean;
@@ -87,6 +88,8 @@ export interface ISeries extends ISeriesRoot {
   fyTokenReserves: BigNumber;
   fyTokenRealReserves: BigNumber;
   totalSupply: BigNumber;
+  mature: boolean;
+
   poolTokens?: BigNumber|undefined;
   poolTokens_?: string|undefined;
   fyTokenBalance? : BigNumber|undefined;
