@@ -27,7 +27,7 @@ export const useLendActions = () => {
 
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
     // const baseAddress = series.getBaseAddress();
-    const base = assetMap.get(series.getBaseAddress());
+    const base = assetMap.get(series.baseId);
 
     const { fyTokenAddress } = series;
 
