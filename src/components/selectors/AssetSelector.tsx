@@ -12,11 +12,13 @@ interface IAssetSelectorProps {
 function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
   const { userState, userActions } = useContext(UserContext);
-  const { selectedIlkId, selectedSeriesId, selectedBaseId, assetMap } = userState;
+  const { selectedIlkId, selectedSeriesId, selectedBaseId, assetMap, seriesMap } = userState;
 
   /* get from assetRootMap ( not assetMap ) so it can be used without account connected */
   const selectedIlk = assetMap.get(selectedIlkId);
   const selectedBase = assetMap.get(selectedBaseId);
+
+  const selectedSeries = seriesMap.get(selectedSeriesId);
 
   const [options, setOptions] = useState<IAssetRoot[]>([]);
   const optionText = (asset: IAssetRoot | undefined) => (asset?.symbol ? `${asset?.symbol}` : <Loader height="14" color="lightgrey" margin="0.5" />);
@@ -27,7 +29,16 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
       ? opts.filter((a:IAssetRoot) => a.id !== selectedBaseId)
       : opts;
     setOptions(filteredOptions);
-  }, [selectedBaseId, assetMap, selectCollateral]);
+  }, [selectedBaseId, assetMap, selectCollateral, selectedSeries]);
+
+  // /* make sure ilk (collateral) never matches baseId */
+  // useEffect(() => {
+  //   if (selectCollateral && selectedSeries && selectedIlk) {
+  //     const firstNotBase = options.find((asset:IAssetRoot) => asset.id !== selectedSeries.baseId)?.id;
+  //     userActions.setSelectedIlk(firstNotBase);
+  //     // userActions.setSelectedIlk(options.find((asset:IAssetRoot) => asset.id !== selectedSeries.baseId))
+  //   }
+  // }, [options, selectCollateral, selectedIlk, selectedSeries, userActions]);
 
   const handleSelect = (id:string) => {
     if (selectCollateral) {
