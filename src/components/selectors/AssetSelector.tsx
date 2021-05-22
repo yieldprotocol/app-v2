@@ -16,7 +16,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   const { selectedIlk, selectedSeries, selectedBase, assetMap } = userState;
 
   const [options, setOptions] = useState<IAssetRoot[]>([]);
-  const optionText = (asset: IAssetRoot | undefined) => (asset?.symbol ? `${asset?.symbol}` : <Loader height="14" color="lightgrey" margin="0.5" />);
+  const optionText = (asset: IAssetRoot | undefined) => (asset?.symbol ? `${asset?.symbol}` : <Loader height="14px" color="lightgrey" margin="0.5px" />);
 
   const handleSelect = (asset:IAsset) => {
     if (selectCollateral) {
