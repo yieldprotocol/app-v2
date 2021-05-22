@@ -19,13 +19,16 @@ import { collateralizationRatio } from '../utils/yieldMath';
 
 const Borrow = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
+  const routerHistory = useHistory();
 
   /* STATE FROM CONTEXT */
 
   const { userState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, assetMap, vaultMap, selectedSeriesId, selectedIlkId, selectedBaseId } = userState;
+  const { activeAccount, assetMap, vaultMap, seriesMap, selectedSeriesId, selectedIlkId, selectedBaseId } = userState;
   const selectedBase = assetMap.get(selectedBaseId!);
   const selectedIlk = assetMap.get(selectedIlkId!);
+
+  const selectedSeries = seriesMap.get(selectedSeriesId!);
 
   /* LOCAL STATE */
 
@@ -107,7 +110,8 @@ const Borrow = () => {
       !borrowInput ||
       !collatInput ||
       !selectedSeriesId ||
-      !selectedIlkId
+      !selectedIlkId ||
+      selectedSeries?.mature
     )
       ? setBorrowDisabled(true)
     /* else if all pass, then unlock borrowing */
@@ -203,6 +207,8 @@ const Borrow = () => {
           </Box>
         </SectionWrap>
 
+        {
+        !selectedSeries?.mature &&
         <SectionWrap>
           <Box gap="small" fill="horizontal">
             <Box direction="row" justify="end">
@@ -217,7 +223,7 @@ const Borrow = () => {
             {
               matchingVaults.length > 0 &&
               <Box alignSelf="center">
-                <Text size="xsmall"> -------- or use existing vault ----------</Text>
+                <Text size="xsmall"> -------- or borrow from an existing vault ----------</Text>
               </Box>
             }
 
@@ -234,9 +240,30 @@ const Borrow = () => {
                 </Box>
               ))
             }
-
           </Box>
         </SectionWrap>
+        }
+
+        {
+        selectedSeries?.mature &&
+        <SectionWrap>
+          <Box gap="small" fill="horizontal">
+            <Text size="xsmall">Go to exisiting vault:</Text>
+            {
+              matchingVaults.map((x:IVault) => (
+                <Box
+                  direction="row"
+                  justify="end"
+                  key={x.id}
+                  onClick={() => routerHistory.push(`/vault/${x.id}`)}
+                >
+                  <Text size="xsmall"> {x.id} </Text>
+                </Box>
+              ))
+            }
+          </Box>
+        </SectionWrap>
+        }
 
         <ActionButtonGroup buttonList={[
           <Button
