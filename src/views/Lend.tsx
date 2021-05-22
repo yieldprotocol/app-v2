@@ -46,7 +46,7 @@ const Lend = () => {
 
   /* HOOK FNS */
 
-  const { lend, closePosition, rollPosition } = useLendActions();
+  const { lend, closePosition, rollPosition, redeem } = useLendActions();
 
   /* LOCAL FNS */
 
@@ -64,6 +64,9 @@ const Lend = () => {
     !rollDisabled &&
     rollToSeries && rollPosition(rollInput, selectedSeries!, rollToSeries);
     setRollInput('');
+  };
+  const handleRedeem = () => {
+    redeem(selectedSeries!);
   };
 
   /* SET MAX VALUES */
@@ -156,22 +159,22 @@ const Lend = () => {
 
   return (
     <MainViewWrap>
-
       <SectionWrap title="1. Asset to Lend">
         <Box direction="row" gap="small" fill="horizontal" align="start">
 
           <Box basis={mobile ? '50%' : '65%'}>
-            <InputWrap action={() => console.log('maxAction')} isError={lendError}>
+            <InputWrap action={() => console.log('maxAction')} isError={lendError} disabled={selectedSeries?.mature}>
               <TextInput
                 plain
                 type="number"
                 placeholder="Enter amount"
                 value={lendInput || ''}
                 onChange={(event:any) => setLendInput(cleanValue(event.target.value))}
+                disabled={selectedSeries?.mature}
               />
               <MaxButton
                 action={() => setLendInput(maxLend)}
-                disabled={maxLend === '0'}
+                disabled={maxLend === '0' || selectedSeries?.mature}
               />
             </InputWrap>
           </Box>
@@ -187,27 +190,34 @@ const Lend = () => {
         <SeriesSelector />
         <Box justify="evenly" gap="small" fill="horizontal" direction="row-responsive">
           {
-            selectedSeries?.baseId === selectedBase?.id &&
-            <InfoBite label="FYToken balance (Base value at maturity)" value={selectedSeries?.fyTokenBalance_!} />
-          }
+                selectedSeries?.baseId === selectedBase?.id &&
+                <InfoBite label="FYToken balance (Base value at maturity)" value={selectedSeries?.fyTokenBalance_!} />
+              }
         </Box>
       </SectionWrap>
 
-      <ActionButtonGroup buttonList={[
-        <Button
-          primary
-          label={<Text size={mobile ? 'small' : undefined}> {`Supply ${lendInput || ''} ${selectedBase?.symbol || ''}`} </Text>}
-          key="primary"
-          onClick={() => handleLend()}
-          disabled={lendDisabled}
-        />,
-        // <Button
-        //   secondary
-        //   label={<Text size={mobile ? 'small' : undefined}>Close Position</Text>}
-        //   key="secondary"
-        //   onClick={() => handleClosePosition()}
-        // />,
-      ]}
+      <ActionButtonGroup buttonList={
+        !selectedSeries?.mature ?
+          [
+            <Button
+              primary
+              label={<Text size={mobile ? 'small' : undefined}> {`Supply ${lendInput || ''} ${selectedBase?.symbol || ''}`} </Text>}
+              key="primary"
+              onClick={() => handleLend()}
+              disabled={lendDisabled}
+            />,
+
+          ] :
+          [
+            <Button
+              primary
+              label={<Text size={mobile ? 'small' : undefined}> Redeem </Text>}
+              key="primary"
+              onClick={() => handleRedeem()}
+              // disabled={!selectedSeries.mature}
+            />,
+          ]
+      }
       />
 
       <SectionWrap
