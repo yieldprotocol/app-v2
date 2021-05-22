@@ -139,7 +139,7 @@ export const useBorrowActions = () => {
         type: _isDaiBased ? SignType.DAI : SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
         fallbackCall: { fn: 'approve', args: [contractMap.get('Ladle'), MAX_256], ignore: false, opCode: null },
         message: 'Signing Dai Approval',
-        ignore: false,
+        ignore: series.mature,
       },
       {
         // after maturity
@@ -149,7 +149,7 @@ export const useBorrowActions = () => {
         type: _isDaiBased ? SignType.DAI : SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
         fallbackCall: { fn: 'approve', args: [contractMap.get('Ladle'), MAX_256], ignore: false, opCode: null },
         message: 'Signing Dai Approval',
-        ignore: true,
+        ignore: !series.mature,
       },
     ], txCode);
 
@@ -165,13 +165,22 @@ export const useBorrowActions = () => {
         operation: VAULT_OPS.REPAY,
         args: [vault.id, account, _collInput, ethers.constants.Zero],
         series,
-        ignore: inputGreaterThanDebt,
+        ignore: series.mature || inputGreaterThanDebt,
       },
       { /* ladle.repayVault(vaultId, owner, inkRetrieved, MAX) */
         operation: VAULT_OPS.REPAY_VAULT,
         args: [vault.id, account, ethers.constants.Zero, MAX_128],
         series,
-        ignore: !inputGreaterThanDebt, // TODO add in repay all logic
+        ignore: series.mature || !inputGreaterThanDebt, // TODO add in repay all logic
+      },
+
+      /* AFTER MATURITY */
+
+      { /* ladle.repayVault(vaultId, owner, inkRetrieved, MAX) */
+        operation: VAULT_OPS.CLOSE,
+        args: [vault.id, account, ethers.constants.Zero, _input.mul(-1)],
+        series,
+        ignore: !series.mature, // TODO add in repay all logic
       },
       ..._removeEth(_collInput, series),
     ];

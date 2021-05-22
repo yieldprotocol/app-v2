@@ -207,14 +207,13 @@ export const useLendActions = () => {
   const redeem = async (
     series: ISeries,
   ) => {
-    const txCode = getTxCode('050_', series.id);
+    const txCode = getTxCode('090_', series.id);
     const calls: ICallData[] = [
-      /* ladle.redeem(bytes6 seriesId, address to, uint256 wad) */
-      {
+      { /* ladle.redeem(bytes6 seriesId, address to, uint256 wad) */
         operation: VAULT_OPS.REDEEM,
-        args: [account, MAX_256], // TODO calc max transfer
-        ignore: false,
+        args: [series.id, account, ethers.BigNumber.from(0)],
         series,
+        ignore: false,
       },
     ];
     transact('Ladle', calls, txCode);
