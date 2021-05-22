@@ -12,8 +12,6 @@ export const useTimeTravel = () => {
     fallbackProvider && (async () => {
       const { timestamp: ts } = await fallbackProvider.getBlock('latest');
       setTimestamp(ts);
-
-      console.log(ts);
     })();
   }, [block, fallbackProvider]);
 
