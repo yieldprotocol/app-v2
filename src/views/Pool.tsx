@@ -21,9 +21,9 @@ function Pool() {
 
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, assetMap, seriesMap, selectedSeriesId, selectedBaseId } = userState;
-  const selectedSeries = seriesMap.get(selectedSeriesId!);
-  const selectedBase = assetMap.get(selectedBaseId!);
+  const { activeAccount, assetMap, seriesMap, selectedSeries, selectedBase } = userState;
+  // const selectedSeries = seriesMap.get(selectedSeriesId!);
+  // const selectedBase = assetMap.get(selectedBaseId!);
 
   /* LOCAL STATE */
   const [poolInput, setPoolInput] = useState<string>();
@@ -107,7 +107,7 @@ function Pool() {
       /* 1. Check if input exceeds fyToken balance */
       if (maxRemove && parseFloat(removeInput) > parseFloat(maxRemove)) setRemoveError('Amount exceeds liquidity token balance');
       /* 2. Check if there is a selected series */
-      else if (removeInput && !selectedSeriesId) setRemoveError('No base series selected');
+      else if (removeInput && !selectedSeries) setRemoveError('No base series selected');
       /* 2. Check if input is above zero */
       else if (parseFloat(removeInput) < 0) setRemoveError('Amount should be expressed as a positive value');
       /* if all checks pass, set null error message */
@@ -115,7 +115,7 @@ function Pool() {
         setRemoveError(null);
       }
     }
-  }, [activeAccount, removeInput, maxRemove, selectedSeriesId]);
+  }, [activeAccount, removeInput, maxRemove, selectedSeries]);
 
   useEffect(() => {
     /* CHECK for any rollInput errors */
@@ -123,7 +123,7 @@ function Pool() {
       /* 1. Check if input exceeds fyToken balance */
       if (maxRemove && parseFloat(rollInput) > parseFloat(maxRemove)) setRollError('Amount exceeds liquidity token balance');
       /* 2. Check if there is a selected series */
-      else if (rollInput && !selectedSeriesId) setRollError('No base series selected');
+      else if (rollInput && !selectedSeries) setRollError('No base series selected');
       /* 2. Check if input is above zero */
       else if (parseFloat(rollInput) < 0) setRollError('Amount should be expressed as a positive value');
       /* if all checks pass, set null error message */
@@ -131,13 +131,13 @@ function Pool() {
         setRollError(null);
       }
     }
-  }, [activeAccount, rollInput, maxRemove, selectedSeriesId]);
+  }, [activeAccount, rollInput, maxRemove, selectedSeries]);
 
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
 
   useEffect(() => {
-    (!activeAccount || !poolInput || !selectedSeriesId || poolError) ? setPoolDisabled(true) : setPoolDisabled(false);
-  }, [poolInput, activeAccount, poolError, selectedSeriesId]);
+    (!activeAccount || !poolInput || !selectedSeries || poolError) ? setPoolDisabled(true) : setPoolDisabled(false);
+  }, [poolInput, activeAccount, poolError, selectedSeries]);
 
   useEffect(() => {
     (!activeAccount || !removeInput || removeError) ? setRemoveDisabled(true) : setRemoveDisabled(false);
@@ -182,7 +182,7 @@ function Pool() {
         <SeriesSelector />
         <Box justify="evenly" gap="small" fill="horizontal" direction="row-responsive">
           {
-            selectedSeries?.baseId === selectedBaseId &&
+            selectedSeries?.baseId === selectedBase?.id &&
             <InfoBite label="Your pool tokens" value={selectedSeries?.poolTokens_!} />
           }
         </Box>
