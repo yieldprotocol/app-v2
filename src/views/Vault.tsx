@@ -24,13 +24,13 @@ const Vault = () => {
   /* STATE FROM CONTEXT */
 
   const { userState, userActions } = useContext(UserContext) as IUserContext;
-  const { activeAccount, assetMap, seriesMap, vaultMap, selectedVaultId, selectedSeriesId } = userState;
-  const { setSelectedVault } = userActions;
+  const { activeAccount, assetMap, seriesMap, vaultMap, selectedVault } = userState;
+  // const { setSelectedVault } = userActions;
 
-  const activeVault: IVault|undefined = vaultMap.get(selectedVaultId!);
-  const selectedBase: IAsset|undefined = assetMap.get(activeVault?.baseId!);
-  const selectedIlk: IAsset|undefined = assetMap.get(activeVault?.ilkId!);
-  const selectedSeries: ISeries|undefined = seriesMap.get(activeVault?.seriesId!);
+  const activeVault: IVault|undefined = selectedVault!;
+  const vaultBase: IAsset|undefined = assetMap.get(activeVault?.baseId!);
+  const vaultIlk: IAsset|undefined = assetMap.get(activeVault?.ilkId!);
+  const vaultSeries: ISeries|undefined = seriesMap.get(activeVault?.seriesId!);
 
   /* LOCAL STATE */
 
@@ -85,21 +85,21 @@ const Vault = () => {
     /* CHECK the max available repay */
     if (activeAccount) {
       (async () => {
-        const _maxToken = await selectedBase?.getBalance(activeAccount);
+        const _maxToken = await vaultBase?.getBalance(activeAccount);
         const _max = (_maxToken && activeVault?.art.gt(_maxToken)) ? _maxToken : activeVault?.art;
         _max && setMaxRepay(ethers.utils.formatEther(_max)?.toString());
       })();
     }
-  }, [activeAccount, activeVault?.art, selectedBase, setMaxRepay]);
+  }, [activeAccount, activeVault?.art, vaultBase, setMaxRepay]);
 
   useEffect(() => {
     /* CHECK collateral selection and sets the max available collateral */
     activeAccount &&
     (async () => {
-      const _max = await selectedIlk?.getBalance(activeAccount);
+      const _max = await vaultIlk?.getBalance(activeAccount);
       _max && setMaxCollat(ethers.utils.formatEther(_max)?.toString());
     })();
-  }, [activeAccount, selectedIlk, setMaxCollat]);
+  }, [activeAccount, vaultIlk, setMaxCollat]);
 
   /* WATCH FOR WARNINGS AND ERRORS */
 
@@ -172,9 +172,9 @@ const Vault = () => {
           </Box>
 
           <Box direction="row-responsive" gap="medium">
-            <InfoBite label="Vault debt:" value={`${activeVault?.art_} ${selectedBase?.symbol}`} />
-            <InfoBite label="Collateral posted:" value={`${activeVault?.ink_} ${selectedIlk?.symbol}`} />
-            <InfoBite label="Maturity date:" value={`${selectedSeries?.displayName}`} />
+            <InfoBite label="Vault debt:" value={`${activeVault?.art_} ${vaultBase?.symbol}`} />
+            <InfoBite label="Collateral posted:" value={`${activeVault?.ink_} ${vaultIlk?.symbol}`} />
+            <InfoBite label="Maturity date:" value={`${vaultSeries?.displayName}`} />
           </Box>
         </Box>
       </Box>
