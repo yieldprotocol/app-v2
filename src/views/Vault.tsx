@@ -27,10 +27,9 @@ const Vault = () => {
   const { activeAccount, assetMap, seriesMap, vaultMap, selectedVault } = userState;
   // const { setSelectedVault } = userActions;
 
-  const activeVault: IVault|undefined = selectedVault!;
-  const vaultBase: IAsset|undefined = assetMap.get(activeVault?.baseId!);
-  const vaultIlk: IAsset|undefined = assetMap.get(activeVault?.ilkId!);
-  const vaultSeries: ISeries|undefined = seriesMap.get(activeVault?.seriesId!);
+  const vaultBase: IAsset|undefined = assetMap.get(selectedVault?.baseId!);
+  const vaultIlk: IAsset|undefined = assetMap.get(selectedVault?.ilkId!);
+  const vaultSeries: ISeries|undefined = seriesMap.get(selectedVault?.seriesId!);
 
   /* LOCAL STATE */
 
@@ -60,23 +59,23 @@ const Vault = () => {
   /* LOCAL FNS */
 
   const handleRepay = () => {
-    activeVault &&
-    repay(activeVault, repayInput?.toString());
+    selectedVault &&
+    repay(selectedVault, repayInput?.toString());
   };
   const handleBorrow = () => {
-    activeVault &&
-    borrow(activeVault, borrowInput, '0');
+    selectedVault &&
+    borrow(selectedVault, borrowInput, '0');
   };
   const handleCollateral = (action: 'ADD'|'REMOVE') => {
     const remove: boolean = (action === 'REMOVE');
-    if (activeVault) {
-      !remove && addCollateral(activeVault, collatInput);
-      remove && removeCollateral(activeVault, collatInput);
+    if (selectedVault) {
+      !remove && addCollateral(selectedVault, collatInput);
+      remove && removeCollateral(selectedVault, collatInput);
     }
   };
   const handleRoll = () => {
-    rollToSeries && activeVault &&
-    rollDebt(activeVault, rollToSeries);
+    rollToSeries && selectedVault &&
+    rollDebt(selectedVault, rollToSeries);
   };
 
   /* SET MAX VALUES */
@@ -86,11 +85,11 @@ const Vault = () => {
     if (activeAccount) {
       (async () => {
         const _maxToken = await vaultBase?.getBalance(activeAccount);
-        const _max = (_maxToken && activeVault?.art.gt(_maxToken)) ? _maxToken : activeVault?.art;
+        const _max = (_maxToken && selectedVault?.art.gt(_maxToken)) ? _maxToken : selectedVault?.art;
         _max && setMaxRepay(ethers.utils.formatEther(_max)?.toString());
       })();
     }
-  }, [activeAccount, activeVault?.art, vaultBase, setMaxRepay]);
+  }, [activeAccount, selectedVault?.art, vaultBase, setMaxRepay]);
 
   useEffect(() => {
     /* CHECK collateral selection and sets the max available collateral */
@@ -147,14 +146,14 @@ const Vault = () => {
 
   useEffect(() => {
     setAvailableVaults(Array.from(vaultMap.values())); // add some filtering here
-  }, [vaultMap, activeVault]);
+  }, [vaultMap, selectedVault]);
 
   return (
     <MainViewWrap fullWidth>
       <Box gap="medium">
         <Box direction="row-responsive" justify="evenly" fill="horizontal">
           <Box direction="row" align="center" justify="between">
-            <Text size={mobile ? 'small' : 'medium'}> {activeVault?.id} </Text>
+            <Text size={mobile ? 'small' : 'medium'}> {selectedVault?.id} </Text>
             <Menu
               label={<Box pad="xsmall" alignSelf="end" fill><Text size="xsmall" color="brand"> Change Vault </Text></Box>}
               dropProps={{
@@ -172,8 +171,8 @@ const Vault = () => {
           </Box>
 
           <Box direction="row-responsive" gap="medium">
-            <InfoBite label="Vault debt:" value={`${activeVault?.art_} ${vaultBase?.symbol}`} />
-            <InfoBite label="Collateral posted:" value={`${activeVault?.ink_} ${vaultIlk?.symbol}`} />
+            <InfoBite label="Vault debt:" value={`${selectedVault?.art_} ${vaultBase?.symbol}`} />
+            <InfoBite label="Collateral posted:" value={`${selectedVault?.ink_} ${vaultIlk?.symbol}`} />
             <InfoBite label="Maturity date:" value={`${vaultSeries?.displayName}`} />
           </Box>
         </Box>
