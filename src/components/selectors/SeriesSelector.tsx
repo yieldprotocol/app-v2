@@ -26,7 +26,15 @@ function SeriesSelector({ selectSeriesLocally }: ISeriesSelectorProps) {
       : 'Select a series'
   );
 
-  const optionComponent = (_series: ISeries|undefined) => <Box> {optionText(_series)}</Box>;
+  const optionExtended = (_series: ISeries|undefined) => (
+    <Box fill="horizontal" direction="row" justify="between" gap="small">
+      {optionText(_series)}
+      { _series?.mature &&
+        <Box round="large" border pad={{ horizontal: 'small' }}>
+          <Text size="xsmall"> Mature </Text>
+        </Box>}
+    </Box>
+  );
 
   /* Keeping options/selection fresh and valid: */
   useEffect(() => {
@@ -73,13 +81,13 @@ function SeriesSelector({ selectSeriesLocally }: ISeriesSelectorProps) {
         labelKey={(x:any) => optionText(x)}
         valueLabel={
           options.length ?
-            <Box pad={mobile ? 'medium' : 'small'}><Text color="text"> {optionText(_selectedSeries)}</Text></Box>
+            <Box pad={mobile ? 'medium' : 'small'}><Text color="text"> {optionExtended(_selectedSeries)}</Text></Box>
             : <Box pad={mobile ? 'medium' : 'small'}><Text color="text"> No available series.</Text></Box>
         }
         disabled={options.length === 0}
         onChange={({ option }: any) => handleSelect(option.id)}
         // eslint-disable-next-line react/no-children-prop
-        children={(x:any) => <Box pad={mobile ? 'medium' : 'small'} gap="small" direction="row"> <Text color="text"> { optionText(x) } {x.mature && 'mature'} </Text> </Box>}
+        children={(x:any) => <Box pad={mobile ? 'medium' : 'small'} gap="small" direction="row"> <Text color="text"> { optionExtended(x) }</Text> </Box>}
       />
     </Box>
   );
