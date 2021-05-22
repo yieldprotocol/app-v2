@@ -280,8 +280,8 @@ const ChainProvider = ({ children }: any) => {
       ])
         .then(() => {
           updateState({ type: 'chainLoading', payload: false });
-          console.log('ASSETS (static data):', chainState.assetRootMap);
-          console.log('SERIES (static data):', chainState.seriesRootMap);
+          console.log('Yield Protocol static data loaded');
+          // console.log('SERIES (static data):', chainState.seriesRootMap);
         });
     }
   }, [
