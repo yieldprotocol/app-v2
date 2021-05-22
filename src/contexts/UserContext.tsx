@@ -17,11 +17,12 @@ const initState : IUserContextState = {
   assetMap: new Map<string, IAsset>(),
   seriesMap: new Map<string, ISeries>(),
   vaultMap: new Map<string, IVault>(),
+
   /* Current User selections */
-  selectedSeriesId: null,
-  selectedIlkId: '0x455448000000', // initial ilk
-  selectedBaseId: '0x444149000000', // initial base
-  selectedVaultId: null,
+  selectedSeries: null,
+  selectedIlk: null, // initial ilk
+  selectedBase: null, // initial base
+  selectedVault: null,
 };
 
 function userReducer(state:any, action:any) {
@@ -37,10 +38,10 @@ function userReducer(state:any, action:any) {
     case 'userLoading': return { ...state, seriesLoading: onlyIfChanged(action) };
     case 'activeAccount': return { ...state, activeAccount: onlyIfChanged(action) };
 
-    case 'selectedVaultId': return { ...state, selectedVaultId: onlyIfChanged(action) };
-    case 'selectedSeriesId': return { ...state, selectedSeriesId: onlyIfChanged(action) };
-    case 'selectedIlkId': return { ...state, selectedIlkId: onlyIfChanged(action) };
-    case 'selectedBaseId': return { ...state, selectedBaseId: onlyIfChanged(action) };
+    case 'selectedVault': return { ...state, selectedVault: onlyIfChanged(action) };
+    case 'selectedSeries': return { ...state, selectedSeries: onlyIfChanged(action) };
+    case 'selectedIlk': return { ...state, selectedIlk: onlyIfChanged(action) };
+    case 'selectedBase': return { ...state, selectedBase: onlyIfChanged(action) };
 
     case 'assetMap': return { ...state, assetMap: onlyIfChanged(action) };
     case 'seriesMap': return { ...state, seriesMap: onlyIfChanged(action) };
@@ -286,23 +287,15 @@ const UserProvider = ({ children }:any) => {
     updateState({ type: 'activeAccount', payload: account });
   }, [account]);
 
-  /* Watch the vault selector and change selected series/assets accordingly */
-  useEffect(() => {
-    if (userState.activeVault) {
-      updateState({ type: 'selectedSeriesId', payload: userState.activeVault.series.id });
-      updateState({ type: 'selectedBaseId', payload: userState.activeVault.base.id });
-    }
-  }, [userState.activeVault]);
-
   /* Exposed userActions */
   const userActions = {
     updateSeries,
     updateAssets,
     updateVaults,
-    setSelectedVault: (vaultId:string|null) => updateState({ type: 'selectedVaultId', payload: vaultId }),
-    setSelectedIlk: (assetId:string|null) => updateState({ type: 'selectedIlkId', payload: assetId }),
-    setSelectedSeries: (seriesId:string|null) => updateState({ type: 'selectedSeriesId', payload: seriesId }),
-    setSelectedBase: (assetId:string|null) => updateState({ type: 'selectedBaseId', payload: assetId }),
+    setSelectedVault: (vault:IVault|null) => updateState({ type: 'selectedVault', payload: vault }),
+    setSelectedIlk: (asset:IAsset|null) => updateState({ type: 'selectedIlk', payload: asset }),
+    setSelectedSeries: (series:ISeries|null) => updateState({ type: 'selectedSeries', payload: series }),
+    setSelectedBase: (asset:IAsset|null) => updateState({ type: 'selectedBase', payload: asset }),
   };
 
   return (
