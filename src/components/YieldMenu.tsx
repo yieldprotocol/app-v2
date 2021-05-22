@@ -38,9 +38,9 @@ const YieldMenu = ({ toggleMenu }: { toggleMenu: ()=>void }) => {
   const [vaultsArray, setVaultsArray] = useState<IVault[]>(Array.from(vaultMap.values()));
   const [view, setView] = useState<View>(vaultsArray.length > 0 ? View.vaults : View.account);
 
-  const handleSelect = (vaultId:string) => {
-    setSelectedVault(vaultId);
-    routerHistory.push(`/vault/${vaultId}`);
+  const handleSelect = (vault:IVault) => {
+    setSelectedVault(vault);
+    routerHistory.push(`/vault/${vault.id}`);
     toggleMenu();
   };
 
@@ -79,12 +79,12 @@ const YieldMenu = ({ toggleMenu }: { toggleMenu: ()=>void }) => {
         {
           view === View.vaults &&
           <Box gap="medium">
-            { vaultsArray.map((x:IVaultRoot) => (
+            { vaultsArray.map((x:IVault) => (
               <Box
                 key={x.id}
                 pad="small"
                 border
-                onClick={() => handleSelect(x.id)}
+                onClick={() => handleSelect(x)}
                 direction="row"
                 align="center"
               >
