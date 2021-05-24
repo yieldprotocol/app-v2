@@ -244,6 +244,7 @@ const UserProvider = ({ children }:any) => {
         };
       }),
     );
+
     /* Get the previous version (Map) of the vaultMap and update it */
     const newVaultMap = new Map(vaultListMod.reduce((acc:any, item:any) => {
       const _map = acc;
@@ -252,7 +253,7 @@ const UserProvider = ({ children }:any) => {
     }, userState.vaultMap));
 
     updateState({ type: 'vaultMap', payload: newVaultMap });
-    vaultFromUrl && updateState({ type: 'selectedVaultId', payload: vaultFromUrl });
+    vaultFromUrl && updateState({ type: 'selectedVault', payload: newVaultMap.get(vaultFromUrl) });
 
     console.log('VAULTS: ', newVaultMap);
   }, [contractMap, vaultFromUrl]);
@@ -275,7 +276,6 @@ const UserProvider = ({ children }:any) => {
     if (account && !chainLoading) {
       /* trigger update of update all vaults by passing empty array */
       updateVaults([]);
-      // _getVaults().then((_vaults:any) => updateVaults(Array.from(_vaults.values())));
     }
   }, [
     account, chainLoading,
