@@ -13,7 +13,11 @@ interface IAssetSelectorProps {
 function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
   const { userState, userActions } = useContext(UserContext);
-  const { selectedIlk, selectedSeries, selectedBase, assetMap } = userState;
+  const { selectedIlkId, selectedSeriesId, selectedBaseId, assetMap, seriesMap } = userState;
+
+  const selectedSeries = seriesMap.get(selectedSeriesId!);
+  const selectedBase = assetMap.get(selectedBaseId!);
+  const selectedIlk = assetMap.get(selectedIlkId!);
 
   const [options, setOptions] = useState<IAssetRoot[]>([]);
   const optionText = (asset: IAssetRoot | undefined) => (asset?.symbol ? `${asset?.symbol}` : <Loader height="14px" color="lightgrey" margin="0.5px" />);
@@ -21,10 +25,10 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   const handleSelect = (asset:IAsset) => {
     if (selectCollateral) {
       console.log('Collateral selected: ', asset.id);
-      userActions.setSelectedIlk(asset);
+      userActions.setSelectedIlk(asset.id);
     } else {
       console.log('Base selected: ', asset.id);
-      userActions.setSelectedBase(asset);
+      userActions.setSelectedBase(asset.id);
     }
   };
 
@@ -32,16 +36,16 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   useEffect(() => {
     const opts = Array.from(assetMap.values()) as IAssetRoot[];
     const filteredOptions = selectCollateral
-      ? opts.filter((a:IAssetRoot) => a.id !== selectedBase?.id)
+      ? opts.filter((a:IAssetRoot) => a.id !== selectedBaseId)
       : opts;
     setOptions(filteredOptions);
-  }, [selectedBase, assetMap, selectCollateral, selectedSeries]);
+  }, [assetMap, selectCollateral, selectedSeriesId, selectedBaseId]);
 
   /* initiate base selector to Dai available asset and selected ilk ETH */
   useEffect(() => {
     if (Array.from(assetMap.values()).length) {
-      userActions.setSelectedBase(assetMap.get(DAI));
-      userActions.setSelectedIlk(assetMap.get(WETH));
+      userActions.setSelectedBase(assetMap.get(DAI).id);
+      userActions.setSelectedIlk(assetMap.get(WETH).id);
     }
   }, [assetMap]);
 

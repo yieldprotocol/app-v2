@@ -36,7 +36,7 @@ const YieldMobileMenu = ({ toggleMenu }: { toggleMenu: ()=>void }) => {
   const textBack = theme.global.colors['light-1'];
 
   const handleSelect = (vault:IVault) => {
-    setSelectedVault(vault);
+    setSelectedVault(vault.id);
     routerHistory.push(`/vault/${vault.id}`);
     toggleMenu();
   };

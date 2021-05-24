@@ -14,10 +14,10 @@ export interface IUserContextState {
   seriesMap: Map<string, ISeries>;
   vaultMap: Map<string, IVault>;
 
-  selectedSeries: ISeries|null;
-  selectedIlk: IAsset|null;
-  selectedBase: IAsset|null;
-  selectedVault: IVault|null;
+  selectedSeriesId: string|null;
+  selectedIlkId: string|null;
+  selectedBaseId: string|null;
+  selectedVaultId: string|null;
 }
 
 export interface IUserContextActions {
@@ -26,10 +26,10 @@ export interface IUserContextActions {
   updateSeries: (seriesList: ISeries[]) => void;
   updateAssets: (assetList: IAsset[]) => void;
 
-  setSelectedSeries: (series: ISeries) => void;
-  setSelectedIlk: (ilk: IAsset) => void;
-  setSelectedBase: (base: IAsset) => void;
-  setSelectedVault: (vault: IVault) => void;
+  setSelectedSeries: (seriesId: string) => void;
+  setSelectedIlk: (ilkId: string) => void;
+  setSelectedBase: (baseId: string) => void;
+  setSelectedVault: (vaultId: string) => void;
 }
 
 export interface ISeriesRoot {

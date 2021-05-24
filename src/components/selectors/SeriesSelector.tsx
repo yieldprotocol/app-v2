@@ -13,12 +13,12 @@ function SeriesSelector({ selectSeriesLocally }: ISeriesSelectorProps) {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
 
   const { userState, userActions } = useContext(UserContext);
-  const { selectedSeries, selectedBase, seriesMap } = userState;
+  const { selectedSeriesId, selectedBaseId, seriesMap, assetMap } = userState;
   const [localSeries, setLocalSeries] = useState<ISeries|null>();
   const [options, setOptions] = useState<ISeries[]>([]);
 
-  /* get from seriesBaseMap (not seriesMap) so it can be used without an account connected */
-  const _selectedSeries = selectSeriesLocally ? localSeries : selectedSeries;
+  const selectedSeries = selectSeriesLocally ? localSeries : seriesMap.get(selectedSeriesId!);
+  const selectedBase = assetMap.get(selectedBaseId!);
 
   const optionText = (_series: ISeries|undefined) => (
     _series
@@ -41,17 +41,17 @@ function SeriesSelector({ selectSeriesLocally }: ISeriesSelectorProps) {
     const opts = Array.from(seriesMap.values()) as ISeries[];
 
     /* filter out options based on base Id */
-    let filteredOpts = opts.filter((_series:ISeries) => _series.baseId === selectedBase?.id);
+    let filteredOpts = opts.filter((_series:ISeries) => _series.baseId === selectedBaseId);
 
     /* if required, filter out the globally selected asset */
-    if (selectSeriesLocally) filteredOpts = filteredOpts.filter((_series:ISeries) => _series.id !== selectedSeries?.id);
+    if (selectSeriesLocally) filteredOpts = filteredOpts.filter((_series:ISeries) => _series.id !== selectedSeriesId);
 
     /* if current selected series is NOT in the list of available series (for a particular base), or bases don't match:
     set the selected series to null. */
     if (
       selectedSeries &&
-      (filteredOpts.findIndex((_series:ISeries) => _series.id !== selectedSeries?.id) < 0 ||
-      selectedSeries.baseId !== selectedBase?.id)
+      (filteredOpts.findIndex((_series:ISeries) => _series.id !== selectedSeriesId) < 0 ||
+      selectedSeries.baseId !== selectedBaseId)
     ) userActions.setSelectedSeries(null);
 
     setOptions(filteredOpts);
@@ -60,7 +60,7 @@ function SeriesSelector({ selectSeriesLocally }: ISeriesSelectorProps) {
   const handleSelect = (_series:ISeries) => {
     if (!selectSeriesLocally) {
       console.log('Series selected globally: ', _series.id);
-      userActions.setSelectedSeries(_series);
+      userActions.setSelectedSeries(_series.id);
     } else {
       /* used for passing a selected series to the parent component */
       console.log('Series set locally: ', _series.id);
@@ -77,11 +77,11 @@ function SeriesSelector({ selectSeriesLocally }: ISeriesSelectorProps) {
         name="assetSelect"
         placeholder="Select Series"
         options={options}
-        value={_selectedSeries}
+        value={selectedSeries}
         labelKey={(x:any) => optionText(x)}
         valueLabel={
           options.length ?
-            <Box pad={mobile ? 'medium' : 'small'}><Text color="text"> {optionExtended(_selectedSeries)}</Text></Box>
+            <Box pad={mobile ? 'medium' : 'small'}><Text color="text"> {optionExtended(selectedSeries)}</Text></Box>
             : <Box pad={mobile ? 'medium' : 'small'}><Text color="text"> No available series.</Text></Box>
         }
         disabled={options.length === 0}

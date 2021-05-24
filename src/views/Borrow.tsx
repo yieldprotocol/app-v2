@@ -24,10 +24,11 @@ const Borrow = () => {
   /* STATE FROM CONTEXT */
 
   const { userState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, assetMap, vaultMap, seriesMap, selectedSeries, selectedIlk, selectedBase } = userState;
-  // const selectedBase = assetMap.get(selectedBaseId!);
-  // const selectedIlk = assetMap.get(selectedIlkId!);
-  // const selectedSeries = seriesMap.get(selectedSeriesId!);
+  const { activeAccount, assetMap, vaultMap, seriesMap, selectedSeriesId, selectedIlkId, selectedBaseId } = userState;
+
+  const selectedBase = assetMap.get(selectedBaseId!);
+  const selectedIlk = assetMap.get(selectedIlkId!);
+  const selectedSeries = seriesMap.get(selectedSeriesId!);
 
   /* LOCAL STATE */
 
@@ -179,6 +180,7 @@ const Borrow = () => {
 
         <SectionWrap title="2. Select a series">
           <SeriesSelector />
+          {selectedSeries?.mature && <Text color="pink" size="small">This series has matured.</Text>}
         </SectionWrap>
 
         <SectionWrap title="3. Add Collateral">

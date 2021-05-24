@@ -21,9 +21,10 @@ function Pool() {
 
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, assetMap, seriesMap, selectedSeries, selectedBase } = userState;
-  // const selectedSeries = seriesMap.get(selectedSeriesId!);
-  // const selectedBase = assetMap.get(selectedBaseId!);
+  const { activeAccount, assetMap, seriesMap, selectedSeriesId, selectedBaseId } = userState;
+
+  const selectedSeries = seriesMap.get(selectedSeriesId!);
+  const selectedBase = assetMap.get(selectedBaseId!);
 
   /* LOCAL STATE */
   const [poolInput, setPoolInput] = useState<string>();

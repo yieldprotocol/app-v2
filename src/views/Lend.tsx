@@ -21,9 +21,10 @@ const Lend = () => {
   /* STATE FROM CONTEXT */
 
   const { userState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, selectedSeries, selectedBase, seriesMap, assetMap } = userState;
-  // const selectedSeries = seriesMap.get(selectedSeriesId!);
-  // const selectedBase = assetMap.get(selectedBaseId!);
+  const { activeAccount, selectedSeriesId, selectedBaseId, seriesMap, assetMap } = userState;
+
+  const selectedSeries = seriesMap.get(selectedSeriesId!);
+  const selectedBase = assetMap.get(selectedBaseId!);
 
   /* LOCAL STATE */
 

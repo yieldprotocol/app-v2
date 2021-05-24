@@ -39,7 +39,7 @@ const YieldMenu = ({ toggleMenu }: { toggleMenu: ()=>void }) => {
   const [view, setView] = useState<View>(vaultsArray.length > 0 ? View.vaults : View.account);
 
   const handleSelect = (vault:IVault) => {
-    setSelectedVault(vault);
+    setSelectedVault(vault.id);
     routerHistory.push(`/vault/${vault.id}`);
     toggleMenu();
   };

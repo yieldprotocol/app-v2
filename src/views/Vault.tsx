@@ -25,9 +25,10 @@ const Vault = () => {
   /* STATE FROM CONTEXT */
 
   const { userState, userActions } = useContext(UserContext) as IUserContext;
-  const { activeAccount, assetMap, seriesMap, vaultMap, selectedVault } = userState;
+  const { activeAccount, assetMap, seriesMap, vaultMap, selectedVaultId } = userState;
   // const { setSelectedVault } = userActions;
 
+  const selectedVault: IVault|undefined = vaultMap.get(selectedVaultId!);
   const vaultBase: IAsset|undefined = assetMap.get(selectedVault?.baseId!);
   const vaultIlk: IAsset|undefined = assetMap.get(selectedVault?.ilkId!);
   const vaultSeries: ISeries|undefined = seriesMap.get(selectedVault?.seriesId!);
@@ -147,6 +148,11 @@ const Vault = () => {
 
   useEffect(() => {
     setAvailableVaults(Array.from(vaultMap.values())); // add some filtering here
+
+    /* set global series, base and ilk */
+    selectedVault && userActions.setSelectedSeries(selectedVault.seriesId);
+    selectedVault && userActions.setSelectedBase(selectedVault.baseId);
+    selectedVault && userActions.setSelectedIlk(selectedVault.ilkId);
   }, [vaultMap, selectedVault]);
 
   return (
@@ -282,7 +288,7 @@ const Vault = () => {
             </SectionWrap>
           </>}
 
-          <SectionWrap title="[ Roll Position to another series ]">
+          <SectionWrap title="[ Roll Debt to another series ]">
             <Box gap="small" fill="horizontal" direction="row-responsive">
 
               <SeriesSelector selectSeriesLocally={(series:ISeries) => setRollToSeries(series)} />

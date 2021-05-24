@@ -19,10 +19,10 @@ const initState : IUserContextState = {
   vaultMap: new Map<string, IVault>(),
 
   /* Current User selections */
-  selectedSeries: null,
-  selectedIlk: null, // initial ilk
-  selectedBase: null, // initial base
-  selectedVault: null,
+  selectedSeriesId: null,
+  selectedIlkId: null, // initial ilk
+  selectedBaseId: null, // initial base
+  selectedVaultId: null,
 };
 
 function userReducer(state:any, action:any) {
@@ -38,10 +38,10 @@ function userReducer(state:any, action:any) {
     case 'userLoading': return { ...state, seriesLoading: onlyIfChanged(action) };
     case 'activeAccount': return { ...state, activeAccount: onlyIfChanged(action) };
 
-    case 'selectedVault': return { ...state, selectedVault: onlyIfChanged(action) };
-    case 'selectedSeries': return { ...state, selectedSeries: onlyIfChanged(action) };
-    case 'selectedIlk': return { ...state, selectedIlk: onlyIfChanged(action) };
-    case 'selectedBase': return { ...state, selectedBase: onlyIfChanged(action) };
+    case 'selectedVaultId': return { ...state, selectedVaultId: onlyIfChanged(action) };
+    case 'selectedSeriesId': return { ...state, selectedSeriesId: onlyIfChanged(action) };
+    case 'selectedIlkId': return { ...state, selectedIlkId: onlyIfChanged(action) };
+    case 'selectedBaseId': return { ...state, selectedBaseId: onlyIfChanged(action) };
 
     case 'assetMap': return { ...state, assetMap: onlyIfChanged(action) };
     case 'seriesMap': return { ...state, seriesMap: onlyIfChanged(action) };
@@ -108,6 +108,8 @@ const UserProvider = ({ children }:any) => {
   const updateSeries = useCallback(async (seriesList: ISeriesRoot[]) => {
     let _publicData : ISeries[] = [];
     let _accountData : ISeries[] = [];
+
+    console.log('series updating..');
 
     /* Add in the dynamic series data of the series in the list */
     _publicData = await Promise.all(
@@ -253,7 +255,7 @@ const UserProvider = ({ children }:any) => {
     }, userState.vaultMap));
 
     updateState({ type: 'vaultMap', payload: newVaultMap });
-    vaultFromUrl && updateState({ type: 'selectedVault', payload: newVaultMap.get(vaultFromUrl) });
+    vaultFromUrl && updateState({ type: 'selectedVaultId', payload: vaultFromUrl });
 
     console.log('VAULTS: ', newVaultMap);
   }, [contractMap, vaultFromUrl]);
@@ -292,10 +294,10 @@ const UserProvider = ({ children }:any) => {
     updateSeries,
     updateAssets,
     updateVaults,
-    setSelectedVault: (vault:IVault|null) => updateState({ type: 'selectedVault', payload: vault }),
-    setSelectedIlk: (asset:IAsset|null) => updateState({ type: 'selectedIlk', payload: asset }),
-    setSelectedSeries: (series:ISeries|null) => updateState({ type: 'selectedSeries', payload: series }),
-    setSelectedBase: (asset:IAsset|null) => updateState({ type: 'selectedBase', payload: asset }),
+    setSelectedVault: (vaultId:string|null) => updateState({ type: 'selectedVaultId', payload: vaultId }),
+    setSelectedIlk: (assetId:string|null) => updateState({ type: 'selectedIlkId', payload: assetId }),
+    setSelectedSeries: (seriesId:string|null) => updateState({ type: 'selectedSeriesId', payload: seriesId }),
+    setSelectedBase: (assetId:string|null) => updateState({ type: 'selectedBaseId', payload: assetId }),
   };
 
   return (
