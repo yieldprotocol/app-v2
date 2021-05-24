@@ -112,7 +112,7 @@ export const usePoolActions = () => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode('100_', fromSeries.id);
     const _input = ethers.utils.parseEther(input);
-    const seriesMature = fromSeries.isMature();
+    const seriesMature = fromSeries.mature;
 
     const _fyTokenToBuy = fyTokenForMint(
       toSeries.baseReserves,
@@ -141,14 +141,15 @@ export const usePoolActions = () => {
       },
 
       /* AFTER MATURITY */
+
       { // ladle.forwardPermitAction(seriesId, false, ladle.address, allowance, deadline, v, r, s)
         target: fromSeries,
         spender: 'LADLE',
         series: fromSeries,
-        type: SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
+        type: SignType.FYTOKEN,
         fallbackCall: { fn: 'approve', args: [contractMap.get('PoolRouter'), MAX_256], ignore: false, opCode: null },
         message: 'Signing ERC20 Token approval',
-        ignore: !seriesMature,
+        ignore: !fromSeries.mature,
       },
 
     ], txCode, !fromSeries.mature);
@@ -157,11 +158,12 @@ export const usePoolActions = () => {
       ...permits,
 
       /* BEFORE MATURITY */
+
       { // router.transferToPool(base.address, fyToken1.address, pool1.address, WAD)
         operation: POOLROUTER_OPS.TRANSFER_TO_POOL,
         args: [fromSeries.getBaseAddress(), fromSeries.fyTokenAddress, fromSeries.poolAddress, _input],
         series: fromSeries,
-        ignore: false,
+        ignore: seriesMature,
       },
       { // router.burnForBase(pool.address, pool2.address, minBaseReceived)
         operation: POOLROUTER_OPS.ROUTE,
@@ -170,7 +172,7 @@ export const usePoolActions = () => {
         series: fromSeries,
         ignore: seriesMature,
       },
-      { // router.mintWithBaseAction( base.address, fyToken2.address, receiver, fyTokenToBuy, minLPReceived)
+      { // router.mintWithBase( base.address, fyToken2.address, receiver, fyTokenToBuy, minLPReceived)
         operation: POOLROUTER_OPS.ROUTE,
         args: [account, _fyTokenToBuy, ethers.constants.Zero],
         fnName: 'mintWithBase',
@@ -179,21 +181,22 @@ export const usePoolActions = () => {
       },
 
       /* AFTER MATURITY */
+
       { // ladle.transferToFYTokenAction(seriesId, fyTokenToRoll)
         operation: VAULT_OPS.TRANSFER_TO_FYTOKEN,
-        args: [fromSeries.id, true, _input.toString()],
+        args: [fromSeries.id, _input],
         series: fromSeries,
-        ignore: !seriesMature,
+        ignore: !fromSeries.mature,
       },
       { // ladle.redeemAction(seriesId, pool2.address, fyTokenToRoll)
         operation: VAULT_OPS.REDEEM,
-        args: [fromSeries.id, toSeries.poolAddress, ethers.constants.Zero],
+        args: [fromSeries.id, toSeries.poolAddress, _input],
         series: fromSeries,
-        ignore: !seriesMature,
+        ignore: !fromSeries.mature,
       },
-      { // ladle.mintWithBaseAction(series2Id, receiver, fyTokenToBuy, minLPReceived),
+      { // ladle.mintWithBase(series2Id, receiver, fyTokenToBuy, minLPReceived),
         operation: VAULT_OPS.ROUTE,
-        args: [toSeries.id, account, _input, ethers.constants.Zero],
+        args: [account, _input, ethers.constants.Zero],
         fnName: 'mintWithBase',
         series: toSeries,
         ignore: !seriesMature,
@@ -235,19 +238,37 @@ export const usePoolActions = () => {
 
     const calls: ICallData[] = [
       ...permits,
+
+      // BEFORE MATURITY
       { // router.transferToPool(base.address, fyToken1.address, pool1.address, WAD)
         operation: POOLROUTER_OPS.TRANSFER_TO_POOL,
         args: [series.getBaseAddress(), series.fyTokenAddress, series.poolAddress, _input],
         series,
-        ignore: false,
+        ignore: series.mature,
       },
       { // burnForBase(receiver, minBaseReceived),
         operation: POOLROUTER_OPS.ROUTE,
         args: [account, ethers.constants.Zero],
         fnName: 'burnForBase',
         series,
-        ignore: false,
+        ignore: series.mature,
       },
+
+      // AFTER MATURITY
+      { // router.transferToPool(base.address, fyToken1.address, pool1.address, WAD)
+        operation: POOLROUTER_OPS.TRANSFER_TO_POOL,
+        args: [series.getBaseAddress(), series.fyTokenAddress, series.poolAddress, _input],
+        series,
+        ignore: !series.mature,
+      },
+      { // burnForBase(receiver, minBaseReceived),
+        operation: POOLROUTER_OPS.ROUTE,
+        args: [account, ethers.constants.Zero],
+        fnName: 'burnForBase',
+        series,
+        ignore: !series.mature,
+      },
+
     ];
     await transact('PoolRouter', calls, txCode);
     updateSeries([series]);
