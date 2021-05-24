@@ -139,6 +139,7 @@ const UserProvider = ({ children }:any) => {
           totalSupply,
           APR: `${Number(APR).toFixed(2)}`,
           mature,
+          isNotMature: !mature,
         };
       }),
     );
