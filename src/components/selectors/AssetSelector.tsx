@@ -70,7 +70,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
         labelKey={(x:any) => optionText(x)}
         valueLabel={<Box pad={mobile ? 'medium' : 'small'}><Text color="text"> { optionText(selectCollateral ? selectedIlk : selectedBase)} </Text></Box>}
         onChange={({ option }: any) => handleSelect(option)}
-        disabled={(selectCollateral && !selectedSeries)}
+        disabled={(selectCollateral && (selectedSeries?.mature || !selectedSeries))}
         // eslint-disable-next-line react/no-children-prop
         children={(x:any) => <Box pad={mobile ? 'medium' : 'small'} gap="small" direction="row"> <Text color="text"> { optionText(x) } </Text> </Box>}
       />
