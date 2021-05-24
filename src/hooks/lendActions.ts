@@ -4,7 +4,7 @@ import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
 import { ICallData, IVaultRoot, SignType, ISeries } from '../types';
 import { getTxCode } from '../utils/appUtils';
-import { DAI_BASED_ASSETS, MAX_256 } from '../utils/constants';
+import { DAI_BASED_ASSETS, MAX_128, MAX_256 } from '../utils/constants';
 import { useChain } from './chainHooks';
 
 import { VAULT_OPS, POOLROUTER_OPS } from '../utils/operations';
@@ -84,7 +84,7 @@ export const useLendActions = () => {
         target: fromSeries,
         spender: 'POOLROUTER',
         series: fromSeries,
-        type: SignType.FYTOKEN, // Type based on whether a DAI-TyPE base asset or not.
+        type: SignType.FYTOKEN,
         fallbackCall: { fn: 'approve', args: [contractMap.get('PoolRouter'), MAX_256], ignore: false, opCode: null },
         message: 'Signing ERC20 Token approval',
         ignore: seriesMature,
@@ -96,7 +96,7 @@ export const useLendActions = () => {
         target: fromSeries,
         spender: 'LADLE',
         series: fromSeries,
-        type: SignType.FYTOKEN, // Type based on whether a DAI-TyPE base asset or not.
+        type: SignType.FYTOKEN,
         fallbackCall: { fn: 'approve', args: [contractMap.get('PoolRouter'), MAX_256], ignore: false, opCode: null },
         message: 'Signing ERC20 Token approval',
         ignore: !seriesMature,
@@ -134,20 +134,20 @@ export const useLendActions = () => {
       /* AFTER MATURITY */
 
       { // ladle.transferToFYTokenAction(seriesId, fyTokenToRoll)
-        operation: VAULT_OPS.TRANSFER_TO_POOL,
-        args: [fromSeries.id, true, _input.toString()],
+        operation: VAULT_OPS.TRANSFER_TO_FYTOKEN,
+        args: [fromSeries.id, _input],
         series: fromSeries,
         ignore: !seriesMature,
       },
       { // ladle.redeemAction(seriesId, pool2.address, fyTokenToRoll)
         operation: VAULT_OPS.REDEEM,
-        args: [fromSeries.id, toSeries.poolAddress, ethers.constants.Zero],
+        args: [fromSeries.id, toSeries.poolAddress, _input],
         series: fromSeries,
         ignore: !seriesMature,
       },
       { // ladle.sellBaseAction(series2Id, receiver, minimumFYTokenToReceive)
         operation: VAULT_OPS.ROUTE,
-        args: [toSeries.id, account, ethers.constants.Zero],
+        args: [account, ethers.constants.Zero],
         fnName: 'sellBase',
         series: toSeries,
         ignore: !seriesMature,
@@ -206,15 +206,45 @@ export const useLendActions = () => {
 
   const redeem = async (
     series: ISeries,
+    input: string|undefined,
   ) => {
     const txCode = getTxCode('090_', series.id);
+
+    const _input = input
+      ? ethers.utils.parseEther(input)
+      : series.fyTokenBalance || ethers.constants.Zero;
+
+    const permits: ICallData[] = await sign([
+      /* AFTER MATURITY */
+      { // ladle.forwardPermitAction(seriesId, false, ladle.address, allowance, deadline, v, r, s)
+        target: series,
+        spender: 'LADLE',
+        series,
+        type: SignType.FYTOKEN,
+        fallbackCall: { fn: 'approve', args: [contractMap.get('PoolRouter'), MAX_256], ignore: false, opCode: null },
+        message: 'Signing ERC20 Token approval',
+        ignore: !series.mature,
+      },
+    ], txCode, false);
+
     const calls: ICallData[] = [
+
+      ...permits,
+
       { /* ladle.redeem(bytes6 seriesId, address to, uint256 wad) */
-        operation: VAULT_OPS.REDEEM,
-        args: [series.id, account, ethers.BigNumber.from(0)],
+        operation: VAULT_OPS.TRANSFER_TO_FYTOKEN,
+        args: [series.id, _input],
         series,
         ignore: false,
       },
+
+      { /* ladle.redeem(bytes6 seriesId, address to, uint256 wad) */
+        operation: VAULT_OPS.REDEEM,
+        args: [series.id, account, ethers.utils.parseEther('1')],
+        series,
+        ignore: false,
+      },
+
     ];
     transact('Ladle', calls, txCode);
   };

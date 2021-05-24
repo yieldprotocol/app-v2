@@ -66,7 +66,7 @@ const Lend = () => {
     setRollInput('');
   };
   const handleRedeem = () => {
-    redeem(selectedSeries!);
+    redeem(selectedSeries!, undefined);
   };
 
   /* SET MAX VALUES */
