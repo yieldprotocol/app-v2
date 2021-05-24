@@ -77,8 +77,6 @@ export const useLendActions = () => {
     const baseAddress = fromSeries.getBaseAddress();
     const { fyTokenAddress } = fromSeries;
 
-    const seriesMature = fromSeries.isMature();
-
     const permits: ICallData[] = await sign([
       { // router.forwardPermit ( fyToken.address, router.address, allowance, deadline, v, r, s )
         target: fromSeries,
@@ -87,7 +85,7 @@ export const useLendActions = () => {
         type: SignType.FYTOKEN,
         fallbackCall: { fn: 'approve', args: [contractMap.get('PoolRouter'), MAX_256], ignore: false, opCode: null },
         message: 'Signing ERC20 Token approval',
-        ignore: seriesMature,
+        ignore: fromSeries.mature,
       },
 
       /* AFTER MATURITY */
@@ -99,10 +97,10 @@ export const useLendActions = () => {
         type: SignType.FYTOKEN,
         fallbackCall: { fn: 'approve', args: [contractMap.get('PoolRouter'), MAX_256], ignore: false, opCode: null },
         message: 'Signing ERC20 Token approval',
-        ignore: !seriesMature,
+        ignore: !fromSeries.mature,
       },
 
-    ], txCode, true);
+    ], txCode, !fromSeries.mature);
 
     const calls: ICallData[] = [
 
@@ -114,21 +112,21 @@ export const useLendActions = () => {
         operation: POOLROUTER_OPS.TRANSFER_TO_POOL,
         args: [baseAddress, fyTokenAddress, fyTokenAddress, _input.toString()],
         series: fromSeries,
-        ignore: seriesMature,
+        ignore: fromSeries.mature,
       },
       { // router.sellFYTokenAction( pool.address, pool2.address, minimumBaseReceived)
         operation: POOLROUTER_OPS.ROUTE,
         args: [toSeries.poolAddress, ethers.constants.Zero],
         fnName: 'sellFYToken',
         series: fromSeries,
-        ignore: seriesMature,
+        ignore: fromSeries.mature,
       },
       { // router.sellBaseAction( pool.address, receiver, minimumFYToken2Received)
         operation: POOLROUTER_OPS.ROUTE,
         args: [account, ethers.constants.Zero],
         fnName: 'sellBase',
         series: toSeries,
-        ignore: seriesMature,
+        ignore: fromSeries.mature,
       },
 
       /* AFTER MATURITY */
@@ -137,24 +135,24 @@ export const useLendActions = () => {
         operation: VAULT_OPS.TRANSFER_TO_FYTOKEN,
         args: [fromSeries.id, _input],
         series: fromSeries,
-        ignore: !seriesMature,
+        ignore: !fromSeries.mature,
       },
       { // ladle.redeemAction(seriesId, pool2.address, fyTokenToRoll)
         operation: VAULT_OPS.REDEEM,
         args: [fromSeries.id, toSeries.poolAddress, _input],
         series: fromSeries,
-        ignore: !seriesMature,
+        ignore: !fromSeries.mature,
       },
       { // ladle.sellBaseAction(series2Id, receiver, minimumFYTokenToReceive)
         operation: VAULT_OPS.ROUTE,
         args: [account, ethers.constants.Zero],
         fnName: 'sellBase',
         series: toSeries,
-        ignore: !seriesMature,
+        ignore: !fromSeries.mature,
       },
     ];
     await transact(
-      seriesMature ? 'Ladle' : 'PoolRouter', // select router based on if series is mature
+      fromSeries.mature ? 'Ladle' : 'PoolRouter', // select router based on if series is mature
       calls,
       txCode,
     );

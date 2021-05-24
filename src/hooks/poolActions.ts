@@ -151,7 +151,7 @@ export const usePoolActions = () => {
         ignore: !seriesMature,
       },
 
-    ], txCode, true);
+    ], txCode, !fromSeries.mature);
 
     const calls: ICallData[] = [
       ...permits,
@@ -214,7 +214,6 @@ export const usePoolActions = () => {
   ) => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode('110_', series.id);
-
     const _input = ethers.utils.parseEther(input);
 
     const permits: ICallData[] = await sign([
