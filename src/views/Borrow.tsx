@@ -192,11 +192,11 @@ const Borrow = () => {
                 // ref={(el:any) => { el && el.focus(); }}
                   value={collatInput}
                   onChange={(event:any) => setCollatInput(event.target.value)}
-                  disabled={!selectedSeries}
+                  disabled={!selectedSeries || selectedSeries.mature}
                 />
                 <MaxButton
                   action={() => maxCollat && setCollatInput(maxCollat)}
-                  disabled={!selectedSeries || collatInput === maxCollat}
+                  disabled={!selectedSeries || collatInput === maxCollat || selectedSeries.mature}
                 />
               </InputWrap>
             </Box>
@@ -245,6 +245,7 @@ const Borrow = () => {
 
         {
         selectedSeries?.mature &&
+        matchingVaults.length > 0 &&
         <SectionWrap>
           <Box gap="small" fill="horizontal">
             <Text size="xsmall">Go to exisiting vault:</Text>
