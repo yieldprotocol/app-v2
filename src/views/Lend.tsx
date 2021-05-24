@@ -220,6 +220,8 @@ const Lend = () => {
       }
       />
 
+      {
+      !selectedSeries?.mature &&
       <SectionWrap
         title=" [ Close position ]"
       >
@@ -255,6 +257,7 @@ const Lend = () => {
         ]}
         />
       </SectionWrap>
+      }
 
       <SectionWrap
         title="[ Roll Position ]"
