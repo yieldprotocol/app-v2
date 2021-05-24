@@ -159,7 +159,7 @@ export const useBorrowActions = () => {
         operation: VAULT_OPS.TRANSFER_TO_POOL,
         args: [series.id, true, _inputWithSlippage],
         series,
-        ignore: false,
+        ignore: series.mature,
       },
       { /* ladle.repay(vaultId, owner, inkRetrieved, 0) */
         operation: VAULT_OPS.REPAY,
@@ -171,7 +171,7 @@ export const useBorrowActions = () => {
         operation: VAULT_OPS.REPAY_VAULT,
         args: [vault.id, account, ethers.constants.Zero, MAX_128],
         series,
-        ignore: series.mature || !inputGreaterThanDebt, // TODO add in repay all logic
+        ignore: series.mature || !inputGreaterThanDebt,
       },
 
       /* AFTER MATURITY */
@@ -180,7 +180,7 @@ export const useBorrowActions = () => {
         operation: VAULT_OPS.CLOSE,
         args: [vault.id, account, ethers.constants.Zero, _input.mul(-1)],
         series,
-        ignore: !series.mature, // TODO add in repay all logic
+        ignore: !series.mature,
       },
       ..._removeEth(_collInput, series),
     ];
@@ -192,7 +192,7 @@ export const useBorrowActions = () => {
     vault: IVault,
     toSeries: ISeries,
   ) => {
-    const txCode = getTxCode('040_', vault.seriesId);
+    const txCode = getTxCode('120_', vault.seriesId);
     const series = seriesMap.get(vault.seriesId);
     const calls: ICallData[] = [
       { // ladle.rollAction(vaultId: string, newSeriesId: string, max: BigNumberish)
