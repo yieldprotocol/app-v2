@@ -60,24 +60,27 @@ const Vault = () => {
 
   /* LOCAL FNS */
 
-  const handleRepay = () => {
+  const handleRepay = async () => {
     selectedVault &&
-    repay(selectedVault, repayInput?.toString());
+    await repay(selectedVault, repayInput?.toString());
+    setRepayInput('');
   };
-  const handleBorrow = () => {
+  const handleBorrow = async () => {
     selectedVault &&
-    borrow(selectedVault, borrowInput, '0');
+    await borrow(selectedVault, borrowInput, '0');
+    setBorrowInput('');
   };
-  const handleCollateral = (action: 'ADD'|'REMOVE') => {
+  const handleCollateral = async (action: 'ADD'|'REMOVE') => {
     const remove: boolean = (action === 'REMOVE');
     if (selectedVault) {
-      !remove && addCollateral(selectedVault, collatInput);
-      remove && removeCollateral(selectedVault, collatInput);
+      !remove && await addCollateral(selectedVault, collatInput);
+      remove && await removeCollateral(selectedVault, collatInput);
     }
+    setCollatInput('');
   };
-  const handleRoll = () => {
+  const handleRoll = async () => {
     rollToSeries && selectedVault &&
-    rollDebt(selectedVault, rollToSeries);
+    await rollDebt(selectedVault, rollToSeries);
   };
 
   /* SET MAX VALUES */
@@ -222,8 +225,9 @@ const Vault = () => {
 
           </SectionWrap>
 
-          {!vaultSeries?.mature &&
-          <>
+          {
+          !vaultSeries?.mature &&
+
             <SectionWrap title="[ Borrow more ]">
               <Box gap="small" fill="horizontal" direction="row-responsive">
                 <Box basis={mobile ? undefined : '65%'}>
@@ -250,43 +254,43 @@ const Vault = () => {
                 </Box>
               </Box>
             </SectionWrap>
+}
 
-            <SectionWrap title="[ Manage Collateral ]">
-              <Box gap="small" fill="horizontal" direction="row-responsive">
-                <Box basis={mobile ? undefined : '65%'}>
-                  <InputWrap action={() => console.log('maxAction')} isError={collatError}>
-                    <TextInput
-                      plain
-                      type="number"
-                      placeholder="Amount to add/remove"
+          <SectionWrap title="[ Manage Collateral ]">
+            <Box gap="small" fill="horizontal" direction="row-responsive">
+              <Box basis={mobile ? undefined : '65%'}>
+                <InputWrap action={() => console.log('maxAction')} isError={collatError}>
+                  <TextInput
+                    plain
+                    type="number"
+                    placeholder="Amount to add/remove"
                 // ref={(el:any) => { el && !repayOpen && !rateLockOpen && !mobile && el.focus(); setInputRef(el); }}
-                      value={collatInput || ''}
-                      onChange={(event:any) => setCollatInput(cleanValue(event.target.value))}
-                    />
-                  </InputWrap>
-                </Box>
+                    value={collatInput || ''}
+                    onChange={(event:any) => setCollatInput(cleanValue(event.target.value))}
+                  />
+                </InputWrap>
+              </Box>
 
-                <Box direction="row" basis={mobile ? undefined : '35%'} gap="small">
-                  <Box>
-                    <Button
-                      primary
-                      label={<Text size={mobile ? 'small' : undefined}> Add </Text>}
-                      key="primary"
-                      onClick={() => handleCollateral('ADD')}
-                    />
-                  </Box>
-                  <Box>
-                    <Button
-                      primary
-                      label={<Text size={mobile ? 'small' : undefined}> Remove </Text>}
-                      key="secondary"
-                      onClick={() => handleCollateral('REMOVE')}
-                    />
-                  </Box>
+              <Box direction="row" basis={mobile ? undefined : '35%'} gap="small">
+                <Box>
+                  <Button
+                    primary
+                    label={<Text size={mobile ? 'small' : undefined}> Add </Text>}
+                    key="primary"
+                    onClick={() => handleCollateral('ADD')}
+                  />
+                </Box>
+                <Box>
+                  <Button
+                    primary
+                    label={<Text size={mobile ? 'small' : undefined}> Remove </Text>}
+                    key="secondary"
+                    onClick={() => handleCollateral('REMOVE')}
+                  />
                 </Box>
               </Box>
-            </SectionWrap>
-          </>}
+            </Box>
+          </SectionWrap>
 
           <SectionWrap title="[ Roll Debt to another series ]">
             <Box gap="small" fill="horizontal" direction="row-responsive">
