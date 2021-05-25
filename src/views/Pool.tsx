@@ -191,7 +191,7 @@ function Pool() {
       </SectionWrap>
 
       {
-      !selectedSeries?.mature &&
+      !selectedSeries?.seriesIsMature &&
       <>
         <SectionWrap>
 

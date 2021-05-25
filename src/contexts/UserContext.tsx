@@ -138,8 +138,7 @@ const UserProvider = ({ children }:any) => {
           fyTokenRealReserves,
           totalSupply,
           APR: `${Number(APR).toFixed(2)}`,
-          mature,
-          isNotMature: !mature,
+          seriesIsMature: mature,
         };
       }),
     );

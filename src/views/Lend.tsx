@@ -164,18 +164,18 @@ const Lend = () => {
         <Box direction="row" gap="small" fill="horizontal" align="start">
 
           <Box basis={mobile ? '50%' : '65%'}>
-            <InputWrap action={() => console.log('maxAction')} isError={lendError} disabled={selectedSeries?.mature}>
+            <InputWrap action={() => console.log('maxAction')} isError={lendError} disabled={selectedSeries?.seriesIsMature}>
               <TextInput
                 plain
                 type="number"
                 placeholder="Enter amount"
                 value={lendInput || ''}
                 onChange={(event:any) => setLendInput(cleanValue(event.target.value))}
-                disabled={selectedSeries?.mature}
+                disabled={selectedSeries?.seriesIsMature}
               />
               <MaxButton
                 action={() => setLendInput(maxLend)}
-                disabled={maxLend === '0' || selectedSeries?.mature}
+                disabled={maxLend === '0' || selectedSeries?.seriesIsMature}
               />
             </InputWrap>
           </Box>
@@ -198,7 +198,7 @@ const Lend = () => {
       </SectionWrap>
 
       <ActionButtonGroup buttonList={
-        !selectedSeries?.mature ?
+        !selectedSeries?.seriesIsMature ?
           [
             <Button
               primary
@@ -215,14 +215,14 @@ const Lend = () => {
               label={<Text size={mobile ? 'small' : undefined}> Redeem </Text>}
               key="primary"
               onClick={() => handleRedeem()}
-              // disabled={!selectedSeries.mature}
+              // disabled={!selectedSeries.seriesIsMature}
             />,
           ]
       }
       />
 
       {
-      !selectedSeries?.mature &&
+      !selectedSeries?.seriesIsMature &&
       <SectionWrap
         title=" [ Close position ]"
       >

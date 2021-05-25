@@ -112,7 +112,7 @@ export const usePoolActions = () => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode('100_', fromSeries.id);
     const _input = ethers.utils.parseEther(input);
-    const seriesMature = fromSeries.mature;
+    const seriesMature = fromSeries.seriesIsMature;
 
     const _fyTokenToBuy = fyTokenForMint(
       toSeries.baseReserves,
@@ -149,10 +149,10 @@ export const usePoolActions = () => {
         type: SignType.FYTOKEN,
         fallbackCall: { fn: 'approve', args: [contractMap.get('PoolRouter'), MAX_256], ignore: false, opCode: null },
         message: 'Signing ERC20 Token approval',
-        ignore: !fromSeries.mature,
+        ignore: !fromSeries.seriesIsMature,
       },
 
-    ], txCode, !fromSeries.mature);
+    ], txCode, !fromSeries.seriesIsMature);
 
     const calls: ICallData[] = [
       ...permits,
@@ -186,13 +186,13 @@ export const usePoolActions = () => {
         operation: VAULT_OPS.TRANSFER_TO_FYTOKEN,
         args: [fromSeries.id, _input],
         series: fromSeries,
-        ignore: !fromSeries.mature,
+        ignore: !fromSeries.seriesIsMature,
       },
       { // ladle.redeemAction(seriesId, pool2.address, fyTokenToRoll)
         operation: VAULT_OPS.REDEEM,
         args: [fromSeries.id, toSeries.poolAddress, _input],
         series: fromSeries,
-        ignore: !fromSeries.mature,
+        ignore: !fromSeries.seriesIsMature,
       },
       { // ladle.mintWithBase(series2Id, receiver, fyTokenToBuy, minLPReceived),
         operation: VAULT_OPS.ROUTE,
@@ -204,7 +204,7 @@ export const usePoolActions = () => {
     ];
 
     await transact(
-      seriesMature ? 'Ladle' : 'PoolRouter', // select router based on if series is mature
+      seriesMature ? 'Ladle' : 'PoolRouter', // select router based on if series is seriesIsMature
       calls,
       txCode,
     );
@@ -244,14 +244,14 @@ export const usePoolActions = () => {
         operation: POOLROUTER_OPS.TRANSFER_TO_POOL,
         args: [series.getBaseAddress(), series.fyTokenAddress, series.poolAddress, _input],
         series,
-        ignore: series.mature,
+        ignore: series.seriesIsMature,
       },
       { // burnForBase(receiver, minBaseReceived),
         operation: POOLROUTER_OPS.ROUTE,
         args: [account, ethers.constants.Zero],
         fnName: 'burnForBase',
         series,
-        ignore: series.mature,
+        ignore: series.seriesIsMature,
       },
 
       // AFTER MATURITY
@@ -259,14 +259,14 @@ export const usePoolActions = () => {
         operation: POOLROUTER_OPS.TRANSFER_TO_POOL,
         args: [series.getBaseAddress(), series.fyTokenAddress, series.poolAddress, _input],
         series,
-        ignore: !series.mature,
+        ignore: !series.seriesIsMature,
       },
       { // burnForBase(receiver, minBaseReceived),
         operation: POOLROUTER_OPS.ROUTE,
         args: [account, ethers.constants.Zero],
         fnName: 'burnForBase',
         series,
-        ignore: !series.mature,
+        ignore: !series.seriesIsMature,
       },
 
     ];

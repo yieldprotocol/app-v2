@@ -111,7 +111,7 @@ const Borrow = () => {
       !collatInput ||
       !selectedSeries ||
       !selectedIlk ||
-      selectedSeries?.mature
+      selectedSeries?.seriesIsMature
     )
       ? setBorrowDisabled(true)
     /* else if all pass, then unlock borrowing */
@@ -180,7 +180,7 @@ const Borrow = () => {
 
         <SectionWrap title="2. Select a series">
           <SeriesSelector />
-          {selectedSeries?.mature && <Text color="pink" size="small">This series has matured.</Text>}
+          {selectedSeries?.seriesIsMature && <Text color="pink" size="small">This series has seriesIsMatured.</Text>}
         </SectionWrap>
 
         <SectionWrap title="3. Add Collateral">
@@ -194,11 +194,11 @@ const Borrow = () => {
                 // ref={(el:any) => { el && el.focus(); }}
                   value={collatInput}
                   onChange={(event:any) => setCollatInput(event.target.value)}
-                  disabled={!selectedSeries || selectedSeries.mature}
+                  disabled={!selectedSeries || selectedSeries.seriesIsMature}
                 />
                 <MaxButton
                   action={() => maxCollat && setCollatInput(maxCollat)}
-                  disabled={!selectedSeries || collatInput === maxCollat || selectedSeries.mature}
+                  disabled={!selectedSeries || collatInput === maxCollat || selectedSeries.seriesIsMature}
                 />
               </InputWrap>
             </Box>
@@ -209,7 +209,7 @@ const Borrow = () => {
         </SectionWrap>
 
         {
-        !selectedSeries?.mature &&
+        !selectedSeries?.seriesIsMature &&
         <SectionWrap>
           <Box gap="small" fill="horizontal">
             <Box direction="row" justify="end">
@@ -246,7 +246,7 @@ const Borrow = () => {
         }
 
         {
-        selectedSeries?.mature &&
+        selectedSeries?.seriesIsMature &&
         matchingVaults.length > 0 &&
         <SectionWrap>
           <Box gap="small" fill="horizontal">

@@ -29,7 +29,7 @@ function SeriesSelector({ selectSeriesLocally }: ISeriesSelectorProps) {
   const optionExtended = (_series: ISeries|undefined) => (
     <Box fill="horizontal" direction="row" justify="between" gap="small">
       {optionText(_series)}
-      { _series?.mature &&
+      { _series?.seriesIsMature &&
         <Box round="large" border pad={{ horizontal: 'small' }}>
           <Text size="xsmall"> Mature </Text>
         </Box>}

@@ -28,15 +28,15 @@ const Balances = () => {
 
     <Box pad="xsmall" fill="vertical" justify="center">
       <Box direction="row" gap="small">
-        <Box> <Text size="small" color="text"> {selectedBase?.symbol}</Text> </Box>
-        <Box> <Text size="small" color="text"> {selectedBase?.balance_}</Text></Box>
+        <Box> <Text size="xsmall" color="text"> {selectedBase?.symbol}</Text> </Box>
+        <Box> <Text size="xsmall" color="text"> {selectedBase?.balance_}</Text></Box>
       </Box>
       {
       path === 'borrow' &&
       selectedBase?.id !== selectedIlk?.id &&
       <Box direction="row" gap="small">
-        <Box> <Text size="small" color="text"> {selectedIlk?.symbol}</Text> </Box>
-        <Box> <Text size="small" color="text"> {selectedIlk?.balance_}</Text></Box>
+        <Box> <Text size="xsmall" color="text"> {selectedIlk?.symbol}</Text> </Box>
+        <Box> <Text size="xsmall" color="text"> {selectedIlk?.balance_}</Text></Box>
       </Box>
       }
 

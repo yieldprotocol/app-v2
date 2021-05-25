@@ -226,7 +226,7 @@ const Vault = () => {
           </SectionWrap>
 
           {
-          !vaultSeries?.mature &&
+          !vaultSeries?.seriesIsMature &&
 
             <SectionWrap title="[ Borrow more ]">
               <Box gap="small" fill="horizontal" direction="row-responsive">

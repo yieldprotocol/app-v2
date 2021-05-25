@@ -88,8 +88,7 @@ export interface ISeries extends ISeriesRoot {
   fyTokenReserves: BigNumber;
   fyTokenRealReserves: BigNumber;
   totalSupply: BigNumber;
-  mature: boolean;
-  isNotMature: boolean;
+  seriesIsMature: boolean;
 
   poolTokens?: BigNumber|undefined;
   poolTokens_?: string|undefined;
