@@ -88,8 +88,8 @@ export const useChain = () => {
 
     /* Finally, send out the transaction */
     return handleTx(
-      // () => _contract.batch(opsList, encodedCalls, { value: batchValue, gasLimit: BigNumber.from('500000') }),
-      () => _contract.batch(opsList, encodedCalls, { value: batchValue }),
+      () => _contract.batch(opsList, encodedCalls, { value: batchValue, gasLimit: BigNumber.from('750000') }),
+      // () => _contract.batch(opsList, encodedCalls, { value: batchValue }),
       txCode,
     );
   };
