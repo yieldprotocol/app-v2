@@ -7,9 +7,10 @@ import { UserContext } from '../../contexts/UserContext';
 interface ISeriesSelectorProps {
   /* select series locally filters out the global selection from the list and returns the selected ISeries */
   selectSeriesLocally?: (series: ISeries) => void;
+  ignoredSeries?: string[];
 }
 
-function SeriesSelector({ selectSeriesLocally }: ISeriesSelectorProps) {
+function SeriesSelector({ selectSeriesLocally, ignoredSeries }: ISeriesSelectorProps) {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
 
   const { userState, userActions } = useContext(UserContext);
@@ -41,9 +42,12 @@ function SeriesSelector({ selectSeriesLocally }: ISeriesSelectorProps) {
     const opts = Array.from(seriesMap.values()) as ISeries[];
 
     /* filter out options based on base Id */
-    let filteredOpts = opts.filter((_series:ISeries) => _series.baseId === selectedBaseId);
+    let filteredOpts = opts.filter((_series:ISeries) => (
+      _series.baseId === selectedBaseId &&
+      !ignoredSeries?.includes(_series.baseId)
+    ));
 
-    /* if required, filter out the globally selected asset */
+    /* if required, filter out the globally selected asset  and */
     if (selectSeriesLocally) filteredOpts = filteredOpts.filter((_series:ISeries) => _series.id !== selectedSeriesId);
 
     /* if current selected series is NOT in the list of available series (for a particular base), or bases don't match:
@@ -93,6 +97,6 @@ function SeriesSelector({ selectSeriesLocally }: ISeriesSelectorProps) {
   );
 }
 
-SeriesSelector.defaultProps = { selectSeriesLocally: null };
+SeriesSelector.defaultProps = { selectSeriesLocally: null, ignoredSeries: [] };
 
 export default SeriesSelector;
