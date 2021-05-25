@@ -60,27 +60,27 @@ const Vault = () => {
 
   /* LOCAL FNS */
 
-  const handleRepay = async () => {
+  const handleRepay = () => {
     selectedVault &&
-    await repay(selectedVault, repayInput?.toString());
+    repay(selectedVault, repayInput?.toString());
     setRepayInput('');
   };
-  const handleBorrow = async () => {
+  const handleBorrow = () => {
     selectedVault &&
-    await borrow(selectedVault, borrowInput, '0');
+    borrow(selectedVault, borrowInput, '0');
     setBorrowInput('');
   };
-  const handleCollateral = async (action: 'ADD'|'REMOVE') => {
+  const handleCollateral = (action: 'ADD'|'REMOVE') => {
     const remove: boolean = (action === 'REMOVE');
     if (selectedVault) {
-      !remove && await addCollateral(selectedVault, collatInput);
-      remove && await removeCollateral(selectedVault, collatInput);
+      !remove && addCollateral(selectedVault, collatInput);
+      remove && removeCollateral(selectedVault, collatInput);
     }
     setCollatInput('');
   };
-  const handleRoll = async () => {
+  const handleRoll = () => {
     rollToSeries && selectedVault &&
-    await rollDebt(selectedVault, rollToSeries);
+    rollDebt(selectedVault, rollToSeries);
   };
 
   /* SET MAX VALUES */
