@@ -32,27 +32,30 @@ const YieldHeader = ({ actionList } : IYieldHeaderProps) => {
       </Box>
 
       { !mobile && <YieldNavigation /> }
-
       { signPending && <Box>Signature required</Box>}
-
       { txPending && <Box>Transaction Pending</Box>}
 
       {
-            account && !mobile ?
-              <Box justify="end" direction="row" fill="vertical" gap="xsmall">
-                <Balances />
-                <Box round="xsmall" border={!mobile} onClick={() => toggleMenu()} pad="small" justify="center">
-                  <Text size="small" color="text"> { mobile ? <FiMenu /> : 'Account and vaults'} </Text>
-                </Box>
-                <Box pad="small">
-                  <Text size="xsmall" color="green"> Connected to: {chainId} </Text>
-                  <Box onClick={() => disconnect()}> <Text size="xsmall" color="text-xweak"> Disconnect </Text> </Box>
-                </Box>
-              </Box>
-              :
-              <Box border={!mobile} onClick={() => connect()} pad="small">
-                <Text size="small" color="text"> { mobile ? <FiMenu /> : 'Connect Wallet'} </Text>
-              </Box>
+        account ?
+          <Box direction="row" fill="vertical" gap="xsmall">
+            {
+                !mobile &&
+                <>
+                  <Balances />
+                  <Box pad="small">
+                    <Text size="xsmall" color="green"> Connected to: {chainId} </Text>
+                    <Box onClick={() => disconnect()}> <Text size="xsmall" color="text-xweak"> Disconnect </Text> </Box>
+                  </Box>
+                </>
+            }
+            <Box round="xsmall" border={!mobile} onClick={() => toggleMenu()} pad="small" justify="center">
+              <Text size="small" color="text"> { mobile ? <FiMenu /> : 'Account and vaults'} </Text>
+            </Box>
+          </Box>
+          :
+          <Box border={!mobile} onClick={() => connect()} pad="small">
+            <Text size="small" color="text"> { mobile ? <FiMenu /> : 'Connect Wallet'} </Text>
+          </Box>
         }
 
     </Header>
