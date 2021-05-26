@@ -14,7 +14,7 @@ interface IYieldHeaderProps {
 const YieldHeader = ({ actionList } : IYieldHeaderProps) => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
   const { chainState: { account, chainId }, chainActions: { connect, disconnect } } = useContext(ChainContext);
-  const { txState: { txPending, signPending } } = useContext(TxContext);
+  const { txState: { txPending, signPending, processes } } = useContext(TxContext);
   const [toggleMenu] = actionList;
 
   return (
@@ -32,8 +32,9 @@ const YieldHeader = ({ actionList } : IYieldHeaderProps) => {
       </Box>
 
       { !mobile && <YieldNavigation /> }
-      { signPending && <Text size="xsmall" color="green"> Signature pending</Text>}
-      { txPending && <Text size="xsmall" color="green"> Transaction pending</Text>}
+      { signPending && <Text size="xsmall" color="orange"> Signature pending</Text>}
+      { txPending && <Text size="xsmall" color="orange"> Transaction pending</Text>}
+      { processes.length > 0 && !signPending && !txPending && <Text size="xsmall" color="orange"> Waiting for wallet confirmation....</Text>}
 
       {
         account ?

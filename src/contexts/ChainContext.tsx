@@ -201,6 +201,10 @@ const ChainProvider = ({ children }: any) => {
             const [name, symbol] = await Promise.all([ERC20.name(), ERC20.symbol()]);
             const version = (id === '0x555344430000') ? '2' : '1';
             // const version = ETH_BASED_ASSETS.includes(id) ? '1' : ERC20.version();
+
+            /* watch for user specific ERC20 events, and update accordingly */
+            // ERC20.on( {'Transfer' } , () => console.log('transfer occurred'));
+
             updateState({ type: 'addAsset',
               payload: {
                 id,
