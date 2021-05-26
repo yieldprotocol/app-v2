@@ -15,6 +15,7 @@ const initState = {
   /* flags and trackers */
   txPending: false as boolean,
   signPending: false as boolean,
+  processPending: false as boolean,
 
   /* user settings */
   useFallbackTxs: false as boolean,
@@ -54,7 +55,6 @@ function txReducer(_state:any, action:any) {
         ..._state,
         signatures: new Map(_state.signatures.set(action.payload.txCode, action.payload)),
       };
-
     case '_startProcess':
       return {
         ..._state,
@@ -73,6 +73,7 @@ function txReducer(_state:any, action:any) {
     /* optionally remove these and use the logic at the compoennts?  - check refreshes */
     case 'txPending': return { ..._state, txPending: _onlyIfChanged(action) };
     case 'signPending': return { ..._state, signPending: _onlyIfChanged(action) };
+    case 'processPending': return { ..._state, processPending: _onlyIfChanged(action) };
 
     default:
       return _state;
@@ -180,6 +181,9 @@ const TxProvider = ({ children }:any) => {
   /* process watcher */
   useEffect(() => {
     console.log('Process list: ', txState.processes);
+    (txState.processes.length > 0)
+      ? updateState({ type: 'processPending', payload: true })
+      : updateState({ type: 'processPending', payload: false });
   }, [txState.processes]);
 
   /* signing watcher */
