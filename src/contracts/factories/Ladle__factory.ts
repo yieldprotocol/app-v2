@@ -11,7 +11,7 @@ const _abi = [
     inputs: [
       {
         internalType: "contract ICauldron",
-        name: "cauldron_",
+        name: "cauldron",
         type: "address",
       },
     ],
@@ -48,6 +48,25 @@ const _abi = [
       },
     ],
     name: "JoinAdded",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "module",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "bool",
+        name: "set",
+        type: "bool",
+      },
+    ],
+    name: "ModuleSet",
     type: "event",
   },
   {
@@ -203,7 +222,7 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "enum Ladle.Operation[]",
+        internalType: "enum LadleStorage.Operation[]",
         name: "operations",
         type: "uint8[]",
       },
@@ -358,6 +377,25 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "modules",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes6",
         name: "",
         type: "bytes6",
@@ -437,6 +475,24 @@ const _abi = [
       },
     ],
     name: "setFee",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "module",
+        type: "address",
+      },
+      {
+        internalType: "bool",
+        name: "set",
+        type: "bool",
+      },
+    ],
+    name: "setModule",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

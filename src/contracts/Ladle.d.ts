@@ -35,11 +35,13 @@ interface LadleInterface extends ethers.utils.Interface {
     "hasRole(bytes4,address)": FunctionFragment;
     "joins(bytes6)": FunctionFragment;
     "lockRole(bytes4)": FunctionFragment;
+    "modules(address)": FunctionFragment;
     "pools(bytes6)": FunctionFragment;
     "renounceRole(bytes4,address)": FunctionFragment;
     "revokeRole(bytes4,address)": FunctionFragment;
     "revokeRoles(bytes4[],address)": FunctionFragment;
     "setFee(uint256)": FunctionFragment;
+    "setModule(address,bool)": FunctionFragment;
     "setRoleAdmin(bytes4,bytes4)": FunctionFragment;
     "settle(bytes12,address,uint128,uint128)": FunctionFragment;
   };
@@ -81,6 +83,7 @@ interface LadleInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "joins", values: [BytesLike]): string;
   encodeFunctionData(functionFragment: "lockRole", values: [BytesLike]): string;
+  encodeFunctionData(functionFragment: "modules", values: [string]): string;
   encodeFunctionData(functionFragment: "pools", values: [BytesLike]): string;
   encodeFunctionData(
     functionFragment: "renounceRole",
@@ -97,6 +100,10 @@ interface LadleInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "setFee",
     values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setModule",
+    values: [string, boolean]
   ): string;
   encodeFunctionData(
     functionFragment: "setRoleAdmin",
@@ -126,6 +133,7 @@ interface LadleInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "joins", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "lockRole", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "modules", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "pools", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "renounceRole",
@@ -137,6 +145,7 @@ interface LadleInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "setFee", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "setModule", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setRoleAdmin",
     data: BytesLike
@@ -146,6 +155,7 @@ interface LadleInterface extends ethers.utils.Interface {
   events: {
     "FeeSet(uint256)": EventFragment;
     "JoinAdded(bytes6,address)": EventFragment;
+    "ModuleSet(address,bool)": EventFragment;
     "PoolAdded(bytes6,address)": EventFragment;
     "RoleAdminChanged(bytes4,bytes4)": EventFragment;
     "RoleGranted(bytes4,address,address)": EventFragment;
@@ -154,6 +164,7 @@ interface LadleInterface extends ethers.utils.Interface {
 
   getEvent(nameOrSignatureOrTopic: "FeeSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "JoinAdded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ModuleSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PoolAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
@@ -257,6 +268,8 @@ export class Ladle extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    modules(arg0: string, overrides?: CallOverrides): Promise<[boolean]>;
+
     pools(arg0: BytesLike, overrides?: CallOverrides): Promise<[string]>;
 
     renounceRole(
@@ -279,6 +292,12 @@ export class Ladle extends BaseContract {
 
     setFee(
       fee: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setModule(
+      module: string,
+      set: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -350,6 +369,8 @@ export class Ladle extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  modules(arg0: string, overrides?: CallOverrides): Promise<boolean>;
+
   pools(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
 
   renounceRole(
@@ -372,6 +393,12 @@ export class Ladle extends BaseContract {
 
   setFee(
     fee: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setModule(
+    module: string,
+    set: boolean,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -440,6 +467,8 @@ export class Ladle extends BaseContract {
 
     lockRole(role: BytesLike, overrides?: CallOverrides): Promise<void>;
 
+    modules(arg0: string, overrides?: CallOverrides): Promise<boolean>;
+
     pools(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
 
     renounceRole(
@@ -461,6 +490,12 @@ export class Ladle extends BaseContract {
     ): Promise<void>;
 
     setFee(fee: BigNumberish, overrides?: CallOverrides): Promise<void>;
+
+    setModule(
+      module: string,
+      set: boolean,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     setRoleAdmin(
       role: BytesLike,
@@ -484,6 +519,11 @@ export class Ladle extends BaseContract {
       assetId?: BytesLike | null,
       join?: string | null
     ): TypedEventFilter<[string, string], { assetId: string; join: string }>;
+
+    ModuleSet(
+      module?: string | null,
+      set?: boolean | null
+    ): TypedEventFilter<[string, boolean], { module: string; set: boolean }>;
 
     PoolAdded(
       seriesId?: BytesLike | null,
@@ -574,6 +614,8 @@ export class Ladle extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    modules(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
     pools(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
 
     renounceRole(
@@ -596,6 +638,12 @@ export class Ladle extends BaseContract {
 
     setFee(
       fee: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setModule(
+      module: string,
+      set: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -674,6 +722,11 @@ export class Ladle extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    modules(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     pools(
       arg0: BytesLike,
       overrides?: CallOverrides
@@ -699,6 +752,12 @@ export class Ladle extends BaseContract {
 
     setFee(
       fee: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setModule(
+      module: string,
+      set: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

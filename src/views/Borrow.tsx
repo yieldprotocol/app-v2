@@ -19,13 +19,16 @@ import { collateralizationRatio } from '../utils/yieldMath';
 
 const Borrow = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
+  const routerHistory = useHistory();
 
   /* STATE FROM CONTEXT */
 
   const { userState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, assetMap, vaultMap, selectedSeriesId, selectedIlkId, selectedBaseId } = userState;
+  const { activeAccount, assetMap, vaultMap, seriesMap, selectedSeriesId, selectedIlkId, selectedBaseId } = userState;
+
   const selectedBase = assetMap.get(selectedBaseId!);
   const selectedIlk = assetMap.get(selectedIlkId!);
+  const selectedSeries = seriesMap.get(selectedSeriesId!);
 
   /* LOCAL STATE */
 
@@ -106,14 +109,15 @@ const Borrow = () => {
       !activeAccount ||
       !borrowInput ||
       !collatInput ||
-      !selectedSeriesId ||
-      !selectedIlkId
+      !selectedSeries ||
+      !selectedIlk ||
+      selectedSeries?.seriesIsMature
     )
       ? setBorrowDisabled(true)
     /* else if all pass, then unlock borrowing */
       : setBorrowDisabled(false);
   },
-  [borrowInput, collatInput, selectedSeriesId, selectedIlkId, activeAccount]);
+  [borrowInput, collatInput, selectedSeries, selectedIlk, activeAccount]);
 
   useEffect(() => {
     (!activeAccount || !collatInput || collatError) ? setCollatDisabled(true) : setCollatDisabled(false);
@@ -125,16 +129,16 @@ const Borrow = () => {
 
   /* CHECK the list of current vaults which match the current series/ilk selection */
   useEffect(() => {
-    if (selectedBaseId && selectedSeriesId && selectedIlkId) {
+    if (selectedBase && selectedSeries && selectedIlk) {
       const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
       const _matchingVaults = arr.filter((v:IVault) => (
-        v.ilkId === selectedIlkId &&
-          v.baseId === selectedBaseId &&
-          v.seriesId === selectedSeriesId
+        v.ilkId === selectedIlk.id &&
+          v.baseId === selectedBase.id &&
+          v.seriesId === selectedSeries.id
       ));
       setMatchingVaults(_matchingVaults);
     }
-  }, [vaultMap, selectedBaseId, selectedIlkId, selectedSeriesId]);
+  }, [vaultMap, selectedBase, selectedIlk, selectedSeries]);
 
   return (
 
@@ -176,12 +180,13 @@ const Borrow = () => {
 
         <SectionWrap title="2. Select a series">
           <SeriesSelector />
+          {selectedSeries?.seriesIsMature && <Text color="pink" size="small">This series has seriesIsMatured.</Text>}
         </SectionWrap>
 
         <SectionWrap title="3. Add Collateral">
           <Box direction="row" gap="small" fill="horizontal" align="start">
             <Box basis={mobile ? '50%' : '65%'}>
-              <InputWrap action={() => console.log('maxAction')} disabled={!selectedSeriesId} isError={collatError}>
+              <InputWrap action={() => console.log('maxAction')} disabled={!selectedSeries} isError={collatError}>
                 <TextInput
                   plain
                   type="number"
@@ -189,11 +194,11 @@ const Borrow = () => {
                 // ref={(el:any) => { el && el.focus(); }}
                   value={collatInput}
                   onChange={(event:any) => setCollatInput(event.target.value)}
-                  disabled={!selectedSeriesId}
+                  disabled={!selectedSeries || selectedSeries.seriesIsMature}
                 />
                 <MaxButton
                   action={() => maxCollat && setCollatInput(maxCollat)}
-                  disabled={!selectedSeriesId || collatInput === maxCollat}
+                  disabled={!selectedSeries || collatInput === maxCollat || selectedSeries.seriesIsMature}
                 />
               </InputWrap>
             </Box>
@@ -203,6 +208,8 @@ const Borrow = () => {
           </Box>
         </SectionWrap>
 
+        {
+        !selectedSeries?.seriesIsMature &&
         <SectionWrap>
           <Box gap="small" fill="horizontal">
             <Box direction="row" justify="end">
@@ -217,7 +224,7 @@ const Borrow = () => {
             {
               matchingVaults.length > 0 &&
               <Box alignSelf="center">
-                <Text size="xsmall"> -------- or use existing vault ----------</Text>
+                <Text size="xsmall"> -------- or borrow from an existing vault ----------</Text>
               </Box>
             }
 
@@ -234,9 +241,31 @@ const Borrow = () => {
                 </Box>
               ))
             }
-
           </Box>
         </SectionWrap>
+        }
+
+        {
+        selectedSeries?.seriesIsMature &&
+        matchingVaults.length > 0 &&
+        <SectionWrap>
+          <Box gap="small" fill="horizontal">
+            <Text size="xsmall">Go to exisiting vault:</Text>
+            {
+              matchingVaults.map((x:IVault) => (
+                <Box
+                  direction="row"
+                  justify="end"
+                  key={x.id}
+                  onClick={() => routerHistory.push(`/vault/${x.id}`)}
+                >
+                  <Text size="xsmall"> {x.id} </Text>
+                </Box>
+              ))
+            }
+          </Box>
+        </SectionWrap>
+        }
 
         <ActionButtonGroup buttonList={[
           <Button

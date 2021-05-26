@@ -27,6 +27,7 @@ interface ERC20PermitInterface extends ethers.utils.Interface {
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "decimals()": FunctionFragment;
+    "deploymentChainId()": FunctionFragment;
     "name()": FunctionFragment;
     "nonces(address)": FunctionFragment;
     "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)": FunctionFragment;
@@ -55,6 +56,10 @@ interface ERC20PermitInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
   encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "deploymentChainId",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(functionFragment: "nonces", values: [string]): string;
   encodeFunctionData(
@@ -96,6 +101,10 @@ interface ERC20PermitInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "deploymentChainId",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "nonces", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "permit", data: BytesLike): Result;
@@ -184,6 +193,8 @@ export class ERC20Permit extends BaseContract {
 
     decimals(overrides?: CallOverrides): Promise<[number]>;
 
+    deploymentChainId(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     name(overrides?: CallOverrides): Promise<[string]>;
 
     nonces(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -239,6 +250,8 @@ export class ERC20Permit extends BaseContract {
 
   decimals(overrides?: CallOverrides): Promise<number>;
 
+  deploymentChainId(overrides?: CallOverrides): Promise<BigNumber>;
+
   name(overrides?: CallOverrides): Promise<string>;
 
   nonces(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
@@ -293,6 +306,8 @@ export class ERC20Permit extends BaseContract {
     balanceOf(guy: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     decimals(overrides?: CallOverrides): Promise<number>;
+
+    deploymentChainId(overrides?: CallOverrides): Promise<BigNumber>;
 
     name(overrides?: CallOverrides): Promise<string>;
 
@@ -370,6 +385,8 @@ export class ERC20Permit extends BaseContract {
 
     decimals(overrides?: CallOverrides): Promise<BigNumber>;
 
+    deploymentChainId(overrides?: CallOverrides): Promise<BigNumber>;
+
     name(overrides?: CallOverrides): Promise<BigNumber>;
 
     nonces(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
@@ -428,6 +445,8 @@ export class ERC20Permit extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    deploymentChainId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     name(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

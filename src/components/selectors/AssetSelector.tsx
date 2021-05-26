@@ -1,9 +1,10 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Box, ResponsiveContext, Select, Text } from 'grommet';
 import Loader from 'react-spinners/ScaleLoader';
 
-import { IAssetRoot } from '../../types';
+import { IAsset, IAssetRoot } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
+import { DAI, WETH } from '../../utils/constants';
 
 interface IAssetSelectorProps {
   selectCollateral?:boolean;
@@ -12,38 +13,56 @@ interface IAssetSelectorProps {
 function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
   const { userState, userActions } = useContext(UserContext);
-  const { selectedIlkId, selectedSeriesId, selectedBaseId, assetMap } = userState;
+  const { selectedIlkId, selectedSeriesId, selectedBaseId, assetMap, seriesMap } = userState;
 
-  /* get from assetRootMap ( not assetMap ) so it can be used without account connected */
-  const selectedIlk = assetMap.get(selectedIlkId);
-  const selectedBase = assetMap.get(selectedBaseId);
+  const selectedSeries = seriesMap.get(selectedSeriesId!);
+  const selectedBase = assetMap.get(selectedBaseId!);
+  const selectedIlk = assetMap.get(selectedIlkId!);
 
   const [options, setOptions] = useState<IAssetRoot[]>([]);
-  const optionText = (asset: IAssetRoot | undefined) => (asset?.symbol ? `${asset?.symbol}` : <Loader height="14" color="lightgrey" margin="0.5" />);
+  const optionText = (asset: IAssetRoot | undefined) => (asset?.symbol ? `${asset?.symbol}` : <Loader height="14px" color="lightgrey" margin="0.5px" />);
 
+  const handleSelect = (asset:IAsset) => {
+    if (selectCollateral) {
+      console.log('Collateral selected: ', asset.id);
+      userActions.setSelectedIlk(asset.id);
+    } else {
+      console.log('Base selected: ', asset.id);
+      userActions.setSelectedBase(asset.id);
+    }
+  };
+
+  /* update options on any changes */
   useEffect(() => {
     const opts = Array.from(assetMap.values()) as IAssetRoot[];
     const filteredOptions = selectCollateral
       ? opts.filter((a:IAssetRoot) => a.id !== selectedBaseId)
       : opts;
     setOptions(filteredOptions);
-  }, [selectedBaseId, assetMap, selectCollateral]);
+  }, [assetMap, selectCollateral, selectedSeriesId, selectedBaseId]);
 
-  const handleSelect = (id:string) => {
-    if (selectCollateral) {
-      console.log('Collateral selected: ', id);
-      userActions.setSelectedIlk(id);
-    } else {
-      console.log('Base selected: ', id);
-      userActions.setSelectedBase(id);
+  /* initiate base selector to Dai available asset and selected ilk ETH */
+  useEffect(() => {
+    if (Array.from(assetMap.values()).length) {
+      userActions.setSelectedBase(assetMap.get(DAI).id);
+      userActions.setSelectedIlk(assetMap.get(WETH).id);
     }
-  };
+  }, [assetMap]);
+
+  // /* TODO make sure ilk (collateral) never matches baseId */
+  // useEffect(() => {
+  //   if (selectCollateral && selectedSeries && selectedIlk) {
+  //     const firstNotBase = options.find((asset:IAssetRoot) => asset.id !== selectedSeries.baseId)?.id;
+  //     userActions.setSelectedIlk(firstNotBase);
+  //     // userActions.setSelectedIlk(options.find((asset:IAssetRoot) => asset.id !== selectedSeries.baseId))
+  //   }
+  // }, [options, selectCollateral, selectedIlk, selectedSeries, userActions]);
 
   return (
     <Box
       fill
       round="xsmall"
-      border={(selectCollateral && !selectedSeriesId) ? { color: 'text-xweak' } : true}
+      border={(selectCollateral && !selectedSeries) ? { color: 'text-xweak' } : true}
     >
       <Select
         plain
@@ -54,8 +73,8 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
         value={selectCollateral ? selectedIlk : selectedBase}
         labelKey={(x:any) => optionText(x)}
         valueLabel={<Box pad={mobile ? 'medium' : 'small'}><Text color="text"> { optionText(selectCollateral ? selectedIlk : selectedBase)} </Text></Box>}
-        onChange={({ option }: any) => handleSelect(option.id)}
-        disabled={(selectCollateral && !selectedSeriesId)}
+        onChange={({ option }: any) => handleSelect(option)}
+        disabled={(selectCollateral && (selectedSeries?.mature || !selectedSeries))}
         // eslint-disable-next-line react/no-children-prop
         children={(x:any) => <Box pad={mobile ? 'medium' : 'small'} gap="small" direction="row"> <Text color="text"> { optionText(x) } </Text> </Box>}
       />

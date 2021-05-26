@@ -126,7 +126,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "baseToken",
+    name: "base",
     outputs: [
       {
         internalType: "contract IERC20",
@@ -146,7 +146,7 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "minBaseTokenOut",
+        name: "minBaseOut",
         type: "uint256",
       },
       {
@@ -185,11 +185,11 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "minBaseTokenOut",
+        name: "minBaseOut",
         type: "uint256",
       },
     ],
-    name: "burnForBaseToken",
+    name: "burnForBase",
     outputs: [
       {
         internalType: "uint256",
@@ -214,7 +214,7 @@ const _abi = [
       },
       {
         internalType: "uint128",
-        name: "baseTokenOut",
+        name: "baseOut",
         type: "uint128",
       },
       {
@@ -223,7 +223,7 @@ const _abi = [
         type: "uint128",
       },
     ],
-    name: "buyBaseToken",
+    name: "buyBase",
     outputs: [
       {
         internalType: "uint128",
@@ -238,11 +238,11 @@ const _abi = [
     inputs: [
       {
         internalType: "uint128",
-        name: "baseTokenOut",
+        name: "baseOut",
         type: "uint128",
       },
     ],
-    name: "buyBaseTokenPreview",
+    name: "buyBasePreview",
     outputs: [
       {
         internalType: "uint128",
@@ -316,7 +316,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "getBaseTokenReserves",
+    name: "getBaseBalance",
     outputs: [
       {
         internalType: "uint112",
@@ -329,7 +329,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "getFYTokenReserves",
+    name: "getFYTokenBalance",
     outputs: [
       {
         internalType: "uint112",
@@ -410,7 +410,7 @@ const _abi = [
         type: "uint256",
       },
     ],
-    name: "mintWithBaseToken",
+    name: "mintWithBase",
     outputs: [
       {
         internalType: "uint256",
@@ -501,7 +501,7 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "retrieveBaseToken",
+    name: "retrieveBase",
     outputs: [
       {
         internalType: "uint128",
@@ -544,7 +544,7 @@ const _abi = [
         type: "uint128",
       },
     ],
-    name: "sellBaseToken",
+    name: "sellBase",
     outputs: [
       {
         internalType: "uint128",
@@ -559,11 +559,11 @@ const _abi = [
     inputs: [
       {
         internalType: "uint128",
-        name: "baseTokenIn",
+        name: "baseIn",
         type: "uint128",
       },
     ],
-    name: "sellBaseTokenPreview",
+    name: "sellBasePreview",
     outputs: [
       {
         internalType: "uint128",

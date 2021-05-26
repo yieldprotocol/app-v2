@@ -21,12 +21,14 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface ChainlinkAggregatorV3MockInterface extends ethers.utils.Interface {
   functions: {
+    "decimals()": FunctionFragment;
     "latestRoundData()": FunctionFragment;
     "price()": FunctionFragment;
     "set(uint256)": FunctionFragment;
     "timestamp()": FunctionFragment;
   };
 
+  encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "latestRoundData",
     values?: undefined
@@ -35,6 +37,7 @@ interface ChainlinkAggregatorV3MockInterface extends ethers.utils.Interface {
   encodeFunctionData(functionFragment: "set", values: [BigNumberish]): string;
   encodeFunctionData(functionFragment: "timestamp", values?: undefined): string;
 
+  decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "latestRoundData",
     data: BytesLike
@@ -90,6 +93,8 @@ export class ChainlinkAggregatorV3Mock extends BaseContract {
   interface: ChainlinkAggregatorV3MockInterface;
 
   functions: {
+    decimals(overrides?: CallOverrides): Promise<[number]>;
+
     latestRoundData(
       overrides?: CallOverrides
     ): Promise<[BigNumber, BigNumber, BigNumber, BigNumber, BigNumber]>;
@@ -103,6 +108,8 @@ export class ChainlinkAggregatorV3Mock extends BaseContract {
 
     timestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
   };
+
+  decimals(overrides?: CallOverrides): Promise<number>;
 
   latestRoundData(
     overrides?: CallOverrides
@@ -118,6 +125,8 @@ export class ChainlinkAggregatorV3Mock extends BaseContract {
   timestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
   callStatic: {
+    decimals(overrides?: CallOverrides): Promise<number>;
+
     latestRoundData(
       overrides?: CallOverrides
     ): Promise<[BigNumber, BigNumber, BigNumber, BigNumber, BigNumber]>;
@@ -132,6 +141,8 @@ export class ChainlinkAggregatorV3Mock extends BaseContract {
   filters: {};
 
   estimateGas: {
+    decimals(overrides?: CallOverrides): Promise<BigNumber>;
+
     latestRoundData(overrides?: CallOverrides): Promise<BigNumber>;
 
     price(overrides?: CallOverrides): Promise<BigNumber>;
@@ -145,6 +156,8 @@ export class ChainlinkAggregatorV3Mock extends BaseContract {
   };
 
   populateTransaction: {
+    decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     latestRoundData(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     price(overrides?: CallOverrides): Promise<PopulatedTransaction>;

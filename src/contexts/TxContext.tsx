@@ -15,6 +15,7 @@ const initState = {
   /* flags and trackers */
   txPending: false as boolean,
   signPending: false as boolean,
+  processPending: false as boolean,
 
   /* user settings */
   useFallbackTxs: false as boolean,
@@ -54,7 +55,6 @@ function txReducer(_state:any, action:any) {
         ..._state,
         signatures: new Map(_state.signatures.set(action.payload.txCode, action.payload)),
       };
-
     case '_startProcess':
       return {
         ..._state,
@@ -73,6 +73,7 @@ function txReducer(_state:any, action:any) {
     /* optionally remove these and use the logic at the compoennts?  - check refreshes */
     case 'txPending': return { ..._state, txPending: _onlyIfChanged(action) };
     case 'signPending': return { ..._state, signPending: _onlyIfChanged(action) };
+    case 'processPending': return { ..._state, processPending: _onlyIfChanged(action) };
 
     default:
       return _state;
@@ -94,13 +95,19 @@ const TxProvider = ({ children }:any) => {
         toast.error(`${err.data.message.split('VM Exception while processing transaction: revert').pop()}`);
         console.log(err);
       } catch (e) {
+        // toast.error(`${err.data.message.split('VM Exception while processing transaction: revert').pop()}`);
         console.log('Something went wrong: ', err);
       }
     }
   };
 
   /* handle an error from a tx that was successfully submitted */
-  const _handleTxError = (msg:string, receipt: any, txError:any) => {
+  const _handleTxError = (msg:string, tx: any, txCode:any) => {
+    toast.error(msg);
+    updateState({ type: 'transactions', payload: { tx, txCode, receipt: undefined, status: 'failure' } });
+    updateState({ type: '_endProcess', payload: txCode });
+    console.log('txHash: ', tx.hash);
+    console.log('txCode: ', txCode);
   };
 
   /* handle an error from a tx that was successfully submitted */
@@ -116,16 +123,25 @@ const TxProvider = ({ children }:any) => {
     /* start a new process */
     updateState({ type: '_startProcess', payload: txCode });
     let tx: ContractTransaction;
+    let res: any;
     try {
-      tx = await txFn();
-      updateState({ type: 'transactions', payload: { tx, txCode, receipt: null, status: 'pending' } });
-      const res = await tx.wait();
-      const txSuccess: boolean = res.status === 1;
+      /* try the transaction with connected wallet and catch any 'pre-chain'/'pre-tx' errors */
+      try {
+        tx = await txFn();
+        updateState({ type: 'transactions', payload: { tx, txCode, receipt: null, status: 'pending' } });
+      } catch (e) {
+        /* this case is when user rejects tx OR wallet rejects tx */
+        _handleTxRejection(e, txCode);
+        return null;
+      }
+
+      res = await tx.wait();
+      const txSuccess: boolean = res.status === 1 || false;
       updateState({ type: 'transactions', payload: { tx, txCode, receipt: res, status: txSuccess ? 'success' : 'failure' } });
 
       /* if the handleTx is NOT a fallback tx (from signing) - then end the process */
       if (!_isfallback) {
-        /* transaction complettion : success OR failure */
+        /* transaction completion : success OR failure */
         txSuccess ? toast.success('Transaction successfull') : toast.error('Transaction failed :| ');
         updateState({ type: '_endProcess', payload: txCode });
         return res;
@@ -133,8 +149,8 @@ const TxProvider = ({ children }:any) => {
       /* this is the case when the tx was a fallback from a permit/allowance tx */
       return res;
     } catch (e) {
-      /* this case is when user rejects tx OR wallet rejectcs tx */
-      _handleTxRejection(e, txCode);
+      /* catch tx errors */
+      _handleTxError('Transaction failed', e.transaction, txCode);
       return null;
     }
   };
@@ -165,6 +181,9 @@ const TxProvider = ({ children }:any) => {
   /* process watcher */
   useEffect(() => {
     console.log('Process list: ', txState.processes);
+    (txState.processes.length > 0)
+      ? updateState({ type: 'processPending', payload: true })
+      : updateState({ type: 'processPending', payload: false });
   }, [txState.processes]);
 
   /* signing watcher */

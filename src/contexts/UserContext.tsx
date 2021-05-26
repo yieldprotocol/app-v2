@@ -17,10 +17,11 @@ const initState : IUserContextState = {
   assetMap: new Map<string, IAsset>(),
   seriesMap: new Map<string, ISeries>(),
   vaultMap: new Map<string, IVault>(),
+
   /* Current User selections */
   selectedSeriesId: null,
-  selectedIlkId: '0x455448000000', // initial ilk
-  selectedBaseId: '0x444149000000', // initial base
+  selectedIlkId: null, // initial ilk
+  selectedBaseId: null, // initial base
   selectedVaultId: null,
 };
 
@@ -103,74 +104,6 @@ const UserProvider = ({ children }:any) => {
     // TODO setCachedVaults({ data: Array.from(newVaultMap.values()), lastBlock: await fallbackProvider.getBlockNumber() });
   }, [account, contractMap, seriesRootMap]);
 
-  /* Updates the series with relevant *user* data */
-  const updateSeries = useCallback(async (seriesList: ISeriesRoot[]) => {
-    let _publicData : ISeries[] = [];
-    let _accountData : ISeries[] = [];
-
-    /* Add in the dynamic series data of the series in the list */
-    _publicData = await Promise.all(
-      seriesList.map(async (series:ISeriesRoot) : Promise<ISeries> => {
-        /* Get all the data simultanenously in a promise.all */
-        const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves] = await Promise.all([
-          series.poolContract.getBaseTokenReserves(),
-          series.poolContract.getFYTokenReserves(),
-          series.poolContract.totalSupply(),
-          series.fyTokenContract.balanceOf(series.poolAddress),
-        ]);
-
-        const _rate = sellFYToken(
-          baseReserves,
-          fyTokenReserves,
-          ethers.utils.parseEther('1'),
-          secondsToFrom(series.maturity.toString()),
-        );
-        const APR = calculateAPR(floorDecimal(_rate), ethers.utils.parseEther('1'), series.maturity) || '0';
-
-        return {
-          ...series,
-          baseReserves,
-          fyTokenReserves,
-          fyTokenRealReserves,
-          totalSupply,
-          APR: `${Number(APR).toFixed(2)}`,
-        };
-      }),
-    );
-
-    if (account) {
-      _accountData = await Promise.all(
-        _publicData.map(async (series:ISeries) : Promise<ISeries> => {
-          /* Get all the data simultanenously in a promise.all */
-          const [poolTokens, fyTokenBalance] = await Promise.all([
-            series.poolContract.balanceOf(account),
-            series.fyTokenContract.balanceOf(account),
-          ]);
-          return {
-            ...series,
-            poolTokens,
-            fyTokenBalance,
-            poolTokens_: ethers.utils.formatEther(poolTokens),
-            fyTokenBalance_: ethers.utils.formatEther(fyTokenBalance),
-          };
-        }),
-      );
-    }
-
-    const _combinedData = _accountData.length ? _accountData : _publicData;
-
-    /* combined account and public series data reduced into a single Map */
-    const newSeriesMap = new Map(_combinedData.reduce((acc:any, item:any) => {
-      const _map = acc;
-      _map.set(item.id, item);
-      return _map;
-    }, userState.seriesMap));
-
-    updateState({ type: 'seriesMap', payload: newSeriesMap });
-    console.log('SERIES (with dynamic data): ', newSeriesMap);
-    return newSeriesMap;
-  }, [account]);
-
   /* Updates the assets with relevant *user* data */
   const updateAssets = useCallback(async (assetList: IAssetRoot[]) => {
     let _publicData : IAssetRoot[] = [];
@@ -211,7 +144,77 @@ const UserProvider = ({ children }:any) => {
     }, userState.assetMap));
 
     updateState({ type: 'assetMap', payload: newAssetMap });
-    console.log('ASSETS (with dynamic data): ', newAssetMap);
+    console.log('ASSETS updated (with dynamic data): ', newAssetMap);
+  }, [account]);
+
+  /* Updates the series with relevant *user* data */
+  const updateSeries = useCallback(async (seriesList: ISeriesRoot[]) => {
+    let _publicData : ISeries[] = [];
+    let _accountData : ISeries[] = [];
+
+    /* Add in the dynamic series data of the series in the list */
+    _publicData = await Promise.all(
+      seriesList.map(async (series:ISeriesRoot) : Promise<ISeries> => {
+        /* Get all the data simultanenously in a promise.all */
+        const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves, mature] = await Promise.all([
+          series.poolContract.getBaseBalance(),
+          series.poolContract.getFYTokenBalance(),
+          series.poolContract.totalSupply(),
+          series.fyTokenContract.balanceOf(series.poolAddress),
+          series.isMature(),
+        ]);
+
+        const _rate = sellFYToken(
+          baseReserves,
+          fyTokenReserves,
+          ethers.utils.parseEther('1'),
+          secondsToFrom(series.maturity.toString()),
+        );
+        const APR = calculateAPR(floorDecimal(_rate), ethers.utils.parseEther('1'), series.maturity) || '0';
+
+        return {
+          ...series,
+          baseReserves,
+          fyTokenReserves,
+          fyTokenRealReserves,
+          totalSupply,
+          APR: `${Number(APR).toFixed(2)}`,
+          seriesIsMature: mature,
+        };
+      }),
+    );
+
+    if (account) {
+      _accountData = await Promise.all(
+        _publicData.map(async (series:ISeries) : Promise<ISeries> => {
+          /* Get all the data simultanenously in a promise.all */
+          const [poolTokens, fyTokenBalance] = await Promise.all([
+            series.poolContract.balanceOf(account),
+            series.fyTokenContract.balanceOf(account),
+          ]);
+          return {
+            ...series,
+            poolTokens,
+            fyTokenBalance,
+            poolTokens_: ethers.utils.formatEther(poolTokens),
+            fyTokenBalance_: ethers.utils.formatEther(fyTokenBalance),
+          };
+        }),
+      );
+    }
+
+    const _combinedData = _accountData.length ? _accountData : _publicData;
+
+    /* combined account and public series data reduced into a single Map */
+    const newSeriesMap = new Map(_combinedData.reduce((acc:any, item:any) => {
+      const _map = acc;
+      _map.set(item.id, item);
+      return _map;
+    }, userState.seriesMap));
+
+    updateState({ type: 'seriesMap', payload: newSeriesMap });
+    console.log('SERIES updated (with dynamic data): ', newSeriesMap);
+    return newSeriesMap;
   }, [account]);
 
   /* Updates the vaults with *user* data */
@@ -241,7 +244,8 @@ const UserProvider = ({ children }:any) => {
         };
       }),
     );
-      /* get the previous version (Map) of the vaultMap and update it */
+
+    /* Get the previous version (Map) of the vaultMap and update it */
     const newVaultMap = new Map(vaultListMod.reduce((acc:any, item:any) => {
       const _map = acc;
       _map.set(item.id, item);
@@ -272,7 +276,6 @@ const UserProvider = ({ children }:any) => {
     if (account && !chainLoading) {
       /* trigger update of update all vaults by passing empty array */
       updateVaults([]);
-      // _getVaults().then((_vaults:any) => updateVaults(Array.from(_vaults.values())));
     }
   }, [
     account, chainLoading,
@@ -283,14 +286,6 @@ const UserProvider = ({ children }:any) => {
   useEffect(() => {
     updateState({ type: 'activeAccount', payload: account });
   }, [account]);
-
-  /* Watch the vault selector and change selected series/assets accordingly */
-  useEffect(() => {
-    if (userState.activeVault) {
-      updateState({ type: 'selectedSeriesId', payload: userState.activeVault.series.id });
-      updateState({ type: 'selectedBaseId', payload: userState.activeVault.base.id });
-    }
-  }, [userState.activeVault]);
 
   /* Exposed userActions */
   const userActions = {

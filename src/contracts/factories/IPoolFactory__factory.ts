@@ -13,7 +13,7 @@ const _abi = [
       {
         indexed: true,
         internalType: "address",
-        name: "baseToken",
+        name: "base",
         type: "address",
       },
       {
@@ -49,7 +49,7 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "token",
+        name: "base",
         type: "address",
       },
       {
@@ -73,7 +73,7 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "token",
+        name: "base",
         type: "address",
       },
       {
@@ -97,7 +97,7 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "token",
+        name: "base",
         type: "address",
       },
       {
@@ -119,7 +119,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "nextFYToken",
+    name: "nextBase",
     outputs: [
       {
         internalType: "address",
@@ -132,7 +132,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "nextToken",
+    name: "nextFYToken",
     outputs: [
       {
         internalType: "address",

@@ -1,9 +1,10 @@
 import { Box, Collapsible, Header, Layer, ResponsiveContext, Text } from 'grommet';
 import React, { useContext, useState, useRef } from 'react';
 
-import { FiMenu, FiX } from 'react-icons/fi';
+import { FiMenu, FiToggleRight, FiToggleLeft } from 'react-icons/fi';
 import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
+import Balances from './Balances';
 
 import YieldNavigation from './YieldNavigation';
 
@@ -12,8 +13,8 @@ interface IYieldHeaderProps {
 }
 const YieldHeader = ({ actionList } : IYieldHeaderProps) => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
-  const { chainState: { account }, chainActions: { connect } } = useContext(ChainContext);
-  const { txState: { txPending, signPending } } = useContext(TxContext);
+  const { chainState: { account, chainId }, chainActions: { connect, disconnect } } = useContext(ChainContext);
+  const { txState: { txPending, signPending, processPending } } = useContext(TxContext);
   const [toggleMenu] = actionList;
 
   return (
@@ -31,21 +32,32 @@ const YieldHeader = ({ actionList } : IYieldHeaderProps) => {
       </Box>
 
       { !mobile && <YieldNavigation /> }
-
-      { signPending && <Box>Signature required</Box>}
-
-      { txPending && <Box>Transaction Pending</Box>}
+      { signPending && <Text size="xsmall" color="orange"> Signature pending</Text>}
+      { txPending && <Text size="xsmall" color="orange"> Transaction pending</Text>}
+      { processPending && !txPending && !signPending && <Text size="xsmall" color="orange"> Waiting for wallet confirmation....</Text>}
 
       {
-      account ?
-        <Box border={!mobile} onClick={() => toggleMenu()} pad="small">
-          <Text size="small" color="text"> { mobile ? <FiMenu /> : 'Account and vaults'} </Text>
-        </Box>
-        :
-        <Box border={!mobile} onClick={() => connect()} pad="small">
-          <Text size="small" color="text"> { mobile ? <FiMenu /> : 'Connect Wallet'} </Text>
-        </Box>
-      }
+        account ?
+          <Box direction="row" fill="vertical" gap="xsmall">
+            {
+                !mobile &&
+                <>
+                  <Balances />
+                  <Box pad="small">
+                    <Text size="xsmall" color="green"> Connected to: {chainId} </Text>
+                    <Box onClick={() => disconnect()}> <Text size="xsmall" color="text-xweak"> Disconnect </Text> </Box>
+                  </Box>
+                </>
+            }
+            <Box round="xsmall" border={!mobile} onClick={() => toggleMenu()} pad="small" justify="center">
+              <Text size="small" color="text"> { mobile ? <FiMenu /> : 'Account and vaults'} </Text>
+            </Box>
+          </Box>
+          :
+          <Box border={!mobile} onClick={() => connect()} pad="small">
+            <Text size="small" color="text"> { mobile ? <FiMenu /> : 'Connect Wallet'} </Text>
+          </Box>
+        }
 
     </Header>
 

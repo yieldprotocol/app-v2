@@ -1,6 +1,6 @@
 {
   "name": "app-v2",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "private": true,
   "dependencies": {
     "@web3-react/core": "^6.1.9",
@@ -29,7 +29,8 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "analyze": "source-map-explorer 'build/static/js/*.js'",
-    "type-contracts": "typechain --target=ethers-v5 './src/contracts/abis/*.json' --out-dir './src/contracts/'"
+    "type-contracts": "typechain --target=ethers-v5 './src/contracts/abis/*.json' --out-dir './src/contracts/'",
+    "license-checker": "license-checker --csv --out licenses.csv"
   },
   "eslintConfig": {
     "extends": [

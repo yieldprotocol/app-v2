@@ -22,11 +22,13 @@ function Pool() {
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext) as IUserContext;
   const { activeAccount, assetMap, seriesMap, selectedSeriesId, selectedBaseId } = userState;
+
   const selectedSeries = seriesMap.get(selectedSeriesId!);
   const selectedBase = assetMap.get(selectedBaseId!);
 
   /* LOCAL STATE */
   const [poolInput, setPoolInput] = useState<string>();
+  const [removeInput, setRemoveInput] = useState<string>();
   const [rollInput, setRollInput] = useState<string>();
 
   const [rollToSeries, setRollToSeries] = useState<ISeries|null>(null);
@@ -35,6 +37,7 @@ function Pool() {
   const [maxRemove, setMaxRemove] = useState<string|undefined>();
 
   const [poolError, setPoolError] = useState<string|null>(null);
+  const [removeError, setRemoveError] = useState<string|null>(null);
   const [rollError, setRollError] = useState<string|null>(null);
 
   const [poolDisabled, setPoolDisabled] = useState<boolean>(true);
@@ -50,17 +53,17 @@ function Pool() {
   /* LOCAL ACTION FNS */
 
   const handleAdd = () => {
-    // !lendDisabled &&
-    selectedSeries && addLiquidity(poolInput, selectedSeries, strategy);
+    // !poolDisabled &&
+    selectedSeries && addLiquidity(poolInput!, selectedSeries, strategy);
   };
   const handleRemove = () => {
-    // !lendDisabled &&
+    // !removeDisabled &&
     console.log(selectedSeries?.displayName);
-    selectedSeries && removeLiquidity(selectedSeries);
+    selectedSeries && removeLiquidity(removeInput!, selectedSeries);
   };
   const handleRoll = () => {
-    // !lendDisabled &&
-    selectedSeries && rollToSeries && rollLiquidity(rollInput, selectedSeries, rollToSeries);
+    // !rollDisabled &&
+    selectedSeries && rollToSeries && rollLiquidity(rollInput!, selectedSeries, rollToSeries);
   };
 
   /* SET MAX VALUES */
@@ -100,12 +103,28 @@ function Pool() {
   }, [activeAccount, poolInput, maxPool]);
 
   useEffect(() => {
+    /* CHECK for any removeInput errors */
+    if (activeAccount && (removeInput || removeInput === '')) {
+      /* 1. Check if input exceeds fyToken balance */
+      if (maxRemove && parseFloat(removeInput) > parseFloat(maxRemove)) setRemoveError('Amount exceeds liquidity token balance');
+      /* 2. Check if there is a selected series */
+      else if (removeInput && !selectedSeries) setRemoveError('No base series selected');
+      /* 2. Check if input is above zero */
+      else if (parseFloat(removeInput) < 0) setRemoveError('Amount should be expressed as a positive value');
+      /* if all checks pass, set null error message */
+      else {
+        setRemoveError(null);
+      }
+    }
+  }, [activeAccount, removeInput, maxRemove, selectedSeries]);
+
+  useEffect(() => {
     /* CHECK for any rollInput errors */
     if (activeAccount && (rollInput || rollInput === '')) {
       /* 1. Check if input exceeds fyToken balance */
       if (maxRemove && parseFloat(rollInput) > parseFloat(maxRemove)) setRollError('Amount exceeds liquidity token balance');
       /* 2. Check if there is a selected series */
-      else if (rollInput && !selectedSeriesId) setRollError('No base series selected');
+      else if (rollInput && !selectedSeries) setRollError('No base series selected');
       /* 2. Check if input is above zero */
       else if (parseFloat(rollInput) < 0) setRollError('Amount should be expressed as a positive value');
       /* if all checks pass, set null error message */
@@ -113,17 +132,17 @@ function Pool() {
         setRollError(null);
       }
     }
-  }, [activeAccount, rollInput, maxRemove, selectedSeriesId]);
+  }, [activeAccount, rollInput, maxRemove, selectedSeries]);
 
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
 
   useEffect(() => {
-    (!activeAccount || !poolInput || !selectedSeriesId || poolError) ? setPoolDisabled(true) : setPoolDisabled(false);
-  }, [poolInput, activeAccount, poolError, selectedSeriesId]);
+    (!activeAccount || !poolInput || !selectedSeries || poolError) ? setPoolDisabled(true) : setPoolDisabled(false);
+  }, [poolInput, activeAccount, poolError, selectedSeries]);
 
   useEffect(() => {
-    (!activeAccount) ? setRemoveDisabled(true) : setRemoveDisabled(false);
-  }, [activeAccount]);
+    (!activeAccount || !removeInput || removeError) ? setRemoveDisabled(true) : setRemoveDisabled(false);
+  }, [activeAccount, removeError, removeInput]);
 
   useEffect(() => {
     (!activeAccount || !rollInput || rollError) ? setRollDisabled(true) : setRollDisabled(false);
@@ -164,69 +183,76 @@ function Pool() {
         <SeriesSelector />
         <Box justify="evenly" gap="small" fill="horizontal" direction="row-responsive">
           {
-            selectedSeries?.baseId === selectedBaseId &&
+            selectedSeries?.baseId === selectedBase?.id &&
             <InfoBite label="Your pool tokens" value={selectedSeries?.poolTokens_!} />
           }
         </Box>
 
       </SectionWrap>
 
-      <SectionWrap>
+      {
+      !selectedSeries?.seriesIsMature &&
+      <>
+        <SectionWrap>
 
-        <Box direction="row" justify="between" fill align="center">
-          {!mobile && <Text size="small"> Pooling strategy: </Text>}
-          <RadioButtonGroup
-            name="strategy"
-            options={[
-              { label: <Text size="small"> Buy & Pool </Text>, value: 'BUY' },
-              { label: <Text size="small"> Mint & Pool </Text>, value: 'MINT', disabled: true },
-            ]}
-            value={strategy}
-            onChange={(event:any) => setStrategy(event.target.value)}
-            direction="row"
-            justify="between"
+          <Box direction="row" justify="between" fill align="center">
+            {!mobile && <Text size="small"> Pooling strategy: </Text>}
+            <RadioButtonGroup
+              name="strategy"
+              options={[
+                { label: <Text size="small"> Buy & Pool </Text>, value: 'BUY' },
+                { label: <Text size="small"> Mint & Pool </Text>, value: 'MINT', disabled: true },
+              ]}
+              value={strategy}
+              onChange={(event:any) => setStrategy(event.target.value)}
+              direction="row"
+              justify="between"
+            />
+          </Box>
+
+          <ActionButtonGroup buttonList={[
+            <Button
+              primary
+              label={<Text size={mobile ? 'small' : undefined}> {`Pool ${poolInput || ''} ${selectedBase?.symbol || ''}`} </Text>}
+              key="primary"
+              onClick={() => handleAdd()}
+              disabled={poolDisabled}
+            />,
+
+          ]}
           />
-        </Box>
-
-        <ActionButtonGroup buttonList={[
-          <Button
-            primary
-            label={<Text size={mobile ? 'small' : undefined}> {`Pool ${poolInput || ''} ${selectedBase?.symbol || ''}`} </Text>}
-            key="primary"
-            onClick={() => handleAdd()}
-            disabled={poolDisabled}
-          />,
-
-        ]}
-        />
-      </SectionWrap>
+        </SectionWrap>
+      </>
+      }
 
       <SectionWrap title="[ Remove Liquidity ]">
 
-        {/* <Box direction="row" gap="small" fill="horizontal" align="start">
-          <InputWrap action={() => console.log('maxAction')} isError={removeError}>
-            <TextInput
-              plain
-              type="number"
-              placeholder="Enter tokens to remove"
-              value={removeInput || ''}
-              onChange={(event:any) => setRemoveInput(cleanValue(event.target.value))}
-            />
-            <MaxButton
-              action={() => setRemoveInput(maxRemove)}
-              disabled={maxRemove === '0.0'}
-            />
-          </InputWrap>
-        </Box> */}
+        <Box direction="row" gap="small" fill align="start">
+          <Box fill="horizontal">
+            <InputWrap action={() => console.log('maxAction')} isError={removeError}>
+              <TextInput
+                plain
+                type="number"
+                placeholder="Tokens to remove"
+                value={removeInput || ''}
+                onChange={(event:any) => setRemoveInput(cleanValue(event.target.value))}
+              />
+              <MaxButton
+                action={() => setRemoveInput(maxRemove)}
+                disabled={maxRemove === '0.0'}
+              />
+            </InputWrap>
+          </Box>
+        </Box>
 
-        <Box gap="small" fill="horizontal" direction="row" align="start">
+        <Box gap="small" fill direction="row" align="start">
           <ActionButtonGroup buttonList={[
             <Button
               primary
               label={<Text size={mobile ? 'small' : undefined}> Remove </Text>}
               key="primary"
               onClick={() => handleRemove()}
-              // disabled={removeDisabled}
+              disabled={removeDisabled}
             />,
           ]}
           />
@@ -242,7 +268,7 @@ function Pool() {
               <TextInput
                 plain
                 type="number"
-                placeholder="Tokens to remove"
+                placeholder="Tokens to roll"
                 value={rollInput || ''}
                 onChange={(event:any) => setRollInput(cleanValue(event.target.value))}
               />

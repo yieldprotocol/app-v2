@@ -27,6 +27,7 @@ interface ERC20MockInterface extends ethers.utils.Interface {
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "decimals()": FunctionFragment;
+    "deploymentChainId()": FunctionFragment;
     "mint(address,uint256)": FunctionFragment;
     "name()": FunctionFragment;
     "nonces(address)": FunctionFragment;
@@ -56,6 +57,10 @@ interface ERC20MockInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
   encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "deploymentChainId",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "mint",
     values: [string, BigNumberish]
@@ -101,6 +106,10 @@ interface ERC20MockInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "deploymentChainId",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "nonces", data: BytesLike): Result;
@@ -190,6 +199,8 @@ export class ERC20Mock extends BaseContract {
 
     decimals(overrides?: CallOverrides): Promise<[number]>;
 
+    deploymentChainId(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     mint(
       to: string,
       amount: BigNumberish,
@@ -251,6 +262,8 @@ export class ERC20Mock extends BaseContract {
 
   decimals(overrides?: CallOverrides): Promise<number>;
 
+  deploymentChainId(overrides?: CallOverrides): Promise<BigNumber>;
+
   mint(
     to: string,
     amount: BigNumberish,
@@ -311,6 +324,8 @@ export class ERC20Mock extends BaseContract {
     balanceOf(guy: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     decimals(overrides?: CallOverrides): Promise<number>;
+
+    deploymentChainId(overrides?: CallOverrides): Promise<BigNumber>;
 
     mint(
       to: string,
@@ -394,6 +409,8 @@ export class ERC20Mock extends BaseContract {
 
     decimals(overrides?: CallOverrides): Promise<BigNumber>;
 
+    deploymentChainId(overrides?: CallOverrides): Promise<BigNumber>;
+
     mint(
       to: string,
       amount: BigNumberish,
@@ -458,6 +475,8 @@ export class ERC20Mock extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    deploymentChainId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     mint(
       to: string,

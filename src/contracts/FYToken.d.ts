@@ -32,6 +32,7 @@ interface FYTokenInterface extends ethers.utils.Interface {
     "burn(address,uint256)": FunctionFragment;
     "chiAtMaturity()": FunctionFragment;
     "decimals()": FunctionFragment;
+    "deploymentChainId()": FunctionFragment;
     "flashFee(address,uint256)": FunctionFragment;
     "flashLoan(address,address,uint256,bytes)": FunctionFragment;
     "getRoleAdmin(bytes4)": FunctionFragment;
@@ -92,6 +93,10 @@ interface FYTokenInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "deploymentChainId",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "flashFee",
     values: [string, BigNumberish]
@@ -207,6 +212,10 @@ interface FYTokenInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "deploymentChainId",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "flashFee", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "flashLoan", data: BytesLike): Result;
   decodeFunctionResult(
@@ -361,6 +370,8 @@ export class FYToken extends BaseContract {
     chiAtMaturity(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     decimals(overrides?: CallOverrides): Promise<[number]>;
+
+    deploymentChainId(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     flashFee(
       token: string,
@@ -532,6 +543,8 @@ export class FYToken extends BaseContract {
 
   decimals(overrides?: CallOverrides): Promise<number>;
 
+  deploymentChainId(overrides?: CallOverrides): Promise<BigNumber>;
+
   flashFee(
     token: string,
     arg1: BigNumberish,
@@ -696,6 +709,8 @@ export class FYToken extends BaseContract {
     chiAtMaturity(overrides?: CallOverrides): Promise<BigNumber>;
 
     decimals(overrides?: CallOverrides): Promise<number>;
+
+    deploymentChainId(overrides?: CallOverrides): Promise<BigNumber>;
 
     flashFee(
       token: string,
@@ -921,6 +936,8 @@ export class FYToken extends BaseContract {
 
     decimals(overrides?: CallOverrides): Promise<BigNumber>;
 
+    deploymentChainId(overrides?: CallOverrides): Promise<BigNumber>;
+
     flashFee(
       token: string,
       arg1: BigNumberish,
@@ -1094,6 +1111,8 @@ export class FYToken extends BaseContract {
     chiAtMaturity(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    deploymentChainId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     flashFee(
       token: string,

@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { ethers, utils } from 'ethers';
 
 import {
@@ -12,23 +12,25 @@ import {
 import { toast } from 'react-toastify';
 import { ChainContext } from '../contexts/ChainContext';
 
-import { useChain } from '../hooks/chainHooks';
-import { Cauldron, Ladle } from '../contracts';
+import { useTimeTravel } from '../hooks/timeTravel';
 
 const YieldFooter = (props: any) => {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
   const { chainState, chainActions } = useContext(ChainContext);
-  const { account, chainId, contractMap, seriesRootMap, assetRootMap } = chainState;
-
-  const seriesList = Array.from(seriesRootMap.values()) as any;
-  const assetList = Array.from(assetRootMap.values()) as any;
-
-  const cauldron = contractMap.get('Cauldron') as Cauldron;
-  const ladle = contractMap.get('Ladle') as Ladle;
+  const { account, fallbackProvider } = chainState;
 
   const [testOpen, setTestOpen] = useState<boolean>(false);
+  const { advanceTimeAndBlock, takeSnapshot, revertToT0 } = useTimeTravel();
 
-  const randVault = ethers.utils.hexlify(ethers.utils.randomBytes(12));
+  const [timestamp, setTimestamp] = useState<number|null>(null);
+
+  useEffect(() => {
+    fallbackProvider &&
+    (async () => {
+      const { timestamp: ts } = await fallbackProvider.getBlock(await fallbackProvider.getBlockNumber());
+      setTimestamp(ts);
+    })();
+  }, [fallbackProvider]);
 
   return (
     <Footer pad="small">
@@ -40,27 +42,27 @@ const YieldFooter = (props: any) => {
         </Box>
 
         <Collapsible open={testOpen}>
-          <Box direction="row" gap="small">
-            <Button type="button" onClick={() => chainActions.connect('injected')} label="Connect web3" />
-            <Button type="button" onClick={() => chainActions.disconnect()} label="Disconnect web3" />
-            <p>{account}</p>
-            <Button
-              primary
-              // onClick={
-                // () => transact(
-                //   ladle,
-                //   [
-                //     { fn: 'build', args: [randVault, seriesList[0].id, assetList[1].id], ignore: false },
-                //     { fn: 'build', args: [randVault, seriesList[1].id, assetList[2].id], ignore: false },
-                //   ],
-                //   'footer1',
-                // )
-              // }
-              label="multicall"
-            />
-            <Button primary onClick={() => toast('Transaction complete')} label="Notify Example" />
+          <Box direction="row" gap="small" justify="between">
+            <Box>
+              <Button disabled={!!account} secondary type="button" onClick={() => chainActions.connect('injected')} label="Connect web3" />
+              <Button disabled={!account} secondary type="button" onClick={() => chainActions.disconnect()} label="Disconnect web3" />
+            </Box>
+
+            <Box>
+              <Text>Current blockchain date: { timestamp && new Date(timestamp * 1000).toLocaleDateString() } </Text>
+              <Text>Acutal date: {new Date().toLocaleDateString()} </Text>
+            </Box>
+
+            {/* <Button primary onClick={() => toast('Transaction complete')} label="Notify Example" /> */}
             {/* <Button primary onClick={() => transact(ladle, [{ fn: 'build', args: [randVault, seriesList[0].id, assetList[4].id], ignore: false }], 'footer2')} label="Ladle interact" /> */}
-            <Button primary onClick={() => console.log(utils.arrayify('0xf4f617882cb7'))} label="Notify Example" />
+
+            <Box>
+              <Button disabled={new Date(timestamp! * 1000) > new Date()} secondary onClick={() => takeSnapshot()} label="Take Time Snapshot" />
+              <Button disabled={new Date(timestamp! * 1000) <= new Date()} secondary onClick={() => revertToT0()} label="Revert to snapshot" />
+            </Box>
+            <Box>
+              <Button primary onClick={() => advanceTimeAndBlock('8000000')} label="Jump +-3months" />
+            </Box>
           </Box>
         </Collapsible>
       </Box>

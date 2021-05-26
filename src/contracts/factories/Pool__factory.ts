@@ -61,13 +61,13 @@ const _abi = [
       {
         indexed: false,
         internalType: "int256",
-        name: "baseTokens",
+        name: "bases",
         type: "int256",
       },
       {
         indexed: false,
         internalType: "int256",
-        name: "fyTokenTokens",
+        name: "fyTokens",
         type: "int256",
       },
       {
@@ -124,19 +124,19 @@ const _abi = [
       {
         indexed: false,
         internalType: "uint112",
-        name: "baseTokenReserve",
+        name: "baseCached",
         type: "uint112",
       },
       {
         indexed: false,
         internalType: "uint112",
-        name: "storedFYTokenReserve",
+        name: "fyTokenCached",
         type: "uint112",
       },
       {
         indexed: false,
         internalType: "uint256",
-        name: "cumulativeReserveRatio",
+        name: "cumulativeBalancesRatio",
         type: "uint256",
       },
     ],
@@ -167,13 +167,13 @@ const _abi = [
       {
         indexed: false,
         internalType: "int256",
-        name: "baseTokens",
+        name: "bases",
         type: "int256",
       },
       {
         indexed: false,
         internalType: "int256",
-        name: "fyTokenTokens",
+        name: "fyTokens",
         type: "int256",
       },
     ],
@@ -300,7 +300,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "baseToken",
+    name: "base",
     outputs: [
       {
         internalType: "contract IERC20",
@@ -320,7 +320,7 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "minBaseTokenOut",
+        name: "minBaseOut",
         type: "uint256",
       },
       {
@@ -359,11 +359,11 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "minBaseTokenOut",
+        name: "minBaseOut",
         type: "uint256",
       },
     ],
-    name: "burnForBaseToken",
+    name: "burnForBase",
     outputs: [
       {
         internalType: "uint256",
@@ -372,7 +372,7 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "baseTokenOut",
+        name: "baseOut",
         type: "uint256",
       },
     ],
@@ -397,7 +397,7 @@ const _abi = [
         type: "uint128",
       },
     ],
-    name: "buyBaseToken",
+    name: "buyBase",
     outputs: [
       {
         internalType: "uint128",
@@ -416,7 +416,7 @@ const _abi = [
         type: "uint128",
       },
     ],
-    name: "buyBaseTokenPreview",
+    name: "buyBasePreview",
     outputs: [
       {
         internalType: "uint128",
@@ -477,7 +477,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "cumulativeReserveRatio",
+    name: "cumulativeBalancesRatio",
     outputs: [
       {
         internalType: "uint256",
@@ -503,6 +503,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "deploymentChainId",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "fyToken",
     outputs: [
       {
@@ -516,7 +529,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "getBaseTokenReserves",
+    name: "getBaseBalance",
     outputs: [
       {
         internalType: "uint112",
@@ -529,7 +542,30 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "getFYTokenReserves",
+    name: "getCache",
+    outputs: [
+      {
+        internalType: "uint112",
+        name: "",
+        type: "uint112",
+      },
+      {
+        internalType: "uint112",
+        name: "",
+        type: "uint112",
+      },
+      {
+        internalType: "uint32",
+        name: "",
+        type: "uint32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getFYTokenBalance",
     outputs: [
       {
         internalType: "uint112",
@@ -574,29 +610,6 @@ const _abi = [
         internalType: "int128",
         name: "",
         type: "int128",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "getStoredReserves",
-    outputs: [
-      {
-        internalType: "uint112",
-        name: "",
-        type: "uint112",
-      },
-      {
-        internalType: "uint112",
-        name: "",
-        type: "uint112",
-      },
-      {
-        internalType: "uint32",
-        name: "",
-        type: "uint32",
       },
     ],
     stateMutability: "view",
@@ -672,7 +685,7 @@ const _abi = [
         type: "uint256",
       },
     ],
-    name: "mintWithBaseToken",
+    name: "mintWithBase",
     outputs: [
       {
         internalType: "uint256",
@@ -789,7 +802,7 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "retrieveBaseToken",
+    name: "retrieveBase",
     outputs: [
       {
         internalType: "uint128",
@@ -832,7 +845,7 @@ const _abi = [
         type: "uint128",
       },
     ],
-    name: "sellBaseToken",
+    name: "sellBase",
     outputs: [
       {
         internalType: "uint128",
@@ -847,11 +860,11 @@ const _abi = [
     inputs: [
       {
         internalType: "uint128",
-        name: "baseTokenIn",
+        name: "baseIn",
         type: "uint128",
       },
     ],
-    name: "sellBaseTokenPreview",
+    name: "sellBasePreview",
     outputs: [
       {
         internalType: "uint128",
