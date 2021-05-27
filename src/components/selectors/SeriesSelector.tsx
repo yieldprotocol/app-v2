@@ -86,7 +86,7 @@ function SeriesSelector({ selectSeriesLocally, ignoredSeries }: ISeriesSelectorP
         valueLabel={
           options.length ?
             <Box pad={mobile ? 'medium' : 'small'}><Text color="text"> {optionExtended(selectedSeries)}</Text></Box>
-            : <Box pad={mobile ? 'medium' : 'small'}><Text color="text"> No available series.</Text></Box>
+            : <Box pad={mobile ? 'medium' : 'small'}><Text color="text"> No available series yet.</Text></Box>
         }
         disabled={options.length === 0}
         onChange={({ option }: any) => handleSelect(option)}
