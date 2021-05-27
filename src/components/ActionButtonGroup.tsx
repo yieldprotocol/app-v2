@@ -14,12 +14,12 @@ function ActionButtonGroup({ ...props }:any) {
         animate={false}
       >
         <Box gap="small" fill="horizontal" pad="small">
-          { props.buttonList.map((x:any) => x) }
+          { props.children }
         </Box>
       </Layer>)
       :
       <Box gap="small" fill="horizontal">
-        { props.buttonList.map((x:any) => x)}
+        {props.children}
       </Box>
   );
 }
