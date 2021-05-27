@@ -11,7 +11,7 @@ interface ISectionWrap {
 function SectionWrap({ title, subtitle, border, children }: ISectionWrap) {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
   return (
-    <Box gap="small" fill="horizontal" border={border}>
+    <Box gap="xsmall" fill border={border}>
       { title && <Text size={mobile ? 'small' : 'small'}> {title} </Text>}
       { subtitle && <Text color="text-weak" size={mobile ? 'xsmall' : 'small'}> {subtitle} </Text>}
       {children}
