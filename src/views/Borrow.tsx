@@ -1,7 +1,9 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, Button, CheckBox, Keyboard, ResponsiveContext, Text, TextInput } from 'grommet';
+import { Box, Button, CheckBox, Header, Heading, Keyboard, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import { useHistory, useParams } from 'react-router-dom';
 import { ethers } from 'ethers';
+
+import Loader from 'react-spinners/ScaleLoader';
 
 import SeriesSelector from '../components/selectors/SeriesSelector';
 import MainViewWrap from '../components/wraps/MainViewWrap';
@@ -14,12 +16,12 @@ import MaxButton from '../components/MaxButton';
 
 import { useBorrowActions } from '../hooks/borrowActions';
 import { UserContext } from '../contexts/UserContext';
-import { IUserContext, IVault } from '../types';
+import { ISeries, IUserContext, IVault } from '../types';
 import { collateralizationRatio } from '../utils/yieldMath';
 import PanelWrap from '../components/wraps/PanelWrap';
-import SeriesPanel from '../components/SeriesPanel';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
-import StepSelector from '../components/selectors/StepSelector';
+import AprDisplay from '../components/AprDisplay';
+import YieldApr from '../components/YieldApr';
 
 const Borrow = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -48,6 +50,7 @@ const Borrow = () => {
   const [collatError, setCollatError] = useState<string|null>(null);
 
   const [vaultIdToUse, setVaultIdToUse] = useState<string|undefined>(undefined);
+  const [matchingBaseVaults, setMatchingBaseVaults] = useState<IVault[]>([]);
   const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
 
   const { borrow } = useBorrowActions();
@@ -106,8 +109,7 @@ const Borrow = () => {
     }
   }, [activeAccount, collatInput, maxCollat, setCollatError]);
 
-  /* ACTION DISABLING LOGIC */
-
+  /* BORROW DISABLING LOGIC */
   useEffect(() => {
     /* if ANY of the following conditions are met: block action */
     (
@@ -124,6 +126,26 @@ const Borrow = () => {
   },
   [borrowInput, collatInput, selectedSeries, selectedIlk, activeAccount]);
 
+  /* ADD COLLATERAL DISABLING LOGIC */
+  useEffect(() => {
+    /* if ANY of the following conditions are met: block action */
+    (
+      !activeAccount ||
+        !borrowInput ||
+        !selectedSeries ||
+        !selectedIlk ||
+        selectedSeries?.seriesIsMature
+    )
+      ? setCollatDisabled(true)
+      /* else if all pass, then unlock borrowing */
+      : setCollatDisabled(false);
+  },
+  [borrowInput, collatInput, selectedSeries, selectedIlk, activeAccount]);
+
+  // useEffect(() => {
+  //   (!activeAccount || !collatInput || collatError) ? setCollatDisabled(true) : setCollatDisabled(false);
+  // }, [collatInput, activeAccount, collatError]);
+
   useEffect(() => {
     (!activeAccount || !collatInput || collatError) ? setCollatDisabled(true) : setCollatDisabled(false);
   }, [collatInput, activeAccount, collatError]);
@@ -134,12 +156,20 @@ const Borrow = () => {
 
   /* CHECK the list of current vaults which match the current series/ilk selection */
   useEffect(() => {
+    if (selectedBase && selectedSeries) {
+      const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
+      const _matchingVaults = arr.filter((v:IVault) => (
+        v.baseId === selectedBase.id &&
+        v.seriesId === selectedSeries.id
+      ));
+      setMatchingBaseVaults(_matchingVaults);
+    }
     if (selectedBase && selectedSeries && selectedIlk) {
       const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
       const _matchingVaults = arr.filter((v:IVault) => (
         v.ilkId === selectedIlk.id &&
-          v.baseId === selectedBase.id &&
-          v.seriesId === selectedSeries.id
+        v.baseId === selectedBase.id &&
+        v.seriesId === selectedSeries.id
       ));
       setMatchingVaults(_matchingVaults);
     }
@@ -158,184 +188,236 @@ const Borrow = () => {
         <PanelWrap basis="30%">
           <Box justify="between" fill pad="xlarge">
             <Box>
-              <Text size={stepPosition === 0 ? 'xxlarge' : 'xlarge'} color={stepPosition === 0 ? 'text' : 'text-xweak'}>Choose a asset to borrow</Text>
-              <Text size={stepPosition === 1 ? 'xxlarge' : 'xlarge'} color={stepPosition === 1 ? 'text' : 'text-xweak'}>Add collateral</Text>
-              <Text size={stepPosition === 2 ? 'xxlarge' : 'xlarge'} color={stepPosition === 2 ? 'text' : 'text-xweak'}>Review and transact</Text>
+              { [['1. Choose asset to', 'borrow'], ['2. Add', 'collateral'], ['3. ', 'Review', 'and transact']].map((x:string[], i:number) => (
+                <Box direction="row" key={x[1]}>
+                  <Text weight={100} size="xlarge" color={stepPosition === i ? 'text' : 'text-xweak'}> {x[0]}
+                    <Text weight="bold" size={stepPosition === i ? 'xxlarge' : 'xlarge'} color={stepPosition === i ? 'text' : 'text-xweak'}> {x[1]} </Text>
+                    {x[2]}
+                  </Text>
+                </Box>
+              )) }
             </Box>
 
             <Box gap="small">
               <Text weight="bold">Information</Text>
               <Text size="small"> Some information </Text>
             </Box>
+
           </Box>
         </PanelWrap>
 
         <CenterPanelWrap>
 
-          <Box pad="medium" />
+          <Box gap="small">
 
-          <Box
-            gap="small"
-            // background="pink"
-          >
+            {/**
+             *
+             *
+             * STEPPER POSITION INITIAL
+             *
+             * */}
+
             {
-          stepPosition === 0 &&
-          <Box gap="large">
-            <SectionWrap title="Select an asset and amount: ">
-              <Box>
-                <AssetSelector />
-              </Box>
-              <InputWrap action={() => console.log('maxAction')} isError={borrowError}>
-                <TextInput
-                  plain
-                  type="number"
-                  placeholder="Enter amount"
-                  value={borrowInput}
-                  onChange={(event:any) => setBorrowInput(event.target.value)}
-                  autoFocus={!mobile}
-                />
-              </InputWrap>
-            </SectionWrap>
+            stepPosition === 0 &&
+            <Box gap="large">
+              <SectionWrap title="Select an asset and amount: ">
+                <Box direction="row" gap="small" fill="horizontal" align="start">
+                  <Box basis={mobile ? '50%' : '65%'}>
+                    <InputWrap action={() => console.log('maxAction')} isError={borrowError}>
+                      <TextInput
+                        plain
+                        type="number"
+                        placeholder="Enter amount"
+                        value={borrowInput}
+                        onChange={(event:any) => setBorrowInput(event.target.value)}
+                        autoFocus={!mobile}
+                      />
+                    </InputWrap>
+                  </Box>
+                  <Box basis={mobile ? '50%' : '35%'}>
+                    <AssetSelector />
+                  </Box>
+                </Box>
+              </SectionWrap>
 
-            <SectionWrap title="Choose an series to borrow against">
-              <Box>
-                <SeriesSelector />
-                {selectedSeries?.seriesIsMature && <Text color="pink" size="small">This series has seriesIsMatured.</Text>}
-              </Box>
-            </SectionWrap>
-          </Box>
-          }
+              <SectionWrap title="Choose an series to borrow against">
+                <Box>
+                  <SeriesSelector />
+                  {selectedSeries?.seriesIsMature && <Text color="pink" size="small">This series has matured.</Text>}
+                </Box>
+              </SectionWrap>
+
+              {
+              selectedSeries?.seriesIsMature &&
+              matchingBaseVaults.length > 0 &&
+              <SectionWrap>
+                <Box gap="small" fill="horizontal">
+                  <Text size="xsmall">Go to exisiting vault:</Text>
+                  {
+                    matchingVaults.map((x:IVault) => (
+                      <Box
+                        direction="row"
+                        justify="end"
+                        key={x.id}
+                        onClick={() => routerHistory.push(`/vault/${x.id}`)}
+                      >
+                        <Text size="xsmall"> {x.id} </Text>
+                      </Box>
+                    ))
+                  }
+                </Box>
+              </SectionWrap>
+              }
+
+            </Box>
+            }
+
+            {/**
+             *
+             *
+             * STEPPER POSITION COLLATERAL
+             *
+             * */}
 
             {
             stepPosition === 1 &&
-            <SectionWrap>
 
-              <Box onClick={() => setStepPosition(0)}> Back </Box>
-
-              <Box direction="row" gap="small" fill="horizontal" align="start">
-                <Box basis={mobile ? '50%' : '65%'}>
-                  <InputWrap action={() => console.log('maxAction')} disabled={!selectedSeries} isError={collatError}>
-                    <TextInput
-                      plain
-                      type="number"
-                      placeholder="Enter amount"
-                // ref={(el:any) => { el && el.focus(); }}
-                      value={collatInput}
-                      onChange={(event:any) => setCollatInput(event.target.value)}
-                      disabled={!selectedSeries || selectedSeries.seriesIsMature}
-                    />
-                    <MaxButton
-                      action={() => maxCollat && setCollatInput(maxCollat)}
-                      disabled={!selectedSeries || collatInput === maxCollat || selectedSeries.seriesIsMature}
-                    />
-                  </InputWrap>
-                </Box>
-                <Box basis={mobile ? '50%' : '35%'}>
-                  <AssetSelector selectCollateral />
-                </Box>
+            <Box gap="large">
+              <Box onClick={() => setStepPosition(0)}>
+                <Text>Back</Text>
               </Box>
-            </SectionWrap>
+
+              <SectionWrap>
+                <Box direction="row" gap="small" fill="horizontal" align="start">
+                  <Box basis={mobile ? '50%' : '65%'}>
+                    <InputWrap action={() => console.log('maxAction')} disabled={!selectedSeries} isError={collatError}>
+                      <TextInput
+                        plain
+                        type="number"
+                        placeholder="Enter amount"
+                        // ref={(el:any) => { el && el.focus(); }}
+                        value={collatInput}
+                        onChange={(event:any) => setCollatInput(event.target.value)}
+                        disabled={!selectedSeries || selectedSeries.seriesIsMature}
+                      />
+                      <MaxButton
+                        action={() => maxCollat && setCollatInput(maxCollat)}
+                        disabled={!selectedSeries || collatInput === maxCollat || selectedSeries.seriesIsMature}
+                      />
+                    </InputWrap>
+                  </Box>
+                  <Box basis={mobile ? '50%' : '35%'}>
+                    <AssetSelector selectCollateral />
+                  </Box>
+                </Box>
+              </SectionWrap>
+
+              {
+                !selectedSeries?.seriesIsMature &&
+                <SectionWrap>
+                  <Box gap="small" fill="horizontal">
+                    <Box direction="row" justify="end">
+                      <CheckBox
+                        reverse
+                        disabled={matchingVaults.length < 1}
+                        checked={!vaultIdToUse || !matchingVaults.find((v:IVault) => v.id === vaultIdToUse)}
+                        label={<Text size="small">Create new vault</Text>}
+                        onChange={() => setVaultIdToUse(undefined)}
+                      />
+                    </Box>
+                    {
+                matchingVaults.length > 0 &&
+                <Box alignSelf="center">
+                  <Text size="xsmall"> Or borrow from an existing vault:</Text>
+                  {/* <Select
+                    plain
+                    options={matchingVaults.map((x:IVault) => (<Text key={x.id} size="xsmall">{x.id}</Text>))}
+                    placeholder="or Borrow from an existing vault"
+                    value={vaultIdToUse}
+                    defaultValue={undefined}
+                    onChange={({ option }) => setVaultIdToUse(option)}
+                  /> */}
+                </Box>
+              }
+
+                    {
+                matchingVaults.map((x:IVault) => (
+                  <Box direction="row" justify="end" key={x.id}>
+                    <CheckBox
+                      reverse
+                      // disabled={!selectedVaultId}
+                      checked={vaultIdToUse === x.id}
+                      label={<Text size="small">{x.id}</Text>}
+                      onChange={(event:any) => setVaultIdToUse(x.id)}
+                    />
+                  </Box>
+                ))
+              }
+                  </Box>
+                </SectionWrap>
+              }
+
+            </Box>
         }
+
+            {/**
+             *
+             *
+             * STEPPER POSITION REVIEW
+             *
+             * */}
 
             {
             stepPosition === 2 &&
-            <SectionWrap>
 
-              <Box onClick={() => setStepPosition(1)}> Back </Box>
-
-              <Box direction="row" gap="small" fill="horizontal" align="start">
-                REview transaction
-
-                buy x DAi at rate using x as collateral
+            <Box gap="large">
+              <Box onClick={() => setStepPosition(1)}>
+                <Text>Back</Text>
               </Box>
-            </SectionWrap>
-        }
-
-            {/* {
-        !selectedSeries?.seriesIsMature &&
-        <SectionWrap>
-          <Box gap="small" fill="horizontal">
-            <Box direction="row" justify="end">
-              <CheckBox
-                reverse
-                disabled={matchingVaults.length < 1}
-                checked={!vaultIdToUse || !matchingVaults.find((v:IVault) => v.id === vaultIdToUse)}
-                label={<Text size="small">Create new vault</Text>}
-                onChange={() => setVaultIdToUse(undefined)}
-              />
+              <SectionWrap>
+                <Box direction="row" gap="small" fill="horizontal" align="start">
+                  REview transaction
+                  buy x DAi at rate using x as collateral
+                </Box>
+              </SectionWrap>
             </Box>
-            {
-              matchingVaults.length > 0 &&
-              <Box alignSelf="center">
-                <Text size="xsmall"> -------- or borrow from an existing vault ----------</Text>
-              </Box>
-            }
-
-            {
-              matchingVaults.map((x:IVault) => (
-                <Box direction="row" justify="end" key={x.id}>
-                  <CheckBox
-                    reverse
-                    // disabled={!selectedVaultId}
-                    checked={vaultIdToUse === x.id}
-                    label={<Text size="small">{x.id}</Text>}
-                    onChange={(event:any) => setVaultIdToUse(x.id)}
-                  />
-                </Box>
-              ))
-            }
-          </Box>
-        </SectionWrap>
-        } */}
-
-            {/* {
-        selectedSeries?.seriesIsMature &&
-        matchingVaults.length > 0 &&
-        <SectionWrap>
-          <Box gap="small" fill="horizontal">
-            <Text size="xsmall">Go to exisiting vault:</Text>
-            {
-              matchingVaults.map((x:IVault) => (
-                <Box
-                  direction="row"
-                  justify="end"
-                  key={x.id}
-                  onClick={() => routerHistory.push(`/vault/${x.id}`)}
-                >
-                  <Text size="xsmall"> {x.id} </Text>
-                </Box>
-              ))
-            }
-          </Box>
-        </SectionWrap>
-        } */}
-
+        }
           </Box>
 
-          <Box
-            gap="small"
-          >
+          <Box gap="small">
             <ActionButtonGroup>
               {
-            stepPosition !== 2 &&
-            <Button
-              primary
-              label={<Text size={mobile ? 'small' : undefined}> {stepPosition === 0 ? 'continue to Add collateral' : 'continue to Review'} </Text>}
-              key="ONE"
-              onClick={() => setStepPosition(stepPosition + 1)}
-            />
-            }
-              {
-            stepPosition === 2 &&
-            <Button
-              primary
-              label={<Text size={mobile ? 'small' : undefined}> {`Borrow  ${borrowInput || ''} ${selectedBase?.symbol || ''}`}</Text>}
-              key="FINAL"
-              onClick={() => handleBorrow()}
-              disabled={borrowDisabled}
-            />
-            }
+              stepPosition === 0 &&
+              <Button
+                primary
+                label={<Text size={mobile ? 'small' : undefined}> continue to Add collateral </Text>}
+                key="ONE"
+                onClick={() => setStepPosition(stepPosition + 1)}
+                disabled={collatDisabled}
+              />
+              }
 
+              {
+              stepPosition === 1 &&
+              <Button
+                primary
+                label={<Text size={mobile ? 'small' : undefined}> continue to Review </Text>}
+                key="ONE"
+                onClick={() => setStepPosition(stepPosition + 1)}
+                disabled={borrowDisabled}
+              />
+              }
+
+              {
+              stepPosition === 2 &&
+              <Button
+                primary
+                label={<Text size={mobile ? 'small' : undefined}> {`Borrow  ${borrowInput || ''} ${selectedBase?.symbol || ''}`}</Text>}
+                key="FINAL"
+                onClick={() => handleBorrow()}
+                disabled={borrowDisabled}
+              />
+              }
             </ActionButtonGroup>
 
             {/* <StepSelector
@@ -348,24 +430,33 @@ const Borrow = () => {
         </CenterPanelWrap>
 
         <PanelWrap basis="30%">
-          <SeriesPanel>
 
-            <Box gap="small" fill="horizontal" align="end">
-              {
-              matchingVaults.map((x:IVault) => (
+          <YieldApr input={borrowInput} type="BORROW" />
+
+          <Box gap="small">
+            {
+            matchingBaseVaults.length > 0 &&
+            <Box animation="fadeIn">
+              <Text size="small"> My existing {selectedBase?.symbol}-based vaults for the {selectedSeries?.displayName} series: </Text>
+            </Box>
+            }
+            {
+              matchingBaseVaults.map((x:IVault, i:number) => (
                 <Box
                   direction="row"
-                  justify="end"
                   key={x.id}
                   onClick={() => routerHistory.push(`/vault/${x.id}`)}
+                  animation={{ type: 'fadeIn', delay: i * 100, duration: 1500 }}
+                  border
+                  // pad="xsmall"
+                  round="xsmall"
                 >
-                  <Text size="xsmall"> {x.id} </Text>
+                  <Text size="small"> {x.id} </Text>
                 </Box>
               ))
             }
-            </Box>
+          </Box>
 
-          </SeriesPanel>
         </PanelWrap>
 
       </MainViewWrap>
