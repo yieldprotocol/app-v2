@@ -1,7 +1,7 @@
-import React, { useContext, useRef } from 'react';
-import { Box, Heading, ResponsiveContext, Text } from 'grommet';
+import React, { useContext, useRef, useState } from 'react';
+import { Box, Button, Heading, ResponsiveContext, Text } from 'grommet';
 
-import { useSpring, animated, to } from 'react-spring';
+import { useSpring, animated, to, a } from 'react-spring';
 import { useGesture } from 'react-use-gesture';
 
 interface IPanelWrap {
@@ -9,14 +9,16 @@ interface IPanelWrap {
   children: any;
 }
 
-const calcX = (y: number, ly: number) => -(y - ly - window.innerHeight / 2) / 500;
-const calcY = (x: number, lx: number) => (x - lx - window.innerWidth / 2) / 500;
+const calcX = (y: number, ly: number) => -(y - ly - window.innerHeight / 2) / 400;
+const calcY = (x: number, lx: number) => (x - lx - window.innerWidth / 2) / 400;
 
 function CenterPanelWrap({ basis, children }: IPanelWrap) {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
 
+  const [flipped, setFlipped] = useState(false);
+
   const domTarget = useRef(null);
-  const [{ x, y, rotateX, rotateY, rotateZ, zoom, scale }, api] = useSpring(
+  const [{ x, y, rotateX, rotateY, rotateZ, zoom, scale, transform, opacity }, api] = useSpring(
     () => ({
       rotateX: 0,
       rotateY: 0,
@@ -25,7 +27,9 @@ function CenterPanelWrap({ basis, children }: IPanelWrap) {
       zoom: 0,
       x: 0,
       y: 0,
-      config: { mass: 5, tension: 350, friction: 40 },
+      config: { mass: 5, tension: 500, friction: 80 },
+      opacity: flipped ? 1 : 0,
+      transform: `perspective(600px) rotateX(${flipped ? 180 : 0}deg)`,
     }),
   );
 
@@ -58,13 +62,14 @@ function CenterPanelWrap({ basis, children }: IPanelWrap) {
           <animated.div
             ref={domTarget}
             style={{
-              transform: 'perspective(600px)',
+              transform,
               x,
               y,
               scale: to([scale, zoom], (s, z) => s + z),
               rotateX,
               rotateY,
               rotateZ,
+              opacity: opacity.to((o:any) => 1 - o),
             }}
           >
             <Box
@@ -74,6 +79,7 @@ function CenterPanelWrap({ basis, children }: IPanelWrap) {
               width={{ min: '500px' }}
               round="small"
               justify="between"
+              background="white"
             >
               {children}
             </Box>

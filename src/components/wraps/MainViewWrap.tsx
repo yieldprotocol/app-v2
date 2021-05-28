@@ -26,6 +26,8 @@ const MainViewWrap = ({ children }: IMainViewWrapProps) => {
         fill
         justify="between"
         gap="small"
+        width={{ max: '1200px' }}
+        alignSelf="center"
       >
         {children}
       </Box>

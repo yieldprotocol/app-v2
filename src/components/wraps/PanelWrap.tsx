@@ -9,7 +9,7 @@ interface IPanelWrap {
 function PanelWrap({ basis, children }: IPanelWrap) {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
   return (
-    <Box basis={basis}>
+    <Box basis={basis} justify="between">
       {children}
     </Box>
   );
