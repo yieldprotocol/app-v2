@@ -1,6 +1,9 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Box, Button, ResponsiveContext, Text, TextInput } from 'grommet';
 import { ethers } from 'ethers';
+
+import Loader from 'react-spinners/ScaleLoader';
+
 import ActionButtonGroup from '../components/ActionButtonGroup';
 import AssetSelector from '../components/selectors/AssetSelector';
 import InfoBite from '../components/InfoBite';
@@ -14,6 +17,12 @@ import { useLendActions } from '../hooks/lendActions';
 import { UserContext } from '../contexts/UserContext';
 import { ISeries, IUserContext } from '../types';
 import MaxButton from '../components/MaxButton';
+import PanelWrap from '../components/wraps/PanelWrap';
+import SeriesPanel from '../components/SeriesPanel';
+import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
+import { ZERO_BN } from '../utils/constants';
+import AprDisplay from '../components/AprDisplay';
+import YieldApr from '../components/YieldApr';
 
 const Lend = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -44,6 +53,8 @@ const Lend = () => {
   const [lendDisabled, setLendDisabled] = useState<boolean>(true);
   const [closeDisabled, setCloseDisabled] = useState<boolean>(true);
   const [rollDisabled, setRollDisabled] = useState<boolean>(true);
+
+  const [stepPosition, setStepPosition] = useState<number>(0);
 
   /* HOOK FNS */
 
@@ -160,68 +171,113 @@ const Lend = () => {
 
   return (
     <MainViewWrap>
-      <SectionWrap title="1. Asset to Lend">
-        <Box direction="row" gap="small" fill="horizontal" align="start">
 
-          <Box basis={mobile ? '50%' : '65%'}>
-            <InputWrap action={() => console.log('maxAction')} isError={lendError} disabled={selectedSeries?.seriesIsMature}>
-              <TextInput
-                plain
-                type="number"
-                placeholder="Enter amount"
-                value={lendInput || ''}
-                onChange={(event:any) => setLendInput(cleanValue(event.target.value))}
-                disabled={selectedSeries?.seriesIsMature}
-              />
-              <MaxButton
-                action={() => setLendInput(maxLend)}
-                disabled={maxLend === '0' || selectedSeries?.seriesIsMature}
-              />
-            </InputWrap>
+      <PanelWrap basis="30%">
+        <Box justify="between" fill pad="xlarge">
+          <Box>
+            <Text size={stepPosition === 0 ? 'xxlarge' : 'xlarge'} color={stepPosition === 0 ? 'text' : 'text-xweak'}>Choose an asset to lend</Text>
+            <Text size={stepPosition === 1 ? 'xxlarge' : 'xlarge'} color={stepPosition === 1 ? 'text' : 'text-xweak'}>Review and transact</Text>
           </Box>
 
-          <Box basis={mobile ? '50%' : '35%'}>
-            <AssetSelector />
+          <Box gap="small">
+            <Text weight="bold">Information</Text>
+            <Text size="small"> Some information </Text>
           </Box>
-
         </Box>
-      </SectionWrap>
+      </PanelWrap>
 
-      <SectionWrap title="2. Select a series">
-        <SeriesSelector />
-        <Box justify="evenly" gap="small" fill="horizontal" direction="row-responsive">
+      <CenterPanelWrap>
+
+        <Box gap="large">
+
           {
+          stepPosition === 0 &&
+          <Box gap="large">
+            <SectionWrap title="Select an asset and amount to lend">
+              <Box direction="row" gap="small" fill="horizontal" align="start">
+                <Box basis={mobile ? '50%' : '65%'}>
+                  <InputWrap action={() => console.log('maxAction')} isError={lendError} disabled={selectedSeries?.seriesIsMature}>
+                    <TextInput
+                      plain
+                      type="number"
+                      placeholder="Enter amount"
+                      value={lendInput || ''}
+                      onChange={(event:any) => setLendInput(cleanValue(event.target.value))}
+                      disabled={selectedSeries?.seriesIsMature}
+                    />
+                    <MaxButton
+                      action={() => setLendInput(maxLend)}
+                      disabled={maxLend === '0' || selectedSeries?.seriesIsMature}
+                    />
+                  </InputWrap>
+                </Box>
+                <Box basis={mobile ? '50%' : '35%'}>
+                  <AssetSelector />
+                </Box>
+              </Box>
+            </SectionWrap>
+
+            <SectionWrap title="Choose a series to lend to">
+              <SeriesSelector />
+              <Box justify="evenly" gap="small" fill="horizontal" direction="row-responsive">
+                {
                 selectedSeries?.baseId === selectedBase?.id &&
                 <InfoBite label="FYToken balance (Base value at maturity)" value={selectedSeries?.fyTokenBalance_!} />
               }
-        </Box>
-      </SectionWrap>
+              </Box>
+            </SectionWrap>
+          </Box>
+          }
 
-      <ActionButtonGroup buttonList={
-        !selectedSeries?.seriesIsMature ?
-          [
+          {
+          stepPosition === 1 &&
+          <Box gap="large">
+            <Box onClick={() => setStepPosition(0)}>
+              <Text>Back</Text>
+            </Box>
+            <SectionWrap title="Review your transaction">
+              some transaction info
+            </SectionWrap>
+          </Box>
+          }
+
+        </Box>
+
+        <Box>
+          <ActionButtonGroup>
+            {
+            stepPosition !== 1 &&
+            !selectedSeries?.seriesIsMature &&
             <Button
               primary
-              label={<Text size={mobile ? 'small' : undefined}> {`Supply ${lendInput || ''} ${selectedBase?.symbol || ''}`} </Text>}
-              key="primary"
-              onClick={() => handleLend()}
-              disabled={lendDisabled}
-            />,
-
-          ] :
-          [
+              label={<Text size={mobile ? 'small' : undefined}> continue to Review </Text>}
+              key="ONE"
+              onClick={() => setStepPosition(stepPosition + 1)}
+            />
+            }
+            {
+            stepPosition === 1 &&
+            !selectedSeries?.seriesIsMature &&
+              <Button
+                primary
+                label={<Text size={mobile ? 'small' : undefined}> {`Supply ${lendInput || ''} ${selectedBase?.symbol || ''}`} </Text>}
+                key="primary"
+                onClick={() => handleLend()}
+                disabled={lendDisabled}
+              />
+            }
+            {selectedSeries?.seriesIsMature &&
             <Button
               primary
               label={<Text size={mobile ? 'small' : undefined}> Redeem </Text>}
               key="primary"
               onClick={() => handleRedeem()}
-              // disabled={!selectedSeries.seriesIsMature}
-            />,
-          ]
-      }
-      />
+            />}
 
-      {
+          </ActionButtonGroup>
+        </Box>
+
+        {/* {
       !selectedSeries?.seriesIsMature &&
       <SectionWrap
         title=" [ Close position ]"
@@ -258,52 +314,111 @@ const Lend = () => {
         ]}
         />
       </SectionWrap>
-      }
+      } */}
 
-      <SectionWrap
-        title="[ Roll Position ]"
-      >
+        {/* <SectionWrap
+          title="[ Roll Position ]"
+        >
 
-        <Box direction="row" gap="small" fill="horizontal" align="start">
+          <Box direction="row" gap="small" fill="horizontal" align="start">
 
-          <Box fill>
+            <Box fill>
 
-            <InputWrap action={() => console.log('maxAction')} isError={rollError} disabled={!selectedSeries}>
-              <TextInput
-                plain
-                type="number"
-                placeholder="fyToken Amount" // {`${selectedBase?.symbol} to roll`}
-                value={rollInput || ''}
-                onChange={(event:any) => setRollInput(cleanValue(event.target.value))}
-                disabled={!selectedSeries}
-              />
-              <MaxButton
-                action={() => setRollInput(maxClose)}
-                disabled={maxClose === '0.0' || !selectedSeries}
-              />
-            </InputWrap>
+              <InputWrap action={() => console.log('maxAction')} isError={rollError} disabled={!selectedSeries}>
+                <TextInput
+                  plain
+                  type="number"
+                  placeholder="fyToken Amount" // {`${selectedBase?.symbol} to roll`}
+                  value={rollInput || ''}
+                  onChange={(event:any) => setRollInput(cleanValue(event.target.value))}
+                  disabled={!selectedSeries}
+                />
+                <MaxButton
+                  action={() => setRollInput(maxClose)}
+                  disabled={maxClose === '0.0' || !selectedSeries}
+                />
+              </InputWrap>
 
+            </Box>
           </Box>
-        </Box>
 
-        <Box gap="small" fill="horizontal" direction="row" align="center">
+          <Box gap="small" fill="horizontal" direction="row" align="center">
 
-          <SeriesSelector selectSeriesLocally={(series:ISeries) => setRollToSeries(series)} />
+            <SeriesSelector selectSeriesLocally={(series:ISeries) => setRollToSeries(series)} />
 
-          <Box basis="35%">
-            <ActionButtonGroup buttonList={[
-              <Button
-                primary
-                label={<Text size={mobile ? 'small' : undefined}> Roll </Text>}
-                key="primary"
-                onClick={() => handleRollPosition()}
-                disabled={rollDisabled}
-              />,
-            ]}
-            />
+            <Box basis="35%">
+              <ActionButtonGroup buttonList={[
+                <Button
+                  primary
+                  label={<Text size={mobile ? 'small' : undefined}> Roll </Text>}
+                  key="primary"
+                  onClick={() => handleRollPosition()}
+                  disabled={rollDisabled}
+                />,
+              ]}
+              />
+            </Box>
           </Box>
-        </Box>
-      </SectionWrap>
+        </SectionWrap> */}
+      </CenterPanelWrap>
+
+      <PanelWrap basis="30%">
+
+        <YieldApr input={lendInput} type="LEND" />
+
+        { selectedSeries?.fyTokenBalance?.gt(ZERO_BN) &&
+        <Box gap="small" pad="large">
+          <Box pad="xsmall" animation="fadeIn">
+            <Text size="xsmall"> Your {selectedBase?.symbol}-based position for the {selectedSeries?.displayName} series: </Text>
+            <InfoBite label="FYToken balance (Base value at maturity)" value={selectedSeries?.fyTokenBalance_!} />
+
+            <Text> </Text>
+          </Box>
+          <Box
+            direction="row"
+            justify="start"
+            // onClick={() => routerHistory.push(`/vault/${x.id}`)}
+            animation={{ type: 'fadeIn', delay: 0, duration: 1500 }}
+            border
+            pad="xsmall"
+            round="xsmall"
+          >
+            <Text size="xsmall"> Close Position </Text>
+          </Box>
+
+          <Box
+            direction="row"
+            justify="start"
+            // onClick={() => routerHistory.push(`/vault/${x.id}`)}
+            animation={{ type: 'fadeIn', delay: 100, duration: 1500 }}
+            border
+            pad="xsmall"
+            round="xsmall"
+          >
+            <Text size="xsmall"> Roll Position </Text>
+          </Box>
+        </Box>}
+
+        {/* { !selectedSeries &&
+        <Box gap="small" pad="large">
+          { false &&
+          <Box pad="xsmall" animation="fadeIn">
+            <Text size="xsmall"> You have any open positions yet.</Text>
+          </Box>}
+          <Box
+            direction="row"
+            justify="start"
+            // onClick={() => routerHistory.push(`/vault/${x.id}`)}
+            animation={{ type: 'fadeIn', delay: 100, duration: 1500 }}
+            border
+            pad="xsmall"
+            round="xsmall"
+          >
+            <Text size="xsmall"> View all positions </Text>
+          </Box>
+        </Box>} */}
+
+      </PanelWrap>
 
     </MainViewWrap>
   );
