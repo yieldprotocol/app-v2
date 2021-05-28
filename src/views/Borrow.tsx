@@ -22,6 +22,7 @@ import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import AprDisplay from '../components/AprDisplay';
 import YieldApr from '../components/YieldApr';
+import { ZERO_BN } from '../utils/constants';
 
 const Borrow = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -44,10 +45,10 @@ const Borrow = () => {
   const [maxCollat, setMaxCollat] = useState<string|undefined>();
 
   const [borrowDisabled, setBorrowDisabled] = useState<boolean>(true);
-  const [collatDisabled, setCollatDisabled] = useState<boolean>(true);
+  const [stepDisabled, setStepDisabled] = useState<boolean>(true);
 
-  const [borrowError, setBorrowError] = useState<string|null>(null);
-  const [collatError, setCollatError] = useState<string|null>(null);
+  const [borrowInputError, setBorrowInputError] = useState<string|null>(null);
+  const [collatInputError, setCollatInputError] = useState<string|null>(null);
 
   const [vaultIdToUse, setVaultIdToUse] = useState<string|undefined>(undefined);
   const [matchingBaseVaults, setMatchingBaseVaults] = useState<IVault[]>([]);
@@ -83,31 +84,35 @@ const Borrow = () => {
   useEffect(() => {
     if (activeAccount && (borrowInput || borrowInput === '')) {
       /* 1. Check if input exceeds amount available in pools */
-      if (false) setCollatError('Amount exceeds amount available in pool');
+      if (
+        borrowInput &&
+        selectedSeries &&
+        ethers.utils.parseEther(borrowInput).gt(selectedSeries.baseReserves)
+      ) setBorrowInputError(`Amount exceeds the ${selectedBase?.symbol} currently available in pool`);
       /* 2. Check if input is above zero */
-      else if (parseFloat(borrowInput) < 0) setBorrowError('Amount should be expressed as a positive value');
+      else if (parseFloat(borrowInput) < 0) setBorrowInputError('Amount should be expressed as a positive value');
       /* if all checks pass, set null error message */
       else {
-        setBorrowError(null);
+        setBorrowInputError(null);
       }
     }
-  }, [activeAccount, borrowInput, setBorrowError]);
+  }, [activeAccount, borrowInput, selectedSeries, selectedBase, setBorrowInputError]);
 
   /* CHECK for any collateral input errors/warnings */
   useEffect(() => {
     if (activeAccount && (collatInput || collatInput === '')) {
       /* 1. Check if input exceeds balance */
-      if (maxCollat && parseFloat(collatInput) > parseFloat(maxCollat)) setCollatError('Amount exceeds balance');
+      if (maxCollat && parseFloat(collatInput) > parseFloat(maxCollat)) setCollatInputError('Amount exceeds balance');
       /* 2. Check if input is above zero */
-      else if (parseFloat(collatInput) < 0) setCollatError('Amount should be expressed as a positive value');
+      else if (parseFloat(collatInput) < 0) setCollatInputError('Amount should be expressed as a positive value');
       /* 3. next check */
-      else if (false) setCollatError('Undercollateralised');
+      else if (false) setCollatInputError('Undercollateralised');
       /* if all checks pass, set null error message */
       else {
-        setCollatError(null);
+        setCollatInputError(null);
       }
     }
-  }, [activeAccount, collatInput, maxCollat, setCollatError]);
+  }, [activeAccount, collatInput, maxCollat, setCollatInputError]);
 
   /* BORROW DISABLING LOGIC */
   useEffect(() => {
@@ -118,13 +123,14 @@ const Borrow = () => {
       !collatInput ||
       !selectedSeries ||
       !selectedIlk ||
+      borrowInputError ||
       selectedSeries?.seriesIsMature
     )
       ? setBorrowDisabled(true)
     /* else if all pass, then unlock borrowing */
       : setBorrowDisabled(false);
   },
-  [borrowInput, collatInput, selectedSeries, selectedIlk, activeAccount]);
+  [borrowInput, collatInput, selectedSeries, selectedIlk, activeAccount, borrowInputError]);
 
   /* ADD COLLATERAL DISABLING LOGIC */
   useEffect(() => {
@@ -133,22 +139,14 @@ const Borrow = () => {
       !activeAccount ||
         !borrowInput ||
         !selectedSeries ||
-        !selectedIlk ||
+        borrowInputError ||
         selectedSeries?.seriesIsMature
     )
-      ? setCollatDisabled(true)
+      ? setStepDisabled(true)
       /* else if all pass, then unlock borrowing */
-      : setCollatDisabled(false);
+      : setStepDisabled(false);
   },
-  [borrowInput, collatInput, selectedSeries, selectedIlk, activeAccount]);
-
-  // useEffect(() => {
-  //   (!activeAccount || !collatInput || collatError) ? setCollatDisabled(true) : setCollatDisabled(false);
-  // }, [collatInput, activeAccount, collatError]);
-
-  useEffect(() => {
-    (!activeAccount || !collatInput || collatError) ? setCollatDisabled(true) : setCollatDisabled(false);
-  }, [collatInput, activeAccount, collatError]);
+  [borrowInput, borrowInputError, selectedSeries, activeAccount]);
 
   /**
    * EXTRAS
@@ -223,7 +221,7 @@ const Borrow = () => {
               <SectionWrap title="Select an asset and amount: ">
                 <Box direction="row" gap="small" fill="horizontal" align="start">
                   <Box basis={mobile ? '50%' : '65%'}>
-                    <InputWrap action={() => console.log('maxAction')} isError={borrowError}>
+                    <InputWrap action={() => console.log('maxAction')} isError={borrowInputError}>
                       <TextInput
                         plain
                         type="number"
@@ -290,7 +288,7 @@ const Borrow = () => {
               <SectionWrap>
                 <Box direction="row" gap="small" fill="horizontal" align="start">
                   <Box basis={mobile ? '50%' : '65%'}>
-                    <InputWrap action={() => console.log('maxAction')} disabled={!selectedSeries} isError={collatError}>
+                    <InputWrap action={() => console.log('maxAction')} disabled={!selectedSeries} isError={collatInputError}>
                       <TextInput
                         plain
                         type="number"
@@ -393,7 +391,7 @@ const Borrow = () => {
                 label={<Text size={mobile ? 'small' : undefined}> continue to Add collateral </Text>}
                 key="ONE"
                 onClick={() => setStepPosition(stepPosition + 1)}
-                disabled={collatDisabled}
+                disabled={stepDisabled}
               />
               }
 
