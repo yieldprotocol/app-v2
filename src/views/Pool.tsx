@@ -16,7 +16,6 @@ import { ISeries, IUserContext } from '../types';
 import { usePoolActions } from '../hooks/poolActions';
 import MaxButton from '../components/MaxButton';
 import PanelWrap from '../components/wraps/PanelWrap';
-import SeriesPanel from '../components/SeriesPanel';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 
 function Pool() {

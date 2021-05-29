@@ -18,10 +18,8 @@ import { UserContext } from '../contexts/UserContext';
 import { ISeries, IUserContext } from '../types';
 import MaxButton from '../components/MaxButton';
 import PanelWrap from '../components/wraps/PanelWrap';
-import SeriesPanel from '../components/SeriesPanel';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import { ZERO_BN } from '../utils/constants';
-import AprDisplay from '../components/AprDisplay';
 import YieldApr from '../components/YieldApr';
 
 const Lend = () => {

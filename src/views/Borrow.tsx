@@ -20,7 +20,6 @@ import { ISeries, IUserContext, IVault } from '../types';
 import { collateralizationRatio } from '../utils/yieldMath';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
-import AprDisplay from '../components/AprDisplay';
 import YieldApr from '../components/YieldApr';
 import { ZERO_BN } from '../utils/constants';
 

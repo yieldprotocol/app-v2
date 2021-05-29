@@ -159,7 +159,7 @@ const Vault = () => {
   }, [vaultMap, selectedVault]);
 
   return (
-    <MainViewWrap fullWidth>
+    <MainViewWrap>
       {activeAccount &&
       <>
         <Box gap="medium">
