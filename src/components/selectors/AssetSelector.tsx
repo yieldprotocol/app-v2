@@ -44,8 +44,8 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   /* initiate base selector to Dai available asset and selected ilk ETH */
   useEffect(() => {
     if (Array.from(assetMap.values()).length) {
-      userActions.setSelectedBase(assetMap.get(DAI).id);
-      userActions.setSelectedIlk(assetMap.get(WETH).id);
+      !selectedBaseId && userActions.setSelectedBase(assetMap.get(DAI).id);
+      !selectedIlkId && userActions.setSelectedIlk(assetMap.get(WETH).id);
     }
   }, [assetMap]);
 
