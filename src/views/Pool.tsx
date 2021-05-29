@@ -15,6 +15,9 @@ import { UserContext } from '../contexts/UserContext';
 import { ISeries, IUserContext } from '../types';
 import { usePoolActions } from '../hooks/poolActions';
 import MaxButton from '../components/MaxButton';
+import PanelWrap from '../components/wraps/PanelWrap';
+import SeriesPanel from '../components/SeriesPanel';
+import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 
 function Pool() {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -45,6 +48,8 @@ function Pool() {
   const [rollDisabled, setRollDisabled] = useState<boolean>(true);
 
   const [strategy, setStrategy] = useState<'BUY'|'MINT'>('BUY');
+
+  const [stepPosition, setStepPosition] = useState<number>(0);
 
   /* HOOK FNS */
 
@@ -152,45 +157,61 @@ function Pool() {
 
     <MainViewWrap>
 
-      <SectionWrap title="1. Asset to Pool">
-        <Box direction="row" gap="small" fill="horizontal" align="start">
+      <PanelWrap>
 
-          <Box basis={mobile ? '50%' : '65%'}>
-            <InputWrap action={() => console.log('maxAction')} isError={poolError}>
-              <TextInput
-                plain
-                type="number"
-                placeholder="Enter Amount"
-                value={poolInput || ''}
-                onChange={(event:any) => setPoolInput(cleanValue(event.target.value))}
-              />
-              <MaxButton
-                action={() => setPoolInput(maxPool)}
-                disabled={maxPool === '0'}
-              />
-            </InputWrap>
-          </Box>
-
-          <Box basis={mobile ? '50%' : '35%'}>
-            <AssetSelector />
-          </Box>
-
+        <Box>
+          <Text size={stepPosition === 0 ? 'xxlarge' : 'xlarge'} color={stepPosition === 0 ? 'text' : 'text-xweak'}>Choose an asset to pool</Text>
+          <Text size={stepPosition === 1 ? 'xxlarge' : 'xlarge'} color={stepPosition === 1 ? 'text' : 'text-xweak'}>Review and transact</Text>
         </Box>
-      </SectionWrap>
 
-      <SectionWrap title="2. Select a series">
+        <Box gap="small">
+          <Text weight="bold">Information</Text>
+          <Text size="small"> Some information </Text>
+        </Box>
 
-        <SeriesSelector />
-        <Box justify="evenly" gap="small" fill="horizontal" direction="row-responsive">
-          {
+      </PanelWrap>
+
+      <CenterPanelWrap>
+
+        <SectionWrap title="1. Asset to Pool">
+          <Box direction="row" gap="small" fill="horizontal" align="start">
+
+            <Box basis={mobile ? '50%' : '65%'}>
+              <InputWrap action={() => console.log('maxAction')} isError={poolError}>
+                <TextInput
+                  plain
+                  type="number"
+                  placeholder="Enter Amount"
+                  value={poolInput || ''}
+                  onChange={(event:any) => setPoolInput(cleanValue(event.target.value))}
+                />
+                <MaxButton
+                  action={() => setPoolInput(maxPool)}
+                  disabled={maxPool === '0'}
+                />
+              </InputWrap>
+            </Box>
+
+            <Box basis={mobile ? '50%' : '35%'}>
+              <AssetSelector />
+            </Box>
+
+          </Box>
+        </SectionWrap>
+
+        <SectionWrap title="2. Select a series">
+
+          <SeriesSelector />
+          <Box justify="evenly" gap="small" fill="horizontal" direction="row-responsive">
+            {
             selectedSeries?.baseId === selectedBase?.id &&
             <InfoBite label="Your pool tokens" value={selectedSeries?.poolTokens_!} />
           }
-        </Box>
+          </Box>
 
-      </SectionWrap>
+        </SectionWrap>
 
-      {
+        {
       !selectedSeries?.seriesIsMature &&
       <>
         <SectionWrap>
@@ -225,78 +246,85 @@ function Pool() {
       </>
       }
 
-      <SectionWrap title="[ Remove Liquidity ]">
+        <SectionWrap title="[ Remove Liquidity ]">
 
-        <Box direction="row" gap="small" fill align="start">
-          <Box fill="horizontal">
-            <InputWrap action={() => console.log('maxAction')} isError={removeError}>
-              <TextInput
-                plain
-                type="number"
-                placeholder="Tokens to remove"
-                value={removeInput || ''}
-                onChange={(event:any) => setRemoveInput(cleanValue(event.target.value))}
-              />
-              <MaxButton
-                action={() => setRemoveInput(maxRemove)}
-                disabled={maxRemove === '0.0'}
-              />
-            </InputWrap>
-          </Box>
-        </Box>
-
-        <Box gap="small" fill direction="row" align="start">
-          <ActionButtonGroup buttonList={[
-            <Button
-              primary
-              label={<Text size={mobile ? 'small' : undefined}> Remove </Text>}
-              key="primary"
-              onClick={() => handleRemove()}
-              disabled={removeDisabled}
-            />,
-          ]}
-          />
-        </Box>
-
-      </SectionWrap>
-
-      <SectionWrap title="[ Roll Liquidity to ]">
-        <Box direction="row" gap="small" fill="horizontal">
-
-          <Box fill>
-            <InputWrap action={() => console.log('maxAction')} isError={rollError}>
-              <TextInput
-                plain
-                type="number"
-                placeholder="Tokens to roll"
-                value={rollInput || ''}
-                onChange={(event:any) => setRollInput(cleanValue(event.target.value))}
-              />
-              <MaxButton
-                action={() => setRollInput(maxRemove)}
-                disabled={maxRemove === '0.0'}
-              />
-            </InputWrap>
+          <Box direction="row" gap="small" fill align="start">
+            <Box fill="horizontal">
+              <InputWrap action={() => console.log('maxAction')} isError={removeError}>
+                <TextInput
+                  plain
+                  type="number"
+                  placeholder="Tokens to remove"
+                  value={removeInput || ''}
+                  onChange={(event:any) => setRemoveInput(cleanValue(event.target.value))}
+                />
+                <MaxButton
+                  action={() => setRemoveInput(maxRemove)}
+                  disabled={maxRemove === '0.0'}
+                />
+              </InputWrap>
+            </Box>
           </Box>
 
-        </Box>
-
-        <Box gap="small" fill="horizontal" direction="row">
-          <SeriesSelector selectSeriesLocally={(series:ISeries) => setRollToSeries(series)} />
-          <Box basis="35%">
+          <Box gap="small" fill direction="row" align="start">
             <ActionButtonGroup buttonList={[
               <Button
                 primary
-                label={<Text size={mobile ? 'small' : undefined}> Roll </Text>}
+                label={<Text size={mobile ? 'small' : undefined}> Remove </Text>}
                 key="primary"
-                onClick={() => handleRoll()}
-                // disabled={rollDisabled}
+                onClick={() => handleRemove()}
+                disabled={removeDisabled}
               />,
             ]}
             />
           </Box>
-        </Box>
-      </SectionWrap>
+
+        </SectionWrap>
+
+        <SectionWrap title="[ Roll Liquidity to ]">
+          <Box direction="row" gap="small" fill="horizontal">
+
+            <Box fill>
+              <InputWrap action={() => console.log('maxAction')} isError={rollError}>
+                <TextInput
+                  plain
+                  type="number"
+                  placeholder="Tokens to roll"
+                  value={rollInput || ''}
+                  onChange={(event:any) => setRollInput(cleanValue(event.target.value))}
+                />
+                <MaxButton
+                  action={() => setRollInput(maxRemove)}
+                  disabled={maxRemove === '0.0'}
+                />
+              </InputWrap>
+            </Box>
+
+          </Box>
+
+          <Box gap="small" fill="horizontal" direction="row">
+            <SeriesSelector selectSeriesLocally={(series:ISeries) => setRollToSeries(series)} />
+            <Box basis="35%">
+              <ActionButtonGroup buttonList={[
+                <Button
+                  primary
+                  label={<Text size={mobile ? 'small' : undefined}> Roll </Text>}
+                  key="primary"
+                  onClick={() => handleRoll()}
+                />,
+              ]}
+              />
+            </Box>
+          </Box>
+        </SectionWrap>
+
+      </CenterPanelWrap>
+
+      <PanelWrap>
+
+        Hello there
+
+      </PanelWrap>
 
     </MainViewWrap>
   );
