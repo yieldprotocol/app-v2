@@ -183,25 +183,29 @@ const Borrow = () => {
 
       <MainViewWrap>
 
-        <PanelWrap basis="30%">
-          <Box justify="between" fill pad="xlarge">
-            <Box>
-              { [['1. Choose asset to', 'borrow'], ['2. Add', 'collateral'], ['3. ', 'Review', 'and transact']].map((x:string[], i:number) => (
-                <Box direction="row" key={x[1]}>
-                  <Text weight={100} size="xlarge" color={stepPosition === i ? 'text' : 'text-xweak'}> {x[0]}
-                    <Text weight="bold" size={stepPosition === i ? 'xxlarge' : 'xlarge'} color={stepPosition === i ? 'text' : 'text-xweak'}> {x[1]} </Text>
-                    {x[2]}
-                  </Text>
-                </Box>
-              )) }
-            </Box>
+        <PanelWrap>
 
-            <Box gap="small">
-              <Text weight="bold">Information</Text>
-              <Text size="small"> Some information </Text>
-            </Box>
-
+          {/* <Box justify="between" fill pad="xlarge"> */}
+          <Box>
+            { [['Choose asset to', 'borrow'], ['Add', 'collateral'], ['', 'Review', 'and transact']].map((x:string[], i:number) => (
+              <Box direction="row" key={x[1]}>
+                {/* <Text weight="bold" size={stepPosition === i ? 'xxlarge' : 'xlarge'} color={stepPosition === i ? 'text' : 'text-xweak'}>
+                    {x[0]} {x[1]} {x[2]}
+                  </Text> */}
+                <Text weight={600} size={stepPosition === i ? 'xxlarge' : 'large'} color={stepPosition === i ? 'text' : 'text-xweak'}> {x[0]}
+                  <Text size={stepPosition === i ? 'xxlarge' : 'large'} color={stepPosition === i ? 'text' : 'text-xweak'}> {x[1]} </Text>
+                  {x[2]}
+                </Text>
+              </Box>
+            )) }
           </Box>
+
+          <Box gap="small">
+            <Text weight="bold">Information</Text>
+            <Text size="small"> Some information </Text>
+          </Box>
+
+          {/* </Box> */}
         </PanelWrap>
 
         <CenterPanelWrap>
@@ -427,7 +431,7 @@ const Borrow = () => {
 
         </CenterPanelWrap>
 
-        <PanelWrap basis="30%">
+        <PanelWrap>
 
           <YieldApr input={borrowInput} type="BORROW" />
 
@@ -445,9 +449,11 @@ const Borrow = () => {
                   key={x.id}
                   onClick={() => routerHistory.push(`/vault/${x.id}`)}
                   animation={{ type: 'fadeIn', delay: i * 100, duration: 1500 }}
-                  border
-                  // pad="xsmall"
+                  // border
+                  hoverIndicator={{ elevation: 'xsmall', background: 'white' }}
+                  pad="xsmall"
                   round="xsmall"
+                  justify="center"
                 >
                   <Text size="small"> {x.id} </Text>
                 </Box>

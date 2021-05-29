@@ -19,7 +19,7 @@ function App() {
   const [menuLayerOpen, setMenuLayerOpen] = useState<boolean>(false);
 
   return (
-    <Box fill background="#EEEEEE55">
+    <Box fill>
       <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
       <Box flex={!mobile} overflow="auto" margin={{ top: 'xlarge' }}>
         <ToastContainer />

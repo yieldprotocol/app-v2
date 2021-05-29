@@ -57,7 +57,9 @@ function CenterPanelWrap({ basis, children }: IPanelWrap) {
       ) :
 
         <Box
-          alignSelf="center"
+          // alignSelf="center"
+          align="center"
+          justify="center"
         >
           <animated.div
             ref={domTarget}
@@ -70,6 +72,7 @@ function CenterPanelWrap({ basis, children }: IPanelWrap) {
               rotateY,
               rotateZ,
               opacity: opacity.to((o:any) => 1 - o),
+
             }}
           >
             <Box
@@ -80,6 +83,7 @@ function CenterPanelWrap({ basis, children }: IPanelWrap) {
               round="small"
               justify="between"
               background="white"
+              // style={{ backgroundImage: `url(${car})` }}
             >
               {children}
             </Box>

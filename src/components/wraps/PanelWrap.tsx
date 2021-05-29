@@ -10,11 +10,12 @@ function PanelWrap({ basis, children }: IPanelWrap) {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
   return (
     <Box
-      basis={basis}
+      basis={basis || '33%'}
       justify="between"
       fill
-      pad="medium"
+      pad="xlarge"
       align="center"
+      background="pink"
     >
       {children}
     </Box>
