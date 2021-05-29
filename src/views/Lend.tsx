@@ -172,18 +172,18 @@ const Lend = () => {
   return (
     <MainViewWrap>
 
-      <PanelWrap basis="30%">
-        <Box justify="between" fill pad="xlarge">
-          <Box>
-            <Text size={stepPosition === 0 ? 'xxlarge' : 'xlarge'} color={stepPosition === 0 ? 'text' : 'text-xweak'}>Choose an asset to lend</Text>
-            <Text size={stepPosition === 1 ? 'xxlarge' : 'xlarge'} color={stepPosition === 1 ? 'text' : 'text-xweak'}>Review and transact</Text>
-          </Box>
+      <PanelWrap>
 
-          <Box gap="small">
-            <Text weight="bold">Information</Text>
-            <Text size="small"> Some information </Text>
-          </Box>
+        <Box>
+          <Text size={stepPosition === 0 ? 'xxlarge' : 'xlarge'} color={stepPosition === 0 ? 'text' : 'text-xweak'}>Choose an asset to lend</Text>
+          <Text size={stepPosition === 1 ? 'xxlarge' : 'xlarge'} color={stepPosition === 1 ? 'text' : 'text-xweak'}>Review and transact</Text>
         </Box>
+
+        <Box gap="small">
+          <Text weight="bold">Information</Text>
+          <Text size="small"> Some information </Text>
+        </Box>
+
       </PanelWrap>
 
       <CenterPanelWrap>
@@ -362,7 +362,7 @@ const Lend = () => {
         </SectionWrap> */}
       </CenterPanelWrap>
 
-      <PanelWrap basis="30%">
+      <PanelWrap>
 
         <YieldApr input={lendInput} type="LEND" />
 
