@@ -46,25 +46,7 @@ export const yieldTheme = {
     ),
   },
 
-  // select: {
-  //   options: {
-  //     container: {
-  //       pad: undefined,
-  //     },
-  //   },
-  // },
-
-  // layer: {
-  //   container: {
-  //     zIndex: '20',
-  //   },
-  //   zIndex: '20',
-  //   // @ts-ignore
-  //   extend: () => css`backdrop-filter: blur(3px);`,
-  // },
-
   button: {
-
     border: {
       radius: '8px',
     },
@@ -90,10 +72,6 @@ export const yieldTheme = {
     border: {
       radius: '8px',
     },
-    // font: {
-    //   size: 'large',
-    //   color: 'text-xweak',
-    // },
   },
   table: {
     size: 'small',
@@ -105,6 +83,31 @@ export const yieldTheme = {
       border: false,
     },
   },
+
+  layer: {
+    container: {
+      zIndex: '20',
+    },
+    zIndex: '15',
+    overlay: {
+      background: '#000000B3', // 60%
+    },
+    background: 'white',
+
+    // @ts-ignore
+    extend: () => css`
+    backdrop-filter: blur(5px);
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type='number'] {
+      -moz-appearance: textfield;
+    }
+    `,
+  },
+
   grommet: {
     // @ts-ignore
     extend: () => css`
