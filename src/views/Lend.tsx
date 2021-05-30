@@ -21,6 +21,7 @@ import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import { ZERO_BN } from '../utils/constants';
 import YieldApr from '../components/YieldApr';
+import StepperText from '../components/StepperText';
 
 const Lend = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -172,10 +173,10 @@ const Lend = () => {
 
       <PanelWrap>
 
-        <Box>
-          <Text size={stepPosition === 0 ? 'xxlarge' : 'xlarge'} color={stepPosition === 0 ? 'text' : 'text-xweak'}>Choose an asset to lend</Text>
-          <Text size={stepPosition === 1 ? 'xxlarge' : 'xlarge'} color={stepPosition === 1 ? 'text' : 'text-xweak'}>Review and transact</Text>
-        </Box>
+        <StepperText
+          position={stepPosition}
+          values={[['Choose an asset to', 'lend', ''], ['', 'Review', 'and transact']]}
+        />
 
         <Box gap="small">
           <Text weight="bold">Information</Text>
@@ -360,7 +361,7 @@ const Lend = () => {
         </SectionWrap> */}
       </CenterPanelWrap>
 
-      <PanelWrap>
+      <PanelWrap right>
 
         <YieldApr input={lendInput} type="LEND" />
 

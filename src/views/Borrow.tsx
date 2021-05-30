@@ -22,6 +22,9 @@ import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import YieldApr from '../components/YieldApr';
 import { ZERO_BN } from '../utils/constants';
+import StepperText from '../components/StepperText';
+import Collateralization from '../components/Collateralization';
+import VaultWrap from '../components/wraps/VaultWrap';
 
 const Borrow = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -185,19 +188,10 @@ const Borrow = () => {
         <PanelWrap>
 
           {/* <Box justify="between" fill pad="xlarge"> */}
-          <Box>
-            { [['Choose asset to', 'borrow'], ['Add', 'collateral'], ['', 'Review', 'and transact']].map((x:string[], i:number) => (
-              <Box direction="row" key={x[1]}>
-                {/* <Text weight="bold" size={stepPosition === i ? 'xxlarge' : 'xlarge'} color={stepPosition === i ? 'text' : 'text-xweak'}>
-                    {x[0]} {x[1]} {x[2]}
-                  </Text> */}
-                <Text weight={600} size={stepPosition === i ? 'xxlarge' : 'large'} color={stepPosition === i ? 'text' : 'text-xweak'}> {x[0]}
-                  <Text size={stepPosition === i ? 'xxlarge' : 'large'} color={stepPosition === i ? 'text' : 'text-xweak'}> {x[1]} </Text>
-                  {x[2]}
-                </Text>
-              </Box>
-            )) }
-          </Box>
+          <StepperText
+            position={stepPosition}
+            values={[['Choose an asset to', 'borrow', ''], ['Add', 'collateral', ''], ['', 'Review', 'and transact']]}
+          />
 
           <Box gap="small">
             <Text weight="bold">Information</Text>
@@ -358,8 +352,13 @@ const Borrow = () => {
                 </SectionWrap>
               }
 
+              {/* <SectionWrap>
+
+                <Collateralization percent={50} />
+              </SectionWrap> */}
+
             </Box>
-        }
+            }
 
             {/**
              *
@@ -430,32 +429,20 @@ const Borrow = () => {
 
         </CenterPanelWrap>
 
-        <PanelWrap>
+        <PanelWrap right>
 
           <YieldApr input={borrowInput} type="BORROW" />
 
-          <Box gap="small">
+          <Box gap="small" pad="small">
             {
             matchingBaseVaults.length > 0 &&
-            <Box animation="fadeIn">
-              <Text size="small"> My existing {selectedBase?.symbol}-based vaults for the {selectedSeries?.displayName} series: </Text>
+            <Box animation="fadeIn" justify="end">
+              <Text size="small" color="text-weak"> {selectedBase?.symbol}-based vaults for {selectedSeries?.displayName}: </Text>
             </Box>
             }
             {
               matchingBaseVaults.map((x:IVault, i:number) => (
-                <Box
-                  direction="row"
-                  key={x.id}
-                  onClick={() => routerHistory.push(`/vault/${x.id}`)}
-                  animation={{ type: 'fadeIn', delay: i * 100, duration: 1500 }}
-                  // border
-                  hoverIndicator={{ elevation: 'xsmall', background: 'white' }}
-                  pad="xsmall"
-                  round="xsmall"
-                  justify="center"
-                >
-                  <Text size="small"> {x.id} </Text>
-                </Box>
+                <VaultWrap key={x.id} vault={x} index={i} />
               ))
             }
           </Box>

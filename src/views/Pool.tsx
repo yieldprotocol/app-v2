@@ -17,6 +17,7 @@ import { usePoolActions } from '../hooks/poolActions';
 import MaxButton from '../components/MaxButton';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
+import StepperText from '../components/StepperText';
 
 function Pool() {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -158,10 +159,10 @@ function Pool() {
 
       <PanelWrap>
 
-        <Box>
-          <Text size={stepPosition === 0 ? 'xxlarge' : 'xlarge'} color={stepPosition === 0 ? 'text' : 'text-xweak'}>Choose an asset to pool</Text>
-          <Text size={stepPosition === 1 ? 'xxlarge' : 'xlarge'} color={stepPosition === 1 ? 'text' : 'text-xweak'}>Review and transact</Text>
-        </Box>
+        <StepperText
+          position={stepPosition}
+          values={[['Choose an asset to', 'pool', ''], ['', 'Review', 'and transact']]}
+        />
 
         <Box gap="small">
           <Text weight="bold">Information</Text>
