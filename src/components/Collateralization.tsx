@@ -1,4 +1,4 @@
-import { Box } from 'grommet';
+import { Box, Text } from 'grommet';
 import React from 'react';
 import styled, { css } from 'styled-components';
 
@@ -70,53 +70,57 @@ const Div = styled.div`
 function Collateralization({ percent }: { percent:number }) {
   return (
 
-    <Box>
-      <Div>
-        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px">
-          <symbol id="wave">
-            <path d="M420,20c21.5-0.4,38.8-2.5,51.1-4.5c13.4-2.2,26.5-5.2,27.3-5.4C514,6.5,518,4.7,528.5,2.7c7.1-1.3,17.9-2.8,31.5-2.7c0,0,0,0,0,0v20H420z" />
-            <path d="M420,20c-21.5-0.4-38.8-2.5-51.1-4.5c-13.4-2.2-26.5-5.2-27.3-5.4C326,6.5,322,4.7,311.5,2.7C304.3,1.4,293.6-0.1,280,0c0,0,0,0,0,0v20H420z" />
-            <path d="M140,20c21.5-0.4,38.8-2.5,51.1-4.5c13.4-2.2,26.5-5.2,27.3-5.4C234,6.5,238,4.7,248.5,2.7c7.1-1.3,17.9-2.8,31.5-2.7c0,0,0,0,0,0v20H140z" />
-            <path d="M140,20c-21.5-0.4-38.8-2.5-51.1-4.5c-13.4-2.2-26.5-5.2-27.3-5.4C46,6.5,42,4.7,31.5,2.7C24.3,1.4,13.6-0.1,0,0c0,0,0,0,0,0l0,20H140z" />
-          </symbol>
-        </svg>
+    <Box pad="small" direction="row" align="center" border round>
+      <svg viewBox="0 0 100 25">
+        <defs>
+          <linearGradient id="gradient" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="5%" stopColor="red" />
+            <stop offset="90%" stopColor="maroon" />
+          </linearGradient>
 
-        <Box className="box">
+          <linearGradient id="gradient2" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="5%" stopColor="red" />
+            <stop offset="90%" stopColor="maroon" />
+          </linearGradient>
 
-          <div className="percent">
-            <div className="percentNum" id="count">20</div>
-            <div className="percentB">%</div>
-          </div>
+          <pattern id="wave" x="0" y={percent} width="100" height="40" patternUnits="userSpaceOnUse">
+            <path id="wavePath" d="M-40 9 Q-30 7 -20 9 T0 9 T20 9 T40 9 T60 9 T80 9 T100 9 T120 9 V20 H-40z" mask="url(#mask)" fill="maroon">
+              <animateTransform
+                attributeName="transform"
+                begin="0s"
+                dur="3.0s"
+                type="translate"
+                from="0,0"
+                to="40,0"
+                repeatCount="indefinite"
+              />
+            </path>
+            <path id="wavePath2" d="M-40 9 Q-30 7 -20 9 T0 9 T20 9 T40 9 T60 9 T80 9 T100 9 T120 9 V20 H-40z" mask="url(#mask)" fill="url(#gradient)">
+              <animateTransform
+                attributeName="transform"
+                begin="0s"
+                dur="3.5s"
+                type="translate"
+                from="0,0"
+                to="40,0"
+                repeatCount="indefinite"
+                // width="200%"
+              />
+            </path>
+          </pattern>
 
-          <div id="water" className="water">
-            <svg viewBox="0 0 560 20" className="water_wave water_wave_back">
-              <use xlinkHref="#wave" />
-            </svg>
-            <svg viewBox="0 0 560 20" className="water_wave water_wave_front">
-              <use xlinkHref="#wave" />
-            </svg>
-          </div>
+        </defs>
 
-        </Box>
+        <circle fill="url(#wave)" fillOpacity="0.6" cx="10" cy="10" r="10" />
+        <circle fill="url(#gradient)" fillOpacity="0.6" cx="10" cy="10" r="10" />
+        {/* <circle fill="url(#gradient)" fillOpacity="0.6" cx="16" cy="16" r="8" stroke="maroon" strokeWidth="0.5" /> */}
+        {/* <text textAnchor="middle" x="16" y="16" fontSize="5">{percent}%</text> */}
 
-        {/* <div className="box">
-        <div className="percent">
-          <div className="percentNum" id="count">0</div>
-          <div className="percentB">%</div>
-        </div>
-
-        <div id="water" className="water">
-          <svg viewBox="0 0 560 20" className="water_wave water_wave_back">
-            <use xlinkHref="#wave" />
-          </svg>
-          <svg viewBox="0 0 560 20" className="water_wave water_wave_front">
-            <use xlinkHref="#wave" />
-          </svg>
-        </div>
-
-      </div> */}
-
-      </Div>
+        {/* <text textAnchor="middle" x="20" y="15" fontSize="17" fill="url(#wave)" fillOpacity="0.6">{percent}%</text>
+        <text textAnchor="middle" x="20" y="15" fontSize="17" fill="url(#gradient)" fillOpacity="0.1">{percent}%</text>
+        */}
+      </svg>
+      <Text> Collateralisation rate: {percent}% </Text>
     </Box>
 
   );
