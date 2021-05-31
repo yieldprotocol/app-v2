@@ -5,6 +5,12 @@ import { IAsset, ISeries, IUserContext, IVault } from '../../types';
 import Vault from '../../views/Vault';
 import VaultWrap from '../wraps/VaultWrap';
 
+interface IVaultFilter {
+  base: IAsset| undefined,
+  series: ISeries | undefined,
+  ilk: IAsset | undefined,
+}
+
 function VaultSelector() {
   /* STATE FROM CONTEXT */
 
@@ -24,8 +30,7 @@ function VaultSelector() {
   const [matchingSeriesVaults, setMatchingSeriesVaults] = useState<IVault[]>([]);
   const [matchingIlkVaults, setMatchingIlkVaults] = useState<IVault[]>([]);
 
-  // const [filters, setFilters] = useState<(string|undefined)[]>([]);
-
+  const [currentFilter, setCurrentFilter] = useState<(IVaultFilter)>();
   const [filterLabels, setFilterLabels] = useState<(string|undefined)[]>([]);
   const [filteredVaults, setFilteredVaults] = useState<IVault[]>([]);
 
@@ -34,17 +39,19 @@ function VaultSelector() {
     setShowVaultModal(true);
   };
 
-  const handleFilter = useCallback((
-    { base, series, ilk }: { base: IAsset|undefined, series: ISeries|undefined, ilk: IAsset|undefined },
-  ) => {
-    const _filteredVaults: IVault[] = Array.from(vaultMap.values())
-      .filter((vault:IVault) => (base ? vault.baseId === base.id : true))
-      .filter((vault:IVault) => (series ? (vault.seriesId === series.id) : true))
-      .filter((vault:IVault) => (ilk ? (vault.ilkId === ilk.id) : true));
+  const handleFilter = useCallback(
+    ({ base, series, ilk }: IVaultFilter) => {
+      const _filteredVaults: IVault[] = Array.from(vaultMap.values())
+        .filter((vault:IVault) => (base ? vault.baseId === base.id : true))
+        .filter((vault:IVault) => (series ? (vault.seriesId === series.id) : true))
+        .filter((vault:IVault) => (ilk ? (vault.ilkId === ilk.id) : true));
 
-    setFilterLabels([base?.symbol, series?.displayNameMobile, ilk?.symbol]);
-    setFilteredVaults(_filteredVaults);
-  }, [vaultMap]);
+      setCurrentFilter({ base, series, ilk });
+      setFilterLabels([base?.symbol, series?.displayNameMobile, ilk?.symbol]);
+      setFilteredVaults(_filteredVaults);
+    },
+    [vaultMap],
+  );
 
   /* CHECK the list of current vaults which match the current series/ilk selection */
   useEffect(() => {
@@ -105,7 +112,7 @@ function VaultSelector() {
             <Text size="xsmall">{filterLabels[0]}-based</Text>
             <Text
               size="xsmall"
-              onClick={() => handleFilter({ base: undefined, series: selectedSeries, ilk: undefined })}
+              onClick={() => handleFilter({ ...currentFilter, base: undefined } as IVaultFilter)}
             > x
             </Text>
           </Box>
@@ -116,7 +123,7 @@ function VaultSelector() {
             <Text size="xsmall">{filterLabels[1]}</Text>
             <Text
               size="xsmall"
-              onClick={() => handleFilter({ base: selectedBase, series: undefined, ilk: undefined })}
+              onClick={() => handleFilter({ ...currentFilter, series: undefined } as IVaultFilter)}
             >x
             </Text>
           </Box>
@@ -126,7 +133,11 @@ function VaultSelector() {
           filterLabels[2] &&
           <Box direction="row" border round pad={{ horizontal: 'xsmall', vertical: 'xsmall' }}>
             <Text size="xsmall">{filterLabels[2]} collateral</Text>
-            x
+            <Text
+              size="xsmall"
+              onClick={() => handleFilter({ ...currentFilter, ilk: undefined } as IVaultFilter)}
+            >x
+            </Text>
           </Box>
           }
         </Box>
