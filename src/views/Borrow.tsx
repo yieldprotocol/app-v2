@@ -25,7 +25,7 @@ import { ZERO_BN } from '../utils/constants';
 import StepperText from '../components/StepperText';
 import Collateralization from '../components/Collateralization';
 import VaultWrap from '../components/wraps/VaultWrap';
-import VaultList from '../components/VaultList';
+import VaultSelector from '../components/selectors/VaultSelector';
 
 const Borrow = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -445,7 +445,7 @@ const Borrow = () => {
 
           <YieldApr input={borrowInput} type="BORROW" />
 
-          <VaultList />
+          <VaultSelector />
 
         </PanelWrap>
 

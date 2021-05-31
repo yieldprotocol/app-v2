@@ -65,10 +65,10 @@ function YieldApr({ type, input }: IYieldApr) {
   return (
     <>
       {
-      (minApr > 0) &&
-      <Box animation="fadeIn" basis="50%">
-        <Box pad="large" />
-        {
+      (minApr > 0) ?
+        <Box animation="fadeIn" basis="50%">
+          <Box pad="large" />
+          {
         type === 'BORROW'
           ?
             <Text size="medium" weight="bold">
@@ -79,16 +79,18 @@ function YieldApr({ type, input }: IYieldApr) {
               Lend {selectedSeries && (input || '')} {selectedBase?.symbol || ''} {!selectedSeries ? 'for up to' : 'at'}
             </Text>
         }
-        <Box direction="row" align="center">
-          <StyledText size="80px">
-            {apr || (type === 'BORROW' ? minApr : maxApr) || ''}
-          </StyledText>
-          <Box fill="vertical" justify="evenly">
-            <StyledText size="large" color="brand"> % </StyledText>
-            <StyledText size="large" color="brand"> APR </StyledText>
+          <Box direction="row" align="center">
+            <StyledText size="80px">
+              {apr || (type === 'BORROW' ? minApr : maxApr) || ''}
+            </StyledText>
+            <Box fill="vertical" justify="evenly">
+              <StyledText size="large" color="brand"> % </StyledText>
+              <StyledText size="large" color="brand"> APR </StyledText>
+            </Box>
           </Box>
         </Box>
-      </Box>
+        :
+        <Box pad="small" />
       }
     </>
   );

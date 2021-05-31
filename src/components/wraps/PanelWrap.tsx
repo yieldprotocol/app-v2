@@ -16,7 +16,6 @@ function PanelWrap({ basis, right, children }: IPanelWrap) {
       fill
       pad="large"
       align={right ? 'end' : 'start'}
-      // background="pink"
     >
       {children}
     </Box>
