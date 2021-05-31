@@ -207,6 +207,7 @@ const Borrow = () => {
             {
             stepPosition === 0 &&
             <Box gap="large">
+              {/* <Box pad="small" /> */}
               <SectionWrap title="Select an asset and amount: ">
                 <Box direction="row" gap="small" fill="horizontal" align="start">
                   <Box basis={mobile ? '50%' : '65%'}>
