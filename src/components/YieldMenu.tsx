@@ -3,7 +3,7 @@ import { Box, Button, Header, Image, Text } from 'grommet';
 import styled, { CSSProperties, ThemeContext } from 'styled-components';
 import { useHistory } from 'react-router-dom';
 import { UserContext } from '../contexts/UserContext';
-import { IUserContext, IVault, IVaultRoot, View } from '../types';
+import { IUserContext, IVault, IVaultRoot, MenuView } from '../types';
 
 const StyledBox = styled(Box)`
   text-decoration: none;
@@ -36,11 +36,11 @@ const YieldMenu = ({ toggleMenu }: { toggleMenu: ()=>void }) => {
 
   /* local state */
   const [vaultsArray, setVaultsArray] = useState<IVault[]>(Array.from(vaultMap.values()));
-  const [view, setView] = useState<View>(vaultsArray.length > 0 ? View.vaults : View.account);
+  const [view, setView] = useState<MenuView>(vaultsArray.length > 0 ? MenuView.settings : MenuView.account);
 
   const handleSelect = (vault:IVault) => {
     setSelectedVault(vault.id);
-    routerHistory.push(`/vault/${vault.id}`);
+    // routerHistory.push(`/vault/${vault.id}`);
     toggleMenu();
   };
 
@@ -54,32 +54,32 @@ const YieldMenu = ({ toggleMenu }: { toggleMenu: ()=>void }) => {
       <Header pad="medium" height="xsmall" justify="between">
         <Box direction="row" justify="evenly" fill="horizontal">
           <StyledBox
-            onClick={() => setView(View.vaults)}
-            style={view === View.vaults ? activeStyle : undefined}
+            onClick={() => setView(MenuView.settings)}
+            style={view === MenuView.settings ? activeStyle : undefined}
           >
             <Text size="small">
-              My Vaults
+              My Account
             </Text>
           </StyledBox>
 
           <StyledBox
-            onClick={() => setView(View.account)}
-            style={view === View.account ? activeStyle : undefined}
+            onClick={() => setView(MenuView.account)}
+            style={view === MenuView.account ? activeStyle : undefined}
           >
             <Text size="small">
-              Account Details
+              Settings
             </Text>
           </StyledBox>
         </Box>
       </Header>
 
       <Box flex overflow="auto" pad="medium" fill="horizontal">
-        { view === View.account && <Box> Accounts view </Box>}
+        { view === MenuView.account && <Box> Accounts view </Box>}
 
         {
-          view === View.vaults &&
+          view === MenuView.settings &&
           <Box gap="medium">
-            { vaultsArray.map((x:IVault) => (
+            {/* { vaultsArray.map((x:IVault) => (
               <Box
                 key={x.id}
                 pad="small"
@@ -113,7 +113,7 @@ const YieldMenu = ({ toggleMenu }: { toggleMenu: ()=>void }) => {
                 <Box pad="small" border onClick={() => handleRouting('pool')}>Pooling</Box>
               </Box>
 
-            </Box>}
+            </Box>} */}
           </Box>
           }
       </Box>
