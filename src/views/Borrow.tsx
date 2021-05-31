@@ -25,6 +25,7 @@ import { ZERO_BN } from '../utils/constants';
 import StepperText from '../components/StepperText';
 import Collateralization from '../components/Collateralization';
 import VaultWrap from '../components/wraps/VaultWrap';
+import VaultList from '../components/VaultList';
 
 const Borrow = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -197,21 +198,12 @@ const Borrow = () => {
             <Text weight="bold">Information</Text>
             <Text size="small"> Some information </Text>
           </Box>
-
           {/* </Box> */}
         </PanelWrap>
 
         <CenterPanelWrap>
 
           <Box gap="small">
-
-            {/**
-             *
-             *
-             * STEPPER POSITION INITIAL
-             *
-             * */}
-
             {
             stepPosition === 0 &&
             <Box gap="large">
@@ -311,31 +303,51 @@ const Borrow = () => {
                 !selectedSeries?.seriesIsMature &&
                 <SectionWrap>
                   <Box gap="small" fill="horizontal">
-                    <Box direction="row" justify="end">
+                    <Box gap="xsmall">
                       <CheckBox
-                        reverse
+                        // reverse
                         disabled={matchingVaults.length < 1}
                         checked={!vaultIdToUse || !matchingVaults.find((v:IVault) => v.id === vaultIdToUse)}
                         label={<Text size="small">Create new vault</Text>}
                         onChange={() => setVaultIdToUse(undefined)}
                       />
-                    </Box>
-                    {
-                matchingVaults.length > 0 &&
-                <Box alignSelf="center">
-                  <Text size="xsmall"> Or borrow from an existing vault:</Text>
-                  {/* <Select
-                    plain
-                    options={matchingVaults.map((x:IVault) => (<Text key={x.id} size="xsmall">{x.id}</Text>))}
-                    placeholder="or Borrow from an existing vault"
-                    value={vaultIdToUse}
-                    defaultValue={undefined}
-                    onChange={({ option }) => setVaultIdToUse(option)}
-                  /> */}
-                </Box>
-              }
 
-                    {
+                      <Box direction="row-responsive" gap="small" justify="between">
+                        <CheckBox
+                        // reverse
+                          disabled={matchingVaults.length < 1}
+                          checked={matchingVaults.length > 0 && !!vaultIdToUse}
+                          label={<Text size="small">Use an exisiting vault </Text>}
+                          onChange={(event:any) => setVaultIdToUse(matchingVaults[0].id)}
+                        />
+
+                        <Select
+                          disabled={!vaultIdToUse}
+                          options={matchingVaults.map((x:IVault) => x.id)}
+                          // placeholder="or Borrow from an existing vault"
+                          value={vaultIdToUse || ''}
+                          // defaultValue={undefined}
+                          onChange={({ option }) => setVaultIdToUse(option)}
+                        />
+
+                      </Box>
+
+                    </Box>
+                    {/* {
+                matchingVaults.length > 0 &&
+                vaultIdToUse &&
+                <Box alignSelf="center">
+                  <Select
+                    options={matchingVaults.map((x:IVault) => (<Text key={x.id} size="xsmall">{x.id}</Text>))}
+                    // placeholder="or Borrow from an existing vault"
+                    value={vaultIdToUse}
+                    // defaultValue={undefined}
+                    onChange={({ option }) => setVaultIdToUse(option)}
+                  />
+                </Box>
+              } */}
+
+                    {/* {
                 matchingVaults.map((x:IVault) => (
                   <Box direction="row" justify="end" key={x.id}>
                     <CheckBox
@@ -347,15 +359,15 @@ const Borrow = () => {
                     />
                   </Box>
                 ))
-              }
+              } */}
                   </Box>
                 </SectionWrap>
               }
 
-              {/* <SectionWrap>
+              <SectionWrap>
 
                 <Collateralization percent={50} />
-              </SectionWrap> */}
+              </SectionWrap>
 
             </Box>
             }
@@ -433,19 +445,7 @@ const Borrow = () => {
 
           <YieldApr input={borrowInput} type="BORROW" />
 
-          <Box gap="small" pad="small">
-            {
-            matchingBaseVaults.length > 0 &&
-            <Box animation="fadeIn" justify="end">
-              <Text size="small" color="text-weak"> {selectedBase?.symbol}-based vaults for {selectedSeries?.displayName}: </Text>
-            </Box>
-            }
-            {
-              matchingBaseVaults.map((x:IVault, i:number) => (
-                <VaultWrap key={x.id} vault={x} index={i} />
-              ))
-            }
-          </Box>
+          <VaultList />
 
         </PanelWrap>
 
