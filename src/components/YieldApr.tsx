@@ -2,6 +2,7 @@ import { ethers } from 'ethers';
 import { Box, Text } from 'grommet';
 import React, { useContext, useEffect, useState } from 'react';
 import Loader from 'react-spinners/GridLoader';
+import styled from 'styled-components';
 import { UserContext } from '../contexts/UserContext';
 import { ISeries, IUserContext } from '../types';
 import { cleanValue } from '../utils/displayUtils';
@@ -11,6 +12,13 @@ interface IYieldApr {
   type: 'BORROW'|'LEND'
   input: string|undefined,
 }
+
+const StyledText = styled(Text)`
+  /* text-shadow: 0 0 3px #FF0000; */
+  background: -webkit-linear-gradient(rgba(77,94,254,1),rgba(195,34,34,1));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+`;
 
 function YieldApr({ type, input }: IYieldApr) {
   /* STATE FROM CONTEXT */
@@ -63,21 +71,21 @@ function YieldApr({ type, input }: IYieldApr) {
         {
         type === 'BORROW'
           ?
-            <Text size="xsmall">
+            <Text size="medium" weight="bold">
               Borrow {selectedSeries ? input : '' } {selectedBase?.symbol || ''} {!selectedSeries || selectedSeries.seriesIsMature ? 'from' : 'at'}
             </Text>
           :
-            <Text size="xsmall">
+            <Text size="medium" weight="bold">
               Lend {selectedSeries && (input || '')} {selectedBase?.symbol || ''} {!selectedSeries ? 'for up to' : 'at'}
             </Text>
         }
         <Box direction="row" align="center">
-          <Text size="70px" color="brand">
+          <StyledText size="80px">
             {apr || (type === 'BORROW' ? minApr : maxApr) || ''}
-          </Text>
+          </StyledText>
           <Box fill="vertical" justify="evenly">
-            <Text size="large" color="brand"> % </Text>
-            <Text size="large" color="brand"> APR </Text>
+            <StyledText size="large" color="brand"> % </StyledText>
+            <StyledText size="large" color="brand"> APR </StyledText>
           </Box>
         </Box>
       </Box>
