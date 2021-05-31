@@ -1,5 +1,5 @@
 import React, { useContext, useRef, useState } from 'react';
-import { Avatar, Box, Button, Heading, Layer, ResponsiveContext, Text } from 'grommet';
+import { Avatar, Image, Box, Button, Heading, Layer, ResponsiveContext, Text } from 'grommet';
 
 import { useSpringRef, useSpring, animated, to, a } from 'react-spring';
 import { useGesture } from 'react-use-gesture';
@@ -53,13 +53,13 @@ function VaultWrap({ vault, index }: IVaultWrap) {
     <Box
       direction="row"
       animation={{ type: 'fadeIn', delay: index * 100, duration: 1500 }}
-      hoverIndicator={{ background: 'brand' }}
-      round="large"
+      hoverIndicator={{ elevation: 'large' }}
+      round="small"
       onClick={() => setExpanded(true)}
       gap="xsmall"
       pad="xsmall"
     >
-      <Avatar background="accent-2" size="small">{vault.ilkId}</Avatar>
+      <Avatar background="accent-2" size="small"> v</Avatar>
       <Text size="small">{vault.id} </Text>
       {
         expanded &&
