@@ -26,9 +26,6 @@ function VaultSelector() {
   const [showVaultModal, setShowVaultModal] = useState<boolean>(false);
 
   const [allVaults, setAllVaults] = useState<IVault[]>([]);
-  const [matchingBaseVaults, setMatchingBaseVaults] = useState<IVault[]>([]);
-  const [matchingSeriesVaults, setMatchingSeriesVaults] = useState<IVault[]>([]);
-  const [matchingIlkVaults, setMatchingIlkVaults] = useState<IVault[]>([]);
 
   const [currentFilter, setCurrentFilter] = useState<(IVaultFilter)>();
   const [filterLabels, setFilterLabels] = useState<(string|undefined)[]>([]);
@@ -66,6 +63,13 @@ function VaultSelector() {
       }
     }
   }, [vaultMap, selectedBase, selectedSeries, showVaultModal, handleFilter]);
+
+  useEffect(() => {
+    !currentFilter?.base &&
+    !currentFilter?.series &&
+    !currentFilter?.ilk &&
+    setShowAllVaults(true);
+  }, [currentFilter]);
 
   return (
 

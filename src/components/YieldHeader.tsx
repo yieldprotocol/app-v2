@@ -50,7 +50,7 @@ const YieldHeader = ({ actionList } : IYieldHeaderProps) => {
                 </>
             }
             <Box round="xsmall" border={!mobile} onClick={() => toggleMenu()} pad="small" justify="center">
-              <Text size="small" color="text"> { mobile ? <FiMenu /> : 'Account and vaults'} </Text>
+              <Text size="small" color="text"> { mobile ? <FiMenu /> : 'Account and Settings'} </Text>
             </Box>
           </Box>
           :
