@@ -24,7 +24,6 @@ import YieldApr from '../components/YieldApr';
 import { ZERO_BN } from '../utils/constants';
 import StepperText from '../components/StepperText';
 import Collateralization from '../components/Collateralization';
-import VaultWrap from '../components/wraps/VaultWrap';
 import VaultSelector from '../components/selectors/VaultSelector';
 
 const Borrow = () => {
@@ -433,11 +432,6 @@ const Borrow = () => {
               }
             </ActionButtonGroup>
 
-            {/* <StepSelector
-              selected={stepPosition}
-              options={['1. choose asset', '2. add collateral', '3. review']}
-              action={(x:number) => setStepPosition(x)}
-            /> */}
           </Box>
 
         </CenterPanelWrap>

@@ -3,7 +3,6 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../contexts/UserContext';
 import { IAsset, ISeries, IUserContext, IVault } from '../../types';
 import Vault from '../../views/Vault';
-import VaultWrap from '../wraps/VaultWrap';
 
 interface IVaultFilter {
   base: IAsset| undefined,
