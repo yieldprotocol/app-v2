@@ -22,6 +22,7 @@ import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import { ZERO_BN } from '../utils/constants';
 import YieldApr from '../components/YieldApr';
 import StepperText from '../components/StepperText';
+import PositionSelector from '../components/selectors/PositionSelector';
 
 const Lend = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -365,38 +366,7 @@ const Lend = () => {
 
         <YieldApr input={lendInput} type="LEND" />
 
-        { selectedSeries?.fyTokenBalance?.gt(ZERO_BN) &&
-        <Box gap="small" pad="large">
-          <Box pad="xsmall" animation="fadeIn">
-            <Text size="xsmall"> Your {selectedBase?.symbol}-based position for the {selectedSeries?.displayName} series: </Text>
-            <InfoBite label="FYToken balance (Base value at maturity)" value={selectedSeries?.fyTokenBalance_!} />
-
-            <Text> </Text>
-          </Box>
-          <Box
-            direction="row"
-            justify="start"
-            // onClick={() => routerHistory.push(`/vault/${x.id}`)}
-            animation={{ type: 'fadeIn', delay: 0, duration: 1500 }}
-            border
-            pad="xsmall"
-            round="xsmall"
-          >
-            <Text size="xsmall"> Close Position </Text>
-          </Box>
-
-          <Box
-            direction="row"
-            justify="start"
-            // onClick={() => routerHistory.push(`/vault/${x.id}`)}
-            animation={{ type: 'fadeIn', delay: 100, duration: 1500 }}
-            border
-            pad="xsmall"
-            round="xsmall"
-          >
-            <Text size="xsmall"> Roll Position </Text>
-          </Box>
-        </Box>}
+        <PositionSelector type="LEND" />
 
         {/* { !selectedSeries &&
         <Box gap="small" pad="large">
