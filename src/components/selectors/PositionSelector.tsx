@@ -16,7 +16,6 @@ function PositionSelector({ type } : { type: 'LEND'|'POOL' }) {
 
   const { userState, userActions } = useContext(UserContext) as IUserContext;
   const { activeAccount, assetMap, seriesMap, selectedSeriesId, selectedBaseId } = userState;
-  const { setSelectedSeries } = userActions;
 
   const selectedBase = assetMap.get(selectedBaseId!);
   const selectedSeries = seriesMap.get(selectedSeriesId!);
@@ -30,7 +29,9 @@ function PositionSelector({ type } : { type: 'LEND'|'POOL' }) {
   const [filteredSeries, setFilteredSeries] = useState<ISeries[]>([]);
 
   const handleSelect = (_series:ISeries) => {
-    setSelectedSeries(_series.id);
+    console.log(_series.id);
+    userActions.setSelectedBase(_series.baseId);
+    userActions.setSelectedSeries(_series.id);
     setShowPositionModal(true);
   };
 
@@ -78,7 +79,6 @@ function PositionSelector({ type } : { type: 'LEND'|'POOL' }) {
   return (
 
     <>
-
       <ModalWrap modalOpen={showPositionModal} toggleModalOpen={() => setShowPositionModal(!showPositionModal)}>
         <LendPosition />
       </ModalWrap>

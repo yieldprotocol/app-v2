@@ -119,10 +119,12 @@ export const yieldTheme = {
       radius: 'small',
       intelligentRounding: true,
     },
+
+    // backdrop-filter: ${(props: LayerProps) => (props.plain === true ? 'blur(3px)' : 'none')};
+    // -webkit-backdrop-filter: ${(props: LayerProps) => (props.plain === true ? 'blur(3px)' : 'none')};
+
     // @ts-ignore
     extend: () => css`
-    backdrop-filter: ${(props: LayerProps) => (props.plain === true ? 'blur(5px)' : 'none')};
-    -webkit-backdrop-filter: ${(props: LayerProps) => (props.plain === true ? 'blur(5px)' : 'none')};
     input::-webkit-outer-spin-button,
     input::-webkit-inner-spin-button {
       -webkit-appearance: none;

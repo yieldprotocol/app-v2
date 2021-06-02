@@ -70,7 +70,7 @@ function ModalWrap({ children, toggleModalOpen, modalOpen = false }: IModalWrap)
         {
        modalOpen &&
          <Layer
-           plain
+           // plain
            onClickOutside={() => toggleModalOpen()}
            modal
            responsive
@@ -78,7 +78,7 @@ function ModalWrap({ children, toggleModalOpen, modalOpen = false }: IModalWrap)
 
            <Box
              height={{ min: '600px' }}
-             width={{ min: '500px' }}
+             width={mobile ? undefined : { min: '500px' }}
              round="small"
              justify="between"
              background="white"
