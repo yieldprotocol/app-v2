@@ -1,3 +1,4 @@
+import { LayerProps } from 'grommet';
 import { css } from 'styled-components';
 
 export const yieldTheme = {
@@ -36,6 +37,27 @@ export const yieldTheme = {
     },
     input: { weight: 900 },
 
+  },
+
+  grommet: {
+    // @ts-ignore
+    extend: () => css`
+        a { color: grey}
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+        input[type='number'] {
+          -moz-appearance: textfield;
+        }
+        overflow:auto;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+        ::-webkit-scrollbar {
+          display: none;
+        }
+      `,
   },
 
   textInput: {
@@ -90,13 +112,17 @@ export const yieldTheme = {
     },
     zIndex: '15',
     overlay: {
-      background: '#000000B3', // 60%
+      // background: '#00000048', // 30%
+      background: '#00000096', // 60%
     },
-    background: 'white',
-
+    border: {
+      radius: 'small',
+      intelligentRounding: true,
+    },
     // @ts-ignore
     extend: () => css`
-    backdrop-filter: blur(5px);
+    backdrop-filter: ${(props: LayerProps) => (props.plain === true ? 'blur(5px)' : 'none')};
+    -webkit-backdrop-filter: ${(props: LayerProps) => (props.plain === true ? 'blur(5px)' : 'none')};
     input::-webkit-outer-spin-button,
     input::-webkit-inner-spin-button {
       -webkit-appearance: none;
@@ -105,27 +131,44 @@ export const yieldTheme = {
     input[type='number'] {
       -moz-appearance: textfield;
     }
+    overflow:auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    ::-webkit-scrollbar {
+      display: none;
+    }
     `,
   },
 
-  grommet: {
-    // @ts-ignore
-    extend: () => css`
-        a { color: grey}
-        input::-webkit-outer-spin-button,
-        input::-webkit-inner-spin-button {
-          -webkit-appearance: none;
-          margin: 0;
-        }
-        input[type='number'] {
-          -moz-appearance: textfield;
-        }
-        overflow:auto;
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-        ::-webkit-scrollbar {
-          display: none;
-        }
-      `,
+  tab: {
+    color: 'text-weak',
+    active: {
+      background: 'background-contrast',
+    },
+    border: {
+      side: 'bottom',
+      color: 'none',
+      active: {
+        color: 'brand',
+      },
+      disabled: {
+        color: 'white',
+      },
+      hover: {
+        color: 'border',
+      },
+    },
+    disabled: {
+      color: 'text-xweak',
+    },
+    hover: {
+      background: 'background-contrast',
+      color: 'text',
+    },
+    pad: 'small',
+    margin: {
+      horizontal: 'none',
+    },
   },
+
 };
