@@ -4,6 +4,7 @@ import { UserContext } from '../../contexts/UserContext';
 import { IAsset, ISeries, IUserContext } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
 import LendPosition from '../../views/LendPosition';
+import PoolPosition from '../../views/PoolPosition';
 import ModalWrap from '../wraps/ModalWrap';
 
 interface IPositionFilter {
@@ -80,7 +81,7 @@ function PositionSelector({ type } : { type: 'LEND'|'POOL' }) {
 
     <>
       <ModalWrap modalOpen={showPositionModal} toggleModalOpen={() => setShowPositionModal(!showPositionModal)}>
-        <LendPosition />
+        { type === 'LEND' ? <LendPosition /> : <PoolPosition /> }
       </ModalWrap>
 
       {
