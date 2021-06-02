@@ -201,10 +201,8 @@ const Borrow = () => {
         </PanelWrap>
 
         <CenterPanelWrap>
-
-          <Box gap="small">
-            {
-            stepPosition === 0 &&
+          {
+            stepPosition === 0 && // INITIAL STEP
             <Box gap="large">
               {/* <Box pad="small" /> */}
               <SectionWrap title="Select an asset and amount: ">
@@ -228,48 +226,18 @@ const Borrow = () => {
               </SectionWrap>
 
               <SectionWrap title="Choose an series to borrow against">
-                <Box>
-                  <SeriesSelector />
-                  {selectedSeries?.seriesIsMature && <Text color="pink" size="small">This series has matured.</Text>}
-                </Box>
+                <SeriesSelector />
               </SectionWrap>
 
-              {
-              selectedSeries?.seriesIsMature &&
-              matchingBaseVaults.length > 0 &&
-              <SectionWrap>
-                <Box gap="small" fill="horizontal">
-                  <Text size="xsmall">Go to exisiting vault:</Text>
-                  {
-                    matchingVaults.map((x:IVault) => (
-                      <Box
-                        direction="row"
-                        justify="end"
-                        key={x.id}
-                        onClick={() => routerHistory.push(`/vault/${x.id}`)}
-                      >
-                        <Text size="xsmall"> {x.id} </Text>
-                      </Box>
-                    ))
-                  }
-                </Box>
-              </SectionWrap>
-              }
+              {selectedSeries?.seriesIsMature && <Text color="pink" size="small">This series has matured.</Text>}
 
             </Box>
             }
 
-            {/**
-             *
-             *
-             * STEPPER POSITION COLLATERAL
-             *
-             * */}
-
-            {
-            stepPosition === 1 &&
-
+          {
+            stepPosition === 1 && // ADD COLLATERAL
             <Box gap="large">
+
               <Box onClick={() => setStepPosition(0)}>
                 <Text>Back</Text>
               </Box>
@@ -333,55 +301,18 @@ const Borrow = () => {
                       </Box>
 
                     </Box>
-                    {/* {
-                matchingVaults.length > 0 &&
-                vaultIdToUse &&
-                <Box alignSelf="center">
-                  <Select
-                    options={matchingVaults.map((x:IVault) => (<Text key={x.id} size="xsmall">{x.id}</Text>))}
-                    // placeholder="or Borrow from an existing vault"
-                    value={vaultIdToUse}
-                    // defaultValue={undefined}
-                    onChange={({ option }) => setVaultIdToUse(option)}
-                  />
-                </Box>
-              } */}
-
-                    {/* {
-                matchingVaults.map((x:IVault) => (
-                  <Box direction="row" justify="end" key={x.id}>
-                    <CheckBox
-                      reverse
-                      // disabled={!selectedVaultId}
-                      checked={vaultIdToUse === x.id}
-                      label={<Text size="small">{x.id}</Text>}
-                      onChange={(event:any) => setVaultIdToUse(x.id)}
-                    />
-                  </Box>
-                ))
-              } */}
                   </Box>
                 </SectionWrap>
               }
 
               <SectionWrap>
-
                 <Collateralization percent={50} />
               </SectionWrap>
-
             </Box>
             }
 
-            {/**
-             *
-             *
-             * STEPPER POSITION REVIEW
-             *
-             * */}
-
-            {
-            stepPosition === 2 &&
-
+          {
+            stepPosition === 2 && // REVIEW
             <Box gap="large">
               <Box onClick={() => setStepPosition(1)}>
                 <Text>Back</Text>
@@ -393,12 +324,10 @@ const Borrow = () => {
                 </Box>
               </SectionWrap>
             </Box>
-        }
-          </Box>
+          }
 
-          <Box gap="small">
-            <ActionButtonGroup>
-              {
+          <ActionButtonGroup>
+            {
               stepPosition === 0 &&
               <Button
                 primary
@@ -409,7 +338,7 @@ const Borrow = () => {
               />
               }
 
-              {
+            {
               stepPosition === 1 &&
               <Button
                 primary
@@ -420,7 +349,7 @@ const Borrow = () => {
               />
               }
 
-              {
+            {
               stepPosition === 2 &&
               <Button
                 primary
@@ -430,18 +359,13 @@ const Borrow = () => {
                 disabled={borrowDisabled}
               />
               }
-            </ActionButtonGroup>
-
-          </Box>
+          </ActionButtonGroup>
 
         </CenterPanelWrap>
 
         <PanelWrap right>
-
           <YieldApr input={borrowInput} type="BORROW" />
-
           <VaultSelector />
-
         </PanelWrap>
 
       </MainViewWrap>

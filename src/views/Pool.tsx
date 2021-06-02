@@ -247,7 +247,7 @@ function Pool() {
       </>
       }
 
-        <SectionWrap title="[ Remove Liquidity ]">
+        {/* <SectionWrap title="[ Remove Liquidity ]">
 
           <Box direction="row" gap="small" fill align="start">
             <Box fill="horizontal">
@@ -280,9 +280,9 @@ function Pool() {
             />
           </Box>
 
-        </SectionWrap>
+        </SectionWrap> */}
 
-        <SectionWrap title="[ Roll Liquidity to ]">
+        {/* <SectionWrap title="[ Roll Liquidity to ]">
           <Box direction="row" gap="small" fill="horizontal">
 
             <Box fill>
@@ -317,16 +317,13 @@ function Pool() {
               />
             </Box>
           </Box>
-        </SectionWrap>
+        </SectionWrap> */}
 
       </CenterPanelWrap>
 
       <PanelWrap>
-
-        Hello there
-
+        <Box />
         <PositionSelector type="POOL" />
-
       </PanelWrap>
 
     </MainViewWrap>
