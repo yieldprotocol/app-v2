@@ -70,7 +70,7 @@ const Div = styled.div`
 function Collateralization({ percent }: { percent:number }) {
   return (
 
-    <Box pad="small" direction="row" align="center" border round>
+    <Box pad="small" direction="row" align="center">
       <svg viewBox="0 0 100 25">
         <defs>
           <linearGradient id="gradient" x1="0" x2="0" y1="0" y2="1">

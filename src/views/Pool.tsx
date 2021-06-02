@@ -18,6 +18,7 @@ import MaxButton from '../components/MaxButton';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import StepperText from '../components/StepperText';
+import PositionSelector from '../components/selectors/PositionSelector';
 
 function Pool() {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -323,6 +324,8 @@ function Pool() {
       <PanelWrap>
 
         Hello there
+
+        <PositionSelector type="POOL" />
 
       </PanelWrap>
 

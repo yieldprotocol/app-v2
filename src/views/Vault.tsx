@@ -338,9 +338,7 @@ const Vault = () => {
 
           <SectionWrap title="[ Roll Debt to another series ]">
             <Box gap="small" fill="horizontal" direction="row-responsive">
-
               <SeriesSelector selectSeriesLocally={(series:ISeries) => setRollToSeries(series)} />
-
               <Box basis={mobile ? undefined : '35%'}>
                 <Box>
                   <Button
@@ -351,7 +349,6 @@ const Vault = () => {
                   />
                 </Box>
               </Box>
-
             </Box>
           </SectionWrap>
 
