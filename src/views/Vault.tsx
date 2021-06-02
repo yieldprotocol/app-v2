@@ -6,7 +6,6 @@ import { useHistory } from 'react-router-dom';
 import { cleanValue } from '../utils/displayUtils';
 import { UserContext } from '../contexts/UserContext';
 
-import MainViewWrap from '../components/wraps/MainViewWrap';
 import InputWrap from '../components/wraps/InputWrap';
 import InfoBite from '../components/InfoBite';
 import { IAsset, ISeries, IUserContext, IVault } from '../types';

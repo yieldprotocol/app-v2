@@ -1,5 +1,5 @@
 import React, { useContext, useRef, useState } from 'react';
-import { Box, Button, Heading, Layer, ResponsiveContext, Text } from 'grommet';
+import { Box, Button, Grid, Heading, Layer, ResponsiveContext, Text } from 'grommet';
 import styled from 'styled-components';
 
 import { useSpring, animated, to, a } from 'react-spring';
@@ -80,9 +80,9 @@ function ModalWrap({ children, toggleModalOpen, modalOpen = false }: IModalWrap)
              width={mobile ? undefined : { min: '600px' }}
              round="small"
              background="white"
+             justify="between"
              pad="large"
             // elevation={mobile ? undefined : 'large'}
-
            >
              {children}
            </Box>
