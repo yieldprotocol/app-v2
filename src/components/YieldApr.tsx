@@ -72,11 +72,11 @@ function YieldApr({ type, input }: IYieldApr) {
         type === 'BORROW'
           ?
             <Text size="medium" weight="bold">
-              Borrow {selectedSeries ? input : '' } {selectedBase?.symbol || ''} {!selectedSeries || selectedSeries.seriesIsMature ? 'from' : 'at'}
+              Borrow {selectedSeries ? cleanValue(input || '', 2) : '' } {selectedBase?.symbol || ''} {!selectedSeries || selectedSeries.seriesIsMature ? 'from' : 'at'}
             </Text>
           :
             <Text size="medium" weight="bold">
-              Lend {selectedSeries && (input || '')} {selectedBase?.symbol || ''} {!selectedSeries ? 'for up to' : 'at'}
+              Lend {selectedSeries && cleanValue(input || '', 2)} {selectedBase?.symbol || ''} {!selectedSeries ? 'for up to' : 'at'}
             </Text>
         }
 
