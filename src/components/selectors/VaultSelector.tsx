@@ -3,6 +3,7 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../contexts/UserContext';
 import { IAsset, ISeries, IUserContext, IVault } from '../../types';
 import Vault from '../../views/Vault';
+import ModalWrap from '../wraps/ModalWrap';
 
 interface IVaultFilter {
   base: IAsset| undefined,
@@ -10,7 +11,7 @@ interface IVaultFilter {
   ilk: IAsset | undefined,
 }
 
-function VaultSelector() {
+function VaultSelector(target:any) {
   /* STATE FROM CONTEXT */
 
   const { userState, userActions } = useContext(UserContext) as IUserContext;
@@ -63,25 +64,20 @@ function VaultSelector() {
     }
   }, [vaultMap, selectedBase, selectedSeries, showVaultModal, handleFilter]);
 
-  useEffect(() => {
-    !currentFilter?.base &&
-    !currentFilter?.series &&
-    !currentFilter?.ilk &&
-    setShowAllVaults(true);
-  }, [currentFilter]);
+  // useEffect(() => {
+  //   !currentFilter?.base &&
+  //   !currentFilter?.series &&
+  //   !currentFilter?.ilk &&
+  //   setShowAllVaults(true);
+  // }, [currentFilter]);
 
   return (
 
     <>
-      {
-        showVaultModal &&
-        <Layer
-          onClickOutside={() => setShowVaultModal(false)}
-          modal
-        >
-          <Vault />
-        </Layer>
-      }
+
+      <ModalWrap modalOpen={showVaultModal} toggleModalOpen={() => setShowVaultModal(!showVaultModal)}>
+        <Vault />
+      </ModalWrap>
 
       <Box
         justify="between"
@@ -93,7 +89,7 @@ function VaultSelector() {
         {
         allVaults.length > 0 &&
         <Box animation="fadeIn" justify="end" align="end" direction="row" gap="small">
-          <Text size="small" color="text-weak"> { showAllVaults ? 'All my vaults' : 'Suggested existing vaults'}</Text>
+          <Text size="small" color="text-weak"> { showAllVaults ? 'All my vaults' : 'Suggested vaults'}</Text>
         </Box>
         }
 

@@ -4,7 +4,7 @@ import { UserContext } from '../../contexts/UserContext';
 import { IAsset, ISeries, IUserContext } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
 import LendPosition from '../../views/LendPosition';
-import InfoBite from '../InfoBite';
+import ModalWrap from '../wraps/ModalWrap';
 
 interface IPositionFilter {
   base: IAsset| undefined,
@@ -78,15 +78,10 @@ function PositionSelector({ type } : { type: 'LEND'|'POOL' }) {
   return (
 
     <>
-      {
-        showPositionModal &&
-        <Layer
-          onClickOutside={() => setShowPositionModal(false)}
-          modal
-        >
-          <LendPosition />
-        </Layer>
-      }
+
+      <ModalWrap modalOpen={showPositionModal} toggleModalOpen={() => setShowPositionModal(!showPositionModal)}>
+        <LendPosition />
+      </ModalWrap>
 
       <Box
         justify="between"
@@ -102,7 +97,7 @@ function PositionSelector({ type } : { type: 'LEND'|'POOL' }) {
         {/* {
         allVaults.length === 0 &&
         <Box animation="fadeIn" justify="end" align="end">
-          <Text size="small" color="text-weak"> No vaults yet</Text>
+          <Text size="small" color="text-weak"> No positions yet</Text>
         </Box>
         } */}
 
@@ -148,7 +143,7 @@ function PositionSelector({ type } : { type: 'LEND'|'POOL' }) {
             allPositions.length > 0 &&
             filteredSeries.length === 0 &&
             !showAllPositions &&
-            <Text weight={450} size="small"> No suggested vaults </Text>
+            <Text weight={450} size="small"> No suggested positions </Text>
           }
 
           {
