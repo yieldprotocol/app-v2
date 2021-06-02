@@ -135,6 +135,9 @@ const Lend = () => {
             <SectionWrap title="Choose a series to lend to">
               <SeriesSelector />
             </SectionWrap>
+
+            {selectedSeries?.seriesIsMature && <Text color="pink" size="small">This series has matured.</Text>}
+
           </Box>
           }
 
