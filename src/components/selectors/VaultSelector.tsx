@@ -79,107 +79,87 @@ function VaultSelector(target:any) {
         <Vault />
       </ModalWrap>
 
-      <Box
-        justify="between"
-        alignSelf="end"
-        gap="small"
-        pad="small"
-      >
-
-        {
-        allVaults.length > 0 &&
-        <Box animation="fadeIn" justify="end" align="end" direction="row" gap="small">
-          <Text size="small" color="text-weak"> { showAllVaults ? 'All my vaults' : 'Suggested vaults'}</Text>
-        </Box>
-        }
-
-        {/* {
-        allVaults.length === 0 &&
-        <Box animation="fadeIn" justify="end" align="end">
-          <Text size="small" color="text-weak"> No vaults yet</Text>
-        </Box>
-        } */}
-
-        {
-        !showAllVaults &&
-        <Box>
-          <Box direction="row" gap="small" justify="end" align="center">
-            {/* <Text size="xsmall">Filters:</Text> */}
-            {
-          filterLabels[0] &&
-          <Box gap="xsmall" border direction="row" round pad={{ horizontal: 'xsmall', vertical: 'xsmall' }}>
-            <Text size="xsmall">{filterLabels[0]}-based</Text>
-            <Text
-              size="xsmall"
-              onClick={() => handleFilter({ ...currentFilter, base: undefined } as IVaultFilter)}
-            > x
-            </Text>
-          </Box>
-          }
-            {
-          filterLabels[1] &&
-          <Box gap="xsmall" direction="row" border round pad={{ horizontal: 'xsmall', vertical: 'xsmall' }}>
-            <Text size="xsmall">{filterLabels[1]}</Text>
-            <Text
-              size="xsmall"
-              onClick={() => handleFilter({ ...currentFilter, series: undefined } as IVaultFilter)}
-            >x
-            </Text>
-          </Box>
-          }
-          </Box>
-          {
-          filterLabels[2] &&
-          <Box direction="row" border round pad={{ horizontal: 'xsmall', vertical: 'xsmall' }}>
-            <Text size="xsmall">{filterLabels[2]} collateral</Text>
-            <Text
-              size="xsmall"
-              onClick={() => handleFilter({ ...currentFilter, ilk: undefined } as IVaultFilter)}
-            >x
-            </Text>
-          </Box>
-          }
-        </Box>
-      }
-
+      {
+      allVaults.length > 0 &&
         <Box
-          height={{ max: '300px' }}
-          style={{ overflow: 'scroll' }}
+          justify="between"
+          alignSelf="end"
           gap="small"
-          align="end"
+          pad="small"
         >
 
+          <Box animation="fadeIn" justify="end" align="end" direction="row" gap="small">
+            <Text size="small" color="text-weak"> { showAllVaults ? 'All my vaults' : 'My vaults'}</Text>
+          </Box>
+
           {
+          !showAllVaults &&
+          <Box>
+            <Box direction="row" gap="small" justify="end" align="center">
+              {
+                filterLabels[0] &&
+                <Box gap="xsmall" border direction="row" round pad={{ horizontal: 'xsmall', vertical: 'xsmall' }}>
+                  <Text size="xsmall">{filterLabels[0]}-based</Text>
+                  <Text
+                    size="xsmall"
+                    onClick={() => handleFilter({ ...currentFilter, base: undefined } as IVaultFilter)}
+                  > x
+                  </Text>
+                </Box>
+              }
+              {
+              filterLabels[1] &&
+              <Box gap="xsmall" direction="row" border round pad={{ horizontal: 'xsmall', vertical: 'xsmall' }}>
+                <Text size="xsmall">{filterLabels[1]}</Text>
+                <Text
+                  size="xsmall"
+                  onClick={() => handleFilter({ ...currentFilter, series: undefined } as IVaultFilter)}
+                >x
+                </Text>
+              </Box>
+              }
+            </Box>
+          </Box>
+      }
+
+          <Box
+            height={{ max: '300px' }}
+            style={{ overflow: 'scroll' }}
+            gap="small"
+            align="end"
+          >
+
+            {
             allVaults.length > 0 &&
             filteredVaults.length === 0 &&
             !showAllVaults &&
             <Text weight={450} size="small"> No suggested vaults </Text>
           }
 
-          {
+            {
           (showAllVaults ? allVaults : filteredVaults).map((x:IVault, i:number) => (
             <Box
               key={x.id}
               animation={{ type: 'fadeIn', delay: i * 100, duration: 1500 }}
-              hoverIndicator={{ elevation: 'large' }}
+              hoverIndicator={{ elevation: 'small' }}
               onClick={() => handleSelect(x)}
               pad="xsmall"
-              round="xsmall"
+              round="small"
             >
               <Text weight={450} size="small"> {x.id} </Text>
             </Box>
           ))
           }
-        </Box>
+          </Box>
 
-        <Box
-          pad="xsmall"
-          align="end"
-          onClick={() => setShowAllVaults(!showAllVaults)}
-        >
-          <Text size="xsmall"> {showAllVaults ? 'Show suggested vaults only' : `Show all ${allVaults.length} vaults`} </Text>
+          <Box
+            align="end"
+            onClick={() => setShowAllVaults(!showAllVaults)}
+          >
+            <Text size="xsmall"> {showAllVaults ? 'Show suggested vaults only' : `Show all ${allVaults.length} vaults`} </Text>
+          </Box>
         </Box>
-      </Box>
+      }
     </>
   );
 }

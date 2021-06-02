@@ -83,78 +83,75 @@ function PositionSelector({ type } : { type: 'LEND'|'POOL' }) {
         <LendPosition />
       </ModalWrap>
 
-      <Box
-        justify="between"
-        alignSelf="end"
-        gap="small"
-        pad="small"
-      >
-
-        <Box animation="fadeIn" justify="end" align="end" direction="row" gap="small">
-          <Text size="small" color="text-weak"> { showAllPositions ? 'All my active positions' : 'Suggested existing positions'}</Text>
-        </Box>
-
-        {/* {
-        allVaults.length === 0 &&
-        <Box animation="fadeIn" justify="end" align="end">
-          <Text size="small" color="text-weak"> No positions yet</Text>
-        </Box>
-        } */}
-
-        {
-        !showAllPositions &&
-        <Box>
-          <Box direction="row" gap="small" justify="end" align="center">
-            {/* <Text size="xsmall">Filters:</Text> */}
-            {
-          filterLabels[0] &&
-          <Box gap="xsmall" border direction="row" round pad={{ horizontal: 'xsmall', vertical: 'xsmall' }}>
-            <Text size="xsmall">{filterLabels[0]}-based</Text>
-            <Text
-              size="xsmall"
-              onClick={() => handleFilter({ ...currentFilter, base: undefined } as IPositionFilter)}
-            > x
-            </Text>
-          </Box>
-          }
-            {
-          filterLabels[1] &&
-          <Box gap="xsmall" direction="row" border round pad={{ horizontal: 'xsmall', vertical: 'xsmall' }}>
-            <Text size="xsmall">{filterLabels[1]}</Text>
-            <Text
-              size="xsmall"
-              onClick={() => handleFilter({ ...currentFilter, series: undefined } as IPositionFilter)}
-            >x
-            </Text>
-          </Box>
-          }
-          </Box>
-        </Box>
-      }
-
+      {
+        allPositions.length !== 0 &&
         <Box
-          height={{ max: '300px' }}
-          style={{ overflow: 'scroll' }}
+          justify="between"
+          alignSelf="end"
           gap="small"
-          align="end"
+          pad="small"
         >
+          <Box animation="fadeIn" justify="end" align="end" direction="row" gap="small">
+            <Text size="small" color="text-weak">
+              {
+               showAllPositions
+                 ? `All my ${type === 'LEND' ? 'lending' : 'pool'} positions`
+                 : `My ${type === 'LEND' ? 'lending' : 'pool'} positions`
+              }
+            </Text>
+          </Box>
 
           {
-            allPositions.length > 0 &&
+          !showAllPositions &&
+          <Box direction="row" gap="xsmall" justify="end" align="center">
+            {
+            filterLabels[0] &&
+            <Box gap="xsmall" border direction="row" round pad={{ horizontal: 'xsmall', vertical: 'xsmall' }}>
+              <Text size="xsmall">{filterLabels[0]}-based</Text>
+              <Text
+                size="xsmall"
+                onClick={() => handleFilter({ ...currentFilter, base: undefined } as IPositionFilter)}
+              > x
+              </Text>
+            </Box>
+            }
+            {
+            filterLabels[1] &&
+            <Box gap="xsmall" direction="row" border round pad={{ horizontal: 'xsmall', vertical: 'xsmall' }}>
+              <Text size="xsmall">{filterLabels[1]}</Text>
+              <Text
+                size="xsmall"
+                onClick={() => handleFilter({ ...currentFilter, series: undefined } as IPositionFilter)}
+              >x
+              </Text>
+            </Box>
+            }
+          </Box>
+      }
+
+          <Box
+            height={{ max: '300px' }}
+            style={{ overflow: 'scroll' }}
+            gap="small"
+            align="end"
+            pad="small"
+          >
+
+            {
             filteredSeries.length === 0 &&
             !showAllPositions &&
             <Text weight={450} size="small"> No suggested positions </Text>
-          }
+            }
 
-          {
+            {
           (!showAllPositions ? filteredSeries : allPositions).map((x:ISeries, i:number) => (
             <Box
               key={x.id}
               animation={{ type: 'fadeIn', delay: i * 100, duration: 1500 }}
-              hoverIndicator={{ elevation: 'large' }}
+              hoverIndicator={{ elevation: 'small' }}
               onClick={() => handleSelect(x)}
               pad="xsmall"
-              round="xsmall"
+              round="small"
             >
               {/* {
                 (showAllPositions ? allPositions : filteredSeries).length === 1
@@ -165,37 +162,18 @@ function PositionSelector({ type } : { type: 'LEND'|'POOL' }) {
             </Box>
           ))
           }
+          </Box>
 
-          {/* <Box gap="small" pad="large">
-            <Box pad="xsmall" animation="fadeIn">
-              <Text size="xsmall"> Your {selectedBase?.symbol}-based position for the {selectedSeries?.displayName} series: </Text>
-              <InfoBite label="FYToken balance (Base value at maturity)" value={selectedSeries?.fyTokenBalance_!} />
-            </Box>
-            <Box
-              direction="row"
-              justify="start"
-              onClick={() => setShowPositionModal(true)}
-              animation={{ type: 'fadeIn', delay: 0, duration: 1500 }}
-              border
-              pad="xsmall"
-              round="xsmall"
-            >
-              <Text size="xsmall"> Manage Position </Text>
-            </Box>
-          </Box> */}
-
+          <Box
+            align="end"
+            onClick={() => setShowAllPositions(!showAllPositions)}
+          >
+            <Text size="xsmall">
+              {showAllPositions ? `Show suggested ${selectedBase?.symbol || ''} positions only` : `Show all ${allPositions.length} positions`}
+            </Text>
+          </Box>
         </Box>
-
-        <Box
-          pad="xsmall"
-          align="end"
-          onClick={() => setShowAllPositions(!showAllPositions)}
-        >
-          <Text size="xsmall">
-            {showAllPositions ? `Show suggested ${selectedBase?.symbol || ''} positions only` : `Show all ${allPositions.length} positions`}
-          </Text>
-        </Box>
-      </Box>
+      }
     </>
   );
 }
