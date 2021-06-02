@@ -83,7 +83,6 @@ function CenterPanelWrap({ basis, children }: IPanelWrap) {
               round="small"
               justify="between"
               background="white"
-              // style={{ backgroundImage: `url(${car})` }}
             >
               {children}
             </Box>

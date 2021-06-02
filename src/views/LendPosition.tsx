@@ -29,10 +29,8 @@ const LendPosition = () => {
   const [lendInput, setLendInput] = useState<string>();
   const [closeInput, setCloseInput] = useState<string>();
   const [rollInput, setRollInput] = useState<string>();
-
   const [rollToSeries, setRollToSeries] = useState<ISeries|null>(null);
 
-  const [maxLend, setMaxLend] = useState<string|undefined>();
   const [maxClose, setMaxClose] = useState<string|undefined>();
 
   const [closeError, setCloseError] = useState<string|null>(null);
@@ -63,23 +61,12 @@ const LendPosition = () => {
   /* SET MAX VALUES */
 
   useEffect(() => {
-    /* Check max available lend (only if activeAccount to save call) */
-    if (activeAccount) {
-      (async () => {
-        const max = await selectedBase?.getBalance(activeAccount);
-        if (max) setMaxLend(ethers.utils.formatEther(max).toString());
-      })();
-    }
-  }, [activeAccount, lendInput, selectedBase, setMaxLend]);
-
-  useEffect(() => {
     /* Checks series selection and sets the max close available value */
     const max = selectedSeries?.fyTokenBalance;
     if (max) setMaxClose(ethers.utils.formatEther(max)?.toString());
   }, [closeInput, rollInput, selectedSeries]);
 
   /* WATCH FOR WARNINGS AND ERRORS */
-
   useEffect(() => {
     /* closeInput errors */
     if (activeAccount && (closeInput || closeInput === '')) {
