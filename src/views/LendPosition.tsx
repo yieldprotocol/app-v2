@@ -26,7 +26,11 @@ const LendPosition = () => {
   const selectedBase = assetMap.get(selectedBaseId!);
 
   /* LOCAL STATE */
-  const [lendInput, setLendInput] = useState<string>();
+
+  // tab state + control
+  const [tabIndex, setTabIndex] = React.useState(0);
+  const onActive = (nextIndex: number) => setTabIndex(nextIndex);
+
   const [closeInput, setCloseInput] = useState<string>();
   const [rollInput, setRollInput] = useState<string>();
   const [rollToSeries, setRollToSeries] = useState<ISeries|null>(null);
@@ -117,23 +121,22 @@ const LendPosition = () => {
 
   return (
     <>
+      <Box fill>
 
-      <SectionWrap title="Series Position">
-
-        <Text size="large">  {selectedSeries?.id} </Text>
-        <Box justify="evenly" gap="small" fill="horizontal" direction="row-responsive">
-          {
+        <Box height="150px">
+          <Text size="large">  {selectedSeries?.id} </Text>
+          <Box justify="between" gap="small" fill="horizontal" direction="row-responsive">
+            {
                 selectedSeries?.baseId === selectedBase?.id &&
                 <InfoBite label="FYToken balance (Base value at maturity)" value={selectedSeries?.fyTokenBalance_!} />
               }
+          </Box>
         </Box>
-      </SectionWrap>
 
-      <SectionWrap>
-        <Tabs justify="start">
+        <Tabs justify="start" activeIndex={tabIndex} onActive={onActive}>
           <Tab title="Close Position">
-            <Box gap="small">
-              <Box direction="row" gap="small" align="start" fill>
+            <Box direction="row" pad={{ vertical: 'small' }} align="start" fill="horizontal">
+              <Box fill>
                 <InputWrap action={() => console.log('maxAction')} isError={closeError} disabled={!selectedSeries}>
                   <TextInput
                     plain
@@ -150,11 +153,10 @@ const LendPosition = () => {
                 </InputWrap>
               </Box>
             </Box>
-
           </Tab>
 
           <Tab title="Roll Position">
-            <Box direction="row" gap="small" fill="horizontal" align="start">
+            <Box direction="row" pad={{ vertical: 'small' }} align="start" fill="horizontal">
               <Box fill>
                 <InputWrap action={() => console.log('maxAction')} isError={rollError} disabled={!selectedSeries}>
                   <TextInput
@@ -179,37 +181,36 @@ const LendPosition = () => {
 
           </Tab>
         </Tabs>
-      </SectionWrap>
+      </Box>
 
-      <SectionWrap>
-        <ActionButtonGroup>
-          {selectedSeries?.seriesIsMature &&
+      <ActionButtonGroup>
+        {selectedSeries?.seriesIsMature &&
           <Button
             primary
             label={<Text size={mobile ? 'small' : undefined}> Redeem </Text>}
-            key="primary"
             onClick={() => handleRedeem()}
           />}
 
-          { closeInput &&
+        {
+          tabIndex === 0 &&
           <Button
-            secondary
+            primary
             label={<Text size={mobile ? 'small' : undefined}>Close Position</Text>}
-            key="secondary"
             onClick={() => handleClosePosition()}
             disabled={closeDisabled}
-          />}
+          />
+          }
 
-          { rollInput &&
+        {
+          tabIndex === 1 &&
           <Button
             primary
             label={<Text size={mobile ? 'small' : undefined}> Roll </Text>}
-            key="primary"
             onClick={() => handleRollPosition()}
             disabled={rollDisabled}
-          />}
-        </ActionButtonGroup>
-      </SectionWrap>
+          />
+}
+      </ActionButtonGroup>
     </>
   );
 };

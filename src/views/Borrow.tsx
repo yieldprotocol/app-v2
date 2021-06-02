@@ -330,9 +330,8 @@ const Borrow = () => {
             {
               stepPosition === 0 &&
               <Button
-                primary
+                secondary
                 label={<Text size={mobile ? 'small' : undefined}> continue to Add collateral </Text>}
-                key="ONE"
                 onClick={() => setStepPosition(stepPosition + 1)}
                 disabled={stepDisabled}
               />
@@ -341,9 +340,8 @@ const Borrow = () => {
             {
               stepPosition === 1 &&
               <Button
-                primary
+                secondary
                 label={<Text size={mobile ? 'small' : undefined}> continue to Review </Text>}
-                key="ONE"
                 onClick={() => setStepPosition(stepPosition + 1)}
                 disabled={borrowDisabled}
               />
@@ -354,7 +352,6 @@ const Borrow = () => {
               <Button
                 primary
                 label={<Text size={mobile ? 'small' : undefined}> {`Borrow  ${borrowInput || ''} ${selectedBase?.symbol || ''}`}</Text>}
-                key="FINAL"
                 onClick={() => handleBorrow()}
                 disabled={borrowDisabled}
               />

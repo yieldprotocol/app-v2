@@ -323,9 +323,8 @@ function Pool() {
             stepPosition !== 1 &&
             !selectedSeries?.seriesIsMature &&
             <Button
-              primary
+              secondary
               label={<Text size={mobile ? 'small' : undefined}> continue to Review </Text>}
-              key="ONE"
               onClick={() => setStepPosition(stepPosition + 1)}
             />
             }
@@ -335,7 +334,6 @@ function Pool() {
               <Button
                 primary
                 label={<Text size={mobile ? 'small' : undefined}> {`Pool ${poolInput || ''} ${selectedBase?.symbol || ''}`} </Text>}
-                key="primary"
                 onClick={() => handleAdd()}
                 disabled={poolDisabled}
               />
