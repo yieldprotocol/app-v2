@@ -79,6 +79,7 @@ function YieldApr({ type, input }: IYieldApr) {
               Lend {selectedSeries && (input || '')} {selectedBase?.symbol || ''} {!selectedSeries ? 'for up to' : 'at'}
             </Text>
         }
+
           <Box direction="row" align="center">
             <StyledText size="80px">
               {apr || (type === 'BORROW' ? minApr : maxApr) || ''}
@@ -88,6 +89,7 @@ function YieldApr({ type, input }: IYieldApr) {
               <StyledText size="large" color="brand"> APR </StyledText>
             </Box>
           </Box>
+
         </Box>
         :
         <Box pad="small" />

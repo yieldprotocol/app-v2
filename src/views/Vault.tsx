@@ -161,13 +161,7 @@ const Vault = () => {
   }, [vaultMap, selectedVault]);
 
   return (
-    <Box
-      pad="large"
-      width="600px"
-      height="600px"
-      round="small"
-      background="white"
-    >
+    <>
       <SectionWrap>
         <Box gap="medium">
           <Box direction="row-responsive" justify="evenly" fill="horizontal">
@@ -356,7 +350,7 @@ const Vault = () => {
 
       </SectionWrap>
 
-    </Box>
+    </>
 
   );
 };

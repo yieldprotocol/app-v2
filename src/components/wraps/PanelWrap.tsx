@@ -12,10 +12,10 @@ function PanelWrap({ basis, right, children }: IPanelWrap) {
   return (
     <Box
       basis={basis || '33%'}
-      justify="between"
       fill
-      pad="large"
       align={right ? 'end' : 'start'}
+      pad="large"
+      justify="between"
     >
       {children}
     </Box>

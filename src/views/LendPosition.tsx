@@ -116,13 +116,7 @@ const LendPosition = () => {
   }, [rollInput, activeAccount, rollError, rollToSeries]);
 
   return (
-    <Box
-      pad="large"
-      width="600px"
-      height="600px"
-      round="small"
-      justify="between"
-    >
+    <>
 
       <SectionWrap title="Series Position">
 
@@ -198,25 +192,25 @@ const LendPosition = () => {
           />}
 
           { closeInput &&
-            <Button
-              secondary
-              label={<Text size={mobile ? 'small' : undefined}>Close Position</Text>}
-              key="secondary"
-              onClick={() => handleClosePosition()}
-              disabled={closeDisabled}
-            />}
+          <Button
+            secondary
+            label={<Text size={mobile ? 'small' : undefined}>Close Position</Text>}
+            key="secondary"
+            onClick={() => handleClosePosition()}
+            disabled={closeDisabled}
+          />}
 
           { rollInput &&
-            <Button
-              primary
-              label={<Text size={mobile ? 'small' : undefined}> Roll </Text>}
-              key="primary"
-              onClick={() => handleRollPosition()}
-              disabled={rollDisabled}
-            />}
+          <Button
+            primary
+            label={<Text size={mobile ? 'small' : undefined}> Roll </Text>}
+            key="primary"
+            onClick={() => handleRollPosition()}
+            disabled={rollDisabled}
+          />}
         </ActionButtonGroup>
       </SectionWrap>
-    </Box>
+    </>
   );
 };
 

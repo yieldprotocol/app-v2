@@ -75,14 +75,14 @@ function ModalWrap({ children, toggleModalOpen, modalOpen = false }: IModalWrap)
            modal
            responsive
          >
-
            <Box
              height={{ min: '600px' }}
-             width={mobile ? undefined : { min: '500px' }}
+             width={mobile ? undefined : { min: '600px' }}
              round="small"
-             justify="between"
              background="white"
-             elevation={mobile ? undefined : 'large'}
+             pad="large"
+            // elevation={mobile ? undefined : 'large'}
+
            >
              {children}
            </Box>
