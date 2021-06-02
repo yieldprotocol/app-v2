@@ -45,8 +45,14 @@ const MenuLayer = ({ toggleMenu, callback }: ILayerProps) => {
   };
 
   return (
-    <Layer position="right" full="vertical" responsive modal>
-      <Box flex fill style={mobile ? { minWidth: undefined, maxWidth: undefined } : { minWidth: '600px', maxWidth: '600px' }}>
+    <Layer
+      position="right"
+      full="vertical"
+      responsive
+      modal
+      animation="none"
+    >
+      <Box flex fill style={mobile ? { minWidth: undefined, maxWidth: undefined } : { minWidth: '400px', maxWidth: '400px' }}>
         { mobile && <YieldMobileMenu toggleMenu={() => toggleMenu()} /> }
         { !mobile && <YieldMenu toggleMenu={() => toggleMenu()} /> }
       </Box>

@@ -112,12 +112,11 @@ export const yieldTheme = {
     },
     zIndex: '15',
     overlay: {
-      // background: '#00000048', // 30%
       background: '#00000096', // 60%
     },
     border: {
       radius: 'small',
-      intelligentRounding: true,
+      // intelligentRounding: true,
     },
 
     // backdrop-filter: ${(props: LayerProps) => (props.plain === true ? 'blur(3px)' : 'none')};
