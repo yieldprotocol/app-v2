@@ -9,8 +9,8 @@ interface IPanelWrap {
   children: any;
 }
 
-const calcX = (y: number, ly: number) => -(y - ly - window.innerHeight / 2) / 400;
-const calcY = (x: number, lx: number) => (x - lx - window.innerWidth / 2) / 400;
+const calcX = (y: number, ly: number) => -(y - ly - window.innerHeight / 2) / 300;
+const calcY = (x: number, lx: number) => (x - lx - window.innerWidth / 2) / 300;
 
 function CenterPanelWrap({ basis, children }: IPanelWrap) {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
