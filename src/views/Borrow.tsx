@@ -359,7 +359,7 @@ const Borrow = () => {
               stepPosition === 1 &&
               <Button
                 secondary
-                label={<Text size={mobile ? 'small' : undefined}> continue to Review </Text>}
+                label={<Text size={mobile ? 'small' : undefined}> Review transaction </Text>}
                 onClick={() => setStepPosition(stepPosition + 1)}
                 disabled={borrowDisabled}
               />

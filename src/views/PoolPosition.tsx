@@ -110,12 +110,16 @@ const PoolPosition = () => {
   return (
     <>
       <Box>
-        <Box height="150px">
+        <Box height="150px" gap="medium">
           <Text size="large">  {selectedSeries?.id} </Text>
           <Box justify="between" gap="small" fill="horizontal" direction="row-responsive">
             {
                 selectedSeries?.baseId === selectedBase?.id &&
-                <InfoBite label="FYToken balance (Base value at maturity)" value={selectedSeries?.fyTokenBalance_!} />
+                <>
+                  <InfoBite label="Token balance" value={selectedSeries?.poolTokens_!} />
+                  <InfoBite label="Pool total token supply" value={selectedSeries?.totalSupply?.toString() || ''} />
+                  <InfoBite label="Pool percentage" value={selectedSeries?.poolTokens?.div(selectedSeries?.totalSupply).mul('100').toString() || ''} />
+                </>
               }
           </Box>
         </Box>
