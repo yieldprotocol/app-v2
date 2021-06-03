@@ -2,8 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Box, Button, CheckBox, Header, Heading, Keyboard, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import { useHistory, useParams } from 'react-router-dom';
 import { ethers } from 'ethers';
-
-import Loader from 'react-spinners/ScaleLoader';
+import styled from 'styled-components';
 
 import SeriesSelector from '../components/selectors/SeriesSelector';
 import MainViewWrap from '../components/wraps/MainViewWrap';
@@ -26,6 +25,25 @@ import StepperText from '../components/StepperText';
 import Collateralization from '../components/Collateralization';
 import VaultSelector from '../components/selectors/VaultSelector';
 
+const StampText = styled(Text)`
+
+font-weight: 700;
+
+padding: 0.25rem 0.5rem;
+text-transform: uppercase;
+border-radius: 1rem;
+font-family: 'Courier';
+-webkit-mask-image: url('https://s3-us-west-2.amazonaws.com/s.cdpn.io/8399/grunge.png');
+-webkit-mask-size: 600px 300px;
+mix-blend-mode: multiply;
+
+color: #D21;
+border: 0.5rem double #D21;
+transform: rotate(-5deg);
+-webkit-mask-position: 2rem 3rem;
+font-size: 1rem;
+`;
+
 const Borrow = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
   const routerHistory = useHistory();
@@ -41,6 +59,7 @@ const Borrow = () => {
 
   /* LOCAL STATE */
   const [stepPosition, setStepPosition] = useState<number>(0);
+  const [basis, setBasis] = useState<string>('30%');
 
   const [borrowInput, setBorrowInput] = useState<string>('');
   const [collatInput, setCollatInput] = useState<string>('');
@@ -185,6 +204,7 @@ const Borrow = () => {
 
       <MainViewWrap>
 
+        {/* <PanelWrap background="linear-gradient(to right, #EEEEEE,rgba(255,255,255,1))"> */}
         <PanelWrap>
 
           {/* <Box justify="between" fill pad="xlarge"> */}
@@ -228,8 +248,8 @@ const Borrow = () => {
               <SectionWrap title="Choose an series to borrow against">
                 <SeriesSelector />
               </SectionWrap>
-
-              {selectedSeries?.seriesIsMature && <Text color="pink" size="small">This series has matured.</Text>}
+                {/* {selectedSeries?.seriesIsMature && <StampText>This series has matured.</StampText> */}
+                {selectedSeries?.seriesIsMature && <Box round="xsmall" pad="small" border={{ color: 'pink' }}><Text color="pink" size="small">This series has matured.</Text></Box>}
 
             </Box>
             }
@@ -360,7 +380,7 @@ const Borrow = () => {
 
         </CenterPanelWrap>
 
-        <PanelWrap right>
+        <PanelWrap right basis="50%">
           <YieldApr input={borrowInput} type="BORROW" />
           <VaultSelector />
         </PanelWrap>
