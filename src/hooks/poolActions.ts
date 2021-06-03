@@ -10,7 +10,13 @@ import { useChain } from './chainHooks';
 import { VAULT_OPS, POOLROUTER_OPS } from '../utils/operations';
 import { calculateSlippage, fyTokenForMint, mint } from '../utils/yieldMath';
 
-/* Generic hook for chain transactions */
+export const usePool = (input: string|undefined) => {
+  const poolMax = input;
+  poolMax && console.log(poolMax);
+  return { poolMax };
+};
+
+/* Hook for chain transactions */
 export const usePoolActions = () => {
   const { chainState: { account, contractMap } } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);

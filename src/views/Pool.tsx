@@ -13,7 +13,7 @@ import ActionButtonGroup from '../components/ActionButtonGroup';
 import SectionWrap from '../components/wraps/SectionWrap';
 import { UserContext } from '../contexts/UserContext';
 import { ISeries, IUserContext } from '../types';
-import { usePoolActions } from '../hooks/poolActions';
+import { usePool, usePoolActions } from '../hooks/poolActions';
 import MaxButton from '../components/MaxButton';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
@@ -32,48 +32,26 @@ function Pool() {
 
   /* LOCAL STATE */
   const [poolInput, setPoolInput] = useState<string>();
-  const [removeInput, setRemoveInput] = useState<string>();
-  const [rollInput, setRollInput] = useState<string>();
-
-  const [rollToSeries, setRollToSeries] = useState<ISeries|null>(null);
-
   const [maxPool, setMaxPool] = useState<string|undefined>();
-  const [maxRemove, setMaxRemove] = useState<string|undefined>();
 
   const [poolError, setPoolError] = useState<string|null>(null);
-  const [removeError, setRemoveError] = useState<string|null>(null);
-  const [rollError, setRollError] = useState<string|null>(null);
-
   const [poolDisabled, setPoolDisabled] = useState<boolean>(true);
-  const [removeDisabled, setRemoveDisabled] = useState<boolean>(true);
-  const [rollDisabled, setRollDisabled] = useState<boolean>(true);
-
   const [strategy, setStrategy] = useState<'BUY'|'MINT'>('BUY');
 
   const [stepPosition, setStepPosition] = useState<number>(0);
 
   /* HOOK FNS */
+  const { addLiquidity } = usePoolActions();
 
-  const { addLiquidity, removeLiquidity, rollLiquidity } = usePoolActions();
+  const { poolMax } = usePool(poolInput);
 
   /* LOCAL ACTION FNS */
-
   const handleAdd = () => {
     // !poolDisabled &&
     selectedSeries && addLiquidity(poolInput!, selectedSeries, strategy);
   };
-  const handleRemove = () => {
-    // !removeDisabled &&
-    console.log(selectedSeries?.displayName);
-    selectedSeries && removeLiquidity(removeInput!, selectedSeries);
-  };
-  const handleRoll = () => {
-    // !rollDisabled &&
-    selectedSeries && rollToSeries && rollLiquidity(rollInput!, selectedSeries, rollToSeries);
-  };
 
   /* SET MAX VALUES */
-
   useEffect(() => {
     if (activeAccount) {
       /* Checks asset selection and sets the max available value */
@@ -84,14 +62,7 @@ function Pool() {
     }
   }, [activeAccount, poolInput, selectedBase, setMaxPool]);
 
-  useEffect(() => {
-    /* Checks the max available to roll or move */
-    const max = selectedSeries?.poolTokens;
-    if (max) setMaxRemove(ethers.utils.formatEther(max).toString());
-  }, [rollInput, selectedSeries, setMaxRemove]);
-
   /* WATCH FOR WARNINGS AND ERRORS */
-
   useEffect(() => {
     /* CHECK for any lendInput errors */
     if (activeAccount && (poolInput || poolInput === '')) {
@@ -108,63 +79,20 @@ function Pool() {
     }
   }, [activeAccount, poolInput, maxPool]);
 
-  useEffect(() => {
-    /* CHECK for any removeInput errors */
-    if (activeAccount && (removeInput || removeInput === '')) {
-      /* 1. Check if input exceeds fyToken balance */
-      if (maxRemove && parseFloat(removeInput) > parseFloat(maxRemove)) setRemoveError('Amount exceeds liquidity token balance');
-      /* 2. Check if there is a selected series */
-      else if (removeInput && !selectedSeries) setRemoveError('No base series selected');
-      /* 2. Check if input is above zero */
-      else if (parseFloat(removeInput) < 0) setRemoveError('Amount should be expressed as a positive value');
-      /* if all checks pass, set null error message */
-      else {
-        setRemoveError(null);
-      }
-    }
-  }, [activeAccount, removeInput, maxRemove, selectedSeries]);
-
-  useEffect(() => {
-    /* CHECK for any rollInput errors */
-    if (activeAccount && (rollInput || rollInput === '')) {
-      /* 1. Check if input exceeds fyToken balance */
-      if (maxRemove && parseFloat(rollInput) > parseFloat(maxRemove)) setRollError('Amount exceeds liquidity token balance');
-      /* 2. Check if there is a selected series */
-      else if (rollInput && !selectedSeries) setRollError('No base series selected');
-      /* 2. Check if input is above zero */
-      else if (parseFloat(rollInput) < 0) setRollError('Amount should be expressed as a positive value');
-      /* if all checks pass, set null error message */
-      else {
-        setRollError(null);
-      }
-    }
-  }, [activeAccount, rollInput, maxRemove, selectedSeries]);
-
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
-
   useEffect(() => {
     (!activeAccount || !poolInput || !selectedSeries || poolError) ? setPoolDisabled(true) : setPoolDisabled(false);
   }, [poolInput, activeAccount, poolError, selectedSeries]);
-
-  useEffect(() => {
-    (!activeAccount || !removeInput || removeError) ? setRemoveDisabled(true) : setRemoveDisabled(false);
-  }, [activeAccount, removeError, removeInput]);
-
-  useEffect(() => {
-    (!activeAccount || !rollInput || rollError) ? setRollDisabled(true) : setRollDisabled(false);
-  }, [rollInput, activeAccount, rollError]);
 
   return (
 
     <MainViewWrap>
 
       <PanelWrap>
-
         <StepperText
           position={stepPosition}
           values={[['Choose an asset to', 'pool', ''], ['', 'Review', 'and transact']]}
         />
-
         <Box gap="small">
           <Text weight="bold">Information</Text>
           <Text size="small"> Some information </Text>
@@ -245,80 +173,7 @@ function Pool() {
           </Box>
           }
 
-        {/* <SectionWrap title="[ Remove Liquidity ]">
-
-          <Box direction="row" gap="small" fill align="start">
-            <Box fill="horizontal">
-              <InputWrap action={() => console.log('maxAction')} isError={removeError}>
-                <TextInput
-                  plain
-                  type="number"
-                  placeholder="Tokens to remove"
-                  value={removeInput || ''}
-                  onChange={(event:any) => setRemoveInput(cleanValue(event.target.value))}
-                />
-                <MaxButton
-                  action={() => setRemoveInput(maxRemove)}
-                  disabled={maxRemove === '0.0'}
-                />
-              </InputWrap>
-            </Box>
-          </Box>
-
-          <Box gap="small" fill direction="row" align="start">
-            <ActionButtonGroup buttonList={[
-              <Button
-                primary
-                label={<Text size={mobile ? 'small' : undefined}> Remove </Text>}
-                key="primary"
-                onClick={() => handleRemove()}
-                disabled={removeDisabled}
-              />,
-            ]}
-            />
-          </Box>
-
-        </SectionWrap> */}
-
-        {/* <SectionWrap title="[ Roll Liquidity to ]">
-          <Box direction="row" gap="small" fill="horizontal">
-
-            <Box fill>
-              <InputWrap action={() => console.log('maxAction')} isError={rollError}>
-                <TextInput
-                  plain
-                  type="number"
-                  placeholder="Tokens to roll"
-                  value={rollInput || ''}
-                  onChange={(event:any) => setRollInput(cleanValue(event.target.value))}
-                />
-                <MaxButton
-                  action={() => setRollInput(maxRemove)}
-                  disabled={maxRemove === '0.0'}
-                />
-              </InputWrap>
-            </Box>
-
-          </Box>
-
-          <Box gap="small" fill="horizontal" direction="row">
-            <SeriesSelector selectSeriesLocally={(series:ISeries) => setRollToSeries(series)} />
-            <Box basis="35%">
-              <ActionButtonGroup buttonList={[
-                <Button
-                  primary
-                  label={<Text size={mobile ? 'small' : undefined}> Roll </Text>}
-                  key="primary"
-                  onClick={() => handleRoll()}
-                />,
-              ]}
-              />
-            </Box>
-          </Box>
-        </SectionWrap> */}
-
         <ActionButtonGroup>
-
           {
             stepPosition !== 1 &&
             !selectedSeries?.seriesIsMature &&
@@ -342,7 +197,7 @@ function Pool() {
 
       </CenterPanelWrap>
 
-      <PanelWrap>
+      <PanelWrap right basis="50%">
         <Box />
         <PositionSelector type="POOL" />
       </PanelWrap>
