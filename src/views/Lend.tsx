@@ -90,19 +90,17 @@ const Lend = () => {
   return (
     <MainViewWrap>
 
+      {!mobile &&
       <PanelWrap>
-
         <StepperText
           position={stepPosition}
           values={[['Choose an asset to', 'lend', ''], ['', 'Review', 'and transact']]}
         />
-
         <Box gap="small">
           <Text weight="bold">Information</Text>
           <Text size="small"> Some information </Text>
         </Box>
-
-      </PanelWrap>
+      </PanelWrap>}
 
       <CenterPanelWrap>
         {
@@ -184,9 +182,9 @@ const Lend = () => {
 
       </CenterPanelWrap>
 
-      <PanelWrap right basis="50%">
+      <PanelWrap right basis="40%">
         <YieldApr input={lendInput} type="LEND" />
-        <PositionSelector type="LEND" />
+        {!mobile && <PositionSelector type="LEND" />}
       </PanelWrap>
 
     </MainViewWrap>

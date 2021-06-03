@@ -88,6 +88,7 @@ function Pool() {
 
     <MainViewWrap>
 
+      {!mobile &&
       <PanelWrap>
         <StepperText
           position={stepPosition}
@@ -98,7 +99,7 @@ function Pool() {
           <Text size="small"> Some information </Text>
         </Box>
 
-      </PanelWrap>
+      </PanelWrap>}
 
       <CenterPanelWrap>
 
@@ -197,9 +198,9 @@ function Pool() {
 
       </CenterPanelWrap>
 
-      <PanelWrap right basis="50%">
+      <PanelWrap right basis="40%">
         <Box />
-        <PositionSelector type="POOL" />
+        {!mobile && <PositionSelector type="POOL" />}
       </PanelWrap>
 
     </MainViewWrap>

@@ -205,6 +205,7 @@ const Borrow = () => {
       <MainViewWrap>
 
         {/* <PanelWrap background="linear-gradient(to right, #EEEEEE,rgba(255,255,255,1))"> */}
+        { !mobile &&
         <PanelWrap>
 
           {/* <Box justify="between" fill pad="xlarge"> */}
@@ -218,7 +219,7 @@ const Borrow = () => {
             <Text size="small"> Some information </Text>
           </Box>
           {/* </Box> */}
-        </PanelWrap>
+        </PanelWrap>}
 
         <CenterPanelWrap>
           {
@@ -380,9 +381,9 @@ const Borrow = () => {
 
         </CenterPanelWrap>
 
-        <PanelWrap right basis="50%">
+        <PanelWrap right basis="40%">
           <YieldApr input={borrowInput} type="BORROW" />
-          <VaultSelector />
+          {!mobile && <VaultSelector />}
         </PanelWrap>
 
       </MainViewWrap>
