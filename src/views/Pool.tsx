@@ -169,7 +169,7 @@ function Pool() {
             }
 
             <SectionWrap title="Review your transaction">
-              some transaction info
+              Pool x DAi in series Y.
             </SectionWrap>
           </Box>
           }

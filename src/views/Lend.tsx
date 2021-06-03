@@ -146,7 +146,7 @@ const Lend = () => {
               <Text>Back</Text>
             </Box>
             <SectionWrap title="Review your transaction">
-              some transaction info
+              Lend x DAi to series Y.
             </SectionWrap>
           </Box>
           }

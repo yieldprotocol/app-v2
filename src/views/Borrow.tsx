@@ -338,11 +338,8 @@ const Borrow = () => {
               <Box onClick={() => setStepPosition(1)}>
                 <Text>Back</Text>
               </Box>
-              <SectionWrap>
-                <Box direction="row" gap="small" fill="horizontal" align="start">
-                  REview transaction
-                  buy x DAi at rate using x as collateral
-                </Box>
+              <SectionWrap title="Review your transaction">
+                Borrow x DAi at rate using x as collateral
               </SectionWrap>
             </Box>
           }
