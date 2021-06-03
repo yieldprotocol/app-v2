@@ -184,7 +184,7 @@ const Lend = () => {
 
       </CenterPanelWrap>
 
-      <PanelWrap right>
+      <PanelWrap right basis="50%">
         <YieldApr input={lendInput} type="LEND" />
         <PositionSelector type="LEND" />
       </PanelWrap>
