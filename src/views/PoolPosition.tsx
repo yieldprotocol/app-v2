@@ -109,8 +109,7 @@ const PoolPosition = () => {
 
   return (
     <>
-      <Box fill>
-
+      <Box>
         <Box height="150px">
           <Text size="large">  {selectedSeries?.id} </Text>
           <Box justify="between" gap="small" fill="horizontal" direction="row-responsive">
