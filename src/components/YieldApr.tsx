@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { Box, Text } from 'grommet';
+import { Box, ResponsiveContext, Text } from 'grommet';
 import React, { useContext, useEffect, useState } from 'react';
 import Loader from 'react-spinners/GridLoader';
 import styled from 'styled-components';
@@ -21,6 +21,8 @@ const StyledText = styled(Text)`
 `;
 
 function YieldApr({ type, input }: IYieldApr) {
+  const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
+
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext) as IUserContext;
   const { activeAccount, assetMap, vaultMap, seriesMap, selectedSeriesId, selectedIlkId, selectedBaseId } = userState;
@@ -66,20 +68,19 @@ function YieldApr({ type, input }: IYieldApr) {
     <>
       {
       (minApr > 0) ?
-        <Box animation="fadeIn" basis="50%">
-          <Box pad="large" />
+        <Box animation="fadeIn" basis={mobile ? undefined : '50%'}>
+          <Box pad={mobile ? undefined : 'large'} />
           {
-        type === 'BORROW'
-          ?
-            <Text size="medium" weight="bold">
-              Borrow {selectedSeries ? cleanValue(input || '', 2) : '' } {selectedBase?.symbol || ''} {!selectedSeries || selectedSeries.seriesIsMature ? 'from' : 'at'}
-            </Text>
-          :
-            <Text size="medium" weight="bold">
-              Lend {selectedSeries && cleanValue(input || '', 2)} {selectedBase?.symbol || ''} {!selectedSeries ? 'for up to' : 'at'}
-            </Text>
-        }
-
+          type === 'BORROW'
+            ?
+              <Text size="medium" color="text-weak" weight="bold" margin="-1em">
+                Borrow {selectedSeries ? cleanValue(input || '', 2) : '' } {selectedBase?.symbol || ''} {!selectedSeries || selectedSeries.seriesIsMature ? 'from' : 'at'}
+              </Text>
+            :
+              <Text size="medium" color="text-weak" weight="bold" margin="-1em">
+                Lend {selectedSeries && cleanValue(input || '', 2)} {selectedBase?.symbol || ''} {!selectedSeries ? 'for up to' : 'at'}
+              </Text>
+          }
           <Box direction="row" align="center">
             <StyledText size="80px">
               {apr || (type === 'BORROW' ? minApr : maxApr) || ''}
@@ -89,10 +90,9 @@ function YieldApr({ type, input }: IYieldApr) {
               <StyledText size="large" color="brand"> APR </StyledText>
             </Box>
           </Box>
-
         </Box>
         :
-        <Box pad="small" />
+        <Box />
       }
     </>
   );
