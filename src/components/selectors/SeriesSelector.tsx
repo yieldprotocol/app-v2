@@ -20,10 +20,13 @@ const AprText = (
   const [limitHit, setLimitHit] = useState<boolean>(false);
 
   useEffect(() => {
-    !series?.seriesIsMature &&
-    inputValue &&
-    ethers.utils.parseEther(inputValue).gt(series.baseReserves) &&
-    setLimitHit(true);
+    if (
+      !series?.seriesIsMature &&
+      inputValue &&
+      ethers.utils.parseEther(inputValue).gt(series.baseReserves)
+    ) { setLimitHit(true); } else {
+      setLimitHit(false);
+    }
   }, [inputValue, series.baseReserves, series?.seriesIsMature, setLimitHit]);
 
   return (
