@@ -278,6 +278,7 @@ const Vault = () => {
                 </InputWrap>
               </Box>
             </Box>
+            TODO: handle moving collateral between series
           </Tab>
 
           {!vaultSeries?.seriesIsMature &&
