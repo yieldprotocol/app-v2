@@ -31,8 +31,8 @@ const AprText = (
 
   return (
     <>
-      { !series?.seriesIsMature && !inputValue && <Text> ● APR <Text size="xsmall">from</Text> {series?.APR}% </Text>}
-      { !limitHit && !series?.seriesIsMature && inputValue && <Text> ● {apr}%</Text>}
+      { !series?.seriesIsMature && !inputValue && <Text> <Text size="xsmall">   from  </Text> {series?.APR}% <Text size="xsmall"> APR </Text></Text>}
+      { !limitHit && !series?.seriesIsMature && inputValue && <Text> <Text size="xsmall">   @  </Text>{apr}% <Text size="xsmall"> APR </Text></Text>}
       { limitHit && <Text size="xsmall" color="pink"> Not enough liquidity</Text>}
     </>
   );
@@ -65,7 +65,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, action }: ISeriesSele
         <Box round="large" border pad={{ horizontal: 'small' }}>
           <Text size="xsmall"> Mature </Text>
         </Box>}
-      {_series && <AprText inputValue={inputValue} series={_series} action={action} />}
+      {_series && action !== 'POOL' && <AprText inputValue={inputValue} series={_series} action={action} />}
     </Box>
   );
 
