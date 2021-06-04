@@ -146,7 +146,7 @@ function VaultSelector(target:any) {
               pad="xsmall"
               round="small"
             >
-              <Text weight={450} size="small"> {x.id} </Text>
+              <Text weight={450} size="small"> {x.displayName} </Text>
             </Box>
           ))
           }

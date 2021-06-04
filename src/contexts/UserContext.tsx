@@ -2,6 +2,8 @@ import React, { useContext, useEffect, useReducer, useCallback, useState } from 
 import { useLocation } from 'react-router-dom';
 import { ethers } from 'ethers';
 
+import { uniqueNamesGenerator, Config, colors, adjectives, animals } from 'unique-names-generator';
+
 import { IAssetRoot, ISeriesRoot, IVaultRoot, ISeries, IAsset, IVault, IUserContextState, IUserContext } from '../types';
 
 import { ChainContext } from './ChainContext';
@@ -28,6 +30,12 @@ const initState : IUserContextState = {
   // showVault: false,
   // showPosition: false,
 
+};
+
+const vaultNameConfig: Config = {
+  dictionaries: [colors, animals],
+  separator: '-',
+  length: 2,
 };
 
 function userReducer(state:any, action:any) {
@@ -88,12 +96,14 @@ const UserProvider = ({ children }:any) => {
       const { vaultId: id, ilkId, seriesId } = Cauldron.interface.parseLog(x).args;
       const series = seriesRootMap.get(seriesId);
       // const baseId = assetRootMap.get(series.baseId);
+
       return {
         id,
         seriesId,
         baseId: series.baseId,
         ilkId,
         image: genVaultImage(id),
+        displayName: uniqueNamesGenerator({ seed: parseInt(id.substring(14), 16), ...vaultNameConfig }),
       };
     }));
 

@@ -78,8 +78,7 @@ export interface IVaultRoot {
   baseId: string;
   seriesId: string;
   image: string;
-  displayId? : string;
-  name?: string;
+  displayName : string;
 }
 
 export interface ISeries extends ISeriesRoot {
