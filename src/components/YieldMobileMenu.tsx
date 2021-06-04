@@ -5,7 +5,7 @@ import { FiX, FiArrowLeftCircle } from 'react-icons/fi';
 import styled, { CSSProperties, ThemeContext } from 'styled-components';
 
 import { UserContext } from '../contexts/UserContext';
-import { IUserContext, IVault, IVaultRoot, View } from '../types';
+import { IUserContext, IVault, IVaultRoot, MenuView } from '../types';
 import YieldNavigation from './YieldNavigation';
 import YieldMenu from './YieldMenu';
 
@@ -74,8 +74,8 @@ const YieldMobileMenu = ({ toggleMenu }: { toggleMenu: ()=>void }) => {
           <Header pad="medium" justify="between">
             <Box direction="row" justify="evenly" fill="horizontal">
               <StyledBox
-                onClick={() => setView(View.vaults)}
-                style={view === View.vaults ? activeStyle : undefined}
+                onClick={() => setView(MenuView.vaults)}
+                style={view === MenuView.vaults ? activeStyle : undefined}
               >
                 <Text size="small">
                   My Vaults
@@ -83,8 +83,8 @@ const YieldMobileMenu = ({ toggleMenu }: { toggleMenu: ()=>void }) => {
               </StyledBox>
 
               <StyledBox
-                onClick={() => setView(View.account)}
-                style={view === View.account ? activeStyle : undefined}
+                onClick={() => setView(MenuView.account)}
+                style={view === MenuView.account ? activeStyle : undefined}
               >
                 <Text size="small">
                   Account Details
@@ -93,10 +93,10 @@ const YieldMobileMenu = ({ toggleMenu }: { toggleMenu: ()=>void }) => {
             </Box>
           </Header>
 
-          { view === View.account && <Box> Accounts view </Box>}
+          { view === MenuView.account && <Box> Accounts view </Box>}
 
           {
-          view === View.vaults &&
+          view === MenuView.vaults &&
           <Box gap="medium">
             { Array.from(vaultMap.values()).map((x:IVault) => (
               <Box
@@ -114,7 +114,7 @@ const YieldMobileMenu = ({ toggleMenu }: { toggleMenu: ()=>void }) => {
         </Box>}
 
       <Box direction="row" pad="medium" fill="horizontal" justify="center">
-        { !view && <Box onClick={() => setView(View.vaults)}> <Text size="small">Vaults and Account</Text>  </Box> }
+        { !view && <Box onClick={() => setView(MenuView.vaults)}> <Text size="small">Vaults and Account</Text>  </Box> }
         { view &&
         <Box onClick={() => setView(undefined)} gap="medium" direction="row" align="center">
           <FiArrowLeftCircle />

@@ -1,12 +1,13 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { Box, Button, Menu, ResponsiveContext, Text, TextInput } from 'grommet';
+import { Box, Button, Collapsible, Layer, Menu, ResponsiveContext, Tab, Tabs, Text, TextInput } from 'grommet';
 import { ethers } from 'ethers';
 import { useHistory } from 'react-router-dom';
+
+import { FiMoreVertical } from 'react-icons/fi';
 
 import { cleanValue } from '../utils/displayUtils';
 import { UserContext } from '../contexts/UserContext';
 
-import MainViewWrap from '../components/wraps/MainViewWrap';
 import InputWrap from '../components/wraps/InputWrap';
 import InfoBite from '../components/InfoBite';
 import { IAsset, ISeries, IUserContext, IVault } from '../types';
@@ -34,6 +35,9 @@ const Vault = () => {
   const vaultSeries: ISeries|undefined = seriesMap.get(selectedVault?.seriesId!);
 
   /* LOCAL STATE */
+  // tab state + control
+  const [tabIndex, setTabIndex] = React.useState(0);
+  const onActive = (nextIndex: number) => setTabIndex(nextIndex);
 
   const [availableVaults, setAvailableVaults] = useState<IVault[]>();
 
@@ -41,6 +45,7 @@ const Vault = () => {
   const [borrowInput, setBorrowInput] = useState<any>(undefined);
   const [collatInput, setCollatInput] = useState<any>(undefined);
 
+  const [rollInput, setRollInput] = useState<any>(undefined);
   const [rollToSeries, setRollToSeries] = useState<ISeries|null>(null);
 
   const [maxRepay, setMaxRepay] = useState<string|undefined>();
@@ -49,8 +54,11 @@ const Vault = () => {
   const [repayError, setRepayError] = useState<string|null>(null);
   const [borrowError, setBorrowError] = useState<string|null>(null);
   const [collatError, setCollatError] = useState<string|null>(null);
+  const [rollError, setRollError] = useState<string|null>(null);
 
   const [repayDisabled, setRepayDisabled] = useState<boolean>(true);
+
+  const [showMore, setShowMore] = useState<boolean>(false);
   // const [rollDisabled, setRollDisabled] = useState<boolean>(true);
 
   /* HOOK FNS */
@@ -159,12 +167,13 @@ const Vault = () => {
   }, [vaultMap, selectedVault]);
 
   return (
-    <MainViewWrap fullWidth>
-      {activeAccount &&
-      <>
-        <Box gap="medium">
-          <Box direction="row-responsive" justify="evenly" fill="horizontal">
-            <Box direction="row" align="center" justify="between">
+    <>
+
+      <Box>
+        <Box gap="medium" height="150px">
+          <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
+
+            <Box direction="row" align="center" fill>
               <Text size={mobile ? 'small' : 'medium'}> {selectedVault?.id} </Text>
               <Menu
                 label={<Box pad="xsmall" alignSelf="end" fill><Text size="xsmall" color="brand"> Change Vault </Text></Box>}
@@ -182,19 +191,37 @@ const Vault = () => {
               />
             </Box>
 
-            <Box direction="row-responsive" gap="medium">
+            <Menu
+              label={<Box pad="xsmall" alignSelf="end" fill><Text size="xsmall" color="brand"> <FiMoreVertical /> </Text></Box>}
+              dropProps={{
+                align: { top: 'bottom', left: 'left' },
+                elevation: 'xlarge',
+              }}
+              icon={false}
+              items={
+                ['Delete Vault', 'transfer vault', 'repay all'].map((x:any) => (
+                  { label: <Text size="small"> {x} </Text>, onClick: () => console.log(x) }
+                )) || []
+              }
+              onSelect={(x:any) => console.log(x)}
+            />
+
+          </Box>
+
+          <SectionWrap>
+            <Box direction="row-responsive" gap="medium" justify="evenly">
               <InfoBite label="Vault debt:" value={`${selectedVault?.art_} ${vaultBase?.symbol}`} />
               <InfoBite label="Collateral posted:" value={`${selectedVault?.ink_} ${vaultIlk?.symbol}`} />
               <InfoBite label="Maturity date:" value={`${vaultSeries?.displayName}`} />
             </Box>
-          </Box>
+          </SectionWrap>
+
         </Box>
 
-        <MainViewWrap>
+        <Tabs justify="start" activeIndex={tabIndex} onActive={onActive}>
 
-          <SectionWrap title="[ Repay debt ]">
-            <Box gap="small" fill="horizontal" align="center">
-
+          <Tab title="Repay Debt">
+            <Box direction="row" pad={{ vertical: 'small' }} align="start" fill="horizontal">
               <Box fill>
                 <InputWrap action={() => console.log('maxAction')} isError={repayError}>
                   <TextInput
@@ -210,113 +237,110 @@ const Vault = () => {
                   />
                 </InputWrap>
               </Box>
-              <ActionButtonGroup buttonList={[
-                <Button
-                  primary
-                  label={<Text size={mobile ? 'small' : undefined}> {`Repay ${repayInput || ''} Dai`} </Text>}
-                  key="primary"
-                  onClick={() => handleRepay()}
-                  disabled={repayDisabled}
-                />,
-              ]}
-              />
-
             </Box>
+          </Tab>
 
-          </SectionWrap>
+          <Tab title="Roll Debt">
+            <Box direction="row" pad={{ vertical: 'small' }} align="start" fill="horizontal">
+              {/* <Box>
+                <InputWrap action={() => console.log('maxAction')} isError={rollError}>
+                  <TextInput
+                    plain
+                    type="number"
+                    placeholder="Debt to roll"
+                    value={rollInput || ''}
+                    onChange={(event:any) => setRollInput(cleanValue(event.target.value))}
+                  />
+                  <MaxButton
+                    action={() => setRollInput(maxRepay)}
+                    disabled={maxRepay === '0.0'}
+                  />
+                </InputWrap>
+              </Box> */}
+            </Box>
+            <Box gap="small" fill="horizontal" direction="row" align="center">
+              <SeriesSelector selectSeriesLocally={(series:ISeries) => setRollToSeries(series)} />
+            </Box>
+          </Tab>
 
-          {
-          !vaultSeries?.seriesIsMature &&
-
-            <SectionWrap title="[ Borrow more ]">
-              <Box gap="small" fill="horizontal" direction="row-responsive">
-                <Box basis={mobile ? undefined : '65%'}>
-                  <InputWrap action={() => console.log('maxAction')} isError={borrowError}>
-                    <TextInput
-                      plain
-                      type="number"
-                      placeholder="Enter extra amount to Borrow"
-                // ref={(el:any) => { el && !repayOpen && !rateLockOpen && !mobile && el.focus(); setInputRef(el); }}
-                      value={borrowInput || ''}
-                      onChange={(event:any) => setBorrowInput(cleanValue(event.target.value))}
-                    />
-                  </InputWrap>
-                </Box>
-                <Box basis={mobile ? undefined : '35%'}>
-                  <Box>
-                    <Button
-                      primary
-                      label={<Text size={mobile ? 'small' : undefined}> Borrow </Text>}
-                      key="primary"
-                      onClick={() => handleBorrow()}
-                    />
-                  </Box>
-                </Box>
-              </Box>
-            </SectionWrap>
-}
-
-          <SectionWrap title="[ Manage Collateral ]">
-            <Box gap="small" fill="horizontal" direction="row-responsive">
-              <Box basis={mobile ? undefined : '65%'}>
+          <Tab title="Manage Collateral">
+            <Box direction="row" pad={{ vertical: 'small' }} align="start" fill="horizontal">
+              <Box fill>
                 <InputWrap action={() => console.log('maxAction')} isError={collatError}>
                   <TextInput
                     plain
                     type="number"
                     placeholder="Amount to add/remove"
-                // ref={(el:any) => { el && !repayOpen && !rateLockOpen && !mobile && el.focus(); setInputRef(el); }}
+                    // ref={(el:any) => { el && !repayOpen && !rateLockOpen && !mobile && el.focus(); setInputRef(el); }}
                     value={collatInput || ''}
                     onChange={(event:any) => setCollatInput(cleanValue(event.target.value))}
                   />
                 </InputWrap>
               </Box>
+            </Box>
+            TODO: handle moving collateral between series
+          </Tab>
 
-              <Box direction="row" basis={mobile ? undefined : '35%'} gap="small">
-                <Box>
-                  <Button
-                    primary
-                    label={<Text size={mobile ? 'small' : undefined}> Add </Text>}
-                    key="primary"
-                    onClick={() => handleCollateral('ADD')}
+          {!vaultSeries?.seriesIsMature &&
+          <Tab title="Borrow More">
+            <Box direction="row" pad={{ vertical: 'small' }} align="start" fill="horizontal">
+              <Box fill>
+                <InputWrap action={() => console.log('maxAction')} isError={borrowError}>
+                  <TextInput
+                    plain
+                    type="number"
+                    placeholder="Enter extra amount to Borrow"
+                    // ref={(el:any) => { el && !repayOpen && !rateLockOpen && !mobile && el.focus(); setInputRef(el); }}
+                    value={borrowInput || ''}
+                    onChange={(event:any) => setBorrowInput(cleanValue(event.target.value))}
                   />
-                </Box>
-                <Box>
-                  <Button
-                    primary
-                    label={<Text size={mobile ? 'small' : undefined}> Remove </Text>}
-                    key="secondary"
-                    onClick={() => handleCollateral('REMOVE')}
-                  />
-                </Box>
+                </InputWrap>
               </Box>
             </Box>
-          </SectionWrap>
+          </Tab>}
 
-          <SectionWrap title="[ Roll Debt to another series ]">
-            <Box gap="small" fill="horizontal" direction="row-responsive">
+        </Tabs>
+      </Box>
 
-              <SeriesSelector selectSeriesLocally={(series:ISeries) => setRollToSeries(series)} />
+      <ActionButtonGroup>
+        { tabIndex === 0 &&
+        <Button
+          primary
+          label={<Text size={mobile ? 'small' : undefined}> {`Repay ${repayInput || ''} Dai`} </Text>}
+          onClick={() => handleRepay()}
+          disabled={repayDisabled}
+        />}
+        { tabIndex === 1 &&
+        <Button
+          primary
+          label={<Text size={mobile ? 'small' : undefined}> Roll </Text>}
+          onClick={() => handleBorrow()}
+        />}
 
-              <Box basis={mobile ? undefined : '35%'}>
-                <Box>
-                  <Button
-                    primary
-                    label={<Text size={mobile ? 'small' : undefined}> Roll </Text>}
-                    key="primary"
-                    onClick={() => handleRoll()}
-                  />
-                </Box>
-              </Box>
+        { tabIndex === 2 &&
+        <Button
+          primary
+          label={<Text size={mobile ? 'small' : undefined}> Add </Text>}
+          onClick={() => handleCollateral('ADD')}
+        />}
 
-            </Box>
-          </SectionWrap>
+        { tabIndex === 2 &&
+        <Button
+          primary
+          label={<Text size={mobile ? 'small' : undefined}> Remove </Text>}
+          onClick={() => handleCollateral('REMOVE')}
+        />}
 
-        </MainViewWrap>
-      </>}
+        { tabIndex === 3 &&
+        <Button
+          primary
+          label={<Text size={mobile ? 'small' : undefined}> Borrow More </Text>}
+          onClick={() => handleRoll()}
+        />}
 
-      {!activeAccount && 'Vault not available. No account Connected. '}
+      </ActionButtonGroup>
 
-    </MainViewWrap>
+    </>
 
   );
 };

@@ -23,6 +23,11 @@ const initState : IUserContextState = {
   selectedIlkId: null, // initial ilk
   selectedBaseId: null, // initial base
   selectedVaultId: null,
+
+  /* show vaults or positions */
+  // showVault: false,
+  // showPosition: false,
+
 };
 
 function userReducer(state:any, action:any) {

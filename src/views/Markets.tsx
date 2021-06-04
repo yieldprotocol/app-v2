@@ -27,7 +27,7 @@ const Markets = () => {
   }, [vaultMap]);
 
   return (
-    <MainViewWrap fullWidth>
+    <MainViewWrap>
 
       <SectionWrap>
         <Box

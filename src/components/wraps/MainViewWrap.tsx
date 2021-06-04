@@ -3,10 +3,9 @@ import { Box, ResponsiveContext } from 'grommet';
 
 interface IMainViewWrapProps {
   children:React.ReactNode;
-  fullWidth?:boolean;
 }
 
-const MainViewWrap = ({ fullWidth, children }: IMainViewWrapProps) => {
+const MainViewWrap = ({ children }: IMainViewWrapProps) => {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
 
   return (
@@ -14,25 +13,27 @@ const MainViewWrap = ({ fullWidth, children }: IMainViewWrapProps) => {
       <Box
         fill
         alignSelf="center"
-        gap="large"
+        // gap="large"
         pad="medium"
         height={{ min: '500px' }}
+        direction="column-reverse"
       >
-        { children }
+        {children}
       </Box>)
       :
       <Box
-        fill={fullWidth ? true : 'vertical'}
+        direction="row-responsive"
+        fill
+        justify="between"
+        gap="small"
+        width={{ max: '1200px' }}
         alignSelf="center"
-        gap="large"
-        pad="medium"
-        width={fullWidth ? undefined : { max: '500px', min: '500px' }}
       >
-        { children }
+        {children}
       </Box>
   );
 };
 
-MainViewWrap.defaultProps = { fullWidth: false };
+// MainViewWrap.defaultProps = { fullWidth: false };
 
 export default MainViewWrap;

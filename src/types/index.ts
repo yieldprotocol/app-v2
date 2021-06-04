@@ -164,7 +164,8 @@ export enum TradeType {
   SELL = 'SELL',
 }
 
-export enum View {
+export enum MenuView {
   account = 'ACCOUNT',
+  settings = 'SETTINGS',
   vaults = 'VAULTS',
 }

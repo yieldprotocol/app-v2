@@ -1,12 +1,14 @@
+import { LayerProps } from 'grommet';
 import { css } from 'styled-components';
 
 export const yieldTheme = {
   global: {
     focus: 'none',
     font: {
-      family: 'Oswald',
-      weight: '700',
+      family: 'Rubik',
+      weight: '900',
     },
+
     colors: {
       brand: '#3f53d9',
       focus: '#3f53d999',
@@ -38,6 +40,27 @@ export const yieldTheme = {
 
   },
 
+  grommet: {
+    // @ts-ignore
+    extend: () => css`
+        a { color: grey}
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+        input[type='number'] {
+          -moz-appearance: textfield;
+        }
+        overflow:auto;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+        ::-webkit-scrollbar {
+          display: none;
+        }
+      `,
+  },
+
   textInput: {
     extend: ({ theme }: any) => (
       theme.dark
@@ -46,25 +69,7 @@ export const yieldTheme = {
     ),
   },
 
-  // select: {
-  //   options: {
-  //     container: {
-  //       pad: undefined,
-  //     },
-  //   },
-  // },
-
-  // layer: {
-  //   container: {
-  //     zIndex: '20',
-  //   },
-  //   zIndex: '20',
-  //   // @ts-ignore
-  //   extend: () => css`backdrop-filter: blur(3px);`,
-  // },
-
   button: {
-
     border: {
       radius: '8px',
     },
@@ -90,10 +95,6 @@ export const yieldTheme = {
     border: {
       radius: '8px',
     },
-    // font: {
-    //   size: 'large',
-    //   color: 'text-xweak',
-    // },
   },
   table: {
     size: 'small',
@@ -105,24 +106,71 @@ export const yieldTheme = {
       border: false,
     },
   },
-  grommet: {
+
+  layer: {
+    container: {
+      zIndex: '20',
+    },
+    zIndex: '15',
+    overlay: {
+      background: '#00000096', // 60%
+    },
+    border: {
+      radius: 'small',
+      // intelligentRounding: true,
+    },
+
+    // backdrop-filter: ${(props: LayerProps) => (props.plain === true ? 'blur(3px)' : 'none')};
+    // -webkit-backdrop-filter: ${(props: LayerProps) => (props.plain === true ? 'blur(3px)' : 'none')};
+
     // @ts-ignore
     extend: () => css`
-        a { color: grey}
-        input::-webkit-outer-spin-button,
-        input::-webkit-inner-spin-button {
-          -webkit-appearance: none;
-          margin: 0;
-        }
-        input[type='number'] {
-          -moz-appearance: textfield;
-        }
-        overflow:auto;
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-        ::-webkit-scrollbar {
-          display: none;
-        }
-      `,
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type='number'] {
+      -moz-appearance: textfield;
+    }
+    overflow:auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    ::-webkit-scrollbar {
+      display: none;
+    }
+    `,
   },
+
+  tab: {
+    color: 'text-weak',
+    active: {
+      background: 'background-contrast',
+    },
+    border: {
+      side: 'bottom',
+      color: 'none',
+      active: {
+        color: 'brand',
+      },
+      disabled: {
+        color: 'white',
+      },
+      hover: {
+        color: 'border',
+      },
+    },
+    disabled: {
+      color: 'text-xweak',
+    },
+    hover: {
+      background: 'background-contrast',
+      color: 'text',
+    },
+    pad: 'small',
+    margin: {
+      horizontal: 'none',
+    },
+  },
+
 };

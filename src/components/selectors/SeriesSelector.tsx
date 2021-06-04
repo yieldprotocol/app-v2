@@ -1,16 +1,40 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, ResponsiveContext, Select, Text, ThemeContext } from 'grommet';
 
+import { ethers } from 'ethers';
 import { ISeries } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
+import { calculateAPR } from '../../utils/yieldMath';
+import { useApr } from '../../hooks/aprHook';
 
 interface ISeriesSelectorProps {
-  /* select series locally filters out the global selection from the list and returns the selected ISeries */
-  selectSeriesLocally?: (series: ISeries) => void;
+  selectSeriesLocally?: (series: ISeries) => void; /* select series locally filters out the global selection from the list and returns the selected ISeries */
+  inputValue?: string|undefined; /* accepts an inpout value for dynamic APR calculations */
   ignoredSeries?: string[];
 }
 
-function SeriesSelector({ selectSeriesLocally, ignoredSeries }: ISeriesSelectorProps) {
+const AprText = ({ inputValue, series, type }:{ inputValue: string|undefined, series:ISeries, type:'BORROW'|'LEND' }) => {
+  const { apr } = useApr(inputValue, type, series);
+
+  const [limitHit, setLimitHit] = useState<boolean>(false);
+
+  useEffect(() => {
+    !series?.seriesIsMature &&
+    inputValue &&
+    ethers.utils.parseEther(inputValue).gt(series.baseReserves) &&
+    setLimitHit(true);
+  }, [inputValue, series.baseReserves, series?.seriesIsMature, setLimitHit]);
+
+  return (
+    <>
+      { !series?.seriesIsMature && !inputValue && <Text> ● APR <Text size="xsmall">from</Text> {series?.APR}% </Text>}
+      { !limitHit && !series?.seriesIsMature && inputValue && <Text> ● {apr}%</Text>}
+      { limitHit && <Text size="xsmall" color="pink"> Not enough liquidity</Text>}
+    </>
+  );
+};
+
+function SeriesSelector({ selectSeriesLocally, inputValue, ignoredSeries }: ISeriesSelectorProps) {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
 
   const { userState, userActions } = useContext(UserContext);
@@ -21,11 +45,14 @@ function SeriesSelector({ selectSeriesLocally, ignoredSeries }: ISeriesSelectorP
   const selectedSeries = selectSeriesLocally ? localSeries : seriesMap.get(selectedSeriesId!);
   const selectedBase = assetMap.get(selectedBaseId!);
 
-  const optionText = (_series: ISeries|undefined) => (
-    _series
-      ? `${mobile ? _series.displayNameMobile : _series.displayName}  ● APR: ${_series.APR}%`
-      : 'Select a series'
-  );
+  // const { apr } = useApr(inputValue, 'BORROW', selectedSeries);
+
+  const optionText = (_series: ISeries|undefined) => {
+    if (_series) {
+      return `${mobile ? _series.displayNameMobile : _series.displayName}`;
+    }
+    return 'Select a series';
+  };
 
   const optionExtended = (_series: ISeries|undefined) => (
     <Box fill="horizontal" direction="row" justify="between" gap="small">
@@ -34,6 +61,7 @@ function SeriesSelector({ selectSeriesLocally, ignoredSeries }: ISeriesSelectorP
         <Box round="large" border pad={{ horizontal: 'small' }}>
           <Text size="xsmall"> Mature </Text>
         </Box>}
+      {_series && <AprText inputValue={inputValue} series={_series} type="BORROW" />}
     </Box>
   );
 
@@ -86,7 +114,7 @@ function SeriesSelector({ selectSeriesLocally, ignoredSeries }: ISeriesSelectorP
         valueLabel={
           options.length ?
             <Box pad={mobile ? 'medium' : 'small'}><Text color="text"> {optionExtended(selectedSeries)}</Text></Box>
-            : <Box pad={mobile ? 'medium' : 'small'}><Text color="text"> No available series.</Text></Box>
+            : <Box pad={mobile ? 'medium' : 'small'}><Text color="text"> No available series yet.</Text></Box>
         }
         disabled={options.length === 0}
         onChange={({ option }: any) => handleSelect(option)}
@@ -97,6 +125,6 @@ function SeriesSelector({ selectSeriesLocally, ignoredSeries }: ISeriesSelectorP
   );
 }
 
-SeriesSelector.defaultProps = { selectSeriesLocally: null, ignoredSeries: [] };
+SeriesSelector.defaultProps = { selectSeriesLocally: null, inputValue: undefined, ignoredSeries: [] };
 
 export default SeriesSelector;
