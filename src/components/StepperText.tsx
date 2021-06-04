@@ -33,8 +33,8 @@ function StepperText({ values, position }: IStepperText) {
     <Box>
       { values.map((x:string[], i:number) => (
         <Box direction="row" key={x[1]}>
-          <Text weight={600} size={position === i ? 'xxlarge' : 'large'} color={position === i ? 'text' : 'text-xweak'}> {x[0]}
-            <Text size={position === i ? 'xxlarge' : 'large'} color={position === i ? 'text' : 'text-xweak'}> {x[1]} </Text>
+          <Text weight={900} size={position === i ? 'xxlarge' : 'large'} color={position === i ? 'text' : 'text-xweak'}> {x[0]}
+            <Text weight={900} size={position === i ? 'xxlarge' : 'large'} color={position === i ? 'text' : 'text-xweak'}> {x[1]} </Text>
             {x[2]}
           </Text>
         </Box>
