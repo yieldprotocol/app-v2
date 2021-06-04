@@ -46,7 +46,7 @@ export const useBorrowActions = () => {
       /* return the remove ETH OP */
       return [{
         operation: VAULT_OPS.EXIT_ETHER,
-        args: [selectedIlkId, account],
+        args: [account],
         ignore: value.gte(ethers.constants.Zero),
         series,
       }];
