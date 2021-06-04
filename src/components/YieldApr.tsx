@@ -5,12 +5,12 @@ import Loader from 'react-spinners/GridLoader';
 import styled from 'styled-components';
 import { UserContext } from '../contexts/UserContext';
 import { useApr } from '../hooks/aprHook';
-import { ISeries, IUserContext } from '../types';
+import { ActionType, ISeries, IUserContext } from '../types';
 import { cleanValue } from '../utils/displayUtils';
 import { buyBase, calculateAPR, secondsToFrom, sellBase } from '../utils/yieldMath';
 
 interface IYieldApr {
-  type: 'BORROW'|'LEND'
+  action: ActionType,
   input: string|undefined,
 }
 
@@ -21,7 +21,7 @@ const StyledText = styled(Text)`
   -webkit-text-fill-color: transparent;
 `;
 
-function YieldApr({ type, input }: IYieldApr) {
+function YieldApr({ action, input }: IYieldApr) {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
 
   /* STATE FROM CONTEXT */
@@ -31,7 +31,7 @@ function YieldApr({ type, input }: IYieldApr) {
   const selectedSeries = seriesMap.get(selectedSeriesId!);
   //   const selectedIlk = assetMap.get(selectedIlkId!);
 
-  const { apr, minApr, maxApr } = useApr(input, type, selectedSeries);
+  const { apr, minApr, maxApr } = useApr(input, action, selectedSeries);
 
   return (
     <>
@@ -40,7 +40,7 @@ function YieldApr({ type, input }: IYieldApr) {
         <Box animation="fadeIn" basis={mobile ? undefined : '50%'}>
           <Box pad={mobile ? undefined : 'large'} />
           {
-          type === 'BORROW'
+          action === 'BORROW'
             ?
               <Text size="medium" color="text-weak" weight="bold" margin="-1em">
                 Borrow {selectedSeries ? cleanValue(input || '', 2) : '' } {selectedBase?.symbol || ''} {!selectedSeries || selectedSeries.seriesIsMature ? 'from' : 'at'}
@@ -52,7 +52,7 @@ function YieldApr({ type, input }: IYieldApr) {
           }
           <Box direction="row" align="center">
             <StyledText size="80px">
-              {apr || (type === 'BORROW' ? minApr : maxApr) || ''}
+              {apr || (action === 'BORROW' ? minApr : maxApr) || ''}
             </StyledText>
             <Box fill="vertical" justify="evenly">
               <StyledText size="large" color="brand"> % </StyledText>

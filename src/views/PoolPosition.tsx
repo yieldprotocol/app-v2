@@ -10,7 +10,7 @@ import SectionWrap from '../components/wraps/SectionWrap';
 
 import { useLendActions } from '../hooks/lendActions';
 import { UserContext } from '../contexts/UserContext';
-import { ISeries, IUserContext } from '../types';
+import { ActionType, ISeries, IUserContext } from '../types';
 import MaxButton from '../components/MaxButton';
 import InfoBite from '../components/InfoBite';
 import { usePoolActions } from '../hooks/poolActions';
@@ -165,7 +165,10 @@ const PoolPosition = () => {
             </Box>
 
             <Box gap="small" fill="horizontal" direction="row" align="center">
-              <SeriesSelector selectSeriesLocally={(series:ISeries) => setRollToSeries(series)} />
+              <SeriesSelector
+                selectSeriesLocally={(series:ISeries) => setRollToSeries(series)}
+                action={ActionType.POOL}
+              />
             </Box>
 
           </Tab>

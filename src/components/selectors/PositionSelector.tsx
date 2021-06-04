@@ -1,7 +1,7 @@
 import { Box, Layer, Text } from 'grommet';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../contexts/UserContext';
-import { IAsset, ISeries, IUserContext } from '../../types';
+import { ActionType, IAsset, ISeries, IUserContext } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
 import LendPosition from '../../views/LendPosition';
 import PoolPosition from '../../views/PoolPosition';
@@ -12,7 +12,7 @@ interface IPositionFilter {
   series: ISeries | undefined,
 }
 
-function PositionSelector({ type } : { type: 'LEND'|'POOL' }) {
+function PositionSelector({ action } : { action: ActionType }) {
   /* STATE FROM CONTEXT */
 
   const { userState, userActions } = useContext(UserContext) as IUserContext;
@@ -41,8 +41,8 @@ function PositionSelector({ type } : { type: 'LEND'|'POOL' }) {
       /* filter all positions by base if base is selected */
       const _filteredSeries: ISeries[] = Array.from(seriesMap.values())
       /* filter by positive balances on either pool tokens or fyTokens */
-        .filter((_series:ISeries) => ((type === 'LEND' && _series) ? _series.fyTokenBalance?.gt(ZERO_BN) : true))
-        .filter((_series:ISeries) => ((type === 'POOL' && _series) ? _series.poolTokens?.gt(ZERO_BN) : true))
+        .filter((_series:ISeries) => ((action === 'LEND' && _series) ? _series.fyTokenBalance?.gt(ZERO_BN) : true))
+        .filter((_series:ISeries) => ((action === 'POOL' && _series) ? _series.poolTokens?.gt(ZERO_BN) : true))
         .filter(
           (_series:ISeries) => (base ? _series.baseId === base.id : true),
         )
@@ -53,7 +53,7 @@ function PositionSelector({ type } : { type: 'LEND'|'POOL' }) {
       setFilterLabels([base?.symbol, series?.displayNameMobile]);
       setFilteredSeries(_filteredSeries);
     },
-    [seriesMap, type],
+    [seriesMap, action],
   );
 
   /* CHECK the list of current vaults which match the current base series selection */
@@ -62,14 +62,14 @@ function PositionSelector({ type } : { type: 'LEND'|'POOL' }) {
     if (!showPositionModal) {
       const _allPositions: ISeries[] = Array.from(seriesMap.values())
       /* filter by positive balances on either pool tokens or fyTokens */
-        .filter((_series:ISeries) => ((type === 'LEND' && _series) ? _series.fyTokenBalance?.gt(ZERO_BN) : true))
-        .filter((_series:ISeries) => ((type === 'POOL' && _series) ? _series.poolTokens?.gt(ZERO_BN) : true));
+        .filter((_series:ISeries) => ((action === 'LEND' && _series) ? _series.fyTokenBalance?.gt(ZERO_BN) : true))
+        .filter((_series:ISeries) => ((action === 'POOL' && _series) ? _series.poolTokens?.gt(ZERO_BN) : true));
       setAllPositions(_allPositions);
 
       if (selectedBase) handleFilter({ base: selectedBase, series: undefined });
       if (selectedBase && selectedSeries) handleFilter({ base: selectedBase, series: selectedSeries });
     }
-  }, [selectedBase, selectedSeries, showPositionModal, handleFilter, seriesMap, type]);
+  }, [selectedBase, selectedSeries, showPositionModal, handleFilter, seriesMap, action]);
 
   // useEffect(() => {
   //   !currentFilter?.base &&
@@ -81,7 +81,7 @@ function PositionSelector({ type } : { type: 'LEND'|'POOL' }) {
 
     <>
       <ModalWrap modalOpen={showPositionModal} toggleModalOpen={() => setShowPositionModal(!showPositionModal)}>
-        { type === 'LEND' ? <LendPosition /> : <PoolPosition /> }
+        { action === 'LEND' ? <LendPosition /> : <PoolPosition /> }
       </ModalWrap>
 
       {
@@ -96,8 +96,8 @@ function PositionSelector({ type } : { type: 'LEND'|'POOL' }) {
             <Text size="small" color="text-weak">
               {
                showAllPositions
-                 ? `All my ${type === 'LEND' ? 'lending' : 'pool'} positions`
-                 : `My ${type === 'LEND' ? 'lending' : 'pool'} positions`
+                 ? `All my ${action === 'LEND' ? 'lending' : 'pool'} positions`
+                 : `My ${action === 'LEND' ? 'lending' : 'pool'} positions`
               }
             </Text>
           </Box>

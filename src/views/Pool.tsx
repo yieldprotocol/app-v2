@@ -12,7 +12,7 @@ import InfoBite from '../components/InfoBite';
 import ActionButtonGroup from '../components/ActionButtonGroup';
 import SectionWrap from '../components/wraps/SectionWrap';
 import { UserContext } from '../contexts/UserContext';
-import { ISeries, IUserContext } from '../types';
+import { ActionType, ISeries, IUserContext } from '../types';
 import { usePool, usePoolActions } from '../hooks/poolActions';
 import MaxButton from '../components/MaxButton';
 import PanelWrap from '../components/wraps/PanelWrap';
@@ -133,7 +133,7 @@ function Pool() {
             </SectionWrap>
 
             <SectionWrap title="Select a series to Pool to">
-              <SeriesSelector />
+              <SeriesSelector action={ActionType.POOL} />
             </SectionWrap>
 
             {selectedSeries?.seriesIsMature && <Text color="pink" size="small">This series has matured.</Text>}
@@ -200,7 +200,7 @@ function Pool() {
 
       <PanelWrap right basis="40%">
         <Box />
-        {!mobile && <PositionSelector type="POOL" />}
+        {!mobile && <PositionSelector action={ActionType.POOL} />}
       </PanelWrap>
 
     </MainViewWrap>

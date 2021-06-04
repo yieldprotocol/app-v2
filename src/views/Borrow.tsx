@@ -15,7 +15,7 @@ import MaxButton from '../components/MaxButton';
 
 import { useBorrowActions } from '../hooks/borrowActions';
 import { UserContext } from '../contexts/UserContext';
-import { ISeries, IUserContext, IVault } from '../types';
+import { ActionType, ISeries, IUserContext, IVault } from '../types';
 import { collateralizationRatio } from '../utils/yieldMath';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
@@ -247,7 +247,7 @@ const Borrow = () => {
               </SectionWrap>
 
               <SectionWrap title="Choose an series to borrow against">
-                <SeriesSelector inputValue={borrowInput} />
+                <SeriesSelector inputValue={borrowInput} action={ActionType.BORROW} />
               </SectionWrap>
                 {/* {selectedSeries?.seriesIsMature && <StampText>This series has matured.</StampText> */}
                 {selectedSeries?.seriesIsMature && <Box round="xsmall" pad="small" border={{ color: 'pink' }}><Text color="pink" size="small">This series has matured.</Text></Box>}
@@ -379,7 +379,7 @@ const Borrow = () => {
         </CenterPanelWrap>
 
         <PanelWrap right basis="40%">
-          <YieldApr input={borrowInput} type="BORROW" />
+          <YieldApr input={borrowInput} action={ActionType.BORROW} />
           {!mobile && <VaultSelector />}
         </PanelWrap>
 

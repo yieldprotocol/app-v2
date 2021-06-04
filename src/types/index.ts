@@ -164,6 +164,12 @@ export enum TradeType {
   SELL = 'SELL',
 }
 
+export enum ActionType {
+  BORROW = 'BORROW',
+  LEND = 'LEND',
+  POOL = 'POOL',
+}
+
 export enum MenuView {
   account = 'ACCOUNT',
   settings = 'SETTINGS',

@@ -10,7 +10,7 @@ import { UserContext } from '../contexts/UserContext';
 
 import InputWrap from '../components/wraps/InputWrap';
 import InfoBite from '../components/InfoBite';
-import { IAsset, ISeries, IUserContext, IVault } from '../types';
+import { ActionType, IAsset, ISeries, IUserContext, IVault } from '../types';
 
 import ActionButtonGroup from '../components/ActionButtonGroup';
 import SectionWrap from '../components/wraps/SectionWrap';
@@ -259,7 +259,10 @@ const Vault = () => {
               </Box> */}
             </Box>
             <Box gap="small" fill="horizontal" direction="row" align="center">
-              <SeriesSelector selectSeriesLocally={(series:ISeries) => setRollToSeries(series)} />
+              <SeriesSelector
+                selectSeriesLocally={(series:ISeries) => setRollToSeries(series)}
+                action={ActionType.BORROW}
+              />
             </Box>
           </Tab>
 

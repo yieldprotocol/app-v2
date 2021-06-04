@@ -12,7 +12,7 @@ import SectionWrap from '../components/wraps/SectionWrap';
 
 import { useLendActions } from '../hooks/lendActions';
 import { UserContext } from '../contexts/UserContext';
-import { IUserContext } from '../types';
+import { ActionType, IUserContext } from '../types';
 import MaxButton from '../components/MaxButton';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
@@ -131,7 +131,7 @@ const Lend = () => {
             </SectionWrap>
 
             <SectionWrap title="Choose a series to lend to">
-              <SeriesSelector />
+              <SeriesSelector inputValue={lendInput} action={ActionType.LEND} />
             </SectionWrap>
 
             {selectedSeries?.seriesIsMature && <Text color="pink" size="small">This series has matured.</Text>}
@@ -183,8 +183,8 @@ const Lend = () => {
       </CenterPanelWrap>
 
       <PanelWrap right basis="40%">
-        <YieldApr input={lendInput} type="LEND" />
-        {!mobile && <PositionSelector type="LEND" />}
+        <YieldApr input={lendInput} action={ActionType.LEND} />
+        {!mobile && <PositionSelector action={ActionType.LEND} />}
       </PanelWrap>
 
     </MainViewWrap>

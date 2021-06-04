@@ -2,20 +2,21 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Box, ResponsiveContext, Select, Text, ThemeContext } from 'grommet';
 
 import { ethers } from 'ethers';
-import { ISeries } from '../../types';
+import { ActionType, ISeries } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { calculateAPR } from '../../utils/yieldMath';
 import { useApr } from '../../hooks/aprHook';
 
 interface ISeriesSelectorProps {
+  action: ActionType;
   selectSeriesLocally?: (series: ISeries) => void; /* select series locally filters out the global selection from the list and returns the selected ISeries */
   inputValue?: string|undefined; /* accepts an inpout value for dynamic APR calculations */
-  ignoredSeries?: string[];
 }
 
-const AprText = ({ inputValue, series, type }:{ inputValue: string|undefined, series:ISeries, type:'BORROW'|'LEND' }) => {
-  const { apr } = useApr(inputValue, type, series);
-
+const AprText = (
+  { inputValue, series, action }:{ inputValue: string|undefined, series:ISeries, action:ActionType },
+) => {
+  const { apr } = useApr(inputValue, action, series);
   const [limitHit, setLimitHit] = useState<boolean>(false);
 
   useEffect(() => {
@@ -34,7 +35,7 @@ const AprText = ({ inputValue, series, type }:{ inputValue: string|undefined, se
   );
 };
 
-function SeriesSelector({ selectSeriesLocally, inputValue, ignoredSeries }: ISeriesSelectorProps) {
+function SeriesSelector({ selectSeriesLocally, inputValue, action }: ISeriesSelectorProps) {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
 
   const { userState, userActions } = useContext(UserContext);
@@ -61,7 +62,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, ignoredSeries }: ISer
         <Box round="large" border pad={{ horizontal: 'small' }}>
           <Text size="xsmall"> Mature </Text>
         </Box>}
-      {_series && <AprText inputValue={inputValue} series={_series} type="BORROW" />}
+      {_series && <AprText inputValue={inputValue} series={_series} action={action} />}
     </Box>
   );
 
@@ -71,8 +72,8 @@ function SeriesSelector({ selectSeriesLocally, inputValue, ignoredSeries }: ISer
 
     /* filter out options based on base Id */
     let filteredOpts = opts.filter((_series:ISeries) => (
-      _series.baseId === selectedBaseId &&
-      !ignoredSeries?.includes(_series.baseId)
+      _series.baseId === selectedBaseId
+      // !ignoredSeries?.includes(_series.baseId)
     ));
 
     /* if required, filter out the globally selected asset  and */
@@ -125,6 +126,6 @@ function SeriesSelector({ selectSeriesLocally, inputValue, ignoredSeries }: ISer
   );
 }
 
-SeriesSelector.defaultProps = { selectSeriesLocally: null, inputValue: undefined, ignoredSeries: [] };
+SeriesSelector.defaultProps = { selectSeriesLocally: null, inputValue: undefined };
 
 export default SeriesSelector;
