@@ -5,9 +5,10 @@ export const yieldTheme = {
   global: {
     focus: 'none',
     font: {
-      family: 'Oswald',
-      weight: '700',
+      family: 'Rubik',
+      weight: '900',
     },
+
     colors: {
       brand: '#3f53d9',
       focus: '#3f53d999',
