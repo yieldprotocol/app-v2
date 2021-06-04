@@ -53,7 +53,7 @@ interface CauldronInterface extends ethers.utils.Interface {
     "roll(bytes12,bytes6,int128)": FunctionFragment;
     "series(bytes6)": FunctionFragment;
     "setAuctionInterval(uint32)": FunctionFragment;
-    "setMaxDebt(bytes6,bytes6,uint128)": FunctionFragment;
+    "setDebtLimits(bytes6,bytes6,uint96,uint24,uint8)": FunctionFragment;
     "setRateOracle(bytes6,address)": FunctionFragment;
     "setRoleAdmin(bytes4,bytes4)": FunctionFragment;
     "setSpotOracle(bytes6,bytes6,address,uint32)": FunctionFragment;
@@ -160,8 +160,8 @@ interface CauldronInterface extends ethers.utils.Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "setMaxDebt",
-    values: [BytesLike, BytesLike, BigNumberish]
+    functionFragment: "setDebtLimits",
+    values: [BytesLike, BytesLike, BigNumberish, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "setRateOracle",
@@ -246,7 +246,10 @@ interface CauldronInterface extends ethers.utils.Interface {
     functionFragment: "setAuctionInterval",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "setMaxDebt", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setDebtLimits",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "setRateOracle",
     data: BytesLike
@@ -271,8 +274,8 @@ interface CauldronInterface extends ethers.utils.Interface {
   events: {
     "AssetAdded(bytes6,address)": EventFragment;
     "AuctionIntervalSet(uint32)": EventFragment;
+    "DebtLimitsSet(bytes6,bytes6,uint96,uint24,uint8)": EventFragment;
     "IlkAdded(bytes6,bytes6)": EventFragment;
-    "MaxDebtSet(bytes6,bytes6,uint128)": EventFragment;
     "RateOracleAdded(bytes6,address)": EventFragment;
     "RoleAdminChanged(bytes4,bytes4)": EventFragment;
     "RoleGranted(bytes4,address,address)": EventFragment;
@@ -292,8 +295,8 @@ interface CauldronInterface extends ethers.utils.Interface {
 
   getEvent(nameOrSignatureOrTopic: "AssetAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AuctionIntervalSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "DebtLimitsSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "IlkAdded"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "MaxDebtSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RateOracleAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
@@ -406,7 +409,14 @@ export class Cauldron extends BaseContract {
       arg0: BytesLike,
       arg1: BytesLike,
       overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber] & { max: BigNumber; sum: BigNumber }>;
+    ): Promise<
+      [BigNumber, number, number, BigNumber] & {
+        max: BigNumber;
+        min: number;
+        dec: number;
+        sum: BigNumber;
+      }
+    >;
 
     destroy(
       vaultId: BytesLike,
@@ -521,10 +531,12 @@ export class Cauldron extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    setMaxDebt(
+    setDebtLimits(
       baseId: BytesLike,
       ilkId: BytesLike,
       max: BigNumberish,
+      min: BigNumberish,
+      dec: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -639,7 +651,14 @@ export class Cauldron extends BaseContract {
     arg0: BytesLike,
     arg1: BytesLike,
     overrides?: CallOverrides
-  ): Promise<[BigNumber, BigNumber] & { max: BigNumber; sum: BigNumber }>;
+  ): Promise<
+    [BigNumber, number, number, BigNumber] & {
+      max: BigNumber;
+      min: number;
+      dec: number;
+      sum: BigNumber;
+    }
+  >;
 
   destroy(
     vaultId: BytesLike,
@@ -754,10 +773,12 @@ export class Cauldron extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  setMaxDebt(
+  setDebtLimits(
     baseId: BytesLike,
     ilkId: BytesLike,
     max: BigNumberish,
+    min: BigNumberish,
+    dec: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -875,7 +896,14 @@ export class Cauldron extends BaseContract {
       arg0: BytesLike,
       arg1: BytesLike,
       overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber] & { max: BigNumber; sum: BigNumber }>;
+    ): Promise<
+      [BigNumber, number, number, BigNumber] & {
+        max: BigNumber;
+        min: number;
+        dec: number;
+        sum: BigNumber;
+      }
+    >;
 
     destroy(vaultId: BytesLike, overrides?: CallOverrides): Promise<void>;
 
@@ -993,10 +1021,12 @@ export class Cauldron extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setMaxDebt(
+    setDebtLimits(
       baseId: BytesLike,
       ilkId: BytesLike,
       max: BigNumberish,
+      min: BigNumberish,
+      dec: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1081,19 +1111,27 @@ export class Cauldron extends BaseContract {
       auctionInterval?: BigNumberish | null
     ): TypedEventFilter<[number], { auctionInterval: number }>;
 
+    DebtLimitsSet(
+      baseId?: BytesLike | null,
+      ilkId?: BytesLike | null,
+      max?: null,
+      min?: null,
+      dec?: null
+    ): TypedEventFilter<
+      [string, string, BigNumber, number, number],
+      {
+        baseId: string;
+        ilkId: string;
+        max: BigNumber;
+        min: number;
+        dec: number;
+      }
+    >;
+
     IlkAdded(
       seriesId?: BytesLike | null,
       ilkId?: BytesLike | null
     ): TypedEventFilter<[string, string], { seriesId: string; ilkId: string }>;
-
-    MaxDebtSet(
-      baseId?: BytesLike | null,
-      ilkId?: BytesLike | null,
-      max?: null
-    ): TypedEventFilter<
-      [string, string, BigNumber],
-      { baseId: string; ilkId: string; max: BigNumber }
-    >;
 
     RateOracleAdded(
       baseId?: BytesLike | null,
@@ -1387,10 +1425,12 @@ export class Cauldron extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    setMaxDebt(
+    setDebtLimits(
       baseId: BytesLike,
       ilkId: BytesLike,
       max: BigNumberish,
+      min: BigNumberish,
+      dec: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1618,10 +1658,12 @@ export class Cauldron extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    setMaxDebt(
+    setDebtLimits(
       baseId: BytesLike,
       ilkId: BytesLike,
       max: BigNumberish,
+      min: BigNumberish,
+      dec: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
