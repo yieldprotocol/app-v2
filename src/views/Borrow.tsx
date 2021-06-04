@@ -247,7 +247,7 @@ const Borrow = () => {
               </SectionWrap>
 
               <SectionWrap title="Choose an series to borrow against">
-                <SeriesSelector />
+                <SeriesSelector inputValue={borrowInput} />
               </SectionWrap>
                 {/* {selectedSeries?.seriesIsMature && <StampText>This series has matured.</StampText> */}
                 {selectedSeries?.seriesIsMature && <Box round="xsmall" pad="small" border={{ color: 'pink' }}><Text color="pink" size="small">This series has matured.</Text></Box>}
@@ -349,7 +349,7 @@ const Borrow = () => {
               stepPosition === 0 &&
               <Button
                 secondary
-                label={<Text size={mobile ? 'small' : undefined}> continue to Add collateral </Text>}
+                label={<Text size={mobile ? 'small' : undefined}> Allocate collateral </Text>}
                 onClick={() => setStepPosition(stepPosition + 1)}
                 disabled={stepDisabled}
               />

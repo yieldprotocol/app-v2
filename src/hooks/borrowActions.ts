@@ -10,6 +10,10 @@ import { useChain } from './chainHooks';
 import { VAULT_OPS } from '../utils/operations';
 import { calculateSlippage } from '../utils/yieldMath';
 
+export const useBorrow = () => {
+  console.log('use borrow');
+};
+
 /* Generic hook for chain transactions */
 export const useBorrowActions = () => {
   const { chainState: { account, contractMap } } = useContext(ChainContext);
