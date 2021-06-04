@@ -158,7 +158,7 @@ function PositionSelector({ action } : { action: ActionType }) {
                 (showAllPositions ? allPositions : filteredSeries).length === 1
               } */}
 
-              <Text weight={450} size="small">  { assetMap.get(x.baseId!)?.symbol} {x.displayName} </Text>
+              <Text weight={450} size="small">  {assetMap.get(x.baseId)?.symbol} {x.displayName} </Text>
 
             </Box>
           ))
