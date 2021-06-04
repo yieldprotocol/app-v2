@@ -14,6 +14,11 @@ const _abi = [
         name: "cauldron",
         type: "address",
       },
+      {
+        internalType: "contract IWETH9",
+        name: "weth_",
+        type: "address",
+      },
     ],
     stateMutability: "nonpayable",
     type: "constructor",
@@ -541,6 +546,19 @@ const _abi = [
     name: "settle",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "weth",
+    outputs: [
+      {
+        internalType: "contract IWETH9",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
