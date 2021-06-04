@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useReducer, useCallback, useState } from 
 import { useLocation } from 'react-router-dom';
 import { ethers } from 'ethers';
 
-import { uniqueNamesGenerator, Config, colors, adjectives, animals } from 'unique-names-generator';
+import { uniqueNamesGenerator, Config, adjectives, animals } from 'unique-names-generator';
 
 import { IAssetRoot, ISeriesRoot, IVaultRoot, ISeries, IAsset, IVault, IUserContextState, IUserContext } from '../types';
 
@@ -33,7 +33,7 @@ const initState : IUserContextState = {
 };
 
 const vaultNameConfig: Config = {
-  dictionaries: [colors, animals],
+  dictionaries: [adjectives, animals],
   separator: '-',
   length: 2,
 };
@@ -186,9 +186,11 @@ const UserProvider = ({ children }:any) => {
           secondsToFrom(series.maturity.toString()),
         );
         const APR = calculateAPR(floorDecimal(_rate), ethers.utils.parseEther('1'), series.maturity) || '0';
-
+        // const { symbol } = assetRootMap.get(series.baseId);
         return {
           ...series,
+          // displayName: `${symbol} ⚬ ${series.displayName}`,
+          // displayNameMobile: `${symbol} ⚬ ${series.displayNameMobile}`,
           baseReserves,
           fyTokenReserves,
           fyTokenRealReserves,
