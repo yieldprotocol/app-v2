@@ -211,7 +211,7 @@ const Borrow = () => {
           {/* <Box justify="between" fill pad="xlarge"> */}
           <StepperText
             position={stepPosition}
-            values={[['Choose an asset to', 'borrow', ''], ['Add', 'collateral', ''], ['', 'Review', 'and transact']]}
+            values={[['1. Choose an asset to', 'borrow', ''], ['2. Add', 'collateral', ''], ['3. ', 'Review', 'and transact']]}
           />
 
           <Box gap="small">
@@ -246,7 +246,7 @@ const Borrow = () => {
                 </Box>
               </SectionWrap>
 
-              <SectionWrap title="Choose an series to borrow against">
+              <SectionWrap title="Choose an series to borrow from">
                 <SeriesSelector inputValue={borrowInput} action={ActionType.BORROW} />
               </SectionWrap>
                 {/* {selectedSeries?.seriesIsMature && <StampText>This series has matured.</StampText> */}
