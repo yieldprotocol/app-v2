@@ -8,20 +8,22 @@ type ILadleRouter = {
   STIR:                 [4, ['bytes12', 'bytes12', 'uint128', 'uint128']];
   POUR:                 [5, ['bytes12', 'address', 'int128', 'int128']];
   SERVE:                [6, ['bytes12', 'address', 'uint128', 'uint128', 'uint128']];
-  ROLL:                 [7, ['bytes12', 'bytes6', 'uint128']];
+  ROLL:                 [7, ['bytes12', 'bytes6', 'uint8', 'uint128']];
   CLOSE:                [8, ['bytes12', 'address', 'int128', 'int128']];
   REPAY:                [9, ['bytes12', 'address', 'int128', 'uint128']];
   REPAY_VAULT:          [10, ['bytes12', 'address', 'int128', 'uint128']];
-  REMOVE_REPAY:         [11, ['bytes12', 'address', 'uint128', 'uint128']],
-  FORWARD_PERMIT:       [12, ['bytes6', 'bool', 'address', 'uint256', 'uint256', 'uint8', 'bytes32', 'bytes32']];
-  FORWARD_DAI_PERMIT:   [13, ['bytes6', 'bool', 'address', 'uint256', 'uint256', 'bool', 'uint8', 'bytes32', 'bytes32']];
-  JOIN_ETHER:           [14, ['bytes6']];
-  EXIT_ETHER:           [15, ['bytes6', 'address']];
-  TRANSFER_TO_POOL:     [16, ['bytes6', 'bool', 'uint128']];
-  ROUTE:                [17, ['bytes6', 'bytes']];
-  TRANSFER_TO_FYTOKEN:  [18, ['bytes6', 'uint256']];
-  REDEEM:               [19, ['bytes6', 'address', 'uint256']];
-  MODULE:               [20, ['address', 'bytes']];
+  REPAY_LADLE:          [11, ['bytes12']];
+  RETRIEVE:             [12, ['bytes6', 'bool', 'address']];
+  FORWARD_PERMIT:       [13, ['bytes6', 'bool', 'address', 'uint256', 'uint256', 'uint8', 'bytes32', 'bytes32']];
+  FORWARD_DAI_PERMIT:   [14, ['bytes6', 'bool', 'address', 'uint256', 'uint256', 'bool', 'uint8', 'bytes32', 'bytes32']];
+  JOIN_ETHER:           [15, ['bytes6']];
+  EXIT_ETHER:           [16, ['address']];
+  TRANSFER_TO_POOL:     [17, ['bytes6', 'bool', 'uint128']];
+  ROUTE:                [18, ['bytes6', 'bytes']],
+  TRANSFER_TO_FYTOKEN:  [19, ['bytes6', 'uint256']];
+  REDEEM:               [20, ['bytes6', 'address', 'uint256']];
+  MODULE:               [21, ['address', 'bytes']];
+
 };
 
 type IPoolRouter  = {
@@ -50,18 +52,20 @@ export const VAULT_OPS: ILadleRouter = {
   STIR:                 [4, ['bytes12', 'bytes12', 'uint128', 'uint128']],
   POUR:                 [5, ['bytes12', 'address', 'int128', 'int128']],
   SERVE:                [6, ['bytes12', 'address', 'uint128', 'uint128', 'uint128']],
-  ROLL:                 [7, ['bytes12', 'bytes6', 'uint128']],
+  ROLL:                 [7, ['bytes12', 'bytes6', 'uint8', 'uint128']],
   CLOSE:                [8, ['bytes12', 'address', 'int128', 'int128']],
   REPAY:                [9, ['bytes12', 'address', 'int128', 'uint128']],
   REPAY_VAULT:          [10, ['bytes12', 'address', 'int128', 'uint128']],
-  REMOVE_REPAY:         [11, ['bytes12', 'address', 'uint128', 'uint128']],
-  FORWARD_PERMIT:       [12, ['bytes6', 'bool', 'address', 'uint256', 'uint256', 'uint8', 'bytes32', 'bytes32']],
-  FORWARD_DAI_PERMIT:   [13, ['bytes6', 'bool', 'address', 'uint256', 'uint256', 'bool', 'uint8', 'bytes32', 'bytes32']],
-  JOIN_ETHER:           [14, ['bytes6']],
-  EXIT_ETHER:           [15, ['bytes6', 'address']],
-  TRANSFER_TO_POOL:     [16, ['bytes6', 'bool', 'uint128']],
-  ROUTE:                [17, ['bytes6', 'bytes']],
-  TRANSFER_TO_FYTOKEN:  [18, ['bytes6', 'uint256']],
-  REDEEM:               [19, ['bytes6', 'address', 'uint256']],
-  MODULE:               [20, ['address', 'bytes']],
+  REPAY_LADLE:          [11, ['bytes12']],
+  RETRIEVE:             [12, ['bytes6', 'bool', 'address']],
+  FORWARD_PERMIT:       [13, ['bytes6', 'bool', 'address', 'uint256', 'uint256', 'uint8', 'bytes32', 'bytes32']],
+  FORWARD_DAI_PERMIT:   [14, ['bytes6', 'bool', 'address', 'uint256', 'uint256', 'bool', 'uint8', 'bytes32', 'bytes32']],
+  JOIN_ETHER:           [15, ['bytes6']],
+  EXIT_ETHER:           [16, ['address']],
+  TRANSFER_TO_POOL:     [17, ['bytes6', 'bool', 'uint128']],
+  ROUTE:                [18, ['bytes6', 'bytes']],
+  TRANSFER_TO_FYTOKEN:  [19, ['bytes6', 'uint256']],
+  REDEEM:               [20, ['bytes6', 'address', 'uint256']],
+  MODULE:               [21, ['address', 'bytes']],
+
 };
