@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-function USDCMark(props: React.SVGProps<SVGSVGElement>) {
+function TSTMark(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
@@ -25,4 +25,4 @@ function USDCMark(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
-export default USDCMark;
+export default TSTMark;

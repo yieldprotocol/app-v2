@@ -174,7 +174,10 @@ const Vault = () => {
           <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
 
             <Box direction="row" align="center" fill>
-              <Text size={mobile ? 'small' : 'medium'}> {selectedVault?.id} </Text>
+              <Box>
+                <Text size={mobile ? 'large' : 'xlarge'}> {selectedVault?.displayName} </Text>
+                <Text size="small"> {selectedVault?.id} </Text>
+              </Box>
               <Menu
                 label={<Box pad="xsmall" alignSelf="end" fill><Text size="xsmall" color="brand"> Change Vault </Text></Box>}
                 dropProps={{
