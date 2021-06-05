@@ -247,7 +247,7 @@ const Borrow = () => {
               </SectionWrap>
 
               <SectionWrap title="Choose an series to borrow from">
-                <SeriesSelector inputValue={borrowInput} action={ActionType.BORROW} />
+                <SeriesSelector inputValue={borrowInput} actionType={ActionType.BORROW} />
               </SectionWrap>
                 {/* {selectedSeries?.seriesIsMature && <StampText>This series has matured.</StampText> */}
                 {selectedSeries?.seriesIsMature && <Box round="xsmall" pad="small" border={{ color: 'pink' }}><Text color="pink" size="small">This series has matured.</Text></Box>}
@@ -379,7 +379,7 @@ const Borrow = () => {
         </CenterPanelWrap>
 
         <PanelWrap right basis="40%">
-          <YieldApr input={borrowInput} action={ActionType.BORROW} />
+          <YieldApr input={borrowInput} actionType={ActionType.BORROW} />
           {!mobile && <VaultSelector />}
         </PanelWrap>
 

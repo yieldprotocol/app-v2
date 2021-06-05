@@ -133,7 +133,7 @@ function Pool() {
             </SectionWrap>
 
             <SectionWrap title="Select a series to Pool to">
-              <SeriesSelector action={ActionType.POOL} />
+              <SeriesSelector actionType={ActionType.POOL} />
             </SectionWrap>
 
             {selectedSeries?.seriesIsMature && <Text color="pink" size="small">This series has matured.</Text>}
@@ -200,7 +200,7 @@ function Pool() {
 
       <PanelWrap right basis="40%">
         <Box />
-        {!mobile && <PositionSelector action={ActionType.POOL} />}
+        {!mobile && <PositionSelector actionType={ActionType.POOL} />}
       </PanelWrap>
 
     </MainViewWrap>

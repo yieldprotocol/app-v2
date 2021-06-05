@@ -167,7 +167,7 @@ const PoolPosition = () => {
             <Box gap="small" fill="horizontal" direction="row" align="center">
               <SeriesSelector
                 selectSeriesLocally={(series:ISeries) => setRollToSeries(series)}
-                action={ActionType.POOL}
+                actionType={ActionType.POOL}
               />
             </Box>
 

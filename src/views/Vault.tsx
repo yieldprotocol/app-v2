@@ -264,7 +264,7 @@ const Vault = () => {
             <Box gap="small" fill="horizontal" direction="row" align="center">
               <SeriesSelector
                 selectSeriesLocally={(series:ISeries) => setRollToSeries(series)}
-                action={ActionType.BORROW}
+                actionType={ActionType.BORROW}
               />
             </Box>
           </Tab>

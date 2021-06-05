@@ -12,7 +12,7 @@ interface IPositionFilter {
   series: ISeries | undefined,
 }
 
-function PositionSelector({ action } : { action: ActionType }) {
+function PositionSelector({ actionType } : { actionType: ActionType }) {
   /* STATE FROM CONTEXT */
 
   const { userState, userActions } = useContext(UserContext) as IUserContext;
@@ -41,8 +41,8 @@ function PositionSelector({ action } : { action: ActionType }) {
       /* filter all positions by base if base is selected */
       const _filteredSeries: ISeries[] = Array.from(seriesMap.values())
       /* filter by positive balances on either pool tokens or fyTokens */
-        .filter((_series:ISeries) => ((action === 'LEND' && _series) ? _series.fyTokenBalance?.gt(ZERO_BN) : true))
-        .filter((_series:ISeries) => ((action === 'POOL' && _series) ? _series.poolTokens?.gt(ZERO_BN) : true))
+        .filter((_series:ISeries) => ((actionType === 'LEND' && _series) ? _series.fyTokenBalance?.gt(ZERO_BN) : true))
+        .filter((_series:ISeries) => ((actionType === 'POOL' && _series) ? _series.poolTokens?.gt(ZERO_BN) : true))
         .filter(
           (_series:ISeries) => (base ? _series.baseId === base.id : true),
         )
@@ -53,7 +53,7 @@ function PositionSelector({ action } : { action: ActionType }) {
       setFilterLabels([base?.symbol, series?.displayNameMobile]);
       setFilteredSeries(_filteredSeries);
     },
-    [seriesMap, action],
+    [seriesMap, actionType],
   );
 
   /* CHECK the list of current vaults which match the current base series selection */
@@ -62,14 +62,14 @@ function PositionSelector({ action } : { action: ActionType }) {
     if (!showPositionModal) {
       const _allPositions: ISeries[] = Array.from(seriesMap.values())
       /* filter by positive balances on either pool tokens or fyTokens */
-        .filter((_series:ISeries) => ((action === 'LEND' && _series) ? _series.fyTokenBalance?.gt(ZERO_BN) : true))
-        .filter((_series:ISeries) => ((action === 'POOL' && _series) ? _series.poolTokens?.gt(ZERO_BN) : true));
+        .filter((_series:ISeries) => ((actionType === 'LEND' && _series) ? _series.fyTokenBalance?.gt(ZERO_BN) : true))
+        .filter((_series:ISeries) => ((actionType === 'POOL' && _series) ? _series.poolTokens?.gt(ZERO_BN) : true));
       setAllPositions(_allPositions);
 
       if (selectedBase) handleFilter({ base: selectedBase, series: undefined });
       if (selectedBase && selectedSeries) handleFilter({ base: selectedBase, series: selectedSeries });
     }
-  }, [selectedBase, selectedSeries, showPositionModal, handleFilter, seriesMap, action]);
+  }, [selectedBase, selectedSeries, showPositionModal, handleFilter, seriesMap, actionType]);
 
   // useEffect(() => {
   //   !currentFilter?.base &&
@@ -81,7 +81,7 @@ function PositionSelector({ action } : { action: ActionType }) {
 
     <>
       <ModalWrap modalOpen={showPositionModal} toggleModalOpen={() => setShowPositionModal(!showPositionModal)}>
-        { action === 'LEND' ? <LendPosition /> : <PoolPosition /> }
+        { actionType === 'LEND' ? <LendPosition /> : <PoolPosition /> }
       </ModalWrap>
 
       {
@@ -96,8 +96,8 @@ function PositionSelector({ action } : { action: ActionType }) {
             <Text size="small" color="text-weak">
               {
                showAllPositions
-                 ? `All my ${action === 'LEND' ? 'lending' : 'pool'} positions`
-                 : `My ${action === 'LEND' ? 'lending' : 'pool'} positions`
+                 ? `All my ${actionType === 'LEND' ? 'lending' : 'pool'} positions`
+                 : `My ${actionType === 'LEND' ? 'lending' : 'pool'} positions`
               }
             </Text>
           </Box>

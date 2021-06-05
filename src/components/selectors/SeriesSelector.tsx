@@ -8,15 +8,15 @@ import { calculateAPR } from '../../utils/yieldMath';
 import { useApr } from '../../hooks/aprHook';
 
 interface ISeriesSelectorProps {
-  action: ActionType;
+  actionType: ActionType;
   selectSeriesLocally?: (series: ISeries) => void; /* select series locally filters out the global selection from the list and returns the selected ISeries */
   inputValue?: string|undefined; /* accepts an inpout value for dynamic APR calculations */
 }
 
 const AprText = (
-  { inputValue, series, action }:{ inputValue: string|undefined, series:ISeries, action:ActionType },
+  { inputValue, series, actionType }:{ inputValue: string|undefined, series:ISeries, actionType:ActionType },
 ) => {
-  const { apr } = useApr(inputValue, action, series);
+  const { apr } = useApr(inputValue, actionType, series);
   const [limitHit, setLimitHit] = useState<boolean>(false);
 
   useEffect(() => {
@@ -38,7 +38,7 @@ const AprText = (
   );
 };
 
-function SeriesSelector({ selectSeriesLocally, inputValue, action }: ISeriesSelectorProps) {
+function SeriesSelector({ selectSeriesLocally, inputValue, actionType }: ISeriesSelectorProps) {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
 
   const { userState, userActions } = useContext(UserContext);
@@ -65,7 +65,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, action }: ISeriesSele
         <Box round="large" border pad={{ horizontal: 'small' }}>
           <Text size="xsmall"> Mature </Text>
         </Box>}
-      {_series && action !== 'POOL' && <AprText inputValue={inputValue} series={_series} action={action} />}
+      {_series && actionType !== 'POOL' && <AprText inputValue={inputValue} series={_series} actionType={actionType} />}
     </Box>
   );
 

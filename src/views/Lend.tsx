@@ -131,7 +131,7 @@ const Lend = () => {
             </SectionWrap>
 
             <SectionWrap title="Choose a series to lend to">
-              <SeriesSelector inputValue={lendInput} action={ActionType.LEND} />
+              <SeriesSelector inputValue={lendInput} actionType={ActionType.LEND} />
             </SectionWrap>
 
             {selectedSeries?.seriesIsMature && <Text color="pink" size="small">This series has matured.</Text>}
@@ -183,8 +183,8 @@ const Lend = () => {
       </CenterPanelWrap>
 
       <PanelWrap right basis="40%">
-        <YieldApr input={lendInput} action={ActionType.LEND} />
-        {!mobile && <PositionSelector action={ActionType.LEND} />}
+        <YieldApr input={lendInput} actionType={ActionType.LEND} />
+        {!mobile && <PositionSelector actionType={ActionType.LEND} />}
       </PanelWrap>
 
     </MainViewWrap>

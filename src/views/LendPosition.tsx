@@ -178,7 +178,7 @@ const LendPosition = () => {
             <Box gap="small" fill="horizontal" direction="row" align="center">
               <SeriesSelector
                 selectSeriesLocally={(series:ISeries) => setRollToSeries(series)}
-                action={ActionType.LEND}
+                actionType={ActionType.LEND}
               />
             </Box>
 

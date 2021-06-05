@@ -6,7 +6,7 @@ import { cleanValue } from '../utils/displayUtils';
 import { secondsToFrom, sellBase, buyBase, calculateAPR } from '../utils/yieldMath';
 
 /* APR hook calculates APR, min and max aprs for selected series and BORROW or LEND type */
-export const useApr = (input:string|undefined, action: ActionType, series: ISeries|undefined) => {
+export const useApr = (input:string|undefined, actionType: ActionType, series: ISeries|undefined) => {
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext) as IUserContext;
   const { seriesMap, selectedSeriesId, selectedBaseId } = userState;
@@ -22,8 +22,8 @@ export const useApr = (input:string|undefined, action: ActionType, series: ISeri
       const { baseReserves, fyTokenReserves, maturity } = selectedSeries;
       const ttm = secondsToFrom(maturity.toString());
 
-      if (action === 'LEND') preview = sellBase(baseReserves, fyTokenReserves, baseAmount, ttm);
-      if (action === 'BORROW') preview = buyBase(baseReserves, fyTokenReserves, baseAmount, ttm);
+      if (actionType === 'LEND') preview = sellBase(baseReserves, fyTokenReserves, baseAmount, ttm);
+      if (actionType === 'BORROW') preview = buyBase(baseReserves, fyTokenReserves, baseAmount, ttm);
 
       const _apr = calculateAPR(baseAmount, preview, selectedSeries?.maturity);
       _apr ? setApr(cleanValue(_apr, 2)) : setApr(selectedSeries.APR);
@@ -34,7 +34,7 @@ export const useApr = (input:string|undefined, action: ActionType, series: ISeri
     // setFYDaiValue(parseFloat(ethers.utils.formatEther(preview)));
     // _apr = calculateAPR(ethers.utils.parseEther(inputValue.toString()), preview, activeSeries?.maturity);
     // setAPR(cleanValue(_apr.toString(), 2));
-  }, [selectedSeries, input, action]);
+  }, [selectedSeries, input, actionType]);
 
   /* Get the min APR from all the series */
   const aprArray = Array.from(seriesMap.values())

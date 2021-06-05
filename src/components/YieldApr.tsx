@@ -10,7 +10,7 @@ import { cleanValue } from '../utils/displayUtils';
 import { buyBase, calculateAPR, secondsToFrom, sellBase } from '../utils/yieldMath';
 
 interface IYieldApr {
-  action: ActionType,
+  actionType: ActionType,
   input: string|undefined,
 }
 
@@ -21,7 +21,7 @@ const StyledText = styled(Text)`
   -webkit-text-fill-color: transparent;
 `;
 
-function YieldApr({ action, input }: IYieldApr) {
+function YieldApr({ actionType, input }: IYieldApr) {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
 
   /* STATE FROM CONTEXT */
@@ -31,7 +31,7 @@ function YieldApr({ action, input }: IYieldApr) {
   const selectedSeries = seriesMap.get(selectedSeriesId!);
   //   const selectedIlk = assetMap.get(selectedIlkId!);
 
-  const { apr, minApr, maxApr } = useApr(input, action, selectedSeries);
+  const { apr, minApr, maxApr } = useApr(input, actionType, selectedSeries);
 
   return (
     <>
@@ -40,7 +40,7 @@ function YieldApr({ action, input }: IYieldApr) {
         <Box animation="fadeIn" basis={mobile ? undefined : '50%'}>
           <Box pad={mobile ? undefined : 'large'} />
           {
-          action === 'BORROW'
+          actionType === 'BORROW'
             ?
               <Text size="medium" color="text-weak" weight="bold" margin="-1em">
                 Borrow {selectedSeries ? cleanValue(input || '', 2) : '' } {selectedBase?.symbol || ''} {!selectedSeries || selectedSeries.seriesIsMature ? 'from' : 'at'}
@@ -52,7 +52,7 @@ function YieldApr({ action, input }: IYieldApr) {
           }
           <Box direction="row" align="center">
             <StyledText size="80px">
-              {apr || (action === 'BORROW' ? minApr : maxApr) || ''}
+              {apr || (actionType === 'BORROW' ? minApr : maxApr) || ''}
             </StyledText>
             <Box fill="vertical" justify="evenly">
               <StyledText size="large" color="brand"> % </StyledText>
