@@ -3,6 +3,7 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../contexts/UserContext';
 import { IAsset, ISeries, IUserContext, IVault } from '../../types';
 import Vault from '../../views/Vault';
+import VaultListItem from '../VaultListItem';
 import ModalWrap from '../wraps/ModalWrap';
 
 interface IVaultFilter {
@@ -124,9 +125,10 @@ function VaultSelector(target:any) {
 
           <Box
             height={{ max: '300px' }}
-            style={{ overflow: 'scroll' }}
+            style={{ overflow: 'auto' }}
+            pad={{ horizontal: 'small', bottom: 'small' }}
             gap="small"
-            align="end"
+            fill
           >
 
             {
@@ -141,12 +143,13 @@ function VaultSelector(target:any) {
             <Box
               key={x.id}
               animation={{ type: 'fadeIn', delay: i * 100, duration: 1500 }}
-              hoverIndicator={{ elevation: 'small' }}
+              hoverIndicator={{ elevation: 'large' }}
               onClick={() => handleSelect(x)}
-              pad="xsmall"
               round="small"
+              elevation="small"
             >
-              <Text weight={450} size="small"> {x.displayName} </Text>
+              <VaultListItem vault={x} />
+
             </Box>
           ))
           }

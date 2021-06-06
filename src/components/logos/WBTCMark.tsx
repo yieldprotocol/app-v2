@@ -5,6 +5,8 @@ function WBTCMark(props: React.SVGProps<SVGSVGElement>) {
     <svg
       {...props}
       xmlns="http://www.w3.org/2000/svg"
+      width="1em"
+      height="1em"
       viewBox="0 0 109.26 109.26"
     >
       <title>wrapped-bitcoin-wbtc</title>
@@ -12,7 +14,7 @@ function WBTCMark(props: React.SVGProps<SVGSVGElement>) {
         <g id="Layer_1-2" data-name="Layer 1">
           <g id="Page-1">
             <g id="wbtc_colour" data-name="wbtc colour">
-              <path id="Shape" className="cls-1" d="M89.09,22.93l-3,3a42.47,42.47,0,0,1,0,57.32l3,3a46.76,46.76,0,0,0,0-63.39Z" />
+              <path id="Shape" color="#5a5564" d="M89.09,22.93l-3,3a42.47,42.47,0,0,1,0,57.32l3,3a46.76,46.76,0,0,0,0-63.39Z" />
               <path id="Shape-2" data-name="Shape" color="#5a5564" d="M26,23.19a42.47,42.47,0,0,1,57.32,0l3-3a46.76,46.76,0,0,0-63.39,0Z" />
               <path id="Shape-3" data-name="Shape" color="#5a5564" d="M23.19,83.28a42.47,42.47,0,0,1,0-57.29l-3-3a46.76,46.76,0,0,0,0,63.39Z" />
               <path id="Shape-4" data-name="Shape" color="#5a5564" d="M83.28,86.05a42.47,42.47,0,0,1-57.32,0l-3,3a46.76,46.76,0,0,0,63.39,0Z" />

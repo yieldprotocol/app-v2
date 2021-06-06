@@ -13,6 +13,20 @@ import { nameFromMaturity } from '../utils/displayUtils';
 import { Pool } from '../contracts';
 import { ETH_BASED_ASSETS } from '../utils/constants';
 
+import DaiMark from '../components/logos/DaiMark';
+import EthMark from '../components/logos/EthMark';
+import TSTMark from '../components/logos/TSTMark';
+import USDCMark from '../components/logos/USDCMark';
+import WBTCMark from '../components/logos/WBTCMark';
+
+const markMap = new Map([
+  ['DAI', <DaiMark key="dai" />],
+  ['USDC', <USDCMark key="usdc" />],
+  ['WBTC', <WBTCMark key="wbtc" />],
+  ['TST', <TSTMark key="tst" />],
+  ['WETH', <EthMark key="eth" />],
+]);
+
 /* Set up web3react config */
 const POLLING_INTERVAL = 12000;
 const RPC_URLS: { [chainId: number]: string } = {
@@ -212,6 +226,8 @@ const ChainProvider = ({ children }: any) => {
                 name,
                 symbol,
                 version,
+                color: (yieldEnv.colors as any)[symbol],
+                image: markMap.get(symbol),
                 joinAddress: joinMap.get(id),
                 /* baked in token fns */
                 getBalance: async (acc: string) => (ETH_BASED_ASSETS.includes(id)
