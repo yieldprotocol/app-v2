@@ -24,5 +24,12 @@
       "CompoundOracle" : "0x851356ae760d987E095750cCeb3bC6014560891C",
       "ChainlinkOracle" : "0xf5059a5D33d5853360D16C683c16e67980206f36"
     }
+  },
+  "colors": {
+    "DAI" : "#F5AC37",
+    "USDC" : "#2775CA",
+    "WBTC" : "#5A5564",
+    "TST" : "#D15034",
+    "WETH" : "#FFFFFF"
   }
 }

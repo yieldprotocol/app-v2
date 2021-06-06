@@ -1,6 +1,6 @@
 import { ethers, BigNumber } from 'ethers';
-import { Settings } from 'http2';
-import { ERC20, FYToken, Pool } from '../contracts';
+import React from 'react';
+import { FYToken, Pool } from '../contracts';
 
 export interface IUserContext {
   userState : IUserContextState;
@@ -63,6 +63,8 @@ export interface IAssetRoot {
   symbol: string;
   name: string;
   version: string;
+  color: string;
+  image: React.FC;
   displayName: string;
   displayNameMobile: string;
   address: string;
