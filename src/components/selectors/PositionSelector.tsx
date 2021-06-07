@@ -1,5 +1,6 @@
 import { Box, Layer, Text } from 'grommet';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
+import styled from 'styled-components';
 import { UserContext } from '../../contexts/UserContext';
 import { ActionType, IAsset, ISeries, IUserContext } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
@@ -11,6 +12,24 @@ interface IPositionFilter {
   base: IAsset| undefined,
   series: ISeries | undefined,
 }
+
+// const StyledBox = styled(Box)`
+//   z-index: -1;
+//   bottom: 15px;
+//   left: 10px;
+//   width: 50%;
+//   top: 80%;
+//   max-width:300px;
+//   background: #777;
+//   -webkit-box-shadow: 0 15px 10px #777;
+//   -moz-box-shadow: 0 15px 10px #777;
+//   box-shadow: 0 15px 10px #777;
+//   -webkit-transform: rotate(-3deg);
+//   -moz-transform: rotate(-3deg);
+//   -o-transform: rotate(-3deg);
+//   -ms-transform: rotate(-3deg);
+//   transform: rotate(-3deg);
+// `;
 
 function PositionSelector({ actionType } : { actionType: ActionType }) {
   /* STATE FROM CONTEXT */
@@ -134,7 +153,6 @@ function PositionSelector({ actionType } : { actionType: ActionType }) {
             height={{ max: '300px' }}
             style={{ overflow: 'scroll' }}
             gap="small"
-            align="end"
             pad="small"
           >
 
@@ -151,15 +169,27 @@ function PositionSelector({ actionType } : { actionType: ActionType }) {
               animation={{ type: 'fadeIn', delay: i * 100, duration: 1500 }}
               hoverIndicator={{ elevation: 'small' }}
               onClick={() => handleSelect(x)}
-              pad="xsmall"
+              pad={{ vertical: 'xsmall', horizontal: 'medium' }}
               round="small"
             >
               {/* {
                 (showAllPositions ? allPositions : filteredSeries).length === 1
               } */}
 
-              <Text weight={450} size="small">  {assetMap.get(x.baseId)?.symbol} {x.displayName} </Text>
-
+              {/* <Box direction="row" round="large" pad="xsmall" background={`linear-gradient(90deg, ${x.?.color} 40%, white 75%)`} gap="xsmall">
+                {base?.image}
+              </Box> */}
+              <Box direction="row" align="center" fill>
+                <Box
+                  round="large"
+                  background={`linear-gradient(90deg, ${assetMap.get(x.baseId)?.color} 40%, white 75%)`}
+                  pad={{ vertical: 'xsmall', left: 'xsmall', right: 'medium' }}
+                  align="start"
+                >
+                  {assetMap.get(x.baseId)?.image}
+                </Box>
+                <Text weight={450} size="small"> {x.displayName} </Text>
+              </Box>
             </Box>
           ))
           }
