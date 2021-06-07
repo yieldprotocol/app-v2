@@ -109,7 +109,7 @@ function Pool() {
 
             <SectionWrap title="Select an asset to Pool">
               <Box direction="row" gap="small" fill="horizontal" align="start">
-                <Box basis={mobile ? '50%' : '65%'}>
+                <Box basis={mobile ? '50%' : '60%'}>
                   <InputWrap action={() => console.log('maxAction')} isError={poolError}>
                     <TextInput
                       plain
@@ -125,7 +125,7 @@ function Pool() {
                   </InputWrap>
                 </Box>
 
-                <Box basis={mobile ? '50%' : '35%'}>
+                <Box basis={mobile ? '50%' : '40%'}>
                   <AssetSelector />
                 </Box>
 
