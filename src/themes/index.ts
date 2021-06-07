@@ -6,7 +6,7 @@ export const yieldTheme = {
     focus: 'none',
     font: {
       family: 'Rubik',
-      weight: '900',
+      weight: '750',
     },
 
     colors: {
