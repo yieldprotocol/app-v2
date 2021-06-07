@@ -15,20 +15,19 @@ function VaultListItem({ vault }:{ vault:IVault }) {
       direction="row"
       gap="small"
       align="center"
-      pad="xsmall"
-      fill="horizontal"
+      pad="small"
     >
-
-      <Box direction="row" round="large" pad="xsmall" background={base?.color} gap="xsmall">
+      <Box direction="row" round="large" pad="xsmall" background={`linear-gradient(90deg, ${base?.color} 40%, white 75%)`} gap="xsmall">
         {base?.image}
         {ilk?.image}
       </Box>
 
       <Box>
         <Text weight={900} size="small"> {vault.displayName} </Text>
-        <Text weight={450} size="xsmall"> Debt:  {vault.art_} </Text>
+        <Box>
+          <Text weight={450} size="xsmall"> Debt:  {vault.art_} </Text>
+        </Box>
       </Box>
-
     </Box>
   );
 }
