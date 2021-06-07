@@ -78,7 +78,7 @@ function CenterPanelWrap({ basis, children }: IPanelWrap) {
             <Box
               elevation={mobile ? undefined : 'large'}
               height={{ min: '600px' }}
-              width={{ min: '500px' }}
+              width="500px"
               round="small"
               background="white"
               justify="between"
