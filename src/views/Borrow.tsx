@@ -211,7 +211,7 @@ const Borrow = () => {
           {/* <Box justify="between" fill pad="xlarge"> */}
           <StepperText
             position={stepPosition}
-            values={[['1. Choose an asset to', 'borrow', ''], ['2. Add', 'collateral', ''], ['3. ', 'Review', 'and transact']]}
+            values={[['Choose an asset to', 'borrow', ''], ['Add', 'collateral', ''], ['', 'Review', 'and transact']]}
           />
 
           <Box gap="small">
