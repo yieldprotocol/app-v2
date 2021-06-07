@@ -4,6 +4,7 @@ import { UserContext } from '../../contexts/UserContext';
 import { IAsset, ISeries, IUserContext, IVault } from '../../types';
 import Vault from '../../views/Vault';
 import VaultListItem from '../VaultListItem';
+import ListWrap from '../wraps/ListWrap';
 import ModalWrap from '../wraps/ModalWrap';
 
 interface IVaultFilter {
@@ -123,20 +124,13 @@ function VaultSelector(target:any) {
           </Box>
       }
 
-          <Box
-            style={{ overflow: 'auto' }}
-            pad={{ horizontal: 'small', bottom: 'large', top: 'small' }}
-            gap="small"
-            height={{ max: '300px' }}
-          >
-
+          <ListWrap>
             {
             allVaults.length > 0 &&
             filteredVaults.length === 0 &&
             !showAllVaults &&
             <Text weight={450} size="small"> No suggested vaults </Text>
           }
-
             {
           (showAllVaults ? allVaults : filteredVaults).map((x:IVault, i:number) => (
             <Box
@@ -150,18 +144,16 @@ function VaultSelector(target:any) {
               fill="horizontal"
             >
               <VaultListItem vault={x} />
-
             </Box>
           ))
           }
-
-          </Box>
+          </ListWrap>
 
           <Box
             align="end"
             onClick={() => setShowAllVaults(!showAllVaults)}
           >
-            <Text size="xsmall"> {showAllVaults ? 'Show suggested vaults only' : `Show all ${allVaults.length} vaults`} </Text>
+            <Text size="xsmall" color="text-weak"> {showAllVaults ? 'Show suggested vaults only' : `Show all ${allVaults.length} vaults`} </Text>
           </Box>
         </Box>
       }
