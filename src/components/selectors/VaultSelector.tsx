@@ -100,7 +100,7 @@ function VaultSelector(target:any) {
             <Box direction="row" gap="small" justify="end" align="center">
               {
                 filterLabels[0] &&
-                <Box gap="xsmall" border direction="row" round pad={{ horizontal: 'xsmall', vertical: 'xsmall' }} animation={{ type: 'zoomIn', duration: 1500 }}>
+                <Box gap="xsmall" border direction="row" round="xsmall" pad={{ horizontal: 'xsmall', vertical: 'xsmall' }} animation={{ type: 'zoomIn', duration: 1500 }}>
                   <Text size="xsmall">{filterLabels[0]}-based</Text>
                   <Text
                     size="xsmall"
@@ -111,7 +111,7 @@ function VaultSelector(target:any) {
               }
               {
               filterLabels[1] &&
-              <Box gap="xsmall" direction="row" border round pad={{ horizontal: 'xsmall', vertical: 'xsmall' }} animation={{ type: 'zoomIn', duration: 1500 }}>
+              <Box gap="xsmall" direction="row" border round="xsmall" pad={{ horizontal: 'xsmall', vertical: 'xsmall' }} animation={{ type: 'zoomIn', duration: 1500 }}>
                 <Text size="xsmall">{filterLabels[1]}</Text>
                 <Text
                   size="xsmall"
@@ -139,7 +139,7 @@ function VaultSelector(target:any) {
               hoverIndicator={{ elevation: 'large' }}
               onClick={() => handleSelect(x)}
               round="small"
-              elevation="small"
+              elevation="medium"
               flex={false}
               fill="horizontal"
             >

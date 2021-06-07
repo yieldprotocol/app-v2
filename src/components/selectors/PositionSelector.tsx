@@ -128,7 +128,7 @@ function PositionSelector({ actionType } : { actionType: ActionType }) {
           <Box direction="row" gap="xsmall" justify="end" align="center">
             {
             filterLabels[0] &&
-            <Box gap="xsmall" border direction="row" round pad={{ horizontal: 'xsmall', vertical: 'xsmall' }}>
+            <Box gap="xsmall" border direction="row" round="xsmall" pad={{ horizontal: 'xsmall', vertical: 'xsmall' }}>
               <Text size="xsmall">{filterLabels[0]}-based</Text>
               <Text
                 size="xsmall"
@@ -139,7 +139,7 @@ function PositionSelector({ actionType } : { actionType: ActionType }) {
             }
             {
             filterLabels[1] &&
-            <Box gap="xsmall" direction="row" border round pad={{ horizontal: 'xsmall', vertical: 'xsmall' }}>
+            <Box gap="xsmall" direction="row" border round="xsmall" pad={{ horizontal: 'xsmall', vertical: 'xsmall' }}>
               <Text size="xsmall">{filterLabels[1]}</Text>
               <Text
                 size="xsmall"
@@ -168,13 +168,11 @@ function PositionSelector({ actionType } : { actionType: ActionType }) {
               hoverIndicator={{ elevation: 'large' }}
               onClick={() => handleSelect(x)}
               round="small"
-              elevation="small"
+              elevation="medium"
               flex={false}
               fill="horizontal"
             >
-
               <PositionListItem series={x} actionType={actionType} />
-
             </Box>
           ))
           }
