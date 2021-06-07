@@ -6,6 +6,8 @@ import { ActionType, IAsset, ISeries, IUserContext } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
 import LendPosition from '../../views/LendPosition';
 import PoolPosition from '../../views/PoolPosition';
+import PositionListItem from '../PositionListItem';
+import ListWrap from '../wraps/ListWrap';
 import ModalWrap from '../wraps/ModalWrap';
 
 interface IPositionFilter {
@@ -149,12 +151,7 @@ function PositionSelector({ actionType } : { actionType: ActionType }) {
           </Box>
       }
 
-          <Box
-            height={{ max: '300px' }}
-            style={{ overflow: 'scroll' }}
-            gap="small"
-            pad="small"
-          >
+          <ListWrap>
 
             {
             filteredSeries.length === 0 &&
@@ -164,42 +161,30 @@ function PositionSelector({ actionType } : { actionType: ActionType }) {
 
             {
           (!showAllPositions ? filteredSeries : allPositions).map((x:ISeries, i:number) => (
+
             <Box
               key={x.id}
               animation={{ type: 'fadeIn', delay: i * 100, duration: 1500 }}
-              hoverIndicator={{ elevation: 'small' }}
+              hoverIndicator={{ elevation: 'large' }}
               onClick={() => handleSelect(x)}
-              pad={{ vertical: 'xsmall', horizontal: 'medium' }}
               round="small"
+              elevation="small"
+              flex={false}
+              fill="horizontal"
             >
-              {/* {
-                (showAllPositions ? allPositions : filteredSeries).length === 1
-              } */}
 
-              {/* <Box direction="row" round="large" pad="xsmall" background={`linear-gradient(90deg, ${x.?.color} 40%, white 75%)`} gap="xsmall">
-                {base?.image}
-              </Box> */}
-              <Box direction="row" align="center" fill>
-                <Box
-                  round="large"
-                  background={`linear-gradient(90deg, ${assetMap.get(x.baseId)?.color} 40%, white 75%)`}
-                  pad={{ vertical: 'xsmall', left: 'xsmall', right: 'medium' }}
-                  align="start"
-                >
-                  {assetMap.get(x.baseId)?.image}
-                </Box>
-                <Text weight={450} size="small"> {x.displayName} </Text>
-              </Box>
+              <PositionListItem series={x} actionType={actionType} />
+
             </Box>
           ))
           }
-          </Box>
+          </ListWrap>
 
           <Box
             align="end"
             onClick={() => setShowAllPositions(!showAllPositions)}
           >
-            <Text size="xsmall">
+            <Text size="xsmall" color="text-weak">
               {showAllPositions ? `Show suggested ${selectedBase?.symbol || ''} positions only` : `Show all ${allPositions.length} positions`}
             </Text>
           </Box>
