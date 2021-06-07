@@ -20,7 +20,11 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   const selectedIlk = assetMap.get(selectedIlkId!);
 
   const [options, setOptions] = useState<IAssetRoot[]>([]);
-  const optionText = (asset: IAssetRoot | undefined) => (asset?.symbol ? `${asset?.symbol}` : <Loader height="14px" color="lightgrey" margin="0.5px" />);
+  const optionText = (asset: IAssetRoot | undefined) => (
+    asset?.symbol
+      ? <Box direction="row" align="center" gap="xsmall">{asset.image}{asset?.symbol}</Box>
+      : <Loader height="14px" color="lightgrey" margin="0.5px" />
+  );
 
   const handleSelect = (asset:IAsset) => {
     if (selectCollateral) {
@@ -71,12 +75,12 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
         placeholder="Select Asset"
         options={options}
         value={selectCollateral ? selectedIlk : selectedBase}
-        labelKey={(x:any) => optionText(x)}
-        valueLabel={<Box pad={mobile ? 'medium' : 'small'}><Text color="text"> { optionText(selectCollateral ? selectedIlk : selectedBase)} </Text></Box>}
+        labelKey={(x:IAssetRoot|undefined) => optionText(x)}
+        valueLabel={<Box pad={mobile ? 'medium' : { vertical: 'small', horizontal: 'xsmall' }}><Text color="text"> {optionText(selectCollateral ? selectedIlk : selectedBase)} </Text></Box>}
         onChange={({ option }: any) => handleSelect(option)}
         disabled={(selectCollateral && (selectedSeries?.mature || !selectedSeries))}
         // eslint-disable-next-line react/no-children-prop
-        children={(x:any) => <Box pad={mobile ? 'medium' : 'small'} gap="small" direction="row"> <Text color="text"> { optionText(x) } </Text> </Box>}
+        children={(x:any) => <Box pad={mobile ? 'medium' : 'small'} gap="xsmall" direction="row"> <Text color="text"> { optionText(x) } </Text> </Box>}
       />
     </Box>
   );
