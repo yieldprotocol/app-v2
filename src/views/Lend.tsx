@@ -19,6 +19,7 @@ import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import YieldApr from '../components/YieldApr';
 import StepperText from '../components/StepperText';
 import PositionSelector from '../components/selectors/PositionSelector';
+import Transaction from '../components/Transaction';
 
 const Lend = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -145,9 +146,14 @@ const Lend = () => {
             <Box onClick={() => setStepPosition(0)}>
               <Text>Back</Text>
             </Box>
-            <SectionWrap title="Review your transaction">
-              Lend x DAi to series Y.
-            </SectionWrap>
+
+            <Transaction txCode={`060_${selectedSeriesId}`}>
+
+              <SectionWrap title="Review your transaction">
+                Lend x DAi to series Y.
+              </SectionWrap>
+
+            </Transaction>
           </Box>
           }
 

@@ -67,7 +67,7 @@ export const useBorrowActions = () => {
     const ilk = vault ? assetMap.get(vault.ilkId) : assetMap.get(selectedIlkId);
 
     /* generate the reproducible txCode for tx tracking and tracing */
-    const txCode = getTxCode('020_', vaultId);
+    const txCode = getTxCode('020_', series.id);
 
     /* parse inputs */
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
