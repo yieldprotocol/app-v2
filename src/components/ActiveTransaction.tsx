@@ -41,17 +41,16 @@ function ActiveTransaction({ txCode, children }: { txCode:string, children: Reac
       {
       // If there is a active process AND trasaction status is not known
       processActive &&
-      !(tx.status === TxState.SUCCESSFUL || tx.status === TxState.FAILED)
-        ? (
-          <Box>
-            { signPending && sig && <Text> Signature required... </Text>}
-            { !txPending && !signPending && <Text> Awaiting Confirmation... </Text>}
-            { txPending && tx && <Text> Transaction Pending... </Text>}
-          </Box>)
-        :
-          <Box> {children} </Box>
+      <Box>
+        { signPending && sig && <Text> Signature required... </Text>}
+        { !txPending && !signPending && <Text> Awaiting Confirmation... </Text>}
+        { txPending && tx && <Text> Transaction Pending... </Text>}
+      </Box>
       }
-      {console.log(tx?.status)}
+
+      {!processActive && !tx &&
+      <Box> {children} </Box>}
+
       { tx?.status === TxState.SUCCESSFUL && <Box> TX COMPLETE </Box>}
       { tx?.status === TxState.FAILED && <Box> TX FAILED </Box>}
     </>
