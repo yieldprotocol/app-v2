@@ -1,8 +1,9 @@
 import { Box, Text } from 'grommet';
 import React, { useContext, useEffect, useState } from 'react';
 import { TxContext } from '../contexts/TxContext';
+import { TxState } from '../types';
 
-function Transaction({ txCode, children }: { txCode:string, children: React.ReactNode }) { // TODO consider name: TxPendingWrap
+function ActiveTransaction({ txCode, children }: { txCode:string, children: React.ReactNode }) { // TODO consider name: TxPendingWrap
   const { txState } = useContext(TxContext);
 
   const { signatures, transactions, processes, txPending, signPending } = txState;
@@ -12,19 +13,22 @@ function Transaction({ txCode, children }: { txCode:string, children: React.Reac
   const [processActive, setProcessActive] = useState<string>();
 
   useEffect(() => {
-    processActive && setTx(transactions.get(processActive));
-  }, [processActive, transactions]);
-
-  useEffect(() => {
     const _process = processes.get(txCode);
     setProcessActive(_process);
-  }, [processes, txCode]);
+    processActive && setTx(transactions.get(processActive));
+    processActive && setSig(signatures.get(txCode));
+  }, [processActive, processes, signatures, transactions, txCode]);
 
-  useEffect(() => {
-    setSig(signatures.get(txCode));
-  }, [signatures, txCode]);
+  // useEffect(() => {
+
+  // }, [processes, txCode]);
+
+  // useEffect(() => {
+  //   setSig(signatures.get(txCode));
+  // }, [signatures, txCode]);
 
   // processActive && console.log(processActive);
+
   /**
    *
    * STATE 1 : If process isnt active, simply return the children;
@@ -36,7 +40,8 @@ function Transaction({ txCode, children }: { txCode:string, children: React.Reac
     <>
       {
       // If there is a active process AND trasaction status is not known
-      processActive && !(tx?.status === 'success' || tx?.status === 'failed')
+      processActive &&
+      !(tx.status === TxState.SUCCESSFUL || tx.status === TxState.FAILED)
         ? (
           <Box>
             { signPending && sig && <Text> Signature required... </Text>}
@@ -47,10 +52,10 @@ function Transaction({ txCode, children }: { txCode:string, children: React.Reac
           <Box> {children} </Box>
       }
       {console.log(tx?.status)}
-      { tx?.status === 'success' && <Box> TX COMPLETE </Box>}
-      { tx?.status === 'failed' && <Box> TX FAILED </Box>}
+      { tx?.status === TxState.SUCCESSFUL && <Box> TX COMPLETE </Box>}
+      { tx?.status === TxState.FAILED && <Box> TX FAILED </Box>}
     </>
   );
 }
 
-export default Transaction;
+export default ActiveTransaction;
