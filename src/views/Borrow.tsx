@@ -24,7 +24,7 @@ import { ZERO_BN } from '../utils/constants';
 import StepperText from '../components/StepperText';
 import Collateralization from '../components/Collateralization';
 import VaultSelector from '../components/selectors/VaultSelector';
-import Transaction from '../components/Transaction';
+import ActiveTransaction from '../components/ActiveTransaction';
 
 const StampText = styled(Text)`
 
@@ -339,11 +339,11 @@ const Borrow = () => {
               <Box onClick={() => setStepPosition(1)}>
                 <Text>Back</Text>
               </Box>
-              <Transaction txCode={`060_${selectedSeriesId}`}>
+              <ActiveTransaction txCode={`060_${selectedSeriesId}`}>
                 <SectionWrap title="Review your transaction">
                   Borrow x DAi at rate using x as collateral
                 </SectionWrap>
-              </Transaction>
+              </ActiveTransaction>
             </Box>
           }
 

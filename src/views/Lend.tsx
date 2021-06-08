@@ -19,7 +19,7 @@ import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import YieldApr from '../components/YieldApr';
 import StepperText from '../components/StepperText';
 import PositionSelector from '../components/selectors/PositionSelector';
-import Transaction from '../components/Transaction';
+import ActiveTransaction from '../components/ActiveTransaction';
 
 const Lend = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -44,7 +44,6 @@ const Lend = () => {
   const handleLend = () => {
     !lendDisabled &&
     lend(lendInput, selectedSeries!);
-    setLendInput('');
   };
   const handleRedeem = () => {
     redeem(selectedSeries!, undefined);
@@ -147,13 +146,13 @@ const Lend = () => {
               <Text>Back</Text>
             </Box>
 
-            <Transaction txCode={`060_${selectedSeriesId}`}>
+            <ActiveTransaction txCode={`060_${selectedSeriesId}`}>
 
               <SectionWrap title="Review your transaction">
-                Lend x DAi to series Y.
+                <Text>Lend {lendInput} {selectedBase?.symbol} to the {selectedSeries?.displayName} series. </Text>
               </SectionWrap>
 
-            </Transaction>
+            </ActiveTransaction>
           </Box>
           }
 
