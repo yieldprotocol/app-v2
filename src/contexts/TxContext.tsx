@@ -1,7 +1,7 @@
 import React, { useReducer, useEffect } from 'react';
 import { ethers, ContractTransaction } from 'ethers';
 import { toast } from 'react-toastify';
-import { ISignData } from '../types';
+import { ISignData, TxState } from '../types';
 
 const TxContext = React.createContext<any>({});
 
@@ -25,14 +25,14 @@ interface IYieldSignature {
   uid: string;
   txCode: string;
   sigData: ISignData;
-  status: 'pending'| 'successful' | 'rejected' | 'failed';
+  status: TxState;
 }
 
 interface IYieldTx extends ContractTransaction {
   id: string;
   txCode: string;
   receipt: any|null;
-  status: 'pending'| 'successful' | 'rejected' | 'failed'
+  status: TxState;
 }
 
 function txReducer(_state:any, action:any) {
@@ -148,7 +148,7 @@ const TxProvider = ({ children }:any) => {
 
       res = await tx.wait();
       const txSuccess: boolean = res.status === 1 || false;
-      updateState({ type: 'transactions', payload: { tx, txCode, receipt: res, status: txSuccess ? 'success' : 'failure' } });
+      updateState({ type: 'transactions', payload: { tx, txCode, receipt: res, status: txSuccess ? TxState.SUCCESSFUL : TxState.FAILED } });
 
       /* if the handleTx is NOT a fallback tx (from signing) - then end the process */
       if (!_isfallback) {
@@ -175,16 +175,16 @@ const TxProvider = ({ children }:any) => {
   ) => {
     const uid = ethers.utils.hexlify(ethers.utils.randomBytes(6));
     updateState({ type: '_startProcess', payload: { txCode, hash: '0x0' } });
-    updateState({ type: 'signatures', payload: { uid, txCode, sigData, status: 'pending' } as IYieldSignature });
+    updateState({ type: 'signatures', payload: { uid, txCode, sigData, status: TxState.PENDING } as IYieldSignature });
     const _sig = await signFn()
       .catch((err:any) => {
         console.log(err);
-        updateState({ type: 'signatures', payload: { uid, txCode, sigData, status: 'rejected' } as IYieldSignature });
+        updateState({ type: 'signatures', payload: { uid, txCode, sigData, status: TxState.REJECTED } as IYieldSignature });
         /* end the process on signature rejection */
         updateState({ type: '_endProcess', payload: txCode });
         return Promise.reject(err);
       });
-    updateState({ type: 'signatures', payload: { uid, txCode, sigData, status: 'successful' } as IYieldSignature });
+    updateState({ type: 'signatures', payload: { uid, txCode, sigData, status: TxState.SUCCESSFUL } as IYieldSignature });
     console.log(_sig);
     return _sig;
   };
@@ -199,7 +199,8 @@ const TxProvider = ({ children }:any) => {
 
   /* signing watcher */
   useEffect(() => {
-    const _isSignPending = Array.from(txState.signatures.values()).findIndex((x:any) => x.status === 'pending') > -1;
+    const _isSignPending = Array.from(txState.signatures.values())
+      .findIndex((x:any) => x.status === TxState.PENDING) > -1;
     updateState({
       type: 'signPending',
       payload: _isSignPending });
@@ -207,7 +208,8 @@ const TxProvider = ({ children }:any) => {
 
   /* tx watcher */
   useEffect(() => {
-    const _isTxPending = Array.from(txState.transactions.values()).findIndex((x:any) => x.status === 'pending') > -1;
+    const _isTxPending = Array.from(txState.transactions.values())
+      .findIndex((x:any) => x.status === TxState.PENDING) > -1;
     updateState({
       type: 'txPending',
       payload: _isTxPending });

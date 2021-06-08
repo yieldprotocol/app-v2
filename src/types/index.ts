@@ -171,6 +171,13 @@ export enum ActionType {
   POOL = 'POOL',
 }
 
+export enum TxState {
+  PENDING = 'PENDING',
+  SUCCESSFUL = 'SUCCESSFUL',
+  FAILED = 'FAILED',
+  REJECTED = 'REJECTED',
+}
+
 export enum MenuView {
   account = 'ACCOUNT',
   settings = 'SETTINGS',

@@ -129,7 +129,7 @@ function PositionSelector({ actionType } : { actionType: ActionType }) {
             {
             filterLabels[0] &&
             <Box gap="xsmall" border direction="row" round="xsmall" pad={{ horizontal: 'xsmall', vertical: 'xsmall' }}>
-              <Text size="xsmall">{filterLabels[0]}-based</Text>
+              <Text size="xsmall">{filterLabels[0]}</Text>
               <Text
                 size="xsmall"
                 onClick={() => handleFilter({ ...currentFilter, base: undefined } as IPositionFilter)}
