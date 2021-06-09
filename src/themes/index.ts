@@ -6,7 +6,7 @@ export const yieldTheme = {
     focus: 'none',
     font: {
       family: 'Rubik',
-      weight: '750',
+      weight: '650',
     },
 
     colors: {
@@ -91,14 +91,6 @@ export const yieldTheme = {
     },
   },
 
-  input: {
-    border: {
-      radius: '8px',
-    },
-  },
-  table: {
-    size: 'small',
-  },
   list: {
     item: {
       pad: { horizontal: 'xsmall', vertical: undefined },
@@ -167,7 +159,7 @@ export const yieldTheme = {
       background: 'background-contrast',
       color: 'text',
     },
-    pad: 'small',
+    pad: 'xsmall',
     margin: {
       horizontal: 'none',
     },

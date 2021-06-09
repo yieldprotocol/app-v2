@@ -2,7 +2,7 @@ import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
-import { ICallData, SignType, ISeries } from '../types';
+import { ICallData, SignType, ISeries, ActionCodes } from '../types';
 import { getTxCode } from '../utils/appUtils';
 import { DAI_BASED_ASSETS, MAX_128, MAX_256 } from '../utils/constants';
 import { useChain } from './chainHooks';
@@ -30,7 +30,7 @@ export const usePoolActions = () => {
     series: ISeries,
     strategy: 'BUY'|'MINT' = 'BUY', // select a strategy default: BUY
   ) => {
-    const txCode = getTxCode('090_', series.id);
+    const txCode = getTxCode(ActionCodes.ADD_LIQUIDITY, series.id);
     const _input = ethers.utils.parseEther(input);
     const base = assetMap.get(series.baseId);
 
@@ -116,7 +116,7 @@ export const usePoolActions = () => {
     toSeries: ISeries,
   ) => {
     /* generate the reproducible txCode for tx tracking and tracing */
-    const txCode = getTxCode('100_', fromSeries.id);
+    const txCode = getTxCode(ActionCodes.ROLL_LIQUIDITY, fromSeries.id);
     const _input = ethers.utils.parseEther(input);
     const seriesMature = fromSeries.seriesIsMature;
 
@@ -222,7 +222,7 @@ export const usePoolActions = () => {
     series: ISeries,
   ) => {
     /* generate the reproducible txCode for tx tracking and tracing */
-    const txCode = getTxCode('110_', series.id);
+    const txCode = getTxCode(ActionCodes.REMOVE_LIQUIDITY, series.id);
     const _input = ethers.utils.parseEther(input);
 
     const permits: ICallData[] = await sign([

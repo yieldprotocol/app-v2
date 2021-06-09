@@ -1,3 +1,5 @@
+import { ActionCodes } from '../types';
+
 export const copyToClipboard = (str:string) => {
   const el = document.createElement('textarea');
   el.value = str;
@@ -14,7 +16,7 @@ export const toLog = (message: string, type: string = 'info') => {
 };
 
 /* creates internal tracking code of a transaction type */
-export const getTxCode = (txType: string, vaultId:string|null) => `${txType.toUpperCase()}${vaultId}`;
+export const getTxCode = (txType: ActionCodes, vaultOrSeriesId:string|null) => `${txType}_${vaultOrSeriesId}`;
 
 // /* google analytics log event */
 // export const analyticsLogEvent = (eventName: string, eventParams: any ) => {

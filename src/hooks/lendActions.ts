@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
-import { ICallData, IVaultRoot, SignType, ISeries } from '../types';
+import { ICallData, IVaultRoot, SignType, ISeries, ActionCodes } from '../types';
 import { getTxCode } from '../utils/appUtils';
 import { DAI_BASED_ASSETS, MAX_128, MAX_256 } from '../utils/constants';
 import { useChain } from './chainHooks';
@@ -23,7 +23,7 @@ export const useLendActions = () => {
     series: ISeries,
   ) => {
     /* generate the reproducible txCode for tx tracking and tracing */
-    const txCode = getTxCode('060_', series.id);
+    const txCode = getTxCode(ActionCodes.LEND, series.id);
 
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
     // const baseAddress = series.getBaseAddress();
@@ -72,7 +72,7 @@ export const useLendActions = () => {
     toSeries: ISeries,
   ) => {
     /* generate the reproducible txCode for tx tracking and tracing */
-    const txCode = getTxCode('070_', fromSeries.id);
+    const txCode = getTxCode(ActionCodes.ROLL_POSITION, fromSeries.id);
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
     const baseAddress = fromSeries.getBaseAddress();
     const { fyTokenAddress } = fromSeries;
@@ -164,7 +164,7 @@ export const useLendActions = () => {
     series: ISeries,
   ) => {
     /* generate the reproducible txCode for tx tracking and tracing */
-    const txCode = getTxCode('080_', series.id);
+    const txCode = getTxCode(ActionCodes.CLOSE_POSITION, series.id);
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
     const baseAddress = series.getBaseAddress();
     const { fyTokenAddress } = series;
@@ -206,7 +206,7 @@ export const useLendActions = () => {
     series: ISeries,
     input: string|undefined,
   ) => {
-    const txCode = getTxCode('090_', series.id);
+    const txCode = getTxCode(ActionCodes.REDEEM, series.id);
 
     const _input = input
       ? ethers.utils.parseEther(input)

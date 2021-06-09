@@ -183,3 +183,22 @@ export enum MenuView {
   settings = 'SETTINGS',
   vaults = 'VAULTS',
 }
+
+export enum ActionCodes {
+  // Collateral
+  ADD_COLLATERAL = '000',
+  REMOVE_COLLATERAL = '010',
+  // Borrow
+  BORROW = '100',
+  REPAY = '110',
+  ROLL_DEBT = '120',
+  // Lend
+  LEND = '200',
+  CLOSE_POSITION = '210',
+  ROLL_POSITION = '220',
+  REDEEM = '230',
+  // Pool
+  ADD_LIQUIDITY = '300',
+  REMOVE_LIQUIDITY = '310',
+  ROLL_LIQUIDITY = '320',
+}

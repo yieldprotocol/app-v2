@@ -2,7 +2,7 @@ import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
-import { ICallData, IVault, SignType, ISeries } from '../types';
+import { ICallData, IVault, SignType, ISeries, ActionCodes } from '../types';
 import { getTxCode } from '../utils/appUtils';
 import { ETH_BASED_ASSETS } from '../utils/constants';
 import { useChain } from './chainHooks';
@@ -60,7 +60,7 @@ export const useCollateralActions = () => {
     const series = vault ? seriesMap.get(vault.seriesId) : seriesMap.get(selectedSeriesId);
     const ilk = vault ? assetMap.get(vault.ilkId) : assetMap.get(selectedIlkId);
     /* generate the reproducible txCode for tx tracking and tracing */
-    const txCode = getTxCode('000_', vaultId);
+    const txCode = getTxCode(ActionCodes.ADD_COLLATERAL, vaultId);
 
     /* parse inputs to BigNumber in Wei */
     const _input = ethers.utils.parseEther(input);
@@ -116,7 +116,7 @@ export const useCollateralActions = () => {
     input: string,
   ) => {
     /* generate the txCode for tx tracking and tracing */
-    const txCode = getTxCode('010_', vault.id);
+    const txCode = getTxCode(ActionCodes.REMOVE_COLLATERAL, vault.id);
 
     /* get associated series and ilk */
     const series = seriesMap.get(vault.seriesId);
