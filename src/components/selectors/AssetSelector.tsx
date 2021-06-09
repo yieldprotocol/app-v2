@@ -22,7 +22,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   const [options, setOptions] = useState<IAssetRoot[]>([]);
   const optionText = (asset: IAssetRoot | undefined) => (
     asset?.symbol
-      ? <Box direction="row" align="center" gap="xsmall">{asset.image}{asset?.symbol}</Box>
+      ? <Box direction="row" align="center" gap="xsmall"> <Box flex={false}>{asset.image}</Box>{asset?.symbol}</Box>
       : <Loader height="14px" color="lightgrey" margin="0.5px" />
   );
 
