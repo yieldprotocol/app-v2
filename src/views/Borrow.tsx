@@ -15,7 +15,7 @@ import MaxButton from '../components/MaxButton';
 
 import { useBorrowActions } from '../hooks/borrowActions';
 import { UserContext } from '../contexts/UserContext';
-import { ActionType, ISeries, IUserContext, IVault } from '../types';
+import { ActionCodes, ActionType, ISeries, IUserContext, IVault } from '../types';
 import { collateralizationRatio } from '../utils/yieldMath';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
@@ -25,6 +25,7 @@ import StepperText from '../components/StepperText';
 import Collateralization from '../components/Collateralization';
 import VaultSelector from '../components/selectors/VaultSelector';
 import ActiveTransaction from '../components/ActiveTransaction';
+import { getTxCode } from '../utils/appUtils';
 
 const StampText = styled(Text)`
 
@@ -339,9 +340,11 @@ const Borrow = () => {
               <Box onClick={() => setStepPosition(1)}>
                 <Text>Back</Text>
               </Box>
-              <ActiveTransaction txCode={`060_${selectedSeriesId}`}>
+              <ActiveTransaction txCode={getTxCode(ActionCodes.BORROW, selectedSeriesId)}>
                 <SectionWrap title="Review your transaction">
-                  Borrow x DAi at rate using x as collateral
+                  <Text>Borrow {borrowInput}
+                    {selectedBase?.symbol} from the {selectedSeries?.displayName} series.
+                  </Text>
                 </SectionWrap>
               </ActiveTransaction>
             </Box>

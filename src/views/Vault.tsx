@@ -168,7 +168,6 @@ const Vault = () => {
 
   return (
     <>
-
       <Box>
         <Box gap="medium" height="150px">
           <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
@@ -178,22 +177,7 @@ const Vault = () => {
                 <Text size={mobile ? 'large' : 'xlarge'}> {selectedVault?.displayName} </Text>
                 <Text size="small"> {selectedVault?.id} </Text>
               </Box>
-              <Menu
-                label={<Box pad="xsmall" alignSelf="end" fill><Text size="xsmall" color="brand"> Change Vault </Text></Box>}
-                dropProps={{
-                  align: { top: 'bottom', left: 'left' },
-                  elevation: 'xlarge',
-                }}
-                icon={false}
-                items={
-                availableVaults?.map((x:any) => (
-                  { label: <Text size="small"> {x.id} </Text>, onClick: () => userActions.setSelectedVault(x.id) }
-                )) || []
-              }
-                onSelect={(x:any) => console.log(x)}
-              />
             </Box>
-
             <Menu
               label={<Box pad="xsmall" alignSelf="end" fill><Text size="xsmall" color="brand"> <FiMoreVertical /> </Text></Box>}
               dropProps={{
@@ -202,7 +186,7 @@ const Vault = () => {
               }}
               icon={false}
               items={
-                ['Delete Vault', 'transfer vault', 'repay all'].map((x:any) => (
+                ['Delete Vault', 'Transfer vault'].map((x:any) => (
                   { label: <Text size="small"> {x} </Text>, onClick: () => console.log(x) }
                 )) || []
               }
@@ -245,7 +229,7 @@ const Vault = () => {
 
           <Tab title="Roll Debt">
             <Box direction="row" pad={{ vertical: 'small' }} align="start" fill="horizontal">
-              {/* <Box>
+              <Box>
                 <InputWrap action={() => console.log('maxAction')} isError={rollError}>
                   <TextInput
                     plain
@@ -259,7 +243,7 @@ const Vault = () => {
                     disabled={maxRepay === '0.0'}
                   />
                 </InputWrap>
-              </Box> */}
+              </Box>
             </Box>
             <Box gap="small" fill="horizontal" direction="row" align="center">
               <SeriesSelector

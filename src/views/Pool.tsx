@@ -12,13 +12,15 @@ import InfoBite from '../components/InfoBite';
 import ActionButtonGroup from '../components/ActionButtonGroup';
 import SectionWrap from '../components/wraps/SectionWrap';
 import { UserContext } from '../contexts/UserContext';
-import { ActionType, ISeries, IUserContext } from '../types';
+import { ActionCodes, ActionType, ISeries, IUserContext } from '../types';
 import { usePool, usePoolActions } from '../hooks/poolActions';
 import MaxButton from '../components/MaxButton';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import StepperText from '../components/StepperText';
 import PositionSelector from '../components/selectors/PositionSelector';
+import ActiveTransaction from '../components/ActiveTransaction';
+import { getTxCode } from '../utils/appUtils';
 
 function Pool() {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -168,9 +170,12 @@ function Pool() {
               </SectionWrap>
             }
 
-            <SectionWrap title="Review your transaction">
-              Pool x DAi in series Y.
-            </SectionWrap>
+            <ActiveTransaction txCode={getTxCode(ActionCodes.ADD_LIQUIDITY, selectedSeriesId)}>
+              <SectionWrap title="Review your transaction">
+                <Text>Add {poolInput} {selectedBase?.symbol} to the {selectedSeries?.displayName} pool. </Text>
+              </SectionWrap>
+            </ActiveTransaction>
+
           </Box>
           }
 
