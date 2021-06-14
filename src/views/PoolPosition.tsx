@@ -10,10 +10,12 @@ import SectionWrap from '../components/wraps/SectionWrap';
 
 import { useLendActions } from '../hooks/lendActions';
 import { UserContext } from '../contexts/UserContext';
-import { ActionType, ISeries, IUserContext } from '../types';
+import { ActionCodes, ActionType, ISeries, IUserContext } from '../types';
 import MaxButton from '../components/MaxButton';
 import InfoBite from '../components/InfoBite';
 import { usePoolActions } from '../hooks/poolActions';
+import ActiveTransaction from '../components/ActiveTransaction';
+import { getTxCode } from '../utils/appUtils';
 
 const PoolPosition = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -31,6 +33,8 @@ const PoolPosition = () => {
   // tab state + control
   const [tabIndex, setTabIndex] = React.useState(0);
   const onActive = (nextIndex: number) => setTabIndex(nextIndex);
+
+  const [stepPosition, setStepPosition] = useState<number>(0);
 
   const [removeInput, setRemoveInput] = useState<string>();
   const [rollInput, setRollInput] = useState<string>();
@@ -124,59 +128,109 @@ const PoolPosition = () => {
           </Box>
         </Box>
 
-        <Tabs justify="start" activeIndex={tabIndex} onActive={onActive}>
-          <Tab title="Remove Liquidity">
-            <Box direction="row" pad={{ vertical: 'small' }} align="start" fill="horizontal">
-              <Box fill>
-                <InputWrap action={() => console.log('maxAction')} isError={removeError}>
-                  <TextInput
-                    plain
-                    type="number"
-                    placeholder="Tokens to remove"
-                    value={removeInput || ''}
-                    onChange={(event:any) => setRemoveInput(cleanValue(event.target.value))}
-                  />
-                  <MaxButton
-                    action={() => setRemoveInput(maxRemove)}
-                    disabled={maxRemove === '0.0'}
-                  />
-                </InputWrap>
+        {
+          stepPosition === 0 &&
+
+          <Tabs justify="start" activeIndex={tabIndex} onActive={onActive}>
+            <Tab title="Remove Liquidity">
+              <Box direction="row" pad={{ vertical: 'small' }} align="start" fill="horizontal">
+                <Box fill>
+                  <InputWrap action={() => console.log('maxAction')} isError={removeError}>
+                    <TextInput
+                      plain
+                      type="number"
+                      placeholder="Tokens to remove"
+                      value={removeInput || ''}
+                      onChange={(event:any) => setRemoveInput(cleanValue(event.target.value))}
+                    />
+                    <MaxButton
+                      action={() => setRemoveInput(maxRemove)}
+                      disabled={maxRemove === '0.0'}
+                    />
+                  </InputWrap>
+                </Box>
               </Box>
-            </Box>
-          </Tab>
+            </Tab>
 
-          <Tab title="Roll Liquidity">
-            <Box direction="row" pad={{ vertical: 'small' }} align="start" fill="horizontal">
-              <Box fill>
-                <InputWrap action={() => console.log('maxAction')} isError={rollError}>
-                  <TextInput
-                    plain
-                    type="number"
-                    placeholder="Tokens to roll"
-                    value={rollInput || ''}
-                    onChange={(event:any) => setRollInput(cleanValue(event.target.value))}
-                  />
-                  <MaxButton
-                    action={() => setRollInput(maxRemove)}
-                    disabled={maxRemove === '0.0'}
-                  />
-                </InputWrap>
+            <Tab title="Roll Liquidity">
+              <Box direction="row" pad={{ vertical: 'small' }} align="start" fill="horizontal">
+                <Box fill>
+                  <InputWrap action={() => console.log('maxAction')} isError={rollError}>
+                    <TextInput
+                      plain
+                      type="number"
+                      placeholder="Tokens to roll"
+                      value={rollInput || ''}
+                      onChange={(event:any) => setRollInput(cleanValue(event.target.value))}
+                    />
+                    <MaxButton
+                      action={() => setRollInput(maxRemove)}
+                      disabled={maxRemove === '0.0'}
+                    />
+                  </InputWrap>
+                </Box>
               </Box>
-            </Box>
 
-            <Box gap="small" fill="horizontal" direction="row" align="center">
-              <SeriesSelector
-                selectSeriesLocally={(series:ISeries) => setRollToSeries(series)}
-                actionType={ActionType.POOL}
-              />
-            </Box>
+              <Box gap="small" fill="horizontal" direction="row" align="center">
+                <SeriesSelector
+                  selectSeriesLocally={(series:ISeries) => setRollToSeries(series)}
+                  actionType={ActionType.POOL}
+                />
+              </Box>
 
-          </Tab>
-        </Tabs>
+            </Tab>
+          </Tabs>
+
+        }
+
+        {
+          stepPosition === 1 &&
+          tabIndex === 0 &&
+          <Box gap="large">
+            <Box onClick={() => setStepPosition(0)}>
+              <Text>Back</Text>
+            </Box>
+            <ActiveTransaction txCode={getTxCode(ActionCodes.REMOVE_LIQUIDITY, selectedSeriesId)}>
+              <SectionWrap title="Review your transaction">
+                <Text>Remove {removeInput} Liquidtity from the {selectedSeries?.displayName} series. </Text>
+              </SectionWrap>
+            </ActiveTransaction>
+          </Box>
+        }
+
+        {
+          stepPosition === 1 &&
+          tabIndex === 1 &&
+          <Box gap="large">
+            <Box onClick={() => setStepPosition(0)}>
+              <Text>Back</Text>
+            </Box>
+            <ActiveTransaction txCode={getTxCode(ActionCodes.ROLL_LIQUIDITY, selectedSeriesId)}>
+              <SectionWrap title="Review your transaction">
+                <Text>
+                  Roll {rollInput} liquidity tokens
+                  from {selectedSeries?.displayName} to the {rollToSeries?.displayName} series.
+                </Text>
+              </SectionWrap>
+            </ActiveTransaction>
+          </Box>
+        }
+
       </Box>
 
       <ActionButtonGroup>
         {
+            stepPosition !== 1 &&
+            !selectedSeries?.seriesIsMature &&
+            <Button
+              secondary
+              label={<Text size={mobile ? 'small' : undefined}> Review transaction </Text>}
+              key="ONE"
+              onClick={() => setStepPosition(stepPosition + 1)}
+            />
+            }
+        {
+          stepPosition === 1 &&
           tabIndex === 0 &&
           <Button
             primary
@@ -186,6 +240,7 @@ const PoolPosition = () => {
           />
           }
         {
+          stepPosition === 1 &&
           tabIndex === 1 &&
           <Button
             primary
@@ -193,7 +248,7 @@ const PoolPosition = () => {
             onClick={() => handleRoll()}
             disabled={rollDisabled}
           />
-}
+        }
       </ActionButtonGroup>
     </>
   );
