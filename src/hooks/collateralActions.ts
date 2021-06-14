@@ -9,7 +9,6 @@ import { useChain } from './chainHooks';
 
 import { VAULT_OPS } from '../utils/operations';
 
-/* Generic hook for chain transactions */
 export const useCollateralActions = () => {
   const { chainState: { account, contractMap } } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);

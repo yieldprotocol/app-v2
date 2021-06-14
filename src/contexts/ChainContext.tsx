@@ -90,14 +90,12 @@ function chainReducer(state: any, action: any) {
   switch (action.type) {
     case 'chainLoading': return { ...state, chainLoading: onlyIfChanged(action) };
     case 'appVersion': return { ...state, appVersion: onlyIfChanged(action) };
-
     case 'provider': return { ...state, provider: onlyIfChanged(action) };
     case 'fallbackProvider': return { ...state, fallbackProvider: onlyIfChanged(action) };
     case 'signer': return { ...state, signer: onlyIfChanged(action) };
     case 'chainId': return { ...state, chainId: onlyIfChanged(action) };
     case 'account': return { ...state, account: onlyIfChanged(action) };
     case 'web3Active': return { ...state, web3Active: onlyIfChanged(action) };
-
     case 'contractMap': return { ...state, contractMap: onlyIfChanged(action) };
     case 'addSeries': return {
       ...state,

@@ -10,9 +10,11 @@ import SectionWrap from '../components/wraps/SectionWrap';
 
 import { useLendActions } from '../hooks/lendActions';
 import { UserContext } from '../contexts/UserContext';
-import { ActionType, ISeries, IUserContext } from '../types';
+import { ActionCodes, ActionType, ISeries, IUserContext } from '../types';
 import MaxButton from '../components/MaxButton';
 import InfoBite from '../components/InfoBite';
+import ActiveTransaction from '../components/ActiveTransaction';
+import { getTxCode } from '../utils/appUtils';
 
 const LendPosition = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -30,6 +32,8 @@ const LendPosition = () => {
   // tab state + control
   const [tabIndex, setTabIndex] = React.useState(0);
   const onActive = (nextIndex: number) => setTabIndex(nextIndex);
+
+  const [stepPosition, setStepPosition] = useState<number>(0);
 
   const [closeInput, setCloseInput] = useState<string>();
   const [rollInput, setRollInput] = useState<string>();
@@ -133,68 +137,120 @@ const LendPosition = () => {
           </Box>
         </Box>
 
-        <Tabs justify="start" activeIndex={tabIndex} onActive={onActive}>
-          <Tab title="Close Position">
-            <Box direction="row" pad={{ vertical: 'small' }} align="start" fill="horizontal">
-              <Box fill>
-                <InputWrap action={() => console.log('maxAction')} isError={closeError} disabled={!selectedSeries}>
-                  <TextInput
-                    plain
-                    type="number"
-                    placeholder="fyToken Amount" // {`${selectedBase?.symbol} to reclaim`}
-                    value={closeInput || ''}
-                    onChange={(event:any) => setCloseInput(cleanValue(event.target.value))}
-                    disabled={!selectedSeries}
-                  />
-                  <MaxButton
-                    action={() => setCloseInput(maxClose)}
-                    disabled={maxClose === '0.0' || !selectedSeries}
-                  />
-                </InputWrap>
+        {
+          stepPosition === 0 &&
+          <Tabs justify="start" activeIndex={tabIndex} onActive={onActive}>
+            <Tab title="Close Position">
+              <Box direction="row" pad={{ vertical: 'small' }} align="start" fill="horizontal">
+                <Box fill>
+                  <InputWrap action={() => console.log('maxAction')} isError={closeError} disabled={!selectedSeries}>
+                    <TextInput
+                      plain
+                      type="number"
+                      placeholder="fyToken Amount" // {`${selectedBase?.symbol} to reclaim`}
+                      value={closeInput || ''}
+                      onChange={(event:any) => setCloseInput(cleanValue(event.target.value))}
+                      disabled={!selectedSeries}
+                    />
+                    <MaxButton
+                      action={() => setCloseInput(maxClose)}
+                      disabled={maxClose === '0.0' || !selectedSeries}
+                    />
+                  </InputWrap>
+                </Box>
               </Box>
-            </Box>
-          </Tab>
+            </Tab>
 
-          <Tab title="Roll Position">
-            <Box direction="row" pad={{ vertical: 'small' }} align="start" fill="horizontal">
-              <Box fill>
-                <InputWrap action={() => console.log('maxAction')} isError={rollError} disabled={!selectedSeries}>
-                  <TextInput
-                    plain
-                    type="number"
-                    placeholder="fyToken Amount" // {`${selectedBase?.symbol} to roll`}
-                    value={rollInput || ''}
-                    onChange={(event:any) => setRollInput(cleanValue(event.target.value))}
-                    disabled={!selectedSeries}
-                  />
-                  <MaxButton
-                    action={() => setRollInput(maxClose)}
-                    disabled={maxClose === '0.0' || !selectedSeries}
-                  />
-                </InputWrap>
+            <Tab title="Roll Position">
+              <Box direction="row" pad={{ vertical: 'small' }} align="start" fill="horizontal">
+                <Box fill>
+                  <InputWrap action={() => console.log('maxAction')} isError={rollError} disabled={!selectedSeries}>
+                    <TextInput
+                      plain
+                      type="number"
+                      placeholder="fyToken Amount" // {`${selectedBase?.symbol} to roll`}
+                      value={rollInput || ''}
+                      onChange={(event:any) => setRollInput(cleanValue(event.target.value))}
+                      disabled={!selectedSeries}
+                    />
+                    <MaxButton
+                      action={() => setRollInput(maxClose)}
+                      disabled={maxClose === '0.0' || !selectedSeries}
+                    />
+                  </InputWrap>
+                </Box>
               </Box>
-            </Box>
 
-            <Box gap="small" fill="horizontal" direction="row" align="center">
-              <SeriesSelector
-                selectSeriesLocally={(series:ISeries) => setRollToSeries(series)}
-                actionType={ActionType.LEND}
-              />
-            </Box>
+              <Box gap="small" fill="horizontal" direction="row" align="center">
+                <SeriesSelector
+                  selectSeriesLocally={(series:ISeries) => setRollToSeries(series)}
+                  actionType={ActionType.LEND}
+                />
+              </Box>
 
-          </Tab>
-        </Tabs>
+            </Tab>
+          </Tabs>
+      }
+
+        {
+          stepPosition === 1 &&
+          tabIndex === 0 &&
+          <Box gap="large">
+            <Box onClick={() => setStepPosition(0)}>
+              <Text>Back</Text>
+            </Box>
+            <ActiveTransaction txCode={getTxCode(ActionCodes.CLOSE_POSITION, selectedSeriesId)}>
+              <SectionWrap title="Review your transaction">
+                <Text>Close {closeInput} {selectedBase?.symbol} from the {selectedSeries?.displayName} series. </Text>
+              </SectionWrap>
+            </ActiveTransaction>
+          </Box>
+        }
+
+        {
+          stepPosition === 1 &&
+          tabIndex === 1 &&
+          <Box gap="large">
+            <Box onClick={() => setStepPosition(0)}>
+              <Text>Back</Text>
+            </Box>
+            <ActiveTransaction txCode={getTxCode(ActionCodes.ROLL_POSITION, selectedSeriesId)}>
+              <SectionWrap title="Review your transaction">
+                <Text>
+                  Roll {rollInput} {selectedBase?.symbol}
+                  from {selectedSeries?.displayName} to the {rollToSeries?.displayName} series.
+                </Text>
+              </SectionWrap>
+            </ActiveTransaction>
+          </Box>
+        }
+
       </Box>
 
       <ActionButtonGroup>
-        {selectedSeries?.seriesIsMature &&
+        {
+            stepPosition !== 1 &&
+            !selectedSeries?.seriesIsMature &&
+            <Button
+              secondary
+              label={<Text size={mobile ? 'small' : undefined}> Review transaction </Text>}
+              key="ONE"
+              onClick={() => setStepPosition(stepPosition + 1)}
+            />
+            }
+
+        {
+        stepPosition === 1 &&
+        selectedSeries?.seriesIsMature &&
           <Button
             primary
             label={<Text size={mobile ? 'small' : undefined}> Redeem </Text>}
             onClick={() => handleRedeem()}
-          />}
+          />
+}
 
         {
+          stepPosition === 1 &&
           tabIndex === 0 &&
           <Button
             primary
@@ -205,6 +261,7 @@ const LendPosition = () => {
           }
 
         {
+          stepPosition === 1 &&
           tabIndex === 1 &&
           <Button
             primary
