@@ -6,7 +6,7 @@ export const yieldTheme = {
     focus: 'none',
     font: {
       family: 'Rubik',
-      weight: '650',
+      weight: '700',
     },
 
     colors: {
@@ -140,7 +140,7 @@ export const yieldTheme = {
       background: 'background-contrast',
     },
     border: {
-      side: 'bottom',
+      side: 'all',
       color: 'none',
       active: {
         color: 'brand',
@@ -162,6 +162,70 @@ export const yieldTheme = {
     pad: 'xsmall',
     margin: {
       horizontal: 'none',
+    },
+    extend: ({ theme } : { theme:any }) => css`
+
+    text-decoration: none;
+    /* padding: 8px; */
+  
+    -webkit-transition: background 0.3s ease-in-out;
+    -moz-transition: background 0.3s ease-in-out;
+    transition: background 0.3s ease-in-out;
+  
+    -webkit-transition: box-shadow 0.3s ease-in-out;
+    -moz-transition: box-shadow 0.3s ease-in-out;
+    transition: box-shadow 0.3s ease-in-out;
+  
+    -webkit-transition: transform 0.3s ease-in-out;
+    -moz-transition: transform 0.3s ease-in-out;
+    transition: transform 0.3s ease-in-out;
+    :hover {
+      transform: scale(1.1);
+    }
+
+      'box-shadow: ${theme.global.elevation.small}'
+    `,
+  },
+
+  // tab: {
+  //   active: {
+  //     background: 'dark-1',
+  //     color: 'accent-1',
+  //   },
+  //   // background: 'dark-3',
+  //   border: undefined,
+  //   color: 'white',
+  //   hover: {
+  //     background: 'dark-1',
+  //   },
+  //   margin: undefined,
+  //   pad: {
+  //     bottom: undefined,
+  //     horizontal: 'small',
+  //   },
+  //   extend: ({ theme } : { theme:any }) => css`
+  //     border-radius: ${theme.global.control.border.radius}
+  //     box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.5);
+  //     /* or 'box-shadow: ${theme.global.elevation.light.small}' */
+  //   `,
+  // },
+  tabs: {
+    // background: 'dark-3',
+    gap: 'medium',
+    round: 'xlarge',
+    // header: {
+    //   extend: ({ theme }: { theme:any }) => css`
+    //   padding: 10px;
+    //   /* or 'padding: ${theme.global.edgeSize.small}' */
+    //   box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.50);
+    //   /* or 'box-shadow: ${theme.global.elevation.light.medium}' */
+    // `,
+    // },
+    panel: {
+      extend: ({ theme }: { theme:any }) => css`
+      padding: ${theme.global.edgeSize.large}
+       /* box-shadow: ${theme.global.elevation.light.medium} */
+    `,
     },
   },
 

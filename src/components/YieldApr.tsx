@@ -19,6 +19,8 @@ const StyledText = styled(Text)`
   background: -webkit-linear-gradient(rgba(77,94,254,1),rgba(195,34,34,1));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  font-family: 'Bree Serif', serif;
+  filter: drop-shadow(5px 5px 2px #DDD);
 `;
 
 function YieldApr({ actionType, input }: IYieldApr) {
@@ -51,7 +53,7 @@ function YieldApr({ actionType, input }: IYieldApr) {
               </Text>
           }
           <Box direction="row" align="center">
-            <StyledText size="80px">
+            <StyledText size="100px">
               {apr || (actionType === 'BORROW' ? minApr : maxApr) || ''}
             </StyledText>
             <Box fill="vertical" justify="evenly">

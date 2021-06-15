@@ -15,6 +15,7 @@ import MaxButton from '../components/MaxButton';
 import InfoBite from '../components/InfoBite';
 import ActiveTransaction from '../components/ActiveTransaction';
 import { getTxCode } from '../utils/appUtils';
+import TabWrap from '../components/wraps/TabWrap';
 
 const LendPosition = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -137,10 +138,14 @@ const LendPosition = () => {
           </Box>
         </Box>
 
-        {
+        <SectionWrap title="Position Actions">
+
+          <Box elevation="small">
+
+            {
           stepPosition === 0 &&
           <Tabs justify="start" activeIndex={tabIndex} onActive={onActive}>
-            <Tab title="Close Position">
+            <TabWrap title="Close Position">
               <Box direction="row" pad={{ vertical: 'small' }} align="start" fill="horizontal">
                 <Box fill>
                   <InputWrap action={() => console.log('maxAction')} isError={closeError} disabled={!selectedSeries}>
@@ -159,9 +164,9 @@ const LendPosition = () => {
                   </InputWrap>
                 </Box>
               </Box>
-            </Tab>
+            </TabWrap>
 
-            <Tab title="Roll Position">
+            <TabWrap title="Roll Position">
               <Box direction="row" pad={{ vertical: 'small' }} align="start" fill="horizontal">
                 <Box fill>
                   <InputWrap action={() => console.log('maxAction')} isError={rollError} disabled={!selectedSeries}>
@@ -188,11 +193,11 @@ const LendPosition = () => {
                 />
               </Box>
 
-            </Tab>
+            </TabWrap>
           </Tabs>
       }
 
-        {
+            {
           stepPosition === 1 &&
           tabIndex === 0 &&
           <Box gap="large">
@@ -207,7 +212,7 @@ const LendPosition = () => {
           </Box>
         }
 
-        {
+            {
           stepPosition === 1 &&
           tabIndex === 1 &&
           <Box gap="large">
@@ -224,6 +229,10 @@ const LendPosition = () => {
             </ActiveTransaction>
           </Box>
         }
+
+          </Box>
+
+        </SectionWrap>
 
       </Box>
 
@@ -247,7 +256,7 @@ const LendPosition = () => {
             label={<Text size={mobile ? 'small' : undefined}> Redeem </Text>}
             onClick={() => handleRedeem()}
           />
-}
+        }
 
         {
           stepPosition === 1 &&
@@ -269,7 +278,7 @@ const LendPosition = () => {
             onClick={() => handleRollPosition()}
             disabled={rollDisabled}
           />
-}
+        }
       </ActionButtonGroup>
     </>
   );
