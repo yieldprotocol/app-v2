@@ -290,7 +290,7 @@ const Vault = () => {
               <TabWrap title="Roll Debt">
                 {
                 stepPosition === 0 ?
-                  <Box gap="small" fill="horizontal" direction="row" align="center">
+                  <Box pad="medium" fill="horizontal" direction="row" align="center">
                     <SeriesSelector
                       selectSeriesLocally={(series:ISeries) => setRollToSeries(series)}
                       actionType={ActionType.BORROW}
@@ -326,29 +326,31 @@ const Vault = () => {
               <TabWrap title="Manage Collateral">
                 {
                 stepPosition === 0 ?
-                  <Box direction="row" pad={{ vertical: 'large' }} gap="small" align="center" fill="horizontal">
-                    <Box>
-                      <InputWrap action={() => console.log('maxAction')} isError={addCollatError}>
-                        <TextInput
-                          plain
-                          type="number"
-                          placeholder="ADD"
-                          value={addCollatInput || ''}
-                          onChange={(event:any) => setAddCollatInput(cleanValue(event.target.value))}
-                        />
-                      </InputWrap>
-                    </Box>
-                    <Text> or </Text>
-                    <Box>
-                      <InputWrap action={() => console.log('maxAction')} isError={removeCollatError}>
-                        <TextInput
-                          plain
-                          type="number"
-                          placeholder="REMOVE"
-                          value={removeCollatInput || ''}
-                          onChange={(event:any) => setRemoveCollatInput(cleanValue(event.target.value))}
-                        />
-                      </InputWrap>
+                  <Box pad="medium">
+                    <Box direction="row" gap="small" align="center">
+                      <Box>
+                        <InputWrap action={() => console.log('maxAction')} isError={addCollatError}>
+                          <TextInput
+                            plain
+                            type="number"
+                            placeholder="ADD"
+                            value={addCollatInput || ''}
+                            onChange={(event:any) => setAddCollatInput(cleanValue(event.target.value))}
+                          />
+                        </InputWrap>
+                      </Box>
+                      <Text> or </Text>
+                      <Box>
+                        <InputWrap action={() => console.log('maxAction')} isError={removeCollatError}>
+                          <TextInput
+                            plain
+                            type="number"
+                            placeholder="REMOVE"
+                            value={removeCollatInput || ''}
+                            onChange={(event:any) => setRemoveCollatInput(cleanValue(event.target.value))}
+                          />
+                        </InputWrap>
+                      </Box>
                     </Box>
                   </Box>
                   :
@@ -396,7 +398,7 @@ const Vault = () => {
 
                 {
                 stepPosition === 0 ?
-                  <Box direction="row" pad={{ vertical: 'small' }} align="start" fill="horizontal">
+                  <Box direction="row" pad="medium">
                     <Box fill>
                       <InputWrap action={() => console.log('maxAction')} isError={borrowError}>
                         <TextInput
