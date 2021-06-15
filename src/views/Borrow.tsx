@@ -28,6 +28,7 @@ import VaultSelector from '../components/selectors/VaultSelector';
 import ActiveTransaction from '../components/ActiveTransaction';
 import { getTxCode } from '../utils/appUtils';
 import { cleanValue } from '../utils/displayUtils';
+import YieldInfo from '../components/YieldInfo';
 
 const StampText = styled(Text)`
 
@@ -235,10 +236,7 @@ const Borrow = () => {
             values={[['Choose an asset to', 'borrow', ''], ['Add', 'collateral', ''], ['', 'Review', 'and transact']]}
           />
 
-          <Box gap="small">
-            <Text weight="bold">Information</Text>
-            <Text size="small"> Some information </Text>
-          </Box>
+          <YieldInfo />
           {/* </Box> */}
         </PanelWrap>}
 

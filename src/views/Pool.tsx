@@ -21,6 +21,7 @@ import StepperText from '../components/StepperText';
 import PositionSelector from '../components/selectors/PositionSelector';
 import ActiveTransaction from '../components/ActiveTransaction';
 import { getTxCode } from '../utils/appUtils';
+import YieldInfo from '../components/YieldInfo';
 
 function Pool() {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -96,11 +97,7 @@ function Pool() {
           position={stepPosition}
           values={[['Choose an asset to', 'pool', ''], ['', 'Review', 'and transact']]}
         />
-        <Box gap="small">
-          <Text weight="bold">Information</Text>
-          <Text size="small"> Some information </Text>
-        </Box>
-
+        <YieldInfo />
       </PanelWrap>}
 
       <CenterPanelWrap>

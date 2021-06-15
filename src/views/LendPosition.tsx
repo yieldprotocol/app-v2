@@ -129,7 +129,7 @@ const LendPosition = () => {
       <Box fill>
 
         <Box height="150px" gap="medium">
-          <Box direction="row">
+          <Box direction="row" gap="xsmall">
             <Box
               round="large"
               background={`linear-gradient(90deg, ${selectedSeries && assetMap.get(selectedSeries.baseId)?.color} 40%, white 75%)`}

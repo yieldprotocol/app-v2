@@ -185,7 +185,7 @@ const Vault = () => {
         <Box gap="medium">
           <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
 
-            <Box direction="row" align="center" fill>
+            <Box direction="row" align="center" gap="small">
               <Box direction="row" round="large" pad="small" background={`linear-gradient(90deg, ${vaultBase?.color} 40%, white 75%)`} gap="xsmall">
                 {vaultBase?.image}
                 {vaultIlk?.image}

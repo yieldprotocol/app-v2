@@ -20,6 +20,7 @@ import YieldApr from '../components/YieldApr';
 import StepperText from '../components/StepperText';
 import PositionSelector from '../components/selectors/PositionSelector';
 import ActiveTransaction from '../components/ActiveTransaction';
+import YieldInfo from '../components/YieldInfo';
 
 const Lend = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -96,10 +97,7 @@ const Lend = () => {
           position={stepPosition}
           values={[['Choose an asset to', 'lend', ''], ['', 'Review', 'and transact']]}
         />
-        <Box gap="small">
-          <Text weight="bold">Information</Text>
-          <Text size="small"> Some information </Text>
-        </Box>
+        <YieldInfo />
       </PanelWrap>}
 
       <CenterPanelWrap>
