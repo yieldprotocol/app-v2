@@ -201,7 +201,7 @@ export const useBorrowActions = () => {
     const calls: ICallData[] = [
       { // ladle.rollAction(vaultId: string, newSeriesId: string, max: BigNumberish)
         operation: VAULT_OPS.ROLL,
-        args: [vault.id, toSeries.id, MAX_128],
+        args: [vault.id, toSeries.id, '2', MAX_128],
         ignore: false,
         series,
       },
