@@ -160,7 +160,7 @@ const Lend = () => {
             !selectedSeries?.seriesIsMature &&
             <Button
               secondary
-              label={<Text size={mobile ? 'small' : undefined}> Review transaction </Text>}
+              label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
               key="ONE"
               onClick={() => setStepPosition(stepPosition + 1)}
             />

@@ -182,7 +182,7 @@ function Pool() {
             !selectedSeries?.seriesIsMature &&
             <Button
               secondary
-              label={<Text size={mobile ? 'small' : undefined}> Review transaction </Text>}
+              label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
               onClick={() => setStepPosition(stepPosition + 1)}
             />
             }

@@ -368,35 +368,29 @@ const Borrow = () => {
           }
 
           <ActionButtonGroup>
-            {
-              stepPosition === 0 &&
+            {stepPosition === 0 &&
               <Button
                 secondary
-                label={<Text size={mobile ? 'small' : undefined}> Allocate collateral </Text>}
+                label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
                 onClick={() => setStepPosition(stepPosition + 1)}
                 disabled={stepDisabled}
-              />
-              }
+              />}
 
-            {
-              stepPosition === 1 &&
+            {stepPosition === 1 &&
               <Button
                 secondary
-                label={<Text size={mobile ? 'small' : undefined}> Review transaction </Text>}
+                label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
                 onClick={() => setStepPosition(stepPosition + 1)}
                 disabled={borrowDisabled}
-              />
-              }
+              />}
 
-            {
-              stepPosition === 2 &&
+            {stepPosition === 2 &&
               <Button
                 primary
                 label={<Text size={mobile ? 'small' : undefined}> {`Borrow  ${borrowInput || ''} ${selectedBase?.symbol || ''}`}</Text>}
                 onClick={() => handleBorrow()}
                 disabled={borrowDisabled}
-              />
-              }
+              />}
           </ActionButtonGroup>
 
         </CenterPanelWrap>

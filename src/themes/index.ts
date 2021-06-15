@@ -159,10 +159,10 @@ export const yieldTheme = {
       background: 'background-contrast',
       color: 'text',
     },
-    pad: 'xsmall',
     margin: {
       horizontal: 'none',
     },
+    pad: 'xsmall',
     extend: ({ theme } : { theme:any }) => css`
 
     text-decoration: none;
@@ -209,24 +209,17 @@ export const yieldTheme = {
   //     /* or 'box-shadow: ${theme.global.elevation.light.small}' */
   //   `,
   // },
+
   tabs: {
-    // background: 'dark-3',
-    gap: 'medium',
-    round: 'xlarge',
-    // header: {
-    //   extend: ({ theme }: { theme:any }) => css`
-    //   padding: 10px;
-    //   /* or 'padding: ${theme.global.edgeSize.small}' */
-    //   box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.50);
-    //   /* or 'box-shadow: ${theme.global.elevation.light.medium}' */
-    // `,
-    // },
-    panel: {
-      extend: ({ theme }: { theme:any }) => css`
-      padding: ${theme.global.edgeSize.large}
-       /* box-shadow: ${theme.global.elevation.light.medium} */
-    `,
-    },
+    gap: 'small',
   },
+  //   panel: {
+  //     gap: 'small',
+  //   //   extend: ({ theme }: { theme:any }) => css`
+  //   //   padding: ${theme.global.edgeSize.large}
+  //   //    /* box-shadow: ${theme.global.elevation.light.medium} */
+  //   // `,
+  //   },
+  // },
 
 };
