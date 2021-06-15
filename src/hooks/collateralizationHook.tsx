@@ -6,7 +6,11 @@ import { cleanValue } from '../utils/displayUtils';
 import { calculateCollateralizationRatio, calculateBorrowingPower } from '../utils/yieldMath';
 
 /* APR hook calculates APR, min and max aprs for selected series and BORROW or LEND type */
-export const useCollateralization = (debtInput:string|undefined, collInput:string|undefined, vault: IVault|undefined) => {
+export const useCollateralization = (
+  debtInput:string|undefined,
+  collInput:string|undefined,
+  vault: IVault|undefined,
+) => {
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext) as IUserContext;
   const { seriesMap, selectedSeriesId, selectedBaseId } = userState;
@@ -22,11 +26,13 @@ export const useCollateralization = (debtInput:string|undefined, collInput:strin
   useEffect(() => {
     const dInput = debtInput ? ethers.utils.parseEther(debtInput) : ethers.constants.Zero;
     const cInput = collInput ? ethers.utils.parseEther(collInput) : ethers.constants.Zero;
-    const preCollateral = vault?.art || ethers.constants.Zero;
+    const preCollateral = vault?.ink || ethers.constants.Zero;
     const preDebt = vault?.art || ethers.constants.Zero;
     const totalCollateral = preCollateral.add(cInput);
     const totalDebt = preDebt.add(dInput);
+
     const price = ethers.constants.One;
+
     const ratio = calculateCollateralizationRatio(totalCollateral, price, totalDebt, false);
     const percent = calculateCollateralizationRatio(totalCollateral, price, totalDebt, true);
     // console.log(collateralIn?.toString(), debt?.toString(), price?.toString(), totalCollateral?.toString());
@@ -36,6 +42,8 @@ export const useCollateralization = (debtInput:string|undefined, collInput:strin
     if (collateralizationPercent && parseFloat(collateralizationPercent) <= 150) {
       setUndercollateralized(true);
     } else { setUndercollateralized(false); }
+
+    console.log(vault);
   }, [collInput, collateralizationPercent, debtInput, vault]);
 
   return {
