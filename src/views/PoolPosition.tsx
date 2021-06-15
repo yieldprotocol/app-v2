@@ -16,6 +16,7 @@ import InfoBite from '../components/InfoBite';
 import { usePoolActions } from '../hooks/poolActions';
 import ActiveTransaction from '../components/ActiveTransaction';
 import { getTxCode } from '../utils/appUtils';
+import TabWrap from '../components/wraps/TabWrap';
 
 const PoolPosition = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -115,60 +116,67 @@ const PoolPosition = () => {
     <>
       <Box>
         <Box height="150px" gap="medium">
-          <Text size="large">  {selectedSeries?.id} </Text>
-          <Box justify="between" gap="small" fill="horizontal" direction="row-responsive">
-            {
-                selectedSeries?.baseId === selectedBase?.id &&
-                <>
-                  <InfoBite label="Token balance" value={selectedSeries?.poolTokens_!} />
-                  <InfoBite label="Pool total token supply" value={selectedSeries?.totalSupply?.toString() || ''} />
-                  <InfoBite label="Pool percentage" value={selectedSeries?.poolTokens?.div(selectedSeries?.totalSupply).mul('100').toString() || ''} />
-                </>
-              }
+          <Box direction="row">
+            <Box
+              round="large"
+              background={`linear-gradient(90deg, ${selectedSeries && assetMap.get(selectedSeries.baseId)?.color} 40%, white 75%)`}
+              pad={{ vertical: 'xsmall', left: 'xsmall', right: 'medium' }}
+              align="start"
+            >
+              {selectedSeries && assetMap.get(selectedSeries.baseId)?.image}
+            </Box>
+            <Text size="large">  {selectedSeries?.displayName} </Text>
           </Box>
+          {
+            selectedSeries?.baseId === selectedBase?.id &&
+            <Box justify="between" gap="small">
+              <InfoBite label="Token balance" value={selectedSeries?.poolTokens_!} />
+              <InfoBite label="Pool total token supply" value={selectedSeries?.totalSupply?.toString() || ''} />
+              <InfoBite label="Pool percentage" value={selectedSeries?.poolTokens?.div(selectedSeries?.totalSupply).mul('100').toString() || ''} />
+            </Box>
+          }
         </Box>
 
-        {
+        <SectionWrap title="Pool position actions">
+          <Box round="xsmall" border>
+
+            {
           stepPosition === 0 &&
 
           <Tabs justify="start" activeIndex={tabIndex} onActive={onActive}>
-            <Tab title="Remove Liquidity">
-              <Box direction="row" pad={{ vertical: 'small' }} align="start" fill="horizontal">
-                <Box fill>
-                  <InputWrap action={() => console.log('maxAction')} isError={removeError}>
-                    <TextInput
-                      plain
-                      type="number"
-                      placeholder="Tokens to remove"
-                      value={removeInput || ''}
-                      onChange={(event:any) => setRemoveInput(cleanValue(event.target.value))}
-                    />
-                    <MaxButton
-                      action={() => setRemoveInput(maxRemove)}
-                      disabled={maxRemove === '0.0'}
-                    />
-                  </InputWrap>
-                </Box>
+            <TabWrap title="Remove Liquidity">
+              <Box>
+                <InputWrap action={() => console.log('maxAction')} isError={removeError}>
+                  <TextInput
+                    plain
+                    type="number"
+                    placeholder="Tokens to remove"
+                    value={removeInput || ''}
+                    onChange={(event:any) => setRemoveInput(cleanValue(event.target.value))}
+                  />
+                  <MaxButton
+                    action={() => setRemoveInput(maxRemove)}
+                    disabled={maxRemove === '0.0'}
+                  />
+                </InputWrap>
               </Box>
-            </Tab>
+            </TabWrap>
 
-            <Tab title="Roll Liquidity">
-              <Box direction="row" pad={{ vertical: 'small' }} align="start" fill="horizontal">
-                <Box fill>
-                  <InputWrap action={() => console.log('maxAction')} isError={rollError}>
-                    <TextInput
-                      plain
-                      type="number"
-                      placeholder="Tokens to roll"
-                      value={rollInput || ''}
-                      onChange={(event:any) => setRollInput(cleanValue(event.target.value))}
-                    />
-                    <MaxButton
-                      action={() => setRollInput(maxRemove)}
-                      disabled={maxRemove === '0.0'}
-                    />
-                  </InputWrap>
-                </Box>
+            <TabWrap title="Roll Liquidity">
+              <Box fill>
+                <InputWrap action={() => console.log('maxAction')} isError={rollError}>
+                  <TextInput
+                    plain
+                    type="number"
+                    placeholder="Tokens to roll"
+                    value={rollInput || ''}
+                    onChange={(event:any) => setRollInput(cleanValue(event.target.value))}
+                  />
+                  <MaxButton
+                    action={() => setRollInput(maxRemove)}
+                    disabled={maxRemove === '0.0'}
+                  />
+                </InputWrap>
               </Box>
 
               <Box gap="small" fill="horizontal" direction="row" align="center">
@@ -178,12 +186,12 @@ const PoolPosition = () => {
                 />
               </Box>
 
-            </Tab>
+            </TabWrap>
           </Tabs>
 
         }
 
-        {
+            {
           stepPosition === 1 &&
           tabIndex === 0 &&
           <Box gap="large">
@@ -198,7 +206,7 @@ const PoolPosition = () => {
           </Box>
         }
 
-        {
+            {
           stepPosition === 1 &&
           tabIndex === 1 &&
           <Box gap="large">
@@ -215,6 +223,8 @@ const PoolPosition = () => {
             </ActiveTransaction>
           </Box>
         }
+          </Box>
+        </SectionWrap>
 
       </Box>
 
