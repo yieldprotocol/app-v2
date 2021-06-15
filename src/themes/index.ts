@@ -140,7 +140,7 @@ export const yieldTheme = {
       background: 'background-contrast',
     },
     border: {
-      side: 'all',
+      side: 'bottom',
       color: 'none',
       active: {
         color: 'brand',

@@ -78,6 +78,8 @@ const Borrow = () => {
   const [useExistingVault, setUseExistingVault] = useState<boolean>(false);
 
   const [vaultIdToUse, setVaultIdToUse] = useState<string|undefined>(undefined);
+  const [vaultInUse, setVaultInUse] = useState<IVault|undefined>(undefined);
+
   const [matchingBaseVaults, setMatchingBaseVaults] = useState<IVault[]>([]);
   const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
 
@@ -328,7 +330,7 @@ const Borrow = () => {
                         />
                         <Select
                           disabled={matchingVaults.length < 1}
-                          options={matchingVaults.map((x:IVault) => x.displayName)}
+                          options={matchingVaults.map((x:IVault) => x.id)}
                           // placeholder="or Borrow from an existing vault"
                           value={vaultIdToUse || ''}
                           // defaultValue={undefined}
@@ -346,6 +348,7 @@ const Borrow = () => {
                   {/* <Collateralization percent={50} /> */}
                   {/* {undercollateralized && <Box> UNDERCOLLATERALISED </Box>} */}
                 </Box>
+                [todo: add meter graphic/slider]
               </SectionWrap>
             </Box>
             }

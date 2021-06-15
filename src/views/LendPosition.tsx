@@ -128,41 +128,49 @@ const LendPosition = () => {
     <>
       <Box fill>
 
-        <Box height="150px">
-          <Text size="large">  {selectedSeries?.id} </Text>
+        <Box height="150px" gap="medium">
+          <Box direction="row">
+            <Box
+              round="large"
+              background={`linear-gradient(90deg, ${selectedSeries && assetMap.get(selectedSeries.baseId)?.color} 40%, white 75%)`}
+              pad={{ vertical: 'xsmall', left: 'xsmall', right: 'medium' }}
+              align="start"
+            >
+              {selectedSeries && assetMap.get(selectedSeries.baseId)?.image}
+            </Box>
+            <Text size="large">  {selectedSeries?.displayName} </Text>
+          </Box>
+
           <Box justify="between" gap="small" fill="horizontal" direction="row-responsive">
             {
                 selectedSeries?.baseId === selectedBase?.id &&
-                <InfoBite label="FYToken balance (Base value at maturity)" value={selectedSeries?.fyTokenBalance_!} />
+                <InfoBite label="FYToken balance: " value={selectedSeries?.fyTokenBalance_!} />
               }
           </Box>
         </Box>
 
         <SectionWrap title="Position Actions">
 
-          <Box elevation="small">
-
+          <Box round="xsmall" border>
             {
           stepPosition === 0 &&
           <Tabs justify="start" activeIndex={tabIndex} onActive={onActive}>
             <TabWrap title="Close Position">
-              <Box direction="row" pad={{ vertical: 'small' }} align="start" fill="horizontal">
-                <Box fill>
-                  <InputWrap action={() => console.log('maxAction')} isError={closeError} disabled={!selectedSeries}>
-                    <TextInput
-                      plain
-                      type="number"
-                      placeholder="fyToken Amount" // {`${selectedBase?.symbol} to reclaim`}
-                      value={closeInput || ''}
-                      onChange={(event:any) => setCloseInput(cleanValue(event.target.value))}
-                      disabled={!selectedSeries}
-                    />
-                    <MaxButton
-                      action={() => setCloseInput(maxClose)}
-                      disabled={maxClose === '0.0' || !selectedSeries}
-                    />
-                  </InputWrap>
-                </Box>
+              <Box>
+                <InputWrap action={() => console.log('maxAction')} isError={closeError} disabled={!selectedSeries}>
+                  <TextInput
+                    plain
+                    type="number"
+                    placeholder="fyToken Amount" // {`${selectedBase?.symbol} to reclaim`}
+                    value={closeInput || ''}
+                    onChange={(event:any) => setCloseInput(cleanValue(event.target.value))}
+                    disabled={!selectedSeries}
+                  />
+                  <MaxButton
+                    action={() => setCloseInput(maxClose)}
+                    disabled={maxClose === '0.0' || !selectedSeries}
+                  />
+                </InputWrap>
               </Box>
             </TabWrap>
 
