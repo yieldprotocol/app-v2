@@ -21,6 +21,7 @@ import MaxButton from '../components/MaxButton';
 import TabWrap from '../components/wraps/TabWrap';
 import ActiveTransaction from '../components/ActiveTransaction';
 import { getTxCode } from '../utils/appUtils';
+import { useCollateralization } from '../hooks/collateralizationHook';
 
 const Vault = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -36,6 +37,10 @@ const Vault = () => {
   const vaultBase: IAsset|undefined = assetMap.get(selectedVault?.baseId!);
   const vaultIlk: IAsset|undefined = assetMap.get(selectedVault?.ilkId!);
   const vaultSeries: ISeries|undefined = seriesMap.get(selectedVault?.seriesId!);
+
+  const {
+    collateralizationPercent,
+  } = useCollateralization(selectedVault?.art.toString(), selectedVault?.ink.toString(), selectedVault);
 
   /* LOCAL STATE */
   // tab state + control
@@ -181,6 +186,10 @@ const Vault = () => {
           <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
 
             <Box direction="row" align="center" fill>
+              <Box direction="row" round="large" pad="small" background={`linear-gradient(90deg, ${vaultBase?.color} 40%, white 75%)`} gap="xsmall">
+                {vaultBase?.image}
+                {vaultIlk?.image}
+              </Box>
               <Box>
                 <Text size={mobile ? 'large' : 'xlarge'}> {selectedVault?.displayName} </Text>
                 <Text size="small"> {selectedVault?.id} </Text>
@@ -203,24 +212,24 @@ const Vault = () => {
           </Box>
 
           <SectionWrap>
-            <Box direction="row-responsive" gap="medium" justify="evenly">
+            <Box gap="small" justify="evenly">
               <InfoBite label="Vault debt:" value={`${selectedVault?.art_} ${vaultBase?.symbol}`} />
               <InfoBite label="Collateral posted:" value={`${selectedVault?.ink_} ${vaultIlk?.symbol}`} />
               <InfoBite label="Maturity date:" value={`${vaultSeries?.displayName}`} />
+              <InfoBite label="Collateralization Ratio:" value={`${collateralizationPercent} %`} />
             </Box>
           </SectionWrap>
 
         </Box>
 
         <SectionWrap title="Vault Actions">
-          <Box round="xsmall" elevation="small">
+          <Box round="xsmall" border>
             {
           stepPosition === 0 &&
-          <Tabs justify="start" activeIndex={tabIndex} onActive={onActive}>
+            <Tabs justify="start" activeIndex={tabIndex} onActive={onActive}>
 
-            <TabWrap title="repay">
-              <Box direction="row" pad={{ vertical: 'small' }} align="start" fill="horizontal">
-                <Box fill>
+              <TabWrap title="repay">
+                <Box>
                   <InputWrap action={() => console.log('maxAction')} isError={repayError}>
                     <TextInput
                       plain
@@ -235,11 +244,10 @@ const Vault = () => {
                     />
                   </InputWrap>
                 </Box>
-              </Box>
-            </TabWrap>
+              </TabWrap>
 
-            <TabWrap title="Roll Debt">
-              {/* <Box direction="row" pad={{ vertical: 'small' }} align="start" fill="horizontal">
+              <TabWrap title="Roll Debt">
+                {/* <Box direction="row" pad={{ vertical: 'small' }} align="start" fill="horizontal">
                 <Box>
                   <InputWrap action={() => console.log('maxAction')} isError={rollError}>
                     <TextInput
@@ -256,63 +264,62 @@ const Vault = () => {
                   </InputWrap>
                 </Box>
               </Box> */}
-              <Box gap="small" fill="horizontal" direction="row" align="center">
-                <SeriesSelector
-                  selectSeriesLocally={(series:ISeries) => setRollToSeries(series)}
-                  actionType={ActionType.BORROW}
-                />
-              </Box>
-            </TabWrap>
-
-            <TabWrap title="Manage Collateral">
-              <Box direction="row" pad={{ vertical: 'small' }} gap="small" align="center" fill="horizontal">
-                <Box fill>
-                  <InputWrap action={() => console.log('maxAction')} isError={addCollatError}>
-                    <TextInput
-                      plain
-                      type="number"
-                      placeholder="ADD"
-                    // ref={(el:any) => { el && !repayOpen && !rateLockOpen && !mobile && el.focus(); setInputRef(el); }}
-                      value={addCollatInput || ''}
-                      onChange={(event:any) => setAddCollatInput(cleanValue(event.target.value))}
-                    />
-                  </InputWrap>
+                <Box gap="small" fill="horizontal" direction="row" align="center">
+                  <SeriesSelector
+                    selectSeriesLocally={(series:ISeries) => setRollToSeries(series)}
+                    actionType={ActionType.BORROW}
+                  />
                 </Box>
-                <Text> or </Text>
-                <Box fill>
-                  <InputWrap action={() => console.log('maxAction')} isError={removeCollatError}>
-                    <TextInput
-                      plain
-                      type="number"
-                      placeholder="REMOVE"
-                    // ref={(el:any) => { el && !repayOpen && !rateLockOpen && !mobile && el.focus(); setInputRef(el); }}
-                      value={removeCollatInput || ''}
-                      onChange={(event:any) => setRemoveCollatInput(cleanValue(event.target.value))}
-                    />
-                  </InputWrap>
-                </Box>
-              </Box>
-            </TabWrap>
+              </TabWrap>
 
-            {!vaultSeries?.seriesIsMature &&
-            <TabWrap title="Borrow More">
-              <Box direction="row" pad={{ vertical: 'small' }} align="start" fill="horizontal">
-                <Box fill>
-                  <InputWrap action={() => console.log('maxAction')} isError={borrowError}>
-                    <TextInput
-                      plain
-                      type="number"
-                      placeholder="Enter extra amount to Borrow"
+              <TabWrap title="Manage Collateral">
+                <Box direction="row" pad={{ vertical: 'small' }} gap="small" align="center" fill="horizontal">
+                  <Box fill>
+                    <InputWrap action={() => console.log('maxAction')} isError={addCollatError}>
+                      <TextInput
+                        plain
+                        type="number"
+                        placeholder="ADD"
                     // ref={(el:any) => { el && !repayOpen && !rateLockOpen && !mobile && el.focus(); setInputRef(el); }}
-                      value={borrowInput || ''}
-                      onChange={(event:any) => setBorrowInput(cleanValue(event.target.value))}
-                    />
-                  </InputWrap>
+                        value={addCollatInput || ''}
+                        onChange={(event:any) => setAddCollatInput(cleanValue(event.target.value))}
+                      />
+                    </InputWrap>
+                  </Box>
+                  <Text> or </Text>
+                  <Box fill>
+                    <InputWrap action={() => console.log('maxAction')} isError={removeCollatError}>
+                      <TextInput
+                        plain
+                        type="number"
+                        placeholder="REMOVE"
+                    // ref={(el:any) => { el && !repayOpen && !rateLockOpen && !mobile && el.focus(); setInputRef(el); }}
+                        value={removeCollatInput || ''}
+                        onChange={(event:any) => setRemoveCollatInput(cleanValue(event.target.value))}
+                      />
+                    </InputWrap>
+                  </Box>
                 </Box>
-              </Box>
-            </TabWrap>}
+              </TabWrap>
 
-          </Tabs>
+              {!vaultSeries?.seriesIsMature &&
+              <TabWrap title="Borrow More">
+                <Box direction="row" pad={{ vertical: 'small' }} align="start" fill="horizontal">
+                  <Box fill>
+                    <InputWrap action={() => console.log('maxAction')} isError={borrowError}>
+                      <TextInput
+                        plain
+                        type="number"
+                        placeholder="Enter extra amount to Borrow"
+                    // ref={(el:any) => { el && !repayOpen && !rateLockOpen && !mobile && el.focus(); setInputRef(el); }}
+                        value={borrowInput || ''}
+                        onChange={(event:any) => setBorrowInput(cleanValue(event.target.value))}
+                      />
+                    </InputWrap>
+                  </Box>
+                </Box>
+              </TabWrap>}
+            </Tabs>
         }
 
             {
