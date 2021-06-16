@@ -164,26 +164,30 @@ const LendPosition = () => {
       </Box>
 
       <SectionWrap title="Lending Actions">
-        <Box round="xsmall" border pad="small">
+        <Box round="xsmall" border={{ color: '#EEE' }} pad="small">
           <Tabs justify="start" activeIndex={tabIndex} onActive={onActive}>
             <TabWrap title="Close Position">
               {stepPosition[0] === 0 ?
-                <Box pad="small">
-                  <InputWrap action={() => console.log('maxAction')} isError={closeError} disabled={!selectedSeries}>
-                    <TextInput
-                      plain
-                      type="number"
-                      placeholder="fyToken Amount" // {`${selectedBase?.symbol} to reclaim`}
-                      value={closeInput || ''}
-                      onChange={(event:any) => setCloseInput(cleanValue(event.target.value))}
-                      disabled={!selectedSeries}
-                    />
-                    <MaxButton
-                      action={() => setCloseInput(maxClose)}
-                      disabled={maxClose === '0.0' || !selectedSeries}
-                    />
-                  </InputWrap>
-                </Box> :
+
+                <Box pad={{ vertical: 'medium' }}>
+                  <Box>
+                    <InputWrap action={() => console.log('maxAction')} isError={closeError} disabled={!selectedSeries}>
+                      <TextInput
+                        plain
+                        type="number"
+                        placeholder="fyToken Amount" // {`${selectedBase?.symbol} to reclaim`}
+                        value={closeInput || ''}
+                        onChange={(event:any) => setCloseInput(cleanValue(event.target.value))}
+                        disabled={!selectedSeries}
+                      />
+                      <MaxButton
+                        action={() => setCloseInput(maxClose)}
+                        disabled={maxClose === '0.0' || !selectedSeries}
+                      />
+                    </InputWrap>
+                  </Box>
+                </Box>
+                :
                 <Box gap="medium" pad="small">
                   <Box onClick={() => handleStepper(true)}>
                     <Text>Back</Text>
@@ -214,24 +218,22 @@ const LendPosition = () => {
 
             <TabWrap title="Roll Position">
               {stepPosition[1] === 0 ?
-                <Box pad="small">
-                  <Box direction="row" pad={{ vertical: 'small' }} align="start" fill="horizontal">
-                    <Box fill>
-                      <InputWrap action={() => console.log('maxAction')} isError={rollError} disabled={!selectedSeries}>
-                        <TextInput
-                          plain
-                          type="number"
-                          placeholder="fyToken Amount" // {`${selectedBase?.symbol} to roll`}
-                          value={rollInput || ''}
-                          onChange={(event:any) => setRollInput(cleanValue(event.target.value))}
-                          disabled={!selectedSeries}
-                        />
-                        <MaxButton
-                          action={() => setRollInput(maxClose)}
-                          disabled={maxClose === '0.0' || !selectedSeries}
-                        />
-                      </InputWrap>
-                    </Box>
+                <Box pad={{ vertical: 'medium' }} gap="small">
+                  <Box fill>
+                    <InputWrap action={() => console.log('maxAction')} isError={rollError} disabled={!selectedSeries}>
+                      <TextInput
+                        plain
+                        type="number"
+                        placeholder="fyToken Amount" // {`${selectedBase?.symbol} to roll`}
+                        value={rollInput || ''}
+                        onChange={(event:any) => setRollInput(cleanValue(event.target.value))}
+                        disabled={!selectedSeries}
+                      />
+                      <MaxButton
+                        action={() => setRollInput(maxClose)}
+                        disabled={maxClose === '0.0' || !selectedSeries}
+                      />
+                    </InputWrap>
                   </Box>
 
                   <Box gap="small" fill="horizontal" direction="row" align="center">

@@ -244,12 +244,12 @@ const Vault = () => {
       </Box>
 
       <SectionWrap title="Vault Actions">
-        <Box round="xsmall" border pad="xsmall">
+        <Box round="xsmall" border={{ color: '#EEE' }} pad="xsmall">
           <Tabs justify="start" activeIndex={tabIndex} onActive={onActive}>
 
             <TabWrap title="repay">
               {stepPosition[0] === 0 ?
-                <Box pad="medium">
+                <Box pad={{ vertical: 'medium' }}>
                   <InputWrap action={() => console.log('maxAction')} isError={repayError}>
                     <TextInput
                       plain
@@ -294,7 +294,7 @@ const Vault = () => {
             <TabWrap title="Roll Debt">
               {
                 stepPosition[1] === 0 ?
-                  <Box pad="medium" fill="horizontal" direction="row" align="center">
+                  <Box pad={{ vertical: 'medium' }} fill="horizontal" direction="row" align="center">
                     <SeriesSelector
                       selectSeriesLocally={(series:ISeries) => setRollToSeries(series)}
                       actionType={ActionType.BORROW}
@@ -330,7 +330,7 @@ const Vault = () => {
             <TabWrap title="Manage Collateral">
               { tabIndex === 2 &&
                 stepPosition[2] === 0 ?
-                  <Box pad="medium">
+                  <Box pad={{ vertical: 'medium' }}>
                     <Box direction="row" gap="small" align="center">
                       <Box>
                         <InputWrap action={() => console.log('maxAction')} isError={addCollatError}>
@@ -398,7 +398,7 @@ const Vault = () => {
 
             <TabWrap title="Borrow More" disabled={vaultSeries?.seriesIsMature}>
               {stepPosition[3] === 0 ?
-                <Box direction="row" pad="medium">
+                <Box pad={{ vertical: 'medium' }}>
                   <Box fill>
                     <InputWrap action={() => console.log('maxAction')} isError={borrowError}>
                       <TextInput

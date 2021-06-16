@@ -151,25 +151,27 @@ const PoolPosition = () => {
       </Box>
 
       <SectionWrap title="Pool Actions">
-        <Box round="xsmall" border pad="small">
+        <Box round="xsmall" border={{ color: '#EEE' }} pad="small">
 
           <Tabs justify="start" activeIndex={tabIndex} onActive={onActive}>
             <TabWrap title="Remove Liquidity">
               {stepPosition[0] === 0 ?
-                <Box pad="small">
-                  <InputWrap action={() => console.log('maxAction')} isError={removeError}>
-                    <TextInput
-                      plain
-                      type="number"
-                      placeholder="Tokens to remove"
-                      value={removeInput || ''}
-                      onChange={(event:any) => setRemoveInput(cleanValue(event.target.value))}
-                    />
-                    <MaxButton
-                      action={() => setRemoveInput(maxRemove)}
-                      disabled={maxRemove === '0.0'}
-                    />
-                  </InputWrap>
+                <Box pad={{ vertical: 'medium' }}>
+                  <Box>
+                    <InputWrap action={() => console.log('maxAction')} isError={removeError}>
+                      <TextInput
+                        plain
+                        type="number"
+                        placeholder="Tokens to remove"
+                        value={removeInput || ''}
+                        onChange={(event:any) => setRemoveInput(cleanValue(event.target.value))}
+                      />
+                      <MaxButton
+                        action={() => setRemoveInput(maxRemove)}
+                        disabled={maxRemove === '0.0'}
+                      />
+                    </InputWrap>
+                  </Box>
                 </Box>
                 :
                 <Box gap="large" pad="small">
@@ -201,7 +203,7 @@ const PoolPosition = () => {
 
             <TabWrap title="Roll Liquidity">
               {stepPosition[1] === 0 ?
-                <Box pad="small" gap="small">
+                <Box pad={{ vertical: 'medium' }} gap="small">
                   <Box fill>
                     <InputWrap action={() => console.log('maxAction')} isError={rollError}>
                       <TextInput
@@ -217,7 +219,6 @@ const PoolPosition = () => {
                       />
                     </InputWrap>
                   </Box>
-
                   <Box gap="small" fill="horizontal" direction="row" align="center">
                     <SeriesSelector
                       selectSeriesLocally={(series:ISeries) => setRollToSeries(series)}
