@@ -77,14 +77,10 @@ function ModalWrap({ children, toggleModalOpen, modalOpen = false }: IModalWrap)
            responsive
          >
            <Box
-             height={{ min: '600px' }}
-             width={mobile ? undefined : { min: '600px' }}
+             height="600px"
+             width={mobile ? undefined : '600px'}
              round="small"
-             // background="white"
-             justify="between"
              pad="large"
-             // elevation={mobile ? undefined : 'large'}
-             // background="-webkit-linear-gradient(rgba(77,94,254,0.5),rgba(195,34,34,0.5))"
            >
              {children}
            </Box>

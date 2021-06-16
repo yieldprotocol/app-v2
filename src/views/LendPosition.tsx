@@ -163,8 +163,7 @@ const LendPosition = () => {
         </Box>
       </Box>
 
-      <SectionWrap title="Position Actions">
-
+      <SectionWrap title="Lending Actions">
         <Box round="xsmall" border pad="small">
           <Tabs justify="start" activeIndex={tabIndex} onActive={onActive}>
             <TabWrap title="Close Position">
