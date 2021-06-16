@@ -225,19 +225,14 @@ const Borrow = () => {
     >
 
       <MainViewWrap>
-
         {/* <PanelWrap background="linear-gradient(to right, #EEEEEE,rgba(255,255,255,1))"> */}
         { !mobile &&
         <PanelWrap>
-
-          {/* <Box justify="between" fill pad="xlarge"> */}
           <StepperText
             position={stepPosition}
             values={[['Choose an asset to', 'borrow', ''], ['Add', 'collateral', ''], ['', 'Review', 'and transact']]}
           />
-
           <YieldInfo />
-          {/* </Box> */}
         </PanelWrap>}
 
         <CenterPanelWrap>

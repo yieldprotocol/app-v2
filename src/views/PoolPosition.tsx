@@ -127,8 +127,8 @@ const PoolPosition = () => {
   }, [rollInput, activeAccount, rollError]);
 
   return (
-    <Box>
-      <Box height="150px" gap="medium">
+    <Box fill gap="large">
+      <Box height="50%" gap="large">
         <Box direction="row" gap="xsmall">
           <Box
             round="large"
@@ -140,7 +140,9 @@ const PoolPosition = () => {
           </Box>
           <Text size="large">  {selectedSeries?.displayName} </Text>
         </Box>
-        {
+
+        <Box justify="between" gap="small" fill="horizontal" direction="row-responsive">
+          {
             selectedSeries?.baseId === selectedBase?.id &&
             <Box justify="between" gap="small">
               <InfoBite label="Token balance" value={selectedSeries?.poolTokens_!} />
@@ -148,6 +150,7 @@ const PoolPosition = () => {
               <InfoBite label="Pool percentage" value={selectedSeries?.poolTokens?.div(selectedSeries?.totalSupply).mul('100').toString() || ''} />
             </Box>
           }
+        </Box>
       </Box>
 
       <SectionWrap title="Pool Actions">

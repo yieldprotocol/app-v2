@@ -202,8 +202,8 @@ const Vault = () => {
   }, [vaultMap, selectedVault]);
 
   return (
-    <Box justify="between" gap="medium" fill>
-      <Box gap="medium">
+    <Box justify="between" gap="large" fill>
+      <Box height="50%" gap="large">
 
         <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
           <Box direction="row" align="center" gap="small">
@@ -234,7 +234,7 @@ const Vault = () => {
         </Box>
 
         <SectionWrap>
-          <Box gap="small">
+          <Box gap="medium">
             <InfoBite label="Vault debt:" value={`${selectedVault?.art_} ${vaultBase?.symbol}`} />
             <InfoBite label="Collateral posted:" value={`${selectedVault?.ink_} ${vaultIlk?.symbol}`} />
             <InfoBite label="Maturity date:" value={`${vaultSeries?.displayName}`} />

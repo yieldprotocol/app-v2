@@ -140,9 +140,8 @@ const LendPosition = () => {
 
   return (
 
-    <Box fill>
-
-      <Box height="150px" gap="medium">
+    <Box fill gap="large">
+      <Box height="50%" gap="large">
         <Box direction="row" gap="xsmall">
           <Box
             round="large"
