@@ -48,7 +48,13 @@ const Vault = () => {
   const [tabIndex, setTabIndex] = React.useState(0);
   const onActive = (nextIndex: number) => setTabIndex(nextIndex);
 
-  const [stepPosition, setStepPosition] = useState<number>(0);
+  // stepper for stepping within multiple tabs
+  const [stepPosition, setStepPosition] = useState<number[]>([0, 0, 0, 0, 0]);
+  const handleStepper = (back:boolean = false) => {
+    const step = back ? -1 : 1;
+    const newStepArray = stepPosition.map((x:any, i:number) => (i === tabIndex ? x + step : x));
+    setStepPosition(newStepArray);
+  };
 
   const [availableVaults, setAvailableVaults] = useState<IVault[]>();
 
@@ -76,12 +82,10 @@ const Vault = () => {
   // const [rollDisabled, setRollDisabled] = useState<boolean>(true);
 
   /* HOOK FNS */
-
   const { repay, borrow, rollDebt } = useBorrowActions();
   const { addCollateral, removeCollateral } = useCollateralActions();
 
   /* LOCAL FNS */
-
   const handleRepay = () => {
     selectedVault &&
     repay(selectedVault, repayInput?.toString());
@@ -108,10 +112,11 @@ const Vault = () => {
     rollDebt(selectedVault, rollToSeries);
   };
 
+  /* internal stateful components */
   const NextButton = () => <Button
     secondary
     label={<Text size={mobile ? 'small' : undefined}> Next Step</Text>}
-    onClick={() => setStepPosition(stepPosition + 1)}
+    onClick={() => handleStepper()}
     key="next"
   />;
 
@@ -244,7 +249,7 @@ const Vault = () => {
             <Tabs justify="start" activeIndex={tabIndex} onActive={onActive}>
 
               <TabWrap title="repay">
-                {stepPosition === 0 ?
+                {stepPosition[0] === 0 ?
                   <Box pad="medium">
                     <InputWrap action={() => console.log('maxAction')} isError={repayError}>
                       <TextInput
@@ -262,7 +267,7 @@ const Vault = () => {
                   </Box>
                   :
                   <Box gap="large">
-                    <Box onClick={() => setStepPosition(0)}>
+                    <Box onClick={() => handleStepper(true)}>
                       <Text>Back</Text>
                     </Box>
                     <ActiveTransaction txCode={(selectedVault && getTxCode(ActionCodes.REPAY, selectedVault?.id)) || ''}>
@@ -274,7 +279,7 @@ const Vault = () => {
 
                 <ActionButtonGroup>
                   {
-                    stepPosition === 0 ?
+                    stepPosition[0] === 0 ?
                       <NextButton />
                       :
                       <Button
@@ -289,7 +294,7 @@ const Vault = () => {
 
               <TabWrap title="Roll Debt">
                 {
-                stepPosition === 0 ?
+                stepPosition[1] === 0 ?
                   <Box pad="medium" fill="horizontal" direction="row" align="center">
                     <SeriesSelector
                       selectSeriesLocally={(series:ISeries) => setRollToSeries(series)}
@@ -298,7 +303,7 @@ const Vault = () => {
                   </Box>
                   :
                   <Box gap="large">
-                    <Box onClick={() => setStepPosition(0)}>
+                    <Box onClick={() => handleStepper(true)}>
                       <Text>Back</Text>
                     </Box>
                     <ActiveTransaction txCode={(selectedVault && getTxCode(ActionCodes.ROLL_DEBT, selectedVault?.id)) || ''}>
@@ -312,7 +317,7 @@ const Vault = () => {
                   </Box>
               }
                 <ActionButtonGroup>
-                  { stepPosition === 0 ?
+                  { stepPosition[1] === 0 ?
                     <NextButton />
                     :
                     <Button
@@ -324,66 +329,64 @@ const Vault = () => {
               </TabWrap>
 
               <TabWrap title="Manage Collateral">
-                {
-                stepPosition === 0 ?
-                  <Box pad="medium">
-                    <Box direction="row" gap="small" align="center">
-                      <Box>
-                        <InputWrap action={() => console.log('maxAction')} isError={addCollatError}>
-                          <TextInput
-                            plain
-                            type="number"
-                            placeholder="ADD"
-                            value={addCollatInput || ''}
-                            onChange={(event:any) => setAddCollatInput(cleanValue(event.target.value))}
-                          />
-                        </InputWrap>
-                      </Box>
-                      <Text> or </Text>
-                      <Box>
-                        <InputWrap action={() => console.log('maxAction')} isError={removeCollatError}>
-                          <TextInput
-                            plain
-                            type="number"
-                            placeholder="REMOVE"
-                            value={removeCollatInput || ''}
-                            onChange={(event:any) => setRemoveCollatInput(cleanValue(event.target.value))}
-                          />
-                        </InputWrap>
+                { tabIndex === 2 &&
+                  stepPosition[2] === 0 ?
+                    <Box pad="medium">
+                      <Box direction="row" gap="small" align="center">
+                        <Box>
+                          <InputWrap action={() => console.log('maxAction')} isError={addCollatError}>
+                            <TextInput
+                              plain
+                              type="number"
+                              placeholder="ADD"
+                              value={addCollatInput || ''}
+                              onChange={(event:any) => setAddCollatInput(cleanValue(event.target.value))}
+                            />
+                          </InputWrap>
+                        </Box>
+                        <Text> or </Text>
+                        <Box>
+                          <InputWrap action={() => console.log('maxAction')} isError={removeCollatError}>
+                            <TextInput
+                              plain
+                              type="number"
+                              placeholder="REMOVE"
+                              value={removeCollatInput || ''}
+                              onChange={(event:any) => setRemoveCollatInput(cleanValue(event.target.value))}
+                            />
+                          </InputWrap>
+                        </Box>
                       </Box>
                     </Box>
-                  </Box>
                   :
-                  <Box gap="large">
-                    <Box onClick={() => setStepPosition(0)}>
-                      <Text>Back</Text>
-                    </Box>
-                    <ActiveTransaction txCode={(selectedVault && getTxCode(ActionCodes.ROLL_DEBT, selectedVault?.id)) || ''}>
-
-                      <SectionWrap title="Review your transaction">
-                        {addCollatInput &&
-                        <Text>
-                          Add {addCollatInput} {vaultIlk?.symbol} collateral
-                        </Text>}
-                        {removeCollatInput &&
-                        <Text>
-                          Remove {removeCollatInput} {vaultIlk?.symbol} collateral
-                        </Text>}
-                      </SectionWrap>
-                    </ActiveTransaction>
-                  </Box>
-                }
+                    <Box gap="large">
+                      <Box onClick={() => handleStepper(true)}>
+                        <Text>Back</Text>
+                      </Box>
+                      <ActiveTransaction txCode={(selectedVault && getTxCode(ActionCodes.ROLL_DEBT, selectedVault?.id)) || ''}>
+                        <SectionWrap title="Review your transaction">
+                          {addCollatInput &&
+                          <Text>
+                            Add {addCollatInput} {vaultIlk?.symbol} collateral
+                          </Text>}
+                          {removeCollatInput &&
+                          <Text>
+                            Remove {removeCollatInput} {vaultIlk?.symbol} collateral
+                          </Text>}
+                        </SectionWrap>
+                      </ActiveTransaction>
+                    </Box>}
 
                 <ActionButtonGroup>
-                  { stepPosition !== 1 && <NextButton /> }
-                  { stepPosition === 1 &&
+                  { stepPosition[2] !== 1 && <NextButton /> }
+                  { stepPosition[2] === 1 &&
                     addCollatInput &&
                     <Button
                       primary
                       label={<Text size={mobile ? 'small' : undefined}> Add </Text>}
                       onClick={() => handleCollateral('ADD')}
                     />}
-                  { stepPosition === 1 &&
+                  { stepPosition[2] === 1 &&
                     removeCollatInput &&
                     <Button
                       primary
@@ -397,7 +400,7 @@ const Vault = () => {
               <TabWrap title="Borrow More" disabled={vaultSeries?.seriesIsMature}>
 
                 {
-                stepPosition === 0 ?
+                stepPosition[3] === 0 ?
                   <Box direction="row" pad="medium">
                     <Box fill>
                       <InputWrap action={() => console.log('maxAction')} isError={borrowError}>
@@ -414,7 +417,7 @@ const Vault = () => {
                   </Box>
                   :
                   <Box gap="large">
-                    <Box onClick={() => setStepPosition(0)}>
+                    <Box onClick={() => handleStepper(true)}>
                       <Text>Back</Text>
                     </Box>
                     <ActiveTransaction txCode={(selectedVault && getTxCode(ActionCodes.ROLL_DEBT, selectedVault?.id)) || ''}>
@@ -427,7 +430,7 @@ const Vault = () => {
                   </Box>
                }
                 <ActionButtonGroup>
-                  { stepPosition === 0 ?
+                  { stepPosition[3] === 0 ?
                     <NextButton />
                     :
                     <Button

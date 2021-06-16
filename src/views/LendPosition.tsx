@@ -34,7 +34,13 @@ const LendPosition = () => {
   const [tabIndex, setTabIndex] = React.useState(0);
   const onActive = (nextIndex: number) => setTabIndex(nextIndex);
 
-  const [stepPosition, setStepPosition] = useState<number>(0);
+  // stepper for stepping within multiple tabs
+  const [stepPosition, setStepPosition] = useState<number[]>([0, 0, 0, 0, 0]);
+  const handleStepper = (back:boolean = false) => {
+    const step = back ? -1 : 1;
+    const newStepArray = stepPosition.map((x:any, i:number) => (i === tabIndex ? x + step : x));
+    setStepPosition(newStepArray);
+  };
 
   const [closeInput, setCloseInput] = useState<string>();
   const [rollInput, setRollInput] = useState<string>();
@@ -66,6 +72,14 @@ const LendPosition = () => {
   const handleRedeem = () => {
     redeem(selectedSeries!, undefined);
   };
+
+  /* internal stateful components */
+  const NextButton = () => <Button
+    secondary
+    label={<Text size={mobile ? 'small' : undefined}> Next Step</Text>}
+    onClick={() => handleStepper()}
+    key="next"
+  />;
 
   /* SET MAX VALUES */
 
@@ -125,170 +139,146 @@ const LendPosition = () => {
   }, [rollInput, activeAccount, rollError, rollToSeries]);
 
   return (
-    <>
-      <Box fill>
 
-        <Box height="150px" gap="medium">
-          <Box direction="row" gap="xsmall">
-            <Box
-              round="large"
-              background={`linear-gradient(90deg, ${selectedSeries && assetMap.get(selectedSeries.baseId)?.color} 40%, white 75%)`}
-              pad={{ vertical: 'xsmall', left: 'xsmall', right: 'medium' }}
-              align="start"
-            >
-              {selectedSeries && assetMap.get(selectedSeries.baseId)?.image}
-            </Box>
-            <Text size="large">  {selectedSeries?.displayName} </Text>
+    <Box fill>
+
+      <Box height="150px" gap="medium">
+        <Box direction="row" gap="xsmall">
+          <Box
+            round="large"
+            background={`linear-gradient(90deg, ${selectedSeries && assetMap.get(selectedSeries.baseId)?.color} 40%, white 75%)`}
+            pad={{ vertical: 'xsmall', left: 'xsmall', right: 'medium' }}
+            align="start"
+          >
+            {selectedSeries && assetMap.get(selectedSeries.baseId)?.image}
           </Box>
+          <Text size="large">  {selectedSeries?.displayName} </Text>
+        </Box>
 
-          <Box justify="between" gap="small" fill="horizontal" direction="row-responsive">
-            {
+        <Box justify="between" gap="small" fill="horizontal" direction="row-responsive">
+          {
                 selectedSeries?.baseId === selectedBase?.id &&
                 <InfoBite label="FYToken balance: " value={selectedSeries?.fyTokenBalance_!} />
               }
-          </Box>
         </Box>
+      </Box>
 
-        <SectionWrap title="Position Actions">
+      <SectionWrap title="Position Actions">
 
-          <Box round="xsmall" border>
-            {
-          stepPosition === 0 &&
+        <Box round="xsmall" border>
           <Tabs justify="start" activeIndex={tabIndex} onActive={onActive}>
             <TabWrap title="Close Position">
-              <Box>
-                <InputWrap action={() => console.log('maxAction')} isError={closeError} disabled={!selectedSeries}>
-                  <TextInput
-                    plain
-                    type="number"
-                    placeholder="fyToken Amount" // {`${selectedBase?.symbol} to reclaim`}
-                    value={closeInput || ''}
-                    onChange={(event:any) => setCloseInput(cleanValue(event.target.value))}
-                    disabled={!selectedSeries}
-                  />
-                  <MaxButton
-                    action={() => setCloseInput(maxClose)}
-                    disabled={maxClose === '0.0' || !selectedSeries}
-                  />
-                </InputWrap>
-              </Box>
-            </TabWrap>
-
-            <TabWrap title="Roll Position">
-              <Box direction="row" pad={{ vertical: 'small' }} align="start" fill="horizontal">
-                <Box fill>
-                  <InputWrap action={() => console.log('maxAction')} isError={rollError} disabled={!selectedSeries}>
+              {stepPosition[0] === 0 ?
+                <Box>
+                  <InputWrap action={() => console.log('maxAction')} isError={closeError} disabled={!selectedSeries}>
                     <TextInput
                       plain
                       type="number"
-                      placeholder="fyToken Amount" // {`${selectedBase?.symbol} to roll`}
-                      value={rollInput || ''}
-                      onChange={(event:any) => setRollInput(cleanValue(event.target.value))}
+                      placeholder="fyToken Amount" // {`${selectedBase?.symbol} to reclaim`}
+                      value={closeInput || ''}
+                      onChange={(event:any) => setCloseInput(cleanValue(event.target.value))}
                       disabled={!selectedSeries}
                     />
                     <MaxButton
-                      action={() => setRollInput(maxClose)}
+                      action={() => setCloseInput(maxClose)}
                       disabled={maxClose === '0.0' || !selectedSeries}
                     />
                   </InputWrap>
-                </Box>
-              </Box>
+                </Box> :
+                <Box gap="large">
+                  <Box onClick={() => handleStepper(true)}>
+                    <Text>Back</Text>
+                  </Box>
+                  <ActiveTransaction txCode={getTxCode(ActionCodes.CLOSE_POSITION, selectedSeriesId)}>
+                    <SectionWrap title="Review your transaction">
+                      <Text>Close {closeInput} {selectedBase?.symbol}
+                        from the {selectedSeries?.displayName} series.
+                      </Text>
+                    </SectionWrap>
+                  </ActiveTransaction>
+                </Box>}
 
-              <Box gap="small" fill="horizontal" direction="row" align="center">
-                <SeriesSelector
-                  selectSeriesLocally={(series:ISeries) => setRollToSeries(series)}
-                  actionType={ActionType.LEND}
-                />
-              </Box>
+              <ActionButtonGroup>
+                {
+                    stepPosition[0] === 0 ?
+                      <NextButton />
+                      :
+                      <Button
+                        primary
+                        label={<Text size={mobile ? 'small' : undefined}> {`Close ${closeInput || ''}`} </Text>}
+                        onClick={() => handleClosePosition()}
+                        disabled={closeDisabled}
+                      />
+                  }
+              </ActionButtonGroup>
+            </TabWrap>
+
+            <TabWrap title="Roll Position">
+              {stepPosition[1] === 0 ?
+                <>
+                  <Box direction="row" pad={{ vertical: 'small' }} align="start" fill="horizontal">
+                    <Box fill>
+                      <InputWrap action={() => console.log('maxAction')} isError={rollError} disabled={!selectedSeries}>
+                        <TextInput
+                          plain
+                          type="number"
+                          placeholder="fyToken Amount" // {`${selectedBase?.symbol} to roll`}
+                          value={rollInput || ''}
+                          onChange={(event:any) => setRollInput(cleanValue(event.target.value))}
+                          disabled={!selectedSeries}
+                        />
+                        <MaxButton
+                          action={() => setRollInput(maxClose)}
+                          disabled={maxClose === '0.0' || !selectedSeries}
+                        />
+                      </InputWrap>
+                    </Box>
+                  </Box>
+
+                  <Box gap="small" fill="horizontal" direction="row" align="center">
+                    <SeriesSelector
+                      selectSeriesLocally={(series:ISeries) => setRollToSeries(series)}
+                      actionType={ActionType.LEND}
+                    />
+                  </Box>
+                </>
+                :
+                <Box gap="large">
+                  <Box onClick={() => handleStepper(true)}>
+                    <Text>Back</Text>
+                  </Box>
+                  <ActiveTransaction txCode={getTxCode(ActionCodes.ROLL_POSITION, selectedSeriesId)}>
+                    <SectionWrap title="Review your transaction">
+                      <Text>
+                        Roll {rollInput} {selectedBase?.symbol}
+                        from {selectedSeries?.displayName} to the {rollToSeries?.displayName} series.
+                      </Text>
+                    </SectionWrap>
+                  </ActiveTransaction>
+                </Box>}
+
+              <ActionButtonGroup>
+                {
+                    stepPosition[1] === 0 ?
+                      <NextButton />
+                      :
+                      <Button
+                        primary
+                        label={<Text size={mobile ? 'small' : undefined}> {`Roll ${rollInput || ''}`} </Text>}
+                        onClick={() => handleRollPosition()}
+                        disabled={rollDisabled}
+                      />
+                  }
+              </ActionButtonGroup>
 
             </TabWrap>
           </Tabs>
-      }
 
-            {
-          stepPosition === 1 &&
-          tabIndex === 0 &&
-          <Box gap="large">
-            <Box onClick={() => setStepPosition(0)}>
-              <Text>Back</Text>
-            </Box>
-            <ActiveTransaction txCode={getTxCode(ActionCodes.CLOSE_POSITION, selectedSeriesId)}>
-              <SectionWrap title="Review your transaction">
-                <Text>Close {closeInput} {selectedBase?.symbol} from the {selectedSeries?.displayName} series. </Text>
-              </SectionWrap>
-            </ActiveTransaction>
-          </Box>
-        }
+        </Box>
 
-            {
-          stepPosition === 1 &&
-          tabIndex === 1 &&
-          <Box gap="large">
-            <Box onClick={() => setStepPosition(0)}>
-              <Text>Back</Text>
-            </Box>
-            <ActiveTransaction txCode={getTxCode(ActionCodes.ROLL_POSITION, selectedSeriesId)}>
-              <SectionWrap title="Review your transaction">
-                <Text>
-                  Roll {rollInput} {selectedBase?.symbol}
-                  from {selectedSeries?.displayName} to the {rollToSeries?.displayName} series.
-                </Text>
-              </SectionWrap>
-            </ActiveTransaction>
-          </Box>
-        }
+      </SectionWrap>
 
-          </Box>
-
-        </SectionWrap>
-
-      </Box>
-
-      <ActionButtonGroup>
-        {
-            stepPosition !== 1 &&
-            !selectedSeries?.seriesIsMature &&
-            <Button
-              secondary
-              label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
-              key="ONE"
-              onClick={() => setStepPosition(stepPosition + 1)}
-            />
-            }
-
-        {
-        stepPosition === 1 &&
-        selectedSeries?.seriesIsMature &&
-          <Button
-            primary
-            label={<Text size={mobile ? 'small' : undefined}> Redeem </Text>}
-            onClick={() => handleRedeem()}
-          />
-        }
-
-        {
-          stepPosition === 1 &&
-          tabIndex === 0 &&
-          <Button
-            primary
-            label={<Text size={mobile ? 'small' : undefined}>Close Position</Text>}
-            onClick={() => handleClosePosition()}
-            disabled={closeDisabled}
-          />
-          }
-
-        {
-          stepPosition === 1 &&
-          tabIndex === 1 &&
-          <Button
-            primary
-            label={<Text size={mobile ? 'small' : undefined}> Roll </Text>}
-            onClick={() => handleRollPosition()}
-            disabled={rollDisabled}
-          />
-        }
-      </ActionButtonGroup>
-    </>
+    </Box>
   );
 };
 

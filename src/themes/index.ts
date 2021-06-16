@@ -36,7 +36,7 @@ export const yieldTheme = {
         light: '#FFFFFF',
       },
     },
-    input: { weight: 900 },
+    input: { weight: 700 },
 
   },
 
