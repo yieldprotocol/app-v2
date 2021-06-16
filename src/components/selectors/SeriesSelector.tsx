@@ -117,8 +117,8 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType }: ISeries
         labelKey={(x:any) => optionText(x)}
         valueLabel={
           options.length ?
-            <Box pad={mobile ? 'medium' : 'small'}><Text color="text"> {optionExtended(selectedSeries)}</Text></Box>
-            : <Box pad={mobile ? 'medium' : 'small'}><Text color="text"> No available series yet.</Text></Box>
+            <Box pad={mobile ? 'medium' : '0.55em'}><Text color="text"> {optionExtended(selectedSeries)}</Text></Box>
+            : <Box pad={mobile ? 'medium' : '0.55em'}><Text color="text"> No available series yet.</Text></Box>
         }
         disabled={options.length === 0}
         onChange={({ option }: any) => handleSelect(option)}
