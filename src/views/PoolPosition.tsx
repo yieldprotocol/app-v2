@@ -128,7 +128,7 @@ const PoolPosition = () => {
 
   return (
     <Box fill gap="large">
-      <Box height="50%" gap="large">
+      <Box height="300px" gap="large">
         <Box direction="row" gap="xsmall">
           <Box
             round="large"

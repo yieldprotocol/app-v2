@@ -202,9 +202,8 @@ const Vault = () => {
   }, [vaultMap, selectedVault]);
 
   return (
-    <Box justify="between" gap="large" fill>
-      <Box height="50%" gap="large">
-
+    <Box gap="large" fill>
+      <Box height="600px" gap="large">
         <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
           <Box direction="row" align="center" gap="small">
             <Box direction="row" round="large" pad="small" background={`linear-gradient(90deg, ${vaultBase?.color} 40%, white 75%)`} gap="xsmall">
