@@ -270,7 +270,6 @@ const Borrow = () => {
               </SectionWrap>
                 {/* {selectedSeries?.seriesIsMature && <StampText>This series has matured.</StampText> */}
                 {selectedSeries?.seriesIsMature && <Box round="xsmall" pad="small" border={{ color: 'pink' }}><Text color="pink" size="small">This series has matured.</Text></Box>}
-
             </Box>
             }
 

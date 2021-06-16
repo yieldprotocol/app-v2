@@ -165,11 +165,11 @@ const LendPosition = () => {
 
       <SectionWrap title="Position Actions">
 
-        <Box round="xsmall" border>
+        <Box round="xsmall" border pad="small">
           <Tabs justify="start" activeIndex={tabIndex} onActive={onActive}>
             <TabWrap title="Close Position">
               {stepPosition[0] === 0 ?
-                <Box>
+                <Box pad="small">
                   <InputWrap action={() => console.log('maxAction')} isError={closeError} disabled={!selectedSeries}>
                     <TextInput
                       plain
@@ -185,7 +185,7 @@ const LendPosition = () => {
                     />
                   </InputWrap>
                 </Box> :
-                <Box gap="large">
+                <Box gap="medium" pad="small">
                   <Box onClick={() => handleStepper(true)}>
                     <Text>Back</Text>
                   </Box>
@@ -215,7 +215,7 @@ const LendPosition = () => {
 
             <TabWrap title="Roll Position">
               {stepPosition[1] === 0 ?
-                <>
+                <Box pad="small">
                   <Box direction="row" pad={{ vertical: 'small' }} align="start" fill="horizontal">
                     <Box fill>
                       <InputWrap action={() => console.log('maxAction')} isError={rollError} disabled={!selectedSeries}>
@@ -241,9 +241,9 @@ const LendPosition = () => {
                       actionType={ActionType.LEND}
                     />
                   </Box>
-                </>
+                </Box>
                 :
-                <Box gap="large">
+                <Box gap="large" pad="small">
                   <Box onClick={() => handleStepper(true)}>
                     <Text>Back</Text>
                   </Box>

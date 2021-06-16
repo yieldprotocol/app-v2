@@ -150,13 +150,13 @@ const PoolPosition = () => {
           }
       </Box>
 
-      <SectionWrap title="Pool position actions">
-        <Box round="xsmall" border>
+      <SectionWrap title="Pool Actions">
+        <Box round="xsmall" border pad="small">
 
           <Tabs justify="start" activeIndex={tabIndex} onActive={onActive}>
             <TabWrap title="Remove Liquidity">
               {stepPosition[0] === 0 ?
-                <Box>
+                <Box pad="small">
                   <InputWrap action={() => console.log('maxAction')} isError={removeError}>
                     <TextInput
                       plain
@@ -172,7 +172,7 @@ const PoolPosition = () => {
                   </InputWrap>
                 </Box>
                 :
-                <Box gap="large">
+                <Box gap="large" pad="small">
                   <Box onClick={() => handleStepper(true)}>
                     <Text>Back</Text>
                   </Box>
@@ -201,7 +201,7 @@ const PoolPosition = () => {
 
             <TabWrap title="Roll Liquidity">
               {stepPosition[1] === 0 ?
-                <>
+                <Box pad="small" gap="small">
                   <Box fill>
                     <InputWrap action={() => console.log('maxAction')} isError={rollError}>
                       <TextInput
@@ -224,9 +224,9 @@ const PoolPosition = () => {
                       actionType={ActionType.POOL}
                     />
                   </Box>
-                </>
+                </Box>
                 :
-                <Box gap="large">
+                <Box gap="large" pad="small">
                   <Box onClick={() => handleStepper(true)}>
                     <Text>Back</Text>
                   </Box>
