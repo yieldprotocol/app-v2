@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { Box, Stack, Text } from 'grommet';
 import { ActionType, IAsset, ISeries, IUserContext, IVault } from '../types';
 import { UserContext } from '../contexts/UserContext';
-import { cleanValue } from '../utils/displayUtils';
+import { cleanValue, nFormatter } from '../utils/displayUtils';
 
 function PositionListItem({ series, actionType }:{ series:ISeries, actionType:ActionType }) {
   const { userState } = useContext(UserContext) as IUserContext;
@@ -30,12 +30,13 @@ function PositionListItem({ series, actionType }:{ series:ISeries, actionType:Ac
 
           { actionType === 'LEND' &&
           <Text weight={450} size="xsmall">
-            Balance:  { cleanValue(series.fyTokenBalance_, 2) }
+            Balance:  {cleanValue(series.fyTokenBalance_, 2) }
           </Text>}
 
           { actionType === 'POOL' &&
           <Text weight={450} size="xsmall">
-            Tokens:  {cleanValue(series.poolTokens_, 2)}
+            {/* Tokens:  {cleanValue(series.poolTokens_, 2)} */}
+            Tokens:  {nFormatter(parseFloat(series.poolTokens_!), 2)}
           </Text>}
 
           { actionType === 'POOL' &&
