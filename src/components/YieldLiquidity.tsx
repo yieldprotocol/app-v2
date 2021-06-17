@@ -64,7 +64,6 @@ function YieldApr({ input }: IYieldApr) {
 
           <Box direction="row" align="center">
             <StyledText size="100px">
-
               {selectedSeries ?
                 nFormatter(parseFloat(selectedSeries?.totalSupply_!), 2)
                 : nFormatter(parseFloat(totalLiquidity!), 2)}
@@ -81,9 +80,7 @@ function YieldApr({ input }: IYieldApr) {
 
         </Box>
         :
-        <Box>
-          {totalLiquidity}
-        </Box>}
+        <Box />}
     </>
   );
 }
