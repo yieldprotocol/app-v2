@@ -22,7 +22,6 @@ import TabWrap from '../components/wraps/TabWrap';
 import ActiveTransaction from '../components/ActiveTransaction';
 import { getTxCode } from '../utils/appUtils';
 import { useCollateralization } from '../hooks/collateralizationHook';
-import { ZERO_BN } from '../utils/constants';
 
 const Vault = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';

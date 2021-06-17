@@ -8,7 +8,7 @@ import { IAssetRoot, ISeriesRoot, IVaultRoot, ISeries, IAsset, IVault, IUserCont
 
 import { ChainContext } from './ChainContext';
 import { cleanValue, genVaultImage } from '../utils/displayUtils';
-import { calculateAPR, floorDecimal, secondsToFrom, sellFYToken } from '../utils/yieldMath';
+import { calculateAPR, divDecimal, floorDecimal, mulDecimal, secondsToFrom, sellFYToken } from '../utils/yieldMath';
 
 const UserContext = React.createContext<any>({});
 
@@ -195,6 +195,7 @@ const UserProvider = ({ children }:any) => {
           fyTokenReserves,
           fyTokenRealReserves,
           totalSupply,
+          totalSupply_: ethers.utils.formatEther(totalSupply),
           APR: `${Number(APR).toFixed(2)}`,
           seriesIsMature: mature,
         };
@@ -209,12 +210,15 @@ const UserProvider = ({ children }:any) => {
             series.poolContract.balanceOf(account),
             series.fyTokenContract.balanceOf(account),
           ]);
+
+          const poolPercent = mulDecimal(divDecimal(poolTokens, series.totalSupply), '100');
           return {
             ...series,
             poolTokens,
             fyTokenBalance,
             poolTokens_: ethers.utils.formatEther(poolTokens),
             fyTokenBalance_: ethers.utils.formatEther(fyTokenBalance),
+            poolPercent,
           };
         }),
       );

@@ -89,12 +89,16 @@ export interface ISeries extends ISeriesRoot {
   fyTokenReserves: BigNumber;
   fyTokenRealReserves: BigNumber;
   totalSupply: BigNumber;
-  seriesIsMature: boolean;
+  totalSupply_: string;
 
   poolTokens?: BigNumber|undefined;
   poolTokens_?: string|undefined;
   fyTokenBalance? : BigNumber|undefined;
   fyTokenBalance_? : string|undefined;
+
+  poolPercent? : string|undefined;
+
+  seriesIsMature: boolean;
 }
 
 export interface IAsset extends IAssetRoot {

@@ -145,9 +145,9 @@ const PoolPosition = () => {
           {
             selectedSeries?.baseId === selectedBase?.id &&
             <Box justify="between" gap="small">
-              <InfoBite label="Token balance" value={selectedSeries?.poolTokens_!} />
-              <InfoBite label="Pool total token supply" value={selectedSeries?.totalSupply?.toString() || ''} />
-              <InfoBite label="Pool percentage" value={selectedSeries?.poolTokens?.div(selectedSeries?.totalSupply).mul('100').toString() || ''} />
+              <InfoBite label="Token balance" value={cleanValue(selectedSeries?.poolTokens_, 6)} />
+              <InfoBite label="Pool total token supply" value={cleanValue(selectedSeries?.totalSupply_, 2)} />
+              <InfoBite label="Pool percentage" value={`${cleanValue(selectedSeries?.poolPercent, 4)} %`} />
             </Box>
           }
         </Box>

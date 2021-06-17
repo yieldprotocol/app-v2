@@ -26,14 +26,23 @@ function PositionListItem({ series, actionType }:{ series:ISeries, actionType:Ac
 
       <Box>
         <Text weight={900} size="small"> {series.displayName} </Text>
-        <Box>
+        <Box direction="row" gap="small">
+
+          { actionType === 'LEND' &&
           <Text weight={450} size="xsmall">
-            Balance:  {
-              actionType === 'LEND'
-                ? cleanValue(series.fyTokenBalance_, 2)
-                : cleanValue(series.fyTokenBalance_, 2)
-              }
-          </Text>
+            Balance:  { cleanValue(series.fyTokenBalance_, 2) }
+          </Text>}
+
+          { actionType === 'POOL' &&
+          <Text weight={450} size="xsmall">
+            Tokens:  {cleanValue(series.poolTokens_, 2)}
+          </Text>}
+
+          { actionType === 'POOL' &&
+          <Text weight={450} size="xsmall">
+            Pool %:  {cleanValue(series.poolPercent, 2)}
+          </Text>}
+
         </Box>
       </Box>
     </Box>
