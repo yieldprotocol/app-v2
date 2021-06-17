@@ -18,6 +18,7 @@ import EthMark from '../components/logos/EthMark';
 import TSTMark from '../components/logos/TSTMark';
 import USDCMark from '../components/logos/USDCMark';
 import WBTCMark from '../components/logos/WBTCMark';
+import USDTMark from '../components/logos/USDTMark';
 
 const markMap = new Map([
   ['DAI', <DaiMark key="dai" />],
@@ -25,6 +26,7 @@ const markMap = new Map([
   ['WBTC', <WBTCMark key="wbtc" />],
   ['TST', <TSTMark key="tst" />],
   ['WETH', <EthMark key="eth" />],
+  ['USDT', <USDTMark key="eth" />],
 ]);
 
 /* Set up web3react config */

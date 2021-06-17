@@ -30,6 +30,7 @@
     "USDC" : "#2775CA",
     "WBTC" : "#5A5564",
     "TST" : "#D15034",
-    "WETH" : "#FFFFFF"
+    "WETH" : "#FFFFFF",
+    "USDT" : "#50af95"
   }
 }
