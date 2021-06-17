@@ -49,7 +49,7 @@ function YieldApr({ input }: IYieldApr) {
 
   return (
     <>
-      { true ?
+      { parseFloat(totalLiquidity!) > 0 ?
         <Box animation="fadeIn" basis={mobile ? undefined : '50%'}>
           <Box pad={mobile ? undefined : 'large'} />
 
