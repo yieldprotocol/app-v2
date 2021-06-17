@@ -12,7 +12,6 @@ import { calculateSlippage, fyTokenForMint, mint } from '../utils/yieldMath';
 
 export const usePool = (input: string|undefined) => {
   const poolMax = input;
-  poolMax && console.log(poolMax);
   return { poolMax };
 };
 

@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Box, Text, ResponsiveContext } from 'grommet';
-import { UserContext } from '../contexts/UserContext';
-import { IUserContext } from '../types';
+import { UserContext } from '../../contexts/UserContext';
+import { IUserContext } from '../../types';
 
 interface IMaxButtonProps {
   /* select series locally filters out the global selection from the list and returns the selected ISeries */

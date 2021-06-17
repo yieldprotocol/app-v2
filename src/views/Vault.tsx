@@ -12,12 +12,12 @@ import InputWrap from '../components/wraps/InputWrap';
 import InfoBite from '../components/InfoBite';
 import { ActionCodes, ActionType, IAsset, ISeries, IUserContext, IVault } from '../types';
 
-import ActionButtonGroup from '../components/ActionButtonGroup';
+import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
 import { useCollateralActions } from '../hooks/collateralActions';
 import { useBorrowActions } from '../hooks/borrowActions';
 import SeriesSelector from '../components/selectors/SeriesSelector';
-import MaxButton from '../components/MaxButton';
+import MaxButton from '../components/buttons/MaxButton';
 import TabWrap from '../components/wraps/TabWrap';
 import ActiveTransaction from '../components/ActiveTransaction';
 import { getTxCode } from '../utils/appUtils';

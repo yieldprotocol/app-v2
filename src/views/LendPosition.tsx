@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { Box, Button, ResponsiveContext, Tab, Tabs, Text, TextInput } from 'grommet';
 import { ethers } from 'ethers';
 
-import ActionButtonGroup from '../components/ActionButtonGroup';
+import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import InputWrap from '../components/wraps/InputWrap';
 import SeriesSelector from '../components/selectors/SeriesSelector';
 import { cleanValue } from '../utils/displayUtils';
@@ -11,7 +11,7 @@ import SectionWrap from '../components/wraps/SectionWrap';
 import { useLendActions } from '../hooks/lendActions';
 import { UserContext } from '../contexts/UserContext';
 import { ActionCodes, ActionType, ISeries, IUserContext } from '../types';
-import MaxButton from '../components/MaxButton';
+import MaxButton from '../components/buttons/MaxButton';
 import InfoBite from '../components/InfoBite';
 import ActiveTransaction from '../components/ActiveTransaction';
 import { getTxCode } from '../utils/appUtils';

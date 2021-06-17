@@ -16,13 +16,13 @@
       "ChainlinkOracle" : "0x2C5f88E7BD899CE57242ecA7650F21a4a9c28D3f"
     },
     "31337" : {
-      "Cauldron": "0x9E545E3C0baAB3E08CdfD552C960A1050f373042",
-      "Ladle" : "0xa82fF9aFd8f496c3d6ac40E2a0F282E47488CFc9",
-      "PoolRouter" : "0x99bbA657f2BbC93c02D617f8bA121cB8Fc104Acf",
-      "Witch" : "0x1613beB3B2C4f22Ee086B2b38C1476A3cE7f78E8",
-      "Wand" : "0x0E801D84Fa97b50751Dbf25036d067dCf18858bF",
-      "CompoundOracle" : "0x851356ae760d987E095750cCeb3bC6014560891C",
-      "ChainlinkOracle" : "0xf5059a5D33d5853360D16C683c16e67980206f36"
+      "Cauldron": "0xCD8a1C3ba11CF5ECfa6267617243239504a98d90",
+      "Ladle" : "0x82e01223d51Eb87e16A03E24687EDF0F294da6f1",
+      "PoolRouter" : "0xB0D4afd8879eD9F52b28595d31B441D079B2Ca07",
+      "Witch" : "0x2bdCC0de6bE1f7D2ee689a0342D76F52E8EFABa3",
+      "Wand" : "0x162A433068F51e18b7d13932F27e66a3f99E6890",
+      "CompoundOracle" : "0x7969c5eD335650692Bc04293B07F5BF2e7A673C0",
+      "ChainlinkOracle" : "0x7bc06c482DEAd17c0e297aFbC32f6e63d3846650"
     }
   },
   "colors": {
@@ -34,3 +34,4 @@
     "USDT" : "#50af95"
   }
 }
+

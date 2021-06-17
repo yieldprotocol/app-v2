@@ -8,10 +8,10 @@ import SeriesSelector from '../components/selectors/SeriesSelector';
 import MainViewWrap from '../components/wraps/MainViewWrap';
 import AssetSelector from '../components/selectors/AssetSelector';
 import InputWrap from '../components/wraps/InputWrap';
-import ActionButtonGroup from '../components/ActionButtonGroup';
+import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
 
-import MaxButton from '../components/MaxButton';
+import MaxButton from '../components/buttons/MaxButton';
 
 import { useBorrowActions } from '../hooks/borrowActions';
 import { useCollateralization } from '../hooks/collateralizationHook';
