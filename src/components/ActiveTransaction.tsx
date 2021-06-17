@@ -19,16 +19,6 @@ function ActiveTransaction({ txCode, children }: { txCode:string, children: Reac
     processActive && setSig(signatures.get(txCode));
   }, [processActive, processes, signatures, transactions, txCode]);
 
-  // useEffect(() => {
-
-  // }, [processes, txCode]);
-
-  // useEffect(() => {
-  //   setSig(signatures.get(txCode));
-  // }, [signatures, txCode]);
-
-  // processActive && console.log(processActive);
-
   /**
    *
    * STATE 1 : If process isnt active, simply return the children;
@@ -43,13 +33,20 @@ function ActiveTransaction({ txCode, children }: { txCode:string, children: Reac
       processActive &&
       <Box>
         { signPending && sig && <Text> Signature required... [todo graphic/animation]</Text>}
-        { !txPending && !signPending && <Text> Awaiting Confirmation... [todo graphic/animation] </Text>}
-        { txPending && tx && <Text> Transaction Pending... [todo graphic/animation]</Text>}
+        { !txPending && !signPending && !tx && <Text> Awaiting Confirmation... [todo graphic/animation] </Text>}
+        {}
       </Box>
       }
 
-      {!processActive && !tx &&
+      {!processActive &&
+      !tx &&
       <Box> {children} </Box>}
+
+      {processActive &&
+      tx &&
+      <Text>
+        Transaction Pending... [todo graphic/animation]
+      </Text>}
 
       { tx?.status === TxState.SUCCESSFUL && <Box> TX COMPLETE  [todo tx complete animation]</Box>}
       { tx?.status === TxState.FAILED && <Box> TX FAILED [todo tx complete animation] </Box>}
