@@ -93,9 +93,17 @@ function txReducer(_state:any, action:any) {
 const TxProvider = ({ children }:any) => {
   const [txState, updateState] = useReducer(txReducer, initState);
 
+  const _startProcess = (txCode:string) => {
+    updateState({ type: '_startProcess', payload: { txCode, hash: '0x0' } });
+  };
+
+  const _endProcess = (txCode:string) => {
+    updateState({ type: '_endProcess', payload: txCode });
+  };
+
   /* handle case when user or wallet rejects the tx (before submission) */
   const _handleTxRejection = (err:any, txCode:string) => {
-    updateState({ type: '_endProcess', payload: txCode });
+    _endProcess(txCode);
     /* If user cancelled/rejected the tx */
     if (err.code === 4001) {
       toast.warning('Transaction rejected by user');
@@ -115,14 +123,9 @@ const TxProvider = ({ children }:any) => {
   const _handleTxError = (msg:string, tx: any, txCode:any) => {
     toast.error(msg);
     updateState({ type: 'transactions', payload: { tx, txCode, receipt: undefined, status: 'failed' } });
-    updateState({ type: '_endProcess', payload: txCode });
-
+    _endProcess(txCode);
     console.log('txHash: ', tx.hash);
     console.log('txCode: ', txCode);
-  };
-
-  /* handle an error from a tx that was successfully submitted */
-  const _handleSignError = (msg:string, receipt: any, txError:any) => {
   };
 
   /* Handle a tx */
@@ -131,10 +134,13 @@ const TxProvider = ({ children }:any) => {
     txCode:string,
     _isfallback:boolean = false,
   ) : Promise<ethers.ContractReceipt|null> => {
-    /* start a new process */
-    updateState({ type: '_startProcess', payload: { txCode, hash: '0x0' } });
     let tx: ContractTransaction;
     let res: any;
+
+    /* start a new process (over-write if it has been started already) */
+    _startProcess(txCode);
+    console.log(txState.processes);
+
     try {
       /* try the transaction with connected wallet and catch any 'pre-chain'/'pre-tx' errors */
       try {
@@ -154,7 +160,7 @@ const TxProvider = ({ children }:any) => {
       if (!_isfallback) {
         /* transaction completion : success OR failure */
         txSuccess ? toast.success('Transaction successfull') : toast.error('Transaction failed :| ');
-        updateState({ type: '_endProcess', payload: txCode });
+        _endProcess(txCode);
         return res;
       }
       /* this is the case when the tx was a fallback from a permit/allowance tx */
@@ -173,15 +179,18 @@ const TxProvider = ({ children }:any) => {
     sigData: ISignData,
     txCode: string,
   ) => {
+    /* start a process */
+    _startProcess(txCode);
+    console.log(txState.processes);
+
     const uid = ethers.utils.hexlify(ethers.utils.randomBytes(6));
-    updateState({ type: '_startProcess', payload: { txCode, hash: '0x0' } });
     updateState({ type: 'signatures', payload: { uid, txCode, sigData, status: TxState.PENDING } as IYieldSignature });
     const _sig = await signFn()
       .catch((err:any) => {
         console.log(err);
         updateState({ type: 'signatures', payload: { uid, txCode, sigData, status: TxState.REJECTED } as IYieldSignature });
         /* end the process on signature rejection */
-        updateState({ type: '_endProcess', payload: txCode });
+        _endProcess(txCode);
         return Promise.reject(err);
       });
     updateState({ type: 'signatures', payload: { uid, txCode, sigData, status: TxState.SUCCESSFUL } as IYieldSignature });
@@ -189,7 +198,7 @@ const TxProvider = ({ children }:any) => {
     return _sig;
   };
 
-  /* process watcher */
+  /* Process watcher  sets the 'any process pending'flag */
   useEffect(() => {
     console.log('Process list: ', txState.processes);
     (Array.from(txState.processes.values()).length > 0)
@@ -197,7 +206,7 @@ const TxProvider = ({ children }:any) => {
       : updateState({ type: 'processPending', payload: false });
   }, [txState.processes]);
 
-  /* signing watcher */
+  /* Signing watcher */
   useEffect(() => {
     const _isSignPending = Array.from(txState.signatures.values())
       .findIndex((x:any) => x.status === TxState.PENDING) > -1;
@@ -206,7 +215,7 @@ const TxProvider = ({ children }:any) => {
       payload: _isSignPending });
   }, [txState.signatures]);
 
-  /* tx watcher */
+  /* Tx watcher */
   useEffect(() => {
     const _isTxPending = Array.from(txState.transactions.values())
       .findIndex((x:any) => x.status === TxState.PENDING) > -1;
