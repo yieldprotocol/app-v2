@@ -10,14 +10,12 @@ function ActiveTransaction({ txCode, children }: { txCode:string, children: Reac
 
   const [sig, setSig] = useState<any>();
   const [tx, setTx] = useState<any>();
-  const [processActive, setProcessActive] = useState<string>();
 
   useEffect(() => {
     const _process = processes.get(txCode);
-    setProcessActive(_process);
-    processActive && setTx(transactions.get(processActive));
-    processActive && setSig(signatures.get(txCode));
-  }, [processActive, processes, signatures, transactions, txCode]);
+    _process && setTx(transactions.get(_process));
+    _process && setSig(signatures.get(txCode));
+  }, [processes, signatures, transactions, txCode]);
 
   /**
    *
@@ -30,19 +28,18 @@ function ActiveTransaction({ txCode, children }: { txCode:string, children: Reac
     <>
       {
       // If there is a active process AND trasaction status is not known
-      processActive &&
+      processes.get(txCode) &&
       <Box>
         { signPending && sig && <Text> Signature required... [todo graphic/animation]</Text>}
         { !txPending && !signPending && !tx && <Text> Awaiting Confirmation... [todo graphic/animation] </Text>}
-        {}
       </Box>
       }
 
-      {!processActive &&
+      {!processes.get(txCode) &&
       !tx &&
       <Box> {children} </Box>}
 
-      {processActive &&
+      {processes.get(txCode) &&
       tx &&
       <Text>
         Transaction Pending... [todo graphic/animation]
