@@ -22,6 +22,7 @@ import PositionSelector from '../components/selectors/PositionSelector';
 import ActiveTransaction from '../components/ActiveTransaction';
 import { getTxCode } from '../utils/appUtils';
 import YieldInfo from '../components/YieldInfo';
+import YieldLiquidity from '../components/YieldLiquidity';
 
 function Pool() {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -201,7 +202,7 @@ function Pool() {
       </CenterPanelWrap>
 
       <PanelWrap right basis="40%">
-        <Box />
+        <YieldLiquidity input={poolInput} />
         {!mobile && <PositionSelector actionType={ActionType.POOL} />}
       </PanelWrap>
 
