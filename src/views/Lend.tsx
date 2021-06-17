@@ -12,7 +12,7 @@ import SectionWrap from '../components/wraps/SectionWrap';
 
 import { useLendActions } from '../hooks/lendActions';
 import { UserContext } from '../contexts/UserContext';
-import { ActionType, IUserContext } from '../types';
+import { ActionCodes, ActionType, IUserContext } from '../types';
 import MaxButton from '../components/MaxButton';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
@@ -21,6 +21,7 @@ import StepperText from '../components/StepperText';
 import PositionSelector from '../components/selectors/PositionSelector';
 import ActiveTransaction from '../components/ActiveTransaction';
 import YieldInfo from '../components/YieldInfo';
+import { getTxCode } from '../utils/appUtils';
 
 const Lend = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -144,7 +145,7 @@ const Lend = () => {
               <Text>Back</Text>
             </Box>
 
-            <ActiveTransaction txCode={`060_${selectedSeriesId}`}>
+            <ActiveTransaction txCode={getTxCode(ActionCodes.LEND, selectedSeriesId)}>
 
               <SectionWrap title="Review your transaction">
                 <Text>Lend {lendInput} {selectedBase?.symbol} to the {selectedSeries?.displayName} series. </Text>
