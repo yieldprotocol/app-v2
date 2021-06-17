@@ -148,30 +148,29 @@ function Pool() {
               <Text>Back</Text>
             </Box>
 
-            {
-            !selectedSeries?.seriesIsMature &&
-              <SectionWrap>
-                <Box direction="row" justify="between" fill align="center">
-                  {!mobile && <Text size="small"> Pooling strategy: </Text>}
-                  <RadioButtonGroup
-                    name="strategy"
-                    options={[
-                      { label: <Text size="small"> Buy & Pool </Text>, value: 'BUY' },
-                      { label: <Text size="small"> Mint & Pool </Text>, value: 'MINT', disabled: true },
-                    ]}
-                    value={strategy}
-                    onChange={(event:any) => setStrategy(event.target.value)}
-                    direction="row"
-                    justify="between"
-                  />
-                </Box>
-              </SectionWrap>
-            }
-
             <ActiveTransaction txCode={getTxCode(ActionCodes.ADD_LIQUIDITY, selectedSeriesId)}>
-              <SectionWrap title="Review your transaction">
-                <Text>Add {poolInput} {selectedBase?.symbol} to the {selectedSeries?.displayName} pool. </Text>
-              </SectionWrap>
+              <Box gap="large">
+                {!selectedSeries?.seriesIsMature &&
+                <SectionWrap>
+                  <Box direction="row" justify="between" fill align="center">
+                    {!mobile && <Text size="small"> Pooling strategy: </Text>}
+                    <RadioButtonGroup
+                      name="strategy"
+                      options={[
+                        { label: <Text size="small"> Buy & Pool </Text>, value: 'BUY' },
+                        { label: <Text size="small"> Mint & Pool </Text>, value: 'MINT', disabled: true },
+                      ]}
+                      value={strategy}
+                      onChange={(event:any) => setStrategy(event.target.value)}
+                      direction="row"
+                      justify="between"
+                    />
+                  </Box>
+                </SectionWrap>}
+                <SectionWrap title="Review your transaction">
+                  <Text>Add {poolInput} {selectedBase?.symbol} to the {selectedSeries?.displayName} pool. </Text>
+                </SectionWrap>
+              </Box>
             </ActiveTransaction>
 
           </Box>
