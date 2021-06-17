@@ -3,6 +3,8 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../contexts/UserContext';
 import { IAsset, ISeries, IUserContext, IVault } from '../../types';
 import Vault from '../../views/Vault';
+import VaultListItem from '../VaultListItem';
+import ListWrap from '../wraps/ListWrap';
 import ModalWrap from '../wraps/ModalWrap';
 
 interface IVaultFilter {
@@ -98,7 +100,7 @@ function VaultSelector(target:any) {
             <Box direction="row" gap="small" justify="end" align="center">
               {
                 filterLabels[0] &&
-                <Box gap="xsmall" border direction="row" round pad={{ horizontal: 'xsmall', vertical: 'xsmall' }}>
+                <Box gap="xsmall" border direction="row" round="xsmall" pad={{ horizontal: 'xsmall', vertical: 'xsmall' }} animation={{ type: 'zoomIn', duration: 1500 }}>
                   <Text size="xsmall">{filterLabels[0]}-based</Text>
                   <Text
                     size="xsmall"
@@ -109,7 +111,7 @@ function VaultSelector(target:any) {
               }
               {
               filterLabels[1] &&
-              <Box gap="xsmall" direction="row" border round pad={{ horizontal: 'xsmall', vertical: 'xsmall' }}>
+              <Box gap="xsmall" direction="row" border round="xsmall" pad={{ horizontal: 'xsmall', vertical: 'xsmall' }} animation={{ type: 'zoomIn', duration: 1500 }}>
                 <Text size="xsmall">{filterLabels[1]}</Text>
                 <Text
                   size="xsmall"
@@ -122,41 +124,36 @@ function VaultSelector(target:any) {
           </Box>
       }
 
-          <Box
-            height={{ max: '300px' }}
-            style={{ overflow: 'scroll' }}
-            gap="small"
-            align="end"
-          >
-
+          <ListWrap>
             {
             allVaults.length > 0 &&
             filteredVaults.length === 0 &&
             !showAllVaults &&
             <Text weight={450} size="small"> No suggested vaults </Text>
           }
-
             {
           (showAllVaults ? allVaults : filteredVaults).map((x:IVault, i:number) => (
             <Box
               key={x.id}
               animation={{ type: 'fadeIn', delay: i * 100, duration: 1500 }}
-              hoverIndicator={{ elevation: 'small' }}
+              hoverIndicator={{ elevation: 'large' }}
               onClick={() => handleSelect(x)}
-              pad="xsmall"
               round="small"
+              elevation="medium"
+              flex={false}
+              fill="horizontal"
             >
-              <Text weight={450} size="small"> {x.id} </Text>
+              <VaultListItem vault={x} />
             </Box>
           ))
           }
-          </Box>
+          </ListWrap>
 
           <Box
             align="end"
             onClick={() => setShowAllVaults(!showAllVaults)}
           >
-            <Text size="xsmall"> {showAllVaults ? 'Show suggested vaults only' : `Show all ${allVaults.length} vaults`} </Text>
+            <Text size="xsmall" color="text-weak"> {showAllVaults ? 'Show suggested vaults only' : `Show all ${allVaults.length} vaults`} </Text>
           </Box>
         </Box>
       }

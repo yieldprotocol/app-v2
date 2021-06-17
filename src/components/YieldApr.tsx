@@ -5,12 +5,12 @@ import Loader from 'react-spinners/GridLoader';
 import styled from 'styled-components';
 import { UserContext } from '../contexts/UserContext';
 import { useApr } from '../hooks/aprHook';
-import { ISeries, IUserContext } from '../types';
+import { ActionType, ISeries, IUserContext } from '../types';
 import { cleanValue } from '../utils/displayUtils';
 import { buyBase, calculateAPR, secondsToFrom, sellBase } from '../utils/yieldMath';
 
 interface IYieldApr {
-  type: 'BORROW'|'LEND'
+  actionType: ActionType,
   input: string|undefined,
 }
 
@@ -19,9 +19,11 @@ const StyledText = styled(Text)`
   background: -webkit-linear-gradient(rgba(77,94,254,1),rgba(195,34,34,1));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  font-family: 'Bree Serif', serif;
+  filter: drop-shadow(5px 5px 2px #DDD);
 `;
 
-function YieldApr({ type, input }: IYieldApr) {
+function YieldApr({ actionType, input }: IYieldApr) {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
 
   /* STATE FROM CONTEXT */
@@ -31,7 +33,7 @@ function YieldApr({ type, input }: IYieldApr) {
   const selectedSeries = seriesMap.get(selectedSeriesId!);
   //   const selectedIlk = assetMap.get(selectedIlkId!);
 
-  const { apr, minApr, maxApr } = useApr(input, type, selectedSeries);
+  const { apr, minApr, maxApr } = useApr(input, actionType, selectedSeries);
 
   return (
     <>
@@ -40,7 +42,7 @@ function YieldApr({ type, input }: IYieldApr) {
         <Box animation="fadeIn" basis={mobile ? undefined : '50%'}>
           <Box pad={mobile ? undefined : 'large'} />
           {
-          type === 'BORROW'
+          actionType === 'BORROW'
             ?
               <Text size="medium" color="text-weak" weight="bold" margin="-1em">
                 Borrow {selectedSeries ? cleanValue(input || '', 2) : '' } {selectedBase?.symbol || ''} {!selectedSeries || selectedSeries.seriesIsMature ? 'from' : 'at'}
@@ -51,8 +53,8 @@ function YieldApr({ type, input }: IYieldApr) {
               </Text>
           }
           <Box direction="row" align="center">
-            <StyledText size="80px">
-              {apr || (type === 'BORROW' ? minApr : maxApr) || ''}
+            <StyledText size="100px">
+              {apr || (actionType === 'BORROW' ? minApr : maxApr) || ''}
             </StyledText>
             <Box fill="vertical" justify="evenly">
               <StyledText size="large" color="brand"> % </StyledText>

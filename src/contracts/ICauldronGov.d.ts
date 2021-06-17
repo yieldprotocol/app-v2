@@ -27,7 +27,7 @@ interface ICauldronGovInterface extends ethers.utils.Interface {
     "assets(bytes6)": FunctionFragment;
     "rateOracles(bytes6)": FunctionFragment;
     "series(bytes6)": FunctionFragment;
-    "setMaxDebt(bytes6,bytes6,uint128)": FunctionFragment;
+    "setDebtLimits(bytes6,bytes6,uint96,uint24,uint8)": FunctionFragment;
     "setRateOracle(bytes6,address)": FunctionFragment;
     "setSpotOracle(bytes6,bytes6,address,uint32)": FunctionFragment;
   };
@@ -51,8 +51,8 @@ interface ICauldronGovInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "series", values: [BytesLike]): string;
   encodeFunctionData(
-    functionFragment: "setMaxDebt",
-    values: [BytesLike, BytesLike, BigNumberish]
+    functionFragment: "setDebtLimits",
+    values: [BytesLike, BytesLike, BigNumberish, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "setRateOracle",
@@ -72,7 +72,10 @@ interface ICauldronGovInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "series", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "setMaxDebt", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setDebtLimits",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "setRateOracle",
     data: BytesLike
@@ -165,10 +168,12 @@ export class ICauldronGov extends BaseContract {
       ]
     >;
 
-    setMaxDebt(
+    setDebtLimits(
       arg0: BytesLike,
       arg1: BytesLike,
       arg2: BigNumberish,
+      arg3: BigNumberish,
+      arg4: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -221,10 +226,12 @@ export class ICauldronGov extends BaseContract {
     }
   >;
 
-  setMaxDebt(
+  setDebtLimits(
     arg0: BytesLike,
     arg1: BytesLike,
     arg2: BigNumberish,
+    arg3: BigNumberish,
+    arg4: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -277,10 +284,12 @@ export class ICauldronGov extends BaseContract {
       }
     >;
 
-    setMaxDebt(
+    setDebtLimits(
       arg0: BytesLike,
       arg1: BytesLike,
       arg2: BigNumberish,
+      arg3: BigNumberish,
+      arg4: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -327,10 +336,12 @@ export class ICauldronGov extends BaseContract {
 
     series(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
 
-    setMaxDebt(
+    setDebtLimits(
       arg0: BytesLike,
       arg1: BytesLike,
       arg2: BigNumberish,
+      arg3: BigNumberish,
+      arg4: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -384,10 +395,12 @@ export class ICauldronGov extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    setMaxDebt(
+    setDebtLimits(
       arg0: BytesLike,
       arg1: BytesLike,
       arg2: BigNumberish,
+      arg3: BigNumberish,
+      arg4: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

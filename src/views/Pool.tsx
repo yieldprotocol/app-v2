@@ -12,13 +12,17 @@ import InfoBite from '../components/InfoBite';
 import ActionButtonGroup from '../components/ActionButtonGroup';
 import SectionWrap from '../components/wraps/SectionWrap';
 import { UserContext } from '../contexts/UserContext';
-import { ISeries, IUserContext } from '../types';
+import { ActionCodes, ActionType, ISeries, IUserContext } from '../types';
 import { usePool, usePoolActions } from '../hooks/poolActions';
 import MaxButton from '../components/MaxButton';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import StepperText from '../components/StepperText';
 import PositionSelector from '../components/selectors/PositionSelector';
+import ActiveTransaction from '../components/ActiveTransaction';
+import { getTxCode } from '../utils/appUtils';
+import YieldInfo from '../components/YieldInfo';
+import YieldLiquidity from '../components/YieldLiquidity';
 
 function Pool() {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -94,11 +98,7 @@ function Pool() {
           position={stepPosition}
           values={[['Choose an asset to', 'pool', ''], ['', 'Review', 'and transact']]}
         />
-        <Box gap="small">
-          <Text weight="bold">Information</Text>
-          <Text size="small"> Some information </Text>
-        </Box>
-
+        <YieldInfo />
       </PanelWrap>}
 
       <CenterPanelWrap>
@@ -109,7 +109,7 @@ function Pool() {
 
             <SectionWrap title="Select an asset to Pool">
               <Box direction="row" gap="small" fill="horizontal" align="start">
-                <Box basis={mobile ? '50%' : '65%'}>
+                <Box basis={mobile ? '50%' : '60%'}>
                   <InputWrap action={() => console.log('maxAction')} isError={poolError}>
                     <TextInput
                       plain
@@ -125,7 +125,7 @@ function Pool() {
                   </InputWrap>
                 </Box>
 
-                <Box basis={mobile ? '50%' : '35%'}>
+                <Box basis={mobile ? '50%' : '40%'}>
                   <AssetSelector />
                 </Box>
 
@@ -133,7 +133,7 @@ function Pool() {
             </SectionWrap>
 
             <SectionWrap title="Select a series to Pool to">
-              <SeriesSelector />
+              <SeriesSelector actionType={ActionType.POOL} />
             </SectionWrap>
 
             {selectedSeries?.seriesIsMature && <Text color="pink" size="small">This series has matured.</Text>}
@@ -168,9 +168,12 @@ function Pool() {
               </SectionWrap>
             }
 
-            <SectionWrap title="Review your transaction">
-              Pool x DAi in series Y.
-            </SectionWrap>
+            <ActiveTransaction txCode={getTxCode(ActionCodes.ADD_LIQUIDITY, selectedSeriesId)}>
+              <SectionWrap title="Review your transaction">
+                <Text>Add {poolInput} {selectedBase?.symbol} to the {selectedSeries?.displayName} pool. </Text>
+              </SectionWrap>
+            </ActiveTransaction>
+
           </Box>
           }
 
@@ -180,7 +183,7 @@ function Pool() {
             !selectedSeries?.seriesIsMature &&
             <Button
               secondary
-              label={<Text size={mobile ? 'small' : undefined}> Review transaction </Text>}
+              label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
               onClick={() => setStepPosition(stepPosition + 1)}
             />
             }
@@ -199,8 +202,8 @@ function Pool() {
       </CenterPanelWrap>
 
       <PanelWrap right basis="40%">
-        <Box />
-        {!mobile && <PositionSelector type="POOL" />}
+        <YieldLiquidity input={poolInput} />
+        {!mobile && <PositionSelector actionType={ActionType.POOL} />}
       </PanelWrap>
 
     </MainViewWrap>

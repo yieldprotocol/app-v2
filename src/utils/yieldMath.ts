@@ -488,7 +488,7 @@ export const calculateAPR = (
    * @param {boolean} asPercent OPTIONAL: flag to return ratio as a percentage
    * @returns { string | undefined }
    */
-export const collateralizationRatio = (
+export const calculateCollateralizationRatio = (
   collateralAmount: BigNumber | string,
   collateralPrice: BigNumber | string,
   debtValue: BigNumber | string,
@@ -519,7 +519,7 @@ export const collateralizationRatio = (
    *
    * @returns {string}
    */
-export const borrowingPower = (
+export const calculateBorrowingPower = (
   collateralAmount: BigNumber | string,
   collateralPrice: BigNumber | string,
   debtValue: BigNumber | string,

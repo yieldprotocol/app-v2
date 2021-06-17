@@ -117,6 +117,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "CHI",
+    outputs: [
+      {
+        internalType: "bytes6",
+        name: "",
+        type: "bytes6",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "EXIT",
     outputs: [
       {
@@ -162,6 +175,19 @@ const _abi = [
         internalType: "bytes4",
         name: "",
         type: "bytes4",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "RATE",
+    outputs: [
+      {
+        internalType: "bytes6",
+        name: "",
+        type: "bytes6",
       },
     ],
     stateMutability: "view",
@@ -375,7 +401,7 @@ const _abi = [
         type: "bytes6",
       },
       {
-        internalType: "contract IRateMultiOracleGov",
+        internalType: "contract IMultiOracleGov",
         name: "oracle",
         type: "address",
       },
@@ -408,7 +434,7 @@ const _abi = [
         type: "bytes6",
       },
       {
-        internalType: "contract ISpotMultiOracleGov",
+        internalType: "contract IMultiOracleGov",
         name: "oracle",
         type: "address",
       },
@@ -423,9 +449,19 @@ const _abi = [
         type: "uint32",
       },
       {
-        internalType: "uint128",
-        name: "maxDebt",
-        type: "uint128",
+        internalType: "uint96",
+        name: "max",
+        type: "uint96",
+      },
+      {
+        internalType: "uint24",
+        name: "min",
+        type: "uint24",
+      },
+      {
+        internalType: "uint8",
+        name: "dec",
+        type: "uint8",
       },
     ],
     name: "makeIlk",

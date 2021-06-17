@@ -145,12 +145,22 @@
         "type": "bytes6"
       },
       {
-        "internalType": "uint128",
+        "internalType": "uint96",
         "name": "",
-        "type": "uint128"
+        "type": "uint96"
+      },
+      {
+        "internalType": "uint24",
+        "name": "",
+        "type": "uint24"
+      },
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
       }
     ],
-    "name": "setMaxDebt",
+    "name": "setDebtLimits",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

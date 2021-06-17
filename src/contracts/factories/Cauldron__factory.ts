@@ -45,25 +45,6 @@ const _abi = [
       {
         indexed: true,
         internalType: "bytes6",
-        name: "seriesId",
-        type: "bytes6",
-      },
-      {
-        indexed: true,
-        internalType: "bytes6",
-        name: "ilkId",
-        type: "bytes6",
-      },
-    ],
-    name: "IlkAdded",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "bytes6",
         name: "baseId",
         type: "bytes6",
       },
@@ -75,12 +56,43 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "uint128",
+        internalType: "uint96",
         name: "max",
-        type: "uint128",
+        type: "uint96",
+      },
+      {
+        indexed: false,
+        internalType: "uint24",
+        name: "min",
+        type: "uint24",
+      },
+      {
+        indexed: false,
+        internalType: "uint8",
+        name: "dec",
+        type: "uint8",
       },
     ],
-    name: "MaxDebtSet",
+    name: "DebtLimitsSet",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes6",
+        name: "seriesId",
+        type: "bytes6",
+      },
+      {
+        indexed: true,
+        internalType: "bytes6",
+        name: "ilkId",
+        type: "bytes6",
+      },
+    ],
+    name: "IlkAdded",
     type: "event",
   },
   {
@@ -692,9 +704,19 @@ const _abi = [
     name: "debt",
     outputs: [
       {
-        internalType: "uint128",
+        internalType: "uint96",
         name: "max",
-        type: "uint128",
+        type: "uint96",
+      },
+      {
+        internalType: "uint24",
+        name: "min",
+        type: "uint24",
+      },
+      {
+        internalType: "uint8",
+        name: "dec",
+        type: "uint8",
       },
       {
         internalType: "uint128",
@@ -1176,12 +1198,22 @@ const _abi = [
         type: "bytes6",
       },
       {
-        internalType: "uint128",
+        internalType: "uint96",
         name: "max",
-        type: "uint128",
+        type: "uint96",
+      },
+      {
+        internalType: "uint24",
+        name: "min",
+        type: "uint24",
+      },
+      {
+        internalType: "uint8",
+        name: "dec",
+        type: "uint8",
       },
     ],
-    name: "setMaxDebt",
+    name: "setDebtLimits",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

@@ -14,9 +14,10 @@ import SectionWrap from '../components/wraps/SectionWrap';
 import MaxButton from '../components/MaxButton';
 
 import { useBorrowActions } from '../hooks/borrowActions';
+import { useCollateralization } from '../hooks/collateralizationHook';
+
 import { UserContext } from '../contexts/UserContext';
-import { ISeries, IUserContext, IVault } from '../types';
-import { collateralizationRatio } from '../utils/yieldMath';
+import { ActionCodes, ActionType, ISeries, IUserContext, IVault } from '../types';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import YieldApr from '../components/YieldApr';
@@ -24,6 +25,10 @@ import { ZERO_BN } from '../utils/constants';
 import StepperText from '../components/StepperText';
 import Collateralization from '../components/Collateralization';
 import VaultSelector from '../components/selectors/VaultSelector';
+import ActiveTransaction from '../components/ActiveTransaction';
+import { getTxCode } from '../utils/appUtils';
+import { cleanValue } from '../utils/displayUtils';
+import YieldInfo from '../components/YieldInfo';
 
 const StampText = styled(Text)`
 
@@ -71,14 +76,23 @@ const Borrow = () => {
   const [borrowInputError, setBorrowInputError] = useState<string|null>(null);
   const [collatInputError, setCollatInputError] = useState<string|null>(null);
 
+  const [useExistingVault, setUseExistingVault] = useState<boolean>(false);
+
   const [vaultIdToUse, setVaultIdToUse] = useState<string|undefined>(undefined);
+  const [vaultInUse, setVaultInUse] = useState<IVault|undefined>(undefined);
+
   const [matchingBaseVaults, setMatchingBaseVaults] = useState<IVault[]>([]);
   const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
 
   const { borrow } = useBorrowActions();
 
-  /** LOCAL ACTION FNS */
+  const {
+    collateralizationPercent,
+    collateralizationWarning,
+    undercollateralized,
+  } = useCollateralization(borrowInput, collatInput, vaultMap.get(vaultIdToUse!));
 
+  /** LOCAL ACTION FNS */
   const handleBorrow = () => {
     !borrowDisabled &&
     borrow(
@@ -89,7 +103,6 @@ const Borrow = () => {
   };
 
   /* SET MAX VALUES */
-
   useEffect(() => {
     /* CHECK collateral selection and sets the max available collateral */
     activeAccount &&
@@ -194,6 +207,15 @@ const Borrow = () => {
     }
   }, [vaultMap, selectedBase, selectedIlk, selectedSeries]);
 
+  /* wathc to see if user wants to use an existing vault */
+  useEffect(() => {
+    if (useExistingVault) {
+      setVaultIdToUse(matchingVaults[0]?.displayName);
+    } else {
+      setVaultIdToUse(undefined);
+    }
+  }, [matchingVaults, useExistingVault]);
+
   return (
 
     <Keyboard
@@ -203,22 +225,14 @@ const Borrow = () => {
     >
 
       <MainViewWrap>
-
         {/* <PanelWrap background="linear-gradient(to right, #EEEEEE,rgba(255,255,255,1))"> */}
         { !mobile &&
         <PanelWrap>
-
-          {/* <Box justify="between" fill pad="xlarge"> */}
           <StepperText
             position={stepPosition}
             values={[['Choose an asset to', 'borrow', ''], ['Add', 'collateral', ''], ['', 'Review', 'and transact']]}
           />
-
-          <Box gap="small">
-            <Text weight="bold">Information</Text>
-            <Text size="small"> Some information </Text>
-          </Box>
-          {/* </Box> */}
+          <YieldInfo />
         </PanelWrap>}
 
         <CenterPanelWrap>
@@ -246,12 +260,11 @@ const Borrow = () => {
                 </Box>
               </SectionWrap>
 
-              <SectionWrap title="Choose an series to borrow against">
-                <SeriesSelector inputValue={borrowInput} />
+              <SectionWrap title="Choose an series to borrow from">
+                <SeriesSelector inputValue={borrowInput} actionType={ActionType.BORROW} />
               </SectionWrap>
                 {/* {selectedSeries?.seriesIsMature && <StampText>This series has matured.</StampText> */}
                 {selectedSeries?.seriesIsMature && <Box round="xsmall" pad="small" border={{ color: 'pink' }}><Text color="pink" size="small">This series has matured.</Text></Box>}
-
             </Box>
             }
 
@@ -263,9 +276,9 @@ const Borrow = () => {
                 <Text>Back</Text>
               </Box>
 
-              <SectionWrap>
+              <SectionWrap title="Amount of collateral to add">
                 <Box direction="row" gap="small" fill="horizontal" align="start">
-                  <Box basis={mobile ? '50%' : '65%'}>
+                  <Box basis={mobile ? '50%' : '60%'}>
                     <InputWrap action={() => console.log('maxAction')} disabled={!selectedSeries} isError={collatInputError}>
                       <TextInput
                         plain
@@ -282,7 +295,7 @@ const Borrow = () => {
                       />
                     </InputWrap>
                   </Box>
-                  <Box basis={mobile ? '50%' : '35%'}>
+                  <Box basis={mobile ? '50%' : '40%'}>
                     <AssetSelector selectCollateral />
                   </Box>
                 </Box>
@@ -293,41 +306,41 @@ const Borrow = () => {
                 <SectionWrap>
                   <Box gap="small" fill="horizontal">
                     <Box gap="xsmall">
-                      <CheckBox
+                      {/* <CheckBox
                         // reverse
                         disabled={matchingVaults.length < 1}
                         checked={!vaultIdToUse || !matchingVaults.find((v:IVault) => v.id === vaultIdToUse)}
                         label={<Text size="small">Create new vault</Text>}
                         onChange={() => setVaultIdToUse(undefined)}
-                      />
-
+                      /> */}
                       <Box direction="row-responsive" gap="small" justify="between">
                         <CheckBox
-                        // reverse
                           disabled={matchingVaults.length < 1}
-                          checked={matchingVaults.length > 0 && !!vaultIdToUse}
-                          label={<Text size="small">Use an exisiting vault </Text>}
-                          onChange={(event:any) => setVaultIdToUse(matchingVaults[0].id)}
+                          checked={useExistingVault}
+                          label={<Text size="small">Add debt to an exisiting vault </Text>}
+                          onChange={(event:any) => setUseExistingVault(!useExistingVault)}
                         />
-
                         <Select
-                          disabled={!vaultIdToUse}
+                          disabled={matchingVaults.length < 1}
                           options={matchingVaults.map((x:IVault) => x.id)}
                           // placeholder="or Borrow from an existing vault"
                           value={vaultIdToUse || ''}
                           // defaultValue={undefined}
                           onChange={({ option }) => setVaultIdToUse(option)}
                         />
-
                       </Box>
-
                     </Box>
                   </Box>
                 </SectionWrap>
               }
 
-              <SectionWrap>
-                <Collateralization percent={50} />
+              <SectionWrap title="Collateralisation Ratio">
+                <Box direction="row-responsive">
+                  <Text size="xlarge" color={undercollateralized ? 'pink' : 'green'}>{collateralizationPercent} %</Text>
+                  {/* <Collateralization percent={50} /> */}
+                  {/* {undercollateralized && <Box> UNDERCOLLATERALISED </Box>} */}
+                </Box>
+                [todo: add meter graphic/slider]
               </SectionWrap>
             </Box>
             }
@@ -338,48 +351,46 @@ const Borrow = () => {
               <Box onClick={() => setStepPosition(1)}>
                 <Text>Back</Text>
               </Box>
-              <SectionWrap title="Review your transaction">
-                Borrow x DAi at rate using x as collateral
-              </SectionWrap>
+              <ActiveTransaction txCode={getTxCode(ActionCodes.BORROW, selectedSeriesId)}>
+                <SectionWrap title="Review your transaction">
+                  <Text>Borrow {borrowInput}
+                    {selectedBase?.symbol} from the {selectedSeries?.displayName} series.
+                  </Text>
+                </SectionWrap>
+              </ActiveTransaction>
             </Box>
           }
 
           <ActionButtonGroup>
-            {
-              stepPosition === 0 &&
+            {stepPosition === 0 &&
               <Button
                 secondary
-                label={<Text size={mobile ? 'small' : undefined}> Allocate collateral </Text>}
+                label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
                 onClick={() => setStepPosition(stepPosition + 1)}
                 disabled={stepDisabled}
-              />
-              }
+              />}
 
-            {
-              stepPosition === 1 &&
+            {stepPosition === 1 &&
               <Button
                 secondary
-                label={<Text size={mobile ? 'small' : undefined}> Review transaction </Text>}
+                label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
                 onClick={() => setStepPosition(stepPosition + 1)}
                 disabled={borrowDisabled}
-              />
-              }
+              />}
 
-            {
-              stepPosition === 2 &&
+            {stepPosition === 2 &&
               <Button
                 primary
                 label={<Text size={mobile ? 'small' : undefined}> {`Borrow  ${borrowInput || ''} ${selectedBase?.symbol || ''}`}</Text>}
                 onClick={() => handleBorrow()}
                 disabled={borrowDisabled}
-              />
-              }
+              />}
           </ActionButtonGroup>
 
         </CenterPanelWrap>
 
         <PanelWrap right basis="40%">
-          <YieldApr input={borrowInput} type="BORROW" />
+          <YieldApr input={borrowInput} actionType={ActionType.BORROW} />
           {!mobile && <VaultSelector />}
         </PanelWrap>
 

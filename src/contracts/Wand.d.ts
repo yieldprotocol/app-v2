@@ -22,10 +22,12 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 interface WandInterface extends ethers.utils.Interface {
   functions: {
     "BURN()": FunctionFragment;
+    "CHI()": FunctionFragment;
     "EXIT()": FunctionFragment;
     "JOIN()": FunctionFragment;
     "LOCK()": FunctionFragment;
     "MINT()": FunctionFragment;
+    "RATE()": FunctionFragment;
     "ROOT()": FunctionFragment;
     "addAsset(bytes6,address)": FunctionFragment;
     "addSeries(bytes6,bytes6,uint32,bytes6[],string,string)": FunctionFragment;
@@ -38,7 +40,7 @@ interface WandInterface extends ethers.utils.Interface {
     "ladle()": FunctionFragment;
     "lockRole(bytes4)": FunctionFragment;
     "makeBase(bytes6,address,address,address)": FunctionFragment;
-    "makeIlk(bytes6,bytes6,address,address,uint32,uint128)": FunctionFragment;
+    "makeIlk(bytes6,bytes6,address,address,uint32,uint96,uint24,uint8)": FunctionFragment;
     "poolFactory()": FunctionFragment;
     "renounceRole(bytes4,address)": FunctionFragment;
     "revokeRole(bytes4,address)": FunctionFragment;
@@ -47,10 +49,12 @@ interface WandInterface extends ethers.utils.Interface {
   };
 
   encodeFunctionData(functionFragment: "BURN", values?: undefined): string;
+  encodeFunctionData(functionFragment: "CHI", values?: undefined): string;
   encodeFunctionData(functionFragment: "EXIT", values?: undefined): string;
   encodeFunctionData(functionFragment: "JOIN", values?: undefined): string;
   encodeFunctionData(functionFragment: "LOCK", values?: undefined): string;
   encodeFunctionData(functionFragment: "MINT", values?: undefined): string;
+  encodeFunctionData(functionFragment: "RATE", values?: undefined): string;
   encodeFunctionData(functionFragment: "ROOT", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "addAsset",
@@ -89,7 +93,16 @@ interface WandInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "makeIlk",
-    values: [BytesLike, BytesLike, string, string, BigNumberish, BigNumberish]
+    values: [
+      BytesLike,
+      BytesLike,
+      string,
+      string,
+      BigNumberish,
+      BigNumberish,
+      BigNumberish,
+      BigNumberish
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "poolFactory",
@@ -113,10 +126,12 @@ interface WandInterface extends ethers.utils.Interface {
   ): string;
 
   decodeFunctionResult(functionFragment: "BURN", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "CHI", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "EXIT", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "JOIN", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "LOCK", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "MINT", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "RATE", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "ROOT", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "addAsset", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "addSeries", data: BytesLike): Result;
@@ -211,6 +226,8 @@ export class Wand extends BaseContract {
   functions: {
     BURN(overrides?: CallOverrides): Promise<[string]>;
 
+    CHI(overrides?: CallOverrides): Promise<[string]>;
+
     EXIT(overrides?: CallOverrides): Promise<[string]>;
 
     JOIN(overrides?: CallOverrides): Promise<[string]>;
@@ -218,6 +235,8 @@ export class Wand extends BaseContract {
     LOCK(overrides?: CallOverrides): Promise<[string]>;
 
     MINT(overrides?: CallOverrides): Promise<[string]>;
+
+    RATE(overrides?: CallOverrides): Promise<[string]>;
 
     ROOT(overrides?: CallOverrides): Promise<[string]>;
 
@@ -282,7 +301,9 @@ export class Wand extends BaseContract {
       oracle: string,
       spotSource: string,
       ratio: BigNumberish,
-      maxDebt: BigNumberish,
+      max: BigNumberish,
+      min: BigNumberish,
+      dec: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -315,6 +336,8 @@ export class Wand extends BaseContract {
 
   BURN(overrides?: CallOverrides): Promise<string>;
 
+  CHI(overrides?: CallOverrides): Promise<string>;
+
   EXIT(overrides?: CallOverrides): Promise<string>;
 
   JOIN(overrides?: CallOverrides): Promise<string>;
@@ -322,6 +345,8 @@ export class Wand extends BaseContract {
   LOCK(overrides?: CallOverrides): Promise<string>;
 
   MINT(overrides?: CallOverrides): Promise<string>;
+
+  RATE(overrides?: CallOverrides): Promise<string>;
 
   ROOT(overrides?: CallOverrides): Promise<string>;
 
@@ -386,7 +411,9 @@ export class Wand extends BaseContract {
     oracle: string,
     spotSource: string,
     ratio: BigNumberish,
-    maxDebt: BigNumberish,
+    max: BigNumberish,
+    min: BigNumberish,
+    dec: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -419,6 +446,8 @@ export class Wand extends BaseContract {
   callStatic: {
     BURN(overrides?: CallOverrides): Promise<string>;
 
+    CHI(overrides?: CallOverrides): Promise<string>;
+
     EXIT(overrides?: CallOverrides): Promise<string>;
 
     JOIN(overrides?: CallOverrides): Promise<string>;
@@ -426,6 +455,8 @@ export class Wand extends BaseContract {
     LOCK(overrides?: CallOverrides): Promise<string>;
 
     MINT(overrides?: CallOverrides): Promise<string>;
+
+    RATE(overrides?: CallOverrides): Promise<string>;
 
     ROOT(overrides?: CallOverrides): Promise<string>;
 
@@ -487,7 +518,9 @@ export class Wand extends BaseContract {
       oracle: string,
       spotSource: string,
       ratio: BigNumberish,
-      maxDebt: BigNumberish,
+      max: BigNumberish,
+      min: BigNumberish,
+      dec: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -549,6 +582,8 @@ export class Wand extends BaseContract {
   estimateGas: {
     BURN(overrides?: CallOverrides): Promise<BigNumber>;
 
+    CHI(overrides?: CallOverrides): Promise<BigNumber>;
+
     EXIT(overrides?: CallOverrides): Promise<BigNumber>;
 
     JOIN(overrides?: CallOverrides): Promise<BigNumber>;
@@ -556,6 +591,8 @@ export class Wand extends BaseContract {
     LOCK(overrides?: CallOverrides): Promise<BigNumber>;
 
     MINT(overrides?: CallOverrides): Promise<BigNumber>;
+
+    RATE(overrides?: CallOverrides): Promise<BigNumber>;
 
     ROOT(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -623,7 +660,9 @@ export class Wand extends BaseContract {
       oracle: string,
       spotSource: string,
       ratio: BigNumberish,
-      maxDebt: BigNumberish,
+      max: BigNumberish,
+      min: BigNumberish,
+      dec: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -657,6 +696,8 @@ export class Wand extends BaseContract {
   populateTransaction: {
     BURN(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    CHI(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     EXIT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     JOIN(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -664,6 +705,8 @@ export class Wand extends BaseContract {
     LOCK(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     MINT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    RATE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     ROOT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -731,7 +774,9 @@ export class Wand extends BaseContract {
       oracle: string,
       spotSource: string,
       ratio: BigNumberish,
-      maxDebt: BigNumberish,
+      max: BigNumberish,
+      min: BigNumberish,
+      dec: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

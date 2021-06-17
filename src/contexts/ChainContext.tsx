@@ -13,6 +13,20 @@ import { nameFromMaturity } from '../utils/displayUtils';
 import { Pool } from '../contracts';
 import { ETH_BASED_ASSETS } from '../utils/constants';
 
+import DaiMark from '../components/logos/DaiMark';
+import EthMark from '../components/logos/EthMark';
+import TSTMark from '../components/logos/TSTMark';
+import USDCMark from '../components/logos/USDCMark';
+import WBTCMark from '../components/logos/WBTCMark';
+
+const markMap = new Map([
+  ['DAI', <DaiMark key="dai" />],
+  ['USDC', <USDCMark key="usdc" />],
+  ['WBTC', <WBTCMark key="wbtc" />],
+  ['TST', <TSTMark key="tst" />],
+  ['WETH', <EthMark key="eth" />],
+]);
+
 /* Set up web3react config */
 const POLLING_INTERVAL = 12000;
 const RPC_URLS: { [chainId: number]: string } = {
@@ -76,14 +90,12 @@ function chainReducer(state: any, action: any) {
   switch (action.type) {
     case 'chainLoading': return { ...state, chainLoading: onlyIfChanged(action) };
     case 'appVersion': return { ...state, appVersion: onlyIfChanged(action) };
-
     case 'provider': return { ...state, provider: onlyIfChanged(action) };
     case 'fallbackProvider': return { ...state, fallbackProvider: onlyIfChanged(action) };
     case 'signer': return { ...state, signer: onlyIfChanged(action) };
     case 'chainId': return { ...state, chainId: onlyIfChanged(action) };
     case 'account': return { ...state, account: onlyIfChanged(action) };
     case 'web3Active': return { ...state, web3Active: onlyIfChanged(action) };
-
     case 'contractMap': return { ...state, contractMap: onlyIfChanged(action) };
     case 'addSeries': return {
       ...state,
@@ -212,6 +224,8 @@ const ChainProvider = ({ children }: any) => {
                 name,
                 symbol,
                 version,
+                color: (yieldEnv.colors as any)[symbol],
+                image: markMap.get(symbol),
                 joinAddress: joinMap.get(id),
                 /* baked in token fns */
                 getBalance: async (acc: string) => (ETH_BASED_ASSETS.includes(id)
@@ -263,8 +277,8 @@ const ChainProvider = ({ children }: any) => {
                   symbol,
                   version,
                   address: fyToken,
-                  displayName: nameFromMaturity(maturity),
-                  displayNameMobile: nameFromMaturity(maturity, 'MMM yyyy'),
+                  displayName: `${nameFromMaturity(maturity)}`,
+                  displayNameMobile: `${nameFromMaturity(maturity, 'MMM yyyy')}`,
                   fyTokenContract,
                   fyTokenAddress: fyToken,
                   poolAddress,

@@ -44,6 +44,7 @@ interface LadleInterface extends ethers.utils.Interface {
     "setModule(address,bool)": FunctionFragment;
     "setRoleAdmin(bytes4,bytes4)": FunctionFragment;
     "settle(bytes12,address,uint128,uint128)": FunctionFragment;
+    "weth()": FunctionFragment;
   };
 
   encodeFunctionData(functionFragment: "LOCK", values?: undefined): string;
@@ -113,6 +114,7 @@ interface LadleInterface extends ethers.utils.Interface {
     functionFragment: "settle",
     values: [BytesLike, string, BigNumberish, BigNumberish]
   ): string;
+  encodeFunctionData(functionFragment: "weth", values?: undefined): string;
 
   decodeFunctionResult(functionFragment: "LOCK", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "ROOT", data: BytesLike): Result;
@@ -151,6 +153,7 @@ interface LadleInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "settle", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "weth", data: BytesLike): Result;
 
   events: {
     "FeeSet(uint256)": EventFragment;
@@ -314,6 +317,8 @@ export class Ladle extends BaseContract {
       art: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    weth(overrides?: CallOverrides): Promise<[string]>;
   };
 
   LOCK(overrides?: CallOverrides): Promise<string>;
@@ -416,6 +421,8 @@ export class Ladle extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  weth(overrides?: CallOverrides): Promise<string>;
+
   callStatic: {
     LOCK(overrides?: CallOverrides): Promise<string>;
 
@@ -510,6 +517,8 @@ export class Ladle extends BaseContract {
       art: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    weth(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {
@@ -660,6 +669,8 @@ export class Ladle extends BaseContract {
       art: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    weth(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -774,5 +785,7 @@ export class Ladle extends BaseContract {
       art: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    weth(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

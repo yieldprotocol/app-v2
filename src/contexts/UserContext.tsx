@@ -2,11 +2,13 @@ import React, { useContext, useEffect, useReducer, useCallback, useState } from 
 import { useLocation } from 'react-router-dom';
 import { ethers } from 'ethers';
 
+import { uniqueNamesGenerator, Config, adjectives, animals } from 'unique-names-generator';
+
 import { IAssetRoot, ISeriesRoot, IVaultRoot, ISeries, IAsset, IVault, IUserContextState, IUserContext } from '../types';
 
 import { ChainContext } from './ChainContext';
 import { cleanValue, genVaultImage } from '../utils/displayUtils';
-import { calculateAPR, floorDecimal, secondsToFrom, sellFYToken } from '../utils/yieldMath';
+import { calculateAPR, divDecimal, floorDecimal, mulDecimal, secondsToFrom, sellFYToken } from '../utils/yieldMath';
 
 const UserContext = React.createContext<any>({});
 
@@ -28,6 +30,12 @@ const initState : IUserContextState = {
   // showVault: false,
   // showPosition: false,
 
+};
+
+const vaultNameConfig: Config = {
+  dictionaries: [adjectives, animals],
+  separator: '-',
+  length: 2,
 };
 
 function userReducer(state:any, action:any) {
@@ -88,12 +96,14 @@ const UserProvider = ({ children }:any) => {
       const { vaultId: id, ilkId, seriesId } = Cauldron.interface.parseLog(x).args;
       const series = seriesRootMap.get(seriesId);
       // const baseId = assetRootMap.get(series.baseId);
+
       return {
         id,
         seriesId,
         baseId: series.baseId,
         ilkId,
         image: genVaultImage(id),
+        displayName: uniqueNamesGenerator({ seed: parseInt(id.substring(14), 16), ...vaultNameConfig }),
       };
     }));
 
@@ -176,13 +186,16 @@ const UserProvider = ({ children }:any) => {
           secondsToFrom(series.maturity.toString()),
         );
         const APR = calculateAPR(floorDecimal(_rate), ethers.utils.parseEther('1'), series.maturity) || '0';
-
+        // const { symbol } = assetRootMap.get(series.baseId);
         return {
           ...series,
+          // displayName: `${symbol} ⚬ ${series.displayName}`,
+          // displayNameMobile: `${symbol} ⚬ ${series.displayNameMobile}`,
           baseReserves,
           fyTokenReserves,
           fyTokenRealReserves,
           totalSupply,
+          totalSupply_: ethers.utils.formatEther(totalSupply),
           APR: `${Number(APR).toFixed(2)}`,
           seriesIsMature: mature,
         };
@@ -197,12 +210,15 @@ const UserProvider = ({ children }:any) => {
             series.poolContract.balanceOf(account),
             series.fyTokenContract.balanceOf(account),
           ]);
+
+          const poolPercent = mulDecimal(divDecimal(poolTokens, series.totalSupply), '100');
           return {
             ...series,
             poolTokens,
             fyTokenBalance,
             poolTokens_: ethers.utils.formatEther(poolTokens),
             fyTokenBalance_: ethers.utils.formatEther(fyTokenBalance),
+            poolPercent,
           };
         }),
       );

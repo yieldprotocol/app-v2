@@ -12,13 +12,15 @@ import SectionWrap from '../components/wraps/SectionWrap';
 
 import { useLendActions } from '../hooks/lendActions';
 import { UserContext } from '../contexts/UserContext';
-import { IUserContext } from '../types';
+import { ActionType, IUserContext } from '../types';
 import MaxButton from '../components/MaxButton';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import YieldApr from '../components/YieldApr';
 import StepperText from '../components/StepperText';
 import PositionSelector from '../components/selectors/PositionSelector';
+import ActiveTransaction from '../components/ActiveTransaction';
+import YieldInfo from '../components/YieldInfo';
 
 const Lend = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -43,7 +45,6 @@ const Lend = () => {
   const handleLend = () => {
     !lendDisabled &&
     lend(lendInput, selectedSeries!);
-    setLendInput('');
   };
   const handleRedeem = () => {
     redeem(selectedSeries!, undefined);
@@ -96,10 +97,7 @@ const Lend = () => {
           position={stepPosition}
           values={[['Choose an asset to', 'lend', ''], ['', 'Review', 'and transact']]}
         />
-        <Box gap="small">
-          <Text weight="bold">Information</Text>
-          <Text size="small"> Some information </Text>
-        </Box>
+        <YieldInfo />
       </PanelWrap>}
 
       <CenterPanelWrap>
@@ -108,7 +106,7 @@ const Lend = () => {
           <Box gap="large">
             <SectionWrap title="Select an asset and amount to lend">
               <Box direction="row" gap="small" fill="horizontal" align="start">
-                <Box basis={mobile ? '50%' : '65%'}>
+                <Box basis={mobile ? '50%' : '60%'}>
                   <InputWrap action={() => console.log('maxAction')} isError={lendError} disabled={selectedSeries?.seriesIsMature}>
                     <TextInput
                       plain
@@ -124,14 +122,14 @@ const Lend = () => {
                     />
                   </InputWrap>
                 </Box>
-                <Box basis={mobile ? '50%' : '35%'}>
+                <Box basis={mobile ? '50%' : '40%'}>
                   <AssetSelector />
                 </Box>
               </Box>
             </SectionWrap>
 
             <SectionWrap title="Choose a series to lend to">
-              <SeriesSelector />
+              <SeriesSelector inputValue={lendInput} actionType={ActionType.LEND} />
             </SectionWrap>
 
             {selectedSeries?.seriesIsMature && <Text color="pink" size="small">This series has matured.</Text>}
@@ -145,9 +143,14 @@ const Lend = () => {
             <Box onClick={() => setStepPosition(0)}>
               <Text>Back</Text>
             </Box>
-            <SectionWrap title="Review your transaction">
-              Lend x DAi to series Y.
-            </SectionWrap>
+
+            <ActiveTransaction txCode={`060_${selectedSeriesId}`}>
+
+              <SectionWrap title="Review your transaction">
+                <Text>Lend {lendInput} {selectedBase?.symbol} to the {selectedSeries?.displayName} series. </Text>
+              </SectionWrap>
+
+            </ActiveTransaction>
           </Box>
           }
 
@@ -157,7 +160,7 @@ const Lend = () => {
             !selectedSeries?.seriesIsMature &&
             <Button
               secondary
-              label={<Text size={mobile ? 'small' : undefined}> Review transaction </Text>}
+              label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
               key="ONE"
               onClick={() => setStepPosition(stepPosition + 1)}
             />
@@ -183,8 +186,8 @@ const Lend = () => {
       </CenterPanelWrap>
 
       <PanelWrap right basis="40%">
-        <YieldApr input={lendInput} type="LEND" />
-        {!mobile && <PositionSelector type="LEND" />}
+        <YieldApr input={lendInput} actionType={ActionType.LEND} />
+        {!mobile && <PositionSelector actionType={ActionType.LEND} />}
       </PanelWrap>
 
     </MainViewWrap>

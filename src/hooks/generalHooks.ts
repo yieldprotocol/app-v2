@@ -53,7 +53,6 @@ export const useDebounce = (value:any, delay:number) => {
 
 // React hook for delaying calls with time
 // returns callback to use for cancelling
-
 export const useTimeout = (
   callback: () => void, // function to call. No args passed.
   // if you create a new callback each render, then previous callback will be cancelled on render.

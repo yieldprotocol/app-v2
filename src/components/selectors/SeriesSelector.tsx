@@ -2,39 +2,43 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Box, ResponsiveContext, Select, Text, ThemeContext } from 'grommet';
 
 import { ethers } from 'ethers';
-import { ISeries } from '../../types';
+import { ActionType, ISeries } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { calculateAPR } from '../../utils/yieldMath';
 import { useApr } from '../../hooks/aprHook';
 
 interface ISeriesSelectorProps {
+  actionType: ActionType;
   selectSeriesLocally?: (series: ISeries) => void; /* select series locally filters out the global selection from the list and returns the selected ISeries */
   inputValue?: string|undefined; /* accepts an inpout value for dynamic APR calculations */
-  ignoredSeries?: string[];
 }
 
-const AprText = ({ inputValue, series, type }:{ inputValue: string|undefined, series:ISeries, type:'BORROW'|'LEND' }) => {
-  const { apr } = useApr(inputValue, type, series);
-
+const AprText = (
+  { inputValue, series, actionType }:{ inputValue: string|undefined, series:ISeries, actionType:ActionType },
+) => {
+  const { apr } = useApr(inputValue, actionType, series);
   const [limitHit, setLimitHit] = useState<boolean>(false);
 
   useEffect(() => {
-    !series?.seriesIsMature &&
-    inputValue &&
-    ethers.utils.parseEther(inputValue).gt(series.baseReserves) &&
-    setLimitHit(true);
+    if (
+      !series?.seriesIsMature &&
+      inputValue &&
+      ethers.utils.parseEther(inputValue).gt(series.baseReserves)
+    ) { setLimitHit(true); } else {
+      setLimitHit(false);
+    }
   }, [inputValue, series.baseReserves, series?.seriesIsMature, setLimitHit]);
 
   return (
     <>
-      { !series?.seriesIsMature && !inputValue && <Text> ● APR <Text size="xsmall">from</Text> {series?.APR}% </Text>}
-      { !limitHit && !series?.seriesIsMature && inputValue && <Text> ● {apr}%</Text>}
+      { !series?.seriesIsMature && !inputValue && <Text> <Text size="xsmall">   from  </Text> {series?.APR}% <Text size="xsmall"> APR </Text></Text>}
+      { !limitHit && !series?.seriesIsMature && inputValue && <Text> <Text size="xsmall">   @  </Text>{apr}% <Text size="xsmall"> APR </Text></Text>}
       { limitHit && <Text size="xsmall" color="pink"> Not enough liquidity</Text>}
     </>
   );
 };
 
-function SeriesSelector({ selectSeriesLocally, inputValue, ignoredSeries }: ISeriesSelectorProps) {
+function SeriesSelector({ selectSeriesLocally, inputValue, actionType }: ISeriesSelectorProps) {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
 
   const { userState, userActions } = useContext(UserContext);
@@ -61,7 +65,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, ignoredSeries }: ISer
         <Box round="large" border pad={{ horizontal: 'small' }}>
           <Text size="xsmall"> Mature </Text>
         </Box>}
-      {_series && <AprText inputValue={inputValue} series={_series} type="BORROW" />}
+      {_series && actionType !== 'POOL' && <AprText inputValue={inputValue} series={_series} actionType={actionType} />}
     </Box>
   );
 
@@ -71,8 +75,8 @@ function SeriesSelector({ selectSeriesLocally, inputValue, ignoredSeries }: ISer
 
     /* filter out options based on base Id */
     let filteredOpts = opts.filter((_series:ISeries) => (
-      _series.baseId === selectedBaseId &&
-      !ignoredSeries?.includes(_series.baseId)
+      _series.baseId === selectedBaseId
+      // !ignoredSeries?.includes(_series.baseId)
     ));
 
     /* if required, filter out the globally selected asset  and */
@@ -113,8 +117,8 @@ function SeriesSelector({ selectSeriesLocally, inputValue, ignoredSeries }: ISer
         labelKey={(x:any) => optionText(x)}
         valueLabel={
           options.length ?
-            <Box pad={mobile ? 'medium' : 'small'}><Text color="text"> {optionExtended(selectedSeries)}</Text></Box>
-            : <Box pad={mobile ? 'medium' : 'small'}><Text color="text"> No available series yet.</Text></Box>
+            <Box pad={mobile ? 'medium' : '0.55em'}><Text color="text"> {optionExtended(selectedSeries)}</Text></Box>
+            : <Box pad={mobile ? 'medium' : '0.55em'}><Text color="text-weak"> No available series yet.</Text></Box>
         }
         disabled={options.length === 0}
         onChange={({ option }: any) => handleSelect(option)}
@@ -125,6 +129,6 @@ function SeriesSelector({ selectSeriesLocally, inputValue, ignoredSeries }: ISer
   );
 }
 
-SeriesSelector.defaultProps = { selectSeriesLocally: null, inputValue: undefined, ignoredSeries: [] };
+SeriesSelector.defaultProps = { selectSeriesLocally: null, inputValue: undefined };
 
 export default SeriesSelector;

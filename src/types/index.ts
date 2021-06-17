@@ -1,6 +1,6 @@
 import { ethers, BigNumber } from 'ethers';
-import { Settings } from 'http2';
-import { ERC20, FYToken, Pool } from '../contracts';
+import React from 'react';
+import { FYToken, Pool } from '../contracts';
 
 export interface IUserContext {
   userState : IUserContextState;
@@ -63,6 +63,8 @@ export interface IAssetRoot {
   symbol: string;
   name: string;
   version: string;
+  color: string;
+  image: React.FC;
   displayName: string;
   displayNameMobile: string;
   address: string;
@@ -78,8 +80,7 @@ export interface IVaultRoot {
   baseId: string;
   seriesId: string;
   image: string;
-  displayId? : string;
-  name?: string;
+  displayName : string;
 }
 
 export interface ISeries extends ISeriesRoot {
@@ -88,12 +89,16 @@ export interface ISeries extends ISeriesRoot {
   fyTokenReserves: BigNumber;
   fyTokenRealReserves: BigNumber;
   totalSupply: BigNumber;
-  seriesIsMature: boolean;
+  totalSupply_: string;
 
   poolTokens?: BigNumber|undefined;
   poolTokens_?: string|undefined;
   fyTokenBalance? : BigNumber|undefined;
   fyTokenBalance_? : string|undefined;
+
+  poolPercent? : string|undefined;
+
+  seriesIsMature: boolean;
 }
 
 export interface IAsset extends IAssetRoot {
@@ -164,8 +169,40 @@ export enum TradeType {
   SELL = 'SELL',
 }
 
+export enum ActionType {
+  BORROW = 'BORROW',
+  LEND = 'LEND',
+  POOL = 'POOL',
+}
+
+export enum TxState {
+  PENDING = 'PENDING',
+  SUCCESSFUL = 'SUCCESSFUL',
+  FAILED = 'FAILED',
+  REJECTED = 'REJECTED',
+}
+
 export enum MenuView {
   account = 'ACCOUNT',
   settings = 'SETTINGS',
   vaults = 'VAULTS',
+}
+
+export enum ActionCodes {
+  // Collateral
+  ADD_COLLATERAL = '000',
+  REMOVE_COLLATERAL = '010',
+  // Borrow
+  BORROW = '100',
+  REPAY = '110',
+  ROLL_DEBT = '120',
+  // Lend
+  LEND = '200',
+  CLOSE_POSITION = '210',
+  ROLL_POSITION = '220',
+  REDEEM = '230',
+  // Pool
+  ADD_LIQUIDITY = '300',
+  REMOVE_LIQUIDITY = '310',
+  ROLL_LIQUIDITY = '320',
 }

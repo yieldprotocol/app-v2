@@ -2,7 +2,7 @@ import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
-import { ICallData, IVault, SignType, ISeries } from '../types';
+import { ICallData, IVault, SignType, ISeries, ActionCodes } from '../types';
 import { getTxCode } from '../utils/appUtils';
 import { ETH_BASED_ASSETS, DAI_BASED_ASSETS, MAX_128, MAX_256 } from '../utils/constants';
 import { useChain } from './chainHooks';
@@ -46,7 +46,7 @@ export const useBorrowActions = () => {
       /* return the remove ETH OP */
       return [{
         operation: VAULT_OPS.EXIT_ETHER,
-        args: [selectedIlkId, account],
+        args: [account],
         ignore: value.gte(ethers.constants.Zero),
         series,
       }];
@@ -67,7 +67,7 @@ export const useBorrowActions = () => {
     const ilk = vault ? assetMap.get(vault.ilkId) : assetMap.get(selectedIlkId);
 
     /* generate the reproducible txCode for tx tracking and tracing */
-    const txCode = getTxCode('020_', vaultId);
+    const txCode = getTxCode(ActionCodes.BORROW, series.id);
 
     /* parse inputs */
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
@@ -124,7 +124,7 @@ export const useBorrowActions = () => {
     input:string|undefined,
     collInput: string|undefined = '0', // optional - add(+) / remove(-) collateral in same tx.
   ) => {
-    const txCode = getTxCode('030_', vault.id);
+    const txCode = getTxCode(ActionCodes.REPAY, vault.id);
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
     const _collInput = ethers.utils.parseEther(collInput);
     const series = seriesMap.get(vault.seriesId);
@@ -196,12 +196,12 @@ export const useBorrowActions = () => {
     vault: IVault,
     toSeries: ISeries,
   ) => {
-    const txCode = getTxCode('120_', vault.seriesId);
+    const txCode = getTxCode(ActionCodes.ROLL_DEBT, vault.seriesId);
     const series = seriesMap.get(vault.seriesId);
     const calls: ICallData[] = [
       { // ladle.rollAction(vaultId: string, newSeriesId: string, max: BigNumberish)
         operation: VAULT_OPS.ROLL,
-        args: [vault.id, toSeries.id, MAX_128],
+        args: [vault.id, toSeries.id, '2', MAX_128],
         ignore: false,
         series,
       },

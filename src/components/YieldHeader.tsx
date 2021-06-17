@@ -43,10 +43,10 @@ const YieldHeader = ({ actionList } : IYieldHeaderProps) => {
                 !mobile &&
                 <>
                   <Balances />
-                  <Box pad="small">
+                  {/* <Box pad="small">
                     <Text size="xsmall" color="green"> Connected to: {chainId} </Text>
                     <Box onClick={() => disconnect()}> <Text size="xsmall" color="text-xweak"> Disconnect </Text> </Box>
-                  </Box>
+                  </Box> */}
                 </>
             }
             <Box round="xsmall" border={!mobile} onClick={() => toggleMenu()} pad="small" justify="center">

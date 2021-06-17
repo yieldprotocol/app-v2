@@ -22,6 +22,7 @@ function ModalWrap({ children, toggleModalOpen, modalOpen = false }: IModalWrap)
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const [flipped, setFlipped] = useState(false);
+
   const domTarget = useRef(null);
 
   const [{ x, y, rotateX, rotateY, rotateZ, zoom, scale, transform, opacity }, api] = useSpring(
@@ -76,13 +77,10 @@ function ModalWrap({ children, toggleModalOpen, modalOpen = false }: IModalWrap)
            responsive
          >
            <Box
-             height={{ min: '600px' }}
-             width={mobile ? undefined : { min: '600px' }}
+             height="600px"
+             width={mobile ? undefined : '600px'}
              round="small"
-             background="white"
-             justify="between"
              pad="large"
-            // elevation={mobile ? undefined : 'large'}
            >
              {children}
            </Box>
