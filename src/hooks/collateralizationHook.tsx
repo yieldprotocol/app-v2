@@ -42,8 +42,6 @@ export const useCollateralization = (
     if (collateralizationPercent && parseFloat(collateralizationPercent) <= 150) {
       setUndercollateralized(true);
     } else { setUndercollateralized(false); }
-
-    console.log(vault);
   }, [collInput, collateralizationPercent, debtInput, vault]);
 
   return {

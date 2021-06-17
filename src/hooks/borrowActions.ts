@@ -62,10 +62,12 @@ export const useBorrowActions = () => {
   ) => {
     /* use the vault id provided OR Get a random vault number ready if reqd. */
     const vaultId = vault?.id || ethers.utils.hexlify(ethers.utils.randomBytes(12));
+
     /* set the series and ilk based on if a vault has been selected or it's a new vault */
     const series = vault ? seriesMap.get(vault.seriesId) : seriesMap.get(selectedSeriesId);
     const ilk = vault ? assetMap.get(vault.ilkId) : assetMap.get(selectedIlkId);
 
+    console.log(selectedSeriesId);
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.BORROW, series.id);
 
