@@ -67,7 +67,6 @@ export const useBorrowActions = () => {
     const series = vault ? seriesMap.get(vault.seriesId) : seriesMap.get(selectedSeriesId);
     const ilk = vault ? assetMap.get(vault.ilkId) : assetMap.get(selectedIlkId);
 
-    console.log(selectedSeriesId);
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.BORROW, series.id);
 
@@ -93,6 +92,9 @@ export const useBorrowActions = () => {
       /* Include all the signatures gathered, if required */
       ...permits,
 
+      /* handle ETH deposit, if required */
+      ..._addEth(_collInput, series),
+
       /* If vault is null, build a new vault, else ignore */
       {
         operation: VAULT_OPS.BUILD,
@@ -100,8 +102,6 @@ export const useBorrowActions = () => {
         series,
         ignore: !!vault,
       },
-      /* handle ETH deposit, if required */
-      ..._addEth(_collInput, series),
       {
         operation: VAULT_OPS.SERVE,
         args: [vaultId, account, _collInput, _input, MAX_128],

@@ -1,13 +1,10 @@
 import { ethers } from 'ethers';
 import { Box, ResponsiveContext, Text } from 'grommet';
 import React, { useContext, useEffect, useState } from 'react';
-import Loader from 'react-spinners/GridLoader';
 import styled from 'styled-components';
 import { UserContext } from '../contexts/UserContext';
-import { useApr } from '../hooks/aprHook';
-import { ActionType, ISeries, IUserContext } from '../types';
-import { cleanValue, nFormatter } from '../utils/displayUtils';
-import { buyBase, calculateAPR, secondsToFrom, sellBase } from '../utils/yieldMath';
+import { ISeries, IUserContext } from '../types';
+import { nFormatter } from '../utils/displayUtils';
 
 interface IYieldApr {
   input: string|undefined,
@@ -27,10 +24,9 @@ function YieldApr({ input }: IYieldApr) {
 
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, assetMap, vaultMap, seriesMap, selectedSeriesId, selectedIlkId, selectedBaseId } = userState;
+  const { assetMap, seriesMap, selectedSeriesId, selectedBaseId } = userState;
   const selectedBase = assetMap.get(selectedBaseId!);
   const selectedSeries = seriesMap.get(selectedSeriesId!);
-  //   const selectedIlk = assetMap.get(selectedIlkId!);
 
   /* LOCAL STATE */
   const [totalLiquidity, setTotalLiquidity] = useState<string>();
@@ -42,7 +38,6 @@ function YieldApr({ input }: IYieldApr) {
       seriesMap && seriesMap.forEach((x:ISeries) => {
         if (x.baseId === baseId) total = total.add(x.totalSupply);
       });
-      console.log(ethers.utils.formatEther(total).toString());
       setTotalLiquidity(ethers.utils.formatEther(total).toString());
     }
   }, [seriesMap, selectedBase]);
