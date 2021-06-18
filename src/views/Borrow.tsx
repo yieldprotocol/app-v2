@@ -29,6 +29,7 @@ import ActiveTransaction from '../components/ActiveTransaction';
 import { getTxCode } from '../utils/appUtils';
 import { cleanValue } from '../utils/displayUtils';
 import YieldInfo from '../components/YieldInfo';
+import BackButton from '../components/buttons/BackButton';
 
 const StampText = styled(Text)`
 
@@ -272,9 +273,7 @@ const Borrow = () => {
             stepPosition === 1 && // ADD COLLATERAL
             <Box gap="large">
 
-              <Box onClick={() => setStepPosition(0)}>
-                <Text>Back</Text>
-              </Box>
+              <BackButton action={() => setStepPosition(0)} />
 
               <SectionWrap title="Amount of collateral to add">
                 <Box direction="row" gap="small" fill="horizontal" align="start">

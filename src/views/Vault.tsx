@@ -22,6 +22,7 @@ import TabWrap from '../components/wraps/TabWrap';
 import ActiveTransaction from '../components/ActiveTransaction';
 import { getTxCode } from '../utils/appUtils';
 import { useCollateralization } from '../hooks/collateralizationHook';
+import BackButton from '../components/buttons/BackButton';
 
 const Vault = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -264,9 +265,6 @@ const Vault = () => {
                 </Box>
                 :
                 <Box gap="large">
-                  <Box onClick={() => handleStepper(true)}>
-                    <Text>Back</Text>
-                  </Box>
                   <ActiveTransaction txCode={(selectedVault && getTxCode(ActionCodes.REPAY, selectedVault?.id)) || ''}>
                     <SectionWrap title="Review your transaction">
                       <Text>Repay {repayInput} {vaultBase?.symbol} debt from {selectedVault?.displayName} </Text>
@@ -279,12 +277,15 @@ const Vault = () => {
                     stepPosition[0] === 0 ?
                       <NextButton />
                       :
-                      <Button
-                        primary
-                        label={<Text size={mobile ? 'small' : undefined}> {`Repay ${repayInput || ''} Dai`} </Text>}
-                        onClick={() => handleRepay()}
-                        disabled={repayDisabled}
-                      />
+                      <Box gap="small">
+                        <BackButton action={() => handleStepper(true)} />
+                        <Button
+                          primary
+                          label={<Text size={mobile ? 'small' : undefined}> {`Repay ${repayInput || ''} Dai`} </Text>}
+                          onClick={() => handleRepay()}
+                          disabled={repayDisabled}
+                        />
+                      </Box>
                   }
               </ActionButtonGroup>
             </TabWrap>
@@ -300,9 +301,6 @@ const Vault = () => {
                   </Box>
                   :
                   <Box gap="large">
-                    <Box onClick={() => handleStepper(true)}>
-                      <Text>Back</Text>
-                    </Box>
                     <ActiveTransaction txCode={(selectedVault && getTxCode(ActionCodes.ROLL_DEBT, selectedVault?.id)) || ''}>
                       <SectionWrap title="Review your transaction">
                         <Text>
@@ -317,11 +315,14 @@ const Vault = () => {
                 { stepPosition[1] === 0 ?
                   <NextButton />
                   :
-                  <Button
-                    primary
-                    label={<Text size={mobile ? 'small' : undefined}> Roll debt </Text>}
-                    onClick={() => handleRoll()}
-                  />}
+                  <Box gap="small">
+                    <BackButton action={() => handleStepper(true)} />
+                    <Button
+                      primary
+                      label={<Text size={mobile ? 'small' : undefined}> Roll debt </Text>}
+                      onClick={() => handleRoll()}
+                    />
+                  </Box>}
               </ActionButtonGroup>
             </TabWrap>
 
@@ -357,9 +358,6 @@ const Vault = () => {
                   </Box>
                 :
                   <Box gap="large">
-                    <Box onClick={() => handleStepper(true)}>
-                      <Text>Back</Text>
-                    </Box>
                     <ActiveTransaction txCode={(selectedVault && getTxCode(ActionCodes.ROLL_DEBT, selectedVault?.id)) || ''}>
                       <SectionWrap title="Review your transaction">
                         {addCollatInput &&
@@ -378,18 +376,30 @@ const Vault = () => {
                 { stepPosition[2] !== 1 && <NextButton /> }
                 { stepPosition[2] === 1 &&
                     addCollatInput &&
-                    <Button
-                      primary
-                      label={<Text size={mobile ? 'small' : undefined}> Add </Text>}
-                      onClick={() => handleCollateral('ADD')}
-                    />}
+
+                    <Box gap="small">
+                      <Button
+                        secondary
+                        label="cancel"
+                        onClick={() => handleStepper(true)}
+                        disabled={repayDisabled}
+                      />
+                      <Button
+                        primary
+                        label={<Text size={mobile ? 'small' : undefined}> Add </Text>}
+                        onClick={() => handleCollateral('ADD')}
+                      />
+                    </Box>}
                 { stepPosition[2] === 1 &&
                     removeCollatInput &&
-                    <Button
-                      primary
-                      label={<Text size={mobile ? 'small' : undefined}> Remove </Text>}
-                      onClick={() => handleCollateral('REMOVE')}
-                    />}
+                    <Box gap="small">
+                      <BackButton action={() => handleStepper(true)} />
+                      <Button
+                        primary
+                        label={<Text size={mobile ? 'small' : undefined}> Remove </Text>}
+                        onClick={() => handleCollateral('REMOVE')}
+                      />
+                    </Box>}
               </ActionButtonGroup>
 
             </TabWrap>
@@ -412,9 +422,6 @@ const Vault = () => {
                 </Box>
                 :
                 <Box gap="large">
-                  <Box onClick={() => handleStepper(true)}>
-                    <Text>Back</Text>
-                  </Box>
                   <ActiveTransaction txCode={(selectedVault && getTxCode(ActionCodes.ROLL_DEBT, selectedVault?.id)) || ''}>
                     <SectionWrap title="Review your transaction">
                       <Text>Borrow {borrowInput}
@@ -427,11 +434,14 @@ const Vault = () => {
                 { stepPosition[3] === 0 ?
                   <NextButton />
                   :
-                  <Button
-                    primary
-                    label={<Text size={mobile ? 'small' : undefined}> Borrow more </Text>}
-                    onClick={() => handleBorrow()}
-                  />}
+                  <Box gap="small">
+                    <BackButton action={() => handleStepper(true)} />
+                    <Button
+                      primary
+                      label={<Text size={mobile ? 'small' : undefined}> Borrow more </Text>}
+                      onClick={() => handleBorrow()}
+                    />
+                  </Box>}
               </ActionButtonGroup>
             </TabWrap>
 

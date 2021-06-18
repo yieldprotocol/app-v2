@@ -16,6 +16,7 @@ import InfoBite from '../components/InfoBite';
 import ActiveTransaction from '../components/ActiveTransaction';
 import { getTxCode } from '../utils/appUtils';
 import TabWrap from '../components/wraps/TabWrap';
+import BackButton from '../components/buttons/BackButton';
 
 const LendPosition = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -188,9 +189,6 @@ const LendPosition = () => {
                 </Box>
                 :
                 <Box gap="medium" pad="small">
-                  <Box onClick={() => handleStepper(true)}>
-                    <Text>Back</Text>
-                  </Box>
                   <ActiveTransaction txCode={getTxCode(ActionCodes.CLOSE_POSITION, selectedSeriesId)}>
                     <SectionWrap title="Review your transaction">
                       <Text>Close {closeInput} {selectedBase?.symbol}
@@ -205,12 +203,15 @@ const LendPosition = () => {
                     stepPosition[0] === 0 ?
                       <NextButton />
                       :
-                      <Button
-                        primary
-                        label={<Text size={mobile ? 'small' : undefined}> {`Close ${closeInput || ''}`} </Text>}
-                        onClick={() => handleClosePosition()}
-                        disabled={closeDisabled}
-                      />
+                      <Box gap="small">
+                        <BackButton action={() => handleStepper(true)} />
+                        <Button
+                          primary
+                          label={<Text size={mobile ? 'small' : undefined}> {`Close ${closeInput || ''}`} </Text>}
+                          onClick={() => handleClosePosition()}
+                          disabled={closeDisabled}
+                        />
+                      </Box>
                   }
               </ActionButtonGroup>
             </TabWrap>
@@ -244,9 +245,6 @@ const LendPosition = () => {
                 </Box>
                 :
                 <Box gap="large" pad="small">
-                  <Box onClick={() => handleStepper(true)}>
-                    <Text>Back</Text>
-                  </Box>
                   <ActiveTransaction txCode={getTxCode(ActionCodes.ROLL_POSITION, selectedSeriesId)}>
                     <SectionWrap title="Review your transaction">
                       <Text>
@@ -262,12 +260,17 @@ const LendPosition = () => {
                     stepPosition[1] === 0 ?
                       <NextButton />
                       :
-                      <Button
-                        primary
-                        label={<Text size={mobile ? 'small' : undefined}> {`Roll ${rollInput || ''}`} </Text>}
-                        onClick={() => handleRollPosition()}
-                        disabled={rollDisabled}
-                      />
+                      <Box gap="small">
+                        <BackButton action={() => handleStepper(true)} />
+                        <Button
+                          primary
+                          label={<Text size={mobile ? 'small' : undefined}> {`Roll ${rollInput || ''}`} </Text>}
+                          onClick={() => handleRollPosition()}
+                          disabled={rollDisabled}
+                        />
+
+                      </Box>
+
                   }
               </ActionButtonGroup>
 

@@ -23,6 +23,7 @@ import ActiveTransaction from '../components/ActiveTransaction';
 import { getTxCode } from '../utils/appUtils';
 import YieldInfo from '../components/YieldInfo';
 import YieldLiquidity from '../components/YieldLiquidity';
+import BackButton from '../components/buttons/BackButton';
 
 function Pool() {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -144,9 +145,7 @@ function Pool() {
         {
           stepPosition === 1 &&
           <Box gap="large">
-            <Box onClick={() => setStepPosition(0)}>
-              <Text>Back</Text>
-            </Box>
+            <BackButton action={() => setStepPosition(0)} />
 
             <ActiveTransaction txCode={getTxCode(ActionCodes.ADD_LIQUIDITY, selectedSeriesId)}>
               <Box gap="large">

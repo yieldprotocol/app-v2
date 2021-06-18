@@ -22,6 +22,7 @@ import PositionSelector from '../components/selectors/PositionSelector';
 import ActiveTransaction from '../components/ActiveTransaction';
 import YieldInfo from '../components/YieldInfo';
 import { getTxCode } from '../utils/appUtils';
+import BackButton from '../components/buttons/BackButton';
 
 const Lend = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -141,9 +142,7 @@ const Lend = () => {
         {
           stepPosition === 1 &&
           <Box gap="large">
-            <Box onClick={() => setStepPosition(0)}>
-              <Text>Back</Text>
-            </Box>
+            <BackButton action={() => setStepPosition(0)} />
 
             <ActiveTransaction txCode={getTxCode(ActionCodes.LEND, selectedSeriesId)}>
 

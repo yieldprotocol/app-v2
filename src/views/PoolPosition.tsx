@@ -17,6 +17,7 @@ import { usePoolActions } from '../hooks/poolActions';
 import ActiveTransaction from '../components/ActiveTransaction';
 import { getTxCode } from '../utils/appUtils';
 import TabWrap from '../components/wraps/TabWrap';
+import BackButton from '../components/buttons/BackButton';
 
 const PoolPosition = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -178,9 +179,6 @@ const PoolPosition = () => {
                 </Box>
                 :
                 <Box gap="large" pad="small">
-                  <Box onClick={() => handleStepper(true)}>
-                    <Text>Back</Text>
-                  </Box>
                   <ActiveTransaction txCode={getTxCode(ActionCodes.REMOVE_LIQUIDITY, selectedSeriesId)}>
                     <SectionWrap title="Review your transaction">
                       <Text>Remove {removeInput} Liquidtity from the {selectedSeries?.displayName} series. </Text>
@@ -193,12 +191,15 @@ const PoolPosition = () => {
                     stepPosition[0] === 0 ?
                       <NextButton />
                       :
-                      <Button
-                        primary
-                        label={<Text size={mobile ? 'small' : undefined}> {`Remove ${removeInput || ''} tokens`} </Text>}
-                        onClick={() => handleRemove()}
-                        disabled={removeDisabled}
-                      />
+                      <Box gap="small">
+                        <BackButton action={() => handleStepper(true)} />
+                        <Button
+                          primary
+                          label={<Text size={mobile ? 'small' : undefined}> {`Remove ${removeInput || ''} tokens`} </Text>}
+                          onClick={() => handleRemove()}
+                          disabled={removeDisabled}
+                        />
+                      </Box>
                   }
               </ActionButtonGroup>
 
@@ -231,9 +232,6 @@ const PoolPosition = () => {
                 </Box>
                 :
                 <Box gap="large" pad="small">
-                  <Box onClick={() => handleStepper(true)}>
-                    <Text>Back</Text>
-                  </Box>
                   <ActiveTransaction txCode={getTxCode(ActionCodes.ROLL_LIQUIDITY, selectedSeriesId)}>
                     <SectionWrap title="Review your transaction">
                       <Text>
@@ -249,12 +247,15 @@ const PoolPosition = () => {
                     stepPosition[1] === 0 ?
                       <NextButton />
                       :
-                      <Button
-                        primary
-                        label={<Text size={mobile ? 'small' : undefined}> {`Roll ${rollInput || ''} tokens`} </Text>}
-                        onClick={() => handleRoll()}
-                        disabled={rollDisabled}
-                      />
+                      <Box gap="small">
+                        <BackButton action={() => handleStepper(true)} />
+                        <Button
+                          primary
+                          label={<Text size={mobile ? 'small' : undefined}> {`Roll ${rollInput || ''} tokens`} </Text>}
+                          onClick={() => handleRoll()}
+                          disabled={rollDisabled}
+                        />
+                      </Box>
                   }
               </ActionButtonGroup>
 
