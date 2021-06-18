@@ -378,12 +378,7 @@ const Vault = () => {
                     addCollatInput &&
 
                     <Box gap="small">
-                      <Button
-                        secondary
-                        label="cancel"
-                        onClick={() => handleStepper(true)}
-                        disabled={repayDisabled}
-                      />
+                      <BackButton action={() => handleStepper(true)} />
                       <Button
                         primary
                         label={<Text size={mobile ? 'small' : undefined}> Add </Text>}
