@@ -89,8 +89,12 @@ const UserProvider = ({ children }:any) => {
   /* internal function for getting the users vaults */
   const _getVaults = useCallback(async (fromBlock:number = 1) => {
     const Cauldron = contractMap.get('Cauldron');
-    const filter = Cauldron.filters.VaultBuilt(null, account, null);
+    const filter = Cauldron.filters.VaultBuilt(null, account);
+
+    console.log(account);
     const eventList = await Cauldron.queryFilter(filter, fromBlock);
+
+    console.log(eventList);
     // const eventList = await Cauldron.queryFilter(filter, cachedVaults.lastBlock);
     const vaultList : IVaultRoot[] = await Promise.all(eventList.map(async (x:any) : Promise<IVaultRoot> => {
       const { vaultId: id, ilkId, seriesId } = Cauldron.interface.parseLog(x).args;
@@ -243,7 +247,7 @@ const UserProvider = ({ children }:any) => {
     let _vaultList: IVaultRoot[] = vaultList;
 
     /* if vaultList is empty, fetch complete Vaultlist from chain via _getVaults */
-    if (!vaultList.length) _vaultList = Array.from((await _getVaults()).values());
+    if (vaultList.length === 0) _vaultList = Array.from((await _getVaults()).values());
 
     const Cauldron = contractMap.get('Cauldron');
     /* add in the dynamic vault data by mapping the vaults list */
@@ -271,13 +275,13 @@ const UserProvider = ({ children }:any) => {
       const _map = acc;
       _map.set(item.id, item);
       return _map;
-    }, userState.vaultMap));
+    }, new Map()));
 
     updateState({ type: 'vaultMap', payload: newVaultMap });
     vaultFromUrl && updateState({ type: 'selectedVaultId', payload: vaultFromUrl });
 
     console.log('VAULTS: ', newVaultMap);
-  }, [contractMap, vaultFromUrl]);
+  }, [contractMap, vaultFromUrl, _getVaults]);
 
   useEffect(() => {
     /* When the chainContext is finished loading get the dynamic series and asset data */
@@ -294,13 +298,13 @@ const UserProvider = ({ children }:any) => {
 
   useEffect(() => {
     /* When the chainContext is finished loading get the users vault data */
-    if (account && !chainLoading) {
+    if (account !== null && !chainLoading) {
       /* trigger update of update all vaults by passing empty array */
       updateVaults([]);
     }
   }, [
     account, chainLoading,
-    _getVaults, updateVaults,
+    updateVaults,
   ]);
 
   /* Subscribe to vault event listeners */
