@@ -31,7 +31,7 @@ const AprText = (
 
   return (
     <>
-      { !series?.seriesIsMature && !inputValue && <Text> <Text size="xsmall">   from  </Text> {series?.APR}% <Text size="xsmall"> APR </Text></Text>}
+      { !series?.seriesIsMature && !inputValue && <Text> <Text size="xsmall">   from  </Text> {series?.apr}% <Text size="xsmall"> APR </Text></Text>}
       { !limitHit && !series?.seriesIsMature && inputValue && <Text> <Text size="xsmall">   @  </Text>{apr}% <Text size="xsmall"> APR </Text></Text>}
       { limitHit && <Text size="xsmall" color="pink"> Not enough liquidity</Text>}
     </>

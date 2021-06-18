@@ -65,6 +65,7 @@ function userReducer(state:any, action:any) {
 }
 
 const UserProvider = ({ children }:any) => {
+  /* STATE FROM CONTEXT */
   // TODO const [cachedVaults, setCachedVaults] = useCachedState('vaults', { data: [], lastBlock: Number(process.env.REACT_APP_DEPLOY_BLOCK) });
   const { chainState } = useContext(ChainContext);
   const {
@@ -77,10 +78,12 @@ const UserProvider = ({ children }:any) => {
 
   const [userState, updateState] = useReducer(userReducer, initState);
 
-  /* local state */
+  /* LOCAL STATE */
   const [vaultFromUrl, setVaultFromUrl] = useState<string|null>(null);
 
+  /* HOOKS */
   const { pathname } = useLocation();
+
   /* If the url references a series/vault...set that one as active */
   useEffect(() => {
     pathname && setVaultFromUrl(pathname.split('/')[2]);
@@ -90,8 +93,6 @@ const UserProvider = ({ children }:any) => {
   const _getVaults = useCallback(async (fromBlock:number = 1) => {
     const Cauldron = contractMap.get('Cauldron');
     const filter = Cauldron.filters.VaultBuilt(null, account);
-
-    console.log(account);
     const eventList = await Cauldron.queryFilter(filter, fromBlock);
 
     console.log(eventList);
@@ -182,25 +183,23 @@ const UserProvider = ({ children }:any) => {
           series.fyTokenContract.balanceOf(series.poolAddress),
           series.isMature(),
         ]);
-
-        const _rate = sellFYToken(
+        /* Calculates the base/fyToken unit selling price */
+        const _sellRate = sellFYToken(
           baseReserves,
           fyTokenReserves,
           ethers.utils.parseEther('1'),
           secondsToFrom(series.maturity.toString()),
         );
-        const APR = calculateAPR(floorDecimal(_rate), ethers.utils.parseEther('1'), series.maturity) || '0';
+        const apr = calculateAPR(floorDecimal(_sellRate), ethers.utils.parseEther('1'), series.maturity) || '0';
         // const { symbol } = assetRootMap.get(series.baseId);
         return {
           ...series,
-          // displayName: `${symbol} ⚬ ${series.displayName}`,
-          // displayNameMobile: `${symbol} ⚬ ${series.displayNameMobile}`,
           baseReserves,
           fyTokenReserves,
           fyTokenRealReserves,
           totalSupply,
           totalSupply_: ethers.utils.formatEther(totalSupply),
-          APR: `${Number(APR).toFixed(2)}`,
+          apr: `${Number(apr).toFixed(2)}`,
           seriesIsMature: mature,
         };
       }),
@@ -235,7 +234,7 @@ const UserProvider = ({ children }:any) => {
       const _map = acc;
       _map.set(item.id, item);
       return _map;
-    }, userState.seriesMap));
+    }, new Map()));
 
     updateState({ type: 'seriesMap', payload: newSeriesMap });
     console.log('SERIES updated (with dynamic data): ', newSeriesMap);
@@ -245,11 +244,11 @@ const UserProvider = ({ children }:any) => {
   /* Updates the vaults with *user* data */
   const updateVaults = useCallback(async (vaultList: IVaultRoot[]) => {
     let _vaultList: IVaultRoot[] = vaultList;
+    const Cauldron = contractMap.get('Cauldron');
 
     /* if vaultList is empty, fetch complete Vaultlist from chain via _getVaults */
     if (vaultList.length === 0) _vaultList = Array.from((await _getVaults()).values());
 
-    const Cauldron = contractMap.get('Cauldron');
     /* add in the dynamic vault data by mapping the vaults list */
     const vaultListMod = await Promise.all(
       _vaultList.map(async (vault:IVaultRoot) : Promise<IVault> => {

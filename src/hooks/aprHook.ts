@@ -26,7 +26,7 @@ export const useApr = (input:string|undefined, actionType: ActionType, series: I
       if (actionType === 'BORROW') preview = buyBase(baseReserves, fyTokenReserves, baseAmount, ttm);
 
       const _apr = calculateAPR(baseAmount, preview, selectedSeries?.maturity);
-      _apr ? setApr(cleanValue(_apr, 2)) : setApr(selectedSeries.APR);
+      _apr ? setApr(cleanValue(_apr, 2)) : setApr(selectedSeries.apr);
     } else {
       // setApr(selectedSeries.APR)
       // selectedSeries?.APR && setApr(selectedSeries.APR);
@@ -39,7 +39,7 @@ export const useApr = (input:string|undefined, actionType: ActionType, series: I
   /* Get the min APR from all the series */
   const aprArray = Array.from(seriesMap.values())
     .filter((x:ISeries) => x.baseId === selectedBaseId)
-    .map((x:ISeries) => parseFloat(x.APR));
+    .map((x:ISeries) => parseFloat(x.apr));
   const minApr = aprArray.length && Math.min(...aprArray);
   const maxApr = aprArray.length && Math.min(...aprArray);
 
