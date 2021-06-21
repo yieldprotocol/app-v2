@@ -234,12 +234,12 @@ const UserProvider = ({ children }:any) => {
       const _map = acc;
       _map.set(item.id, item);
       return _map;
-    }, new Map()));
+    }, userState.seriesMap));
 
     updateState({ type: 'seriesMap', payload: newSeriesMap });
     console.log('SERIES updated (with dynamic data): ', newSeriesMap);
     return newSeriesMap;
-  }, [account]);
+  }, [account]); // TODO oops > sort out this dependency error. (is cyclic)
 
   /* Updates the vaults with *user* data */
   const updateVaults = useCallback(async (vaultList: IVaultRoot[]) => {
