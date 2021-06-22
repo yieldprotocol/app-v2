@@ -110,20 +110,22 @@ export const useChain = () => {
   ) : Promise<ICallData[]> => {
     const signer = account ? provider.getSigner(account) : provider.getSigner(0);
 
+    /* Get the spender if not provided, defaults to ladle */
+    const getSpender = (spender: 'POOLROUTER'|'LADLE'| string) => {
+      const _ladleAddr = contractMap.get('Ladle').address;
+      const _poolAddr = contractMap.get('PoolRouter').address;
+      if (ethers.utils.isAddress(spender)) {
+        return spender;
+      }
+      if (spender === 'POOLROUTER') return _poolAddr;
+      return _ladleAddr;
+    };
+
     /* First, filter out any ignored calls */
     const _requestedSigs = requestedSignatures.filter((_rs:ISignData) => !_rs.ignore);
     const signedList = await Promise.all(
       _requestedSigs.map(async (reqSig: ISignData) => {
-        /* Get the spender if not provided, defaults to ladle */
-        const getSpender = (spender: 'POOLROUTER'|'LADLE'| string) => {
-          const _ladleAddr = contractMap.get('Ladle').address;
-          const _poolAddr = contractMap.get('PoolRouter').address;
-          if (ethers.utils.isAddress(spender)) {
-            return spender;
-          }
-          if (spender === 'POOLROUTER') return _poolAddr;
-          return _ladleAddr;
-        };
+        const _spender = getSpender(reqSig.spender);
 
         /* get an ERC20 contract instance. This is only used in the case of fallback tx (when signing is not available) */
         const tokenContract = ERC20__factory.connect(reqSig.target.address, signer) as any;
@@ -145,15 +147,10 @@ export const useChain = () => {
                 verifyingContract: reqSig.target.address,
               },
               account,
-              getSpender(reqSig.spender),
+              _spender,
             ),
-            () => handleTx(
-              () => tokenContract[reqSig.fallbackCall.fn](
-                ...reqSig.fallbackCall.args,
-                { ...reqSig.fallbackCall.overrides },
-              ),
-              txCode,
-            ),
+            /* this is the function for if using fallback approvals */
+            () => handleTx(() => tokenContract.approve(_spender, MAX_256), txCode, true),
             reqSig,
             txCode,
           );
@@ -161,13 +158,13 @@ export const useChain = () => {
           const poolRouterArgs = [
             reqSig.series.getBaseAddress(),
             reqSig.series.fyTokenAddress,
-            getSpender(reqSig.spender),
+            _spender,
             nonce, expiry, allowed, v, r, s,
           ];
           const ladleArgs = [
             reqSig.target.id,
             true,
-            getSpender(reqSig.spender),
+            _spender,
             nonce, expiry, allowed, v, r, s,
           ];
           const args = viaPoolRouter ? poolRouterArgs : ladleArgs;
@@ -196,16 +193,11 @@ export const useChain = () => {
               verifyingContract: reqSig.target.address,
             },
             account,
-            getSpender(reqSig.spender),
+            _spender,
             MAX_256,
           ),
-          () => handleTx(
-            () => tokenContract[reqSig.fallbackCall.fn](
-              ...reqSig.fallbackCall.args,
-              { ...reqSig.fallbackCall.overrides },
-            ),
-            txCode,
-          ),
+          /* this is the function for if using fallback approvals */
+          () => handleTx(() => tokenContract.approve(_spender, MAX_256), txCode, true),
           reqSig,
           txCode,
         );
@@ -215,7 +207,7 @@ export const useChain = () => {
           reqSig.series.getBaseAddress(),
           reqSig.series.fyTokenAddress,
           reqSig.target.address,
-          getSpender(reqSig.spender),
+          _spender,
           value,
           deadline, v, r, s,
         ];
@@ -223,7 +215,7 @@ export const useChain = () => {
         const ladleArgs = [
           reqSig.target.id, // the asset id OR the seriesId (if signing fyToken)
           reqSig.type !== 'FYTOKEN_TYPE', // true or false=fyToken
-          getSpender(reqSig.spender),
+          _spender,
           value,
           deadline, v, r, s,
         ];
@@ -241,7 +233,7 @@ export const useChain = () => {
     );
 
     /* Returns the processed list of txs required as ICallData[] */
-    return signedList;
+    return signedList.filter((x:ICallData) => !x.ignore);
   };
 
   return { sign, transact };
