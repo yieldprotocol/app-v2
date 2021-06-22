@@ -62,7 +62,7 @@ function ActiveTransaction({ txCode, children }: { txCode:string, children: Reac
 
       {processes.get(txCode) && // CASE: TX processing but signature complete
       tx?.status === TxState.PENDING &&
-      sig?.status === TxState.SUCCESSFUL &&
+      (!sig || sig?.status === TxState.SUCCESSFUL) &&
       <Text>
         Transaction Pending... [todo graphic/animation]
       </Text>}

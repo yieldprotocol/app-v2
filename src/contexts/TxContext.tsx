@@ -186,36 +186,36 @@ const TxProvider = ({ children }:any) => {
     const uid = ethers.utils.hexlify(ethers.utils.randomBytes(6));
     updateState({ type: 'signatures', payload: { uid, txCode, sigData, status: TxState.PENDING } as IYieldSignature });
 
-    // let _sig;
-    // if (true) {
-    const _sig = await signFn()
-      .catch((err:any) => {
-        console.log(err);
-        updateState({ type: 'signatures', payload: { uid, txCode, sigData, status: TxState.REJECTED } as IYieldSignature });
-        /* end the process on signature rejection */
-        _endProcess(txCode);
-        return Promise.reject(err);
-      });
-    // } else {
-    //   await fallbackFn()
-    //     .catch((err:any) => {
-    //       console.log(err);
-    //       updateState({ type: 'signatures', payload: { uid, txCode, sigData, status: TxState.REJECTED } as IYieldSignature });
-    //       /* end the process on signature rejection */
-    //       _endProcess(txCode);
-    //       return Promise.reject(err);
-    //     });
-    //   /* on Completion of approval tx, send back an empty signed object (which will be ignored) */
-    //   _sig = ({
-    //     v: undefined,
-    //     r: undefined,
-    //     s: undefined,
-    //     value: undefined,
-    //     deadline: undefined,
-    //     nonce: undefined,
-    //     expiry: undefined,
-    //     allowed: undefined });
-    // }
+    let _sig;
+    if (false) {
+      _sig = await signFn()
+        .catch((err:any) => {
+          console.log(err);
+          updateState({ type: 'signatures', payload: { uid, txCode, sigData, status: TxState.REJECTED } as IYieldSignature });
+          /* end the process on signature rejection */
+          _endProcess(txCode);
+          return Promise.reject(err);
+        });
+    } else {
+      await fallbackFn()
+        .catch((err:any) => {
+          console.log(err);
+          updateState({ type: 'signatures', payload: { uid, txCode, sigData, status: TxState.REJECTED } as IYieldSignature });
+          /* end the process on signature rejection */
+          _endProcess(txCode);
+          return Promise.reject(err);
+        });
+      /* on Completion of approval tx, send back an empty signed object (which will be ignored) */
+      _sig = ({
+        v: undefined,
+        r: undefined,
+        s: undefined,
+        value: undefined,
+        deadline: undefined,
+        nonce: undefined,
+        expiry: undefined,
+        allowed: undefined });
+    }
 
     updateState({ type: 'signatures', payload: { uid, txCode, sigData, status: TxState.SUCCESSFUL } as IYieldSignature });
     console.log(_sig);
