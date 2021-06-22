@@ -75,7 +75,6 @@ export const useCollateralActions = () => {
         type: SignType.ERC2612,
         spender: ilk.joinAddress,
         series,
-        fallbackCall: { fn: 'approve', args: [], ignore: false, opCode: null },
         ignore: _isEthBased,
       },
     ], txCode);

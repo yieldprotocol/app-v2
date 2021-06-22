@@ -47,7 +47,6 @@ export const usePoolActions = () => {
         series,
         type: DAI_BASED_ASSETS.includes(series.baseId) ? SignType.DAI : SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
         spender: 'POOLROUTER',
-        fallbackCall: { fn: 'approve', args: [contractMap.get('Ladle'), MAX_256], ignore: false, opCode: null },
         message: 'Signing ERC20 Token approval',
         ignore: false,
       },
@@ -140,7 +139,6 @@ export const usePoolActions = () => {
         spender: 'POOLROUTER',
         series: fromSeries,
         type: SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
-        fallbackCall: { fn: 'approve', args: [contractMap.get('PoolRouter'), MAX_256], ignore: false, opCode: null },
         message: 'Signing ERC20 Token approval',
         ignore: seriesMature,
       },
@@ -152,7 +150,6 @@ export const usePoolActions = () => {
         spender: 'LADLE',
         series: fromSeries,
         type: SignType.FYTOKEN,
-        fallbackCall: { fn: 'approve', args: [contractMap.get('PoolRouter'), MAX_256], ignore: false, opCode: null },
         message: 'Signing ERC20 Token approval',
         ignore: !fromSeries.seriesIsMature,
       },
@@ -235,7 +232,6 @@ export const usePoolActions = () => {
         series,
         type: SignType.ERC2612,
         spender: 'POOLROUTER',
-        fallbackCall: { fn: 'approve', args: [contractMap.get('Pool'), MAX_256], ignore: false, opCode: null },
         message: 'Signing ERC20 Token approval',
         ignore: false,
       },

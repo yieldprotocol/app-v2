@@ -81,7 +81,6 @@ export const useBorrowActions = () => {
         spender: ilk.joinAddress,
         series,
         type: DAI_BASED_ASSETS.includes(selectedIlkId) ? SignType.DAI : SignType.ERC2612,
-        fallbackCall: { fn: 'approve', args: [], ignore: false, opCode: null },
         ignore: ETH_BASED_ASSETS.includes(selectedIlkId), /* Ignore if Eth varietal OR Dai varietal */
       },
     ], txCode);
@@ -143,7 +142,6 @@ export const useBorrowActions = () => {
         spender: 'LADLE',
         series,
         type: _isDaiBased ? SignType.DAI : SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
-        fallbackCall: { fn: 'approve', args: [contractMap.get('Ladle'), MAX_256], ignore: false, opCode: null },
         message: 'Signing Dai Approval',
         ignore: series.mature,
       },
@@ -153,7 +151,6 @@ export const useBorrowActions = () => {
         spender: base.joinAddress,
         series,
         type: _isDaiBased ? SignType.DAI : SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
-        fallbackCall: { fn: 'approve', args: [contractMap.get('Ladle'), MAX_256], ignore: false, opCode: null },
         message: 'Signing Dai Approval',
         ignore: !series.mature,
       },
