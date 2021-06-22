@@ -18,6 +18,8 @@ export interface IUserContextState {
   selectedIlkId: string|null;
   selectedBaseId: string|null;
   selectedVaultId: string|null;
+
+  approvalByTransaction: boolean;
 }
 
 export interface IUserContextActions {
@@ -30,6 +32,7 @@ export interface IUserContextActions {
   setSelectedIlk: (ilkId: string) => void;
   setSelectedBase: (baseId: string) => void;
   setSelectedVault: (vaultId: string) => void;
+
 }
 
 export interface ISeriesRoot {

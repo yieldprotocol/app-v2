@@ -30,6 +30,9 @@ const initState : IUserContextState = {
   // showVault: false,
   // showPosition: false,
 
+  /* Current User Settings */
+  approvalByTransaction: false,
+
 };
 
 const vaultNameConfig: Config = {
@@ -59,6 +62,8 @@ function userReducer(state:any, action:any) {
     case 'assetMap': return { ...state, assetMap: onlyIfChanged(action) };
     case 'seriesMap': return { ...state, seriesMap: onlyIfChanged(action) };
     case 'vaultMap': return { ...state, vaultMap: onlyIfChanged(action) };
+
+    case 'approvalByTransaction': return { ...state, approvalByTransaction: onlyIfChanged(action) };
 
     default: return state;
   }
@@ -320,6 +325,8 @@ const UserProvider = ({ children }:any) => {
     setSelectedIlk: (assetId:string|null) => updateState({ type: 'selectedIlkId', payload: assetId }),
     setSelectedSeries: (seriesId:string|null) => updateState({ type: 'selectedSeriesId', payload: seriesId }),
     setSelectedBase: (assetId:string|null) => updateState({ type: 'selectedBaseId', payload: assetId }),
+
+    toggleApprovalMethod: (assetId:string|null) => updateState({ type: 'approvalByTransaction', payload: !userState.approvalByTransaction }),
   };
 
   return (
