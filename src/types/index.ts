@@ -127,7 +127,6 @@ export interface ISignData {
   spender: 'POOLROUTER'|'LADLE'| string;
   type: SignType;
   series: ISeries;
-  fallbackCall: any; // TODO make ICallData calldata to process if fallbackTx is used
 
   /* optional Extention/advanced use-case options */
   message?: string; // optional messaging for UI
