@@ -47,7 +47,7 @@ function userReducer(state:any, action:any) {
 
   /* Reducer switch */
   switch (action.type) {
-    case 'userLoading': return { ...state, seriesLoading: onlyIfChanged(action) };
+    case 'userLoading': return { ...state, userLoading: onlyIfChanged(action) };
     case 'activeAccount': return { ...state, activeAccount: onlyIfChanged(action) };
 
     case 'selectedVaultId': return { ...state, selectedVaultId: onlyIfChanged(action) };
