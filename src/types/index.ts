@@ -19,7 +19,7 @@ export interface IUserContextState {
   selectedBaseId: string|null;
   selectedVaultId: string|null;
 
-  approvalByTransaction: boolean;
+  approvalMethod: ApprovalType;
 }
 
 export interface IUserContextActions {
@@ -160,21 +160,14 @@ export interface IDomain {
   verifyingContract: string;
 }
 
+export enum ApprovalType {
+  TX = 'TX',
+  SIG = 'SIG',
+}
 export enum SignType {
   ERC2612 = 'ERC2612_TYPE',
   DAI = 'DAI_TYPE',
   FYTOKEN = 'FYTOKEN_TYPE',
-}
-
-export enum TradeType {
-  BUY = 'BUY',
-  SELL = 'SELL',
-}
-
-export enum ActionType {
-  BORROW = 'BORROW',
-  LEND = 'LEND',
-  POOL = 'POOL',
 }
 
 export enum TxState {
@@ -188,6 +181,17 @@ export enum MenuView {
   account = 'ACCOUNT',
   settings = 'SETTINGS',
   vaults = 'VAULTS',
+}
+
+export enum TradeType {
+  BUY = 'BUY',
+  SELL = 'SELL',
+}
+
+export enum ActionType {
+  BORROW = 'BORROW',
+  LEND = 'LEND',
+  POOL = 'POOL',
 }
 
 export enum ActionCodes {

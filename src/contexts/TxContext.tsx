@@ -1,7 +1,7 @@
 import React, { useReducer, useEffect } from 'react';
 import { ethers, ContractTransaction } from 'ethers';
 import { toast } from 'react-toastify';
-import { ISignData, TxState } from '../types';
+import { ApprovalType, ISignData, TxState } from '../types';
 
 const TxContext = React.createContext<any>({});
 
@@ -178,16 +178,16 @@ const TxProvider = ({ children }:any) => {
     fallbackFn:()=>Promise<any>,
     sigData: ISignData,
     txCode: string,
+    approvalMethod: ApprovalType,
   ) => {
     /* start a process */
     _startProcess(txCode);
     console.log(txState.processes);
-
     const uid = ethers.utils.hexlify(ethers.utils.randomBytes(6));
     updateState({ type: 'signatures', payload: { uid, txCode, sigData, status: TxState.PENDING } as IYieldSignature });
 
     let _sig;
-    if (false) {
+    if (approvalMethod === ApprovalType.SIG) {
       _sig = await signFn()
         .catch((err:any) => {
           console.log(err);
@@ -218,7 +218,6 @@ const TxProvider = ({ children }:any) => {
     }
 
     updateState({ type: 'signatures', payload: { uid, txCode, sigData, status: TxState.SUCCESSFUL } as IYieldSignature });
-    console.log(_sig);
     return _sig;
   };
 

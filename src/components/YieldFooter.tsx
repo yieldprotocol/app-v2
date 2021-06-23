@@ -14,6 +14,7 @@ import { ChainContext } from '../contexts/ChainContext';
 
 import { useTimeTravel } from '../hooks/timeTravel';
 import { UserContext } from '../contexts/UserContext';
+import { ApprovalType } from '../types';
 
 const YieldFooter = (props: any) => {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
@@ -67,8 +68,15 @@ const YieldFooter = (props: any) => {
             </Box>
 
             <Box>
-              <Button onClick={() => userActions.toggleApprovalMethod()} label="set apporval method" />
-              Approval by transaction? {userState.approvalByTransaction ? 'TRUE' : 'FALSE'}
+              <Button
+                onClick={
+                  () => userActions.setApprovalMethod(
+                    userState.approvalMethod === ApprovalType.SIG ? ApprovalType.TX : ApprovalType.SIG,
+                  )
+                }
+                label="Toggle approval method"
+              />
+              Approval Method: { userState.approvalMethod }
             </Box>
           </Box>
 

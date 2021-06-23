@@ -4,7 +4,7 @@ import { ethers } from 'ethers';
 
 import { uniqueNamesGenerator, Config, adjectives, animals } from 'unique-names-generator';
 
-import { IAssetRoot, ISeriesRoot, IVaultRoot, ISeries, IAsset, IVault, IUserContextState, IUserContext } from '../types';
+import { IAssetRoot, ISeriesRoot, IVaultRoot, ISeries, IAsset, IVault, IUserContextState, IUserContext, ApprovalType } from '../types';
 
 import { ChainContext } from './ChainContext';
 import { cleanValue, genVaultImage } from '../utils/displayUtils';
@@ -26,12 +26,8 @@ const initState : IUserContextState = {
   selectedBaseId: null, // initial base
   selectedVaultId: null,
 
-  /* show vaults or positions */
-  // showVault: false,
-  // showPosition: false,
-
-  /* Current User Settings */
-  approvalByTransaction: false,
+  /* User Settings */
+  approvalMethod: ApprovalType.SIG,
 
 };
 
@@ -63,7 +59,7 @@ function userReducer(state:any, action:any) {
     case 'seriesMap': return { ...state, seriesMap: onlyIfChanged(action) };
     case 'vaultMap': return { ...state, vaultMap: onlyIfChanged(action) };
 
-    case 'approvalByTransaction': return { ...state, approvalByTransaction: onlyIfChanged(action) };
+    case 'approvalMethod': return { ...state, approvalMethod: onlyIfChanged(action) };
 
     default: return state;
   }
@@ -326,7 +322,9 @@ const UserProvider = ({ children }:any) => {
     setSelectedSeries: (seriesId:string|null) => updateState({ type: 'selectedSeriesId', payload: seriesId }),
     setSelectedBase: (assetId:string|null) => updateState({ type: 'selectedBaseId', payload: assetId }),
 
-    toggleApprovalMethod: (assetId:string|null) => updateState({ type: 'approvalByTransaction', payload: !userState.approvalByTransaction }),
+    setApprovalMethod: (type:ApprovalType) => updateState(
+      { type: 'approvalMethod', payload: type },
+    ),
   };
 
   return (

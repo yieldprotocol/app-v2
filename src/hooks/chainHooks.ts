@@ -8,6 +8,7 @@ import { MAX_128, MAX_256 } from '../utils/constants';
 import { ICallData, ISignData, ISeriesRoot, ISeries } from '../types';
 import { ERC20, ERC20__factory, Ladle, Pool, PoolRouter } from '../contracts';
 import { POOLROUTER_OPS, VAULT_OPS } from '../utils/operations';
+import { UserContext } from '../contexts/UserContext';
 
 /*  💨 Calculate the accumulative gas limit (IF ALL calls have a gaslimit then set the total, else undefined ) */
 const _getCallGas = (calls: ICallData[]) : BigNumber| undefined => {
@@ -33,6 +34,7 @@ const _getCallValue = (calls: ICallData[]) : BigNumber => {
 /* Generic hook for chain transactions */
 export const useChain = () => {
   const { chainState: { account, provider, contractMap, chainId } } = useContext(ChainContext);
+  const { userState: { approvalMethod } } = useContext(UserContext);
   const { txActions: { handleTx, handleSign } } = useContext(TxContext);
 
   /**
@@ -153,6 +155,7 @@ export const useChain = () => {
             () => handleTx(() => tokenContract.approve(_spender, MAX_256), txCode, true),
             reqSig,
             txCode,
+            approvalMethod,
           );
 
           const poolRouterArgs = [
