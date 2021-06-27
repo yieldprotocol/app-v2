@@ -14,14 +14,13 @@ import { ActionCodes, ActionType, IAsset, ISeries, IUserContext, IVault } from '
 
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
-import { useCollateralActions } from '../hooks/collateralActions';
-import { useBorrowActions } from '../hooks/borrowActions';
+import { useCollateralActions, useCollateralization } from '../hooks/collateralHooks';
+import { useBorrowActions } from '../hooks/borrowHooks';
 import SeriesSelector from '../components/selectors/SeriesSelector';
 import MaxButton from '../components/buttons/MaxButton';
 import TabWrap from '../components/wraps/TabWrap';
 import ActiveTransaction from '../components/ActiveTransaction';
 import { getTxCode } from '../utils/appUtils';
-import { useCollateralization } from '../hooks/collateralizationHook';
 import BackButton from '../components/buttons/BackButton';
 
 const Vault = () => {

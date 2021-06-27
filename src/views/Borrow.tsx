@@ -13,8 +13,8 @@ import SectionWrap from '../components/wraps/SectionWrap';
 
 import MaxButton from '../components/buttons/MaxButton';
 
-import { useBorrowActions } from '../hooks/borrowActions';
-import { useCollateralization } from '../hooks/collateralizationHook';
+import { useBorrowActions } from '../hooks/borrowHooks';
+import { useCollateralization } from '../hooks/collateralHooks';
 
 import { UserContext } from '../contexts/UserContext';
 import { ActionCodes, ActionType, ISeries, IUserContext, IVault } from '../types';
