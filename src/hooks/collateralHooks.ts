@@ -67,7 +67,9 @@ export const useCollateralActions = () => {
 
   const { sign, transact } = useChain();
 
-  const _addEth = (value: BigNumber, series:ISeries): ICallData[] => {
+  // TODO MARCO > look at possibly refactoring to remove addEth and removeEth
+
+  const addEth = (value: BigNumber, series:ISeries): ICallData[] => {
     const isPositive = value.gte(ethers.constants.Zero);
     /* Check if the selected Ilk is, in fact, an ETH variety */
     if (ETH_BASED_ASSETS.includes(selectedIlkId) && isPositive) {
@@ -84,7 +86,7 @@ export const useCollateralActions = () => {
     return [];
   };
 
-  const _removeEth = (value: BigNumber, series:ISeries): ICallData[] => {
+  const removeEth = (value: BigNumber, series:ISeries): ICallData[] => {
     /* First check if the selected Ilk is, in fact, an ETH variety */
     if (ETH_BASED_ASSETS.includes(selectedIlkId)) {
       /* return the remove ETH OP */
@@ -138,7 +140,7 @@ export const useCollateralActions = () => {
         ignore: !!vault,
       },
       // ladle.joinEtherAction(ethId),
-      ..._addEth(_input, series),
+      ...addEth(_input, series),
       // ladle.forwardPermitAction(ilkId, true, ilkJoin.address, posted, deadline, v, r, s)
       ...permits,
       // ladle.pourAction(vaultId, ignored, posted, 0)
@@ -189,7 +191,7 @@ export const useCollateralActions = () => {
         series,
         ignore: false,
       },
-      ..._removeEth(_input, series),
+      ...removeEth(_input, series),
     ];
 
     await transact('Ladle', calls, txCode);
@@ -199,5 +201,7 @@ export const useCollateralActions = () => {
   return {
     addCollateral,
     removeCollateral,
+    addEth,
+    removeEth,
   };
 };
