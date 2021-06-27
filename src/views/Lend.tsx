@@ -10,7 +10,7 @@ import SeriesSelector from '../components/selectors/SeriesSelector';
 import { cleanValue } from '../utils/displayUtils';
 import SectionWrap from '../components/wraps/SectionWrap';
 
-import { useLendActions } from '../hooks/lendActions';
+import { useLendActions } from '../hooks/lendHooks';
 import { UserContext } from '../contexts/UserContext';
 import { ActionCodes, ActionType, IUserContext } from '../types';
 import MaxButton from '../components/buttons/MaxButton';

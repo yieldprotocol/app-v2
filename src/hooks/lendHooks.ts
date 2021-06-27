@@ -9,6 +9,11 @@ import { useChain } from './chainHooks';
 
 import { VAULT_OPS, POOLROUTER_OPS } from '../utils/operations';
 
+export const useLend = (input: string|undefined) => {
+  const lendMax = input;
+  return { lendMax };
+};
+
 /* Generic hook for chain transactions */
 export const useLendActions = () => {
   const { chainState: { account, contractMap } } = useContext(ChainContext);
