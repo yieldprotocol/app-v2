@@ -13,6 +13,7 @@ import { calculateAPR, divDecimal, floorDecimal, mulDecimal, secondsToFrom, sell
 const UserContext = React.createContext<any>({});
 
 const initState : IUserContextState = {
+  userLoading: false,
   /* activeAccount */
   activeAccount: null,
   /* Item maps */

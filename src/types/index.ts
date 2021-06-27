@@ -7,7 +7,16 @@ export interface IUserContext {
   userActions : IUserContextActions;
 }
 
+export interface IHistoryContextState {
+  historyLoading: boolean,
+  txHistory: {
+    lastBlock: Number,
+    items:any[],
+  }
+}
+
 export interface IUserContextState {
+  userLoading: boolean;
   activeAccount: string|null;
 
   assetMap: Map<string, IAsset>;
