@@ -8,12 +8,11 @@ import SeriesSelector from '../components/selectors/SeriesSelector';
 import { cleanValue } from '../utils/displayUtils';
 import SectionWrap from '../components/wraps/SectionWrap';
 
-import { useLendActions } from '../hooks/lendActions';
 import { UserContext } from '../contexts/UserContext';
 import { ActionCodes, ActionType, ISeries, IUserContext } from '../types';
 import MaxButton from '../components/buttons/MaxButton';
 import InfoBite from '../components/InfoBite';
-import { usePoolActions } from '../hooks/poolActions';
+import { usePoolActions } from '../hooks/poolHooks';
 import ActiveTransaction from '../components/ActiveTransaction';
 import { getTxCode } from '../utils/appUtils';
 import TabWrap from '../components/wraps/TabWrap';
