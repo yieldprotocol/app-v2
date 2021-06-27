@@ -1,13 +1,63 @@
 import { BigNumber, ethers } from 'ethers';
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
-import { ICallData, IVault, SignType, ISeries, ActionCodes } from '../types';
+import { ICallData, IVault, SignType, ISeries, ActionCodes, IUserContext } from '../types';
 import { getTxCode } from '../utils/appUtils';
 import { ETH_BASED_ASSETS } from '../utils/constants';
 import { useChain } from './chainHooks';
 
 import { VAULT_OPS } from '../utils/operations';
+import { cleanValue } from '../utils/displayUtils';
+import { calculateCollateralizationRatio } from '../utils/yieldMath';
+
+/* Collateralisation hook calculates collateralisation metrics */
+export const useCollateralization = (
+  debtInput:string|undefined,
+  collInput:string|undefined,
+  vault: IVault|undefined,
+) => {
+  /* STATE FROM CONTEXT */
+  const { userState } = useContext(UserContext) as IUserContext;
+  const { seriesMap, selectedSeriesId, selectedBaseId } = userState;
+
+  /* LOCAL STATE */
+  const [collateralizationRatio, setCollateralizationRatio] = useState<string|undefined>();
+  const [collateralizationPercent, setCollateralizationPercent] = useState<string|undefined>();
+  const [collateralizationWarning, setCollateralizationWarning] = useState<string|undefined>();
+  const [undercollateralized, setUndercollateralized] = useState<boolean>(true);
+
+  const [borrowingPower, setBorrowingPower] = useState<string|undefined>();
+
+  useEffect(() => {
+    const dInput = debtInput ? ethers.utils.parseEther(debtInput) : ethers.constants.Zero;
+    const cInput = collInput ? ethers.utils.parseEther(collInput) : ethers.constants.Zero;
+    const preCollateral = vault?.ink || ethers.constants.Zero;
+    const preDebt = vault?.art || ethers.constants.Zero;
+    const totalCollateral = preCollateral.add(cInput);
+    const totalDebt = preDebt.add(dInput);
+
+    const price = ethers.constants.One;
+
+    const ratio = calculateCollateralizationRatio(totalCollateral, price, totalDebt, false);
+    const percent = calculateCollateralizationRatio(totalCollateral, price, totalDebt, true);
+    // console.log(collateralIn?.toString(), debt?.toString(), price?.toString(), totalCollateral?.toString());
+    setCollateralizationRatio(ratio);
+    setCollateralizationPercent(cleanValue(percent, 2));
+
+    if (collateralizationPercent && parseFloat(collateralizationPercent) <= 150) {
+      setUndercollateralized(true);
+    } else { setUndercollateralized(false); }
+  }, [collInput, collateralizationPercent, debtInput, vault]);
+
+  return {
+    collateralizationRatio,
+    collateralizationPercent,
+    borrowingPower,
+    collateralizationWarning,
+    undercollateralized,
+  };
+};
 
 export const useCollateralActions = () => {
   const { chainState: { account, contractMap } } = useContext(ChainContext);

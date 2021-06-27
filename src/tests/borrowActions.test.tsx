@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { useWeb3React } from '@web3-react/core';
 import { ethers } from 'ethers';
 import { render, fireEvent, waitFor } from './test-utils';
-import { useBorrowActions } from '../hooks/borrowActions';
+import { useBorrowActions } from '../hooks/borrowHooks';
 import { IVault } from '../types';
 import { UserContext } from '../contexts/UserContext';
 import { ChainContext } from '../contexts/ChainContext';
