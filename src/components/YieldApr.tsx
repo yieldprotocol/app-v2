@@ -17,6 +17,7 @@ interface IYieldApr {
 const StyledText = styled(Text)`
   /* text-shadow: 0 0 3px #FF0000; */
   background: -webkit-linear-gradient(rgba(77,94,254,1),rgba(195,34,34,1));
+  background: ${(props) => props.color};
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-family: 'Bree Serif', serif;
@@ -39,7 +40,7 @@ function YieldApr({ actionType, input }: IYieldApr) {
     <>
       {
       (minApr > 0) ?
-        <Box animation="fadeIn" basis={mobile ? undefined : '50%'}>
+        <Box animation="fadeIn">
           <Box pad={mobile ? undefined : 'large'} />
           {
           actionType === 'BORROW'
@@ -52,13 +53,13 @@ function YieldApr({ actionType, input }: IYieldApr) {
                 Lend {selectedSeries && cleanValue(input || '', 2)} {selectedBase?.symbol || ''} {!selectedSeries ? 'for up to' : 'at'}
               </Text>
           }
-          <Box direction="row" align="center">
-            <StyledText size="100px">
+          <Box direction="row" align="center" justify="between" fill="horizontal">
+            <StyledText size="100px" color={selectedSeries?.color}>
               {apr || (actionType === 'BORROW' ? minApr : maxApr) || ''}
             </StyledText>
             <Box fill="vertical" justify="evenly">
-              <StyledText size="large" color="brand"> % </StyledText>
-              <StyledText size="large" color="brand"> APR </StyledText>
+              <StyledText size="large" color={selectedSeries?.color}> % </StyledText>
+              <StyledText size="large" color={selectedSeries?.color}> APR </StyledText>
             </Box>
           </Box>
         </Box>
