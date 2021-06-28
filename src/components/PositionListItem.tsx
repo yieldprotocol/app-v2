@@ -14,12 +14,14 @@ function PositionListItem({ series, actionType }:{ series:ISeries, actionType:Ac
       gap="small"
       align="center"
       pad="small"
+      background={series?.color}
+      round="xsmall"
     >
       <Box
         round="large"
-        background={`linear-gradient(90deg, ${assetMap.get(series.baseId)?.color} 40%, white 75%)`}
-        pad={{ vertical: 'xsmall', left: 'xsmall', right: 'medium' }}
-        align="start"
+        background={assetMap.get(series.baseId)?.color}
+        pad="xsmall"
+        align="center"
       >
         {assetMap.get(series.baseId)?.image}
       </Box>

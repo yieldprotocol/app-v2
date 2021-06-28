@@ -5,10 +5,11 @@ import { UserContext } from '../contexts/UserContext';
 
 function VaultListItem({ vault }:{ vault:IVault }) {
   const { userState } = useContext(UserContext) as IUserContext;
-  const { assetMap } = userState;
+  const { assetMap, seriesMap } = userState;
 
   const base = assetMap.get(vault.baseId);
   const ilk = assetMap.get(vault.ilkId);
+  const series = seriesMap.get(vault.seriesId);
 
   return (
     <Box
@@ -16,8 +17,10 @@ function VaultListItem({ vault }:{ vault:IVault }) {
       gap="small"
       align="center"
       pad="small"
+      background={series?.color}
+      round="xsmall"
     >
-      <Box direction="row" round="large" pad="xsmall" background={`linear-gradient(90deg, ${base?.color} 40%, white 75%)`} gap="xsmall">
+      <Box direction="row" pad="xsmall" round="large" background={`linear-gradient(90deg, ${base?.color} 40%, #ffffff00 75%)`} gap="xsmall">
         {base?.image}
         {ilk?.image}
       </Box>
