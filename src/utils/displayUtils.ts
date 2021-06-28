@@ -1,4 +1,4 @@
-import { format, subDays } from 'date-fns';
+import { format, getMonth, subDays } from 'date-fns';
 import Identicon, { IdenticonOptions } from 'identicon.js';
 
 /* Trunctate a string value to a certain number of 'decimal' point */
@@ -114,7 +114,7 @@ export const buildGradient = (
       ${modColor(colorFrom || '#add8e6', -50)}, 
       ${modColor(colorFrom || '#add8e6', 0)},
       ${modColor(colorFrom || '#add8e6', 0)},
-      ${modColor(colorTo, 50)}, 
+      ${modColor(colorTo, 50)},
       ${modColor(colorTo, 50)}, 
       ${modColor(colorTo, 50)},
       ${modColor(colorTo, 25)}, 

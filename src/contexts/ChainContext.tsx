@@ -9,9 +9,10 @@ import { useCachedState } from '../hooks';
 import * as yieldEnv from './yieldEnv.json';
 import * as contracts from '../contracts';
 import { IAssetRoot, ISeriesRoot } from '../types';
-import { nameFromMaturity } from '../utils/displayUtils';
 import { Pool } from '../contracts';
+
 import { ETH_BASED_ASSETS } from '../utils/constants';
+import { nameFromMaturity } from '../utils/displayUtils';
 
 import DaiMark from '../components/logos/DaiMark';
 import EthMark from '../components/logos/EthMark';
@@ -19,6 +20,7 @@ import TSTMark from '../components/logos/TSTMark';
 import USDCMark from '../components/logos/USDCMark';
 import WBTCMark from '../components/logos/WBTCMark';
 import USDTMark from '../components/logos/USDTMark';
+import { getSeason, SeasonType } from '../utils/appUtils';
 
 const markMap = new Map([
   ['DAI', <DaiMark key="dai" />],
@@ -261,6 +263,9 @@ const ChainProvider = ({ children }: any) => {
               const poolContract: Pool = contracts.Pool__factory.connect(poolAddress, fallbackLibrary);
               const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackLibrary);
 
+              const season = getSeason(maturity) as SeasonType;
+              const [startColor, endColor]: string[] = yieldEnv.seasonColors[season];
+
               const [name, symbol, version, poolName, poolVersion] = await Promise.all([
                 fyTokenContract.name(),
                 fyTokenContract.symbol(),
@@ -287,6 +292,12 @@ const ChainProvider = ({ children }: any) => {
                   poolContract,
                   poolVersion,
                   poolName,
+
+                  season,
+                  startColor,
+                  endColor,
+                  color: `linear-gradient(${startColor}, ${endColor})`,
+
                   // built-in helper functions:
                   getTimeTillMaturity: () => (maturity - Math.round(new Date().getTime() / 1000)),
                   // isMature: () => (maturity < Math.round(new Date().getTime() / 1000)),

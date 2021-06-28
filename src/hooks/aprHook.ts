@@ -5,7 +5,7 @@ import { ActionType, ISeries, IUserContext } from '../types';
 import { cleanValue } from '../utils/displayUtils';
 import { secondsToFrom, sellBase, buyBase, calculateAPR } from '../utils/yieldMath';
 
-/* APR hook calculates APR, min and max aprs for selected series and BORROW or LEND type */
+/* APR hook calculatess APR, min and max aprs for selected series and BORROW or LEND type */
 export const useApr = (input:string|undefined, actionType: ActionType, series: ISeries|undefined) => {
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext) as IUserContext;

@@ -23,7 +23,6 @@ type ILadleRouter = {
   TRANSFER_TO_FYTOKEN:  [19, ['bytes6', 'uint256']];
   REDEEM:               [20, ['bytes6', 'address', 'uint256']];
   MODULE:               [21, ['address', 'bytes']];
-
 };
 
 type IPoolRouter  = {
@@ -67,5 +66,4 @@ export const VAULT_OPS: ILadleRouter = {
   TRANSFER_TO_FYTOKEN:  [19, ['bytes6', 'uint256']],
   REDEEM:               [20, ['bytes6', 'address', 'uint256']],
   MODULE:               [21, ['address', 'bytes']],
-
 };

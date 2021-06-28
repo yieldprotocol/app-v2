@@ -32,6 +32,11 @@
     "TST" : "#D15034",
     "WETH" : "#FFFFFF",
     "USDT" : "#50af95"
+  },
+  "seasonColors": {
+    "WINTER" : ["#67F2FC", "#D9D9D9"],
+    "SPRING" : ["#6AD99E","#FF6BE4"],
+    "SUMMER" : ["#FFDE75","#409C4D"],
+    "FALL" : ["#7255BD","#D95948"]
   }
 }
-

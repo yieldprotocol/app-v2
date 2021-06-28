@@ -40,7 +40,9 @@ function Pool() {
   const [maxPool, setMaxPool] = useState<string|undefined>();
 
   const [poolError, setPoolError] = useState<string|null>(null);
+
   const [poolDisabled, setPoolDisabled] = useState<boolean>(true);
+
   const [strategy, setStrategy] = useState<'BUY'|'MINT'>('BUY');
 
   const [stepPosition, setStepPosition] = useState<number>(0);
