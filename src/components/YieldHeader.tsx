@@ -5,6 +5,7 @@ import { FiMenu, FiToggleRight, FiToggleLeft } from 'react-icons/fi';
 import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
 import Balances from './Balances';
+import YieldLogo from './logos/YieldLogo';
 
 import YieldNavigation from './YieldNavigation';
 
@@ -27,9 +28,11 @@ const YieldHeader = ({ actionList } : IYieldHeaderProps) => {
       style={{ position: 'fixed', top: '0px' }}
       background="background"
     >
-      <Box background="brand" pad={mobile ? 'xsmall' : 'small'}>
+      {/* <Box background="brand" pad={mobile ? 'xsmall' : 'small'}>
         <Text size={mobile ? 'xsmall' : undefined}> YIELD</Text>
-      </Box>
+      </Box> */}
+
+      <YieldLogo />
 
       { !mobile && <YieldNavigation /> }
 
