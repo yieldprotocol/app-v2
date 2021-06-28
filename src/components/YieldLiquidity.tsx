@@ -15,7 +15,8 @@ const StyledText = styled(Text)`
   background: -webkit-linear-gradient(rgba(77,94,254,1),rgba(195,34,34,1));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  font-family: 'Bree Serif', serif;
+  font-family: 'FoundryGridnik';
+  font-weight: 'bold';
   filter: drop-shadow(5px 5px 2px #DDD);
 `;
 
