@@ -5,7 +5,7 @@ export const yieldTheme = {
   global: {
     focus: 'none',
     font: {
-      family: 'Rubik',
+      family: 'FoundryGridnik',
       weight: '700',
     },
 
@@ -58,8 +58,17 @@ export const yieldTheme = {
         ::-webkit-scrollbar {
           display: none;
         }
+        @font-face {
+          font-family: FoundryGridnik;
+          font-weight: bold;
+          src: local(FoundryGridnik), url("./fonts/FoundryGridnik.otf") format("opentype");
+          font-display: swap;
+        }
+
       `,
   },
+
+  // TODO marco fout issue
 
   textInput: {
     extend: ({ theme }: any) => (

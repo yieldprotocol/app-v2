@@ -8,7 +8,6 @@ import { Grommet, base } from 'grommet';
 import { deepMerge } from 'grommet/utils';
 import { yieldTheme } from './themes';
 
-// import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { ChainProvider } from './contexts/ChainContext';
