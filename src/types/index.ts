@@ -63,6 +63,10 @@ export interface ISeriesRoot {
   poolVersion: string; // for signing
   baseId: string;
 
+  color: string;
+  startColor: string;
+  endColor:string;
+
   // baked in token fns
   getTimeTillMaturity: () => string;
   isMature: () => boolean;
