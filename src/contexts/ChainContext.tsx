@@ -264,7 +264,16 @@ const ChainProvider = ({ children }: any) => {
               const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackLibrary);
 
               const season = getSeason(maturity) as SeasonType;
+              const oppSeason = (_season: SeasonType) => {
+                switch (season) {
+                  case 'WINTER': return SeasonType.SUMMER;
+                  case 'SUMMER': return SeasonType.WINTER;
+                  case 'FALL': return SeasonType.SPRING;
+                  default: return SeasonType.FALL;
+                }
+              };
               const [startColor, endColor]: string[] = yieldEnv.seasonColors[season];
+              const [oppStartColor, oppEndColor]: string[] = yieldEnv.seasonColors[oppSeason(season)];
 
               const [name, symbol, version, poolName, poolVersion] = await Promise.all([
                 fyTokenContract.name(),
@@ -297,6 +306,7 @@ const ChainProvider = ({ children }: any) => {
                   startColor,
                   endColor,
                   color: `linear-gradient(${startColor}, ${endColor})`,
+                  oppositeColor: `linear-gradient(${oppStartColor}, ${oppEndColor})`,
 
                   // built-in helper functions:
                   getTimeTillMaturity: () => (maturity - Math.round(new Date().getTime() / 1000)),
