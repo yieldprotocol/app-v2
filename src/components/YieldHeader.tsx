@@ -32,7 +32,7 @@ const YieldHeader = ({ actionList } : IYieldHeaderProps) => {
         <Text size={mobile ? 'xsmall' : undefined}> YIELD</Text>
       </Box> */}
 
-      <YieldLogo />
+      <YieldLogo height={mobile ? '1em' : '2em'} />
 
       { !mobile && <YieldNavigation /> }
 
