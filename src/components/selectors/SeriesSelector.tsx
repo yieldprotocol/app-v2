@@ -159,8 +159,12 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
             <Box pad="small" width="small" direction="row" align="center" gap="small">
               <Avatar background="#FFF"> {series.seriesMark} </Avatar>
               <Box>
-                <Text>{series.displayNameMobile}</Text>
-                <Text size="large"><AprText inputValue={inputValue} series={series} actionType={actionType} /></Text>
+                <Text color={series.id === selectedSeriesId ? series.textColor : undefined}>
+                  {series.displayNameMobile}
+                </Text>
+                <Text color={series.id === selectedSeriesId ? series.textColor : undefined}>
+                  <AprText inputValue={inputValue} series={series} actionType={actionType} />
+                </Text>
               </Box>
             </Box>
 

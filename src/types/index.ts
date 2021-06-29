@@ -64,6 +64,7 @@ export interface ISeriesRoot {
   baseId: string;
 
   color: string;
+  textColor: string;
   startColor: string;
   endColor:string;
 
