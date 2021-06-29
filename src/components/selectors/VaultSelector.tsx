@@ -76,8 +76,11 @@ function VaultSelector(target:any) {
   return (
 
     <>
-
-      <ModalWrap modalOpen={showVaultModal} toggleModalOpen={() => setShowVaultModal(!showVaultModal)}>
+      <ModalWrap
+        modalOpen={showVaultModal}
+        toggleModalOpen={() => setShowVaultModal(!showVaultModal)}
+        background={selectedSeries?.color}
+      >
         <Vault />
       </ModalWrap>
 
