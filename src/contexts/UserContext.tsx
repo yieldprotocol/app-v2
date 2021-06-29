@@ -36,7 +36,7 @@ const initState : IUserContextState = {
 
 const vaultNameConfig: Config = {
   dictionaries: [adjectives, animals],
-  separator: '-',
+  separator: ' ',
   length: 2,
 };
 
