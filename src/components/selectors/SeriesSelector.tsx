@@ -10,6 +10,13 @@ import { useApr } from '../../hooks/aprHook';
 import YieldMark from '../logos/YieldMark';
 
 const StyledBox = styled(Box)`
+-webkit-transition: transform 0.3s ease-in-out;
+-moz-transition: transform 0.3s ease-in-out;
+transition: transform 0.3s ease-in-out;
+
+:hover {
+  transform: scale(1.05);
+}
 `;
 
 interface ISeriesSelectorProps {
@@ -139,7 +146,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
       {cardLayout &&
       <Box direction="row-responsive" gap="small" fill justify="evenly" pad={{ vertical: 'small' }}>
         {options.map((series:ISeries) => (
-          <Box
+          <StyledBox
             // border={series.id === selectedSeriesId}
             key={series.id}
             pad="xsmall"
@@ -149,15 +156,15 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
             elevation="xsmall"
             align="center"
           >
-            <StyledBox pad="small" width="small" direction="row" align="center" gap="small">
+            <Box pad="small" width="small" direction="row" align="center" gap="small">
               <Avatar background="#FFF"> {series.seriesMark} </Avatar>
               <Box>
                 <Text>{series.displayNameMobile}</Text>
                 <Text size="large"><AprText inputValue={inputValue} series={series} actionType={actionType} /></Text>
               </Box>
-            </StyledBox>
+            </Box>
 
-          </Box>
+          </StyledBox>
         ))}
       </Box>}
     </>
