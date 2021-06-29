@@ -1,11 +1,16 @@
 import React, { useContext, useRef, useState } from 'react';
-import { Box, Button, Grid, Heading, Layer, ResponsiveContext, Text } from 'grommet';
+import { Box, Button, Grid, Header, Heading, Layer, ResponsiveContext, Text } from 'grommet';
 import styled from 'styled-components';
+
+import { FiX } from 'react-icons/fi';
 
 import { useSpring, animated, to, a } from 'react-spring';
 import { useGesture } from 'react-use-gesture';
 import MainViewWrap from './MainViewWrap';
 import PanelWrap from './PanelWrap';
+import YieldLogo from '../logos/YieldLogo';
+import BackButton from '../buttons/BackButton';
+import CenterPanelWrap from './CenterPanelWrap';
 
 interface IModalWrap {
   modalOpen: boolean;
@@ -77,22 +82,31 @@ function ModalWrap({ children, toggleModalOpen, background, modalOpen = false }:
          <Layer
            // plain
            onClickOutside={() => toggleModalOpen()}
-           modal
            responsive
            full
+           background={background}
          >
-           {/* <Box
-             height="600px"
-             width={mobile ? undefined : '600px'}
-             round="small"
-             pad="large"
-             background={background}
-           /> */}
-           <MainViewWrap background={background} pad="large">
-             <PanelWrap><Box /></PanelWrap>
-             {children}
-             <PanelWrap> <Box onClick={() => toggleModalOpen()}>close </Box>  </PanelWrap>
-           </MainViewWrap>
+           <Header
+             pad="medium"
+             height={mobile ? undefined : 'xsmall'}
+             justify="between"
+             fill="horizontal"
+             style={{ position: 'fixed', top: '0px' }}
+           >
+             <YieldLogo height={mobile ? '1em' : '2em'} />
+             <FiX onClick={() => toggleModalOpen()} />
+           </Header>
+
+           <Box flex={!mobile} overflow="auto" margin={{ top: 'xlarge' }}>
+             <MainViewWrap pad="large">
+               <PanelWrap><Box /></PanelWrap>
+               <Box gap="large" width="600px">
+                 <BackButton action={() => toggleModalOpen()} />
+                 {children}
+               </Box>
+               <PanelWrap> <Box /> </PanelWrap>
+             </MainViewWrap>
+           </Box>
          </Layer>
         }
       </animated.div>
