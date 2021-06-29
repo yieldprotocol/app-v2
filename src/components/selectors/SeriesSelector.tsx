@@ -1,16 +1,22 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, ResponsiveContext, Select, Text, ThemeContext } from 'grommet';
+import { Avatar, Box, ResponsiveContext, Select, Text, ThemeContext } from 'grommet';
 
 import { ethers } from 'ethers';
+import styled from 'styled-components';
 import { ActionType, ISeries } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { calculateAPR } from '../../utils/yieldMath';
 import { useApr } from '../../hooks/aprHook';
+import YieldMark from '../logos/YieldMark';
+
+const StyledBox = styled(Box)`
+`;
 
 interface ISeriesSelectorProps {
   actionType: ActionType;
   selectSeriesLocally?: (series: ISeries) => void; /* select series locally filters out the global selection from the list and returns the selected ISeries */
   inputValue?: string|undefined; /* accepts an inpout value for dynamic APR calculations */
+  cardLayout?: boolean
 }
 
 const AprText = (
@@ -31,14 +37,14 @@ const AprText = (
 
   return (
     <>
-      { !series?.seriesIsMature && !inputValue && <Text> <Text size="xsmall">   from  </Text> {series?.apr}% <Text size="xsmall"> APR </Text></Text>}
-      { !limitHit && !series?.seriesIsMature && inputValue && <Text> <Text size="xsmall">   @  </Text>{apr}% <Text size="xsmall"> APR </Text></Text>}
+      { !series?.seriesIsMature && !inputValue && <Text size="large">{series?.apr}% <Text size="xsmall">APR</Text></Text>}
+      { !limitHit && !series?.seriesIsMature && inputValue && <Text> <Text size="large"> </Text>{apr}% <Text size="xsmall">APR</Text></Text>}
       { limitHit && <Text size="xsmall" color="pink"> Not enough liquidity</Text>}
     </>
   );
 };
 
-function SeriesSelector({ selectSeriesLocally, inputValue, actionType }: ISeriesSelectorProps) {
+function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayout }: ISeriesSelectorProps) {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
 
   const { userState, userActions } = useContext(UserContext);
@@ -60,6 +66,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType }: ISeries
 
   const optionExtended = (_series: ISeries|undefined) => (
     <Box fill="horizontal" direction="row" justify="between" gap="small">
+      {_series?.seriesMark}
       {optionText(_series)}
       { _series?.seriesIsMature &&
         <Box round="large" border pad={{ horizontal: 'small' }}>
@@ -106,29 +113,57 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType }: ISeries
   };
 
   return (
-    <Box fill="horizontal" border round="xsmall">
-      <Select
-        plain
-        id="seriesSelect"
-        name="assetSelect"
-        placeholder="Select Series"
-        options={options}
-        value={selectedSeries}
-        labelKey={(x:any) => optionText(x)}
-        valueLabel={
+    <>
+      {!cardLayout &&
+      <Box fill="horizontal" border round="xsmall">
+        <Select
+          plain
+          id="seriesSelect"
+          name="assetSelect"
+          placeholder="Select Series"
+          options={options}
+          value={selectedSeries}
+          labelKey={(x:any) => optionText(x)}
+          valueLabel={
           options.length ?
             <Box pad={mobile ? 'medium' : '0.55em'}><Text color="text"> {optionExtended(selectedSeries)}</Text></Box>
             : <Box pad={mobile ? 'medium' : '0.55em'}><Text color="text-weak"> No available series yet.</Text></Box>
         }
-        disabled={options.length === 0}
-        onChange={({ option }: any) => handleSelect(option)}
+          disabled={options.length === 0}
+          onChange={({ option }: any) => handleSelect(option)}
         // eslint-disable-next-line react/no-children-prop
-        children={(x:any) => <Box pad={mobile ? 'medium' : 'small'} gap="small" direction="row"> <Text color="text"> { optionExtended(x) }</Text> </Box>}
-      />
-    </Box>
+          children={(x:any) => <Box pad={mobile ? 'medium' : 'small'} gap="small" direction="row"> <Text color="text"> { optionExtended(x) }</Text> </Box>}
+        />
+      </Box>}
+
+      {cardLayout &&
+      <Box direction="row-responsive" gap="small" fill justify="evenly" pad={{ vertical: 'small' }}>
+        {options.map((series:ISeries) => (
+          <Box
+            // border={series.id === selectedSeriesId}
+            key={series.id}
+            pad="xsmall"
+            round="xsmall"
+            onClick={() => handleSelect(series)}
+            background={series.id === selectedSeriesId ? series?.color : undefined}
+            elevation="xsmall"
+            align="center"
+          >
+            <StyledBox pad="small" width="small" direction="row" align="center" gap="small">
+              <Avatar background="#FFF"> {series.seriesMark} </Avatar>
+              <Box>
+                <Text>{series.displayNameMobile}</Text>
+                <Text size="large"><AprText inputValue={inputValue} series={series} actionType={actionType} /></Text>
+              </Box>
+            </StyledBox>
+
+          </Box>
+        ))}
+      </Box>}
+    </>
   );
 }
 
-SeriesSelector.defaultProps = { selectSeriesLocally: null, inputValue: undefined };
+SeriesSelector.defaultProps = { selectSeriesLocally: null, inputValue: undefined, cardLayout: true };
 
 export default SeriesSelector;
