@@ -389,7 +389,7 @@ const Borrow = () => {
         </CenterPanelWrap>
 
         <PanelWrap right basis="40%">
-          <YieldApr input={borrowInput} actionType={ActionType.BORROW} />
+          {/* <YieldApr input={borrowInput} actionType={ActionType.BORROW} /> */}
           {!mobile && <VaultSelector />}
         </PanelWrap>
 

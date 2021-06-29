@@ -16,13 +16,13 @@ interface IYieldApr {
 
 const StyledText = styled(Text)`
   /* text-shadow: 0 0 3px #FF0000; */
-  background: -webkit-linear-gradient(rgba(77,94,254,1),rgba(195,34,34,1));
+  background: -webkit-linear-gradient(#7255BD, #D95948);
   background: ${(props) => props.color};
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-family: 'FoundryGridnik';
   font-weight: bold;
-  filter: drop-shadow(5px 5px 2px #DDD);
+  filter: drop-shadow(10px 10px 2px #DDD);
 `;
 
 function YieldApr({ actionType, input }: IYieldApr) {
