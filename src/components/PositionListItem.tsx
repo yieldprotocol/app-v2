@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Box, Stack, Text } from 'grommet';
+import { Avatar, Box, Stack, Text } from 'grommet';
 import { ActionType, IAsset, ISeries, IUserContext, IVault } from '../types';
 import { UserContext } from '../contexts/UserContext';
 import { cleanValue, nFormatter } from '../utils/displayUtils';
@@ -14,17 +14,19 @@ function PositionListItem({ series, actionType }:{ series:ISeries, actionType:Ac
       gap="small"
       align="center"
       pad="small"
-      background={series?.color}
       round="xsmall"
     >
-      <Box
-        round="large"
-        background={assetMap.get(series.baseId)?.color}
-        pad="xsmall"
-        align="center"
-      >
-        {assetMap.get(series.baseId)?.image}
-      </Box>
+
+      <Avatar background={series?.color}>
+        <Box
+          round="large"
+          background={assetMap.get(series.baseId)?.color}
+          pad="xsmall"
+          align="center"
+        >
+          {assetMap.get(series.baseId)?.image}
+        </Box>
+      </Avatar>
 
       <Box>
         <Text weight={900} size="small"> {series.displayName} </Text>
