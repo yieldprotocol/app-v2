@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { Box, Button, Collapsible, Layer, Menu, ResponsiveContext, Tab, Tabs, Text, TextInput } from 'grommet';
+import { Avatar, base, Box, Button, Collapsible, Layer, Menu, ResponsiveContext, Stack, Tab, Tabs, Text, TextInput } from 'grommet';
 import { ethers } from 'ethers';
 import { useHistory } from 'react-router-dom';
 
@@ -205,10 +205,22 @@ const Vault = () => {
       <Box height="300px" gap="large">
         <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
           <Box direction="row" align="center" gap="small">
-            <Box direction="row" round="large" pad="small" background={`linear-gradient(90deg, ${vaultBase?.color} 40%, white 75%)`} gap="xsmall">
-              {vaultBase?.image}
-              {vaultIlk?.image}
-            </Box>
+
+            <Stack anchor="top-right">
+              <Avatar background={vaultBase?.color}>
+                <Box
+                  round="large"
+                  pad="small"
+                  align="center"
+                >
+                  {vaultBase?.image}
+                </Box>
+              </Avatar>
+              <Avatar background="#fff" size="xsmall">
+                {vaultIlk?.image}
+              </Avatar>
+            </Stack>
+
             <Box>
               <Text size={mobile ? 'large' : 'xlarge'}> {selectedVault?.displayName} </Text>
               <Text size="small"> {selectedVault?.id} </Text>
@@ -242,7 +254,12 @@ const Vault = () => {
       </Box>
 
       <SectionWrap title="Vault Actions">
-        <Box round="xsmall" border={{ color: '#EEE' }} pad="xsmall">
+        <Box
+          round="xsmall"
+          height="400px"
+          pad="xsmall"
+          elevation="small"
+        >
           <Tabs justify="start" activeIndex={tabIndex} onActive={onActive}>
 
             <TabWrap title="repay">
