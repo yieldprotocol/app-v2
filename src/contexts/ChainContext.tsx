@@ -270,8 +270,8 @@ const ChainProvider = ({ children }: any) => {
               // if (season === SeasonType.SUMMER) return SeasonType.WINTER;
               // if (season === SeasonType.FALL) return SeasonType.SPRING;
 
-              const [startColor, endColor]: string[] = yieldEnv.seasonColors[season];
-              const [oppStartColor, oppEndColor]: string[] = yieldEnv.seasonColors[oppSeason(season)];
+              const [startColor, endColor, textColor]: string[] = yieldEnv.seasonColors[season];
+              const [oppStartColor, oppEndColor, oppTextColor]: string[] = yieldEnv.seasonColors[oppSeason(season)];
 
               const [name, symbol, version, poolName, poolVersion] = await Promise.all([
                 fyTokenContract.name(),
@@ -304,6 +304,8 @@ const ChainProvider = ({ children }: any) => {
                   startColor,
                   endColor,
                   color: `linear-gradient(${startColor}, ${endColor})`,
+                  textColor,
+
                   oppStartColor,
                   oppEndColor,
                   seriesMark: <YieldMark start={startColor} end={endColor} />,
