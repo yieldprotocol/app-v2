@@ -17,7 +17,7 @@ const StyledText = styled(Text)`
   -webkit-text-fill-color: transparent;
   font-family: 'FoundryGridnik';
   font-weight: 'bold';
-  filter: drop-shadow(5px 5px 2px #DDD);
+  filter: drop-shadow(10px 10px 2px #DDD);
 `;
 
 function YieldApr({ input }: IYieldApr) {
@@ -53,9 +53,6 @@ function YieldApr({ input }: IYieldApr) {
             <Text size="small" color="text-weak" weight="bold">
               Total Liquidity
             </Text>
-            <Text size="medium" color="text-weak" weight="bold">
-              { selectedSeries?.displayName! }
-            </Text>
           </Box>
 
           <Box direction="row" align="center">
@@ -72,6 +69,7 @@ function YieldApr({ input }: IYieldApr) {
 
           <Text size="medium" color="text-weak" weight="bold">
             { !selectedSeries && `in all ${selectedBase?.symbol} series`}
+            { selectedSeries && `in the ${selectedSeries?.displayNameMobile} series`}
           </Text>
 
         </Box>
