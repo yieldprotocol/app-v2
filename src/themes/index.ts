@@ -61,10 +61,9 @@ export const yieldTheme = {
         @font-face {
           font-family: FoundryGridnik;
           font-weight: bold;
-          src: local(FoundryGridnik), url("./fonts/FoundryGridnik.otf") format("opentype");
-          font-display: swap;
+          src: url("./fonts/FoundryGridnik.otf") format("opentype");
+          font-display: fallback;
         }
-
       `,
   },
 

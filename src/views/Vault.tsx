@@ -296,6 +296,7 @@ const Vault = () => {
                     <SeriesSelector
                       selectSeriesLocally={(series:ISeries) => setRollToSeries(series)}
                       actionType={ActionType.BORROW}
+                      cardLayout={false}
                     />
                   </Box>
                   :

@@ -67,6 +67,12 @@ export interface ISeriesRoot {
   startColor: string;
   endColor:string;
 
+  oppositeColor:string;
+  oppStartColor: string;
+  oppEndColor:string;
+
+  seriesMark: React.ElementType
+
   // baked in token fns
   getTimeTillMaturity: () => string;
   isMature: () => boolean;
