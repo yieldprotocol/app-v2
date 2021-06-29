@@ -45,7 +45,8 @@ function VaultListItem({ vault }:{ vault:IVault }) {
 
       <Box>
         <Text weight={900} size="small"> {vault.displayName} </Text>
-        <Box>
+        <Box direction="column">
+          <Text weight={450} size="xsmall"> {series?.displayNameMobile} </Text>
           <Text weight={450} size="xsmall"> Debt:  {vault.art_} </Text>
         </Box>
       </Box>
