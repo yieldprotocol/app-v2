@@ -1,11 +1,11 @@
 import React, { useContext } from 'react';
-import { Box, ResponsiveContext } from 'grommet';
+import { Box, BoxTypes, ResponsiveContext } from 'grommet';
 
-interface IMainViewWrapProps {
+interface IMainViewWrapProps extends BoxTypes {
   children:React.ReactNode;
 }
 
-const MainViewWrap = ({ children }: IMainViewWrapProps) => {
+const MainViewWrap = ({ children, background }: IMainViewWrapProps) => {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
 
   return (
@@ -26,8 +26,9 @@ const MainViewWrap = ({ children }: IMainViewWrapProps) => {
         fill
         justify="between"
         gap="small"
-        width={{ max: '1200px' }}
+        width={background ? undefined : { max: '1200px' }}
         alignSelf="center"
+        background={background}
       >
         {children}
       </Box>

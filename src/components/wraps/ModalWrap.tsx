@@ -4,11 +4,15 @@ import styled from 'styled-components';
 
 import { useSpring, animated, to, a } from 'react-spring';
 import { useGesture } from 'react-use-gesture';
+import MainViewWrap from './MainViewWrap';
+import PanelWrap from './PanelWrap';
 
 interface IModalWrap {
   modalOpen: boolean;
   toggleModalOpen: ()=>void;
   children: any;
+  background?: string|undefined;
+
 }
 
 // const BlurredLayer = styled.Layer()`
@@ -18,7 +22,7 @@ interface IModalWrap {
 const calcX = (y: number, ly: number) => -(y - ly - window.innerHeight / 2) / 200;
 const calcY = (x: number, lx: number) => (x - lx - window.innerWidth / 2) / 200;
 
-function ModalWrap({ children, toggleModalOpen, modalOpen = false }: IModalWrap) {
+function ModalWrap({ children, toggleModalOpen, background, modalOpen = false }: IModalWrap) {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const [flipped, setFlipped] = useState(false);
@@ -75,21 +79,28 @@ function ModalWrap({ children, toggleModalOpen, modalOpen = false }: IModalWrap)
            onClickOutside={() => toggleModalOpen()}
            modal
            responsive
+           full
          >
-           <Box
+           {/* <Box
              height="600px"
              width={mobile ? undefined : '600px'}
              round="small"
              pad="large"
-           >
+             background={background}
+           /> */}
+           <MainViewWrap background={background} pad="large">
+             <PanelWrap><Box /></PanelWrap>
              {children}
-           </Box>
+             <PanelWrap> <Box onClick={() => toggleModalOpen()}>close </Box>  </PanelWrap>
+           </MainViewWrap>
          </Layer>
         }
       </animated.div>
     </Box>
   );
 }
+
+ModalWrap.defaultProps = { background: undefined };
 
 // ModalWrap.defaultProps = { basis: undefined };
 export default ModalWrap;

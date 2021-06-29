@@ -101,7 +101,11 @@ function PositionSelector({ actionType } : { actionType: ActionType }) {
   return (
 
     <>
-      <ModalWrap modalOpen={showPositionModal} toggleModalOpen={() => setShowPositionModal(!showPositionModal)}>
+      <ModalWrap
+        modalOpen={showPositionModal}
+        toggleModalOpen={() => setShowPositionModal(!showPositionModal)}
+        background={selectedSeries?.color}
+      >
         { actionType === 'LEND' ? <LendPosition /> : <PoolPosition /> }
       </ModalWrap>
 
