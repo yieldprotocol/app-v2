@@ -1,5 +1,6 @@
 import { Box, Layer, Text } from 'grommet';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
+import styled from 'styled-components';
 import { UserContext } from '../../contexts/UserContext';
 import { IAsset, ISeries, IUserContext, IVault } from '../../types';
 import Vault from '../../views/Vault';
@@ -12,6 +13,16 @@ interface IVaultFilter {
   series: ISeries | undefined,
   ilk: IAsset | undefined,
 }
+
+const StyledBox = styled(Box)`
+-webkit-transition: transform 0.3s ease-in-out;
+-moz-transition: transform 0.3s ease-in-out;
+transition: transform 0.3s ease-in-out;
+
+:hover {
+  transform: scale(1.05);
+}
+`;
 
 function VaultSelector(target:any) {
   /* STATE FROM CONTEXT */
@@ -136,18 +147,18 @@ function VaultSelector(target:any) {
           }
             {
           (showAllVaults ? allVaults : filteredVaults).map((x:IVault, i:number) => (
-            <Box
+            <StyledBox
               key={x.id}
               animation={{ type: 'fadeIn', delay: i * 100, duration: 1500 }}
               hoverIndicator={{ elevation: 'large' }}
               onClick={() => handleSelect(x)}
-              round="small"
-              elevation="medium"
+              round="xsmall"
+              elevation="small"
               flex={false}
               fill="horizontal"
             >
               <VaultListItem vault={x} />
-            </Box>
+            </StyledBox>
           ))
           }
           </ListWrap>
