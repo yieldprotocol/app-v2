@@ -134,6 +134,8 @@ export interface IVault extends IVaultRoot {
   art: BigNumber;
   ink_: string;
   art_: string;
+  price: BigNumber;
+  price_: string;
 }
 
 export interface ICallData {

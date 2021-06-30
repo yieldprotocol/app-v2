@@ -11,6 +11,10 @@ export const copyToClipboard = (str:string) => {
   document.body.removeChild(el);
 };
 
+export function bytes6ToBytes32(x: string): string {
+  return x + '00'.repeat(26);
+}
+
 /* log to console + any extra action required, extracted  */
 export const toLog = (message: string, type: string = 'info') => {
   // eslint-disable-next-line no-console

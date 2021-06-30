@@ -9,6 +9,8 @@ import { IAssetRoot, ISeriesRoot, IVaultRoot, ISeries, IAsset, IVault, IUserCont
 import { ChainContext } from './ChainContext';
 import { cleanValue, genVaultImage } from '../utils/displayUtils';
 import { calculateAPR, divDecimal, floorDecimal, mulDecimal, secondsToFrom, sellFYToken } from '../utils/yieldMath';
+import { bytes6ToBytes32 } from '../utils/appUtils';
+import { ONE_WEI_BN } from '../utils/constants';
 
 const UserContext = React.createContext<any>({});
 
@@ -187,6 +189,7 @@ const UserProvider = ({ children }:any) => {
           series.fyTokenContract.balanceOf(series.poolAddress),
           series.isMature(),
         ]);
+
         /* Calculates the base/fyToken unit selling price */
         const _sellRate = sellFYToken(
           baseReserves,
@@ -196,6 +199,7 @@ const UserProvider = ({ children }:any) => {
         );
         const apr = calculateAPR(floorDecimal(_sellRate), ethers.utils.parseEther('1'), series.maturity) || '0';
         // const { symbol } = assetRootMap.get(series.baseId);
+
         return {
           ...series,
           baseReserves,
@@ -249,6 +253,7 @@ const UserProvider = ({ children }:any) => {
   const updateVaults = useCallback(async (vaultList: IVaultRoot[]) => {
     let _vaultList: IVaultRoot[] = vaultList;
     const Cauldron = contractMap.get('Cauldron');
+    const Oracle = contractMap.get('ChainlinkOracle');
 
     /* if vaultList is empty, fetch complete Vaultlist from chain via _getVaults */
     if (vaultList.length === 0) _vaultList = Array.from((await _getVaults()).values());
@@ -257,9 +262,11 @@ const UserProvider = ({ children }:any) => {
     const vaultListMod = await Promise.all(
       _vaultList.map(async (vault:IVaultRoot) : Promise<IVault> => {
         /* update balance and series  ( series - because a vault can have been rolled to another series) */
-        const [{ ink, art }, { seriesId }] = await Promise.all([
+        const [{ ink, art }, { seriesId }, [price, date]] = await Promise.all([
           await Cauldron.balances(vault.id),
           await Cauldron.vaults(vault.id),
+          await Oracle.get(bytes6ToBytes32(vault.ilkId), bytes6ToBytes32(vault.baseId), ONE_WEI_BN),
+
         ]);
 
         return {
@@ -269,6 +276,8 @@ const UserProvider = ({ children }:any) => {
           art,
           ink_: cleanValue(ethers.utils.formatEther(ink), 2), // for display purposes only
           art_: cleanValue(ethers.utils.formatEther(art), 2), // for display purposes only
+          price,
+          price_: cleanValue(ethers.utils.formatEther(price), 2),
         };
       }),
     );

@@ -161,6 +161,8 @@ const ChainProvider = ({ children }: any) => {
       const Cauldron = contracts.Cauldron__factory.connect(addrs.Cauldron, fallbackLibrary);
       const Ladle = contracts.Ladle__factory.connect(addrs.Ladle, fallbackLibrary);
       const PoolRouter = contracts.PoolRouter__factory.connect(addrs.PoolRouter, fallbackLibrary);
+      const CompoundOracle = contracts.CompoundMultiOracle__factory.connect(addrs.CompoundOracle, fallbackLibrary);
+      const ChainlinkOracle = contracts.ChainlinkMultiOracle__factory.connect(addrs.ChainlinkOracle, fallbackLibrary);
 
       updateState({ type: 'appVersion', payload: process.env.REACT_APP_VERSION });
 
@@ -169,6 +171,8 @@ const ChainProvider = ({ children }: any) => {
       newContractMap.set('Cauldron', Cauldron);
       newContractMap.set('Ladle', Ladle);
       newContractMap.set('PoolRouter', PoolRouter);
+      newContractMap.set('CompoundOracle', CompoundOracle);
+      newContractMap.set('ChainlinkOracle', ChainlinkOracle);
       updateState({ type: 'contractMap', payload: newContractMap });
 
       let test :any;
