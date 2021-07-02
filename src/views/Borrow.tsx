@@ -80,9 +80,8 @@ const Borrow = () => {
   const [useExistingVault, setUseExistingVault] = useState<boolean>(false);
 
   const [vaultIdToUse, setVaultIdToUse] = useState<string|undefined>(undefined);
-  const [vaultInUse, setVaultInUse] = useState<IVault|undefined>(undefined);
+  const [vaultToUse, setVaultToUse] = useState<IVault|undefined>(undefined);
 
-  const [matchingBaseVaults, setMatchingBaseVaults] = useState<IVault[]>([]);
   const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
 
   const { borrow } = useBorrowActions();
@@ -189,14 +188,6 @@ const Borrow = () => {
 
   /* CHECK the list of current vaults which match the current series/ilk selection */
   useEffect(() => {
-    if (selectedBase && selectedSeries) {
-      const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
-      const _matchingVaults = arr.filter((v:IVault) => (
-        v.baseId === selectedBase.id &&
-        v.seriesId === selectedSeries.id
-      ));
-      setMatchingBaseVaults(_matchingVaults);
-    }
     if (selectedBase && selectedSeries && selectedIlk) {
       const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
       const _matchingVaults = arr.filter((v:IVault) => (
@@ -209,13 +200,13 @@ const Borrow = () => {
   }, [vaultMap, selectedBase, selectedIlk, selectedSeries]);
 
   /* wathc to see if user wants to use an existing vault */
-  useEffect(() => {
-    if (useExistingVault) {
-      setVaultIdToUse(matchingVaults[0]?.displayName);
-    } else {
-      setVaultIdToUse(undefined);
-    }
-  }, [matchingVaults, useExistingVault]);
+  // useEffect(() => {
+  //   if (useExistingVault) {
+  //     setVaultIdToUse(matchingVaults[0]?.displayName);
+  //   } else {
+  //     setVaultIdToUse(undefined);
+  //   }
+  // }, [matchingVaults, useExistingVault]);
 
   return (
 
@@ -301,34 +292,18 @@ const Borrow = () => {
               </SectionWrap>
 
               {
-                !selectedSeries?.seriesIsMature &&
-                <SectionWrap>
-                  <Box gap="small" fill="horizontal">
-                    <Box gap="xsmall">
-                      {/* <CheckBox
-                        // reverse
-                        disabled={matchingVaults.length < 1}
-                        checked={!vaultIdToUse || !matchingVaults.find((v:IVault) => v.id === vaultIdToUse)}
-                        label={<Text size="small">Create new vault</Text>}
-                        onChange={() => setVaultIdToUse(undefined)}
-                      /> */}
-                      <Box direction="row-responsive" gap="small" justify="between">
-                        <CheckBox
-                          disabled={matchingVaults.length < 1}
-                          checked={useExistingVault}
-                          label={<Text size="small">Add debt to an exisiting vault </Text>}
-                          onChange={(event:any) => setUseExistingVault(!useExistingVault)}
-                        />
-                        <Select
-                          disabled={matchingVaults.length < 1}
-                          options={matchingVaults.map((x:IVault) => x.id)}
+                !selectedSeries?.seriesIsMature && matchingVaults.length > 0 &&
+                <SectionWrap title="Borrow from an exisiting vault?">
+                  <Box fill round="xsmall" gap="small" justify="between" elevation="xsmall" animation="slideDown">
+                    <Select
+                      plain
+                      disabled={matchingVaults.length < 1}
+                      options={matchingVaults.map((x:IVault) => x.id)}
                           // placeholder="or Borrow from an existing vault"
-                          value={vaultIdToUse || ''}
+                      value={vaultIdToUse || ''}
                           // defaultValue={undefined}
-                          onChange={({ option }) => setVaultIdToUse(option)}
-                        />
-                      </Box>
-                    </Box>
+                      onChange={({ option }) => setVaultIdToUse(option)}
+                    />
                   </Box>
                 </SectionWrap>
               }
