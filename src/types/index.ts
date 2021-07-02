@@ -23,6 +23,8 @@ export interface IUserContextState {
   seriesMap: Map<string, ISeries>;
   vaultMap: Map<string, IVault>;
 
+  priceMap: Map<string, Map<string, any>>;
+
   selectedSeriesId: string|null;
   selectedIlkId: string|null;
   selectedBaseId: string|null;
@@ -36,6 +38,8 @@ export interface IUserContextActions {
   updateVaults: (vaultList: IVault[]) => void;
   updateSeries: (seriesList: ISeries[]) => void;
   updateAssets: (assetList: IAsset[]) => void;
+
+  updatePrice: (base: string, ilk:string) => void;
 
   setSelectedSeries: (seriesId: string) => void;
   setSelectedIlk: (ilkId: string) => void;
@@ -92,6 +96,7 @@ export interface IAssetRoot {
   displayNameMobile: string;
   address: string;
   joinAddress: string,
+
   // baked in token fns
   getBalance: (account: string)=>Promise<BigNumber>,
   getAllowance: (account: string, spender: string)=>Promise<BigNumber>,

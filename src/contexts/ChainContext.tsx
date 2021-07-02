@@ -81,6 +81,7 @@ const initState = {
   contractMap: new Map<string, ContractFactory>(),
   assetRootMap: new Map<string, IAssetRoot>(),
   seriesRootMap: new Map<string, ISeriesRoot>(),
+
 };
 
 function chainReducer(state: any, action: any) {
@@ -110,7 +111,6 @@ function chainReducer(state: any, action: any) {
       ...state,
       assetRootMap: state.assetRootMap.set(action.payload.id, action.payload),
     };
-
     /* special internal case for multi-updates - might remove from this context if not needed */
     case '_any': return { ...state, ...action.payload };
     default: return state;
@@ -187,10 +187,8 @@ const ChainProvider = ({ children }: any) => {
         /* Update the available assetsMap based on Cauldron events */
         (async () => {
           /* get all the assetAdded, roacleAdded and joinAdded events and series events at the same time */
-          const [assetAddedEvents, spotOracleAddedEvents, rateOracleAddedEvents, joinAddedEvents] = await Promise.all([
+          const [assetAddedEvents, joinAddedEvents] = await Promise.all([
             Cauldron.queryFilter('AssetAdded' as any),
-            Cauldron.queryFilter('SpotOracleAdded' as any),
-            Cauldron.queryFilter('RateOracleAdded' as any),
             Ladle.queryFilter('JoinAdded' as any),
           ]);
 
@@ -199,27 +197,12 @@ const ChainProvider = ({ children }: any) => {
             joinAddedEvents.map((log:any) => Ladle.interface.parseLog(log).args) as [[string, string]],
           );
 
-          /* Create a map from the rateOracleAdded event data */
-          // event RateOracleAdded(bytes6 indexed baseId, address indexed oracle);
-          const rateOracleMap: Map<string, string> = new Map(
-            rateOracleAddedEvents.map((log:any) => Cauldron.interface.parseLog(log).args) as [[string, string]],
-          );
-
-          /* Create a map from the spotOracleAdded event data : structure>  Map[ string, Map[string, [address, string ]]] */
-          // event SpotOracleAdded(bytes6 indexed baseId, bytes6 indexed ilkId, address indexed oracle, uint32 ratio);
-          const spotOracleMap: Map<string, string> = new Map(
-            spotOracleAddedEvents.map((log:any) => {
-              const { args } = Cauldron.interface.parseLog(log);
-              // const _map = new Map([args[1], [args[2], args[3]]]);
-              return [args[0], args[3]];
-            }) as [[string, string]],
-          );
-
           await Promise.all(assetAddedEvents.map(async (x:any) => {
             const { assetId: id, asset: address } = Cauldron.interface.parseLog(x).args;
             const ERC20 = contracts.ERC20Permit__factory.connect(address, fallbackLibrary);
             /* Add in any extra static asset Data */ // TODO is there any other fixed asset data needed?
             const [name, symbol] = await Promise.all([ERC20.name(), ERC20.symbol()]);
+            // TODO check if any other tokens have different versions. maybe abstract this logic somewhere?
             const version = (id === '0x555344430000') ? '2' : '1';
             // const version = ETH_BASED_ASSETS.includes(id) ? '1' : ERC20.version();
 
@@ -247,7 +230,7 @@ const ChainProvider = ({ children }: any) => {
 
         /* ... AT THE SAME TIME update the available seriesRootMap based on Cauldron events */
         (async () => {
-          /* get both poolAdded events and series events at the same time */
+          /* get poolAdded events and series events at the same time */
           const [seriesAddedEvents, poolAddedEvents] = await Promise.all([
             Cauldron.queryFilter('SeriesAdded' as any),
             Ladle.queryFilter('PoolAdded' as any),

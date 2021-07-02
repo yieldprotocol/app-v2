@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useReducer, useCallback, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 
 import { uniqueNamesGenerator, Config, adjectives, animals } from 'unique-names-generator';
 
@@ -24,6 +24,9 @@ const initState : IUserContextState = {
   assetMap: new Map<string, IAsset>(),
   seriesMap: new Map<string, ISeries>(),
   vaultMap: new Map<string, IVault>(),
+
+  /* map of asset prices */
+  priceMap: new Map<string, Map<string, any>>(),
 
   /* Current User selections */
   selectedSeriesId: null,
@@ -63,6 +66,8 @@ function userReducer(state:any, action:any) {
     case 'assetMap': return { ...state, assetMap: onlyIfChanged(action) };
     case 'seriesMap': return { ...state, seriesMap: onlyIfChanged(action) };
     case 'vaultMap': return { ...state, vaultMap: onlyIfChanged(action) };
+
+    case 'priceMap': return { ...state, priceMap: onlyIfChanged(action) };
 
     case 'approvalMethod': return { ...state, approvalMethod: onlyIfChanged(action) };
 
@@ -173,6 +178,19 @@ const UserProvider = ({ children }:any) => {
     console.log('ASSETS updated (with dynamic data): ', newAssetMap);
   }, [account]);
 
+  /* Updates the prices from the oracle with latest data */ // TODO reduce redundant calls
+  const updatePrice = useCallback(async (base: string, ilk:string): Promise<ethers.BigNumber> => {
+    const _priceMap = userState.priceMap;
+    const _basePriceMap = _priceMap.get(base) || new Map<string, any>();
+    const Oracle = contractMap.get('ChainlinkOracle');
+    const [price] = await Oracle.get(bytes6ToBytes32(base), bytes6ToBytes32(ilk), ONE_WEI_BN);
+    _basePriceMap.set(ilk, price);
+    _priceMap.set(base, _basePriceMap);
+    updateState({ type: 'priceMap', payload: _priceMap });
+    console.log('Price Updated: ', base, '->', ilk, ':', price.toString());
+    return price;
+  }, [contractMap, userState.priceMap]);
+
   /* Updates the series with relevant *user* data */
   const updateSeries = useCallback(async (seriesList: ISeriesRoot[]) => {
     let _publicData : ISeries[] = [];
@@ -253,20 +271,18 @@ const UserProvider = ({ children }:any) => {
   const updateVaults = useCallback(async (vaultList: IVaultRoot[]) => {
     let _vaultList: IVaultRoot[] = vaultList;
     const Cauldron = contractMap.get('Cauldron');
-    const Oracle = contractMap.get('ChainlinkOracle');
 
     /* if vaultList is empty, fetch complete Vaultlist from chain via _getVaults */
     if (vaultList.length === 0) _vaultList = Array.from((await _getVaults()).values());
 
-    /* add in the dynamic vault data by mapping the vaults list */
+    /* Add in the dynamic vault data by mapping the vaults list */
     const vaultListMod = await Promise.all(
       _vaultList.map(async (vault:IVaultRoot) : Promise<IVault> => {
         /* update balance and series  ( series - because a vault can have been rolled to another series) */
-        const [{ ink, art }, { seriesId }, [price, date]] = await Promise.all([
+        const [{ ink, art }, { seriesId }, price] = await Promise.all([
           await Cauldron.balances(vault.id),
           await Cauldron.vaults(vault.id),
-          await Oracle.get(bytes6ToBytes32(vault.ilkId), bytes6ToBytes32(vault.baseId), ONE_WEI_BN),
-
+          await updatePrice(vault.baseId, vault.ilkId),
         ]);
 
         return {
@@ -324,11 +340,26 @@ const UserProvider = ({ children }:any) => {
     updateState({ type: 'activeAccount', payload: account });
   }, [account]);
 
+  /* Subscribe to oracle price changes */
+  useEffect(() => {
+    !chainLoading && seriesRootMap && (async () => {
+      const Oracle = contractMap.get('ChainlinkOracle');
+
+      const filter = Oracle.filters.SourceSet(null, null, null);
+      const eventList = await Oracle.queryFilter(filter, 1);
+      console.log('eventlist: ', eventList);
+    })();
+  }, [chainLoading, contractMap, seriesRootMap]);
+
   /* Exposed userActions */
   const userActions = {
+
     updateSeries,
     updateAssets,
     updateVaults,
+
+    updatePrice,
+
     setSelectedVault: (vaultId:string|null) => updateState({ type: 'selectedVaultId', payload: vaultId }),
     setSelectedIlk: (assetId:string|null) => updateState({ type: 'selectedIlkId', payload: assetId }),
     setSelectedSeries: (seriesId:string|null) => updateState({ type: 'selectedSeriesId', payload: seriesId }),

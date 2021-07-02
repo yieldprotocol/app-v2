@@ -3,8 +3,8 @@ import { useContext, useEffect, useState } from 'react';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
 import { ICallData, IVault, SignType, ISeries, ActionCodes, IUserContext } from '../types';
-import { getTxCode } from '../utils/appUtils';
-import { ETH_BASED_ASSETS } from '../utils/constants';
+import { bytes6ToBytes32, getTxCode } from '../utils/appUtils';
+import { ETH_BASED_ASSETS, ONE_WEI_BN } from '../utils/constants';
 import { useChain } from './chainHooks';
 
 import { VAULT_OPS } from '../utils/operations';
@@ -18,8 +18,10 @@ export const useCollateralization = (
   vault: IVault|undefined,
 ) => {
   /* STATE FROM CONTEXT */
-  const { userState } = useContext(UserContext) as IUserContext;
-  const { seriesMap, selectedSeriesId, selectedBaseId } = userState;
+  const {
+    userState: { selectedBaseId, selectedIlkId, priceMap },
+    userActions: { updatePrice },
+  } = useContext(UserContext);
 
   /* LOCAL STATE */
   const [collateralizationRatio, setCollateralizationRatio] = useState<string|undefined>();
@@ -29,26 +31,47 @@ export const useCollateralization = (
 
   const [borrowingPower, setBorrowingPower] = useState<string|undefined>();
 
+  const [oraclePrice, setOraclePrice] = useState<ethers.BigNumber>();
+
+  /* update the prices if anything changes */
   useEffect(() => {
+    if (selectedBaseId && selectedIlkId) {
+      (async () => {
+        const _price = priceMap.get(selectedBaseId)?.get(selectedIlkId)! ||
+        await updatePrice(selectedBaseId, selectedIlkId);
+        setOraclePrice(_price);
+      })();
+    }
+  }, [priceMap, selectedBaseId, selectedIlkId, updatePrice]);
+
+  useEffect(() => {
+    const existingCollateral = vault?.ink || ethers.constants.Zero;
+    const existingDebt = vault?.art || ethers.constants.Zero;
+
     const dInput = debtInput ? ethers.utils.parseEther(debtInput) : ethers.constants.Zero;
     const cInput = collInput ? ethers.utils.parseEther(collInput) : ethers.constants.Zero;
-    const preCollateral = vault?.ink || ethers.constants.Zero;
-    const preDebt = vault?.art || ethers.constants.Zero;
-    const totalCollateral = preCollateral.add(cInput);
-    const totalDebt = preDebt.add(dInput);
 
-    const price = ethers.constants.One;
+    const totalCollateral = existingCollateral.add(cInput);
+    const totalDebt = existingDebt.add(dInput);
 
-    const ratio = calculateCollateralizationRatio(totalCollateral, price, totalDebt, false);
-    const percent = calculateCollateralizationRatio(totalCollateral, price, totalDebt, true);
-    // console.log(collateralIn?.toString(), debt?.toString(), price?.toString(), totalCollateral?.toString());
-    setCollateralizationRatio(ratio);
-    setCollateralizationPercent(cleanValue(percent, 2));
+    /* set the collateral ratio when collateral is entered */
+    if (oraclePrice?.gt(ethers.constants.Zero) && totalCollateral.gt(ethers.constants.Zero)) {
+      const ratio = calculateCollateralizationRatio(totalCollateral, oraclePrice, totalDebt, false);
+      const percent = calculateCollateralizationRatio(totalCollateral, oraclePrice, totalDebt, true);
+      setCollateralizationRatio(ratio);
+      setCollateralizationPercent(cleanValue(percent, 2));
+    } else {
+      setCollateralizationRatio('0.0');
+      setCollateralizationPercent(cleanValue('0.0', 2));
+    }
 
+    /* check for undercollateralisation */
     if (collateralizationPercent && parseFloat(collateralizationPercent) <= 150) {
       setUndercollateralized(true);
     } else { setUndercollateralized(false); }
-  }, [collInput, collateralizationPercent, debtInput, vault]);
+  }, [collInput, collateralizationPercent, debtInput, oraclePrice, vault]);
+
+  // TODO marco add in collateralisation warning at about 150% - 200% " warning: vulnerable to liquidation"
 
   return {
     collateralizationRatio,
