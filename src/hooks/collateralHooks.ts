@@ -26,12 +26,11 @@ export const useCollateralization = (
   /* LOCAL STATE */
   const [collateralizationRatio, setCollateralizationRatio] = useState<string|undefined>();
   const [collateralizationPercent, setCollateralizationPercent] = useState<string|undefined>();
-  const [collateralizationWarning, setCollateralizationWarning] = useState<string|undefined>();
   const [undercollateralized, setUndercollateralized] = useState<boolean>(true);
-
-  const [borrowingPower, setBorrowingPower] = useState<string|undefined>();
-
   const [oraclePrice, setOraclePrice] = useState<ethers.BigNumber>();
+  // todo:
+  const [collateralizationWarning, setCollateralizationWarning] = useState<string|undefined>();
+  const [borrowingPower, setBorrowingPower] = useState<string|undefined>();
 
   /* update the prices if anything changes */
   useEffect(() => {
