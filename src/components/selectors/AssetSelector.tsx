@@ -66,7 +66,8 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
     <Box
       fill
       round="xsmall"
-      border={(selectCollateral && !selectedSeries) ? { color: 'text-xweak' } : true}
+      // border={(selectCollateral && !selectedSeries) ? { color: 'text-xweak' } : true}
+      elevation="xsmall"
     >
       <Select
         plain
