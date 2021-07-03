@@ -30,6 +30,7 @@ import { getTxCode } from '../utils/appUtils';
 import { cleanValue } from '../utils/displayUtils';
 import YieldInfo from '../components/YieldInfo';
 import BackButton from '../components/buttons/BackButton';
+import { Gauge } from '../components/Gauge';
 
 const StampText = styled(Text)`
 
@@ -308,13 +309,12 @@ const Borrow = () => {
                 </SectionWrap>
               }
 
-              <SectionWrap title="Collateralisation Ratio">
-                <Box direction="row-responsive">
+              {/* <SectionWrap title="Collateralisation Ratio"> */}
+              <SectionWrap>
+                {/* <Box direction="row-responsive">
                   <Text size="xlarge" color={undercollateralized ? 'pink' : 'green'}>{collateralizationPercent} %</Text>
-                  {/* <Collateralization percent={50} /> */}
-                  {/* {undercollateralized && <Box> UNDERCOLLATERALISED </Box>} */}
-                </Box>
-                [todo: add meter graphic/slider]
+                </Box> */}
+                <Gauge value={parseFloat(collateralizationPercent!)} label="%" max={750} min={150} />
               </SectionWrap>
             </Box>
             }
