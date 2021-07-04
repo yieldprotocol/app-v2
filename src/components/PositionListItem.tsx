@@ -16,7 +16,6 @@ function PositionListItem({ series, actionType }:{ series:ISeries, actionType:Ac
       pad="small"
       round="xsmall"
     >
-
       <Avatar background={series?.color}>
         <Box
           round="large"
