@@ -14,6 +14,8 @@ const StyledBox = styled(Box)`
 -moz-transition: transform 0.3s ease-in-out;
 transition: transform 0.3s ease-in-out;
 
+background 0.3s ease-in-out;
+
 :hover {
   transform: scale(1.05);
 }
