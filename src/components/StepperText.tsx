@@ -1,7 +1,6 @@
 import { Box, Text } from 'grommet';
-import React, { useState } from 'react';
-import { a, useTrail, useTransition } from 'react-spring';
-import AltText from './AltText';
+import React from 'react';
+import HandText from './texts/HandText';
 
 interface IStepperText {
   values: [string, string, string][];
@@ -15,10 +14,10 @@ function StepperText({ values, position }: IStepperText) {
         <Box key={x[1]}>
           {position === i && <Text weight={900} color="text-weak"> Step {i + 1} </Text>}
           <Box direction="row">
-            <AltText weight={900} size={position === i ? 'xxlarge' : 'medium'} color={position === i ? 'text' : 'text-xweak'}> {`${x[0]}\n`}
+            <HandText weight={900} size={position === i ? 'xxlarge' : 'medium'} color={position === i ? 'text' : 'text-xweak'}> {`${x[0]}\n`}
               <Text weight={900} size={position === i ? 'xxlarge' : 'medium'} color={position === i ? 'text' : 'text-xweak'}> {x[1]} </Text>
               {x[2]}
-            </AltText>
+            </HandText>
           </Box>
         </Box>
       )) }

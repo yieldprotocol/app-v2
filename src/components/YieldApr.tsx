@@ -8,6 +8,7 @@ import { useApr } from '../hooks/aprHook';
 import { ActionType, ISeries, IUserContext } from '../types';
 import { cleanValue } from '../utils/displayUtils';
 import { buyBase, calculateAPR, secondsToFrom, sellBase } from '../utils/yieldMath';
+import HandText from './texts/HandText';
 
 interface IYieldApr {
   actionType: ActionType,
@@ -20,7 +21,7 @@ const StyledText = styled(Text)`
   background: ${(props) => props.color};
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  font-family: 'FoundryGridnik';
+  font-family: ''Rubrik'', cursive;
   font-weight: bold;
   filter: drop-shadow(10px 10px 2px #DDD);
 `;
@@ -40,19 +41,19 @@ function YieldApr({ actionType, input }: IYieldApr) {
   return (
     <>
       {
-      (minApr > 0) ?
+      (minApr > 0) || true ?
         <Box animation="fadeIn">
           <Box pad={mobile ? undefined : 'large'} />
           {
           actionType === 'BORROW'
             ?
-              <Text size="medium" color="text-weak" weight="bold" margin="-1em">
+              <HandText size="medium" color="text-weak" weight="bold" margin="-1em">
                 Borrow {selectedSeries ? cleanValue(input || '', 2) : '' } {selectedBase?.symbol || ''} {!selectedSeries || selectedSeries.seriesIsMature ? 'from' : 'at'}
-              </Text>
+              </HandText>
             :
-              <Text size="medium" color="text-weak" weight="bold" margin="-1em">
+              <HandText size="medium" color="text-weak" weight="bold" margin="-1em">
                 Lend {selectedSeries && cleanValue(input || '', 2)} {selectedBase?.symbol || ''} {!selectedSeries ? 'for up to' : 'at'}
-              </Text>
+              </HandText>
           }
           <Box direction="row" align="center" justify="between" fill="horizontal">
             <StyledText size="100px" color={selectedSeries?.color}>
