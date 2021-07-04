@@ -33,7 +33,9 @@ function InputWrap({ action, disabled, isError, children, ...props }: IInputWrap
       >
         { children }
       </InsetBox>
-      <Text color="pink" size="xsmall"> {isError} </Text>
+      <Box>
+        <Text style={{ position: 'absolute' }} color="pink" size="xsmall"> {isError} </Text>
+      </Box>
     </Box>
 
   );
