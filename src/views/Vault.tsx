@@ -201,7 +201,7 @@ const Vault = () => {
   }, [vaultMap, selectedVault]);
 
   return (
-    <Box gap="large" fill>
+    <Box gap="large">
       <Box height="300px" gap="large">
         <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
           <Box direction="row" align="center" gap="small">
