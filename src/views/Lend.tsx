@@ -23,6 +23,7 @@ import ActiveTransaction from '../components/ActiveTransaction';
 import YieldInfo from '../components/YieldInfo';
 import { getTxCode } from '../utils/appUtils';
 import BackButton from '../components/buttons/BackButton';
+import YieldMark from '../components/logos/YieldMark';
 
 const Lend = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -102,10 +103,14 @@ const Lend = () => {
         <YieldInfo />
       </PanelWrap>}
 
-      <CenterPanelWrap>
+      <CenterPanelWrap series={selectedSeries}>
         {
           stepPosition === 0 &&
-          <Box gap="large">
+          <Box gap="medium">
+            <Box direction="row" gap="small" align="center">
+              <YieldMark />
+              <Text>LEND</Text>
+            </Box>
             <SectionWrap title="Select an asset and amount to lend">
               <Box direction="row" gap="small" fill="horizontal" align="start">
                 <Box basis={mobile ? '50%' : '60%'}>

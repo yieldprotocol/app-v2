@@ -24,6 +24,7 @@ import { getTxCode } from '../utils/appUtils';
 import YieldInfo from '../components/YieldInfo';
 import YieldLiquidity from '../components/YieldLiquidity';
 import BackButton from '../components/buttons/BackButton';
+import YieldMark from '../components/logos/YieldMark';
 
 function Pool() {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -104,11 +105,15 @@ function Pool() {
         <YieldInfo />
       </PanelWrap>}
 
-      <CenterPanelWrap>
+      <CenterPanelWrap series={selectedSeries}>
 
         {
           stepPosition === 0 &&
-          <Box gap="large">
+          <Box gap="medium">
+            <Box direction="row" gap="small" align="center">
+              <YieldMark />
+              <Text>POOL</Text>
+            </Box>
 
             <SectionWrap title="Select an asset to Pool">
               <Box direction="row" gap="small" fill="horizontal" align="start">

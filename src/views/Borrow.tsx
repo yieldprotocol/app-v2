@@ -34,6 +34,10 @@ import YieldInfo from '../components/YieldInfo';
 import BackButton from '../components/buttons/BackButton';
 import { Gauge } from '../components/Gauge';
 import ReviewTxItem from '../components/ReviewTxItem';
+import NextButton from '../components/buttons/NextButton';
+import AltText from '../components/AltText';
+import YieldLogo from '../components/logos/YieldLogo';
+import YieldMark from '../components/logos/YieldMark';
 
 const StampText = styled(Text)`
 
@@ -230,7 +234,12 @@ const Borrow = () => {
         <CenterPanelWrap series={selectedSeries || undefined}>
           {
             stepPosition === 0 && // INITIAL STEP
-            <Box gap="large">
+            <Box gap="medium">
+              <Box direction="row" gap="small" align="center">
+                <YieldMark />
+                <Text>BORROW</Text>
+              </Box>
+
               {/* <Box pad="small" /> */}
               <SectionWrap title="Select an asset and amount: ">
                 <Box direction="row" gap="small" fill="horizontal" align="start">
@@ -370,20 +379,12 @@ const Borrow = () => {
           }
 
           <ActionButtonGroup>
-            {stepPosition === 0 &&
-              <Button
+            { (stepPosition === 0 || stepPosition === 1) &&
+              <NextButton
                 secondary
                 label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
                 onClick={() => setStepPosition(stepPosition + 1)}
-                disabled={stepDisabled}
-              />}
-
-            {stepPosition === 1 &&
-              <Button
-                secondary
-                label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
-                onClick={() => setStepPosition(stepPosition + 1)}
-                disabled={borrowDisabled}
+                disabled={stepPosition === 0 ? stepDisabled : borrowDisabled}
               />}
 
             {stepPosition === 2 &&
