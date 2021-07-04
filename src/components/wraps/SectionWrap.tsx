@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Box, Heading, ResponsiveContext, Text } from 'grommet';
 import { BorderType } from 'grommet/utils';
-import styled from 'styled-components';
+import AltText from '../AltText';
 
 interface ISectionWrap {
   title?: string|null;
@@ -10,15 +10,11 @@ interface ISectionWrap {
   children: any;
 }
 
-const StyledText = styled(Text)`
-  font-family: 'Rubik';
-`;
-
 function SectionWrap({ title, subtitle, border, children }: ISectionWrap) {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
   return (
-    <Box gap="xsmall" fill border={border}>
-      { title && <StyledText size={mobile ? 'small' : 'small'}> {title} </StyledText>}
+    <Box gap="small" fill border={border}>
+      { title && <AltText size={mobile ? 'small' : 'small'} color="text-weak"> {title} </AltText>}
       { subtitle && <Text color="text-weak" size={mobile ? 'xsmall' : 'small'}> {subtitle} </Text>}
       {children}
     </Box>

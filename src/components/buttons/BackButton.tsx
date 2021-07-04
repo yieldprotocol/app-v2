@@ -24,7 +24,7 @@ function BackButton({ action }: { action:()=>void }) {
       onMouseLeave={() => setHover(false)}
     >
       <FiArrowLeftCircle color={hover ? '#333333' : 'grey'} />
-      <Text size="medium" color={hover ? 'text' : 'text-weak'}>
+      <Text size="small" color={hover ? 'text' : 'text-weak'}>
         go back
       </Text>
     </StyledBox>
