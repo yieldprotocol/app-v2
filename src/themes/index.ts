@@ -62,7 +62,7 @@ export const yieldTheme = {
           font-family: FoundryGridnik;
           font-weight: bold;
           src: url("./fonts/FoundryGridnik.otf") format("opentype");
-          font-display: fallback;
+          font-display: swap;
         }
       `,
   },

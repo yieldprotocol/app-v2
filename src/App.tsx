@@ -10,7 +10,7 @@ import Pool from './views/Pool';
 
 import MenuLayer from './layers/MenuLayer';
 import YieldFooter from './components/YieldFooter';
-import Vault from './views/Vault';
+import Vault from './views/VaultPosition';
 import YieldHeader from './components/YieldHeader';
 import Markets from './views/Markets';
 

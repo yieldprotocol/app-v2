@@ -3,7 +3,7 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { UserContext } from '../../contexts/UserContext';
 import { IAsset, ISeries, IUserContext, IVault } from '../../types';
-import Vault from '../../views/Vault';
+import Vault from '../../views/VaultPosition';
 import VaultListItem from '../VaultListItem';
 import ListWrap from '../wraps/ListWrap';
 import ModalWrap from '../wraps/ModalWrap';
