@@ -26,7 +26,7 @@ const MainViewWrap = ({ children, background }: IMainViewWrapProps) => {
         fill
         justify="between"
         gap="small"
-        width={background ? undefined : { max: '1200px' }}
+        width={background ? undefined : { max: '1500px' }}
         alignSelf="center"
         background={background}
       >
