@@ -38,7 +38,7 @@ function ActiveTransaction({ txCode, children }: { txCode:string, children: Reac
       {processes.get(txCode) &&
         sig?.status === TxState.PENDING && // CASE: Signature/ approval required
         <Text>
-          Signature required. [todo graphic/animation]
+          Signature or Approval required. [todo graphic/animation]
           Please check your wallet/provider.
         </Text>}
 

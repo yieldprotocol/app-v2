@@ -28,7 +28,7 @@ const YieldHeader = ({ actionList } : IYieldHeaderProps) => {
       style={{ position: 'fixed', top: '0px' }}
       background="background"
     >
-      <YieldLogo height={mobile ? '1em' : '2em'} />
+      <YieldLogo height={mobile ? '1em' : '1.5em'} />
 
       { !mobile && <YieldNavigation /> }
 

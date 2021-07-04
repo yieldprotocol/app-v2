@@ -17,7 +17,6 @@ interface IModalWrap {
   toggleModalOpen: ()=>void;
   children: any;
   background?: string|undefined;
-
 }
 
 // const BlurredLayer = styled.Layer()`
@@ -85,6 +84,7 @@ function ModalWrap({ children, toggleModalOpen, background, modalOpen = false }:
            responsive
            full
            background={background}
+           animation="none"
          >
            <Header
              pad="medium"
@@ -93,7 +93,7 @@ function ModalWrap({ children, toggleModalOpen, background, modalOpen = false }:
              fill="horizontal"
              style={{ position: 'fixed', top: '0px' }}
            >
-             <YieldLogo height={mobile ? '1em' : '2em'} />
+             <YieldLogo height={mobile ? '1em' : '1.5em'} fill="white" />
              <FiX onClick={() => toggleModalOpen()} />
            </Header>
 
