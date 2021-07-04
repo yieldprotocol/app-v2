@@ -107,7 +107,7 @@ const Lend = () => {
         {
           stepPosition === 0 &&
           <Box gap="medium">
-            <Box direction="row" gap="small" align="center">
+            <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
               <YieldMark />
               <Text>LEND</Text>
             </Box>

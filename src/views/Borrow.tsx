@@ -35,8 +35,6 @@ import BackButton from '../components/buttons/BackButton';
 import { Gauge } from '../components/Gauge';
 import ReviewTxItem from '../components/ReviewTxItem';
 import NextButton from '../components/buttons/NextButton';
-import AltText from '../components/AltText';
-import YieldLogo from '../components/logos/YieldLogo';
 import YieldMark from '../components/logos/YieldMark';
 
 const StampText = styled(Text)`
@@ -235,7 +233,7 @@ const Borrow = () => {
           {
             stepPosition === 0 && // INITIAL STEP
             <Box gap="medium">
-              <Box direction="row" gap="small" align="center">
+              <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
                 <YieldMark />
                 <Text>BORROW</Text>
               </Box>
@@ -302,11 +300,11 @@ const Borrow = () => {
 
                 {
                 !selectedSeries?.seriesIsMature &&
-                <SectionWrap title="Create new vault, or add to an exisiting vault">
+                <SectionWrap title="Add to an exisiting vault" disabled={matchingVaults.length < 1}>
                   <Box fill round="xsmall" gap="small" justify="between" elevation="xsmall" animation="slideDown">
                     <Select
                       plain
-                      // disabled={matchingVaults.length < 1}
+                      disabled={matchingVaults.length < 1}
                       options={matchingVaults.map((x:IVault) => x.id)}
                       placeholder="Create new vault"
                       value={vaultIdToUse || 'Create new vault'}
@@ -402,7 +400,6 @@ const Borrow = () => {
           {/* <YieldApr input={borrowInput} actionType={ActionType.BORROW} /> */}
           {/* {!mobile && stepPosition === 1 && <Gauge value={parseFloat(collateralizationPercent!)} label="%" max={750} min={150} />} */}
           {!mobile && <VaultSelector />}
-
         </PanelWrap>
 
       </MainViewWrap>
