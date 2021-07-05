@@ -26,22 +26,19 @@ transition: transform 0.3s ease-in-out;
 
 function VaultSelector(target:any) {
   /* STATE FROM CONTEXT */
-
   const { userState, userActions } = useContext(UserContext) as IUserContext;
-  const { activeAccount, assetMap, vaultMap, seriesMap, selectedSeriesId, selectedIlkId, selectedBaseId } = userState;
+  const { assetMap, vaultMap, seriesMap, selectedSeriesId, selectedBaseId } = userState;
   const { setSelectedVault } = userActions;
 
   const selectedBase = assetMap.get(selectedBaseId!);
-  const selectedIlk = assetMap.get(selectedIlkId!);
   const selectedSeries = seriesMap.get(selectedSeriesId!);
 
+  /* LOCAL STATE */
   const [showAllVaults, setShowAllVaults] = useState<boolean>(false);
   const [showVaultModal, setShowVaultModal] = useState<boolean>(false);
-
   const [allVaults, setAllVaults] = useState<IVault[]>([]);
 
-  const [currentFilter, setCurrentFilter] = useState<(IVaultFilter)>();
-  const [filterLabels, setFilterLabels] = useState<(string|undefined)[]>([]);
+  const [filter, setFilter] = useState<(IVaultFilter)>();
   const [filteredVaults, setFilteredVaults] = useState<IVault[]>([]);
 
   const handleSelect = (_vault:IVault) => {
@@ -56,8 +53,7 @@ function VaultSelector(target:any) {
         .filter((vault:IVault) => (series ? (vault.seriesId === series.id) : true))
         .filter((vault:IVault) => (ilk ? (vault.ilkId === ilk.id) : true));
 
-      setCurrentFilter({ base, series, ilk });
-      setFilterLabels([base?.symbol, series?.displayNameMobile, ilk?.symbol]);
+      setFilter({ base, series, ilk });
       setFilteredVaults(_filteredVaults);
     },
     [vaultMap],
@@ -76,13 +72,6 @@ function VaultSelector(target:any) {
       }
     }
   }, [vaultMap, selectedBase, selectedSeries, showVaultModal, handleFilter]);
-
-  // useEffect(() => {
-  //   !currentFilter?.base &&
-  //   !currentFilter?.series &&
-  //   !currentFilter?.ilk &&
-  //   setShowAllVaults(true);
-  // }, [currentFilter]);
 
   return (
 
@@ -105,70 +94,67 @@ function VaultSelector(target:any) {
         >
 
           <Box animation="fadeIn" justify="end" align="end" direction="row" gap="small">
-            <Text size="small" color="text-weak"> { showAllVaults ? 'All my vaults' : 'My vaults'}</Text>
+            <Text size="small" color="text-weak"> { showAllVaults ? 'All my vaults' : 'Filtered vaults'}</Text>
           </Box>
-
-          {
-          !showAllVaults &&
-          <Box>
-            <Box direction="row" gap="small" justify="end" align="center">
-              {
-                filterLabels[0] &&
-                <Box gap="xsmall" border direction="row" round="xsmall" pad={{ horizontal: 'xsmall', vertical: 'xsmall' }} animation={{ type: 'zoomIn', duration: 1500 }}>
-                  <Text size="xsmall">{filterLabels[0]}-based</Text>
-                  <Text
-                    size="xsmall"
-                    onClick={() => handleFilter({ ...currentFilter, base: undefined } as IVaultFilter)}
-                  > x
-                  </Text>
-                </Box>
-              }
-              {
-              filterLabels[1] &&
-              <Box gap="xsmall" direction="row" border round="xsmall" pad={{ horizontal: 'xsmall', vertical: 'xsmall' }} animation={{ type: 'zoomIn', duration: 1500 }}>
-                <Text size="xsmall">{filterLabels[1]}</Text>
-                <Text
-                  size="xsmall"
-                  onClick={() => handleFilter({ ...currentFilter, series: undefined } as IVaultFilter)}
-                >x
-                </Text>
-              </Box>
-              }
-            </Box>
-          </Box>
-      }
 
           <ListWrap>
-            {
-            allVaults.length > 0 &&
+            {allVaults.length > 0 &&
             filteredVaults.length === 0 &&
             !showAllVaults &&
-            <Text weight={450} size="small"> No suggested vaults </Text>
-          }
-            {
-          (showAllVaults ? allVaults : filteredVaults).map((x:IVault, i:number) => (
-            <StyledBox
-              key={x.id}
-              animation={{ type: 'fadeIn', delay: i * 100, duration: 1500 }}
-              hoverIndicator={{ elevation: 'large' }}
-              onClick={() => handleSelect(x)}
-              round="xsmall"
-              elevation="small"
-              flex={false}
-              fill="horizontal"
-            >
-              <VaultListItem vault={x} />
-            </StyledBox>
-          ))
-          }
+            <Text weight={450} size="small"> No suggested vaults </Text>}
+
+            {(showAllVaults ? allVaults : filteredVaults).map((x:IVault, i:number) => (
+              <StyledBox
+                key={x.id}
+                animation={{ type: 'fadeIn', delay: i * 100, duration: 1500 }}
+                hoverIndicator={{ elevation: 'large' }}
+                onClick={() => handleSelect(x)}
+                round="xsmall"
+                elevation="small"
+                flex={false}
+                fill="horizontal"
+              >
+                <VaultListItem vault={x} />
+              </StyledBox>
+            ))}
+
           </ListWrap>
+
+          {!showAllVaults &&
+            <Box direction="row" gap="small" justify="end" align="center">
+
+              {filter?.base &&
+                <Box gap="xsmall" border direction="row" round="xsmall" pad={{ horizontal: 'xsmall', vertical: 'xsmall' }} animation={{ type: 'zoomIn', duration: 1500 }}>
+                  <Text size="xsmall">{filter.base.symbol}-based</Text>
+                  <Text
+                    size="xsmall"
+                    onClick={() => handleFilter({
+                      ...filter,
+                      base: undefined,
+                      series: filter.series,
+                    } as IVaultFilter)}
+                  > x
+                  </Text>
+                </Box>}
+
+              {filter?.series &&
+              <Box gap="xsmall" direction="row" border round="xsmall" pad={{ horizontal: 'xsmall', vertical: 'xsmall' }} animation={{ type: 'zoomIn', duration: 1500 }}>
+                <Text size="xsmall">{filter.series.displayNameMobile}</Text>
+                <Text
+                  size="xsmall"
+                  onClick={() => handleFilter({ ...filter, series: undefined } as IVaultFilter)}
+                >x
+                </Text>
+              </Box>}
+            </Box>}
 
           <Box
             align="end"
             onClick={() => setShowAllVaults(!showAllVaults)}
           >
-            <Text size="xsmall" color="text-weak"> {showAllVaults ? 'Show suggested vaults only' : `Show all ${allVaults.length} vaults`} </Text>
+            <Text size="xsmall" color="text-weak"> {showAllVaults ? 'Show filtered vaults' : `Show all ${allVaults.length} vaults`} </Text>
           </Box>
+
         </Box>
       }
     </>
