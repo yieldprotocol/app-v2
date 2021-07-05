@@ -99,7 +99,7 @@ function CenterPanelWrap({ children, series }: IPanelWrap) {
               >
                 <StyledBox
                   height="500px"
-                  width="400px"
+                  width="500px"
                   startColor={series.startColor}
                   endColor={series.endColor}
                   animation="fadeIn"
@@ -108,12 +108,10 @@ function CenterPanelWrap({ children, series }: IPanelWrap) {
 
               <Box
                 elevation={mobile ? undefined : 'xlarge'}
-                height={{ min: '600px', max: '600px' }}
+                height={{ min: '600px' }}
                 width="500px"
                 round="xsmall"
                 background="white"
-                justify="between"
-                pad="large"
               >
                 {children}
               </Box>
