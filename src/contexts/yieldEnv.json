@@ -25,7 +25,7 @@
       "ChainlinkOracle" : "0x7bc06c482DEAd17c0e297aFbC32f6e63d3846650"
     }
   },
-  "colors": {
+  "assetColors": {
     "DAI" : "#F5AC37",
     "USDC" : "#2775CA",
     "WBTC" : "#5A5564",

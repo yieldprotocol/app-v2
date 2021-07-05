@@ -216,7 +216,7 @@ const ChainProvider = ({ children }: any) => {
                 name,
                 symbol,
                 version,
-                color: (yieldEnv.colors as any)[symbol],
+                color: (yieldEnv.assetColors as any)[symbol],
                 image: markMap.get(symbol),
                 joinAddress: joinMap.get(id),
                 /* baked in token fns */
