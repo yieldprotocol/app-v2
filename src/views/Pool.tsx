@@ -106,7 +106,9 @@ function Pool() {
 
       <CenterPanelWrap series={selectedSeries}>
 
-        {
+        <Box height="100%" pad="large">
+
+          {
           stepPosition === 0 &&
           <Box gap="medium">
             <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
@@ -148,7 +150,7 @@ function Pool() {
           </Box>
           }
 
-        {
+          {
           stepPosition === 1 &&
           <Box gap="large">
             <BackButton action={() => setStepPosition(0)} />
@@ -180,6 +182,7 @@ function Pool() {
 
           </Box>
           }
+        </Box>
 
         <ActionButtonGroup>
           {

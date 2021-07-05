@@ -103,7 +103,9 @@ const Lend = () => {
       </PanelWrap>}
 
       <CenterPanelWrap series={selectedSeries}>
-        {
+
+        <Box height="100%" pad="large">
+          {
           stepPosition === 0 &&
           <Box gap="medium">
             <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
@@ -143,7 +145,7 @@ const Lend = () => {
           </Box>
           }
 
-        {
+          {
           stepPosition === 1 &&
           <Box gap="large">
             <BackButton action={() => setStepPosition(0)} />
@@ -157,6 +159,8 @@ const Lend = () => {
             </ActiveTransaction>
           </Box>
           }
+
+        </Box>
 
         <ActionButtonGroup>
           {

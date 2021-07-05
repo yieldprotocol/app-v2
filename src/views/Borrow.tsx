@@ -231,7 +231,8 @@ const Borrow = () => {
         </PanelWrap>}
 
         <CenterPanelWrap series={selectedSeries || undefined}>
-          {
+          <Box height="100%" pad="large">
+            {
             stepPosition === 0 && // INITIAL STEP
             <Box gap="medium">
               <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
@@ -268,7 +269,7 @@ const Borrow = () => {
             </Box>
             }
 
-          {
+            {
             stepPosition === 1 && // ADD COLLATERAL
               <Box gap="large" justify="center" fill>
 
@@ -323,7 +324,7 @@ const Borrow = () => {
 
             }
 
-          {
+            {
             stepPosition === 2 && // REVIEW
             <Box gap="large">
               <BackButton action={() => setStepPosition(1)} />
@@ -376,6 +377,7 @@ const Borrow = () => {
               </ActiveTransaction>
             </Box>
           }
+          </Box>
 
           <ActionButtonGroup>
             { (stepPosition === 0 || stepPosition === 1) &&
