@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../contexts/UserContext';
 import { ActionType, ISeries, IUserContext } from '../types';
-import { cleanValue } from '../utils/displayUtils';
+import { cleanValue } from '../utils/appUtils';
 import { secondsToFrom, sellBase, buyBase, calculateAPR } from '../utils/yieldMath';
 
 /* APR hook calculatess APR, min and max aprs for selected series and BORROW or LEND type */

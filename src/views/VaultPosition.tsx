@@ -1,13 +1,11 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { Avatar, base, Box, Button, Collapsible, Layer, Menu, ResponsiveContext, Stack, Tab, Tabs, Text, TextInput } from 'grommet';
+import { Box, Button, Menu, ResponsiveContext, Tabs, Text, TextInput } from 'grommet';
 import { ethers } from 'ethers';
 import { useHistory } from 'react-router-dom';
 
 import { FiMoreVertical } from 'react-icons/fi';
-
-import { cleanValue } from '../utils/displayUtils';
+import { cleanValue, getTxCode } from '../utils/appUtils';
 import { UserContext } from '../contexts/UserContext';
-
 import InputWrap from '../components/wraps/InputWrap';
 import InfoBite from '../components/InfoBite';
 import { ActionCodes, ActionType, IAsset, ISeries, IUserContext, IVault } from '../types';
@@ -20,7 +18,6 @@ import SeriesSelector from '../components/selectors/SeriesSelector';
 import MaxButton from '../components/buttons/MaxButton';
 import TabWrap from '../components/wraps/TabWrap';
 import ActiveTransaction from '../components/ActiveTransaction';
-import { getTxCode } from '../utils/appUtils';
 import BackButton from '../components/buttons/BackButton';
 import PositionAvatar from '../components/PositionAvatar';
 
@@ -233,7 +230,7 @@ const Vault = () => {
 
         <SectionWrap>
           <Box gap="medium">
-            <InfoBite label="Vault debt:" value={`${selectedVault?.art_} ${vaultBase?.symbol}`} />
+            <InfoBite label="Vault debt:" value={`${selectedVault?.art_} ${vaultBase?.symbol}`} icon={<Box>heler</Box>} />
             <InfoBite label="Collateral posted:" value={`${selectedVault?.ink_} ${vaultIlk?.symbol}`} />
             <InfoBite label="Maturity date:" value={`${vaultSeries?.displayName}`} />
             <InfoBite label="Collateralization Ratio:" value={`${collateralizationPercent} %`} />

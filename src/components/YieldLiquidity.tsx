@@ -4,7 +4,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { UserContext } from '../contexts/UserContext';
 import { ISeries, IUserContext } from '../types';
-import { nFormatter } from '../utils/displayUtils';
+import { nFormatter } from '../utils/appUtils';
 
 interface IYieldApr {
   input: string|undefined,

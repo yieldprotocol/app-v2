@@ -7,9 +7,9 @@ import { uniqueNamesGenerator, Config, adjectives, animals } from 'unique-names-
 import { IAssetRoot, ISeriesRoot, IVaultRoot, ISeries, IAsset, IVault, IUserContextState, IUserContext, ApprovalType } from '../types';
 
 import { ChainContext } from './ChainContext';
-import { cleanValue, genVaultImage } from '../utils/displayUtils';
+import { cleanValue, genVaultImage, bytes6ToBytes32 } from '../utils/appUtils';
 import { calculateAPR, divDecimal, floorDecimal, mulDecimal, secondsToFrom, sellFYToken } from '../utils/yieldMath';
-import { bytes6ToBytes32 } from '../utils/appUtils';
+
 import { ONE_WEI_BN } from '../utils/constants';
 
 const UserContext = React.createContext<any>({});

@@ -5,7 +5,7 @@ import { ethers } from 'ethers';
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import InputWrap from '../components/wraps/InputWrap';
 import SeriesSelector from '../components/selectors/SeriesSelector';
-import { cleanValue } from '../utils/displayUtils';
+import { cleanValue, getTxCode } from '../utils/appUtils';
 import SectionWrap from '../components/wraps/SectionWrap';
 
 import { UserContext } from '../contexts/UserContext';
@@ -14,7 +14,6 @@ import MaxButton from '../components/buttons/MaxButton';
 import InfoBite from '../components/InfoBite';
 import { usePoolActions } from '../hooks/poolHooks';
 import ActiveTransaction from '../components/ActiveTransaction';
-import { getTxCode } from '../utils/appUtils';
 import TabWrap from '../components/wraps/TabWrap';
 import BackButton from '../components/buttons/BackButton';
 import PositionAvatar from '../components/PositionAvatar';

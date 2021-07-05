@@ -12,7 +12,7 @@ import { IAssetRoot, ISeriesRoot } from '../types';
 import { Pool } from '../contracts';
 
 import { ETH_BASED_ASSETS } from '../utils/constants';
-import { nameFromMaturity } from '../utils/displayUtils';
+import { nameFromMaturity, getSeason, SeasonType } from '../utils/appUtils';
 
 import DaiMark from '../components/logos/DaiMark';
 import EthMark from '../components/logos/EthMark';
@@ -20,7 +20,6 @@ import TSTMark from '../components/logos/TSTMark';
 import USDCMark from '../components/logos/USDCMark';
 import WBTCMark from '../components/logos/WBTCMark';
 import USDTMark from '../components/logos/USDTMark';
-import { getSeason, SeasonType } from '../utils/appUtils';
 import YieldMark from '../components/logos/YieldMark';
 
 const markMap = new Map([

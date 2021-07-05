@@ -3,7 +3,7 @@ import { Box, Button, RadioButtonGroup, ResponsiveContext, Text, TextInput } fro
 
 import { ethers } from 'ethers';
 
-import { cleanValue } from '../utils/displayUtils';
+import { cleanValue, getTxCode } from '../utils/appUtils';
 import AssetSelector from '../components/selectors/AssetSelector';
 import MainViewWrap from '../components/wraps/MainViewWrap';
 import SeriesSelector from '../components/selectors/SeriesSelector';
@@ -20,7 +20,6 @@ import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import StepperText from '../components/StepperText';
 import PositionSelector from '../components/selectors/PositionSelector';
 import ActiveTransaction from '../components/ActiveTransaction';
-import { getTxCode } from '../utils/appUtils';
 import YieldInfo from '../components/YieldInfo';
 import YieldLiquidity from '../components/YieldLiquidity';
 import BackButton from '../components/buttons/BackButton';

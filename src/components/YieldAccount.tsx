@@ -14,7 +14,7 @@ import {
 import YieldBalances from './YieldBalances';
 
 import { ChainContext } from '../contexts/ChainContext';
-import { abbreviateHash } from '../utils/displayUtils';
+import { abbreviateHash } from '../utils/appUtils';
 import YieldAvatar from './YieldAvatar';
 
 const YieldAccount = (props: any) => {

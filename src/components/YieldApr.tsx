@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import { UserContext } from '../contexts/UserContext';
 import { useApr } from '../hooks/aprHook';
 import { ActionType, ISeries, IUserContext } from '../types';
-import { cleanValue } from '../utils/displayUtils';
+import { cleanValue } from '../utils/appUtils';
 import { buyBase, calculateAPR, secondsToFrom, sellBase } from '../utils/yieldMath';
 import HandText from './texts/HandText';
 

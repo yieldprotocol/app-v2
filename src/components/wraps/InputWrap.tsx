@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Box, BoxProps, Text, ResponsiveContext } from 'grommet';
 import styled, { css } from 'styled-components';
-import { modColor } from '../../utils/displayUtils';
+import { modColor } from '../../utils/appUtils';
 
 interface IInputWrap extends BoxProps {
   action?: ()=>void;

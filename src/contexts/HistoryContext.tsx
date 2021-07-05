@@ -5,7 +5,7 @@ import { ethers } from 'ethers';
 import { IAssetRoot, ISeriesRoot, IVaultRoot, ISeries, IAsset, IVault, IUserContextState, IUserContext, ApprovalType, IHistoryContextState } from '../types';
 
 import { ChainContext } from './ChainContext';
-import { cleanValue, genVaultImage } from '../utils/displayUtils';
+import { cleanValue, genVaultImage } from '../utils/appUtils';
 import { calculateAPR, divDecimal, floorDecimal, mulDecimal, secondsToFrom, sellFYToken } from '../utils/yieldMath';
 import { UserContext } from './UserContext';
 

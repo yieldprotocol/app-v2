@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { Avatar, Box, Stack, Text } from 'grommet';
 import { ActionType, IAsset, ISeries, IUserContext, IVault } from '../types';
 import { UserContext } from '../contexts/UserContext';
-import { cleanValue, nFormatter } from '../utils/displayUtils';
+import { cleanValue, nFormatter } from '../utils/appUtils';
 import PositionAvatar from './PositionAvatar';
 
 function PositionListItem({ series, actionType }:{ series:ISeries, actionType:ActionType }) {

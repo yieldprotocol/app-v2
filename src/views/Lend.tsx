@@ -7,7 +7,7 @@ import AssetSelector from '../components/selectors/AssetSelector';
 import InputWrap from '../components/wraps/InputWrap';
 import MainViewWrap from '../components/wraps/MainViewWrap';
 import SeriesSelector from '../components/selectors/SeriesSelector';
-import { cleanValue } from '../utils/displayUtils';
+import { cleanValue, getTxCode } from '../utils/appUtils';
 import SectionWrap from '../components/wraps/SectionWrap';
 
 import { useLendActions } from '../hooks/lendHooks';
@@ -16,12 +16,11 @@ import { ActionCodes, ActionType, IUserContext } from '../types';
 import MaxButton from '../components/buttons/MaxButton';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
-import YieldApr from '../components/YieldApr';
+
 import StepperText from '../components/StepperText';
 import PositionSelector from '../components/selectors/PositionSelector';
 import ActiveTransaction from '../components/ActiveTransaction';
 import YieldInfo from '../components/YieldInfo';
-import { getTxCode } from '../utils/appUtils';
 import BackButton from '../components/buttons/BackButton';
 import YieldMark from '../components/logos/YieldMark';
 

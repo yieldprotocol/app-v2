@@ -28,8 +28,9 @@ import StepperText from '../components/StepperText';
 import Collateralization from '../components/Collateralization';
 import VaultSelector from '../components/selectors/VaultSelector';
 import ActiveTransaction from '../components/ActiveTransaction';
+
 import { getTxCode } from '../utils/appUtils';
-import { cleanValue } from '../utils/displayUtils';
+
 import YieldInfo from '../components/YieldInfo';
 import BackButton from '../components/buttons/BackButton';
 import { Gauge } from '../components/Gauge';
