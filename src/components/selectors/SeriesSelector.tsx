@@ -3,6 +3,7 @@ import { Avatar, Box, ResponsiveContext, Select, Text, ThemeContext } from 'grom
 
 import { ethers } from 'ethers';
 import styled from 'styled-components';
+import { FiClock } from 'react-icons/fi';
 import { ActionType, ISeries } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { calculateAPR } from '../../utils/yieldMath';
@@ -44,9 +45,14 @@ const AprText = (
 
   return (
     <>
-      { !series?.seriesIsMature && !inputValue && <Text size="large">{series?.apr}% <Text size="xsmall">APR</Text></Text>}
-      { !limitHit && !series?.seriesIsMature && inputValue && <Text> <Text size="large"> </Text>{apr}% <Text size="xsmall">APR</Text></Text>}
-      { limitHit && <Text size="xsmall" color="pink"> Not enough liquidity</Text>}
+      {!series.seriesIsMature && !inputValue && <Text size="large">{series?.apr}% <Text size="xsmall">APR</Text></Text>}
+      {!limitHit && !series?.seriesIsMature && inputValue && <Text> <Text size="large"> </Text>{apr}% <Text size="xsmall">APR</Text></Text>}
+      {limitHit && <Text size="xsmall" color="pink"> Not enough liquidity</Text>}
+      {series.seriesIsMature &&
+        <Box direction="row" align="center" gap="xsmall">
+          <Text size="small"> Mature </Text>
+          <FiClock />
+        </Box>}
     </>
   );
 };
