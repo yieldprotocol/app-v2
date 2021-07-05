@@ -102,9 +102,9 @@ function ModalWrap({ children, toggleModalOpen, background, modalOpen = false }:
                <PanelWrap><Box /></PanelWrap>
                <Box gap="large" width="600px">
                  <BackButton action={() => toggleModalOpen()} />
-                 <CenterPanelWrap>
-                   {children}
-                 </CenterPanelWrap>
+
+                 {children}
+
                </Box>
                <PanelWrap> <Box /> </PanelWrap>
              </MainViewWrap>

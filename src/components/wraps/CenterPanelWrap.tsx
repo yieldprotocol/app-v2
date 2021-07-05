@@ -1,5 +1,5 @@
 import React, { useContext, useRef, useState } from 'react';
-import { Box, ResponsiveContext, Stack } from 'grommet';
+import { Box, Grid, ResponsiveContext, Stack } from 'grommet';
 
 import { useSpring, animated, to, a } from 'react-spring';
 import { useGesture } from 'react-use-gesture';
@@ -71,7 +71,6 @@ function CenterPanelWrap({ children, series }: IPanelWrap) {
       ) :
 
         <Box
-          // alignSelf="center"
           align="center"
           justify="center"
         >
@@ -92,14 +91,14 @@ function CenterPanelWrap({ children, series }: IPanelWrap) {
             <Stack anchor="center">
               {series &&
               <Box
-                height="600px"
+                height="650px"
                 width="500px"
                 align="center" // use this to move shadow around
                 justify="center" // use this to move shadow around
               >
                 <StyledBox
                   height="500px"
-                  width="500px"
+                  width="450px"
                   startColor={series.startColor}
                   endColor={series.endColor}
                   animation="fadeIn"
@@ -108,7 +107,7 @@ function CenterPanelWrap({ children, series }: IPanelWrap) {
 
               <Box
                 elevation={mobile ? undefined : 'xlarge'}
-                height={{ min: '600px' }}
+                height="650px"
                 width="500px"
                 round="xsmall"
                 background="white"
