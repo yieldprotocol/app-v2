@@ -3,6 +3,7 @@ import { Avatar, Box, Stack, Text } from 'grommet';
 import { ActionType, IAsset, ISeries, IUserContext, IVault } from '../types';
 import { UserContext } from '../contexts/UserContext';
 import { cleanValue, nFormatter } from '../utils/displayUtils';
+import PositionAvatar from './PositionAvatar';
 
 function PositionListItem({ series, actionType }:{ series:ISeries, actionType:ActionType }) {
   const { userState } = useContext(UserContext) as IUserContext;
@@ -16,16 +17,8 @@ function PositionListItem({ series, actionType }:{ series:ISeries, actionType:Ac
       pad="small"
       round="xsmall"
     >
-      <Avatar background={series?.color}>
-        <Box
-          round="large"
-          background={assetMap.get(series.baseId)?.color}
-          pad="xsmall"
-          align="center"
-        >
-          {assetMap.get(series.baseId)?.image}
-        </Box>
-      </Avatar>
+
+      <PositionAvatar position={series} />
 
       <Box>
         <Text weight={900} size="small"> {series.displayName} </Text>

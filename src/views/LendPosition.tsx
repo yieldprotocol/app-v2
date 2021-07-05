@@ -17,6 +17,7 @@ import ActiveTransaction from '../components/ActiveTransaction';
 import { getTxCode } from '../utils/appUtils';
 import TabWrap from '../components/wraps/TabWrap';
 import BackButton from '../components/buttons/BackButton';
+import PositionAvatar from '../components/PositionAvatar';
 
 const LendPosition = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -144,14 +145,7 @@ const LendPosition = () => {
     <Box fill gap="large">
       <Box height="300px" gap="large">
         <Box direction="row" gap="xsmall">
-          <Box
-            round="large"
-            background={`linear-gradient(90deg, ${selectedSeries && assetMap.get(selectedSeries.baseId)?.color} 40%, white 75%)`}
-            pad={{ vertical: 'xsmall', left: 'xsmall', right: 'medium' }}
-            align="start"
-          >
-            {selectedSeries && assetMap.get(selectedSeries.baseId)?.image}
-          </Box>
+          <PositionAvatar position={selectedSeries!} />
           <Text size="large">  {selectedSeries?.displayName} </Text>
         </Box>
 

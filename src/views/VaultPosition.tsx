@@ -22,6 +22,7 @@ import TabWrap from '../components/wraps/TabWrap';
 import ActiveTransaction from '../components/ActiveTransaction';
 import { getTxCode } from '../utils/appUtils';
 import BackButton from '../components/buttons/BackButton';
+import PositionAvatar from '../components/PositionAvatar';
 
 const Vault = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -206,20 +207,7 @@ const Vault = () => {
         <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
           <Box direction="row" align="center" gap="small">
 
-            <Stack anchor="top-right">
-              <Avatar background={vaultBase?.color}>
-                <Box
-                  round="large"
-                  pad="small"
-                  align="center"
-                >
-                  {vaultBase?.image}
-                </Box>
-              </Avatar>
-              <Avatar background="#fff" size="xsmall">
-                {vaultIlk?.image}
-              </Avatar>
-            </Stack>
+            <PositionAvatar position={selectedVault!} />
 
             <Box>
               <Text size={mobile ? 'large' : 'xlarge'}> {selectedVault?.displayName} </Text>
