@@ -18,6 +18,9 @@ background 0.3s ease-in-out;
 :hover {
   transform: scale(1.05);
 }
+:active {
+  transform: scale(1);
+}
 `;
 
 interface ISeriesSelectorProps {

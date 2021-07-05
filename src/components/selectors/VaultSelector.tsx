@@ -22,6 +22,9 @@ transition: transform 0.3s ease-in-out;
 :hover {
   transform: scale(1.05);
 }
+:active {
+  transform: scale(1);
+}
 `;
 
 function VaultSelector(target:any) {
@@ -107,10 +110,10 @@ function VaultSelector(target:any) {
               <StyledBox
                 key={x.id}
                 animation={{ type: 'fadeIn', delay: i * 100, duration: 1500 }}
-                hoverIndicator={{ elevation: 'large' }}
+                hoverIndicator={{ elevation: 'large', background: 'background' }}
                 onClick={() => handleSelect(x)}
                 round="xsmall"
-                elevation="small"
+                elevation="xsmall"
                 flex={false}
                 fill="horizontal"
               >
