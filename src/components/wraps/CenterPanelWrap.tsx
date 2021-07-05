@@ -1,5 +1,5 @@
 import React, { useContext, useRef, useState } from 'react';
-import { Box, Button, Heading, ResponsiveContext, Stack, Text } from 'grommet';
+import { Box, ResponsiveContext, Stack } from 'grommet';
 
 import { useSpring, animated, to, a } from 'react-spring';
 import { useGesture } from 'react-use-gesture';
@@ -14,13 +14,11 @@ const StyledBox: any = styled(Box)`
 
   ${(props:any) => props.startColor}
   ${(props:any) => props.endColor}
-
   background: ${(props:any) => props.startColor}; /* Old browsers */
   background: -moz-linear-gradient(top, ${(props:any) => props.startColor} 0%, ${(props:any) => props.endColor} 100%); /* FF3.6-15 */
   background: -webkit-linear-gradient(top, ${(props:any) => props.startColor} 0%,${(props:any) => props.endColor} 100%); /* Chrome10-25,Safari5.1-6 */
   background: linear-gradient(to bottom, ${(props:any) => props.startColor} 0%,${(props:any) => props.endColor} 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='${(props:any) => props.startColor}', endColorstr='${(props:any) => props.endColor}',GradientType=1 );  
-
   filter:blur(75px);
 
 `;

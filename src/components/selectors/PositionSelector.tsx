@@ -130,9 +130,7 @@ function PositionSelector({ actionType } : { actionType: ActionType }) {
             }
           </Box>
       }
-
           <ListWrap>
-
             {
             filteredSeries.length === 0 &&
             !showAllPositions &&

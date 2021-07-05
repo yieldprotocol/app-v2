@@ -1,7 +1,5 @@
 import React, { useContext } from 'react';
 import { Button, Box, Text, Layer, ResponsiveContext } from 'grommet';
-import styled from 'styled-components';
-import { unstable_renderSubtreeIntoContainer } from 'react-dom';
 import { ChainContext } from '../../contexts/ChainContext';
 
 function ActionButtonWrap({ ...props }:any) {
