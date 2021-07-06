@@ -24,6 +24,7 @@ import YieldInfo from '../components/YieldInfo';
 import YieldLiquidity from '../components/YieldLiquidity';
 import BackButton from '../components/buttons/BackButton';
 import YieldMark from '../components/logos/YieldMark';
+import NextButton from '../components/buttons/NextButton';
 
 function Pool() {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -145,8 +146,6 @@ function Pool() {
               <SeriesSelector actionType={ActionType.POOL} />
             </SectionWrap>
 
-            {selectedSeries?.seriesIsMature && <Text color="pink" size="small">This series has matured.</Text>}
-
           </Box>
           }
 
@@ -188,7 +187,7 @@ function Pool() {
           {
             stepPosition !== 1 &&
             !selectedSeries?.seriesIsMature &&
-            <Button
+            <NextButton
               secondary
               label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
               onClick={() => setStepPosition(stepPosition + 1)}

@@ -23,9 +23,7 @@ import { ActionCodes, ActionType, ISeries, IUserContext, IVault } from '../types
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import YieldApr from '../components/YieldApr';
-import { ZERO_BN } from '../utils/constants';
 import StepperText from '../components/StepperText';
-import Collateralization from '../components/Collateralization';
 import VaultSelector from '../components/selectors/VaultSelector';
 import ActiveTransaction from '../components/ActiveTransaction';
 
@@ -38,31 +36,11 @@ import ReviewTxItem from '../components/ReviewTxItem';
 import NextButton from '../components/buttons/NextButton';
 import YieldMark from '../components/logos/YieldMark';
 
-const StampText = styled(Text)`
-
-font-weight: 700;
-
-padding: 0.25rem 0.5rem;
-text-transform: uppercase;
-border-radius: 1rem;
-font-family: 'Courier';
--webkit-mask-image: url('https://s3-us-west-2.amazonaws.com/s.cdpn.io/8399/grunge.png');
--webkit-mask-size: 600px 300px;
-mix-blend-mode: multiply;
-
-color: #D21;
-border: 0.5rem double #D21;
-transform: rotate(-5deg);
--webkit-mask-position: 2rem 3rem;
-font-size: 1rem;
-`;
-
 const Borrow = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
   const routerHistory = useHistory();
 
   /* STATE FROM CONTEXT */
-
   const { userState } = useContext(UserContext) as IUserContext;
   const { activeAccount, assetMap, vaultMap, seriesMap, selectedSeriesId, selectedIlkId, selectedBaseId } = userState;
 
@@ -174,10 +152,10 @@ const Borrow = () => {
     /* if ANY of the following conditions are met: block action */
     (
       !activeAccount ||
-        !borrowInput ||
-        !selectedSeries ||
-        borrowInputError ||
-        selectedSeries?.seriesIsMature
+      !borrowInput ||
+      !selectedSeries ||
+      borrowInputError ||
+      selectedSeries?.seriesIsMature
     )
       ? setStepDisabled(true)
       /* else if all pass, then unlock borrowing */
@@ -218,10 +196,9 @@ const Borrow = () => {
       onEnter={() => console.log('ENTER smashed')}
       target="document"
     >
-
       <MainViewWrap>
         {/* <PanelWrap background="linear-gradient(to right, #EEEEEE,rgba(255,255,255,1))"> */}
-        { !mobile &&
+        {!mobile &&
         <PanelWrap>
           <StepperText
             position={stepPosition}
@@ -232,18 +209,17 @@ const Borrow = () => {
 
         <CenterPanelWrap series={selectedSeries || undefined}>
           <Box height="100%" pad="large">
-            {
-            stepPosition === 0 && // INITIAL STEP
+
+            {stepPosition === 0 && // INITIAL STEP
             <Box gap="medium">
               <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
                 <YieldMark />
                 <Text>BORROW</Text>
               </Box>
 
-              {/* <Box pad="small" /> */}
               <SectionWrap title="Select an asset and amount: ">
                 <Box direction="row" gap="small" fill="horizontal" align="start">
-                  <Box basis={mobile ? '50%' : '65%'}>
+                  <Box basis={mobile ? '50%' : '60%'}>
                     <InputWrap action={() => console.log('maxAction')} isError={borrowInputError}>
                       <TextInput
                         plain
@@ -255,7 +231,7 @@ const Borrow = () => {
                       />
                     </InputWrap>
                   </Box>
-                  <Box basis={mobile ? '50%' : '35%'}>
+                  <Box basis={mobile ? '50%' : '40%'}>
                     <AssetSelector />
                   </Box>
                 </Box>
@@ -264,13 +240,10 @@ const Borrow = () => {
               <SectionWrap title="Choose an series to borrow from">
                 <SeriesSelector inputValue={borrowInput} actionType={ActionType.BORROW} />
               </SectionWrap>
-                {/* {selectedSeries?.seriesIsMature && <StampText>This series has matured.</StampText> */}
-                {selectedSeries?.seriesIsMature && <Box round="xsmall" pad="small" border={{ color: 'pink' }}><Text color="pink" size="small">This series has matured.</Text></Box>}
-            </Box>
-            }
 
-            {
-            stepPosition === 1 && // ADD COLLATERAL
+            </Box>}
+
+            {stepPosition === 1 && // ADD COLLATERAL
               <Box gap="large" justify="center" fill>
 
                 <BackButton action={() => setStepPosition(0)} />
@@ -320,18 +293,15 @@ const Borrow = () => {
                   <Gauge value={parseFloat(collateralizationPercent!)} label="%" max={750} min={150} />
                 </SectionWrap>
 
-              </Box>
+              </Box>}
 
-            }
-
-            {
-            stepPosition === 2 && // REVIEW
+            {stepPosition === 2 && // REVIEW
             <Box gap="large">
               <BackButton action={() => setStepPosition(1)} />
 
               <ActiveTransaction txCode={getTxCode(ActionCodes.BORROW, selectedSeriesId)}>
 
-                <SectionWrap title="Review Transaction:">
+                <SectionWrap title="Review your transaction">
                   <Box gap="small" pad={{ horizontal: 'large', vertical: 'medium' }} round="xsmall" animation={{ type: 'zoomIn', size: 'small' }}>
                     <ReviewTxItem
                       label="Amount to be Borrowed"
@@ -375,14 +345,13 @@ const Borrow = () => {
                 </SectionWrap>
 
               </ActiveTransaction>
-            </Box>
-          }
+            </Box>}
+
           </Box>
 
           <ActionButtonGroup>
-            { (stepPosition === 0 || stepPosition === 1) &&
+            {(stepPosition === 0 || stepPosition === 1) &&
               <NextButton
-                secondary
                 label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
                 onClick={() => setStepPosition(stepPosition + 1)}
                 disabled={stepPosition === 0 ? stepDisabled : borrowDisabled}

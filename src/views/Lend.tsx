@@ -23,6 +23,7 @@ import ActiveTransaction from '../components/ActiveTransaction';
 import YieldInfo from '../components/YieldInfo';
 import BackButton from '../components/buttons/BackButton';
 import YieldMark from '../components/logos/YieldMark';
+import NextButton from '../components/buttons/NextButton';
 
 const Lend = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -140,8 +141,6 @@ const Lend = () => {
               <SeriesSelector inputValue={lendInput} actionType={ActionType.LEND} />
             </SectionWrap>
 
-            {selectedSeries?.seriesIsMature && <Text color="pink" size="small">This series has matured.</Text>}
-
           </Box>
           }
 
@@ -166,7 +165,7 @@ const Lend = () => {
           {
             stepPosition !== 1 &&
             !selectedSeries?.seriesIsMature &&
-            <Button
+            <NextButton
               secondary
               label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
               key="ONE"
@@ -184,7 +183,8 @@ const Lend = () => {
               />
             }
           {selectedSeries?.seriesIsMature &&
-            <Button
+
+            <NextButton
               primary
               label={<Text size={mobile ? 'small' : undefined}> Redeem </Text>}
               onClick={() => handleRedeem()}
