@@ -203,6 +203,7 @@ export const useChain = () => {
           () => handleTx(() => tokenContract.approve(_spender, MAX_256), txCode, true),
           reqSig,
           txCode,
+          approvalMethod,
         );
 
         // router.forwardPermit(ilkId, true, ilkJoin.address, amount, deadline, v, r, s)
