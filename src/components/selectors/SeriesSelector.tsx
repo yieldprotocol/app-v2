@@ -69,14 +69,14 @@ const AprText = (
       {!series.seriesIsMature && !inputValue && <Text size="large">{series?.apr}% <Text size="xsmall">APR</Text></Text>}
       {!limitHit && !series?.seriesIsMature && inputValue && <Text> <Text size="large"> </Text>{apr}% <Text size="xsmall">APR</Text></Text>}
       {limitHit && <Text size="xsmall" color="pink"> Not enough liquidity</Text>}
-      {series.seriesIsMature &&
+      {/* {series.seriesIsMature &&
         <Box direction="row" gap="xsmall" style={{ position: 'absolute', marginTop: '-2.5em', marginLeft: '2.5em' }}>
           <StampText> Mature </StampText>
-        </Box>}
-      {/* {series.seriesIsMature &&
-        <Box direction="row" gap="xsmall" border round="large" pad={{ horizontal: 'small' }} align="center">
-          <FiClock /> <Text size="xsmall">Mature</Text>
         </Box>} */}
+      {series.seriesIsMature &&
+        <Box direction="row" gap="xsmall" align="center">
+          <Text size="xsmall">Mature</Text>
+        </Box>}
     </>
   );
 };
