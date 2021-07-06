@@ -147,7 +147,7 @@ function Pool() {
             </SectionWrap>
 
             <SectionWrap title="Select a series to Pool to">
-              <SeriesSelector actionType={ActionType.POOL} />
+              <SeriesSelector actionType={ActionType.POOL} inputValue={poolInput} />
             </SectionWrap>
 
           </Box>
