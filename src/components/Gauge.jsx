@@ -1,8 +1,8 @@
 import React from 'react';
 import { arc } from 'd3-shape';
 import { scaleLinear } from 'd3-scale';
-import { Box, Text } from 'grommet';
-import { nFormatter } from '../utils/appUtils';
+
+// import { nFormatter } from '../utils/appUtils';
 // import { format } from 'd3-format';
 
 // const getCoordsOnArc = (angle, offset = 10) => [
@@ -13,8 +13,9 @@ import { nFormatter } from '../utils/appUtils';
 export const Gauge = ({
   value = 50,
   min = 150,
-  max = 1000,
-  label,
+  max = 750,
+  // label = '%',
+  size = '5em',
 }) => {
   const backgroundArc = arc()
     .innerRadius(0.65)
@@ -64,88 +65,77 @@ export const Gauge = ({
   // );
 
   return (
-    <Box gap="medium" direction="row-responsive" animation="fadeIn">
-      <Box basis="35%">
-        <Text size="small"> Collateralization </Text>
-        <Text size="xlarge" color={_color()}> { value > 10000 ? nFormatter(value, 2) : value } { label } </Text>
-      </Box>
+    <svg
+      style={{ overflow: 'visible' }}
+      width={size}
+      viewBox={[
+        -1, -1,
+        2, 1,
+      ].join(' ')}
+    >
 
-      <Box>
-        <svg
-          style={{ overflow: 'visible' }}
-          width="5em"
-          viewBox={[
-            -1, -1,
-            2, 1,
-          ].join(' ')}
-        >
+      <defs>
+        <linearGradient id="back_gradient">
+          <stop className="stop1" offset="0%" />
+          <stop className="stop2" offset="50%" />
+          <stop className="stop3" offset="100%" />
+        </linearGradient>
+      </defs>
 
-          <defs>
-            <linearGradient id="back_gradient">
-              <stop className="stop1" offset="0%" />
-              <stop className="stop2" offset="50%" />
-              <stop className="stop3" offset="100%" />
-            </linearGradient>
-          </defs>
+      <path
+        d={backgroundArc}
+        fill="#dbdbe746"
+      />
+      <path d={getArc(0)} fill="#D95948" />
+      <path d={getArc(1)} fill="#FFDE75" />
+      <path d={getArc(2)} fill="#409C4D" />
+      <path d={getArc(3)} fill="#4863A0" />
 
-          <path
-            d={backgroundArc}
-            fill="#dbdbe746"
-          />
-          <path d={getArc(0)} fill="#D95948" />
-          <path d={getArc(1)} fill="#FFDE75" />
-          <path d={getArc(2)} fill="#409C4D" />
-          <path d={getArc(3)} fill="#4863A0" />
+      <line
+        y1="-1"
+        y2="-0.65"
+        stroke="white"
+        strokeWidth="0.027"
+      />
+      <line
+        y1="-1"
+        y2="-0.65"
+        stroke="white"
+        strokeWidth="0.027"
+        transform={`rotate(${
+          (-1.25 * (180 / Math.PI))
+        })`}
+      />
+      <line
+        y1="-1"
+        y2="-0.65"
+        stroke="white"
+        strokeWidth="0.027"
+        transform={`rotate(${
+          (1.25 * (180 / Math.PI))
+        })`}
+      />
+      <path
+        d="M 60,100"
+        strokeWidth="1"
+      />
 
-          <line
-            y1="-1"
-            y2="-0.65"
-            stroke="white"
-            strokeWidth="0.027"
-          />
-          <line
-            y1="-1"
-            y2="-0.65"
-            stroke="white"
-            strokeWidth="0.027"
-            transform={`rotate(${
-              (-1.25 * (180 / Math.PI))
-            })`}
-          />
-          <line
-            y1="-1"
-            y2="-0.65"
-            stroke="white"
-            strokeWidth="0.027"
-            transform={`rotate(${
-              (1.25 * (180 / Math.PI))
-            })`}
-          />
-          <path
-            d="M 60,100"
-            strokeWidth="1"
-          />
-
-          <path
-            id="thumbs"
-            style={{
-              fill: 'none',
-              strokeWidth: 2,
-              strokeLinecap: 'round',
-              strokeLinejoin: 'round',
-              stroke: `${_color()}`,
-              strokeOpacity: 1,
-              strokeMiterlimit: 4,
-            }}
-            d="M 13.96875 9 L 13.96875 4.96875 C 13.96875 3.375 12.65625 1.96875 10.96875 1.96875 L 7.03125 10.96875 L 7.03125 22.03125 L 18.28125 22.03125 C 19.3125 22.03125 20.15625 21.28125 20.25 20.34375 L 21.65625 11.34375 C 21.75 10.6875 21.5625 10.125 21.1875 9.65625 C 20.8125 9.28125 20.25 9 19.6875 9 Z M 7.03125 22.03125 L 4.03125 22.03125 C 2.90625 22.03125 1.96875 21.09375 1.96875 19.96875 L 1.96875 13.03125 C 1.96875 11.90625 2.90625 10.96875 4.03125 10.96875 L 7.03125 10.96875 "
-            transform={`rotate(${
-              (angle * (180 / Math.PI)) - 90
-            }) translate(-0.25, -0.25) scale(0.02)`}
-          />
-
-        </svg>
-      </Box>
-      {/* { format(',')(value) } */}
-    </Box>
+      <path
+        id="thumbs"
+        style={{
+          fill: 'none',
+          strokeWidth: 2,
+          strokeLinecap: 'round',
+          strokeLinejoin: 'round',
+          stroke: `${_color()}`,
+          strokeOpacity: 1,
+          strokeMiterlimit: 4,
+        }}
+        d="M 13.96875 9 L 13.96875 4.96875 C 13.96875 3.375 12.65625 1.96875 10.96875 1.96875 L 7.03125 10.96875 L 7.03125 22.03125 L 18.28125 22.03125 C 19.3125 22.03125 20.15625 21.28125 20.25 20.34375 L 21.65625 11.34375 C 21.75 10.6875 21.5625 10.125 21.1875 9.65625 C 20.8125 9.28125 20.25 9 19.6875 9 Z M 7.03125 22.03125 L 4.03125 22.03125 C 2.90625 22.03125 1.96875 21.09375 1.96875 19.96875 L 1.96875 13.03125 C 1.96875 11.90625 2.90625 10.96875 4.03125 10.96875 L 7.03125 10.96875 "
+        transform={`rotate(${
+          (angle * (180 / Math.PI)) - 90
+        }) translate(-0.25, -0.25) scale(0.02)`}
+      />
+    </svg>
   );
 };

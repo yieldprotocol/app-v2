@@ -27,7 +27,7 @@ import StepperText from '../components/StepperText';
 import VaultSelector from '../components/selectors/VaultSelector';
 import ActiveTransaction from '../components/ActiveTransaction';
 
-import { getTxCode } from '../utils/appUtils';
+import { getTxCode, nFormatter } from '../utils/appUtils';
 
 import YieldInfo from '../components/YieldInfo';
 import BackButton from '../components/buttons/BackButton';
@@ -245,53 +245,59 @@ const Borrow = () => {
             </Box>}
 
             {stepPosition === 1 && // ADD COLLATERAL
-              <Box gap="large" justify="center" fill>
+              <Box gap="large" fill>
 
                 <BackButton action={() => setStepPosition(0)} />
 
-                <SectionWrap title="Amount of collateral to add">
-                  <Box direction="row" gap="small" fill="horizontal" align="start">
-                    <Box basis={mobile ? '50%' : '60%'}>
-                      <InputWrap action={() => console.log('maxAction')} disabled={!selectedSeries} isError={collatInputError}>
-                        <TextInput
-                          plain
-                          type="number"
-                          placeholder="Enter amount"
-                        // ref={(el:any) => { el && el.focus(); }}
-                          value={collatInput}
-                          onChange={(event:any) => setCollatInput(event.target.value)}
-                          disabled={!selectedSeries || selectedSeries.seriesIsMature}
-                        />
-                        <MaxButton
-                          action={() => maxCollat && setCollatInput(maxCollat)}
-                          disabled={!selectedSeries || collatInput === maxCollat || selectedSeries.seriesIsMature}
-                        />
-                      </InputWrap>
+                <Box gap="small">
+                  <SectionWrap title="Amount of collateral to add">
+                    <Box direction="row" gap="small" fill="horizontal" align="start">
+                      <Box basis={mobile ? '50%' : '60%'}>
+                        <InputWrap action={() => console.log('maxAction')} disabled={!selectedSeries} isError={collatInputError}>
+                          <TextInput
+                            plain
+                            type="number"
+                            placeholder="Enter amount"
+                            // ref={(el:any) => { el && el.focus(); }}
+                            value={collatInput}
+                            onChange={(event:any) => setCollatInput(event.target.value)}
+                            disabled={!selectedSeries || selectedSeries.seriesIsMature}
+                          />
+                          <MaxButton
+                            action={() => maxCollat && setCollatInput(maxCollat)}
+                            disabled={!selectedSeries || collatInput === maxCollat || selectedSeries.seriesIsMature}
+                          />
+                        </InputWrap>
+                      </Box>
+                      <Box basis={mobile ? '50%' : '40%'}>
+                        <AssetSelector selectCollateral />
+                      </Box>
                     </Box>
-                    <Box basis={mobile ? '50%' : '40%'}>
-                      <AssetSelector selectCollateral />
-                    </Box>
-                  </Box>
-                </SectionWrap>
+                  </SectionWrap>
 
-                {
-                !selectedSeries?.seriesIsMature &&
-                <SectionWrap title="Add to an exisiting vault" disabled={matchingVaults.length < 1}>
-                  <Box fill round="xsmall" gap="small" justify="between" elevation="xsmall" animation="slideDown">
-                    <Select
-                      plain
-                      disabled={matchingVaults.length < 1}
-                      options={matchingVaults.map((x:IVault) => x.id)}
-                      placeholder="Create new vault"
-                      value={vaultIdToUse || 'Create new vault'}
+                  <SectionWrap title="Add to an exisiting vault" disabled={matchingVaults.length < 1}>
+                    <Box fill round="xsmall" gap="small" justify="between" elevation="xsmall" animation="slideDown">
+                      <Select
+                        plain
+                        disabled={matchingVaults.length < 1}
+                        options={matchingVaults.map((x:IVault) => x.id)}
+                        placeholder="Create new vault"
+                        value={vaultIdToUse || 'Create new vault'}
                           // defaultValue={undefined}
-                      onChange={({ option }) => setVaultIdToUse(option)}
-                    />
-                  </Box>
-                </SectionWrap>
-              }
+                        onChange={({ option }) => setVaultIdToUse(option)}
+                      />
+                    </Box>
+                  </SectionWrap>
+                </Box>
+
                 <SectionWrap>
-                  <Gauge value={parseFloat(collateralizationPercent!)} label="%" max={750} min={150} />
+                  <Box direction="row" gap="large" justify="center" fill>
+                    <Gauge value={parseFloat(collateralizationPercent!)} size="7em" />
+                    <Box basis="40%">
+                      <Text size="small"> Collateralization </Text>
+                      <Text size="xlarge"> { parseFloat(collateralizationPercent!) > 10000 ? nFormatter(parseFloat(collateralizationPercent!), 2) : parseFloat(collateralizationPercent!) } % </Text>
+                    </Box>
+                  </Box>
                 </SectionWrap>
 
               </Box>}
@@ -331,7 +337,7 @@ const Borrow = () => {
                     />
                     <ReviewTxItem
                       label="Supporting Collateral"
-                      icon={<FiLock />}
+                      icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
                       value={`${collatInput} ${selectedIlk?.symbol} (${collateralizationPercent} % )`}
                     />
                   </Box>

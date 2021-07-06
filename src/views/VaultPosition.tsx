@@ -21,6 +21,7 @@ import BackButton from '../components/buttons/BackButton';
 import PositionAvatar from '../components/PositionAvatar';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import NextButton from '../components/buttons/NextButton';
+import { Gauge } from '../components/Gauge';
 
 const Vault = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -208,8 +209,12 @@ const Vault = () => {
           <SectionWrap>
             <Box gap="xsmall" pad="xsmall">
               <InfoBite label="Vault debt + interest:" value={`${selectedVault?.art_} ${vaultBase?.symbol}`} icon={<FiTrendingUp />} />
-              <InfoBite label="Collateral posted:" value={`${selectedVault?.ink_} ${vaultIlk?.symbol} ( ${collateralizationPercent} %)`} icon={<FiLock />} />
-              <InfoBite label="Maturity date:" value={`${vaultSeries?.displayName}`} icon={<FiClock />} />
+              <InfoBite label="Maturity date:" value={`${vaultSeries?.displayName}`} icon={<FiClock color={vaultSeries?.color} />} />
+              <InfoBite
+                label="Collateral posted:"
+                value={`${selectedVault?.ink_} ${vaultIlk?.symbol} ( ${collateralizationPercent} %)`}
+                icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
+              />
             </Box>
           </SectionWrap>
         </Box>
