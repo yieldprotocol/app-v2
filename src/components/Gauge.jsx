@@ -14,7 +14,6 @@ export const Gauge = ({
   value = 50,
   min = 150,
   max = 750,
-  // label = '%',
   size = '1em',
 }) => {
   const backgroundArc = arc()
@@ -65,6 +64,7 @@ export const Gauge = ({
   // );
 
   return (
+
     <svg
       style={{ overflow: 'visible' }}
       width={size}
@@ -73,7 +73,6 @@ export const Gauge = ({
         2, 1,
       ].join(' ')}
     >
-
       <defs>
         <linearGradient id="back_gradient">
           <stop className="stop1" offset="0%" />
@@ -132,7 +131,7 @@ export const Gauge = ({
           strokeMiterlimit: 4,
         }}
         d="M 13.96875 9 L 13.96875 4.96875 C 13.96875 3.375 12.65625 1.96875 10.96875 1.96875 L 7.03125 10.96875 L 7.03125 22.03125 L 18.28125 22.03125 C 19.3125 22.03125 20.15625 21.28125 20.25 20.34375 L 21.65625 11.34375 C 21.75 10.6875 21.5625 10.125 21.1875 9.65625 C 20.8125 9.28125 20.25 9 19.6875 9 Z M 7.03125 22.03125 L 4.03125 22.03125 C 2.90625 22.03125 1.96875 21.09375 1.96875 19.96875 L 1.96875 13.03125 C 1.96875 11.90625 2.90625 10.96875 4.03125 10.96875 L 7.03125 10.96875 "
-        transform={`rotate(${
+        transform={angle && `rotate(${
           (angle * (180 / Math.PI)) - 90
         }) translate(-0.25, -0.25) scale(0.02)`}
       />
