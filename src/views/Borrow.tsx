@@ -35,6 +35,7 @@ import { Gauge } from '../components/Gauge';
 import ReviewTxItem from '../components/ReviewTxItem';
 import NextButton from '../components/buttons/NextButton';
 import YieldMark from '../components/logos/YieldMark';
+import TransactButton from '../components/buttons/TransactButton';
 
 const Borrow = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -358,7 +359,7 @@ const Borrow = () => {
               />}
 
             {stepPosition === 2 &&
-              <Button
+              <TransactButton
                 primary
                 label={<Text size={mobile ? 'small' : undefined}> {`Borrow  ${borrowInput || ''} ${selectedBase?.symbol || ''}`}</Text>}
                 onClick={() => handleBorrow()}

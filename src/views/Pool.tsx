@@ -3,6 +3,8 @@ import { Box, Button, RadioButtonGroup, ResponsiveContext, Text, TextInput } fro
 
 import { ethers } from 'ethers';
 
+import { FiSquare, FiClock, FiTrendingUp, FiPercent } from 'react-icons/fi';
+import { BiCoinStack, BiMessageSquareAdd } from 'react-icons/bi';
 import { cleanValue, getTxCode } from '../utils/appUtils';
 import AssetSelector from '../components/selectors/AssetSelector';
 import MainViewWrap from '../components/wraps/MainViewWrap';
@@ -25,6 +27,8 @@ import YieldLiquidity from '../components/YieldLiquidity';
 import BackButton from '../components/buttons/BackButton';
 import YieldMark from '../components/logos/YieldMark';
 import NextButton from '../components/buttons/NextButton';
+import TransactButton from '../components/buttons/TransactButton';
+import ReviewTxItem from '../components/ReviewTxItem';
 
 function Pool() {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -173,9 +177,33 @@ function Pool() {
                     />
                   </Box>
                 </SectionWrap>}
+
                 <SectionWrap title="Review your transaction">
-                  <Text>Add {poolInput} {selectedBase?.symbol} to the {selectedSeries?.displayName} pool. </Text>
+
+                  <Box gap="small" pad={{ horizontal: 'large', vertical: 'medium' }} round="xsmall" animation={{ type: 'zoomIn', size: 'small' }}>
+                    <ReviewTxItem
+                      label="Amount to pool"
+                      icon={<BiMessageSquareAdd />}
+                      value={`${poolInput} ${selectedBase?.symbol}`}
+                    />
+                    <ReviewTxItem
+                      label="Series Maturity"
+                      icon={<FiClock />}
+                      value={`${selectedSeries?.displayName}`}
+                    />
+                    <ReviewTxItem
+                      label="Amount of liquidity tokens recieved"
+                      icon={<BiCoinStack />}
+                      value={`${'300k'} Liquidity tokens`}
+                    />
+                    <ReviewTxItem
+                      label="Percentage of pool"
+                      icon={<FiPercent />}
+                      value={`${'to do get pool percentage'}%`}
+                    />
+                  </Box>
                 </SectionWrap>
+
               </Box>
             </ActiveTransaction>
 
@@ -196,7 +224,7 @@ function Pool() {
           {
             stepPosition === 1 &&
             !selectedSeries?.seriesIsMature &&
-              <Button
+              <TransactButton
                 primary
                 label={<Text size={mobile ? 'small' : undefined}> {`Pool ${poolInput || ''} ${selectedBase?.symbol || ''}`} </Text>}
                 onClick={() => handleAdd()}

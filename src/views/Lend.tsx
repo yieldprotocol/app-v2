@@ -2,6 +2,8 @@ import React, { useContext, useState, useEffect } from 'react';
 import { Box, Button, ResponsiveContext, Text, TextInput } from 'grommet';
 import { ethers } from 'ethers';
 
+import { FiPocket, FiClock, FiTrendingUp, FiPercent, FiSquare } from 'react-icons/fi';
+import { BiMessageSquareAdd } from 'react-icons/bi';
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import AssetSelector from '../components/selectors/AssetSelector';
 import InputWrap from '../components/wraps/InputWrap';
@@ -24,6 +26,8 @@ import YieldInfo from '../components/YieldInfo';
 import BackButton from '../components/buttons/BackButton';
 import YieldMark from '../components/logos/YieldMark';
 import NextButton from '../components/buttons/NextButton';
+import ReviewTxItem from '../components/ReviewTxItem';
+import TransactButton from '../components/buttons/TransactButton';
 
 const Lend = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -152,7 +156,30 @@ const Lend = () => {
             <ActiveTransaction txCode={getTxCode(ActionCodes.LEND, selectedSeriesId)}>
 
               <SectionWrap title="Review your transaction">
-                <Text>Lend {lendInput} {selectedBase?.symbol} to the {selectedSeries?.displayName} series. </Text>
+
+                <Box gap="small" pad={{ horizontal: 'large', vertical: 'medium' }} round="xsmall" animation={{ type: 'zoomIn', size: 'small' }}>
+                  <ReviewTxItem
+                    label="Amount to lend"
+                    icon={<BiMessageSquareAdd />}
+                    value={`${lendInput} fyTokens`}
+                  />
+                  <ReviewTxItem
+                    label="Series Maturity"
+                    icon={<FiClock />}
+                    value={`${selectedSeries?.displayName}`}
+                  />
+                  <ReviewTxItem
+                    label="Redeemable @ Maturity"
+                    icon={<FiTrendingUp />}
+                    value={`${lendInput} ${selectedBase?.symbol}`}
+                  />
+                  <ReviewTxItem
+                    label="Effective APR"
+                    icon={<FiPercent />}
+                    value={`${'to do get apr'}%`}
+                  />
+                </Box>
+
               </SectionWrap>
 
             </ActiveTransaction>
@@ -175,7 +202,7 @@ const Lend = () => {
           {
             stepPosition === 1 &&
             !selectedSeries?.seriesIsMature &&
-              <Button
+              <TransactButton
                 primary
                 label={<Text size={mobile ? 'small' : undefined}> {`Supply ${lendInput || ''} ${selectedBase?.symbol || ''}`} </Text>}
                 onClick={() => handleLend()}
