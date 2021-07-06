@@ -192,7 +192,7 @@ const Vault = () => {
 
   return (
     <CenterPanelWrap>
-      <Box height="90%" pad="large">
+      <Box fill pad="large" gap="medium">
 
         <Box height="50%" gap="medium">
           <Box direction="row-responsive" justify="between" fill="horizontal" align="center">

@@ -138,7 +138,7 @@ const LendPosition = () => {
 
   return (
     <CenterPanelWrap>
-      <Box height="90%" pad="large">
+      <Box fill pad="large" gap="medium">
 
         <Box height={{ min: '50%' }} gap="medium">
           <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
@@ -215,6 +215,7 @@ const LendPosition = () => {
               <SeriesSelector
                 selectSeriesLocally={(series:ISeries) => setRollToSeries(series)}
                 actionType={ActionType.LEND}
+                cardLayout={false}
               />
             </Box>}
 
