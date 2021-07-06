@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Avatar, Box, ResponsiveContext, Select, Text, ThemeContext } from 'grommet';
+import { Avatar, Box, ResponsiveContext, Select, Stack, Text, ThemeContext } from 'grommet';
 
 import { ethers } from 'ethers';
 import styled from 'styled-components';
@@ -21,6 +21,24 @@ background 0.3s ease-in-out;
 :active {
   transform: scale(1);
 }
+`;
+
+const StampText = styled(Text)`
+font-weight: 700;
+padding: 0.1rem 0.1rem;
+text-transform: uppercase;
+border-radius: 0.5rem;
+font-family: 'Courier';
+-webkit-mask-image: url('https://s3-us-west-2.amazonaws.com/s.cdpn.io/8399/grunge.png');
+-webkit-mask-size: 500px 200px;
+mix-blend-mode: multiply;
+
+color: #D21;
+border: 0.05rem solid #D21;
+transform: rotate(-10deg);
+-webkit-mask-position: 1rem 1.5rem;
+font-size: 0.5rem;
+overflow: hidden;
 `;
 
 interface ISeriesSelectorProps {
@@ -52,10 +70,13 @@ const AprText = (
       {!limitHit && !series?.seriesIsMature && inputValue && <Text> <Text size="large"> </Text>{apr}% <Text size="xsmall">APR</Text></Text>}
       {limitHit && <Text size="xsmall" color="pink"> Not enough liquidity</Text>}
       {series.seriesIsMature &&
-        <Box direction="row" align="center" gap="xsmall">
-          <Text size="small"> Mature </Text>
-          <FiClock />
+        <Box direction="row" gap="xsmall" style={{ position: 'absolute', marginTop: '-2.5em', marginLeft: '2.5em' }}>
+          <StampText> Mature </StampText>
         </Box>}
+      {/* {series.seriesIsMature &&
+        <Box direction="row" gap="xsmall" border round="large" pad={{ horizontal: 'small' }} align="center">
+          <FiClock /> <Text size="xsmall">Mature</Text>
+        </Box>} */}
     </>
   );
 };
@@ -166,7 +187,9 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
             align="center"
           >
             <Box pad="small" width="small" direction="row" align="center" gap="small">
-              <Avatar background="#FFF"> {series.seriesMark} </Avatar>
+
+              <Avatar background="#FFF"> {series.seriesMark}</Avatar>
+
               <Box>
                 <Text color={series.id === selectedSeriesId ? series.textColor : undefined}>
                   {series.displayNameMobile}

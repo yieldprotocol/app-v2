@@ -8,7 +8,9 @@ const StyledButton = styled(Button)`
 `;
 
 const NextButton = (props:any) => (
-  <StyledButton {...props} />
+  <Box pad="large">
+    <StyledButton {...props} />
+  </Box>
 );
 
 export default NextButton;
