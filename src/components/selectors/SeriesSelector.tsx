@@ -9,6 +9,7 @@ import { UserContext } from '../../contexts/UserContext';
 import { calculateAPR } from '../../utils/yieldMath';
 import { useApr } from '../../hooks/aprHook';
 import YieldMark from '../logos/YieldMark';
+import { nFormatter } from '../../utils/appUtils';
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
@@ -52,6 +53,9 @@ const AprText = (
   { inputValue, series, actionType }:{ inputValue: string|undefined, series:ISeries, actionType:ActionType },
 ) => {
   const { apr } = useApr(inputValue, actionType, series);
+
+  // const { poolPercent } = usePool(inputValue, series);
+
   const [limitHit, setLimitHit] = useState<boolean>(false);
 
   useEffect(() => {
@@ -66,17 +70,36 @@ const AprText = (
 
   return (
     <>
-      {!series.seriesIsMature && !inputValue && <Text size="large">{series?.apr}% <Text size="xsmall">APR</Text></Text>}
-      {!limitHit && !series?.seriesIsMature && inputValue && <Text> <Text size="large"> </Text>{apr}% <Text size="xsmall">APR</Text></Text>}
-      {limitHit && <Text size="xsmall" color="pink"> Not enough liquidity</Text>}
-      {/* {series.seriesIsMature &&
-        <Box direction="row" gap="xsmall" style={{ position: 'absolute', marginTop: '-2.5em', marginLeft: '2.5em' }}>
-          <StampText> Mature </StampText>
-        </Box>} */}
+
+      {actionType !== ActionType.POOL &&
+      !series.seriesIsMature &&
+      !inputValue &&
+      <Text size="small">{series?.apr}% <Text size="xsmall">APR</Text> </Text>}
+
+      { actionType !== ActionType.POOL && !limitHit &&
+      !series?.seriesIsMature &&
+      inputValue &&
+        <Text size="small"> {apr}% <Text size="xsmall">APR</Text></Text>}
+
+      {actionType !== ActionType.POOL && limitHit &&
+      <Text size="xsmall" color="pink"> Not enough liquidity</Text>}
+
+      {actionType === ActionType.POOL && !series.seriesIsMature &&
+      !inputValue &&
+      <Text size="small">{ nFormatter(parseFloat(series?.totalSupply_), 2) } <Text size="xsmall"> liquidity </Text>
+      </Text>}
+
+      {actionType === ActionType.POOL && !series.seriesIsMature &&
+      inputValue &&
+      // TODO fix this asap - use a pool hook
+      <Text size="xsmall"> { nFormatter((parseFloat(inputValue) / parseFloat(series?.totalSupply_) * 100), 2) } % <Text size="xsmall">of Pool</Text>
+      </Text>}
+
       {series.seriesIsMature &&
-        <Box direction="row" gap="xsmall" align="center">
-          <Text size="xsmall">Mature</Text>
-        </Box>}
+      <Box direction="row" gap="xsmall" align="center">
+        <Text size="xsmall">Mature</Text>
+      </Box>}
+
     </>
   );
 };
