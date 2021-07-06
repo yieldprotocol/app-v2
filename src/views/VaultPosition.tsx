@@ -20,6 +20,7 @@ import ActiveTransaction from '../components/ActiveTransaction';
 import BackButton from '../components/buttons/BackButton';
 import PositionAvatar from '../components/PositionAvatar';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
+import NextButton from '../components/buttons/NextButton';
 
 const Vault = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -108,14 +109,6 @@ const Vault = () => {
     rollDebt(selectedVault, rollToSeries);
   };
 
-  /* internal stateful components */
-  const NextButton = () => <Button
-    secondary
-    label={<Text size={mobile ? 'small' : undefined}> Next Step</Text>}
-    onClick={() => handleStepper()}
-    key="next"
-  />;
-
   /* SET MAX VALUES */
 
   useEffect(() => {
@@ -200,12 +193,13 @@ const Vault = () => {
   return (
     <CenterPanelWrap>
       <Box height="90%" pad="large">
+
         <Box height="50%" gap="medium">
           <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
             <Box direction="row" align="center" gap="medium">
               <PositionAvatar position={selectedVault!} />
               <Box>
-                <Text size={mobile ? 'large' : 'xxlarge'}> {selectedVault?.displayName} </Text>
+                <Text size={mobile ? 'large' : 'xlarge'}> {selectedVault?.displayName} </Text>
                 <Text size="small"> {selectedVault?.id} </Text>
               </Box>
             </Box>
@@ -407,10 +401,13 @@ const Vault = () => {
 
         { stepPosition[actionActive.index] === 0 &&
         stepPosition[actionActive.index] !== 3 && // index 3 if for history -> now button required yet.
-        <Box pad={{ horizontal: 'large' }}><NextButton /></Box>}
+        <NextButton
+          label={<Text size={mobile ? 'small' : undefined}> Next Step</Text>}
+          onClick={() => handleStepper()}
+          key="next"
+        />}
 
-        { // TODO Marco this is screaming for more efficient code
-        }
+        { /* TODO Marco this is screaming for more efficient code   -> simple array.map possibly? */ }
 
         { actionActive.index === 0 &&
           stepPosition[actionActive.index] !== 0 &&
