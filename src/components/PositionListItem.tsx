@@ -1,8 +1,9 @@
 import React, { useContext } from 'react';
-import { Box, Stack, Text } from 'grommet';
+import { Avatar, Box, Stack, Text } from 'grommet';
 import { ActionType, IAsset, ISeries, IUserContext, IVault } from '../types';
 import { UserContext } from '../contexts/UserContext';
-import { cleanValue, nFormatter } from '../utils/displayUtils';
+import { cleanValue, nFormatter } from '../utils/appUtils';
+import PositionAvatar from './PositionAvatar';
 
 function PositionListItem({ series, actionType }:{ series:ISeries, actionType:ActionType }) {
   const { userState } = useContext(UserContext) as IUserContext;
@@ -14,15 +15,10 @@ function PositionListItem({ series, actionType }:{ series:ISeries, actionType:Ac
       gap="small"
       align="center"
       pad="small"
+      round="xsmall"
     >
-      <Box
-        round="large"
-        background={`linear-gradient(90deg, ${assetMap.get(series.baseId)?.color} 40%, white 75%)`}
-        pad={{ vertical: 'xsmall', left: 'xsmall', right: 'medium' }}
-        align="start"
-      >
-        {assetMap.get(series.baseId)?.image}
-      </Box>
+
+      <PositionAvatar position={series} />
 
       <Box>
         <Text weight={900} size="small"> {series.displayName} </Text>

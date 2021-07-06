@@ -15,24 +15,6 @@ interface IPositionFilter {
   series: ISeries | undefined,
 }
 
-// const StyledBox = styled(Box)`
-//   z-index: -1;
-//   bottom: 15px;
-//   left: 10px;
-//   width: 50%;
-//   top: 80%;
-//   max-width:300px;
-//   background: #777;
-//   -webkit-box-shadow: 0 15px 10px #777;
-//   -moz-box-shadow: 0 15px 10px #777;
-//   box-shadow: 0 15px 10px #777;
-//   -webkit-transform: rotate(-3deg);
-//   -moz-transform: rotate(-3deg);
-//   -o-transform: rotate(-3deg);
-//   -ms-transform: rotate(-3deg);
-//   transform: rotate(-3deg);
-// `;
-
 function PositionSelector({ actionType } : { actionType: ActionType }) {
   /* STATE FROM CONTEXT */
 
@@ -92,16 +74,14 @@ function PositionSelector({ actionType } : { actionType: ActionType }) {
     }
   }, [selectedBase, selectedSeries, showPositionModal, handleFilter, seriesMap, actionType]);
 
-  // useEffect(() => {
-  //   !currentFilter?.base &&
-  //   !currentFilter?.series &&
-  //   setShowAllPositions(true);
-  // }, [currentFilter]);
-
   return (
 
     <>
-      <ModalWrap modalOpen={showPositionModal} toggleModalOpen={() => setShowPositionModal(!showPositionModal)}>
+      <ModalWrap
+        modalOpen={showPositionModal}
+        toggleModalOpen={() => setShowPositionModal(!showPositionModal)}
+        background={selectedSeries?.color}
+      >
         { actionType === 'LEND' ? <LendPosition /> : <PoolPosition /> }
       </ModalWrap>
 
@@ -150,9 +130,7 @@ function PositionSelector({ actionType } : { actionType: ActionType }) {
             }
           </Box>
       }
-
           <ListWrap>
-
             {
             filteredSeries.length === 0 &&
             !showAllPositions &&

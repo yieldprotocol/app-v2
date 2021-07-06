@@ -2,6 +2,7 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Box, ResponsiveContext, Select, Text } from 'grommet';
 import Loader from 'react-spinners/ScaleLoader';
 
+import styled from 'styled-components';
 import { IAsset, IAssetRoot } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { DAI, WETH } from '../../utils/constants';
@@ -9,6 +10,17 @@ import { DAI, WETH } from '../../utils/constants';
 interface IAssetSelectorProps {
   selectCollateral?:boolean;
 }
+
+const StyledBox = styled(Box)`
+-webkit-transition: transform 0.3s ease-in-out;
+-moz-transition: transform 0.3s ease-in-out;
+transition: transform 0.3s ease-in-out;
+
+:hover {
+  transform: scale(1.025);
+}
+
+`;
 
 function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
@@ -63,10 +75,11 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   // }, [options, selectCollateral, selectedIlk, selectedSeries, userActions]);
 
   return (
-    <Box
+    <StyledBox
       fill
       round="xsmall"
-      border={(selectCollateral && !selectedSeries) ? { color: 'text-xweak' } : true}
+      // border={(selectCollateral && !selectedSeries) ? { color: 'text-xweak' } : true}
+      elevation="xsmall"
     >
       <Select
         plain
@@ -82,7 +95,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
         // eslint-disable-next-line react/no-children-prop
         children={(x:any) => <Box pad={mobile ? 'medium' : 'small'} gap="xsmall" direction="row"> <Text color="text"> { optionText(x) } </Text> </Box>}
       />
-    </Box>
+    </StyledBox>
   );
 }
 

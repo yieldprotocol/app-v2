@@ -1,18 +1,32 @@
 import React, { useContext, useRef, useState } from 'react';
-import { Box, Button, Heading, ResponsiveContext, Text } from 'grommet';
+import { Box, Grid, ResponsiveContext, Stack } from 'grommet';
 
 import { useSpring, animated, to, a } from 'react-spring';
 import { useGesture } from 'react-use-gesture';
+import styled from 'styled-components';
 
 interface IPanelWrap {
-  basis?: string
   children: any;
+  series?: any;
 }
+
+const StyledBox: any = styled(Box)`
+
+  ${(props:any) => props.startColor}
+  ${(props:any) => props.endColor}
+  background: ${(props:any) => props.startColor}; /* Old browsers */
+  background: -moz-linear-gradient(top, ${(props:any) => props.startColor} 0%, ${(props:any) => props.endColor} 100%); /* FF3.6-15 */
+  background: -webkit-linear-gradient(top, ${(props:any) => props.startColor} 0%,${(props:any) => props.endColor} 100%); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to bottom, ${(props:any) => props.startColor} 0%,${(props:any) => props.endColor} 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='${(props:any) => props.startColor}', endColorstr='${(props:any) => props.endColor}',GradientType=1 );  
+  filter:blur(75px);
+
+`;
 
 const calcX = (y: number, ly: number) => -(y - ly - window.innerHeight / 2) / 300;
 const calcY = (x: number, lx: number) => (x - lx - window.innerWidth / 2) / 300;
 
-function CenterPanelWrap({ basis, children }: IPanelWrap) {
+function CenterPanelWrap({ children, series }: IPanelWrap) {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const [flipped, setFlipped] = useState(false);
@@ -57,7 +71,6 @@ function CenterPanelWrap({ basis, children }: IPanelWrap) {
       ) :
 
         <Box
-          // alignSelf="center"
           align="center"
           justify="center"
         >
@@ -75,22 +88,39 @@ function CenterPanelWrap({ basis, children }: IPanelWrap) {
 
             }}
           >
-            <Box
-              elevation={mobile ? undefined : 'large'}
-              height={{ min: '600px' }}
-              width="500px"
-              round="small"
-              background="white"
-              justify="between"
-              pad="large"
-            >
-              {children}
-            </Box>
+            <Stack anchor="center">
+              {series &&
+              <Box
+                height="650px"
+                width="500px"
+                align="center" // use this to move shadow around
+                justify="center" // use this to move shadow around
+              >
+                <StyledBox
+                  height="500px"
+                  width="450px"
+                  startColor={series.startColor}
+                  endColor={series.endColor}
+                  animation="fadeIn"
+                />
+              </Box>}
+
+              <Box
+                elevation={mobile ? undefined : 'xlarge'}
+                height="650px"
+                width="500px"
+                round="xsmall"
+                background="white"
+              >
+                {children}
+              </Box>
+            </Stack>
+
           </animated.div>
         </Box>}
     </>
   );
 }
 
-CenterPanelWrap.defaultProps = { basis: undefined };
+CenterPanelWrap.defaultProps = { series: undefined };
 export default CenterPanelWrap;

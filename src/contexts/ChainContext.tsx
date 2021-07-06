@@ -9,9 +9,10 @@ import { useCachedState } from '../hooks';
 import * as yieldEnv from './yieldEnv.json';
 import * as contracts from '../contracts';
 import { IAssetRoot, ISeriesRoot } from '../types';
-import { nameFromMaturity } from '../utils/displayUtils';
 import { Pool } from '../contracts';
+
 import { ETH_BASED_ASSETS } from '../utils/constants';
+import { nameFromMaturity, getSeason, SeasonType } from '../utils/appUtils';
 
 import DaiMark from '../components/logos/DaiMark';
 import EthMark from '../components/logos/EthMark';
@@ -19,6 +20,7 @@ import TSTMark from '../components/logos/TSTMark';
 import USDCMark from '../components/logos/USDCMark';
 import WBTCMark from '../components/logos/WBTCMark';
 import USDTMark from '../components/logos/USDTMark';
+import YieldMark from '../components/logos/YieldMark';
 
 const markMap = new Map([
   ['DAI', <DaiMark key="dai" />],
@@ -78,6 +80,7 @@ const initState = {
   contractMap: new Map<string, ContractFactory>(),
   assetRootMap: new Map<string, IAssetRoot>(),
   seriesRootMap: new Map<string, ISeriesRoot>(),
+
 };
 
 function chainReducer(state: any, action: any) {
@@ -107,7 +110,6 @@ function chainReducer(state: any, action: any) {
       ...state,
       assetRootMap: state.assetRootMap.set(action.payload.id, action.payload),
     };
-
     /* special internal case for multi-updates - might remove from this context if not needed */
     case '_any': return { ...state, ...action.payload };
     default: return state;
@@ -158,6 +160,8 @@ const ChainProvider = ({ children }: any) => {
       const Cauldron = contracts.Cauldron__factory.connect(addrs.Cauldron, fallbackLibrary);
       const Ladle = contracts.Ladle__factory.connect(addrs.Ladle, fallbackLibrary);
       const PoolRouter = contracts.PoolRouter__factory.connect(addrs.PoolRouter, fallbackLibrary);
+      const CompoundOracle = contracts.CompoundMultiOracle__factory.connect(addrs.CompoundOracle, fallbackLibrary);
+      const ChainlinkOracle = contracts.ChainlinkMultiOracle__factory.connect(addrs.ChainlinkOracle, fallbackLibrary);
 
       updateState({ type: 'appVersion', payload: process.env.REACT_APP_VERSION });
 
@@ -166,6 +170,8 @@ const ChainProvider = ({ children }: any) => {
       newContractMap.set('Cauldron', Cauldron);
       newContractMap.set('Ladle', Ladle);
       newContractMap.set('PoolRouter', PoolRouter);
+      newContractMap.set('CompoundOracle', CompoundOracle);
+      newContractMap.set('ChainlinkOracle', ChainlinkOracle);
       updateState({ type: 'contractMap', payload: newContractMap });
 
       let test :any;
@@ -180,10 +186,8 @@ const ChainProvider = ({ children }: any) => {
         /* Update the available assetsMap based on Cauldron events */
         (async () => {
           /* get all the assetAdded, roacleAdded and joinAdded events and series events at the same time */
-          const [assetAddedEvents, spotOracleAddedEvents, rateOracleAddedEvents, joinAddedEvents] = await Promise.all([
+          const [assetAddedEvents, joinAddedEvents] = await Promise.all([
             Cauldron.queryFilter('AssetAdded' as any),
-            Cauldron.queryFilter('SpotOracleAdded' as any),
-            Cauldron.queryFilter('RateOracleAdded' as any),
             Ladle.queryFilter('JoinAdded' as any),
           ]);
 
@@ -192,27 +196,12 @@ const ChainProvider = ({ children }: any) => {
             joinAddedEvents.map((log:any) => Ladle.interface.parseLog(log).args) as [[string, string]],
           );
 
-          /* Create a map from the rateOracleAdded event data */
-          // event RateOracleAdded(bytes6 indexed baseId, address indexed oracle);
-          const rateOracleMap: Map<string, string> = new Map(
-            rateOracleAddedEvents.map((log:any) => Cauldron.interface.parseLog(log).args) as [[string, string]],
-          );
-
-          /* Create a map from the spotOracleAdded event data : structure>  Map[ string, Map[string, [address, string ]]] */
-          // event SpotOracleAdded(bytes6 indexed baseId, bytes6 indexed ilkId, address indexed oracle, uint32 ratio);
-          const spotOracleMap: Map<string, string> = new Map(
-            spotOracleAddedEvents.map((log:any) => {
-              const { args } = Cauldron.interface.parseLog(log);
-              // const _map = new Map([args[1], [args[2], args[3]]]);
-              return [args[0], args[3]];
-            }) as [[string, string]],
-          );
-
           await Promise.all(assetAddedEvents.map(async (x:any) => {
             const { assetId: id, asset: address } = Cauldron.interface.parseLog(x).args;
             const ERC20 = contracts.ERC20Permit__factory.connect(address, fallbackLibrary);
             /* Add in any extra static asset Data */ // TODO is there any other fixed asset data needed?
             const [name, symbol] = await Promise.all([ERC20.name(), ERC20.symbol()]);
+            // TODO check if any other tokens have different versions. maybe abstract this logic somewhere?
             const version = (id === '0x555344430000') ? '2' : '1';
             // const version = ETH_BASED_ASSETS.includes(id) ? '1' : ERC20.version();
 
@@ -226,7 +215,7 @@ const ChainProvider = ({ children }: any) => {
                 name,
                 symbol,
                 version,
-                color: (yieldEnv.colors as any)[symbol],
+                color: (yieldEnv.assetColors as any)[symbol],
                 image: markMap.get(symbol),
                 joinAddress: joinMap.get(id),
                 /* baked in token fns */
@@ -240,7 +229,7 @@ const ChainProvider = ({ children }: any) => {
 
         /* ... AT THE SAME TIME update the available seriesRootMap based on Cauldron events */
         (async () => {
-          /* get both poolAdded events and series events at the same time */
+          /* get poolAdded events and series events at the same time */
           const [seriesAddedEvents, poolAddedEvents] = await Promise.all([
             Cauldron.queryFilter('SeriesAdded' as any),
             Ladle.queryFilter('PoolAdded' as any),
@@ -260,6 +249,15 @@ const ChainProvider = ({ children }: any) => {
               const poolAddress: string = poolMap.get(id) as string;
               const poolContract: Pool = contracts.Pool__factory.connect(poolAddress, fallbackLibrary);
               const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackLibrary);
+
+              const season = getSeason(maturity) as SeasonType;
+              const oppSeason = (_season: SeasonType) => SeasonType.WINTER;
+              // if (season === SeasonType.WINTER) return SeasonType.SUMMER;
+              // if (season === SeasonType.SUMMER) return SeasonType.WINTER;
+              // if (season === SeasonType.FALL) return SeasonType.SPRING;
+
+              const [startColor, endColor, textColor]: string[] = yieldEnv.seasonColors[season];
+              const [oppStartColor, oppEndColor, oppTextColor]: string[] = yieldEnv.seasonColors[oppSeason(season)];
 
               const [name, symbol, version, poolName, poolVersion] = await Promise.all([
                 fyTokenContract.name(),
@@ -287,6 +285,17 @@ const ChainProvider = ({ children }: any) => {
                   poolContract,
                   poolVersion,
                   poolName,
+
+                  season,
+                  startColor,
+                  endColor,
+                  color: `linear-gradient(${startColor}, ${endColor})`,
+                  textColor,
+
+                  oppStartColor,
+                  oppEndColor,
+                  seriesMark: <YieldMark start={startColor} end={endColor} />,
+
                   // built-in helper functions:
                   getTimeTillMaturity: () => (maturity - Math.round(new Date().getTime() / 1000)),
                   // isMature: () => (maturity < Math.round(new Date().getTime() / 1000)),

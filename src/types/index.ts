@@ -7,17 +7,30 @@ export interface IUserContext {
   userActions : IUserContextActions;
 }
 
+export interface IHistoryContextState {
+  historyLoading: boolean,
+  txHistory: {
+    lastBlock: Number,
+    items:any[],
+  }
+}
+
 export interface IUserContextState {
+  userLoading: boolean;
   activeAccount: string|null;
 
   assetMap: Map<string, IAsset>;
   seriesMap: Map<string, ISeries>;
   vaultMap: Map<string, IVault>;
 
+  priceMap: Map<string, Map<string, any>>;
+
   selectedSeriesId: string|null;
   selectedIlkId: string|null;
   selectedBaseId: string|null;
   selectedVaultId: string|null;
+
+  approvalMethod: ApprovalType;
 }
 
 export interface IUserContextActions {
@@ -26,10 +39,13 @@ export interface IUserContextActions {
   updateSeries: (seriesList: ISeries[]) => void;
   updateAssets: (assetList: IAsset[]) => void;
 
+  updatePrice: (base: string, ilk:string) => void;
+
   setSelectedSeries: (seriesId: string) => void;
   setSelectedIlk: (ilkId: string) => void;
   setSelectedBase: (baseId: string) => void;
   setSelectedVault: (vaultId: string) => void;
+
 }
 
 export interface ISeriesRoot {
@@ -51,6 +67,17 @@ export interface ISeriesRoot {
   poolVersion: string; // for signing
   baseId: string;
 
+  color: string;
+  textColor: string;
+  startColor: string;
+  endColor:string;
+
+  oppositeColor:string;
+  oppStartColor: string;
+  oppEndColor:string;
+
+  seriesMark: React.ElementType
+
   // baked in token fns
   getTimeTillMaturity: () => string;
   isMature: () => boolean;
@@ -69,6 +96,7 @@ export interface IAssetRoot {
   displayNameMobile: string;
   address: string;
   joinAddress: string,
+
   // baked in token fns
   getBalance: (account: string)=>Promise<BigNumber>,
   getAllowance: (account: string, spender: string)=>Promise<BigNumber>,
@@ -84,7 +112,7 @@ export interface IVaultRoot {
 }
 
 export interface ISeries extends ISeriesRoot {
-  APR: string;
+  apr: string;
   baseReserves: BigNumber;
   fyTokenReserves: BigNumber;
   fyTokenRealReserves: BigNumber;
@@ -111,6 +139,8 @@ export interface IVault extends IVaultRoot {
   art: BigNumber;
   ink_: string;
   art_: string;
+  price: BigNumber;
+  price_: string;
 }
 
 export interface ICallData {
@@ -127,7 +157,6 @@ export interface ISignData {
   spender: 'POOLROUTER'|'LADLE'| string;
   type: SignType;
   series: ISeries;
-  fallbackCall: any; // TODO make ICallData calldata to process if fallbackTx is used
 
   /* optional Extention/advanced use-case options */
   message?: string; // optional messaging for UI
@@ -158,21 +187,14 @@ export interface IDomain {
   verifyingContract: string;
 }
 
+export enum ApprovalType {
+  TX = 'TX',
+  SIG = 'SIG',
+}
 export enum SignType {
   ERC2612 = 'ERC2612_TYPE',
   DAI = 'DAI_TYPE',
   FYTOKEN = 'FYTOKEN_TYPE',
-}
-
-export enum TradeType {
-  BUY = 'BUY',
-  SELL = 'SELL',
-}
-
-export enum ActionType {
-  BORROW = 'BORROW',
-  LEND = 'LEND',
-  POOL = 'POOL',
 }
 
 export enum TxState {
@@ -186,6 +208,17 @@ export enum MenuView {
   account = 'ACCOUNT',
   settings = 'SETTINGS',
   vaults = 'VAULTS',
+}
+
+export enum TradeType {
+  BUY = 'BUY',
+  SELL = 'SELL',
+}
+
+export enum ActionType {
+  BORROW = 'BORROW',
+  LEND = 'LEND',
+  POOL = 'POOL',
 }
 
 export enum ActionCodes {

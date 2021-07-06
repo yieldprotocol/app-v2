@@ -1,14 +1,22 @@
 import React, { useContext, useRef, useState } from 'react';
-import { Box, Button, Grid, Heading, Layer, ResponsiveContext, Text } from 'grommet';
+import { Box, Button, Grid, Header, Heading, Layer, ResponsiveContext, Text } from 'grommet';
 import styled from 'styled-components';
+
+import { FiX } from 'react-icons/fi';
 
 import { useSpring, animated, to, a } from 'react-spring';
 import { useGesture } from 'react-use-gesture';
+import MainViewWrap from './MainViewWrap';
+import PanelWrap from './PanelWrap';
+import YieldLogo from '../logos/YieldLogo';
+import BackButton from '../buttons/BackButton';
+import CenterPanelWrap from './CenterPanelWrap';
 
 interface IModalWrap {
   modalOpen: boolean;
   toggleModalOpen: ()=>void;
   children: any;
+  background?: string|undefined;
 }
 
 // const BlurredLayer = styled.Layer()`
@@ -18,7 +26,7 @@ interface IModalWrap {
 const calcX = (y: number, ly: number) => -(y - ly - window.innerHeight / 2) / 200;
 const calcY = (x: number, lx: number) => (x - lx - window.innerWidth / 2) / 200;
 
-function ModalWrap({ children, toggleModalOpen, modalOpen = false }: IModalWrap) {
+function ModalWrap({ children, toggleModalOpen, background, modalOpen = false }: IModalWrap) {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const [flipped, setFlipped] = useState(false);
@@ -73,16 +81,33 @@ function ModalWrap({ children, toggleModalOpen, modalOpen = false }: IModalWrap)
          <Layer
            // plain
            onClickOutside={() => toggleModalOpen()}
-           modal
            responsive
+           full
+           background={background}
+           animation="none"
          >
-           <Box
-             height="600px"
-             width={mobile ? undefined : '600px'}
-             round="small"
-             pad="large"
+           <Header
+             pad="medium"
+             height={mobile ? undefined : 'xsmall'}
+             justify="between"
+             fill="horizontal"
+             style={{ position: 'fixed', top: '0px' }}
            >
-             {children}
+             <YieldLogo height={mobile ? '1em' : '1.5em'} fill="white" />
+             <FiX onClick={() => toggleModalOpen()} />
+           </Header>
+
+           <Box flex={!mobile} overflow="auto" margin={{ top: 'xlarge' }}>
+             <MainViewWrap pad="large">
+               <PanelWrap><Box /></PanelWrap>
+               <Box gap="large" width="600px">
+                 <BackButton action={() => toggleModalOpen()} />
+
+                 {children}
+
+               </Box>
+               <PanelWrap> <Box /> </PanelWrap>
+             </MainViewWrap>
            </Box>
          </Layer>
         }
@@ -90,6 +115,8 @@ function ModalWrap({ children, toggleModalOpen, modalOpen = false }: IModalWrap)
     </Box>
   );
 }
+
+ModalWrap.defaultProps = { background: undefined };
 
 // ModalWrap.defaultProps = { basis: undefined };
 export default ModalWrap;

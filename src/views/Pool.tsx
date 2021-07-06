@@ -3,26 +3,32 @@ import { Box, Button, RadioButtonGroup, ResponsiveContext, Text, TextInput } fro
 
 import { ethers } from 'ethers';
 
-import { cleanValue } from '../utils/displayUtils';
+import { FiSquare, FiClock, FiTrendingUp, FiPercent } from 'react-icons/fi';
+import { BiCoinStack, BiMessageSquareAdd } from 'react-icons/bi';
+import { cleanValue, getTxCode } from '../utils/appUtils';
 import AssetSelector from '../components/selectors/AssetSelector';
 import MainViewWrap from '../components/wraps/MainViewWrap';
 import SeriesSelector from '../components/selectors/SeriesSelector';
 import InputWrap from '../components/wraps/InputWrap';
 import InfoBite from '../components/InfoBite';
-import ActionButtonGroup from '../components/ActionButtonGroup';
+import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
 import { UserContext } from '../contexts/UserContext';
 import { ActionCodes, ActionType, ISeries, IUserContext } from '../types';
-import { usePool, usePoolActions } from '../hooks/poolActions';
-import MaxButton from '../components/MaxButton';
+import { usePool, usePoolActions } from '../hooks/poolHooks';
+import MaxButton from '../components/buttons/MaxButton';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import StepperText from '../components/StepperText';
 import PositionSelector from '../components/selectors/PositionSelector';
 import ActiveTransaction from '../components/ActiveTransaction';
-import { getTxCode } from '../utils/appUtils';
 import YieldInfo from '../components/YieldInfo';
 import YieldLiquidity from '../components/YieldLiquidity';
+import BackButton from '../components/buttons/BackButton';
+import YieldMark from '../components/logos/YieldMark';
+import NextButton from '../components/buttons/NextButton';
+import TransactButton from '../components/buttons/TransactButton';
+import ReviewTxItem from '../components/ReviewTxItem';
 
 function Pool() {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -39,7 +45,9 @@ function Pool() {
   const [maxPool, setMaxPool] = useState<string|undefined>();
 
   const [poolError, setPoolError] = useState<string|null>(null);
+
   const [poolDisabled, setPoolDisabled] = useState<boolean>(true);
+
   const [strategy, setStrategy] = useState<'BUY'|'MINT'>('BUY');
 
   const [stepPosition, setStepPosition] = useState<number>(0);
@@ -101,11 +109,17 @@ function Pool() {
         <YieldInfo />
       </PanelWrap>}
 
-      <CenterPanelWrap>
+      <CenterPanelWrap series={selectedSeries}>
 
-        {
+        <Box height="100%" pad="large">
+
+          {
           stepPosition === 0 &&
-          <Box gap="large">
+          <Box gap="medium">
+            <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
+              <YieldMark />
+              <Text>POOL</Text>
+            </Box>
 
             <SectionWrap title="Select an asset to Pool">
               <Box direction="row" gap="small" fill="horizontal" align="start">
@@ -133,20 +147,16 @@ function Pool() {
             </SectionWrap>
 
             <SectionWrap title="Select a series to Pool to">
-              <SeriesSelector actionType={ActionType.POOL} />
+              <SeriesSelector actionType={ActionType.POOL} inputValue={poolInput} />
             </SectionWrap>
-
-            {selectedSeries?.seriesIsMature && <Text color="pink" size="small">This series has matured.</Text>}
 
           </Box>
           }
 
-        {
+          {
           stepPosition === 1 &&
           <Box gap="large">
-            <Box onClick={() => setStepPosition(0)}>
-              <Text>Back</Text>
-            </Box>
+            <BackButton action={() => setStepPosition(0)} />
 
             <ActiveTransaction txCode={getTxCode(ActionCodes.ADD_LIQUIDITY, selectedSeriesId)}>
               <Box gap="large">
@@ -167,29 +177,55 @@ function Pool() {
                     />
                   </Box>
                 </SectionWrap>}
+
                 <SectionWrap title="Review your transaction">
-                  <Text>Add {poolInput} {selectedBase?.symbol} to the {selectedSeries?.displayName} pool. </Text>
+
+                  <Box gap="small" pad={{ horizontal: 'large', vertical: 'medium' }} round="xsmall" animation={{ type: 'zoomIn', size: 'small' }}>
+                    <ReviewTxItem
+                      label="Amount to pool"
+                      icon={<BiMessageSquareAdd />}
+                      value={`${poolInput} ${selectedBase?.symbol}`}
+                    />
+                    <ReviewTxItem
+                      label="Series Maturity"
+                      icon={<FiClock />}
+                      value={`${selectedSeries?.displayName}`}
+                    />
+                    <ReviewTxItem
+                      label="Amount of liquidity tokens recieved"
+                      icon={<BiCoinStack />}
+                      value={`${'300k'} Liquidity tokens`}
+                    />
+                    <ReviewTxItem
+                      label="Percentage of pool"
+                      icon={<FiPercent />}
+                      value={`${'to do get pool percentage'}%`}
+                    />
+                  </Box>
                 </SectionWrap>
+
               </Box>
             </ActiveTransaction>
 
           </Box>
           }
+        </Box>
 
         <ActionButtonGroup>
           {
             stepPosition !== 1 &&
             !selectedSeries?.seriesIsMature &&
-            <Button
+            <NextButton
               secondary
               label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
               onClick={() => setStepPosition(stepPosition + 1)}
+              disabled={poolDisabled}
             />
             }
           {
             stepPosition === 1 &&
             !selectedSeries?.seriesIsMature &&
-              <Button
+              <TransactButton
                 primary
                 label={<Text size={mobile ? 'small' : undefined}> {`Pool ${poolInput || ''} ${selectedBase?.symbol || ''}`} </Text>}
                 onClick={() => handleAdd()}
@@ -201,7 +237,7 @@ function Pool() {
       </CenterPanelWrap>
 
       <PanelWrap right basis="40%">
-        <YieldLiquidity input={poolInput} />
+        {/* <YieldLiquidity input={poolInput} /> */}
         {!mobile && <PositionSelector actionType={ActionType.POOL} />}
       </PanelWrap>
 

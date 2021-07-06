@@ -9,6 +9,11 @@ import { useChain } from './chainHooks';
 
 import { VAULT_OPS, POOLROUTER_OPS } from '../utils/operations';
 
+export const useLend = (input: string|undefined) => {
+  const lendMax = input;
+  return { lendMax };
+};
+
 /* Generic hook for chain transactions */
 export const useLendActions = () => {
   const { chainState: { account, contractMap } } = useContext(ChainContext);
@@ -38,8 +43,7 @@ export const useLendActions = () => {
         target: base,
         spender: 'POOLROUTER',
         series,
-        type: _isDaiBased ? SignType.DAI : SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
-        fallbackCall: { fn: 'approve', args: [contractMap.get('Ladle'), MAX_256], ignore: false, opCode: null },
+        type: _isDaiBased ? SignType.DAI : SignType.ERC2612, // Sign Type based on whether a DAI-TyPE base asset or not.
         message: 'Signing ERC20 Token approval',
         ignore: false,
       },
@@ -83,7 +87,6 @@ export const useLendActions = () => {
         spender: 'POOLROUTER',
         series: fromSeries,
         type: SignType.FYTOKEN,
-        fallbackCall: { fn: 'approve', args: [contractMap.get('PoolRouter'), MAX_256], ignore: false, opCode: null },
         message: 'Signing ERC20 Token approval',
         ignore: fromSeries.seriesIsMature,
       },
@@ -95,7 +98,6 @@ export const useLendActions = () => {
         spender: 'LADLE',
         series: fromSeries,
         type: SignType.FYTOKEN,
-        fallbackCall: { fn: 'approve', args: [contractMap.get('PoolRouter'), MAX_256], ignore: false, opCode: null },
         message: 'Signing ERC20 Token approval',
         ignore: !fromSeries.seriesIsMature,
       },
@@ -175,7 +177,6 @@ export const useLendActions = () => {
         spender: 'POOLROUTER',
         series,
         type: SignType.FYTOKEN,
-        fallbackCall: { fn: 'approve', args: [contractMap.get('Ladle'), MAX_256], ignore: false, opCode: null },
         message: 'Signing ERC20 Token approval',
         ignore: false,
       },
@@ -219,7 +220,6 @@ export const useLendActions = () => {
         spender: 'LADLE',
         series,
         type: SignType.FYTOKEN,
-        fallbackCall: { fn: 'approve', args: [contractMap.get('PoolRouter'), MAX_256], ignore: false, opCode: null },
         message: 'Signing ERC20 Token approval',
         ignore: !series.seriesIsMature,
       },

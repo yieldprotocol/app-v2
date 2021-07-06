@@ -1,24 +1,32 @@
 import React, { useContext, useEffect, useReducer, useCallback, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 
 import { uniqueNamesGenerator, Config, adjectives, animals } from 'unique-names-generator';
 
-import { IAssetRoot, ISeriesRoot, IVaultRoot, ISeries, IAsset, IVault, IUserContextState, IUserContext } from '../types';
+import { IAssetRoot, ISeriesRoot, IVaultRoot, ISeries, IAsset, IVault, IUserContextState, IUserContext, ApprovalType } from '../types';
 
 import { ChainContext } from './ChainContext';
-import { cleanValue, genVaultImage } from '../utils/displayUtils';
+import { cleanValue, genVaultImage, bytes6ToBytes32 } from '../utils/appUtils';
 import { calculateAPR, divDecimal, floorDecimal, mulDecimal, secondsToFrom, sellFYToken } from '../utils/yieldMath';
+
+import { ONE_WEI_BN } from '../utils/constants';
 
 const UserContext = React.createContext<any>({});
 
 const initState : IUserContextState = {
+
+  userLoading: false,
   /* activeAccount */
   activeAccount: null,
+
   /* Item maps */
   assetMap: new Map<string, IAsset>(),
   seriesMap: new Map<string, ISeries>(),
   vaultMap: new Map<string, IVault>(),
+
+  /* map of asset prices */
+  priceMap: new Map<string, Map<string, any>>(),
 
   /* Current User selections */
   selectedSeriesId: null,
@@ -26,15 +34,14 @@ const initState : IUserContextState = {
   selectedBaseId: null, // initial base
   selectedVaultId: null,
 
-  /* show vaults or positions */
-  // showVault: false,
-  // showPosition: false,
+  /* User Settings */
+  approvalMethod: ApprovalType.SIG,
 
 };
 
 const vaultNameConfig: Config = {
   dictionaries: [adjectives, animals],
-  separator: '-',
+  separator: ' ',
   length: 2,
 };
 
@@ -48,7 +55,7 @@ function userReducer(state:any, action:any) {
 
   /* Reducer switch */
   switch (action.type) {
-    case 'userLoading': return { ...state, seriesLoading: onlyIfChanged(action) };
+    case 'userLoading': return { ...state, userLoading: onlyIfChanged(action) };
     case 'activeAccount': return { ...state, activeAccount: onlyIfChanged(action) };
 
     case 'selectedVaultId': return { ...state, selectedVaultId: onlyIfChanged(action) };
@@ -60,11 +67,16 @@ function userReducer(state:any, action:any) {
     case 'seriesMap': return { ...state, seriesMap: onlyIfChanged(action) };
     case 'vaultMap': return { ...state, vaultMap: onlyIfChanged(action) };
 
+    case 'priceMap': return { ...state, priceMap: onlyIfChanged(action) };
+
+    case 'approvalMethod': return { ...state, approvalMethod: onlyIfChanged(action) };
+
     default: return state;
   }
 }
 
 const UserProvider = ({ children }:any) => {
+  /* STATE FROM CONTEXT */
   // TODO const [cachedVaults, setCachedVaults] = useCachedState('vaults', { data: [], lastBlock: Number(process.env.REACT_APP_DEPLOY_BLOCK) });
   const { chainState } = useContext(ChainContext);
   const {
@@ -77,10 +89,12 @@ const UserProvider = ({ children }:any) => {
 
   const [userState, updateState] = useReducer(userReducer, initState);
 
-  /* local state */
+  /* LOCAL STATE */
   const [vaultFromUrl, setVaultFromUrl] = useState<string|null>(null);
 
+  /* HOOKS */
   const { pathname } = useLocation();
+
   /* If the url references a series/vault...set that one as active */
   useEffect(() => {
     pathname && setVaultFromUrl(pathname.split('/')[2]);
@@ -89,8 +103,10 @@ const UserProvider = ({ children }:any) => {
   /* internal function for getting the users vaults */
   const _getVaults = useCallback(async (fromBlock:number = 1) => {
     const Cauldron = contractMap.get('Cauldron');
-    const filter = Cauldron.filters.VaultBuilt(null, account, null);
+    const filter = Cauldron.filters.VaultBuilt(null, account);
     const eventList = await Cauldron.queryFilter(filter, fromBlock);
+
+    console.log(eventList);
     // const eventList = await Cauldron.queryFilter(filter, cachedVaults.lastBlock);
     const vaultList : IVaultRoot[] = await Promise.all(eventList.map(async (x:any) : Promise<IVaultRoot> => {
       const { vaultId: id, ilkId, seriesId } = Cauldron.interface.parseLog(x).args;
@@ -162,6 +178,19 @@ const UserProvider = ({ children }:any) => {
     console.log('ASSETS updated (with dynamic data): ', newAssetMap);
   }, [account]);
 
+  /* Updates the prices from the oracle with latest data */ // TODO reduce redundant calls
+  const updatePrice = useCallback(async (base: string, ilk:string): Promise<ethers.BigNumber> => {
+    const _priceMap = userState.priceMap;
+    const _basePriceMap = _priceMap.get(base) || new Map<string, any>();
+    const Oracle = contractMap.get('ChainlinkOracle');
+    const [price] = await Oracle.get(bytes6ToBytes32(base), bytes6ToBytes32(ilk), ONE_WEI_BN);
+    _basePriceMap.set(ilk, price);
+    _priceMap.set(base, _basePriceMap);
+    updateState({ type: 'priceMap', payload: _priceMap });
+    console.log('Price Updated: ', base, '->', ilk, ':', price.toString());
+    return price;
+  }, [contractMap, userState.priceMap]);
+
   /* Updates the series with relevant *user* data */
   const updateSeries = useCallback(async (seriesList: ISeriesRoot[]) => {
     let _publicData : ISeries[] = [];
@@ -179,24 +208,24 @@ const UserProvider = ({ children }:any) => {
           series.isMature(),
         ]);
 
-        const _rate = sellFYToken(
+        /* Calculates the base/fyToken unit selling price */
+        const _sellRate = sellFYToken(
           baseReserves,
           fyTokenReserves,
           ethers.utils.parseEther('1'),
           secondsToFrom(series.maturity.toString()),
         );
-        const APR = calculateAPR(floorDecimal(_rate), ethers.utils.parseEther('1'), series.maturity) || '0';
+        const apr = calculateAPR(floorDecimal(_sellRate), ethers.utils.parseEther('1'), series.maturity) || '0';
         // const { symbol } = assetRootMap.get(series.baseId);
+
         return {
           ...series,
-          // displayName: `${symbol} ⚬ ${series.displayName}`,
-          // displayNameMobile: `${symbol} ⚬ ${series.displayNameMobile}`,
           baseReserves,
           fyTokenReserves,
           fyTokenRealReserves,
           totalSupply,
           totalSupply_: ethers.utils.formatEther(totalSupply),
-          APR: `${Number(APR).toFixed(2)}`,
+          apr: `${Number(apr).toFixed(2)}`,
           seriesIsMature: mature,
         };
       }),
@@ -236,23 +265,24 @@ const UserProvider = ({ children }:any) => {
     updateState({ type: 'seriesMap', payload: newSeriesMap });
     console.log('SERIES updated (with dynamic data): ', newSeriesMap);
     return newSeriesMap;
-  }, [account]);
+  }, [account]); // TODO oops > sort out this dependency error. (is cyclic)
 
   /* Updates the vaults with *user* data */
   const updateVaults = useCallback(async (vaultList: IVaultRoot[]) => {
     let _vaultList: IVaultRoot[] = vaultList;
+    const Cauldron = contractMap.get('Cauldron');
 
     /* if vaultList is empty, fetch complete Vaultlist from chain via _getVaults */
-    if (!vaultList.length) _vaultList = Array.from((await _getVaults()).values());
+    if (vaultList.length === 0) _vaultList = Array.from((await _getVaults()).values());
 
-    const Cauldron = contractMap.get('Cauldron');
-    /* add in the dynamic vault data by mapping the vaults list */
+    /* Add in the dynamic vault data by mapping the vaults list */
     const vaultListMod = await Promise.all(
       _vaultList.map(async (vault:IVaultRoot) : Promise<IVault> => {
         /* update balance and series  ( series - because a vault can have been rolled to another series) */
-        const [{ ink, art }, { seriesId }] = await Promise.all([
+        const [{ ink, art }, { seriesId }, price] = await Promise.all([
           await Cauldron.balances(vault.id),
           await Cauldron.vaults(vault.id),
+          await updatePrice(vault.baseId, vault.ilkId),
         ]);
 
         return {
@@ -262,6 +292,8 @@ const UserProvider = ({ children }:any) => {
           art,
           ink_: cleanValue(ethers.utils.formatEther(ink), 2), // for display purposes only
           art_: cleanValue(ethers.utils.formatEther(art), 2), // for display purposes only
+          price,
+          price_: cleanValue(ethers.utils.formatEther(price), 2),
         };
       }),
     );
@@ -271,13 +303,13 @@ const UserProvider = ({ children }:any) => {
       const _map = acc;
       _map.set(item.id, item);
       return _map;
-    }, userState.vaultMap));
+    }, new Map()));
 
     updateState({ type: 'vaultMap', payload: newVaultMap });
     vaultFromUrl && updateState({ type: 'selectedVaultId', payload: vaultFromUrl });
 
     console.log('VAULTS: ', newVaultMap);
-  }, [contractMap, vaultFromUrl]);
+  }, [contractMap, vaultFromUrl, _getVaults]);
 
   useEffect(() => {
     /* When the chainContext is finished loading get the dynamic series and asset data */
@@ -294,13 +326,13 @@ const UserProvider = ({ children }:any) => {
 
   useEffect(() => {
     /* When the chainContext is finished loading get the users vault data */
-    if (account && !chainLoading) {
+    if (account !== null && !chainLoading) {
       /* trigger update of update all vaults by passing empty array */
       updateVaults([]);
     }
   }, [
     account, chainLoading,
-    _getVaults, updateVaults,
+    updateVaults,
   ]);
 
   /* Subscribe to vault event listeners */
@@ -308,15 +340,34 @@ const UserProvider = ({ children }:any) => {
     updateState({ type: 'activeAccount', payload: account });
   }, [account]);
 
+  /* Subscribe to oracle price changes */
+  useEffect(() => {
+    !chainLoading && seriesRootMap && (async () => {
+      const Oracle = contractMap.get('ChainlinkOracle');
+
+      const filter = Oracle.filters.SourceSet(null, null, null);
+      const eventList = await Oracle.queryFilter(filter, 1);
+      console.log('eventlist: ', eventList);
+    })();
+  }, [chainLoading, contractMap, seriesRootMap]);
+
   /* Exposed userActions */
   const userActions = {
+
     updateSeries,
     updateAssets,
     updateVaults,
+
+    updatePrice,
+
     setSelectedVault: (vaultId:string|null) => updateState({ type: 'selectedVaultId', payload: vaultId }),
     setSelectedIlk: (assetId:string|null) => updateState({ type: 'selectedIlkId', payload: assetId }),
     setSelectedSeries: (seriesId:string|null) => updateState({ type: 'selectedSeriesId', payload: seriesId }),
     setSelectedBase: (assetId:string|null) => updateState({ type: 'selectedBaseId', payload: assetId }),
+
+    setApprovalMethod: (type:ApprovalType) => updateState(
+      { type: 'approvalMethod', payload: type },
+    ),
   };
 
   return (

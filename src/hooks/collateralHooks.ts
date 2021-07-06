@@ -1,13 +1,85 @@
 import { BigNumber, ethers } from 'ethers';
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
-import { ICallData, IVault, SignType, ISeries, ActionCodes } from '../types';
-import { getTxCode } from '../utils/appUtils';
-import { ETH_BASED_ASSETS } from '../utils/constants';
+import { ICallData, IVault, SignType, ISeries, ActionCodes, IUserContext } from '../types';
+import { bytes6ToBytes32, getTxCode, cleanValue } from '../utils/appUtils';
+import { ETH_BASED_ASSETS, ONE_WEI_BN } from '../utils/constants';
 import { useChain } from './chainHooks';
 
 import { VAULT_OPS } from '../utils/operations';
+
+import { calculateCollateralizationRatio } from '../utils/yieldMath';
+
+/* Collateralisation hook calculates collateralisation metrics */
+export const useCollateralization = (
+  debtInput:string|undefined,
+  collInput:string|undefined,
+  vault: IVault|undefined,
+) => {
+  /* STATE FROM CONTEXT */
+  const {
+    userState: { selectedBaseId, selectedIlkId, priceMap },
+    userActions: { updatePrice },
+  } = useContext(UserContext);
+
+  /* LOCAL STATE */
+  const [collateralizationRatio, setCollateralizationRatio] = useState<string|undefined>();
+  const [collateralizationPercent, setCollateralizationPercent] = useState<string|undefined>();
+  const [undercollateralized, setUndercollateralized] = useState<boolean>(true);
+  const [oraclePrice, setOraclePrice] = useState<ethers.BigNumber>();
+  // todo:
+  const [collateralizationWarning, setCollateralizationWarning] = useState<string|undefined>();
+  const [borrowingPower, setBorrowingPower] = useState<string|undefined>();
+
+  /* update the prices if anything changes */
+  useEffect(() => {
+    if (selectedBaseId && selectedIlkId) {
+      (async () => {
+        const _price = priceMap.get(selectedBaseId)?.get(selectedIlkId)! ||
+        await updatePrice(selectedBaseId, selectedIlkId);
+        setOraclePrice(_price);
+      })();
+    }
+  }, [priceMap, selectedBaseId, selectedIlkId, updatePrice]);
+
+  useEffect(() => {
+    const existingCollateral = vault?.ink || ethers.constants.Zero;
+    const existingDebt = vault?.art || ethers.constants.Zero;
+
+    const dInput = debtInput ? ethers.utils.parseEther(debtInput) : ethers.constants.Zero;
+    const cInput = collInput ? ethers.utils.parseEther(collInput) : ethers.constants.Zero;
+
+    const totalCollateral = existingCollateral.add(cInput);
+    const totalDebt = existingDebt.add(dInput);
+
+    /* set the collateral ratio when collateral is entered */
+    if (oraclePrice?.gt(ethers.constants.Zero) && totalCollateral.gt(ethers.constants.Zero)) {
+      const ratio = calculateCollateralizationRatio(totalCollateral, oraclePrice, totalDebt, false);
+      const percent = calculateCollateralizationRatio(totalCollateral, oraclePrice, totalDebt, true);
+      setCollateralizationRatio(ratio);
+      setCollateralizationPercent(cleanValue(percent, 2));
+    } else {
+      setCollateralizationRatio('0.0');
+      setCollateralizationPercent(cleanValue('0.0', 2));
+    }
+
+    /* check for undercollateralisation */
+    if (collateralizationPercent && parseFloat(collateralizationPercent) <= 150) {
+      setUndercollateralized(true);
+    } else { setUndercollateralized(false); }
+  }, [collInput, collateralizationPercent, debtInput, oraclePrice, vault]);
+
+  // TODO marco add in collateralisation warning at about 150% - 200% " warning: vulnerable to liquidation"
+
+  return {
+    collateralizationRatio,
+    collateralizationPercent,
+    borrowingPower,
+    collateralizationWarning,
+    undercollateralized,
+  };
+};
 
 export const useCollateralActions = () => {
   const { chainState: { account, contractMap } } = useContext(ChainContext);
@@ -17,7 +89,9 @@ export const useCollateralActions = () => {
 
   const { sign, transact } = useChain();
 
-  const _addEth = (value: BigNumber, series:ISeries): ICallData[] => {
+  // TODO MARCO > look at possibly refactoring to remove addEth and removeEth
+
+  const addEth = (value: BigNumber, series:ISeries): ICallData[] => {
     const isPositive = value.gte(ethers.constants.Zero);
     /* Check if the selected Ilk is, in fact, an ETH variety */
     if (ETH_BASED_ASSETS.includes(selectedIlkId) && isPositive) {
@@ -34,7 +108,7 @@ export const useCollateralActions = () => {
     return [];
   };
 
-  const _removeEth = (value: BigNumber, series:ISeries): ICallData[] => {
+  const removeEth = (value: BigNumber, series:ISeries): ICallData[] => {
     /* First check if the selected Ilk is, in fact, an ETH variety */
     if (ETH_BASED_ASSETS.includes(selectedIlkId)) {
       /* return the remove ETH OP */
@@ -75,7 +149,6 @@ export const useCollateralActions = () => {
         type: SignType.ERC2612,
         spender: ilk.joinAddress,
         series,
-        fallbackCall: { fn: 'approve', args: [], ignore: false, opCode: null },
         ignore: _isEthBased,
       },
     ], txCode);
@@ -89,7 +162,7 @@ export const useCollateralActions = () => {
         ignore: !!vault,
       },
       // ladle.joinEtherAction(ethId),
-      ..._addEth(_input, series),
+      ...addEth(_input, series),
       // ladle.forwardPermitAction(ilkId, true, ilkJoin.address, posted, deadline, v, r, s)
       ...permits,
       // ladle.pourAction(vaultId, ignored, posted, 0)
@@ -140,7 +213,7 @@ export const useCollateralActions = () => {
         series,
         ignore: false,
       },
-      ..._removeEth(_input, series),
+      ...removeEth(_input, series),
     ];
 
     await transact('Ladle', calls, txCode);
@@ -150,5 +223,7 @@ export const useCollateralActions = () => {
   return {
     addCollateral,
     removeCollateral,
+    addEth,
+    removeEth,
   };
 };

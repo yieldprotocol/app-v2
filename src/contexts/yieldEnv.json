@@ -25,12 +25,18 @@
       "ChainlinkOracle" : "0x7bc06c482DEAd17c0e297aFbC32f6e63d3846650"
     }
   },
-  "colors": {
+  "assetColors": {
     "DAI" : "#F5AC37",
     "USDC" : "#2775CA",
     "WBTC" : "#5A5564",
     "TST" : "#D15034",
     "WETH" : "#FFFFFF",
     "USDT" : "#50af95"
+  },
+  "seasonColors": {
+    "WINTER" : ["#D9D9D9","#67F2FC", "#333333"],
+    "SPRING" : ["#6AD99E","#FF6BE4", "#333333"],
+    "SUMMER" : ["#FFDE75","#409C4D","#333333"],
+    "FALL" : ["#7255BD","#D95948","#ffffff"]
   }
 }

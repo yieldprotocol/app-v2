@@ -1,3 +1,5 @@
+import { format, getMonth, subDays } from 'date-fns';
+import Identicon, { IdenticonOptions } from 'identicon.js';
 import { ActionCodes } from '../types';
 
 export const copyToClipboard = (str:string) => {
@@ -8,6 +10,10 @@ export const copyToClipboard = (str:string) => {
   document.execCommand('copy');
   document.body.removeChild(el);
 };
+
+export function bytes6ToBytes32(x: string): string {
+  return x + '00'.repeat(26);
+}
 
 /* log to console + any extra action required, extracted  */
 export const toLog = (message: string, type: string = 'info') => {
@@ -29,3 +35,143 @@ export const getTxCode = (txType: ActionCodes, vaultOrSeriesId:string|null) => `
 //     }
 //   }
 // };
+
+// TODO make it change based on hemisphere ( ie swap winter and summer)
+export enum SeasonType {
+  WINTER = 'WINTER',
+  SPRING = 'SPRING',
+  SUMMER = 'SUMMER',
+  FALL = 'FALL',
+}
+export const getSeason = (dateInSecs:number) : SeasonType => {
+  const month:number = getMonth(new Date(dateInSecs * 1000));
+  const seasons = [
+    SeasonType.WINTER, SeasonType.WINTER,
+    SeasonType.SPRING, SeasonType.SPRING, SeasonType.SPRING,
+    SeasonType.SUMMER, SeasonType.SUMMER, SeasonType.SUMMER,
+    SeasonType.FALL, SeasonType.FALL, SeasonType.FALL,
+    SeasonType.WINTER,
+  ];
+  return seasons[month];
+};
+
+/* Trunctate a string value to a certain number of 'decimal' point */
+export const cleanValue = (input:string|undefined, decimals:number = 12) => {
+  const re = new RegExp(`(\\d+\\.\\d{${decimals}})(\\d)`);
+
+  if (input !== undefined) {
+    const inpu = input.match(re); // inpu = truncated 'input'... get it?
+    if (inpu) {
+      return inpu[1];
+    }
+    return input.valueOf();
+  }
+  return '0.0';
+};
+
+/* handle Address/hash shortening */
+export const abbreviateHash = (addr:string, buffer:number = 4) => `${addr?.substring(0, buffer)}...${addr?.substring(addr.length - buffer)}`;
+
+/**
+ *
+ * Generate the series name from the maturity number.
+ * Examples: full (defualt) : 'MMMM yyyy' ,  apr badge  : 'MMM yy' , mobile: 'MMM yyyy'
+ * */
+export const nameFromMaturity = (maturity: number, style:string = 'MMMM yyyy') => format(subDays(new Date(maturity * 1000), 2), style);
+
+export const genVaultImage = (id:string) => {
+  const options = {
+    foreground: [0, 0, 255, 255], // rgba black
+    background: [255, 255, 255, 255], // rgba white
+    margin: 0.2, // 20% margin
+    size: 16,
+    format: 'svg', // use SVG instead of PNG
+  } as IdenticonOptions;
+  const data = new Identicon(id, options).toString();
+  return `data:image/svg+xml;base64,${data}`;
+};
+
+/**
+   * Number formatting if reqd.
+   * */
+export const nFormatter = (num:number, digits:number) => {
+  const si = [
+    { value: 1, symbol: '' },
+    { value: 1E3, symbol: 'k' },
+    { value: 1E6, symbol: 'M' },
+    { value: 1E9, symbol: 'G' },
+    { value: 1E12, symbol: 'T' },
+    { value: 1E15, symbol: 'P' },
+    { value: 1E18, symbol: 'E' },
+  ];
+  const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
+  let i;
+  for (i = si.length - 1; i > 0; i--) {
+    if (num >= si[i].value) {
+      break;
+    }
+  }
+  return (num / si[i].value).toFixed(digits).replace(rx, '$1') + si[i].symbol;
+};
+
+/**
+   * Color functions
+   * */
+export const modColor = (color:any, amount:any) => {
+  let c;
+  let cT;
+  if (color.length === 9 || color.length === 8) {
+    c = color.substring(0, color.length - 2);
+    cT = color.slice(-2);
+  } else {
+    c = color;
+    cT = 'FF';
+  }
+  // eslint-disable-next-line prefer-template
+  return '#' + c.replace(/^#/, '').replace(/../g, (col:any) => ('0' + Math.min(255, Math.max(0, parseInt(col, 16) + amount)).toString(16)).substr(-2)) + cT;
+};
+
+export const contrastColor = (hex:any) => {
+  const hex_ = hex.slice(1);
+  if (hex_.length !== 6) {
+    throw new Error('Invalid HEX color.');
+  }
+  const r = parseInt(hex_.slice(0, 2), 16);
+  const g = parseInt(hex_.slice(2, 4), 16);
+  const b = parseInt(hex_.slice(4, 6), 16);
+
+  return (r * 0.299 + g * 0.587 + b * 0.114) > 186
+    ? 'brand'
+    : 'brand-light';
+};
+
+export const invertColor = (hex:any) => {
+  function padZero(str:string) {
+    const zeros = new Array(2).join('0');
+    return (zeros + str).slice(-2);
+  }
+  const hex_ = hex.slice(1);
+  if (hex_.length !== 6) {
+    throw new Error('Invalid HEX color.');
+  }
+  const r = (255 - parseInt(hex_.slice(0, 2), 16)).toString(16);
+  const g = (255 - parseInt(hex_.slice(2, 4), 16)).toString(16);
+  const b = (255 - parseInt(hex_.slice(4, 6), 16)).toString(16);
+  // pad each with zeros and return
+  return `#${padZero(r)}${padZero(g)}${padZero(b)}`;
+};
+
+export const buildGradient = (
+  colorFrom:string,
+  colorTo:string,
+) => `linear-gradient(to bottom right,
+      ${modColor(colorFrom || '#add8e6', -50)}, 
+      ${modColor(colorFrom || '#add8e6', 0)},
+      ${modColor(colorFrom || '#add8e6', 0)},
+      ${modColor(colorTo, 50)},
+      ${modColor(colorTo, 50)}, 
+      ${modColor(colorTo, 50)},
+      ${modColor(colorTo, 25)}, 
+      ${modColor(colorTo, 0)}, 
+      ${modColor(colorTo, 0)})
+    `;

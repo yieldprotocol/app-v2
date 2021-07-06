@@ -1,14 +1,15 @@
 import React, { useContext } from 'react';
-import { Box, Stack, Text } from 'grommet';
-import { IAsset, ISeries, IUserContext, IVault } from '../types';
+import { Box, Text } from 'grommet';
+import { IUserContext, IVault } from '../types';
 import { UserContext } from '../contexts/UserContext';
+
+import PositionAvatar from './PositionAvatar';
 
 function VaultListItem({ vault }:{ vault:IVault }) {
   const { userState } = useContext(UserContext) as IUserContext;
-  const { assetMap } = userState;
+  const { seriesMap } = userState;
 
-  const base = assetMap.get(vault.baseId);
-  const ilk = assetMap.get(vault.ilkId);
+  const series = seriesMap.get(vault.seriesId);
 
   return (
     <Box
@@ -17,17 +18,17 @@ function VaultListItem({ vault }:{ vault:IVault }) {
       align="center"
       pad="small"
     >
-      <Box direction="row" round="large" pad="xsmall" background={`linear-gradient(90deg, ${base?.color} 40%, white 75%)`} gap="xsmall">
-        {base?.image}
-        {ilk?.image}
-      </Box>
+
+      <PositionAvatar position={vault} />
 
       <Box>
         <Text weight={900} size="small"> {vault.displayName} </Text>
-        <Box>
+        <Box direction="column">
+          <Text weight={450} size="xsmall"> {series?.displayNameMobile} </Text>
           <Text weight={450} size="xsmall"> Debt:  {vault.art_} </Text>
         </Box>
       </Box>
+
     </Box>
   );
 }

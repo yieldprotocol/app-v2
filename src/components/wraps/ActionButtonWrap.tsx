@@ -1,10 +1,8 @@
 import React, { useContext } from 'react';
 import { Button, Box, Text, Layer, ResponsiveContext } from 'grommet';
-import styled from 'styled-components';
-import { unstable_renderSubtreeIntoContainer } from 'react-dom';
-import { ChainContext } from '../contexts/ChainContext';
+import { ChainContext } from '../../contexts/ChainContext';
 
-function ActionButtonGroup({ ...props }:any) {
+function ActionButtonWrap({ ...props }:any) {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
 
   const { chainState: { account }, chainActions: { connect } } = useContext(ChainContext);
@@ -35,4 +33,4 @@ function ActionButtonGroup({ ...props }:any) {
   );
 }
 
-export default ActionButtonGroup;
+export default ActionButtonWrap;

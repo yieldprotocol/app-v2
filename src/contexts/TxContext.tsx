@@ -1,7 +1,7 @@
 import React, { useReducer, useEffect } from 'react';
 import { ethers, ContractTransaction } from 'ethers';
 import { toast } from 'react-toastify';
-import { ISignData, TxState } from '../types';
+import { ApprovalType, ISignData, TxState } from '../types';
 
 const TxContext = React.createContext<any>({});
 
@@ -122,7 +122,7 @@ const TxProvider = ({ children }:any) => {
   /* handle an error from a tx that was successfully submitted */
   const _handleTxError = (msg:string, tx: any, txCode:any) => {
     toast.error(msg);
-    updateState({ type: 'transactions', payload: { tx, txCode, receipt: undefined, status: 'failed' } });
+    updateState({ type: 'transactions', payload: { tx, txCode, receipt: undefined, status: TxState.FAILED } });
     _endProcess(txCode);
     console.log('txHash: ', tx.hash);
     console.log('txCode: ', txCode);
@@ -145,7 +145,7 @@ const TxProvider = ({ children }:any) => {
       /* try the transaction with connected wallet and catch any 'pre-chain'/'pre-tx' errors */
       try {
         tx = await txFn();
-        updateState({ type: 'transactions', payload: { tx, txCode, receipt: null, status: 'pending' } });
+        updateState({ type: 'transactions', payload: { tx, txCode, receipt: null, status: TxState.PENDING } });
       } catch (e) {
         /* this case is when user rejects tx OR wallet rejects tx */
         _handleTxRejection(e, txCode);
@@ -157,7 +157,7 @@ const TxProvider = ({ children }:any) => {
       updateState({ type: 'transactions', payload: { tx, txCode, receipt: res, status: txSuccess ? TxState.SUCCESSFUL : TxState.FAILED } });
 
       /* if the handleTx is NOT a fallback tx (from signing) - then end the process */
-      if (!_isfallback) {
+      if (_isfallback === false) {
         /* transaction completion : success OR failure */
         txSuccess ? toast.success('Transaction successfull') : toast.error('Transaction failed :| ');
         _endProcess(txCode);
@@ -178,27 +178,50 @@ const TxProvider = ({ children }:any) => {
     fallbackFn:()=>Promise<any>,
     sigData: ISignData,
     txCode: string,
+    approvalMethod: ApprovalType,
   ) => {
     /* start a process */
     _startProcess(txCode);
     console.log(txState.processes);
-
     const uid = ethers.utils.hexlify(ethers.utils.randomBytes(6));
     updateState({ type: 'signatures', payload: { uid, txCode, sigData, status: TxState.PENDING } as IYieldSignature });
-    const _sig = await signFn()
-      .catch((err:any) => {
-        console.log(err);
-        updateState({ type: 'signatures', payload: { uid, txCode, sigData, status: TxState.REJECTED } as IYieldSignature });
-        /* end the process on signature rejection */
-        _endProcess(txCode);
-        return Promise.reject(err);
-      });
+
+    let _sig;
+    if (approvalMethod === ApprovalType.SIG) {
+      _sig = await signFn()
+        .catch((err:any) => {
+          console.log(err);
+          updateState({ type: 'signatures', payload: { uid, txCode, sigData, status: TxState.REJECTED } as IYieldSignature });
+          /* end the process on signature rejection */
+          _endProcess(txCode);
+          return Promise.reject(err);
+        });
+    } else {
+      await fallbackFn()
+        .catch((err:any) => {
+          console.log(err);
+          updateState({ type: 'signatures', payload: { uid, txCode, sigData, status: TxState.REJECTED } as IYieldSignature });
+          /* end the process on signature rejection */
+          _endProcess(txCode);
+          return Promise.reject(err);
+        });
+      /* on Completion of approval tx, send back an empty signed object (which will be ignored) */
+      _sig = ({
+        v: undefined,
+        r: undefined,
+        s: undefined,
+        value: undefined,
+        deadline: undefined,
+        nonce: undefined,
+        expiry: undefined,
+        allowed: undefined });
+    }
+
     updateState({ type: 'signatures', payload: { uid, txCode, sigData, status: TxState.SUCCESSFUL } as IYieldSignature });
-    console.log(_sig);
     return _sig;
   };
 
-  /* Process watcher  sets the 'any process pending'flag */
+  /* Process watcher sets the 'any process pending'flag */
   useEffect(() => {
     console.log('Process list: ', txState.processes);
     (Array.from(txState.processes.values()).length > 0)

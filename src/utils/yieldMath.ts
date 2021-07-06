@@ -499,7 +499,8 @@ export const calculateCollateralizationRatio = (
   ) {
     return undefined;
   }
-  const _colVal = mulDecimal(collateralAmount, collateralPrice);
+  const _unitPrice = divDecimal(collateralPrice, '1000000000000000000');
+  const _colVal = mulDecimal(collateralAmount, _unitPrice);
   const _ratio = divDecimal(_colVal, debtValue);
 
   if (asPercent) {

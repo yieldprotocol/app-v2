@@ -13,10 +13,13 @@ import { toast } from 'react-toastify';
 import { ChainContext } from '../contexts/ChainContext';
 
 import { useTimeTravel } from '../hooks/timeTravel';
+import { UserContext } from '../contexts/UserContext';
+import { ApprovalType } from '../types';
 
 const YieldFooter = (props: any) => {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
   const { chainState, chainActions } = useContext(ChainContext);
+  const { userState, userActions } = useContext(UserContext);
   const { account, fallbackProvider } = chainState;
 
   const [testOpen, setTestOpen] = useState<boolean>(false);
@@ -63,7 +66,20 @@ const YieldFooter = (props: any) => {
             <Box>
               <Button primary onClick={() => advanceTimeAndBlock('8000000')} label="Jump +-3months" />
             </Box>
+
+            <Box>
+              <Button
+                onClick={
+                  () => userActions.setApprovalMethod(
+                    userState.approvalMethod === ApprovalType.SIG ? ApprovalType.TX : ApprovalType.SIG,
+                  )
+                }
+                label="Toggle approval method"
+              />
+              Approval Method: { userState.approvalMethod }
+            </Box>
           </Box>
+
         </Collapsible>
       </Box>
 

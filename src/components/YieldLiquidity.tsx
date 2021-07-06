@@ -4,7 +4,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { UserContext } from '../contexts/UserContext';
 import { ISeries, IUserContext } from '../types';
-import { nFormatter } from '../utils/displayUtils';
+import { nFormatter } from '../utils/appUtils';
 
 interface IYieldApr {
   input: string|undefined,
@@ -15,8 +15,9 @@ const StyledText = styled(Text)`
   background: -webkit-linear-gradient(rgba(77,94,254,1),rgba(195,34,34,1));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  font-family: 'Bree Serif', serif;
-  filter: drop-shadow(5px 5px 2px #DDD);
+  font-family: 'FoundryGridnik';
+  font-weight: 'bold';
+  filter: drop-shadow(10px 10px 2px #DDD);
 `;
 
 function YieldApr({ input }: IYieldApr) {
@@ -52,9 +53,6 @@ function YieldApr({ input }: IYieldApr) {
             <Text size="small" color="text-weak" weight="bold">
               Total Liquidity
             </Text>
-            <Text size="medium" color="text-weak" weight="bold">
-              { selectedSeries?.displayName! }
-            </Text>
           </Box>
 
           <Box direction="row" align="center">
@@ -71,6 +69,7 @@ function YieldApr({ input }: IYieldApr) {
 
           <Text size="medium" color="text-weak" weight="bold">
             { !selectedSeries && `in all ${selectedBase?.symbol} series`}
+            { selectedSeries && `in the ${selectedSeries?.displayNameMobile} series`}
           </Text>
 
         </Box>

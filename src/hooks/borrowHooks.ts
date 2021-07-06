@@ -9,6 +9,7 @@ import { useChain } from './chainHooks';
 
 import { VAULT_OPS } from '../utils/operations';
 import { calculateSlippage } from '../utils/yieldMath';
+import { useCollateralActions } from './collateralHooks';
 
 export const useBorrow = () => {
   console.log('use borrow');
@@ -21,39 +22,9 @@ export const useBorrowActions = () => {
   const { selectedIlkId, selectedSeriesId, seriesMap, assetMap } = userState;
   const { updateVaults } = userActions;
 
+  const { addEth, removeEth } = useCollateralActions();
+
   const { sign, transact } = useChain();
-
-  const _addEth = (value: BigNumber, series:ISeries): ICallData[] => {
-    const isPositive = value.gte(ethers.constants.Zero);
-    /* Check if the selected Ilk is, in fact, an ETH variety */
-    if (ETH_BASED_ASSETS.includes(selectedIlkId) && isPositive) {
-      /* return the add ETH OP */
-      return [{
-        operation: VAULT_OPS.JOIN_ETHER,
-        args: [selectedIlkId],
-        ignore: false,
-        overrides: { value },
-        series,
-      }];
-    }
-    /* else return empty array */
-    return [];
-  };
-
-  const _removeEth = (value: BigNumber, series:ISeries): ICallData[] => {
-    /* First check if the selected Ilk is, in fact, an ETH variety */
-    if (ETH_BASED_ASSETS.includes(selectedIlkId)) {
-      /* return the remove ETH OP */
-      return [{
-        operation: VAULT_OPS.EXIT_ETHER,
-        args: [account],
-        ignore: value.gte(ethers.constants.Zero),
-        series,
-      }];
-    }
-    /* else return empty array */
-    return [];
-  };
 
   const borrow = async (
     vault: IVault|undefined,
@@ -81,7 +52,6 @@ export const useBorrowActions = () => {
         spender: ilk.joinAddress,
         series,
         type: DAI_BASED_ASSETS.includes(selectedIlkId) ? SignType.DAI : SignType.ERC2612,
-        fallbackCall: { fn: 'approve', args: [], ignore: false, opCode: null },
         ignore: ETH_BASED_ASSETS.includes(selectedIlkId), /* Ignore if Eth varietal OR Dai varietal */
       },
     ], txCode);
@@ -93,7 +63,7 @@ export const useBorrowActions = () => {
       ...permits,
 
       /* handle ETH deposit, if required */
-      ..._addEth(_collInput, series),
+      ...addEth(_collInput, series),
 
       /* If vault is null, build a new vault, else ignore */
       {
@@ -108,7 +78,6 @@ export const useBorrowActions = () => {
         ignore: false,
         series,
       },
-
     ];
 
     /* handle the transaction */
@@ -143,7 +112,6 @@ export const useBorrowActions = () => {
         spender: 'LADLE',
         series,
         type: _isDaiBased ? SignType.DAI : SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
-        fallbackCall: { fn: 'approve', args: [contractMap.get('Ladle'), MAX_256], ignore: false, opCode: null },
         message: 'Signing Dai Approval',
         ignore: series.mature,
       },
@@ -153,7 +121,6 @@ export const useBorrowActions = () => {
         spender: base.joinAddress,
         series,
         type: _isDaiBased ? SignType.DAI : SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
-        fallbackCall: { fn: 'approve', args: [contractMap.get('Ladle'), MAX_256], ignore: false, opCode: null },
         message: 'Signing Dai Approval',
         ignore: !series.mature,
       },
@@ -188,7 +155,7 @@ export const useBorrowActions = () => {
         series,
         ignore: !series.mature,
       },
-      ..._removeEth(_collInput, series),
+      ...removeEth(_collInput, series),
     ];
     await transact('Ladle', calls, txCode);
     updateVaults([vault]);

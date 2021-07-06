@@ -2,26 +2,33 @@ import React, { useContext, useState, useEffect } from 'react';
 import { Box, Button, ResponsiveContext, Text, TextInput } from 'grommet';
 import { ethers } from 'ethers';
 
-import ActionButtonGroup from '../components/ActionButtonGroup';
+import { FiPocket, FiClock, FiTrendingUp, FiPercent, FiSquare } from 'react-icons/fi';
+import { BiMessageSquareAdd } from 'react-icons/bi';
+import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import AssetSelector from '../components/selectors/AssetSelector';
 import InputWrap from '../components/wraps/InputWrap';
 import MainViewWrap from '../components/wraps/MainViewWrap';
 import SeriesSelector from '../components/selectors/SeriesSelector';
-import { cleanValue } from '../utils/displayUtils';
+import { cleanValue, getTxCode } from '../utils/appUtils';
 import SectionWrap from '../components/wraps/SectionWrap';
 
-import { useLendActions } from '../hooks/lendActions';
+import { useLendActions } from '../hooks/lendHooks';
 import { UserContext } from '../contexts/UserContext';
 import { ActionCodes, ActionType, IUserContext } from '../types';
-import MaxButton from '../components/MaxButton';
+import MaxButton from '../components/buttons/MaxButton';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
-import YieldApr from '../components/YieldApr';
+
 import StepperText from '../components/StepperText';
 import PositionSelector from '../components/selectors/PositionSelector';
 import ActiveTransaction from '../components/ActiveTransaction';
 import YieldInfo from '../components/YieldInfo';
-import { getTxCode } from '../utils/appUtils';
+import BackButton from '../components/buttons/BackButton';
+import YieldMark from '../components/logos/YieldMark';
+import NextButton from '../components/buttons/NextButton';
+import ReviewTxItem from '../components/ReviewTxItem';
+import TransactButton from '../components/buttons/TransactButton';
+import YieldApr from '../components/YieldApr';
 
 const Lend = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -101,10 +108,16 @@ const Lend = () => {
         <YieldInfo />
       </PanelWrap>}
 
-      <CenterPanelWrap>
-        {
+      <CenterPanelWrap series={selectedSeries}>
+
+        <Box height="100%" pad="large">
+          {
           stepPosition === 0 &&
-          <Box gap="large">
+          <Box gap="medium">
+            <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
+              <YieldMark />
+              <Text>LEND</Text>
+            </Box>
             <SectionWrap title="Select an asset and amount to lend">
               <Box direction="row" gap="small" fill="horizontal" align="start">
                 <Box basis={mobile ? '50%' : '60%'}>
@@ -133,34 +146,56 @@ const Lend = () => {
               <SeriesSelector inputValue={lendInput} actionType={ActionType.LEND} />
             </SectionWrap>
 
-            {selectedSeries?.seriesIsMature && <Text color="pink" size="small">This series has matured.</Text>}
-
           </Box>
           }
 
-        {
+          {
           stepPosition === 1 &&
           <Box gap="large">
-            <Box onClick={() => setStepPosition(0)}>
-              <Text>Back</Text>
-            </Box>
+            <BackButton action={() => setStepPosition(0)} />
 
             <ActiveTransaction txCode={getTxCode(ActionCodes.LEND, selectedSeriesId)}>
 
               <SectionWrap title="Review your transaction">
-                <Text>Lend {lendInput} {selectedBase?.symbol} to the {selectedSeries?.displayName} series. </Text>
+
+                <Box gap="small" pad={{ horizontal: 'large', vertical: 'medium' }} round="xsmall" animation={{ type: 'zoomIn', size: 'small' }}>
+                  <ReviewTxItem
+                    label="Amount to lend"
+                    icon={<BiMessageSquareAdd />}
+                    value={`${lendInput} fyTokens`}
+                  />
+                  <ReviewTxItem
+                    label="Series Maturity"
+                    icon={<FiClock />}
+                    value={`${selectedSeries?.displayName}`}
+                  />
+                  <ReviewTxItem
+                    label="Redeemable @ Maturity"
+                    icon={<FiTrendingUp />}
+                    value={`${lendInput} ${selectedBase?.symbol}`}
+                  />
+                  <ReviewTxItem
+                    label="Effective APR"
+                    icon={<FiPercent />}
+                    value={`${'to do get apr'}%`}
+                  />
+                </Box>
+
               </SectionWrap>
 
             </ActiveTransaction>
           </Box>
           }
 
+        </Box>
+
         <ActionButtonGroup>
           {
             stepPosition !== 1 &&
             !selectedSeries?.seriesIsMature &&
-            <Button
+            <NextButton
               secondary
+              disabled={lendDisabled}
               label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
               key="ONE"
               onClick={() => setStepPosition(stepPosition + 1)}
@@ -169,7 +204,7 @@ const Lend = () => {
           {
             stepPosition === 1 &&
             !selectedSeries?.seriesIsMature &&
-              <Button
+              <TransactButton
                 primary
                 label={<Text size={mobile ? 'small' : undefined}> {`Supply ${lendInput || ''} ${selectedBase?.symbol || ''}`} </Text>}
                 onClick={() => handleLend()}
@@ -177,7 +212,8 @@ const Lend = () => {
               />
             }
           {selectedSeries?.seriesIsMature &&
-            <Button
+
+            <NextButton
               primary
               label={<Text size={mobile ? 'small' : undefined}> Redeem </Text>}
               onClick={() => handleRedeem()}
@@ -187,7 +223,7 @@ const Lend = () => {
       </CenterPanelWrap>
 
       <PanelWrap right basis="40%">
-        <YieldApr input={lendInput} actionType={ActionType.LEND} />
+        {/* <YieldApr input={lendInput} actionType={ActionType.LEND} /> */}
         {!mobile && <PositionSelector actionType={ActionType.LEND} />}
       </PanelWrap>
 
