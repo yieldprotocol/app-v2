@@ -194,6 +194,7 @@ const Lend = () => {
             !selectedSeries?.seriesIsMature &&
             <NextButton
               secondary
+              disabled={lendDisabled}
               label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
               key="ONE"
               onClick={() => setStepPosition(stepPosition + 1)}

@@ -219,6 +219,7 @@ function Pool() {
               secondary
               label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
               onClick={() => setStepPosition(stepPosition + 1)}
+              disabled={poolDisabled}
             />
             }
           {
