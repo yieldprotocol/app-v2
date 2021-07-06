@@ -237,7 +237,7 @@ function Pool() {
       </CenterPanelWrap>
 
       <PanelWrap right basis="40%">
-        <YieldLiquidity input={poolInput} />
+        {/* <YieldLiquidity input={poolInput} /> */}
         {!mobile && <PositionSelector actionType={ActionType.POOL} />}
       </PanelWrap>
 

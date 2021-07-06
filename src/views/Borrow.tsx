@@ -135,7 +135,6 @@ const Borrow = () => {
     (
       !activeAccount ||
       !borrowInput ||
-      !collatInput ||
       !selectedSeries ||
       !selectedIlk ||
       undercollateralized ||

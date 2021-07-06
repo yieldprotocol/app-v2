@@ -28,6 +28,7 @@ import YieldMark from '../components/logos/YieldMark';
 import NextButton from '../components/buttons/NextButton';
 import ReviewTxItem from '../components/ReviewTxItem';
 import TransactButton from '../components/buttons/TransactButton';
+import YieldApr from '../components/YieldApr';
 
 const Lend = () => {
   const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';

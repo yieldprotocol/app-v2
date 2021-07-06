@@ -15,7 +15,7 @@ export const Gauge = ({
   min = 150,
   max = 750,
   // label = '%',
-  size = '5em',
+  size = '1em',
 }) => {
   const backgroundArc = arc()
     .innerRadius(0.65)
