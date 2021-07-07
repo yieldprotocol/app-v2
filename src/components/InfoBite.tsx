@@ -19,7 +19,7 @@ const InfoBite = ({ label, value, icon }: IInfoBite) => {
       {icon && <Text size="1.5em">{icon}</Text>}
       <Box>
         <Text size="small" color="text-weak">{label}</Text>
-        <Text size="small"> {value} </Text>
+        <Text size="medium"> {value} </Text>
       </Box>
     </Box>
   );

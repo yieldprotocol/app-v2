@@ -193,7 +193,7 @@ const Vault = () => {
 
   return (
     <CenterPanelWrap>
-      <Box fill pad="large" gap="medium">
+      <Box fill pad="large" gap="large">
 
         <Box height="50%" gap="medium">
           <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
@@ -207,20 +207,21 @@ const Vault = () => {
           </Box>
 
           <SectionWrap>
-            <Box gap="xsmall" pad="xsmall">
+
+            <Box gap="small">
               <InfoBite label="Vault debt + interest:" value={`${selectedVault?.art_} ${vaultBase?.symbol}`} icon={<FiTrendingUp />} />
               <InfoBite label="Maturity date:" value={`${vaultSeries?.displayName}`} icon={<FiClock color={vaultSeries?.color} />} />
               <InfoBite
                 label="Collateral posted:"
                 value={`${selectedVault?.ink_} ${vaultIlk?.symbol} ( ${collateralizationPercent} %)`}
                 icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
-                // icon={<FiLock />}
               />
             </Box>
+
           </SectionWrap>
         </Box>
 
-        <SectionWrap title="Vault Actions">
+        <SectionWrap>
 
           <Box elevation="xsmall" round="xsmall">
             <Select

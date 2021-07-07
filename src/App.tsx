@@ -31,7 +31,7 @@ function App() {
           <Route path="/*"> 404 </Route>
         </Switch>
       </Box>
-      {/* <YieldFooter /> */}
+      <YieldFooter />
     </Box>
   );
 }

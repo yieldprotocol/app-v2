@@ -12,7 +12,7 @@ function ReviewTxItem({ label, value, icon }: { label: string, value: string, ic
       <Text size="1.5em">{icon}</Text>
       <Box>
         <Text size="xsmall" color="text-weak">{label}</Text>
-        <Text size="small"> {value} </Text>
+        <Text size="medium"> {value} </Text>
       </Box>
 
     </Box>
