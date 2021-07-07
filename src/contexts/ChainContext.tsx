@@ -223,6 +223,11 @@ const ChainProvider = ({ children }: any) => {
                   ? library?.getBalance(acc)
                   : ERC20.balanceOf(acc)),
                 getAllowance: async (acc: string, spender:string) => ERC20.allowance(acc, spender),
+
+                /* TODO remove for prod */
+                /* @ts-ignore */
+                mintTest: async () => contracts.ERC20Mock__factory.connect(address, library?.getSigner()).mint(account, ethers.utils.parseEther('100')),
+
               } });
           }));
         })(),

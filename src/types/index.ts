@@ -1,6 +1,6 @@
 import { ethers, BigNumber } from 'ethers';
 import React from 'react';
-import { FYToken, Pool } from '../contracts';
+import { ERC20, FYToken, Pool } from '../contracts';
 
 export interface IUserContext {
   userState : IUserContextState;
@@ -100,6 +100,7 @@ export interface IAssetRoot {
   // baked in token fns
   getBalance: (account: string)=>Promise<BigNumber>,
   getAllowance: (account: string, spender: string)=>Promise<BigNumber>,
+  mintTest: ()=>Promise<VoidFunction>,
 }
 
 export interface IVaultRoot {

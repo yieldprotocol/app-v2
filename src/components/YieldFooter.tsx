@@ -8,13 +8,14 @@ import {
   ResponsiveContext,
   Footer,
   Collapsible,
+  Select,
 } from 'grommet';
 import { toast } from 'react-toastify';
 import { ChainContext } from '../contexts/ChainContext';
 
 import { useTimeTravel } from '../hooks/timeTravel';
 import { UserContext } from '../contexts/UserContext';
-import { ApprovalType } from '../types';
+import { ApprovalType, IAsset } from '../types';
 
 const YieldFooter = (props: any) => {
   const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
@@ -45,39 +46,55 @@ const YieldFooter = (props: any) => {
         </Box>
 
         <Collapsible open={testOpen}>
-          <Box direction="row" gap="small" justify="between">
-            <Box>
-              <Button disabled={!!account} secondary type="button" onClick={() => chainActions.connect('injected')} label="Connect web3" />
-              <Button disabled={!account} secondary type="button" onClick={() => chainActions.disconnect()} label="Disconnect web3" />
-            </Box>
 
-            <Box>
-              <Text>Current blockchain date: { timestamp && new Date(timestamp * 1000).toLocaleDateString() } </Text>
-              <Text>Acutal date: {new Date().toLocaleDateString()} </Text>
-            </Box>
+          <Box pad="small">
 
-            {/* <Button primary onClick={() => toast('Transaction complete')} label="Notify Example" /> */}
-            {/* <Button primary onClick={() => transact(ladle, [{ fn: 'build', args: [randVault, seriesList[0].id, assetList[4].id], ignore: false }], 'footer2')} label="Ladle interact" /> */}
+            <Box direction="row" gap="small" justify="between">
+              <Box>
+                <Button disabled={!!account} secondary type="button" onClick={() => chainActions.connect('injected')} label="Connect web3" />
+                <Button disabled={!account} secondary type="button" onClick={() => chainActions.disconnect()} label="Disconnect web3" />
+              </Box>
 
-            <Box>
-              <Button disabled={new Date(timestamp! * 1000) > new Date()} secondary onClick={() => takeSnapshot()} label="Take Time Snapshot" />
-              <Button disabled={new Date(timestamp! * 1000) <= new Date()} secondary onClick={() => revertToT0()} label="Revert to snapshot" />
-            </Box>
-            <Box>
-              <Button primary onClick={() => advanceTimeAndBlock('8000000')} label="Jump +-3months" />
-            </Box>
+              <Box>
+                <Text>Current blockchain date: { timestamp && new Date(timestamp * 1000).toLocaleDateString() } </Text>
+                <Text>Acutal date: {new Date().toLocaleDateString()} </Text>
+              </Box>
 
-            <Box>
-              <Button
-                onClick={
+              {/* <Button primary onClick={() => toast('Transaction complete')} label="Notify Example" /> */}
+              {/* <Button primary onClick={() => transact(ladle, [{ fn: 'build', args: [randVault, seriesList[0].id, assetList[4].id], ignore: false }], 'footer2')} label="Ladle interact" /> */}
+
+              <Box>
+                <Button disabled={new Date(timestamp! * 1000) > new Date()} secondary onClick={() => takeSnapshot()} label="Take Time Snapshot" />
+                <Button disabled={new Date(timestamp! * 1000) <= new Date()} secondary onClick={() => revertToT0()} label="Revert to snapshot" />
+              </Box>
+              <Box>
+                <Button primary onClick={() => advanceTimeAndBlock('8000000')} label="Jump +-3months" />
+              </Box>
+
+              <Box>
+                <Button
+                  onClick={
                   () => userActions.setApprovalMethod(
                     userState.approvalMethod === ApprovalType.SIG ? ApprovalType.TX : ApprovalType.SIG,
                   )
                 }
-                label="Toggle approval method"
-              />
-              Approval Method: { userState.approvalMethod }
+                  label="Toggle approval method"
+                />
+                Approval Method: { userState.approvalMethod }
+              </Box>
+
             </Box>
+
+            <Box direction="row" gap="xsmall">
+              Select an asset to fund:
+              { Array.from(userState.assetMap.values() as IAsset[]).map((x:IAsset) => (
+                <Button
+                  key={x.id}
+                  label={x.symbol}
+                  onClick={() => x.mintTest()}
+                />))}
+            </Box>
+
           </Box>
 
         </Collapsible>
