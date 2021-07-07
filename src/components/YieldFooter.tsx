@@ -89,9 +89,11 @@ const YieldFooter = (props: any) => {
               Select an asset to fund:
               { Array.from(userState.assetMap.values() as IAsset[]).map((x:IAsset) => (
                 <Button
+                  secondary
                   key={x.id}
                   label={x.symbol}
                   onClick={() => x.mintTest()}
+                  color={(x.symbol !== 'WETH' && x.symbol !== 'WBTC') ? 'green' : 'pink'}
                 />))}
             </Box>
 
