@@ -213,8 +213,8 @@ const Vault = () => {
               <InfoBite
                 label="Collateral posted:"
                 value={`${selectedVault?.ink_} ${vaultIlk?.symbol} ( ${collateralizationPercent} %)`}
-                // icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
-                icon={<FiLock />}
+                icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
+                // icon={<FiLock />}
               />
             </Box>
           </SectionWrap>
