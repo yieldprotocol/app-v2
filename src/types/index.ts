@@ -1,44 +1,37 @@
 import { ethers, BigNumber } from 'ethers';
 import React from 'react';
-import { ERC20, FYToken, Pool } from '../contracts';
+import { FYToken, Pool } from '../contracts';
+
+export interface IHistoryList {
+  lastBlock: number,
+  items: any[]
+}
+export interface IHistoryContextState {
+  historyLoading: boolean,
+  tradeHistory: IHistoryList
+  poolHistory: IHistoryList
+  vaultHistory: IHistoryList
+}
 
 export interface IUserContext {
   userState : IUserContextState;
   userActions : IUserContextActions;
 }
 
-export interface IHistoryContextState {
-  historyLoading: boolean,
-  tradeHistory: {
-    lastBlock: Number,
-    items:any[],
-  }
-  poolHistory: {
-    lastBlock: Number,
-    items:any[],
-  }
-  vaultHistory: {
-    lastBlock: Number,
-    items:any[],
-  }
-}
-
 export interface IUserContextState {
+
   userLoading: boolean;
   activeAccount: string|null;
-
   assetMap: Map<string, IAsset>;
   seriesMap: Map<string, ISeries>;
   vaultMap: Map<string, IVault>;
-
   priceMap: Map<string, Map<string, any>>;
-
   selectedSeriesId: string|null;
   selectedIlkId: string|null;
   selectedBaseId: string|null;
   selectedVaultId: string|null;
-
   approvalMethod: ApprovalType;
+
 }
 
 export interface IUserContextActions {
@@ -46,9 +39,7 @@ export interface IUserContextActions {
   updateVaults: (vaultList: IVault[]) => void;
   updateSeries: (seriesList: ISeries[]) => void;
   updateAssets: (assetList: IAsset[]) => void;
-
   updatePrice: (base: string, ilk:string) => void;
-
   setSelectedSeries: (seriesId: string) => void;
   setSelectedIlk: (ilkId: string) => void;
   setSelectedBase: (baseId: string) => void;
@@ -57,7 +48,7 @@ export interface IUserContextActions {
 }
 
 export interface ISeriesRoot {
-  // fixed/static:
+
   id: string;
   name: string;
   symbol: string;
