@@ -3,7 +3,7 @@ import React, { useContext } from 'react';
 import { UserContext } from '../contexts/UserContext';
 import { IVault, ISeries, IAsset, IUserContext } from '../types';
 
-function PositionAvatar({ position } : { position:IVault| ISeries }) {
+function PositionAvatar({ position }: { position: IVault | ISeries }) {
   const isVault = position.id.length > 15;
 
   /* STATE FROM CONTEXT */
@@ -12,14 +12,16 @@ function PositionAvatar({ position } : { position:IVault| ISeries }) {
 
   const base: IAsset | undefined = assetMap.get(position?.baseId!); // same for both series and vaults
 
-  const vault : IVault | undefined = isVault ? position as IVault : undefined;
-  const series: ISeries | undefined = vault ? seriesMap.get(vault.seriesId!) : position as ISeries;
+  const vault: IVault | undefined = isVault ? (position as IVault) : undefined;
+  const series: ISeries | undefined = vault
+    ? seriesMap.get(vault.seriesId!)
+    : (position as ISeries);
 
   const ilk: IAsset | undefined = vault && assetMap.get(vault.ilkId); // doesn't exist on series
 
   return (
     <>
-      {isVault ?
+      {isVault ? (
         <Stack anchor="top-right">
           <Avatar background={series?.color}>
             <Box
@@ -35,7 +37,7 @@ function PositionAvatar({ position } : { position:IVault| ISeries }) {
             {ilk?.image}
           </Avatar>
         </Stack>
-        :
+      ) : (
         <Avatar background={series?.color}>
           <Box
             round="large"
@@ -45,8 +47,8 @@ function PositionAvatar({ position } : { position:IVault| ISeries }) {
           >
             {base?.image}
           </Box>
-        </Avatar>}
-
+        </Avatar>
+      )}
     </>
   );
 }

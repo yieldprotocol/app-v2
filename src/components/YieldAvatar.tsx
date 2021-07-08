@@ -2,7 +2,7 @@ import React from 'react';
 import multiavatar from '@multiavatar/multiavatar';
 import { Avatar, Box, Image } from 'grommet';
 
-function YieldAvatar(props:any) {
+function YieldAvatar(props: any) {
   const _avatar = multiavatar(props.address);
   const _size = props.size.toString().concat('em');
   const _outerSize = (props.size + 0.5).toString().concat('em');
