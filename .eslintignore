@@ -11,4 +11,4 @@ src/serviceWorker.ts
 .eslintrc.js
 
 # ignore all js
-**/*
+# **/*

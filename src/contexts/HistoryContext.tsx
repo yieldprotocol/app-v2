@@ -120,7 +120,7 @@ const HistoryProvider = ({ children }:any) => {
             poolTokens,
 
             /* infered transaction type: */
-            txType: ethers.utils.formatEther(ink),
+            // txType: ethers.utils.formatEther(ink),
 
             /* Formatted values:  */
             poolTokens_: ethers.utils.formatEther(poolTokens),
