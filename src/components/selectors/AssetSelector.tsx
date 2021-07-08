@@ -88,7 +88,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
         placeholder="Select Asset"
         options={options}
         value={selectCollateral ? selectedIlk : selectedBase}
-        labelKey={(x:IAssetRoot|undefined) => optionText(x)}
+        labelKey={(x:IAssetRoot | undefined) => optionText(x)}
         valueLabel={<Box pad={mobile ? 'medium' : { vertical: '0.55em', horizontal: 'xsmall' }}><Text color="text"> {optionText(selectCollateral ? selectedIlk : selectedBase)} </Text></Box>}
         onChange={({ option }: any) => handleSelect(option)}
         disabled={(selectCollateral && (selectedSeries?.mature || !selectedSeries))}
