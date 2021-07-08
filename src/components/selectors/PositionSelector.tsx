@@ -50,27 +50,19 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
       /* filter all positions by base if base is selected */
       const _filteredSeries: ISeries[] = Array.from(seriesMap.values())
         /* filter by positive balances on either pool tokens or fyTokens */
-        .filter((_series: ISeries) =>
-          actionType === 'LEND' && _series
-            ? _series.fyTokenBalance?.gt(ZERO_BN)
-            : true
-        )
-        .filter((_series: ISeries) =>
-          actionType === 'POOL' && _series
-            ? _series.poolTokens?.gt(ZERO_BN)
-            : true
-        )
-        .filter((_series: ISeries) =>
-          base ? _series.baseId === base.id : true
-        )
-        .filter((_series: ISeries) =>
-          series ? _series.id === series.id : true
-        );
+        .filter((_series: ISeries) => (actionType === 'LEND' && _series
+          ? _series.fyTokenBalance?.gt(ZERO_BN)
+          : true))
+        .filter((_series: ISeries) => (actionType === 'POOL' && _series
+          ? _series.poolTokens?.gt(ZERO_BN)
+          : true))
+        .filter((_series: ISeries) => (base ? _series.baseId === base.id : true))
+        .filter((_series: ISeries) => (series ? _series.id === series.id : true));
       setCurrentFilter({ base, series });
       setFilterLabels([base?.symbol, series?.displayNameMobile]);
       setFilteredSeries(_filteredSeries);
     },
-    [seriesMap, actionType]
+    [seriesMap, actionType],
   );
 
   /* CHECK the list of current vaults which match the current base series selection */
@@ -79,21 +71,16 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
     if (!showPositionModal) {
       const _allPositions: ISeries[] = Array.from(seriesMap.values())
         /* filter by positive balances on either pool tokens or fyTokens */
-        .filter((_series: ISeries) =>
-          actionType === 'LEND' && _series
-            ? _series.fyTokenBalance?.gt(ZERO_BN)
-            : true
-        )
-        .filter((_series: ISeries) =>
-          actionType === 'POOL' && _series
-            ? _series.poolTokens?.gt(ZERO_BN)
-            : true
-        );
+        .filter((_series: ISeries) => (actionType === 'LEND' && _series
+          ? _series.fyTokenBalance?.gt(ZERO_BN)
+          : true))
+        .filter((_series: ISeries) => (actionType === 'POOL' && _series
+          ? _series.poolTokens?.gt(ZERO_BN)
+          : true));
       setAllPositions(_allPositions);
 
       if (selectedBase) handleFilter({ base: selectedBase, series: undefined });
-      if (selectedBase && selectedSeries)
-        handleFilter({ base: selectedBase, series: selectedSeries });
+      if (selectedBase && selectedSeries) handleFilter({ base: selectedBase, series: selectedSeries });
     }
   }, [
     selectedBase,
@@ -126,8 +113,8 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
             <Text size="small" color="text-weak">
               {showAllPositions
                 ? `All my ${
-                    actionType === 'LEND' ? 'lending' : 'pool'
-                  } positions`
+                  actionType === 'LEND' ? 'lending' : 'pool'
+                } positions`
                 : `My ${actionType === 'LEND' ? 'lending' : 'pool'} positions`}
             </Text>
           </Box>
@@ -145,12 +132,10 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
                   <Text size="xsmall">{filterLabels[0]}</Text>
                   <Text
                     size="xsmall"
-                    onClick={() =>
-                      handleFilter({
-                        ...currentFilter,
-                        base: undefined,
-                      } as IPositionFilter)
-                    }
+                    onClick={() => handleFilter({
+                      ...currentFilter,
+                      base: undefined,
+                    } as IPositionFilter)}
                   >
                     {' '}
                     x
@@ -168,12 +153,10 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
                   <Text size="xsmall">{filterLabels[1]}</Text>
                   <Text
                     size="xsmall"
-                    onClick={() =>
-                      handleFilter({
-                        ...currentFilter,
-                        series: undefined,
-                      } as IPositionFilter)
-                    }
+                    onClick={() => handleFilter({
+                      ...currentFilter,
+                      series: undefined,
+                    } as IPositionFilter)}
                   >
                     x
                   </Text>
@@ -203,7 +186,7 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
                 >
                   <PositionListItem series={x} actionType={actionType} />
                 </Box>
-              )
+              ),
             )}
           </ListWrap>
 

@@ -226,7 +226,7 @@ const ChainProvider = ({ children }: any) => {
 
                 /* TODO remove for prod */
                 /* @ts-ignore */
-                mintTest: async () => contracts.ERC20Mock__factory.connect(address, library?.getSigner()).mint(account, ethers.utils.parseEther('1000')),
+                mintTest: async () => contracts.ERC20Mock__factory.connect(address, library?.getSigner()).mint(account, ethers.utils.parseEther('100')),
 
               } });
           }));
