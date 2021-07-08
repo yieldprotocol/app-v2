@@ -11,8 +11,14 @@ export const copyToClipboard = (str:string) => {
   document.body.removeChild(el);
 };
 
-export function bytes6ToBytes32(x: string): string {
-  return x + '00'.repeat(26);
+/**
+ * Convert bytesX to bytes32 (BigEndian?)
+ * @param x string to convert.
+ * @param n current bytes value eg. bytes6 or bytes12
+ * @returns string bytes32
+ */
+export function bytesToBytes32(x: string, n:number): string {
+  return x + '00'.repeat(32 - n);
 }
 
 /* log to console + any extra action required, extracted  */

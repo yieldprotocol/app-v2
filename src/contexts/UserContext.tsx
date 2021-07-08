@@ -7,7 +7,7 @@ import { uniqueNamesGenerator, Config, adjectives, animals } from 'unique-names-
 import { IAssetRoot, ISeriesRoot, IVaultRoot, ISeries, IAsset, IVault, IUserContextState, IUserContext, ApprovalType } from '../types';
 
 import { ChainContext } from './ChainContext';
-import { cleanValue, genVaultImage, bytes6ToBytes32 } from '../utils/appUtils';
+import { cleanValue, genVaultImage, bytesToBytes32 } from '../utils/appUtils';
 import { calculateAPR, divDecimal, floorDecimal, mulDecimal, secondsToFrom, sellFYToken } from '../utils/yieldMath';
 
 import { ONE_WEI_BN } from '../utils/constants';
@@ -183,7 +183,7 @@ const UserProvider = ({ children }:any) => {
     const _priceMap = userState.priceMap;
     const _basePriceMap = _priceMap.get(base) || new Map<string, any>();
     const Oracle = contractMap.get('ChainlinkOracle');
-    const [price] = await Oracle.get(bytes6ToBytes32(base), bytes6ToBytes32(ilk), ONE_WEI_BN);
+    const [price] = await Oracle.get(bytesToBytes32(base, 6), bytesToBytes32(ilk, 6), ONE_WEI_BN);
     _basePriceMap.set(ilk, price);
     _priceMap.set(base, _basePriceMap);
     updateState({ type: 'priceMap', payload: _priceMap });

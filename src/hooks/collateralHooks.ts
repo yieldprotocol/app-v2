@@ -3,7 +3,7 @@ import { useContext, useEffect, useState } from 'react';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
 import { ICallData, IVault, SignType, ISeries, ActionCodes, IUserContext } from '../types';
-import { bytes6ToBytes32, getTxCode, cleanValue } from '../utils/appUtils';
+import { getTxCode, cleanValue } from '../utils/appUtils';
 import { ETH_BASED_ASSETS, ONE_WEI_BN } from '../utils/constants';
 import { useChain } from './chainHooks';
 
