@@ -98,24 +98,37 @@ const HistoryProvider = ({ children }:any) => {
       const { poolContract, id: seriesId } = series;
       const _liqFilter = poolContract.filters.Liquidity(null, null, account, null, null, null);
       const eventList = await poolContract.queryFilter(_liqFilter, 0);
-      const liqLogs = eventList.map((log:any) => {
-        const { blockNumber, transactionHash } = log;
-        const { maturity, bases, fyTokens, poolTokens } = poolContract.interface.parseLog(log).args;
-        return {
-          blockNumber,
-          transactionHash,
-          maturity,
-          bases,
-          fyTokens,
-          poolTokens,
-          seriesId,
-        };
-      });
+
+      const liqLogs = await Promise.all(
+        eventList.map(async (log:any) => {
+          const { blockNumber, transactionHash } = log;
+          const { maturity, bases, fyTokens, poolTokens } = poolContract.interface.parseLog(log).args;
+          const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
+
+          return {
+            blockNumber,
+            date,
+            transactionHash,
+            maturity,
+            bases,
+            fyTokens,
+            seriesId,
+            poolTokens,
+
+            /* Formatted values:  */
+            poolTokens_: cleanValue(ethers.utils.formatEther(poolTokens), 6),
+            fyTokens_: cleanValue(ethers.utils.formatEther(fyTokens), 6),
+            bases_: cleanValue(ethers.utils.formatEther(bases), 6),
+            date_: new Date(date * 1000),
+          };
+        }),
+      );
+
       poolHistMap.set(seriesId, liqLogs);
     }));
     updateState({ type: 'poolHistory', payload: poolHistMap });
     console.log('Pool History updated: ', poolHistMap);
-  }, [account]);
+  }, [account, fallbackProvider]);
 
   /* update Trading Historical data  */
   const updateTradeHistory = useCallback(async (seriesList: ISeries[]) => {
@@ -126,31 +139,42 @@ const HistoryProvider = ({ children }:any) => {
       const { poolContract, id: seriesId } = series;
       const _filter = poolContract.filters.Trade(null, null, account, null, null);
       const eventList = await poolContract.queryFilter(_filter, 0);
-      const tradeLogs = eventList.map((log:any) => {
-        const { blockNumber, transactionHash } = log;
-        const { maturity, bases, fyTokens } = poolContract.interface.parseLog(log).args;
-        return {
-          blockNumber,
-          transactionHash,
-          maturity,
-          bases,
-          fyTokens,
-          seriesId,
-        };
-      });
+
+      const tradeLogs = await Promise.all(
+        eventList.map(async (log:any) => {
+          const { blockNumber, transactionHash } = log;
+          const { maturity, bases, fyTokens } = poolContract.interface.parseLog(log).args;
+          const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
+
+          return {
+            blockNumber,
+            date,
+            transactionHash,
+            maturity,
+            bases,
+            fyTokens,
+            seriesId,
+
+            /* Formatted values:  */
+            date_: new Date(date * 1000),
+            bases_: cleanValue(ethers.utils.formatEther(bases), 6),
+            fyTokens_: cleanValue(ethers.utils.formatEther(fyTokens), 6),
+          };
+        }),
+      );
+
       tradeHistMap.set(seriesId, tradeLogs);
     }));
     updateState({ type: 'tradeHistory', payload: tradeHistMap });
     console.log('Trade history updated: ', tradeHistMap);
-  }, [account]);
+  }, [account, fallbackProvider]);
 
   /* Updates the assets with relevant *user* data */
   const updateVaultHistory = useCallback(async (vaultList: IVault[]) => {
     // event VaultPoured(bytes12 indexed vaultId, bytes6 indexed seriesId, bytes6 indexed ilkId, int128 ink, int128 art);
     const vaultHistMap = new Map([]);
     const Cauldron = contractMap.get('Cauldron');
-
-    /* Get all the Vault historical transactions */
+    /* Get all the Vault historical Pour transactions */
     await Promise.all(vaultList.map(async (vault: IVault) => {
       const { id: vaultId } = vault;
       const filter = Cauldron.filters.VaultPoured(bytesToBytes32(vaultId, 12));
@@ -159,15 +183,20 @@ const HistoryProvider = ({ children }:any) => {
         eventList.map(async (log:any) => {
           const { blockNumber, transactionHash } = log;
           const { seriesId, ilkId, ink, art } = Cauldron.interface.parseLog(log).args;
+          const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
           return {
             blockNumber,
-            date: (await fallbackProvider.getBlock(blockNumber)).timestamp,
+            date,
             transactionHash,
             vaultId,
             seriesId,
             ilkId,
             ink,
             art,
+            /* Formatted values:  */
+            date_: new Date(date * 1000),
+            ink_: cleanValue(ethers.utils.formatEther(ink), 2),
+            art_: cleanValue(ethers.utils.formatEther(art), 2),
           };
         }),
       );

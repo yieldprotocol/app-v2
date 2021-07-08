@@ -106,7 +106,6 @@ const UserProvider = ({ children }:any) => {
     const filter = Cauldron.filters.VaultBuilt(null, account);
     const eventList = await Cauldron.queryFilter(filter, fromBlock);
 
-    console.log(eventList);
     // const eventList = await Cauldron.queryFilter(filter, cachedVaults.lastBlock);
     const vaultList : IVaultRoot[] = await Promise.all(eventList.map(async (x:any) : Promise<IVaultRoot> => {
       const { vaultId: id, ilkId, seriesId } = Cauldron.interface.parseLog(x).args;
@@ -340,14 +339,13 @@ const UserProvider = ({ children }:any) => {
     updateState({ type: 'activeAccount', payload: account });
   }, [account]);
 
-  /* Subscribe to oracle price changes */
+  /* TODO Subscribe to oracle price changes */
   useEffect(() => {
     !chainLoading && seriesRootMap && (async () => {
       const Oracle = contractMap.get('ChainlinkOracle');
-
       const filter = Oracle.filters.SourceSet(null, null, null);
-      const eventList = await Oracle.queryFilter(filter, 1);
-      console.log('eventlist: ', eventList);
+      // const eventList = await Oracle.queryFilter(filter, 1);
+      // console.log('Oracle events: ', eventList);
     })();
   }, [chainLoading, contractMap, seriesRootMap]);
 
