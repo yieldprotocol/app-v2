@@ -9,7 +9,15 @@ export interface IUserContext {
 
 export interface IHistoryContextState {
   historyLoading: boolean,
-  txHistory: {
+  tradeHistory: {
+    lastBlock: Number,
+    items:any[],
+  }
+  poolHistory: {
+    lastBlock: Number,
+    items:any[],
+  }
+  vaultHistory: {
     lastBlock: Number,
     items:any[],
   }

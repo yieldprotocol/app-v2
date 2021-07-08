@@ -5,7 +5,7 @@ import { ethers } from 'ethers';
 import { IAssetRoot, ISeriesRoot, IVaultRoot, ISeries, IAsset, IVault, IUserContextState, IUserContext, ApprovalType, IHistoryContextState } from '../types';
 
 import { ChainContext } from './ChainContext';
-import { cleanValue, genVaultImage } from '../utils/appUtils';
+import { bytesToBytes32, cleanValue, genVaultImage } from '../utils/appUtils';
 import { calculateAPR, divDecimal, floorDecimal, mulDecimal, secondsToFrom, sellFYToken } from '../utils/yieldMath';
 import { UserContext } from './UserContext';
 
@@ -13,7 +13,15 @@ const HistoryContext = React.createContext<any>({});
 
 const initState : IHistoryContextState = {
   historyLoading: true,
-  txHistory: {
+  tradeHistory: {
+    lastBlock: 11066942,
+    items: [],
+  },
+  poolHistory: {
+    lastBlock: 11066942,
+    items: [],
+  },
+  vaultHistory: {
     lastBlock: 11066942,
     items: [],
   },
@@ -30,18 +38,28 @@ function historyReducer(state:any, action:any) {
   /* Reducer switch */
   switch (action.type) {
     case 'historyLoading': return { ...state, historyLoading: onlyIfChanged(action) };
-    case 'updateHistory':
+    case 'tradeHistory':
       return {
         ...state,
-        txHistory: action.payload,
+        tradeHistory: action.payload,
+      };
+    case 'poolHistory':
+      return {
+        ...state,
+        poolHistory: action.payload,
+      };
+    case 'vaultHistory':
+      return {
+        ...state,
+        vaultHistory: action.payload,
       };
     default: return state;
   }
 }
 
 // POOL :
-// event Trade(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens);
 // event Liquidity(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens, int256 poolTokens);
+// event Trade(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens);
 
 // FYTOKEN:
 // event Redeemed(address indexed from, address indexed to, uint256 amount, uint256 redeemed);
@@ -51,53 +69,131 @@ function historyReducer(state:any, action:any) {
 // event VaultTweaked(bytes12 indexed vaultId, bytes6 indexed seriesId, bytes6 indexed ilkId);
 // event VaultDestroyed(bytes12 indexed vaultId);
 // event VaultGiven(bytes12 indexed vaultId, address indexed receiver);
-
+// event VaultLocked(bytes12 indexed vaultId, uint256 indexed timestamp);
 // event VaultPoured(bytes12 indexed vaultId, bytes6 indexed seriesId, bytes6 indexed ilkId, int128 ink, int128 art);
 // event VaultStirred(bytes12 indexed from, bytes12 indexed to, uint128 ink, uint128 art);
 // event VaultRolled(bytes12 indexed vaultId, bytes6 indexed seriesId, uint128 art);
-// event VaultLocked(bytes12 indexed vaultId, uint256 indexed timestamp);
 
 const HistoryProvider = ({ children }:any) => {
   /* STATE FROM CONTEXT */
   // TODO const [cachedVaults, setCachedVaults] = useCachedState('vaults', { data: [], lastBlock: Number(process.env.REACT_APP_DEPLOY_BLOCK) });
   const { chainState } = useContext(ChainContext);
   const {
+    fallbackProvider,
     contractMap,
     account,
-    chainLoading,
     seriesRootMap,
-    assetRootMap,
   } = chainState;
   const { userState } = useContext(UserContext);
   const { userLoading, vaultMap } = userState;
 
   const [historyState, updateState] = useReducer(historyReducer, initState);
 
-  /* Updates the assets with relevant *user* data */
-  const updateHistory = useCallback(async (vaultList: IVault) => {
-    /* get both poolAdded events and series events at the same time */
-    const [vaultCreatedEvents, vaultPouredEvents] = await Promise.all([
-      // Cauldron.queryFilter('SeriesAdded' as any),
-      // Ladle.queryFilter('PoolAdded' as any),
-    ]);
+  /* update Pool Historical data */
+  const updatePoolHistory = useCallback(async (seriesList: ISeries[]) => {
+    // event Liquidity(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens, int256 poolTokens);
+    const poolHistMap = new Map([]);
+    /* Get all the Liquidity history transactions */
+    await Promise.all(seriesList.map(async (series: ISeries) => {
+      const { poolContract, id: seriesId } = series;
+      const _liqFilter = poolContract.filters.Liquidity(null, null, account, null, null, null);
+      const eventList = await poolContract.queryFilter(_liqFilter, 0);
+      const liqLogs = eventList.map((log:any) => {
+        const { blockNumber, transactionHash } = log;
+        const { maturity, bases, fyTokens, poolTokens } = poolContract.interface.parseLog(log).args;
+        return {
+          blockNumber,
+          transactionHash,
+          maturity,
+          bases,
+          fyTokens,
+          poolTokens,
+          seriesId,
+        };
+      });
+      poolHistMap.set(seriesId, liqLogs);
+    }));
+    updateState({ type: 'poolHistory', payload: poolHistMap });
+    console.log('Pool History updated: ', poolHistMap);
+  }, [account]);
 
-    /* build a map from the poolAdded event data */
-    const historyMap: Map<string, string> = new Map(
-    );
-  }, []);
+  /* update Trading Historical data  */
+  const updateTradeHistory = useCallback(async (seriesList: ISeries[]) => {
+    // event Trade(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens);
+    const tradeHistMap = new Map([]);
+    /* get all the trade historical transactions */
+    await Promise.all(seriesList.map(async (series: ISeries) => {
+      const { poolContract, id: seriesId } = series;
+      const _filter = poolContract.filters.Trade(null, null, account, null, null);
+      const eventList = await poolContract.queryFilter(_filter, 0);
+      const tradeLogs = eventList.map((log:any) => {
+        const { blockNumber, transactionHash } = log;
+        const { maturity, bases, fyTokens } = poolContract.interface.parseLog(log).args;
+        return {
+          blockNumber,
+          transactionHash,
+          maturity,
+          bases,
+          fyTokens,
+          seriesId,
+        };
+      });
+      tradeHistMap.set(seriesId, tradeLogs);
+    }));
+    updateState({ type: 'tradeHistory', payload: tradeHistMap });
+    console.log('Trade history updated: ', tradeHistMap);
+  }, [account]);
+
+  /* Updates the assets with relevant *user* data */
+  const updateVaultHistory = useCallback(async (vaultList: IVault[]) => {
+    // event VaultPoured(bytes12 indexed vaultId, bytes6 indexed seriesId, bytes6 indexed ilkId, int128 ink, int128 art);
+    const vaultHistMap = new Map([]);
+    const Cauldron = contractMap.get('Cauldron');
+
+    /* Get all the Vault historical transactions */
+    await Promise.all(vaultList.map(async (vault: IVault) => {
+      const { id: vaultId } = vault;
+      const filter = Cauldron.filters.VaultPoured(bytesToBytes32(vaultId, 12));
+      const eventList = await Cauldron.queryFilter(filter, 0);
+      const vaultLogs = await Promise.all(
+        eventList.map(async (log:any) => {
+          const { blockNumber, transactionHash } = log;
+          const { seriesId, ilkId, ink, art } = Cauldron.interface.parseLog(log).args;
+          return {
+            blockNumber,
+            date: (await fallbackProvider.getBlock(blockNumber)).timestamp,
+            transactionHash,
+            vaultId,
+            seriesId,
+            ilkId,
+            ink,
+            art,
+          };
+        }),
+      );
+      vaultHistMap.set(vaultId, vaultLogs);
+    }));
+    updateState({ type: 'vaultHistory', payload: vaultHistMap });
+    console.log('Vault history updated: ', vaultHistMap);
+  }, [contractMap, fallbackProvider]);
 
   useEffect(() => {
-    /* When the chainContext is finished loading get the dynamic series and asset data */
-    // if (!userLoading) {
-    //   Array.from(seriesRootMap.values()).length && updateSeries(Array.from(seriesRootMap.values()));
-    //   Array.from(assetRootMap.values()).length && updateAssets(Array.from(assetRootMap.values()));
-    // }
-    vaultMap.size && console.log(Array.from(vaultMap.values()));
-  }, [vaultMap]);
+    /* When the chainContext is finished loading get the historical data */
+    if (account && !userLoading) {
+      // Array.from(seriesRootMap.values()).length && console.log('series', Array.from(seriesRootMap.values()));
+      seriesRootMap.size && updatePoolHistory(Array.from(seriesRootMap.values()) as ISeries[]);
+      seriesRootMap.size && updateTradeHistory(Array.from(seriesRootMap.values()) as ISeries[]);
+
+      // vaultMap.size && console.log('Vaults history to check', Array.from(vaultMap.values()));
+      vaultMap.size && updateVaultHistory(Array.from(vaultMap.values()) as IVault[]);
+    }
+  }, [account, seriesRootMap, updatePoolHistory, updateTradeHistory, updateVaultHistory, userLoading, vaultMap]);
 
   /* Exposed userActions */
   const historyActions = {
-    updateHistory,
+    updatePoolHistory,
+    updateVaultHistory,
+    updateTradeHistory,
   };
 
   return (
