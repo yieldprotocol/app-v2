@@ -56,8 +56,8 @@ interface ISeriesSelectorProps {
     series: ISeries
   ) => void /* select series locally filters out the global selection from the list and returns the selected ISeries */;
   inputValue?:
-    | string
-    | undefined /* accepts an inpout value for dynamic APR calculations */;
+  | string
+  | undefined /* accepts an inpout value for dynamic APR calculations */;
   cardLayout?: boolean;
 }
 
@@ -104,7 +104,7 @@ const AprText = ({
             {' '}
             {apr}% <Text size="xsmall">APR</Text>
           </Text>
-        )}
+      )}
 
       {actionType !== ActionType.POOL && limitHit && (
         <Text size="xsmall" color="pink">
@@ -126,7 +126,7 @@ const AprText = ({
           {' '}
           {nFormatter(
             (parseFloat(inputValue) / parseFloat(series?.totalSupply_)) * 100,
-            2
+            2,
           )}{' '}
           % <Text size="xsmall">of Pool</Text>
         </Text>
@@ -193,26 +193,26 @@ function SeriesSelector({
 
     /* filter out options based on base Id */
     let filteredOpts = opts.filter(
-      (_series: ISeries) => _series.baseId === selectedBaseId
+      (_series: ISeries) => _series.baseId === selectedBaseId,
       // !ignoredSeries?.includes(_series.baseId)
     );
 
     /* if required, filter out the globally selected asset  and */
-    if (selectSeriesLocally)
+    if (selectSeriesLocally) {
       filteredOpts = filteredOpts.filter(
-        (_series: ISeries) => _series.id !== selectedSeriesId
+        (_series: ISeries) => _series.id !== selectedSeriesId,
       );
+    }
 
     /* if current selected series is NOT in the list of available series (for a particular base), or bases don't match:
     set the selected series to null. */
     if (
       selectedSeries &&
       (filteredOpts.findIndex(
-        (_series: ISeries) => _series.id !== selectedSeriesId
+        (_series: ISeries) => _series.id !== selectedSeriesId,
       ) < 0 ||
         selectedSeries.baseId !== selectedBaseId)
-    )
-      userActions.setSelectedSeries(null);
+    ) userActions.setSelectedSeries(null);
 
     setOptions(filteredOpts);
   }, [
