@@ -2,12 +2,16 @@ import React, { useContext, useEffect, useReducer, useCallback, useState } from 
 import { useLocation } from 'react-router-dom';
 import { ethers } from 'ethers';
 
+import { format } from 'date-fns';
+
 import { IAssetRoot, ISeriesRoot, IVaultRoot, ISeries, IAsset, IVault, IUserContextState, IUserContext, ApprovalType, IHistoryContextState } from '../types';
 
 import { ChainContext } from './ChainContext';
 import { bytesToBytes32, cleanValue, genVaultImage } from '../utils/appUtils';
 import { calculateAPR, divDecimal, floorDecimal, mulDecimal, secondsToFrom, sellFYToken } from '../utils/yieldMath';
 import { UserContext } from './UserContext';
+
+const dateFormat = (dateInSecs: number) => format(new Date(dateInSecs * 1000), 'dd MMM yyyy');
 
 const HistoryContext = React.createContext<any>({});
 
@@ -115,11 +119,14 @@ const HistoryProvider = ({ children }:any) => {
             seriesId,
             poolTokens,
 
+            /* infered transaction type: */
+            txType: ethers.utils.formatEther(ink),
+
             /* Formatted values:  */
-            poolTokens_: cleanValue(ethers.utils.formatEther(poolTokens), 6),
-            fyTokens_: cleanValue(ethers.utils.formatEther(fyTokens), 6),
-            bases_: cleanValue(ethers.utils.formatEther(bases), 6),
-            date_: new Date(date * 1000),
+            poolTokens_: ethers.utils.formatEther(poolTokens),
+            fyTokens_: ethers.utils.formatEther(fyTokens),
+            bases_: ethers.utils.formatEther(bases),
+            date_: dateFormat(date),
           };
         }),
       );
@@ -140,25 +147,31 @@ const HistoryProvider = ({ children }:any) => {
       const _filter = poolContract.filters.Trade(null, null, account, null, null);
       const eventList = await poolContract.queryFilter(_filter, 0);
 
+      console.log(eventList);
+
       const tradeLogs = await Promise.all(
         eventList.map(async (log:any) => {
           const { blockNumber, transactionHash } = log;
-          const { maturity, bases, fyTokens } = poolContract.interface.parseLog(log).args;
+          const { from, maturity, bases, fyTokens } = poolContract.interface.parseLog(log).args;
           const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
 
           return {
             blockNumber,
             date,
             transactionHash,
+            from,
             maturity,
             bases,
             fyTokens,
             seriesId,
 
+            /* infered transaction type: */
+            // type: ethers.utils.formatEther(ink),
+
             /* Formatted values:  */
-            date_: new Date(date * 1000),
-            bases_: cleanValue(ethers.utils.formatEther(bases), 6),
-            fyTokens_: cleanValue(ethers.utils.formatEther(fyTokens), 6),
+            date_: dateFormat(date),
+            bases_: ethers.utils.formatEther(bases),
+            fyTokens_: ethers.utils.formatEther(fyTokens),
           };
         }),
       );
@@ -179,24 +192,30 @@ const HistoryProvider = ({ children }:any) => {
       const { id: vaultId } = vault;
       const filter = Cauldron.filters.VaultPoured(bytesToBytes32(vaultId, 12));
       const eventList = await Cauldron.queryFilter(filter, 0);
+
       const vaultLogs = await Promise.all(
         eventList.map(async (log:any) => {
           const { blockNumber, transactionHash } = log;
-          const { seriesId, ilkId, ink, art } = Cauldron.interface.parseLog(log).args;
+          const { from, seriesId, ilkId, ink, art } = Cauldron.interface.parseLog(log).args;
           const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
           return {
             blockNumber,
             date,
             transactionHash,
+            from,
             vaultId,
             seriesId,
             ilkId,
             ink,
             art,
+
+            /* type inference */
+            // type: ethers.utils.formatEther(ink),
+
             /* Formatted values:  */
-            date_: new Date(date * 1000),
-            ink_: cleanValue(ethers.utils.formatEther(ink), 2),
-            art_: cleanValue(ethers.utils.formatEther(art), 2),
+            date_: dateFormat(date),
+            ink_: ethers.utils.formatEther(ink),
+            art_: ethers.utils.formatEther(art),
           };
         }),
       );
