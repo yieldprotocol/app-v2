@@ -5,7 +5,7 @@ import { ChainContext } from '../contexts/ChainContext';
 import { abbreviateHash } from '../utils/appUtils';
 import YieldAvatar from './YieldAvatar';
 
-const YieldSettings = ({ setSettingsOpen }: any) => {
+const YieldSettings = ({ setConnectOpen, setSettingsOpen }: any) => {
   const {
     chainState: { account, chainId },
     chainActions: { connect, disconnect },
@@ -16,35 +16,25 @@ const YieldSettings = ({ setSettingsOpen }: any) => {
   const connectType: string = 'Metamask';
 
   const handleChangeConnectType = () => {
-    console.log('changing connect type');
+    setSettingsOpen(false);
+    setConnectOpen(true);
   };
 
   const handleCopy = (text: any) => {
     navigator.clipboard.writeText(text);
-    console.log(account);
   };
 
   return (
     <Box basis="auto" width="medium" pad="small" gap="small">
       <Box justify="between" align="center" direction="row">
         <Text>Account</Text>
-        <Button
-          icon={<FiX size="1.5rem" />}
-          onClick={() => setSettingsOpen(false)}
-          plain
-        />
+        <Button icon={<FiX size="1.5rem" />} onClick={() => setSettingsOpen(false)} plain />
       </Box>
-      <Box
-        border={{ color: 'brand', size: 'xsmall' }}
-        gap="small"
-        pad="small"
-        round="small"
-      >
+      <Box border={{ color: '#2563EB', size: 'xsmall' }} gap="small" pad="small" round="small">
         <Box justify="between" align="center" direction="row">
           <Text size="small">Connected with {connectType}</Text>
           <Button
-            color="accent-2"
-            secondary
+            style={{ backgroundColor: '#DBEAFE' }}
             onClick={handleChangeConnectType}
             label="Change"
             size="small"
@@ -55,29 +45,22 @@ const YieldSettings = ({ setSettingsOpen }: any) => {
           <Text size="xlarge">{abbreviateHash(account)}</Text>
         </Box>
         <Box align="center" direction="row" gap="xsmall">
-          <Button
-            alignSelf="center"
-            margin="xsmall"
-            onClick={() => handleCopy(account)}
-          >
+          <Button alignSelf="center" margin="xsmall" onClick={() => handleCopy(account)}>
             <FiCopy size="1rem" />
             <Text margin="xsmall" size="small">
               {copySuccess ? 'Copied' : 'Copy Address'}
             </Text>
           </Button>
-          <Anchor
-            alignSelf="center"
-            href={`https://etherscan.io/address/${account}`}
-            margin="xsmall"
-            target="_blank"
-          >
+          <Anchor alignSelf="center" href={`https://etherscan.io/address/${account}`} margin="xsmall" target="_blank">
             <FiExternalLink size="1rem" />
             <Text margin="xsmall" size="small">
               View on Explorer
             </Text>
           </Anchor>
         </Box>
-        <Text size="small">Connected to Chain ID {chainId}</Text>
+        <Text color="#6B7280" size="small">
+          Connected to Chain ID {chainId}
+        </Text>
       </Box>
     </Box>
   );
