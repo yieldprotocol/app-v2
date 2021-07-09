@@ -1,24 +1,15 @@
 import React, { useContext, useEffect, useReducer, useCallback, useState } from 'react';
-import { useLocation } from 'react-router-dom';
 import { ethers } from 'ethers';
 import { format } from 'date-fns';
 
 import {
-  IAssetRoot,
-  ISeriesRoot,
-  IVaultRoot,
   ISeries,
-  IAsset,
   IVault,
-  IUserContextState,
-  IUserContext,
-  ApprovalType,
   IHistoryContextState,
 } from '../types';
 
 import { ChainContext } from './ChainContext';
-import { bytesToBytes32, cleanValue, genVaultImage } from '../utils/appUtils';
-import { calculateAPR, divDecimal, floorDecimal, mulDecimal, secondsToFrom, sellFYToken } from '../utils/yieldMath';
+import { bytesToBytes32 } from '../utils/appUtils';
 import { UserContext } from './UserContext';
 
 const dateFormat = (dateInSecs: number) => format(new Date(dateInSecs * 1000), 'dd MMM yyyy');
@@ -28,15 +19,15 @@ const HistoryContext = React.createContext<any>({});
 const initState: IHistoryContextState = {
   historyLoading: true,
   tradeHistory: {
-    lastBlock: 11066942,
+    lastBlock: 0,
     items: [],
   },
   liquidityHistory: {
-    lastBlock: 11066942,
+    lastBlock: 0,
     items: [],
   },
   vaultHistory: {
-    lastBlock: 11066942,
+    lastBlock: 0,
     items: [],
   },
 };
