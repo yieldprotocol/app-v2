@@ -13,9 +13,9 @@ import { calculateCollateralizationRatio } from '../utils/yieldMath';
 
 /* Collateralisation hook calculates collateralisation metrics */
 export const useCollateralization = (
-  debtInput:string|undefined,
-  collInput:string|undefined,
-  vault: IVault|undefined,
+  debtInput: string | undefined,
+  collInput: string | undefined,
+  vault: IVault | undefined
 ) => {
   /* STATE FROM CONTEXT */
   const {
@@ -24,20 +24,20 @@ export const useCollateralization = (
   } = useContext(UserContext);
 
   /* LOCAL STATE */
-  const [collateralizationRatio, setCollateralizationRatio] = useState<string|undefined>();
-  const [collateralizationPercent, setCollateralizationPercent] = useState<string|undefined>();
+  const [collateralizationRatio, setCollateralizationRatio] = useState<string | undefined>();
+  const [collateralizationPercent, setCollateralizationPercent] = useState<string | undefined>();
   const [undercollateralized, setUndercollateralized] = useState<boolean>(true);
   const [oraclePrice, setOraclePrice] = useState<ethers.BigNumber>();
   // todo:
-  const [collateralizationWarning, setCollateralizationWarning] = useState<string|undefined>();
-  const [borrowingPower, setBorrowingPower] = useState<string|undefined>();
+  const [collateralizationWarning, setCollateralizationWarning] = useState<string | undefined>();
+  const [borrowingPower, setBorrowingPower] = useState<string | undefined>();
 
   /* update the prices if anything changes */
   useEffect(() => {
     if (selectedBaseId && selectedIlkId) {
       (async () => {
-        const _price = priceMap.get(selectedBaseId)?.get(selectedIlkId)! ||
-        await updatePrice(selectedBaseId, selectedIlkId);
+        const _price =
+          priceMap.get(selectedBaseId)?.get(selectedIlkId)! || (await updatePrice(selectedBaseId, selectedIlkId));
         setOraclePrice(_price);
       })();
     }
@@ -67,7 +67,9 @@ export const useCollateralization = (
     /* check for undercollateralisation */
     if (collateralizationPercent && parseFloat(collateralizationPercent) <= 150) {
       setUndercollateralized(true);
-    } else { setUndercollateralized(false); }
+    } else {
+      setUndercollateralized(false);
+    }
   }, [collInput, collateralizationPercent, debtInput, oraclePrice, vault]);
 
   // TODO marco add in collateralisation warning at about 150% - 200% " warning: vulnerable to liquidation"
@@ -82,7 +84,9 @@ export const useCollateralization = (
 };
 
 export const useCollateralActions = () => {
-  const { chainState: { account, contractMap } } = useContext(ChainContext);
+  const {
+    chainState: { account, contractMap },
+  } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
   const { selectedIlkId, selectedSeriesId, seriesMap, assetMap } = userState;
   const { updateVaults, updateSeries } = userActions;
@@ -91,42 +95,43 @@ export const useCollateralActions = () => {
 
   // TODO MARCO > look at possibly refactoring to remove addEth and removeEth
 
-  const addEth = (value: BigNumber, series:ISeries): ICallData[] => {
+  const addEth = (value: BigNumber, series: ISeries): ICallData[] => {
     const isPositive = value.gte(ethers.constants.Zero);
     /* Check if the selected Ilk is, in fact, an ETH variety */
     if (ETH_BASED_ASSETS.includes(selectedIlkId) && isPositive) {
       /* return the add ETH OP */
-      return [{
-        operation: VAULT_OPS.JOIN_ETHER,
-        args: [selectedIlkId],
-        ignore: false,
-        overrides: { value },
-        series,
-      }];
+      return [
+        {
+          operation: VAULT_OPS.JOIN_ETHER,
+          args: [selectedIlkId],
+          ignore: false,
+          overrides: { value },
+          series,
+        },
+      ];
     }
     /* else return empty array */
     return [];
   };
 
-  const removeEth = (value: BigNumber, series:ISeries): ICallData[] => {
+  const removeEth = (value: BigNumber, series: ISeries): ICallData[] => {
     /* First check if the selected Ilk is, in fact, an ETH variety */
     if (ETH_BASED_ASSETS.includes(selectedIlkId)) {
       /* return the remove ETH OP */
-      return [{
-        operation: VAULT_OPS.EXIT_ETHER,
-        args: [account],
-        ignore: value.gte(ethers.constants.Zero),
-        series,
-      }];
+      return [
+        {
+          operation: VAULT_OPS.EXIT_ETHER,
+          args: [account],
+          ignore: value.gte(ethers.constants.Zero),
+          series,
+        },
+      ];
     }
     /* else return empty array */
     return [];
   };
 
-  const addCollateral = async (
-    vault: IVault|undefined,
-    input: string,
-  ) => {
+  const addCollateral = async (vault: IVault | undefined, input: string) => {
     /* use the vault id provided OR Get a random vault number ready if reqd. */
     const vaultId = vault?.id || ethers.utils.hexlify(ethers.utils.randomBytes(12));
     /* set the series and ilk based on if a vault has been selected or it's a new vault */
@@ -143,15 +148,18 @@ export const useCollateralActions = () => {
     const _pourTo = ETH_BASED_ASSETS.includes(ilk.id) ? contractMap.get('Ladle').address : account;
 
     /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
-    const permits: ICallData[] = await sign([
-      {
-        target: ilk,
-        type: SignType.ERC2612,
-        spender: ilk.joinAddress,
-        series,
-        ignore: _isEthBased,
-      },
-    ], txCode);
+    const permits: ICallData[] = await sign(
+      [
+        {
+          target: ilk,
+          type: SignType.ERC2612,
+          spender: ilk.joinAddress,
+          series,
+          ignore: _isEthBased,
+        },
+      ],
+      txCode
+    );
 
     const calls: ICallData[] = [
       /* If vault is null, build a new vault, else ignore */
@@ -170,7 +178,7 @@ export const useCollateralActions = () => {
         operation: VAULT_OPS.POUR,
         args: [
           vaultId,
-          _pourTo, /* pour destination based on ilk/asset is an eth asset variety */
+          _pourTo /* pour destination based on ilk/asset is an eth asset variety */,
           _input,
           ethers.constants.Zero,
         ],
@@ -183,10 +191,7 @@ export const useCollateralActions = () => {
     updateVaults([vault]);
   };
 
-  const removeCollateral = async (
-    vault: IVault,
-    input: string,
-  ) => {
+  const removeCollateral = async (vault: IVault, input: string) => {
     /* generate the txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.REMOVE_COLLATERAL, vault.id);
 
@@ -206,7 +211,7 @@ export const useCollateralActions = () => {
         operation: VAULT_OPS.POUR,
         args: [
           vault.id,
-          _pourTo, /* pour destination based on ilk/asset is an eth asset variety */
+          _pourTo /* pour destination based on ilk/asset is an eth asset variety */,
           _input,
           ethers.constants.Zero,
         ],

@@ -13,94 +13,61 @@ import {
   ContractTransaction,
   Overrides,
   CallOverrides,
-} from "ethers";
-import { BytesLike } from "@ethersproject/bytes";
-import { Listener, Provider } from "@ethersproject/providers";
-import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
-import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
+} from 'ethers';
+import { BytesLike } from '@ethersproject/bytes';
+import { Listener, Provider } from '@ethersproject/providers';
+import { FunctionFragment, EventFragment, Result } from '@ethersproject/abi';
+import { TypedEventFilter, TypedEvent, TypedListener } from './commons';
 
 interface IFYTokenInterface extends ethers.utils.Interface {
   functions: {
-    "allowance(address,address)": FunctionFragment;
-    "approve(address,uint256)": FunctionFragment;
-    "balanceOf(address)": FunctionFragment;
-    "burn(address,uint256)": FunctionFragment;
-    "mature()": FunctionFragment;
-    "maturity()": FunctionFragment;
-    "mint(address,uint256)": FunctionFragment;
-    "redeem(address,uint256)": FunctionFragment;
-    "totalSupply()": FunctionFragment;
-    "transfer(address,uint256)": FunctionFragment;
-    "transferFrom(address,address,uint256)": FunctionFragment;
-    "underlying()": FunctionFragment;
+    'allowance(address,address)': FunctionFragment;
+    'approve(address,uint256)': FunctionFragment;
+    'balanceOf(address)': FunctionFragment;
+    'burn(address,uint256)': FunctionFragment;
+    'mature()': FunctionFragment;
+    'maturity()': FunctionFragment;
+    'mint(address,uint256)': FunctionFragment;
+    'redeem(address,uint256)': FunctionFragment;
+    'totalSupply()': FunctionFragment;
+    'transfer(address,uint256)': FunctionFragment;
+    'transferFrom(address,address,uint256)': FunctionFragment;
+    'underlying()': FunctionFragment;
   };
 
-  encodeFunctionData(
-    functionFragment: "allowance",
-    values: [string, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "approve",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
-  encodeFunctionData(
-    functionFragment: "burn",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(functionFragment: "mature", values?: undefined): string;
-  encodeFunctionData(functionFragment: "maturity", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "mint",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "redeem",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "totalSupply",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transfer",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferFrom",
-    values: [string, string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "underlying",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: 'allowance', values: [string, string]): string;
+  encodeFunctionData(functionFragment: 'approve', values: [string, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'balanceOf', values: [string]): string;
+  encodeFunctionData(functionFragment: 'burn', values: [string, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'mature', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'maturity', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'mint', values: [string, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'redeem', values: [string, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'totalSupply', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'transfer', values: [string, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'transferFrom', values: [string, string, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'underlying', values?: undefined): string;
 
-  decodeFunctionResult(functionFragment: "allowance", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "burn", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "mature", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "maturity", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "redeem", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "totalSupply",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "transfer", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "transferFrom",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "underlying", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'allowance', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'approve', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'balanceOf', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'burn', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'mature', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'maturity', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'mint', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'redeem', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'totalSupply', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'transfer', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'transferFrom', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'underlying', data: BytesLike): Result;
 
   events: {
-    "Approval(address,address,uint256)": EventFragment;
-    "Transfer(address,address,uint256)": EventFragment;
+    'Approval(address,address,uint256)': EventFragment;
+    'Transfer(address,address,uint256)': EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Approval'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Transfer'): EventFragment;
 }
 
 export class IFYToken extends BaseContract {
@@ -147,11 +114,7 @@ export class IFYToken extends BaseContract {
   interface: IFYTokenInterface;
 
   functions: {
-    allowance(
-      owner: string,
-      spender: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    allowance(owner: string, spender: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
     approve(
       spender: string,
@@ -167,9 +130,7 @@ export class IFYToken extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    mature(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    mature(overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
 
     maturity(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -203,11 +164,7 @@ export class IFYToken extends BaseContract {
     underlying(overrides?: CallOverrides): Promise<[string]>;
   };
 
-  allowance(
-    owner: string,
-    spender: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  allowance(owner: string, spender: string, overrides?: CallOverrides): Promise<BigNumber>;
 
   approve(
     spender: string,
@@ -223,9 +180,7 @@ export class IFYToken extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  mature(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  mature(overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
 
   maturity(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -259,56 +214,27 @@ export class IFYToken extends BaseContract {
   underlying(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
-    allowance(
-      owner: string,
-      spender: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    allowance(owner: string, spender: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    approve(
-      spender: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    approve(spender: string, amount: BigNumberish, overrides?: CallOverrides): Promise<boolean>;
 
     balanceOf(account: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    burn(
-      from: string,
-      fyTokenAmount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    burn(from: string, fyTokenAmount: BigNumberish, overrides?: CallOverrides): Promise<void>;
 
     mature(overrides?: CallOverrides): Promise<void>;
 
     maturity(overrides?: CallOverrides): Promise<BigNumber>;
 
-    mint(
-      to: string,
-      fyTokenAmount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    mint(to: string, fyTokenAmount: BigNumberish, overrides?: CallOverrides): Promise<void>;
 
-    redeem(
-      to: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    redeem(to: string, amount: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
-    transfer(
-      recipient: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    transfer(recipient: string, amount: BigNumberish, overrides?: CallOverrides): Promise<boolean>;
 
-    transferFrom(
-      sender: string,
-      recipient: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    transferFrom(sender: string, recipient: string, amount: BigNumberish, overrides?: CallOverrides): Promise<boolean>;
 
     underlying(overrides?: CallOverrides): Promise<string>;
   };
@@ -318,27 +244,17 @@ export class IFYToken extends BaseContract {
       owner?: string | null,
       spender?: string | null,
       value?: null
-    ): TypedEventFilter<
-      [string, string, BigNumber],
-      { owner: string; spender: string; value: BigNumber }
-    >;
+    ): TypedEventFilter<[string, string, BigNumber], { owner: string; spender: string; value: BigNumber }>;
 
     Transfer(
       from?: string | null,
       to?: string | null,
       value?: null
-    ): TypedEventFilter<
-      [string, string, BigNumber],
-      { from: string; to: string; value: BigNumber }
-    >;
+    ): TypedEventFilter<[string, string, BigNumber], { from: string; to: string; value: BigNumber }>;
   };
 
   estimateGas: {
-    allowance(
-      owner: string,
-      spender: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    allowance(owner: string, spender: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     approve(
       spender: string,
@@ -354,9 +270,7 @@ export class IFYToken extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    mature(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    mature(overrides?: Overrides & { from?: string | Promise<string> }): Promise<BigNumber>;
 
     maturity(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -391,11 +305,7 @@ export class IFYToken extends BaseContract {
   };
 
   populateTransaction: {
-    allowance(
-      owner: string,
-      spender: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    allowance(owner: string, spender: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     approve(
       spender: string,
@@ -403,10 +313,7 @@ export class IFYToken extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    balanceOf(
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    balanceOf(account: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     burn(
       from: string,
@@ -414,9 +321,7 @@ export class IFYToken extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    mature(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
+    mature(overrides?: Overrides & { from?: string | Promise<string> }): Promise<PopulatedTransaction>;
 
     maturity(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

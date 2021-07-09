@@ -13,77 +13,47 @@ import {
   ContractTransaction,
   Overrides,
   CallOverrides,
-} from "ethers";
-import { BytesLike } from "@ethersproject/bytes";
-import { Listener, Provider } from "@ethersproject/providers";
-import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
-import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
+} from 'ethers';
+import { BytesLike } from '@ethersproject/bytes';
+import { Listener, Provider } from '@ethersproject/providers';
+import { FunctionFragment, EventFragment, Result } from '@ethersproject/abi';
+import { TypedEventFilter, TypedEvent, TypedListener } from './commons';
 
 interface ICauldronGovInterface extends ethers.utils.Interface {
   functions: {
-    "addAsset(bytes6,address)": FunctionFragment;
-    "addIlks(bytes6,bytes6[])": FunctionFragment;
-    "addSeries(bytes6,bytes6,address)": FunctionFragment;
-    "assets(bytes6)": FunctionFragment;
-    "rateOracles(bytes6)": FunctionFragment;
-    "series(bytes6)": FunctionFragment;
-    "setDebtLimits(bytes6,bytes6,uint96,uint24,uint8)": FunctionFragment;
-    "setRateOracle(bytes6,address)": FunctionFragment;
-    "setSpotOracle(bytes6,bytes6,address,uint32)": FunctionFragment;
+    'addAsset(bytes6,address)': FunctionFragment;
+    'addIlks(bytes6,bytes6[])': FunctionFragment;
+    'addSeries(bytes6,bytes6,address)': FunctionFragment;
+    'assets(bytes6)': FunctionFragment;
+    'rateOracles(bytes6)': FunctionFragment;
+    'series(bytes6)': FunctionFragment;
+    'setDebtLimits(bytes6,bytes6,uint96,uint24,uint8)': FunctionFragment;
+    'setRateOracle(bytes6,address)': FunctionFragment;
+    'setSpotOracle(bytes6,bytes6,address,uint32)': FunctionFragment;
   };
 
+  encodeFunctionData(functionFragment: 'addAsset', values: [BytesLike, string]): string;
+  encodeFunctionData(functionFragment: 'addIlks', values: [BytesLike, BytesLike[]]): string;
+  encodeFunctionData(functionFragment: 'addSeries', values: [BytesLike, BytesLike, string]): string;
+  encodeFunctionData(functionFragment: 'assets', values: [BytesLike]): string;
+  encodeFunctionData(functionFragment: 'rateOracles', values: [BytesLike]): string;
+  encodeFunctionData(functionFragment: 'series', values: [BytesLike]): string;
   encodeFunctionData(
-    functionFragment: "addAsset",
-    values: [BytesLike, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "addIlks",
-    values: [BytesLike, BytesLike[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "addSeries",
-    values: [BytesLike, BytesLike, string]
-  ): string;
-  encodeFunctionData(functionFragment: "assets", values: [BytesLike]): string;
-  encodeFunctionData(
-    functionFragment: "rateOracles",
-    values: [BytesLike]
-  ): string;
-  encodeFunctionData(functionFragment: "series", values: [BytesLike]): string;
-  encodeFunctionData(
-    functionFragment: "setDebtLimits",
+    functionFragment: 'setDebtLimits',
     values: [BytesLike, BytesLike, BigNumberish, BigNumberish, BigNumberish]
   ): string;
-  encodeFunctionData(
-    functionFragment: "setRateOracle",
-    values: [BytesLike, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setSpotOracle",
-    values: [BytesLike, BytesLike, string, BigNumberish]
-  ): string;
+  encodeFunctionData(functionFragment: 'setRateOracle', values: [BytesLike, string]): string;
+  encodeFunctionData(functionFragment: 'setSpotOracle', values: [BytesLike, BytesLike, string, BigNumberish]): string;
 
-  decodeFunctionResult(functionFragment: "addAsset", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "addIlks", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "addSeries", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "assets", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "rateOracles",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "series", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "setDebtLimits",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setRateOracle",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setSpotOracle",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: 'addAsset', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'addIlks', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'addSeries', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'assets', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'rateOracles', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'series', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setDebtLimits', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setRateOracle', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setSpotOracle', data: BytesLike): Result;
 
   events: {};
 }
@@ -250,24 +220,11 @@ export class ICauldronGov extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    addAsset(
-      arg0: BytesLike,
-      arg1: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    addAsset(arg0: BytesLike, arg1: string, overrides?: CallOverrides): Promise<void>;
 
-    addIlks(
-      arg0: BytesLike,
-      arg1: BytesLike[],
-      overrides?: CallOverrides
-    ): Promise<void>;
+    addIlks(arg0: BytesLike, arg1: BytesLike[], overrides?: CallOverrides): Promise<void>;
 
-    addSeries(
-      arg0: BytesLike,
-      arg1: BytesLike,
-      arg2: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    addSeries(arg0: BytesLike, arg1: BytesLike, arg2: string, overrides?: CallOverrides): Promise<void>;
 
     assets(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
 
@@ -293,11 +250,7 @@ export class ICauldronGov extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setRateOracle(
-      arg0: BytesLike,
-      arg1: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    setRateOracle(arg0: BytesLike, arg1: string, overrides?: CallOverrides): Promise<void>;
 
     setSpotOracle(
       arg0: BytesLike,
@@ -380,20 +333,11 @@ export class ICauldronGov extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    assets(
-      arg0: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    assets(arg0: BytesLike, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    rateOracles(
-      arg0: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    rateOracles(arg0: BytesLike, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    series(
-      arg0: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    series(arg0: BytesLike, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     setDebtLimits(
       arg0: BytesLike,

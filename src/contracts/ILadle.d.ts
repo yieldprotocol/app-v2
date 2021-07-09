@@ -13,23 +13,20 @@ import {
   ContractTransaction,
   Overrides,
   CallOverrides,
-} from "ethers";
-import { BytesLike } from "@ethersproject/bytes";
-import { Listener, Provider } from "@ethersproject/providers";
-import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
-import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
+} from 'ethers';
+import { BytesLike } from '@ethersproject/bytes';
+import { Listener, Provider } from '@ethersproject/providers';
+import { FunctionFragment, EventFragment, Result } from '@ethersproject/abi';
+import { TypedEventFilter, TypedEvent, TypedListener } from './commons';
 
 interface ILadleInterface extends ethers.utils.Interface {
   functions: {
-    "settle(bytes12,address,uint128,uint128)": FunctionFragment;
+    'settle(bytes12,address,uint128,uint128)': FunctionFragment;
   };
 
-  encodeFunctionData(
-    functionFragment: "settle",
-    values: [BytesLike, string, BigNumberish, BigNumberish]
-  ): string;
+  encodeFunctionData(functionFragment: 'settle', values: [BytesLike, string, BigNumberish, BigNumberish]): string;
 
-  decodeFunctionResult(functionFragment: "settle", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'settle', data: BytesLike): Result;
 
   events: {};
 }

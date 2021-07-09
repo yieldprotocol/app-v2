@@ -14,7 +14,7 @@ import Vault from './views/VaultPosition';
 import YieldHeader from './components/YieldHeader';
 
 function App() {
-  const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
+  const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const [menuLayerOpen, setMenuLayerOpen] = useState<boolean>(false);
 
   return (
@@ -22,12 +22,24 @@ function App() {
       <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
       <Box flex={!mobile} overflow="auto" margin={{ top: 'xlarge' }}>
         <ToastContainer />
-        { menuLayerOpen && <MenuLayer toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} />}
+        {menuLayerOpen && <MenuLayer toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} />}
         <Switch>
-          <Route path="/borrow/:series?/:asset?/:amnt?"> <Borrow /> </Route>
-          <Route path="/lend/:series?/:asset?/:amnt?"> <Lend /> </Route>
-          <Route path="/pool/:series?/:asset?/:amnt?"> <Pool /> </Route>
-          <Route exact path="/"> <Redirect to="/borrow" /> </Route>
+          <Route path="/borrow/:series?/:asset?/:amnt?">
+            {' '}
+            <Borrow />{' '}
+          </Route>
+          <Route path="/lend/:series?/:asset?/:amnt?">
+            {' '}
+            <Lend />{' '}
+          </Route>
+          <Route path="/pool/:series?/:asset?/:amnt?">
+            {' '}
+            <Pool />{' '}
+          </Route>
+          <Route exact path="/">
+            {' '}
+            <Redirect to="/borrow" />{' '}
+          </Route>
           <Route path="/*"> 404 </Route>
         </Switch>
       </Box>

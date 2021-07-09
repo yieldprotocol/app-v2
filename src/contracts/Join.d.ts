@@ -13,167 +13,92 @@ import {
   ContractTransaction,
   Overrides,
   CallOverrides,
-} from "ethers";
-import { BytesLike } from "@ethersproject/bytes";
-import { Listener, Provider } from "@ethersproject/providers";
-import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
-import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
+} from 'ethers';
+import { BytesLike } from '@ethersproject/bytes';
+import { Listener, Provider } from '@ethersproject/providers';
+import { FunctionFragment, EventFragment, Result } from '@ethersproject/abi';
+import { TypedEventFilter, TypedEvent, TypedListener } from './commons';
 
 interface JoinInterface extends ethers.utils.Interface {
   functions: {
-    "LOCK()": FunctionFragment;
-    "ROOT()": FunctionFragment;
-    "asset()": FunctionFragment;
-    "exit(address,uint128)": FunctionFragment;
-    "flashFee(address,uint256)": FunctionFragment;
-    "flashFeeFactor()": FunctionFragment;
-    "flashLoan(address,address,uint256,bytes)": FunctionFragment;
-    "getRoleAdmin(bytes4)": FunctionFragment;
-    "grantRole(bytes4,address)": FunctionFragment;
-    "grantRoles(bytes4[],address)": FunctionFragment;
-    "hasRole(bytes4,address)": FunctionFragment;
-    "join(address,uint128)": FunctionFragment;
-    "lockRole(bytes4)": FunctionFragment;
-    "maxFlashLoan(address)": FunctionFragment;
-    "renounceRole(bytes4,address)": FunctionFragment;
-    "retrieve(address,address)": FunctionFragment;
-    "revokeRole(bytes4,address)": FunctionFragment;
-    "revokeRoles(bytes4[],address)": FunctionFragment;
-    "setFlashFeeFactor(uint256)": FunctionFragment;
-    "setRoleAdmin(bytes4,bytes4)": FunctionFragment;
-    "storedBalance()": FunctionFragment;
+    'LOCK()': FunctionFragment;
+    'ROOT()': FunctionFragment;
+    'asset()': FunctionFragment;
+    'exit(address,uint128)': FunctionFragment;
+    'flashFee(address,uint256)': FunctionFragment;
+    'flashFeeFactor()': FunctionFragment;
+    'flashLoan(address,address,uint256,bytes)': FunctionFragment;
+    'getRoleAdmin(bytes4)': FunctionFragment;
+    'grantRole(bytes4,address)': FunctionFragment;
+    'grantRoles(bytes4[],address)': FunctionFragment;
+    'hasRole(bytes4,address)': FunctionFragment;
+    'join(address,uint128)': FunctionFragment;
+    'lockRole(bytes4)': FunctionFragment;
+    'maxFlashLoan(address)': FunctionFragment;
+    'renounceRole(bytes4,address)': FunctionFragment;
+    'retrieve(address,address)': FunctionFragment;
+    'revokeRole(bytes4,address)': FunctionFragment;
+    'revokeRoles(bytes4[],address)': FunctionFragment;
+    'setFlashFeeFactor(uint256)': FunctionFragment;
+    'setRoleAdmin(bytes4,bytes4)': FunctionFragment;
+    'storedBalance()': FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: "LOCK", values?: undefined): string;
-  encodeFunctionData(functionFragment: "ROOT", values?: undefined): string;
-  encodeFunctionData(functionFragment: "asset", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "exit",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "flashFee",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "flashFeeFactor",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "flashLoan",
-    values: [string, string, BigNumberish, BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getRoleAdmin",
-    values: [BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "grantRole",
-    values: [BytesLike, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "grantRoles",
-    values: [BytesLike[], string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "hasRole",
-    values: [BytesLike, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "join",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(functionFragment: "lockRole", values: [BytesLike]): string;
-  encodeFunctionData(
-    functionFragment: "maxFlashLoan",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "renounceRole",
-    values: [BytesLike, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "retrieve",
-    values: [string, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "revokeRole",
-    values: [BytesLike, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "revokeRoles",
-    values: [BytesLike[], string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setFlashFeeFactor",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setRoleAdmin",
-    values: [BytesLike, BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "storedBalance",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: 'LOCK', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'ROOT', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'asset', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'exit', values: [string, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'flashFee', values: [string, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'flashFeeFactor', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'flashLoan', values: [string, string, BigNumberish, BytesLike]): string;
+  encodeFunctionData(functionFragment: 'getRoleAdmin', values: [BytesLike]): string;
+  encodeFunctionData(functionFragment: 'grantRole', values: [BytesLike, string]): string;
+  encodeFunctionData(functionFragment: 'grantRoles', values: [BytesLike[], string]): string;
+  encodeFunctionData(functionFragment: 'hasRole', values: [BytesLike, string]): string;
+  encodeFunctionData(functionFragment: 'join', values: [string, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'lockRole', values: [BytesLike]): string;
+  encodeFunctionData(functionFragment: 'maxFlashLoan', values: [string]): string;
+  encodeFunctionData(functionFragment: 'renounceRole', values: [BytesLike, string]): string;
+  encodeFunctionData(functionFragment: 'retrieve', values: [string, string]): string;
+  encodeFunctionData(functionFragment: 'revokeRole', values: [BytesLike, string]): string;
+  encodeFunctionData(functionFragment: 'revokeRoles', values: [BytesLike[], string]): string;
+  encodeFunctionData(functionFragment: 'setFlashFeeFactor', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'setRoleAdmin', values: [BytesLike, BytesLike]): string;
+  encodeFunctionData(functionFragment: 'storedBalance', values?: undefined): string;
 
-  decodeFunctionResult(functionFragment: "LOCK", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "ROOT", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "asset", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "exit", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "flashFee", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "flashFeeFactor",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "flashLoan", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "getRoleAdmin",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "grantRoles", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "join", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "lockRole", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "maxFlashLoan",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "renounceRole",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "retrieve", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "revokeRoles",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setFlashFeeFactor",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setRoleAdmin",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "storedBalance",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: 'LOCK', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'ROOT', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'asset', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'exit', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'flashFee', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'flashFeeFactor', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'flashLoan', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getRoleAdmin', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'grantRole', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'grantRoles', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'hasRole', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'join', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'lockRole', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'maxFlashLoan', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'renounceRole', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'retrieve', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'revokeRole', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'revokeRoles', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setFlashFeeFactor', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setRoleAdmin', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'storedBalance', data: BytesLike): Result;
 
   events: {
-    "FlashFeeFactorSet(uint256)": EventFragment;
-    "RoleAdminChanged(bytes4,bytes4)": EventFragment;
-    "RoleGranted(bytes4,address,address)": EventFragment;
-    "RoleRevoked(bytes4,address,address)": EventFragment;
+    'FlashFeeFactorSet(uint256)': EventFragment;
+    'RoleAdminChanged(bytes4,bytes4)': EventFragment;
+    'RoleGranted(bytes4,address,address)': EventFragment;
+    'RoleRevoked(bytes4,address,address)': EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "FlashFeeFactorSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RoleRevoked"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'FlashFeeFactorSet'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'RoleAdminChanged'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'RoleGranted'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'RoleRevoked'): EventFragment;
 }
 
 export class Join extends BaseContract {
@@ -232,11 +157,7 @@ export class Join extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    flashFee(
-      token: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    flashFee(token: string, amount: BigNumberish, overrides?: CallOverrides): Promise<[BigNumber]>;
 
     flashFeeFactor(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -262,11 +183,7 @@ export class Join extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    hasRole(
-      role: BytesLike,
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
+    hasRole(role: BytesLike, account: string, overrides?: CallOverrides): Promise<[boolean]>;
 
     join(
       user: string,
@@ -279,10 +196,7 @@ export class Join extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    maxFlashLoan(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    maxFlashLoan(token: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
     renounceRole(
       role: BytesLike,
@@ -334,11 +248,7 @@ export class Join extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  flashFee(
-    token: string,
-    amount: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  flashFee(token: string, amount: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
   flashFeeFactor(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -364,11 +274,7 @@ export class Join extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  hasRole(
-    role: BytesLike,
-    account: string,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
+  hasRole(role: BytesLike, account: string, overrides?: CallOverrides): Promise<boolean>;
 
   join(
     user: string,
@@ -376,10 +282,7 @@ export class Join extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  lockRole(
-    role: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  lockRole(role: BytesLike, overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
 
   maxFlashLoan(token: string, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -427,17 +330,9 @@ export class Join extends BaseContract {
 
     asset(overrides?: CallOverrides): Promise<string>;
 
-    exit(
-      user: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    exit(user: string, amount: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
-    flashFee(
-      token: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    flashFee(token: string, amount: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
     flashFeeFactor(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -451,102 +346,52 @@ export class Join extends BaseContract {
 
     getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
 
-    grantRole(
-      role: BytesLike,
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    grantRole(role: BytesLike, account: string, overrides?: CallOverrides): Promise<void>;
 
-    grantRoles(
-      roles: BytesLike[],
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    grantRoles(roles: BytesLike[], account: string, overrides?: CallOverrides): Promise<void>;
 
-    hasRole(
-      role: BytesLike,
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    hasRole(role: BytesLike, account: string, overrides?: CallOverrides): Promise<boolean>;
 
-    join(
-      user: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    join(user: string, amount: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
     lockRole(role: BytesLike, overrides?: CallOverrides): Promise<void>;
 
     maxFlashLoan(token: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    renounceRole(
-      role: BytesLike,
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    renounceRole(role: BytesLike, account: string, overrides?: CallOverrides): Promise<void>;
 
-    retrieve(
-      token: string,
-      to: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    retrieve(token: string, to: string, overrides?: CallOverrides): Promise<void>;
 
-    revokeRole(
-      role: BytesLike,
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    revokeRole(role: BytesLike, account: string, overrides?: CallOverrides): Promise<void>;
 
-    revokeRoles(
-      roles: BytesLike[],
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    revokeRoles(roles: BytesLike[], account: string, overrides?: CallOverrides): Promise<void>;
 
-    setFlashFeeFactor(
-      flashFeeFactor_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    setFlashFeeFactor(flashFeeFactor_: BigNumberish, overrides?: CallOverrides): Promise<void>;
 
-    setRoleAdmin(
-      role: BytesLike,
-      adminRole: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    setRoleAdmin(role: BytesLike, adminRole: BytesLike, overrides?: CallOverrides): Promise<void>;
 
     storedBalance(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   filters: {
-    FlashFeeFactorSet(
-      fee?: BigNumberish | null
-    ): TypedEventFilter<[BigNumber], { fee: BigNumber }>;
+    FlashFeeFactorSet(fee?: BigNumberish | null): TypedEventFilter<[BigNumber], { fee: BigNumber }>;
 
     RoleAdminChanged(
       role?: BytesLike | null,
       newAdminRole?: BytesLike | null
-    ): TypedEventFilter<
-      [string, string],
-      { role: string; newAdminRole: string }
-    >;
+    ): TypedEventFilter<[string, string], { role: string; newAdminRole: string }>;
 
     RoleGranted(
       role?: BytesLike | null,
       account?: string | null,
       sender?: string | null
-    ): TypedEventFilter<
-      [string, string, string],
-      { role: string; account: string; sender: string }
-    >;
+    ): TypedEventFilter<[string, string, string], { role: string; account: string; sender: string }>;
 
     RoleRevoked(
       role?: BytesLike | null,
       account?: string | null,
       sender?: string | null
-    ): TypedEventFilter<
-      [string, string, string],
-      { role: string; account: string; sender: string }
-    >;
+    ): TypedEventFilter<[string, string, string], { role: string; account: string; sender: string }>;
   };
 
   estimateGas: {
@@ -562,11 +407,7 @@ export class Join extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    flashFee(
-      token: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    flashFee(token: string, amount: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
     flashFeeFactor(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -578,10 +419,7 @@ export class Join extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    getRoleAdmin(
-      role: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
 
     grantRole(
       role: BytesLike,
@@ -595,11 +433,7 @@ export class Join extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    hasRole(
-      role: BytesLike,
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    hasRole(role: BytesLike, account: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     join(
       user: string,
@@ -607,10 +441,7 @@ export class Join extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    lockRole(
-      role: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    lockRole(role: BytesLike, overrides?: Overrides & { from?: string | Promise<string> }): Promise<BigNumber>;
 
     maxFlashLoan(token: string, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -665,11 +496,7 @@ export class Join extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    flashFee(
-      token: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    flashFee(token: string, amount: BigNumberish, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     flashFeeFactor(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -681,10 +508,7 @@ export class Join extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    getRoleAdmin(
-      role: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     grantRole(
       role: BytesLike,
@@ -698,11 +522,7 @@ export class Join extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    hasRole(
-      role: BytesLike,
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    hasRole(role: BytesLike, account: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     join(
       user: string,
@@ -715,10 +535,7 @@ export class Join extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    maxFlashLoan(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    maxFlashLoan(token: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     renounceRole(
       role: BytesLike,

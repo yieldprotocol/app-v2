@@ -31,7 +31,7 @@ import TransactButton from '../components/buttons/TransactButton';
 import ReviewTxItem from '../components/ReviewTxItem';
 
 function Pool() {
-  const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
+  const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext) as IUserContext;
@@ -42,13 +42,13 @@ function Pool() {
 
   /* LOCAL STATE */
   const [poolInput, setPoolInput] = useState<string>();
-  const [maxPool, setMaxPool] = useState<string|undefined>();
+  const [maxPool, setMaxPool] = useState<string | undefined>();
 
-  const [poolError, setPoolError] = useState<string|null>(null);
+  const [poolError, setPoolError] = useState<string | null>(null);
 
   const [poolDisabled, setPoolDisabled] = useState<boolean>(true);
 
-  const [strategy, setStrategy] = useState<'BUY'|'MINT'>('BUY');
+  const [strategy, setStrategy] = useState<'BUY' | 'MINT'>('BUY');
 
   const [stepPosition, setStepPosition] = useState<number>(0);
 
@@ -80,12 +80,10 @@ function Pool() {
     if (activeAccount && (poolInput || poolInput === '')) {
       /* 1. Check if input exceeds balance */
       if (maxPool && parseFloat(poolInput) > parseFloat(maxPool)) setPoolError('Amount exceeds balance');
-      /* 2. Check if input is above zero */
-      else if (parseFloat(poolInput) < 0) setPoolError('Amount should be expressed as a positive value');
-      /* 2. next Check */
-      else if (false) setPoolError('Insufficient');
-      /* if all checks pass, set null error message */
-      else {
+      /* 2. Check if input is above zero */ else if (parseFloat(poolInput) < 0)
+        setPoolError('Amount should be expressed as a positive value');
+      /* 2. next Check */ else if (false) setPoolError('Insufficient');
+      /* if all checks pass, set null error message */ else {
         setPoolError(null);
       }
     }
@@ -93,154 +91,149 @@ function Pool() {
 
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
   useEffect(() => {
-    (!activeAccount || !poolInput || !selectedSeries || poolError) ? setPoolDisabled(true) : setPoolDisabled(false);
+    !activeAccount || !poolInput || !selectedSeries || poolError ? setPoolDisabled(true) : setPoolDisabled(false);
   }, [poolInput, activeAccount, poolError, selectedSeries]);
 
   return (
-
     <MainViewWrap>
-
-      {!mobile &&
-      <PanelWrap>
-        <StepperText
-          position={stepPosition}
-          values={[['Choose an asset to', 'pool', ''], ['', 'Review', 'and transact']]}
-        />
-        <YieldInfo />
-      </PanelWrap>}
+      {!mobile && (
+        <PanelWrap>
+          <StepperText
+            position={stepPosition}
+            values={[
+              ['Choose an asset to', 'pool', ''],
+              ['', 'Review', 'and transact'],
+            ]}
+          />
+          <YieldInfo />
+        </PanelWrap>
+      )}
 
       <CenterPanelWrap series={selectedSeries}>
-
         <Box height="100%" pad="large">
+          {stepPosition === 0 && (
+            <Box gap="medium">
+              <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
+                <YieldMark />
+                <Text>POOL</Text>
+              </Box>
 
-          {
-          stepPosition === 0 &&
-          <Box gap="medium">
-            <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
-              <YieldMark />
-              <Text>POOL</Text>
+              <SectionWrap title="Select an asset to Pool">
+                <Box direction="row" gap="small" fill="horizontal" align="start">
+                  <Box basis={mobile ? '50%' : '60%'}>
+                    <InputWrap action={() => console.log('maxAction')} isError={poolError}>
+                      <TextInput
+                        plain
+                        type="number"
+                        placeholder="Enter Amount"
+                        value={poolInput || ''}
+                        onChange={(event: any) => setPoolInput(cleanValue(event.target.value))}
+                      />
+                      <MaxButton action={() => setPoolInput(maxPool)} disabled={maxPool === '0'} />
+                    </InputWrap>
+                  </Box>
+
+                  <Box basis={mobile ? '50%' : '40%'}>
+                    <AssetSelector />
+                  </Box>
+                </Box>
+              </SectionWrap>
+
+              <SectionWrap title="Select a series to Pool to">
+                <SeriesSelector actionType={ActionType.POOL} inputValue={poolInput} />
+              </SectionWrap>
             </Box>
+          )}
 
-            <SectionWrap title="Select an asset to Pool">
-              <Box direction="row" gap="small" fill="horizontal" align="start">
-                <Box basis={mobile ? '50%' : '60%'}>
-                  <InputWrap action={() => console.log('maxAction')} isError={poolError}>
-                    <TextInput
-                      plain
-                      type="number"
-                      placeholder="Enter Amount"
-                      value={poolInput || ''}
-                      onChange={(event:any) => setPoolInput(cleanValue(event.target.value))}
-                    />
-                    <MaxButton
-                      action={() => setPoolInput(maxPool)}
-                      disabled={maxPool === '0'}
-                    />
-                  </InputWrap>
+          {stepPosition === 1 && (
+            <Box gap="large">
+              <BackButton action={() => setStepPosition(0)} />
+
+              <ActiveTransaction txCode={getTxCode(ActionCodes.ADD_LIQUIDITY, selectedSeriesId)}>
+                <Box gap="large">
+                  {!selectedSeries?.seriesIsMature && (
+                    <SectionWrap>
+                      <Box direction="row" justify="between" fill align="center">
+                        {!mobile && <Text size="small"> Pooling strategy: </Text>}
+                        <RadioButtonGroup
+                          name="strategy"
+                          options={[
+                            { label: <Text size="small"> Buy & Pool </Text>, value: 'BUY' },
+                            { label: <Text size="small"> Mint & Pool </Text>, value: 'MINT', disabled: true },
+                          ]}
+                          value={strategy}
+                          onChange={(event: any) => setStrategy(event.target.value)}
+                          direction="row"
+                          justify="between"
+                        />
+                      </Box>
+                    </SectionWrap>
+                  )}
+
+                  <SectionWrap title="Review your transaction">
+                    <Box
+                      gap="small"
+                      pad={{ horizontal: 'large', vertical: 'medium' }}
+                      round="xsmall"
+                      animation={{ type: 'zoomIn', size: 'small' }}
+                    >
+                      <ReviewTxItem
+                        label="Amount to pool"
+                        icon={<BiMessageSquareAdd />}
+                        value={`${poolInput} ${selectedBase?.symbol}`}
+                      />
+                      <ReviewTxItem
+                        label="Series Maturity"
+                        icon={<FiClock />}
+                        value={`${selectedSeries?.displayName}`}
+                      />
+                      <ReviewTxItem
+                        label="Amount of liquidity tokens recieved"
+                        icon={<BiCoinStack />}
+                        value={`${'300k'} Liquidity tokens`}
+                      />
+                      <ReviewTxItem
+                        label="Percentage of pool"
+                        icon={<FiPercent />}
+                        value={`${'to do get pool percentage'}%`}
+                      />
+                    </Box>
+                  </SectionWrap>
                 </Box>
-
-                <Box basis={mobile ? '50%' : '40%'}>
-                  <AssetSelector />
-                </Box>
-
-              </Box>
-            </SectionWrap>
-
-            <SectionWrap title="Select a series to Pool to">
-              <SeriesSelector actionType={ActionType.POOL} inputValue={poolInput} />
-            </SectionWrap>
-
-          </Box>
-          }
-
-          {
-          stepPosition === 1 &&
-          <Box gap="large">
-            <BackButton action={() => setStepPosition(0)} />
-
-            <ActiveTransaction txCode={getTxCode(ActionCodes.ADD_LIQUIDITY, selectedSeriesId)}>
-              <Box gap="large">
-                {!selectedSeries?.seriesIsMature &&
-                <SectionWrap>
-                  <Box direction="row" justify="between" fill align="center">
-                    {!mobile && <Text size="small"> Pooling strategy: </Text>}
-                    <RadioButtonGroup
-                      name="strategy"
-                      options={[
-                        { label: <Text size="small"> Buy & Pool </Text>, value: 'BUY' },
-                        { label: <Text size="small"> Mint & Pool </Text>, value: 'MINT', disabled: true },
-                      ]}
-                      value={strategy}
-                      onChange={(event:any) => setStrategy(event.target.value)}
-                      direction="row"
-                      justify="between"
-                    />
-                  </Box>
-                </SectionWrap>}
-
-                <SectionWrap title="Review your transaction">
-
-                  <Box gap="small" pad={{ horizontal: 'large', vertical: 'medium' }} round="xsmall" animation={{ type: 'zoomIn', size: 'small' }}>
-                    <ReviewTxItem
-                      label="Amount to pool"
-                      icon={<BiMessageSquareAdd />}
-                      value={`${poolInput} ${selectedBase?.symbol}`}
-                    />
-                    <ReviewTxItem
-                      label="Series Maturity"
-                      icon={<FiClock />}
-                      value={`${selectedSeries?.displayName}`}
-                    />
-                    <ReviewTxItem
-                      label="Amount of liquidity tokens recieved"
-                      icon={<BiCoinStack />}
-                      value={`${'300k'} Liquidity tokens`}
-                    />
-                    <ReviewTxItem
-                      label="Percentage of pool"
-                      icon={<FiPercent />}
-                      value={`${'to do get pool percentage'}%`}
-                    />
-                  </Box>
-                </SectionWrap>
-
-              </Box>
-            </ActiveTransaction>
-
-          </Box>
-          }
+              </ActiveTransaction>
+            </Box>
+          )}
         </Box>
 
         <ActionButtonGroup>
-          {
-            stepPosition !== 1 &&
-            !selectedSeries?.seriesIsMature &&
+          {stepPosition !== 1 && !selectedSeries?.seriesIsMature && (
             <NextButton
               secondary
               label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
               onClick={() => setStepPosition(stepPosition + 1)}
               disabled={poolDisabled}
             />
-            }
-          {
-            stepPosition === 1 &&
-            !selectedSeries?.seriesIsMature &&
-              <TransactButton
-                primary
-                label={<Text size={mobile ? 'small' : undefined}> {`Pool ${poolInput || ''} ${selectedBase?.symbol || ''}`} </Text>}
-                onClick={() => handleAdd()}
-                disabled={poolDisabled}
-              />
-            }
+          )}
+          {stepPosition === 1 && !selectedSeries?.seriesIsMature && (
+            <TransactButton
+              primary
+              label={
+                <Text size={mobile ? 'small' : undefined}>
+                  {' '}
+                  {`Pool ${poolInput || ''} ${selectedBase?.symbol || ''}`}{' '}
+                </Text>
+              }
+              onClick={() => handleAdd()}
+              disabled={poolDisabled}
+            />
+          )}
         </ActionButtonGroup>
-
       </CenterPanelWrap>
 
       <PanelWrap right basis="40%">
         {/* <YieldLiquidity input={poolInput} /> */}
         {!mobile && <PositionSelector actionType={ActionType.POOL} />}
       </PanelWrap>
-
     </MainViewWrap>
   );
 }

@@ -3,7 +3,7 @@ module.exports = {
   // root: true,
   parser: '@typescript-eslint/parser',
   plugins: ['@typescript-eslint'],
-  extends: ['airbnb-typescript', 'react-app'],
+  extends: ['airbnb-typescript', 'react-app', 'prettier'],
   parserOptions: {
     project: './tsconfig.json',
   },
@@ -43,13 +43,7 @@ module.exports = {
     'import/no-extraneous-dependencies': [
       'error',
       {
-        devDependencies: [
-          '**/*.test.js',
-          '**/*.test.jsx',
-          '**/*.test.ts',
-          '**/*.test.tsx',
-          'src/tests/**/*',
-        ],
+        devDependencies: ['**/*.test.js', '**/*.test.jsx', '**/*.test.ts', '**/*.test.tsx', 'src/tests/**/*'],
       },
     ],
     'react/jsx-props-no-spreading': 'off',
@@ -61,6 +55,9 @@ module.exports = {
     'react/jsx-wrap-multilines': 'off',
     'react/destructuring-assignment': 'off',
     'no-underscore-dangle': 'off',
+
+    'brace-style': 'off',
+    '@typescript-eslint/brace-style': ['error'],
 
     // remove below to check before prod:
     'no-console': 'off',

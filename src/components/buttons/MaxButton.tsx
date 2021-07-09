@@ -9,19 +9,21 @@ interface IMaxButtonProps {
   disabled?: boolean;
 }
 
-function MaxButton({ action, disabled }:IMaxButtonProps) {
-  const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
+function MaxButton({ action, disabled }: IMaxButtonProps) {
+  const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   /* state from context */
   const { userState } = useContext(UserContext) as IUserContext;
   const { activeAccount } = userState;
 
   return (
-    <>{
-            !mobile && activeAccount &&
-            <Box onClick={() => !disabled && action()} pad="xsmall">
-              <Text size="xsmall" color={disabled ? 'text-xweak' : 'text'}>MAX</Text>
-            </Box>
-          }
+    <>
+      {!mobile && activeAccount && (
+        <Box onClick={() => !disabled && action()} pad="xsmall">
+          <Text size="xsmall" color={disabled ? 'text-xweak' : 'text'}>
+            MAX
+          </Text>
+        </Box>
+      )}
     </>
   );
 }

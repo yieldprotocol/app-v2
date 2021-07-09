@@ -45,7 +45,7 @@ connectors.set(
   'injected',
   new InjectedConnector({
     supportedChainIds: [1, 42, 1337, 31337],
-  }),
+  })
 );
 connectors.set(
   'walletconnect',
@@ -54,7 +54,7 @@ connectors.set(
     bridge: 'https://bridge.walletconnect.org',
     qrcode: true,
     pollingInterval: POLLING_INTERVAL,
-  }),
+  })
 );
 
 /* Build the context */
@@ -80,39 +80,48 @@ const initState = {
   contractMap: new Map<string, ContractFactory>(),
   assetRootMap: new Map<string, IAssetRoot>(),
   seriesRootMap: new Map<string, ISeriesRoot>(),
-
 };
 
 function chainReducer(state: any, action: any) {
   /* Helper: only change the state if different from existing */
-  const onlyIfChanged = (_action: any) => (
-    state[action.type] === _action.payload
-      ? state[action.type]
-      : _action.payload
-  );
+  const onlyIfChanged = (_action: any) =>
+    state[action.type] === _action.payload ? state[action.type] : _action.payload;
 
   /* Reducer switch */
   switch (action.type) {
-    case 'chainLoading': return { ...state, chainLoading: onlyIfChanged(action) };
-    case 'appVersion': return { ...state, appVersion: onlyIfChanged(action) };
-    case 'provider': return { ...state, provider: onlyIfChanged(action) };
-    case 'fallbackProvider': return { ...state, fallbackProvider: onlyIfChanged(action) };
-    case 'signer': return { ...state, signer: onlyIfChanged(action) };
-    case 'chainId': return { ...state, chainId: onlyIfChanged(action) };
-    case 'account': return { ...state, account: onlyIfChanged(action) };
-    case 'web3Active': return { ...state, web3Active: onlyIfChanged(action) };
-    case 'contractMap': return { ...state, contractMap: onlyIfChanged(action) };
-    case 'addSeries': return {
-      ...state,
-      seriesRootMap: state.seriesRootMap.set(action.payload.id, action.payload),
-    };
-    case 'addAsset': return {
-      ...state,
-      assetRootMap: state.assetRootMap.set(action.payload.id, action.payload),
-    };
+    case 'chainLoading':
+      return { ...state, chainLoading: onlyIfChanged(action) };
+    case 'appVersion':
+      return { ...state, appVersion: onlyIfChanged(action) };
+    case 'provider':
+      return { ...state, provider: onlyIfChanged(action) };
+    case 'fallbackProvider':
+      return { ...state, fallbackProvider: onlyIfChanged(action) };
+    case 'signer':
+      return { ...state, signer: onlyIfChanged(action) };
+    case 'chainId':
+      return { ...state, chainId: onlyIfChanged(action) };
+    case 'account':
+      return { ...state, account: onlyIfChanged(action) };
+    case 'web3Active':
+      return { ...state, web3Active: onlyIfChanged(action) };
+    case 'contractMap':
+      return { ...state, contractMap: onlyIfChanged(action) };
+    case 'addSeries':
+      return {
+        ...state,
+        seriesRootMap: state.seriesRootMap.set(action.payload.id, action.payload),
+      };
+    case 'addAsset':
+      return {
+        ...state,
+        assetRootMap: state.assetRootMap.set(action.payload.id, action.payload),
+      };
     /* special internal case for multi-updates - might remove from this context if not needed */
-    case '_any': return { ...state, ...action.payload };
-    default: return state;
+    case '_any':
+      return { ...state, ...action.payload };
+    default:
+      return state;
   }
 }
 
@@ -124,16 +133,7 @@ const ChainProvider = ({ children }: any) => {
   const [tried, setTried] = useState<boolean>(false);
 
   const primaryConnection = useWeb3React<ethers.providers.Web3Provider>();
-  const {
-    connector,
-    library,
-    chainId,
-    account,
-    activate,
-    deactivate,
-    active,
-    error,
-  } = primaryConnection;
+  const { connector, library, chainId, account, activate, deactivate, active, error } = primaryConnection;
 
   const fallbackConnection = useWeb3React<ethers.providers.JsonRpcProvider>('fallback');
   const {
@@ -174,7 +174,7 @@ const ChainProvider = ({ children }: any) => {
       newContractMap.set('ChainlinkOracle', ChainlinkOracle);
       updateState({ type: 'contractMap', payload: newContractMap });
 
-      let test :any;
+      let test: any;
       (async () => {
         test = await fallbackLibrary.getBalance('0x885Bc35dC9B10EA39f2d7B3C94a7452a9ea442A7');
       })();
@@ -193,43 +193,49 @@ const ChainProvider = ({ children }: any) => {
 
           /* Create a map from the joinAdded event data */
           const joinMap: Map<string, string> = new Map(
-            joinAddedEvents.map((log:any) => Ladle.interface.parseLog(log).args) as [[string, string]],
+            joinAddedEvents.map((log: any) => Ladle.interface.parseLog(log).args) as [[string, string]]
           );
 
-          await Promise.all(assetAddedEvents.map(async (x:any) => {
-            const { assetId: id, asset: address } = Cauldron.interface.parseLog(x).args;
-            const ERC20 = contracts.ERC20Permit__factory.connect(address, fallbackLibrary);
-            /* Add in any extra static asset Data */ // TODO is there any other fixed asset data needed?
-            const [name, symbol] = await Promise.all([ERC20.name(), ERC20.symbol()]);
-            // TODO check if any other tokens have different versions. maybe abstract this logic somewhere?
-            const version = (id === '0x555344430000') ? '2' : '1';
-            // const version = ETH_BASED_ASSETS.includes(id) ? '1' : ERC20.version();
+          await Promise.all(
+            assetAddedEvents.map(async (x: any) => {
+              const { assetId: id, asset: address } = Cauldron.interface.parseLog(x).args;
+              const ERC20 = contracts.ERC20Permit__factory.connect(address, fallbackLibrary);
+              /* Add in any extra static asset Data */ // TODO is there any other fixed asset data needed?
+              const [name, symbol] = await Promise.all([ERC20.name(), ERC20.symbol()]);
+              // TODO check if any other tokens have different versions. maybe abstract this logic somewhere?
+              const version = id === '0x555344430000' ? '2' : '1';
+              // const version = ETH_BASED_ASSETS.includes(id) ? '1' : ERC20.version();
 
-            /* watch for user specific ERC20 events, and update accordingly */
-            // ERC20.on( {'Transfer' } , () => console.log('transfer occurred'));
+              /* watch for user specific ERC20 events, and update accordingly */
+              // ERC20.on( {'Transfer' } , () => console.log('transfer occurred'));
 
-            updateState({ type: 'addAsset',
-              payload: {
-                id,
-                address,
-                name,
-                symbol,
-                version,
-                color: (yieldEnv.assetColors as any)[symbol],
-                image: markMap.get(symbol),
-                joinAddress: joinMap.get(id),
-                /* baked in token fns */
-                getBalance: async (acc: string) => (ETH_BASED_ASSETS.includes(id)
-                  ? library?.getBalance(acc)
-                  : ERC20.balanceOf(acc)),
-                getAllowance: async (acc: string, spender:string) => ERC20.allowance(acc, spender),
+              updateState({
+                type: 'addAsset',
+                payload: {
+                  id,
+                  address,
+                  name,
+                  symbol,
+                  version,
+                  color: (yieldEnv.assetColors as any)[symbol],
+                  image: markMap.get(symbol),
+                  joinAddress: joinMap.get(id),
+                  /* baked in token fns */
+                  getBalance: async (acc: string) =>
+                    ETH_BASED_ASSETS.includes(id) ? library?.getBalance(acc) : ERC20.balanceOf(acc),
+                  getAllowance: async (acc: string, spender: string) => ERC20.allowance(acc, spender),
 
-                /* TODO remove for prod */
-                /* @ts-ignore */
-                mintTest: async () => contracts.ERC20Mock__factory.connect(address, library?.getSigner()).mint(account, ethers.utils.parseEther('1000')),
-
-              } });
-          }));
+                  /* TODO remove for prod */
+                  /* @ts-ignore */
+                  mintTest: async () =>
+                    contracts.ERC20Mock__factory.connect(address, library?.getSigner()!).mint(
+                      account!,
+                      ethers.utils.parseEther('100')
+                    ),
+                },
+              });
+            })
+          );
         })(),
 
         /* ... AT THE SAME TIME update the available seriesRootMap based on Cauldron events */
@@ -242,12 +248,12 @@ const ChainProvider = ({ children }: any) => {
 
           /* build a map from the poolAdded event data */
           const poolMap: Map<string, string> = new Map(
-            poolAddedEvents.map((log:any) => Ladle.interface.parseLog(log).args) as [[string, string]],
+            poolAddedEvents.map((log: any) => Ladle.interface.parseLog(log).args) as [[string, string]]
           );
 
           /* Add in any extra static series */
           await Promise.all([
-            ...seriesAddedEvents.map(async (x:any) : Promise<void> => {
+            ...seriesAddedEvents.map(async (x: any): Promise<void> => {
               const { seriesId: id, baseId, fyToken } = Cauldron.interface.parseLog(x).args;
               const { maturity } = await Cauldron.series(id);
 
@@ -302,21 +308,21 @@ const ChainProvider = ({ children }: any) => {
                   seriesMark: <YieldMark start={startColor} end={endColor} />,
 
                   // built-in helper functions:
-                  getTimeTillMaturity: () => (maturity - Math.round(new Date().getTime() / 1000)),
+                  getTimeTillMaturity: () => maturity - Math.round(new Date().getTime() / 1000),
                   // isMature: () => (maturity < Math.round(new Date().getTime() / 1000)),
-                  isMature: async () => (maturity < (await fallbackLibrary.getBlock('latest')).timestamp),
+                  isMature: async () => maturity < (await fallbackLibrary.getBlock('latest')).timestamp,
 
                   getBaseAddress: () => chainState.assetRootMap.get(baseId).address, // TODO refactor to get this static - if possible?
-                } });
+                },
+              });
             }),
           ]);
         })(),
-      ])
-        .then(() => {
-          updateState({ type: 'chainLoading', payload: false });
-          console.log('Yield Protocol static data loaded');
-          // console.log('SERIES (static data):', chainState.seriesRootMap);
-        });
+      ]).then(() => {
+        updateState({ type: 'chainLoading', payload: false });
+        console.log('Yield Protocol static data loaded');
+        // console.log('SERIES (static data):', chainState.seriesRootMap);
+      });
     }
   }, [
     account,
@@ -357,12 +363,15 @@ const ChainProvider = ({ children }: any) => {
     /* cache the change of networkId */
     chainId && setLastChainId(chainId);
     /* Connect the fallback */
-    tried && fallbackActivate(
-      new NetworkConnector({
-        urls: { 1: RPC_URLS[1], 42: RPC_URLS[42], 31337: RPC_URLS[31337], 1337: RPC_URLS[1337] },
-        defaultChainId: _chainId,
-      }), (e:any) => console.log(e), true,
-    );
+    tried &&
+      fallbackActivate(
+        new NetworkConnector({
+          urls: { 1: RPC_URLS[1], 42: RPC_URLS[42], 31337: RPC_URLS[31337], 1337: RPC_URLS[1337] },
+          defaultChainId: _chainId,
+        }),
+        (e: any) => console.log(e),
+        true
+      );
 
     // eslint-disable-next-line no-restricted-globals
     chainId && chainId !== lastChainId && location.reload();
@@ -375,44 +384,48 @@ const ChainProvider = ({ children }: any) => {
    * */
   useEffect(() => {
     chainState.connectOnLoad &&
-    connectors.get('injected')
-      .isAuthorized()
-      .then((isAuthorized: boolean) => {
-        if (isAuthorized) {
-          activate(connectors.get('injected'), undefined, true).catch(() => {
-            setTried(true);
-          });
-        } else {
-          setTried(true); // just move on do nothing nore
-        }
-      });
+      connectors
+        .get('injected')
+        .isAuthorized()
+        .then((isAuthorized: boolean) => {
+          if (isAuthorized) {
+            activate(connectors.get('injected'), undefined, true).catch(() => {
+              setTried(true);
+            });
+          } else {
+            setTried(true); // just move on do nothing nore
+          }
+        });
   }, [activate, chainState.connectOnLoad]);
   /* If web3 connected, wait until we get confirmation of that to flip the flag */
-  useEffect(() => { if (!tried && active) { setTried(true); } }, [tried, active]);
+  useEffect(() => {
+    if (!tried && active) {
+      setTried(true);
+    }
+  }, [tried, active]);
 
   /* Handle logic to recognize the connector currently being activated */
   const [activatingConnector, setActivatingConnector] = useState<any>();
   useEffect(() => {
-    (activatingConnector && activatingConnector === connector) && setActivatingConnector(undefined);
+    activatingConnector && activatingConnector === connector && setActivatingConnector(undefined);
   }, [activatingConnector, connector]);
 
   const chainActions = {
-    isConnected: (connection:string) => connectors.get(connection) === connector,
-    connect: (connection:string = 'injected') => activate(connectors.get(connection)),
+    isConnected: (connection: string) => connectors.get(connection) === connector,
+    connect: (connection: string = 'injected') => activate(connectors.get(connection)),
     disconnect: () => connector && deactivate(),
-    connectTest: () => activate(
-      new NetworkConnector({
-        urls: { 31337: RPC_URLS[31337], 1337: RPC_URLS[1337] },
-        defaultChainId: 42,
-      }), (e:any) => console.log(e), true,
-    ),
+    connectTest: () =>
+      activate(
+        new NetworkConnector({
+          urls: { 31337: RPC_URLS[31337], 1337: RPC_URLS[1337] },
+          defaultChainId: 42,
+        }),
+        (e: any) => console.log(e),
+        true
+      ),
   };
 
-  return (
-    <ChainContext.Provider value={{ chainState, chainActions }}>
-      {children}
-    </ChainContext.Provider>
-  );
+  return <ChainContext.Provider value={{ chainState, chainActions }}>{children}</ChainContext.Provider>;
 };
 
 export { ChainContext, ChainProvider };

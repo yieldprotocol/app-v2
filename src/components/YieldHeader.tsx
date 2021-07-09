@@ -12,11 +12,10 @@ import YieldAccount from './YieldAccount';
 interface IYieldHeaderProps {
   actionList: any[];
 }
-const YieldHeader = ({ actionList } : IYieldHeaderProps) => {
-  const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
+const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
+  const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   return (
-
     <Header
       pad="medium"
       height={mobile ? undefined : 'xsmall'}
@@ -27,12 +26,10 @@ const YieldHeader = ({ actionList } : IYieldHeaderProps) => {
     >
       <YieldLogo height={mobile ? '1em' : '2em'} />
 
-      { !mobile && <YieldNavigation /> }
+      {!mobile && <YieldNavigation />}
 
       <YieldAccount />
-
     </Header>
-
   );
 };
 

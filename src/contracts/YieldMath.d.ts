@@ -12,102 +12,53 @@ import {
   BaseContract,
   ContractTransaction,
   CallOverrides,
-} from "ethers";
-import { BytesLike } from "@ethersproject/bytes";
-import { Listener, Provider } from "@ethersproject/providers";
-import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
-import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
+} from 'ethers';
+import { BytesLike } from '@ethersproject/bytes';
+import { Listener, Provider } from '@ethersproject/providers';
+import { FunctionFragment, EventFragment, Result } from '@ethersproject/abi';
+import { TypedEventFilter, TypedEvent, TypedListener } from './commons';
 
 interface YieldMathInterface extends ethers.utils.Interface {
   functions: {
-    "MAX()": FunctionFragment;
-    "ONE()": FunctionFragment;
-    "baseInForFYTokenOut(uint128,uint128,uint128,uint128,int128,int128)": FunctionFragment;
-    "baseOutForFYTokenIn(uint128,uint128,uint128,uint128,int128,int128)": FunctionFragment;
-    "fyTokenInForBaseOut(uint128,uint128,uint128,uint128,int128,int128)": FunctionFragment;
-    "fyTokenOutForBaseIn(uint128,uint128,uint128,uint128,int128,int128)": FunctionFragment;
-    "initialReservesValue(uint128,uint128,uint128,int128,int128)": FunctionFragment;
+    'MAX()': FunctionFragment;
+    'ONE()': FunctionFragment;
+    'baseInForFYTokenOut(uint128,uint128,uint128,uint128,int128,int128)': FunctionFragment;
+    'baseOutForFYTokenIn(uint128,uint128,uint128,uint128,int128,int128)': FunctionFragment;
+    'fyTokenInForBaseOut(uint128,uint128,uint128,uint128,int128,int128)': FunctionFragment;
+    'fyTokenOutForBaseIn(uint128,uint128,uint128,uint128,int128,int128)': FunctionFragment;
+    'initialReservesValue(uint128,uint128,uint128,int128,int128)': FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: "MAX", values?: undefined): string;
-  encodeFunctionData(functionFragment: "ONE", values?: undefined): string;
+  encodeFunctionData(functionFragment: 'MAX', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'ONE', values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "baseInForFYTokenOut",
-    values: [
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish
-    ]
+    functionFragment: 'baseInForFYTokenOut',
+    values: [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "baseOutForFYTokenIn",
-    values: [
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish
-    ]
+    functionFragment: 'baseOutForFYTokenIn',
+    values: [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "fyTokenInForBaseOut",
-    values: [
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish
-    ]
+    functionFragment: 'fyTokenInForBaseOut',
+    values: [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "fyTokenOutForBaseIn",
-    values: [
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish
-    ]
+    functionFragment: 'fyTokenOutForBaseIn',
+    values: [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "initialReservesValue",
-    values: [
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish
-    ]
+    functionFragment: 'initialReservesValue',
+    values: [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish]
   ): string;
 
-  decodeFunctionResult(functionFragment: "MAX", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "ONE", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "baseInForFYTokenOut",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "baseOutForFYTokenIn",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "fyTokenInForBaseOut",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "fyTokenOutForBaseIn",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "initialReservesValue",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: 'MAX', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'ONE', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'baseInForFYTokenOut', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'baseOutForFYTokenIn', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'fyTokenInForBaseOut', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'fyTokenOutForBaseIn', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'initialReservesValue', data: BytesLike): Result;
 
   events: {};
 }
