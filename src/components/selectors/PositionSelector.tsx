@@ -52,7 +52,7 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
       setFilterLabels([base?.symbol, series?.displayNameMobile]);
       setFilteredSeries(_filteredSeries);
     },
-    [seriesMap, actionType]
+    [seriesMap, actionType],
   );
 
   /* CHECK the list of current vaults which match the current base series selection */
@@ -103,12 +103,10 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
                   <Text size="xsmall">{filterLabels[0]}</Text>
                   <Text
                     size="xsmall"
-                    onClick={() =>
-                      handleFilter({
-                        ...currentFilter,
-                        base: undefined,
-                      } as IPositionFilter)
-                    }
+                    onClick={() => handleFilter({
+                      ...currentFilter,
+                      base: undefined,
+                    } as IPositionFilter)}
                   >
                     {' '}
                     x
@@ -126,12 +124,10 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
                   <Text size="xsmall">{filterLabels[1]}</Text>
                   <Text
                     size="xsmall"
-                    onClick={() =>
-                      handleFilter({
-                        ...currentFilter,
-                        series: undefined,
-                      } as IPositionFilter)
-                    }
+                    onClick={() => handleFilter({
+                      ...currentFilter,
+                      series: undefined,
+                    } as IPositionFilter)}
                   >
                     x
                   </Text>

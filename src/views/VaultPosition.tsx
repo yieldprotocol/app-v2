@@ -22,6 +22,7 @@ import PositionAvatar from '../components/PositionAvatar';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import NextButton from '../components/buttons/NextButton';
 import { Gauge } from '../components/Gauge';
+import YieldVaultHistory from '../components/YieldVaultHistory';
 
 const Vault = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -357,7 +358,7 @@ const Vault = () => {
           )}
 
           {actionActive.index === 3 && (
-            <Box pad={{ vertical: 'medium' }}>The individual history component goes here</Box>
+            <Box pad={{ vertical: 'medium' }}><YieldVaultHistory vault={selectedVault!} /></Box>
           )}
 
           {actionActive.index === 4 && (

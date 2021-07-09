@@ -90,6 +90,7 @@ export const abbreviateHash = (addr: string, buffer: number = 4) =>
  *
  * Generate the series name from the maturity number.
  * Examples: full (defualt) : 'MMMM yyyy' ,  apr badge  : 'MMM yy' , mobile: 'MMM yyyy'
+ * NOTE: subtraction used to accuount for time zone differences
  * */
 export const nameFromMaturity = (maturity: number, style: string = 'MMMM yyyy') =>
   format(subDays(new Date(maturity * 1000), 2), style);

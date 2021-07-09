@@ -159,7 +159,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
     /* filter out options based on base Id */
     let filteredOpts = opts.filter(
-      (_series: ISeries) => _series.baseId === selectedBaseId
+      (_series: ISeries) => _series.baseId === selectedBaseId,
       // !ignoredSeries?.includes(_series.baseId)
     );
 
@@ -174,8 +174,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
       selectedSeries &&
       (filteredOpts.findIndex((_series: ISeries) => _series.id !== selectedSeriesId) < 0 ||
         selectedSeries.baseId !== selectedBaseId)
-    )
-      userActions.setSelectedSeries(null);
+    ) userActions.setSelectedSeries(null);
 
     setOptions(filteredOpts);
   }, [seriesMap, selectedBase, selectSeriesLocally, selectedSeries, userActions]);
