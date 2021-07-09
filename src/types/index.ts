@@ -3,52 +3,47 @@ import React from 'react';
 import { FYToken, Pool } from '../contracts';
 
 export interface IHistoryList {
-  lastBlock: number,
-  items: any[]
+  lastBlock: number;
+  items: any[];
 }
 export interface IHistoryContextState {
-  historyLoading: boolean,
-  tradeHistory: IHistoryList
-  poolHistory: IHistoryList
-  vaultHistory: IHistoryList
+  historyLoading: boolean;
+  tradeHistory: IHistoryList;
+  poolHistory: IHistoryList;
+  vaultHistory: IHistoryList;
 }
 
 export interface IUserContext {
-  userState : IUserContextState;
-  userActions : IUserContextActions;
+  userState: IUserContextState;
+  userActions: IUserContextActions;
 }
 
 export interface IUserContextState {
-
   userLoading: boolean;
-  activeAccount: string|null;
+  activeAccount: string | null;
   assetMap: Map<string, IAsset>;
   seriesMap: Map<string, ISeries>;
   vaultMap: Map<string, IVault>;
   priceMap: Map<string, Map<string, any>>;
-  selectedSeriesId: string|null;
-  selectedIlkId: string|null;
-  selectedBaseId: string|null;
-  selectedVaultId: string|null;
+  selectedSeriesId: string | null;
+  selectedIlkId: string | null;
+  selectedBaseId: string | null;
+  selectedVaultId: string | null;
   approvalMethod: ApprovalType;
-
 }
 
 export interface IUserContextActions {
-
   updateVaults: (vaultList: IVault[]) => void;
   updateSeries: (seriesList: ISeries[]) => void;
   updateAssets: (assetList: IAsset[]) => void;
-  updatePrice: (base: string, ilk:string) => void;
+  updatePrice: (base: string, ilk: string) => void;
   setSelectedSeries: (seriesId: string) => void;
   setSelectedIlk: (ilkId: string) => void;
   setSelectedBase: (baseId: string) => void;
   setSelectedVault: (vaultId: string) => void;
-
 }
 
 export interface ISeriesRoot {
-
   id: string;
   name: string;
   symbol: string;
@@ -60,7 +55,7 @@ export interface ISeriesRoot {
   maturityDate: Date;
   fyTokenContract: FYToken;
   fyTokenAddress: string;
-  poolContract:Pool;
+  poolContract: Pool;
   poolAddress: string;
   poolName: string;
   poolVersion: string; // for signing
@@ -69,18 +64,18 @@ export interface ISeriesRoot {
   color: string;
   textColor: string;
   startColor: string;
-  endColor:string;
+  endColor: string;
 
-  oppositeColor:string;
+  oppositeColor: string;
   oppStartColor: string;
-  oppEndColor:string;
+  oppEndColor: string;
 
-  seriesMark: React.ElementType
+  seriesMark: React.ElementType;
 
   // baked in token fns
   getTimeTillMaturity: () => string;
   isMature: () => boolean;
-  getBaseAddress: ()=> string; // antipattern, but required here because app simulatneoulsy gets assets and series
+  getBaseAddress: () => string; // antipattern, but required here because app simulatneoulsy gets assets and series
 }
 
 export interface IAssetRoot {
@@ -94,12 +89,12 @@ export interface IAssetRoot {
   displayName: string;
   displayNameMobile: string;
   address: string;
-  joinAddress: string,
+  joinAddress: string;
 
   // baked in token fns
-  getBalance: (account: string)=>Promise<BigNumber>,
-  getAllowance: (account: string, spender: string)=>Promise<BigNumber>,
-  mintTest: ()=>Promise<VoidFunction>,
+  getBalance: (account: string) => Promise<BigNumber>;
+  getAllowance: (account: string, spender: string) => Promise<BigNumber>;
+  mintTest: () => Promise<VoidFunction>;
 }
 
 export interface IVaultRoot {
@@ -108,7 +103,7 @@ export interface IVaultRoot {
   baseId: string;
   seriesId: string;
   image: string;
-  displayName : string;
+  displayName: string;
 }
 
 export interface ISeries extends ISeriesRoot {
@@ -119,12 +114,12 @@ export interface ISeries extends ISeriesRoot {
   totalSupply: BigNumber;
   totalSupply_: string;
 
-  poolTokens?: BigNumber|undefined;
-  poolTokens_?: string|undefined;
-  fyTokenBalance? : BigNumber|undefined;
-  fyTokenBalance_? : string|undefined;
+  poolTokens?: BigNumber | undefined;
+  poolTokens_?: string | undefined;
+  fyTokenBalance?: BigNumber | undefined;
+  fyTokenBalance_?: string | undefined;
 
-  poolPercent? : string|undefined;
+  poolPercent?: string | undefined;
 
   seriesIsMature: boolean;
 }
@@ -144,8 +139,8 @@ export interface IVault extends IVaultRoot {
 }
 
 export interface ICallData {
-  args: (string|BigNumber|boolean)[];
-  operation: [ number, string[]];
+  args: (string | BigNumber | boolean)[];
+  operation: [number, string[]];
   series: ISeries;
   fnName?: string;
   ignore?: boolean;
@@ -153,8 +148,8 @@ export interface ICallData {
 }
 
 export interface ISignData {
-  target: ISeries | IAsset | { id: string; name:string; version:string; address:string; };
-  spender: 'POOLROUTER'|'LADLE'| string;
+  target: ISeries | IAsset | { id: string; name: string; version: string; address: string };
+  spender: 'POOLROUTER' | 'LADLE' | string;
   type: SignType;
   series: ISeries;
 

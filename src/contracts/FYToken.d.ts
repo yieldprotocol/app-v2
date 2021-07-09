@@ -13,282 +13,163 @@ import {
   ContractTransaction,
   Overrides,
   CallOverrides,
-} from "ethers";
-import { BytesLike } from "@ethersproject/bytes";
-import { Listener, Provider } from "@ethersproject/providers";
-import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
-import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
+} from 'ethers';
+import { BytesLike } from '@ethersproject/bytes';
+import { Listener, Provider } from '@ethersproject/providers';
+import { FunctionFragment, EventFragment, Result } from '@ethersproject/abi';
+import { TypedEventFilter, TypedEvent, TypedListener } from './commons';
 
 interface FYTokenInterface extends ethers.utils.Interface {
   functions: {
-    "DOMAIN_SEPARATOR()": FunctionFragment;
-    "LOCK()": FunctionFragment;
-    "PERMIT_TYPEHASH()": FunctionFragment;
-    "ROOT()": FunctionFragment;
-    "accrual()": FunctionFragment;
-    "allowance(address,address)": FunctionFragment;
-    "approve(address,uint256)": FunctionFragment;
-    "balanceOf(address)": FunctionFragment;
-    "burn(address,uint256)": FunctionFragment;
-    "chiAtMaturity()": FunctionFragment;
-    "decimals()": FunctionFragment;
-    "deploymentChainId()": FunctionFragment;
-    "flashFee(address,uint256)": FunctionFragment;
-    "flashLoan(address,address,uint256,bytes)": FunctionFragment;
-    "getRoleAdmin(bytes4)": FunctionFragment;
-    "grantRole(bytes4,address)": FunctionFragment;
-    "grantRoles(bytes4[],address)": FunctionFragment;
-    "hasRole(bytes4,address)": FunctionFragment;
-    "join()": FunctionFragment;
-    "lockRole(bytes4)": FunctionFragment;
-    "mature()": FunctionFragment;
-    "maturity()": FunctionFragment;
-    "maxFlashLoan(address)": FunctionFragment;
-    "mint(address,uint256)": FunctionFragment;
-    "name()": FunctionFragment;
-    "nonces(address)": FunctionFragment;
-    "oracle()": FunctionFragment;
-    "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)": FunctionFragment;
-    "redeem(address,uint256)": FunctionFragment;
-    "renounceRole(bytes4,address)": FunctionFragment;
-    "revokeRole(bytes4,address)": FunctionFragment;
-    "revokeRoles(bytes4[],address)": FunctionFragment;
-    "setOracle(address)": FunctionFragment;
-    "setRoleAdmin(bytes4,bytes4)": FunctionFragment;
-    "symbol()": FunctionFragment;
-    "totalSupply()": FunctionFragment;
-    "transfer(address,uint256)": FunctionFragment;
-    "transferFrom(address,address,uint256)": FunctionFragment;
-    "underlying()": FunctionFragment;
-    "underlyingId()": FunctionFragment;
-    "version()": FunctionFragment;
+    'DOMAIN_SEPARATOR()': FunctionFragment;
+    'LOCK()': FunctionFragment;
+    'PERMIT_TYPEHASH()': FunctionFragment;
+    'ROOT()': FunctionFragment;
+    'accrual()': FunctionFragment;
+    'allowance(address,address)': FunctionFragment;
+    'approve(address,uint256)': FunctionFragment;
+    'balanceOf(address)': FunctionFragment;
+    'burn(address,uint256)': FunctionFragment;
+    'chiAtMaturity()': FunctionFragment;
+    'decimals()': FunctionFragment;
+    'deploymentChainId()': FunctionFragment;
+    'flashFee(address,uint256)': FunctionFragment;
+    'flashLoan(address,address,uint256,bytes)': FunctionFragment;
+    'getRoleAdmin(bytes4)': FunctionFragment;
+    'grantRole(bytes4,address)': FunctionFragment;
+    'grantRoles(bytes4[],address)': FunctionFragment;
+    'hasRole(bytes4,address)': FunctionFragment;
+    'join()': FunctionFragment;
+    'lockRole(bytes4)': FunctionFragment;
+    'mature()': FunctionFragment;
+    'maturity()': FunctionFragment;
+    'maxFlashLoan(address)': FunctionFragment;
+    'mint(address,uint256)': FunctionFragment;
+    'name()': FunctionFragment;
+    'nonces(address)': FunctionFragment;
+    'oracle()': FunctionFragment;
+    'permit(address,address,uint256,uint256,uint8,bytes32,bytes32)': FunctionFragment;
+    'redeem(address,uint256)': FunctionFragment;
+    'renounceRole(bytes4,address)': FunctionFragment;
+    'revokeRole(bytes4,address)': FunctionFragment;
+    'revokeRoles(bytes4[],address)': FunctionFragment;
+    'setOracle(address)': FunctionFragment;
+    'setRoleAdmin(bytes4,bytes4)': FunctionFragment;
+    'symbol()': FunctionFragment;
+    'totalSupply()': FunctionFragment;
+    'transfer(address,uint256)': FunctionFragment;
+    'transferFrom(address,address,uint256)': FunctionFragment;
+    'underlying()': FunctionFragment;
+    'underlyingId()': FunctionFragment;
+    'version()': FunctionFragment;
   };
 
+  encodeFunctionData(functionFragment: 'DOMAIN_SEPARATOR', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'LOCK', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'PERMIT_TYPEHASH', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'ROOT', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'accrual', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'allowance', values: [string, string]): string;
+  encodeFunctionData(functionFragment: 'approve', values: [string, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'balanceOf', values: [string]): string;
+  encodeFunctionData(functionFragment: 'burn', values: [string, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'chiAtMaturity', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'decimals', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'deploymentChainId', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'flashFee', values: [string, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'flashLoan', values: [string, string, BigNumberish, BytesLike]): string;
+  encodeFunctionData(functionFragment: 'getRoleAdmin', values: [BytesLike]): string;
+  encodeFunctionData(functionFragment: 'grantRole', values: [BytesLike, string]): string;
+  encodeFunctionData(functionFragment: 'grantRoles', values: [BytesLike[], string]): string;
+  encodeFunctionData(functionFragment: 'hasRole', values: [BytesLike, string]): string;
+  encodeFunctionData(functionFragment: 'join', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'lockRole', values: [BytesLike]): string;
+  encodeFunctionData(functionFragment: 'mature', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'maturity', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'maxFlashLoan', values: [string]): string;
+  encodeFunctionData(functionFragment: 'mint', values: [string, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'name', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'nonces', values: [string]): string;
+  encodeFunctionData(functionFragment: 'oracle', values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "DOMAIN_SEPARATOR",
-    values?: undefined
+    functionFragment: 'permit',
+    values: [string, string, BigNumberish, BigNumberish, BigNumberish, BytesLike, BytesLike]
   ): string;
-  encodeFunctionData(functionFragment: "LOCK", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "PERMIT_TYPEHASH",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "ROOT", values?: undefined): string;
-  encodeFunctionData(functionFragment: "accrual", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "allowance",
-    values: [string, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "approve",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
-  encodeFunctionData(
-    functionFragment: "burn",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "chiAtMaturity",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "deploymentChainId",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "flashFee",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "flashLoan",
-    values: [string, string, BigNumberish, BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getRoleAdmin",
-    values: [BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "grantRole",
-    values: [BytesLike, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "grantRoles",
-    values: [BytesLike[], string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "hasRole",
-    values: [BytesLike, string]
-  ): string;
-  encodeFunctionData(functionFragment: "join", values?: undefined): string;
-  encodeFunctionData(functionFragment: "lockRole", values: [BytesLike]): string;
-  encodeFunctionData(functionFragment: "mature", values?: undefined): string;
-  encodeFunctionData(functionFragment: "maturity", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "maxFlashLoan",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "mint",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(functionFragment: "name", values?: undefined): string;
-  encodeFunctionData(functionFragment: "nonces", values: [string]): string;
-  encodeFunctionData(functionFragment: "oracle", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "permit",
-    values: [
-      string,
-      string,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BytesLike,
-      BytesLike
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "redeem",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "renounceRole",
-    values: [BytesLike, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "revokeRole",
-    values: [BytesLike, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "revokeRoles",
-    values: [BytesLike[], string]
-  ): string;
-  encodeFunctionData(functionFragment: "setOracle", values: [string]): string;
-  encodeFunctionData(
-    functionFragment: "setRoleAdmin",
-    values: [BytesLike, BytesLike]
-  ): string;
-  encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "totalSupply",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transfer",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferFrom",
-    values: [string, string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "underlying",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "underlyingId",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "version", values?: undefined): string;
+  encodeFunctionData(functionFragment: 'redeem', values: [string, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'renounceRole', values: [BytesLike, string]): string;
+  encodeFunctionData(functionFragment: 'revokeRole', values: [BytesLike, string]): string;
+  encodeFunctionData(functionFragment: 'revokeRoles', values: [BytesLike[], string]): string;
+  encodeFunctionData(functionFragment: 'setOracle', values: [string]): string;
+  encodeFunctionData(functionFragment: 'setRoleAdmin', values: [BytesLike, BytesLike]): string;
+  encodeFunctionData(functionFragment: 'symbol', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'totalSupply', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'transfer', values: [string, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'transferFrom', values: [string, string, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'underlying', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'underlyingId', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'version', values?: undefined): string;
 
-  decodeFunctionResult(
-    functionFragment: "DOMAIN_SEPARATOR",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "LOCK", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "PERMIT_TYPEHASH",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "ROOT", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "accrual", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "allowance", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "burn", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "chiAtMaturity",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "deploymentChainId",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "flashFee", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "flashLoan", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "getRoleAdmin",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "grantRoles", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "join", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "lockRole", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "mature", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "maturity", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "maxFlashLoan",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "nonces", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "oracle", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "permit", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "redeem", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "renounceRole",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "revokeRoles",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "setOracle", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "setRoleAdmin",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "totalSupply",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "transfer", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "transferFrom",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "underlying", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "underlyingId",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "version", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'DOMAIN_SEPARATOR', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'LOCK', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'PERMIT_TYPEHASH', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'ROOT', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'accrual', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'allowance', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'approve', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'balanceOf', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'burn', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'chiAtMaturity', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'decimals', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'deploymentChainId', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'flashFee', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'flashLoan', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getRoleAdmin', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'grantRole', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'grantRoles', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'hasRole', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'join', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'lockRole', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'mature', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'maturity', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'maxFlashLoan', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'mint', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'name', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'nonces', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'oracle', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'permit', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'redeem', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'renounceRole', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'revokeRole', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'revokeRoles', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setOracle', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setRoleAdmin', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'symbol', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'totalSupply', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'transfer', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'transferFrom', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'underlying', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'underlyingId', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'version', data: BytesLike): Result;
 
   events: {
-    "Approval(address,address,uint256)": EventFragment;
-    "OracleSet(address)": EventFragment;
-    "Redeemed(address,address,uint256,uint256)": EventFragment;
-    "RoleAdminChanged(bytes4,bytes4)": EventFragment;
-    "RoleGranted(bytes4,address,address)": EventFragment;
-    "RoleRevoked(bytes4,address,address)": EventFragment;
-    "SeriesMatured(uint256)": EventFragment;
-    "Transfer(address,address,uint256)": EventFragment;
+    'Approval(address,address,uint256)': EventFragment;
+    'OracleSet(address)': EventFragment;
+    'Redeemed(address,address,uint256,uint256)': EventFragment;
+    'RoleAdminChanged(bytes4,bytes4)': EventFragment;
+    'RoleGranted(bytes4,address,address)': EventFragment;
+    'RoleRevoked(bytes4,address,address)': EventFragment;
+    'SeriesMatured(uint256)': EventFragment;
+    'Transfer(address,address,uint256)': EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "OracleSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Redeemed"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RoleRevoked"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "SeriesMatured"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Approval'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'OracleSet'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Redeemed'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'RoleAdminChanged'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'RoleGranted'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'RoleRevoked'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'SeriesMatured'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Transfer'): EventFragment;
 }
 
 export class FYToken extends BaseContract {
@@ -343,15 +224,9 @@ export class FYToken extends BaseContract {
 
     ROOT(overrides?: CallOverrides): Promise<[string]>;
 
-    accrual(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    accrual(overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
 
-    allowance(
-      owner: string,
-      spender: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    allowance(owner: string, spender: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
     approve(
       spender: string,
@@ -373,11 +248,7 @@ export class FYToken extends BaseContract {
 
     deploymentChainId(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    flashFee(
-      token: string,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    flashFee(token: string, arg1: BigNumberish, overrides?: CallOverrides): Promise<[BigNumber]>;
 
     flashLoan(
       receiver: string,
@@ -401,11 +272,7 @@ export class FYToken extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    hasRole(
-      role: BytesLike,
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
+    hasRole(role: BytesLike, account: string, overrides?: CallOverrides): Promise<[boolean]>;
 
     join(overrides?: CallOverrides): Promise<[string]>;
 
@@ -414,16 +281,11 @@ export class FYToken extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    mature(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    mature(overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
 
     maturity(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    maxFlashLoan(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    maxFlashLoan(token: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
     mint(
       to: string,
@@ -515,15 +377,9 @@ export class FYToken extends BaseContract {
 
   ROOT(overrides?: CallOverrides): Promise<string>;
 
-  accrual(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  accrual(overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
 
-  allowance(
-    owner: string,
-    spender: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  allowance(owner: string, spender: string, overrides?: CallOverrides): Promise<BigNumber>;
 
   approve(
     spender: string,
@@ -545,11 +401,7 @@ export class FYToken extends BaseContract {
 
   deploymentChainId(overrides?: CallOverrides): Promise<BigNumber>;
 
-  flashFee(
-    token: string,
-    arg1: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  flashFee(token: string, arg1: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
   flashLoan(
     receiver: string,
@@ -573,22 +425,13 @@ export class FYToken extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  hasRole(
-    role: BytesLike,
-    account: string,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
+  hasRole(role: BytesLike, account: string, overrides?: CallOverrides): Promise<boolean>;
 
   join(overrides?: CallOverrides): Promise<string>;
 
-  lockRole(
-    role: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  lockRole(role: BytesLike, overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
 
-  mature(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  mature(overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
 
   maturity(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -641,10 +484,7 @@ export class FYToken extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  setOracle(
-    oracle_: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  setOracle(oracle_: string, overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
 
   setRoleAdmin(
     role: BytesLike,
@@ -686,25 +526,13 @@ export class FYToken extends BaseContract {
 
     accrual(overrides?: CallOverrides): Promise<BigNumber>;
 
-    allowance(
-      owner: string,
-      spender: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    allowance(owner: string, spender: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    approve(
-      spender: string,
-      wad: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    approve(spender: string, wad: BigNumberish, overrides?: CallOverrides): Promise<boolean>;
 
     balanceOf(guy: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    burn(
-      from: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    burn(from: string, amount: BigNumberish, overrides?: CallOverrides): Promise<void>;
 
     chiAtMaturity(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -712,11 +540,7 @@ export class FYToken extends BaseContract {
 
     deploymentChainId(overrides?: CallOverrides): Promise<BigNumber>;
 
-    flashFee(
-      token: string,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    flashFee(token: string, arg1: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
     flashLoan(
       receiver: string,
@@ -728,23 +552,11 @@ export class FYToken extends BaseContract {
 
     getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
 
-    grantRole(
-      role: BytesLike,
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    grantRole(role: BytesLike, account: string, overrides?: CallOverrides): Promise<void>;
 
-    grantRoles(
-      roles: BytesLike[],
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    grantRoles(roles: BytesLike[], account: string, overrides?: CallOverrides): Promise<void>;
 
-    hasRole(
-      role: BytesLike,
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    hasRole(role: BytesLike, account: string, overrides?: CallOverrides): Promise<boolean>;
 
     join(overrides?: CallOverrides): Promise<string>;
 
@@ -756,11 +568,7 @@ export class FYToken extends BaseContract {
 
     maxFlashLoan(token: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    mint(
-      to: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    mint(to: string, amount: BigNumberish, overrides?: CallOverrides): Promise<void>;
 
     name(overrides?: CallOverrides): Promise<string>;
 
@@ -779,54 +587,25 @@ export class FYToken extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    redeem(
-      to: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    redeem(to: string, amount: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
-    renounceRole(
-      role: BytesLike,
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    renounceRole(role: BytesLike, account: string, overrides?: CallOverrides): Promise<void>;
 
-    revokeRole(
-      role: BytesLike,
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    revokeRole(role: BytesLike, account: string, overrides?: CallOverrides): Promise<void>;
 
-    revokeRoles(
-      roles: BytesLike[],
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    revokeRoles(roles: BytesLike[], account: string, overrides?: CallOverrides): Promise<void>;
 
     setOracle(oracle_: string, overrides?: CallOverrides): Promise<void>;
 
-    setRoleAdmin(
-      role: BytesLike,
-      adminRole: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    setRoleAdmin(role: BytesLike, adminRole: BytesLike, overrides?: CallOverrides): Promise<void>;
 
     symbol(overrides?: CallOverrides): Promise<string>;
 
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
-    transfer(
-      dst: string,
-      wad: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    transfer(dst: string, wad: BigNumberish, overrides?: CallOverrides): Promise<boolean>;
 
-    transferFrom(
-      src: string,
-      dst: string,
-      wad: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    transferFrom(src: string, dst: string, wad: BigNumberish, overrides?: CallOverrides): Promise<boolean>;
 
     underlying(overrides?: CallOverrides): Promise<string>;
 
@@ -840,14 +619,9 @@ export class FYToken extends BaseContract {
       owner?: string | null,
       spender?: string | null,
       value?: null
-    ): TypedEventFilter<
-      [string, string, BigNumber],
-      { owner: string; spender: string; value: BigNumber }
-    >;
+    ): TypedEventFilter<[string, string, BigNumber], { owner: string; spender: string; value: BigNumber }>;
 
-    OracleSet(
-      oracle?: string | null
-    ): TypedEventFilter<[string], { oracle: string }>;
+    OracleSet(oracle?: string | null): TypedEventFilter<[string], { oracle: string }>;
 
     Redeemed(
       from?: string | null,
@@ -862,41 +636,27 @@ export class FYToken extends BaseContract {
     RoleAdminChanged(
       role?: BytesLike | null,
       newAdminRole?: BytesLike | null
-    ): TypedEventFilter<
-      [string, string],
-      { role: string; newAdminRole: string }
-    >;
+    ): TypedEventFilter<[string, string], { role: string; newAdminRole: string }>;
 
     RoleGranted(
       role?: BytesLike | null,
       account?: string | null,
       sender?: string | null
-    ): TypedEventFilter<
-      [string, string, string],
-      { role: string; account: string; sender: string }
-    >;
+    ): TypedEventFilter<[string, string, string], { role: string; account: string; sender: string }>;
 
     RoleRevoked(
       role?: BytesLike | null,
       account?: string | null,
       sender?: string | null
-    ): TypedEventFilter<
-      [string, string, string],
-      { role: string; account: string; sender: string }
-    >;
+    ): TypedEventFilter<[string, string, string], { role: string; account: string; sender: string }>;
 
-    SeriesMatured(
-      chiAtMaturity?: null
-    ): TypedEventFilter<[BigNumber], { chiAtMaturity: BigNumber }>;
+    SeriesMatured(chiAtMaturity?: null): TypedEventFilter<[BigNumber], { chiAtMaturity: BigNumber }>;
 
     Transfer(
       from?: string | null,
       to?: string | null,
       value?: null
-    ): TypedEventFilter<
-      [string, string, BigNumber],
-      { from: string; to: string; value: BigNumber }
-    >;
+    ): TypedEventFilter<[string, string, BigNumber], { from: string; to: string; value: BigNumber }>;
   };
 
   estimateGas: {
@@ -908,15 +668,9 @@ export class FYToken extends BaseContract {
 
     ROOT(overrides?: CallOverrides): Promise<BigNumber>;
 
-    accrual(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    accrual(overrides?: Overrides & { from?: string | Promise<string> }): Promise<BigNumber>;
 
-    allowance(
-      owner: string,
-      spender: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    allowance(owner: string, spender: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     approve(
       spender: string,
@@ -938,11 +692,7 @@ export class FYToken extends BaseContract {
 
     deploymentChainId(overrides?: CallOverrides): Promise<BigNumber>;
 
-    flashFee(
-      token: string,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    flashFee(token: string, arg1: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
     flashLoan(
       receiver: string,
@@ -952,10 +702,7 @@ export class FYToken extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    getRoleAdmin(
-      role: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
 
     grantRole(
       role: BytesLike,
@@ -969,22 +716,13 @@ export class FYToken extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    hasRole(
-      role: BytesLike,
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    hasRole(role: BytesLike, account: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     join(overrides?: CallOverrides): Promise<BigNumber>;
 
-    lockRole(
-      role: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    lockRole(role: BytesLike, overrides?: Overrides & { from?: string | Promise<string> }): Promise<BigNumber>;
 
-    mature(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    mature(overrides?: Overrides & { from?: string | Promise<string> }): Promise<BigNumber>;
 
     maturity(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1037,10 +775,7 @@ export class FYToken extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    setOracle(
-      oracle_: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    setOracle(oracle_: string, overrides?: Overrides & { from?: string | Promise<string> }): Promise<BigNumber>;
 
     setRoleAdmin(
       role: BytesLike,
@@ -1081,15 +816,9 @@ export class FYToken extends BaseContract {
 
     ROOT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    accrual(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
+    accrual(overrides?: Overrides & { from?: string | Promise<string> }): Promise<PopulatedTransaction>;
 
-    allowance(
-      owner: string,
-      spender: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    allowance(owner: string, spender: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     approve(
       spender: string,
@@ -1097,10 +826,7 @@ export class FYToken extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    balanceOf(
-      guy: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    balanceOf(guy: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     burn(
       from: string,
@@ -1114,11 +840,7 @@ export class FYToken extends BaseContract {
 
     deploymentChainId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    flashFee(
-      token: string,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    flashFee(token: string, arg1: BigNumberish, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     flashLoan(
       receiver: string,
@@ -1128,10 +850,7 @@ export class FYToken extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    getRoleAdmin(
-      role: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     grantRole(
       role: BytesLike,
@@ -1145,11 +864,7 @@ export class FYToken extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    hasRole(
-      role: BytesLike,
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    hasRole(role: BytesLike, account: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     join(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1158,16 +873,11 @@ export class FYToken extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    mature(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
+    mature(overrides?: Overrides & { from?: string | Promise<string> }): Promise<PopulatedTransaction>;
 
     maturity(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    maxFlashLoan(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    maxFlashLoan(token: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     mint(
       to: string,
@@ -1177,10 +887,7 @@ export class FYToken extends BaseContract {
 
     name(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    nonces(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    nonces(arg0: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     oracle(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

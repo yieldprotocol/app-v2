@@ -2,274 +2,274 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import { Provider } from "@ethersproject/providers";
-import type { AccessControl, AccessControlInterface } from "../AccessControl";
+import { Contract, Signer, utils } from 'ethers';
+import { Provider } from '@ethersproject/providers';
+import type { AccessControl, AccessControlInterface } from '../AccessControl';
 
 const _abi = [
   {
     inputs: [],
-    stateMutability: "nonpayable",
-    type: "constructor",
+    stateMutability: 'nonpayable',
+    type: 'constructor',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        internalType: "bytes4",
-        name: "role",
-        type: "bytes4",
+        internalType: 'bytes4',
+        name: 'role',
+        type: 'bytes4',
       },
       {
         indexed: true,
-        internalType: "bytes4",
-        name: "newAdminRole",
-        type: "bytes4",
+        internalType: 'bytes4',
+        name: 'newAdminRole',
+        type: 'bytes4',
       },
     ],
-    name: "RoleAdminChanged",
-    type: "event",
+    name: 'RoleAdminChanged',
+    type: 'event',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        internalType: "bytes4",
-        name: "role",
-        type: "bytes4",
+        internalType: 'bytes4',
+        name: 'role',
+        type: 'bytes4',
       },
       {
         indexed: true,
-        internalType: "address",
-        name: "account",
-        type: "address",
+        internalType: 'address',
+        name: 'account',
+        type: 'address',
       },
       {
         indexed: true,
-        internalType: "address",
-        name: "sender",
-        type: "address",
+        internalType: 'address',
+        name: 'sender',
+        type: 'address',
       },
     ],
-    name: "RoleGranted",
-    type: "event",
+    name: 'RoleGranted',
+    type: 'event',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        internalType: "bytes4",
-        name: "role",
-        type: "bytes4",
+        internalType: 'bytes4',
+        name: 'role',
+        type: 'bytes4',
       },
       {
         indexed: true,
-        internalType: "address",
-        name: "account",
-        type: "address",
+        internalType: 'address',
+        name: 'account',
+        type: 'address',
       },
       {
         indexed: true,
-        internalType: "address",
-        name: "sender",
-        type: "address",
+        internalType: 'address',
+        name: 'sender',
+        type: 'address',
       },
     ],
-    name: "RoleRevoked",
-    type: "event",
+    name: 'RoleRevoked',
+    type: 'event',
   },
   {
     inputs: [],
-    name: "LOCK",
+    name: 'LOCK',
     outputs: [
       {
-        internalType: "bytes4",
-        name: "",
-        type: "bytes4",
+        internalType: 'bytes4',
+        name: '',
+        type: 'bytes4',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "ROOT",
+    name: 'ROOT',
     outputs: [
       {
-        internalType: "bytes4",
-        name: "",
-        type: "bytes4",
+        internalType: 'bytes4',
+        name: '',
+        type: 'bytes4',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "bytes4",
-        name: "role",
-        type: "bytes4",
+        internalType: 'bytes4',
+        name: 'role',
+        type: 'bytes4',
       },
     ],
-    name: "getRoleAdmin",
+    name: 'getRoleAdmin',
     outputs: [
       {
-        internalType: "bytes4",
-        name: "",
-        type: "bytes4",
+        internalType: 'bytes4',
+        name: '',
+        type: 'bytes4',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "bytes4",
-        name: "role",
-        type: "bytes4",
+        internalType: 'bytes4',
+        name: 'role',
+        type: 'bytes4',
       },
       {
-        internalType: "address",
-        name: "account",
-        type: "address",
+        internalType: 'address',
+        name: 'account',
+        type: 'address',
       },
     ],
-    name: "grantRole",
+    name: 'grantRole',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "bytes4[]",
-        name: "roles",
-        type: "bytes4[]",
+        internalType: 'bytes4[]',
+        name: 'roles',
+        type: 'bytes4[]',
       },
       {
-        internalType: "address",
-        name: "account",
-        type: "address",
+        internalType: 'address',
+        name: 'account',
+        type: 'address',
       },
     ],
-    name: "grantRoles",
+    name: 'grantRoles',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "bytes4",
-        name: "role",
-        type: "bytes4",
+        internalType: 'bytes4',
+        name: 'role',
+        type: 'bytes4',
       },
       {
-        internalType: "address",
-        name: "account",
-        type: "address",
+        internalType: 'address',
+        name: 'account',
+        type: 'address',
       },
     ],
-    name: "hasRole",
+    name: 'hasRole',
     outputs: [
       {
-        internalType: "bool",
-        name: "",
-        type: "bool",
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "bytes4",
-        name: "role",
-        type: "bytes4",
+        internalType: 'bytes4',
+        name: 'role',
+        type: 'bytes4',
       },
     ],
-    name: "lockRole",
+    name: 'lockRole',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "bytes4",
-        name: "role",
-        type: "bytes4",
+        internalType: 'bytes4',
+        name: 'role',
+        type: 'bytes4',
       },
       {
-        internalType: "address",
-        name: "account",
-        type: "address",
+        internalType: 'address',
+        name: 'account',
+        type: 'address',
       },
     ],
-    name: "renounceRole",
+    name: 'renounceRole',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "bytes4",
-        name: "role",
-        type: "bytes4",
+        internalType: 'bytes4',
+        name: 'role',
+        type: 'bytes4',
       },
       {
-        internalType: "address",
-        name: "account",
-        type: "address",
+        internalType: 'address',
+        name: 'account',
+        type: 'address',
       },
     ],
-    name: "revokeRole",
+    name: 'revokeRole',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "bytes4[]",
-        name: "roles",
-        type: "bytes4[]",
+        internalType: 'bytes4[]',
+        name: 'roles',
+        type: 'bytes4[]',
       },
       {
-        internalType: "address",
-        name: "account",
-        type: "address",
+        internalType: 'address',
+        name: 'account',
+        type: 'address',
       },
     ],
-    name: "revokeRoles",
+    name: 'revokeRoles',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "bytes4",
-        name: "role",
-        type: "bytes4",
+        internalType: 'bytes4',
+        name: 'role',
+        type: 'bytes4',
       },
       {
-        internalType: "bytes4",
-        name: "adminRole",
-        type: "bytes4",
+        internalType: 'bytes4',
+        name: 'adminRole',
+        type: 'bytes4',
       },
     ],
-    name: "setRoleAdmin",
+    name: 'setRoleAdmin',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
 ];
 
@@ -278,10 +278,7 @@ export class AccessControl__factory {
   static createInterface(): AccessControlInterface {
     return new utils.Interface(_abi) as AccessControlInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): AccessControl {
+  static connect(address: string, signerOrProvider: Signer | Provider): AccessControl {
     return new Contract(address, _abi, signerOrProvider) as AccessControl;
   }
 }
