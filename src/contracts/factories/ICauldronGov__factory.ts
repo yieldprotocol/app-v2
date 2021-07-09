@@ -2,222 +2,222 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import { Provider } from "@ethersproject/providers";
-import type { ICauldronGov, ICauldronGovInterface } from "../ICauldronGov";
+import { Contract, Signer, utils } from 'ethers';
+import { Provider } from '@ethersproject/providers';
+import type { ICauldronGov, ICauldronGovInterface } from '../ICauldronGov';
 
 const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes6",
-        name: "",
-        type: "bytes6",
+        internalType: 'bytes6',
+        name: '',
+        type: 'bytes6',
       },
       {
-        internalType: "address",
-        name: "",
-        type: "address",
+        internalType: 'address',
+        name: '',
+        type: 'address',
       },
     ],
-    name: "addAsset",
+    name: 'addAsset',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "bytes6",
-        name: "",
-        type: "bytes6",
+        internalType: 'bytes6',
+        name: '',
+        type: 'bytes6',
       },
       {
-        internalType: "bytes6[]",
-        name: "",
-        type: "bytes6[]",
+        internalType: 'bytes6[]',
+        name: '',
+        type: 'bytes6[]',
       },
     ],
-    name: "addIlks",
+    name: 'addIlks',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "bytes6",
-        name: "",
-        type: "bytes6",
+        internalType: 'bytes6',
+        name: '',
+        type: 'bytes6',
       },
       {
-        internalType: "bytes6",
-        name: "",
-        type: "bytes6",
+        internalType: 'bytes6',
+        name: '',
+        type: 'bytes6',
       },
       {
-        internalType: "contract IFYToken",
-        name: "",
-        type: "address",
+        internalType: 'contract IFYToken',
+        name: '',
+        type: 'address',
       },
     ],
-    name: "addSeries",
+    name: 'addSeries',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "bytes6",
-        name: "",
-        type: "bytes6",
+        internalType: 'bytes6',
+        name: '',
+        type: 'bytes6',
       },
     ],
-    name: "assets",
+    name: 'assets',
     outputs: [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
+        internalType: 'address',
+        name: '',
+        type: 'address',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "bytes6",
-        name: "",
-        type: "bytes6",
+        internalType: 'bytes6',
+        name: '',
+        type: 'bytes6',
       },
     ],
-    name: "rateOracles",
+    name: 'rateOracles',
     outputs: [
       {
-        internalType: "contract IOracle",
-        name: "",
-        type: "address",
+        internalType: 'contract IOracle',
+        name: '',
+        type: 'address',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "bytes6",
-        name: "",
-        type: "bytes6",
+        internalType: 'bytes6',
+        name: '',
+        type: 'bytes6',
       },
     ],
-    name: "series",
+    name: 'series',
     outputs: [
       {
         components: [
           {
-            internalType: "contract IFYToken",
-            name: "fyToken",
-            type: "address",
+            internalType: 'contract IFYToken',
+            name: 'fyToken',
+            type: 'address',
           },
           {
-            internalType: "bytes6",
-            name: "baseId",
-            type: "bytes6",
+            internalType: 'bytes6',
+            name: 'baseId',
+            type: 'bytes6',
           },
           {
-            internalType: "uint32",
-            name: "maturity",
-            type: "uint32",
+            internalType: 'uint32',
+            name: 'maturity',
+            type: 'uint32',
           },
         ],
-        internalType: "struct DataTypes.Series",
-        name: "",
-        type: "tuple",
+        internalType: 'struct DataTypes.Series',
+        name: '',
+        type: 'tuple',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "bytes6",
-        name: "",
-        type: "bytes6",
+        internalType: 'bytes6',
+        name: '',
+        type: 'bytes6',
       },
       {
-        internalType: "bytes6",
-        name: "",
-        type: "bytes6",
+        internalType: 'bytes6',
+        name: '',
+        type: 'bytes6',
       },
       {
-        internalType: "uint96",
-        name: "",
-        type: "uint96",
+        internalType: 'uint96',
+        name: '',
+        type: 'uint96',
       },
       {
-        internalType: "uint24",
-        name: "",
-        type: "uint24",
+        internalType: 'uint24',
+        name: '',
+        type: 'uint24',
       },
       {
-        internalType: "uint8",
-        name: "",
-        type: "uint8",
+        internalType: 'uint8',
+        name: '',
+        type: 'uint8',
       },
     ],
-    name: "setDebtLimits",
+    name: 'setDebtLimits',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "bytes6",
-        name: "",
-        type: "bytes6",
+        internalType: 'bytes6',
+        name: '',
+        type: 'bytes6',
       },
       {
-        internalType: "contract IOracle",
-        name: "",
-        type: "address",
+        internalType: 'contract IOracle',
+        name: '',
+        type: 'address',
       },
     ],
-    name: "setRateOracle",
+    name: 'setRateOracle',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "bytes6",
-        name: "",
-        type: "bytes6",
+        internalType: 'bytes6',
+        name: '',
+        type: 'bytes6',
       },
       {
-        internalType: "bytes6",
-        name: "",
-        type: "bytes6",
+        internalType: 'bytes6',
+        name: '',
+        type: 'bytes6',
       },
       {
-        internalType: "contract IOracle",
-        name: "",
-        type: "address",
+        internalType: 'contract IOracle',
+        name: '',
+        type: 'address',
       },
       {
-        internalType: "uint32",
-        name: "",
-        type: "uint32",
+        internalType: 'uint32',
+        name: '',
+        type: 'uint32',
       },
     ],
-    name: "setSpotOracle",
+    name: 'setSpotOracle',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
 ];
 
@@ -226,10 +226,7 @@ export class ICauldronGov__factory {
   static createInterface(): ICauldronGovInterface {
     return new utils.Interface(_abi) as ICauldronGovInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): ICauldronGov {
+  static connect(address: string, signerOrProvider: Signer | Provider): ICauldronGov {
     return new Contract(address, _abi, signerOrProvider) as ICauldronGov;
   }
 }

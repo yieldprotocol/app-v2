@@ -2,36 +2,33 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import { Provider } from "@ethersproject/providers";
-import type {
-  IMultiOracleGov,
-  IMultiOracleGovInterface,
-} from "../IMultiOracleGov";
+import { Contract, Signer, utils } from 'ethers';
+import { Provider } from '@ethersproject/providers';
+import type { IMultiOracleGov, IMultiOracleGovInterface } from '../IMultiOracleGov';
 
 const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes6",
-        name: "",
-        type: "bytes6",
+        internalType: 'bytes6',
+        name: '',
+        type: 'bytes6',
       },
       {
-        internalType: "bytes6",
-        name: "",
-        type: "bytes6",
+        internalType: 'bytes6',
+        name: '',
+        type: 'bytes6',
       },
       {
-        internalType: "address",
-        name: "",
-        type: "address",
+        internalType: 'address',
+        name: '',
+        type: 'address',
       },
     ],
-    name: "setSource",
+    name: 'setSource',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
 ];
 
@@ -40,10 +37,7 @@ export class IMultiOracleGov__factory {
   static createInterface(): IMultiOracleGovInterface {
     return new utils.Interface(_abi) as IMultiOracleGovInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): IMultiOracleGov {
+  static connect(address: string, signerOrProvider: Signer | Provider): IMultiOracleGov {
     return new Contract(address, _abi, signerOrProvider) as IMultiOracleGov;
   }
 }

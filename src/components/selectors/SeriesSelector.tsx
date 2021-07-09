@@ -1,13 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import {
-  Avatar,
-  Box,
-  ResponsiveContext,
-  Select,
-  Stack,
-  Text,
-  ThemeContext,
-} from 'grommet';
+import { Avatar, Box, ResponsiveContext, Select, Stack, Text, ThemeContext } from 'grommet';
 
 import { ethers } from 'ethers';
 import styled from 'styled-components';
@@ -55,9 +47,7 @@ interface ISeriesSelectorProps {
   selectSeriesLocally?: (
     series: ISeries
   ) => void /* select series locally filters out the global selection from the list and returns the selected ISeries */;
-  inputValue?:
-  | string
-  | undefined /* accepts an inpout value for dynamic APR calculations */;
+  inputValue?: string | undefined /* accepts an inpout value for dynamic APR calculations */;
   cardLayout?: boolean;
 }
 
@@ -77,11 +67,7 @@ const AprText = ({
   const [limitHit, setLimitHit] = useState<boolean>(false);
 
   useEffect(() => {
-    if (
-      !series?.seriesIsMature &&
-      inputValue &&
-      ethers.utils.parseEther(inputValue).gt(series.baseReserves)
-    ) {
+    if (!series?.seriesIsMature && inputValue && ethers.utils.parseEther(inputValue).gt(series.baseReserves)) {
       setLimitHit(true);
     } else {
       setLimitHit(false);
@@ -96,14 +82,11 @@ const AprText = ({
         </Text>
       )}
 
-      {actionType !== ActionType.POOL &&
-        !limitHit &&
-        !series?.seriesIsMature &&
-        inputValue && (
-          <Text size="small">
-            {' '}
-            {apr}% <Text size="xsmall">APR</Text>
-          </Text>
+      {actionType !== ActionType.POOL && !limitHit && !series?.seriesIsMature && inputValue && (
+        <Text size="small">
+          {' '}
+          {apr}% <Text size="xsmall">APR</Text>
+        </Text>
       )}
 
       {actionType !== ActionType.POOL && limitHit && (
@@ -115,8 +98,7 @@ const AprText = ({
 
       {actionType === ActionType.POOL && !series.seriesIsMature && !inputValue && (
         <Text size="small">
-          {nFormatter(parseFloat(series?.totalSupply_), 2)}{' '}
-          <Text size="xsmall"> liquidity </Text>
+          {nFormatter(parseFloat(series?.totalSupply_), 2)} <Text size="xsmall"> liquidity </Text>
         </Text>
       )}
 
@@ -124,11 +106,8 @@ const AprText = ({
         // TODO fix this asap - use a pool hook
         <Text size="xsmall">
           {' '}
-          {nFormatter(
-            (parseFloat(inputValue) / parseFloat(series?.totalSupply_)) * 100,
-            2,
-          )}{' '}
-          % <Text size="xsmall">of Pool</Text>
+          {nFormatter((parseFloat(inputValue) / parseFloat(series?.totalSupply_)) * 100, 2)} %{' '}
+          <Text size="xsmall">of Pool</Text>
         </Text>
       )}
 
@@ -141,12 +120,7 @@ const AprText = ({
   );
 };
 
-function SeriesSelector({
-  selectSeriesLocally,
-  inputValue,
-  actionType,
-  cardLayout,
-}: ISeriesSelectorProps) {
+function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayout }: ISeriesSelectorProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const { userState, userActions } = useContext(UserContext);
@@ -154,9 +128,7 @@ function SeriesSelector({
   const [localSeries, setLocalSeries] = useState<ISeries | null>();
   const [options, setOptions] = useState<ISeries[]>([]);
 
-  const selectedSeries = selectSeriesLocally
-    ? localSeries
-    : seriesMap.get(selectedSeriesId!);
+  const selectedSeries = selectSeriesLocally ? localSeries : seriesMap.get(selectedSeriesId!);
   const selectedBase = assetMap.get(selectedBaseId!);
 
   // const { apr } = useApr(inputValue, 'BORROW', selectedSeries);
@@ -177,13 +149,7 @@ function SeriesSelector({
           <Text size="xsmall"> Mature </Text>
         </Box>
       )}
-      {_series && actionType !== 'POOL' && (
-        <AprText
-          inputValue={inputValue}
-          series={_series}
-          actionType={actionType}
-        />
-      )}
+      {_series && actionType !== 'POOL' && <AprText inputValue={inputValue} series={_series} actionType={actionType} />}
     </Box>
   );
 
@@ -199,29 +165,19 @@ function SeriesSelector({
 
     /* if required, filter out the globally selected asset  and */
     if (selectSeriesLocally) {
-      filteredOpts = filteredOpts.filter(
-        (_series: ISeries) => _series.id !== selectedSeriesId,
-      );
+      filteredOpts = filteredOpts.filter((_series: ISeries) => _series.id !== selectedSeriesId);
     }
 
     /* if current selected series is NOT in the list of available series (for a particular base), or bases don't match:
     set the selected series to null. */
     if (
       selectedSeries &&
-      (filteredOpts.findIndex(
-        (_series: ISeries) => _series.id !== selectedSeriesId,
-      ) < 0 ||
+      (filteredOpts.findIndex((_series: ISeries) => _series.id !== selectedSeriesId) < 0 ||
         selectedSeries.baseId !== selectedBaseId)
     ) userActions.setSelectedSeries(null);
 
     setOptions(filteredOpts);
-  }, [
-    seriesMap,
-    selectedBase,
-    selectSeriesLocally,
-    selectedSeries,
-    userActions,
-  ]);
+  }, [seriesMap, selectedBase, selectSeriesLocally, selectedSeries, userActions]);
 
   const handleSelect = (_series: ISeries) => {
     if (!selectSeriesLocally) {
@@ -262,11 +218,7 @@ function SeriesSelector({
             onChange={({ option }: any) => handleSelect(option)}
             // eslint-disable-next-line react/no-children-prop
             children={(x: any) => (
-              <Box
-                pad={mobile ? 'medium' : 'small'}
-                gap="small"
-                direction="row"
-              >
+              <Box pad={mobile ? 'medium' : 'small'} gap="small" direction="row">
                 {' '}
                 <Text color="text"> {optionExtended(x)}</Text>{' '}
               </Box>
@@ -276,13 +228,7 @@ function SeriesSelector({
       )}
 
       {cardLayout && (
-        <Box
-          direction="row-responsive"
-          gap="small"
-          fill
-          justify="evenly"
-          pad={{ vertical: 'small' }}
-        >
+        <Box direction="row-responsive" gap="small" fill justify="evenly" pad={{ vertical: 'small' }}>
           {options.map((series: ISeries) => (
             <StyledBox
               // border={series.id === selectedSeriesId}
@@ -290,43 +236,19 @@ function SeriesSelector({
               pad="xsmall"
               round="xsmall"
               onClick={() => handleSelect(series)}
-              background={
-                series.id === selectedSeriesId ? series?.color : undefined
-              }
+              background={series.id === selectedSeriesId ? series?.color : undefined}
               elevation="xsmall"
               align="center"
             >
-              <Box
-                pad="small"
-                width="small"
-                direction="row"
-                align="center"
-                gap="small"
-              >
+              <Box pad="small" width="small" direction="row" align="center" gap="small">
                 <Avatar background="#FFF"> {series.seriesMark}</Avatar>
 
                 <Box>
-                  <Text
-                    color={
-                      series.id === selectedSeriesId
-                        ? series.textColor
-                        : undefined
-                    }
-                  >
+                  <Text color={series.id === selectedSeriesId ? series.textColor : undefined}>
                     {series.displayNameMobile}
                   </Text>
-                  <Text
-                    color={
-                      series.id === selectedSeriesId
-                        ? series.textColor
-                        : undefined
-                    }
-                  >
-                    <AprText
-                      inputValue={inputValue}
-                      series={series}
-                      actionType={actionType}
-                    />
+                  <Text color={series.id === selectedSeriesId ? series.textColor : undefined}>
+                    <AprText inputValue={inputValue} series={series} actionType={actionType} />
                   </Text>
                 </Box>
               </Box>

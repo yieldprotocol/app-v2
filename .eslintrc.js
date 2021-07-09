@@ -57,6 +57,9 @@ module.exports = {
     'react/destructuring-assignment': 'off',
     'no-underscore-dangle': 'off',
 
+    'brace-style': 'off',
+    '@typescript-eslint/brace-style': ['error'],
+
     // remove below to check before prod:
     'no-console': 'off',
   },

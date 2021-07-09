@@ -1,13 +1,7 @@
 import React, { useContext } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import styled, { CSSProperties } from 'styled-components';
-import {
-  Text,
-  Box,
-  ThemeContext,
-  ResponsiveContext,
-  Layer,
-} from 'grommet';
+import { Text, Box, ThemeContext, ResponsiveContext, Layer } from 'grommet';
 
 const StyledLink = styled(NavLink)`
   text-decoration: none;
@@ -31,7 +25,7 @@ const StyledLink = styled(NavLink)`
 `;
 
 const YieldMobileNavigation = (props: any) => {
-  const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
+  const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const loc = useLocation();
 
   const theme = useContext<any>(ThemeContext);
@@ -49,40 +43,30 @@ const YieldMobileNavigation = (props: any) => {
     { label: 'Lend', to: '/lend', isActive: true },
     { label: 'Pool', to: '/pool', isActive: true },
     { label: 'Markets', to: '/markets', isActive: false },
-
   ];
 
   return (
-
     <>
-      {
-        !mobile &&
-        <Box
-          direction="row"
-          gap="medium"
-          align="center"
-          justify="center"
-        >
-          { linksArr.map((x: any) => (
+      {!mobile && (
+        <Box direction="row" gap="medium" align="center" justify="center">
+          {linksArr.map((x: any) => (
             <StyledLink to={x.to} activeStyle={activeStyle} key={x.label}>
               <Text> {x.label} </Text>
             </StyledLink>
           ))}
         </Box>
-      }
-      {
-        mobile &&
+      )}
+      {mobile && (
         <Layer>
           <Box align="center">
-            { linksArr.map((x: any) => (
+            {linksArr.map((x: any) => (
               <NavLink to={x.to} activeStyle={activeStyle} key={x.label}>
                 <Text> {x.label} </Text>
               </NavLink>
             ))}
           </Box>
         </Layer>
-      }
-
+      )}
     </>
   );
 };

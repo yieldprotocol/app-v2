@@ -2,7 +2,7 @@ import { format, getMonth, subDays } from 'date-fns';
 import Identicon, { IdenticonOptions } from 'identicon.js';
 import { ActionCodes } from '../types';
 
-export const copyToClipboard = (str:string) => {
+export const copyToClipboard = (str: string) => {
   const el = document.createElement('textarea');
   el.value = str;
   document.body.appendChild(el);
@@ -17,7 +17,7 @@ export const copyToClipboard = (str:string) => {
  * @param n current bytes value eg. bytes6 or bytes12
  * @returns string bytes32
  */
-export function bytesToBytes32(x: string, n:number): string {
+export function bytesToBytes32(x: string, n: number): string {
   return x + '00'.repeat(32 - n);
 }
 
@@ -28,7 +28,7 @@ export const toLog = (message: string, type: string = 'info') => {
 };
 
 /* creates internal tracking code of a transaction type */
-export const getTxCode = (txType: ActionCodes, vaultOrSeriesId:string|null) => `${txType}_${vaultOrSeriesId}`;
+export const getTxCode = (txType: ActionCodes, vaultOrSeriesId: string | null) => `${txType}_${vaultOrSeriesId}`;
 
 // /* google analytics log event */
 // export const analyticsLogEvent = (eventName: string, eventParams: any ) => {
@@ -49,20 +49,27 @@ export enum SeasonType {
   SUMMER = 'SUMMER',
   FALL = 'FALL',
 }
-export const getSeason = (dateInSecs:number) : SeasonType => {
-  const month:number = getMonth(new Date(dateInSecs * 1000));
+export const getSeason = (dateInSecs: number): SeasonType => {
+  const month: number = getMonth(new Date(dateInSecs * 1000));
   const seasons = [
-    SeasonType.WINTER, SeasonType.WINTER,
-    SeasonType.SPRING, SeasonType.SPRING, SeasonType.SPRING,
-    SeasonType.SUMMER, SeasonType.SUMMER, SeasonType.SUMMER,
-    SeasonType.FALL, SeasonType.FALL, SeasonType.FALL,
+    SeasonType.WINTER,
+    SeasonType.WINTER,
+    SeasonType.SPRING,
+    SeasonType.SPRING,
+    SeasonType.SPRING,
+    SeasonType.SUMMER,
+    SeasonType.SUMMER,
+    SeasonType.SUMMER,
+    SeasonType.FALL,
+    SeasonType.FALL,
+    SeasonType.FALL,
     SeasonType.WINTER,
   ];
   return seasons[month];
 };
 
 /* Trunctate a string value to a certain number of 'decimal' point */
-export const cleanValue = (input:string|undefined, decimals:number = 12) => {
+export const cleanValue = (input: string | undefined, decimals: number = 12) => {
   const re = new RegExp(`(\\d+\\.\\d{${decimals}})(\\d)`);
 
   if (input !== undefined) {
@@ -76,16 +83,19 @@ export const cleanValue = (input:string|undefined, decimals:number = 12) => {
 };
 
 /* handle Address/hash shortening */
-export const abbreviateHash = (addr:string, buffer:number = 4) => `${addr?.substring(0, buffer)}...${addr?.substring(addr.length - buffer)}`;
+export const abbreviateHash = (addr: string, buffer: number = 4) =>
+  `${addr?.substring(0, buffer)}...${addr?.substring(addr.length - buffer)}`;
 
 /**
  *
  * Generate the series name from the maturity number.
  * Examples: full (defualt) : 'MMMM yyyy' ,  apr badge  : 'MMM yy' , mobile: 'MMM yyyy'
+ * NOTE: subtraction used to accuount for time zone differences
  * */
-export const nameFromMaturity = (maturity: number, style:string = 'MMMM yyyy') => format(subDays(new Date(maturity * 1000), 2), style);
+export const nameFromMaturity = (maturity: number, style: string = 'MMMM yyyy') =>
+  format(subDays(new Date(maturity * 1000), 2), style);
 
-export const genVaultImage = (id:string) => {
+export const genVaultImage = (id: string) => {
   const options = {
     foreground: [0, 0, 255, 255], // rgba black
     background: [255, 255, 255, 255], // rgba white
@@ -98,17 +108,17 @@ export const genVaultImage = (id:string) => {
 };
 
 /**
-   * Number formatting if reqd.
-   * */
-export const nFormatter = (num:number, digits:number) => {
+ * Number formatting if reqd.
+ * */
+export const nFormatter = (num: number, digits: number) => {
   const si = [
     { value: 1, symbol: '' },
-    { value: 1E3, symbol: 'k' },
-    { value: 1E6, symbol: 'M' },
-    { value: 1E9, symbol: 'G' },
-    { value: 1E12, symbol: 'T' },
-    { value: 1E15, symbol: 'P' },
-    { value: 1E18, symbol: 'E' },
+    { value: 1e3, symbol: 'k' },
+    { value: 1e6, symbol: 'M' },
+    { value: 1e9, symbol: 'G' },
+    { value: 1e12, symbol: 'T' },
+    { value: 1e15, symbol: 'P' },
+    { value: 1e18, symbol: 'E' },
   ];
   const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
   let i;
@@ -121,9 +131,9 @@ export const nFormatter = (num:number, digits:number) => {
 };
 
 /**
-   * Color functions
-   * */
-export const modColor = (color:any, amount:any) => {
+ * Color functions
+ * */
+export const modColor = (color: any, amount: any) => {
   let c;
   let cT;
   if (color.length === 9 || color.length === 8) {
@@ -134,10 +144,18 @@ export const modColor = (color:any, amount:any) => {
     cT = 'FF';
   }
   // eslint-disable-next-line prefer-template
-  return '#' + c.replace(/^#/, '').replace(/../g, (col:any) => ('0' + Math.min(255, Math.max(0, parseInt(col, 16) + amount)).toString(16)).substr(-2)) + cT;
+  return (
+    `#${ 
+    c
+      .replace(/^#/, '')
+      .replace(/../g, (col: any) =>
+        (`0${  Math.min(255, Math.max(0, parseInt(col, 16) + amount)).toString(16)}`).substr(-2)
+      ) 
+    }${cT}`
+  );
 };
 
-export const contrastColor = (hex:any) => {
+export const contrastColor = (hex: any) => {
   const hex_ = hex.slice(1);
   if (hex_.length !== 6) {
     throw new Error('Invalid HEX color.');
@@ -146,13 +164,11 @@ export const contrastColor = (hex:any) => {
   const g = parseInt(hex_.slice(2, 4), 16);
   const b = parseInt(hex_.slice(4, 6), 16);
 
-  return (r * 0.299 + g * 0.587 + b * 0.114) > 186
-    ? 'brand'
-    : 'brand-light';
+  return r * 0.299 + g * 0.587 + b * 0.114 > 186 ? 'brand' : 'brand-light';
 };
 
-export const invertColor = (hex:any) => {
-  function padZero(str:string) {
+export const invertColor = (hex: any) => {
+  function padZero(str: string) {
     const zeros = new Array(2).join('0');
     return (zeros + str).slice(-2);
   }
@@ -167,10 +183,7 @@ export const invertColor = (hex:any) => {
   return `#${padZero(r)}${padZero(g)}${padZero(b)}`;
 };
 
-export const buildGradient = (
-  colorFrom:string,
-  colorTo:string,
-) => `linear-gradient(to bottom right,
+export const buildGradient = (colorFrom: string, colorTo: string) => `linear-gradient(to bottom right,
       ${modColor(colorFrom || '#add8e6', -50)}, 
       ${modColor(colorFrom || '#add8e6', 0)},
       ${modColor(colorFrom || '#add8e6', 0)},

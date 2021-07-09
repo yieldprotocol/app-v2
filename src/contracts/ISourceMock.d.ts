@@ -13,20 +13,20 @@ import {
   ContractTransaction,
   Overrides,
   CallOverrides,
-} from "ethers";
-import { BytesLike } from "@ethersproject/bytes";
-import { Listener, Provider } from "@ethersproject/providers";
-import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
-import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
+} from 'ethers';
+import { BytesLike } from '@ethersproject/bytes';
+import { Listener, Provider } from '@ethersproject/providers';
+import { FunctionFragment, EventFragment, Result } from '@ethersproject/abi';
+import { TypedEventFilter, TypedEvent, TypedListener } from './commons';
 
 interface ISourceMockInterface extends ethers.utils.Interface {
   functions: {
-    "set(uint256)": FunctionFragment;
+    'set(uint256)': FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: "set", values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'set', values: [BigNumberish]): string;
 
-  decodeFunctionResult(functionFragment: "set", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'set', data: BytesLike): Result;
 
   events: {};
 }
@@ -75,16 +75,10 @@ export class ISourceMock extends BaseContract {
   interface: ISourceMockInterface;
 
   functions: {
-    set(
-      arg0: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    set(arg0: BigNumberish, overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
   };
 
-  set(
-    arg0: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  set(arg0: BigNumberish, overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
 
   callStatic: {
     set(arg0: BigNumberish, overrides?: CallOverrides): Promise<void>;
@@ -93,16 +87,10 @@ export class ISourceMock extends BaseContract {
   filters: {};
 
   estimateGas: {
-    set(
-      arg0: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    set(arg0: BigNumberish, overrides?: Overrides & { from?: string | Promise<string> }): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    set(
-      arg0: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
+    set(arg0: BigNumberish, overrides?: Overrides & { from?: string | Promise<string> }): Promise<PopulatedTransaction>;
   };
 }

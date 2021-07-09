@@ -13,98 +13,68 @@ import {
   ContractTransaction,
   Overrides,
   CallOverrides,
-} from "ethers";
-import { BytesLike } from "@ethersproject/bytes";
-import { Listener, Provider } from "@ethersproject/providers";
-import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
-import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
+} from 'ethers';
+import { BytesLike } from '@ethersproject/bytes';
+import { Listener, Provider } from '@ethersproject/providers';
+import { FunctionFragment, EventFragment, Result } from '@ethersproject/abi';
+import { TypedEventFilter, TypedEvent, TypedListener } from './commons';
 
 interface ICauldronInterface extends ethers.utils.Interface {
   functions: {
-    "accrual(bytes6)": FunctionFragment;
-    "assets(bytes6)": FunctionFragment;
-    "auctions(bytes12)": FunctionFragment;
-    "balances(bytes12)": FunctionFragment;
-    "build(address,bytes12,bytes6,bytes6)": FunctionFragment;
-    "destroy(bytes12)": FunctionFragment;
-    "give(bytes12,address)": FunctionFragment;
-    "grab(bytes12,address)": FunctionFragment;
-    "mature(bytes6)": FunctionFragment;
-    "pour(bytes12,int128,int128)": FunctionFragment;
-    "rateOracles(bytes6)": FunctionFragment;
-    "roll(bytes12,bytes6,int128)": FunctionFragment;
-    "series(bytes6)": FunctionFragment;
-    "slurp(bytes12,uint128,uint128)": FunctionFragment;
-    "stir(bytes12,bytes12,uint128,uint128)": FunctionFragment;
-    "tweak(bytes12,bytes6,bytes6)": FunctionFragment;
-    "vaults(bytes12)": FunctionFragment;
+    'accrual(bytes6)': FunctionFragment;
+    'assets(bytes6)': FunctionFragment;
+    'auctions(bytes12)': FunctionFragment;
+    'balances(bytes12)': FunctionFragment;
+    'build(address,bytes12,bytes6,bytes6)': FunctionFragment;
+    'destroy(bytes12)': FunctionFragment;
+    'give(bytes12,address)': FunctionFragment;
+    'grab(bytes12,address)': FunctionFragment;
+    'mature(bytes6)': FunctionFragment;
+    'pour(bytes12,int128,int128)': FunctionFragment;
+    'rateOracles(bytes6)': FunctionFragment;
+    'roll(bytes12,bytes6,int128)': FunctionFragment;
+    'series(bytes6)': FunctionFragment;
+    'slurp(bytes12,uint128,uint128)': FunctionFragment;
+    'stir(bytes12,bytes12,uint128,uint128)': FunctionFragment;
+    'tweak(bytes12,bytes6,bytes6)': FunctionFragment;
+    'vaults(bytes12)': FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: "accrual", values: [BytesLike]): string;
-  encodeFunctionData(functionFragment: "assets", values: [BytesLike]): string;
-  encodeFunctionData(functionFragment: "auctions", values: [BytesLike]): string;
-  encodeFunctionData(functionFragment: "balances", values: [BytesLike]): string;
-  encodeFunctionData(
-    functionFragment: "build",
-    values: [string, BytesLike, BytesLike, BytesLike]
-  ): string;
-  encodeFunctionData(functionFragment: "destroy", values: [BytesLike]): string;
-  encodeFunctionData(
-    functionFragment: "give",
-    values: [BytesLike, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "grab",
-    values: [BytesLike, string]
-  ): string;
-  encodeFunctionData(functionFragment: "mature", values: [BytesLike]): string;
-  encodeFunctionData(
-    functionFragment: "pour",
-    values: [BytesLike, BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "rateOracles",
-    values: [BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "roll",
-    values: [BytesLike, BytesLike, BigNumberish]
-  ): string;
-  encodeFunctionData(functionFragment: "series", values: [BytesLike]): string;
-  encodeFunctionData(
-    functionFragment: "slurp",
-    values: [BytesLike, BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "stir",
-    values: [BytesLike, BytesLike, BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "tweak",
-    values: [BytesLike, BytesLike, BytesLike]
-  ): string;
-  encodeFunctionData(functionFragment: "vaults", values: [BytesLike]): string;
+  encodeFunctionData(functionFragment: 'accrual', values: [BytesLike]): string;
+  encodeFunctionData(functionFragment: 'assets', values: [BytesLike]): string;
+  encodeFunctionData(functionFragment: 'auctions', values: [BytesLike]): string;
+  encodeFunctionData(functionFragment: 'balances', values: [BytesLike]): string;
+  encodeFunctionData(functionFragment: 'build', values: [string, BytesLike, BytesLike, BytesLike]): string;
+  encodeFunctionData(functionFragment: 'destroy', values: [BytesLike]): string;
+  encodeFunctionData(functionFragment: 'give', values: [BytesLike, string]): string;
+  encodeFunctionData(functionFragment: 'grab', values: [BytesLike, string]): string;
+  encodeFunctionData(functionFragment: 'mature', values: [BytesLike]): string;
+  encodeFunctionData(functionFragment: 'pour', values: [BytesLike, BigNumberish, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'rateOracles', values: [BytesLike]): string;
+  encodeFunctionData(functionFragment: 'roll', values: [BytesLike, BytesLike, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'series', values: [BytesLike]): string;
+  encodeFunctionData(functionFragment: 'slurp', values: [BytesLike, BigNumberish, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'stir', values: [BytesLike, BytesLike, BigNumberish, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'tweak', values: [BytesLike, BytesLike, BytesLike]): string;
+  encodeFunctionData(functionFragment: 'vaults', values: [BytesLike]): string;
 
-  decodeFunctionResult(functionFragment: "accrual", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "assets", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "auctions", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "balances", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "build", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "destroy", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "give", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "grab", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "mature", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "pour", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "rateOracles",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "roll", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "series", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "slurp", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "stir", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "tweak", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "vaults", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'accrual', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'assets', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'auctions', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'balances', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'build', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'destroy', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'give', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'grab', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'mature', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'pour', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'rateOracles', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'roll', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'series', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'slurp', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'stir', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'tweak', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'vaults', data: BytesLike): Result;
 
   events: {};
 }
@@ -204,10 +174,7 @@ export class ICauldron extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    rateOracles(
-      baseId: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
+    rateOracles(baseId: BytesLike, overrides?: CallOverrides): Promise<[string]>;
 
     roll(
       vaultId: BytesLike,
@@ -287,10 +254,7 @@ export class ICauldron extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  destroy(
-    vault: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  destroy(vault: BytesLike, overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
 
   give(
     vaultId: BytesLike,
@@ -409,11 +373,7 @@ export class ICauldron extends BaseContract {
       }
     >;
 
-    grab(
-      vault: BytesLike,
-      receiver: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    grab(vault: BytesLike, receiver: string, overrides?: CallOverrides): Promise<void>;
 
     mature(seriesId: BytesLike, overrides?: CallOverrides): Promise<void>;
 
@@ -501,10 +461,7 @@ export class ICauldron extends BaseContract {
   filters: {};
 
   estimateGas: {
-    accrual(
-      seriesId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    accrual(seriesId: BytesLike, overrides?: Overrides & { from?: string | Promise<string> }): Promise<BigNumber>;
 
     assets(assetsId: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -520,10 +477,7 @@ export class ICauldron extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    destroy(
-      vault: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    destroy(vault: BytesLike, overrides?: Overrides & { from?: string | Promise<string> }): Promise<BigNumber>;
 
     give(
       vaultId: BytesLike,
@@ -537,10 +491,7 @@ export class ICauldron extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    mature(
-      seriesId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    mature(seriesId: BytesLike, overrides?: Overrides & { from?: string | Promise<string> }): Promise<BigNumber>;
 
     pour(
       vaultId: BytesLike,
@@ -549,10 +500,7 @@ export class ICauldron extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    rateOracles(
-      baseId: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    rateOracles(baseId: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
 
     roll(
       vaultId: BytesLike,
@@ -594,20 +542,11 @@ export class ICauldron extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    assets(
-      assetsId: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    assets(assetsId: BytesLike, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    auctions(
-      vault: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    auctions(vault: BytesLike, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    balances(
-      vault: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    balances(vault: BytesLike, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     build(
       owner: string,
@@ -646,10 +585,7 @@ export class ICauldron extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    rateOracles(
-      baseId: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    rateOracles(baseId: BytesLike, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     roll(
       vaultId: BytesLike,
@@ -658,10 +594,7 @@ export class ICauldron extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    series(
-      seriesId: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    series(seriesId: BytesLike, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     slurp(
       vaultId: BytesLike,
@@ -685,9 +618,6 @@ export class ICauldron extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    vaults(
-      vault: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    vaults(vault: BytesLike, overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

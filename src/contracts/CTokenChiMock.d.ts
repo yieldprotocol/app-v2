@@ -13,38 +13,26 @@ import {
   ContractTransaction,
   Overrides,
   CallOverrides,
-} from "ethers";
-import { BytesLike } from "@ethersproject/bytes";
-import { Listener, Provider } from "@ethersproject/providers";
-import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
-import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
+} from 'ethers';
+import { BytesLike } from '@ethersproject/bytes';
+import { Listener, Provider } from '@ethersproject/providers';
+import { FunctionFragment, EventFragment, Result } from '@ethersproject/abi';
+import { TypedEventFilter, TypedEvent, TypedListener } from './commons';
 
 interface CTokenChiMockInterface extends ethers.utils.Interface {
   functions: {
-    "exchangeRateCurrent()": FunctionFragment;
-    "exchangeRateStored()": FunctionFragment;
-    "set(uint256)": FunctionFragment;
+    'exchangeRateCurrent()': FunctionFragment;
+    'exchangeRateStored()': FunctionFragment;
+    'set(uint256)': FunctionFragment;
   };
 
-  encodeFunctionData(
-    functionFragment: "exchangeRateCurrent",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "exchangeRateStored",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "set", values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'exchangeRateCurrent', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'exchangeRateStored', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'set', values: [BigNumberish]): string;
 
-  decodeFunctionResult(
-    functionFragment: "exchangeRateCurrent",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "exchangeRateStored",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "set", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'exchangeRateCurrent', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'exchangeRateStored', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'set', data: BytesLike): Result;
 
   events: {};
 }
@@ -93,28 +81,18 @@ export class CTokenChiMock extends BaseContract {
   interface: CTokenChiMockInterface;
 
   functions: {
-    exchangeRateCurrent(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    exchangeRateCurrent(overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
 
     exchangeRateStored(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    set(
-      chi: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    set(chi: BigNumberish, overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
   };
 
-  exchangeRateCurrent(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  exchangeRateCurrent(overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
 
   exchangeRateStored(overrides?: CallOverrides): Promise<BigNumber>;
 
-  set(
-    chi: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  set(chi: BigNumberish, overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
 
   callStatic: {
     exchangeRateCurrent(overrides?: CallOverrides): Promise<BigNumber>;
@@ -127,30 +105,18 @@ export class CTokenChiMock extends BaseContract {
   filters: {};
 
   estimateGas: {
-    exchangeRateCurrent(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    exchangeRateCurrent(overrides?: Overrides & { from?: string | Promise<string> }): Promise<BigNumber>;
 
     exchangeRateStored(overrides?: CallOverrides): Promise<BigNumber>;
 
-    set(
-      chi: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    set(chi: BigNumberish, overrides?: Overrides & { from?: string | Promise<string> }): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    exchangeRateCurrent(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
+    exchangeRateCurrent(overrides?: Overrides & { from?: string | Promise<string> }): Promise<PopulatedTransaction>;
 
-    exchangeRateStored(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    exchangeRateStored(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    set(
-      chi: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
+    set(chi: BigNumberish, overrides?: Overrides & { from?: string | Promise<string> }): Promise<PopulatedTransaction>;
   };
 }

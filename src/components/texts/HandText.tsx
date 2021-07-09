@@ -9,10 +9,6 @@ const StyledText = styled(Text)`
   font-family: 'Rubik';
 `;
 
-const HandText = (props: any) => (
-  <StyledText {...props}>
-    {props.children}
-  </StyledText>
-);
+const HandText = (props: any) => <StyledText {...props}>{props.children}</StyledText>;
 
 export default HandText;

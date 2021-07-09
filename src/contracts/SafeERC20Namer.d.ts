@@ -12,26 +12,23 @@ import {
   BaseContract,
   ContractTransaction,
   CallOverrides,
-} from "ethers";
-import { BytesLike } from "@ethersproject/bytes";
-import { Listener, Provider } from "@ethersproject/providers";
-import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
-import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
+} from 'ethers';
+import { BytesLike } from '@ethersproject/bytes';
+import { Listener, Provider } from '@ethersproject/providers';
+import { FunctionFragment, EventFragment, Result } from '@ethersproject/abi';
+import { TypedEventFilter, TypedEvent, TypedListener } from './commons';
 
 interface SafeERC20NamerInterface extends ethers.utils.Interface {
   functions: {
-    "tokenName(address)": FunctionFragment;
-    "tokenSymbol(address)": FunctionFragment;
+    'tokenName(address)': FunctionFragment;
+    'tokenSymbol(address)': FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: "tokenName", values: [string]): string;
-  encodeFunctionData(functionFragment: "tokenSymbol", values: [string]): string;
+  encodeFunctionData(functionFragment: 'tokenName', values: [string]): string;
+  encodeFunctionData(functionFragment: 'tokenSymbol', values: [string]): string;
 
-  decodeFunctionResult(functionFragment: "tokenName", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "tokenSymbol",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: 'tokenName', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'tokenSymbol', data: BytesLike): Result;
 
   events: {};
 }
@@ -104,14 +101,8 @@ export class SafeERC20Namer extends BaseContract {
   };
 
   populateTransaction: {
-    tokenName(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    tokenName(token: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    tokenSymbol(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    tokenSymbol(token: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

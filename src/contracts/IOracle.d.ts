@@ -13,29 +13,23 @@ import {
   ContractTransaction,
   Overrides,
   CallOverrides,
-} from "ethers";
-import { BytesLike } from "@ethersproject/bytes";
-import { Listener, Provider } from "@ethersproject/providers";
-import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
-import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
+} from 'ethers';
+import { BytesLike } from '@ethersproject/bytes';
+import { Listener, Provider } from '@ethersproject/providers';
+import { FunctionFragment, EventFragment, Result } from '@ethersproject/abi';
+import { TypedEventFilter, TypedEvent, TypedListener } from './commons';
 
 interface IOracleInterface extends ethers.utils.Interface {
   functions: {
-    "get(bytes32,bytes32,uint256)": FunctionFragment;
-    "peek(bytes32,bytes32,uint256)": FunctionFragment;
+    'get(bytes32,bytes32,uint256)': FunctionFragment;
+    'peek(bytes32,bytes32,uint256)': FunctionFragment;
   };
 
-  encodeFunctionData(
-    functionFragment: "get",
-    values: [BytesLike, BytesLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "peek",
-    values: [BytesLike, BytesLike, BigNumberish]
-  ): string;
+  encodeFunctionData(functionFragment: 'get', values: [BytesLike, BytesLike, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'peek', values: [BytesLike, BytesLike, BigNumberish]): string;
 
-  decodeFunctionResult(functionFragment: "get", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "peek", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'get', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'peek', data: BytesLike): Result;
 
   events: {};
 }
@@ -96,9 +90,7 @@ export class IOracle extends BaseContract {
       quote: BytesLike,
       amount: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
-    >;
+    ): Promise<[BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }>;
   };
 
   get(
@@ -113,9 +105,7 @@ export class IOracle extends BaseContract {
     quote: BytesLike,
     amount: BigNumberish,
     overrides?: CallOverrides
-  ): Promise<
-    [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
-  >;
+  ): Promise<[BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }>;
 
   callStatic: {
     get(
@@ -123,18 +113,14 @@ export class IOracle extends BaseContract {
       quote: BytesLike,
       amount: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
-    >;
+    ): Promise<[BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }>;
 
     peek(
       base: BytesLike,
       quote: BytesLike,
       amount: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
-    >;
+    ): Promise<[BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }>;
   };
 
   filters: {};
@@ -147,12 +133,7 @@ export class IOracle extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    peek(
-      base: BytesLike,
-      quote: BytesLike,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    peek(base: BytesLike, quote: BytesLike, amount: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {

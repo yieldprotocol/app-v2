@@ -6,10 +6,6 @@ const StyledText = styled(Text)`
   font-family: 'Rubik';
 `;
 
-const AltText = (props: any) => (
-  <StyledText {...props}>
-    {props.children}
-  </StyledText>
-);
+const AltText = (props: any) => <StyledText {...props}>{props.children}</StyledText>;
 
 export default AltText;
