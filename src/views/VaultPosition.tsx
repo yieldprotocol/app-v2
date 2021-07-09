@@ -358,7 +358,7 @@ const Vault = () => {
           )}
 
           {actionActive.index === 3 && (
-            <Box pad={{ vertical: 'medium' }}>The individual history component goes here</Box>
+            <Box pad={{ vertical: 'medium' }}><YieldVaultHistory vault={selectedVault!} /></Box>
           )}
 
           {actionActive.index === 4 && (

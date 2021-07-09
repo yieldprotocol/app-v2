@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useReducer, useCallback, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { ethers } from 'ethers';
+import { format } from 'date-fns';
 
 import {
   IAssetRoot,
@@ -19,7 +20,6 @@ import { ChainContext } from './ChainContext';
 import { bytesToBytes32, cleanValue, genVaultImage } from '../utils/appUtils';
 import { calculateAPR, divDecimal, floorDecimal, mulDecimal, secondsToFrom, sellFYToken } from '../utils/yieldMath';
 import { UserContext } from './UserContext';
-import { format } from 'date-fns';
 
 const dateFormat = (dateInSecs: number) => format(new Date(dateInSecs * 1000), 'dd MMM yyyy');
 
@@ -126,10 +126,10 @@ const HistoryProvider = ({ children }: any) => {
                 poolTokens,
 
                 /* Formatted values:  */
-                poolTokens_: cleanValue(ethers.utils.formatEther(poolTokens), 6),
-                fyTokens_: cleanValue(ethers.utils.formatEther(fyTokens), 6),
-                bases_: cleanValue(ethers.utils.formatEther(bases), 6),
-                date_: new Date(date * 1000),
+                poolTokens_: ethers.utils.formatEther(poolTokens),
+                fyTokens_: ethers.utils.formatEther(fyTokens),
+                bases_: ethers.utils.formatEther(bases),
+                date_: dateFormat(date),
               };
             })
           );
@@ -171,9 +171,9 @@ const HistoryProvider = ({ children }: any) => {
                 seriesId,
 
                 /* Formatted values:  */
-                date_: new Date(date * 1000),
-                bases_: cleanValue(ethers.utils.formatEther(bases), 6),
-                fyTokens_: cleanValue(ethers.utils.formatEther(fyTokens), 6),
+                date_: dateFormat(date),
+                bases_: ethers.utils.formatEther(bases),
+                fyTokens_: ethers.utils.formatEther(fyTokens),
               };
             })
           );
@@ -214,9 +214,9 @@ const HistoryProvider = ({ children }: any) => {
                 ink,
                 art,
                 /* Formatted values:  */
-                date_: new Date(date * 1000),
-                ink_: cleanValue(ethers.utils.formatEther(ink), 2),
-                art_: cleanValue(ethers.utils.formatEther(art), 2),
+                date_: dateFormat(date),
+                ink_: ethers.utils.formatEther(ink),
+                art_: ethers.utils.formatEther(art),
               };
             })
           );
