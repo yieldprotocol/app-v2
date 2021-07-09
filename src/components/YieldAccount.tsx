@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { Text, Box, ResponsiveContext, Layer, Avatar } from 'grommet';
-import { FiSettings, FiMenu } from 'react-icons/fi';
+import React, { useState, useContext } from 'react';
+import { Text, Box, ResponsiveContext, Layer } from 'grommet';
+import { FiCircle, FiMenu, FiSettings } from 'react-icons/fi';
 
 import YieldBalances from './YieldBalances';
 
@@ -8,24 +8,28 @@ import { ChainContext } from '../contexts/ChainContext';
 import { abbreviateHash } from '../utils/appUtils';
 import YieldAvatar from './YieldAvatar';
 import YieldSettings from './YieldSettings';
+import Connect from './Connect';
 
 const YieldAccount = (props: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
-    chainState: { account, chainId },
-    chainActions: { connect, disconnect },
+    chainState: { account },
   } = useContext(ChainContext);
 
   const [settingsOpen, setSettingsOpen] = useState<boolean>();
+  const [connectOpen, setConnectOpen] = useState<boolean>();
 
   return (
     <>
-      {settingsOpen && (
-        <Layer
-          onClickOutside={() => setSettingsOpen(false)}
-          onEsc={() => setSettingsOpen(false)}
-        >
-          <YieldSettings setSettingsOpen={setSettingsOpen} />
+      {connectOpen && (
+        <Layer onClickOutside={() => setConnectOpen(false)} onEsc={() => setConnectOpen(false)}>
+          <Connect setConnectOpen={setConnectOpen} />
+        </Layer>
+      )}
+
+      {account && settingsOpen && (
+        <Layer onClickOutside={() => setSettingsOpen(false)} onEsc={() => setSettingsOpen(false)}>
+          <YieldSettings setConnectOpen={setConnectOpen} setSettingsOpen={setSettingsOpen} />
         </Layer>
       )}
 
@@ -36,12 +40,7 @@ const YieldAccount = (props: any) => {
               <YieldBalances />
             </>
           )}
-          <Box
-            round="xsmall"
-            onClick={() => setSettingsOpen(true)}
-            pad="small"
-            justify="center"
-          >
+          <Box round="xsmall" onClick={() => setSettingsOpen(true)} pad="small" justify="center">
             {mobile ? (
               <Text size="small" color="text">
                 <FiSettings />
@@ -53,24 +52,20 @@ const YieldAccount = (props: any) => {
                     {abbreviateHash(account)}
                   </Text>
                   <Text size="xsmall" color="text-weak">
-                    o Connected
+                    <FiCircle color="#00C781" size=".5rem" /> Connected
                   </Text>
                 </Box>
-
                 <Box>
                   <YieldAvatar address={account.concat('y')} size={2.5} />
                 </Box>
-
-                {/* <FiSettings /> */}
               </Box>
             )}
           </Box>
         </Box>
       ) : (
-        <Box border={!mobile} onClick={() => connect()} pad="small">
+        <Box border={!mobile} onClick={() => setConnectOpen(true)} pad="small">
           <Text size="small" color="text">
-            {' '}
-            {mobile ? <FiMenu /> : 'Connect Wallet'}{' '}
+            {mobile ? <FiMenu /> : 'Connect Wallet'}
           </Text>
         </Box>
       )}
