@@ -1,17 +1,45 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Box, Button, Text } from 'grommet';
-import { FiX } from 'react-icons/fi';
+import { FiCheckSquare, FiX } from 'react-icons/fi';
 import { ChainContext } from '../contexts/ChainContext';
 
 const Connect = ({ setConnectOpen }: any) => {
-  const { chainState } = useContext(ChainContext);
+  const {
+    chainState: { connector, connectors },
+    chainActions: { connect },
+  } = useContext(ChainContext);
 
-  console.log(chainState);
-  const connectTypes: string[] = ['Metamask', 'Ledger', 'WalletConnect'];
+  const [activatingConnector, setActivatingConnector] = useState<any>();
 
-  const handleConnect = (connectType: string) => {
-    console.log(`Connecting with ${connectType}`);
-  };
+  /* Handle logic to recognize the connector currently being activated */
+  useEffect(() => {
+    activatingConnector && activatingConnector === connector && setActivatingConnector(undefined);
+  }, [activatingConnector, connector]);
+
+  const connectorsRender = [...connectors.keys()].map((name: string) => {
+    const currentConnector = connectors.get(name);
+    const activating = currentConnector === activatingConnector;
+    const connected = currentConnector === connector;
+
+    return (
+      <Box
+        key={name}
+        onClick={() => {
+          setActivatingConnector(name);
+          connect(name);
+        }}
+        border={{ color: 'tailwind-blue', size: 'xsmall' }}
+        hoverIndicator={{ color: 'tailwind-blue', size: 'xsmall' }}
+        pad="small"
+        round="small"
+      >
+        <Box direction="row" gap="xsmall">
+          {connected && <FiCheckSquare color="green" />}
+          {activating ? 'Connecting' : name}
+        </Box>
+      </Box>
+    );
+  });
 
   return (
     <Box basis="auto" width="medium" pad="small" gap="small">
@@ -19,20 +47,7 @@ const Connect = ({ setConnectOpen }: any) => {
         <Text>Connect</Text>
         <Button icon={<FiX size="1.5rem" />} onClick={() => setConnectOpen(false)} plain />
       </Box>
-      <Box gap="xsmall">
-        {connectTypes.map((type) => (
-          <Box
-            key={type}
-            onClick={() => handleConnect(type)}
-            border={{ color: 'tailwind-blue', size: 'xsmall' }}
-            hoverIndicator={{ color: 'tailwind-blue', size: 'xsmall' }}
-            pad="small"
-            round="small"
-          >
-            {type}
-          </Box>
-        ))}
-      </Box>
+      <Box gap="xsmall">{connectorsRender}</Box>
     </Box>
   );
 };
