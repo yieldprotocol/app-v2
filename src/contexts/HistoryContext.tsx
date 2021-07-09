@@ -31,7 +31,7 @@ const initState: IHistoryContextState = {
     lastBlock: 11066942,
     items: [],
   },
-  poolHistory: {
+  liquidityHistory: {
     lastBlock: 11066942,
     items: [],
   },
@@ -55,7 +55,7 @@ function historyReducer(state: any, action: any) {
         ...state,
         tradeHistory: action.payload,
       };
-    case 'poolHistory':
+    case 'liquidityHistory':
       return {
         ...state,
         poolHistory: action.payload,
@@ -98,10 +98,10 @@ const HistoryProvider = ({ children }: any) => {
   const [historyState, updateState] = useReducer(historyReducer, initState);
 
   /* update Pool Historical data */
-  const updatePoolHistory = useCallback(
+  const updateLiquidityHistory = useCallback(
     async (seriesList: ISeries[]) => {
       // event Liquidity(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens, int256 poolTokens);
-      const poolHistMap = new Map([]);
+      const liqHistMap = new Map([]);
       /* Get all the Liquidity history transactions */
       await Promise.all(
         seriesList.map(async (series: ISeries) => {
@@ -134,11 +134,11 @@ const HistoryProvider = ({ children }: any) => {
             })
           );
 
-          poolHistMap.set(seriesId, liqLogs);
+          liqHistMap.set(seriesId, liqLogs);
         })
       );
-      updateState({ type: 'poolHistory', payload: poolHistMap });
-      console.log('Pool History updated: ', poolHistMap);
+      updateState({ type: 'liquidityHistory', payload: liqHistMap });
+      console.log('Liquidity History updated: ', liqHistMap);
     },
     [account, fallbackProvider]
   );
@@ -169,7 +169,6 @@ const HistoryProvider = ({ children }: any) => {
                 bases,
                 fyTokens,
                 seriesId,
-
                 /* Formatted values:  */
                 date_: dateFormat(date),
                 bases_: ethers.utils.formatEther(bases),
@@ -232,18 +231,15 @@ const HistoryProvider = ({ children }: any) => {
   useEffect(() => {
     /* When the chainContext is finished loading get the historical data */
     if (account && !userLoading) {
-      // Array.from(seriesRootMap.values()).length && console.log('series', Array.from(seriesRootMap.values()));
-      seriesRootMap.size && updatePoolHistory(Array.from(seriesRootMap.values()) as ISeries[]);
+      seriesRootMap.size && updateLiquidityHistory(Array.from(seriesRootMap.values()) as ISeries[]);
       seriesRootMap.size && updateTradeHistory(Array.from(seriesRootMap.values()) as ISeries[]);
-
-      // vaultMap.size && console.log('Vaults history to check', Array.from(vaultMap.values()));
       vaultMap.size && updateVaultHistory(Array.from(vaultMap.values()) as IVault[]);
     }
-  }, [account, seriesRootMap, updatePoolHistory, updateTradeHistory, updateVaultHistory, userLoading, vaultMap]);
+  }, [account, seriesRootMap, updateLiquidityHistory, updateTradeHistory, updateVaultHistory, userLoading, vaultMap]);
 
   /* Exposed userActions */
   const historyActions = {
-    updatePoolHistory,
+    updateLiquidityHistory,
     updateVaultHistory,
     updateTradeHistory,
   };
