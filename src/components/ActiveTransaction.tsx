@@ -45,14 +45,14 @@ function ActiveTransaction({
    * */
 
   return (
-    <Box pad="medium">
+    <>
       {!processes.get(txCode) && // CASE: no tx or signing activity
         !tx &&
         !sig && <Box>{children}</Box>}
 
       {processes.get(txCode) &&
         sig?.status === TxState.PENDING && ( // CASE: Signature/ approval required
-          <Box direction="row" align="center" gap="medium">
+          <Box direction="row" align="center" gap="medium" pad="medium">
             <FiPenTool size={iconSize} />
             <Box>
               <Text size={textSize}>Signature or Approval required.</Text>
@@ -64,7 +64,7 @@ function ActiveTransaction({
       {processes.get(txCode) &&
         sig?.status === TxState.PENDING && // CASE: Approval transaction pending (sig pending and tx pending)
         tx?.status === TxState.PENDING && (
-          <Box direction="row" align="center" gap="medium">
+          <Box direction="row" align="center" gap="medium" pad="medium">
             <FiClock size={iconSize} />
             <Box>
               <Text size={textSize} >Token Approval / Authorization</Text>
@@ -74,7 +74,7 @@ function ActiveTransaction({
         )}
 
       {processes.get(txCode) && processes.get(txCode) === '0x0' && sig?.status !== TxState.PENDING && !tx && (
-        <Box direction="row" align="center" gap="medium">
+        <Box direction="row" align="center" gap="medium" pad="medium">
           <BiWallet size={iconSize} />
           <Box>
             <Text size={textSize} >Awaiting Transaction Confirmation...</Text>
@@ -86,7 +86,7 @@ function ActiveTransaction({
       {processes.get(txCode) && // CASE: TX processing but signature complete
         tx?.status === TxState.PENDING &&
         (!sig || sig?.status === TxState.SUCCESSFUL) && (
-          <Box direction="row" align="center" gap="medium">
+          <Box direction="row" align="center" gap="medium" pad="medium">
             <FiClock size={iconSize} />
             <Box>
               <Text size={textSize} >Transaction Pending...</Text>
@@ -97,7 +97,7 @@ function ActiveTransaction({
 
       {tx?.status === TxState.SUCCESSFUL && // Case:  TX complete. if process still active, assume that the tx was an approval.
         (processes.get(txCode) ? (
-          <Box direction="row" align="center" gap="medium">
+          <Box direction="row" align="center" gap="medium" pad="medium">
             <FiClock size={iconSize} />
             <Box>
               <Text size={textSize} >Approval Transaction complete</Text>
@@ -105,7 +105,7 @@ function ActiveTransaction({
             </Box>
           </Box>
         ) : (
-          <Box direction="row" align="center" gap="medium">
+          <Box direction="row" align="center" gap="medium" pad="medium">
             <FiCheckCircle size={iconSize} />
             <Box>
               <Text size={textSize} >Transaction Complete</Text>
@@ -115,7 +115,7 @@ function ActiveTransaction({
         ))}
 
       {tx?.status === TxState.FAILED && ( // Case: transaction failed.
-        <Box direction="row" align="center" gap="medium">
+        <Box direction="row" align="center" gap="medium" pad="medium">
           <FiX size={iconSize} />
           <Box>
             <Text size={textSize}>Transaction Failed</Text>
@@ -123,7 +123,7 @@ function ActiveTransaction({
           </Box>
         </Box>
       )}
-    </Box>
+    </>
   );
 }
 
