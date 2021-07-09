@@ -1,13 +1,12 @@
-import React, { useState, useContext } from 'react';
+import React, { useContext } from 'react';
 import { Box, Button, Text } from 'grommet';
 import { FiX } from 'react-icons/fi';
 import { ChainContext } from '../contexts/ChainContext';
 
 const Connect = ({ setConnectOpen }: any) => {
-  const {
-    chainState: { account },
-  } = useContext(ChainContext);
+  const { chainState } = useContext(ChainContext);
 
+  console.log(chainState);
   const connectTypes: string[] = ['Metamask', 'Ledger', 'WalletConnect'];
 
   const handleConnect = (connectType: string) => {
@@ -25,8 +24,8 @@ const Connect = ({ setConnectOpen }: any) => {
           <Box
             key={type}
             onClick={() => handleConnect(type)}
-            border={{ color: '#2563EB', size: 'xsmall' }}
-            hoverIndicator={{ color: '#2563EB', size: 'xsmall' }}
+            border={{ color: 'tailwind-blue', size: 'xsmall' }}
+            hoverIndicator={{ color: 'tailwind-blue', size: 'xsmall' }}
             pad="small"
             round="small"
           >

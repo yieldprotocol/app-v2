@@ -8,7 +8,6 @@ import YieldAvatar from './YieldAvatar';
 const YieldSettings = ({ setConnectOpen, setSettingsOpen }: any) => {
   const {
     chainState: { account, chainId },
-    chainActions: { connect, disconnect },
   } = useContext(ChainContext);
 
   const [copySuccess, setCopySuccess] = useState<boolean>(false);

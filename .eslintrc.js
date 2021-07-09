@@ -6,6 +6,7 @@ module.exports = {
   extends: ['airbnb-typescript', 'react-app', 'prettier'],
   parserOptions: {
     project: './tsconfig.json',
+    tsconfigRootDir: __dirname,
   },
   rules: {
     // "@typescript-eslint/no-unused-expressions": ["error", { "allowTernary": true }],
@@ -43,13 +44,7 @@ module.exports = {
     'import/no-extraneous-dependencies': [
       'error',
       {
-        devDependencies: [
-          '**/*.test.js',
-          '**/*.test.jsx',
-          '**/*.test.ts',
-          '**/*.test.tsx',
-          'src/tests/**/*',
-        ],
+        devDependencies: ['**/*.test.js', '**/*.test.jsx', '**/*.test.ts', '**/*.test.tsx', 'src/tests/**/*'],
       },
     ],
     'react/jsx-props-no-spreading': 'off',
