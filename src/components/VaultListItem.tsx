@@ -17,17 +17,14 @@ function VaultListItem({ vault }: { vault: IVault }) {
 
       <Box>
         <Text weight={900} size="small">
-          {' '}
-          {vault.displayName}{' '}
+          {vault.displayName}
         </Text>
         <Box direction="column">
           <Text weight={450} size="xsmall">
-            {' '}
-            {series?.displayNameMobile}{' '}
+            {series?.displayNameMobile}
           </Text>
           <Text weight={450} size="xsmall">
-            {' '}
-            Debt: {vault.art_}{' '}
+            Debt: {vault.art_}
           </Text>
         </Box>
       </Box>

@@ -290,7 +290,7 @@ const Borrow = () => {
               <Box gap="large">
                 <BackButton action={() => setStepPosition(1)} />
 
-                <ActiveTransaction txCode={getTxCode(ActionCodes.BORROW, selectedSeriesId)}>
+                <ActiveTransaction txCode={getTxCode(ActionCodes.BORROW, selectedSeriesId)} size="LARGE">
                   <SectionWrap title="Review your transaction">
                     <Box
                       gap="small"
