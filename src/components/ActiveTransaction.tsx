@@ -4,7 +4,8 @@ import React, { useContext, useEffect, useState } from 'react';
 import { TxContext } from '../contexts/TxContext';
 import { TxState } from '../types';
 
-function ActiveTransaction({ txCode, children }: { txCode:string, children: React.ReactNode }) { // TODO consider name: TxPendingWrap
+function ActiveTransaction({ txCode, children }: { txCode: string; children: React.ReactNode }) {
+  // TODO consider name: TxPendingWrap
   const { txState } = useContext(TxContext);
 
   const { signatures, transactions, processes, txPending, signPending } = txState;
@@ -27,62 +28,41 @@ function ActiveTransaction({ txCode, children }: { txCode:string, children: Reac
 
   return (
     <>
-
       {console.log(processes.get(txCode), sig, tx)}
 
       {!processes.get(txCode) && // CASE: no tx or signing activity
-      !tx &&
-      !sig &&
-      <Box> {children} </Box>}
+        !tx &&
+        !sig && <Box> {children} </Box>}
 
       {processes.get(txCode) &&
-        sig?.status === TxState.PENDING && // CASE: Signature/ approval required
-        <Text>
-          Signature or Approval required. [todo graphic/animation]
-          Please check your wallet/provider.
-        </Text>}
+        sig?.status === TxState.PENDING && ( // CASE: Signature/ approval required
+          <Text>Signature or Approval required. [todo graphic/animation] Please check your wallet/provider.</Text>
+        )}
 
       {processes.get(txCode) &&
         sig?.status === TxState.PENDING && // CASE: Approval transaction pending (sig pending and tx pending)
-        tx?.status === TxState.PENDING &&
-        <Text>
-          Approval transaction pending... [todo graphic/animation]
-        </Text>}
+        tx?.status === TxState.PENDING && <Text>Approval transaction pending... [todo graphic/animation]</Text>}
 
-      {processes.get(txCode) &&
-       processes.get(txCode) === '0x0' &&
-       sig?.status !== TxState.PENDING &&
-       !tx &&
-       <Box>
-         <Text>
-           Awaiting Confirmation...  [todo graphic/animation]
-           Please check your wallet/provider.
-         </Text>
-       </Box>}
+      {processes.get(txCode) && processes.get(txCode) === '0x0' && sig?.status !== TxState.PENDING && !tx && (
+        <Box>
+          <Text>Awaiting Confirmation... [todo graphic/animation] Please check your wallet/provider.</Text>
+        </Box>
+      )}
 
       {processes.get(txCode) && // CASE: TX processing but signature complete
-      tx?.status === TxState.PENDING &&
-      (!sig || sig?.status === TxState.SUCCESSFUL) &&
-      <Text>
-        Transaction Pending... [todo graphic/animation]
-      </Text>}
+        tx?.status === TxState.PENDING &&
+        (!sig || sig?.status === TxState.SUCCESSFUL) && <Text>Transaction Pending... [todo graphic/animation]</Text>}
 
-      { tx?.status === TxState.SUCCESSFUL && // Case:  TX complete. if process still active, assume that the tx was an approval.
-        (processes.get(txCode) ?
-          <Box>
-            APPROVAL TX COMPLETE.
-            Please confirm your transaction with your wallet provider.
-          </Box>
-          :
-          <Box>
-            TX COMPLETE  [todo tx complete animation]
-          </Box>
-        )}
+      {tx?.status === TxState.SUCCESSFUL && // Case:  TX complete. if process still active, assume that the tx was an approval.
+        (processes.get(txCode) ? (
+          <Box>APPROVAL TX COMPLETE. Please confirm your transaction with your wallet provider.</Box>
+        ) : (
+          <Box>TX COMPLETE [todo tx complete animation]</Box>
+        ))}
 
-      { tx?.status === TxState.FAILED && // Case: transaction failed.
-        <Box>
-          TX FAILED [todo tx complete animation]
-        </Box>}
+      {tx?.status === TxState.FAILED && ( // Case: transaction failed.
+        <Box>TX FAILED [todo tx complete animation]</Box>
+      )}
     </>
   );
 }

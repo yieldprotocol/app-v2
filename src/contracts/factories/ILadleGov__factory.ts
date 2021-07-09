@@ -2,65 +2,65 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import { Provider } from "@ethersproject/providers";
-import type { ILadleGov, ILadleGovInterface } from "../ILadleGov";
+import { Contract, Signer, utils } from 'ethers';
+import { Provider } from '@ethersproject/providers';
+import type { ILadleGov, ILadleGovInterface } from '../ILadleGov';
 
 const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes6",
-        name: "",
-        type: "bytes6",
+        internalType: 'bytes6',
+        name: '',
+        type: 'bytes6',
       },
       {
-        internalType: "address",
-        name: "",
-        type: "address",
+        internalType: 'address',
+        name: '',
+        type: 'address',
       },
     ],
-    name: "addJoin",
+    name: 'addJoin',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "bytes6",
-        name: "",
-        type: "bytes6",
+        internalType: 'bytes6',
+        name: '',
+        type: 'bytes6',
       },
       {
-        internalType: "address",
-        name: "",
-        type: "address",
+        internalType: 'address',
+        name: '',
+        type: 'address',
       },
     ],
-    name: "addPool",
+    name: 'addPool',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "bytes6",
-        name: "",
-        type: "bytes6",
+        internalType: 'bytes6',
+        name: '',
+        type: 'bytes6',
       },
     ],
-    name: "joins",
+    name: 'joins',
     outputs: [
       {
-        internalType: "contract IJoin",
-        name: "",
-        type: "address",
+        internalType: 'contract IJoin',
+        name: '',
+        type: 'address',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
 ];
 
@@ -69,10 +69,7 @@ export class ILadleGov__factory {
   static createInterface(): ILadleGovInterface {
     return new utils.Interface(_abi) as ILadleGovInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): ILadleGov {
+  static connect(address: string, signerOrProvider: Signer | Provider): ILadleGov {
     return new Contract(address, _abi, signerOrProvider) as ILadleGov;
   }
 }

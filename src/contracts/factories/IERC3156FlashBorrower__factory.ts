@@ -2,52 +2,49 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import { Provider } from "@ethersproject/providers";
-import type {
-  IERC3156FlashBorrower,
-  IERC3156FlashBorrowerInterface,
-} from "../IERC3156FlashBorrower";
+import { Contract, Signer, utils } from 'ethers';
+import { Provider } from '@ethersproject/providers';
+import type { IERC3156FlashBorrower, IERC3156FlashBorrowerInterface } from '../IERC3156FlashBorrower';
 
 const _abi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "initiator",
-        type: "address",
+        internalType: 'address',
+        name: 'initiator',
+        type: 'address',
       },
       {
-        internalType: "address",
-        name: "token",
-        type: "address",
+        internalType: 'address',
+        name: 'token',
+        type: 'address',
       },
       {
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
       },
       {
-        internalType: "uint256",
-        name: "fee",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'fee',
+        type: 'uint256',
       },
       {
-        internalType: "bytes",
-        name: "data",
-        type: "bytes",
+        internalType: 'bytes',
+        name: 'data',
+        type: 'bytes',
       },
     ],
-    name: "onFlashLoan",
+    name: 'onFlashLoan',
     outputs: [
       {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
+        internalType: 'bytes32',
+        name: '',
+        type: 'bytes32',
       },
     ],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
 ];
 
@@ -56,14 +53,7 @@ export class IERC3156FlashBorrower__factory {
   static createInterface(): IERC3156FlashBorrowerInterface {
     return new utils.Interface(_abi) as IERC3156FlashBorrowerInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): IERC3156FlashBorrower {
-    return new Contract(
-      address,
-      _abi,
-      signerOrProvider
-    ) as IERC3156FlashBorrower;
+  static connect(address: string, signerOrProvider: Signer | Provider): IERC3156FlashBorrower {
+    return new Contract(address, _abi, signerOrProvider) as IERC3156FlashBorrower;
   }
 }

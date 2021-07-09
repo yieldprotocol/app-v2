@@ -1,13 +1,7 @@
 import React, { useContext } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import styled, { CSSProperties } from 'styled-components';
-import {
-  Text,
-  Box,
-  ThemeContext,
-  ResponsiveContext,
-  Layer,
-} from 'grommet';
+import { Text, Box, ThemeContext, ResponsiveContext, Layer } from 'grommet';
 
 const StyledLink = styled(NavLink)`
   text-decoration: none;
@@ -37,7 +31,7 @@ interface IYieldNavigation {
 }
 
 const YieldNavigation = ({ callbackFn }: IYieldNavigation) => {
-  const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
+  const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const loc = useLocation();
 
   const theme = useContext<any>(ThemeContext);
@@ -58,17 +52,13 @@ const YieldNavigation = ({ callbackFn }: IYieldNavigation) => {
   ];
 
   return (
-
-    <Box
-      direction={mobile ? 'column' : 'row'}
-      gap="medium"
-      align="center"
-      justify="center"
-      fill={mobile}
-    >
-      { linksArr.map((x: any) => (
+    <Box direction={mobile ? 'column' : 'row'} gap="medium" align="center" justify="center" fill={mobile}>
+      {linksArr.map((x: any) => (
         <StyledLink to={x.to} activeStyle={activeStyle} key={x.label} onClick={() => callbackFn()}>
-          <Text color={mobile ? 'text' : undefined} size={mobile ? 'small' : undefined}> {x.label} </Text>
+          <Text color={mobile ? 'text' : undefined} size={mobile ? 'small' : undefined}>
+            {' '}
+            {x.label}{' '}
+          </Text>
         </StyledLink>
       ))}
     </Box>

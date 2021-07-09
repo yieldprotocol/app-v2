@@ -13,50 +13,38 @@ import {
   ContractTransaction,
   Overrides,
   CallOverrides,
-} from "ethers";
-import { BytesLike } from "@ethersproject/bytes";
-import { Listener, Provider } from "@ethersproject/providers";
-import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
-import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
+} from 'ethers';
+import { BytesLike } from '@ethersproject/bytes';
+import { Listener, Provider } from '@ethersproject/providers';
+import { FunctionFragment, EventFragment, Result } from '@ethersproject/abi';
+import { TypedEventFilter, TypedEvent, TypedListener } from './commons';
 
 interface JoinFactoryInterface extends ethers.utils.Interface {
   functions: {
-    "JOIN_BYTECODE_HASH()": FunctionFragment;
-    "calculateJoinAddress(address)": FunctionFragment;
-    "createJoin(address)": FunctionFragment;
-    "getJoin(address)": FunctionFragment;
-    "nextAsset()": FunctionFragment;
+    'JOIN_BYTECODE_HASH()': FunctionFragment;
+    'calculateJoinAddress(address)': FunctionFragment;
+    'createJoin(address)': FunctionFragment;
+    'getJoin(address)': FunctionFragment;
+    'nextAsset()': FunctionFragment;
   };
 
-  encodeFunctionData(
-    functionFragment: "JOIN_BYTECODE_HASH",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "calculateJoinAddress",
-    values: [string]
-  ): string;
-  encodeFunctionData(functionFragment: "createJoin", values: [string]): string;
-  encodeFunctionData(functionFragment: "getJoin", values: [string]): string;
-  encodeFunctionData(functionFragment: "nextAsset", values?: undefined): string;
+  encodeFunctionData(functionFragment: 'JOIN_BYTECODE_HASH', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'calculateJoinAddress', values: [string]): string;
+  encodeFunctionData(functionFragment: 'createJoin', values: [string]): string;
+  encodeFunctionData(functionFragment: 'getJoin', values: [string]): string;
+  encodeFunctionData(functionFragment: 'nextAsset', values?: undefined): string;
 
-  decodeFunctionResult(
-    functionFragment: "JOIN_BYTECODE_HASH",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "calculateJoinAddress",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "createJoin", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getJoin", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "nextAsset", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'JOIN_BYTECODE_HASH', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'calculateJoinAddress', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'createJoin', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getJoin', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'nextAsset', data: BytesLike): Result;
 
   events: {
-    "JoinCreated(address,address)": EventFragment;
+    'JoinCreated(address,address)': EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "JoinCreated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'JoinCreated'): EventFragment;
 }
 
 export class JoinFactory extends BaseContract {
@@ -105,35 +93,23 @@ export class JoinFactory extends BaseContract {
   functions: {
     JOIN_BYTECODE_HASH(overrides?: CallOverrides): Promise<[string]>;
 
-    calculateJoinAddress(
-      asset: string,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
+    calculateJoinAddress(asset: string, overrides?: CallOverrides): Promise<[string]>;
 
     createJoin(
       asset: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    getJoin(
-      asset: string,
-      overrides?: CallOverrides
-    ): Promise<[string] & { join: string }>;
+    getJoin(asset: string, overrides?: CallOverrides): Promise<[string] & { join: string }>;
 
     nextAsset(overrides?: CallOverrides): Promise<[string]>;
   };
 
   JOIN_BYTECODE_HASH(overrides?: CallOverrides): Promise<string>;
 
-  calculateJoinAddress(
-    asset: string,
-    overrides?: CallOverrides
-  ): Promise<string>;
+  calculateJoinAddress(asset: string, overrides?: CallOverrides): Promise<string>;
 
-  createJoin(
-    asset: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  createJoin(asset: string, overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
 
   getJoin(asset: string, overrides?: CallOverrides): Promise<string>;
 
@@ -142,10 +118,7 @@ export class JoinFactory extends BaseContract {
   callStatic: {
     JOIN_BYTECODE_HASH(overrides?: CallOverrides): Promise<string>;
 
-    calculateJoinAddress(
-      asset: string,
-      overrides?: CallOverrides
-    ): Promise<string>;
+    calculateJoinAddress(asset: string, overrides?: CallOverrides): Promise<string>;
 
     createJoin(asset: string, overrides?: CallOverrides): Promise<string>;
 
@@ -164,15 +137,9 @@ export class JoinFactory extends BaseContract {
   estimateGas: {
     JOIN_BYTECODE_HASH(overrides?: CallOverrides): Promise<BigNumber>;
 
-    calculateJoinAddress(
-      asset: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    calculateJoinAddress(asset: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    createJoin(
-      asset: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    createJoin(asset: string, overrides?: Overrides & { from?: string | Promise<string> }): Promise<BigNumber>;
 
     getJoin(asset: string, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -180,24 +147,16 @@ export class JoinFactory extends BaseContract {
   };
 
   populateTransaction: {
-    JOIN_BYTECODE_HASH(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    JOIN_BYTECODE_HASH(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    calculateJoinAddress(
-      asset: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    calculateJoinAddress(asset: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     createJoin(
       asset: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    getJoin(
-      asset: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    getJoin(asset: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     nextAsset(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };

@@ -2,52 +2,49 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import { Provider } from "@ethersproject/providers";
-import type {
-  CTokenInterface,
-  CTokenInterfaceInterface,
-} from "../CTokenInterface";
+import { Contract, Signer, utils } from 'ethers';
+import { Provider } from '@ethersproject/providers';
+import type { CTokenInterface, CTokenInterfaceInterface } from '../CTokenInterface';
 
 const _abi = [
   {
     inputs: [],
-    name: "borrowIndex",
+    name: 'borrowIndex',
     outputs: [
       {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "exchangeRateCurrent",
+    name: 'exchangeRateCurrent',
     outputs: [
       {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
       },
     ],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "exchangeRateStored",
+    name: 'exchangeRateStored',
     outputs: [
       {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
 ];
 
@@ -56,10 +53,7 @@ export class CTokenInterface__factory {
   static createInterface(): CTokenInterfaceInterface {
     return new utils.Interface(_abi) as CTokenInterfaceInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): CTokenInterface {
+  static connect(address: string, signerOrProvider: Signer | Provider): CTokenInterface {
     return new Contract(address, _abi, signerOrProvider) as CTokenInterface;
   }
 }

@@ -1,11 +1,4 @@
-import {
-  Box,
-  Collapsible,
-  Header,
-  Layer,
-  ResponsiveContext,
-  Text,
-} from 'grommet';
+import { Box, Collapsible, Header, Layer, ResponsiveContext, Text } from 'grommet';
 import React, { useContext, useState, useRef } from 'react';
 
 import { FiMenu, FiToggleRight, FiToggleLeft } from 'react-icons/fi';

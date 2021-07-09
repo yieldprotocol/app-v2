@@ -28,49 +28,25 @@ const YieldSettings = ({ setSettingsOpen }: any) => {
     <Box basis="auto" width="medium" pad="small" gap="small">
       <Box justify="between" align="center" direction="row">
         <Text>Account</Text>
-        <Button
-          icon={<FiX size="1.5rem" />}
-          onClick={() => setSettingsOpen(false)}
-          plain
-        />
+        <Button icon={<FiX size="1.5rem" />} onClick={() => setSettingsOpen(false)} plain />
       </Box>
-      <Box
-        border={{ color: 'brand', size: 'xsmall' }}
-        gap="small"
-        pad="small"
-        round="small"
-      >
+      <Box border={{ color: 'brand', size: 'xsmall' }} gap="small" pad="small" round="small">
         <Box justify="between" align="center" direction="row">
           <Text size="small">Connected with {connectType}</Text>
-          <Button
-            color="accent-2"
-            secondary
-            onClick={handleChangeConnectType}
-            label="Change"
-            size="small"
-          />
+          <Button color="accent-2" secondary onClick={handleChangeConnectType} label="Change" size="small" />
         </Box>
         <Box align="center" direction="row" gap="xsmall">
           <YieldAvatar address={account.concat('y')} size={1.2} />
           <Text size="xlarge">{abbreviateHash(account)}</Text>
         </Box>
         <Box align="center" direction="row" gap="xsmall">
-          <Button
-            alignSelf="center"
-            margin="xsmall"
-            onClick={() => handleCopy(account)}
-          >
+          <Button alignSelf="center" margin="xsmall" onClick={() => handleCopy(account)}>
             <FiCopy size="1rem" />
             <Text margin="xsmall" size="small">
               {copySuccess ? 'Copied' : 'Copy Address'}
             </Text>
           </Button>
-          <Anchor
-            alignSelf="center"
-            href={`https://etherscan.io/address/${account}`}
-            margin="xsmall"
-            target="_blank"
-          >
+          <Anchor alignSelf="center" href={`https://etherscan.io/address/${account}`} margin="xsmall" target="_blank">
             <FiExternalLink size="1rem" />
             <Text margin="xsmall" size="small">
               View on Explorer

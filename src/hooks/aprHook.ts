@@ -6,14 +6,14 @@ import { cleanValue } from '../utils/appUtils';
 import { secondsToFrom, sellBase, buyBase, calculateAPR } from '../utils/yieldMath';
 
 /* APR hook calculatess APR, min and max aprs for selected series and BORROW or LEND type */
-export const useApr = (input:string|undefined, actionType: ActionType, series: ISeries|undefined) => {
+export const useApr = (input: string | undefined, actionType: ActionType, series: ISeries | undefined) => {
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext) as IUserContext;
   const { seriesMap, selectedSeriesId, selectedBaseId } = userState;
   const selectedSeries = series || seriesMap.get(selectedSeriesId!);
 
   /* LOCAL STATE */
-  const [apr, setApr] = useState<string|undefined>();
+  const [apr, setApr] = useState<string | undefined>();
 
   useEffect(() => {
     let preview: ethers.BigNumber | Error = ethers.constants.Zero;
@@ -38,8 +38,8 @@ export const useApr = (input:string|undefined, actionType: ActionType, series: I
 
   /* Get the min APR from all the series */
   const aprArray = Array.from(seriesMap.values())
-    .filter((x:ISeries) => x.baseId === selectedBaseId)
-    .map((x:ISeries) => parseFloat(x.apr));
+    .filter((x: ISeries) => x.baseId === selectedBaseId)
+    .map((x: ISeries) => parseFloat(x.apr));
   const minApr = aprArray.length && Math.min(...aprArray);
   const maxApr = aprArray.length && Math.min(...aprArray);
 

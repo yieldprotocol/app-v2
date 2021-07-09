@@ -13,41 +13,35 @@ import {
   ContractTransaction,
   Overrides,
   CallOverrides,
-} from "ethers";
-import { BytesLike } from "@ethersproject/bytes";
-import { Listener, Provider } from "@ethersproject/providers";
-import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
-import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
+} from 'ethers';
+import { BytesLike } from '@ethersproject/bytes';
+import { Listener, Provider } from '@ethersproject/providers';
+import { FunctionFragment, EventFragment, Result } from '@ethersproject/abi';
+import { TypedEventFilter, TypedEvent, TypedListener } from './commons';
 
 interface OracleMockInterface extends ethers.utils.Interface {
   functions: {
-    "get(bytes32,bytes32,uint256)": FunctionFragment;
-    "peek(bytes32,bytes32,uint256)": FunctionFragment;
-    "set(uint256)": FunctionFragment;
-    "source()": FunctionFragment;
-    "spot()": FunctionFragment;
-    "updated()": FunctionFragment;
+    'get(bytes32,bytes32,uint256)': FunctionFragment;
+    'peek(bytes32,bytes32,uint256)': FunctionFragment;
+    'set(uint256)': FunctionFragment;
+    'source()': FunctionFragment;
+    'spot()': FunctionFragment;
+    'updated()': FunctionFragment;
   };
 
-  encodeFunctionData(
-    functionFragment: "get",
-    values: [BytesLike, BytesLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "peek",
-    values: [BytesLike, BytesLike, BigNumberish]
-  ): string;
-  encodeFunctionData(functionFragment: "set", values: [BigNumberish]): string;
-  encodeFunctionData(functionFragment: "source", values?: undefined): string;
-  encodeFunctionData(functionFragment: "spot", values?: undefined): string;
-  encodeFunctionData(functionFragment: "updated", values?: undefined): string;
+  encodeFunctionData(functionFragment: 'get', values: [BytesLike, BytesLike, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'peek', values: [BytesLike, BytesLike, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'set', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'source', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'spot', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'updated', values?: undefined): string;
 
-  decodeFunctionResult(functionFragment: "get", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "peek", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "set", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "source", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "spot", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "updated", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'get', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'peek', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'set', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'source', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'spot', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'updated', data: BytesLike): Result;
 
   events: {};
 }
@@ -110,10 +104,7 @@ export class OracleMock extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber, BigNumber]>;
 
-    set(
-      spot_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    set(spot_: BigNumberish, overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
 
     source(overrides?: CallOverrides): Promise<[string]>;
 
@@ -136,10 +127,7 @@ export class OracleMock extends BaseContract {
     overrides?: CallOverrides
   ): Promise<[BigNumber, BigNumber]>;
 
-  set(
-    spot_: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  set(spot_: BigNumberish, overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
 
   source(overrides?: CallOverrides): Promise<string>;
 
@@ -181,17 +169,9 @@ export class OracleMock extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    peek(
-      arg0: BytesLike,
-      arg1: BytesLike,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    peek(arg0: BytesLike, arg1: BytesLike, amount: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
-    set(
-      spot_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    set(spot_: BigNumberish, overrides?: Overrides & { from?: string | Promise<string> }): Promise<BigNumber>;
 
     source(overrides?: CallOverrides): Promise<BigNumber>;
 

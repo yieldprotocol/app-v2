@@ -2,9 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import { Provider } from "@ethersproject/providers";
-import type { Pausable, PausableInterface } from "../Pausable";
+import { Contract, Signer, utils } from 'ethers';
+import { Provider } from '@ethersproject/providers';
+import type { Pausable, PausableInterface } from '../Pausable';
 
 const _abi = [
   {
@@ -12,39 +12,39 @@ const _abi = [
     inputs: [
       {
         indexed: false,
-        internalType: "address",
-        name: "account",
-        type: "address",
+        internalType: 'address',
+        name: 'account',
+        type: 'address',
       },
     ],
-    name: "Paused",
-    type: "event",
+    name: 'Paused',
+    type: 'event',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: false,
-        internalType: "address",
-        name: "account",
-        type: "address",
+        internalType: 'address',
+        name: 'account',
+        type: 'address',
       },
     ],
-    name: "Unpaused",
-    type: "event",
+    name: 'Unpaused',
+    type: 'event',
   },
   {
     inputs: [],
-    name: "paused",
+    name: 'paused',
     outputs: [
       {
-        internalType: "bool",
-        name: "",
-        type: "bool",
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
 ];
 
@@ -53,10 +53,7 @@ export class Pausable__factory {
   static createInterface(): PausableInterface {
     return new utils.Interface(_abi) as PausableInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): Pausable {
+  static connect(address: string, signerOrProvider: Signer | Provider): Pausable {
     return new Contract(address, _abi, signerOrProvider) as Pausable;
   }
 }

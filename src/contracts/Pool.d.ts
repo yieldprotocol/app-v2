@@ -13,313 +13,167 @@ import {
   ContractTransaction,
   Overrides,
   CallOverrides,
-} from "ethers";
-import { BytesLike } from "@ethersproject/bytes";
-import { Listener, Provider } from "@ethersproject/providers";
-import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
-import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
+} from 'ethers';
+import { BytesLike } from '@ethersproject/bytes';
+import { Listener, Provider } from '@ethersproject/providers';
+import { FunctionFragment, EventFragment, Result } from '@ethersproject/abi';
+import { TypedEventFilter, TypedEvent, TypedListener } from './commons';
 
 interface PoolInterface extends ethers.utils.Interface {
   functions: {
-    "DOMAIN_SEPARATOR()": FunctionFragment;
-    "PERMIT_TYPEHASH()": FunctionFragment;
-    "allowance(address,address)": FunctionFragment;
-    "approve(address,uint256)": FunctionFragment;
-    "balanceOf(address)": FunctionFragment;
-    "base()": FunctionFragment;
-    "burn(address,uint256,uint256)": FunctionFragment;
-    "burnForBase(address,uint256)": FunctionFragment;
-    "buyBase(address,uint128,uint128)": FunctionFragment;
-    "buyBasePreview(uint128)": FunctionFragment;
-    "buyFYToken(address,uint128,uint128)": FunctionFragment;
-    "buyFYTokenPreview(uint128)": FunctionFragment;
-    "cumulativeBalancesRatio()": FunctionFragment;
-    "decimals()": FunctionFragment;
-    "deploymentChainId()": FunctionFragment;
-    "fyToken()": FunctionFragment;
-    "getBaseBalance()": FunctionFragment;
-    "getCache()": FunctionFragment;
-    "getFYTokenBalance()": FunctionFragment;
-    "getG1()": FunctionFragment;
-    "getG2()": FunctionFragment;
-    "getK()": FunctionFragment;
-    "maturity()": FunctionFragment;
-    "mint(address,bool,uint256)": FunctionFragment;
-    "mintWithBase(address,uint256,uint256)": FunctionFragment;
-    "name()": FunctionFragment;
-    "nonces(address)": FunctionFragment;
-    "owner()": FunctionFragment;
-    "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)": FunctionFragment;
-    "retrieveBase(address)": FunctionFragment;
-    "retrieveFYToken(address)": FunctionFragment;
-    "sellBase(address,uint128)": FunctionFragment;
-    "sellBasePreview(uint128)": FunctionFragment;
-    "sellFYToken(address,uint128)": FunctionFragment;
-    "sellFYTokenPreview(uint128)": FunctionFragment;
-    "setParameter(bytes32,int128)": FunctionFragment;
-    "symbol()": FunctionFragment;
-    "sync()": FunctionFragment;
-    "totalSupply()": FunctionFragment;
-    "transfer(address,uint256)": FunctionFragment;
-    "transferFrom(address,address,uint256)": FunctionFragment;
-    "transferOwnership(address)": FunctionFragment;
-    "version()": FunctionFragment;
+    'DOMAIN_SEPARATOR()': FunctionFragment;
+    'PERMIT_TYPEHASH()': FunctionFragment;
+    'allowance(address,address)': FunctionFragment;
+    'approve(address,uint256)': FunctionFragment;
+    'balanceOf(address)': FunctionFragment;
+    'base()': FunctionFragment;
+    'burn(address,uint256,uint256)': FunctionFragment;
+    'burnForBase(address,uint256)': FunctionFragment;
+    'buyBase(address,uint128,uint128)': FunctionFragment;
+    'buyBasePreview(uint128)': FunctionFragment;
+    'buyFYToken(address,uint128,uint128)': FunctionFragment;
+    'buyFYTokenPreview(uint128)': FunctionFragment;
+    'cumulativeBalancesRatio()': FunctionFragment;
+    'decimals()': FunctionFragment;
+    'deploymentChainId()': FunctionFragment;
+    'fyToken()': FunctionFragment;
+    'getBaseBalance()': FunctionFragment;
+    'getCache()': FunctionFragment;
+    'getFYTokenBalance()': FunctionFragment;
+    'getG1()': FunctionFragment;
+    'getG2()': FunctionFragment;
+    'getK()': FunctionFragment;
+    'maturity()': FunctionFragment;
+    'mint(address,bool,uint256)': FunctionFragment;
+    'mintWithBase(address,uint256,uint256)': FunctionFragment;
+    'name()': FunctionFragment;
+    'nonces(address)': FunctionFragment;
+    'owner()': FunctionFragment;
+    'permit(address,address,uint256,uint256,uint8,bytes32,bytes32)': FunctionFragment;
+    'retrieveBase(address)': FunctionFragment;
+    'retrieveFYToken(address)': FunctionFragment;
+    'sellBase(address,uint128)': FunctionFragment;
+    'sellBasePreview(uint128)': FunctionFragment;
+    'sellFYToken(address,uint128)': FunctionFragment;
+    'sellFYTokenPreview(uint128)': FunctionFragment;
+    'setParameter(bytes32,int128)': FunctionFragment;
+    'symbol()': FunctionFragment;
+    'sync()': FunctionFragment;
+    'totalSupply()': FunctionFragment;
+    'transfer(address,uint256)': FunctionFragment;
+    'transferFrom(address,address,uint256)': FunctionFragment;
+    'transferOwnership(address)': FunctionFragment;
+    'version()': FunctionFragment;
   };
 
+  encodeFunctionData(functionFragment: 'DOMAIN_SEPARATOR', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'PERMIT_TYPEHASH', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'allowance', values: [string, string]): string;
+  encodeFunctionData(functionFragment: 'approve', values: [string, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'balanceOf', values: [string]): string;
+  encodeFunctionData(functionFragment: 'base', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'burn', values: [string, BigNumberish, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'burnForBase', values: [string, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'buyBase', values: [string, BigNumberish, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'buyBasePreview', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'buyFYToken', values: [string, BigNumberish, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'buyFYTokenPreview', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'cumulativeBalancesRatio', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'decimals', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'deploymentChainId', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'fyToken', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'getBaseBalance', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'getCache', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'getFYTokenBalance', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'getG1', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'getG2', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'getK', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'maturity', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'mint', values: [string, boolean, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'mintWithBase', values: [string, BigNumberish, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'name', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'nonces', values: [string]): string;
+  encodeFunctionData(functionFragment: 'owner', values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "DOMAIN_SEPARATOR",
-    values?: undefined
+    functionFragment: 'permit',
+    values: [string, string, BigNumberish, BigNumberish, BigNumberish, BytesLike, BytesLike]
   ): string;
-  encodeFunctionData(
-    functionFragment: "PERMIT_TYPEHASH",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "allowance",
-    values: [string, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "approve",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
-  encodeFunctionData(functionFragment: "base", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "burn",
-    values: [string, BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "burnForBase",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "buyBase",
-    values: [string, BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "buyBasePreview",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "buyFYToken",
-    values: [string, BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "buyFYTokenPreview",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "cumulativeBalancesRatio",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "deploymentChainId",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "fyToken", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "getBaseBalance",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "getCache", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "getFYTokenBalance",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "getG1", values?: undefined): string;
-  encodeFunctionData(functionFragment: "getG2", values?: undefined): string;
-  encodeFunctionData(functionFragment: "getK", values?: undefined): string;
-  encodeFunctionData(functionFragment: "maturity", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "mint",
-    values: [string, boolean, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "mintWithBase",
-    values: [string, BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(functionFragment: "name", values?: undefined): string;
-  encodeFunctionData(functionFragment: "nonces", values: [string]): string;
-  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "permit",
-    values: [
-      string,
-      string,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BytesLike,
-      BytesLike
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "retrieveBase",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "retrieveFYToken",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "sellBase",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "sellBasePreview",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "sellFYToken",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "sellFYTokenPreview",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setParameter",
-    values: [BytesLike, BigNumberish]
-  ): string;
-  encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
-  encodeFunctionData(functionFragment: "sync", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "totalSupply",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transfer",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferFrom",
-    values: [string, string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferOwnership",
-    values: [string]
-  ): string;
-  encodeFunctionData(functionFragment: "version", values?: undefined): string;
+  encodeFunctionData(functionFragment: 'retrieveBase', values: [string]): string;
+  encodeFunctionData(functionFragment: 'retrieveFYToken', values: [string]): string;
+  encodeFunctionData(functionFragment: 'sellBase', values: [string, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'sellBasePreview', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'sellFYToken', values: [string, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'sellFYTokenPreview', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'setParameter', values: [BytesLike, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'symbol', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'sync', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'totalSupply', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'transfer', values: [string, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'transferFrom', values: [string, string, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'transferOwnership', values: [string]): string;
+  encodeFunctionData(functionFragment: 'version', values?: undefined): string;
 
-  decodeFunctionResult(
-    functionFragment: "DOMAIN_SEPARATOR",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "PERMIT_TYPEHASH",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "allowance", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "base", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "burn", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "burnForBase",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "buyBase", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "buyBasePreview",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "buyFYToken", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "buyFYTokenPreview",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "cumulativeBalancesRatio",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "deploymentChainId",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "fyToken", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "getBaseBalance",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "getCache", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "getFYTokenBalance",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "getG1", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getG2", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getK", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "maturity", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "mintWithBase",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "nonces", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "permit", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "retrieveBase",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "retrieveFYToken",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "sellBase", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "sellBasePreview",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "sellFYToken",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "sellFYTokenPreview",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setParameter",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "sync", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "totalSupply",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "transfer", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "transferFrom",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "version", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'DOMAIN_SEPARATOR', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'PERMIT_TYPEHASH', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'allowance', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'approve', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'balanceOf', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'base', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'burn', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'burnForBase', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'buyBase', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'buyBasePreview', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'buyFYToken', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'buyFYTokenPreview', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'cumulativeBalancesRatio', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'decimals', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'deploymentChainId', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'fyToken', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getBaseBalance', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getCache', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getFYTokenBalance', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getG1', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getG2', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getK', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'maturity', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'mint', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'mintWithBase', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'name', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'nonces', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'owner', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'permit', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'retrieveBase', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'retrieveFYToken', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'sellBase', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'sellBasePreview', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'sellFYToken', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'sellFYTokenPreview', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setParameter', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'symbol', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'sync', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'totalSupply', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'transfer', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'transferFrom', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'transferOwnership', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'version', data: BytesLike): Result;
 
   events: {
-    "Approval(address,address,uint256)": EventFragment;
-    "Liquidity(uint32,address,address,int256,int256,int256)": EventFragment;
-    "OwnershipTransferred(address,address)": EventFragment;
-    "ParameterSet(bytes32,int128)": EventFragment;
-    "Sync(uint112,uint112,uint256)": EventFragment;
-    "Trade(uint32,address,address,int256,int256)": EventFragment;
-    "Transfer(address,address,uint256)": EventFragment;
+    'Approval(address,address,uint256)': EventFragment;
+    'Liquidity(uint32,address,address,int256,int256,int256)': EventFragment;
+    'OwnershipTransferred(address,address)': EventFragment;
+    'ParameterSet(bytes32,int128)': EventFragment;
+    'Sync(uint112,uint112,uint256)': EventFragment;
+    'Trade(uint32,address,address,int256,int256)': EventFragment;
+    'Transfer(address,address,uint256)': EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Liquidity"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ParameterSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Sync"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Trade"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Approval'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Liquidity'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'OwnershipTransferred'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'ParameterSet'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Sync'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Trade'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Transfer'): EventFragment;
 }
 
 export class Pool extends BaseContract {
@@ -370,11 +224,7 @@ export class Pool extends BaseContract {
 
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<[string]>;
 
-    allowance(
-      owner: string,
-      spender: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    allowance(owner: string, spender: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
     approve(
       spender: string,
@@ -406,10 +256,7 @@ export class Pool extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    buyBasePreview(
-      tokenOut: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    buyBasePreview(tokenOut: BigNumberish, overrides?: CallOverrides): Promise<[BigNumber]>;
 
     buyFYToken(
       to: string,
@@ -418,10 +265,7 @@ export class Pool extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    buyFYTokenPreview(
-      fyTokenOut: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    buyFYTokenPreview(fyTokenOut: BigNumberish, overrides?: CallOverrides): Promise<[BigNumber]>;
 
     cumulativeBalancesRatio(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -433,9 +277,7 @@ export class Pool extends BaseContract {
 
     getBaseBalance(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    getCache(
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber, number]>;
+    getCache(overrides?: CallOverrides): Promise<[BigNumber, BigNumber, number]>;
 
     getFYTokenBalance(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -478,10 +320,7 @@ export class Pool extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    retrieveBase(
-      to: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    retrieveBase(to: string, overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
 
     retrieveFYToken(
       to: string,
@@ -494,10 +333,7 @@ export class Pool extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    sellBasePreview(
-      baseIn: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    sellBasePreview(baseIn: BigNumberish, overrides?: CallOverrides): Promise<[BigNumber]>;
 
     sellFYToken(
       to: string,
@@ -505,10 +341,7 @@ export class Pool extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    sellFYTokenPreview(
-      fyTokenIn: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    sellFYTokenPreview(fyTokenIn: BigNumberish, overrides?: CallOverrides): Promise<[BigNumber]>;
 
     setParameter(
       parameter: BytesLike,
@@ -518,9 +351,7 @@ export class Pool extends BaseContract {
 
     symbol(overrides?: CallOverrides): Promise<[string]>;
 
-    sync(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    sync(overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
 
     totalSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -549,11 +380,7 @@ export class Pool extends BaseContract {
 
   PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
-  allowance(
-    owner: string,
-    spender: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  allowance(owner: string, spender: string, overrides?: CallOverrides): Promise<BigNumber>;
 
   approve(
     spender: string,
@@ -585,10 +412,7 @@ export class Pool extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  buyBasePreview(
-    tokenOut: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  buyBasePreview(tokenOut: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
   buyFYToken(
     to: string,
@@ -597,10 +421,7 @@ export class Pool extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  buyFYTokenPreview(
-    fyTokenOut: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  buyFYTokenPreview(fyTokenOut: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
   cumulativeBalancesRatio(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -655,10 +476,7 @@ export class Pool extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  retrieveBase(
-    to: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  retrieveBase(to: string, overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
 
   retrieveFYToken(
     to: string,
@@ -671,10 +489,7 @@ export class Pool extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  sellBasePreview(
-    baseIn: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  sellBasePreview(baseIn: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
   sellFYToken(
     to: string,
@@ -682,10 +497,7 @@ export class Pool extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  sellFYTokenPreview(
-    fyTokenIn: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  sellFYTokenPreview(fyTokenIn: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
   setParameter(
     parameter: BytesLike,
@@ -695,9 +507,7 @@ export class Pool extends BaseContract {
 
   symbol(overrides?: CallOverrides): Promise<string>;
 
-  sync(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  sync(overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
 
   totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -726,17 +536,9 @@ export class Pool extends BaseContract {
 
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
-    allowance(
-      owner: string,
-      spender: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    allowance(owner: string, spender: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    approve(
-      spender: string,
-      wad: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    approve(spender: string, wad: BigNumberish, overrides?: CallOverrides): Promise<boolean>;
 
     balanceOf(guy: string, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -753,33 +555,15 @@ export class Pool extends BaseContract {
       to: string,
       minBaseOut: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { tokensBurned: BigNumber; baseOut: BigNumber }
-    >;
+    ): Promise<[BigNumber, BigNumber] & { tokensBurned: BigNumber; baseOut: BigNumber }>;
 
-    buyBase(
-      to: string,
-      tokenOut: BigNumberish,
-      max: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    buyBase(to: string, tokenOut: BigNumberish, max: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
-    buyBasePreview(
-      tokenOut: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    buyBasePreview(tokenOut: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
-    buyFYToken(
-      to: string,
-      fyTokenOut: BigNumberish,
-      max: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    buyFYToken(to: string, fyTokenOut: BigNumberish, max: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
-    buyFYTokenPreview(
-      fyTokenOut: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    buyFYTokenPreview(fyTokenOut: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
     cumulativeBalancesRatio(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -791,9 +575,7 @@ export class Pool extends BaseContract {
 
     getBaseBalance(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getCache(
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber, number]>;
+    getCache(overrides?: CallOverrides): Promise<[BigNumber, BigNumber, number]>;
 
     getFYTokenBalance(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -840,33 +622,15 @@ export class Pool extends BaseContract {
 
     retrieveFYToken(to: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    sellBase(
-      to: string,
-      min: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    sellBase(to: string, min: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
-    sellBasePreview(
-      baseIn: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    sellBasePreview(baseIn: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
-    sellFYToken(
-      to: string,
-      min: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    sellFYToken(to: string, min: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
-    sellFYTokenPreview(
-      fyTokenIn: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    sellFYTokenPreview(fyTokenIn: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
-    setParameter(
-      parameter: BytesLike,
-      value: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    setParameter(parameter: BytesLike, value: BigNumberish, overrides?: CallOverrides): Promise<void>;
 
     symbol(overrides?: CallOverrides): Promise<string>;
 
@@ -874,23 +638,11 @@ export class Pool extends BaseContract {
 
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
-    transfer(
-      dst: string,
-      wad: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    transfer(dst: string, wad: BigNumberish, overrides?: CallOverrides): Promise<boolean>;
 
-    transferFrom(
-      src: string,
-      dst: string,
-      wad: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    transferFrom(src: string, dst: string, wad: BigNumberish, overrides?: CallOverrides): Promise<boolean>;
 
-    transferOwnership(
-      newOwner: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    transferOwnership(newOwner: string, overrides?: CallOverrides): Promise<void>;
 
     version(overrides?: CallOverrides): Promise<string>;
   };
@@ -900,10 +652,7 @@ export class Pool extends BaseContract {
       owner?: string | null,
       spender?: string | null,
       value?: null
-    ): TypedEventFilter<
-      [string, string, BigNumber],
-      { owner: string; spender: string; value: BigNumber }
-    >;
+    ): TypedEventFilter<[string, string, BigNumber], { owner: string; spender: string; value: BigNumber }>;
 
     Liquidity(
       maturity?: null,
@@ -927,18 +676,12 @@ export class Pool extends BaseContract {
     OwnershipTransferred(
       oldOwner?: string | null,
       newOwner?: string | null
-    ): TypedEventFilter<
-      [string, string],
-      { oldOwner: string; newOwner: string }
-    >;
+    ): TypedEventFilter<[string, string], { oldOwner: string; newOwner: string }>;
 
     ParameterSet(
       parameter?: null,
       k?: null
-    ): TypedEventFilter<
-      [string, BigNumber],
-      { parameter: string; k: BigNumber }
-    >;
+    ): TypedEventFilter<[string, BigNumber], { parameter: string; k: BigNumber }>;
 
     Sync(
       baseCached?: null,
@@ -974,10 +717,7 @@ export class Pool extends BaseContract {
       from?: string | null,
       to?: string | null,
       value?: null
-    ): TypedEventFilter<
-      [string, string, BigNumber],
-      { from: string; to: string; value: BigNumber }
-    >;
+    ): TypedEventFilter<[string, string, BigNumber], { from: string; to: string; value: BigNumber }>;
   };
 
   estimateGas: {
@@ -985,11 +725,7 @@ export class Pool extends BaseContract {
 
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<BigNumber>;
 
-    allowance(
-      owner: string,
-      spender: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    allowance(owner: string, spender: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     approve(
       spender: string,
@@ -1021,10 +757,7 @@ export class Pool extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    buyBasePreview(
-      tokenOut: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    buyBasePreview(tokenOut: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
     buyFYToken(
       to: string,
@@ -1033,10 +766,7 @@ export class Pool extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    buyFYTokenPreview(
-      fyTokenOut: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    buyFYTokenPreview(fyTokenOut: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
     cumulativeBalancesRatio(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1091,15 +821,9 @@ export class Pool extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    retrieveBase(
-      to: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    retrieveBase(to: string, overrides?: Overrides & { from?: string | Promise<string> }): Promise<BigNumber>;
 
-    retrieveFYToken(
-      to: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    retrieveFYToken(to: string, overrides?: Overrides & { from?: string | Promise<string> }): Promise<BigNumber>;
 
     sellBase(
       to: string,
@@ -1107,10 +831,7 @@ export class Pool extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    sellBasePreview(
-      baseIn: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    sellBasePreview(baseIn: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
     sellFYToken(
       to: string,
@@ -1118,10 +839,7 @@ export class Pool extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    sellFYTokenPreview(
-      fyTokenIn: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    sellFYTokenPreview(fyTokenIn: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
     setParameter(
       parameter: BytesLike,
@@ -1131,9 +849,7 @@ export class Pool extends BaseContract {
 
     symbol(overrides?: CallOverrides): Promise<BigNumber>;
 
-    sync(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    sync(overrides?: Overrides & { from?: string | Promise<string> }): Promise<BigNumber>;
 
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1163,11 +879,7 @@ export class Pool extends BaseContract {
 
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    allowance(
-      owner: string,
-      spender: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    allowance(owner: string, spender: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     approve(
       spender: string,
@@ -1175,10 +887,7 @@ export class Pool extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    balanceOf(
-      guy: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    balanceOf(guy: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     base(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1202,10 +911,7 @@ export class Pool extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    buyBasePreview(
-      tokenOut: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    buyBasePreview(tokenOut: BigNumberish, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     buyFYToken(
       to: string,
@@ -1214,14 +920,9 @@ export class Pool extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    buyFYTokenPreview(
-      fyTokenOut: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    buyFYTokenPreview(fyTokenOut: BigNumberish, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    cumulativeBalancesRatio(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    cumulativeBalancesRatio(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1259,10 +960,7 @@ export class Pool extends BaseContract {
 
     name(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    nonces(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    nonces(arg0: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1293,10 +991,7 @@ export class Pool extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    sellBasePreview(
-      baseIn: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    sellBasePreview(baseIn: BigNumberish, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     sellFYToken(
       to: string,
@@ -1304,10 +999,7 @@ export class Pool extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    sellFYTokenPreview(
-      fyTokenIn: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    sellFYTokenPreview(fyTokenIn: BigNumberish, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     setParameter(
       parameter: BytesLike,
@@ -1317,9 +1009,7 @@ export class Pool extends BaseContract {
 
     symbol(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    sync(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
+    sync(overrides?: Overrides & { from?: string | Promise<string> }): Promise<PopulatedTransaction>;
 
     totalSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

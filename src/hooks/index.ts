@@ -1,7 +1,3 @@
 import { useCachedState, useDebounce, useTimeout } from './generalHooks';
 
-export {
-  useCachedState,
-  useDebounce,
-  useTimeout,
-};
+export { useCachedState, useDebounce, useTimeout };
