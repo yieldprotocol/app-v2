@@ -118,7 +118,7 @@ function chainReducer(state: any, action: any) {
 
 const ChainProvider = ({ children }: any) => {
   const [chainState, updateState] = React.useReducer(chainReducer, initState);
-  const [lastChainId, setLastChainId] = useCachedState('lastChainId', 1);
+  const [lastChainId, setLastChainId] = useCachedState('lastChainId', 42);
   const [lastBlock, setLastBlock] = useCachedState('lastBlock', 1);
 
   const [tried, setTried] = useState<boolean>(false);
