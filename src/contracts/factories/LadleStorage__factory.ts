@@ -2,174 +2,174 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import { Provider } from "@ethersproject/providers";
-import type { LadleStorage, LadleStorageInterface } from "../LadleStorage";
+import { Contract, Signer, utils } from 'ethers';
+import { Provider } from '@ethersproject/providers';
+import type { LadleStorage, LadleStorageInterface } from '../LadleStorage';
 
 const _abi = [
   {
     inputs: [
       {
-        internalType: "contract ICauldron",
-        name: "cauldron_",
-        type: "address",
+        internalType: 'contract ICauldron',
+        name: 'cauldron_',
+        type: 'address',
       },
     ],
-    stateMutability: "nonpayable",
-    type: "constructor",
+    stateMutability: 'nonpayable',
+    type: 'constructor',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: false,
-        internalType: "uint256",
-        name: "fee",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'fee',
+        type: 'uint256',
       },
     ],
-    name: "FeeSet",
-    type: "event",
+    name: 'FeeSet',
+    type: 'event',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        internalType: "bytes6",
-        name: "assetId",
-        type: "bytes6",
+        internalType: 'bytes6',
+        name: 'assetId',
+        type: 'bytes6',
       },
       {
         indexed: true,
-        internalType: "address",
-        name: "join",
-        type: "address",
+        internalType: 'address',
+        name: 'join',
+        type: 'address',
       },
     ],
-    name: "JoinAdded",
-    type: "event",
+    name: 'JoinAdded',
+    type: 'event',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        internalType: "address",
-        name: "module",
-        type: "address",
+        internalType: 'address',
+        name: 'module',
+        type: 'address',
       },
       {
         indexed: true,
-        internalType: "bool",
-        name: "set",
-        type: "bool",
+        internalType: 'bool',
+        name: 'set',
+        type: 'bool',
       },
     ],
-    name: "ModuleSet",
-    type: "event",
+    name: 'ModuleSet',
+    type: 'event',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        internalType: "bytes6",
-        name: "seriesId",
-        type: "bytes6",
+        internalType: 'bytes6',
+        name: 'seriesId',
+        type: 'bytes6',
       },
       {
         indexed: true,
-        internalType: "address",
-        name: "pool",
-        type: "address",
+        internalType: 'address',
+        name: 'pool',
+        type: 'address',
       },
     ],
-    name: "PoolAdded",
-    type: "event",
+    name: 'PoolAdded',
+    type: 'event',
   },
   {
     inputs: [],
-    name: "borrowingFee",
+    name: 'borrowingFee',
     outputs: [
       {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "cauldron",
+    name: 'cauldron',
     outputs: [
       {
-        internalType: "contract ICauldron",
-        name: "",
-        type: "address",
+        internalType: 'contract ICauldron',
+        name: '',
+        type: 'address',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "bytes6",
-        name: "",
-        type: "bytes6",
+        internalType: 'bytes6',
+        name: '',
+        type: 'bytes6',
       },
     ],
-    name: "joins",
+    name: 'joins',
     outputs: [
       {
-        internalType: "contract IJoin",
-        name: "",
-        type: "address",
+        internalType: 'contract IJoin',
+        name: '',
+        type: 'address',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
+        internalType: 'address',
+        name: '',
+        type: 'address',
       },
     ],
-    name: "modules",
+    name: 'modules',
     outputs: [
       {
-        internalType: "bool",
-        name: "",
-        type: "bool",
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "bytes6",
-        name: "",
-        type: "bytes6",
+        internalType: 'bytes6',
+        name: '',
+        type: 'bytes6',
       },
     ],
-    name: "pools",
+    name: 'pools',
     outputs: [
       {
-        internalType: "contract IPool",
-        name: "",
-        type: "address",
+        internalType: 'contract IPool',
+        name: '',
+        type: 'address',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
 ];
 
@@ -178,10 +178,7 @@ export class LadleStorage__factory {
   static createInterface(): LadleStorageInterface {
     return new utils.Interface(_abi) as LadleStorageInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): LadleStorage {
+  static connect(address: string, signerOrProvider: Signer | Provider): LadleStorage {
     return new Contract(address, _abi, signerOrProvider) as LadleStorage;
   }
 }

@@ -13,34 +13,26 @@ import {
   ContractTransaction,
   Overrides,
   CallOverrides,
-} from "ethers";
-import { BytesLike } from "@ethersproject/bytes";
-import { Listener, Provider } from "@ethersproject/providers";
-import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
-import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
+} from 'ethers';
+import { BytesLike } from '@ethersproject/bytes';
+import { Listener, Provider } from '@ethersproject/providers';
+import { FunctionFragment, EventFragment, Result } from '@ethersproject/abi';
+import { TypedEventFilter, TypedEvent, TypedListener } from './commons';
 
 interface IERC2612Interface extends ethers.utils.Interface {
   functions: {
-    "nonces(address)": FunctionFragment;
-    "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)": FunctionFragment;
+    'nonces(address)': FunctionFragment;
+    'permit(address,address,uint256,uint256,uint8,bytes32,bytes32)': FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: "nonces", values: [string]): string;
+  encodeFunctionData(functionFragment: 'nonces', values: [string]): string;
   encodeFunctionData(
-    functionFragment: "permit",
-    values: [
-      string,
-      string,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BytesLike,
-      BytesLike
-    ]
+    functionFragment: 'permit',
+    values: [string, string, BigNumberish, BigNumberish, BigNumberish, BytesLike, BytesLike]
   ): string;
 
-  decodeFunctionResult(functionFragment: "nonces", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "permit", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'nonces', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'permit', data: BytesLike): Result;
 
   events: {};
 }
@@ -149,10 +141,7 @@ export class IERC2612 extends BaseContract {
   };
 
   populateTransaction: {
-    nonces(
-      owner: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    nonces(owner: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     permit(
       owner: string,

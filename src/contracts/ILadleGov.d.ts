@@ -13,32 +13,26 @@ import {
   ContractTransaction,
   Overrides,
   CallOverrides,
-} from "ethers";
-import { BytesLike } from "@ethersproject/bytes";
-import { Listener, Provider } from "@ethersproject/providers";
-import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
-import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
+} from 'ethers';
+import { BytesLike } from '@ethersproject/bytes';
+import { Listener, Provider } from '@ethersproject/providers';
+import { FunctionFragment, EventFragment, Result } from '@ethersproject/abi';
+import { TypedEventFilter, TypedEvent, TypedListener } from './commons';
 
 interface ILadleGovInterface extends ethers.utils.Interface {
   functions: {
-    "addJoin(bytes6,address)": FunctionFragment;
-    "addPool(bytes6,address)": FunctionFragment;
-    "joins(bytes6)": FunctionFragment;
+    'addJoin(bytes6,address)': FunctionFragment;
+    'addPool(bytes6,address)': FunctionFragment;
+    'joins(bytes6)': FunctionFragment;
   };
 
-  encodeFunctionData(
-    functionFragment: "addJoin",
-    values: [BytesLike, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "addPool",
-    values: [BytesLike, string]
-  ): string;
-  encodeFunctionData(functionFragment: "joins", values: [BytesLike]): string;
+  encodeFunctionData(functionFragment: 'addJoin', values: [BytesLike, string]): string;
+  encodeFunctionData(functionFragment: 'addPool', values: [BytesLike, string]): string;
+  encodeFunctionData(functionFragment: 'joins', values: [BytesLike]): string;
 
-  decodeFunctionResult(functionFragment: "addJoin", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "addPool", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "joins", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'addJoin', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'addPool', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'joins', data: BytesLike): Result;
 
   events: {};
 }
@@ -117,17 +111,9 @@ export class ILadleGov extends BaseContract {
   joins(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
-    addJoin(
-      arg0: BytesLike,
-      arg1: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    addJoin(arg0: BytesLike, arg1: string, overrides?: CallOverrides): Promise<void>;
 
-    addPool(
-      arg0: BytesLike,
-      arg1: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    addPool(arg0: BytesLike, arg1: string, overrides?: CallOverrides): Promise<void>;
 
     joins(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
   };
@@ -163,9 +149,6 @@ export class ILadleGov extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    joins(
-      arg0: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    joins(arg0: BytesLike, overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

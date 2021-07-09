@@ -13,9 +13,7 @@ function PositionAvatar({ position }: { position: IVault | ISeries }) {
   const base: IAsset | undefined = assetMap.get(position?.baseId!); // same for both series and vaults
 
   const vault: IVault | undefined = isVault ? (position as IVault) : undefined;
-  const series: ISeries | undefined = vault
-    ? seriesMap.get(vault.seriesId!)
-    : (position as ISeries);
+  const series: ISeries | undefined = vault ? seriesMap.get(vault.seriesId!) : (position as ISeries);
 
   const ilk: IAsset | undefined = vault && assetMap.get(vault.ilkId); // doesn't exist on series
 
@@ -24,12 +22,7 @@ function PositionAvatar({ position }: { position: IVault | ISeries }) {
       {isVault ? (
         <Stack anchor="top-right">
           <Avatar background={series?.color}>
-            <Box
-              round="large"
-              background={base?.color}
-              pad="xsmall"
-              align="center"
-            >
+            <Box round="large" background={base?.color} pad="xsmall" align="center">
               {base?.image}
             </Box>
           </Avatar>
@@ -39,12 +32,7 @@ function PositionAvatar({ position }: { position: IVault | ISeries }) {
         </Stack>
       ) : (
         <Avatar background={series?.color}>
-          <Box
-            round="large"
-            background={base?.color}
-            pad="xsmall"
-            align="center"
-          >
+          <Box round="large" background={base?.color} pad="xsmall" align="center">
             {base?.image}
           </Box>
         </Avatar>

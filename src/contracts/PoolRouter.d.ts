@@ -13,38 +13,29 @@ import {
   ContractTransaction,
   PayableOverrides,
   CallOverrides,
-} from "ethers";
-import { BytesLike } from "@ethersproject/bytes";
-import { Listener, Provider } from "@ethersproject/providers";
-import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
-import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
+} from 'ethers';
+import { BytesLike } from '@ethersproject/bytes';
+import { Listener, Provider } from '@ethersproject/providers';
+import { FunctionFragment, EventFragment, Result } from '@ethersproject/abi';
+import { TypedEventFilter, TypedEvent, TypedListener } from './commons';
 
 interface PoolRouterInterface extends ethers.utils.Interface {
   functions: {
-    "batch(uint8[],bytes[])": FunctionFragment;
-    "factory()": FunctionFragment;
-    "transferToPool(address,address,address,uint128)": FunctionFragment;
-    "weth()": FunctionFragment;
+    'batch(uint8[],bytes[])': FunctionFragment;
+    'factory()': FunctionFragment;
+    'transferToPool(address,address,address,uint128)': FunctionFragment;
+    'weth()': FunctionFragment;
   };
 
-  encodeFunctionData(
-    functionFragment: "batch",
-    values: [BigNumberish[], BytesLike[]]
-  ): string;
-  encodeFunctionData(functionFragment: "factory", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "transferToPool",
-    values: [string, string, string, BigNumberish]
-  ): string;
-  encodeFunctionData(functionFragment: "weth", values?: undefined): string;
+  encodeFunctionData(functionFragment: 'batch', values: [BigNumberish[], BytesLike[]]): string;
+  encodeFunctionData(functionFragment: 'factory', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'transferToPool', values: [string, string, string, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'weth', values?: undefined): string;
 
-  decodeFunctionResult(functionFragment: "batch", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "factory", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "transferToPool",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "weth", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'batch', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'factory', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'transferToPool', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'weth', data: BytesLike): Result;
 
   events: {};
 }
@@ -131,11 +122,7 @@ export class PoolRouter extends BaseContract {
   weth(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
-    batch(
-      operations: BigNumberish[],
-      data: BytesLike[],
-      overrides?: CallOverrides
-    ): Promise<void>;
+    batch(operations: BigNumberish[], data: BytesLike[], overrides?: CallOverrides): Promise<void>;
 
     factory(overrides?: CallOverrides): Promise<string>;
 

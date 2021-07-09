@@ -2,23 +2,23 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import { Provider } from "@ethersproject/providers";
-import type { SourceMock, SourceMockInterface } from "../SourceMock";
+import { Contract, Signer, utils } from 'ethers';
+import { Provider } from '@ethersproject/providers';
+import type { SourceMock, SourceMockInterface } from '../SourceMock';
 
 const _abi = [
   {
     inputs: [
       {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
       },
     ],
-    name: "set",
+    name: 'set',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
 ];
 
@@ -27,10 +27,7 @@ export class SourceMock__factory {
   static createInterface(): SourceMockInterface {
     return new utils.Interface(_abi) as SourceMockInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): SourceMock {
+  static connect(address: string, signerOrProvider: Signer | Provider): SourceMock {
     return new Contract(address, _abi, signerOrProvider) as SourceMock;
   }
 }

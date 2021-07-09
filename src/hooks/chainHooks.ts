@@ -11,12 +11,12 @@ import { POOLROUTER_OPS, VAULT_OPS } from '../utils/operations';
 import { UserContext } from '../contexts/UserContext';
 
 /*  💨 Calculate the accumulative gas limit (IF ALL calls have a gaslimit then set the total, else undefined ) */
-const _getCallGas = (calls: ICallData[]) : BigNumber| undefined => {
-  const allCallsHaveGas = calls.length && calls.every((_c:ICallData) => _c.overrides && _c.overrides.gasLimit);
+const _getCallGas = (calls: ICallData[]): BigNumber | undefined => {
+  const allCallsHaveGas = calls.length && calls.every((_c: ICallData) => _c.overrides && _c.overrides.gasLimit);
   if (allCallsHaveGas) {
     const accumulatedGas = calls.reduce(
       (_t: BigNumber, _c: ICallData) => BigNumber.from(_c.overrides?.gasLimit).add(_t),
-      ethers.constants.Zero,
+      ethers.constants.Zero
     );
     return accumulatedGas.gt(ethers.constants.Zero) ? accumulatedGas : undefined;
   }
@@ -24,18 +24,24 @@ const _getCallGas = (calls: ICallData[]) : BigNumber| undefined => {
 };
 
 /* Get ETH value from JOIN_ETHER OPCode, else zero -> N.B. other values sent in with other OPS are ignored for now */
-const _getCallValue = (calls: ICallData[]) : BigNumber => {
-  const joinEtherCall = calls.find((call:any) => (
-    call.operation === VAULT_OPS.JOIN_ETHER || call.operation === POOLROUTER_OPS.JOIN_ETHER
-  ));
+const _getCallValue = (calls: ICallData[]): BigNumber => {
+  const joinEtherCall = calls.find(
+    (call: any) => call.operation === VAULT_OPS.JOIN_ETHER || call.operation === POOLROUTER_OPS.JOIN_ETHER
+  );
   return joinEtherCall ? BigNumber.from(joinEtherCall?.overrides?.value) : ethers.constants.Zero;
 };
 
 /* Generic hook for chain transactions */
 export const useChain = () => {
-  const { chainState: { account, provider, contractMap, chainId } } = useContext(ChainContext);
-  const { userState: { approvalMethod } } = useContext(UserContext);
-  const { txActions: { handleTx, handleSign } } = useContext(TxContext);
+  const {
+    chainState: { account, provider, contractMap, chainId },
+  } = useContext(ChainContext);
+  const {
+    userState: { approvalMethod },
+  } = useContext(UserContext);
+  const {
+    txActions: { handleTx, handleSign },
+  } = useContext(TxContext);
 
   /**
    * TRANSACTING
@@ -44,41 +50,35 @@ export const useChain = () => {
    * @param { ICallsData[] } calls list of callData as ICallData
    * @param { string } txCode internal transaction code
    */
-  const transact = async (
-    router: 'PoolRouter' | 'Ladle',
-    calls: ICallData[],
-    txCode: string,
-  ) : Promise<void> => {
+  const transact = async (router: 'PoolRouter' | 'Ladle', calls: ICallData[], txCode: string): Promise<void> => {
     const signer = account ? provider.getSigner(account) : provider.getSigner(0);
     /* Set the router contract instance, ladle by default */
     let _contract: Contract = contractMap.get('Ladle').connect(signer) as Ladle;
     if (router === 'PoolRouter') _contract = contractMap.get('PoolRouter').connect(signer) as PoolRouter;
 
     /* First, filter out any ignored calls */
-    const _calls = calls.filter((call:ICallData) => !call.ignore);
+    const _calls = calls.filter((call: ICallData) => !call.ignore);
     console.log('Batch calls: ', _calls);
 
     /* Encode each of the calls OR preEncoded route calls */
-    const encodedCalls = _calls.map(
-      (call:ICallData) => {
-        const { poolContract, id: seriesId, getBaseAddress, fyTokenAddress } = call.series! as ISeries;
-        const { interface: _interface } = poolContract as Contract;
-        /* 'pre-encode' routed calls if required */
-        if (call.operation === VAULT_OPS.ROUTE || call.operation === POOLROUTER_OPS.ROUTE) {
-          if (call.fnName) {
-            const encodedFn = _interface.encodeFunctionData(call.fnName, call.args);
-            /* add in the extra parameters required for each specific rotuer */
-            const extraParams = (call.operation === VAULT_OPS.ROUTE) ? [seriesId] : [getBaseAddress(), fyTokenAddress];
-            return ethers.utils.defaultAbiCoder.encode(call.operation[1], [...extraParams, encodedFn]);
-          }
-          throw new Error('Function name required for routing');
+    const encodedCalls = _calls.map((call: ICallData) => {
+      const { poolContract, id: seriesId, getBaseAddress, fyTokenAddress } = call.series! as ISeries;
+      const { interface: _interface } = poolContract as Contract;
+      /* 'pre-encode' routed calls if required */
+      if (call.operation === VAULT_OPS.ROUTE || call.operation === POOLROUTER_OPS.ROUTE) {
+        if (call.fnName) {
+          const encodedFn = _interface.encodeFunctionData(call.fnName, call.args);
+          /* add in the extra parameters required for each specific rotuer */
+          const extraParams = call.operation === VAULT_OPS.ROUTE ? [seriesId] : [getBaseAddress(), fyTokenAddress];
+          return ethers.utils.defaultAbiCoder.encode(call.operation[1], [...extraParams, encodedFn]);
         }
-        return ethers.utils.defaultAbiCoder.encode(call.operation[1], call.args);
-      },
-    );
+        throw new Error('Function name required for routing');
+      }
+      return ethers.utils.defaultAbiCoder.encode(call.operation[1], call.args);
+    });
 
     /* Get the numeric OPCODES */
-    const opsList = _calls.map((call:ICallData) => call.operation[0]);
+    const opsList = _calls.map((call: ICallData) => call.operation[0]);
 
     /* calculate the value sent */
     const batchValue = _getCallValue(_calls);
@@ -92,7 +92,7 @@ export const useChain = () => {
     return handleTx(
       () => _contract.batch(opsList, encodedCalls, { value: batchValue, gasLimit: BigNumber.from('750000') }),
       // () => _contract.batch(opsList, encodedCalls, { value: batchValue }),
-      txCode,
+      txCode
     );
   };
 
@@ -106,14 +106,14 @@ export const useChain = () => {
    * @returns { Promise<ICallData[]> }
    */
   const sign = async (
-    requestedSignatures:ISignData[],
-    txCode:string,
-    viaPoolRouter: boolean = false,
-  ) : Promise<ICallData[]> => {
+    requestedSignatures: ISignData[],
+    txCode: string,
+    viaPoolRouter: boolean = false
+  ): Promise<ICallData[]> => {
     const signer = account ? provider.getSigner(account) : provider.getSigner(0);
 
     /* Get the spender if not provided, defaults to ladle */
-    const getSpender = (spender: 'POOLROUTER'|'LADLE'| string) => {
+    const getSpender = (spender: 'POOLROUTER' | 'LADLE' | string) => {
       const _ladleAddr = contractMap.get('Ladle').address;
       const _poolAddr = contractMap.get('PoolRouter').address;
       if (ethers.utils.isAddress(spender)) {
@@ -124,7 +124,7 @@ export const useChain = () => {
     };
 
     /* First, filter out any ignored calls */
-    const _requestedSigs = requestedSignatures.filter((_rs:ISignData) => !_rs.ignore);
+    const _requestedSigs = requestedSignatures.filter((_rs: ISignData) => !_rs.ignore);
     const signedList = await Promise.all(
       _requestedSigs.map(async (reqSig: ISignData) => {
         const _spender = getSpender(reqSig.spender);
@@ -139,37 +139,38 @@ export const useChain = () => {
           // const ladleAddress = contractMap.get('Ladle').address;
           const { v, r, s, nonce, expiry, allowed } = await handleSign(
             /* We are pass over the generated signFn and sigData to the signatureHandler for tracking/tracing/fallback handling */
-            () => signDaiPermit(
-              provider,
-              /* build domain */
-              {
-                name: reqSig.target.name,
-                version: reqSig.target.version,
-                chainId,
-                verifyingContract: reqSig.target.address,
-              },
-              account,
-              _spender,
-            ),
+            () =>
+              signDaiPermit(
+                provider,
+                /* build domain */
+                {
+                  name: reqSig.target.name,
+                  version: reqSig.target.version,
+                  chainId,
+                  verifyingContract: reqSig.target.address,
+                },
+                account,
+                _spender
+              ),
             /* this is the function for if using fallback approvals */
             () => handleTx(() => tokenContract.approve(_spender, MAX_256), txCode, true),
             reqSig,
             txCode,
-            approvalMethod,
+            approvalMethod
           );
 
           const poolRouterArgs = [
             reqSig.series.getBaseAddress(),
             reqSig.series.fyTokenAddress,
             _spender,
-            nonce, expiry, allowed, v, r, s,
+            nonce,
+            expiry,
+            allowed,
+            v,
+            r,
+            s,
           ];
-          const ladleArgs = [
-            reqSig.target.id,
-            true,
-            _spender,
-            nonce, expiry, allowed, v, r, s,
-          ];
+          const ladleArgs = [reqSig.target.id, true, _spender, nonce, expiry, allowed, v, r, s];
           const args = viaPoolRouter ? poolRouterArgs : ladleArgs;
           const operation = viaPoolRouter ? POOLROUTER_OPS.FORWARD_DAI_PERMIT : VAULT_OPS.FORWARD_DAI_PERMIT;
 
@@ -186,24 +187,26 @@ export const useChain = () => {
           (handleSignature() wraps the sign function for in app tracking and tracing )
         */
         const { v, r, s, value, deadline } = await handleSign(
-          () => signERC2612Permit(
-            provider,
-            /* build domain */
-            reqSig.domain || { // uses custom domain if provided, else use created Domain
-              name: reqSig.target.name,
-              version: reqSig.target.version,
-              chainId,
-              verifyingContract: reqSig.target.address,
-            },
-            account,
-            _spender,
-            MAX_256,
-          ),
+          () =>
+            signERC2612Permit(
+              provider,
+              /* build domain */
+              reqSig.domain || {
+                // uses custom domain if provided, else use created Domain
+                name: reqSig.target.name,
+                version: reqSig.target.version,
+                chainId,
+                verifyingContract: reqSig.target.address,
+              },
+              account,
+              _spender,
+              MAX_256
+            ),
           /* this is the function for if using fallback approvals */
           () => handleTx(() => tokenContract.approve(_spender, MAX_256), txCode, true),
           reqSig,
           txCode,
-          approvalMethod,
+          approvalMethod
         );
 
         // router.forwardPermit(ilkId, true, ilkJoin.address, amount, deadline, v, r, s)
@@ -213,7 +216,10 @@ export const useChain = () => {
           reqSig.target.address,
           _spender,
           value,
-          deadline, v, r, s,
+          deadline,
+          v,
+          r,
+          s,
         ];
 
         const ladleArgs = [
@@ -221,7 +227,10 @@ export const useChain = () => {
           reqSig.type !== 'FYTOKEN_TYPE', // true or false=fyToken
           _spender,
           value,
-          deadline, v, r, s,
+          deadline,
+          v,
+          r,
+          s,
         ];
 
         const args = viaPoolRouter ? poolRouterArgs : ladleArgs;
@@ -233,11 +242,11 @@ export const useChain = () => {
           ignore: !(v && r && s), // set ignore flag if signature returned is null (ie. fallbackTx was used)
           series: reqSig.series,
         };
-      }),
+      })
     );
 
     /* Returns the processed list of txs required as ICallData[] */
-    return signedList.filter((x:ICallData) => !x.ignore);
+    return signedList.filter((x: ICallData) => !x.ignore);
   };
 
   return { sign, transact };

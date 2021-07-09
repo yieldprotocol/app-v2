@@ -21,10 +21,7 @@ const YieldAccount = (props: any) => {
   return (
     <>
       {settingsOpen && (
-        <Layer
-          onClickOutside={() => setSettingsOpen(false)}
-          onEsc={() => setSettingsOpen(false)}
-        >
+        <Layer onClickOutside={() => setSettingsOpen(false)} onEsc={() => setSettingsOpen(false)}>
           <YieldSettings setSettingsOpen={setSettingsOpen} />
         </Layer>
       )}
@@ -36,12 +33,7 @@ const YieldAccount = (props: any) => {
               <YieldBalances />
             </>
           )}
-          <Box
-            round="xsmall"
-            onClick={() => setSettingsOpen(true)}
-            pad="small"
-            justify="center"
-          >
+          <Box round="xsmall" onClick={() => setSettingsOpen(true)} pad="small" justify="center">
             {mobile ? (
               <Text size="small" color="text">
                 <FiSettings />

@@ -6,7 +6,7 @@ interface IListWrap extends BoxProps {
 }
 
 function ListWrap({ children, ...props }: IListWrap) {
-  const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
+  const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   return (
     <Box
@@ -15,7 +15,7 @@ function ListWrap({ children, ...props }: IListWrap) {
       gap="small"
       height={{ max: '300px' }}
     >
-      { children }
+      {children}
     </Box>
   );
 }

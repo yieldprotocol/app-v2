@@ -31,7 +31,7 @@ import TransactButton from '../components/buttons/TransactButton';
 import YieldApr from '../components/YieldApr';
 
 const Lend = () => {
-  const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
+  const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext) as IUserContext;
@@ -41,8 +41,8 @@ const Lend = () => {
 
   /* LOCAL STATE */
   const [lendInput, setLendInput] = useState<string>();
-  const [maxLend, setMaxLend] = useState<string|undefined>();
-  const [lendError, setLendError] = useState<string|null>(null);
+  const [maxLend, setMaxLend] = useState<string | undefined>();
+  const [lendError, setLendError] = useState<string | null>(null);
   const [lendDisabled, setLendDisabled] = useState<boolean>(true);
   const [stepPosition, setStepPosition] = useState<number>(0);
 
@@ -51,8 +51,7 @@ const Lend = () => {
 
   /* LOCAL FNS */
   const handleLend = () => {
-    !lendDisabled &&
-    lend(lendInput, selectedSeries!);
+    !lendDisabled && lend(lendInput, selectedSeries!);
   };
   const handleRedeem = () => {
     redeem(selectedSeries!, undefined);
@@ -75,12 +74,10 @@ const Lend = () => {
     if (activeAccount && (lendInput || lendInput === '')) {
       /* 1. Check if input exceeds balance */
       if (maxLend && parseFloat(lendInput) > parseFloat(maxLend)) setLendError('Amount exceeds balance');
-      /* 2. Check if input is above zero */
-      else if (parseFloat(lendInput) < 0) setLendError('Amount should be expressed as a positive value');
-      /* 2. next Check */
-      else if (false) setLendError('Insufficient');
-      /* if all checks pass, set null error message */
-      else {
+      /* 2. Check if input is above zero */ else if (parseFloat(lendInput) < 0)
+        setLendError('Amount should be expressed as a positive value');
+      /* 2. next Check */ else if (false) setLendError('Insufficient');
+      /* if all checks pass, set null error message */ else {
         setLendError(null);
       }
     }
@@ -88,111 +85,99 @@ const Lend = () => {
 
   /* ACTION DISABLING LOGIC  - if conditions are met: allow action */
   useEffect(() => {
-    (
-      activeAccount &&
-      lendInput &&
-      selectedSeries &&
-      !lendError
-    ) ? setLendDisabled(false) : setLendDisabled(true);
+    activeAccount && lendInput && selectedSeries && !lendError ? setLendDisabled(false) : setLendDisabled(true);
   }, [lendInput, activeAccount, lendError, selectedSeries]);
 
   return (
     <MainViewWrap>
-
-      {!mobile &&
-      <PanelWrap>
-        <StepperText
-          position={stepPosition}
-          values={[['Choose an asset to', 'lend', ''], ['', 'Review', 'and transact']]}
-        />
-        <YieldInfo />
-      </PanelWrap>}
+      {!mobile && (
+        <PanelWrap>
+          <StepperText
+            position={stepPosition}
+            values={[
+              ['Choose an asset to', 'lend', ''],
+              ['', 'Review', 'and transact'],
+            ]}
+          />
+          <YieldInfo />
+        </PanelWrap>
+      )}
 
       <CenterPanelWrap series={selectedSeries}>
-
         <Box height="100%" pad="large">
-          {
-          stepPosition === 0 &&
-          <Box gap="medium">
-            <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
-              <YieldMark />
-              <Text>LEND</Text>
-            </Box>
-            <SectionWrap title="Select an asset and amount to lend">
-              <Box direction="row" gap="small" fill="horizontal" align="start">
-                <Box basis={mobile ? '50%' : '60%'}>
-                  <InputWrap action={() => console.log('maxAction')} isError={lendError} disabled={selectedSeries?.seriesIsMature}>
-                    <TextInput
-                      plain
-                      type="number"
-                      placeholder="Enter amount"
-                      value={lendInput || ''}
-                      onChange={(event:any) => setLendInput(cleanValue(event.target.value))}
-                      disabled={selectedSeries?.seriesIsMature}
-                    />
-                    <MaxButton
-                      action={() => setLendInput(maxLend)}
-                      disabled={maxLend === '0' || selectedSeries?.seriesIsMature}
-                    />
-                  </InputWrap>
-                </Box>
-                <Box basis={mobile ? '50%' : '40%'}>
-                  <AssetSelector />
-                </Box>
+          {stepPosition === 0 && (
+            <Box gap="medium">
+              <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
+                <YieldMark />
+                <Text>LEND</Text>
               </Box>
-            </SectionWrap>
-
-            <SectionWrap title="Choose a series to lend to">
-              <SeriesSelector inputValue={lendInput} actionType={ActionType.LEND} />
-            </SectionWrap>
-
-          </Box>
-          }
-
-          {
-          stepPosition === 1 &&
-          <Box gap="large">
-            <BackButton action={() => setStepPosition(0)} />
-
-            <ActiveTransaction txCode={getTxCode(ActionCodes.LEND, selectedSeriesId)}>
-
-              <SectionWrap title="Review your transaction">
-
-                <Box gap="small" pad={{ horizontal: 'large', vertical: 'medium' }} round="xsmall" animation={{ type: 'zoomIn', size: 'small' }}>
-                  <ReviewTxItem
-                    label="Amount to lend"
-                    icon={<BiMessageSquareAdd />}
-                    value={`${lendInput} fyTokens`}
-                  />
-                  <ReviewTxItem
-                    label="Series Maturity"
-                    icon={<FiClock />}
-                    value={`${selectedSeries?.displayName}`}
-                  />
-                  <ReviewTxItem
-                    label="Redeemable @ Maturity"
-                    icon={<FiTrendingUp />}
-                    value={`${lendInput} ${selectedBase?.symbol}`}
-                  />
-                  <ReviewTxItem
-                    label="Effective APR"
-                    icon={<FiPercent />}
-                    value={`${'to do get apr'}%`}
-                  />
+              <SectionWrap title="Select an asset and amount to lend">
+                <Box direction="row" gap="small" fill="horizontal" align="start">
+                  <Box basis={mobile ? '50%' : '60%'}>
+                    <InputWrap
+                      action={() => console.log('maxAction')}
+                      isError={lendError}
+                      disabled={selectedSeries?.seriesIsMature}
+                    >
+                      <TextInput
+                        plain
+                        type="number"
+                        placeholder="Enter amount"
+                        value={lendInput || ''}
+                        onChange={(event: any) => setLendInput(cleanValue(event.target.value))}
+                        disabled={selectedSeries?.seriesIsMature}
+                      />
+                      <MaxButton
+                        action={() => setLendInput(maxLend)}
+                        disabled={maxLend === '0' || selectedSeries?.seriesIsMature}
+                      />
+                    </InputWrap>
+                  </Box>
+                  <Box basis={mobile ? '50%' : '40%'}>
+                    <AssetSelector />
+                  </Box>
                 </Box>
-
               </SectionWrap>
 
-            </ActiveTransaction>
-          </Box>
-          }
+              <SectionWrap title="Choose a series to lend to">
+                <SeriesSelector inputValue={lendInput} actionType={ActionType.LEND} />
+              </SectionWrap>
+            </Box>
+          )}
 
+          {stepPosition === 1 && (
+            <Box gap="large">
+              <BackButton action={() => setStepPosition(0)} />
+
+              <ActiveTransaction txCode={getTxCode(ActionCodes.LEND, selectedSeriesId)} size="LARGE">
+                <SectionWrap title="Review your transaction">
+                  <Box
+                    gap="small"
+                    pad={{ horizontal: 'large', vertical: 'medium' }}
+                    round="xsmall"
+                    animation={{ type: 'zoomIn', size: 'small' }}
+                  >
+                    <ReviewTxItem
+                      label="Amount to lend"
+                      icon={<BiMessageSquareAdd />}
+                      value={`${lendInput} fyTokens`}
+                    />
+                    <ReviewTxItem label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
+                    <ReviewTxItem
+                      label="Redeemable @ Maturity"
+                      icon={<FiTrendingUp />}
+                      value={`${lendInput} ${selectedBase?.symbol}`}
+                    />
+                    <ReviewTxItem label="Effective APR" icon={<FiPercent />} value={`${'to do get apr'}%`} />
+                  </Box>
+                </SectionWrap>
+              </ActiveTransaction>
+            </Box>
+          )}
         </Box>
 
         <ActionButtonGroup>
-          {
-            stepPosition !== 1 &&
-            !selectedSeries?.seriesIsMature &&
+          {stepPosition !== 1 && !selectedSeries?.seriesIsMature && (
             <NextButton
               secondary
               disabled={lendDisabled}
@@ -200,33 +185,34 @@ const Lend = () => {
               key="ONE"
               onClick={() => setStepPosition(stepPosition + 1)}
             />
-            }
-          {
-            stepPosition === 1 &&
-            !selectedSeries?.seriesIsMature &&
-              <TransactButton
-                primary
-                label={<Text size={mobile ? 'small' : undefined}> {`Supply ${lendInput || ''} ${selectedBase?.symbol || ''}`} </Text>}
-                onClick={() => handleLend()}
-                disabled={lendDisabled}
-              />
-            }
-          {selectedSeries?.seriesIsMature &&
-
+          )}
+          {stepPosition === 1 && !selectedSeries?.seriesIsMature && (
+            <TransactButton
+              primary
+              label={
+                <Text size={mobile ? 'small' : undefined}>
+                  {' '}
+                  {`Supply ${lendInput || ''} ${selectedBase?.symbol || ''}`}{' '}
+                </Text>
+              }
+              onClick={() => handleLend()}
+              disabled={lendDisabled}
+            />
+          )}
+          {selectedSeries?.seriesIsMature && (
             <NextButton
               primary
               label={<Text size={mobile ? 'small' : undefined}> Redeem </Text>}
               onClick={() => handleRedeem()}
-            />}
+            />
+          )}
         </ActionButtonGroup>
-
       </CenterPanelWrap>
 
       <PanelWrap right basis="40%">
         {/* <YieldApr input={lendInput} actionType={ActionType.LEND} /> */}
         {!mobile && <PositionSelector actionType={ActionType.LEND} />}
       </PanelWrap>
-
     </MainViewWrap>
   );
 };
