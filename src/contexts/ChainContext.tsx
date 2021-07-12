@@ -50,7 +50,7 @@ connectors.set(
 connectors.set(
   'walletconnect',
   new WalletConnectConnector({
-    rpc: { 1: RPC_URLS[1] },
+    rpc: { 1: RPC_URLS[1], 42: RPC_URLS[42] },
     bridge: 'https://bridge.walletconnect.org',
     qrcode: true,
     pollingInterval: POLLING_INTERVAL,
