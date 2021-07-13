@@ -2,9 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from 'ethers';
-import { Provider } from '@ethersproject/providers';
-import type { PoolFactory, PoolFactoryInterface } from '../PoolFactory';
+import { Contract, Signer, utils } from "ethers";
+import { Provider } from "@ethersproject/providers";
+import type { PoolFactory, PoolFactoryInterface } from "../PoolFactory";
 
 const _abi = [
   {
@@ -12,136 +12,136 @@ const _abi = [
     inputs: [
       {
         indexed: true,
-        internalType: 'address',
-        name: 'base',
-        type: 'address',
+        internalType: "address",
+        name: "base",
+        type: "address",
       },
       {
         indexed: true,
-        internalType: 'address',
-        name: 'fyToken',
-        type: 'address',
+        internalType: "address",
+        name: "fyToken",
+        type: "address",
       },
       {
         indexed: false,
-        internalType: 'address',
-        name: 'pool',
-        type: 'address',
+        internalType: "address",
+        name: "pool",
+        type: "address",
       },
     ],
-    name: 'PoolCreated',
-    type: 'event',
+    name: "PoolCreated",
+    type: "event",
   },
   {
     inputs: [],
-    name: 'POOL_BYTECODE_HASH',
+    name: "POOL_BYTECODE_HASH",
     outputs: [
       {
-        internalType: 'bytes32',
-        name: '',
-        type: 'bytes32',
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
       },
     ],
-    stateMutability: 'view',
-    type: 'function',
+    stateMutability: "view",
+    type: "function",
   },
   {
     inputs: [
       {
-        internalType: 'address',
-        name: 'base',
-        type: 'address',
+        internalType: "address",
+        name: "base",
+        type: "address",
       },
       {
-        internalType: 'address',
-        name: 'fyToken',
-        type: 'address',
+        internalType: "address",
+        name: "fyToken",
+        type: "address",
       },
     ],
-    name: 'calculatePoolAddress',
+    name: "calculatePoolAddress",
     outputs: [
       {
-        internalType: 'address',
-        name: '',
-        type: 'address',
+        internalType: "address",
+        name: "",
+        type: "address",
       },
     ],
-    stateMutability: 'view',
-    type: 'function',
+    stateMutability: "view",
+    type: "function",
   },
   {
     inputs: [
       {
-        internalType: 'address',
-        name: 'base',
-        type: 'address',
+        internalType: "address",
+        name: "base",
+        type: "address",
       },
       {
-        internalType: 'address',
-        name: 'fyToken',
-        type: 'address',
+        internalType: "address",
+        name: "fyToken",
+        type: "address",
       },
     ],
-    name: 'createPool',
+    name: "createPool",
     outputs: [
       {
-        internalType: 'address',
-        name: '',
-        type: 'address',
+        internalType: "address",
+        name: "",
+        type: "address",
       },
     ],
-    stateMutability: 'nonpayable',
-    type: 'function',
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
     inputs: [
       {
-        internalType: 'address',
-        name: 'base',
-        type: 'address',
+        internalType: "address",
+        name: "base",
+        type: "address",
       },
       {
-        internalType: 'address',
-        name: 'fyToken',
-        type: 'address',
+        internalType: "address",
+        name: "fyToken",
+        type: "address",
       },
     ],
-    name: 'getPool',
+    name: "getPool",
     outputs: [
       {
-        internalType: 'address',
-        name: 'pool',
-        type: 'address',
+        internalType: "address",
+        name: "pool",
+        type: "address",
       },
     ],
-    stateMutability: 'view',
-    type: 'function',
+    stateMutability: "view",
+    type: "function",
   },
   {
     inputs: [],
-    name: 'nextBase',
+    name: "nextBase",
     outputs: [
       {
-        internalType: 'address',
-        name: '',
-        type: 'address',
+        internalType: "address",
+        name: "",
+        type: "address",
       },
     ],
-    stateMutability: 'view',
-    type: 'function',
+    stateMutability: "view",
+    type: "function",
   },
   {
     inputs: [],
-    name: 'nextFYToken',
+    name: "nextFYToken",
     outputs: [
       {
-        internalType: 'address',
-        name: '',
-        type: 'address',
+        internalType: "address",
+        name: "",
+        type: "address",
       },
     ],
-    stateMutability: 'view',
-    type: 'function',
+    stateMutability: "view",
+    type: "function",
   },
 ];
 
@@ -150,7 +150,10 @@ export class PoolFactory__factory {
   static createInterface(): PoolFactoryInterface {
     return new utils.Interface(_abi) as PoolFactoryInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): PoolFactory {
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): PoolFactory {
     return new Contract(address, _abi, signerOrProvider) as PoolFactory;
   }
 }

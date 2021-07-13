@@ -2,251 +2,264 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from 'ethers';
-import { Provider } from '@ethersproject/providers';
-import type { YieldMath, YieldMathInterface } from '../YieldMath';
+import { Contract, Signer, utils } from "ethers";
+import { Provider } from "@ethersproject/providers";
+import type { YieldMath, YieldMathInterface } from "../YieldMath";
 
 const _abi = [
   {
     inputs: [],
-    name: 'MAX',
+    name: "MAX",
     outputs: [
       {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
       },
     ],
-    stateMutability: 'view',
-    type: 'function',
+    stateMutability: "view",
+    type: "function",
   },
   {
     inputs: [],
-    name: 'ONE',
+    name: "ONE",
     outputs: [
       {
-        internalType: 'uint128',
-        name: '',
-        type: 'uint128',
+        internalType: "uint128",
+        name: "",
+        type: "uint128",
       },
     ],
-    stateMutability: 'view',
-    type: 'function',
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "VAR",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
   },
   {
     inputs: [
       {
-        internalType: 'uint128',
-        name: 'baseReserves',
-        type: 'uint128',
+        internalType: "uint128",
+        name: "baseReserves",
+        type: "uint128",
       },
       {
-        internalType: 'uint128',
-        name: 'fyTokenReserves',
-        type: 'uint128',
+        internalType: "uint128",
+        name: "fyTokenReserves",
+        type: "uint128",
       },
       {
-        internalType: 'uint128',
-        name: 'fyTokenAmount',
-        type: 'uint128',
+        internalType: "uint128",
+        name: "fyTokenAmount",
+        type: "uint128",
       },
       {
-        internalType: 'uint128',
-        name: 'timeTillMaturity',
-        type: 'uint128',
+        internalType: "uint128",
+        name: "timeTillMaturity",
+        type: "uint128",
       },
       {
-        internalType: 'int128',
-        name: 'k',
-        type: 'int128',
+        internalType: "int128",
+        name: "k",
+        type: "int128",
       },
       {
-        internalType: 'int128',
-        name: 'g',
-        type: 'int128',
+        internalType: "int128",
+        name: "g",
+        type: "int128",
       },
     ],
-    name: 'baseInForFYTokenOut',
+    name: "baseInForFYTokenOut",
     outputs: [
       {
-        internalType: 'uint128',
-        name: '',
-        type: 'uint128',
+        internalType: "uint128",
+        name: "",
+        type: "uint128",
       },
     ],
-    stateMutability: 'pure',
-    type: 'function',
+    stateMutability: "pure",
+    type: "function",
   },
   {
     inputs: [
       {
-        internalType: 'uint128',
-        name: 'baseReserves',
-        type: 'uint128',
+        internalType: "uint128",
+        name: "baseReserves",
+        type: "uint128",
       },
       {
-        internalType: 'uint128',
-        name: 'fyTokenReserves',
-        type: 'uint128',
+        internalType: "uint128",
+        name: "fyTokenReserves",
+        type: "uint128",
       },
       {
-        internalType: 'uint128',
-        name: 'fyTokenAmount',
-        type: 'uint128',
+        internalType: "uint128",
+        name: "fyTokenAmount",
+        type: "uint128",
       },
       {
-        internalType: 'uint128',
-        name: 'timeTillMaturity',
-        type: 'uint128',
+        internalType: "uint128",
+        name: "timeTillMaturity",
+        type: "uint128",
       },
       {
-        internalType: 'int128',
-        name: 'k',
-        type: 'int128',
+        internalType: "int128",
+        name: "k",
+        type: "int128",
       },
       {
-        internalType: 'int128',
-        name: 'g',
-        type: 'int128',
+        internalType: "int128",
+        name: "g",
+        type: "int128",
       },
     ],
-    name: 'baseOutForFYTokenIn',
+    name: "baseOutForFYTokenIn",
     outputs: [
       {
-        internalType: 'uint128',
-        name: '',
-        type: 'uint128',
+        internalType: "uint128",
+        name: "",
+        type: "uint128",
       },
     ],
-    stateMutability: 'pure',
-    type: 'function',
+    stateMutability: "pure",
+    type: "function",
   },
   {
     inputs: [
       {
-        internalType: 'uint128',
-        name: 'baseReserves',
-        type: 'uint128',
+        internalType: "uint128",
+        name: "baseReserves",
+        type: "uint128",
       },
       {
-        internalType: 'uint128',
-        name: 'fyTokenReserves',
-        type: 'uint128',
+        internalType: "uint128",
+        name: "fyTokenReserves",
+        type: "uint128",
       },
       {
-        internalType: 'uint128',
-        name: 'baseAmount',
-        type: 'uint128',
+        internalType: "uint128",
+        name: "baseAmount",
+        type: "uint128",
       },
       {
-        internalType: 'uint128',
-        name: 'timeTillMaturity',
-        type: 'uint128',
+        internalType: "uint128",
+        name: "timeTillMaturity",
+        type: "uint128",
       },
       {
-        internalType: 'int128',
-        name: 'k',
-        type: 'int128',
+        internalType: "int128",
+        name: "k",
+        type: "int128",
       },
       {
-        internalType: 'int128',
-        name: 'g',
-        type: 'int128',
+        internalType: "int128",
+        name: "g",
+        type: "int128",
       },
     ],
-    name: 'fyTokenInForBaseOut',
+    name: "fyTokenInForBaseOut",
     outputs: [
       {
-        internalType: 'uint128',
-        name: '',
-        type: 'uint128',
+        internalType: "uint128",
+        name: "",
+        type: "uint128",
       },
     ],
-    stateMutability: 'pure',
-    type: 'function',
+    stateMutability: "pure",
+    type: "function",
   },
   {
     inputs: [
       {
-        internalType: 'uint128',
-        name: 'baseReserves',
-        type: 'uint128',
+        internalType: "uint128",
+        name: "baseReserves",
+        type: "uint128",
       },
       {
-        internalType: 'uint128',
-        name: 'fyTokenReserves',
-        type: 'uint128',
+        internalType: "uint128",
+        name: "fyTokenReserves",
+        type: "uint128",
       },
       {
-        internalType: 'uint128',
-        name: 'baseAmount',
-        type: 'uint128',
+        internalType: "uint128",
+        name: "baseAmount",
+        type: "uint128",
       },
       {
-        internalType: 'uint128',
-        name: 'timeTillMaturity',
-        type: 'uint128',
+        internalType: "uint128",
+        name: "timeTillMaturity",
+        type: "uint128",
       },
       {
-        internalType: 'int128',
-        name: 'k',
-        type: 'int128',
+        internalType: "int128",
+        name: "k",
+        type: "int128",
       },
       {
-        internalType: 'int128',
-        name: 'g',
-        type: 'int128',
+        internalType: "int128",
+        name: "g",
+        type: "int128",
       },
     ],
-    name: 'fyTokenOutForBaseIn',
+    name: "fyTokenOutForBaseIn",
     outputs: [
       {
-        internalType: 'uint128',
-        name: '',
-        type: 'uint128',
+        internalType: "uint128",
+        name: "",
+        type: "uint128",
       },
     ],
-    stateMutability: 'pure',
-    type: 'function',
+    stateMutability: "pure",
+    type: "function",
   },
   {
     inputs: [
       {
-        internalType: 'uint128',
-        name: 'baseReserves',
-        type: 'uint128',
+        internalType: "uint128",
+        name: "baseReserves",
+        type: "uint128",
       },
       {
-        internalType: 'uint128',
-        name: 'fyTokenReserves',
-        type: 'uint128',
+        internalType: "uint128",
+        name: "fyTokenReserves",
+        type: "uint128",
       },
       {
-        internalType: 'uint128',
-        name: 'timeTillMaturity',
-        type: 'uint128',
+        internalType: "uint128",
+        name: "timeTillMaturity",
+        type: "uint128",
       },
       {
-        internalType: 'int128',
-        name: 'k',
-        type: 'int128',
+        internalType: "int128",
+        name: "k",
+        type: "int128",
       },
       {
-        internalType: 'int128',
-        name: 'c0',
-        type: 'int128',
+        internalType: "int128",
+        name: "c0",
+        type: "int128",
       },
     ],
-    name: 'initialReservesValue',
+    name: "initialReservesValue",
     outputs: [
       {
-        internalType: 'uint128',
-        name: '',
-        type: 'uint128',
+        internalType: "uint128",
+        name: "",
+        type: "uint128",
       },
     ],
-    stateMutability: 'pure',
-    type: 'function',
+    stateMutability: "pure",
+    type: "function",
   },
 ];
 
@@ -255,7 +268,10 @@ export class YieldMath__factory {
   static createInterface(): YieldMathInterface {
     return new utils.Interface(_abi) as YieldMathInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): YieldMath {
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): YieldMath {
     return new Contract(address, _abi, signerOrProvider) as YieldMath;
   }
 }
