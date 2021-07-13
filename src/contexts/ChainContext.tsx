@@ -178,6 +178,7 @@ const ChainProvider = ({ children }: any) => {
       (async () => {
         test = await fallbackLibrary.getBalance('0x885Bc35dC9B10EA39f2d7B3C94a7452a9ea442A7');
       })();
+
       console.log('Fallback ChainId: ', fallbackChainId);
       console.log('ChainId: ', chainId);
 
@@ -209,7 +210,6 @@ const ChainProvider = ({ children }: any) => {
 
               /* watch for user specific ERC20 events, and update accordingly */
               // ERC20.on( {'Transfer' } , () => console.log('transfer occurred'));
-
               updateState({
                 type: 'addAsset',
                 payload: {
@@ -263,10 +263,7 @@ const ChainProvider = ({ children }: any) => {
               const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackLibrary);
 
               const season = getSeason(maturity) as SeasonType;
-              const oppSeason = (_season: SeasonType) => SeasonType.WINTER;
-              // if (season === SeasonType.WINTER) return SeasonType.SUMMER;
-              // if (season === SeasonType.SUMMER) return SeasonType.WINTER;
-              // if (season === SeasonType.FALL) return SeasonType.SPRING;
+              const oppSeason = (_season: SeasonType) => getSeason(maturity+ 15780000) as SeasonType;
 
               const [startColor, endColor, textColor]: string[] = yieldEnv.seasonColors[season];
               const [oppStartColor, oppEndColor, oppTextColor]: string[] = yieldEnv.seasonColors[oppSeason(season)];
@@ -306,6 +303,7 @@ const ChainProvider = ({ children }: any) => {
 
                   oppStartColor,
                   oppEndColor,
+                  oppTextColor,
                   seriesMark: <YieldMark start={startColor} end={endColor} />,
 
                   // built-in helper functions:
