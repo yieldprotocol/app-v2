@@ -308,9 +308,10 @@ const UserProvider = ({ children }: any) => {
       const vaultListMod = await Promise.all(
         _vaultList.map(async (vault: IVaultRoot): Promise<IVault> => {
           /* update balance and series  ( series - because a vault can have been rolled to another series) */
-          const [{ ink, art }, { seriesId }, price] = await Promise.all([
+          const [{ ink, art }, { seriesId }, { min, max }, price] = await Promise.all([
             await Cauldron.balances(vault.id),
             await Cauldron.vaults(vault.id),
+            await Cauldron.debt(vault.baseId, vault.ilkId),
             await updatePrice(vault.baseId, vault.ilkId),
           ]);
 
@@ -323,6 +324,8 @@ const UserProvider = ({ children }: any) => {
             art_: cleanValue(ethers.utils.formatEther(art), 2), // for display purposes only
             price,
             price_: cleanValue(ethers.utils.formatEther(price), 2),
+            min, 
+            max
           };
         })
       );

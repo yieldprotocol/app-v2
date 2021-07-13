@@ -2,17 +2,18 @@ import * as React from 'react';
 
 
 interface ISvgProps extends React.SVGProps<SVGSVGElement> {
-  startColor?:string;
-  endColor?:string;
+  startcolor?:string;
+  endcolor?:string;
 }
 
 function YieldLogo(props: ISvgProps) {
+
   return (
     <svg height={props.height || '2em'} viewBox="0 0 5282 1000" fill={props.fill} {...props}>
 
       <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop stopColor={props.fill || props.startColor} offset="0%"/>
-        <stop stopColor={props.fill || props.endColor} offset="100%"/>
+        <stop stopColor={props.startcolor} offset="0%"/>
+        <stop stopColor={props.endcolor} offset="100%"/>
       </linearGradient>
       <path fill="url(#gradient)" d="M0,0V1000H1000V0ZM951.6,490,490,951.61H320.51L951.6,320.51Zm0-237.9L252.08,951.61H82.61l869-869ZM500,465.79,82.61,48.39H917.39ZM465.78,500l-84.73,84.73L48.39,252.08V82.61ZM346.83,619,262.1,703.69,48.39,490V320.51ZM227.88,737.9,48.39,917.39v-359ZM558.41,951.61,951.6,558.41v393.2Z" />
       <polygon fill="url(#gradient)" points="1830.7 479.42 1591.59 82.09 1517.63 82.09 1799.69 550.53 1799.69 917.92 1864.12 917.92 1864.12 550.51 2144.93 82.09 2069.8 82.09 1830.7 479.42" />
@@ -24,5 +25,5 @@ function YieldLogo(props: ISvgProps) {
   );
 }
 
-YieldLogo.defaultProps ={ startColor : 'black', endColor: 'black' }
+YieldLogo.defaultProps ={ startcolor : 'black', endcolor: 'black' }
 export default YieldLogo;
