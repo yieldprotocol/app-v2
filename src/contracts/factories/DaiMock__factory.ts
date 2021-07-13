@@ -8,7 +8,18 @@ import type { DAIMock, DAIMockInterface } from "../DAIMock";
 
 const _abi = [
   {
-    inputs: [],
+    inputs: [
+      {
+        internalType: "string",
+        name: "name",
+        type: "string",
+      },
+      {
+        internalType: "string",
+        name: "symbol",
+        type: "string",
+      },
+    ],
     stateMutability: "nonpayable",
     type: "constructor",
   },
