@@ -30,7 +30,9 @@ export const useBorrowActions = () => {
 
   const borrow = async (vault: IVault | undefined, input: string | undefined, collInput: string | undefined) => {
     /* use the vault id provided OR Get a random vault number ready if reqd. */
-    const vaultId = vault?.id || ethers.utils.hexlify(ethers.utils.randomBytes(12));
+    // const vaultId = vault?.id || ethers.utils.hexlify(ethers.utils.randomBytes(12));
+
+    const vaultId = vault?.id || '0x000000000000000000000000';
 
     /* set the series and ilk based on if a vault has been selected or it's a new vault */
     const series = vault ? seriesMap.get(vault.seriesId) : seriesMap.get(selectedSeriesId);
@@ -68,7 +70,7 @@ export const useBorrowActions = () => {
       /* If vault is null, build a new vault, else ignore */
       {
         operation: VAULT_OPS.BUILD,
-        args: [vaultId, selectedSeriesId, selectedIlkId],
+        args: [selectedSeriesId, selectedIlkId],
         series,
         ignore: !!vault,
       },

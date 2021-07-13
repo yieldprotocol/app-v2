@@ -133,7 +133,7 @@ const ChainProvider = ({ children }: any) => {
   const [tried, setTried] = useState<boolean>(false);
 
   const primaryConnection = useWeb3React<ethers.providers.Web3Provider>();
-  const { connector, library, chainId, account, activate, deactivate, active, error } = primaryConnection;
+  const { connector, library, chainId, account, activate, deactivate, active } = primaryConnection;
 
   const fallbackConnection = useWeb3React<ethers.providers.JsonRpcProvider>('fallback');
   const {
@@ -202,8 +202,9 @@ const ChainProvider = ({ children }: any) => {
               const ERC20 = contracts.ERC20Permit__factory.connect(address, fallbackLibrary);
               /* Add in any extra static asset Data */ // TODO is there any other fixed asset data needed?
               const [name, symbol] = await Promise.all([ERC20.name(), ERC20.symbol()]);
+              
               // TODO check if any other tokens have different versions. maybe abstract this logic somewhere?
-              const version = id === '0x555344430000' ? '2' : '1';
+              const version = (id === '0x555344430000' ? '2' : '1');
               // const version = ETH_BASED_ASSETS.includes(id) ? '1' : ERC20.version();
 
               /* watch for user specific ERC20 events, and update accordingly */

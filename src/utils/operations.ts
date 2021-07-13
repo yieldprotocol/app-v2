@@ -1,7 +1,7 @@
 /* eslint-disable key-spacing */
 /* eslint-disable no-multi-spaces */
 type ILadleRouter = {
-  BUILD: [0, ['bytes12', 'bytes6', 'bytes6']];
+  BUILD: [0, ['bytes6', 'bytes6']];
   TWEAK: [1, ['bytes12', 'bytes6', 'bytes6']];
   GIVE: [2, ['bytes12', 'address']];
   DESTROY: [3, ['bytes12']];
@@ -56,7 +56,7 @@ export const POOLROUTER_OPS: IPoolRouter = {
 };
 
 export const VAULT_OPS: ILadleRouter = {
-  BUILD: [0, ['bytes12', 'bytes6', 'bytes6']],
+  BUILD: [0, ['bytes6', 'bytes6']],
   TWEAK: [1, ['bytes12', 'bytes6', 'bytes6']],
   GIVE: [2, ['bytes12', 'address']],
   DESTROY: [3, ['bytes12']],

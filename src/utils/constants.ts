@@ -17,7 +17,7 @@ export const CHAI_BYTES = ethers.utils.formatBytes32String('CHAI');
 export const WETH = '0x455448000000';
 export const DAI = '0x444149000000';
 
-export const ETH_BASED_ASSETS = ['0x455448000000', 'ETH_B_forexample'];
+export const ETH_BASED_ASSETS = ['0x455448000000', ethers.utils.formatBytes32String('ETH').slice(0, 14)];
 export const DAI_BASED_ASSETS = ['0x444149000000'];
 
 export const CHI = ethers.utils.formatBytes32String('chi');
