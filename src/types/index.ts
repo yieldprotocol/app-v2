@@ -52,7 +52,7 @@ export interface ISeriesRoot {
   displayName: string;
   displayNameMobile: string;
   maturity: number;
-  maturityDate: Date;
+  fullDate: Date;
   fyTokenContract: FYToken;
   fyTokenAddress: string;
   poolContract: Pool;

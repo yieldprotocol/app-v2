@@ -4,6 +4,9 @@ import { useWeb3React } from '@web3-react/core';
 import { InjectedConnector } from '@web3-react/injected-connector';
 import { NetworkConnector } from '@web3-react/network-connector';
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector';
+
+import { format } from 'date-fns';
+
 import { useCachedState } from '../hooks';
 
 import * as yieldEnv from './yieldEnv.json';
@@ -21,6 +24,7 @@ import USDCMark from '../components/logos/USDCMark';
 import WBTCMark from '../components/logos/WBTCMark';
 import USDTMark from '../components/logos/USDTMark';
 import YieldMark from '../components/logos/YieldMark';
+
 
 const markMap = new Map([
   ['DAI', <DaiMark key="dai" />],
@@ -282,6 +286,7 @@ const ChainProvider = ({ children }: any) => {
                   id,
                   baseId,
                   maturity,
+                  fullDate: format(new Date(maturity*1000), 'dd MMMM yyyy ( hh:mm:ss )' ),
                   name,
                   symbol,
                   version,

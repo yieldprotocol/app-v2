@@ -1,6 +1,8 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { Box, Button, ResponsiveContext, Select, Tab, Tabs, Text, TextInput } from 'grommet';
+import { Box, Button, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import { ethers } from 'ethers';
+import { FiClock, FiPercent } from 'react-icons/fi';
+import { BiCoinStack } from 'react-icons/bi';
 
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import InputWrap from '../components/wraps/InputWrap';
@@ -19,6 +21,9 @@ import BackButton from '../components/buttons/BackButton';
 import PositionAvatar from '../components/PositionAvatar';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import NextButton from '../components/buttons/NextButton';
+
+import YieldMark from '../components/logos/YieldMark';
+
 
 const PoolPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -132,13 +137,35 @@ const PoolPosition = () => {
             </Box>
           </Box>
 
+         
           <SectionWrap>
-            <Box gap="xsmall" pad="xsmall">
-              <InfoBite label="Token balance" value={cleanValue(selectedSeries?.poolTokens_, 6)} />
-              <InfoBite label="Pool total token supply" value={cleanValue(selectedSeries?.totalSupply_, 2)} />
-              <InfoBite label="Pool percentage" value={`${cleanValue(selectedSeries?.poolPercent, 4)} %`} />
+            <Box gap="xsmall" >
+              {/* <InfoBite label="Vault debt + interest:" value={`${selectedVault?.art_} ${vaultBase?.symbol}`} icon={<FiTrendingUp />} /> */}
+
+              <InfoBite 
+                label="Liquidity Token Balance"
+                value={cleanValue(selectedSeries?.poolTokens_, 6)}
+                icon={<YieldMark height='1em' start={selectedSeries?.startColor} />}
+              />
+              <InfoBite 
+                label="Total Pool Liquidity"
+                value={cleanValue(selectedSeries?.totalSupply_, 2)}
+                icon={<BiCoinStack />}
+              />
+
+              <InfoBite 
+                label="Pool percentage"
+                value={`${cleanValue(selectedSeries?.poolPercent, 4)} %`}
+                icon={<FiPercent />}
+              />
+              <InfoBite
+                label="Maturity date:"
+                value={`${selectedSeries?.fullDate}`}
+                icon={<FiClock />}
+              />
             </Box>
           </SectionWrap>
+
         </Box>
 
         <SectionWrap title="Vault Actions">
