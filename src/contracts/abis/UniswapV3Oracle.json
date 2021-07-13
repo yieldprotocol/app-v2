@@ -73,14 +73,27 @@
     "inputs": [
       {
         "indexed": true,
+        "internalType": "uint32",
+        "name": "secondsAgo",
+        "type": "uint32"
+      }
+    ],
+    "name": "SecondsAgoSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
         "internalType": "bytes6",
-        "name": "baseId",
+        "name": "base",
         "type": "bytes6"
       },
       {
         "indexed": true,
         "internalType": "bytes6",
-        "name": "quoteId",
+        "name": "quote",
         "type": "bytes6"
       },
       {
@@ -334,6 +347,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "secondsAgo",
+    "outputs": [
+      {
+        "internalType": "uint32",
+        "name": "",
+        "type": "uint32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "bytes4",
@@ -347,6 +373,19 @@
       }
     ],
     "name": "setRoleAdmin",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "secondsAgo_",
+        "type": "uint32"
+      }
+    ],
+    "name": "setSecondsAgo",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -418,14 +457,43 @@
         "type": "address"
       },
       {
-        "internalType": "uint8",
-        "name": "decimals",
-        "type": "uint8"
-      },
-      {
         "internalType": "bool",
         "name": "inverse",
         "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "sourcesData",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "factory",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "baseToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "quoteToken",
+        "type": "address"
+      },
+      {
+        "internalType": "uint24",
+        "name": "fee",
+        "type": "uint24"
       }
     ],
     "stateMutability": "view",

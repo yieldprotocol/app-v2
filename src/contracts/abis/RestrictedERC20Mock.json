@@ -1,6 +1,17 @@
 [
   {
-    "inputs": [],
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "symbol",
+        "type": "string"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "constructor"
   },
@@ -33,35 +44,16 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      }
-    ],
-    "name": "Paused",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
         "indexed": true,
-        "internalType": "bytes32",
+        "internalType": "bytes4",
         "name": "role",
-        "type": "bytes32"
+        "type": "bytes4"
       },
       {
         "indexed": true,
-        "internalType": "bytes32",
-        "name": "previousAdminRole",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "internalType": "bytes32",
+        "internalType": "bytes4",
         "name": "newAdminRole",
-        "type": "bytes32"
+        "type": "bytes4"
       }
     ],
     "name": "RoleAdminChanged",
@@ -72,9 +64,9 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "bytes32",
+        "internalType": "bytes4",
         "name": "role",
-        "type": "bytes32"
+        "type": "bytes4"
       },
       {
         "indexed": true,
@@ -97,9 +89,9 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "bytes32",
+        "internalType": "bytes4",
         "name": "role",
-        "type": "bytes32"
+        "type": "bytes4"
       },
       {
         "indexed": true,
@@ -143,21 +135,8 @@
     "type": "event"
   },
   {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      }
-    ],
-    "name": "Unpaused",
-    "type": "event"
-  },
-  {
     "inputs": [],
-    "name": "DEFAULT_ADMIN_ROLE",
+    "name": "DOMAIN_SEPARATOR",
     "outputs": [
       {
         "internalType": "bytes32",
@@ -170,7 +149,20 @@
   },
   {
     "inputs": [],
-    "name": "MINTER_ROLE",
+    "name": "LOCK",
+    "outputs": [
+      {
+        "internalType": "bytes4",
+        "name": "",
+        "type": "bytes4"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "PERMIT_TYPEHASH",
     "outputs": [
       {
         "internalType": "bytes32",
@@ -183,12 +175,12 @@
   },
   {
     "inputs": [],
-    "name": "PAUSER_ROLE",
+    "name": "ROOT",
     "outputs": [
       {
-        "internalType": "bytes32",
+        "internalType": "bytes4",
         "name": "",
-        "type": "bytes32"
+        "type": "bytes4"
       }
     ],
     "stateMutability": "view",
@@ -227,7 +219,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "amount",
+        "name": "wad",
         "type": "uint256"
       }
     ],
@@ -246,7 +238,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "account",
+        "name": "guy",
         "type": "address"
       }
     ],
@@ -264,21 +256,8 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "burn",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "address",
-        "name": "account",
+        "name": "from",
         "type": "address"
       },
       {
@@ -287,7 +266,7 @@
         "type": "uint256"
       }
     ],
-    "name": "burnFrom",
+    "name": "burn",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -302,47 +281,36 @@
         "type": "uint8"
       }
     ],
-    "stateMutability": "pure",
+    "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "spender",
-        "type": "address"
-      },
+    "inputs": [],
+    "name": "deploymentChainId",
+    "outputs": [
       {
         "internalType": "uint256",
-        "name": "subtractedValue",
+        "name": "",
         "type": "uint256"
       }
     ],
-    "name": "decreaseAllowance",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
       {
-        "internalType": "bytes32",
+        "internalType": "bytes4",
         "name": "role",
-        "type": "bytes32"
+        "type": "bytes4"
       }
     ],
     "name": "getRoleAdmin",
     "outputs": [
       {
-        "internalType": "bytes32",
+        "internalType": "bytes4",
         "name": "",
-        "type": "bytes32"
+        "type": "bytes4"
       }
     ],
     "stateMutability": "view",
@@ -351,52 +319,9 @@
   {
     "inputs": [
       {
-        "internalType": "bytes32",
+        "internalType": "bytes4",
         "name": "role",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "uint256",
-        "name": "index",
-        "type": "uint256"
-      }
-    ],
-    "name": "getRoleMember",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "role",
-        "type": "bytes32"
-      }
-    ],
-    "name": "getRoleMemberCount",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "role",
-        "type": "bytes32"
+        "type": "bytes4"
       },
       {
         "internalType": "address",
@@ -412,9 +337,27 @@
   {
     "inputs": [
       {
-        "internalType": "bytes32",
+        "internalType": "bytes4[]",
+        "name": "roles",
+        "type": "bytes4[]"
+      },
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "grantRoles",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes4",
         "name": "role",
-        "type": "bytes32"
+        "type": "bytes4"
       },
       {
         "internalType": "address",
@@ -436,24 +379,13 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "spender",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "addedValue",
-        "type": "uint256"
+        "internalType": "bytes4",
+        "name": "role",
+        "type": "bytes4"
       }
     ],
-    "name": "increaseAllowance",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
+    "name": "lockRole",
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -489,20 +421,19 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "pause",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "paused",
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "nonces",
     "outputs": [
       {
-        "internalType": "bool",
+        "internalType": "uint256",
         "name": "",
-        "type": "bool"
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -511,9 +442,52 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "spender",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "deadline",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint8",
+        "name": "v",
+        "type": "uint8"
+      },
+      {
         "internalType": "bytes32",
-        "name": "role",
+        "name": "r",
         "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "s",
+        "type": "bytes32"
+      }
+    ],
+    "name": "permit",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes4",
+        "name": "role",
+        "type": "bytes4"
       },
       {
         "internalType": "address",
@@ -529,9 +503,9 @@
   {
     "inputs": [
       {
-        "internalType": "bytes32",
+        "internalType": "bytes4",
         "name": "role",
-        "type": "bytes32"
+        "type": "bytes4"
       },
       {
         "internalType": "address",
@@ -547,20 +521,37 @@
   {
     "inputs": [
       {
+        "internalType": "bytes4[]",
+        "name": "roles",
+        "type": "bytes4[]"
+      },
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "revokeRoles",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "bytes4",
-        "name": "interfaceId",
+        "name": "role",
+        "type": "bytes4"
+      },
+      {
+        "internalType": "bytes4",
+        "name": "adminRole",
         "type": "bytes4"
       }
     ],
-    "name": "supportsInterface",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
+    "name": "setRoleAdmin",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -593,12 +584,12 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "recipient",
+        "name": "dst",
         "type": "address"
       },
       {
         "internalType": "uint256",
-        "name": "amount",
+        "name": "wad",
         "type": "uint256"
       }
     ],
@@ -617,17 +608,17 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "sender",
+        "name": "src",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "recipient",
+        "name": "dst",
         "type": "address"
       },
       {
         "internalType": "uint256",
-        "name": "amount",
+        "name": "wad",
         "type": "uint256"
       }
     ],
@@ -644,9 +635,15 @@
   },
   {
     "inputs": [],
-    "name": "unpause",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "name": "version",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "pure",
     "type": "function"
   }
 ]

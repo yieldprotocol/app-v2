@@ -53,19 +53,19 @@
       {
         "indexed": false,
         "internalType": "int256",
-        "name": "bases",
+        "name": "baseAmount",
         "type": "int256"
       },
       {
         "indexed": false,
         "internalType": "int256",
-        "name": "fyTokens",
+        "name": "fyTokenAmount",
         "type": "int256"
       },
       {
         "indexed": false,
         "internalType": "int256",
-        "name": "poolTokens",
+        "name": "poolTokenAmount",
         "type": "int256"
       }
     ],
@@ -96,50 +96,6 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "bytes32",
-        "name": "parameter",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "int128",
-        "name": "k",
-        "type": "int128"
-      }
-    ],
-    "name": "ParameterSet",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint112",
-        "name": "baseCached",
-        "type": "uint112"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint112",
-        "name": "fyTokenCached",
-        "type": "uint112"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "cumulativeBalancesRatio",
-        "type": "uint256"
-      }
-    ],
-    "name": "Sync",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
         "internalType": "uint32",
         "name": "maturity",
         "type": "uint32"
@@ -159,13 +115,13 @@
       {
         "indexed": false,
         "internalType": "int256",
-        "name": "bases",
+        "name": "baseAmount",
         "type": "int256"
       },
       {
         "indexed": false,
         "internalType": "int256",
-        "name": "fyTokens",
+        "name": "fyTokenAmount",
         "type": "int256"
       }
     ],
@@ -196,32 +152,6 @@
     ],
     "name": "Transfer",
     "type": "event"
-  },
-  {
-    "inputs": [],
-    "name": "DOMAIN_SEPARATOR",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "PERMIT_TYPEHASH",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
   },
   {
     "inputs": [
@@ -304,6 +234,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "baseReserves",
+    "outputs": [
+      {
+        "internalType": "uint112",
+        "name": "",
+        "type": "uint112"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -325,46 +268,17 @@
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "minBaseOut",
-        "type": "uint256"
-      }
-    ],
-    "name": "burnForBase",
-    "outputs": [
-      {
-        "internalType": "uint256",
         "name": "tokensBurned",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
         "name": "baseOut",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "fyTokenOut",
         "type": "uint256"
       }
     ],
@@ -380,7 +294,7 @@
       },
       {
         "internalType": "uint128",
-        "name": "tokenOut",
+        "name": "baseOut",
         "type": "uint128"
       },
       {
@@ -404,7 +318,7 @@
     "inputs": [
       {
         "internalType": "uint128",
-        "name": "tokenOut",
+        "name": "baseOut",
         "type": "uint128"
       }
     ],
@@ -416,7 +330,7 @@
         "type": "uint128"
       }
     ],
-    "stateMutability": "view",
+    "stateMutability": "pure",
     "type": "function"
   },
   {
@@ -464,20 +378,7 @@
         "type": "uint128"
       }
     ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "cumulativeBalancesRatio",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
+    "stateMutability": "pure",
     "type": "function"
   },
   {
@@ -488,19 +389,6 @@
         "internalType": "uint8",
         "name": "",
         "type": "uint8"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "deploymentChainId",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -521,7 +409,7 @@
   },
   {
     "inputs": [],
-    "name": "getBaseBalance",
+    "name": "fyTokenReserves",
     "outputs": [
       {
         "internalType": "uint112",
@@ -534,22 +422,12 @@
   },
   {
     "inputs": [],
-    "name": "getCache",
+    "name": "getBaseReserves",
     "outputs": [
       {
-        "internalType": "uint112",
+        "internalType": "uint128",
         "name": "",
-        "type": "uint112"
-      },
-      {
-        "internalType": "uint112",
-        "name": "",
-        "type": "uint112"
-      },
-      {
-        "internalType": "uint32",
-        "name": "",
-        "type": "uint32"
+        "type": "uint128"
       }
     ],
     "stateMutability": "view",
@@ -557,64 +435,12 @@
   },
   {
     "inputs": [],
-    "name": "getFYTokenBalance",
+    "name": "getFYTokenReserves",
     "outputs": [
       {
-        "internalType": "uint112",
+        "internalType": "uint128",
         "name": "",
-        "type": "uint112"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getG1",
-    "outputs": [
-      {
-        "internalType": "int128",
-        "name": "",
-        "type": "int128"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getG2",
-    "outputs": [
-      {
-        "internalType": "int128",
-        "name": "",
-        "type": "int128"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getK",
-    "outputs": [
-      {
-        "internalType": "int128",
-        "name": "",
-        "type": "int128"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "maturity",
-    "outputs": [
-      {
-        "internalType": "uint32",
-        "name": "",
-        "type": "uint32"
+        "type": "uint128"
       }
     ],
     "stateMutability": "view",
@@ -629,7 +455,7 @@
       },
       {
         "internalType": "bool",
-        "name": "calculateFromBase",
+        "name": "",
         "type": "bool"
       },
       {
@@ -642,56 +468,17 @@
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "baseIn",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "fyTokenIn",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "fyTokenToBuy",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "minTokensMinted",
-        "type": "uint256"
-      }
-    ],
-    "name": "mintWithBase",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
+        "name": "tokensMinted",
         "type": "uint256"
       }
     ],
@@ -712,25 +499,6 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "nonces",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "owner",
     "outputs": [
@@ -744,46 +512,16 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs": [],
+    "name": "rate",
+    "outputs": [
       {
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "spender",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "deadline",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint8",
-        "name": "v",
-        "type": "uint8"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "r",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "s",
-        "type": "bytes32"
+        "internalType": "uint128",
+        "name": "",
+        "type": "uint128"
       }
     ],
-    "name": "permit",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -798,7 +536,7 @@
     "outputs": [
       {
         "internalType": "uint128",
-        "name": "retrieved",
+        "name": "surplus",
         "type": "uint128"
       }
     ],
@@ -817,11 +555,11 @@
     "outputs": [
       {
         "internalType": "uint128",
-        "name": "retrieved",
+        "name": "surplus",
         "type": "uint128"
       }
     ],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -864,7 +602,7 @@
         "type": "uint128"
       }
     ],
-    "stateMutability": "view",
+    "stateMutability": "pure",
     "type": "function"
   },
   {
@@ -907,25 +645,7 @@
         "type": "uint128"
       }
     ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "parameter",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "int128",
-        "name": "value",
-        "type": "int128"
-      }
-    ],
-    "name": "setParameter",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "pure",
     "type": "function"
   },
   {
@@ -1028,16 +748,21 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "version",
-    "outputs": [
+    "inputs": [
       {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
+        "internalType": "uint112",
+        "name": "baseReserves_",
+        "type": "uint112"
+      },
+      {
+        "internalType": "uint112",
+        "name": "fyTokenReserves_",
+        "type": "uint112"
       }
     ],
-    "stateMutability": "pure",
+    "name": "update",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   }
 ]
