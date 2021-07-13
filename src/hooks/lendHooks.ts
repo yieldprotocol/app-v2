@@ -14,7 +14,7 @@ export const useLend = (input: string | undefined) => {
   return { lendMax };
 };
 
-/* Generic hook for chain transactions */
+/* Lend Actions Hook */
 export const useLendActions = () => {
   const {
     chainState: { account, contractMap },

@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Box, Button, ResponsiveContext, Select, Tab, Tabs, Text, TextInput } from 'grommet';
 import { ethers } from 'ethers';
+import { FiClock } from 'react-icons/fi';
 
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import InputWrap from '../components/wraps/InputWrap';
@@ -140,9 +141,18 @@ const LendPosition = () => {
           </Box>
 
           <SectionWrap>
-            <Box gap="xsmall" pad="xsmall">
+            <Box gap="xsmall" >
               {/* <InfoBite label="Vault debt + interest:" value={`${selectedVault?.art_} ${vaultBase?.symbol}`} icon={<FiTrendingUp />} /> */}
-              <InfoBite label="FYToken balance: " value={selectedSeries?.fyTokenBalance_!} />
+              <InfoBite 
+                label="Portfolio value at Maturity" 
+                value={ `${selectedSeries?.fyTokenBalance_!} `} 
+                icon={selectedBase?.image}
+              />
+              <InfoBite
+                label="Maturity date:"
+                value={`${selectedSeries?.fullDate}`}
+                icon={<FiClock color={selectedSeries?.color} />}
+              />
             </Box>
           </SectionWrap>
         </Box>
