@@ -4,7 +4,7 @@ import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
 import { ICallData, IVault, SignType, ISeries, ActionCodes, IUserContext } from '../types';
 import { getTxCode, cleanValue } from '../utils/appUtils';
-import { ETH_BASED_ASSETS, ONE_WEI_BN } from '../utils/constants';
+import { ETH_BASED_ASSETS } from '../utils/constants';
 import { useChain } from './chainHooks';
 
 import { VAULT_OPS } from '../utils/operations';
