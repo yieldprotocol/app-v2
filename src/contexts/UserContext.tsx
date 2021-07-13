@@ -371,7 +371,7 @@ const UserProvider = ({ children }: any) => {
       seriesRootMap &&
       (async () => {
         const Oracle = contractMap.get('ChainlinkOracle');
-        const filter = Oracle.filters.SourceSet(null, null, null);
+        // const filter = Oracle.filters.SourceSet(null, null, null);
         // const eventList = await Oracle.queryFilter(filter, 1);
         // console.log('Oracle events: ', eventList);
       })();
