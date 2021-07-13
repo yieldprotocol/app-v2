@@ -6,7 +6,7 @@ import { ChainContext } from '../contexts/ChainContext';
 const Connect = ({ setConnectOpen }: any) => {
   const {
     chainState: { connector, connectors },
-    chainActions: { connect },
+    chainActions: { connect, disconnect },
   } = useContext(ChainContext);
 
   const [activatingConnector, setActivatingConnector] = useState<any>();
@@ -16,6 +16,12 @@ const Connect = ({ setConnectOpen }: any) => {
     activatingConnector && activatingConnector === connector && setActivatingConnector(undefined);
   }, [activatingConnector, connector]);
 
+  const handleConnect = (connectorName: string) => {
+    disconnect();
+    setActivatingConnector(connectorName);
+    connect(connectorName);
+  };
+
   const connectorsRender = [...connectors.keys()].map((name: string) => {
     const currentConnector = connectors.get(name);
     const activating = currentConnector === activatingConnector;
@@ -24,10 +30,7 @@ const Connect = ({ setConnectOpen }: any) => {
     return (
       <Box
         key={name}
-        onClick={() => {
-          setActivatingConnector(name);
-          connect(name);
-        }}
+        onClick={() => !connected && handleConnect(name)}
         border={{ color: 'tailwind-blue', size: 'xsmall' }}
         hoverIndicator={{ color: 'tailwind-blue', size: 'xsmall' }}
         pad="small"
