@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Box, Button, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import { ethers } from 'ethers';
-import { FiClock, FiPercent } from 'react-icons/fi';
+import { FiClock, FiLogOut, FiPercent } from 'react-icons/fi';
 import { BiCoinStack } from 'react-icons/bi';
 
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
@@ -25,7 +25,7 @@ import NextButton from '../components/buttons/NextButton';
 import YieldMark from '../components/logos/YieldMark';
 
 
-const PoolPosition = () => {
+const PoolPosition = ({ close } : {close: ()=>void}) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   /* STATE FROM CONTEXT */
@@ -131,15 +131,16 @@ const PoolPosition = () => {
             <Box direction="row" align="center" gap="medium">
               <PositionAvatar position={selectedSeries!} />
               <Box>
-                <Text size={mobile ? 'large' : 'xlarge'}> {selectedSeries?.displayName} </Text>
+                <Text size={mobile ? 'medium' : 'large'}> {selectedSeries?.displayName} </Text>
                 <Text size="small"> {abbreviateHash(selectedSeries?.fyTokenAddress!, 5)}</Text>
               </Box>
             </Box>
+            <FiLogOut onClick={()=> close() } />
           </Box>
 
          
           <SectionWrap>
-            <Box gap="xsmall" >
+            <Box gap="small" >
               {/* <InfoBite label="Vault debt + interest:" value={`${selectedVault?.art_} ${vaultBase?.symbol}`} icon={<FiTrendingUp />} /> */}
 
               <InfoBite 

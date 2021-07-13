@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Box, Button, ResponsiveContext, Select, Tab, Tabs, Text, TextInput } from 'grommet';
 import { ethers } from 'ethers';
-import { FiClock } from 'react-icons/fi';
+import { FiClock, FiLogOut, FiTrendingUp } from 'react-icons/fi';
 
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import InputWrap from '../components/wraps/InputWrap';
@@ -21,7 +21,7 @@ import PositionAvatar from '../components/PositionAvatar';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import NextButton from '../components/buttons/NextButton';
 
-const LendPosition = () => {
+const LendPosition = ({ close } : {close: ()=>void}) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   /* STATE FROM CONTEXT */
@@ -134,17 +134,23 @@ const LendPosition = () => {
             <Box direction="row" align="center" gap="medium">
               <PositionAvatar position={selectedSeries!} />
               <Box>
-                <Text size={mobile ? 'large' : 'xlarge'}> {selectedSeries?.displayName} </Text>
+                <Text size={mobile ? 'medium' : 'large'}> {selectedSeries?.displayName} </Text>
                 <Text size="small"> {abbreviateHash(selectedSeries?.fyTokenAddress!, 5)}</Text>
               </Box>
             </Box>
+            <FiLogOut onClick={()=> close() } />
           </Box>
 
           <SectionWrap>
-            <Box gap="xsmall" >
+            <Box gap="small" >
               {/* <InfoBite label="Vault debt + interest:" value={`${selectedVault?.art_} ${vaultBase?.symbol}`} icon={<FiTrendingUp />} /> */}
               <InfoBite 
                 label="Portfolio value at Maturity" 
+                value={ `${selectedSeries?.fyTokenBalance_!} ${selectedBase?.symbol!}`} 
+                icon={<FiTrendingUp />}
+              />
+             <InfoBite 
+                label="Current value" 
                 value={ `${selectedSeries?.fyTokenBalance_!} `} 
                 icon={selectedBase?.image}
               />

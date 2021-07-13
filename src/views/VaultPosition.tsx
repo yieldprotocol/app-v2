@@ -3,7 +3,7 @@ import { Box, Button, ResponsiveContext, Select, Text, TextInput } from 'grommet
 import { ethers } from 'ethers';
 import { useHistory } from 'react-router-dom';
 
-import { FiLock, FiClock, FiTrendingUp } from 'react-icons/fi';
+import { FiLock, FiClock, FiTrendingUp, FiLogOut } from 'react-icons/fi';
 import { cleanValue, getTxCode } from '../utils/appUtils';
 import { UserContext } from '../contexts/UserContext';
 import InputWrap from '../components/wraps/InputWrap';
@@ -24,7 +24,7 @@ import NextButton from '../components/buttons/NextButton';
 import { Gauge } from '../components/Gauge';
 import YieldHistory from '../components/YieldHistory';
 
-const Vault = () => {
+const Vault = ( { close } : {close: ()=>void}) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const routerHistory = useHistory();
 
@@ -195,10 +195,11 @@ const Vault = () => {
             <Box direction="row" align="center" gap="medium">
               <PositionAvatar position={selectedVault!} />
               <Box>
-                <Text size={mobile ? 'large' : 'xlarge'}> {selectedVault?.displayName} </Text>
+                <Text size={mobile ? 'medium' : 'large'}> {selectedVault?.displayName} </Text>
                 <Text size="small"> {selectedVault?.id} </Text>
               </Box>
             </Box>
+            <FiLogOut onClick={()=>close()} />
           </Box>
 
           <SectionWrap>

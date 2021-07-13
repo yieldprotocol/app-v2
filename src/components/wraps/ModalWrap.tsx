@@ -100,9 +100,8 @@ function ModalWrap({ children, toggleModalOpen, background, modalOpen = false }:
                 <PanelWrap>
                   <Box />
                 </PanelWrap>
-                <Box gap="large" width="600px">
-                  <BackButton action={() => toggleModalOpen()} />
-
+                <Box gap="large" width="600px" pad={{ top: 'large' }}>
+                  {/* <BackButton action={() => toggleModalOpen()} /> */}
                   {children}
                 </Box>
                 <PanelWrap>
