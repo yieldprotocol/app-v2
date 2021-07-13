@@ -204,7 +204,7 @@ const UserProvider = ({ children }: any) => {
       const _priceMap = userState.priceMap;
       const _basePriceMap = _priceMap.get(base) || new Map<string, any>();
       const Oracle = contractMap.get('ChainlinkOracle');
-      const [price] = await Oracle.get(bytesToBytes32(base, 6), bytesToBytes32(ilk, 6), ONE_WEI_BN);
+      const [price] = await Oracle.peek(bytesToBytes32(base, 6), bytesToBytes32(ilk, 6), ONE_WEI_BN);
       _basePriceMap.set(ilk, price);
       _priceMap.set(base, _basePriceMap);
       updateState({ type: 'priceMap', payload: _priceMap });
