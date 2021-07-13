@@ -217,20 +217,52 @@ export enum ActionType {
 }
 
 export enum ActionCodes {
-  // Collateral
+  // COLLATERAL
   ADD_COLLATERAL = '000',
   REMOVE_COLLATERAL = '010',
-  // Borrow
+  // BORROW
   BORROW = '100',
   REPAY = '110',
   ROLL_DEBT = '120',
-  // Lend
+  // LEND
   LEND = '200',
   CLOSE_POSITION = '210',
   ROLL_POSITION = '220',
   REDEEM = '230',
-  // Pool
+  // POOL
   ADD_LIQUIDITY = '300',
   REMOVE_LIQUIDITY = '310',
   ROLL_LIQUIDITY = '320',
+  // VAULT
+  DELETE_VAULT= '400',
+  TRANSFER_VAULT= '410'
 }
+
+export interface IHistItemBase {
+  blockNumber:number;
+  date:Date;
+  transactionHash: string;
+  maturity:number;
+  seriesId: string;
+  histType: ActionCodes;
+  date_: string;
+ }
+
+ export interface IVaultHistItem extends IHistItemBase {
+  vaultId: string,
+  ilkId: string,
+  ink: BigNumber,
+  art: BigNumber,
+  ink_: String,
+  art_: String,
+}
+
+export interface IHistItem extends IHistItemBase {
+  bases: BigNumber,
+  fyTokens:  BigNumber,
+  bases_: string,
+  fyTokens_: string,
+  poolTokens?: BigNumber,
+  poolTokens_?: string,
+}
+

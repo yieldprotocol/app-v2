@@ -1,18 +1,22 @@
 import React, { useContext, useEffect, useReducer, useCallback, useState } from 'react';
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { format } from 'date-fns';
 
-import {
-  ISeries,
-  IVault,
-  IHistoryContextState,
-} from '../types';
+import { ISeries, IVault, IHistoryContextState, IHistItem, ActionCodes, IVaultHistItem, IHistItemBase } from '../types';
 
 import { ChainContext } from './ChainContext';
 import { bytesToBytes32 } from '../utils/appUtils';
 import { UserContext } from './UserContext';
+import { ZERO_BN } from '../utils/constants';
 
 const dateFormat = (dateInSecs: number) => format(new Date(dateInSecs * 1000), 'dd MMM yyyy');
+
+const inferType = (art: BigNumber, ink: BigNumber) => {
+  if (art.eq(ZERO_BN)) return ink.gt(ZERO_BN) ? ActionCodes.ADD_COLLATERAL : ActionCodes.REMOVE_COLLATERAL;
+  if (art.lt(ZERO_BN)) return ActionCodes.REPAY;
+  return ActionCodes.BORROW;
+};
+
 
 const HistoryContext = React.createContext<any>({});
 
@@ -20,15 +24,15 @@ const initState: IHistoryContextState = {
   historyLoading: true,
   tradeHistory: {
     lastBlock: 0,
-    items: [],
+    items: [] as IHistItemBase[],
   },
   liquidityHistory: {
     lastBlock: 0,
-    items: [],
+    items: [] as IHistItemBase[],
   },
   vaultHistory: {
     lastBlock: 0,
-    items: [],
+    items: [] as IHistItemBase[],
   },
 };
 
@@ -84,7 +88,7 @@ const HistoryProvider = ({ children }: any) => {
   const { chainState } = useContext(ChainContext);
   const { fallbackProvider, contractMap, account, seriesRootMap } = chainState;
   const { userState } = useContext(UserContext);
-  const { userLoading, vaultMap } = userState;
+  const { userLoading, vaultMap, seriesMap } = userState;
 
   const [historyState, updateState] = useReducer(historyReducer, initState);
 
@@ -92,7 +96,7 @@ const HistoryProvider = ({ children }: any) => {
   const updateLiquidityHistory = useCallback(
     async (seriesList: ISeries[]) => {
       // event Liquidity(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens, int256 poolTokens);
-      const liqHistMap = new Map([]);
+      const liqHistMap = new Map<string, IHistItem[]>([]);
       /* Get all the Liquidity history transactions */
       await Promise.all(
         seriesList.map(async (series: ISeries) => {
@@ -116,6 +120,9 @@ const HistoryProvider = ({ children }: any) => {
                 seriesId,
                 poolTokens,
 
+                /* inferred trade type */
+                histType: poolTokens.gt(ZERO_BN) ? ActionCodes.ADD_LIQUIDITY : ActionCodes.REMOVE_LIQUIDITY,
+
                 /* Formatted values:  */
                 poolTokens_: ethers.utils.formatEther(poolTokens),
                 fyTokens_: ethers.utils.formatEther(fyTokens),
@@ -138,7 +145,7 @@ const HistoryProvider = ({ children }: any) => {
   const updateTradeHistory = useCallback(
     async (seriesList: ISeries[]) => {
       // event Trade(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens);
-      const tradeHistMap = new Map([]);
+      const tradeHistMap = new Map<string, IHistItem[]> ([]);
       /* get all the trade historical transactions */
       await Promise.all(
         seriesList.map(async (series: ISeries) => {
@@ -159,11 +166,19 @@ const HistoryProvider = ({ children }: any) => {
                 maturity,
                 bases,
                 fyTokens,
+                poolTokens: ZERO_BN,
                 seriesId,
+                vaultId: null,
+
+                /* inferred trade type */
+                histType: fyTokens.gt(ZERO_BN) ? ActionCodes.LEND : ActionCodes.CLOSE_POSITION,
+
                 /* Formatted values:  */
                 date_: dateFormat(date),
                 bases_: ethers.utils.formatEther(bases),
                 fyTokens_: ethers.utils.formatEther(fyTokens),
+                poolTokens_: ethers.utils.formatEther(ZERO_BN),
+
               };
             })
           );
@@ -181,7 +196,7 @@ const HistoryProvider = ({ children }: any) => {
   const updateVaultHistory = useCallback(
     async (vaultList: IVault[]) => {
       // event VaultPoured(bytes12 indexed vaultId, bytes6 indexed seriesId, bytes6 indexed ilkId, int128 ink, int128 art);
-      const vaultHistMap = new Map([]);
+      const vaultHistMap = new Map<string, IVaultHistItem[]>([]);
       const Cauldron = contractMap.get('Cauldron');
       /* Get all the Vault historical Pour transactions */
       await Promise.all(
@@ -189,10 +204,23 @@ const HistoryProvider = ({ children }: any) => {
           const { id: vaultId } = vault;
           const filter = Cauldron.filters.VaultPoured(bytesToBytes32(vaultId, 12));
           const eventList = await Cauldron.queryFilter(filter, 0);
-          const vaultLogs = await Promise.all(
+          const vaultLogs : IVaultHistItem[] = await Promise.all(
             eventList.map(async (log: any) => {
               const { blockNumber, transactionHash } = log;
               const { seriesId, ilkId, ink, art } = Cauldron.interface.parseLog(log).args;
+
+              const tradeIface = new ethers.utils.Interface(
+                [ "event Trade(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens)" ]
+              );
+              const topic = tradeIface.getEventTopic('Trade')
+              const { logs: receiptLogs }  = await fallbackProvider.getTransactionReceipt(transactionHash)
+              const tradelog = receiptLogs.find((_log:any ) => _log.topics.includes(topic))
+              const { 
+                bases: baseTraded, 
+                fyTokens: fyTokenTraded 
+              } =  tradelog ? tradeIface.parseLog(tradelog).args : { bases: ZERO_BN  , fyTokens: ZERO_BN }
+              // const tradeLog  = receiptLogs.find( (l:any) => l.topics.includes(topic) )
+  
               const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
               return {
                 blockNumber,
@@ -203,10 +231,18 @@ const HistoryProvider = ({ children }: any) => {
                 ilkId,
                 ink,
                 art,
+                fyTokenTraded,
+                baseTraded,
+
+                /* inferred  history type */
+                histType: inferType(art, ink),
+
                 /* Formatted values:  */
                 date_: dateFormat(date),
                 ink_: ethers.utils.formatEther(ink),
                 art_: ethers.utils.formatEther(art),
+                baseTraded_: ethers.utils.formatEther(baseTraded),
+                fyTokenTraded_: ethers.utils.formatEther(fyTokenTraded),
               };
             })
           );

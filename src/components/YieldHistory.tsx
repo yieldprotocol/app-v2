@@ -1,22 +1,30 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Box, Text } from 'grommet';
 import { HistoryContext } from '../contexts/HistoryContext';
-import { ISeries, IVault } from '../types';
+import { IHistItem, ISeries, IVault } from '../types';
 
 interface IYieldHistory {
   seriesOrVault: IVault|ISeries;
   view: ('POOL'|'VAULT'|'TRADE')[];
  }
 
+
 const YieldHistory = ({ seriesOrVault, view }: IYieldHistory) => {
+
+
+  /* STATE FROM CONTEXT */
   const { historyState, historyActions } = useContext(HistoryContext);
-  const { vaultHistory, tradeHistory, poolHistory } = historyState;
+  const { vaultHistory, tradeHistory, liquididtyHistory } = historyState;
 
   const isVault = seriesOrVault && seriesOrVault.id.length > 12; // is a vault or a series.
 
   const tradeItems = !isVault && tradeHistory.get(seriesOrVault?.id);
-  const poolItems = isVault && vaultHistory.get(seriesOrVault?.id);
+  const poolItems = !isVault && liquididtyHistory.get(seriesOrVault?.id);
   const vaultItems = isVault && vaultHistory.get(seriesOrVault?.id);
+
+  /* LOCAL STATE */
+  const [histList, setHistList] = useState<IHistItem[]>()
+
 
   return (
     <Box pad="small" gap="xsmall" height="150px" overflow="scroll">
