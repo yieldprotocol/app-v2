@@ -7,7 +7,7 @@ import { BiCoinStack } from 'react-icons/bi';
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import InputWrap from '../components/wraps/InputWrap';
 import SeriesSelector from '../components/selectors/SeriesSelector';
-import { abbreviateHash, cleanValue, getTxCode } from '../utils/appUtils';
+import { abbreviateHash, cleanValue, getTxCode, nFormatter } from '../utils/appUtils';
 import SectionWrap from '../components/wraps/SectionWrap';
 
 import { UserContext } from '../contexts/UserContext';
@@ -143,19 +143,18 @@ const PoolPosition = () => {
               {/* <InfoBite label="Vault debt + interest:" value={`${selectedVault?.art_} ${vaultBase?.symbol}`} icon={<FiTrendingUp />} /> */}
 
               <InfoBite 
-                label="Liquidity Token Balance"
+                label="Liquidity Balance"
                 value={cleanValue(selectedSeries?.poolTokens_, 6)}
                 icon={<YieldMark height='1em' start={selectedSeries?.startColor} />}
               />
-              <InfoBite 
+              {/* <InfoBite 
                 label="Total Pool Liquidity"
                 value={cleanValue(selectedSeries?.totalSupply_, 2)}
                 icon={<BiCoinStack />}
-              />
-
+              /> */}
               <InfoBite 
                 label="Pool percentage"
-                value={`${cleanValue(selectedSeries?.poolPercent, 4)} %`}
+                value={`${cleanValue(selectedSeries?.poolPercent, 4)} %  of ${nFormatter( parseFloat(selectedSeries?.totalSupply_!) , 2 )}`}
                 icon={<FiPercent />}
               />
               <InfoBite

@@ -286,7 +286,7 @@ const ChainProvider = ({ children }: any) => {
                   id,
                   baseId,
                   maturity,
-                  fullDate: format(new Date(maturity*1000), 'dd MMMM yyyy ( hh:mm:ss )' ),
+                  fullDate: format(new Date(maturity*1000), 'dd MMMM yyyy' ),
                   name,
                   symbol,
                   version,
