@@ -13,77 +13,128 @@ import {
   ContractTransaction,
   Overrides,
   CallOverrides,
-} from 'ethers';
-import { BytesLike } from '@ethersproject/bytes';
-import { Listener, Provider } from '@ethersproject/providers';
-import { FunctionFragment, EventFragment, Result } from '@ethersproject/abi';
-import { TypedEventFilter, TypedEvent, TypedListener } from './commons';
+} from "ethers";
+import { BytesLike } from "@ethersproject/bytes";
+import { Listener, Provider } from "@ethersproject/providers";
+import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
+import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface ChainlinkMultiOracleInterface extends ethers.utils.Interface {
   functions: {
-    'LOCK()': FunctionFragment;
-    'ROOT()': FunctionFragment;
-    'get(bytes32,bytes32,uint256)': FunctionFragment;
-    'getRoleAdmin(bytes4)': FunctionFragment;
-    'grantRole(bytes4,address)': FunctionFragment;
-    'grantRoles(bytes4[],address)': FunctionFragment;
-    'hasRole(bytes4,address)': FunctionFragment;
-    'lockRole(bytes4)': FunctionFragment;
-    'peek(bytes32,bytes32,uint256)': FunctionFragment;
-    'renounceRole(bytes4,address)': FunctionFragment;
-    'revokeRole(bytes4,address)': FunctionFragment;
-    'revokeRoles(bytes4[],address)': FunctionFragment;
-    'setRoleAdmin(bytes4,bytes4)': FunctionFragment;
-    'setSource(bytes6,bytes6,address)': FunctionFragment;
-    'setSources(bytes6[],bytes6[],address[])': FunctionFragment;
-    'sources(bytes6,bytes6)': FunctionFragment;
+    "LOCK()": FunctionFragment;
+    "ROOT()": FunctionFragment;
+    "get(bytes32,bytes32,uint256)": FunctionFragment;
+    "getRoleAdmin(bytes4)": FunctionFragment;
+    "grantRole(bytes4,address)": FunctionFragment;
+    "grantRoles(bytes4[],address)": FunctionFragment;
+    "hasRole(bytes4,address)": FunctionFragment;
+    "lockRole(bytes4)": FunctionFragment;
+    "peek(bytes32,bytes32,uint256)": FunctionFragment;
+    "renounceRole(bytes4,address)": FunctionFragment;
+    "revokeRole(bytes4,address)": FunctionFragment;
+    "revokeRoles(bytes4[],address)": FunctionFragment;
+    "setRoleAdmin(bytes4,bytes4)": FunctionFragment;
+    "setSource(bytes6,bytes6,address)": FunctionFragment;
+    "setSources(bytes6[],bytes6[],address[])": FunctionFragment;
+    "sources(bytes6,bytes6)": FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: 'LOCK', values?: undefined): string;
-  encodeFunctionData(functionFragment: 'ROOT', values?: undefined): string;
-  encodeFunctionData(functionFragment: 'get', values: [BytesLike, BytesLike, BigNumberish]): string;
-  encodeFunctionData(functionFragment: 'getRoleAdmin', values: [BytesLike]): string;
-  encodeFunctionData(functionFragment: 'grantRole', values: [BytesLike, string]): string;
-  encodeFunctionData(functionFragment: 'grantRoles', values: [BytesLike[], string]): string;
-  encodeFunctionData(functionFragment: 'hasRole', values: [BytesLike, string]): string;
-  encodeFunctionData(functionFragment: 'lockRole', values: [BytesLike]): string;
-  encodeFunctionData(functionFragment: 'peek', values: [BytesLike, BytesLike, BigNumberish]): string;
-  encodeFunctionData(functionFragment: 'renounceRole', values: [BytesLike, string]): string;
-  encodeFunctionData(functionFragment: 'revokeRole', values: [BytesLike, string]): string;
-  encodeFunctionData(functionFragment: 'revokeRoles', values: [BytesLike[], string]): string;
-  encodeFunctionData(functionFragment: 'setRoleAdmin', values: [BytesLike, BytesLike]): string;
-  encodeFunctionData(functionFragment: 'setSource', values: [BytesLike, BytesLike, string]): string;
-  encodeFunctionData(functionFragment: 'setSources', values: [BytesLike[], BytesLike[], string[]]): string;
-  encodeFunctionData(functionFragment: 'sources', values: [BytesLike, BytesLike]): string;
+  encodeFunctionData(functionFragment: "LOCK", values?: undefined): string;
+  encodeFunctionData(functionFragment: "ROOT", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "get",
+    values: [BytesLike, BytesLike, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getRoleAdmin",
+    values: [BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "grantRole",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "grantRoles",
+    values: [BytesLike[], string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "hasRole",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(functionFragment: "lockRole", values: [BytesLike]): string;
+  encodeFunctionData(
+    functionFragment: "peek",
+    values: [BytesLike, BytesLike, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "renounceRole",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "revokeRole",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "revokeRoles",
+    values: [BytesLike[], string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setRoleAdmin",
+    values: [BytesLike, BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setSource",
+    values: [BytesLike, BytesLike, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setSources",
+    values: [BytesLike[], BytesLike[], string[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "sources",
+    values: [BytesLike, BytesLike]
+  ): string;
 
-  decodeFunctionResult(functionFragment: 'LOCK', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'ROOT', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'get', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'getRoleAdmin', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'grantRole', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'grantRoles', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'hasRole', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'lockRole', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'peek', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'renounceRole', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'revokeRole', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'revokeRoles', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'setRoleAdmin', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'setSource', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'setSources', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'sources', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "LOCK", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "ROOT", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "get", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getRoleAdmin",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "grantRoles", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "lockRole", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "peek", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "renounceRole",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "revokeRoles",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setRoleAdmin",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "setSource", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "setSources", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "sources", data: BytesLike): Result;
 
   events: {
-    'RoleAdminChanged(bytes4,bytes4)': EventFragment;
-    'RoleGranted(bytes4,address,address)': EventFragment;
-    'RoleRevoked(bytes4,address,address)': EventFragment;
-    'SourceSet(bytes6,bytes6,address)': EventFragment;
+    "RoleAdminChanged(bytes4,bytes4)": EventFragment;
+    "RoleGranted(bytes4,address,address)": EventFragment;
+    "RoleRevoked(bytes4,address,address)": EventFragment;
+    "SourceSet(bytes6,bytes6,address)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: 'RoleAdminChanged'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'RoleGranted'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'RoleRevoked'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'SourceSet'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RoleRevoked"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SourceSet"): EventFragment;
 }
 
 export class ChainlinkMultiOracle extends BaseContract {
@@ -138,8 +189,8 @@ export class ChainlinkMultiOracle extends BaseContract {
       base: BytesLike,
       quote: BytesLike,
       amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }>;
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<[string]>;
 
@@ -155,7 +206,11 @@ export class ChainlinkMultiOracle extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    hasRole(role: BytesLike, account: string, overrides?: CallOverrides): Promise<[boolean]>;
+    hasRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     lockRole(
       role: BytesLike,
@@ -167,7 +222,9 @@ export class ChainlinkMultiOracle extends BaseContract {
       quote: BytesLike,
       amount: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }>;
+    ): Promise<
+      [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
+    >;
 
     renounceRole(
       role: BytesLike,
@@ -228,8 +285,8 @@ export class ChainlinkMultiOracle extends BaseContract {
     base: BytesLike,
     quote: BytesLike,
     amount: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<[BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }>;
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
 
@@ -245,16 +302,25 @@ export class ChainlinkMultiOracle extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  hasRole(role: BytesLike, account: string, overrides?: CallOverrides): Promise<boolean>;
+  hasRole(
+    role: BytesLike,
+    account: string,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
-  lockRole(role: BytesLike, overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
+  lockRole(
+    role: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   peek(
     base: BytesLike,
     quote: BytesLike,
     amount: BigNumberish,
     overrides?: CallOverrides
-  ): Promise<[BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }>;
+  ): Promise<
+    [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
+  >;
 
   renounceRole(
     role: BytesLike,
@@ -316,15 +382,29 @@ export class ChainlinkMultiOracle extends BaseContract {
       quote: BytesLike,
       amount: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }>;
+    ): Promise<
+      [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
+    >;
 
     getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
 
-    grantRole(role: BytesLike, account: string, overrides?: CallOverrides): Promise<void>;
+    grantRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    grantRoles(roles: BytesLike[], account: string, overrides?: CallOverrides): Promise<void>;
+    grantRoles(
+      roles: BytesLike[],
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    hasRole(role: BytesLike, account: string, overrides?: CallOverrides): Promise<boolean>;
+    hasRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     lockRole(role: BytesLike, overrides?: CallOverrides): Promise<void>;
 
@@ -333,19 +413,47 @@ export class ChainlinkMultiOracle extends BaseContract {
       quote: BytesLike,
       amount: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }>;
+    ): Promise<
+      [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
+    >;
 
-    renounceRole(role: BytesLike, account: string, overrides?: CallOverrides): Promise<void>;
+    renounceRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    revokeRole(role: BytesLike, account: string, overrides?: CallOverrides): Promise<void>;
+    revokeRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    revokeRoles(roles: BytesLike[], account: string, overrides?: CallOverrides): Promise<void>;
+    revokeRoles(
+      roles: BytesLike[],
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    setRoleAdmin(role: BytesLike, adminRole: BytesLike, overrides?: CallOverrides): Promise<void>;
+    setRoleAdmin(
+      role: BytesLike,
+      adminRole: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    setSource(base: BytesLike, quote: BytesLike, source: string, overrides?: CallOverrides): Promise<void>;
+    setSource(
+      base: BytesLike,
+      quote: BytesLike,
+      source: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    setSources(bases: BytesLike[], quotes: BytesLike[], sources_: string[], overrides?: CallOverrides): Promise<void>;
+    setSources(
+      bases: BytesLike[],
+      quotes: BytesLike[],
+      sources_: string[],
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     sources(
       arg0: BytesLike,
@@ -364,25 +472,37 @@ export class ChainlinkMultiOracle extends BaseContract {
     RoleAdminChanged(
       role?: BytesLike | null,
       newAdminRole?: BytesLike | null
-    ): TypedEventFilter<[string, string], { role: string; newAdminRole: string }>;
+    ): TypedEventFilter<
+      [string, string],
+      { role: string; newAdminRole: string }
+    >;
 
     RoleGranted(
       role?: BytesLike | null,
       account?: string | null,
       sender?: string | null
-    ): TypedEventFilter<[string, string, string], { role: string; account: string; sender: string }>;
+    ): TypedEventFilter<
+      [string, string, string],
+      { role: string; account: string; sender: string }
+    >;
 
     RoleRevoked(
       role?: BytesLike | null,
       account?: string | null,
       sender?: string | null
-    ): TypedEventFilter<[string, string, string], { role: string; account: string; sender: string }>;
+    ): TypedEventFilter<
+      [string, string, string],
+      { role: string; account: string; sender: string }
+    >;
 
     SourceSet(
       baseId?: BytesLike | null,
       quoteId?: BytesLike | null,
       source?: string | null
-    ): TypedEventFilter<[string, string, string], { baseId: string; quoteId: string; source: string }>;
+    ): TypedEventFilter<
+      [string, string, string],
+      { baseId: string; quoteId: string; source: string }
+    >;
   };
 
   estimateGas: {
@@ -390,9 +510,17 @@ export class ChainlinkMultiOracle extends BaseContract {
 
     ROOT(overrides?: CallOverrides): Promise<BigNumber>;
 
-    get(base: BytesLike, quote: BytesLike, amount: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
+    get(
+      base: BytesLike,
+      quote: BytesLike,
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
-    getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
+    getRoleAdmin(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     grantRole(
       role: BytesLike,
@@ -406,11 +534,23 @@ export class ChainlinkMultiOracle extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    hasRole(role: BytesLike, account: string, overrides?: CallOverrides): Promise<BigNumber>;
+    hasRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
-    lockRole(role: BytesLike, overrides?: Overrides & { from?: string | Promise<string> }): Promise<BigNumber>;
+    lockRole(
+      role: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
-    peek(base: BytesLike, quote: BytesLike, amount: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
+    peek(
+      base: BytesLike,
+      quote: BytesLike,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     renounceRole(
       role: BytesLike,
@@ -450,7 +590,11 @@ export class ChainlinkMultiOracle extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    sources(arg0: BytesLike, arg1: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
+    sources(
+      arg0: BytesLike,
+      arg1: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -462,10 +606,13 @@ export class ChainlinkMultiOracle extends BaseContract {
       base: BytesLike,
       quote: BytesLike,
       amount: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    getRoleAdmin(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     grantRole(
       role: BytesLike,
@@ -479,7 +626,11 @@ export class ChainlinkMultiOracle extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    hasRole(role: BytesLike, account: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    hasRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     lockRole(
       role: BytesLike,
@@ -531,6 +682,10 @@ export class ChainlinkMultiOracle extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    sources(arg0: BytesLike, arg1: BytesLike, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    sources(
+      arg0: BytesLike,
+      arg1: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
   };
 }

@@ -13,20 +13,23 @@ import {
   ContractTransaction,
   Overrides,
   CallOverrides,
-} from 'ethers';
-import { BytesLike } from '@ethersproject/bytes';
-import { Listener, Provider } from '@ethersproject/providers';
-import { FunctionFragment, EventFragment, Result } from '@ethersproject/abi';
-import { TypedEventFilter, TypedEvent, TypedListener } from './commons';
+} from "ethers";
+import { BytesLike } from "@ethersproject/bytes";
+import { Listener, Provider } from "@ethersproject/providers";
+import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
+import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface IMultiOracleGovInterface extends ethers.utils.Interface {
   functions: {
-    'setSource(bytes6,bytes6,address)': FunctionFragment;
+    "setSource(bytes6,bytes6,address)": FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: 'setSource', values: [BytesLike, BytesLike, string]): string;
+  encodeFunctionData(
+    functionFragment: "setSource",
+    values: [BytesLike, BytesLike, string]
+  ): string;
 
-  decodeFunctionResult(functionFragment: 'setSource', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "setSource", data: BytesLike): Result;
 
   events: {};
 }
@@ -91,7 +94,12 @@ export class IMultiOracleGov extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    setSource(arg0: BytesLike, arg1: BytesLike, arg2: string, overrides?: CallOverrides): Promise<void>;
+    setSource(
+      arg0: BytesLike,
+      arg1: BytesLike,
+      arg2: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {};

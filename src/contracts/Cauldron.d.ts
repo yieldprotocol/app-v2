@@ -13,185 +13,295 @@ import {
   ContractTransaction,
   Overrides,
   CallOverrides,
-} from 'ethers';
-import { BytesLike } from '@ethersproject/bytes';
-import { Listener, Provider } from '@ethersproject/providers';
-import { FunctionFragment, EventFragment, Result } from '@ethersproject/abi';
-import { TypedEventFilter, TypedEvent, TypedListener } from './commons';
+} from "ethers";
+import { BytesLike } from "@ethersproject/bytes";
+import { Listener, Provider } from "@ethersproject/providers";
+import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
+import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface CauldronInterface extends ethers.utils.Interface {
   functions: {
-    'LOCK()': FunctionFragment;
-    'ROOT()': FunctionFragment;
-    'accrual(bytes6)': FunctionFragment;
-    'addAsset(bytes6,address)': FunctionFragment;
-    'addIlks(bytes6,bytes6[])': FunctionFragment;
-    'addSeries(bytes6,bytes6,address)': FunctionFragment;
-    'assets(bytes6)': FunctionFragment;
-    'auctionInterval()': FunctionFragment;
-    'auctions(bytes12)': FunctionFragment;
-    'balances(bytes12)': FunctionFragment;
-    'build(address,bytes12,bytes6,bytes6)': FunctionFragment;
-    'debt(bytes6,bytes6)': FunctionFragment;
-    'destroy(bytes12)': FunctionFragment;
-    'getRoleAdmin(bytes4)': FunctionFragment;
-    'give(bytes12,address)': FunctionFragment;
-    'grab(bytes12,address)': FunctionFragment;
-    'grantRole(bytes4,address)': FunctionFragment;
-    'grantRoles(bytes4[],address)': FunctionFragment;
-    'hasRole(bytes4,address)': FunctionFragment;
-    'ilks(bytes6,bytes6)': FunctionFragment;
-    'level(bytes12)': FunctionFragment;
-    'lockRole(bytes4)': FunctionFragment;
-    'mature(bytes6)': FunctionFragment;
-    'pour(bytes12,int128,int128)': FunctionFragment;
-    'rateOracles(bytes6)': FunctionFragment;
-    'ratesAtMaturity(bytes6)': FunctionFragment;
-    'renounceRole(bytes4,address)': FunctionFragment;
-    'revokeRole(bytes4,address)': FunctionFragment;
-    'revokeRoles(bytes4[],address)': FunctionFragment;
-    'roll(bytes12,bytes6,int128)': FunctionFragment;
-    'series(bytes6)': FunctionFragment;
-    'setAuctionInterval(uint32)': FunctionFragment;
-    'setDebtLimits(bytes6,bytes6,uint96,uint24,uint8)': FunctionFragment;
-    'setRateOracle(bytes6,address)': FunctionFragment;
-    'setRoleAdmin(bytes4,bytes4)': FunctionFragment;
-    'setSpotOracle(bytes6,bytes6,address,uint32)': FunctionFragment;
-    'slurp(bytes12,uint128,uint128)': FunctionFragment;
-    'spotOracles(bytes6,bytes6)': FunctionFragment;
-    'stir(bytes12,bytes12,uint128,uint128)': FunctionFragment;
-    'tweak(bytes12,bytes6,bytes6)': FunctionFragment;
-    'vaults(bytes12)': FunctionFragment;
+    "LOCK()": FunctionFragment;
+    "ROOT()": FunctionFragment;
+    "accrual(bytes6)": FunctionFragment;
+    "addAsset(bytes6,address)": FunctionFragment;
+    "addIlks(bytes6,bytes6[])": FunctionFragment;
+    "addSeries(bytes6,bytes6,address)": FunctionFragment;
+    "assets(bytes6)": FunctionFragment;
+    "balances(bytes12)": FunctionFragment;
+    "build(address,bytes12,bytes6,bytes6)": FunctionFragment;
+    "debt(bytes6,bytes6)": FunctionFragment;
+    "debtFromBase(bytes6,uint128)": FunctionFragment;
+    "debtToBase(bytes6,uint128)": FunctionFragment;
+    "destroy(bytes12)": FunctionFragment;
+    "getRoleAdmin(bytes4)": FunctionFragment;
+    "give(bytes12,address)": FunctionFragment;
+    "grab(bytes12,address)": FunctionFragment;
+    "grantRole(bytes4,address)": FunctionFragment;
+    "grantRoles(bytes4[],address)": FunctionFragment;
+    "hasRole(bytes4,address)": FunctionFragment;
+    "ilks(bytes6,bytes6)": FunctionFragment;
+    "level(bytes12)": FunctionFragment;
+    "lockRole(bytes4)": FunctionFragment;
+    "mature(bytes6)": FunctionFragment;
+    "pour(bytes12,int128,int128)": FunctionFragment;
+    "rateOracles(bytes6)": FunctionFragment;
+    "ratesAtMaturity(bytes6)": FunctionFragment;
+    "renounceRole(bytes4,address)": FunctionFragment;
+    "revokeRole(bytes4,address)": FunctionFragment;
+    "revokeRoles(bytes4[],address)": FunctionFragment;
+    "roll(bytes12,bytes6,int128)": FunctionFragment;
+    "series(bytes6)": FunctionFragment;
+    "setDebtLimits(bytes6,bytes6,uint96,uint24,uint8)": FunctionFragment;
+    "setRateOracle(bytes6,address)": FunctionFragment;
+    "setRoleAdmin(bytes4,bytes4)": FunctionFragment;
+    "setSpotOracle(bytes6,bytes6,address,uint32)": FunctionFragment;
+    "slurp(bytes12,uint128,uint128)": FunctionFragment;
+    "spotOracles(bytes6,bytes6)": FunctionFragment;
+    "stir(bytes12,bytes12,uint128,uint128)": FunctionFragment;
+    "tweak(bytes12,bytes6,bytes6)": FunctionFragment;
+    "vaults(bytes12)": FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: 'LOCK', values?: undefined): string;
-  encodeFunctionData(functionFragment: 'ROOT', values?: undefined): string;
-  encodeFunctionData(functionFragment: 'accrual', values: [BytesLike]): string;
-  encodeFunctionData(functionFragment: 'addAsset', values: [BytesLike, string]): string;
-  encodeFunctionData(functionFragment: 'addIlks', values: [BytesLike, BytesLike[]]): string;
-  encodeFunctionData(functionFragment: 'addSeries', values: [BytesLike, BytesLike, string]): string;
-  encodeFunctionData(functionFragment: 'assets', values: [BytesLike]): string;
-  encodeFunctionData(functionFragment: 'auctionInterval', values?: undefined): string;
-  encodeFunctionData(functionFragment: 'auctions', values: [BytesLike]): string;
-  encodeFunctionData(functionFragment: 'balances', values: [BytesLike]): string;
-  encodeFunctionData(functionFragment: 'build', values: [string, BytesLike, BytesLike, BytesLike]): string;
-  encodeFunctionData(functionFragment: 'debt', values: [BytesLike, BytesLike]): string;
-  encodeFunctionData(functionFragment: 'destroy', values: [BytesLike]): string;
-  encodeFunctionData(functionFragment: 'getRoleAdmin', values: [BytesLike]): string;
-  encodeFunctionData(functionFragment: 'give', values: [BytesLike, string]): string;
-  encodeFunctionData(functionFragment: 'grab', values: [BytesLike, string]): string;
-  encodeFunctionData(functionFragment: 'grantRole', values: [BytesLike, string]): string;
-  encodeFunctionData(functionFragment: 'grantRoles', values: [BytesLike[], string]): string;
-  encodeFunctionData(functionFragment: 'hasRole', values: [BytesLike, string]): string;
-  encodeFunctionData(functionFragment: 'ilks', values: [BytesLike, BytesLike]): string;
-  encodeFunctionData(functionFragment: 'level', values: [BytesLike]): string;
-  encodeFunctionData(functionFragment: 'lockRole', values: [BytesLike]): string;
-  encodeFunctionData(functionFragment: 'mature', values: [BytesLike]): string;
-  encodeFunctionData(functionFragment: 'pour', values: [BytesLike, BigNumberish, BigNumberish]): string;
-  encodeFunctionData(functionFragment: 'rateOracles', values: [BytesLike]): string;
-  encodeFunctionData(functionFragment: 'ratesAtMaturity', values: [BytesLike]): string;
-  encodeFunctionData(functionFragment: 'renounceRole', values: [BytesLike, string]): string;
-  encodeFunctionData(functionFragment: 'revokeRole', values: [BytesLike, string]): string;
-  encodeFunctionData(functionFragment: 'revokeRoles', values: [BytesLike[], string]): string;
-  encodeFunctionData(functionFragment: 'roll', values: [BytesLike, BytesLike, BigNumberish]): string;
-  encodeFunctionData(functionFragment: 'series', values: [BytesLike]): string;
-  encodeFunctionData(functionFragment: 'setAuctionInterval', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: "LOCK", values?: undefined): string;
+  encodeFunctionData(functionFragment: "ROOT", values?: undefined): string;
+  encodeFunctionData(functionFragment: "accrual", values: [BytesLike]): string;
   encodeFunctionData(
-    functionFragment: 'setDebtLimits',
+    functionFragment: "addAsset",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "addIlks",
+    values: [BytesLike, BytesLike[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "addSeries",
+    values: [BytesLike, BytesLike, string]
+  ): string;
+  encodeFunctionData(functionFragment: "assets", values: [BytesLike]): string;
+  encodeFunctionData(functionFragment: "balances", values: [BytesLike]): string;
+  encodeFunctionData(
+    functionFragment: "build",
+    values: [string, BytesLike, BytesLike, BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "debt",
+    values: [BytesLike, BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "debtFromBase",
+    values: [BytesLike, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "debtToBase",
+    values: [BytesLike, BigNumberish]
+  ): string;
+  encodeFunctionData(functionFragment: "destroy", values: [BytesLike]): string;
+  encodeFunctionData(
+    functionFragment: "getRoleAdmin",
+    values: [BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "give",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "grab",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "grantRole",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "grantRoles",
+    values: [BytesLike[], string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "hasRole",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "ilks",
+    values: [BytesLike, BytesLike]
+  ): string;
+  encodeFunctionData(functionFragment: "level", values: [BytesLike]): string;
+  encodeFunctionData(functionFragment: "lockRole", values: [BytesLike]): string;
+  encodeFunctionData(functionFragment: "mature", values: [BytesLike]): string;
+  encodeFunctionData(
+    functionFragment: "pour",
+    values: [BytesLike, BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "rateOracles",
+    values: [BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "ratesAtMaturity",
+    values: [BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "renounceRole",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "revokeRole",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "revokeRoles",
+    values: [BytesLike[], string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "roll",
+    values: [BytesLike, BytesLike, BigNumberish]
+  ): string;
+  encodeFunctionData(functionFragment: "series", values: [BytesLike]): string;
+  encodeFunctionData(
+    functionFragment: "setDebtLimits",
     values: [BytesLike, BytesLike, BigNumberish, BigNumberish, BigNumberish]
   ): string;
-  encodeFunctionData(functionFragment: 'setRateOracle', values: [BytesLike, string]): string;
-  encodeFunctionData(functionFragment: 'setRoleAdmin', values: [BytesLike, BytesLike]): string;
-  encodeFunctionData(functionFragment: 'setSpotOracle', values: [BytesLike, BytesLike, string, BigNumberish]): string;
-  encodeFunctionData(functionFragment: 'slurp', values: [BytesLike, BigNumberish, BigNumberish]): string;
-  encodeFunctionData(functionFragment: 'spotOracles', values: [BytesLike, BytesLike]): string;
-  encodeFunctionData(functionFragment: 'stir', values: [BytesLike, BytesLike, BigNumberish, BigNumberish]): string;
-  encodeFunctionData(functionFragment: 'tweak', values: [BytesLike, BytesLike, BytesLike]): string;
-  encodeFunctionData(functionFragment: 'vaults', values: [BytesLike]): string;
+  encodeFunctionData(
+    functionFragment: "setRateOracle",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setRoleAdmin",
+    values: [BytesLike, BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setSpotOracle",
+    values: [BytesLike, BytesLike, string, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "slurp",
+    values: [BytesLike, BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "spotOracles",
+    values: [BytesLike, BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "stir",
+    values: [BytesLike, BytesLike, BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "tweak",
+    values: [BytesLike, BytesLike, BytesLike]
+  ): string;
+  encodeFunctionData(functionFragment: "vaults", values: [BytesLike]): string;
 
-  decodeFunctionResult(functionFragment: 'LOCK', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'ROOT', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'accrual', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'addAsset', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'addIlks', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'addSeries', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'assets', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'auctionInterval', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'auctions', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'balances', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'build', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'debt', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'destroy', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'getRoleAdmin', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'give', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'grab', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'grantRole', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'grantRoles', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'hasRole', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'ilks', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'level', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'lockRole', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'mature', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'pour', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'rateOracles', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'ratesAtMaturity', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'renounceRole', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'revokeRole', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'revokeRoles', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'roll', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'series', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'setAuctionInterval', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'setDebtLimits', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'setRateOracle', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'setRoleAdmin', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'setSpotOracle', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'slurp', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'spotOracles', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'stir', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'tweak', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'vaults', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "LOCK", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "ROOT", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "accrual", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "addAsset", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "addIlks", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "addSeries", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "assets", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "balances", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "build", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "debt", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "debtFromBase",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "debtToBase", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "destroy", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getRoleAdmin",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "give", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "grab", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "grantRoles", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "ilks", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "level", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "lockRole", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "mature", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "pour", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "rateOracles",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "ratesAtMaturity",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "renounceRole",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "revokeRoles",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "roll", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "series", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setDebtLimits",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setRateOracle",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setRoleAdmin",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setSpotOracle",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "slurp", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "spotOracles",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "stir", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "tweak", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "vaults", data: BytesLike): Result;
 
   events: {
-    'AssetAdded(bytes6,address)': EventFragment;
-    'AuctionIntervalSet(uint32)': EventFragment;
-    'DebtLimitsSet(bytes6,bytes6,uint96,uint24,uint8)': EventFragment;
-    'IlkAdded(bytes6,bytes6)': EventFragment;
-    'RateOracleAdded(bytes6,address)': EventFragment;
-    'RoleAdminChanged(bytes4,bytes4)': EventFragment;
-    'RoleGranted(bytes4,address,address)': EventFragment;
-    'RoleRevoked(bytes4,address,address)': EventFragment;
-    'SeriesAdded(bytes6,bytes6,address)': EventFragment;
-    'SeriesMatured(bytes6,uint256)': EventFragment;
-    'SpotOracleAdded(bytes6,bytes6,address,uint32)': EventFragment;
-    'VaultBuilt(bytes12,address,bytes6,bytes6)': EventFragment;
-    'VaultDestroyed(bytes12)': EventFragment;
-    'VaultGiven(bytes12,address)': EventFragment;
-    'VaultLocked(bytes12,uint256)': EventFragment;
-    'VaultPoured(bytes12,bytes6,bytes6,int128,int128)': EventFragment;
-    'VaultRolled(bytes12,bytes6,uint128)': EventFragment;
-    'VaultStirred(bytes12,bytes12,uint128,uint128)': EventFragment;
-    'VaultTweaked(bytes12,bytes6,bytes6)': EventFragment;
+    "AssetAdded(bytes6,address)": EventFragment;
+    "DebtLimitsSet(bytes6,bytes6,uint96,uint24,uint8)": EventFragment;
+    "IlkAdded(bytes6,bytes6)": EventFragment;
+    "RateOracleAdded(bytes6,address)": EventFragment;
+    "RoleAdminChanged(bytes4,bytes4)": EventFragment;
+    "RoleGranted(bytes4,address,address)": EventFragment;
+    "RoleRevoked(bytes4,address,address)": EventFragment;
+    "SeriesAdded(bytes6,bytes6,address)": EventFragment;
+    "SeriesMatured(bytes6,uint256)": EventFragment;
+    "SpotOracleAdded(bytes6,bytes6,address,uint32)": EventFragment;
+    "VaultBuilt(bytes12,address,bytes6,bytes6)": EventFragment;
+    "VaultDestroyed(bytes12)": EventFragment;
+    "VaultGiven(bytes12,address)": EventFragment;
+    "VaultPoured(bytes12,bytes6,bytes6,int128,int128)": EventFragment;
+    "VaultRolled(bytes12,bytes6,uint128)": EventFragment;
+    "VaultStirred(bytes12,bytes12,uint128,uint128)": EventFragment;
+    "VaultTweaked(bytes12,bytes6,bytes6)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: 'AssetAdded'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'AuctionIntervalSet'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'DebtLimitsSet'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'IlkAdded'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'RateOracleAdded'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'RoleAdminChanged'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'RoleGranted'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'RoleRevoked'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'SeriesAdded'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'SeriesMatured'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'SpotOracleAdded'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'VaultBuilt'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'VaultDestroyed'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'VaultGiven'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'VaultLocked'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'VaultPoured'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'VaultRolled'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'VaultStirred'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'VaultTweaked'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "AssetAdded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "DebtLimitsSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "IlkAdded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RateOracleAdded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RoleRevoked"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SeriesAdded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SeriesMatured"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SpotOracleAdded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "VaultBuilt"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "VaultDestroyed"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "VaultGiven"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "VaultPoured"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "VaultRolled"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "VaultStirred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "VaultTweaked"): EventFragment;
 }
 
 export class Cauldron extends BaseContract {
@@ -268,10 +378,6 @@ export class Cauldron extends BaseContract {
 
     assets(arg0: BytesLike, overrides?: CallOverrides): Promise<[string]>;
 
-    auctionInterval(overrides?: CallOverrides): Promise<[number]>;
-
-    auctions(arg0: BytesLike, overrides?: CallOverrides): Promise<[number]>;
-
     balances(
       arg0: BytesLike,
       overrides?: CallOverrides
@@ -297,6 +403,18 @@ export class Cauldron extends BaseContract {
         sum: BigNumber;
       }
     >;
+
+    debtFromBase(
+      seriesId: BytesLike,
+      base: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    debtToBase(
+      seriesId: BytesLike,
+      art: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     destroy(
       vaultId: BytesLike,
@@ -329,9 +447,17 @@ export class Cauldron extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    hasRole(role: BytesLike, account: string, overrides?: CallOverrides): Promise<[boolean]>;
+    hasRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
-    ilks(arg0: BytesLike, arg1: BytesLike, overrides?: CallOverrides): Promise<[boolean]>;
+    ilks(
+      arg0: BytesLike,
+      arg1: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     level(
       vaultId: BytesLike,
@@ -357,7 +483,10 @@ export class Cauldron extends BaseContract {
 
     rateOracles(arg0: BytesLike, overrides?: CallOverrides): Promise<[string]>;
 
-    ratesAtMaturity(arg0: BytesLike, overrides?: CallOverrides): Promise<[BigNumber]>;
+    ratesAtMaturity(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     renounceRole(
       role: BytesLike,
@@ -394,11 +523,6 @@ export class Cauldron extends BaseContract {
         maturity: number;
       }
     >;
-
-    setAuctionInterval(
-      auctionInterval_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
 
     setDebtLimits(
       baseId: BytesLike,
@@ -499,10 +623,6 @@ export class Cauldron extends BaseContract {
 
   assets(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
 
-  auctionInterval(overrides?: CallOverrides): Promise<number>;
-
-  auctions(arg0: BytesLike, overrides?: CallOverrides): Promise<number>;
-
   balances(
     arg0: BytesLike,
     overrides?: CallOverrides
@@ -528,6 +648,18 @@ export class Cauldron extends BaseContract {
       sum: BigNumber;
     }
   >;
+
+  debtFromBase(
+    seriesId: BytesLike,
+    base: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  debtToBase(
+    seriesId: BytesLike,
+    art: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   destroy(
     vaultId: BytesLike,
@@ -560,13 +692,27 @@ export class Cauldron extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  hasRole(role: BytesLike, account: string, overrides?: CallOverrides): Promise<boolean>;
+  hasRole(
+    role: BytesLike,
+    account: string,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
-  ilks(arg0: BytesLike, arg1: BytesLike, overrides?: CallOverrides): Promise<boolean>;
+  ilks(
+    arg0: BytesLike,
+    arg1: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
-  level(vaultId: BytesLike, overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
+  level(
+    vaultId: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
-  lockRole(role: BytesLike, overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
+  lockRole(
+    role: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   mature(
     seriesId: BytesLike,
@@ -582,7 +728,10 @@ export class Cauldron extends BaseContract {
 
   rateOracles(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
 
-  ratesAtMaturity(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
+  ratesAtMaturity(
+    arg0: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   renounceRole(
     role: BytesLike,
@@ -619,11 +768,6 @@ export class Cauldron extends BaseContract {
       maturity: number;
     }
   >;
-
-  setAuctionInterval(
-    auctionInterval_: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
 
   setDebtLimits(
     baseId: BytesLike,
@@ -700,17 +844,26 @@ export class Cauldron extends BaseContract {
 
     accrual(seriesId: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
 
-    addAsset(assetId: BytesLike, asset: string, overrides?: CallOverrides): Promise<void>;
+    addAsset(
+      assetId: BytesLike,
+      asset: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    addIlks(seriesId: BytesLike, ilkIds: BytesLike[], overrides?: CallOverrides): Promise<void>;
+    addIlks(
+      seriesId: BytesLike,
+      ilkIds: BytesLike[],
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    addSeries(seriesId: BytesLike, baseId: BytesLike, fyToken: string, overrides?: CallOverrides): Promise<void>;
+    addSeries(
+      seriesId: BytesLike,
+      baseId: BytesLike,
+      fyToken: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     assets(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
-
-    auctionInterval(overrides?: CallOverrides): Promise<number>;
-
-    auctions(arg0: BytesLike, overrides?: CallOverrides): Promise<number>;
 
     balances(
       arg0: BytesLike,
@@ -744,6 +897,18 @@ export class Cauldron extends BaseContract {
       }
     >;
 
+    debtFromBase(
+      seriesId: BytesLike,
+      base: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    debtToBase(
+      seriesId: BytesLike,
+      art: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     destroy(vaultId: BytesLike, overrides?: CallOverrides): Promise<void>;
 
     getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
@@ -760,15 +925,35 @@ export class Cauldron extends BaseContract {
       }
     >;
 
-    grab(vaultId: BytesLike, receiver: string, overrides?: CallOverrides): Promise<void>;
+    grab(
+      vaultId: BytesLike,
+      receiver: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    grantRole(role: BytesLike, account: string, overrides?: CallOverrides): Promise<void>;
+    grantRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    grantRoles(roles: BytesLike[], account: string, overrides?: CallOverrides): Promise<void>;
+    grantRoles(
+      roles: BytesLike[],
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    hasRole(role: BytesLike, account: string, overrides?: CallOverrides): Promise<boolean>;
+    hasRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
-    ilks(arg0: BytesLike, arg1: BytesLike, overrides?: CallOverrides): Promise<boolean>;
+    ilks(
+      arg0: BytesLike,
+      arg1: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     level(vaultId: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -785,13 +970,28 @@ export class Cauldron extends BaseContract {
 
     rateOracles(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
 
-    ratesAtMaturity(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
+    ratesAtMaturity(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
-    renounceRole(role: BytesLike, account: string, overrides?: CallOverrides): Promise<void>;
+    renounceRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    revokeRole(role: BytesLike, account: string, overrides?: CallOverrides): Promise<void>;
+    revokeRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    revokeRoles(roles: BytesLike[], account: string, overrides?: CallOverrides): Promise<void>;
+    revokeRoles(
+      roles: BytesLike[],
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     roll(
       vaultId: BytesLike,
@@ -820,8 +1020,6 @@ export class Cauldron extends BaseContract {
       }
     >;
 
-    setAuctionInterval(auctionInterval_: BigNumberish, overrides?: CallOverrides): Promise<void>;
-
     setDebtLimits(
       baseId: BytesLike,
       ilkId: BytesLike,
@@ -831,9 +1029,17 @@ export class Cauldron extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setRateOracle(baseId: BytesLike, oracle: string, overrides?: CallOverrides): Promise<void>;
+    setRateOracle(
+      baseId: BytesLike,
+      oracle: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    setRoleAdmin(role: BytesLike, adminRole: BytesLike, overrides?: CallOverrides): Promise<void>;
+    setRoleAdmin(
+      role: BytesLike,
+      adminRole: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     setSpotOracle(
       baseId: BytesLike,
@@ -900,8 +1106,6 @@ export class Cauldron extends BaseContract {
       asset?: string | null
     ): TypedEventFilter<[string, string], { assetId: string; asset: string }>;
 
-    AuctionIntervalSet(auctionInterval?: BigNumberish | null): TypedEventFilter<[number], { auctionInterval: number }>;
-
     DebtLimitsSet(
       baseId?: BytesLike | null,
       ilkId?: BytesLike | null,
@@ -932,30 +1136,45 @@ export class Cauldron extends BaseContract {
     RoleAdminChanged(
       role?: BytesLike | null,
       newAdminRole?: BytesLike | null
-    ): TypedEventFilter<[string, string], { role: string; newAdminRole: string }>;
+    ): TypedEventFilter<
+      [string, string],
+      { role: string; newAdminRole: string }
+    >;
 
     RoleGranted(
       role?: BytesLike | null,
       account?: string | null,
       sender?: string | null
-    ): TypedEventFilter<[string, string, string], { role: string; account: string; sender: string }>;
+    ): TypedEventFilter<
+      [string, string, string],
+      { role: string; account: string; sender: string }
+    >;
 
     RoleRevoked(
       role?: BytesLike | null,
       account?: string | null,
       sender?: string | null
-    ): TypedEventFilter<[string, string, string], { role: string; account: string; sender: string }>;
+    ): TypedEventFilter<
+      [string, string, string],
+      { role: string; account: string; sender: string }
+    >;
 
     SeriesAdded(
       seriesId?: BytesLike | null,
       baseId?: BytesLike | null,
       fyToken?: string | null
-    ): TypedEventFilter<[string, string, string], { seriesId: string; baseId: string; fyToken: string }>;
+    ): TypedEventFilter<
+      [string, string, string],
+      { seriesId: string; baseId: string; fyToken: string }
+    >;
 
     SeriesMatured(
       seriesId?: BytesLike | null,
       rateAtMaturity?: null
-    ): TypedEventFilter<[string, BigNumber], { seriesId: string; rateAtMaturity: BigNumber }>;
+    ): TypedEventFilter<
+      [string, BigNumber],
+      { seriesId: string; rateAtMaturity: BigNumber }
+    >;
 
     SpotOracleAdded(
       baseId?: BytesLike | null,
@@ -977,17 +1196,17 @@ export class Cauldron extends BaseContract {
       { vaultId: string; owner: string; seriesId: string; ilkId: string }
     >;
 
-    VaultDestroyed(vaultId?: BytesLike | null): TypedEventFilter<[string], { vaultId: string }>;
+    VaultDestroyed(
+      vaultId?: BytesLike | null
+    ): TypedEventFilter<[string], { vaultId: string }>;
 
     VaultGiven(
       vaultId?: BytesLike | null,
       receiver?: string | null
-    ): TypedEventFilter<[string, string], { vaultId: string; receiver: string }>;
-
-    VaultLocked(
-      vaultId?: BytesLike | null,
-      timestamp?: BigNumberish | null
-    ): TypedEventFilter<[string, BigNumber], { vaultId: string; timestamp: BigNumber }>;
+    ): TypedEventFilter<
+      [string, string],
+      { vaultId: string; receiver: string }
+    >;
 
     VaultPoured(
       vaultId?: BytesLike | null,
@@ -1010,7 +1229,10 @@ export class Cauldron extends BaseContract {
       vaultId?: BytesLike | null,
       seriesId?: BytesLike | null,
       art?: null
-    ): TypedEventFilter<[string, string, BigNumber], { vaultId: string; seriesId: string; art: BigNumber }>;
+    ): TypedEventFilter<
+      [string, string, BigNumber],
+      { vaultId: string; seriesId: string; art: BigNumber }
+    >;
 
     VaultStirred(
       from?: BytesLike | null,
@@ -1026,7 +1248,10 @@ export class Cauldron extends BaseContract {
       vaultId?: BytesLike | null,
       seriesId?: BytesLike | null,
       ilkId?: BytesLike | null
-    ): TypedEventFilter<[string, string, string], { vaultId: string; seriesId: string; ilkId: string }>;
+    ): TypedEventFilter<
+      [string, string, string],
+      { vaultId: string; seriesId: string; ilkId: string }
+    >;
   };
 
   estimateGas: {
@@ -1034,7 +1259,10 @@ export class Cauldron extends BaseContract {
 
     ROOT(overrides?: CallOverrides): Promise<BigNumber>;
 
-    accrual(seriesId: BytesLike, overrides?: Overrides & { from?: string | Promise<string> }): Promise<BigNumber>;
+    accrual(
+      seriesId: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     addAsset(
       assetId: BytesLike,
@@ -1057,10 +1285,6 @@ export class Cauldron extends BaseContract {
 
     assets(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
 
-    auctionInterval(overrides?: CallOverrides): Promise<BigNumber>;
-
-    auctions(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
-
     balances(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
 
     build(
@@ -1071,11 +1295,33 @@ export class Cauldron extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    debt(arg0: BytesLike, arg1: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
+    debt(
+      arg0: BytesLike,
+      arg1: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
-    destroy(vaultId: BytesLike, overrides?: Overrides & { from?: string | Promise<string> }): Promise<BigNumber>;
+    debtFromBase(
+      seriesId: BytesLike,
+      base: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
-    getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
+    debtToBase(
+      seriesId: BytesLike,
+      art: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    destroy(
+      vaultId: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    getRoleAdmin(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     give(
       vaultId: BytesLike,
@@ -1101,15 +1347,32 @@ export class Cauldron extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    hasRole(role: BytesLike, account: string, overrides?: CallOverrides): Promise<BigNumber>;
+    hasRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
-    ilks(arg0: BytesLike, arg1: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
+    ilks(
+      arg0: BytesLike,
+      arg1: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
-    level(vaultId: BytesLike, overrides?: Overrides & { from?: string | Promise<string> }): Promise<BigNumber>;
+    level(
+      vaultId: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
-    lockRole(role: BytesLike, overrides?: Overrides & { from?: string | Promise<string> }): Promise<BigNumber>;
+    lockRole(
+      role: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
-    mature(seriesId: BytesLike, overrides?: Overrides & { from?: string | Promise<string> }): Promise<BigNumber>;
+    mature(
+      seriesId: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     pour(
       vaultId: BytesLike,
@@ -1120,7 +1383,10 @@ export class Cauldron extends BaseContract {
 
     rateOracles(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
 
-    ratesAtMaturity(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
+    ratesAtMaturity(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     renounceRole(
       role: BytesLike,
@@ -1148,11 +1414,6 @@ export class Cauldron extends BaseContract {
     ): Promise<BigNumber>;
 
     series(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
-
-    setAuctionInterval(
-      auctionInterval_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
 
     setDebtLimits(
       baseId: BytesLike,
@@ -1190,7 +1451,11 @@ export class Cauldron extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    spotOracles(arg0: BytesLike, arg1: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
+    spotOracles(
+      arg0: BytesLike,
+      arg1: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     stir(
       from: BytesLike,
@@ -1239,13 +1504,15 @@ export class Cauldron extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    assets(arg0: BytesLike, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    assets(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
-    auctionInterval(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    auctions(arg0: BytesLike, overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    balances(arg0: BytesLike, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    balances(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     build(
       owner: string,
@@ -1255,14 +1522,33 @@ export class Cauldron extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    debt(arg0: BytesLike, arg1: BytesLike, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    debt(
+      arg0: BytesLike,
+      arg1: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    debtFromBase(
+      seriesId: BytesLike,
+      base: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    debtToBase(
+      seriesId: BytesLike,
+      art: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
 
     destroy(
       vaultId: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    getRoleAdmin(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     give(
       vaultId: BytesLike,
@@ -1288,9 +1574,17 @@ export class Cauldron extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    hasRole(role: BytesLike, account: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    hasRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
-    ilks(arg0: BytesLike, arg1: BytesLike, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    ilks(
+      arg0: BytesLike,
+      arg1: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     level(
       vaultId: BytesLike,
@@ -1314,9 +1608,15 @@ export class Cauldron extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    rateOracles(arg0: BytesLike, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    rateOracles(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
-    ratesAtMaturity(arg0: BytesLike, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    ratesAtMaturity(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     renounceRole(
       role: BytesLike,
@@ -1343,11 +1643,9 @@ export class Cauldron extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    series(arg0: BytesLike, overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    setAuctionInterval(
-      auctionInterval_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+    series(
+      arg0: BytesLike,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     setDebtLimits(
@@ -1386,7 +1684,11 @@ export class Cauldron extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    spotOracles(arg0: BytesLike, arg1: BytesLike, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    spotOracles(
+      arg0: BytesLike,
+      arg1: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     stir(
       from: BytesLike,
@@ -1403,6 +1705,9 @@ export class Cauldron extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    vaults(arg0: BytesLike, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    vaults(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
   };
 }

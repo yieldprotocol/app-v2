@@ -13,26 +13,32 @@ import {
   ContractTransaction,
   Overrides,
   CallOverrides,
-} from 'ethers';
-import { BytesLike } from '@ethersproject/bytes';
-import { Listener, Provider } from '@ethersproject/providers';
-import { FunctionFragment, EventFragment, Result } from '@ethersproject/abi';
-import { TypedEventFilter, TypedEvent, TypedListener } from './commons';
+} from "ethers";
+import { BytesLike } from "@ethersproject/bytes";
+import { Listener, Provider } from "@ethersproject/providers";
+import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
+import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface IJoinInterface extends ethers.utils.Interface {
   functions: {
-    'asset()': FunctionFragment;
-    'exit(address,uint128)': FunctionFragment;
-    'join(address,uint128)': FunctionFragment;
+    "asset()": FunctionFragment;
+    "exit(address,uint128)": FunctionFragment;
+    "join(address,uint128)": FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: 'asset', values?: undefined): string;
-  encodeFunctionData(functionFragment: 'exit', values: [string, BigNumberish]): string;
-  encodeFunctionData(functionFragment: 'join', values: [string, BigNumberish]): string;
+  encodeFunctionData(functionFragment: "asset", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "exit",
+    values: [string, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "join",
+    values: [string, BigNumberish]
+  ): string;
 
-  decodeFunctionResult(functionFragment: 'asset', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'exit', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'join', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "asset", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "exit", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "join", data: BytesLike): Result;
 
   events: {};
 }
@@ -113,9 +119,17 @@ export class IJoin extends BaseContract {
   callStatic: {
     asset(overrides?: CallOverrides): Promise<string>;
 
-    exit(user: string, wad: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
+    exit(
+      user: string,
+      wad: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
-    join(user: string, wad: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
+    join(
+      user: string,
+      wad: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
   };
 
   filters: {};

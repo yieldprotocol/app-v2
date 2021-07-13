@@ -13,23 +13,29 @@ import {
   ContractTransaction,
   Overrides,
   CallOverrides,
-} from 'ethers';
-import { BytesLike } from '@ethersproject/bytes';
-import { Listener, Provider } from '@ethersproject/providers';
-import { FunctionFragment, EventFragment, Result } from '@ethersproject/abi';
-import { TypedEventFilter, TypedEvent, TypedListener } from './commons';
+} from "ethers";
+import { BytesLike } from "@ethersproject/bytes";
+import { Listener, Provider } from "@ethersproject/providers";
+import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
+import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface CTokenRateMockInterface extends ethers.utils.Interface {
   functions: {
-    'borrowIndex()': FunctionFragment;
-    'set(uint256)': FunctionFragment;
+    "borrowIndex()": FunctionFragment;
+    "set(uint256)": FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: 'borrowIndex', values?: undefined): string;
-  encodeFunctionData(functionFragment: 'set', values: [BigNumberish]): string;
+  encodeFunctionData(
+    functionFragment: "borrowIndex",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "set", values: [BigNumberish]): string;
 
-  decodeFunctionResult(functionFragment: 'borrowIndex', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'set', data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "borrowIndex",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "set", data: BytesLike): Result;
 
   events: {};
 }
@@ -80,12 +86,18 @@ export class CTokenRateMock extends BaseContract {
   functions: {
     borrowIndex(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    set(rate: BigNumberish, overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
+    set(
+      rate: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
   };
 
   borrowIndex(overrides?: CallOverrides): Promise<BigNumber>;
 
-  set(rate: BigNumberish, overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
+  set(
+    rate: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   callStatic: {
     borrowIndex(overrides?: CallOverrides): Promise<BigNumber>;
@@ -98,12 +110,18 @@ export class CTokenRateMock extends BaseContract {
   estimateGas: {
     borrowIndex(overrides?: CallOverrides): Promise<BigNumber>;
 
-    set(rate: BigNumberish, overrides?: Overrides & { from?: string | Promise<string> }): Promise<BigNumber>;
+    set(
+      rate: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     borrowIndex(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    set(rate: BigNumberish, overrides?: Overrides & { from?: string | Promise<string> }): Promise<PopulatedTransaction>;
+    set(
+      rate: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
   };
 }
