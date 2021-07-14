@@ -12,7 +12,6 @@ import { useCachedState } from '../hooks';
 import * as yieldEnv from './yieldEnv.json';
 import * as contracts from '../contracts';
 import { IAssetRoot, ISeriesRoot } from '../types';
-import { Pool } from '../contracts';
 
 import { ETH_BASED_ASSETS } from '../utils/constants';
 import { nameFromMaturity, getSeason, SeasonType } from '../utils/appUtils';
@@ -263,7 +262,7 @@ const ChainProvider = ({ children }: any) => {
               const { maturity } = await Cauldron.series(id);
 
               const poolAddress: string = poolMap.get(id) as string;
-              const poolContract: Pool = contracts.Pool__factory.connect(poolAddress, fallbackLibrary);
+              const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackLibrary);
               const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackLibrary);
 
               const season = getSeason(maturity) as SeasonType;
