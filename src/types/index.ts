@@ -220,24 +220,24 @@ export enum ActionType {
 
 export enum ActionCodes {
   // COLLATERAL
-  ADD_COLLATERAL = '000',
-  REMOVE_COLLATERAL = '010',
+  ADD_COLLATERAL = 'Add Collateral',
+  REMOVE_COLLATERAL = 'Remove Collateral',
   // BORROW
-  BORROW = '100',
-  REPAY = '110',
-  ROLL_DEBT = '120',
+  BORROW = 'Borrow',
+  REPAY = 'Repay',
+  ROLL_DEBT = 'Roll Debt',
   // LEND
-  LEND = '200',
-  CLOSE_POSITION = '210',
-  ROLL_POSITION = '220',
-  REDEEM = '230',
+  LEND = 'Lend',
+  CLOSE_POSITION = 'Close Position',
+  ROLL_POSITION = 'Roll Position',
+  REDEEM = 'Redeem',
   // POOL
-  ADD_LIQUIDITY = '300',
-  REMOVE_LIQUIDITY = '310',
-  ROLL_LIQUIDITY = '320',
+  ADD_LIQUIDITY = 'Add Liquidity',
+  REMOVE_LIQUIDITY = 'Remove Liquidity',
+  ROLL_LIQUIDITY = 'Roll Liquidity',
   // VAULT
-  DELETE_VAULT= '400',
-  TRANSFER_VAULT= '410'
+  DELETE_VAULT= 'Delete Vault',
+  TRANSFER_VAULT= 'Transfer Vault'
 }
 
 export interface IHistItemBase {
@@ -250,7 +250,7 @@ export interface IHistItemBase {
   date_: string;
  }
 
- export interface IVaultHistItem extends IHistItemBase {
+ export interface IHistItemVault extends IHistItemBase {
   vaultId: string,
   ilkId: string,
   ink: BigNumber,
@@ -259,7 +259,7 @@ export interface IHistItemBase {
   art_: String,
 }
 
-export interface IHistItem extends IHistItemBase {
+export interface IHistItemPosition extends IHistItemBase {
   bases: BigNumber,
   fyTokens:  BigNumber,
   bases_: string,

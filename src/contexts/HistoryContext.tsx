@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useReducer, useCallback, useState } from 
 import { BigNumber, ethers } from 'ethers';
 import { format } from 'date-fns';
 
-import { ISeries, IVault, IHistoryContextState, IHistItem, ActionCodes, IVaultHistItem, IHistItemBase } from '../types';
+import { ISeries, IVault, IHistoryContextState, IHistItemPosition, ActionCodes, IHistItemVault, IHistItemBase } from '../types';
 
 import { ChainContext } from './ChainContext';
 import { bytesToBytes32 } from '../utils/appUtils';
@@ -96,7 +96,7 @@ const HistoryProvider = ({ children }: any) => {
   const updateLiquidityHistory = useCallback(
     async (seriesList: ISeries[]) => {
       // event Liquidity(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens, int256 poolTokens);
-      const liqHistMap = new Map<string, IHistItem[]>([]);
+      const liqHistMap = new Map<string, IHistItemPosition[]>([]);
       /* Get all the Liquidity history transactions */
       await Promise.all(
         seriesList.map(async (series: ISeries) => {
@@ -145,7 +145,7 @@ const HistoryProvider = ({ children }: any) => {
   const updateTradeHistory = useCallback(
     async (seriesList: ISeries[]) => {
       // event Trade(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens);
-      const tradeHistMap = new Map<string, IHistItem[]> ([]);
+      const tradeHistMap = new Map<string, IHistItemPosition[]> ([]);
       /* get all the trade historical transactions */
       await Promise.all(
         seriesList.map(async (series: ISeries) => {
@@ -196,7 +196,7 @@ const HistoryProvider = ({ children }: any) => {
   const updateVaultHistory = useCallback(
     async (vaultList: IVault[]) => {
       // event VaultPoured(bytes12 indexed vaultId, bytes6 indexed seriesId, bytes6 indexed ilkId, int128 ink, int128 art);
-      const vaultHistMap = new Map<string, IVaultHistItem[]>([]);
+      const vaultHistMap = new Map<string, IHistItemVault[]>([]);
       const Cauldron = contractMap.get('Cauldron');
       /* Get all the Vault historical Pour transactions */
       await Promise.all(
@@ -204,7 +204,7 @@ const HistoryProvider = ({ children }: any) => {
           const { id: vaultId } = vault;
           const filter = Cauldron.filters.VaultPoured(bytesToBytes32(vaultId, 12));
           const eventList = await Cauldron.queryFilter(filter, 0);
-          const vaultLogs : IVaultHistItem[] = await Promise.all(
+          const vaultLogs : IHistItemVault[] = await Promise.all(
             eventList.map(async (log: any) => {
               const { blockNumber, transactionHash } = log;
               const { seriesId, ilkId, ink, art } = Cauldron.interface.parseLog(log).args;
