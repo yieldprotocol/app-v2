@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { Button, Box, Text, Layer, ResponsiveContext } from 'grommet';
 import { ChainContext } from '../../contexts/ChainContext';
 
-function ActionButtonWrap({ ...props }: any) {
+function ActionButtonWrap({ children, pad }: {children:any, pad?:boolean}) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const {
@@ -13,13 +13,13 @@ function ActionButtonWrap({ ...props }: any) {
   return mobile ? (
     <Layer position="bottom" modal={false} responsive={false} full="horizontal" animate={false}>
       <Box gap="small" fill="horizontal" pad="small">
-        {props.children}
+        {children}
       </Box>
     </Layer>
   ) : (
-    <Box gap="small" fill="horizontal">
+    <Box gap="small" fill="horizontal" pad={pad? { horizontal:'large', vertical:'medium', bottom:'large' }:undefined}>
       {account ? (
-        props.children
+        children
       ) : (
         <Button
           secondary
@@ -30,5 +30,7 @@ function ActionButtonWrap({ ...props }: any) {
     </Box>
   );
 }
+
+ActionButtonWrap.defaultProps={ pad:false }
 
 export default ActionButtonWrap;

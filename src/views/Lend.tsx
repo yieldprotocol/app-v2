@@ -176,7 +176,7 @@ const Lend = () => {
           )}
         </Box>
 
-        <ActionButtonGroup>
+        <ActionButtonGroup pad>
           {stepPosition !== 1 && !selectedSeries?.seriesIsMature && (
             <NextButton
               secondary

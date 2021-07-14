@@ -10,7 +10,7 @@ import SeriesSelector from '../components/selectors/SeriesSelector';
 import MainViewWrap from '../components/wraps/MainViewWrap';
 import AssetSelector from '../components/selectors/AssetSelector';
 import InputWrap from '../components/wraps/InputWrap';
-import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
+import ActionButtonWrap from '../components/wraps/ActionButtonWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
 
 import MaxButton from '../components/buttons/MaxButton';
@@ -337,7 +337,7 @@ const Borrow = () => {
             )}
           </Box>
 
-          <ActionButtonGroup>
+          <ActionButtonWrap pad>
             {(stepPosition === 0 || stepPosition === 1) && (
               <NextButton
                 label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
@@ -359,7 +359,7 @@ const Borrow = () => {
                 disabled={borrowDisabled}
               />
             )}
-          </ActionButtonGroup>
+          </ActionButtonWrap>
         </CenterPanelWrap>
 
         <PanelWrap right basis="40%">
