@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Box, Button, ResponsiveContext, Select, Tab, Tabs, Text, TextInput } from 'grommet';
 import { ethers } from 'ethers';
-import { FiClock, FiLogOut, FiTrendingUp } from 'react-icons/fi';
+import { FiClock, FiLogOut, FiMinusCircle, FiPlusCircle, FiTrendingUp } from 'react-icons/fi';
 
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import InputWrap from '../components/wraps/InputWrap';
@@ -22,6 +22,7 @@ import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import NextButton from '../components/buttons/NextButton';
 import CancelButton from '../components/buttons/CancelButton';
 import TransactButton from '../components/buttons/TransactButton';
+import ReviewTxItem from '../components/ReviewTxItem';
 
 const LendPosition = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -130,9 +131,8 @@ const LendPosition = ({ close }: { close: () => void }) => {
 
   return (
     <CenterPanelWrap>
-      <Box fill pad="large" gap='medium'>
+      <Box fill pad="large" gap="medium">
         <Box height={{ min: '250px' }} gap="medium">
-
           <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
             <Box direction="row" align="center" gap="medium">
               <PositionAvatar position={selectedSeries!} />
@@ -203,14 +203,18 @@ const LendPosition = ({ close }: { close: () => void }) => {
               )}
 
               {stepPosition[0] !== 0 && (
-                  <ActiveTransaction txCode={getTxCode(ActionCodes.CLOSE_POSITION, selectedSeriesId)} pad>
-                  <SectionWrap title="Review your remove transaction" rightAction={<CancelButton action={() => handleStepper(true)} />}>
-                      <Text>
-                        Close {closeInput} {selectedBase?.symbol}
-                        from the {selectedSeries?.displayName} series.
-                      </Text>
-                    </SectionWrap>
-                  </ActiveTransaction>
+                <ActiveTransaction txCode={getTxCode(ActionCodes.CLOSE_POSITION, selectedSeriesId)} pad>
+                  <SectionWrap
+                    title="Review your remove transaction"
+                    rightAction={<CancelButton action={() => handleStepper(true)} />}
+                  >
+                    <ReviewTxItem
+                      label="Close Position"
+                      icon={<FiMinusCircle />}
+                      value={`${closeInput} ${selectedBase?.symbol}`}
+                    />
+                  </SectionWrap>
+                </ActiveTransaction>
               )}
             </Box>
           )}
@@ -228,14 +232,25 @@ const LendPosition = ({ close }: { close: () => void }) => {
               )}
 
               {stepPosition[actionActive.index] !== 0 && (
-                  <ActiveTransaction txCode={getTxCode(ActionCodes.ROLL_POSITION, selectedSeriesId)} pad>
-                  <SectionWrap title="Review your roll transaction" rightAction={<CancelButton action={() => handleStepper(true)} />}>
-                      <Text>
-                        Roll {rollInput} {selectedBase?.symbol}
-                        from {selectedSeries?.displayName} to the {rollToSeries?.displayName} series.
-                      </Text>
-                    </SectionWrap>
-                  </ActiveTransaction>
+                <ActiveTransaction txCode={getTxCode(ActionCodes.ROLL_POSITION, selectedSeriesId)} pad>
+                  <SectionWrap
+                    title="Review your roll transaction"
+                    rightAction={<CancelButton action={() => handleStepper(true)} />}
+                  >
+                    {/* 
+                    <ReviewTxItem
+                        label="Roll"
+                        icon={<FiPlusCircle />}
+                        value={`${rollInput} ${selectedBase?.symbol}`}
+                      /> */}
+
+                    <ReviewTxItem
+                      label="Roll To Series"
+                      icon={<FiPlusCircle />}
+                      value={`${rollToSeries?.displayName}`}
+                    />
+                  </SectionWrap>
+                </ActiveTransaction>
               )}
             </Box>
           )}
@@ -252,21 +267,21 @@ const LendPosition = ({ close }: { close: () => void }) => {
         )}
 
         {actionActive.index === 0 && stepPosition[actionActive.index] !== 0 && (
-            <TransactButton
-              primary
-              label={<Text size={mobile ? 'small' : undefined}> {`Close ${closeInput || ''}`} </Text>}
-              onClick={() => handleClosePosition()}
-              disabled={closeDisabled}
-            />
+          <TransactButton
+            primary
+            label={<Text size={mobile ? 'small' : undefined}> {`Close ${closeInput || ''}`} </Text>}
+            onClick={() => handleClosePosition()}
+            disabled={closeDisabled}
+          />
         )}
 
         {actionActive.index === 1 && stepPosition[actionActive.index] !== 0 && (
-            <TransactButton
-              primary
-              label={<Text size={mobile ? 'small' : undefined}> {`Roll ${rollInput || ''}`} </Text>}
-              onClick={() => handleRollPosition()}
-              disabled={rollDisabled}
-            />
+          <TransactButton
+            primary
+            label={<Text size={mobile ? 'small' : undefined}> {`Roll ${rollInput || ''}`} </Text>}
+            onClick={() => handleRollPosition()}
+            disabled={rollDisabled}
+          />
         )}
       </ActionButtonGroup>
     </CenterPanelWrap>

@@ -3,7 +3,7 @@ import { Box, Button, ResponsiveContext, Select, Text, TextInput } from 'grommet
 import { ethers } from 'ethers';
 import { useHistory } from 'react-router-dom';
 
-import { FiLock, FiClock, FiTrendingUp, FiLogOut, FiXCircle } from 'react-icons/fi';
+import { FiLock, FiClock, FiTrendingUp, FiLogOut, FiXCircle, FiPlusCircle } from 'react-icons/fi';
 import { cleanValue, getTxCode } from '../utils/appUtils';
 import { UserContext } from '../contexts/UserContext';
 import InputWrap from '../components/wraps/InputWrap';
@@ -25,6 +25,7 @@ import { Gauge } from '../components/Gauge';
 import YieldHistory from '../components/YieldHistory';
 import TransactButton from '../components/buttons/TransactButton';
 import CancelButton from '../components/buttons/CancelButton';
+import ReviewTxItem from '../components/ReviewTxItem';
 
 const Vault = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -272,9 +273,14 @@ const Vault = ({ close }: { close: () => void }) => {
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
                     <Box gap="medium" pad="small">
-                      <Text>
+                      <ReviewTxItem
+                        label="Repay Debt"
+                        icon={<FiClock />}
+                        value={`${repayInput} ${vaultBase?.symbol}`}
+                      />
+                      {/* <Text>
                         Repay {repayInput} {vaultBase?.symbol} debt from {selectedVault?.displayName}{' '}
-                      </Text>
+                      </Text> */}
                     </Box>
                   </SectionWrap>
                 </ActiveTransaction>
@@ -303,10 +309,15 @@ const Vault = ({ close }: { close: () => void }) => {
                     title="Review your roll transaction"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
-                    <Text>
+                    {/* <Text>
                       Roll {rollInput} {vaultBase?.symbol} debt from {selectedVault?.displayName} to the{' '}
                       {rollToSeries?.displayName} series.
-                    </Text>
+                    </Text> */}
+                    <ReviewTxItem
+                      label="Roll Debt to Series"
+                      icon={<FiClock />}
+                      value={`${rollToSeries?.displayName}`}
+                    />
                   </SectionWrap>
                 </ActiveTransaction>
               )}
@@ -355,14 +366,18 @@ const Vault = ({ close }: { close: () => void }) => {
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
                     {addCollatInput && (
-                      <Text>
-                        Add {addCollatInput} {vaultIlk?.symbol} collateral
-                      </Text>
+                      <ReviewTxItem
+                        label="Add Collateral"
+                        icon={<FiPlusCircle />}
+                        value={`${addCollatInput} ${vaultIlk?.symbol}`}
+                      />
                     )}
                     {removeCollatInput && (
-                      <Text>
-                        Remove {removeCollatInput} {vaultIlk?.symbol} collateral
-                      </Text>
+                      <ReviewTxItem
+                        label="Remove Collateral"
+                        icon={<FiPlusCircle />}
+                        value={`${removeCollatInput} ${vaultIlk?.symbol}`}
+                      />
                     )}
                   </SectionWrap>
                 </ActiveTransaction>
@@ -390,17 +405,21 @@ const Vault = ({ close }: { close: () => void }) => {
               )}
 
               {stepPosition[actionActive.index] !== 0 && (
-                  <ActiveTransaction
-                    txCode={(selectedVault && getTxCode(ActionCodes.REPAY, selectedVault?.id)) || ''}
-                    pad
+                <ActiveTransaction
+                  txCode={(selectedVault && getTxCode(ActionCodes.REPAY, selectedVault?.id)) || ''}
+                  pad
+                >
+                  <SectionWrap
+                    title="Review your transfer transaction"
+                    rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
-                    <SectionWrap
-                      title="Review your transfer transaction"
-                      rightAction={<CancelButton action={() => handleStepper(true)} />}
-                    >
-                      <Text>Transfer vault </Text>
-                    </SectionWrap>
-                  </ActiveTransaction>
+                    <ReviewTxItem
+                        label="Transfer Vault to: "
+                        icon={<FiPlusCircle />}
+                        value='new address'
+                      />
+                  </SectionWrap>
+                </ActiveTransaction>
               )}
             </Box>
           )}
@@ -423,17 +442,21 @@ const Vault = ({ close }: { close: () => void }) => {
               )}
 
               {stepPosition[actionActive.index] !== 0 && (
-                  <ActiveTransaction
-                    txCode={(selectedVault && getTxCode(ActionCodes.REPAY, selectedVault?.id)) || ''}
-                    pad
+                <ActiveTransaction
+                  txCode={(selectedVault && getTxCode(ActionCodes.REPAY, selectedVault?.id)) || ''}
+                  pad
+                >
+                  <SectionWrap
+                    title="Review your delete transaction"
+                    rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
-                    <SectionWrap
-                      title="Review your delete transaction"
-                      rightAction={<CancelButton action={() => handleStepper(true)} />}
-                    >
-                      <Text>Pay back all debt and delete vault: {selectedVault?.displayName} </Text>
-                    </SectionWrap>
-                  </ActiveTransaction>
+                      <ReviewTxItem
+                        label="Pay back all debt and delete vault:"
+                        icon={<FiPlusCircle />}
+                        value={`${selectedVault?.displayName}`}
+                      />
+                  </SectionWrap>
+                </ActiveTransaction>
               )}
             </Box>
           )}
