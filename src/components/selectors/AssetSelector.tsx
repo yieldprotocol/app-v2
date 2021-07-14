@@ -97,12 +97,18 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
           </Box>
         }
         onChange={({ option }: any) => handleSelect(option)}
-        disabled={selectCollateral && (selectedSeries?.mature || !selectedSeries)}
+        disabled={
+          selectCollateral ? selectedSeries?.mature || !selectedSeries : null // [ ]
+          // ( options.map((x:any, i:number) => {
+          //   if (x.isYieldBase) { return i }
+          //   return null
+          // }
+          // ).filter( (x:number|null) => { console.log(x); return isNull(x) } )
+        }
         // eslint-disable-next-line react/no-children-prop
         children={(x: any) => (
           <Box pad={mobile ? 'medium' : 'small'} gap="xsmall" direction="row">
-            {' '}
-            <Text color="text"> {optionText(x)} </Text>{' '}
+            <Text color="text"> {optionText(x)} </Text>
           </Box>
         )}
       />

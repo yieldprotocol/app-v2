@@ -174,7 +174,7 @@ const UserProvider = ({ children }: any) => {
             const isYieldBase = 
               !!Array.from(seriesRootMap.values())
               .find( (x:any) => x.baseId === asset.id ) ;
-
+              
             return {
               ...asset,
               isYieldBase,
