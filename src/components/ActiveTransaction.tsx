@@ -1,8 +1,7 @@
-import { TransactionDescription } from 'ethers/lib/utils';
 import { Box, Text } from 'grommet';
 import React, { useContext, useEffect, useState } from 'react';
 import { BiWallet } from 'react-icons/bi';
-import { FiAlertTriangle, FiCheckCircle, FiClock, FiPenTool, FiX } from 'react-icons/fi';
+import { FiCheckCircle, FiClock, FiPenTool, FiX } from 'react-icons/fi';
 import { TxContext } from '../contexts/TxContext';
 import { TxState } from '../types';
 
@@ -20,7 +19,7 @@ function ActiveTransaction({
   // TODO consider name: TxPendingWrap
   const { txState } = useContext(TxContext);
 
-  const { signatures, transactions, processes, txPending, signPending } = txState;
+  const { signatures, transactions, processes } = txState;
 
   const [process, setProcess] = useState<any>();
   const [sig, setSig] = useState<any>();
@@ -108,8 +107,8 @@ function ActiveTransaction({
           <Box direction="row" align="center" gap="medium" pad="medium">
             <FiClock size={iconSize} />
             <Box>
-              <Text size={textSize} >Approval Transaction complete</Text>
-              <Text size="xsmall">Please check your wallet/provider to confirm transaction.</Text>
+              <Text size={textSize} >Approval Transaction complete. </Text>
+              <Text size="xsmall">Please check your wallet/provider to confirm the next transaction.</Text>
             </Box>
           </Box>
         ) : (

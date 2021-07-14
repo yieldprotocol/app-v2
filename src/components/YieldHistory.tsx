@@ -27,7 +27,9 @@ const YieldHistory = ({ seriesOrVault, view }: IYieldHistory) => {
   }, [isVault, poolHistory, seriesOrVault.id, tradeHistory, vaultHistory, view]);
 
   return (
-    <Box pad="small" gap="xsmall" overflow="scroll">
+
+    <Box pad="small" gap="xsmall" height={{max:'150px'}} style={{ overflow: 'auto' }}>
+      <Box flex={false}>
       <Box direction="row" gap="small" justify="between">
         <Text size="xsmall"> Transaction </Text>
         <Text size="xsmall"> Value </Text> 
@@ -46,7 +48,8 @@ const YieldHistory = ({ seriesOrVault, view }: IYieldHistory) => {
           <Text size="xsmall"> {x.date_}</Text>
         </Box>
       ))}
-    </Box>
+      </Box>
+      </Box>
   );
 };
 
