@@ -20,6 +20,7 @@ function ActiveTransaction({
 
   const { signatures, transactions, processes, txPending, signPending } = txState;
 
+  const [process, setProcess] = useState<any>();
   const [sig, setSig] = useState<any>();
   const [tx, setTx] = useState<any>();
 
@@ -32,6 +33,8 @@ function ActiveTransaction({
     _process && setSig(signatures.get(txCode));
 
     console.log(sig);
+    console.log(tx);
+
   }, [processes, signatures, transactions, txCode]);
 
   useEffect(()=>{
@@ -49,14 +52,9 @@ function ActiveTransaction({
   return (
     <Box background='grey' fill >
       {!processes.get(txCode) && // CASE: no tx or signing activity
-        !sig &&
+        ( !sig || sig?.status===TxState.REJECTED || sig?.status===TxState.SUCCESSFUL )  &&
         !tx &&
         <Box>{children}</Box>}
-
-        {// CASE: no tx or signing rejected by user
-        ( sig?.status===TxState.REJECTED || tx?.status===TxState.REJECTED ) &&
-        <Box>{children}</Box>}
-
 
       {processes.get(txCode) &&
         sig?.status === TxState.PENDING && ( // CASE: Signature/ approval required
