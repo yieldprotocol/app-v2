@@ -21,7 +21,7 @@ export const useLendActions = () => {
   } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
   const { assetMap } = userState;
-  const { updateSeries } = userActions;
+  const { updateSeries, updateAssets } = userActions;
 
   const { sign, transact } = useChain();
 
@@ -71,6 +71,7 @@ export const useLendActions = () => {
     ];
     await transact('PoolRouter', calls, txCode);
     updateSeries([series]);
+    updateAssets([base]);
   };
 
   const rollPosition = async (input: string | undefined, fromSeries: ISeries, toSeries: ISeries) => {
@@ -78,6 +79,7 @@ export const useLendActions = () => {
     const txCode = getTxCode(ActionCodes.ROLL_POSITION, fromSeries.id);
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
     const baseAddress = fromSeries.getBaseAddress();
+    const base = assetMap.get(fromSeries.baseId);
     const { fyTokenAddress } = fromSeries;
 
     const permits: ICallData[] = await sign(
@@ -168,6 +170,7 @@ export const useLendActions = () => {
       txCode
     );
     updateSeries([fromSeries, toSeries]);
+    updateAssets([base]);
   };
 
   const closePosition = async (input: string | undefined, series: ISeries) => {
@@ -175,6 +178,7 @@ export const useLendActions = () => {
     const txCode = getTxCode(ActionCodes.CLOSE_POSITION, series.id);
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
     const baseAddress = series.getBaseAddress();
+    const base = assetMap.get(series.baseId);
     const { fyTokenAddress } = series;
 
     const permits: ICallData[] = await sign(
@@ -211,10 +215,12 @@ export const useLendActions = () => {
     ];
     await transact('PoolRouter', calls, txCode);
     updateSeries([series]);
+    updateAssets([base]);
   };
 
   const redeem = async (series: ISeries, input: string | undefined) => {
     const txCode = getTxCode(ActionCodes.REDEEM, series.id);
+    const base = assetMap.get(series.baseId);
 
     const _input = input ? ethers.utils.parseEther(input) : series.fyTokenBalance || ethers.constants.Zero;
 
@@ -253,6 +259,7 @@ export const useLendActions = () => {
       },
     ];
     transact('Ladle', calls, txCode);
+    updateAssets([base]);
   };
 
   return {
