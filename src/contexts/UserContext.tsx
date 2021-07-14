@@ -170,8 +170,14 @@ const UserProvider = ({ children }: any) => {
         _accountData = await Promise.all(
           _publicData.map(async (asset: IAssetRoot): Promise<IAsset> => {
             const balance = await asset.getBalance(account);
+            
+            const isYieldBase = 
+              !!Array.from(seriesRootMap.values())
+              .find( (x:any) => x.baseId === asset.id ) ;
+
             return {
               ...asset,
+              isYieldBase,
               balance: balance || ethers.constants.Zero,
               balance_: balance
                 ? cleanValue(ethers.utils.formatEther(balance), 2)

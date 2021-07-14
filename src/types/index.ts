@@ -125,6 +125,7 @@ export interface ISeries extends ISeriesRoot {
 }
 
 export interface IAsset extends IAssetRoot {
+  isYieldBase: boolean;
   balance: BigNumber;
   balance_: string;
 }
