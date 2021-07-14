@@ -1,6 +1,6 @@
 import { Box, Text } from 'grommet';
 import React, { useState } from 'react';
-import { FiArrowLeftCircle } from 'react-icons/fi';
+import { FiXCircle } from 'react-icons/fi';
 import styled from 'styled-components';
 
 const StyledBox = styled(Box)`
@@ -18,14 +18,14 @@ function CancelButton({ action }: { action: () => void }) {
     <StyledBox
       direction="row"
       onClick={() => action()}
-      gap="small"
+      gap="xsmall"
       align="center"
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
-      pad={{ horizontal:'large' }}
+      // pad={{ horizontal:'large' }}
     >
-      <FiArrowLeftCircle color={hover ? '#333333' : 'grey'} />
-      <Text size="small" color={hover ? '#333333' : 'grey'}>
+      <FiXCircle color={hover ? '#333333' : 'grey'} size='0.75em' />
+      <Text size="xsmall" color={hover ? '#333333' : 'grey'}>
         cancel
       </Text>
     </StyledBox>
