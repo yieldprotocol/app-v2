@@ -20,6 +20,8 @@ import BackButton from '../components/buttons/BackButton';
 import PositionAvatar from '../components/PositionAvatar';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import NextButton from '../components/buttons/NextButton';
+import CancelButton from '../components/buttons/CancelButton';
+import TransactButton from '../components/buttons/TransactButton';
 
 const LendPosition = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -203,7 +205,8 @@ const LendPosition = ({ close }: { close: () => void }) => {
               {stepPosition[0] !== 0 && (
                 <Box gap="large">
                   <ActiveTransaction txCode={getTxCode(ActionCodes.CLOSE_POSITION, selectedSeriesId)}>
-                    <SectionWrap title="Review your transaction">
+                  <SectionWrap title="Review your transaction" rightAction={<CancelButton action={() => handleStepper(true)} />}>
+
                       <Text>
                         Close {closeInput} {selectedBase?.symbol}
                         from the {selectedSeries?.displayName} series.
@@ -230,7 +233,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
               {stepPosition[actionActive.index] !== 0 && (
                 <Box gap="large">
                   <ActiveTransaction txCode={getTxCode(ActionCodes.ROLL_POSITION, selectedSeriesId)}>
-                    <SectionWrap title="Review your transaction">
+                  <SectionWrap title="Review your transaction" rightAction={<CancelButton action={() => handleStepper(true)} />}>
                       <Text>
                         Roll {rollInput} {selectedBase?.symbol}
                         from {selectedSeries?.displayName} to the {rollToSeries?.displayName} series.
@@ -254,27 +257,21 @@ const LendPosition = ({ close }: { close: () => void }) => {
         )}
 
         {actionActive.index === 0 && stepPosition[actionActive.index] !== 0 && (
-          <Box gap="small" direction="row-responsive" pad={{ horizontal: 'large' }}>
-            <BackButton action={() => handleStepper(true)} />
-            <Button
+            <TransactButton
               primary
               label={<Text size={mobile ? 'small' : undefined}> {`Close ${closeInput || ''}`} </Text>}
               onClick={() => handleClosePosition()}
               disabled={closeDisabled}
             />
-          </Box>
         )}
 
         {actionActive.index === 1 && stepPosition[actionActive.index] !== 0 && (
-          <Box gap="small" direction="row" pad={{ horizontal: 'large' }}>
-            <BackButton action={() => handleStepper(true)} />
-            <Button
+            <TransactButton
               primary
               label={<Text size={mobile ? 'small' : undefined}> {`Roll ${rollInput || ''}`} </Text>}
               onClick={() => handleRollPosition()}
               disabled={rollDisabled}
             />
-          </Box>
         )}
       </ActionButtonGroup>
     </CenterPanelWrap>

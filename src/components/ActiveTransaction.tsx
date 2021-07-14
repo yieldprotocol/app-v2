@@ -50,7 +50,7 @@ function ActiveTransaction({
    * */
 
   return (
-    <Box background='lightgrey' fill >
+    <Box fill pad='small'>
       {!processes.get(txCode) && // CASE: no tx or signing activity
         ( !sig || sig?.status===TxState.REJECTED || sig?.status===TxState.SUCCESSFUL )  &&
         !tx &&
