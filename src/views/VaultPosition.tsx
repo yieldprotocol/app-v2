@@ -465,13 +465,13 @@ const Vault = ({ close }: { close: () => void }) => {
 
       <ActionButtonWrap pad>
         {stepPosition[actionActive.index] === 0 &&
-          stepPosition[actionActive.index] !== 3 && ( // index 3 if for history -> now button required yet.
+          actionActive.index !== 3 &&
             <NextButton
               label={<Text size={mobile ? 'small' : undefined}> Next Step</Text>}
               onClick={() => handleStepper()}
               key="next"
             />
-          )}
+          }
 
         {/* TODO Marco this is screaming for more efficient code   -> simple array.map possibly? */}
 

@@ -263,7 +263,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
       </Box>
 
       <ActionButtonGroup pad>
-        {stepPosition[actionActive.index] === 0 && (
+        {stepPosition[actionActive.index] === 0 && actionActive.index !== 2 && (
           <NextButton
             label={<Text size={mobile ? 'small' : undefined}> Next Step</Text>}
             onClick={() => handleStepper()}

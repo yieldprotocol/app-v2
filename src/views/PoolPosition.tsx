@@ -204,11 +204,11 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                     title="Review your remove transaction"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
-                      <ReviewTxItem
-                        label="Remove Liquidity"
-                        icon={<FiMinusCircle />}
-                        value={`${removeInput} liquidity tokens`}
-                      />
+                    <ReviewTxItem
+                      label="Remove Liquidity"
+                      icon={<FiMinusCircle />}
+                      value={`${removeInput} liquidity tokens`}
+                    />
                   </SectionWrap>
                 </ActiveTransaction>
               )}
@@ -246,13 +246,11 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                     title="Review your roll transaction"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
-
                     <ReviewTxItem
-                        label="Roll Liquidity"
-                        icon={<FiPlusCircle />}
-                        value={`${rollInput} Liquidity Tokens to ${rollToSeries?.displayName} `}
-                      />
-                      
+                      label="Roll Liquidity"
+                      icon={<FiPlusCircle />}
+                      value={`${rollInput} Liquidity Tokens to ${rollToSeries?.displayName} `}
+                    />
                   </SectionWrap>
                 </ActiveTransaction>
               )}
@@ -260,12 +258,11 @@ const PoolPosition = ({ close }: { close: () => void }) => {
           )}
 
           {actionActive.index === 2 && <YieldHistory seriesOrVault={selectedSeries!} view={['POOL']} />}
-
         </Box>
       </Box>
 
       <ActionButtonGroup pad>
-        {stepPosition[actionActive.index] === 0 && (
+        {stepPosition[actionActive.index] === 0 && actionActive.index !== 2 && (
           <NextButton
             label={<Text size={mobile ? 'small' : undefined}> Next Step</Text>}
             onClick={() => handleStepper()}
