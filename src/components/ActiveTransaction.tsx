@@ -30,6 +30,8 @@ function ActiveTransaction({
     const _process = processes.get(txCode);
     _process && setTx(transactions.get(_process));
     _process && setSig(signatures.get(txCode));
+
+    console.log(sig);
   }, [processes, signatures, transactions, txCode]);
 
   useEffect(()=>{
@@ -45,10 +47,16 @@ function ActiveTransaction({
    * */
 
   return (
-    <>
+    <Box background='grey' fill >
       {!processes.get(txCode) && // CASE: no tx or signing activity
+        !sig &&
         !tx &&
-        !sig && <Box>{children}</Box>}
+        <Box>{children}</Box>}
+
+        {// CASE: no tx or signing rejected by user
+        ( sig?.status===TxState.REJECTED || tx?.status===TxState.REJECTED ) &&
+        <Box>{children}</Box>}
+
 
       {processes.get(txCode) &&
         sig?.status === TxState.PENDING && ( // CASE: Signature/ approval required
@@ -90,7 +98,7 @@ function ActiveTransaction({
             <FiClock size={iconSize} />
             <Box>
               <Text size={textSize} >Transaction Pending...</Text>
-              <Text size="xsmall">Please check your wallet/provider.</Text>
+              <Text size="xsmall">{tx.hash}</Text>
             </Box>
           </Box>
         )}
@@ -123,7 +131,7 @@ function ActiveTransaction({
           </Box>
         </Box>
       )}
-    </>
+    </Box>
   );
 }
 
