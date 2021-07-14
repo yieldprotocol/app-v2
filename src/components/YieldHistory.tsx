@@ -11,26 +11,20 @@ interface IYieldHistory {
 const YieldHistory = ({ seriesOrVault, view }: IYieldHistory) => {
   /* STATE FROM CONTEXT */
   const { historyState, historyActions } = useContext(HistoryContext);
-  const { vaultHistory, tradeHistory, liquididtyHistory } = historyState;
+  const { vaultHistory, tradeHistory, poolHistory } = historyState;
 
   const isVault = seriesOrVault && seriesOrVault.id.length > 12; // is a vault or a series.
-
-  const tradeItems = !isVault && tradeHistory.get(seriesOrVault?.id);
-  const poolItems = !isVault && liquididtyHistory.get(seriesOrVault?.id);
-  const vaultItems = isVault && vaultHistory.get(seriesOrVault?.id);
 
   /* LOCAL STATE */
   const [histList, setHistList] = useState<IHistItemBase[]>([]);
 
   useEffect(() => {
 
-    const _newHist: IHistItemBase[] = []
-    if ( view.includes('POOL') ) _newHist.push(...poolItems)
-    if ( view.includes('VAULT') ) _newHist.push(...vaultItems)
-    if ( view.includes('TRADE') ) _newHist.push(...tradeItems)
-    setHistList(_newHist);
+    if ( view.includes('POOL') ) setHistList( poolHistory.get(seriesOrVault.id) );
+    if ( view.includes('VAULT') ) setHistList( vaultHistory.get(seriesOrVault.id) )
+    if ( view.includes('TRADE') ) setHistList( tradeHistory.get(seriesOrVault.id))
 
-  }, [poolItems, tradeItems, vaultItems, view]);
+  }, [isVault, poolHistory, seriesOrVault.id, tradeHistory, vaultHistory, view]);
 
   return (
     <Box pad="small" gap="xsmall" overflow="scroll">

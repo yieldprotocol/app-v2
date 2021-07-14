@@ -23,6 +23,7 @@ import NextButton from '../components/buttons/NextButton';
 import CancelButton from '../components/buttons/CancelButton';
 import TransactButton from '../components/buttons/TransactButton';
 import ReviewTxItem from '../components/ReviewTxItem';
+import YieldHistory from '../components/YieldHistory';
 
 const LendPosition = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -173,6 +174,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
               options={[
                 { text: 'Close Position', index: 0 },
                 { text: 'Roll Position', index: 1 },
+                { text: 'View Trade History', index: 2 },
               ]}
               labelKey="text"
               valueKey="index"
@@ -254,6 +256,9 @@ const LendPosition = ({ close }: { close: () => void }) => {
               )}
             </Box>
           )}
+
+          {actionActive.index === 2 && <YieldHistory seriesOrVault={selectedSeries!} view={['TRADE']} />}
+
         </Box>
       </Box>
 

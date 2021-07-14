@@ -26,7 +26,7 @@ const initState: IHistoryContextState = {
     lastBlock: 0,
     items: [] as IHistItemBase[],
   },
-  liquidityHistory: {
+  poolHistory: {
     lastBlock: 0,
     items: [] as IHistItemBase[],
   },
@@ -50,7 +50,7 @@ function historyReducer(state: any, action: any) {
         ...state,
         tradeHistory: action.payload,
       };
-    case 'liquidityHistory':
+    case 'poolHistory':
       return {
         ...state,
         poolHistory: action.payload,
@@ -93,7 +93,7 @@ const HistoryProvider = ({ children }: any) => {
   const [historyState, updateState] = useReducer(historyReducer, initState);
 
   /* update Pool Historical data */
-  const updateLiquidityHistory = useCallback(
+  const updatePoolHistory = useCallback(
     async (seriesList: ISeries[]) => {
       // event Liquidity(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens, int256 poolTokens);
       const liqHistMap = new Map<string, IHistItemPosition[]>([]);
@@ -135,8 +135,8 @@ const HistoryProvider = ({ children }: any) => {
           liqHistMap.set(seriesId, liqLogs);
         })
       );
-      updateState({ type: 'liquidityHistory', payload: liqHistMap });
-      console.log('Liquidity History updated: ', liqHistMap);
+      updateState({ type: 'poolHistory', payload: liqHistMap });
+      console.log('Pool History updated: ', liqHistMap);
     },
     [account, fallbackProvider]
   );
@@ -258,15 +258,15 @@ const HistoryProvider = ({ children }: any) => {
   useEffect(() => {
     /* When the chainContext is finished loading get the historical data */
     if (account && !userLoading) {
-      seriesRootMap.size && updateLiquidityHistory(Array.from(seriesRootMap.values()) as ISeries[]);
+      seriesRootMap.size && updatePoolHistory(Array.from(seriesRootMap.values()) as ISeries[]);
       seriesRootMap.size && updateTradeHistory(Array.from(seriesRootMap.values()) as ISeries[]);
       vaultMap.size && updateVaultHistory(Array.from(vaultMap.values()) as IVault[]);
     }
-  }, [account, seriesRootMap, updateLiquidityHistory, updateTradeHistory, updateVaultHistory, userLoading, vaultMap]);
+  }, [account, seriesRootMap, updatePoolHistory, updateTradeHistory, updateVaultHistory, userLoading, vaultMap]);
 
   /* Exposed userActions */
   const historyActions = {
-    updateLiquidityHistory,
+    updatePoolHistory,
     updateVaultHistory,
     updateTradeHistory,
   };

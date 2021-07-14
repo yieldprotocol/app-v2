@@ -9,7 +9,7 @@ export interface IHistoryList {
 export interface IHistoryContextState {
   historyLoading: boolean;
   tradeHistory: IHistoryList;
-  liquidityHistory: IHistoryList;
+  poolHistory: IHistoryList;
   vaultHistory: IHistoryList;
 }
 

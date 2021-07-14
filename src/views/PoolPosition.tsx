@@ -1,8 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { Box, Button, ResponsiveContext, Select, Text, TextInput } from 'grommet';
+import { Box, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import { ethers } from 'ethers';
 import { FiClock, FiLogOut, FiMinusCircle, FiPercent, FiPlusCircle } from 'react-icons/fi';
-import { BiCoinStack } from 'react-icons/bi';
 
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import InputWrap from '../components/wraps/InputWrap';
@@ -16,8 +15,6 @@ import MaxButton from '../components/buttons/MaxButton';
 import InfoBite from '../components/InfoBite';
 import { usePoolActions } from '../hooks/poolHooks';
 import ActiveTransaction from '../components/ActiveTransaction';
-import TabWrap from '../components/wraps/TabWrap';
-import BackButton from '../components/buttons/BackButton';
 import PositionAvatar from '../components/PositionAvatar';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import NextButton from '../components/buttons/NextButton';
@@ -26,6 +23,7 @@ import YieldMark from '../components/logos/YieldMark';
 import CancelButton from '../components/buttons/CancelButton';
 import TransactButton from '../components/buttons/TransactButton';
 import ReviewTxItem from '../components/ReviewTxItem';
+import YieldHistory from '../components/YieldHistory';
 
 const PoolPosition = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -174,6 +172,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
               options={[
                 { text: 'Remove Liquidity', index: 0 },
                 { text: 'Roll Liquidiy', index: 1 },
+                { text: 'View Pool History', index: 2 },
               ]}
               labelKey="text"
               valueKey="index"
@@ -259,6 +258,9 @@ const PoolPosition = ({ close }: { close: () => void }) => {
               )}
             </Box>
           )}
+
+          {actionActive.index === 2 && <YieldHistory seriesOrVault={selectedSeries!} view={['POOL']} />}
+
         </Box>
       </Box>
 
