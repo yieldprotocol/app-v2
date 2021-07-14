@@ -45,6 +45,7 @@ const initState: IUserContextState = {
 
   /* User Settings */
   approvalMethod: ApprovalType.SIG,
+  dudeSalt: 'DudeSalt'
 };
 
 const vaultNameConfig: Config = {

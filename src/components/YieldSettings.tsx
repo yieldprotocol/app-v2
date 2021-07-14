@@ -36,7 +36,7 @@ const YieldSettings = ({ setSettingsOpen }: any) => {
           <Button color="accent-2" secondary onClick={handleChangeConnectType} label="Change" size="small" />
         </Box>
         <Box align="center" direction="row" gap="xsmall">
-          <YieldAvatar address={account.concat('y')} size={1.2} />
+          <YieldAvatar address={account} size={2} />
           <Text size="xlarge">{abbreviateHash(account)}</Text>
         </Box>
         <Box align="center" direction="row" gap="xsmall">

@@ -54,7 +54,7 @@ const YieldAccount = (props: any) => {
                 </Box>
 
                 <Box>
-                  <YieldAvatar address={account.concat('y')} size={2.5} />
+                  <YieldAvatar address={account} size={2.5} />
                 </Box>
 
                 {/* <FiSettings /> */}
