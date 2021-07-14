@@ -109,12 +109,10 @@ const Borrow = () => {
   /* CHECK for any collateral input errors/warnings */
   useEffect(() => {
     if (activeAccount && (collatInput || collatInput === '')) {
-      /* 1. Check if input exceeds balance */
       if (maxCollat && parseFloat(collatInput) > parseFloat(maxCollat)) setCollatInputError('Amount exceeds balance');
-      /* 2. Check if input is above zero */ else if (parseFloat(collatInput) < 0)
-        setCollatInputError('Amount should be expressed as a positive value');
-      /* 3. next check */ else if (false) setCollatInputError('Undercollateralised');
-      /* if all checks pass, set null error message */ else {
+      else if (parseFloat(collatInput) < 0) setCollatInputError('Amount should be expressed as a positive value');
+      // else if (undercollateralized) setCollatInputError('Undercollateralised');
+      else {
         setCollatInputError(null);
       }
     }
@@ -129,11 +127,21 @@ const Borrow = () => {
     !selectedIlk ||
     undercollateralized ||
     borrowInputError ||
+    collatInputError ||
     selectedSeries?.seriesIsMature
       ? setBorrowDisabled(true)
       : /* else if all pass, then unlock borrowing */
         setBorrowDisabled(false);
-  }, [borrowInput, collatInput, selectedSeries, selectedIlk, activeAccount, borrowInputError, undercollateralized]);
+  }, [
+    borrowInput,
+    collatInput,
+    selectedSeries,
+    selectedIlk,
+    activeAccount,
+    borrowInputError,
+    collatInputError,
+    undercollateralized,
+  ]);
 
   /* ADD COLLATERAL DISABLING LOGIC */
 
@@ -158,15 +166,6 @@ const Borrow = () => {
       setMatchingVaults(_matchingVaults);
     }
   }, [vaultMap, selectedBase, selectedIlk, selectedSeries]);
-
-  /* wathc to see if user wants to use an existing vault */
-  // useEffect(() => {
-  //   if (useExistingVault) {
-  //     setVaultIdToUse(matchingVaults[0]?.displayName);
-  //   } else {
-  //     setVaultIdToUse(undefined);
-  //   }
-  // }, [matchingVaults, useExistingVault]);
 
   return (
     <Keyboard onEsc={() => setCollatInput('')} onEnter={() => console.log('ENTER smashed')} target="document">
@@ -225,7 +224,7 @@ const Borrow = () => {
               <Box gap="large" fill>
                 <BackButton action={() => setStepPosition(0)} />
 
-                <Box gap="large" height='400px'>
+                <Box gap="large" height="400px">
                   <SectionWrap title="Amount of collateral to add">
                     <Box direction="row" gap="small" fill="horizontal" align="start">
                       <Box basis={mobile ? '50%' : '60%'}>

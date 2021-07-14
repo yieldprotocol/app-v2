@@ -179,6 +179,7 @@ const Vault = ({ close }: { close: () => void }) => {
     !repayInput || repayError ? setRepayDisabled(true) : setRepayDisabled(false);
   }, [repayInput, repayError, collatInput]);
 
+
   /* EXTRA INITIATIONS */
 
   useEffect(() => {
@@ -193,7 +194,7 @@ const Vault = ({ close }: { close: () => void }) => {
   return (
     <CenterPanelWrap>
       <Box fill pad="large" gap="medium">
-        
+
         <Box height={{ min: '250px' }} gap="medium">
           <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
             <Box direction="row" align="center" gap="medium">
@@ -234,7 +235,7 @@ const Vault = ({ close }: { close: () => void }) => {
               options={[
                 { text: 'Repay', index: 0 },
                 { text: 'Roll', index: 1 },
-                { text: 'Add/Remove Collateral', index: 2 },
+                { text: 'Manage Collateral', index: 2 },
                 { text: 'View History', index: 3 },
                 { text: 'Transfer Vault', index: 4 },
                 { text: 'Delete Vault', index: 5 },
@@ -328,11 +329,13 @@ const Vault = ({ close }: { close: () => void }) => {
           {actionActive.index === 2 && (
             <Box>
               {stepPosition[actionActive.index] === 0 && (
-                <Box pad={{ vertical: 'medium' }}>
-                  <Box direction="row" gap="small" align="center">
-                    <Box>
+  
+                  <Box fill gap='small' pad='small'> 
+                    <Box direction='row' justify='between' align='center'>
+                      Add 
                       <InputWrap action={() => console.log('maxAction')} isError={addCollatError}>
                         <TextInput
+                          disabled={removeCollatInput}
                           plain
                           type="number"
                           placeholder="ADD"
@@ -341,10 +344,11 @@ const Vault = ({ close }: { close: () => void }) => {
                         />
                       </InputWrap>
                     </Box>
-                    <Text> or </Text>
-                    <Box>
+                    <Box direction='row' justify='between' align='center'>
+                      Remove 
                       <InputWrap action={() => console.log('maxAction')} isError={removeCollatError}>
                         <TextInput
+                          disabled={addCollatInput}
                           plain
                           type="number"
                           placeholder="REMOVE"
@@ -353,8 +357,8 @@ const Vault = ({ close }: { close: () => void }) => {
                         />
                       </InputWrap>
                     </Box>
-                  </Box>
                 </Box>
+  
               )}
 
               {stepPosition[actionActive.index] !== 0 && (
