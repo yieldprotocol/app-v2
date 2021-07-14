@@ -125,8 +125,10 @@ const PoolPosition = ({ close } : {close: ()=>void}) => {
 
   return (
     <CenterPanelWrap>
-      <Box fill pad="large" gap="medium">
-        <Box height={{ min: '50%' }} gap="medium">
+    <Box fill pad='large'>
+
+    <Box height={{ min:'250px' }} gap='medium'>
+
           <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
             <Box direction="row" align="center" gap="medium">
               <PositionAvatar position={selectedSeries!} />
@@ -255,7 +257,7 @@ const PoolPosition = ({ close } : {close: ()=>void}) => {
         </SectionWrap>
       </Box>
 
-      <ActionButtonGroup>
+      <ActionButtonGroup pad>
         {stepPosition[actionActive.index] === 0 && (
           <NextButton
             label={<Text size={mobile ? 'small' : undefined}> Next Step</Text>}

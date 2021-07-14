@@ -21,7 +21,7 @@ import PositionAvatar from '../components/PositionAvatar';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import NextButton from '../components/buttons/NextButton';
 
-const LendPosition = ({ close } : {close: ()=>void}) => {
+const LendPosition = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   /* STATE FROM CONTEXT */
@@ -128,8 +128,9 @@ const LendPosition = ({ close } : {close: ()=>void}) => {
 
   return (
     <CenterPanelWrap>
-      <Box fill pad="large" gap="medium">
-        <Box height={{ min: '50%' }} gap="medium">
+      <Box fill pad="large">
+        <Box height={{ min: '250px' }} gap="medium">
+
           <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
             <Box direction="row" align="center" gap="medium">
               <PositionAvatar position={selectedSeries!} />
@@ -138,20 +139,20 @@ const LendPosition = ({ close } : {close: ()=>void}) => {
                 <Text size="small"> {abbreviateHash(selectedSeries?.fyTokenAddress!, 5)}</Text>
               </Box>
             </Box>
-            <FiLogOut onClick={()=> close() } />
+            <FiLogOut onClick={() => close()} />
           </Box>
 
           <SectionWrap>
-            <Box gap="small" >
+            <Box gap="small">
               {/* <InfoBite label="Vault debt + interest:" value={`${selectedVault?.art_} ${vaultBase?.symbol}`} icon={<FiTrendingUp />} /> */}
-              <InfoBite 
-                label="Portfolio value at Maturity" 
-                value={ `${selectedSeries?.fyTokenBalance_!} ${selectedBase?.symbol!}`} 
+              <InfoBite
+                label="Portfolio value at Maturity"
+                value={`${selectedSeries?.fyTokenBalance_!} ${selectedBase?.symbol!}`}
                 icon={<FiTrendingUp />}
               />
-             <InfoBite 
-                label="Current value" 
-                value={ `${selectedSeries?.fyTokenBalance_!} `} 
+              <InfoBite
+                label="Current value"
+                value={`${selectedSeries?.fyTokenBalance_!} `}
                 icon={selectedBase?.image}
               />
               <InfoBite
@@ -243,7 +244,7 @@ const LendPosition = ({ close } : {close: ()=>void}) => {
         </SectionWrap>
       </Box>
 
-      <ActionButtonGroup>
+      <ActionButtonGroup pad>
         {stepPosition[actionActive.index] === 0 && (
           <NextButton
             label={<Text size={mobile ? 'small' : undefined}> Next Step</Text>}

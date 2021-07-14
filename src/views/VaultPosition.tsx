@@ -191,9 +191,10 @@ const Vault = ({ close }: { close: () => void }) => {
 
   return (
     <CenterPanelWrap>
-      <Box background='grey' fill pad='large'>
+      <Box fill pad='large'>
 
       <Box height={{ min:'250px' }} gap='medium'>
+
         <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
           <Box direction="row" align="center" gap="medium">
             <PositionAvatar position={selectedVault!} />

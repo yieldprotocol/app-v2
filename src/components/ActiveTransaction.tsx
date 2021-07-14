@@ -50,7 +50,7 @@ function ActiveTransaction({
    * */
 
   return (
-    <Box background='grey' fill >
+    <Box background='lightgrey' fill >
       {!processes.get(txCode) && // CASE: no tx or signing activity
         ( !sig || sig?.status===TxState.REJECTED || sig?.status===TxState.SUCCESSFUL )  &&
         !tx &&
@@ -96,7 +96,7 @@ function ActiveTransaction({
             <FiClock size={iconSize} />
             <Box>
               <Text size={textSize} >Transaction Pending...</Text>
-              <Text size="xsmall">{tx.hash}</Text>
+              <Text size="xsmall">{tx.transactionHash}</Text>
             </Box>
           </Box>
         )}
