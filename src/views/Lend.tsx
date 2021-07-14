@@ -49,7 +49,7 @@ const Lend = () => {
 
   /* HOOK FNS */
   const { lend, redeem } = useLendActions();
-  const { apr } = useApr(lendInput, ActionType.BORROW, selectedSeries);
+  const { apr } = useApr(lendInput, ActionType.LEND, selectedSeries);
 
   /* LOCAL FNS */
   const handleLend = () => {
