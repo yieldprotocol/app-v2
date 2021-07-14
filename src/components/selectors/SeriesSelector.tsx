@@ -105,8 +105,7 @@ const AprText = ({
       {actionType === ActionType.POOL && !series.seriesIsMature && inputValue && (
         // TODO fix this asap - use a pool hook
         <Text size="xsmall">
-          {' '}
-          {nFormatter((parseFloat(inputValue) / parseFloat(series?.totalSupply_)) * 100, 2)} %{' '}
+          {nFormatter((parseFloat(inputValue) / (parseFloat(series?.totalSupply_)+parseFloat(inputValue))) * 100, 2)} %
           <Text size="xsmall">of Pool</Text>
         </Text>
       )}

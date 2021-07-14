@@ -57,6 +57,7 @@ function Pool() {
 
   const { poolMax } = usePool(poolInput);
 
+
   /* LOCAL ACTION FNS */
   const handleAdd = () => {
     // !poolDisabled &&
@@ -190,12 +191,12 @@ function Pool() {
                       <ReviewTxItem
                         label="Amount of liquidity tokens recieved"
                         icon={<BiCoinStack />}
-                        value={`${'300k'} Liquidity tokens`}
+                        value={`${'[todo]'} Liquidity tokens`}
                       />
                       <ReviewTxItem
                         label="Percentage of pool"
                         icon={<FiPercent />}
-                        value={`${'to do get pool percentage'}%`}
+                        value={`${'[todo]'}%`}
                       />
                     </Box>
                   </SectionWrap>
