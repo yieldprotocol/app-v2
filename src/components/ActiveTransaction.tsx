@@ -10,10 +10,12 @@ function ActiveTransaction({
   txCode,
   size,
   children,
+  pad
 }: {
   txCode: string;
   children: React.ReactNode;
   size?: 'SMALL' | 'LARGE';
+  pad?: boolean;
 }) {
   // TODO consider name: TxPendingWrap
   const { txState } = useContext(TxContext);
@@ -50,7 +52,7 @@ function ActiveTransaction({
    * */
 
   return (
-    <Box fill pad='small'>
+    <Box fill pad={pad? 'medium': undefined}>
       {!processes.get(txCode) && // CASE: no tx or signing activity
         ( !sig || sig?.status===TxState.REJECTED || sig?.status===TxState.SUCCESSFUL )  &&
         !tx &&
@@ -133,6 +135,6 @@ function ActiveTransaction({
   );
 }
 
-ActiveTransaction.defaultProps = { size: 'SMALL' };
+ActiveTransaction.defaultProps = { size: 'SMALL', pad: false };
 
 export default ActiveTransaction;

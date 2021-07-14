@@ -127,7 +127,7 @@ const PoolPosition = ({ close } : {close: ()=>void}) => {
 
   return (
     <CenterPanelWrap>
-    <Box fill pad='large'>
+    <Box fill pad='large' gap='medium'>
 
     <Box height={{ min:'250px' }} gap='medium'>
 
@@ -172,7 +172,7 @@ const PoolPosition = ({ close } : {close: ()=>void}) => {
 
         </Box>
 
-        <SectionWrap title="Vault Actions">
+        <Box>
           <Box elevation="xsmall" round="xsmall">
             <Select
               plain
@@ -188,7 +188,7 @@ const PoolPosition = ({ close } : {close: ()=>void}) => {
           </Box>
 
           {actionActive.index === 0 && (
-            <>
+            <Box>
               {stepPosition[0] === 0 && (
                 <Box pad={{ vertical: 'medium' }}>
                   <InputWrap action={() => console.log('maxAction')} isError={removeError}>
@@ -205,21 +205,19 @@ const PoolPosition = ({ close } : {close: ()=>void}) => {
               )}
 
               {stepPosition[0] !== 0 && (
-                <Box gap="large">
-                  <ActiveTransaction txCode={getTxCode(ActionCodes.REMOVE_LIQUIDITY, selectedSeriesId)}>
-                  <SectionWrap title="Review your transaction" rightAction={<CancelButton action={() => handleStepper(true)} />}>
+                  <ActiveTransaction txCode={getTxCode(ActionCodes.REMOVE_LIQUIDITY, selectedSeriesId)} pad>
+                  <SectionWrap title="Review your remove transaction" rightAction={<CancelButton action={() => handleStepper(true)} />}>
                       <Text>
                         Remove {removeInput} Liquidtity from the {selectedSeries?.displayName} series.{' '}
                       </Text>
                     </SectionWrap>
                   </ActiveTransaction>
-                </Box>
               )}
-            </>
+            </Box>
           )}
 
           {actionActive.index === 1 && (
-            <>
+            <Box>
               {stepPosition[actionActive.index] === 0 && (
                 <Box pad={{ vertical: 'medium' }}>
                   <InputWrap action={() => console.log('maxAction')} isError={rollError}>
@@ -243,20 +241,18 @@ const PoolPosition = ({ close } : {close: ()=>void}) => {
               )}
 
               {stepPosition[actionActive.index] !== 0 && (
-                <Box gap="large">
-                  <ActiveTransaction txCode={getTxCode(ActionCodes.ROLL_LIQUIDITY, selectedSeriesId)}>
-                  <SectionWrap title="Review your transaction" rightAction={<CancelButton action={() => handleStepper(true)} />}>
+                  <ActiveTransaction txCode={getTxCode(ActionCodes.ROLL_LIQUIDITY, selectedSeriesId)} pad>
+                  <SectionWrap title="Review your roll transaction" rightAction={<CancelButton action={() => handleStepper(true)} />}>
                       <Text>
                         Roll {rollInput} liquidity tokens from {selectedSeries?.displayName} to the{' '}
                         {rollToSeries?.displayName} series.
                       </Text>
                     </SectionWrap>
                   </ActiveTransaction>
-                </Box>
               )}
-            </>
+            </Box>
           )}
-        </SectionWrap>
+        </Box>
       </Box>
 
       <ActionButtonGroup pad>

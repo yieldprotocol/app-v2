@@ -130,7 +130,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
 
   return (
     <CenterPanelWrap>
-      <Box fill pad="large">
+      <Box fill pad="large" gap='medium'>
         <Box height={{ min: '250px' }} gap="medium">
 
           <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
@@ -166,7 +166,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
           </SectionWrap>
         </Box>
 
-        <SectionWrap title="Vault Actions">
+        <Box>
           <Box elevation="xsmall" round="xsmall">
             <Select
               plain
@@ -182,7 +182,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
           </Box>
 
           {actionActive.index === 0 && (
-            <>
+            <Box>
               {stepPosition[0] === 0 && (
                 <Box pad={{ vertical: 'medium' }}>
                   <InputWrap action={() => console.log('maxAction')} isError={closeError} disabled={!selectedSeries}>
@@ -203,23 +203,20 @@ const LendPosition = ({ close }: { close: () => void }) => {
               )}
 
               {stepPosition[0] !== 0 && (
-                <Box gap="large">
-                  <ActiveTransaction txCode={getTxCode(ActionCodes.CLOSE_POSITION, selectedSeriesId)}>
-                  <SectionWrap title="Review your transaction" rightAction={<CancelButton action={() => handleStepper(true)} />}>
-
+                  <ActiveTransaction txCode={getTxCode(ActionCodes.CLOSE_POSITION, selectedSeriesId)} pad>
+                  <SectionWrap title="Review your remove transaction" rightAction={<CancelButton action={() => handleStepper(true)} />}>
                       <Text>
                         Close {closeInput} {selectedBase?.symbol}
                         from the {selectedSeries?.displayName} series.
                       </Text>
                     </SectionWrap>
                   </ActiveTransaction>
-                </Box>
               )}
-            </>
+            </Box>
           )}
 
           {actionActive.index === 1 && (
-            <>
+            <Box>
               {stepPosition[actionActive.index] === 0 && (
                 <Box pad={{ vertical: 'medium' }} fill="horizontal" direction="row" align="center">
                   <SeriesSelector
@@ -231,20 +228,18 @@ const LendPosition = ({ close }: { close: () => void }) => {
               )}
 
               {stepPosition[actionActive.index] !== 0 && (
-                <Box gap="large">
-                  <ActiveTransaction txCode={getTxCode(ActionCodes.ROLL_POSITION, selectedSeriesId)}>
-                  <SectionWrap title="Review your transaction" rightAction={<CancelButton action={() => handleStepper(true)} />}>
+                  <ActiveTransaction txCode={getTxCode(ActionCodes.ROLL_POSITION, selectedSeriesId)} pad>
+                  <SectionWrap title="Review your roll transaction" rightAction={<CancelButton action={() => handleStepper(true)} />}>
                       <Text>
                         Roll {rollInput} {selectedBase?.symbol}
                         from {selectedSeries?.displayName} to the {rollToSeries?.displayName} series.
                       </Text>
                     </SectionWrap>
                   </ActiveTransaction>
-                </Box>
               )}
-            </>
+            </Box>
           )}
-        </SectionWrap>
+        </Box>
       </Box>
 
       <ActionButtonGroup pad>
