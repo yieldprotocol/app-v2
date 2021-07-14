@@ -10,7 +10,7 @@ import InputWrap from '../components/wraps/InputWrap';
 import InfoBite from '../components/InfoBite';
 import { ActionCodes, ActionType, IAsset, ISeries, IUserContext, IVault } from '../types';
 
-import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
+import ActionButtonWrap from '../components/wraps/ActionButtonWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
 import { useCollateralActions, useCollateralization } from '../hooks/collateralHooks';
 import { useBorrowActions } from '../hooks/borrowHooks';
@@ -23,8 +23,10 @@ import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import NextButton from '../components/buttons/NextButton';
 import { Gauge } from '../components/Gauge';
 import YieldHistory from '../components/YieldHistory';
+import TransactButton from '../components/buttons/TransactButton';
+import CancelButton from '../components/buttons/CancelButton';
 
-const Vault = ( { close } : {close: ()=>void}) => {
+const Vault = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const routerHistory = useHistory();
 
@@ -189,40 +191,43 @@ const Vault = ( { close } : {close: ()=>void}) => {
 
   return (
     <CenterPanelWrap>
-      <Box fill pad="large" gap="large">
-        <Box height="50%" gap="medium">
-          <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
-            <Box direction="row" align="center" gap="medium">
-              <PositionAvatar position={selectedVault!} />
-              <Box>
-                <Text size={mobile ? 'medium' : 'large'}> {selectedVault?.displayName} </Text>
-                <Text size="small"> {selectedVault?.id} </Text>
-              </Box>
-            </Box>
-            <FiLogOut onClick={()=>close()} />
-          </Box>
+      <Box background='grey' fill pad='large'>
 
-          <SectionWrap>
-            <Box gap="small">
-              <InfoBite
-                label="Vault debt + interest:"
-                value={`${selectedVault?.art_} ${vaultBase?.symbol}`}
-                icon={<FiTrendingUp />}
-              />
-              <InfoBite
-                label="Maturity date:"
-                value={`${vaultSeries?.displayName}`}
-                icon={<FiClock color={vaultSeries?.color} />}
-              />
-              <InfoBite
-                label="Collateral posted:"
-                value={`${selectedVault?.ink_} ${vaultIlk?.symbol} ( ${collateralizationPercent} %)`}
-                icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
-              />
+      <Box height={{ min:'250px' }} gap='medium'>
+        <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
+          <Box direction="row" align="center" gap="medium">
+            <PositionAvatar position={selectedVault!} />
+            <Box>
+              <Text size={mobile ? 'medium' : 'large'}> {selectedVault?.displayName} </Text>
+              <Text size="small"> {selectedVault?.id} </Text>
             </Box>
-          </SectionWrap>
+          </Box>
+          <FiLogOut onClick={() => close()} />
         </Box>
 
+        <SectionWrap>
+          <Box gap="small">
+            <InfoBite
+              label="Vault debt + interest:"
+              value={`${selectedVault?.art_} ${vaultBase?.symbol}`}
+              icon={<FiTrendingUp />}
+            />
+            <InfoBite
+              label="Maturity date:"
+              value={`${vaultSeries?.displayName}`}
+              icon={<FiClock color={vaultSeries?.color} />}
+            />
+            <InfoBite
+              label="Collateral posted:"
+              value={`${selectedVault?.ink_} ${vaultIlk?.symbol} ( ${collateralizationPercent} %)`}
+              icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
+            />
+          </Box>
+        </SectionWrap>
+      </Box>
+
+
+      <Box>
         <SectionWrap>
           <Box elevation="xsmall" round="xsmall">
             <Select
@@ -268,6 +273,7 @@ const Vault = ( { close } : {close: ()=>void}) => {
                         Repay {repayInput} {vaultBase?.symbol} debt from {selectedVault?.displayName}{' '}
                       </Text>
                     </SectionWrap>
+                    <CancelButton action={() => handleStepper(true)} />
                   </ActiveTransaction>
                 </Box>
               )}
@@ -359,7 +365,9 @@ const Vault = ( { close } : {close: ()=>void}) => {
           )}
 
           {actionActive.index === 3 && (
-            <Box pad={{ vertical: 'medium' }}><YieldHistory seriesOrVault={selectedVault!} view={["VAULT"]} /></Box>
+            <Box pad={{ vertical: 'medium' }}>
+              <YieldHistory seriesOrVault={selectedVault!} view={['VAULT']} />
+            </Box>
           )}
 
           {actionActive.index === 4 && (
@@ -422,8 +430,10 @@ const Vault = ( { close } : {close: ()=>void}) => {
         </SectionWrap>
       </Box>
 
-      <ActionButtonGroup>
-        {stepPosition[actionActive.index] === 0 &&
+      </Box>
+
+      <ActionButtonWrap pad>
+        {stepPosition[actionActive.index] === 0 && 
           stepPosition[actionActive.index] !== 3 && ( // index 3 if for history -> now button required yet.
             <NextButton
               label={<Text size={mobile ? 'small' : undefined}> Next Step</Text>}
@@ -435,23 +445,18 @@ const Vault = ( { close } : {close: ()=>void}) => {
         {/* TODO Marco this is screaming for more efficient code   -> simple array.map possibly? */}
 
         {actionActive.index === 0 && stepPosition[actionActive.index] !== 0 && (
-          <Box gap="small" direction="row-responsive" pad={{ horizontal: 'large' }}>
-            <BackButton action={() => handleStepper(true)} />
-            <Button
-              primary
-              label={
-                <Text size={mobile ? 'small' : undefined}> {`Repay ${cleanValue(repayInput, 6) || ''} Dai`} </Text>
-              }
-              onClick={() => handleRepay()}
-              disabled={repayDisabled}
-            />
-          </Box>
+          <TransactButton
+            primary
+            label={<Text size={mobile ? 'small' : undefined}> {`Repay ${cleanValue(repayInput, 6) || ''} Dai`} </Text>}
+            onClick={() => handleRepay()}
+            disabled={repayDisabled}
+          />
         )}
 
         {actionActive.index === 1 && stepPosition[actionActive.index] !== 0 && (
-          <Box gap="small" direction="row" pad={{ horizontal: 'large' }}>
+          <Box gap="small" direction="row" pad={{ horizontal: 'large' }} align="center">
             <BackButton action={() => handleStepper(true)} />
-            <Button
+            <TransactButton
               primary
               label={<Text size={mobile ? 'small' : undefined}> Roll debt </Text>}
               onClick={() => handleRoll()}
@@ -460,9 +465,9 @@ const Vault = ( { close } : {close: ()=>void}) => {
         )}
 
         {actionActive.index === 2 && stepPosition[actionActive.index] !== 0 && addCollatInput && (
-          <Box gap="small" direction="row" pad={{ horizontal: 'large' }}>
+          <Box gap="small" direction="row" pad={{ horizontal: 'large' }} align="center">
             <BackButton action={() => handleStepper(true)} />
-            <Button
+            <TransactButton
               primary
               label={<Text size={mobile ? 'small' : undefined}> Add </Text>}
               onClick={() => handleCollateral('ADD')}
@@ -471,9 +476,9 @@ const Vault = ( { close } : {close: ()=>void}) => {
         )}
 
         {actionActive.index === 2 && stepPosition[actionActive.index] !== 0 && removeCollatInput && (
-          <Box gap="small" direction="row" pad={{ horizontal: 'large' }}>
+          <Box gap="small" direction="row" pad={{ horizontal: 'large' }} align="center">
             <BackButton action={() => handleStepper(true)} />
-            <Button
+            <TransactButton
               primary
               label={<Text size={mobile ? 'small' : undefined}> Remove </Text>}
               onClick={() => handleCollateral('REMOVE')}
@@ -482,9 +487,9 @@ const Vault = ( { close } : {close: ()=>void}) => {
         )}
 
         {actionActive.index === 4 && stepPosition[actionActive.index] !== 0 && (
-          <Box gap="small" direction="row" pad={{ horizontal: 'large' }}>
+          <Box gap="small" direction="row" pad={{ horizontal: 'large' }} align="center">
             <BackButton action={() => handleStepper(true)} />
-            <Button
+            <TransactButton
               primary
               label={<Text size={mobile ? 'small' : undefined}> Transfer vault [todo] </Text>}
               onClick={() => console.log('vault transfer')}
@@ -494,9 +499,9 @@ const Vault = ( { close } : {close: ()=>void}) => {
         )}
 
         {actionActive.index === 5 && stepPosition[actionActive.index] !== 0 && (
-          <Box gap="small" direction="row" pad={{ horizontal: 'large' }}>
+          <Box gap="small" direction="row" pad={{ horizontal: 'large' }} align="center">
             <BackButton action={() => handleStepper(true)} />
-            <Button
+            <TransactButton
               primary
               label={<Text size={mobile ? 'small' : undefined}> Delete [todo] </Text>}
               onClick={() => console.log('vault transfer')}
@@ -504,7 +509,8 @@ const Vault = ( { close } : {close: ()=>void}) => {
             />
           </Box>
         )}
-      </ActionButtonGroup>
+      </ActionButtonWrap>
+
     </CenterPanelWrap>
   );
 };

@@ -75,7 +75,7 @@ function CenterPanelWrap({ children, series }: IPanelWrap) {
       {mobile ? (
         <Box ref={domTarget}>{children}</Box>
       ) : (
-        <Box align="center" justify="center">
+        <Box align="center" justify="center" >
           <animated.div
             ref={domTarget}
             style={{
@@ -96,6 +96,7 @@ function CenterPanelWrap({ children, series }: IPanelWrap) {
                   width="500px"
                   align="center" // use this to move shadow around
                   justify="center" // use this to move shadow around
+
                 >
                   <StyledBox
                     height="500px"
@@ -106,7 +107,6 @@ function CenterPanelWrap({ children, series }: IPanelWrap) {
                   />
                 </Box>
               )}
-
               <Box
                 elevation={mobile ? undefined : 'xlarge'}
                 height="650px"
@@ -114,7 +114,9 @@ function CenterPanelWrap({ children, series }: IPanelWrap) {
                 round="xsmall"
                 background="white"
               >
-                {children}
+                <Box fill>
+                  {children}
+                </Box>
               </Box>
             </Stack>
           </animated.div>
