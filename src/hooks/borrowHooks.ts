@@ -140,13 +140,15 @@ export const useBorrowActions = () => {
         ignore: series.mature,
       },
       {
-        /* ladle.repay(vaultId, owner, inkRetrieved, 0) */ operation: VAULT_OPS.REPAY,
+        /* ladle.repay(vaultId, owner, inkRetrieved, 0) */ 
+        operation: VAULT_OPS.REPAY,
         args: [vault.id, account, _collInput, ethers.constants.Zero],
         series,
         ignore: series.mature || inputGreaterThanDebt,
       },
       {
-        /* ladle.repayVault(vaultId, owner, inkRetrieved, MAX) */ operation: VAULT_OPS.REPAY_VAULT,
+        /* ladle.repayVault(vaultId, owner, inkRetrieved, MAX) */ 
+        operation: VAULT_OPS.REPAY_VAULT,
         args: [vault.id, account, ethers.constants.Zero, MAX_128],
         series,
         ignore: series.mature || !inputGreaterThanDebt,
@@ -155,7 +157,8 @@ export const useBorrowActions = () => {
       /* AFTER MATURITY */
 
       {
-        /* ladle.repayVault(vaultId, owner, inkRetrieved, MAX) */ operation: VAULT_OPS.CLOSE,
+        /* ladle.repayVault(vaultId, owner, inkRetrieved, MAX) */ 
+        operation: VAULT_OPS.CLOSE,
         args: [vault.id, account, ethers.constants.Zero, _input.mul(-1)],
         series,
         ignore: !series.mature,
@@ -167,7 +170,7 @@ export const useBorrowActions = () => {
   };
 
   const rollDebt = async (vault: IVault, toSeries: ISeries) => {
-    const txCode = getTxCode(ActionCodes.ROLL_DEBT, vault.seriesId);
+    const txCode = getTxCode(ActionCodes.ROLL_DEBT, vault.id);
     const series = seriesMap.get(vault.seriesId);
     const calls: ICallData[] = [
       {

@@ -179,7 +179,6 @@ const Vault = ({ close }: { close: () => void }) => {
     !repayInput || repayError ? setRepayDisabled(true) : setRepayDisabled(false);
   }, [repayInput, repayError, collatInput]);
 
-
   /* EXTRA INITIATIONS */
 
   useEffect(() => {
@@ -194,7 +193,6 @@ const Vault = ({ close }: { close: () => void }) => {
   return (
     <CenterPanelWrap>
       <Box fill pad="large" gap="medium">
-
         <Box height={{ min: '250px' }} gap="medium">
           <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
             <Box direction="row" align="center" gap="medium">
@@ -304,7 +302,7 @@ const Vault = ({ close }: { close: () => void }) => {
 
               {stepPosition[actionActive.index] !== 0 && (
                 <ActiveTransaction
-                  txCode={(selectedVault && getTxCode(ActionCodes.ROLL_DEBT, selectedVault?.id)) || ''}
+                  txCode={(selectedVault && getTxCode(ActionCodes.ROLL_DEBT, selectedVault.id)) || ''}
                   pad
                 >
                   <SectionWrap
@@ -329,41 +327,43 @@ const Vault = ({ close }: { close: () => void }) => {
           {actionActive.index === 2 && (
             <Box>
               {stepPosition[actionActive.index] === 0 && (
-  
-                  <Box fill gap='small' pad='small'> 
-                    <Box direction='row' justify='between' align='center'>
-                      Add 
-                      <InputWrap action={() => console.log('maxAction')} isError={addCollatError}>
-                        <TextInput
-                          disabled={removeCollatInput}
-                          plain
-                          type="number"
-                          placeholder="ADD"
-                          value={addCollatInput || ''}
-                          onChange={(event: any) => setAddCollatInput(cleanValue(event.target.value))}
-                        />
-                      </InputWrap>
-                    </Box>
-                    <Box direction='row' justify='between' align='center'>
-                      Remove 
-                      <InputWrap action={() => console.log('maxAction')} isError={removeCollatError}>
-                        <TextInput
-                          disabled={addCollatInput}
-                          plain
-                          type="number"
-                          placeholder="REMOVE"
-                          value={removeCollatInput || ''}
-                          onChange={(event: any) => setRemoveCollatInput(cleanValue(event.target.value))}
-                        />
-                      </InputWrap>
-                    </Box>
+                <Box fill gap="small" pad="small">
+                  <Box direction="row" justify="between" align="center">
+                    Add
+                    <InputWrap action={() => console.log('maxAction')} isError={addCollatError}>
+                      <TextInput
+                        disabled={removeCollatInput}
+                        plain
+                        type="number"
+                        placeholder="ADD"
+                        value={addCollatInput || ''}
+                        onChange={(event: any) => setAddCollatInput(cleanValue(event.target.value))}
+                      />
+                    </InputWrap>
+                  </Box>
+                  <Box direction="row" justify="between" align="center">
+                    Remove
+                    <InputWrap action={() => console.log('maxAction')} isError={removeCollatError}>
+                      <TextInput
+                        disabled={addCollatInput}
+                        plain
+                        type="number"
+                        placeholder="REMOVE"
+                        value={removeCollatInput || ''}
+                        onChange={(event: any) => setRemoveCollatInput(cleanValue(event.target.value))}
+                      />
+                    </InputWrap>
+                  </Box>
                 </Box>
-  
               )}
 
               {stepPosition[actionActive.index] !== 0 && (
                 <ActiveTransaction
-                  txCode={(selectedVault && getTxCode(ActionCodes.ROLL_DEBT, selectedVault?.id)) || ''}
+                  txCode={
+                    selectedVault && addCollatInput
+                      ? getTxCode(ActionCodes.ADD_COLLATERAL, selectedVault.id)
+                      : (selectedVault && getTxCode(ActionCodes.REMOVE_COLLATERAL, selectedVault?.id)) || ''
+                  }
                   pad
                 >
                   <SectionWrap
@@ -418,11 +418,7 @@ const Vault = ({ close }: { close: () => void }) => {
                     title="Review your transfer transaction"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
-                    <ReviewTxItem
-                        label="Transfer Vault to: "
-                        icon={<FiPlusCircle />}
-                        value='new address'
-                      />
+                    <ReviewTxItem label="Transfer Vault to: " icon={<FiPlusCircle />} value="new address" />
                   </SectionWrap>
                 </ActiveTransaction>
               )}
@@ -455,11 +451,11 @@ const Vault = ({ close }: { close: () => void }) => {
                     title="Review your delete transaction"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
-                      <ReviewTxItem
-                        label="Pay back all debt and delete vault:"
-                        icon={<FiPlusCircle />}
-                        value={`${selectedVault?.displayName}`}
-                      />
+                    <ReviewTxItem
+                      label="Pay back all debt and delete vault:"
+                      icon={<FiPlusCircle />}
+                      value={`${selectedVault?.displayName}`}
+                    />
                   </SectionWrap>
                 </ActiveTransaction>
               )}
@@ -469,14 +465,13 @@ const Vault = ({ close }: { close: () => void }) => {
       </Box>
 
       <ActionButtonWrap pad>
-        {stepPosition[actionActive.index] === 0 &&
-          actionActive.index !== 3 &&
-            <NextButton
-              label={<Text size={mobile ? 'small' : undefined}> Next Step</Text>}
-              onClick={() => handleStepper()}
-              key="next"
-            />
-          }
+        {stepPosition[actionActive.index] === 0 && actionActive.index !== 3 && (
+          <NextButton
+            label={<Text size={mobile ? 'small' : undefined}> Next Step</Text>}
+            onClick={() => handleStepper()}
+            key="next"
+          />
+        )}
 
         {/* TODO Marco this is screaming for more efficient code   -> simple array.map possibly? */}
 
