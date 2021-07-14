@@ -342,7 +342,7 @@ const UserProvider = ({ children }: any) => {
           const _map = acc;
           _map.set(item.id, item);
           return _map;
-        }, new Map())
+        }, userState.vaultMap)
       );
 
       updateState({ type: 'vaultMap', payload: newVaultMap });
