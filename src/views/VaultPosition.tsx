@@ -231,8 +231,8 @@ const Vault = ({ close }: { close: () => void }) => {
             <Select
               plain
               options={[
-                { text: 'Repay', index: 0 },
-                { text: 'Roll', index: 1 },
+                { text: 'Repay Debt', index: 0 },
+                { text: 'Roll Debt', index: 1 },
                 { text: 'Manage Collateral', index: 2 },
                 { text: 'View History', index: 3 },
                 { text: 'Transfer Vault', index: 4 },
