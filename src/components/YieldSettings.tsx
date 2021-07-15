@@ -9,10 +9,10 @@ import YieldAvatar from './YieldAvatar';
 const ChangeButton = styled(Button)`
   background: #dbeafe;
   border: 2px solid #3b82f6;
-  height: auto;
+  height: 2rem;
   width: 5rem;
   border-radius: 20px;
-  font-size: 0.9rem;
+  font-size: 0.6rem;
   text-align: center;
   color: #2563eb;
 
@@ -28,7 +28,7 @@ const YieldSettings = ({ setConnectOpen, setSettingsOpen }: any) => {
 
   const [copySuccess, setCopySuccess] = useState<boolean>(false);
 
-  const connectType: string = 'Metamask';
+  const connectorName: string = 'Metamask';
 
   const handleChangeConnectType = () => {
     setSettingsOpen(false);
@@ -41,6 +41,10 @@ const YieldSettings = ({ setConnectOpen, setSettingsOpen }: any) => {
     setTimeout(() => setCopySuccess(false), 2000);
   };
 
+  const handleChangeAvatar = () => {
+    console.log('changing avatar');
+  };
+
   return (
     <Box basis="auto" width="medium">
       <Box pad="small" gap="small" direction="row" justify="between">
@@ -48,17 +52,20 @@ const YieldSettings = ({ setConnectOpen, setSettingsOpen }: any) => {
         <Button icon={<FiX size="1.5rem" />} onClick={() => setSettingsOpen(false)} plain />
       </Box>
       <Box
-        border={{ color: '#2563EB', size: 'xsmall', side: 'top' }}
+        border={{ color: '#DBEAFE', size: 'xsmall', side: 'top' }}
         gap="xsmall"
         pad={{ horizontal: 'medium', vertical: 'small' }}
       >
         <Box justify="between" align="center" direction="row">
-          <Text size="small">Connected with {connectType}</Text>
+          <Text size="small">Connected with {connectorName}</Text>
           <ChangeButton onClick={handleChangeConnectType}>Change</ChangeButton>
         </Box>
-        <Box align="center" direction="row" gap="xsmall">
-          <YieldAvatar address={account} size={2} />
-          <Text size="xlarge">{abbreviateHash(account)}</Text>
+        <Box justify="between" align="center" direction="row">
+          <Box direction="row" align="center" gap="xsmall">
+            <YieldAvatar address={account} size={2} />
+            <Text size="xlarge">{abbreviateHash(account)}</Text>
+          </Box>
+          <ChangeButton onClick={handleChangeAvatar}>New Avatar</ChangeButton>
         </Box>
         <Box align="center" direction="row" gap="xsmall">
           <Button alignSelf="center" margin="xsmall" onClick={() => handleCopy(account)}>
@@ -79,7 +86,7 @@ const YieldSettings = ({ setConnectOpen, setSettingsOpen }: any) => {
         </Text>
       </Box>
       <Box
-        border={{ color: '#2563EB', size: 'xsmall', side: 'top' }}
+        border={{ color: '#DBEAFE', size: 'xsmall', side: 'top' }}
         pad="medium"
         gap="small"
         direction="row"
