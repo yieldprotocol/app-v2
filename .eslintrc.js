@@ -6,6 +6,7 @@ module.exports = {
   extends: ['airbnb-typescript', 'react-app', 'prettier'],
   parserOptions: {
     project: './tsconfig.json',
+    tsconfigRootDir: __dirname,
   },
   rules: {
     // "@typescript-eslint/no-unused-expressions": ["error", { "allowTernary": true }],
