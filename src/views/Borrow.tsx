@@ -351,11 +351,15 @@ const Borrow = () => {
                 </Box> */}
               </SectionWrap>
             )}
+
             {stepPosition === 2 && (
               <SectionWrap>
                 <Box pad={{ horizontal: 'large', vertical: 'small' }}>
                   <CheckBox
-                    label={<Text size="xsmall"> disclaimer example: I understand the terms of transactions.</Text>}
+                    label={
+                      // TODO: #37 check for understood checkbox before completing transaction
+                      <Text size="xsmall"> disclaimer example: I understand the terms of transactions.</Text>
+                    }
                   />
                 </Box>
               </SectionWrap>
