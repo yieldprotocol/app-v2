@@ -23,6 +23,8 @@ const YieldSettings = ({ setConnectOpen, setSettingsOpen }: any) => {
     navigator.clipboard.writeText(text);
   };
 
+  // TODO: TEST issue: some issue with settings @brucedonovan
+
   return (
     <Box basis="auto" width="medium" pad="small" gap="small">
       <Box justify="between" align="center" direction="row">
