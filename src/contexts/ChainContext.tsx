@@ -53,7 +53,7 @@ connectors.set(
 connectors.set(
   'walletconnect',
   new WalletConnectConnector({
-    rpc: { 1: RPC_URLS[1] },
+    rpc: { 1: RPC_URLS[1], 42: RPC_URLS[42] },
     bridge: 'https://bridge.walletconnect.org',
     qrcode: true,
     pollingInterval: POLLING_INTERVAL,
@@ -72,6 +72,8 @@ const initState = {
   account: null as string | null,
   web3Active: false as boolean,
   fallbackActive: false as boolean,
+  connectors,
+  connector: null as any,
 
   /* settings */
   connectOnLoad: true as boolean,
@@ -108,6 +110,8 @@ function chainReducer(state: any, action: any) {
       return { ...state, account: onlyIfChanged(action) };
     case 'web3Active':
       return { ...state, web3Active: onlyIfChanged(action) };
+    case 'connector':
+      return { ...state, connector: onlyIfChanged(action) };
     case 'contractMap':
       return { ...state, contractMap: onlyIfChanged(action) };
     case 'addSeries':
@@ -354,7 +358,8 @@ const ChainProvider = ({ children }: any) => {
     updateState({ type: 'provider', payload: library || null });
     updateState({ type: 'account', payload: account || null });
     updateState({ type: 'signer', payload: library?.getSigner(account!) || null });
-  }, [active, account, chainId, library]);
+    updateState({ type: 'connector', payload: connector || null });
+  }, [active, account, chainId, library, connector]);
 
   /*
       Watch the chainId for changes (most likely instigated by metamask),

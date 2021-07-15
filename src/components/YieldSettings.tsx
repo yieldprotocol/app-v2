@@ -5,10 +5,9 @@ import { ChainContext } from '../contexts/ChainContext';
 import { abbreviateHash } from '../utils/appUtils';
 import YieldAvatar from './YieldAvatar';
 
-const YieldSettings = ({ setSettingsOpen }: any) => {
+const YieldSettings = ({ setConnectOpen, setSettingsOpen }: any) => {
   const {
     chainState: { account, chainId },
-    chainActions: { connect, disconnect },
   } = useContext(ChainContext);
 
   const [copySuccess, setCopySuccess] = useState<boolean>(false);
@@ -16,12 +15,12 @@ const YieldSettings = ({ setSettingsOpen }: any) => {
   const connectType: string = 'Metamask';
 
   const handleChangeConnectType = () => {
-    console.log('changing connect type');
+    setSettingsOpen(false);
+    setConnectOpen(true);
   };
 
   const handleCopy = (text: any) => {
     navigator.clipboard.writeText(text);
-    console.log(account);
   };
 
   return (
@@ -30,10 +29,15 @@ const YieldSettings = ({ setSettingsOpen }: any) => {
         <Text>Account</Text>
         <Button icon={<FiX size="1.5rem" />} onClick={() => setSettingsOpen(false)} plain />
       </Box>
-      <Box border={{ color: 'brand', size: 'xsmall' }} gap="small" pad="small" round="small">
+      <Box border={{ color: '#2563EB', size: 'xsmall' }} gap="small" pad="small" round="small">
         <Box justify="between" align="center" direction="row">
           <Text size="small">Connected with {connectType}</Text>
-          <Button color="accent-2" secondary onClick={handleChangeConnectType} label="Change" size="small" />
+          <Button
+            style={{ backgroundColor: '#DBEAFE' }}
+            onClick={handleChangeConnectType}
+            label="Change"
+            size="small"
+          />
         </Box>
         <Box align="center" direction="row" gap="xsmall">
           <YieldAvatar address={account} size={2} />
@@ -53,7 +57,9 @@ const YieldSettings = ({ setSettingsOpen }: any) => {
             </Text>
           </Anchor>
         </Box>
-        <Text size="small">Connected to Chain ID {chainId}</Text>
+        <Text color="#6B7280" size="small">
+          Connected to Chain ID {chainId}
+        </Text>
       </Box>
     </Box>
   );

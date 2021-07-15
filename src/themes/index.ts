@@ -15,6 +15,7 @@ export const yieldTheme = {
       selected: '#3f53d9',
       'accent-1': '#FFCA58',
       'accent-2': '#81FCED',
+      'tailwind-blue': '#2563EB',
       text: {
         dark: '#EEEEEE',
         light: '#555555',

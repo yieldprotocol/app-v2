@@ -25,20 +25,16 @@ function App() {
         {menuLayerOpen && <MenuLayer toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} />}
         <Switch>
           <Route path="/borrow/:series?/:asset?/:amnt?">
-            {' '}
-            <Borrow />{' '}
+            <Borrow />
           </Route>
           <Route path="/lend/:series?/:asset?/:amnt?">
-            {' '}
-            <Lend />{' '}
+            <Lend />
           </Route>
           <Route path="/pool/:series?/:asset?/:amnt?">
-            {' '}
-            <Pool />{' '}
+            <Pool />
           </Route>
           <Route exact path="/">
-            {' '}
-            <Redirect to="/borrow" />{' '}
+            <Redirect to="/borrow" />
           </Route>
           <Route path="/*"> 404 </Route>
         </Switch>
