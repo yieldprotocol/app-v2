@@ -194,7 +194,7 @@ const Borrow = () => {
                   <Text>BORROW</Text>
                 </Box>
 
-                <SectionWrap title="Select an asset and amount: ">
+                <SectionWrap title="Select an asset and amount">
                   <Box direction="row" gap="small" fill="horizontal" align="start">
                     <Box basis={mobile ? '50%' : '60%'}>
                       <InputWrap action={() => console.log('maxAction')} isError={borrowInputError}>
@@ -214,7 +214,7 @@ const Borrow = () => {
                   </Box>
                 </SectionWrap>
 
-                <SectionWrap title="Choose an series to borrow from">
+                <SectionWrap title="Choose a series">
                   <SeriesSelector inputValue={borrowInput} actionType={ActionType.BORROW} />
                 </SectionWrap>
               </Box>

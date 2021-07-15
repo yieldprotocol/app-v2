@@ -113,7 +113,7 @@ const Lend = () => {
                 <YieldMark />
                 <Text>LEND</Text>
               </Box>
-              <SectionWrap title="Select an asset and amount to lend">
+              <SectionWrap title="Select an asset and amount">
                 <Box direction="row" gap="small" fill="horizontal" align="start">
                   <Box basis={mobile ? '50%' : '60%'}>
                     <InputWrap
@@ -141,7 +141,7 @@ const Lend = () => {
                 </Box>
               </SectionWrap>
 
-              <SectionWrap title="Choose a series to lend to">
+              <SectionWrap title="Choose a series">
                 <SeriesSelector inputValue={lendInput} actionType={ActionType.LEND} />
               </SectionWrap>
             </Box>
