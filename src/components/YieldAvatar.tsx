@@ -1,11 +1,17 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import multiavatar from '@multiavatar/multiavatar';
 import { Avatar, Box, Image } from 'grommet';
+import { UserContext } from '../contexts/UserContext';
 
 function YieldAvatar(props: any) {
-  const _avatar = multiavatar(props.address);
+  const {
+    userState: { dudeSalt },
+  } = useContext(UserContext);
+
+  const _avatar = multiavatar(props.address.concat(dudeSalt));
   const _size = props.size.toString().concat('em');
   const _outerSize = (props.size + 0.5).toString().concat('em');
+
 
   return (
     <Avatar border={{ color: '#000' }} size={_outerSize || '2.5em'}>

@@ -83,7 +83,7 @@ function VaultSelector(target: any) {
         toggleModalOpen={() => setShowVaultModal(!showVaultModal)}
         background={selectedSeries?.color}
       >
-        <Vault />
+        <Vault close={() => setShowVaultModal(false)} />
       </ModalWrap>
 
       {allVaults.length > 0 && (

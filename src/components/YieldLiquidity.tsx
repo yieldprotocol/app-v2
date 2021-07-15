@@ -64,12 +64,10 @@ function YieldApr({ input }: IYieldApr) {
             </StyledText>
             <Box fill="vertical" justify="center">
               <StyledText size="small" color="brand">
-                {' '}
-                Pool{' '}
+                Pool
               </StyledText>
               <StyledText size="small" color="brand">
-                {' '}
-                Tokens{' '}
+                Tokens
               </StyledText>
             </Box>
           </Box>

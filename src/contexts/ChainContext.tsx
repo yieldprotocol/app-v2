@@ -4,12 +4,14 @@ import { useWeb3React } from '@web3-react/core';
 import { InjectedConnector } from '@web3-react/injected-connector';
 import { NetworkConnector } from '@web3-react/network-connector';
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector';
+
+import { format } from 'date-fns';
+
 import { useCachedState } from '../hooks';
 
 import * as yieldEnv from './yieldEnv.json';
 import * as contracts from '../contracts';
 import { IAssetRoot, ISeriesRoot } from '../types';
-import { Pool } from '../contracts';
 
 import { ETH_BASED_ASSETS } from '../utils/constants';
 import { nameFromMaturity, getSeason, SeasonType } from '../utils/appUtils';
@@ -21,6 +23,7 @@ import USDCMark from '../components/logos/USDCMark';
 import WBTCMark from '../components/logos/WBTCMark';
 import USDTMark from '../components/logos/USDTMark';
 import YieldMark from '../components/logos/YieldMark';
+
 
 const markMap = new Map([
   ['DAI', <DaiMark key="dai" />],
@@ -137,7 +140,7 @@ const ChainProvider = ({ children }: any) => {
   const [tried, setTried] = useState<boolean>(false);
 
   const primaryConnection = useWeb3React<ethers.providers.Web3Provider>();
-  const { connector, library, chainId, account, activate, deactivate, active, error } = primaryConnection;
+  const { connector, library, chainId, account, activate, deactivate, active } = primaryConnection;
 
   const fallbackConnection = useWeb3React<ethers.providers.JsonRpcProvider>('fallback');
   const {
@@ -182,6 +185,7 @@ const ChainProvider = ({ children }: any) => {
       (async () => {
         test = await fallbackLibrary.getBalance('0x885Bc35dC9B10EA39f2d7B3C94a7452a9ea442A7');
       })();
+
       console.log('Fallback ChainId: ', fallbackChainId);
       console.log('ChainId: ', chainId);
 
@@ -206,13 +210,13 @@ const ChainProvider = ({ children }: any) => {
               const ERC20 = contracts.ERC20Permit__factory.connect(address, fallbackLibrary);
               /* Add in any extra static asset Data */ // TODO is there any other fixed asset data needed?
               const [name, symbol] = await Promise.all([ERC20.name(), ERC20.symbol()]);
+              
               // TODO check if any other tokens have different versions. maybe abstract this logic somewhere?
-              const version = id === '0x555344430000' ? '2' : '1';
+              const version = (id === '0x555344430000' ? '2' : '1');
               // const version = ETH_BASED_ASSETS.includes(id) ? '1' : ERC20.version();
 
               /* watch for user specific ERC20 events, and update accordingly */
               // ERC20.on( {'Transfer' } , () => console.log('transfer occurred'));
-
               updateState({
                 type: 'addAsset',
                 payload: {
@@ -262,14 +266,11 @@ const ChainProvider = ({ children }: any) => {
               const { maturity } = await Cauldron.series(id);
 
               const poolAddress: string = poolMap.get(id) as string;
-              const poolContract: Pool = contracts.Pool__factory.connect(poolAddress, fallbackLibrary);
+              const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackLibrary);
               const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackLibrary);
 
               const season = getSeason(maturity) as SeasonType;
-              const oppSeason = (_season: SeasonType) => SeasonType.WINTER;
-              // if (season === SeasonType.WINTER) return SeasonType.SUMMER;
-              // if (season === SeasonType.SUMMER) return SeasonType.WINTER;
-              // if (season === SeasonType.FALL) return SeasonType.SPRING;
+              const oppSeason = (_season: SeasonType) => getSeason(maturity+ 15780000) as SeasonType;
 
               const [startColor, endColor, textColor]: string[] = yieldEnv.seasonColors[season];
               const [oppStartColor, oppEndColor, oppTextColor]: string[] = yieldEnv.seasonColors[oppSeason(season)];
@@ -288,6 +289,7 @@ const ChainProvider = ({ children }: any) => {
                   id,
                   baseId,
                   maturity,
+                  fullDate: format(new Date(maturity*1000), 'dd MMMM yyyy' ),
                   name,
                   symbol,
                   version,
@@ -309,6 +311,7 @@ const ChainProvider = ({ children }: any) => {
 
                   oppStartColor,
                   oppEndColor,
+                  oppTextColor,
                   seriesMark: <YieldMark start={startColor} end={endColor} />,
 
                   // built-in helper functions:

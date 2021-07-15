@@ -4,7 +4,7 @@ import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
 import { ICallData, IVault, SignType, ISeries, ActionCodes, IUserContext } from '../types';
 import { getTxCode, cleanValue } from '../utils/appUtils';
-import { ETH_BASED_ASSETS, ONE_WEI_BN } from '../utils/constants';
+import { DAI_BASED_ASSETS, ETH_BASED_ASSETS } from '../utils/constants';
 import { useChain } from './chainHooks';
 
 import { VAULT_OPS } from '../utils/operations';
@@ -88,7 +88,7 @@ export const useCollateralActions = () => {
     chainState: { account, contractMap },
   } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
-  const { selectedIlkId, selectedSeriesId, seriesMap, assetMap } = userState;
+  const { selectedBaseId, selectedIlkId, selectedSeriesId, seriesMap, assetMap } = userState;
   const { updateVaults, updateSeries } = userActions;
 
   const { sign, transact } = useChain();
@@ -137,6 +137,7 @@ export const useCollateralActions = () => {
     /* set the series and ilk based on if a vault has been selected or it's a new vault */
     const series = vault ? seriesMap.get(vault.seriesId) : seriesMap.get(selectedSeriesId);
     const ilk = vault ? assetMap.get(vault.ilkId) : assetMap.get(selectedIlkId);
+    const base = vault ? assetMap.get(vault.baseId) : assetMap.get(selectedBaseId);
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.ADD_COLLATERAL, vaultId);
 
@@ -145,14 +146,16 @@ export const useCollateralActions = () => {
 
     /* check if the ilk/asset is an eth asset variety, if so pour to Ladle */
     const _isEthBased = ETH_BASED_ASSETS.includes(ilk.id);
-    const _pourTo = ETH_BASED_ASSETS.includes(ilk.id) ? contractMap.get('Ladle').address : account;
+    const _isDaiBased = DAI_BASED_ASSETS.includes(base.id);
+
+    const _pourTo = _isEthBased ? contractMap.get('Ladle').address : account;
 
     /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
     const permits: ICallData[] = await sign(
       [
         {
           target: ilk,
-          type: SignType.ERC2612,
+          type: _isDaiBased ? SignType.DAI: SignType.ERC2612,
           spender: ilk.joinAddress,
           series,
           ignore: _isEthBased,
@@ -165,7 +168,7 @@ export const useCollateralActions = () => {
       /* If vault is null, build a new vault, else ignore */
       {
         operation: VAULT_OPS.BUILD,
-        args: [vaultId, selectedSeriesId, selectedIlkId],
+        args: [selectedSeriesId, selectedIlkId],
         series,
         ignore: !!vault,
       },

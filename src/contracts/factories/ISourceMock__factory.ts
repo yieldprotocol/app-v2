@@ -2,23 +2,23 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from 'ethers';
-import { Provider } from '@ethersproject/providers';
-import type { ISourceMock, ISourceMockInterface } from '../ISourceMock';
+import { Contract, Signer, utils } from "ethers";
+import { Provider } from "@ethersproject/providers";
+import type { ISourceMock, ISourceMockInterface } from "../ISourceMock";
 
 const _abi = [
   {
     inputs: [
       {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
       },
     ],
-    name: 'set',
+    name: "set",
     outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
+    stateMutability: "nonpayable",
+    type: "function",
   },
 ];
 
@@ -27,7 +27,10 @@ export class ISourceMock__factory {
   static createInterface(): ISourceMockInterface {
     return new utils.Interface(_abi) as ISourceMockInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): ISourceMock {
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): ISourceMock {
     return new Contract(address, _abi, signerOrProvider) as ISourceMock;
   }
 }

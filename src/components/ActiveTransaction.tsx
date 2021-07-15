@@ -1,8 +1,7 @@
-import { TransactionDescription } from 'ethers/lib/utils';
 import { Box, Text } from 'grommet';
 import React, { useContext, useEffect, useState } from 'react';
 import { BiWallet } from 'react-icons/bi';
-import { FiAlertTriangle, FiCheckCircle, FiClock, FiPenTool, FiX } from 'react-icons/fi';
+import { FiCheckCircle, FiClock, FiPenTool, FiX } from 'react-icons/fi';
 import { TxContext } from '../contexts/TxContext';
 import { TxState } from '../types';
 
@@ -10,16 +9,19 @@ function ActiveTransaction({
   txCode,
   size,
   children,
+  pad
 }: {
   txCode: string;
   children: React.ReactNode;
   size?: 'SMALL' | 'LARGE';
+  pad?: boolean;
 }) {
   // TODO consider name: TxPendingWrap
   const { txState } = useContext(TxContext);
 
-  const { signatures, transactions, processes, txPending, signPending } = txState;
+  const { signatures, transactions, processes } = txState;
 
+  const [process, setProcess] = useState<any>();
   const [sig, setSig] = useState<any>();
   const [tx, setTx] = useState<any>();
 
@@ -30,6 +32,10 @@ function ActiveTransaction({
     const _process = processes.get(txCode);
     _process && setTx(transactions.get(_process));
     _process && setSig(signatures.get(txCode));
+
+    console.log(sig);
+    console.log(tx);
+
   }, [processes, signatures, transactions, txCode]);
 
   useEffect(()=>{
@@ -45,10 +51,11 @@ function ActiveTransaction({
    * */
 
   return (
-    <>
+    <Box fill pad={pad? 'medium': undefined}>
       {!processes.get(txCode) && // CASE: no tx or signing activity
+        ( !sig || sig?.status===TxState.REJECTED || sig?.status===TxState.SUCCESSFUL )  &&
         !tx &&
-        !sig && <Box>{children}</Box>}
+        <Box>{children}</Box>}
 
       {processes.get(txCode) &&
         sig?.status === TxState.PENDING && ( // CASE: Signature/ approval required
@@ -90,7 +97,7 @@ function ActiveTransaction({
             <FiClock size={iconSize} />
             <Box>
               <Text size={textSize} >Transaction Pending...</Text>
-              <Text size="xsmall">Please check your wallet/provider.</Text>
+              <Text size="xsmall">{tx.transactionHash}</Text>
             </Box>
           </Box>
         )}
@@ -100,8 +107,8 @@ function ActiveTransaction({
           <Box direction="row" align="center" gap="medium" pad="medium">
             <FiClock size={iconSize} />
             <Box>
-              <Text size={textSize} >Approval Transaction complete</Text>
-              <Text size="xsmall">Please check your wallet/provider to confirm transaction.</Text>
+              <Text size={textSize} >Approval Transaction complete. </Text>
+              <Text size="xsmall">Please check your wallet/provider to confirm the next transaction.</Text>
             </Box>
           </Box>
         ) : (
@@ -123,10 +130,10 @@ function ActiveTransaction({
           </Box>
         </Box>
       )}
-    </>
+    </Box>
   );
 }
 
-ActiveTransaction.defaultProps = { size: 'SMALL' };
+ActiveTransaction.defaultProps = { size: 'SMALL', pad: false };
 
 export default ActiveTransaction;

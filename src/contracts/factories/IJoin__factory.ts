@@ -2,71 +2,71 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from 'ethers';
-import { Provider } from '@ethersproject/providers';
-import type { IJoin, IJoinInterface } from '../IJoin';
+import { Contract, Signer, utils } from "ethers";
+import { Provider } from "@ethersproject/providers";
+import type { IJoin, IJoinInterface } from "../IJoin";
 
 const _abi = [
   {
     inputs: [],
-    name: 'asset',
+    name: "asset",
     outputs: [
       {
-        internalType: 'address',
-        name: '',
-        type: 'address',
+        internalType: "address",
+        name: "",
+        type: "address",
       },
     ],
-    stateMutability: 'view',
-    type: 'function',
+    stateMutability: "view",
+    type: "function",
   },
   {
     inputs: [
       {
-        internalType: 'address',
-        name: 'user',
-        type: 'address',
+        internalType: "address",
+        name: "user",
+        type: "address",
       },
       {
-        internalType: 'uint128',
-        name: 'wad',
-        type: 'uint128',
+        internalType: "uint128",
+        name: "wad",
+        type: "uint128",
       },
     ],
-    name: 'exit',
+    name: "exit",
     outputs: [
       {
-        internalType: 'uint128',
-        name: '',
-        type: 'uint128',
+        internalType: "uint128",
+        name: "",
+        type: "uint128",
       },
     ],
-    stateMutability: 'nonpayable',
-    type: 'function',
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
     inputs: [
       {
-        internalType: 'address',
-        name: 'user',
-        type: 'address',
+        internalType: "address",
+        name: "user",
+        type: "address",
       },
       {
-        internalType: 'uint128',
-        name: 'wad',
-        type: 'uint128',
+        internalType: "uint128",
+        name: "wad",
+        type: "uint128",
       },
     ],
-    name: 'join',
+    name: "join",
     outputs: [
       {
-        internalType: 'uint128',
-        name: '',
-        type: 'uint128',
+        internalType: "uint128",
+        name: "",
+        type: "uint128",
       },
     ],
-    stateMutability: 'nonpayable',
-    type: 'function',
+    stateMutability: "nonpayable",
+    type: "function",
   },
 ];
 

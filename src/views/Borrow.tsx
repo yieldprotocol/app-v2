@@ -10,7 +10,7 @@ import SeriesSelector from '../components/selectors/SeriesSelector';
 import MainViewWrap from '../components/wraps/MainViewWrap';
 import AssetSelector from '../components/selectors/AssetSelector';
 import InputWrap from '../components/wraps/InputWrap';
-import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
+import ActionButtonWrap from '../components/wraps/ActionButtonWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
 
 import MaxButton from '../components/buttons/MaxButton';
@@ -36,6 +36,7 @@ import ReviewTxItem from '../components/ReviewTxItem';
 import NextButton from '../components/buttons/NextButton';
 import YieldMark from '../components/logos/YieldMark';
 import TransactButton from '../components/buttons/TransactButton';
+import { useApr } from '../hooks/aprHook';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -66,6 +67,7 @@ const Borrow = () => {
   const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
 
   const { borrow } = useBorrowActions();
+  const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
 
   const { collateralizationPercent, collateralizationWarning, undercollateralized } = useCollateralization(
     borrowInput,
@@ -107,12 +109,10 @@ const Borrow = () => {
   /* CHECK for any collateral input errors/warnings */
   useEffect(() => {
     if (activeAccount && (collatInput || collatInput === '')) {
-      /* 1. Check if input exceeds balance */
       if (maxCollat && parseFloat(collatInput) > parseFloat(maxCollat)) setCollatInputError('Amount exceeds balance');
-      /* 2. Check if input is above zero */ else if (parseFloat(collatInput) < 0)
-        setCollatInputError('Amount should be expressed as a positive value');
-      /* 3. next check */ else if (false) setCollatInputError('Undercollateralised');
-      /* if all checks pass, set null error message */ else {
+      else if (parseFloat(collatInput) < 0) setCollatInputError('Amount should be expressed as a positive value');
+      // else if (undercollateralized) setCollatInputError('Undercollateralised');
+      else {
         setCollatInputError(null);
       }
     }
@@ -127,11 +127,21 @@ const Borrow = () => {
     !selectedIlk ||
     undercollateralized ||
     borrowInputError ||
+    collatInputError ||
     selectedSeries?.seriesIsMature
       ? setBorrowDisabled(true)
       : /* else if all pass, then unlock borrowing */
         setBorrowDisabled(false);
-  }, [borrowInput, collatInput, selectedSeries, selectedIlk, activeAccount, borrowInputError, undercollateralized]);
+  }, [
+    borrowInput,
+    collatInput,
+    selectedSeries,
+    selectedIlk,
+    activeAccount,
+    borrowInputError,
+    collatInputError,
+    undercollateralized,
+  ]);
 
   /* ADD COLLATERAL DISABLING LOGIC */
 
@@ -157,15 +167,6 @@ const Borrow = () => {
     }
   }, [vaultMap, selectedBase, selectedIlk, selectedSeries]);
 
-  /* wathc to see if user wants to use an existing vault */
-  // useEffect(() => {
-  //   if (useExistingVault) {
-  //     setVaultIdToUse(matchingVaults[0]?.displayName);
-  //   } else {
-  //     setVaultIdToUse(undefined);
-  //   }
-  // }, [matchingVaults, useExistingVault]);
-
   return (
     <Keyboard onEsc={() => setCollatInput('')} onEnter={() => console.log('ENTER smashed')} target="document">
       <MainViewWrap>
@@ -185,7 +186,7 @@ const Borrow = () => {
         )}
 
         <CenterPanelWrap series={selectedSeries || undefined}>
-          <Box height="100%" pad="large">
+          <Box fill pad="large" gap="medium">
             {stepPosition === 0 && ( // INITIAL STEP
               <Box gap="medium">
                 <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
@@ -223,7 +224,7 @@ const Borrow = () => {
               <Box gap="large" fill>
                 <BackButton action={() => setStepPosition(0)} />
 
-                <Box gap="small">
+                <Box gap="large" height="400px">
                   <SectionWrap title="Amount of collateral to add">
                     <Box direction="row" gap="small" fill="horizontal" align="start">
                       <Box basis={mobile ? '50%' : '60%'}>
@@ -253,11 +254,12 @@ const Borrow = () => {
                     </Box>
                   </SectionWrap>
 
-                  <SectionWrap title="Add to an exisiting vault" disabled={matchingVaults.length < 1}>
+                  <SectionWrap title="Add to an exisiting vault" disabled={true || matchingVaults.length < 1}>
                     <Box fill round="xsmall" gap="small" justify="between" elevation="xsmall" animation="slideDown">
                       <Select
                         plain
-                        disabled={matchingVaults.length < 1}
+                        // disabled={matchingVaults.length < 1}
+                        disabled
                         options={matchingVaults.map((x: IVault) => x.id)}
                         placeholder="Create new vault"
                         value={vaultIdToUse || 'Create new vault'}
@@ -266,23 +268,23 @@ const Borrow = () => {
                       />
                     </Box>
                   </SectionWrap>
-                </Box>
 
-                <SectionWrap>
-                  <Box direction="row" gap="large" justify="center" fill>
-                    <Gauge value={parseFloat(collateralizationPercent!)} size="7em" />
-                    <Box basis="40%">
-                      <Text size="small"> Collateralization </Text>
-                      <Text size="xlarge">
-                        {' '}
-                        {parseFloat(collateralizationPercent!) > 10000
-                          ? nFormatter(parseFloat(collateralizationPercent!), 2)
-                          : parseFloat(collateralizationPercent!)}{' '}
-                        %{' '}
-                      </Text>
+                  <SectionWrap>
+                    <Box direction="row" gap="large" fill>
+                      <Gauge value={parseFloat(collateralizationPercent!)} size="5em" />
+                      <Box basis="40%">
+                        <Text size="small"> Collateralization </Text>
+                        <Text size="xlarge">
+                          {' '}
+                          {parseFloat(collateralizationPercent!) > 10000
+                            ? nFormatter(parseFloat(collateralizationPercent!), 2)
+                            : parseFloat(collateralizationPercent!)}{' '}
+                          %{' '}
+                        </Text>
+                      </Box>
                     </Box>
-                  </Box>
-                </SectionWrap>
+                  </SectionWrap>
+                </Box>
               </Box>
             )}
 
@@ -291,75 +293,98 @@ const Borrow = () => {
                 <BackButton action={() => setStepPosition(1)} />
 
                 <ActiveTransaction txCode={getTxCode(ActionCodes.BORROW, selectedSeriesId)} size="LARGE">
-                  <SectionWrap title="Review your transaction">
-                    <Box
-                      gap="small"
-                      pad={{ horizontal: 'large', vertical: 'medium' }}
-                      round="xsmall"
-                      animation={{ type: 'zoomIn', size: 'small' }}
-                    >
-                      <ReviewTxItem
-                        label="Amount to be Borrowed"
-                        icon={<FiPocket />}
-                        value={`${borrowInput} ${selectedBase?.symbol}`}
-                      />
-                      <ReviewTxItem
-                        label="Series Maturity"
-                        icon={<FiClock />}
-                        value={`${selectedSeries?.displayName}`}
-                      />
-                      {vaultIdToUse && (
-                        <ReviewTxItem label="Using Existing Vault" icon={<FiLayers />} value={`${vaultIdToUse}`} />
-                      )}
-                      <ReviewTxItem
-                        label="Vault Debt Payable @ Maturity"
-                        icon={<FiTrendingUp />}
-                        value={`${borrowInput} ${selectedBase?.symbol}`}
-                      />
-                      <ReviewTxItem label="Effective APR" icon={<FiPercent />} value={`${'do do get apr'}%`} />
-                      <ReviewTxItem
-                        label="Supporting Collateral"
-                        icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
-                        value={`${collatInput} ${selectedIlk?.symbol} (${collateralizationPercent} % )`}
-                      />
-                    </Box>
-                  </SectionWrap>
-
-                  <SectionWrap>
-                    <Box pad={{ vertical: 'small' }}>
-                      <CheckBox
-                        label={<Text size="xsmall"> disclaimer example: I understand the terms of transactions.</Text>}
-                      />
-                    </Box>
-                  </SectionWrap>
+                  <Box fill justify="between">
+                    <SectionWrap title="Review your transaction">
+                      <Box
+                        gap="small"
+                        pad={{ horizontal: 'large', vertical: 'medium' }}
+                        round="xsmall"
+                        animation={{ type: 'zoomIn', size: 'small' }}
+                      >
+                        <ReviewTxItem
+                          label="Amount to be Borrowed"
+                          icon={<FiPocket />}
+                          value={`${borrowInput} ${selectedBase?.symbol}`}
+                        />
+                        <ReviewTxItem
+                          label="Series Maturity"
+                          icon={<FiClock />}
+                          value={`${selectedSeries?.displayName}`}
+                        />
+                        {vaultIdToUse && (
+                          <ReviewTxItem label="Using Existing Vault" icon={<FiLayers />} value={`${vaultIdToUse}`} />
+                        )}
+                        <ReviewTxItem
+                          label="Vault Debt Payable @ Maturity"
+                          icon={<FiTrendingUp />}
+                          value={`${borrowInput} ${selectedBase?.symbol}`}
+                        />
+                        <ReviewTxItem label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
+                        <ReviewTxItem
+                          label="Supporting Collateral"
+                          icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
+                          value={`${collatInput} ${selectedIlk?.symbol} (${collateralizationPercent} % )`}
+                        />
+                      </Box>
+                    </SectionWrap>
+                  </Box>
                 </ActiveTransaction>
               </Box>
             )}
           </Box>
 
-          <ActionButtonGroup>
-            {(stepPosition === 0 || stepPosition === 1) && (
-              <NextButton
-                label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
-                onClick={() => setStepPosition(stepPosition + 1)}
-                disabled={stepPosition === 0 ? stepDisabled : borrowDisabled}
-              />
+          <Box>
+            {stepPosition === 1 && (
+              <SectionWrap>
+                {/* <Box pad={{ horizontal:'large' }} direction="row" gap="medium" fill>
+                  <Gauge value={parseFloat(collateralizationPercent!)} size="7em" />
+                  <Box basis="40%">
+                    <Text size="small"> Collateralization </Text>
+                    <Text size="xlarge">
+                      {' '}
+                      {parseFloat(collateralizationPercent!) > 10000
+                        ? nFormatter(parseFloat(collateralizationPercent!), 2)
+                        : parseFloat(collateralizationPercent!)}{' '}
+                      %{' '}
+                    </Text>
+                  </Box>
+                </Box> */}
+              </SectionWrap>
+            )}
+            {stepPosition === 2 && (
+              <SectionWrap>
+                <Box pad={{ horizontal: 'large', vertical: 'small' }}>
+                  <CheckBox
+                    label={<Text size="xsmall"> disclaimer example: I understand the terms of transactions.</Text>}
+                  />
+                </Box>
+              </SectionWrap>
             )}
 
-            {stepPosition === 2 && (
-              <TransactButton
-                primary
-                label={
-                  <Text size={mobile ? 'small' : undefined}>
-                    {' '}
-                    {`Borrow  ${borrowInput || ''} ${selectedBase?.symbol || ''}`}
-                  </Text>
-                }
-                onClick={() => handleBorrow()}
-                disabled={borrowDisabled}
-              />
-            )}
-          </ActionButtonGroup>
+            <ActionButtonWrap pad>
+              {(stepPosition === 0 || stepPosition === 1) && (
+                <NextButton
+                  label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
+                  onClick={() => setStepPosition(stepPosition + 1)}
+                  disabled={stepPosition === 0 ? stepDisabled : borrowDisabled}
+                />
+              )}
+
+              {stepPosition === 2 && (
+                <TransactButton
+                  primary
+                  label={
+                    <Text size={mobile ? 'small' : undefined}>
+                      {' '}
+                      {`Borrow  ${borrowInput || ''} ${selectedBase?.symbol || ''}`}
+                    </Text>
+                  }
+                  onClick={() => handleBorrow()}
+                  disabled={borrowDisabled}
+                />
+              )}
+            </ActionButtonWrap>
+          </Box>
         </CenterPanelWrap>
 
         <PanelWrap right basis="40%">

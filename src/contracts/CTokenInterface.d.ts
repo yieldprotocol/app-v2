@@ -13,26 +13,44 @@ import {
   ContractTransaction,
   Overrides,
   CallOverrides,
-} from 'ethers';
-import { BytesLike } from '@ethersproject/bytes';
-import { Listener, Provider } from '@ethersproject/providers';
-import { FunctionFragment, EventFragment, Result } from '@ethersproject/abi';
-import { TypedEventFilter, TypedEvent, TypedListener } from './commons';
+} from "ethers";
+import { BytesLike } from "@ethersproject/bytes";
+import { Listener, Provider } from "@ethersproject/providers";
+import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
+import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface CTokenInterfaceInterface extends ethers.utils.Interface {
   functions: {
-    'borrowIndex()': FunctionFragment;
-    'exchangeRateCurrent()': FunctionFragment;
-    'exchangeRateStored()': FunctionFragment;
+    "borrowIndex()": FunctionFragment;
+    "exchangeRateCurrent()": FunctionFragment;
+    "exchangeRateStored()": FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: 'borrowIndex', values?: undefined): string;
-  encodeFunctionData(functionFragment: 'exchangeRateCurrent', values?: undefined): string;
-  encodeFunctionData(functionFragment: 'exchangeRateStored', values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "borrowIndex",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "exchangeRateCurrent",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "exchangeRateStored",
+    values?: undefined
+  ): string;
 
-  decodeFunctionResult(functionFragment: 'borrowIndex', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'exchangeRateCurrent', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'exchangeRateStored', data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "borrowIndex",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "exchangeRateCurrent",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "exchangeRateStored",
+    data: BytesLike
+  ): Result;
 
   events: {};
 }
@@ -83,14 +101,18 @@ export class CTokenInterface extends BaseContract {
   functions: {
     borrowIndex(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    exchangeRateCurrent(overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
+    exchangeRateCurrent(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     exchangeRateStored(overrides?: CallOverrides): Promise<[BigNumber]>;
   };
 
   borrowIndex(overrides?: CallOverrides): Promise<BigNumber>;
 
-  exchangeRateCurrent(overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
+  exchangeRateCurrent(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   exchangeRateStored(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -107,7 +129,9 @@ export class CTokenInterface extends BaseContract {
   estimateGas: {
     borrowIndex(overrides?: CallOverrides): Promise<BigNumber>;
 
-    exchangeRateCurrent(overrides?: Overrides & { from?: string | Promise<string> }): Promise<BigNumber>;
+    exchangeRateCurrent(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     exchangeRateStored(overrides?: CallOverrides): Promise<BigNumber>;
   };
@@ -115,8 +139,12 @@ export class CTokenInterface extends BaseContract {
   populateTransaction: {
     borrowIndex(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    exchangeRateCurrent(overrides?: Overrides & { from?: string | Promise<string> }): Promise<PopulatedTransaction>;
+    exchangeRateCurrent(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
 
-    exchangeRateStored(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    exchangeRateStored(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
   };
 }

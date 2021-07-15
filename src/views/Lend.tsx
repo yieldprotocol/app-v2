@@ -29,6 +29,7 @@ import NextButton from '../components/buttons/NextButton';
 import ReviewTxItem from '../components/ReviewTxItem';
 import TransactButton from '../components/buttons/TransactButton';
 import YieldApr from '../components/YieldApr';
+import { useApr } from '../hooks/aprHook';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -48,6 +49,7 @@ const Lend = () => {
 
   /* HOOK FNS */
   const { lend, redeem } = useLendActions();
+  const { apr } = useApr(lendInput, ActionType.LEND, selectedSeries);
 
   /* LOCAL FNS */
   const handleLend = () => {
@@ -168,7 +170,7 @@ const Lend = () => {
                       icon={<FiTrendingUp />}
                       value={`${lendInput} ${selectedBase?.symbol}`}
                     />
-                    <ReviewTxItem label="Effective APR" icon={<FiPercent />} value={`${'to do get apr'}%`} />
+                    <ReviewTxItem label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
                   </Box>
                 </SectionWrap>
               </ActiveTransaction>
@@ -176,7 +178,7 @@ const Lend = () => {
           )}
         </Box>
 
-        <ActionButtonGroup>
+        <ActionButtonGroup pad>
           {stepPosition !== 1 && !selectedSeries?.seriesIsMature && (
             <NextButton
               secondary

@@ -40,7 +40,7 @@ const YieldSettings = ({ setConnectOpen, setSettingsOpen }: any) => {
           />
         </Box>
         <Box align="center" direction="row" gap="xsmall">
-          <YieldAvatar address={account.concat('y')} size={1.2} />
+          <YieldAvatar address={account} size={2} />
           <Text size="xlarge">{abbreviateHash(account)}</Text>
         </Box>
         <Box align="center" direction="row" gap="xsmall">

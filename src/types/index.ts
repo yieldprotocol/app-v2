@@ -30,6 +30,7 @@ export interface IUserContextState {
   selectedBaseId: string | null;
   selectedVaultId: string | null;
   approvalMethod: ApprovalType;
+  dudeSalt:string;
 }
 
 export interface IUserContextActions {
@@ -52,7 +53,7 @@ export interface ISeriesRoot {
   displayName: string;
   displayNameMobile: string;
   maturity: number;
-  maturityDate: Date;
+  fullDate: Date;
   fyTokenContract: FYToken;
   fyTokenAddress: string;
   poolContract: Pool;
@@ -125,6 +126,7 @@ export interface ISeries extends ISeriesRoot {
 }
 
 export interface IAsset extends IAssetRoot {
+  isYieldBase: boolean;
   balance: BigNumber;
   balance_: string;
 }
@@ -136,6 +138,8 @@ export interface IVault extends IVaultRoot {
   art_: string;
   price: BigNumber;
   price_: string;
+  min: BigNumber,
+  max: BigNumber,
 }
 
 export interface ICallData {
@@ -217,20 +221,52 @@ export enum ActionType {
 }
 
 export enum ActionCodes {
-  // Collateral
-  ADD_COLLATERAL = '000',
-  REMOVE_COLLATERAL = '010',
-  // Borrow
-  BORROW = '100',
-  REPAY = '110',
-  ROLL_DEBT = '120',
-  // Lend
-  LEND = '200',
-  CLOSE_POSITION = '210',
-  ROLL_POSITION = '220',
-  REDEEM = '230',
-  // Pool
-  ADD_LIQUIDITY = '300',
-  REMOVE_LIQUIDITY = '310',
-  ROLL_LIQUIDITY = '320',
+  // COLLATERAL
+  ADD_COLLATERAL = 'Add Collateral',
+  REMOVE_COLLATERAL = 'Remove Collateral',
+  // BORROW
+  BORROW = 'Borrow',
+  REPAY = 'Repay',
+  ROLL_DEBT = 'Roll Debt',
+  // LEND
+  LEND = 'Lend',
+  CLOSE_POSITION = 'Close Position',
+  ROLL_POSITION = 'Roll Position',
+  REDEEM = 'Redeem',
+  // POOL
+  ADD_LIQUIDITY = 'Add Liquidity',
+  REMOVE_LIQUIDITY = 'Remove Liquidity',
+  ROLL_LIQUIDITY = 'Roll Liquidity',
+  // VAULT
+  DELETE_VAULT= 'Delete Vault',
+  TRANSFER_VAULT= 'Transfer Vault'
 }
+
+export interface IHistItemBase {
+  blockNumber:number;
+  date:Date;
+  transactionHash: string;
+  maturity:number;
+  seriesId: string;
+  histType: ActionCodes;
+  date_: string;
+ }
+
+ export interface IHistItemVault extends IHistItemBase {
+  vaultId: string,
+  ilkId: string,
+  ink: BigNumber,
+  art: BigNumber,
+  ink_: String,
+  art_: String,
+}
+
+export interface IHistItemPosition extends IHistItemBase {
+  bases: BigNumber,
+  fyTokens:  BigNumber,
+  bases_: string,
+  fyTokens_: string,
+  poolTokens?: BigNumber,
+  poolTokens_?: string,
+}
+

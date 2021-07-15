@@ -54,8 +54,11 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
 
   /* update options on any changes */
   useEffect(() => {
-    const opts = Array.from(assetMap.values()) as IAssetRoot[];
-    const filteredOptions = selectCollateral ? opts.filter((a: IAssetRoot) => a.id !== selectedBaseId) : opts;
+    const opts = Array.from(assetMap.values()) as IAsset[];
+    const filteredOptions = 
+      selectCollateral ? 
+      opts.filter((a: IAsset) => a.id !== selectedBaseId) 
+      : opts.filter((a: IAsset) => a.isYieldBase );
     setOptions(filteredOptions);
   }, [assetMap, selectCollateral, selectedSeriesId, selectedBaseId]);
 
@@ -97,12 +100,18 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
           </Box>
         }
         onChange={({ option }: any) => handleSelect(option)}
-        disabled={selectCollateral && (selectedSeries?.mature || !selectedSeries)}
+        disabled={
+          selectCollateral ? selectedSeries?.mature || !selectedSeries : null // [ ]
+          // ( options.map((x:any, i:number) => {
+          //   if (x.isYieldBase) { return i }
+          //   return null
+          // }
+          // ).filter( (x:number|null) => { console.log(x); return isNull(x) } )
+        }
         // eslint-disable-next-line react/no-children-prop
         children={(x: any) => (
           <Box pad={mobile ? 'medium' : 'small'} gap="xsmall" direction="row">
-            {' '}
-            <Text color="text"> {optionText(x)} </Text>{' '}
+            <Text color="text"> {optionText(x)} </Text>
           </Box>
         )}
       />

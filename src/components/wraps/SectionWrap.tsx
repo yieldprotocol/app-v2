@@ -9,10 +9,11 @@ interface ISectionWrap {
   border?: BorderType | undefined;
   disabled?: boolean;
   collapsible?: boolean;
+  rightAction?: any;
   children: any;
 }
 
-function SectionWrap({ title, subtitle, border, disabled, collapsible, children }: ISectionWrap) {
+function SectionWrap({ title, subtitle, border, disabled, collapsible, children, rightAction }: ISectionWrap) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const [open, setOpen] = useState<boolean>(false);
 
@@ -25,12 +26,13 @@ function SectionWrap({ title, subtitle, border, disabled, collapsible, children 
           fill="horizontal"
           justify="between"
           onClick={() => collapsible && setOpen(!open)}
+          align='center'
         >
           <AltText size={mobile ? 'small' : 'small'} color={disabled ? 'text-xweak' : 'text-weak'}>
-            {' '}
-            {title}{' '}
+            {title}
           </AltText>
           {collapsible && <Box> {open ? 'close' : 'open'} </Box>}
+          {rightAction}
         </Box>
       )}
       {collapsible ? <Collapsible open={open}> {children} </Collapsible> : children}
@@ -38,5 +40,12 @@ function SectionWrap({ title, subtitle, border, disabled, collapsible, children 
   );
 }
 
-SectionWrap.defaultProps = { title: null, subtitle: null, border: undefined, disabled: false, collapsible: false };
+SectionWrap.defaultProps = { 
+    title: null, 
+    subtitle: null, 
+    border: undefined, 
+    disabled: false, 
+    collapsible: false, 
+    rightAction:undefined 
+};
 export default SectionWrap;

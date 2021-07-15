@@ -2,48 +2,70 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from 'ethers';
-import { Provider } from '@ethersproject/providers';
-import type { SafeERC20Namer, SafeERC20NamerInterface } from '../SafeERC20Namer';
+import { Contract, Signer, utils } from "ethers";
+import { Provider } from "@ethersproject/providers";
+import type {
+  SafeERC20Namer,
+  SafeERC20NamerInterface,
+} from "../SafeERC20Namer";
 
 const _abi = [
   {
     inputs: [
       {
-        internalType: 'address',
-        name: 'token',
-        type: 'address',
+        internalType: "address",
+        name: "token",
+        type: "address",
       },
     ],
-    name: 'tokenName',
+    name: "tokenDecimals",
     outputs: [
       {
-        internalType: 'string',
-        name: '',
-        type: 'string',
+        internalType: "uint8",
+        name: "",
+        type: "uint8",
       },
     ],
-    stateMutability: 'view',
-    type: 'function',
+    stateMutability: "view",
+    type: "function",
   },
   {
     inputs: [
       {
-        internalType: 'address',
-        name: 'token',
-        type: 'address',
+        internalType: "address",
+        name: "token",
+        type: "address",
       },
     ],
-    name: 'tokenSymbol',
+    name: "tokenName",
     outputs: [
       {
-        internalType: 'string',
-        name: '',
-        type: 'string',
+        internalType: "string",
+        name: "",
+        type: "string",
       },
     ],
-    stateMutability: 'view',
-    type: 'function',
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "token",
+        type: "address",
+      },
+    ],
+    name: "tokenSymbol",
+    outputs: [
+      {
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
   },
 ];
 
@@ -52,7 +74,10 @@ export class SafeERC20Namer__factory {
   static createInterface(): SafeERC20NamerInterface {
     return new utils.Interface(_abi) as SafeERC20NamerInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): SafeERC20Namer {
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): SafeERC20Namer {
     return new Contract(address, _abi, signerOrProvider) as SafeERC20Namer;
   }
 }

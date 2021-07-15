@@ -2,475 +2,568 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from 'ethers';
-import { Provider } from '@ethersproject/providers';
-import type { Witch, WitchInterface } from '../Witch';
+import { Contract, Signer, utils } from "ethers";
+import { Provider } from "@ethersproject/providers";
+import type { Witch, WitchInterface } from "../Witch";
 
 const _abi = [
   {
     inputs: [
       {
-        internalType: 'contract ICauldron',
-        name: 'cauldron_',
-        type: 'address',
+        internalType: "contract ICauldron",
+        name: "cauldron_",
+        type: "address",
       },
       {
-        internalType: 'contract ILadle',
-        name: 'ladle_',
-        type: 'address',
+        internalType: "contract ILadle",
+        name: "ladle_",
+        type: "address",
       },
     ],
-    stateMutability: 'nonpayable',
-    type: 'constructor',
+    stateMutability: "nonpayable",
+    type: "constructor",
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        internalType: 'uint128',
-        name: 'auctionTime',
-        type: 'uint128',
+        internalType: "bytes12",
+        name: "vaultId",
+        type: "bytes12",
+      },
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "start",
+        type: "uint256",
       },
     ],
-    name: 'AuctionTimeSet',
-    type: 'event',
+    name: "Auctioned",
+    type: "event",
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        internalType: 'bytes12',
-        name: 'vaultId',
-        type: 'bytes12',
+        internalType: "bytes12",
+        name: "vaultId",
+        type: "bytes12",
       },
       {
         indexed: true,
-        internalType: 'address',
-        name: 'buyer',
-        type: 'address',
+        internalType: "address",
+        name: "buyer",
+        type: "address",
       },
       {
         indexed: false,
-        internalType: 'uint256',
-        name: 'ink',
-        type: 'uint256',
+        internalType: "uint256",
+        name: "ink",
+        type: "uint256",
       },
       {
         indexed: false,
-        internalType: 'uint256',
-        name: 'art',
-        type: 'uint256',
+        internalType: "uint256",
+        name: "art",
+        type: "uint256",
       },
     ],
-    name: 'Bought',
-    type: 'event',
+    name: "Bought",
+    type: "event",
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        internalType: 'uint128',
-        name: 'initialProportion',
-        type: 'uint128',
+        internalType: "uint32",
+        name: "duration",
+        type: "uint32",
       },
     ],
-    name: 'InitialProportionSet',
-    type: 'event',
+    name: "DurationSet",
+    type: "event",
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        internalType: 'bytes4',
-        name: 'role',
-        type: 'bytes4',
-      },
-      {
-        indexed: true,
-        internalType: 'bytes4',
-        name: 'newAdminRole',
-        type: 'bytes4',
+        internalType: "uint128",
+        name: "dust",
+        type: "uint128",
       },
     ],
-    name: 'RoleAdminChanged',
-    type: 'event',
+    name: "DustSet",
+    type: "event",
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        internalType: 'bytes4',
-        name: 'role',
-        type: 'bytes4',
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'account',
-        type: 'address',
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'sender',
-        type: 'address',
+        internalType: "uint64",
+        name: "initialOffer",
+        type: "uint64",
       },
     ],
-    name: 'RoleGranted',
-    type: 'event',
+    name: "InitialOfferSet",
+    type: "event",
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        internalType: 'bytes4',
-        name: 'role',
-        type: 'bytes4',
+        internalType: "bytes4",
+        name: "role",
+        type: "bytes4",
       },
       {
         indexed: true,
-        internalType: 'address',
-        name: 'account',
-        type: 'address',
+        internalType: "bytes4",
+        name: "newAdminRole",
+        type: "bytes4",
+      },
+    ],
+    name: "RoleAdminChanged",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes4",
+        name: "role",
+        type: "bytes4",
       },
       {
         indexed: true,
-        internalType: 'address',
-        name: 'sender',
-        type: 'address',
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "sender",
+        type: "address",
       },
     ],
-    name: 'RoleRevoked',
-    type: 'event',
+    name: "RoleGranted",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes4",
+        name: "role",
+        type: "bytes4",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "sender",
+        type: "address",
+      },
+    ],
+    name: "RoleRevoked",
+    type: "event",
   },
   {
     inputs: [],
-    name: 'LOCK',
+    name: "LOCK",
     outputs: [
       {
-        internalType: 'bytes4',
-        name: '',
-        type: 'bytes4',
+        internalType: "bytes4",
+        name: "",
+        type: "bytes4",
       },
     ],
-    stateMutability: 'view',
-    type: 'function',
+    stateMutability: "view",
+    type: "function",
   },
   {
     inputs: [],
-    name: 'ROOT',
+    name: "ROOT",
     outputs: [
       {
-        internalType: 'bytes4',
-        name: '',
-        type: 'bytes4',
+        internalType: "bytes4",
+        name: "",
+        type: "bytes4",
       },
     ],
-    stateMutability: 'view',
-    type: 'function',
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes12",
+        name: "vaultId",
+        type: "bytes12",
+      },
+    ],
+    name: "auction",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes12",
+        name: "",
+        type: "bytes12",
+      },
+    ],
+    name: "auctions",
+    outputs: [
+      {
+        internalType: "address",
+        name: "owner",
+        type: "address",
+      },
+      {
+        internalType: "uint32",
+        name: "start",
+        type: "uint32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes12",
+        name: "vaultId",
+        type: "bytes12",
+      },
+      {
+        internalType: "uint128",
+        name: "base",
+        type: "uint128",
+      },
+      {
+        internalType: "uint128",
+        name: "min",
+        type: "uint128",
+      },
+    ],
+    name: "buy",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "ink",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
     inputs: [],
-    name: 'auctionTime',
+    name: "cauldron",
     outputs: [
       {
-        internalType: 'uint128',
-        name: '',
-        type: 'uint128',
+        internalType: "contract ICauldron",
+        name: "",
+        type: "address",
       },
     ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'bytes12',
-        name: 'vaultId',
-        type: 'bytes12',
-      },
-      {
-        internalType: 'uint128',
-        name: 'art',
-        type: 'uint128',
-      },
-      {
-        internalType: 'uint128',
-        name: 'min',
-        type: 'uint128',
-      },
-    ],
-    name: 'buy',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
+    stateMutability: "view",
+    type: "function",
   },
   {
     inputs: [],
-    name: 'cauldron',
+    name: "duration",
     outputs: [
       {
-        internalType: 'contract ICauldron',
-        name: '',
-        type: 'address',
+        internalType: "uint32",
+        name: "",
+        type: "uint32",
       },
     ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'bytes4',
-        name: 'role',
-        type: 'bytes4',
-      },
-    ],
-    name: 'getRoleAdmin',
-    outputs: [
-      {
-        internalType: 'bytes4',
-        name: '',
-        type: 'bytes4',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'bytes12',
-        name: 'vaultId',
-        type: 'bytes12',
-      },
-    ],
-    name: 'grab',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'bytes4',
-        name: 'role',
-        type: 'bytes4',
-      },
-      {
-        internalType: 'address',
-        name: 'account',
-        type: 'address',
-      },
-    ],
-    name: 'grantRole',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'bytes4[]',
-        name: 'roles',
-        type: 'bytes4[]',
-      },
-      {
-        internalType: 'address',
-        name: 'account',
-        type: 'address',
-      },
-    ],
-    name: 'grantRoles',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'bytes4',
-        name: 'role',
-        type: 'bytes4',
-      },
-      {
-        internalType: 'address',
-        name: 'account',
-        type: 'address',
-      },
-    ],
-    name: 'hasRole',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
+    stateMutability: "view",
+    type: "function",
   },
   {
     inputs: [],
-    name: 'initialProportion',
+    name: "dust",
     outputs: [
       {
-        internalType: 'uint128',
-        name: '',
-        type: 'uint128',
+        internalType: "uint128",
+        name: "",
+        type: "uint128",
       },
     ],
-    stateMutability: 'view',
-    type: 'function',
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes4",
+        name: "role",
+        type: "bytes4",
+      },
+    ],
+    name: "getRoleAdmin",
+    outputs: [
+      {
+        internalType: "bytes4",
+        name: "",
+        type: "bytes4",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes4",
+        name: "role",
+        type: "bytes4",
+      },
+      {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+    ],
+    name: "grantRole",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes4[]",
+        name: "roles",
+        type: "bytes4[]",
+      },
+      {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+    ],
+    name: "grantRoles",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes4",
+        name: "role",
+        type: "bytes4",
+      },
+      {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+    ],
+    name: "hasRole",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
   },
   {
     inputs: [],
-    name: 'ladle',
+    name: "initialOffer",
     outputs: [
       {
-        internalType: 'contract ILadle',
-        name: '',
-        type: 'address',
+        internalType: "uint64",
+        name: "",
+        type: "uint64",
       },
     ],
-    stateMutability: 'view',
-    type: 'function',
+    stateMutability: "view",
+    type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: 'bytes4',
-        name: 'role',
-        type: 'bytes4',
-      },
-    ],
-    name: 'lockRole',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'bytes4',
-        name: 'role',
-        type: 'bytes4',
-      },
-      {
-        internalType: 'address',
-        name: 'account',
-        type: 'address',
-      },
-    ],
-    name: 'renounceRole',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'bytes4',
-        name: 'role',
-        type: 'bytes4',
-      },
-      {
-        internalType: 'address',
-        name: 'account',
-        type: 'address',
-      },
-    ],
-    name: 'revokeRole',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'bytes4[]',
-        name: 'roles',
-        type: 'bytes4[]',
-      },
-      {
-        internalType: 'address',
-        name: 'account',
-        type: 'address',
-      },
-    ],
-    name: 'revokeRoles',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint128',
-        name: 'auctionTime_',
-        type: 'uint128',
-      },
-    ],
-    name: 'setAuctionTime',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint128',
-        name: 'initialProportion_',
-        type: 'uint128',
-      },
-    ],
-    name: 'setInitialProportion',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'bytes4',
-        name: 'role',
-        type: 'bytes4',
-      },
-      {
-        internalType: 'bytes4',
-        name: 'adminRole',
-        type: 'bytes4',
-      },
-    ],
-    name: 'setRoleAdmin',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'bytes12',
-        name: '',
-        type: 'bytes12',
-      },
-    ],
-    name: 'vaultOwners',
+    inputs: [],
+    name: "ladle",
     outputs: [
       {
-        internalType: 'address',
-        name: '',
-        type: 'address',
+        internalType: "contract ILadle",
+        name: "",
+        type: "address",
       },
     ],
-    stateMutability: 'view',
-    type: 'function',
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes4",
+        name: "role",
+        type: "bytes4",
+      },
+    ],
+    name: "lockRole",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes12",
+        name: "vaultId",
+        type: "bytes12",
+      },
+      {
+        internalType: "uint128",
+        name: "min",
+        type: "uint128",
+      },
+    ],
+    name: "payAll",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "ink",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes4",
+        name: "role",
+        type: "bytes4",
+      },
+      {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+    ],
+    name: "renounceRole",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes4",
+        name: "role",
+        type: "bytes4",
+      },
+      {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+    ],
+    name: "revokeRole",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes4[]",
+        name: "roles",
+        type: "bytes4[]",
+      },
+      {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+    ],
+    name: "revokeRoles",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint32",
+        name: "duration_",
+        type: "uint32",
+      },
+    ],
+    name: "setDuration",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint128",
+        name: "dust_",
+        type: "uint128",
+      },
+    ],
+    name: "setDust",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint64",
+        name: "initialOffer_",
+        type: "uint64",
+      },
+    ],
+    name: "setInitialOffer",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes4",
+        name: "role",
+        type: "bytes4",
+      },
+      {
+        internalType: "bytes4",
+        name: "adminRole",
+        type: "bytes4",
+      },
+    ],
+    name: "setRoleAdmin",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
 ];
 

@@ -45,6 +45,7 @@ const initState: IUserContextState = {
 
   /* User Settings */
   approvalMethod: ApprovalType.SIG,
+  dudeSalt: 'DudeSalt'
 };
 
 const vaultNameConfig: Config = {
@@ -170,8 +171,14 @@ const UserProvider = ({ children }: any) => {
         _accountData = await Promise.all(
           _publicData.map(async (asset: IAssetRoot): Promise<IAsset> => {
             const balance = await asset.getBalance(account);
+            
+            const isYieldBase = 
+              !!Array.from(seriesRootMap.values())
+              .find( (x:any) => x.baseId === asset.id ) ;
+              
             return {
               ...asset,
+              isYieldBase,
               balance: balance || ethers.constants.Zero,
               balance_: balance
                 ? cleanValue(ethers.utils.formatEther(balance), 2)
@@ -204,7 +211,7 @@ const UserProvider = ({ children }: any) => {
       const _priceMap = userState.priceMap;
       const _basePriceMap = _priceMap.get(base) || new Map<string, any>();
       const Oracle = contractMap.get('ChainlinkOracle');
-      const [price] = await Oracle.get(bytesToBytes32(base, 6), bytesToBytes32(ilk, 6), ONE_WEI_BN);
+      const [price] = await Oracle.peek(bytesToBytes32(base, 6), bytesToBytes32(ilk, 6), ONE_WEI_BN);
       _basePriceMap.set(ilk, price);
       _priceMap.set(base, _basePriceMap);
       updateState({ type: 'priceMap', payload: _priceMap });
@@ -308,9 +315,10 @@ const UserProvider = ({ children }: any) => {
       const vaultListMod = await Promise.all(
         _vaultList.map(async (vault: IVaultRoot): Promise<IVault> => {
           /* update balance and series  ( series - because a vault can have been rolled to another series) */
-          const [{ ink, art }, { seriesId }, price] = await Promise.all([
+          const [{ ink, art }, { seriesId }, { min, max }, price] = await Promise.all([
             await Cauldron.balances(vault.id),
             await Cauldron.vaults(vault.id),
+            await Cauldron.debt(vault.baseId, vault.ilkId),
             await updatePrice(vault.baseId, vault.ilkId),
           ]);
 
@@ -323,6 +331,8 @@ const UserProvider = ({ children }: any) => {
             art_: cleanValue(ethers.utils.formatEther(art), 2), // for display purposes only
             price,
             price_: cleanValue(ethers.utils.formatEther(price), 2),
+            min, 
+            max
           };
         })
       );
@@ -333,7 +343,7 @@ const UserProvider = ({ children }: any) => {
           const _map = acc;
           _map.set(item.id, item);
           return _map;
-        }, new Map())
+        }, userState.vaultMap)
       );
 
       updateState({ type: 'vaultMap', payload: newVaultMap });
@@ -371,7 +381,7 @@ const UserProvider = ({ children }: any) => {
       seriesRootMap &&
       (async () => {
         const Oracle = contractMap.get('ChainlinkOracle');
-        const filter = Oracle.filters.SourceSet(null, null, null);
+        // const filter = Oracle.filters.SourceSet(null, null, null);
         // const eventList = await Oracle.queryFilter(filter, 1);
         // console.log('Oracle events: ', eventList);
       })();

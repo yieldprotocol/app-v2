@@ -2,108 +2,80 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from 'ethers';
-import { Provider } from '@ethersproject/providers';
-import type { PoolRouter, PoolRouterInterface } from '../PoolRouter';
+import { Contract, Signer, utils } from "ethers";
+import { Provider } from "@ethersproject/providers";
+import type { PoolRouter, PoolRouterInterface } from "../PoolRouter";
 
 const _abi = [
   {
     inputs: [
       {
-        internalType: 'contract IPoolFactory',
-        name: 'factory_',
-        type: 'address',
+        internalType: "contract IPoolFactory",
+        name: "factory_",
+        type: "address",
       },
       {
-        internalType: 'contract IWETH9',
-        name: 'weth_',
-        type: 'address',
+        internalType: "contract IWETH9",
+        name: "weth_",
+        type: "address",
       },
     ],
-    stateMutability: 'nonpayable',
-    type: 'constructor',
+    stateMutability: "nonpayable",
+    type: "constructor",
   },
   {
     inputs: [
       {
-        internalType: 'enum PoolDataTypes.Operation[]',
-        name: 'operations',
-        type: 'uint8[]',
+        internalType: "enum PoolDataTypes.Operation[]",
+        name: "operations",
+        type: "uint8[]",
       },
       {
-        internalType: 'bytes[]',
-        name: 'data',
-        type: 'bytes[]',
+        internalType: "bytes[]",
+        name: "data",
+        type: "bytes[]",
       },
     ],
-    name: 'batch',
-    outputs: [],
-    stateMutability: 'payable',
-    type: 'function',
+    name: "batch",
+    outputs: [
+      {
+        internalType: "bytes[]",
+        name: "results",
+        type: "bytes[]",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
   },
   {
     inputs: [],
-    name: 'factory',
+    name: "factory",
     outputs: [
       {
-        internalType: 'contract IPoolFactory',
-        name: '',
-        type: 'address',
+        internalType: "contract IPoolFactory",
+        name: "",
+        type: "address",
       },
     ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: 'base',
-        type: 'address',
-      },
-      {
-        internalType: 'address',
-        name: 'fyToken',
-        type: 'address',
-      },
-      {
-        internalType: 'address',
-        name: 'token',
-        type: 'address',
-      },
-      {
-        internalType: 'uint128',
-        name: 'wad',
-        type: 'uint128',
-      },
-    ],
-    name: 'transferToPool',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
-      },
-    ],
-    stateMutability: 'payable',
-    type: 'function',
+    stateMutability: "view",
+    type: "function",
   },
   {
     inputs: [],
-    name: 'weth',
+    name: "weth",
     outputs: [
       {
-        internalType: 'contract IWETH9',
-        name: '',
-        type: 'address',
+        internalType: "contract IWETH9",
+        name: "",
+        type: "address",
       },
     ],
-    stateMutability: 'view',
-    type: 'function',
+    stateMutability: "view",
+    type: "function",
   },
   {
-    stateMutability: 'payable',
-    type: 'receive',
+    stateMutability: "payable",
+    type: "receive",
   },
 ];
 
@@ -112,7 +84,10 @@ export class PoolRouter__factory {
   static createInterface(): PoolRouterInterface {
     return new utils.Interface(_abi) as PoolRouterInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): PoolRouter {
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): PoolRouter {
     return new Contract(address, _abi, signerOrProvider) as PoolRouter;
   }
 }

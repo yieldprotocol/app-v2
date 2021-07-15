@@ -13,26 +13,38 @@ import {
   ContractTransaction,
   Overrides,
   CallOverrides,
-} from 'ethers';
-import { BytesLike } from '@ethersproject/bytes';
-import { Listener, Provider } from '@ethersproject/providers';
-import { FunctionFragment, EventFragment, Result } from '@ethersproject/abi';
-import { TypedEventFilter, TypedEvent, TypedListener } from './commons';
+} from "ethers";
+import { BytesLike } from "@ethersproject/bytes";
+import { Listener, Provider } from "@ethersproject/providers";
+import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
+import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface IERC3156FlashLenderInterface extends ethers.utils.Interface {
   functions: {
-    'flashFee(address,uint256)': FunctionFragment;
-    'flashLoan(address,address,uint256,bytes)': FunctionFragment;
-    'maxFlashLoan(address)': FunctionFragment;
+    "flashFee(address,uint256)": FunctionFragment;
+    "flashLoan(address,address,uint256,bytes)": FunctionFragment;
+    "maxFlashLoan(address)": FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: 'flashFee', values: [string, BigNumberish]): string;
-  encodeFunctionData(functionFragment: 'flashLoan', values: [string, string, BigNumberish, BytesLike]): string;
-  encodeFunctionData(functionFragment: 'maxFlashLoan', values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "flashFee",
+    values: [string, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "flashLoan",
+    values: [string, string, BigNumberish, BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "maxFlashLoan",
+    values: [string]
+  ): string;
 
-  decodeFunctionResult(functionFragment: 'flashFee', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'flashLoan', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'maxFlashLoan', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "flashFee", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "flashLoan", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "maxFlashLoan",
+    data: BytesLike
+  ): Result;
 
   events: {};
 }
@@ -81,7 +93,11 @@ export class IERC3156FlashLender extends BaseContract {
   interface: IERC3156FlashLenderInterface;
 
   functions: {
-    flashFee(token: string, amount: BigNumberish, overrides?: CallOverrides): Promise<[BigNumber]>;
+    flashFee(
+      token: string,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     flashLoan(
       receiver: string,
@@ -91,10 +107,17 @@ export class IERC3156FlashLender extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    maxFlashLoan(token: string, overrides?: CallOverrides): Promise<[BigNumber]>;
+    maxFlashLoan(
+      token: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
   };
 
-  flashFee(token: string, amount: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
+  flashFee(
+    token: string,
+    amount: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   flashLoan(
     receiver: string,
@@ -107,7 +130,11 @@ export class IERC3156FlashLender extends BaseContract {
   maxFlashLoan(token: string, overrides?: CallOverrides): Promise<BigNumber>;
 
   callStatic: {
-    flashFee(token: string, amount: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
+    flashFee(
+      token: string,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     flashLoan(
       receiver: string,
@@ -123,7 +150,11 @@ export class IERC3156FlashLender extends BaseContract {
   filters: {};
 
   estimateGas: {
-    flashFee(token: string, amount: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
+    flashFee(
+      token: string,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     flashLoan(
       receiver: string,
@@ -137,7 +168,11 @@ export class IERC3156FlashLender extends BaseContract {
   };
 
   populateTransaction: {
-    flashFee(token: string, amount: BigNumberish, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    flashFee(
+      token: string,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     flashLoan(
       receiver: string,
@@ -147,6 +182,9 @@ export class IERC3156FlashLender extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    maxFlashLoan(token: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    maxFlashLoan(
+      token: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
   };
 }

@@ -5,16 +5,24 @@ import { FiCircle, FiMenu, FiSettings } from 'react-icons/fi';
 import YieldBalances from './YieldBalances';
 
 import { ChainContext } from '../contexts/ChainContext';
+import { TxContext } from '../contexts/TxContext';
+
 import { abbreviateHash } from '../utils/appUtils';
 import YieldAvatar from './YieldAvatar';
 import YieldSettings from './YieldSettings';
 import Connect from './Connect';
+import { TxState } from '../types';
+import TransactionWidget from './TransactionWidget';
 
 const YieldAccount = (props: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
     chainState: { account },
   } = useContext(ChainContext);
+
+  const {
+    txState: { sigPending, txPending, processPending },
+  } = useContext(TxContext);
 
   const [settingsOpen, setSettingsOpen] = useState<boolean>();
   const [connectOpen, setConnectOpen] = useState<boolean>();
@@ -34,12 +42,8 @@ const YieldAccount = (props: any) => {
       )}
 
       {account ? (
-        <Box direction="row" fill="vertical" gap="xsmall">
-          {!mobile && (
-            <>
-              <YieldBalances />
-            </>
-          )}
+        <Box direction="row" fill="vertical" gap="xsmall" >
+          {!mobile && <>{processPending ? <TransactionWidget /> : <YieldBalances />}</>}
           <Box round="xsmall" onClick={() => setSettingsOpen(true)} pad="small" justify="center">
             {mobile ? (
               <Text size="small" color="text">
@@ -54,9 +58,10 @@ const YieldAccount = (props: any) => {
                   <Text size="xsmall" color="text-weak">
                     <FiCircle color="#00C781" size=".5rem" /> Connected
                   </Text>
+
                 </Box>
                 <Box>
-                  <YieldAvatar address={account.concat('y')} size={2.5} />
+                  <YieldAvatar address={account} size={2.5} />
                 </Box>
               </Box>
             )}

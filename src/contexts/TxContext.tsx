@@ -66,12 +66,14 @@ function txReducer(_state: any, action: any) {
         // !(_state.processes.indexOf(action.payload) > -1)
         //   ? [..._state.processes, action.payload]
         //   : _state.processes,
+        processPending: true,
       };
     case '_endProcess':
       return {
         ..._state,
         processes: _removeProcess(action.payload),
         // _state.processes.filter((x:any) => x.txCode === action.payload),
+        processPending: false,
       };
 
     /* optionally remove these and use the logic at the compoennts?  - check refreshes */
@@ -229,13 +231,13 @@ const TxProvider = ({ children }: any) => {
     return _sig;
   };
 
-  /* Process watcher sets the 'any process pending'flag */
-  useEffect(() => {
-    console.log('Process list: ', txState.processes);
-    Array.from(txState.processes.values()).length > 0
-      ? updateState({ type: 'processPending', payload: true })
-      : updateState({ type: 'processPending', payload: false });
-  }, [txState.processes]);
+  // /* Process watcher sets the 'any process pending'flag */
+  // useEffect(() => {
+  //   console.log('Process list: ', txState.processes);
+  //   Array.from(txState.processes.values()).length > 0
+  //     ? updateState({ type: 'processPending', payload: true })
+  //     : updateState({ type: 'processPending', payload: false });
+  // }, [txState.processes]);
 
   /* Signing watcher */
   useEffect(() => {

@@ -2,38 +2,38 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from 'ethers';
-import { Provider } from '@ethersproject/providers';
-import type { ILadle, ILadleInterface } from '../ILadle';
+import { Contract, Signer, utils } from "ethers";
+import { Provider } from "@ethersproject/providers";
+import type { ILadle, ILadleInterface } from "../ILadle";
 
 const _abi = [
   {
     inputs: [
       {
-        internalType: 'bytes12',
-        name: 'vaultId',
-        type: 'bytes12',
+        internalType: "bytes12",
+        name: "vaultId",
+        type: "bytes12",
       },
       {
-        internalType: 'address',
-        name: 'user',
-        type: 'address',
+        internalType: "address",
+        name: "user",
+        type: "address",
       },
       {
-        internalType: 'uint128',
-        name: 'ink',
-        type: 'uint128',
+        internalType: "uint128",
+        name: "ink",
+        type: "uint128",
       },
       {
-        internalType: 'uint128',
-        name: 'art',
-        type: 'uint128',
+        internalType: "uint128",
+        name: "art",
+        type: "uint128",
       },
     ],
-    name: 'settle',
+    name: "settle",
     outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
+    stateMutability: "nonpayable",
+    type: "function",
   },
 ];
 

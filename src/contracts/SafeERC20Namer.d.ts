@@ -12,23 +12,35 @@ import {
   BaseContract,
   ContractTransaction,
   CallOverrides,
-} from 'ethers';
-import { BytesLike } from '@ethersproject/bytes';
-import { Listener, Provider } from '@ethersproject/providers';
-import { FunctionFragment, EventFragment, Result } from '@ethersproject/abi';
-import { TypedEventFilter, TypedEvent, TypedListener } from './commons';
+} from "ethers";
+import { BytesLike } from "@ethersproject/bytes";
+import { Listener, Provider } from "@ethersproject/providers";
+import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
+import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface SafeERC20NamerInterface extends ethers.utils.Interface {
   functions: {
-    'tokenName(address)': FunctionFragment;
-    'tokenSymbol(address)': FunctionFragment;
+    "tokenDecimals(address)": FunctionFragment;
+    "tokenName(address)": FunctionFragment;
+    "tokenSymbol(address)": FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: 'tokenName', values: [string]): string;
-  encodeFunctionData(functionFragment: 'tokenSymbol', values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "tokenDecimals",
+    values: [string]
+  ): string;
+  encodeFunctionData(functionFragment: "tokenName", values: [string]): string;
+  encodeFunctionData(functionFragment: "tokenSymbol", values: [string]): string;
 
-  decodeFunctionResult(functionFragment: 'tokenName', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'tokenSymbol', data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "tokenDecimals",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "tokenName", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "tokenSymbol",
+    data: BytesLike
+  ): Result;
 
   events: {};
 }
@@ -77,16 +89,22 @@ export class SafeERC20Namer extends BaseContract {
   interface: SafeERC20NamerInterface;
 
   functions: {
+    tokenDecimals(token: string, overrides?: CallOverrides): Promise<[number]>;
+
     tokenName(token: string, overrides?: CallOverrides): Promise<[string]>;
 
     tokenSymbol(token: string, overrides?: CallOverrides): Promise<[string]>;
   };
+
+  tokenDecimals(token: string, overrides?: CallOverrides): Promise<number>;
 
   tokenName(token: string, overrides?: CallOverrides): Promise<string>;
 
   tokenSymbol(token: string, overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
+    tokenDecimals(token: string, overrides?: CallOverrides): Promise<number>;
+
     tokenName(token: string, overrides?: CallOverrides): Promise<string>;
 
     tokenSymbol(token: string, overrides?: CallOverrides): Promise<string>;
@@ -95,14 +113,27 @@ export class SafeERC20Namer extends BaseContract {
   filters: {};
 
   estimateGas: {
+    tokenDecimals(token: string, overrides?: CallOverrides): Promise<BigNumber>;
+
     tokenName(token: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     tokenSymbol(token: string, overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    tokenName(token: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    tokenDecimals(
+      token: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
-    tokenSymbol(token: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    tokenName(
+      token: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    tokenSymbol(
+      token: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
   };
 }

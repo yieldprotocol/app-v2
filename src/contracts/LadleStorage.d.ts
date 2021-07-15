@@ -12,44 +12,50 @@ import {
   BaseContract,
   ContractTransaction,
   CallOverrides,
-} from 'ethers';
-import { BytesLike } from '@ethersproject/bytes';
-import { Listener, Provider } from '@ethersproject/providers';
-import { FunctionFragment, EventFragment, Result } from '@ethersproject/abi';
-import { TypedEventFilter, TypedEvent, TypedListener } from './commons';
+} from "ethers";
+import { BytesLike } from "@ethersproject/bytes";
+import { Listener, Provider } from "@ethersproject/providers";
+import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
+import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface LadleStorageInterface extends ethers.utils.Interface {
   functions: {
-    'borrowingFee()': FunctionFragment;
-    'cauldron()': FunctionFragment;
-    'joins(bytes6)': FunctionFragment;
-    'modules(address)': FunctionFragment;
-    'pools(bytes6)': FunctionFragment;
+    "borrowingFee()": FunctionFragment;
+    "cauldron()": FunctionFragment;
+    "joins(bytes6)": FunctionFragment;
+    "modules(address)": FunctionFragment;
+    "pools(bytes6)": FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: 'borrowingFee', values?: undefined): string;
-  encodeFunctionData(functionFragment: 'cauldron', values?: undefined): string;
-  encodeFunctionData(functionFragment: 'joins', values: [BytesLike]): string;
-  encodeFunctionData(functionFragment: 'modules', values: [string]): string;
-  encodeFunctionData(functionFragment: 'pools', values: [BytesLike]): string;
+  encodeFunctionData(
+    functionFragment: "borrowingFee",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "cauldron", values?: undefined): string;
+  encodeFunctionData(functionFragment: "joins", values: [BytesLike]): string;
+  encodeFunctionData(functionFragment: "modules", values: [string]): string;
+  encodeFunctionData(functionFragment: "pools", values: [BytesLike]): string;
 
-  decodeFunctionResult(functionFragment: 'borrowingFee', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'cauldron', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'joins', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'modules', data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: 'pools', data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "borrowingFee",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "cauldron", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "joins", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "modules", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "pools", data: BytesLike): Result;
 
   events: {
-    'FeeSet(uint256)': EventFragment;
-    'JoinAdded(bytes6,address)': EventFragment;
-    'ModuleSet(address,bool)': EventFragment;
-    'PoolAdded(bytes6,address)': EventFragment;
+    "FeeSet(uint256)": EventFragment;
+    "JoinAdded(bytes6,address)": EventFragment;
+    "ModuleSet(address,bool)": EventFragment;
+    "PoolAdded(bytes6,address)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: 'FeeSet'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'JoinAdded'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'ModuleSet'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'PoolAdded'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "FeeSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "JoinAdded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ModuleSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "PoolAdded"): EventFragment;
 }
 
 export class LadleStorage extends BaseContract {
@@ -165,10 +171,19 @@ export class LadleStorage extends BaseContract {
 
     cauldron(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    joins(arg0: BytesLike, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    joins(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
-    modules(arg0: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    modules(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
-    pools(arg0: BytesLike, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    pools(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
   };
 }

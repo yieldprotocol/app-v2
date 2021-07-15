@@ -3,14 +3,14 @@ import { Box, Button, ResponsiveContext, Select, Text, TextInput } from 'grommet
 import { ethers } from 'ethers';
 import { useHistory } from 'react-router-dom';
 
-import { FiLock, FiClock, FiTrendingUp } from 'react-icons/fi';
+import { FiLock, FiClock, FiTrendingUp, FiLogOut, FiXCircle, FiPlusCircle } from 'react-icons/fi';
 import { cleanValue, getTxCode } from '../utils/appUtils';
 import { UserContext } from '../contexts/UserContext';
 import InputWrap from '../components/wraps/InputWrap';
 import InfoBite from '../components/InfoBite';
 import { ActionCodes, ActionType, IAsset, ISeries, IUserContext, IVault } from '../types';
 
-import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
+import ActionButtonWrap from '../components/wraps/ActionButtonWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
 import { useCollateralActions, useCollateralization } from '../hooks/collateralHooks';
 import { useBorrowActions } from '../hooks/borrowHooks';
@@ -22,9 +22,12 @@ import PositionAvatar from '../components/PositionAvatar';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import NextButton from '../components/buttons/NextButton';
 import { Gauge } from '../components/Gauge';
-import YieldVaultHistory from '../components/YieldVaultHistory';
+import YieldHistory from '../components/YieldHistory';
+import TransactButton from '../components/buttons/TransactButton';
+import CancelButton from '../components/buttons/CancelButton';
+import ReviewTxItem from '../components/ReviewTxItem';
 
-const Vault = () => {
+const Vault = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const routerHistory = useHistory();
 
@@ -189,16 +192,17 @@ const Vault = () => {
 
   return (
     <CenterPanelWrap>
-      <Box fill pad="large" gap="large">
-        <Box height="50%" gap="medium">
+      <Box fill pad="large" gap="medium">
+        <Box height={{ min: '250px' }} gap="medium">
           <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
             <Box direction="row" align="center" gap="medium">
               <PositionAvatar position={selectedVault!} />
               <Box>
-                <Text size={mobile ? 'large' : 'xlarge'}> {selectedVault?.displayName} </Text>
+                <Text size={mobile ? 'medium' : 'large'}> {selectedVault?.displayName} </Text>
                 <Text size="small"> {selectedVault?.id} </Text>
               </Box>
             </Box>
+            <FiLogOut onClick={() => close()} />
           </Box>
 
           <SectionWrap>
@@ -222,14 +226,14 @@ const Vault = () => {
           </SectionWrap>
         </Box>
 
-        <SectionWrap>
+        <Box>
           <Box elevation="xsmall" round="xsmall">
             <Select
               plain
               options={[
-                { text: 'Repay', index: 0 },
-                { text: 'Roll', index: 1 },
-                { text: 'Add/Remove Collateral', index: 2 },
+                { text: 'Repay Debt', index: 0 },
+                { text: 'Roll Debt', index: 1 },
+                { text: 'Manage Collateral', index: 2 },
                 { text: 'View History', index: 3 },
                 { text: 'Transfer Vault', index: 4 },
                 { text: 'Delete Vault', index: 5 },
@@ -242,7 +246,7 @@ const Vault = () => {
           </Box>
 
           {actionActive.index === 0 && (
-            <>
+            <Box>
               {stepPosition[0] === 0 && (
                 <Box pad={{ vertical: 'medium' }}>
                   <InputWrap action={() => console.log('maxAction')} isError={repayError}>
@@ -260,21 +264,32 @@ const Vault = () => {
               )}
 
               {stepPosition[0] !== 0 && (
-                <Box gap="large">
-                  <ActiveTransaction txCode={(selectedVault && getTxCode(ActionCodes.REPAY, selectedVault?.id)) || ''}>
-                    <SectionWrap title="Review your transaction">
-                      <Text>
+                <ActiveTransaction
+                  txCode={(selectedVault && getTxCode(ActionCodes.REPAY, selectedVault?.id)) || ''}
+                  pad
+                >
+                  <SectionWrap
+                    title="Review your repay transaction"
+                    rightAction={<CancelButton action={() => handleStepper(true)} />}
+                  >
+                    <Box gap="medium" pad="small">
+                      <ReviewTxItem
+                        label="Repay Debt"
+                        icon={<FiClock />}
+                        value={`${repayInput} ${vaultBase?.symbol}`}
+                      />
+                      {/* <Text>
                         Repay {repayInput} {vaultBase?.symbol} debt from {selectedVault?.displayName}{' '}
-                      </Text>
-                    </SectionWrap>
-                  </ActiveTransaction>
-                </Box>
+                      </Text> */}
+                    </Box>
+                  </SectionWrap>
+                </ActiveTransaction>
               )}
-            </>
+            </Box>
           )}
 
           {actionActive.index === 1 && (
-            <>
+            <Box>
               {stepPosition[actionActive.index] === 0 && (
                 <Box pad={{ vertical: 'medium' }} fill="horizontal" direction="row" align="center">
                   <SeriesSelector
@@ -286,86 +301,102 @@ const Vault = () => {
               )}
 
               {stepPosition[actionActive.index] !== 0 && (
-                <Box gap="large">
-                  <ActiveTransaction
-                    txCode={(selectedVault && getTxCode(ActionCodes.ROLL_DEBT, selectedVault?.id)) || ''}
+                <ActiveTransaction
+                  txCode={(selectedVault && getTxCode(ActionCodes.ROLL_DEBT, selectedVault.id)) || ''}
+                  pad
+                >
+                  <SectionWrap
+                    title="Review your roll transaction"
+                    rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
-                    <SectionWrap title="Review your transaction">
-                      <Text>
-                        Roll {rollInput} {vaultBase?.symbol} debt from {selectedVault?.displayName} to the{' '}
-                        {rollToSeries?.displayName} series.
-                      </Text>
-                    </SectionWrap>
-                  </ActiveTransaction>
-                </Box>
+                    {/* <Text>
+                      Roll {rollInput} {vaultBase?.symbol} debt from {selectedVault?.displayName} to the{' '}
+                      {rollToSeries?.displayName} series.
+                    </Text> */}
+                    <ReviewTxItem
+                      label="Roll Debt to Series"
+                      icon={<FiClock />}
+                      value={`${rollToSeries?.displayName}`}
+                    />
+                  </SectionWrap>
+                </ActiveTransaction>
               )}
-            </>
+            </Box>
           )}
 
           {actionActive.index === 2 && (
-            <>
+            <Box>
               {stepPosition[actionActive.index] === 0 && (
-                <Box pad={{ vertical: 'medium' }}>
-                  <Box direction="row" gap="small" align="center">
-                    <Box>
-                      <InputWrap action={() => console.log('maxAction')} isError={addCollatError}>
-                        <TextInput
-                          plain
-                          type="number"
-                          placeholder="ADD"
-                          value={addCollatInput || ''}
-                          onChange={(event: any) => setAddCollatInput(cleanValue(event.target.value))}
-                        />
-                      </InputWrap>
-                    </Box>
-                    <Text> or </Text>
-                    <Box>
-                      <InputWrap action={() => console.log('maxAction')} isError={removeCollatError}>
-                        <TextInput
-                          plain
-                          type="number"
-                          placeholder="REMOVE"
-                          value={removeCollatInput || ''}
-                          onChange={(event: any) => setRemoveCollatInput(cleanValue(event.target.value))}
-                        />
-                      </InputWrap>
-                    </Box>
+                <Box fill gap="small" pad="small">
+                  <Box direction="row" justify="between" align="center">
+                    Add
+                    <InputWrap action={() => console.log('maxAction')} isError={addCollatError}>
+                      <TextInput
+                        disabled={removeCollatInput}
+                        plain
+                        type="number"
+                        placeholder="ADD"
+                        value={addCollatInput || ''}
+                        onChange={(event: any) => setAddCollatInput(cleanValue(event.target.value))}
+                      />
+                    </InputWrap>
+                  </Box>
+                  <Box direction="row" justify="between" align="center">
+                    Remove
+                    <InputWrap action={() => console.log('maxAction')} isError={removeCollatError}>
+                      <TextInput
+                        disabled={addCollatInput}
+                        plain
+                        type="number"
+                        placeholder="REMOVE"
+                        value={removeCollatInput || ''}
+                        onChange={(event: any) => setRemoveCollatInput(cleanValue(event.target.value))}
+                      />
+                    </InputWrap>
                   </Box>
                 </Box>
               )}
 
               {stepPosition[actionActive.index] !== 0 && (
-                <Box gap="large">
-                  <ActiveTransaction
-                    txCode={(selectedVault && getTxCode(ActionCodes.ROLL_DEBT, selectedVault?.id)) || ''}
+                <ActiveTransaction
+                  txCode={
+                    selectedVault && addCollatInput
+                      ? getTxCode(ActionCodes.ADD_COLLATERAL, selectedVault.id)
+                      : (selectedVault && getTxCode(ActionCodes.REMOVE_COLLATERAL, selectedVault?.id)) || ''
+                  }
+                  pad
+                >
+                  <SectionWrap
+                    title="Review your collateral transaction"
+                    rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
-                    <SectionWrap title="Review your transaction">
-                      {addCollatInput && (
-                        <Text>
-                          Add {addCollatInput} {vaultIlk?.symbol} collateral
-                        </Text>
-                      )}
-                      {removeCollatInput && (
-                        <Text>
-                          Remove {removeCollatInput} {vaultIlk?.symbol} collateral
-                        </Text>
-                      )}
-                    </SectionWrap>
-                  </ActiveTransaction>
-                </Box>
+                    {addCollatInput && (
+                      <ReviewTxItem
+                        label="Add Collateral"
+                        icon={<FiPlusCircle />}
+                        value={`${addCollatInput} ${vaultIlk?.symbol}`}
+                      />
+                    )}
+                    {removeCollatInput && (
+                      <ReviewTxItem
+                        label="Remove Collateral"
+                        icon={<FiPlusCircle />}
+                        value={`${removeCollatInput} ${vaultIlk?.symbol}`}
+                      />
+                    )}
+                  </SectionWrap>
+                </ActiveTransaction>
               )}
-            </>
+            </Box>
           )}
 
-          {actionActive.index === 3 && (
-            <Box pad={{ vertical: 'medium' }}><YieldVaultHistory vault={selectedVault!} /></Box>
-          )}
+          {actionActive.index === 3 && <YieldHistory seriesOrVault={selectedVault!} view={['VAULT']} />}
 
           {actionActive.index === 4 && (
-            <>
+            <Box>
               {stepPosition[actionActive.index] === 0 && (
                 <Box pad={{ vertical: 'medium' }}>
-                  <InputWrap action={() => console.log('maxAction')} isError={repayError}>
+                  <InputWrap action={() => console.log('maxAction')} isError={null}>
                     <TextInput
                       plain
                       type="string"
@@ -379,22 +410,26 @@ const Vault = () => {
               )}
 
               {stepPosition[actionActive.index] !== 0 && (
-                <Box gap="large">
-                  <ActiveTransaction txCode={(selectedVault && getTxCode(ActionCodes.REPAY, selectedVault?.id)) || ''}>
-                    <SectionWrap title="Review your transaction">
-                      <Text>Transfer vault </Text>
-                    </SectionWrap>
-                  </ActiveTransaction>
-                </Box>
+                <ActiveTransaction
+                  txCode={(selectedVault && getTxCode(ActionCodes.REPAY, selectedVault?.id)) || ''}
+                  pad
+                >
+                  <SectionWrap
+                    title="Review your transfer transaction"
+                    rightAction={<CancelButton action={() => handleStepper(true)} />}
+                  >
+                    <ReviewTxItem label="Transfer Vault to: " icon={<FiPlusCircle />} value="new address" />
+                  </SectionWrap>
+                </ActiveTransaction>
               )}
-            </>
+            </Box>
           )}
 
           {actionActive.index === 5 && (
-            <>
+            <Box>
               {stepPosition[actionActive.index] === 0 && (
                 <Box pad={{ vertical: 'medium' }}>
-                  <InputWrap action={() => console.log('maxAction')} isError={repayError}>
+                  <InputWrap action={() => console.log('maxAction')} isError={null}>
                     <TextInput
                       plain
                       type="string"
@@ -408,102 +443,89 @@ const Vault = () => {
               )}
 
               {stepPosition[actionActive.index] !== 0 && (
-                <Box gap="large">
-                  <ActiveTransaction txCode={(selectedVault && getTxCode(ActionCodes.REPAY, selectedVault?.id)) || ''}>
-                    <SectionWrap title="Review your transaction">
-                      <Text>Pay back all debt and delete vault: {selectedVault?.displayName} </Text>
-                    </SectionWrap>
-                  </ActiveTransaction>
-                </Box>
+                <ActiveTransaction
+                  txCode={(selectedVault && getTxCode(ActionCodes.REPAY, selectedVault?.id)) || ''}
+                  pad
+                >
+                  <SectionWrap
+                    title="Review your delete transaction"
+                    rightAction={<CancelButton action={() => handleStepper(true)} />}
+                  >
+                    <ReviewTxItem
+                      label="Pay back all debt and delete vault:"
+                      icon={<FiPlusCircle />}
+                      value={`${selectedVault?.displayName}`}
+                    />
+                  </SectionWrap>
+                </ActiveTransaction>
               )}
-            </>
+            </Box>
           )}
-        </SectionWrap>
+        </Box>
       </Box>
 
-      <ActionButtonGroup>
-        {stepPosition[actionActive.index] === 0 &&
-          stepPosition[actionActive.index] !== 3 && ( // index 3 if for history -> now button required yet.
-            <NextButton
-              label={<Text size={mobile ? 'small' : undefined}> Next Step</Text>}
-              onClick={() => handleStepper()}
-              key="next"
-            />
-          )}
+      <ActionButtonWrap pad>
+        {stepPosition[actionActive.index] === 0 && actionActive.index !== 3 && (
+          <NextButton
+            label={<Text size={mobile ? 'small' : undefined}> Next Step</Text>}
+            onClick={() => handleStepper()}
+            key="next"
+          />
+        )}
 
         {/* TODO Marco this is screaming for more efficient code   -> simple array.map possibly? */}
 
         {actionActive.index === 0 && stepPosition[actionActive.index] !== 0 && (
-          <Box gap="small" direction="row-responsive" pad={{ horizontal: 'large' }}>
-            <BackButton action={() => handleStepper(true)} />
-            <Button
-              primary
-              label={
-                <Text size={mobile ? 'small' : undefined}> {`Repay ${cleanValue(repayInput, 6) || ''} Dai`} </Text>
-              }
-              onClick={() => handleRepay()}
-              disabled={repayDisabled}
-            />
-          </Box>
+          <TransactButton
+            primary
+            label={<Text size={mobile ? 'small' : undefined}> {`Repay ${cleanValue(repayInput, 6) || ''} Dai`} </Text>}
+            onClick={() => handleRepay()}
+            disabled={repayDisabled}
+          />
         )}
 
         {actionActive.index === 1 && stepPosition[actionActive.index] !== 0 && (
-          <Box gap="small" direction="row" pad={{ horizontal: 'large' }}>
-            <BackButton action={() => handleStepper(true)} />
-            <Button
-              primary
-              label={<Text size={mobile ? 'small' : undefined}> Roll debt </Text>}
-              onClick={() => handleRoll()}
-            />
-          </Box>
+          <TransactButton
+            primary
+            label={<Text size={mobile ? 'small' : undefined}> Roll debt </Text>}
+            onClick={() => handleRoll()}
+          />
         )}
 
         {actionActive.index === 2 && stepPosition[actionActive.index] !== 0 && addCollatInput && (
-          <Box gap="small" direction="row" pad={{ horizontal: 'large' }}>
-            <BackButton action={() => handleStepper(true)} />
-            <Button
-              primary
-              label={<Text size={mobile ? 'small' : undefined}> Add </Text>}
-              onClick={() => handleCollateral('ADD')}
-            />
-          </Box>
+          <TransactButton
+            primary
+            label={<Text size={mobile ? 'small' : undefined}> Add </Text>}
+            onClick={() => handleCollateral('ADD')}
+          />
         )}
 
         {actionActive.index === 2 && stepPosition[actionActive.index] !== 0 && removeCollatInput && (
-          <Box gap="small" direction="row" pad={{ horizontal: 'large' }}>
-            <BackButton action={() => handleStepper(true)} />
-            <Button
-              primary
-              label={<Text size={mobile ? 'small' : undefined}> Remove </Text>}
-              onClick={() => handleCollateral('REMOVE')}
-            />
-          </Box>
+          <TransactButton
+            primary
+            label={<Text size={mobile ? 'small' : undefined}> Remove </Text>}
+            onClick={() => handleCollateral('REMOVE')}
+          />
         )}
 
         {actionActive.index === 4 && stepPosition[actionActive.index] !== 0 && (
-          <Box gap="small" direction="row" pad={{ horizontal: 'large' }}>
-            <BackButton action={() => handleStepper(true)} />
-            <Button
-              primary
-              label={<Text size={mobile ? 'small' : undefined}> Transfer vault [todo] </Text>}
-              onClick={() => console.log('vault transfer')}
-              disabled={repayDisabled}
-            />
-          </Box>
+          <TransactButton
+            primary
+            label={<Text size={mobile ? 'small' : undefined}> Transfer vault [todo] </Text>}
+            onClick={() => console.log('vault transfer')}
+            disabled={repayDisabled}
+          />
         )}
 
         {actionActive.index === 5 && stepPosition[actionActive.index] !== 0 && (
-          <Box gap="small" direction="row" pad={{ horizontal: 'large' }}>
-            <BackButton action={() => handleStepper(true)} />
-            <Button
-              primary
-              label={<Text size={mobile ? 'small' : undefined}> Delete [todo] </Text>}
-              onClick={() => console.log('vault transfer')}
-              disabled={repayDisabled}
-            />
-          </Box>
+          <TransactButton
+            primary
+            label={<Text size={mobile ? 'small' : undefined}> Delete [todo] </Text>}
+            onClick={() => console.log('vault transfer')}
+            disabled={repayDisabled}
+          />
         )}
-      </ActionButtonGroup>
+      </ActionButtonWrap>
     </CenterPanelWrap>
   );
 };

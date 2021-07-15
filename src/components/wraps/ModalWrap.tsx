@@ -91,7 +91,7 @@ function ModalWrap({ children, toggleModalOpen, background, modalOpen = false }:
               fill="horizontal"
               style={{ position: 'fixed', top: '0px' }}
             >
-              <YieldLogo height={mobile ? '1em' : '2em'} fill="white" />
+              <YieldLogo height={mobile ? '1em' : '1.5em'} startcolor='white' endcolor='red' />
               <FiX onClick={() => toggleModalOpen()} />
             </Header>
 
@@ -100,9 +100,8 @@ function ModalWrap({ children, toggleModalOpen, background, modalOpen = false }:
                 <PanelWrap>
                   <Box />
                 </PanelWrap>
-                <Box gap="large" width="600px">
-                  <BackButton action={() => toggleModalOpen()} />
-
+                <Box gap="large" width="600px" pad={{ top: 'large' }}>
+                  {/* <BackButton action={() => toggleModalOpen()} /> */}
                   {children}
                 </Box>
                 <PanelWrap>

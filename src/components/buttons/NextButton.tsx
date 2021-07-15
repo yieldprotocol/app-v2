@@ -5,7 +5,7 @@ import styled from 'styled-components';
 const StyledButton = styled(Button)``;
 
 const NextButton = (props: any) => (
-  <Box pad="large">
+  <Box>
     <StyledButton {...props} />
   </Box>
 );
