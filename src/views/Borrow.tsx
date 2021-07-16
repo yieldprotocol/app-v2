@@ -214,7 +214,7 @@ const Borrow = () => {
                   </Box>
                 </SectionWrap>
 
-                <SectionWrap title="Choose a series">
+                <SectionWrap title="Select a series">
                   <SeriesSelector inputValue={borrowInput} actionType={ActionType.BORROW} />
                 </SectionWrap>
               </Box>

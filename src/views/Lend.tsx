@@ -141,7 +141,7 @@ const Lend = () => {
                 </Box>
               </SectionWrap>
 
-              <SectionWrap title="Choose a series">
+              <SectionWrap title="Select a series">
                 <SeriesSelector inputValue={lendInput} actionType={ActionType.LEND} />
               </SectionWrap>
             </Box>
