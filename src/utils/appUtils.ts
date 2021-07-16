@@ -144,15 +144,11 @@ export const modColor = (color: any, amount: any) => {
     cT = 'FF';
   }
   // eslint-disable-next-line prefer-template
-  return (
-    `#${ 
-    c
-      .replace(/^#/, '')
-      .replace(/../g, (col: any) =>
-        (`0${  Math.min(255, Math.max(0, parseInt(col, 16) + amount)).toString(16)}`).substr(-2)
-      ) 
-    }${cT}`
-  );
+  return `#${c
+    .replace(/^#/, '')
+    .replace(/../g, (col: any) =>
+      `0${Math.min(255, Math.max(0, parseInt(col, 16) + amount)).toString(16)}`.substr(-2)
+    )}${cT}`;
 };
 
 export const contrastColor = (hex: any) => {
@@ -194,3 +190,5 @@ export const buildGradient = (colorFrom: string, colorTo: string) => `linear-gra
       ${modColor(colorTo, 0)}, 
       ${modColor(colorTo, 0)})
     `;
+
+export const generateDudeSalt = () => Math.random().toString(36).substring(7);

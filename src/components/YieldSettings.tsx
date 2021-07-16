@@ -1,10 +1,11 @@
 import React, { useContext, useState } from 'react';
 import { Anchor, Box, Button, Text } from 'grommet';
-import { FiCopy, FiExternalLink, FiX } from 'react-icons/fi';
+import { FiCheckSquare, FiCopy, FiExternalLink, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
 import { ChainContext } from '../contexts/ChainContext';
 import { abbreviateHash } from '../utils/appUtils';
 import YieldAvatar from './YieldAvatar';
+import { UserContext } from '../contexts/UserContext';
 
 const ChangeButton = styled(Button)`
   background: #dbeafe;
@@ -26,6 +27,10 @@ const YieldSettings = ({ setConnectOpen, setSettingsOpen }: any) => {
     chainState: { account, chainId },
   } = useContext(ChainContext);
 
+  const {
+    userActions: { updateDudeSalt },
+  } = useContext(UserContext);
+
   const [copySuccess, setCopySuccess] = useState<boolean>(false);
 
   const connectorName: string = 'Metamask';
@@ -39,10 +44,6 @@ const YieldSettings = ({ setConnectOpen, setSettingsOpen }: any) => {
     navigator.clipboard.writeText(text);
     setCopySuccess(true);
     setTimeout(() => setCopySuccess(false), 2000);
-  };
-
-  const handleChangeAvatar = () => {
-    console.log('changing avatar');
   };
 
   return (
@@ -65,13 +66,13 @@ const YieldSettings = ({ setConnectOpen, setSettingsOpen }: any) => {
             <YieldAvatar address={account} size={2} />
             <Text size="xlarge">{abbreviateHash(account)}</Text>
           </Box>
-          <ChangeButton onClick={handleChangeAvatar}>New Avatar</ChangeButton>
+          <ChangeButton onClick={updateDudeSalt}>New Avatar</ChangeButton>
         </Box>
         <Box align="center" direction="row" gap="xsmall">
           <Button alignSelf="center" margin="xsmall" onClick={() => handleCopy(account)}>
-            <FiCopy size="1rem" />
+            {copySuccess ? <FiCheckSquare size="1rem" /> : <FiCopy size="1rem" />}
             <Text margin="xsmall" size="small">
-              {copySuccess ? 'Address Copied' : 'Copy Address'}
+              {copySuccess ? 'Copied' : 'Copy Address'}
             </Text>
           </Button>
           <Anchor alignSelf="center" href={`https://etherscan.io/address/${account}`} margin="xsmall" target="_blank">
