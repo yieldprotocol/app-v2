@@ -1,5 +1,6 @@
 import { Box, Text } from 'grommet';
 import React from 'react';
+import AltText from './texts/AltText';
 import HandText from './texts/HandText';
 
 interface IStepperText {
@@ -19,7 +20,7 @@ function StepperText({ values, position }: IStepperText) {
             </Text>
           )}
           <Box direction="row">
-            <HandText
+            <AltText
               weight={900}
               size={position === i ? 'xxlarge' : 'medium'}
               color={position === i ? 'text' : 'text-xweak'}
@@ -35,7 +36,7 @@ function StepperText({ values, position }: IStepperText) {
                 {x[1]}{' '}
               </Text>
               {x[2]}
-            </HandText>
+            </AltText>
           </Box>
         </Box>
       ))}
