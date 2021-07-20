@@ -1,11 +1,11 @@
-import { BigNumber, Contract, ContractInterface, ethers } from 'ethers';
+import { BigNumber, Contract, ethers, PayableOverrides } from 'ethers';
 import { signDaiPermit, signERC2612Permit } from 'eth-permit';
 import { useContext } from 'react';
 import { toast } from 'react-toastify';
 import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
 import { MAX_128, MAX_256 } from '../utils/constants';
-import { ICallData, ISignData, ISeriesRoot, ISeries } from '../types';
+import { ICallData, ISignData, ISeriesRoot, ISeries, LadleActions, PoolRouterActions } from '../types';
 import { ERC20, ERC20__factory, Ladle, Pool, PoolRouter } from '../contracts';
 import { POOLROUTER_OPS, VAULT_OPS } from '../utils/operations';
 import { UserContext } from '../contexts/UserContext';
@@ -52,33 +52,37 @@ export const useChain = () => {
    */
   const transact = async (router: 'PoolRouter' | 'Ladle', calls: ICallData[], txCode: string): Promise<void> => {
     const signer = account ? provider.getSigner(account) : provider.getSigner(0);
+
     /* Set the router contract instance, ladle by default */
     let _contract: Contract = contractMap.get('Ladle').connect(signer) as Ladle;
+
     if (router === 'PoolRouter') _contract = contractMap.get('PoolRouter').connect(signer) as PoolRouter;
 
     /* First, filter out any ignored calls */
     const _calls = calls.filter((call: ICallData) => !call.ignore);
-    console.log('Batch calls: ', _calls);
+    console.log('Batch multicalls: ', _calls);
 
     /* Encode each of the calls OR preEncoded route calls */
     const encodedCalls = _calls.map((call: ICallData) => {
+      /* get the info required from the series */
       const { poolContract, id: seriesId, getBaseAddress, fyTokenAddress } = call.series! as ISeries;
-      const { interface: _interface } = poolContract as Contract;
+
       /* 'pre-encode' routed calls if required */
-      if (call.operation === VAULT_OPS.ROUTE || call.operation === POOLROUTER_OPS.ROUTE) {
+      if (call.operation === LadleActions.Fn.ROUTE || call.operation === PoolRouterActions.Fn.ROUTE) {
         if (call.fnName) {
-          const encodedFn = _interface.encodeFunctionData(call.fnName, call.args);
-          /* add in the extra parameters required for each specific rotuer */
-          const extraParams = call.operation === VAULT_OPS.ROUTE ? [seriesId] : [getBaseAddress(), fyTokenAddress];
-          return ethers.utils.defaultAbiCoder.encode(call.operation[1], [...extraParams, encodedFn]);
+          const encodedFn = (poolContract as Contract).interface.encodeFunctionData(call.fnName, call.args);
+          /* add in the extra/different parameters required for each specific rotuer */
+          const extraParams =
+            call.operation === LadleActions.Fn.ROUTE ? [seriesId] : [getBaseAddress(), fyTokenAddress];
+          // return ethers.utils.defaultAbiCoder.encode('route', [...extraParams, encodedFn]);
+          return _contract.interface.encodeFunctionData('route', [...extraParams, encodedFn])
         }
         throw new Error('Function name required for routing');
       }
-      return ethers.utils.defaultAbiCoder.encode(call.operation[1], call.args);
-    });
 
-    /* Get the numeric OPCODES */
-    const opsList = _calls.map((call: ICallData) => call.operation[0]);
+      // return ethers.utils.defaultAbiCoder.encode(call.operation, call.args);
+      return _contract.interface.encodeFunctionData(call.operation as string, call.args);
+    });
 
     /* calculate the value sent */
     const batchValue = _getCallValue(_calls);
@@ -90,8 +94,8 @@ export const useChain = () => {
 
     /* Finally, send out the transaction */
     return handleTx(
-      () => _contract.batch(opsList, encodedCalls, { value: batchValue, gasLimit: BigNumber.from('750000') }),
-      // () => _contract.batch(opsList, encodedCalls, { value: batchValue }),
+      () =>
+        _contract.batch(encodedCalls, { value: batchValue, gasLimit: BigNumber.from('750000') } as PayableOverrides),
       txCode
     );
   };
