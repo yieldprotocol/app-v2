@@ -403,7 +403,7 @@ const UserProvider = ({ children }: any) => {
 
     setApprovalMethod: (type: ApprovalType) => updateState({ type: 'approvalMethod', payload: type }),
 
-    updateDudeSalt: () => updateState({ type: 'dudeSalt', payload: state.dudeSalt+1 }),
+    updateDudeSalt: () => updateState({ type: 'dudeSalt', payload: userState.dudeSalt+1 }),
   };
 
   return <UserContext.Provider value={{ userState, userActions } as IUserContext}>{children}</UserContext.Provider>;
