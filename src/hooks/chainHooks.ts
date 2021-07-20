@@ -7,7 +7,6 @@ import { TxContext } from '../contexts/TxContext';
 import { MAX_128, MAX_256 } from '../utils/constants';
 import { ICallData, ISignData, ISeriesRoot, ISeries, LadleActions, PoolRouterActions } from '../types';
 import { ERC20, ERC20__factory, Ladle, Pool, PoolRouter } from '../contracts';
-import { POOLROUTER_OPS, VAULT_OPS } from '../utils/operations';
 import { UserContext } from '../contexts/UserContext';
 
 /*  💨 Calculate the accumulative gas limit (IF ALL calls have a gaslimit then set the total, else undefined ) */
@@ -26,7 +25,7 @@ const _getCallGas = (calls: ICallData[]): BigNumber | undefined => {
 /* Get ETH value from JOIN_ETHER OPCode, else zero -> N.B. other values sent in with other OPS are ignored for now */
 const _getCallValue = (calls: ICallData[]): BigNumber => {
   const joinEtherCall = calls.find(
-    (call: any) => call.operation === VAULT_OPS.JOIN_ETHER || call.operation === POOLROUTER_OPS.JOIN_ETHER
+    (call: any) => call.operation === LadleActions.Fn.JOIN_ETHER || call.operation === PoolRouterActions.Fn.JOIN_ETHER
   );
   return joinEtherCall ? BigNumber.from(joinEtherCall?.overrides?.value) : ethers.constants.Zero;
 };
@@ -75,7 +74,7 @@ export const useChain = () => {
           const extraParams =
             call.operation === LadleActions.Fn.ROUTE ? [seriesId] : [getBaseAddress(), fyTokenAddress];
           // return ethers.utils.defaultAbiCoder.encode('route', [...extraParams, encodedFn]);
-          return _contract.interface.encodeFunctionData('route', [...extraParams, encodedFn])
+          return _contract.interface.encodeFunctionData('route', [...extraParams, encodedFn]);
         }
         throw new Error('Function name required for routing');
       }
@@ -176,7 +175,9 @@ export const useChain = () => {
           ];
           const ladleArgs = [reqSig.target.id, true, _spender, nonce, expiry, allowed, v, r, s];
           const args = viaPoolRouter ? poolRouterArgs : ladleArgs;
-          const operation = viaPoolRouter ? POOLROUTER_OPS.FORWARD_DAI_PERMIT : VAULT_OPS.FORWARD_DAI_PERMIT;
+          const operation = viaPoolRouter
+            ? PoolRouterActions.Fn.FORWARD_DAI_PERMIT
+            : LadleActions.Fn.FORWARD_DAI_PERMIT;
 
           return {
             operation,
@@ -238,7 +239,7 @@ export const useChain = () => {
         ];
 
         const args = viaPoolRouter ? poolRouterArgs : ladleArgs;
-        const operation = viaPoolRouter ? POOLROUTER_OPS.FORWARD_PERMIT : VAULT_OPS.FORWARD_PERMIT;
+        const operation = viaPoolRouter ? PoolRouterActions.Fn.FORWARD_PERMIT : LadleActions.Fn.FORWARD_PERMIT;
 
         return {
           operation,
