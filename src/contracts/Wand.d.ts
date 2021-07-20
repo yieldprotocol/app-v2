@@ -30,6 +30,7 @@ interface WandInterface extends ethers.utils.Interface {
     "addAsset(bytes6,address)": FunctionFragment;
     "addSeries(bytes6,bytes6,uint32,bytes6[],string,string)": FunctionFragment;
     "cauldron()": FunctionFragment;
+    "fyTokenFactory()": FunctionFragment;
     "getRoleAdmin(bytes4)": FunctionFragment;
     "grantRole(bytes4,address)": FunctionFragment;
     "grantRoles(bytes4[],address)": FunctionFragment;
@@ -44,6 +45,7 @@ interface WandInterface extends ethers.utils.Interface {
     "revokeRole(bytes4,address)": FunctionFragment;
     "revokeRoles(bytes4[],address)": FunctionFragment;
     "setRoleAdmin(bytes4,bytes4)": FunctionFragment;
+    "witch()": FunctionFragment;
   };
 
   encodeFunctionData(functionFragment: "BURN", values?: undefined): string;
@@ -61,6 +63,10 @@ interface WandInterface extends ethers.utils.Interface {
     values: [BytesLike, BytesLike, BigNumberish, BytesLike[], string, string]
   ): string;
   encodeFunctionData(functionFragment: "cauldron", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "fyTokenFactory",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "getRoleAdmin",
     values: [BytesLike]
@@ -120,6 +126,7 @@ interface WandInterface extends ethers.utils.Interface {
     functionFragment: "setRoleAdmin",
     values: [BytesLike, BytesLike]
   ): string;
+  encodeFunctionData(functionFragment: "witch", values?: undefined): string;
 
   decodeFunctionResult(functionFragment: "BURN", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "EXIT", data: BytesLike): Result;
@@ -130,6 +137,10 @@ interface WandInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "addAsset", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "addSeries", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "cauldron", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "fyTokenFactory",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "getRoleAdmin",
     data: BytesLike
@@ -162,6 +173,7 @@ interface WandInterface extends ethers.utils.Interface {
     functionFragment: "setRoleAdmin",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "witch", data: BytesLike): Result;
 
   events: {
     "RoleAdminChanged(bytes4,bytes4)": EventFragment;
@@ -248,6 +260,8 @@ export class Wand extends BaseContract {
 
     cauldron(overrides?: CallOverrides): Promise<[string]>;
 
+    fyTokenFactory(overrides?: CallOverrides): Promise<[string]>;
+
     getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<[string]>;
 
     grantRole(
@@ -322,6 +336,8 @@ export class Wand extends BaseContract {
       adminRole: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    witch(overrides?: CallOverrides): Promise<[string]>;
   };
 
   BURN(overrides?: CallOverrides): Promise<string>;
@@ -353,6 +369,8 @@ export class Wand extends BaseContract {
   ): Promise<ContractTransaction>;
 
   cauldron(overrides?: CallOverrides): Promise<string>;
+
+  fyTokenFactory(overrides?: CallOverrides): Promise<string>;
 
   getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
 
@@ -429,6 +447,8 @@ export class Wand extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  witch(overrides?: CallOverrides): Promise<string>;
+
   callStatic: {
     BURN(overrides?: CallOverrides): Promise<string>;
 
@@ -459,6 +479,8 @@ export class Wand extends BaseContract {
     ): Promise<void>;
 
     cauldron(overrides?: CallOverrides): Promise<string>;
+
+    fyTokenFactory(overrides?: CallOverrides): Promise<string>;
 
     getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
 
@@ -531,6 +553,8 @@ export class Wand extends BaseContract {
       adminRole: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    witch(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {
@@ -591,6 +615,8 @@ export class Wand extends BaseContract {
     ): Promise<BigNumber>;
 
     cauldron(overrides?: CallOverrides): Promise<BigNumber>;
+
+    fyTokenFactory(overrides?: CallOverrides): Promise<BigNumber>;
 
     getRoleAdmin(
       role: BytesLike,
@@ -669,6 +695,8 @@ export class Wand extends BaseContract {
       adminRole: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    witch(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -701,6 +729,8 @@ export class Wand extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     cauldron(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    fyTokenFactory(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getRoleAdmin(
       role: BytesLike,
@@ -779,5 +809,7 @@ export class Wand extends BaseContract {
       adminRole: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    witch(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

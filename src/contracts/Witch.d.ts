@@ -27,22 +27,18 @@ interface WitchInterface extends ethers.utils.Interface {
     "auctions(bytes12)": FunctionFragment;
     "buy(bytes12,uint128,uint128)": FunctionFragment;
     "cauldron()": FunctionFragment;
-    "duration()": FunctionFragment;
-    "dust()": FunctionFragment;
     "getRoleAdmin(bytes4)": FunctionFragment;
     "grantRole(bytes4,address)": FunctionFragment;
     "grantRoles(bytes4[],address)": FunctionFragment;
     "hasRole(bytes4,address)": FunctionFragment;
-    "initialOffer()": FunctionFragment;
+    "ilks(bytes6)": FunctionFragment;
     "ladle()": FunctionFragment;
     "lockRole(bytes4)": FunctionFragment;
     "payAll(bytes12,uint128)": FunctionFragment;
     "renounceRole(bytes4,address)": FunctionFragment;
     "revokeRole(bytes4,address)": FunctionFragment;
     "revokeRoles(bytes4[],address)": FunctionFragment;
-    "setDuration(uint32)": FunctionFragment;
-    "setDust(uint128)": FunctionFragment;
-    "setInitialOffer(uint64)": FunctionFragment;
+    "setIlk(bytes6,uint32,uint64,uint128)": FunctionFragment;
     "setRoleAdmin(bytes4,bytes4)": FunctionFragment;
   };
 
@@ -55,8 +51,6 @@ interface WitchInterface extends ethers.utils.Interface {
     values: [BytesLike, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "cauldron", values?: undefined): string;
-  encodeFunctionData(functionFragment: "duration", values?: undefined): string;
-  encodeFunctionData(functionFragment: "dust", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "getRoleAdmin",
     values: [BytesLike]
@@ -73,10 +67,7 @@ interface WitchInterface extends ethers.utils.Interface {
     functionFragment: "hasRole",
     values: [BytesLike, string]
   ): string;
-  encodeFunctionData(
-    functionFragment: "initialOffer",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "ilks", values: [BytesLike]): string;
   encodeFunctionData(functionFragment: "ladle", values?: undefined): string;
   encodeFunctionData(functionFragment: "lockRole", values: [BytesLike]): string;
   encodeFunctionData(
@@ -96,16 +87,8 @@ interface WitchInterface extends ethers.utils.Interface {
     values: [BytesLike[], string]
   ): string;
   encodeFunctionData(
-    functionFragment: "setDuration",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setDust",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setInitialOffer",
-    values: [BigNumberish]
+    functionFragment: "setIlk",
+    values: [BytesLike, BigNumberish, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "setRoleAdmin",
@@ -118,8 +101,6 @@ interface WitchInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "auctions", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "buy", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "cauldron", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "duration", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "dust", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getRoleAdmin",
     data: BytesLike
@@ -127,10 +108,7 @@ interface WitchInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "grantRoles", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "initialOffer",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "ilks", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "ladle", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "lockRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "payAll", data: BytesLike): Result;
@@ -143,15 +121,7 @@ interface WitchInterface extends ethers.utils.Interface {
     functionFragment: "revokeRoles",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "setDuration",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "setDust", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "setInitialOffer",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "setIlk", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setRoleAdmin",
     data: BytesLike
@@ -160,9 +130,7 @@ interface WitchInterface extends ethers.utils.Interface {
   events: {
     "Auctioned(bytes12,uint256)": EventFragment;
     "Bought(bytes12,address,uint256,uint256)": EventFragment;
-    "DurationSet(uint32)": EventFragment;
-    "DustSet(uint128)": EventFragment;
-    "InitialOfferSet(uint64)": EventFragment;
+    "IlkSet(bytes6,uint32,uint64,uint128)": EventFragment;
     "RoleAdminChanged(bytes4,bytes4)": EventFragment;
     "RoleGranted(bytes4,address,address)": EventFragment;
     "RoleRevoked(bytes4,address,address)": EventFragment;
@@ -170,9 +138,7 @@ interface WitchInterface extends ethers.utils.Interface {
 
   getEvent(nameOrSignatureOrTopic: "Auctioned"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Bought"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "DurationSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "DustSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "InitialOfferSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "IlkSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleRevoked"): EventFragment;
@@ -245,10 +211,6 @@ export class Witch extends BaseContract {
 
     cauldron(overrides?: CallOverrides): Promise<[string]>;
 
-    duration(overrides?: CallOverrides): Promise<[number]>;
-
-    dust(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<[string]>;
 
     grantRole(
@@ -269,7 +231,16 @@ export class Witch extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    initialOffer(overrides?: CallOverrides): Promise<[BigNumber]>;
+    ilks(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<
+      [number, BigNumber, BigNumber] & {
+        duration: number;
+        initialOffer: BigNumber;
+        dust: BigNumber;
+      }
+    >;
 
     ladle(overrides?: CallOverrides): Promise<[string]>;
 
@@ -302,18 +273,11 @@ export class Witch extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    setDuration(
-      duration_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setDust(
-      dust_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setInitialOffer(
-      initialOffer_: BigNumberish,
+    setIlk(
+      ilkId: BytesLike,
+      duration: BigNumberish,
+      initialOffer: BigNumberish,
+      dust: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -347,10 +311,6 @@ export class Witch extends BaseContract {
 
   cauldron(overrides?: CallOverrides): Promise<string>;
 
-  duration(overrides?: CallOverrides): Promise<number>;
-
-  dust(overrides?: CallOverrides): Promise<BigNumber>;
-
   getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
 
   grantRole(
@@ -371,7 +331,16 @@ export class Witch extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  initialOffer(overrides?: CallOverrides): Promise<BigNumber>;
+  ilks(
+    arg0: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<
+    [number, BigNumber, BigNumber] & {
+      duration: number;
+      initialOffer: BigNumber;
+      dust: BigNumber;
+    }
+  >;
 
   ladle(overrides?: CallOverrides): Promise<string>;
 
@@ -404,18 +373,11 @@ export class Witch extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  setDuration(
-    duration_: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setDust(
-    dust_: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setInitialOffer(
-    initialOffer_: BigNumberish,
+  setIlk(
+    ilkId: BytesLike,
+    duration: BigNumberish,
+    initialOffer: BigNumberish,
+    dust: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -446,10 +408,6 @@ export class Witch extends BaseContract {
 
     cauldron(overrides?: CallOverrides): Promise<string>;
 
-    duration(overrides?: CallOverrides): Promise<number>;
-
-    dust(overrides?: CallOverrides): Promise<BigNumber>;
-
     getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
 
     grantRole(
@@ -470,7 +428,16 @@ export class Witch extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    initialOffer(overrides?: CallOverrides): Promise<BigNumber>;
+    ilks(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<
+      [number, BigNumber, BigNumber] & {
+        duration: number;
+        initialOffer: BigNumber;
+        dust: BigNumber;
+      }
+    >;
 
     ladle(overrides?: CallOverrides): Promise<string>;
 
@@ -500,15 +467,11 @@ export class Witch extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setDuration(
-      duration_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setDust(dust_: BigNumberish, overrides?: CallOverrides): Promise<void>;
-
-    setInitialOffer(
-      initialOffer_: BigNumberish,
+    setIlk(
+      ilkId: BytesLike,
+      duration: BigNumberish,
+      initialOffer: BigNumberish,
+      dust: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -538,17 +501,20 @@ export class Witch extends BaseContract {
       { vaultId: string; buyer: string; ink: BigNumber; art: BigNumber }
     >;
 
-    DurationSet(
-      duration?: BigNumberish | null
-    ): TypedEventFilter<[number], { duration: number }>;
-
-    DustSet(
-      dust?: BigNumberish | null
-    ): TypedEventFilter<[BigNumber], { dust: BigNumber }>;
-
-    InitialOfferSet(
-      initialOffer?: BigNumberish | null
-    ): TypedEventFilter<[BigNumber], { initialOffer: BigNumber }>;
+    IlkSet(
+      ilkId?: BytesLike | null,
+      duration?: null,
+      initialOffer?: null,
+      dust?: null
+    ): TypedEventFilter<
+      [string, number, BigNumber, BigNumber],
+      {
+        ilkId: string;
+        duration: number;
+        initialOffer: BigNumber;
+        dust: BigNumber;
+      }
+    >;
 
     RoleAdminChanged(
       role?: BytesLike | null,
@@ -598,10 +564,6 @@ export class Witch extends BaseContract {
 
     cauldron(overrides?: CallOverrides): Promise<BigNumber>;
 
-    duration(overrides?: CallOverrides): Promise<BigNumber>;
-
-    dust(overrides?: CallOverrides): Promise<BigNumber>;
-
     getRoleAdmin(
       role: BytesLike,
       overrides?: CallOverrides
@@ -625,7 +587,7 @@ export class Witch extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    initialOffer(overrides?: CallOverrides): Promise<BigNumber>;
+    ilks(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
 
     ladle(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -658,18 +620,11 @@ export class Witch extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    setDuration(
-      duration_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setDust(
-      dust_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setInitialOffer(
-      initialOffer_: BigNumberish,
+    setIlk(
+      ilkId: BytesLike,
+      duration: BigNumberish,
+      initialOffer: BigNumberish,
+      dust: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -704,10 +659,6 @@ export class Witch extends BaseContract {
 
     cauldron(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    duration(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    dust(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     getRoleAdmin(
       role: BytesLike,
       overrides?: CallOverrides
@@ -731,7 +682,10 @@ export class Witch extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    initialOffer(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    ilks(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     ladle(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -764,18 +718,11 @@ export class Witch extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    setDuration(
-      duration_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setDust(
-      dust_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setInitialOffer(
-      initialOffer_: BigNumberish,
+    setIlk(
+      ilkId: BytesLike,
+      duration: BigNumberish,
+      initialOffer: BigNumberish,
+      dust: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

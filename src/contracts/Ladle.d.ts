@@ -43,7 +43,6 @@ interface LadleInterface extends ethers.utils.Interface {
     "setFee(uint256)": FunctionFragment;
     "setModule(address,bool)": FunctionFragment;
     "setRoleAdmin(bytes4,bytes4)": FunctionFragment;
-    "settle(bytes12,address,uint128,uint128)": FunctionFragment;
     "weth()": FunctionFragment;
   };
 
@@ -110,10 +109,6 @@ interface LadleInterface extends ethers.utils.Interface {
     functionFragment: "setRoleAdmin",
     values: [BytesLike, BytesLike]
   ): string;
-  encodeFunctionData(
-    functionFragment: "settle",
-    values: [BytesLike, string, BigNumberish, BigNumberish]
-  ): string;
   encodeFunctionData(functionFragment: "weth", values?: undefined): string;
 
   decodeFunctionResult(functionFragment: "LOCK", data: BytesLike): Result;
@@ -152,7 +147,6 @@ interface LadleInterface extends ethers.utils.Interface {
     functionFragment: "setRoleAdmin",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "settle", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "weth", data: BytesLike): Result;
 
   events: {
@@ -310,14 +304,6 @@ export class Ladle extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    settle(
-      vaultId: BytesLike,
-      user: string,
-      ink: BigNumberish,
-      art: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     weth(overrides?: CallOverrides): Promise<[string]>;
   };
 
@@ -413,14 +399,6 @@ export class Ladle extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  settle(
-    vaultId: BytesLike,
-    user: string,
-    ink: BigNumberish,
-    art: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   weth(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
@@ -507,14 +485,6 @@ export class Ladle extends BaseContract {
     setRoleAdmin(
       role: BytesLike,
       adminRole: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    settle(
-      vaultId: BytesLike,
-      user: string,
-      ink: BigNumberish,
-      art: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -662,14 +632,6 @@ export class Ladle extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    settle(
-      vaultId: BytesLike,
-      user: string,
-      ink: BigNumberish,
-      art: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     weth(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
@@ -775,14 +737,6 @@ export class Ladle extends BaseContract {
     setRoleAdmin(
       role: BytesLike,
       adminRole: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    settle(
-      vaultId: BytesLike,
-      user: string,
-      ink: BigNumberish,
-      art: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
