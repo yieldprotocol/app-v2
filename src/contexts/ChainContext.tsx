@@ -7,7 +7,7 @@ import { WalletConnectConnector } from '@web3-react/walletconnect-connector';
 
 import { format } from 'date-fns';
 
-import { useCachedState } from '../hooks';
+import { useCachedState } from '../hooks/generalHooks';
 
 import * as yieldEnv from './yieldEnv.json';
 import * as contracts from '../contracts';
