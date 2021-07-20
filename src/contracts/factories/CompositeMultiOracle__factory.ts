@@ -5,11 +5,36 @@
 import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
 import type {
-  CompoundMultiOracle,
-  CompoundMultiOracleInterface,
-} from "../CompoundMultiOracle";
+  CompositeMultiOracle,
+  CompositeMultiOracleInterface,
+} from "../CompositeMultiOracle";
 
 const _abi = [
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes6",
+        name: "baseId",
+        type: "bytes6",
+      },
+      {
+        indexed: true,
+        internalType: "bytes6",
+        name: "quoteId",
+        type: "bytes6",
+      },
+      {
+        indexed: true,
+        internalType: "bytes6[]",
+        name: "path",
+        type: "bytes6[]",
+      },
+    ],
+    name: "PathSet",
+    type: "event",
+  },
   {
     anonymous: false,
     inputs: [
@@ -91,7 +116,7 @@ const _abi = [
       {
         indexed: true,
         internalType: "bytes6",
-        name: "kind",
+        name: "quoteId",
         type: "bytes6",
       },
       {
@@ -132,19 +157,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "SCALE_FACTOR",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
     name: "decimals",
     outputs: [
       {
@@ -165,7 +177,7 @@ const _abi = [
       },
       {
         internalType: "bytes32",
-        name: "kind",
+        name: "quote",
         type: "bytes32",
       },
       {
@@ -285,13 +297,42 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes6",
+        name: "",
+        type: "bytes6",
+      },
+      {
+        internalType: "bytes6",
+        name: "",
+        type: "bytes6",
+      },
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    name: "paths",
+    outputs: [
+      {
+        internalType: "bytes6",
+        name: "",
+        type: "bytes6",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes32",
         name: "base",
         type: "bytes32",
       },
       {
         internalType: "bytes32",
-        name: "kind",
+        name: "quote",
         type: "bytes32",
       },
       {
@@ -373,6 +414,52 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes6",
+        name: "base",
+        type: "bytes6",
+      },
+      {
+        internalType: "bytes6",
+        name: "quote",
+        type: "bytes6",
+      },
+      {
+        internalType: "bytes6[]",
+        name: "path",
+        type: "bytes6[]",
+      },
+    ],
+    name: "setPath",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes6[]",
+        name: "bases",
+        type: "bytes6[]",
+      },
+      {
+        internalType: "bytes6[]",
+        name: "quotes",
+        type: "bytes6[]",
+      },
+      {
+        internalType: "bytes6[][]",
+        name: "paths_",
+        type: "bytes6[][]",
+      },
+    ],
+    name: "setPaths",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes4",
         name: "role",
         type: "bytes4",
@@ -397,7 +484,7 @@ const _abi = [
       },
       {
         internalType: "bytes6",
-        name: "kind",
+        name: "quote",
         type: "bytes6",
       },
       {
@@ -420,7 +507,7 @@ const _abi = [
       },
       {
         internalType: "bytes6[]",
-        name: "kinds",
+        name: "quotes",
         type: "bytes6[]",
       },
       {
@@ -451,8 +538,13 @@ const _abi = [
     outputs: [
       {
         internalType: "address",
-        name: "",
+        name: "source",
         type: "address",
+      },
+      {
+        internalType: "uint8",
+        name: "decimals",
+        type: "uint8",
       },
     ],
     stateMutability: "view",
@@ -460,15 +552,19 @@ const _abi = [
   },
 ];
 
-export class CompoundMultiOracle__factory {
+export class CompositeMultiOracle__factory {
   static readonly abi = _abi;
-  static createInterface(): CompoundMultiOracleInterface {
-    return new utils.Interface(_abi) as CompoundMultiOracleInterface;
+  static createInterface(): CompositeMultiOracleInterface {
+    return new utils.Interface(_abi) as CompositeMultiOracleInterface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
-  ): CompoundMultiOracle {
-    return new Contract(address, _abi, signerOrProvider) as CompoundMultiOracle;
+  ): CompositeMultiOracle {
+    return new Contract(
+      address,
+      _abi,
+      signerOrProvider
+    ) as CompositeMultiOracle;
   }
 }

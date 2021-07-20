@@ -4,7 +4,10 @@
 
 import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-import type { JoinFactory, JoinFactoryInterface } from "../JoinFactory";
+import type {
+  FYTokenFactory,
+  FYTokenFactoryInterface,
+} from "../FYTokenFactory";
 
 const _abi = [
   {
@@ -13,17 +16,23 @@ const _abi = [
       {
         indexed: true,
         internalType: "address",
+        name: "fyToken",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
         name: "asset",
         type: "address",
       },
       {
-        indexed: false,
-        internalType: "address",
-        name: "pool",
-        type: "address",
+        indexed: true,
+        internalType: "uint32",
+        name: "maturity",
+        type: "uint32",
       },
     ],
-    name: "JoinCreated",
+    name: "FYTokenCreated",
     type: "event",
   },
   {
@@ -124,12 +133,37 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "asset",
+        internalType: "bytes6",
+        name: "baseId",
+        type: "bytes6",
+      },
+      {
+        internalType: "contract IOracle",
+        name: "oracle",
         type: "address",
       },
+      {
+        internalType: "contract IJoin",
+        name: "baseJoin",
+        type: "address",
+      },
+      {
+        internalType: "uint32",
+        name: "maturity",
+        type: "uint32",
+      },
+      {
+        internalType: "string",
+        name: "name",
+        type: "string",
+      },
+      {
+        internalType: "string",
+        name: "symbol",
+        type: "string",
+      },
     ],
-    name: "createJoin",
+    name: "createFYToken",
     outputs: [
       {
         internalType: "address",
@@ -306,15 +340,15 @@ const _abi = [
   },
 ];
 
-export class JoinFactory__factory {
+export class FYTokenFactory__factory {
   static readonly abi = _abi;
-  static createInterface(): JoinFactoryInterface {
-    return new utils.Interface(_abi) as JoinFactoryInterface;
+  static createInterface(): FYTokenFactoryInterface {
+    return new utils.Interface(_abi) as FYTokenFactoryInterface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
-  ): JoinFactory {
-    return new Contract(address, _abi, signerOrProvider) as JoinFactory;
+  ): FYTokenFactory {
+    return new Contract(address, _abi, signerOrProvider) as FYTokenFactory;
   }
 }

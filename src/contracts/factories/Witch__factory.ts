@@ -78,38 +78,30 @@ const _abi = [
     inputs: [
       {
         indexed: true,
+        internalType: "bytes6",
+        name: "ilkId",
+        type: "bytes6",
+      },
+      {
+        indexed: false,
         internalType: "uint32",
         name: "duration",
         type: "uint32",
       },
-    ],
-    name: "DurationSet",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
       {
-        indexed: true,
+        indexed: false,
+        internalType: "uint64",
+        name: "initialOffer",
+        type: "uint64",
+      },
+      {
+        indexed: false,
         internalType: "uint128",
         name: "dust",
         type: "uint128",
       },
     ],
-    name: "DustSet",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "uint64",
-        name: "initialOffer",
-        type: "uint64",
-      },
-    ],
-    name: "InitialOfferSet",
+    name: "IlkSet",
     type: "event",
   },
   {
@@ -287,32 +279,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "duration",
-    outputs: [
-      {
-        internalType: "uint32",
-        name: "",
-        type: "uint32",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "dust",
-    outputs: [
-      {
-        internalType: "uint128",
-        name: "",
-        type: "uint128",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [
       {
         internalType: "bytes4",
@@ -392,13 +358,29 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "initialOffer",
+    inputs: [
+      {
+        internalType: "bytes6",
+        name: "",
+        type: "bytes6",
+      },
+    ],
+    name: "ilks",
     outputs: [
       {
+        internalType: "uint32",
+        name: "duration",
+        type: "uint32",
+      },
+      {
         internalType: "uint64",
-        name: "",
+        name: "initialOffer",
         type: "uint64",
+      },
+      {
+        internalType: "uint128",
+        name: "dust",
+        type: "uint128",
       },
     ],
     stateMutability: "view",
@@ -511,38 +493,27 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes6",
+        name: "ilkId",
+        type: "bytes6",
+      },
+      {
         internalType: "uint32",
-        name: "duration_",
+        name: "duration",
         type: "uint32",
       },
-    ],
-    name: "setDuration",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
+      {
+        internalType: "uint64",
+        name: "initialOffer",
+        type: "uint64",
+      },
       {
         internalType: "uint128",
-        name: "dust_",
+        name: "dust",
         type: "uint128",
       },
     ],
-    name: "setDust",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint64",
-        name: "initialOffer_",
-        type: "uint64",
-      },
-    ],
-    name: "setInitialOffer",
+    name: "setIlk",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
