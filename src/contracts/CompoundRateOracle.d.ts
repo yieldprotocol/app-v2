@@ -22,6 +22,7 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 interface CompoundRateOracleInterface extends ethers.utils.Interface {
   functions: {
     "SCALE_FACTOR()": FunctionFragment;
+    "decimals()": FunctionFragment;
     "get(bytes32,bytes32,uint256)": FunctionFragment;
     "peek(bytes32,bytes32,uint256)": FunctionFragment;
     "source()": FunctionFragment;
@@ -31,6 +32,7 @@ interface CompoundRateOracleInterface extends ethers.utils.Interface {
     functionFragment: "SCALE_FACTOR",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "get",
     values: [BytesLike, BytesLike, BigNumberish]
@@ -45,6 +47,7 @@ interface CompoundRateOracleInterface extends ethers.utils.Interface {
     functionFragment: "SCALE_FACTOR",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "get", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "peek", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "source", data: BytesLike): Result;
@@ -98,6 +101,8 @@ export class CompoundRateOracle extends BaseContract {
   functions: {
     SCALE_FACTOR(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    decimals(overrides?: CallOverrides): Promise<[number]>;
+
     get(
       arg0: BytesLike,
       arg1: BytesLike,
@@ -119,6 +124,8 @@ export class CompoundRateOracle extends BaseContract {
 
   SCALE_FACTOR(overrides?: CallOverrides): Promise<BigNumber>;
 
+  decimals(overrides?: CallOverrides): Promise<number>;
+
   get(
     arg0: BytesLike,
     arg1: BytesLike,
@@ -139,6 +146,8 @@ export class CompoundRateOracle extends BaseContract {
 
   callStatic: {
     SCALE_FACTOR(overrides?: CallOverrides): Promise<BigNumber>;
+
+    decimals(overrides?: CallOverrides): Promise<number>;
 
     get(
       arg0: BytesLike,
@@ -166,6 +175,8 @@ export class CompoundRateOracle extends BaseContract {
   estimateGas: {
     SCALE_FACTOR(overrides?: CallOverrides): Promise<BigNumber>;
 
+    decimals(overrides?: CallOverrides): Promise<BigNumber>;
+
     get(
       arg0: BytesLike,
       arg1: BytesLike,
@@ -185,6 +196,8 @@ export class CompoundRateOracle extends BaseContract {
 
   populateTransaction: {
     SCALE_FACTOR(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     get(
       arg0: BytesLike,

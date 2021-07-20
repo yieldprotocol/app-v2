@@ -24,6 +24,7 @@ interface CompoundMultiOracleInterface extends ethers.utils.Interface {
     "LOCK()": FunctionFragment;
     "ROOT()": FunctionFragment;
     "SCALE_FACTOR()": FunctionFragment;
+    "decimals()": FunctionFragment;
     "get(bytes32,bytes32,uint256)": FunctionFragment;
     "getRoleAdmin(bytes4)": FunctionFragment;
     "grantRole(bytes4,address)": FunctionFragment;
@@ -46,6 +47,7 @@ interface CompoundMultiOracleInterface extends ethers.utils.Interface {
     functionFragment: "SCALE_FACTOR",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "get",
     values: [BytesLike, BytesLike, BigNumberish]
@@ -106,6 +108,7 @@ interface CompoundMultiOracleInterface extends ethers.utils.Interface {
     functionFragment: "SCALE_FACTOR",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "get", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getRoleAdmin",
@@ -195,6 +198,8 @@ export class CompoundMultiOracle extends BaseContract {
     ROOT(overrides?: CallOverrides): Promise<[string]>;
 
     SCALE_FACTOR(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    decimals(overrides?: CallOverrides): Promise<[number]>;
 
     get(
       base: BytesLike,
@@ -288,6 +293,8 @@ export class CompoundMultiOracle extends BaseContract {
 
   SCALE_FACTOR(overrides?: CallOverrides): Promise<BigNumber>;
 
+  decimals(overrides?: CallOverrides): Promise<number>;
+
   get(
     base: BytesLike,
     kind: BytesLike,
@@ -379,6 +386,8 @@ export class CompoundMultiOracle extends BaseContract {
     ROOT(overrides?: CallOverrides): Promise<string>;
 
     SCALE_FACTOR(overrides?: CallOverrides): Promise<BigNumber>;
+
+    decimals(overrides?: CallOverrides): Promise<number>;
 
     get(
       base: BytesLike,
@@ -509,6 +518,8 @@ export class CompoundMultiOracle extends BaseContract {
 
     SCALE_FACTOR(overrides?: CallOverrides): Promise<BigNumber>;
 
+    decimals(overrides?: CallOverrides): Promise<BigNumber>;
+
     get(
       base: BytesLike,
       kind: BytesLike,
@@ -602,6 +613,8 @@ export class CompoundMultiOracle extends BaseContract {
     ROOT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     SCALE_FACTOR(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     get(
       base: BytesLike,

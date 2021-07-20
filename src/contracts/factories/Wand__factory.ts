@@ -20,6 +20,11 @@ const _abi = [
         type: "address",
       },
       {
+        internalType: "address",
+        name: "witch_",
+        type: "address",
+      },
+      {
         internalType: "contract IPoolFactory",
         name: "poolFactory_",
         type: "address",
@@ -27,6 +32,11 @@ const _abi = [
       {
         internalType: "contract IJoinFactory",
         name: "joinFactory_",
+        type: "address",
+      },
+      {
+        internalType: "contract IFYTokenFactory",
+        name: "fyTokenFactory_",
         type: "address",
       },
     ],
@@ -242,6 +252,19 @@ const _abi = [
     outputs: [
       {
         internalType: "contract ICauldronGov",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "fyTokenFactory",
+    outputs: [
+      {
+        internalType: "contract IFYTokenFactory",
         name: "",
         type: "address",
       },
@@ -526,6 +549,19 @@ const _abi = [
     name: "setRoleAdmin",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "witch",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
 ];

@@ -11,6 +11,7 @@ import {
   PopulatedTransaction,
   BaseContract,
   ContractTransaction,
+  Overrides,
   CallOverrides,
 } from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
@@ -18,19 +19,29 @@ import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
-interface ILadleInterface extends ethers.utils.Interface {
+interface IFYTokenFactoryInterface extends ethers.utils.Interface {
   functions: {
-    "joins(bytes6)": FunctionFragment;
+    "createFYToken(bytes6,address,address,uint32,string,string)": FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: "joins", values: [BytesLike]): string;
+  encodeFunctionData(
+    functionFragment: "createFYToken",
+    values: [BytesLike, string, string, BigNumberish, string, string]
+  ): string;
 
-  decodeFunctionResult(functionFragment: "joins", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "createFYToken",
+    data: BytesLike
+  ): Result;
 
-  events: {};
+  events: {
+    "FYTokenCreated(address,address,uint32)": EventFragment;
+  };
+
+  getEvent(nameOrSignatureOrTopic: "FYTokenCreated"): EventFragment;
 }
 
-export class ILadle extends BaseContract {
+export class IFYTokenFactory extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -71,28 +82,74 @@ export class ILadle extends BaseContract {
     toBlock?: string | number | undefined
   ): Promise<Array<TypedEvent<EventArgsArray & EventArgsObject>>>;
 
-  interface: ILadleInterface;
+  interface: IFYTokenFactoryInterface;
 
   functions: {
-    joins(assetId: BytesLike, overrides?: CallOverrides): Promise<[string]>;
+    createFYToken(
+      baseId: BytesLike,
+      oracle: string,
+      baseJoin: string,
+      maturity: BigNumberish,
+      name: string,
+      symbol: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
   };
 
-  joins(assetId: BytesLike, overrides?: CallOverrides): Promise<string>;
+  createFYToken(
+    baseId: BytesLike,
+    oracle: string,
+    baseJoin: string,
+    maturity: BigNumberish,
+    name: string,
+    symbol: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   callStatic: {
-    joins(assetId: BytesLike, overrides?: CallOverrides): Promise<string>;
+    createFYToken(
+      baseId: BytesLike,
+      oracle: string,
+      baseJoin: string,
+      maturity: BigNumberish,
+      name: string,
+      symbol: string,
+      overrides?: CallOverrides
+    ): Promise<string>;
   };
 
-  filters: {};
+  filters: {
+    FYTokenCreated(
+      fyToken?: string | null,
+      asset?: string | null,
+      maturity?: BigNumberish | null
+    ): TypedEventFilter<
+      [string, string, number],
+      { fyToken: string; asset: string; maturity: number }
+    >;
+  };
 
   estimateGas: {
-    joins(assetId: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
+    createFYToken(
+      baseId: BytesLike,
+      oracle: string,
+      baseJoin: string,
+      maturity: BigNumberish,
+      name: string,
+      symbol: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    joins(
-      assetId: BytesLike,
-      overrides?: CallOverrides
+    createFYToken(
+      baseId: BytesLike,
+      oracle: string,
+      baseJoin: string,
+      maturity: BigNumberish,
+      name: string,
+      symbol: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

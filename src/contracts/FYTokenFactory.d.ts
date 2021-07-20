@@ -19,33 +19,27 @@ import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
-interface ChainlinkMultiOracleInterface extends ethers.utils.Interface {
+interface FYTokenFactoryInterface extends ethers.utils.Interface {
   functions: {
     "LOCK()": FunctionFragment;
     "ROOT()": FunctionFragment;
-    "decimals()": FunctionFragment;
-    "get(bytes32,bytes32,uint256)": FunctionFragment;
+    "createFYToken(bytes6,address,address,uint32,string,string)": FunctionFragment;
     "getRoleAdmin(bytes4)": FunctionFragment;
     "grantRole(bytes4,address)": FunctionFragment;
     "grantRoles(bytes4[],address)": FunctionFragment;
     "hasRole(bytes4,address)": FunctionFragment;
     "lockRole(bytes4)": FunctionFragment;
-    "peek(bytes32,bytes32,uint256)": FunctionFragment;
     "renounceRole(bytes4,address)": FunctionFragment;
     "revokeRole(bytes4,address)": FunctionFragment;
     "revokeRoles(bytes4[],address)": FunctionFragment;
     "setRoleAdmin(bytes4,bytes4)": FunctionFragment;
-    "setSource(bytes6,bytes6,address)": FunctionFragment;
-    "setSources(bytes6[],bytes6[],address[])": FunctionFragment;
-    "sources(bytes6,bytes6)": FunctionFragment;
   };
 
   encodeFunctionData(functionFragment: "LOCK", values?: undefined): string;
   encodeFunctionData(functionFragment: "ROOT", values?: undefined): string;
-  encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "get",
-    values: [BytesLike, BytesLike, BigNumberish]
+    functionFragment: "createFYToken",
+    values: [BytesLike, string, string, BigNumberish, string, string]
   ): string;
   encodeFunctionData(
     functionFragment: "getRoleAdmin",
@@ -65,10 +59,6 @@ interface ChainlinkMultiOracleInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "lockRole", values: [BytesLike]): string;
   encodeFunctionData(
-    functionFragment: "peek",
-    values: [BytesLike, BytesLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
     functionFragment: "renounceRole",
     values: [BytesLike, string]
   ): string;
@@ -84,23 +74,13 @@ interface ChainlinkMultiOracleInterface extends ethers.utils.Interface {
     functionFragment: "setRoleAdmin",
     values: [BytesLike, BytesLike]
   ): string;
-  encodeFunctionData(
-    functionFragment: "setSource",
-    values: [BytesLike, BytesLike, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setSources",
-    values: [BytesLike[], BytesLike[], string[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "sources",
-    values: [BytesLike, BytesLike]
-  ): string;
 
   decodeFunctionResult(functionFragment: "LOCK", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "ROOT", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "get", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "createFYToken",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "getRoleAdmin",
     data: BytesLike
@@ -109,7 +89,6 @@ interface ChainlinkMultiOracleInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "grantRoles", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "lockRole", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "peek", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "renounceRole",
     data: BytesLike
@@ -123,24 +102,21 @@ interface ChainlinkMultiOracleInterface extends ethers.utils.Interface {
     functionFragment: "setRoleAdmin",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "setSource", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "setSources", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "sources", data: BytesLike): Result;
 
   events: {
+    "FYTokenCreated(address,address,uint32)": EventFragment;
     "RoleAdminChanged(bytes4,bytes4)": EventFragment;
     "RoleGranted(bytes4,address,address)": EventFragment;
     "RoleRevoked(bytes4,address,address)": EventFragment;
-    "SourceSet(bytes6,bytes6,address)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "FYTokenCreated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleRevoked"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "SourceSet"): EventFragment;
 }
 
-export class ChainlinkMultiOracle extends BaseContract {
+export class FYTokenFactory extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -181,19 +157,20 @@ export class ChainlinkMultiOracle extends BaseContract {
     toBlock?: string | number | undefined
   ): Promise<Array<TypedEvent<EventArgsArray & EventArgsObject>>>;
 
-  interface: ChainlinkMultiOracleInterface;
+  interface: FYTokenFactoryInterface;
 
   functions: {
     LOCK(overrides?: CallOverrides): Promise<[string]>;
 
     ROOT(overrides?: CallOverrides): Promise<[string]>;
 
-    decimals(overrides?: CallOverrides): Promise<[number]>;
-
-    get(
-      base: BytesLike,
-      quote: BytesLike,
-      amount: BigNumberish,
+    createFYToken(
+      baseId: BytesLike,
+      oracle: string,
+      baseJoin: string,
+      maturity: BigNumberish,
+      name: string,
+      symbol: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -222,15 +199,6 @@ export class ChainlinkMultiOracle extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    peek(
-      base: BytesLike,
-      quote: BytesLike,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
-    >;
-
     renounceRole(
       role: BytesLike,
       account: string,
@@ -254,44 +222,19 @@ export class ChainlinkMultiOracle extends BaseContract {
       adminRole: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    setSource(
-      base: BytesLike,
-      quote: BytesLike,
-      source: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setSources(
-      bases: BytesLike[],
-      quotes: BytesLike[],
-      sources_: string[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    sources(
-      arg0: BytesLike,
-      arg1: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<
-      [string, number, boolean] & {
-        source: string;
-        decimals: number;
-        inverse: boolean;
-      }
-    >;
   };
 
   LOCK(overrides?: CallOverrides): Promise<string>;
 
   ROOT(overrides?: CallOverrides): Promise<string>;
 
-  decimals(overrides?: CallOverrides): Promise<number>;
-
-  get(
-    base: BytesLike,
-    quote: BytesLike,
-    amount: BigNumberish,
+  createFYToken(
+    baseId: BytesLike,
+    oracle: string,
+    baseJoin: string,
+    maturity: BigNumberish,
+    name: string,
+    symbol: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -320,15 +263,6 @@ export class ChainlinkMultiOracle extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  peek(
-    base: BytesLike,
-    quote: BytesLike,
-    amount: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
-  >;
-
   renounceRole(
     role: BytesLike,
     account: string,
@@ -353,47 +287,20 @@ export class ChainlinkMultiOracle extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  setSource(
-    base: BytesLike,
-    quote: BytesLike,
-    source: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setSources(
-    bases: BytesLike[],
-    quotes: BytesLike[],
-    sources_: string[],
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  sources(
-    arg0: BytesLike,
-    arg1: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<
-    [string, number, boolean] & {
-      source: string;
-      decimals: number;
-      inverse: boolean;
-    }
-  >;
-
   callStatic: {
     LOCK(overrides?: CallOverrides): Promise<string>;
 
     ROOT(overrides?: CallOverrides): Promise<string>;
 
-    decimals(overrides?: CallOverrides): Promise<number>;
-
-    get(
-      base: BytesLike,
-      quote: BytesLike,
-      amount: BigNumberish,
+    createFYToken(
+      baseId: BytesLike,
+      oracle: string,
+      baseJoin: string,
+      maturity: BigNumberish,
+      name: string,
+      symbol: string,
       overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
-    >;
+    ): Promise<string>;
 
     getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
 
@@ -416,15 +323,6 @@ export class ChainlinkMultiOracle extends BaseContract {
     ): Promise<boolean>;
 
     lockRole(role: BytesLike, overrides?: CallOverrides): Promise<void>;
-
-    peek(
-      base: BytesLike,
-      quote: BytesLike,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
-    >;
 
     renounceRole(
       role: BytesLike,
@@ -449,35 +347,18 @@ export class ChainlinkMultiOracle extends BaseContract {
       adminRole: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    setSource(
-      base: BytesLike,
-      quote: BytesLike,
-      source: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setSources(
-      bases: BytesLike[],
-      quotes: BytesLike[],
-      sources_: string[],
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    sources(
-      arg0: BytesLike,
-      arg1: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<
-      [string, number, boolean] & {
-        source: string;
-        decimals: number;
-        inverse: boolean;
-      }
-    >;
   };
 
   filters: {
+    FYTokenCreated(
+      fyToken?: string | null,
+      asset?: string | null,
+      maturity?: BigNumberish | null
+    ): TypedEventFilter<
+      [string, string, number],
+      { fyToken: string; asset: string; maturity: number }
+    >;
+
     RoleAdminChanged(
       role?: BytesLike | null,
       newAdminRole?: BytesLike | null
@@ -503,15 +384,6 @@ export class ChainlinkMultiOracle extends BaseContract {
       [string, string, string],
       { role: string; account: string; sender: string }
     >;
-
-    SourceSet(
-      baseId?: BytesLike | null,
-      quoteId?: BytesLike | null,
-      source?: string | null
-    ): TypedEventFilter<
-      [string, string, string],
-      { baseId: string; quoteId: string; source: string }
-    >;
   };
 
   estimateGas: {
@@ -519,12 +391,13 @@ export class ChainlinkMultiOracle extends BaseContract {
 
     ROOT(overrides?: CallOverrides): Promise<BigNumber>;
 
-    decimals(overrides?: CallOverrides): Promise<BigNumber>;
-
-    get(
-      base: BytesLike,
-      quote: BytesLike,
-      amount: BigNumberish,
+    createFYToken(
+      baseId: BytesLike,
+      oracle: string,
+      baseJoin: string,
+      maturity: BigNumberish,
+      name: string,
+      symbol: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -556,13 +429,6 @@ export class ChainlinkMultiOracle extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    peek(
-      base: BytesLike,
-      quote: BytesLike,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     renounceRole(
       role: BytesLike,
       account: string,
@@ -585,26 +451,6 @@ export class ChainlinkMultiOracle extends BaseContract {
       role: BytesLike,
       adminRole: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setSource(
-      base: BytesLike,
-      quote: BytesLike,
-      source: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setSources(
-      bases: BytesLike[],
-      quotes: BytesLike[],
-      sources_: string[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    sources(
-      arg0: BytesLike,
-      arg1: BytesLike,
-      overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
 
@@ -613,12 +459,13 @@ export class ChainlinkMultiOracle extends BaseContract {
 
     ROOT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    get(
-      base: BytesLike,
-      quote: BytesLike,
-      amount: BigNumberish,
+    createFYToken(
+      baseId: BytesLike,
+      oracle: string,
+      baseJoin: string,
+      maturity: BigNumberish,
+      name: string,
+      symbol: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -650,13 +497,6 @@ export class ChainlinkMultiOracle extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    peek(
-      base: BytesLike,
-      quote: BytesLike,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     renounceRole(
       role: BytesLike,
       account: string,
@@ -679,26 +519,6 @@ export class ChainlinkMultiOracle extends BaseContract {
       role: BytesLike,
       adminRole: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setSource(
-      base: BytesLike,
-      quote: BytesLike,
-      source: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setSources(
-      bases: BytesLike[],
-      quotes: BytesLike[],
-      sources_: string[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    sources(
-      arg0: BytesLike,
-      arg1: BytesLike,
-      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };
 }

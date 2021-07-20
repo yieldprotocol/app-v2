@@ -527,34 +527,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "bytes12",
-        name: "vaultId",
-        type: "bytes12",
-      },
-      {
-        internalType: "address",
-        name: "user",
-        type: "address",
-      },
-      {
-        internalType: "uint128",
-        name: "ink",
-        type: "uint128",
-      },
-      {
-        internalType: "uint128",
-        name: "art",
-        type: "uint128",
-      },
-    ],
-    name: "settle",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     inputs: [],
     name: "weth",
     outputs: [

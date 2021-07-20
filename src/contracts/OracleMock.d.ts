@@ -21,6 +21,7 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface OracleMockInterface extends ethers.utils.Interface {
   functions: {
+    "decimals()": FunctionFragment;
     "get(bytes32,bytes32,uint256)": FunctionFragment;
     "peek(bytes32,bytes32,uint256)": FunctionFragment;
     "set(uint256)": FunctionFragment;
@@ -29,6 +30,7 @@ interface OracleMockInterface extends ethers.utils.Interface {
     "updated()": FunctionFragment;
   };
 
+  encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "get",
     values: [BytesLike, BytesLike, BigNumberish]
@@ -42,6 +44,7 @@ interface OracleMockInterface extends ethers.utils.Interface {
   encodeFunctionData(functionFragment: "spot", values?: undefined): string;
   encodeFunctionData(functionFragment: "updated", values?: undefined): string;
 
+  decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "get", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "peek", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "set", data: BytesLike): Result;
@@ -96,6 +99,8 @@ export class OracleMock extends BaseContract {
   interface: OracleMockInterface;
 
   functions: {
+    decimals(overrides?: CallOverrides): Promise<[number]>;
+
     get(
       arg0: BytesLike,
       arg1: BytesLike,
@@ -121,6 +126,8 @@ export class OracleMock extends BaseContract {
 
     updated(overrides?: CallOverrides): Promise<[BigNumber]>;
   };
+
+  decimals(overrides?: CallOverrides): Promise<number>;
 
   get(
     arg0: BytesLike,
@@ -148,6 +155,8 @@ export class OracleMock extends BaseContract {
   updated(overrides?: CallOverrides): Promise<BigNumber>;
 
   callStatic: {
+    decimals(overrides?: CallOverrides): Promise<number>;
+
     get(
       arg0: BytesLike,
       arg1: BytesLike,
@@ -174,6 +183,8 @@ export class OracleMock extends BaseContract {
   filters: {};
 
   estimateGas: {
+    decimals(overrides?: CallOverrides): Promise<BigNumber>;
+
     get(
       arg0: BytesLike,
       arg1: BytesLike,
@@ -201,6 +212,8 @@ export class OracleMock extends BaseContract {
   };
 
   populateTransaction: {
+    decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     get(
       arg0: BytesLike,
       arg1: BytesLike,

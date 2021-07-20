@@ -23,6 +23,7 @@ interface UniswapV3OracleInterface extends ethers.utils.Interface {
   functions: {
     "LOCK()": FunctionFragment;
     "ROOT()": FunctionFragment;
+    "decimals()": FunctionFragment;
     "get(bytes32,bytes32,uint256)": FunctionFragment;
     "getRoleAdmin(bytes4)": FunctionFragment;
     "grantRole(bytes4,address)": FunctionFragment;
@@ -44,6 +45,7 @@ interface UniswapV3OracleInterface extends ethers.utils.Interface {
 
   encodeFunctionData(functionFragment: "LOCK", values?: undefined): string;
   encodeFunctionData(functionFragment: "ROOT", values?: undefined): string;
+  encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "get",
     values: [BytesLike, BytesLike, BigNumberish]
@@ -109,6 +111,7 @@ interface UniswapV3OracleInterface extends ethers.utils.Interface {
 
   decodeFunctionResult(functionFragment: "LOCK", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "ROOT", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "get", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getRoleAdmin",
@@ -207,6 +210,8 @@ export class UniswapV3Oracle extends BaseContract {
     LOCK(overrides?: CallOverrides): Promise<[string]>;
 
     ROOT(overrides?: CallOverrides): Promise<[string]>;
+
+    decimals(overrides?: CallOverrides): Promise<[number]>;
 
     get(
       base: BytesLike,
@@ -317,6 +322,8 @@ export class UniswapV3Oracle extends BaseContract {
 
   ROOT(overrides?: CallOverrides): Promise<string>;
 
+  decimals(overrides?: CallOverrides): Promise<number>;
+
   get(
     base: BytesLike,
     quote: BytesLike,
@@ -425,6 +432,8 @@ export class UniswapV3Oracle extends BaseContract {
     LOCK(overrides?: CallOverrides): Promise<string>;
 
     ROOT(overrides?: CallOverrides): Promise<string>;
+
+    decimals(overrides?: CallOverrides): Promise<number>;
 
     get(
       base: BytesLike,
@@ -576,6 +585,8 @@ export class UniswapV3Oracle extends BaseContract {
 
     ROOT(overrides?: CallOverrides): Promise<BigNumber>;
 
+    decimals(overrides?: CallOverrides): Promise<BigNumber>;
+
     get(
       base: BytesLike,
       quote: BytesLike,
@@ -676,6 +687,8 @@ export class UniswapV3Oracle extends BaseContract {
     LOCK(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     ROOT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     get(
       base: BytesLike,
