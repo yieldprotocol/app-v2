@@ -5,7 +5,6 @@ import styled from 'styled-components';
 import { ChainContext, connectorNames } from '../contexts/ChainContext';
 import { abbreviateHash } from '../utils/appUtils';
 import YieldAvatar from './YieldAvatar';
-import { UserContext } from '../contexts/UserContext';
 
 const ChangeButton = styled(Button)`
   background: #dbeafe;
