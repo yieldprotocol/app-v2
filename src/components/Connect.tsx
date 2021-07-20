@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, Button, Text } from 'grommet';
 import { FiCheckSquare, FiX } from 'react-icons/fi';
-import { ChainContext } from '../contexts/ChainContext';
+import { ChainContext, connectorNames } from '../contexts/ChainContext';
 
 const Connect = ({ setConnectOpen }: any) => {
   const {
@@ -38,7 +38,7 @@ const Connect = ({ setConnectOpen }: any) => {
       >
         <Box direction="row" gap="xsmall">
           {connected && <FiCheckSquare color="green" />}
-          {activating ? 'Connecting' : name}
+          {activating ? 'Connecting' : connectorNames.get(name)}
         </Box>
       </Box>
     );
