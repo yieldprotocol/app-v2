@@ -2,12 +2,11 @@ import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
-import { ICallData, IVault, SignType, ISeries, ActionCodes } from '../types';
+import { ICallData, IVault, SignType, ISeries, ActionCodes, LadleActions } from '../types';
 import { getTxCode } from '../utils/appUtils';
-import { ETH_BASED_ASSETS, DAI_BASED_ASSETS, MAX_128, MAX_256 } from '../utils/constants';
+import { ETH_BASED_ASSETS, DAI_BASED_ASSETS, MAX_128, BLANK_VAULT } from '../utils/constants';
 import { useChain } from './chainHooks';
 
-import { VAULT_OPS } from '../utils/operations';
 import { calculateSlippage } from '../utils/yieldMath';
 import { useCollateralActions } from './collateralHooks';
 
@@ -18,23 +17,20 @@ export const useBorrow = () => {
 /* Generic hook for chain transactions */
 export const useBorrowActions = () => {
   const {
-    chainState: { account, contractMap },
+    chainState: { account },
   } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
   const { selectedIlkId, selectedSeriesId, seriesMap, assetMap } = userState;
   const { updateVaults } = userActions;
 
   const { addEth, removeEth } = useCollateralActions();
-
   const { sign, transact } = useChain();
 
   const borrow = async (vault: IVault | undefined, input: string | undefined, collInput: string | undefined) => {
-    /* use the vault id provided OR Get a random vault number ready if reqd. */
-    // const vaultId = vault?.id || ethers.utils.hexlify(ethers.utils.randomBytes(12));
+    /* use the vault id provided OR 0 if new/ not provided */
+    const vaultId = vault?.id || BLANK_VAULT; // ethers.utils.hexlify(ethers.utils.randomBytes(12))
 
-    const vaultId = vault?.id || '0x000000000000000000000000';
-
-    /* set the series and ilk based on if a vault has been selected or it's a new vault */
+    /* set the series and ilk based on the vault that has been selected or if it's a new vault, get from the globally selected SeriesId */
     const series = vault ? seriesMap.get(vault.seriesId) : seriesMap.get(selectedSeriesId);
     const ilk = vault ? assetMap.get(vault.ilkId) : assetMap.get(selectedIlkId);
 
@@ -53,7 +49,7 @@ export const useBorrowActions = () => {
           spender: ilk.joinAddress,
           series,
           type: DAI_BASED_ASSETS.includes(selectedIlkId) ? SignType.DAI : SignType.ERC2612,
-          ignore: ETH_BASED_ASSETS.includes(selectedIlkId) /* Ignore if Eth varietal OR Dai varietal */,
+          ignore: ETH_BASED_ASSETS.includes(selectedIlkId) /* Ignore if Eth varietal */,
         },
       ],
       txCode
@@ -69,15 +65,15 @@ export const useBorrowActions = () => {
 
       /* If vault is null, build a new vault, else ignore */
       {
-        operation: VAULT_OPS.BUILD,
-        args: [selectedSeriesId, selectedIlkId],
+        operation: LadleActions.Fn.BUILD,
+        args: [selectedSeriesId, selectedIlkId] as LadleActions.Args.BUILD,
         series,
         ignore: !!vault,
       },
       {
-        operation: VAULT_OPS.SERVE,
-        args: [vaultId, account, _collInput, _input, MAX_128],
-        ignore: false,
+        operation: LadleActions.Fn.SERVE,
+        args: [vaultId, account, _collInput, _input, MAX_128] as LadleActions.Args.SERVE,
+        ignore: false, // never ignore this
         series,
       },
     ];
@@ -134,22 +130,22 @@ export const useBorrowActions = () => {
     const calls: ICallData[] = [
       ...permits,
       {
-        operation: VAULT_OPS.TRANSFER_TO_POOL,
-        args: [series.id, true, _inputWithSlippage],
+        operation: LadleActions.Fn.TRANSFER_TO_POOL,
+        args: [series.id, true, _inputWithSlippage] as LadleActions.Args.TRANSFER_TO_POOL,
         series,
         ignore: series.mature,
       },
       {
         /* ladle.repay(vaultId, owner, inkRetrieved, 0) */ 
-        operation: VAULT_OPS.REPAY,
-        args: [vault.id, account, _collInput, ethers.constants.Zero],
+        operation: LadleActions.Fn.REPAY,
+        args: [vault.id, account, _collInput, ethers.constants.Zero] as LadleActions.Args.REPAY,
         series,
         ignore: series.mature || inputGreaterThanDebt,
       },
       {
         /* ladle.repayVault(vaultId, owner, inkRetrieved, MAX) */ 
-        operation: VAULT_OPS.REPAY_VAULT,
-        args: [vault.id, account, ethers.constants.Zero, MAX_128],
+        operation: LadleActions.Fn.REPAY_VAULT,
+        args: [vault.id, account, ethers.constants.Zero, MAX_128] as LadleActions.Args.REPAY_VAULT,
         series,
         ignore: series.mature || !inputGreaterThanDebt,
       },
@@ -158,8 +154,8 @@ export const useBorrowActions = () => {
 
       {
         /* ladle.repayVault(vaultId, owner, inkRetrieved, MAX) */ 
-        operation: VAULT_OPS.CLOSE,
-        args: [vault.id, account, ethers.constants.Zero, _input.mul(-1)],
+        operation: LadleActions.Fn.CLOSE,
+        args: [vault.id, account, ethers.constants.Zero, _input.mul(-1)] as LadleActions.Args.CLOSE,
         series,
         ignore: !series.mature,
       },
@@ -175,8 +171,8 @@ export const useBorrowActions = () => {
     const calls: ICallData[] = [
       {
         // ladle.rollAction(vaultId: string, newSeriesId: string, max: BigNumberish)
-        operation: VAULT_OPS.ROLL,
-        args: [vault.id, toSeries.id, '2', MAX_128],
+        operation: LadleActions.Fn.ROLL, 
+        args: [vault.id, toSeries.id, '2', MAX_128] as LadleActions.Args.ROLL ,
         ignore: false,
         series,
       },
