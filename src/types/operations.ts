@@ -13,7 +13,7 @@ export namespace PoolRouterActions {
     export type JOIN_ETHER = [base: string, fyToken: string];
     export type EXIT_ETHER = [to: string];
     export type TRANSFER_TO_POOL = [base: string, fyToken: string, token: string, wad: BigNumberish];
-    export type ROUTE = [base: string, fyToken: string, poolcall: string];
+    export type ROUTE = [base: string, fyToken: string, encodedPoolcall: string];
 
     export type FORWARD_PERMIT = [
       base: string,
@@ -83,7 +83,9 @@ export namespace LadleActions {
     export type JOIN_ETHER = [etherId: string, overrides?: any];
     export type EXIT_ETHER = [to: string];
     export type TRANSFER_TO_POOL = [seriesId: string, base: boolean, wad: BigNumberish];
-    export type ROUTE = [seriesId: string, poolCall: string];
+    
+    export type ROUTE = [seriesId: string, encodedpoolCall: string];
+
     export type TRANSFER_TO_FYTOKEN = [seriesId: string, wad: BigNumberish];
     export type REDEEM = [seriesId: string, to: string, wad: BigNumberish];
 
