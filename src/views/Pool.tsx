@@ -57,7 +57,6 @@ function Pool() {
 
   const { poolMax } = usePool(poolInput);
 
-
   /* LOCAL ACTION FNS */
   const handleAdd = () => {
     // !poolDisabled &&
@@ -119,14 +118,14 @@ function Pool() {
                 <Text>POOL</Text>
               </Box>
 
-              <SectionWrap title="Select an asset to Pool">
+              <SectionWrap title="Select an asset and amount">
                 <Box direction="row" gap="small" fill="horizontal" align="start">
                   <Box basis={mobile ? '50%' : '60%'}>
                     <InputWrap action={() => console.log('maxAction')} isError={poolError}>
                       <TextInput
                         plain
                         type="number"
-                        placeholder="Enter Amount"
+                        placeholder="Enter amount"
                         value={poolInput || ''}
                         onChange={(event: any) => setPoolInput(cleanValue(event.target.value))}
                       />
@@ -140,7 +139,7 @@ function Pool() {
                 </Box>
               </SectionWrap>
 
-              <SectionWrap title="Select a series to Pool to">
+              <SectionWrap title="Select a series">
                 <SeriesSelector actionType={ActionType.POOL} inputValue={poolInput} />
               </SectionWrap>
             </Box>
@@ -193,11 +192,7 @@ function Pool() {
                         icon={<BiCoinStack />}
                         value={`${'[todo]'} Liquidity tokens`}
                       />
-                      <ReviewTxItem
-                        label="Percentage of pool"
-                        icon={<FiPercent />}
-                        value={`${'[todo]'}%`}
-                      />
+                      <ReviewTxItem label="Percentage of pool" icon={<FiPercent />} value={`${'[todo]'}%`} />
                     </Box>
                   </SectionWrap>
                 </Box>

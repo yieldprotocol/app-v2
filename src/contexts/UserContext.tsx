@@ -17,7 +17,7 @@ import {
 } from '../types';
 
 import { ChainContext } from './ChainContext';
-import { cleanValue, genVaultImage, bytesToBytes32 } from '../utils/appUtils';
+import { cleanValue, generateDudeSalt, genVaultImage, bytesToBytes32 } from '../utils/appUtils';
 import { calculateAPR, divDecimal, floorDecimal, mulDecimal, secondsToFrom, sellFYToken } from '../utils/yieldMath';
 
 import { ONE_WEI_BN } from '../utils/constants';
@@ -45,7 +45,7 @@ const initState: IUserContextState = {
 
   /* User Settings */
   approvalMethod: ApprovalType.SIG,
-  dudeSalt: 'DudeSalt'
+  dudeSalt: 0,
 };
 
 const vaultNameConfig: Config = {
@@ -87,6 +87,9 @@ function userReducer(state: any, action: any) {
 
     case 'approvalMethod':
       return { ...state, approvalMethod: onlyIfChanged(action) };
+
+    case 'dudeSalt':
+      return { ...state, dudeSalt: onlyIfChanged(action) };
 
     default:
       return state;
@@ -171,11 +174,9 @@ const UserProvider = ({ children }: any) => {
         _accountData = await Promise.all(
           _publicData.map(async (asset: IAssetRoot): Promise<IAsset> => {
             const balance = await asset.getBalance(account);
-            
-            const isYieldBase = 
-              !!Array.from(seriesRootMap.values())
-              .find( (x:any) => x.baseId === asset.id ) ;
-              
+
+            const isYieldBase = !!Array.from(seriesRootMap.values()).find((x: any) => x.baseId === asset.id);
+
             return {
               ...asset,
               isYieldBase,
@@ -331,8 +332,8 @@ const UserProvider = ({ children }: any) => {
             art_: cleanValue(ethers.utils.formatEther(art), 2), // for display purposes only
             price,
             price_: cleanValue(ethers.utils.formatEther(price), 2),
-            min, 
-            max
+            min,
+            max,
           };
         })
       );
@@ -401,6 +402,8 @@ const UserProvider = ({ children }: any) => {
     setSelectedBase: (assetId: string | null) => updateState({ type: 'selectedBaseId', payload: assetId }),
 
     setApprovalMethod: (type: ApprovalType) => updateState({ type: 'approvalMethod', payload: type }),
+
+    updateDudeSalt: () => updateState({ type: 'dudeSalt', payload: state.dudeSalt+1 }),
   };
 
   return <UserContext.Provider value={{ userState, userActions } as IUserContext}>{children}</UserContext.Provider>;

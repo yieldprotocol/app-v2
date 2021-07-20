@@ -1,18 +1,39 @@
 import React, { useContext, useState } from 'react';
 import { Anchor, Box, Button, Text } from 'grommet';
-import { FiCopy, FiExternalLink, FiX } from 'react-icons/fi';
+import { FiCheckSquare, FiCopy, FiExternalLink, FiX } from 'react-icons/fi';
+import styled from 'styled-components';
 import { ChainContext } from '../contexts/ChainContext';
 import { abbreviateHash } from '../utils/appUtils';
 import YieldAvatar from './YieldAvatar';
+import { UserContext } from '../contexts/UserContext';
+
+const ChangeButton = styled(Button)`
+  background: #dbeafe;
+  border: 2px solid #3b82f6;
+  height: 2rem;
+  width: 5rem;
+  border-radius: 20px;
+  font-size: 0.6rem;
+  text-align: center;
+  color: #2563eb;
+
+  :hover {
+    border: 2px solid #1d4ed8;
+  }
+`;
 
 const YieldSettings = ({ setConnectOpen, setSettingsOpen }: any) => {
   const {
     chainState: { account, chainId },
   } = useContext(ChainContext);
 
+  const {
+    userActions: { updateDudeSalt },
+  } = useContext(UserContext);
+
   const [copySuccess, setCopySuccess] = useState<boolean>(false);
 
-  const connectType: string = 'Metamask';
+  const connectorName: string = 'Metamask';
 
   const handleChangeConnectType = () => {
     setSettingsOpen(false);
@@ -21,31 +42,35 @@ const YieldSettings = ({ setConnectOpen, setSettingsOpen }: any) => {
 
   const handleCopy = (text: any) => {
     navigator.clipboard.writeText(text);
+    setCopySuccess(true);
+    setTimeout(() => setCopySuccess(false), 2000);
   };
 
   return (
-    <Box basis="auto" width="medium" pad="small" gap="small">
-      <Box justify="between" align="center" direction="row">
+    <Box basis="auto" width="medium">
+      <Box pad="small" gap="small" direction="row" justify="between">
         <Text>Account</Text>
         <Button icon={<FiX size="1.5rem" />} onClick={() => setSettingsOpen(false)} plain />
       </Box>
-      <Box border={{ color: '#2563EB', size: 'xsmall' }} gap="small" pad="small" round="small">
+      <Box
+        border={{ color: '#DBEAFE', size: 'xsmall', side: 'top' }}
+        gap="xsmall"
+        pad={{ horizontal: 'medium', vertical: 'small' }}
+      >
         <Box justify="between" align="center" direction="row">
-          <Text size="small">Connected with {connectType}</Text>
-          <Button
-            style={{ backgroundColor: '#DBEAFE' }}
-            onClick={handleChangeConnectType}
-            label="Change"
-            size="small"
-          />
+          <Text size="small">Connected with {connectorName}</Text>
+          <ChangeButton onClick={handleChangeConnectType}>Change</ChangeButton>
         </Box>
-        <Box align="center" direction="row" gap="xsmall">
-          <YieldAvatar address={account} size={2} />
-          <Text size="xlarge">{abbreviateHash(account)}</Text>
+        <Box justify="between" align="center" direction="row">
+          <Box direction="row" align="center" gap="xsmall">
+            <YieldAvatar address={account} size={2} />
+            <Text size="xlarge">{abbreviateHash(account)}</Text>
+          </Box>
+          <ChangeButton onClick={updateDudeSalt}>New Avatar</ChangeButton>
         </Box>
         <Box align="center" direction="row" gap="xsmall">
           <Button alignSelf="center" margin="xsmall" onClick={() => handleCopy(account)}>
-            <FiCopy size="1rem" />
+            {copySuccess ? <FiCheckSquare size="1rem" /> : <FiCopy size="1rem" />}
             <Text margin="xsmall" size="small">
               {copySuccess ? 'Copied' : 'Copy Address'}
             </Text>
@@ -60,6 +85,17 @@ const YieldSettings = ({ setConnectOpen, setSettingsOpen }: any) => {
         <Text color="#6B7280" size="small">
           Connected to Chain ID {chainId}
         </Text>
+      </Box>
+      <Box
+        border={{ color: '#DBEAFE', size: 'xsmall', side: 'top' }}
+        pad="medium"
+        gap="small"
+        direction="row"
+        justify="between"
+        background="#F3F4F6"
+        round={{ size: 'medium', corner: 'bottom' }}
+      >
+        <Text size="medium">Your transactions will appear here...</Text>
       </Box>
     </Box>
   );

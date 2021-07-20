@@ -25,7 +25,7 @@ const Balances = () => {
   const selectedIlk = assetMap.get(selectedIlkId);
 
   return (
-    <Box pad="xsmall" fill="vertical" justify="center">
+    <Box pad="xsmall" fill="vertical" justify="center" width="5rem">
       <Box direction="row" gap="small">
         <Box>
           <Text size="xsmall" color="text">
