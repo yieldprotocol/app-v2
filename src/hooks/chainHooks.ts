@@ -74,7 +74,7 @@ export const useChain = () => {
           const extraParams =
             call.operation === LadleActions.Fn.ROUTE ? [seriesId] : [getBaseAddress(), fyTokenAddress];
           // return ethers.utils.defaultAbiCoder.encode('route', [...extraParams, encodedFn]);
-          return _contract.interface.encodeFunctionData('route', [...extraParams, encodedFn]);
+          return _contract.interface.encodeFunctionData('route', [...extraParams, encodedFn]); // not we don't use Fn.ROUTE here (because they are different)
         }
         throw new Error('Function name required for routing');
       }

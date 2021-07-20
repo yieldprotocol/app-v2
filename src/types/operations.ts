@@ -7,7 +7,7 @@ export namespace PoolRouterActions {
     JOIN_ETHER = 'joinEther',
     EXIT_ETHER = 'exitEther',
     TRANSFER_TO_POOL = 'transferToPool',
-    ROUTE = 'route',
+    ROUTE = 'route_p',
   }
   export namespace Args {
     export type JOIN_ETHER = [base: string, fyToken: string];
@@ -60,7 +60,7 @@ export namespace LadleActions {
     JOIN_ETHER = 'joinEther',
     EXIT_ETHER = 'exitEther',
     TRANSFER_TO_POOL = 'transferToPool',
-    ROUTE = 'route',
+    ROUTE = 'route_l',
     TRANSFER_TO_FYTOKEN = 'transferToFyToken',
     REDEEM = 'redeem',
     MODULE = 'module',
