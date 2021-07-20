@@ -166,7 +166,7 @@ export const useCollateralActions = () => {
       /* If vault is null, build a new vault, else ignore */
       {
         operation: LadleActions.Fn.BUILD,
-        args: [selectedSeriesId, selectedIlkId] as LadleActions.Args.BUILD,
+        args: [selectedSeriesId, selectedIlkId, '0'] as LadleActions.Args.BUILD,
         series,
         ignore: !!vault,
       },

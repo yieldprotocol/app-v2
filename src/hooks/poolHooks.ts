@@ -94,7 +94,7 @@ export const usePoolActions = () => {
       {
         // build Vault with random id if required
         operation: LadleActions.Fn.BUILD,
-        args: [selectedSeriesId, selectedIlkId] as LadleActions.Args.BUILD,
+        args: [selectedSeriesId, selectedIlkId, '0'] as LadleActions.Args.BUILD,
         ignore: strategy !== 'MINT',
         series,
       },

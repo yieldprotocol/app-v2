@@ -66,7 +66,7 @@ export namespace LadleActions {
     MODULE = 'module',
   }
   export namespace Args {
-    export type BUILD = [seriesId: string, ilkId: string];
+    export type BUILD = [seriesId_bytes6: string, ilkId_bytes6: string, salt_bytes8: string];
     export type ROLL = [vaultId: string, newSeriesId: string, loan: BigNumberish, max: BigNumberish];
     export type TWEAK = [vaultId: string, seriesId: string, ilkId: string];
     export type GIVE = [vaultId: string, to: string];
