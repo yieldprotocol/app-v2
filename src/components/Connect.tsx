@@ -20,6 +20,7 @@ const Connect = ({ setConnectOpen }: any) => {
     disconnect();
     setActivatingConnector(connectorName);
     connect(connectorName);
+    setConnectOpen(false);
   };
 
   const connectorsRender = [...connectors.keys()].map((name: string) => {
