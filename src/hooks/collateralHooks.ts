@@ -87,7 +87,7 @@ export const useCollateralActions = () => {
   } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
   const { selectedBaseId, selectedIlkId, selectedSeriesId, seriesMap, assetMap } = userState;
-  const { updateVaults } = userActions;
+  const { updateAssets, updateVaults } = userActions;
 
   const { sign, transact } = useChain();
 
@@ -153,7 +153,7 @@ export const useCollateralActions = () => {
       [
         {
           target: ilk,
-          type: _isDaiBased ? SignType.DAI: SignType.ERC2612,
+          type: _isDaiBased ? SignType.DAI : SignType.ERC2612,
           spender: ilk.joinAddress,
           series,
           ignore: _isEthBased,
@@ -190,6 +190,7 @@ export const useCollateralActions = () => {
 
     await transact('Ladle', calls, txCode);
     updateVaults([vault]);
+    updateAssets([base, ilk]);
   };
 
   const removeCollateral = async (vault: IVault, input: string) => {
@@ -224,6 +225,7 @@ export const useCollateralActions = () => {
 
     await transact('Ladle', calls, txCode);
     updateVaults([vault]);
+    updateAssets([ilk]);
   };
 
   return {

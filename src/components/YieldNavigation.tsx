@@ -56,8 +56,7 @@ const YieldNavigation = ({ callbackFn }: IYieldNavigation) => {
       {linksArr.map((x: any) => (
         <StyledLink to={x.to} activeStyle={activeStyle} key={x.label} onClick={() => callbackFn()}>
           <Text color={mobile ? 'text' : undefined} size={mobile ? 'small' : undefined}>
-            {' '}
-            {x.label}{' '}
+            {x.label}
           </Text>
         </StyledLink>
       ))}

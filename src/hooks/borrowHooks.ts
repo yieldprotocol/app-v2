@@ -21,7 +21,7 @@ export const useBorrowActions = () => {
   } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
   const { selectedIlkId, selectedSeriesId, seriesMap, assetMap } = userState;
-  const { updateVaults } = userActions;
+  const { updateVaults, updateAssets } = userActions;
 
   const { addEth, removeEth } = useCollateralActions();
   const { sign, transact } = useChain();
@@ -32,6 +32,7 @@ export const useBorrowActions = () => {
 
     /* set the series and ilk based on the vault that has been selected or if it's a new vault, get from the globally selected SeriesId */
     const series = vault ? seriesMap.get(vault.seriesId) : seriesMap.get(selectedSeriesId);
+    const base = assetMap.get(series.baseId);
     const ilk = vault ? assetMap.get(vault.ilkId) : assetMap.get(selectedIlkId);
 
     /* generate the reproducible txCode for tx tracking and tracing */
@@ -86,6 +87,7 @@ export const useBorrowActions = () => {
       else update ALL vaults (by passing an empty array)
     */
     vault ? updateVaults([vault]) : updateVaults([]);
+    updateAssets([base, ilk]);
   };
 
   const repay = async (
@@ -163,11 +165,14 @@ export const useBorrowActions = () => {
     ];
     await transact('Ladle', calls, txCode);
     updateVaults([vault]);
+    updateAssets([base]);
   };
 
   const rollDebt = async (vault: IVault, toSeries: ISeries) => {
     const txCode = getTxCode(ActionCodes.ROLL_DEBT, vault.id);
     const series = seriesMap.get(vault.seriesId);
+    const base = assetMap.get(vault.baseId);
+
     const calls: ICallData[] = [
       {
         // ladle.rollAction(vaultId: string, newSeriesId: string, max: BigNumberish)
@@ -179,6 +184,7 @@ export const useBorrowActions = () => {
     ];
     await transact('Ladle', calls, txCode);
     updateVaults([vault]);
+    updateAssets([base]);
   };
 
   return {

@@ -22,7 +22,7 @@ export const usePoolActions = () => {
   } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
   const { selectedIlkId, selectedSeriesId, assetMap } = userState;
-  const { updateSeries } = userActions;
+  const { updateSeries, updateAssets } = userActions;
 
   const { sign, transact } = useChain();
 
@@ -128,12 +128,14 @@ export const usePoolActions = () => {
     );
 
     updateSeries([series]);
+    updateAssets([base]);
   };
 
   const rollLiquidity = async (input: string, fromSeries: ISeries, toSeries: ISeries) => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.ROLL_LIQUIDITY, fromSeries.id);
     const _input = ethers.utils.parseEther(input);
+    const base = assetMap.get(fromSeries.baseId);
     const seriesMature = fromSeries.seriesIsMature;
 
     const _fyTokenToBuy = fyTokenForMint(
@@ -244,12 +246,14 @@ export const usePoolActions = () => {
       txCode
     );
     updateSeries([fromSeries, toSeries]);
+    updateAssets([base]);
   };
 
   const removeLiquidity = async (input: string, series: ISeries) => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.REMOVE_LIQUIDITY, series.id);
     const _input = ethers.utils.parseEther(input);
+    const base = assetMap.get(series.baseId);
 
     const permits: ICallData[] = await sign(
       [
@@ -313,6 +317,7 @@ export const usePoolActions = () => {
     ];
     await transact('PoolRouter', calls, txCode);
     updateSeries([series]);
+    updateAssets([base]);
   };
 
   return {
