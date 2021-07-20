@@ -33,8 +33,8 @@ function ActiveTransaction({
     _process && setTx(transactions.get(_process));
     _process && setSig(signatures.get(txCode));
 
-    console.log(sig);
-    console.log(tx);
+    // console.log(sig);
+    // console.log(tx);
 
   }, [processes, signatures, transactions, txCode]);
 
