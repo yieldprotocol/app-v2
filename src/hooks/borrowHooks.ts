@@ -22,7 +22,7 @@ export const useBorrowActions = () => {
   } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
   const { selectedIlkId, selectedSeriesId, seriesMap, assetMap } = userState;
-  const { updateVaults } = userActions;
+  const { updateVaults, updateAssets } = userActions;
 
   const { addEth, removeEth } = useCollateralActions();
 
@@ -31,11 +31,11 @@ export const useBorrowActions = () => {
   const borrow = async (vault: IVault | undefined, input: string | undefined, collInput: string | undefined) => {
     /* use the vault id provided OR Get a random vault number ready if reqd. */
     // const vaultId = vault?.id || ethers.utils.hexlify(ethers.utils.randomBytes(12));
-
     const vaultId = vault?.id || '0x000000000000000000000000';
 
     /* set the series and ilk based on if a vault has been selected or it's a new vault */
     const series = vault ? seriesMap.get(vault.seriesId) : seriesMap.get(selectedSeriesId);
+    const base = assetMap.get(series.baseId);
     const ilk = vault ? assetMap.get(vault.ilkId) : assetMap.get(selectedIlkId);
 
     /* generate the reproducible txCode for tx tracking and tracing */
@@ -90,6 +90,7 @@ export const useBorrowActions = () => {
       else update ALL vaults (by passing an empty array)
     */
     vault ? updateVaults([vault]) : updateVaults([]);
+    updateAssets([base, ilk]);
   };
 
   const repay = async (
@@ -140,14 +141,14 @@ export const useBorrowActions = () => {
         ignore: series.mature,
       },
       {
-        /* ladle.repay(vaultId, owner, inkRetrieved, 0) */ 
+        /* ladle.repay(vaultId, owner, inkRetrieved, 0) */
         operation: VAULT_OPS.REPAY,
         args: [vault.id, account, _collInput, ethers.constants.Zero],
         series,
         ignore: series.mature || inputGreaterThanDebt,
       },
       {
-        /* ladle.repayVault(vaultId, owner, inkRetrieved, MAX) */ 
+        /* ladle.repayVault(vaultId, owner, inkRetrieved, MAX) */
         operation: VAULT_OPS.REPAY_VAULT,
         args: [vault.id, account, ethers.constants.Zero, MAX_128],
         series,
@@ -157,7 +158,7 @@ export const useBorrowActions = () => {
       /* AFTER MATURITY */
 
       {
-        /* ladle.repayVault(vaultId, owner, inkRetrieved, MAX) */ 
+        /* ladle.repayVault(vaultId, owner, inkRetrieved, MAX) */
         operation: VAULT_OPS.CLOSE,
         args: [vault.id, account, ethers.constants.Zero, _input.mul(-1)],
         series,
@@ -167,11 +168,14 @@ export const useBorrowActions = () => {
     ];
     await transact('Ladle', calls, txCode);
     updateVaults([vault]);
+    updateAssets([base]);
   };
 
   const rollDebt = async (vault: IVault, toSeries: ISeries) => {
     const txCode = getTxCode(ActionCodes.ROLL_DEBT, vault.id);
     const series = seriesMap.get(vault.seriesId);
+    const base = assetMap.get(vault.baseId);
+
     const calls: ICallData[] = [
       {
         // ladle.rollAction(vaultId: string, newSeriesId: string, max: BigNumberish)
@@ -183,6 +187,7 @@ export const useBorrowActions = () => {
     ];
     await transact('Ladle', calls, txCode);
     updateVaults([vault]);
+    updateAssets([base]);
   };
 
   return {

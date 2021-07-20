@@ -4,11 +4,6 @@ import { css } from 'styled-components';
 export const yieldTheme = {
   global: {
     focus: 'none',
-    font: {
-      family: 'FoundryGridnik',
-      weight: '700',
-    },
-
     colors: {
       brand: '#3f53d9',
       focus: '#3f53d999',
@@ -59,12 +54,6 @@ export const yieldTheme = {
       scrollbar-width: none;
       ::-webkit-scrollbar {
         display: none;
-      }
-      @font-face {
-        font-family: FoundryGridnik;
-        font-weight: bold;
-        src: url('./fonts/FoundryGridnik.otf') format('opentype');
-        font-display: swap;
       }
     `,
   },

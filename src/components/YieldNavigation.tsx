@@ -7,7 +7,7 @@ const StyledLink = styled(NavLink)`
   text-decoration: none;
   padding: 8px;
 
-  font-family: 'FoundryGridnik';
+  /* font-family: 'FoundryGridnik'; */
 
   -webkit-transition: background 0.3s ease-in-out;
   -moz-transition: background 0.3s ease-in-out;
