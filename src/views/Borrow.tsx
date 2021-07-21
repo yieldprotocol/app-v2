@@ -37,6 +37,7 @@ import NextButton from '../components/buttons/NextButton';
 import YieldMark from '../components/logos/YieldMark';
 import TransactButton from '../components/buttons/TransactButton';
 import { useApr } from '../hooks/aprHook';
+import PositionAvatar from '../components/PositionAvatar';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -257,16 +258,54 @@ const Borrow = () => {
                   </SectionWrap>
 
                   <SectionWrap title="Add to an exisiting vault" disabled={matchingVaults.length < 1}>
-                    <Box round="xsmall" gap="small" justify="between" elevation="xsmall" >
+                    <Box round="xsmall" gap="small" justify="between" elevation="xsmall">
                       <Select
                         plain
                         disabled={matchingVaults.length < 1}
                         options={[{ displayName: 'Create new vault' }, ...matchingVaults]}
-                        labelKey={(x: IVault) => x.displayName}
+                        labelKey={(x: IVault) => x.displayName }
                         placeholder="Create new vault"
                         value={vaultToUse || 'Create new vault'}
-                        // defaultValue={undefined}
                         onChange={({ option }) => setVaultToUse(option)}
+                        
+                        valueLabel={
+                          vaultToUse?.id ? 
+                        <Box pad='small' direction='row' gap='small' align='center'>
+                          <PositionAvatar position={vaultToUse} condensed />
+                          <Text>{vaultToUse?.displayName}</Text>
+                        </Box>
+                        :
+                        <Box pad='small'>
+                        <Text color='text-xweak'  size='small'> Create New Vault </Text>
+                        </Box>                 
+                        }
+ 
+                        // eslint-disable-next-line react/no-children-prop
+                        children={(x: IVault) => (
+                          <>
+                            {x.id ? (
+                              <Box pad="xsmall" direction="row" gap="small" align="center">
+                                <PositionAvatar position={x} condensed />
+                                <Box>
+                                  <Text size="small" weight={700}>
+                                    {x.displayName}
+                                  </Text>
+                                  <Box direction="row" gap="small">
+                                    <Text size="xsmall"> {x.art_} Debt</Text>
+                                    <Text size="xsmall">
+                                      {' '}
+                                      {x.ink_} {selectedIlk?.symbol} posted{' '}
+                                    </Text>
+                                  </Box>
+                                </Box>
+                              </Box>
+                            ) : (
+                              <Box pad="small" direction="row" gap="small" align="center">
+                                <Text color = 'text-weak' size='small'>{x.displayName}</Text>
+                              </Box>
+                            )}
+                          </>
+                        )}
                       />
                     </Box>
                   </SectionWrap>

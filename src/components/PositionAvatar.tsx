@@ -21,7 +21,7 @@ function PositionAvatar({ position, condensed }: { position: IVault | ISeries, c
     <>
       {isVault ? (
         <Stack anchor="top-right">
-          <Avatar background={series?.color} size={condensed?'2em':undefined}>
+          <Avatar background={series?.color} size={condensed?'1.75em':undefined}>
             <Box round="large" background={base?.color} pad={condensed?undefined:'xsmall'} align="center" >
               {base?.image}
             </Box>
