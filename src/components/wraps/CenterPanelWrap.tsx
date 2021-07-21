@@ -95,7 +95,7 @@ function CenterPanelWrap({ children, series }: IPanelWrap) {
                   height="650px"
                   width="500px"
                   align="center" // use this to move shadow around
-                  justify="center" // use this to move shadow around
+                  justify="end" // use this to move shadow around
 
                 >
                   <StyledBox

@@ -26,7 +26,7 @@ import YieldInfo from '../components/YieldInfo';
 import BackButton from '../components/buttons/BackButton';
 import YieldMark from '../components/logos/YieldMark';
 import NextButton from '../components/buttons/NextButton';
-import ReviewTxItem from '../components/ReviewTxItem';
+import InfoBite from '../components/InfoBite';
 import TransactButton from '../components/buttons/TransactButton';
 import YieldApr from '../components/YieldApr';
 import { useApr } from '../hooks/aprHook';
@@ -159,18 +159,18 @@ const Lend = () => {
                     round="xsmall"
                     animation={{ type: 'zoomIn', size: 'small' }}
                   >
-                    <ReviewTxItem
+                    < InfoBite
                       label="Amount to lend"
                       icon={<BiMessageSquareAdd />}
                       value={`${lendInput} fyTokens`}
                     />
-                    <ReviewTxItem label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
-                    <ReviewTxItem
+                    < InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
+                    < InfoBite
                       label="Redeemable @ Maturity"
                       icon={<FiTrendingUp />}
                       value={`${lendInput} ${selectedBase?.symbol}`}
                     />
-                    <ReviewTxItem label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
+                    < InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
                   </Box>
                 </SectionWrap>
               </ActiveTransaction>

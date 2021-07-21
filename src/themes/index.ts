@@ -32,7 +32,7 @@ export const yieldTheme = {
         light: '#FFFFFF',
       },
     },
-    input: { weight: 700 },
+    // input: { weight: 700 },
   },
 
   grommet: {
@@ -56,9 +56,15 @@ export const yieldTheme = {
         display: none;
       }
     `,
+
   },
 
-  // TODO marco fout issue
+
+  select: {
+    dropProps: {
+      round: 'large'
+    },
+  },
 
   textInput: {
     extend: ({ theme }: any) =>
@@ -69,15 +75,12 @@ export const yieldTheme = {
     border: {
       radius: '8px',
     },
-
     color: 'brand',
-
     primary: {
       extend: ({ theme }: any) => css`
         color: ${theme.global.colors.text.dark};
       `,
     },
-
     maxWidth: '300px',
     size: {
       large: {
@@ -182,38 +185,4 @@ export const yieldTheme = {
     `,
   },
 
-  // tab: {
-  //   active: {
-  //     background: 'dark-1',
-  //     color: 'accent-1',
-  //   },
-  //   // background: 'dark-3',
-  //   border: undefined,
-  //   color: 'white',
-  //   hover: {
-  //     background: 'dark-1',
-  //   },
-  //   margin: undefined,
-  //   pad: {
-  //     bottom: undefined,
-  //     horizontal: 'small',
-  //   },
-  //   extend: ({ theme } : { theme:any }) => css`
-  //     border-radius: ${theme.global.control.border.radius}
-  //     box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.5);
-  //     /* or 'box-shadow: ${theme.global.elevation.light.small}' */
-  //   `,
-  // },
-
-  tabs: {
-    gap: 'small',
-  },
-  //   panel: {
-  //     gap: 'small',
-  //   //   extend: ({ theme }: { theme:any }) => css`
-  //   //   padding: ${theme.global.edgeSize.large}
-  //   //    /* box-shadow: ${theme.global.elevation.light.medium} */
-  //   // `,
-  //   },
-  // },
 };

@@ -88,6 +88,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
     >
       <Select
         plain
+        dropProps={{ round:'xsmall' }}
         id="assetSelectc"
         name="assetSelect"
         placeholder="Select Asset"
@@ -108,6 +109,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
           // }
           // ).filter( (x:number|null) => { console.log(x); return isNull(x) } )
         }
+        
         // eslint-disable-next-line react/no-children-prop
         children={(x: any) => (
           <Box pad={mobile ? 'medium' : 'small'} gap="xsmall" direction="row">

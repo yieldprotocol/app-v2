@@ -22,7 +22,6 @@ import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import NextButton from '../components/buttons/NextButton';
 import CancelButton from '../components/buttons/CancelButton';
 import TransactButton from '../components/buttons/TransactButton';
-import ReviewTxItem from '../components/ReviewTxItem';
 import YieldHistory from '../components/YieldHistory';
 
 const LendPosition = ({ close }: { close: () => void }) => {
@@ -171,6 +170,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
           <Box elevation="xsmall" round="xsmall">
             <Select
               plain
+              dropProps={{ round:'xsmall' }}
               options={[
                 { text: 'Close Position', index: 0 },
                 { text: 'Roll Position', index: 1 },
@@ -210,7 +210,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
                     title="Review your remove transaction"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
-                    <ReviewTxItem
+                    < InfoBite
                       label="Close Position"
                       icon={<FiMinusCircle />}
                       value={`${closeInput} ${selectedBase?.symbol}`}
@@ -240,13 +240,13 @@ const LendPosition = ({ close }: { close: () => void }) => {
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
                     {/* 
-                    <ReviewTxItem
+                    < InfoBite
                         label="Roll"
                         icon={<FiPlusCircle />}
                         value={`${rollInput} ${selectedBase?.symbol}`}
                       /> */}
 
-                    <ReviewTxItem
+                    < InfoBite
                       label="Roll To Series"
                       icon={<FiPlusCircle />}
                       value={`${rollToSeries?.displayName}`}

@@ -17,7 +17,6 @@ import { useBorrowActions } from '../hooks/borrowHooks';
 import SeriesSelector from '../components/selectors/SeriesSelector';
 import MaxButton from '../components/buttons/MaxButton';
 import ActiveTransaction from '../components/ActiveTransaction';
-import BackButton from '../components/buttons/BackButton';
 import PositionAvatar from '../components/PositionAvatar';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import NextButton from '../components/buttons/NextButton';
@@ -25,7 +24,6 @@ import { Gauge } from '../components/Gauge';
 import YieldHistory from '../components/YieldHistory';
 import TransactButton from '../components/buttons/TransactButton';
 import CancelButton from '../components/buttons/CancelButton';
-import ReviewTxItem from '../components/ReviewTxItem';
 
 const Vault = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -229,6 +227,7 @@ const Vault = ({ close }: { close: () => void }) => {
         <Box>
           <Box elevation="xsmall" round="xsmall">
             <Select
+              dropProps={{ round:'xsmall' }}
               plain
               options={[
                 { text: 'Repay Debt', index: 0 },
@@ -273,7 +272,7 @@ const Vault = ({ close }: { close: () => void }) => {
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
                     <Box gap="medium" pad="small">
-                      <ReviewTxItem
+                      < InfoBite
                         label="Repay Debt"
                         icon={<FiClock />}
                         value={`${repayInput} ${vaultBase?.symbol}`}
@@ -313,7 +312,7 @@ const Vault = ({ close }: { close: () => void }) => {
                       Roll {rollInput} {vaultBase?.symbol} debt from {selectedVault?.displayName} to the{' '}
                       {rollToSeries?.displayName} series.
                     </Text> */}
-                    <ReviewTxItem
+                    < InfoBite
                       label="Roll Debt to Series"
                       icon={<FiClock />}
                       value={`${rollToSeries?.displayName}`}
@@ -371,14 +370,14 @@ const Vault = ({ close }: { close: () => void }) => {
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
                     {addCollatInput && (
-                      <ReviewTxItem
+                      < InfoBite
                         label="Add Collateral"
                         icon={<FiPlusCircle />}
                         value={`${addCollatInput} ${vaultIlk?.symbol}`}
                       />
                     )}
                     {removeCollatInput && (
-                      <ReviewTxItem
+                      < InfoBite
                         label="Remove Collateral"
                         icon={<FiPlusCircle />}
                         value={`${removeCollatInput} ${vaultIlk?.symbol}`}
@@ -418,7 +417,7 @@ const Vault = ({ close }: { close: () => void }) => {
                     title="Review your transfer transaction"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
-                    <ReviewTxItem label="Transfer Vault to: " icon={<FiPlusCircle />} value="new address" />
+                    < InfoBite label="Transfer Vault to: " icon={<FiPlusCircle />} value="new address" />
                   </SectionWrap>
                 </ActiveTransaction>
               )}
@@ -451,7 +450,7 @@ const Vault = ({ close }: { close: () => void }) => {
                     title="Review your delete transaction"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
-                    <ReviewTxItem
+                    < InfoBite
                       label="Pay back all debt and delete vault:"
                       icon={<FiPlusCircle />}
                       value={`${selectedVault?.displayName}`}
