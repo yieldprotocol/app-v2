@@ -166,7 +166,10 @@ const Borrow = () => {
         (v: IVault) => v.ilkId === selectedIlk.id && v.baseId === selectedBase.id && v.seriesId === selectedSeries.id
       );
       setMatchingVaults(_matchingVaults);
+      // reset the selected vault on every change
+      setVaultToUse(undefined)
     }
+
   }, [vaultMap, selectedBase, selectedIlk, selectedSeries]);
 
   return (
@@ -265,21 +268,20 @@ const Borrow = () => {
                         options={[{ displayName: 'Create new vault' }, ...matchingVaults]}
                         labelKey={(x: IVault) => x.displayName }
                         placeholder="Create new vault"
-                        value={vaultToUse || 'Create new vault'}
+                        value={vaultToUse || { displayName: 'Create new vault' }}
                         onChange={({ option }) => setVaultToUse(option)}
                         
                         valueLabel={
                           vaultToUse?.id ? 
-                        <Box pad='small' direction='row' gap='small' align='center'>
+                        <Box pad='small' direction='row' gap='medium' align='center'>
                           <PositionAvatar position={vaultToUse} condensed />
                           <Text>{vaultToUse?.displayName}</Text>
                         </Box>
                         :
                         <Box pad='small'>
-                        <Text color='text-xweak'  size='small'> Create New Vault </Text>
+                        <Text color='text-xweak' size='small'> Create New Vault </Text>
                         </Box>                 
                         }
- 
                         // eslint-disable-next-line react/no-children-prop
                         children={(x: IVault) => (
                           <>
