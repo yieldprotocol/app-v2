@@ -2,13 +2,10 @@ import { Box, Button, Text } from 'grommet';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-const StyledButton = styled(Button)`
+const StyledButton = styled(Button)``;
 
-
-`;
-
-const TransactButton = (props:any) => (
-  <Box pad="large">
+const TransactButton = (props: any) => (
+  <Box>
     <StyledButton {...props} />
   </Box>
 );

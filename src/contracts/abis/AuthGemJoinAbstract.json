@@ -1,0 +1,15 @@
+[
+  {
+    "inputs": [],
+    "name": "gem",
+    "outputs": [
+      {
+        "internalType": "contract MaturingGemAbstract",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

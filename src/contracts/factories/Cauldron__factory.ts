@@ -31,19 +31,6 @@ const _abi = [
     inputs: [
       {
         indexed: true,
-        internalType: "uint32",
-        name: "auctionInterval",
-        type: "uint32",
-      },
-    ],
-    name: "AuctionIntervalSet",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
         internalType: "bytes6",
         name: "baseId",
         type: "bytes6",
@@ -332,25 +319,6 @@ const _abi = [
       },
       {
         indexed: true,
-        internalType: "uint256",
-        name: "timestamp",
-        type: "uint256",
-      },
-    ],
-    name: "VaultLocked",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "bytes12",
-        name: "vaultId",
-        type: "bytes12",
-      },
-      {
-        indexed: true,
         internalType: "bytes6",
         name: "seriesId",
         type: "bytes6",
@@ -582,38 +550,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "auctionInterval",
-    outputs: [
-      {
-        internalType: "uint32",
-        name: "",
-        type: "uint32",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes12",
-        name: "",
-        type: "bytes12",
-      },
-    ],
-    name: "auctions",
-    outputs: [
-      {
-        internalType: "uint32",
-        name: "",
-        type: "uint32",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [
       {
         internalType: "bytes12",
@@ -725,6 +661,54 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes6",
+        name: "seriesId",
+        type: "bytes6",
+      },
+      {
+        internalType: "uint128",
+        name: "base",
+        type: "uint128",
+      },
+    ],
+    name: "debtFromBase",
+    outputs: [
+      {
+        internalType: "uint128",
+        name: "art",
+        type: "uint128",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes6",
+        name: "seriesId",
+        type: "bytes6",
+      },
+      {
+        internalType: "uint128",
+        name: "art",
+        type: "uint128",
+      },
+    ],
+    name: "debtToBase",
+    outputs: [
+      {
+        internalType: "uint128",
+        name: "base",
+        type: "uint128",
+      },
+    ],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -1170,19 +1154,6 @@ const _abi = [
       },
     ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint32",
-        name: "auctionInterval_",
-        type: "uint32",
-      },
-    ],
-    name: "setAuctionInterval",
-    outputs: [],
-    stateMutability: "nonpayable",
     type: "function",
   },
   {

@@ -21,10 +21,12 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface IOracleInterface extends ethers.utils.Interface {
   functions: {
+    "decimals()": FunctionFragment;
     "get(bytes32,bytes32,uint256)": FunctionFragment;
     "peek(bytes32,bytes32,uint256)": FunctionFragment;
   };
 
+  encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "get",
     values: [BytesLike, BytesLike, BigNumberish]
@@ -34,6 +36,7 @@ interface IOracleInterface extends ethers.utils.Interface {
     values: [BytesLike, BytesLike, BigNumberish]
   ): string;
 
+  decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "get", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "peek", data: BytesLike): Result;
 
@@ -84,6 +87,8 @@ export class IOracle extends BaseContract {
   interface: IOracleInterface;
 
   functions: {
+    decimals(overrides?: CallOverrides): Promise<[number]>;
+
     get(
       base: BytesLike,
       quote: BytesLike,
@@ -100,6 +105,8 @@ export class IOracle extends BaseContract {
       [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
     >;
   };
+
+  decimals(overrides?: CallOverrides): Promise<number>;
 
   get(
     base: BytesLike,
@@ -118,6 +125,8 @@ export class IOracle extends BaseContract {
   >;
 
   callStatic: {
+    decimals(overrides?: CallOverrides): Promise<number>;
+
     get(
       base: BytesLike,
       quote: BytesLike,
@@ -140,6 +149,8 @@ export class IOracle extends BaseContract {
   filters: {};
 
   estimateGas: {
+    decimals(overrides?: CallOverrides): Promise<BigNumber>;
+
     get(
       base: BytesLike,
       quote: BytesLike,
@@ -156,6 +167,8 @@ export class IOracle extends BaseContract {
   };
 
   populateTransaction: {
+    decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     get(
       base: BytesLike,
       quote: BytesLike,

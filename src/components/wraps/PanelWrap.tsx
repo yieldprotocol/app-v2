@@ -3,12 +3,12 @@ import { Box, BoxTypes, Heading, ResponsiveContext, Text } from 'grommet';
 import { BorderType } from 'grommet/utils';
 
 interface IPanelWrap extends BoxTypes {
-  basis?: string
-  right?: boolean
+  basis?: string;
+  right?: boolean;
   children: any;
 }
 function PanelWrap({ background, basis, right, children }: IPanelWrap) {
-  const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
+  const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   return (
     <Box
       basis={basis || '33%'}

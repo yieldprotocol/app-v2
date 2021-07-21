@@ -20,6 +20,11 @@ const _abi = [
         type: "address",
       },
       {
+        internalType: "address",
+        name: "witch_",
+        type: "address",
+      },
+      {
         internalType: "contract IPoolFactory",
         name: "poolFactory_",
         type: "address",
@@ -27,6 +32,11 @@ const _abi = [
       {
         internalType: "contract IJoinFactory",
         name: "joinFactory_",
+        type: "address",
+      },
+      {
+        internalType: "contract IFYTokenFactory",
+        name: "fyTokenFactory_",
         type: "address",
       },
     ],
@@ -117,19 +127,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "CHI",
-    outputs: [
-      {
-        internalType: "bytes6",
-        name: "",
-        type: "bytes6",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
     name: "EXIT",
     outputs: [
       {
@@ -175,19 +172,6 @@ const _abi = [
         internalType: "bytes4",
         name: "",
         type: "bytes4",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "RATE",
-    outputs: [
-      {
-        internalType: "bytes6",
-        name: "",
-        type: "bytes6",
       },
     ],
     stateMutability: "view",
@@ -268,6 +252,19 @@ const _abi = [
     outputs: [
       {
         internalType: "contract ICauldronGov",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "fyTokenFactory",
+    outputs: [
+      {
+        internalType: "contract IFYTokenFactory",
         name: "",
         type: "address",
       },
@@ -552,6 +549,19 @@ const _abi = [
     name: "setRoleAdmin",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "witch",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
 ];

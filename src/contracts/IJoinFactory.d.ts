@@ -21,36 +21,12 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface IJoinFactoryInterface extends ethers.utils.Interface {
   functions: {
-    "JOIN_BYTECODE_HASH()": FunctionFragment;
-    "calculateJoinAddress(address)": FunctionFragment;
     "createJoin(address)": FunctionFragment;
-    "getJoin(address)": FunctionFragment;
-    "nextAsset()": FunctionFragment;
   };
 
-  encodeFunctionData(
-    functionFragment: "JOIN_BYTECODE_HASH",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "calculateJoinAddress",
-    values: [string]
-  ): string;
   encodeFunctionData(functionFragment: "createJoin", values: [string]): string;
-  encodeFunctionData(functionFragment: "getJoin", values: [string]): string;
-  encodeFunctionData(functionFragment: "nextAsset", values?: undefined): string;
 
-  decodeFunctionResult(
-    functionFragment: "JOIN_BYTECODE_HASH",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "calculateJoinAddress",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "createJoin", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getJoin", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "nextAsset", data: BytesLike): Result;
 
   events: {
     "JoinCreated(address,address)": EventFragment;
@@ -103,52 +79,19 @@ export class IJoinFactory extends BaseContract {
   interface: IJoinFactoryInterface;
 
   functions: {
-    JOIN_BYTECODE_HASH(overrides?: CallOverrides): Promise<[string]>;
-
-    calculateJoinAddress(
-      asset: string,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
     createJoin(
       asset: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    getJoin(asset: string, overrides?: CallOverrides): Promise<[string]>;
-
-    nextAsset(overrides?: CallOverrides): Promise<[string]>;
   };
-
-  JOIN_BYTECODE_HASH(overrides?: CallOverrides): Promise<string>;
-
-  calculateJoinAddress(
-    asset: string,
-    overrides?: CallOverrides
-  ): Promise<string>;
 
   createJoin(
     asset: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  getJoin(asset: string, overrides?: CallOverrides): Promise<string>;
-
-  nextAsset(overrides?: CallOverrides): Promise<string>;
-
   callStatic: {
-    JOIN_BYTECODE_HASH(overrides?: CallOverrides): Promise<string>;
-
-    calculateJoinAddress(
-      asset: string,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
     createJoin(asset: string, overrides?: CallOverrides): Promise<string>;
-
-    getJoin(asset: string, overrides?: CallOverrides): Promise<string>;
-
-    nextAsset(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {
@@ -159,43 +102,16 @@ export class IJoinFactory extends BaseContract {
   };
 
   estimateGas: {
-    JOIN_BYTECODE_HASH(overrides?: CallOverrides): Promise<BigNumber>;
-
-    calculateJoinAddress(
-      asset: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     createJoin(
       asset: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
-
-    getJoin(asset: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    nextAsset(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    JOIN_BYTECODE_HASH(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    calculateJoinAddress(
-      asset: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     createJoin(
       asset: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
-
-    getJoin(
-      asset: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    nextAsset(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }
