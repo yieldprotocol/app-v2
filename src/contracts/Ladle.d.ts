@@ -61,7 +61,6 @@ interface LadleInterface extends ethers.utils.Interface {
     "setFee(uint256)": FunctionFragment;
     "setModule(address,bool)": FunctionFragment;
     "setRoleAdmin(bytes4,bytes4)": FunctionFragment;
-
     "stir(bytes12,bytes12,uint128,uint128)": FunctionFragment;
     "transferToFYToken(bytes6,uint256)": FunctionFragment;
     "transferToPool(bytes6,bool,uint128)": FunctionFragment;
@@ -230,7 +229,6 @@ interface LadleInterface extends ethers.utils.Interface {
     functionFragment: "tweak",
     values: [BytesLike, BytesLike, BytesLike]
   ): string;
-
   encodeFunctionData(functionFragment: "weth", values?: undefined): string;
 
   decodeFunctionResult(functionFragment: "LOCK", data: BytesLike): Result;
@@ -293,7 +291,6 @@ interface LadleInterface extends ethers.utils.Interface {
     functionFragment: "setRoleAdmin",
     data: BytesLike
   ): Result;
-
   decodeFunctionResult(functionFragment: "stir", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "transferToFYToken",
@@ -620,6 +617,7 @@ export class Ladle extends BaseContract {
       ilkId: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
     weth(overrides?: CallOverrides): Promise<[string]>;
   };
 
