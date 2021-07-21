@@ -32,7 +32,7 @@ export interface IUserContextState {
   selectedBaseId: string | null;
   selectedVaultId: string | null;
   approvalMethod: ApprovalType;
-  dudeSalt:number;
+  dudeSalt: number;
 }
 
 export interface IUserContextActions {

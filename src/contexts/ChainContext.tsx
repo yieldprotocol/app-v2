@@ -24,7 +24,6 @@ import WBTCMark from '../components/logos/WBTCMark';
 import USDTMark from '../components/logos/USDTMark';
 import YieldMark from '../components/logos/YieldMark';
 
-
 const markMap = new Map([
   ['DAI', <DaiMark key="dai" />],
   ['USDC', <USDCMark key="usdc" />],
@@ -43,13 +42,21 @@ const RPC_URLS: { [chainId: number]: string } = {
   31337: process.env.REACT_APP_RPC_URL_31337 as string,
 };
 
+const chainNames = new Map([
+  [1, 'Mainnet'],
+  [42, 'Kovan'],
+]);
+
 const connectors = new Map();
+const injectedName = 'metamask';
+
 connectors.set(
-  'injected',
+  injectedName,
   new InjectedConnector({
     supportedChainIds: [1, 42, 1337, 31337],
   })
 );
+
 connectors.set(
   'walletconnect',
   new WalletConnectConnector({
@@ -60,12 +67,19 @@ connectors.set(
   })
 );
 
+// map the provider connection url name to a nicer format
+export const connectorNames = new Map([
+  ['metamask', 'Metamask'],
+  ['walletconnect', 'WalletConnect'],
+]);
+
 /* Build the context */
 const ChainContext = React.createContext<any>({});
 
 const initState = {
   appVersion: '0.0.0' as string,
-  chainId: Number(process.env.REACT_APP_DEFAULT_CHAINID) as number,
+  chainId: Number(process.env.REACT_APP_DEFAULT_CHAINID) as number | null,
+  chainName: null as string | null,
   provider: null as ethers.providers.Web3Provider | null,
   fallbackProvider: null as ethers.providers.Web3Provider | null,
   signer: null as ethers.providers.JsonRpcSigner | null,
@@ -106,6 +120,8 @@ function chainReducer(state: any, action: any) {
       return { ...state, signer: onlyIfChanged(action) };
     case 'chainId':
       return { ...state, chainId: onlyIfChanged(action) };
+    case 'chainName':
+      return { ...state, chainName: onlyIfChanged(action) };
     case 'account':
       return { ...state, account: onlyIfChanged(action) };
     case 'web3Active':
@@ -210,9 +226,9 @@ const ChainProvider = ({ children }: any) => {
               const ERC20 = contracts.ERC20Permit__factory.connect(address, fallbackLibrary);
               /* Add in any extra static asset Data */ // TODO is there any other fixed asset data needed?
               const [name, symbol] = await Promise.all([ERC20.name(), ERC20.symbol()]);
-              
+
               // TODO check if any other tokens have different versions. maybe abstract this logic somewhere?
-              const version = (id === '0x555344430000' ? '2' : '1');
+              const version = id === '0x555344430000' ? '2' : '1';
               // const version = ETH_BASED_ASSETS.includes(id) ? '1' : ERC20.version();
 
               /* watch for user specific ERC20 events, and update accordingly */
@@ -270,7 +286,7 @@ const ChainProvider = ({ children }: any) => {
               const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackLibrary);
 
               const season = getSeason(maturity) as SeasonType;
-              const oppSeason = (_season: SeasonType) => getSeason(maturity+ 15780000) as SeasonType;
+              const oppSeason = (_season: SeasonType) => getSeason(maturity + 15780000) as SeasonType;
 
               const [startColor, endColor, textColor]: string[] = yieldEnv.seasonColors[season];
               const [oppStartColor, oppEndColor, oppTextColor]: string[] = yieldEnv.seasonColors[oppSeason(season)];
@@ -289,7 +305,7 @@ const ChainProvider = ({ children }: any) => {
                   id,
                   baseId,
                   maturity,
-                  fullDate: format(new Date(maturity*1000), 'dd MMMM yyyy' ),
+                  fullDate: format(new Date(maturity * 1000), 'dd MMMM yyyy'),
                   name,
                   symbol,
                   version,
@@ -354,6 +370,7 @@ const ChainProvider = ({ children }: any) => {
   useEffect(() => {
     console.log('Wallet/Account Active: ', active);
     updateState({ type: 'chainId', payload: chainId });
+    chainId && updateState({ type: 'chainName', payload: chainNames.get(chainId) });
     updateState({ type: 'web3Active', payload: active });
     updateState({ type: 'provider', payload: library || null });
     updateState({ type: 'account', payload: account || null });
@@ -393,11 +410,11 @@ const ChainProvider = ({ children }: any) => {
   useEffect(() => {
     chainState.connectOnLoad &&
       connectors
-        .get('injected')
+        .get(injectedName)
         .isAuthorized()
         .then((isAuthorized: boolean) => {
           if (isAuthorized) {
-            activate(connectors.get('injected'), undefined, true).catch(() => {
+            activate(connectors.get(injectedName), undefined, true).catch(() => {
               setTried(true);
             });
           } else {
@@ -420,7 +437,7 @@ const ChainProvider = ({ children }: any) => {
 
   const chainActions = {
     isConnected: (connection: string) => connectors.get(connection) === connector,
-    connect: (connection: string = 'injected') => activate(connectors.get(connection)),
+    connect: (connection: string = injectedName) => activate(connectors.get(connection)),
     disconnect: () => connector && deactivate(),
     connectTest: () =>
       activate(
