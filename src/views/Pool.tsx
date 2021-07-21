@@ -28,7 +28,6 @@ import BackButton from '../components/buttons/BackButton';
 import YieldMark from '../components/logos/YieldMark';
 import NextButton from '../components/buttons/NextButton';
 import TransactButton from '../components/buttons/TransactButton';
-import ReviewTxItem from '../components/ReviewTxItem';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -177,22 +176,22 @@ function Pool() {
                       round="xsmall"
                       animation={{ type: 'zoomIn', size: 'small' }}
                     >
-                      <ReviewTxItem
+                      < InfoBite
                         label="Amount to pool"
                         icon={<BiMessageSquareAdd />}
                         value={`${poolInput} ${selectedBase?.symbol}`}
                       />
-                      <ReviewTxItem
+                      < InfoBite
                         label="Series Maturity"
                         icon={<FiClock />}
                         value={`${selectedSeries?.displayName}`}
                       />
-                      <ReviewTxItem
+                      < InfoBite
                         label="Amount of liquidity tokens recieved"
                         icon={<BiCoinStack />}
                         value={`${'[todo]'} Liquidity tokens`}
                       />
-                      <ReviewTxItem label="Percentage of pool" icon={<FiPercent />} value={`${'[todo]'}%`} />
+                      < InfoBite label="Percentage of pool" icon={<FiPercent />} value={`${'[todo]'}%`} />
                     </Box>
                   </SectionWrap>
                 </Box>

@@ -22,7 +22,6 @@ import NextButton from '../components/buttons/NextButton';
 import YieldMark from '../components/logos/YieldMark';
 import CancelButton from '../components/buttons/CancelButton';
 import TransactButton from '../components/buttons/TransactButton';
-import ReviewTxItem from '../components/ReviewTxItem';
 import YieldHistory from '../components/YieldHistory';
 
 const PoolPosition = ({ close }: { close: () => void }) => {
@@ -204,7 +203,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                     title="Review your remove transaction"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
-                    <ReviewTxItem
+                    < InfoBite
                       label="Remove Liquidity"
                       icon={<FiMinusCircle />}
                       value={`${removeInput} liquidity tokens`}
@@ -246,7 +245,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                     title="Review your roll transaction"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
-                    <ReviewTxItem
+                    < InfoBite
                       label="Roll Liquidity"
                       icon={<FiPlusCircle />}
                       value={`${rollInput} Liquidity Tokens to ${rollToSeries?.displayName} `}

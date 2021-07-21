@@ -32,7 +32,7 @@ import { getTxCode, nFormatter } from '../utils/appUtils';
 import YieldInfo from '../components/YieldInfo';
 import BackButton from '../components/buttons/BackButton';
 import { Gauge } from '../components/Gauge';
-import ReviewTxItem from '../components/ReviewTxItem';
+import InfoBite from '../components/InfoBite';
 import NextButton from '../components/buttons/NextButton';
 import YieldMark from '../components/logos/YieldMark';
 import TransactButton from '../components/buttons/TransactButton';
@@ -302,26 +302,26 @@ const Borrow = () => {
                         round="xsmall"
                         animation={{ type: 'zoomIn', size: 'small' }}
                       >
-                        <ReviewTxItem
+                        < InfoBite
                           label="Amount to be Borrowed"
                           icon={<FiPocket />}
                           value={`${borrowInput} ${selectedBase?.symbol}`}
                         />
-                        <ReviewTxItem
+                        < InfoBite
                           label="Series Maturity"
                           icon={<FiClock />}
                           value={`${selectedSeries?.displayName}`}
                         />
                         {vaultIdToUse && (
-                          <ReviewTxItem label="Using Existing Vault" icon={<FiLayers />} value={`${vaultIdToUse}`} />
+                          < InfoBite label="Using Existing Vault" icon={<FiLayers />} value={`${vaultIdToUse}`} />
                         )}
-                        <ReviewTxItem
+                        < InfoBite
                           label="Vault Debt Payable @ Maturity"
                           icon={<FiTrendingUp />}
                           value={`${borrowInput} ${selectedBase?.symbol}`}
                         />
-                        <ReviewTxItem label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
-                        <ReviewTxItem
+                        < InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
+                        < InfoBite
                           label="Supporting Collateral"
                           icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
                           value={`${collatInput} ${selectedIlk?.symbol} (${collateralizationPercent} % )`}

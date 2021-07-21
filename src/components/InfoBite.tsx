@@ -13,7 +13,7 @@ const InfoBite = ({ label, value, icon }: IInfoBite) => {
     <Box direction="row" align="center" pad={{ left: 'small', vertical: 'none' }} gap="medium">
       {icon && <Text size="1.5em">{icon}</Text>}
       <Box>
-        <Text size="small" color="text-weak">
+        <Text size="xsmall" color="text-weak">
           {label}
         </Text>
         <Text size="medium"> {value} </Text>
