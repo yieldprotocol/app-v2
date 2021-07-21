@@ -63,7 +63,7 @@ const Borrow = () => {
   const [borrowInputError, setBorrowInputError] = useState<string | null>(null);
   const [collatInputError, setCollatInputError] = useState<string | null>(null);
 
-  const [vaultIdToUse, setVaultIdToUse] = useState<string | undefined>(undefined);
+  const [vaultToUse, setVaultToUse] = useState<IVault | undefined>();
   const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
 
   const { borrow } = useBorrowActions();
@@ -72,12 +72,13 @@ const Borrow = () => {
   const { collateralizationPercent, collateralizationWarning, undercollateralized } = useCollateralization(
     borrowInput,
     collatInput,
-    vaultMap.get(vaultIdToUse!)
+    vaultToUse
   );
 
   /** LOCAL ACTION FNS */
   const handleBorrow = () => {
-    !borrowDisabled && borrow(vaultIdToUse ? vaultMap.get(vaultIdToUse) : undefined, borrowInput, collatInput);
+    const _vault = vaultToUse?.id ? vaultToUse : undefined; // if vaultToUse has id property, use it
+    !borrowDisabled && borrow(_vault, borrowInput, collatInput);
   };
 
   /* SET MAX VALUES */
@@ -190,7 +191,7 @@ const Borrow = () => {
             {stepPosition === 0 && ( // INITIAL STEP
               <Box gap="medium">
                 {/* <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }} > */}
-                <Box direction="row" gap="small" align="center" pad='medium' >
+                <Box direction="row" gap="small" align="center" pad="medium">
                   {/* <YieldMark />
                   <Text>BORROW</Text> */}
                 </Box>
@@ -255,17 +256,17 @@ const Borrow = () => {
                     </Box>
                   </SectionWrap>
 
-                  <SectionWrap title="Add to an exisiting vault" disabled={true || matchingVaults.length < 1}>
-                    <Box fill round="xsmall" gap="small" justify="between" elevation="xsmall" animation="slideDown">
+                  <SectionWrap title="Add to an exisiting vault" disabled={matchingVaults.length < 1}>
+                    <Box round="xsmall" gap="small" justify="between" elevation="xsmall" >
                       <Select
                         plain
-                        // disabled={matchingVaults.length < 1}
-                        disabled
-                        options={matchingVaults.map((x: IVault) => x.id)}
+                        disabled={matchingVaults.length < 1}
+                        options={[{ displayName: 'Create new vault' }, ...matchingVaults]}
+                        labelKey={(x: IVault) => x.displayName}
                         placeholder="Create new vault"
-                        value={vaultIdToUse || 'Create new vault'}
+                        value={vaultToUse || 'Create new vault'}
                         // defaultValue={undefined}
-                        onChange={({ option }) => setVaultIdToUse(option)}
+                        onChange={({ option }) => setVaultToUse(option)}
                       />
                     </Box>
                   </SectionWrap>
@@ -302,26 +303,26 @@ const Borrow = () => {
                         round="xsmall"
                         animation={{ type: 'zoomIn', size: 'small' }}
                       >
-                        < InfoBite
+                        <InfoBite
                           label="Amount to be Borrowed"
                           icon={<FiPocket />}
                           value={`${borrowInput} ${selectedBase?.symbol}`}
                         />
-                        < InfoBite
-                          label="Series Maturity"
-                          icon={<FiClock />}
-                          value={`${selectedSeries?.displayName}`}
-                        />
-                        {vaultIdToUse && (
-                          < InfoBite label="Using Existing Vault" icon={<FiLayers />} value={`${vaultIdToUse}`} />
+                        <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
+                        {vaultToUse?.id && (
+                          <InfoBite
+                            label="Using Existing Vault"
+                            icon={<FiLayers />}
+                            value={`${vaultToUse.displayName}`}
+                          />
                         )}
-                        < InfoBite
+                        <InfoBite
                           label="Vault Debt Payable @ Maturity"
                           icon={<FiTrendingUp />}
                           value={`${borrowInput} ${selectedBase?.symbol}`}
                         />
-                        < InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
-                        < InfoBite
+                        <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
+                        <InfoBite
                           label="Supporting Collateral"
                           icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
                           value={`${collatInput} ${selectedIlk?.symbol} (${collateralizationPercent} % )`}
