@@ -200,10 +200,8 @@ export class CompoundMultiOracle extends BaseContract {
       base: BytesLike,
       kind: BytesLike,
       amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
-    >;
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<[string]>;
 
@@ -294,10 +292,8 @@ export class CompoundMultiOracle extends BaseContract {
     base: BytesLike,
     kind: BytesLike,
     amount: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
-  >;
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
 
@@ -517,7 +513,7 @@ export class CompoundMultiOracle extends BaseContract {
       base: BytesLike,
       kind: BytesLike,
       amount: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     getRoleAdmin(
@@ -611,7 +607,7 @@ export class CompoundMultiOracle extends BaseContract {
       base: BytesLike,
       kind: BytesLike,
       amount: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     getRoleAdmin(

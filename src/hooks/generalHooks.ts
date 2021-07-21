@@ -1,21 +1,19 @@
 import { useCallback, useEffect, useState, useRef } from 'react';
 
 /* Simple Hook for caching & retrieved data */
-export const useCachedState = (key:string, initialValue:any) => {
+export const useCachedState = (key: string, initialValue: any) => {
   const genKey = key;
-  const [storedValue, setStoredValue] = useState(
-    () => {
-      try {
-        const item = window.localStorage.getItem(genKey);
-        /* Parse stored json or if none, return initialValue */
-        return item ? JSON.parse(item) : initialValue;
-      } catch (error) {
-        // If error also return initialValue and handle error - needs work
-        return initialValue;
-      }
-    },
-  );
-  const setValue = (value:any) => {
+  const [storedValue, setStoredValue] = useState(() => {
+    try {
+      const item = window.localStorage.getItem(genKey);
+      /* Parse stored json or if none, return initialValue */
+      return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+      // If error also return initialValue and handle error - needs work
+      return initialValue;
+    }
+  });
+  const setValue = (value: any) => {
     try {
       // For same API as useState
       const valueToStore = value instanceof Function ? value(storedValue) : value;
@@ -31,7 +29,7 @@ export const useCachedState = (key:string, initialValue:any) => {
 };
 
 /* Hook to debounce input */
-export const useDebounce = (value:any, delay:number) => {
+export const useDebounce = (value: any, delay: number) => {
   const [debouncedValue, setDebouncedValue] = useState(value);
   useEffect(
     () => {
@@ -46,7 +44,7 @@ export const useDebounce = (value:any, delay:number) => {
         clearTimeout(handler);
       };
     },
-    [value, delay], /* Only re-call effect if value or delay changes */
+    [value, delay] /* Only re-call effect if value or delay changes */
   );
   return debouncedValue;
 };
@@ -56,28 +54,21 @@ export const useDebounce = (value:any, delay:number) => {
 export const useTimeout = (
   callback: () => void, // function to call. No args passed.
   // if you create a new callback each render, then previous callback will be cancelled on render.
-  timeout: number = 0, // delay, ms (default: immediately put into JS Event Queue)
-): (
-  ) => void => {
+  timeout: number = 0 // delay, ms (default: immediately put into JS Event Queue)
+): (() => void) => {
   const timeoutIdRef = useRef<NodeJS.Timeout>();
-  const cancel = useCallback(
-    () => {
-      const timeoutId = timeoutIdRef.current;
-      if (timeoutId) {
-        timeoutIdRef.current = undefined;
-        clearTimeout(timeoutId);
-      }
-    },
-    [timeoutIdRef],
-  );
+  const cancel = useCallback(() => {
+    const timeoutId = timeoutIdRef.current;
+    if (timeoutId) {
+      timeoutIdRef.current = undefined;
+      clearTimeout(timeoutId);
+    }
+  }, [timeoutIdRef]);
 
-  useEffect(
-    () => {
-      timeoutIdRef.current = setTimeout(callback, timeout);
-      return cancel;
-    },
-    [callback, timeout, cancel],
-  );
+  useEffect(() => {
+    timeoutIdRef.current = setTimeout(callback, timeout);
+    return cancel;
+  }, [callback, timeout, cancel]);
 
   return cancel;
 };

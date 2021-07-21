@@ -18,7 +18,7 @@ const StyledBox = styled(Box)`
   }
 `;
 
-const YieldMenu = ({ toggleMenu }: { toggleMenu: ()=>void }) => {
+const YieldMenu = ({ toggleMenu }: { toggleMenu: () => void }) => {
   /* state from contexts */
   const { userState, userActions } = useContext(UserContext) as IUserContext;
   const { vaultMap } = userState;
@@ -38,13 +38,13 @@ const YieldMenu = ({ toggleMenu }: { toggleMenu: ()=>void }) => {
   const [vaultsArray, setVaultsArray] = useState<IVault[]>(Array.from(vaultMap.values()));
   const [view, setView] = useState<MenuView>(vaultsArray.length > 0 ? MenuView.settings : MenuView.account);
 
-  const handleSelect = (vault:IVault) => {
+  const handleSelect = (vault: IVault) => {
     setSelectedVault(vault.id);
     // routerHistory.push(`/vault/${vault.id}`);
     toggleMenu();
   };
 
-  const handleRouting = (route:string) => {
+  const handleRouting = (route: string) => {
     routerHistory.push(`/${route}`);
     toggleMenu();
   };
@@ -57,27 +57,22 @@ const YieldMenu = ({ toggleMenu }: { toggleMenu: ()=>void }) => {
             onClick={() => setView(MenuView.settings)}
             style={view === MenuView.settings ? activeStyle : undefined}
           >
-            <Text size="small">
-              My Account
-            </Text>
+            <Text size="small">My Account</Text>
           </StyledBox>
 
           <StyledBox
             onClick={() => setView(MenuView.account)}
             style={view === MenuView.account ? activeStyle : undefined}
           >
-            <Text size="small">
-              Settings
-            </Text>
+            <Text size="small">Settings</Text>
           </StyledBox>
         </Box>
       </Header>
 
       <Box flex overflow="auto" pad="medium" fill="horizontal">
-        { view === MenuView.account && <Box> Accounts view </Box>}
+        {view === MenuView.account && <Box> Accounts view </Box>}
 
-        {
-          view === MenuView.settings &&
+        {view === MenuView.settings && (
           <Box gap="medium">
             {/* { vaultsArray.map((x:IVault) => (
               <Box
@@ -115,17 +110,10 @@ const YieldMenu = ({ toggleMenu }: { toggleMenu: ()=>void }) => {
 
             </Box>} */}
           </Box>
-          }
+        )}
       </Box>
 
-      <Box
-        as="footer"
-        border={{ side: 'top' }}
-        pad="small"
-        justify="end"
-        direction="row"
-        align="center"
-      >
+      <Box as="footer" border={{ side: 'top' }} pad="small" justify="end" direction="row" align="center">
         <Button onClick={() => toggleMenu()} label="Close" />
       </Box>
     </>

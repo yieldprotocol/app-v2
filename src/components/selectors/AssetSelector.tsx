@@ -8,22 +8,21 @@ import { UserContext } from '../../contexts/UserContext';
 import { DAI, WETH } from '../../utils/constants';
 
 interface IAssetSelectorProps {
-  selectCollateral?:boolean;
+  selectCollateral?: boolean;
 }
 
 const StyledBox = styled(Box)`
--webkit-transition: transform 0.3s ease-in-out;
--moz-transition: transform 0.3s ease-in-out;
-transition: transform 0.3s ease-in-out;
+  -webkit-transition: transform 0.3s ease-in-out;
+  -moz-transition: transform 0.3s ease-in-out;
+  transition: transform 0.3s ease-in-out;
 
-:hover {
-  transform: scale(1.025);
-}
-
+  :hover {
+    transform: scale(1.025);
+  }
 `;
 
 function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
-  const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
+  const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const { userState, userActions } = useContext(UserContext);
   const { selectedIlkId, selectedSeriesId, selectedBaseId, assetMap, seriesMap } = userState;
 
@@ -32,13 +31,18 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   const selectedIlk = assetMap.get(selectedIlkId!);
 
   const [options, setOptions] = useState<IAssetRoot[]>([]);
-  const optionText = (asset: IAssetRoot | undefined) => (
-    asset?.symbol
-      ? <Box direction="row" align="center" gap="xsmall"> <Box flex={false}>{asset.image}</Box>{asset?.symbol}</Box>
-      : <Loader height="14px" color="lightgrey" margin="0.5px" />
-  );
+  const optionText = (asset: IAssetRoot | undefined) =>
+    asset?.symbol ? (
+      <Box direction="row" align="center" gap="xsmall">
+        {' '}
+        <Box flex={false}>{asset.image}</Box>
+        {asset?.symbol}
+      </Box>
+    ) : (
+      <Loader height="14px" color="lightgrey" margin="0.5px" />
+    );
 
-  const handleSelect = (asset:IAsset) => {
+  const handleSelect = (asset: IAsset) => {
     if (selectCollateral) {
       console.log('Collateral selected: ', asset.id);
       userActions.setSelectedIlk(asset.id);
@@ -50,10 +54,11 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
 
   /* update options on any changes */
   useEffect(() => {
-    const opts = Array.from(assetMap.values()) as IAssetRoot[];
-    const filteredOptions = selectCollateral
-      ? opts.filter((a:IAssetRoot) => a.id !== selectedBaseId)
-      : opts;
+    const opts = Array.from(assetMap.values()) as IAsset[];
+    const filteredOptions = 
+      selectCollateral ? 
+      opts.filter((a: IAsset) => a.id !== selectedBaseId) 
+      : opts.filter((a: IAsset) => a.isYieldBase );
     setOptions(filteredOptions);
   }, [assetMap, selectCollateral, selectedSeriesId, selectedBaseId]);
 
@@ -88,12 +93,27 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
         placeholder="Select Asset"
         options={options}
         value={selectCollateral ? selectedIlk : selectedBase}
-        labelKey={(x:IAssetRoot|undefined) => optionText(x)}
-        valueLabel={<Box pad={mobile ? 'medium' : { vertical: '0.55em', horizontal: 'xsmall' }}><Text color="text"> {optionText(selectCollateral ? selectedIlk : selectedBase)} </Text></Box>}
+        labelKey={(x: IAssetRoot | undefined) => optionText(x)}
+        valueLabel={
+          <Box pad={mobile ? 'medium' : { vertical: '0.55em', horizontal: 'xsmall' }}>
+            <Text color="text"> {optionText(selectCollateral ? selectedIlk : selectedBase)} </Text>
+          </Box>
+        }
         onChange={({ option }: any) => handleSelect(option)}
-        disabled={(selectCollateral && (selectedSeries?.mature || !selectedSeries))}
+        disabled={
+          selectCollateral ? selectedSeries?.mature || !selectedSeries : null // [ ]
+          // ( options.map((x:any, i:number) => {
+          //   if (x.isYieldBase) { return i }
+          //   return null
+          // }
+          // ).filter( (x:number|null) => { console.log(x); return isNull(x) } )
+        }
         // eslint-disable-next-line react/no-children-prop
-        children={(x:any) => <Box pad={mobile ? 'medium' : 'small'} gap="xsmall" direction="row"> <Text color="text"> { optionText(x) } </Text> </Box>}
+        children={(x: any) => (
+          <Box pad={mobile ? 'medium' : 'small'} gap="xsmall" direction="row">
+            <Text color="text"> {optionText(x)} </Text>
+          </Box>
+        )}
       />
     </StyledBox>
   );

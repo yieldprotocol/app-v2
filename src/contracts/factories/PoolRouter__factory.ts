@@ -37,7 +37,13 @@ const _abi = [
       },
     ],
     name: "batch",
-    outputs: [],
+    outputs: [
+      {
+        internalType: "bytes[]",
+        name: "results",
+        type: "bytes[]",
+      },
+    ],
     stateMutability: "payable",
     type: "function",
   },
@@ -52,40 +58,6 @@ const _abi = [
       },
     ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "base",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "fyToken",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "token",
-        type: "address",
-      },
-      {
-        internalType: "uint128",
-        name: "wad",
-        type: "uint128",
-      },
-    ],
-    name: "transferToPool",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "payable",
     type: "function",
   },
   {

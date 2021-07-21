@@ -444,7 +444,7 @@ export class Ladle extends BaseContract {
       operations: BigNumberish[],
       data: BytesLike[],
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<string[]>;
 
     borrowingFee(overrides?: CallOverrides): Promise<BigNumber>;
 

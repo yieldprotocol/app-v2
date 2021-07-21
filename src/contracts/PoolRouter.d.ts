@@ -23,7 +23,6 @@ interface PoolRouterInterface extends ethers.utils.Interface {
   functions: {
     "batch(uint8[],bytes[])": FunctionFragment;
     "factory()": FunctionFragment;
-    "transferToPool(address,address,address,uint128)": FunctionFragment;
     "weth()": FunctionFragment;
   };
 
@@ -32,18 +31,10 @@ interface PoolRouterInterface extends ethers.utils.Interface {
     values: [BigNumberish[], BytesLike[]]
   ): string;
   encodeFunctionData(functionFragment: "factory", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "transferToPool",
-    values: [string, string, string, BigNumberish]
-  ): string;
   encodeFunctionData(functionFragment: "weth", values?: undefined): string;
 
   decodeFunctionResult(functionFragment: "batch", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "factory", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "transferToPool",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "weth", data: BytesLike): Result;
 
   events: {};
@@ -101,14 +92,6 @@ export class PoolRouter extends BaseContract {
 
     factory(overrides?: CallOverrides): Promise<[string]>;
 
-    transferToPool(
-      base: string,
-      fyToken: string,
-      token: string,
-      wad: BigNumberish,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     weth(overrides?: CallOverrides): Promise<[string]>;
   };
 
@@ -120,14 +103,6 @@ export class PoolRouter extends BaseContract {
 
   factory(overrides?: CallOverrides): Promise<string>;
 
-  transferToPool(
-    base: string,
-    fyToken: string,
-    token: string,
-    wad: BigNumberish,
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   weth(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
@@ -135,17 +110,9 @@ export class PoolRouter extends BaseContract {
       operations: BigNumberish[],
       data: BytesLike[],
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<string[]>;
 
     factory(overrides?: CallOverrides): Promise<string>;
-
-    transferToPool(
-      base: string,
-      fyToken: string,
-      token: string,
-      wad: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
 
     weth(overrides?: CallOverrides): Promise<string>;
   };
@@ -161,14 +128,6 @@ export class PoolRouter extends BaseContract {
 
     factory(overrides?: CallOverrides): Promise<BigNumber>;
 
-    transferToPool(
-      base: string,
-      fyToken: string,
-      token: string,
-      wad: BigNumberish,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     weth(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
@@ -180,14 +139,6 @@ export class PoolRouter extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     factory(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    transferToPool(
-      base: string,
-      fyToken: string,
-      token: string,
-      wad: BigNumberish,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
 
     weth(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };

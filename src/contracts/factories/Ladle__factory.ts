@@ -238,7 +238,13 @@ const _abi = [
       },
     ],
     name: "batch",
-    outputs: [],
+    outputs: [
+      {
+        internalType: "bytes[]",
+        name: "results",
+        type: "bytes[]",
+      },
+    ],
     stateMutability: "payable",
     type: "function",
   },

@@ -4,17 +4,13 @@ import { css } from 'styled-components';
 export const yieldTheme = {
   global: {
     focus: 'none',
-    font: {
-      family: 'FoundryGridnik',
-      weight: '700',
-    },
-
     colors: {
       brand: '#3f53d9',
       focus: '#3f53d999',
       selected: '#3f53d9',
       'accent-1': '#FFCA58',
       'accent-2': '#81FCED',
+      'tailwind-blue': '#2563EB',
       text: {
         dark: '#EEEEEE',
         light: '#555555',
@@ -37,44 +33,36 @@ export const yieldTheme = {
       },
     },
     input: { weight: 700 },
-
   },
 
   grommet: {
     // @ts-ignore
     extend: () => css`
-        a { color: grey}
-        input::-webkit-outer-spin-button,
-        input::-webkit-inner-spin-button {
-          -webkit-appearance: none;
-          margin: 0;
-        }
-        input[type='number'] {
-          -moz-appearance: textfield;
-        }
-        overflow:auto;
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-        ::-webkit-scrollbar {
-          display: none;
-        }
-        @font-face {
-          font-family: FoundryGridnik;
-          font-weight: bold;
-          src: url("./fonts/FoundryGridnik.otf") format("opentype");
-          font-display: swap;
-        }
-      `,
+      a {
+        color: grey;
+      }
+      input::-webkit-outer-spin-button,
+      input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      input[type='number'] {
+        -moz-appearance: textfield;
+      }
+      overflow: auto;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+      ::-webkit-scrollbar {
+        display: none;
+      }
+    `,
   },
 
   // TODO marco fout issue
 
   textInput: {
-    extend: ({ theme }: any) => (
-      theme.dark
-        ? `color: ${theme.global.colors.text.dark}`
-        : `color: ${theme.global.colors.text.light}`
-    ),
+    extend: ({ theme }: any) =>
+      theme.dark ? `color: ${theme.global.colors.text.dark}` : `color: ${theme.global.colors.text.light}`,
   },
 
   button: {
@@ -86,8 +74,8 @@ export const yieldTheme = {
 
     primary: {
       extend: ({ theme }: any) => css`
-      color: ${theme.global.colors.text.dark};
-    `,
+        color: ${theme.global.colors.text.dark};
+      `,
     },
 
     maxWidth: '300px',
@@ -95,7 +83,6 @@ export const yieldTheme = {
       large: {
         border: { radius: '8px' },
       },
-
     },
   },
 
@@ -125,20 +112,20 @@ export const yieldTheme = {
 
     // @ts-ignore
     extend: () => css`
-    input::-webkit-outer-spin-button,
-    input::-webkit-inner-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
-    input[type='number'] {
-      -moz-appearance: textfield;
-    }
-    overflow:auto;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-    ::-webkit-scrollbar {
-      display: none;
-    }
+      input::-webkit-outer-spin-button,
+      input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      input[type='number'] {
+        -moz-appearance: textfield;
+      }
+      overflow: auto;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+      ::-webkit-scrollbar {
+        display: none;
+      }
     `,
   },
 
@@ -171,7 +158,7 @@ export const yieldTheme = {
       horizontal: 'none',
     },
     pad: 'xsmall',
-    extend: ({ theme } : { theme:any }) => css`
+    extend: ({ theme }: { theme: any }) => css`
 
     text-decoration: none;
     /* padding: 8px; */
@@ -229,5 +216,4 @@ export const yieldTheme = {
   //   // `,
   //   },
   // },
-
 };
