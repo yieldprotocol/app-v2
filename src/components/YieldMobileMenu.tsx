@@ -22,7 +22,7 @@ const StyledBox = styled(Box)`
   }
 `;
 
-const YieldMobileMenu = ({ toggleMenu }: { toggleMenu: ()=>void }) => {
+const YieldMobileMenu = ({ toggleMenu }: { toggleMenu: () => void }) => {
   /* state from contexts */
   const { userState, userActions } = useContext(UserContext) as IUserContext;
   const { vaultMap } = userState;
@@ -35,7 +35,7 @@ const YieldMobileMenu = ({ toggleMenu }: { toggleMenu: ()=>void }) => {
   const textColor = theme.global.colors.brand;
   const textBack = theme.global.colors['light-1'];
 
-  const handleSelect = (vault:IVault) => {
+  const handleSelect = (vault: IVault) => {
     setSelectedVault(vault.id);
     routerHistory.push(`/vault/${vault.id}`);
     toggleMenu();
@@ -50,80 +50,72 @@ const YieldMobileMenu = ({ toggleMenu }: { toggleMenu: ()=>void }) => {
 
   return (
     <Box justify="between" fill>
-      <Header
-        pad="medium"
-        justify="between"
-      >
+      <Header pad="medium" justify="between">
         <Box background="brand" pad="xsmall">
           <Text size="xsmall"> YIELD</Text>
         </Box>
         <Box onClick={() => toggleMenu()} pad="small">
-          <Text size="small" color="text"> <FiX /> </Text>
+          <Text size="small" color="text">
+            {' '}
+            <FiX />{' '}
+          </Text>
         </Box>
       </Header>
 
-      { !view && <YieldNavigation callbackFn={() => toggleMenu()} /> }
+      {!view && <YieldNavigation callbackFn={() => toggleMenu()} />}
 
-      { view &&
-        <Box
-          flex
-          overflow="auto"
-          pad={{ horizontal: 'medium' }}
-          fill
-        >
+      {view && (
+        <Box flex overflow="auto" pad={{ horizontal: 'medium' }} fill>
           <Header pad="medium" justify="between">
             <Box direction="row" justify="evenly" fill="horizontal">
               <StyledBox
                 onClick={() => setView(MenuView.vaults)}
                 style={view === MenuView.vaults ? activeStyle : undefined}
               >
-                <Text size="small">
-                  My Vaults
-                </Text>
+                <Text size="small">My Vaults</Text>
               </StyledBox>
 
               <StyledBox
                 onClick={() => setView(MenuView.account)}
                 style={view === MenuView.account ? activeStyle : undefined}
               >
-                <Text size="small">
-                  Account Details
-                </Text>
+                <Text size="small">Account Details</Text>
               </StyledBox>
             </Box>
           </Header>
 
-          { view === MenuView.account && <Box> Accounts view </Box>}
+          {view === MenuView.account && <Box> Accounts view </Box>}
 
-          {
-          view === MenuView.vaults &&
-          <Box gap="medium">
-            { Array.from(vaultMap.values()).map((x:IVault) => (
-              <Box
-                key={x.id}
-                pad="small"
-                border
-                onClick={() => handleSelect(x)}
-              >
-                <Text size="small"> {x.id} {x.seriesId} </Text>
-              </Box>
-            ))}
-          </Box>
-          }
-
-        </Box>}
+          {view === MenuView.vaults && (
+            <Box gap="medium">
+              {Array.from(vaultMap.values()).map((x: IVault) => (
+                <Box key={x.id} pad="small" border onClick={() => handleSelect(x)}>
+                  <Text size="small">
+                    {' '}
+                    {x.id} {x.seriesId}{' '}
+                  </Text>
+                </Box>
+              ))}
+            </Box>
+          )}
+        </Box>
+      )}
 
       <Box direction="row" pad="medium" fill="horizontal" justify="center">
-        { !view && <Box onClick={() => setView(MenuView.vaults)}> <Text size="small">Vaults and Account</Text>  </Box> }
-        { view &&
-        <Box onClick={() => setView(undefined)} gap="medium" direction="row" align="center">
-          <FiArrowLeftCircle />
-          <Text size="small"> back to menu </Text>
-        </Box> }
+        {!view && (
+          <Box onClick={() => setView(MenuView.vaults)}>
+            {' '}
+            <Text size="small">Vaults and Account</Text>{' '}
+          </Box>
+        )}
+        {view && (
+          <Box onClick={() => setView(undefined)} gap="medium" direction="row" align="center">
+            <FiArrowLeftCircle />
+            <Text size="small"> back to menu </Text>
+          </Box>
+        )}
       </Box>
-
     </Box>
-
   );
 };
 

@@ -8,15 +8,16 @@ import YieldLogo from './logos/YieldLogo';
 
 import YieldNavigation from './YieldNavigation';
 import YieldAccount from './YieldAccount';
+import YieldMark from './logos/YieldMark';
+import HandText from './texts/HandText';
 
 interface IYieldHeaderProps {
   actionList: any[];
 }
-const YieldHeader = ({ actionList } : IYieldHeaderProps) => {
-  const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
+const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
+  const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   return (
-
     <Header
       pad="medium"
       height={mobile ? undefined : 'xsmall'}
@@ -25,14 +26,16 @@ const YieldHeader = ({ actionList } : IYieldHeaderProps) => {
       style={{ position: 'fixed', top: '0px' }}
       background="background"
     >
-      <YieldLogo height={mobile ? '1em' : '2em'} />
+      <Box direction="row" gap={mobile ? '0.25em' : '0.5em'} align='center'> 
+        <YieldMark height={mobile ? '1.0em' : '1.5em'}/>
+        <HandText size={mobile ? '1.5em' : '2em'} >YIELD</HandText>
+      </Box>
+      {/* <YieldLogo height={mobile ? '1em' : '1.5em'} /> */}
 
-      { !mobile && <YieldNavigation /> }
+      {!mobile && <YieldNavigation />}
 
       <YieldAccount />
-
     </Header>
-
   );
 };
 

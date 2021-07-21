@@ -28,12 +28,18 @@ const _abi = [
     inputs: [
       {
         indexed: true,
-        internalType: "uint128",
-        name: "auctionTime",
-        type: "uint128",
+        internalType: "bytes12",
+        name: "vaultId",
+        type: "bytes12",
+      },
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "start",
+        type: "uint256",
       },
     ],
-    name: "AuctionTimeSet",
+    name: "Auctioned",
     type: "event",
   },
   {
@@ -72,12 +78,30 @@ const _abi = [
     inputs: [
       {
         indexed: true,
+        internalType: "bytes6",
+        name: "ilkId",
+        type: "bytes6",
+      },
+      {
+        indexed: false,
+        internalType: "uint32",
+        name: "duration",
+        type: "uint32",
+      },
+      {
+        indexed: false,
+        internalType: "uint64",
+        name: "initialOffer",
+        type: "uint64",
+      },
+      {
+        indexed: false,
         internalType: "uint128",
-        name: "initialProportion",
+        name: "dust",
         type: "uint128",
       },
     ],
-    name: "InitialProportionSet",
+    name: "IlkSet",
     type: "event",
   },
   {
@@ -176,13 +200,37 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "auctionTime",
+    inputs: [
+      {
+        internalType: "bytes12",
+        name: "vaultId",
+        type: "bytes12",
+      },
+    ],
+    name: "auction",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes12",
+        name: "",
+        type: "bytes12",
+      },
+    ],
+    name: "auctions",
     outputs: [
       {
-        internalType: "uint128",
-        name: "",
-        type: "uint128",
+        internalType: "address",
+        name: "owner",
+        type: "address",
+      },
+      {
+        internalType: "uint32",
+        name: "start",
+        type: "uint32",
       },
     ],
     stateMutability: "view",
@@ -197,7 +245,7 @@ const _abi = [
       },
       {
         internalType: "uint128",
-        name: "art",
+        name: "base",
         type: "uint128",
       },
       {
@@ -207,7 +255,13 @@ const _abi = [
       },
     ],
     name: "buy",
-    outputs: [],
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "ink",
+        type: "uint256",
+      },
+    ],
     stateMutability: "nonpayable",
     type: "function",
   },
@@ -241,19 +295,6 @@ const _abi = [
       },
     ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes12",
-        name: "vaultId",
-        type: "bytes12",
-      },
-    ],
-    name: "grab",
-    outputs: [],
-    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -317,12 +358,28 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "initialProportion",
+    inputs: [
+      {
+        internalType: "bytes6",
+        name: "",
+        type: "bytes6",
+      },
+    ],
+    name: "ilks",
     outputs: [
       {
+        internalType: "uint32",
+        name: "duration",
+        type: "uint32",
+      },
+      {
+        internalType: "uint64",
+        name: "initialOffer",
+        type: "uint64",
+      },
+      {
         internalType: "uint128",
-        name: "",
+        name: "dust",
         type: "uint128",
       },
     ],
@@ -352,6 +409,30 @@ const _abi = [
     ],
     name: "lockRole",
     outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes12",
+        name: "vaultId",
+        type: "bytes12",
+      },
+      {
+        internalType: "uint128",
+        name: "min",
+        type: "uint128",
+      },
+    ],
+    name: "payAll",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "ink",
+        type: "uint256",
+      },
+    ],
     stateMutability: "nonpayable",
     type: "function",
   },
@@ -412,25 +493,27 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "uint128",
-        name: "auctionTime_",
-        type: "uint128",
+        internalType: "bytes6",
+        name: "ilkId",
+        type: "bytes6",
       },
-    ],
-    name: "setAuctionTime",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
+      {
+        internalType: "uint32",
+        name: "duration",
+        type: "uint32",
+      },
+      {
+        internalType: "uint64",
+        name: "initialOffer",
+        type: "uint64",
+      },
       {
         internalType: "uint128",
-        name: "initialProportion_",
+        name: "dust",
         type: "uint128",
       },
     ],
-    name: "setInitialProportion",
+    name: "setIlk",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -451,25 +534,6 @@ const _abi = [
     name: "setRoleAdmin",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes12",
-        name: "",
-        type: "bytes12",
-      },
-    ],
-    name: "vaultOwners",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
 ];

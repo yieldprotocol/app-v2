@@ -20,9 +20,14 @@ const IconSize = '1.15rem';
 const IconGap = 'small';
 
 const YieldInfo = () => {
-  const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
-  const { chainState: { account, chainId }, chainActions: { connect, disconnect } } = useContext(ChainContext);
-  const { txState: { txPending, signPending, processPending } } = useContext(TxContext);
+  const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
+  const {
+    chainState: { account, chainId, chainName },
+    chainActions: { connect, disconnect },
+  } = useContext(ChainContext);
+  const {
+    txState: { txPending, signPending, processPending },
+  } = useContext(TxContext);
 
   const { pathname } = useLocation();
   const [path, setPath] = useState<string>();
@@ -31,7 +36,9 @@ const YieldInfo = () => {
     pathname && setPath(pathname.split('/')[1]);
   }, [pathname]);
 
-  const { userState: { assetMap, selectedBaseId, selectedIlkId } } = useContext(UserContext);
+  const {
+    userState: { assetMap, selectedBaseId, selectedIlkId },
+  } = useContext(UserContext);
 
   const selectedBase = assetMap.get(selectedBaseId);
   const selectedIlk = assetMap.get(selectedIlkId);
@@ -52,28 +59,50 @@ const YieldInfo = () => {
       </Box>
 
       <Box direction="row" gap={IconGap}>
-        <Anchor color="grey" href="https://github.com/yieldprotocol" target="_blank" onClick={() => handleExternal('Github')}>
+        <Anchor
+          color="grey"
+          href="https://github.com/yieldprotocol"
+          target="_blank"
+          onClick={() => handleExternal('Github')}
+        >
           <Github size={IconSize} />
         </Anchor>
         <Anchor color="grey" href="http://docs.yield.is" target="_blank" onClick={() => handleExternal('Docs')}>
           <Docs size={IconSize} />
         </Anchor>
-        <Anchor color="grey" href="https://discord.gg/JAFfDj5" target="_blank" onClick={() => handleExternal('Discord')}>
+        <Anchor
+          color="grey"
+          href="https://discord.gg/JAFfDj5"
+          target="_blank"
+          onClick={() => handleExternal('Discord')}
+        >
           <Discord size={IconSize} />
         </Anchor>
       </Box>
 
-      {account ?
+      {account ? (
         <Box direction="row-responsive" gap="small">
-          <Text size="xsmall" color="green"> Connected to: {chainId} </Text>
-          <Box onClick={() => disconnect()}> <Text size="xsmall" color="text-xweak"> Disconnect </Text> </Box>
+          <Text size="xsmall" color="green">
+            Connected to: {chainName}
+          </Text>
+          <Box onClick={() => disconnect()}>
+            <Text size="xsmall" color="text-xweak">
+              Disconnect
+            </Text>
+          </Box>
         </Box>
-        :
+      ) : (
         <Box direction="row-responsive" gap="small">
-          <Text size="xsmall" color="pink"> Disconnected </Text>
-          <Box onClick={() => connect()}> <Text size="xsmall" color="text-xweak"> Connect </Text> </Box>
-        </Box>}
-
+          <Text size="xsmall" color="pink">
+            Disconnected
+          </Text>
+          <Box onClick={() => connect()}>
+            <Text size="xsmall" color="text-xweak">
+              Connect
+            </Text>
+          </Box>
+        </Box>
+      )}
     </Box>
   );
 };

@@ -24,9 +24,7 @@ const AllProviders: FC = ({ children }) => (
       <Web3ReactProvider getLibrary={getLibrary}>
         <ChainProvider>
           <UserProvider>
-            <TxProvider>
-              {children}
-            </TxProvider>
+            <TxProvider>{children}</TxProvider>
           </UserProvider>
         </ChainProvider>
       </Web3ReactProvider>
@@ -34,10 +32,8 @@ const AllProviders: FC = ({ children }) => (
   </Router>
 );
 
-const customRender = (
-  ui: ReactElement,
-  options?: Omit<RenderOptions, 'queries'>,
-) => render(ui, { wrapper: AllProviders, ...options });
+const customRender = (ui: ReactElement, options?: Omit<RenderOptions, 'queries'>) =>
+  render(ui, { wrapper: AllProviders, ...options });
 
 export * from '@testing-library/react';
 

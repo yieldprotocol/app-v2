@@ -4,20 +4,19 @@ import styled, { css } from 'styled-components';
 import { modColor } from '../../utils/appUtils';
 
 interface IInputWrap extends BoxProps {
-  action?: ()=>void;
+  action?: () => void;
   disabled?: boolean;
-  isError?:string|null;
+  isError?: string | null;
   children: any;
 }
 
 const InsetBox = styled(Box)`
-border-radius: 8px;
-box-shadow: inset 1px 1px 1px #DDD,
- inset -0.25px -0.25px 0.25px #DDD;
+  border-radius: 8px;
+  box-shadow: inset 1px 1px 1px #ddd, inset -0.25px -0.25px 0.25px #ddd;
 `;
 
 function InputWrap({ action, disabled, isError, children, ...props }: IInputWrap) {
-  const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
+  const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   return (
     <Box>
@@ -31,13 +30,15 @@ function InputWrap({ action, disabled, isError, children, ...props }: IInputWrap
         basis={mobile ? '50%' : '65%'}
         background={isError ? 'pink' : undefined}
       >
-        { children }
+        {children}
       </InsetBox>
       <Box>
-        <Text style={{ position: 'absolute' }} color="pink" size="xsmall"> {isError} </Text>
+        <Text style={{ position: 'absolute' }} color="pink" size="xsmall">
+          {' '}
+          {isError}{' '}
+        </Text>
       </Box>
     </Box>
-
   );
 }
 
