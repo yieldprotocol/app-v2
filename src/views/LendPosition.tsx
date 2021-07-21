@@ -170,6 +170,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
           <Box elevation="xsmall" round="xsmall">
             <Select
               plain
+              dropProps={{ round:'xsmall' }}
               options={[
                 { text: 'Close Position', index: 0 },
                 { text: 'Roll Position', index: 1 },

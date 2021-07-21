@@ -196,6 +196,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
         <Box fill="horizontal" border round="xsmall">
           <Select
             plain
+            dropProps={{ round:'xsmall' }}
             id="seriesSelect"
             name="assetSelect"
             placeholder="Select Series"

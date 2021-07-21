@@ -227,6 +227,7 @@ const Vault = ({ close }: { close: () => void }) => {
         <Box>
           <Box elevation="xsmall" round="xsmall">
             <Select
+              dropProps={{ round:'xsmall' }}
               plain
               options={[
                 { text: 'Repay Debt', index: 0 },

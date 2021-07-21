@@ -168,6 +168,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
           <Box elevation="xsmall" round="xsmall">
             <Select
               plain
+              dropProps={{ round:'xsmall' }}
               options={[
                 { text: 'Remove Liquidity', index: 0 },
                 { text: 'Roll Liquidiy', index: 1 },

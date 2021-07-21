@@ -138,8 +138,7 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
           <ListWrap>
             {filteredSeries.length === 0 && !showAllPositions && (
               <Text weight={450} size="small">
-                {' '}
-                No suggested positions{' '}
+                No suggested positions
               </Text>
             )}
 
