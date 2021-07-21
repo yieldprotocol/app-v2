@@ -268,7 +268,7 @@ const Borrow = () => {
                     <Box round="xsmall" gap="small" justify="between" elevation="xsmall">
                       <Select
                         plain
-                        dropProps={{ round:'xsmall' }}
+                        dropProps={{ round: 'xsmall' }}
                         disabled={matchingVaults.length < 1}
                         options={[{ displayName: 'Create new vault' }, ...matchingVaults]}
                         labelKey={(x: IVault) => x.displayName}
