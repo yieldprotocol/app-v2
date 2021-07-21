@@ -190,5 +190,3 @@ export const buildGradient = (colorFrom: string, colorTo: string) => `linear-gra
       ${modColor(colorTo, 0)}, 
       ${modColor(colorTo, 0)})
     `;
-
-export const generateDudeSalt = () => Math.random().toString(36).substring(7);

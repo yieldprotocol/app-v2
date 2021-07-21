@@ -22,7 +22,7 @@ const IconGap = 'small';
 const YieldInfo = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
-    chainState: { account, chainId },
+    chainState: { account, chainId, chainName },
     chainActions: { connect, disconnect },
   } = useContext(ChainContext);
   const {
@@ -83,29 +83,23 @@ const YieldInfo = () => {
       {account ? (
         <Box direction="row-responsive" gap="small">
           <Text size="xsmall" color="green">
-            {' '}
-            Connected to: {chainId}{' '}
+            Connected to: {chainName}
           </Text>
           <Box onClick={() => disconnect()}>
-            {' '}
             <Text size="xsmall" color="text-xweak">
-              {' '}
-              Disconnect{' '}
-            </Text>{' '}
+              Disconnect
+            </Text>
           </Box>
         </Box>
       ) : (
         <Box direction="row-responsive" gap="small">
           <Text size="xsmall" color="pink">
-            {' '}
-            Disconnected{' '}
+            Disconnected
           </Text>
           <Box onClick={() => connect()}>
-            {' '}
             <Text size="xsmall" color="text-xweak">
-              {' '}
-              Connect{' '}
-            </Text>{' '}
+              Connect
+            </Text>
           </Box>
         </Box>
       )}
