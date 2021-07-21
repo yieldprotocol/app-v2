@@ -32,10 +32,6 @@ function ActiveTransaction({
     const _process = processes.get(txCode);
     _process && setTx(transactions.get(_process));
     _process && setSig(signatures.get(txCode));
-
-    console.log(sig);
-    console.log(tx);
-
   }, [processes, signatures, transactions, txCode]);
 
   useEffect(()=>{

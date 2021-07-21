@@ -1,6 +1,8 @@
-import { ethers, BigNumber } from 'ethers';
+import { ethers, BigNumber, BigNumberish } from 'ethers';
 import React from 'react';
 import { FYToken, Pool } from '../contracts';
+
+export { LadleActions, PoolRouterActions, ReroutedActions } from './operations';
 
 export interface IHistoryList {
   lastBlock: number;
@@ -143,8 +145,8 @@ export interface IVault extends IVaultRoot {
 }
 
 export interface ICallData {
-  args: (string | BigNumber | boolean)[];
-  operation: [number, string[]];
+  args: (string | BigNumberish | boolean)[];
+  operation: string | [number, string[]];
   series: ISeries;
   fnName?: string;
   ignore?: boolean;

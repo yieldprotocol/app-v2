@@ -2,12 +2,10 @@ import { BigNumber, ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
-import { ICallData, IVault, SignType, ISeries, ActionCodes, IUserContext } from '../types';
+import { ICallData, IVault, SignType, ISeries, ActionCodes, IUserContext, LadleActions } from '../types';
 import { getTxCode, cleanValue } from '../utils/appUtils';
 import { DAI_BASED_ASSETS, ETH_BASED_ASSETS } from '../utils/constants';
 import { useChain } from './chainHooks';
-
-import { VAULT_OPS } from '../utils/operations';
 
 import { calculateCollateralizationRatio } from '../utils/yieldMath';
 
@@ -89,7 +87,7 @@ export const useCollateralActions = () => {
   } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
   const { selectedBaseId, selectedIlkId, selectedSeriesId, seriesMap, assetMap } = userState;
-  const { updateAssets, updateVaults, updateSeries } = userActions;
+  const { updateAssets, updateVaults } = userActions;
 
   const { sign, transact } = useChain();
 
@@ -102,8 +100,8 @@ export const useCollateralActions = () => {
       /* return the add ETH OP */
       return [
         {
-          operation: VAULT_OPS.JOIN_ETHER,
-          args: [selectedIlkId],
+          operation: LadleActions.Fn.JOIN_ETHER,
+          args: [selectedIlkId] as LadleActions.Args.JOIN_ETHER,
           ignore: false,
           overrides: { value },
           series,
@@ -120,8 +118,8 @@ export const useCollateralActions = () => {
       /* return the remove ETH OP */
       return [
         {
-          operation: VAULT_OPS.EXIT_ETHER,
-          args: [account],
+          operation: LadleActions.Fn.EXIT_ETHER,
+          args: [account] as LadleActions.Args.EXIT_ETHER,
           ignore: value.gte(ethers.constants.Zero),
           series,
         },
@@ -167,8 +165,8 @@ export const useCollateralActions = () => {
     const calls: ICallData[] = [
       /* If vault is null, build a new vault, else ignore */
       {
-        operation: VAULT_OPS.BUILD,
-        args: [selectedSeriesId, selectedIlkId],
+        operation: LadleActions.Fn.BUILD,
+        args: [selectedSeriesId, selectedIlkId, '0'] as LadleActions.Args.BUILD,
         series,
         ignore: !!vault,
       },
@@ -178,13 +176,13 @@ export const useCollateralActions = () => {
       ...permits,
       // ladle.pourAction(vaultId, ignored, posted, 0)
       {
-        operation: VAULT_OPS.POUR,
+        operation: LadleActions.Fn.POUR,
         args: [
           vaultId,
           _pourTo /* pour destination based on ilk/asset is an eth asset variety */,
           _input,
           ethers.constants.Zero,
-        ],
+        ] as LadleActions.Args.POUR,
         series,
         ignore: false,
       },
@@ -212,13 +210,13 @@ export const useCollateralActions = () => {
     const calls: ICallData[] = [
       // ladle.pourAction(vaultId, ignored, -posted, 0)
       {
-        operation: VAULT_OPS.POUR,
+        operation: LadleActions.Fn.POUR,
         args: [
           vault.id,
           _pourTo /* pour destination based on ilk/asset is an eth asset variety */,
           _input,
           ethers.constants.Zero,
-        ],
+        ] as LadleActions.Args.POUR,
         series,
         ignore: false,
       },
