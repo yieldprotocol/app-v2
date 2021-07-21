@@ -167,10 +167,14 @@ const Borrow = () => {
       );
       setMatchingVaults(_matchingVaults);
       // reset the selected vault on every change
-      setVaultToUse(undefined)
+      setVaultToUse(undefined);
     }
-
   }, [vaultMap, selectedBase, selectedIlk, selectedSeries]);
+
+  /* Reset the selected vault on every Ilk change */
+  useEffect(() => {
+    selectedIlk && setVaultToUse(undefined);
+  }, [selectedIlk]);
 
   return (
     <Keyboard onEsc={() => setCollatInput('')} onEnter={() => console.log('ENTER smashed')} target="document">
@@ -266,21 +270,24 @@ const Borrow = () => {
                         plain
                         disabled={matchingVaults.length < 1}
                         options={[{ displayName: 'Create new vault' }, ...matchingVaults]}
-                        labelKey={(x: IVault) => x.displayName }
+                        labelKey={(x: IVault) => x.displayName}
                         placeholder="Create new vault"
                         value={vaultToUse || { displayName: 'Create new vault' }}
                         onChange={({ option }) => setVaultToUse(option)}
-                        
                         valueLabel={
-                          vaultToUse?.id ? 
-                        <Box pad='small' direction='row' gap='medium' align='center'>
-                          <PositionAvatar position={vaultToUse} condensed />
-                          <Text>{vaultToUse?.displayName}</Text>
-                        </Box>
-                        :
-                        <Box pad='small'>
-                        <Text color='text-xweak' size='small'> Create New Vault </Text>
-                        </Box>                 
+                          vaultToUse?.id ? (
+                            <Box pad="small" direction="row" gap="medium" align="center">
+                              <PositionAvatar position={vaultToUse} condensed />
+                              <Text>{vaultToUse?.displayName}</Text>
+                            </Box>
+                          ) : (
+                            <Box pad="small">
+                              <Text color="text-xweak" size="small">
+                                {' '}
+                                Create New Vault{' '}
+                              </Text>
+                            </Box>
+                          )
                         }
                         // eslint-disable-next-line react/no-children-prop
                         children={(x: IVault) => (
@@ -303,7 +310,9 @@ const Borrow = () => {
                               </Box>
                             ) : (
                               <Box pad="small" direction="row" gap="small" align="center">
-                                <Text color = 'text-weak' size='small'>{x.displayName}</Text>
+                                <Text color="text-weak" size="small">
+                                  {x.displayName}
+                                </Text>
                               </Box>
                             )}
                           </>
@@ -350,13 +359,6 @@ const Borrow = () => {
                           value={`${borrowInput} ${selectedBase?.symbol}`}
                         />
                         <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
-                        {vaultToUse?.id && (
-                          <InfoBite
-                            label="Using Existing Vault"
-                            icon={<FiLayers />}
-                            value={`${vaultToUse.displayName}`}
-                          />
-                        )}
                         <InfoBite
                           label="Vault Debt Payable @ Maturity"
                           icon={<FiTrendingUp />}
@@ -368,6 +370,13 @@ const Borrow = () => {
                           icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
                           value={`${collatInput} ${selectedIlk?.symbol} (${collateralizationPercent} % )`}
                         />
+                        {vaultToUse?.id && (
+                          <InfoBite
+                            label="Adding to Existing Vault"
+                            icon={<PositionAvatar position={vaultToUse} condensed />}
+                            value={`${vaultToUse.displayName}`}
+                          />
+                        )}
                       </Box>
                     </SectionWrap>
                   </Box>
