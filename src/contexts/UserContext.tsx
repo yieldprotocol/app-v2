@@ -119,9 +119,15 @@ const UserProvider = ({ children }: any) => {
   const _getVaults = useCallback(
     async (fromBlock: number = 1) => {
       const Cauldron = contractMap.get('Cauldron');
-      const filter = Cauldron.filters.VaultBuilt(null, account);
-      const eventList = await Cauldron.queryFilter(filter, fromBlock);
 
+      const builtFilter = Cauldron.filters.VaultBuilt(null, account);
+      const builtList = await Cauldron.queryFilter(builtFilter, fromBlock);
+
+      const givenfilter = Cauldron.filters.VaultGiven(null, account);
+      const givenList = await Cauldron.queryFilter(givenfilter, fromBlock);
+      console.log('givennnnnnnnnn', givenList);
+
+      const eventList = builtList;
       // const eventList = await Cauldron.queryFilter(filter, cachedVaults.lastBlock);
       const vaultList: IVaultRoot[] = await Promise.all(
         eventList.map(async (x: any): Promise<IVaultRoot> => {
