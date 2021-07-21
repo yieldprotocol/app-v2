@@ -30,7 +30,7 @@ export interface IUserContextState {
   selectedBaseId: string | null;
   selectedVaultId: string | null;
   approvalMethod: ApprovalType;
-  dudeSalt:number;
+  dudeSalt: number;
 }
 
 export interface IUserContextActions {
@@ -138,8 +138,8 @@ export interface IVault extends IVaultRoot {
   art_: string;
   price: BigNumber;
   price_: string;
-  min: BigNumber,
-  max: BigNumber,
+  min: BigNumber;
+  max: BigNumber;
 }
 
 export interface ICallData {
@@ -238,35 +238,34 @@ export enum ActionCodes {
   REMOVE_LIQUIDITY = 'Remove Liquidity',
   ROLL_LIQUIDITY = 'Roll Liquidity',
   // VAULT
-  DELETE_VAULT= 'Delete Vault',
-  TRANSFER_VAULT= 'Transfer Vault'
+  DELETE_VAULT = 'Delete Vault',
+  TRANSFER_VAULT = 'Transfer Vault',
 }
 
 export interface IHistItemBase {
-  blockNumber:number;
-  date:Date;
+  blockNumber: number;
+  date: Date;
   transactionHash: string;
-  maturity:number;
+  maturity: number;
   seriesId: string;
   histType: ActionCodes;
   date_: string;
- }
+}
 
- export interface IHistItemVault extends IHistItemBase {
-  vaultId: string,
-  ilkId: string,
-  ink: BigNumber,
-  art: BigNumber,
-  ink_: String,
-  art_: String,
+export interface IHistItemVault extends IHistItemBase {
+  vaultId: string;
+  ilkId: string;
+  ink: BigNumber;
+  art: BigNumber;
+  ink_: String;
+  art_: String;
 }
 
 export interface IHistItemPosition extends IHistItemBase {
-  bases: BigNumber,
-  fyTokens:  BigNumber,
-  bases_: string,
-  fyTokens_: string,
-  poolTokens?: BigNumber,
-  poolTokens_?: string,
+  bases: BigNumber;
+  fyTokens: BigNumber;
+  bases_: string;
+  fyTokens_: string;
+  poolTokens?: BigNumber;
+  poolTokens_?: string;
 }
-

@@ -2,10 +2,9 @@ import React, { useContext, useState } from 'react';
 import { Anchor, Box, Button, Text } from 'grommet';
 import { FiCheckSquare, FiCopy, FiExternalLink, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
-import { ChainContext } from '../contexts/ChainContext';
+import { ChainContext, connectorNames } from '../contexts/ChainContext';
 import { abbreviateHash } from '../utils/appUtils';
 import YieldAvatar from './YieldAvatar';
-import { UserContext } from '../contexts/UserContext';
 
 const ChangeButton = styled(Button)`
   background: #dbeafe;
@@ -24,16 +23,12 @@ const ChangeButton = styled(Button)`
 
 const YieldSettings = ({ setConnectOpen, setSettingsOpen }: any) => {
   const {
-    chainState: { account, chainId },
+    chainState: { account, chainName, provider },
   } = useContext(ChainContext);
 
-  const {
-    userActions: { updateDudeSalt },
-  } = useContext(UserContext);
+  const connectorName = connectorNames.get(provider.connection.url);
 
   const [copySuccess, setCopySuccess] = useState<boolean>(false);
-
-  const connectorName: string = 'Metamask';
 
   const handleChangeConnectType = () => {
     setSettingsOpen(false);
@@ -58,7 +53,7 @@ const YieldSettings = ({ setConnectOpen, setSettingsOpen }: any) => {
         pad={{ horizontal: 'medium', vertical: 'small' }}
       >
         <Box justify="between" align="center" direction="row">
-          <Text size="small">Connected with {connectorName}</Text>
+          {connectorName && <Text size="small">Connected with {connectorName}</Text>}
           <ChangeButton onClick={handleChangeConnectType}>Change</ChangeButton>
         </Box>
         <Box justify="between" align="center" direction="row">
@@ -66,25 +61,26 @@ const YieldSettings = ({ setConnectOpen, setSettingsOpen }: any) => {
             <YieldAvatar address={account} size={2} />
             <Text size="xlarge">{abbreviateHash(account)}</Text>
           </Box>
-          <ChangeButton onClick={updateDudeSalt}>New Avatar</ChangeButton>
         </Box>
         <Box align="center" direction="row" gap="xsmall">
-          <Button alignSelf="center" margin="xsmall" onClick={() => handleCopy(account)}>
+          <Button margin="xsmall" onClick={() => handleCopy(account)}>
             {copySuccess ? <FiCheckSquare size="1rem" /> : <FiCopy size="1rem" />}
             <Text margin="xsmall" size="small">
               {copySuccess ? 'Copied' : 'Copy Address'}
             </Text>
           </Button>
-          <Anchor alignSelf="center" href={`https://etherscan.io/address/${account}`} margin="xsmall" target="_blank">
+          <Anchor
+            alignSelf="center"
+            href={`https://${chainName}.etherscan.io/address/${account}`}
+            margin="xsmall"
+            target="_blank"
+          >
             <FiExternalLink size="1rem" />
             <Text margin="xsmall" size="small">
               View on Explorer
             </Text>
           </Anchor>
         </Box>
-        <Text color="#6B7280" size="small">
-          Connected to Chain ID {chainId}
-        </Text>
       </Box>
       <Box
         border={{ color: '#DBEAFE', size: 'xsmall', side: 'top' }}
