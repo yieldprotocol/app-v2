@@ -8,6 +8,19 @@ import type { IOracle, IOracleInterface } from "../IOracle";
 
 const _abi = [
   {
+    inputs: [],
+    name: "decimals",
+    outputs: [
+      {
+        internalType: "uint8",
+        name: "",
+        type: "uint8",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "bytes32",

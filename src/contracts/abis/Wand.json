@@ -12,6 +12,11 @@
         "type": "address"
       },
       {
+        "internalType": "address",
+        "name": "witch_",
+        "type": "address"
+      },
+      {
         "internalType": "contract IPoolFactory",
         "name": "poolFactory_",
         "type": "address"
@@ -19,6 +24,11 @@
       {
         "internalType": "contract IJoinFactory",
         "name": "joinFactory_",
+        "type": "address"
+      },
+      {
+        "internalType": "contract IFYTokenFactory",
+        "name": "fyTokenFactory_",
         "type": "address"
       }
     ],
@@ -109,19 +119,6 @@
   },
   {
     "inputs": [],
-    "name": "CHI",
-    "outputs": [
-      {
-        "internalType": "bytes6",
-        "name": "",
-        "type": "bytes6"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "EXIT",
     "outputs": [
       {
@@ -167,19 +164,6 @@
         "internalType": "bytes4",
         "name": "",
         "type": "bytes4"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "RATE",
-    "outputs": [
-      {
-        "internalType": "bytes6",
-        "name": "",
-        "type": "bytes6"
       }
     ],
     "stateMutability": "view",
@@ -260,6 +244,19 @@
     "outputs": [
       {
         "internalType": "contract ICauldronGov",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "fyTokenFactory",
+    "outputs": [
+      {
+        "internalType": "contract IFYTokenFactory",
         "name": "",
         "type": "address"
       }
@@ -544,6 +541,19 @@
     "name": "setRoleAdmin",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "witch",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   }
 ]

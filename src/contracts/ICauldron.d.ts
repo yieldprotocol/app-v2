@@ -26,6 +26,8 @@ interface ICauldronInterface extends ethers.utils.Interface {
     "auctions(bytes12)": FunctionFragment;
     "balances(bytes12)": FunctionFragment;
     "build(address,bytes12,bytes6,bytes6)": FunctionFragment;
+    "debtFromBase(bytes6,uint128)": FunctionFragment;
+    "debtToBase(bytes6,uint128)": FunctionFragment;
     "destroy(bytes12)": FunctionFragment;
     "give(bytes12,address)": FunctionFragment;
     "grab(bytes12,address)": FunctionFragment;
@@ -47,6 +49,14 @@ interface ICauldronInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "build",
     values: [string, BytesLike, BytesLike, BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "debtFromBase",
+    values: [BytesLike, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "debtToBase",
+    values: [BytesLike, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "destroy", values: [BytesLike]): string;
   encodeFunctionData(
@@ -90,6 +100,11 @@ interface ICauldronInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "auctions", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balances", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "build", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "debtFromBase",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "debtToBase", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "destroy", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "give", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "grab", data: BytesLike): Result;
@@ -172,6 +187,18 @@ export class ICauldron extends BaseContract {
       vaultId: BytesLike,
       seriesId: BytesLike,
       ilkId: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    debtFromBase(
+      seriesId: BytesLike,
+      base: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    debtToBase(
+      seriesId: BytesLike,
+      art: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -287,6 +314,18 @@ export class ICauldron extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  debtFromBase(
+    seriesId: BytesLike,
+    base: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  debtToBase(
+    seriesId: BytesLike,
+    art: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   destroy(
     vault: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -394,6 +433,18 @@ export class ICauldron extends BaseContract {
         ilkId: string;
       }
     >;
+
+    debtFromBase(
+      seriesId: BytesLike,
+      base: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    debtToBase(
+      seriesId: BytesLike,
+      art: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     destroy(vault: BytesLike, overrides?: CallOverrides): Promise<void>;
 
@@ -520,6 +571,18 @@ export class ICauldron extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    debtFromBase(
+      seriesId: BytesLike,
+      base: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    debtToBase(
+      seriesId: BytesLike,
+      art: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     destroy(
       vault: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -614,6 +677,18 @@ export class ICauldron extends BaseContract {
       vaultId: BytesLike,
       seriesId: BytesLike,
       ilkId: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    debtFromBase(
+      seriesId: BytesLike,
+      base: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    debtToBase(
+      seriesId: BytesLike,
+      art: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

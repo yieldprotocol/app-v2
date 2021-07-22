@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Box, Button, ResponsiveContext, Select, Tab, Tabs, Text, TextInput } from 'grommet';
 import { ethers } from 'ethers';
+import { FiClock, FiLogOut, FiMinusCircle, FiPlusCircle, FiTrendingUp } from 'react-icons/fi';
 
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import InputWrap from '../components/wraps/InputWrap';
@@ -19,9 +20,12 @@ import BackButton from '../components/buttons/BackButton';
 import PositionAvatar from '../components/PositionAvatar';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import NextButton from '../components/buttons/NextButton';
+import CancelButton from '../components/buttons/CancelButton';
+import TransactButton from '../components/buttons/TransactButton';
+import YieldHistory from '../components/YieldHistory';
 
-const LendPosition = () => {
-  const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
+const LendPosition = ({ close }: { close: () => void }) => {
+  const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   /* STATE FROM CONTEXT */
 
@@ -44,12 +48,12 @@ const LendPosition = () => {
 
   const [closeInput, setCloseInput] = useState<string>();
   const [rollInput, setRollInput] = useState<string>();
-  const [rollToSeries, setRollToSeries] = useState<ISeries|null>(null);
+  const [rollToSeries, setRollToSeries] = useState<ISeries | null>(null);
 
-  const [maxClose, setMaxClose] = useState<string|undefined>();
+  const [maxClose, setMaxClose] = useState<string | undefined>();
 
-  const [closeError, setCloseError] = useState<string|null>(null);
-  const [rollError, setRollError] = useState<string|null>(null);
+  const [closeError, setCloseError] = useState<string | null>(null);
+  const [rollError, setRollError] = useState<string | null>(null);
 
   const [closeDisabled, setCloseDisabled] = useState<boolean>(true);
   const [rollDisabled, setRollDisabled] = useState<boolean>(true);
@@ -59,20 +63,18 @@ const LendPosition = () => {
   const { closePosition, rollPosition, redeem } = useLendActions();
 
   /* LOCAL FNS */
-  const handleStepper = (back:boolean = false) => {
+  const handleStepper = (back: boolean = false) => {
     const step = back ? -1 : 1;
-    const newStepArray = stepPosition.map((x:any, i:number) => (i === actionActive.index ? x + step : x));
+    const newStepArray = stepPosition.map((x: any, i: number) => (i === actionActive.index ? x + step : x));
     setStepPosition(newStepArray);
   };
 
   const handleClosePosition = () => {
-    !closeDisabled &&
-    closePosition(closeInput, selectedSeries!);
+    !closeDisabled && closePosition(closeInput, selectedSeries!);
     setCloseInput('');
   };
   const handleRollPosition = () => {
-    !rollDisabled &&
-    rollToSeries && rollPosition(rollInput, selectedSeries!, rollToSeries);
+    !rollDisabled && rollToSeries && rollPosition(rollInput, selectedSeries!, rollToSeries);
     setRollInput('');
   };
   const handleRedeem = () => {
@@ -92,26 +94,26 @@ const LendPosition = () => {
     /* closeInput errors */
     if (activeAccount && (closeInput || closeInput === '')) {
       /* 1. Check if input exceeds fyToken balance */
-      if (maxClose && parseFloat(closeInput) > parseFloat(maxClose)) setCloseError('Amount exceeds available fyToken balance');
-      /* 2. Check if there is a selected series */
-      else if (closeInput && !selectedSeries) setCloseError('No base series selected');
-      /* 2. Check if input is above zero */
-      else if (parseFloat(closeInput) < 0) setCloseError('Amount should be expressed as a positive value');
-      /* if all checks pass, set null error message */
-      else {
+      if (maxClose && parseFloat(closeInput) > parseFloat(maxClose))
+        setCloseError('Amount exceeds available fyToken balance');
+      /* 2. Check if there is a selected series */ else if (closeInput && !selectedSeries)
+        setCloseError('No base series selected');
+      /* 2. Check if input is above zero */ else if (parseFloat(closeInput) < 0)
+        setCloseError('Amount should be expressed as a positive value');
+      /* if all checks pass, set null error message */ else {
         setCloseError(null);
       }
     }
     /* rollInput errors */
     if (activeAccount && (rollInput || rollInput === '')) {
       /* 1. Check if input exceeds fyToken balance */
-      if (maxClose && parseFloat(rollInput) > parseFloat(maxClose)) setRollError('Amount exceeds available fyToken balance');
-      /* 2. Check if there is a selected series */
-      else if (rollInput && !selectedSeries) setRollError('No base series selected');
-      /* 2. Check if input is above zero */
-      else if (parseFloat(rollInput) < 0) setRollError('Amount should be expressed as a positive value');
-      /* if all checks pass, set null error message */
-      else {
+      if (maxClose && parseFloat(rollInput) > parseFloat(maxClose))
+        setRollError('Amount exceeds available fyToken balance');
+      /* 2. Check if there is a selected series */ else if (rollInput && !selectedSeries)
+        setRollError('No base series selected');
+      /* 2. Check if input is above zero */ else if (parseFloat(rollInput) < 0)
+        setRollError('Amount should be expressed as a positive value');
+      /* if all checks pass, set null error message */ else {
         setRollError(null);
       }
     }
@@ -120,53 +122,59 @@ const LendPosition = () => {
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
 
   useEffect(() => {
-    (
-      !activeAccount ||
-      !closeInput ||
-      closeError
-    ) ? setCloseDisabled(true) : setCloseDisabled(false);
+    !activeAccount || !closeInput || closeError ? setCloseDisabled(true) : setCloseDisabled(false);
   }, [closeInput, activeAccount, closeError]);
 
   useEffect(() => {
-    (
-      !activeAccount ||
-      !rollInput ||
-      !rollToSeries ||
-      rollError
-    ) ? setRollDisabled(true) : setRollDisabled(false);
+    !activeAccount || !rollInput || !rollToSeries || rollError ? setRollDisabled(true) : setRollDisabled(false);
   }, [rollInput, activeAccount, rollError, rollToSeries]);
 
   return (
     <CenterPanelWrap>
       <Box fill pad="large" gap="medium">
-
-        <Box height={{ min: '50%' }} gap="medium">
+        <Box height={{ min: '250px' }} gap="medium">
           <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
             <Box direction="row" align="center" gap="medium">
               <PositionAvatar position={selectedSeries!} />
               <Box>
-                <Text size={mobile ? 'large' : 'xlarge'}> {selectedSeries?.displayName} </Text>
+                <Text size={mobile ? 'medium' : 'large'}> {selectedSeries?.displayName} </Text>
                 <Text size="small"> {abbreviateHash(selectedSeries?.fyTokenAddress!, 5)}</Text>
               </Box>
             </Box>
+            <FiLogOut onClick={() => close()} />
           </Box>
 
           <SectionWrap>
-            <Box gap="xsmall" pad="xsmall">
+            <Box gap="small">
               {/* <InfoBite label="Vault debt + interest:" value={`${selectedVault?.art_} ${vaultBase?.symbol}`} icon={<FiTrendingUp />} /> */}
-              <InfoBite label="FYToken balance: " value={selectedSeries?.fyTokenBalance_!} />
+              <InfoBite
+                label="Portfolio value at Maturity"
+                value={`${selectedSeries?.fyTokenBalance_!} ${selectedBase?.symbol!}`}
+                icon={<FiTrendingUp />}
+              />
+              <InfoBite
+                label="Current value"
+                value={`${selectedSeries?.fyTokenBalance_!} `}
+                icon={selectedBase?.image}
+              />
+              <InfoBite
+                label="Maturity date:"
+                value={`${selectedSeries?.fullDate}`}
+                icon={<FiClock color={selectedSeries?.color} />}
+              />
             </Box>
           </SectionWrap>
         </Box>
 
-        <SectionWrap title="Vault Actions">
-
+        <Box>
           <Box elevation="xsmall" round="xsmall">
             <Select
               plain
+              dropProps={{ round:'xsmall' }}
               options={[
                 { text: 'Close Position', index: 0 },
                 { text: 'Roll Position', index: 1 },
+                { text: 'View Trade History', index: 2 },
               ]}
               labelKey="text"
               valueKey="index"
@@ -175,101 +183,112 @@ const LendPosition = () => {
             />
           </Box>
 
-          { actionActive.index === 0 &&
-          <>
-            { stepPosition[0] === 0 &&
-            <Box pad={{ vertical: 'medium' }}>
-              <InputWrap action={() => console.log('maxAction')} isError={closeError} disabled={!selectedSeries}>
-                <TextInput
-                  plain
-                  type="number"
-                  placeholder="fyToken Amount" // {`${selectedBase?.symbol} to reclaim`}
-                  value={closeInput || ''}
-                  onChange={(event:any) => setCloseInput(cleanValue(event.target.value))}
-                  disabled={!selectedSeries}
-                />
-                <MaxButton
-                  action={() => setCloseInput(maxClose)}
-                  disabled={maxClose === '0.0' || !selectedSeries}
-                />
-              </InputWrap>
-            </Box>}
+          {actionActive.index === 0 && (
+            <Box>
+              {stepPosition[0] === 0 && (
+                <Box pad={{ vertical: 'medium' }}>
+                  <InputWrap action={() => console.log('maxAction')} isError={closeError} disabled={!selectedSeries}>
+                    <TextInput
+                      plain
+                      type="number"
+                      placeholder="fyToken Amount" // {`${selectedBase?.symbol} to reclaim`}
+                      value={closeInput || ''}
+                      onChange={(event: any) => setCloseInput(cleanValue(event.target.value))}
+                      disabled={!selectedSeries}
+                    />
+                    <MaxButton
+                      action={() => setCloseInput(maxClose)}
+                      disabled={maxClose === '0.0' || !selectedSeries}
+                    />
+                  </InputWrap>
+                </Box>
+              )}
 
-            {stepPosition[0] !== 0 &&
-            <Box gap="large">
-              <ActiveTransaction txCode={getTxCode(ActionCodes.CLOSE_POSITION, selectedSeriesId)}>
-                <SectionWrap title="Review your transaction">
-                  <Text>Close {closeInput} {selectedBase?.symbol}
-                    from the {selectedSeries?.displayName} series.
-                  </Text>
-                </SectionWrap>
-              </ActiveTransaction>
-            </Box>}
+              {stepPosition[0] !== 0 && (
+                <ActiveTransaction txCode={getTxCode(ActionCodes.CLOSE_POSITION, selectedSeriesId)} pad>
+                  <SectionWrap
+                    title="Review your remove transaction"
+                    rightAction={<CancelButton action={() => handleStepper(true)} />}
+                  >
+                    < InfoBite
+                      label="Close Position"
+                      icon={<FiMinusCircle />}
+                      value={`${closeInput} ${selectedBase?.symbol}`}
+                    />
+                  </SectionWrap>
+                </ActiveTransaction>
+              )}
+            </Box>
+          )}
 
-          </>}
+          {actionActive.index === 1 && (
+            <Box>
+              {stepPosition[actionActive.index] === 0 && (
+                <Box pad={{ vertical: 'medium' }} fill="horizontal" direction="row" align="center">
+                  <SeriesSelector
+                    selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
+                    actionType={ActionType.LEND}
+                    cardLayout={false}
+                  />
+                </Box>
+              )}
 
-          {actionActive.index === 1 &&
-          <>
-            {stepPosition[actionActive.index] === 0 &&
-            <Box pad={{ vertical: 'medium' }} fill="horizontal" direction="row" align="center">
-              <SeriesSelector
-                selectSeriesLocally={(series:ISeries) => setRollToSeries(series)}
-                actionType={ActionType.LEND}
-                cardLayout={false}
-              />
-            </Box>}
+              {stepPosition[actionActive.index] !== 0 && (
+                <ActiveTransaction txCode={getTxCode(ActionCodes.ROLL_POSITION, selectedSeriesId)} pad>
+                  <SectionWrap
+                    title="Review your roll transaction"
+                    rightAction={<CancelButton action={() => handleStepper(true)} />}
+                  >
+                    {/* 
+                    < InfoBite
+                        label="Roll"
+                        icon={<FiPlusCircle />}
+                        value={`${rollInput} ${selectedBase?.symbol}`}
+                      /> */}
 
-            {stepPosition[actionActive.index] !== 0 &&
-            <Box gap="large">
-              <ActiveTransaction txCode={getTxCode(ActionCodes.ROLL_POSITION, selectedSeriesId)}>
-                <SectionWrap title="Review your transaction">
-                  <Text>
-                    Roll {rollInput} {selectedBase?.symbol}
-                    from {selectedSeries?.displayName} to the {rollToSeries?.displayName} series.
-                  </Text>
-                </SectionWrap>
-              </ActiveTransaction>
-            </Box>}
-          </>}
+                    < InfoBite
+                      label="Roll To Series"
+                      icon={<FiPlusCircle />}
+                      value={`${rollToSeries?.displayName}`}
+                    />
+                  </SectionWrap>
+                </ActiveTransaction>
+              )}
+            </Box>
+          )}
 
-        </SectionWrap>
+          {actionActive.index === 2 && <YieldHistory seriesOrVault={selectedSeries!} view={['TRADE']} />}
+
+        </Box>
       </Box>
 
-      <ActionButtonGroup>
-
-        { stepPosition[actionActive.index] === 0 &&
+      <ActionButtonGroup pad>
+        {stepPosition[actionActive.index] === 0 && actionActive.index !== 2 && (
           <NextButton
             label={<Text size={mobile ? 'small' : undefined}> Next Step</Text>}
             onClick={() => handleStepper()}
             key="next"
-          />}
+          />
+        )}
 
-        { actionActive.index === 0 &&
-          stepPosition[actionActive.index] !== 0 &&
-          <Box gap="small" direction="row-responsive" pad={{ horizontal: 'large' }}>
-            <BackButton action={() => handleStepper(true)} />
-            <Button
-              primary
-              label={<Text size={mobile ? 'small' : undefined}> {`Close ${closeInput || ''}`} </Text>}
-              onClick={() => handleClosePosition()}
-              disabled={closeDisabled}
-            />
-          </Box>}
+        {actionActive.index === 0 && stepPosition[actionActive.index] !== 0 && (
+          <TransactButton
+            primary
+            label={<Text size={mobile ? 'small' : undefined}> {`Close ${closeInput || ''}`} </Text>}
+            onClick={() => handleClosePosition()}
+            disabled={closeDisabled}
+          />
+        )}
 
-        { actionActive.index === 1 &&
-          stepPosition[actionActive.index] !== 0 &&
-          <Box gap="small" direction="row" pad={{ horizontal: 'large' }}>
-            <BackButton action={() => handleStepper(true)} />
-            <Button
-              primary
-              label={<Text size={mobile ? 'small' : undefined}> {`Roll ${rollInput || ''}`} </Text>}
-              onClick={() => handleRollPosition()}
-              disabled={rollDisabled}
-            />
-          </Box>}
-
+        {actionActive.index === 1 && stepPosition[actionActive.index] !== 0 && (
+          <TransactButton
+            primary
+            label={<Text size={mobile ? 'small' : undefined}> {`Roll ${rollInput || ''}`} </Text>}
+            onClick={() => handleRollPosition()}
+            disabled={rollDisabled}
+          />
+        )}
       </ActionButtonGroup>
-
     </CenterPanelWrap>
   );
 };

@@ -20,13 +20,22 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface SafeERC20NamerInterface extends ethers.utils.Interface {
   functions: {
+    "tokenDecimals(address)": FunctionFragment;
     "tokenName(address)": FunctionFragment;
     "tokenSymbol(address)": FunctionFragment;
   };
 
+  encodeFunctionData(
+    functionFragment: "tokenDecimals",
+    values: [string]
+  ): string;
   encodeFunctionData(functionFragment: "tokenName", values: [string]): string;
   encodeFunctionData(functionFragment: "tokenSymbol", values: [string]): string;
 
+  decodeFunctionResult(
+    functionFragment: "tokenDecimals",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "tokenName", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "tokenSymbol",
@@ -80,16 +89,22 @@ export class SafeERC20Namer extends BaseContract {
   interface: SafeERC20NamerInterface;
 
   functions: {
+    tokenDecimals(token: string, overrides?: CallOverrides): Promise<[number]>;
+
     tokenName(token: string, overrides?: CallOverrides): Promise<[string]>;
 
     tokenSymbol(token: string, overrides?: CallOverrides): Promise<[string]>;
   };
+
+  tokenDecimals(token: string, overrides?: CallOverrides): Promise<number>;
 
   tokenName(token: string, overrides?: CallOverrides): Promise<string>;
 
   tokenSymbol(token: string, overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
+    tokenDecimals(token: string, overrides?: CallOverrides): Promise<number>;
+
     tokenName(token: string, overrides?: CallOverrides): Promise<string>;
 
     tokenSymbol(token: string, overrides?: CallOverrides): Promise<string>;
@@ -98,12 +113,19 @@ export class SafeERC20Namer extends BaseContract {
   filters: {};
 
   estimateGas: {
+    tokenDecimals(token: string, overrides?: CallOverrides): Promise<BigNumber>;
+
     tokenName(token: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     tokenSymbol(token: string, overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
+    tokenDecimals(
+      token: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     tokenName(
       token: string,
       overrides?: CallOverrides

@@ -2,12 +2,11 @@ import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
-import { ICallData, IVault, SignType, ISeries, ActionCodes } from '../types';
+import { ICallData, IVault, SignType, ISeries, ActionCodes, LadleActions } from '../types';
 import { getTxCode } from '../utils/appUtils';
-import { ETH_BASED_ASSETS, DAI_BASED_ASSETS, MAX_128, MAX_256 } from '../utils/constants';
+import { ETH_BASED_ASSETS, DAI_BASED_ASSETS, MAX_128, BLANK_VAULT } from '../utils/constants';
 import { useChain } from './chainHooks';
 
-import { VAULT_OPS } from '../utils/operations';
 import { calculateSlippage } from '../utils/yieldMath';
 import { useCollateralActions } from './collateralHooks';
 
@@ -17,25 +16,23 @@ export const useBorrow = () => {
 
 /* Generic hook for chain transactions */
 export const useBorrowActions = () => {
-  const { chainState: { account, contractMap } } = useContext(ChainContext);
+  const {
+    chainState: { account },
+  } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
   const { selectedIlkId, selectedSeriesId, seriesMap, assetMap } = userState;
-  const { updateVaults } = userActions;
+  const { updateVaults, updateAssets } = userActions;
 
   const { addEth, removeEth } = useCollateralActions();
-
   const { sign, transact } = useChain();
 
-  const borrow = async (
-    vault: IVault|undefined,
-    input: string|undefined,
-    collInput: string|undefined,
-  ) => {
-    /* use the vault id provided OR Get a random vault number ready if reqd. */
-    const vaultId = vault?.id || ethers.utils.hexlify(ethers.utils.randomBytes(12));
+  const borrow = async (vault: IVault | undefined, input: string | undefined, collInput: string | undefined) => {
+    /* use the vault id provided OR 0 if new/ not provided */
+    const vaultId = vault?.id || BLANK_VAULT; // ethers.utils.hexlify(ethers.utils.randomBytes(12))
 
-    /* set the series and ilk based on if a vault has been selected or it's a new vault */
+    /* set the series and ilk based on the vault that has been selected or if it's a new vault, get from the globally selected SeriesId */
     const series = vault ? seriesMap.get(vault.seriesId) : seriesMap.get(selectedSeriesId);
+    const base = assetMap.get(series.baseId);
     const ilk = vault ? assetMap.get(vault.ilkId) : assetMap.get(selectedIlkId);
 
     /* generate the reproducible txCode for tx tracking and tracing */
@@ -46,19 +43,21 @@ export const useBorrowActions = () => {
     const _collInput = collInput ? ethers.utils.parseEther(collInput) : ethers.constants.Zero;
 
     /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
-    const permits: ICallData[] = await sign([
-      {
-        target: ilk,
-        spender: ilk.joinAddress,
-        series,
-        type: DAI_BASED_ASSETS.includes(selectedIlkId) ? SignType.DAI : SignType.ERC2612,
-        ignore: ETH_BASED_ASSETS.includes(selectedIlkId), /* Ignore if Eth varietal OR Dai varietal */
-      },
-    ], txCode);
+    const permits: ICallData[] = await sign(
+      [
+        {
+          target: ilk,
+          spender: ilk.joinAddress,
+          series,
+          type: DAI_BASED_ASSETS.includes(selectedIlkId) ? SignType.DAI : SignType.ERC2612,
+          ignore: ETH_BASED_ASSETS.includes(selectedIlkId) /* Ignore if Eth varietal */,
+        },
+      ],
+      txCode
+    );
 
     /* Collate all the calls required for the process (including depositing ETH, signing permits, and building vault if needed) */
     const calls: ICallData[] = [
-
       /* Include all the signatures gathered, if required */
       ...permits,
 
@@ -67,15 +66,15 @@ export const useBorrowActions = () => {
 
       /* If vault is null, build a new vault, else ignore */
       {
-        operation: VAULT_OPS.BUILD,
-        args: [vaultId, selectedSeriesId, selectedIlkId],
+        operation: LadleActions.Fn.BUILD,
+        args: [selectedSeriesId, selectedIlkId, '0'] as LadleActions.Args.BUILD,
         series,
         ignore: !!vault,
       },
       {
-        operation: VAULT_OPS.SERVE,
-        args: [vaultId, account, _collInput, _input, MAX_128],
-        ignore: false,
+        operation: LadleActions.Fn.SERVE,
+        args: [vaultId, account, _collInput, _input, MAX_128] as LadleActions.Args.SERVE,
+        ignore: false, // never ignore this
         series,
       },
     ];
@@ -88,12 +87,13 @@ export const useBorrowActions = () => {
       else update ALL vaults (by passing an empty array)
     */
     vault ? updateVaults([vault]) : updateVaults([]);
+    updateAssets([base, ilk]);
   };
 
   const repay = async (
     vault: IVault,
-    input:string|undefined,
-    collInput: string|undefined = '0', // optional - add(+) / remove(-) collateral in same tx.
+    input: string | undefined,
+    collInput: string | undefined = '0' // optional - add(+) / remove(-) collateral in same tx.
   ) => {
     const txCode = getTxCode(ActionCodes.REPAY, vault.id);
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
@@ -105,53 +105,59 @@ export const useBorrowActions = () => {
     const _inputWithSlippage = calculateSlippage(_input);
     const inputGreaterThanDebt: boolean = ethers.BigNumber.from(_inputWithSlippage).gte(vault.art);
 
-    const permits: ICallData[] = await sign([
-      {
-        // before maturity
-        target: base,
-        spender: 'LADLE',
-        series,
-        type: _isDaiBased ? SignType.DAI : SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
-        message: 'Signing Dai Approval',
-        ignore: series.mature,
-      },
-      {
-        // after maturity
-        target: base,
-        spender: base.joinAddress,
-        series,
-        type: _isDaiBased ? SignType.DAI : SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
-        message: 'Signing Dai Approval',
-        ignore: !series.mature,
-      },
-    ], txCode);
+    const permits: ICallData[] = await sign(
+      [
+        {
+          // before maturity
+          target: base,
+          spender: 'LADLE',
+          series,
+          type: _isDaiBased ? SignType.DAI : SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
+          message: 'Signing Dai Approval',
+          ignore: series.mature,
+        },
+        {
+          // after maturity
+          target: base,
+          spender: base.joinAddress,
+          series,
+          type: _isDaiBased ? SignType.DAI : SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
+          message: 'Signing Dai Approval',
+          ignore: !series.mature,
+        },
+      ],
+      txCode
+    );
 
     const calls: ICallData[] = [
       ...permits,
       {
-        operation: VAULT_OPS.TRANSFER_TO_POOL,
-        args: [series.id, true, _inputWithSlippage],
+        operation: LadleActions.Fn.TRANSFER_TO_POOL,
+        args: [series.id, true, _inputWithSlippage] as LadleActions.Args.TRANSFER_TO_POOL,
         series,
         ignore: series.mature,
       },
-      { /* ladle.repay(vaultId, owner, inkRetrieved, 0) */
-        operation: VAULT_OPS.REPAY,
-        args: [vault.id, account, _collInput, ethers.constants.Zero],
+      {
+        /* ladle.repay(vaultId, owner, inkRetrieved, 0) */ 
+        operation: LadleActions.Fn.REPAY,
+        args: [vault.id, account, _collInput, ethers.constants.Zero] as LadleActions.Args.REPAY,
         series,
         ignore: series.mature || inputGreaterThanDebt,
       },
-      { /* ladle.repayVault(vaultId, owner, inkRetrieved, MAX) */
-        operation: VAULT_OPS.REPAY_VAULT,
-        args: [vault.id, account, ethers.constants.Zero, MAX_128],
+      {
+        /* ladle.repayVault(vaultId, owner, inkRetrieved, MAX) */ 
+        operation: LadleActions.Fn.REPAY_VAULT,
+        args: [vault.id, account, ethers.constants.Zero, MAX_128] as LadleActions.Args.REPAY_VAULT,
         series,
         ignore: series.mature || !inputGreaterThanDebt,
       },
 
       /* AFTER MATURITY */
 
-      { /* ladle.repayVault(vaultId, owner, inkRetrieved, MAX) */
-        operation: VAULT_OPS.CLOSE,
-        args: [vault.id, account, ethers.constants.Zero, _input.mul(-1)],
+      {
+        /* ladle.repayVault(vaultId, owner, inkRetrieved, MAX) */ 
+        operation: LadleActions.Fn.CLOSE,
+        args: [vault.id, account, ethers.constants.Zero, _input.mul(-1)] as LadleActions.Args.CLOSE,
         series,
         ignore: !series.mature,
       },
@@ -159,24 +165,26 @@ export const useBorrowActions = () => {
     ];
     await transact('Ladle', calls, txCode);
     updateVaults([vault]);
+    updateAssets([base]);
   };
 
-  const rollDebt = async (
-    vault: IVault,
-    toSeries: ISeries,
-  ) => {
-    const txCode = getTxCode(ActionCodes.ROLL_DEBT, vault.seriesId);
+  const rollDebt = async (vault: IVault, toSeries: ISeries) => {
+    const txCode = getTxCode(ActionCodes.ROLL_DEBT, vault.id);
     const series = seriesMap.get(vault.seriesId);
+    const base = assetMap.get(vault.baseId);
+
     const calls: ICallData[] = [
-      { // ladle.rollAction(vaultId: string, newSeriesId: string, max: BigNumberish)
-        operation: VAULT_OPS.ROLL,
-        args: [vault.id, toSeries.id, '2', MAX_128],
+      {
+        // ladle.rollAction(vaultId: string, newSeriesId: string, max: BigNumberish)
+        operation: LadleActions.Fn.ROLL, 
+        args: [vault.id, toSeries.id, '2', MAX_128] as LadleActions.Args.ROLL ,
         ignore: false,
         series,
       },
     ];
     await transact('Ladle', calls, txCode);
     updateVaults([vault]);
+    updateAssets([base]);
   };
 
   return {

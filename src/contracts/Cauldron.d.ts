@@ -28,11 +28,11 @@ interface CauldronInterface extends ethers.utils.Interface {
     "addIlks(bytes6,bytes6[])": FunctionFragment;
     "addSeries(bytes6,bytes6,address)": FunctionFragment;
     "assets(bytes6)": FunctionFragment;
-    "auctionInterval()": FunctionFragment;
-    "auctions(bytes12)": FunctionFragment;
     "balances(bytes12)": FunctionFragment;
     "build(address,bytes12,bytes6,bytes6)": FunctionFragment;
     "debt(bytes6,bytes6)": FunctionFragment;
+    "debtFromBase(bytes6,uint128)": FunctionFragment;
+    "debtToBase(bytes6,uint128)": FunctionFragment;
     "destroy(bytes12)": FunctionFragment;
     "getRoleAdmin(bytes4)": FunctionFragment;
     "give(bytes12,address)": FunctionFragment;
@@ -52,7 +52,6 @@ interface CauldronInterface extends ethers.utils.Interface {
     "revokeRoles(bytes4[],address)": FunctionFragment;
     "roll(bytes12,bytes6,int128)": FunctionFragment;
     "series(bytes6)": FunctionFragment;
-    "setAuctionInterval(uint32)": FunctionFragment;
     "setDebtLimits(bytes6,bytes6,uint96,uint24,uint8)": FunctionFragment;
     "setRateOracle(bytes6,address)": FunctionFragment;
     "setRoleAdmin(bytes4,bytes4)": FunctionFragment;
@@ -80,11 +79,6 @@ interface CauldronInterface extends ethers.utils.Interface {
     values: [BytesLike, BytesLike, string]
   ): string;
   encodeFunctionData(functionFragment: "assets", values: [BytesLike]): string;
-  encodeFunctionData(
-    functionFragment: "auctionInterval",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "auctions", values: [BytesLike]): string;
   encodeFunctionData(functionFragment: "balances", values: [BytesLike]): string;
   encodeFunctionData(
     functionFragment: "build",
@@ -93,6 +87,14 @@ interface CauldronInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "debt",
     values: [BytesLike, BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "debtFromBase",
+    values: [BytesLike, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "debtToBase",
+    values: [BytesLike, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "destroy", values: [BytesLike]): string;
   encodeFunctionData(
@@ -156,10 +158,6 @@ interface CauldronInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "series", values: [BytesLike]): string;
   encodeFunctionData(
-    functionFragment: "setAuctionInterval",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
     functionFragment: "setDebtLimits",
     values: [BytesLike, BytesLike, BigNumberish, BigNumberish, BigNumberish]
   ): string;
@@ -200,14 +198,14 @@ interface CauldronInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "addIlks", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "addSeries", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "assets", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "auctionInterval",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "auctions", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balances", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "build", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "debt", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "debtFromBase",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "debtToBase", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "destroy", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getRoleAdmin",
@@ -243,10 +241,6 @@ interface CauldronInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "roll", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "series", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "setAuctionInterval",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "setDebtLimits",
     data: BytesLike
   ): Result;
@@ -273,7 +267,6 @@ interface CauldronInterface extends ethers.utils.Interface {
 
   events: {
     "AssetAdded(bytes6,address)": EventFragment;
-    "AuctionIntervalSet(uint32)": EventFragment;
     "DebtLimitsSet(bytes6,bytes6,uint96,uint24,uint8)": EventFragment;
     "IlkAdded(bytes6,bytes6)": EventFragment;
     "RateOracleAdded(bytes6,address)": EventFragment;
@@ -286,7 +279,6 @@ interface CauldronInterface extends ethers.utils.Interface {
     "VaultBuilt(bytes12,address,bytes6,bytes6)": EventFragment;
     "VaultDestroyed(bytes12)": EventFragment;
     "VaultGiven(bytes12,address)": EventFragment;
-    "VaultLocked(bytes12,uint256)": EventFragment;
     "VaultPoured(bytes12,bytes6,bytes6,int128,int128)": EventFragment;
     "VaultRolled(bytes12,bytes6,uint128)": EventFragment;
     "VaultStirred(bytes12,bytes12,uint128,uint128)": EventFragment;
@@ -294,7 +286,6 @@ interface CauldronInterface extends ethers.utils.Interface {
   };
 
   getEvent(nameOrSignatureOrTopic: "AssetAdded"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "AuctionIntervalSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DebtLimitsSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "IlkAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RateOracleAdded"): EventFragment;
@@ -307,7 +298,6 @@ interface CauldronInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "VaultBuilt"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "VaultDestroyed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "VaultGiven"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "VaultLocked"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "VaultPoured"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "VaultRolled"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "VaultStirred"): EventFragment;
@@ -388,10 +378,6 @@ export class Cauldron extends BaseContract {
 
     assets(arg0: BytesLike, overrides?: CallOverrides): Promise<[string]>;
 
-    auctionInterval(overrides?: CallOverrides): Promise<[number]>;
-
-    auctions(arg0: BytesLike, overrides?: CallOverrides): Promise<[number]>;
-
     balances(
       arg0: BytesLike,
       overrides?: CallOverrides
@@ -417,6 +403,18 @@ export class Cauldron extends BaseContract {
         sum: BigNumber;
       }
     >;
+
+    debtFromBase(
+      seriesId: BytesLike,
+      base: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    debtToBase(
+      seriesId: BytesLike,
+      art: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     destroy(
       vaultId: BytesLike,
@@ -526,11 +524,6 @@ export class Cauldron extends BaseContract {
       }
     >;
 
-    setAuctionInterval(
-      auctionInterval_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     setDebtLimits(
       baseId: BytesLike,
       ilkId: BytesLike,
@@ -630,10 +623,6 @@ export class Cauldron extends BaseContract {
 
   assets(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
 
-  auctionInterval(overrides?: CallOverrides): Promise<number>;
-
-  auctions(arg0: BytesLike, overrides?: CallOverrides): Promise<number>;
-
   balances(
     arg0: BytesLike,
     overrides?: CallOverrides
@@ -659,6 +648,18 @@ export class Cauldron extends BaseContract {
       sum: BigNumber;
     }
   >;
+
+  debtFromBase(
+    seriesId: BytesLike,
+    base: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  debtToBase(
+    seriesId: BytesLike,
+    art: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   destroy(
     vaultId: BytesLike,
@@ -768,11 +769,6 @@ export class Cauldron extends BaseContract {
     }
   >;
 
-  setAuctionInterval(
-    auctionInterval_: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   setDebtLimits(
     baseId: BytesLike,
     ilkId: BytesLike,
@@ -869,10 +865,6 @@ export class Cauldron extends BaseContract {
 
     assets(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
 
-    auctionInterval(overrides?: CallOverrides): Promise<number>;
-
-    auctions(arg0: BytesLike, overrides?: CallOverrides): Promise<number>;
-
     balances(
       arg0: BytesLike,
       overrides?: CallOverrides
@@ -904,6 +896,18 @@ export class Cauldron extends BaseContract {
         sum: BigNumber;
       }
     >;
+
+    debtFromBase(
+      seriesId: BytesLike,
+      base: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    debtToBase(
+      seriesId: BytesLike,
+      art: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     destroy(vaultId: BytesLike, overrides?: CallOverrides): Promise<void>;
 
@@ -1016,11 +1020,6 @@ export class Cauldron extends BaseContract {
       }
     >;
 
-    setAuctionInterval(
-      auctionInterval_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     setDebtLimits(
       baseId: BytesLike,
       ilkId: BytesLike,
@@ -1106,10 +1105,6 @@ export class Cauldron extends BaseContract {
       assetId?: BytesLike | null,
       asset?: string | null
     ): TypedEventFilter<[string, string], { assetId: string; asset: string }>;
-
-    AuctionIntervalSet(
-      auctionInterval?: BigNumberish | null
-    ): TypedEventFilter<[number], { auctionInterval: number }>;
 
     DebtLimitsSet(
       baseId?: BytesLike | null,
@@ -1213,14 +1208,6 @@ export class Cauldron extends BaseContract {
       { vaultId: string; receiver: string }
     >;
 
-    VaultLocked(
-      vaultId?: BytesLike | null,
-      timestamp?: BigNumberish | null
-    ): TypedEventFilter<
-      [string, BigNumber],
-      { vaultId: string; timestamp: BigNumber }
-    >;
-
     VaultPoured(
       vaultId?: BytesLike | null,
       seriesId?: BytesLike | null,
@@ -1298,10 +1285,6 @@ export class Cauldron extends BaseContract {
 
     assets(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
 
-    auctionInterval(overrides?: CallOverrides): Promise<BigNumber>;
-
-    auctions(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
-
     balances(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
 
     build(
@@ -1316,6 +1299,18 @@ export class Cauldron extends BaseContract {
       arg0: BytesLike,
       arg1: BytesLike,
       overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    debtFromBase(
+      seriesId: BytesLike,
+      base: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    debtToBase(
+      seriesId: BytesLike,
+      art: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     destroy(
@@ -1420,11 +1415,6 @@ export class Cauldron extends BaseContract {
 
     series(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
 
-    setAuctionInterval(
-      auctionInterval_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     setDebtLimits(
       baseId: BytesLike,
       ilkId: BytesLike,
@@ -1519,13 +1509,6 @@ export class Cauldron extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    auctionInterval(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    auctions(
-      arg0: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     balances(
       arg0: BytesLike,
       overrides?: CallOverrides
@@ -1543,6 +1526,18 @@ export class Cauldron extends BaseContract {
       arg0: BytesLike,
       arg1: BytesLike,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    debtFromBase(
+      seriesId: BytesLike,
+      base: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    debtToBase(
+      seriesId: BytesLike,
+      art: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     destroy(
@@ -1651,11 +1646,6 @@ export class Cauldron extends BaseContract {
     series(
       arg0: BytesLike,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    setAuctionInterval(
-      auctionInterval_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     setDebtLimits(
