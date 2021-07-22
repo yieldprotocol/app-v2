@@ -120,20 +120,22 @@ const UserProvider = ({ children }: any) => {
     async (fromBlock: number = 1) => {
       const Cauldron = contractMap.get('Cauldron');
 
-      const builtFilter = Cauldron.filters.VaultBuilt(null, account);
-      const builtList = await Cauldron.queryFilter(builtFilter, fromBlock);
+      const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account);
+      const vaultsReceivedfilter = Cauldron.filters.VaultGiven(null, account);
 
-      const givenfilter = Cauldron.filters.VaultGiven(null, account);
-      const givenList = await Cauldron.queryFilter(givenfilter, fromBlock);
-      console.log('givennnnnnnnnn', givenList);
+      const [vaultsBuilt, vaultsReceived] = await Promise.all([
+        Cauldron.queryFilter(vaultsBuiltFilter, fromBlock),
+        Cauldron.queryFilter(vaultsReceivedfilter, fromBlock),
+      ]);
 
-      const eventList = builtList;
+      const eventList: IVaultRoot[] = [...vaultsBuilt, ...vaultsReceived];
+
       // const eventList = await Cauldron.queryFilter(filter, cachedVaults.lastBlock);
       const vaultList: IVaultRoot[] = await Promise.all(
         eventList.map(async (x: any): Promise<IVaultRoot> => {
           const { vaultId: id, ilkId, seriesId } = Cauldron.interface.parseLog(x).args;
           const series = seriesRootMap.get(seriesId);
-          // const baseId = assetRootMap.get(series.baseId);
+          const { owner } = await Cauldron.vaults(x.args.vaultId);
 
           return {
             id,
