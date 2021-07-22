@@ -198,14 +198,14 @@ const Borrow = () => {
           <Box fill pad="large" gap="medium">
             {stepPosition === 0 && ( // INITIAL STEP
               <Box gap="medium">
-                {/* <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }} > */}
-                <Box direction="row" gap="small" align="center" pad="medium">
-                  {/* <YieldMark />
-                  <Text>BORROW</Text> */}
+                <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
+                  {/* <Box direction="row" gap="small" align="center" pad="medium"> */}
+                  <YieldMark />
+                  <Text>BORROW</Text>
                 </Box>
 
-                <SectionWrap title="Select an asset and amount">
-                  <Box direction="row" gap="small" fill="horizontal" align="start">
+                <SectionWrap title="Select asset and amount">
+                  <Box direction="row" gap="small" fill="horizontal" align="start" pad={{ vertical: 'small' }}>
                     <Box basis={mobile ? '50%' : '60%'}>
                       <InputWrap action={() => console.log('maxAction')} isError={borrowInputError}>
                         <TextInput
@@ -224,7 +224,7 @@ const Borrow = () => {
                   </Box>
                 </SectionWrap>
 
-                <SectionWrap title="Select a series">
+                <SectionWrap title="Select series">
                   <SeriesSelector inputValue={borrowInput} actionType={ActionType.BORROW} />
                 </SectionWrap>
               </Box>

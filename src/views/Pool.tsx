@@ -117,8 +117,8 @@ function Pool() {
                 <Text>POOL</Text>
               </Box>
 
-              <SectionWrap title="Select an asset and amount">
-                <Box direction="row" gap="small" fill="horizontal" align="start">
+              <SectionWrap title="Select asset and amount">
+                <Box direction="row" gap="small" fill="horizontal" align="start" pad={{ vertical: 'small' }}>
                   <Box basis={mobile ? '50%' : '60%'}>
                     <InputWrap action={() => console.log('maxAction')} isError={poolError}>
                       <TextInput
@@ -138,7 +138,7 @@ function Pool() {
                 </Box>
               </SectionWrap>
 
-              <SectionWrap title="Select a series">
+              <SectionWrap title="Select series">
                 <SeriesSelector actionType={ActionType.POOL} inputValue={poolInput} />
               </SectionWrap>
             </Box>
@@ -176,22 +176,18 @@ function Pool() {
                       round="xsmall"
                       animation={{ type: 'zoomIn', size: 'small' }}
                     >
-                      < InfoBite
+                      <InfoBite
                         label="Amount to pool"
                         icon={<BiMessageSquareAdd />}
                         value={`${poolInput} ${selectedBase?.symbol}`}
                       />
-                      < InfoBite
-                        label="Series Maturity"
-                        icon={<FiClock />}
-                        value={`${selectedSeries?.displayName}`}
-                      />
-                      < InfoBite
+                      <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
+                      <InfoBite
                         label="Amount of liquidity tokens recieved"
                         icon={<BiCoinStack />}
                         value={`${'[todo]'} Liquidity tokens`}
                       />
-                      < InfoBite label="Percentage of pool" icon={<FiPercent />} value={`${'[todo]'}%`} />
+                      <InfoBite label="Percentage of pool" icon={<FiPercent />} value={`${'[todo]'}%`} />
                     </Box>
                   </SectionWrap>
                 </Box>

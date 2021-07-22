@@ -21,14 +21,14 @@ function SectionWrap({ title, subtitle, border, disabled, collapsible, children,
     <Box border={border}>
       {title && (
         <Box
-          pad="xsmall"
+          pad={{ vertical: 'small' }}
           direction="row"
           fill="horizontal"
           justify="between"
           onClick={() => collapsible && setOpen(!open)}
-          align='center'
+          align="center"
         >
-          <AltText size={mobile ? 'small' : 'small'} color={disabled ? 'text-xweak' : 'text-weak'}>
+          <AltText size={mobile ? 'small' : 'medium'} color={disabled ? 'text-xweak' : 'text-weak'}>
             {title}
           </AltText>
           {collapsible && <Box> {open ? 'close' : 'open'} </Box>}
@@ -40,12 +40,12 @@ function SectionWrap({ title, subtitle, border, disabled, collapsible, children,
   );
 }
 
-SectionWrap.defaultProps = { 
-    title: null, 
-    subtitle: null, 
-    border: undefined, 
-    disabled: false, 
-    collapsible: false, 
-    rightAction:undefined 
+SectionWrap.defaultProps = {
+  title: null,
+  subtitle: null,
+  border: undefined,
+  disabled: false,
+  collapsible: false,
+  rightAction: undefined,
 };
 export default SectionWrap;

@@ -113,8 +113,8 @@ const Lend = () => {
                 <YieldMark />
                 <Text>LEND</Text>
               </Box>
-              <SectionWrap title="Select an asset and amount">
-                <Box direction="row" gap="small" fill="horizontal" align="start">
+              <SectionWrap title="Select asset and amount">
+                <Box direction="row" gap="small" fill="horizontal" align="start" pad={{ vertical: 'small' }}>
                   <Box basis={mobile ? '50%' : '60%'}>
                     <InputWrap
                       action={() => console.log('maxAction')}
@@ -141,7 +141,7 @@ const Lend = () => {
                 </Box>
               </SectionWrap>
 
-              <SectionWrap title="Select a series">
+              <SectionWrap title="Select series">
                 <SeriesSelector inputValue={lendInput} actionType={ActionType.LEND} />
               </SectionWrap>
             </Box>
@@ -152,25 +152,21 @@ const Lend = () => {
               <BackButton action={() => setStepPosition(0)} />
 
               <ActiveTransaction txCode={getTxCode(ActionCodes.LEND, selectedSeriesId)} size="LARGE">
-                <SectionWrap title="Review your transaction">
+                <SectionWrap title="Review transaction">
                   <Box
                     gap="small"
                     pad={{ horizontal: 'large', vertical: 'medium' }}
                     round="xsmall"
                     animation={{ type: 'zoomIn', size: 'small' }}
                   >
-                    < InfoBite
-                      label="Amount to lend"
-                      icon={<BiMessageSquareAdd />}
-                      value={`${lendInput} fyTokens`}
-                    />
-                    < InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
-                    < InfoBite
+                    <InfoBite label="Amount to lend" icon={<BiMessageSquareAdd />} value={`${lendInput} fyTokens`} />
+                    <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
+                    <InfoBite
                       label="Redeemable @ Maturity"
                       icon={<FiTrendingUp />}
                       value={`${lendInput} ${selectedBase?.symbol}`}
                     />
-                    < InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
+                    <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
                   </Box>
                 </SectionWrap>
               </ActiveTransaction>
