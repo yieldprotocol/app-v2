@@ -93,9 +93,7 @@ export class CTokenChiMock extends BaseContract {
   interface: CTokenChiMockInterface;
 
   functions: {
-    exchangeRateCurrent(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    exchangeRateCurrent(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     exchangeRateStored(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -105,9 +103,7 @@ export class CTokenChiMock extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
-  exchangeRateCurrent(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  exchangeRateCurrent(overrides?: CallOverrides): Promise<BigNumber>;
 
   exchangeRateStored(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -127,9 +123,7 @@ export class CTokenChiMock extends BaseContract {
   filters: {};
 
   estimateGas: {
-    exchangeRateCurrent(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    exchangeRateCurrent(overrides?: CallOverrides): Promise<BigNumber>;
 
     exchangeRateStored(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -141,7 +135,7 @@ export class CTokenChiMock extends BaseContract {
 
   populateTransaction: {
     exchangeRateCurrent(
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     exchangeRateStored(

@@ -18,6 +18,25 @@ const _abi = [
         type: "address",
       },
     ],
+    name: "tokenDecimals",
+    outputs: [
+      {
+        internalType: "uint8",
+        name: "",
+        type: "uint8",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "token",
+        type: "address",
+      },
+    ],
     name: "tokenName",
     outputs: [
       {

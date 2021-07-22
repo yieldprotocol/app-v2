@@ -2,13 +2,13 @@
 
 name: CI
 
-# Controls when the action will run. 
+# Controls when the action will run.
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -24,7 +24,7 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-      
+
       - name: Audit for vulnerabilities
         run: npx audit-ci --high
 
@@ -32,7 +32,7 @@ jobs:
 #       - name: Run a one-line script
 #         run: echo Hello, world!
 
-      # Runs a set of commands using the runners shell
+# Runs a set of commands using the runners shell
 #       - name: Run a multi-line script
 #         run: |
 #           echo Add other actions to build,

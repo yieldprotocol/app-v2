@@ -1,55 +1,52 @@
-import { ethers, BigNumber } from 'ethers';
+import { ethers, BigNumber, BigNumberish } from 'ethers';
 import React from 'react';
 import { FYToken, Pool } from '../contracts';
 
-export interface IUserContext {
-  userState : IUserContextState;
-  userActions : IUserContextActions;
+export { LadleActions, PoolRouterActions, ReroutedActions } from './operations';
+
+export interface IHistoryList {
+  lastBlock: number;
+  items: any[];
+}
+export interface IHistoryContextState {
+  historyLoading: boolean;
+  tradeHistory: IHistoryList;
+  poolHistory: IHistoryList;
+  vaultHistory: IHistoryList;
 }
 
-export interface IHistoryContextState {
-  historyLoading: boolean,
-  txHistory: {
-    lastBlock: Number,
-    items:any[],
-  }
+export interface IUserContext {
+  userState: IUserContextState;
+  userActions: IUserContextActions;
 }
 
 export interface IUserContextState {
   userLoading: boolean;
-  activeAccount: string|null;
-
+  activeAccount: string | null;
   assetMap: Map<string, IAsset>;
   seriesMap: Map<string, ISeries>;
   vaultMap: Map<string, IVault>;
-
   priceMap: Map<string, Map<string, any>>;
-
-  selectedSeriesId: string|null;
-  selectedIlkId: string|null;
-  selectedBaseId: string|null;
-  selectedVaultId: string|null;
-
+  selectedSeriesId: string | null;
+  selectedIlkId: string | null;
+  selectedBaseId: string | null;
+  selectedVaultId: string | null;
   approvalMethod: ApprovalType;
+  dudeSalt: number;
 }
 
 export interface IUserContextActions {
-
   updateVaults: (vaultList: IVault[]) => void;
   updateSeries: (seriesList: ISeries[]) => void;
   updateAssets: (assetList: IAsset[]) => void;
-
-  updatePrice: (base: string, ilk:string) => void;
-
+  updatePrice: (base: string, ilk: string) => void;
   setSelectedSeries: (seriesId: string) => void;
   setSelectedIlk: (ilkId: string) => void;
   setSelectedBase: (baseId: string) => void;
   setSelectedVault: (vaultId: string) => void;
-
 }
 
 export interface ISeriesRoot {
-  // fixed/static:
   id: string;
   name: string;
   symbol: string;
@@ -58,10 +55,10 @@ export interface ISeriesRoot {
   displayName: string;
   displayNameMobile: string;
   maturity: number;
-  maturityDate: Date;
+  fullDate: Date;
   fyTokenContract: FYToken;
   fyTokenAddress: string;
-  poolContract:Pool;
+  poolContract: Pool;
   poolAddress: string;
   poolName: string;
   poolVersion: string; // for signing
@@ -70,18 +67,18 @@ export interface ISeriesRoot {
   color: string;
   textColor: string;
   startColor: string;
-  endColor:string;
+  endColor: string;
 
-  oppositeColor:string;
+  oppositeColor: string;
   oppStartColor: string;
-  oppEndColor:string;
+  oppEndColor: string;
 
-  seriesMark: React.ElementType
+  seriesMark: React.ElementType;
 
   // baked in token fns
   getTimeTillMaturity: () => string;
   isMature: () => boolean;
-  getBaseAddress: ()=> string; // antipattern, but required here because app simulatneoulsy gets assets and series
+  getBaseAddress: () => string; // antipattern, but required here because app simulatneoulsy gets assets and series
 }
 
 export interface IAssetRoot {
@@ -95,11 +92,12 @@ export interface IAssetRoot {
   displayName: string;
   displayNameMobile: string;
   address: string;
-  joinAddress: string,
+  joinAddress: string;
 
   // baked in token fns
-  getBalance: (account: string)=>Promise<BigNumber>,
-  getAllowance: (account: string, spender: string)=>Promise<BigNumber>,
+  getBalance: (account: string) => Promise<BigNumber>;
+  getAllowance: (account: string, spender: string) => Promise<BigNumber>;
+  mintTest: () => Promise<VoidFunction>;
 }
 
 export interface IVaultRoot {
@@ -108,7 +106,7 @@ export interface IVaultRoot {
   baseId: string;
   seriesId: string;
   image: string;
-  displayName : string;
+  displayName: string;
 }
 
 export interface ISeries extends ISeriesRoot {
@@ -119,17 +117,18 @@ export interface ISeries extends ISeriesRoot {
   totalSupply: BigNumber;
   totalSupply_: string;
 
-  poolTokens?: BigNumber|undefined;
-  poolTokens_?: string|undefined;
-  fyTokenBalance? : BigNumber|undefined;
-  fyTokenBalance_? : string|undefined;
+  poolTokens?: BigNumber | undefined;
+  poolTokens_?: string | undefined;
+  fyTokenBalance?: BigNumber | undefined;
+  fyTokenBalance_?: string | undefined;
 
-  poolPercent? : string|undefined;
+  poolPercent?: string | undefined;
 
   seriesIsMature: boolean;
 }
 
 export interface IAsset extends IAssetRoot {
+  isYieldBase: boolean;
   balance: BigNumber;
   balance_: string;
 }
@@ -141,11 +140,13 @@ export interface IVault extends IVaultRoot {
   art_: string;
   price: BigNumber;
   price_: string;
+  min: BigNumber;
+  max: BigNumber;
 }
 
 export interface ICallData {
-  args: (string|BigNumber|boolean)[];
-  operation: [ number, string[]];
+  args: (string | BigNumberish | boolean)[];
+  operation: string | [number, string[]];
   series: ISeries;
   fnName?: string;
   ignore?: boolean;
@@ -153,8 +154,8 @@ export interface ICallData {
 }
 
 export interface ISignData {
-  target: ISeries | IAsset | { id: string; name:string; version:string; address:string; };
-  spender: 'POOLROUTER'|'LADLE'| string;
+  target: ISeries | IAsset | { id: string; name: string; version: string; address: string };
+  spender: 'POOLROUTER' | 'LADLE' | string;
   type: SignType;
   series: ISeries;
 
@@ -222,20 +223,51 @@ export enum ActionType {
 }
 
 export enum ActionCodes {
-  // Collateral
-  ADD_COLLATERAL = '000',
-  REMOVE_COLLATERAL = '010',
-  // Borrow
-  BORROW = '100',
-  REPAY = '110',
-  ROLL_DEBT = '120',
-  // Lend
-  LEND = '200',
-  CLOSE_POSITION = '210',
-  ROLL_POSITION = '220',
-  REDEEM = '230',
-  // Pool
-  ADD_LIQUIDITY = '300',
-  REMOVE_LIQUIDITY = '310',
-  ROLL_LIQUIDITY = '320',
+  // COLLATERAL
+  ADD_COLLATERAL = 'Add Collateral',
+  REMOVE_COLLATERAL = 'Remove Collateral',
+  // BORROW
+  BORROW = 'Borrow',
+  REPAY = 'Repay',
+  ROLL_DEBT = 'Roll Debt',
+  // LEND
+  LEND = 'Lend',
+  CLOSE_POSITION = 'Close Position',
+  ROLL_POSITION = 'Roll Position',
+  REDEEM = 'Redeem',
+  // POOL
+  ADD_LIQUIDITY = 'Add Liquidity',
+  REMOVE_LIQUIDITY = 'Remove Liquidity',
+  ROLL_LIQUIDITY = 'Roll Liquidity',
+  // VAULT
+  DELETE_VAULT = 'Delete Vault',
+  TRANSFER_VAULT = 'Transfer Vault',
+}
+
+export interface IHistItemBase {
+  blockNumber: number;
+  date: Date;
+  transactionHash: string;
+  maturity: number;
+  seriesId: string;
+  histType: ActionCodes;
+  date_: string;
+}
+
+export interface IHistItemVault extends IHistItemBase {
+  vaultId: string;
+  ilkId: string;
+  ink: BigNumber;
+  art: BigNumber;
+  ink_: String;
+  art_: String;
+}
+
+export interface IHistItemPosition extends IHistItemBase {
+  bases: BigNumber;
+  fyTokens: BigNumber;
+  bases_: string;
+  fyTokens_: string;
+  poolTokens?: BigNumber;
+  poolTokens_?: string;
 }

@@ -9,3 +9,7 @@ src/serviceWorker.ts
 
 # ignore js lint files outside src
 .eslintrc.js
+.prettier.config.js
+
+# ignore all js
+# **/*
