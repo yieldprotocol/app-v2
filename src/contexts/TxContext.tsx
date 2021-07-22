@@ -6,7 +6,6 @@ import { ApprovalType, ISignData, TxState } from '../types';
 const TxContext = React.createContext<any>({});
 
 const initState = {
-
   /* transaction lists */
   signatures: new Map([]) as Map<string, IYieldSignature>,
   transactions: new Map([]) as Map<string, IYieldTx>,
@@ -31,24 +30,19 @@ interface IYieldSignature {
 interface IYieldTx extends ContractTransaction {
   id: string;
   txCode: string;
-  receipt: any|null;
+  receipt: any | null;
   status: TxState;
 }
 
-function txReducer(_state:any, action:any) {
+function txReducer(_state: any, action: any) {
   /* Helper: only change the state if different from existing */
-  const _onlyIfChanged = (_action: any) => (
-    _state[action.type] === _action.payload
-      ? _state[action.type]
-      : _action.payload
-  );
+  const _onlyIfChanged = (_action: any) =>
+    _state[action.type] === _action.payload ? _state[action.type] : _action.payload;
 
   /* Helper: remove process  */ // TODO  find a better way to do this
   const _removeProcess = (_txCode: any) => {
     const mapClone = new Map(_state.processes);
-    return mapClone.delete(_txCode)
-      ? mapClone
-      : _state.processes;
+    return mapClone.delete(_txCode) ? mapClone : _state.processes;
   };
 
   /* Reducer switch */
@@ -72,37 +66,42 @@ function txReducer(_state:any, action:any) {
         // !(_state.processes.indexOf(action.payload) > -1)
         //   ? [..._state.processes, action.payload]
         //   : _state.processes,
+        processPending: true,
       };
     case '_endProcess':
       return {
         ..._state,
         processes: _removeProcess(action.payload),
         // _state.processes.filter((x:any) => x.txCode === action.payload),
+        processPending: false,
       };
 
     /* optionally remove these and use the logic at the compoennts?  - check refreshes */
-    case 'txPending': return { ..._state, txPending: _onlyIfChanged(action) };
-    case 'signPending': return { ..._state, signPending: _onlyIfChanged(action) };
-    case 'processPending': return { ..._state, processPending: _onlyIfChanged(action) };
+    case 'txPending':
+      return { ..._state, txPending: _onlyIfChanged(action) };
+    case 'signPending':
+      return { ..._state, signPending: _onlyIfChanged(action) };
+    case 'processPending':
+      return { ..._state, processPending: _onlyIfChanged(action) };
 
     default:
       return _state;
   }
 }
 
-const TxProvider = ({ children }:any) => {
+const TxProvider = ({ children }: any) => {
   const [txState, updateState] = useReducer(txReducer, initState);
 
-  const _startProcess = (txCode:string) => {
+  const _startProcess = (txCode: string) => {
     updateState({ type: '_startProcess', payload: { txCode, hash: '0x0' } });
   };
 
-  const _endProcess = (txCode:string) => {
+  const _endProcess = (txCode: string) => {
     updateState({ type: '_endProcess', payload: txCode });
   };
 
   /* handle case when user or wallet rejects the tx (before submission) */
-  const _handleTxRejection = (err:any, txCode:string) => {
+  const _handleTxRejection = (err: any, txCode: string) => {
     _endProcess(txCode);
     /* If user cancelled/rejected the tx */
     if (err.code === 4001) {
@@ -120,7 +119,7 @@ const TxProvider = ({ children }:any) => {
   };
 
   /* handle an error from a tx that was successfully submitted */
-  const _handleTxError = (msg:string, tx: any, txCode:any) => {
+  const _handleTxError = (msg: string, tx: any, txCode: any) => {
     toast.error(msg);
     updateState({ type: 'transactions', payload: { tx, txCode, receipt: undefined, status: TxState.FAILED } });
     _endProcess(txCode);
@@ -130,10 +129,10 @@ const TxProvider = ({ children }:any) => {
 
   /* Handle a tx */
   const handleTx = async (
-    txFn:()=>Promise<any>,
-    txCode:string,
-    _isfallback:boolean = false,
-  ) : Promise<ethers.ContractReceipt|null> => {
+    txFn: () => Promise<any>,
+    txCode: string,
+    _isfallback: boolean = false
+  ): Promise<ethers.ContractReceipt | null> => {
     let tx: ContractTransaction;
     let res: any;
 
@@ -154,7 +153,10 @@ const TxProvider = ({ children }:any) => {
 
       res = await tx.wait();
       const txSuccess: boolean = res.status === 1 || false;
-      updateState({ type: 'transactions', payload: { tx, txCode, receipt: res, status: txSuccess ? TxState.SUCCESSFUL : TxState.FAILED } });
+      updateState({
+        type: 'transactions',
+        payload: { tx, txCode, receipt: res, status: txSuccess ? TxState.SUCCESSFUL : TxState.FAILED },
+      });
 
       /* if the handleTx is NOT a fallback tx (from signing) - then end the process */
       if (_isfallback === false) {
@@ -174,11 +176,11 @@ const TxProvider = ({ children }:any) => {
 
   /* handle a sig and sig fallbacks */
   const handleSign = async (
-    signFn:()=>Promise<any>,
-    fallbackFn:()=>Promise<any>,
+    signFn: () => Promise<any>,
+    fallbackFn: () => Promise<any>,
     sigData: ISignData,
     txCode: string,
-    approvalMethod: ApprovalType,
+    approvalMethod: ApprovalType
   ) => {
     /* start a process */
     _startProcess(txCode);
@@ -188,25 +190,29 @@ const TxProvider = ({ children }:any) => {
 
     let _sig;
     if (approvalMethod === ApprovalType.SIG) {
-      _sig = await signFn()
-        .catch((err:any) => {
-          console.log(err);
-          updateState({ type: 'signatures', payload: { uid, txCode, sigData, status: TxState.REJECTED } as IYieldSignature });
-          /* end the process on signature rejection */
-          _endProcess(txCode);
-          return Promise.reject(err);
+      _sig = await signFn().catch((err: any) => {
+        console.log(err);
+        updateState({
+          type: 'signatures',
+          payload: { uid, txCode, sigData, status: TxState.REJECTED } as IYieldSignature,
         });
+        /* end the process on signature rejection */
+        _endProcess(txCode);
+        return Promise.reject(err);
+      });
     } else {
-      await fallbackFn()
-        .catch((err:any) => {
-          console.log(err);
-          updateState({ type: 'signatures', payload: { uid, txCode, sigData, status: TxState.REJECTED } as IYieldSignature });
-          /* end the process on signature rejection */
-          _endProcess(txCode);
-          return Promise.reject(err);
+      await fallbackFn().catch((err: any) => {
+        console.log(err);
+        updateState({
+          type: 'signatures',
+          payload: { uid, txCode, sigData, status: TxState.REJECTED } as IYieldSignature,
         });
+        /* end the process on signature rejection */
+        _endProcess(txCode);
+        return Promise.reject(err);
+      });
       /* on Completion of approval tx, send back an empty signed object (which will be ignored) */
-      _sig = ({
+      _sig = {
         v: undefined,
         r: undefined,
         s: undefined,
@@ -214,37 +220,43 @@ const TxProvider = ({ children }:any) => {
         deadline: undefined,
         nonce: undefined,
         expiry: undefined,
-        allowed: undefined });
+        allowed: undefined,
+      };
     }
 
-    updateState({ type: 'signatures', payload: { uid, txCode, sigData, status: TxState.SUCCESSFUL } as IYieldSignature });
+    updateState({
+      type: 'signatures',
+      payload: { uid, txCode, sigData, status: TxState.SUCCESSFUL } as IYieldSignature,
+    });
     return _sig;
   };
 
-  /* Process watcher sets the 'any process pending'flag */
-  useEffect(() => {
-    console.log('Process list: ', txState.processes);
-    (Array.from(txState.processes.values()).length > 0)
-      ? updateState({ type: 'processPending', payload: true })
-      : updateState({ type: 'processPending', payload: false });
-  }, [txState.processes]);
+  // /* Process watcher sets the 'any process pending'flag */
+  // useEffect(() => {
+  //   console.log('Process list: ', txState.processes);
+  //   Array.from(txState.processes.values()).length > 0
+  //     ? updateState({ type: 'processPending', payload: true })
+  //     : updateState({ type: 'processPending', payload: false });
+  // }, [txState.processes]);
 
   /* Signing watcher */
   useEffect(() => {
-    const _isSignPending = Array.from(txState.signatures.values())
-      .findIndex((x:any) => x.status === TxState.PENDING) > -1;
+    const _isSignPending =
+      Array.from(txState.signatures.values()).findIndex((x: any) => x.status === TxState.PENDING) > -1;
     updateState({
       type: 'signPending',
-      payload: _isSignPending });
+      payload: _isSignPending,
+    });
   }, [txState.signatures]);
 
   /* Tx watcher */
   useEffect(() => {
-    const _isTxPending = Array.from(txState.transactions.values())
-      .findIndex((x:any) => x.status === TxState.PENDING) > -1;
+    const _isTxPending =
+      Array.from(txState.transactions.values()).findIndex((x: any) => x.status === TxState.PENDING) > -1;
     updateState({
       type: 'txPending',
-      payload: _isTxPending });
+      payload: _isTxPending,
+    });
   }, [txState.transactions]);
 
   /* expose the required actions */
@@ -253,11 +265,7 @@ const TxProvider = ({ children }:any) => {
     handleSign,
   };
 
-  return (
-    <TxContext.Provider value={{ txState, txActions }}>
-      {children}
-    </TxContext.Provider>
-  );
+  return <TxContext.Provider value={{ txState, txActions }}>{children}</TxContext.Provider>;
 };
 
 export { TxContext, TxProvider };

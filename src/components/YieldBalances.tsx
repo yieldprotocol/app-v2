@@ -3,12 +3,14 @@ import { useLocation } from 'react-router-dom';
 
 import React, { useContext, useEffect, useState } from 'react';
 import { FiMenu } from 'react-icons/fi';
-import { ChainContext } from '../contexts/ChainContext';
-import { TxContext } from '../contexts/TxContext';
 import { UserContext } from '../contexts/UserContext';
 
 const Balances = () => {
-  const mobile:boolean = useContext<any>(ResponsiveContext) === 'small';
+  const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
+
+  const {
+    userState: { assetMap, selectedBaseId, selectedIlkId },
+  } = useContext(UserContext);
 
   const { pathname } = useLocation();
   const [path, setPath] = useState<string>();
@@ -19,32 +21,40 @@ const Balances = () => {
 
   const [allOpen, setAllOpen] = useState<boolean>(false);
 
-  const { userState: { assetMap, selectedBaseId, selectedIlkId } } = useContext(UserContext);
-
   const selectedBase = assetMap.get(selectedBaseId);
   const selectedIlk = assetMap.get(selectedIlkId);
 
   return (
-
-    <Box pad="xsmall" fill="vertical" justify="center">
+    <Box pad="xsmall" fill="vertical" justify="center" width="5rem">
       <Box direction="row" gap="small">
-        <Box> <Text size="xsmall" color="text"> {selectedBase?.image}</Text> </Box>
-        <Box> <Text size="xsmall" color="text"> {selectedBase?.balance_}</Text></Box>
+        <Box>
+          <Text size="xsmall" color="text">
+            {selectedBase?.image}
+          </Text>
+        </Box>
+        <Box>
+          <Text size="xsmall" color="text">
+            {selectedBase?.balance_}
+          </Text>
+        </Box>
       </Box>
-      {
-      path === 'borrow' &&
-      selectedBase?.id !== selectedIlk?.id &&
-      <Box direction="row" gap="small">
-        <Box> <Text size="xsmall" color="text"> {selectedIlk?.image}</Text> </Box>
-        <Box> <Text size="xsmall" color="text"> {selectedIlk?.balance_}</Text></Box>
-      </Box>
-      }
+      {path === 'borrow' && selectedBase?.id !== selectedIlk?.id && (
+        <Box direction="row" gap="small">
+          <Box>
+            <Text size="xsmall" color="text">
+              {selectedIlk?.image}
+            </Text>
+          </Box>
+          <Box>
+            <Text size="xsmall" color="text">
+              {selectedIlk?.balance_}
+            </Text>
+          </Box>
+        </Box>
+      )}
 
-      <Collapsible open={allOpen}>
-        Other balances
-      </Collapsible>
+      <Collapsible open={allOpen}>Other balances</Collapsible>
     </Box>
-
   );
 };
 

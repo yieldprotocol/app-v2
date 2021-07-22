@@ -1,73 +1,79 @@
-import React, { useState, useEffect, useContext } from 'react';
-import {
-  Text,
-  Box,
-  ResponsiveContext,
-  Layer,
-  Avatar,
-} from 'grommet';
-import {
-  FiSettings,
-  FiMenu,
-} from 'react-icons/fi';
+import React, { useState, useContext } from 'react';
+import { Text, Box, ResponsiveContext, Layer } from 'grommet';
+import { FiCircle, FiMenu, FiSettings } from 'react-icons/fi';
 
 import YieldBalances from './YieldBalances';
 
 import { ChainContext } from '../contexts/ChainContext';
+import { TxContext } from '../contexts/TxContext';
+
 import { abbreviateHash } from '../utils/appUtils';
 import YieldAvatar from './YieldAvatar';
+import YieldSettings from './YieldSettings';
+import Connect from './Connect';
+import { TxState } from '../types';
+import TransactionWidget from './TransactionWidget';
 
 const YieldAccount = (props: any) => {
-  const mobile:boolean = (useContext<any>(ResponsiveContext) === 'small');
-  const { chainState: { account, chainId }, chainActions: { connect, disconnect } } = useContext(ChainContext);
+  const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
+  const {
+    chainState: { account },
+  } = useContext(ChainContext);
+
+  const {
+    txState: { sigPending, txPending, processPending },
+  } = useContext(TxContext);
 
   const [settingsOpen, setSettingsOpen] = useState<boolean>();
+  const [connectOpen, setConnectOpen] = useState<boolean>();
 
   return (
     <>
-      { settingsOpen &&
-      <Layer
-        onClickOutside={() => setSettingsOpen(false)}
-      >
-        <Box> Settings </Box>
-      </Layer>}
+      {connectOpen && (
+        <Layer onClickOutside={() => setConnectOpen(false)} onEsc={() => setConnectOpen(false)}>
+          <Connect setConnectOpen={setConnectOpen} />
+        </Layer>
+      )}
 
-      {account ?
-        <Box direction="row" fill="vertical" gap="xsmall">
-          {
-              !mobile &&
-              <>
-                <YieldBalances />
-              </>
-          }
+      {account && settingsOpen && (
+        <Layer onClickOutside={() => setSettingsOpen(false)} onEsc={() => setSettingsOpen(false)}>
+          <YieldSettings setConnectOpen={setConnectOpen} setSettingsOpen={setSettingsOpen} />
+        </Layer>
+      )}
+
+      {account ? (
+        <Box direction="row" fill="vertical" gap="xsmall" >
+          {!mobile && <>{processPending ? <TransactionWidget /> : <YieldBalances />}</>}
           <Box round="xsmall" onClick={() => setSettingsOpen(true)} pad="small" justify="center">
-            {mobile ?
+            {mobile ? (
               <Text size="small" color="text">
                 <FiSettings />
               </Text>
-              :
+            ) : (
               <Box direction="row" align="center" gap="small">
                 <Box>
                   <Text color="text" size="small">
                     {abbreviateHash(account)}
                   </Text>
                   <Text size="xsmall" color="text-weak">
-                    o Connected
+                    <FiCircle color="#00C781" size=".5rem" /> Connected
                   </Text>
-                </Box>
 
+                </Box>
                 <Box>
-                  <YieldAvatar address={account.concat('y')} size={2.5} />
+                  <YieldAvatar address={account} size={2.5} />
                 </Box>
-
-                {/* <FiSettings /> */}
-              </Box>}
+              </Box>
+            )}
           </Box>
         </Box>
-        :
-        <Box border={!mobile} onClick={() => connect()} pad="small">
-          <Text size="small" color="text"> { mobile ? <FiMenu /> : 'Connect Wallet'} </Text>
-        </Box>}
+      ) : (
+        <Box border={!mobile} onClick={() => setConnectOpen(true)} pad="small">
+          <Text size="small" color="text">
+            {mobile ? <FiMenu /> : 'Connect Wallet'}
+          </Text>
+        </Box>
+      )}
     </>
   );
 };

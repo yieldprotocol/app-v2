@@ -15,17 +15,9 @@ function TestBorrowComponent() {
   const { provider, chainLoading, web3Active, chainId } = chainState;
 
   const testConnection = useWeb3React<ethers.providers.Web3Provider>();
-  const {
-    connector,
-    library,
-    account,
-    activate,
-    deactivate,
-    active,
-    error,
-  } = testConnection;
+  const { connector, library, account, activate, deactivate, active, error } = testConnection;
 
-  const handleBorrow = (vault:IVault|undefined, input: string, collInput: string) => {
+  const handleBorrow = (vault: IVault | undefined, input: string, collInput: string) => {
     borrow(vault, collInput, input);
   };
 
@@ -39,18 +31,24 @@ function TestBorrowComponent() {
 
   return (
     <div>
-      <div> Selected Ilk: { selectedIlkId }</div>
+      <div> Selected Ilk: {selectedIlkId}</div>
 
       <div> Account: {account}</div>
 
-      <button onClick={() => borrow(undefined, '10', '10')} type="button">Borrow</button>
-      <button onClick={() => handleBorrow(undefined, '10', '10')} type="button">Repay</button>
-      <button onClick={() => handleBorrow(undefined, '10', '10')} type="button">rollDebt</button>
-    </div>);
+      <button onClick={() => borrow(undefined, '10', '10')} type="button">
+        Borrow
+      </button>
+      <button onClick={() => handleBorrow(undefined, '10', '10')} type="button">
+        Repay
+      </button>
+      <button onClick={() => handleBorrow(undefined, '10', '10')} type="button">
+        rollDebt
+      </button>
+    </div>
+  );
 }
 
 test('Borrow Dai', async () => {
-
   const borrower = render(<TestBorrowComponent />);
   const borrowButton = await borrower.findByText('Borrow');
 

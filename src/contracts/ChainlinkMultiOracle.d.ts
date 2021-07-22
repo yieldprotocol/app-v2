@@ -23,6 +23,7 @@ interface ChainlinkMultiOracleInterface extends ethers.utils.Interface {
   functions: {
     "LOCK()": FunctionFragment;
     "ROOT()": FunctionFragment;
+    "decimals()": FunctionFragment;
     "get(bytes32,bytes32,uint256)": FunctionFragment;
     "getRoleAdmin(bytes4)": FunctionFragment;
     "grantRole(bytes4,address)": FunctionFragment;
@@ -41,6 +42,7 @@ interface ChainlinkMultiOracleInterface extends ethers.utils.Interface {
 
   encodeFunctionData(functionFragment: "LOCK", values?: undefined): string;
   encodeFunctionData(functionFragment: "ROOT", values?: undefined): string;
+  encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "get",
     values: [BytesLike, BytesLike, BigNumberish]
@@ -97,6 +99,7 @@ interface ChainlinkMultiOracleInterface extends ethers.utils.Interface {
 
   decodeFunctionResult(functionFragment: "LOCK", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "ROOT", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "get", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getRoleAdmin",
@@ -185,14 +188,14 @@ export class ChainlinkMultiOracle extends BaseContract {
 
     ROOT(overrides?: CallOverrides): Promise<[string]>;
 
+    decimals(overrides?: CallOverrides): Promise<[number]>;
+
     get(
       base: BytesLike,
       quote: BytesLike,
       amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
-    >;
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<[string]>;
 
@@ -283,14 +286,14 @@ export class ChainlinkMultiOracle extends BaseContract {
 
   ROOT(overrides?: CallOverrides): Promise<string>;
 
+  decimals(overrides?: CallOverrides): Promise<number>;
+
   get(
     base: BytesLike,
     quote: BytesLike,
     amount: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
-  >;
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
 
@@ -380,6 +383,8 @@ export class ChainlinkMultiOracle extends BaseContract {
     LOCK(overrides?: CallOverrides): Promise<string>;
 
     ROOT(overrides?: CallOverrides): Promise<string>;
+
+    decimals(overrides?: CallOverrides): Promise<number>;
 
     get(
       base: BytesLike,
@@ -514,11 +519,13 @@ export class ChainlinkMultiOracle extends BaseContract {
 
     ROOT(overrides?: CallOverrides): Promise<BigNumber>;
 
+    decimals(overrides?: CallOverrides): Promise<BigNumber>;
+
     get(
       base: BytesLike,
       quote: BytesLike,
       amount: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     getRoleAdmin(
@@ -606,11 +613,13 @@ export class ChainlinkMultiOracle extends BaseContract {
 
     ROOT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     get(
       base: BytesLike,
       quote: BytesLike,
       amount: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     getRoleAdmin(
