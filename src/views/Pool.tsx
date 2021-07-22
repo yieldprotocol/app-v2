@@ -210,8 +210,7 @@ function Pool() {
               primary
               label={
                 <Text size={mobile ? 'small' : undefined}>
-                  {' '}
-                  {`Pool ${poolInput || ''} ${selectedBase?.symbol || ''}`}{' '}
+                  {`Pool ${poolInput || ''} ${selectedBase?.symbol || ''}`}
                 </Text>
               }
               onClick={() => handleAdd()}

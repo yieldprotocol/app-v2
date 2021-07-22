@@ -189,8 +189,7 @@ const Lend = () => {
               primary
               label={
                 <Text size={mobile ? 'small' : undefined}>
-                  {' '}
-                  {`Supply ${lendInput || ''} ${selectedBase?.symbol || ''}`}{' '}
+                  {`Supply ${lendInput || ''} ${selectedBase?.symbol || ''}`}
                 </Text>
               }
               onClick={() => handleLend()}

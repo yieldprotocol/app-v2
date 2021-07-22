@@ -18,8 +18,15 @@ function MaxButton({ action, disabled }: IMaxButtonProps) {
   return (
     <>
       {!mobile && activeAccount && (
-        <Box onClick={() => !disabled && action()} pad="xsmall">
-          <Text size="xsmall" color={disabled ? 'text-xweak' : 'text'}>
+        <Box
+          onClick={() => !disabled && action()}
+          pad="xsmall"
+          round="xsmall"
+          align="center"
+          background="tailwind-lightest-blue"
+          border={{ color: 'white' }}
+        >
+          <Text size="xsmall" color={disabled ? 'text-xweak' : 'brand'}>
             MAX
           </Text>
         </Box>

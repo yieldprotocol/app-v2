@@ -195,7 +195,7 @@ const Borrow = () => {
         )}
 
         <CenterPanelWrap series={selectedSeries || undefined}>
-          <Box fill pad="large" gap="medium">
+          <Box height="100%" pad="large">
             {stepPosition === 0 && ( // INITIAL STEP
               <Box gap="medium">
                 <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
@@ -432,7 +432,6 @@ const Borrow = () => {
                   primary
                   label={
                     <Text size={mobile ? 'small' : undefined}>
-                      {' '}
                       {`Borrow  ${borrowInput || ''} ${selectedBase?.symbol || ''}`}
                     </Text>
                   }
