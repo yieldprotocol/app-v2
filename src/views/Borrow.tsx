@@ -67,6 +67,8 @@ const Borrow = () => {
   const [vaultToUse, setVaultToUse] = useState<IVault | undefined>();
   const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
 
+  const [disclaimerChecked, setDisclaimerChecked] = useState<boolean>(false);
+
   const { borrow } = useBorrowActions();
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
 
@@ -284,8 +286,7 @@ const Borrow = () => {
                           ) : (
                             <Box pad="small">
                               <Text color="text-xweak" size="small">
-                                {' '}
-                                Create New Vault{' '}
+                                Create New Vault
                               </Text>
                             </Box>
                           )
@@ -303,8 +304,7 @@ const Borrow = () => {
                                   <Box direction="row" gap="small">
                                     <Text size="xsmall"> {x.art_} Debt</Text>
                                     <Text size="xsmall">
-                                      {' '}
-                                      {x.ink_} {selectedIlk?.symbol} posted{' '}
+                                      {x.ink_} {selectedIlk?.symbol} posted
                                     </Text>
                                   </Box>
                                 </Box>
@@ -328,11 +328,10 @@ const Borrow = () => {
                       <Box basis="40%">
                         <Text size="small"> Collateralization </Text>
                         <Text size="xlarge">
-                          {' '}
                           {parseFloat(collateralizationPercent!) > 10000
                             ? nFormatter(parseFloat(collateralizationPercent!), 2)
-                            : parseFloat(collateralizationPercent!)}{' '}
-                          %{' '}
+                            : parseFloat(collateralizationPercent!)}
+                          %
                         </Text>
                       </Box>
                     </Box>
@@ -369,7 +368,7 @@ const Borrow = () => {
                         <InfoBite
                           label="Supporting Collateral"
                           icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
-                          value={`${collatInput} ${selectedIlk?.symbol} (${collateralizationPercent} % )`}
+                          value={`${collatInput} ${selectedIlk?.symbol} (${collateralizationPercent}% )`}
                         />
                         {vaultToUse?.id && (
                           <InfoBite
@@ -413,6 +412,8 @@ const Borrow = () => {
                       // TODO: #37 check for understood checkbox before completing transaction
                       <Text size="xsmall"> disclaimer example: I understand the terms of transactions.</Text>
                     }
+                    checked={disclaimerChecked}
+                    onChange={(event) => setDisclaimerChecked(event.target.checked)}
                   />
                 </Box>
               </SectionWrap>
@@ -432,12 +433,11 @@ const Borrow = () => {
                   primary
                   label={
                     <Text size={mobile ? 'small' : undefined}>
-                      {' '}
                       {`Borrow  ${borrowInput || ''} ${selectedBase?.symbol || ''}`}
                     </Text>
                   }
                   onClick={() => handleBorrow()}
-                  disabled={borrowDisabled}
+                  disabled={borrowDisabled || !disclaimerChecked}
                 />
               )}
             </ActionButtonWrap>
