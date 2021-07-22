@@ -71,12 +71,12 @@ const LendPosition = ({ close }: { close: () => void }) => {
 
   const handleClosePosition = () => {
     !closeDisabled && closePosition(closeInput, selectedSeries!);
-    setCloseInput('');
   };
+
   const handleRollPosition = () => {
     !rollDisabled && rollToSeries && rollPosition(rollInput, selectedSeries!, rollToSeries);
-    setRollInput('');
   };
+
   const handleRedeem = () => {
     redeem(selectedSeries!, undefined);
   };
@@ -170,16 +170,18 @@ const LendPosition = ({ close }: { close: () => void }) => {
           <Box elevation="xsmall" round="xsmall">
             <Select
               plain
-              dropProps={{ round:'xsmall' }}
+              dropProps={{ round: 'xsmall' }}
               options={[
                 { text: 'Close Position', index: 0 },
                 { text: 'Roll Position', index: 1 },
                 { text: 'View Trade History', index: 2 },
+                { text: 'Redeem', index: 3 },
               ]}
               labelKey="text"
               valueKey="index"
               value={actionActive}
               onChange={({ option }) => setActionActive(option)}
+              disabled={[3]}
             />
           </Box>
 
@@ -210,7 +212,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
                     title="Review your remove transaction"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
-                    < InfoBite
+                    <InfoBite
                       label="Close Position"
                       icon={<FiMinusCircle />}
                       value={`${closeInput} ${selectedBase?.symbol}`}
@@ -222,14 +224,32 @@ const LendPosition = ({ close }: { close: () => void }) => {
           )}
 
           {actionActive.index === 1 && (
-            <Box>
+            <Box margin={{ top:'medium' }}>
               {stepPosition[actionActive.index] === 0 && (
-                <Box pad={{ vertical: 'medium' }} fill="horizontal" direction="row" align="center">
+                <Box align="center" fill gap='medium'>
+                  <Box fill >
+                    <InputWrap action={() => console.log('maxAction')} isError={closeError} disabled={!selectedSeries}>
+                      <TextInput
+                        plain
+                        type="number"
+                        placeholder="fyToken amount to roll" // {`${selectedBase?.symbol} to reclaim`}
+                        value={rollInput || ''}
+                        onChange={(event: any) => setRollInput(cleanValue(event.target.value))}
+                        disabled={!selectedSeries}
+                      />
+                      <MaxButton
+                        action={() => setRollInput(maxClose)}
+                        disabled={maxClose === '0.0' || !selectedSeries}
+                      />
+                    </InputWrap>
+                  </Box>
+                  <Box fill>
                   <SeriesSelector
                     selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
                     actionType={ActionType.LEND}
                     cardLayout={false}
                   />
+                  </Box>
                 </Box>
               )}
 
@@ -239,17 +259,10 @@ const LendPosition = ({ close }: { close: () => void }) => {
                     title="Review your roll transaction"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
-                    {/* 
-                    < InfoBite
-                        label="Roll"
-                        icon={<FiPlusCircle />}
-                        value={`${rollInput} ${selectedBase?.symbol}`}
-                      /> */}
-
-                    < InfoBite
-                      label="Roll To Series"
-                      icon={<FiPlusCircle />}
-                      value={`${rollToSeries?.displayName}`}
+                    <InfoBite 
+                      label="Roll To Series" 
+                      icon={<FiPlusCircle />} 
+                      value={` Roll  ${rollInput} ${selectedBase?.symbol} to ${rollToSeries?.displayName}`} 
                     />
                   </SectionWrap>
                 </ActiveTransaction>
@@ -258,7 +271,6 @@ const LendPosition = ({ close }: { close: () => void }) => {
           )}
 
           {actionActive.index === 2 && <YieldHistory seriesOrVault={selectedSeries!} view={['TRADE']} />}
-
         </Box>
       </Box>
 
