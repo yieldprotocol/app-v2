@@ -328,11 +328,10 @@ const Borrow = () => {
                       <Box basis="40%">
                         <Text size="small"> Collateralization </Text>
                         <Text size="xlarge">
-                          {' '}
                           {parseFloat(collateralizationPercent!) > 10000
                             ? nFormatter(parseFloat(collateralizationPercent!), 2)
-                            : parseFloat(collateralizationPercent!)}{' '}
-                          %{' '}
+                            : parseFloat(collateralizationPercent!)}
+                          %
                         </Text>
                       </Box>
                     </Box>
