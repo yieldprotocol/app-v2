@@ -11,7 +11,7 @@ const InfoBite = ({ label, value, icon }: IInfoBite) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   return (
     <Box direction="row" align="center" pad={{ left: 'small', vertical: 'none' }} gap="medium">
-      {icon && <Box>{ icon }</Box>}
+      {icon && <Box>{icon}</Box>}
       <Box>
         <Text size="xsmall" color="text-weak">
           {label}

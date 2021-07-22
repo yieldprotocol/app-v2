@@ -17,7 +17,7 @@ import {
 } from '../types';
 
 import { ChainContext } from './ChainContext';
-import { cleanValue, generateDudeSalt, genVaultImage, bytesToBytes32 } from '../utils/appUtils';
+import { cleanValue, genVaultImage, bytesToBytes32 } from '../utils/appUtils';
 import { calculateAPR, divDecimal, floorDecimal, mulDecimal, secondsToFrom, sellFYToken } from '../utils/yieldMath';
 
 import { ONE_WEI_BN } from '../utils/constants';
@@ -414,7 +414,7 @@ const UserProvider = ({ children }: any) => {
 
     setApprovalMethod: (type: ApprovalType) => updateState({ type: 'approvalMethod', payload: type }),
 
-    updateDudeSalt: () => updateState({ type: 'dudeSalt', payload: userState.dudeSalt+1 }),
+    updateDudeSalt: () => updateState({ type: 'dudeSalt', payload: userState.dudeSalt + 1 }),
   };
 
   return <UserContext.Provider value={{ userState, userActions } as IUserContext}>{children}</UserContext.Provider>;
