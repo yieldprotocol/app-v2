@@ -119,26 +119,37 @@ const UserProvider = ({ children }: any) => {
   const _getVaults = useCallback(
     async (fromBlock: number = 1) => {
       const Cauldron = contractMap.get('Cauldron');
-      const filter = Cauldron.filters.VaultBuilt(null, account);
-      const eventList = await Cauldron.queryFilter(filter, fromBlock);
 
-      // const eventList = await Cauldron.queryFilter(filter, cachedVaults.lastBlock);
-      const vaultList: IVaultRoot[] = await Promise.all(
-        eventList.map(async (x: any): Promise<IVaultRoot> => {
-          const { vaultId: id, ilkId, seriesId } = Cauldron.interface.parseLog(x).args;
-          const series = seriesRootMap.get(seriesId);
-          // const baseId = assetRootMap.get(series.baseId);
+      const vaultBuiltFilter = Cauldron.filters.VaultBuilt(null, account);
+      const vaultGivenFilter = Cauldron.filters.VaultGiven(null, account);
 
-          return {
-            id,
-            seriesId,
-            baseId: series.baseId,
-            ilkId,
-            image: genVaultImage(id),
-            displayName: uniqueNamesGenerator({ seed: parseInt(id.substring(14), 16), ...vaultNameConfig }),
-          };
-        })
-      );
+      const eventList = await Cauldron.queryFilter(vaultBuiltFilter, fromBlock);
+
+      const [ builtVaults, givenVaults ] = await Promise.all([
+        Cauldron.queryFilter(vaultBuiltFilter, fromBlock),
+        Cauldron.queryFilter(vaultGivenFilter, fromBlock),
+      ])
+
+      const buildVaultList: IVaultRoot[] = builtVaults.map((x: any): IVaultRoot=> {
+        const { vaultId: id, ilkId, seriesId } = Cauldron.interface.parseLog(x).args;
+        const series = seriesRootMap.get(seriesId);
+        // const baseId = assetRootMap.get(series.baseId);
+        return {
+          id,
+          seriesId,
+          baseId: series.baseId,
+          ilkId,
+          image: genVaultImage(id),
+          displayName: uniqueNamesGenerator({ seed: parseInt(id.substring(14), 16), ...vaultNameConfig }),
+        };
+      })
+
+      const givenVaultList: IVaultRoot[]  = await Promise.all( 
+        builtVaults.map( async (x: IVaultRoot) => getVaultinfo from chain )
+      )
+
+      const vaultList: IVaultRoot[] = [ ...buildVaultList, ...givenVaultList ]
+
 
       // TODO const _combined: IVaultRoot[] = [...vaultList, ...cachedVaults];
       const newVaultMap = vaultList.reduce((acc: any, item: any) => {
