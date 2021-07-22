@@ -144,9 +144,10 @@ const UserProvider = ({ children }: any) => {
         };
       })
 
-      const givenVaultList: IVaultRoot[]  = await Promise.all( 
-        builtVaults.map( async (x: IVaultRoot) => getVaultinfo from chain )
-      )
+      // const givenVaultList: IVaultRoot[]  = await Promise.all( 
+      //   builtVaults.map( async (x: IVaultRoot) => getVaultinfo from chain )
+      // )
+      const givenVaultList: IVaultRoot[] = []
 
       const vaultList: IVaultRoot[] = [ ...buildVaultList, ...givenVaultList ]
 
