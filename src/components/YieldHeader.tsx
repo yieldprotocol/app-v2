@@ -19,16 +19,16 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
 
   return (
     <Header
-      pad="medium"
+      pad="large"
       height={mobile ? undefined : 'xsmall'}
       justify="between"
       fill="horizontal"
       style={{ position: 'fixed', top: '0px' }}
       background="background"
     >
-      <Box direction="row" gap={mobile ? '0.25em' : '0.5em'} align='center'> 
-        <YieldMark height={mobile ? '1.0em' : '1.5em'}/>
-        <HandText size={mobile ? '1.5em' : '2em'} >YIELD</HandText>
+      <Box direction="row" gap={mobile ? '0.25em' : '0.5em'} align="center">
+        <YieldMark height={mobile ? '1.0em' : '1.5em'} />
+        <HandText size={mobile ? '1.5em' : '2em'}>YIELD</HandText>
       </Box>
       {/* <YieldLogo height={mobile ? '1em' : '1.5em'} /> */}
 
