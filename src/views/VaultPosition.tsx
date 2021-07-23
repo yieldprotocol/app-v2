@@ -238,7 +238,7 @@ const Vault = ({ close }: { close: () => void }) => {
               plain
               options={[
                 { text: 'Repay Debt', index: 0 },
-                { text: 'Roll Debt', index: 1 },
+                { text: 'Roll All Debt', index: 1 },
                 { text: 'Manage Collateral', index: 2 },
                 { text: 'View History', index: 3 },
                 { text: 'Transfer Vault', index: 4 },
@@ -419,7 +419,7 @@ const Vault = ({ close }: { close: () => void }) => {
                     <InfoBite
                       label="Transfer Vault to: "
                       icon={<FiPlusCircle />}
-                      value={abbreviateHash(transferToAddressInput)}
+                      value={transferToAddressInput !== '' ? abbreviateHash(transferToAddressInput) : ''}
                     />
                   </SectionWrap>
                 </ActiveTransaction>
@@ -510,7 +510,7 @@ const Vault = ({ close }: { close: () => void }) => {
           />
         )}
 
-        {actionActive.index === 4 && stepPosition[actionActive.index] !== 0 && (
+        {actionActive.index === 4 && stepPosition[actionActive.index] !== 0 && transferToAddressInput !== '' && (
           <TransactButton
             primary
             label={

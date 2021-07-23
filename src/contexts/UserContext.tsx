@@ -120,6 +120,7 @@ const UserProvider = ({ children }: any) => {
     async (fromBlock: number = 1) => {
       const Cauldron = contractMap.get('Cauldron');
 
+
       const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account);
       const vaultsReceivedfilter = Cauldron.filters.VaultGiven(null, account);
 

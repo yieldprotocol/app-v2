@@ -2,21 +2,29 @@ import React, { useContext, useEffect, useReducer, useCallback, useState } from 
 import { BigNumber, ethers } from 'ethers';
 import { format } from 'date-fns';
 
-import { ISeries, IVault, IHistoryContextState, IHistItemPosition, ActionCodes, IHistItemVault, IHistItemBase } from '../types';
+import {
+  ISeries,
+  IVault,
+  IHistoryContextState,
+  IHistItemPosition,
+  ActionCodes,
+  IHistItemVault,
+  IBaseHistItem,
+} from '../types';
 
 import { ChainContext } from './ChainContext';
 import { bytesToBytes32 } from '../utils/appUtils';
 import { UserContext } from './UserContext';
 import { ZERO_BN } from '../utils/constants';
+import { Cauldron } from '../contracts';
 
 const dateFormat = (dateInSecs: number) => format(new Date(dateInSecs * 1000), 'dd MMM yyyy');
 
-const inferType = (art: BigNumber, ink: BigNumber) => {
+const _inferType = (art: BigNumber, ink: BigNumber) => {
   if (art.eq(ZERO_BN)) return ink.gt(ZERO_BN) ? ActionCodes.ADD_COLLATERAL : ActionCodes.REMOVE_COLLATERAL;
   if (art.lt(ZERO_BN)) return ActionCodes.REPAY;
   return ActionCodes.BORROW;
 };
-
 
 const HistoryContext = React.createContext<any>({});
 
@@ -24,15 +32,15 @@ const initState: IHistoryContextState = {
   historyLoading: true,
   tradeHistory: {
     lastBlock: 0,
-    items: [] as IHistItemBase[],
+    items: [] as IBaseHistItem[],
   },
   poolHistory: {
     lastBlock: 0,
-    items: [] as IHistItemBase[],
+    items: [] as IBaseHistItem[],
   },
   vaultHistory: {
     lastBlock: 0,
-    items: [] as IHistItemBase[],
+    items: [] as IBaseHistItem[],
   },
 };
 
@@ -95,12 +103,12 @@ const HistoryProvider = ({ children }: any) => {
   /* update Pool Historical data */
   const updatePoolHistory = useCallback(
     async (seriesList: ISeries[]) => {
-      // event Liquidity(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens, int256 poolTokens);
       const liqHistMap = new Map<string, IHistItemPosition[]>([]);
       /* Get all the Liquidity history transactions */
       await Promise.all(
         seriesList.map(async (series: ISeries) => {
           const { poolContract, id: seriesId } = series;
+          // event Liquidity(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens, int256 poolTokens);
           const _liqFilter = poolContract.filters.Liquidity(null, null, account, null, null, null);
           const eventList = await poolContract.queryFilter(_liqFilter, 0);
 
@@ -117,7 +125,7 @@ const HistoryProvider = ({ children }: any) => {
                 maturity,
                 bases,
                 fyTokens,
-                seriesId,
+                series,
                 poolTokens,
 
                 /* inferred trade type */
@@ -144,12 +152,12 @@ const HistoryProvider = ({ children }: any) => {
   /* update Trading Historical data  */
   const updateTradeHistory = useCallback(
     async (seriesList: ISeries[]) => {
-      // event Trade(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens);
-      const tradeHistMap = new Map<string, IHistItemPosition[]> ([]);
+      const tradeHistMap = new Map<string, IHistItemPosition[]>([]);
       /* get all the trade historical transactions */
       await Promise.all(
         seriesList.map(async (series: ISeries) => {
           const { poolContract, id: seriesId } = series;
+          // event Trade(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens);
           const _filter = poolContract.filters.Trade(null, null, account, null, null);
           const eventList = await poolContract.queryFilter(_filter, 0);
 
@@ -167,7 +175,7 @@ const HistoryProvider = ({ children }: any) => {
                 bases,
                 fyTokens,
                 poolTokens: ZERO_BN,
-                seriesId,
+                series,
                 vaultId: null,
 
                 /* inferred trade type */
@@ -178,7 +186,6 @@ const HistoryProvider = ({ children }: any) => {
                 bases_: ethers.utils.formatEther(bases),
                 fyTokens_: ethers.utils.formatEther(fyTokens),
                 poolTokens_: ethers.utils.formatEther(ZERO_BN),
-
               };
             })
           );
@@ -192,61 +199,156 @@ const HistoryProvider = ({ children }: any) => {
     [account, fallbackProvider]
   );
 
-  /* Updates the assets with relevant *user* data */
+
+  const _parsePourLogs = (eventList: ethers.Event[], contract: Cauldron, series:ISeries) =>
+    Promise.all(
+      eventList.map(async (log: any) => {
+        const { blockNumber, transactionHash } = log;
+        // event VaultPoured(bytes12 indexed vaultId, bytes6 indexed seriesId, bytes6 indexed ilkId, int128 ink, int128 art)
+        const { seriesId, ilkId, ink, art } = contract.interface.parseLog(log).args;
+        const tradeIface = new ethers.utils.Interface([
+          'event Trade(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens)',
+        ]);
+        const topic = tradeIface.getEventTopic('Trade');
+        const { logs: receiptLogs } = await fallbackProvider.getTransactionReceipt(transactionHash);
+        const tradelog = receiptLogs.find((_log: any) => _log.topics.includes(topic));
+        const { bases: baseTraded, fyTokens: fyTokenTraded } = tradelog
+          ? tradeIface.parseLog(tradelog).args
+          : { bases: ZERO_BN, fyTokens: ZERO_BN };
+
+        const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
+        return {
+          /* histItem base */
+          blockNumber,
+          date,
+          transactionHash,
+          series,
+          histType: _inferType(art, ink),
+
+          /* args info */
+          ilkId,
+          ink,
+          art,
+          fyTokenTraded,
+          baseTraded,
+
+          /* Formatted values:  */
+          date_: dateFormat(date),
+          ink_: ethers.utils.formatEther(ink),
+          art_: ethers.utils.formatEther(art),
+          baseTraded_: ethers.utils.formatEther(baseTraded),
+          fyTokenTraded_: ethers.utils.formatEther(fyTokenTraded),
+        } as IBaseHistItem;
+      })
+    );
+
+  const _parseGivenLogs = (eventList: ethers.Event[], contract: Cauldron, series: ISeries) => Promise.all(
+    eventList.map( async (log: any) => {
+      const { blockNumber, transactionHash } = log;
+      // event VaultGiven(bytes12 indexed vaultId, address indexed receiver);
+      const { reciever } = contract.interface.parseLog(log).args;
+      const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
+      return {
+        /* histItem base */
+        series,
+        blockNumber,
+        date,
+        transactionHash,
+        histType: ActionCodes.TRANSFER_VAULT,
+
+        /* arg info */
+        reciever,
+        date_: dateFormat(date),
+        
+      } as IBaseHistItem
+    }
+  ))
+
+  const _parseRolledLogs = (eventList: ethers.Event[], contract: Cauldron, series:ISeries) => Promise.all(
+    eventList.map( async (log: any) => {
+      const { blockNumber, transactionHash } = log;
+      // event VaultRolled(bytes12 indexed vaultId, bytes6 indexed seriesId, uint128 art);
+      const { seriesId: toSeries, art } = contract.interface.parseLog(log).args;
+      const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
+      return {
+        /* histItem base */
+        blockNumber,
+        date,
+        transactionHash,
+        series,
+        histType: ActionCodes.ROLL_DEBT,
+
+        /* args info */
+        toSeries,
+        art,
+
+        /* Formatted values:  */
+        date_: dateFormat(date),
+        art_: ethers.utils.formatEther(art),
+
+      } as IBaseHistItem
+    }
+  ))
+
+  /*  Updates VAULT history */
+  // event VaultBuilt(bytes12 indexed vaultId, address indexed owner, bytes6 indexed seriesId, bytes6 ilkId);
+  // event VaultTweaked(bytes12 indexed vaultId, bytes6 indexed seriesId, bytes6 indexed ilkId);
+  // event VaultDestroyed(bytes12 indexed vaultId);
+  // event VaultGiven(bytes12 indexed vaultId, address indexed receiver);
+  // event VaultLocked(bytes12 indexed vaultId, uint256 indexed timestamp);
+  // event VaultStirred(bytes12 indexed from, bytes12 indexed to, uint128 ink, uint128 art);
+  // event VaultRolled(bytes12 indexed vaultId, bytes6 indexed seriesId, uint128 art);
+
   const updateVaultHistory = useCallback(
     async (vaultList: IVault[]) => {
-      // event VaultPoured(bytes12 indexed vaultId, bytes6 indexed seriesId, bytes6 indexed ilkId, int128 ink, int128 art);
-      const vaultHistMap = new Map<string, IHistItemVault[]>([]);
-      const Cauldron = contractMap.get('Cauldron');
+      const vaultHistMap = new Map<string, IBaseHistItem[]>([]);
+      const cauldronContract = contractMap.get('Cauldron') as Cauldron;
       /* Get all the Vault historical Pour transactions */
       await Promise.all(
         vaultList.map(async (vault: IVault) => {
-          const { id: vaultId } = vault;
-          const filter = Cauldron.filters.VaultPoured(bytesToBytes32(vaultId, 12));
-          const eventList = await Cauldron.queryFilter(filter, 0);
-          const vaultLogs : IHistItemVault[] = await Promise.all(
-            eventList.map(async (log: any) => {
-              const { blockNumber, transactionHash } = log;
-              const { seriesId, ilkId, ink, art } = Cauldron.interface.parseLog(log).args;
+          const { id: vaultId, seriesId } = vault;
+          const vaultId32 = bytesToBytes32(vaultId, 12);
+          const series = seriesRootMap.get(seriesId)
 
-              const tradeIface = new ethers.utils.Interface(
-                [ "event Trade(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens)" ]
-              );
-              const topic = tradeIface.getEventTopic('Trade')
-              const { logs: receiptLogs }  = await fallbackProvider.getTransactionReceipt(transactionHash)
-              const tradelog = receiptLogs.find((_log:any ) => _log.topics.includes(topic))
-              const { 
-                bases: baseTraded, 
-                fyTokens: fyTokenTraded 
-              } =  tradelog ? tradeIface.parseLog(tradelog).args : { bases: ZERO_BN  , fyTokens: ZERO_BN }
-              // const tradeLog  = receiptLogs.find( (l:any) => l.topics.includes(topic) )
-  
-              const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
-              return {
-                blockNumber,
-                date,
-                transactionHash,
-                vaultId,
-                seriesId,
-                ilkId,
-                ink,
-                art,
-                fyTokenTraded,
-                baseTraded,
+          const givenFilter = cauldronContract.filters.VaultGiven(vaultId32, null);
+          const pourFilter = cauldronContract.filters.VaultPoured(vaultId32);
+          const rolledFilter = cauldronContract.filters.VaultRolled(vaultId32);
+          // const destroyedFilter = cauldronContract.filters.VaultDestroyed(vaultId32);
+          // const stirredFilter = cauldronContract.filters.VaultStirred(vaultId32);
 
-                /* inferred  history type */
-                histType: inferType(art, ink),
+          /* get all the logs available */
+          const [
+            pourEventList,
+            givenEventList,
+            rolledEventList,
+            // destroyedEventList,
+            // stirredEventList,
+          ]: ethers.Event[][] = await Promise.all([
+            cauldronContract.queryFilter(pourFilter, 0),
+            cauldronContract.queryFilter(givenFilter, 0),
+            cauldronContract.queryFilter(rolledFilter, 0),
+            // cauldronContract.queryFilter(destroyedFilter, 0),
+            // cauldronContract.queryFilter(stirredFilter, 0),
+          ]);
 
-                /* Formatted values:  */
-                date_: dateFormat(date),
-                ink_: ethers.utils.formatEther(ink),
-                art_: ethers.utils.formatEther(art),
-                baseTraded_: ethers.utils.formatEther(baseTraded),
-                fyTokenTraded_: ethers.utils.formatEther(fyTokenTraded),
-              };
-            })
-          );
-          vaultHistMap.set(vaultId, vaultLogs);
+          /* parse/process the log information  */
+          const [ 
+            pourLogs, 
+            givenLogs,
+            rolledLogs,
+            // destroyedLogs,
+            // strirredLogs,
+          ] : IBaseHistItem[][] = await Promise.all([
+            _parsePourLogs(pourEventList, cauldronContract, series),
+            _parseGivenLogs(givenEventList, cauldronContract, series),
+            _parseRolledLogs(rolledEventList, cauldronContract,series),
+            // _parseDestroyedLogs(destroyedEventList, cauldronContract),
+            // _parseStirredLogs(stirredEventList, cauldronContract),
+          ])
+
+          const combinedLogs: IBaseHistItem[] = [ ...pourLogs, ...givenLogs, ...rolledLogs]
+          vaultHistMap.set( vaultId, combinedLogs );
+          
         })
       );
       updateState({ type: 'vaultHistory', payload: vaultHistMap });
