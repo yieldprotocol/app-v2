@@ -119,26 +119,45 @@ const UserProvider = ({ children }: any) => {
   const _getVaults = useCallback(
     async (fromBlock: number = 1) => {
       const Cauldron = contractMap.get('Cauldron');
-      const filter = Cauldron.filters.VaultBuilt(null, account);
-      const eventList = await Cauldron.queryFilter(filter, fromBlock);
 
-      // const eventList = await Cauldron.queryFilter(filter, cachedVaults.lastBlock);
-      const vaultList: IVaultRoot[] = await Promise.all(
-        eventList.map(async (x: any): Promise<IVaultRoot> => {
-          const { vaultId: id, ilkId, seriesId } = Cauldron.interface.parseLog(x).args;
-          const series = seriesRootMap.get(seriesId);
-          // const baseId = assetRootMap.get(series.baseId);
+      const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account);
+      const vaultsReceivedfilter = Cauldron.filters.VaultGiven(null, account);
 
+      const [vaultsBuilt, vaultsReceived] = await Promise.all([
+        Cauldron.queryFilter(vaultsBuiltFilter, fromBlock),
+        Cauldron.queryFilter(vaultsReceivedfilter, fromBlock),
+      ]);
+
+      const buildEventList: IVaultRoot[] = vaultsBuilt.map((x: any): IVaultRoot => {
+        const { vaultId: id, ilkId, seriesId } = Cauldron.interface.parseLog(x).args;
+        const series = seriesRootMap.get(seriesId);
+        return {
+          id,
+          seriesId,
+          baseId: series.baseId,
+          ilkId,
+          image: genVaultImage(id),
+          displayName: uniqueNamesGenerator({ seed: parseInt(id.substring(14), 16), ...vaultNameConfig }),
+        };
+      });
+     
+      const recievedEventsList: IVaultRoot[] = await Promise.all(
+        vaultsReceived.map(async (x: any): Promise<IVaultRoot> => {
+          const { vaultId: id } = Cauldron.interface.parseLog(x).args;
+          const { ilkId, seriesId } = await Cauldron.vaults(id);
+          const series = seriesRootMap.get(seriesId);         
           return {
             id,
             seriesId,
             baseId: series.baseId,
             ilkId,
             image: genVaultImage(id),
-            displayName: uniqueNamesGenerator({ seed: parseInt(id.substring(14), 16), ...vaultNameConfig }),
+            displayName: uniqueNamesGenerator({ seed: parseInt(id.substring(14), 16), ...vaultNameConfig }), // TODO Marco move uniquNames generator into utils 
           };
         })
       );
+
+      const vaultList: IVaultRoot[] = [...buildEventList, ...recievedEventsList];
 
       // TODO const _combined: IVaultRoot[] = [...vaultList, ...cachedVaults];
       const newVaultMap = vaultList.reduce((acc: any, item: any) => {
@@ -316,7 +335,7 @@ const UserProvider = ({ children }: any) => {
       const vaultListMod = await Promise.all(
         _vaultList.map(async (vault: IVaultRoot): Promise<IVault> => {
           /* update balance and series  ( series - because a vault can have been rolled to another series) */
-          const [{ ink, art }, { seriesId }, { min, max }, price] = await Promise.all([
+          const [{ ink, art }, { owner, seriesId, ilkId }, { min, max }, price] = await Promise.all([
             await Cauldron.balances(vault.id),
             await Cauldron.vaults(vault.id),
             await Cauldron.debt(vault.baseId, vault.ilkId),
@@ -325,7 +344,10 @@ const UserProvider = ({ children }: any) => {
 
           return {
             ...vault,
-            seriesId,
+            owner,
+            isActive: owner === account,
+            seriesId, // in case seriesId has been updated
+            ilkId, // in case ilkId has been updated
             ink,
             art,
             ink_: cleanValue(ethers.utils.formatEther(ink), 2), // for display purposes only
