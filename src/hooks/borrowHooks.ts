@@ -222,7 +222,7 @@ export const useBorrowActions = () => {
   };
 
   const destroy = async (vault: IVault) => {
-    const txCode = getTxCode(ActionCodes.TRANSFER_VAULT, vault.id);
+    const txCode = getTxCode(ActionCodes.DELETE_VAULT, vault.id);
     const _art = vault.art_ ? ethers.utils.parseEther(vault.art_) : ethers.constants.Zero;
     const series = seriesMap.get(vault.seriesId);
     const base = assetMap.get(vault.baseId);
