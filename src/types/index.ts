@@ -135,7 +135,7 @@ export interface IAsset extends IAssetRoot {
 
 export interface IVault extends IVaultRoot {
   owner: string;
-  isActive:boolean;
+  isActive: boolean;
   ink: BigNumber;
   art: BigNumber;
   ink_: string;
@@ -244,6 +244,7 @@ export enum ActionCodes {
   // VAULT
   DELETE_VAULT = 'Delete Vault',
   TRANSFER_VAULT = 'Transfer Vault',
+  MERGE_VAULT = 'Merge Vault',
 }
 
 export interface IBaseHistItem {

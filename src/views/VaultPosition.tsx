@@ -79,8 +79,10 @@ const Vault = ({ close }: { close: () => void }) => {
   const [actionActive, setActionActive] = useState<any>({ text: 'Repay', index: 0 });
   // const [rollDisabled, setRollDisabled] = useState<boolean>(true);
 
+  const [mergeData, setMergeData] = useState<any>({ toVault: null, ink: '', art: '' });
+
   /* HOOK FNS */
-  const { repay, borrow, rollDebt, transfer } = useBorrowActions();
+  const { repay, borrow, rollDebt, transfer, merge } = useBorrowActions();
   const { addCollateral, removeCollateral } = useCollateralActions();
 
   /* LOCAL FNS */
@@ -116,6 +118,15 @@ const Vault = ({ close }: { close: () => void }) => {
   const handleTransfer = () => {
     selectedVault && transfer(selectedVault, transferToAddressInput);
     setTransferToAddressInput('');
+  };
+
+  const handleMerge = () => {
+    selectedVault && merge(selectedVault, mergeData.toVault);
+  };
+
+  const handleMergeDataChange = (e: any) => {
+    const { name, value } = e.target;
+    setMergeData((fData: any) => ({ ...fData, [name]: value }));
   };
 
   /* SET MAX VALUES */
@@ -242,7 +253,8 @@ const Vault = ({ close }: { close: () => void }) => {
                 { text: 'Manage Collateral', index: 2 },
                 { text: 'View History', index: 3 },
                 { text: 'Transfer Vault', index: 4 },
-                { text: 'Delete Vault', index: 5 },
+                { text: 'Merge Vaults', index: 5 },
+                { text: 'Delete Vault', index: 6 },
               ]}
               labelKey="text"
               valueKey="index"
@@ -431,6 +443,52 @@ const Vault = ({ close }: { close: () => void }) => {
             <Box>
               {stepPosition[actionActive.index] === 0 && (
                 <Box pad={{ vertical: 'medium' }}>
+                  {/* <VaultSelector /> */}
+                  <InputWrap action={() => console.log('maxAction')} isError={null}>
+                    <TextInput
+                      plain
+                      type="string"
+                      placeholder="Collateral"
+                      // ref={(el:any) => { el && !repayOpen && !rateLockOpen && !mobile && el.focus(); setInputRef(el); }}
+                      value={0}
+                      onChange={handleMergeDataChange}
+                    />
+                    <TextInput
+                      plain
+                      type="string"
+                      placeholder="Debt"
+                      // ref={(el:any) => { el && !repayOpen && !rateLockOpen && !mobile && el.focus(); setInputRef(el); }}
+                      value={0}
+                      onChange={handleMergeDataChange}
+                    />
+                  </InputWrap>
+                </Box>
+              )}
+
+              {stepPosition[actionActive.index] !== 0 && (
+                <ActiveTransaction
+                  txCode={(selectedVault && getTxCode(ActionCodes.TRANSFER_VAULT, selectedVault?.id)) || ''}
+                  pad
+                >
+                  <SectionWrap
+                    title="Review your transfer transaction"
+                    rightAction={<CancelButton action={() => handleStepper(true)} />}
+                  >
+                    <InfoBite
+                      label="Transfer Vault to: "
+                      icon={<FiPlusCircle />}
+                      value={abbreviateHash(transferToAddressInput)}
+                    />
+                  </SectionWrap>
+                </ActiveTransaction>
+              )}
+            </Box>
+          )}
+
+          {actionActive.index === 6 && (
+            <Box>
+              {stepPosition[actionActive.index] === 0 && (
+                <Box pad={{ vertical: 'medium' }}>
                   <InputWrap action={() => console.log('maxAction')} isError={null}>
                     <TextInput
                       plain
@@ -524,6 +582,14 @@ const Vault = ({ close }: { close: () => void }) => {
         )}
 
         {actionActive.index === 5 && stepPosition[actionActive.index] !== 0 && (
+          <TransactButton
+            primary
+            label={<Text size={mobile ? 'small' : undefined}> Merge Vaults </Text>}
+            onClick={() => handleMerge()}
+          />
+        )}
+
+        {actionActive.index === 6 && stepPosition[actionActive.index] !== 0 && (
           <TransactButton
             primary
             label={<Text size={mobile ? 'small' : undefined}> Delete [todo] </Text>}
