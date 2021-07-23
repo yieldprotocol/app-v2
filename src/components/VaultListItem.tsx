@@ -15,18 +15,21 @@ function VaultListItem({ vault }: { vault: IVault }) {
     <Box direction="row" gap="small" align="center" pad="small">
       <PositionAvatar position={vault} />
       <Box>
-        <Text weight={900} size="small" color={vault.isActive? undefined: 'text-xweak'}>
+        <Text weight={900} size="small" color={vault.isActive ? undefined : 'text-xweak'}>
           {vault.displayName}
         </Text>
 
         {vault.isActive ? (
-          <Box direction="column">
+          <Box direction="column" >
             <Text weight={450} size="xsmall">
               {series?.displayNameMobile}
             </Text>
+            <Text weight={450} size="xsmall">
+              Debt: {vault.art_}
+            </Text>
           </Box>
         ) : (
-          <Text weight={450} size="xsmall" color='text-xweak'>
+          <Text weight={450} size="xsmall" color="text-xweak">
             Vault inactive
           </Text>
         )}
