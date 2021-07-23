@@ -286,7 +286,7 @@ const ChainProvider = ({ children }: any) => {
               const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackLibrary);
 
               const season = getSeason(maturity) as SeasonType;
-              const oppSeason = (_season: SeasonType) => getSeason(maturity + 15780000) as SeasonType;
+              const oppSeason = (_season: SeasonType) => getSeason(maturity+ 23670000) as SeasonType;
 
               const [startColor, endColor, textColor]: string[] = yieldEnv.seasonColors[season];
               const [oppStartColor, oppEndColor, oppTextColor]: string[] = yieldEnv.seasonColors[oppSeason(season)];

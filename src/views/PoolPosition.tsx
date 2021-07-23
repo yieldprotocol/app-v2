@@ -216,10 +216,10 @@ const PoolPosition = ({ close }: { close: () => void }) => {
           )}
 
           {actionActive.index === 1 && (
-            <Box>
+            <Box margin={{ top:'medium' }}>
               {stepPosition[actionActive.index] === 0 && (
-                <Box pad={{ vertical: 'medium' }}>
-                  <Box>
+                <Box align="center" fill gap='medium'>
+                 <Box fill>
                     <InputWrap action={() => console.log('maxAction')} isError={rollError}>
                       <TextInput
                         plain
@@ -231,12 +231,13 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                       <MaxButton action={() => setRollInput(maxRemove)} disabled={maxRemove === '0.0'} />
                     </InputWrap>
                   </Box>
-
+                  <Box fill>
                   <SeriesSelector
                     selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
                     actionType={ActionType.POOL}
                     cardLayout={false}
                   />
+                  </Box>
                 </Box>
               )}
 

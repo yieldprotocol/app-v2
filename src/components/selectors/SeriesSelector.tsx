@@ -24,6 +24,11 @@ background 0.3s ease-in-out;
 }
 `;
 
+const InsetBox = styled(Box)`
+  border-radius: 8px;
+  box-shadow: inset 1px 1px 1px #ddd, inset -0.25px -0.25px 0.25px #ddd;
+`;
+
 interface ISeriesSelectorProps {
   actionType: ActionType;
   selectSeriesLocally?: (
@@ -175,7 +180,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
   return (
     <>
       {!cardLayout && (
-        <Box fill="horizontal" border round="xsmall">
+        <InsetBox fill="horizontal" round="xsmall">
           <Select
             plain
             dropProps={{ round:'xsmall' }}
@@ -206,7 +211,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
               </Box>
             )}
           />
-        </Box>
+        </InsetBox>
       )}
 
       {cardLayout && (
