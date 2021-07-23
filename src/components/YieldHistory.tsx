@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, Text } from 'grommet';
 import { HistoryContext } from '../contexts/HistoryContext';
-import { IHistItemBase, ISeries, IVault } from '../types';
+import { IBaseHistItem, ISeries, IVault } from '../types';
 
 interface IYieldHistory {
   seriesOrVault: IVault | ISeries;
@@ -16,7 +16,7 @@ const YieldHistory = ({ seriesOrVault, view }: IYieldHistory) => {
   const isVault = seriesOrVault && seriesOrVault.id.length > 12; // is a vault or a series.
 
   /* LOCAL STATE */
-  const [histList, setHistList] = useState<IHistItemBase[]>([]);
+  const [histList, setHistList] = useState<IBaseHistItem[]>([]);
 
   useEffect(() => {
 
