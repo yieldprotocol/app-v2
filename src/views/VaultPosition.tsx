@@ -236,12 +236,16 @@ const Vault = ({ close }: { close: () => void }) => {
                 <Box direction="row" pad="medium" gap="small" align="center">
                   <FiAlertTriangle size="3em" />
                   <Box gap="xsmall">
-                    <Text> This account no longer controls this vault</Text>
+                    <Text>
+                      This Account no longer controls this vault
+                    </Text>
                   </Box>
                 </Box>
 
                 <Box pad={{ horizontal: 'medium' }}>
-                  <Text size="xsmall">This vault with id, {selectedVault?.id}, has either been deleted or transfered.</Text>
+                  <Text size="xsmall">
+                    Vault {selectedVault?.id} has either been deleted or transfered.
+                  </Text>
                 </Box>
               </Box>
             </SectionWrap>
