@@ -188,7 +188,7 @@ export const useBorrowActions = () => {
   };
 
   const transfer = async (vault: IVault, to: string) => {
-    console.log('inhereeeeeeeeeee');
+    console.log('inhereeeeeeeeeee - nice');
     const txCode = getTxCode(ActionCodes.TRANSFER_VAULT, vault.id);
     const series = seriesMap.get(vault.seriesId);
     const base = assetMap.get(vault.baseId);

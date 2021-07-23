@@ -52,6 +52,7 @@ function VaultSelector(target: any) {
   const handleFilter = useCallback(
     ({ base, series, ilk }: IVaultFilter) => {
       const _filteredVaults: IVault[] = Array.from(vaultMap.values())
+        .filter((vault: IVault) => vault.isActive)
         .filter((vault: IVault) => (base ? vault.baseId === base.id : true))
         .filter((vault: IVault) => (series ? vault.seriesId === series.id : true))
         .filter((vault: IVault) => (ilk ? vault.ilkId === ilk.id : true));

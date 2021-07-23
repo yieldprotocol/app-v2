@@ -24,24 +24,6 @@ background 0.3s ease-in-out;
 }
 `;
 
-const StampText = styled(Text)`
-  font-weight: 700;
-  padding: 0.1rem 0.1rem;
-  text-transform: uppercase;
-  border-radius: 0.5rem;
-  font-family: 'Courier';
-  -webkit-mask-image: url('https://s3-us-west-2.amazonaws.com/s.cdpn.io/8399/grunge.png');
-  -webkit-mask-size: 500px 200px;
-  mix-blend-mode: multiply;
-
-  color: #d21;
-  border: 0.05rem solid #d21;
-  transform: rotate(-10deg);
-  -webkit-mask-position: 1rem 1.5rem;
-  font-size: 0.5rem;
-  overflow: hidden;
-`;
-
 interface ISeriesSelectorProps {
   actionType: ActionType;
   selectSeriesLocally?: (
