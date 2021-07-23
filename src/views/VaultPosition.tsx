@@ -3,7 +3,7 @@ import { Box, Button, ResponsiveContext, Select, Text, TextInput } from 'grommet
 import { ethers } from 'ethers';
 import { useHistory } from 'react-router-dom';
 
-import { FiLock, FiClock, FiTrendingUp, FiLogOut, FiXCircle, FiPlusCircle } from 'react-icons/fi';
+import { FiLock, FiClock, FiTrendingUp, FiLogOut, FiXCircle, FiPlusCircle, FiAlertTriangle } from 'react-icons/fi';
 import { abbreviateHash, cleanValue, getTxCode } from '../utils/appUtils';
 import { UserContext } from '../contexts/UserContext';
 import InputWrap from '../components/wraps/InputWrap';
@@ -76,7 +76,7 @@ const Vault = ({ close }: { close: () => void }) => {
 
   const [repayDisabled, setRepayDisabled] = useState<boolean>(true);
 
-  const [actionActive, setActionActive] = useState<any>({ text: 'Repay', index: 0 });
+  const [actionActive, setActionActive] = useState<any>(selectedVault?.isActive ? { index: 0 } : { index: 3 });
   // const [rollDisabled, setRollDisabled] = useState<boolean>(true);
 
   /* HOOK FNS */
@@ -210,25 +210,42 @@ const Vault = ({ close }: { close: () => void }) => {
             <FiLogOut onClick={() => close()} />
           </Box>
 
-          <SectionWrap>
-            <Box gap="small">
-              <InfoBite
-                label="Vault debt + interest:"
-                value={`${selectedVault?.art_} ${vaultBase?.symbol}`}
-                icon={<FiTrendingUp />}
-              />
-              <InfoBite
-                label="Maturity date:"
-                value={`${vaultSeries?.displayName}`}
-                icon={<FiClock color={vaultSeries?.color} />}
-              />
-              <InfoBite
-                label="Collateral posted:"
-                value={`${selectedVault?.ink_} ${vaultIlk?.symbol} ( ${collateralizationPercent} %)`}
-                icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
-              />
-            </Box>
-          </SectionWrap>
+          {selectedVault?.isActive ? (
+            <SectionWrap>
+              <Box gap="small">
+                <InfoBite
+                  label="Vault debt + interest:"
+                  value={`${selectedVault?.art_} ${vaultBase?.symbol}`}
+                  icon={<FiTrendingUp />}
+                />
+                <InfoBite
+                  label="Maturity date:"
+                  value={`${vaultSeries?.displayName}`}
+                  icon={<FiClock color={vaultSeries?.color} />}
+                />
+                <InfoBite
+                  label="Collateral posted:"
+                  value={`${selectedVault?.ink_} ${vaultIlk?.symbol} ( ${collateralizationPercent} %)`}
+                  icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
+                />
+              </Box>
+            </SectionWrap>
+          ) : (
+            <SectionWrap>
+              <Box fill align="center" justify="center">
+                <Box direction="row" pad="medium" gap="small" align="center">
+                  <FiAlertTriangle size="3em" />
+                  <Box gap="xsmall">
+                    <Text> This account no longer controls this vault</Text>
+                  </Box>
+                </Box>
+
+                <Box pad={{ horizontal: 'medium' }}>
+                  <Text size="xsmall">This vault with id, {selectedVault?.id}, has either been deleted or transfered.</Text>
+                </Box>
+              </Box>
+            </SectionWrap>
+          )}
         </Box>
 
         <Box>
@@ -248,6 +265,7 @@ const Vault = ({ close }: { close: () => void }) => {
               valueKey="index"
               value={actionActive}
               onChange={({ option }) => setActionActive(option)}
+              disabled={selectedVault?.isActive ? undefined : [0, 1, 2, 4, 5]}
             />
           </Box>
 
@@ -472,6 +490,7 @@ const Vault = ({ close }: { close: () => void }) => {
             label={<Text size={mobile ? 'small' : undefined}> Next Step</Text>}
             onClick={() => handleStepper()}
             key="next"
+            disabled={!selectedVault?.isActive}
           />
         )}
 
