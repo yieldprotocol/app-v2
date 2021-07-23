@@ -237,7 +237,7 @@ const Vault = ({ close }: { close: () => void }) => {
                   <FiAlertTriangle size="3em" />
                   <Box gap="xsmall">
                     <Text>
-                      This Account no longer controls this vault
+                      This account no longer controls this vault
                     </Text>
                   </Box>
                 </Box>
