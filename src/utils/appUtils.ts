@@ -1,4 +1,5 @@
 import { format, getMonth, subDays } from 'date-fns';
+import { ethers } from 'ethers';
 import Identicon, { IdenticonOptions } from 'identicon.js';
 import { ActionCodes } from '../types';
 
