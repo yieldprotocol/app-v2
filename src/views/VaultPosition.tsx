@@ -79,8 +79,11 @@ const Vault = ({ close }: { close: () => void }) => {
   const [actionActive, setActionActive] = useState<any>({ text: 'Repay', index: 0 });
   // const [rollDisabled, setRollDisabled] = useState<boolean>(true);
 
+  const [destroyDisabled, setDestroyDisabled] = useState<boolean>(true);
+  const [destroyInput, setDestroyInput] = useState<string>('');
+
   /* HOOK FNS */
-  const { repay, borrow, rollDebt, transfer } = useBorrowActions();
+  const { repay, borrow, rollDebt, transfer, destroy } = useBorrowActions();
   const { addCollateral, removeCollateral } = useCollateralActions();
 
   /* LOCAL FNS */
@@ -116,6 +119,19 @@ const Vault = ({ close }: { close: () => void }) => {
   const handleTransfer = () => {
     selectedVault && transfer(selectedVault, transferToAddressInput);
     setTransferToAddressInput('');
+  };
+
+  const handleDestroy = () => {
+    selectedVault && destroy(selectedVault);
+  };
+
+  const handleDestroyInputChange = (event: any) => {
+    const {
+      target: { value },
+    } = event;
+
+    setDestroyInput(value);
+    value === selectedVault?.displayName ? setDestroyDisabled(false) : setDestroyDisabled(true);
   };
 
   /* SET MAX VALUES */
@@ -436,9 +452,8 @@ const Vault = ({ close }: { close: () => void }) => {
                       plain
                       type="string"
                       placeholder="Type the name of the vault."
-                      // ref={(el:any) => { el && !repayOpen && !rateLockOpen && !mobile && el.focus(); setInputRef(el); }}
-                      value=""
-                      // onChange={(event:any) => setRepayInput(cleanValue(event.target.value))}
+                      value={destroyInput}
+                      onChange={(event) => handleDestroyInputChange(event)}
                     />
                   </InputWrap>
                 </Box>
@@ -446,7 +461,7 @@ const Vault = ({ close }: { close: () => void }) => {
 
               {stepPosition[actionActive.index] !== 0 && (
                 <ActiveTransaction
-                  txCode={(selectedVault && getTxCode(ActionCodes.REPAY, selectedVault?.id)) || ''}
+                  txCode={(selectedVault && getTxCode(ActionCodes.DELETE_VAULT, selectedVault?.id)) || ''}
                   pad
                 >
                   <SectionWrap
@@ -456,7 +471,7 @@ const Vault = ({ close }: { close: () => void }) => {
                     <InfoBite
                       label="Pay back all debt and delete vault:"
                       icon={<FiPlusCircle />}
-                      value={`${selectedVault?.displayName}`}
+                      value={destroyInput}
                     />
                   </SectionWrap>
                 </ActiveTransaction>
@@ -467,7 +482,7 @@ const Vault = ({ close }: { close: () => void }) => {
       </Box>
 
       <ActionButtonWrap pad>
-        {stepPosition[actionActive.index] === 0 && actionActive.index !== 3 && (
+        {stepPosition[actionActive.index] === 0 && actionActive.index !== 3 && actionActive.index !== 5 && (
           <NextButton
             label={<Text size={mobile ? 'small' : undefined}> Next Step</Text>}
             onClick={() => handleStepper()}
@@ -523,12 +538,21 @@ const Vault = ({ close }: { close: () => void }) => {
           />
         )}
 
+        {actionActive.index === 5 && stepPosition[actionActive.index] === 0 && (
+          <NextButton
+            disabled={destroyDisabled}
+            label={<Text size={mobile ? 'small' : undefined}> Next Step</Text>}
+            onClick={() => handleStepper()}
+            key="next"
+          />
+        )}
+
         {actionActive.index === 5 && stepPosition[actionActive.index] !== 0 && (
           <TransactButton
             primary
-            label={<Text size={mobile ? 'small' : undefined}> Delete [todo] </Text>}
-            onClick={() => console.log('delete vault')}
-            disabled={repayDisabled}
+            label={<Text size={mobile ? 'small' : undefined}> {`Delete ${selectedVault?.displayName}`} </Text>}
+            onClick={() => handleDestroy()}
+            disabled={destroyDisabled}
           />
         )}
       </ActionButtonWrap>

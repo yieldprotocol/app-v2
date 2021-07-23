@@ -221,10 +221,66 @@ export const useBorrowActions = () => {
     updateVaults([]);
   };
 
+  const destroy = async (vault: IVault) => {
+    const txCode = getTxCode(ActionCodes.TRANSFER_VAULT, vault.id);
+    const _art = vault.art_ ? ethers.utils.parseEther(vault.art_) : ethers.constants.Zero;
+    const series = seriesMap.get(vault.seriesId);
+    const base = assetMap.get(vault.baseId);
+    const _isDaiBased = DAI_BASED_ASSETS.includes(vault.baseId);
+
+    const permits: ICallData[] = await sign(
+      [
+        {
+          target: base,
+          spender: 'LADLE',
+          series,
+          type: _isDaiBased ? SignType.DAI : SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
+          message: 'Signing Dai Approval',
+          ignore: series.mature,
+        },
+      ],
+      txCode
+    );
+
+    const calls: ICallData[] = [
+      ...permits,
+      {
+        operation: LadleActions.Fn.TRANSFER_TO_POOL,
+        args: [series.id, true, _art] as LadleActions.Args.TRANSFER_TO_POOL,
+        series,
+        ignore: series.mature,
+      },
+      {
+        /* ladle.repay(vaultId, owner, inkRetrieved, 0) */
+        operation: LadleActions.Fn.REPAY,
+        args: [vault.id, account, vault.ink, ethers.constants.Zero] as LadleActions.Args.REPAY,
+        series,
+        ignore: series.mature,
+      },
+      {
+        /* ladle.repayVault(vaultId, owner, inkRetrieved, MAX) */
+        operation: LadleActions.Fn.REPAY_VAULT,
+        args: [vault.id, account, vault.ink, MAX_128] as LadleActions.Args.REPAY_VAULT,
+        series,
+        ignore: series.mature,
+      },
+      {
+        operation: LadleActions.Fn.DESTROY,
+        args: [vault.id] as LadleActions.Args.DESTROY,
+        series,
+        ignore: series.mature,
+      },
+    ];
+
+    await transact('Ladle', calls, txCode);
+    updateVaults([]);
+  };
+
   return {
     borrow,
     repay,
     rollDebt,
     transfer,
+    destroy,
   };
 };
