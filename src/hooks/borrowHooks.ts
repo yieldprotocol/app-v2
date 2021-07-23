@@ -221,12 +221,15 @@ export const useBorrowActions = () => {
     updateVaults([]);
   };
 
-  const merge = async (vault: IVault, to: IVault) => {
+  const merge = async (vault: IVault, to: IVault, ink: string | undefined, art: string | undefined) => {
     console.log('inhereeeeeeeeeee - nice');
     const txCode = getTxCode(ActionCodes.MERGE_VAULT, vault.id);
     const series = seriesMap.get(vault.seriesId);
     const base = assetMap.get(vault.baseId);
     const _isDaiBased = DAI_BASED_ASSETS.includes(vault.baseId);
+
+    const _ink = ink ? ethers.utils.parseEther(ink) : ethers.constants.Zero;
+    const _art = art ? ethers.utils.parseEther(art) : ethers.constants.Zero;
 
     const permits: ICallData[] = await sign(
       [
@@ -247,7 +250,7 @@ export const useBorrowActions = () => {
       ...permits,
       {
         operation: LadleActions.Fn.STIR,
-        args: [vault.id, to.id, vault.ink_, vault.art_] as LadleActions.Args.STIR,
+        args: [vault.id, to.id, _ink, _art] as LadleActions.Args.STIR,
         series,
         ignore: series.mature,
       },
