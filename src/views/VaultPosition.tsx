@@ -598,12 +598,12 @@ const Vault = ({ close }: { close: () => void }) => {
                       <InfoBite
                         label={`Merge ${selectedVault?.displayName} collateral with ${mergeData.toVault.displayName}: `}
                         icon={<FiArrowRight />}
-                        value={`Updated ${mergeData.toVault.displayName} Collateral: ${mergeData.totalMergedInk}`}
+                        value={`${mergeData.toVault.displayName} collateral: ${mergeData.totalMergedInk}`}
                       />
                       <InfoBite
                         label={`Merge ${selectedVault?.displayName} debt with ${mergeData.toVault.displayName}: `}
                         icon={<FiArrowRight />}
-                        value={`Updated ${mergeData.toVault.displayName} Debt: ${mergeData.totalMergedArt}`}
+                        value={`${mergeData.toVault.displayName} debt: ${mergeData.totalMergedArt}`}
                       />
                     </Box>
                   </SectionWrap>
