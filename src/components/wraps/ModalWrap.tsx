@@ -41,7 +41,7 @@ function ModalWrap({ children, toggleModalOpen, background, modalOpen = false }:
               fill="horizontal"
               style={{ position: 'fixed', top: '0px' }}
             >
-              <YieldLogo height={mobile ? '1em' : '1.5em'} startcolor={series?.oppStartColor} endcolor={series?.oppEndColor} />
+              <YieldLogo height={mobile ? '1em' : '1.5em'} startColor={series?.oppStartColor} endColor={series?.oppEndColor} />
               <FiX onClick={() => toggleModalOpen()} />
             </Header>
 

@@ -328,7 +328,7 @@ const ChainProvider = ({ children }: any) => {
                   oppStartColor,
                   oppEndColor,
                   oppTextColor,
-                  seriesMark: <YieldMark start={startColor} end={endColor} />,
+                  seriesMark: <YieldMark startColor={startColor} endColor={endColor} />,
 
                   // built-in helper functions:
                   getTimeTillMaturity: () => maturity - Math.round(new Date().getTime() / 1000),

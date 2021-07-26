@@ -145,7 +145,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
               <InfoBite
                 label="Liquidity Balance"
                 value={cleanValue(selectedSeries?.poolTokens_, 6)}
-                icon={<YieldMark height="1em" start={selectedSeries?.startColor} />}
+                icon={<YieldMark height="1em" startColor={selectedSeries?.startColor} />}
               />
               {/* <InfoBite 
                 label="Total Pool Liquidity"
