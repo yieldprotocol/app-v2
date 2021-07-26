@@ -202,6 +202,8 @@ const LendPosition = ({ close }: { close: () => void }) => {
                     <MaxButton
                       action={() => setCloseInput(maxClose)}
                       disabled={maxClose === '0.0' || !selectedSeries}
+                      clearAction = {() => setCloseInput('')}
+                      showingMax= { !!closeInput && closeInput === maxClose }
                     />
                   </InputWrap>
                 </Box>
@@ -243,6 +245,8 @@ const LendPosition = ({ close }: { close: () => void }) => {
                       <MaxButton
                         action={() => setRollInput(maxClose)}
                         disabled={maxClose === '0.0' || !selectedSeries}
+                        clearAction = {() => setRollInput('')}
+                        showingMax= { !!rollInput && rollInput === maxClose }
                       />
                     </InputWrap>
                   </Box>

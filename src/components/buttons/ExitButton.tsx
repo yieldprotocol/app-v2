@@ -11,9 +11,8 @@ const StyledBox = styled(Box)`
     transform: scale(1.5);
   }
   :active {
-    transform: scale(1.1);
+    transform: scale(1.0);
   }
-
 `;
 
 function ExitButton({ action }: { action: () => void }) {

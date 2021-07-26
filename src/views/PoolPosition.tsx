@@ -194,7 +194,12 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                       value={removeInput || ''}
                       onChange={(event: any) => setRemoveInput(cleanValue(event.target.value))}
                     />
-                    <MaxButton action={() => setRemoveInput(maxRemove)} disabled={maxRemove === '0.0'} />
+                    <MaxButton 
+                      action={() => setRemoveInput(maxRemove)} 
+                      disabled={maxRemove === '0.0'} 
+                      clearAction = {() => setRemoveInput('')}
+                      showingMax= { !!removeInput && removeInput === maxRemove }
+                      />
                   </InputWrap>
                 </Box>
               )}
@@ -231,7 +236,12 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                         value={rollInput || ''}
                         onChange={(event: any) => setRollInput(cleanValue(event.target.value))}
                       />
-                      <MaxButton action={() => setRollInput(maxRemove)} disabled={maxRemove === '0.0'} />
+                      <MaxButton 
+                        action={() => setRollInput(maxRemove)} 
+                        disabled={maxRemove === '0.0'} 
+                        clearAction = {() => setRollInput('')}
+                        showingMax= { !!rollInput && rollInput === maxRemove }
+                      />
                     </InputWrap>
                   </Box>
                   <Box fill>

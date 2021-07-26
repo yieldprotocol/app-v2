@@ -258,6 +258,8 @@ const Borrow = () => {
                           <MaxButton
                             action={() => maxCollat && setCollatInput(maxCollat)}
                             disabled={!selectedSeries || collatInput === maxCollat || selectedSeries.seriesIsMature}
+                            clearAction = {() => setCollatInput('')}
+                            showingMax= { !!collatInput && collatInput === maxCollat }
                           />
                         </InputWrap>
                       </Box>

@@ -347,7 +347,11 @@ const Vault = ({ close }: { close: () => void }) => {
                       value={repayInput || ''}
                       onChange={(event: any) => setRepayInput(cleanValue(event.target.value))}
                     />
-                    <MaxButton action={() => setRepayInput(maxRepay)} />
+                    <MaxButton
+                      action={() => setRepayInput(maxRepay)}
+                      clearAction={() => setRepayInput('')}
+                      showingMax={!!repayInput && repayInput === maxRepay}
+                    />
                   </InputWrap>
                 </Box>
               )}
@@ -415,10 +419,12 @@ const Vault = ({ close }: { close: () => void }) => {
                         value={addCollatInput || ''}
                         onChange={(event: any) => setAddCollatInput(cleanValue(event.target.value))}
                       />
-                      <MaxButton 
+                      <MaxButton
                         disabled={removeCollatInput}
-                        action={() => setAddCollatInput(maxCollat)} 
-                        />
+                        action={() => setAddCollatInput(maxCollat)}
+                        clearAction={() => setAddCollatInput('')}
+                        showingMax={!!addCollatInput && addCollatInput === maxCollat}
+                      />
                     </InputWrap>
                   </Box>
                   <Box direction="row" justify="between" align="center">
@@ -432,9 +438,14 @@ const Vault = ({ close }: { close: () => void }) => {
                         value={removeCollatInput || ''}
                         onChange={(event: any) => setRemoveCollatInput(cleanValue(event.target.value))}
                       />
+                      {}
                       <MaxButton
                         disabled={!!addCollatInput}
                         action={() => setRemoveCollatInput(ethers.utils.formatEther(selectedVault?.ink!))}
+                        clearAction={() => setRemoveCollatInput('')}
+                        showingMax={
+                          !!removeCollatInput && ethers.utils.formatEther(selectedVault?.ink!) === removeCollatInput
+                        }
                       />
                     </InputWrap>
                   </Box>
