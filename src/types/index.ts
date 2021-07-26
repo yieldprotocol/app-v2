@@ -244,6 +244,7 @@ export enum ActionCodes {
   // VAULT
   DELETE_VAULT = 'Delete Vault',
   TRANSFER_VAULT = 'Transfer Vault',
+  MERGE_VAULT = 'Merge Vault',
 }
 
 export interface IBaseHistItem {

@@ -221,6 +221,42 @@ export const useBorrowActions = () => {
     updateVaults([]);
   };
 
+  const merge = async (vault: IVault, to: IVault, ink: string | undefined, art: string | undefined) => {
+    const txCode = getTxCode(ActionCodes.MERGE_VAULT, vault.id);
+    const series = seriesMap.get(vault.seriesId);
+    const base = assetMap.get(vault.baseId);
+    const _ink = ink ? ethers.utils.parseEther(ink) : ethers.constants.Zero;
+    const _art = art ? ethers.utils.parseEther(art) : ethers.constants.Zero;
+    const _isDaiBased = DAI_BASED_ASSETS.includes(vault.baseId);
+
+    const permits: ICallData[] = await sign(
+      [
+        {
+          target: base,
+          spender: 'LADLE',
+          series,
+          type: _isDaiBased ? SignType.DAI : SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
+          message: 'Signing Dai Approval',
+          ignore: series.mature,
+        },
+      ],
+      txCode
+    );
+
+    /* ladle.stir(fromVault, toVault, ink, art) */
+    const calls: ICallData[] = [
+      ...permits,
+      {
+        operation: LadleActions.Fn.STIR,
+        args: [vault.id, to.id, _ink, _art] as LadleActions.Args.STIR,
+        series,
+        ignore: series.mature,
+      },
+    ];
+    await transact('Ladle', calls, txCode);
+    updateVaults([]);
+  };
+
   // TODO: #72 Refactor to include the ability to destroy when the vault has collateral and debt
   const destroy = async (vault: IVault) => {
     const txCode = getTxCode(ActionCodes.DELETE_VAULT, vault.id);
@@ -260,6 +296,7 @@ export const useBorrowActions = () => {
     repay,
     rollDebt,
     transfer,
+    merge,
     destroy,
   };
 };

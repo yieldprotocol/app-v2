@@ -24,6 +24,7 @@ import { Gauge } from '../components/Gauge';
 import YieldHistory from '../components/YieldHistory';
 import TransactButton from '../components/buttons/TransactButton';
 import CancelButton from '../components/buttons/CancelButton';
+import VaultDropSelector from '../components/selectors/VaultDropSelector';
 import ExitButton from '../components/buttons/ExitButton';
 
 const Vault = ({ close }: { close: () => void }) => {
@@ -33,10 +34,11 @@ const Vault = ({ close }: { close: () => void }) => {
   /* STATE FROM CONTEXT */
 
   const { userState, userActions } = useContext(UserContext) as IUserContext;
-  const { activeAccount, assetMap, seriesMap, vaultMap, selectedVaultId } = userState;
+  const { activeAccount, assetMap, seriesMap, vaultMap, selectedVaultId, selectedIlkId } = userState;
   // const { setSelectedVault } = userActions;
 
   const selectedVault: IVault | undefined = vaultMap.get(selectedVaultId!);
+  const selectedIlk = assetMap.get(selectedIlkId!);
   const vaultBase: IAsset | undefined = assetMap.get(selectedVault?.baseId!);
   const vaultIlk: IAsset | undefined = assetMap.get(selectedVault?.ilkId!);
   const vaultSeries: ISeries | undefined = seriesMap.get(selectedVault?.seriesId!);
@@ -53,7 +55,7 @@ const Vault = ({ close }: { close: () => void }) => {
   const onActive = (nextIndex: number) => setTabIndex(nextIndex);
 
   // stepper for stepping within multiple tabs
-  const [stepPosition, setStepPosition] = useState<number[]>([0, 0, 0, 0, 0, 0]);
+  const [stepPosition, setStepPosition] = useState<number[]>([0, 0, 0, 0, 0, 0, 0]);
 
   const [repayInput, setRepayInput] = useState<any>(undefined);
   const [borrowInput, setBorrowInput] = useState<any>(undefined);
@@ -80,12 +82,30 @@ const Vault = ({ close }: { close: () => void }) => {
   const [actionActive, setActionActive] = useState<any>(selectedVault?.isActive ? { index: 0 } : { index: 3 });
   // const [rollDisabled, setRollDisabled] = useState<boolean>(true);
 
+  const initialMergeData = { toVault: null, ink: null, art: null, inkError: false, artError: false };
+  const [mergeData, setMergeData] = useState<any>(initialMergeData);
+
   const [destroyDisabled, setDestroyDisabled] = useState<boolean>(true);
   const [destroyInput, setDestroyInput] = useState<string>('');
 
+  const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
+
   /* HOOK FNS */
-  const { repay, borrow, rollDebt, transfer, destroy } = useBorrowActions();
+  const { repay, borrow, rollDebt, transfer, merge, destroy } = useBorrowActions();
   const { addCollateral, removeCollateral } = useCollateralActions();
+
+  useEffect(() => {
+    const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
+    const _matchingVaults = arr.filter(
+      (v: IVault) =>
+        v.ilkId === selectedVault?.ilkId &&
+        v.baseId === selectedVault.baseId &&
+        v.seriesId === selectedVault.seriesId &&
+        v.id !== selectedVault.id &&
+        v.isActive
+    );
+    setMatchingVaults(_matchingVaults);
+  }, [vaultMap, selectedVault?.ilkId, selectedVault?.baseId, selectedVault?.seriesId, selectedVault?.id]);
 
   /* LOCAL FNS */
   const handleStepper = (back: boolean = false) => {
@@ -120,6 +140,33 @@ const Vault = ({ close }: { close: () => void }) => {
   const handleTransfer = () => {
     selectedVault && transfer(selectedVault, transferToAddressInput);
     setTransferToAddressInput('');
+  };
+
+  const handleMerge = () => {
+    selectedVault && merge(selectedVault, mergeData.toVault, mergeData.ink, mergeData.art);
+  };
+
+  const handleMergeDataChange = (e: any) => {
+    const { name, value } = e.target;
+    setMergeData((fData: any) => ({ ...fData, [name]: cleanValue(value) }));
+
+    if (name === 'ink') {
+      const validInk = selectedVault && value <= selectedVault?.ink_;
+      !validInk
+        ? setMergeData((fData: any) => ({ ...fData, inkError: true }))
+        : setMergeData((fData: any) => ({ ...fData, inkError: false }));
+    }
+
+    if (name === 'art') {
+      const validArt = selectedVault && value <= selectedVault?.art_;
+      !validArt
+        ? setMergeData((fData: any) => ({ ...fData, artError: true }))
+        : setMergeData((fData: any) => ({ ...fData, artError: false }));
+    }
+  };
+
+  const handleMergeVaultSelect = (vault: IVault) => {
+    setMergeData((fData: any) => ({ ...fData, toVault: vault }));
   };
 
   const handleDestroy = () => {
@@ -276,7 +323,8 @@ const Vault = ({ close }: { close: () => void }) => {
                 { text: 'Manage Collateral', index: 2 },
                 { text: 'View History', index: 3 },
                 { text: 'Transfer Vault', index: 4 },
-                { text: 'Delete Vault', index: 5 },
+                { text: 'Merge Vaults', index: 5 },
+                { text: 'Delete Vault', index: 6 },
               ]}
               labelKey="text"
               valueKey="index"
@@ -431,7 +479,6 @@ const Vault = ({ close }: { close: () => void }) => {
                       plain
                       type="string"
                       placeholder="Transfer vault to address"
-                      // ref={(el:any) => { el && !repayOpen && !rateLockOpen && !mobile && el.focus(); setInputRef(el); }}
                       value={transferToAddressInput}
                       onChange={(event: any) => setTransferToAddressInput(event.target.value)}
                     />
@@ -449,11 +496,11 @@ const Vault = ({ close }: { close: () => void }) => {
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
                     <Box margin={{ top: 'medium' }}>
-                    <InfoBite
-                      label="Transfer Vault to: "
-                      icon={<FiPlusCircle />}
-                      value={transferToAddressInput !== '' ? abbreviateHash(transferToAddressInput) : ''}
-                    />
+                      <InfoBite
+                        label="Transfer Vault to: "
+                        icon={<FiPlusCircle />}
+                        value={transferToAddressInput !== '' ? abbreviateHash(transferToAddressInput) : ''}
+                      />
                     </Box>
                   </SectionWrap>
                 </ActiveTransaction>
@@ -462,6 +509,71 @@ const Vault = ({ close }: { close: () => void }) => {
           )}
 
           {actionActive.index === 5 && (
+            <Box>
+              {stepPosition[actionActive.index] === 0 && (
+                <Box gap="xsmall">
+                  <VaultDropSelector
+                    vaults={matchingVaults}
+                    handleSelect={handleMergeVaultSelect}
+                    selectedIlk={selectedIlk}
+                    itemSelected={mergeData.toVault}
+                    displayName="Select Vault"
+                    placeholder="Select Vault"
+                  />
+                  <Box gap="xsmall">
+                    <Box direction="row" justify="between" align="center">
+                      Collateral
+                      <InputWrap action={() => console.log('maxAction')} isError={mergeData.inkError}>
+                        <TextInput
+                          disabled={false}
+                          name="ink"
+                          plain
+                          type="number"
+                          placeholder="COLLATERAL TO MERGE"
+                          value={mergeData.ink || ''}
+                          onChange={(event: any) => handleMergeDataChange(event)}
+                        />
+                      </InputWrap>
+                    </Box>
+                    <Box direction="row" justify="between" align="center">
+                      Debt
+                      <InputWrap action={() => console.log('maxAction')} isError={mergeData.artError}>
+                        <TextInput
+                          disabled={false}
+                          name="art"
+                          plain
+                          type="number"
+                          placeholder="DEBT TO MERGE"
+                          value={mergeData.art || ''}
+                          onChange={(event: any) => handleMergeDataChange(event)}
+                        />
+                      </InputWrap>
+                    </Box>
+                  </Box>
+                </Box>
+              )}
+
+              {stepPosition[actionActive.index] !== 0 && (
+                <ActiveTransaction
+                  txCode={(selectedVault && getTxCode(ActionCodes.MERGE_VAULT, selectedVault?.id)) || ''}
+                  pad
+                >
+                  <SectionWrap
+                    title="Review your merge transaction"
+                    rightAction={<CancelButton action={() => handleStepper(true)} />}
+                  >
+                    <InfoBite
+                      label={`Merge ${selectedVault?.displayName} with ${mergeData.toVault.displayName}: `}
+                      icon={<FiPlusCircle />}
+                      value={`Collateral: ${mergeData.ink}, Debt: ${mergeData.art}`}
+                    />
+                  </SectionWrap>
+                </ActiveTransaction>
+              )}
+            </Box>
+          )}
+
+          {actionActive.index === 6 && (
             <Box>
               {stepPosition[actionActive.index] === 0 && (
                 <Box pad={{ vertical: 'medium' }}>
@@ -487,12 +599,12 @@ const Vault = ({ close }: { close: () => void }) => {
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
                     <Box margin={{ top: 'medium' }}>
-                    <InfoBite
-                      // label="Pay back all debt and delete vault:"
-                      label="Delete vault (vault must have 0 debt and 0 collateral):"
-                      icon={<FiPlusCircle />}
-                      value={destroyInput}
-                    />
+                      <InfoBite
+                        // label="Pay back all debt and delete vault:"
+                        label="Delete vault (vault must have 0 debt and 0 collateral):"
+                        icon={<FiPlusCircle />}
+                        value={destroyInput}
+                      />
                     </Box>
                   </SectionWrap>
                 </ActiveTransaction>
@@ -503,14 +615,17 @@ const Vault = ({ close }: { close: () => void }) => {
       </Box>
 
       <ActionButtonWrap pad>
-        {stepPosition[actionActive.index] === 0 && actionActive.index !== 3 && actionActive.index !== 5 && (
-          <NextButton
-            label={<Text size={mobile ? 'small' : undefined}> Next Step</Text>}
-            onClick={() => handleStepper()}
-            key="next"
-            disabled={!selectedVault?.isActive}
-          />
-        )}
+        {stepPosition[actionActive.index] === 0 &&
+          actionActive.index !== 3 &&
+          actionActive.index !== 5 &&
+          actionActive.index !== 6 && (
+            <NextButton
+              label={<Text size={mobile ? 'small' : undefined}> Next Step </Text>}
+              onClick={() => handleStepper()}
+              key="next"
+              disabled={!selectedVault?.isActive}
+            />
+          )}
 
         {/* TODO Marco this is screaming for more efficient code   -> simple array.map possibly? */}
 
@@ -560,21 +675,39 @@ const Vault = ({ close }: { close: () => void }) => {
           />
         )}
 
-        {actionActive.index === 5 && stepPosition[actionActive.index] === 0 && (
+        {stepPosition[actionActive.index] === 0 && actionActive.index === 5 && (
           <NextButton
-            disabled={destroyDisabled}
-            label={<Text size={mobile ? 'small' : undefined}> Next Step</Text>}
+            label={<Text size={mobile ? 'small' : undefined}> Next Step </Text>}
             onClick={() => handleStepper()}
             key="next"
+            disabled={mergeData.ink === '' || mergeData.art === '' || mergeData.inkError || mergeData.artError}
           />
         )}
 
         {actionActive.index === 5 && stepPosition[actionActive.index] !== 0 && (
           <TransactButton
             primary
+            label={<Text size={mobile ? 'small' : undefined}> Merge Vaults </Text>}
+            onClick={() => handleMerge()}
+            disabled={mergeData.inkError || mergeData.artError}
+          />
+        )}
+
+        {actionActive.index === 6 && stepPosition[actionActive.index] === 0 && (
+          <NextButton
+            label={<Text size={mobile ? 'small' : undefined}> Next Step </Text>}
+            onClick={() => handleStepper()}
+            key="next"
+            disabled={destroyDisabled}
+          />
+        )}
+
+        {actionActive.index === 6 && stepPosition[actionActive.index] !== 0 && (
+          <TransactButton
+            primary
+            disabled={destroyDisabled}
             label={<Text size={mobile ? 'small' : undefined}> {`Delete ${selectedVault?.displayName}`} </Text>}
             onClick={() => handleDestroy()}
-            disabled={destroyDisabled}
           />
         )}
       </ActionButtonWrap>
