@@ -55,8 +55,7 @@ function ModalWrap({ children, toggleModalOpen, background, modalOpen = false }:
                   {children}
                 </Box>
                 <PanelWrap>
-                  {' '}
-                  <Box />{' '}
+                  <Box />
                 </PanelWrap>
               </MainViewWrap>
             </Box>

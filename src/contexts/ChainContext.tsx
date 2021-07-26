@@ -387,6 +387,7 @@ const ChainProvider = ({ children }: any) => {
     const _chainId = chainId || lastChainId;
     /* cache the change of networkId */
     chainId && setLastChainId(chainId);
+    
     /* Connect the fallback */
     tried &&
       fallbackActivate(
