@@ -438,7 +438,6 @@ const Vault = ({ close }: { close: () => void }) => {
                         value={removeCollatInput || ''}
                         onChange={(event: any) => setRemoveCollatInput(cleanValue(event.target.value))}
                       />
-                      {}
                       <MaxButton
                         disabled={!!addCollatInput}
                         action={() => setRemoveCollatInput(ethers.utils.formatEther(selectedVault?.ink!))}
