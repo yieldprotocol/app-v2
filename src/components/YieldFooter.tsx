@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { ethers, utils } from 'ethers';
 
-import { Text, Box, Button, ResponsiveContext, Footer, Collapsible, Select } from 'grommet';
+import { Text, Box, Button, ResponsiveContext, Footer, Collapsible, Select, Layer } from 'grommet';
 import { toast } from 'react-toastify';
 import { ChainContext } from '../contexts/ChainContext';
 
@@ -29,13 +29,20 @@ const YieldFooter = (props: any) => {
   }, [fallbackProvider]);
 
   return (
-    <Footer pad="small">
-      <Box gap="medium" fill="horizontal">
-        <Box onClick={() => setTestOpen(!testOpen)} alignSelf="end">
+
+<>
+        <Box onClick={() => setTestOpen(!testOpen)} style={{ position:'absolute', bottom:0, left:0 }}>
           <Text size="xsmall"> {testOpen ? ' - test panel - ' : ' + test panel + '} </Text>
         </Box>
 
-        <Collapsible open={testOpen}>
+        {testOpen && 
+        <Layer 
+          onClickOutside={()=>setTestOpen(false)} 
+          position='bottom'
+          full='horizontal'
+          
+          > 
+
           <Box pad="small">
             <Box direction="row" gap="small" justify="between">
               <Box>
@@ -107,9 +114,8 @@ const YieldFooter = (props: any) => {
               ))}
             </Box>
           </Box>
-        </Collapsible>
-      </Box>
-    </Footer>
+          </Layer>}
+    </>
   );
 };
 
