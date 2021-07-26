@@ -98,7 +98,10 @@ const Vault = ({ close }: { close: () => void }) => {
     const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
     const _matchingVaults = arr.filter(
       (v: IVault) =>
-        v.ilkId === selectedVault?.ilkId && v.baseId === selectedVault.baseId && v.seriesId === selectedVault.seriesId
+        v.ilkId === selectedVault?.ilkId &&
+        v.baseId === selectedVault.baseId &&
+        v.seriesId === selectedVault.seriesId &&
+        v.isActive
     );
     setMatchingVaults(_matchingVaults);
   }, [vaultMap, selectedVault?.ilkId, selectedVault?.baseId, selectedVault?.seriesId]);
