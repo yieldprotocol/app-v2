@@ -113,8 +113,8 @@ function Pool() {
           {stepPosition === 0 && (
             <Box gap="medium">
               <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
-                <YieldMark />
-                <Text>POOL</Text>
+              {/* <YieldMark height='1em' startColor='grey' endColor='grey' /> */}
+                <Text color='grey'>POOL</Text>
               </Box>
 
               <SectionWrap title={assetMap.size > 0 ? "Select an asset and amount": "Assets Loading..."}>

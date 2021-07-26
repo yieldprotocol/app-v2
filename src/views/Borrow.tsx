@@ -200,11 +200,10 @@ const Borrow = () => {
           <Box fill pad="large" gap="medium">
             {stepPosition === 0 && ( // INITIAL STEP
               <Box gap="medium">
-                {/* <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }} > */}
-                <Box direction="row" gap="small" align="center" pad="medium">
-                  {/* <YieldMark />
-                  <Text>BORROW</Text> */}
-                </Box>
+              <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
+                {/* <YieldMark height='1em' startColor='grey' endColor='grey' /> */}
+                <Text color='grey'>BORROW</Text>
+              </Box>
 
                 <SectionWrap title={assetMap.size > 0 ? "Select an asset and amount": "Assets Loading..."}>
                   <Box direction="row" gap="small" fill="horizontal" align="start">
