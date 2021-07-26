@@ -10,6 +10,10 @@ const StyledBox = styled(Box)`
   :hover {
     transform: scale(1.5);
   }
+  :active {
+    transform: scale(1.1);
+  }
+
 `;
 
 function ExitButton({ action }: { action: () => void }) {
