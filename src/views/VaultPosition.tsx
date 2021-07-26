@@ -3,7 +3,7 @@ import { Box, Button, ResponsiveContext, Select, Text, TextInput } from 'grommet
 import { ethers } from 'ethers';
 import { useHistory } from 'react-router-dom';
 
-import { FiLock, FiClock, FiTrendingUp, FiLogOut, FiXCircle, FiPlusCircle } from 'react-icons/fi';
+import { FiLock, FiClock, FiTrendingUp, FiLogOut, FiXCircle, FiPlusCircle, FiAlertTriangle } from 'react-icons/fi';
 import { abbreviateHash, cleanValue, getTxCode } from '../utils/appUtils';
 import { UserContext } from '../contexts/UserContext';
 import InputWrap from '../components/wraps/InputWrap';
@@ -25,6 +25,7 @@ import YieldHistory from '../components/YieldHistory';
 import TransactButton from '../components/buttons/TransactButton';
 import CancelButton from '../components/buttons/CancelButton';
 import VaultDropSelector from '../components/selectors/VaultDropSelector';
+import ExitButton from '../components/buttons/ExitButton';
 
 const Vault = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -78,15 +79,18 @@ const Vault = ({ close }: { close: () => void }) => {
 
   const [repayDisabled, setRepayDisabled] = useState<boolean>(true);
 
-  const [actionActive, setActionActive] = useState<any>({ text: 'Repay', index: 0 });
+  const [actionActive, setActionActive] = useState<any>(selectedVault?.isActive ? { index: 0 } : { index: 3 });
   // const [rollDisabled, setRollDisabled] = useState<boolean>(true);
 
   const [mergeData, setMergeData] = useState<any>({ toVault: null, ink: '', art: '' });
 
+  const [destroyDisabled, setDestroyDisabled] = useState<boolean>(true);
+  const [destroyInput, setDestroyInput] = useState<string>('');
+
   const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
 
   /* HOOK FNS */
-  const { repay, borrow, rollDebt, transfer, merge } = useBorrowActions();
+  const { repay, borrow, rollDebt, transfer, merge, destroy } = useBorrowActions();
   const { addCollateral, removeCollateral } = useCollateralActions();
 
   useEffect(() => {
@@ -146,7 +150,18 @@ const Vault = ({ close }: { close: () => void }) => {
     setMergeData((fData: any) => ({ ...fData, toVault: vault }));
   };
 
-  console.log(mergeData);
+  const handleDestroy = () => {
+    selectedVault && destroy(selectedVault);
+  };
+
+  const handleDestroyInputChange = (event: any) => {
+    const {
+      target: { value },
+    } = event;
+
+    setDestroyInput(value);
+    value === selectedVault?.displayName ? setDestroyDisabled(false) : setDestroyDisabled(true);
+  };
 
   /* SET MAX VALUES */
 
@@ -237,31 +252,48 @@ const Vault = ({ close }: { close: () => void }) => {
                 <Text size="small"> {selectedVault?.id} </Text>
               </Box>
             </Box>
-            <FiLogOut onClick={() => close()} />
+            <ExitButton action={() => close()} />
           </Box>
 
-          <SectionWrap>
-            <Box gap="small">
-              <InfoBite
-                label="Vault debt + interest:"
-                value={`${selectedVault?.art_} ${vaultBase?.symbol}`}
-                icon={<FiTrendingUp />}
-              />
-              <InfoBite
-                label="Maturity date:"
-                value={`${vaultSeries?.displayName}`}
-                icon={<FiClock color={vaultSeries?.color} />}
-              />
-              <InfoBite
-                label="Collateral posted:"
-                value={`${selectedVault?.ink_} ${vaultIlk?.symbol} ( ${collateralizationPercent} %)`}
-                icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
-              />
-            </Box>
-          </SectionWrap>
+          {selectedVault?.isActive ? (
+            <SectionWrap>
+              <Box gap="small">
+                <InfoBite
+                  label="Vault debt + interest:"
+                  value={`${selectedVault?.art_} ${vaultBase?.symbol}`}
+                  icon={<FiTrendingUp />}
+                />
+                <InfoBite
+                  label="Maturity date:"
+                  value={`${vaultSeries?.displayName}`}
+                  icon={<FiClock color={vaultSeries?.color} />}
+                />
+                <InfoBite
+                  label="Collateral posted:"
+                  value={`${selectedVault?.ink_} ${vaultIlk?.symbol} ( ${collateralizationPercent} %)`}
+                  icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
+                />
+              </Box>
+            </SectionWrap>
+          ) : (
+            <SectionWrap>
+              <Box fill align="center" justify="center">
+                <Box direction="row" pad="medium" gap="small" align="center">
+                  <FiAlertTriangle size="3em" />
+                  <Box gap="xsmall">
+                    <Text>This account no longer controls this vault</Text>
+                  </Box>
+                </Box>
+
+                <Box pad={{ horizontal: 'medium' }}>
+                  <Text size="xsmall">Vault {selectedVault?.id} has either been deleted or transfered.</Text>
+                </Box>
+              </Box>
+            </SectionWrap>
+          )}
         </Box>
 
-        <Box>
+        <Box height={{ min: '250px' }}>
           <Box elevation="xsmall" round="xsmall">
             <Select
               dropProps={{ round: 'xsmall' }}
@@ -279,6 +311,7 @@ const Vault = ({ close }: { close: () => void }) => {
               valueKey="index"
               value={actionActive}
               onChange={({ option }) => setActionActive(option)}
+              disabled={selectedVault?.isActive ? undefined : [0, 1, 2, 4, 5]}
             />
           </Box>
 
@@ -306,14 +339,11 @@ const Vault = ({ close }: { close: () => void }) => {
                   pad
                 >
                   <SectionWrap
-                    title="Review your repay transaction"
+                    title="Review transaction:"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
-                    <Box gap="medium" pad="small">
+                    <Box margin={{ top: 'medium' }}>
                       <InfoBite label="Repay Debt" icon={<FiClock />} value={`${repayInput} ${vaultBase?.symbol}`} />
-                      {/* <Text>
-                        Repay {repayInput} {vaultBase?.symbol} debt from {selectedVault?.displayName}{' '}
-                      </Text> */}
                     </Box>
                   </SectionWrap>
                 </ActiveTransaction>
@@ -339,14 +369,12 @@ const Vault = ({ close }: { close: () => void }) => {
                   pad
                 >
                   <SectionWrap
-                    title="Review your roll transaction"
+                    title="Review transaction:"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
-                    {/* <Text>
-                      Roll {rollInput} {vaultBase?.symbol} debt from {selectedVault?.displayName} to the{' '}
-                      {rollToSeries?.displayName} series.
-                    </Text> */}
-                    <InfoBite label="Roll Debt to Series" icon={<FiClock />} value={`${rollToSeries?.displayName}`} />
+                    <Box margin={{ top: 'medium' }}>
+                      <InfoBite label="Roll Debt to Series" icon={<FiClock />} value={`${rollToSeries?.displayName}`} />
+                    </Box>
                   </SectionWrap>
                 </ActiveTransaction>
               )}
@@ -396,23 +424,25 @@ const Vault = ({ close }: { close: () => void }) => {
                   pad
                 >
                   <SectionWrap
-                    title="Review your collateral transaction"
+                    title="Review transaction:"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
-                    {addCollatInput && (
-                      <InfoBite
-                        label="Add Collateral"
-                        icon={<FiPlusCircle />}
-                        value={`${addCollatInput} ${vaultIlk?.symbol}`}
-                      />
-                    )}
-                    {removeCollatInput && (
-                      <InfoBite
-                        label="Remove Collateral"
-                        icon={<FiPlusCircle />}
-                        value={`${removeCollatInput} ${vaultIlk?.symbol}`}
-                      />
-                    )}
+                    <Box margin={{ top: 'medium' }}>
+                      {addCollatInput && (
+                        <InfoBite
+                          label="Add Collateral"
+                          icon={<FiPlusCircle />}
+                          value={`${addCollatInput} ${vaultIlk?.symbol}`}
+                        />
+                      )}
+                      {removeCollatInput && (
+                        <InfoBite
+                          label="Remove Collateral"
+                          icon={<FiPlusCircle />}
+                          value={`${removeCollatInput} ${vaultIlk?.symbol}`}
+                        />
+                      )}
+                    </Box>
                   </SectionWrap>
                 </ActiveTransaction>
               )}
@@ -444,14 +474,16 @@ const Vault = ({ close }: { close: () => void }) => {
                   pad
                 >
                   <SectionWrap
-                    title="Review your transfer transaction"
+                    title="Review transaction:"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
-                    <InfoBite
-                      label="Transfer Vault to: "
-                      icon={<FiPlusCircle />}
-                      value={transferToAddressInput !== '' ? abbreviateHash(transferToAddressInput) : ''}
-                    />
+                    <Box margin={{ top: 'medium' }}>
+                      <InfoBite
+                        label="Transfer Vault to: "
+                        icon={<FiPlusCircle />}
+                        value={transferToAddressInput !== '' ? abbreviateHash(transferToAddressInput) : ''}
+                      />
+                    </Box>
                   </SectionWrap>
                 </ActiveTransaction>
               )}
@@ -532,9 +564,8 @@ const Vault = ({ close }: { close: () => void }) => {
                       plain
                       type="string"
                       placeholder="Type the name of the vault."
-                      // ref={(el:any) => { el && !repayOpen && !rateLockOpen && !mobile && el.focus(); setInputRef(el); }}
-                      value=""
-                      // onChange={(event:any) => setRepayInput(cleanValue(event.target.value))}
+                      value={destroyInput}
+                      onChange={(event) => handleDestroyInputChange(event)}
                     />
                   </InputWrap>
                 </Box>
@@ -542,18 +573,21 @@ const Vault = ({ close }: { close: () => void }) => {
 
               {stepPosition[actionActive.index] !== 0 && (
                 <ActiveTransaction
-                  txCode={(selectedVault && getTxCode(ActionCodes.REPAY, selectedVault?.id)) || ''}
+                  txCode={(selectedVault && getTxCode(ActionCodes.DELETE_VAULT, selectedVault?.id)) || ''}
                   pad
                 >
                   <SectionWrap
-                    title="Review your delete transaction"
+                    title="Review transaction:"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
-                    <InfoBite
-                      label="Pay back all debt and delete vault:"
-                      icon={<FiPlusCircle />}
-                      value={`${selectedVault?.displayName}`}
-                    />
+                    <Box margin={{ top: 'medium' }}>
+                      <InfoBite
+                        // label="Pay back all debt and delete vault:"
+                        label="Delete vault (vault must have 0 debt and 0 collateral):"
+                        icon={<FiPlusCircle />}
+                        value={destroyInput}
+                      />
+                    </Box>
                   </SectionWrap>
                 </ActiveTransaction>
               )}
@@ -563,11 +597,12 @@ const Vault = ({ close }: { close: () => void }) => {
       </Box>
 
       <ActionButtonWrap pad>
-        {stepPosition[actionActive.index] === 0 && actionActive.index !== 3 && (
+        {stepPosition[actionActive.index] === 0 && actionActive.index !== 3 && actionActive.index !== 5 && (
           <NextButton
             label={<Text size={mobile ? 'small' : undefined}> Next Step</Text>}
             onClick={() => handleStepper()}
             key="next"
+            disabled={!selectedVault?.isActive}
           />
         )}
 
@@ -627,12 +662,21 @@ const Vault = ({ close }: { close: () => void }) => {
           />
         )}
 
+        {actionActive.index === 6 && stepPosition[actionActive.index] === 0 && (
+          <NextButton
+            disabled={destroyDisabled}
+            label={<Text size={mobile ? 'small' : undefined}> Next Step</Text>}
+            onClick={() => handleStepper()}
+            key="next"
+          />
+        )}
+
         {actionActive.index === 6 && stepPosition[actionActive.index] !== 0 && (
           <TransactButton
             primary
-            label={<Text size={mobile ? 'small' : undefined}> Delete [todo] </Text>}
-            onClick={() => console.log('delete vault')}
-            disabled={repayDisabled}
+            disabled={destroyDisabled}
+            label={<Text size={mobile ? 'small' : undefined}> {`Delete ${selectedVault?.displayName}`} </Text>}
+            onClick={() => handleDestroy()}
           />
         )}
       </ActionButtonWrap>

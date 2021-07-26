@@ -110,10 +110,10 @@ const Lend = () => {
           {stepPosition === 0 && (
             <Box gap="medium">
               <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
-                <YieldMark />
-                <Text>LEND</Text>
+              {/* <YieldMark height='1em' startColor='grey' endColor='grey' /> */}
+                <Text color='grey'>LEND</Text>
               </Box>
-              <SectionWrap title="Select an asset and amount">
+              <SectionWrap title={assetMap.size > 0 ? "Select an asset and amount": "Assets Loading..."}>
                 <Box direction="row" gap="small" fill="horizontal" align="start">
                   <Box basis={mobile ? '50%' : '60%'}>
                     <InputWrap
@@ -141,7 +141,7 @@ const Lend = () => {
                 </Box>
               </SectionWrap>
 
-              <SectionWrap title="Select a series">
+              <SectionWrap title={seriesMap.size > 0 ? "Select a series": ''}>
                 <SeriesSelector inputValue={lendInput} actionType={ActionType.LEND} />
               </SectionWrap>
             </Box>
@@ -151,8 +151,8 @@ const Lend = () => {
             <Box gap="large">
               <BackButton action={() => setStepPosition(0)} />
 
-              <ActiveTransaction txCode={getTxCode(ActionCodes.LEND, selectedSeriesId)} size="LARGE">
-                <SectionWrap title="Review your transaction">
+              <ActiveTransaction txCode={getTxCode(ActionCodes.LEND, selectedSeriesId)} full>
+                <SectionWrap title="Review transaction:">
                   <Box
                     gap="small"
                     pad={{ horizontal: 'large', vertical: 'medium' }}

@@ -5,6 +5,7 @@ import { FiAlertTriangle, FiCheckCircle, FiClock, FiPenTool, FiX, FiXCircle } fr
 import { TxContext } from '../contexts/TxContext';
 import { TxState } from '../types';
 import { abbreviateHash } from '../utils/appUtils';
+import CopyWrap from './wraps/CopyWrap';
 
 const TransactionWidget = () => {
   const { txState } = useContext(TxContext);
@@ -35,8 +36,10 @@ const TransactionWidget = () => {
           <Box direction="row" gap="medium" align="center">
             <FiClock />
             <Box>
-            <Text size="small">Transaction Pending</Text>
-              <Text size="xsmall">{abbreviateHash(txArray[0].tx.hash)}</Text>
+              <Text size="small">Transaction Pending</Text>
+              <Text size="xsmall">
+                <CopyWrap hash={txArray[0].tx.hash}>{abbreviateHash(txArray[0].tx.hash, 6)} </CopyWrap>
+              </Text>
             </Box>
           </Box>
         </>

@@ -328,7 +328,7 @@ const ChainProvider = ({ children }: any) => {
                   oppStartColor,
                   oppEndColor,
                   oppTextColor,
-                  seriesMark: <YieldMark start={startColor} end={endColor} />,
+                  seriesMark: <YieldMark startColor={startColor} endColor={endColor} />,
 
                   // built-in helper functions:
                   getTimeTillMaturity: () => maturity - Math.round(new Date().getTime() / 1000),
@@ -387,6 +387,7 @@ const ChainProvider = ({ children }: any) => {
     const _chainId = chainId || lastChainId;
     /* cache the change of networkId */
     chainId && setLastChainId(chainId);
+    
     /* Connect the fallback */
     tried &&
       fallbackActivate(

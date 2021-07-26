@@ -222,14 +222,12 @@ export const useBorrowActions = () => {
   };
 
   const merge = async (vault: IVault, to: IVault, ink: string | undefined, art: string | undefined) => {
-    console.log('inhereeeeeeeeeee - nice');
     const txCode = getTxCode(ActionCodes.MERGE_VAULT, vault.id);
     const series = seriesMap.get(vault.seriesId);
     const base = assetMap.get(vault.baseId);
-    const _isDaiBased = DAI_BASED_ASSETS.includes(vault.baseId);
-
     const _ink = ink ? ethers.utils.parseEther(ink) : ethers.constants.Zero;
     const _art = art ? ethers.utils.parseEther(art) : ethers.constants.Zero;
+    const _isDaiBased = DAI_BASED_ASSETS.includes(vault.baseId);
 
     const permits: ICallData[] = await sign(
       [
@@ -255,15 +253,50 @@ export const useBorrowActions = () => {
         ignore: series.mature,
       },
     ];
-
     await transact('Ladle', calls, txCode);
     updateVaults([]);
   };
+
+  // TODO: #72 Refactor to include the ability to destroy when the vault has collateral and debt
+  const destroy = async (vault: IVault) => {
+    const txCode = getTxCode(ActionCodes.DELETE_VAULT, vault.id);
+    const series = seriesMap.get(vault.seriesId);
+    const base = assetMap.get(vault.baseId);
+    const _isDaiBased = DAI_BASED_ASSETS.includes(vault.baseId);
+
+    const permits: ICallData[] = await sign(
+      [
+        {
+          target: base,
+          spender: 'LADLE',
+          series,
+          type: _isDaiBased ? SignType.DAI : SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
+          message: 'Signing Dai Approval',
+          ignore: series.mature,
+        },
+      ],
+      txCode
+    );
+
+    const calls: ICallData[] = [
+      ...permits,
+      {
+        operation: LadleActions.Fn.DESTROY,
+        args: [vault.id] as LadleActions.Args.DESTROY,
+        series,
+        ignore: series.mature,
+      },
+    ];
+
+    await transact('Ladle', calls, txCode);
+  };
+
   return {
     borrow,
     repay,
     rollDebt,
     transfer,
     merge,
+    destroy,
   };
 };
