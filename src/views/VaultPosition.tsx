@@ -236,23 +236,19 @@ const Vault = ({ close }: { close: () => void }) => {
                 <Box direction="row" pad="medium" gap="small" align="center">
                   <FiAlertTriangle size="3em" />
                   <Box gap="xsmall">
-                    <Text>
-                      This account no longer controls this vault
-                    </Text>
+                    <Text>This account no longer controls this vault</Text>
                   </Box>
                 </Box>
 
                 <Box pad={{ horizontal: 'medium' }}>
-                  <Text size="xsmall">
-                    Vault {selectedVault?.id} has either been deleted or transfered.
-                  </Text>
+                  <Text size="xsmall">Vault {selectedVault?.id} has either been deleted or transfered.</Text>
                 </Box>
               </Box>
             </SectionWrap>
           )}
         </Box>
 
-        <Box>
+        <Box height={{ min: '250px' }}>
           <Box elevation="xsmall" round="xsmall">
             <Select
               dropProps={{ round: 'xsmall' }}
@@ -297,14 +293,11 @@ const Vault = ({ close }: { close: () => void }) => {
                   pad
                 >
                   <SectionWrap
-                    title="Review your repay transaction"
+                    title="Review transaction:"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
-                    <Box gap="medium" pad="small">
+                    <Box margin={{ top: 'medium' }}>
                       <InfoBite label="Repay Debt" icon={<FiClock />} value={`${repayInput} ${vaultBase?.symbol}`} />
-                      {/* <Text>
-                        Repay {repayInput} {vaultBase?.symbol} debt from {selectedVault?.displayName}{' '}
-                      </Text> */}
                     </Box>
                   </SectionWrap>
                 </ActiveTransaction>
@@ -330,14 +323,12 @@ const Vault = ({ close }: { close: () => void }) => {
                   pad
                 >
                   <SectionWrap
-                    title="Review your roll transaction"
+                    title="Review transaction:"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
-                    {/* <Text>
-                      Roll {rollInput} {vaultBase?.symbol} debt from {selectedVault?.displayName} to the{' '}
-                      {rollToSeries?.displayName} series.
-                    </Text> */}
-                    <InfoBite label="Roll Debt to Series" icon={<FiClock />} value={`${rollToSeries?.displayName}`} />
+                    <Box margin={{ top: 'medium' }}>
+                      <InfoBite label="Roll Debt to Series" icon={<FiClock />} value={`${rollToSeries?.displayName}`} />
+                    </Box>
                   </SectionWrap>
                 </ActiveTransaction>
               )}
@@ -387,23 +378,25 @@ const Vault = ({ close }: { close: () => void }) => {
                   pad
                 >
                   <SectionWrap
-                    title="Review your collateral transaction"
+                    title="Review transaction:"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
-                    {addCollatInput && (
-                      <InfoBite
-                        label="Add Collateral"
-                        icon={<FiPlusCircle />}
-                        value={`${addCollatInput} ${vaultIlk?.symbol}`}
-                      />
-                    )}
-                    {removeCollatInput && (
-                      <InfoBite
-                        label="Remove Collateral"
-                        icon={<FiPlusCircle />}
-                        value={`${removeCollatInput} ${vaultIlk?.symbol}`}
-                      />
-                    )}
+                    <Box margin={{ top: 'medium' }}>
+                      {addCollatInput && (
+                        <InfoBite
+                          label="Add Collateral"
+                          icon={<FiPlusCircle />}
+                          value={`${addCollatInput} ${vaultIlk?.symbol}`}
+                        />
+                      )}
+                      {removeCollatInput && (
+                        <InfoBite
+                          label="Remove Collateral"
+                          icon={<FiPlusCircle />}
+                          value={`${removeCollatInput} ${vaultIlk?.symbol}`}
+                        />
+                      )}
+                    </Box>
                   </SectionWrap>
                 </ActiveTransaction>
               )}
@@ -435,14 +428,16 @@ const Vault = ({ close }: { close: () => void }) => {
                   pad
                 >
                   <SectionWrap
-                    title="Review your transfer transaction"
+                    title="Review transaction:"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
+                    <Box margin={{ top: 'medium' }}>
                     <InfoBite
                       label="Transfer Vault to: "
                       icon={<FiPlusCircle />}
                       value={transferToAddressInput !== '' ? abbreviateHash(transferToAddressInput) : ''}
                     />
+                    </Box>
                   </SectionWrap>
                 </ActiveTransaction>
               )}
@@ -472,14 +467,16 @@ const Vault = ({ close }: { close: () => void }) => {
                   pad
                 >
                   <SectionWrap
-                    title="Review your delete transaction"
+                    title="Review transaction:"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
+                    <Box margin={{ top: 'medium' }}>
                     <InfoBite
                       label="Pay back all debt and delete vault:"
                       icon={<FiPlusCircle />}
                       value={`${selectedVault?.displayName}`}
                     />
+                    </Box>
                   </SectionWrap>
                 </ActiveTransaction>
               )}

@@ -151,8 +151,8 @@ const Lend = () => {
             <Box gap="large">
               <BackButton action={() => setStepPosition(0)} />
 
-              <ActiveTransaction txCode={getTxCode(ActionCodes.LEND, selectedSeriesId)} size="LARGE">
-                <SectionWrap title="Review your transaction">
+              <ActiveTransaction txCode={getTxCode(ActionCodes.LEND, selectedSeriesId)} full>
+                <SectionWrap title="Review transaction:">
                   <Box
                     gap="small"
                     pad={{ horizontal: 'large', vertical: 'medium' }}

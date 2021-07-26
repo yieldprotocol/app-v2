@@ -5,47 +5,40 @@ import AltText from '../texts/AltText';
 
 interface ISectionWrap {
   title?: string | null;
-  subtitle?: string | null;
   border?: BorderType | undefined;
   disabled?: boolean;
-  collapsible?: boolean;
   rightAction?: any;
   children: any;
 }
 
-function SectionWrap({ title, subtitle, border, disabled, collapsible, children, rightAction }: ISectionWrap) {
+function SectionWrap({ title, border, disabled, children, rightAction }: ISectionWrap) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-  const [open, setOpen] = useState<boolean>(false);
 
   return (
-    <Box border={border}>
+    <Box border={border} justify='center'>
       {title && (
         <Box
           pad="xsmall"
           direction="row"
           fill="horizontal"
           justify="between"
-          onClick={() => collapsible && setOpen(!open)}
           align="center"
         >
           <AltText size={mobile ? 'small' : 'small'} color={disabled ? 'text-xweak' : 'text-weak'}>
             {title}
           </AltText>
-          {collapsible && <Box> {open ? 'close' : 'open'} </Box>}
           {rightAction}
         </Box>
       )}
-      {collapsible ? <Collapsible open={open}> {children} </Collapsible> : children}
+      {children}
     </Box>
   );
 }
 
 SectionWrap.defaultProps = {
   title: null,
-  subtitle: null,
   border: undefined,
   disabled: false,
-  collapsible: false,
   rightAction: undefined,
 };
 export default SectionWrap;

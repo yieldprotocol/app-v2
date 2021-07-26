@@ -211,11 +211,13 @@ const LendPosition = ({ close }: { close: () => void }) => {
                     title="Review your remove transaction"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
+                    <Box margin={{ top: 'medium' }}>
                     <InfoBite
                       label="Close Position"
                       icon={<FiMinusCircle />}
                       value={`${closeInput} ${selectedBase?.symbol}`}
                     />
+                    </Box>
                   </SectionWrap>
                 </ActiveTransaction>
               )}
@@ -258,11 +260,13 @@ const LendPosition = ({ close }: { close: () => void }) => {
                     title="Review your roll transaction"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
+                    <Box margin={{ top: 'medium' }}>
                     <InfoBite 
                       label="Roll To Series" 
                       icon={<FiPlusCircle />} 
                       value={` Roll  ${rollInput} ${selectedBase?.symbol} to ${rollToSeries?.displayName}`} 
                     />
+                    </Box>
                   </SectionWrap>
                 </ActiveTransaction>
               )}

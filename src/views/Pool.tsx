@@ -148,7 +148,7 @@ function Pool() {
             <Box gap="large">
               <BackButton action={() => setStepPosition(0)} />
 
-              <ActiveTransaction txCode={getTxCode(ActionCodes.ADD_LIQUIDITY, selectedSeriesId)} size="LARGE">
+              <ActiveTransaction txCode={getTxCode(ActionCodes.ADD_LIQUIDITY, selectedSeriesId)} full>
                 <Box gap="large">
                   {!selectedSeries?.seriesIsMature && (
                     <SectionWrap>
@@ -169,7 +169,7 @@ function Pool() {
                     </SectionWrap>
                   )}
 
-                  <SectionWrap title="Review your transaction">
+                  <SectionWrap title="Review transaction:">
                     <Box
                       gap="small"
                       pad={{ horizontal: 'large', vertical: 'medium' }}

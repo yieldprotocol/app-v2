@@ -344,9 +344,9 @@ const Borrow = () => {
               <Box gap="large">
                 <BackButton action={() => setStepPosition(1)} />
 
-                <ActiveTransaction txCode={getTxCode(ActionCodes.BORROW, selectedSeriesId)} size="LARGE">
-                  <Box fill justify="between">
-                    <SectionWrap title="Review your transaction">
+                <ActiveTransaction txCode={getTxCode(ActionCodes.BORROW, selectedSeriesId)} full >
+
+                    <SectionWrap title="Review transaction:">
                       <Box
                         gap="small"
                         pad={{ horizontal: 'large', vertical: 'medium' }}
@@ -379,30 +379,13 @@ const Borrow = () => {
                         )}
                       </Box>
                     </SectionWrap>
-                  </Box>
+
                 </ActiveTransaction>
               </Box>
             )}
           </Box>
 
           <Box>
-            {stepPosition === 1 && (
-              <SectionWrap>
-                {/* <Box pad={{ horizontal:'large' }} direction="row" gap="medium" fill>
-                  <Gauge value={parseFloat(collateralizationPercent!)} size="7em" />
-                  <Box basis="40%">
-                    <Text size="small"> Collateralization </Text>
-                    <Text size="xlarge">
-                      {' '}
-                      {parseFloat(collateralizationPercent!) > 10000
-                        ? nFormatter(parseFloat(collateralizationPercent!), 2)
-                        : parseFloat(collateralizationPercent!)}{' '}
-                      %{' '}
-                    </Text>
-                  </Box>
-                </Box> */}
-              </SectionWrap>
-            )}
 
             {stepPosition === 2 && (
               <SectionWrap>

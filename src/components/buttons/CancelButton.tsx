@@ -22,12 +22,12 @@ function CancelButton({ action }: { action: () => void }) {
       align="center"
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
-      // pad={{ horizontal:'large' }}
     >
-      <FiXCircle color={hover ? '#333333' : 'grey'} size='0.75em' />
+      
       <Text size="xsmall" color={hover ? '#333333' : 'grey'}>
         cancel
       </Text>
+      <FiXCircle color={hover ? '#333333' : 'grey'} size='0.75em' />
     </StyledBox>
   );
 }
