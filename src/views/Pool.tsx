@@ -113,7 +113,7 @@ function Pool() {
           {stepPosition === 0 && (
             <Box gap="medium">
               <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
-              <YieldMark height='1em' startColor='grey' endColor='grey' />
+              {/* <YieldMark height='1em' startColor='grey' endColor='grey' /> */}
                 <Text color='grey'>POOL</Text>
               </Box>
 

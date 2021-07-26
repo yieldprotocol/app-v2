@@ -110,7 +110,7 @@ const Lend = () => {
           {stepPosition === 0 && (
             <Box gap="medium">
               <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
-              <YieldMark height='1em' startColor='grey' endColor='grey' />
+              {/* <YieldMark height='1em' startColor='grey' endColor='grey' /> */}
                 <Text color='grey'>LEND</Text>
               </Box>
               <SectionWrap title={assetMap.size > 0 ? "Select an asset and amount": "Assets Loading..."}>

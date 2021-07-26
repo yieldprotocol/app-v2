@@ -201,7 +201,7 @@ const Borrow = () => {
             {stepPosition === 0 && ( // INITIAL STEP
               <Box gap="medium">
               <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
-                <YieldMark height='1em' startColor='grey' endColor='grey' />
+                {/* <YieldMark height='1em' startColor='grey' endColor='grey' /> */}
                 <Text color='grey'>BORROW</Text>
               </Box>
 
