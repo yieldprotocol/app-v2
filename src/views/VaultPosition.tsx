@@ -3,7 +3,16 @@ import { Box, Button, ResponsiveContext, Select, Text, TextInput } from 'grommet
 import { ethers } from 'ethers';
 import { useHistory } from 'react-router-dom';
 
-import { FiLock, FiClock, FiTrendingUp, FiLogOut, FiXCircle, FiPlusCircle, FiAlertTriangle } from 'react-icons/fi';
+import {
+  FiLock,
+  FiClock,
+  FiTrendingUp,
+  FiLogOut,
+  FiXCircle,
+  FiPlusCircle,
+  FiAlertTriangle,
+  FiArrowRight,
+} from 'react-icons/fi';
 import { abbreviateHash, cleanValue, getTxCode } from '../utils/appUtils';
 import { UserContext } from '../contexts/UserContext';
 import InputWrap from '../components/wraps/InputWrap';
@@ -82,7 +91,16 @@ const Vault = ({ close }: { close: () => void }) => {
   const [actionActive, setActionActive] = useState<any>(selectedVault?.isActive ? { index: 0 } : { index: 3 });
   // const [rollDisabled, setRollDisabled] = useState<boolean>(true);
 
-  const initialMergeData = { toVault: null, ink: null, art: null, inkError: false, artError: false };
+  const initialMergeData = {
+    toVault: null,
+    ink: selectedVault?.ink_,
+    art: selectedVault?.art_,
+    inkError: false,
+    artError: false,
+    advancedMergeToggle: false,
+    totalMergedInk: null,
+    totalMergedArt: null,
+  };
   const [mergeData, setMergeData] = useState<any>(initialMergeData);
 
   const [destroyDisabled, setDestroyDisabled] = useState<boolean>(true);
@@ -258,6 +276,18 @@ const Vault = ({ close }: { close: () => void }) => {
     selectedVault && userActions.setSelectedBase(selectedVault.baseId);
     selectedVault && userActions.setSelectedIlk(selectedVault.ilkId);
   }, [vaultMap, selectedVault]);
+
+  // update data for vault to merge with
+  useEffect(() => {
+    if (mergeData.toVault) {
+      const toVault = vaultMap.get(mergeData.toVault.id);
+      const mergedInkNum = Number(mergeData?.ink) + Number(toVault?.ink_);
+      const mergedArtNum = Number(mergeData?.art) + Number(toVault?.art_);
+      const totalMergedInk = cleanValue(mergedInkNum.toString(), 2);
+      const totalMergedArt = cleanValue(mergedArtNum.toString(), 2);
+      setMergeData((fData: any) => ({ ...fData, totalMergedInk, totalMergedArt }));
+    }
+  }, [vaultMap, mergeData.toVault, mergeData.ink, mergeData.art]);
 
   return (
     <CenterPanelWrap>
@@ -511,7 +541,7 @@ const Vault = ({ close }: { close: () => void }) => {
           {actionActive.index === 5 && (
             <Box>
               {stepPosition[actionActive.index] === 0 && (
-                <Box gap="xsmall">
+                <Box pad={{ vertical: 'medium' }} gap="small">
                   <VaultDropSelector
                     vaults={matchingVaults}
                     handleSelect={handleMergeVaultSelect}
@@ -520,36 +550,38 @@ const Vault = ({ close }: { close: () => void }) => {
                     displayName="Select Vault"
                     placeholder="Select Vault"
                   />
-                  <Box gap="xsmall">
-                    <Box direction="row" justify="between" align="center">
-                      Collateral
-                      <InputWrap action={() => console.log('maxAction')} isError={mergeData.inkError}>
-                        <TextInput
-                          disabled={false}
-                          name="ink"
-                          plain
-                          type="number"
-                          placeholder="COLLATERAL TO MERGE"
-                          value={mergeData.ink || ''}
-                          onChange={(event: any) => handleMergeDataChange(event)}
-                        />
-                      </InputWrap>
+                  {mergeData.advancedMergeToggle && (
+                    <Box gap="xsmall">
+                      <Box direction="row" justify="between" align="center">
+                        Collateral
+                        <InputWrap action={() => console.log('maxAction')} isError={mergeData.inkError}>
+                          <TextInput
+                            disabled={false}
+                            name="ink"
+                            plain
+                            type="number"
+                            placeholder="COLLATERAL TO MERGE"
+                            value={mergeData.ink || ''}
+                            onChange={(event: any) => handleMergeDataChange(event)}
+                          />
+                        </InputWrap>
+                      </Box>
+                      <Box direction="row" justify="between" align="center">
+                        Debt
+                        <InputWrap action={() => console.log('maxAction')} isError={mergeData.artError}>
+                          <TextInput
+                            disabled={false}
+                            name="art"
+                            plain
+                            type="number"
+                            placeholder="DEBT TO MERGE"
+                            value={mergeData.art || ''}
+                            onChange={(event: any) => handleMergeDataChange(event)}
+                          />
+                        </InputWrap>
+                      </Box>
                     </Box>
-                    <Box direction="row" justify="between" align="center">
-                      Debt
-                      <InputWrap action={() => console.log('maxAction')} isError={mergeData.artError}>
-                        <TextInput
-                          disabled={false}
-                          name="art"
-                          plain
-                          type="number"
-                          placeholder="DEBT TO MERGE"
-                          value={mergeData.art || ''}
-                          onChange={(event: any) => handleMergeDataChange(event)}
-                        />
-                      </InputWrap>
-                    </Box>
-                  </Box>
+                  )}
                 </Box>
               )}
 
@@ -562,11 +594,18 @@ const Vault = ({ close }: { close: () => void }) => {
                     title="Review your merge transaction"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
-                    <InfoBite
-                      label={`Merge ${selectedVault?.displayName} with ${mergeData.toVault.displayName}: `}
-                      icon={<FiPlusCircle />}
-                      value={`Collateral: ${mergeData.ink}, Debt: ${mergeData.art}`}
-                    />
+                    <Box gap="small">
+                      <InfoBite
+                        label={`Merge ${selectedVault?.displayName} collateral with ${mergeData.toVault.displayName}: `}
+                        icon={<FiArrowRight />}
+                        value={`Updated ${mergeData.toVault.displayName} Collateral: ${mergeData.totalMergedInk}`}
+                      />
+                      <InfoBite
+                        label={`Merge ${selectedVault?.displayName} debt with ${mergeData.toVault.displayName}: `}
+                        icon={<FiArrowRight />}
+                        value={`Updated ${mergeData.toVault.displayName} Debt: ${mergeData.totalMergedArt}`}
+                      />
+                    </Box>
                   </SectionWrap>
                 </ActiveTransaction>
               )}
