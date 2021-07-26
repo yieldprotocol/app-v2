@@ -23,6 +23,7 @@ import YieldMark from '../components/logos/YieldMark';
 import CancelButton from '../components/buttons/CancelButton';
 import TransactButton from '../components/buttons/TransactButton';
 import YieldHistory from '../components/YieldHistory';
+import ExitButton from '../components/buttons/ExitButton';
 
 const PoolPosition = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -134,7 +135,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                 <Text size="small"> {abbreviateHash(selectedSeries?.fyTokenAddress!, 5)}</Text>
               </Box>
             </Box>
-            <FiLogOut onClick={() => close()} />
+            <ExitButton action={() => close()} />
           </Box>
 
           <SectionWrap>
@@ -144,7 +145,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
               <InfoBite
                 label="Liquidity Balance"
                 value={cleanValue(selectedSeries?.poolTokens_, 6)}
-                icon={<YieldMark height="1em" start={selectedSeries?.startColor} />}
+                icon={<YieldMark height="1em" startColor={selectedSeries?.startColor} />}
               />
               {/* <InfoBite 
                 label="Total Pool Liquidity"
@@ -164,11 +165,11 @@ const PoolPosition = ({ close }: { close: () => void }) => {
           </SectionWrap>
         </Box>
 
-        <Box>
+        <Box height={{ min: '250px' }}>
           <Box elevation="xsmall" round="xsmall">
             <Select
               plain
-              dropProps={{ round:'xsmall' }}
+              dropProps={{ round: 'xsmall' }}
               options={[
                 { text: 'Remove Liquidity', index: 0 },
                 { text: 'Roll Liquidiy', index: 1 },
@@ -204,11 +205,13 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                     title="Review your remove transaction"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
-                    < InfoBite
-                      label="Remove Liquidity"
-                      icon={<FiMinusCircle />}
-                      value={`${removeInput} liquidity tokens`}
-                    />
+                    <Box margin={{ top: 'medium' }}>
+                      <InfoBite
+                        label="Remove Liquidity"
+                        icon={<FiMinusCircle />}
+                        value={`${removeInput} liquidity tokens`}
+                      />
+                    </Box>
                   </SectionWrap>
                 </ActiveTransaction>
               )}
@@ -216,10 +219,10 @@ const PoolPosition = ({ close }: { close: () => void }) => {
           )}
 
           {actionActive.index === 1 && (
-            <Box margin={{ top:'medium' }}>
+            <Box margin={{ top: 'medium' }}>
               {stepPosition[actionActive.index] === 0 && (
-                <Box align="center" fill gap='medium'>
-                 <Box fill>
+                <Box align="center" fill gap="medium">
+                  <Box fill>
                     <InputWrap action={() => console.log('maxAction')} isError={rollError}>
                       <TextInput
                         plain
@@ -232,11 +235,11 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                     </InputWrap>
                   </Box>
                   <Box fill>
-                  <SeriesSelector
-                    selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
-                    actionType={ActionType.POOL}
-                    cardLayout={false}
-                  />
+                    <SeriesSelector
+                      selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
+                      actionType={ActionType.POOL}
+                      cardLayout={false}
+                    />
                   </Box>
                 </Box>
               )}
@@ -247,11 +250,13 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                     title="Review your roll transaction"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
-                    < InfoBite
-                      label="Roll Liquidity"
-                      icon={<FiPlusCircle />}
-                      value={`${rollInput} Liquidity Tokens to ${rollToSeries?.displayName} `}
-                    />
+                    <Box margin={{ top: 'medium' }}>
+                      <InfoBite
+                        label="Roll Liquidity"
+                        icon={<FiPlusCircle />}
+                        value={`${rollInput} Liquidity Tokens to ${rollToSeries?.displayName} `}
+                      />
+                    </Box>
                   </SectionWrap>
                 </ActiveTransaction>
               )}

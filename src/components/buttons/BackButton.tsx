@@ -10,6 +10,9 @@ const StyledBox = styled(Box)`
   :hover {
     transform: scale(1.01);
   }
+  :active {
+    transform: scale(1);
+  }
 `;
 
 function BackButton({ action }: { action: () => void }) {

@@ -15,7 +15,6 @@ import { ActionCodes, ActionType, ISeries, IUserContext } from '../types';
 import MaxButton from '../components/buttons/MaxButton';
 import InfoBite from '../components/InfoBite';
 import ActiveTransaction from '../components/ActiveTransaction';
-import TabWrap from '../components/wraps/TabWrap';
 import BackButton from '../components/buttons/BackButton';
 import PositionAvatar from '../components/PositionAvatar';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
@@ -23,6 +22,7 @@ import NextButton from '../components/buttons/NextButton';
 import CancelButton from '../components/buttons/CancelButton';
 import TransactButton from '../components/buttons/TransactButton';
 import YieldHistory from '../components/YieldHistory';
+import ExitButton from '../components/buttons/ExitButton';
 
 const LendPosition = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -141,7 +141,8 @@ const LendPosition = ({ close }: { close: () => void }) => {
                 <Text size="small"> {abbreviateHash(selectedSeries?.fyTokenAddress!, 5)}</Text>
               </Box>
             </Box>
-            <FiLogOut onClick={() => close()} />
+            <ExitButton action={() => close()} />
+
           </Box>
 
           <SectionWrap>
@@ -166,7 +167,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
           </SectionWrap>
         </Box>
 
-        <Box>
+        <Box height={{ min: '250px' }}>
           <Box elevation="xsmall" round="xsmall">
             <Select
               plain
@@ -212,11 +213,13 @@ const LendPosition = ({ close }: { close: () => void }) => {
                     title="Review your remove transaction"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
+                    <Box margin={{ top: 'medium' }}>
                     <InfoBite
                       label="Close Position"
                       icon={<FiMinusCircle />}
                       value={`${closeInput} ${selectedBase?.symbol}`}
                     />
+                    </Box>
                   </SectionWrap>
                 </ActiveTransaction>
               )}
@@ -259,11 +262,13 @@ const LendPosition = ({ close }: { close: () => void }) => {
                     title="Review your roll transaction"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
+                    <Box margin={{ top: 'medium' }}>
                     <InfoBite 
                       label="Roll To Series" 
                       icon={<FiPlusCircle />} 
                       value={` Roll  ${rollInput} ${selectedBase?.symbol} to ${rollToSeries?.displayName}`} 
                     />
+                    </Box>
                   </SectionWrap>
                 </ActiveTransaction>
               )}

@@ -135,7 +135,7 @@ export interface IAsset extends IAssetRoot {
 
 export interface IVault extends IVaultRoot {
   owner: string;
-  isActive:boolean;
+  isActive: boolean;
   ink: BigNumber;
   art: BigNumber;
   ink_: string;
