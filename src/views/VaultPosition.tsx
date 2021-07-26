@@ -101,10 +101,11 @@ const Vault = ({ close }: { close: () => void }) => {
         v.ilkId === selectedVault?.ilkId &&
         v.baseId === selectedVault.baseId &&
         v.seriesId === selectedVault.seriesId &&
+        v.id !== selectedVault.id &&
         v.isActive
     );
     setMatchingVaults(_matchingVaults);
-  }, [vaultMap, selectedVault?.ilkId, selectedVault?.baseId, selectedVault?.seriesId]);
+  }, [vaultMap, selectedVault?.ilkId, selectedVault?.baseId, selectedVault?.seriesId, selectedVault?.id]);
 
   /* LOCAL FNS */
   const handleStepper = (back: boolean = false) => {
