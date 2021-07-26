@@ -330,7 +330,7 @@ const Vault = ({ close }: { close: () => void }) => {
               valueKey="index"
               value={actionActive}
               onChange={({ option }) => setActionActive(option)}
-              disabled={selectedVault?.isActive ? undefined : [0, 1, 2, 4, 5,6]}
+              disabled={selectedVault?.isActive ? undefined : [0, 1, 2, 4, 5, 6]}
             />
           </Box>
 
@@ -405,28 +405,36 @@ const Vault = ({ close }: { close: () => void }) => {
               {stepPosition[actionActive.index] === 0 && (
                 <Box fill gap="small" pad="small">
                   <Box direction="row" justify="between" align="center">
-                    Add
+                    <Text color={removeCollatInput ? 'text-xweak' : 'text'}> Add </Text>
                     <InputWrap action={() => console.log('maxAction')} isError={addCollatError}>
                       <TextInput
                         disabled={removeCollatInput}
                         plain
                         type="number"
-                        placeholder="ADD"
+                        placeholder="Collateral to Add"
                         value={addCollatInput || ''}
                         onChange={(event: any) => setAddCollatInput(cleanValue(event.target.value))}
                       />
+                      <MaxButton 
+                        disabled={removeCollatInput}
+                        action={() => setAddCollatInput(maxCollat)} 
+                        />
                     </InputWrap>
                   </Box>
                   <Box direction="row" justify="between" align="center">
-                    Remove
+                    <Text color={addCollatInput ? 'text-xweak' : 'text'}>Remove</Text>
                     <InputWrap action={() => console.log('maxAction')} isError={removeCollatError}>
                       <TextInput
                         disabled={addCollatInput}
                         plain
                         type="number"
-                        placeholder="REMOVE"
+                        placeholder="Collateral to remove"
                         value={removeCollatInput || ''}
                         onChange={(event: any) => setRemoveCollatInput(cleanValue(event.target.value))}
+                      />
+                      <MaxButton
+                        disabled={!!addCollatInput}
+                        action={() => setRemoveCollatInput(ethers.utils.formatEther(selectedVault?.ink!))}
                       />
                     </InputWrap>
                   </Box>
