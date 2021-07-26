@@ -38,6 +38,7 @@ import YieldMark from '../components/logos/YieldMark';
 import TransactButton from '../components/buttons/TransactButton';
 import { useApr } from '../hooks/aprHook';
 import PositionAvatar from '../components/PositionAvatar';
+import VaultDropSelector from '../components/selectors/VaultDropSelector';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -165,7 +166,8 @@ const Borrow = () => {
     if (selectedBase && selectedSeries && selectedIlk) {
       const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
       const _matchingVaults = arr.filter(
-        (v: IVault) => v.ilkId === selectedIlk.id && v.baseId === selectedBase.id && v.seriesId === selectedSeries.id
+        (v: IVault) =>
+          v.ilkId === selectedIlk.id && v.baseId === selectedBase.id && v.seriesId === selectedSeries.id && v.isActive
       );
       setMatchingVaults(_matchingVaults);
       // reset the selected vault on every change
@@ -200,12 +202,12 @@ const Borrow = () => {
           <Box fill pad="large" gap="medium">
             {stepPosition === 0 && ( // INITIAL STEP
               <Box gap="medium">
-              <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
-                {/* <YieldMark height='1em' startColor='grey' endColor='grey' /> */}
-                <Text color='grey'>BORROW</Text>
-              </Box>
+                <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
+                  {/* <YieldMark height='1em' startColor='grey' endColor='grey' /> */}
+                  <Text color="grey">BORROW</Text>
+                </Box>
 
-                <SectionWrap title={assetMap.size > 0 ? "Select an asset and amount": "Assets Loading..."}>
+                <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}>
                   <Box direction="row" gap="small" fill="horizontal" align="start">
                     <Box basis={mobile ? '50%' : '60%'}>
                       <InputWrap action={() => console.log('maxAction')} isError={borrowInputError}>
@@ -225,7 +227,7 @@ const Borrow = () => {
                   </Box>
                 </SectionWrap>
 
-                <SectionWrap title={seriesMap.size > 0 ? "Select a series": ''} >
+                <SectionWrap title={seriesMap.size > 0 ? 'Select a series' : ''}>
                   <SeriesSelector inputValue={borrowInput} actionType={ActionType.BORROW} />
                 </SectionWrap>
               </Box>
@@ -265,61 +267,18 @@ const Borrow = () => {
                     </Box>
                   </SectionWrap>
 
-                  <SectionWrap title="Add to an exisiting vault" disabled={matchingVaults.length < 1}>
-                    <Box round="xsmall" gap="small" justify="between" elevation="xsmall">
-                      <Select
-                        plain
-                        dropProps={{ round: 'xsmall' }}
-                        disabled={matchingVaults.length < 1}
-                        options={[{ displayName: 'Create new vault' }, ...matchingVaults]}
-                        labelKey={(x: IVault) => x.displayName}
-                        placeholder="Create new vault"
-                        value={vaultToUse || { displayName: 'Create new vault' }}
-                        onChange={({ option }) => setVaultToUse(option)}
-                        valueLabel={
-                          vaultToUse?.id ? (
-                            <Box pad="small" direction="row" gap="medium" align="center">
-                              <PositionAvatar position={vaultToUse} condensed />
-                              <Text>{vaultToUse?.displayName}</Text>
-                            </Box>
-                          ) : (
-                            <Box pad="small">
-                              <Text color="text-xweak" size="small">
-                                Create New Vault
-                              </Text>
-                            </Box>
-                          )
-                        }
-                        // eslint-disable-next-line react/no-children-prop
-                        children={(x: IVault) => (
-                          <>
-                            {x.id ? (
-                              <Box pad="xsmall" direction="row" gap="small" align="center">
-                                <PositionAvatar position={x} condensed />
-                                <Box>
-                                  <Text size="small" weight={700}>
-                                    {x.displayName}
-                                  </Text>
-                                  <Box direction="row" gap="small">
-                                    <Text size="xsmall"> {x.art_} Debt</Text>
-                                    <Text size="xsmall">
-                                      {x.ink_} {selectedIlk?.symbol} posted
-                                    </Text>
-                                  </Box>
-                                </Box>
-                              </Box>
-                            ) : (
-                              <Box pad="small" direction="row" gap="small" align="center">
-                                <Text color="text-weak" size="small">
-                                  {x.displayName}
-                                </Text>
-                              </Box>
-                            )}
-                          </>
-                        )}
+                  {matchingVaults.length > 0 && (
+                    <SectionWrap title="Add to an exisiting vault" disabled={matchingVaults.length < 1}>
+                      <VaultDropSelector
+                        vaults={matchingVaults}
+                        handleSelect={(option: any) => setVaultToUse(option)}
+                        itemSelected={vaultToUse}
+                        selectedIlk={selectedIlk}
+                        displayName="Create New Vault"
+                        placeholder="Create New Vault"
                       />
-                    </Box>
-                  </SectionWrap>
+                    </SectionWrap>
+                  )}
 
                   <SectionWrap>
                     <Box direction="row" gap="large" fill>
@@ -341,52 +300,48 @@ const Borrow = () => {
 
             {stepPosition === 2 && ( // REVIEW
               <Box gap="large">
-                
                 <BackButton action={() => setStepPosition(1)} />
 
-                <ActiveTransaction txCode={getTxCode(ActionCodes.BORROW, selectedSeriesId)} full >
-
-                    <SectionWrap title="Review transaction:">
-                      <Box
-                        gap="small"
-                        pad={{ horizontal: 'large', vertical: 'medium' }}
-                        round="xsmall"
-                        animation={{ type: 'zoomIn', size: 'small' }}
-                      >
+                <ActiveTransaction txCode={getTxCode(ActionCodes.BORROW, selectedSeriesId)} full>
+                  <SectionWrap title="Review transaction:">
+                    <Box
+                      gap="small"
+                      pad={{ horizontal: 'large', vertical: 'medium' }}
+                      round="xsmall"
+                      animation={{ type: 'zoomIn', size: 'small' }}
+                    >
+                      <InfoBite
+                        label="Amount to be Borrowed"
+                        icon={<FiPocket />}
+                        value={`${borrowInput} ${selectedBase?.symbol}`}
+                      />
+                      <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
+                      <InfoBite
+                        label="Vault Debt Payable @ Maturity"
+                        icon={<FiTrendingUp />}
+                        value={`${borrowInput} ${selectedBase?.symbol}`}
+                      />
+                      <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
+                      <InfoBite
+                        label="Supporting Collateral"
+                        icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
+                        value={`${collatInput} ${selectedIlk?.symbol} (${collateralizationPercent}% )`}
+                      />
+                      {vaultToUse?.id && (
                         <InfoBite
-                          label="Amount to be Borrowed"
-                          icon={<FiPocket />}
-                          value={`${borrowInput} ${selectedBase?.symbol}`}
+                          label="Adding to Existing Vault"
+                          icon={<PositionAvatar position={vaultToUse} condensed />}
+                          value={`${vaultToUse.displayName}`}
                         />
-                        <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
-                        <InfoBite
-                          label="Vault Debt Payable @ Maturity"
-                          icon={<FiTrendingUp />}
-                          value={`${borrowInput} ${selectedBase?.symbol}`}
-                        />
-                        <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
-                        <InfoBite
-                          label="Supporting Collateral"
-                          icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
-                          value={`${collatInput} ${selectedIlk?.symbol} (${collateralizationPercent}% )`}
-                        />
-                        {vaultToUse?.id && (
-                          <InfoBite
-                            label="Adding to Existing Vault"
-                            icon={<PositionAvatar position={vaultToUse} condensed />}
-                            value={`${vaultToUse.displayName}`}
-                          />
-                        )}
-                      </Box>
-                    </SectionWrap>
-
+                      )}
+                    </Box>
+                  </SectionWrap>
                 </ActiveTransaction>
               </Box>
             )}
           </Box>
 
           <Box>
-
             {stepPosition === 2 && (
               <SectionWrap>
                 <Box pad={{ horizontal: 'large', vertical: 'small' }}>
