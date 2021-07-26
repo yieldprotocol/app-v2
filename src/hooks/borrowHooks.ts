@@ -221,9 +221,9 @@ export const useBorrowActions = () => {
     updateVaults([]);
   };
 
+  // TODO: #72 Refactor to include the ability to destroy when the vault has collateral and debt
   const destroy = async (vault: IVault) => {
     const txCode = getTxCode(ActionCodes.DELETE_VAULT, vault.id);
-    const _art = vault.art_ ? ethers.utils.parseEther(vault.art_) : ethers.constants.Zero;
     const series = seriesMap.get(vault.seriesId);
     const base = assetMap.get(vault.baseId);
     const _isDaiBased = DAI_BASED_ASSETS.includes(vault.baseId);
@@ -244,26 +244,6 @@ export const useBorrowActions = () => {
 
     const calls: ICallData[] = [
       ...permits,
-      {
-        operation: LadleActions.Fn.TRANSFER_TO_POOL,
-        args: [series.id, true, _art] as LadleActions.Args.TRANSFER_TO_POOL,
-        series,
-        ignore: series.mature,
-      },
-      {
-        /* ladle.repay(vaultId, owner, inkRetrieved, 0) */
-        operation: LadleActions.Fn.REPAY,
-        args: [vault.id, account, vault.ink, ethers.constants.Zero] as LadleActions.Args.REPAY,
-        series,
-        ignore: series.mature,
-      },
-      {
-        /* ladle.repayVault(vaultId, owner, inkRetrieved, MAX) */
-        operation: LadleActions.Fn.REPAY_VAULT,
-        args: [vault.id, account, vault.ink, MAX_128] as LadleActions.Args.REPAY_VAULT,
-        series,
-        ignore: series.mature,
-      },
       {
         operation: LadleActions.Fn.DESTROY,
         args: [vault.id] as LadleActions.Args.DESTROY,
