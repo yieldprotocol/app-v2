@@ -24,6 +24,7 @@ import { Gauge } from '../components/Gauge';
 import YieldHistory from '../components/YieldHistory';
 import TransactButton from '../components/buttons/TransactButton';
 import CancelButton from '../components/buttons/CancelButton';
+import ExitButton from '../components/buttons/ExitButton';
 
 const Vault = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -207,7 +208,7 @@ const Vault = ({ close }: { close: () => void }) => {
                 <Text size="small"> {selectedVault?.id} </Text>
               </Box>
             </Box>
-            <FiLogOut onClick={() => close()} />
+            <ExitButton action={() => close()} />
           </Box>
 
           {selectedVault?.isActive ? (

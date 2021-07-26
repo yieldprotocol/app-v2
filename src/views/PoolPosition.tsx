@@ -23,6 +23,7 @@ import YieldMark from '../components/logos/YieldMark';
 import CancelButton from '../components/buttons/CancelButton';
 import TransactButton from '../components/buttons/TransactButton';
 import YieldHistory from '../components/YieldHistory';
+import ExitButton from '../components/buttons/ExitButton';
 
 const PoolPosition = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -134,7 +135,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                 <Text size="small"> {abbreviateHash(selectedSeries?.fyTokenAddress!, 5)}</Text>
               </Box>
             </Box>
-            <FiLogOut onClick={() => close()} />
+            <ExitButton action={() => close()} />
           </Box>
 
           <SectionWrap>
