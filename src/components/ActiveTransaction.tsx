@@ -20,23 +20,35 @@ const InfoBlock = ({
   icon: any;
   button: any;
   subTitle: any;
-  full: boolean|undefined;
+  full: boolean | undefined;
 }) => (
-  <Box
-    direction={full ? 'column' : 'row'}
-    align="center"
-    justify={full ? 'center' : 'start'}
-    gap='large'
-    pad={{ vertical: 'large' }}
-  >
-    {console.log(full)}
-    {icon}
-    <Box gap={full ? 'medium' : undefined} align="center">
-      <Text size={full ? 'large':'medium'}>{title}</Text>
-      <Text size={full ? 'small' : 'xsmall'}>{subTitle}</Text>
-    </Box>
-    {button}
-  </Box>
+  <>
+    {full ? (
+      <Box direction="column" align="center" justify="center" gap="large" pad={{ vertical: 'large' }}>
+        {icon}
+        <Box gap="medium" align="center">
+          <Text size="large">{title}</Text>
+          <Text size="small">{subTitle}</Text>
+        </Box>
+        {button}
+      </Box>
+    ) : (
+      <Box gap="medium" >
+      <Box direction="row" gap="medium" pad="medium" align='center'>
+        {icon}
+        <Box gap='xsmall' justify='start'>
+        <Text size="medium">{title}</Text>
+          <Box direction='row' gap='xsmall'>
+          <Text size="small">{subTitle}</Text>      
+          </Box>
+          </Box>   
+      </Box>
+      <Box alignSelf='end'>
+      {button}
+      </Box>   
+      </Box>
+    )}
+  </>
 );
 
 const ActiveTransaction = ({
@@ -71,8 +83,13 @@ const ActiveTransaction = ({
     _process && setSig(signatures.get(txCode));
   }, [processes, signatures, transactions, txCode]);
 
+  useEffect(() => {
+    full && setIconSize('2.5em');
+    !full && setIconSize('1.5em');
+  }, [full]);
+
   return (
-    <Box fill pad={pad ? {vertical: 'medium'} : undefined}>
+    <Box fill pad={pad ? { vertical: 'medium' } : undefined}>
       {!processes.get(txCode) && // CASE: no tx or signing activity
         (!sig || sig?.status === TxState.REJECTED || sig?.status === TxState.SUCCESSFUL) &&
         !tx && <Box>{children}</Box>}
@@ -88,7 +105,7 @@ const ActiveTransaction = ({
             }
             icon={<FiPenTool size={iconSize} />}
             button={null}
-            full = {full}
+            full={full}
           />
         )}
 
@@ -100,17 +117,17 @@ const ActiveTransaction = ({
             subTitle="Transaction Pending..."
             icon={<FiClock size={iconSize} />}
             button={<EtherscanButton txHash={tx.tx.hash} />}
-            full = {full}
+            full={full}
           />
         )}
 
       {processes.get(txCode) && processes.get(txCode) === '0x0' && sig?.status !== TxState.PENDING && !tx && (
         <InfoBlock
-          title="Awaiting Transaction Confirmation..."
+          title="Transaction Confirmation..."
           subTitle="Please check your wallet/provider."
           icon={<BiWallet size={iconSize} />}
           button={null}
-          full = {full}
+          full={full}
         />
       )}
 
@@ -122,7 +139,7 @@ const ActiveTransaction = ({
             subTitle={<CopyWrap hash={tx.tx.hash}> {abbreviateHash(tx.tx.hash, 6)} </CopyWrap>}
             icon={<FiClock size={iconSize} />}
             button={<EtherscanButton txHash={tx.tx.hash} />}
-            full = {full}
+            full={full}
           />
         )}
 
@@ -133,7 +150,7 @@ const ActiveTransaction = ({
             subTitle="Please check your wallet/provider to confirm second step"
             icon={<FiClock size={iconSize} />}
             button={<EtherscanButton txHash={tx.tx.hash} />}
-            full = {full}
+            full={full}
           />
         ) : (
           <InfoBlock
@@ -141,7 +158,7 @@ const ActiveTransaction = ({
             subTitle={<CopyWrap hash={tx.tx.hash}> {abbreviateHash(tx.tx.hash, 6)} </CopyWrap>}
             icon={<FiCheckCircle size={iconSize} />}
             button={<EtherscanButton txHash={tx.tx.hash} />}
-            full = {full}
+            full={full}
           />
         ))}
 
@@ -151,7 +168,7 @@ const ActiveTransaction = ({
           subTitle={<CopyWrap hash={tx.tx.hash}> {abbreviateHash(tx.tx.hash, 6)} </CopyWrap>}
           icon={<FiX size={iconSize} />}
           button={<EtherscanButton txHash={tx.tx.hash} />}
-          full = {full}
+          full={full}
         />
       )}
     </Box>

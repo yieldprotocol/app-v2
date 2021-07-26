@@ -43,10 +43,11 @@ function EtherscanButton({ txHash }: { txHash: string }) {
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
-      <EtherscanMark />
+      
       <Text size="xsmall" color={hover ? '#333333' : 'grey'}>
         View on Etherscan
       </Text>
+      <EtherscanMark />
     </StyledBox>
   );
 }

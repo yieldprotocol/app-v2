@@ -342,6 +342,7 @@ const Borrow = () => {
 
             {stepPosition === 2 && ( // REVIEW
               <Box gap="large">
+                
                 <BackButton action={() => setStepPosition(1)} />
 
                 <ActiveTransaction txCode={getTxCode(ActionCodes.BORROW, selectedSeriesId)} full >
