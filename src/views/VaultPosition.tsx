@@ -469,7 +469,8 @@ const Vault = ({ close }: { close: () => void }) => {
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
                     <InfoBite
-                      label="Pay back all debt and delete vault:"
+                      // label="Pay back all debt and delete vault:"
+                      label="Delete vault (vault must have 0 debt and 0 collateral):"
                       icon={<FiPlusCircle />}
                       value={destroyInput}
                     />
