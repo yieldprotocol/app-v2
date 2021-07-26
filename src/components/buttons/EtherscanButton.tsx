@@ -3,6 +3,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { FiArrowLeftCircle, FiLink } from 'react-icons/fi';
 import styled from 'styled-components';
 import { ChainContext } from '../../contexts/ChainContext';
+import EtherscanMark from '../logos/EtherscanMark';
 
 const StyledBox = styled(Box)`
   -webkit-transition: transform 0.3s ease-in-out;
@@ -42,7 +43,7 @@ function EtherscanButton({ txHash }: { txHash: string }) {
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
-      <FiLink color={hover ? '#333333' : 'grey'} />
+      <EtherscanMark />
       <Text size="xsmall" color={hover ? '#333333' : 'grey'}>
         View on Etherscan
       </Text>
