@@ -330,7 +330,7 @@ const Vault = ({ close }: { close: () => void }) => {
               valueKey="index"
               value={actionActive}
               onChange={({ option }) => setActionActive(option)}
-              disabled={selectedVault?.isActive ? undefined : [0, 1, 2, 4, 5]}
+              disabled={selectedVault?.isActive ? undefined : [0, 1, 2, 4, 5,6]}
             />
           </Box>
 
