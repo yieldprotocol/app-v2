@@ -165,7 +165,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
           </SectionWrap>
         </Box>
 
-        <Box>
+        <Box height={{ min: '250px' }}>
           <Box elevation="xsmall" round="xsmall">
             <Select
               plain
