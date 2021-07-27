@@ -65,10 +65,9 @@ const Vault = ({ close }: { close: () => void }) => {
   const onActive = (nextIndex: number) => setTabIndex(nextIndex);
 
   // stepper for stepping within multiple tabs
-  const [stepPosition, setStepPosition] = useState<number[]>([0, 0, 0, 0, 0, 0, 0]);
+  const [stepPosition, setStepPosition] = useState<number[]>(new Array(7).fill(0));
 
   const [repayInput, setRepayInput] = useState<any>(undefined);
-  const [borrowInput, setBorrowInput] = useState<any>(undefined);
   const [collatInput, setCollatInput] = useState<any>(undefined);
 
   const [addCollatInput, setAddCollatInput] = useState<any>(undefined);
@@ -82,14 +81,15 @@ const Vault = ({ close }: { close: () => void }) => {
   const [maxAddCollat, setMaxAddCollat] = useState<string | undefined>();
   const [maxRemoveCollat, setMaxRemoveCollat] = useState<string | undefined>();
 
-  // const [repayError, setRepayError] = useState<string | null>(null);
-  // const [addCollatError, setAddCollatError] = useState<string | null>(null);
-  // const [removeCollatError, setRemoveCollatError] = useState<string | null>(null);
-
   const [repayDisabled, setRepayDisabled] = useState<boolean>(true);
+  const [rollDisabled, setRollDisabled] = useState<boolean>(true);
+  const [removeCollateralDisabled, setRemoveCollateralDisabled] = useState<boolean>(true);
+  const [addCollateralDisabled, setAddCollateralDisabled] = useState<boolean>(true);
+  const [mergeDisabled, setMergeDisabled] = useState<boolean>(true);
+  const [transferDisabled, setTransferDisabled] = useState<boolean>(true);
+  const [deleteDisabled, setDeleteDisabled] = useState<boolean>(true);
 
   const [actionActive, setActionActive] = useState<any>(selectedVault?.isActive ? { index: 0 } : { index: 3 });
-  // const [rollDisabled, setRollDisabled] = useState<boolean>(true);
 
   const initialMergeData = {
     toVault: null,
@@ -101,6 +101,7 @@ const Vault = ({ close }: { close: () => void }) => {
     totalMergedInk: null,
     totalMergedArt: null,
   };
+
   const [mergeData, setMergeData] = useState<any>(initialMergeData);
 
   const [destroyDisabled, setDestroyDisabled] = useState<boolean>(true);
@@ -113,12 +114,10 @@ const Vault = ({ close }: { close: () => void }) => {
   const { addCollateral, removeCollateral } = useCollateralActions();
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries, [0, maxRepay]);
-
   const { inputError: addCollatError } = useInputValidation(addCollatInput, ActionCodes.ADD_COLLATERAL, vaultSeries, [
     0,
     maxAddCollat,
   ]);
-
   const { inputError: removeCollatError } = useInputValidation(
     removeCollatInput,
     ActionCodes.REMOVE_COLLATERAL,
@@ -246,17 +245,32 @@ const Vault = ({ close }: { close: () => void }) => {
   }, [activeAccount, vaultIlk, setMaxRemoveCollat, selectedVault?.ink]);
 
   /* ACTION DISABLING LOGIC */
-
   useEffect(() => {
     /* if ANY of the following conditions are met: block action */
     !repayInput || repayError ? setRepayDisabled(true) : setRepayDisabled(false);
-  }, [repayInput, repayError, collatInput]);
+    !rollToSeries ? setRollDisabled(true) : setRollDisabled(false);
+    !mergeData.toVault ? setMergeDisabled(true) : setMergeDisabled(false);
+    !destroyInput ? setDeleteDisabled(true) : setDeleteDisabled(false);
+    !transferToAddressInput ? setTransferDisabled(true) : setTransferDisabled(false);
+    !addCollatInput || addCollatError ? setAddCollateralDisabled(true) : setAddCollateralDisabled(false);
+    !removeCollatInput || removeCollatError ? setRemoveCollateralDisabled(true) : setRemoveCollateralDisabled(false);
+  }, [
+    repayInput,
+    repayError,
+    collatInput,
+    rollToSeries,
+    mergeData,
+    destroyInput,
+    transferToAddressInput,
+    addCollatInput,
+    removeCollatInput,
+    addCollatError,
+    removeCollatError,
+  ]);
 
   /* EXTRA INITIATIONS */
 
   useEffect(() => {
-    // setAvailableVaults(Array.from(vaultMap.values())); // add some filtering here
-
     /* set global series, base and ilk */
     selectedVault && userActions.setSelectedSeries(selectedVault.seriesId);
     selectedVault && userActions.setSelectedBase(selectedVault.baseId);
@@ -316,7 +330,7 @@ const Vault = ({ close }: { close: () => void }) => {
                 <Box direction="row" pad="medium" gap="small" align="center">
                   <FiAlertTriangle size="3em" />
                   <Box gap="xsmall">
-                    <Text>This account no longer controls this vault</Text>
+                    <Text>The connected account no longer owns this vault</Text>
                   </Box>
                 </Box>
 
@@ -680,7 +694,15 @@ const Vault = ({ close }: { close: () => void }) => {
               label={<Text size={mobile ? 'small' : undefined}> Next Step </Text>}
               onClick={() => handleStepper()}
               key="next"
-              disabled={!selectedVault?.isActive}
+              disabled={
+                (actionActive.index === 0 && repayDisabled) ||
+                (actionActive.index === 1 && rollDisabled) ||
+                (actionActive.index === 2 && removeCollatInput && removeCollateralDisabled ) ||
+                (actionActive.index === 2 && addCollatInput && addCollateralDisabled ) ||
+                (actionActive.index === 4 && transferDisabled) ||
+                (actionActive.index === 5 && mergeDisabled) ||
+                (actionActive.index === 6 && deleteDisabled)
+              }
             />
           )}
 

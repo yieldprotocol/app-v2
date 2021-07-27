@@ -98,14 +98,11 @@ const PoolPosition = ({ close }: { close: () => void }) => {
 
 
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
-
   useEffect(() => {
-    !activeAccount || !removeInput || removeError ? setRemoveDisabled(true) : setRemoveDisabled(false);
-  }, [activeAccount, removeError, removeInput]);
+    !removeInput || removeError ? setRemoveDisabled(true) : setRemoveDisabled(false);
+    !rollInput || !rollToSeries || rollError ? setRollDisabled(true) : setRollDisabled(false);
+  }, [activeAccount, removeError, removeInput, rollError, rollInput, rollToSeries]);
 
-  useEffect(() => {
-    !activeAccount || !rollInput || rollError ? setRollDisabled(true) : setRollDisabled(false);
-  }, [rollInput, activeAccount, rollError]);
 
   return (
     <CenterPanelWrap>
@@ -267,6 +264,10 @@ const PoolPosition = ({ close }: { close: () => void }) => {
             label={<Text size={mobile ? 'small' : undefined}> Next Step</Text>}
             onClick={() => handleStepper()}
             key="next"
+            disabled={
+              (actionActive.index === 0 && removeDisabled) ||
+              (actionActive.index === 1 && rollDisabled)
+            }
           />
         )}
 

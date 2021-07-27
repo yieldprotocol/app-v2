@@ -108,14 +108,11 @@ const LendPosition = ({ close }: { close: () => void }) => {
 
 
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
-
   useEffect(() => {
-    !activeAccount || !closeInput || closeError ? setCloseDisabled(true) : setCloseDisabled(false);
-  }, [closeInput, activeAccount, closeError]);
+    !closeInput || closeError ? setCloseDisabled(true) : setCloseDisabled(false);
+    !rollInput || !rollToSeries || rollError ? setRollDisabled(true) : setRollDisabled(false);
+  }, [closeInput, closeError, rollInput, rollToSeries, rollError]);
 
-  useEffect(() => {
-    !activeAccount || !rollInput || !rollToSeries || rollError ? setRollDisabled(true) : setRollDisabled(false);
-  }, [rollInput, activeAccount, rollError, rollToSeries]);
 
   return (
     <CenterPanelWrap>
@@ -277,6 +274,10 @@ const LendPosition = ({ close }: { close: () => void }) => {
             label={<Text size={mobile ? 'small' : undefined}> Next Step</Text>}
             onClick={() => handleStepper()}
             key="next"
+            disabled={
+              (actionActive.index === 0 && closeDisabled) ||
+              (actionActive.index === 1 && rollDisabled)
+            }
           />
         )}
 
