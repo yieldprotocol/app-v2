@@ -1,5 +1,6 @@
-import { Box, Layer, Text } from 'grommet';
+import { Box, Button, Layer, Text } from 'grommet';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { FiX } from 'react-icons/fi';
 import styled from 'styled-components';
 import { UserContext } from '../../contexts/UserContext';
 import { IAsset, ISeries, IUserContext, IVault } from '../../types';
@@ -91,7 +92,6 @@ function VaultSelector(target: any) {
         <Box justify="between" alignSelf="end" gap="small" pad="small">
           <Box animation="fadeIn" justify="end" align="end" direction="row" gap="small">
             <Text size="small" color="text-weak">
-              {' '}
               {showAllVaults ? 'All my vaults' : 'Filtered vaults'}
             </Text>
           </Box>
@@ -141,8 +141,7 @@ function VaultSelector(target: any) {
                       } as IVaultFilter)
                     }
                   >
-                    {' '}
-                    x
+                    <Button plain icon={<FiX style={{ verticalAlign: 'middle' }} />} />
                   </Text>
                 </Box>
               )}
@@ -158,7 +157,7 @@ function VaultSelector(target: any) {
                 >
                   <Text size="xsmall">{filter.series.displayNameMobile}</Text>
                   <Text size="xsmall" onClick={() => handleFilter({ ...filter, series: undefined } as IVaultFilter)}>
-                    x
+                    <Button plain icon={<FiX style={{ verticalAlign: 'middle' }} />} />
                   </Text>
                 </Box>
               )}
@@ -167,8 +166,7 @@ function VaultSelector(target: any) {
 
           <Box align="end" onClick={() => setShowAllVaults(!showAllVaults)}>
             <Text size="xsmall" color="text-weak">
-              {' '}
-              {showAllVaults ? 'Show filtered vaults' : `Show all ${allVaults.length} vaults`}{' '}
+              {showAllVaults ? 'Show filtered vaults' : `Show all ${allVaults.length} vaults`}
             </Text>
           </Box>
         </Box>
