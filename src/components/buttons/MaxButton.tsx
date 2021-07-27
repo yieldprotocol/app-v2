@@ -27,8 +27,9 @@ function MaxButton({ action, clearAction, showingMax, disabled }: IMaxButtonProp
           align="center"
           background="tailwind-lightest-blue"
           border={{ color: 'white' }}
+          width="xxsmall"
         >
-          <Text size="xsmall" color={disabled ? 'text-xweak' : 'text'}>
+          <Text size="xsmall" color="brand">
             {showingMax ? 'Clear' : 'Max'}
           </Text>
         </Box>
