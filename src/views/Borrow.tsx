@@ -69,22 +69,24 @@ const Borrow = () => {
   const [disclaimerChecked, setDisclaimerChecked] = useState<boolean>(false);
 
   const { borrow } = useBorrowActions();
+  
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
+
+  const { collateralizationPercent, undercollateralized, minCollateral } = useCollateralization(
+    borrowInput,
+    collatInput,
+    vaultToUse 
+  );
   
   /* input validation hoooks */
   const { inputError: borrowInputError } = useInputValidation(borrowInput, ActionCodes.BORROW, selectedSeries, []);
   const { inputError: collatInputError } = useInputValidation(
-    borrowInput,
+    collatInput,
     ActionCodes.ADD_COLLATERAL,
     selectedSeries,
-    [0, maxCollat]
+    [minCollateral, maxCollat]
   );
 
-  const { collateralizationPercent, collateralizationWarning, undercollateralized } = useCollateralization(
-    borrowInput,
-    collatInput,
-    vaultToUse
-  );
 
   /** LOCAL ACTION FNS */
   const handleBorrow = () => {

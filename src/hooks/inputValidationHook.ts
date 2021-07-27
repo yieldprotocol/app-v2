@@ -25,23 +25,19 @@ export const useInputValidation = (
 
   useEffect(() => {
 
-
     if (activeAccount && (input || input === '')) {
 
       const aboveMax : boolean = !!limits[1] && parseFloat(input) > parseFloat(limits[1].toString());
       const belowMin : boolean = !!limits[0] && parseFloat(input) < parseFloat(limits[0].toString()); 
 
       // General input validation here: 
-      if (parseFloat(input) < 0) {
+      if ( parseFloat(input) < 0) {
         setInputError('Amount should be expressed as a positive value')
-      } else setInputError(null);
-
-      if (aboveMax) {
+      } else if ( aboveMax ) {
         setInputError('Amount exceeds available balance')
       } else setInputError(null);
 
-
-      // Action specific rules: - or message customising: 
+      // Action specific rules: - or message customising/Overriding: 
 
       /* BORROWING INPUT SECTION */
       if (actionCode === ActionCodes.BORROW) {
@@ -54,8 +50,7 @@ export const useInputValidation = (
       };
 
       if (actionCode === ActionCodes.ADD_COLLATERAL) {
-        // limits[1] && parseFloat(input) > parseFloat(limits[1].toString()) && 
-        // setInputError('Amount exceeds balance');
+        belowMin && setInputError('Undercollateralized')
       };
 
       if (actionCode === ActionCodes.REMOVE_COLLATERAL) {

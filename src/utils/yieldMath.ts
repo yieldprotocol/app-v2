@@ -515,6 +515,34 @@ export const calculateCollateralizationRatio = (
 };
 
 /**
+ * Calculates the collateralization ratio
+ * based on the collat amount and value and debt value.
+ * @param { BigNumber | string } collateralAmount  amount of collateral ( in wei)
+ * @param { BigNumber | string } collateralPrice price of collateral (in USD)
+ * @param { BigNumber | string } debtValue value of base debt (in USD)
+ * @param {boolean} asPercent OPTIONAL: flag to return ratio as a percentage
+ * @returns { string | undefined }
+ */
+ export const calculateMinCollateral = (
+  collateralPrice: BigNumber | string,
+  debtValue: BigNumber | string,
+): string | undefined => 
+  // if (ethers.BigNumber.isBigNumber(debtValue) ? debtValue.isZero() : debtValue === '0') {
+  //   return undefined;
+  // }
+  // const _unitPrice = divDecimal(collateralPrice, '1000000000000000000');
+  
+  // const _colVal = mulDecimal(collateralAmount, _unitPrice);
+  // const _ratio = divDecimal(_colVal, debtValue);
+
+  // if (asPercent) {
+  //   return mulDecimal('100', _ratio);
+  // }
+  // return _ratio;
+   '1'
+;
+
+/**
  * Calcualtes the amount (base, or other variant) that can be borrowed based on
  * an amount of collateral (ETH, or other), and collateral price.
  *
