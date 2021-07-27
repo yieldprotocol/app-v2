@@ -258,6 +258,8 @@ const Borrow = () => {
                           <MaxButton
                             action={() => maxCollat && setCollatInput(maxCollat)}
                             disabled={!selectedSeries || collatInput === maxCollat || selectedSeries.seriesIsMature}
+                            clearAction = {() => setCollatInput('')}
+                            showingMax= { !!collatInput && collatInput === maxCollat }
                           />
                         </InputWrap>
                       </Box>
@@ -267,7 +269,7 @@ const Borrow = () => {
                     </Box>
                   </SectionWrap>
 
-                  {matchingVaults.length > 0 && (
+                  {/* {matchingVaults.length > 0 && ( */}
                     <SectionWrap title="Add to an exisiting vault" disabled={matchingVaults.length < 1}>
                       <VaultDropSelector
                         vaults={matchingVaults}
@@ -278,7 +280,7 @@ const Borrow = () => {
                         placeholder="Create New Vault"
                       />
                     </SectionWrap>
-                  )}
+                  {/* )} */}
 
                   <SectionWrap>
                     <Box direction="row" gap="large" fill>

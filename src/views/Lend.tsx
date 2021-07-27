@@ -132,6 +132,8 @@ const Lend = () => {
                       <MaxButton
                         action={() => setLendInput(maxLend)}
                         disabled={maxLend === '0' || selectedSeries?.seriesIsMature}
+                        clearAction = {() => setLendInput('')}
+                        showingMax= { !!lendInput && lendInput === maxLend }
                       />
                     </InputWrap>
                   </Box>

@@ -3,15 +3,13 @@ import { Box, Text, ResponsiveContext } from 'grommet';
 import { UserContext } from '../../contexts/UserContext';
 import { IUserContext } from '../../types';
 
-interface IMaxButtonProps {
+interface IClearButtonProps {
   /* select series locally filters out the global selection from the list and returns the selected ISeries */
   action: () => void;
-  clearAction?: () => void;
-  showingMax?: boolean;
   disabled?: boolean;
 }
 
-function MaxButton({ action, clearAction, showingMax, disabled }: IMaxButtonProps) {
+function ClearButton({ action, disabled }: IClearButtonProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   /* state from context */
   const { userState } = useContext(UserContext) as IUserContext;
@@ -20,17 +18,16 @@ function MaxButton({ action, clearAction, showingMax, disabled }: IMaxButtonProp
   return (
     <>
       {!mobile && activeAccount && (
-        <Box onClick={ !disabled && !showingMax? () => action() : ()=>clearAction && clearAction() } pad="xsmall">
+        <Box onClick={() => !disabled && action()} pad="xsmall">
           <Text size="xsmall" color={disabled ? 'text-xweak' : 'text'}>
-            { showingMax ? 'Clear' : 'Max' }
+            MAX
           </Text>
         </Box>
       )}
-
     </>
   );
 }
 
-MaxButton.defaultProps = { disabled: false, clearAction: () => null, showingMax: false };
+ClearButton.defaultProps = { disabled: false };
 
-export default MaxButton;
+export default ClearButton;

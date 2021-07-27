@@ -128,7 +128,12 @@ function Pool() {
                         value={poolInput || ''}
                         onChange={(event: any) => setPoolInput(cleanValue(event.target.value))}
                       />
-                      <MaxButton action={() => setPoolInput(maxPool)} disabled={maxPool === '0'} />
+                      <MaxButton 
+                        action={() => setPoolInput(maxPool)} 
+                        disabled={maxPool === '0'} 
+                        clearAction = {() => setPoolInput('')}
+                        showingMax= { !!poolInput && poolInput === maxPool }  
+                        />
                     </InputWrap>
                   </Box>
 
