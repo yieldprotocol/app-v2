@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Box, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import { ethers } from 'ethers';
-import { FiClock, FiLogOut, FiMinusCircle, FiPercent, FiPlusCircle } from 'react-icons/fi';
+import { FiArrowRight, FiClock, FiLogOut, FiMinusCircle, FiPercent, FiPlusCircle } from 'react-icons/fi';
 
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import InputWrap from '../components/wraps/InputWrap';
@@ -23,6 +23,8 @@ import YieldMark from '../components/logos/YieldMark';
 import CancelButton from '../components/buttons/CancelButton';
 import TransactButton from '../components/buttons/TransactButton';
 import YieldHistory from '../components/YieldHistory';
+import ExitButton from '../components/buttons/ExitButton';
+import { useInputValidation } from '../hooks/inputValidationHook';
 
 const PoolPosition = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -42,8 +44,8 @@ const PoolPosition = ({ close }: { close: () => void }) => {
   const [rollToSeries, setRollToSeries] = useState<ISeries | null>(null);
   const [maxRemove, setMaxRemove] = useState<string | undefined>();
 
-  const [removeError, setRemoveError] = useState<string | null>(null);
-  const [rollError, setRollError] = useState<string | null>(null);
+  // const [removeError, setRemoveError] = useState<string | null>(null);
+  // const [rollError, setRollError] = useState<string | null>(null);
 
   const [removeDisabled, setRemoveDisabled] = useState<boolean>(true);
   const [rollDisabled, setRollDisabled] = useState<boolean>(true);
@@ -54,6 +56,21 @@ const PoolPosition = ({ close }: { close: () => void }) => {
 
   /* HOOK FNS */
   const { removeLiquidity, rollLiquidity } = usePoolActions();
+
+    /* input validation hoooks */
+    const { inputError: removeError } = useInputValidation(
+      removeInput, 
+      ActionCodes.REMOVE_LIQUIDITY, 
+      selectedSeries, 
+      [ 0, maxRemove ]
+    );
+  
+    const { inputError: rollError } = useInputValidation(
+      rollInput,
+      ActionCodes.ROLL_LIQUIDITY,
+      selectedSeries,
+      [0, maxRemove]
+    );
 
   /* LOCAL FNS */
   const handleStepper = (back: boolean = false) => {
@@ -79,48 +96,13 @@ const PoolPosition = ({ close }: { close: () => void }) => {
     if (max) setMaxRemove(ethers.utils.formatEther(max).toString());
   }, [rollInput, selectedSeries, setMaxRemove]);
 
-  /* WATCH FOR WARNINGS AND ERRORS */
-  useEffect(() => {
-    /* CHECK for any removeInput errors */
-    if (activeAccount && (removeInput || removeInput === '')) {
-      /* 1. Check if input exceeds fyToken balance */
-      if (maxRemove && parseFloat(removeInput) > parseFloat(maxRemove))
-        setRemoveError('Amount exceeds liquidity token balance');
-      /* 2. Check if there is a selected series */ else if (removeInput && !selectedSeries)
-        setRemoveError('No base series selected');
-      /* 2. Check if input is above zero */ else if (parseFloat(removeInput) < 0)
-        setRemoveError('Amount should be expressed as a positive value');
-      /* if all checks pass, set null error message */ else {
-        setRemoveError(null);
-      }
-    }
-  }, [activeAccount, removeInput, maxRemove, selectedSeries]);
-
-  useEffect(() => {
-    /* CHECK for any rollInput errors */
-    if (activeAccount && (rollInput || rollInput === '')) {
-      /* 1. Check if input exceeds fyToken balance */
-      if (maxRemove && parseFloat(rollInput) > parseFloat(maxRemove))
-        setRollError('Amount exceeds liquidity token balance');
-      /* 2. Check if there is a selected series */ else if (rollInput && !selectedSeries)
-        setRollError('No base series selected');
-      /* 2. Check if input is above zero */ else if (parseFloat(rollInput) < 0)
-        setRollError('Amount should be expressed as a positive value');
-      /* if all checks pass, set null error message */ else {
-        setRollError(null);
-      }
-    }
-  }, [activeAccount, rollInput, maxRemove, selectedSeries]);
 
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
-
   useEffect(() => {
-    !activeAccount || !removeInput || removeError ? setRemoveDisabled(true) : setRemoveDisabled(false);
-  }, [activeAccount, removeError, removeInput]);
+    !removeInput || removeError ? setRemoveDisabled(true) : setRemoveDisabled(false);
+    !rollInput || !rollToSeries || rollError ? setRollDisabled(true) : setRollDisabled(false);
+  }, [activeAccount, removeError, removeInput, rollError, rollInput, rollToSeries]);
 
-  useEffect(() => {
-    !activeAccount || !rollInput || rollError ? setRollDisabled(true) : setRollDisabled(false);
-  }, [rollInput, activeAccount, rollError]);
 
   return (
     <CenterPanelWrap>
@@ -134,7 +116,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                 <Text size="small"> {abbreviateHash(selectedSeries?.fyTokenAddress!, 5)}</Text>
               </Box>
             </Box>
-            <FiLogOut onClick={() => close()} />
+            <ExitButton action={() => close()} />
           </Box>
 
           <SectionWrap>
@@ -144,7 +126,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
               <InfoBite
                 label="Liquidity Balance"
                 value={cleanValue(selectedSeries?.poolTokens_, 6)}
-                icon={<YieldMark height="1em" start={selectedSeries?.startColor} />}
+                icon={<YieldMark height="1em" startColor={selectedSeries?.startColor} />}
               />
               {/* <InfoBite 
                 label="Total Pool Liquidity"
@@ -164,11 +146,11 @@ const PoolPosition = ({ close }: { close: () => void }) => {
           </SectionWrap>
         </Box>
 
-        <Box>
+        <Box height={{ min: '250px' }}>
           <Box elevation="xsmall" round="xsmall">
             <Select
               plain
-              dropProps={{ round:'xsmall' }}
+              dropProps={{ round: 'xsmall' }}
               options={[
                 { text: 'Remove Liquidity', index: 0 },
                 { text: 'Roll Liquidiy', index: 1 },
@@ -193,7 +175,12 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                       value={removeInput || ''}
                       onChange={(event: any) => setRemoveInput(cleanValue(event.target.value))}
                     />
-                    <MaxButton action={() => setRemoveInput(maxRemove)} disabled={maxRemove === '0.0'} />
+                    <MaxButton 
+                      action={() => setRemoveInput(maxRemove)} 
+                      disabled={maxRemove === '0.0'} 
+                      clearAction = {() => setRemoveInput('')}
+                      showingMax= { !!removeInput && removeInput === maxRemove }
+                      />
                   </InputWrap>
                 </Box>
               )}
@@ -204,11 +191,13 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                     title="Review your remove transaction"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
-                    < InfoBite
-                      label="Remove Liquidity"
-                      icon={<FiMinusCircle />}
-                      value={`${removeInput} liquidity tokens`}
-                    />
+                    <Box margin={{ top: 'medium' }}>
+                      <InfoBite
+                        label="Remove Liquidity"
+                        icon={<FiArrowRight />}
+                        value={`${removeInput} liquidity tokens`}
+                      />
+                    </Box>
                   </SectionWrap>
                 </ActiveTransaction>
               )}
@@ -216,10 +205,10 @@ const PoolPosition = ({ close }: { close: () => void }) => {
           )}
 
           {actionActive.index === 1 && (
-            <Box>
+            <Box margin={{ top: 'medium' }}>
               {stepPosition[actionActive.index] === 0 && (
-                <Box pad={{ vertical: 'medium' }}>
-                  <Box>
+                <Box align="center" fill gap="medium">
+                  <Box fill>
                     <InputWrap action={() => console.log('maxAction')} isError={rollError}>
                       <TextInput
                         plain
@@ -228,15 +217,21 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                         value={rollInput || ''}
                         onChange={(event: any) => setRollInput(cleanValue(event.target.value))}
                       />
-                      <MaxButton action={() => setRollInput(maxRemove)} disabled={maxRemove === '0.0'} />
+                      <MaxButton 
+                        action={() => setRollInput(maxRemove)} 
+                        disabled={maxRemove === '0.0'} 
+                        clearAction = {() => setRollInput('')}
+                        showingMax= { !!rollInput && rollInput === maxRemove }
+                      />
                     </InputWrap>
                   </Box>
-
-                  <SeriesSelector
-                    selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
-                    actionType={ActionType.POOL}
-                    cardLayout={false}
-                  />
+                  <Box fill>
+                    <SeriesSelector
+                      selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
+                      actionType={ActionType.POOL}
+                      cardLayout={false}
+                    />
+                  </Box>
                 </Box>
               )}
 
@@ -246,11 +241,13 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                     title="Review your roll transaction"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
-                    < InfoBite
-                      label="Roll Liquidity"
-                      icon={<FiPlusCircle />}
-                      value={`${rollInput} Liquidity Tokens to ${rollToSeries?.displayName} `}
-                    />
+                    <Box margin={{ top: 'medium' }}>
+                      <InfoBite
+                        label="Roll Liquidity"
+                        icon={<FiArrowRight />}
+                        value={`${rollInput} Liquidity Tokens to ${rollToSeries?.displayName} `}
+                      />
+                    </Box>
                   </SectionWrap>
                 </ActiveTransaction>
               )}
@@ -267,6 +264,10 @@ const PoolPosition = ({ close }: { close: () => void }) => {
             label={<Text size={mobile ? 'small' : undefined}> Next Step</Text>}
             onClick={() => handleStepper()}
             key="next"
+            disabled={
+              (actionActive.index === 0 && removeDisabled) ||
+              (actionActive.index === 1 && rollDisabled)
+            }
           />
         )}
 

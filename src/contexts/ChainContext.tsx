@@ -286,7 +286,7 @@ const ChainProvider = ({ children }: any) => {
               const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackLibrary);
 
               const season = getSeason(maturity) as SeasonType;
-              const oppSeason = (_season: SeasonType) => getSeason(maturity + 15780000) as SeasonType;
+              const oppSeason = (_season: SeasonType) => getSeason(maturity+ 23670000) as SeasonType;
 
               const [startColor, endColor, textColor]: string[] = yieldEnv.seasonColors[season];
               const [oppStartColor, oppEndColor, oppTextColor]: string[] = yieldEnv.seasonColors[oppSeason(season)];
@@ -328,7 +328,7 @@ const ChainProvider = ({ children }: any) => {
                   oppStartColor,
                   oppEndColor,
                   oppTextColor,
-                  seriesMark: <YieldMark start={startColor} end={endColor} />,
+                  seriesMark: <YieldMark startColor={startColor} endColor={endColor} />,
 
                   // built-in helper functions:
                   getTimeTillMaturity: () => maturity - Math.round(new Date().getTime() / 1000),
@@ -387,6 +387,7 @@ const ChainProvider = ({ children }: any) => {
     const _chainId = chainId || lastChainId;
     /* cache the change of networkId */
     chainId && setLastChainId(chainId);
+    
     /* Connect the fallback */
     tried &&
       fallbackActivate(

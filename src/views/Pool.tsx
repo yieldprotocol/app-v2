@@ -28,6 +28,7 @@ import BackButton from '../components/buttons/BackButton';
 import YieldMark from '../components/logos/YieldMark';
 import NextButton from '../components/buttons/NextButton';
 import TransactButton from '../components/buttons/TransactButton';
+import { useInputValidation } from '../hooks/inputValidationHook';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -43,8 +44,6 @@ function Pool() {
   const [poolInput, setPoolInput] = useState<string>();
   const [maxPool, setMaxPool] = useState<string | undefined>();
 
-  const [poolError, setPoolError] = useState<string | null>(null);
-
   const [poolDisabled, setPoolDisabled] = useState<boolean>(true);
 
   const [strategy, setStrategy] = useState<'BUY' | 'MINT'>('BUY');
@@ -53,8 +52,9 @@ function Pool() {
 
   /* HOOK FNS */
   const { addLiquidity } = usePoolActions();
-
   const { poolMax } = usePool(poolInput);
+  /* input validation hooks */
+  const { inputError: poolError } = useInputValidation(poolInput, ActionCodes.LEND, selectedSeries, [0, maxPool]);
 
   /* LOCAL ACTION FNS */
   const handleAdd = () => {
@@ -72,21 +72,6 @@ function Pool() {
       })();
     }
   }, [activeAccount, poolInput, selectedBase, setMaxPool]);
-
-  /* WATCH FOR WARNINGS AND ERRORS */
-  useEffect(() => {
-    /* CHECK for any lendInput errors */
-    if (activeAccount && (poolInput || poolInput === '')) {
-      /* 1. Check if input exceeds balance */
-      if (maxPool && parseFloat(poolInput) > parseFloat(maxPool)) setPoolError('Amount exceeds balance');
-      /* 2. Check if input is above zero */ else if (parseFloat(poolInput) < 0)
-        setPoolError('Amount should be expressed as a positive value');
-      /* 2. next Check */ else if (false) setPoolError('Insufficient');
-      /* if all checks pass, set null error message */ else {
-        setPoolError(null);
-      }
-    }
-  }, [activeAccount, poolInput, maxPool]);
 
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
   useEffect(() => {
@@ -113,12 +98,12 @@ function Pool() {
           {stepPosition === 0 && (
             <Box gap="medium">
               <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
-                <YieldMark />
-                <Text>POOL</Text>
+                {/* <YieldMark height='1em' startColor='grey' endColor='grey' /> */}
+                <Text color="grey">POOL</Text>
               </Box>
 
-              <SectionWrap title="Select asset and amount">
-                <Box direction="row" gap="small" fill="horizontal" align="start" pad={{ vertical: 'small' }}>
+              <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}>
+                <Box direction="row" gap="small" fill="horizontal" align="start">
                   <Box basis={mobile ? '50%' : '60%'}>
                     <InputWrap action={() => console.log('maxAction')} isError={poolError}>
                       <TextInput
@@ -128,7 +113,12 @@ function Pool() {
                         value={poolInput || ''}
                         onChange={(event: any) => setPoolInput(cleanValue(event.target.value))}
                       />
-                      <MaxButton action={() => setPoolInput(maxPool)} disabled={maxPool === '0'} />
+                      <MaxButton
+                        action={() => setPoolInput(maxPool)}
+                        disabled={maxPool === '0'}
+                        clearAction={() => setPoolInput('')}
+                        showingMax={!!poolInput && poolInput === maxPool}
+                      />
                     </InputWrap>
                   </Box>
 
@@ -138,7 +128,7 @@ function Pool() {
                 </Box>
               </SectionWrap>
 
-              <SectionWrap title="Select series">
+              <SectionWrap title={seriesMap.size > 0 ? 'Select a series' : ''}>
                 <SeriesSelector actionType={ActionType.POOL} inputValue={poolInput} />
               </SectionWrap>
             </Box>
@@ -148,7 +138,7 @@ function Pool() {
             <Box gap="large">
               <BackButton action={() => setStepPosition(0)} />
 
-              <ActiveTransaction txCode={getTxCode(ActionCodes.ADD_LIQUIDITY, selectedSeriesId)} size="LARGE">
+              <ActiveTransaction txCode={getTxCode(ActionCodes.ADD_LIQUIDITY, selectedSeriesId)} full>
                 <Box gap="large">
                   {!selectedSeries?.seriesIsMature && (
                     <SectionWrap>
@@ -169,7 +159,7 @@ function Pool() {
                     </SectionWrap>
                   )}
 
-                  <SectionWrap title="Review your transaction">
+                  <SectionWrap title="Review transaction:">
                     <Box
                       gap="small"
                       pad={{ horizontal: 'large', vertical: 'medium' }}

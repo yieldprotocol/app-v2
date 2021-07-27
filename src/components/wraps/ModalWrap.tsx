@@ -6,6 +6,8 @@ import MainViewWrap from './MainViewWrap';
 import PanelWrap from './PanelWrap';
 import YieldLogo from '../logos/YieldLogo';
 
+import { UserContext } from '../../contexts/UserContext';
+
 interface IModalWrap {
   modalOpen: boolean;
   toggleModalOpen: () => void;
@@ -16,6 +18,10 @@ interface IModalWrap {
 
 function ModalWrap({ children, toggleModalOpen, background, modalOpen = false }: IModalWrap) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
+
+  const { userState: { selectedSeriesId, seriesMap } } = useContext(UserContext);
+
+  const series = seriesMap.get(selectedSeriesId);
 
   return (
     <Box>
@@ -35,7 +41,7 @@ function ModalWrap({ children, toggleModalOpen, background, modalOpen = false }:
               fill="horizontal"
               style={{ position: 'fixed', top: '0px' }}
             >
-              <YieldLogo height={mobile ? '1em' : '1.5em'} startcolor='white' endcolor='red' />
+              <YieldLogo height={mobile ? '1em' : '1.5em'} startColor={series?.oppStartColor} endColor={series?.oppEndColor} />
               <FiX onClick={() => toggleModalOpen()} />
             </Header>
 
@@ -49,8 +55,7 @@ function ModalWrap({ children, toggleModalOpen, background, modalOpen = false }:
                   {children}
                 </Box>
                 <PanelWrap>
-                  {' '}
-                  <Box />{' '}
+                  <Box />
                 </PanelWrap>
               </MainViewWrap>
             </Box>

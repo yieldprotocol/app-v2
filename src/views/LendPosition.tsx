@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Box, Button, ResponsiveContext, Select, Tab, Tabs, Text, TextInput } from 'grommet';
 import { ethers } from 'ethers';
-import { FiClock, FiLogOut, FiMinusCircle, FiPlusCircle, FiTrendingUp } from 'react-icons/fi';
+import { FiArrowRight, FiClock, FiLogOut, FiMinusCircle, FiPlusCircle, FiTrendingUp } from 'react-icons/fi';
 
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import InputWrap from '../components/wraps/InputWrap';
@@ -15,7 +15,6 @@ import { ActionCodes, ActionType, ISeries, IUserContext } from '../types';
 import MaxButton from '../components/buttons/MaxButton';
 import InfoBite from '../components/InfoBite';
 import ActiveTransaction from '../components/ActiveTransaction';
-import TabWrap from '../components/wraps/TabWrap';
 import BackButton from '../components/buttons/BackButton';
 import PositionAvatar from '../components/PositionAvatar';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
@@ -23,6 +22,8 @@ import NextButton from '../components/buttons/NextButton';
 import CancelButton from '../components/buttons/CancelButton';
 import TransactButton from '../components/buttons/TransactButton';
 import YieldHistory from '../components/YieldHistory';
+import ExitButton from '../components/buttons/ExitButton';
+import { useInputValidation } from '../hooks/inputValidationHook';
 
 const LendPosition = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -52,8 +53,8 @@ const LendPosition = ({ close }: { close: () => void }) => {
 
   const [maxClose, setMaxClose] = useState<string | undefined>();
 
-  const [closeError, setCloseError] = useState<string | null>(null);
-  const [rollError, setRollError] = useState<string | null>(null);
+  // const [closeError, setCloseError] = useState<string | null>(null);
+  // const [rollError, setRollError] = useState<string | null>(null);
 
   const [closeDisabled, setCloseDisabled] = useState<boolean>(true);
   const [rollDisabled, setRollDisabled] = useState<boolean>(true);
@@ -61,6 +62,22 @@ const LendPosition = ({ close }: { close: () => void }) => {
 
   /* HOOK FNS */
   const { closePosition, rollPosition, redeem } = useLendActions();
+
+  /* input validation hoooks */
+  const { inputError: closeError } = useInputValidation(
+    closeInput, 
+    ActionCodes.CLOSE_POSITION, 
+    selectedSeries, 
+    [ 0, maxClose ]
+  );
+
+  const { inputError: rollError } = useInputValidation(
+    rollInput,
+    ActionCodes.ROLL_POSITION,
+    selectedSeries,
+    [0, maxClose]
+  );
+
 
   /* LOCAL FNS */
   const handleStepper = (back: boolean = false) => {
@@ -71,12 +88,12 @@ const LendPosition = ({ close }: { close: () => void }) => {
 
   const handleClosePosition = () => {
     !closeDisabled && closePosition(closeInput, selectedSeries!);
-    setCloseInput('');
   };
+
   const handleRollPosition = () => {
     !rollDisabled && rollToSeries && rollPosition(rollInput, selectedSeries!, rollToSeries);
-    setRollInput('');
   };
+
   const handleRedeem = () => {
     redeem(selectedSeries!, undefined);
   };
@@ -89,45 +106,13 @@ const LendPosition = ({ close }: { close: () => void }) => {
     if (max) setMaxClose(ethers.utils.formatEther(max)?.toString());
   }, [closeInput, rollInput, selectedSeries]);
 
-  /* WATCH FOR WARNINGS AND ERRORS */
-  useEffect(() => {
-    /* closeInput errors */
-    if (activeAccount && (closeInput || closeInput === '')) {
-      /* 1. Check if input exceeds fyToken balance */
-      if (maxClose && parseFloat(closeInput) > parseFloat(maxClose))
-        setCloseError('Amount exceeds available fyToken balance');
-      /* 2. Check if there is a selected series */ else if (closeInput && !selectedSeries)
-        setCloseError('No base series selected');
-      /* 2. Check if input is above zero */ else if (parseFloat(closeInput) < 0)
-        setCloseError('Amount should be expressed as a positive value');
-      /* if all checks pass, set null error message */ else {
-        setCloseError(null);
-      }
-    }
-    /* rollInput errors */
-    if (activeAccount && (rollInput || rollInput === '')) {
-      /* 1. Check if input exceeds fyToken balance */
-      if (maxClose && parseFloat(rollInput) > parseFloat(maxClose))
-        setRollError('Amount exceeds available fyToken balance');
-      /* 2. Check if there is a selected series */ else if (rollInput && !selectedSeries)
-        setRollError('No base series selected');
-      /* 2. Check if input is above zero */ else if (parseFloat(rollInput) < 0)
-        setRollError('Amount should be expressed as a positive value');
-      /* if all checks pass, set null error message */ else {
-        setRollError(null);
-      }
-    }
-  }, [activeAccount, closeInput, rollInput, maxClose, selectedSeries]);
 
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
-
   useEffect(() => {
-    !activeAccount || !closeInput || closeError ? setCloseDisabled(true) : setCloseDisabled(false);
-  }, [closeInput, activeAccount, closeError]);
+    !closeInput || closeError ? setCloseDisabled(true) : setCloseDisabled(false);
+    !rollInput || !rollToSeries || rollError ? setRollDisabled(true) : setRollDisabled(false);
+  }, [closeInput, closeError, rollInput, rollToSeries, rollError]);
 
-  useEffect(() => {
-    !activeAccount || !rollInput || !rollToSeries || rollError ? setRollDisabled(true) : setRollDisabled(false);
-  }, [rollInput, activeAccount, rollError, rollToSeries]);
 
   return (
     <CenterPanelWrap>
@@ -141,7 +126,8 @@ const LendPosition = ({ close }: { close: () => void }) => {
                 <Text size="small"> {abbreviateHash(selectedSeries?.fyTokenAddress!, 5)}</Text>
               </Box>
             </Box>
-            <FiLogOut onClick={() => close()} />
+            <ExitButton action={() => close()} />
+
           </Box>
 
           <SectionWrap>
@@ -166,20 +152,22 @@ const LendPosition = ({ close }: { close: () => void }) => {
           </SectionWrap>
         </Box>
 
-        <Box>
+        <Box height={{ min: '250px' }}>
           <Box elevation="xsmall" round="xsmall">
             <Select
               plain
-              dropProps={{ round:'xsmall' }}
+              dropProps={{ round: 'xsmall' }}
               options={[
                 { text: 'Close Position', index: 0 },
                 { text: 'Roll Position', index: 1 },
                 { text: 'View Trade History', index: 2 },
+                { text: 'Redeem', index: 3 },
               ]}
               labelKey="text"
               valueKey="index"
               value={actionActive}
               onChange={({ option }) => setActionActive(option)}
+              disabled={[3]}
             />
           </Box>
 
@@ -199,6 +187,8 @@ const LendPosition = ({ close }: { close: () => void }) => {
                     <MaxButton
                       action={() => setCloseInput(maxClose)}
                       disabled={maxClose === '0.0' || !selectedSeries}
+                      clearAction = {() => setCloseInput('')}
+                      showingMax= { !!closeInput && closeInput === maxClose }
                     />
                   </InputWrap>
                 </Box>
@@ -210,11 +200,13 @@ const LendPosition = ({ close }: { close: () => void }) => {
                     title="Review your remove transaction"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
-                    < InfoBite
+                    <Box margin={{ top: 'medium' }}>
+                    <InfoBite
                       label="Close Position"
-                      icon={<FiMinusCircle />}
+                      icon={<FiArrowRight />}
                       value={`${closeInput} ${selectedBase?.symbol}`}
                     />
+                    </Box>
                   </SectionWrap>
                 </ActiveTransaction>
               )}
@@ -222,14 +214,34 @@ const LendPosition = ({ close }: { close: () => void }) => {
           )}
 
           {actionActive.index === 1 && (
-            <Box>
+            <Box margin={{ top:'medium' }}>
               {stepPosition[actionActive.index] === 0 && (
-                <Box pad={{ vertical: 'medium' }} fill="horizontal" direction="row" align="center">
+                <Box align="center" fill gap='medium'>
+                  <Box fill >
+                    <InputWrap action={() => console.log('maxAction')} isError={closeError} disabled={!selectedSeries}>
+                      <TextInput
+                        plain
+                        type="number"
+                        placeholder="fyToken amount to roll" // {`${selectedBase?.symbol} to reclaim`}
+                        value={rollInput || ''}
+                        onChange={(event: any) => setRollInput(cleanValue(event.target.value))}
+                        disabled={!selectedSeries}
+                      />
+                      <MaxButton
+                        action={() => setRollInput(maxClose)}
+                        disabled={maxClose === '0.0' || !selectedSeries}
+                        clearAction = {() => setRollInput('')}
+                        showingMax= { !!rollInput && rollInput === maxClose }
+                      />
+                    </InputWrap>
+                  </Box>
+                  <Box fill>
                   <SeriesSelector
                     selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
                     actionType={ActionType.LEND}
                     cardLayout={false}
                   />
+                  </Box>
                 </Box>
               )}
 
@@ -239,18 +251,13 @@ const LendPosition = ({ close }: { close: () => void }) => {
                     title="Review your roll transaction"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
-                    {/* 
-                    < InfoBite
-                        label="Roll"
-                        icon={<FiPlusCircle />}
-                        value={`${rollInput} ${selectedBase?.symbol}`}
-                      /> */}
-
-                    < InfoBite
-                      label="Roll To Series"
-                      icon={<FiPlusCircle />}
-                      value={`${rollToSeries?.displayName}`}
+                    <Box margin={{ top: 'medium' }}>
+                    <InfoBite 
+                      label="Roll To Series" 
+                      icon={<FiArrowRight />}
+                      value={` Roll  ${rollInput} ${selectedBase?.symbol} to ${rollToSeries?.displayName}`} 
                     />
+                    </Box>
                   </SectionWrap>
                 </ActiveTransaction>
               )}
@@ -258,7 +265,6 @@ const LendPosition = ({ close }: { close: () => void }) => {
           )}
 
           {actionActive.index === 2 && <YieldHistory seriesOrVault={selectedSeries!} view={['TRADE']} />}
-
         </Box>
       </Box>
 
@@ -268,6 +274,10 @@ const LendPosition = ({ close }: { close: () => void }) => {
             label={<Text size={mobile ? 'small' : undefined}> Next Step</Text>}
             onClick={() => handleStepper()}
             key="next"
+            disabled={
+              (actionActive.index === 0 && closeDisabled) ||
+              (actionActive.index === 1 && rollDisabled)
+            }
           />
         )}
 

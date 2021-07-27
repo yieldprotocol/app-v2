@@ -14,19 +14,25 @@ function VaultListItem({ vault }: { vault: IVault }) {
   return (
     <Box direction="row" gap="small" align="center" pad="small">
       <PositionAvatar position={vault} />
-
       <Box>
-        <Text weight={900} size="small">
+        <Text weight={900} size="small" color={vault.isActive ? undefined : 'text-xweak'}>
           {vault.displayName}
         </Text>
-        <Box direction="column">
-          <Text weight={450} size="xsmall">
-            {series?.displayNameMobile}
+
+        {vault.isActive ? (
+          <Box direction="column" >
+            <Text weight={450} size="xsmall">
+              {series?.displayNameMobile}
+            </Text>
+            <Text weight={450} size="xsmall">
+              Debt: {vault.art_}
+            </Text>
+          </Box>
+        ) : (
+          <Text weight={450} size="xsmall" color="text-xweak">
+            Vault deleted or transfered
           </Text>
-          <Text weight={450} size="xsmall">
-            Debt: {vault.art_}
-          </Text>
-        </Box>
+        )}
       </Box>
     </Box>
   );

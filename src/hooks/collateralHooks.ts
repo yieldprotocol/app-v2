@@ -7,7 +7,7 @@ import { getTxCode, cleanValue } from '../utils/appUtils';
 import { DAI_BASED_ASSETS, ETH_BASED_ASSETS } from '../utils/constants';
 import { useChain } from './chainHooks';
 
-import { calculateCollateralizationRatio } from '../utils/yieldMath';
+import { calculateCollateralizationRatio, calculateMinCollateral } from '../utils/yieldMath';
 
 /* Collateralisation hook calculates collateralisation metrics */
 export const useCollateralization = (
@@ -24,11 +24,15 @@ export const useCollateralization = (
   /* LOCAL STATE */
   const [collateralizationRatio, setCollateralizationRatio] = useState<string | undefined>();
   const [collateralizationPercent, setCollateralizationPercent] = useState<string | undefined>();
+
   const [undercollateralized, setUndercollateralized] = useState<boolean>(true);
   const [oraclePrice, setOraclePrice] = useState<ethers.BigNumber>();
+
+
   // todo:
   const [collateralizationWarning, setCollateralizationWarning] = useState<string | undefined>();
   const [borrowingPower, setBorrowingPower] = useState<string | undefined>();
+  const [minCollateral, setMinCollateral] = useState<string | undefined>();
 
   /* update the prices if anything changes */
   useEffect(() => {
@@ -68,6 +72,16 @@ export const useCollateralization = (
     } else {
       setUndercollateralized(false);
     }
+
+    /* check minimum collateral required base on debt */
+    // TODO FIX THIS!!
+    if (oraclePrice?.gt(ethers.constants.Zero)) {
+      const min = calculateMinCollateral(totalCollateral, oraclePrice)
+      setMinCollateral(min);
+    } else {
+      setMinCollateral('0');
+    }
+
   }, [collInput, collateralizationPercent, debtInput, oraclePrice, vault]);
 
   // TODO marco add in collateralisation warning at about 150% - 200% " warning: vulnerable to liquidation"
@@ -78,6 +92,7 @@ export const useCollateralization = (
     borrowingPower,
     collateralizationWarning,
     undercollateralized,
+    minCollateral,
   };
 };
 

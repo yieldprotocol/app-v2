@@ -13,6 +13,9 @@ const StyledButton = styled(Button)`
     transform: scale(1.1);
     color: #1d4ed8;
   }
+  :active {
+    transform: scale(1);
+  }
 `;
 
 function BackButton({ action }: { action: () => void }) {

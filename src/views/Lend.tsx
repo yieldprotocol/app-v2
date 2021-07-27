@@ -30,6 +30,7 @@ import InfoBite from '../components/InfoBite';
 import TransactButton from '../components/buttons/TransactButton';
 import YieldApr from '../components/YieldApr';
 import { useApr } from '../hooks/aprHook';
+import { useInputValidation } from '../hooks/inputValidationHook';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -43,13 +44,14 @@ const Lend = () => {
   /* LOCAL STATE */
   const [lendInput, setLendInput] = useState<string>();
   const [maxLend, setMaxLend] = useState<string | undefined>();
-  const [lendError, setLendError] = useState<string | null>(null);
   const [lendDisabled, setLendDisabled] = useState<boolean>(true);
   const [stepPosition, setStepPosition] = useState<number>(0);
 
   /* HOOK FNS */
   const { lend, redeem } = useLendActions();
   const { apr } = useApr(lendInput, ActionType.LEND, selectedSeries);
+  /* input validation hooks */
+  const { inputError: lendError } = useInputValidation(lendInput, ActionCodes.LEND, selectedSeries, [0, maxLend]);
 
   /* LOCAL FNS */
   const handleLend = () => {
@@ -69,21 +71,6 @@ const Lend = () => {
       })();
     }
   }, [activeAccount, lendInput, selectedBase, setMaxLend]);
-
-  /* WATCH FOR WARNINGS AND ERRORS */
-  useEffect(() => {
-    /* lendInput errors */
-    if (activeAccount && (lendInput || lendInput === '')) {
-      /* 1. Check if input exceeds balance */
-      if (maxLend && parseFloat(lendInput) > parseFloat(maxLend)) setLendError('Amount exceeds balance');
-      /* 2. Check if input is above zero */ else if (parseFloat(lendInput) < 0)
-        setLendError('Amount should be expressed as a positive value');
-      /* 2. next Check */ else if (false) setLendError('Insufficient');
-      /* if all checks pass, set null error message */ else {
-        setLendError(null);
-      }
-    }
-  }, [activeAccount, lendInput, maxLend, setLendError]);
 
   /* ACTION DISABLING LOGIC  - if conditions are met: allow action */
   useEffect(() => {
@@ -110,11 +97,11 @@ const Lend = () => {
           {stepPosition === 0 && (
             <Box gap="medium">
               <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
-                <YieldMark />
-                <Text>LEND</Text>
+                {/* <YieldMark height='1em' startColor='grey' endColor='grey' /> */}
+                <Text color="grey">LEND</Text>
               </Box>
-              <SectionWrap title="Select asset and amount">
-                <Box direction="row" gap="small" fill="horizontal" align="start" pad={{ vertical: 'small' }}>
+              <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}>
+                <Box direction="row" gap="small" fill="horizontal" align="start">
                   <Box basis={mobile ? '50%' : '60%'}>
                     <InputWrap
                       action={() => console.log('maxAction')}
@@ -132,6 +119,8 @@ const Lend = () => {
                       <MaxButton
                         action={() => setLendInput(maxLend)}
                         disabled={maxLend === '0' || selectedSeries?.seriesIsMature}
+                        clearAction={() => setLendInput('')}
+                        showingMax={!!lendInput && (lendInput === maxLend || !!lendError)}
                       />
                     </InputWrap>
                   </Box>
@@ -141,7 +130,7 @@ const Lend = () => {
                 </Box>
               </SectionWrap>
 
-              <SectionWrap title="Select series">
+              <SectionWrap title={seriesMap.size > 0 ? 'Select a series' : ''}>
                 <SeriesSelector inputValue={lendInput} actionType={ActionType.LEND} />
               </SectionWrap>
             </Box>
@@ -151,8 +140,8 @@ const Lend = () => {
             <Box gap="large">
               <BackButton action={() => setStepPosition(0)} />
 
-              <ActiveTransaction txCode={getTxCode(ActionCodes.LEND, selectedSeriesId)} size="LARGE">
-                <SectionWrap title="Review transaction">
+              <ActiveTransaction txCode={getTxCode(ActionCodes.LEND, selectedSeriesId)} full>
+                <SectionWrap title="Review transaction:">
                   <Box
                     gap="small"
                     pad={{ horizontal: 'large', vertical: 'medium' }}

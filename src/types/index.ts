@@ -134,6 +134,8 @@ export interface IAsset extends IAssetRoot {
 }
 
 export interface IVault extends IVaultRoot {
+  owner: string;
+  isActive: boolean;
   ink: BigNumber;
   art: BigNumber;
   ink_: string;
@@ -242,20 +244,20 @@ export enum ActionCodes {
   // VAULT
   DELETE_VAULT = 'Delete Vault',
   TRANSFER_VAULT = 'Transfer Vault',
+  MERGE_VAULT = 'Merge Vault',
 }
 
-export interface IHistItemBase {
+export interface IBaseHistItem {
   blockNumber: number;
   date: Date;
   transactionHash: string;
-  maturity: number;
-  seriesId: string;
+  series: ISeries;
   histType: ActionCodes;
   date_: string;
+  primaryInfoField?: string;
 }
 
-export interface IHistItemVault extends IHistItemBase {
-  vaultId: string;
+export interface IHistItemVault extends IBaseHistItem {
   ilkId: string;
   ink: BigNumber;
   art: BigNumber;
@@ -263,7 +265,7 @@ export interface IHistItemVault extends IHistItemBase {
   art_: String;
 }
 
-export interface IHistItemPosition extends IHistItemBase {
+export interface IHistItemPosition extends IBaseHistItem {
   bases: BigNumber;
   fyTokens: BigNumber;
   bases_: string;

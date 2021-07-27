@@ -18,7 +18,7 @@ function PositionAvatar({ position, condensed }: { position: IVault | ISeries, c
   const ilk: IAsset | undefined = vault && assetMap.get(vault.ilkId); // doesn't exist on series
 
   return (
-    <Box>
+    <>
       {isVault ? (
         <Stack anchor="top-right">
           <Avatar background={series?.color} size={condensed?'1.5rem':undefined}>
@@ -37,7 +37,7 @@ function PositionAvatar({ position, condensed }: { position: IVault | ISeries, c
           </Box>
         </Avatar>
       )}
-    </Box>
+    </>
   );
 }
 

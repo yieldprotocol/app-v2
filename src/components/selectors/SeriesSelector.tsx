@@ -24,22 +24,9 @@ background 0.3s ease-in-out;
 }
 `;
 
-const StampText = styled(Text)`
-  font-weight: 700;
-  padding: 0.1rem 0.1rem;
-  text-transform: uppercase;
-  border-radius: 0.5rem;
-  font-family: 'Courier';
-  -webkit-mask-image: url('https://s3-us-west-2.amazonaws.com/s.cdpn.io/8399/grunge.png');
-  -webkit-mask-size: 500px 200px;
-  mix-blend-mode: multiply;
-
-  color: #d21;
-  border: 0.05rem solid #d21;
-  transform: rotate(-10deg);
-  -webkit-mask-position: 1rem 1.5rem;
-  font-size: 0.5rem;
-  overflow: hidden;
+const InsetBox = styled(Box)`
+  border-radius: 8px;
+  box-shadow: inset 1px 1px 1px #ddd, inset -0.25px -0.25px 0.25px #ddd;
 `;
 
 interface ISeriesSelectorProps {
@@ -192,7 +179,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
   return (
     <>
       {!cardLayout && (
-        <Box fill="horizontal" border round="xsmall">
+        <InsetBox fill="horizontal" round="xsmall">
           <Select
             plain
             dropProps={{ round: 'xsmall' }}
@@ -222,7 +209,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
               </Box>
             )}
           />
-        </Box>
+        </InsetBox>
       )}
 
       {cardLayout && (
