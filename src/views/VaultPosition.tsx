@@ -35,6 +35,7 @@ import TransactButton from '../components/buttons/TransactButton';
 import CancelButton from '../components/buttons/CancelButton';
 import VaultDropSelector from '../components/selectors/VaultDropSelector';
 import ExitButton from '../components/buttons/ExitButton';
+import { useInputValidation } from '../hooks/inputValidationHook';
 
 const Vault = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -64,32 +65,31 @@ const Vault = ({ close }: { close: () => void }) => {
   const onActive = (nextIndex: number) => setTabIndex(nextIndex);
 
   // stepper for stepping within multiple tabs
-  const [stepPosition, setStepPosition] = useState<number[]>([0, 0, 0, 0, 0, 0, 0]);
+  const [stepPosition, setStepPosition] = useState<number[]>(new Array(7).fill(0));
 
   const [repayInput, setRepayInput] = useState<any>(undefined);
-  const [borrowInput, setBorrowInput] = useState<any>(undefined);
   const [collatInput, setCollatInput] = useState<any>(undefined);
 
   const [addCollatInput, setAddCollatInput] = useState<any>(undefined);
   const [removeCollatInput, setRemoveCollatInput] = useState<any>(undefined);
 
-  const [rollInput, setRollInput] = useState<any>(undefined);
   const [rollToSeries, setRollToSeries] = useState<ISeries | null>(null);
 
   const [transferToAddressInput, setTransferToAddressInput] = useState<string>('');
 
   const [maxRepay, setMaxRepay] = useState<string | undefined>();
-  const [maxCollat, setMaxCollat] = useState<string | undefined>();
-
-  const [repayError, setRepayError] = useState<string | null>(null);
-  const [borrowError, setBorrowError] = useState<string | null>(null);
-  const [addCollatError, setAddCollatError] = useState<string | null>(null);
-  const [removeCollatError, setRemoveCollatError] = useState<string | null>(null);
+  const [maxAddCollat, setMaxAddCollat] = useState<string | undefined>();
+  const [maxRemoveCollat, setMaxRemoveCollat] = useState<string | undefined>();
 
   const [repayDisabled, setRepayDisabled] = useState<boolean>(true);
+  const [rollDisabled, setRollDisabled] = useState<boolean>(true);
+  const [removeCollateralDisabled, setRemoveCollateralDisabled] = useState<boolean>(true);
+  const [addCollateralDisabled, setAddCollateralDisabled] = useState<boolean>(true);
+  const [mergeDisabled, setMergeDisabled] = useState<boolean>(true);
+  const [transferDisabled, setTransferDisabled] = useState<boolean>(true);
+  const [deleteDisabled, setDeleteDisabled] = useState<boolean>(true);
 
   const [actionActive, setActionActive] = useState<any>(selectedVault?.isActive ? { index: 0 } : { index: 3 });
-  // const [rollDisabled, setRollDisabled] = useState<boolean>(true);
 
   const initialMergeData = {
     toVault: null,
@@ -101,6 +101,7 @@ const Vault = ({ close }: { close: () => void }) => {
     totalMergedInk: null,
     totalMergedArt: null,
   };
+
   const [mergeData, setMergeData] = useState<any>(initialMergeData);
 
   const [destroyDisabled, setDestroyDisabled] = useState<boolean>(true);
@@ -111,6 +112,18 @@ const Vault = ({ close }: { close: () => void }) => {
   /* HOOK FNS */
   const { repay, borrow, rollDebt, transfer, merge, destroy } = useBorrowActions();
   const { addCollateral, removeCollateral } = useCollateralActions();
+
+  const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries, [0, maxRepay]);
+  const { inputError: addCollatError } = useInputValidation(addCollatInput, ActionCodes.ADD_COLLATERAL, vaultSeries, [
+    0,
+    maxAddCollat,
+  ]);
+  const { inputError: removeCollatError } = useInputValidation(
+    removeCollatInput,
+    ActionCodes.REMOVE_COLLATERAL,
+    vaultSeries,
+    [0, maxRemoveCollat]
+  );
 
   useEffect(() => {
     const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
@@ -135,11 +148,6 @@ const Vault = ({ close }: { close: () => void }) => {
   const handleRepay = () => {
     selectedVault && repay(selectedVault, repayInput?.toString());
     setRepayInput('');
-  };
-
-  const handleBorrow = () => {
-    selectedVault && borrow(selectedVault, borrowInput, '0');
-    setBorrowInput('');
   };
 
   const handleCollateral = (action: 'ADD' | 'REMOVE') => {
@@ -224,53 +232,45 @@ const Vault = ({ close }: { close: () => void }) => {
     activeAccount &&
       (async () => {
         const _max = await vaultIlk?.getBalance(activeAccount);
-        _max && setMaxCollat(ethers.utils.formatEther(_max)?.toString());
+        _max && setMaxAddCollat(ethers.utils.formatEther(_max)?.toString());
       })();
-  }, [activeAccount, vaultIlk, setMaxCollat]);
+  }, [activeAccount, vaultIlk, setMaxAddCollat]);
 
-  /* WATCH FOR WARNINGS AND ERRORS */
-
-  /* CHECK for any repay input errors/warnings */
   useEffect(() => {
-    if (repayInput || repayInput === '') {
-      /* 1. Check if input exceeds balance */
-      if (maxRepay && parseFloat(repayInput) > parseFloat(maxRepay))
-        setRepayError('Repay amount exceeds maximum available');
-      /* 3. next check */ else if (maxRepay && parseFloat(maxRepay) === 0) setRepayError('Zero token balance');
-      /* 2. Check if input is above zero */ else if (parseFloat(repayInput) < 0)
-        setRepayError('Amount should be expressed as a positive value');
-      /* if all checks pass, set null error message */ else {
-        setRepayError(null);
-      }
-    }
-  }, [repayInput, maxRepay, setRepayError]);
-
-  /* CHECK for any collateral input errors/warnings */
-  useEffect(() => {
-    if (addCollatInput || addCollatInput === '') {
-      /* 1. Check if input exceeds balance */
-      if (maxCollat && parseFloat(addCollatInput) > parseFloat(maxCollat)) setAddCollatError('Amount exceeds balance');
-      /* 2. Check if input is above zero */ else if (parseFloat(collatInput) < 0)
-        setAddCollatError('Amount should be expressed as a positive value');
-      /* 3. next check */ else if (false) setAddCollatError('Undercollateralised');
-      /* if all checks pass, set null error message */ else {
-        setAddCollatError(null);
-      }
-    }
-  }, [addCollatInput, maxCollat, setAddCollatError]);
+    /* CHECK collateral selection and sets the max available collateral */
+    activeAccount &&
+      (async () => {
+        setMaxRemoveCollat(ethers.utils.formatEther(selectedVault?.ink!));
+      })();
+  }, [activeAccount, vaultIlk, setMaxRemoveCollat, selectedVault?.ink]);
 
   /* ACTION DISABLING LOGIC */
-
   useEffect(() => {
     /* if ANY of the following conditions are met: block action */
     !repayInput || repayError ? setRepayDisabled(true) : setRepayDisabled(false);
-  }, [repayInput, repayError, collatInput]);
+    !rollToSeries ? setRollDisabled(true) : setRollDisabled(false);
+    !mergeData.toVault ? setMergeDisabled(true) : setMergeDisabled(false);
+    !destroyInput ? setDeleteDisabled(true) : setDeleteDisabled(false);
+    !transferToAddressInput ? setTransferDisabled(true) : setTransferDisabled(false);
+    !addCollatInput || addCollatError ? setAddCollateralDisabled(true) : setAddCollateralDisabled(false);
+    !removeCollatInput || removeCollatError ? setRemoveCollateralDisabled(true) : setRemoveCollateralDisabled(false);
+  }, [
+    repayInput,
+    repayError,
+    collatInput,
+    rollToSeries,
+    mergeData,
+    destroyInput,
+    transferToAddressInput,
+    addCollatInput,
+    removeCollatInput,
+    addCollatError,
+    removeCollatError,
+  ]);
 
   /* EXTRA INITIATIONS */
 
   useEffect(() => {
-    // setAvailableVaults(Array.from(vaultMap.values())); // add some filtering here
-
     /* set global series, base and ilk */
     selectedVault && userActions.setSelectedSeries(selectedVault.seriesId);
     selectedVault && userActions.setSelectedBase(selectedVault.baseId);
@@ -330,7 +330,7 @@ const Vault = ({ close }: { close: () => void }) => {
                 <Box direction="row" pad="medium" gap="small" align="center">
                   <FiAlertTriangle size="3em" />
                   <Box gap="xsmall">
-                    <Text>This account no longer controls this vault</Text>
+                    <Text>The connected account no longer owns this vault</Text>
                   </Box>
                 </Box>
 
@@ -349,7 +349,7 @@ const Vault = ({ close }: { close: () => void }) => {
               plain
               options={[
                 { text: 'Repay Debt', index: 0 },
-                { text: 'Roll All Debt', index: 1 },
+                { text: 'Roll Debt', index: 1 },
                 { text: 'Manage Collateral', index: 2 },
                 { text: 'View History', index: 3 },
                 { text: 'Transfer Vault', index: 4 },
@@ -396,7 +396,11 @@ const Vault = ({ close }: { close: () => void }) => {
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
                     <Box margin={{ top: 'medium' }}>
-                      <InfoBite label="Repay Debt" icon={<FiClock />} value={`${repayInput} ${vaultBase?.symbol}`} />
+                      <InfoBite
+                        label="Repay Debt"
+                        icon={<FiArrowRight />}
+                        value={`${repayInput} ${vaultBase?.symbol}`}
+                      />
                     </Box>
                   </SectionWrap>
                 </ActiveTransaction>
@@ -426,7 +430,11 @@ const Vault = ({ close }: { close: () => void }) => {
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
                     <Box margin={{ top: 'medium' }}>
-                      <InfoBite label="Roll Debt to Series" icon={<FiClock />} value={`${rollToSeries?.displayName}`} />
+                      <InfoBite
+                        label="Roll Debt to Series"
+                        icon={<FiArrowRight />}
+                        value={`${rollToSeries?.displayName}`}
+                      />
                     </Box>
                   </SectionWrap>
                 </ActiveTransaction>
@@ -451,9 +459,9 @@ const Vault = ({ close }: { close: () => void }) => {
                       />
                       <MaxButton
                         disabled={removeCollatInput}
-                        action={() => setAddCollatInput(maxCollat)}
+                        action={() => setAddCollatInput(maxAddCollat)}
                         clearAction={() => setAddCollatInput('')}
-                        showingMax={!!addCollatInput && addCollatInput === maxCollat}
+                        showingMax={!!addCollatInput && addCollatInput === maxAddCollat}
                       />
                     </InputWrap>
                   </Box>
@@ -470,7 +478,7 @@ const Vault = ({ close }: { close: () => void }) => {
                       />
                       <MaxButton
                         disabled={!!addCollatInput}
-                        action={() => setRemoveCollatInput(ethers.utils.formatEther(selectedVault?.ink!))}
+                        action={() => setRemoveCollatInput(maxRemoveCollat)}
                         clearAction={() => setRemoveCollatInput('')}
                         showingMax={
                           !!removeCollatInput && ethers.utils.formatEther(selectedVault?.ink!) === removeCollatInput
@@ -498,14 +506,14 @@ const Vault = ({ close }: { close: () => void }) => {
                       {addCollatInput && (
                         <InfoBite
                           label="Add Collateral"
-                          icon={<FiPlusCircle />}
+                          icon={<FiArrowRight />}
                           value={`${addCollatInput} ${vaultIlk?.symbol}`}
                         />
                       )}
                       {removeCollatInput && (
                         <InfoBite
                           label="Remove Collateral"
-                          icon={<FiPlusCircle />}
+                          icon={<FiArrowRight />}
                           value={`${removeCollatInput} ${vaultIlk?.symbol}`}
                         />
                       )}
@@ -546,7 +554,7 @@ const Vault = ({ close }: { close: () => void }) => {
                     <Box margin={{ top: 'medium' }}>
                       <InfoBite
                         label="Transfer Vault to: "
-                        icon={<FiPlusCircle />}
+                        icon={<FiArrowRight />}
                         value={transferToAddressInput !== '' ? abbreviateHash(transferToAddressInput) : ''}
                       />
                     </Box>
@@ -609,10 +617,16 @@ const Vault = ({ close }: { close: () => void }) => {
                   pad
                 >
                   <SectionWrap
-                    title="Review your merge transaction"
+                    title="Review transaction:"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
-                    <Box gap="small">
+                    <Box margin={{ top: 'medium' }}>
+                      <InfoBite
+                        label={`Merging debt/collateral in this vault with vault: `}
+                        icon={<FiArrowRight />}
+                        value={`${mergeData.toVault.displayName}`}
+                      />
+                      {/* 
                       <InfoBite
                         label={`Merge ${selectedVault?.displayName} collateral with ${mergeData.toVault.displayName}: `}
                         icon={<FiArrowRight />}
@@ -622,7 +636,7 @@ const Vault = ({ close }: { close: () => void }) => {
                         label={`Merge ${selectedVault?.displayName} debt with ${mergeData.toVault.displayName}: `}
                         icon={<FiArrowRight />}
                         value={`${mergeData.toVault.displayName} debt: ${mergeData.totalMergedArt}`}
-                      />
+                      /> */}
                     </Box>
                   </SectionWrap>
                 </ActiveTransaction>
@@ -659,7 +673,7 @@ const Vault = ({ close }: { close: () => void }) => {
                       <InfoBite
                         // label="Pay back all debt and delete vault:"
                         label="Delete vault (vault must have 0 debt and 0 collateral):"
-                        icon={<FiPlusCircle />}
+                        icon={<FiArrowRight />}
                         value={destroyInput}
                       />
                     </Box>
@@ -680,7 +694,15 @@ const Vault = ({ close }: { close: () => void }) => {
               label={<Text size={mobile ? 'small' : undefined}> Next Step </Text>}
               onClick={() => handleStepper()}
               key="next"
-              disabled={!selectedVault?.isActive}
+              disabled={
+                (actionActive.index === 0 && repayDisabled) ||
+                (actionActive.index === 1 && rollDisabled) ||
+                (actionActive.index === 2 && removeCollatInput && removeCollateralDisabled ) ||
+                (actionActive.index === 2 && addCollatInput && addCollateralDisabled ) ||
+                (actionActive.index === 4 && transferDisabled) ||
+                (actionActive.index === 5 && mergeDisabled) ||
+                (actionActive.index === 6 && deleteDisabled)
+              }
             />
           )}
 
