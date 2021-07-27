@@ -94,7 +94,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
         value={selectCollateral ? selectedIlk : selectedBase}
         labelKey={(x: IAssetRoot | undefined) => optionText(x)}
         valueLabel={
-          <Box pad={mobile ? 'medium' : { vertical: '0.55em', horizontal: 'xsmall' }}>
+          <Box pad={mobile ? 'medium' : { vertical: '0.55em', horizontal: 'small' }}>
             <Text color="text"> {optionText(selectCollateral ? selectedIlk : selectedBase)} </Text>
           </Box>
         }
