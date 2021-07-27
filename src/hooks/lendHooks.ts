@@ -148,7 +148,6 @@ export const useLendActions = () => {
       },
 
       /* AFTER MATURITY */
-
       {
         // ladle.transferToFYTokenAction(seriesId, fyTokenToRoll)
         operation: LadleActions.Fn.TRANSFER_TO_FYTOKEN,
@@ -229,9 +228,7 @@ export const useLendActions = () => {
   const redeem = async (series: ISeries, input: string | undefined) => {
     const txCode = getTxCode(ActionCodes.REDEEM, series.id);
     const base = assetMap.get(series.baseId);
-
     const _input = input ? ethers.utils.parseEther(input) : series.fyTokenBalance || ethers.constants.Zero;
-
     const permits: ICallData[] = await sign(
       [
         /* AFTER MATURITY */

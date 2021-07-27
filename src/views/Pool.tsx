@@ -28,6 +28,7 @@ import BackButton from '../components/buttons/BackButton';
 import YieldMark from '../components/logos/YieldMark';
 import NextButton from '../components/buttons/NextButton';
 import TransactButton from '../components/buttons/TransactButton';
+import { useInputValidation } from '../hooks/inputValidationHook';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -43,8 +44,6 @@ function Pool() {
   const [poolInput, setPoolInput] = useState<string>();
   const [maxPool, setMaxPool] = useState<string | undefined>();
 
-  const [poolError, setPoolError] = useState<string | null>(null);
-
   const [poolDisabled, setPoolDisabled] = useState<boolean>(true);
 
   const [strategy, setStrategy] = useState<'BUY' | 'MINT'>('BUY');
@@ -53,8 +52,9 @@ function Pool() {
 
   /* HOOK FNS */
   const { addLiquidity } = usePoolActions();
-
   const { poolMax } = usePool(poolInput);
+  /* input validation hooks */
+  const { inputError: poolError } = useInputValidation(poolInput, ActionCodes.LEND, selectedSeries, [0, maxPool]);
 
   /* LOCAL ACTION FNS */
   const handleAdd = () => {
@@ -72,21 +72,6 @@ function Pool() {
       })();
     }
   }, [activeAccount, poolInput, selectedBase, setMaxPool]);
-
-  /* WATCH FOR WARNINGS AND ERRORS */
-  useEffect(() => {
-    /* CHECK for any lendInput errors */
-    if (activeAccount && (poolInput || poolInput === '')) {
-      /* 1. Check if input exceeds balance */
-      if (maxPool && parseFloat(poolInput) > parseFloat(maxPool)) setPoolError('Amount exceeds balance');
-      /* 2. Check if input is above zero */ else if (parseFloat(poolInput) < 0)
-        setPoolError('Amount should be expressed as a positive value');
-      /* 2. next Check */ else if (false) setPoolError('Insufficient');
-      /* if all checks pass, set null error message */ else {
-        setPoolError(null);
-      }
-    }
-  }, [activeAccount, poolInput, maxPool]);
 
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
   useEffect(() => {

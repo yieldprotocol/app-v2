@@ -24,6 +24,7 @@ import CancelButton from '../components/buttons/CancelButton';
 import TransactButton from '../components/buttons/TransactButton';
 import YieldHistory from '../components/YieldHistory';
 import ExitButton from '../components/buttons/ExitButton';
+import { useInputValidation } from '../hooks/inputValidationHook';
 
 const PoolPosition = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -43,8 +44,8 @@ const PoolPosition = ({ close }: { close: () => void }) => {
   const [rollToSeries, setRollToSeries] = useState<ISeries | null>(null);
   const [maxRemove, setMaxRemove] = useState<string | undefined>();
 
-  const [removeError, setRemoveError] = useState<string | null>(null);
-  const [rollError, setRollError] = useState<string | null>(null);
+  // const [removeError, setRemoveError] = useState<string | null>(null);
+  // const [rollError, setRollError] = useState<string | null>(null);
 
   const [removeDisabled, setRemoveDisabled] = useState<boolean>(true);
   const [rollDisabled, setRollDisabled] = useState<boolean>(true);
@@ -55,6 +56,21 @@ const PoolPosition = ({ close }: { close: () => void }) => {
 
   /* HOOK FNS */
   const { removeLiquidity, rollLiquidity } = usePoolActions();
+
+    /* input validation hoooks */
+    const { inputError: removeError } = useInputValidation(
+      removeInput, 
+      ActionCodes.REMOVE_LIQUIDITY, 
+      selectedSeries, 
+      [ 0, maxRemove ]
+    );
+  
+    const { inputError: rollError } = useInputValidation(
+      rollInput,
+      ActionCodes.ROLL_LIQUIDITY,
+      selectedSeries,
+      [0, maxRemove]
+    );
 
   /* LOCAL FNS */
   const handleStepper = (back: boolean = false) => {
@@ -80,38 +96,6 @@ const PoolPosition = ({ close }: { close: () => void }) => {
     if (max) setMaxRemove(ethers.utils.formatEther(max).toString());
   }, [rollInput, selectedSeries, setMaxRemove]);
 
-  /* WATCH FOR WARNINGS AND ERRORS */
-  useEffect(() => {
-    /* CHECK for any removeInput errors */
-    if (activeAccount && (removeInput || removeInput === '')) {
-      /* 1. Check if input exceeds fyToken balance */
-      if (maxRemove && parseFloat(removeInput) > parseFloat(maxRemove))
-        setRemoveError('Amount exceeds liquidity token balance');
-      /* 2. Check if there is a selected series */ else if (removeInput && !selectedSeries)
-        setRemoveError('No base series selected');
-      /* 2. Check if input is above zero */ else if (parseFloat(removeInput) < 0)
-        setRemoveError('Amount should be expressed as a positive value');
-      /* if all checks pass, set null error message */ else {
-        setRemoveError(null);
-      }
-    }
-  }, [activeAccount, removeInput, maxRemove, selectedSeries]);
-
-  useEffect(() => {
-    /* CHECK for any rollInput errors */
-    if (activeAccount && (rollInput || rollInput === '')) {
-      /* 1. Check if input exceeds fyToken balance */
-      if (maxRemove && parseFloat(rollInput) > parseFloat(maxRemove))
-        setRollError('Amount exceeds liquidity token balance');
-      /* 2. Check if there is a selected series */ else if (rollInput && !selectedSeries)
-        setRollError('No base series selected');
-      /* 2. Check if input is above zero */ else if (parseFloat(rollInput) < 0)
-        setRollError('Amount should be expressed as a positive value');
-      /* if all checks pass, set null error message */ else {
-        setRollError(null);
-      }
-    }
-  }, [activeAccount, rollInput, maxRemove, selectedSeries]);
 
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
 

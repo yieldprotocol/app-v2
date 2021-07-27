@@ -39,6 +39,7 @@ import TransactButton from '../components/buttons/TransactButton';
 import { useApr } from '../hooks/aprHook';
 import PositionAvatar from '../components/PositionAvatar';
 import VaultDropSelector from '../components/selectors/VaultDropSelector';
+import { useInputValidation } from '../hooks/inputValidationHook';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -62,9 +63,6 @@ const Borrow = () => {
   const [borrowDisabled, setBorrowDisabled] = useState<boolean>(true);
   const [stepDisabled, setStepDisabled] = useState<boolean>(true);
 
-  const [borrowInputError, setBorrowInputError] = useState<string | null>(null);
-  const [collatInputError, setCollatInputError] = useState<string | null>(null);
-
   const [vaultToUse, setVaultToUse] = useState<IVault | undefined>();
   const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
 
@@ -72,6 +70,15 @@ const Borrow = () => {
 
   const { borrow } = useBorrowActions();
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
+  
+  /* input validation hoooks */
+  const { inputError: borrowInputError } = useInputValidation(borrowInput, ActionCodes.BORROW, selectedSeries, []);
+  const { inputError: collatInputError } = useInputValidation(
+    borrowInput,
+    ActionCodes.ADD_COLLATERAL,
+    selectedSeries,
+    [0, maxCollat]
+  );
 
   const { collateralizationPercent, collateralizationWarning, undercollateralized } = useCollateralization(
     borrowInput,
@@ -94,34 +101,6 @@ const Borrow = () => {
         _max && setMaxCollat(ethers.utils.formatEther(_max)?.toString());
       })();
   }, [activeAccount, selectedIlk, setMaxCollat]);
-
-  /* WATCH FOR WARNINGS AND ERRORS */
-
-  /* CHECK for any borrow input errors/warnings */
-  useEffect(() => {
-    if (activeAccount && (borrowInput || borrowInput === '')) {
-      /* 1. Check if input exceeds amount available in pools */
-      if (borrowInput && selectedSeries && ethers.utils.parseEther(borrowInput).gt(selectedSeries.baseReserves))
-        setBorrowInputError(`Amount exceeds the ${selectedBase?.symbol} currently available in pool`);
-      /* 2. Check if input is above zero */ else if (parseFloat(borrowInput) < 0)
-        setBorrowInputError('Amount should be expressed as a positive value');
-      /* if all checks pass, set null error message */ else {
-        setBorrowInputError(null);
-      }
-    }
-  }, [activeAccount, borrowInput, selectedSeries, selectedBase, setBorrowInputError]);
-
-  /* CHECK for any collateral input errors/warnings */
-  useEffect(() => {
-    if (activeAccount && (collatInput || collatInput === '')) {
-      if (maxCollat && parseFloat(collatInput) > parseFloat(maxCollat)) setCollatInputError('Amount exceeds balance');
-      else if (parseFloat(collatInput) < 0) setCollatInputError('Amount should be expressed as a positive value');
-      // else if (undercollateralized) setCollatInputError('Undercollateralised');
-      else {
-        setCollatInputError(null);
-      }
-    }
-  }, [activeAccount, collatInput, maxCollat, setCollatInputError]);
 
   /* BORROW DISABLING LOGIC */
   useEffect(() => {
@@ -150,7 +129,7 @@ const Borrow = () => {
 
   /* ADD COLLATERAL DISABLING LOGIC */
 
-  /* if ANY of the following conditions are met: block action */
+  /* if ANY of the following conditions are met: block next step action */
   useEffect(() => {
     !activeAccount || !borrowInput || !selectedSeries || borrowInputError || selectedSeries?.seriesIsMature
       ? setStepDisabled(true)
@@ -258,8 +237,8 @@ const Borrow = () => {
                           <MaxButton
                             action={() => maxCollat && setCollatInput(maxCollat)}
                             disabled={!selectedSeries || collatInput === maxCollat || selectedSeries.seriesIsMature}
-                            clearAction = {() => setCollatInput('')}
-                            showingMax= { !!collatInput && collatInput === maxCollat }
+                            clearAction={() => setCollatInput('')}
+                            showingMax={!!collatInput && collatInput === maxCollat}
                           />
                         </InputWrap>
                       </Box>
@@ -270,16 +249,16 @@ const Borrow = () => {
                   </SectionWrap>
 
                   {/* {matchingVaults.length > 0 && ( */}
-                    <SectionWrap title="Add to an exisiting vault" disabled={matchingVaults.length < 1}>
-                      <VaultDropSelector
-                        vaults={matchingVaults}
-                        handleSelect={(option: any) => setVaultToUse(option)}
-                        itemSelected={vaultToUse}
-                        selectedIlk={selectedIlk}
-                        displayName="Create New Vault"
-                        placeholder="Create New Vault"
-                      />
-                    </SectionWrap>
+                  <SectionWrap title="Add to an exisiting vault" disabled={matchingVaults.length < 1}>
+                    <VaultDropSelector
+                      vaults={matchingVaults}
+                      handleSelect={(option: any) => setVaultToUse(option)}
+                      itemSelected={vaultToUse}
+                      selectedIlk={selectedIlk}
+                      displayName="Create New Vault"
+                      placeholder="Create New Vault"
+                    />
+                  </SectionWrap>
                   {/* )} */}
 
                   <SectionWrap>

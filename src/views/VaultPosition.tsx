@@ -35,6 +35,7 @@ import TransactButton from '../components/buttons/TransactButton';
 import CancelButton from '../components/buttons/CancelButton';
 import VaultDropSelector from '../components/selectors/VaultDropSelector';
 import ExitButton from '../components/buttons/ExitButton';
+import { useInputValidation } from '../hooks/inputValidationHook';
 
 const Vault = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -73,18 +74,17 @@ const Vault = ({ close }: { close: () => void }) => {
   const [addCollatInput, setAddCollatInput] = useState<any>(undefined);
   const [removeCollatInput, setRemoveCollatInput] = useState<any>(undefined);
 
-  const [rollInput, setRollInput] = useState<any>(undefined);
   const [rollToSeries, setRollToSeries] = useState<ISeries | null>(null);
 
   const [transferToAddressInput, setTransferToAddressInput] = useState<string>('');
 
   const [maxRepay, setMaxRepay] = useState<string | undefined>();
-  const [maxCollat, setMaxCollat] = useState<string | undefined>();
+  const [maxAddCollat, setMaxAddCollat] = useState<string | undefined>();
+  const [maxRemoveCollat, setMaxRemoveCollat] = useState<string | undefined>();
 
-  const [repayError, setRepayError] = useState<string | null>(null);
-  const [borrowError, setBorrowError] = useState<string | null>(null);
-  const [addCollatError, setAddCollatError] = useState<string | null>(null);
-  const [removeCollatError, setRemoveCollatError] = useState<string | null>(null);
+  // const [repayError, setRepayError] = useState<string | null>(null);
+  // const [addCollatError, setAddCollatError] = useState<string | null>(null);
+  // const [removeCollatError, setRemoveCollatError] = useState<string | null>(null);
 
   const [repayDisabled, setRepayDisabled] = useState<boolean>(true);
 
@@ -112,6 +112,29 @@ const Vault = ({ close }: { close: () => void }) => {
   const { repay, borrow, rollDebt, transfer, merge, destroy } = useBorrowActions();
   const { addCollateral, removeCollateral } = useCollateralActions();
 
+
+  const { inputError: repayError } = useInputValidation(
+    repayInput,
+    ActionCodes.REPAY,
+    vaultSeries,
+    [0, maxRepay]
+  );
+
+  const { inputError: addCollatError } = useInputValidation(
+    addCollatInput,
+    ActionCodes.ADD_COLLATERAL,
+    vaultSeries,
+    [0, maxAddCollat]
+  );
+
+  const { inputError: removeCollatError } = useInputValidation(
+    removeCollatInput,
+    ActionCodes.REMOVE_COLLATERAL,
+    vaultSeries,
+    [0, maxRemoveCollat]
+  );
+
+
   useEffect(() => {
     const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
     const _matchingVaults = arr.filter(
@@ -135,11 +158,6 @@ const Vault = ({ close }: { close: () => void }) => {
   const handleRepay = () => {
     selectedVault && repay(selectedVault, repayInput?.toString());
     setRepayInput('');
-  };
-
-  const handleBorrow = () => {
-    selectedVault && borrow(selectedVault, borrowInput, '0');
-    setBorrowInput('');
   };
 
   const handleCollateral = (action: 'ADD' | 'REMOVE') => {
@@ -224,40 +242,17 @@ const Vault = ({ close }: { close: () => void }) => {
     activeAccount &&
       (async () => {
         const _max = await vaultIlk?.getBalance(activeAccount);
-        _max && setMaxCollat(ethers.utils.formatEther(_max)?.toString());
+        _max && setMaxAddCollat(ethers.utils.formatEther(_max)?.toString());
       })();
-  }, [activeAccount, vaultIlk, setMaxCollat]);
+  }, [activeAccount, vaultIlk, setMaxAddCollat]);
 
-  /* WATCH FOR WARNINGS AND ERRORS */
-
-  /* CHECK for any repay input errors/warnings */
   useEffect(() => {
-    if (repayInput || repayInput === '') {
-      /* 1. Check if input exceeds balance */
-      if (maxRepay && parseFloat(repayInput) > parseFloat(maxRepay))
-        setRepayError('Repay amount exceeds maximum available');
-      /* 3. next check */ else if (maxRepay && parseFloat(maxRepay) === 0) setRepayError('Zero token balance');
-      /* 2. Check if input is above zero */ else if (parseFloat(repayInput) < 0)
-        setRepayError('Amount should be expressed as a positive value');
-      /* if all checks pass, set null error message */ else {
-        setRepayError(null);
-      }
-    }
-  }, [repayInput, maxRepay, setRepayError]);
-
-  /* CHECK for any collateral input errors/warnings */
-  useEffect(() => {
-    if (addCollatInput || addCollatInput === '') {
-      /* 1. Check if input exceeds balance */
-      if (maxCollat && parseFloat(addCollatInput) > parseFloat(maxCollat)) setAddCollatError('Amount exceeds balance');
-      /* 2. Check if input is above zero */ else if (parseFloat(collatInput) < 0)
-        setAddCollatError('Amount should be expressed as a positive value');
-      /* 3. next check */ else if (false) setAddCollatError('Undercollateralised');
-      /* if all checks pass, set null error message */ else {
-        setAddCollatError(null);
-      }
-    }
-  }, [addCollatInput, maxCollat, setAddCollatError]);
+    /* CHECK collateral selection and sets the max available collateral */
+    activeAccount &&
+      (async () => {
+        setMaxRemoveCollat(ethers.utils.formatEther(selectedVault?.ink!));
+      })();
+  }, [activeAccount, vaultIlk, setMaxRemoveCollat, selectedVault?.ink]);
 
   /* ACTION DISABLING LOGIC */
 
@@ -451,9 +446,9 @@ const Vault = ({ close }: { close: () => void }) => {
                       />
                       <MaxButton
                         disabled={removeCollatInput}
-                        action={() => setAddCollatInput(maxCollat)}
+                        action={() => setAddCollatInput(maxAddCollat)}
                         clearAction={() => setAddCollatInput('')}
-                        showingMax={!!addCollatInput && addCollatInput === maxCollat}
+                        showingMax={!!addCollatInput && addCollatInput === maxAddCollat}
                       />
                     </InputWrap>
                   </Box>
@@ -470,7 +465,7 @@ const Vault = ({ close }: { close: () => void }) => {
                       />
                       <MaxButton
                         disabled={!!addCollatInput}
-                        action={() => setRemoveCollatInput(ethers.utils.formatEther(selectedVault?.ink!))}
+                        action={() => setRemoveCollatInput(maxRemoveCollat)}
                         clearAction={() => setRemoveCollatInput('')}
                         showingMax={
                           !!removeCollatInput && ethers.utils.formatEther(selectedVault?.ink!) === removeCollatInput

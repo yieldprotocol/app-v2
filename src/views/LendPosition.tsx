@@ -23,6 +23,7 @@ import CancelButton from '../components/buttons/CancelButton';
 import TransactButton from '../components/buttons/TransactButton';
 import YieldHistory from '../components/YieldHistory';
 import ExitButton from '../components/buttons/ExitButton';
+import { useInputValidation } from '../hooks/inputValidationHook';
 
 const LendPosition = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -52,8 +53,8 @@ const LendPosition = ({ close }: { close: () => void }) => {
 
   const [maxClose, setMaxClose] = useState<string | undefined>();
 
-  const [closeError, setCloseError] = useState<string | null>(null);
-  const [rollError, setRollError] = useState<string | null>(null);
+  // const [closeError, setCloseError] = useState<string | null>(null);
+  // const [rollError, setRollError] = useState<string | null>(null);
 
   const [closeDisabled, setCloseDisabled] = useState<boolean>(true);
   const [rollDisabled, setRollDisabled] = useState<boolean>(true);
@@ -61,6 +62,22 @@ const LendPosition = ({ close }: { close: () => void }) => {
 
   /* HOOK FNS */
   const { closePosition, rollPosition, redeem } = useLendActions();
+
+  /* input validation hoooks */
+  const { inputError: closeError } = useInputValidation(
+    closeInput, 
+    ActionCodes.CLOSE_POSITION, 
+    selectedSeries, 
+    [ 0, maxClose ]
+  );
+
+  const { inputError: rollError } = useInputValidation(
+    rollInput,
+    ActionCodes.ROLL_POSITION,
+    selectedSeries,
+    [0, maxClose]
+  );
+
 
   /* LOCAL FNS */
   const handleStepper = (back: boolean = false) => {
@@ -89,35 +106,6 @@ const LendPosition = ({ close }: { close: () => void }) => {
     if (max) setMaxClose(ethers.utils.formatEther(max)?.toString());
   }, [closeInput, rollInput, selectedSeries]);
 
-  /* WATCH FOR WARNINGS AND ERRORS */
-  useEffect(() => {
-    /* closeInput errors */
-    if (activeAccount && (closeInput || closeInput === '')) {
-      /* 1. Check if input exceeds fyToken balance */
-      if (maxClose && parseFloat(closeInput) > parseFloat(maxClose))
-        setCloseError('Amount exceeds available fyToken balance');
-      /* 2. Check if there is a selected series */ else if (closeInput && !selectedSeries)
-        setCloseError('No base series selected');
-      /* 2. Check if input is above zero */ else if (parseFloat(closeInput) < 0)
-        setCloseError('Amount should be expressed as a positive value');
-      /* if all checks pass, set null error message */ else {
-        setCloseError(null);
-      }
-    }
-    /* rollInput errors */
-    if (activeAccount && (rollInput || rollInput === '')) {
-      /* 1. Check if input exceeds fyToken balance */
-      if (maxClose && parseFloat(rollInput) > parseFloat(maxClose))
-        setRollError('Amount exceeds available fyToken balance');
-      /* 2. Check if there is a selected series */ else if (rollInput && !selectedSeries)
-        setRollError('No base series selected');
-      /* 2. Check if input is above zero */ else if (parseFloat(rollInput) < 0)
-        setRollError('Amount should be expressed as a positive value');
-      /* if all checks pass, set null error message */ else {
-        setRollError(null);
-      }
-    }
-  }, [activeAccount, closeInput, rollInput, maxClose, selectedSeries]);
 
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
 
