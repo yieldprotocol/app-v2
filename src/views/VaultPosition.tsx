@@ -112,20 +112,12 @@ const Vault = ({ close }: { close: () => void }) => {
   const { repay, borrow, rollDebt, transfer, merge, destroy } = useBorrowActions();
   const { addCollateral, removeCollateral } = useCollateralActions();
 
+  const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries, [0, maxRepay]);
 
-  const { inputError: repayError } = useInputValidation(
-    repayInput,
-    ActionCodes.REPAY,
-    vaultSeries,
-    [0, maxRepay]
-  );
-
-  const { inputError: addCollatError } = useInputValidation(
-    addCollatInput,
-    ActionCodes.ADD_COLLATERAL,
-    vaultSeries,
-    [0, maxAddCollat]
-  );
+  const { inputError: addCollatError } = useInputValidation(addCollatInput, ActionCodes.ADD_COLLATERAL, vaultSeries, [
+    0,
+    maxAddCollat,
+  ]);
 
   const { inputError: removeCollatError } = useInputValidation(
     removeCollatInput,
@@ -133,7 +125,6 @@ const Vault = ({ close }: { close: () => void }) => {
     vaultSeries,
     [0, maxRemoveCollat]
   );
-
 
   useEffect(() => {
     const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
@@ -344,7 +335,7 @@ const Vault = ({ close }: { close: () => void }) => {
               plain
               options={[
                 { text: 'Repay Debt', index: 0 },
-                { text: 'Roll All Debt', index: 1 },
+                { text: 'Roll Debt', index: 1 },
                 { text: 'Manage Collateral', index: 2 },
                 { text: 'View History', index: 3 },
                 { text: 'Transfer Vault', index: 4 },
@@ -391,7 +382,11 @@ const Vault = ({ close }: { close: () => void }) => {
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
                     <Box margin={{ top: 'medium' }}>
-                      <InfoBite label="Repay Debt" icon={<FiClock />} value={`${repayInput} ${vaultBase?.symbol}`} />
+                      <InfoBite
+                        label="Repay Debt"
+                        icon={<FiArrowRight />}
+                        value={`${repayInput} ${vaultBase?.symbol}`}
+                      />
                     </Box>
                   </SectionWrap>
                 </ActiveTransaction>
@@ -421,7 +416,11 @@ const Vault = ({ close }: { close: () => void }) => {
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
                     <Box margin={{ top: 'medium' }}>
-                      <InfoBite label="Roll Debt to Series" icon={<FiClock />} value={`${rollToSeries?.displayName}`} />
+                      <InfoBite
+                        label="Roll Debt to Series"
+                        icon={<FiArrowRight />}
+                        value={`${rollToSeries?.displayName}`}
+                      />
                     </Box>
                   </SectionWrap>
                 </ActiveTransaction>
@@ -493,14 +492,14 @@ const Vault = ({ close }: { close: () => void }) => {
                       {addCollatInput && (
                         <InfoBite
                           label="Add Collateral"
-                          icon={<FiPlusCircle />}
+                          icon={<FiArrowRight />}
                           value={`${addCollatInput} ${vaultIlk?.symbol}`}
                         />
                       )}
                       {removeCollatInput && (
                         <InfoBite
                           label="Remove Collateral"
-                          icon={<FiPlusCircle />}
+                          icon={<FiArrowRight />}
                           value={`${removeCollatInput} ${vaultIlk?.symbol}`}
                         />
                       )}
@@ -541,7 +540,7 @@ const Vault = ({ close }: { close: () => void }) => {
                     <Box margin={{ top: 'medium' }}>
                       <InfoBite
                         label="Transfer Vault to: "
-                        icon={<FiPlusCircle />}
+                        icon={<FiArrowRight />}
                         value={transferToAddressInput !== '' ? abbreviateHash(transferToAddressInput) : ''}
                       />
                     </Box>
@@ -604,10 +603,16 @@ const Vault = ({ close }: { close: () => void }) => {
                   pad
                 >
                   <SectionWrap
-                    title="Review your merge transaction"
+                    title="Review transaction:"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
-                    <Box gap="small">
+                    <Box margin={{ top: 'medium' }}>
+                      <InfoBite
+                        label={`Merging debt/collateral in this vault with vault: `}
+                        icon={<FiArrowRight />}
+                        value={`${mergeData.toVault.displayName}`}
+                      />
+                      {/* 
                       <InfoBite
                         label={`Merge ${selectedVault?.displayName} collateral with ${mergeData.toVault.displayName}: `}
                         icon={<FiArrowRight />}
@@ -617,7 +622,7 @@ const Vault = ({ close }: { close: () => void }) => {
                         label={`Merge ${selectedVault?.displayName} debt with ${mergeData.toVault.displayName}: `}
                         icon={<FiArrowRight />}
                         value={`${mergeData.toVault.displayName} debt: ${mergeData.totalMergedArt}`}
-                      />
+                      /> */}
                     </Box>
                   </SectionWrap>
                 </ActiveTransaction>
@@ -654,7 +659,7 @@ const Vault = ({ close }: { close: () => void }) => {
                       <InfoBite
                         // label="Pay back all debt and delete vault:"
                         label="Delete vault (vault must have 0 debt and 0 collateral):"
-                        icon={<FiPlusCircle />}
+                        icon={<FiArrowRight />}
                         value={destroyInput}
                       />
                     </Box>

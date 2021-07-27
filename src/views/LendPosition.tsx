@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Box, Button, ResponsiveContext, Select, Tab, Tabs, Text, TextInput } from 'grommet';
 import { ethers } from 'ethers';
-import { FiClock, FiLogOut, FiMinusCircle, FiPlusCircle, FiTrendingUp } from 'react-icons/fi';
+import { FiArrowRight, FiClock, FiLogOut, FiMinusCircle, FiPlusCircle, FiTrendingUp } from 'react-icons/fi';
 
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import InputWrap from '../components/wraps/InputWrap';
@@ -206,7 +206,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
                     <Box margin={{ top: 'medium' }}>
                     <InfoBite
                       label="Close Position"
-                      icon={<FiMinusCircle />}
+                      icon={<FiArrowRight />}
                       value={`${closeInput} ${selectedBase?.symbol}`}
                     />
                     </Box>
@@ -257,7 +257,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
                     <Box margin={{ top: 'medium' }}>
                     <InfoBite 
                       label="Roll To Series" 
-                      icon={<FiPlusCircle />} 
+                      icon={<FiArrowRight />}
                       value={` Roll  ${rollInput} ${selectedBase?.symbol} to ${rollToSeries?.displayName}`} 
                     />
                     </Box>

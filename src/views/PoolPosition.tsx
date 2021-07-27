@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Box, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import { ethers } from 'ethers';
-import { FiClock, FiLogOut, FiMinusCircle, FiPercent, FiPlusCircle } from 'react-icons/fi';
+import { FiArrowRight, FiClock, FiLogOut, FiMinusCircle, FiPercent, FiPlusCircle } from 'react-icons/fi';
 
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import InputWrap from '../components/wraps/InputWrap';
@@ -197,7 +197,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                     <Box margin={{ top: 'medium' }}>
                       <InfoBite
                         label="Remove Liquidity"
-                        icon={<FiMinusCircle />}
+                        icon={<FiArrowRight />}
                         value={`${removeInput} liquidity tokens`}
                       />
                     </Box>
@@ -247,7 +247,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                     <Box margin={{ top: 'medium' }}>
                       <InfoBite
                         label="Roll Liquidity"
-                        icon={<FiPlusCircle />}
+                        icon={<FiArrowRight />}
                         value={`${rollInput} Liquidity Tokens to ${rollToSeries?.displayName} `}
                       />
                     </Box>
