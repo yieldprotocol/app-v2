@@ -171,9 +171,7 @@ function Pool() {
                       <InfoBite
                         label="Amount to pool"
                         icon={<BiMessageSquareAdd />}
-                        value={`${nFormatter(Number(poolInput), selectedBase?.digitFormat || 6)} ${
-                          selectedBase?.symbol
-                        }`}
+                        value={`${nFormatter(Number(poolInput), selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
                       />
                       <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
                       <InfoBite
@@ -204,7 +202,7 @@ function Pool() {
               primary
               label={
                 <Text size={mobile ? 'small' : undefined}>
-                  {`Pool ${nFormatter(Number(poolInput), selectedBase?.digitFormat || 6) || ''} ${
+                  {`Pool ${nFormatter(Number(poolInput), selectedBase?.digitFormat!) || ''} ${
                     selectedBase?.symbol || ''
                   }`}
                 </Text>

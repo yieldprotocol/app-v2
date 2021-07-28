@@ -196,9 +196,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
                       <InfoBite
                         label="Close Position"
                         icon={<FiArrowRight />}
-                        value={`${nFormatter(Number(closeInput), selectedBase?.digitFormat || 6)} ${
-                          selectedBase?.symbol
-                        }`}
+                        value={`${nFormatter(Number(closeInput), selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
                       />
                     </Box>
                   </SectionWrap>
@@ -249,7 +247,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
                       <InfoBite
                         label="Roll To Series"
                         icon={<FiArrowRight />}
-                        value={` Roll  ${nFormatter(Number(closeInput), selectedBase?.digitFormat || 6)} ${
+                        value={` Roll  ${nFormatter(Number(closeInput), selectedBase?.digitFormat!)} ${
                           selectedBase?.symbol
                         } to ${rollToSeries?.displayName}`}
                       />
@@ -279,9 +277,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
             primary
             label={
               <Text size={mobile ? 'small' : undefined}>
-                {`Close ${nFormatter(Number(closeInput), selectedBase?.digitFormat || 6) || ''} ${
-                  selectedBase?.symbol
-                }`}
+                {`Close ${nFormatter(Number(closeInput), selectedBase?.digitFormat!) || ''} ${selectedBase?.symbol}`}
               </Text>
             }
             onClick={() => handleClosePosition()}
@@ -294,7 +290,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
             primary
             label={
               <Text size={mobile ? 'small' : undefined}>
-                {`Roll ${nFormatter(Number(rollInput), selectedBase?.digitFormat || 6) || ''} ${selectedBase?.symbol}`}
+                {`Roll ${nFormatter(Number(rollInput), selectedBase?.digitFormat!) || ''} ${selectedBase?.symbol}`}
               </Text>
             }
             onClick={() => handleRollPosition()}

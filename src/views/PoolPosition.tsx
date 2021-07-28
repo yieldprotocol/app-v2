@@ -189,7 +189,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                       <InfoBite
                         label="Remove Liquidity"
                         icon={<FiArrowRight />}
-                        value={`${nFormatter(Number(removeInput), selectedBase?.digitFormat || 6)} liquidity tokens`}
+                        value={`${nFormatter(Number(removeInput), selectedBase?.digitFormat!)} liquidity tokens`}
                       />
                     </Box>
                   </SectionWrap>
@@ -239,7 +239,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                       <InfoBite
                         label="Roll Liquidity"
                         icon={<FiArrowRight />}
-                        value={`${nFormatter(Number(rollInput), selectedBase?.digitFormat || 6)} Liquidity Tokens to ${
+                        value={`${nFormatter(Number(rollInput), selectedBase?.digitFormat!)} Liquidity Tokens to ${
                           rollToSeries?.displayName
                         } `}
                       />
@@ -269,7 +269,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
             primary
             label={
               <Text size={mobile ? 'small' : undefined}>
-                {`Remove ${nFormatter(Number(removeInput), selectedBase?.digitFormat || 6) || ''} tokens`}
+                {`Remove ${nFormatter(Number(removeInput), selectedBase?.digitFormat!) || ''} tokens`}
               </Text>
             }
             onClick={() => handleRemove()}
@@ -282,7 +282,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
             primary
             label={
               <Text size={mobile ? 'small' : undefined}>
-                {`Roll ${nFormatter(Number(rollInput), selectedBase?.digitFormat || 6) || ''} tokens`}
+                {`Roll ${nFormatter(Number(rollInput), selectedBase?.digitFormat!) || ''} tokens`}
               </Text>
             }
             onClick={() => handleRoll()}

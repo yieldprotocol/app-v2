@@ -296,23 +296,19 @@ const Borrow = () => {
                       <InfoBite
                         label="Amount to be Borrowed"
                         icon={<FiPocket />}
-                        value={`${nFormatter(Number(borrowInput), selectedBase?.digitFormat || 6)} ${
-                          selectedBase?.symbol
-                        }`}
+                        value={`${nFormatter(Number(borrowInput), selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
                       />
                       <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
                       <InfoBite
                         label="Vault Debt Payable @ Maturity"
                         icon={<FiTrendingUp />}
-                        value={`${nFormatter(Number(borrowInput), selectedBase?.digitFormat || 6)} ${
-                          selectedBase?.symbol
-                        }`}
+                        value={`${nFormatter(Number(borrowInput), selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
                       />
                       <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
                       <InfoBite
                         label="Supporting Collateral"
                         icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
-                        value={`${nFormatter(Number(collatInput), selectedIlk?.digitFormat || 6)} ${
+                        value={`${nFormatter(Number(collatInput), selectedIlk?.digitFormat!)} ${
                           selectedIlk?.symbol
                         } (${collateralizationPercent}% )`}
                       />
@@ -360,7 +356,7 @@ const Borrow = () => {
                   primary
                   label={
                     <Text size={mobile ? 'small' : undefined}>
-                      {`Borrow  ${nFormatter(Number(borrowInput), selectedBase?.digitFormat || 6) || ''} ${
+                      {`Borrow  ${nFormatter(Number(borrowInput), selectedBase?.digitFormat!) || ''} ${
                         selectedBase?.symbol || ''
                       }`}
                     </Text>

@@ -309,7 +309,7 @@ const Vault = ({ close }: { close: () => void }) => {
               <Box gap="small">
                 <InfoBite
                   label="Vault debt + interest:"
-                  value={`${nFormatter(Number(selectedVault?.art_), vaultBase?.digitFormat || 6)} ${vaultBase?.symbol}`}
+                  value={`${nFormatter(Number(selectedVault?.art_), vaultBase?.digitFormat!)} ${vaultBase?.symbol}`}
                   icon={<FiTrendingUp />}
                 />
                 <InfoBite
@@ -319,7 +319,7 @@ const Vault = ({ close }: { close: () => void }) => {
                 />
                 <InfoBite
                   label="Collateral posted:"
-                  value={`${nFormatter(Number(selectedVault?.ink_), vaultIlk?.digitFormat || 6)} ${
+                  value={`${nFormatter(Number(selectedVault?.ink_), vaultIlk?.digitFormat!)} ${
                     vaultIlk?.symbol
                   } ( ${collateralizationPercent} %)`}
                   icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
@@ -401,7 +401,7 @@ const Vault = ({ close }: { close: () => void }) => {
                       <InfoBite
                         label="Repay Debt"
                         icon={<FiArrowRight />}
-                        value={`${nFormatter(Number(repayInput), vaultBase?.digitFormat || 6)} ${vaultBase?.symbol}`}
+                        value={`${nFormatter(Number(repayInput), vaultBase?.digitFormat!)} ${vaultBase?.symbol}`}
                       />
                     </Box>
                   </SectionWrap>
@@ -509,18 +509,14 @@ const Vault = ({ close }: { close: () => void }) => {
                         <InfoBite
                           label="Add Collateral"
                           icon={<FiArrowRight />}
-                          value={`${nFormatter(Number(addCollatInput), vaultIlk?.digitFormat || 6)} ${
-                            vaultIlk?.symbol
-                          }`}
+                          value={`${nFormatter(Number(addCollatInput), vaultIlk?.digitFormat!)} ${vaultIlk?.symbol}`}
                         />
                       )}
                       {removeCollatInput && (
                         <InfoBite
                           label="Remove Collateral"
                           icon={<FiArrowRight />}
-                          value={`${nFormatter(Number(removeCollatInput), vaultIlk?.digitFormat || 6)} ${
-                            vaultIlk?.symbol
-                          }`}
+                          value={`${nFormatter(Number(removeCollatInput), vaultIlk?.digitFormat!)} ${vaultIlk?.symbol}`}
                         />
                       )}
                     </Box>
@@ -719,7 +715,7 @@ const Vault = ({ close }: { close: () => void }) => {
             primary
             label={
               <Text size={mobile ? 'small' : undefined}>
-                {`Repay ${nFormatter(Number(repayInput), vaultBase?.digitFormat || 6) || ''} ${vaultBase?.symbol}`}
+                {`Repay ${nFormatter(Number(repayInput), vaultBase?.digitFormat!) || ''} ${vaultBase?.symbol}`}
               </Text>
             }
             onClick={() => handleRepay()}

@@ -153,13 +153,13 @@ const Lend = () => {
                     <InfoBite
                       label="Amount to lend"
                       icon={<BiMessageSquareAdd />}
-                      value={`${nFormatter(Number(lendInput), selectedBase?.digitFormat || 6)} fyTokens`}
+                      value={`${nFormatter(Number(lendInput), selectedBase?.digitFormat!)} fyTokens`}
                     />
                     <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
                     <InfoBite
                       label="Redeemable @ Maturity"
                       icon={<FiTrendingUp />}
-                      value={`${nFormatter(Number(lendInput), selectedBase?.digitFormat || 6)} ${selectedBase?.symbol}`}
+                      value={`${nFormatter(Number(lendInput), selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
                     />
                     <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
                   </Box>
@@ -184,7 +184,7 @@ const Lend = () => {
               primary
               label={
                 <Text size={mobile ? 'small' : undefined}>
-                  {`Supply ${nFormatter(Number(lendInput), selectedBase?.digitFormat || 6) || ''} ${
+                  {`Supply ${nFormatter(Number(lendInput), selectedBase?.digitFormat!) || ''} ${
                     selectedBase?.symbol || ''
                   }`}
                 </Text>
