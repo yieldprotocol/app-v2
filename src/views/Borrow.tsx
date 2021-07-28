@@ -40,6 +40,7 @@ import { useApr } from '../hooks/aprHook';
 import PositionAvatar from '../components/PositionAvatar';
 import VaultDropSelector from '../components/selectors/VaultDropSelector';
 import { useInputValidation } from '../hooks/inputValidationHook';
+import AltText from '../components/texts/AltText';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -69,24 +70,21 @@ const Borrow = () => {
   const [disclaimerChecked, setDisclaimerChecked] = useState<boolean>(false);
 
   const { borrow } = useBorrowActions();
-  
+
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
 
   const { collateralizationPercent, undercollateralized, minCollateral } = useCollateralization(
     borrowInput,
     collatInput,
-    vaultToUse 
-  );
-  
-  /* input validation hoooks */
-  const { inputError: borrowInputError } = useInputValidation(borrowInput, ActionCodes.BORROW, selectedSeries, []);
-  const { inputError: collatInputError } = useInputValidation(
-    collatInput,
-    ActionCodes.ADD_COLLATERAL,
-    selectedSeries,
-    [minCollateral, maxCollat]
+    vaultToUse
   );
 
+  /* input validation hoooks */
+  const { inputError: borrowInputError } = useInputValidation(borrowInput, ActionCodes.BORROW, selectedSeries, []);
+  const { inputError: collatInputError } = useInputValidation(collatInput, ActionCodes.ADD_COLLATERAL, selectedSeries, [
+    minCollateral,
+    maxCollat,
+  ]);
 
   /** LOCAL ACTION FNS */
   const handleBorrow = () => {
@@ -172,7 +170,7 @@ const Borrow = () => {
               values={[
                 ['Choose an asset to', 'borrow', ''],
                 ['Add', 'collateral', ''],
-                ['', 'Review', 'and transact'],
+                ['', 'Review', ' and transact'],
               ]}
             />
             <YieldInfo />
@@ -180,12 +178,13 @@ const Borrow = () => {
         )}
 
         <CenterPanelWrap series={selectedSeries || undefined}>
-          <Box fill pad="large" gap="medium">
+
+          <Box height="100%" pad="large">
             {stepPosition === 0 && ( // INITIAL STEP
               <Box gap="medium">
                 <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
-                  {/* <YieldMark height='1em' startColor='grey' endColor='grey' /> */}
-                  <Text color="grey">BORROW</Text>
+                  <YieldMark height='1em' startColor='grey' endColor='grey' />
+                  <AltText color="text-weak" size='small'>Borrow tokens at a fixed rate.</AltText>
                 </Box>
 
                 <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}>

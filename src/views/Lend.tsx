@@ -85,7 +85,7 @@ const Lend = () => {
             position={stepPosition}
             values={[
               ['Choose an asset to', 'lend', ''],
-              ['', 'Review', 'and transact'],
+              ['', 'Review', ' and transact'],
             ]}
           />
           <YieldInfo />
@@ -97,10 +97,10 @@ const Lend = () => {
           {stepPosition === 0 && (
             <Box gap="medium">
               <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
-              {/* <YieldMark height='1em' startColor='grey' endColor='grey' /> */}
-                <Text color='grey'>LEND</Text>
+              <YieldMark height='1em' startColor='grey' endColor='grey' />
+                <Text color='text-weak' size='small'>Lend tokens for fixed returns</Text>
               </Box>
-              <SectionWrap title={assetMap.size > 0 ? "Select an asset and amount": "Assets Loading..."}>
+              <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}>
                 <Box direction="row" gap="small" fill="horizontal" align="start">
                   <Box basis={mobile ? '50%' : '60%'}>
                     <InputWrap
@@ -119,8 +119,8 @@ const Lend = () => {
                       <MaxButton
                         action={() => setLendInput(maxLend)}
                         disabled={maxLend === '0' || selectedSeries?.seriesIsMature}
-                        clearAction = {() => setLendInput('')}
-                        showingMax= { !!lendInput && ( lendInput === maxLend || !!lendError) }
+                        clearAction={() => setLendInput('')}
+                        showingMax={!!lendInput && (lendInput === maxLend || !!lendError)}
                       />
                     </InputWrap>
                   </Box>
@@ -130,7 +130,7 @@ const Lend = () => {
                 </Box>
               </SectionWrap>
 
-              <SectionWrap title={seriesMap.size > 0 ? "Select a series": ''}>
+              <SectionWrap title={seriesMap.size > 0 ? 'Select a series' : ''}>
                 <SeriesSelector inputValue={lendInput} actionType={ActionType.LEND} />
               </SectionWrap>
             </Box>
@@ -148,18 +148,14 @@ const Lend = () => {
                     round="xsmall"
                     animation={{ type: 'zoomIn', size: 'small' }}
                   >
-                    < InfoBite
-                      label="Amount to lend"
-                      icon={<BiMessageSquareAdd />}
-                      value={`${lendInput} fyTokens`}
-                    />
-                    < InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
-                    < InfoBite
+                    <InfoBite label="Amount to lend" icon={<BiMessageSquareAdd />} value={`${lendInput} fyTokens`} />
+                    <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
+                    <InfoBite
                       label="Redeemable @ Maturity"
                       icon={<FiTrendingUp />}
                       value={`${lendInput} ${selectedBase?.symbol}`}
                     />
-                    < InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
+                    <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
                   </Box>
                 </SectionWrap>
               </ActiveTransaction>
@@ -182,8 +178,7 @@ const Lend = () => {
               primary
               label={
                 <Text size={mobile ? 'small' : undefined}>
-                  {' '}
-                  {`Supply ${lendInput || ''} ${selectedBase?.symbol || ''}`}{' '}
+                  {`Supply ${lendInput || ''} ${selectedBase?.symbol || ''}`}
                 </Text>
               }
               onClick={() => handleLend()}

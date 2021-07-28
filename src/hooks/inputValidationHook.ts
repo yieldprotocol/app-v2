@@ -53,6 +53,10 @@ export const useInputValidation = (
         belowMin && setInputError('Undercollateralized')
       };
 
+      if (actionCode === ActionCodes.REMOVE_LIQUIDITY || actionCode === ActionCodes.ROLL_LIQUIDITY) {
+        aboveMax && setInputError('Amount exceeds liquidity token balance')
+      };
+
       if (actionCode === ActionCodes.REMOVE_COLLATERAL) {
         // limits[1] && parseFloat(input) > parseFloat(limits[1].toString()) && 
         // setInputError('Amount exceeds balance');
@@ -81,9 +85,7 @@ export const useInputValidation = (
         // setInputError('Amount exceeds balance');
       };
 
-      if (actionCode === ActionCodes.REMOVE_LIQUIDITY || actionCode === ActionCodes.ROLL_LIQUIDITY) {
-        aboveMax && setInputError('Amount exceeds liquidity token balance')
-      };
+
 
 
     }  else setInputError(null);

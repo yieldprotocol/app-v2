@@ -14,26 +14,23 @@ function StepperText({ values, position }: IStepperText) {
       {values.map((x: string[], i: number) => (
         <Box key={x[1]}>
           {position === i && (
-            <Text weight={900} color="text-weak">
-              {' '}
-              Step {i + 1}{' '}
+            <Text weight='bold' color="text-weak" size='small'>
+              STEP {i + 1}
             </Text>
           )}
           <Box direction="row">
             <AltText
-              weight={900}
+              // weight={900}
               size={position === i ? 'xxlarge' : 'medium'}
-              color={position === i ? 'text' : 'text-xweak'}
+              color={position === i ? 'text-weak' : 'text-xweak'}
             >
-              {' '}
               {`${x[0]}\n`}
               <Text
-                weight={900}
+                // weight={900}
                 size={position === i ? 'xxlarge' : 'medium'}
-                color={position === i ? 'text' : 'text-xweak'}
+                color={position === i ? 'text-weak' : 'text-xweak'}
               >
-                {' '}
-                {x[1]}{' '}
+                {x[1]}
               </Text>
               {x[2]}
             </AltText>

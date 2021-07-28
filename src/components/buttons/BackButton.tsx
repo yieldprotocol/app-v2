@@ -1,14 +1,17 @@
-import { Box, Text } from 'grommet';
+import { Box, Button, Text } from 'grommet';
 import React, { useState } from 'react';
-import { FiArrowLeftCircle } from 'react-icons/fi';
+import { FiArrowLeft } from 'react-icons/fi';
 import styled from 'styled-components';
 
-const StyledBox = styled(Box)`
+const StyledButton = styled(Button)`
   -webkit-transition: transform 0.3s ease-in-out;
   -moz-transition: transform 0.3s ease-in-out;
   transition: transform 0.3s ease-in-out;
+  color: #3f53d9;
+  padding: 0;
   :hover {
-    transform: scale(1.01);
+    transform: scale(1.1);
+    color: #1d4ed8;
   }
   :active {
     transform: scale(1);
@@ -16,21 +19,10 @@ const StyledBox = styled(Box)`
 `;
 
 function BackButton({ action }: { action: () => void }) {
-  const [hover, setHover] = useState<boolean>();
   return (
-    <StyledBox
-      direction="row"
-      onClick={() => action()}
-      gap="small"
-      align="center"
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-    >
-      <FiArrowLeftCircle color={hover ? '#333333' : 'grey'} />
-      <Text size="small" color={hover ? '#333333' : 'grey'}>
-        go back
-      </Text>
-    </StyledBox>
+    <Box align="center" direction="row">
+      <StyledButton onClick={() => action()} icon={<FiArrowLeft size="1.5em" />} />
+    </Box>
   );
 }
 

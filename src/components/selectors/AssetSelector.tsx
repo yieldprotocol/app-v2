@@ -34,7 +34,6 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   const optionText = (asset: IAssetRoot | undefined) =>
     asset?.symbol ? (
       <Box direction="row" align="center" gap="xsmall">
-        {' '}
         <Box flex={false}>{asset.image}</Box>
         {asset?.symbol}
       </Box>
@@ -55,10 +54,9 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   /* update options on any changes */
   useEffect(() => {
     const opts = Array.from(assetMap.values()) as IAsset[];
-    const filteredOptions = 
-      selectCollateral ? 
-      opts.filter((a: IAsset) => a.id !== selectedBaseId) 
-      : opts.filter((a: IAsset) => a.isYieldBase );
+    const filteredOptions = selectCollateral
+      ? opts.filter((a: IAsset) => a.id !== selectedBaseId)
+      : opts.filter((a: IAsset) => a.isYieldBase);
     setOptions(filteredOptions);
   }, [assetMap, selectCollateral, selectedSeriesId, selectedBaseId]);
 
@@ -88,7 +86,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
     >
       <Select
         plain
-        dropProps={{ round:'xsmall' }}
+        dropProps={{ round: 'xsmall' }}
         id="assetSelectc"
         name="assetSelect"
         placeholder="Select Asset"
@@ -96,7 +94,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
         value={selectCollateral ? selectedIlk : selectedBase}
         labelKey={(x: IAssetRoot | undefined) => optionText(x)}
         valueLabel={
-          <Box pad={mobile ? 'medium' : { vertical: '0.55em', horizontal: 'xsmall' }}>
+          <Box pad={mobile ? 'medium' : { vertical: '0.55em', horizontal: 'small' }}>
             <Text color="text"> {optionText(selectCollateral ? selectedIlk : selectedBase)} </Text>
           </Box>
         }
@@ -109,7 +107,6 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
           // }
           // ).filter( (x:number|null) => { console.log(x); return isNull(x) } )
         }
-        
         // eslint-disable-next-line react/no-children-prop
         children={(x: any) => (
           <Box pad={mobile ? 'medium' : 'small'} gap="xsmall" direction="row">

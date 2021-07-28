@@ -697,8 +697,8 @@ const Vault = ({ close }: { close: () => void }) => {
               disabled={
                 (actionActive.index === 0 && repayDisabled) ||
                 (actionActive.index === 1 && rollDisabled) ||
-                (actionActive.index === 2 && removeCollatInput && removeCollateralDisabled ) ||
-                (actionActive.index === 2 && addCollatInput && addCollateralDisabled ) ||
+                (actionActive.index === 2 && removeCollatInput && removeCollateralDisabled) ||
+                (actionActive.index === 2 && addCollatInput && addCollateralDisabled) ||
                 (actionActive.index === 4 && transferDisabled) ||
                 (actionActive.index === 5 && mergeDisabled) ||
                 (actionActive.index === 6 && deleteDisabled)

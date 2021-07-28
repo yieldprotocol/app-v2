@@ -65,20 +65,18 @@ const AprText = ({
     <>
       {actionType !== ActionType.POOL && !series.seriesIsMature && !inputValue && (
         <Text size="small">
-          {series?.apr}% <Text size="xsmall">APR</Text>{' '}
+          {series?.apr}% <Text size="xsmall">APR</Text>
         </Text>
       )}
 
       {actionType !== ActionType.POOL && !limitHit && !series?.seriesIsMature && inputValue && (
         <Text size="small">
-          {' '}
           {apr}% <Text size="xsmall">APR</Text>
         </Text>
       )}
 
       {actionType !== ActionType.POOL && limitHit && (
         <Text size="xsmall" color="pink">
-          {' '}
           Not enough liquidity
         </Text>
       )}
@@ -92,8 +90,8 @@ const AprText = ({
       {actionType === ActionType.POOL && !series.seriesIsMature && inputValue && (
         // TODO fix this asap - use a pool hook
         <Text size="xsmall">
-          {nFormatter((parseFloat(inputValue) / (parseFloat(series?.totalSupply_)+parseFloat(inputValue))) * 100, 2)} %
-          <Text size="xsmall">of Pool</Text>
+          {nFormatter((parseFloat(inputValue) / (parseFloat(series?.totalSupply_) + parseFloat(inputValue))) * 100, 2)}{' '}
+          %<Text size="xsmall">of Pool</Text>
         </Text>
       )}
 
@@ -145,7 +143,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
     /* filter out options based on base Id */
     let filteredOpts = opts.filter(
-      (_series: ISeries) => _series.baseId === selectedBaseId,
+      (_series: ISeries) => _series.baseId === selectedBaseId
       // !ignoredSeries?.includes(_series.baseId)
     );
 
@@ -160,7 +158,8 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
       selectedSeries &&
       (filteredOpts.findIndex((_series: ISeries) => _series.id !== selectedSeriesId) < 0 ||
         selectedSeries.baseId !== selectedBaseId)
-    ) userActions.setSelectedSeries(null);
+    )
+      userActions.setSelectedSeries(null);
 
     setOptions(filteredOpts);
   }, [seriesMap, selectedBase, selectSeriesLocally, selectedSeries, userActions]);
@@ -183,7 +182,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
         <InsetBox fill="horizontal" round="xsmall">
           <Select
             plain
-            dropProps={{ round:'xsmall' }}
+            dropProps={{ round: 'xsmall' }}
             id="seriesSelect"
             name="assetSelect"
             placeholder="Select Series"
@@ -206,8 +205,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
             // eslint-disable-next-line react/no-children-prop
             children={(x: any) => (
               <Box pad={mobile ? 'medium' : 'small'} gap="small" direction="row">
-                {' '}
-                <Text color="text"> {optionExtended(x)}</Text>{' '}
+                <Text color="text"> {optionExtended(x)}</Text>
               </Box>
             )}
           />
