@@ -1,8 +1,13 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Box, CheckBox, Text } from 'grommet';
+import { UserContext } from '../contexts/UserContext';
 
 const AdvancedSettings = () => {
-  const [showInactiveVaults, setShowInactiveVaults] = useState<boolean>(false);
+  const {
+    userState: { showInactiveVaults },
+    userActions: { setShowInactiveVaults },
+  } = useContext(UserContext);
+
   return (
     <Box fill="horizontal" gap="small">
       <Box direction="row" justify="between">
@@ -11,7 +16,6 @@ const AdvancedSettings = () => {
           toggle
           checked={showInactiveVaults}
           onChange={(event) => setShowInactiveVaults(event?.target.checked)}
-          style={{ border: 'tailwind-blue' }}
         />
       </Box>
       {/* <Box direction="row" justify="between">

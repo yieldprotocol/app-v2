@@ -33,6 +33,7 @@ export interface IUserContextState {
   selectedVaultId: string | null;
   approvalMethod: ApprovalType;
   dudeSalt: number;
+  showInactiveVaults: boolean;
 }
 
 export interface IUserContextActions {
