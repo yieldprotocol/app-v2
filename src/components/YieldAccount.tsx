@@ -60,7 +60,7 @@ const YieldAccount = (props: any) => {
                   </Text>
                 </Box>
                 <Box>
-                  <YieldAvatar address={account} size={2.5} />
+                  <YieldAvatar address={account} size={2} />
                 </Box>
               </Box>
             )}

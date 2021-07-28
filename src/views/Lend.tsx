@@ -85,7 +85,7 @@ const Lend = () => {
             position={stepPosition}
             values={[
               ['Choose an asset to', 'lend', ''],
-              ['', 'Review', 'and transact'],
+              ['', 'Review', ' and transact'],
             ]}
           />
           <YieldInfo />
@@ -97,8 +97,8 @@ const Lend = () => {
           {stepPosition === 0 && (
             <Box gap="medium">
               <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
-                {/* <YieldMark height='1em' startColor='grey' endColor='grey' /> */}
-                <Text color="grey">LEND</Text>
+              <YieldMark height='1em' startColor='grey' endColor='grey' />
+                <Text color='text-weak' size='small'>Lend tokens for fixed returns</Text>
               </Box>
               <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}>
                 <Box direction="row" gap="small" fill="horizontal" align="start">
