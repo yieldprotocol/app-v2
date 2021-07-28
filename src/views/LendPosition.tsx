@@ -6,7 +6,7 @@ import { FiArrowRight, FiClock, FiLogOut, FiMinusCircle, FiPlusCircle, FiTrendin
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import InputWrap from '../components/wraps/InputWrap';
 import SeriesSelector from '../components/selectors/SeriesSelector';
-import { abbreviateHash, cleanValue, getTxCode } from '../utils/appUtils';
+import { abbreviateHash, cleanValue, getTxCode, nFormatter } from '../utils/appUtils';
 import SectionWrap from '../components/wraps/SectionWrap';
 
 import { useLendActions } from '../hooks/lendHooks';
@@ -64,20 +64,15 @@ const LendPosition = ({ close }: { close: () => void }) => {
   const { closePosition, rollPosition, redeem } = useLendActions();
 
   /* input validation hoooks */
-  const { inputError: closeError } = useInputValidation(
-    closeInput, 
-    ActionCodes.CLOSE_POSITION, 
-    selectedSeries, 
-    [ 0, maxClose ]
-  );
+  const { inputError: closeError } = useInputValidation(closeInput, ActionCodes.CLOSE_POSITION, selectedSeries, [
+    0,
+    maxClose,
+  ]);
 
-  const { inputError: rollError } = useInputValidation(
-    rollInput,
-    ActionCodes.ROLL_POSITION,
-    selectedSeries,
-    [0, maxClose]
-  );
-
+  const { inputError: rollError } = useInputValidation(rollInput, ActionCodes.ROLL_POSITION, selectedSeries, [
+    0,
+    maxClose,
+  ]);
 
   /* LOCAL FNS */
   const handleStepper = (back: boolean = false) => {
@@ -106,13 +101,11 @@ const LendPosition = ({ close }: { close: () => void }) => {
     if (max) setMaxClose(ethers.utils.formatEther(max)?.toString());
   }, [closeInput, rollInput, selectedSeries]);
 
-
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
   useEffect(() => {
     !closeInput || closeError ? setCloseDisabled(true) : setCloseDisabled(false);
     !rollInput || !rollToSeries || rollError ? setRollDisabled(true) : setRollDisabled(false);
   }, [closeInput, closeError, rollInput, rollToSeries, rollError]);
-
 
   return (
     <CenterPanelWrap>
@@ -127,7 +120,6 @@ const LendPosition = ({ close }: { close: () => void }) => {
               </Box>
             </Box>
             <ExitButton action={() => close()} />
-
           </Box>
 
           <SectionWrap>
@@ -187,8 +179,8 @@ const LendPosition = ({ close }: { close: () => void }) => {
                     <MaxButton
                       action={() => setCloseInput(maxClose)}
                       disabled={maxClose === '0.0' || !selectedSeries}
-                      clearAction = {() => setCloseInput('')}
-                      showingMax= { !!closeInput && closeInput === maxClose }
+                      clearAction={() => setCloseInput('')}
+                      showingMax={!!closeInput && closeInput === maxClose}
                     />
                   </InputWrap>
                 </Box>
@@ -201,11 +193,13 @@ const LendPosition = ({ close }: { close: () => void }) => {
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
                     <Box margin={{ top: 'medium' }}>
-                    <InfoBite
-                      label="Close Position"
-                      icon={<FiArrowRight />}
-                      value={`${closeInput} ${selectedBase?.symbol}`}
-                    />
+                      <InfoBite
+                        label="Close Position"
+                        icon={<FiArrowRight />}
+                        value={`${nFormatter(Number(closeInput), selectedBase?.digitFormat || 6)} ${
+                          selectedBase?.symbol
+                        }`}
+                      />
                     </Box>
                   </SectionWrap>
                 </ActiveTransaction>
@@ -214,10 +208,10 @@ const LendPosition = ({ close }: { close: () => void }) => {
           )}
 
           {actionActive.index === 1 && (
-            <Box margin={{ top:'medium' }}>
+            <Box margin={{ top: 'medium' }}>
               {stepPosition[actionActive.index] === 0 && (
-                <Box align="center" fill gap='medium'>
-                  <Box fill >
+                <Box align="center" fill gap="medium">
+                  <Box fill>
                     <InputWrap action={() => console.log('maxAction')} isError={closeError} disabled={!selectedSeries}>
                       <TextInput
                         plain
@@ -230,17 +224,17 @@ const LendPosition = ({ close }: { close: () => void }) => {
                       <MaxButton
                         action={() => setRollInput(maxClose)}
                         disabled={maxClose === '0.0' || !selectedSeries}
-                        clearAction = {() => setRollInput('')}
-                        showingMax= { !!rollInput && rollInput === maxClose }
+                        clearAction={() => setRollInput('')}
+                        showingMax={!!rollInput && rollInput === maxClose}
                       />
                     </InputWrap>
                   </Box>
                   <Box fill>
-                  <SeriesSelector
-                    selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
-                    actionType={ActionType.LEND}
-                    cardLayout={false}
-                  />
+                    <SeriesSelector
+                      selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
+                      actionType={ActionType.LEND}
+                      cardLayout={false}
+                    />
                   </Box>
                 </Box>
               )}
@@ -252,11 +246,13 @@ const LendPosition = ({ close }: { close: () => void }) => {
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
                   >
                     <Box margin={{ top: 'medium' }}>
-                    <InfoBite 
-                      label="Roll To Series" 
-                      icon={<FiArrowRight />}
-                      value={` Roll  ${rollInput} ${selectedBase?.symbol} to ${rollToSeries?.displayName}`} 
-                    />
+                      <InfoBite
+                        label="Roll To Series"
+                        icon={<FiArrowRight />}
+                        value={` Roll  ${nFormatter(Number(closeInput), selectedBase?.digitFormat || 6)} ${
+                          selectedBase?.symbol
+                        } to ${rollToSeries?.displayName}`}
+                      />
                     </Box>
                   </SectionWrap>
                 </ActiveTransaction>
@@ -274,17 +270,20 @@ const LendPosition = ({ close }: { close: () => void }) => {
             label={<Text size={mobile ? 'small' : undefined}> Next Step</Text>}
             onClick={() => handleStepper()}
             key="next"
-            disabled={
-              (actionActive.index === 0 && closeDisabled) ||
-              (actionActive.index === 1 && rollDisabled)
-            }
+            disabled={(actionActive.index === 0 && closeDisabled) || (actionActive.index === 1 && rollDisabled)}
           />
         )}
 
         {actionActive.index === 0 && stepPosition[actionActive.index] !== 0 && (
           <TransactButton
             primary
-            label={<Text size={mobile ? 'small' : undefined}> {`Close ${closeInput || ''}`} </Text>}
+            label={
+              <Text size={mobile ? 'small' : undefined}>
+                {`Close ${nFormatter(Number(closeInput), selectedBase?.digitFormat || 6) || ''} ${
+                  selectedBase?.symbol
+                }`}
+              </Text>
+            }
             onClick={() => handleClosePosition()}
             disabled={closeDisabled}
           />
@@ -293,7 +292,11 @@ const LendPosition = ({ close }: { close: () => void }) => {
         {actionActive.index === 1 && stepPosition[actionActive.index] !== 0 && (
           <TransactButton
             primary
-            label={<Text size={mobile ? 'small' : undefined}> {`Roll ${rollInput || ''}`} </Text>}
+            label={
+              <Text size={mobile ? 'small' : undefined}>
+                {`Roll ${nFormatter(Number(rollInput), selectedBase?.digitFormat || 6) || ''} ${selectedBase?.symbol}`}
+              </Text>
+            }
             onClick={() => handleRollPosition()}
             disabled={rollDisabled}
           />
