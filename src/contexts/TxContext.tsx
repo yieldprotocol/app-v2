@@ -136,6 +136,8 @@ const TxProvider = ({ children }: any) => {
     let tx: ContractTransaction;
     let res: any;
 
+    // google analytics sent txCode
+
     /* start a new process (over-write if it has been started already) */
     _startProcess(txCode);
     console.log(txState.processes);
