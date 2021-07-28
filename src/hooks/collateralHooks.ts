@@ -36,11 +36,12 @@ export const useCollateralization = (
 
   /* update the prices if anything changes */
   useEffect(() => {
-    if (selectedBaseId && selectedIlkId) {
+    if (priceMap.has(selectedBaseId) && selectedIlkId !== '0x000000000000') {
       (async () => {
-        const _price =
-          priceMap.get(selectedBaseId)?.get(selectedIlkId)! || (await updatePrice(selectedBaseId, selectedIlkId));
-        setOraclePrice(_price);
+        console.log(selectedBaseId, selectedIlkId )
+        priceMap.get(selectedBaseId).has(selectedIlkId)
+          ? setOraclePrice(priceMap.get(selectedBaseId).get(selectedIlkId))
+          : setOraclePrice( await updatePrice(selectedBaseId, selectedIlkId) )
       })();
     }
   }, [priceMap, selectedBaseId, selectedIlkId, updatePrice]);
