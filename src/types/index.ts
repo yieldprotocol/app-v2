@@ -93,6 +93,7 @@ export interface IAssetRoot {
   displayNameMobile: string;
   address: string;
   joinAddress: string;
+  digitFormat: number;
 
   // baked in token fns
   getBalance: (account: string) => Promise<BigNumber>;

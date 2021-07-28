@@ -9,7 +9,7 @@ import AssetSelector from '../components/selectors/AssetSelector';
 import InputWrap from '../components/wraps/InputWrap';
 import MainViewWrap from '../components/wraps/MainViewWrap';
 import SeriesSelector from '../components/selectors/SeriesSelector';
-import { cleanValue, getTxCode } from '../utils/appUtils';
+import { cleanValue, getTxCode, nFormatter } from '../utils/appUtils';
 import SectionWrap from '../components/wraps/SectionWrap';
 
 import { useLendActions } from '../hooks/lendHooks';
@@ -97,8 +97,10 @@ const Lend = () => {
           {stepPosition === 0 && (
             <Box gap="medium">
               <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
-              <YieldMark height='1em' startColor='grey' endColor='grey' />
-                <Text color='text-weak' size='small'>Lend tokens for fixed returns</Text>
+                <YieldMark height="1em" startColor="grey" endColor="grey" />
+                <Text color="text-weak" size="small">
+                  Lend tokens for fixed returns
+                </Text>
               </Box>
               <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}>
                 <Box direction="row" gap="small" fill="horizontal" align="start">
@@ -148,12 +150,16 @@ const Lend = () => {
                     round="xsmall"
                     animation={{ type: 'zoomIn', size: 'small' }}
                   >
-                    <InfoBite label="Amount to lend" icon={<BiMessageSquareAdd />} value={`${lendInput} fyTokens`} />
+                    <InfoBite
+                      label="Amount to lend"
+                      icon={<BiMessageSquareAdd />}
+                      value={`${nFormatter(Number(lendInput), selectedBase?.digitFormat || 6)} fyTokens`}
+                    />
                     <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
                     <InfoBite
                       label="Redeemable @ Maturity"
                       icon={<FiTrendingUp />}
-                      value={`${lendInput} ${selectedBase?.symbol}`}
+                      value={`${nFormatter(Number(lendInput), selectedBase?.digitFormat || 6)} ${selectedBase?.symbol}`}
                     />
                     <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
                   </Box>
@@ -178,7 +184,9 @@ const Lend = () => {
               primary
               label={
                 <Text size={mobile ? 'small' : undefined}>
-                  {`Supply ${lendInput || ''} ${selectedBase?.symbol || ''}`}
+                  {`Supply ${nFormatter(Number(lendInput), selectedBase?.digitFormat || 6) || ''} ${
+                    selectedBase?.symbol || ''
+                  }`}
                 </Text>
               }
               onClick={() => handleLend()}

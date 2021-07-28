@@ -120,7 +120,6 @@ const UserProvider = ({ children }: any) => {
     async (fromBlock: number = 1) => {
       const Cauldron = contractMap.get('Cauldron');
 
-
       const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account);
       const vaultsReceivedfilter = Cauldron.filters.VaultGiven(null, account);
 
@@ -141,19 +140,19 @@ const UserProvider = ({ children }: any) => {
           displayName: uniqueNamesGenerator({ seed: parseInt(id.substring(14), 16), ...vaultNameConfig }),
         };
       });
-     
+
       const recievedEventsList: IVaultRoot[] = await Promise.all(
         vaultsReceived.map(async (x: any): Promise<IVaultRoot> => {
           const { vaultId: id } = Cauldron.interface.parseLog(x).args;
           const { ilkId, seriesId } = await Cauldron.vaults(id);
-          const series = seriesRootMap.get(seriesId);         
+          const series = seriesRootMap.get(seriesId);
           return {
             id,
             seriesId,
             baseId: series.baseId,
             ilkId,
             image: genVaultImage(id),
-            displayName: uniqueNamesGenerator({ seed: parseInt(id.substring(14), 16), ...vaultNameConfig }), // TODO Marco move uniquNames generator into utils 
+            displayName: uniqueNamesGenerator({ seed: parseInt(id.substring(14), 16), ...vaultNameConfig }), // TODO Marco move uniquNames generator into utils
           };
         })
       );

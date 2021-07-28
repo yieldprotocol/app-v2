@@ -5,7 +5,7 @@ import { ethers } from 'ethers';
 
 import { FiSquare, FiClock, FiTrendingUp, FiPercent } from 'react-icons/fi';
 import { BiCoinStack, BiMessageSquareAdd } from 'react-icons/bi';
-import { cleanValue, getTxCode } from '../utils/appUtils';
+import { cleanValue, getTxCode, nFormatter } from '../utils/appUtils';
 import AssetSelector from '../components/selectors/AssetSelector';
 import MainViewWrap from '../components/wraps/MainViewWrap';
 import SeriesSelector from '../components/selectors/SeriesSelector';
@@ -98,8 +98,10 @@ function Pool() {
           {stepPosition === 0 && (
             <Box gap="medium">
               <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
-              <YieldMark height='1em' startColor='grey' endColor='grey' />
-                <Text color='text-weak' size='small'>Provide liquidity for variable returns.</Text>
+                <YieldMark height="1em" startColor="grey" endColor="grey" />
+                <Text color="text-weak" size="small">
+                  Provide liquidity for variable returns.
+                </Text>
               </Box>
 
               <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}>
@@ -169,7 +171,9 @@ function Pool() {
                       <InfoBite
                         label="Amount to pool"
                         icon={<BiMessageSquareAdd />}
-                        value={`${poolInput} ${selectedBase?.symbol}`}
+                        value={`${nFormatter(Number(poolInput), selectedBase?.digitFormat || 6)} ${
+                          selectedBase?.symbol
+                        }`}
                       />
                       <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
                       <InfoBite
@@ -200,7 +204,9 @@ function Pool() {
               primary
               label={
                 <Text size={mobile ? 'small' : undefined}>
-                  {`Pool ${poolInput || ''} ${selectedBase?.symbol || ''}`}
+                  {`Pool ${nFormatter(Number(poolInput), selectedBase?.digitFormat || 6) || ''} ${
+                    selectedBase?.symbol || ''
+                  }`}
                 </Text>
               }
               onClick={() => handleAdd()}
