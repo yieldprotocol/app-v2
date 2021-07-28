@@ -86,7 +86,7 @@ function Pool() {
             position={stepPosition}
             values={[
               ['Choose an asset to', 'pool', ''],
-              ['', 'Review', 'and transact'],
+              ['', 'Review', ' and transact'],
             ]}
           />
           <YieldInfo />
@@ -98,8 +98,8 @@ function Pool() {
           {stepPosition === 0 && (
             <Box gap="medium">
               <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
-              {/* <YieldMark height='1em' startColor='grey' endColor='grey' /> */}
-                <Text color='grey'>POOL</Text>
+              <YieldMark height='1em' startColor='grey' endColor='grey' />
+                <Text color='text-weak' size='small'>Provide liquidity for variable returns.</Text>
               </Box>
 
               <SectionWrap title={assetMap.size > 0 ? "Select an asset and amount": "Assets Loading..."}>

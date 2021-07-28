@@ -26,14 +26,20 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
       style={{ position: 'fixed', top: '0px' }}
       background="background"
     >
-      <Box direction="row" gap={mobile ? '0.25em' : '0.5em'} align='center'> 
+      <Box direction="row" gap='large' align='center'> 
         {/* <YieldMark height={mobile ? '1.0em' : '1.5em'}/>
         <HandText size={mobile ? '1.5em' : '2em'} >YIELD</HandText> */}
-        <YieldLogo height={mobile ? '1.0em' : '1.5em'}/>
+
+        {/* <YieldLogo height={mobile ? '1.0em' : '1.5em'}/> */}
+        <YieldMark height={mobile ? '1.0em' : '1.5em'}/>
+
+        
+
       </Box>
       {/* <YieldLogo height={mobile ? '1em' : '1.5em'} /> */}
-
       {!mobile && <YieldNavigation />}
+
+      
 
       <YieldAccount />
     </Header>
