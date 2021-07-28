@@ -42,11 +42,11 @@ const YieldAccount = (props: any) => {
       )}
 
       {account ? (
-        <Box direction="row" fill="vertical" gap="xsmall" >
+        <Box direction="row" gap="xsmall" align="center">
           {!mobile && <>{processPending ? <TransactionWidget /> : <YieldBalances />}</>}
           <Box round="xsmall" onClick={() => setSettingsOpen(true)} pad="small" justify="center">
             {mobile ? (
-              <Text size="small" color="text">
+              <Text color="text">
                 <FiSettings />
               </Text>
             ) : (
@@ -58,7 +58,6 @@ const YieldAccount = (props: any) => {
                   <Text size="xsmall" color="text-weak">
                     <FiCircle color="#00C781" size=".5rem" /> Connected
                   </Text>
-
                 </Box>
                 <Box>
                   <YieldAvatar address={account} size={2.5} />

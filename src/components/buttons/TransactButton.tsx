@@ -2,7 +2,9 @@ import { Box, Button, Text } from 'grommet';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-const StyledButton = styled(Button)``;
+const StyledButton = styled(Button)`
+  /* height: ${(props: any) => (props.mobile ? '2em' : '4.5em')}; */
+`;
 
 const TransactButton = (props: any) => (
   <Box>

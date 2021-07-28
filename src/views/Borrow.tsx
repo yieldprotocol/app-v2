@@ -69,24 +69,21 @@ const Borrow = () => {
   const [disclaimerChecked, setDisclaimerChecked] = useState<boolean>(false);
 
   const { borrow } = useBorrowActions();
-  
+
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
 
   const { collateralizationPercent, undercollateralized, minCollateral } = useCollateralization(
     borrowInput,
     collatInput,
-    vaultToUse 
-  );
-  
-  /* input validation hoooks */
-  const { inputError: borrowInputError } = useInputValidation(borrowInput, ActionCodes.BORROW, selectedSeries, []);
-  const { inputError: collatInputError } = useInputValidation(
-    collatInput,
-    ActionCodes.ADD_COLLATERAL,
-    selectedSeries,
-    [minCollateral, maxCollat]
+    vaultToUse
   );
 
+  /* input validation hoooks */
+  const { inputError: borrowInputError } = useInputValidation(borrowInput, ActionCodes.BORROW, selectedSeries, []);
+  const { inputError: collatInputError } = useInputValidation(collatInput, ActionCodes.ADD_COLLATERAL, selectedSeries, [
+    minCollateral,
+    maxCollat,
+  ]);
 
   /** LOCAL ACTION FNS */
   const handleBorrow = () => {
@@ -180,7 +177,7 @@ const Borrow = () => {
         )}
 
         <CenterPanelWrap series={selectedSeries || undefined}>
-          <Box fill pad="large" gap="medium">
+          <Box height="100%" pad="large">
             {stepPosition === 0 && ( // INITIAL STEP
               <Box gap="medium">
                 <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>

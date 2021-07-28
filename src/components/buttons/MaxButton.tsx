@@ -20,13 +20,20 @@ function MaxButton({ action, clearAction, showingMax, disabled }: IMaxButtonProp
   return (
     <>
       {!mobile && activeAccount && (
-        <Box onClick={ !disabled && !showingMax? () => action() : ()=>clearAction && clearAction() } pad="xsmall">
-          <Text size="xsmall" color={disabled ? 'text-xweak' : 'text'}>
-            { showingMax ? 'Clear' : 'Max' }
+        <Box
+          onClick={!disabled && !showingMax ? () => action() : () => clearAction && clearAction()}
+          pad="xsmall"
+          round="xsmall"
+          align="center"
+          background="tailwind-lightest-blue"
+          border={{ color: 'white' }}
+          width="xxsmall"
+        >
+          <Text size="xsmall" color="brand">
+            {showingMax ? 'Clear' : 'Max'}
           </Text>
         </Box>
       )}
-
     </>
   );
 }

@@ -25,31 +25,23 @@ const Balances = () => {
   const selectedIlk = assetMap.get(selectedIlkId);
 
   return (
-    <Box pad="xsmall" fill="vertical" justify="center" width="5rem">
-      <Box direction="row" gap="small">
-        <Box>
-          <Text size="xsmall" color="text">
-            {selectedBase?.image}
-          </Text>
-        </Box>
-        <Box>
-          <Text size="xsmall" color="text">
-            {selectedBase?.balance_}
-          </Text>
-        </Box>
+    <Box pad="small" justify="center" gap="xxxsmall" width="5rem">
+      <Box direction="row" gap="small" align="center">
+        <Text size="small" color="text">
+          {selectedBase?.image}
+        </Text>
+        <Text size="xsmall" color="text">
+          {selectedBase?.balance_}
+        </Text>
       </Box>
       {path === 'borrow' && selectedBase?.id !== selectedIlk?.id && (
-        <Box direction="row" gap="small">
-          <Box>
-            <Text size="xsmall" color="text">
-              {selectedIlk?.image}
-            </Text>
-          </Box>
-          <Box>
-            <Text size="xsmall" color="text">
-              {selectedIlk?.balance_}
-            </Text>
-          </Box>
+        <Box direction="row" gap="small" align="center">
+          <Text size="small" color="text">
+            {selectedIlk?.image}
+          </Text>
+          <Text size="xsmall" color="text">
+            {selectedIlk?.balance_}
+          </Text>
         </Box>
       )}
 
