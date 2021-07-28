@@ -114,7 +114,7 @@ export const useBorrowActions = () => {
           series,
           type: _isDaiBased ? SignType.DAI : SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
           message: 'Signing Dai Approval',
-          ignore: series.mature,
+          ignore: series.mature || base.hasLadleAuth,
         },
         {
           // after maturity

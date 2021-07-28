@@ -193,22 +193,21 @@ const UserProvider = ({ children }: any) => {
       if (account) {
         _accountData = await Promise.all(
           _publicData.map(async (asset: IAssetRoot): Promise<IAsset> => {
-            const [balance, ladleAllowance, poolAllowance ] = await Promise.all([
+            const [balance, ladleAllowance, poolAllowance, joinAllowance ] = await Promise.all([
               asset.getBalance(account),
               asset.getAllowance(account, contractMap.get('Ladle').address),
               asset.getAllowance(account, contractMap.get('PoolRouter').address),
+              asset.getAllowance(account, asset.joinAddress),
             ])
 
             const isYieldBase = !!Array.from(seriesRootMap.values()).find((x: any) => x.baseId === asset.id);
-
-
-            console.log(ladleAllowance, poolAllowance);
 
             return {
               ...asset,
               isYieldBase,
               hasLadleAuth: ladleAllowance.gt(ethers.constants.Zero) ,
               hasPoolRouterAuth: poolAllowance.gt(ethers.constants.Zero),
+              hasJoinAuth: joinAllowance.gt(ethers.constants.Zero),
               balance: balance || ethers.constants.Zero,
               balance_: balance
                 ? cleanValue(ethers.utils.formatEther(balance), 2)
