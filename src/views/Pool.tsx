@@ -102,7 +102,7 @@ function Pool() {
                 <Text color='text-weak' size='small'>Provide liquidity for variable returns.</Text>
               </Box>
 
-              <SectionWrap title={assetMap.size > 0 ? "Select an asset and amount": "Assets Loading..."}>
+              <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}>
                 <Box direction="row" gap="small" fill="horizontal" align="start">
                   <Box basis={mobile ? '50%' : '60%'}>
                     <InputWrap action={() => console.log('maxAction')} isError={poolError}>
@@ -113,12 +113,12 @@ function Pool() {
                         value={poolInput || ''}
                         onChange={(event: any) => setPoolInput(cleanValue(event.target.value))}
                       />
-                      <MaxButton 
-                        action={() => setPoolInput(maxPool)} 
-                        disabled={maxPool === '0'} 
-                        clearAction = {() => setPoolInput('')}
-                        showingMax= { !!poolInput && poolInput === maxPool }  
-                        />
+                      <MaxButton
+                        action={() => setPoolInput(maxPool)}
+                        disabled={maxPool === '0'}
+                        clearAction={() => setPoolInput('')}
+                        showingMax={!!poolInput && poolInput === maxPool}
+                      />
                     </InputWrap>
                   </Box>
 
@@ -128,7 +128,7 @@ function Pool() {
                 </Box>
               </SectionWrap>
 
-              <SectionWrap title={seriesMap.size > 0 ? "Select a series": ''}>
+              <SectionWrap title={seriesMap.size > 0 ? 'Select a series' : ''}>
                 <SeriesSelector actionType={ActionType.POOL} inputValue={poolInput} />
               </SectionWrap>
             </Box>
@@ -166,22 +166,18 @@ function Pool() {
                       round="xsmall"
                       animation={{ type: 'zoomIn', size: 'small' }}
                     >
-                      < InfoBite
+                      <InfoBite
                         label="Amount to pool"
                         icon={<BiMessageSquareAdd />}
                         value={`${poolInput} ${selectedBase?.symbol}`}
                       />
-                      < InfoBite
-                        label="Series Maturity"
-                        icon={<FiClock />}
-                        value={`${selectedSeries?.displayName}`}
-                      />
-                      < InfoBite
+                      <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
+                      <InfoBite
                         label="Amount of liquidity tokens recieved"
                         icon={<BiCoinStack />}
                         value={`${'[todo]'} Liquidity tokens`}
                       />
-                      < InfoBite label="Percentage of pool" icon={<FiPercent />} value={`${'[todo]'}%`} />
+                      <InfoBite label="Percentage of pool" icon={<FiPercent />} value={`${'[todo]'}%`} />
                     </Box>
                   </SectionWrap>
                 </Box>
@@ -204,8 +200,7 @@ function Pool() {
               primary
               label={
                 <Text size={mobile ? 'small' : undefined}>
-                  {' '}
-                  {`Pool ${poolInput || ''} ${selectedBase?.symbol || ''}`}{' '}
+                  {`Pool ${poolInput || ''} ${selectedBase?.symbol || ''}`}
                 </Text>
               }
               onClick={() => handleAdd()}

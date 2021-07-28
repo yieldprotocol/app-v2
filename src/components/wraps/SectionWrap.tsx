@@ -15,16 +15,10 @@ function SectionWrap({ title, border, disabled, children, rightAction }: ISectio
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   return (
-    <Box border={border} justify='center'>
+    <Box border={border} justify="center">
       {title && (
-        <Box
-          pad="xsmall"
-          direction="row"
-          fill="horizontal"
-          justify="between"
-          align="center"
-        >
-          <AltText size={mobile ? 'small' : 'small'} color={disabled ? 'text-xweak' : 'text-weak'}>
+        <Box pad={{ vertical: 'small' }} direction="row" fill="horizontal" justify="between" align="center">
+          <AltText size={mobile ? 'small' : 'medium'} color={disabled ? 'text-xweak' : 'text-weak'}>
             {title}
           </AltText>
           {rightAction}

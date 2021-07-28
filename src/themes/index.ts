@@ -11,6 +11,7 @@ export const yieldTheme = {
       'accent-1': '#FFCA58',
       'accent-2': '#81FCED',
       'tailwind-blue': '#2563EB',
+      'tailwind-lightest-blue': '#EFF6FF',
       text: {
         dark: '#EEEEEE',
         light: '#555555',
@@ -56,13 +57,11 @@ export const yieldTheme = {
         display: none;
       }
     `,
-
   },
-
 
   select: {
     dropProps: {
-      round: 'large'
+      round: 'large',
     },
   },
 
@@ -184,5 +183,4 @@ export const yieldTheme = {
       'box-shadow: ${theme.global.elevation.small}'
     `,
   },
-
 };

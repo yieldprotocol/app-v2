@@ -178,7 +178,8 @@ const Borrow = () => {
         )}
 
         <CenterPanelWrap series={selectedSeries || undefined}>
-          <Box fill gap="medium" pad="large">
+
+          <Box height="100%" pad="large">
             {stepPosition === 0 && ( // INITIAL STEP
               <Box gap="medium">
                 <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>

@@ -64,18 +64,17 @@ const YieldSettings = ({ setConnectOpen, setSettingsOpen }: any) => {
         </Box>
         <Box align="center" direction="row" gap="xsmall">
           <Button margin="xsmall" onClick={() => handleCopy(account)}>
-            {copySuccess ? <FiCheckSquare size="1rem" /> : <FiCopy size="1rem" />}
+            {copySuccess ? (
+              <FiCheckSquare size="1rem" style={{ verticalAlign: 'middle' }} />
+            ) : (
+              <FiCopy size="1rem" style={{ verticalAlign: 'middle' }} />
+            )}
             <Text margin="xsmall" size="small">
               {copySuccess ? 'Copied' : 'Copy Address'}
             </Text>
           </Button>
-          <Anchor
-            alignSelf="center"
-            href={`https://${chainName}.etherscan.io/address/${account}`}
-            margin="xsmall"
-            target="_blank"
-          >
-            <FiExternalLink size="1rem" />
+          <Anchor href={`https://${chainName}.etherscan.io/address/${account}`} margin="xsmall" target="_blank">
+            <FiExternalLink size="1rem" style={{ verticalAlign: 'middle' }} />
             <Text margin="xsmall" size="small">
               View on Explorer
             </Text>

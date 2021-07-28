@@ -37,7 +37,7 @@ const Connect = ({ setConnectOpen }: any) => {
         pad="small"
         round="small"
       >
-        <Box direction="row" gap="xsmall">
+        <Box direction="row" gap="xsmall" align="center">
           {connected && <FiCheckSquare color="green" />}
           {activating ? 'Connecting' : connectorNames.get(name)}
         </Box>
