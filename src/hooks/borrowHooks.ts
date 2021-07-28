@@ -50,7 +50,8 @@ export const useBorrowActions = () => {
           spender: ilk.joinAddress,
           series,
           type: DAI_BASED_ASSETS.includes(selectedIlkId) ? SignType.DAI : SignType.ERC2612,
-          ignore: ETH_BASED_ASSETS.includes(selectedIlkId) /* Ignore if Eth varietal */,
+          ignore:
+            ETH_BASED_ASSETS.includes(selectedIlkId) || ilk.hasJoinAuth /* Ignore if Eth varietal  or already signed */,
         },
       ],
       txCode
@@ -123,7 +124,7 @@ export const useBorrowActions = () => {
           series,
           type: _isDaiBased ? SignType.DAI : SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
           message: 'Signing Dai Approval',
-          ignore: !series.mature,
+          ignore: !series.mature || base.hasJoinAuth,
         },
       ],
       txCode
@@ -201,7 +202,7 @@ export const useBorrowActions = () => {
           series,
           type: _isDaiBased ? SignType.DAI : SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
           message: 'Signing Dai Approval',
-          ignore: series.mature,
+          ignore: series.mature || base.hasLadleAuth,
         },
       ],
       txCode
@@ -257,7 +258,7 @@ export const useBorrowActions = () => {
           series,
           type: _isDaiBased ? SignType.DAI : SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
           message: 'Signing Dai Approval',
-          ignore: series.mature,
+          ignore: series.mature || base.hasLadleAuth,
         },
       ],
       txCode
