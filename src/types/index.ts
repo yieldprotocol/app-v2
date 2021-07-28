@@ -131,6 +131,9 @@ export interface IAsset extends IAssetRoot {
   isYieldBase: boolean;
   balance: BigNumber;
   balance_: string;
+  hasPoolRouterAuth: boolean;
+  hasLadleAuth: boolean;
+  hasJoinAuth: boolean;
 }
 
 export interface IVault extends IVaultRoot {

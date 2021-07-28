@@ -43,7 +43,7 @@ export const useLendActions = () => {
           series,
           type: _isDaiBased ? SignType.DAI : SignType.ERC2612, // Sign Type based on whether a DAI-TyPE base asset or not.
           message: 'Signing ERC20 Token approval',
-          ignore: false,
+          ignore: false, // ignore if user has previously signed. base.
         },
       ],
       txCode,
