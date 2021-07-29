@@ -130,7 +130,7 @@ function Pool() {
                 </Box>
               </SectionWrap>
 
-              <SectionWrap title={seriesMap.size > 0 ? 'Select a series' : ''}>
+              <SectionWrap title={seriesMap.size > 0 ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} series` : ''}>
                 <SeriesSelector actionType={ActionType.POOL} inputValue={poolInput} />
               </SectionWrap>
             </Box>
