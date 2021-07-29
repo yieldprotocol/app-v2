@@ -27,7 +27,7 @@ import StepperText from '../components/StepperText';
 import VaultSelector from '../components/selectors/VaultSelector';
 import ActiveTransaction from '../components/ActiveTransaction';
 
-import { getTxCode, nFormatter } from '../utils/appUtils';
+import { cleanValue, getTxCode, nFormatter } from '../utils/appUtils';
 
 import YieldInfo from '../components/YieldInfo';
 import BackButton from '../components/buttons/BackButton';
@@ -296,19 +296,19 @@ const Borrow = () => {
                       <InfoBite
                         label="Amount to be Borrowed"
                         icon={<FiPocket />}
-                        value={`${nFormatter(Number(borrowInput), selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
+                        value={`${cleanValue(borrowInput, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
                       />
                       <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
                       <InfoBite
                         label="Vault Debt Payable @ Maturity"
                         icon={<FiTrendingUp />}
-                        value={`${nFormatter(Number(borrowInput), selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
+                        value={`${cleanValue(borrowInput, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
                       />
                       <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
                       <InfoBite
                         label="Supporting Collateral"
                         icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
-                        value={`${nFormatter(Number(collatInput), selectedIlk?.digitFormat!)} ${
+                        value={`${cleanValue(collatInput, selectedIlk?.digitFormat!)} ${
                           selectedIlk?.symbol
                         } (${collateralizationPercent}% )`}
                       />

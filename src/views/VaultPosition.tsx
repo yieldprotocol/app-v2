@@ -309,7 +309,7 @@ const Vault = ({ close }: { close: () => void }) => {
               <Box gap="small">
                 <InfoBite
                   label="Vault debt + interest:"
-                  value={`${nFormatter(Number(selectedVault?.art_), vaultBase?.digitFormat!)} ${vaultBase?.symbol}`}
+                  value={`${ cleanValue(selectedVault?.art_, vaultBase?.digitFormat!)} ${vaultBase?.symbol}`}
                   icon={<FiTrendingUp />}
                 />
                 <InfoBite
@@ -319,7 +319,7 @@ const Vault = ({ close }: { close: () => void }) => {
                 />
                 <InfoBite
                   label="Collateral posted:"
-                  value={`${nFormatter(Number(selectedVault?.ink_), vaultIlk?.digitFormat!)} ${
+                  value={`${cleanValue(selectedVault?.ink_, vaultIlk?.digitFormat!)} ${
                     vaultIlk?.symbol
                   } ( ${collateralizationPercent} %)`}
                   icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
@@ -377,7 +377,7 @@ const Vault = ({ close }: { close: () => void }) => {
                       placeholder="Enter amount to Repay"
                       // ref={(el:any) => { el && !repayOpen && !rateLockOpen && !mobile && el.focus(); setInputRef(el); }}
                       value={repayInput || ''}
-                      onChange={(event: any) => setRepayInput(cleanValue(event.target.value))}
+                      onChange={(event: any) => setRepayInput(event.target.value)}
                     />
                     <MaxButton
                       action={() => setRepayInput(maxRepay)}
@@ -401,7 +401,7 @@ const Vault = ({ close }: { close: () => void }) => {
                       <InfoBite
                         label="Repay Debt"
                         icon={<FiArrowRight />}
-                        value={`${nFormatter(Number(repayInput), vaultBase?.digitFormat!)} ${vaultBase?.symbol}`}
+                        value={`${cleanValue(repayInput, vaultBase?.digitFormat!)} ${vaultBase?.symbol}`}
                       />
                     </Box>
                   </SectionWrap>
@@ -457,7 +457,7 @@ const Vault = ({ close }: { close: () => void }) => {
                         type="number"
                         placeholder="Collateral to Add"
                         value={addCollatInput || ''}
-                        onChange={(event: any) => setAddCollatInput(cleanValue(event.target.value))}
+                        onChange={(event: any) => setAddCollatInput(event.target.value)}
                       />
                       <MaxButton
                         disabled={removeCollatInput}
@@ -476,7 +476,7 @@ const Vault = ({ close }: { close: () => void }) => {
                         type="number"
                         placeholder="Collateral to remove"
                         value={removeCollatInput || ''}
-                        onChange={(event: any) => setRemoveCollatInput(cleanValue(event.target.value))}
+                        onChange={(event: any) => setRemoveCollatInput(event.target.value)}
                       />
                       <MaxButton
                         disabled={!!addCollatInput}
@@ -509,14 +509,14 @@ const Vault = ({ close }: { close: () => void }) => {
                         <InfoBite
                           label="Add Collateral"
                           icon={<FiArrowRight />}
-                          value={`${nFormatter(Number(addCollatInput), vaultIlk?.digitFormat!)} ${vaultIlk?.symbol}`}
+                          value={`${cleanValue(addCollatInput, vaultIlk?.digitFormat!)} ${vaultIlk?.symbol}`}
                         />
                       )}
                       {removeCollatInput && (
                         <InfoBite
                           label="Remove Collateral"
                           icon={<FiArrowRight />}
-                          value={`${nFormatter(Number(removeCollatInput), vaultIlk?.digitFormat!)} ${vaultIlk?.symbol}`}
+                          value={`${cleanValue(removeCollatInput, vaultIlk?.digitFormat!)} ${vaultIlk?.symbol}`}
                         />
                       )}
                     </Box>

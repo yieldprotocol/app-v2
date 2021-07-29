@@ -115,7 +115,7 @@ const Lend = () => {
                         type="number"
                         placeholder="Enter amount"
                         value={lendInput || ''}
-                        onChange={(event: any) => setLendInput(cleanValue(event.target.value))}
+                        onChange={(event: any) => setLendInput(event.target.value)}
                         disabled={selectedSeries?.seriesIsMature}
                       />
                       <MaxButton
@@ -153,13 +153,13 @@ const Lend = () => {
                     <InfoBite
                       label="Amount to lend"
                       icon={<BiMessageSquareAdd />}
-                      value={`${nFormatter(Number(lendInput), selectedBase?.digitFormat!)} fyTokens`}
+                      value={`${cleanValue(lendInput, selectedBase?.digitFormat!)} fyTokens`}
                     />
                     <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
                     <InfoBite
                       label="Redeemable @ Maturity"
                       icon={<FiTrendingUp />}
-                      value={`${nFormatter(Number(lendInput), selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
+                      value={`${cleanValue(lendInput, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
                     />
                     <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
                   </Box>

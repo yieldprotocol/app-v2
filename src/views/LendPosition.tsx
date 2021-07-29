@@ -127,12 +127,12 @@ const LendPosition = ({ close }: { close: () => void }) => {
               {/* <InfoBite label="Vault debt + interest:" value={`${selectedVault?.art_} ${vaultBase?.symbol}`} icon={<FiTrendingUp />} /> */}
               <InfoBite
                 label="Portfolio value at Maturity"
-                value={`${selectedSeries?.fyTokenBalance_!} ${selectedBase?.symbol!}`}
+                value={`${cleanValue( selectedSeries?.fyTokenBalance_!, selectedBase?.digitFormat!) } ${selectedBase?.symbol!}`}
                 icon={<FiTrendingUp />}
               />
               <InfoBite
                 label="Current value"
-                value={`${selectedSeries?.fyTokenBalance_!} `}
+                value={cleanValue(selectedSeries?.fyTokenBalance_!, selectedBase?.digitFormat! )}
                 icon={selectedBase?.image}
               />
               <InfoBite
@@ -173,7 +173,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
                       type="number"
                       placeholder="fyToken Amount" // {`${selectedBase?.symbol} to reclaim`}
                       value={closeInput || ''}
-                      onChange={(event: any) => setCloseInput(cleanValue(event.target.value))}
+                      onChange={(event: any) => setCloseInput(event.target.value)}
                       disabled={!selectedSeries}
                     />
                     <MaxButton
@@ -196,7 +196,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
                       <InfoBite
                         label="Close Position"
                         icon={<FiArrowRight />}
-                        value={`${nFormatter(Number(closeInput), selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
+                        value={`${cleanValue(closeInput, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
                       />
                     </Box>
                   </SectionWrap>
@@ -216,7 +216,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
                         type="number"
                         placeholder="fyToken amount to roll" // {`${selectedBase?.symbol} to reclaim`}
                         value={rollInput || ''}
-                        onChange={(event: any) => setRollInput(cleanValue(event.target.value))}
+                        onChange={(event: any) => setRollInput(event.target.value)}
                         disabled={!selectedSeries}
                       />
                       <MaxButton
@@ -247,7 +247,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
                       <InfoBite
                         label="Roll To Series"
                         icon={<FiArrowRight />}
-                        value={` Roll  ${nFormatter(Number(closeInput), selectedBase?.digitFormat!)} ${
+                        value={` Roll  ${cleanValue(closeInput, selectedBase?.digitFormat!)} ${
                           selectedBase?.symbol
                         } to ${rollToSeries?.displayName}`}
                       />

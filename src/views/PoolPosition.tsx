@@ -119,7 +119,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
 
               <InfoBite
                 label="Liquidity Balance"
-                value={nFormatter(Number(selectedSeries?.poolTokens_), selectedBase?.digitFormat!)}
+                value={cleanValue(selectedSeries?.poolTokens_, selectedBase?.digitFormat!)}
                 icon={<YieldMark height="1em" startColor={selectedSeries?.startColor} />}
               />
               {/* <InfoBite 
@@ -167,7 +167,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                       type="number"
                       placeholder="Tokens to remove"
                       value={removeInput || ''}
-                      onChange={(event: any) => setRemoveInput(cleanValue(event.target.value))}
+                      onChange={(event: any) => setRemoveInput(event.target.value)}
                     />
                     <MaxButton
                       action={() => setRemoveInput(maxRemove)}
@@ -189,7 +189,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                       <InfoBite
                         label="Remove Liquidity"
                         icon={<FiArrowRight />}
-                        value={`${nFormatter(Number(removeInput), selectedBase?.digitFormat!)} liquidity tokens`}
+                        value={`${cleanValue(removeInput, selectedBase?.digitFormat!)} liquidity tokens`}
                       />
                     </Box>
                   </SectionWrap>
@@ -209,7 +209,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                         type="number"
                         placeholder="Tokens to roll"
                         value={rollInput || ''}
-                        onChange={(event: any) => setRollInput(cleanValue(event.target.value))}
+                        onChange={(event: any) => setRollInput(event.target.value)}
                       />
                       <MaxButton
                         action={() => setRollInput(maxRemove)}
@@ -239,7 +239,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                       <InfoBite
                         label="Roll Liquidity"
                         icon={<FiArrowRight />}
-                        value={`${nFormatter(Number(rollInput), selectedBase?.digitFormat!)} Liquidity Tokens to ${
+                        value={`${cleanValue(rollInput, selectedBase?.digitFormat!)} Liquidity Tokens to ${
                           rollToSeries?.displayName
                         } `}
                       />

@@ -113,7 +113,7 @@ function Pool() {
                         type="number"
                         placeholder="Enter amount"
                         value={poolInput || ''}
-                        onChange={(event: any) => setPoolInput(cleanValue(event.target.value))}
+                        onChange={(event: any) => setPoolInput(event.target.value)}
                       />
                       <MaxButton
                         action={() => setPoolInput(maxPool)}
@@ -171,7 +171,7 @@ function Pool() {
                       <InfoBite
                         label="Amount to pool"
                         icon={<BiMessageSquareAdd />}
-                        value={`${nFormatter(Number(poolInput), selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
+                        value={`${cleanValue(poolInput, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
                       />
                       <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
                       <InfoBite
