@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { ChainContext, connectorNames } from '../contexts/ChainContext';
 import { abbreviateHash } from '../utils/appUtils';
 import YieldAvatar from './YieldAvatar';
+import AdvancedSettings from './AdvancedSettings';
 
 const ChangeButton = styled(Button)`
   background: #dbeafe;
@@ -80,6 +81,9 @@ const YieldSettings = ({ setConnectOpen, setSettingsOpen }: any) => {
             </Text>
           </Anchor>
         </Box>
+      </Box>
+      <Box align="center" direction="row" border={{ color: '#DBEAFE', size: 'xsmall', side: 'top' }} pad="medium">
+        <AdvancedSettings />
       </Box>
       <Box
         border={{ color: '#DBEAFE', size: 'xsmall', side: 'top' }}

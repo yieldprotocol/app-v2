@@ -31,7 +31,7 @@ const StyledBox = styled(Box)`
 function VaultSelector(target: any) {
   /* STATE FROM CONTEXT */
   const { userState, userActions } = useContext(UserContext) as IUserContext;
-  const { assetMap, vaultMap, seriesMap, selectedSeriesId, selectedBaseId } = userState;
+  const { assetMap, vaultMap, seriesMap, selectedSeriesId, selectedBaseId, showInactiveVaults } = userState;
   const { setSelectedVault } = userActions;
 
   const selectedBase = assetMap.get(selectedBaseId!);
@@ -53,7 +53,7 @@ function VaultSelector(target: any) {
   const handleFilter = useCallback(
     ({ base, series, ilk }: IVaultFilter) => {
       const _filteredVaults: IVault[] = Array.from(vaultMap.values())
-        .filter((vault: IVault) => vault.isActive)
+        .filter((vault: IVault) => showInactiveVaults || vault.isActive)
         .filter((vault: IVault) => (base ? vault.baseId === base.id : true))
         .filter((vault: IVault) => (series ? vault.seriesId === series.id : true))
         .filter((vault: IVault) => (ilk ? vault.ilkId === ilk.id : true));
@@ -61,7 +61,7 @@ function VaultSelector(target: any) {
       setFilter({ base, series, ilk });
       setFilteredVaults(_filteredVaults);
     },
-    [vaultMap]
+    [vaultMap, showInactiveVaults]
   );
 
   /* CHECK the list of current vaults which match the current series/ilk selection */

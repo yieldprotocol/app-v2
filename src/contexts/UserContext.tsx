@@ -46,6 +46,7 @@ const initState: IUserContextState = {
   /* User Settings */
   approvalMethod: ApprovalType.SIG,
   dudeSalt: 0,
+  showInactiveVaults: false as boolean,
 };
 
 const vaultNameConfig: Config = {
@@ -91,6 +92,9 @@ function userReducer(state: any, action: any) {
     case 'dudeSalt':
       return { ...state, dudeSalt: onlyIfChanged(action) };
 
+    case 'showInactiveVaults':
+      return { ...state, showInactiveVaults: onlyIfChanged(action) };
+
     default:
       return state;
   }
@@ -120,7 +124,6 @@ const UserProvider = ({ children }: any) => {
     async (fromBlock: number = 1) => {
       const Cauldron = contractMap.get('Cauldron');
 
-
       const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account);
       const vaultsReceivedfilter = Cauldron.filters.VaultGiven(null, account);
 
@@ -141,19 +144,19 @@ const UserProvider = ({ children }: any) => {
           displayName: uniqueNamesGenerator({ seed: parseInt(id.substring(14), 16), ...vaultNameConfig }),
         };
       });
-     
+
       const recievedEventsList: IVaultRoot[] = await Promise.all(
         vaultsReceived.map(async (x: any): Promise<IVaultRoot> => {
           const { vaultId: id } = Cauldron.interface.parseLog(x).args;
           const { ilkId, seriesId } = await Cauldron.vaults(id);
-          const series = seriesRootMap.get(seriesId);         
+          const series = seriesRootMap.get(seriesId);
           return {
             id,
             seriesId,
             baseId: series.baseId,
             ilkId,
             image: genVaultImage(id),
-            displayName: uniqueNamesGenerator({ seed: parseInt(id.substring(14), 16), ...vaultNameConfig }), // TODO Marco move uniquNames generator into utils 
+            displayName: uniqueNamesGenerator({ seed: parseInt(id.substring(14), 16), ...vaultNameConfig }), // TODO Marco move uniquNames generator into utils
           };
         })
       );
@@ -435,6 +438,9 @@ const UserProvider = ({ children }: any) => {
     setApprovalMethod: (type: ApprovalType) => updateState({ type: 'approvalMethod', payload: type }),
 
     updateDudeSalt: () => updateState({ type: 'dudeSalt', payload: userState.dudeSalt + 1 }),
+
+    setShowInactiveVaults: (showInactiveVaults: boolean) =>
+      updateState({ type: 'showInactiveVaults', payload: showInactiveVaults }),
   };
 
   return <UserContext.Provider value={{ userState, userActions } as IUserContext}>{children}</UserContext.Provider>;
