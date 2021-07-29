@@ -57,20 +57,16 @@ const PoolPosition = ({ close }: { close: () => void }) => {
   /* HOOK FNS */
   const { removeLiquidity, rollLiquidity } = usePoolActions();
 
-    /* input validation hoooks */
-    const { inputError: removeError } = useInputValidation(
-      removeInput, 
-      ActionCodes.REMOVE_LIQUIDITY, 
-      selectedSeries, 
-      [ 0, maxRemove ]
-    );
-  
-    const { inputError: rollError } = useInputValidation(
-      rollInput,
-      ActionCodes.ROLL_LIQUIDITY,
-      selectedSeries,
-      [0, maxRemove]
-    );
+  /* input validation hoooks */
+  const { inputError: removeError } = useInputValidation(removeInput, ActionCodes.REMOVE_LIQUIDITY, selectedSeries, [
+    0,
+    maxRemove,
+  ]);
+
+  const { inputError: rollError } = useInputValidation(rollInput, ActionCodes.ROLL_LIQUIDITY, selectedSeries, [
+    0,
+    maxRemove,
+  ]);
 
   /* LOCAL FNS */
   const handleStepper = (back: boolean = false) => {
@@ -96,13 +92,11 @@ const PoolPosition = ({ close }: { close: () => void }) => {
     if (max) setMaxRemove(ethers.utils.formatEther(max).toString());
   }, [rollInput, selectedSeries, setMaxRemove]);
 
-
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
   useEffect(() => {
     !removeInput || removeError ? setRemoveDisabled(true) : setRemoveDisabled(false);
     !rollInput || !rollToSeries || rollError ? setRollDisabled(true) : setRollDisabled(false);
   }, [activeAccount, removeError, removeInput, rollError, rollInput, rollToSeries]);
-
 
   return (
     <CenterPanelWrap>
@@ -125,7 +119,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
 
               <InfoBite
                 label="Liquidity Balance"
-                value={cleanValue(selectedSeries?.poolTokens_, 6)}
+                value={nFormatter(Number(selectedSeries?.poolTokens_), selectedBase?.digitFormat!)}
                 icon={<YieldMark height="1em" startColor={selectedSeries?.startColor} />}
               />
               {/* <InfoBite 
@@ -175,12 +169,12 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                       value={removeInput || ''}
                       onChange={(event: any) => setRemoveInput(cleanValue(event.target.value))}
                     />
-                    <MaxButton 
-                      action={() => setRemoveInput(maxRemove)} 
-                      disabled={maxRemove === '0.0'} 
-                      clearAction = {() => setRemoveInput('')}
-                      showingMax= { !!removeInput && removeInput === maxRemove }
-                      />
+                    <MaxButton
+                      action={() => setRemoveInput(maxRemove)}
+                      disabled={maxRemove === '0.0'}
+                      clearAction={() => setRemoveInput('')}
+                      showingMax={!!removeInput && removeInput === maxRemove}
+                    />
                   </InputWrap>
                 </Box>
               )}
@@ -195,7 +189,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                       <InfoBite
                         label="Remove Liquidity"
                         icon={<FiArrowRight />}
-                        value={`${removeInput} liquidity tokens`}
+                        value={`${nFormatter(Number(removeInput), selectedBase?.digitFormat!)} liquidity tokens`}
                       />
                     </Box>
                   </SectionWrap>
@@ -217,11 +211,11 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                         value={rollInput || ''}
                         onChange={(event: any) => setRollInput(cleanValue(event.target.value))}
                       />
-                      <MaxButton 
-                        action={() => setRollInput(maxRemove)} 
-                        disabled={maxRemove === '0.0'} 
-                        clearAction = {() => setRollInput('')}
-                        showingMax= { !!rollInput && rollInput === maxRemove }
+                      <MaxButton
+                        action={() => setRollInput(maxRemove)}
+                        disabled={maxRemove === '0.0'}
+                        clearAction={() => setRollInput('')}
+                        showingMax={!!rollInput && rollInput === maxRemove}
                       />
                     </InputWrap>
                   </Box>
@@ -245,7 +239,9 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                       <InfoBite
                         label="Roll Liquidity"
                         icon={<FiArrowRight />}
-                        value={`${rollInput} Liquidity Tokens to ${rollToSeries?.displayName} `}
+                        value={`${nFormatter(Number(rollInput), selectedBase?.digitFormat!)} Liquidity Tokens to ${
+                          rollToSeries?.displayName
+                        } `}
                       />
                     </Box>
                   </SectionWrap>
@@ -264,17 +260,18 @@ const PoolPosition = ({ close }: { close: () => void }) => {
             label={<Text size={mobile ? 'small' : undefined}> Next Step</Text>}
             onClick={() => handleStepper()}
             key="next"
-            disabled={
-              (actionActive.index === 0 && removeDisabled) ||
-              (actionActive.index === 1 && rollDisabled)
-            }
+            disabled={(actionActive.index === 0 && removeDisabled) || (actionActive.index === 1 && rollDisabled)}
           />
         )}
 
         {actionActive.index === 0 && stepPosition[actionActive.index] !== 0 && (
           <TransactButton
             primary
-            label={<Text size={mobile ? 'small' : undefined}> {`Remove ${removeInput || ''} tokens`} </Text>}
+            label={
+              <Text size={mobile ? 'small' : undefined}>
+                {`Remove ${nFormatter(Number(removeInput), selectedBase?.digitFormat!) || ''} tokens`}
+              </Text>
+            }
             onClick={() => handleRemove()}
             disabled={removeDisabled}
           />
@@ -283,7 +280,11 @@ const PoolPosition = ({ close }: { close: () => void }) => {
         {actionActive.index === 1 && stepPosition[actionActive.index] !== 0 && (
           <TransactButton
             primary
-            label={<Text size={mobile ? 'small' : undefined}> {`Roll ${rollInput || ''} tokens`} </Text>}
+            label={
+              <Text size={mobile ? 'small' : undefined}>
+                {`Roll ${nFormatter(Number(rollInput), selectedBase?.digitFormat!) || ''} tokens`}
+              </Text>
+            }
             onClick={() => handleRoll()}
             disabled={rollDisabled}
           />

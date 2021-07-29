@@ -33,6 +33,14 @@ const markMap = new Map([
   ['USDT', <USDTMark key="eth" />],
 ]);
 
+const assetDigitFormatMap = new Map([
+  ['WETH', 6],
+  ['WBTC', 6],
+  ['DAI', 2],
+  ['USDC', 2],
+  ['USDT', 2],
+]);
+
 /* Set up web3react config */
 const POLLING_INTERVAL = 12000;
 const RPC_URLS: { [chainId: number]: string } = {
@@ -244,6 +252,7 @@ const ChainProvider = ({ children }: any) => {
                   color: (yieldEnv.assetColors as any)[symbol],
                   image: markMap.get(symbol),
                   joinAddress: joinMap.get(id),
+                  digitFormat: assetDigitFormatMap.has(symbol) ? assetDigitFormatMap.get(symbol) : 6,
                   /* baked in token fns */
                   getBalance: async (acc: string) =>
                     ETH_BASED_ASSETS.includes(id) ? library?.getBalance(acc) : ERC20.balanceOf(acc),
@@ -286,7 +295,7 @@ const ChainProvider = ({ children }: any) => {
               const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackLibrary);
 
               const season = getSeason(maturity) as SeasonType;
-              const oppSeason = (_season: SeasonType) => getSeason(maturity+ 23670000) as SeasonType;
+              const oppSeason = (_season: SeasonType) => getSeason(maturity + 23670000) as SeasonType;
 
               const [startColor, endColor, textColor]: string[] = yieldEnv.seasonColors[season];
               const [oppStartColor, oppEndColor, oppTextColor]: string[] = yieldEnv.seasonColors[oppSeason(season)];
@@ -387,7 +396,7 @@ const ChainProvider = ({ children }: any) => {
     const _chainId = chainId || lastChainId;
     /* cache the change of networkId */
     chainId && setLastChainId(chainId);
-    
+
     /* Connect the fallback */
     tried &&
       fallbackActivate(

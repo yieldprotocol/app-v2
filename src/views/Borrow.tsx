@@ -178,13 +178,14 @@ const Borrow = () => {
         )}
 
         <CenterPanelWrap series={selectedSeries || undefined}>
-
           <Box height="100%" pad="large">
             {stepPosition === 0 && ( // INITIAL STEP
               <Box gap="medium">
                 <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
-                  <YieldMark height='1em' startColor='grey' endColor='grey' />
-                  <AltText color="text-weak" size='small'>Borrow tokens at a fixed rate.</AltText>
+                  <YieldMark height="1em" startColor="grey" endColor="grey" />
+                  <AltText color="text-weak" size="small">
+                    Borrow tokens at a fixed rate.
+                  </AltText>
                 </Box>
 
                 <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}>
@@ -295,19 +296,21 @@ const Borrow = () => {
                       <InfoBite
                         label="Amount to be Borrowed"
                         icon={<FiPocket />}
-                        value={`${borrowInput} ${selectedBase?.symbol}`}
+                        value={`${nFormatter(Number(borrowInput), selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
                       />
                       <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
                       <InfoBite
                         label="Vault Debt Payable @ Maturity"
                         icon={<FiTrendingUp />}
-                        value={`${borrowInput} ${selectedBase?.symbol}`}
+                        value={`${nFormatter(Number(borrowInput), selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
                       />
                       <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
                       <InfoBite
                         label="Supporting Collateral"
                         icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
-                        value={`${collatInput} ${selectedIlk?.symbol} (${collateralizationPercent}% )`}
+                        value={`${nFormatter(Number(collatInput), selectedIlk?.digitFormat!)} ${
+                          selectedIlk?.symbol
+                        } (${collateralizationPercent}% )`}
                       />
                       {vaultToUse?.id && (
                         <InfoBite
@@ -353,7 +356,9 @@ const Borrow = () => {
                   primary
                   label={
                     <Text size={mobile ? 'small' : undefined}>
-                      {`Borrow  ${borrowInput || ''} ${selectedBase?.symbol || ''}`}
+                      {`Borrow  ${nFormatter(Number(borrowInput), selectedBase?.digitFormat!) || ''} ${
+                        selectedBase?.symbol || ''
+                      }`}
                     </Text>
                   }
                   onClick={() => handleBorrow()}

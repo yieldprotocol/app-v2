@@ -13,7 +13,7 @@ import {
   FiAlertTriangle,
   FiArrowRight,
 } from 'react-icons/fi';
-import { abbreviateHash, cleanValue, getTxCode } from '../utils/appUtils';
+import { abbreviateHash, cleanValue, getTxCode, nFormatter } from '../utils/appUtils';
 import { UserContext } from '../contexts/UserContext';
 import InputWrap from '../components/wraps/InputWrap';
 import InfoBite from '../components/InfoBite';
@@ -309,7 +309,7 @@ const Vault = ({ close }: { close: () => void }) => {
               <Box gap="small">
                 <InfoBite
                   label="Vault debt + interest:"
-                  value={`${selectedVault?.art_} ${vaultBase?.symbol}`}
+                  value={`${nFormatter(Number(selectedVault?.art_), vaultBase?.digitFormat!)} ${vaultBase?.symbol}`}
                   icon={<FiTrendingUp />}
                 />
                 <InfoBite
@@ -319,7 +319,9 @@ const Vault = ({ close }: { close: () => void }) => {
                 />
                 <InfoBite
                   label="Collateral posted:"
-                  value={`${selectedVault?.ink_} ${vaultIlk?.symbol} ( ${collateralizationPercent} %)`}
+                  value={`${nFormatter(Number(selectedVault?.ink_), vaultIlk?.digitFormat!)} ${
+                    vaultIlk?.symbol
+                  } ( ${collateralizationPercent} %)`}
                   icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
                 />
               </Box>
@@ -399,7 +401,7 @@ const Vault = ({ close }: { close: () => void }) => {
                       <InfoBite
                         label="Repay Debt"
                         icon={<FiArrowRight />}
-                        value={`${repayInput} ${vaultBase?.symbol}`}
+                        value={`${nFormatter(Number(repayInput), vaultBase?.digitFormat!)} ${vaultBase?.symbol}`}
                       />
                     </Box>
                   </SectionWrap>
@@ -507,14 +509,14 @@ const Vault = ({ close }: { close: () => void }) => {
                         <InfoBite
                           label="Add Collateral"
                           icon={<FiArrowRight />}
-                          value={`${addCollatInput} ${vaultIlk?.symbol}`}
+                          value={`${nFormatter(Number(addCollatInput), vaultIlk?.digitFormat!)} ${vaultIlk?.symbol}`}
                         />
                       )}
                       {removeCollatInput && (
                         <InfoBite
                           label="Remove Collateral"
                           icon={<FiArrowRight />}
-                          value={`${removeCollatInput} ${vaultIlk?.symbol}`}
+                          value={`${nFormatter(Number(removeCollatInput), vaultIlk?.digitFormat!)} ${vaultIlk?.symbol}`}
                         />
                       )}
                     </Box>
@@ -711,7 +713,11 @@ const Vault = ({ close }: { close: () => void }) => {
         {actionActive.index === 0 && stepPosition[actionActive.index] !== 0 && (
           <TransactButton
             primary
-            label={<Text size={mobile ? 'small' : undefined}> {`Repay ${cleanValue(repayInput, 6) || ''} Dai`} </Text>}
+            label={
+              <Text size={mobile ? 'small' : undefined}>
+                {`Repay ${nFormatter(Number(repayInput), vaultBase?.digitFormat!) || ''} ${vaultBase?.symbol}`}
+              </Text>
+            }
             onClick={() => handleRepay()}
             disabled={repayDisabled}
           />
