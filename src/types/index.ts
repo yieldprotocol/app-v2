@@ -34,6 +34,7 @@ export interface IUserContextState {
   approvalMethod: ApprovalType;
   dudeSalt: number;
   showInactiveVaults: boolean;
+  slippageTolerance: number;
 }
 
 export interface IUserContextActions {
