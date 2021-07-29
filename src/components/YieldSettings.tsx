@@ -24,7 +24,7 @@ const ChangeButton = styled(Button)`
 
 const YieldSettings = ({ setConnectOpen, setSettingsOpen }: any) => {
   const {
-    chainState: { account, chainName, provider },
+    chainState: { account, chainData, provider },
   } = useContext(ChainContext);
   const connectorName = connectorNames.get(provider.connection.url);
   const [copySuccess, setCopySuccess] = useState<boolean>(false);
@@ -72,7 +72,7 @@ const YieldSettings = ({ setConnectOpen, setSettingsOpen }: any) => {
               {copySuccess ? 'Copied' : 'Copy Address'}
             </Text>
           </Button>
-          <Anchor href={`https://${chainName}.etherscan.io/address/${account}`} margin="xsmall" target="_blank">
+          <Anchor href={`https://${chainData.name}.etherscan.io/address/${account}`} margin="xsmall" target="_blank">
             <FiExternalLink size="1rem" style={{ verticalAlign: 'middle' }} />
             <Text margin="xsmall" size="small">
               View on Explorer

@@ -309,7 +309,7 @@ const Vault = ({ close }: { close: () => void }) => {
               <Box gap="small">
                 <InfoBite
                   label="Vault debt + interest:"
-                  value={`${ cleanValue(selectedVault?.art_, vaultBase?.digitFormat!)} ${vaultBase?.symbol}`}
+                  value={`${cleanValue(selectedVault?.art_, vaultBase?.digitFormat!)} ${vaultBase?.symbol}`}
                   icon={<FiTrendingUp />}
                 />
                 <InfoBite
@@ -526,7 +526,11 @@ const Vault = ({ close }: { close: () => void }) => {
             </Box>
           )}
 
-          {actionActive.index === 3 && <Box margin={{ top: 'medium' }}><YieldHistory seriesOrVault={selectedVault!} view={['VAULT']} /></Box>}
+          {actionActive.index === 3 && (
+            <Box margin={{ top: 'medium' }}>
+              <YieldHistory seriesOrVault={selectedVault!} view={['VAULT']} />
+            </Box>
+          )}
 
           {actionActive.index === 4 && (
             <Box>
