@@ -456,7 +456,7 @@ export const calculateSlippage = (
 
 /**
  * Calculate Annualised Yield Rate
- * @param { BigNumber | string } rate // current [base] price per unit y[base]
+ * @param { BigNumber | string } tradeValue // current [base] 
  * @param { BigNumber | string } amount // y[base] amount at maturity
  * @param { number } maturity  // date of maturity
  * @param { number } fromDate // ***optional*** start date - defaults to now()
