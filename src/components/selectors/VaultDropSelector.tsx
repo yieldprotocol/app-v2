@@ -10,6 +10,7 @@ interface IVaultDropSelectorProps {
   selectedIlk: any;
   displayName: string;
   placeholder: string;
+  defaultOptionValue?: string | undefined;
 }
 
 function VaultDropSelector({
@@ -19,14 +20,16 @@ function VaultDropSelector({
   selectedIlk,
   displayName,
   placeholder,
+  defaultOptionValue,
 }: IVaultDropSelectorProps) {
   return (
     <Box round="xsmall" gap="small" justify="between" elevation="xsmall">
       <Select
+        defaultValue={undefined}
         plain
         dropProps={{ round: 'xsmall' }}
         disabled={vaults.length < 1}
-        options={[...vaults]}
+        options={defaultOptionValue ? [displayName, ...vaults] : [...vaults]}
         labelKey={(x: IVault) => x.displayName}
         placeholder={placeholder}
         value={itemSelected || { displayName }}
@@ -66,7 +69,7 @@ function VaultDropSelector({
             ) : (
               <Box pad="small" direction="row" gap="small" align="center">
                 <Text color="text-weak" size="small">
-                  {x.displayName}
+                  {displayName}
                 </Text>
               </Box>
             )}
@@ -76,4 +79,6 @@ function VaultDropSelector({
     </Box>
   );
 }
+
+VaultDropSelector.defaultProps = { defaultOptionValue: undefined };
 export default VaultDropSelector;

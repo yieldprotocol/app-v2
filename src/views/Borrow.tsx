@@ -208,7 +208,9 @@ const Borrow = () => {
                   </Box>
                 </SectionWrap>
 
-                <SectionWrap title={seriesMap.size > 0 ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} series` : ''}>
+                <SectionWrap
+                  title={seriesMap.size > 0 ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} series` : ''}
+                >
                   <SeriesSelector inputValue={borrowInput} actionType={ActionType.BORROW} />
                 </SectionWrap>
               </Box>
@@ -259,6 +261,7 @@ const Borrow = () => {
                       selectedIlk={selectedIlk}
                       displayName="Create New Vault"
                       placeholder="Create New Vault"
+                      defaultOptionValue="Create New Vault"
                     />
                   </SectionWrap>
                   {/* )} */}
