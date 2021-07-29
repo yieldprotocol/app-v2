@@ -26,9 +26,7 @@ const YieldSettings = ({ setConnectOpen, setSettingsOpen }: any) => {
   const {
     chainState: { account, chainName, provider },
   } = useContext(ChainContext);
-
   const connectorName = connectorNames.get(provider.connection.url);
-
   const [copySuccess, setCopySuccess] = useState<boolean>(false);
 
   const handleChangeConnectType = () => {

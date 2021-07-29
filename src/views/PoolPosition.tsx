@@ -148,7 +148,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
               options={[
                 { text: 'Remove Liquidity', index: 0 },
                 { text: 'Roll Liquidiy', index: 1 },
-                { text: 'View Pool History', index: 2 },
+                { text: 'Transaction History', index: 2 },
               ]}
               labelKey="text"
               valueKey="index"
@@ -250,7 +250,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
             </Box>
           )}
 
-          {actionActive.index === 2 && <YieldHistory seriesOrVault={selectedSeries!} view={['POOL']} />}
+          {actionActive.index === 2 && <Box margin={{ top: 'medium' }}> <YieldHistory seriesOrVault={selectedSeries!} view={['POOL']} /> </Box>}
         </Box>
       </Box>
 
