@@ -59,7 +59,6 @@ const YieldHistory = ({ seriesOrVault, view }: IYieldHistory) => {
               </Box>
               <Collapsible open={itemOpen === key_}>
                 <Box direction="row" justify='between'>
-                  <Box />
                   <Text size="xsmall"> {x.secondaryInfo} </Text>
                   <EtherscanButton txHash={x.transactionHash} />
                 </Box>

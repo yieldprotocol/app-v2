@@ -249,10 +249,10 @@ const HistoryProvider = ({ children }: any) => {
               ? `${cleanValue(ethers.utils.formatEther(ink), 2)} ${ilk.symbol}`
               : `${cleanValue(ethers.utils.formatEther(baseTraded), 2)} ${base_?.symbol!} `,
 
-          secondaryInfo: 
-           histType === ActionCodes.BORROW && 
-           ink.gt(ethers.constants.Zero) && 
-           `@ 3.4% APR with ${cleanValue(ethers.utils.formatEther(ink), 2)} ${ilk.symbol} collateral`,
+          secondaryInfo:
+          ink.gt(ethers.constants.Zero) && 
+          histType === ActionCodes.BORROW && 
+          `(${cleanValue(ethers.utils.formatEther(ink), 2)} ${ilk.symbol} collateral)`,
 
           /* args info */
           ilkId,
