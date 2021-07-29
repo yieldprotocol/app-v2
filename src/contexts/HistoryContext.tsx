@@ -18,6 +18,7 @@ import { abbreviateHash, bytesToBytes32, cleanValue } from '../utils/appUtils';
 import { UserContext } from './UserContext';
 import { ZERO_BN } from '../utils/constants';
 import { Cauldron } from '../contracts';
+import { calculateAPR } from '../utils/yieldMath';
 
 const dateFormat = (dateInSecs: number) => format(new Date(dateInSecs * 1000), 'dd MMM yyyy');
 
@@ -212,8 +213,6 @@ const HistoryProvider = ({ children }: any) => {
     return Promise.all(
       eventList.map(async (log: any) => {
         const { blockNumber, transactionHash } = log;
-
-        console.log('sereis in question : ', series);
         // event VaultPoured(bytes12 indexed vaultId, bytes6 indexed seriesId, bytes6 indexed ilkId, int128 ink, int128 art)
         const { ilkId, ink, art } = contract.interface.parseLog(log).args;
         const tradeIface = new ethers.utils.Interface([
@@ -231,11 +230,15 @@ const HistoryProvider = ({ children }: any) => {
 
         const histType = _inferType(art, ink);
 
-        // let primaryInfo:string; 
-        // if (histType ===  ActionCodes.BORROW) primaryInfo = `${cleanValue(ethers.utils.formatEther(art), 2)} ${base_?.symbol!} `
-        // else if (histType ===  ActionCodes.ADD_COLLATERAL || histType === ActionCodes.REMOVE_COLLATERAL) primaryInfo = `${cleanValue(ethers.utils.formatEther(ink), 2)} ${ilk.symbol}`
-        // else if (histType ===  ActionCodes.ADD_COLLATERAL || histType === ActionCodes.REMOVE_COLLATERAL) primaryInfo = `${cleanValue(ethers.utils.formatEther(ink), 2)} ${ilk.symbol}`
+        const tradeApr = calculateAPR(baseTraded.abs(), art.abs(), series?.maturity , date)
 
+        let primaryInfo:string = ''; 
+        if (histType ===  ActionCodes.BORROW) primaryInfo = `
+          ${cleanValue(ethers.utils.formatEther(art), 2)} ${base_?.symbol!} @
+          ${cleanValue( tradeApr, 2 )}%`
+        else if (histType ===  ActionCodes.REPAY) primaryInfo = `${cleanValue(ethers.utils.formatEther(art), 2)} ${base_?.symbol!}`
+        else if (histType ===  ActionCodes.ADD_COLLATERAL || histType === ActionCodes.REMOVE_COLLATERAL) primaryInfo = `${cleanValue(ethers.utils.formatEther(ink), 2)} ${ilk.symbol}`
+        
         return {
           /* histItem base */
           blockNumber,
@@ -243,16 +246,11 @@ const HistoryProvider = ({ children }: any) => {
           transactionHash,
           series,
           histType,
-
-          primaryInfo:
-            ( histType === ActionCodes.ADD_COLLATERAL || histType === ActionCodes.REMOVE_COLLATERAL )  // if only moving collateral
-              ? `${cleanValue(ethers.utils.formatEther(ink), 2)} ${ilk.symbol}`
-              : `${cleanValue(ethers.utils.formatEther(baseTraded), 2)} ${base_?.symbol!} `,
-
+          primaryInfo,
           secondaryInfo:
           ink.gt(ethers.constants.Zero) && 
           histType === ActionCodes.BORROW && 
-          `(${cleanValue(ethers.utils.formatEther(ink), 2)} ${ilk.symbol} collateral)`,
+          `added (${cleanValue(ethers.utils.formatEther(ink), 2)} ${ilk.symbol} collateral)`,
 
           /* args info */
           ilkId,
