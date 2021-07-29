@@ -259,7 +259,8 @@ export interface IBaseHistItem {
   series: ISeries;
   histType: ActionCodes;
   date_: string;
-  primaryInfoField?: string;
+  primaryInfo: string;
+  secondaryInfo?: string;
 }
 
 export interface IHistItemVault extends IBaseHistItem {

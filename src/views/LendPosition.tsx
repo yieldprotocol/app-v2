@@ -152,7 +152,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
               options={[
                 { text: 'Close Position', index: 0 },
                 { text: 'Roll Position', index: 1 },
-                { text: 'View Trade History', index: 2 },
+                { text: 'Transaction History', index: 2 },
                 { text: 'Redeem', index: 3 },
               ]}
               labelKey="text"
