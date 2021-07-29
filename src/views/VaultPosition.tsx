@@ -526,7 +526,7 @@ const Vault = ({ close }: { close: () => void }) => {
             </Box>
           )}
 
-          {actionActive.index === 3 && <YieldHistory seriesOrVault={selectedVault!} view={['VAULT']} />}
+          {actionActive.index === 3 && <Box margin={{ top: 'medium' }}><YieldHistory seriesOrVault={selectedVault!} view={['VAULT']} /></Box>}
 
           {actionActive.index === 4 && (
             <Box>

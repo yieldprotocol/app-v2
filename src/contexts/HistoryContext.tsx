@@ -230,6 +230,12 @@ const HistoryProvider = ({ children }: any) => {
         const ilk = assetRootMap.get(ilkId);
 
         const histType = _inferType(art, ink);
+
+        // let primaryInfo:string; 
+        // if (histType ===  ActionCodes.BORROW) primaryInfo = `${cleanValue(ethers.utils.formatEther(art), 2)} ${base_?.symbol!} `
+        // else if (histType ===  ActionCodes.ADD_COLLATERAL || histType === ActionCodes.REMOVE_COLLATERAL) primaryInfo = `${cleanValue(ethers.utils.formatEther(ink), 2)} ${ilk.symbol}`
+        // else if (histType ===  ActionCodes.ADD_COLLATERAL || histType === ActionCodes.REMOVE_COLLATERAL) primaryInfo = `${cleanValue(ethers.utils.formatEther(ink), 2)} ${ilk.symbol}`
+
         return {
           /* histItem base */
           blockNumber,
@@ -241,7 +247,12 @@ const HistoryProvider = ({ children }: any) => {
           primaryInfo:
             ( histType === ActionCodes.ADD_COLLATERAL || histType === ActionCodes.REMOVE_COLLATERAL )  // if only moving collateral
               ? `${cleanValue(ethers.utils.formatEther(ink), 2)} ${ilk.symbol}`
-              : `${cleanValue(ethers.utils.formatEther(art), 2)} ${base_?.symbol!} `,
+              : `${cleanValue(ethers.utils.formatEther(baseTraded), 2)} ${base_?.symbol!} `,
+
+          secondaryInfo: 
+           histType === ActionCodes.BORROW && 
+           ink.gt(ethers.constants.Zero) && 
+           `@ 3.4% APR with ${cleanValue(ethers.utils.formatEther(ink), 2)} ${ilk.symbol} collateral`,
 
           /* args info */
           ilkId,

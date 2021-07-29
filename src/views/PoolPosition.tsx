@@ -250,7 +250,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
             </Box>
           )}
 
-          {actionActive.index === 2 && <YieldHistory seriesOrVault={selectedSeries!} view={['POOL']} />}
+          {actionActive.index === 2 && <Box margin={{ top: 'medium' }}> <YieldHistory seriesOrVault={selectedSeries!} view={['POOL']} /> </Box>}
         </Box>
       </Box>
 

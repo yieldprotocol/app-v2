@@ -258,7 +258,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
             </Box>
           )}
 
-          {actionActive.index === 2 && <YieldHistory seriesOrVault={selectedSeries!} view={['TRADE']} />}
+          {actionActive.index === 2 && <Box margin={{ top: 'medium' }}><YieldHistory seriesOrVault={selectedSeries!} view={['TRADE']} /></Box>}
         </Box>
       </Box>
 

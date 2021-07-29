@@ -33,8 +33,8 @@ const YieldHistory = ({ seriesOrVault, view }: IYieldHistory) => {
   }, [isVault, poolHistory, seriesOrVault.id, tradeHistory, vaultHistory, view]);
 
   return (
-    <Box gap="xsmall" height={{ max: '200px' }} style={{ overflow: 'auto' }} pad="xsmall">
-      <Box flex={false} margin={{ top: 'medium' }}>
+    <Box gap="xsmall" height={{ max: '200px' }} style={{ overflow: 'auto' }}>
+      <Box flex={false}>
         {histList.map((x: IBaseHistItem, i: number) => {
           const key_ = i;
           return (
