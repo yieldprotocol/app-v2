@@ -173,7 +173,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
                       type="number"
                       placeholder="fyToken Amount" // {`${selectedBase?.symbol} to reclaim`}
                       value={closeInput || ''}
-                      onChange={(event: any) => setCloseInput(event.target.value)}
+                      onChange={(event: any) => setCloseInput(cleanValue(event.target.value))}
                       disabled={!selectedSeries}
                     />
                     <MaxButton
@@ -216,7 +216,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
                         type="number"
                         placeholder="fyToken amount to roll" // {`${selectedBase?.symbol} to reclaim`}
                         value={rollInput || ''}
-                        onChange={(event: any) => setRollInput(event.target.value)}
+                        onChange={(event: any) => setRollInput(cleanValue(event.target.value))}
                         disabled={!selectedSeries}
                       />
                       <MaxButton

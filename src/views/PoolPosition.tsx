@@ -167,7 +167,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                       type="number"
                       placeholder="Tokens to remove"
                       value={removeInput || ''}
-                      onChange={(event: any) => setRemoveInput(event.target.value)}
+                      onChange={(event: any) => setRemoveInput(cleanValue(event.target.value))}
                     />
                     <MaxButton
                       action={() => setRemoveInput(maxRemove)}
@@ -209,7 +209,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                         type="number"
                         placeholder="Tokens to roll"
                         value={rollInput || ''}
-                        onChange={(event: any) => setRollInput(event.target.value)}
+                        onChange={(event: any) => setRollInput(cleanValue(event.target.value))}
                       />
                       <MaxButton
                         action={() => setRollInput(maxRemove)}

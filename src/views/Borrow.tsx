@@ -197,7 +197,7 @@ const Borrow = () => {
                           type="number"
                           placeholder="Enter amount"
                           value={borrowInput}
-                          onChange={(event: any) => setBorrowInput(event.target.value)}
+                          onChange={(event: any) => setBorrowInput(cleanValue(event.target.value))}
                           autoFocus={!mobile}
                         />
                       </InputWrap>
@@ -233,7 +233,7 @@ const Borrow = () => {
                             placeholder="Enter amount"
                             // ref={(el:any) => { el && el.focus(); }}
                             value={collatInput}
-                            onChange={(event: any) => setCollatInput(event.target.value)}
+                            onChange={(event: any) => setCollatInput(cleanValue(event.target.value))}
                             disabled={!selectedSeries || selectedSeries.seriesIsMature}
                           />
                           <MaxButton

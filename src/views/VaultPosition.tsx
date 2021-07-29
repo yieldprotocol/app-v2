@@ -377,7 +377,7 @@ const Vault = ({ close }: { close: () => void }) => {
                       placeholder="Enter amount to Repay"
                       // ref={(el:any) => { el && !repayOpen && !rateLockOpen && !mobile && el.focus(); setInputRef(el); }}
                       value={repayInput || ''}
-                      onChange={(event: any) => setRepayInput(event.target.value)}
+                      onChange={(event: any) => setRepayInput(cleanValue(event.target.value))}
                     />
                     <MaxButton
                       action={() => setRepayInput(maxRepay)}
@@ -457,7 +457,7 @@ const Vault = ({ close }: { close: () => void }) => {
                         type="number"
                         placeholder="Collateral to Add"
                         value={addCollatInput || ''}
-                        onChange={(event: any) => setAddCollatInput(event.target.value)}
+                        onChange={(event: any) => setAddCollatInput(cleanValue(event.target.value))}
                       />
                       <MaxButton
                         disabled={removeCollatInput}
@@ -476,7 +476,7 @@ const Vault = ({ close }: { close: () => void }) => {
                         type="number"
                         placeholder="Collateral to remove"
                         value={removeCollatInput || ''}
-                        onChange={(event: any) => setRemoveCollatInput(event.target.value)}
+                        onChange={(event: any) => setRemoveCollatInput(cleanValue(event.target.value))}
                       />
                       <MaxButton
                         disabled={!!addCollatInput}

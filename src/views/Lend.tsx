@@ -115,7 +115,7 @@ const Lend = () => {
                         type="number"
                         placeholder="Enter amount"
                         value={lendInput || ''}
-                        onChange={(event: any) => setLendInput(event.target.value)}
+                        onChange={(event: any) => setLendInput(cleanValue(event.target.value))}
                         disabled={selectedSeries?.seriesIsMature}
                       />
                       <MaxButton

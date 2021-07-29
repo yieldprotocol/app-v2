@@ -113,7 +113,7 @@ function Pool() {
                         type="number"
                         placeholder="Enter amount"
                         value={poolInput || ''}
-                        onChange={(event: any) => setPoolInput(event.target.value)}
+                        onChange={(event: any) => setPoolInput(cleanValue(event.target.value))}
                       />
                       <MaxButton
                         action={() => setPoolInput(maxPool)}
