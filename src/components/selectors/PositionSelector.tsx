@@ -1,5 +1,6 @@
-import { Box, Layer, Text } from 'grommet';
+import { Box, Button, Layer, Text } from 'grommet';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { FiX } from 'react-icons/fi';
 import styled from 'styled-components';
 import { UserContext } from '../../contexts/UserContext';
 import { ActionType, IAsset, ISeries, IUserContext } from '../../types';
@@ -52,7 +53,7 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
       setFilterLabels([base?.symbol, series?.displayNameMobile]);
       setFilteredSeries(_filteredSeries);
     },
-    [seriesMap, actionType],
+    [seriesMap, actionType]
   );
 
   /* CHECK the list of current vaults which match the current base series selection */
@@ -77,7 +78,11 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
         toggleModalOpen={() => setShowPositionModal(!showPositionModal)}
         background={selectedSeries?.color}
       >
-        {actionType === 'LEND' ? <LendPosition close={() => setShowPositionModal(false)} /> : <PoolPosition close={() => setShowPositionModal(false)} />}
+        {actionType === 'LEND' ? (
+          <LendPosition close={() => setShowPositionModal(false)} />
+        ) : (
+          <PoolPosition close={() => setShowPositionModal(false)} />
+        )}
       </ModalWrap>
 
       {allPositions.length !== 0 && (
@@ -90,51 +95,6 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
             </Text>
           </Box>
 
-          {!showAllPositions && (
-            <Box direction="row" gap="xsmall" justify="end" align="center">
-              {filterLabels[0] && (
-                <Box
-                  gap="xsmall"
-                  border
-                  direction="row"
-                  round="xsmall"
-                  pad={{ horizontal: 'xsmall', vertical: 'xsmall' }}
-                >
-                  <Text size="xsmall">{filterLabels[0]}</Text>
-                  <Text
-                    size="xsmall"
-                    onClick={() => handleFilter({
-                      ...currentFilter,
-                      base: undefined,
-                    } as IPositionFilter)}
-                  >
-                    {' '}
-                    x
-                  </Text>
-                </Box>
-              )}
-              {filterLabels[1] && (
-                <Box
-                  gap="xsmall"
-                  direction="row"
-                  border
-                  round="xsmall"
-                  pad={{ horizontal: 'xsmall', vertical: 'xsmall' }}
-                >
-                  <Text size="xsmall">{filterLabels[1]}</Text>
-                  <Text
-                    size="xsmall"
-                    onClick={() => handleFilter({
-                      ...currentFilter,
-                      series: undefined,
-                    } as IPositionFilter)}
-                  >
-                    x
-                  </Text>
-                </Box>
-              )}
-            </Box>
-          )}
           <ListWrap>
             {filteredSeries.length === 0 && !showAllPositions && (
               <Text weight={450} size="small">
@@ -157,6 +117,55 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
               </Box>
             ))}
           </ListWrap>
+
+          {!showAllPositions && (
+            <Box direction="row" gap="xsmall" justify="end" align="center">
+              {filterLabels[0] && (
+                <Box
+                  gap="xsmall"
+                  border
+                  direction="row"
+                  round="xsmall"
+                  pad={{ horizontal: 'xsmall', vertical: 'xsmall' }}
+                >
+                  <Text size="xsmall">{filterLabels[0]}</Text>
+                  <Text
+                    size="xsmall"
+                    onClick={() =>
+                      handleFilter({
+                        ...currentFilter,
+                        base: undefined,
+                      } as IPositionFilter)
+                    }
+                  >
+                    <Button plain icon={<FiX style={{ verticalAlign: 'middle' }} />} />
+                  </Text>
+                </Box>
+              )}
+              {filterLabels[1] && (
+                <Box
+                  gap="xsmall"
+                  direction="row"
+                  border
+                  round="xsmall"
+                  pad={{ horizontal: 'xsmall', vertical: 'xsmall' }}
+                >
+                  <Text size="xsmall">{filterLabels[1]}</Text>
+                  <Text
+                    size="xsmall"
+                    onClick={() =>
+                      handleFilter({
+                        ...currentFilter,
+                        series: undefined,
+                      } as IPositionFilter)
+                    }
+                  >
+                    <Button plain icon={<FiX style={{ verticalAlign: 'middle' }} />} />
+                  </Text>
+                </Box>
+              )}
+            </Box>
+          )}
 
           <Box align="end" onClick={() => setShowAllPositions(!showAllPositions)}>
             <Text size="xsmall" color="text-weak">
