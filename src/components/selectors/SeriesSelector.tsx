@@ -161,7 +161,8 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     )
       userActions.setSelectedSeries(null);
 
-    setOptions(filteredOpts);
+    setOptions(filteredOpts.sort((a:ISeries, b:ISeries) => a.maturity - b.maturity ));
+    
   }, [seriesMap, selectedBase, selectSeriesLocally, selectedSeries, userActions]);
 
   const handleSelect = (_series: ISeries) => {
