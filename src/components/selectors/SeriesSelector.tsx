@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Avatar, Box, ResponsiveContext, Select, Stack, Text, ThemeContext } from 'grommet';
+import { Avatar, Box, Grid, ResponsiveContext, Select, Stack, Text, ThemeContext } from 'grommet';
 
 import { ethers } from 'ethers';
 import styled from 'styled-components';
@@ -213,33 +213,33 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
       )}
 
       {cardLayout && (
-        <Box direction="row-responsive" gap="small" fill justify="evenly" pad={{ vertical: 'small' }}>
-          {options.map((series: ISeries) => (
-            <StyledBox
-              // border={series.id === selectedSeriesId}
-              key={series.id}
-              pad="xsmall"
-              round="xsmall"
-              onClick={() => handleSelect(series)}
-              background={series.id === selectedSeriesId ? series?.color : undefined}
-              elevation="xsmall"
-              align="center"
-            >
-              <Box pad="small" width="small" direction="row" align="center" gap="small">
-                <Avatar background="#FFF"> {series.seriesMark}</Avatar>
+        <Grid columns={!mobile ? 'small' : '100%'} gap="small" fill pad={{ vertical: 'small' }}>
+            {options.map((series: ISeries) => (
+              <StyledBox
+                // border={series.id === selectedSeriesId}
+                key={series.id}
+                pad="xsmall"
+                round="xsmall"
+                onClick={() => handleSelect(series)}
+                background={series.id === selectedSeriesId ? series?.color : undefined}
+                elevation="xsmall"
+                align="center"
+              >
+                <Box pad="small" width="small" direction="row" align="center" gap="small">
+                  <Avatar background="#FFF"> {series.seriesMark}</Avatar>
 
-                <Box>
-                  <Text color={series.id === selectedSeriesId ? series.textColor : undefined}>
-                    {series.displayNameMobile}
-                  </Text>
-                  <Text color={series.id === selectedSeriesId ? series.textColor : undefined}>
-                    <AprText inputValue={inputValue} series={series} actionType={actionType} />
-                  </Text>
+                  <Box>
+                    <Text color={series.id === selectedSeriesId ? series.textColor : undefined}>
+                      {series.displayNameMobile}
+                    </Text>
+                    <Text color={series.id === selectedSeriesId ? series.textColor : undefined}>
+                      <AprText inputValue={inputValue} series={series} actionType={actionType} />
+                    </Text>
+                  </Box>
                 </Box>
-              </Box>
-            </StyledBox>
-          ))}
-        </Box>
+              </StyledBox>
+            ))}
+          </Grid>
       )}
     </>
   );
