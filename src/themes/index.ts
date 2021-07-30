@@ -12,6 +12,9 @@ export const yieldTheme = {
       'accent-2': '#81FCED',
       'tailwind-blue': '#2563EB',
       'tailwind-lightest-blue': '#EFF6FF',
+
+      'yield-gradient': 'linear-gradient(60deg, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82)',
+
       text: {
         dark: '#EEEEEE',
         light: '#555555',
@@ -72,7 +75,7 @@ export const yieldTheme = {
 
   button: {
     border: {
-      radius: '8px',
+      radius: '6px',
     },
     color: 'brand',
     primary: {
@@ -83,7 +86,7 @@ export const yieldTheme = {
     maxWidth: '300px',
     size: {
       large: {
-        border: { radius: '8px' },
+        border: { radius: '6px' },
       },
     },
   },
@@ -102,10 +105,10 @@ export const yieldTheme = {
     },
     zIndex: '15',
     overlay: {
-      background: '#00000096', // 60%
+      background: '#000000BF', // 60% - 96
     },
     border: {
-      radius: 'small',
+      radius: 'xsmall',
       // intelligentRounding: true,
     },
 
@@ -131,56 +134,4 @@ export const yieldTheme = {
     `,
   },
 
-  tab: {
-    color: 'text-weak',
-    active: {
-      background: 'background-contrast',
-    },
-    border: {
-      side: 'bottom',
-      color: 'none',
-      active: {
-        color: 'brand',
-      },
-      disabled: {
-        color: 'white',
-      },
-      hover: {
-        color: 'border',
-      },
-    },
-    disabled: {
-      color: 'text-xweak',
-    },
-    hover: {
-      background: 'background-contrast',
-      color: 'text',
-    },
-    margin: {
-      horizontal: 'none',
-    },
-    pad: 'xsmall',
-    extend: ({ theme }: { theme: any }) => css`
-
-    text-decoration: none;
-    /* padding: 8px; */
-  
-    -webkit-transition: background 0.3s ease-in-out;
-    -moz-transition: background 0.3s ease-in-out;
-    transition: background 0.3s ease-in-out;
-  
-    -webkit-transition: box-shadow 0.3s ease-in-out;
-    -moz-transition: box-shadow 0.3s ease-in-out;
-    transition: box-shadow 0.3s ease-in-out;
-  
-    -webkit-transition: transform 0.3s ease-in-out;
-    -moz-transition: transform 0.3s ease-in-out;
-    transition: transform 0.3s ease-in-out;
-    :hover {
-      transform: scale(1.1);
-    }
-
-      'box-shadow: ${theme.global.elevation.small}'
-    `,
-  },
 };
