@@ -79,7 +79,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
 
   return (
     <StyledBox
-      fill
+      fill='horizontal'
       round="xsmall"
       // border={(selectCollateral && !selectedSeries) ? { color: 'text-xweak' } : true}
       elevation="xsmall"

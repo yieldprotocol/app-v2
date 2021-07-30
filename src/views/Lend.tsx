@@ -103,7 +103,7 @@ const Lend = () => {
                 </Text>
               </Box>
               <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}>
-                <Box direction="row" gap="small" fill="horizontal" align="start">
+                <Box direction="row" gap="small" >
                   <Box basis={mobile ? '50%' : '60%'}>
                     <InputWrap
                       action={() => console.log('maxAction')}

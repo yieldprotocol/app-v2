@@ -17,7 +17,7 @@ function SectionWrap({ title, border, disabled, children, rightAction }: ISectio
   return (
     <Box border={border} justify="center">
       {title && (
-        <Box pad={{ vertical: 'small' }} direction="row" fill="horizontal" justify="between" align="center">
+        <Box pad={{ vertical: 'xsmall' }} direction="row" fill="horizontal" justify="between" align="center">
           <AltText size={mobile ? 'xsmall' : 'xsmall'} color={disabled ? 'text-xweak' : 'text-weak'}>
             {title}
           </AltText>
