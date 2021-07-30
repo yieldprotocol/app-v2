@@ -678,7 +678,7 @@ const Vault = ({ close }: { close: () => void }) => {
                     <Box margin={{ top: 'medium' }}>
                       <InfoBite
                         // label="Pay back all debt and delete vault:"
-                        label="Delete vault (vault must have 0 debt and 0 collateral):"
+                        label="Delete vault (must have 0 debt and 0 collateral):"
                         icon={<FiArrowRight />}
                         value={destroyInput}
                       />
@@ -784,10 +784,20 @@ const Vault = ({ close }: { close: () => void }) => {
 
         {actionActive.index === 6 && stepPosition[actionActive.index] === 0 && (
           <NextButton
-            label={<Text size={mobile ? 'small' : undefined}> Next Step </Text>}
+            label={
+              <Text size={mobile ? 'small' : undefined}>
+                {selectedVault?.ink.gt(ethers.constants.Zero) || selectedVault?.art.gt(ethers.constants.Zero)
+                  ? 'Must have 0 debt/collateral'
+                  : 'Next Step'}
+              </Text>
+            }
             onClick={() => handleStepper()}
             key="next"
-            disabled={destroyDisabled}
+            disabled={
+              destroyDisabled ||
+              selectedVault?.ink.gt(ethers.constants.Zero) ||
+              selectedVault?.art.gt(ethers.constants.Zero)
+            }
           />
         )}
 
