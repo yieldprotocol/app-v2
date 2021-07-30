@@ -140,7 +140,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
           </SectionWrap>
         </Box>
 
-        <Box height={{ min: '250px' }}>
+        <Box height={{ min: '300px' }}>
           <Box elevation="xsmall" round="xsmall">
             <Select
               plain
@@ -158,9 +158,9 @@ const PoolPosition = ({ close }: { close: () => void }) => {
           </Box>
 
           {actionActive.index === 0 && (
-            <Box>
+            <>
               {stepPosition[0] === 0 && (
-                <Box pad={{ vertical: 'medium' }}>
+                <Box margin={{ top:'medium' }}>
                   <InputWrap action={() => console.log('maxAction')} isError={removeError}>
                     <TextInput
                       plain
@@ -195,14 +195,13 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                   </SectionWrap>
                 </ActiveTransaction>
               )}
-            </Box>
+            </>
           )}
 
           {actionActive.index === 1 && (
-            <Box margin={{ top: 'medium' }}>
+            <>
               {stepPosition[actionActive.index] === 0 && (
-                <Box align="center" fill gap="medium">
-                  <Box fill>
+                <Box margin={{ top:'medium' }}>
                     <InputWrap action={() => console.log('maxAction')} isError={rollError}>
                       <TextInput
                         plain
@@ -218,15 +217,12 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                         showingMax={!!rollInput && rollInput === maxRemove}
                       />
                     </InputWrap>
-                  </Box>
-                  <Box fill>
                     <SeriesSelector
                       selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
                       actionType={ActionType.POOL}
                       cardLayout={false}
                     />
                   </Box>
-                </Box>
               )}
 
               {stepPosition[actionActive.index] !== 0 && (
@@ -247,10 +243,10 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                   </SectionWrap>
                 </ActiveTransaction>
               )}
-            </Box>
+            </>
           )}
 
-          {actionActive.index === 2 && <Box margin={{ top: 'medium' }}> <YieldHistory seriesOrVault={selectedSeries!} view={['POOL']} /> </Box>}
+          {actionActive.index === 2 && <YieldHistory seriesOrVault={selectedSeries!} view={['POOL']} />}
         </Box>
       </Box>
 

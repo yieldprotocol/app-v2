@@ -11,7 +11,7 @@ interface IInputWrap extends BoxProps {
 }
 
 const InsetBox = styled(Box)`
-  border-radius: 8px;
+  border-radius: 5px;
   box-shadow: inset 1px 1px 1px #ddd, inset -0.25px -0.25px 0.25px #ddd;
 `;
 
@@ -24,8 +24,7 @@ function InputWrap({ action, disabled, isError, children, ...props }: IInputWrap
         {...props}
         direction="row"
         round="xsmall"
-        // border={disabled ? { color: 'text-xweak' } : true}
-        pad={{ horizontal: 'small' }}
+        pad='small'
         align="center"
         basis={mobile ? '50%' : '65%'}
         background={isError ? 'pink' : undefined}
@@ -37,7 +36,8 @@ function InputWrap({ action, disabled, isError, children, ...props }: IInputWrap
           {isError}
         </Text>
       </Box>
-    </Box>
+      </Box>
+
   );
 }
 

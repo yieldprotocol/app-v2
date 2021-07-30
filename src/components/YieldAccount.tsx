@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { Text, Box, ResponsiveContext, Layer, Spinner } from 'grommet';
-import { FiCircle, FiMenu, FiSettings } from 'react-icons/fi';
+import { FiCheckCircle, FiCircle, FiMenu, FiSettings } from 'react-icons/fi';
 
 import YieldBalances from './YieldBalances';
 
@@ -55,9 +55,13 @@ const YieldAccount = (props: any) => {
                   <Text color="text" size="small">
                     {abbreviateHash(account)}
                   </Text>
+
+                  <Box direction='row' align='center' gap='small'>          
+                  <FiCircle fill={chainData.color} color={chainData.color} size=".5rem" />
                   <Text size="xsmall" color={chainData.color} alignSelf="end">
-                    <FiCircle color={chainData.color} size=".5rem" /> {chainData.name}
+                    {chainData.name}
                   </Text>
+                  </Box>
                 </Box>
                 <Box>
                   <YieldAvatar address={account} size={2} />
