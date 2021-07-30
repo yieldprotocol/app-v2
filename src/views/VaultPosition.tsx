@@ -366,11 +366,10 @@ const Vault = ({ close }: { close: () => void }) => {
             />
           </Box>
 
-
           {actionActive.index === 0 && (
             <>
               {stepPosition[0] === 0 && (
-                <Box margin={{ top:'medium' }}>
+                <Box margin={{ top: 'medium' }}>
                   <InputWrap action={() => console.log('maxAction')} isError={repayError}>
                     <TextInput
                       plain
@@ -408,13 +407,13 @@ const Vault = ({ close }: { close: () => void }) => {
                   </SectionWrap>
                 </ActiveTransaction>
               )}
-              </>
+            </>
           )}
 
           {actionActive.index === 1 && (
             <>
               {stepPosition[actionActive.index] === 0 && (
-                <Box margin={{ top:'medium' }}>
+                <Box margin={{ top: 'medium' }}>
                   <SeriesSelector
                     selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
                     actionType={ActionType.BORROW}
@@ -448,41 +447,41 @@ const Vault = ({ close }: { close: () => void }) => {
           {actionActive.index === 2 && (
             <>
               {stepPosition[actionActive.index] === 0 && (
-                <Box margin={{ top:'medium' }}>
-                    <InputWrap action={() => console.log('maxAction')} isError={addCollatError}>
-                      <TextInput
-                        disabled={removeCollatInput}
-                        plain
-                        type="number"
-                        placeholder="Collateral to Add"
-                        value={addCollatInput || ''}
-                        onChange={(event: any) => setAddCollatInput(cleanValue(event.target.value))}
-                      />
-                      <MaxButton
-                        disabled={removeCollatInput}
-                        action={() => setAddCollatInput(maxAddCollat)}
-                        clearAction={() => setAddCollatInput('')}
-                        showingMax={!!addCollatInput && addCollatInput === maxAddCollat}
-                      />
-                    </InputWrap>
-                    <InputWrap action={() => console.log('maxAction')} isError={removeCollatError}>
-                      <TextInput
-                        disabled={addCollatInput}
-                        plain
-                        type="number"
-                        placeholder="Collateral to remove"
-                        value={removeCollatInput || ''}
-                        onChange={(event: any) => setRemoveCollatInput(cleanValue(event.target.value))}
-                      />
-                      <MaxButton
-                        disabled={!!addCollatInput}
-                        action={() => setRemoveCollatInput(maxRemoveCollat)}
-                        clearAction={() => setRemoveCollatInput('')}
-                        showingMax={
-                          !!removeCollatInput && ethers.utils.formatEther(selectedVault?.ink!) === removeCollatInput
-                        }
-                      />
-                    </InputWrap>
+                <Box margin={{ top: 'medium' }}>
+                  <InputWrap action={() => console.log('maxAction')} isError={addCollatError}>
+                    <TextInput
+                      disabled={removeCollatInput}
+                      plain
+                      type="number"
+                      placeholder="Collateral to Add"
+                      value={addCollatInput || ''}
+                      onChange={(event: any) => setAddCollatInput(cleanValue(event.target.value))}
+                    />
+                    <MaxButton
+                      disabled={removeCollatInput}
+                      action={() => setAddCollatInput(maxAddCollat)}
+                      clearAction={() => setAddCollatInput('')}
+                      showingMax={!!addCollatInput && addCollatInput === maxAddCollat}
+                    />
+                  </InputWrap>
+                  <InputWrap action={() => console.log('maxAction')} isError={removeCollatError}>
+                    <TextInput
+                      disabled={addCollatInput}
+                      plain
+                      type="number"
+                      placeholder="Collateral to remove"
+                      value={removeCollatInput || ''}
+                      onChange={(event: any) => setRemoveCollatInput(cleanValue(event.target.value))}
+                    />
+                    <MaxButton
+                      disabled={!!addCollatInput}
+                      action={() => setRemoveCollatInput(maxRemoveCollat)}
+                      clearAction={() => setRemoveCollatInput('')}
+                      showingMax={
+                        !!removeCollatInput && ethers.utils.formatEther(selectedVault?.ink!) === removeCollatInput
+                      }
+                    />
+                  </InputWrap>
                 </Box>
               )}
 
@@ -521,12 +520,12 @@ const Vault = ({ close }: { close: () => void }) => {
             </>
           )}
 
-          {actionActive.index === 3 && (<YieldHistory seriesOrVault={selectedVault!} view={['VAULT']} /> )}
+          {actionActive.index === 3 && <YieldHistory seriesOrVault={selectedVault!} view={['VAULT']} />}
 
           {actionActive.index === 4 && (
             <>
               {stepPosition[actionActive.index] === 0 && (
-                <Box margin={{ top:'medium' }}>
+                <Box margin={{ top: 'medium' }}>
                   <InputWrap action={() => console.log('maxAction')} isError={null}>
                     <TextInput
                       plain
@@ -564,11 +563,10 @@ const Vault = ({ close }: { close: () => void }) => {
           {actionActive.index === 5 && (
             <>
               {stepPosition[actionActive.index] === 0 && (
-                <Box margin={{ top:'medium' }}>
+                <Box margin={{ top: 'medium' }}>
                   <VaultDropSelector
                     vaults={matchingVaults}
                     handleSelect={handleMergeVaultSelect}
-                    selectedIlk={selectedIlk}
                     itemSelected={mergeData.toVault}
                     displayName="Select Vault"
                     placeholder="Select Vault"
@@ -644,7 +642,7 @@ const Vault = ({ close }: { close: () => void }) => {
           {actionActive.index === 6 && (
             <>
               {stepPosition[actionActive.index] === 0 && (
-                <Box margin={{ top:'medium' }}>
+                <Box margin={{ top: 'medium' }}>
                   <InputWrap action={() => console.log('maxAction')} isError={null}>
                     <TextInput
                       plain
