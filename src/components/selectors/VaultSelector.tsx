@@ -2,6 +2,7 @@ import { Box, Button, Layer, Text } from 'grommet';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { FiX } from 'react-icons/fi';
 import styled from 'styled-components';
+import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
 import { IAsset, ISeries, IUserContext, IVault } from '../../types';
 import Vault from '../../views/VaultPosition';
@@ -31,6 +32,9 @@ const StyledBox = styled(Box)`
 function VaultSelector(target: any) {
   /* STATE FROM CONTEXT */
   const { userState, userActions } = useContext(UserContext) as IUserContext;
+  const {
+    chainState: { account },
+  } = useContext(ChainContext);
   const { assetMap, vaultMap, seriesMap, selectedSeriesId, selectedBaseId, showInactiveVaults } = userState;
   const { setSelectedVault } = userActions;
 
@@ -79,99 +83,101 @@ function VaultSelector(target: any) {
   }, [vaultMap, selectedBase, selectedSeries, showVaultModal, handleFilter]);
 
   return (
-    <>
-      <ModalWrap
-        modalOpen={showVaultModal}
-        toggleModalOpen={() => setShowVaultModal(!showVaultModal)}
-        background={selectedSeries?.color}
-      >
-        <Vault close={() => setShowVaultModal(false)} />
-      </ModalWrap>
+    account && (
+      <>
+        <ModalWrap
+          modalOpen={showVaultModal}
+          toggleModalOpen={() => setShowVaultModal(!showVaultModal)}
+          background={selectedSeries?.color}
+        >
+          <Vault close={() => setShowVaultModal(false)} />
+        </ModalWrap>
 
-      {allVaults.length > 0 && (
-        <Box justify="between" alignSelf="end" gap="small" pad="small">
-          <Box animation="fadeIn" justify="end" align="end" direction="row" gap="small">
-            <Text size="small" color="text-weak">
-              {showAllVaults ? 'All my vaults' : 'Filtered vaults'}
-            </Text>
-          </Box>
-
-          <ListWrap>
-            {allVaults.length > 0 && filteredVaults.length === 0 && !showAllVaults && (
-              <Text weight={450} size="small">
-                No suggested vaults
+        {allVaults.length > 0 && (
+          <Box justify="between" alignSelf="end" gap="small" pad="small">
+            <Box animation="fadeIn" justify="end" align="end" direction="row" gap="small">
+              <Text size="small" color="text-weak">
+                {showAllVaults ? 'All my vaults' : 'Filtered vaults'}
               </Text>
+            </Box>
+
+            <ListWrap>
+              {allVaults.length > 0 && filteredVaults.length === 0 && !showAllVaults && (
+                <Text weight={450} size="small">
+                  No suggested vaults
+                </Text>
+              )}
+
+              {(showAllVaults ? allVaults : filteredVaults).map((x: IVault, i: number) => (
+                <StyledBox
+                  key={x.id}
+                  animation={{ type: 'fadeIn', delay: i * 100, duration: 1500 }}
+                  hoverIndicator={{ elevation: 'large', background: 'background' }}
+                  onClick={() => handleSelect(x)}
+                  round="xsmall"
+                  elevation="xsmall"
+                  flex={false}
+                  fill="horizontal"
+                >
+                  <VaultListItem vault={x} />
+                </StyledBox>
+              ))}
+            </ListWrap>
+
+            {!showAllVaults && (
+              <Box direction="row" gap="small" justify="end" align="center">
+                {filter?.base && (
+                  <Box
+                    gap="xsmall"
+                    border
+                    direction="row"
+                    round="xsmall"
+                    pad={{ horizontal: 'xsmall', vertical: 'xsmall' }}
+                    animation={{ type: 'zoomIn', duration: 1500 }}
+                  >
+                    <Text size="xsmall">{filter.base.symbol}-based</Text>
+                    <Text
+                      size="xsmall"
+                      onClick={() =>
+                        handleFilter({
+                          ...filter,
+                          base: undefined,
+                          series: filter.series,
+                        } as IVaultFilter)
+                      }
+                    >
+                      <Button plain icon={<FiX style={{ verticalAlign: 'middle' }} />} />
+                    </Text>
+                  </Box>
+                )}
+
+                {filter?.series && (
+                  <Box
+                    gap="xsmall"
+                    direction="row"
+                    border
+                    round="xsmall"
+                    pad={{ horizontal: 'xsmall', vertical: 'xsmall' }}
+                    animation={{ type: 'zoomIn', duration: 1500 }}
+                  >
+                    <Text size="xsmall">{filter.series.displayNameMobile}</Text>
+                    <Text size="xsmall" onClick={() => handleFilter({ ...filter, series: undefined } as IVaultFilter)}>
+                      <Button plain icon={<FiX style={{ verticalAlign: 'middle' }} />} />
+                    </Text>
+                  </Box>
+                )}
+              </Box>
             )}
 
-            {(showAllVaults ? allVaults : filteredVaults).map((x: IVault, i: number) => (
-              <StyledBox
-                key={x.id}
-                animation={{ type: 'fadeIn', delay: i * 100, duration: 1500 }}
-                hoverIndicator={{ elevation: 'large', background: 'background' }}
-                onClick={() => handleSelect(x)}
-                round="xsmall"
-                elevation="xsmall"
-                flex={false}
-                fill="horizontal"
-              >
-                <VaultListItem vault={x} />
-              </StyledBox>
-            ))}
-          </ListWrap>
-
-          {!showAllVaults && (
-            <Box direction="row" gap="small" justify="end" align="center">
-              {filter?.base && (
-                <Box
-                  gap="xsmall"
-                  border
-                  direction="row"
-                  round="xsmall"
-                  pad={{ horizontal: 'xsmall', vertical: 'xsmall' }}
-                  animation={{ type: 'zoomIn', duration: 1500 }}
-                >
-                  <Text size="xsmall">{filter.base.symbol}-based</Text>
-                  <Text
-                    size="xsmall"
-                    onClick={() =>
-                      handleFilter({
-                        ...filter,
-                        base: undefined,
-                        series: filter.series,
-                      } as IVaultFilter)
-                    }
-                  >
-                    <Button plain icon={<FiX style={{ verticalAlign: 'middle' }} />} />
-                  </Text>
-                </Box>
-              )}
-
-              {filter?.series && (
-                <Box
-                  gap="xsmall"
-                  direction="row"
-                  border
-                  round="xsmall"
-                  pad={{ horizontal: 'xsmall', vertical: 'xsmall' }}
-                  animation={{ type: 'zoomIn', duration: 1500 }}
-                >
-                  <Text size="xsmall">{filter.series.displayNameMobile}</Text>
-                  <Text size="xsmall" onClick={() => handleFilter({ ...filter, series: undefined } as IVaultFilter)}>
-                    <Button plain icon={<FiX style={{ verticalAlign: 'middle' }} />} />
-                  </Text>
-                </Box>
-              )}
+            <Box align="end" onClick={() => setShowAllVaults(!showAllVaults)}>
+              <Text size="xsmall" color="text-weak">
+                {showAllVaults ? 'Show filtered vaults' : `Show all ${allVaults.length} vaults`}
+              </Text>
             </Box>
-          )}
-
-          <Box align="end" onClick={() => setShowAllVaults(!showAllVaults)}>
-            <Text size="xsmall" color="text-weak">
-              {showAllVaults ? 'Show filtered vaults' : `Show all ${allVaults.length} vaults`}
-            </Text>
           </Box>
-        </Box>
-      )}
-    </>
+        )}
+      </>
+    )
   );
 }
 
