@@ -258,7 +258,6 @@ const Borrow = () => {
                       vaults={matchingVaults}
                       handleSelect={(option: any) => setVaultToUse(option)}
                       itemSelected={vaultToUse}
-                      selectedIlk={selectedIlk}
                       displayName="Create New Vault"
                       placeholder="Create New Vault"
                       defaultOptionValue="Create New Vault"

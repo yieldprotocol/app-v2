@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React, { useContext } from 'react';
 import { Box, Select, Text } from 'grommet';
 import { IVault } from '../../types';
 import PositionAvatar from '../PositionAvatar';
+import { UserContext } from '../../contexts/UserContext';
 
 interface IVaultDropSelectorProps {
   vaults: IVault[];
   handleSelect: any;
   itemSelected: any;
-  selectedIlk: any;
   displayName: string;
   placeholder: string;
   defaultOptionValue?: string | undefined;
@@ -17,11 +17,14 @@ function VaultDropSelector({
   vaults,
   handleSelect,
   itemSelected,
-  selectedIlk,
   displayName,
   placeholder,
   defaultOptionValue,
 }: IVaultDropSelectorProps) {
+  const {
+    userState: { selectedIlk },
+  } = useContext(UserContext);
+
   return (
     <Box round="xsmall" gap="small" justify="between" elevation="xsmall">
       <Select
@@ -29,10 +32,10 @@ function VaultDropSelector({
         plain
         dropProps={{ round: 'xsmall' }}
         disabled={vaults.length < 1}
-        options={defaultOptionValue ? [displayName, ...vaults] : [...vaults]}
+        options={defaultOptionValue ? [{ displayName }, ...vaults] : [...vaults]}
         labelKey={(x: IVault) => x.displayName}
         placeholder={placeholder}
-        value={itemSelected || { displayName }}
+        value={itemSelected}
         onChange={({ option }) => handleSelect(option)}
         valueLabel={
           itemSelected?.id ? (
@@ -42,7 +45,7 @@ function VaultDropSelector({
             </Box>
           ) : (
             <Box pad="small">
-              <Text color="text-xweak" size="small">
+              <Text color={itemSelected?.displayName ? 'text-weak' : 'text-xweak'} size="small">
                 {displayName}
               </Text>
             </Box>
@@ -69,7 +72,7 @@ function VaultDropSelector({
             ) : (
               <Box pad="small" direction="row" gap="small" align="center">
                 <Text color="text-weak" size="small">
-                  {displayName}
+                  {x.displayName}
                 </Text>
               </Box>
             )}
