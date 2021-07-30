@@ -189,7 +189,7 @@ const Borrow = () => {
                 </Box>
 
                 <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}>
-                  <Box direction="row" gap="small" fill="horizontal" align="start">
+                  <Box direction="row" gap="small" >
                     <Box basis={mobile ? '50%' : '60%'}>
                       <InputWrap action={() => console.log('maxAction')} isError={borrowInputError}>
                         <TextInput
@@ -220,8 +220,8 @@ const Borrow = () => {
 
                 <Box gap="large" height="400px">
                   <SectionWrap title="Amount of collateral to add">
-                    <Box direction="row" gap="small" fill="horizontal" align="start">
-                      <Box basis={mobile ? '50%' : '60%'}>
+                    <Box direction="row" gap="small" >
+                      <Box basis={mobile ? '50%' : '60%'} fill='horizontal'>
                         <InputWrap
                           action={() => console.log('maxAction')}
                           disabled={!selectedSeries}
