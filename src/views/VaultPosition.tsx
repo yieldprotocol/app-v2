@@ -104,7 +104,6 @@ const Vault = ({ close }: { close: () => void }) => {
 
   const [mergeData, setMergeData] = useState<any>(initialMergeData);
 
-  const [destroyDisabled, setDestroyDisabled] = useState<boolean>(true);
   const [destroyInput, setDestroyInput] = useState<string>('');
 
   const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
@@ -123,6 +122,13 @@ const Vault = ({ close }: { close: () => void }) => {
     ActionCodes.REMOVE_COLLATERAL,
     vaultSeries,
     [0, maxRemoveCollat]
+  );
+  const { inputError: destroyError, inputDisabled: destroyDisabled } = useInputValidation(
+    destroyInput,
+    ActionCodes.DELETE_VAULT,
+    vaultSeries,
+    [],
+    selectedVault
   );
 
   useEffect(() => {
@@ -197,15 +203,6 @@ const Vault = ({ close }: { close: () => void }) => {
 
   const handleDestroy = () => {
     selectedVault && destroy(selectedVault);
-  };
-
-  const handleDestroyInputChange = (event: any) => {
-    const {
-      target: { value },
-    } = event;
-
-    setDestroyInput(value);
-    value === selectedVault?.displayName ? setDestroyDisabled(false) : setDestroyDisabled(true);
   };
 
   /* SET MAX VALUES */
@@ -366,11 +363,10 @@ const Vault = ({ close }: { close: () => void }) => {
             />
           </Box>
 
-
           {actionActive.index === 0 && (
             <>
               {stepPosition[0] === 0 && (
-                <Box margin={{ top:'medium' }}>
+                <Box margin={{ top: 'medium' }}>
                   <InputWrap action={() => console.log('maxAction')} isError={repayError}>
                     <TextInput
                       plain
@@ -408,13 +404,13 @@ const Vault = ({ close }: { close: () => void }) => {
                   </SectionWrap>
                 </ActiveTransaction>
               )}
-              </>
+            </>
           )}
 
           {actionActive.index === 1 && (
             <>
               {stepPosition[actionActive.index] === 0 && (
-                <Box margin={{ top:'medium' }}>
+                <Box margin={{ top: 'medium' }}>
                   <SeriesSelector
                     selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
                     actionType={ActionType.BORROW}
@@ -448,41 +444,41 @@ const Vault = ({ close }: { close: () => void }) => {
           {actionActive.index === 2 && (
             <>
               {stepPosition[actionActive.index] === 0 && (
-                <Box margin={{ top:'medium' }}>
-                    <InputWrap action={() => console.log('maxAction')} isError={addCollatError}>
-                      <TextInput
-                        disabled={removeCollatInput}
-                        plain
-                        type="number"
-                        placeholder="Collateral to Add"
-                        value={addCollatInput || ''}
-                        onChange={(event: any) => setAddCollatInput(cleanValue(event.target.value))}
-                      />
-                      <MaxButton
-                        disabled={removeCollatInput}
-                        action={() => setAddCollatInput(maxAddCollat)}
-                        clearAction={() => setAddCollatInput('')}
-                        showingMax={!!addCollatInput && addCollatInput === maxAddCollat}
-                      />
-                    </InputWrap>
-                    <InputWrap action={() => console.log('maxAction')} isError={removeCollatError}>
-                      <TextInput
-                        disabled={addCollatInput}
-                        plain
-                        type="number"
-                        placeholder="Collateral to remove"
-                        value={removeCollatInput || ''}
-                        onChange={(event: any) => setRemoveCollatInput(cleanValue(event.target.value))}
-                      />
-                      <MaxButton
-                        disabled={!!addCollatInput}
-                        action={() => setRemoveCollatInput(maxRemoveCollat)}
-                        clearAction={() => setRemoveCollatInput('')}
-                        showingMax={
-                          !!removeCollatInput && ethers.utils.formatEther(selectedVault?.ink!) === removeCollatInput
-                        }
-                      />
-                    </InputWrap>
+                <Box margin={{ top: 'medium' }}>
+                  <InputWrap action={() => console.log('maxAction')} isError={addCollatError}>
+                    <TextInput
+                      disabled={removeCollatInput}
+                      plain
+                      type="number"
+                      placeholder="Collateral to Add"
+                      value={addCollatInput || ''}
+                      onChange={(event: any) => setAddCollatInput(cleanValue(event.target.value))}
+                    />
+                    <MaxButton
+                      disabled={removeCollatInput}
+                      action={() => setAddCollatInput(maxAddCollat)}
+                      clearAction={() => setAddCollatInput('')}
+                      showingMax={!!addCollatInput && addCollatInput === maxAddCollat}
+                    />
+                  </InputWrap>
+                  <InputWrap action={() => console.log('maxAction')} isError={removeCollatError}>
+                    <TextInput
+                      disabled={addCollatInput}
+                      plain
+                      type="number"
+                      placeholder="Collateral to remove"
+                      value={removeCollatInput || ''}
+                      onChange={(event: any) => setRemoveCollatInput(cleanValue(event.target.value))}
+                    />
+                    <MaxButton
+                      disabled={!!addCollatInput}
+                      action={() => setRemoveCollatInput(maxRemoveCollat)}
+                      clearAction={() => setRemoveCollatInput('')}
+                      showingMax={
+                        !!removeCollatInput && ethers.utils.formatEther(selectedVault?.ink!) === removeCollatInput
+                      }
+                    />
+                  </InputWrap>
                 </Box>
               )}
 
@@ -521,12 +517,12 @@ const Vault = ({ close }: { close: () => void }) => {
             </>
           )}
 
-          {actionActive.index === 3 && (<YieldHistory seriesOrVault={selectedVault!} view={['VAULT']} /> )}
+          {actionActive.index === 3 && <YieldHistory seriesOrVault={selectedVault!} view={['VAULT']} />}
 
           {actionActive.index === 4 && (
             <>
               {stepPosition[actionActive.index] === 0 && (
-                <Box margin={{ top:'medium' }}>
+                <Box margin={{ top: 'medium' }}>
                   <InputWrap action={() => console.log('maxAction')} isError={null}>
                     <TextInput
                       plain
@@ -564,7 +560,7 @@ const Vault = ({ close }: { close: () => void }) => {
           {actionActive.index === 5 && (
             <>
               {stepPosition[actionActive.index] === 0 && (
-                <Box margin={{ top:'medium' }}>
+                <Box margin={{ top: 'medium' }}>
                   <VaultDropSelector
                     vaults={matchingVaults}
                     handleSelect={handleMergeVaultSelect}
@@ -644,14 +640,14 @@ const Vault = ({ close }: { close: () => void }) => {
           {actionActive.index === 6 && (
             <>
               {stepPosition[actionActive.index] === 0 && (
-                <Box margin={{ top:'medium' }}>
+                <Box margin={{ top: 'medium' }}>
                   <InputWrap action={() => console.log('maxAction')} isError={null}>
                     <TextInput
                       plain
                       type="string"
                       placeholder="Type the name of the vault."
                       value={destroyInput}
-                      onChange={(event) => handleDestroyInputChange(event)}
+                      onChange={(event) => setDestroyInput(event.target.value)}
                     />
                   </InputWrap>
                 </Box>
@@ -669,7 +665,7 @@ const Vault = ({ close }: { close: () => void }) => {
                     <Box margin={{ top: 'medium' }}>
                       <InfoBite
                         // label="Pay back all debt and delete vault:"
-                        label="Delete vault (must have 0 debt and 0 collateral):"
+                        label="Delete vault:"
                         icon={<FiArrowRight />}
                         value={destroyInput}
                       />
@@ -775,20 +771,10 @@ const Vault = ({ close }: { close: () => void }) => {
 
         {actionActive.index === 6 && stepPosition[actionActive.index] === 0 && (
           <NextButton
-            label={
-              <Text size={mobile ? 'small' : undefined}>
-                {selectedVault?.ink.gt(ethers.constants.Zero) || selectedVault?.art.gt(ethers.constants.Zero)
-                  ? 'Must have 0 debt/collateral'
-                  : 'Next Step'}
-              </Text>
-            }
+            label={<Text size={mobile ? 'small' : undefined}>{destroyError || 'Next Step'}</Text>}
             onClick={() => handleStepper()}
             key="next"
-            disabled={
-              destroyDisabled ||
-              selectedVault?.ink.gt(ethers.constants.Zero) ||
-              selectedVault?.art.gt(ethers.constants.Zero)
-            }
+            disabled={destroyDisabled}
           />
         )}
 
