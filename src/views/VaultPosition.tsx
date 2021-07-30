@@ -17,7 +17,7 @@ import { abbreviateHash, cleanValue, getTxCode, nFormatter } from '../utils/appU
 import { UserContext } from '../contexts/UserContext';
 import InputWrap from '../components/wraps/InputWrap';
 import InfoBite from '../components/InfoBite';
-import { ActionCodes, ActionType, IAsset, ISeries, IUserContext, IVault } from '../types';
+import { ActionCodes, ActionType, IAsset, ISeries, IUserContext, IVault, TxState } from '../types';
 
 import ActionButtonWrap from '../components/wraps/ActionButtonWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
@@ -298,7 +298,7 @@ const Vault = ({ close }: { close: () => void }) => {
     const tx = transactions.transactions.get(txHash);
     const status = tx?.status;
 
-    status === 'SUCCESSFUL' && routerHistory.push('/');
+    status === TxState.SUCCESSFUL && routerHistory.push('/');
   }, [selectedVault?.id, transactions]);
 
   return (
