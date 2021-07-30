@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Avatar, Box, Grid, ResponsiveContext, Select, Stack, Text, ThemeContext } from 'grommet';
+import { Avatar, Box, Carousel, Grid, ResponsiveContext, Select, Stack, Text, ThemeContext } from 'grommet';
 
 import { ethers } from 'ethers';
 import styled from 'styled-components';
@@ -115,8 +115,6 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
   const selectedSeries = selectSeriesLocally ? localSeries : seriesMap.get(selectedSeriesId!);
   const selectedBase = assetMap.get(selectedBaseId!);
 
-  // const { apr } = useApr(inputValue, 'BORROW', selectedSeries);
-
   const optionText = (_series: ISeries | undefined) => {
     if (_series) {
       return `${mobile ? _series.displayNameMobile : _series.displayName}`;
@@ -126,7 +124,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
   const optionExtended = (_series: ISeries | undefined) => (
     <Box fill="horizontal" direction="row" justify="between" gap="small">
-      {_series?.seriesMark}
+      <Box align='center'>{_series?.seriesMark} </Box>
       {optionText(_series)}
       {_series?.seriesIsMature && (
         <Box round="large" border pad={{ horizontal: 'small' }}>
@@ -147,7 +145,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
       // !ignoredSeries?.includes(_series.baseId)
     );
 
-    /* if required, filter out the globally selected asset  and */
+    /* if required, filter out the globally selected asset and */
     if (selectSeriesLocally) {
       filteredOpts = filteredOpts.filter((_series: ISeries) => _series.id !== selectedSeriesId);
     }
@@ -185,7 +183,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
             plain
             dropProps={{ round: 'xsmall' }}
             id="seriesSelect"
-            name="assetSelect"
+            name="seriesSelect"
             placeholder="Select Series"
             options={options}
             value={selectedSeries}
@@ -214,7 +212,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
       )}
 
       {cardLayout && (
-        <Grid columns={!mobile ? 'small' : '100%'} gap="small" fill pad={{ vertical: 'small' }}>
+        <Grid columns={mobile ? '100%' : 'small'} gap="small" fill pad={{ vertical: 'small' }}>
             {options.map((series: ISeries) => (
               <StyledBox
                 // border={series.id === selectedSeriesId}
