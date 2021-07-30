@@ -47,6 +47,7 @@ const initState: IUserContextState = {
   approvalMethod: ApprovalType.SIG,
   dudeSalt: 0,
   showInactiveVaults: false as boolean,
+  slippageTolerance: 0.01 as number,
 };
 
 const vaultNameConfig: Config = {
@@ -94,6 +95,9 @@ function userReducer(state: any, action: any) {
 
     case 'showInactiveVaults':
       return { ...state, showInactiveVaults: onlyIfChanged(action) };
+
+    case 'setSlippageTolerance':
+      return { ...state, slippageTolerance: onlyIfChanged(action) };
 
     default:
       return state;
@@ -196,19 +200,19 @@ const UserProvider = ({ children }: any) => {
       if (account) {
         _accountData = await Promise.all(
           _publicData.map(async (asset: IAssetRoot): Promise<IAsset> => {
-            const [balance, ladleAllowance, poolAllowance, joinAllowance ] = await Promise.all([
+            const [balance, ladleAllowance, poolAllowance, joinAllowance] = await Promise.all([
               asset.getBalance(account),
               asset.getAllowance(account, contractMap.get('Ladle').address),
               asset.getAllowance(account, contractMap.get('PoolRouter').address),
               asset.getAllowance(account, asset.joinAddress),
-            ])
+            ]);
 
             const isYieldBase = !!Array.from(seriesRootMap.values()).find((x: any) => x.baseId === asset.id);
 
             return {
               ...asset,
               isYieldBase,
-              hasLadleAuth: ladleAllowance.gt(ethers.constants.Zero) ,
+              hasLadleAuth: ladleAllowance.gt(ethers.constants.Zero),
               hasPoolRouterAuth: poolAllowance.gt(ethers.constants.Zero),
               hasJoinAuth: joinAllowance.gt(ethers.constants.Zero),
               balance: balance || ethers.constants.Zero,
@@ -441,6 +445,9 @@ const UserProvider = ({ children }: any) => {
 
     setShowInactiveVaults: (showInactiveVaults: boolean) =>
       updateState({ type: 'showInactiveVaults', payload: showInactiveVaults }),
+
+    setSlippageTolerance: (slippageTolerance: number) =>
+      updateState({ type: 'setSlippageTolerance', payload: slippageTolerance }),
   };
 
   return <UserContext.Provider value={{ userState, userActions } as IUserContext}>{children}</UserContext.Provider>;
