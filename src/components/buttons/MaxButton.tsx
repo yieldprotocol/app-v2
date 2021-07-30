@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import styled from 'styled-components';
 import { Box, Text, ResponsiveContext } from 'grommet';
 import { UserContext } from '../../contexts/UserContext';
 import { IUserContext } from '../../types';
@@ -11,6 +12,21 @@ interface IMaxButtonProps {
   disabled?: boolean;
 }
 
+const StyledBox = styled(Box)`
+  -webkit-transition: transform 0.3s ease-in-out;
+  -moz-transition: transform 0.3s ease-in-out;
+  transition: transform 0.3s ease-in-out;
+
+  padding: 0;
+  :hover {
+    transform: scale(1.1);
+  }
+  :active {
+    transform: scale(1);
+  }
+`;
+
+
 function MaxButton({ action, clearAction, showingMax, disabled }: IMaxButtonProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   /* state from context */
@@ -20,19 +36,18 @@ function MaxButton({ action, clearAction, showingMax, disabled }: IMaxButtonProp
   return (
     <>
       {!mobile && activeAccount && (
-        <Box
+        <StyledBox
           onClick={!disabled && !showingMax ? () => action() : () => clearAction && clearAction()}
           pad="xsmall"
           round="xsmall"
           align="center"
-          background="tailwind-lightest-blue"
-          border={{ color: 'white' }}
+          // border={{ color: 'white' }}
           width="xxsmall"
         >
-          <Text size="xsmall" color="brand">
+          <Text size="xsmall" color={disabled? 'text-xweak': 'text-weak'} >
             {showingMax ? 'Clear' : 'Max'}
           </Text>
-        </Box>
+        </StyledBox>
       )}
     </>
   );

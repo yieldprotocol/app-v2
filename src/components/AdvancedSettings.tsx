@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, CheckBox, Text } from 'grommet';
 import { UserContext } from '../contexts/UserContext';
+import SlippageSettings from './SlippageSettings';
 
 const AdvancedSettings = () => {
   const {
@@ -18,9 +19,7 @@ const AdvancedSettings = () => {
           onChange={(event) => setShowInactiveVaults(event?.target.checked)}
         />
       </Box>
-      {/* <Box direction="row" justify="between">
-        Slippage Tolerance
-      </Box> */}
+      <SlippageSettings />
     </Box>
   );
 };

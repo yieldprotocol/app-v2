@@ -21,7 +21,7 @@ const StyledButton = styled(Button)`
 function BackButton({ action }: { action: () => void }) {
   return (
     <Box align="center" direction="row">
-      <StyledButton onClick={() => action()} icon={<FiArrowLeft size="1.5em" />} />
+      <StyledButton onClick={() => action()} icon={<FiArrowLeft size="1em" />} />
     </Box>
   );
 }

@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
-import { Text, Box, ResponsiveContext, Layer } from 'grommet';
-import { FiCircle, FiMenu, FiSettings } from 'react-icons/fi';
+import { Text, Box, ResponsiveContext, Layer, Spinner } from 'grommet';
+import { FiCheckCircle, FiCircle, FiMenu, FiSettings } from 'react-icons/fi';
 
 import YieldBalances from './YieldBalances';
 
@@ -17,7 +17,7 @@ import TransactionWidget from './TransactionWidget';
 const YieldAccount = (props: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
-    chainState: { account },
+    chainState: { account, chainData },
   } = useContext(ChainContext);
 
   const {
@@ -55,9 +55,13 @@ const YieldAccount = (props: any) => {
                   <Text color="text" size="small">
                     {abbreviateHash(account)}
                   </Text>
-                  <Text size="xsmall" color="text-weak">
-                    <FiCircle color="#00C781" size=".5rem" /> Connected
+
+                  <Box direction='row' align='center' gap='small'>          
+                  <FiCircle fill={chainData.color} color={chainData.color} size=".5rem" />
+                  <Text size="xsmall" color={chainData.color} alignSelf="end">
+                    {chainData.name}
                   </Text>
+                  </Box>
                 </Box>
                 <Box>
                   <YieldAvatar address={account} size={2} />
