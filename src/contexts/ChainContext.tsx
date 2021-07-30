@@ -50,10 +50,18 @@ const RPC_URLS: { [chainId: number]: string } = {
   31337: process.env.REACT_APP_RPC_URL_31337 as string,
 };
 
-const chainNames = new Map([
-  [1, 'Mainnet'],
-  [42, 'Kovan'],
-]);
+interface IChainData {
+  name: string;
+  color: string;
+}
+
+const chainData = new Map<number, IChainData>();
+chainData.set(1, { name: 'Mainnet', color: '#29b6af' });
+chainData.set(3, { name: 'Ropsten', color: '#ff4a8d' });
+chainData.set(4, { name: 'Rinkeby', color: '#f6c343' });
+chainData.set(5, { name: 'Goerli', color: '#3099f2' });
+chainData.set(10, { name: 'Optimism', color: '#EB0822' });
+chainData.set(42, { name: 'Kovan', color: '#7F7FFE' });
 
 const connectors = new Map();
 const injectedName = 'metamask';
@@ -87,7 +95,7 @@ const ChainContext = React.createContext<any>({});
 const initState = {
   appVersion: '0.0.0' as string,
   chainId: Number(process.env.REACT_APP_DEFAULT_CHAINID) as number | null,
-  chainName: null as string | null,
+  chainData: null as any | null,
   provider: null as ethers.providers.Web3Provider | null,
   fallbackProvider: null as ethers.providers.Web3Provider | null,
   signer: null as ethers.providers.JsonRpcSigner | null,
@@ -128,8 +136,8 @@ function chainReducer(state: any, action: any) {
       return { ...state, signer: onlyIfChanged(action) };
     case 'chainId':
       return { ...state, chainId: onlyIfChanged(action) };
-    case 'chainName':
-      return { ...state, chainName: onlyIfChanged(action) };
+    case 'chainData':
+      return { ...state, chainData: onlyIfChanged(action) };
     case 'account':
       return { ...state, account: onlyIfChanged(action) };
     case 'web3Active':
@@ -379,7 +387,7 @@ const ChainProvider = ({ children }: any) => {
   useEffect(() => {
     console.log('Wallet/Account Active: ', active);
     updateState({ type: 'chainId', payload: chainId });
-    chainId && updateState({ type: 'chainName', payload: chainNames.get(chainId) });
+    chainId && updateState({ type: 'chainData', payload: chainData.get(chainId) });
     updateState({ type: 'web3Active', payload: active });
     updateState({ type: 'provider', payload: library || null });
     updateState({ type: 'account', payload: account || null });
