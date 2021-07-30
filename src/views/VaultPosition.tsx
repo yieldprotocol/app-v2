@@ -564,7 +564,6 @@ const Vault = ({ close }: { close: () => void }) => {
                   <VaultDropSelector
                     vaults={matchingVaults}
                     handleSelect={handleMergeVaultSelect}
-                    selectedIlk={selectedIlk}
                     itemSelected={mergeData.toVault}
                     displayName="Select Vault"
                     placeholder="Select Vault"
@@ -640,6 +639,7 @@ const Vault = ({ close }: { close: () => void }) => {
           {actionActive.index === 6 && (
             <>
               {stepPosition[actionActive.index] === 0 && !destroyError && (
+
                 <Box margin={{ top: 'medium' }}>
                   <InputWrap action={() => console.log('maxAction')} isError={null}>
                     <TextInput

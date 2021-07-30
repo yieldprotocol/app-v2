@@ -340,7 +340,7 @@ const UserProvider = ({ children }: any) => {
 
   /* Updates the vaults with *user* data */
   const updateVaults = useCallback(
-    async (vaultList: IVaultRoot[]) => {
+    async (vaultList: IVaultRoot[], force:boolean=false) => {
       let _vaultList: IVaultRoot[] = vaultList;
       const Cauldron = contractMap.get('Cauldron');
 
@@ -382,7 +382,7 @@ const UserProvider = ({ children }: any) => {
           const _map = acc;
           _map.set(item.id, item);
           return _map;
-        }, userState.vaultMap)
+        }, ( force? new Map() : userState.vaultMap) )
       );
 
       updateState({ type: 'vaultMap', payload: newVaultMap });
@@ -404,8 +404,9 @@ const UserProvider = ({ children }: any) => {
   useEffect(() => {
     /* When the chainContext is finished loading get the users vault data */
     if (account !== null && !chainLoading) {
+      console.log('checking vaults')
       /* trigger update of update all vaults by passing empty array */
-      updateVaults([]);
+      updateVaults([], true);
     }
   }, [account, chainLoading, updateVaults]);
 
