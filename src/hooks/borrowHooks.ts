@@ -103,8 +103,10 @@ export const useBorrowActions = () => {
     const base = assetMap.get(vault.baseId);
     const _isDaiBased = DAI_BASED_ASSETS.includes(vault.baseId);
 
-    const _inputWithSlippage = calculateSlippage(_input);
+    const _inputWithSlippage = calculateSlippage(_input, userState.slippageTolerance.toString(), true);
     const inputGreaterThanDebt: boolean = ethers.BigNumber.from(_inputWithSlippage).gte(vault.art);
+
+    const _collInputWithSlippage = calculateSlippage(_collInput, userState.slippageTolerance.toString());
 
     const permits: ICallData[] = await sign(
       [
@@ -134,21 +136,21 @@ export const useBorrowActions = () => {
       ...permits,
       {
         operation: LadleActions.Fn.TRANSFER_TO_POOL,
-        args: [series.id, true, _inputWithSlippage] as LadleActions.Args.TRANSFER_TO_POOL,
+        args: [series.id, true, _input] as LadleActions.Args.TRANSFER_TO_POOL,
         series,
         ignore: series.mature,
       },
       {
-        /* ladle.repay(vaultId, owner, inkRetrieved, 0) */
+        /* ladle.repay(vaultId, owner, repayAmount, minAmountToRepay) */
         operation: LadleActions.Fn.REPAY,
-        args: [vault.id, account, _collInput, ethers.constants.Zero] as LadleActions.Args.REPAY,
+        args: [vault.id, account, _input, _inputWithSlippage] as LadleActions.Args.REPAY,
         series,
         ignore: series.mature || inputGreaterThanDebt,
       },
       {
-        /* ladle.repayVault(vaultId, owner, inkRetrieved, MAX) */
+        /* ladle.repayVault(vaultId, owner, inkUsed, maxInkToUse) */
         operation: LadleActions.Fn.REPAY_VAULT,
-        args: [vault.id, account, ethers.constants.Zero, MAX_128] as LadleActions.Args.REPAY_VAULT,
+        args: [vault.id, account, _collInput, _collInputWithSlippage] as LadleActions.Args.REPAY_VAULT,
         series,
         ignore: series.mature || !inputGreaterThanDebt,
       },

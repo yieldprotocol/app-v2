@@ -438,7 +438,7 @@ export const splitLiquidity = (
  * Calculate Slippage
  * @param { BigNumber } value
  * @param { BigNumber } slippage optional: defaults to 0.005 (0.5%)
- * @param { number } minimise optional: whether the resutl should be a minimum or maximum (default max)
+ * @param { boolean } minimise optional: whether the resutl should be a minimum or maximum (default max)
  * @returns { string } human readable string
  */
 export const calculateSlippage = (
@@ -456,7 +456,7 @@ export const calculateSlippage = (
 
 /**
  * Calculate Annualised Yield Rate
- * @param { BigNumber | string } tradeValue // current [base] 
+ * @param { BigNumber | string } tradeValue // current [base]
  * @param { BigNumber | string } amount // y[base] amount at maturity
  * @param { number } maturity  // date of maturity
  * @param { number } fromDate // ***optional*** start date - defaults to now()
@@ -523,15 +523,15 @@ export const calculateCollateralizationRatio = (
  * @param {boolean} asPercent OPTIONAL: flag to return ratio as a percentage
  * @returns { string | undefined }
  */
- export const calculateMinCollateral = (
+export const calculateMinCollateral = (
   collateralPrice: BigNumber | string,
-  debtValue: BigNumber | string,
-): string | undefined => 
+  debtValue: BigNumber | string
+): string | undefined =>
   // if (ethers.BigNumber.isBigNumber(debtValue) ? debtValue.isZero() : debtValue === '0') {
   //   return undefined;
   // }
   // const _unitPrice = divDecimal(collateralPrice, '1000000000000000000');
-  
+
   // const _colVal = mulDecimal(collateralAmount, _unitPrice);
   // const _ratio = divDecimal(_colVal, debtValue);
 
@@ -539,8 +539,7 @@ export const calculateCollateralizationRatio = (
   //   return mulDecimal('100', _ratio);
   // }
   // return _ratio;
-   '1'
-;
+  '1';
 
 /**
  * Calcualtes the amount (base, or other variant) that can be borrowed based on
