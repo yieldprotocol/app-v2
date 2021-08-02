@@ -28,7 +28,7 @@ export const useTx = (actionCode: ActionCodes, shouldRedirect: boolean = false) 
 
   useEffect(() => {
     const txCode = getTxCode(actionCode, selectedVaultId!);
-    setTx({ ...tx, txCode });
+    setTx({ ...INITIAL_STATE, txCode });
     const txHash = transactions.processes?.get(txCode);
 
     let status;
@@ -38,16 +38,16 @@ export const useTx = (actionCode: ActionCodes, shouldRedirect: boolean = false) 
 
     switch (status) {
       case TxState.PENDING:
-        setTx((t) => ({ ...t, pending: true }));
+        setTx({ ...tx, pending: true });
         break;
       case TxState.SUCCESSFUL:
-        setTx((t) => ({ ...t, success: true }));
+        setTx({ ...tx, success: true });
         break;
       case TxState.FAILED:
-        setTx((t) => ({ ...tx, failed: true }));
+        setTx({ ...tx, failed: true });
         break;
       case TxState.REJECTED:
-        setTx((t) => ({ ...tx, rejected: true }));
+        setTx({ ...tx, rejected: true });
         break;
     }
   }, [actionCode, selectedVaultId, transactions.processes, transactions.transactions, shouldRedirect]);

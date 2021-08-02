@@ -62,6 +62,15 @@ const Vault = ({ close }: { close: () => void }) => {
     selectedVault
   );
 
+  /* TX info (for disabling buttons) */
+  const { tx: repayTx } = useTx(ActionCodes.REPAY);
+  const { tx: rollTx } = useTx(ActionCodes.ROLL_DEBT);
+  const { tx: addCollateralTx } = useTx(ActionCodes.ADD_COLLATERAL);
+  const { tx: removeCollateralTx } = useTx(ActionCodes.REMOVE_COLLATERAL);
+  const { tx: transferTx } = useTx(ActionCodes.TRANSFER_VAULT, true);
+  const { tx: deleteTx } = useTx(ActionCodes.DELETE_VAULT, true);
+  const { tx: mergeTx } = useTx(ActionCodes.MERGE_VAULT);
+
   /* LOCAL STATE */
   // tab state + control
   const [tabIndex, setTabIndex] = React.useState(0);
@@ -156,7 +165,7 @@ const Vault = ({ close }: { close: () => void }) => {
 
   const handleRepay = () => {
     selectedVault && repay(selectedVault, repayInput?.toString());
-    setRepayInput('');
+    // setRepayInput('');
   };
 
   const handleCollateral = (action: 'ADD' | 'REMOVE') => {
@@ -174,7 +183,6 @@ const Vault = ({ close }: { close: () => void }) => {
 
   const handleTransfer = () => {
     selectedVault && transfer(selectedVault, transferToAddressInput);
-    setTransferToAddressInput('');
   };
 
   const handleMerge = () => {
@@ -288,9 +296,6 @@ const Vault = ({ close }: { close: () => void }) => {
       setMergeData((fData: any) => ({ ...fData, totalMergedInk, totalMergedArt }));
     }
   }, [vaultMap, mergeData.toVault, mergeData.ink, mergeData.art]);
-
-  // check if there was a relevant successful tx when deleting a vault
-  const { tx: deleteTx } = useTx(ActionCodes.DELETE_VAULT, true);
 
   return (
     <CenterPanelWrap>
@@ -715,35 +720,38 @@ const Vault = ({ close }: { close: () => void }) => {
               </Text>
             }
             onClick={() => handleRepay()}
-            disabled={repayDisabled}
+            disabled={repayDisabled || repayTx.pending}
           />
         )}
 
         {actionActive.index === 1 && stepPosition[actionActive.index] !== 0 && (
           <TransactButton
             primary
-            label={<Text size={mobile ? 'small' : undefined}> Roll debt </Text>}
+            label={<Text size={mobile ? 'small' : undefined}>Roll debt</Text>}
             onClick={() => handleRoll()}
+            disabled={rollTx.pending}
           />
         )}
 
         {actionActive.index === 2 && stepPosition[actionActive.index] !== 0 && addCollatInput && (
           <TransactButton
             primary
-            label={<Text size={mobile ? 'small' : undefined}> Add </Text>}
+            label={<Text size={mobile ? 'small' : undefined}>Add</Text>}
             onClick={() => handleCollateral('ADD')}
+            disabled={addCollateralTx.pending}
           />
         )}
 
         {actionActive.index === 2 && stepPosition[actionActive.index] !== 0 && removeCollatInput && (
           <TransactButton
             primary
-            label={<Text size={mobile ? 'small' : undefined}> Remove </Text>}
+            label={<Text size={mobile ? 'small' : undefined}>Remove</Text>}
             onClick={() => handleCollateral('REMOVE')}
+            disabled={removeCollateralTx.pending}
           />
         )}
 
-        {actionActive.index === 4 && stepPosition[actionActive.index] !== 0 && transferToAddressInput !== '' && (
+        {actionActive.index === 4 && stepPosition[actionActive.index] !== 0 && (
           <TransactButton
             primary
             label={
@@ -752,11 +760,11 @@ const Vault = ({ close }: { close: () => void }) => {
               </Text>
             }
             onClick={() => handleTransfer()}
-            disabled={!ethers.utils.isAddress(transferToAddressInput)}
+            disabled={!ethers.utils.isAddress(transferToAddressInput) || transferTx.pending}
           />
         )}
 
-        {stepPosition[actionActive.index] === 0 && actionActive.index === 5 && (
+        {actionActive.index === 5 && stepPosition[actionActive.index] === 0 && (
           <NextButton
             label={<Text size={mobile ? 'small' : undefined}> Next Step </Text>}
             onClick={() => handleStepper()}
@@ -770,7 +778,7 @@ const Vault = ({ close }: { close: () => void }) => {
             primary
             label={<Text size={mobile ? 'small' : undefined}> Merge Vaults </Text>}
             onClick={() => handleMerge()}
-            disabled={mergeData.inkError || mergeData.artError}
+            disabled={mergeData.inkError || mergeData.artError || mergeTx.pending}
           />
         )}
 
