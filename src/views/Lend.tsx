@@ -189,9 +189,9 @@ const Lend = () => {
               primary
               label={
                 <Text size={mobile ? 'small' : undefined}>
-                  {`Supply ${nFormatter(Number(lendInput), selectedBase?.digitFormat!) || ''} ${
-                    selectedBase?.symbol || ''
-                  }`}
+                  {`Supply${lendTx.pending ? `ing` : ''} ${
+                    nFormatter(Number(lendInput), selectedBase?.digitFormat!) || ''
+                  } ${selectedBase?.symbol || ''}`}
                 </Text>
               }
               onClick={() => handleLend()}

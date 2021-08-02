@@ -701,7 +701,9 @@ const Vault = ({ close }: { close: () => void }) => {
             primary
             label={
               <Text size={mobile ? 'small' : undefined}>
-                {`Repay ${nFormatter(Number(repayInput), vaultBase?.digitFormat!) || ''} ${vaultBase?.symbol}`}
+                {`Repay${repayTx.pending ? 'ing' : ''} ${
+                  nFormatter(Number(repayInput), vaultBase?.digitFormat!) || ''
+                } ${vaultBase?.symbol}`}
               </Text>
             }
             onClick={() => handleRepay()}
@@ -712,7 +714,7 @@ const Vault = ({ close }: { close: () => void }) => {
         {actionActive.index === 1 && stepPosition[actionActive.index] !== 0 && (
           <TransactButton
             primary
-            label={<Text size={mobile ? 'small' : undefined}>Roll debt</Text>}
+            label={<Text size={mobile ? 'small' : undefined}>{`Roll${rollTx.pending ? 'ing' : ''} debt`}</Text>}
             onClick={() => handleRoll()}
             disabled={rollTx.pending}
           />
@@ -721,7 +723,7 @@ const Vault = ({ close }: { close: () => void }) => {
         {actionActive.index === 2 && stepPosition[actionActive.index] !== 0 && addCollatInput && (
           <TransactButton
             primary
-            label={<Text size={mobile ? 'small' : undefined}>Add</Text>}
+            label={<Text size={mobile ? 'small' : undefined}>{`Add${addCollateralTx.pending ? 'ing' : ''}`}</Text>}
             onClick={() => handleCollateral('ADD')}
             disabled={addCollateralTx.pending}
           />
@@ -730,7 +732,9 @@ const Vault = ({ close }: { close: () => void }) => {
         {actionActive.index === 2 && stepPosition[actionActive.index] !== 0 && removeCollatInput && (
           <TransactButton
             primary
-            label={<Text size={mobile ? 'small' : undefined}>Remove</Text>}
+            label={
+              <Text size={mobile ? 'small' : undefined}>{`Remov${removeCollateralTx.pending ? 'ing' : 'e'}`}</Text>
+            }
             onClick={() => handleCollateral('REMOVE')}
             disabled={removeCollateralTx.pending}
           />
@@ -741,7 +745,9 @@ const Vault = ({ close }: { close: () => void }) => {
             primary
             label={
               <Text size={mobile ? 'small' : undefined}>
-                {ethers.utils.isAddress(transferToAddressInput) ? 'Transfer vault' : 'Invalid Address'}
+                {ethers.utils.isAddress(transferToAddressInput)
+                  ? `Transfer${transferTx.pending ? 'ing' : ''} Vault`
+                  : 'Invalid Address'}
               </Text>
             }
             onClick={() => handleTransfer()}
@@ -761,7 +767,7 @@ const Vault = ({ close }: { close: () => void }) => {
         {actionActive.index === 5 && stepPosition[actionActive.index] !== 0 && (
           <TransactButton
             primary
-            label={<Text size={mobile ? 'small' : undefined}> Merge Vaults </Text>}
+            label={<Text size={mobile ? 'small' : undefined}>{`Merg${mergeTx.pending ? 'ing' : 'e'} Vaults`}</Text>}
             onClick={() => handleMerge()}
             disabled={mergeData.inkError || mergeData.artError || mergeTx.pending}
           />
@@ -780,7 +786,11 @@ const Vault = ({ close }: { close: () => void }) => {
           <TransactButton
             primary
             disabled={destroyDisabled || deleteTx.pending}
-            label={<Text size={mobile ? 'small' : undefined}> {`Delete ${selectedVault?.displayName}`} </Text>}
+            label={
+              <Text size={mobile ? 'small' : undefined}>
+                {`Delet${deleteTx.pending ? 'ing' : 'e'} ${selectedVault?.displayName}`}
+              </Text>
+            }
             onClick={() => handleDestroy()}
           />
         )}

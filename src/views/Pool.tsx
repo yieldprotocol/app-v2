@@ -207,9 +207,9 @@ function Pool() {
               primary
               label={
                 <Text size={mobile ? 'small' : undefined}>
-                  {`Pool ${nFormatter(Number(poolInput), selectedBase?.digitFormat!) || ''} ${
-                    selectedBase?.symbol || ''
-                  }`}
+                  {`Pool${poolTx.pending ? `ing` : ''} ${
+                    nFormatter(Number(poolInput), selectedBase?.digitFormat!) || ''
+                  } ${selectedBase?.symbol || ''}`}
                 </Text>
               }
               onClick={() => handleAdd()}
