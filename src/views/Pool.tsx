@@ -16,6 +16,7 @@ import SectionWrap from '../components/wraps/SectionWrap';
 import { UserContext } from '../contexts/UserContext';
 import { ActionCodes, ActionType, ISeries, IUserContext } from '../types';
 import { usePool, usePoolActions } from '../hooks/poolHooks';
+import { useTx } from '../hooks/useTx';
 import MaxButton from '../components/buttons/MaxButton';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
@@ -55,6 +56,7 @@ function Pool() {
   const { poolMax } = usePool(poolInput);
   /* input validation hooks */
   const { inputError: poolError } = useInputValidation(poolInput, ActionCodes.LEND, selectedSeries, [0, maxPool]);
+  const { tx: poolTx } = useTx(ActionCodes.ADD_LIQUIDITY);
 
   /* LOCAL ACTION FNS */
   const handleAdd = () => {
@@ -130,7 +132,9 @@ function Pool() {
                 </Box>
               </SectionWrap>
 
-              <SectionWrap title={seriesMap.size > 0 ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} series` : ''}>
+              <SectionWrap
+                title={seriesMap.size > 0 ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} series` : ''}
+              >
                 <SeriesSelector actionType={ActionType.POOL} inputValue={poolInput} />
               </SectionWrap>
             </Box>
@@ -140,7 +144,7 @@ function Pool() {
             <Box gap="large">
               <BackButton action={() => setStepPosition(0)} />
 
-              <ActiveTransaction txCode={getTxCode(ActionCodes.ADD_LIQUIDITY, selectedSeriesId)} full>
+              <ActiveTransaction txCode={poolTx.txCode} full>
                 <Box gap="large">
                   {!selectedSeries?.seriesIsMature && (
                     <SectionWrap>
@@ -208,7 +212,7 @@ function Pool() {
                 </Text>
               }
               onClick={() => handleAdd()}
-              disabled={poolDisabled}
+              disabled={poolDisabled || poolTx.pending}
             />
           )}
         </ActionButtonGroup>
