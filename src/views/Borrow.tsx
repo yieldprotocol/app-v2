@@ -17,6 +17,7 @@ import MaxButton from '../components/buttons/MaxButton';
 
 import { useBorrowActions } from '../hooks/borrowHooks';
 import { useCollateralization } from '../hooks/collateralHooks';
+import { useTx } from '../hooks/useTx';
 
 import { UserContext } from '../contexts/UserContext';
 import { ActionCodes, ActionType, ISeries, IUserContext, IVault } from '../types';
@@ -53,6 +54,9 @@ const Borrow = () => {
   const selectedBase = assetMap.get(selectedBaseId!);
   const selectedIlk = assetMap.get(selectedIlkId!);
   const selectedSeries = seriesMap.get(selectedSeriesId!);
+
+  /* TX info (for disabling buttons) */
+  const { tx: borrowTx } = useTx(ActionCodes.BORROW);
 
   /* LOCAL STATE */
   const [stepPosition, setStepPosition] = useState<number>(0);
@@ -189,7 +193,7 @@ const Borrow = () => {
                 </Box>
 
                 <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}>
-                  <Box direction="row" gap="small" >
+                  <Box direction="row" gap="small">
                     <Box basis={mobile ? '50%' : '60%'}>
                       <InputWrap action={() => console.log('maxAction')} isError={borrowInputError}>
                         <TextInput
@@ -222,8 +226,8 @@ const Borrow = () => {
 
                 <Box gap="large" height="400px">
                   <SectionWrap title="Amount of collateral to add">
-                    <Box direction="row" gap="small" >
-                      <Box basis={mobile ? '50%' : '60%'} fill='horizontal'>
+                    <Box direction="row" gap="small">
+                      <Box basis={mobile ? '50%' : '60%'} fill="horizontal">
                         <InputWrap
                           action={() => console.log('maxAction')}
                           disabled={!selectedSeries}
@@ -287,7 +291,7 @@ const Borrow = () => {
               <Box gap="large">
                 <BackButton action={() => setStepPosition(1)} />
 
-                <ActiveTransaction txCode={getTxCode(ActionCodes.BORROW, selectedSeriesId)} full>
+                <ActiveTransaction txCode={borrowTx.txCode} full>
                   <SectionWrap title="Review transaction:">
                     <Box
                       gap="small"

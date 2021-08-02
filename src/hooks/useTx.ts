@@ -19,7 +19,7 @@ export const useTx = (actionCode: ActionCodes, shouldRedirect: boolean = false) 
   /* STATE FROM CONTEXT */
   const { txState: transactions } = useContext(TxContext);
   const {
-    userState: { selectedVaultId },
+    userState: { selectedVaultId, selectedSeriesId },
   } = useContext(UserContext);
 
   const history = useHistory();
@@ -27,7 +27,7 @@ export const useTx = (actionCode: ActionCodes, shouldRedirect: boolean = false) 
   const [tx, setTx] = useState<ITx>(INITIAL_STATE);
 
   useEffect(() => {
-    const txCode = getTxCode(actionCode, selectedVaultId!);
+    const txCode = selectedVaultId ? getTxCode(actionCode, selectedVaultId!) : getTxCode(actionCode, selectedSeriesId!);
     setTx({ ...INITIAL_STATE, txCode });
     const txHash = transactions.processes?.get(txCode);
 
