@@ -50,7 +50,14 @@ export const useTx = (actionCode: ActionCodes, shouldRedirect: boolean = false) 
         setTx({ ...tx, rejected: true });
         break;
     }
-  }, [actionCode, selectedVaultId, transactions.processes, transactions.transactions, shouldRedirect]);
+  }, [
+    selectedSeriesId,
+    actionCode,
+    selectedVaultId,
+    transactions.processes,
+    transactions.transactions,
+    shouldRedirect,
+  ]);
 
   useEffect(() => {
     tx.success && shouldRedirect && history.push('/');
