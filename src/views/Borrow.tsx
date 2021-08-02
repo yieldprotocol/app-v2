@@ -368,7 +368,7 @@ const Borrow = () => {
                     </Text>
                   }
                   onClick={() => handleBorrow()}
-                  disabled={borrowDisabled || !disclaimerChecked}
+                  disabled={borrowDisabled || !disclaimerChecked || borrowTx.pending}
                 />
               )}
             </ActionButtonWrap>
