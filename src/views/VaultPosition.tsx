@@ -37,6 +37,7 @@ import VaultDropSelector from '../components/selectors/VaultDropSelector';
 import ExitButton from '../components/buttons/ExitButton';
 import { useInputValidation } from '../hooks/inputValidationHook';
 import { TxContext } from '../contexts/TxContext';
+import { useTx } from '../hooks/useTx';
 
 const Vault = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -289,14 +290,7 @@ const Vault = ({ close }: { close: () => void }) => {
   }, [vaultMap, mergeData.toVault, mergeData.ink, mergeData.art]);
 
   // check if there was a relevant successful tx when deleting a vault
-  useEffect(() => {
-    const txCode = getTxCode(ActionCodes.DELETE_VAULT, selectedVault?.id!);
-    const txHash = transactions.processes?.get(txCode);
-    const tx = transactions.transactions.get(txHash);
-    const status = tx?.status;
-
-    status === TxState.SUCCESSFUL && routerHistory.push('/');
-  }, [selectedVault?.id, transactions]);
+  const { tx: deleteTx } = useTx(ActionCodes.DELETE_VAULT, true);
 
   return (
     <CenterPanelWrap>
@@ -651,7 +645,6 @@ const Vault = ({ close }: { close: () => void }) => {
           {actionActive.index === 6 && (
             <>
               {stepPosition[actionActive.index] === 0 && !destroyError && (
-
                 <Box margin={{ top: 'medium' }}>
                   <InputWrap action={() => console.log('maxAction')} isError={null}>
                     <TextInput
@@ -793,7 +786,7 @@ const Vault = ({ close }: { close: () => void }) => {
         {actionActive.index === 6 && stepPosition[actionActive.index] !== 0 && (
           <TransactButton
             primary
-            disabled={destroyDisabled}
+            disabled={destroyDisabled || deleteTx.pending}
             label={<Text size={mobile ? 'small' : undefined}> {`Delete ${selectedVault?.displayName}`} </Text>}
             onClick={() => handleDestroy()}
           />
