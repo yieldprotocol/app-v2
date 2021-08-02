@@ -148,7 +148,7 @@ export const useBorrowActions = () => {
         ignore: series.mature || inputGreaterThanDebt,
       },
       {
-        /* ladle.repayVault(vaultId, owner, inkUsed, maxInkToUse) */
+        /* ladle.repayVault(vaultId, owner, inkAmount, maxInkToUse) */
         operation: LadleActions.Fn.REPAY_VAULT,
         args: [vault.id, account, _collInput, _collInputWithSlippage] as LadleActions.Args.REPAY_VAULT,
         series,
