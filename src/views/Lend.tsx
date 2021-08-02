@@ -31,6 +31,7 @@ import TransactButton from '../components/buttons/TransactButton';
 import YieldApr from '../components/YieldApr';
 import { useApr } from '../hooks/aprHook';
 import { useInputValidation } from '../hooks/inputValidationHook';
+import { useTx } from '../hooks/useTx';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -50,6 +51,8 @@ const Lend = () => {
   /* HOOK FNS */
   const { lend, redeem } = useLendActions();
   const { apr } = useApr(lendInput, ActionType.LEND, selectedSeries);
+  const { tx: lendTx } = useTx(ActionCodes.LEND);
+
   /* input validation hooks */
   const { inputError: lendError } = useInputValidation(lendInput, ActionCodes.LEND, selectedSeries, [0, maxLend]);
 
@@ -103,7 +106,7 @@ const Lend = () => {
                 </Text>
               </Box>
               <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}>
-                <Box direction="row" gap="small" >
+                <Box direction="row" gap="small">
                   <Box basis={mobile ? '50%' : '60%'}>
                     <InputWrap
                       action={() => console.log('maxAction')}
@@ -132,7 +135,9 @@ const Lend = () => {
                 </Box>
               </SectionWrap>
 
-              <SectionWrap title={seriesMap.size > 0 ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} series` : ''}>
+              <SectionWrap
+                title={seriesMap.size > 0 ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} series` : ''}
+              >
                 <SeriesSelector inputValue={lendInput} actionType={ActionType.LEND} />
               </SectionWrap>
             </Box>
@@ -142,7 +147,7 @@ const Lend = () => {
             <Box gap="large">
               <BackButton action={() => setStepPosition(0)} />
 
-              <ActiveTransaction txCode={getTxCode(ActionCodes.LEND, selectedSeriesId)} full>
+              <ActiveTransaction txCode={lendTx.txCode} full>
                 <SectionWrap title="Review transaction:">
                   <Box
                     gap="small"
@@ -190,7 +195,7 @@ const Lend = () => {
                 </Text>
               }
               onClick={() => handleLend()}
-              disabled={lendDisabled}
+              disabled={lendDisabled || lendTx.pending}
             />
           )}
           {selectedSeries?.seriesIsMature && (
