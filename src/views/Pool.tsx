@@ -56,6 +56,7 @@ function Pool() {
   const { poolMax } = usePool(poolInput);
   /* input validation hooks */
   const { inputError: poolError } = useInputValidation(poolInput, ActionCodes.LEND, selectedSeries, [0, maxPool]);
+
   const { tx: poolTx } = useTx(ActionCodes.ADD_LIQUIDITY);
 
   /* LOCAL ACTION FNS */
