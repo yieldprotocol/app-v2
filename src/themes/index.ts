@@ -8,12 +8,16 @@ export const yieldTheme = {
       brand: '#3f53d9',
       focus: '#3f53d999',
       selected: '#3f53d9',
+
       'accent-1': '#FFCA58',
       'accent-2': '#81FCED',
       'tailwind-blue': '#2563EB',
       'tailwind-lightest-blue': '#EFF6FF',
 
-      'yield-gradient': 'linear-gradient(60deg, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82)',
+      'yield-gradient': {
+        dark: 'linear-gradient(60deg, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82)',
+        light: 'linear-gradient(60deg, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82)',
+      },
 
       text: {
         dark: '#EEEEEE',
@@ -62,12 +66,6 @@ export const yieldTheme = {
     `,
   },
 
-  select: {
-    dropProps: {
-      round: 'large',
-    },
-  },
-
   textInput: {
     extend: ({ theme }: any) =>
       theme.dark ? `color: ${theme.global.colors.text.dark}` : `color: ${theme.global.colors.text.light}`,
@@ -112,11 +110,12 @@ export const yieldTheme = {
       // intelligentRounding: true,
     },
 
-    // backdrop-filter: ${(props: LayerProps) => (props.plain === true ? 'blur(3px)' : 'none')};
-    // -webkit-backdrop-filter: ${(props: LayerProps) => (props.plain === true ? 'blur(3px)' : 'none')};
-
     // @ts-ignore
     extend: () => css`
+
+     backdrop-filter: ${(props: LayerProps) => (true ? 'blur(3px)' : 'none')};
+     -webkit-backdrop-filter: ${(props: LayerProps) => (true ? 'blur(3px)' : 'none')};
+
       input::-webkit-outer-spin-button,
       input::-webkit-inner-spin-button {
         -webkit-appearance: none;
