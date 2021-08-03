@@ -283,7 +283,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
             primary
             label={
               <Text size={mobile ? 'small' : undefined}>
-                {`Clos${closeTx.pending ? 'ing' : ''} ${
+                {`Clos${closeTx.pending ? 'ing' : 'e'} ${
                   nFormatter(Number(closeInput), selectedBase?.digitFormat!) || ''
                 } ${selectedBase?.symbol}`}
               </Text>
