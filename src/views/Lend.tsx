@@ -81,7 +81,7 @@ const Lend = () => {
     <MainViewWrap>
       {!mobile && (
         <PanelWrap>
-          <Box margin={{ top:'25%' }}>
+          <Box margin={{ top:'35%' }}>
           <StepperText
             position={stepPosition}
             values={[

@@ -161,7 +161,7 @@ const Borrow = () => {
         {/* <PanelWrap background="linear-gradient(to right, #EEEEEE,rgba(255,255,255,1))"> */}
         {!mobile && (
           <PanelWrap>
-            <Box margin={{ top:'25%' }}>
+            <Box margin={{ top:'35%' }}>
             <StepperText
               position={stepPosition}
               values={[
