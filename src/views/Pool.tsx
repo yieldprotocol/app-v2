@@ -3,7 +3,7 @@ import { Box, Button, RadioButtonGroup, ResponsiveContext, Text, TextInput } fro
 
 import { ethers } from 'ethers';
 
-import { FiSquare, FiClock, FiTrendingUp, FiPercent } from 'react-icons/fi';
+import { FiSquare, FiClock, FiTrendingUp, FiPercent, FiInfo } from 'react-icons/fi';
 import { BiCoinStack, BiMessageSquareAdd } from 'react-icons/bi';
 import { cleanValue, getTxCode, nFormatter } from '../utils/appUtils';
 import AssetSelector from '../components/selectors/AssetSelector';
@@ -82,13 +82,15 @@ function Pool() {
     <MainViewWrap>
       {!mobile && (
         <PanelWrap>
+          <Box margin={{ top:'35%' }}>
           <StepperText
             position={stepPosition}
             values={[
-              ['Choose an asset to', 'pool', ''],
-              ['', 'Review', ' and transact'],
+              ['Choose amount to', 'POOL', ''],
+              ['Review &', 'Transact', ''],
             ]}
           />
+          </Box>
           <YieldInfo />
         </PanelWrap>
       )}
@@ -97,12 +99,13 @@ function Pool() {
         <Box height="100%" pad="large">
           {stepPosition === 0 && (
             <Box gap="medium">
-              <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
-                <YieldMark height="1em" startColor="grey" endColor="grey" />
+              {/* <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
+                <FiInfo />
                 <Text color="text-weak" size="small">
-                  Provide liquidity for variable returns.
+                  Provide ERC20 tokens as liquidity for variable returns.
                 </Text>
-              </Box>
+              </Box> */}
+              <Box pad='1.1em'/>
 
               <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}>
                 <Box direction="row" gap="small">

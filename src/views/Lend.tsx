@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { Box, Button, ResponsiveContext, Text, TextInput } from 'grommet';
 import { ethers } from 'ethers';
 
-import { FiPocket, FiClock, FiTrendingUp, FiPercent, FiSquare } from 'react-icons/fi';
+import { FiPocket, FiClock, FiTrendingUp, FiPercent, FiSquare, FiInfo } from 'react-icons/fi';
 import { BiMessageSquareAdd } from 'react-icons/bi';
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import AssetSelector from '../components/selectors/AssetSelector';
@@ -81,13 +81,15 @@ const Lend = () => {
     <MainViewWrap>
       {!mobile && (
         <PanelWrap>
+          <Box margin={{ top:'35%' }}>
           <StepperText
             position={stepPosition}
             values={[
-              ['Choose an asset to', 'lend', ''],
-              ['', 'Review', ' and transact'],
+              ['Choose amount to', 'LEND', ''],
+              ['Review &', 'Transact', ''],
             ]}
           />
+          </Box>
           <YieldInfo />
         </PanelWrap>
       )}
@@ -96,12 +98,15 @@ const Lend = () => {
         <Box height="100%" pad="large">
           {stepPosition === 0 && (
             <Box gap="medium">
-              <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
-                <YieldMark height="1em" startColor="grey" endColor="grey" />
+              {/* <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
+                <FiInfo />
                 <Text color="text-weak" size="small">
-                  Lend tokens for fixed returns
+                  Lend popular ERC20 tokens for fixed returns.
                 </Text>
-              </Box>
+              </Box> */}
+            
+              <Box pad='1.1em'/>
+              
               <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}>
                 <Box direction="row" gap="small" >
                   <Box basis={mobile ? '50%' : '60%'}>
