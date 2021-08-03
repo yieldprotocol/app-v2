@@ -76,6 +76,10 @@ const Borrow = () => {
   const { borrow } = useBorrowActions();
 
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
+  const borrowOutput = cleanValue(
+    (Number(borrowInput) * (1 + Number(apr) / 100)).toString(),
+    selectedBase?.digitFormat!
+  );
 
   const { collateralizationPercent, undercollateralized, minCollateral } = useCollateralization(
     borrowInput,
@@ -165,15 +169,15 @@ const Borrow = () => {
         {/* <PanelWrap background="linear-gradient(to right, #EEEEEE,rgba(255,255,255,1))"> */}
         {!mobile && (
           <PanelWrap>
-            <Box margin={{ top:'35%' }}>
-            <StepperText
-              position={stepPosition}
-              values={[
-                ['Choose amount to', 'BORROW', ''],
-                ['Add', 'COLLATERAL', ''],
-                ['Review &', 'Transact', ''],
-              ]}
-            />
+            <Box margin={{ top: '35%' }}>
+              <StepperText
+                position={stepPosition}
+                values={[
+                  ['Choose amount to', 'BORROW', ''],
+                  ['Add', 'COLLATERAL', ''],
+                  ['Review &', 'Transact', ''],
+                ]}
+              />
             </Box>
             <YieldInfo />
           </PanelWrap>
@@ -189,7 +193,7 @@ const Borrow = () => {
                     Borrow popular ERC20 tokens at a fixed rate.
                   </AltText>
                 </Box> */}
-                <Box pad='1.1em'/>
+                <Box pad="1.1em" />
 
                 <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}>
                   <Box direction="row" gap="small">
@@ -305,7 +309,7 @@ const Borrow = () => {
                       <InfoBite
                         label="Vault Debt Payable @ Maturity"
                         icon={<FiTrendingUp />}
-                        value={`${cleanValue(borrowInput, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
+                        value={`${borrowOutput} ${selectedBase?.symbol}`}
                       />
                       <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
                       <InfoBite
@@ -373,8 +377,7 @@ const Borrow = () => {
         </CenterPanelWrap>
 
         <PanelWrap right basis="40%">
-
-        {/* <StepperText
+          {/* <StepperText
               position={stepPosition}
               values={[
                 ['Choose an asset to', 'borrow', ''],
