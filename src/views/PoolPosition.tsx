@@ -152,7 +152,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
               dropProps={{ round: 'xsmall' }}
               options={[
                 { text: 'Remove Liquidity', index: 0 },
-                { text: 'Roll Liquidiy', index: 1 },
+                { text: 'Roll Liquidity', index: 1 },
                 { text: 'Transaction History', index: 2 },
               ]}
               labelKey="text"
