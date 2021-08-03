@@ -51,6 +51,7 @@ const Lend = () => {
   /* HOOK FNS */
   const { lend, redeem } = useLendActions();
   const { apr } = useApr(lendInput, ActionType.LEND, selectedSeries);
+  const lendOutput = cleanValue((Number(lendInput) * (1 + Number(apr) / 100)).toString(), selectedBase?.digitFormat!);
   const { tx: lendTx } = useTx(ActionCodes.LEND);
 
   /* input validation hooks */
@@ -84,14 +85,14 @@ const Lend = () => {
     <MainViewWrap>
       {!mobile && (
         <PanelWrap>
-          <Box margin={{ top:'35%' }}>
-          <StepperText
-            position={stepPosition}
-            values={[
-              ['Choose amount to', 'LEND', ''],
-              ['Review &', 'Transact', ''],
-            ]}
-          />
+          <Box margin={{ top: '35%' }}>
+            <StepperText
+              position={stepPosition}
+              values={[
+                ['Choose amount to', 'LEND', ''],
+                ['Review &', 'Transact', ''],
+              ]}
+            />
           </Box>
           <YieldInfo />
         </PanelWrap>
@@ -107,9 +108,9 @@ const Lend = () => {
                   Lend popular ERC20 tokens for fixed returns.
                 </Text>
               </Box> */}
-            
-              <Box pad='1.1em'/>
-              
+
+              <Box pad="1.1em" />
+
               <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}>
                 <Box direction="row" gap="small">
                   <Box basis={mobile ? '50%' : '60%'}>
@@ -169,7 +170,7 @@ const Lend = () => {
                     <InfoBite
                       label="Redeemable @ Maturity"
                       icon={<FiTrendingUp />}
-                      value={`${cleanValue(lendInput, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
+                      value={`${lendOutput} ${selectedBase?.symbol}`}
                     />
                     <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
                   </Box>
