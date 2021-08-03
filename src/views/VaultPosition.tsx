@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
 import { Box, Button, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import { ethers } from 'ethers';
-import { useHistory } from 'react-router-dom';
 
 import {
   FiLock,
@@ -17,7 +17,7 @@ import { abbreviateHash, cleanValue, getTxCode, nFormatter } from '../utils/appU
 import { UserContext } from '../contexts/UserContext';
 import InputWrap from '../components/wraps/InputWrap';
 import InfoBite from '../components/InfoBite';
-import { ActionCodes, ActionType, IAsset, ISeries, IUserContext, IVault } from '../types';
+import { ActionCodes, ActionType, IAsset, ISeries, IUserContext, IVault, TxState } from '../types';
 
 import ActionButtonWrap from '../components/wraps/ActionButtonWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
@@ -36,6 +36,7 @@ import CancelButton from '../components/buttons/CancelButton';
 import VaultDropSelector from '../components/selectors/VaultDropSelector';
 import ExitButton from '../components/buttons/ExitButton';
 import { useInputValidation } from '../hooks/inputValidationHook';
+import { TxContext } from '../contexts/TxContext';
 
 const Vault = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -45,6 +46,7 @@ const Vault = ({ close }: { close: () => void }) => {
 
   const { userState, userActions } = useContext(UserContext) as IUserContext;
   const { activeAccount, assetMap, seriesMap, vaultMap, selectedVaultId, selectedIlkId } = userState;
+  const { txState: transactions } = useContext(TxContext);
   // const { setSelectedVault } = userActions;
 
   const selectedVault: IVault | undefined = vaultMap.get(selectedVaultId!);
@@ -104,7 +106,6 @@ const Vault = ({ close }: { close: () => void }) => {
 
   const [mergeData, setMergeData] = useState<any>(initialMergeData);
 
-  const [destroyDisabled, setDestroyDisabled] = useState<boolean>(true);
   const [destroyInput, setDestroyInput] = useState<string>('');
 
   const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
@@ -123,6 +124,13 @@ const Vault = ({ close }: { close: () => void }) => {
     ActionCodes.REMOVE_COLLATERAL,
     vaultSeries,
     [0, maxRemoveCollat]
+  );
+  const { inputError: destroyError, inputDisabled: destroyDisabled } = useInputValidation(
+    destroyInput,
+    ActionCodes.DELETE_VAULT,
+    vaultSeries,
+    [],
+    selectedVault
   );
 
   useEffect(() => {
@@ -197,15 +205,6 @@ const Vault = ({ close }: { close: () => void }) => {
 
   const handleDestroy = () => {
     selectedVault && destroy(selectedVault);
-  };
-
-  const handleDestroyInputChange = (event: any) => {
-    const {
-      target: { value },
-    } = event;
-
-    setDestroyInput(value);
-    value === selectedVault?.displayName ? setDestroyDisabled(false) : setDestroyDisabled(true);
   };
 
   /* SET MAX VALUES */
@@ -288,6 +287,16 @@ const Vault = ({ close }: { close: () => void }) => {
       setMergeData((fData: any) => ({ ...fData, totalMergedInk, totalMergedArt }));
     }
   }, [vaultMap, mergeData.toVault, mergeData.ink, mergeData.art]);
+
+  // check if there was a relevant successful tx when deleting a vault
+  useEffect(() => {
+    const txCode = getTxCode(ActionCodes.DELETE_VAULT, selectedVault?.id!);
+    const txHash = transactions.processes?.get(txCode);
+    const tx = transactions.transactions.get(txHash);
+    const status = tx?.status;
+
+    status === TxState.SUCCESSFUL && routerHistory.push('/');
+  }, [selectedVault?.id, transactions]);
 
   return (
     <CenterPanelWrap>
@@ -641,7 +650,8 @@ const Vault = ({ close }: { close: () => void }) => {
 
           {actionActive.index === 6 && (
             <>
-              {stepPosition[actionActive.index] === 0 && (
+              {stepPosition[actionActive.index] === 0 && !destroyError && (
+
                 <Box margin={{ top: 'medium' }}>
                   <InputWrap action={() => console.log('maxAction')} isError={null}>
                     <TextInput
@@ -649,7 +659,7 @@ const Vault = ({ close }: { close: () => void }) => {
                       type="string"
                       placeholder="Type the name of the vault."
                       value={destroyInput}
-                      onChange={(event) => handleDestroyInputChange(event)}
+                      onChange={(event) => setDestroyInput(event.target.value)}
                     />
                   </InputWrap>
                 </Box>
@@ -667,7 +677,7 @@ const Vault = ({ close }: { close: () => void }) => {
                     <Box margin={{ top: 'medium' }}>
                       <InfoBite
                         // label="Pay back all debt and delete vault:"
-                        label="Delete vault (vault must have 0 debt and 0 collateral):"
+                        label="Delete vault:"
                         icon={<FiArrowRight />}
                         value={destroyInput}
                       />
@@ -773,7 +783,7 @@ const Vault = ({ close }: { close: () => void }) => {
 
         {actionActive.index === 6 && stepPosition[actionActive.index] === 0 && (
           <NextButton
-            label={<Text size={mobile ? 'small' : undefined}> Next Step </Text>}
+            label={<Text size={mobile ? 'small' : undefined}>{destroyError || 'Next Step'}</Text>}
             onClick={() => handleStepper()}
             key="next"
             disabled={destroyDisabled}
