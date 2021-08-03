@@ -41,7 +41,6 @@ import PositionAvatar from '../components/PositionAvatar';
 import VaultDropSelector from '../components/selectors/VaultDropSelector';
 import { useInputValidation } from '../hooks/inputValidationHook';
 import AltText from '../components/texts/AltText';
-import ColorText from '../components/texts/ColorText';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
