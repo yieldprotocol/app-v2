@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
 import { Box, Button, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import { ethers } from 'ethers';
-import { useHistory } from 'react-router-dom';
 
 import {
   FiLock,
@@ -17,7 +17,7 @@ import { abbreviateHash, cleanValue, getTxCode, nFormatter } from '../utils/appU
 import { UserContext } from '../contexts/UserContext';
 import InputWrap from '../components/wraps/InputWrap';
 import InfoBite from '../components/InfoBite';
-import { ActionCodes, ActionType, IAsset, ISeries, IUserContext, IVault } from '../types';
+import { ActionCodes, ActionType, IAsset, ISeries, IUserContext, IVault, TxState } from '../types';
 
 import ActionButtonWrap from '../components/wraps/ActionButtonWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
@@ -36,6 +36,7 @@ import CancelButton from '../components/buttons/CancelButton';
 import VaultDropSelector from '../components/selectors/VaultDropSelector';
 import ExitButton from '../components/buttons/ExitButton';
 import { useInputValidation } from '../hooks/inputValidationHook';
+import { TxContext } from '../contexts/TxContext';
 
 const Vault = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -45,6 +46,7 @@ const Vault = ({ close }: { close: () => void }) => {
 
   const { userState, userActions } = useContext(UserContext) as IUserContext;
   const { activeAccount, assetMap, seriesMap, vaultMap, selectedVaultId, selectedIlkId } = userState;
+  const { txState: transactions } = useContext(TxContext);
   // const { setSelectedVault } = userActions;
 
   const selectedVault: IVault | undefined = vaultMap.get(selectedVaultId!);
@@ -285,6 +287,16 @@ const Vault = ({ close }: { close: () => void }) => {
       setMergeData((fData: any) => ({ ...fData, totalMergedInk, totalMergedArt }));
     }
   }, [vaultMap, mergeData.toVault, mergeData.ink, mergeData.art]);
+
+  // check if there was a relevant successful tx when deleting a vault
+  useEffect(() => {
+    const txCode = getTxCode(ActionCodes.DELETE_VAULT, selectedVault?.id!);
+    const txHash = transactions.processes?.get(txCode);
+    const tx = transactions.transactions.get(txHash);
+    const status = tx?.status;
+
+    status === TxState.SUCCESSFUL && routerHistory.push('/');
+  }, [selectedVault?.id, transactions]);
 
   return (
     <CenterPanelWrap>
