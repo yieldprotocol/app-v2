@@ -48,7 +48,7 @@ function ModalWrap({ children, toggleModalOpen, background, modalOpen = false }:
               <Box direction="row" gap={mobile ? '0.25em' : 'medium'} align="center">
                 <Avatar>
                   <YieldMark
-                    height={mobile ? '1em' : '1.5em'}
+                    height={mobile ? '1em' : '2em'}
                     startColor={series?.oppStartColor}
                     endColor={series?.oppEndColor}
                   />

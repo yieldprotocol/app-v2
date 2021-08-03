@@ -29,7 +29,7 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
       <Grid columns={['medium', 'flex', 'medium']} fill="horizontal">
         <Box direction="row" gap={mobile ? '0.25em' : 'medium'} align='center' >
         <Avatar >
-          <YieldMark height={mobile ? '1.0em' : '1.5em'} />
+          <YieldMark height={mobile ? '1.0em' : '2em'} />
           </Avatar>
           {!mobile && <YieldNavigation />}
         </Box>
