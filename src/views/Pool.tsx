@@ -99,7 +99,7 @@ function Pool() {
       <CenterPanelWrap series={selectedSeries}>
         <Box height="100%" pad="large">
           {stepPosition === 0 && (
-            <Box gap="large">
+            <Box gap="medium">
 
               <Box gap="xsmall">
                 <AltText size="large">
@@ -151,7 +151,8 @@ function Pool() {
 
           {stepPosition === 1 && (
             <Box gap="large">
-              <BackButton action={() => setStepPosition(0)} />
+
+                <BackButton action={() => setStepPosition(0)} />
 
               <ActiveTransaction txCode={getTxCode(ActionCodes.ADD_LIQUIDITY, selectedSeriesId)} full>
                 <Box gap="large">

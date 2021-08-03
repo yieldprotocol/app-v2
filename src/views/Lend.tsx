@@ -98,7 +98,7 @@ const Lend = () => {
       <CenterPanelWrap series={selectedSeries}>
         <Box height="100%" pad="large">
           {stepPosition === 0 && (
-            <Box gap="large">
+            <Box gap="medium">
 
               <Box gap="xsmall">
                 <AltText size="large">

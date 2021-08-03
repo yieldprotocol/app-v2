@@ -178,12 +178,9 @@ const Borrow = () => {
         <CenterPanelWrap series={selectedSeries || undefined}>
           <Box height="100%" pad="large">
             {stepPosition === 0 && ( // INITIAL STEP
-
-              <Box gap="large">
+              <Box gap="medium">
                 <Box gap="xsmall">
-                  <AltText size="large" >
-                    BORROW
-                  </AltText>
+                  <AltText size="large">BORROW</AltText>
                   <Box>
                     <AltText color="text-weak" size="xsmall">
                       popular ERC20 tokens at a fixed rate.
@@ -193,7 +190,7 @@ const Borrow = () => {
 
                 <Box gap="small">
                   {/* <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}> */}
-                    <SectionWrap>
+                  <SectionWrap>
                     <Box direction="row" gap="small">
                       <Box basis={mobile ? '50%' : '60%'}>
                         <InputWrap action={() => console.log('maxAction')} isError={borrowInputError}>
@@ -225,10 +222,10 @@ const Borrow = () => {
             )}
 
             {stepPosition === 1 && ( // ADD COLLATERAL
-              <Box gap="large" fill>
+              <Box gap="medium" >
                 <BackButton action={() => setStepPosition(0)} />
 
-                <Box gap="large" height="400px">
+                <Box gap="medium" height="400px">
                   <SectionWrap title="Amount of collateral to add">
                     <Box direction="row" gap="small">
                       <Box basis={mobile ? '50%' : '60%'} fill="horizontal">
@@ -270,22 +267,25 @@ const Borrow = () => {
                       defaultOptionValue="Create New Vault"
                     />
                   </SectionWrap>
-
-                  <SectionWrap>
-                    <Box direction="row" gap="large" fill>
-                      <Gauge value={parseFloat(collateralizationPercent!)} size="5em" />
-                      <Box basis="40%">
-                        <Text size="small"> Collateralization </Text>
-                        <Text size="xlarge">
-                          {parseFloat(collateralizationPercent!) > 10000
-                            ? nFormatter(parseFloat(collateralizationPercent!), 2)
-                            : parseFloat(collateralizationPercent!)}
-                          %
-                        </Text>
-                      </Box>
-                    </Box>
-                  </SectionWrap>
                 </Box>
+
+
+                  <Box direction="row" align="center" gap="large" justify='center'>
+                    <Box>
+                      <Gauge value={parseFloat(collateralizationPercent!)} size="8em" />
+                    </Box>
+
+                    <Box>
+                      <Text size="small"> Collateralization </Text>
+                      <Text size="xlarge">
+                        {parseFloat(collateralizationPercent!) > 10000
+                          ? nFormatter(parseFloat(collateralizationPercent!), 2)
+                          : parseFloat(collateralizationPercent!)}
+                        %
+                      </Text>
+                    </Box>
+                  </Box>
+
               </Box>
             )}
 
