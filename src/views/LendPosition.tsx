@@ -252,9 +252,10 @@ const LendPosition = ({ close }: { close: () => void }) => {
                       <InfoBite
                         label="Roll To Series"
                         icon={<FiArrowRight />}
-                        value={` Roll  ${cleanValue(closeInput, selectedBase?.digitFormat!)} ${
-                          selectedBase?.symbol
-                        } to ${rollToSeries?.displayName}`}
+                        value={` Roll${rollTx.pending ? 'ing' : ''}  ${cleanValue(
+                          closeInput,
+                          selectedBase?.digitFormat!
+                        )} ${selectedBase?.symbol} to ${rollToSeries?.displayName}`}
                       />
                     </Box>
                   </SectionWrap>
@@ -282,7 +283,9 @@ const LendPosition = ({ close }: { close: () => void }) => {
             primary
             label={
               <Text size={mobile ? 'small' : undefined}>
-                {`Close ${nFormatter(Number(closeInput), selectedBase?.digitFormat!) || ''} ${selectedBase?.symbol}`}
+                {`Clos${closeTx.pending ? 'ing' : ''} ${
+                  nFormatter(Number(closeInput), selectedBase?.digitFormat!) || ''
+                } ${selectedBase?.symbol}`}
               </Text>
             }
             onClick={() => handleClosePosition()}
@@ -295,7 +298,9 @@ const LendPosition = ({ close }: { close: () => void }) => {
             primary
             label={
               <Text size={mobile ? 'small' : undefined}>
-                {`Roll ${nFormatter(Number(rollInput), selectedBase?.digitFormat!) || ''} ${selectedBase?.symbol}`}
+                {`Roll${rollTx.pending ? 'ing' : ''} ${
+                  nFormatter(Number(rollInput), selectedBase?.digitFormat!) || ''
+                } ${selectedBase?.symbol}`}
               </Text>
             }
             onClick={() => handleRollPosition()}
