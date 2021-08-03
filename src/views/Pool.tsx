@@ -86,8 +86,8 @@ function Pool() {
           <StepperText
             position={stepPosition}
             values={[
-              ['Choose an asset to', 'pool', ''],
-              ['', 'Review', ' and transact'],
+              ['Tokens to', 'POOL', ''],
+              ['', 'Review & Transact', ''],
             ]}
           />
           </Box>

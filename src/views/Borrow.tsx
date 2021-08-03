@@ -165,9 +165,9 @@ const Borrow = () => {
             <StepperText
               position={stepPosition}
               values={[
-                ['Choose an asset to borrow', '', ''],
-                ['Add', 'collateral', ''],
-                ['', 'Review', ' and transact'],
+                ['Tokens to', 'BORROW', ''],
+                ['Add', 'COLLATERAL', ''],
+                ['', 'Review & Transact', ''],
               ]}
             />
             </Box>
