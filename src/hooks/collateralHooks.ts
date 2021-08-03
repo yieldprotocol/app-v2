@@ -26,8 +26,7 @@ export const useCollateralization = (
   const [collateralizationPercent, setCollateralizationPercent] = useState<string | undefined>();
 
   const [undercollateralized, setUndercollateralized] = useState<boolean>(true);
-  const [oraclePrice, setOraclePrice] = useState<ethers.BigNumber>();
-
+  const [oraclePrice, setOraclePrice] = useState<ethers.BigNumber>(ethers.constants.Zero);
 
   // todo:
   const [collateralizationWarning, setCollateralizationWarning] = useState<string | undefined>();
@@ -36,12 +35,11 @@ export const useCollateralization = (
 
   /* update the prices if anything changes */
   useEffect(() => {
-    if (priceMap.has(selectedBaseId) && selectedIlkId !== '0x000000000000') {
+    if (priceMap.get(selectedBaseId)?.has(selectedIlkId) ) {
+      setOraclePrice(priceMap.get(selectedBaseId).get(selectedIlkId))
+    } else {
       (async () => {
-        console.log(selectedBaseId, selectedIlkId )
-        priceMap.get(selectedBaseId).has(selectedIlkId)
-          ? setOraclePrice(priceMap.get(selectedBaseId).get(selectedIlkId))
-          : setOraclePrice( await updatePrice(selectedBaseId, selectedIlkId) )
+        selectedBaseId && selectedIlkId && setOraclePrice( await updatePrice(selectedBaseId, selectedIlkId) )
       })();
     }
   }, [priceMap, selectedBaseId, selectedIlkId, updatePrice]);

@@ -4,7 +4,7 @@ import { useHistory, useParams } from 'react-router-dom';
 import { ethers } from 'ethers';
 import styled from 'styled-components';
 
-import { FiClock, FiPocket, FiLayers, FiLock, FiPercent, FiTrendingUp } from 'react-icons/fi';
+import { FiClock, FiPocket, FiLayers, FiLock, FiPercent, FiTrendingUp, FiInfo } from 'react-icons/fi';
 
 import SeriesSelector from '../components/selectors/SeriesSelector';
 import MainViewWrap from '../components/wraps/MainViewWrap';
@@ -68,7 +68,7 @@ const Borrow = () => {
   const [borrowDisabled, setBorrowDisabled] = useState<boolean>(true);
   const [stepDisabled, setStepDisabled] = useState<boolean>(true);
 
-  const [vaultToUse, setVaultToUse] = useState<IVault | undefined>();
+  const [vaultToUse, setVaultToUse] = useState<IVault | undefined>(undefined);
   const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
 
   const [disclaimerChecked, setDisclaimerChecked] = useState<boolean>(false);
@@ -140,10 +140,6 @@ const Borrow = () => {
       : setStepDisabled(false); /* else if all pass, then unlock borrowing */
   }, [borrowInput, borrowInputError, selectedSeries, activeAccount]);
 
-  /**
-   * EXTRAS
-   * */
-
   /* CHECK the list of current vaults which match the current series/ilk selection */
   useEffect(() => {
     if (selectedBase && selectedSeries && selectedIlk) {
@@ -169,14 +165,16 @@ const Borrow = () => {
         {/* <PanelWrap background="linear-gradient(to right, #EEEEEE,rgba(255,255,255,1))"> */}
         {!mobile && (
           <PanelWrap>
+            <Box margin={{ top:'35%' }}>
             <StepperText
               position={stepPosition}
               values={[
-                ['Choose an asset to', 'borrow', ''],
-                ['Add', 'collateral', ''],
-                ['', 'Review', ' and transact'],
+                ['Choose amount to', 'BORROW', ''],
+                ['Add', 'COLLATERAL', ''],
+                ['Review &', 'Transact', ''],
               ]}
             />
+            </Box>
             <YieldInfo />
           </PanelWrap>
         )}
@@ -185,12 +183,13 @@ const Borrow = () => {
           <Box height="100%" pad="large">
             {stepPosition === 0 && ( // INITIAL STEP
               <Box gap="medium">
-                <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
-                  <YieldMark height="1em" startColor="grey" endColor="grey" />
+                {/* <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
+                  <FiInfo />
                   <AltText color="text-weak" size="small">
-                    Borrow tokens at a fixed rate.
+                    Borrow popular ERC20 tokens at a fixed rate.
                   </AltText>
-                </Box>
+                </Box> */}
+                <Box pad='1.1em'/>
 
                 <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}>
                   <Box direction="row" gap="small">
@@ -256,7 +255,6 @@ const Borrow = () => {
                     </Box>
                   </SectionWrap>
 
-                  {/* {matchingVaults.length > 0 && ( */}
                   <SectionWrap title="Add to an exisiting vault" disabled={matchingVaults.length < 1}>
                     <VaultDropSelector
                       vaults={matchingVaults}
@@ -267,7 +265,6 @@ const Borrow = () => {
                       defaultOptionValue="Create New Vault"
                     />
                   </SectionWrap>
-                  {/* )} */}
 
                   <SectionWrap>
                     <Box direction="row" gap="large" fill>
@@ -376,6 +373,15 @@ const Borrow = () => {
         </CenterPanelWrap>
 
         <PanelWrap right basis="40%">
+
+        {/* <StepperText
+              position={stepPosition}
+              values={[
+                ['Choose an asset to', 'borrow', ''],
+                ['Add', 'collateral', ''],
+                ['', 'Review', ' and transact'],
+              ]}
+            /> */}
           {/* <YieldApr input={borrowInput} actionType={ActionType.BORROW} /> */}
           {/* {!mobile && stepPosition === 1 && <Gauge value={parseFloat(collateralizationPercent!)} label="%" max={750} min={150} />} */}
           {!mobile && <VaultSelector />}

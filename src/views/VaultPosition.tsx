@@ -297,6 +297,16 @@ const Vault = ({ close }: { close: () => void }) => {
     }
   }, [vaultMap, mergeData.toVault, mergeData.ink, mergeData.art]);
 
+  // check if there was a relevant successful tx when deleting a vault
+  useEffect(() => {
+    const txCode = getTxCode(ActionCodes.DELETE_VAULT, selectedVault?.id!);
+    const txHash = transactions.processes?.get(txCode);
+    const tx = transactions.transactions.get(txHash);
+    const status = tx?.status;
+
+    status === TxState.SUCCESSFUL && routerHistory.push('/');
+  }, [selectedVault?.id, transactions]);
+
   return (
     <CenterPanelWrap>
       <Box fill pad="large" gap="medium">

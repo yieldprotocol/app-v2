@@ -68,18 +68,17 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
     }
   }, [assetMap]);
 
-  // /* TODO make sure ilk (collateral) never matches baseId */
-  // useEffect(() => {
-  //   if (selectCollateral && selectedSeries && selectedIlk) {
-  //     const firstNotBase = options.find((asset:IAssetRoot) => asset.id !== selectedSeries.baseId)?.id;
-  //     userActions.setSelectedIlk(firstNotBase);
-  //     // userActions.setSelectedIlk(options.find((asset:IAssetRoot) => asset.id !== selectedSeries.baseId))
-  //   }
-  // }, [options, selectCollateral, selectedIlk, selectedSeries, userActions]);
+  /* make sure ilk (collateral) never matches baseId */
+  useEffect(() => {
+    if (selectedIlk === selectedBase) {
+      const firstNotBaseIlk = options.find((asset: IAssetRoot) => asset.id !== selectedIlk?.id)?.id;
+      userActions.setSelectedIlk(firstNotBaseIlk);
+    }
+  }, [options, selectedIlk, selectedBase]);
 
   return (
     <StyledBox
-      fill='horizontal'
+      fill="horizontal"
       round="xsmall"
       // border={(selectCollateral && !selectedSeries) ? { color: 'text-xweak' } : true}
       elevation="xsmall"
