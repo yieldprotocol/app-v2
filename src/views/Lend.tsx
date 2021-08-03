@@ -31,6 +31,7 @@ import TransactButton from '../components/buttons/TransactButton';
 import YieldApr from '../components/YieldApr';
 import { useApr } from '../hooks/aprHook';
 import { useInputValidation } from '../hooks/inputValidationHook';
+import { useTx } from '../hooks/useTx';
 import AltText from '../components/texts/AltText';
 
 const Lend = () => {
@@ -51,6 +52,8 @@ const Lend = () => {
   /* HOOK FNS */
   const { lend, redeem } = useLendActions();
   const { apr } = useApr(lendInput, ActionType.LEND, selectedSeries);
+  const { tx: lendTx } = useTx(ActionCodes.LEND);
+
   /* input validation hooks */
   const { inputError: lendError } = useInputValidation(lendInput, ActionCodes.LEND, selectedSeries, [0, maxLend]);
 
@@ -156,7 +159,7 @@ const Lend = () => {
             <Box gap="large">
               <BackButton action={() => setStepPosition(0)} />
 
-              <ActiveTransaction txCode={getTxCode(ActionCodes.LEND, selectedSeriesId)} full>
+              <ActiveTransaction txCode={lendTx.txCode} full>
                 <SectionWrap title="Review transaction:">
                   <Box
                     gap="small"
@@ -198,13 +201,13 @@ const Lend = () => {
               primary
               label={
                 <Text size={mobile ? 'small' : undefined}>
-                  {`Supply ${nFormatter(Number(lendInput), selectedBase?.digitFormat!) || ''} ${
-                    selectedBase?.symbol || ''
-                  }`}
+                  {`Supply${lendTx.pending ? `ing` : ''} ${
+                    nFormatter(Number(lendInput), selectedBase?.digitFormat!) || ''
+                  } ${selectedBase?.symbol || ''}`}
                 </Text>
               }
               onClick={() => handleLend()}
-              disabled={lendDisabled}
+              disabled={lendDisabled || lendTx.pending}
             />
           )}
           {selectedSeries?.seriesIsMature && (

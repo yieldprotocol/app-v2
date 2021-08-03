@@ -17,6 +17,7 @@ import MaxButton from '../components/buttons/MaxButton';
 
 import { useBorrowActions } from '../hooks/borrowHooks';
 import { useCollateralization } from '../hooks/collateralHooks';
+import { useTx } from '../hooks/useTx';
 
 import { UserContext } from '../contexts/UserContext';
 import { ActionCodes, ActionType, ISeries, IUserContext, IVault } from '../types';
@@ -53,6 +54,9 @@ const Borrow = () => {
   const selectedBase = assetMap.get(selectedBaseId!);
   const selectedIlk = assetMap.get(selectedIlkId!);
   const selectedSeries = seriesMap.get(selectedSeriesId!);
+
+  /* TX info (for disabling buttons) */
+  const { tx: borrowTx } = useTx(ActionCodes.BORROW);
 
   /* LOCAL STATE */
   const [stepPosition, setStepPosition] = useState<number>(0);
@@ -293,7 +297,7 @@ const Borrow = () => {
               <Box gap="large">
                 <BackButton action={() => setStepPosition(1)} />
 
-                <ActiveTransaction txCode={getTxCode(ActionCodes.BORROW, selectedSeriesId)} full>
+                <ActiveTransaction txCode={borrowTx.txCode} full>
                   <SectionWrap title="Review transaction:">
                     <Box
                       gap="small"
@@ -364,13 +368,13 @@ const Borrow = () => {
                   primary
                   label={
                     <Text size={mobile ? 'small' : undefined}>
-                      {`Borrow  ${nFormatter(Number(borrowInput), selectedBase?.digitFormat!) || ''} ${
-                        selectedBase?.symbol || ''
-                      }`}
+                      {`Borrow${borrowTx.pending ? `ing` : ''} ${
+                        nFormatter(Number(borrowInput), selectedBase?.digitFormat!) || ''
+                      } ${selectedBase?.symbol || ''}`}
                     </Text>
                   }
                   onClick={() => handleBorrow()}
-                  disabled={borrowDisabled || !disclaimerChecked}
+                  disabled={borrowDisabled || !disclaimerChecked || borrowTx.pending}
                 />
               )}
             </ActionButtonWrap>

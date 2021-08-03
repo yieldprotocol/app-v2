@@ -14,6 +14,7 @@ import { ActionCodes, ActionType, ISeries, IUserContext } from '../types';
 import MaxButton from '../components/buttons/MaxButton';
 import InfoBite from '../components/InfoBite';
 import { usePoolActions } from '../hooks/poolHooks';
+import { useTx } from '../hooks/useTx';
 import ActiveTransaction from '../components/ActiveTransaction';
 import PositionAvatar from '../components/PositionAvatar';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
@@ -56,6 +57,10 @@ const PoolPosition = ({ close }: { close: () => void }) => {
 
   /* HOOK FNS */
   const { removeLiquidity, rollLiquidity } = usePoolActions();
+
+  /* TX data */
+  const { tx: removeTx } = useTx(ActionCodes.REMOVE_LIQUIDITY);
+  const { tx: rollTx } = useTx(ActionCodes.ROLL_LIQUIDITY);
 
   /* input validation hoooks */
   const { inputError: removeError } = useInputValidation(removeInput, ActionCodes.REMOVE_LIQUIDITY, selectedSeries, [
@@ -160,7 +165,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
           {actionActive.index === 0 && (
             <>
               {stepPosition[0] === 0 && (
-                <Box margin={{ top:'medium' }}>
+                <Box margin={{ top: 'medium' }}>
                   <InputWrap action={() => console.log('maxAction')} isError={removeError}>
                     <TextInput
                       plain
@@ -180,7 +185,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
               )}
 
               {stepPosition[0] !== 0 && (
-                <ActiveTransaction txCode={getTxCode(ActionCodes.REMOVE_LIQUIDITY, selectedSeriesId)} pad>
+                <ActiveTransaction txCode={removeTx.txCode} pad>
                   <SectionWrap
                     title="Review your remove transaction"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
@@ -201,32 +206,32 @@ const PoolPosition = ({ close }: { close: () => void }) => {
           {actionActive.index === 1 && (
             <>
               {stepPosition[actionActive.index] === 0 && (
-                <Box margin={{ top:'medium' }}>
-                    <InputWrap action={() => console.log('maxAction')} isError={rollError}>
-                      <TextInput
-                        plain
-                        type="number"
-                        placeholder="Tokens to roll"
-                        value={rollInput || ''}
-                        onChange={(event: any) => setRollInput(cleanValue(event.target.value))}
-                      />
-                      <MaxButton
-                        action={() => setRollInput(maxRemove)}
-                        disabled={maxRemove === '0.0'}
-                        clearAction={() => setRollInput('')}
-                        showingMax={!!rollInput && rollInput === maxRemove}
-                      />
-                    </InputWrap>
-                    <SeriesSelector
-                      selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
-                      actionType={ActionType.POOL}
-                      cardLayout={false}
+                <Box margin={{ top: 'medium' }}>
+                  <InputWrap action={() => console.log('maxAction')} isError={rollError}>
+                    <TextInput
+                      plain
+                      type="number"
+                      placeholder="Tokens to roll"
+                      value={rollInput || ''}
+                      onChange={(event: any) => setRollInput(cleanValue(event.target.value))}
                     />
-                  </Box>
+                    <MaxButton
+                      action={() => setRollInput(maxRemove)}
+                      disabled={maxRemove === '0.0'}
+                      clearAction={() => setRollInput('')}
+                      showingMax={!!rollInput && rollInput === maxRemove}
+                    />
+                  </InputWrap>
+                  <SeriesSelector
+                    selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
+                    actionType={ActionType.POOL}
+                    cardLayout={false}
+                  />
+                </Box>
               )}
 
               {stepPosition[actionActive.index] !== 0 && (
-                <ActiveTransaction txCode={getTxCode(ActionCodes.ROLL_LIQUIDITY, selectedSeriesId)} pad>
+                <ActiveTransaction txCode={rollTx.txCode} pad>
                   <SectionWrap
                     title="Review your roll transaction"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
@@ -269,7 +274,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
               </Text>
             }
             onClick={() => handleRemove()}
-            disabled={removeDisabled}
+            disabled={removeDisabled || removeTx.pending}
           />
         )}
 
@@ -282,7 +287,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
               </Text>
             }
             onClick={() => handleRoll()}
-            disabled={rollDisabled}
+            disabled={rollDisabled || rollTx.pending}
           />
         )}
       </ActionButtonGroup>
