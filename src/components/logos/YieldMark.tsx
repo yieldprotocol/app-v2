@@ -35,6 +35,6 @@ function YieldMark(props: ISvgProps) {
   );
 }
 
-YieldMark.defaultProps = { startColor: '#000', endColor: '#000' };
+YieldMark.defaultProps = { startColor: '#555', endColor: '#555' };
 
 export default YieldMark;
