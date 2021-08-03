@@ -204,7 +204,6 @@ const ChainProvider = ({ children }: any) => {
     // chainId && console.log('chainID :', chainId);
 
     if (fallbackLibrary && fallbackChainId) {
-
       /* Get the instance of the Base contracts */
       const addrs = (yieldEnv.addresses as any)[fallbackChainId];
       const Cauldron = contracts.Cauldron__factory.connect(addrs.Cauldron, fallbackLibrary);
@@ -392,11 +391,10 @@ const ChainProvider = ({ children }: any) => {
       /* LOAD the Series and Assets */
       if (cachedAssets.length === 0) {
         console.log('FIRST LOAD: Loading Asset and Series data ');
-        (async () => { 
-          await Promise.all([_getAssets(), _getSeries()])
-          updateState({ type: 'chainLoading', payload: false })
+        (async () => {
+          await Promise.all([_getAssets(), _getSeries()]);
+          updateState({ type: 'chainLoading', payload: false });
         })();
-        
       } else {
         // get assets and series from cache and 'charge' them, and add to state:
         cachedAssets.forEach((a: IAssetRoot) => {
@@ -405,10 +403,10 @@ const ChainProvider = ({ children }: any) => {
         cachedSeries.forEach((s: ISeriesRoot) => {
           updateState({ type: 'addSeries', payload: _chargeSeries(s) });
         });
-        updateState({ type: 'chainLoading', payload: false })
-        console.log('Checking for new Assets and Series...' );
-        // then async check for any updates (they should automatically populate the map): 
-        (async () => Promise.all([_getAssets(), _getSeries()]))()
+        updateState({ type: 'chainLoading', payload: false });
+        console.log('Checking for new Assets and Series...');
+        // then async check for any updates (they should automatically populate the map):
+        (async () => Promise.all([_getAssets(), _getSeries()]))();
       }
     }
   }, [
@@ -453,6 +451,8 @@ const ChainProvider = ({ children }: any) => {
     /* cache the change of networkId */
     chainId && setLastChainId(chainId);
 
+
+
     /* Connect the fallback */
     tried &&
       fallbackActivate(
@@ -466,6 +466,11 @@ const ChainProvider = ({ children }: any) => {
 
     // eslint-disable-next-line no-restricted-globals
     chainId && chainId !== lastChainId && location.reload();
+
+    if (chainId && chainId !== lastChainId) {
+      setCachedAssets([]);
+      setCachedSeries([]);
+    }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId, fallbackActivate, lastChainId, tried]);
