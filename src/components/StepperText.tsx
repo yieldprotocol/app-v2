@@ -22,7 +22,7 @@ const StyledText = styled(AltText)`
 
 function StepperText({ values, position }: IStepperText) {
   return (
-    <Box width={{ max: '175px' }} gap="small">
+    <Box width={{ max: '200px' }} gap="small">
       {values.map((x: string[], i: number) => (
         <Box key={x[1]} gap="xsmall">
           {position === i && (
@@ -32,7 +32,7 @@ function StepperText({ values, position }: IStepperText) {
           )}
           <Box direction="row">
             {position === i ? (
-              <StyledText size="xlarge" color="text-weak">
+              <StyledText size="large" color="text-weak">
                 {x[0]}
                 <StyledText size="xxlarge" color="text-weak"> {x[1]} </StyledText>
                 {x[2]}

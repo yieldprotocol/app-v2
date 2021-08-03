@@ -167,7 +167,7 @@ const Borrow = () => {
               values={[
                 ['Choose Amount to', 'BORROW', ''],
                 ['Add', 'COLLATERAL', ''],
-                ['', 'Review & Transact', ''],
+                ['Review &', 'Transact', ''],
               ]}
             />
             </Box>

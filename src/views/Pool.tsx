@@ -87,7 +87,7 @@ function Pool() {
             position={stepPosition}
             values={[
               ['Choose Amount to', 'POOL', ''],
-              ['', 'Review & Transact', ''],
+              ['Review &', 'Transact', ''],
             ]}
           />
           </Box>
