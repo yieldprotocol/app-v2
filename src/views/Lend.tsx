@@ -84,14 +84,14 @@ const Lend = () => {
     <MainViewWrap>
       {!mobile && (
         <PanelWrap>
-          <Box margin={{ top:'35%' }}>
-          <StepperText
-            position={stepPosition}
-            values={[
-              ['Choose amount to', 'LEND', ''],
-              ['Review &', 'Transact', ''],
-            ]}
-          />
+          <Box margin={{ top: '35%' }}>
+            <StepperText
+              position={stepPosition}
+              values={[
+                ['Choose amount to', 'LEND', ''],
+                ['Review &', 'Transact', ''],
+              ]}
+            />
           </Box>
           <YieldInfo />
         </PanelWrap>
@@ -107,9 +107,9 @@ const Lend = () => {
                   Lend popular ERC20 tokens for fixed returns.
                 </Text>
               </Box> */}
-            
-              <Box pad='1.1em'/>
-              
+
+              <Box pad="1.1em" />
+
               <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}>
                 <Box direction="row" gap="small">
                   <Box basis={mobile ? '50%' : '60%'}>
@@ -163,7 +163,7 @@ const Lend = () => {
                     <InfoBite
                       label="Amount to lend"
                       icon={<BiMessageSquareAdd />}
-                      value={`${cleanValue(lendInput, selectedBase?.digitFormat!)} fyTokens`}
+                      value={`${cleanValue(lendInput, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
                     />
                     <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
                     <InfoBite
