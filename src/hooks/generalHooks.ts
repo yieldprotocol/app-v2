@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState, useRef } from 'react';
 
 /* Simple Hook for caching & retrieved data */
-export const useCachedState = (key: string, initialValue: any) => {
-  const genKey = key;
+export const useCachedState = (key: string, initialValue: any, account?:string) => {
+  const genKey = account ? `${account  }_${  key}` : key;
   const [storedValue, setStoredValue] = useState(() => {
     try {
       const item = window.localStorage.getItem(genKey);

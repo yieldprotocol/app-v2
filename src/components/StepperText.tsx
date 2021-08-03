@@ -2,6 +2,7 @@ import { Box, Text } from 'grommet';
 import React from 'react';
 import AltText from './texts/AltText';
 import HandText from './texts/HandText';
+import NavText from './texts/NavText';
 
 interface IStepperText {
   values: [string, string, string][];
@@ -21,17 +22,17 @@ function StepperText({ values, position }: IStepperText) {
           <Box direction="row">
             <AltText
               // weight={900}
-              size={position === i ? 'xxlarge' : 'medium'}
+              size={position === i ? 'xlarge' : 'small'}
               color={position === i ? 'text-weak' : 'text-xweak'}
             >
               {`${x[0]}\n`}
-              <Text
+              <AltText
                 // weight={900}
-                size={position === i ? 'xxlarge' : 'medium'}
+                size={position === i ? 'xlarge' : 'small'}
                 color={position === i ? 'text-weak' : 'text-xweak'}
               >
                 {x[1]}
-              </Text>
+              </AltText>
               {x[2]}
             </AltText>
           </Box>
