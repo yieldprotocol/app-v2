@@ -82,6 +82,7 @@ function Pool() {
     <MainViewWrap>
       {!mobile && (
         <PanelWrap>
+          <Box margin={{ top:'25%' }}>
           <StepperText
             position={stepPosition}
             values={[
@@ -89,6 +90,7 @@ function Pool() {
               ['', 'Review', ' and transact'],
             ]}
           />
+          </Box>
           <YieldInfo />
         </PanelWrap>
       )}

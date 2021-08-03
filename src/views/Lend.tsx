@@ -81,6 +81,7 @@ const Lend = () => {
     <MainViewWrap>
       {!mobile && (
         <PanelWrap>
+          <Box margin={{ top:'25%' }}>
           <StepperText
             position={stepPosition}
             values={[
@@ -88,6 +89,7 @@ const Lend = () => {
               ['', 'Review', ' and transact'],
             ]}
           />
+          </Box>
           <YieldInfo />
         </PanelWrap>
       )}

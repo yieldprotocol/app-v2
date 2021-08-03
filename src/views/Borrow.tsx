@@ -161,14 +161,16 @@ const Borrow = () => {
         {/* <PanelWrap background="linear-gradient(to right, #EEEEEE,rgba(255,255,255,1))"> */}
         {!mobile && (
           <PanelWrap>
+            <Box margin={{ top:'25%' }}>
             <StepperText
               position={stepPosition}
               values={[
-                ['Choose an asset to', 'borrow', ''],
+                ['Choose an asset to borrow', '', ''],
                 ['Add', 'collateral', ''],
                 ['', 'Review', ' and transact'],
               ]}
             />
+            </Box>
             <YieldInfo />
           </PanelWrap>
         )}
@@ -366,6 +368,15 @@ const Borrow = () => {
         </CenterPanelWrap>
 
         <PanelWrap right basis="40%">
+
+        {/* <StepperText
+              position={stepPosition}
+              values={[
+                ['Choose an asset to', 'borrow', ''],
+                ['Add', 'collateral', ''],
+                ['', 'Review', ' and transact'],
+              ]}
+            /> */}
           {/* <YieldApr input={borrowInput} actionType={ActionType.BORROW} /> */}
           {/* {!mobile && stepPosition === 1 && <Gauge value={parseFloat(collateralizationPercent!)} label="%" max={750} min={150} />} */}
           {!mobile && <VaultSelector />}
