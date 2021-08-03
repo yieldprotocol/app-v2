@@ -64,7 +64,7 @@ const Borrow = () => {
   const [borrowDisabled, setBorrowDisabled] = useState<boolean>(true);
   const [stepDisabled, setStepDisabled] = useState<boolean>(true);
 
-  const [vaultToUse, setVaultToUse] = useState<IVault | undefined>();
+  const [vaultToUse, setVaultToUse] = useState<IVault | undefined>(undefined);
   const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
 
   const [disclaimerChecked, setDisclaimerChecked] = useState<boolean>(false);
@@ -135,10 +135,6 @@ const Borrow = () => {
       ? setStepDisabled(true)
       : setStepDisabled(false); /* else if all pass, then unlock borrowing */
   }, [borrowInput, borrowInputError, selectedSeries, activeAccount]);
-
-  /**
-   * EXTRAS
-   * */
 
   /* CHECK the list of current vaults which match the current series/ilk selection */
   useEffect(() => {
@@ -252,7 +248,6 @@ const Borrow = () => {
                     </Box>
                   </SectionWrap>
 
-                  {/* {matchingVaults.length > 0 && ( */}
                   <SectionWrap title="Add to an exisiting vault" disabled={matchingVaults.length < 1}>
                     <VaultDropSelector
                       vaults={matchingVaults}
@@ -263,7 +258,6 @@ const Borrow = () => {
                       defaultOptionValue="Create New Vault"
                     />
                   </SectionWrap>
-                  {/* )} */}
 
                   <SectionWrap>
                     <Box direction="row" gap="large" fill>
