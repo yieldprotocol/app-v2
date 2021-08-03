@@ -4,7 +4,7 @@ import { useHistory, useParams } from 'react-router-dom';
 import { ethers } from 'ethers';
 import styled from 'styled-components';
 
-import { FiClock, FiPocket, FiLayers, FiLock, FiPercent, FiTrendingUp } from 'react-icons/fi';
+import { FiClock, FiPocket, FiLayers, FiLock, FiPercent, FiTrendingUp, FiInfo } from 'react-icons/fi';
 
 import SeriesSelector from '../components/selectors/SeriesSelector';
 import MainViewWrap from '../components/wraps/MainViewWrap';
@@ -179,12 +179,13 @@ const Borrow = () => {
           <Box height="100%" pad="large">
             {stepPosition === 0 && ( // INITIAL STEP
               <Box gap="medium">
-                <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
-                  <YieldMark height="1em" startColor="grey" endColor="grey" />
+                {/* <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
+                  <FiInfo />
                   <AltText color="text-weak" size="small">
-                    Borrow tokens at a fixed rate.
+                    Borrow popular ERC20 tokens at a fixed rate.
                   </AltText>
-                </Box>
+                </Box> */}
+                <Box />
 
                 <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}>
                   <Box direction="row" gap="small" >
