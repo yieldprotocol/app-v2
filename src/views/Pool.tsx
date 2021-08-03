@@ -105,7 +105,7 @@ function Pool() {
                   Provide ERC20 tokens as liquidity for variable returns.
                 </Text>
               </Box> */}
-              <Box />
+              <Box pad='1.1em'/>
 
               <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}>
                 <Box direction="row" gap="small">

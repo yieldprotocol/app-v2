@@ -185,7 +185,7 @@ const Borrow = () => {
                     Borrow popular ERC20 tokens at a fixed rate.
                   </AltText>
                 </Box> */}
-                <Box />
+                <Box pad='1.1em'/>
 
                 <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}>
                   <Box direction="row" gap="small" >
