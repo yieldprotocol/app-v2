@@ -171,7 +171,7 @@ const Lend = () => {
                     <InfoBite
                       label="Amount to lend"
                       icon={<BiMessageSquareAdd />}
-                      value={`${cleanValue(lendInput, selectedBase?.digitFormat!)} fyTokens`}
+                      value={`${cleanValue(lendInput, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
                     />
                     <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
                     <InfoBite
