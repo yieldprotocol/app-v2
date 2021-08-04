@@ -76,6 +76,10 @@ const Borrow = () => {
   const { borrow } = useBorrowActions();
 
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
+  const borrowOutput = cleanValue(
+    (Number(borrowInput) * (1 + Number(apr) / 100)).toString(),
+    selectedBase?.digitFormat!
+  );
 
   const { collateralizationPercent, undercollateralized, minCollateral } = useCollateralization(
     borrowInput,
@@ -314,7 +318,7 @@ const Borrow = () => {
                       <InfoBite
                         label="Vault Debt Payable @ Maturity"
                         icon={<FiTrendingUp />}
-                        value={`${cleanValue(borrowInput, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
+                        value={`${borrowOutput} ${selectedBase?.symbol}`}
                       />
                       <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
                       <InfoBite

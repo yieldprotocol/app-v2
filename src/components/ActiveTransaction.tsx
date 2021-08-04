@@ -33,19 +33,17 @@ const InfoBlock = ({
         {button}
       </Box>
     ) : (
-      <Box gap="medium" >
-      <Box direction="row" gap="medium" pad="medium" align='center'>
-        {icon}
-        <Box gap='xsmall' justify='start'>
-        <Text size="medium">{title}</Text>
-          <Box direction='row' gap='xsmall'>
-          <Text size="small">{subTitle}</Text>      
+      <Box gap="medium">
+        <Box direction="row" gap="medium" pad="medium" align="center" justify="center">
+          {icon}
+          <Box gap="xsmall" align="center" justify="start">
+            <Text size="medium">{title}</Text>
+            <Box direction="row" gap="xsmall">
+              <Text size="small">{subTitle}</Text>
+            </Box>
           </Box>
-          </Box>   
-      </Box>
-      <Box alignSelf='end'>
-      {button}
-      </Box>   
+        </Box>
+        <Box alignSelf="end">{button}</Box>
       </Box>
     )}
   </>
@@ -89,7 +87,7 @@ const ActiveTransaction = ({
   }, [full]);
 
   return (
-    <Box fill pad={pad ? { horizontal: 'small' , vertical: 'medium' } : undefined}>
+    <Box fill pad={pad ? { horizontal: 'small', vertical: 'medium' } : undefined}>
       {!processes.get(txCode) && // CASE: no tx or signing activity
         (!sig || sig?.status === TxState.REJECTED || sig?.status === TxState.SUCCESSFUL) &&
         !tx && <Box>{children}</Box>}
