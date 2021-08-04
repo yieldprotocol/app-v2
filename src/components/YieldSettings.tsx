@@ -6,6 +6,7 @@ import { ChainContext, connectorNames } from '../contexts/ChainContext';
 import { abbreviateHash } from '../utils/appUtils';
 import YieldAvatar from './YieldAvatar';
 import AdvancedSettings from './AdvancedSettings';
+import TxTable from './TxTable';
 
 const ChangeButton = styled(Button)`
   background: #dbeafe;
@@ -92,7 +93,7 @@ const YieldSettings = ({ setConnectOpen, setSettingsOpen }: any) => {
         background="#F3F4F6"
         round={{ size: 'medium', corner: 'bottom' }}
       >
-        <Text size="medium">Your transactions will appear here...</Text>
+        <TxTable />
       </Box>
     </Box>
   );
