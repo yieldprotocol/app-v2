@@ -32,6 +32,7 @@ import YieldApr from '../components/YieldApr';
 import { useApr } from '../hooks/aprHook';
 import { useInputValidation } from '../hooks/inputValidationHook';
 import { useTx } from '../hooks/useTx';
+import AltText from '../components/texts/AltText';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -84,14 +85,14 @@ const Lend = () => {
     <MainViewWrap>
       {!mobile && (
         <PanelWrap>
-          <Box margin={{ top:'35%' }}>
-          <StepperText
-            position={stepPosition}
-            values={[
-              ['Choose amount to', 'LEND', ''],
-              ['Review &', 'Transact', ''],
-            ]}
-          />
+          <Box margin={{ top: '35%' }}>
+            <StepperText
+              position={stepPosition}
+              values={[
+                ['Choose amount to', 'LEND', ''],
+                ['Review &', 'Transact', ''],
+              ]}
+            />
           </Box>
           <YieldInfo />
         </PanelWrap>
@@ -101,50 +102,56 @@ const Lend = () => {
         <Box height="100%" pad="large">
           {stepPosition === 0 && (
             <Box gap="medium">
-              {/* <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
-                <FiInfo />
-                <Text color="text-weak" size="small">
-                  Lend popular ERC20 tokens for fixed returns.
-                </Text>
-              </Box> */}
-            
-              <Box pad='1.1em'/>
-              
-              <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}>
-                <Box direction="row" gap="small">
-                  <Box basis={mobile ? '50%' : '60%'}>
-                    <InputWrap
-                      action={() => console.log('maxAction')}
-                      isError={lendError}
-                      disabled={selectedSeries?.seriesIsMature}
-                    >
-                      <TextInput
-                        plain
-                        type="number"
-                        placeholder="Enter amount"
-                        value={lendInput || ''}
-                        onChange={(event: any) => setLendInput(cleanValue(event.target.value))}
-                        disabled={selectedSeries?.seriesIsMature}
-                      />
-                      <MaxButton
-                        action={() => setLendInput(maxLend)}
-                        disabled={maxLend === '0' || selectedSeries?.seriesIsMature}
-                        clearAction={() => setLendInput('')}
-                        showingMax={!!lendInput && (lendInput === maxLend || !!lendError)}
-                      />
-                    </InputWrap>
-                  </Box>
-                  <Box basis={mobile ? '50%' : '40%'}>
-                    <AssetSelector />
-                  </Box>
-                </Box>
-              </SectionWrap>
 
-              <SectionWrap
-                title={seriesMap.size > 0 ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} series` : ''}
-              >
-                <SeriesSelector inputValue={lendInput} actionType={ActionType.LEND} />
-              </SectionWrap>
+              <Box gap="xsmall">
+                <AltText size="large">
+                  LEND
+                </AltText>
+                <Box>
+                  <AltText color="text-weak" size="xsmall">
+                    popular ERC20 tokens for fixed returns.
+                  </AltText>
+                </Box>
+              </Box>
+
+              <Box gap="small">
+                {/* <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}> */}
+                  <SectionWrap>
+                  <Box direction="row" gap="small">
+                    <Box basis={mobile ? '50%' : '60%'}>
+                      <InputWrap
+                        action={() => console.log('maxAction')}
+                        isError={lendError}
+                        disabled={selectedSeries?.seriesIsMature}
+                      >
+                        <TextInput
+                          plain
+                          type="number"
+                          placeholder="Enter amount"
+                          value={lendInput || ''}
+                          onChange={(event: any) => setLendInput(cleanValue(event.target.value))}
+                          disabled={selectedSeries?.seriesIsMature}
+                        />
+                        <MaxButton
+                          action={() => setLendInput(maxLend)}
+                          disabled={maxLend === '0' || selectedSeries?.seriesIsMature}
+                          clearAction={() => setLendInput('')}
+                          showingMax={!!lendInput && (lendInput === maxLend || !!lendError)}
+                        />
+                      </InputWrap>
+                    </Box>
+                    <Box basis={mobile ? '50%' : '40%'}>
+                      <AssetSelector />
+                    </Box>
+                  </Box>
+                </SectionWrap>
+
+                <SectionWrap
+                  title={seriesMap.size > 0 ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} series` : ''}
+                >
+                  <SeriesSelector inputValue={lendInput} actionType={ActionType.LEND} />
+                </SectionWrap>
+              </Box>
             </Box>
           )}
 

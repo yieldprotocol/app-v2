@@ -165,15 +165,15 @@ const Borrow = () => {
         {/* <PanelWrap background="linear-gradient(to right, #EEEEEE,rgba(255,255,255,1))"> */}
         {!mobile && (
           <PanelWrap>
-            <Box margin={{ top:'35%' }}>
-            <StepperText
-              position={stepPosition}
-              values={[
-                ['Choose amount to', 'BORROW', ''],
-                ['Add', 'COLLATERAL', ''],
-                ['Review &', 'Transact', ''],
-              ]}
-            />
+            <Box margin={{ top: '35%' }}>
+              <StepperText
+                position={stepPosition}
+                values={[
+                  ['Choose amount to', 'BORROW', ''],
+                  ['Add', 'COLLATERAL', ''],
+                  ['Review &', 'Transact', ''],
+                ]}
+              />
             </Box>
             <YieldInfo />
           </PanelWrap>
@@ -183,47 +183,53 @@ const Borrow = () => {
           <Box height="100%" pad="large">
             {stepPosition === 0 && ( // INITIAL STEP
               <Box gap="medium">
-                {/* <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
-                  <FiInfo />
-                  <AltText color="text-weak" size="small">
-                    Borrow popular ERC20 tokens at a fixed rate.
-                  </AltText>
-                </Box> */}
-                <Box pad='1.1em'/>
-
-                <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}>
-                  <Box direction="row" gap="small">
-                    <Box basis={mobile ? '50%' : '60%'}>
-                      <InputWrap action={() => console.log('maxAction')} isError={borrowInputError}>
-                        <TextInput
-                          plain
-                          type="number"
-                          placeholder="Enter amount"
-                          value={borrowInput}
-                          onChange={(event: any) => setBorrowInput(cleanValue(event.target.value))}
-                          autoFocus={!mobile}
-                        />
-                      </InputWrap>
-                    </Box>
-                    <Box basis={mobile ? '50%' : '40%'}>
-                      <AssetSelector />
-                    </Box>
+                <Box gap="xsmall">
+                  <AltText size="large">BORROW</AltText>
+                  <Box>
+                    <AltText color="text-weak" size="xsmall">
+                      popular ERC20 tokens at a fixed rate.
+                    </AltText>
                   </Box>
-                </SectionWrap>
+                </Box>
 
-                <SectionWrap
-                  title={seriesMap.size > 0 ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} series` : ''}
-                >
-                  <SeriesSelector inputValue={borrowInput} actionType={ActionType.BORROW} />
-                </SectionWrap>
+                <Box gap="small">
+                  {/* <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}> */}
+                  <SectionWrap>
+                    <Box direction="row" gap="small">
+                      <Box basis={mobile ? '50%' : '60%'}>
+                        <InputWrap action={() => console.log('maxAction')} isError={borrowInputError}>
+                          <TextInput
+                            plain
+                            type="number"
+                            placeholder="Enter amount"
+                            value={borrowInput}
+                            onChange={(event: any) => setBorrowInput(cleanValue(event.target.value))}
+                            autoFocus={!mobile}
+                          />
+                        </InputWrap>
+                      </Box>
+                      <Box basis={mobile ? '50%' : '40%'}>
+                        <AssetSelector />
+                      </Box>
+                    </Box>
+                  </SectionWrap>
+
+                  <SectionWrap
+                    title={
+                      seriesMap.size > 0 ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} series` : ''
+                    }
+                  >
+                    <SeriesSelector inputValue={borrowInput} actionType={ActionType.BORROW} />
+                  </SectionWrap>
+                </Box>
               </Box>
             )}
 
             {stepPosition === 1 && ( // ADD COLLATERAL
-              <Box gap="large" fill>
+              <Box gap="medium" >
                 <BackButton action={() => setStepPosition(0)} />
 
-                <Box gap="large" height="400px">
+                <Box gap="medium" height="400px">
                   <SectionWrap title="Amount of collateral to add">
                     <Box direction="row" gap="small">
                       <Box basis={mobile ? '50%' : '60%'} fill="horizontal">
@@ -265,22 +271,25 @@ const Borrow = () => {
                       defaultOptionValue="Create New Vault"
                     />
                   </SectionWrap>
-
-                  <SectionWrap>
-                    <Box direction="row" gap="large" fill>
-                      <Gauge value={parseFloat(collateralizationPercent!)} size="5em" />
-                      <Box basis="40%">
-                        <Text size="small"> Collateralization </Text>
-                        <Text size="xlarge">
-                          {parseFloat(collateralizationPercent!) > 10000
-                            ? nFormatter(parseFloat(collateralizationPercent!), 2)
-                            : parseFloat(collateralizationPercent!)}
-                          %
-                        </Text>
-                      </Box>
-                    </Box>
-                  </SectionWrap>
                 </Box>
+
+
+                  <Box direction="row" align="center" gap="large" justify='center'>
+                    <Box>
+                      <Gauge value={parseFloat(collateralizationPercent!)} size="8em" />
+                    </Box>
+
+                    <Box>
+                      <Text size="small"> Collateralization </Text>
+                      <Text size="xlarge">
+                        {parseFloat(collateralizationPercent!) > 10000
+                          ? nFormatter(parseFloat(collateralizationPercent!), 2)
+                          : parseFloat(collateralizationPercent!)}
+                        %
+                      </Text>
+                    </Box>
+                  </Box>
+
               </Box>
             )}
 
@@ -373,8 +382,7 @@ const Borrow = () => {
         </CenterPanelWrap>
 
         <PanelWrap right basis="40%">
-
-        {/* <StepperText
+          {/* <StepperText
               position={stepPosition}
               values={[
                 ['Choose an asset to', 'borrow', ''],
