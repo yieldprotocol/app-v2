@@ -198,30 +198,34 @@ const UserProvider = ({ children }: any) => {
 
       /* add in the dynamic asset data of the assets in the list */
       if (account) {
-        _accountData = await Promise.all(
-          _publicData.map(async (asset: IAssetRoot): Promise<IAsset> => {
-            const [balance, ladleAllowance, poolAllowance, joinAllowance] = await Promise.all([
-              asset.getBalance(account),
-              asset.getAllowance(account, contractMap.get('Ladle').address),
-              asset.getAllowance(account, contractMap.get('PoolRouter').address),
-              asset.getAllowance(account, asset.joinAddress),
-            ]);
+        try {
+          _accountData = await Promise.all(
+            _publicData.map(async (asset: IAssetRoot): Promise<IAsset> => {
+              const [balance, ladleAllowance, poolAllowance, joinAllowance] = await Promise.all([
+                asset.getBalance(account),
+                asset.getAllowance(account, contractMap.get('Ladle').address),
+                asset.getAllowance(account, contractMap.get('PoolRouter').address),
+                asset.getAllowance(account, asset.joinAddress),
+              ]);
 
-            const isYieldBase = !!Array.from(seriesRootMap.values()).find((x: any) => x.baseId === asset.id);
+              const isYieldBase = !!Array.from(seriesRootMap.values()).find((x: any) => x.baseId === asset.id);
 
-            return {
-              ...asset,
-              isYieldBase,
-              hasLadleAuth: ladleAllowance.gt(ethers.constants.Zero),
-              hasPoolRouterAuth: poolAllowance.gt(ethers.constants.Zero),
-              hasJoinAuth: joinAllowance.gt(ethers.constants.Zero),
-              balance: balance || ethers.constants.Zero,
-              balance_: balance
-                ? cleanValue(ethers.utils.formatEther(balance), 2)
-                : cleanValue(ethers.utils.formatEther(ethers.constants.Zero)), // for display purposes only
-            };
-          })
-        );
+              return {
+                ...asset,
+                isYieldBase,
+                hasLadleAuth: ladleAllowance.gt(ethers.constants.Zero),
+                hasPoolRouterAuth: poolAllowance.gt(ethers.constants.Zero),
+                hasJoinAuth: joinAllowance.gt(ethers.constants.Zero),
+                balance: balance || ethers.constants.Zero,
+                balance_: balance
+                  ? cleanValue(ethers.utils.formatEther(balance), 2)
+                  : cleanValue(ethers.utils.formatEther(ethers.constants.Zero)), // for display purposes only
+              };
+            })
+          );
+        } catch (e) {
+          console.log(e);
+        }
       }
 
       const _combinedData = _accountData.length ? _accountData : _publicData;
@@ -244,15 +248,23 @@ const UserProvider = ({ children }: any) => {
   /* Updates the prices from the oracle with latest data */ // TODO reduce redundant calls
   const updatePrice = useCallback(
     async (base: string, ilk: string): Promise<ethers.BigNumber> => {
-      const _priceMap = userState.priceMap;
-      const _basePriceMap = _priceMap.get(base) || new Map<string, any>();
-      const Oracle = contractMap.get('ChainlinkOracle');
-      const [price] = await Oracle.peek(bytesToBytes32(base, 6), bytesToBytes32(ilk, 6), ONE_WEI_BN);
-      _basePriceMap.set(ilk, price);
-      _priceMap.set(base, _basePriceMap);
-      updateState({ type: 'priceMap', payload: _priceMap });
-      console.log('Price Updated: ', base, '->', ilk, ':', price.toString());
-      return price;
+      try {
+        const _priceMap = userState.priceMap;
+        const _basePriceMap = _priceMap.get(base) || new Map<string, any>();
+        // const Oracle = contractMap.get('ChainlinkOracle');
+        const Oracle = contractMap.get('CompositeMultiOracle');
+        const [price] = await Oracle.peek(bytesToBytes32(base, 6), bytesToBytes32(ilk, 6), ONE_WEI_BN);
+        // const [price] = await Oracle.peek(base, ilk, ONE_WEI_BN);
+
+        _basePriceMap.set(ilk, price);
+        _priceMap.set(base, _basePriceMap);
+        updateState({ type: 'priceMap', payload: _priceMap });
+        console.log('Price Updated: ', base, '->', ilk, ':', price.toString());
+        return price;
+      } catch (error) {
+        console.log(error);
+        return ethers.constants.Zero;
+      }
     },
     [contractMap, userState.priceMap]
   );
@@ -340,7 +352,7 @@ const UserProvider = ({ children }: any) => {
 
   /* Updates the vaults with *user* data */
   const updateVaults = useCallback(
-    async (vaultList: IVaultRoot[], force:boolean=false) => {
+    async (vaultList: IVaultRoot[], force: boolean = false) => {
       let _vaultList: IVaultRoot[] = vaultList;
       const Cauldron = contractMap.get('Cauldron');
 
@@ -378,11 +390,14 @@ const UserProvider = ({ children }: any) => {
 
       /* Get the previous version (Map) of the vaultMap and update it */
       const newVaultMap = new Map(
-        vaultListMod.reduce((acc: any, item: any) => {
-          const _map = acc;
-          _map.set(item.id, item);
-          return _map;
-        }, ( force? new Map() : userState.vaultMap) )
+        vaultListMod.reduce(
+          (acc: any, item: any) => {
+            const _map = acc;
+            _map.set(item.id, item);
+            return _map;
+          },
+          force ? new Map() : userState.vaultMap
+        )
       );
 
       updateState({ type: 'vaultMap', payload: newVaultMap });
@@ -404,7 +419,7 @@ const UserProvider = ({ children }: any) => {
   useEffect(() => {
     /* When the chainContext is finished loading get the users vault data */
     if (account !== null && !chainLoading) {
-      console.log('checking vaults')
+      console.log('checking vaults');
       /* trigger update of update all vaults by passing empty array */
       updateVaults([], true);
     }
@@ -420,7 +435,7 @@ const UserProvider = ({ children }: any) => {
     !chainLoading &&
       seriesRootMap &&
       (async () => {
-        const Oracle = contractMap.get('ChainlinkOracle');
+        const Oracle = contractMap.get('CompositeMultiOracle');
         // const filter = Oracle.filters.SourceSet(null, null, null);
         // const eventList = await Oracle.queryFilter(filter, 1);
         // console.log('Oracle events: ', eventList);

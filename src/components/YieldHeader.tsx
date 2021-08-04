@@ -1,4 +1,4 @@
-import { Box, Collapsible, Header, Grid, Layer, ResponsiveContext, Text } from 'grommet';
+import { Box, Collapsible, Header, Grid, Layer, ResponsiveContext, Text, Avatar } from 'grommet';
 import React, { useContext, useState, useRef } from 'react';
 
 import { FiMenu, FiToggleRight, FiToggleLeft } from 'react-icons/fi';
@@ -27,14 +27,15 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
       fill="horizontal"
     >
       <Grid columns={['medium', 'flex', 'medium']} fill="horizontal">
-        <Box direction="row" gap={mobile ? '0.25em' : '0.5em'} align="center">
-          {/* <YieldMark height={mobile ? '1.0em' : '1.5em'}/>
-        <HandText size={mobile ? '1.5em' : '2em'} >YIELD</HandText> */}
-          <YieldMark height={mobile ? '1.0em' : '1.5em'} />
+        <Box direction="row" gap={mobile ? '0.25em' : 'medium'} align='center' >
+        <Avatar >
+          <YieldMark height={mobile ? '1.0em' : '2em'} />
+          </Avatar>
+          {!mobile && <YieldNavigation />}
         </Box>
         {/* <YieldLogo height={mobile ? '1em' : '1.5em'} /> */}
+        <Box />
 
-        {!mobile && <YieldNavigation />}
         <Box align="end">
           <YieldAccount />
         </Box>

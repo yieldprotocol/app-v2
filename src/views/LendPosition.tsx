@@ -10,6 +10,7 @@ import { abbreviateHash, cleanValue, getTxCode, nFormatter } from '../utils/appU
 import SectionWrap from '../components/wraps/SectionWrap';
 
 import { useLendActions } from '../hooks/lendHooks';
+import { useTx } from '../hooks/useTx';
 import { UserContext } from '../contexts/UserContext';
 import { ActionCodes, ActionType, ISeries, IUserContext } from '../types';
 import MaxButton from '../components/buttons/MaxButton';
@@ -62,6 +63,10 @@ const LendPosition = ({ close }: { close: () => void }) => {
 
   /* HOOK FNS */
   const { closePosition, rollPosition, redeem } = useLendActions();
+
+  /* TX data */
+  const { tx: closeTx } = useTx(ActionCodes.CLOSE_POSITION);
+  const { tx: rollTx } = useTx(ActionCodes.ROLL_POSITION);
 
   /* input validation hoooks */
   const { inputError: closeError } = useInputValidation(closeInput, ActionCodes.CLOSE_POSITION, selectedSeries, [
@@ -127,12 +132,15 @@ const LendPosition = ({ close }: { close: () => void }) => {
               {/* <InfoBite label="Vault debt + interest:" value={`${selectedVault?.art_} ${vaultBase?.symbol}`} icon={<FiTrendingUp />} /> */}
               <InfoBite
                 label="Portfolio value at Maturity"
-                value={`${cleanValue( selectedSeries?.fyTokenBalance_!, selectedBase?.digitFormat!) } ${selectedBase?.symbol!}`}
+                value={`${cleanValue(
+                  selectedSeries?.fyTokenBalance_!,
+                  selectedBase?.digitFormat!
+                )} ${selectedBase?.symbol!}`}
                 icon={<FiTrendingUp />}
               />
               <InfoBite
                 label="Current value"
-                value={cleanValue(selectedSeries?.fyTokenBalance_!, selectedBase?.digitFormat! )}
+                value={cleanValue(selectedSeries?.fyTokenBalance_!, selectedBase?.digitFormat!)}
                 icon={selectedBase?.image}
               />
               <InfoBite
@@ -166,7 +174,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
           {actionActive.index === 0 && (
             <>
               {stepPosition[0] === 0 && (
-                <Box margin={{ top:'medium' }}>
+                <Box margin={{ top: 'medium' }}>
                   <InputWrap action={() => console.log('maxAction')} isError={closeError} disabled={!selectedSeries}>
                     <TextInput
                       plain
@@ -187,7 +195,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
               )}
 
               {stepPosition[0] !== 0 && (
-                <ActiveTransaction txCode={getTxCode(ActionCodes.CLOSE_POSITION, selectedSeriesId)} pad>
+                <ActiveTransaction txCode={closeTx.txCode} pad>
                   <SectionWrap
                     title="Review your remove transaction"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
@@ -208,34 +216,34 @@ const LendPosition = ({ close }: { close: () => void }) => {
           {actionActive.index === 1 && (
             <>
               {stepPosition[actionActive.index] === 0 && (
-                <Box margin={{ top:'medium' }}>
-                    <InputWrap action={() => console.log('maxAction')} isError={closeError} disabled={!selectedSeries}>
-                      <TextInput
-                        plain
-                        type="number"
-                        placeholder="fyToken amount to roll" // {`${selectedBase?.symbol} to reclaim`}
-                        value={rollInput || ''}
-                        onChange={(event: any) => setRollInput(cleanValue(event.target.value))}
-                        disabled={!selectedSeries}
-                      />
-                      <MaxButton
-                        action={() => setRollInput(maxClose)}
-                        disabled={maxClose === '0.0' || !selectedSeries}
-                        clearAction={() => setRollInput('')}
-                        showingMax={!!rollInput && rollInput === maxClose}
-                      />
-                    </InputWrap>
-  
-                    <SeriesSelector
-                      selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
-                      actionType={ActionType.LEND}
-                      cardLayout={false}
+                <Box margin={{ top: 'medium' }}>
+                  <InputWrap action={() => console.log('maxAction')} isError={closeError} disabled={!selectedSeries}>
+                    <TextInput
+                      plain
+                      type="number"
+                      placeholder="fyToken amount to roll" // {`${selectedBase?.symbol} to reclaim`}
+                      value={rollInput || ''}
+                      onChange={(event: any) => setRollInput(cleanValue(event.target.value))}
+                      disabled={!selectedSeries}
                     />
+                    <MaxButton
+                      action={() => setRollInput(maxClose)}
+                      disabled={maxClose === '0.0' || !selectedSeries}
+                      clearAction={() => setRollInput('')}
+                      showingMax={!!rollInput && rollInput === maxClose}
+                    />
+                  </InputWrap>
+
+                  <SeriesSelector
+                    selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
+                    actionType={ActionType.LEND}
+                    cardLayout={false}
+                  />
                 </Box>
               )}
 
               {stepPosition[actionActive.index] !== 0 && (
-                <ActiveTransaction txCode={getTxCode(ActionCodes.ROLL_POSITION, selectedSeriesId)} pad>
+                <ActiveTransaction txCode={rollTx.txCode} pad>
                   <SectionWrap
                     title="Review your roll transaction"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
@@ -244,9 +252,10 @@ const LendPosition = ({ close }: { close: () => void }) => {
                       <InfoBite
                         label="Roll To Series"
                         icon={<FiArrowRight />}
-                        value={` Roll  ${cleanValue(closeInput, selectedBase?.digitFormat!)} ${
-                          selectedBase?.symbol
-                        } to ${rollToSeries?.displayName}`}
+                        value={` Roll${rollTx.pending ? 'ing' : ''}  ${cleanValue(
+                          closeInput,
+                          selectedBase?.digitFormat!
+                        )} ${selectedBase?.symbol} to ${rollToSeries?.displayName}`}
                       />
                     </Box>
                   </SectionWrap>
@@ -274,11 +283,13 @@ const LendPosition = ({ close }: { close: () => void }) => {
             primary
             label={
               <Text size={mobile ? 'small' : undefined}>
-                {`Close ${nFormatter(Number(closeInput), selectedBase?.digitFormat!) || ''} ${selectedBase?.symbol}`}
+                {`Clos${closeTx.pending ? 'ing' : 'e'} ${
+                  nFormatter(Number(closeInput), selectedBase?.digitFormat!) || ''
+                } ${selectedBase?.symbol}`}
               </Text>
             }
             onClick={() => handleClosePosition()}
-            disabled={closeDisabled}
+            disabled={closeDisabled || closeTx.pending}
           />
         )}
 
@@ -287,11 +298,13 @@ const LendPosition = ({ close }: { close: () => void }) => {
             primary
             label={
               <Text size={mobile ? 'small' : undefined}>
-                {`Roll ${nFormatter(Number(rollInput), selectedBase?.digitFormat!) || ''} ${selectedBase?.symbol}`}
+                {`Roll${rollTx.pending ? 'ing' : ''} ${
+                  nFormatter(Number(rollInput), selectedBase?.digitFormat!) || ''
+                } ${selectedBase?.symbol}`}
               </Text>
             }
             onClick={() => handleRollPosition()}
-            disabled={rollDisabled}
+            disabled={rollDisabled || rollTx.pending}
           />
         )}
       </ActionButtonGroup>

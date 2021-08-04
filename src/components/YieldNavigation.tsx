@@ -56,7 +56,7 @@ const YieldNavigation = ({ callbackFn }: IYieldNavigation) => {
     <Box direction={mobile ? 'column' : 'row'} gap="medium" align="center" justify="center" fill={mobile}>
       {linksArr.map((x: any) => (
         <StyledLink to={x.to} activeStyle={activeStyle} key={x.label} onClick={() => callbackFn()}>
-          <NavText color={mobile ? 'text-weak' : undefined} size={mobile ? 'small' : 'medium'}>
+          <NavText color={mobile ? 'text-weak' : undefined} size={mobile ? 'small' : 'small'}>
             {x.label}
           </NavText>
         </StyledLink>

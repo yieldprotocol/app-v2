@@ -24,10 +24,9 @@ function InputWrap({ action, disabled, isError, children, ...props }: IInputWrap
         {...props}
         direction="row"
         round="xsmall"
-        pad='small'
         align="center"
-        basis={mobile ? '50%' : '65%'}
         background={isError ? 'pink' : undefined}
+        pad={{ horizontal: 'small', vertical: '1px' }}
       >
         {children}
       </InsetBox>
@@ -36,8 +35,7 @@ function InputWrap({ action, disabled, isError, children, ...props }: IInputWrap
           {isError}
         </Text>
       </Box>
-      </Box>
-
+    </Box>
   );
 }
 

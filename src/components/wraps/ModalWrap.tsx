@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Box, Button, Header, Layer, ResponsiveContext } from 'grommet';
+import { Avatar, Box, Button, Grid, Header, Layer, ResponsiveContext } from 'grommet';
 
 import { FiX } from 'react-icons/fi';
 import MainViewWrap from './MainViewWrap';
@@ -7,6 +7,8 @@ import PanelWrap from './PanelWrap';
 import YieldLogo from '../logos/YieldLogo';
 
 import { UserContext } from '../../contexts/UserContext';
+import YieldMark from '../logos/YieldMark';
+import YieldNavigation from '../YieldNavigation';
 
 interface IModalWrap {
   modalOpen: boolean;
@@ -36,18 +38,29 @@ function ModalWrap({ children, toggleModalOpen, background, modalOpen = false }:
           animation="none"
         >
           <Header
-            pad="medium"
+            pad="large"
             height={mobile ? undefined : 'xsmall'}
             justify="between"
             fill="horizontal"
             style={{ position: 'fixed', top: '0px' }}
           >
-            <YieldLogo
-              height={mobile ? '1em' : '1.5em'}
-              startColor={series?.oppStartColor}
-              endColor={series?.oppEndColor}
-            />
-            <Button icon={<FiX onClick={() => toggleModalOpen()} color={series?.oppStartColor} />} />
+            <Grid columns={['medium', 'flex', 'medium']} fill="horizontal">
+              <Box direction="row" gap={mobile ? '0.25em' : 'medium'} align="center">
+                <Avatar>
+                  <YieldMark
+                    height={mobile ? '1em' : '2em'}
+                    startColor={series?.oppStartColor}
+                    endColor={series?.oppEndColor}
+                  />
+                  <Box />
+                </Avatar>
+              </Box>
+              <Box />
+
+              <Box align="end">
+                <Button icon={<FiX onClick={() => toggleModalOpen()} color={series?.oppStartColor} />} />
+              </Box>
+            </Grid>
           </Header>
 
           <Box flex={!mobile} overflow="auto" margin={{ top: 'xlarge' }}>

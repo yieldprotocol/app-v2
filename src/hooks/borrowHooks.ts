@@ -277,6 +277,7 @@ export const useBorrowActions = () => {
     ];
 
     await transact('Ladle', calls, txCode);
+    updateVaults([]);
   };
 
   return {
