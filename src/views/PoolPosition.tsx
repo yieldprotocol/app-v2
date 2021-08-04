@@ -152,7 +152,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
               dropProps={{ round: 'xsmall' }}
               options={[
                 { text: 'Remove Liquidity', index: 0 },
-                { text: 'Roll Liquidiy', index: 1 },
+                { text: 'Roll Liquidity', index: 1 },
                 { text: 'Transaction History', index: 2 },
               ]}
               labelKey="text"
@@ -270,7 +270,9 @@ const PoolPosition = ({ close }: { close: () => void }) => {
             primary
             label={
               <Text size={mobile ? 'small' : undefined}>
-                {`Remove ${nFormatter(Number(removeInput), selectedBase?.digitFormat!) || ''} tokens`}
+                {`Remov${removeTx.pending ? 'ing' : 'e'} ${
+                  nFormatter(Number(removeInput), selectedBase?.digitFormat!) || ''
+                } tokens`}
               </Text>
             }
             onClick={() => handleRemove()}
@@ -283,7 +285,9 @@ const PoolPosition = ({ close }: { close: () => void }) => {
             primary
             label={
               <Text size={mobile ? 'small' : undefined}>
-                {`Roll ${nFormatter(Number(rollInput), selectedBase?.digitFormat!) || ''} tokens`}
+                {`Roll${rollTx.pending ? 'ing' : ''} ${
+                  nFormatter(Number(rollInput), selectedBase?.digitFormat!) || ''
+                } tokens`}
               </Text>
             }
             onClick={() => handleRoll()}
