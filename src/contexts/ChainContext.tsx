@@ -211,6 +211,10 @@ const ChainProvider = ({ children }: any) => {
       const PoolRouter = contracts.PoolRouter__factory.connect(addrs.PoolRouter, fallbackLibrary);
       const CompoundOracle = contracts.CompoundMultiOracle__factory.connect(addrs.CompoundOracle, fallbackLibrary);
       const ChainlinkOracle = contracts.ChainlinkMultiOracle__factory.connect(addrs.ChainlinkOracle, fallbackLibrary);
+      const CompositeMultiOracle = contracts.CompositeMultiOracle__factory.connect(
+        addrs.CompositeMultiOracle,
+        fallbackLibrary
+      );
 
       updateState({ type: 'appVersion', payload: process.env.REACT_APP_VERSION });
 
@@ -225,6 +229,8 @@ const ChainProvider = ({ children }: any) => {
       newContractMap.set('PoolRouter', PoolRouter);
       newContractMap.set('CompoundOracle', CompoundOracle);
       newContractMap.set('ChainlinkOracle', ChainlinkOracle);
+      newContractMap.set('CompositeMultiOracle', CompositeMultiOracle);
+
       updateState({ type: 'contractMap', payload: newContractMap });
 
       let test: any;
@@ -276,6 +282,8 @@ const ChainProvider = ({ children }: any) => {
               ERC20.symbol(),
               // ETH_BASED_ASSETS.includes(id) ? '1' : await ERC20.version()
             ]);
+
+            console.log(symbol, ':', id);
             // TODO check if any other tokens have different versions. maybe abstract this logic somewhere?
             const version = id === '0x555344430000' ? '2' : '1';
             const newAsset = {
@@ -450,8 +458,6 @@ const ChainProvider = ({ children }: any) => {
     const _chainId = chainId || lastChainId;
     /* cache the change of networkId */
     chainId && setLastChainId(chainId);
-
-
 
     /* Connect the fallback */
     tried &&
