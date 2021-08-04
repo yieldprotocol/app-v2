@@ -23,7 +23,6 @@ function EtherscanButton({ txHash }: { txHash: string }) {
   } = useContext(ChainContext);
 
   useEffect(() => {
-    console.log('ChainDI', chainId);
     if (chainId === 42) {
       setNetwork('kovan.');
     } else {
