@@ -30,6 +30,7 @@ import YieldMark from '../components/logos/YieldMark';
 import NextButton from '../components/buttons/NextButton';
 import TransactButton from '../components/buttons/TransactButton';
 import { useInputValidation } from '../hooks/inputValidationHook';
+import AltText from '../components/texts/AltText';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -85,14 +86,14 @@ function Pool() {
     <MainViewWrap>
       {!mobile && (
         <PanelWrap>
-          <Box margin={{ top:'35%' }}>
-          <StepperText
-            position={stepPosition}
-            values={[
-              ['Choose amount to', 'POOL', ''],
-              ['Review &', 'Transact', ''],
-            ]}
-          />
+          <Box margin={{ top: '35%' }}>
+            <StepperText
+              position={stepPosition}
+              values={[
+                ['Choose amount to', 'POOL', ''],
+                ['Review &', 'Transact', ''],
+              ]}
+            />
           </Box>
           <YieldInfo />
         </PanelWrap>
@@ -102,51 +103,59 @@ function Pool() {
         <Box height="100%" pad="large">
           {stepPosition === 0 && (
             <Box gap="medium">
-              {/* <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
-                <FiInfo />
-                <Text color="text-weak" size="small">
-                  Provide ERC20 tokens as liquidity for variable returns.
-                </Text>
-              </Box> */}
-              <Box pad='1.1em'/>
 
-              <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}>
-                <Box direction="row" gap="small">
-                  <Box basis={mobile ? '50%' : '60%'}>
-                    <InputWrap action={() => console.log('maxAction')} isError={poolError}>
-                      <TextInput
-                        plain
-                        type="number"
-                        placeholder="Enter amount"
-                        value={poolInput || ''}
-                        onChange={(event: any) => setPoolInput(cleanValue(event.target.value))}
-                      />
-                      <MaxButton
-                        action={() => setPoolInput(maxPool)}
-                        disabled={maxPool === '0'}
-                        clearAction={() => setPoolInput('')}
-                        showingMax={!!poolInput && poolInput === maxPool}
-                      />
-                    </InputWrap>
-                  </Box>
-
-                  <Box basis={mobile ? '50%' : '40%'}>
-                    <AssetSelector />
-                  </Box>
+              <Box gap="xsmall">
+                <AltText size="large">
+                  ADD LIQUIDITY
+                </AltText>
+                <Box>
+                  <AltText color="text-weak" size="xsmall">
+                    for variable returns based on protocol usage.
+                  </AltText>
                 </Box>
-              </SectionWrap>
+              </Box>
 
-              <SectionWrap
-                title={seriesMap.size > 0 ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} series` : ''}
-              >
-                <SeriesSelector actionType={ActionType.POOL} inputValue={poolInput} />
-              </SectionWrap>
+              <Box gap="small">
+                {/* <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}> */}
+                  <SectionWrap>
+                  <Box direction="row" gap="small">
+                    <Box basis={mobile ? '50%' : '60%'}>
+                      <InputWrap action={() => console.log('maxAction')} isError={poolError}>
+                        <TextInput
+                          plain
+                          type="number"
+                          placeholder="Enter amount"
+                          value={poolInput || ''}
+                          onChange={(event: any) => setPoolInput(cleanValue(event.target.value))}
+                        />
+                        <MaxButton
+                          action={() => setPoolInput(maxPool)}
+                          disabled={maxPool === '0'}
+                          clearAction={() => setPoolInput('')}
+                          showingMax={!!poolInput && poolInput === maxPool}
+                        />
+                      </InputWrap>
+                    </Box>
+
+                    <Box basis={mobile ? '50%' : '40%'}>
+                      <AssetSelector />
+                    </Box>
+                  </Box>
+                </SectionWrap>
+
+                <SectionWrap
+                  title={seriesMap.size > 0 ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} series` : ''}
+                >
+                  <SeriesSelector actionType={ActionType.POOL} inputValue={poolInput} />
+                </SectionWrap>
+              </Box>
             </Box>
           )}
 
           {stepPosition === 1 && (
             <Box gap="large">
-              <BackButton action={() => setStepPosition(0)} />
+
+                <BackButton action={() => setStepPosition(0)} />
 
               <ActiveTransaction txCode={poolTx.txCode} full>
                 <Box gap="large">
