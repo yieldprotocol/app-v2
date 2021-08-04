@@ -24,10 +24,9 @@ function InputWrap({ action, disabled, isError, children, ...props }: IInputWrap
         {...props}
         direction="row"
         round="xsmall"
-        pad='small'
         align="center"
-        basis={mobile ? '50%' : '65%'}
         background={isError ? 'pink' : undefined}
+        pad='1px'
       >
         {children}
       </InsetBox>
