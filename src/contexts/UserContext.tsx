@@ -251,8 +251,11 @@ const UserProvider = ({ children }: any) => {
       try {
         const _priceMap = userState.priceMap;
         const _basePriceMap = _priceMap.get(base) || new Map<string, any>();
-        const Oracle = contractMap.get('ChainlinkOracle');
+        // const Oracle = contractMap.get('ChainlinkOracle');
+        const Oracle = contractMap.get('CompositeMultiOracle');
         const [price] = await Oracle.peek(bytesToBytes32(base, 6), bytesToBytes32(ilk, 6), ONE_WEI_BN);
+        // const [price] = await Oracle.peek(base, ilk, ONE_WEI_BN);
+
         _basePriceMap.set(ilk, price);
         _priceMap.set(base, _basePriceMap);
         updateState({ type: 'priceMap', payload: _priceMap });
@@ -432,7 +435,7 @@ const UserProvider = ({ children }: any) => {
     !chainLoading &&
       seriesRootMap &&
       (async () => {
-        const Oracle = contractMap.get('ChainlinkOracle');
+        const Oracle = contractMap.get('CompositeMultiOracle');
         // const filter = Oracle.filters.SourceSet(null, null, null);
         // const eventList = await Oracle.queryFilter(filter, 1);
         // console.log('Oracle events: ', eventList);
