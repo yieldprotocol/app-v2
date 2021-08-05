@@ -244,7 +244,7 @@ const Borrow = () => {
               </Box>
             )}
 
-            {selectedBaseId && selectedSeriesId && (
+            {selectedBaseId && selectedSeriesId && stepPosition === 0 && (
               <Box pad={{ vertical: 'small' }} onClick={() => setCalculatorOpen(true)}>
                 <Text size="small">Need help calculating your repayment?</Text>
               </Box>

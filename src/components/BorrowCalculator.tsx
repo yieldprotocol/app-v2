@@ -174,7 +174,7 @@ const Calculator = ({ initialBorrow }: ICalculator) => {
 
       <Box round="small" basis="60%" pad="large" background={{ color: 'rgb(255, 255, 255)' }} gap="medium">
         <Grid
-          columns={['flex', 'auto']}
+          columns={['auto', 'auto']}
           gap="medium"
           justify={INITIAL_REPAY_DATE_INPUT === repayDateInput ? 'center' : 'stretch'}
         >
