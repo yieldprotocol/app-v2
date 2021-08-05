@@ -64,7 +64,7 @@ const AprText = ({
   return (
     <>
       {actionType !== ActionType.POOL && !series.seriesIsMature && !inputValue && (
-        <Text size="small">
+        <Text size="medium">
           {series?.apr}% <Text size="xsmall">APR</Text>
         </Text>
       )}
@@ -119,7 +119,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     if (_series) {
       return `${mobile ? _series.displayNameMobile : _series.displayName}`;
     }
-    return 'Select a series';
+    return 'Select a maturity date';
   };
 
   const optionExtended = (_series: ISeries | undefined) => (
@@ -228,11 +228,11 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
                   <Avatar background="#FFF"> {series.seriesMark}</Avatar>
 
                   <Box>
-                    <Text color={series.id === selectedSeriesId ? series.textColor : undefined}>
-                      {series.displayNameMobile}
+                    <Text size='medium' color={series.id === selectedSeriesId ? series.textColor : undefined}>
+                      <AprText inputValue={inputValue} series={series} actionType={actionType} /> 
                     </Text>
-                    <Text color={series.id === selectedSeriesId ? series.textColor : undefined}>
-                      <AprText inputValue={inputValue} series={series} actionType={actionType} />
+                    <Text size='small' color={series.id === selectedSeriesId ? series.textColor : undefined}>          
+                      {series.displayNameMobile}
                     </Text>
                   </Box>
                 </Box>
