@@ -152,30 +152,32 @@ const Calculator = ({ initialBorrow }: ICalculator) => {
               <Button plain icon={<FiInfo />} />
             </Tip>
           </Box>
-          <Box direction="row">
-            <Box direction="row" gap="small" align="center">
-              <RangeInput
-                value={interestRate}
-                onChange={(event) => setInterestRate(event.target.value)}
-                min="0"
-                max="10"
-                step={0.01}
-              />
-              <InputWrap action={() => null} isError={null} width="small">
-                <TextInput
-                  size="small"
-                  plain
-                  type="number"
-                  placeholder="Enter amount"
+          <Box gap="medium">
+            <Box direction="row">
+              <Box direction="row" gap="small" align="center">
+                <RangeInput
                   value={interestRate}
-                  onChange={(event: any) => setInterestRate(cleanValue(event.target.value))}
-                  autoFocus={!mobile}
+                  onChange={(event) => setInterestRate(event.target.value)}
+                  min="0"
+                  max="10"
+                  step={0.01}
                 />
-              </InputWrap>
-              %
+                <InputWrap action={() => null} isError={null} width="small">
+                  <TextInput
+                    size="small"
+                    plain
+                    type="number"
+                    placeholder="Enter amount"
+                    value={interestRate}
+                    onChange={(event: any) => setInterestRate(cleanValue(event.target.value))}
+                    autoFocus={!mobile}
+                  />
+                </InputWrap>
+                %
+              </Box>
             </Box>
+            <Button size="small" label="Reset" onClick={() => handleReset()} />
           </Box>
-          <Button size="small" label="Reset" onClick={() => handleReset()} />
         </Box>
       </Box>
 
