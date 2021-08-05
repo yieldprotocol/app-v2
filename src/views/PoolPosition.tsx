@@ -146,6 +146,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
         </Box>
 
         <Box height={{ min: '300px' }}>
+        <SectionWrap title='Position Actions'>
           <Box elevation="xsmall" round="xsmall">
             <Select
               plain
@@ -161,6 +162,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
               onChange={({ option }) => setActionActive(option)}
             />
           </Box>
+        </SectionWrap>
 
           {actionActive.index === 0 && (
             <>
