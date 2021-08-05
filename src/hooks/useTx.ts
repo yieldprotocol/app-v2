@@ -27,24 +27,16 @@ export const useTx = (actionCode: ActionCodes, shouldRedirect: boolean = false) 
   const history = useHistory();
   const INITIAL_STATE = { txCode: null, pending: false, success: false, failed: false, rejected: false, txHash: null };
   const [tx, setTx] = useState<ITx>(INITIAL_STATE);
-  console.log(tx);
+
   useEffect(() => {
     const txCode = selectedVaultId ? getTxCode(actionCode, selectedVaultId!) : getTxCode(actionCode, selectedSeriesId!);
     const txHash = transactions.processes?.get(txCode);
-    // console.log('vault id ', selectedVaultId);
-    // console.log('series id ', selectedSeriesId);
-    // console.log('txcode', txCode);
-    // console.log('processes', transactions.processes);
-    // console.log('txhash', txHash);
-    // console.log(transactions);
     setTx((t) => ({ ...INITIAL_STATE, txCode, txHash }));
 
     let status;
     if (transactions.transactions.has(txHash)) {
       status = transactions.transactions.get(txHash).status;
     }
-
-    console.log(status);
 
     switch (status) {
       case TxState.PENDING:
