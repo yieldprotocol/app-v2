@@ -517,31 +517,32 @@ export const calculateCollateralizationRatio = (
 /**
  * Calculates the collateralization ratio
  * based on the collat amount and value and debt value.
- * @param { BigNumber | string } collateralAmount  amount of collateral ( in wei)
- * @param { BigNumber | string } collateralPrice price of collateral (in USD)
+ * @param { BigNumber | string } collateralUnitPrice price of collateral in base
  * @param { BigNumber | string } debtValue value of base debt (in USD)
- * @param {boolean} asPercent OPTIONAL: flag to return ratio as a percentage
+ * @param {BigNumber | string} liquidationRatio  OPTIONAL: 1.5 (150%) as default
+ * @param {BigNumber | string} existingCollateral  OPTIONAL: 0 as default
  * @returns { string | undefined }
  */
 export const calculateMinCollateral = (
-  collateralPrice: BigNumber | string,
-  debtValue: BigNumber | string
-): string | undefined =>
-  // if (ethers.BigNumber.isBigNumber(debtValue) ? debtValue.isZero() : debtValue === '0') {
-  //   return undefined;
-  // }
-  // const _unitPrice = divDecimal(collateralPrice, '1000000000000000000');
+  collateralUnitPrice: BigNumber | string,
+  debtValue: BigNumber | string,
+  liquidationRatio: string = '1.5', // OPTIONAL: 150% as default
+  existingCollateral: BigNumber | string = '0', // OPTIONAL add in 
+  ): string | undefined => {
 
-  // const _colVal = mulDecimal(collateralAmount, _unitPrice);
-  // const _ratio = divDecimal(_colVal, debtValue);
+    const _existing = new Decimal(ethers.utils.formatEther(existingCollateral));
+    const _minCollatValue = mulDecimal(liquidationRatio, debtValue);
+    const _minCollatAmount = new Decimal(divDecimal(_minCollatValue, collateralUnitPrice));
 
-  // if (asPercent) {
-  //   return mulDecimal('100', _ratio);
-  // }
-  // return _ratio;
-  '1';
+    const requiredCollateral = _existing.gt(_minCollatAmount)  
+      ? new Decimal('0')
+      :_minCollatAmount.sub(_existing);
 
-/**
+    return requiredCollateral.toString()
+
+}
+
+/** 
  * Calcualtes the amount (base, or other variant) that can be borrowed based on
  * an amount of collateral (ETH, or other), and collateral price.
  *
