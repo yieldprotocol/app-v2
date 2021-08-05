@@ -105,8 +105,8 @@ const Calculator = ({ initialBorrow }: ICalculator) => {
   }, [apr, borrowDateInput, repayDateInput, selectedSeriesMaturity, interestRate, borrowInput, initialBorrow]);
 
   return (
-    <Box round="small" direction="row" width="large" justify="between">
-      <Box basis="40%" pad="large" background={{ color: 'rgb(247, 248, 250)' }} gap="medium">
+    <Box direction="row" width="large" justify="between">
+      <Box round="small" basis="40%" pad="large" background={{ color: 'rgb(247, 248, 250)' }} gap="medium">
         <Box gap="small">
           <Text size="small">Borrowed Amount</Text>
           <InputWrap action={() => null} isError={null}>
@@ -172,7 +172,7 @@ const Calculator = ({ initialBorrow }: ICalculator) => {
         </Box>
       </Box>
 
-      <Box basis="60%" pad="large" background={{ color: 'rgb(255, 255, 255)' }} gap="medium">
+      <Box round="small" basis="60%" pad="large" background={{ color: 'rgb(255, 255, 255)' }} gap="medium">
         <Grid
           columns={['flex', 'auto']}
           gap="medium"
@@ -181,13 +181,13 @@ const Calculator = ({ initialBorrow }: ICalculator) => {
           <Box gap="medium">
             <Box>Pay At Maturity</Box>
             <Box gap="xsmall">
-              <Text size="small">Repay Amount</Text>
+              <Text size="small">Total</Text>
               <Text size="xlarge" color="#10B981">
                 ${nFormatter(Number(initialRepayAmount) || 0, selectedBase.digitFormat!)}
               </Text>
               <Text size="xsmall" color="#111827">{`Paid On ${selectedSeries.fullDate}`}</Text>
             </Box>
-            <Box gap="small">
+            <Box gap="medium">
               <Box gap="xsmall">
                 <Text size="small">Interest Owed</Text>
                 <Text size="xlarge" color="#10B981">
@@ -207,13 +207,13 @@ const Calculator = ({ initialBorrow }: ICalculator) => {
             <Box gap="medium">
               <Box>Repay Early</Box>
               <Box gap="xsmall">
-                <Text size="small">Repay Amount</Text>
+                <Text size="small">Total</Text>
                 <Text size="xlarge" color="#10B981">
                   ${nFormatter(Number(repayAmount), selectedBase.digitFormat!)}
                 </Text>
                 <Text size="xsmall" color="#111827">{`Paid On ${repayDate}`}</Text>
               </Box>
-              <Box gap="small">
+              <Box gap="medium">
                 <Box gap="xsmall">
                   <Text size="small">Interest Owed</Text>
                   <Text size="xlarge" color="#10B981">
