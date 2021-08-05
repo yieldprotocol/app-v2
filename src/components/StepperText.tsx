@@ -31,7 +31,7 @@ function StepperText({ values, position }: IStepperText) {
           )}
           <Box direction="row">
             {position === i ? (
-              <StyledText size="medium" color="text-weak">
+              <StyledText size="xxlarge" color="text-weak">
                 {x[0]}
                 <StyledText size="xxlarge" color="text-weak"> {x[1]} </StyledText>
                 {x[2]}

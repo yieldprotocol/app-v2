@@ -91,7 +91,7 @@ const Lend = () => {
               position={stepPosition}
               values={[
                 ['Choose amount to', 'LEND', ''],
-                ['Review &', 'Transact', ''],
+                ['Review & Transact', '', ''],
               ]}
             />
           </Box>
