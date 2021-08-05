@@ -363,6 +363,7 @@ const Vault = ({ close }: { close: () => void }) => {
         </Box>
 
         <Box height={{ min: '300px' }}>
+         <SectionWrap title='Vault Actions'>
           <Box elevation="xsmall" round="xsmall">
             <Select
               dropProps={{ round: 'xsmall' }}
@@ -373,7 +374,7 @@ const Vault = ({ close }: { close: () => void }) => {
                 { text: 'Manage Collateral', index: 2 },
                 { text: 'Transaction History', index: 3 },
                 { text: 'Transfer Vault', index: 4 },
-                { text: 'Merge Vaults', index: 5 },
+                { text: 'Merge Vault', index: 5 },
                 { text: 'Delete Vault', index: 6 },
               ]}
               labelKey="text"
@@ -383,11 +384,12 @@ const Vault = ({ close }: { close: () => void }) => {
               disabled={selectedVault?.isActive ? undefined : [0, 1, 2, 4, 5, 6]}
             />
           </Box>
+          </SectionWrap>
 
           {actionActive.index === 0 && (
             <>
               {stepPosition[0] === 0 && (
-                <Box margin={{ top: 'medium' }}>
+                <Box margin={{ top: 'medium' }} gap='medium'>
                   <InputWrap action={() => console.log('maxAction')} isError={repayError}>
                     <TextInput
                       plain
@@ -428,7 +430,7 @@ const Vault = ({ close }: { close: () => void }) => {
           {actionActive.index === 1 && (
             <>
               {stepPosition[actionActive.index] === 0 && (
-                <Box margin={{ top: 'medium' }}>
+                <Box margin={{ top: 'medium' }} gap='medium'>
                   <SeriesSelector
                     selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
                     actionType={ActionType.BORROW}
@@ -459,7 +461,7 @@ const Vault = ({ close }: { close: () => void }) => {
           {actionActive.index === 2 && (
             <>
               {stepPosition[actionActive.index] === 0 && (
-                <Box margin={{ top: 'medium' }}>
+                <Box margin={{ top: 'medium' }} gap='medium'>
                   <InputWrap action={() => console.log('maxAction')} isError={addCollatError}>
                     <TextInput
                       disabled={removeCollatInput}
@@ -537,7 +539,7 @@ const Vault = ({ close }: { close: () => void }) => {
           {actionActive.index === 4 && (
             <>
               {stepPosition[actionActive.index] === 0 && (
-                <Box margin={{ top: 'medium' }}>
+                <Box margin={{ top: 'medium' }} gap='medium'>
                   <InputWrap action={() => console.log('maxAction')} isError={null}>
                     <TextInput
                       plain
@@ -572,7 +574,7 @@ const Vault = ({ close }: { close: () => void }) => {
           {actionActive.index === 5 && (
             <>
               {stepPosition[actionActive.index] === 0 && (
-                <Box margin={{ top: 'medium' }}>
+                <Box margin={{ top: 'medium' }} gap='medium'>
                   <VaultDropSelector
                     vaults={matchingVaults}
                     handleSelect={handleMergeVaultSelect}
@@ -648,7 +650,7 @@ const Vault = ({ close }: { close: () => void }) => {
           {actionActive.index === 6 && (
             <>
               {stepPosition[actionActive.index] === 0 && !destroyError && (
-                <Box margin={{ top: 'medium' }}>
+                <Box margin={{ top: 'medium' }} gap='medium'>
                   <InputWrap action={() => console.log('maxAction')} isError={null}>
                     <TextInput
                       plain

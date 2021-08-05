@@ -1,6 +1,6 @@
 import { Box, Text } from 'grommet';
 import React, { useState, useEffect, useContext } from 'react';
-import { FiArrowLeftCircle, FiLink } from 'react-icons/fi';
+import { FiArrowLeftCircle, FiExternalLink, FiLink } from 'react-icons/fi';
 import styled from 'styled-components';
 import { ChainContext } from '../../contexts/ChainContext';
 import EtherscanMark from '../logos/EtherscanMark';
@@ -46,7 +46,10 @@ function EtherscanButton({ txHash }: { txHash: string }) {
       <Text size="xsmall" color={hover ? '#333333' : 'grey'}>
         View on Etherscan
       </Text>
-      <EtherscanMark />
+      <Text size="xsmall" color={hover ? '#333333' : 'grey'}>
+        <FiExternalLink />
+      </Text>
+      {/* <EtherscanMark /> */}
     </StyledBox>
   );
 }

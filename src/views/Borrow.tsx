@@ -173,9 +173,9 @@ const Borrow = () => {
               <StepperText
                 position={stepPosition}
                 values={[
-                  ['Choose amount to', 'BORROW', ''],
-                  ['Add', 'COLLATERAL', ''],
-                  ['Review &', 'Transact', ''],
+                  ['Choose an amount and a maturity date', '', ''],
+                  ['Add Collateral', '', ''],
+                  ['Review & Transact', '', ''],
                 ]}
               />
             </Box>
@@ -196,7 +196,7 @@ const Borrow = () => {
                   </Box>
                 </Box>
 
-                <Box gap="small">
+                <Box gap="large">
                   {/* <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}> */}
                   <SectionWrap>
                     <Box direction="row" gap="small">

@@ -146,6 +146,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
         </Box>
 
         <Box height={{ min: '300px' }}>
+        <SectionWrap title='Position Actions'>
           <Box elevation="xsmall" round="xsmall">
             <Select
               plain
@@ -161,11 +162,12 @@ const PoolPosition = ({ close }: { close: () => void }) => {
               onChange={({ option }) => setActionActive(option)}
             />
           </Box>
+        </SectionWrap>
 
           {actionActive.index === 0 && (
             <>
               {stepPosition[0] === 0 && (
-                <Box margin={{ top: 'medium' }}>
+                <Box margin={{ top: 'medium' }} gap='medium'>
                   <InputWrap action={() => console.log('maxAction')} isError={removeError}>
                     <TextInput
                       plain
@@ -206,7 +208,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
           {actionActive.index === 1 && (
             <>
               {stepPosition[actionActive.index] === 0 && (
-                <Box margin={{ top: 'medium' }}>
+                <Box margin={{ top: 'medium' }} gap='medium'>
                   <InputWrap action={() => console.log('maxAction')} isError={rollError}>
                     <TextInput
                       plain

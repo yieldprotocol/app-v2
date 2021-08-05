@@ -23,7 +23,7 @@ function StepperText({ values, position }: IStepperText) {
   return (
     <Box width={{ max: '200px' }} gap="small">
       {values.map((x: string[], i: number) => (
-        <Box key={x[1]} >
+        <Box key={x[1].concat(i.toString())} >
           {position === i && (
             <Text weight="bold" color="text-weak" size="small">
               STEP {i + 1}
@@ -31,7 +31,7 @@ function StepperText({ values, position }: IStepperText) {
           )}
           <Box direction="row">
             {position === i ? (
-              <StyledText size="medium" color="text-weak">
+              <StyledText size="xxlarge" color="text-weak">
                 {x[0]}
                 <StyledText size="xxlarge" color="text-weak"> {x[1]} </StyledText>
                 {x[2]}
