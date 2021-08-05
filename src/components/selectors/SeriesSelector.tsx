@@ -70,7 +70,7 @@ const AprText = ({
       )}
 
       {actionType !== ActionType.POOL && !limitHit && !series?.seriesIsMature && inputValue && (
-        <Text size="small">
+        <Text size="medium">
           {apr}% <Text size="xsmall">APR</Text>
         </Text>
       )}
@@ -82,16 +82,16 @@ const AprText = ({
       )}
 
       {actionType === ActionType.POOL && !series.seriesIsMature && !inputValue && (
-        <Text size="small">
+        <Text size="medium">
           {nFormatter(parseFloat(series?.totalSupply_), 2)} <Text size="xsmall"> liquidity </Text>
         </Text>
       )}
 
       {actionType === ActionType.POOL && !series.seriesIsMature && inputValue && (
         // TODO fix this asap - use a pool hook
-        <Text size="xsmall">
-          {nFormatter((parseFloat(inputValue) / (parseFloat(series?.totalSupply_) + parseFloat(inputValue))) * 100, 2)}{' '}
-          %<Text size="xsmall">of Pool</Text>
+        <Text size="medium">
+          {nFormatter((parseFloat(inputValue) / (parseFloat(series?.totalSupply_) + parseFloat(inputValue))) * 100, 2)}
+          <Text size="xsmall"> % of Pool</Text>
         </Text>
       )}
 
