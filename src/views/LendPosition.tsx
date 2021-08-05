@@ -176,7 +176,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
           {actionActive.index === 0 && (
             <>
               {stepPosition[0] === 0 && (
-                <Box margin={{ top: 'medium' }}>
+                <Box margin={{ top: 'medium' }} gap='medium'>
                   <InputWrap action={() => console.log('maxAction')} isError={closeError} disabled={!selectedSeries}>
                     <TextInput
                       plain
@@ -218,7 +218,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
           {actionActive.index === 1 && (
             <>
               {stepPosition[actionActive.index] === 0 && (
-                <Box margin={{ top: 'medium' }}>
+                <Box margin={{ top: 'medium' }} gap='medium'>
                   <InputWrap action={() => console.log('maxAction')} isError={closeError} disabled={!selectedSeries}>
                     <TextInput
                       plain
