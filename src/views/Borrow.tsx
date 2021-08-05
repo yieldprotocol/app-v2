@@ -251,7 +251,7 @@ const Borrow = () => {
             )}
             {calculatorOpen && (
               <Layer onClickOutside={() => setCalculatorOpen(false)} onEsc={() => setCalculatorOpen(false)}>
-                <BorrowCalculator />
+                <BorrowCalculator initialBorrow={borrowInput !== '' ? borrowInput : undefined} />
               </Layer>
             )}
 
