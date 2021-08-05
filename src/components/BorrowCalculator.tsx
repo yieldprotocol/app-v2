@@ -8,7 +8,11 @@ import { ActionType } from '../types';
 import { cleanValue, nFormatter } from '../utils/appUtils';
 import InputWrap from './wraps/InputWrap';
 
-const Calculator = () => {
+interface ICalculator {
+  initialBorrow?: string;
+}
+
+const Calculator = ({ initialBorrow }: ICalculator) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
     userState: { assetMap, seriesMap, selectedSeriesId, selectedBaseId },
@@ -17,9 +21,9 @@ const Calculator = () => {
   const selectedSeries = seriesMap.get(selectedSeriesId!);
   const formatDate = (date: any) => format(new Date(date), 'dd MMMM yyyy');
 
-  const INITIAL_BORROW_AMOUNT = '10000';
+  // const INITIAL_BORROW_AMOUNT = '10000';
   const today = new Date();
-  const [borrowInput, setBorrowInput] = useState<string>(INITIAL_BORROW_AMOUNT);
+  const [borrowInput, setBorrowInput] = useState<string | undefined>(initialBorrow);
   const [borrowDateInput, setBorrowDateInput] = useState<any>(today.toISOString());
   const [borrowDate, setBorrowDate] = useState<any>(formatDate(borrowDateInput));
 
@@ -31,22 +35,26 @@ const Calculator = () => {
   const [repayDateInputError, setRepayDateInputError] = useState<string | null>(null);
 
   const { apr, minApr, maxApr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
-  const [interestRate, setInterestRate] = useState<string | undefined>(apr);
-  const [effectiveAPR, setEffectiveAPR] = useState<string | undefined>(apr);
+  const [interestRate, setInterestRate] = useState<string>(apr || '');
+  const [effectiveAPR, setEffectiveAPR] = useState<string>(apr || '');
 
   const handleReset = () => {
-    setInterestRate(apr);
+    apr && setInterestRate(apr);
     setRepayDateInput(INITIAL_REPAY_DATE_INPUT);
-    setBorrowInput(INITIAL_BORROW_AMOUNT);
+    setBorrowInput(initialBorrow);
   };
 
-  const _fyTokensSold = (borrowed: string, interest: string | undefined, borrowedDate: Date, maturity: Date) =>
-    Number(borrowed) * (1 + Number(interest) / 100) ** (differenceInCalendarDays(maturity, borrowedDate) / 365);
+  const _fyTokensSold = (
+    borrowed: string | undefined,
+    interest: string | undefined,
+    borrowedDate: Date,
+    maturity: Date
+  ) => Number(borrowed) * (1 + Number(interest) / 100) ** (differenceInCalendarDays(maturity, borrowedDate) / 365);
 
   const _fyTokenCost = (interest: string | undefined, payDate: Date, maturity: Date) =>
     1 / (1 + Number(interest) / 100) ** (differenceInCalendarDays(maturity, payDate) / 365);
 
-  const _getEffectiveAPR = (borrowed: string, amountRepaid: string, borrowedDate: Date, payDate: Date) => {
+  const _getEffectiveAPR = (borrowed: string | undefined, amountRepaid: string, borrowedDate: Date, payDate: Date) => {
     const _apr =
       (Number(amountRepaid) / Number(borrowed)) ** (365 / differenceInCalendarDays(payDate, borrowedDate)) - 1;
     return _apr;
@@ -58,7 +66,7 @@ const Calculator = () => {
       selectedBase?.digitFormat!
     );
     setRepayAmount(borrowAmount);
-    setInterestRate(apr);
+    apr && setInterestRate(apr);
   }, [apr, borrowInput, selectedBase]);
 
   useEffect(() => {
@@ -173,5 +181,7 @@ const Calculator = () => {
     </Box>
   );
 };
+
+Calculator.defaultProps = { initialBorrow: '10000' };
 
 export default Calculator;
