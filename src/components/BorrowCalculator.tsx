@@ -109,7 +109,7 @@ const Calculator = ({ initialBorrow }: ICalculator) => {
       <Box basis="40%" pad="large" background={{ color: 'rgb(247, 248, 250)' }} gap="medium">
         <Box gap="small">
           <Text size="small">Borrowed Amount</Text>
-          <InputWrap action={() => console.log('maxAction')} isError={null}>
+          <InputWrap action={() => null} isError={null}>
             <TextInput
               plain
               type="number"
@@ -133,18 +133,39 @@ const Calculator = ({ initialBorrow }: ICalculator) => {
         <Box gap="small">
           <Box direction="row" gap="xsmall">
             <Text size="small">Interest Rate</Text>
-            <FiInfo />
+            <Tip
+              plain
+              content={
+                <Box pad="small" gap="small" width={{ max: 'small' }} background="#374151" round="small">
+                  <Text size="xsmall">early payment is subject to market changes in interest rates</Text>
+                </Box>
+              }
+              dropProps={{ align: { left: 'right' } }}
+            >
+              <Button plain icon={<FiInfo />} />
+            </Tip>
           </Box>
-          <Box direction="row" gap="small" align="center">
-            <RangeInput
-              value={interestRate}
-              onChange={(event) => setInterestRate(event.target.value)}
-              min="0"
-              max="10"
-              step={0.01}
-            />
-            <Box width="3em">
-              <Text size="small">{interestRate}%</Text>
+          <Box direction="row">
+            <Box direction="row" gap="small" align="center">
+              <RangeInput
+                value={interestRate}
+                onChange={(event) => setInterestRate(event.target.value)}
+                min="0"
+                max="10"
+                step={0.01}
+              />
+              <InputWrap action={() => null} isError={null} width="small">
+                <TextInput
+                  size="small"
+                  plain
+                  type="number"
+                  placeholder="Enter amount"
+                  value={interestRate}
+                  onChange={(event: any) => setInterestRate(cleanValue(event.target.value))}
+                  autoFocus={!mobile}
+                />
+              </InputWrap>
+              %
             </Box>
           </Box>
           <Button size="small" label="Reset" onClick={() => handleReset()} />
@@ -152,13 +173,17 @@ const Calculator = ({ initialBorrow }: ICalculator) => {
       </Box>
 
       <Box basis="60%" pad="large" background={{ color: 'rgb(255, 255, 255)' }} gap="medium">
-        <Grid columns={['auto', 'auto']} gap="medium">
+        <Grid
+          columns={['flex', 'auto']}
+          gap="medium"
+          justify={INITIAL_REPAY_DATE_INPUT === repayDateInput ? 'center' : 'stretch'}
+        >
           <Box gap="medium">
-            <Box>At Maturity</Box>
+            <Box>Pay At Maturity</Box>
             <Box gap="xsmall">
               <Text size="small">Repay Amount</Text>
               <Text size="xlarge" color="#10B981">
-                ${nFormatter(Number(initialRepayAmount), selectedBase.digitFormat!)}
+                ${nFormatter(Number(initialRepayAmount) || 0, selectedBase.digitFormat!)}
               </Text>
               <Text size="xsmall" color="#111827">{`Paid On ${selectedSeries.fullDate}`}</Text>
             </Box>
@@ -166,7 +191,7 @@ const Calculator = ({ initialBorrow }: ICalculator) => {
               <Box gap="xsmall">
                 <Text size="small">Interest Owed</Text>
                 <Text size="xlarge" color="#10B981">
-                  ${nFormatter(Number(initialInterestOwed), selectedBase.digitFormat!)}
+                  ${nFormatter(Number(initialInterestOwed) || 0, selectedBase.digitFormat!)}
                 </Text>
               </Box>
               <Box gap="xsmall">
@@ -177,30 +202,46 @@ const Calculator = ({ initialBorrow }: ICalculator) => {
               </Box>
             </Box>
           </Box>
-          <Box gap="medium">
-            <Box>Repay Early</Box>
-            <Box gap="xsmall">
-              <Text size="small">Repay Amount</Text>
-              <Text size="xlarge" color="#10B981">
-                ${nFormatter(Number(repayAmount), selectedBase.digitFormat!)}
-              </Text>
-              <Text size="xsmall" color="#111827">{`Paid On ${repayDate}`}</Text>
-            </Box>
-            <Box gap="small">
+
+          {INITIAL_REPAY_DATE_INPUT !== repayDateInput && (
+            <Box gap="medium">
+              <Box>Repay Early</Box>
               <Box gap="xsmall">
-                <Text size="small">Interest Owed</Text>
+                <Text size="small">Repay Amount</Text>
                 <Text size="xlarge" color="#10B981">
-                  ${nFormatter(Number(repayAmount) - Number(borrowInput), selectedBase.digitFormat!)}
+                  ${nFormatter(Number(repayAmount), selectedBase.digitFormat!)}
                 </Text>
+                <Text size="xsmall" color="#111827">{`Paid On ${repayDate}`}</Text>
               </Box>
-              <Box gap="xsmall">
-                <Text size="xsmall">Effective Interest Rate</Text>
-                <Text size="large" color={Number(effectiveAPR) < Number(apr) ? '#10B981' : '#EF4444'}>
-                  {cleanValue(effectiveAPR, 2)}%
-                </Text>
+              <Box gap="small">
+                <Box gap="xsmall">
+                  <Text size="small">Interest Owed</Text>
+                  <Text size="xlarge" color="#10B981">
+                    ${nFormatter(Number(repayAmount) - Number(borrowInput), selectedBase.digitFormat!)}
+                  </Text>
+                </Box>
+                <Box gap="xsmall">
+                  <Box direction="row" gap="xsmall">
+                    <Text size="xsmall">Effective Interest Rate</Text>
+                    <Tip
+                      plain
+                      content={
+                        <Box pad="small" gap="small" width={{ max: 'small' }} background="#374151" round="small">
+                          <Text size="xsmall">{`if the interest rate when you repay is at ${interestRate}%`}</Text>
+                        </Box>
+                      }
+                      dropProps={{ align: { right: 'left' } }}
+                    >
+                      <Button plain icon={<FiInfo />} />
+                    </Tip>
+                  </Box>
+                  <Text size="large" color={Number(effectiveAPR) < Number(apr) ? '#10B981' : '#EF4444'}>
+                    {cleanValue(effectiveAPR, 2)}%
+                  </Text>
+                </Box>
               </Box>
             </Box>
-          </Box>
+          )}
         </Grid>
       </Box>
     </Box>
