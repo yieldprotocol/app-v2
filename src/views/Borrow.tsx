@@ -1,5 +1,17 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, Button, CheckBox, Header, Heading, Keyboard, ResponsiveContext, Select, Text, TextInput } from 'grommet';
+import {
+  Box,
+  Button,
+  CheckBox,
+  Header,
+  Heading,
+  Keyboard,
+  Layer,
+  ResponsiveContext,
+  Select,
+  Text,
+  TextInput,
+} from 'grommet';
 import { useHistory, useParams } from 'react-router-dom';
 import { ethers } from 'ethers';
 import styled from 'styled-components';
@@ -42,6 +54,7 @@ import PositionAvatar from '../components/PositionAvatar';
 import VaultDropSelector from '../components/selectors/VaultDropSelector';
 import { useInputValidation } from '../hooks/inputValidationHook';
 import AltText from '../components/texts/AltText';
+import BorrowCalculator from '../components/BorrowCalculator';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -72,6 +85,8 @@ const Borrow = () => {
   const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
 
   const [disclaimerChecked, setDisclaimerChecked] = useState<boolean>(false);
+
+  const [calculatorOpen, setCalculatorOpen] = useState<boolean>(false);
 
   const { borrow } = useBorrowActions();
 
@@ -229,8 +244,19 @@ const Borrow = () => {
               </Box>
             )}
 
+            {selectedBaseId && selectedSeriesId && (
+              <Box pad={{ vertical: 'small' }} onClick={() => setCalculatorOpen(true)}>
+                <Text size="small">Need help calculating your repayment?</Text>
+              </Box>
+            )}
+            {calculatorOpen && (
+              <Layer onClickOutside={() => setCalculatorOpen(false)} onEsc={() => setCalculatorOpen(false)}>
+                <BorrowCalculator />
+              </Layer>
+            )}
+
             {stepPosition === 1 && ( // ADD COLLATERAL
-              <Box gap="medium" >
+              <Box gap="medium">
                 <BackButton action={() => setStepPosition(0)} />
 
                 <Box gap="medium" height="400px">
@@ -277,23 +303,21 @@ const Borrow = () => {
                   </SectionWrap>
                 </Box>
 
-
-                  <Box direction="row" align="center" gap="large" justify='center'>
-                    <Box>
-                      <Gauge value={parseFloat(collateralizationPercent!)} size="8em" />
-                    </Box>
-
-                    <Box>
-                      <Text size="small"> Collateralization </Text>
-                      <Text size="xlarge">
-                        {parseFloat(collateralizationPercent!) > 10000
-                          ? nFormatter(parseFloat(collateralizationPercent!), 2)
-                          : parseFloat(collateralizationPercent!)}
-                        %
-                      </Text>
-                    </Box>
+                <Box direction="row" align="center" gap="large" justify="center">
+                  <Box>
+                    <Gauge value={parseFloat(collateralizationPercent!)} size="8em" />
                   </Box>
 
+                  <Box>
+                    <Text size="small"> Collateralization </Text>
+                    <Text size="xlarge">
+                      {parseFloat(collateralizationPercent!) > 10000
+                        ? nFormatter(parseFloat(collateralizationPercent!), 2)
+                        : parseFloat(collateralizationPercent!)}
+                      %
+                    </Text>
+                  </Box>
+                </Box>
               </Box>
             )}
 
@@ -341,7 +365,6 @@ const Borrow = () => {
               </Box>
             )}
           </Box>
-
           <Box>
             {stepPosition === 2 && (
               <SectionWrap>
