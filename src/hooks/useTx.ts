@@ -11,6 +11,7 @@ interface ITx {
   success: boolean;
   failed: boolean;
   rejected: boolean;
+  txHash: any;
 }
 
 /* useTx hook returns the tx status, and redirects to home after success if shouldRedirect is specified */
@@ -20,48 +21,58 @@ export const useTx = (actionCode: ActionCodes, shouldRedirect: boolean = false) 
   const { txState: transactions } = useContext(TxContext);
   const {
     userState: { selectedVaultId, selectedSeriesId },
+    userActions,
   } = useContext(UserContext);
 
   const history = useHistory();
-  const INITIAL_STATE = { txCode: null, pending: false, success: false, failed: false, rejected: false };
+  const INITIAL_STATE = { txCode: null, pending: false, success: false, failed: false, rejected: false, txHash: null };
   const [tx, setTx] = useState<ITx>(INITIAL_STATE);
-
+  console.log(tx);
   useEffect(() => {
     const txCode = selectedVaultId ? getTxCode(actionCode, selectedVaultId!) : getTxCode(actionCode, selectedSeriesId!);
-    setTx({ ...INITIAL_STATE, txCode });
     const txHash = transactions.processes?.get(txCode);
+    // console.log('vault id ', selectedVaultId);
+    // console.log('series id ', selectedSeriesId);
+    // console.log('txcode', txCode);
+    // console.log('processes', transactions.processes);
+    // console.log('txhash', txHash);
+    // console.log(transactions);
+    setTx((t) => ({ ...INITIAL_STATE, txCode, txHash }));
 
     let status;
     if (transactions.transactions.has(txHash)) {
       status = transactions.transactions.get(txHash).status;
     }
 
+    console.log(status);
+
     switch (status) {
       case TxState.PENDING:
-        setTx({ ...tx, pending: true });
+        setTx((t) => ({ ...t, pending: true }));
         break;
       case TxState.SUCCESSFUL:
-        setTx({ ...tx, success: true });
+        setTx((t) => ({ ...t, success: true }));
         break;
       case TxState.FAILED:
-        setTx({ ...tx, failed: true });
+        setTx((t) => ({ ...t, failed: true }));
         break;
       case TxState.REJECTED:
-        setTx({ ...tx, rejected: true });
+        setTx((t) => ({ ...t, rejected: true }));
         break;
     }
   }, [
-    selectedSeriesId,
     actionCode,
+    shouldRedirect,
+    selectedSeriesId,
     selectedVaultId,
     transactions.processes,
     transactions.transactions,
-    shouldRedirect,
+    tx.txHash,
   ]);
 
   useEffect(() => {
-    tx.success && shouldRedirect && history.push('/');
-  }, [tx.success, shouldRedirect, history]);
+    tx.success && shouldRedirect && history.push('/') && userActions.setSelectedVault(null);
+  }, [tx.success, shouldRedirect, history, userActions]);
 
   return { tx };
 };

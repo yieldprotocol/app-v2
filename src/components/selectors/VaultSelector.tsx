@@ -68,6 +68,11 @@ function VaultSelector(target: any) {
     [vaultMap, showInactiveVaults]
   );
 
+  const handleCloseModal = () => {
+    setShowVaultModal(false);
+    userActions.setSelectedVault(null);
+  };
+
   /* CHECK the list of current vaults which match the current series/ilk selection */
   useEffect(() => {
     if (!showVaultModal) {
@@ -85,12 +90,8 @@ function VaultSelector(target: any) {
   return (
     account && (
       <>
-        <ModalWrap
-          modalOpen={showVaultModal}
-          toggleModalOpen={() => setShowVaultModal(!showVaultModal)}
-          background={selectedSeries?.color}
-        >
-          <Vault close={() => setShowVaultModal(false)} />
+        <ModalWrap modalOpen={showVaultModal} toggleModalOpen={handleCloseModal} background={selectedSeries?.color}>
+          <Vault close={handleCloseModal} />
         </ModalWrap>
 
         {allVaults.length > 0 && (
