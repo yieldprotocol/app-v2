@@ -162,17 +162,19 @@ const Calculator = ({ initialBorrow }: ICalculator) => {
               </Text>
               <Text size="xsmall" color="#111827">{`Paid On ${selectedSeries.fullDate}`}</Text>
             </Box>
-            <Box gap="xsmall">
-              <Text size="small">Interest Owed</Text>
-              <Text size="xlarge" color="#10B981">
-                ${nFormatter(Number(initialInterestOwed), selectedBase.digitFormat!)}
-              </Text>
-            </Box>
-            <Box gap="xsmall">
-              <Text size="small">Starting Interest Rate</Text>
-              <Text size="xlarge" color="#10B981">
-                {cleanValue(apr, 2)}%
-              </Text>
+            <Box gap="small">
+              <Box gap="xsmall">
+                <Text size="small">Interest Owed</Text>
+                <Text size="xlarge" color="#10B981">
+                  ${nFormatter(Number(initialInterestOwed), selectedBase.digitFormat!)}
+                </Text>
+              </Box>
+              <Box gap="xsmall">
+                <Text size="xsmall">@Maturity Interest Rate</Text>
+                <Text size="large" color="#10B981">
+                  {cleanValue(apr, 2)}%
+                </Text>
+              </Box>
             </Box>
           </Box>
           <Box gap="medium">
@@ -184,17 +186,19 @@ const Calculator = ({ initialBorrow }: ICalculator) => {
               </Text>
               <Text size="xsmall" color="#111827">{`Paid On ${repayDate}`}</Text>
             </Box>
-            <Box gap="xsmall">
-              <Text size="small">Interest Owed</Text>
-              <Text size="xlarge" color="#10B981">
-                ${nFormatter(Number(repayAmount) - Number(borrowInput), selectedBase.digitFormat!)}
-              </Text>
-            </Box>
-            <Box gap="xsmall">
-              <Text size="small">Effective Interest Rate</Text>
-              <Text size="xlarge" color="#10B981">
-                {cleanValue(effectiveAPR, 2)}%
-              </Text>
+            <Box gap="small">
+              <Box gap="xsmall">
+                <Text size="small">Interest Owed</Text>
+                <Text size="xlarge" color="#10B981">
+                  ${nFormatter(Number(repayAmount) - Number(borrowInput), selectedBase.digitFormat!)}
+                </Text>
+              </Box>
+              <Box gap="xsmall">
+                <Text size="xsmall">Effective Interest Rate</Text>
+                <Text size="large" color={Number(effectiveAPR) < Number(apr) ? '#10B981' : '#EF4444'}>
+                  {cleanValue(effectiveAPR, 2)}%
+                </Text>
+              </Box>
             </Box>
           </Box>
         </Grid>
