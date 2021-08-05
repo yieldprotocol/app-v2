@@ -73,9 +73,11 @@ export const useCollateralization = (
     }
 
     /* check minimum collateral required base on debt */
-    // TODO FIX THIS!!
     if (oraclePrice?.gt(ethers.constants.Zero)) {
-      const min = calculateMinCollateral(totalCollateral, oraclePrice)
+      console.log(oraclePrice.toString(), totalDebt.toString(), existingCollateral.toString())
+
+
+      const min = calculateMinCollateral(oraclePrice, totalDebt, '1.5', existingCollateral)
       setMinCollateral(min);
     } else {
       setMinCollateral('0');
