@@ -220,7 +220,7 @@ const Borrow = () => {
 
                   <SectionWrap
                     title={
-                      seriesMap.size > 0 ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} series` : ''
+                      seriesMap.size > 0 ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} maturity date` : ''
                     }
                   >
                     <SeriesSelector inputValue={borrowInput} actionType={ActionType.BORROW} />
