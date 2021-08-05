@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, Button, DateInput, RangeInput, ResponsiveContext, Text, TextInput } from 'grommet';
+import { Box, Button, DateInput, Grid, RangeInput, ResponsiveContext, Text, TextInput, Tip } from 'grommet';
 import { format, compareAsc, subDays, differenceInCalendarDays } from 'date-fns';
 import { FiInfo } from 'react-icons/fi';
 import { UserContext } from '../contexts/UserContext';
@@ -29,6 +29,8 @@ const Calculator = ({ initialBorrow }: ICalculator) => {
 
   const selectedSeriesMaturity = new Date(selectedSeries.maturity * 1000);
   const INITIAL_REPAY_DATE_INPUT = selectedSeriesMaturity.toISOString();
+  const [initialRepayAmount, setInitialRepayAmount] = useState<string>('');
+  const [initialInterestOwed, setInitialInterestOwed] = useState<string>('');
   const [repayAmount, setRepayAmount] = useState<string>('');
   const [repayDateInput, setRepayDateInput] = useState<any>(INITIAL_REPAY_DATE_INPUT);
   const [repayDate, setRepayDate] = useState<string>(selectedSeries.fullDate);
@@ -84,9 +86,8 @@ const Calculator = ({ initialBorrow }: ICalculator) => {
   }, [repayDateInput]);
 
   useEffect(() => {
-    // update repay amount based on interest rate changes
-    const fyTokensSold = _fyTokensSold(borrowInput, apr, today, selectedSeriesMaturity);
-    const output = Number(borrowInput) * (1 + Number(interestRate) / 100);
+    // number of fyTokens sold at initial borrow date
+    const fyTokensSold = _fyTokensSold(borrowInput, apr, new Date(borrowDateInput), selectedSeriesMaturity);
     const fyTokenCostAtRepay = _fyTokenCost(interestRate, new Date(repayDateInput), selectedSeriesMaturity);
     const amountRepaid = (fyTokensSold * fyTokenCostAtRepay).toString();
     const _effectiveAPR = _getEffectiveAPR(
@@ -98,8 +99,10 @@ const Calculator = ({ initialBorrow }: ICalculator) => {
     const formattedAPR = (_effectiveAPR * 100).toString();
 
     setEffectiveAPR(formattedAPR);
-    setRepayAmount(output.toString());
-  }, [apr, borrowDateInput, repayDateInput, selectedSeriesMaturity, today, interestRate, borrowInput]);
+    setInitialRepayAmount(fyTokensSold.toString());
+    setRepayAmount(amountRepaid);
+    setInitialInterestOwed((fyTokensSold - Number(borrowInput)).toString());
+  }, [apr, borrowDateInput, repayDateInput, selectedSeriesMaturity, interestRate, borrowInput, initialBorrow]);
 
   return (
     <Box round="small" direction="row" width="large" justify="between">
@@ -149,34 +152,52 @@ const Calculator = ({ initialBorrow }: ICalculator) => {
       </Box>
 
       <Box basis="60%" pad="large" background={{ color: 'rgb(255, 255, 255)' }} gap="medium">
-        <Box direction="row" justify="between">
-          <Box gap="xsmall">
-            <Text size="small">Capital Borrowed</Text>
-            <Text size="xlarge" color="#111827">
-              ${nFormatter(Number(borrowInput), selectedBase.digitFormat!)}
-            </Text>
-            <Text size="xsmall" color="#111827">{`Borrowed On ${borrowDate}`}</Text>
+        <Grid columns={['auto', 'auto']} gap="medium">
+          <Box gap="medium">
+            <Box>At Maturity</Box>
+            <Box gap="xsmall">
+              <Text size="small">Repay Amount</Text>
+              <Text size="xlarge" color="#10B981">
+                ${nFormatter(Number(initialRepayAmount), selectedBase.digitFormat!)}
+              </Text>
+              <Text size="xsmall" color="#111827">{`Paid On ${selectedSeries.fullDate}`}</Text>
+            </Box>
+            <Box gap="xsmall">
+              <Text size="small">Interest Owed</Text>
+              <Text size="xlarge" color="#10B981">
+                ${nFormatter(Number(initialInterestOwed), selectedBase.digitFormat!)}
+              </Text>
+            </Box>
+            <Box gap="xsmall">
+              <Text size="small">Starting Interest Rate</Text>
+              <Text size="xlarge" color="#10B981">
+                {cleanValue(apr, 2)}%
+              </Text>
+            </Box>
           </Box>
-          <Box gap="xsmall">
-            <Text size="small">Total Repay Amount</Text>
-            <Text size="xlarge" color="#10B981">
-              ${nFormatter(Number(repayAmount), selectedBase.digitFormat!)}
-            </Text>
-            <Text size="xsmall" color="#111827">{`Paid On ${repayDate}`}</Text>
+          <Box gap="medium">
+            <Box>Repay Early</Box>
+            <Box gap="xsmall">
+              <Text size="small">Repay Amount</Text>
+              <Text size="xlarge" color="#10B981">
+                ${nFormatter(Number(repayAmount), selectedBase.digitFormat!)}
+              </Text>
+              <Text size="xsmall" color="#111827">{`Paid On ${repayDate}`}</Text>
+            </Box>
+            <Box gap="xsmall">
+              <Text size="small">Interest Owed</Text>
+              <Text size="xlarge" color="#10B981">
+                ${nFormatter(Number(repayAmount) - Number(borrowInput), selectedBase.digitFormat!)}
+              </Text>
+            </Box>
+            <Box gap="xsmall">
+              <Text size="small">Effective Interest Rate</Text>
+              <Text size="xlarge" color="#10B981">
+                {cleanValue(effectiveAPR, 2)}%
+              </Text>
+            </Box>
           </Box>
-        </Box>
-        <Box gap="xsmall">
-          <Text size="small">Interest Owed</Text>
-          <Text size="xlarge" color="#10B981">
-            ${nFormatter(Number(repayAmount) - Number(borrowInput), selectedBase.digitFormat!)}
-          </Text>
-        </Box>
-        <Box gap="xsmall">
-          <Text size="small">Effective Interest Rate</Text>
-          <Text size="xlarge" color="#10B981">
-            {cleanValue(effectiveAPR, 2)}%
-          </Text>
-        </Box>
+        </Grid>
       </Box>
     </Box>
   );
