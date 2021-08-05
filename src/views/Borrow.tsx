@@ -196,7 +196,7 @@ const Borrow = () => {
                   </Box>
                 </Box>
 
-                <Box gap="small">
+                <Box gap="large">
                   {/* <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}> */}
                   <SectionWrap>
                     <Box direction="row" gap="small">
