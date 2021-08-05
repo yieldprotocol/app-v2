@@ -141,16 +141,16 @@ export const useBorrowActions = () => {
         ignore: series.mature,
       },
       {
-        /* ladle.repay(vaultId, owner, repayAmount, minAmountToRepay) */
+        /* ladle.repay(vaultId, owner, inkAmount, minAmountToRepay) */
         operation: LadleActions.Fn.REPAY,
-        args: [vault.id, account, ethers.constants.Zero, _inputWithSlippage] as LadleActions.Args.REPAY,
+        args: [vault.id, account, _collInput, _inputWithSlippage] as LadleActions.Args.REPAY,
         series,
         ignore: series.mature || inputGreaterThanDebt,
       },
       {
-        /* ladle.repayVault(vaultId, owner, inkAmount, maxInkToUse) */
+        /* ladle.repayVault(vaultId, owner, inkAmount, maxToUse) */
         operation: LadleActions.Fn.REPAY_VAULT,
-        args: [vault.id, account, ethers.constants.Zero, ethers.constants.Zero] as LadleActions.Args.REPAY_VAULT,
+        args: [vault.id, account, _collInput, MAX_128] as LadleActions.Args.REPAY_VAULT,
         series,
         ignore: series.mature || !inputGreaterThanDebt,
       },
@@ -160,7 +160,7 @@ export const useBorrowActions = () => {
       {
         /* ladle.repayVault(vaultId, owner, inkRetrieved, MAX) */
         operation: LadleActions.Fn.CLOSE,
-        args: [vault.id, account, ethers.constants.Zero, _input.mul(-1)] as LadleActions.Args.CLOSE,
+        args: [vault.id, account, _collInput, _input.mul(-1)] as LadleActions.Args.CLOSE,
         series,
         ignore: !series.mature,
       },
