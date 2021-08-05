@@ -87,7 +87,7 @@ const ActiveTransaction = ({
   }, [full]);
 
   return (
-    <Box fill pad={pad ? { horizontal: 'small', vertical: 'medium' } : undefined}>
+    <Box pad={pad ? { horizontal: 'small', vertical: 'medium' } : undefined}>
       {!processes.get(txCode) && // CASE: no tx or signing activity
         (!sig || sig?.status === TxState.REJECTED || sig?.status === TxState.SUCCESSFUL) &&
         !tx && <Box>{children}</Box>}

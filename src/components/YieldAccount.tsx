@@ -13,6 +13,7 @@ import YieldSettings from './YieldSettings';
 import Connect from './Connect';
 import { TxState } from '../types';
 import TransactionWidget from './TransactionWidget';
+import ConnectButton from './buttons/ConnectButton';
 
 const YieldAccount = (props: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -71,11 +72,7 @@ const YieldAccount = (props: any) => {
           </Box>
         </Box>
       ) : (
-        <Box border={!mobile} onClick={() => setConnectOpen(true)} pad="small">
-          <Text size="small" color="text">
-            {mobile ? <FiMenu /> : 'Connect Wallet'}
-          </Text>
-        </Box>
+        <ConnectButton action={() => setConnectOpen(true)} />
       )}
     </>
   );

@@ -148,7 +148,7 @@ const Lend = () => {
                 </SectionWrap>
 
                 <SectionWrap
-                  title={seriesMap.size > 0 ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} series` : ''}
+                  title={seriesMap.size > 0 ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} maturity date` : ''}
                 >
                   <SeriesSelector inputValue={lendInput} actionType={ActionType.LEND} />
                 </SectionWrap>

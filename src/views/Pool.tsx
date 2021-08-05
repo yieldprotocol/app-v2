@@ -144,7 +144,7 @@ function Pool() {
                 </SectionWrap>
 
                 <SectionWrap
-                  title={seriesMap.size > 0 ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} series` : ''}
+                  title={seriesMap.size > 0 ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} maturity date` : ''}
                 >
                   <SeriesSelector actionType={ActionType.POOL} inputValue={poolInput} />
                 </SectionWrap>
