@@ -233,7 +233,7 @@ const Borrow = () => {
               <Box gap="medium" >
                 <BackButton action={() => setStepPosition(0)} />
 
-                <Box gap="medium" height="400px">
+                <Box gap="large" height="400px">
                   <SectionWrap title="Amount of collateral to add">
                     <Box direction="row" gap="small">
                       <Box basis={mobile ? '50%' : '60%'} fill="horizontal">
