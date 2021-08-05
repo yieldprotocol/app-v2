@@ -106,7 +106,14 @@ const Calculator = ({ initialBorrow }: ICalculator) => {
 
   return (
     <Box direction="row" width="large" justify="between">
-      <Box round="small" basis="40%" pad="large" background={{ color: 'rgb(247, 248, 250)' }} gap="medium">
+      <Box
+        round="small"
+        basis="40%"
+        pad="large"
+        background={{ color: 'rgb(247, 248, 250)' }}
+        gap="medium"
+        border={{ color: '#DBEAFE', size: 'xsmall', side: 'right' }}
+      >
         <Box gap="small">
           <Text size="small">Borrowed Amount</Text>
           <InputWrap action={() => null} isError={null}>
