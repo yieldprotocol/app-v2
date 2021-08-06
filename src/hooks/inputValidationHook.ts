@@ -59,6 +59,25 @@ export const useInputValidation = (
         aboveMax && setInputError('Amount exceeds liquidity token balance');
       }
 
+      /* TRANSFER SECTION */
+      if (actionCode === ActionCodes.TRANSFER_VAULT) {
+        input && !ethers.utils.isAddress(input) && setInputError('Not a valid Address');
+      }
+
+      /* DELETE SECTION */
+      if (actionCode === ActionCodes.DELETE_VAULT) {
+
+        input !== selectedVault?.displayName && setInputError('Enter the vault name to confirm delete')
+
+        input === selectedVault?.displayName ? setInputDisabled(false) : setInputDisabled(true);
+
+        // disable if the vault's debt/collateral is not zero
+        if (selectedVault?.ink.gt(ethers.constants.Zero || selectedVault?.art.gt(ethers.constants.Zero))) {
+          setInputError('Must have 0 debt and 0 collateral to delete');
+          setInputDisabled(true);
+        }
+      }
+
       if (actionCode === ActionCodes.REMOVE_COLLATERAL) {
         // limits[1] && parseFloat(input) > parseFloat(limits[1].toString()) &&
         // setInputError('Amount exceeds balance');
@@ -84,17 +103,6 @@ export const useInputValidation = (
       if (actionCode === ActionCodes.ADD_LIQUIDITY) {
         // limits[1] && parseFloat(input) > parseFloat(limits[1].toString()) &&
         // setInputError('Amount exceeds balance');
-      }
-
-      /* DELETE SECTION */
-      if (actionCode === ActionCodes.DELETE_VAULT) {
-        input === selectedVault?.displayName ? setInputDisabled(false) : setInputDisabled(true);
-
-        // disable if the vault's debt/collateral is not zero
-        if (selectedVault?.ink.gt(ethers.constants.Zero || selectedVault?.art.gt(ethers.constants.Zero))) {
-          setInputError('Must have 0 debt/collateral');
-          setInputDisabled(true);
-        }
       }
     } else setInputError(null);
   }, [actionCode, activeAccount, input, limits, selectedBase?.symbol, selectedSeries, selectedVault]);
