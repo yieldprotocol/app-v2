@@ -43,9 +43,9 @@ export interface IUserContextActions {
   updateAssets: (assetList: IAsset[]) => void;
   updatePrice: (base: string, ilk: string) => void;
   setSelectedSeries: (seriesId: string) => void;
-  setSelectedIlk: (ilkId: string) => void;
-  setSelectedBase: (baseId: string) => void;
-  setSelectedVault: (vaultId: string) => void;
+  setSelectedIlk: (ilkId: string | null) => void;
+  setSelectedBase: (baseId: string | null) => void;
+  setSelectedVault: (vaultId: string | null) => void;
 }
 
 export interface ISeriesRoot {

@@ -230,7 +230,7 @@ const Borrow = () => {
             )}
 
             {stepPosition === 1 && ( // ADD COLLATERAL
-              <Box gap="medium" >
+              <Box gap="medium">
                 <BackButton action={() => setStepPosition(0)} />
 
                 <Box gap="large" height="400px">
@@ -277,23 +277,21 @@ const Borrow = () => {
                   </SectionWrap>
                 </Box>
 
-
-                  <Box direction="row" align="center" gap="large" justify='center'>
-                    <Box>
-                      <Gauge value={parseFloat(collateralizationPercent!)} size="8em" />
-                    </Box>
-
-                    <Box>
-                      <Text size="small"> Collateralization </Text>
-                      <Text size="xlarge">
-                        {parseFloat(collateralizationPercent!) > 10000
-                          ? nFormatter(parseFloat(collateralizationPercent!), 2)
-                          : parseFloat(collateralizationPercent!)}
-                        %
-                      </Text>
-                    </Box>
+                <Box direction="row" align="center" gap="large" justify="center">
+                  <Box>
+                    <Gauge value={parseFloat(collateralizationPercent!)} size="8em" />
                   </Box>
 
+                  <Box>
+                    <Text size="small"> Collateralization </Text>
+                    <Text size="xlarge">
+                      {parseFloat(collateralizationPercent!) > 10000
+                        ? nFormatter(parseFloat(collateralizationPercent!), 2)
+                        : parseFloat(collateralizationPercent!)}
+                      %
+                    </Text>
+                  </Box>
+                </Box>
               </Box>
             )}
 

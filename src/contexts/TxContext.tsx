@@ -146,6 +146,7 @@ const TxProvider = ({ children }: any) => {
       /* try the transaction with connected wallet and catch any 'pre-chain'/'pre-tx' errors */
       try {
         tx = await txFn();
+        console.log(tx);
         updateState({ type: 'transactions', payload: { tx, txCode, receipt: null, status: TxState.PENDING } });
       } catch (e) {
         /* this case is when user rejects tx OR wallet rejects tx */
