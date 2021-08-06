@@ -212,6 +212,7 @@ function Pool() {
               label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
               onClick={() => setStepPosition(stepPosition + 1)}
               disabled={poolDisabled}
+              errorLabel={ poolError }
             />
           )}
           {stepPosition === 1 && !selectedSeries?.seriesIsMature && (

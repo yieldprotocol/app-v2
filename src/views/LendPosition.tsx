@@ -277,6 +277,10 @@ const LendPosition = ({ close }: { close: () => void }) => {
             onClick={() => handleStepper()}
             key="next"
             disabled={(actionActive.index === 0 && closeDisabled) || (actionActive.index === 1 && rollDisabled)}
+            errorLabel={ 
+              (actionActive.index === 0 && closeError) ||
+              (actionActive.index === 1 && rollError)
+            }
           />
         )}
 

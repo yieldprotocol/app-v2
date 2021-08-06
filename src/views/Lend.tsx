@@ -195,6 +195,7 @@ const Lend = () => {
               label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
               key="ONE"
               onClick={() => setStepPosition(stepPosition + 1)}
+              errorLabel={lendError}
             />
           )}
           {stepPosition === 1 && !selectedSeries?.seriesIsMature && (
