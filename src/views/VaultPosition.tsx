@@ -56,7 +56,7 @@ const Vault = ({ close }: { close: () => void }) => {
   const vaultIlk: IAsset | undefined = assetMap.get(selectedVault?.ilkId!);
   const vaultSeries: ISeries | undefined = seriesMap.get(selectedVault?.seriesId!);
 
-  const { collateralizationPercent } = useCollateralization(
+  const { collateralizationPercent, maxRemove } = useCollateralization(
     selectedVault?.art.toString(),
     selectedVault?.ink.toString(),
     selectedVault
@@ -91,7 +91,7 @@ const Vault = ({ close }: { close: () => void }) => {
 
   const [maxRepay, setMaxRepay] = useState<string | undefined>();
   const [maxAddCollat, setMaxAddCollat] = useState<string | undefined>();
-  const [maxRemoveCollat, setMaxRemoveCollat] = useState<string | undefined>();
+  // const [maxRemoveCollat, setMaxRemoveCollat] = useState<string | undefined>();
 
   const [repayDisabled, setRepayDisabled] = useState<boolean>(true);
   const [rollDisabled, setRollDisabled] = useState<boolean>(true);
@@ -115,9 +115,7 @@ const Vault = ({ close }: { close: () => void }) => {
   };
 
   const [mergeData, setMergeData] = useState<any>(initialMergeData);
-
   const [destroyInput, setDestroyInput] = useState<string>('');
-
   const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
 
   /* HOOK FNS */
@@ -133,7 +131,7 @@ const Vault = ({ close }: { close: () => void }) => {
     removeCollatInput,
     ActionCodes.REMOVE_COLLATERAL,
     vaultSeries,
-    [0, maxRemoveCollat]
+    [0, ethers.utils.formatEther(maxRemove) ]
   );
   const { inputError: destroyError, inputDisabled: destroyDisabled } = useInputValidation(
     destroyInput,
@@ -224,20 +222,13 @@ const Vault = ({ close }: { close: () => void }) => {
   };
 
   /* SET MAX VALUES */
-
   useEffect(() => {
     /* CHECK the max available repay */
     if (activeAccount) {
       (async () => {
         const _maxToken = await vaultBase?.getBalance(activeAccount);
         const _max = _maxToken && selectedVault?.art.gt(_maxToken) ? _maxToken : selectedVault?.art;
-
         _max && setMaxRepay(ethers.utils.formatEther(_max)?.toString());
-        // if (_max?.gt(ZERO_BN)) {
-        //   _max && setMaxRepay(ethers.utils.formatEther(_max)?.toString());
-        // } else {
-        //   setMaxRepay(undefined);
-        // }
       })();
     }
   }, [activeAccount, selectedVault?.art, vaultBase, setMaxRepay]);
@@ -251,13 +242,6 @@ const Vault = ({ close }: { close: () => void }) => {
       })();
   }, [activeAccount, vaultIlk, setMaxAddCollat]);
 
-  useEffect(() => {
-    /* CHECK collateral selection and sets the max available collateral */
-    activeAccount &&
-      (async () => {
-        setMaxRemoveCollat(ethers.utils.formatEther(selectedVault?.ink!));
-      })();
-  }, [activeAccount, vaultIlk, setMaxRemoveCollat, selectedVault?.ink]);
 
   /* ACTION DISABLING LOGIC */
   useEffect(() => {
@@ -498,10 +482,10 @@ const Vault = ({ close }: { close: () => void }) => {
                     />
                     <MaxButton
                       disabled={!!addCollatInput}
-                      action={() => setRemoveCollatInput(maxRemoveCollat)}
+                      action={() => setRemoveCollatInput( ethers.utils.formatEther(maxRemove) )}
                       clearAction={() => setRemoveCollatInput('')}
                       showingMax={
-                        !!removeCollatInput && ethers.utils.formatEther(selectedVault?.ink!) === removeCollatInput
+                        !!removeCollatInput && ethers.utils.formatEther(maxRemove) === removeCollatInput
                       }
                     />
                   </InputWrap>
