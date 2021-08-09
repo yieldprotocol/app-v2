@@ -2,8 +2,6 @@ import { ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../contexts/UserContext';
 import { ActionCodes, ActionType, ISeries, IUserContext, IVault } from '../types';
-import { cleanValue } from '../utils/appUtils';
-import { secondsToFrom, sellBase, buyBase, calculateAPR } from '../utils/yieldMath';
 
 /* APR hook calculatess APR, min and max aprs for selected series and BORROW or LEND type */
 export const useInputValidation = (
@@ -39,7 +37,6 @@ export const useInputValidation = (
 
       // Action specific rules: - or message customising/Overriding:
 
-      /* BORROWING INPUT SECTION */
       if (actionCode === ActionCodes.BORROW) {
         input &&
           selectedSeries &&
@@ -55,16 +52,18 @@ export const useInputValidation = (
         belowMin && setInputError('Undercollateralized');
       }
 
-      if (actionCode === ActionCodes.REMOVE_LIQUIDITY || actionCode === ActionCodes.ROLL_LIQUIDITY) {
-        aboveMax && setInputError('Amount exceeds liquidity token balance');
+      if (actionCode === ActionCodes.REMOVE_COLLATERAL) {
+        aboveMax && setInputError('Vault will be undercollateralised ');
       }
 
-      /* TRANSFER SECTION */
+      if (actionCode === ActionCodes.REMOVE_LIQUIDITY || actionCode === ActionCodes.ROLL_LIQUIDITY) {
+        // something
+      }
+
       if (actionCode === ActionCodes.TRANSFER_VAULT) {
         input && !ethers.utils.isAddress(input) && setInputError('Not a valid Address');
       }
 
-      /* DELETE SECTION */
       if (actionCode === ActionCodes.DELETE_VAULT) {
 
         input !== selectedVault?.displayName && setInputError('Enter the vault name to confirm delete')
@@ -78,10 +77,7 @@ export const useInputValidation = (
         }
       }
 
-      if (actionCode === ActionCodes.REMOVE_COLLATERAL) {
-        // limits[1] && parseFloat(input) > parseFloat(limits[1].toString()) &&
-        // setInputError('Amount exceeds balance');
-      }
+
 
       /* LEND SECTION */
       if (actionCode === ActionCodes.LEND) {
