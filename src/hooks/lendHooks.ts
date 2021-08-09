@@ -1,15 +1,54 @@
 import { ethers } from 'ethers';
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
-import { ICallData, SignType, ISeries, ActionCodes, PoolRouterActions, LadleActions, ReroutedActions } from '../types';
+import {
+  ICallData,
+  SignType,
+  ISeries,
+  ActionCodes,
+  PoolRouterActions,
+  LadleActions,
+  ReroutedActions,
+  IUserContextState,
+} from '../types';
 import { getTxCode } from '../utils/appUtils';
 import { DAI_BASED_ASSETS, MAX_128, MAX_256 } from '../utils/constants';
+import { buyBase, buyFYToken, calculateSlippage, secondsToFrom, sellBase, sellFYToken } from '../utils/yieldMath';
 import { useChain } from './chainHooks';
 
-export const useLend = (input: string | undefined) => {
-  const lendMax = input;
-  return { lendMax };
+export const useLend = (series: ISeries, input?:string|undefined) => {
+  const { userState } = useContext(UserContext);
+  const { assetMap, activeAccount } = userState;
+
+  const [maxLend, setMaxLend] = useState<string>();
+  const [currentValue, setCurrentValue] = useState<string>();
+
+  /* set maxLend as the balance of the base token */
+  useEffect(() => {
+    (async () => {
+      const _base = assetMap.get(series?.baseId);
+      const max = await _base?.getBalance(activeAccount);
+      max && setMaxLend(ethers.utils.formatEther(max).toString())
+    })();
+  }, [activeAccount, assetMap, series]);
+
+  /* set currentValue as the market Value of fyTokens held in base tokens */
+  useEffect(() => {
+
+    console.log('sereis changed: lend')
+    if (series) {
+      const value = sellFYToken(
+        series.baseReserves,
+        series.fyTokenReserves,
+        series.fyTokenBalance || ethers.constants.Zero,
+        secondsToFrom(series.maturity.toString())
+      );
+      setCurrentValue(ethers.utils.formatEther(value))
+    }
+  }, [series]);
+
+  return { maxLend, currentValue };
 };
 
 /* Lend Actions Hook */
@@ -30,9 +69,7 @@ export const useLendActions = () => {
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
     // const baseAddress = series.getBaseAddress();
     const base = assetMap.get(series.baseId);
-
     const { fyTokenAddress } = series;
-
     const _isDaiBased = DAI_BASED_ASSETS.includes(series.baseId);
 
     const permits: ICallData[] = await sign(
@@ -85,6 +122,18 @@ export const useLendActions = () => {
     const base = assetMap.get(fromSeries.baseId);
     const { fyTokenAddress } = fromSeries;
 
+    const _inputAsFyToken = sellBase(
+      fromSeries.baseReserves,
+      fromSeries.fyTokenReserves,
+      _input,
+      secondsToFrom(fromSeries.maturity.toString())
+    );
+    const _inputAsFyTokenWithSlippage = calculateSlippage(
+      _inputAsFyToken,
+      userState.slippageTolerance.toString(),
+      true
+    );
+
     const permits: ICallData[] = await sign(
       [
         {
@@ -98,7 +147,6 @@ export const useLendActions = () => {
         },
 
         /* AFTER MATURITY */
-
         {
           // ladle.forwardPermitAction(seriesId, false, ladle.address, allowance, deadline, v, r, s)
           target: fromSeries,
@@ -117,23 +165,17 @@ export const useLendActions = () => {
       ...permits,
 
       /* BEFORE MATURITY */
-
       {
         // router.transferToPoolAction( base.address, fyToken1.address, fyToken1.address, fyToken1Rolled)
         operation: PoolRouterActions.Fn.TRANSFER_TO_POOL,
-        args: [
-          baseAddress,
-          fyTokenAddress,
-          fyTokenAddress,
-          _input.toString(),
-        ] as PoolRouterActions.Args.TRANSFER_TO_POOL,
+        args: [baseAddress, fyTokenAddress, fyTokenAddress, _inputAsFyToken] as PoolRouterActions.Args.TRANSFER_TO_POOL,
         series: fromSeries,
         ignore: fromSeries.seriesIsMature,
       },
       {
         // router.sellFYTokenAction( pool.address, pool2.address, minimumBaseReceived)
         operation: PoolRouterActions.Fn.ROUTE,
-        args: [toSeries.poolAddress, ethers.constants.Zero] as ReroutedActions.Args.SELL_FYTOKEN,
+        args: [toSeries.poolAddress, _inputAsFyTokenWithSlippage] as ReroutedActions.Args.SELL_FYTOKEN,
         fnName: 'sellFYToken',
         series: fromSeries,
         ignore: fromSeries.seriesIsMature,
@@ -188,6 +230,18 @@ export const useLendActions = () => {
     const base = assetMap.get(series.baseId);
     const { fyTokenAddress } = series;
 
+    const _inputAsFyToken = sellBase(
+      series.baseReserves,
+      series.fyTokenReserves,
+      _input,
+      secondsToFrom(series.maturity.toString())
+    );
+    const _inputAsFyTokenWithSlippage = calculateSlippage(
+      _inputAsFyToken,
+      userState.slippageTolerance.toString(),
+      true
+    );
+
     const permits: ICallData[] = await sign(
       [
         {
@@ -207,14 +261,13 @@ export const useLendActions = () => {
       ...permits,
       {
         operation: PoolRouterActions.Fn.TRANSFER_TO_POOL,
-        args: [baseAddress, fyTokenAddress, fyTokenAddress, _input] as PoolRouterActions.Args.TRANSFER_TO_POOL,
+        args: [baseAddress, fyTokenAddress, fyTokenAddress, _inputAsFyToken] as PoolRouterActions.Args.TRANSFER_TO_POOL,
         series,
         ignore: false,
       },
-      /* pool.sellFyToken(address to, uint128 min) */
       {
         operation: PoolRouterActions.Fn.ROUTE,
-        args: [account, ethers.constants.Zero] as ReroutedActions.Args.SELL_FYTOKEN, // TODO calc min transfer slippage
+        args: [account, _inputAsFyTokenWithSlippage] as ReroutedActions.Args.SELL_FYTOKEN, // TODO calc min transfer slippage
         fnName: 'sellFYToken',
         series,
         ignore: false,
