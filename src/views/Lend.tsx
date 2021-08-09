@@ -53,7 +53,9 @@ const Lend = () => {
   const { maxLend, currentValue } = useLend(selectedSeries!);
   const { lend, redeem } = useLendActions();
   const { apr } = useApr(lendInput, ActionType.LEND, selectedSeries);
+
   const lendOutput = cleanValue((Number(lendInput) * (1 + Number(apr) / 100)).toString(), selectedBase?.digitFormat!);
+
   const { tx: lendTx } = useTx(ActionCodes.LEND);
 
   /* input validation hooks */
@@ -66,17 +68,6 @@ const Lend = () => {
   const handleRedeem = () => {
     redeem(selectedSeries!, undefined);
   };
-
-  // /* SET MAX VALUES */
-  // useEffect(() => {
-  //   /* Check max available lend (only if activeAccount to save call) */
-  //   if (activeAccount) {
-  //     (async () => {
-  //       const max = await selectedBase?.getBalance(activeAccount);
-  //       if (max) setMaxLend(ethers.utils.formatEther(max).toString());
-  //     })();
-  //   }
-  // }, [activeAccount, lendInput, selectedBase, setMaxLend]);
 
   /* ACTION DISABLING LOGIC  - if conditions are met: allow action */
   useEffect(() => {

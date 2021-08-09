@@ -19,24 +19,28 @@ import { useChain } from './chainHooks';
 
 export const useLend = (series: ISeries, input?:string|undefined) => {
   const { userState } = useContext(UserContext);
-  const { assetMap, activeAccount } = userState;
+  const { assetMap, activeAccount, selectedBaseId } = userState;
+  const selectedBase = assetMap.get(selectedBaseId!);
 
   const [maxLend, setMaxLend] = useState<string>();
   const [currentValue, setCurrentValue] = useState<string>();
 
   /* set maxLend as the balance of the base token */
   useEffect(() => {
-    (async () => {
-      const _base = assetMap.get(series?.baseId);
-      const max = await _base?.getBalance(activeAccount);
-      max && setMaxLend(ethers.utils.formatEther(max).toString())
-    })();
-  }, [activeAccount, assetMap, series]);
+
+    /* Check max available lend (only if activeAccount to save call) */
+    if (activeAccount) {
+      (async () => {
+        const max = await selectedBase?.getBalance(activeAccount);
+        if (max) setMaxLend(ethers.utils.formatEther(max).toString());
+      })();
+    }
+
+  }, [activeAccount, assetMap, selectedBase, series]);
 
   /* set currentValue as the market Value of fyTokens held in base tokens */
   useEffect(() => {
 
-    console.log('sereis changed: lend')
     if (series) {
       const value = sellFYToken(
         series.baseReserves,
