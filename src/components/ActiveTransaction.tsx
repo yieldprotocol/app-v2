@@ -1,3 +1,4 @@
+import { constants } from 'ethers';
 import { Box, Text } from 'grommet';
 import React, { useContext, useEffect, useState } from 'react';
 import { BiWallet } from 'react-icons/bi';
@@ -119,15 +120,17 @@ const ActiveTransaction = ({
           />
         )}
 
-      {processes.get(txCode) && processes.get(txCode) === '0x0' && sig?.status !== TxState.PENDING && !tx && (
-        <InfoBlock
-          title="Transaction Confirmation..."
-          subTitle="Please check your wallet/provider."
-          icon={<BiWallet size={iconSize} />}
-          button={null}
-          full={full}
-        />
-      )}
+      {processes.get(txCode) === constants.HashZero &&
+        sig?.status !== TxState.PENDING &&
+        !tx && (
+          <InfoBlock
+            title="Transaction Confirmation..."
+            subTitle="Please check your wallet/provider."
+            icon={<BiWallet size={iconSize} />}
+            button={null}
+            full={full}
+          />
+        )}
 
       {processes.get(txCode) && // CASE: TX processing but signature complete
         tx?.status === TxState.PENDING &&

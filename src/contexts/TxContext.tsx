@@ -1,5 +1,5 @@
 import React, { useReducer, useEffect } from 'react';
-import { ethers, ContractTransaction } from 'ethers';
+import { ethers, ContractTransaction, constants } from 'ethers';
 import { toast } from 'react-toastify';
 import { ApprovalType, ISignData, TxState } from '../types';
 
@@ -76,7 +76,7 @@ const TxProvider = ({ children }: any) => {
   const [txState, updateState] = useReducer(txReducer, initState);
 
   const _startProcess = (txCode: string) => {
-    updateState({ type: '_startProcess', payload: { txCode, hash: '0x0' } });
+    updateState({ type: '_startProcess', payload: { txCode, hash: constants.HashZero } });
   };
 
   const _endProcess = (txCode: string) => {
