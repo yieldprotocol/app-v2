@@ -71,8 +71,6 @@ const Borrow = () => {
   const [vaultToUse, setVaultToUse] = useState<IVault | undefined>(undefined);
   const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
 
-  const [disclaimerChecked, setDisclaimerChecked] = useState<boolean>(false);
-
   const { borrow } = useBorrowActions();
 
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
@@ -220,7 +218,9 @@ const Borrow = () => {
 
                   <SectionWrap
                     title={
-                      seriesMap.size > 0 ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} maturity date` : ''
+                      seriesMap.size > 0
+                        ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} maturity date`
+                        : ''
                     }
                   >
                     <SeriesSelector inputValue={borrowInput} actionType={ActionType.BORROW} />
@@ -341,21 +341,6 @@ const Borrow = () => {
           </Box>
 
           <Box>
-            {stepPosition === 2 && (
-              <SectionWrap>
-                <Box pad={{ horizontal: 'large', vertical: 'small' }}>
-                  <CheckBox
-                    label={
-                      // TODO: #37 check for understood checkbox before completing transaction
-                      <Text size="xsmall"> disclaimer example: I understand the terms of transactions.</Text>
-                    }
-                    checked={disclaimerChecked}
-                    onChange={(event) => setDisclaimerChecked(event.target.checked)}
-                  />
-                </Box>
-              </SectionWrap>
-            )}
-
             <ActionButtonWrap pad>
               {(stepPosition === 0 || stepPosition === 1) && (
                 <NextButton
@@ -376,7 +361,7 @@ const Borrow = () => {
                     </Text>
                   }
                   onClick={() => handleBorrow()}
-                  disabled={borrowDisabled || !disclaimerChecked || borrowTx.pending}
+                  disabled={borrowDisabled || borrowTx.pending}
                 />
               )}
             </ActionButtonWrap>

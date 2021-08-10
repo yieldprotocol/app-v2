@@ -23,7 +23,7 @@ const YieldInfo = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
     chainState: { account, chainId, chainData },
-    chainActions: { connect, disconnect },
+    chainActions: { connect, disconnect, setDisclaimerChecked },
   } = useContext(ChainContext);
   const {
     txState: { txPending, signPending, processPending },
@@ -83,9 +83,17 @@ const YieldInfo = () => {
       {account ? (
         <Box direction="row-responsive" gap="small">
           <Text size="xsmall">
-            Connected to: <Text size="xsmall" color={chainData.color}> {chainData.name} </Text>
+            {`Connected to: `}
+            <Text size="xsmall" color={chainData.color}>
+              {chainData.name}
+            </Text>
           </Text>
-          <Box onClick={() => disconnect()}>
+          <Box
+            onClick={() => {
+              disconnect();
+              setDisclaimerChecked(false);
+            }}
+          >
             <Text size="xsmall" color="text-xweak">
               Disconnect
             </Text>
@@ -96,11 +104,11 @@ const YieldInfo = () => {
           <Text size="xsmall" color="pink">
             Disconnected
           </Text>
-          <Box onClick={() => connect()}>
+          {/* <Box onClick={() => connect()}>
             <Text size="xsmall" color={account? "text-xweak": "text-weak"}>
               Connect
             </Text>
-          </Box>
+          </Box> */}
         </Box>
       )}
     </Box>
