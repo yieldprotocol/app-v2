@@ -45,7 +45,7 @@ const initState: IUserContextState = {
 
   /* User Settings */
   approvalMethod: ApprovalType.SIG,
-  dudeSalt: 0,
+  dudeSalt: 1,
   showInactiveVaults: false as boolean,
   slippageTolerance: 0.01 as number,
 };

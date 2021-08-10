@@ -528,7 +528,8 @@ export const calculateMinCollateral = (
   debtValue: BigNumber | string,
   liquidationRatio: string = '1.5', // OPTIONAL: 150% as default
   existingCollateral: BigNumber | string = '0', // OPTIONAL add in 
-  ): string | undefined => {
+  asBigNumber: boolean = false,
+  ): string | BigNumber => {
 
     const _existing = new Decimal(ethers.utils.formatEther(existingCollateral));
     const _minCollatValue = mulDecimal(liquidationRatio, debtValue);
@@ -538,7 +539,7 @@ export const calculateMinCollateral = (
       ? new Decimal('0')
       :_minCollatAmount.sub(_existing);
 
-    return requiredCollateral.toString()
+    return asBigNumber? toBn(requiredCollateral) : requiredCollateral.toString()
 
 }
 

@@ -12,7 +12,7 @@ import SeriesSelector from '../components/selectors/SeriesSelector';
 import { cleanValue, getTxCode, nFormatter } from '../utils/appUtils';
 import SectionWrap from '../components/wraps/SectionWrap';
 
-import { useLendActions } from '../hooks/lendHooks';
+import { useLend, useLendActions } from '../hooks/lendHooks';
 import { UserContext } from '../contexts/UserContext';
 import { ActionCodes, ActionType, IUserContext } from '../types';
 import MaxButton from '../components/buttons/MaxButton';
@@ -24,11 +24,11 @@ import PositionSelector from '../components/selectors/PositionSelector';
 import ActiveTransaction from '../components/ActiveTransaction';
 import YieldInfo from '../components/YieldInfo';
 import BackButton from '../components/buttons/BackButton';
-import YieldMark from '../components/logos/YieldMark';
+
 import NextButton from '../components/buttons/NextButton';
 import InfoBite from '../components/InfoBite';
 import TransactButton from '../components/buttons/TransactButton';
-import YieldApr from '../components/YieldApr';
+
 import { useApr } from '../hooks/aprHook';
 import { useInputValidation } from '../hooks/inputValidationHook';
 import { useTx } from '../hooks/useTx';
@@ -45,14 +45,17 @@ const Lend = () => {
 
   /* LOCAL STATE */
   const [lendInput, setLendInput] = useState<string>();
-  const [maxLend, setMaxLend] = useState<string | undefined>();
+  // const [maxLend, setMaxLend] = useState<string | undefined>();
   const [lendDisabled, setLendDisabled] = useState<boolean>(true);
   const [stepPosition, setStepPosition] = useState<number>(0);
 
   /* HOOK FNS */
+  const { maxLend, currentValue } = useLend(selectedSeries!);
   const { lend, redeem } = useLendActions();
   const { apr } = useApr(lendInput, ActionType.LEND, selectedSeries);
+
   const lendOutput = cleanValue((Number(lendInput) * (1 + Number(apr) / 100)).toString(), selectedBase?.digitFormat!);
+
   const { tx: lendTx } = useTx(ActionCodes.LEND);
 
   /* input validation hooks */
@@ -65,17 +68,6 @@ const Lend = () => {
   const handleRedeem = () => {
     redeem(selectedSeries!, undefined);
   };
-
-  /* SET MAX VALUES */
-  useEffect(() => {
-    /* Check max available lend (only if activeAccount to save call) */
-    if (activeAccount) {
-      (async () => {
-        const max = await selectedBase?.getBalance(activeAccount);
-        if (max) setMaxLend(ethers.utils.formatEther(max).toString());
-      })();
-    }
-  }, [activeAccount, lendInput, selectedBase, setMaxLend]);
 
   /* ACTION DISABLING LOGIC  - if conditions are met: allow action */
   useEffect(() => {
@@ -195,6 +187,7 @@ const Lend = () => {
               label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
               key="ONE"
               onClick={() => setStepPosition(stepPosition + 1)}
+              errorLabel={lendError}
             />
           )}
           {stepPosition === 1 && !selectedSeries?.seriesIsMature && (

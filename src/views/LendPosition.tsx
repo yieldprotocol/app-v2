@@ -9,7 +9,7 @@ import SeriesSelector from '../components/selectors/SeriesSelector';
 import { abbreviateHash, cleanValue, getTxCode, nFormatter } from '../utils/appUtils';
 import SectionWrap from '../components/wraps/SectionWrap';
 
-import { useLendActions } from '../hooks/lendHooks';
+import { useLend, useLendActions } from '../hooks/lendHooks';
 import { useTx } from '../hooks/useTx';
 import { UserContext } from '../contexts/UserContext';
 import { ActionCodes, ActionType, ISeries, IUserContext } from '../types';
@@ -52,7 +52,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
   const [rollInput, setRollInput] = useState<string>();
   const [rollToSeries, setRollToSeries] = useState<ISeries | null>(null);
 
-  const [maxClose, setMaxClose] = useState<string | undefined>();
+  // const [maxClose, setMaxClose] = useState<string | undefined>();
 
   // const [closeError, setCloseError] = useState<string | null>(null);
   // const [rollError, setRollError] = useState<string | null>(null);
@@ -62,6 +62,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
   const [redeemDisabled, setRedeemDisabled] = useState<boolean>(true);
 
   /* HOOK FNS */
+  const { maxLend, currentValue } = useLend(selectedSeries!);
   const { closePosition, rollPosition, redeem } = useLendActions();
 
   /* TX data */
@@ -71,12 +72,12 @@ const LendPosition = ({ close }: { close: () => void }) => {
   /* input validation hoooks */
   const { inputError: closeError } = useInputValidation(closeInput, ActionCodes.CLOSE_POSITION, selectedSeries, [
     0,
-    maxClose,
+    currentValue,
   ]);
 
   const { inputError: rollError } = useInputValidation(rollInput, ActionCodes.ROLL_POSITION, selectedSeries, [
     0,
-    maxClose,
+    currentValue,
   ]);
 
   /* LOCAL FNS */
@@ -100,11 +101,11 @@ const LendPosition = ({ close }: { close: () => void }) => {
 
   /* SET MAX VALUES */
 
-  useEffect(() => {
-    /* Checks series selection and sets the max close available value */
-    const max = selectedSeries?.fyTokenBalance;
-    if (max) setMaxClose(ethers.utils.formatEther(max)?.toString());
-  }, [closeInput, rollInput, selectedSeries]);
+  // useEffect(() => {
+  //   /* Checks series selection and sets the max close available value */
+  //   const max = selectedSeries?.fyTokenBalance;
+  //   if (max) setMaxClose(ethers.utils.formatEther(max)?.toString());
+  // }, [closeInput, rollInput, selectedSeries]);
 
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
   useEffect(() => {
@@ -140,7 +141,10 @@ const LendPosition = ({ close }: { close: () => void }) => {
               />
               <InfoBite
                 label="Current value"
-                value={cleanValue(selectedSeries?.fyTokenBalance_!, selectedBase?.digitFormat!)}
+                value={`${cleanValue(
+                  currentValue,
+                  selectedBase?.digitFormat!
+                )} ${selectedBase?.symbol!}`}
                 icon={selectedBase?.image}
               />
               <InfoBite
@@ -181,16 +185,16 @@ const LendPosition = ({ close }: { close: () => void }) => {
                     <TextInput
                       plain
                       type="number"
-                      placeholder="fyToken Amount" // {`${selectedBase?.symbol} to reclaim`}
+                      placeholder={`Amount of ${selectedBase?.symbol} to reclaim`}
                       value={closeInput || ''}
                       onChange={(event: any) => setCloseInput(cleanValue(event.target.value))}
                       disabled={!selectedSeries}
                     />
                     <MaxButton
-                      action={() => setCloseInput(maxClose)}
-                      disabled={maxClose === '0.0' || !selectedSeries}
+                      action={() => setCloseInput(currentValue)}
+                      disabled={currentValue === '0.0' || !selectedSeries}
                       clearAction={() => setCloseInput('')}
-                      showingMax={!!closeInput && closeInput === maxClose}
+                      showingMax={!!closeInput && closeInput === currentValue}
                     />
                   </InputWrap>
                 </Box>
@@ -223,16 +227,16 @@ const LendPosition = ({ close }: { close: () => void }) => {
                     <TextInput
                       plain
                       type="number"
-                      placeholder="fyToken amount to roll" // {`${selectedBase?.symbol} to reclaim`}
+                      placeholder={`Amount of ${selectedBase?.symbol} to roll`}
                       value={rollInput || ''}
                       onChange={(event: any) => setRollInput(cleanValue(event.target.value))}
                       disabled={!selectedSeries}
                     />
                     <MaxButton
-                      action={() => setRollInput(maxClose)}
-                      disabled={maxClose === '0.0' || !selectedSeries}
+                      action={() => setRollInput(currentValue)}
+                      disabled={currentValue === '0.0' || !selectedSeries}
                       clearAction={() => setRollInput('')}
-                      showingMax={!!rollInput && rollInput === maxClose}
+                      showingMax={!!rollInput && rollInput === currentValue}
                     />
                   </InputWrap>
 
@@ -255,7 +259,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
                         label="Roll To Series"
                         icon={<FiArrowRight />}
                         value={` Roll${rollTx.pending ? 'ing' : ''}  ${cleanValue(
-                          closeInput,
+                          rollInput,
                           selectedBase?.digitFormat!
                         )} ${selectedBase?.symbol} to ${rollToSeries?.displayName}`}
                       />
@@ -277,6 +281,10 @@ const LendPosition = ({ close }: { close: () => void }) => {
             onClick={() => handleStepper()}
             key="next"
             disabled={(actionActive.index === 0 && closeDisabled) || (actionActive.index === 1 && rollDisabled)}
+            errorLabel={ 
+              (actionActive.index === 0 && closeError) ||
+              (actionActive.index === 1 && rollError)
+            }
           />
         )}
 

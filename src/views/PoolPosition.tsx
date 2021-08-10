@@ -264,6 +264,10 @@ const PoolPosition = ({ close }: { close: () => void }) => {
             onClick={() => handleStepper()}
             key="next"
             disabled={(actionActive.index === 0 && removeDisabled) || (actionActive.index === 1 && rollDisabled)}
+            errorLabel={ 
+              (actionActive.index === 0 && removeError) ||
+              (actionActive.index === 1 && rollError)
+            }
           />
         )}
 

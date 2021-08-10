@@ -32,6 +32,7 @@ export const useCollateralization = (
   const [collateralizationWarning, setCollateralizationWarning] = useState<string | undefined>();
   const [borrowingPower, setBorrowingPower] = useState<string | undefined>();
   const [minCollateral, setMinCollateral] = useState<string | undefined>();
+  const [maxRemove, setMaxRemove] = useState<ethers.BigNumber>(ethers.constants.Zero);
 
   /* update the prices if anything changes */
   useEffect(() => {
@@ -75,9 +76,18 @@ export const useCollateralization = (
     /* check minimum collateral required base on debt */
     if (oraclePrice?.gt(ethers.constants.Zero)) {
       const min = calculateMinCollateral(oraclePrice, totalDebt, '1.5', existingCollateral)
-      setMinCollateral(min);
+      setMinCollateral(min.toString());
     } else {
       setMinCollateral('0');
+    }
+
+    /* check minimum collateral required base on debt */
+    if (oraclePrice?.gt(ethers.constants.Zero)) {
+      const min_ = calculateMinCollateral(oraclePrice, totalDebt, '1.5', existingCollateral, true)
+      // const max_ = ethers.utils.parseEther(max!)
+      setMaxRemove( existingCollateral.sub(min_) );
+    } else {
+      setMaxRemove(ethers.constants.Zero);
     }
 
   }, [collInput, collateralizationPercent, debtInput, oraclePrice, vault]);
@@ -91,6 +101,7 @@ export const useCollateralization = (
     collateralizationWarning,
     undercollateralized,
     minCollateral,
+    maxRemove,
   };
 };
 
