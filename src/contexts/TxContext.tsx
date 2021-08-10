@@ -57,14 +57,12 @@ function txReducer(_state: any, action: any) {
     case '_startProcess':
       return {
         ..._state,
-        processes: _state.processes.set(action.payload.txCode, action.payload.hash),
-        processPending: true,
+        processes: new Map(_state.processes.set(action.payload.txCode, action.payload.hash)),
       };
     case '_endProcess':
       return {
         ..._state,
         processes: _removeProcess(action.payload),
-        processPending: false,
       };
 
     default:
