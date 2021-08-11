@@ -11,6 +11,9 @@ const initState = {
   transactions: new Map([]) as Map<string, IYieldTx>,
   processes: new Map([]) as Map<string, IYieldProcess>,
 
+  /* process active flag for convenience */
+  processActive: false as boolean,
+
   /* user settings */
   useFallbackTxs: false as boolean,
 };
@@ -69,6 +72,12 @@ function txReducer(_state: any, action: any) {
           })
         ),
       };
+
+      case 'processActive':
+        return {
+          ..._state,
+          processActive: _onlyIfChanged(action),
+        };
 
     default:
       return _state;
@@ -226,6 +235,15 @@ const TxProvider = ({ children }: any) => {
     });
     return _sig;
   };
+
+
+  /* simple process watcher */
+  useEffect(()=>{
+    if ( txState.processes.size ) {
+      const hasActiveProcess = Array.from(txState.processes.values()).some((x:any)=> x.status === 'ACTIVE')
+      updateState({ type: 'processActive', payload: hasActiveProcess });
+    }
+  },[txState.processes])
 
   /* expose the required actions */
   const txActions = {
