@@ -42,6 +42,10 @@ export const useTx = (actionCode: ActionCodes, shouldRedirect: boolean = false) 
   const [txHash, setTxHash] = useState<string>();
   const [processActive, setProcessActive] = useState<boolean>(false);
 
+  const resetTx = () => {
+    setTx((t) => ({ ...INITIAL_STATE, txCode }));
+  }
+
   useEffect(() => {
     if (selectedVaultId) setTxCode(getTxCode(actionCode, selectedVaultId))
     else {
@@ -92,5 +96,5 @@ export const useTx = (actionCode: ActionCodes, shouldRedirect: boolean = false) 
     tx.success && shouldRedirect && history.push('/') && userActions.setSelectedVault(null);
   }, [tx.success, shouldRedirect, history, userActions]);
 
-  return { tx };
+  return { tx, resetTx };
 };

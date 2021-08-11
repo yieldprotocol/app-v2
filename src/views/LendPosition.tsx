@@ -201,7 +201,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
               )}
 
               {stepPosition[0] !== 0 && (
-                <ActiveTransaction actionCode={ActionCodes.CLOSE_POSITION} pad>
+                <ActiveTransaction actionCode={ActionCodes.CLOSE_POSITION} pad tx={closeTx}>
                   <SectionWrap
                     title="Review your remove transaction"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
@@ -249,7 +249,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
               )}
 
               {stepPosition[actionActive.index] !== 0 && (
-                <ActiveTransaction actionCode={ActionCodes.ROLL_POSITION} pad>
+                <ActiveTransaction actionCode={ActionCodes.ROLL_POSITION} pad tx={rollTx}>
                   <SectionWrap
                     title="Review your roll transaction"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}

@@ -56,7 +56,7 @@ const Lend = () => {
 
   const lendOutput = cleanValue((Number(lendInput) * (1 + Number(apr) / 100)).toString(), selectedBase?.digitFormat!);
 
-  const { tx: lendTx } = useTx(ActionCodes.LEND);
+  const { tx: lendTx, resetTx } = useTx(ActionCodes.LEND);
 
   /* input validation hooks */
   const { inputError: lendError } = useInputValidation(lendInput, ActionCodes.LEND, selectedSeries, [0, maxLend]);
@@ -95,11 +95,8 @@ const Lend = () => {
         <Box height="100%" pad="large">
           {stepPosition === 0 && (
             <Box gap="medium">
-
               <Box gap="xsmall">
-                <AltText size="large">
-                  LEND
-                </AltText>
+                <AltText size="large">LEND</AltText>
                 <Box>
                   <AltText color="text-weak" size="xsmall">
                     popular ERC20 tokens for fixed returns.
@@ -109,7 +106,7 @@ const Lend = () => {
 
               <Box gap="large">
                 {/* <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}> */}
-                  <SectionWrap>
+                <SectionWrap>
                   <Box direction="row" gap="small">
                     <Box basis={mobile ? '50%' : '60%'}>
                       <InputWrap
@@ -140,7 +137,11 @@ const Lend = () => {
                 </SectionWrap>
 
                 <SectionWrap
-                  title={seriesMap.size > 0 ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} maturity date` : ''}
+                  title={
+                    seriesMap.size > 0
+                      ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} maturity date`
+                      : ''
+                  }
                 >
                   <SeriesSelector inputValue={lendInput} actionType={ActionType.LEND} />
                 </SectionWrap>
@@ -151,7 +152,7 @@ const Lend = () => {
           {stepPosition === 1 && (
             <Box gap="large">
               <BackButton action={() => setStepPosition(0)} />
-              <ActiveTransaction full actionCode={ActionCodes.LEND}>
+              <ActiveTransaction full actionCode={ActionCodes.LEND} tx={lendTx} >
                 <SectionWrap title="Review transaction:">
                   <Box
                     gap="small"
@@ -190,9 +191,7 @@ const Lend = () => {
             />
           )}
 
-          {stepPosition === 1 && 
-          !selectedSeries?.seriesIsMature && 
-          !(lendTx.failed || lendTx.success) && (
+          {stepPosition === 1 && !selectedSeries?.seriesIsMature && !(lendTx.failed || lendTx.success) && (
             <TransactButton
               primary
               label={
@@ -203,17 +202,14 @@ const Lend = () => {
                 </Text>
               }
               onClick={() => handleLend()}
-              disabled={lendDisabled || lendTx.processActive }
+              disabled={lendDisabled || lendTx.processActive}
             />
           )}
 
-        {stepPosition === 1 && 
-        !selectedSeries?.seriesIsMature &&
-        !lendTx.processActive &&
-        lendTx.success && (
+          {stepPosition === 1 && !selectedSeries?.seriesIsMature && !lendTx.processActive && lendTx.success && (
             <NextButton
               label={<Text size={mobile ? 'small' : undefined}>Go back to lend </Text>}
-              onClick={ () => setStepPosition(0) }
+              onClick={() => { setStepPosition(0); resetTx() }}
             />
           )}
 

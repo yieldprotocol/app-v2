@@ -56,7 +56,7 @@ const Borrow = () => {
   const selectedSeries = seriesMap.get(selectedSeriesId!);
 
   /* TX info (for disabling buttons) */
-  const { tx: borrowTx } = useTx(ActionCodes.BORROW);
+  const { tx: borrowTx, resetTx } = useTx(ActionCodes.BORROW);
 
   /* LOCAL STATE */
   const [stepPosition, setStepPosition] = useState<number>(0);
@@ -299,7 +299,7 @@ const Borrow = () => {
               <Box gap="large">
                 <BackButton action={() => setStepPosition(1)} />
 
-                <ActiveTransaction actionCode={ActionCodes.BORROW} full>
+                <ActiveTransaction actionCode={ActionCodes.BORROW} full tx={borrowTx}>
                   <SectionWrap title="Review transaction:">
                     <Box
                       gap="small"
@@ -377,9 +377,17 @@ const Borrow = () => {
                     </Text>
                   }
                   onClick={() => handleBorrow()}
-                  disabled={borrowDisabled || !disclaimerChecked || borrowTx.pending}
+                  disabled={borrowDisabled || !disclaimerChecked || borrowTx.processActive}
                 />
               )}
+
+          {stepPosition === 2 && !borrowTx.processActive && borrowTx.success && (
+            <NextButton
+              label={<Text size={mobile ? 'small' : undefined}>Go back to borrow</Text>}
+              onClick={() => { setStepPosition(0); resetTx() } }
+            />
+          )}
+
             </ActionButtonWrap>
           </Box>
         </CenterPanelWrap>

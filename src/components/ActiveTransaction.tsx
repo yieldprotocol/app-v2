@@ -1,5 +1,5 @@
 import { constants } from 'ethers';
-import { Box, Text } from 'grommet';
+import { Box, Button, Text } from 'grommet';
 import React, { useContext, useEffect, useState } from 'react';
 import { BiWallet } from 'react-icons/bi';
 import { FiCheckCircle, FiClock, FiPenTool, FiX } from 'react-icons/fi';
@@ -53,11 +53,14 @@ const InfoBlock = ({
 
 const ActiveTransaction = ({
   actionCode,
+  tx,
   full,
   children,
   pad,
+ 
 }: {
   actionCode: ActionCodes;
+  tx: any;
   children: React.ReactNode;
   full?: boolean;
   pad?: boolean;
@@ -72,7 +75,11 @@ const ActiveTransaction = ({
   const [sig, setSig] = useState<any>();
   const [iconSize, setIconSize] = useState<string>('1em');
 
-  const { tx } = useTx(actionCode);
+  // const { tx, resetTx } = useTx(actionCode);
+
+  useEffect(()=>{
+    console.log('HERE', tx)
+  },[tx])
 
   useEffect(() => {
     tx.txCode && setSig(signatures.get(tx.txCode));

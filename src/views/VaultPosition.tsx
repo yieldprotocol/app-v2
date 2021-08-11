@@ -402,7 +402,7 @@ const Vault = ({ close }: { close: () => void }) => {
               )}
 
               {stepPosition[0] !== 0 && (
-                <ActiveTransaction actionCode={ActionCodes.REPAY} pad>
+                <ActiveTransaction actionCode={ActionCodes.REPAY} pad tx={repayTx}>
                 {/* <ActiveTransaction txCode={(selectedVault && repayTx.txCode) || ''} pad> */}
                   <SectionWrap
                     title="Review transaction:"
@@ -434,7 +434,7 @@ const Vault = ({ close }: { close: () => void }) => {
               )}
 
               {stepPosition[actionActive.index] !== 0 && (
-                <ActiveTransaction actionCode={ActionCodes.ROLL_DEBT} pad>
+                <ActiveTransaction actionCode={ActionCodes.ROLL_DEBT} pad tx={rollTx}>
                   <SectionWrap
                     title="Review transaction:"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
@@ -502,6 +502,7 @@ const Vault = ({ close }: { close: () => void }) => {
                   // }
                   actionCode={ addCollatInput ? ActionCodes.ADD_COLLATERAL : ActionCodes.REMOVE_COLLATERAL}
                   pad
+                  tx={ addCollatInput? addCollateralTx : removeCollateralTx}
                 >
                   <SectionWrap
                     title="Review transaction:"
@@ -552,6 +553,7 @@ const Vault = ({ close }: { close: () => void }) => {
                   // txCode={(selectedVault && transferTx.txCode) || ''} 
                   actionCode={ActionCodes.TRANSFER_VAULT}
                   pad
+                  tx={transferTx}
                   >
                   <SectionWrap
                     title="Review transaction:"
@@ -621,6 +623,7 @@ const Vault = ({ close }: { close: () => void }) => {
                   // txCode={(selectedVault && mergeTx.txCode) || ''} 
                   actionCode={ActionCodes.MERGE_VAULT}
                   pad
+                  tx={mergeTx}
                 >
                   <SectionWrap
                     title="Review transaction:"
@@ -671,6 +674,7 @@ const Vault = ({ close }: { close: () => void }) => {
                   // txCode={(selectedVault && deleteTx.txCode) || ''} 
                   actionCode={ActionCodes.DELETE_VAULT}
                   pad
+                  tx={deleteTx}
                 >
                   <SectionWrap
                     title="Review transaction:"
