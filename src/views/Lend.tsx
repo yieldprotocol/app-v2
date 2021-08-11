@@ -151,8 +151,7 @@ const Lend = () => {
           {stepPosition === 1 && (
             <Box gap="large">
               <BackButton action={() => setStepPosition(0)} />
-
-              <ActiveTransaction txCode={lendTx.txCode} full>
+              <ActiveTransaction full actionCode={ActionCodes.LEND}>
                 <SectionWrap title="Review transaction:">
                   <Box
                     gap="small"
@@ -190,20 +189,34 @@ const Lend = () => {
               errorLabel={lendError}
             />
           )}
-          {stepPosition === 1 && !selectedSeries?.seriesIsMature && (
+
+          {stepPosition === 1 && 
+          !selectedSeries?.seriesIsMature && 
+          !(lendTx.failed || lendTx.success) && (
             <TransactButton
               primary
               label={
                 <Text size={mobile ? 'small' : undefined}>
-                  {`Supply${lendTx.pending ? `ing` : ''} ${
+                  {`Supply${lendTx.processActive ? `ing` : ''} ${
                     nFormatter(Number(lendInput), selectedBase?.digitFormat!) || ''
                   } ${selectedBase?.symbol || ''}`}
                 </Text>
               }
               onClick={() => handleLend()}
-              disabled={lendDisabled || lendTx.pending}
+              disabled={lendDisabled || lendTx.processActive }
             />
           )}
+
+        {stepPosition === 1 && 
+        !selectedSeries?.seriesIsMature &&
+        !lendTx.processActive &&
+        lendTx.success && (
+            <NextButton
+              label={<Text size={mobile ? 'small' : undefined}>Go back to lend </Text>}
+              onClick={ () => setStepPosition(0) }
+            />
+          )}
+
           {selectedSeries?.seriesIsMature && (
             <NextButton
               primary

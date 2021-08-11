@@ -402,7 +402,8 @@ const Vault = ({ close }: { close: () => void }) => {
               )}
 
               {stepPosition[0] !== 0 && (
-                <ActiveTransaction txCode={(selectedVault && repayTx.txCode) || ''} pad>
+                <ActiveTransaction actionCode={ActionCodes.REPAY} pad>
+                {/* <ActiveTransaction txCode={(selectedVault && repayTx.txCode) || ''} pad> */}
                   <SectionWrap
                     title="Review transaction:"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
@@ -433,7 +434,7 @@ const Vault = ({ close }: { close: () => void }) => {
               )}
 
               {stepPosition[actionActive.index] !== 0 && (
-                <ActiveTransaction txCode={(selectedVault && rollTx.txCode) || ''} pad>
+                <ActiveTransaction actionCode={ActionCodes.ROLL_DEBT} pad>
                   <SectionWrap
                     title="Review transaction:"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
@@ -494,11 +495,12 @@ const Vault = ({ close }: { close: () => void }) => {
 
               {stepPosition[actionActive.index] !== 0 && (
                 <ActiveTransaction
-                  txCode={
-                    selectedVault && addCollatInput
-                      ? addCollateralTx.txCode
-                      : (selectedVault && removeCollateralTx.txCode) || ''
-                  }
+                  // txCode={
+                  //   selectedVault && addCollatInput
+                  //     ? addCollateralTx.txCode
+                  //     : (selectedVault && removeCollateralTx.txCode) || ''
+                  // }
+                  actionCode={ addCollatInput ? ActionCodes.ADD_COLLATERAL : ActionCodes.REMOVE_COLLATERAL}
                   pad
                 >
                   <SectionWrap
@@ -546,7 +548,11 @@ const Vault = ({ close }: { close: () => void }) => {
               )}
 
               {stepPosition[actionActive.index] !== 0 && (
-                <ActiveTransaction txCode={(selectedVault && transferTx.txCode) || ''} pad>
+                <ActiveTransaction 
+                  // txCode={(selectedVault && transferTx.txCode) || ''} 
+                  actionCode={ActionCodes.TRANSFER_VAULT}
+                  pad
+                  >
                   <SectionWrap
                     title="Review transaction:"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
@@ -611,7 +617,11 @@ const Vault = ({ close }: { close: () => void }) => {
               )}
 
               {stepPosition[actionActive.index] !== 0 && (
-                <ActiveTransaction txCode={(selectedVault && mergeTx.txCode) || ''} pad>
+                <ActiveTransaction 
+                  // txCode={(selectedVault && mergeTx.txCode) || ''} 
+                  actionCode={ActionCodes.MERGE_VAULT}
+                  pad
+                >
                   <SectionWrap
                     title="Review transaction:"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
@@ -657,7 +667,11 @@ const Vault = ({ close }: { close: () => void }) => {
               )}
 
               {stepPosition[actionActive.index] !== 0 && (
-                <ActiveTransaction txCode={(selectedVault && deleteTx.txCode) || ''} pad>
+                <ActiveTransaction 
+                  // txCode={(selectedVault && deleteTx.txCode) || ''} 
+                  actionCode={ActionCodes.DELETE_VAULT}
+                  pad
+                >
                   <SectionWrap
                     title="Review transaction:"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}

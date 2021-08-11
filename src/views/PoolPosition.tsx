@@ -187,7 +187,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
               )}
 
               {stepPosition[0] !== 0 && (
-                <ActiveTransaction txCode={removeTx.txCode} pad>
+                <ActiveTransaction actionCode={ActionCodes.REMOVE_LIQUIDITY} pad>
                   <SectionWrap
                     title="Review your remove transaction"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
@@ -233,7 +233,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
               )}
 
               {stepPosition[actionActive.index] !== 0 && (
-                <ActiveTransaction txCode={rollTx.txCode} pad>
+                <ActiveTransaction actionCode={ActionCodes.ROLL_LIQUIDITY} pad>
                   <SectionWrap
                     title="Review your roll transaction"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}

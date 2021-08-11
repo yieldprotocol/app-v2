@@ -5,7 +5,8 @@ import { BiWallet } from 'react-icons/bi';
 import { FiCheckCircle, FiClock, FiPenTool, FiX } from 'react-icons/fi';
 import { TxContext } from '../contexts/TxContext';
 import { UserContext } from '../contexts/UserContext';
-import { ApprovalType, TxState } from '../types';
+import { useTx } from '../hooks/useTx';
+import { ActionCodes, ApprovalType, TxState } from '../types';
 import { abbreviateHash } from '../utils/appUtils';
 import EtherscanButton from './buttons/EtherscanButton';
 import CopyWrap from './wraps/CopyWrap';
@@ -51,36 +52,31 @@ const InfoBlock = ({
 );
 
 const ActiveTransaction = ({
-  txCode,
+  actionCode,
   full,
   children,
   pad,
 }: {
-  txCode: string;
+  actionCode: ActionCodes;
   children: React.ReactNode;
   full?: boolean;
   pad?: boolean;
 }) => {
-  // TODO consider name: TxPendingWrap
+ 
   const { txState } = useContext(TxContext);
+  const { signatures } = txState;
   const {
     userState: { approvalMethod },
   } = useContext(UserContext);
 
-  const { signatures, transactions, processes } = txState;
-
-  const [process, setProcess] = useState<any>();
   const [sig, setSig] = useState<any>();
-  const [tx, setTx] = useState<any>();
-
-  const [textSize, setTextSize] = useState<string | undefined>(undefined);
   const [iconSize, setIconSize] = useState<string>('1em');
 
+  const { tx } = useTx(actionCode);
+
   useEffect(() => {
-    const _process = processes.get(txCode);
-    _process && setTx(transactions.get(_process));
-    _process && setSig(signatures.get(txCode));
-  }, [processes, signatures, transactions, txCode]);
+    tx.txCode && setSig(signatures.get(tx.txCode));
+  }, [tx, signatures]);
 
   useEffect(() => {
     full && setIconSize('2.5em');
@@ -89,11 +85,12 @@ const ActiveTransaction = ({
 
   return (
     <Box pad={pad ? { horizontal: 'small', vertical: 'medium' } : undefined}>
-      {!processes.get(txCode) && // CASE: no tx or signing activity
-        (!sig || sig?.status === TxState.REJECTED || sig?.status === TxState.SUCCESSFUL) &&
-        !tx && <Box>{children}</Box>}
+      {!tx.processActive && // CASE: no tx or signing activity
+      (!sig || sig?.status === TxState.REJECTED || sig?.status === TxState.SUCCESSFUL) &&
+      (!tx.success && !tx.failed && !tx.rejected) &&
+      <Box>{children}</Box>}
 
-      {processes.get(txCode) &&
+      {tx.processActive &&
         sig?.status === TxState.PENDING && ( // CASE: Signature/ approval required
           <InfoBlock
             title={approvalMethod === ApprovalType.SIG ? 'Signature required' : 'Approval transaction required'}
@@ -108,21 +105,21 @@ const ActiveTransaction = ({
           />
         )}
 
-      {processes.get(txCode) &&
-        sig?.status === TxState.PENDING && // CASE: Approval transaction pending (sig pending and tx pending)
-        tx?.status === TxState.PENDING && (
+      {tx.processActive &&
+        sig?.status === TxState.PENDING && // CASE: APPROVAL transaction pending (sig pending and tx pending)
+        tx.pending && (
           <InfoBlock
             title="Token Approval"
             subTitle="Transaction Pending..."
             icon={<FiClock size={iconSize} />}
-            button={<EtherscanButton txHash={tx.tx.hash} />}
+            button={<EtherscanButton txHash={tx.txHash} />}
             full={full}
           />
         )}
 
-      {processes.get(txCode) === constants.HashZero &&
-        sig?.status !== TxState.PENDING &&
-        !tx && (
+      {tx.processActive &&
+      !tx.txHash &&
+      sig?.status !== TxState.PENDING &&
           <InfoBlock
             title="Transaction Confirmation..."
             subTitle="Please check your wallet/provider."
@@ -130,45 +127,45 @@ const ActiveTransaction = ({
             button={null}
             full={full}
           />
-        )}
+        }
 
-      {processes.get(txCode) && // CASE: TX processing but signature complete
-        tx?.status === TxState.PENDING &&
+      {tx.processActive && // CASE: TX processing but signature complete
+        tx.pending &&
         (!sig || sig?.status === TxState.SUCCESSFUL) && (
           <InfoBlock
             title="Transaction Pending..."
-            subTitle={<CopyWrap hash={tx.tx.hash}> {abbreviateHash(tx.tx.hash, 6)} </CopyWrap>}
+            subTitle={<CopyWrap hash={tx.txHash}> {abbreviateHash(tx.txHash, 6)} </CopyWrap>}
             icon={<FiClock size={iconSize} />}
-            button={<EtherscanButton txHash={tx.tx.hash} />}
+            button={<EtherscanButton txHash={tx.txHash} />}
             full={full}
           />
         )}
 
-      {tx?.status === TxState.SUCCESSFUL && // Case:  TX complete. if process still active, assume that the tx was an approval.
-        (processes.get(txCode) ? (
+      {tx.success && // Case:  TX complete. if process still active, assume that the tx was an approval.
+        (tx.processActive ? (
           <InfoBlock
             title="Token Approval Complete"
             subTitle="Please check your wallet/provider to confirm second step"
             icon={<FiClock size={iconSize} />}
-            button={<EtherscanButton txHash={tx.tx.hash} />}
+            button={<EtherscanButton txHash={tx.txHash} />}
             full={full}
           />
         ) : (
           <InfoBlock
             title="Transaction Complete"
-            subTitle={<CopyWrap hash={tx.tx.hash}> {abbreviateHash(tx.tx.hash, 6)} </CopyWrap>}
+            subTitle={<CopyWrap hash={tx.txHash}> {abbreviateHash(tx.txHash, 6)} </CopyWrap>}
             icon={<FiCheckCircle size={iconSize} />}
-            button={<EtherscanButton txHash={tx.tx.hash} />}
+            button={<EtherscanButton txHash={tx.txHash} />}
             full={full}
           />
         ))}
 
-      {tx?.status === TxState.FAILED && ( // Case: transaction failed.
+      {tx.failed && ( // Case: transaction failed.
         <InfoBlock
           title="Transaction Failed"
-          subTitle={<CopyWrap hash={tx.tx.hash}> {abbreviateHash(tx.tx.hash, 6)} </CopyWrap>}
+          subTitle={<CopyWrap hash={tx.txHash}> {abbreviateHash(tx.txHash, 6)} </CopyWrap>}
           icon={<FiX size={iconSize} />}
-          button={<EtherscanButton txHash={tx.tx.hash} />}
+          button={<EtherscanButton txHash={tx.txHash} />}
           full={full}
         />
       )}

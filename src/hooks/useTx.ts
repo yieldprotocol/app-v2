@@ -53,8 +53,8 @@ export const useTx = (actionCode: ActionCodes, shouldRedirect: boolean = false) 
 
   useEffect(() => {
     txCode &&
-    processes.size &&
-    setTxHash(processes.get(txCode).hash);
+    processes?.size &&
+    setTxHash(processes.get(txCode)?.hash || undefined);
   }, [processes, txCode]);
 
   useEffect(() => {

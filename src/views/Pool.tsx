@@ -157,7 +157,7 @@ function Pool() {
 
                 <BackButton action={() => setStepPosition(0)} />
 
-              <ActiveTransaction txCode={poolTx.txCode} full>
+              <ActiveTransaction actionCode={ActionCodes.ADD_LIQUIDITY} full>
                 <Box gap="large">
                   {!selectedSeries?.seriesIsMature && (
                     <SectionWrap>
