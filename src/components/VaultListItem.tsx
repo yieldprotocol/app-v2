@@ -20,7 +20,7 @@ function VaultListItem({ vault }: { vault: IVault }) {
         </Text>
 
         {vault.isActive ? (
-          <Box direction="column" >
+          <Box direction="column">
             <Text weight={450} size="xsmall">
               {series?.displayNameMobile}
             </Text>
