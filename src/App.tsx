@@ -7,6 +7,7 @@ import { Redirect, Route, Switch } from 'react-router-dom';
 import Borrow from './views/Borrow';
 import Lend from './views/Lend';
 import Pool from './views/Pool';
+import Dashboard from './views/Dashboard';
 
 import MenuLayer from './layers/MenuLayer';
 import YieldFooter from './components/YieldFooter';
@@ -32,6 +33,9 @@ function App() {
           </Route>
           <Route path="/pool/:series?/:asset?/:amnt?">
             <Pool />
+          </Route>
+          <Route path="/dashboard">
+            <Dashboard />
           </Route>
           <Route exact path="/">
             <Redirect to="/borrow" />

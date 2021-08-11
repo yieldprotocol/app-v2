@@ -26,10 +26,10 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
       direction="row"
       fill="horizontal"
     >
-      <Grid columns={['medium', 'flex', 'medium']} fill="horizontal">
-        <Box direction="row" gap={mobile ? '0.25em' : 'medium'} align='center' >
-        <Avatar >
-          <YieldMark height={mobile ? '1.0em' : '2em'} />
+      <Grid columns={['flex', 'flex', 'medium']} fill="horizontal">
+        <Box direction="row" gap={mobile ? '0.25em' : 'medium'} align="center">
+          <Avatar>
+            <YieldMark height={mobile ? '1.0em' : '2em'} />
           </Avatar>
           {!mobile && <YieldNavigation />}
         </Box>
@@ -40,7 +40,6 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
           <YieldAccount />
         </Box>
       </Grid>
-
     </Header>
   );
 };
