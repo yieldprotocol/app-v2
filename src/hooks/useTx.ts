@@ -12,55 +12,81 @@ interface ITx {
   failed: boolean;
   rejected: boolean;
   txHash: any;
+  processActive: boolean;
 }
 
 /* useTx hook returns the tx status, and redirects to home after success if shouldRedirect is specified */
 /* the return tx looks like any object of {txCode, isPending, isSuccess, isFailed, isRejected} */
 export const useTx = (actionCode: ActionCodes, shouldRedirect: boolean = false) => {
   /* STATE FROM CONTEXT */
-  const { txState: transactions } = useContext(TxContext);
+  const {
+    txState: { transactions, processes },
+  } = useContext(TxContext);
   const {
     userState: { selectedVaultId, selectedSeriesId },
     userActions,
   } = useContext(UserContext);
 
   const history = useHistory();
-  const INITIAL_STATE = { txCode: null, pending: false, success: false, failed: false, rejected: false, txHash: null };
+  const INITIAL_STATE = {
+    txCode: undefined,
+    pending: false,
+    success: false,
+    failed: false,
+    rejected: false,
+    txHash: undefined,
+    processActive: false,
+  };
   const [tx, setTx] = useState<ITx>(INITIAL_STATE);
+  const [txCode, setTxCode] = useState<string>();
+  const [txHash, setTxHash] = useState<string>();
+  const [processActive, setProcessActive] = useState<boolean>(false);
 
   useEffect(() => {
-    const txCode = selectedVaultId ? getTxCode(actionCode, selectedVaultId!) : getTxCode(actionCode, selectedSeriesId!);
-    const txHash = transactions.processes?.get(txCode);
-    setTx((t) => ({ ...INITIAL_STATE, txCode, txHash }));
+    if (selectedVaultId) setTxCode(getTxCode(actionCode, selectedVaultId))
+    else {
+      selectedSeriesId 
+      ? setTxCode(getTxCode(actionCode, selectedSeriesId))
+      : setTxCode(undefined)
+    }
+  }, [selectedVaultId, selectedSeriesId, actionCode]);
+
+  useEffect(() => {
+    txCode &&
+    processes.size &&
+    setTxHash(processes.get(txCode).hash);
+  }, [processes, txCode]);
+
+  useEffect(() => {
+    processes.has(txCode) &&
+    processes.get(txCode).status === 'ACTIVE' ? setProcessActive(true): setProcessActive(false)
+  }, [processes, txCode]);
+
+  useEffect(() => {
+    // const txCode = selectedVaultId ? getTxCode(actionCode, selectedVaultId!) : getTxCode(actionCode, selectedSeriesId!);
+    // const txHash = processes?.get(txCode);
+    setTx((t) => ({ ...t, txCode, txHash, processActive }));
 
     let status;
-    if (transactions.transactions.has(txHash)) {
-      status = transactions.transactions.get(txHash).status;
+    if (transactions.has(txHash)) {
+      status = transactions.get(txHash).status;
     }
 
     switch (status) {
       case TxState.PENDING:
-        setTx((t) => ({ ...t, pending: true }));
+        setTx((t) => ({ ...t, pending: true, txCode, txHash, processActive }));
         break;
       case TxState.SUCCESSFUL:
-        setTx((t) => ({ ...t, success: true }));
+        setTx((t) => ({ ...t, success: true, pending: false, txCode, processActive }));
         break;
       case TxState.FAILED:
-        setTx((t) => ({ ...t, failed: true }));
+        setTx((t) => ({ ...t, failed: true, pending: false, txCode, processActive }));
         break;
       case TxState.REJECTED:
-        setTx((t) => ({ ...t, rejected: true }));
+        setTx((t) => ({ ...t, rejected: true, pending: false, txCode, processActive }));
         break;
     }
-  }, [
-    actionCode,
-    shouldRedirect,
-    selectedSeriesId,
-    selectedVaultId,
-    transactions.processes,
-    transactions.transactions,
-    tx.txHash,
-  ]);
+  }, [actionCode, shouldRedirect, processes, transactions, txHash, txCode, processActive]);
 
   useEffect(() => {
     tx.success && shouldRedirect && history.push('/') && userActions.setSelectedVault(null);
