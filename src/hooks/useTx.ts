@@ -52,6 +52,11 @@ export const useTx = (actionCode: ActionCodes, shouldRedirect: boolean = false) 
         setTx((t) => ({ ...t, rejected: true }));
         break;
     }
+
+    if (status === TxState.SUCCESSFUL && shouldRedirect) {
+      history.push('/');
+      userActions.setSelectedVault(null);
+    }
   }, [
     actionCode,
     shouldRedirect,
@@ -60,11 +65,9 @@ export const useTx = (actionCode: ActionCodes, shouldRedirect: boolean = false) 
     transactions.processes,
     transactions.transactions,
     tx.txHash,
+    history,
+    userActions,
   ]);
-
-  useEffect(() => {
-    tx.success && shouldRedirect && history.push('/') && userActions.setSelectedVault(null);
-  }, [tx.success, shouldRedirect, history, userActions]);
 
   return { tx };
 };
