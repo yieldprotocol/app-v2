@@ -9,7 +9,7 @@ const initState = {
   /* transaction lists */
   signatures: new Map([]) as Map<string, IYieldSignature>,
   transactions: new Map([]) as Map<string, IYieldTx>,
-  processes: new Map([]) as Map<string, string>,
+  processes: new Map([]) as Map<string, IYieldProcess>,
 
   /* user settings */
   useFallbackTxs: false as boolean,
@@ -29,16 +29,15 @@ interface IYieldTx extends ContractTransaction {
   status: TxState;
 }
 
+interface IYieldProcess {
+  status: 'ACTIVE|INACTIVE';
+  hash?: string | undefined
+}
+
 function txReducer(_state: any, action: any) {
   /* Helper: only change the state if different from existing */
   const _onlyIfChanged = (_action: any) =>
     _state[action.type] === _action.payload ? _state[action.type] : _action.payload;
-
-  /* Helper: remove process  */ // TODO  find a better way to do this
-  const _removeProcess = (_txCode: any) => {
-    const mapClone = new Map(_state.processes);
-    return mapClone.delete(_txCode) ? mapClone : _state.processes;
-  };
 
   /* Reducer switch */
   switch (action.type) {
@@ -47,22 +46,28 @@ function txReducer(_state: any, action: any) {
         ..._state,
         transactions: new Map(_state.transactions.set(action.payload.tx.hash, action.payload)),
         // also update processes with tx hash:
-        processes: new Map(_state.processes.set(action.payload.txCode, action.payload.tx.hash)),
+        processes: new Map(
+          _state.processes.set(action.payload.txCode, {
+            ..._state.processes.get(action.payload.txCode),
+            hash: action.payload.tx.hash,
+          })
+        ),
       };
     case 'signatures':
       return {
         ..._state,
         signatures: new Map(_state.signatures.set(action.payload.txCode, action.payload)),
       };
-    case '_startProcess':
+
+    case 'processes':
       return {
         ..._state,
-        processes: new Map(_state.processes.set(action.payload.txCode, action.payload.hash)),
-      };
-    case '_endProcess':
-      return {
-        ..._state,
-        processes: _removeProcess(action.payload),
+        processes: new Map(
+          _state.processes.set(action.payload.txCode, {
+            ..._state.processes.get(action.payload.txCode),
+            status: action.payload.status,
+          })
+        ),
       };
 
     default:
@@ -74,11 +79,17 @@ const TxProvider = ({ children }: any) => {
   const [txState, updateState] = useReducer(txReducer, initState);
 
   const _startProcess = (txCode: string) => {
-    updateState({ type: '_startProcess', payload: { txCode, hash: constants.HashZero } });
+    updateState({
+      type: 'processes',
+      payload: { txCode, status: 'ACTIVE' },
+    });
   };
 
   const _endProcess = (txCode: string) => {
-    updateState({ type: '_endProcess', payload: txCode });
+    updateState({
+      type: 'processes',
+      payload: { txCode, status: 'INACTIVE' },
+    });
   };
 
   /* handle case when user or wallet rejects the tx (before submission) */
