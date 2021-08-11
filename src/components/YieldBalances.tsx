@@ -1,20 +1,28 @@
+import React, { useContext, useEffect, useState } from 'react';
 import { Box, Collapsible, ResponsiveContext, Text } from 'grommet';
 import { useLocation } from 'react-router-dom';
 
-import React, { useContext, useEffect, useState } from 'react';
+import styled from 'styled-components';
 import { FiMenu } from 'react-icons/fi';
 import { UserContext } from '../contexts/UserContext';
 import { ChainContext } from '../contexts/ChainContext';
 import EthMark from './logos/EthMark';
 
+const StyledText = styled(Text)`
+  svg,
+  span {
+    vertical-align: middle;
+  }
+`;
+
 const Balance = ({ image, balance }: { image: any; balance: string }) => (
   <Box direction="row" gap="small" align="center">
-    <Text size="small" color="text">
+    <StyledText size="medium" color="text">
       {image}
-    </Text>
-    <Text size="xsmall" color="text">
+    </StyledText>
+    <StyledText size="small" color="text">
       {balance}
-    </Text>
+    </StyledText>
   </Box>
 );
 
@@ -50,7 +58,9 @@ const Balances = () => {
         <Collapsible open={allOpen}>Other balances</Collapsible>
       </Box>
       <Box pad="small" justify="center">
-        <Balance image={<EthMark />} balance={ethBalance} />
+        <Box>
+          <Balance image={<EthMark />} balance={ethBalance} />
+        </Box>
       </Box>
     </Box>
   );
