@@ -63,13 +63,13 @@ const Vault = ({ close }: { close: () => void }) => {
   );
 
   /* TX info (for disabling buttons) */
-  const { tx: repayTx } = useTx(ActionCodes.REPAY);
-  const { tx: rollTx } = useTx(ActionCodes.ROLL_DEBT);
-  const { tx: addCollateralTx } = useTx(ActionCodes.ADD_COLLATERAL);
-  const { tx: removeCollateralTx } = useTx(ActionCodes.REMOVE_COLLATERAL);
-  const { tx: transferTx } = useTx(ActionCodes.TRANSFER_VAULT, true);
-  const { tx: deleteTx } = useTx(ActionCodes.DELETE_VAULT, true);
-  const { tx: mergeTx } = useTx(ActionCodes.MERGE_VAULT);
+  const { tx: repayTx } = useTx(ActionCodes.REPAY, selectedVaultId!);
+  const { tx: rollTx } = useTx(ActionCodes.ROLL_DEBT, selectedVaultId!);
+  const { tx: addCollateralTx } = useTx(ActionCodes.ADD_COLLATERAL, selectedVaultId!);
+  const { tx: removeCollateralTx } = useTx(ActionCodes.REMOVE_COLLATERAL, selectedVaultId!);
+  const { tx: transferTx } = useTx(ActionCodes.TRANSFER_VAULT, selectedVaultId!, true);
+  const { tx: deleteTx } = useTx(ActionCodes.DELETE_VAULT, selectedVaultId!, true);
+  const { tx: mergeTx } = useTx(ActionCodes.MERGE_VAULT, selectedVaultId!);
 
   /* LOCAL STATE */
   // tab state + control
@@ -402,7 +402,7 @@ const Vault = ({ close }: { close: () => void }) => {
               )}
 
               {stepPosition[0] !== 0 && (
-                <ActiveTransaction actionCode={ActionCodes.REPAY} pad tx={repayTx}>
+                <ActiveTransaction pad tx={repayTx}>
                 {/* <ActiveTransaction txCode={(selectedVault && repayTx.txCode) || ''} pad> */}
                   <SectionWrap
                     title="Review transaction:"
@@ -434,7 +434,7 @@ const Vault = ({ close }: { close: () => void }) => {
               )}
 
               {stepPosition[actionActive.index] !== 0 && (
-                <ActiveTransaction actionCode={ActionCodes.ROLL_DEBT} pad tx={rollTx}>
+                <ActiveTransaction pad tx={rollTx}>
                   <SectionWrap
                     title="Review transaction:"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
@@ -495,12 +495,6 @@ const Vault = ({ close }: { close: () => void }) => {
 
               {stepPosition[actionActive.index] !== 0 && (
                 <ActiveTransaction
-                  // txCode={
-                  //   selectedVault && addCollatInput
-                  //     ? addCollateralTx.txCode
-                  //     : (selectedVault && removeCollateralTx.txCode) || ''
-                  // }
-                  actionCode={ addCollatInput ? ActionCodes.ADD_COLLATERAL : ActionCodes.REMOVE_COLLATERAL}
                   pad
                   tx={ addCollatInput? addCollateralTx : removeCollateralTx}
                 >
@@ -550,8 +544,6 @@ const Vault = ({ close }: { close: () => void }) => {
 
               {stepPosition[actionActive.index] !== 0 && (
                 <ActiveTransaction 
-                  // txCode={(selectedVault && transferTx.txCode) || ''} 
-                  actionCode={ActionCodes.TRANSFER_VAULT}
                   pad
                   tx={transferTx}
                   >
@@ -620,8 +612,6 @@ const Vault = ({ close }: { close: () => void }) => {
 
               {stepPosition[actionActive.index] !== 0 && (
                 <ActiveTransaction 
-                  // txCode={(selectedVault && mergeTx.txCode) || ''} 
-                  actionCode={ActionCodes.MERGE_VAULT}
                   pad
                   tx={mergeTx}
                 >
@@ -671,8 +661,6 @@ const Vault = ({ close }: { close: () => void }) => {
 
               {stepPosition[actionActive.index] !== 0 && (
                 <ActiveTransaction 
-                  // txCode={(selectedVault && deleteTx.txCode) || ''} 
-                  actionCode={ActionCodes.DELETE_VAULT}
                   pad
                   tx={deleteTx}
                 >

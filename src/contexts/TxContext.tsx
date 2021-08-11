@@ -11,7 +11,7 @@ const initState = {
   transactions: new Map([]) as Map<string, IYieldTx>,
   processes: new Map([]) as Map<string, IYieldProcess>,
 
-  /* process active flag for convenience */
+  /* process active flags for convenience */
   processActive: false as boolean,
 
   /* user settings */
@@ -73,12 +73,18 @@ function txReducer(_state: any, action: any) {
         ),
       };
 
-      case 'processActive':
-        return {
-          ..._state,
-          processActive: _onlyIfChanged(action),
-        };
+    case 'processActive':
+      return {
+        ..._state,
+        processActive: _onlyIfChanged(action),
+    };
 
+    case 'signingActive':
+      return {
+        ..._state,
+        signingActive: _onlyIfChanged(action),
+    };
+      
     default:
       return _state;
   }

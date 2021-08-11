@@ -56,7 +56,10 @@ const Lend = () => {
 
   const lendOutput = cleanValue((Number(lendInput) * (1 + Number(apr) / 100)).toString(), selectedBase?.digitFormat!);
 
-  const { tx: lendTx, resetTx } = useTx(ActionCodes.LEND);
+  const { tx: lendTx, resetTx } = useTx(ActionCodes.LEND, selectedSeries?.id);
+
+
+  console.log(lendTx);
 
   /* input validation hooks */
   const { inputError: lendError } = useInputValidation(lendInput, ActionCodes.LEND, selectedSeries, [0, maxLend]);
@@ -152,7 +155,7 @@ const Lend = () => {
           {stepPosition === 1 && (
             <Box gap="large">
               <BackButton action={() => setStepPosition(0)} />
-              <ActiveTransaction full actionCode={ActionCodes.LEND} tx={lendTx} >
+              <ActiveTransaction full tx={lendTx} >
                 <SectionWrap title="Review transaction:">
                   <Box
                     gap="small"
@@ -191,7 +194,10 @@ const Lend = () => {
             />
           )}
 
-          {stepPosition === 1 && !selectedSeries?.seriesIsMature && !(lendTx.failed || lendTx.success) && (
+          {stepPosition === 1 && 
+          !selectedSeries?.seriesIsMature && 
+          
+          (
             <TransactButton
               primary
               label={

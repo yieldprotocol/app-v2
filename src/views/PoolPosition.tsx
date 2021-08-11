@@ -59,8 +59,8 @@ const PoolPosition = ({ close }: { close: () => void }) => {
   const { removeLiquidity, rollLiquidity } = usePoolActions();
 
   /* TX data */
-  const { tx: removeTx } = useTx(ActionCodes.REMOVE_LIQUIDITY);
-  const { tx: rollTx } = useTx(ActionCodes.ROLL_LIQUIDITY);
+  const { tx: removeTx } = useTx(ActionCodes.REMOVE_LIQUIDITY, selectedSeries?.id);
+  const { tx: rollTx } = useTx(ActionCodes.ROLL_LIQUIDITY, selectedSeries?.id);
 
   /* input validation hoooks */
   const { inputError: removeError } = useInputValidation(removeInput, ActionCodes.REMOVE_LIQUIDITY, selectedSeries, [
@@ -187,7 +187,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
               )}
 
               {stepPosition[0] !== 0 && (
-                <ActiveTransaction actionCode={ActionCodes.REMOVE_LIQUIDITY} pad tx={removeTx}>
+                <ActiveTransaction pad tx={removeTx}>
                   <SectionWrap
                     title="Review your remove transaction"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
@@ -233,7 +233,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
               )}
 
               {stepPosition[actionActive.index] !== 0 && (
-                <ActiveTransaction actionCode={ActionCodes.ROLL_LIQUIDITY} pad tx={rollTx}>
+                <ActiveTransaction pad tx={rollTx}>
                   <SectionWrap
                     title="Review your roll transaction"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}

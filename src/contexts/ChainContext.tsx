@@ -218,7 +218,7 @@ const ChainProvider = ({ children }: any) => {
 
       updateState({ type: 'appVersion', payload: process.env.REACT_APP_VERSION });
 
-      console.log('VERISON: ', process.env.REACT_APP_VERSION);
+      console.log('VERSION: ', process.env.REACT_APP_VERSION);
       console.log('Fallback ChainId: ', fallbackChainId);
       console.log('ChainId: ', chainId);
 

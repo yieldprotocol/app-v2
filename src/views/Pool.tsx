@@ -58,7 +58,7 @@ function Pool() {
   /* input validation hooks */
   const { inputError: poolError } = useInputValidation(poolInput, ActionCodes.LEND, selectedSeries, [0, maxPool]);
 
-  const { tx: poolTx } = useTx(ActionCodes.ADD_LIQUIDITY);
+  const { tx: poolTx } = useTx(ActionCodes.ADD_LIQUIDITY, selectedSeries?.id);
 
   /* LOCAL ACTION FNS */
   const handleAdd = () => {
@@ -157,7 +157,7 @@ function Pool() {
 
                 <BackButton action={() => setStepPosition(0)} />
 
-              <ActiveTransaction actionCode={ActionCodes.ADD_LIQUIDITY} full tx={poolTx}>
+              <ActiveTransaction full tx={poolTx}>
                 <Box gap="large">
                   {!selectedSeries?.seriesIsMature && (
                     <SectionWrap>

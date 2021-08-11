@@ -52,20 +52,16 @@ const InfoBlock = ({
 );
 
 const ActiveTransaction = ({
-  actionCode,
   tx,
   full,
   children,
   pad,
- 
 }: {
-  actionCode: ActionCodes;
   tx: any;
   children: React.ReactNode;
   full?: boolean;
   pad?: boolean;
 }) => {
- 
   const { txState } = useContext(TxContext);
   const { signatures } = txState;
   const {
@@ -75,11 +71,9 @@ const ActiveTransaction = ({
   const [sig, setSig] = useState<any>();
   const [iconSize, setIconSize] = useState<string>('1em');
 
-  // const { tx, resetTx } = useTx(actionCode);
-
-  useEffect(()=>{
-    console.log('HERE', tx)
-  },[tx])
+  useEffect(() => {
+    console.log('HERE', tx);
+  }, [tx]);
 
   useEffect(() => {
     tx.txCode && setSig(signatures.get(tx.txCode));
@@ -93,9 +87,10 @@ const ActiveTransaction = ({
   return (
     <Box pad={pad ? { horizontal: 'small', vertical: 'medium' } : undefined}>
       {!tx.processActive && // CASE: no tx or signing activity
-      (!sig || sig?.status === TxState.REJECTED || sig?.status === TxState.SUCCESSFUL) &&
-      (!tx.success && !tx.failed && !tx.rejected) &&
-      <Box>{children}</Box>}
+        (!sig || sig?.status === TxState.REJECTED || sig?.status === TxState.SUCCESSFUL) &&
+        !tx.success &&
+        !tx.failed &&
+        !tx.rejected && <Box>{children}</Box>}
 
       {tx.processActive &&
         sig?.status === TxState.PENDING && ( // CASE: Signature/ approval required
@@ -124,17 +119,15 @@ const ActiveTransaction = ({
           />
         )}
 
-      {tx.processActive &&
-      !tx.txHash &&
-      sig?.status !== TxState.PENDING &&
-          <InfoBlock
-            title="Transaction Confirmation..."
-            subTitle="Please check your wallet/provider."
-            icon={<BiWallet size={iconSize} />}
-            button={null}
-            full={full}
-          />
-        }
+      {tx.processActive && !tx.txHash && sig?.status !== TxState.PENDING && (
+        <InfoBlock
+          title="Transaction Confirmation..."
+          subTitle="Please check your wallet/provider."
+          icon={<BiWallet size={iconSize} />}
+          button={null}
+          full={full}
+        />
+      )}
 
       {tx.processActive && // CASE: TX processing but signature complete
         tx.pending &&
@@ -148,8 +141,9 @@ const ActiveTransaction = ({
           />
         )}
 
-      {tx.success && // Case:  TX complete. if process still active, assume that the tx was an approval.
-        (tx.processActive ? (
+      {/* {tx.processActive &&
+        sig?.status === TxState.SUCCESSFUL &&
+        tx.success && ( // Case:  TX complete. if process still active, assume that the tx was an approval.
           <InfoBlock
             title="Token Approval Complete"
             subTitle="Please check your wallet/provider to confirm second step"
@@ -157,15 +151,17 @@ const ActiveTransaction = ({
             button={<EtherscanButton txHash={tx.txHash} />}
             full={full}
           />
-        ) : (
-          <InfoBlock
-            title="Transaction Complete"
-            subTitle={<CopyWrap hash={tx.txHash}> {abbreviateHash(tx.txHash, 6)} </CopyWrap>}
-            icon={<FiCheckCircle size={iconSize} />}
-            button={<EtherscanButton txHash={tx.txHash} />}
-            full={full}
-          />
-        ))}
+        )} */}
+
+      {!tx.processActive && tx.success && (
+        <InfoBlock
+          title="Transaction Complete"
+          subTitle={<CopyWrap hash={tx.txHash}> {abbreviateHash(tx.txHash, 6)} </CopyWrap>}
+          icon={<FiCheckCircle size={iconSize} />}
+          button={<EtherscanButton txHash={tx.txHash} />}
+          full={full}
+        />
+      )}
 
       {tx.failed && ( // Case: transaction failed.
         <InfoBlock
