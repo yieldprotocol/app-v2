@@ -164,7 +164,9 @@ const ActiveTransaction = ({
         />
       )}
 
-      {tx.failed && ( // Case: transaction failed.
+      {
+      !tx.processActive &&
+      tx.failed && ( // Case: transaction failed.
         <InfoBlock
           title="Transaction Failed"
           subTitle={<CopyWrap hash={tx.txHash}> {abbreviateHash(tx.txHash, 6)} </CopyWrap>}
