@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import { NavLink } from 'react-router-dom';
 import { Avatar, Box, Button, Grid, Header, Layer, ResponsiveContext } from 'grommet';
 
 import { FiX } from 'react-icons/fi';
@@ -47,11 +48,13 @@ function ModalWrap({ children, toggleModalOpen, background, modalOpen = false }:
             <Grid columns={['medium', 'flex', 'medium']} fill="horizontal">
               <Box direction="row" gap={mobile ? '0.25em' : 'medium'} align="center">
                 <Avatar>
-                  <YieldMark
-                    height={mobile ? '1em' : '2em'}
-                    startColor={series?.oppStartColor}
-                    endColor={series?.oppEndColor}
-                  />
+                  <NavLink to="/borrow">
+                    <YieldMark
+                      height={mobile ? '1em' : '2em'}
+                      startColor={series?.oppStartColor}
+                      endColor={series?.oppEndColor}
+                    />
+                  </NavLink>
                   <Box />
                 </Avatar>
               </Box>
