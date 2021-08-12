@@ -168,7 +168,7 @@ export const useBorrowActions = () => {
       ...removeEth(_collInput, series),
     ];
     await transact('Ladle', calls, txCode);
-    updateVaults([vault]);
+    updateVaults([]);
     updateAssets([base]);
   };
 
@@ -187,7 +187,7 @@ export const useBorrowActions = () => {
       },
     ];
     await transact('Ladle', calls, txCode);
-    updateVaults([vault]);
+    updateVaults([]);
     updateAssets([base]);
   };
 
