@@ -26,6 +26,7 @@ import TransactButton from '../components/buttons/TransactButton';
 import YieldHistory from '../components/YieldHistory';
 import ExitButton from '../components/buttons/ExitButton';
 import { useInputValidation } from '../hooks/inputValidationHook';
+import EtherscanButton from '../components/buttons/EtherscanButton';
 
 const PoolPosition = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -59,8 +60,8 @@ const PoolPosition = ({ close }: { close: () => void }) => {
   const { removeLiquidity, rollLiquidity } = usePoolActions();
 
   /* TX data */
-  const { tx: removeTx } = useTx(ActionCodes.REMOVE_LIQUIDITY, selectedSeries?.id);
-  const { tx: rollTx } = useTx(ActionCodes.ROLL_LIQUIDITY, selectedSeries?.id);
+  const { tx: removeTx, resetTx: resetRemoveTx } = useTx(ActionCodes.REMOVE_LIQUIDITY, selectedSeries?.id);
+  const { tx: rollTx, resetTx: resetRollTx } = useTx(ActionCodes.ROLL_LIQUIDITY, selectedSeries?.id);
 
   /* input validation hoooks */
   const { inputError: removeError } = useInputValidation(removeInput, ActionCodes.REMOVE_LIQUIDITY, selectedSeries, [
@@ -102,6 +103,23 @@ const PoolPosition = ({ close }: { close: () => void }) => {
     !removeInput || removeError ? setRemoveDisabled(true) : setRemoveDisabled(false);
     !rollInput || !rollToSeries || rollError ? setRollDisabled(true) : setRollDisabled(false);
   }, [activeAccount, removeError, removeInput, rollError, rollInput, rollToSeries]);
+
+  /* INTERNAL COMPONENTS */
+  const CompletedTx = (props: any) =>(
+    <>
+    <NextButton
+      size="xsmall"
+      label={<Text size={mobile ? 'xsmall' : undefined}>Go back</Text>}
+      onClick={() => {
+        props.resetTx();
+        handleStepper(true);
+      }}
+    />
+    {props.tx.failed &&
+    <EtherscanButton txHash={props.tx.txHash} />
+    }
+  </>
+);
 
   return (
     <CenterPanelWrap>
@@ -146,28 +164,28 @@ const PoolPosition = ({ close }: { close: () => void }) => {
         </Box>
 
         <Box height={{ min: '300px' }}>
-        <SectionWrap title='Position Actions'>
-          <Box elevation="xsmall" round="xsmall">
-            <Select
-              plain
-              dropProps={{ round: 'xsmall' }}
-              options={[
-                { text: 'Remove Liquidity', index: 0 },
-                { text: 'Roll Liquidity', index: 1 },
-                { text: 'Transaction History', index: 2 },
-              ]}
-              labelKey="text"
-              valueKey="index"
-              value={actionActive}
-              onChange={({ option }) => setActionActive(option)}
-            />
-          </Box>
-        </SectionWrap>
+          <SectionWrap title="Position Actions">
+            <Box elevation="xsmall" round="xsmall">
+              <Select
+                plain
+                dropProps={{ round: 'xsmall' }}
+                options={[
+                  { text: 'Remove Liquidity', index: 0 },
+                  { text: 'Roll Liquidity', index: 1 },
+                  { text: 'Transaction History', index: 2 },
+                ]}
+                labelKey="text"
+                valueKey="index"
+                value={actionActive}
+                onChange={({ option }) => setActionActive(option)}
+              />
+            </Box>
+          </SectionWrap>
 
           {actionActive.index === 0 && (
             <>
               {stepPosition[0] === 0 && (
-                <Box margin={{ top: 'medium' }} gap='medium'>
+                <Box margin={{ top: 'medium' }} gap="medium">
                   <InputWrap action={() => console.log('maxAction')} isError={removeError}>
                     <TextInput
                       plain
@@ -208,7 +226,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
           {actionActive.index === 1 && (
             <>
               {stepPosition[actionActive.index] === 0 && (
-                <Box margin={{ top: 'medium' }} gap='medium'>
+                <Box margin={{ top: 'medium' }} gap="medium">
                   <InputWrap action={() => console.log('maxAction')} isError={rollError}>
                     <TextInput
                       plain
@@ -264,10 +282,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
             onClick={() => handleStepper()}
             key="next"
             disabled={(actionActive.index === 0 && removeDisabled) || (actionActive.index === 1 && rollDisabled)}
-            errorLabel={ 
-              (actionActive.index === 0 && removeError) ||
-              (actionActive.index === 1 && rollError)
-            }
+            errorLabel={(actionActive.index === 0 && removeError) || (actionActive.index === 1 && rollError)}
           />
         )}
 
@@ -287,9 +302,9 @@ const PoolPosition = ({ close }: { close: () => void }) => {
         )}
 
         {actionActive.index === 1 && 
-          stepPosition[actionActive.index] !== 0 && 
-          
-          (
+        stepPosition[actionActive.index] !== 0 && 
+        
+        (
           <TransactButton
             primary
             label={
@@ -303,6 +318,16 @@ const PoolPosition = ({ close }: { close: () => void }) => {
             disabled={rollDisabled || rollTx.processActive}
           />
         )}
+
+        {stepPosition[actionActive.index] === 1 &&
+          actionActive.index === 0 &&
+          !removeTx.processActive &&
+          (removeTx.success || removeTx.failed) && <CompletedTx tx={removeTx} resetTx={resetRemoveTx} />}
+
+        {stepPosition[actionActive.index] === 1 &&
+          actionActive.index === 1 &&
+          !rollTx.processActive &&
+          (rollTx.success || rollTx.failed) && <CompletedTx tx={rollTx} resetTx={resetRollTx} />}
 
       </ActionButtonGroup>
     </CenterPanelWrap>

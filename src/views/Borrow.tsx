@@ -42,6 +42,7 @@ import PositionAvatar from '../components/PositionAvatar';
 import VaultDropSelector from '../components/selectors/VaultDropSelector';
 import { useInputValidation } from '../hooks/inputValidationHook';
 import AltText from '../components/texts/AltText';
+import EtherscanButton from '../components/buttons/EtherscanButton';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -220,7 +221,9 @@ const Borrow = () => {
 
                   <SectionWrap
                     title={
-                      seriesMap.size > 0 ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} maturity date` : ''
+                      seriesMap.size > 0
+                        ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} maturity date`
+                        : ''
                     }
                   >
                     <SeriesSelector inputValue={borrowInput} actionType={ActionType.BORROW} />
@@ -366,9 +369,7 @@ const Borrow = () => {
                 />
               )}
 
-              {stepPosition === 2 && 
-              !(borrowTx.success || borrowTx.failed) &&
-              (
+              {stepPosition === 2 && !(borrowTx.success || borrowTx.failed) && (
                 <TransactButton
                   primary
                   label={
@@ -383,12 +384,29 @@ const Borrow = () => {
                 />
               )}
 
-          {stepPosition === 2 && !borrowTx.processActive && borrowTx.success && (
-            <NextButton
-              label={<Text size={mobile ? 'small' : undefined}>Borrow more</Text>}
-              onClick={() => { setStepPosition(0); resetTx() } }
-            />
-          )}
+              {stepPosition === 2 && !borrowTx.processActive && borrowTx.success && (
+                <NextButton
+                  label={<Text size={mobile ? 'small' : undefined}>Borrow more</Text>}
+                  onClick={() => {
+                    setStepPosition(0);
+                    resetTx();
+                  }}
+                />
+              )}
+
+              {stepPosition === 2 && !borrowTx.processActive && borrowTx.failed && (
+                <>
+                  <NextButton
+                    size='xsmall'
+                    label={<Text size={mobile ? 'xsmall' : undefined}> Report and go back</Text>}
+                    onClick={() => {
+                      setStepPosition(0);
+                      resetTx();
+                    }}
+                  />
+                  <EtherscanButton txHash={borrowTx.txHash} />
+                </>
+              )}
             </ActionButtonWrap>
           </Box>
         </CenterPanelWrap>

@@ -34,6 +34,7 @@ import { useInputValidation } from '../hooks/inputValidationHook';
 import { useTx } from '../hooks/useTx';
 import AltText from '../components/texts/AltText';
 import PositionListItem from '../components/PositionListItem';
+import EtherscanButton from '../components/buttons/EtherscanButton';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -154,7 +155,7 @@ const Lend = () => {
           {stepPosition === 1 && (
             <Box gap="large">
               <BackButton action={() => setStepPosition(0)} />
-              <ActiveTransaction full tx={lendTx} >
+              <ActiveTransaction full tx={lendTx}>
                 <SectionWrap title="Review transaction:">
                   <Box
                     gap="small"
@@ -182,8 +183,7 @@ const Lend = () => {
         </Box>
 
         <ActionButtonGroup pad>
-          {stepPosition !== 1 && 
-          !selectedSeries?.seriesIsMature && (
+          {stepPosition !== 1 && !selectedSeries?.seriesIsMature && (
             <NextButton
               secondary
               disabled={lendDisabled}
@@ -194,10 +194,7 @@ const Lend = () => {
             />
           )}
 
-          {stepPosition === 1 && 
-          !selectedSeries?.seriesIsMature && 
-          !(lendTx.success || lendTx.failed) &&
-          (
+          {stepPosition === 1 && !selectedSeries?.seriesIsMature && !(lendTx.success || lendTx.failed) && (
             <TransactButton
               primary
               label={
@@ -212,18 +209,32 @@ const Lend = () => {
             />
           )}
 
-          {stepPosition === 1 && 
-          !selectedSeries?.seriesIsMature && 
-          !lendTx.processActive && 
-          lendTx.success && (
+          {stepPosition === 1 && !selectedSeries?.seriesIsMature && !lendTx.processActive && lendTx.success && (
             <>
-            {/* <PositionListItem series={selectedSeries!} actionType={ActionType.LEND} /> */}
-            <NextButton
-              label={<Text size={mobile ? 'small' : undefined}>Lend some more</Text>}
-              onClick={() => { setStepPosition(0); resetTx() }}
-            />
+              {/* <PositionListItem series={selectedSeries!} actionType={ActionType.LEND} /> */}
+              <NextButton
+                label={<Text size={mobile ? 'small' : undefined}>Lend some more</Text>}
+                onClick={() => {
+                  setStepPosition(0);
+                  resetTx();
+                }}
+              />
             </>
           )}
+
+          {stepPosition === 1 && !lendTx.processActive && lendTx.failed && (
+                <>
+                  <NextButton
+                    size='xsmall'
+                    label={<Text size={mobile ? 'xsmall' : undefined}> Report and go back</Text>}
+                    onClick={() => {
+                      setStepPosition(0);
+                      resetTx();
+                    }}
+                  />
+                  <EtherscanButton txHash={lendTx.txHash} />
+                </>
+            )}
 
           {selectedSeries?.seriesIsMature && (
             <NextButton
