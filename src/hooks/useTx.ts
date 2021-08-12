@@ -47,6 +47,8 @@ export const useTx = (
   const [tx, setTx] = useState<ITx>(INITIAL_STATE);
   const [txCode, setTxCode] = useState<string>();
   const [txHash, setTxHash] = useState<string>();
+  const [txStatus, setTxStatus] = useState<TxState>();
+
   const [processActive, setProcessActive] = useState<boolean>(false);
 
   const resetTx = () => {
@@ -62,25 +64,23 @@ export const useTx = (
   }, [processes, txCode, processActive]);
 
   useEffect(() => {
+      txCode &&
       processes.has(txCode) && 
       processes.get(txCode).status === 'ACTIVE' 
-      ? setProcessActive(true) 
+      ? setProcessActive(true)
       : setProcessActive(false);
   }, [processes, txCode]);
 
-  // useEffect(()=>{
-  //   setTx((t) => ({ ...t, txCode, txHash, processActive }));
-  // },[txCode, txHash, processActive])
+  useEffect(()=>{
+    transactions.has(txHash) && setTxStatus(transactions.get(txHash).status)
+  },[ txHash, transactions ])
 
   useEffect(() => {
 
+    if (txCode) {
     setTx((t) => ({ ...t, txCode, processActive }));
 
-    let status;
-    if (transactions.has(txHash)) {
-      status = transactions.get(txHash).status;
-    }
-    switch (status) {
+    switch (txStatus) {
       case TxState.PENDING:
         setTx((t) => ({ ...t, pending: true, txHash, processActive }));
         break;
@@ -94,7 +94,8 @@ export const useTx = (
         setTx((t) => ({ ...t, rejected: true, pending: false, processActive }));
         break;
     }
-  }, [transactions, txHash, txCode, processActive]);
+    }
+  }, [txCode, processActive, txStatus, txHash]);
 
   useEffect(() => {
     tx.success && shouldRedirect && history.push('/') && userActions.setSelectedVault(null);

@@ -293,13 +293,13 @@ const LendPosition = ({ close }: { close: () => void }) => {
             primary
             label={
               <Text size={mobile ? 'small' : undefined}>
-                {`Clos${closeTx.pending ? 'ing' : 'e'} ${
+                {`Clos${closeTx.processActive ? 'ing' : 'e'} ${
                   nFormatter(Number(closeInput), selectedBase?.digitFormat!) || ''
                 } ${selectedBase?.symbol}`}
               </Text>
             }
             onClick={() => handleClosePosition()}
-            disabled={closeDisabled || closeTx.pending}
+            disabled={closeDisabled || closeTx.processActive}
           />
         )}
 
@@ -308,13 +308,13 @@ const LendPosition = ({ close }: { close: () => void }) => {
             primary
             label={
               <Text size={mobile ? 'small' : undefined}>
-                {`Roll${rollTx.pending ? 'ing' : ''} ${
+                {`Roll${rollTx.processActive ? 'ing' : ''} ${
                   nFormatter(Number(rollInput), selectedBase?.digitFormat!) || ''
                 } ${selectedBase?.symbol}`}
               </Text>
             }
             onClick={() => handleRollPosition()}
-            disabled={rollDisabled || rollTx.pending}
+            disabled={rollDisabled || rollTx.processActive}
           />
         )}
       </ActionButtonGroup>

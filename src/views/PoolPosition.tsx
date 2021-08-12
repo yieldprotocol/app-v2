@@ -276,30 +276,34 @@ const PoolPosition = ({ close }: { close: () => void }) => {
             primary
             label={
               <Text size={mobile ? 'small' : undefined}>
-                {`Remov${removeTx.pending ? 'ing' : 'e'} ${
+                {`Remov${removeTx.processActive ? 'ing' : 'e'} ${
                   nFormatter(Number(removeInput), selectedBase?.digitFormat!) || ''
                 } tokens`}
               </Text>
             }
             onClick={() => handleRemove()}
-            disabled={removeDisabled || removeTx.pending}
+            disabled={removeDisabled || removeTx.processActive}
           />
         )}
 
-        {actionActive.index === 1 && stepPosition[actionActive.index] !== 0 && (
+        {actionActive.index === 1 && 
+          stepPosition[actionActive.index] !== 0 && 
+          
+          (
           <TransactButton
             primary
             label={
               <Text size={mobile ? 'small' : undefined}>
-                {`Roll${rollTx.pending ? 'ing' : ''} ${
+                {`Roll${rollTx.processActive ? 'ing' : ''} ${
                   nFormatter(Number(rollInput), selectedBase?.digitFormat!) || ''
                 } tokens`}
               </Text>
             }
             onClick={() => handleRoll()}
-            disabled={rollDisabled || rollTx.pending}
+            disabled={rollDisabled || rollTx.processActive}
           />
         )}
+
       </ActionButtonGroup>
     </CenterPanelWrap>
   );

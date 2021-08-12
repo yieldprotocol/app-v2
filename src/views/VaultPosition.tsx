@@ -710,38 +710,36 @@ const Vault = ({ close }: { close: () => void }) => {
           />
         )}
 
-        {/* TODO Marco this is screaming for more efficient code   -> simple array.map possibly? */}
-
         {actionActive.index === 0 && stepPosition[actionActive.index] !== 0 && (
           <TransactButton
             primary
             label={
               <Text size={mobile ? 'small' : undefined}>
-                {`Repay${repayTx.pending ? 'ing' : ''} ${
+                {`Repay${repayTx.processActive ? 'ing' : ''} ${
                   nFormatter(Number(repayInput), vaultBase?.digitFormat!) || ''
                 } ${vaultBase?.symbol}`}
               </Text>
             }
             onClick={() => handleRepay()}
-            disabled={repayDisabled || repayTx.pending}
+            disabled={repayDisabled || repayTx.processActive}
           />
         )}
 
         {actionActive.index === 1 && stepPosition[actionActive.index] !== 0 && (
           <TransactButton
             primary
-            label={<Text size={mobile ? 'small' : undefined}>{`Roll${rollTx.pending ? 'ing' : ''} debt`}</Text>}
+            label={<Text size={mobile ? 'small' : undefined}>{`Roll${rollTx.processActive ? 'ing' : ''} debt`}</Text>}
             onClick={() => handleRoll()}
-            disabled={rollTx.pending}
+            disabled={rollTx.processActive}
           />
         )}
 
         {actionActive.index === 2 && stepPosition[actionActive.index] !== 0 && addCollatInput && (
           <TransactButton
             primary
-            label={<Text size={mobile ? 'small' : undefined}>{`Add${addCollateralTx.pending ? 'ing' : ''}`}</Text>}
+            label={<Text size={mobile ? 'small' : undefined}>{`Add${addCollateralTx.processActive ? 'ing' : ''}`}</Text>}
             onClick={() => handleCollateral('ADD')}
-            disabled={addCollateralTx.pending}
+            disabled={addCollateralTx.processActive}
           />
         )}
 
@@ -749,10 +747,10 @@ const Vault = ({ close }: { close: () => void }) => {
           <TransactButton
             primary
             label={
-              <Text size={mobile ? 'small' : undefined}>{`Remov${removeCollateralTx.pending ? 'ing' : 'e'}`}</Text>
+              <Text size={mobile ? 'small' : undefined}>{`Remov${removeCollateralTx.processActive ? 'ing' : 'e'}`}</Text>
             }
             onClick={() => handleCollateral('REMOVE')}
-            disabled={removeCollateralTx.pending}
+            disabled={removeCollateralTx.processActive}
           />
         )}
 
@@ -761,11 +759,11 @@ const Vault = ({ close }: { close: () => void }) => {
             primary
             label={
               <Text size={mobile ? 'small' : undefined}>
-                  {`Transfer${transferTx.pending ? 'ing' : ''} Vault`}
+                  {`Transfer${transferTx.processActive ? 'ing' : ''} Vault`}
               </Text>
             }
             onClick={() => handleTransfer()}
-            disabled={transferTx.pending}
+            disabled={transferTx.processActive}
           />
         )}
 
@@ -781,9 +779,9 @@ const Vault = ({ close }: { close: () => void }) => {
         {actionActive.index === 5 && stepPosition[actionActive.index] !== 0 && (
           <TransactButton
             primary
-            label={<Text size={mobile ? 'small' : undefined}>{`Merg${mergeTx.pending ? 'ing' : 'e'} Vaults`}</Text>}
+            label={<Text size={mobile ? 'small' : undefined}>{`Merg${mergeTx.processActive ? 'ing' : 'e'} Vaults`}</Text>}
             onClick={() => handleMerge()}
-            disabled={mergeData.inkError || mergeData.artError || mergeTx.pending}
+            disabled={mergeData.inkError || mergeData.artError || mergeTx.processActive}
           />
         )}
 
@@ -799,10 +797,10 @@ const Vault = ({ close }: { close: () => void }) => {
         {actionActive.index === 6 && stepPosition[actionActive.index] !== 0 && (
           <TransactButton
             primary
-            disabled={destroyDisabled || deleteTx.pending}
+            disabled={destroyDisabled || deleteTx.processActive}
             label={
               <Text size={mobile ? 'small' : undefined}>
-                {`Delet${deleteTx.pending ? 'ing' : 'e'} ${selectedVault?.displayName}`}
+                {`Delet${deleteTx.processActive ? 'ing' : 'e'} ${selectedVault?.displayName}`}
               </Text>
             }
             onClick={() => handleDestroy()}

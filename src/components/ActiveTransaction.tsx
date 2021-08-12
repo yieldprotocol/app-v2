@@ -153,7 +153,8 @@ const ActiveTransaction = ({
           />
         )} */}
 
-      {!tx.processActive && tx.success && (
+      {!tx.processActive &&
+        tx.success && (
         <InfoBlock
           title="Transaction Complete"
           subTitle={<CopyWrap hash={tx.txHash}> {abbreviateHash(tx.txHash, 6)} </CopyWrap>}

@@ -31,6 +31,7 @@ import NextButton from '../components/buttons/NextButton';
 import TransactButton from '../components/buttons/TransactButton';
 import { useInputValidation } from '../hooks/inputValidationHook';
 import AltText from '../components/texts/AltText';
+import PositionListItem from '../components/PositionListItem';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -58,7 +59,7 @@ function Pool() {
   /* input validation hooks */
   const { inputError: poolError } = useInputValidation(poolInput, ActionCodes.LEND, selectedSeries, [0, maxPool]);
 
-  const { tx: poolTx } = useTx(ActionCodes.ADD_LIQUIDITY, selectedSeries?.id);
+  const { tx: poolTx, resetTx } = useTx(ActionCodes.ADD_LIQUIDITY, selectedSeries?.id);
 
   /* LOCAL ACTION FNS */
   const handleAdd = () => {
@@ -229,6 +230,19 @@ function Pool() {
               disabled={poolDisabled || poolTx.pending}
             />
           )}
+          {stepPosition === 1 && 
+          !selectedSeries?.seriesIsMature && 
+          !poolTx.processActive && 
+          poolTx.success && (
+            <>
+            {/* <PositionListItem series={selectedSeries!} actionType={ActionType.POOL} /> */}
+            <NextButton
+              label={<Text size={mobile ? 'small' : undefined}>Add more Liquidity</Text>}
+              onClick={() => { setStepPosition(0); resetTx() }}
+            />
+            </>
+          )}
+
         </ActionButtonGroup>
       </CenterPanelWrap>
 

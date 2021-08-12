@@ -92,7 +92,7 @@ const Borrow = () => {
   ]);
 
   /* TX info (for disabling buttons) */
-  const { tx: borrowTx, resetTx } = useTx(ActionCodes.BORROW, vaultToUse?.id);
+  const { tx: borrowTx, resetTx } = useTx(ActionCodes.BORROW, selectedSeriesId!);
 
   /** LOCAL ACTION FNS */
   const handleBorrow = () => {
@@ -366,12 +366,14 @@ const Borrow = () => {
                 />
               )}
 
-              {stepPosition === 2 && (
+              {stepPosition === 2 && 
+              !(borrowTx.success || borrowTx.failed) &&
+              (
                 <TransactButton
                   primary
                   label={
                     <Text size={mobile ? 'small' : undefined}>
-                      {`Borrow${borrowTx.pending ? `ing` : ''} ${
+                      {`Borrow${borrowTx.processActive ? `ing` : ''} ${
                         nFormatter(Number(borrowInput), selectedBase?.digitFormat!) || ''
                       } ${selectedBase?.symbol || ''}`}
                     </Text>
@@ -383,11 +385,10 @@ const Borrow = () => {
 
           {stepPosition === 2 && !borrowTx.processActive && borrowTx.success && (
             <NextButton
-              label={<Text size={mobile ? 'small' : undefined}>Go back to borrow</Text>}
+              label={<Text size={mobile ? 'small' : undefined}>Borrow more</Text>}
               onClick={() => { setStepPosition(0); resetTx() } }
             />
           )}
-
             </ActionButtonWrap>
           </Box>
         </CenterPanelWrap>

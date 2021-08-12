@@ -33,6 +33,7 @@ import { useApr } from '../hooks/aprHook';
 import { useInputValidation } from '../hooks/inputValidationHook';
 import { useTx } from '../hooks/useTx';
 import AltText from '../components/texts/AltText';
+import PositionListItem from '../components/PositionListItem';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -57,9 +58,6 @@ const Lend = () => {
   const lendOutput = cleanValue((Number(lendInput) * (1 + Number(apr) / 100)).toString(), selectedBase?.digitFormat!);
 
   const { tx: lendTx, resetTx } = useTx(ActionCodes.LEND, selectedSeries?.id);
-
-
-  console.log(lendTx);
 
   /* input validation hooks */
   const { inputError: lendError } = useInputValidation(lendInput, ActionCodes.LEND, selectedSeries, [0, maxLend]);
@@ -183,7 +181,8 @@ const Lend = () => {
         </Box>
 
         <ActionButtonGroup pad>
-          {stepPosition !== 1 && !selectedSeries?.seriesIsMature && (
+          {stepPosition !== 1 && 
+          !selectedSeries?.seriesIsMature && (
             <NextButton
               secondary
               disabled={lendDisabled}
@@ -196,7 +195,7 @@ const Lend = () => {
 
           {stepPosition === 1 && 
           !selectedSeries?.seriesIsMature && 
-          
+          !(lendTx.success || lendTx.failed) &&
           (
             <TransactButton
               primary
@@ -212,11 +211,17 @@ const Lend = () => {
             />
           )}
 
-          {stepPosition === 1 && !selectedSeries?.seriesIsMature && !lendTx.processActive && lendTx.success && (
+          {stepPosition === 1 && 
+          !selectedSeries?.seriesIsMature && 
+          !lendTx.processActive && 
+          lendTx.success && (
+            <>
+            {/* <PositionListItem series={selectedSeries!} actionType={ActionType.LEND} /> */}
             <NextButton
-              label={<Text size={mobile ? 'small' : undefined}>Go back to lend </Text>}
+              label={<Text size={mobile ? 'small' : undefined}>Lend some more</Text>}
               onClick={() => { setStepPosition(0); resetTx() }}
             />
+            </>
           )}
 
           {selectedSeries?.seriesIsMature && (
