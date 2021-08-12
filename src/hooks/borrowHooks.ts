@@ -36,7 +36,7 @@ export const useBorrowActions = () => {
     const ilk = vault ? assetMap.get(vault.ilkId) : assetMap.get(selectedIlkId);
 
     /* generate the reproducible txCode for tx tracking and tracing */
-    const txCode = getTxCode(ActionCodes.BORROW, series.id);
+    const txCode = getTxCode(ActionCodes.BORROW, selectedSeriesId);
 
     /* parse inputs */
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
@@ -96,6 +96,7 @@ export const useBorrowActions = () => {
     input: string | undefined,
     collInput: string | undefined = '0' // optional - add(+) / remove(-) collateral in same tx.
   ) => {
+    
     const txCode = getTxCode(ActionCodes.REPAY, vault.id);
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
     const _collInput = ethers.utils.parseEther(collInput);

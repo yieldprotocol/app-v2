@@ -38,6 +38,7 @@ import ExitButton from '../components/buttons/ExitButton';
 import { useInputValidation } from '../hooks/inputValidationHook';
 import { TxContext } from '../contexts/TxContext';
 import { useTx } from '../hooks/useTx';
+import EtherscanButton from '../components/buttons/EtherscanButton';
 
 const Vault = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -63,13 +64,16 @@ const Vault = ({ close }: { close: () => void }) => {
   );
 
   /* TX info (for disabling buttons) */
-  const { tx: repayTx } = useTx(ActionCodes.REPAY);
-  const { tx: rollTx } = useTx(ActionCodes.ROLL_DEBT);
-  const { tx: addCollateralTx } = useTx(ActionCodes.ADD_COLLATERAL);
-  const { tx: removeCollateralTx } = useTx(ActionCodes.REMOVE_COLLATERAL);
-  const { tx: transferTx } = useTx(ActionCodes.TRANSFER_VAULT, true);
-  const { tx: deleteTx } = useTx(ActionCodes.DELETE_VAULT, true);
-  const { tx: mergeTx } = useTx(ActionCodes.MERGE_VAULT);
+  const { tx: repayTx, resetTx: resetRepayTx } = useTx(ActionCodes.REPAY, selectedVaultId!);
+  const { tx: rollTx, resetTx: resetRollTx } = useTx(ActionCodes.ROLL_DEBT, selectedVaultId!);
+  const { tx: addCollateralTx, resetTx: resetAddCollateralTx } = useTx(ActionCodes.ADD_COLLATERAL, selectedVaultId!);
+  const { tx: removeCollateralTx, resetTx: resetRemoveCollateralTx } = useTx(
+    ActionCodes.REMOVE_COLLATERAL,
+    selectedVaultId!
+  );
+  const { tx: transferTx, resetTx: resetTransferTx } = useTx(ActionCodes.TRANSFER_VAULT, selectedVaultId!, true);
+  const { tx: deleteTx, resetTx: resetDeleteTx } = useTx(ActionCodes.DELETE_VAULT, selectedVaultId!, true);
+  const { tx: mergeTx, resetTx: resetMergeTx } = useTx(ActionCodes.MERGE_VAULT, selectedVaultId!);
 
   /* LOCAL STATE */
   // tab state + control
@@ -131,7 +135,7 @@ const Vault = ({ close }: { close: () => void }) => {
     removeCollatInput,
     ActionCodes.REMOVE_COLLATERAL,
     vaultSeries,
-    [0, ethers.utils.formatEther(maxRemove) ]
+    [0, ethers.utils.formatEther(maxRemove)]
   );
   const { inputError: destroyError, inputDisabled: destroyDisabled } = useInputValidation(
     destroyInput,
@@ -242,7 +246,6 @@ const Vault = ({ close }: { close: () => void }) => {
       })();
   }, [activeAccount, vaultIlk, setMaxAddCollat]);
 
-
   /* ACTION DISABLING LOGIC */
   useEffect(() => {
     /* if ANY of the following conditions are met: block action */
@@ -266,7 +269,7 @@ const Vault = ({ close }: { close: () => void }) => {
     addCollatError,
     removeCollatError,
     transferError,
-    destroyError
+    destroyError,
   ]);
 
   /* EXTRA INITIATIONS */
@@ -299,6 +302,21 @@ const Vault = ({ close }: { close: () => void }) => {
 
     status === TxState.SUCCESSFUL && routerHistory.push('/');
   }, [selectedVault?.id, transactions]);
+
+  /* INTERNAL COMPONENTS */
+  const CompletedTx = (props: any) => (
+    <>
+      <NextButton
+        size="xsmall"
+        label={<Text size={mobile ? 'xsmall' : undefined}>Go back</Text>}
+        onClick={() => {
+          props.resetTx();
+          handleStepper(true);
+        }}
+      />
+      {props.tx.failed && <EtherscanButton txHash={props.tx.txHash} />}
+    </>
+  );
 
   return (
     <CenterPanelWrap>
@@ -402,7 +420,8 @@ const Vault = ({ close }: { close: () => void }) => {
               )}
 
               {stepPosition[0] !== 0 && (
-                <ActiveTransaction txCode={(selectedVault && repayTx.txCode) || ''} pad>
+                <ActiveTransaction pad tx={repayTx}>
+                  {/* <ActiveTransaction txCode={(selectedVault && repayTx.txCode) || ''} pad> */}
                   <SectionWrap
                     title="Review transaction:"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
@@ -433,7 +452,7 @@ const Vault = ({ close }: { close: () => void }) => {
               )}
 
               {stepPosition[actionActive.index] !== 0 && (
-                <ActiveTransaction txCode={(selectedVault && rollTx.txCode) || ''} pad>
+                <ActiveTransaction pad tx={rollTx}>
                   <SectionWrap
                     title="Review transaction:"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
@@ -482,25 +501,16 @@ const Vault = ({ close }: { close: () => void }) => {
                     />
                     <MaxButton
                       disabled={!!addCollatInput}
-                      action={() => setRemoveCollatInput( ethers.utils.formatEther(maxRemove) )}
+                      action={() => setRemoveCollatInput(ethers.utils.formatEther(maxRemove))}
                       clearAction={() => setRemoveCollatInput('')}
-                      showingMax={
-                        !!removeCollatInput && ethers.utils.formatEther(maxRemove) === removeCollatInput
-                      }
+                      showingMax={!!removeCollatInput && ethers.utils.formatEther(maxRemove) === removeCollatInput}
                     />
                   </InputWrap>
                 </Box>
               )}
 
               {stepPosition[actionActive.index] !== 0 && (
-                <ActiveTransaction
-                  txCode={
-                    selectedVault && addCollatInput
-                      ? addCollateralTx.txCode
-                      : (selectedVault && removeCollateralTx.txCode) || ''
-                  }
-                  pad
-                >
+                <ActiveTransaction pad tx={addCollatInput ? addCollateralTx : removeCollateralTx}>
                   <SectionWrap
                     title="Review transaction:"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
@@ -546,7 +556,7 @@ const Vault = ({ close }: { close: () => void }) => {
               )}
 
               {stepPosition[actionActive.index] !== 0 && (
-                <ActiveTransaction txCode={(selectedVault && transferTx.txCode) || ''} pad>
+                <ActiveTransaction pad tx={transferTx}>
                   <SectionWrap
                     title="Review transaction:"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
@@ -611,7 +621,7 @@ const Vault = ({ close }: { close: () => void }) => {
               )}
 
               {stepPosition[actionActive.index] !== 0 && (
-                <ActiveTransaction txCode={(selectedVault && mergeTx.txCode) || ''} pad>
+                <ActiveTransaction pad tx={mergeTx}>
                   <SectionWrap
                     title="Review transaction:"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
@@ -657,7 +667,7 @@ const Vault = ({ close }: { close: () => void }) => {
               )}
 
               {stepPosition[actionActive.index] !== 0 && (
-                <ActiveTransaction txCode={(selectedVault && deleteTx.txCode) || ''} pad>
+                <ActiveTransaction pad tx={deleteTx}>
                   <SectionWrap
                     title="Review transaction:"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
@@ -704,104 +714,140 @@ const Vault = ({ close }: { close: () => void }) => {
           />
         )}
 
-        {/* TODO Marco this is screaming for more efficient code   -> simple array.map possibly? */}
-
-        {actionActive.index === 0 && stepPosition[actionActive.index] !== 0 && (
+        {actionActive.index === 0 && stepPosition[actionActive.index] !== 0 && !(repayTx.success || repayTx.failed) && (
           <TransactButton
             primary
             label={
               <Text size={mobile ? 'small' : undefined}>
-                {`Repay${repayTx.pending ? 'ing' : ''} ${
+                {`Repay${repayTx.processActive ? 'ing' : ''} ${
                   nFormatter(Number(repayInput), vaultBase?.digitFormat!) || ''
                 } ${vaultBase?.symbol}`}
               </Text>
             }
             onClick={() => handleRepay()}
-            disabled={repayDisabled || repayTx.pending}
+            disabled={repayDisabled || repayTx.processActive}
           />
         )}
 
-        {actionActive.index === 1 && stepPosition[actionActive.index] !== 0 && (
+        {actionActive.index === 1 && stepPosition[actionActive.index] !== 0 && !(rollTx.success || rollTx.failed) && (
           <TransactButton
             primary
-            label={<Text size={mobile ? 'small' : undefined}>{`Roll${rollTx.pending ? 'ing' : ''} debt`}</Text>}
+            label={<Text size={mobile ? 'small' : undefined}>{`Roll${rollTx.processActive ? 'ing' : ''} debt`}</Text>}
             onClick={() => handleRoll()}
-            disabled={rollTx.pending}
+            disabled={rollTx.processActive}
           />
         )}
 
-        {actionActive.index === 2 && stepPosition[actionActive.index] !== 0 && addCollatInput && (
-          <TransactButton
-            primary
-            label={<Text size={mobile ? 'small' : undefined}>{`Add${addCollateralTx.pending ? 'ing' : ''}`}</Text>}
-            onClick={() => handleCollateral('ADD')}
-            disabled={addCollateralTx.pending}
-          />
-        )}
+        {actionActive.index === 2 &&
+          stepPosition[actionActive.index] !== 0 &&
+          addCollatInput &&
+          !(addCollateralTx.success || addCollateralTx.failed) && (
+            <TransactButton
+              primary
+              label={
+                <Text size={mobile ? 'small' : undefined}>{`Add${addCollateralTx.processActive ? 'ing' : ''}`}</Text>
+              }
+              onClick={() => handleCollateral('ADD')}
+              disabled={addCollateralTx.processActive}
+            />
+          )}
 
-        {actionActive.index === 2 && stepPosition[actionActive.index] !== 0 && removeCollatInput && (
+        {actionActive.index === 2 &&
+          stepPosition[actionActive.index] !== 0 &&
+          removeCollatInput &&
+          !(removeCollateralTx.success || removeCollateralTx.failed) && (
+            <TransactButton
+              primary
+              label={
+                <Text size={mobile ? 'small' : undefined}>{`Remov${
+                  removeCollateralTx.processActive ? 'ing' : 'e'
+                }`}</Text>
+              }
+              onClick={() => handleCollateral('REMOVE')}
+              disabled={removeCollateralTx.processActive}
+            />
+          )}
+
+        {actionActive.index === 4 &&
+          stepPosition[actionActive.index] !== 0 &&
+          !(transferTx.success || transferTx.failed) && (
+            <TransactButton
+              primary
+              label={
+                <Text size={mobile ? 'small' : undefined}>
+                  {`Transfer${transferTx.processActive ? 'ing' : ''} Vault`}
+                </Text>
+              }
+              onClick={() => handleTransfer()}
+              disabled={transferTx.processActive}
+            />
+          )}
+
+        {actionActive.index === 5 && stepPosition[actionActive.index] !== 0 && !(mergeTx.success || mergeTx.failed) && (
           <TransactButton
             primary
             label={
-              <Text size={mobile ? 'small' : undefined}>{`Remov${removeCollateralTx.pending ? 'ing' : 'e'}`}</Text>
+              <Text size={mobile ? 'small' : undefined}>{`Merg${mergeTx.processActive ? 'ing' : 'e'} Vaults`}</Text>
             }
-            onClick={() => handleCollateral('REMOVE')}
-            disabled={removeCollateralTx.pending}
-          />
-        )}
-
-        {actionActive.index === 4 && stepPosition[actionActive.index] !== 0 && (
-          <TransactButton
-            primary
-            label={
-              <Text size={mobile ? 'small' : undefined}>
-                  {`Transfer${transferTx.pending ? 'ing' : ''} Vault`}
-              </Text>
-            }
-            onClick={() => handleTransfer()}
-            disabled={transferTx.pending}
-          />
-        )}
-
-        {/* {actionActive.index === 5 && stepPosition[actionActive.index] === 0 && (
-          <NextButton
-            label={<Text size={mobile ? 'small' : undefined}> Next Step </Text>}
-            onClick={() => handleStepper()}
-            key="next"
-            disabled={mergeData.ink === '' || mergeData.art === '' || mergeData.inkError || mergeData.artError}
-          />
-        )} */}
-
-        {actionActive.index === 5 && stepPosition[actionActive.index] !== 0 && (
-          <TransactButton
-            primary
-            label={<Text size={mobile ? 'small' : undefined}>{`Merg${mergeTx.pending ? 'ing' : 'e'} Vaults`}</Text>}
             onClick={() => handleMerge()}
-            disabled={mergeData.inkError || mergeData.artError || mergeTx.pending}
+            disabled={mergeData.inkError || mergeData.artError || mergeTx.processActive}
           />
         )}
 
-        {/* {actionActive.index === 6 && stepPosition[actionActive.index] === 0 && (
-          <NextButton
-            label={<Text size={mobile ? 'small' : undefined}>{destroyError || 'Next Step'}</Text>}
-            onClick={() => handleStepper()}
-            key="next"
-            disabled={destroyDisabled}
-          />
-        )} */}
-
-        {actionActive.index === 6 && stepPosition[actionActive.index] !== 0 && (
+        {actionActive.index === 6 && stepPosition[actionActive.index] !== 0 && 
+        !(deleteTx.success || deleteTx.failed) && (
           <TransactButton
             primary
-            disabled={destroyDisabled || deleteTx.pending}
+            disabled={destroyDisabled || deleteTx.processActive}
             label={
               <Text size={mobile ? 'small' : undefined}>
-                {`Delet${deleteTx.pending ? 'ing' : 'e'} ${selectedVault?.displayName}`}
+                {`Delet${deleteTx.processActive ? 'ing' : 'e'} ${selectedVault?.displayName}`}
               </Text>
             }
             onClick={() => handleDestroy()}
           />
         )}
+
+        {/* TODO simplify this */}
+
+        {stepPosition[actionActive.index] === 1 &&
+          actionActive.index === 0 &&
+          !repayTx.processActive &&
+          (repayTx.success || repayTx.failed) && <CompletedTx tx={repayTx} resetTx={resetRepayTx} />}
+
+        {stepPosition[actionActive.index] === 1 &&
+          actionActive.index === 1 &&
+          !rollTx.processActive &&
+          (rollTx.success || rollTx.failed) && <CompletedTx tx={rollTx} resetTx={resetRollTx} />}
+
+        {stepPosition[actionActive.index] === 1 &&
+          actionActive.index === 2 &&
+          !addCollateralTx.processActive &&
+          (addCollateralTx.success || addCollateralTx.failed) && (
+            <CompletedTx tx={addCollateralTx} resetTx={resetAddCollateralTx} />
+          )}
+
+        {stepPosition[actionActive.index] === 1 &&
+          actionActive.index === 2 &&
+          !removeCollateralTx.processActive &&
+          (removeCollateralTx.success || removeCollateralTx.failed) && (
+            <CompletedTx tx={removeCollateralTx} resetTx={resetRemoveCollateralTx} />
+          )}
+
+        {stepPosition[actionActive.index] === 1 &&
+          actionActive.index === 4 &&
+          !transferTx.processActive &&
+          (transferTx.success || transferTx.failed) && <CompletedTx tx={rollTx} resetTx={resetTransferTx} />}
+
+        {stepPosition[actionActive.index] === 1 &&
+          actionActive.index === 5 &&
+          !mergeTx.processActive &&
+          (mergeTx.success || mergeTx.failed) && <CompletedTx tx={mergeTx} resetTx={resetMergeTx} />}
+
+        {stepPosition[actionActive.index] === 1 &&
+          actionActive.index === 6 &&
+          !deleteTx.processActive &&
+          (deleteTx.success || deleteTx.failed) && <CompletedTx tx={deleteTx} resetTx={resetDeleteTx} />}
       </ActionButtonWrap>
     </CenterPanelWrap>
   );

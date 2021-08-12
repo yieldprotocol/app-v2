@@ -38,7 +38,7 @@ const YieldAccount = (props: any) => {
   } = useContext(UserContext);
 
   const {
-    txState: { sigPending, txPending, processPending },
+    txState: { sigPending, txPending, processPending, processActive  },
   } = useContext(TxContext);
 
   const [settingsOpen, setSettingsOpen] = useState<boolean>();
@@ -62,7 +62,7 @@ const YieldAccount = (props: any) => {
 
       {account ? (
         <Box direction="row" gap="xsmall" align="center">
-          {!mobile && <>{processPending ? <TransactionWidget /> : <YieldBalances />}</>}
+          {!mobile && <>{processActive ? <TransactionWidget /> : <YieldBalances />}</>}
           <Box round="xsmall" onClick={() => setSettingsOpen(true)} pad="small" justify="center">
             {mobile ? (
               <Text color="text">
