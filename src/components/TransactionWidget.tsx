@@ -22,12 +22,12 @@ const TransactionWidget = () => {
     setSigArray(Array.from(signatures.values()));
   }, [processes, signatures, transactions]);
 
-  /* convert maps to arrays */
-  useEffect(() => {
-    console.log(processArray);
-    console.log(sigArray);
-    console.log(txArray);
-  }, [processArray, sigArray, txArray]);
+  // /* convert maps to arrays */
+  // useEffect(() => {
+  //   console.log(processArray);
+  //   console.log(sigArray);
+  //   console.log(txArray);
+  // }, [processArray, sigArray, txArray]);
 
   return (
     <Box round="xsmall" pad={{ horizontal: 'medium', vertical: 'xsmall' }} elevation="xsmall" gap="xsmall">

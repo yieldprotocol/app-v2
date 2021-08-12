@@ -42,6 +42,7 @@ import PositionAvatar from '../components/PositionAvatar';
 import VaultDropSelector from '../components/selectors/VaultDropSelector';
 import { useInputValidation } from '../hooks/inputValidationHook';
 import AltText from '../components/texts/AltText';
+import EtherscanButton from '../components/buttons/EtherscanButton';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -54,9 +55,6 @@ const Borrow = () => {
   const selectedBase = assetMap.get(selectedBaseId!);
   const selectedIlk = assetMap.get(selectedIlkId!);
   const selectedSeries = seriesMap.get(selectedSeriesId!);
-
-  /* TX info (for disabling buttons) */
-  const { tx: borrowTx } = useTx(ActionCodes.BORROW);
 
   /* LOCAL STATE */
   const [stepPosition, setStepPosition] = useState<number>(0);
@@ -93,6 +91,9 @@ const Borrow = () => {
     minCollateral,
     maxCollat,
   ]);
+
+  /* TX info (for disabling buttons) */
+  const { tx: borrowTx, resetTx } = useTx(ActionCodes.BORROW, selectedSeriesId!);
 
   /** LOCAL ACTION FNS */
   const handleBorrow = () => {
@@ -220,7 +221,9 @@ const Borrow = () => {
 
                   <SectionWrap
                     title={
-                      seriesMap.size > 0 ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} maturity date` : ''
+                      seriesMap.size > 0
+                        ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} maturity date`
+                        : ''
                     }
                   >
                     <SeriesSelector inputValue={borrowInput} actionType={ActionType.BORROW} />
@@ -299,7 +302,7 @@ const Borrow = () => {
               <Box gap="large">
                 <BackButton action={() => setStepPosition(1)} />
 
-                <ActiveTransaction txCode={borrowTx.txCode} full>
+                <ActiveTransaction full tx={borrowTx}>
                   <SectionWrap title="Review transaction:">
                     <Box
                       gap="small"
@@ -366,19 +369,43 @@ const Borrow = () => {
                 />
               )}
 
-              {stepPosition === 2 && (
+              {stepPosition === 2 && !(borrowTx.success || borrowTx.failed) && (
                 <TransactButton
                   primary
                   label={
                     <Text size={mobile ? 'small' : undefined}>
-                      {`Borrow${borrowTx.pending ? `ing` : ''} ${
+                      {`Borrow${borrowTx.processActive ? `ing` : ''} ${
                         nFormatter(Number(borrowInput), selectedBase?.digitFormat!) || ''
                       } ${selectedBase?.symbol || ''}`}
                     </Text>
                   }
                   onClick={() => handleBorrow()}
-                  disabled={borrowDisabled || !disclaimerChecked || borrowTx.pending}
+                  disabled={borrowDisabled || !disclaimerChecked || borrowTx.processActive}
                 />
+              )}
+
+              {stepPosition === 2 && !borrowTx.processActive && borrowTx.success && (
+                <NextButton
+                  label={<Text size={mobile ? 'small' : undefined}>Borrow more</Text>}
+                  onClick={() => {
+                    setStepPosition(0);
+                    resetTx();
+                  }}
+                />
+              )}
+
+              {stepPosition === 2 && !borrowTx.processActive && borrowTx.failed && (
+                <>
+                  <NextButton
+                    size='xsmall'
+                    label={<Text size={mobile ? 'xsmall' : undefined}> Report and go back</Text>}
+                    onClick={() => {
+                      setStepPosition(0);
+                      resetTx();
+                    }}
+                  />
+                  <EtherscanButton txHash={borrowTx.txHash} />
+                </>
               )}
             </ActionButtonWrap>
           </Box>
