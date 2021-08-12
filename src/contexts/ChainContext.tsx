@@ -327,8 +327,8 @@ const ChainProvider = ({ children }: any) => {
           poolContract,
           fyTokenContract,
           fullDate: format(new Date(series.maturity * 1000), 'dd MMMM yyyy'),
-          displayName: `${nameFromMaturity(series.maturity)}`,
-          displayNameMobile: `${nameFromMaturity(series.maturity, 'dd MMM yyyy')}`,
+          displayName: format(new Date(series.maturity * 1000), 'dd MMM yyyy'),
+          displayNameMobile: `${nameFromMaturity(series.maturity, 'MMM yyyy')}`,
 
           season,
           startColor,

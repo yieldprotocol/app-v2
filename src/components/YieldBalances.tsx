@@ -7,6 +7,7 @@ import { FiMenu } from 'react-icons/fi';
 import { UserContext } from '../contexts/UserContext';
 import { ChainContext } from '../contexts/ChainContext';
 import EthMark from './logos/EthMark';
+import { WETH } from '../utils/constants';
 
 const StyledText = styled(Text)`
   svg,
@@ -16,8 +17,8 @@ const StyledText = styled(Text)`
 `;
 
 const Balance = ({ image, balance }: { image: any; balance: string }) => (
-  <Box direction="row" gap="small" align="center">
-    <StyledText size="medium" color="text">
+  <Box direction="row" gap="small" align="center" >
+    <StyledText size="small" color="text">
       {image}
     </StyledText>
     <StyledText size="small" color="text">
@@ -44,25 +45,17 @@ const Balances = () => {
 
   const selectedBase = assetMap.get(selectedBaseId);
   const selectedIlk = assetMap.get(selectedIlkId);
-  const ETH = 'WETH';
-  const ethBalance = [...assetMap.keys()].map((x) => assetMap.get(x)).filter((x) => x.symbol === ETH)[0].balance_;
+  // const ETH = 'WETH';
+  // const ethBalance = [...assetMap.keys()].map((x) => assetMap.get(x)).filter((x) => x.symbol === ETH)[0]?.balance_;
 
   return (
-    <Box direction="row">
-      <Box pad="small" justify="center" gap="xxxsmall">
+      <Box pad="small" justify="center" align='start' >
         <Balance image={selectedBase?.image} balance={selectedBase?.balance_} />
-        {path === 'borrow' && selectedBase?.id !== selectedIlk?.id && selectedIlk?.symbol !== ETH && (
+         {path === 'borrow' && selectedBase?.id !== selectedIlk?.id && selectedIlk?.id !== WETH && (
           <Balance image={selectedIlk?.image} balance={selectedIlk?.balance_} />
         )}
-
         <Collapsible open={allOpen}>Other balances</Collapsible>
       </Box>
-      <Box pad="small" justify="center">
-        <Box>
-          <Balance image={<EthMark />} balance={ethBalance} />
-        </Box>
-      </Box>
-    </Box>
   );
 };
 
