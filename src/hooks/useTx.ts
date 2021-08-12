@@ -19,10 +19,9 @@ interface ITx {
 /* the return tx looks like any object of {txCode, isPending, isSuccess, isFailed, isRejected} */
 export const useTx = (
   actionCode: ActionCodes,
-  seriesOrVaultId: string|undefined,
+  seriesOrVaultId: string | undefined,
   shouldRedirect: boolean = false
 ) => {
-
   /* STATE FROM CONTEXT */
   const {
     txState: { transactions, processes },
@@ -56,7 +55,7 @@ export const useTx = (
   };
 
   useEffect(() => {
-    seriesOrVaultId ? setTxCode(getTxCode(actionCode, seriesOrVaultId)) : setTxCode(undefined)
+    seriesOrVaultId ? setTxCode(getTxCode(actionCode, seriesOrVaultId)) : setTxCode(undefined);
   }, [actionCode, seriesOrVaultId]);
 
   useEffect(() => {
@@ -64,36 +63,33 @@ export const useTx = (
   }, [processes, txCode, processActive]);
 
   useEffect(() => {
-      txCode &&
-      processes.has(txCode) && 
-      processes.get(txCode).status === 'ACTIVE' 
+    txCode && processes.has(txCode) && processes.get(txCode).status === 'ACTIVE'
       ? setProcessActive(true)
       : setProcessActive(false);
   }, [processes, txCode]);
 
-  useEffect(()=>{
-    transactions.has(txHash) && setTxStatus(transactions.get(txHash).status)
-  },[ txHash, transactions ])
+  useEffect(() => {
+    transactions.has(txHash) && setTxStatus(transactions.get(txHash).status);
+  }, [txHash, transactions]);
 
   useEffect(() => {
-
     if (txCode) {
-    setTx((t) => ({ ...t, txCode, processActive }));
+      setTx((t) => ({ ...t, txCode, processActive }));
 
-    switch (txStatus) {
-      case TxState.PENDING:
-        setTx((t) => ({ ...t, pending: true, txHash, processActive }));
-        break;
-      case TxState.SUCCESSFUL:
-        setTx((t) => ({ ...t, success: true, pending: false, processActive }));
-        break;
-      case TxState.FAILED:
-        setTx((t) => ({ ...t, failed: true, pending: false, processActive }));
-        break;
-      case TxState.REJECTED:
-        setTx((t) => ({ ...t, rejected: true, pending: false, processActive }));
-        break;
-    }
+      switch (txStatus) {
+        case TxState.PENDING:
+          setTx((t) => ({ ...t, pending: true, txHash, processActive }));
+          break;
+        case TxState.SUCCESSFUL:
+          setTx((t) => ({ ...t, success: true, pending: false, processActive }));
+          break;
+        case TxState.FAILED:
+          setTx((t) => ({ ...t, failed: true, pending: false, processActive }));
+          break;
+        case TxState.REJECTED:
+          setTx((t) => ({ ...t, rejected: true, pending: false, processActive }));
+          break;
+      }
     }
   }, [txCode, processActive, txStatus, txHash]);
 
