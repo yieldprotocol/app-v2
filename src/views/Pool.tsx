@@ -217,24 +217,27 @@ function Pool() {
               errorLabel={ poolError }
             />
           )}
-          {stepPosition === 1 && !selectedSeries?.seriesIsMature && (
+          {stepPosition === 1 && !selectedSeries?.seriesIsMature && 
+          !(poolTx.success || poolTx.failed) &&
+          (
             <TransactButton
               primary
               label={
                 <Text size={mobile ? 'small' : undefined}>
-                  {`Pool${poolTx.pending ? `ing` : ''} ${
+                  {`Pool${poolTx.processActive ? `ing` : ''} ${
                     nFormatter(Number(poolInput), selectedBase?.digitFormat!) || ''
                   } ${selectedBase?.symbol || ''}`}
                 </Text>
               }
               onClick={() => handleAdd()}
-              disabled={poolDisabled || poolTx.pending}
+              disabled={poolDisabled || poolTx.processActive}
             />
           )}
+
           {stepPosition === 1 && 
           !selectedSeries?.seriesIsMature && 
           !poolTx.processActive && 
-          poolTx.success && (
+          (poolTx.success || poolTx.failed) && (
             <>
             {/* <PositionListItem series={selectedSeries!} actionType={ActionType.POOL} /> */}
             <NextButton
