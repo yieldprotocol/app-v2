@@ -104,7 +104,7 @@ export const useBorrowActions = () => {
     const base = assetMap.get(vault.baseId);
     const _isDaiBased = DAI_BASED_ASSETS.includes(vault.baseId);
 
-    const _inputWithSlippage = calculateSlippage(_input, userState.slippageTolerance.toString(), true);
+    const _inputWithSlippage = calculateSlippage(_input, userState.slippageTolerance.toString());
     // const _collInputWithSlippage = calculateSlippage(_collInput, userState.slippageTolerance.toString());
 
     const inputGreaterThanDebt: boolean = ethers.BigNumber.from(_input).gte(vault.art);
@@ -144,7 +144,7 @@ export const useBorrowActions = () => {
       {
         /* ladle.repay(vaultId, owner, inkAmount, minAmountToRepay) */
         operation: LadleActions.Fn.REPAY,
-        args: [vault.id, account, _collInput, _inputWithSlippage] as LadleActions.Args.REPAY,
+        args: [vault.id, account, _collInput, ethers.constants.Zero] as LadleActions.Args.REPAY,
         series,
         ignore: series.mature || inputGreaterThanDebt,
       },
