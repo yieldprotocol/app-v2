@@ -83,7 +83,8 @@ const Lend = () => {
             <StepperText
               position={stepPosition}
               values={[
-                ['Choose amount to', 'LEND', ''],
+                // ['Choose amount to', 'LEND', ''],
+                ['Choose an amount and a maturity date', '', ''],
                 ['Review & Transact', '', ''],
               ]}
             />
