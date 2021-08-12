@@ -300,7 +300,7 @@ const Borrow = () => {
 
             {stepPosition === 2 && ( // REVIEW
               <Box gap="large">
-                <BackButton action={() => setStepPosition(1)} />
+                {!borrowTx.processActive && !borrowTx.success && <BackButton action={() => setStepPosition(1)} />}
 
                 <ActiveTransaction full tx={borrowTx}>
                   <SectionWrap title="Review transaction:">
@@ -397,7 +397,7 @@ const Borrow = () => {
               {stepPosition === 2 && !borrowTx.processActive && borrowTx.failed && (
                 <>
                   <NextButton
-                    size='xsmall'
+                    size="xsmall"
                     label={<Text size={mobile ? 'xsmall' : undefined}> Report and go back</Text>}
                     onClick={() => {
                       setStepPosition(0);
