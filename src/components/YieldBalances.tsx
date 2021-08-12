@@ -1,9 +1,30 @@
+import React, { useContext, useEffect, useState } from 'react';
 import { Box, Collapsible, ResponsiveContext, Text } from 'grommet';
 import { useLocation } from 'react-router-dom';
 
-import React, { useContext, useEffect, useState } from 'react';
+import styled from 'styled-components';
 import { FiMenu } from 'react-icons/fi';
 import { UserContext } from '../contexts/UserContext';
+import { ChainContext } from '../contexts/ChainContext';
+import EthMark from './logos/EthMark';
+
+const StyledText = styled(Text)`
+  svg,
+  span {
+    vertical-align: middle;
+  }
+`;
+
+const Balance = ({ image, balance }: { image: any; balance: string }) => (
+  <Box direction="row" gap="small" align="center">
+    <StyledText size="medium" color="text">
+      {image}
+    </StyledText>
+    <StyledText size="small" color="text">
+      {balance}
+    </StyledText>
+  </Box>
+);
 
 const Balances = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -23,29 +44,24 @@ const Balances = () => {
 
   const selectedBase = assetMap.get(selectedBaseId);
   const selectedIlk = assetMap.get(selectedIlkId);
+  const ETH = 'WETH';
+  const ethBalance = [...assetMap.keys()].map((x) => assetMap.get(x)).filter((x) => x.symbol === ETH)[0].balance_;
 
   return (
-    <Box pad="small" justify="center" gap="xxxsmall" width="5rem">
-      <Box direction="row" gap="small" align="center">
-        <Text size="small" color="text">
-          {selectedBase?.image}
-        </Text>
-        <Text size="xsmall" color="text">
-          {selectedBase?.balance_}
-        </Text>
-      </Box>
-      {path === 'borrow' && selectedBase?.id !== selectedIlk?.id && (
-        <Box direction="row" gap="small" align="center">
-          <Text size="small" color="text">
-            {selectedIlk?.image}
-          </Text>
-          <Text size="xsmall" color="text">
-            {selectedIlk?.balance_}
-          </Text>
-        </Box>
-      )}
+    <Box direction="row">
+      <Box pad="small" justify="center" gap="xxxsmall">
+        <Balance image={selectedBase?.image} balance={selectedBase?.balance_} />
+        {path === 'borrow' && selectedBase?.id !== selectedIlk?.id && selectedIlk?.symbol !== ETH && (
+          <Balance image={selectedIlk?.image} balance={selectedIlk?.balance_} />
+        )}
 
-      <Collapsible open={allOpen}>Other balances</Collapsible>
+        <Collapsible open={allOpen}>Other balances</Collapsible>
+      </Box>
+      <Box pad="small" justify="center">
+        <Box>
+          <Balance image={<EthMark />} balance={ethBalance} />
+        </Box>
+      </Box>
     </Box>
   );
 };
