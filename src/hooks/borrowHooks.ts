@@ -96,7 +96,6 @@ export const useBorrowActions = () => {
     input: string | undefined,
     collInput: string | undefined = '0' // optional - add(+) / remove(-) collateral in same tx.
   ) => {
-    
     const txCode = getTxCode(ActionCodes.REPAY, vault.id);
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
     const _collInput = ethers.utils.parseEther(collInput);
@@ -246,47 +245,11 @@ export const useBorrowActions = () => {
     updateVaults([]);
   };
 
-  // TODO: #72 Refactor to include the ability to destroy when the vault has collateral and debt
-  const destroy = async (vault: IVault) => {
-    const txCode = getTxCode(ActionCodes.DELETE_VAULT, vault.id);
-    const series = seriesMap.get(vault.seriesId);
-    const base = assetMap.get(vault.baseId);
-    const _isDaiBased = DAI_BASED_ASSETS.includes(vault.baseId);
-
-    const permits: ICallData[] = await sign(
-      [
-        {
-          target: base,
-          spender: 'LADLE',
-          series,
-          type: _isDaiBased ? SignType.DAI : SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
-          message: 'Signing Dai Approval',
-          ignore: series.mature || base.hasLadleAuth,
-        },
-      ],
-      txCode
-    );
-
-    const calls: ICallData[] = [
-      ...permits,
-      {
-        operation: LadleActions.Fn.DESTROY,
-        args: [vault.id] as LadleActions.Args.DESTROY,
-        series,
-        ignore: series.mature,
-      },
-    ];
-
-    await transact('Ladle', calls, txCode);
-    updateVaults([]);
-  };
-
   return {
     borrow,
     repay,
     rollDebt,
     transfer,
     merge,
-    destroy,
   };
 };
