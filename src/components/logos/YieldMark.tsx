@@ -10,7 +10,7 @@ function YieldMark(props: ISvgProps) {
     <svg
       version="1.0"
       xmlns="http://www.w3.org/2000/svg"
-      height={props.height || '1.5rem'}
+      height={props.height || '1.75rem'}
       viewBox="955.8 577.8 1207.6 1183.6"
     >
       <g>
