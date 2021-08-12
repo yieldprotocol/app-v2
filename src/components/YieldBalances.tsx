@@ -49,8 +49,7 @@ const Balances = () => {
 
   useEffect(() => {
     const eth = [...assetMap.keys()].map((x) => assetMap.get(x)).filter((x) => x.symbol === ETH)[0];
-    const ethBal = eth ? eth.balance_ : '';
-    setEthBalance(ethBal);
+    eth && setEthBalance(eth.balance_);
   }, [ethBalance, assetMap]);
 
   return (
