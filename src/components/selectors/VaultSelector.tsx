@@ -176,8 +176,8 @@ function VaultSelector(target: any) {
 
             {allVaults.length > 5 &&
             <Box align="end" onClick={() => setShowAllVaults(!showAllVaults)}>
-              <Text size="xsmall" color="text-weak">
-                {showAllVaults ? 'Show filtered vaults' : `Show all ${allVaults.length} vaults`}
+              <Text size="xsmall" color="text-xweak">
+                {showAllVaults ? 'Auto-filter vaults' : `Show all ${allVaults.length} vaults`}
               </Text>
             </Box>}
           </Box>
