@@ -232,7 +232,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
                       <AprText inputValue={inputValue} series={series} actionType={actionType} /> 
                     </Text>
                     <Text size='small' color={series.id === selectedSeriesId ? series.textColor : undefined}>          
-                      {series.displayNameMobile}
+                      {series.displayName}
                     </Text>
                   </Box>
                 </Box>
