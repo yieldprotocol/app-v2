@@ -344,7 +344,7 @@ const Borrow = () => {
           </Box>
 
           <Box>
-            {stepPosition === 2 && (
+            {/* {stepPosition === 2 && (
               <SectionWrap>
                 <Box pad={{ horizontal: 'large', vertical: 'small' }}>
                   <CheckBox
@@ -357,7 +357,7 @@ const Borrow = () => {
                   />
                 </Box>
               </SectionWrap>
-            )}
+            )} */}
 
             <ActionButtonWrap pad>
               {(stepPosition === 0 || stepPosition === 1) && (
@@ -380,7 +380,7 @@ const Borrow = () => {
                     </Text>
                   }
                   onClick={() => handleBorrow()}
-                  disabled={borrowDisabled || !disclaimerChecked || borrowTx.processActive}
+                  disabled={borrowDisabled || borrowTx.processActive}
                 />
               )}
 
