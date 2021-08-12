@@ -41,11 +41,17 @@ const Balances = () => {
   }, [pathname]);
 
   const [allOpen, setAllOpen] = useState<boolean>(false);
+  const [ethBalance, setEthBalance] = useState<string>('');
 
   const selectedBase = assetMap.get(selectedBaseId);
   const selectedIlk = assetMap.get(selectedIlkId);
   const ETH = 'WETH';
-  const ethBalance = [...assetMap.keys()].map((x) => assetMap.get(x)).filter((x) => x.symbol === ETH)[0].balance_;
+
+  useEffect(() => {
+    const eth = [...assetMap.keys()].map((x) => assetMap.get(x)).filter((x) => x.symbol === ETH)[0];
+    const ethBal = eth ? eth.balance_ : '';
+    setEthBalance(ethBal);
+  }, [ethBalance, assetMap]);
 
   return (
     <Box direction="row">
