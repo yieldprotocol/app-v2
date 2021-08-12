@@ -87,6 +87,10 @@ function VaultSelector(target: any) {
     }
   }, [vaultMap, selectedBase, selectedSeries, showVaultModal, handleFilter]);
 
+  useEffect(()=> {
+    allVaults.length <=5 && setShowAllVaults(true)
+  },[allVaults])
+
   return (
     account && (
       <>
@@ -96,9 +100,9 @@ function VaultSelector(target: any) {
 
         {allVaults.length > 0 && (
           <Box justify="between" alignSelf="end" gap="small" pad="small">
-            <Box animation="fadeIn" justify="end" align="end" direction="row" gap="small">
+            <Box animation="fadeIn" justify="center" align="center" direction="row" gap="small">
               <Text size="small" color="text-weak">
-                {showAllVaults ? 'All my vaults' : 'Filtered vaults'}
+                {showAllVaults ? 'All my existing vaults' : 'Filtered vaults '}
               </Text>
             </Box>
 
@@ -170,11 +174,12 @@ function VaultSelector(target: any) {
               </Box>
             )}
 
+            {allVaults.length > 5 &&
             <Box align="end" onClick={() => setShowAllVaults(!showAllVaults)}>
               <Text size="xsmall" color="text-weak">
                 {showAllVaults ? 'Show filtered vaults' : `Show all ${allVaults.length} vaults`}
               </Text>
-            </Box>
+            </Box>}
           </Box>
         )}
       </>

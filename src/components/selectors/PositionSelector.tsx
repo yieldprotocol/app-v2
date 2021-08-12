@@ -71,6 +71,10 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
     }
   }, [selectedBase, selectedSeries, showPositionModal, handleFilter, seriesMap, actionType]);
 
+  useEffect(()=> {
+    allPositions.length <=5 && setShowAllPositions(true)
+  },[allPositions])
+
   return (
     <>
       <ModalWrap
@@ -87,11 +91,11 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
 
       {allPositions.length !== 0 && (
         <Box justify="between" alignSelf="end" gap="small" pad="small">
-          <Box animation="fadeIn" justify="end" align="end" direction="row" gap="small">
+          <Box animation="fadeIn" justify="center" align="center" direction="row" gap="small">
             <Text size="small" color="text-weak">
               {showAllPositions
-                ? `All my ${actionType === 'LEND' ? 'lending' : 'pool'} positions`
-                : `My ${actionType === 'LEND' ? 'lending' : 'pool'} positions`}
+                ? `Open ${actionType === 'LEND' ? 'lending' : 'pool'} positions`
+                : `Filtered ${actionType === 'LEND' ? 'lending' : 'pool'} positions`}
             </Text>
           </Box>
 
@@ -167,13 +171,14 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
             </Box>
           )}
 
+          {allPositions.length > 5 &&
           <Box align="end" onClick={() => setShowAllPositions(!showAllPositions)}>
             <Text size="xsmall" color="text-weak">
               {showAllPositions
                 ? `Show suggested ${selectedBase?.symbol || ''} positions only`
                 : `Show all ${allPositions.length} positions`}
             </Text>
-          </Box>
+          </Box>}
         </Box>
       )}
     </>
