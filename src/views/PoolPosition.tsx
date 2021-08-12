@@ -108,7 +108,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
   const CompletedTx = (props: any) =>(
     <>
     <NextButton
-      size="xsmall"
+      // size="xsmall"
       label={<Text size={mobile ? 'xsmall' : undefined}>Go back</Text>}
       onClick={() => {
         props.resetTx();
