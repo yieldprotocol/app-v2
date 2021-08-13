@@ -365,7 +365,7 @@ const Borrow = () => {
                   label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
                   onClick={() => setStepPosition(stepPosition + 1)}
                   disabled={stepPosition === 0 ? stepDisabled : borrowDisabled}
-                  errorLabel={borrowInputError || collatInputError}
+                  errorLabel={stepPosition === 0 ? borrowInputError : collatInputError}
                 />
               )}
 
