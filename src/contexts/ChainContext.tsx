@@ -109,7 +109,6 @@ const initState = {
 
   /* settings */
   connectOnLoad: true as boolean,
-  disclaimerChecked: false as boolean,
 
   /* flags */
   chainLoading: true,
@@ -159,8 +158,6 @@ function chainReducer(state: any, action: any) {
         ...state,
         assetRootMap: state.assetRootMap.set(action.payload.id, action.payload),
       };
-    case 'setDisclaimerChecked':
-      return { ...state, disclaimerChecked: onlyIfChanged(action) };
     /* special internal case for multi-updates - might remove from this context if not needed */
     case '_any':
       return { ...state, ...action.payload };
@@ -529,8 +526,6 @@ const ChainProvider = ({ children }: any) => {
         (e: any) => console.log(e),
         true
       ),
-
-    setDisclaimerChecked: (checked: boolean) => updateState({ type: 'setDisclaimerChecked', payload: checked }),
   };
 
   return <ChainContext.Provider value={{ chainState, chainActions }}>{children}</ChainContext.Provider>;

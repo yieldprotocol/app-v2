@@ -3,12 +3,15 @@ import { Box, Button, Text } from 'grommet';
 import { FiCheckSquare, FiX } from 'react-icons/fi';
 import { ChainContext, connectorNames } from '../contexts/ChainContext';
 import Disclaimer from './Disclaimer';
+import { useCachedState } from '../hooks/generalHooks';
 
 const Connect = ({ setConnectOpen }: any) => {
   const {
-    chainState: { connector, connectors, disclaimerChecked },
-    chainActions: { connect, disconnect, setDisclaimerChecked },
+    chainState: { connector, connectors },
+    chainActions: { connect, disconnect },
   } = useContext(ChainContext);
+
+  const [disclaimerChecked, setDisclaimerChecked] = useCachedState('disclaimerChecked', false);
 
   const [activatingConnector, setActivatingConnector] = useState<any>();
 
@@ -57,11 +60,10 @@ const Connect = ({ setConnectOpen }: any) => {
         <Text>Connect</Text>
         <Button icon={<FiX size="1.5rem" />} onClick={() => setConnectOpen(false)} plain />
       </Box>
-      {disclaimerChecked ? (
-        <Box gap="xsmall">{connectorsRender}</Box>
-      ) : (
+      <Box gap="xsmall">{connectorsRender}</Box>
+      {!disclaimerChecked && (
         <Box border={{ color: disclaimerChecked ? 'none' : 'tailwind-blue' }} round="small">
-          <Disclaimer checked={disclaimerChecked} setChecked={setDisclaimerChecked} />
+          <Disclaimer checked={disclaimerChecked} setChecked={setDisclaimerChecked(true)} />
         </Box>
       )}
     </Box>
