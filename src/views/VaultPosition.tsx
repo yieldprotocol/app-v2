@@ -281,13 +281,12 @@ const Vault = ({ close }: { close: () => void }) => {
     <>
       <NextButton
         // size="xsmall"
-        label={<Text size={mobile ? 'xsmall' : undefined}>Go back</Text>}
+        label={<Text size={mobile ? 'xsmall' : undefined}>{props.tx.failed ? 'Report issue and go back': 'Got it!'} </Text>}
         onClick={() => {
           props.resetTx();
           handleStepper(true);
         }}
       />
-      {props.tx.failed && <EtherscanButton txHash={props.tx.txHash} />}
     </>
   );
 
