@@ -44,7 +44,10 @@ function Pool() {
   const selectedBase = assetMap.get(selectedBaseId!);
 
   /* LOCAL STATE */
-  const [poolInput, setPoolInput] = useState<string>();
+  const INITIAL_INPUT_STATE = {
+    poolInput: undefined,
+  };
+  const [poolInput, setPoolInput] = useState<string | undefined>(INITIAL_INPUT_STATE.poolInput);
   const [maxPool, setMaxPool] = useState<string | undefined>();
 
   const [poolDisabled, setPoolDisabled] = useState<boolean>(true);
@@ -65,6 +68,12 @@ function Pool() {
   const handleAdd = () => {
     // !poolDisabled &&
     selectedSeries && addLiquidity(poolInput!, selectedSeries, strategy);
+  };
+
+  const reset = () => {
+    setPoolInput(INITIAL_INPUT_STATE.poolInput);
+    setStepPosition(0);
+    resetTx();
   };
 
   /* SET MAX VALUES */
@@ -157,9 +166,7 @@ function Pool() {
 
           {stepPosition === 1 && (
             <Box gap="large">
-              {!poolTx.success &&!poolTx.failed?  (
-                <BackButton action={() => setStepPosition(0)} />
-              ): <Box pad='1em'/>}
+              {!poolTx.success && !poolTx.failed ? <BackButton action={() => setStepPosition(0)} /> : <Box pad="1em" />}
 
               <ActiveTransaction full tx={poolTx}>
                 <Box gap="large">
@@ -242,10 +249,7 @@ function Pool() {
                 {/* <PositionListItem series={selectedSeries!} actionType={ActionType.POOL} /> */}
                 <NextButton
                   label={<Text size={mobile ? 'small' : undefined}>Add more Liquidity</Text>}
-                  onClick={() => {
-                    setStepPosition(0);
-                    resetTx();
-                  }}
+                  onClick={() => reset()}
                 />
               </>
             )}
