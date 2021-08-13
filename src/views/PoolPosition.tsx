@@ -286,7 +286,9 @@ const PoolPosition = ({ close }: { close: () => void }) => {
           />
         )}
 
-        {actionActive.index === 0 && stepPosition[actionActive.index] !== 0 && (
+        {actionActive.index === 0 && 
+        stepPosition[actionActive.index] !== 0 && 
+        !(removeTx.success || removeTx.failed) && (
           <TransactButton
             primary
             label={
@@ -303,7 +305,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
 
         {actionActive.index === 1 && 
         stepPosition[actionActive.index] !== 0 && 
-        
+        !(removeTx.success || removeTx.failed) &&
         (
           <TransactButton
             primary
