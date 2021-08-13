@@ -87,7 +87,7 @@ export const useBorrowActions = () => {
       If a vault was provided, update it only,
       else update ALL vaults (by passing an empty array)
     */
-    vault ? updateVaults([vault]) : updateVaults([]);
+    updateVaults([]);
     updateAssets([base, ilk]);
   };
 
