@@ -11,7 +11,8 @@ const Connect = ({ setConnectOpen }: any) => {
     chainActions: { connect, disconnect },
   } = useContext(ChainContext);
 
-  const [disclaimerChecked, setDisclaimerChecked] = useCachedState('disclaimerChecked', false);
+  const [disclaimerCheckedInStorage, setDisclaimerCheckedInStorage] = useCachedState('disclaimerChecked', false);
+  const [disclaimerChecked, setDisclaimerChecked] = useState<boolean>(disclaimerCheckedInStorage);
 
   const [activatingConnector, setActivatingConnector] = useState<any>();
 
@@ -26,6 +27,10 @@ const Connect = ({ setConnectOpen }: any) => {
     connect(connectorName);
     setConnectOpen(false);
   };
+
+  useEffect(() => {
+    setDisclaimerCheckedInStorage(disclaimerChecked);
+  }, [disclaimerChecked, setDisclaimerCheckedInStorage]);
 
   const connectorsRender = [...connectors.keys()].map((name: string) => {
     const currentConnector = connectors.get(name);
@@ -61,11 +66,10 @@ const Connect = ({ setConnectOpen }: any) => {
         <Button icon={<FiX size="1.5rem" />} onClick={() => setConnectOpen(false)} plain />
       </Box>
       <Box gap="xsmall">{connectorsRender}</Box>
-      {!disclaimerChecked && (
-        <Box border={{ color: disclaimerChecked ? 'none' : 'tailwind-blue' }} round="small">
-          <Disclaimer checked={disclaimerChecked} setChecked={setDisclaimerChecked(true)} />
-        </Box>
-      )}
+
+      <Box border={{ color: disclaimerChecked ? 'none' : 'tailwind-blue' }} round="small">
+        <Disclaimer checked={disclaimerChecked} onChange={(event: any) => setDisclaimerChecked(event.target.checked)} />
+      </Box>
     </Box>
   );
 };
