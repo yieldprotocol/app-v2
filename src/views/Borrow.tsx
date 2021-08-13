@@ -145,7 +145,10 @@ const Borrow = () => {
       const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
       const _matchingVaults = arr.filter(
         (v: IVault) =>
-          v.ilkId === selectedIlk.id && v.baseId === selectedBase.id && v.seriesId === selectedSeries.id && v.isActive
+          v.ilkId === selectedIlk.id && 
+          v.baseId === selectedBase.id && 
+          v.seriesId === selectedSeries.id && 
+          v.isActive
       );
       setMatchingVaults(_matchingVaults);
       // reset the selected vault on every change
@@ -161,7 +164,6 @@ const Borrow = () => {
   return (
     <Keyboard onEsc={() => setCollatInput('')} onEnter={() => console.log('ENTER smashed')} target="document">
       <MainViewWrap>
-        {/* <PanelWrap background="linear-gradient(to right, #EEEEEE,rgba(255,255,255,1))"> */}
         {!mobile && (
           <PanelWrap>
             <Box margin={{ top: '35%' }}>
@@ -280,7 +282,8 @@ const Borrow = () => {
                       </Box>
                     </Box>
                   </SectionWrap>
-
+                  {
+                  matchingVaults.length > 0 &&
                   <SectionWrap title="Add to an exisiting vault" disabled={matchingVaults.length < 1}>
                     <VaultDropSelector
                       vaults={matchingVaults}
@@ -290,7 +293,7 @@ const Borrow = () => {
                       placeholder="Create New Vault"
                       defaultOptionValue="Create New Vault"
                     />
-                  </SectionWrap>
+                  </SectionWrap>}
                 </Box>
               </Box>
             )}
