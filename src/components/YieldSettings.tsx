@@ -41,7 +41,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
   };
 
   return (
-    <Box width="medium">
+    <Box fill="vertical" width="medium">
       <Box pad="small" gap="small" direction="row" justify="between">
         <Text>Account</Text>
         <Button icon={<FiX size="1.5rem" />} onClick={() => setSettingsOpen(false)} plain />

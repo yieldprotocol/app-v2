@@ -6,7 +6,7 @@ import YieldSettings from './YieldSettings';
 import Connect from './Connect';
 
 const StyledLayer = styled(Layer)`
-  backdrop-filter: 0 !important;
+  backdrop-filter: blur(0px) !important;
 `;
 
 const SidebarSettings = ({ settingsOpen, setSettingsOpen, connectOpen, setConnectOpen }: any) => {

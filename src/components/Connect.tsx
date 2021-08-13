@@ -47,7 +47,7 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
   });
 
   return (
-    <Box basis="auto" width="medium" pad="small" gap="small">
+    <Box fill="vertical" basis="auto" width="medium" pad="small" gap="small">
       <Box justify="between" align="center" direction="row">
         {account ? (
           <BackButton
