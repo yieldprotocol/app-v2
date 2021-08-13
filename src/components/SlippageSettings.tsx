@@ -42,7 +42,7 @@ const SlippageSettings = () => {
           {tolerances.map((tolerance) => (
             <Box
               fill
-              border={{ color: tolerance === slippageTolerance ? 'brand' : ' #dfe8f9' }}
+              border={{ color: tolerance === slippageTolerance ? 'tailwind-blue' : ' #dfe8f9' }}
               round="xsmall"
               key={tolerance}
               hoverIndicator={{}}
