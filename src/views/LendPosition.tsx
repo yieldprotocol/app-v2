@@ -186,6 +186,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
                       value={closeInput || ''}
                       onChange={(event: any) => setCloseInput(cleanValue(event.target.value))}
                       disabled={!selectedSeries}
+                      icon={<>{selectedBase?.image}</>}
                     />
                     <MaxButton
                       action={() => setCloseInput(currentValue)}
@@ -228,6 +229,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
                       value={rollInput || ''}
                       onChange={(event: any) => setRollInput(cleanValue(event.target.value))}
                       disabled={!selectedSeries}
+                      icon={<>{selectedBase?.image}</>}
                     />
                     <MaxButton
                       action={() => setRollInput(currentValue)}
