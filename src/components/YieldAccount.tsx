@@ -19,7 +19,6 @@ import EthMark from './logos/EthMark';
 import { UserContext } from '../contexts/UserContext';
 import { WETH } from '../utils/constants';
 
-
 const StyledText = styled(Text)`
   svg,
   span {
@@ -38,7 +37,7 @@ const YieldAccount = (props: any) => {
   } = useContext(UserContext);
 
   const {
-    txState: { sigPending, txPending, processPending, processActive  },
+    txState: { sigPending, txPending, processPending, processActive },
   } = useContext(TxContext);
 
   const [settingsOpen, setSettingsOpen] = useState<boolean>();
@@ -49,13 +48,25 @@ const YieldAccount = (props: any) => {
   return (
     <>
       {connectOpen && (
-        <Layer onClickOutside={() => setConnectOpen(false)} onEsc={() => setConnectOpen(false)}>
-          <Connect setConnectOpen={setConnectOpen} />
+        <Layer
+          responsive={true}
+          full="vertical"
+          position="right"
+          onClickOutside={() => setConnectOpen(false)}
+          onEsc={() => setConnectOpen(false)}
+        >
+          <Connect setConnectOpen={setConnectOpen} setSettingsOpen={setSettingsOpen} />
         </Layer>
       )}
 
       {account && settingsOpen && (
-        <Layer onClickOutside={() => setSettingsOpen(false)} onEsc={() => setSettingsOpen(false)}>
+        <Layer
+          responsive={true}
+          full="vertical"
+          position="right"
+          onClickOutside={() => setSettingsOpen(false)}
+          onEsc={() => setSettingsOpen(false)}
+        >
           <YieldSettings setConnectOpen={setConnectOpen} setSettingsOpen={setSettingsOpen} />
         </Layer>
       )}
@@ -78,7 +89,7 @@ const YieldAccount = (props: any) => {
                   <Box direction="row" align="center" gap="small">
                     <Box direction="row" gap="small" align="center">
                       <StyledText size="small" color="text">
-                      <EthMark /> {ethBalance} 
+                        <EthMark /> {ethBalance}
                       </StyledText>
                     </Box>
                     {/* <FiCircle fill={chainData.color} color={chainData.color} size=".5rem" />
