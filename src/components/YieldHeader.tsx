@@ -11,12 +11,14 @@ import YieldNavigation from './YieldNavigation';
 import YieldAccount from './YieldAccount';
 import YieldMark from './logos/YieldMark';
 import HandText from './texts/HandText';
+import { useCachedState } from '../hooks/generalHooks';
 
 interface IYieldHeaderProps {
   actionList: any[];
 }
 const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
+  const prevLoc = useCachedState('lastVisit', '')[0].slice(1).split('/')[0];
 
   return (
     <Header
@@ -30,7 +32,7 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
       <Grid columns={['medium', 'flex', 'medium']} fill="horizontal">
         <Box direction="row" gap={mobile ? '0.25em' : 'medium'} align="center">
           <Avatar>
-            <NavLink to="/borrow">
+            <NavLink to={`/${prevLoc}`}>
               <YieldMark height={mobile ? '1.0em' : '2em'} />
             </NavLink>
           </Avatar>
