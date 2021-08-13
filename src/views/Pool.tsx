@@ -157,7 +157,9 @@ function Pool() {
 
           {stepPosition === 1 && (
             <Box gap="large">
-              {!poolTx.processActive && !poolTx.success && <BackButton action={() => setStepPosition(0)} />}
+              {!poolTx.success && !poolTx.rejected && !poolTx.failed && (
+                <BackButton action={() => setStepPosition(0)} />
+              )}
 
               <ActiveTransaction full tx={poolTx}>
                 <Box gap="large">
@@ -217,7 +219,7 @@ function Pool() {
               errorLabel={poolError}
             />
           )}
-          {stepPosition === 1 && !selectedSeries?.seriesIsMature && !(poolTx.success || poolTx.failed) && (
+          {stepPosition === 1 && !selectedSeries?.seriesIsMature && !poolTx.success && !poolTx.failed && (
             <TransactButton
               primary
               label={

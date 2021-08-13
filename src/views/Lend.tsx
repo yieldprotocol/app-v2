@@ -154,7 +154,9 @@ const Lend = () => {
 
           {stepPosition === 1 && (
             <Box gap="large">
-              {!lendTx.processActive && !lendTx.success && <BackButton action={() => setStepPosition(0)} />}
+              {!lendTx.success && !lendTx.rejected && !lendTx.failed && (
+                <BackButton action={() => setStepPosition(0)} />
+              )}
               <ActiveTransaction full tx={lendTx}>
                 <SectionWrap title="Review transaction:">
                   <Box
