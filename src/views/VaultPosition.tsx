@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
-import { Box, Button, ResponsiveContext, Select, Text, TextInput } from 'grommet';
+import { base, Box, Button, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import { ethers } from 'ethers';
 
 import {
@@ -377,10 +377,11 @@ const Vault = ({ close }: { close: () => void }) => {
                     <TextInput
                       plain
                       type="number"
-                      placeholder="Enter amount to Repay"
+                      placeholder={`Enter ${vaultBase?.symbol} amount to Repay`}
                       // ref={(el:any) => { el && !repayOpen && !rateLockOpen && !mobile && el.focus(); setInputRef(el); }}
                       value={repayInput || ''}
                       onChange={(event: any) => setRepayInput(cleanValue(event.target.value))}
+                      icon={<>{vaultBase?.image}</>}
                     />
                     <MaxButton
                       action={() => setRepayInput(maxRepay)}
@@ -451,9 +452,10 @@ const Vault = ({ close }: { close: () => void }) => {
                       disabled={removeCollatInput}
                       plain
                       type="number"
-                      placeholder="Collateral to Add"
+                      placeholder="Additional collateral to add"
                       value={addCollatInput || ''}
                       onChange={(event: any) => setAddCollatInput(cleanValue(event.target.value))}
+                      icon={<>{vaultIlk?.image}</>}
                     />
                     <MaxButton
                       disabled={removeCollatInput}
@@ -470,6 +472,7 @@ const Vault = ({ close }: { close: () => void }) => {
                       placeholder="Collateral to remove"
                       value={removeCollatInput || ''}
                       onChange={(event: any) => setRemoveCollatInput(cleanValue(event.target.value))}
+                      icon={<>{vaultIlk?.image}</>}
                     />
                     <MaxButton
                       disabled={!!addCollatInput}
