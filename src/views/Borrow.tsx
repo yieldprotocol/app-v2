@@ -85,7 +85,7 @@ const Borrow = () => {
     vaultToUse
   );
 
-  /* input validation hoooks */
+  /* input validation hooks */
   const { inputError: borrowInputError } = useInputValidation(borrowInput, ActionCodes.BORROW, selectedSeries, []);
   const { inputError: collatInputError } = useInputValidation(collatInput, ActionCodes.ADD_COLLATERAL, selectedSeries, [
     minCollateral,
@@ -237,6 +237,25 @@ const Borrow = () => {
                 <BackButton action={() => setStepPosition(0)} />
 
                 <Box gap="large" height="400px">
+
+                  <SectionWrap>
+                    <Box direction="row" align="center" gap="large" justify="center" margin={{ vertical:'medium' }}>
+                      <Box>
+                        <Gauge value={parseFloat(collateralizationPercent!)} size="8em" />
+                      </Box>
+
+                      <Box>
+                        <Text size="small"> Collateralization </Text>
+                        <Text size="xlarge">
+                          {parseFloat(collateralizationPercent!) > 10000
+                            ? nFormatter(parseFloat(collateralizationPercent!), 2)
+                            : parseFloat(collateralizationPercent!)}
+                          %
+                        </Text>
+                      </Box>
+                    </Box>
+                  </SectionWrap>
+
                   <SectionWrap title="Amount of collateral to add">
                     <Box direction="row" gap="small">
                       <Box basis={mobile ? '50%' : '60%'} fill="horizontal">
@@ -278,22 +297,6 @@ const Borrow = () => {
                       defaultOptionValue="Create New Vault"
                     />
                   </SectionWrap>
-                </Box>
-
-                <Box direction="row" align="center" gap="large" justify="center">
-                  <Box>
-                    <Gauge value={parseFloat(collateralizationPercent!)} size="8em" />
-                  </Box>
-
-                  <Box>
-                    <Text size="small"> Collateralization </Text>
-                    <Text size="xlarge">
-                      {parseFloat(collateralizationPercent!) > 10000
-                        ? nFormatter(parseFloat(collateralizationPercent!), 2)
-                        : parseFloat(collateralizationPercent!)}
-                      %
-                    </Text>
-                  </Box>
                 </Box>
               </Box>
             )}
@@ -397,7 +400,7 @@ const Borrow = () => {
               {stepPosition === 2 && !borrowTx.processActive && borrowTx.failed && (
                 <>
                   <NextButton
-                    size='xsmall'
+                    size="xsmall"
                     label={<Text size={mobile ? 'xsmall' : undefined}> Report and go back</Text>}
                     onClick={() => {
                       setStepPosition(0);
