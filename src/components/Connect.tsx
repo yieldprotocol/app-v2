@@ -2,10 +2,11 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Box, Button, Text } from 'grommet';
 import { FiCheckSquare, FiX } from 'react-icons/fi';
 import { ChainContext, connectorNames } from '../contexts/ChainContext';
+import BackButton from './buttons/BackButton';
 
-const Connect = ({ setConnectOpen }: any) => {
+const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
   const {
-    chainState: { connector, connectors },
+    chainState: { account, connector, connectors },
     chainActions: { connect, disconnect },
   } = useContext(ChainContext);
 
@@ -48,7 +49,16 @@ const Connect = ({ setConnectOpen }: any) => {
   return (
     <Box basis="auto" width="medium" pad="small" gap="small">
       <Box justify="between" align="center" direction="row">
-        <Text>Connect</Text>
+        {account ? (
+          <BackButton
+            action={() => {
+              setSettingsOpen(true);
+              setConnectOpen(false);
+            }}
+          />
+        ) : (
+          <Text>Connect</Text>
+        )}
         <Button icon={<FiX size="1.5rem" />} onClick={() => setConnectOpen(false)} plain />
       </Box>
       <Box gap="xsmall">{connectorsRender}</Box>
