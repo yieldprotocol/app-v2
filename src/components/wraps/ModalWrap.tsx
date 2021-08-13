@@ -58,7 +58,7 @@ function ModalWrap({ children, toggleModalOpen, background, modalOpen = false }:
               <Box />
 
               <Box align="end">
-                {/* <Button icon={<FiX onClick={() => toggleModalOpen()} color={series?.oppStartColor} />} /> */}
+                <Button icon={<FiX onClick={() => toggleModalOpen()} color={series?.oppStartColor} />} />
               </Box>
             </Grid>
           </Header>
