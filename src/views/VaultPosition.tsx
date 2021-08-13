@@ -339,7 +339,7 @@ const Vault = ({ close }: { close: () => void }) => {
                 </Box>
 
                 <Box pad={{ horizontal: 'medium' }}>
-                  <Text size="xsmall">Vault {selectedVault?.id} has either been deleted or transfered.</Text>
+                  <Text size="xsmall">Vault {selectedVault?.id} has either been transfered or deleted.</Text>
                 </Box>
               </Box>
             </SectionWrap>
