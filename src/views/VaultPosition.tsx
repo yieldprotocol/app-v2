@@ -363,7 +363,7 @@ const Vault = ({ close }: { close: () => void }) => {
                   { text: 'Repay Debt', index: 0 },
                   { text: 'Roll Debt', index: 1 },
                   { text: 'Manage Collateral', index: 2 },
-                  { text: 'Transaction History', index: 3 },
+                  { text: 'View Transaction History', index: 3 },
                   { text: 'Transfer Vault', index: 4 },
                   { text: 'Merge Vault', index: 5 },
                 ]}

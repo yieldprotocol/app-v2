@@ -172,7 +172,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                 options={[
                   { text: 'Remove Liquidity', index: 0 },
                   { text: 'Roll Liquidity', index: 1 },
-                  { text: 'Transaction History', index: 2 },
+                  { text: 'View Transaction History', index: 2 },
                 ]}
                 labelKey="text"
                 valueKey="index"
