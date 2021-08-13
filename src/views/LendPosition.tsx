@@ -9,14 +9,13 @@ import SeriesSelector from '../components/selectors/SeriesSelector';
 import { abbreviateHash, cleanValue, getTxCode, nFormatter } from '../utils/appUtils';
 import SectionWrap from '../components/wraps/SectionWrap';
 
-import { useLendActions } from '../hooks/lendHooks';
+import { useLend, useLendActions } from '../hooks/lendHooks';
 import { useTx } from '../hooks/useTx';
 import { UserContext } from '../contexts/UserContext';
 import { ActionCodes, ActionType, ISeries, IUserContext } from '../types';
 import MaxButton from '../components/buttons/MaxButton';
 import InfoBite from '../components/InfoBite';
 import ActiveTransaction from '../components/ActiveTransaction';
-import BackButton from '../components/buttons/BackButton';
 import PositionAvatar from '../components/PositionAvatar';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import NextButton from '../components/buttons/NextButton';
@@ -25,6 +24,7 @@ import TransactButton from '../components/buttons/TransactButton';
 import YieldHistory from '../components/YieldHistory';
 import ExitButton from '../components/buttons/ExitButton';
 import { useInputValidation } from '../hooks/inputValidationHook';
+import EtherscanButton from '../components/buttons/EtherscanButton';
 
 const LendPosition = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -39,44 +39,36 @@ const LendPosition = ({ close }: { close: () => void }) => {
 
   /* LOCAL STATE */
 
-  // tab state + control
-  const [tabIndex, setTabIndex] = React.useState(0);
-  const onActive = (nextIndex: number) => setTabIndex(nextIndex);
-
   const [actionActive, setActionActive] = useState<any>({ text: 'Close Position', index: 0 });
 
   // stepper for stepping within multiple tabs
-  const [stepPosition, setStepPosition] = useState<number[]>([0, 0, 0, 0, 0]);
+  const [stepPosition, setStepPosition] = useState<number[]>([0, 0, 0]);
 
   const [closeInput, setCloseInput] = useState<string>();
   const [rollInput, setRollInput] = useState<string>();
   const [rollToSeries, setRollToSeries] = useState<ISeries | null>(null);
 
-  const [maxClose, setMaxClose] = useState<string | undefined>();
-
-  // const [closeError, setCloseError] = useState<string | null>(null);
-  // const [rollError, setRollError] = useState<string | null>(null);
-
   const [closeDisabled, setCloseDisabled] = useState<boolean>(true);
   const [rollDisabled, setRollDisabled] = useState<boolean>(true);
-  const [redeemDisabled, setRedeemDisabled] = useState<boolean>(true);
+  // const [redeemDisabled, setRedeemDisabled] = useState<boolean>(true);
 
   /* HOOK FNS */
+  const { currentValue } = useLend(selectedSeries!);
   const { closePosition, rollPosition, redeem } = useLendActions();
 
   /* TX data */
-  const { tx: closeTx } = useTx(ActionCodes.CLOSE_POSITION);
-  const { tx: rollTx } = useTx(ActionCodes.ROLL_POSITION);
+  const { tx: closeTx, resetTx: resetCloseTx } = useTx(ActionCodes.CLOSE_POSITION, selectedSeries?.id);
+  const { tx: rollTx, resetTx: resetRollTx } = useTx(ActionCodes.ROLL_POSITION, selectedSeries?.id);
 
   /* input validation hoooks */
   const { inputError: closeError } = useInputValidation(closeInput, ActionCodes.CLOSE_POSITION, selectedSeries, [
     0,
-    maxClose,
+    currentValue,
   ]);
 
   const { inputError: rollError } = useInputValidation(rollInput, ActionCodes.ROLL_POSITION, selectedSeries, [
     0,
-    maxClose,
+    currentValue,
   ]);
 
   /* LOCAL FNS */
@@ -98,19 +90,28 @@ const LendPosition = ({ close }: { close: () => void }) => {
     redeem(selectedSeries!, undefined);
   };
 
-  /* SET MAX VALUES */
-
-  useEffect(() => {
-    /* Checks series selection and sets the max close available value */
-    const max = selectedSeries?.fyTokenBalance;
-    if (max) setMaxClose(ethers.utils.formatEther(max)?.toString());
-  }, [closeInput, rollInput, selectedSeries]);
-
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
   useEffect(() => {
     !closeInput || closeError ? setCloseDisabled(true) : setCloseDisabled(false);
     !rollInput || !rollToSeries || rollError ? setRollDisabled(true) : setRollDisabled(false);
   }, [closeInput, closeError, rollInput, rollToSeries, rollError]);
+
+  /* INTERNAL COMPONENTS */
+  const CompletedTx = (props: any) =>(
+      <>
+      <NextButton
+        // size="xsmall"
+        label={<Text size={mobile ? 'xsmall' : undefined}>Go back</Text>}
+        onClick={() => {
+          props.resetTx();
+          handleStepper(true);
+        }}
+      />
+      {props.tx.failed &&
+      <EtherscanButton txHash={props.tx.txHash} />
+      }
+    </>
+  );
 
   return (
     <CenterPanelWrap>
@@ -140,7 +141,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
               />
               <InfoBite
                 label="Current value"
-                value={cleanValue(selectedSeries?.fyTokenBalance_!, selectedBase?.digitFormat!)}
+                value={`${cleanValue(currentValue, selectedBase?.digitFormat!)} ${selectedBase?.symbol!}`}
                 icon={selectedBase?.image}
               />
               <InfoBite
@@ -153,51 +154,51 @@ const LendPosition = ({ close }: { close: () => void }) => {
         </Box>
 
         <Box height={{ min: '300px' }}>
-        <SectionWrap title='Position Actions'>
-          <Box elevation="xsmall" round="xsmall">
-            <Select
-              plain
-              dropProps={{ round: 'xsmall' }}
-              options={[
-                { text: 'Close Position', index: 0 },
-                { text: 'Roll Position', index: 1 },
-                { text: 'Transaction History', index: 2 },
-                { text: 'Redeem', index: 3 },
-              ]}
-              labelKey="text"
-              valueKey="index"
-              value={actionActive}
-              onChange={({ option }) => setActionActive(option)}
-              disabled={[3]}
-            />
-          </Box>
+          <SectionWrap title="Position Actions">
+            <Box elevation="xsmall" round="xsmall">
+              <Select
+                plain
+                dropProps={{ round: 'xsmall' }}
+                options={[
+                  { text: 'Close Position', index: 0 },
+                  { text: 'Roll Position', index: 1 },
+                  { text: 'Transaction History', index: 2 },
+                  { text: 'Redeem', index: 3 },
+                ]}
+                labelKey="text"
+                valueKey="index"
+                value={actionActive}
+                onChange={({ option }) => setActionActive(option)}
+                disabled={[3]}
+              />
+            </Box>
           </SectionWrap>
 
           {actionActive.index === 0 && (
             <>
               {stepPosition[0] === 0 && (
-                <Box margin={{ top: 'medium' }} gap='medium'>
+                <Box margin={{ top: 'medium' }} gap="medium">
                   <InputWrap action={() => console.log('maxAction')} isError={closeError} disabled={!selectedSeries}>
                     <TextInput
                       plain
                       type="number"
-                      placeholder="fyToken Amount" // {`${selectedBase?.symbol} to reclaim`}
+                      placeholder={`Amount of ${selectedBase?.symbol} to reclaim`}
                       value={closeInput || ''}
                       onChange={(event: any) => setCloseInput(cleanValue(event.target.value))}
                       disabled={!selectedSeries}
                     />
                     <MaxButton
-                      action={() => setCloseInput(maxClose)}
-                      disabled={maxClose === '0.0' || !selectedSeries}
+                      action={() => setCloseInput(currentValue)}
+                      disabled={currentValue === '0.0' || !selectedSeries}
                       clearAction={() => setCloseInput('')}
-                      showingMax={!!closeInput && closeInput === maxClose}
+                      showingMax={!!closeInput && closeInput === currentValue}
                     />
                   </InputWrap>
                 </Box>
               )}
 
               {stepPosition[0] !== 0 && (
-                <ActiveTransaction txCode={closeTx.txCode} pad>
+                <ActiveTransaction pad tx={closeTx}>
                   <SectionWrap
                     title="Review your remove transaction"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
@@ -218,21 +219,21 @@ const LendPosition = ({ close }: { close: () => void }) => {
           {actionActive.index === 1 && (
             <>
               {stepPosition[actionActive.index] === 0 && (
-                <Box margin={{ top: 'medium' }} gap='medium'>
+                <Box margin={{ top: 'medium' }} gap="medium">
                   <InputWrap action={() => console.log('maxAction')} isError={closeError} disabled={!selectedSeries}>
                     <TextInput
                       plain
                       type="number"
-                      placeholder="fyToken amount to roll" // {`${selectedBase?.symbol} to reclaim`}
+                      placeholder={`Amount of ${selectedBase?.symbol} to roll`}
                       value={rollInput || ''}
                       onChange={(event: any) => setRollInput(cleanValue(event.target.value))}
                       disabled={!selectedSeries}
                     />
                     <MaxButton
-                      action={() => setRollInput(maxClose)}
-                      disabled={maxClose === '0.0' || !selectedSeries}
+                      action={() => setRollInput(currentValue)}
+                      disabled={currentValue === '0.0' || !selectedSeries}
                       clearAction={() => setRollInput('')}
-                      showingMax={!!rollInput && rollInput === maxClose}
+                      showingMax={!!rollInput && rollInput === currentValue}
                     />
                   </InputWrap>
 
@@ -245,7 +246,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
               )}
 
               {stepPosition[actionActive.index] !== 0 && (
-                <ActiveTransaction txCode={rollTx.txCode} pad>
+                <ActiveTransaction pad tx={rollTx}>
                   <SectionWrap
                     title="Review your roll transaction"
                     rightAction={<CancelButton action={() => handleStepper(true)} />}
@@ -255,7 +256,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
                         label="Roll To Series"
                         icon={<FiArrowRight />}
                         value={` Roll${rollTx.pending ? 'ing' : ''}  ${cleanValue(
-                          closeInput,
+                          rollInput,
                           selectedBase?.digitFormat!
                         )} ${selectedBase?.symbol} to ${rollToSeries?.displayName}`}
                       />
@@ -277,38 +278,58 @@ const LendPosition = ({ close }: { close: () => void }) => {
             onClick={() => handleStepper()}
             key="next"
             disabled={(actionActive.index === 0 && closeDisabled) || (actionActive.index === 1 && rollDisabled)}
+            errorLabel={(actionActive.index === 0 && closeError) || (actionActive.index === 1 && rollError)}
           />
         )}
 
-        {actionActive.index === 0 && stepPosition[actionActive.index] !== 0 && (
+        {actionActive.index === 0 && 
+        stepPosition[actionActive.index] !== 0 &&
+        !( closeTx.failed || closeTx.success) &&  
+        (
           <TransactButton
             primary
             label={
               <Text size={mobile ? 'small' : undefined}>
-                {`Clos${closeTx.pending ? 'ing' : 'e'} ${
+                {`Clos${closeTx.processActive ? 'ing' : 'e'} ${
                   nFormatter(Number(closeInput), selectedBase?.digitFormat!) || ''
                 } ${selectedBase?.symbol}`}
               </Text>
             }
             onClick={() => handleClosePosition()}
-            disabled={closeDisabled || closeTx.pending}
+            disabled={closeDisabled || closeTx.processActive}
           />
         )}
 
-        {actionActive.index === 1 && stepPosition[actionActive.index] !== 0 && (
+        {actionActive.index === 1 && 
+        stepPosition[actionActive.index] !== 0 &&
+        !( rollTx.failed || rollTx.success) &&     
+        (
           <TransactButton
             primary
             label={
               <Text size={mobile ? 'small' : undefined}>
-                {`Roll${rollTx.pending ? 'ing' : ''} ${
+                {`Roll${rollTx.processActive ? 'ing' : ''} ${
                   nFormatter(Number(rollInput), selectedBase?.digitFormat!) || ''
                 } ${selectedBase?.symbol}`}
               </Text>
             }
             onClick={() => handleRollPosition()}
-            disabled={rollDisabled || rollTx.pending}
+            disabled={rollDisabled || rollTx.processActive}
           />
         )}
+
+        {stepPosition[actionActive.index] === 1 &&
+          actionActive.index === 0 &&
+          !closeTx.processActive &&
+          ( closeTx.failed || closeTx.success) &&
+          <CompletedTx tx={closeTx} resetTx={resetCloseTx} />}
+
+        {stepPosition[actionActive.index] === 1 &&
+          actionActive.index === 1 &&
+          !rollTx.processActive &&
+          (rollTx.failed || rollTx.success) &&
+          <CompletedTx tx={rollTx} resetTx={()=>resetRollTx()} />}
+
       </ActionButtonGroup>
     </CenterPanelWrap>
   );

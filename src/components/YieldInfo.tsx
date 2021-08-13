@@ -22,8 +22,8 @@ const IconGap = 'small';
 const YieldInfo = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
-    chainState: { account, chainId, chainData },
-    chainActions: { connect, disconnect, setDisclaimerChecked },
+    chainState: { account, chainId, chainData, appVersion },
+    chainActions: { connect, disconnect },
   } = useContext(ChainContext);
   const {
     txState: { txPending, signPending, processPending },
@@ -53,7 +53,7 @@ const YieldInfo = () => {
     <Box gap="small">
       <Box>
         <Text size="xsmall" color="grey">
-          App version: v0.0.1
+          App version: v{appVersion}
         </Text>
         {/* <Text size="xsmall" color="grey"> Having issues? Try an app <Anchor onClick={() => resetApp()}>RESET</Anchor>, or get hold of us via <Anchor href="https://discord.gg/JAFfDj5" target="_blank" onClick={() => handleExternal('Discord')}>discord</Anchor>. </Text> */}
       </Box>
@@ -88,12 +88,7 @@ const YieldInfo = () => {
               {chainData.name}
             </Text>
           </Text>
-          <Box
-            onClick={() => {
-              disconnect();
-              setDisclaimerChecked(false);
-            }}
-          >
+          <Box onClick={() => disconnect()}>
             <Text size="xsmall" color="text-xweak">
               Disconnect
             </Text>
@@ -104,11 +99,11 @@ const YieldInfo = () => {
           <Text size="xsmall" color="pink">
             Disconnected
           </Text>
-          {/* <Box onClick={() => connect()}>
-            <Text size="xsmall" color={account? "text-xweak": "text-weak"}>
+          <Box onClick={() => connect()}>
+            <Text size="xsmall" color={account ? 'text-xweak' : 'text-weak'}>
               Connect
             </Text>
-          </Box> */}
+          </Box>
         </Box>
       )}
     </Box>

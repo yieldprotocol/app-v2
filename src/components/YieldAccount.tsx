@@ -1,4 +1,5 @@
 import React, { useState, useContext } from 'react';
+import styled from 'styled-components';
 import { Text, Box, ResponsiveContext, Layer, Spinner } from 'grommet';
 import { FiCheckCircle, FiCircle, FiMenu, FiSettings } from 'react-icons/fi';
 
@@ -14,6 +15,17 @@ import Connect from './Connect';
 import { TxState } from '../types';
 import TransactionWidget from './TransactionWidget';
 import ConnectButton from './buttons/ConnectButton';
+import EthMark from './logos/EthMark';
+import { UserContext } from '../contexts/UserContext';
+import { WETH } from '../utils/constants';
+
+
+const StyledText = styled(Text)`
+  svg,
+  span {
+    vertical-align: middle;
+  }
+`;
 
 const YieldAccount = (props: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -22,11 +34,17 @@ const YieldAccount = (props: any) => {
   } = useContext(ChainContext);
 
   const {
-    txState: { sigPending, txPending, processPending },
+    userState: { assetMap },
+  } = useContext(UserContext);
+
+  const {
+    txState: { sigPending, txPending, processPending, processActive  },
   } = useContext(TxContext);
 
   const [settingsOpen, setSettingsOpen] = useState<boolean>();
   const [connectOpen, setConnectOpen] = useState<boolean>();
+
+  const ethBalance = assetMap.get(WETH)?.balance_;
 
   return (
     <>
@@ -44,7 +62,7 @@ const YieldAccount = (props: any) => {
 
       {account ? (
         <Box direction="row" gap="xsmall" align="center">
-          {!mobile && <>{processPending ? <TransactionWidget /> : <YieldBalances />}</>}
+          {!mobile && <>{processActive ? <TransactionWidget /> : <YieldBalances />}</>}
           <Box round="xsmall" onClick={() => setSettingsOpen(true)} pad="small" justify="center">
             {mobile ? (
               <Text color="text">
@@ -57,11 +75,16 @@ const YieldAccount = (props: any) => {
                     {abbreviateHash(account)}
                   </Text>
 
-                  <Box direction='row' align='center' gap='small'>          
-                  <FiCircle fill={chainData.color} color={chainData.color} size=".5rem" />
+                  <Box direction="row" align="center" gap="small">
+                    <Box direction="row" gap="small" align="center">
+                      <StyledText size="small" color="text">
+                      <EthMark /> {ethBalance} 
+                      </StyledText>
+                    </Box>
+                    {/* <FiCircle fill={chainData.color} color={chainData.color} size=".5rem" />
                   <Text size="xsmall" color={chainData.color} alignSelf="end">
                     {chainData.name}
-                  </Text>
+                  </Text> */}
                   </Box>
                 </Box>
                 <Box>
