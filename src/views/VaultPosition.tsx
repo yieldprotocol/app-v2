@@ -72,7 +72,6 @@ const Vault = ({ close }: { close: () => void }) => {
     selectedVaultId!
   );
   const { tx: transferTx, resetTx: resetTransferTx } = useTx(ActionCodes.TRANSFER_VAULT, selectedVaultId!, true);
-  const { tx: deleteTx, resetTx: resetDeleteTx } = useTx(ActionCodes.DELETE_VAULT, selectedVaultId!, true);
   const { tx: mergeTx, resetTx: resetMergeTx } = useTx(ActionCodes.MERGE_VAULT, selectedVaultId!);
 
   /* LOCAL STATE */
@@ -103,7 +102,6 @@ const Vault = ({ close }: { close: () => void }) => {
   const [addCollateralDisabled, setAddCollateralDisabled] = useState<boolean>(true);
   const [mergeDisabled, setMergeDisabled] = useState<boolean>(true);
   const [transferDisabled, setTransferDisabled] = useState<boolean>(true);
-  const [deleteDisabled, setDeleteDisabled] = useState<boolean>(true);
 
   const [actionActive, setActionActive] = useState<any>(selectedVault?.isActive ? { index: 0 } : { index: 3 });
 
@@ -119,11 +117,10 @@ const Vault = ({ close }: { close: () => void }) => {
   };
 
   const [mergeData, setMergeData] = useState<any>(initialMergeData);
-  const [destroyInput, setDestroyInput] = useState<string>('');
   const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
 
   /* HOOK FNS */
-  const { repay, borrow, rollDebt, transfer, merge, destroy } = useBorrowActions();
+  const { repay, borrow, rollDebt, transfer, merge } = useBorrowActions();
   const { addCollateral, removeCollateral } = useCollateralActions();
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries, [0, maxRepay]);
@@ -136,13 +133,6 @@ const Vault = ({ close }: { close: () => void }) => {
     ActionCodes.REMOVE_COLLATERAL,
     vaultSeries,
     [0, ethers.utils.formatEther(maxRemove)]
-  );
-  const { inputError: destroyError, inputDisabled: destroyDisabled } = useInputValidation(
-    destroyInput,
-    ActionCodes.DELETE_VAULT,
-    vaultSeries,
-    [],
-    selectedVault
   );
   const { inputError: transferError } = useInputValidation(
     transferToAddressInput,
@@ -221,10 +211,6 @@ const Vault = ({ close }: { close: () => void }) => {
     setMergeData((fData: any) => ({ ...fData, toVault: vault }));
   };
 
-  const handleDestroy = () => {
-    selectedVault && destroy(selectedVault);
-  };
-
   /* SET MAX VALUES */
   useEffect(() => {
     /* CHECK the max available repay */
@@ -252,7 +238,6 @@ const Vault = ({ close }: { close: () => void }) => {
     !repayInput || repayError ? setRepayDisabled(true) : setRepayDisabled(false);
     !rollToSeries ? setRollDisabled(true) : setRollDisabled(false);
     !mergeData.toVault ? setMergeDisabled(true) : setMergeDisabled(false);
-    !destroyInput || destroyError ? setDeleteDisabled(true) : setDeleteDisabled(false);
     !transferToAddressInput || transferError ? setTransferDisabled(true) : setTransferDisabled(false);
     !addCollatInput || addCollatError ? setAddCollateralDisabled(true) : setAddCollateralDisabled(false);
     !removeCollatInput || removeCollatError ? setRemoveCollateralDisabled(true) : setRemoveCollateralDisabled(false);
@@ -262,14 +247,12 @@ const Vault = ({ close }: { close: () => void }) => {
     collatInput,
     rollToSeries,
     mergeData,
-    destroyInput,
     transferToAddressInput,
     addCollatInput,
     removeCollatInput,
     addCollatError,
     removeCollatError,
     transferError,
-    destroyError,
   ]);
 
   /* EXTRA INITIATIONS */
@@ -292,16 +275,6 @@ const Vault = ({ close }: { close: () => void }) => {
       setMergeData((fData: any) => ({ ...fData, totalMergedInk, totalMergedArt }));
     }
   }, [vaultMap, mergeData.toVault, mergeData.ink, mergeData.art]);
-
-  // check if there was a relevant successful tx when deleting a vault
-  useEffect(() => {
-    const txCode = getTxCode(ActionCodes.DELETE_VAULT, selectedVault?.id!);
-    const txHash = transactions.processes?.get(txCode);
-    const tx = transactions.transactions.get(txHash);
-    const status = tx?.status;
-
-    status === TxState.SUCCESSFUL && routerHistory.push('/');
-  }, [selectedVault?.id, transactions]);
 
   /* INTERNAL COMPONENTS */
   const CompletedTx = (props: any) => (
@@ -386,13 +359,12 @@ const Vault = ({ close }: { close: () => void }) => {
                   { text: 'Transaction History', index: 3 },
                   { text: 'Transfer Vault', index: 4 },
                   { text: 'Merge Vault', index: 5 },
-                  { text: 'Delete Vault', index: 6 },
                 ]}
                 labelKey="text"
                 valueKey="index"
                 value={actionActive}
                 onChange={({ option }) => setActionActive(option)}
-                disabled={selectedVault?.isActive ? undefined : [0, 1, 2, 4, 5, 6]}
+                disabled={selectedVault?.isActive ? undefined : [0, 1, 2, 4, 5]}
               />
             </Box>
           </SectionWrap>
@@ -649,42 +621,6 @@ const Vault = ({ close }: { close: () => void }) => {
               )}
             </>
           )}
-
-          {actionActive.index === 6 && (
-            <>
-              {stepPosition[actionActive.index] === 0 && (
-                <Box margin={{ top: 'medium' }} gap="medium">
-                  <InputWrap action={() => console.log('maxAction')} isError={null}>
-                    <TextInput
-                      plain
-                      type="string"
-                      placeholder="Type the name of the vault."
-                      value={destroyInput}
-                      onChange={(event) => setDestroyInput(event.target.value)}
-                    />
-                  </InputWrap>
-                </Box>
-              )}
-
-              {stepPosition[actionActive.index] !== 0 && (
-                <ActiveTransaction pad tx={deleteTx}>
-                  <SectionWrap
-                    title="Review transaction:"
-                    rightAction={<CancelButton action={() => handleStepper(true)} />}
-                  >
-                    <Box margin={{ top: 'medium' }}>
-                      <InfoBite
-                        // label="Pay back all debt and delete vault:"
-                        label="Delete vault:"
-                        icon={<FiArrowRight />}
-                        value={destroyInput}
-                      />
-                    </Box>
-                  </SectionWrap>
-                </ActiveTransaction>
-              )}
-            </>
-          )}
         </Box>
       </Box>
 
@@ -700,16 +636,14 @@ const Vault = ({ close }: { close: () => void }) => {
               (actionActive.index === 2 && removeCollatInput && removeCollateralDisabled) ||
               (actionActive.index === 2 && addCollatInput && addCollateralDisabled) ||
               (actionActive.index === 4 && transferDisabled) ||
-              (actionActive.index === 5 && mergeDisabled) ||
-              (actionActive.index === 6 && destroyDisabled)
+              (actionActive.index === 5 && mergeDisabled)
             }
             errorLabel={
               (actionActive.index === 0 && repayError) ||
               (actionActive.index === 2 && removeCollatError) ||
               (actionActive.index === 2 && addCollatError) ||
               (actionActive.index === 4 && transferError) ||
-              (actionActive.index === 5 && (mergeData.inkError || mergeData.artError)) ||
-              (actionActive.index === 6 && destroyError)
+              (actionActive.index === 5 && (mergeData.inkError || mergeData.artError))
             }
           />
         )}
@@ -794,20 +728,6 @@ const Vault = ({ close }: { close: () => void }) => {
           />
         )}
 
-        {actionActive.index === 6 && stepPosition[actionActive.index] !== 0 && 
-        !(deleteTx.success || deleteTx.failed) && (
-          <TransactButton
-            primary
-            disabled={destroyDisabled || deleteTx.processActive}
-            label={
-              <Text size={mobile ? 'small' : undefined}>
-                {`Delet${deleteTx.processActive ? 'ing' : 'e'} ${selectedVault?.displayName}`}
-              </Text>
-            }
-            onClick={() => handleDestroy()}
-          />
-        )}
-
         {/* TODO simplify this */}
 
         {stepPosition[actionActive.index] === 1 &&
@@ -843,11 +763,6 @@ const Vault = ({ close }: { close: () => void }) => {
           actionActive.index === 5 &&
           !mergeTx.processActive &&
           (mergeTx.success || mergeTx.failed) && <CompletedTx tx={mergeTx} resetTx={resetMergeTx} />}
-
-        {stepPosition[actionActive.index] === 1 &&
-          actionActive.index === 6 &&
-          !deleteTx.processActive &&
-          (deleteTx.success || deleteTx.failed) && <CompletedTx tx={deleteTx} resetTx={resetDeleteTx} />}
       </ActionButtonWrap>
     </CenterPanelWrap>
   );
