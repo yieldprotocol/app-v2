@@ -36,7 +36,7 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
         border={{ color: 'tailwind-blue', size: 'xsmall' }}
         hoverIndicator={{ color: 'tailwind-blue', size: 'xsmall' }}
         pad="small"
-        round="small"
+        round="xsmall"
       >
         <Box direction="row" gap="xsmall" align="center">
           {connected && <FiCheckSquare color="green" />}

@@ -11,8 +11,8 @@ const ChangeButton = styled(Button)`
   background: #dbeafe;
   border: 2px solid #3b82f6;
   height: 2rem;
-  width: 5rem;
-  border-radius: 20px;
+  width: 3.5rem;
+  border-radius: 6px;
   font-size: 0.6rem;
   text-align: center;
   color: #2563eb;
@@ -48,7 +48,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
       </Box>
       <Box
         border={{ color: '#DBEAFE', size: 'xsmall', side: 'top' }}
-        gap="xsmall"
+        gap="small"
         pad={{ horizontal: 'medium', vertical: 'small' }}
       >
         <Box justify="between" align="center" direction="row">
@@ -56,12 +56,12 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
           <ChangeButton onClick={handleChangeConnectType}>Change</ChangeButton>
         </Box>
         <Box justify="between" align="center" direction="row">
-          <Box direction="row" align="center" gap="xsmall">
+          <Box direction="row" align="center" gap="small">
             <YieldAvatar address={account} size={2} />
             <Text size="xlarge">{abbreviateHash(account)}</Text>
           </Box>
         </Box>
-        <Box align="center" direction="row" gap="xsmall">
+        <Box align="center" direction="row" gap="small">
           <Button margin="xsmall" onClick={() => handleCopy(account)}>
             {copySuccess ? (
               <FiCheckSquare size="1rem" style={{ verticalAlign: 'middle' }} />
@@ -80,17 +80,20 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
           </Anchor>
         </Box>
       </Box>
-      <Box align="center" direction="row" border={{ color: '#DBEAFE', size: 'xsmall', side: 'top' }} pad="medium">
-        <AdvancedSettings />
-      </Box>
-      <Box
-        border={{ color: '#DBEAFE', size: 'xsmall', side: 'top' }}
-        pad="medium"
-        gap="small"
-        direction="row"
-        background="#F3F4F6"
-      >
-        <Text size="medium">Your transactions will appear here...</Text>
+      <Box margin={{ top: 'auto' }}>
+        <Box align="center" direction="row" border={{ color: '#DBEAFE', size: 'xsmall', side: 'top' }} pad="medium">
+          <AdvancedSettings />
+        </Box>
+        <Box
+          border={{ color: '#DBEAFE', size: 'xsmall', side: 'top' }}
+          pad="medium"
+          gap="small"
+          direction="row"
+          background="#F3F4F6"
+          height={{ min: 'medium' }}
+        >
+          <Text size="medium">Your transactions will appear here...</Text>
+        </Box>
       </Box>
     </Box>
   );
