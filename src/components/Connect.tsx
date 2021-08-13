@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
+import styled from 'styled-components';
 import { Box, Button, Text } from 'grommet';
 import { FiCheckSquare, FiX } from 'react-icons/fi';
 import { ChainContext, connectorNames } from '../contexts/ChainContext';
@@ -40,14 +41,14 @@ const Connect = ({ setConnectOpen }: any) => {
     return (
       <Box
         key={name}
-        onClick={() => !connected && handleConnect(name)}
+        onClick={() => !connected && disclaimerChecked && handleConnect(name)}
         pad="small"
         round="small"
-        border={{ color: 'tailwind-blue', size: 'xsmall' }}
+        border={{ color: disclaimerChecked ? 'tailwind-blue' : '#F3F4F6', size: 'xsmall' }}
         background={connected ? '#F3F4F6' : 'white'}
         hoverIndicator={{
-          background: { color: connected ? '#F3F4F6' : 'tailwind-blue' },
-          color: connected ? 'red' : 'white',
+          background: { color: connected || !disclaimerChecked ? '#F3F4F6' : 'tailwind-blue' },
+          color: connected ? 'gray' : 'white',
         }}
         direction="row"
         gap="xsmall"
@@ -67,9 +68,14 @@ const Connect = ({ setConnectOpen }: any) => {
       </Box>
       <Box gap="xsmall">{connectorsRender}</Box>
 
-      <Box border={{ color: disclaimerChecked ? 'none' : 'tailwind-blue' }} round="small">
-        <Disclaimer checked={disclaimerChecked} onChange={(event: any) => setDisclaimerChecked(event.target.checked)} />
-      </Box>
+      {!disclaimerChecked && (
+        <Box border={{ color: disclaimerChecked ? 'none' : 'tailwind-blue' }} round="small">
+          <Disclaimer
+            checked={disclaimerChecked}
+            onChange={(event: any) => setDisclaimerChecked(event.target.checked)}
+          />
+        </Box>
+      )}
     </Box>
   );
 };
