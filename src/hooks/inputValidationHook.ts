@@ -44,7 +44,8 @@ export const useInputValidation = (
             setInputError(`Amount exceeds the ${selectedBase?.symbol} currently available in pool`);
           break;
 
-        case ActionCodes.REPAY || ActionCodes.ROLL_DEBT:
+        case ActionCodes.REPAY:
+        case ActionCodes.ROLL_DEBT:
           aboveMax && setInputError('Amount exceeds your current debt');
           belowMin && setInputError('Remaining debt below dust levels');
           break;
@@ -59,6 +60,16 @@ export const useInputValidation = (
 
         case ActionCodes.TRANSFER_VAULT:
           input && !ethers.utils.isAddress(input) && setInputError('Not a valid Address');
+          break;
+
+        case ActionCodes.LEND:
+        case ActionCodes.ADD_LIQUIDITY:
+        case ActionCodes.CLOSE_POSITION:
+        case ActionCodes.ROLL_POSITION:
+        case ActionCodes.REMOVE_LIQUIDITY:
+        case ActionCodes.ROLL_LIQUIDITY:
+          aboveMax && setInputError('Amount exceeds available balance');
+          belowMin && setInputError('Amount should be expressed as a positive value');
           break;
 
         default:
