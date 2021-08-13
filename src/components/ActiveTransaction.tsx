@@ -38,14 +38,14 @@ const InfoBlock = ({
       <Box gap="medium">
         <Box direction="row" gap="medium" pad="medium" align="center" justify="center">
           {icon}
-          <Box gap="xsmall" align="center" justify="start">
+          <Box gap="xsmall">
             <Text size="medium">{title}</Text>
             <Box direction="row" gap="xsmall">
-              <Text size="small">{subTitle}</Text>
+              <Text size="small" color='text-weak'>{subTitle}</Text>   
             </Box>
           </Box>
         </Box>
-        <Box alignSelf="end">{button}</Box>
+        <Box alignSelf='center'>{button}</Box>
       </Box>
     )}
   </>

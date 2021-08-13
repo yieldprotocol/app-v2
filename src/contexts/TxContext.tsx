@@ -69,6 +69,7 @@ function txReducer(_state: any, action: any) {
           _state.processes.set(action.payload.txCode, {
             ..._state.processes.get(action.payload.txCode),
             status: action.payload.status,
+            hash: action.payload.hash
           })
         ),
       };
@@ -103,7 +104,7 @@ const TxProvider = ({ children }: any) => {
   const _endProcess = (txCode: string) => {
     updateState({
       type: 'processes',
-      payload: { txCode, status: 'INACTIVE' },
+      payload: { txCode, status: 'INACTIVE', hash: undefined },
     });
   };
 

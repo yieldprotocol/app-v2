@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
-import { Box, Button, ResponsiveContext, Select, Text, TextInput } from 'grommet';
+import { base, Box, Button, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import { ethers } from 'ethers';
 
 import {
@@ -93,8 +93,8 @@ const Vault = ({ close }: { close: () => void }) => {
   const [transferToAddressInput, setTransferToAddressInput] = useState<string>('');
 
   const [maxRepay, setMaxRepay] = useState<string | undefined>();
+  const [minRepay, setMinRepay] = useState<string | undefined>();
   const [maxAddCollat, setMaxAddCollat] = useState<string | undefined>();
-  // const [maxRemoveCollat, setMaxRemoveCollat] = useState<string | undefined>();
 
   const [repayDisabled, setRepayDisabled] = useState<boolean>(true);
   const [rollDisabled, setRollDisabled] = useState<boolean>(true);
@@ -123,7 +123,10 @@ const Vault = ({ close }: { close: () => void }) => {
   const { repay, borrow, rollDebt, transfer, merge } = useBorrowActions();
   const { addCollateral, removeCollateral } = useCollateralActions();
 
-  const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries, [0, maxRepay]);
+  const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries, [
+    0,
+    maxRepay,
+  ]);
   const { inputError: addCollatError } = useInputValidation(addCollatInput, ActionCodes.ADD_COLLATERAL, vaultSeries, [
     0,
     maxAddCollat,
@@ -211,7 +214,7 @@ const Vault = ({ close }: { close: () => void }) => {
     setMergeData((fData: any) => ({ ...fData, toVault: vault }));
   };
 
-  /* SET MAX VALUES */
+  /* SET MAX / MIN VALUES */
   useEffect(() => {
     /* CHECK the max available repay */
     if (activeAccount) {
@@ -220,8 +223,11 @@ const Vault = ({ close }: { close: () => void }) => {
         const _max = _maxToken && selectedVault?.art.gt(_maxToken) ? _maxToken : selectedVault?.art;
         _max && setMaxRepay(ethers.utils.formatEther(_max)?.toString());
       })();
+
+      setMinRepay(selectedVault?.art.sub(ethers.utils.parseEther('1')).toString() );
     }
   }, [activeAccount, selectedVault?.art, vaultBase, setMaxRepay]);
+
 
   useEffect(() => {
     /* CHECK collateral selection and sets the max available collateral */
@@ -281,13 +287,14 @@ const Vault = ({ close }: { close: () => void }) => {
     <>
       <NextButton
         // size="xsmall"
-        label={<Text size={mobile ? 'xsmall' : undefined}>Go back</Text>}
+        label={
+          <Text size={mobile ? 'xsmall' : undefined}>{props.tx.failed ? 'Report issue and go back' : 'Got it!'} </Text>
+        }
         onClick={() => {
           props.resetTx();
           handleStepper(true);
         }}
       />
-      {props.tx.failed && <EtherscanButton txHash={props.tx.txHash} />}
     </>
   );
 
@@ -339,7 +346,7 @@ const Vault = ({ close }: { close: () => void }) => {
                 </Box>
 
                 <Box pad={{ horizontal: 'medium' }}>
-                  <Text size="xsmall">Vault {selectedVault?.id} has either been deleted or transfered.</Text>
+                  <Text size="xsmall">Vault {selectedVault?.id} has either been transfered or deleted.</Text>
                 </Box>
               </Box>
             </SectionWrap>
@@ -356,7 +363,7 @@ const Vault = ({ close }: { close: () => void }) => {
                   { text: 'Repay Debt', index: 0 },
                   { text: 'Roll Debt', index: 1 },
                   { text: 'Manage Collateral', index: 2 },
-                  { text: 'Transaction History', index: 3 },
+                  { text: 'View Transaction History', index: 3 },
                   { text: 'Transfer Vault', index: 4 },
                   { text: 'Merge Vault', index: 5 },
                 ]}
@@ -377,10 +384,11 @@ const Vault = ({ close }: { close: () => void }) => {
                     <TextInput
                       plain
                       type="number"
-                      placeholder="Enter amount to Repay"
+                      placeholder={`Enter ${vaultBase?.symbol} amount to Repay`}
                       // ref={(el:any) => { el && !repayOpen && !rateLockOpen && !mobile && el.focus(); setInputRef(el); }}
                       value={repayInput || ''}
                       onChange={(event: any) => setRepayInput(cleanValue(event.target.value))}
+                      icon={<>{vaultBase?.image}</>}
                     />
                     <MaxButton
                       action={() => setRepayInput(maxRepay)}
@@ -451,9 +459,10 @@ const Vault = ({ close }: { close: () => void }) => {
                       disabled={removeCollatInput}
                       plain
                       type="number"
-                      placeholder="Collateral to Add"
+                      placeholder="Additional collateral to add"
                       value={addCollatInput || ''}
                       onChange={(event: any) => setAddCollatInput(cleanValue(event.target.value))}
+                      icon={<>{vaultIlk?.image}</>}
                     />
                     <MaxButton
                       disabled={removeCollatInput}
@@ -470,6 +479,7 @@ const Vault = ({ close }: { close: () => void }) => {
                       placeholder="Collateral to remove"
                       value={removeCollatInput || ''}
                       onChange={(event: any) => setRemoveCollatInput(cleanValue(event.target.value))}
+                      icon={<>{vaultIlk?.image}</>}
                     />
                     <MaxButton
                       disabled={!!addCollatInput}

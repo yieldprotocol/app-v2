@@ -105,21 +105,19 @@ const PoolPosition = ({ close }: { close: () => void }) => {
   }, [activeAccount, removeError, removeInput, rollError, rollInput, rollToSeries]);
 
   /* INTERNAL COMPONENTS */
-  const CompletedTx = (props: any) =>(
+  const CompletedTx = (props: any) => (
     <>
-    <NextButton
-      // size="xsmall"
-      label={<Text size={mobile ? 'xsmall' : undefined}>Go back</Text>}
-      onClick={() => {
-        props.resetTx();
-        handleStepper(true);
-      }}
-    />
-    {props.tx.failed &&
-    <EtherscanButton txHash={props.tx.txHash} />
-    }
-  </>
-);
+      <NextButton
+        // size="xsmall"
+        label={<Text size={mobile ? 'xsmall' : undefined}>Go back</Text>}
+        onClick={() => {
+          props.resetTx();
+          handleStepper(true);
+        }}
+      />
+      {/* {props.tx.failed && <EtherscanButton txHash={props.tx.txHash} />} */}
+    </>
+  );
 
   return (
     <CenterPanelWrap>
@@ -172,7 +170,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                 options={[
                   { text: 'Remove Liquidity', index: 0 },
                   { text: 'Roll Liquidity', index: 1 },
-                  { text: 'Transaction History', index: 2 },
+                  { text: 'View Transaction History', index: 2 },
                 ]}
                 labelKey="text"
                 valueKey="index"
@@ -286,38 +284,39 @@ const PoolPosition = ({ close }: { close: () => void }) => {
           />
         )}
 
-        {actionActive.index === 0 && stepPosition[actionActive.index] !== 0 && (
-          <TransactButton
-            primary
-            label={
-              <Text size={mobile ? 'small' : undefined}>
-                {`Remov${removeTx.processActive ? 'ing' : 'e'} ${
-                  nFormatter(Number(removeInput), selectedBase?.digitFormat!) || ''
-                } tokens`}
-              </Text>
-            }
-            onClick={() => handleRemove()}
-            disabled={removeDisabled || removeTx.processActive}
-          />
-        )}
+        {actionActive.index === 0 &&
+          stepPosition[actionActive.index] !== 0 &&
+          !(removeTx.success || removeTx.failed) && (
+            <TransactButton
+              primary
+              label={
+                <Text size={mobile ? 'small' : undefined}>
+                  {`Remov${removeTx.processActive ? 'ing' : 'e'} ${
+                    nFormatter(Number(removeInput), selectedBase?.digitFormat!) || ''
+                  } tokens`}
+                </Text>
+              }
+              onClick={() => handleRemove()}
+              disabled={removeDisabled || removeTx.processActive}
+            />
+          )}
 
-        {actionActive.index === 1 && 
-        stepPosition[actionActive.index] !== 0 && 
-        
-        (
-          <TransactButton
-            primary
-            label={
-              <Text size={mobile ? 'small' : undefined}>
-                {`Roll${rollTx.processActive ? 'ing' : ''} ${
-                  nFormatter(Number(rollInput), selectedBase?.digitFormat!) || ''
-                } tokens`}
-              </Text>
-            }
-            onClick={() => handleRoll()}
-            disabled={rollDisabled || rollTx.processActive}
-          />
-        )}
+        {actionActive.index === 1 &&
+          stepPosition[actionActive.index] !== 0 &&
+          !(removeTx.success || removeTx.failed) && (
+            <TransactButton
+              primary
+              label={
+                <Text size={mobile ? 'small' : undefined}>
+                  {`Roll${rollTx.processActive ? 'ing' : ''} ${
+                    nFormatter(Number(rollInput), selectedBase?.digitFormat!) || ''
+                  } tokens`}
+                </Text>
+              }
+              onClick={() => handleRoll()}
+              disabled={rollDisabled || rollTx.processActive}
+            />
+          )}
 
         {stepPosition[actionActive.index] === 1 &&
           actionActive.index === 0 &&
@@ -328,7 +327,6 @@ const PoolPosition = ({ close }: { close: () => void }) => {
           actionActive.index === 1 &&
           !rollTx.processActive &&
           (rollTx.success || rollTx.failed) && <CompletedTx tx={rollTx} resetTx={resetRollTx} />}
-
       </ActionButtonGroup>
     </CenterPanelWrap>
   );

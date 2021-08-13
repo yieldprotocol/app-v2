@@ -97,8 +97,8 @@ const LendPosition = ({ close }: { close: () => void }) => {
   }, [closeInput, closeError, rollInput, rollToSeries, rollError]);
 
   /* INTERNAL COMPONENTS */
-  const CompletedTx = (props: any) =>(
-      <>
+  const CompletedTx = (props: any) => (
+    <>
       <NextButton
         // size="xsmall"
         label={<Text size={mobile ? 'xsmall' : undefined}>Go back</Text>}
@@ -107,9 +107,9 @@ const LendPosition = ({ close }: { close: () => void }) => {
           handleStepper(true);
         }}
       />
-      {props.tx.failed &&
+      {/* {props.tx.failed &&
       <EtherscanButton txHash={props.tx.txHash} />
-      }
+      } */}
     </>
   );
 
@@ -162,7 +162,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
                 options={[
                   { text: 'Close Position', index: 0 },
                   { text: 'Roll Position', index: 1 },
-                  { text: 'Transaction History', index: 2 },
+                  { text: 'View Transaction History', index: 2 },
                   { text: 'Redeem', index: 3 },
                 ]}
                 labelKey="text"
@@ -186,6 +186,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
                       value={closeInput || ''}
                       onChange={(event: any) => setCloseInput(cleanValue(event.target.value))}
                       disabled={!selectedSeries}
+                      icon={<>{selectedBase?.image}</>}
                     />
                     <MaxButton
                       action={() => setCloseInput(currentValue)}
@@ -228,6 +229,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
                       value={rollInput || ''}
                       onChange={(event: any) => setRollInput(cleanValue(event.target.value))}
                       disabled={!selectedSeries}
+                      icon={<>{selectedBase?.image}</>}
                     />
                     <MaxButton
                       action={() => setRollInput(currentValue)}
@@ -282,10 +284,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
           />
         )}
 
-        {actionActive.index === 0 && 
-        stepPosition[actionActive.index] !== 0 &&
-        !( closeTx.failed || closeTx.success) &&  
-        (
+        {actionActive.index === 0 && stepPosition[actionActive.index] !== 0 && !(closeTx.failed || closeTx.success) && (
           <TransactButton
             primary
             label={
@@ -300,10 +299,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
           />
         )}
 
-        {actionActive.index === 1 && 
-        stepPosition[actionActive.index] !== 0 &&
-        !( rollTx.failed || rollTx.success) &&     
-        (
+        {actionActive.index === 1 && stepPosition[actionActive.index] !== 0 && !(rollTx.failed || rollTx.success) && (
           <TransactButton
             primary
             label={
@@ -321,15 +317,12 @@ const LendPosition = ({ close }: { close: () => void }) => {
         {stepPosition[actionActive.index] === 1 &&
           actionActive.index === 0 &&
           !closeTx.processActive &&
-          ( closeTx.failed || closeTx.success) &&
-          <CompletedTx tx={closeTx} resetTx={resetCloseTx} />}
+          (closeTx.failed || closeTx.success) && <CompletedTx tx={closeTx} resetTx={resetCloseTx} />}
 
         {stepPosition[actionActive.index] === 1 &&
           actionActive.index === 1 &&
           !rollTx.processActive &&
-          (rollTx.failed || rollTx.success) &&
-          <CompletedTx tx={rollTx} resetTx={()=>resetRollTx()} />}
-
+          (rollTx.failed || rollTx.success) && <CompletedTx tx={rollTx} resetTx={() => resetRollTx()} />}
       </ActionButtonGroup>
     </CenterPanelWrap>
   );

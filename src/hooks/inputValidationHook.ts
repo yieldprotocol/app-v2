@@ -45,6 +45,7 @@ export const useInputValidation = (
 
         case (ActionCodes.REPAY || ActionCodes.ROLL_DEBT) :
           aboveMax && setInputError('Amount exceeds your current debt');
+          belowMin && setInputError('Remaining debt below dust levels');
           break;
 
         case ActionCodes.ADD_COLLATERAL:

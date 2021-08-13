@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import { NavLink } from 'react-router-dom';
 import { Avatar, Box, Button, Grid, Header, Layer, ResponsiveContext } from 'grommet';
 
 import { FiX } from 'react-icons/fi';
@@ -9,6 +10,7 @@ import YieldLogo from '../logos/YieldLogo';
 import { UserContext } from '../../contexts/UserContext';
 import YieldMark from '../logos/YieldMark';
 import YieldNavigation from '../YieldNavigation';
+import { useCachedState } from '../../hooks/generalHooks';
 
 interface IModalWrap {
   modalOpen: boolean;
@@ -19,6 +21,7 @@ interface IModalWrap {
 
 function ModalWrap({ children, toggleModalOpen, background, modalOpen = false }: IModalWrap) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
+  const prevLoc = useCachedState('lastVisit', '')[0].slice(1).split('/')[0];
 
   const {
     userState: { selectedSeriesId, seriesMap },
@@ -47,11 +50,13 @@ function ModalWrap({ children, toggleModalOpen, background, modalOpen = false }:
             <Grid columns={['medium', 'flex', 'medium']} fill="horizontal">
               <Box direction="row" gap={mobile ? '0.25em' : 'medium'} align="center">
                 <Avatar>
-                  <YieldMark
-                    height={mobile ? '1em' : '2em'}
-                    startColor={series?.oppStartColor}
-                    endColor={series?.oppEndColor}
-                  />
+                  <NavLink to={`/${prevLoc}`}>
+                    <YieldMark
+                      height={mobile ? '1em' : '2em'}
+                      startColor={series?.oppStartColor}
+                      endColor={series?.oppEndColor}
+                    />
+                  </NavLink>
                   <Box />
                 </Avatar>
               </Box>
