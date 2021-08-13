@@ -46,7 +46,10 @@ const Lend = () => {
   const selectedBase = assetMap.get(selectedBaseId!);
 
   /* LOCAL STATE */
-  const [lendInput, setLendInput] = useState<string>();
+  const INITIAL_INPUT_STATE = {
+    lendInput: undefined,
+  };
+  const [lendInput, setLendInput] = useState<string | undefined>(INITIAL_INPUT_STATE.lendInput);
   // const [maxLend, setMaxLend] = useState<string | undefined>();
   const [lendDisabled, setLendDisabled] = useState<boolean>(true);
   const [stepPosition, setStepPosition] = useState<number>(0);
@@ -69,6 +72,12 @@ const Lend = () => {
   };
   const handleRedeem = () => {
     redeem(selectedSeries!, undefined);
+  };
+
+  const reset = () => {
+    setLendInput(INITIAL_INPUT_STATE.lendInput);
+    setStepPosition(0);
+    resetTx();
   };
 
   /* ACTION DISABLING LOGIC  - if conditions are met: allow action */
@@ -154,10 +163,7 @@ const Lend = () => {
 
           {stepPosition === 1 && (
             <Box gap="large">
-
-              {!lendTx.success && !lendTx.failed ? (
-                <BackButton action={() => setStepPosition(0)} />
-              ): <Box pad='1em' />}
+              {!lendTx.success && !lendTx.failed ? <BackButton action={() => setStepPosition(0)} /> : <Box pad="1em" />}
 
               <ActiveTransaction full tx={lendTx}>
                 <SectionWrap title="Review transaction:">
@@ -218,10 +224,7 @@ const Lend = () => {
               {/* <PositionListItem series={selectedSeries!} actionType={ActionType.LEND} /> */}
               <NextButton
                 label={<Text size={mobile ? 'small' : undefined}>Lend some more</Text>}
-                onClick={() => {
-                  setStepPosition(0);
-                  resetTx();
-                }}
+                onClick={() => reset()}
               />
             </>
           )}
@@ -231,10 +234,7 @@ const Lend = () => {
               <NextButton
                 size="xsmall"
                 label={<Text size={mobile ? 'xsmall' : undefined}> Report and go back</Text>}
-                onClick={() => {
-                  setStepPosition(0);
-                  resetTx();
-                }}
+                onClick={() => reset()}
               />
               <EtherscanButton txHash={lendTx.txHash} />
             </>
