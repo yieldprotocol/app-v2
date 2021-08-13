@@ -48,11 +48,13 @@ export const useTx = (
   const [txCode, setTxCode] = useState<string>();
   const [txHash, setTxHash] = useState<string>();
   const [txStatus, setTxStatus] = useState<TxState>();
-
   const [processActive, setProcessActive] = useState<boolean>(false);
 
   const resetTx = () => {
     setTx(INITIAL_STATE);
+    setTxHash(undefined);
+    setTxStatus(undefined);
+    setProcessActive(false);
   };
 
   useEffect(() => {
@@ -73,13 +75,11 @@ export const useTx = (
 
   useEffect(()=>{
     transactions.has(txHash) && setTxStatus(transactions.get(txHash).status)
-  },[ txHash, transactions ])
+  },[txHash, transactions])
 
   useEffect(() => {
 
-    if (txCode) {
     setTx((t) => ({ ...t, txCode, processActive }));
-
     switch (txStatus) {
       case TxState.PENDING:
         setTx((t) => ({ ...t, pending: true, txHash, processActive }));
@@ -93,7 +93,6 @@ export const useTx = (
       case TxState.REJECTED:
         setTx((t) => ({ ...t, rejected: true, pending: false, processActive }));
         break;
-    }
     }
   }, [txCode, processActive, txStatus, txHash]);
 
