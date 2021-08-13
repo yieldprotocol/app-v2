@@ -154,7 +154,9 @@ const Lend = () => {
 
           {stepPosition === 1 && (
             <Box gap="large">
-              <BackButton action={() => setStepPosition(0)} />
+              {!lendTx.success && !lendTx.rejected && !lendTx.failed && (
+                <BackButton action={() => setStepPosition(0)} />
+              )}
               <ActiveTransaction full tx={lendTx}>
                 <SectionWrap title="Review transaction:">
                   <Box
@@ -223,18 +225,18 @@ const Lend = () => {
           )}
 
           {stepPosition === 1 && !lendTx.processActive && lendTx.failed && (
-                <>
-                  <NextButton
-                    size='xsmall'
-                    label={<Text size={mobile ? 'xsmall' : undefined}> Report and go back</Text>}
-                    onClick={() => {
-                      setStepPosition(0);
-                      resetTx();
-                    }}
-                  />
-                  <EtherscanButton txHash={lendTx.txHash} />
-                </>
-            )}
+            <>
+              <NextButton
+                size="xsmall"
+                label={<Text size={mobile ? 'xsmall' : undefined}> Report and go back</Text>}
+                onClick={() => {
+                  setStepPosition(0);
+                  resetTx();
+                }}
+              />
+              <EtherscanButton txHash={lendTx.txHash} />
+            </>
+          )}
 
           {selectedSeries?.seriesIsMature && (
             <NextButton

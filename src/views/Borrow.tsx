@@ -300,7 +300,9 @@ const Borrow = () => {
 
             {stepPosition === 2 && ( // REVIEW
               <Box gap="large">
-                <BackButton action={() => setStepPosition(1)} />
+                {!borrowTx.success && !borrowTx.rejected && !borrowTx.failed && (
+                  <BackButton action={() => setStepPosition(1)} />
+                )}
 
                 <ActiveTransaction full tx={borrowTx}>
                   <SectionWrap title="Review transaction:">
