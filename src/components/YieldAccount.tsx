@@ -49,10 +49,11 @@ const YieldAccount = (props: any) => {
     <>
       {connectOpen && (
         <Layer
+          modal={false}
           responsive={true}
           full="vertical"
           position="right"
-          onClickOutside={() => setConnectOpen(false)}
+          // onClickOutside={() => setConnectOpen(false)}
           onEsc={() => setConnectOpen(false)}
         >
           <Connect setConnectOpen={setConnectOpen} setSettingsOpen={setSettingsOpen} />
@@ -61,10 +62,11 @@ const YieldAccount = (props: any) => {
 
       {account && settingsOpen && (
         <Layer
+          modal={false}
           responsive={true}
           full="vertical"
           position="right"
-          onClickOutside={() => setSettingsOpen(false)}
+          // onClickOutside={() => setSettingsOpen(false)}
           onEsc={() => setSettingsOpen(false)}
         >
           <YieldSettings setConnectOpen={setConnectOpen} setSettingsOpen={setSettingsOpen} />

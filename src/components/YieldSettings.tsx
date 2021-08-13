@@ -22,7 +22,7 @@ const ChangeButton = styled(Button)`
   }
 `;
 
-const YieldSettings = ({ setConnectOpen, setSettingsOpen }: any) => {
+const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
   const {
     chainState: { account, chainData, provider },
   } = useContext(ChainContext);
@@ -41,7 +41,7 @@ const YieldSettings = ({ setConnectOpen, setSettingsOpen }: any) => {
   };
 
   return (
-    <Box basis="auto" width="medium">
+    <Box width="medium">
       <Box pad="small" gap="small" direction="row" justify="between">
         <Text>Account</Text>
         <Button icon={<FiX size="1.5rem" />} onClick={() => setSettingsOpen(false)} plain />
@@ -88,9 +88,7 @@ const YieldSettings = ({ setConnectOpen, setSettingsOpen }: any) => {
         pad="medium"
         gap="small"
         direction="row"
-        justify="between"
         background="#F3F4F6"
-        round={{ size: 'medium', corner: 'bottom' }}
       >
         <Text size="medium">Your transactions will appear here...</Text>
       </Box>
