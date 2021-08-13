@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import styled from 'styled-components';
-import { Text, Box, ResponsiveContext, Layer, Spinner } from 'grommet';
-import { FiCheckCircle, FiCircle, FiMenu, FiSettings } from 'react-icons/fi';
+import { Text, Box, ResponsiveContext } from 'grommet';
+import { FiSettings } from 'react-icons/fi';
 
 import YieldBalances from './YieldBalances';
 
@@ -10,11 +10,9 @@ import { TxContext } from '../contexts/TxContext';
 
 import { abbreviateHash } from '../utils/appUtils';
 import YieldAvatar from './YieldAvatar';
-import YieldSettings from './YieldSettings';
-import Connect from './Connect';
-import { TxState } from '../types';
 import TransactionWidget from './TransactionWidget';
 import ConnectButton from './buttons/ConnectButton';
+import SidebarSettings from './SidebarSettings';
 import EthMark from './logos/EthMark';
 import { UserContext } from '../contexts/UserContext';
 import { WETH } from '../utils/constants';
@@ -29,7 +27,7 @@ const StyledText = styled(Text)`
 const YieldAccount = (props: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
-    chainState: { account, chainData },
+    chainState: { account },
   } = useContext(ChainContext);
 
   const {
@@ -47,31 +45,12 @@ const YieldAccount = (props: any) => {
 
   return (
     <>
-      {connectOpen && (
-        <Layer
-          modal={false}
-          responsive={true}
-          full="vertical"
-          position="right"
-          // onClickOutside={() => setConnectOpen(false)}
-          onEsc={() => setConnectOpen(false)}
-        >
-          <Connect setConnectOpen={setConnectOpen} setSettingsOpen={setSettingsOpen} />
-        </Layer>
-      )}
-
-      {account && settingsOpen && (
-        <Layer
-          modal={false}
-          responsive={true}
-          full="vertical"
-          position="right"
-          // onClickOutside={() => setSettingsOpen(false)}
-          onEsc={() => setSettingsOpen(false)}
-        >
-          <YieldSettings setConnectOpen={setConnectOpen} setSettingsOpen={setSettingsOpen} />
-        </Layer>
-      )}
+      <SidebarSettings
+        settingsOpen={settingsOpen}
+        setSettingsOpen={setSettingsOpen}
+        connectOpen={connectOpen}
+        setConnectOpen={setConnectOpen}
+      />
 
       {account ? (
         <Box direction="row" gap="xsmall" align="center">
@@ -94,10 +73,6 @@ const YieldAccount = (props: any) => {
                         <EthMark /> {ethBalance}
                       </StyledText>
                     </Box>
-                    {/* <FiCircle fill={chainData.color} color={chainData.color} size=".5rem" />
-                  <Text size="xsmall" color={chainData.color} alignSelf="end">
-                    {chainData.name}
-                  </Text> */}
                   </Box>
                 </Box>
                 <Box>
