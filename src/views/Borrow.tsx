@@ -1,10 +1,9 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, Button, CheckBox, Header, Heading, Keyboard, ResponsiveContext, Select, Text, TextInput } from 'grommet';
+import { Box, Keyboard, ResponsiveContext, Text, TextInput } from 'grommet';
 import { useHistory, useParams } from 'react-router-dom';
 import { ethers } from 'ethers';
-import styled from 'styled-components';
 
-import { FiClock, FiPocket, FiLayers, FiLock, FiPercent, FiTrendingUp, FiInfo } from 'react-icons/fi';
+import { FiClock, FiPocket, FiPercent, FiTrendingUp } from 'react-icons/fi';
 
 import SeriesSelector from '../components/selectors/SeriesSelector';
 import MainViewWrap from '../components/wraps/MainViewWrap';
@@ -20,22 +19,20 @@ import { useCollateralization } from '../hooks/collateralHooks';
 import { useTx } from '../hooks/useTx';
 
 import { UserContext } from '../contexts/UserContext';
-import { ActionCodes, ActionType, ISeries, IUserContext, IVault } from '../types';
+import { ActionCodes, ActionType, IUserContext, IVault } from '../types';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
-import YieldApr from '../components/YieldApr';
 import StepperText from '../components/StepperText';
 import VaultSelector from '../components/selectors/VaultSelector';
 import ActiveTransaction from '../components/ActiveTransaction';
 
-import { cleanValue, getTxCode, nFormatter } from '../utils/appUtils';
+import { cleanValue, nFormatter } from '../utils/appUtils';
 
 import YieldInfo from '../components/YieldInfo';
 import BackButton from '../components/buttons/BackButton';
 import { Gauge } from '../components/Gauge';
 import InfoBite from '../components/InfoBite';
 import NextButton from '../components/buttons/NextButton';
-import YieldMark from '../components/logos/YieldMark';
 import TransactButton from '../components/buttons/TransactButton';
 import { useApr } from '../hooks/aprHook';
 import PositionAvatar from '../components/PositionAvatar';
@@ -46,7 +43,6 @@ import EtherscanButton from '../components/buttons/EtherscanButton';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-  const routerHistory = useHistory();
 
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext) as IUserContext;
@@ -68,8 +64,6 @@ const Borrow = () => {
 
   const [vaultToUse, setVaultToUse] = useState<IVault | undefined>(undefined);
   const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
-
-  const [disclaimerChecked, setDisclaimerChecked] = useState<boolean>(false);
 
   const { borrow } = useBorrowActions();
 
@@ -247,7 +241,7 @@ const Borrow = () => {
                       <Box>
                         <Text size="small"> Collateralization </Text>
                         <Text size="xlarge">
-                          {parseFloat(collateralizationPercent!) > 10000
+                          { parseFloat(collateralizationPercent!) > 10000
                             ? nFormatter(parseFloat(collateralizationPercent!), 2)
                             : parseFloat(collateralizationPercent!)}
                           %
@@ -347,20 +341,6 @@ const Borrow = () => {
           </Box>
 
           <Box>
-            {/* {stepPosition === 2 && (
-              <SectionWrap>
-                <Box pad={{ horizontal: 'large', vertical: 'small' }}>
-                  <CheckBox
-                    label={
-                      // TODO: #37 check for understood checkbox before completing transaction
-                      <Text size="xsmall"> disclaimer example: I understand the terms of transactions.</Text>
-                    }
-                    checked={disclaimerChecked}
-                    onChange={(event) => setDisclaimerChecked(event.target.checked)}
-                  />
-                </Box>
-              </SectionWrap>
-            )} */}
 
             <ActionButtonWrap pad>
               {(stepPosition === 0 || stepPosition === 1) && (
