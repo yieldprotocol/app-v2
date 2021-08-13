@@ -93,8 +93,8 @@ const Vault = ({ close }: { close: () => void }) => {
   const [transferToAddressInput, setTransferToAddressInput] = useState<string>('');
 
   const [maxRepay, setMaxRepay] = useState<string | undefined>();
+  const [minRepay, setMinRepay] = useState<string | undefined>();
   const [maxAddCollat, setMaxAddCollat] = useState<string | undefined>();
-  // const [maxRemoveCollat, setMaxRemoveCollat] = useState<string | undefined>();
 
   const [repayDisabled, setRepayDisabled] = useState<boolean>(true);
   const [rollDisabled, setRollDisabled] = useState<boolean>(true);
@@ -123,7 +123,10 @@ const Vault = ({ close }: { close: () => void }) => {
   const { repay, borrow, rollDebt, transfer, merge } = useBorrowActions();
   const { addCollateral, removeCollateral } = useCollateralActions();
 
-  const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries, [0, maxRepay]);
+  const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries, [
+    0,
+    maxRepay,
+  ]);
   const { inputError: addCollatError } = useInputValidation(addCollatInput, ActionCodes.ADD_COLLATERAL, vaultSeries, [
     0,
     maxAddCollat,
@@ -211,7 +214,7 @@ const Vault = ({ close }: { close: () => void }) => {
     setMergeData((fData: any) => ({ ...fData, toVault: vault }));
   };
 
-  /* SET MAX VALUES */
+  /* SET MAX / MIN VALUES */
   useEffect(() => {
     /* CHECK the max available repay */
     if (activeAccount) {
@@ -220,8 +223,11 @@ const Vault = ({ close }: { close: () => void }) => {
         const _max = _maxToken && selectedVault?.art.gt(_maxToken) ? _maxToken : selectedVault?.art;
         _max && setMaxRepay(ethers.utils.formatEther(_max)?.toString());
       })();
+
+      setMinRepay(selectedVault?.art.sub(ethers.utils.parseEther('1')).toString() );
     }
   }, [activeAccount, selectedVault?.art, vaultBase, setMaxRepay]);
+
 
   useEffect(() => {
     /* CHECK collateral selection and sets the max available collateral */
@@ -281,7 +287,9 @@ const Vault = ({ close }: { close: () => void }) => {
     <>
       <NextButton
         // size="xsmall"
-        label={<Text size={mobile ? 'xsmall' : undefined}>{props.tx.failed ? 'Report issue and go back': 'Got it!'} </Text>}
+        label={
+          <Text size={mobile ? 'xsmall' : undefined}>{props.tx.failed ? 'Report issue and go back' : 'Got it!'} </Text>
+        }
         onClick={() => {
           props.resetTx();
           handleStepper(true);
