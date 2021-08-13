@@ -157,9 +157,9 @@ function Pool() {
 
           {stepPosition === 1 && (
             <Box gap="large">
-              {!poolTx.success && !poolTx.rejected && !poolTx.failed && (
+              {!poolTx.success &&!poolTx.failed?  (
                 <BackButton action={() => setStepPosition(0)} />
-              )}
+              ): <Box pad='1em'/>}
 
               <ActiveTransaction full tx={poolTx}>
                 <Box gap="large">

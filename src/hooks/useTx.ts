@@ -47,11 +47,13 @@ export const useTx = (
   const [txCode, setTxCode] = useState<string>();
   const [txHash, setTxHash] = useState<string>();
   const [txStatus, setTxStatus] = useState<TxState>();
-
   const [processActive, setProcessActive] = useState<boolean>(false);
 
   const resetTx = () => {
     setTx(INITIAL_STATE);
+    setTxHash(undefined);
+    setTxStatus(undefined);
+    setProcessActive(false);
   };
 
   useEffect(() => {
@@ -68,28 +70,25 @@ export const useTx = (
       : setProcessActive(false);
   }, [processes, txCode]);
 
-  useEffect(() => {
-    transactions.has(txHash) && setTxStatus(transactions.get(txHash).status);
-  }, [txHash, transactions]);
+  useEffect(()=>{
+    transactions.has(txHash) && setTxStatus(transactions.get(txHash).status)
+  },[txHash, transactions])
 
   useEffect(() => {
-    if (txCode) {
-      setTx((t) => ({ ...t, txCode, processActive }));
-
-      switch (txStatus) {
-        case TxState.PENDING:
-          setTx((t) => ({ ...t, pending: true, txHash, processActive }));
-          break;
-        case TxState.SUCCESSFUL:
-          setTx((t) => ({ ...t, success: true, pending: false, processActive }));
-          break;
-        case TxState.FAILED:
-          setTx((t) => ({ ...t, failed: true, pending: false, processActive }));
-          break;
-        case TxState.REJECTED:
-          setTx((t) => ({ ...t, rejected: true, pending: false, processActive }));
-          break;
-      }
+    setTx((t) => ({ ...t, txCode, processActive }));
+    switch (txStatus) {
+      case TxState.PENDING:
+        setTx((t) => ({ ...t, pending: true, txHash, processActive }));
+        break;
+      case TxState.SUCCESSFUL:
+        setTx((t) => ({ ...t, success: true, pending: false, processActive }));
+        break;
+      case TxState.FAILED:
+        setTx((t) => ({ ...t, failed: true, pending: false, processActive }));
+        break;
+      case TxState.REJECTED:
+        setTx((t) => ({ ...t, rejected: true, pending: false, processActive }));
+        break;
     }
   }, [txCode, processActive, txStatus, txHash]);
 

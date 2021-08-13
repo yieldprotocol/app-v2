@@ -30,7 +30,7 @@ function VaultListItem({ vault }: { vault: IVault }) {
           </Box>
         ) : (
           <Text weight={450} size="xsmall" color="text-xweak">
-            Vault deleted or transfered
+            Vault transfered or deleted
           </Text>
         )}
       </Box>
