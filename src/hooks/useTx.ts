@@ -19,10 +19,9 @@ interface ITx {
 /* the return tx looks like any object of {txCode, isPending, isSuccess, isFailed, isRejected} */
 export const useTx = (
   actionCode: ActionCodes,
-  seriesOrVaultId: string|undefined,
+  seriesOrVaultId: string | undefined,
   shouldRedirect: boolean = false
 ) => {
-
   /* STATE FROM CONTEXT */
   const {
     txState: { transactions, processes },
@@ -58,7 +57,7 @@ export const useTx = (
   };
 
   useEffect(() => {
-    seriesOrVaultId ? setTxCode(getTxCode(actionCode, seriesOrVaultId)) : setTxCode(undefined)
+    seriesOrVaultId ? setTxCode(getTxCode(actionCode, seriesOrVaultId)) : setTxCode(undefined);
   }, [actionCode, seriesOrVaultId]);
 
   useEffect(() => {
@@ -66,9 +65,7 @@ export const useTx = (
   }, [processes, txCode, processActive]);
 
   useEffect(() => {
-      txCode &&
-      processes.has(txCode) && 
-      processes.get(txCode).status === 'ACTIVE' 
+    txCode && processes.has(txCode) && processes.get(txCode).status === 'ACTIVE'
       ? setProcessActive(true)
       : setProcessActive(false);
   }, [processes, txCode]);
@@ -78,7 +75,6 @@ export const useTx = (
   },[txHash, transactions])
 
   useEffect(() => {
-
     setTx((t) => ({ ...t, txCode, processActive }));
     switch (txStatus) {
       case TxState.PENDING:

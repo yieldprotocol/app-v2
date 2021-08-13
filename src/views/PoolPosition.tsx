@@ -301,20 +301,22 @@ const PoolPosition = ({ close }: { close: () => void }) => {
             />
           )}
 
-        {actionActive.index === 1 && stepPosition[actionActive.index] !== 0 && (
-          <TransactButton
-            primary
-            label={
-              <Text size={mobile ? 'small' : undefined}>
-                {`Roll${rollTx.processActive ? 'ing' : ''} ${
-                  nFormatter(Number(rollInput), selectedBase?.digitFormat!) || ''
-                } tokens`}
-              </Text>
-            }
-            onClick={() => handleRoll()}
-            disabled={rollDisabled || rollTx.processActive}
-          />
-        )}
+        {actionActive.index === 1 &&
+          stepPosition[actionActive.index] !== 0 &&
+          !(removeTx.success || removeTx.failed) && (
+            <TransactButton
+              primary
+              label={
+                <Text size={mobile ? 'small' : undefined}>
+                  {`Roll${rollTx.processActive ? 'ing' : ''} ${
+                    nFormatter(Number(rollInput), selectedBase?.digitFormat!) || ''
+                  } tokens`}
+                </Text>
+              }
+              onClick={() => handleRoll()}
+              disabled={rollDisabled || rollTx.processActive}
+            />
+          )}
 
         {stepPosition[actionActive.index] === 1 &&
           actionActive.index === 0 &&
