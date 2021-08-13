@@ -40,9 +40,12 @@ const PoolPosition = ({ close }: { close: () => void }) => {
   const selectedBase = assetMap.get(selectedBaseId!);
 
   /* LOCAL STATE */
-
-  const [removeInput, setRemoveInput] = useState<string>();
-  const [rollInput, setRollInput] = useState<string>();
+  const INITIAL_INPUT_STATE = {
+    removeInput: undefined,
+    rollInput: undefined,
+  };
+  const [removeInput, setRemoveInput] = useState<string | undefined>(INITIAL_INPUT_STATE.removeInput);
+  const [rollInput, setRollInput] = useState<string | undefined>(INITIAL_INPUT_STATE.rollInput);
   const [rollToSeries, setRollToSeries] = useState<ISeries | null>(null);
   const [maxRemove, setMaxRemove] = useState<string | undefined>();
 
@@ -91,6 +94,11 @@ const PoolPosition = ({ close }: { close: () => void }) => {
     selectedSeries && rollToSeries && rollLiquidity(rollInput!, selectedSeries, rollToSeries);
   };
 
+  const reset = () => {
+    setRemoveInput(INITIAL_INPUT_STATE.removeInput);
+    setRollInput(INITIAL_INPUT_STATE.rollInput);
+  };
+
   /* SET MAX VALUES */
   useEffect(() => {
     /* Checks the max available to roll or move */
@@ -113,6 +121,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
         onClick={() => {
           props.resetTx();
           handleStepper(true);
+          reset();
         }}
       />
       {/* {props.tx.failed && <EtherscanButton txHash={props.tx.txHash} />} */}
@@ -301,22 +310,20 @@ const PoolPosition = ({ close }: { close: () => void }) => {
             />
           )}
 
-        {actionActive.index === 1 &&
-          stepPosition[actionActive.index] !== 0 &&
-          !(removeTx.success || removeTx.failed) && (
-            <TransactButton
-              primary
-              label={
-                <Text size={mobile ? 'small' : undefined}>
-                  {`Roll${rollTx.processActive ? 'ing' : ''} ${
-                    nFormatter(Number(rollInput), selectedBase?.digitFormat!) || ''
-                  } tokens`}
-                </Text>
-              }
-              onClick={() => handleRoll()}
-              disabled={rollDisabled || rollTx.processActive}
-            />
-          )}
+        {actionActive.index === 1 && stepPosition[actionActive.index] !== 0 && !(rollTx.success || rollTx.failed) && (
+          <TransactButton
+            primary
+            label={
+              <Text size={mobile ? 'small' : undefined}>
+                {`Roll${rollTx.processActive ? 'ing' : ''} ${
+                  nFormatter(Number(rollInput), selectedBase?.digitFormat!) || ''
+                } tokens`}
+              </Text>
+            }
+            onClick={() => handleRoll()}
+            disabled={rollDisabled || rollTx.processActive}
+          />
+        )}
 
         {stepPosition[actionActive.index] === 1 &&
           actionActive.index === 0 &&
