@@ -1,10 +1,9 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, Button, CheckBox, Header, Heading, Keyboard, ResponsiveContext, Select, Text, TextInput } from 'grommet';
+import { Box, Keyboard, ResponsiveContext, Text, TextInput } from 'grommet';
 import { useHistory, useParams } from 'react-router-dom';
 import { ethers } from 'ethers';
-import styled from 'styled-components';
 
-import { FiClock, FiPocket, FiLayers, FiLock, FiPercent, FiTrendingUp, FiInfo } from 'react-icons/fi';
+import { FiClock, FiPocket, FiPercent, FiTrendingUp } from 'react-icons/fi';
 
 import SeriesSelector from '../components/selectors/SeriesSelector';
 import MainViewWrap from '../components/wraps/MainViewWrap';
@@ -20,22 +19,20 @@ import { useCollateralization } from '../hooks/collateralHooks';
 import { useTx } from '../hooks/useTx';
 
 import { UserContext } from '../contexts/UserContext';
-import { ActionCodes, ActionType, ISeries, IUserContext, IVault } from '../types';
+import { ActionCodes, ActionType, IUserContext, IVault } from '../types';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
-import YieldApr from '../components/YieldApr';
 import StepperText from '../components/StepperText';
 import VaultSelector from '../components/selectors/VaultSelector';
 import ActiveTransaction from '../components/ActiveTransaction';
 
-import { cleanValue, getTxCode, nFormatter } from '../utils/appUtils';
+import { cleanValue, nFormatter } from '../utils/appUtils';
 
 import YieldInfo from '../components/YieldInfo';
 import BackButton from '../components/buttons/BackButton';
 import { Gauge } from '../components/Gauge';
 import InfoBite from '../components/InfoBite';
 import NextButton from '../components/buttons/NextButton';
-import YieldMark from '../components/logos/YieldMark';
 import TransactButton from '../components/buttons/TransactButton';
 import { useApr } from '../hooks/aprHook';
 import PositionAvatar from '../components/PositionAvatar';
@@ -46,7 +43,6 @@ import EtherscanButton from '../components/buttons/EtherscanButton';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-  const routerHistory = useHistory();
 
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext) as IUserContext;
@@ -69,8 +65,6 @@ const Borrow = () => {
   const [vaultToUse, setVaultToUse] = useState<IVault | undefined>(undefined);
   const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
 
-  const [disclaimerChecked, setDisclaimerChecked] = useState<boolean>(false);
-
   const { borrow } = useBorrowActions();
 
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
@@ -85,7 +79,7 @@ const Borrow = () => {
     vaultToUse
   );
 
-  /* input validation hoooks */
+  /* input validation hooks */
   const { inputError: borrowInputError } = useInputValidation(borrowInput, ActionCodes.BORROW, selectedSeries, []);
   const { inputError: collatInputError } = useInputValidation(collatInput, ActionCodes.ADD_COLLATERAL, selectedSeries, [
     minCollateral,
@@ -151,7 +145,10 @@ const Borrow = () => {
       const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
       const _matchingVaults = arr.filter(
         (v: IVault) =>
-          v.ilkId === selectedIlk.id && v.baseId === selectedBase.id && v.seriesId === selectedSeries.id && v.isActive
+          v.ilkId === selectedIlk.id && 
+          v.baseId === selectedBase.id && 
+          v.seriesId === selectedSeries.id && 
+          v.isActive
       );
       setMatchingVaults(_matchingVaults);
       // reset the selected vault on every change
@@ -167,7 +164,6 @@ const Borrow = () => {
   return (
     <Keyboard onEsc={() => setCollatInput('')} onEnter={() => console.log('ENTER smashed')} target="document">
       <MainViewWrap>
-        {/* <PanelWrap background="linear-gradient(to right, #EEEEEE,rgba(255,255,255,1))"> */}
         {!mobile && (
           <PanelWrap>
             <Box margin={{ top: '35%' }}>
@@ -237,6 +233,25 @@ const Borrow = () => {
                 <BackButton action={() => setStepPosition(0)} />
 
                 <Box gap="large" height="400px">
+
+                  <SectionWrap>
+                    <Box direction="row" align="center" gap="large" justify="center" margin={{ vertical:'medium' }}>
+                      <Box>
+                        <Gauge value={parseFloat(collateralizationPercent!)} size="8em" />
+                      </Box>
+
+                      <Box>
+                        <Text size="small"> Collateralization </Text>
+                        <Text size="xlarge">
+                          { parseFloat(collateralizationPercent!) > 10000
+                            ? nFormatter(parseFloat(collateralizationPercent!), 2)
+                            : parseFloat(collateralizationPercent!)}
+                          %
+                        </Text>
+                      </Box>
+                    </Box>
+                  </SectionWrap>
+
                   <SectionWrap title="Amount of collateral to add">
                     <Box direction="row" gap="small">
                       <Box basis={mobile ? '50%' : '60%'} fill="horizontal">
@@ -267,7 +282,8 @@ const Borrow = () => {
                       </Box>
                     </Box>
                   </SectionWrap>
-
+                  {
+                  matchingVaults.length > 0 &&
                   <SectionWrap title="Add to an exisiting vault" disabled={matchingVaults.length < 1}>
                     <VaultDropSelector
                       vaults={matchingVaults}
@@ -277,23 +293,7 @@ const Borrow = () => {
                       placeholder="Create New Vault"
                       defaultOptionValue="Create New Vault"
                     />
-                  </SectionWrap>
-                </Box>
-
-                <Box direction="row" align="center" gap="large" justify="center">
-                  <Box>
-                    <Gauge value={parseFloat(collateralizationPercent!)} size="8em" />
-                  </Box>
-
-                  <Box>
-                    <Text size="small"> Collateralization </Text>
-                    <Text size="xlarge">
-                      {parseFloat(collateralizationPercent!) > 10000
-                        ? nFormatter(parseFloat(collateralizationPercent!), 2)
-                        : parseFloat(collateralizationPercent!)}
-                      %
-                    </Text>
-                  </Box>
+                  </SectionWrap>}
                 </Box>
               </Box>
             )}
@@ -344,20 +344,6 @@ const Borrow = () => {
           </Box>
 
           <Box>
-            {/* {stepPosition === 2 && (
-              <SectionWrap>
-                <Box pad={{ horizontal: 'large', vertical: 'small' }}>
-                  <CheckBox
-                    label={
-                      // TODO: #37 check for understood checkbox before completing transaction
-                      <Text size="xsmall"> disclaimer example: I understand the terms of transactions.</Text>
-                    }
-                    checked={disclaimerChecked}
-                    onChange={(event) => setDisclaimerChecked(event.target.checked)}
-                  />
-                </Box>
-              </SectionWrap>
-            )} */}
 
             <ActionButtonWrap pad>
               {(stepPosition === 0 || stepPosition === 1) && (
@@ -365,7 +351,7 @@ const Borrow = () => {
                   label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
                   onClick={() => setStepPosition(stepPosition + 1)}
                   disabled={stepPosition === 0 ? stepDisabled : borrowDisabled}
-                  errorLabel={borrowInputError || collatInputError}
+                  errorLabel={stepPosition === 0 ? borrowInputError : collatInputError}
                 />
               )}
 
@@ -397,7 +383,7 @@ const Borrow = () => {
               {stepPosition === 2 && !borrowTx.processActive && borrowTx.failed && (
                 <>
                   <NextButton
-                    size='xsmall'
+                    size="xsmall"
                     label={<Text size={mobile ? 'xsmall' : undefined}> Report and go back</Text>}
                     onClick={() => {
                       setStepPosition(0);
