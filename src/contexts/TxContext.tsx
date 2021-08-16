@@ -1,5 +1,5 @@
 import React, { useReducer, useEffect } from 'react';
-import { ethers, ContractTransaction } from 'ethers';
+import { ethers, ContractTransaction, constants } from 'ethers';
 import { toast } from 'react-toastify';
 import { ApprovalType, ISignData, TxState } from '../types';
 
@@ -9,12 +9,10 @@ const initState = {
   /* transaction lists */
   signatures: new Map([]) as Map<string, IYieldSignature>,
   transactions: new Map([]) as Map<string, IYieldTx>,
-  processes: new Map([]) as Map<string, string>,
+  processes: new Map([]) as Map<string, IYieldProcess>,
 
-  /* flags and trackers */
-  txPending: false as boolean,
-  signPending: false as boolean,
-  processPending: false as boolean,
+  /* process active flags for convenience */
+  processActive: false as boolean,
 
   /* user settings */
   useFallbackTxs: false as boolean,
@@ -34,16 +32,15 @@ interface IYieldTx extends ContractTransaction {
   status: TxState;
 }
 
+interface IYieldProcess {
+  status: 'ACTIVE|INACTIVE';
+  hash?: string | undefined
+}
+
 function txReducer(_state: any, action: any) {
   /* Helper: only change the state if different from existing */
   const _onlyIfChanged = (_action: any) =>
     _state[action.type] === _action.payload ? _state[action.type] : _action.payload;
-
-  /* Helper: remove process  */ // TODO  find a better way to do this
-  const _removeProcess = (_txCode: any) => {
-    const mapClone = new Map(_state.processes);
-    return mapClone.delete(_txCode) ? mapClone : _state.processes;
-  };
 
   /* Reducer switch */
   switch (action.type) {
@@ -52,38 +49,43 @@ function txReducer(_state: any, action: any) {
         ..._state,
         transactions: new Map(_state.transactions.set(action.payload.tx.hash, action.payload)),
         // also update processes with tx hash:
-        processes: new Map(_state.processes.set(action.payload.txCode, action.payload.tx.hash)),
+        processes: new Map(
+          _state.processes.set(action.payload.txCode, {
+            ..._state.processes.get(action.payload.txCode),
+            hash: action.payload.tx.hash,
+          })
+        ),
       };
     case 'signatures':
       return {
         ..._state,
         signatures: new Map(_state.signatures.set(action.payload.txCode, action.payload)),
       };
-    case '_startProcess':
+
+    case 'processes':
       return {
         ..._state,
-        processes: _state.processes.set(action.payload.txCode, action.payload.hash),
-        // !(_state.processes.indexOf(action.payload) > -1)
-        //   ? [..._state.processes, action.payload]
-        //   : _state.processes,
-        processPending: true,
+        processes: new Map(
+          _state.processes.set(action.payload.txCode, {
+            ..._state.processes.get(action.payload.txCode),
+            status: action.payload.status,
+            hash: action.payload.hash
+          })
+        ),
       };
-    case '_endProcess':
+
+    case 'processActive':
       return {
         ..._state,
-        processes: _removeProcess(action.payload),
-        // _state.processes.filter((x:any) => x.txCode === action.payload),
-        processPending: false,
-      };
+        processActive: _onlyIfChanged(action),
+    };
 
-    /* optionally remove these and use the logic at the compoennts?  - check refreshes */
-    case 'txPending':
-      return { ..._state, txPending: _onlyIfChanged(action) };
-    case 'signPending':
-      return { ..._state, signPending: _onlyIfChanged(action) };
-    case 'processPending':
-      return { ..._state, processPending: _onlyIfChanged(action) };
-
+    case 'signingActive':
+      return {
+        ..._state,
+        signingActive: _onlyIfChanged(action),
+    };
+      
     default:
       return _state;
   }
@@ -93,11 +95,17 @@ const TxProvider = ({ children }: any) => {
   const [txState, updateState] = useReducer(txReducer, initState);
 
   const _startProcess = (txCode: string) => {
-    updateState({ type: '_startProcess', payload: { txCode, hash: '0x0' } });
+    updateState({
+      type: 'processes',
+      payload: { txCode, status: 'ACTIVE' },
+    });
   };
 
   const _endProcess = (txCode: string) => {
-    updateState({ type: '_endProcess', payload: txCode });
+    updateState({
+      type: 'processes',
+      payload: { txCode, status: 'INACTIVE', hash: undefined },
+    });
   };
 
   /* handle case when user or wallet rejects the tx (before submission) */
@@ -188,6 +196,7 @@ const TxProvider = ({ children }: any) => {
     /* start a process */
     _startProcess(txCode);
     console.log(txState.processes);
+
     const uid = ethers.utils.hexlify(ethers.utils.randomBytes(6));
     updateState({ type: 'signatures', payload: { uid, txCode, sigData, status: TxState.PENDING } as IYieldSignature });
 
@@ -234,33 +243,14 @@ const TxProvider = ({ children }: any) => {
     return _sig;
   };
 
-  // /* Process watcher sets the 'any process pending'flag */
-  // useEffect(() => {
-  //   console.log('Process list: ', txState.processes);
-  //   Array.from(txState.processes.values()).length > 0
-  //     ? updateState({ type: 'processPending', payload: true })
-  //     : updateState({ type: 'processPending', payload: false });
-  // }, [txState.processes]);
 
-  /* Signing watcher */
-  useEffect(() => {
-    const _isSignPending =
-      Array.from(txState.signatures.values()).findIndex((x: any) => x.status === TxState.PENDING) > -1;
-    updateState({
-      type: 'signPending',
-      payload: _isSignPending,
-    });
-  }, [txState.signatures]);
-
-  /* Tx watcher */
-  useEffect(() => {
-    const _isTxPending =
-      Array.from(txState.transactions.values()).findIndex((x: any) => x.status === TxState.PENDING) > -1;
-    updateState({
-      type: 'txPending',
-      payload: _isTxPending,
-    });
-  }, [txState.transactions]);
+  /* simple process watcher */
+  useEffect(()=>{
+    if ( txState.processes.size ) {
+      const hasActiveProcess = Array.from(txState.processes.values()).some((x:any)=> x.status === 'ACTIVE')
+      updateState({ type: 'processActive', payload: hasActiveProcess });
+    }
+  },[txState.processes])
 
   /* expose the required actions */
   const txActions = {

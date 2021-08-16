@@ -31,6 +31,7 @@ import NextButton from '../components/buttons/NextButton';
 import TransactButton from '../components/buttons/TransactButton';
 import { useInputValidation } from '../hooks/inputValidationHook';
 import AltText from '../components/texts/AltText';
+import PositionListItem from '../components/PositionItem';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -56,9 +57,12 @@ function Pool() {
   const { addLiquidity } = usePoolActions();
   const { poolMax } = usePool(poolInput);
   /* input validation hooks */
-  const { inputError: poolError } = useInputValidation(poolInput, ActionCodes.LEND, selectedSeries, [0, maxPool]);
+  const { inputError: poolError } = useInputValidation(poolInput, ActionCodes.ADD_LIQUIDITY, selectedSeries, [
+    0,
+    maxPool,
+  ]);
 
-  const { tx: poolTx } = useTx(ActionCodes.ADD_LIQUIDITY);
+  const { tx: poolTx, resetTx } = useTx(ActionCodes.ADD_LIQUIDITY, selectedSeries?.id);
 
   /* LOCAL ACTION FNS */
   const handleAdd = () => {
@@ -90,7 +94,8 @@ function Pool() {
             <StepperText
               position={stepPosition}
               values={[
-                ['Choose amount to', 'POOL', ''],
+                // ['Choose amount to', 'POOL', ''],
+                ['Choose an amount and a maturity date', '', ''],
                 ['Review &', 'Transact', ''],
               ]}
             />
@@ -103,11 +108,8 @@ function Pool() {
         <Box height="100%" pad="large">
           {stepPosition === 0 && (
             <Box gap="medium">
-
               <Box gap="xsmall">
-                <AltText size="large">
-                  ADD LIQUIDITY
-                </AltText>
+                <AltText size="large">ADD LIQUIDITY</AltText>
                 <Box>
                   <AltText color="text-weak" size="xsmall">
                     for variable returns based on protocol usage.
@@ -117,7 +119,7 @@ function Pool() {
 
               <Box gap="large">
                 {/* <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}> */}
-                  <SectionWrap>
+                <SectionWrap>
                   <Box direction="row" gap="small">
                     <Box basis={mobile ? '50%' : '60%'}>
                       <InputWrap action={() => console.log('maxAction')} isError={poolError}>
@@ -144,7 +146,11 @@ function Pool() {
                 </SectionWrap>
 
                 <SectionWrap
-                  title={seriesMap.size > 0 ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} maturity date` : ''}
+                  title={
+                    seriesMap.size > 0
+                      ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} maturity date`
+                      : ''
+                  }
                 >
                   <SeriesSelector actionType={ActionType.POOL} inputValue={poolInput} />
                 </SectionWrap>
@@ -154,10 +160,9 @@ function Pool() {
 
           {stepPosition === 1 && (
             <Box gap="large">
+              {!poolTx.success && !poolTx.failed ? <BackButton action={() => setStepPosition(0)} /> : <Box pad="1em" />}
 
-                <BackButton action={() => setStepPosition(0)} />
-
-              <ActiveTransaction txCode={poolTx.txCode} full>
+              <ActiveTransaction full tx={poolTx}>
                 <Box gap="large">
                   {!selectedSeries?.seriesIsMature && (
                     <SectionWrap>
@@ -212,23 +217,39 @@ function Pool() {
               label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
               onClick={() => setStepPosition(stepPosition + 1)}
               disabled={poolDisabled}
-              errorLabel={ poolError }
+              errorLabel={poolError}
             />
           )}
-          {stepPosition === 1 && !selectedSeries?.seriesIsMature && (
+          {stepPosition === 1 && !selectedSeries?.seriesIsMature && !poolTx.success && !poolTx.failed && (
             <TransactButton
               primary
               label={
                 <Text size={mobile ? 'small' : undefined}>
-                  {`Pool${poolTx.pending ? `ing` : ''} ${
+                  {`Pool${poolTx.processActive ? `ing` : ''} ${
                     nFormatter(Number(poolInput), selectedBase?.digitFormat!) || ''
                   } ${selectedBase?.symbol || ''}`}
                 </Text>
               }
               onClick={() => handleAdd()}
-              disabled={poolDisabled || poolTx.pending}
+              disabled={poolDisabled || poolTx.processActive}
             />
           )}
+
+          {stepPosition === 1 &&
+            !selectedSeries?.seriesIsMature &&
+            !poolTx.processActive &&
+            (poolTx.success || poolTx.failed) && (
+              <>
+                {/* <PositionListItem series={selectedSeries!} actionType={ActionType.POOL} /> */}
+                <NextButton
+                  label={<Text size={mobile ? 'small' : undefined}>Add more Liquidity</Text>}
+                  onClick={() => {
+                    setStepPosition(0);
+                    resetTx();
+                  }}
+                />
+              </>
+            )}
         </ActionButtonGroup>
       </CenterPanelWrap>
 

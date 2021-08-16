@@ -213,7 +213,7 @@ export const useCollateralActions = () => {
     ];
 
     await transact('Ladle', calls, txCode);
-    updateVaults([vault]);
+    updateVaults([]);
     updateAssets([base, ilk]);
   };
 
@@ -248,7 +248,7 @@ export const useCollateralActions = () => {
     ];
 
     await transact('Ladle', calls, txCode);
-    updateVaults([vault]);
+    updateVaults([]);
     updateAssets([ilk]);
   };
 

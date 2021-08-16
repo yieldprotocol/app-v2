@@ -33,6 +33,8 @@ import { useApr } from '../hooks/aprHook';
 import { useInputValidation } from '../hooks/inputValidationHook';
 import { useTx } from '../hooks/useTx';
 import AltText from '../components/texts/AltText';
+import PositionListItem from '../components/PositionItem';
+import EtherscanButton from '../components/buttons/EtherscanButton';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -56,7 +58,7 @@ const Lend = () => {
 
   const lendOutput = cleanValue((Number(lendInput) * (1 + Number(apr) / 100)).toString(), selectedBase?.digitFormat!);
 
-  const { tx: lendTx } = useTx(ActionCodes.LEND);
+  const { tx: lendTx, resetTx } = useTx(ActionCodes.LEND, selectedSeries?.id);
 
   /* input validation hooks */
   const { inputError: lendError } = useInputValidation(lendInput, ActionCodes.LEND, selectedSeries, [0, maxLend]);
@@ -82,7 +84,8 @@ const Lend = () => {
             <StepperText
               position={stepPosition}
               values={[
-                ['Choose amount to', 'LEND', ''],
+                // ['Choose amount to', 'LEND', ''],
+                ['Choose an amount and a maturity date', '', ''],
                 ['Review & Transact', '', ''],
               ]}
             />
@@ -95,11 +98,8 @@ const Lend = () => {
         <Box height="100%" pad="large">
           {stepPosition === 0 && (
             <Box gap="medium">
-
               <Box gap="xsmall">
-                <AltText size="large">
-                  LEND
-                </AltText>
+                <AltText size="large">LEND</AltText>
                 <Box>
                   <AltText color="text-weak" size="xsmall">
                     popular ERC20 tokens for fixed returns.
@@ -109,7 +109,7 @@ const Lend = () => {
 
               <Box gap="large">
                 {/* <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}> */}
-                  <SectionWrap>
+                <SectionWrap>
                   <Box direction="row" gap="small">
                     <Box basis={mobile ? '50%' : '60%'}>
                       <InputWrap
@@ -140,7 +140,11 @@ const Lend = () => {
                 </SectionWrap>
 
                 <SectionWrap
-                  title={seriesMap.size > 0 ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} maturity date` : ''}
+                  title={
+                    seriesMap.size > 0
+                      ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} maturity date`
+                      : ''
+                  }
                 >
                   <SeriesSelector inputValue={lendInput} actionType={ActionType.LEND} />
                 </SectionWrap>
@@ -150,9 +154,9 @@ const Lend = () => {
 
           {stepPosition === 1 && (
             <Box gap="large">
-              <BackButton action={() => setStepPosition(0)} />
+              {!lendTx.success && !lendTx.failed ? <BackButton action={() => setStepPosition(0)} /> : <Box pad="1em" />}
 
-              <ActiveTransaction txCode={lendTx.txCode} full>
+              <ActiveTransaction full tx={lendTx}>
                 <SectionWrap title="Review transaction:">
                   <Box
                     gap="small"
@@ -190,20 +194,48 @@ const Lend = () => {
               errorLabel={lendError}
             />
           )}
-          {stepPosition === 1 && !selectedSeries?.seriesIsMature && (
+
+          {stepPosition === 1 && !selectedSeries?.seriesIsMature && !(lendTx.success || lendTx.failed) && (
             <TransactButton
               primary
               label={
                 <Text size={mobile ? 'small' : undefined}>
-                  {`Supply${lendTx.pending ? `ing` : ''} ${
+                  {`Supply${lendTx.processActive ? `ing` : ''} ${
                     nFormatter(Number(lendInput), selectedBase?.digitFormat!) || ''
                   } ${selectedBase?.symbol || ''}`}
                 </Text>
               }
               onClick={() => handleLend()}
-              disabled={lendDisabled || lendTx.pending}
+              disabled={lendDisabled || lendTx.processActive}
             />
           )}
+
+          {stepPosition === 1 && !selectedSeries?.seriesIsMature && !lendTx.processActive && lendTx.success && (
+            <>
+              {/* <PositionListItem series={selectedSeries!} actionType={ActionType.LEND} /> */}
+              <NextButton
+                label={<Text size={mobile ? 'small' : undefined}>Lend some more</Text>}
+                onClick={() => {
+                  setStepPosition(0);
+                  resetTx();
+                }}
+              />
+            </>
+          )}
+
+          {stepPosition === 1 && !lendTx.processActive && lendTx.failed && (
+            <>
+              <NextButton
+                size="xsmall"
+                label={<Text size={mobile ? 'xsmall' : undefined}> Report and go back</Text>}
+                onClick={() => {
+                  setStepPosition(0);
+                  resetTx();
+                }}
+              />
+            </>
+          )}
+
           {selectedSeries?.seriesIsMature && (
             <NextButton
               primary

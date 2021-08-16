@@ -77,7 +77,7 @@ const AprText = ({
 
       {actionType !== ActionType.POOL && limitHit && (
         <Text size="xsmall" color="pink">
-          low liquidity 
+          low liquidity
         </Text>
       )}
 
@@ -124,7 +124,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
   const optionExtended = (_series: ISeries | undefined) => (
     <Box fill="horizontal" direction="row" justify="between" gap="small">
-      <Box align='center'>{_series?.seriesMark} </Box>
+      <Box align="center">{_series?.seriesMark} </Box>
       {optionText(_series)}
       {_series?.seriesIsMature && (
         <Box round="large" border pad={{ horizontal: 'small' }}>
@@ -139,9 +139,9 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
   useEffect(() => {
     const opts = Array.from(seriesMap.values()) as ISeries[];
 
-    /* filter out options based on base Id */
+    /* filter out options based on base Id and if mature */
     let filteredOpts = opts.filter(
-      (_series: ISeries) => _series.baseId === selectedBaseId
+      (_series: ISeries) => _series.baseId === selectedBaseId && !_series.seriesIsMature
       // !ignoredSeries?.includes(_series.baseId)
     );
 
@@ -159,8 +159,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     )
       userActions.setSelectedSeries(null);
 
-    setOptions(filteredOpts.sort((a:ISeries, b:ISeries) => a.maturity - b.maturity ));
-
+    setOptions(filteredOpts.sort((a: ISeries, b: ISeries) => a.maturity - b.maturity));
   }, [seriesMap, selectedBase, selectSeriesLocally, selectedSeries, userActions]);
 
   const handleSelect = (_series: ISeries) => {
@@ -213,32 +212,32 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
       {cardLayout && (
         <Grid columns={mobile ? '100%' : 'small'} gap="small" fill pad={{ vertical: 'small' }}>
-            {options.map((series: ISeries) => (
-              <StyledBox
-                // border={series.id === selectedSeriesId}
-                key={series.id}
-                pad="xsmall"
-                round="xsmall"
-                onClick={() => handleSelect(series)}
-                background={series.id === selectedSeriesId ? series?.color : undefined}
-                elevation="xsmall"
-                align="center"
-              >
-                <Box pad="small" width="small" direction="row" align="center" gap="small">
-                  <Avatar background="#FFF"> {series.seriesMark}</Avatar>
+          {options.map((series: ISeries) => (
+            <StyledBox
+              // border={series.id === selectedSeriesId}
+              key={series.id}
+              pad="xsmall"
+              round="xsmall"
+              onClick={() => handleSelect(series)}
+              background={series.id === selectedSeriesId ? series?.color : undefined}
+              elevation="xsmall"
+              align="center"
+            >
+              <Box pad="small" width="small" direction="row" align="center" gap="small">
+                <Avatar background="#FFF"> {series.seriesMark}</Avatar>
 
-                  <Box>
-                    <Text size='medium' color={series.id === selectedSeriesId ? series.textColor : undefined}>
-                      <AprText inputValue={inputValue} series={series} actionType={actionType} /> 
-                    </Text>
-                    <Text size='small' color={series.id === selectedSeriesId ? series.textColor : undefined}>          
-                      {series.displayNameMobile}
-                    </Text>
-                  </Box>
+                <Box>
+                  <Text size="medium" color={series.id === selectedSeriesId ? series.textColor : undefined}>
+                    <AprText inputValue={inputValue} series={series} actionType={actionType} />
+                  </Text>
+                  <Text size="small" color={series.id === selectedSeriesId ? series.textColor : undefined}>
+                    {series.displayName}
+                  </Text>
                 </Box>
-              </StyledBox>
-            ))}
-          </Grid>
+              </Box>
+            </StyledBox>
+          ))}
+        </Grid>
       )}
     </>
   );

@@ -54,15 +54,16 @@ const RPC_URLS: { [chainId: number]: string } = {
 interface IChainData {
   name: string;
   color: string;
+  supported: boolean;
 }
 
 const chainData = new Map<number, IChainData>();
-chainData.set(1, { name: 'Mainnet', color: '#29b6af' });
-chainData.set(3, { name: 'Ropsten', color: '#ff4a8d' });
-chainData.set(4, { name: 'Rinkeby', color: '#f6c343' });
-chainData.set(5, { name: 'Goerli', color: '#3099f2' });
-chainData.set(10, { name: 'Optimism', color: '#EB0822' });
-chainData.set(42, { name: 'Kovan', color: '#7F7FFE' });
+chainData.set(1, { name: 'Mainnet', color: '#29b6af', supported: false });
+chainData.set(3, { name: 'Ropsten', color: '#ff4a8d', supported: false });
+chainData.set(4, { name: 'Rinkeby', color: '#f6c343', supported: false });
+chainData.set(5, { name: 'Goerli', color: '#3099f2', supported: false });
+chainData.set(10, { name: 'Optimism', color: '#EB0822', supported: false });
+chainData.set(42, { name: 'Kovan', color: '#7F7FFE', supported: true });
 
 const connectors = new Map();
 const injectedName = 'metamask';
@@ -218,7 +219,7 @@ const ChainProvider = ({ children }: any) => {
 
       updateState({ type: 'appVersion', payload: process.env.REACT_APP_VERSION });
 
-      console.log('VERISON: ', process.env.REACT_APP_VERSION);
+      console.log('VERSION: ', process.env.REACT_APP_VERSION);
       console.log('Fallback ChainId: ', fallbackChainId);
       console.log('ChainId: ', chainId);
 
@@ -326,7 +327,7 @@ const ChainProvider = ({ children }: any) => {
           poolContract,
           fyTokenContract,
           fullDate: format(new Date(series.maturity * 1000), 'dd MMMM yyyy'),
-          displayName: `${nameFromMaturity(series.maturity)}`,
+          displayName: format(new Date(series.maturity * 1000), 'dd MMM yyyy'),
           displayNameMobile: `${nameFromMaturity(series.maturity, 'MMM yyyy')}`,
 
           season,
