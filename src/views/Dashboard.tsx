@@ -3,10 +3,12 @@ import { Box, ResponsiveContext, Text } from 'grommet';
 import { UserContext } from '../contexts/UserContext';
 import { ChainContext } from '../contexts/ChainContext';
 import Vaults from '../components/Vaults';
-import { IVault, IAsset, ISeries, IUserContext } from '../types';
+import Positions from '../components/Positions';
+import { ActionType, IVault, IAsset, ISeries, IUserContext } from '../types';
 import YieldInfo from '../components/YieldInfo';
 import MainViewWrap from '../components/wraps/MainViewWrap';
 import PanelWrap from '../components/wraps/PanelWrap';
+import { StyledText } from '../components/StepperText';
 
 interface IVaultFilter {
   base: IAsset | undefined;
@@ -31,18 +33,18 @@ const Dashboard = () => {
   const [showAllVaults, setShowAllVaults] = useState<boolean>(false);
   const [showVaultModal, setShowVaultModal] = useState<boolean>(false);
   const [allVaults, setAllVaults] = useState<IVault[]>([]);
+  const [allLendPositions, setAllLendPositions] = useState<ISeries[]>([]);
+  const [allPoolPositions, setAllPoolPositions] = useState<ISeries[]>([]);
 
   const [filter, setFilter] = useState<IVaultFilter>();
   const [filteredVaults, setFilteredVaults] = useState<IVault[]>([]);
 
+  const positionTypes = ['All Positions', 'Vaults', 'Lend Positions', 'Pool Positions'];
+  const [view, setView] = useState<string>('All Positions');
+
   const handleSelect = (_vault: IVault) => {
     setSelectedVault(_vault.id);
     setShowVaultModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setShowVaultModal(false);
-    setSelectedVault(null);
   };
 
   const handleFilter = useCallback(
@@ -59,7 +61,6 @@ const Dashboard = () => {
     [vaultMap, showInactiveVaults]
   );
 
-  /* CHECK the list of current vaults which match the current series/ilk selection */
   useEffect(() => {
     if (!showVaultModal) {
       const _allVaults: IVault[] = Array.from(vaultMap.values()) as IVault[];
@@ -76,23 +77,42 @@ const Dashboard = () => {
     }
   }, [vaultMap, selectedBase, selectedSeries, showVaultModal, handleFilter]);
 
+  const viewTypeRender = (
+    <Box gap="medium">
+      {positionTypes.map((type) => (
+        <Box key={type} onClick={() => setView(type)}>
+          {type === view ? <StyledText>{type}</StyledText> : <Text>{type}</Text>}
+        </Box>
+      ))}
+    </Box>
+  );
+
   return (
     <MainViewWrap>
       {!mobile && (
         <PanelWrap align="end">
-          <Text>My Dashboard</Text>
+          <Box margin={{ top: '35%' }} gap="medium">
+            {viewTypeRender}
+          </Box>
           <YieldInfo />
         </PanelWrap>
       )}
-      <Box fill pad="large">
-        {!account ? (
-          <Text>Please connect to your account</Text>
-        ) : (
-          <Box width="75%" gap="small">
-            <Text size="large">Vaults</Text>
-            <Vaults vaults={filteredVaults} handleSelect={handleSelect} />
+      <Box fill pad={{ vertical: 'large' }} gap="medium">
+        {!account && <Text>Please connect to your account</Text>}
+        <Box width="75%" gap="small">
+          <Box gap="small">
+            <Text size="medium">Vaults</Text>
+            {allVaults.length ? <Vaults vaults={filteredVaults} handleSelect={handleSelect} /> : 'No open positions'}
           </Box>
-        )}
+          <Box gap="small">
+            <Text size="medium">Lend Positions</Text>
+            <Positions actionType={ActionType.LEND} />
+          </Box>
+          <Box gap="small">
+            <Text size="medium">Pool Positions</Text>
+            <Positions actionType={ActionType.POOL} />
+          </Box>
+        </Box>
       </Box>
     </MainViewWrap>
   );

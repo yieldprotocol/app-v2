@@ -29,7 +29,7 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
       direction="row"
       fill="horizontal"
     >
-      <Grid columns={['medium', 'flex', 'medium']} fill="horizontal">
+      <Grid columns={['flex', 'flex', 'medium']} fill="horizontal">
         <Box direction="row" gap={mobile ? '0.25em' : 'medium'} align="center">
           <Avatar>
             <NavLink to={`/${prevLoc}`}>

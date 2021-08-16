@@ -19,7 +19,7 @@ const StyledBox = styled(Box)`
 `;
 
 const Vaults = ({ vaults, handleSelect }: { vaults: IVault[]; handleSelect: any }) => (
-  <Box fill justify="between" alignSelf="end" gap="small" pad="small">
+  <Box fill justify="between" alignSelf="end" gap="small">
     <ListWrap>
       {vaults.length === 0 && (
         <Text weight={450} size="small">
