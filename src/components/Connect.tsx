@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Box, Button, Text } from 'grommet';
+import { Box, Button, ResponsiveContext, Text } from 'grommet';
 import { FiCheckSquare, FiX } from 'react-icons/fi';
 import { ChainContext, connectorNames } from '../contexts/ChainContext';
 import BackButton from './buttons/BackButton';
@@ -8,6 +8,7 @@ import Disclaimer from './Disclaimer';
 import { useCachedState } from '../hooks/generalHooks';
 
 const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
+  const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
     chainState: { account, connector, connectors },
     chainActions: { connect, disconnect },
@@ -55,7 +56,7 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
         gap="xsmall"
         align="center"
       >
-        {connected && <FiCheckSquare color="green" />}
+        {connected && <FiCheckSquare color="#34D399" />}
         {activating ? 'Connecting' : connectorNames.get(name)}
       </Box>
     );
@@ -65,7 +66,7 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
     <Box
       fill="vertical"
       basis="auto"
-      width="300px"
+      width={mobile ? 'none' : '300px'}
       pad="medium"
       gap="small"
       border={{ side: 'left', color: 'tailwind-blue-100' }}
