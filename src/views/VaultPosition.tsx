@@ -123,10 +123,7 @@ const Vault = ({ close }: { close: () => void }) => {
   const { repay, borrow, rollDebt, transfer, merge } = useBorrowActions();
   const { addCollateral, removeCollateral } = useCollateralActions();
 
-  const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries, [
-    0,
-    maxRepay,
-  ]);
+  const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries, [0, maxRepay]);
   const { inputError: addCollatError } = useInputValidation(addCollatInput, ActionCodes.ADD_COLLATERAL, vaultSeries, [
     0,
     maxAddCollat,
@@ -167,7 +164,6 @@ const Vault = ({ close }: { close: () => void }) => {
 
   const handleRepay = () => {
     selectedVault && repay(selectedVault, repayInput?.toString());
-    // setRepayInput('');
   };
 
   const handleCollateral = (action: 'ADD' | 'REMOVE') => {
@@ -176,7 +172,6 @@ const Vault = ({ close }: { close: () => void }) => {
       !remove && addCollateral(selectedVault, addCollatInput);
       remove && removeCollateral(selectedVault, removeCollatInput);
     }
-    setCollatInput('');
   };
 
   const handleRoll = () => {
@@ -214,6 +209,15 @@ const Vault = ({ close }: { close: () => void }) => {
     setMergeData((fData: any) => ({ ...fData, toVault: vault }));
   };
 
+  const reset = () => {
+    setRepayInput(undefined);
+    setCollatInput(undefined);
+    setAddCollatInput(undefined);
+    setRemoveCollatInput(undefined);
+    setTransferToAddressInput('');
+    setMergeData(initialMergeData);
+  };
+
   /* SET MAX / MIN VALUES */
   useEffect(() => {
     /* CHECK the max available repay */
@@ -224,10 +228,9 @@ const Vault = ({ close }: { close: () => void }) => {
         _max && setMaxRepay(ethers.utils.formatEther(_max)?.toString());
       })();
 
-      setMinRepay(selectedVault?.art.sub(ethers.utils.parseEther('1')).toString() );
+      setMinRepay(selectedVault?.art.sub(ethers.utils.parseEther('1')).toString());
     }
   }, [activeAccount, selectedVault?.art, vaultBase, setMaxRepay]);
-
 
   useEffect(() => {
     /* CHECK collateral selection and sets the max available collateral */
@@ -293,6 +296,7 @@ const Vault = ({ close }: { close: () => void }) => {
         onClick={() => {
           props.resetTx();
           handleStepper(true);
+          reset();
         }}
       />
     </>
