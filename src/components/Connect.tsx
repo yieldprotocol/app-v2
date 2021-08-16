@@ -86,7 +86,7 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
       <Box gap="xsmall">{connectorsRender}</Box>
 
       {!disclaimerChecked && (
-        <Box border={{ color: disclaimerChecked ? 'none' : 'tailwind-blue' }} round="small">
+        <Box border={{ color: 'tailwind-blue' }} round="small">
           <Disclaimer
             checked={disclaimerChecked}
             onChange={(event: any) => setDisclaimerChecked(event.target.checked)}
