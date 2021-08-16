@@ -45,10 +45,10 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
         onClick={() => !connected && disclaimerChecked && handleConnect(name)}
         pad="small"
         round="xsmall"
-        border={{ color: disclaimerChecked ? 'tailwind-blue' : '#F3F4F6', size: 'xsmall' }}
-        background={connected ? '#F3F4F6' : 'white'}
+        border={{ color: disclaimerChecked ? 'tailwind-blue' : 'tailwind-blue-100', size: 'xsmall' }}
+        background={connected ? 'tailwind-blue' : 'white'}
         hoverIndicator={{
-          background: { color: connected || !disclaimerChecked ? '#F3F4F6' : 'tailwind-blue' },
+          background: { color: connected || !disclaimerChecked ? 'tailwind-blue' : 'tailwind-blue' },
           color: connected ? 'gray' : 'white',
         }}
         direction="row"
@@ -62,7 +62,14 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
   });
 
   return (
-    <Box fill="vertical" basis="auto" width="medium" pad="small" gap="small">
+    <Box
+      fill="vertical"
+      basis="auto"
+      width="300px"
+      pad="medium"
+      gap="small"
+      border={{ side: 'left', color: 'tailwind-blue-100' }}
+    >
       <Box justify="between" align="center" direction="row">
         {account ? (
           <BackButton

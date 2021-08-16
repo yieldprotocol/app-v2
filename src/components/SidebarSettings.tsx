@@ -5,10 +5,6 @@ import { ChainContext } from '../contexts/ChainContext';
 import YieldSettings from './YieldSettings';
 import Connect from './Connect';
 
-const StyledLayer = styled(Layer)`
-  backdrop-filter: blur(0px) !important;
-`;
-
 const SidebarSettings = ({ settingsOpen, setSettingsOpen, connectOpen, setConnectOpen }: any) => {
   const {
     chainState: { account },
@@ -17,15 +13,15 @@ const SidebarSettings = ({ settingsOpen, setSettingsOpen, connectOpen, setConnec
   return (
     <>
       {connectOpen && (
-        <StyledLayer modal={false} responsive={true} full="vertical" position="right">
+        <Layer modal={false} responsive={true} full="vertical" position="right">
           <Connect setConnectOpen={setConnectOpen} setSettingsOpen={setSettingsOpen} />
-        </StyledLayer>
+        </Layer>
       )}
 
       {account && settingsOpen && (
-        <StyledLayer modal={false} responsive={true} full="vertical" position="right">
+        <Layer modal={false} responsive={true} full="vertical" position="right">
           <YieldSettings setConnectOpen={setConnectOpen} setSettingsOpen={setSettingsOpen} />
-        </StyledLayer>
+        </Layer>
       )}
     </>
   );

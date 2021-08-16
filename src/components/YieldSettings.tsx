@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
-import { Anchor, Box, Button, Text } from 'grommet';
-import { FiCheckSquare, FiCopy, FiExternalLink, FiX } from 'react-icons/fi';
+import { Anchor, Box, Button, Collapsible, ResponsiveContext, Text } from 'grommet';
+import { FiCheckSquare, FiCopy, FiChevronUp, FiChevronDown, FiExternalLink, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
 import { ChainContext, connectorNames } from '../contexts/ChainContext';
 import { abbreviateHash } from '../utils/appUtils';
@@ -10,8 +10,8 @@ import AdvancedSettings from './AdvancedSettings';
 const ChangeButton = styled(Button)`
   background: #dbeafe;
   border: 2px solid #3b82f6;
-  height: 2rem;
-  width: 3.5rem;
+  height: 1.75rem;
+  width: 3rem;
   border-radius: 6px;
   font-size: 0.6rem;
   text-align: center;
@@ -23,11 +23,13 @@ const ChangeButton = styled(Button)`
 `;
 
 const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
+  const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
     chainState: { account, chainData, provider },
   } = useContext(ChainContext);
   const connectorName = connectorNames.get(provider.connection.url);
   const [copySuccess, setCopySuccess] = useState<boolean>(false);
+  const [transactionsOpen, toggleTransactionsOpen] = useState<boolean>(false);
 
   const handleChangeConnectType = () => {
     setSettingsOpen(false);
@@ -41,59 +43,67 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
   };
 
   return (
-    <Box fill="vertical" width="medium" background="tailwind-lightest-blue">
-      <Box pad="small" gap="small" direction="row" justify="between">
-        <Text>Account</Text>
-        <Button icon={<FiX size="1.5rem" />} onClick={() => setSettingsOpen(false)} plain />
-      </Box>
-      <Box
-        border={{ color: '#DBEAFE', size: 'xsmall', side: 'top' }}
-        gap="small"
-        pad={{ horizontal: 'medium', vertical: 'small' }}
-      >
-        <Box justify="between" align="center" direction="row">
-          {connectorName && <Text size="small">Connected with {connectorName}</Text>}
-          <ChangeButton onClick={handleChangeConnectType}>Change</ChangeButton>
+    <Box
+      fill="vertical"
+      width={mobile ? 'none' : '300px'}
+      background="white"
+      border={{ side: 'left', color: 'tailwind-blue-100' }}
+    >
+      <Box gap="small" pad="medium">
+        <Button alignSelf="end" icon={<FiX size="1.5rem" />} onClick={() => setSettingsOpen(false)} plain />
+        <Box align="center" gap="small">
+          <YieldAvatar address={account} size={3} />
+          <Text size="xlarge">{abbreviateHash(account)}</Text>
         </Box>
-        <Box justify="between" align="center" direction="row">
-          <Box direction="row" align="center" gap="small">
-            <YieldAvatar address={account} size={2} />
-            <Text size="xlarge">{abbreviateHash(account)}</Text>
-          </Box>
-        </Box>
-        <Box align="center" direction="row" gap="small">
-          <Button margin="xsmall" onClick={() => handleCopy(account)}>
+        <Box align="center" direction="row" gap="small" justify="center">
+          <Button onClick={() => handleCopy(account)}>
             {copySuccess ? (
               <FiCheckSquare size="1rem" style={{ verticalAlign: 'middle' }} />
             ) : (
               <FiCopy size="1rem" style={{ verticalAlign: 'middle' }} />
             )}
-            <Text margin="xsmall" size="small">
+            <Text margin="xxsmall" size="xsmall">
               {copySuccess ? 'Copied' : 'Copy Address'}
             </Text>
           </Button>
           <Anchor href={`https://${chainData.name}.etherscan.io/address/${account}`} margin="xsmall" target="_blank">
             <FiExternalLink size="1rem" style={{ verticalAlign: 'middle' }} />
-            <Text margin="xsmall" size="small">
+            <Text margin="xxsmall" size="xsmall">
               View on Explorer
             </Text>
           </Anchor>
         </Box>
+        <Box justify="between" align="center" direction="row">
+          {connectorName && <Text size="small">Connected with {connectorName}</Text>}
+          <ChangeButton onClick={handleChangeConnectType}>Change</ChangeButton>
+        </Box>
       </Box>
-      <Box margin={{ top: 'auto' }}>
-        <Box align="center" direction="row" border={{ color: '#DBEAFE', size: 'xsmall', side: 'top' }} pad="medium">
-          <AdvancedSettings />
+      <Box
+        direction="row"
+        align="center"
+        border={{ color: 'tailwind-blue-100', size: 'xsmall', side: 'top' }}
+        pad="medium"
+      >
+        <AdvancedSettings />
+      </Box>
+      <Box
+        margin={{ top: 'auto' }}
+        border={{ color: 'tailwind-blue-100', size: 'xsmall', side: 'top' }}
+        pad="medium"
+        gap="small"
+        background="tailwind-blue-50"
+      >
+        <Box align="center" direction="row" justify="between" onClick={() => toggleTransactionsOpen(!transactionsOpen)}>
+          <Text>Transactions</Text>
+          {transactionsOpen ? (
+            <FiChevronDown size="1.5rem" color="tailwind-blue" />
+          ) : (
+            <FiChevronUp size="1.5rem" color="tailwind-blue" />
+          )}
         </Box>
-        <Box
-          border={{ color: '#DBEAFE', size: 'xsmall', side: 'top' }}
-          pad="medium"
-          gap="small"
-          direction="row"
-          background="#F3F4F6"
-          height={{ min: 'medium' }}
-        >
-          <Text size="medium">Your transactions will appear here...</Text>
-        </Box>
+        <Collapsible open={transactionsOpen}>
+          <Text size="small">Your transactions will appear here...</Text>
+        </Collapsible>
       </Box>
     </Box>
   );
