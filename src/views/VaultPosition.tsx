@@ -1,14 +1,14 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
-import { base, Box, Button, ResponsiveContext, Select, Text, TextInput } from 'grommet';
+import { Box, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import { ethers } from 'ethers';
 
 import { FiClock, FiTrendingUp, FiAlertTriangle, FiArrowRight } from 'react-icons/fi';
-import { abbreviateHash, cleanValue, getTxCode, nFormatter } from '../utils/appUtils';
+import { abbreviateHash, cleanValue, nFormatter } from '../utils/appUtils';
 import { UserContext } from '../contexts/UserContext';
 import InputWrap from '../components/wraps/InputWrap';
 import InfoBite from '../components/InfoBite';
-import { ActionCodes, ActionType, IAsset, ISeries, IUserContext, IVault, TxState } from '../types';
+import { ActionCodes, ActionType, IAsset, ISeries, IUserContext, IVault } from '../types';
 
 import ActionButtonWrap from '../components/wraps/ActionButtonWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
@@ -27,7 +27,6 @@ import CancelButton from '../components/buttons/CancelButton';
 import VaultDropSelector from '../components/selectors/VaultDropSelector';
 import ExitButton from '../components/buttons/ExitButton';
 import { useInputValidation } from '../hooks/inputValidationHook';
-import { TxContext } from '../contexts/TxContext';
 import { useTx } from '../hooks/useTx';
 import ModalWrap from '../components/wraps/ModalWrap';
 
@@ -66,7 +65,6 @@ const VaultPosition = ({ close }: { close: () => void }) => {
   const { tx: mergeTx, resetTx: resetMergeTx } = useTx(ActionCodes.MERGE_VAULT, selectedVaultId!);
 
   /* LOCAL STATE */
-  const [showPositionModal, setShowPositionModal] = React.useState<boolean>(false);
 
   // stepper for stepping within multiple tabs
   const [stepPosition, setStepPosition] = useState<number[]>(new Array(7).fill(0));
@@ -288,7 +286,7 @@ const VaultPosition = ({ close }: { close: () => void }) => {
   return (
     <>
       {selectedVault && (
-        <ModalWrap modalOpen={true} toggleModalOpen={() => history.goBack()}>
+        <ModalWrap toggleModalOpen={() => history.push('/borrow')}>
           <CenterPanelWrap>
             <Box fill pad="large" gap="medium">
               <Box height={{ min: '250px' }} gap="medium">
@@ -300,7 +298,7 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                       <Text size="small"> {selectedVault?.id} </Text>
                     </Box>
                   </Box>
-                  <ExitButton action={() => close()} />
+                  <ExitButton action={() => history.push('/borrow')} />
                 </Box>
 
                 {selectedVault?.isActive ? (

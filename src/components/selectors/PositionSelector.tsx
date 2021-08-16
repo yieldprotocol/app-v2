@@ -1,7 +1,8 @@
-import { Box, Button, Layer, Text } from 'grommet';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { FiX } from 'react-icons/fi';
-import styled from 'styled-components';
+import { useHistory } from 'react-router-dom';
+import { Box, Button, Text } from 'grommet';
+
 import { UserContext } from '../../contexts/UserContext';
 import { ActionType, IAsset, ISeries, IUserContext } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
@@ -17,17 +18,17 @@ interface IPositionFilter {
 }
 
 function PositionSelector({ actionType }: { actionType: ActionType }) {
+  const history = useHistory();
   /* STATE FROM CONTEXT */
 
   const { userState, userActions } = useContext(UserContext) as IUserContext;
   const { activeAccount, assetMap, seriesMap, selectedSeriesId, selectedBaseId } = userState;
 
-  const selectedBase = assetMap.get(selectedBaseId!);
   const selectedSeries = seriesMap.get(selectedSeriesId!);
+  const selectedBase = assetMap.get(selectedBaseId!);
 
   const [allPositions, setAllPositions] = useState<ISeries[]>([]);
   const [showAllPositions, setShowAllPositions] = useState<boolean>(false);
-  const [showPositionModal, setShowPositionModal] = useState<boolean>(false);
 
   const [currentFilter, setCurrentFilter] = useState<IPositionFilter>();
   const [filterLabels, setFilterLabels] = useState<(string | undefined)[]>([]);
@@ -37,7 +38,11 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
     console.log(_series.id);
     userActions.setSelectedBase(_series.baseId);
     userActions.setSelectedSeries(_series.id);
-    setShowPositionModal(true);
+
+    actionType === 'LEND'
+    ? history.push(`/lendposition/${_series.id}`)
+    : history.push(`/poolposition/${_series.id}`)
+
   };
 
   const handleFilter = useCallback(
@@ -59,7 +64,7 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
   /* CHECK the list of current vaults which match the current base series selection */
   useEffect(() => {
     /* only if veiwing the main screen (not when modal is showing) */
-    if (!showPositionModal) {
+    // if (!showPositionModal) {
       const _allPositions: ISeries[] = Array.from(seriesMap.values())
         /* filter by positive balances on either pool tokens or fyTokens */
         .filter((_series: ISeries) => (actionType === 'LEND' && _series ? _series.fyTokenBalance?.gt(ZERO_BN) : true))
@@ -68,25 +73,15 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
 
       if (selectedBase) handleFilter({ base: selectedBase, series: undefined });
       if (selectedBase && selectedSeries) handleFilter({ base: selectedBase, series: selectedSeries });
-    }
-  }, [selectedBase, selectedSeries, showPositionModal, handleFilter, seriesMap, actionType]);
+    // }
+  }, [selectedBase, selectedSeries, handleFilter, seriesMap, actionType]);
 
   useEffect(()=> {
     allPositions.length <=5 && setShowAllPositions(true)
   },[allPositions])
 
   return (
-    <>
-      <ModalWrap
-        modalOpen={showPositionModal}
-        toggleModalOpen={() => setShowPositionModal(!showPositionModal)}
-      >
-        {actionType === 'LEND' ? (
-          <LendPosition close={() => setShowPositionModal(false)} />
-        ) : (
-          <PoolPosition close={() => setShowPositionModal(false)} />
-        )}
-      </ModalWrap>
+    <Box justify='end' fill>
 
       {allPositions.length !== 0 && (
         <Box justify="between" alignSelf="end" gap="small" pad="small">
@@ -180,7 +175,7 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
           </Box>}
         </Box>
       )}
-    </>
+    </Box>
   );
 }
 

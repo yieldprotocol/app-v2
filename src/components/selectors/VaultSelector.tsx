@@ -33,6 +33,7 @@ const StyledBox = styled(Box)`
 function VaultSelector(target: any) {
 
    const history = useHistory();
+   
   /* STATE FROM CONTEXT */
   const { userState, userActions } = useContext(UserContext) as IUserContext;
   const {
