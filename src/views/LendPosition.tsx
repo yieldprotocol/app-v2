@@ -44,8 +44,8 @@ const LendPosition = ({ close }: { close: () => void }) => {
   // stepper for stepping within multiple tabs
   const [stepPosition, setStepPosition] = useState<number[]>([0, 0, 0]);
 
-  const [closeInput, setCloseInput] = useState<string>();
-  const [rollInput, setRollInput] = useState<string>();
+  const [closeInput, setCloseInput] = useState<string | undefined>();
+  const [rollInput, setRollInput] = useState<string | undefined>();
   const [rollToSeries, setRollToSeries] = useState<ISeries | null>(null);
 
   const [closeDisabled, setCloseDisabled] = useState<boolean>(true);
@@ -90,6 +90,11 @@ const LendPosition = ({ close }: { close: () => void }) => {
     redeem(selectedSeries!, undefined);
   };
 
+  const reset = () => {
+    setCloseInput(undefined);
+    setRollInput(undefined);
+  };
+
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
   useEffect(() => {
     !closeInput || closeError ? setCloseDisabled(true) : setCloseDisabled(false);
@@ -105,6 +110,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
         onClick={() => {
           props.resetTx();
           handleStepper(true);
+          reset();
         }}
       />
       {/* {props.tx.failed &&
