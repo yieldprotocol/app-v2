@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import { NavLink } from 'react-router-dom';
+import styled from 'styled-components';
 import { Avatar, Box, Button, Grid, Header, Layer, ResponsiveContext } from 'grommet';
 
 import { FiX } from 'react-icons/fi';
@@ -11,11 +12,14 @@ import YieldMark from '../logos/YieldMark';
 import { useCachedState } from '../../hooks/generalHooks';
 import { ISeries } from '../../types';
 
+
 interface IModalWrap {
   toggleModalOpen: () => void;
   children: any;
   series?: ISeries|undefined;
 }
+
+const StyledLayer = styled(Layer)``
 
 function ModalWrap({ children, series, toggleModalOpen, }: IModalWrap) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -27,13 +31,16 @@ function ModalWrap({ children, series, toggleModalOpen, }: IModalWrap) {
 
   const _series = series || seriesMap.get(selectedSeriesId);
 
+
+
   return (
-        <Layer
+        <StyledLayer
           onClickOutside={() => toggleModalOpen()}
           responsive
           full
           background={_series?.color}
           animation="none"
+
         >
           <Header
             pad="large"
@@ -77,7 +84,7 @@ function ModalWrap({ children, series, toggleModalOpen, }: IModalWrap) {
               </PanelWrap>
             </MainViewWrap>
           </Box>
-        </Layer>
+        </StyledLayer>
   );
 }
 

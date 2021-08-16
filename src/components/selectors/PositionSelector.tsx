@@ -8,7 +8,7 @@ import { ActionType, IAsset, ISeries, IUserContext } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
 import LendPosition from '../../views/LendPosition';
 import PoolPosition from '../../views/PoolPosition';
-import PositionListItem from '../PositionListItem';
+import PositionListItem from '../PositionItem';
 import ListWrap from '../wraps/ListWrap';
 import ModalWrap from '../wraps/ModalWrap';
 
@@ -101,18 +101,9 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
             )}
 
             {(!showAllPositions ? filteredSeries : allPositions).map((x: ISeries, i: number) => (
-              <Box
-                key={x.id}
-                animation={{ type: 'fadeIn', delay: i * 100, duration: 1500 }}
-                hoverIndicator={{ elevation: 'large' }}
-                onClick={() => handleSelect(x)}
-                round="small"
-                elevation="medium"
-                flex={false}
-                fill="horizontal"
-              >
-                <PositionListItem series={x} actionType={actionType} />
-              </Box>
+
+                <PositionListItem series={x} actionType={actionType} index={i} key={x.id}/>
+
             ))}
           </ListWrap>
 

@@ -1,15 +1,11 @@
-import { Box, Button, Layer, Text } from 'grommet';
+import { Box, Button, Text } from 'grommet';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { FiX } from 'react-icons/fi';
-import { useHistory } from 'react-router-dom';
-import styled from 'styled-components';
 import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
 import { IAsset, ISeries, IUserContext, IVault } from '../../types';
-import Vault from '../../views/VaultPosition';
-import VaultListItem from '../VaultListItem';
+import VaultListItem from '../VaultItem';
 import ListWrap from '../wraps/ListWrap';
-import ModalWrap from '../wraps/ModalWrap';
 
 interface IVaultFilter {
   base: IAsset | undefined;
@@ -17,47 +13,24 @@ interface IVaultFilter {
   ilk: IAsset | undefined;
 }
 
-const StyledBox = styled(Box)`
-  -webkit-transition: transform 0.3s ease-in-out;
-  -moz-transition: transform 0.3s ease-in-out;
-  transition: transform 0.3s ease-in-out;
-
-  :hover {
-    transform: scale(1.05);
-  }
-  :active {
-    transform: scale(1);
-  }
-`;
-
 function VaultSelector(target: any) {
-
-   const history = useHistory();
    
   /* STATE FROM CONTEXT */
-  const { userState, userActions } = useContext(UserContext) as IUserContext;
+  const { userState } = useContext(UserContext) as IUserContext;
   const {
     chainState: { account },
   } = useContext(ChainContext);
   const { assetMap, vaultMap, seriesMap, selectedSeriesId, selectedBaseId, showInactiveVaults } = userState;
-  const { setSelectedVault } = userActions;
 
   const selectedBase = assetMap.get(selectedBaseId!);
   const selectedSeries = seriesMap.get(selectedSeriesId!);
 
   /* LOCAL STATE */
   const [showAllVaults, setShowAllVaults] = useState<boolean>(false);
-  const [showVaultModal, setShowVaultModal] = useState<boolean>(false);
   const [allVaults, setAllVaults] = useState<IVault[]>([]);
 
   const [filter, setFilter] = useState<IVaultFilter>();
   const [filteredVaults, setFilteredVaults] = useState<IVault[]>([]);
-
-  const handleSelect = (_vault: IVault) => {
-    setSelectedVault(_vault.id);
-    // setShowVaultModal(true);
-    history.push(`/vaultposition/${_vault.id}`)
-  };
 
   const handleFilter = useCallback(
     ({ base, series, ilk }: IVaultFilter) => {
@@ -73,14 +46,8 @@ function VaultSelector(target: any) {
     [vaultMap, showInactiveVaults]
   );
 
-  const handleCloseModal = () => {
-    setShowVaultModal(false);
-    userActions.setSelectedVault(null);
-  };
-
   /* CHECK the list of current vaults which match the current series/ilk selection */
   useEffect(() => {
-    if (!showVaultModal) {
       const _allVaults: IVault[] = Array.from(vaultMap.values()) as IVault[];
       setAllVaults(_allVaults);
       if (selectedBase) {
@@ -89,8 +56,7 @@ function VaultSelector(target: any) {
       if (selectedBase && selectedSeries) {
         handleFilter({ base: selectedBase, series: selectedSeries, ilk: undefined });
       }
-    }
-  }, [vaultMap, selectedBase, selectedSeries, showVaultModal, handleFilter]);
+  }, [vaultMap, selectedBase, selectedSeries, handleFilter]);
 
   useEffect(()=> {
     allVaults.length <=5 && setShowAllVaults(true)
@@ -99,9 +65,6 @@ function VaultSelector(target: any) {
   return (
     account && (
       <Box justify='end' fill>
-        {/* <ModalWrap modalOpen={showVaultModal} toggleModalOpen={handleCloseModal}>
-          <Vault close={handleCloseModal} />
-        </ModalWrap> */}
 
         {allVaults.length > 0 && (
           <Box justify="between" alignSelf="end" gap="small" pad="small">
@@ -119,18 +82,9 @@ function VaultSelector(target: any) {
               )}
 
               {(showAllVaults ? allVaults : filteredVaults).map((x: IVault, i: number) => (
-                <StyledBox
-                  key={x.id}
-                  animation={{ type: 'fadeIn', delay: i * 100, duration: 1500 }}
-                  hoverIndicator={{ elevation: 'large', background: 'background' }}
-                  onClick={() => handleSelect(x)}
-                  round="xsmall"
-                  elevation="xsmall"
-                  flex={false}
-                  fill="horizontal"
-                >
-                  <VaultListItem vault={x} />
-                </StyledBox>
+
+                  <VaultListItem vault={x} index={i} key={x.id}/>
+
               ))}
             </ListWrap>
 
