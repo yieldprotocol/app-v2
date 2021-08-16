@@ -53,15 +53,10 @@ const Borrow = () => {
   const selectedSeries = seriesMap.get(selectedSeriesId!);
 
   /* LOCAL STATE */
-  const INITIAL_INPUT_STATE = {
-    borrowInput: '',
-    collatInput: '',
-  };
-
   const [stepPosition, setStepPosition] = useState<number>(0);
 
-  const [borrowInput, setBorrowInput] = useState<string>(INITIAL_INPUT_STATE.borrowInput);
-  const [collatInput, setCollatInput] = useState<string>(INITIAL_INPUT_STATE.collatInput);
+  const [borrowInput, setBorrowInput] = useState<string>('');
+  const [collatInput, setCollatInput] = useState<string>('');
   const [maxCollat, setMaxCollat] = useState<string | undefined>();
 
   const [borrowDisabled, setBorrowDisabled] = useState<boolean>(true);
@@ -101,8 +96,8 @@ const Borrow = () => {
   };
 
   const reset = () => {
-    setBorrowInput(INITIAL_INPUT_STATE.borrowInput);
-    setCollatInput(INITIAL_INPUT_STATE.collatInput);
+    setBorrowInput('');
+    setCollatInput('');
     setStepPosition(0);
     resetTx();
   };

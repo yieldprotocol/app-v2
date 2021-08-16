@@ -40,12 +40,8 @@ const PoolPosition = ({ close }: { close: () => void }) => {
   const selectedBase = assetMap.get(selectedBaseId!);
 
   /* LOCAL STATE */
-  const INITIAL_INPUT_STATE = {
-    removeInput: undefined,
-    rollInput: undefined,
-  };
-  const [removeInput, setRemoveInput] = useState<string | undefined>(INITIAL_INPUT_STATE.removeInput);
-  const [rollInput, setRollInput] = useState<string | undefined>(INITIAL_INPUT_STATE.rollInput);
+  const [removeInput, setRemoveInput] = useState<string | undefined>(undefined);
+  const [rollInput, setRollInput] = useState<string | undefined>(undefined);
   const [rollToSeries, setRollToSeries] = useState<ISeries | null>(null);
   const [maxRemove, setMaxRemove] = useState<string | undefined>();
 
@@ -95,8 +91,8 @@ const PoolPosition = ({ close }: { close: () => void }) => {
   };
 
   const reset = () => {
-    setRemoveInput(INITIAL_INPUT_STATE.removeInput);
-    setRollInput(INITIAL_INPUT_STATE.rollInput);
+    setRemoveInput(undefined);
+    setRollInput(undefined);
   };
 
   /* SET MAX VALUES */

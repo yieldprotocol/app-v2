@@ -44,10 +44,7 @@ function Pool() {
   const selectedBase = assetMap.get(selectedBaseId!);
 
   /* LOCAL STATE */
-  const INITIAL_INPUT_STATE = {
-    poolInput: undefined,
-  };
-  const [poolInput, setPoolInput] = useState<string | undefined>(INITIAL_INPUT_STATE.poolInput);
+  const [poolInput, setPoolInput] = useState<string | undefined>(undefined);
   const [maxPool, setMaxPool] = useState<string | undefined>();
 
   const [poolDisabled, setPoolDisabled] = useState<boolean>(true);
@@ -71,7 +68,7 @@ function Pool() {
   };
 
   const reset = () => {
-    setPoolInput(INITIAL_INPUT_STATE.poolInput);
+    setPoolInput(undefined);
     setStepPosition(0);
     resetTx();
   };

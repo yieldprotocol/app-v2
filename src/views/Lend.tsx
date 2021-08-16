@@ -46,10 +46,7 @@ const Lend = () => {
   const selectedBase = assetMap.get(selectedBaseId!);
 
   /* LOCAL STATE */
-  const INITIAL_INPUT_STATE = {
-    lendInput: undefined,
-  };
-  const [lendInput, setLendInput] = useState<string | undefined>(INITIAL_INPUT_STATE.lendInput);
+  const [lendInput, setLendInput] = useState<string | undefined>(undefined);
   // const [maxLend, setMaxLend] = useState<string | undefined>();
   const [lendDisabled, setLendDisabled] = useState<boolean>(true);
   const [stepPosition, setStepPosition] = useState<number>(0);
@@ -75,7 +72,7 @@ const Lend = () => {
   };
 
   const reset = () => {
-    setLendInput(INITIAL_INPUT_STATE.lendInput);
+    setLendInput(undefined);
     setStepPosition(0);
     resetTx();
   };
