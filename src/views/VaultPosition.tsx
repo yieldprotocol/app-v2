@@ -693,7 +693,10 @@ const Vault = ({ close }: { close: () => void }) => {
             <TransactButton
               primary
               label={
-                <Text size={mobile ? 'small' : undefined}>{`Add${addCollateralTx.processActive ? 'ing' : ''}`}</Text>
+                <Text size={mobile ? 'small' : undefined}>
+                  {`${addCollateralTx.processActive ? 'Adding ' : 'Add '}`}
+                  {nFormatter(Number(addCollatInput), vaultIlk?.digitFormat!) || ''} {vaultIlk?.symbol}
+                </Text>
               }
               onClick={() => handleCollateral('ADD')}
               disabled={addCollateralTx.processActive}
@@ -707,9 +710,10 @@ const Vault = ({ close }: { close: () => void }) => {
             <TransactButton
               primary
               label={
-                <Text size={mobile ? 'small' : undefined}>{`Remov${
-                  removeCollateralTx.processActive ? 'ing' : 'e'
-                }`}</Text>
+                <Text size={mobile ? 'small' : undefined}>
+                  {`${removeCollateralTx.processActive ? 'Removing ' : 'Remove '}`}
+                  {nFormatter(Number(removeCollatInput), vaultIlk?.digitFormat!) || ''} {vaultIlk?.symbol}
+                </Text>
               }
               onClick={() => handleCollateral('REMOVE')}
               disabled={removeCollateralTx.processActive}
