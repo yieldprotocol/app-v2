@@ -29,6 +29,7 @@ function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
           secondary
           label={<Text size={mobile ? 'small' : undefined}> Connect Wallet </Text>}
           onClick={() => connect()}
+          disabled
         />
       )}
     </Box>
