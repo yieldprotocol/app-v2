@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Box, Select, Text } from 'grommet';
+import { Box, ResponsiveContext, Select, Text } from 'grommet';
 import { IVault } from '../../types';
 import PositionAvatar from '../PositionAvatar';
 import { UserContext } from '../../contexts/UserContext';
@@ -21,6 +21,7 @@ function VaultDropSelector({
   placeholder,
   defaultOptionValue,
 }: IVaultDropSelectorProps) {
+  const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
     userState: { selectedIlk },
   } = useContext(UserContext);
@@ -31,6 +32,8 @@ function VaultDropSelector({
         defaultValue={undefined}
         plain
         dropProps={{ round: 'xsmall' }}
+        dropAlign={{ bottom:'top' }}
+        dropHeight='300px'
         disabled={vaults.length < 1}
         options={defaultOptionValue ? [{ displayName }, ...vaults] : [...vaults]}
         labelKey={(x: IVault) => x.displayName}
@@ -39,12 +42,12 @@ function VaultDropSelector({
         onChange={({ option }) => handleSelect(option)}
         valueLabel={
           itemSelected?.id ? (
-            <Box pad="small" direction="row" gap="medium" align="center">
+            <Box pad={mobile ? 'medium' : 'small'} direction="row" gap="medium" align="center">
               <PositionAvatar position={itemSelected} condensed />
               <Text>{itemSelected?.displayName}</Text>
             </Box>
           ) : (
-            <Box pad="small">
+            <Box pad={mobile ? 'medium' : 'small'}>
               <Text color={itemSelected?.displayName ? 'text-weak' : 'text-xweak'} size="small">
                 {displayName}
               </Text>
@@ -55,7 +58,7 @@ function VaultDropSelector({
         children={(x: IVault) => (
           <>
             {x.id ? (
-              <Box pad="xsmall" direction="row" gap="small" align="center">
+              <Box pad="small" direction="row" gap="small" align="center">
                 <PositionAvatar position={x} condensed />
                 <Box>
                   <Text size="small" weight={700}>
@@ -71,7 +74,7 @@ function VaultDropSelector({
               </Box>
             ) : (
               <Box pad="small" direction="row" gap="small" align="center">
-                <Text color="text-weak" size="small">
+                <Text color="text-weak" size="medium">
                   {x.displayName}
                 </Text>
               </Box>
