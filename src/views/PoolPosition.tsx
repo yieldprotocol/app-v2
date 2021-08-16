@@ -1,12 +1,13 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Box, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import { ethers } from 'ethers';
-import { FiArrowRight, FiClock, FiLogOut, FiMinusCircle, FiPercent, FiPlusCircle } from 'react-icons/fi';
+import { useHistory, useParams } from 'react-router-dom';
+import { FiArrowRight, FiClock, FiPercent } from 'react-icons/fi';
 
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import InputWrap from '../components/wraps/InputWrap';
 import SeriesSelector from '../components/selectors/SeriesSelector';
-import { abbreviateHash, cleanValue, getTxCode, nFormatter } from '../utils/appUtils';
+import { abbreviateHash, cleanValue, nFormatter } from '../utils/appUtils';
 import SectionWrap from '../components/wraps/SectionWrap';
 
 import { UserContext } from '../contexts/UserContext';
@@ -26,18 +27,20 @@ import TransactButton from '../components/buttons/TransactButton';
 import YieldHistory from '../components/YieldHistory';
 import ExitButton from '../components/buttons/ExitButton';
 import { useInputValidation } from '../hooks/inputValidationHook';
-import EtherscanButton from '../components/buttons/EtherscanButton';
+import ModalWrap from '../components/wraps/ModalWrap';
 
 const PoolPosition = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
+  const history = useHistory();
+  const { id: idFromUrl } = useParams<{ id: string }>();
 
   /* STATE FROM CONTEXT */
 
   const { userState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, selectedSeriesId, selectedBaseId, seriesMap, assetMap } = userState;
+  const { activeAccount, selectedSeriesId, seriesMap, assetMap } = userState;
 
-  const selectedSeries = seriesMap.get(selectedSeriesId!);
-  const selectedBase = assetMap.get(selectedBaseId!);
+  const selectedSeries = seriesMap.get(selectedSeriesId || idFromUrl);
+  const selectedBase = assetMap.get(selectedSeries?.baseId!);
 
   /* LOCAL STATE */
 
@@ -120,215 +123,221 @@ const PoolPosition = ({ close }: { close: () => void }) => {
   );
 
   return (
-    <CenterPanelWrap>
-      <Box fill pad="large" gap="medium">
-        <Box height={{ min: '250px' }} gap="medium">
-          <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
-            <Box direction="row" align="center" gap="medium">
-              <PositionAvatar position={selectedSeries!} />
-              <Box>
-                <Text size={mobile ? 'medium' : 'large'}> {selectedSeries?.displayName} </Text>
-                <Text size="small"> {abbreviateHash(selectedSeries?.fyTokenAddress!, 5)}</Text>
-              </Box>
-            </Box>
-            <ExitButton action={() => close()} />
-          </Box>
+    <>
+      {selectedSeries && (
+        <ModalWrap toggleModalOpen={() => history.push('/pool')} series={selectedSeries}>
+          <CenterPanelWrap>
+            <Box fill pad="large" gap="medium">
+              <Box height={{ min: '250px' }} gap="medium">
+                <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
+                  <Box direction="row" align="center" gap="medium">
+                    <PositionAvatar position={selectedSeries!} />
+                    <Box>
+                      <Text size={mobile ? 'medium' : 'large'}> {selectedSeries?.displayName} </Text>
+                      <Text size="small"> {abbreviateHash(selectedSeries?.fyTokenAddress!, 5)}</Text>
+                    </Box>
+                  </Box>
+                  <ExitButton action={() => history.push('/pool')} />
+                </Box>
 
-          <SectionWrap>
-            <Box gap="small">
-              {/* <InfoBite label="Vault debt + interest:" value={`${selectedVault?.art_} ${vaultBase?.symbol}`} icon={<FiTrendingUp />} /> */}
+                <SectionWrap>
+                  <Box gap="small">
+                    {/* <InfoBite label="Vault debt + interest:" value={`${selectedVault?.art_} ${vaultBase?.symbol}`} icon={<FiTrendingUp />} /> */}
 
-              <InfoBite
-                label="Liquidity Balance"
-                value={cleanValue(selectedSeries?.poolTokens_, selectedBase?.digitFormat!)}
-                icon={<YieldMark height="1em" startColor={selectedSeries?.startColor} />}
-              />
-              {/* <InfoBite 
+                    <InfoBite
+                      label="Liquidity Balance"
+                      value={cleanValue(selectedSeries?.poolTokens_, selectedBase?.digitFormat!)}
+                      icon={<YieldMark height="1em" startColor={selectedSeries?.startColor} />}
+                    />
+                    {/* <InfoBite 
                 label="Total Pool Liquidity"
                 value={cleanValue(selectedSeries?.totalSupply_, 2)}
                 icon={<BiCoinStack />}
               /> */}
-              <InfoBite
-                label="Pool percentage"
-                value={`${cleanValue(selectedSeries?.poolPercent, 4)} %  of ${nFormatter(
-                  parseFloat(selectedSeries?.totalSupply_!),
-                  2
-                )}`}
-                icon={<FiPercent />}
-              />
-              <InfoBite label="Maturity date:" value={`${selectedSeries?.fullDate}`} icon={<FiClock />} />
-            </Box>
-          </SectionWrap>
-        </Box>
+                    <InfoBite
+                      label="Pool percentage"
+                      value={`${cleanValue(selectedSeries?.poolPercent, 4)} %  of ${nFormatter(
+                        parseFloat(selectedSeries?.totalSupply_!),
+                        2
+                      )}`}
+                      icon={<FiPercent />}
+                    />
+                    <InfoBite label="Maturity date:" value={`${selectedSeries?.fullDate}`} icon={<FiClock />} />
+                  </Box>
+                </SectionWrap>
+              </Box>
 
-        <Box height={{ min: '300px' }}>
-          <SectionWrap title="Position Actions">
-            <Box elevation="xsmall" round="xsmall">
-              <Select
-                plain
-                dropProps={{ round: 'xsmall' }}
-                options={[
-                  { text: 'Remove Liquidity', index: 0 },
-                  { text: 'Roll Liquidity', index: 1 },
-                  { text: 'View Transaction History', index: 2 },
-                ]}
-                labelKey="text"
-                valueKey="index"
-                value={actionActive}
-                onChange={({ option }) => setActionActive(option)}
-              />
-            </Box>
-          </SectionWrap>
-
-          {actionActive.index === 0 && (
-            <>
-              {stepPosition[0] === 0 && (
-                <Box margin={{ top: 'medium' }} gap="medium">
-                  <InputWrap action={() => console.log('maxAction')} isError={removeError}>
-                    <TextInput
+              <Box height={{ min: '300px' }}>
+                <SectionWrap title="Position Actions">
+                  <Box elevation="xsmall" round="xsmall">
+                    <Select
                       plain
-                      type="number"
-                      placeholder="Tokens to remove"
-                      value={removeInput || ''}
-                      onChange={(event: any) => setRemoveInput(cleanValue(event.target.value))}
+                      dropProps={{ round: 'xsmall' }}
+                      options={[
+                        { text: 'Remove Liquidity', index: 0 },
+                        { text: 'Roll Liquidity', index: 1 },
+                        { text: 'View Transaction History', index: 2 },
+                      ]}
+                      labelKey="text"
+                      valueKey="index"
+                      value={actionActive}
+                      onChange={({ option }) => setActionActive(option)}
                     />
-                    <MaxButton
-                      action={() => setRemoveInput(maxRemove)}
-                      disabled={maxRemove === '0.0'}
-                      clearAction={() => setRemoveInput('')}
-                      showingMax={!!removeInput && removeInput === maxRemove}
-                    />
-                  </InputWrap>
-                </Box>
+                  </Box>
+                </SectionWrap>
+
+                {actionActive.index === 0 && (
+                  <>
+                    {stepPosition[0] === 0 && (
+                      <Box margin={{ top: 'medium' }} gap="medium">
+                        <InputWrap action={() => console.log('maxAction')} isError={removeError}>
+                          <TextInput
+                            plain
+                            type="number"
+                            placeholder="Tokens to remove"
+                            value={removeInput || ''}
+                            onChange={(event: any) => setRemoveInput(cleanValue(event.target.value))}
+                          />
+                          <MaxButton
+                            action={() => setRemoveInput(maxRemove)}
+                            disabled={maxRemove === '0.0'}
+                            clearAction={() => setRemoveInput('')}
+                            showingMax={!!removeInput && removeInput === maxRemove}
+                          />
+                        </InputWrap>
+                      </Box>
+                    )}
+
+                    {stepPosition[0] !== 0 && (
+                      <ActiveTransaction pad tx={removeTx}>
+                        <SectionWrap
+                          title="Review your remove transaction"
+                          rightAction={<CancelButton action={() => handleStepper(true)} />}
+                        >
+                          <Box margin={{ top: 'medium' }}>
+                            <InfoBite
+                              label="Remove Liquidity"
+                              icon={<FiArrowRight />}
+                              value={`${cleanValue(removeInput, selectedBase?.digitFormat!)} liquidity tokens`}
+                            />
+                          </Box>
+                        </SectionWrap>
+                      </ActiveTransaction>
+                    )}
+                  </>
+                )}
+
+                {actionActive.index === 1 && (
+                  <>
+                    {stepPosition[actionActive.index] === 0 && (
+                      <Box margin={{ top: 'medium' }} gap="medium">
+                        <InputWrap action={() => console.log('maxAction')} isError={rollError}>
+                          <TextInput
+                            plain
+                            type="number"
+                            placeholder="Tokens to roll"
+                            value={rollInput || ''}
+                            onChange={(event: any) => setRollInput(cleanValue(event.target.value))}
+                          />
+                          <MaxButton
+                            action={() => setRollInput(maxRemove)}
+                            disabled={maxRemove === '0.0'}
+                            clearAction={() => setRollInput('')}
+                            showingMax={!!rollInput && rollInput === maxRemove}
+                          />
+                        </InputWrap>
+                        <SeriesSelector
+                          selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
+                          actionType={ActionType.POOL}
+                          cardLayout={false}
+                        />
+                      </Box>
+                    )}
+
+                    {stepPosition[actionActive.index] !== 0 && (
+                      <ActiveTransaction pad tx={rollTx}>
+                        <SectionWrap
+                          title="Review your roll transaction"
+                          rightAction={<CancelButton action={() => handleStepper(true)} />}
+                        >
+                          <Box margin={{ top: 'medium' }}>
+                            <InfoBite
+                              label="Roll Liquidity"
+                              icon={<FiArrowRight />}
+                              value={`${cleanValue(rollInput, selectedBase?.digitFormat!)} Liquidity Tokens to ${
+                                rollToSeries?.displayName
+                              } `}
+                            />
+                          </Box>
+                        </SectionWrap>
+                      </ActiveTransaction>
+                    )}
+                  </>
+                )}
+
+                {actionActive.index === 2 && <YieldHistory seriesOrVault={selectedSeries!} view={['POOL']} />}
+              </Box>
+            </Box>
+
+            <ActionButtonGroup pad>
+              {stepPosition[actionActive.index] === 0 && actionActive.index !== 2 && (
+                <NextButton
+                  label={<Text size={mobile ? 'small' : undefined}> Next Step</Text>}
+                  onClick={() => handleStepper()}
+                  key="next"
+                  disabled={(actionActive.index === 0 && removeDisabled) || (actionActive.index === 1 && rollDisabled)}
+                  errorLabel={(actionActive.index === 0 && removeError) || (actionActive.index === 1 && rollError)}
+                />
               )}
 
-              {stepPosition[0] !== 0 && (
-                <ActiveTransaction pad tx={removeTx}>
-                  <SectionWrap
-                    title="Review your remove transaction"
-                    rightAction={<CancelButton action={() => handleStepper(true)} />}
-                  >
-                    <Box margin={{ top: 'medium' }}>
-                      <InfoBite
-                        label="Remove Liquidity"
-                        icon={<FiArrowRight />}
-                        value={`${cleanValue(removeInput, selectedBase?.digitFormat!)} liquidity tokens`}
-                      />
-                    </Box>
-                  </SectionWrap>
-                </ActiveTransaction>
-              )}
-            </>
-          )}
-
-          {actionActive.index === 1 && (
-            <>
-              {stepPosition[actionActive.index] === 0 && (
-                <Box margin={{ top: 'medium' }} gap="medium">
-                  <InputWrap action={() => console.log('maxAction')} isError={rollError}>
-                    <TextInput
-                      plain
-                      type="number"
-                      placeholder="Tokens to roll"
-                      value={rollInput || ''}
-                      onChange={(event: any) => setRollInput(cleanValue(event.target.value))}
-                    />
-                    <MaxButton
-                      action={() => setRollInput(maxRemove)}
-                      disabled={maxRemove === '0.0'}
-                      clearAction={() => setRollInput('')}
-                      showingMax={!!rollInput && rollInput === maxRemove}
-                    />
-                  </InputWrap>
-                  <SeriesSelector
-                    selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
-                    actionType={ActionType.POOL}
-                    cardLayout={false}
+              {actionActive.index === 0 &&
+                stepPosition[actionActive.index] !== 0 &&
+                !(removeTx.success || removeTx.failed) && (
+                  <TransactButton
+                    primary
+                    label={
+                      <Text size={mobile ? 'small' : undefined}>
+                        {`Remov${removeTx.processActive ? 'ing' : 'e'} ${
+                          nFormatter(Number(removeInput), selectedBase?.digitFormat!) || ''
+                        } tokens`}
+                      </Text>
+                    }
+                    onClick={() => handleRemove()}
+                    disabled={removeDisabled || removeTx.processActive}
                   />
-                </Box>
-              )}
+                )}
 
-              {stepPosition[actionActive.index] !== 0 && (
-                <ActiveTransaction pad tx={rollTx}>
-                  <SectionWrap
-                    title="Review your roll transaction"
-                    rightAction={<CancelButton action={() => handleStepper(true)} />}
-                  >
-                    <Box margin={{ top: 'medium' }}>
-                      <InfoBite
-                        label="Roll Liquidity"
-                        icon={<FiArrowRight />}
-                        value={`${cleanValue(rollInput, selectedBase?.digitFormat!)} Liquidity Tokens to ${
-                          rollToSeries?.displayName
-                        } `}
-                      />
-                    </Box>
-                  </SectionWrap>
-                </ActiveTransaction>
-              )}
-            </>
-          )}
+              {actionActive.index === 1 &&
+                stepPosition[actionActive.index] !== 0 &&
+                !(removeTx.success || removeTx.failed) && (
+                  <TransactButton
+                    primary
+                    label={
+                      <Text size={mobile ? 'small' : undefined}>
+                        {`Roll${rollTx.processActive ? 'ing' : ''} ${
+                          nFormatter(Number(rollInput), selectedBase?.digitFormat!) || ''
+                        } tokens`}
+                      </Text>
+                    }
+                    onClick={() => handleRoll()}
+                    disabled={rollDisabled || rollTx.processActive}
+                  />
+                )}
 
-          {actionActive.index === 2 && <YieldHistory seriesOrVault={selectedSeries!} view={['POOL']} />}
-        </Box>
-      </Box>
+              {stepPosition[actionActive.index] === 1 &&
+                actionActive.index === 0 &&
+                !removeTx.processActive &&
+                (removeTx.success || removeTx.failed) && <CompletedTx tx={removeTx} resetTx={resetRemoveTx} />}
 
-      <ActionButtonGroup pad>
-        {stepPosition[actionActive.index] === 0 && actionActive.index !== 2 && (
-          <NextButton
-            label={<Text size={mobile ? 'small' : undefined}> Next Step</Text>}
-            onClick={() => handleStepper()}
-            key="next"
-            disabled={(actionActive.index === 0 && removeDisabled) || (actionActive.index === 1 && rollDisabled)}
-            errorLabel={(actionActive.index === 0 && removeError) || (actionActive.index === 1 && rollError)}
-          />
-        )}
-
-        {actionActive.index === 0 &&
-          stepPosition[actionActive.index] !== 0 &&
-          !(removeTx.success || removeTx.failed) && (
-            <TransactButton
-              primary
-              label={
-                <Text size={mobile ? 'small' : undefined}>
-                  {`Remov${removeTx.processActive ? 'ing' : 'e'} ${
-                    nFormatter(Number(removeInput), selectedBase?.digitFormat!) || ''
-                  } tokens`}
-                </Text>
-              }
-              onClick={() => handleRemove()}
-              disabled={removeDisabled || removeTx.processActive}
-            />
-          )}
-
-        {actionActive.index === 1 &&
-          stepPosition[actionActive.index] !== 0 &&
-          !(removeTx.success || removeTx.failed) && (
-            <TransactButton
-              primary
-              label={
-                <Text size={mobile ? 'small' : undefined}>
-                  {`Roll${rollTx.processActive ? 'ing' : ''} ${
-                    nFormatter(Number(rollInput), selectedBase?.digitFormat!) || ''
-                  } tokens`}
-                </Text>
-              }
-              onClick={() => handleRoll()}
-              disabled={rollDisabled || rollTx.processActive}
-            />
-          )}
-
-        {stepPosition[actionActive.index] === 1 &&
-          actionActive.index === 0 &&
-          !removeTx.processActive &&
-          (removeTx.success || removeTx.failed) && <CompletedTx tx={removeTx} resetTx={resetRemoveTx} />}
-
-        {stepPosition[actionActive.index] === 1 &&
-          actionActive.index === 1 &&
-          !rollTx.processActive &&
-          (rollTx.success || rollTx.failed) && <CompletedTx tx={rollTx} resetTx={resetRollTx} />}
-      </ActionButtonGroup>
-    </CenterPanelWrap>
+              {stepPosition[actionActive.index] === 1 &&
+                actionActive.index === 1 &&
+                !rollTx.processActive &&
+                (rollTx.success || rollTx.failed) && <CompletedTx tx={rollTx} resetTx={resetRollTx} />}
+            </ActionButtonGroup>
+          </CenterPanelWrap>
+        </ModalWrap>
+      )}
+    </>
   );
 };
 

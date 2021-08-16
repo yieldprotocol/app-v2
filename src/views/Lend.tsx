@@ -33,7 +33,7 @@ import { useApr } from '../hooks/aprHook';
 import { useInputValidation } from '../hooks/inputValidationHook';
 import { useTx } from '../hooks/useTx';
 import AltText from '../components/texts/AltText';
-import PositionListItem from '../components/PositionListItem';
+import PositionListItem from '../components/PositionItem';
 import EtherscanButton from '../components/buttons/EtherscanButton';
 
 const Lend = () => {
@@ -154,10 +154,7 @@ const Lend = () => {
 
           {stepPosition === 1 && (
             <Box gap="large">
-
-              {!lendTx.success && !lendTx.failed ? (
-                <BackButton action={() => setStepPosition(0)} />
-              ): <Box pad='1em' />}
+              {!lendTx.success && !lendTx.failed ? <BackButton action={() => setStepPosition(0)} /> : <Box pad="1em" />}
 
               <ActiveTransaction full tx={lendTx}>
                 <SectionWrap title="Review transaction:">
