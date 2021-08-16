@@ -1,8 +1,10 @@
 import React, { useContext } from 'react';
 import { Box, ResponsiveContext, Select, Text } from 'grommet';
+import { FiPlusCircle } from 'react-icons/fi';
 import { IVault } from '../../types';
 import PositionAvatar from '../PositionAvatar';
 import { UserContext } from '../../contexts/UserContext';
+
 
 interface IVaultDropSelectorProps {
   vaults: IVault[];
@@ -47,9 +49,10 @@ function VaultDropSelector({
               <Text>{itemSelected?.displayName}</Text>
             </Box>
           ) : (
-            <Box pad={mobile ? 'medium' : 'small'}>
-              <Text color={itemSelected?.displayName ? 'text-weak' : 'text-xweak'} size="small">
-                {displayName}
+            <Box pad={mobile ? 'medium' : 'small'} direction="row" gap="medium" align="center">
+              <FiPlusCircle color='lightgrey' />
+              <Text color={itemSelected?.displayName ? 'text-weak' : 'text-xweak'} size="medium" >
+               {displayName}
               </Text>
             </Box>
           )
@@ -74,6 +77,7 @@ function VaultDropSelector({
               </Box>
             ) : (
               <Box pad="small" direction="row" gap="small" align="center">
+                <FiPlusCircle color='lightgrey'/>
                 <Text color="text-weak" size="medium">
                   {x.displayName}
                 </Text>
