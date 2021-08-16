@@ -14,9 +14,9 @@ const NextButton = (props: any) => (
       color={props.errorLabel ? 'red' : undefined}
       label={
         props.errorLabel ? (
-          <Box direction="row" gap="small" align="center" fill justify='center'>
+          <Box direction="row" gap="small" align="center" fill justify="center">
             <Text color="red">
-              <FiAlertTriangle />
+              <FiAlertTriangle style={{ verticalAlign: 'middle' }} />
             </Text>
             <Text color="red" size="xsmall">
               {props.errorLabel}

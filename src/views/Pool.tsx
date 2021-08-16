@@ -57,7 +57,10 @@ function Pool() {
   const { addLiquidity } = usePoolActions();
   const { poolMax } = usePool(poolInput);
   /* input validation hooks */
-  const { inputError: poolError } = useInputValidation(poolInput, ActionCodes.LEND, selectedSeries, [0, maxPool]);
+  const { inputError: poolError } = useInputValidation(poolInput, ActionCodes.ADD_LIQUIDITY, selectedSeries, [
+    0,
+    maxPool,
+  ]);
 
   const { tx: poolTx, resetTx } = useTx(ActionCodes.ADD_LIQUIDITY, selectedSeries?.id);
 
@@ -157,9 +160,7 @@ function Pool() {
 
           {stepPosition === 1 && (
             <Box gap="large">
-              {!poolTx.success &&!poolTx.failed?  (
-                <BackButton action={() => setStepPosition(0)} />
-              ): <Box pad='1em'/>}
+              {!poolTx.success && !poolTx.failed ? <BackButton action={() => setStepPosition(0)} /> : <Box pad="1em" />}
 
               <ActiveTransaction full tx={poolTx}>
                 <Box gap="large">

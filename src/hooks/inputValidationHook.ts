@@ -28,7 +28,7 @@ export const useInputValidation = (
       const belowMin: boolean = !!limits[0] && parseFloat(input) < parseFloat(limits[0].toString());
 
       // General input validation here:
-      if (parseFloat(input) < 0) {
+      if (parseFloat(input) <= 0) {
         setInputError('Amount should be expressed as a positive value');
       } else if (aboveMax) {
         setInputError('Amount exceeds available balance');
@@ -37,13 +37,15 @@ export const useInputValidation = (
       // Action specific rules: - or message customising/Overriding:
 
       switch (actionCode) {
-
-        case ActionCodes.BORROW : 
-          input && selectedSeries && ethers.utils.parseEther(input).gt(selectedSeries.baseReserves) &&
-          setInputError(`Amount exceeds the ${selectedBase?.symbol} currently available in pool`);
+        case ActionCodes.BORROW:
+          input &&
+            selectedSeries &&
+            ethers.utils.parseEther(input).gt(selectedSeries.baseReserves) &&
+            setInputError(`Amount exceeds the ${selectedBase?.symbol} currently available in pool`);
           break;
 
-        case (ActionCodes.REPAY || ActionCodes.ROLL_DEBT) :
+        case ActionCodes.REPAY:
+        case ActionCodes.ROLL_DEBT:
           aboveMax && setInputError('Amount exceeds your current debt');
           belowMin && setInputError('Remaining debt below dust levels');
           break;
@@ -56,18 +58,26 @@ export const useInputValidation = (
           aboveMax && setInputError('Vault will be undercollateralised ');
           break;
 
-        case ActionCodes.TRANSFER_VAULT: 
+        case ActionCodes.TRANSFER_VAULT:
           input && !ethers.utils.isAddress(input) && setInputError('Not a valid Address');
           break;
 
-        default: 
-          setInputError(null); 
+        case ActionCodes.LEND:
+        case ActionCodes.ADD_LIQUIDITY:
+        case ActionCodes.CLOSE_POSITION:
+        case ActionCodes.ROLL_POSITION:
+        case ActionCodes.REMOVE_LIQUIDITY:
+        case ActionCodes.ROLL_LIQUIDITY:
+          aboveMax && setInputError('Amount exceeds available balance');
+          belowMin && setInputError('Amount should be expressed as a positive value');
+          break;
+
+        default:
+          setInputError(null);
           break;
       }
-
     } else setInputError(null);
-
-  }, [actionCode, activeAccount, input, limits, selectedBase?.symbol, selectedSeries ]);
+  }, [actionCode, activeAccount, input, limits, selectedBase?.symbol, selectedSeries]);
 
   return {
     inputError,
