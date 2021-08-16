@@ -14,26 +14,29 @@ import HandText from './texts/HandText';
 import { useCachedState } from '../hooks/generalHooks';
 
 interface IYieldHeaderProps {
+  logo?: boolean;
   children: any;
 }
 
-const YieldCardHeader = ({ children }: IYieldHeaderProps) => {
+const YieldCardHeader = ({ logo, children }: IYieldHeaderProps) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   return (
-    <Box
-      direction="row"
-      align='center'
-      margin={mobile ? { bottom: 'large' } : { bottom: 'small' }}
-      justify='between'
+    <Box 
+      direction="row" 
+      align="center" 
+      margin={mobile ? { bottom: 'large' } : { bottom: 'small' }} 
+      justify="between"
     >
-      <Box direction={mobile?'row': undefined} gap='large' align={mobile?'center':undefined}>
-      {mobile && <YieldMark height='2em' />}
-      {children}
+      <Box direction="row" gap="large" align="center">
+        {logo && <YieldMark height="1.5em" />}
+        {children}
       </Box>
-      {mobile && <FiMenu /> }
+      {mobile && <FiMenu />}
     </Box>
   );
 };
+
+YieldCardHeader.defaultProps = { logo: false };
 
 export default YieldCardHeader;

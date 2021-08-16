@@ -183,10 +183,10 @@ const Borrow = () => {
           <Box height="100%" pad={mobile ? 'medium' : 'large'}>
             {stepPosition === 0 && ( // INITIAL STEP
               <Box gap="medium">
-
-                <YieldCardHeader>
+                
+                <YieldCardHeader logo={mobile}>
                   <Box gap={mobile ? undefined : 'xsmall'}>
-                    <AltText size={mobile ? 'medium' : 'large'}> BORROW</AltText>
+                    <AltText size={mobile ? 'small' : 'large'}>BORROW</AltText>
                     <AltText color="text-weak" size="xsmall">
                       popular ERC20 tokens at a fixed rate.
                     </AltText>
@@ -230,7 +230,9 @@ const Borrow = () => {
 
             {stepPosition === 1 && ( // ADD COLLATERAL
               <Box gap="medium">
-                <BackButton action={() => setStepPosition(0)} />
+                <YieldCardHeader>
+                  <BackButton action={() => setStepPosition(0)} />
+                </YieldCardHeader>
 
                 <Box gap="large" height="400px">
                   <SectionWrap>
