@@ -31,8 +31,8 @@ function PositionAvatar({ position, condensed }: { position: IVault | ISeries; c
           </Avatar>
         </Stack>
       ) : (
-        <Avatar background={series?.color}>
-          <Box round="large" background={base?.color} pad="xsmall" align="center">
+        <Avatar background={series?.color} size={condensed ? '1.5rem' : undefined}>
+          <Box round="large" background={base?.color} pad={condensed ? 'none' : 'xsmall'} align="center">
             {base?.image}
           </Box>
         </Avatar>

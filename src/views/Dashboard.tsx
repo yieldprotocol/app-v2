@@ -3,7 +3,7 @@ import { Box, ResponsiveContext, Text } from 'grommet';
 import { UserContext } from '../contexts/UserContext';
 import { ChainContext } from '../contexts/ChainContext';
 import Vaults from '../components/Vaults';
-import Positions from '../components/Positions';
+import Positions from '../components/DashboardPositions';
 import { ActionType, IVault, IAsset, ISeries, IUserContext } from '../types';
 import YieldInfo from '../components/YieldInfo';
 import MainViewWrap from '../components/wraps/MainViewWrap';
