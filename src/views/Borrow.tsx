@@ -392,7 +392,6 @@ const Borrow = () => {
                       resetTx();
                     }}
                   />
-                  <EtherscanButton txHash={borrowTx.txHash} />
                 </>
               )}
             </ActionButtonWrap>

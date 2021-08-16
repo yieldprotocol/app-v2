@@ -236,7 +236,6 @@ const Lend = () => {
                   resetTx();
                 }}
               />
-              <EtherscanButton txHash={lendTx.txHash} />
             </>
           )}
 
