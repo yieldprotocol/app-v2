@@ -31,7 +31,7 @@ import NextButton from '../components/buttons/NextButton';
 import TransactButton from '../components/buttons/TransactButton';
 import { useInputValidation } from '../hooks/inputValidationHook';
 import AltText from '../components/texts/AltText';
-import PositionListItem from '../components/PositionListItem';
+import PositionListItem from '../components/PositionItem';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -57,7 +57,10 @@ function Pool() {
   const { addLiquidity } = usePoolActions();
   const { poolMax } = usePool(poolInput);
   /* input validation hooks */
-  const { inputError: poolError } = useInputValidation(poolInput, ActionCodes.LEND, selectedSeries, [0, maxPool]);
+  const { inputError: poolError } = useInputValidation(poolInput, ActionCodes.ADD_LIQUIDITY, selectedSeries, [
+    0,
+    maxPool,
+  ]);
 
   const { tx: poolTx, resetTx } = useTx(ActionCodes.ADD_LIQUIDITY, selectedSeries?.id);
 

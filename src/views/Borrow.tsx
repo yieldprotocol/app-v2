@@ -390,7 +390,6 @@ const Borrow = () => {
                     label={<Text size={mobile ? 'xsmall' : undefined}> Report and go back</Text>}
                     onClick={() => reset()}
                   />
-                  <EtherscanButton txHash={borrowTx.txHash} />
                 </>
               )}
             </ActionButtonWrap>

@@ -33,7 +33,7 @@ import { useApr } from '../hooks/aprHook';
 import { useInputValidation } from '../hooks/inputValidationHook';
 import { useTx } from '../hooks/useTx';
 import AltText from '../components/texts/AltText';
-import PositionListItem from '../components/PositionListItem';
+import PositionListItem from '../components/PositionItem';
 import EtherscanButton from '../components/buttons/EtherscanButton';
 
 const Lend = () => {
@@ -233,7 +233,6 @@ const Lend = () => {
                 label={<Text size={mobile ? 'xsmall' : undefined}> Report and go back</Text>}
                 onClick={() => reset()}
               />
-              <EtherscanButton txHash={lendTx.txHash} />
             </>
           )}
 
