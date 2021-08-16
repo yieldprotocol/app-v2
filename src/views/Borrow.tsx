@@ -3,7 +3,7 @@ import { Box, Keyboard, ResponsiveContext, Text, TextInput } from 'grommet';
 import { useHistory, useParams } from 'react-router-dom';
 import { ethers } from 'ethers';
 
-import { FiClock, FiPocket, FiPercent, FiTrendingUp } from 'react-icons/fi';
+import { FiClock, FiPocket, FiPercent, FiTrendingUp, FiMenu } from 'react-icons/fi';
 
 import SeriesSelector from '../components/selectors/SeriesSelector';
 import MainViewWrap from '../components/wraps/MainViewWrap';
@@ -40,6 +40,8 @@ import VaultDropSelector from '../components/selectors/VaultDropSelector';
 import { useInputValidation } from '../hooks/inputValidationHook';
 import AltText from '../components/texts/AltText';
 import EtherscanButton from '../components/buttons/EtherscanButton';
+import YieldMark from '../components/logos/YieldMark';
+import YieldCardHeader from '../components/YieldCardHeader';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -145,10 +147,7 @@ const Borrow = () => {
       const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
       const _matchingVaults = arr.filter(
         (v: IVault) =>
-          v.ilkId === selectedIlk.id && 
-          v.baseId === selectedBase.id && 
-          v.seriesId === selectedSeries.id && 
-          v.isActive
+          v.ilkId === selectedIlk.id && v.baseId === selectedBase.id && v.seriesId === selectedSeries.id && v.isActive
       );
       setMatchingVaults(_matchingVaults);
       // reset the selected vault on every change
@@ -181,23 +180,24 @@ const Borrow = () => {
         )}
 
         <CenterPanelWrap series={selectedSeries || undefined}>
-          <Box height="100%" pad="large">
+          <Box height="100%" pad={mobile ? 'medium' : 'large'}>
             {stepPosition === 0 && ( // INITIAL STEP
               <Box gap="medium">
-                <Box gap="xsmall">
-                  <AltText size="large">BORROW</AltText>
-                  <Box>
+
+                <YieldCardHeader>
+                  <Box gap={mobile ? undefined : 'xsmall'}>
+                    <AltText size={mobile ? 'medium' : 'large'}> BORROW</AltText>
                     <AltText color="text-weak" size="xsmall">
                       popular ERC20 tokens at a fixed rate.
                     </AltText>
                   </Box>
-                </Box>
+                </YieldCardHeader>
 
                 <Box gap="large">
                   {/* <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}> */}
                   <SectionWrap>
-                    <Box direction="row" gap="small">
-                      <Box basis={mobile ? '50%' : '60%'}>
+                    <Box direction="row-responsive" gap="small">
+                      <Box basis={mobile ? undefined : '60%'}>
                         <InputWrap action={() => console.log('maxAction')} isError={borrowInputError}>
                           <TextInput
                             plain
@@ -209,7 +209,7 @@ const Borrow = () => {
                           />
                         </InputWrap>
                       </Box>
-                      <Box basis={mobile ? '50%' : '40%'}>
+                      <Box basis={mobile ? undefined : '40%'}>
                         <AssetSelector />
                       </Box>
                     </Box>
@@ -233,17 +233,24 @@ const Borrow = () => {
                 <BackButton action={() => setStepPosition(0)} />
 
                 <Box gap="large" height="400px">
-
                   <SectionWrap>
-                    <Box direction="row" align="center" gap="large" justify="center" margin={{ vertical:'medium' }}>
+                    <Box
+                      direction="row"
+                      // align="center"
+                      gap="large"
+                      margin={{ vertical: 'medium' }}
+                    >
                       <Box>
-                        <Gauge value={parseFloat(collateralizationPercent!)} size="8em" />
+                        <Gauge value={parseFloat(collateralizationPercent!)} size={mobile ? '6em' : '8em'} />
                       </Box>
 
                       <Box>
-                        <Text size="small"> Collateralization </Text>
-                        <Text size="xlarge">
-                          { parseFloat(collateralizationPercent!) > 10000
+                        <Text size={mobile ? 'xsmall' : 'medium'} color="text-weak">
+                          {' '}
+                          Collateralization{' '}
+                        </Text>
+                        <Text size={mobile ? 'large' : 'xlarge'}>
+                          {parseFloat(collateralizationPercent!) > 10000
                             ? nFormatter(parseFloat(collateralizationPercent!), 2)
                             : parseFloat(collateralizationPercent!)}
                           %
@@ -253,8 +260,8 @@ const Borrow = () => {
                   </SectionWrap>
 
                   <SectionWrap title="Amount of collateral to add">
-                    <Box direction="row" gap="small">
-                      <Box basis={mobile ? '50%' : '60%'} fill="horizontal">
+                    <Box direction="row-responsive" gap="small">
+                      <Box basis={mobile ? undefined : '60%'} fill="horizontal">
                         <InputWrap
                           action={() => console.log('maxAction')}
                           disabled={!selectedSeries}
@@ -277,23 +284,24 @@ const Borrow = () => {
                           />
                         </InputWrap>
                       </Box>
-                      <Box basis={mobile ? '50%' : '40%'}>
+                      <Box basis={mobile ? undefined : '40%'}>
                         <AssetSelector selectCollateral />
                       </Box>
                     </Box>
                   </SectionWrap>
-                  {
-                  matchingVaults.length > 0 &&
-                  <SectionWrap title="Add to an exisiting vault" disabled={matchingVaults.length < 1}>
-                    <VaultDropSelector
-                      vaults={matchingVaults}
-                      handleSelect={(option: any) => setVaultToUse(option)}
-                      itemSelected={vaultToUse}
-                      displayName="Create New Vault"
-                      placeholder="Create New Vault"
-                      defaultOptionValue="Create New Vault"
-                    />
-                  </SectionWrap>}
+
+                  {matchingVaults.length > 0 && (
+                    <SectionWrap title="Add to an exisiting vault" disabled={matchingVaults.length < 1}>
+                      <VaultDropSelector
+                        vaults={matchingVaults}
+                        handleSelect={(option: any) => setVaultToUse(option)}
+                        itemSelected={vaultToUse}
+                        displayName="Create New Vault"
+                        placeholder="Create New Vault"
+                        defaultOptionValue="Create New Vault"
+                      />
+                    </SectionWrap>
+                  )}
                 </Box>
               </Box>
             )}
@@ -302,7 +310,9 @@ const Borrow = () => {
               <Box gap="large">
                 {!borrowTx.success && !borrowTx.failed ? (
                   <BackButton action={() => setStepPosition(1)} />
-                ): <Box pad='1em'/>}
+                ) : (
+                  <Box pad="1em" />
+                )}
 
                 <ActiveTransaction full tx={borrowTx}>
                   <SectionWrap title="Review transaction:">
@@ -346,7 +356,6 @@ const Borrow = () => {
           </Box>
 
           <Box>
-
             <ActionButtonWrap pad>
               {(stepPosition === 0 || stepPosition === 1) && (
                 <NextButton

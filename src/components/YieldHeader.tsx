@@ -21,11 +21,13 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
   const prevLoc = useCachedState('lastVisit', '')[0].slice(1).split('/')[0];
 
   return (
+    <>
+    {!mobile &&
     <Header
-      pad="large"
-      height={mobile ? undefined : 'xsmall'}
+      pad={mobile?'xsmall': "large"}
+      height={mobile? undefined: "xsmall"}
       style={{ position: 'fixed', top: '0px' }}
-      background="background"
+      background='background'
       direction="row"
       fill="horizontal"
     >
@@ -45,7 +47,8 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
           <YieldAccount />
         </Box>
       </Grid>
-    </Header>
+    </Header>}
+    </>
   );
 };
 
