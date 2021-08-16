@@ -4,7 +4,7 @@ import { UserContext } from '../contexts/UserContext';
 import { IVault, ISeries, IAsset, IUserContext } from '../types';
 
 function PositionAvatar({ position, condensed }: { position: IVault | ISeries, condensed?: boolean }) {
-  const isVault = position.id.length > 15;
+  const isVault = position?.id.length > 15;
 
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext) as IUserContext;

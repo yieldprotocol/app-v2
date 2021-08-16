@@ -27,9 +27,9 @@ const YieldHistory = ({ seriesOrVault, view }: IYieldHistory) => {
   const [itemOpen, setItemOpen] = useState<any>(null);
 
   useEffect(() => {
-    if (view.includes('POOL')) setHistList(poolHistory.get(seriesOrVault.id));
-    if (view.includes('VAULT')) setHistList(vaultHistory.get(seriesOrVault.id));
-    if (view.includes('TRADE')) setHistList(tradeHistory.get(seriesOrVault.id));
+      if (view.includes('POOL') && poolHistory.size) setHistList(poolHistory.get(seriesOrVault.id));
+      if (view.includes('VAULT')&& vaultHistory.size) setHistList(vaultHistory.get(seriesOrVault.id));
+      if (view.includes('TRADE')&& tradeHistory.size) setHistList(tradeHistory.get(seriesOrVault.id));
   }, [isVault, poolHistory, seriesOrVault.id, tradeHistory, vaultHistory, view]);
 
   return (

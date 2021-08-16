@@ -1,6 +1,7 @@
 import { Box, Button, Layer, Text } from 'grommet';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { FiX } from 'react-icons/fi';
+import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
@@ -30,6 +31,8 @@ const StyledBox = styled(Box)`
 `;
 
 function VaultSelector(target: any) {
+
+   const history = useHistory();
   /* STATE FROM CONTEXT */
   const { userState, userActions } = useContext(UserContext) as IUserContext;
   const {
@@ -51,7 +54,8 @@ function VaultSelector(target: any) {
 
   const handleSelect = (_vault: IVault) => {
     setSelectedVault(_vault.id);
-    setShowVaultModal(true);
+    // setShowVaultModal(true);
+    history.push(`/vaultposition/${_vault.id}`)
   };
 
   const handleFilter = useCallback(
@@ -93,10 +97,10 @@ function VaultSelector(target: any) {
 
   return (
     account && (
-      <>
-        <ModalWrap modalOpen={showVaultModal} toggleModalOpen={handleCloseModal}>
+      <Box justify='end' fill>
+        {/* <ModalWrap modalOpen={showVaultModal} toggleModalOpen={handleCloseModal}>
           <Vault close={handleCloseModal} />
-        </ModalWrap>
+        </ModalWrap> */}
 
         {allVaults.length > 0 && (
           <Box justify="between" alignSelf="end" gap="small" pad="small">
@@ -182,7 +186,7 @@ function VaultSelector(target: any) {
             </Box>}
           </Box>
         )}
-      </>
+      </Box>
     )
   );
 }

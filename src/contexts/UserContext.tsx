@@ -423,7 +423,7 @@ const UserProvider = ({ children }: any) => {
       /* trigger update of update all vaults by passing empty array */
       updateVaults([], true);
     }
-  }, [account, chainLoading, updateVaults]);
+  }, [account, chainLoading ]);
 
   /* Subscribe to vault event listeners */
   useEffect(() => {
