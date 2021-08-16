@@ -94,7 +94,7 @@ function VaultSelector(target: any) {
   return (
     account && (
       <>
-        <ModalWrap modalOpen={showVaultModal} toggleModalOpen={handleCloseModal} background={selectedSeries?.color}>
+        <ModalWrap modalOpen={showVaultModal} toggleModalOpen={handleCloseModal}>
           <Vault close={handleCloseModal} />
         </ModalWrap>
 

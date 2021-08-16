@@ -80,7 +80,6 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
       <ModalWrap
         modalOpen={showPositionModal}
         toggleModalOpen={() => setShowPositionModal(!showPositionModal)}
-        background={selectedSeries?.color}
       >
         {actionType === 'LEND' ? (
           <LendPosition close={() => setShowPositionModal(false)} />

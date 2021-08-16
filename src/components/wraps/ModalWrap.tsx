@@ -16,10 +16,9 @@ interface IModalWrap {
   modalOpen: boolean;
   toggleModalOpen: () => void;
   children: any;
-  background?: string | undefined;
 }
 
-function ModalWrap({ children, toggleModalOpen, background, modalOpen = false }: IModalWrap) {
+function ModalWrap({ children, toggleModalOpen, modalOpen = false }: IModalWrap) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const prevLoc = useCachedState('lastVisit', '')[0].slice(1).split('/')[0];
 
@@ -37,7 +36,7 @@ function ModalWrap({ children, toggleModalOpen, background, modalOpen = false }:
           onClickOutside={() => toggleModalOpen()}
           responsive
           full
-          background={background}
+          background={series?.color}
           animation="none"
         >
           <Header
@@ -87,7 +86,5 @@ function ModalWrap({ children, toggleModalOpen, background, modalOpen = false }:
     </Box>
   );
 }
-
-ModalWrap.defaultProps = { background: undefined };
 
 export default ModalWrap;
