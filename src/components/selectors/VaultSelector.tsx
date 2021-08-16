@@ -1,5 +1,5 @@
-import { Box, Button, Text } from 'grommet';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { Box, Button, Text } from 'grommet';
 import { FiX } from 'react-icons/fi';
 import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
@@ -14,7 +14,6 @@ interface IVaultFilter {
 }
 
 function VaultSelector(target: any) {
-   
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext) as IUserContext;
   const {
@@ -48,24 +47,23 @@ function VaultSelector(target: any) {
 
   /* CHECK the list of current vaults which match the current series/ilk selection */
   useEffect(() => {
-      const _allVaults: IVault[] = Array.from(vaultMap.values()) as IVault[];
-      setAllVaults(_allVaults);
-      if (selectedBase) {
-        handleFilter({ base: selectedBase, series: undefined, ilk: undefined });
-      }
-      if (selectedBase && selectedSeries) {
-        handleFilter({ base: selectedBase, series: selectedSeries, ilk: undefined });
-      }
+    const _allVaults: IVault[] = Array.from(vaultMap.values()) as IVault[];
+    setAllVaults(_allVaults);
+    if (selectedBase) {
+      handleFilter({ base: selectedBase, series: undefined, ilk: undefined });
+    }
+    if (selectedBase && selectedSeries) {
+      handleFilter({ base: selectedBase, series: selectedSeries, ilk: undefined });
+    }
   }, [vaultMap, selectedBase, selectedSeries, handleFilter]);
 
-  useEffect(()=> {
-    allVaults.length <=5 && setShowAllVaults(true)
-  },[allVaults])
+  useEffect(() => {
+    allVaults.length <= 5 && setShowAllVaults(true);
+  }, [allVaults]);
 
   return (
     account && (
-      <Box justify='end' fill>
-
+      <Box justify="end" fill>
         {allVaults.length > 0 && (
           <Box justify="between" alignSelf="end" gap="small" pad="small">
             <Box animation="fadeIn" justify="center" align="center" direction="row" gap="small">
@@ -82,9 +80,7 @@ function VaultSelector(target: any) {
               )}
 
               {(showAllVaults ? allVaults : filteredVaults).map((x: IVault, i: number) => (
-
-                  <VaultListItem vault={x} index={i} key={x.id}/>
-
+                <VaultListItem vault={x} index={i} key={x.id} />
               ))}
             </ListWrap>
 
@@ -133,12 +129,13 @@ function VaultSelector(target: any) {
               </Box>
             )}
 
-            {allVaults.length > 5 &&
-            <Box align="end" onClick={() => setShowAllVaults(!showAllVaults)}>
-              <Text size="xsmall" color="text-xweak">
-                {showAllVaults ? 'Auto-filter vaults' : `Show all ${allVaults.length} vaults`}
-              </Text>
-            </Box>}
+            {allVaults.length > 5 && (
+              <Box align="end" onClick={() => setShowAllVaults(!showAllVaults)}>
+                <Text size="xsmall" color="text-xweak">
+                  {showAllVaults ? 'Auto-filter vaults' : `Show all ${allVaults.length} vaults`}
+                </Text>
+              </Box>
+            )}
           </Box>
         )}
       </Box>

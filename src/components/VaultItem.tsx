@@ -9,7 +9,6 @@ import { UserContext } from '../contexts/UserContext';
 import PositionAvatar from './PositionAvatar';
 import ItemWrap from './wraps/ItemWrap';
 
-
 const StyledBox = styled(Box)`
   -webkit-transition: transform 0.3s ease-in-out;
   -moz-transition: transform 0.3s ease-in-out;
@@ -22,9 +21,7 @@ const StyledBox = styled(Box)`
   }
 `;
 
-
-function VaultItem({ vault, index }: { vault: IVault, index:number }) {
-
+function VaultItem({ vault, index }: { vault: IVault; index: number }) {
   const history = useHistory();
 
   const { userState, userActions } = useContext(UserContext) as IUserContext;
@@ -35,37 +32,33 @@ function VaultItem({ vault, index }: { vault: IVault, index:number }) {
 
   const handleSelect = (_vault: IVault) => {
     setSelectedVault(_vault.id);
-    history.push(`/vaultposition/${_vault.id}`)
+    history.push(`/vaultposition/${_vault.id}`);
   };
 
   return (
-
-
-    <ItemWrap action={() => handleSelect(vault)} index={index} > 
-
-    <Box direction="row" gap="small" align="center" pad="small">
-      <PositionAvatar position={vault} />
-      <Box>
-        <Text weight={900} size="small" color={vault.isActive ? undefined : 'text-xweak'}>
-          {vault.displayName}
-        </Text>
-        {vault.isActive ? (
-          <Box direction="column" >
-            <Text weight={450} size="xsmall">
-              {series?.displayNameMobile}
-            </Text>
-            <Text weight={450} size="xsmall">
-              Debt: {vault.art_}
-            </Text>
-          </Box>
-        ) : (
-          <Text weight={450} size="xsmall" color="text-xweak">
-            Vault transfered or deleted
+    <ItemWrap action={() => handleSelect(vault)} index={index}>
+      <Box direction="row" gap="small" align="center" pad="small">
+        <PositionAvatar position={vault} />
+        <Box>
+          <Text weight={900} size="small" color={vault.isActive ? undefined : 'text-xweak'}>
+            {vault.displayName}
           </Text>
-        )}
+          {vault.isActive ? (
+            <Box direction="column">
+              <Text weight={450} size="xsmall">
+                {series?.displayNameMobile}
+              </Text>
+              <Text weight={450} size="xsmall">
+                Debt: {vault.art_}
+              </Text>
+            </Box>
+          ) : (
+            <Text weight={450} size="xsmall" color="text-xweak">
+              Vault transfered or deleted
+            </Text>
+          )}
+        </Box>
       </Box>
-    </Box>
-
     </ItemWrap>
   );
 }

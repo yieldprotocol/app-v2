@@ -26,7 +26,6 @@ import ExitButton from '../components/buttons/ExitButton';
 import { useInputValidation } from '../hooks/inputValidationHook';
 import ModalWrap from '../components/wraps/ModalWrap';
 
-
 const LendPosition = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const history = useHistory();

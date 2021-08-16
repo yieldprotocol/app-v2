@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Box, Layer, ResponsiveContext } from 'grommet';
+import { Box, ResponsiveContext } from 'grommet';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Redirect, Route, Switch } from 'react-router-dom';
@@ -16,7 +16,6 @@ import YieldHeader from './components/YieldHeader';
 import NetworkError from './components/NetworkError';
 import LendPosition from './views/LendPosition';
 import PoolPosition from './views/PoolPosition';
-import ModalWrap from './components/wraps/ModalWrap';
 
 function App() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -56,7 +55,7 @@ function App() {
           </Route>
 
           <Route path="/lendposition/:id">
-              <LendPosition close={() => null} />
+            <LendPosition close={() => null} />
           </Route>
 
           <Route path="/poolposition/:id">

@@ -67,7 +67,6 @@ function userReducer(state: any, action: any) {
       return { ...state, userLoading: onlyIfChanged(action) };
     case 'activeAccount':
       return { ...state, activeAccount: onlyIfChanged(action) };
-
     case 'selectedVaultId':
       return { ...state, selectedVaultId: onlyIfChanged(action) };
     case 'selectedSeriesId':
@@ -76,26 +75,20 @@ function userReducer(state: any, action: any) {
       return { ...state, selectedIlkId: onlyIfChanged(action) };
     case 'selectedBaseId':
       return { ...state, selectedBaseId: onlyIfChanged(action) };
-
     case 'assetMap':
       return { ...state, assetMap: onlyIfChanged(action) };
     case 'seriesMap':
       return { ...state, seriesMap: onlyIfChanged(action) };
     case 'vaultMap':
       return { ...state, vaultMap: onlyIfChanged(action) };
-
     case 'priceMap':
       return { ...state, priceMap: onlyIfChanged(action) };
-
     case 'approvalMethod':
       return { ...state, approvalMethod: onlyIfChanged(action) };
-
     case 'dudeSalt':
       return { ...state, dudeSalt: onlyIfChanged(action) };
-
     case 'showInactiveVaults':
       return { ...state, showInactiveVaults: onlyIfChanged(action) };
-
     case 'setSlippageTolerance':
       return { ...state, slippageTolerance: onlyIfChanged(action) };
 
@@ -423,7 +416,7 @@ const UserProvider = ({ children }: any) => {
       /* trigger update of update all vaults by passing empty array */
       updateVaults([], true);
     }
-  }, [account, chainLoading ]);
+  }, [account, chainLoading]);
 
   /* Subscribe to vault event listeners */
   useEffect(() => {

@@ -39,10 +39,7 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
     userActions.setSelectedBase(_series.baseId);
     userActions.setSelectedSeries(_series.id);
 
-    actionType === 'LEND'
-    ? history.push(`/lendposition/${_series.id}`)
-    : history.push(`/poolposition/${_series.id}`)
-
+    actionType === 'LEND' ? history.push(`/lendposition/${_series.id}`) : history.push(`/poolposition/${_series.id}`);
   };
 
   const handleFilter = useCallback(
@@ -65,24 +62,23 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
   useEffect(() => {
     /* only if veiwing the main screen (not when modal is showing) */
     // if (!showPositionModal) {
-      const _allPositions: ISeries[] = Array.from(seriesMap.values())
-        /* filter by positive balances on either pool tokens or fyTokens */
-        .filter((_series: ISeries) => (actionType === 'LEND' && _series ? _series.fyTokenBalance?.gt(ZERO_BN) : true))
-        .filter((_series: ISeries) => (actionType === 'POOL' && _series ? _series.poolTokens?.gt(ZERO_BN) : true));
-      setAllPositions(_allPositions);
+    const _allPositions: ISeries[] = Array.from(seriesMap.values())
+      /* filter by positive balances on either pool tokens or fyTokens */
+      .filter((_series: ISeries) => (actionType === 'LEND' && _series ? _series.fyTokenBalance?.gt(ZERO_BN) : true))
+      .filter((_series: ISeries) => (actionType === 'POOL' && _series ? _series.poolTokens?.gt(ZERO_BN) : true));
+    setAllPositions(_allPositions);
 
-      if (selectedBase) handleFilter({ base: selectedBase, series: undefined });
-      if (selectedBase && selectedSeries) handleFilter({ base: selectedBase, series: selectedSeries });
+    if (selectedBase) handleFilter({ base: selectedBase, series: undefined });
+    if (selectedBase && selectedSeries) handleFilter({ base: selectedBase, series: selectedSeries });
     // }
   }, [selectedBase, selectedSeries, handleFilter, seriesMap, actionType]);
 
-  useEffect(()=> {
-    allPositions.length <=5 && setShowAllPositions(true)
-  },[allPositions])
+  useEffect(() => {
+    allPositions.length <= 5 && setShowAllPositions(true);
+  }, [allPositions]);
 
   return (
-    <Box justify='end' fill>
-
+    <Box justify="end" fill>
       {allPositions.length !== 0 && (
         <Box justify="between" alignSelf="end" gap="small" pad="small">
           <Box animation="fadeIn" justify="center" align="center" direction="row" gap="small">
@@ -101,9 +97,7 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
             )}
 
             {(!showAllPositions ? filteredSeries : allPositions).map((x: ISeries, i: number) => (
-
-                <PositionListItem series={x} actionType={actionType} index={i} key={x.id}/>
-
+              <PositionListItem series={x} actionType={actionType} index={i} key={x.id} />
             ))}
           </ListWrap>
 
@@ -156,14 +150,15 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
             </Box>
           )}
 
-          {allPositions.length > 5 &&
-          <Box align="end" onClick={() => setShowAllPositions(!showAllPositions)}>
-            <Text size="xsmall" color="text-weak">
-              {showAllPositions
-                ? `Show suggested ${selectedBase?.symbol || ''} positions only`
-                : `Show all ${allPositions.length} positions`}
-            </Text>
-          </Box>}
+          {allPositions.length > 5 && (
+            <Box align="end" onClick={() => setShowAllPositions(!showAllPositions)}>
+              <Text size="xsmall" color="text-weak">
+                {showAllPositions
+                  ? `Show suggested ${selectedBase?.symbol || ''} positions only`
+                  : `Show all ${allPositions.length} positions`}
+              </Text>
+            </Box>
+          )}
         </Box>
       )}
     </Box>
