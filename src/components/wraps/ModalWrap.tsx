@@ -31,7 +31,9 @@ function ModalWrap({ children, series, toggleModalOpen }: IModalWrap) {
   const _series = series || seriesMap.get(selectedSeriesId);
 
   return (
-    <StyledLayer onClickOutside={() => toggleModalOpen()} responsive full background={_series?.color} animation="none">
+    <StyledLayer onClickOutside={() => toggleModalOpen()} full background={_series?.color} animation="none">
+      {!mobile && 
+      <>
       <Header
         pad="large"
         height={mobile ? undefined : 'xsmall'}
@@ -60,13 +62,12 @@ function ModalWrap({ children, series, toggleModalOpen }: IModalWrap) {
         </Grid>
       </Header>
 
-      <Box flex={!mobile} overflow="auto" margin={{ top: 'xlarge' }}>
-        <MainViewWrap pad="large">
+      <Box flex={!mobile} overflow="auto" margin={mobile? {} : { top: 'xlarge' }}>
+        <MainViewWrap pad={mobile? 'medium': 'large'}>
           <PanelWrap>
             <Box />
           </PanelWrap>
           <Box gap="large" width="600px" pad={{ top: 'large' }}>
-            {/* <BackButton action={() => toggleModalOpen()} /> */}
             {children}
           </Box>
           <PanelWrap>
@@ -74,6 +75,10 @@ function ModalWrap({ children, series, toggleModalOpen }: IModalWrap) {
           </PanelWrap>
         </MainViewWrap>
       </Box>
+      </>}
+
+      {mobile && <Box background='background'>{children}</Box>}
+
     </StyledLayer>
   );
 }
