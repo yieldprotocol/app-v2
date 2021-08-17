@@ -183,8 +183,7 @@ const Borrow = () => {
           <Box height="100%" pad={mobile ? 'medium' : 'large'}>
             {stepPosition === 0 && ( // INITIAL STEP
               <Box gap="medium">
-                
-                <YieldCardHeader logo={mobile}>
+                <YieldCardHeader logo={mobile} series={selectedSeries}>
                   <Box gap={mobile ? undefined : 'xsmall'}>
                     <AltText size={mobile ? 'small' : 'large'}>BORROW</AltText>
                     <AltText color="text-weak" size="xsmall">
@@ -310,11 +309,13 @@ const Borrow = () => {
 
             {stepPosition === 2 && ( // REVIEW
               <Box gap="large">
-                {!borrowTx.success && !borrowTx.failed ? (
-                  <BackButton action={() => setStepPosition(1)} />
-                ) : (
-                  <Box pad="1em" />
-                )}
+                <YieldCardHeader>
+                  {!borrowTx.success && !borrowTx.failed ? (
+                    <BackButton action={() => setStepPosition(1)} />
+                  ) : (
+                    <Box pad="1em" />
+                  )}
+                </YieldCardHeader>
 
                 <ActiveTransaction full tx={borrowTx}>
                   <SectionWrap title="Review transaction:">

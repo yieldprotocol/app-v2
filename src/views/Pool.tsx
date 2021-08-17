@@ -32,6 +32,7 @@ import TransactButton from '../components/buttons/TransactButton';
 import { useInputValidation } from '../hooks/inputValidationHook';
 import AltText from '../components/texts/AltText';
 import PositionListItem from '../components/PositionItem';
+import YieldCardHeader from '../components/YieldCardHeader';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -105,22 +106,22 @@ function Pool() {
       )}
 
       <CenterPanelWrap series={selectedSeries}>
-        <Box height="100%" pad="large">
+        <Box height="100%" pad={mobile ? 'medium' : 'large'}>
           {stepPosition === 0 && (
             <Box gap="medium">
-              <Box gap="xsmall">
-                <AltText size="large">ADD LIQUIDITY</AltText>
-                <Box>
+              <YieldCardHeader logo={mobile} series={selectedSeries}>
+                <Box gap={mobile ? undefined : 'xsmall'}>
+                  <AltText size={mobile ? 'small' : 'large'}>PROVIDE LIQUIDITY</AltText>
                   <AltText color="text-weak" size="xsmall">
                     for variable returns based on protocol usage.
                   </AltText>
                 </Box>
-              </Box>
+              </YieldCardHeader>
 
               <Box gap="large">
                 {/* <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}> */}
                 <SectionWrap>
-                  <Box direction="row" gap="small">
+                  <Box direction="row-responsive" gap="small">
                     <Box basis={mobile ? '50%' : '60%'}>
                       <InputWrap action={() => console.log('maxAction')} isError={poolError}>
                         <TextInput
@@ -160,7 +161,13 @@ function Pool() {
 
           {stepPosition === 1 && (
             <Box gap="large">
-              {!poolTx.success && !poolTx.failed ? <BackButton action={() => setStepPosition(0)} /> : <Box pad="1em" />}
+              <YieldCardHeader>
+                {!poolTx.success && !poolTx.failed ? (
+                  <BackButton action={() => setStepPosition(0)} />
+                ) : (
+                  <Box pad="1em" />
+                )}
+              </YieldCardHeader>
 
               <ActiveTransaction full tx={poolTx}>
                 <Box gap="large">

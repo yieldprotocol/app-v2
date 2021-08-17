@@ -35,6 +35,7 @@ import { useTx } from '../hooks/useTx';
 import AltText from '../components/texts/AltText';
 import PositionListItem from '../components/PositionItem';
 import EtherscanButton from '../components/buttons/EtherscanButton';
+import YieldCardHeader from '../components/YieldCardHeader';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -95,22 +96,22 @@ const Lend = () => {
       )}
 
       <CenterPanelWrap series={selectedSeries}>
-        <Box height="100%" pad="large">
+        <Box height="100%" pad={mobile ? 'medium' : 'large'}>
           {stepPosition === 0 && (
             <Box gap="medium">
-              <Box gap="xsmall">
-                <AltText size="large">LEND</AltText>
-                <Box>
+              <YieldCardHeader logo={mobile} series={selectedSeries}>
+                <Box gap={mobile ? undefined : 'xsmall'}>
+                  <AltText size={mobile ? 'small' : 'large'}>LEND</AltText>
                   <AltText color="text-weak" size="xsmall">
                     popular ERC20 tokens for fixed returns.
                   </AltText>
                 </Box>
-              </Box>
+              </YieldCardHeader>
 
               <Box gap="large">
                 {/* <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}> */}
                 <SectionWrap>
-                  <Box direction="row" gap="small">
+                  <Box direction="row-responsive" gap="small">
                     <Box basis={mobile ? '50%' : '60%'}>
                       <InputWrap
                         action={() => console.log('maxAction')}
@@ -154,7 +155,13 @@ const Lend = () => {
 
           {stepPosition === 1 && (
             <Box gap="large">
-              {!lendTx.success && !lendTx.failed ? <BackButton action={() => setStepPosition(0)} /> : <Box pad="1em" />}
+              <YieldCardHeader>
+                {!lendTx.success && !lendTx.failed ? (
+                  <BackButton action={() => setStepPosition(0)} />
+                ) : (
+                  <Box pad="1em" />
+                )}
+              </YieldCardHeader>
 
               <ActiveTransaction full tx={lendTx}>
                 <SectionWrap title="Review transaction:">
