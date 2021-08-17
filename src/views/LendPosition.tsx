@@ -46,8 +46,8 @@ const LendPosition = ({ close }: { close: () => void }) => {
   // stepper for stepping within multiple tabs
   const [stepPosition, setStepPosition] = useState<number[]>([0, 0, 0]);
 
-  const [closeInput, setCloseInput] = useState<string>();
-  const [rollInput, setRollInput] = useState<string>();
+  const [closeInput, setCloseInput] = useState<string | undefined>();
+  const [rollInput, setRollInput] = useState<string | undefined>();
   const [rollToSeries, setRollToSeries] = useState<ISeries | null>(null);
 
   const [closeDisabled, setCloseDisabled] = useState<boolean>(true);
@@ -92,6 +92,11 @@ const LendPosition = ({ close }: { close: () => void }) => {
     redeem(selectedSeries!, undefined);
   };
 
+  const resetInputs = (actionCode: ActionCodes) => {
+    if (actionCode === ActionCodes.CLOSE_POSITION) setCloseInput(undefined);
+    if (actionCode === ActionCodes.ROLL_POSITION) setRollInput(undefined);
+  };
+
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
   useEffect(() => {
     !closeInput || closeError ? setCloseDisabled(true) : setCloseDisabled(false);
@@ -107,6 +112,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
         onClick={() => {
           props.resetTx();
           handleStepper(true);
+          resetInputs(props.actionCode);
         }}
       />
       {/* {props.tx.failed &&
@@ -120,7 +126,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
       {selectedSeries && (
         <ModalWrap toggleModalOpen={() => history.push('/lend')} series={selectedSeries}>
           <CenterPanelWrap>
-            <Box fill pad="large" gap="medium">
+            <Box fill gap="medium" pad={mobile ? 'medium' : 'large'}>
               <Box height={{ min: '250px' }} gap="medium">
                 <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
                   <Box direction="row" align="center" gap="medium">
@@ -334,12 +340,16 @@ const LendPosition = ({ close }: { close: () => void }) => {
               {stepPosition[actionActive.index] === 1 &&
                 actionActive.index === 0 &&
                 !closeTx.processActive &&
-                (closeTx.failed || closeTx.success) && <CompletedTx tx={closeTx} resetTx={resetCloseTx} />}
+                (closeTx.failed || closeTx.success) && (
+                  <CompletedTx tx={closeTx} resetTx={resetCloseTx} actionCode={ActionCodes.CLOSE_POSITION} />
+                )}
 
               {stepPosition[actionActive.index] === 1 &&
                 actionActive.index === 1 &&
                 !rollTx.processActive &&
-                (rollTx.failed || rollTx.success) && <CompletedTx tx={rollTx} resetTx={() => resetRollTx()} />}
+                (rollTx.failed || rollTx.success) && (
+                  <CompletedTx tx={rollTx} resetTx={() => resetRollTx()} actionCode={ActionCodes.ROLL_POSITION} />
+                )}
             </ActionButtonGroup>
           </CenterPanelWrap>
         </ModalWrap>

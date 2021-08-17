@@ -35,6 +35,7 @@ import { useTx } from '../hooks/useTx';
 import AltText from '../components/texts/AltText';
 import PositionListItem from '../components/PositionItem';
 import EtherscanButton from '../components/buttons/EtherscanButton';
+import YieldCardHeader from '../components/YieldCardHeader';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -46,7 +47,7 @@ const Lend = () => {
   const selectedBase = assetMap.get(selectedBaseId!);
 
   /* LOCAL STATE */
-  const [lendInput, setLendInput] = useState<string>();
+  const [lendInput, setLendInput] = useState<string | undefined>(undefined);
   // const [maxLend, setMaxLend] = useState<string | undefined>();
   const [lendDisabled, setLendDisabled] = useState<boolean>(true);
   const [stepPosition, setStepPosition] = useState<number>(0);
@@ -69,6 +70,12 @@ const Lend = () => {
   };
   const handleRedeem = () => {
     redeem(selectedSeries!, undefined);
+  };
+
+  const resetInputs = () => {
+    setLendInput(undefined);
+    setStepPosition(0);
+    resetTx();
   };
 
   /* ACTION DISABLING LOGIC  - if conditions are met: allow action */
@@ -95,22 +102,22 @@ const Lend = () => {
       )}
 
       <CenterPanelWrap series={selectedSeries}>
-        <Box height="100%" pad="large">
+        <Box height="100%" pad={mobile ? 'medium' : 'large'}>
           {stepPosition === 0 && (
             <Box gap="medium">
-              <Box gap="xsmall">
-                <AltText size="large">LEND</AltText>
-                <Box>
+              <YieldCardHeader logo={mobile} series={selectedSeries}>
+                <Box gap={mobile ? undefined : 'xsmall'}>
+                  <AltText size={mobile ? 'small' : 'large'}>LEND</AltText>
                   <AltText color="text-weak" size="xsmall">
                     popular ERC20 tokens for fixed returns.
                   </AltText>
                 </Box>
-              </Box>
+              </YieldCardHeader>
 
               <Box gap="large">
                 {/* <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}> */}
                 <SectionWrap>
-                  <Box direction="row" gap="small">
+                  <Box direction="row-responsive" gap="small">
                     <Box basis={mobile ? '50%' : '60%'}>
                       <InputWrap
                         action={() => console.log('maxAction')}
@@ -154,7 +161,13 @@ const Lend = () => {
 
           {stepPosition === 1 && (
             <Box gap="large">
-              {!lendTx.success && !lendTx.failed ? <BackButton action={() => setStepPosition(0)} /> : <Box pad="1em" />}
+              <YieldCardHeader>
+                {!lendTx.success && !lendTx.failed ? (
+                  <BackButton action={() => setStepPosition(0)} />
+                ) : (
+                  <Box pad="1em" />
+                )}
+              </YieldCardHeader>
 
               <ActiveTransaction full tx={lendTx}>
                 <SectionWrap title="Review transaction:">
@@ -215,10 +228,7 @@ const Lend = () => {
               {/* <PositionListItem series={selectedSeries!} actionType={ActionType.LEND} /> */}
               <NextButton
                 label={<Text size={mobile ? 'small' : undefined}>Lend some more</Text>}
-                onClick={() => {
-                  setStepPosition(0);
-                  resetTx();
-                }}
+                onClick={() => resetInputs()}
               />
             </>
           )}
@@ -228,10 +238,7 @@ const Lend = () => {
               <NextButton
                 size="xsmall"
                 label={<Text size={mobile ? 'xsmall' : undefined}> Report and go back</Text>}
-                onClick={() => {
-                  setStepPosition(0);
-                  resetTx();
-                }}
+                onClick={() => resetInputs()}
               />
             </>
           )}

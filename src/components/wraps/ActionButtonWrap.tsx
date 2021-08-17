@@ -11,7 +11,7 @@ function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
   } = useContext(ChainContext);
 
   return mobile ? (
-    <Layer position="bottom" modal={false} responsive={false} full="horizontal" animate={false}>
+    <Layer position="bottom" modal={false} responsive={false} full="horizontal" animate={false} background="#00000000">
       <Box gap="small" fill="horizontal" pad="small">
         {children}
       </Box>
@@ -29,6 +29,7 @@ function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
           secondary
           label={<Text size={mobile ? 'small' : undefined}> Connect Wallet </Text>}
           onClick={() => connect()}
+          disabled
         />
       )}
     </Box>

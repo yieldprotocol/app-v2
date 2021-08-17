@@ -43,9 +43,8 @@ const PoolPosition = ({ close }: { close: () => void }) => {
   const selectedBase = assetMap.get(selectedSeries?.baseId!);
 
   /* LOCAL STATE */
-
-  const [removeInput, setRemoveInput] = useState<string>();
-  const [rollInput, setRollInput] = useState<string>();
+  const [removeInput, setRemoveInput] = useState<string | undefined>(undefined);
+  const [rollInput, setRollInput] = useState<string | undefined>(undefined);
   const [rollToSeries, setRollToSeries] = useState<ISeries | null>(null);
   const [maxRemove, setMaxRemove] = useState<string | undefined>();
 
@@ -94,6 +93,11 @@ const PoolPosition = ({ close }: { close: () => void }) => {
     selectedSeries && rollToSeries && rollLiquidity(rollInput!, selectedSeries, rollToSeries);
   };
 
+  const resetInputs = (actionCode: ActionCodes) => {
+    if (actionCode === ActionCodes.REMOVE_LIQUIDITY) setRemoveInput(undefined);
+    if (actionCode === ActionCodes.ROLL_LIQUIDITY) setRollInput(undefined);
+  };
+
   /* SET MAX VALUES */
   useEffect(() => {
     /* Checks the max available to roll or move */
@@ -116,6 +120,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
         onClick={() => {
           props.resetTx();
           handleStepper(true);
+          resetInputs(props.actionCode);
         }}
       />
       {/* {props.tx.failed && <EtherscanButton txHash={props.tx.txHash} />} */}
@@ -127,7 +132,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
       {selectedSeries && (
         <ModalWrap toggleModalOpen={() => history.push('/pool')} series={selectedSeries}>
           <CenterPanelWrap>
-            <Box fill pad="large" gap="medium">
+            <Box fill pad={mobile ? 'medium' : 'large'} gap="medium">
               <Box height={{ min: '250px' }} gap="medium">
                 <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
                   <Box direction="row" align="center" gap="medium">
@@ -327,12 +332,16 @@ const PoolPosition = ({ close }: { close: () => void }) => {
               {stepPosition[actionActive.index] === 1 &&
                 actionActive.index === 0 &&
                 !removeTx.processActive &&
-                (removeTx.success || removeTx.failed) && <CompletedTx tx={removeTx} resetTx={resetRemoveTx} />}
+                (removeTx.success || removeTx.failed) && (
+                  <CompletedTx tx={removeTx} resetTx={resetRemoveTx} actionCode={ActionCodes.REMOVE_LIQUIDITY} />
+                )}
 
               {stepPosition[actionActive.index] === 1 &&
                 actionActive.index === 1 &&
                 !rollTx.processActive &&
-                (rollTx.success || rollTx.failed) && <CompletedTx tx={rollTx} resetTx={resetRollTx} />}
+                (rollTx.success || rollTx.failed) && (
+                  <CompletedTx tx={rollTx} resetTx={resetRollTx} actionCode={ActionCodes.ROLL_LIQUIDITY} />
+                )}
             </ActionButtonGroup>
           </CenterPanelWrap>
         </ModalWrap>
