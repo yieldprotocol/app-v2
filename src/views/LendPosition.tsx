@@ -92,9 +92,9 @@ const LendPosition = ({ close }: { close: () => void }) => {
     redeem(selectedSeries!, undefined);
   };
 
-  const reset = () => {
-    setCloseInput(undefined);
-    setRollInput(undefined);
+  const resetInputs = (actionCode: ActionCodes) => {
+    if (actionCode === ActionCodes.CLOSE_POSITION) setCloseInput(undefined);
+    if (actionCode === ActionCodes.ROLL_POSITION) setRollInput(undefined);
   };
 
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
@@ -112,7 +112,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
         onClick={() => {
           props.resetTx();
           handleStepper(true);
-          reset();
+          resetInputs(props.actionCode);
         }}
       />
       {/* {props.tx.failed &&
@@ -340,12 +340,16 @@ const LendPosition = ({ close }: { close: () => void }) => {
               {stepPosition[actionActive.index] === 1 &&
                 actionActive.index === 0 &&
                 !closeTx.processActive &&
-                (closeTx.failed || closeTx.success) && <CompletedTx tx={closeTx} resetTx={resetCloseTx} />}
+                (closeTx.failed || closeTx.success) && (
+                  <CompletedTx tx={closeTx} resetTx={resetCloseTx} actionCode={ActionCodes.CLOSE_POSITION} />
+                )}
 
               {stepPosition[actionActive.index] === 1 &&
                 actionActive.index === 1 &&
                 !rollTx.processActive &&
-                (rollTx.failed || rollTx.success) && <CompletedTx tx={rollTx} resetTx={() => resetRollTx()} />}
+                (rollTx.failed || rollTx.success) && (
+                  <CompletedTx tx={rollTx} resetTx={() => resetRollTx()} actionCode={ActionCodes.ROLL_POSITION} />
+                )}
             </ActionButtonGroup>
           </CenterPanelWrap>
         </ModalWrap>

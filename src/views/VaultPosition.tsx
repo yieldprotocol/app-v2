@@ -198,13 +198,24 @@ const VaultPosition = ({ close }: { close: () => void }) => {
     setMergeData((fData: any) => ({ ...fData, toVault: vault }));
   };
 
-  const reset = () => {
-    setRepayInput(undefined);
-    setCollatInput(undefined);
-    setAddCollatInput(undefined);
-    setRemoveCollatInput(undefined);
-    setTransferToAddressInput('');
-    setMergeData(initialMergeData);
+  const resetInputs = (actionCode: ActionCodes) => {
+    switch (actionCode) {
+      case ActionCodes.REPAY:
+        setRepayInput(undefined);
+        break;
+      case ActionCodes.ADD_COLLATERAL:
+        setAddCollatInput(undefined);
+        break;
+      case ActionCodes.REMOVE_COLLATERAL:
+        setRemoveCollatInput(undefined);
+        break;
+      case ActionCodes.TRANSFER_VAULT:
+        setTransferToAddressInput('');
+        break;
+      case ActionCodes.MERGE_VAULT:
+        setMergeData(initialMergeData);
+        break;
+    }
   };
 
   /* SET MAX / MIN VALUES */
@@ -285,7 +296,7 @@ const VaultPosition = ({ close }: { close: () => void }) => {
         onClick={() => {
           props.resetTx();
           handleStepper(true);
-          reset();
+          resetInputs(props.actionCode);
         }}
       />
     </>
@@ -757,36 +768,52 @@ const VaultPosition = ({ close }: { close: () => void }) => {
               {stepPosition[actionActive.index] === 1 &&
                 actionActive.index === 0 &&
                 !repayTx.processActive &&
-                (repayTx.success || repayTx.failed) && <CompletedTx tx={repayTx} resetTx={resetRepayTx} />}
+                (repayTx.success || repayTx.failed) && (
+                  <CompletedTx tx={repayTx} resetTx={resetRepayTx} actionCode={ActionCodes.REPAY} />
+                )}
 
               {stepPosition[actionActive.index] === 1 &&
                 actionActive.index === 1 &&
                 !rollTx.processActive &&
-                (rollTx.success || rollTx.failed) && <CompletedTx tx={rollTx} resetTx={resetRollTx} />}
+                (rollTx.success || rollTx.failed) && (
+                  <CompletedTx tx={rollTx} resetTx={resetRollTx} actionCode={ActionCodes.ROLL_POSITION} />
+                )}
 
               {stepPosition[actionActive.index] === 1 &&
                 actionActive.index === 2 &&
                 !addCollateralTx.processActive &&
                 (addCollateralTx.success || addCollateralTx.failed) && (
-                  <CompletedTx tx={addCollateralTx} resetTx={resetAddCollateralTx} />
+                  <CompletedTx
+                    tx={addCollateralTx}
+                    resetTx={resetAddCollateralTx}
+                    actionCode={ActionCodes.ADD_COLLATERAL}
+                  />
                 )}
 
               {stepPosition[actionActive.index] === 1 &&
                 actionActive.index === 2 &&
                 !removeCollateralTx.processActive &&
                 (removeCollateralTx.success || removeCollateralTx.failed) && (
-                  <CompletedTx tx={removeCollateralTx} resetTx={resetRemoveCollateralTx} />
+                  <CompletedTx
+                    tx={removeCollateralTx}
+                    resetTx={resetRemoveCollateralTx}
+                    actionCode={ActionCodes.REMOVE_COLLATERAL}
+                  />
                 )}
 
               {stepPosition[actionActive.index] === 1 &&
                 actionActive.index === 4 &&
                 !transferTx.processActive &&
-                (transferTx.success || transferTx.failed) && <CompletedTx tx={rollTx} resetTx={resetTransferTx} />}
+                (transferTx.success || transferTx.failed) && (
+                  <CompletedTx tx={rollTx} resetTx={resetTransferTx} actionCode={ActionCodes.TRANSFER_VAULT} />
+                )}
 
               {stepPosition[actionActive.index] === 1 &&
                 actionActive.index === 5 &&
                 !mergeTx.processActive &&
-                (mergeTx.success || mergeTx.failed) && <CompletedTx tx={mergeTx} resetTx={resetMergeTx} />}
+                (mergeTx.success || mergeTx.failed) && (
+                  <CompletedTx tx={mergeTx} resetTx={resetMergeTx} actionCode={ActionCodes.MERGE_VAULT} />
+                )}
             </ActionButtonWrap>
           </CenterPanelWrap>
         </ModalWrap>

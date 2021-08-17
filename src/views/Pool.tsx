@@ -70,7 +70,7 @@ function Pool() {
     selectedSeries && addLiquidity(poolInput!, selectedSeries, strategy);
   };
 
-  const reset = () => {
+  const resetInputs = () => {
     setPoolInput(undefined);
     setStepPosition(0);
     resetTx();
@@ -249,7 +249,7 @@ function Pool() {
                 {/* <PositionListItem series={selectedSeries!} actionType={ActionType.POOL} /> */}
                 <NextButton
                   label={<Text size={mobile ? 'small' : undefined}>Add more Liquidity</Text>}
-                  onClick={() => reset()}
+                  onClick={() => resetInputs()}
                 />
               </>
             )}

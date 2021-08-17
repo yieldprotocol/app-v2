@@ -95,7 +95,7 @@ const Borrow = () => {
     !borrowDisabled && borrow(_vault, borrowInput, collatInput);
   };
 
-  const reset = () => {
+  const resetInputs = () => {
     setBorrowInput('');
     setCollatInput('');
     setStepPosition(0);
@@ -379,7 +379,7 @@ const Borrow = () => {
               {stepPosition === 2 && !borrowTx.processActive && borrowTx.success && (
                 <NextButton
                   label={<Text size={mobile ? 'small' : undefined}>Borrow more</Text>}
-                  onClick={() => reset()}
+                  onClick={() => resetInputs()}
                 />
               )}
 
@@ -388,7 +388,7 @@ const Borrow = () => {
                   <NextButton
                     size="xsmall"
                     label={<Text size={mobile ? 'xsmall' : undefined}> Report and go back</Text>}
-                    onClick={() => reset()}
+                    onClick={() => resetInputs()}
                   />
                 </>
               )}

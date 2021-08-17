@@ -71,7 +71,7 @@ const Lend = () => {
     redeem(selectedSeries!, undefined);
   };
 
-  const reset = () => {
+  const resetInputs = () => {
     setLendInput(undefined);
     setStepPosition(0);
     resetTx();
@@ -221,7 +221,7 @@ const Lend = () => {
               {/* <PositionListItem series={selectedSeries!} actionType={ActionType.LEND} /> */}
               <NextButton
                 label={<Text size={mobile ? 'small' : undefined}>Lend some more</Text>}
-                onClick={() => reset()}
+                onClick={() => resetInputs()}
               />
             </>
           )}
@@ -231,7 +231,7 @@ const Lend = () => {
               <NextButton
                 size="xsmall"
                 label={<Text size={mobile ? 'xsmall' : undefined}> Report and go back</Text>}
-                onClick={() => reset()}
+                onClick={() => resetInputs()}
               />
             </>
           )}

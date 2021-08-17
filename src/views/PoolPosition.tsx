@@ -93,9 +93,9 @@ const PoolPosition = ({ close }: { close: () => void }) => {
     selectedSeries && rollToSeries && rollLiquidity(rollInput!, selectedSeries, rollToSeries);
   };
 
-  const reset = () => {
-    setRemoveInput(undefined);
-    setRollInput(undefined);
+  const resetInputs = (actionCode: ActionCodes) => {
+    if (actionCode === ActionCodes.REMOVE_LIQUIDITY) setRemoveInput(undefined);
+    if (actionCode === ActionCodes.ROLL_LIQUIDITY) setRollInput(undefined);
   };
 
   /* SET MAX VALUES */
@@ -120,7 +120,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
         onClick={() => {
           props.resetTx();
           handleStepper(true);
-          reset();
+          resetInputs(props.actionCode);
         }}
       />
       {/* {props.tx.failed && <EtherscanButton txHash={props.tx.txHash} />} */}
@@ -332,12 +332,16 @@ const PoolPosition = ({ close }: { close: () => void }) => {
               {stepPosition[actionActive.index] === 1 &&
                 actionActive.index === 0 &&
                 !removeTx.processActive &&
-                (removeTx.success || removeTx.failed) && <CompletedTx tx={removeTx} resetTx={resetRemoveTx} />}
+                (removeTx.success || removeTx.failed) && (
+                  <CompletedTx tx={removeTx} resetTx={resetRemoveTx} actionCode={ActionCodes.REMOVE_LIQUIDITY} />
+                )}
 
               {stepPosition[actionActive.index] === 1 &&
                 actionActive.index === 1 &&
                 !rollTx.processActive &&
-                (rollTx.success || rollTx.failed) && <CompletedTx tx={rollTx} resetTx={resetRollTx} />}
+                (rollTx.success || rollTx.failed) && (
+                  <CompletedTx tx={rollTx} resetTx={resetRollTx} actionCode={ActionCodes.ROLL_LIQUIDITY} />
+                )}
             </ActionButtonGroup>
           </CenterPanelWrap>
         </ModalWrap>
