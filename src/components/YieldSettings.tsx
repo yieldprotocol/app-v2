@@ -45,9 +45,10 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
   return (
     <Box
       fill="vertical"
-      width={mobile ? 'none' : '300px'}
+      width={mobile ? undefined : '400px'}
       background="white"
-      border={{ side: 'left', color: 'tailwind-blue-100' }}
+      // border={{ side: 'left', color: 'tailwind-blue-100' }}
+      elevation='xlarge'
     >
       <Box gap="small" pad="medium">
         <Button alignSelf="end" icon={<FiX size="1.5rem" />} onClick={() => setSettingsOpen(false)} plain />

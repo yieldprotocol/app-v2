@@ -1,9 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, Keyboard, ResponsiveContext, Text, TextInput } from 'grommet';
-import { useHistory, useParams } from 'react-router-dom';
 import { ethers } from 'ethers';
 
-import { FiClock, FiPocket, FiPercent, FiTrendingUp, FiMenu } from 'react-icons/fi';
+import { FiClock, FiPocket, FiPercent, FiTrendingUp } from 'react-icons/fi';
 
 import SeriesSelector from '../components/selectors/SeriesSelector';
 import MainViewWrap from '../components/wraps/MainViewWrap';
