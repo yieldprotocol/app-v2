@@ -12,31 +12,43 @@ import YieldAccount from './YieldAccount';
 import YieldMark from './logos/YieldMark';
 import HandText from './texts/HandText';
 import { useCachedState } from '../hooks/generalHooks';
+import { ISeries } from '../types';
 
 interface IYieldHeaderProps {
   logo?: boolean;
+  series?: ISeries|undefined;
   children: any;
 }
 
-const YieldCardHeader = ({ logo, children }: IYieldHeaderProps) => {
+const YieldCardHeader = ({ logo, series, children }: IYieldHeaderProps) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   return (
-    <Box 
-      direction="row" 
-      align="center" 
-      margin={mobile ? { bottom: 'large' } : { bottom: 'small' }} 
-      justify="between"
+    <Box
+      // margin={mobile ? { bottom: 'large' } : { bottom: 'small' }}   
+      background="background"
+      // style={mobile? { position:'fixed', top: '0px' }: {}}
     >
-      <Box direction="row" gap="large" align="center">
-        {logo && <YieldMark height="1.5em" />}
-        {children}
+      <Box 
+        pad={mobile ? { bottom: 'large' } : { bottom: 'small' }}
+        direction="row"
+        align="center"
+        justify="between"
+      >
+        <Box direction="row" gap="large" align="center">
+          {logo && (
+            <Avatar size="2.5rem" >
+              <YieldMark startColor={series?.startColor} endColor={series?.endColor} height="1.75rem" />
+            </Avatar>
+          )}
+          {children}
+        </Box>
+        {mobile && <FiMenu />}
       </Box>
-      {mobile && <FiMenu />}
     </Box>
   );
 };
 
-YieldCardHeader.defaultProps = { logo: false };
+YieldCardHeader.defaultProps = { logo: false, series: undefined };
 
 export default YieldCardHeader;
