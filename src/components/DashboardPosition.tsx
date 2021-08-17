@@ -1,56 +1,36 @@
-import React, { useContext } from 'react';
-import { useHistory } from 'react-router-dom';
-import { Box, Text } from 'grommet';
-import { ActionType, ISeries, IUserContext } from '../types';
+import React, { useContext, useEffect, useState } from 'react';
+import { ActionType, ISeries, IUserContext, IVault } from '../types';
 import { UserContext } from '../contexts/UserContext';
-import { cleanValue, nFormatter } from '../utils/appUtils';
-import PositionAvatar from './PositionAvatar';
-import ItemWrap from './wraps/ItemWrap';
+import VaultListItem from './VaultListItem';
+import PositionItem from './PositionItem';
 
-function Position({ series, index, actionType }: { series: ISeries; index: number; actionType: ActionType }) {
-  const history = useHistory();
+function DashboardPosition({
+  seriesOrVault,
+  index,
+  actionType,
+}: {
+  seriesOrVault: any;
+  index: number;
+  actionType: ActionType;
+}) {
+  const {
+    userState: { vaultMap, seriesMap },
+  } = useContext(UserContext) as IUserContext;
+  const [vault, setVault] = useState<IVault>();
+  const [series, setSeries] = useState<ISeries>();
 
-  const { userState, userActions } = useContext(UserContext) as IUserContext;
-
-  const handleSelect = (_series: ISeries) => {
-    userActions.setSelectedBase(_series.baseId);
-    userActions.setSelectedSeries(_series.id);
-
-    history.push(`/${actionType !== ActionType.BORROW ? actionType.toLowerCase() : 'vault'}position/${_series.id}`);
-  };
+  useEffect(() => {
+    actionType === ActionType.BORROW
+      ? setVault(vaultMap?.get(seriesOrVault.id))
+      : setSeries(seriesMap?.get(seriesOrVault.id));
+  }, [seriesOrVault, actionType, vaultMap, seriesMap]);
 
   return (
-    <ItemWrap action={() => handleSelect(series)} index={index}>
-      <Box direction="row" gap="small" align="center" pad="small" round="xsmall" height="3rem">
-        <PositionAvatar position={series} condensed />
-
-        <Box fill direction="row" justify="between" align="center">
-          <Text weight={900} size="small">
-            {series.displayName}
-          </Text>
-          <Box direction="row" gap="small">
-            {actionType === 'LEND' && (
-              <Text weight={450} size="xsmall">
-                Balance: {cleanValue(series.fyTokenBalance_, 2)}
-              </Text>
-            )}
-
-            {actionType === 'POOL' && (
-              <Text weight={450} size="xsmall">
-                Tokens: {nFormatter(parseFloat(series.poolTokens_!), 2)}
-              </Text>
-            )}
-
-            {actionType === 'POOL' && (
-              <Text weight={450} size="xsmall">
-                Pool %: {cleanValue(series.poolPercent, 2)}
-              </Text>
-            )}
-          </Box>
-        </Box>
-      </Box>
-    </ItemWrap>
+    <>
+      {vault && <VaultListItem vault={seriesOrVault!} condensed />}
+      {series && <PositionItem series={seriesOrVault!} index={index} actionType={actionType} condensed />}
+    </>
   );
 }
 
-export default Position;
+export default DashboardPosition;

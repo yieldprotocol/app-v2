@@ -7,24 +7,33 @@ import { cleanValue, nFormatter } from '../utils/appUtils';
 import PositionAvatar from './PositionAvatar';
 import ItemWrap from './wraps/ItemWrap';
 
-function PositionItem({ series, index, actionType }: { series: ISeries; index: number; actionType: ActionType }) {
+function PositionItem({
+  series,
+  index,
+  actionType,
+  condensed,
+}: {
+  series: ISeries;
+  index: number;
+  actionType: ActionType;
+  condensed?: boolean;
+}) {
   const history = useHistory();
 
   const { userState, userActions } = useContext(UserContext) as IUserContext;
 
   const handleSelect = (_series: ISeries) => {
-    console.log(_series.id);
     userActions.setSelectedBase(_series.baseId);
     userActions.setSelectedSeries(_series.id);
 
-    actionType === 'LEND' ? history.push(`/lendposition/${_series.id}`) : history.push(`/poolposition/${_series.id}`);
+    history.push(`/${actionType.toLowerCase()}position/${_series.id}`);
   };
 
   return (
     <ItemWrap action={() => handleSelect(series)} index={index}>
-      <Box direction="row" gap="small" align="center" pad="small">
-        <PositionAvatar position={series} />
-        <Box>
+      <Box direction="row" gap="small" align="center" pad="small" height={condensed ? '3rem' : undefined}>
+        <PositionAvatar position={series} condensed={condensed} />
+        <Box justify={condensed ? 'between' : undefined}>
           <Text weight={900} size="small">
             {series.displayName}
           </Text>
@@ -53,5 +62,7 @@ function PositionItem({ series, index, actionType }: { series: ISeries; index: n
     </ItemWrap>
   );
 }
+
+PositionItem.defaultProps = { condensed: false };
 
 export default PositionItem;

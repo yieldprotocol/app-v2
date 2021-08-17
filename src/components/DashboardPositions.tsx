@@ -1,71 +1,77 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { FiX } from 'react-icons/fi';
-import { useHistory } from 'react-router-dom';
-import { Box, Button, Text } from 'grommet';
+import React, { useContext, useEffect, useState } from 'react';
+import { Text } from 'grommet';
 
 import { UserContext } from '../contexts/UserContext';
-import { ActionType, IAsset, ISeries, IUserContext } from '../types';
+import { ActionType, ISeries, IUserContext, IVault } from '../types';
 import { ZERO_BN } from '../utils/constants';
-import Position from './DashboardPosition';
+import DashboardPosition from './DashboardPosition';
 import ListWrap from './wraps/ListWrap';
 
-interface IPositionFilter {
-  base: IAsset | undefined;
-  series: ISeries | undefined;
-}
-
-const Positions = ({ actionType }: { actionType: ActionType }) => {
-  const history = useHistory();
-
+const DashboardPositions = ({ actionType }: { actionType: ActionType }) => {
   /* STATE FROM CONTEXT */
-  const { userState, userActions } = useContext(UserContext) as IUserContext;
-  const { assetMap, seriesMap, selectedSeriesId, selectedBaseId } = userState;
+  const { userState } = useContext(UserContext) as IUserContext;
+  const { seriesMap, vaultMap } = userState;
 
-  const selectedSeries = seriesMap.get(selectedSeriesId!);
-  const selectedBase = assetMap.get(selectedBaseId!);
-
-  const [allPositions, setAllPositions] = useState<ISeries[]>([]);
-  const [showAllPositions, setShowAllPositions] = useState<boolean>(false);
-
-  const [currentFilter, setCurrentFilter] = useState<IPositionFilter>();
-  const [filterLabels, setFilterLabels] = useState<(string | undefined)[]>([]);
-  const [filteredSeries, setFilteredSeries] = useState<ISeries[]>([]);
-
-  const handleSelect = (_series: ISeries) => {
-    userActions.setSelectedBase(_series.baseId);
-    userActions.setSelectedSeries(_series.id);
-
-    actionType === 'LEND' ? history.push(`/lendposition/${_series.id}`) : history.push(`/poolposition/${_series.id}`);
-  };
+  const [vaultPositions, setVaultPositions] = useState<IVault[]>([]);
+  const [lendPositions, setLendPositions] = useState<ISeries[]>([]);
+  const [poolPositions, setPoolPositions] = useState<ISeries[]>([]);
 
   useEffect(() => {
-    /* only if veiwing the main screen (not when modal is showing) */
-    const _allPositions: ISeries[] = Array.from(seriesMap.values())
-      /* filter by positive balances on either pool tokens or fyTokens */
-      .filter((_series: ISeries) => (actionType === 'LEND' && _series ? _series.fyTokenBalance?.gt(ZERO_BN) : true))
-      .filter((_series: ISeries) => (actionType === 'POOL' && _series ? _series.poolTokens?.gt(ZERO_BN) : true));
-    setAllPositions(_allPositions);
-  }, [selectedBase, selectedSeries, seriesMap, actionType]);
+    const _vaultPositions: IVault[] = Array.from(vaultMap.values()).filter(
+      (vault: IVault) => userState.showInactiveVaults || vault.isActive
+    );
+    setVaultPositions(_vaultPositions);
+  }, [vaultMap, actionType, userState.showInactiveVaults]);
 
   useEffect(() => {
-    allPositions.length <= 5 && setShowAllPositions(true);
-  }, [allPositions]);
+    const _lendPositions: ISeries[] = Array.from(seriesMap.values()).filter((_series: ISeries) =>
+      actionType === 'LEND' && _series ? _series.fyTokenBalance?.gt(ZERO_BN) : true
+    );
+
+    setLendPositions(_lendPositions);
+
+    const _poolPositions: ISeries[] = Array.from(seriesMap.values()).filter((_series: ISeries) =>
+      actionType === 'POOL' && _series ? _series.poolTokens?.gt(ZERO_BN) : true
+    );
+
+    setPoolPositions(_poolPositions);
+  }, [seriesMap, actionType]);
 
   return (
-    <>
-      <ListWrap>
-        {allPositions.length === 0 && (
+    <ListWrap>
+      <>
+        {actionType === ActionType.BORROW && vaultPositions.length === 0 ? (
           <Text weight={450} size="small">
             No suggested positions
           </Text>
+        ) : (
+          vaultPositions.map((vault, i) => (
+            <DashboardPosition seriesOrVault={vault} index={i} actionType={actionType} key={vault.id} />
+          ))
         )}
 
-        {allPositions.map((x: ISeries, i: number) => (
-          <Position series={x} actionType={actionType} index={i} key={x.id} />
-        ))}
-      </ListWrap>
-    </>
+        {actionType === ActionType.LEND && lendPositions.length === 0 ? (
+          <Text weight={450} size="small">
+            No suggested positions
+          </Text>
+        ) : (
+          lendPositions.map((series, i) => (
+            <DashboardPosition seriesOrVault={series} index={i} actionType={actionType} key={series.id} />
+          ))
+        )}
+
+        {actionType === ActionType.POOL && poolPositions.length === 0 ? (
+          <Text weight={450} size="small">
+            No suggested positions
+          </Text>
+        ) : (
+          poolPositions.map((series, i) => (
+            <DashboardPosition seriesOrVault={series} index={i} actionType={actionType} key={series.id} />
+          ))
+        )}
+      </>
+    </ListWrap>
   );
 };
 
-export default Positions;
+export default DashboardPositions;

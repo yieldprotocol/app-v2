@@ -5,15 +5,15 @@ import { UserContext } from '../contexts/UserContext';
 
 import PositionAvatar from './PositionAvatar';
 
-function VaultListItem({ vault }: { vault: IVault }) {
+function VaultListItem({ vault, condensed }: { vault: IVault; condensed?: boolean }) {
   const { userState } = useContext(UserContext) as IUserContext;
   const { seriesMap } = userState;
 
   const series = seriesMap.get(vault.seriesId);
 
   return (
-    <Box direction="row" gap="small" align="center" pad="small">
-      <PositionAvatar position={vault} />
+    <Box direction="row" gap="small" align="center" pad="small" height={condensed ? '3rem' : undefined}>
+      <PositionAvatar position={vault} condensed={condensed} />
       <Box>
         <Text weight={900} size="small" color={vault.isActive ? undefined : 'text-xweak'}>
           {vault.displayName}
@@ -37,5 +37,7 @@ function VaultListItem({ vault }: { vault: IVault }) {
     </Box>
   );
 }
+
+VaultListItem.defaultProps = { condensed: false };
 
 export default VaultListItem;
