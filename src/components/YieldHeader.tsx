@@ -22,32 +22,33 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
 
   return (
     <>
-    {!mobile &&
-    <Header
-      pad={mobile?'xsmall': "large"}
-      height={mobile? undefined: "xsmall"}
-      style={{ position: 'fixed', top: '0px' }}
-      background='background'
-      direction="row"
-      fill="horizontal"
-    >
-      <Grid columns={['medium', 'flex', 'medium']} fill="horizontal">
-        <Box direction="row" gap={mobile ? '0.25em' : 'medium'} align="center">
-          <Avatar>
-            <NavLink to={`/${prevLoc}`}>
-              <YieldMark height={mobile ? '1.0em' : '2em'} />
-            </NavLink>
-          </Avatar>
-          {!mobile && <YieldNavigation />}
-        </Box>
-        {/* <YieldLogo height={mobile ? '1em' : '1.5em'} /> */}
-        <Box />
+      {!mobile && (
+        <Header
+          pad={mobile ? 'xsmall' : 'large'}
+          height={mobile ? undefined : 'xsmall'}
+          style={{ position: 'fixed', top: '0px' }}
+          background="background"
+          direction="row"
+          fill="horizontal"
+        >
+          <Grid columns={['medium', 'flex', 'medium']} fill="horizontal">
+            <Box direction="row" gap={mobile ? '0.25em' : 'medium'} align="center">
+              <Avatar>
+                <NavLink to={`/${prevLoc}`}>
+                  <YieldMark height={mobile ? '1.0em' : '2em'} />
+                </NavLink>
+              </Avatar>
+              {!mobile && <YieldNavigation />}
+            </Box>
+            {/* <YieldLogo height={mobile ? '1em' : '1.5em'} /> */}
+            <Box />
 
-        <Box align="end">
-          <YieldAccount />
-        </Box>
-      </Grid>
-    </Header>}
+            <Box align="end">
+              <YieldAccount />
+            </Box>
+          </Grid>
+        </Header>
+      )}
     </>
   );
 };

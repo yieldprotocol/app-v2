@@ -16,7 +16,7 @@ import { ISeries } from '../types';
 
 interface IYieldHeaderProps {
   logo?: boolean;
-  series?: ISeries|undefined;
+  series?: ISeries | undefined;
   children: any;
 }
 
@@ -25,19 +25,14 @@ const YieldCardHeader = ({ logo, series, children }: IYieldHeaderProps) => {
 
   return (
     <Box
-      // margin={mobile ? { bottom: 'large' } : { bottom: 'small' }}   
+      // margin={mobile ? { bottom: 'large' } : { bottom: 'small' }}
       background="background"
       // style={mobile? { position:'fixed', top: '0px' }: {}}
     >
-      <Box 
-        pad={mobile ? { bottom: 'large' } : { bottom: 'small' }}
-        direction="row"
-        align="center"
-        justify="between"
-      >
+      <Box pad={mobile ? { bottom: 'large' } : { bottom: 'small' }} direction="row" align="center" justify="between">
         <Box direction="row" gap="large" align="center">
           {logo && (
-            <Avatar size="2.5rem" >
+            <Avatar size="2.5rem">
               <YieldMark startColor={series?.startColor} endColor={series?.endColor} height="1.75rem" />
             </Avatar>
           )}

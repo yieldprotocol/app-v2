@@ -14,7 +14,13 @@ const SidebarSettings = ({ settingsOpen, setSettingsOpen, connectOpen, setConnec
   return (
     <>
       {connectOpen && (
-        <Layer modal={false} responsive={true} full="vertical" position="right">
+        <Layer
+          modal={false}
+          responsive={true}
+          full="vertical"
+          position="right"
+          style={mobile ? { minWidth: undefined, maxWidth: undefined } : { minWidth: '400px', maxWidth: '400px' }}
+        >
           <Connect setConnectOpen={setConnectOpen} setSettingsOpen={setSettingsOpen} />
         </Layer>
       )}

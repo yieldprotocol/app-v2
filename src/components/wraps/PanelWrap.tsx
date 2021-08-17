@@ -7,6 +7,7 @@ interface IPanelWrap extends BoxTypes {
   right?: boolean;
   children: any;
 }
+
 function PanelWrap({ background, basis, right, children }: IPanelWrap) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   return (
@@ -17,7 +18,7 @@ function PanelWrap({ background, basis, right, children }: IPanelWrap) {
       pad="large"
       justify="between"
       background={background}
-      width='400px'
+      width="400px"
     >
       {children}
     </Box>

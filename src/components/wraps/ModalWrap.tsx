@@ -32,53 +32,53 @@ function ModalWrap({ children, series, toggleModalOpen }: IModalWrap) {
 
   return (
     <StyledLayer onClickOutside={() => toggleModalOpen()} full background={_series?.color} animation="none">
-      {!mobile && 
-      <>
-      <Header
-        pad="large"
-        height={mobile ? undefined : 'xsmall'}
-        justify="between"
-        fill="horizontal"
-        style={{ position: 'fixed', top: '0px' }}
-      >
-        <Grid columns={['medium', 'flex', 'medium']} fill="horizontal">
-          <Box direction="row" gap={mobile ? '0.25em' : 'medium'} align="center">
-            <Avatar>
-              <NavLink to={`/${prevLoc}`}>
-                <YieldMark
-                  height={mobile ? '1em' : '2em'}
-                  startColor={_series?.oppStartColor}
-                  endColor={_series?.oppEndColor}
-                />
-              </NavLink>
+      {!mobile && (
+        <>
+          <Header
+            pad="large"
+            height={mobile ? undefined : 'xsmall'}
+            justify="between"
+            fill="horizontal"
+            style={{ position: 'fixed', top: '0px' }}
+          >
+            <Grid columns={['medium', 'flex', 'medium']} fill="horizontal">
+              <Box direction="row" gap={mobile ? '0.25em' : 'medium'} align="center">
+                <Avatar>
+                  <NavLink to={`/${prevLoc}`}>
+                    <YieldMark
+                      height={mobile ? '1em' : '2em'}
+                      startColor={_series?.oppStartColor}
+                      endColor={_series?.oppEndColor}
+                    />
+                  </NavLink>
+                  <Box />
+                </Avatar>
+              </Box>
               <Box />
-            </Avatar>
+
+              <Box align="end">
+                <Button icon={<FiX onClick={() => toggleModalOpen()} color={_series?.oppStartColor} />} />
+              </Box>
+            </Grid>
+          </Header>
+
+          <Box flex={!mobile} overflow="auto" margin={mobile ? {} : { top: 'xlarge' }}>
+            <MainViewWrap pad={mobile ? 'medium' : 'large'}>
+              <PanelWrap>
+                <Box />
+              </PanelWrap>
+              <Box gap="large" width="600px" pad={{ top: 'large' }}>
+                {children}
+              </Box>
+              <PanelWrap>
+                <Box />
+              </PanelWrap>
+            </MainViewWrap>
           </Box>
-          <Box />
+        </>
+      )}
 
-          <Box align="end">
-            <Button icon={<FiX onClick={() => toggleModalOpen()} color={_series?.oppStartColor} />} />
-          </Box>
-        </Grid>
-      </Header>
-
-      <Box flex={!mobile} overflow="auto" margin={mobile? {} : { top: 'xlarge' }}>
-        <MainViewWrap pad={mobile? 'medium': 'large'}>
-          <PanelWrap>
-            <Box />
-          </PanelWrap>
-          <Box gap="large" width="600px" pad={{ top: 'large' }}>
-            {children}
-          </Box>
-          <PanelWrap>
-            <Box />
-          </PanelWrap>
-        </MainViewWrap>
-      </Box>
-      </>}
-
-      {mobile && <Box background='background'>{children}</Box>}
-
+      {mobile && <Box background="background">{children}</Box>}
     </StyledLayer>
   );
 }

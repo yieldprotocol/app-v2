@@ -66,10 +66,11 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
     <Box
       fill="vertical"
       basis="auto"
-      width={mobile ? 'none' : '300px'}
+      width={mobile ? undefined : '400px'}
       pad="medium"
       gap="small"
-      border={{ side: 'left', color: 'tailwind-blue-100' }}
+      // border={{ side: 'left', color: 'tailwind-blue-100' }}
+      elevation="xlarge"
     >
       <Box justify="between" align="center" direction="row">
         {account ? (

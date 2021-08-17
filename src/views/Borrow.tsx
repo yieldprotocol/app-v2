@@ -241,11 +241,7 @@ const Borrow = () => {
 
                 <Box gap="large" height="400px">
                   <SectionWrap>
-                    <Box
-                      direction="row"
-                      gap="large"
-                      margin={{ vertical: 'medium' }}
-                    >
+                    <Box direction="row" gap="large" margin={{ vertical: 'medium' }}>
                       <Box>
                         <Gauge value={parseFloat(collateralizationPercent!)} size={mobile ? '6em' : '8em'} />
                       </Box>
@@ -421,7 +417,6 @@ const Borrow = () => {
           {/* {!mobile && stepPosition === 1 && <Gauge value={parseFloat(collateralizationPercent!)} label="%" max={750} min={150} />} */}
           {!mobile && <VaultSelector />}
         </PanelWrap>
-        
       </MainViewWrap>
     </Keyboard>
   );

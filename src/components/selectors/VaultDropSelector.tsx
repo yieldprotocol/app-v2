@@ -5,7 +5,6 @@ import { IVault } from '../../types';
 import PositionAvatar from '../PositionAvatar';
 import { UserContext } from '../../contexts/UserContext';
 
-
 interface IVaultDropSelectorProps {
   vaults: IVault[];
   handleSelect: any;
@@ -34,8 +33,8 @@ function VaultDropSelector({
         defaultValue={undefined}
         plain
         dropProps={{ round: 'xsmall' }}
-        dropAlign={{ bottom:'top' }}
-        dropHeight='300px'
+        dropAlign={{ bottom: 'top' }}
+        dropHeight="300px"
         disabled={vaults.length < 1}
         options={defaultOptionValue ? [{ displayName }, ...vaults] : [...vaults]}
         labelKey={(x: IVault) => x.displayName}
@@ -50,9 +49,9 @@ function VaultDropSelector({
             </Box>
           ) : (
             <Box pad={mobile ? 'medium' : 'small'} direction="row" gap="medium" align="center">
-              <FiPlusCircle color='lightgrey' />
-              <Text color={itemSelected?.displayName ? 'text-weak' : 'text-xweak'} size="medium" >
-               {displayName}
+              <FiPlusCircle color="lightgrey" />
+              <Text color={itemSelected?.displayName ? 'text-weak' : 'text-xweak'} size="medium">
+                {displayName}
               </Text>
             </Box>
           )
@@ -77,7 +76,7 @@ function VaultDropSelector({
               </Box>
             ) : (
               <Box pad="small" direction="row" gap="small" align="center">
-                <FiPlusCircle color='lightgrey'/>
+                <FiPlusCircle color="lightgrey" />
                 <Text color="text-weak" size="medium">
                   {x.displayName}
                 </Text>

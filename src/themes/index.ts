@@ -116,7 +116,6 @@ export const yieldTheme = {
 
     // @ts-ignore
     extend: () => css`
-
       input::-webkit-outer-spin-button,
       input::-webkit-inner-spin-button {
         -webkit-appearance: none;
