@@ -124,7 +124,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
   return (
     <>
       {selectedSeries && (
-        <ModalWrap toggleModalOpen={() => history.push('/lend')} series={selectedSeries}>
+        <ModalWrap series={selectedSeries}>
           <CenterPanelWrap>
             <Box fill gap="medium" pad={mobile ? 'medium' : 'large'}>
               <Box height={{ min: '250px' }} gap="medium">
@@ -136,7 +136,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
                       <Text size="small"> {abbreviateHash(selectedSeries?.fyTokenAddress!, 5)}</Text>
                     </Box>
                   </Box>
-                  <ExitButton action={() => history.push('/lend')} />
+                  <ExitButton action={() => history.goBack()} />
                 </Box>
 
                 <SectionWrap>
