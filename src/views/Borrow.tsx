@@ -96,6 +96,13 @@ const Borrow = () => {
     !borrowDisabled && borrow(_vault, borrowInput, collatInput);
   };
 
+  const resetInputs = () => {
+    setBorrowInput('');
+    setCollatInput('');
+    setStepPosition(0);
+    resetTx();
+  };
+
   /* SET MAX VALUES */
   useEffect(() => {
     /* CHECK collateral selection and sets the max available collateral */
@@ -384,10 +391,7 @@ const Borrow = () => {
               {stepPosition === 2 && !borrowTx.processActive && borrowTx.success && (
                 <NextButton
                   label={<Text size={mobile ? 'small' : undefined}>Borrow more</Text>}
-                  onClick={() => {
-                    setStepPosition(0);
-                    resetTx();
-                  }}
+                  onClick={() => resetInputs()}
                 />
               )}
 
@@ -396,10 +400,7 @@ const Borrow = () => {
                   <NextButton
                     size="xsmall"
                     label={<Text size={mobile ? 'xsmall' : undefined}> Report and go back</Text>}
-                    onClick={() => {
-                      setStepPosition(0);
-                      resetTx();
-                    }}
+                    onClick={() => resetInputs()}
                   />
                 </>
               )}
