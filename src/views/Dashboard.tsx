@@ -1,4 +1,5 @@
 import React, { useContext, useState } from 'react';
+import styled from 'styled-components';
 import { Box, ResponsiveContext, Text } from 'grommet';
 import { ChainContext } from '../contexts/ChainContext';
 import DashboardPositions from '../components/DashboardPositions';
@@ -7,6 +8,7 @@ import YieldInfo from '../components/YieldInfo';
 import MainViewWrap from '../components/wraps/MainViewWrap';
 import PanelWrap from '../components/wraps/PanelWrap';
 import { StyledText } from '../components/StepperText';
+import ListWrap from '../components/wraps/ListWrap';
 
 const Dashboard = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -39,19 +41,19 @@ const Dashboard = () => {
           <YieldInfo />
         </PanelWrap>
       )}
-      <Box fill pad={{ vertical: 'xlarge' }}>
+      <Box fill pad="large" margin={{ top: 'xlarge' }}>
         {!account && <Text>Please connect to your account</Text>}
         {account && (
           <Box width="70%" gap="medium">
-            <Box gap="small">
+            <Box gap="medium">
               <Text size="medium">Vaults</Text>
               <DashboardPositions actionType={ActionType.BORROW} />
             </Box>
-            <Box gap="small">
+            <Box gap="medium">
               <Text size="medium">Lend Positions</Text>
               <DashboardPositions actionType={ActionType.LEND} />
             </Box>
-            <Box gap="small">
+            <Box gap="medium">
               <Text size="medium">Pool Positions</Text>
               <DashboardPositions actionType={ActionType.POOL} />
             </Box>

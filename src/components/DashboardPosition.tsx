@@ -1,7 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react';
+import { Box } from 'grommet';
 import { ActionType, ISeries, IUserContext, IVault } from '../types';
 import { UserContext } from '../contexts/UserContext';
-import VaultListItem from './VaultListItem';
+import VaultItem from './VaultItem';
 import PositionItem from './PositionItem';
 
 function DashboardPosition({
@@ -26,10 +27,10 @@ function DashboardPosition({
   }, [seriesOrVault, actionType, vaultMap, seriesMap]);
 
   return (
-    <>
-      {vault && <VaultListItem vault={seriesOrVault!} condensed />}
+    <Box>
+      {vault && <VaultItem vault={seriesOrVault!} index={index} condensed />}
       {series && <PositionItem series={seriesOrVault!} index={index} actionType={actionType} condensed />}
-    </>
+    </Box>
   );
 }
 

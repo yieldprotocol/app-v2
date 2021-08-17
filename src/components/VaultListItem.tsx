@@ -14,25 +14,32 @@ function VaultListItem({ vault, condensed }: { vault: IVault; condensed?: boolea
   return (
     <Box direction="row" gap="small" align="center" pad="small" height={condensed ? '3rem' : undefined}>
       <PositionAvatar position={vault} condensed={condensed} />
-      <Box>
-        <Text weight={900} size="small" color={vault.isActive ? undefined : 'text-xweak'}>
-          {vault.displayName}
-        </Text>
-
-        {vault.isActive ? (
-          <Box direction="column">
-            <Text weight={450} size="xsmall">
-              {series?.displayNameMobile}
-            </Text>
-            <Text weight={450} size="xsmall">
-              Debt: {vault.art_}
-            </Text>
-          </Box>
-        ) : (
-          <Text weight={450} size="xsmall" color="text-xweak">
-            Vault deleted or transfered
+      <Box
+        fill={condensed ? 'horizontal' : undefined}
+        justify={condensed ? 'between' : undefined}
+        direction={condensed ? 'row' : undefined}
+      >
+        <Box>
+          <Text weight={900} size="small" color={vault.isActive ? undefined : 'text-xweak'}>
+            {vault.displayName}
           </Text>
-        )}
+        </Box>
+        <Box>
+          {vault.isActive ? (
+            <Box direction="row" gap="small">
+              <Text weight={450} size="xsmall">
+                {series?.displayNameMobile}
+              </Text>
+              <Text weight={450} size="xsmall">
+                Debt: {vault.art_}
+              </Text>
+            </Box>
+          ) : (
+            <Text weight={450} size="xsmall" color="text-xweak">
+              Vault deleted or transfered
+            </Text>
+          )}
+        </Box>
       </Box>
     </Box>
   );

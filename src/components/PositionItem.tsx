@@ -33,7 +33,11 @@ function PositionItem({
     <ItemWrap action={() => handleSelect(series)} index={index}>
       <Box direction="row" gap="small" align="center" pad="small" height={condensed ? '3rem' : undefined}>
         <PositionAvatar position={series} condensed={condensed} />
-        <Box justify={condensed ? 'between' : undefined}>
+        <Box
+          fill={condensed ? 'horizontal' : undefined}
+          justify={condensed ? 'between' : undefined}
+          direction={condensed ? 'row' : undefined}
+        >
           <Text weight={900} size="small">
             {series.displayName}
           </Text>

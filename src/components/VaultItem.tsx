@@ -21,7 +21,7 @@ const StyledBox = styled(Box)`
   }
 `;
 
-function VaultItem({ vault, index }: { vault: IVault; index: number }) {
+function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; condensed?: boolean }) {
   const history = useHistory();
 
   const { userState, userActions } = useContext(UserContext) as IUserContext;
@@ -37,9 +37,14 @@ function VaultItem({ vault, index }: { vault: IVault; index: number }) {
 
   return (
     <ItemWrap action={() => handleSelect(vault)} index={index}>
-      <Box direction="row" gap="small" align="center" pad="small">
-        <PositionAvatar position={vault} />
-        <Box>
+      <Box direction="row" gap="small" align="center" pad="small" height={condensed ? '3rem' : undefined}>
+        <PositionAvatar position={vault} condensed={condensed} />
+        <Box
+          fill={condensed ? 'horizontal' : undefined}
+          justify={condensed ? 'between' : undefined}
+          direction={condensed ? 'row' : undefined}
+          align={condensed ? 'center' : undefined}
+        >
           <Text weight={900} size="small" color={vault.isActive ? undefined : 'text-xweak'}>
             {vault.displayName}
           </Text>
@@ -62,5 +67,7 @@ function VaultItem({ vault, index }: { vault: IVault; index: number }) {
     </ItemWrap>
   );
 }
+
+VaultItem.defaultProps = { condensed: false };
 
 export default VaultItem;
