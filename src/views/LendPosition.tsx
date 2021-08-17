@@ -120,7 +120,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
       {selectedSeries && (
         <ModalWrap toggleModalOpen={() => history.push('/lend')} series={selectedSeries}>
           <CenterPanelWrap>
-            <Box fill pad="large" gap="medium">
+            <Box fill gap="medium" pad={mobile ? 'medium' : 'large'}>
               <Box height={{ min: '250px' }} gap="medium">
                 <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
                   <Box direction="row" align="center" gap="medium">

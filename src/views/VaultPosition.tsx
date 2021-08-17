@@ -288,7 +288,7 @@ const VaultPosition = ({ close }: { close: () => void }) => {
       {selectedVault && (
         <ModalWrap toggleModalOpen={() => history.push('/borrow')}>
           <CenterPanelWrap>
-            <Box fill pad="large" gap="medium">
+            <Box fill pad={mobile ? 'medium' : 'large'} gap="medium">
               <Box height={{ min: '250px' }} gap="medium">
                 <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
                   <Box direction="row" align="center" gap="medium">
