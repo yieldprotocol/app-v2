@@ -35,7 +35,7 @@ function MaxButton({ action, clearAction, showingMax, disabled }: IMaxButtonProp
 
   return (
     <>
-      {!mobile && activeAccount && (
+      {activeAccount && (
         <StyledBox
           onClick={!disabled && !showingMax ? () => action() : () => clearAction && clearAction()}
           pad="xsmall"

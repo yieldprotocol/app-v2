@@ -17,6 +17,7 @@ function PanelWrap({ background, basis, right, children }: IPanelWrap) {
       pad="large"
       justify="between"
       background={background}
+      width='400px'
     >
       {children}
     </Box>
