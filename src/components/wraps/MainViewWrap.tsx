@@ -9,19 +9,10 @@ const MainViewWrap = ({ children, background }: IMainViewWrapProps) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   return mobile ? (
-    <Box
-      fill
-      alignSelf="center"
-      // gap="large"
-      pad="medium"
-      height={{ min: '500px' }}
-      direction="column-reverse"
-    >
-      {children}
-    </Box>
+    <Box>{children}</Box>
   ) : (
     <Box
-      direction="row-responsive"
+      direction="row"
       fill
       justify="between"
       gap="small"
@@ -33,7 +24,5 @@ const MainViewWrap = ({ children, background }: IMainViewWrapProps) => {
     </Box>
   );
 };
-
-// MainViewWrap.defaultProps = { fullWidth: false };
 
 export default MainViewWrap;

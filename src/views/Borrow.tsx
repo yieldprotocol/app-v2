@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, Keyboard, ResponsiveContext, Text, TextInput } from 'grommet';
-import { useHistory, useParams } from 'react-router-dom';
 import { ethers } from 'ethers';
 
 import { FiClock, FiPocket, FiPercent, FiTrendingUp } from 'react-icons/fi';
@@ -40,6 +39,8 @@ import VaultDropSelector from '../components/selectors/VaultDropSelector';
 import { useInputValidation } from '../hooks/inputValidationHook';
 import AltText from '../components/texts/AltText';
 import EtherscanButton from '../components/buttons/EtherscanButton';
+import YieldMark from '../components/logos/YieldMark';
+import YieldCardHeader from '../components/YieldCardHeader';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -185,23 +186,23 @@ const Borrow = () => {
         )}
 
         <CenterPanelWrap series={selectedSeries || undefined}>
-          <Box height="100%" pad="large">
+          <Box height="100%" pad={mobile ? 'medium' : 'large'}>
             {stepPosition === 0 && ( // INITIAL STEP
               <Box gap="medium">
-                <Box gap="xsmall">
-                  <AltText size="large">BORROW</AltText>
-                  <Box>
+                <YieldCardHeader logo={mobile} series={selectedSeries}>
+                  <Box gap={mobile ? undefined : 'xsmall'}>
+                    <AltText size={mobile ? 'small' : 'large'}>BORROW</AltText>
                     <AltText color="text-weak" size="xsmall">
                       popular ERC20 tokens at a fixed rate.
                     </AltText>
                   </Box>
-                </Box>
+                </YieldCardHeader>
 
                 <Box gap="large">
                   {/* <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}> */}
                   <SectionWrap>
-                    <Box direction="row" gap="small">
-                      <Box basis={mobile ? '50%' : '60%'}>
+                    <Box direction="row-responsive" gap="small">
+                      <Box basis={mobile ? undefined : '60%'}>
                         <InputWrap action={() => console.log('maxAction')} isError={borrowInputError}>
                           <TextInput
                             plain
@@ -213,7 +214,7 @@ const Borrow = () => {
                           />
                         </InputWrap>
                       </Box>
-                      <Box basis={mobile ? '50%' : '40%'}>
+                      <Box basis={mobile ? undefined : '40%'}>
                         <AssetSelector />
                       </Box>
                     </Box>
@@ -234,18 +235,23 @@ const Borrow = () => {
 
             {stepPosition === 1 && ( // ADD COLLATERAL
               <Box gap="medium">
-                <BackButton action={() => setStepPosition(0)} />
+                <YieldCardHeader>
+                  <BackButton action={() => setStepPosition(0)} />
+                </YieldCardHeader>
 
                 <Box gap="large" height="400px">
                   <SectionWrap>
-                    <Box direction="row" align="center" gap="large" justify="center" margin={{ vertical: 'medium' }}>
+                    <Box direction="row" gap="large" margin={{ vertical: 'medium' }}>
                       <Box>
-                        <Gauge value={parseFloat(collateralizationPercent!)} size="8em" />
+                        <Gauge value={parseFloat(collateralizationPercent!)} size={mobile ? '6em' : '8em'} />
                       </Box>
 
                       <Box>
-                        <Text size="small"> Collateralization </Text>
-                        <Text size="xlarge">
+                        <Text size={mobile ? 'xsmall' : 'medium'} color="text-weak">
+                          {' '}
+                          Collateralization{' '}
+                        </Text>
+                        <Text size={mobile ? 'large' : 'xlarge'}>
                           {parseFloat(collateralizationPercent!) > 10000
                             ? nFormatter(parseFloat(collateralizationPercent!), 2)
                             : parseFloat(collateralizationPercent!)}
@@ -256,8 +262,8 @@ const Borrow = () => {
                   </SectionWrap>
 
                   <SectionWrap title="Amount of collateral to add">
-                    <Box direction="row" gap="small">
-                      <Box basis={mobile ? '50%' : '60%'} fill="horizontal">
+                    <Box direction="row-responsive" gap="small">
+                      <Box basis={mobile ? undefined : '60%'} fill="horizontal">
                         <InputWrap
                           action={() => console.log('maxAction')}
                           disabled={!selectedSeries}
@@ -280,7 +286,7 @@ const Borrow = () => {
                           />
                         </InputWrap>
                       </Box>
-                      <Box basis={mobile ? '50%' : '40%'}>
+                      <Box basis={mobile ? undefined : '40%'}>
                         <AssetSelector selectCollateral />
                       </Box>
                     </Box>
@@ -303,11 +309,13 @@ const Borrow = () => {
 
             {stepPosition === 2 && ( // REVIEW
               <Box gap="large">
-                {!borrowTx.success && !borrowTx.failed ? (
-                  <BackButton action={() => setStepPosition(1)} />
-                ) : (
-                  <Box pad="1em" />
-                )}
+                <YieldCardHeader>
+                  {!borrowTx.success && !borrowTx.failed ? (
+                    <BackButton action={() => setStepPosition(1)} />
+                  ) : (
+                    <Box pad="1em" />
+                  )}
+                </YieldCardHeader>
 
                 <ActiveTransaction full tx={borrowTx}>
                   <SectionWrap title="Review transaction:">

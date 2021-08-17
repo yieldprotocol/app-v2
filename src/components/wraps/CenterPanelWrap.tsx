@@ -1,5 +1,5 @@
 import React, { useContext, useRef, useState } from 'react';
-import { Box, Grid, ResponsiveContext, Stack } from 'grommet';
+import { Box, ResponsiveContext, Stack } from 'grommet';
 
 import { useSpring, animated, to, a } from 'react-spring';
 import { useGesture } from 'react-use-gesture';
@@ -41,7 +41,6 @@ function CenterPanelWrap({ children, series }: IPanelWrap) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const [flipped, setFlipped] = useState(false);
-
   const domTarget = useRef(null);
   const [{ x, y, rotateX, rotateY, rotateZ, zoom, scale, transform, opacity }, api] = useSpring(() => ({
     rotateX: 0,
@@ -73,9 +72,11 @@ function CenterPanelWrap({ children, series }: IPanelWrap) {
   return (
     <>
       {mobile ? (
-        <Box ref={domTarget}>{children}</Box>
+        <Box ref={domTarget} height={{ min: '500px' }}>
+          {children}
+        </Box>
       ) : (
-        <Box align="center" justify="center" >
+        <Box align="center" justify="center">
           <animated.div
             ref={domTarget}
             style={{
@@ -96,7 +97,6 @@ function CenterPanelWrap({ children, series }: IPanelWrap) {
                   width="500px"
                   align="center" // use this to move shadow around
                   justify="end" // use this to move shadow around
-
                 >
                   <StyledBox
                     height="500px"
@@ -114,9 +114,7 @@ function CenterPanelWrap({ children, series }: IPanelWrap) {
                 round="xsmall"
                 background="white"
               >
-                <Box fill>
-                  {children}
-                </Box>
+                <Box fill>{children}</Box>
               </Box>
             </Stack>
           </animated.div>

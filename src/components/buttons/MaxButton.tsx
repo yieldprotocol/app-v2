@@ -26,7 +26,6 @@ const StyledBox = styled(Box)`
   }
 `;
 
-
 function MaxButton({ action, clearAction, showingMax, disabled }: IMaxButtonProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   /* state from context */
@@ -35,7 +34,7 @@ function MaxButton({ action, clearAction, showingMax, disabled }: IMaxButtonProp
 
   return (
     <>
-      {!mobile && activeAccount && (
+      {activeAccount && (
         <StyledBox
           onClick={!disabled && !showingMax ? () => action() : () => clearAction && clearAction()}
           pad="xsmall"
@@ -44,7 +43,7 @@ function MaxButton({ action, clearAction, showingMax, disabled }: IMaxButtonProp
           // border={{ color: 'white' }}
           width="xxsmall"
         >
-          <Text size="xsmall" color={disabled? 'text-xweak': 'text-weak'} >
+          <Text size="xsmall" color={disabled ? 'text-xweak' : 'text-weak'}>
             {showingMax ? 'Clear' : 'Max'}
           </Text>
         </StyledBox>

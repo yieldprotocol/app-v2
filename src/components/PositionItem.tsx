@@ -22,9 +22,8 @@ function PositionItem({ series, index, actionType }: { series: ISeries; index: n
 
   return (
     <ItemWrap action={() => handleSelect(series)} index={index}>
-      <Box direction="row" gap="small" align="center" pad="small" round="xsmall">
+      <Box direction="row" gap="small" align="center" pad="small">
         <PositionAvatar position={series} />
-
         <Box>
           <Text weight={900} size="small">
             {series.displayName}
