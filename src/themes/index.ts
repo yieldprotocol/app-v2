@@ -12,7 +12,8 @@ export const yieldTheme = {
       'accent-1': '#FFCA58',
       'accent-2': '#81FCED',
       'tailwind-blue': '#2563EB',
-      'tailwind-lightest-blue': '#EFF6FF',
+      'tailwind-blue-50': '#EFF6FF',
+      'tailwind-blue-100': '#DBEAFE',
 
       'yield-gradient': {
         dark: 'linear-gradient(60deg, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82)',
@@ -112,9 +113,8 @@ export const yieldTheme = {
 
     // @ts-ignore
     extend: () => css`
-
-     backdrop-filter: ${(props: LayerProps) => (true ? 'blur(3px)' : 'none')};
-     -webkit-backdrop-filter: ${(props: LayerProps) => (true ? 'blur(3px)' : 'none')};
+      backdrop-filter: ${(props: LayerProps) => (props.modal ? 'blur(3px)' : 'none')};
+      -webkit-backdrop-filter: ${(props: LayerProps) => (props.modal ? 'blur(3px)' : 'none')};
 
       input::-webkit-outer-spin-button,
       input::-webkit-inner-spin-button {
@@ -132,5 +132,4 @@ export const yieldTheme = {
       }
     `,
   },
-
 };

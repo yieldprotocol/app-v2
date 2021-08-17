@@ -1,13 +1,21 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, Button, Text } from 'grommet';
+import styled from 'styled-components';
+import { Box, Button, ResponsiveContext, Text } from 'grommet';
 import { FiCheckSquare, FiX } from 'react-icons/fi';
 import { ChainContext, connectorNames } from '../contexts/ChainContext';
+import BackButton from './buttons/BackButton';
+import Disclaimer from './Disclaimer';
+import { useCachedState } from '../hooks/generalHooks';
 
-const Connect = ({ setConnectOpen }: any) => {
+const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
+  const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
-    chainState: { connector, connectors },
+    chainState: { account, connector, connectors },
     chainActions: { connect, disconnect },
   } = useContext(ChainContext);
+
+  const [disclaimerCheckedInStorage, setDisclaimerCheckedInStorage] = useCachedState('disclaimerChecked', false);
+  const [disclaimerChecked, setDisclaimerChecked] = useState<boolean>(disclaimerCheckedInStorage);
 
   const [activatingConnector, setActivatingConnector] = useState<any>();
 
@@ -17,11 +25,15 @@ const Connect = ({ setConnectOpen }: any) => {
   }, [activatingConnector, connector]);
 
   const handleConnect = (connectorName: string) => {
-    disconnect();
     setActivatingConnector(connectorName);
+    disconnect();
     connect(connectorName);
     setConnectOpen(false);
   };
+
+  useEffect(() => {
+    setDisclaimerCheckedInStorage(disclaimerChecked);
+  }, [disclaimerChecked, setDisclaimerCheckedInStorage]);
 
   const connectorsRender = [...connectors.keys()].map((name: string) => {
     const currentConnector = connectors.get(name);
@@ -31,27 +43,57 @@ const Connect = ({ setConnectOpen }: any) => {
     return (
       <Box
         key={name}
-        onClick={() => !connected && handleConnect(name)}
-        border={{ color: 'tailwind-blue', size: 'xsmall' }}
-        hoverIndicator={{ color: 'tailwind-blue', size: 'xsmall' }}
+        onClick={() => !connected && disclaimerChecked && handleConnect(name)}
         pad="small"
-        round="small"
+        round="xsmall"
+        border={{ color: disclaimerChecked ? 'tailwind-blue' : 'tailwind-blue-100', size: 'xsmall' }}
+        background={connected ? 'tailwind-blue' : 'white'}
+        hoverIndicator={{
+          background: { color: connected || !disclaimerChecked ? 'tailwind-blue' : 'tailwind-blue' },
+          color: connected ? 'gray' : 'white',
+        }}
+        direction="row"
+        gap="xsmall"
+        align="center"
       >
-        <Box direction="row" gap="xsmall" align="center">
-          {connected && <FiCheckSquare color="green" />}
-          {activating ? 'Connecting' : connectorNames.get(name)}
-        </Box>
+        {connected && <FiCheckSquare color="#34D399" />}
+        {activating ? 'Connecting' : connectorNames.get(name)}
       </Box>
     );
   });
 
   return (
-    <Box basis="auto" width="medium" pad="small" gap="small">
+    <Box
+      fill="vertical"
+      basis="auto"
+      width={mobile ? 'none' : '300px'}
+      pad="medium"
+      gap="small"
+      border={{ side: 'left', color: 'tailwind-blue-100' }}
+    >
       <Box justify="between" align="center" direction="row">
-        <Text>Connect</Text>
+        {account ? (
+          <BackButton
+            action={() => {
+              setSettingsOpen(true);
+              setConnectOpen(false);
+            }}
+          />
+        ) : (
+          <Text>Connect</Text>
+        )}
         <Button icon={<FiX size="1.5rem" />} onClick={() => setConnectOpen(false)} plain />
       </Box>
       <Box gap="xsmall">{connectorsRender}</Box>
+
+      {!disclaimerChecked && (
+        <Box border={{ color: 'tailwind-blue' }} round="small">
+          <Disclaimer
+            checked={disclaimerChecked}
+            onChange={(event: any) => setDisclaimerChecked(event.target.checked)}
+          />
+        </Box>
+      )}
     </Box>
   );
 };

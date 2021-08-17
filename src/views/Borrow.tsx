@@ -145,10 +145,7 @@ const Borrow = () => {
       const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
       const _matchingVaults = arr.filter(
         (v: IVault) =>
-          v.ilkId === selectedIlk.id && 
-          v.baseId === selectedBase.id && 
-          v.seriesId === selectedSeries.id && 
-          v.isActive
+          v.ilkId === selectedIlk.id && v.baseId === selectedBase.id && v.seriesId === selectedSeries.id && v.isActive
       );
       setMatchingVaults(_matchingVaults);
       // reset the selected vault on every change
@@ -233,9 +230,8 @@ const Borrow = () => {
                 <BackButton action={() => setStepPosition(0)} />
 
                 <Box gap="large" height="400px">
-
                   <SectionWrap>
-                    <Box direction="row" align="center" gap="large" justify="center" margin={{ vertical:'medium' }}>
+                    <Box direction="row" align="center" gap="large" justify="center" margin={{ vertical: 'medium' }}>
                       <Box>
                         <Gauge value={parseFloat(collateralizationPercent!)} size="8em" />
                       </Box>
@@ -243,7 +239,7 @@ const Borrow = () => {
                       <Box>
                         <Text size="small"> Collateralization </Text>
                         <Text size="xlarge">
-                          { parseFloat(collateralizationPercent!) > 10000
+                          {parseFloat(collateralizationPercent!) > 10000
                             ? nFormatter(parseFloat(collateralizationPercent!), 2)
                             : parseFloat(collateralizationPercent!)}
                           %
@@ -282,18 +278,18 @@ const Borrow = () => {
                       </Box>
                     </Box>
                   </SectionWrap>
-                  {
-                  matchingVaults.length > 0 &&
-                  <SectionWrap title="Add to an exisiting vault" disabled={matchingVaults.length < 1}>
-                    <VaultDropSelector
-                      vaults={matchingVaults}
-                      handleSelect={(option: any) => setVaultToUse(option)}
-                      itemSelected={vaultToUse}
-                      displayName="Create New Vault"
-                      placeholder="Create New Vault"
-                      defaultOptionValue="Create New Vault"
-                    />
-                  </SectionWrap>}
+                  {matchingVaults.length > 0 && (
+                    <SectionWrap title="Add to an exisiting vault" disabled={matchingVaults.length < 1}>
+                      <VaultDropSelector
+                        vaults={matchingVaults}
+                        handleSelect={(option: any) => setVaultToUse(option)}
+                        itemSelected={vaultToUse}
+                        displayName="Create New Vault"
+                        placeholder="Create New Vault"
+                        defaultOptionValue="Create New Vault"
+                      />
+                    </SectionWrap>
+                  )}
                 </Box>
               </Box>
             )}
@@ -346,7 +342,6 @@ const Borrow = () => {
           </Box>
 
           <Box>
-
             <ActionButtonWrap pad>
               {(stepPosition === 0 || stepPosition === 1) && (
                 <NextButton

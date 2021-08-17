@@ -11,7 +11,12 @@ const AdvancedSettings = () => {
 
   return (
     <Box fill="horizontal" gap="small">
-      <Box direction="row" justify="between">
+      <Box
+        direction="row"
+        justify="between"
+        pad={{ vertical: 'small' }}
+        border={{ color: 'tailwind-blue-100', side: 'bottom' }}
+      >
         <Text size="small">Show Inactive Vaults</Text>
         <CheckBox
           toggle
