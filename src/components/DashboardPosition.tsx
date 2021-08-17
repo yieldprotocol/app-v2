@@ -16,7 +16,7 @@ function Position({ series, index, actionType }: { series: ISeries; index: numbe
     userActions.setSelectedBase(_series.baseId);
     userActions.setSelectedSeries(_series.id);
 
-    actionType === 'LEND' ? history.push(`/lendposition/${_series.id}`) : history.push(`/poolposition/${_series.id}`);
+    history.push(`/${actionType.toLocaleLowerCase()}position/${_series.id}`);
   };
 
   return (

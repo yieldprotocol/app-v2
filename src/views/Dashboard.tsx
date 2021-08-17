@@ -99,7 +99,7 @@ const Dashboard = () => {
       )}
       <Box fill pad={{ vertical: 'large' }} gap="medium">
         {!account && <Text>Please connect to your account</Text>}
-        <Box width="75%" gap="small">
+        <Box width="70%" gap="small">
           <Box gap="small">
             <Text size="medium">Vaults</Text>
             {allVaults.length ? <Vaults vaults={filteredVaults} handleSelect={handleSelect} /> : 'No open positions'}
