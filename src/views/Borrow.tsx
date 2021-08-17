@@ -290,7 +290,6 @@ const Borrow = () => {
                       </Box>
                     </Box>
                   </SectionWrap>
-
                   {matchingVaults.length > 0 && (
                     <SectionWrap title="Add to an exisiting vault" disabled={matchingVaults.length < 1}>
                       <VaultDropSelector

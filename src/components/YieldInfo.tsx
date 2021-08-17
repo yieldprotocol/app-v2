@@ -83,7 +83,10 @@ const YieldInfo = () => {
       {account ? (
         <Box direction="row-responsive" gap="small">
           <Text size="xsmall">
-            Connected to: <Text size="xsmall" color={chainData.color}> {chainData.name} </Text>
+            {`Connected to: `}
+            <Text size="xsmall" color={chainData.color}>
+              {chainData.name}
+            </Text>
           </Text>
           <Box onClick={() => disconnect()}>
             <Text size="xsmall" color="text-xweak">
@@ -97,7 +100,7 @@ const YieldInfo = () => {
             Disconnected
           </Text>
           <Box onClick={() => connect()}>
-            <Text size="xsmall" color={account? "text-xweak": "text-weak"}>
+            <Text size="xsmall" color={account ? 'text-xweak' : 'text-weak'}>
               Connect
             </Text>
           </Box>
