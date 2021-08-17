@@ -44,7 +44,7 @@ function Pool() {
   const selectedBase = assetMap.get(selectedBaseId!);
 
   /* LOCAL STATE */
-  const [poolInput, setPoolInput] = useState<string>();
+  const [poolInput, setPoolInput] = useState<string | undefined>(undefined);
   const [maxPool, setMaxPool] = useState<string | undefined>();
 
   const [poolDisabled, setPoolDisabled] = useState<boolean>(true);
@@ -68,6 +68,12 @@ function Pool() {
   const handleAdd = () => {
     // !poolDisabled &&
     selectedSeries && addLiquidity(poolInput!, selectedSeries, strategy);
+  };
+
+  const resetInputs = () => {
+    setPoolInput(undefined);
+    setStepPosition(0);
+    resetTx();
   };
 
   /* SET MAX VALUES */
@@ -243,10 +249,7 @@ function Pool() {
                 {/* <PositionListItem series={selectedSeries!} actionType={ActionType.POOL} /> */}
                 <NextButton
                   label={<Text size={mobile ? 'small' : undefined}>Add more Liquidity</Text>}
-                  onClick={() => {
-                    setStepPosition(0);
-                    resetTx();
-                  }}
+                  onClick={() => resetInputs()}
                 />
               </>
             )}

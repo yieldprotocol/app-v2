@@ -153,7 +153,6 @@ const VaultPosition = ({ close }: { close: () => void }) => {
 
   const handleRepay = () => {
     selectedVault && repay(selectedVault, repayInput?.toString());
-    // setRepayInput('');
   };
 
   const handleCollateral = (action: 'ADD' | 'REMOVE') => {
@@ -162,7 +161,6 @@ const VaultPosition = ({ close }: { close: () => void }) => {
       !remove && addCollateral(selectedVault, addCollatInput);
       remove && removeCollateral(selectedVault, removeCollatInput);
     }
-    setCollatInput('');
   };
 
   const handleRoll = () => {
@@ -198,6 +196,26 @@ const VaultPosition = ({ close }: { close: () => void }) => {
 
   const handleMergeVaultSelect = (vault: IVault) => {
     setMergeData((fData: any) => ({ ...fData, toVault: vault }));
+  };
+
+  const resetInputs = (actionCode: ActionCodes) => {
+    switch (actionCode) {
+      case ActionCodes.REPAY:
+        setRepayInput(undefined);
+        break;
+      case ActionCodes.ADD_COLLATERAL:
+        setAddCollatInput(undefined);
+        break;
+      case ActionCodes.REMOVE_COLLATERAL:
+        setRemoveCollatInput(undefined);
+        break;
+      case ActionCodes.TRANSFER_VAULT:
+        setTransferToAddressInput('');
+        break;
+      case ActionCodes.MERGE_VAULT:
+        setMergeData(initialMergeData);
+        break;
+    }
   };
 
   /* SET MAX / MIN VALUES */
@@ -278,6 +296,7 @@ const VaultPosition = ({ close }: { close: () => void }) => {
         onClick={() => {
           props.resetTx();
           handleStepper(true);
+          resetInputs(props.actionCode);
         }}
       />
     </>
@@ -655,7 +674,7 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                     primary
                     label={
                       <Text size={mobile ? 'small' : undefined}>
-                        {`Repay${repayTx.processActive ? 'ing' : ''} ${
+                        {`${repayTx.processActive ? 'Repaying' : 'Repay'} ${
                           nFormatter(Number(repayInput), vaultBase?.digitFormat!) || ''
                         } ${vaultBase?.symbol}`}
                       </Text>
@@ -685,9 +704,11 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                   <TransactButton
                     primary
                     label={
-                      <Text size={mobile ? 'small' : undefined}>{`Add${
-                        addCollateralTx.processActive ? 'ing' : ''
-                      }`}</Text>
+                      <Text size={mobile ? 'small' : undefined}>
+                        {`${addCollateralTx.processActive ? 'Adding' : 'Add'} ${
+                          nFormatter(Number(addCollatInput), vaultIlk?.digitFormat!) || ''
+                        } ${vaultIlk?.symbol}`}
+                      </Text>
                     }
                     onClick={() => handleCollateral('ADD')}
                     disabled={addCollateralTx.processActive}
@@ -701,9 +722,11 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                   <TransactButton
                     primary
                     label={
-                      <Text size={mobile ? 'small' : undefined}>{`Remov${
-                        removeCollateralTx.processActive ? 'ing' : 'e'
-                      }`}</Text>
+                      <Text size={mobile ? 'small' : undefined}>
+                        {`${removeCollateralTx.processActive ? 'Removing' : 'Remove'} ${
+                          nFormatter(Number(removeCollatInput), vaultIlk?.digitFormat!) || ''
+                        } ${vaultIlk?.symbol}`}
+                      </Text>
                     }
                     onClick={() => handleCollateral('REMOVE')}
                     disabled={removeCollateralTx.processActive}
@@ -731,9 +754,9 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                   <TransactButton
                     primary
                     label={
-                      <Text size={mobile ? 'small' : undefined}>{`Merg${
-                        mergeTx.processActive ? 'ing' : 'e'
-                      } Vaults`}</Text>
+                      <Text size={mobile ? 'small' : undefined}>
+                        {`${mergeTx.processActive ? 'Merging' : 'Merge'} Vaults`}
+                      </Text>
                     }
                     onClick={() => handleMerge()}
                     disabled={mergeData.inkError || mergeData.artError || mergeTx.processActive}
@@ -745,36 +768,52 @@ const VaultPosition = ({ close }: { close: () => void }) => {
               {stepPosition[actionActive.index] === 1 &&
                 actionActive.index === 0 &&
                 !repayTx.processActive &&
-                (repayTx.success || repayTx.failed) && <CompletedTx tx={repayTx} resetTx={resetRepayTx} />}
+                (repayTx.success || repayTx.failed) && (
+                  <CompletedTx tx={repayTx} resetTx={resetRepayTx} actionCode={ActionCodes.REPAY} />
+                )}
 
               {stepPosition[actionActive.index] === 1 &&
                 actionActive.index === 1 &&
                 !rollTx.processActive &&
-                (rollTx.success || rollTx.failed) && <CompletedTx tx={rollTx} resetTx={resetRollTx} />}
+                (rollTx.success || rollTx.failed) && (
+                  <CompletedTx tx={rollTx} resetTx={resetRollTx} actionCode={ActionCodes.ROLL_POSITION} />
+                )}
 
               {stepPosition[actionActive.index] === 1 &&
                 actionActive.index === 2 &&
                 !addCollateralTx.processActive &&
                 (addCollateralTx.success || addCollateralTx.failed) && (
-                  <CompletedTx tx={addCollateralTx} resetTx={resetAddCollateralTx} />
+                  <CompletedTx
+                    tx={addCollateralTx}
+                    resetTx={resetAddCollateralTx}
+                    actionCode={ActionCodes.ADD_COLLATERAL}
+                  />
                 )}
 
               {stepPosition[actionActive.index] === 1 &&
                 actionActive.index === 2 &&
                 !removeCollateralTx.processActive &&
                 (removeCollateralTx.success || removeCollateralTx.failed) && (
-                  <CompletedTx tx={removeCollateralTx} resetTx={resetRemoveCollateralTx} />
+                  <CompletedTx
+                    tx={removeCollateralTx}
+                    resetTx={resetRemoveCollateralTx}
+                    actionCode={ActionCodes.REMOVE_COLLATERAL}
+                  />
                 )}
 
               {stepPosition[actionActive.index] === 1 &&
                 actionActive.index === 4 &&
                 !transferTx.processActive &&
-                (transferTx.success || transferTx.failed) && <CompletedTx tx={rollTx} resetTx={resetTransferTx} />}
+                (transferTx.success || transferTx.failed) && (
+                  <CompletedTx tx={rollTx} resetTx={resetTransferTx} actionCode={ActionCodes.TRANSFER_VAULT} />
+                )}
 
               {stepPosition[actionActive.index] === 1 &&
                 actionActive.index === 5 &&
                 !mergeTx.processActive &&
-                (mergeTx.success || mergeTx.failed) && <CompletedTx tx={mergeTx} resetTx={resetMergeTx} />}
+                (mergeTx.success || mergeTx.failed) && (
+                  <CompletedTx tx={mergeTx} resetTx={resetMergeTx} actionCode={ActionCodes.MERGE_VAULT} />
+                )}
             </ActionButtonWrap>
           </CenterPanelWrap>
         </ModalWrap>

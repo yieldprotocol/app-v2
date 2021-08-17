@@ -46,7 +46,7 @@ const Lend = () => {
   const selectedBase = assetMap.get(selectedBaseId!);
 
   /* LOCAL STATE */
-  const [lendInput, setLendInput] = useState<string>();
+  const [lendInput, setLendInput] = useState<string | undefined>(undefined);
   // const [maxLend, setMaxLend] = useState<string | undefined>();
   const [lendDisabled, setLendDisabled] = useState<boolean>(true);
   const [stepPosition, setStepPosition] = useState<number>(0);
@@ -69,6 +69,12 @@ const Lend = () => {
   };
   const handleRedeem = () => {
     redeem(selectedSeries!, undefined);
+  };
+
+  const resetInputs = () => {
+    setLendInput(undefined);
+    setStepPosition(0);
+    resetTx();
   };
 
   /* ACTION DISABLING LOGIC  - if conditions are met: allow action */
@@ -215,10 +221,7 @@ const Lend = () => {
               {/* <PositionListItem series={selectedSeries!} actionType={ActionType.LEND} /> */}
               <NextButton
                 label={<Text size={mobile ? 'small' : undefined}>Lend some more</Text>}
-                onClick={() => {
-                  setStepPosition(0);
-                  resetTx();
-                }}
+                onClick={() => resetInputs()}
               />
             </>
           )}
@@ -228,10 +231,7 @@ const Lend = () => {
               <NextButton
                 size="xsmall"
                 label={<Text size={mobile ? 'xsmall' : undefined}> Report and go back</Text>}
-                onClick={() => {
-                  setStepPosition(0);
-                  resetTx();
-                }}
+                onClick={() => resetInputs()}
               />
             </>
           )}
