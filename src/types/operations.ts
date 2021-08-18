@@ -1,45 +1,5 @@
 import { BigNumberish } from 'ethers';
 
-// export namespace PoolRouterActions {
-//   export enum Fn {
-//     FORWARD_PERMIT = 'forwardPermit',
-//     FORWARD_DAI_PERMIT = 'forwardDaiPermit',
-//     JOIN_ETHER = 'joinEther',
-//     EXIT_ETHER = 'exitEther',
-//     TRANSFER_TO_POOL = 'transferToPool',
-//     ROUTE = 'route_p',
-//   }
-//   export namespace Args {
-//     export type JOIN_ETHER = [base: string, fyToken: string];
-//     export type EXIT_ETHER = [to: string];
-//     export type TRANSFER_TO_POOL = [base: string, fyToken: string, token: string, wad: BigNumberish];
-//     export type ROUTE = [base: string, fyToken: string, encodedPoolcall: string];
-
-//     export type FORWARD_PERMIT = [
-//       base: string,
-//       fyToken: string,
-//       token: string,
-//       spender: string,
-//       amount: BigNumberish,
-//       deadline: BigNumberish,
-//       v: BigNumberish,
-//       r: Buffer,
-//       s: Buffer
-//     ];
-//     export type FORWARD_DAI_PERMIT = [
-//       base: string,
-//       fyToken: string,
-//       spender: string,
-//       nonce: BigNumberish,
-//       deadline: BigNumberish,
-//       allowed: boolean,
-//       v: BigNumberish,
-//       r: Buffer,
-//       s: Buffer
-//     ];
-//   }
-// }
-
 export namespace LadleActions {
   export enum Fn {
     BUILD = 'build',
@@ -112,7 +72,7 @@ export namespace LadleActions {
   }
 }
 
-export namespace ReroutedActions {
+export namespace RoutedActions {
   export enum Fn {
     SELL_BASE = 'sellBase',
     SELL_FYTOKEN = 'sellFYToken',
