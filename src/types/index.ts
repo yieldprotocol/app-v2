@@ -2,7 +2,7 @@ import { ethers, BigNumber, BigNumberish } from 'ethers';
 import React from 'react';
 import { FYToken, Pool } from '../contracts';
 
-export { LadleActions, PoolRouterActions, ReroutedActions } from './operations';
+export { LadleActions, RoutedActions } from './operations';
 
 export interface IHistoryList {
   lastBlock: number;

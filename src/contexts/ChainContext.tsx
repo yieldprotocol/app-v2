@@ -23,7 +23,6 @@ import USDCMark from '../components/logos/USDCMark';
 import WBTCMark from '../components/logos/WBTCMark';
 import USDTMark from '../components/logos/USDTMark';
 import YieldMark from '../components/logos/YieldMark';
-import { ERC20Permit } from '../contracts';
 
 const markMap = new Map([
   ['DAI', <DaiMark key="dai" />],
@@ -209,7 +208,6 @@ const ChainProvider = ({ children }: any) => {
       const addrs = (yieldEnv.addresses as any)[fallbackChainId];
       const Cauldron = contracts.Cauldron__factory.connect(addrs.Cauldron, fallbackLibrary);
       const Ladle = contracts.Ladle__factory.connect(addrs.Ladle, fallbackLibrary);
-      const PoolRouter = contracts.PoolRouter__factory.connect(addrs.PoolRouter, fallbackLibrary);
       const CompoundOracle = contracts.CompoundMultiOracle__factory.connect(addrs.CompoundOracle, fallbackLibrary);
       const ChainlinkOracle = contracts.ChainlinkMultiOracle__factory.connect(addrs.ChainlinkOracle, fallbackLibrary);
       const CompositeMultiOracle = contracts.CompositeMultiOracle__factory.connect(
@@ -227,10 +225,10 @@ const ChainProvider = ({ children }: any) => {
       const newContractMap = chainState.contractMap;
       newContractMap.set('Cauldron', Cauldron);
       newContractMap.set('Ladle', Ladle);
-      newContractMap.set('PoolRouter', PoolRouter);
       newContractMap.set('CompoundOracle', CompoundOracle);
       newContractMap.set('ChainlinkOracle', ChainlinkOracle);
       newContractMap.set('CompositeMultiOracle', CompositeMultiOracle);
+      // newContractMap.set('Strategy_DAI3M', Strategy_DAI3M);
 
       updateState({ type: 'contractMap', payload: newContractMap });
 
