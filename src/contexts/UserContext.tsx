@@ -48,6 +48,7 @@ const initState: IUserContextState = {
   dudeSalt: 1,
   showInactiveVaults: false as boolean,
   slippageTolerance: 0.01 as number,
+  vaultsLoading: false as boolean,
 };
 
 const vaultNameConfig: Config = {
@@ -91,6 +92,8 @@ function userReducer(state: any, action: any) {
       return { ...state, showInactiveVaults: onlyIfChanged(action) };
     case 'setSlippageTolerance':
       return { ...state, slippageTolerance: onlyIfChanged(action) };
+    case 'vaultsLoading':
+      return { ...state, vaultsLoading: onlyIfChanged(action) };
 
     default:
       return state;
@@ -346,6 +349,7 @@ const UserProvider = ({ children }: any) => {
   /* Updates the vaults with *user* data */
   const updateVaults = useCallback(
     async (vaultList: IVaultRoot[], force: boolean = false) => {
+      updateState({ type: 'vaultsLoading', payload: true });
       let _vaultList: IVaultRoot[] = vaultList;
       const Cauldron = contractMap.get('Cauldron');
 
@@ -397,6 +401,7 @@ const UserProvider = ({ children }: any) => {
       vaultFromUrl && updateState({ type: 'selectedVaultId', payload: vaultFromUrl });
 
       console.log('VAULTS: ', newVaultMap);
+      updateState({ type: 'vaultsLoading', payload: false });
     },
     [contractMap, vaultFromUrl, _getVaults]
   );
