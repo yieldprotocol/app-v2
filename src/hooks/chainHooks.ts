@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
 import { MAX_128, MAX_256 } from '../utils/constants';
-import { ICallData, ISignData, ISeriesRoot, ISeries, LadleActions, PoolRouterActions } from '../types';
+import { ICallData, ISignData, ISeries, LadleActions } from '../types';
 import { ERC20, ERC20__factory, Ladle, Pool, PoolRouter } from '../contracts';
 import { UserContext } from '../contexts/UserContext';
 
@@ -25,7 +25,7 @@ const _getCallGas = (calls: ICallData[]): BigNumber | undefined => {
 /* Get ETH value from JOIN_ETHER OPCode, else zero -> N.B. other values sent in with other OPS are ignored for now */
 const _getCallValue = (calls: ICallData[]): BigNumber => {
   const joinEtherCall = calls.find(
-    (call: any) => call.operation === LadleActions.Fn.JOIN_ETHER || call.operation === PoolRouterActions.Fn.JOIN_ETHER
+    (call: any) => call.operation === LadleActions.Fn.JOIN_ETHER
   );
   return joinEtherCall ? BigNumber.from(joinEtherCall?.overrides?.value) : ethers.constants.Zero;
 };
@@ -44,18 +44,14 @@ export const useChain = () => {
 
   /**
    * TRANSACTING
-   * @param { 'PoolRouter' | 'Ladle' } router
-   * @param { string| undefined } vaultId
    * @param { ICallsData[] } calls list of callData as ICallData
    * @param { string } txCode internal transaction code
    */
-  const transact = async (router: 'PoolRouter' | 'Ladle', calls: ICallData[], txCode: string): Promise<void> => {
+  const transact = async (calls: ICallData[], txCode: string): Promise<void> => {
     const signer = account ? provider.getSigner(account) : provider.getSigner(0);
 
     /* Set the router contract instance, ladle by default */
-    let _contract: Contract = contractMap.get('Ladle').connect(signer) as Ladle;
-
-    if (router === 'PoolRouter') _contract = contractMap.get('PoolRouter').connect(signer) as PoolRouter;
+    const _contract: Contract = contractMap.get('Ladle').connect(signer) as Ladle;
 
     /* First, filter out any ignored calls */
     const _calls = calls.filter((call: ICallData) => !call.ignore);
@@ -67,14 +63,13 @@ export const useChain = () => {
       const { poolContract, id: seriesId, getBaseAddress, fyTokenAddress } = call.series! as ISeries;
 
       /* 'pre-encode' routed calls if required */
-      if (call.operation === LadleActions.Fn.ROUTE || call.operation === PoolRouterActions.Fn.ROUTE) {
+      if (call.operation === LadleActions.Fn.ROUTE) {
         if (call.fnName) {
           const encodedFn = (poolContract as Contract).interface.encodeFunctionData(call.fnName, call.args);
           /* add in the extra/different parameters required for each specific rotuer */
           const extraParams =
             call.operation === LadleActions.Fn.ROUTE ? [seriesId] : [getBaseAddress(), fyTokenAddress];
-          // return ethers.utils.defaultAbiCoder.encode('route', [...extraParams, encodedFn]);
-          return _contract.interface.encodeFunctionData('route', [...extraParams, encodedFn]); // not we don't use Fn.ROUTE here (because they are different)
+          return _contract.interface.encodeFunctionData(LadleActions.Fn.ROUTE, [...extraParams, encodedFn]);
         }
         throw new Error('Function name required for routing');
       }
@@ -111,18 +106,15 @@ export const useChain = () => {
   const sign = async (
     requestedSignatures: ISignData[],
     txCode: string,
-    viaPoolRouter: boolean = false
   ): Promise<ICallData[]> => {
     const signer = account ? provider.getSigner(account) : provider.getSigner(0);
 
     /* Get the spender if not provided, defaults to ladle */
-    const getSpender = (spender: 'POOLROUTER' | 'LADLE' | string) => {
+    const getSpender = (spender: 'LADLE' | string) => {
       const _ladleAddr = contractMap.get('Ladle').address;
-      const _poolAddr = contractMap.get('PoolRouter').address;
       if (ethers.utils.isAddress(spender)) {
         return spender;
       }
-      if (spender === 'POOLROUTER') return _poolAddr;
       return _ladleAddr;
     };
 
@@ -162,22 +154,8 @@ export const useChain = () => {
             approvalMethod
           );
 
-          const poolRouterArgs = [
-            reqSig.series.getBaseAddress(),
-            reqSig.series.fyTokenAddress,
-            _spender,
-            nonce,
-            expiry,
-            allowed,
-            v,
-            r,
-            s,
-          ];
-          const ladleArgs = [reqSig.target.id, true, _spender, nonce, expiry, allowed, v, r, s];
-          const args = viaPoolRouter ? poolRouterArgs : ladleArgs;
-          const operation = viaPoolRouter
-            ? PoolRouterActions.Fn.FORWARD_DAI_PERMIT
-            : LadleActions.Fn.FORWARD_DAI_PERMIT;
+          const args = [reqSig.target.id, true, _spender, nonce, expiry, allowed, v, r, s];
+          const operation = LadleActions.Fn.FORWARD_DAI_PERMIT;
 
           return {
             operation,
@@ -215,19 +193,7 @@ export const useChain = () => {
         );
 
         // router.forwardPermit(ilkId, true, ilkJoin.address, amount, deadline, v, r, s)
-        const poolRouterArgs = [
-          reqSig.series.getBaseAddress(),
-          reqSig.series.fyTokenAddress,
-          reqSig.target.address,
-          _spender,
-          value,
-          deadline,
-          v,
-          r,
-          s,
-        ];
-
-        const ladleArgs = [
+        const args = [
           reqSig.target.id, // the asset id OR the seriesId (if signing fyToken)
           reqSig.type !== 'FYTOKEN_TYPE', // true or false=fyToken
           _spender,
@@ -238,8 +204,7 @@ export const useChain = () => {
           s,
         ];
 
-        const args = viaPoolRouter ? poolRouterArgs : ladleArgs;
-        const operation = viaPoolRouter ? PoolRouterActions.Fn.FORWARD_PERMIT : LadleActions.Fn.FORWARD_PERMIT;
+        const operation = LadleActions.Fn.FORWARD_PERMIT;
 
         return {
           operation,
