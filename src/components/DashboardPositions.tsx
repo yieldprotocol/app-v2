@@ -25,7 +25,7 @@ const DashboardPositions = ({ actionType }: { actionType: ActionType }) => {
   useEffect(() => {
     const _vaultPositions: IVault[] = Array.from(vaultMap.values())
       .filter((vault: IVault) => userState.showInactiveVaults || vault.isActive)
-      .filter((vault: IVault) => filterEmpty && vault.ink.eq(ZERO_BN) && vault.art.eq(ZERO_BN));
+      .filter((vault: IVault) => filterEmpty && (vault.ink.gt(ZERO_BN) || vault.art.gt(ZERO_BN)));
     setVaultPositions(_vaultPositions);
   }, [vaultMap, actionType, userState.showInactiveVaults, filterEmpty]);
 
@@ -50,7 +50,7 @@ const DashboardPositions = ({ actionType }: { actionType: ActionType }) => {
   }, [vaultPositions, lendPositions, poolPositions]);
 
   return (
-    <Box>
+    <>
       {allPositions.map((item: IPositionItem) => (
         <Box key={item.actionType}>
           {actionType === item.actionType && item.positions.length === 0 && (
@@ -70,7 +70,7 @@ const DashboardPositions = ({ actionType }: { actionType: ActionType }) => {
             ))}
         </Box>
       ))}
-    </Box>
+    </>
   );
 };
 
