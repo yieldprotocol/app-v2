@@ -81,7 +81,7 @@ export const useBorrowActions = () => {
     ];
 
     /* handle the transaction */
-    await transact('Ladle', calls, txCode);
+    await transact(calls, txCode);
 
     /* When complete, update vaults.
       If a vault was provided, update it only,
@@ -172,7 +172,7 @@ export const useBorrowActions = () => {
       ...removeEth(_collInput, series),
 
     ];
-    await transact('Ladle', calls, txCode);
+    await transact(calls, txCode);
     updateVaults([]);
     updateAssets([base]);
   };
@@ -191,7 +191,7 @@ export const useBorrowActions = () => {
         series,
       },
     ];
-    await transact('Ladle', calls, txCode);
+    await transact(calls, txCode);
     updateVaults([]);
     updateAssets([base]);
   };
@@ -226,7 +226,7 @@ export const useBorrowActions = () => {
       },
     ];
 
-    await transact('Ladle', calls, txCode);
+    await transact(calls, txCode);
     updateVaults([]);
   };
 
@@ -247,7 +247,7 @@ export const useBorrowActions = () => {
         ignore: series.mature,
       },
     ];
-    await transact('Ladle', calls, txCode);
+    await transact(calls, txCode);
     updateVaults([]);
   };
 
