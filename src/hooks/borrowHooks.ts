@@ -110,15 +110,7 @@ export const useBorrowActions = () => {
       secondsToFrom(series.maturity.toString())
     );
     const _inputAsFyDaiWithSlippage = calculateSlippage(_inputAsFyDai, userState.slippageTolerance.toString(), true);
-
     const inputGreaterThanDebt: boolean = ethers.BigNumber.from(_inputAsFyDai).gte(vault.art);
-
-    console.log(
-      vault.art.toString(),
-      _inputAsFyDai.toString(),
-      inputGreaterThanDebt,
-      _inputAsFyDaiWithSlippage.toString()
-    );
 
     const permits: ICallData[] = await sign(
       [
@@ -147,8 +139,8 @@ export const useBorrowActions = () => {
     const calls: ICallData[] = [
       ...permits,
       {
-        operation: LadleActions.Fn.TRANSFER_TO_POOL,
-        args: [series.id, true, _inputAsFyDai] as LadleActions.Args.TRANSFER_TO_POOL,
+        operation: LadleActions.Fn.TRANSFER,
+        args: [base.address, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
         series,
         ignore: series.isMature(),
       },
@@ -176,7 +168,9 @@ export const useBorrowActions = () => {
         series,
         ignore: !series.isMature(),
       },
+
       ...removeEth(_collInput, series),
+
     ];
     await transact('Ladle', calls, txCode);
     updateVaults([]);
