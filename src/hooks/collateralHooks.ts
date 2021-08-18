@@ -212,7 +212,7 @@ export const useCollateralActions = () => {
       },
     ];
 
-    await transact('Ladle', calls, txCode);
+    await transact(calls, txCode);
     updateVaults([]);
     updateAssets([base, ilk]);
   };
@@ -247,7 +247,7 @@ export const useCollateralActions = () => {
       ...removeEth(_input, series),
     ];
 
-    await transact('Ladle', calls, txCode);
+    await transact(calls, txCode);
     updateVaults([]);
     updateAssets([ilk]);
   };
