@@ -19,24 +19,16 @@ function PositionAvatar({ position, condensed }: { position: IVault | ISeries; c
 
   return (
     <>
-      {isVault ? (
-        <Stack anchor="top-right">
-          <Avatar background={series?.color} size={condensed ? '1.5rem' : undefined}>
-            <Box round="large" background={base?.color} pad={condensed ? 'none' : 'xsmall'} align="center">
-              {base?.image}
-            </Box>
-          </Avatar>
-          <Avatar background="#fff" size={condensed ? '0.75rem' : 'xsmall'}>
-            {ilk?.image}
-          </Avatar>
-        </Stack>
-      ) : (
+      <Stack anchor="top-right">
         <Avatar background={series?.color} size={condensed ? '1.5rem' : undefined}>
           <Box round="large" background={base?.color} pad={condensed ? 'none' : 'xsmall'} align="center">
             {base?.image}
           </Box>
         </Avatar>
-      )}
+        <Avatar background={ilk?.image ? '#fff' : undefined} size={condensed ? '0.75rem' : 'xsmall'}>
+          {ilk?.image || null}
+        </Avatar>
+      </Stack>
     </>
   );
 }
