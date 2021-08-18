@@ -8,6 +8,7 @@ import DashboardBalances from '../components/DashboardBalances';
 import MainViewWrap from '../components/wraps/MainViewWrap';
 import PanelWrap from '../components/wraps/PanelWrap';
 import { UserContext } from '../contexts/UserContext';
+import ListWrap from '../components/wraps/ListWrap';
 
 const Dashboard = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -51,15 +52,27 @@ const Dashboard = () => {
           <Box width="70%" gap="medium">
             <Box gap="medium">
               <Text size="medium">Vaults</Text>
-              {vaultsLoading ? <Text>Loading...</Text> : <DashboardPositions actionType={ActionType.BORROW} />}
+              {vaultsLoading ? (
+                <Text size="small">Loading...</Text>
+              ) : (
+                <DashboardPositions actionType={ActionType.BORROW} />
+              )}
             </Box>
             <Box gap="medium">
               <Text size="medium">Lend Positions</Text>
-              {seriesLoading ? <Text>Loading...</Text> : <DashboardPositions actionType={ActionType.LEND} />}
+              {seriesLoading ? (
+                <Text size="small">Loading...</Text>
+              ) : (
+                <DashboardPositions actionType={ActionType.LEND} />
+              )}
             </Box>
             <Box gap="medium">
               <Text size="medium">Pool Positions</Text>
-              {seriesLoading ? <Text>Loading...</Text> : <DashboardPositions actionType={ActionType.POOL} />}
+              {seriesLoading ? (
+                <Text size="small">Loading...</Text>
+              ) : (
+                <DashboardPositions actionType={ActionType.POOL} />
+              )}
             </Box>
           </Box>
         )}
