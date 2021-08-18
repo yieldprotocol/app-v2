@@ -7,19 +7,22 @@ import YieldInfo from '../components/YieldInfo';
 import DashboardBalances from '../components/DashboardBalances';
 import MainViewWrap from '../components/wraps/MainViewWrap';
 import PanelWrap from '../components/wraps/PanelWrap';
-import { StyledText } from '../components/StepperText';
-import ListWrap from '../components/wraps/ListWrap';
+import { UserContext } from '../contexts/UserContext';
 
 const Dashboard = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   /* STATE FROM CONTEXT */
   const {
-    chainState: { account },
+    chainState: { account, chainLoading },
   } = useContext(ChainContext);
 
+  const {
+    userState: { userLoading, vaultsLoading, seriesLoading },
+  } = useContext(UserContext);
+
   /* LOCAL STATE */
-  const positionTypes = ['All Positions', 'Vaults', 'Lend Positions', 'Pool Positions'];
-  const [view, setView] = useState<string>('All Positions');
+  // const positionTypes = ['All Positions', 'Vaults', 'Lend Positions', 'Pool Positions'];
+  // const [view, setView] = useState<string>('All Positions');
 
   // const viewTypeRender = (
   //   <Box gap="medium">
@@ -43,20 +46,20 @@ const Dashboard = () => {
         </PanelWrap>
       )}
       <Box fill pad="large" margin={{ top: 'xlarge' }}>
-        {!account && <Text>Please connect to your account</Text>}
+        {!account && !chainLoading && <Text>Please connect to your account</Text>}
         {account && (
           <Box width="70%" gap="medium">
             <Box gap="medium">
               <Text size="medium">Vaults</Text>
-              <DashboardPositions actionType={ActionType.BORROW} />
+              {vaultsLoading ? <Text>Loading...</Text> : <DashboardPositions actionType={ActionType.BORROW} />}
             </Box>
             <Box gap="medium">
               <Text size="medium">Lend Positions</Text>
-              <DashboardPositions actionType={ActionType.LEND} />
+              {seriesLoading ? <Text>Loading...</Text> : <DashboardPositions actionType={ActionType.LEND} />}
             </Box>
             <Box gap="medium">
               <Text size="medium">Pool Positions</Text>
-              <DashboardPositions actionType={ActionType.POOL} />
+              {seriesLoading ? <Text>Loading...</Text> : <DashboardPositions actionType={ActionType.POOL} />}
             </Box>
           </Box>
         )}
