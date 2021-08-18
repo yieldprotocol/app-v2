@@ -1,10 +1,10 @@
 import React, { useContext, useState } from 'react';
-import styled from 'styled-components';
 import { Box, ResponsiveContext, Text } from 'grommet';
 import { ChainContext } from '../contexts/ChainContext';
 import DashboardPositions from '../components/DashboardPositions';
 import { ActionType } from '../types';
 import YieldInfo from '../components/YieldInfo';
+import DashboardBalances from '../components/DashboardBalances';
 import MainViewWrap from '../components/wraps/MainViewWrap';
 import PanelWrap from '../components/wraps/PanelWrap';
 import { StyledText } from '../components/StepperText';
@@ -21,22 +21,23 @@ const Dashboard = () => {
   const positionTypes = ['All Positions', 'Vaults', 'Lend Positions', 'Pool Positions'];
   const [view, setView] = useState<string>('All Positions');
 
-  const viewTypeRender = (
-    <Box gap="medium">
-      {positionTypes.map((type) => (
-        <Box key={type} onClick={() => setView(type)}>
-          {type === view ? <StyledText>{type}</StyledText> : <Text>{type}</Text>}
-        </Box>
-      ))}
-    </Box>
-  );
+  // const viewTypeRender = (
+  //   <Box gap="medium">
+  //     {positionTypes.map((type) => (
+  //       <Box key={type} onClick={() => setView(type)}>
+  //         {type === view ? <StyledText>{type}</StyledText> : <Text>{type}</Text>}
+  //       </Box>
+  //     ))}
+  //   </Box>
+  // );
 
   return (
     <MainViewWrap>
       {!mobile && (
         <PanelWrap align="end">
           <Box margin={{ top: '35%' }} gap="medium">
-            {viewTypeRender}
+            {/* {viewTypeRender} */}
+            <DashboardBalances />
           </Box>
           <YieldInfo />
         </PanelWrap>
