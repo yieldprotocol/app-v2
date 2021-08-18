@@ -60,21 +60,19 @@ export const useChain = () => {
     /* Encode each of the calls OR preEncoded route calls */
     const encodedCalls = _calls.map((call: ICallData) => {
       /* get the info required from the series */
-      const { poolContract, id: seriesId, getBaseAddress, fyTokenAddress } = call.series! as ISeries;
+      const { poolContract, address: poolAddress } = call.series! as ISeries;
 
       /* 'pre-encode' routed calls if required */
       if (call.operation === LadleActions.Fn.ROUTE) {
         if (call.fnName) {
           const encodedFn = (poolContract as Contract).interface.encodeFunctionData(call.fnName, call.args);
           /* add in the extra/different parameters required for each specific rotuer */
-          const extraParams =
-            call.operation === LadleActions.Fn.ROUTE ? [seriesId] : [getBaseAddress(), fyTokenAddress];
-          return _contract.interface.encodeFunctionData(LadleActions.Fn.ROUTE, [...extraParams, encodedFn]);
+          // const extraParams = call.operation === LadleActions.Fn.ROUTE ? [seriesId] : [getBaseAddress(), fyTokenAddress];
+          // return _contract.interface.encodeFunctionData(LadleActions.Fn.ROUTE, [...extraParams, encodedFn]);
+          return _contract.interface.encodeFunctionData(LadleActions.Fn.ROUTE, [poolAddress, encodedFn]);
         }
         throw new Error('Function name required for routing');
       }
-
-      // return ethers.utils.defaultAbiCoder.encode(call.operation, call.args);
       return _contract.interface.encodeFunctionData(call.operation as string, call.args);
     });
 
