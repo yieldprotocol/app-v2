@@ -59,9 +59,8 @@ export namespace LadleActions {
     FORWARD_DAI_PERMIT = 'forwardDaiPermit',
     JOIN_ETHER = 'joinEther',
     EXIT_ETHER = 'exitEther',
-    TRANSFER_TO_POOL = 'transferToPool',
-    ROUTE = 'route_l',
-    TRANSFER_TO_FYTOKEN = 'transferToFyToken',
+    TRANSFER = 'transfer',
+    ROUTE = 'route',
     REDEEM = 'redeem',
     MODULE = 'module',
   }
@@ -82,11 +81,9 @@ export namespace LadleActions {
 
     export type JOIN_ETHER = [etherId: string, overrides?: any];
     export type EXIT_ETHER = [to: string];
-    export type TRANSFER_TO_POOL = [seriesId: string, base: boolean, wad: BigNumberish];
-    
+    export type TRANSFER = [token: string, receiver: string, wad: BigNumberish];
+  
     export type ROUTE = [seriesId: string, encodedpoolCall: string];
-
-    export type TRANSFER_TO_FYTOKEN = [seriesId: string, wad: BigNumberish];
     export type REDEEM = [seriesId: string, to: string, wad: BigNumberish];
 
     export type FORWARD_PERMIT = [
