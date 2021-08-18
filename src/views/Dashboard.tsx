@@ -41,7 +41,7 @@ const Dashboard = () => {
         <PanelWrap align="end">
           <Box margin={{ top: '35%' }} gap="medium">
             {/* {viewTypeRender} */}
-            <DashboardBalances debt="$nice" collateral="$nice" netWorth="$nice" />
+            <DashboardBalances debt="10" collateral="100" positionBalance="10" />
           </Box>
           <YieldInfo />
         </PanelWrap>
