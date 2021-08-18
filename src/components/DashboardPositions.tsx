@@ -49,6 +49,11 @@ const DashboardPositions = ({ actionType }: { actionType: ActionType }) => {
     ]);
   }, [vaultPositions, lendPositions, poolPositions]);
 
+  // calculate position and vault balances
+  useEffect(() => {
+    // const getDebtInCurrency = allPositions.reduce()
+  }, []);
+
   return (
     <>
       {allPositions.map((item: IPositionItem) => (

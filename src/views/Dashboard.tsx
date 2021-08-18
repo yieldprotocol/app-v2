@@ -21,20 +21,6 @@ const Dashboard = () => {
     userState: { userLoading, vaultsLoading, seriesLoading },
   } = useContext(UserContext);
 
-  /* LOCAL STATE */
-  // const positionTypes = ['All Positions', 'Vaults', 'Lend Positions', 'Pool Positions'];
-  // const [view, setView] = useState<string>('All Positions');
-
-  // const viewTypeRender = (
-  //   <Box gap="medium">
-  //     {positionTypes.map((type) => (
-  //       <Box key={type} onClick={() => setView(type)}>
-  //         {type === view ? <StyledText>{type}</StyledText> : <Text>{type}</Text>}
-  //       </Box>
-  //     ))}
-  //   </Box>
-  // );
-
   return (
     <MainViewWrap>
       {!mobile && (
