@@ -438,7 +438,7 @@ export const splitLiquidity = (
  * Calculate Slippage
  * @param { BigNumber } value
  * @param { BigNumber } slippage optional: defaults to 0.005 (0.5%)
- * @param { number } minimise optional: whether the resutl should be a minimum or maximum (default max)
+ * @param { boolean } minimise optional: whether the resutl should be a minimum or maximum (default max)
  * @returns { string } human readable string
  */
 export const calculateSlippage = (
@@ -456,7 +456,7 @@ export const calculateSlippage = (
 
 /**
  * Calculate Annualised Yield Rate
- * @param { BigNumber | string } rate // current [base] price per unit y[base]
+ * @param { BigNumber | string } tradeValue // current [base]
  * @param { BigNumber | string } amount // y[base] amount at maturity
  * @param { number } maturity  // date of maturity
  * @param { number } fromDate // ***optional*** start date - defaults to now()
@@ -515,6 +515,35 @@ export const calculateCollateralizationRatio = (
 };
 
 /**
+ * Calculates the collateralization ratio
+ * based on the collat amount and value and debt value.
+ * @param { BigNumber | string } collateralUnitPrice price of collateral in base
+ * @param { BigNumber | string } debtValue value of base debt (in USD)
+ * @param {BigNumber | string} liquidationRatio  OPTIONAL: 1.5 (150%) as default
+ * @param {BigNumber | string} existingCollateral  OPTIONAL: 0 as default
+ * @returns { string | undefined }
+ */
+export const calculateMinCollateral = (
+  collateralUnitPrice: BigNumber | string,
+  debtValue: BigNumber | string,
+  liquidationRatio: string = '1.5', // OPTIONAL: 150% as default
+  existingCollateral: BigNumber | string = '0', // OPTIONAL add in 
+  asBigNumber: boolean = false,
+  ): string | BigNumber => {
+
+    const _existing = new Decimal(ethers.utils.formatEther(existingCollateral));
+    const _minCollatValue = mulDecimal(liquidationRatio, debtValue);
+    const _minCollatAmount = new Decimal(divDecimal(_minCollatValue, collateralUnitPrice));
+
+    const requiredCollateral = _existing.gt(_minCollatAmount)  
+      ? new Decimal('0')
+      :_minCollatAmount.sub(_existing);
+
+    return asBigNumber? toBn(requiredCollateral) : requiredCollateral.toString()
+
+}
+
+/** 
  * Calcualtes the amount (base, or other variant) that can be borrowed based on
  * an amount of collateral (ETH, or other), and collateral price.
  *

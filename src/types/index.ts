@@ -1,6 +1,8 @@
-import { ethers, BigNumber } from 'ethers';
+import { ethers, BigNumber, BigNumberish } from 'ethers';
 import React from 'react';
 import { FYToken, Pool } from '../contracts';
+
+export { LadleActions, PoolRouterActions, ReroutedActions } from './operations';
 
 export interface IHistoryList {
   lastBlock: number;
@@ -31,6 +33,8 @@ export interface IUserContextState {
   selectedVaultId: string | null;
   approvalMethod: ApprovalType;
   dudeSalt: number;
+  showInactiveVaults: boolean;
+  slippageTolerance: number;
 }
 
 export interface IUserContextActions {
@@ -39,9 +43,9 @@ export interface IUserContextActions {
   updateAssets: (assetList: IAsset[]) => void;
   updatePrice: (base: string, ilk: string) => void;
   setSelectedSeries: (seriesId: string) => void;
-  setSelectedIlk: (ilkId: string) => void;
-  setSelectedBase: (baseId: string) => void;
-  setSelectedVault: (vaultId: string) => void;
+  setSelectedIlk: (ilkId: string | null) => void;
+  setSelectedBase: (baseId: string | null) => void;
+  setSelectedVault: (vaultId: string | null) => void;
 }
 
 export interface ISeriesRoot {
@@ -91,6 +95,7 @@ export interface IAssetRoot {
   displayNameMobile: string;
   address: string;
   joinAddress: string;
+  digitFormat: number;
 
   // baked in token fns
   getBalance: (account: string) => Promise<BigNumber>;
@@ -129,9 +134,14 @@ export interface IAsset extends IAssetRoot {
   isYieldBase: boolean;
   balance: BigNumber;
   balance_: string;
+  hasPoolRouterAuth: boolean;
+  hasLadleAuth: boolean;
+  hasJoinAuth: boolean;
 }
 
 export interface IVault extends IVaultRoot {
+  owner: string;
+  isActive: boolean;
   ink: BigNumber;
   art: BigNumber;
   ink_: string;
@@ -143,8 +153,8 @@ export interface IVault extends IVaultRoot {
 }
 
 export interface ICallData {
-  args: (string | BigNumber | boolean)[];
-  operation: [number, string[]];
+  args: (string | BigNumberish | boolean)[];
+  operation: string | [number, string[]];
   series: ISeries;
   fnName?: string;
   ignore?: boolean;
@@ -240,20 +250,21 @@ export enum ActionCodes {
   // VAULT
   DELETE_VAULT = 'Delete Vault',
   TRANSFER_VAULT = 'Transfer Vault',
+  MERGE_VAULT = 'Merge Vault',
 }
 
-export interface IHistItemBase {
+export interface IBaseHistItem {
   blockNumber: number;
   date: Date;
   transactionHash: string;
-  maturity: number;
-  seriesId: string;
+  series: ISeries;
   histType: ActionCodes;
   date_: string;
+  primaryInfo: string;
+  secondaryInfo?: string;
 }
 
-export interface IHistItemVault extends IHistItemBase {
-  vaultId: string;
+export interface IHistItemVault extends IBaseHistItem {
   ilkId: string;
   ink: BigNumber;
   art: BigNumber;
@@ -261,7 +272,7 @@ export interface IHistItemVault extends IHistItemBase {
   art_: String;
 }
 
-export interface IHistItemPosition extends IHistItemBase {
+export interface IHistItemPosition extends IBaseHistItem {
   bases: BigNumber;
   fyTokens: BigNumber;
   bases_: string;

@@ -2,17 +2,17 @@ import React, { useContext, useState, useEffect } from 'react';
 import { Box, Button, ResponsiveContext, Text, TextInput } from 'grommet';
 import { ethers } from 'ethers';
 
-import { FiPocket, FiClock, FiTrendingUp, FiPercent, FiSquare } from 'react-icons/fi';
+import { FiPocket, FiClock, FiTrendingUp, FiPercent, FiSquare, FiInfo } from 'react-icons/fi';
 import { BiMessageSquareAdd } from 'react-icons/bi';
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import AssetSelector from '../components/selectors/AssetSelector';
 import InputWrap from '../components/wraps/InputWrap';
 import MainViewWrap from '../components/wraps/MainViewWrap';
 import SeriesSelector from '../components/selectors/SeriesSelector';
-import { cleanValue, getTxCode } from '../utils/appUtils';
+import { cleanValue, getTxCode, nFormatter } from '../utils/appUtils';
 import SectionWrap from '../components/wraps/SectionWrap';
 
-import { useLendActions } from '../hooks/lendHooks';
+import { useLend, useLendActions } from '../hooks/lendHooks';
 import { UserContext } from '../contexts/UserContext';
 import { ActionCodes, ActionType, IUserContext } from '../types';
 import MaxButton from '../components/buttons/MaxButton';
@@ -24,12 +24,18 @@ import PositionSelector from '../components/selectors/PositionSelector';
 import ActiveTransaction from '../components/ActiveTransaction';
 import YieldInfo from '../components/YieldInfo';
 import BackButton from '../components/buttons/BackButton';
-import YieldMark from '../components/logos/YieldMark';
+
 import NextButton from '../components/buttons/NextButton';
-import ReviewTxItem from '../components/ReviewTxItem';
+import InfoBite from '../components/InfoBite';
 import TransactButton from '../components/buttons/TransactButton';
-import YieldApr from '../components/YieldApr';
+
 import { useApr } from '../hooks/aprHook';
+import { useInputValidation } from '../hooks/inputValidationHook';
+import { useTx } from '../hooks/useTx';
+import AltText from '../components/texts/AltText';
+import PositionListItem from '../components/PositionItem';
+import EtherscanButton from '../components/buttons/EtherscanButton';
+import YieldCardHeader from '../components/YieldCardHeader';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -41,15 +47,22 @@ const Lend = () => {
   const selectedBase = assetMap.get(selectedBaseId!);
 
   /* LOCAL STATE */
-  const [lendInput, setLendInput] = useState<string>();
-  const [maxLend, setMaxLend] = useState<string | undefined>();
-  const [lendError, setLendError] = useState<string | null>(null);
+  const [lendInput, setLendInput] = useState<string | undefined>(undefined);
+  // const [maxLend, setMaxLend] = useState<string | undefined>();
   const [lendDisabled, setLendDisabled] = useState<boolean>(true);
   const [stepPosition, setStepPosition] = useState<number>(0);
 
   /* HOOK FNS */
+  const { maxLend, currentValue } = useLend(selectedSeries!);
   const { lend, redeem } = useLendActions();
   const { apr } = useApr(lendInput, ActionType.LEND, selectedSeries);
+
+  const lendOutput = cleanValue((Number(lendInput) * (1 + Number(apr) / 100)).toString(), selectedBase?.digitFormat!);
+
+  const { tx: lendTx, resetTx } = useTx(ActionCodes.LEND, selectedSeries?.id);
+
+  /* input validation hooks */
+  const { inputError: lendError } = useInputValidation(lendInput, ActionCodes.LEND, selectedSeries, [0, maxLend]);
 
   /* LOCAL FNS */
   const handleLend = () => {
@@ -59,31 +72,11 @@ const Lend = () => {
     redeem(selectedSeries!, undefined);
   };
 
-  /* SET MAX VALUES */
-  useEffect(() => {
-    /* Check max available lend (only if activeAccount to save call) */
-    if (activeAccount) {
-      (async () => {
-        const max = await selectedBase?.getBalance(activeAccount);
-        if (max) setMaxLend(ethers.utils.formatEther(max).toString());
-      })();
-    }
-  }, [activeAccount, lendInput, selectedBase, setMaxLend]);
-
-  /* WATCH FOR WARNINGS AND ERRORS */
-  useEffect(() => {
-    /* lendInput errors */
-    if (activeAccount && (lendInput || lendInput === '')) {
-      /* 1. Check if input exceeds balance */
-      if (maxLend && parseFloat(lendInput) > parseFloat(maxLend)) setLendError('Amount exceeds balance');
-      /* 2. Check if input is above zero */ else if (parseFloat(lendInput) < 0)
-        setLendError('Amount should be expressed as a positive value');
-      /* 2. next Check */ else if (false) setLendError('Insufficient');
-      /* if all checks pass, set null error message */ else {
-        setLendError(null);
-      }
-    }
-  }, [activeAccount, lendInput, maxLend, setLendError]);
+  const resetInputs = () => {
+    setLendInput(undefined);
+    setStepPosition(0);
+    resetTx();
+  };
 
   /* ACTION DISABLING LOGIC  - if conditions are met: allow action */
   useEffect(() => {
@@ -94,83 +87,108 @@ const Lend = () => {
     <MainViewWrap>
       {!mobile && (
         <PanelWrap>
-          <StepperText
-            position={stepPosition}
-            values={[
-              ['Choose an asset to', 'lend', ''],
-              ['', 'Review', 'and transact'],
-            ]}
-          />
+          <Box margin={{ top: '35%' }}>
+            <StepperText
+              position={stepPosition}
+              values={[
+                // ['Choose amount to', 'LEND', ''],
+                ['Choose an amount and a maturity date', '', ''],
+                ['Review & Transact', '', ''],
+              ]}
+            />
+          </Box>
           <YieldInfo />
         </PanelWrap>
       )}
 
       <CenterPanelWrap series={selectedSeries}>
-        <Box height="100%" pad="large">
+        <Box height="100%" pad={mobile ? 'medium' : 'large'}>
           {stepPosition === 0 && (
             <Box gap="medium">
-              <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
-                <YieldMark />
-                <Text>LEND</Text>
-              </Box>
-              <SectionWrap title="Select an asset and amount">
-                <Box direction="row" gap="small" fill="horizontal" align="start">
-                  <Box basis={mobile ? '50%' : '60%'}>
-                    <InputWrap
-                      action={() => console.log('maxAction')}
-                      isError={lendError}
-                      disabled={selectedSeries?.seriesIsMature}
-                    >
-                      <TextInput
-                        plain
-                        type="number"
-                        placeholder="Enter amount"
-                        value={lendInput || ''}
-                        onChange={(event: any) => setLendInput(cleanValue(event.target.value))}
-                        disabled={selectedSeries?.seriesIsMature}
-                      />
-                      <MaxButton
-                        action={() => setLendInput(maxLend)}
-                        disabled={maxLend === '0' || selectedSeries?.seriesIsMature}
-                      />
-                    </InputWrap>
-                  </Box>
-                  <Box basis={mobile ? '50%' : '40%'}>
-                    <AssetSelector />
-                  </Box>
+              <YieldCardHeader logo={mobile} series={selectedSeries}>
+                <Box gap={mobile ? undefined : 'xsmall'}>
+                  <AltText size={mobile ? 'small' : 'large'}>LEND</AltText>
+                  <AltText color="text-weak" size="xsmall">
+                    popular ERC20 tokens for fixed returns.
+                  </AltText>
                 </Box>
-              </SectionWrap>
+              </YieldCardHeader>
 
-              <SectionWrap title="Select a series">
-                <SeriesSelector inputValue={lendInput} actionType={ActionType.LEND} />
-              </SectionWrap>
+              <Box gap="large">
+                {/* <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}> */}
+                <SectionWrap>
+                  <Box direction="row-responsive" gap="small">
+                    <Box basis={mobile ? '50%' : '60%'}>
+                      <InputWrap
+                        action={() => console.log('maxAction')}
+                        isError={lendError}
+                        disabled={selectedSeries?.seriesIsMature}
+                      >
+                        <TextInput
+                          plain
+                          type="number"
+                          placeholder="Enter amount"
+                          value={lendInput || ''}
+                          onChange={(event: any) => setLendInput(cleanValue(event.target.value))}
+                          disabled={selectedSeries?.seriesIsMature}
+                        />
+                        <MaxButton
+                          action={() => setLendInput(maxLend)}
+                          disabled={maxLend === '0' || selectedSeries?.seriesIsMature}
+                          clearAction={() => setLendInput('')}
+                          showingMax={!!lendInput && (lendInput === maxLend || !!lendError)}
+                        />
+                      </InputWrap>
+                    </Box>
+                    <Box basis={mobile ? '50%' : '40%'}>
+                      <AssetSelector />
+                    </Box>
+                  </Box>
+                </SectionWrap>
+
+                <SectionWrap
+                  title={
+                    seriesMap.size > 0
+                      ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} maturity date`
+                      : ''
+                  }
+                >
+                  <SeriesSelector inputValue={lendInput} actionType={ActionType.LEND} />
+                </SectionWrap>
+              </Box>
             </Box>
           )}
 
           {stepPosition === 1 && (
             <Box gap="large">
-              <BackButton action={() => setStepPosition(0)} />
+              <YieldCardHeader>
+                {!lendTx.success && !lendTx.failed ? (
+                  <BackButton action={() => setStepPosition(0)} />
+                ) : (
+                  <Box pad="1em" />
+                )}
+              </YieldCardHeader>
 
-              <ActiveTransaction txCode={getTxCode(ActionCodes.LEND, selectedSeriesId)} size="LARGE">
-                <SectionWrap title="Review your transaction">
+              <ActiveTransaction full tx={lendTx}>
+                <SectionWrap title="Review transaction:">
                   <Box
                     gap="small"
                     pad={{ horizontal: 'large', vertical: 'medium' }}
                     round="xsmall"
                     animation={{ type: 'zoomIn', size: 'small' }}
                   >
-                    <ReviewTxItem
+                    <InfoBite
                       label="Amount to lend"
                       icon={<BiMessageSquareAdd />}
-                      value={`${lendInput} fyTokens`}
+                      value={`${cleanValue(lendInput, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
                     />
-                    <ReviewTxItem label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
-                    <ReviewTxItem
+                    <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
+                    <InfoBite
                       label="Redeemable @ Maturity"
                       icon={<FiTrendingUp />}
-                      value={`${lendInput} ${selectedBase?.symbol}`}
+                      value={`${lendOutput} ${selectedBase?.symbol}`}
                     />
-                    <ReviewTxItem label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
+                    <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
                   </Box>
                 </SectionWrap>
               </ActiveTransaction>
@@ -186,21 +204,45 @@ const Lend = () => {
               label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
               key="ONE"
               onClick={() => setStepPosition(stepPosition + 1)}
+              errorLabel={lendError}
             />
           )}
-          {stepPosition === 1 && !selectedSeries?.seriesIsMature && (
+
+          {stepPosition === 1 && !selectedSeries?.seriesIsMature && !(lendTx.success || lendTx.failed) && (
             <TransactButton
               primary
               label={
                 <Text size={mobile ? 'small' : undefined}>
-                  {' '}
-                  {`Supply ${lendInput || ''} ${selectedBase?.symbol || ''}`}{' '}
+                  {`Supply${lendTx.processActive ? `ing` : ''} ${
+                    nFormatter(Number(lendInput), selectedBase?.digitFormat!) || ''
+                  } ${selectedBase?.symbol || ''}`}
                 </Text>
               }
               onClick={() => handleLend()}
-              disabled={lendDisabled}
+              disabled={lendDisabled || lendTx.processActive}
             />
           )}
+
+          {stepPosition === 1 && !selectedSeries?.seriesIsMature && !lendTx.processActive && lendTx.success && (
+            <>
+              {/* <PositionListItem series={selectedSeries!} actionType={ActionType.LEND} /> */}
+              <NextButton
+                label={<Text size={mobile ? 'small' : undefined}>Lend some more</Text>}
+                onClick={() => resetInputs()}
+              />
+            </>
+          )}
+
+          {stepPosition === 1 && !lendTx.processActive && lendTx.failed && (
+            <>
+              <NextButton
+                size="xsmall"
+                label={<Text size={mobile ? 'xsmall' : undefined}> Report and go back</Text>}
+                onClick={() => resetInputs()}
+              />
+            </>
+          )}
+
           {selectedSeries?.seriesIsMature && (
             <NextButton
               primary

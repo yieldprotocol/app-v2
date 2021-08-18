@@ -11,7 +11,6 @@ import {
   PopulatedTransaction,
   BaseContract,
   ContractTransaction,
-  Overrides,
   CallOverrides,
 } from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
@@ -21,15 +20,12 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface ILadleInterface extends ethers.utils.Interface {
   functions: {
-    "settle(bytes12,address,uint128,uint128)": FunctionFragment;
+    "joins(bytes6)": FunctionFragment;
   };
 
-  encodeFunctionData(
-    functionFragment: "settle",
-    values: [BytesLike, string, BigNumberish, BigNumberish]
-  ): string;
+  encodeFunctionData(functionFragment: "joins", values: [BytesLike]): string;
 
-  decodeFunctionResult(functionFragment: "settle", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "joins", data: BytesLike): Result;
 
   events: {};
 }
@@ -78,52 +74,25 @@ export class ILadle extends BaseContract {
   interface: ILadleInterface;
 
   functions: {
-    settle(
-      vaultId: BytesLike,
-      user: string,
-      ink: BigNumberish,
-      art: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    joins(assetId: BytesLike, overrides?: CallOverrides): Promise<[string]>;
   };
 
-  settle(
-    vaultId: BytesLike,
-    user: string,
-    ink: BigNumberish,
-    art: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  joins(assetId: BytesLike, overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
-    settle(
-      vaultId: BytesLike,
-      user: string,
-      ink: BigNumberish,
-      art: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    joins(assetId: BytesLike, overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {};
 
   estimateGas: {
-    settle(
-      vaultId: BytesLike,
-      user: string,
-      ink: BigNumberish,
-      art: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    joins(assetId: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    settle(
-      vaultId: BytesLike,
-      user: string,
-      ink: BigNumberish,
-      art: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+    joins(
+      assetId: BytesLike,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };
 }

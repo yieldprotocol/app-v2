@@ -3,9 +3,9 @@ import { Box, Button, RadioButtonGroup, ResponsiveContext, Text, TextInput } fro
 
 import { ethers } from 'ethers';
 
-import { FiSquare, FiClock, FiTrendingUp, FiPercent } from 'react-icons/fi';
+import { FiSquare, FiClock, FiTrendingUp, FiPercent, FiInfo } from 'react-icons/fi';
 import { BiCoinStack, BiMessageSquareAdd } from 'react-icons/bi';
-import { cleanValue, getTxCode } from '../utils/appUtils';
+import { cleanValue, getTxCode, nFormatter } from '../utils/appUtils';
 import AssetSelector from '../components/selectors/AssetSelector';
 import MainViewWrap from '../components/wraps/MainViewWrap';
 import SeriesSelector from '../components/selectors/SeriesSelector';
@@ -16,6 +16,7 @@ import SectionWrap from '../components/wraps/SectionWrap';
 import { UserContext } from '../contexts/UserContext';
 import { ActionCodes, ActionType, ISeries, IUserContext } from '../types';
 import { usePool, usePoolActions } from '../hooks/poolHooks';
+import { useTx } from '../hooks/useTx';
 import MaxButton from '../components/buttons/MaxButton';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
@@ -28,7 +29,10 @@ import BackButton from '../components/buttons/BackButton';
 import YieldMark from '../components/logos/YieldMark';
 import NextButton from '../components/buttons/NextButton';
 import TransactButton from '../components/buttons/TransactButton';
-import ReviewTxItem from '../components/ReviewTxItem';
+import { useInputValidation } from '../hooks/inputValidationHook';
+import AltText from '../components/texts/AltText';
+import PositionListItem from '../components/PositionItem';
+import YieldCardHeader from '../components/YieldCardHeader';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -41,10 +45,8 @@ function Pool() {
   const selectedBase = assetMap.get(selectedBaseId!);
 
   /* LOCAL STATE */
-  const [poolInput, setPoolInput] = useState<string>();
+  const [poolInput, setPoolInput] = useState<string | undefined>(undefined);
   const [maxPool, setMaxPool] = useState<string | undefined>();
-
-  const [poolError, setPoolError] = useState<string | null>(null);
 
   const [poolDisabled, setPoolDisabled] = useState<boolean>(true);
 
@@ -54,13 +56,25 @@ function Pool() {
 
   /* HOOK FNS */
   const { addLiquidity } = usePoolActions();
-
   const { poolMax } = usePool(poolInput);
+  /* input validation hooks */
+  const { inputError: poolError } = useInputValidation(poolInput, ActionCodes.ADD_LIQUIDITY, selectedSeries, [
+    0,
+    maxPool,
+  ]);
+
+  const { tx: poolTx, resetTx } = useTx(ActionCodes.ADD_LIQUIDITY, selectedSeries?.id);
 
   /* LOCAL ACTION FNS */
   const handleAdd = () => {
     // !poolDisabled &&
     selectedSeries && addLiquidity(poolInput!, selectedSeries, strategy);
+  };
+
+  const resetInputs = () => {
+    setPoolInput(undefined);
+    setStepPosition(0);
+    resetTx();
   };
 
   /* SET MAX VALUES */
@@ -74,21 +88,6 @@ function Pool() {
     }
   }, [activeAccount, poolInput, selectedBase, setMaxPool]);
 
-  /* WATCH FOR WARNINGS AND ERRORS */
-  useEffect(() => {
-    /* CHECK for any lendInput errors */
-    if (activeAccount && (poolInput || poolInput === '')) {
-      /* 1. Check if input exceeds balance */
-      if (maxPool && parseFloat(poolInput) > parseFloat(maxPool)) setPoolError('Amount exceeds balance');
-      /* 2. Check if input is above zero */ else if (parseFloat(poolInput) < 0)
-        setPoolError('Amount should be expressed as a positive value');
-      /* 2. next Check */ else if (false) setPoolError('Insufficient');
-      /* if all checks pass, set null error message */ else {
-        setPoolError(null);
-      }
-    }
-  }, [activeAccount, poolInput, maxPool]);
-
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
   useEffect(() => {
     !activeAccount || !poolInput || !selectedSeries || poolError ? setPoolDisabled(true) : setPoolDisabled(false);
@@ -98,58 +97,85 @@ function Pool() {
     <MainViewWrap>
       {!mobile && (
         <PanelWrap>
-          <StepperText
-            position={stepPosition}
-            values={[
-              ['Choose an asset to', 'pool', ''],
-              ['', 'Review', 'and transact'],
-            ]}
-          />
+          <Box margin={{ top: '35%' }}>
+            <StepperText
+              position={stepPosition}
+              values={[
+                // ['Choose amount to', 'POOL', ''],
+                ['Choose an amount and a maturity date', '', ''],
+                ['Review &', 'Transact', ''],
+              ]}
+            />
+          </Box>
           <YieldInfo />
         </PanelWrap>
       )}
 
       <CenterPanelWrap series={selectedSeries}>
-        <Box height="100%" pad="large">
+        <Box height="100%" pad={mobile ? 'medium' : 'large'}>
           {stepPosition === 0 && (
             <Box gap="medium">
-              <Box direction="row" gap="small" align="center" margin={{ bottom: 'medium' }}>
-                <YieldMark />
-                <Text>POOL</Text>
-              </Box>
-
-              <SectionWrap title="Select an asset and amount">
-                <Box direction="row" gap="small" fill="horizontal" align="start">
-                  <Box basis={mobile ? '50%' : '60%'}>
-                    <InputWrap action={() => console.log('maxAction')} isError={poolError}>
-                      <TextInput
-                        plain
-                        type="number"
-                        placeholder="Enter amount"
-                        value={poolInput || ''}
-                        onChange={(event: any) => setPoolInput(cleanValue(event.target.value))}
-                      />
-                      <MaxButton action={() => setPoolInput(maxPool)} disabled={maxPool === '0'} />
-                    </InputWrap>
-                  </Box>
-
-                  <Box basis={mobile ? '50%' : '40%'}>
-                    <AssetSelector />
-                  </Box>
+              <YieldCardHeader logo={mobile} series={selectedSeries}>
+                <Box gap={mobile ? undefined : 'xsmall'}>
+                  <AltText size={mobile ? 'small' : 'large'}>PROVIDE LIQUIDITY</AltText>
+                  <AltText color="text-weak" size="xsmall">
+                    for variable returns based on protocol usage.
+                  </AltText>
                 </Box>
-              </SectionWrap>
+              </YieldCardHeader>
 
-              <SectionWrap title="Select a series">
-                <SeriesSelector actionType={ActionType.POOL} inputValue={poolInput} />
-              </SectionWrap>
+              <Box gap="large">
+                {/* <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}> */}
+                <SectionWrap>
+                  <Box direction="row-responsive" gap="small">
+                    <Box basis={mobile ? '50%' : '60%'}>
+                      <InputWrap action={() => console.log('maxAction')} isError={poolError}>
+                        <TextInput
+                          plain
+                          type="number"
+                          placeholder="Enter amount"
+                          value={poolInput || ''}
+                          onChange={(event: any) => setPoolInput(cleanValue(event.target.value))}
+                        />
+                        <MaxButton
+                          action={() => setPoolInput(maxPool)}
+                          disabled={maxPool === '0'}
+                          clearAction={() => setPoolInput('')}
+                          showingMax={!!poolInput && poolInput === maxPool}
+                        />
+                      </InputWrap>
+                    </Box>
+
+                    <Box basis={mobile ? '50%' : '40%'}>
+                      <AssetSelector />
+                    </Box>
+                  </Box>
+                </SectionWrap>
+
+                <SectionWrap
+                  title={
+                    seriesMap.size > 0
+                      ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} maturity date`
+                      : ''
+                  }
+                >
+                  <SeriesSelector actionType={ActionType.POOL} inputValue={poolInput} />
+                </SectionWrap>
+              </Box>
             </Box>
           )}
 
           {stepPosition === 1 && (
             <Box gap="large">
-              <BackButton action={() => setStepPosition(0)} />
+              <YieldCardHeader>
+                {!poolTx.success && !poolTx.failed ? (
+                  <BackButton action={() => setStepPosition(0)} />
+                ) : (
+                  <Box pad="1em" />
+                )}
+              </YieldCardHeader>
 
-              <ActiveTransaction txCode={getTxCode(ActionCodes.ADD_LIQUIDITY, selectedSeriesId)} size="LARGE">
+              <ActiveTransaction full tx={poolTx}>
                 <Box gap="large">
                   {!selectedSeries?.seriesIsMature && (
                     <SectionWrap>
@@ -170,29 +196,25 @@ function Pool() {
                     </SectionWrap>
                   )}
 
-                  <SectionWrap title="Review your transaction">
+                  <SectionWrap title="Review transaction:">
                     <Box
                       gap="small"
                       pad={{ horizontal: 'large', vertical: 'medium' }}
                       round="xsmall"
                       animation={{ type: 'zoomIn', size: 'small' }}
                     >
-                      <ReviewTxItem
+                      <InfoBite
                         label="Amount to pool"
                         icon={<BiMessageSquareAdd />}
-                        value={`${poolInput} ${selectedBase?.symbol}`}
+                        value={`${cleanValue(poolInput, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
                       />
-                      <ReviewTxItem
-                        label="Series Maturity"
-                        icon={<FiClock />}
-                        value={`${selectedSeries?.displayName}`}
-                      />
-                      <ReviewTxItem
+                      <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
+                      <InfoBite
                         label="Amount of liquidity tokens recieved"
                         icon={<BiCoinStack />}
                         value={`${'[todo]'} Liquidity tokens`}
                       />
-                      <ReviewTxItem label="Percentage of pool" icon={<FiPercent />} value={`${'[todo]'}%`} />
+                      <InfoBite label="Percentage of pool" icon={<FiPercent />} value={`${'[todo]'}%`} />
                     </Box>
                   </SectionWrap>
                 </Box>
@@ -208,21 +230,36 @@ function Pool() {
               label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
               onClick={() => setStepPosition(stepPosition + 1)}
               disabled={poolDisabled}
+              errorLabel={poolError}
             />
           )}
-          {stepPosition === 1 && !selectedSeries?.seriesIsMature && (
+          {stepPosition === 1 && !selectedSeries?.seriesIsMature && !poolTx.success && !poolTx.failed && (
             <TransactButton
               primary
               label={
                 <Text size={mobile ? 'small' : undefined}>
-                  {' '}
-                  {`Pool ${poolInput || ''} ${selectedBase?.symbol || ''}`}{' '}
+                  {`Pool${poolTx.processActive ? `ing` : ''} ${
+                    nFormatter(Number(poolInput), selectedBase?.digitFormat!) || ''
+                  } ${selectedBase?.symbol || ''}`}
                 </Text>
               }
               onClick={() => handleAdd()}
-              disabled={poolDisabled}
+              disabled={poolDisabled || poolTx.processActive}
             />
           )}
+
+          {stepPosition === 1 &&
+            !selectedSeries?.seriesIsMature &&
+            !poolTx.processActive &&
+            (poolTx.success || poolTx.failed) && (
+              <>
+                {/* <PositionListItem series={selectedSeries!} actionType={ActionType.POOL} /> */}
+                <NextButton
+                  label={<Text size={mobile ? 'small' : undefined}>Add more Liquidity</Text>}
+                  onClick={() => resetInputs()}
+                />
+              </>
+            )}
         </ActionButtonGroup>
       </CenterPanelWrap>
 

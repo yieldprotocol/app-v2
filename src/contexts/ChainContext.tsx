@@ -23,6 +23,7 @@ import USDCMark from '../components/logos/USDCMark';
 import WBTCMark from '../components/logos/WBTCMark';
 import USDTMark from '../components/logos/USDTMark';
 import YieldMark from '../components/logos/YieldMark';
+import { ERC20Permit } from '../contracts';
 
 const markMap = new Map([
   ['DAI', <DaiMark key="dai" />],
@@ -31,6 +32,14 @@ const markMap = new Map([
   ['TST', <TSTMark key="tst" />],
   ['WETH', <EthMark key="eth" />],
   ['USDT', <USDTMark key="eth" />],
+]);
+
+const assetDigitFormatMap = new Map([
+  ['WETH', 6],
+  ['WBTC', 6],
+  ['DAI', 2],
+  ['USDC', 2],
+  ['USDT', 2],
 ]);
 
 /* Set up web3react config */
@@ -42,10 +51,19 @@ const RPC_URLS: { [chainId: number]: string } = {
   31337: process.env.REACT_APP_RPC_URL_31337 as string,
 };
 
-const chainNames = new Map([
-  [1, 'Mainnet'],
-  [42, 'Kovan'],
-]);
+interface IChainData {
+  name: string;
+  color: string;
+  supported: boolean;
+}
+
+const chainData = new Map<number, IChainData>();
+chainData.set(1, { name: 'Mainnet', color: '#29b6af', supported: false });
+chainData.set(3, { name: 'Ropsten', color: '#ff4a8d', supported: false });
+chainData.set(4, { name: 'Rinkeby', color: '#f6c343', supported: false });
+chainData.set(5, { name: 'Goerli', color: '#3099f2', supported: false });
+chainData.set(10, { name: 'Optimism', color: '#EB0822', supported: false });
+chainData.set(42, { name: 'Kovan', color: '#7F7FFE', supported: true });
 
 const connectors = new Map();
 const injectedName = 'metamask';
@@ -79,7 +97,7 @@ const ChainContext = React.createContext<any>({});
 const initState = {
   appVersion: '0.0.0' as string,
   chainId: Number(process.env.REACT_APP_DEFAULT_CHAINID) as number | null,
-  chainName: null as string | null,
+  chainData: null as any | null,
   provider: null as ethers.providers.Web3Provider | null,
   fallbackProvider: null as ethers.providers.Web3Provider | null,
   signer: null as ethers.providers.JsonRpcSigner | null,
@@ -120,8 +138,8 @@ function chainReducer(state: any, action: any) {
       return { ...state, signer: onlyIfChanged(action) };
     case 'chainId':
       return { ...state, chainId: onlyIfChanged(action) };
-    case 'chainName':
-      return { ...state, chainName: onlyIfChanged(action) };
+    case 'chainData':
+      return { ...state, chainData: onlyIfChanged(action) };
     case 'account':
       return { ...state, account: onlyIfChanged(action) };
     case 'web3Active':
@@ -150,8 +168,17 @@ function chainReducer(state: any, action: any) {
 
 const ChainProvider = ({ children }: any) => {
   const [chainState, updateState] = React.useReducer(chainReducer, initState);
+
   const [lastChainId, setLastChainId] = useCachedState('lastChainId', 42);
-  const [lastBlock, setLastBlock] = useCachedState('lastBlock', 1);
+
+  const [cachedAssetAdded, setCachedAssetAdded] = useCachedState('AssetAdded', []);
+  const [cachedJoinAdded, setCachedJoinAdded] = useCachedState('JoinAdded', []);
+
+  const [cachedAssets, setCachedAssets] = useCachedState('assets', []);
+  const [cachedSeries, setCachedSeries] = useCachedState('series', []);
+
+  const [lastAssetUpdate, setLastAssetUpdate] = useCachedState('lastAssetUpdate', 0);
+  const [lastSeriesUpdate, setLastSeriesUpdate] = useCachedState('lastSeriesUpdate', 0);
 
   const [tried, setTried] = useState<boolean>(false);
 
@@ -170,7 +197,7 @@ const ChainProvider = ({ children }: any) => {
   /**
    * Update on FALLBACK connection/state on network changes (id/library)
    */
-  // TODO add in caching
+
   useEffect(() => {
     fallbackLibrary && updateState({ type: 'fallbackProvider', payload: fallbackLibrary });
 
@@ -185,8 +212,16 @@ const ChainProvider = ({ children }: any) => {
       const PoolRouter = contracts.PoolRouter__factory.connect(addrs.PoolRouter, fallbackLibrary);
       const CompoundOracle = contracts.CompoundMultiOracle__factory.connect(addrs.CompoundOracle, fallbackLibrary);
       const ChainlinkOracle = contracts.ChainlinkMultiOracle__factory.connect(addrs.ChainlinkOracle, fallbackLibrary);
+      const CompositeMultiOracle = contracts.CompositeMultiOracle__factory.connect(
+        addrs.CompositeMultiOracle,
+        fallbackLibrary
+      );
 
       updateState({ type: 'appVersion', payload: process.env.REACT_APP_VERSION });
+
+      console.log('VERSION: ', process.env.REACT_APP_VERSION);
+      console.log('Fallback ChainId: ', fallbackChainId);
+      console.log('ChainId: ', chainId);
 
       /* Update the baseContracts state : ( hardcoded based on networkId ) */
       const newContractMap = chainState.contractMap;
@@ -195,6 +230,8 @@ const ChainProvider = ({ children }: any) => {
       newContractMap.set('PoolRouter', PoolRouter);
       newContractMap.set('CompoundOracle', CompoundOracle);
       newContractMap.set('ChainlinkOracle', ChainlinkOracle);
+      newContractMap.set('CompositeMultiOracle', CompositeMultiOracle);
+
       updateState({ type: 'contractMap', payload: newContractMap });
 
       let test: any;
@@ -202,150 +239,184 @@ const ChainProvider = ({ children }: any) => {
         test = await fallbackLibrary.getBalance('0x885Bc35dC9B10EA39f2d7B3C94a7452a9ea442A7');
       })();
 
-      console.log('Fallback ChainId: ', fallbackChainId);
-      console.log('ChainId: ', chainId);
+      /* add on extra/calculated ASSET info */
+      const _chargeAsset = (asset: { id: string; address: string; symbol: string }) => {
+        const ERC20 = contracts.ERC20Permit__factory.connect(asset.address, fallbackLibrary);
+        return {
+          ...asset,
+          digitFormat: assetDigitFormatMap.has(asset.symbol) ? assetDigitFormatMap.get(asset.symbol) : 6,
+          image: markMap.get(asset.symbol),
+          color: (yieldEnv.assetColors as any)[asset.symbol],
+          /* baked in token fns */
+          getBalance: async (acc: string) =>
+            ETH_BASED_ASSETS.includes(asset.id) ? library?.getBalance(acc) : ERC20.balanceOf(acc),
+          getAllowance: async (acc: string, spender: string) => ERC20.allowance(acc, spender),
+          /* TODO remove for prod */
+          /* @ts-ignore */
+          mintTest: async () =>
+            contracts.ERC20Mock__factory.connect(asset.address, library?.getSigner()!).mint(
+              account!,
+              ethers.utils.parseEther('100')
+            ),
+        };
+      };
 
-      /* Update the 'dynamic' contracts (series and assets) */
-      Promise.all([
-        /* Update the available assetsMap based on Cauldron events */
+      const _getAssets = async () => {
+        /* get all the assetAdded, roacleAdded and joinAdded events and series events at the same time */
+        const [assetAddedEvents, joinAddedEvents] = await Promise.all([
+          Cauldron.queryFilter('AssetAdded' as any, lastAssetUpdate),
+          Ladle.queryFilter('JoinAdded' as any, lastAssetUpdate),
+        ]);
+        /* Create a map from the joinAdded event data */
+        const joinMap: Map<string, string> = new Map(
+          joinAddedEvents.map((log: any) => Ladle.interface.parseLog(log).args) as [[string, string]]
+        );
+
+        const newAssetList: any[] = [];
+        await Promise.all(
+          assetAddedEvents.map(async (x: any) => {
+            const { assetId: id, asset: address } = Cauldron.interface.parseLog(x).args;
+            const ERC20 = contracts.ERC20Permit__factory.connect(address, fallbackLibrary);
+            /* Add in any extra static asset Data */ // TODO is there any other fixed asset data needed?
+            const [name, symbol] = await Promise.all([
+              ERC20.name(),
+              ERC20.symbol(),
+              // ETH_BASED_ASSETS.includes(id) ? '1' : await ERC20.version()
+            ]);
+
+            console.log(symbol, ':', id);
+            // TODO check if any other tokens have different versions. maybe abstract this logic somewhere?
+            const version = id === '0x555344430000' ? '2' : '1';
+            const newAsset = {
+              id,
+              address,
+              name,
+              symbol,
+              version,
+              joinAddress: joinMap.get(id),
+            };
+            // Update state and cache
+            updateState({ type: 'addAsset', payload: _chargeAsset(newAsset) });
+            newAssetList.push(newAsset);
+          })
+        );
+
+        // set the 'last checked' block
+        setLastAssetUpdate(await library?.getBlockNumber());
+        // log the new assets in the cache
+        setCachedAssets([...cachedAssets, ...newAssetList]);
+        console.log('Yield Protocol Asset data updated.');
+      };
+
+      /* add on extra/calculated SERIES info */
+      const _chargeSeries = (series: {
+        maturity: number;
+        baseId: string;
+        poolAddress: string;
+        fyTokenAddress: string;
+      }) => {
+        const poolContract = contracts.Pool__factory.connect(series.poolAddress, fallbackLibrary);
+        const fyTokenContract = contracts.FYToken__factory.connect(series.fyTokenAddress, fallbackLibrary);
+        const season = getSeason(series.maturity) as SeasonType;
+        const oppSeason = (_season: SeasonType) => getSeason(series.maturity + 23670000) as SeasonType;
+        const [startColor, endColor, textColor]: string[] = yieldEnv.seasonColors[season];
+        const [oppStartColor, oppEndColor, oppTextColor]: string[] = yieldEnv.seasonColors[oppSeason(season)];
+
+        return {
+          ...series,
+          poolContract,
+          fyTokenContract,
+          fullDate: format(new Date(series.maturity * 1000), 'dd MMMM yyyy'),
+          displayName: format(new Date(series.maturity * 1000), 'dd MMM yyyy'),
+          displayNameMobile: `${nameFromMaturity(series.maturity, 'MMM yyyy')}`,
+
+          season,
+          startColor,
+          endColor,
+          color: `linear-gradient(${startColor}, ${endColor})`,
+          textColor,
+
+          oppStartColor,
+          oppEndColor,
+          oppTextColor,
+          seriesMark: <YieldMark startColor={startColor} endColor={endColor} />,
+          // built-in helper functions:
+          getTimeTillMaturity: () => series.maturity - Math.round(new Date().getTime() / 1000),
+          isMature: async () => series.maturity < (await fallbackLibrary.getBlock('latest')).timestamp,
+          getBaseAddress: () => chainState.assetRootMap.get(series.baseId).address, // TODO refactor to get this static - if possible?
+        };
+      };
+
+      const _getSeries = async () => {
+        /* get poolAdded events and series events at the same time */
+        const [seriesAddedEvents, poolAddedEvents] = await Promise.all([
+          Cauldron.queryFilter('SeriesAdded' as any, lastSeriesUpdate),
+          Ladle.queryFilter('PoolAdded' as any, lastSeriesUpdate),
+        ]);
+
+        /* build a map from the poolAdded event data */
+        const poolMap: Map<string, string> = new Map(
+          poolAddedEvents.map((log: any) => Ladle.interface.parseLog(log).args) as [[string, string]]
+        );
+
+        const newSeriesList: any[] = [];
+        /* Add in any extra static series */
+        await Promise.all([
+          ...seriesAddedEvents.map(async (x: any): Promise<void> => {
+            const { seriesId: id, baseId, fyToken } = Cauldron.interface.parseLog(x).args;
+            const { maturity } = await Cauldron.series(id);
+            const poolAddress: string = poolMap.get(id) as string;
+            const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackLibrary);
+            const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackLibrary);
+            const [name, symbol, version, poolName, poolVersion] = await Promise.all([
+              fyTokenContract.name(),
+              fyTokenContract.symbol(),
+              fyTokenContract.version(),
+              poolContract.name(),
+              poolContract.version(),
+            ]);
+            const newSeries = {
+              id,
+              baseId,
+              maturity,
+              name,
+              symbol,
+              version,
+              address: fyToken,
+              fyTokenAddress: fyToken,
+              poolAddress,
+              poolVersion,
+              poolName,
+            };
+            updateState({ type: 'addSeries', payload: _chargeSeries(newSeries) });
+            newSeriesList.push(newSeries);
+          }),
+        ]);
+        setLastSeriesUpdate(await fallbackLibrary?.getBlockNumber());
+        setCachedSeries([...cachedSeries, ...newSeriesList]);
+        console.log('Yield Protocol series data updated.');
+      };
+
+      /* LOAD the Series and Assets */
+      if (cachedAssets.length === 0) {
+        console.log('FIRST LOAD: Loading Asset and Series data ');
         (async () => {
-          /* get all the assetAdded, roacleAdded and joinAdded events and series events at the same time */
-          const [assetAddedEvents, joinAddedEvents] = await Promise.all([
-            Cauldron.queryFilter('AssetAdded' as any),
-            Ladle.queryFilter('JoinAdded' as any),
-          ]);
-
-          /* Create a map from the joinAdded event data */
-          const joinMap: Map<string, string> = new Map(
-            joinAddedEvents.map((log: any) => Ladle.interface.parseLog(log).args) as [[string, string]]
-          );
-
-          await Promise.all(
-            assetAddedEvents.map(async (x: any) => {
-              const { assetId: id, asset: address } = Cauldron.interface.parseLog(x).args;
-              const ERC20 = contracts.ERC20Permit__factory.connect(address, fallbackLibrary);
-              /* Add in any extra static asset Data */ // TODO is there any other fixed asset data needed?
-              const [name, symbol] = await Promise.all([ERC20.name(), ERC20.symbol()]);
-
-              // TODO check if any other tokens have different versions. maybe abstract this logic somewhere?
-              const version = id === '0x555344430000' ? '2' : '1';
-              // const version = ETH_BASED_ASSETS.includes(id) ? '1' : ERC20.version();
-
-              /* watch for user specific ERC20 events, and update accordingly */
-              // ERC20.on( {'Transfer' } , () => console.log('transfer occurred'));
-              updateState({
-                type: 'addAsset',
-                payload: {
-                  id,
-                  address,
-                  name,
-                  symbol,
-                  version,
-                  color: (yieldEnv.assetColors as any)[symbol],
-                  image: markMap.get(symbol),
-                  joinAddress: joinMap.get(id),
-                  /* baked in token fns */
-                  getBalance: async (acc: string) =>
-                    ETH_BASED_ASSETS.includes(id) ? library?.getBalance(acc) : ERC20.balanceOf(acc),
-                  getAllowance: async (acc: string, spender: string) => ERC20.allowance(acc, spender),
-
-                  /* TODO remove for prod */
-                  /* @ts-ignore */
-                  mintTest: async () =>
-                    contracts.ERC20Mock__factory.connect(address, library?.getSigner()!).mint(
-                      account!,
-                      ethers.utils.parseEther('100')
-                    ),
-                },
-              });
-            })
-          );
-        })(),
-
-        /* ... AT THE SAME TIME update the available seriesRootMap based on Cauldron events */
-        (async () => {
-          /* get poolAdded events and series events at the same time */
-          const [seriesAddedEvents, poolAddedEvents] = await Promise.all([
-            Cauldron.queryFilter('SeriesAdded' as any),
-            Ladle.queryFilter('PoolAdded' as any),
-          ]);
-
-          /* build a map from the poolAdded event data */
-          const poolMap: Map<string, string> = new Map(
-            poolAddedEvents.map((log: any) => Ladle.interface.parseLog(log).args) as [[string, string]]
-          );
-
-          /* Add in any extra static series */
-          await Promise.all([
-            ...seriesAddedEvents.map(async (x: any): Promise<void> => {
-              const { seriesId: id, baseId, fyToken } = Cauldron.interface.parseLog(x).args;
-              const { maturity } = await Cauldron.series(id);
-
-              const poolAddress: string = poolMap.get(id) as string;
-              const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackLibrary);
-              const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackLibrary);
-
-              const season = getSeason(maturity) as SeasonType;
-              const oppSeason = (_season: SeasonType) => getSeason(maturity + 15780000) as SeasonType;
-
-              const [startColor, endColor, textColor]: string[] = yieldEnv.seasonColors[season];
-              const [oppStartColor, oppEndColor, oppTextColor]: string[] = yieldEnv.seasonColors[oppSeason(season)];
-
-              const [name, symbol, version, poolName, poolVersion] = await Promise.all([
-                fyTokenContract.name(),
-                fyTokenContract.symbol(),
-                fyTokenContract.version(),
-                poolContract.name(),
-                poolContract.version(),
-              ]);
-
-              updateState({
-                type: 'addSeries',
-                payload: {
-                  id,
-                  baseId,
-                  maturity,
-                  fullDate: format(new Date(maturity * 1000), 'dd MMMM yyyy'),
-                  name,
-                  symbol,
-                  version,
-                  address: fyToken,
-                  displayName: `${nameFromMaturity(maturity)}`,
-                  displayNameMobile: `${nameFromMaturity(maturity, 'MMM yyyy')}`,
-                  fyTokenContract,
-                  fyTokenAddress: fyToken,
-                  poolAddress,
-                  poolContract,
-                  poolVersion,
-                  poolName,
-
-                  season,
-                  startColor,
-                  endColor,
-                  color: `linear-gradient(${startColor}, ${endColor})`,
-                  textColor,
-
-                  oppStartColor,
-                  oppEndColor,
-                  oppTextColor,
-                  seriesMark: <YieldMark start={startColor} end={endColor} />,
-
-                  // built-in helper functions:
-                  getTimeTillMaturity: () => maturity - Math.round(new Date().getTime() / 1000),
-                  // isMature: () => (maturity < Math.round(new Date().getTime() / 1000)),
-                  isMature: async () => maturity < (await fallbackLibrary.getBlock('latest')).timestamp,
-
-                  getBaseAddress: () => chainState.assetRootMap.get(baseId).address, // TODO refactor to get this static - if possible?
-                },
-              });
-            }),
-          ]);
-        })(),
-      ]).then(() => {
+          await Promise.all([_getAssets(), _getSeries()]);
+          updateState({ type: 'chainLoading', payload: false });
+        })();
+      } else {
+        // get assets and series from cache and 'charge' them, and add to state:
+        cachedAssets.forEach((a: IAssetRoot) => {
+          updateState({ type: 'addAsset', payload: _chargeAsset(a) });
+        });
+        cachedSeries.forEach((s: ISeriesRoot) => {
+          updateState({ type: 'addSeries', payload: _chargeSeries(s) });
+        });
         updateState({ type: 'chainLoading', payload: false });
-        console.log('Yield Protocol static data loaded');
-        // console.log('SERIES (static data):', chainState.seriesRootMap);
-      });
+        console.log('Checking for new Assets and Series...');
+        // then async check for any updates (they should automatically populate the map):
+        (async () => Promise.all([_getAssets(), _getSeries()]))();
+      }
     }
   }, [
     account,
@@ -354,6 +425,7 @@ const ChainProvider = ({ children }: any) => {
     chainState.assetRootMap,
     chainState.seriesRootMap,
     chainState.contractMap,
+    chainId,
   ]);
 
   /**
@@ -370,7 +442,7 @@ const ChainProvider = ({ children }: any) => {
   useEffect(() => {
     console.log('Wallet/Account Active: ', active);
     updateState({ type: 'chainId', payload: chainId });
-    chainId && updateState({ type: 'chainName', payload: chainNames.get(chainId) });
+    chainId && updateState({ type: 'chainData', payload: chainData.get(chainId) });
     updateState({ type: 'web3Active', payload: active });
     updateState({ type: 'provider', payload: library || null });
     updateState({ type: 'account', payload: account || null });
@@ -387,6 +459,7 @@ const ChainProvider = ({ children }: any) => {
     const _chainId = chainId || lastChainId;
     /* cache the change of networkId */
     chainId && setLastChainId(chainId);
+
     /* Connect the fallback */
     tried &&
       fallbackActivate(
@@ -400,6 +473,11 @@ const ChainProvider = ({ children }: any) => {
 
     // eslint-disable-next-line no-restricted-globals
     chainId && chainId !== lastChainId && location.reload();
+
+    if (chainId && chainId !== lastChainId) {
+      setCachedAssets([]);
+      setCachedSeries([]);
+    }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId, fallbackActivate, lastChainId, tried]);

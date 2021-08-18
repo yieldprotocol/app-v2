@@ -45,7 +45,9 @@ const initState: IUserContextState = {
 
   /* User Settings */
   approvalMethod: ApprovalType.SIG,
-  dudeSalt: 0,
+  dudeSalt: 1,
+  showInactiveVaults: false as boolean,
+  slippageTolerance: 0.01 as number,
 };
 
 const vaultNameConfig: Config = {
@@ -65,7 +67,6 @@ function userReducer(state: any, action: any) {
       return { ...state, userLoading: onlyIfChanged(action) };
     case 'activeAccount':
       return { ...state, activeAccount: onlyIfChanged(action) };
-
     case 'selectedVaultId':
       return { ...state, selectedVaultId: onlyIfChanged(action) };
     case 'selectedSeriesId':
@@ -74,22 +75,22 @@ function userReducer(state: any, action: any) {
       return { ...state, selectedIlkId: onlyIfChanged(action) };
     case 'selectedBaseId':
       return { ...state, selectedBaseId: onlyIfChanged(action) };
-
     case 'assetMap':
       return { ...state, assetMap: onlyIfChanged(action) };
     case 'seriesMap':
       return { ...state, seriesMap: onlyIfChanged(action) };
     case 'vaultMap':
       return { ...state, vaultMap: onlyIfChanged(action) };
-
     case 'priceMap':
       return { ...state, priceMap: onlyIfChanged(action) };
-
     case 'approvalMethod':
       return { ...state, approvalMethod: onlyIfChanged(action) };
-
     case 'dudeSalt':
       return { ...state, dudeSalt: onlyIfChanged(action) };
+    case 'showInactiveVaults':
+      return { ...state, showInactiveVaults: onlyIfChanged(action) };
+    case 'setSlippageTolerance':
+      return { ...state, slippageTolerance: onlyIfChanged(action) };
 
     default:
       return state;
@@ -119,26 +120,45 @@ const UserProvider = ({ children }: any) => {
   const _getVaults = useCallback(
     async (fromBlock: number = 1) => {
       const Cauldron = contractMap.get('Cauldron');
-      const filter = Cauldron.filters.VaultBuilt(null, account);
-      const eventList = await Cauldron.queryFilter(filter, fromBlock);
 
-      // const eventList = await Cauldron.queryFilter(filter, cachedVaults.lastBlock);
-      const vaultList: IVaultRoot[] = await Promise.all(
-        eventList.map(async (x: any): Promise<IVaultRoot> => {
-          const { vaultId: id, ilkId, seriesId } = Cauldron.interface.parseLog(x).args;
+      const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account);
+      const vaultsReceivedfilter = Cauldron.filters.VaultGiven(null, account);
+
+      const [vaultsBuilt, vaultsReceived] = await Promise.all([
+        Cauldron.queryFilter(vaultsBuiltFilter, fromBlock),
+        Cauldron.queryFilter(vaultsReceivedfilter, fromBlock),
+      ]);
+
+      const buildEventList: IVaultRoot[] = vaultsBuilt.map((x: any): IVaultRoot => {
+        const { vaultId: id, ilkId, seriesId } = Cauldron.interface.parseLog(x).args;
+        const series = seriesRootMap.get(seriesId);
+        return {
+          id,
+          seriesId,
+          baseId: series.baseId,
+          ilkId,
+          image: genVaultImage(id),
+          displayName: uniqueNamesGenerator({ seed: parseInt(id.substring(14), 16), ...vaultNameConfig }),
+        };
+      });
+
+      const recievedEventsList: IVaultRoot[] = await Promise.all(
+        vaultsReceived.map(async (x: any): Promise<IVaultRoot> => {
+          const { vaultId: id } = Cauldron.interface.parseLog(x).args;
+          const { ilkId, seriesId } = await Cauldron.vaults(id);
           const series = seriesRootMap.get(seriesId);
-          // const baseId = assetRootMap.get(series.baseId);
-
           return {
             id,
             seriesId,
             baseId: series.baseId,
             ilkId,
             image: genVaultImage(id),
-            displayName: uniqueNamesGenerator({ seed: parseInt(id.substring(14), 16), ...vaultNameConfig }),
+            displayName: uniqueNamesGenerator({ seed: parseInt(id.substring(14), 16), ...vaultNameConfig }), // TODO Marco move uniquNames generator into utils
           };
         })
       );
+
+      const vaultList: IVaultRoot[] = [...buildEventList, ...recievedEventsList];
 
       // TODO const _combined: IVaultRoot[] = [...vaultList, ...cachedVaults];
       const newVaultMap = vaultList.reduce((acc: any, item: any) => {
@@ -171,22 +191,34 @@ const UserProvider = ({ children }: any) => {
 
       /* add in the dynamic asset data of the assets in the list */
       if (account) {
-        _accountData = await Promise.all(
-          _publicData.map(async (asset: IAssetRoot): Promise<IAsset> => {
-            const balance = await asset.getBalance(account);
+        try {
+          _accountData = await Promise.all(
+            _publicData.map(async (asset: IAssetRoot): Promise<IAsset> => {
+              const [balance, ladleAllowance, poolAllowance, joinAllowance] = await Promise.all([
+                asset.getBalance(account),
+                asset.getAllowance(account, contractMap.get('Ladle').address),
+                asset.getAllowance(account, contractMap.get('PoolRouter').address),
+                asset.getAllowance(account, asset.joinAddress),
+              ]);
 
-            const isYieldBase = !!Array.from(seriesRootMap.values()).find((x: any) => x.baseId === asset.id);
+              const isYieldBase = !!Array.from(seriesRootMap.values()).find((x: any) => x.baseId === asset.id);
 
-            return {
-              ...asset,
-              isYieldBase,
-              balance: balance || ethers.constants.Zero,
-              balance_: balance
-                ? cleanValue(ethers.utils.formatEther(balance), 2)
-                : cleanValue(ethers.utils.formatEther(ethers.constants.Zero)), // for display purposes only
-            };
-          })
-        );
+              return {
+                ...asset,
+                isYieldBase,
+                hasLadleAuth: ladleAllowance.gt(ethers.constants.Zero),
+                hasPoolRouterAuth: poolAllowance.gt(ethers.constants.Zero),
+                hasJoinAuth: joinAllowance.gt(ethers.constants.Zero),
+                balance: balance || ethers.constants.Zero,
+                balance_: balance
+                  ? cleanValue(ethers.utils.formatEther(balance), 2)
+                  : cleanValue(ethers.utils.formatEther(ethers.constants.Zero)), // for display purposes only
+              };
+            })
+          );
+        } catch (e) {
+          console.log(e);
+        }
       }
 
       const _combinedData = _accountData.length ? _accountData : _publicData;
@@ -209,15 +241,23 @@ const UserProvider = ({ children }: any) => {
   /* Updates the prices from the oracle with latest data */ // TODO reduce redundant calls
   const updatePrice = useCallback(
     async (base: string, ilk: string): Promise<ethers.BigNumber> => {
-      const _priceMap = userState.priceMap;
-      const _basePriceMap = _priceMap.get(base) || new Map<string, any>();
-      const Oracle = contractMap.get('ChainlinkOracle');
-      const [price] = await Oracle.peek(bytesToBytes32(base, 6), bytesToBytes32(ilk, 6), ONE_WEI_BN);
-      _basePriceMap.set(ilk, price);
-      _priceMap.set(base, _basePriceMap);
-      updateState({ type: 'priceMap', payload: _priceMap });
-      console.log('Price Updated: ', base, '->', ilk, ':', price.toString());
-      return price;
+      try {
+        const _priceMap = userState.priceMap;
+        const _basePriceMap = _priceMap.get(base) || new Map<string, any>();
+        // const Oracle = contractMap.get('ChainlinkOracle');
+        const Oracle = contractMap.get('CompositeMultiOracle');
+        const [price] = await Oracle.peek(bytesToBytes32(base, 6), bytesToBytes32(ilk, 6), ONE_WEI_BN);
+        // const [price] = await Oracle.peek(base, ilk, ONE_WEI_BN);
+
+        _basePriceMap.set(ilk, price);
+        _priceMap.set(base, _basePriceMap);
+        updateState({ type: 'priceMap', payload: _priceMap });
+        console.log('Price Updated: ', base, '->', ilk, ':', price.toString());
+        return price;
+      } catch (error) {
+        console.log(error);
+        return ethers.constants.Zero;
+      }
     },
     [contractMap, userState.priceMap]
   );
@@ -305,7 +345,7 @@ const UserProvider = ({ children }: any) => {
 
   /* Updates the vaults with *user* data */
   const updateVaults = useCallback(
-    async (vaultList: IVaultRoot[]) => {
+    async (vaultList: IVaultRoot[], force: boolean = false) => {
       let _vaultList: IVaultRoot[] = vaultList;
       const Cauldron = contractMap.get('Cauldron');
 
@@ -316,7 +356,7 @@ const UserProvider = ({ children }: any) => {
       const vaultListMod = await Promise.all(
         _vaultList.map(async (vault: IVaultRoot): Promise<IVault> => {
           /* update balance and series  ( series - because a vault can have been rolled to another series) */
-          const [{ ink, art }, { seriesId }, { min, max }, price] = await Promise.all([
+          const [{ ink, art }, { owner, seriesId, ilkId }, { min, max }, price] = await Promise.all([
             await Cauldron.balances(vault.id),
             await Cauldron.vaults(vault.id),
             await Cauldron.debt(vault.baseId, vault.ilkId),
@@ -325,7 +365,10 @@ const UserProvider = ({ children }: any) => {
 
           return {
             ...vault,
-            seriesId,
+            owner,
+            isActive: owner === account,
+            seriesId, // in case seriesId has been updated
+            ilkId, // in case ilkId has been updated
             ink,
             art,
             ink_: cleanValue(ethers.utils.formatEther(ink), 2), // for display purposes only
@@ -340,11 +383,14 @@ const UserProvider = ({ children }: any) => {
 
       /* Get the previous version (Map) of the vaultMap and update it */
       const newVaultMap = new Map(
-        vaultListMod.reduce((acc: any, item: any) => {
-          const _map = acc;
-          _map.set(item.id, item);
-          return _map;
-        }, userState.vaultMap)
+        vaultListMod.reduce(
+          (acc: any, item: any) => {
+            const _map = acc;
+            _map.set(item.id, item);
+            return _map;
+          },
+          force ? new Map() : userState.vaultMap
+        )
       );
 
       updateState({ type: 'vaultMap', payload: newVaultMap });
@@ -366,10 +412,11 @@ const UserProvider = ({ children }: any) => {
   useEffect(() => {
     /* When the chainContext is finished loading get the users vault data */
     if (account !== null && !chainLoading) {
+      console.log('checking vaults');
       /* trigger update of update all vaults by passing empty array */
-      updateVaults([]);
+      updateVaults([], true);
     }
-  }, [account, chainLoading, updateVaults]);
+  }, [account, chainLoading]);
 
   /* Subscribe to vault event listeners */
   useEffect(() => {
@@ -381,7 +428,7 @@ const UserProvider = ({ children }: any) => {
     !chainLoading &&
       seriesRootMap &&
       (async () => {
-        const Oracle = contractMap.get('ChainlinkOracle');
+        const Oracle = contractMap.get('CompositeMultiOracle');
         // const filter = Oracle.filters.SourceSet(null, null, null);
         // const eventList = await Oracle.queryFilter(filter, 1);
         // console.log('Oracle events: ', eventList);
@@ -404,6 +451,12 @@ const UserProvider = ({ children }: any) => {
     setApprovalMethod: (type: ApprovalType) => updateState({ type: 'approvalMethod', payload: type }),
 
     updateDudeSalt: () => updateState({ type: 'dudeSalt', payload: userState.dudeSalt + 1 }),
+
+    setShowInactiveVaults: (showInactiveVaults: boolean) =>
+      updateState({ type: 'showInactiveVaults', payload: showInactiveVaults }),
+
+    setSlippageTolerance: (slippageTolerance: number) =>
+      updateState({ type: 'setSlippageTolerance', payload: slippageTolerance }),
   };
 
   return <UserContext.Provider value={{ userState, userActions } as IUserContext}>{children}</UserContext.Provider>;

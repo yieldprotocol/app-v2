@@ -2,13 +2,13 @@ import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
-import { ICallData, SignType, ISeries, ActionCodes } from '../types';
+import { ICallData, SignType, ISeries, ActionCodes, PoolRouterActions, LadleActions, ReroutedActions } from '../types';
 import { getTxCode } from '../utils/appUtils';
-import { DAI_BASED_ASSETS, MAX_128, MAX_256 } from '../utils/constants';
+import { BLANK_VAULT, DAI_BASED_ASSETS, MAX_128, MAX_256 } from '../utils/constants';
 import { useChain } from './chainHooks';
 
-import { VAULT_OPS, POOLROUTER_OPS } from '../utils/operations';
 import { calculateSlippage, fyTokenForMint, mint } from '../utils/yieldMath';
+import { PoolRouter } from '../contracts';
 
 export const usePool = (input: string | undefined) => {
   const poolMax = input;
@@ -68,15 +68,20 @@ export const usePoolActions = () => {
 
       {
         // router.transferToPoolAction(pool.address, base.address, baseWithSlippage),
-        operation: POOLROUTER_OPS.TRANSFER_TO_POOL,
-        args: [series.getBaseAddress(), series.fyTokenAddress, series.getBaseAddress(), calculateSlippage(_input)],
+        operation: PoolRouterActions.Fn.TRANSFER_TO_POOL,
+        args: [
+          series.getBaseAddress(),
+          series.fyTokenAddress,
+          series.getBaseAddress(),
+          calculateSlippage(_input),
+        ] as PoolRouterActions.Args.TRANSFER_TO_POOL,
         series,
         ignore: strategy !== 'BUY',
       },
       {
         // router.mintWithBaseAction(pool.address, receiver, fyTokenToBuy, minLPReceived),
-        operation: POOLROUTER_OPS.ROUTE,
-        args: [account, _fyTokenToBuy, ethers.constants.Zero], // TODO calc min transfer slippage
+        operation: PoolRouterActions.Fn.ROUTE,
+        args: [account, _fyTokenToBuy, ethers.constants.Zero] as ReroutedActions.Args.MINT_WITH_BASE, // TODO calc min transfer slippage
         fnName: 'mintWithBase',
         series,
         ignore: strategy !== 'BUY',
@@ -88,22 +93,28 @@ export const usePoolActions = () => {
 
       {
         // build Vault with random id if required
-        operation: VAULT_OPS.BUILD,
-        args: [ethers.utils.hexlify(ethers.utils.randomBytes(12)), selectedSeriesId, selectedIlkId],
+        operation: LadleActions.Fn.BUILD,
+        args: [selectedSeriesId, selectedIlkId, '0'] as LadleActions.Args.BUILD,
         ignore: strategy !== 'MINT',
         series,
       },
       {
         // ladle.serveAction(vaultId, pool.address, 0, borrowed, maximum debt),
-        operation: VAULT_OPS.SERVE,
-        args: [series.poolAddress, ethers.constants.Zero, _input.toString(), MAX_128],
+        operation: LadleActions.Fn.SERVE,
+        args: [
+          BLANK_VAULT,
+          series.poolAddress,
+          ethers.constants.Zero,
+          _input.toString(),
+          MAX_128,
+        ] as LadleActions.Args.SERVE,
         series,
         ignore: strategy !== 'MINT',
       },
       {
         // ladle.mintWithBaseAction(seriesId, receiver, fyTokenToBuy, minLPReceived)
-        operation: VAULT_OPS.ROUTE,
-        args: [account, _fyTokenToBuy, ethers.constants.Zero],
+        operation: LadleActions.Fn.ROUTE,
+        args: [account, _fyTokenToBuy, ethers.constants.Zero] as ReroutedActions.Args.MINT_WITH_BASE,
         fnName: 'mintWithBase',
         series,
         ignore: strategy !== 'MINT',
@@ -176,23 +187,28 @@ export const usePoolActions = () => {
 
       {
         // router.transferToPool(base.address, fyToken1.address, pool1.address, WAD)
-        operation: POOLROUTER_OPS.TRANSFER_TO_POOL,
-        args: [fromSeries.getBaseAddress(), fromSeries.fyTokenAddress, fromSeries.poolAddress, _input],
+        operation: PoolRouterActions.Fn.TRANSFER_TO_POOL,
+        args: [
+          fromSeries.getBaseAddress(),
+          fromSeries.fyTokenAddress,
+          fromSeries.poolAddress,
+          _input,
+        ] as PoolRouterActions.Args.TRANSFER_TO_POOL,
         series: fromSeries,
         ignore: seriesMature,
       },
       {
         // router.burnForBase(pool.address, pool2.address, minBaseReceived)
-        operation: POOLROUTER_OPS.ROUTE,
-        args: [toSeries.poolAddress, _input],
+        operation: PoolRouterActions.Fn.ROUTE,
+        args: [toSeries.poolAddress, _input] as ReroutedActions.Args.BURN_FOR_BASE,
         fnName: 'burnForBase',
         series: fromSeries,
         ignore: seriesMature,
       },
       {
         // router.mintWithBase( base.address, fyToken2.address, receiver, fyTokenToBuy, minLPReceived)
-        operation: POOLROUTER_OPS.ROUTE,
-        args: [account, _fyTokenToBuy, ethers.constants.Zero],
+        operation: PoolRouterActions.Fn.ROUTE,
+        args: [account, _fyTokenToBuy, ethers.constants.Zero] as ReroutedActions.Args.MINT_WITH_BASE,
         fnName: 'mintWithBase',
         series: toSeries,
         ignore: seriesMature,
@@ -202,22 +218,22 @@ export const usePoolActions = () => {
 
       {
         // ladle.transferToFYTokenAction(seriesId, fyTokenToRoll)
-        operation: VAULT_OPS.TRANSFER_TO_FYTOKEN,
-        args: [fromSeries.id, _input],
+        operation: LadleActions.Fn.TRANSFER_TO_FYTOKEN,
+        args: [fromSeries.id, _input] as LadleActions.Args.TRANSFER_TO_FYTOKEN,
         series: fromSeries,
         ignore: !fromSeries.seriesIsMature,
       },
       {
         // ladle.redeemAction(seriesId, pool2.address, fyTokenToRoll)
-        operation: VAULT_OPS.REDEEM,
-        args: [fromSeries.id, toSeries.poolAddress, _input],
+        operation: LadleActions.Fn.REDEEM,
+        args: [fromSeries.id, toSeries.poolAddress, _input] as LadleActions.Args.REDEEM,
         series: fromSeries,
         ignore: !fromSeries.seriesIsMature,
       },
       {
         // ladle.mintWithBase(series2Id, receiver, fyTokenToBuy, minLPReceived),
-        operation: VAULT_OPS.ROUTE,
-        args: [account, _input, ethers.constants.Zero],
+        operation: LadleActions.Fn.ROUTE,
+        args: [account, _input, ethers.constants.Zero] as ReroutedActions.Args.MINT_WITH_BASE,
         fnName: 'mintWithBase',
         series: toSeries,
         ignore: !seriesMature,
@@ -263,18 +279,20 @@ export const usePoolActions = () => {
     const calls: ICallData[] = [
       ...permits,
 
-      // BEFORE MATURITY
+      
       {
         // router.transferToPool(base.address, fyToken1.address, pool1.address, WAD)
-        operation: POOLROUTER_OPS.TRANSFER_TO_POOL,
+        operation: PoolRouterActions.Fn.TRANSFER_TO_POOL,
         args: [series.getBaseAddress(), series.fyTokenAddress, series.poolAddress, _input],
         series,
         ignore: series.seriesIsMature,
       },
+
+      // BEFORE MATURITY
       {
         // burnForBase(receiver, minBaseReceived),
-        operation: POOLROUTER_OPS.ROUTE,
-        args: [account, ethers.constants.Zero],
+        operation: PoolRouterActions.Fn.ROUTE,
+        args: [account, ethers.constants.Zero] as ReroutedActions.Args.BURN_FOR_BASE,
         fnName: 'burnForBase',
         series,
         ignore: series.seriesIsMature,
@@ -283,15 +301,15 @@ export const usePoolActions = () => {
       // AFTER MATURITY
       {
         // router.transferToPool(base.address, fyToken1.address, pool1.address, WAD)
-        operation: POOLROUTER_OPS.TRANSFER_TO_POOL,
+        operation: PoolRouterActions.Fn.ROUTE,
         args: [series.getBaseAddress(), series.fyTokenAddress, series.poolAddress, _input],
         series,
         ignore: !series.seriesIsMature,
       },
       {
         // burnForBase(receiver, minBaseReceived),
-        operation: POOLROUTER_OPS.ROUTE,
-        args: [account, ethers.constants.Zero],
+        operation: PoolRouterActions.Fn.ROUTE,
+        args: [account, ethers.constants.Zero] as ReroutedActions.Args.BURN_FOR_BASE,
         fnName: 'burnForBase',
         series,
         ignore: !series.seriesIsMature,

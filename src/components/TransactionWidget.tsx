@@ -5,6 +5,7 @@ import { FiAlertTriangle, FiCheckCircle, FiClock, FiPenTool, FiX, FiXCircle } fr
 import { TxContext } from '../contexts/TxContext';
 import { TxState } from '../types';
 import { abbreviateHash } from '../utils/appUtils';
+import CopyWrap from './wraps/CopyWrap';
 
 const TransactionWidget = () => {
   const { txState } = useContext(TxContext);
@@ -21,12 +22,12 @@ const TransactionWidget = () => {
     setSigArray(Array.from(signatures.values()));
   }, [processes, signatures, transactions]);
 
-  /* convert maps to arrays */
-  useEffect(() => {
-    console.log(processArray);
-    console.log(sigArray);
-    console.log(txArray);
-  }, [processArray, sigArray, txArray]);
+  // /* convert maps to arrays */
+  // useEffect(() => {
+  //   console.log(processArray);
+  //   console.log(sigArray);
+  //   console.log(txArray);
+  // }, [processArray, sigArray, txArray]);
 
   return (
     <Box round="xsmall" pad={{ horizontal: 'medium', vertical: 'xsmall' }} elevation="xsmall" gap="xsmall">
@@ -35,8 +36,10 @@ const TransactionWidget = () => {
           <Box direction="row" gap="medium" align="center">
             <FiClock />
             <Box>
-            <Text size="small">Transaction Pending</Text>
-              <Text size="xsmall">{abbreviateHash(txArray[0].tx.hash)}</Text>
+              <Text size="small">Transaction Pending</Text>
+              <Text size="xsmall">
+                <CopyWrap hash={txArray[0].tx.hash}>{abbreviateHash(txArray[0].tx.hash, 6)} </CopyWrap>
+              </Text>
             </Box>
           </Box>
         </>

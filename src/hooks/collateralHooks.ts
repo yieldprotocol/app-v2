@@ -2,14 +2,12 @@ import { BigNumber, ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
-import { ICallData, IVault, SignType, ISeries, ActionCodes, IUserContext } from '../types';
+import { ICallData, IVault, SignType, ISeries, ActionCodes, IUserContext, LadleActions } from '../types';
 import { getTxCode, cleanValue } from '../utils/appUtils';
 import { DAI_BASED_ASSETS, ETH_BASED_ASSETS } from '../utils/constants';
 import { useChain } from './chainHooks';
 
-import { VAULT_OPS } from '../utils/operations';
-
-import { calculateCollateralizationRatio } from '../utils/yieldMath';
+import { calculateCollateralizationRatio, calculateMinCollateral } from '../utils/yieldMath';
 
 /* Collateralisation hook calculates collateralisation metrics */
 export const useCollateralization = (
@@ -26,19 +24,23 @@ export const useCollateralization = (
   /* LOCAL STATE */
   const [collateralizationRatio, setCollateralizationRatio] = useState<string | undefined>();
   const [collateralizationPercent, setCollateralizationPercent] = useState<string | undefined>();
+
   const [undercollateralized, setUndercollateralized] = useState<boolean>(true);
-  const [oraclePrice, setOraclePrice] = useState<ethers.BigNumber>();
+  const [oraclePrice, setOraclePrice] = useState<ethers.BigNumber>(ethers.constants.Zero);
+
   // todo:
   const [collateralizationWarning, setCollateralizationWarning] = useState<string | undefined>();
   const [borrowingPower, setBorrowingPower] = useState<string | undefined>();
+  const [minCollateral, setMinCollateral] = useState<string | undefined>();
+  const [maxRemove, setMaxRemove] = useState<ethers.BigNumber>(ethers.constants.Zero);
 
   /* update the prices if anything changes */
   useEffect(() => {
-    if (selectedBaseId && selectedIlkId) {
+    if (priceMap.get(selectedBaseId)?.has(selectedIlkId) ) {
+      setOraclePrice(priceMap.get(selectedBaseId).get(selectedIlkId))
+    } else {
       (async () => {
-        const _price =
-          priceMap.get(selectedBaseId)?.get(selectedIlkId)! || (await updatePrice(selectedBaseId, selectedIlkId));
-        setOraclePrice(_price);
+        selectedBaseId && selectedIlkId && setOraclePrice( await updatePrice(selectedBaseId, selectedIlkId) )
       })();
     }
   }, [priceMap, selectedBaseId, selectedIlkId, updatePrice]);
@@ -70,6 +72,24 @@ export const useCollateralization = (
     } else {
       setUndercollateralized(false);
     }
+
+    /* check minimum collateral required base on debt */
+    if (oraclePrice?.gt(ethers.constants.Zero)) {
+      const min = calculateMinCollateral(oraclePrice, totalDebt, '1.5', existingCollateral)
+      setMinCollateral(min.toString());
+    } else {
+      setMinCollateral('0');
+    }
+
+    /* check minimum collateral required base on debt */
+    if (oraclePrice?.gt(ethers.constants.Zero)) {
+      const min_ = calculateMinCollateral(oraclePrice, totalDebt, '1.5', existingCollateral, true)
+      // const max_ = ethers.utils.parseEther(max!)
+      setMaxRemove( existingCollateral.sub(min_) );
+    } else {
+      setMaxRemove(ethers.constants.Zero);
+    }
+
   }, [collInput, collateralizationPercent, debtInput, oraclePrice, vault]);
 
   // TODO marco add in collateralisation warning at about 150% - 200% " warning: vulnerable to liquidation"
@@ -80,6 +100,8 @@ export const useCollateralization = (
     borrowingPower,
     collateralizationWarning,
     undercollateralized,
+    minCollateral,
+    maxRemove,
   };
 };
 
@@ -89,7 +111,7 @@ export const useCollateralActions = () => {
   } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
   const { selectedBaseId, selectedIlkId, selectedSeriesId, seriesMap, assetMap } = userState;
-  const { updateAssets, updateVaults, updateSeries } = userActions;
+  const { updateAssets, updateVaults } = userActions;
 
   const { sign, transact } = useChain();
 
@@ -102,8 +124,8 @@ export const useCollateralActions = () => {
       /* return the add ETH OP */
       return [
         {
-          operation: VAULT_OPS.JOIN_ETHER,
-          args: [selectedIlkId],
+          operation: LadleActions.Fn.JOIN_ETHER,
+          args: [selectedIlkId] as LadleActions.Args.JOIN_ETHER,
           ignore: false,
           overrides: { value },
           series,
@@ -120,8 +142,8 @@ export const useCollateralActions = () => {
       /* return the remove ETH OP */
       return [
         {
-          operation: VAULT_OPS.EXIT_ETHER,
-          args: [account],
+          operation: LadleActions.Fn.EXIT_ETHER,
+          args: [account] as LadleActions.Args.EXIT_ETHER,
           ignore: value.gte(ethers.constants.Zero),
           series,
         },
@@ -167,8 +189,8 @@ export const useCollateralActions = () => {
     const calls: ICallData[] = [
       /* If vault is null, build a new vault, else ignore */
       {
-        operation: VAULT_OPS.BUILD,
-        args: [selectedSeriesId, selectedIlkId],
+        operation: LadleActions.Fn.BUILD,
+        args: [selectedSeriesId, selectedIlkId, '0'] as LadleActions.Args.BUILD,
         series,
         ignore: !!vault,
       },
@@ -178,20 +200,20 @@ export const useCollateralActions = () => {
       ...permits,
       // ladle.pourAction(vaultId, ignored, posted, 0)
       {
-        operation: VAULT_OPS.POUR,
+        operation: LadleActions.Fn.POUR,
         args: [
           vaultId,
           _pourTo /* pour destination based on ilk/asset is an eth asset variety */,
           _input,
           ethers.constants.Zero,
-        ],
+        ] as LadleActions.Args.POUR,
         series,
         ignore: false,
       },
     ];
 
     await transact('Ladle', calls, txCode);
-    updateVaults([vault]);
+    updateVaults([]);
     updateAssets([base, ilk]);
   };
 
@@ -212,13 +234,13 @@ export const useCollateralActions = () => {
     const calls: ICallData[] = [
       // ladle.pourAction(vaultId, ignored, -posted, 0)
       {
-        operation: VAULT_OPS.POUR,
+        operation: LadleActions.Fn.POUR,
         args: [
           vault.id,
           _pourTo /* pour destination based on ilk/asset is an eth asset variety */,
           _input,
           ethers.constants.Zero,
-        ],
+        ] as LadleActions.Args.POUR,
         series,
         ignore: false,
       },
@@ -226,7 +248,7 @@ export const useCollateralActions = () => {
     ];
 
     await transact('Ladle', calls, txCode);
-    updateVaults([vault]);
+    updateVaults([]);
     updateAssets([ilk]);
   };
 

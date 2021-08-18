@@ -22,3 +22,5 @@ export const DAI_BASED_ASSETS = ['0x444149000000'];
 
 export const CHI = ethers.utils.formatBytes32String('chi');
 export const RATE = ethers.utils.formatBytes32String('rate');
+
+export const BLANK_VAULT = '0x000000000000000000000000';

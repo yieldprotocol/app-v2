@@ -3,8 +3,8 @@ import React, { useContext } from 'react';
 import { UserContext } from '../contexts/UserContext';
 import { IVault, ISeries, IAsset, IUserContext } from '../types';
 
-function PositionAvatar({ position }: { position: IVault | ISeries }) {
-  const isVault = position.id.length > 15;
+function PositionAvatar({ position, condensed }: { position: IVault | ISeries; condensed?: boolean }) {
+  const isVault = position?.id.length > 15;
 
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext) as IUserContext;
@@ -21,12 +21,12 @@ function PositionAvatar({ position }: { position: IVault | ISeries }) {
     <>
       {isVault ? (
         <Stack anchor="top-right">
-          <Avatar background={series?.color}>
-            <Box round="large" background={base?.color} pad="xsmall" align="center">
+          <Avatar background={series?.color} size={condensed ? '1.5rem' : undefined}>
+            <Box round="large" background={base?.color} pad={condensed ? 'none' : 'xsmall'} align="center">
               {base?.image}
             </Box>
           </Avatar>
-          <Avatar background="#fff" size="xsmall">
+          <Avatar background="#fff" size={condensed ? '0.75rem' : 'xsmall'}>
             {ilk?.image}
           </Avatar>
         </Stack>
@@ -40,5 +40,7 @@ function PositionAvatar({ position }: { position: IVault | ISeries }) {
     </>
   );
 }
+
+PositionAvatar.defaultProps = { condensed: false };
 
 export default PositionAvatar;

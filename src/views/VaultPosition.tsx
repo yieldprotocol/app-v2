@@ -1,10 +1,10 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { Box, Button, ResponsiveContext, Select, Text, TextInput } from 'grommet';
+import { useHistory, useParams } from 'react-router-dom';
+import { Box, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import { ethers } from 'ethers';
-import { useHistory } from 'react-router-dom';
 
-import { FiLock, FiClock, FiTrendingUp, FiLogOut, FiXCircle, FiPlusCircle } from 'react-icons/fi';
-import { cleanValue, getTxCode } from '../utils/appUtils';
+import { FiClock, FiTrendingUp, FiAlertTriangle, FiArrowRight } from 'react-icons/fi';
+import { abbreviateHash, cleanValue, nFormatter } from '../utils/appUtils';
 import { UserContext } from '../contexts/UserContext';
 import InputWrap from '../components/wraps/InputWrap';
 import InfoBite from '../components/InfoBite';
@@ -17,7 +17,6 @@ import { useBorrowActions } from '../hooks/borrowHooks';
 import SeriesSelector from '../components/selectors/SeriesSelector';
 import MaxButton from '../components/buttons/MaxButton';
 import ActiveTransaction from '../components/ActiveTransaction';
-import BackButton from '../components/buttons/BackButton';
 import PositionAvatar from '../components/PositionAvatar';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import NextButton from '../components/buttons/NextButton';
@@ -25,63 +24,125 @@ import { Gauge } from '../components/Gauge';
 import YieldHistory from '../components/YieldHistory';
 import TransactButton from '../components/buttons/TransactButton';
 import CancelButton from '../components/buttons/CancelButton';
-import ReviewTxItem from '../components/ReviewTxItem';
+import VaultDropSelector from '../components/selectors/VaultDropSelector';
+import ExitButton from '../components/buttons/ExitButton';
+import { useInputValidation } from '../hooks/inputValidationHook';
+import { useTx } from '../hooks/useTx';
+import ModalWrap from '../components/wraps/ModalWrap';
 
-const Vault = ({ close }: { close: () => void }) => {
+const VaultPosition = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-  const routerHistory = useHistory();
+
+  const history = useHistory();
+  const { id: idFromUrl } = useParams<{ id: string }>();
 
   /* STATE FROM CONTEXT */
 
   const { userState, userActions } = useContext(UserContext) as IUserContext;
   const { activeAccount, assetMap, seriesMap, vaultMap, selectedVaultId } = userState;
-  // const { setSelectedVault } = userActions;
 
-  const selectedVault: IVault | undefined = vaultMap.get(selectedVaultId!);
+  const selectedVault: IVault | undefined = vaultMap && vaultMap.get(selectedVaultId || idFromUrl);
+
   const vaultBase: IAsset | undefined = assetMap.get(selectedVault?.baseId!);
   const vaultIlk: IAsset | undefined = assetMap.get(selectedVault?.ilkId!);
   const vaultSeries: ISeries | undefined = seriesMap.get(selectedVault?.seriesId!);
 
-  const { collateralizationPercent } = useCollateralization(
+  const { collateralizationPercent, maxRemove } = useCollateralization(
     selectedVault?.art.toString(),
     selectedVault?.ink.toString(),
     selectedVault
   );
 
+  /* TX info (for disabling buttons) */
+  const { tx: repayTx, resetTx: resetRepayTx } = useTx(ActionCodes.REPAY, selectedVaultId!);
+  const { tx: rollTx, resetTx: resetRollTx } = useTx(ActionCodes.ROLL_DEBT, selectedVaultId!);
+  const { tx: addCollateralTx, resetTx: resetAddCollateralTx } = useTx(ActionCodes.ADD_COLLATERAL, selectedVaultId!);
+  const { tx: removeCollateralTx, resetTx: resetRemoveCollateralTx } = useTx(
+    ActionCodes.REMOVE_COLLATERAL,
+    selectedVaultId!
+  );
+  const { tx: transferTx, resetTx: resetTransferTx } = useTx(ActionCodes.TRANSFER_VAULT, selectedVaultId!, true);
+  const { tx: mergeTx, resetTx: resetMergeTx } = useTx(ActionCodes.MERGE_VAULT, selectedVaultId!);
+
   /* LOCAL STATE */
-  // tab state + control
-  const [tabIndex, setTabIndex] = React.useState(0);
-  const onActive = (nextIndex: number) => setTabIndex(nextIndex);
 
   // stepper for stepping within multiple tabs
-  const [stepPosition, setStepPosition] = useState<number[]>([0, 0, 0, 0, 0, 0]);
+  const [stepPosition, setStepPosition] = useState<number[]>(new Array(7).fill(0));
 
   const [repayInput, setRepayInput] = useState<any>(undefined);
-  const [borrowInput, setBorrowInput] = useState<any>(undefined);
   const [collatInput, setCollatInput] = useState<any>(undefined);
 
   const [addCollatInput, setAddCollatInput] = useState<any>(undefined);
   const [removeCollatInput, setRemoveCollatInput] = useState<any>(undefined);
 
-  const [rollInput, setRollInput] = useState<any>(undefined);
   const [rollToSeries, setRollToSeries] = useState<ISeries | null>(null);
 
-  const [maxRepay, setMaxRepay] = useState<string | undefined>();
-  const [maxCollat, setMaxCollat] = useState<string | undefined>();
+  const [transferToAddressInput, setTransferToAddressInput] = useState<string>('');
 
-  const [repayError, setRepayError] = useState<string | null>(null);
-  const [borrowError, setBorrowError] = useState<string | null>(null);
-  const [addCollatError, setAddCollatError] = useState<string | null>(null);
-  const [removeCollatError, setRemoveCollatError] = useState<string | null>(null);
+  const [maxRepay, setMaxRepay] = useState<string | undefined>();
+  const [minRepay, setMinRepay] = useState<string | undefined>();
+  const [maxAddCollat, setMaxAddCollat] = useState<string | undefined>();
 
   const [repayDisabled, setRepayDisabled] = useState<boolean>(true);
+  const [rollDisabled, setRollDisabled] = useState<boolean>(true);
+  const [removeCollateralDisabled, setRemoveCollateralDisabled] = useState<boolean>(true);
+  const [addCollateralDisabled, setAddCollateralDisabled] = useState<boolean>(true);
+  const [mergeDisabled, setMergeDisabled] = useState<boolean>(true);
+  const [transferDisabled, setTransferDisabled] = useState<boolean>(true);
 
-  const [actionActive, setActionActive] = useState<any>({ text: 'Repay', index: 0 });
-  // const [rollDisabled, setRollDisabled] = useState<boolean>(true);
+  const [actionActive, setActionActive] = useState<any>(
+    selectedVault && !selectedVault.isActive ? { index: 3 } : { index: 0 }
+  );
+
+  const initialMergeData = {
+    toVault: null,
+    ink: selectedVault?.ink_,
+    art: selectedVault?.art_,
+    inkError: false,
+    artError: false,
+    advancedMergeToggle: false,
+    totalMergedInk: null,
+    totalMergedArt: null,
+  };
+
+  const [mergeData, setMergeData] = useState<any>(initialMergeData);
+  const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
 
   /* HOOK FNS */
-  const { repay, borrow, rollDebt } = useBorrowActions();
+  const { repay, borrow, rollDebt, transfer, merge } = useBorrowActions();
   const { addCollateral, removeCollateral } = useCollateralActions();
+
+  const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries, [0, maxRepay]);
+  const { inputError: addCollatError } = useInputValidation(addCollatInput, ActionCodes.ADD_COLLATERAL, vaultSeries, [
+    0,
+    maxAddCollat,
+  ]);
+  const { inputError: removeCollatError } = useInputValidation(
+    removeCollatInput,
+    ActionCodes.REMOVE_COLLATERAL,
+    vaultSeries,
+    [0, ethers.utils.formatEther(maxRemove)]
+  );
+  const { inputError: transferError } = useInputValidation(
+    transferToAddressInput,
+    ActionCodes.TRANSFER_VAULT,
+    vaultSeries,
+    [],
+    selectedVault
+  );
+
+  useEffect(() => {
+    const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
+    const _matchingVaults = arr.filter(
+      (v: IVault) =>
+        v.ilkId === selectedVault?.ilkId &&
+        v.baseId === selectedVault.baseId &&
+        v.seriesId === selectedVault.seriesId &&
+        v.id !== selectedVault.id &&
+        v.isActive
+    );
+    setMatchingVaults(_matchingVaults);
+  }, [vaultMap, selectedVault?.ilkId, selectedVault?.baseId, selectedVault?.seriesId, selectedVault?.id]);
 
   /* LOCAL FNS */
   const handleStepper = (back: boolean = false) => {
@@ -92,12 +153,6 @@ const Vault = ({ close }: { close: () => void }) => {
 
   const handleRepay = () => {
     selectedVault && repay(selectedVault, repayInput?.toString());
-    setRepayInput('');
-  };
-
-  const handleBorrow = () => {
-    selectedVault && borrow(selectedVault, borrowInput, '0');
-    setBorrowInput('');
   };
 
   const handleCollateral = (action: 'ADD' | 'REMOVE') => {
@@ -106,29 +161,74 @@ const Vault = ({ close }: { close: () => void }) => {
       !remove && addCollateral(selectedVault, addCollatInput);
       remove && removeCollateral(selectedVault, removeCollatInput);
     }
-    setCollatInput('');
   };
 
   const handleRoll = () => {
     rollToSeries && selectedVault && rollDebt(selectedVault, rollToSeries);
   };
 
-  /* SET MAX VALUES */
+  const handleTransfer = () => {
+    selectedVault && transfer(selectedVault, transferToAddressInput);
+  };
 
+  const handleMerge = () => {
+    selectedVault && merge(selectedVault, mergeData.toVault, mergeData.ink, mergeData.art);
+  };
+
+  const handleMergeDataChange = (e: any) => {
+    const { name, value } = e.target;
+    setMergeData((fData: any) => ({ ...fData, [name]: cleanValue(value) }));
+
+    if (name === 'ink') {
+      const validInk = selectedVault && value <= selectedVault?.ink_;
+      !validInk
+        ? setMergeData((fData: any) => ({ ...fData, inkError: true }))
+        : setMergeData((fData: any) => ({ ...fData, inkError: false }));
+    }
+
+    if (name === 'art') {
+      const validArt = selectedVault && value <= selectedVault?.art_;
+      !validArt
+        ? setMergeData((fData: any) => ({ ...fData, artError: true }))
+        : setMergeData((fData: any) => ({ ...fData, artError: false }));
+    }
+  };
+
+  const handleMergeVaultSelect = (vault: IVault) => {
+    setMergeData((fData: any) => ({ ...fData, toVault: vault }));
+  };
+
+  const resetInputs = (actionCode: ActionCodes) => {
+    switch (actionCode) {
+      case ActionCodes.REPAY:
+        setRepayInput(undefined);
+        break;
+      case ActionCodes.ADD_COLLATERAL:
+        setAddCollatInput(undefined);
+        break;
+      case ActionCodes.REMOVE_COLLATERAL:
+        setRemoveCollatInput(undefined);
+        break;
+      case ActionCodes.TRANSFER_VAULT:
+        setTransferToAddressInput('');
+        break;
+      case ActionCodes.MERGE_VAULT:
+        setMergeData(initialMergeData);
+        break;
+    }
+  };
+
+  /* SET MAX / MIN VALUES */
   useEffect(() => {
     /* CHECK the max available repay */
     if (activeAccount) {
       (async () => {
         const _maxToken = await vaultBase?.getBalance(activeAccount);
         const _max = _maxToken && selectedVault?.art.gt(_maxToken) ? _maxToken : selectedVault?.art;
-
         _max && setMaxRepay(ethers.utils.formatEther(_max)?.toString());
-        // if (_max?.gt(ZERO_BN)) {
-        //   _max && setMaxRepay(ethers.utils.formatEther(_max)?.toString());
-        // } else {
-        //   setMaxRepay(undefined);
-        // }
       })();
+
+      setMinRepay(selectedVault?.art.sub(ethers.utils.parseEther('1')).toString());
     }
   }, [activeAccount, selectedVault?.art, vaultBase, setMaxRepay]);
 
@@ -137,397 +237,589 @@ const Vault = ({ close }: { close: () => void }) => {
     activeAccount &&
       (async () => {
         const _max = await vaultIlk?.getBalance(activeAccount);
-        _max && setMaxCollat(ethers.utils.formatEther(_max)?.toString());
+        _max && setMaxAddCollat(ethers.utils.formatEther(_max)?.toString());
       })();
-  }, [activeAccount, vaultIlk, setMaxCollat]);
-
-  /* WATCH FOR WARNINGS AND ERRORS */
-
-  /* CHECK for any repay input errors/warnings */
-  useEffect(() => {
-    if (repayInput || repayInput === '') {
-      /* 1. Check if input exceeds balance */
-      if (maxRepay && parseFloat(repayInput) > parseFloat(maxRepay))
-        setRepayError('Repay amount exceeds maximum available');
-      /* 3. next check */ else if (maxRepay && parseFloat(maxRepay) === 0) setRepayError('Zero token balance');
-      /* 2. Check if input is above zero */ else if (parseFloat(repayInput) < 0)
-        setRepayError('Amount should be expressed as a positive value');
-      /* if all checks pass, set null error message */ else {
-        setRepayError(null);
-      }
-    }
-  }, [repayInput, maxRepay, setRepayError]);
-
-  /* CHECK for any collateral input errors/warnings */
-  useEffect(() => {
-    if (addCollatInput || addCollatInput === '') {
-      /* 1. Check if input exceeds balance */
-      if (maxCollat && parseFloat(addCollatInput) > parseFloat(maxCollat)) setAddCollatError('Amount exceeds balance');
-      /* 2. Check if input is above zero */ else if (parseFloat(collatInput) < 0)
-        setAddCollatError('Amount should be expressed as a positive value');
-      /* 3. next check */ else if (false) setAddCollatError('Undercollateralised');
-      /* if all checks pass, set null error message */ else {
-        setAddCollatError(null);
-      }
-    }
-  }, [addCollatInput, maxCollat, setAddCollatError]);
+  }, [activeAccount, vaultIlk, setMaxAddCollat]);
 
   /* ACTION DISABLING LOGIC */
-
   useEffect(() => {
     /* if ANY of the following conditions are met: block action */
     !repayInput || repayError ? setRepayDisabled(true) : setRepayDisabled(false);
-  }, [repayInput, repayError, collatInput]);
+    !rollToSeries ? setRollDisabled(true) : setRollDisabled(false);
+    !mergeData.toVault ? setMergeDisabled(true) : setMergeDisabled(false);
+    !transferToAddressInput || transferError ? setTransferDisabled(true) : setTransferDisabled(false);
+    !addCollatInput || addCollatError ? setAddCollateralDisabled(true) : setAddCollateralDisabled(false);
+    !removeCollatInput || removeCollatError ? setRemoveCollateralDisabled(true) : setRemoveCollateralDisabled(false);
+  }, [
+    repayInput,
+    repayError,
+    collatInput,
+    rollToSeries,
+    mergeData,
+    transferToAddressInput,
+    addCollatInput,
+    removeCollatInput,
+    addCollatError,
+    removeCollatError,
+    transferError,
+  ]);
 
   /* EXTRA INITIATIONS */
 
   useEffect(() => {
-    // setAvailableVaults(Array.from(vaultMap.values())); // add some filtering here
-
     /* set global series, base and ilk */
     selectedVault && userActions.setSelectedSeries(selectedVault.seriesId);
     selectedVault && userActions.setSelectedBase(selectedVault.baseId);
     selectedVault && userActions.setSelectedIlk(selectedVault.ilkId);
   }, [vaultMap, selectedVault]);
 
+  // update data for vault to merge with
+  useEffect(() => {
+    if (mergeData.toVault) {
+      const toVault = vaultMap.get(mergeData.toVault.id);
+      const mergedInkNum = Number(mergeData?.ink) + Number(toVault?.ink_);
+      const mergedArtNum = Number(mergeData?.art) + Number(toVault?.art_);
+      const totalMergedInk = cleanValue(mergedInkNum.toString(), 2);
+      const totalMergedArt = cleanValue(mergedArtNum.toString(), 2);
+      setMergeData((fData: any) => ({ ...fData, totalMergedInk, totalMergedArt }));
+    }
+  }, [vaultMap, mergeData.toVault, mergeData.ink, mergeData.art]);
+
+  /* INTERNAL COMPONENTS */
+  const CompletedTx = (props: any) => (
+    <>
+      <NextButton
+        // size="xsmall"
+        label={
+          <Text size={mobile ? 'xsmall' : undefined}>{props.tx.failed ? 'Report issue and go back' : 'Got it!'} </Text>
+        }
+        onClick={() => {
+          props.resetTx();
+          handleStepper(true);
+          resetInputs(props.actionCode);
+        }}
+      />
+    </>
+  );
+
   return (
-    <CenterPanelWrap>
-      <Box fill pad="large" gap="medium">
-        <Box height={{ min: '250px' }} gap="medium">
-          <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
-            <Box direction="row" align="center" gap="medium">
-              <PositionAvatar position={selectedVault!} />
-              <Box>
-                <Text size={mobile ? 'medium' : 'large'}> {selectedVault?.displayName} </Text>
-                <Text size="small"> {selectedVault?.id} </Text>
-              </Box>
-            </Box>
-            <FiLogOut onClick={() => close()} />
-          </Box>
-
-          <SectionWrap>
-            <Box gap="small">
-              <InfoBite
-                label="Vault debt + interest:"
-                value={`${selectedVault?.art_} ${vaultBase?.symbol}`}
-                icon={<FiTrendingUp />}
-              />
-              <InfoBite
-                label="Maturity date:"
-                value={`${vaultSeries?.displayName}`}
-                icon={<FiClock color={vaultSeries?.color} />}
-              />
-              <InfoBite
-                label="Collateral posted:"
-                value={`${selectedVault?.ink_} ${vaultIlk?.symbol} ( ${collateralizationPercent} %)`}
-                icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
-              />
-            </Box>
-          </SectionWrap>
-        </Box>
-
-        <Box>
-          <Box elevation="xsmall" round="xsmall">
-            <Select
-              plain
-              options={[
-                { text: 'Repay Debt', index: 0 },
-                { text: 'Roll Debt', index: 1 },
-                { text: 'Manage Collateral', index: 2 },
-                { text: 'View History', index: 3 },
-                { text: 'Transfer Vault', index: 4 },
-                { text: 'Delete Vault', index: 5 },
-              ]}
-              labelKey="text"
-              valueKey="index"
-              value={actionActive}
-              onChange={({ option }) => setActionActive(option)}
-            />
-          </Box>
-
-          {actionActive.index === 0 && (
-            <Box>
-              {stepPosition[0] === 0 && (
-                <Box pad={{ vertical: 'medium' }}>
-                  <InputWrap action={() => console.log('maxAction')} isError={repayError}>
-                    <TextInput
-                      plain
-                      type="number"
-                      placeholder="Enter amount to Repay"
-                      // ref={(el:any) => { el && !repayOpen && !rateLockOpen && !mobile && el.focus(); setInputRef(el); }}
-                      value={repayInput || ''}
-                      onChange={(event: any) => setRepayInput(cleanValue(event.target.value))}
-                    />
-                    <MaxButton action={() => setRepayInput(maxRepay)} />
-                  </InputWrap>
+    <>
+      {selectedVault && (
+        <ModalWrap toggleModalOpen={() => history.push('/borrow')}>
+          <CenterPanelWrap>
+            <Box fill pad={mobile ? 'medium' : 'large'} gap="medium">
+              <Box height={{ min: '250px' }} gap="medium">
+                <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
+                  <Box direction="row" align="center" gap="medium">
+                    <PositionAvatar position={selectedVault!} />
+                    <Box>
+                      <Text size={mobile ? 'medium' : 'large'}> {selectedVault?.displayName} </Text>
+                      <Text size="small"> {selectedVault?.id} </Text>
+                    </Box>
+                  </Box>
+                  <ExitButton action={() => history.push('/borrow')} />
                 </Box>
-              )}
 
-              {stepPosition[0] !== 0 && (
-                <ActiveTransaction
-                  txCode={(selectedVault && getTxCode(ActionCodes.REPAY, selectedVault?.id)) || ''}
-                  pad
-                >
-                  <SectionWrap
-                    title="Review your repay transaction"
-                    rightAction={<CancelButton action={() => handleStepper(true)} />}
-                  >
-                    <Box gap="medium" pad="small">
-                      <ReviewTxItem
-                        label="Repay Debt"
-                        icon={<FiClock />}
-                        value={`${repayInput} ${vaultBase?.symbol}`}
+                {selectedVault?.isActive ? (
+                  <SectionWrap>
+                    <Box gap="small">
+                      <InfoBite
+                        label="Vault debt + interest:"
+                        value={`${cleanValue(selectedVault?.art_, vaultBase?.digitFormat!)} ${vaultBase?.symbol}`}
+                        icon={<FiTrendingUp />}
                       />
-                      {/* <Text>
-                        Repay {repayInput} {vaultBase?.symbol} debt from {selectedVault?.displayName}{' '}
-                      </Text> */}
+                      <InfoBite
+                        label="Maturity date:"
+                        value={`${vaultSeries?.displayName}`}
+                        icon={<FiClock color={vaultSeries?.color} />}
+                      />
+                      <InfoBite
+                        label="Collateral posted:"
+                        value={`${cleanValue(selectedVault?.ink_, vaultIlk?.digitFormat!)} ${
+                          vaultIlk?.symbol
+                        } ( ${collateralizationPercent} %)`}
+                        icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
+                      />
                     </Box>
                   </SectionWrap>
-                </ActiveTransaction>
-              )}
-            </Box>
-          )}
+                ) : (
+                  <SectionWrap>
+                    <Box fill align="center" justify="center">
+                      <Box direction="row" pad="medium" gap="small" align="center">
+                        <FiAlertTriangle size="3em" />
+                        <Box gap="xsmall">
+                          <Text>The connected account no longer owns this vault</Text>
+                        </Box>
+                      </Box>
 
-          {actionActive.index === 1 && (
-            <Box>
-              {stepPosition[actionActive.index] === 0 && (
-                <Box pad={{ vertical: 'medium' }} fill="horizontal" direction="row" align="center">
-                  <SeriesSelector
-                    selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
-                    actionType={ActionType.BORROW}
-                    cardLayout={false}
-                  />
-                </Box>
-              )}
-
-              {stepPosition[actionActive.index] !== 0 && (
-                <ActiveTransaction
-                  txCode={(selectedVault && getTxCode(ActionCodes.ROLL_DEBT, selectedVault.id)) || ''}
-                  pad
-                >
-                  <SectionWrap
-                    title="Review your roll transaction"
-                    rightAction={<CancelButton action={() => handleStepper(true)} />}
-                  >
-                    {/* <Text>
-                      Roll {rollInput} {vaultBase?.symbol} debt from {selectedVault?.displayName} to the{' '}
-                      {rollToSeries?.displayName} series.
-                    </Text> */}
-                    <ReviewTxItem
-                      label="Roll Debt to Series"
-                      icon={<FiClock />}
-                      value={`${rollToSeries?.displayName}`}
-                    />
+                      <Box pad={{ horizontal: 'medium' }}>
+                        <Text size="xsmall">Vault {selectedVault?.id} has either been transfered or deleted.</Text>
+                      </Box>
+                    </Box>
                   </SectionWrap>
-                </ActiveTransaction>
-              )}
+                )}
+              </Box>
+
+              <Box height={{ min: '300px' }}>
+                <SectionWrap title="Vault Actions">
+                  <Box elevation="xsmall" round="xsmall">
+                    <Select
+                      dropProps={{ round: 'xsmall' }}
+                      plain
+                      options={[
+                        { text: 'Repay Debt', index: 0 },
+                        { text: 'Roll Debt', index: 1 },
+                        { text: 'Manage Collateral', index: 2 },
+                        { text: 'View Transaction History', index: 3 },
+                        { text: 'Transfer Vault', index: 4 },
+                        { text: 'Merge Vault', index: 5 },
+                      ]}
+                      labelKey="text"
+                      valueKey="index"
+                      value={actionActive}
+                      onChange={({ option }) => setActionActive(option)}
+                      disabled={selectedVault?.isActive ? undefined : [0, 1, 2, 4, 5]}
+                    />
+                  </Box>
+                </SectionWrap>
+
+                {actionActive.index === 0 && (
+                  <>
+                    {stepPosition[0] === 0 && (
+                      <Box margin={{ top: 'medium' }} gap="medium">
+                        <InputWrap action={() => console.log('maxAction')} isError={repayError}>
+                          <TextInput
+                            plain
+                            type="number"
+                            placeholder={`Enter ${vaultBase?.symbol} amount to Repay`}
+                            // ref={(el:any) => { el && !repayOpen && !rateLockOpen && !mobile && el.focus(); setInputRef(el); }}
+                            value={repayInput || ''}
+                            onChange={(event: any) => setRepayInput(cleanValue(event.target.value))}
+                            icon={<>{vaultBase?.image}</>}
+                          />
+                          <MaxButton
+                            action={() => setRepayInput(maxRepay)}
+                            clearAction={() => setRepayInput('')}
+                            showingMax={!!repayInput && repayInput === maxRepay}
+                          />
+                        </InputWrap>
+                      </Box>
+                    )}
+
+                    {stepPosition[0] !== 0 && (
+                      <ActiveTransaction pad tx={repayTx}>
+                        {/* <ActiveTransaction txCode={(selectedVault && repayTx.txCode) || ''} pad> */}
+                        <SectionWrap
+                          title="Review transaction:"
+                          rightAction={<CancelButton action={() => handleStepper(true)} />}
+                        >
+                          <Box margin={{ top: 'medium' }}>
+                            <InfoBite
+                              label="Repay Debt"
+                              icon={<FiArrowRight />}
+                              value={`${cleanValue(repayInput, vaultBase?.digitFormat!)} ${vaultBase?.symbol}`}
+                            />
+                          </Box>
+                        </SectionWrap>
+                      </ActiveTransaction>
+                    )}
+                  </>
+                )}
+
+                {actionActive.index === 1 && (
+                  <>
+                    {stepPosition[actionActive.index] === 0 && (
+                      <Box margin={{ top: 'medium' }} gap="medium">
+                        <SeriesSelector
+                          selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
+                          actionType={ActionType.BORROW}
+                          cardLayout={false}
+                        />
+                      </Box>
+                    )}
+
+                    {stepPosition[actionActive.index] !== 0 && (
+                      <ActiveTransaction pad tx={rollTx}>
+                        <SectionWrap
+                          title="Review transaction:"
+                          rightAction={<CancelButton action={() => handleStepper(true)} />}
+                        >
+                          <Box margin={{ top: 'medium' }}>
+                            <InfoBite
+                              label="Roll Debt to Series"
+                              icon={<FiArrowRight />}
+                              value={`${rollToSeries?.displayName}`}
+                            />
+                          </Box>
+                        </SectionWrap>
+                      </ActiveTransaction>
+                    )}
+                  </>
+                )}
+
+                {actionActive.index === 2 && (
+                  <>
+                    {stepPosition[actionActive.index] === 0 && (
+                      <Box margin={{ top: 'medium' }} gap="medium">
+                        <InputWrap action={() => console.log('maxAction')} isError={addCollatError}>
+                          <TextInput
+                            disabled={removeCollatInput}
+                            plain
+                            type="number"
+                            placeholder="Additional collateral to add"
+                            value={addCollatInput || ''}
+                            onChange={(event: any) => setAddCollatInput(cleanValue(event.target.value))}
+                            icon={<>{vaultIlk?.image}</>}
+                          />
+                          <MaxButton
+                            disabled={removeCollatInput}
+                            action={() => setAddCollatInput(maxAddCollat)}
+                            clearAction={() => setAddCollatInput('')}
+                            showingMax={!!addCollatInput && addCollatInput === maxAddCollat}
+                          />
+                        </InputWrap>
+                        <InputWrap action={() => console.log('maxAction')} isError={removeCollatError}>
+                          <TextInput
+                            disabled={addCollatInput}
+                            plain
+                            type="number"
+                            placeholder="Collateral to remove"
+                            value={removeCollatInput || ''}
+                            onChange={(event: any) => setRemoveCollatInput(cleanValue(event.target.value))}
+                            icon={<>{vaultIlk?.image}</>}
+                          />
+                          <MaxButton
+                            disabled={!!addCollatInput}
+                            action={() => setRemoveCollatInput(ethers.utils.formatEther(maxRemove))}
+                            clearAction={() => setRemoveCollatInput('')}
+                            showingMax={
+                              !!removeCollatInput && ethers.utils.formatEther(maxRemove) === removeCollatInput
+                            }
+                          />
+                        </InputWrap>
+                      </Box>
+                    )}
+
+                    {stepPosition[actionActive.index] !== 0 && (
+                      <ActiveTransaction pad tx={addCollatInput ? addCollateralTx : removeCollateralTx}>
+                        <SectionWrap
+                          title="Review transaction:"
+                          rightAction={<CancelButton action={() => handleStepper(true)} />}
+                        >
+                          <Box margin={{ top: 'medium' }}>
+                            {addCollatInput && (
+                              <InfoBite
+                                label="Add Collateral"
+                                icon={<FiArrowRight />}
+                                value={`${cleanValue(addCollatInput, vaultIlk?.digitFormat!)} ${vaultIlk?.symbol}`}
+                              />
+                            )}
+                            {removeCollatInput && (
+                              <InfoBite
+                                label="Remove Collateral"
+                                icon={<FiArrowRight />}
+                                value={`${cleanValue(removeCollatInput, vaultIlk?.digitFormat!)} ${vaultIlk?.symbol}`}
+                              />
+                            )}
+                          </Box>
+                        </SectionWrap>
+                      </ActiveTransaction>
+                    )}
+                  </>
+                )}
+
+                {actionActive.index === 3 && <YieldHistory seriesOrVault={selectedVault!} view={['VAULT']} />}
+
+                {actionActive.index === 4 && (
+                  <>
+                    {stepPosition[actionActive.index] === 0 && (
+                      <Box margin={{ top: 'medium' }} gap="medium">
+                        <InputWrap action={() => console.log('maxAction')} isError={null}>
+                          <TextInput
+                            plain
+                            type="string"
+                            placeholder="Transfer vault to address"
+                            value={transferToAddressInput}
+                            onChange={(event: any) => setTransferToAddressInput(event.target.value)}
+                          />
+                        </InputWrap>
+                      </Box>
+                    )}
+
+                    {stepPosition[actionActive.index] !== 0 && (
+                      <ActiveTransaction pad tx={transferTx}>
+                        <SectionWrap
+                          title="Review transaction:"
+                          rightAction={<CancelButton action={() => handleStepper(true)} />}
+                        >
+                          <Box margin={{ top: 'medium' }}>
+                            <InfoBite
+                              label="Transfer Vault to: "
+                              icon={<FiArrowRight />}
+                              value={transferToAddressInput !== '' ? abbreviateHash(transferToAddressInput) : ''}
+                            />
+                          </Box>
+                        </SectionWrap>
+                      </ActiveTransaction>
+                    )}
+                  </>
+                )}
+
+                {actionActive.index === 5 && (
+                  <>
+                    {stepPosition[actionActive.index] === 0 && (
+                      <Box margin={{ top: 'medium' }} gap="medium">
+                        <VaultDropSelector
+                          vaults={matchingVaults}
+                          handleSelect={handleMergeVaultSelect}
+                          itemSelected={mergeData.toVault}
+                          displayName="Select Vault"
+                          placeholder="Select Vault"
+                        />
+                        {mergeData.advancedMergeToggle && (
+                          <Box gap="xsmall">
+                            <Box direction="row" justify="between" align="center">
+                              Collateral
+                              <InputWrap action={() => console.log('maxAction')} isError={mergeData.inkError}>
+                                <TextInput
+                                  disabled={false}
+                                  name="ink"
+                                  plain
+                                  type="number"
+                                  placeholder="COLLATERAL TO MERGE"
+                                  value={mergeData.ink || ''}
+                                  onChange={(event: any) => handleMergeDataChange(event)}
+                                />
+                              </InputWrap>
+                            </Box>
+                            <Box direction="row" justify="between" align="center">
+                              Debt
+                              <InputWrap action={() => console.log('maxAction')} isError={mergeData.artError}>
+                                <TextInput
+                                  disabled={false}
+                                  name="art"
+                                  plain
+                                  type="number"
+                                  placeholder="DEBT TO MERGE"
+                                  value={mergeData.art || ''}
+                                  onChange={(event: any) => handleMergeDataChange(event)}
+                                />
+                              </InputWrap>
+                            </Box>
+                          </Box>
+                        )}
+                      </Box>
+                    )}
+
+                    {stepPosition[actionActive.index] !== 0 && (
+                      <ActiveTransaction pad tx={mergeTx}>
+                        <SectionWrap
+                          title="Review transaction:"
+                          rightAction={<CancelButton action={() => handleStepper(true)} />}
+                        >
+                          <Box margin={{ top: 'medium' }}>
+                            <InfoBite
+                              label={`Merging debt/collateral in this vault with vault: `}
+                              icon={<FiArrowRight />}
+                              value={`${mergeData.toVault.displayName}`}
+                            />
+                            {/* 
+                      <InfoBite
+                        label={`Merge ${selectedVault?.displayName} collateral with ${mergeData.toVault.displayName}: `}
+                        icon={<FiArrowRight />}
+                        value={`${mergeData.toVault.displayName} collateral: ${mergeData.totalMergedInk}`}
+                      />
+                      <InfoBite
+                        label={`Merge ${selectedVault?.displayName} debt with ${mergeData.toVault.displayName}: `}
+                        icon={<FiArrowRight />}
+                        value={`${mergeData.toVault.displayName} debt: ${mergeData.totalMergedArt}`}
+                      /> */}
+                          </Box>
+                        </SectionWrap>
+                      </ActiveTransaction>
+                    )}
+                  </>
+                )}
+              </Box>
             </Box>
-          )}
 
-          {actionActive.index === 2 && (
-            <Box>
-              {stepPosition[actionActive.index] === 0 && (
-                <Box fill gap="small" pad="small">
-                  <Box direction="row" justify="between" align="center">
-                    Add
-                    <InputWrap action={() => console.log('maxAction')} isError={addCollatError}>
-                      <TextInput
-                        disabled={removeCollatInput}
-                        plain
-                        type="number"
-                        placeholder="ADD"
-                        value={addCollatInput || ''}
-                        onChange={(event: any) => setAddCollatInput(cleanValue(event.target.value))}
-                      />
-                    </InputWrap>
-                  </Box>
-                  <Box direction="row" justify="between" align="center">
-                    Remove
-                    <InputWrap action={() => console.log('maxAction')} isError={removeCollatError}>
-                      <TextInput
-                        disabled={addCollatInput}
-                        plain
-                        type="number"
-                        placeholder="REMOVE"
-                        value={removeCollatInput || ''}
-                        onChange={(event: any) => setRemoveCollatInput(cleanValue(event.target.value))}
-                      />
-                    </InputWrap>
-                  </Box>
-                </Box>
-              )}
-
-              {stepPosition[actionActive.index] !== 0 && (
-                <ActiveTransaction
-                  txCode={
-                    selectedVault && addCollatInput
-                      ? getTxCode(ActionCodes.ADD_COLLATERAL, selectedVault.id)
-                      : (selectedVault && getTxCode(ActionCodes.REMOVE_COLLATERAL, selectedVault?.id)) || ''
+            <ActionButtonWrap pad>
+              {stepPosition[actionActive.index] === 0 && actionActive.index !== 3 && (
+                <NextButton
+                  label={<Text size={mobile ? 'small' : undefined}> Next Step </Text>}
+                  onClick={() => handleStepper()}
+                  key="next"
+                  disabled={
+                    (actionActive.index === 0 && repayDisabled) ||
+                    (actionActive.index === 1 && rollDisabled) ||
+                    (actionActive.index === 2 && removeCollatInput && removeCollateralDisabled) ||
+                    (actionActive.index === 2 && addCollatInput && addCollateralDisabled) ||
+                    (actionActive.index === 4 && transferDisabled) ||
+                    (actionActive.index === 5 && mergeDisabled)
                   }
-                  pad
-                >
-                  <SectionWrap
-                    title="Review your collateral transaction"
-                    rightAction={<CancelButton action={() => handleStepper(true)} />}
-                  >
-                    {addCollatInput && (
-                      <ReviewTxItem
-                        label="Add Collateral"
-                        icon={<FiPlusCircle />}
-                        value={`${addCollatInput} ${vaultIlk?.symbol}`}
-                      />
-                    )}
-                    {removeCollatInput && (
-                      <ReviewTxItem
-                        label="Remove Collateral"
-                        icon={<FiPlusCircle />}
-                        value={`${removeCollatInput} ${vaultIlk?.symbol}`}
-                      />
-                    )}
-                  </SectionWrap>
-                </ActiveTransaction>
-              )}
-            </Box>
-          )}
-
-          {actionActive.index === 3 && <YieldHistory seriesOrVault={selectedVault!} view={['VAULT']} />}
-
-          {actionActive.index === 4 && (
-            <Box>
-              {stepPosition[actionActive.index] === 0 && (
-                <Box pad={{ vertical: 'medium' }}>
-                  <InputWrap action={() => console.log('maxAction')} isError={null}>
-                    <TextInput
-                      plain
-                      type="string"
-                      placeholder="Transfer vault to address"
-                      // ref={(el:any) => { el && !repayOpen && !rateLockOpen && !mobile && el.focus(); setInputRef(el); }}
-                      value=""
-                      // onChange={(event:any) => setRepayInput(cleanValue(event.target.value))}
-                    />
-                  </InputWrap>
-                </Box>
+                  errorLabel={
+                    (actionActive.index === 0 && repayError) ||
+                    (actionActive.index === 2 && removeCollatError) ||
+                    (actionActive.index === 2 && addCollatError) ||
+                    (actionActive.index === 4 && transferError) ||
+                    (actionActive.index === 5 && (mergeData.inkError || mergeData.artError))
+                  }
+                />
               )}
 
-              {stepPosition[actionActive.index] !== 0 && (
-                <ActiveTransaction
-                  txCode={(selectedVault && getTxCode(ActionCodes.REPAY, selectedVault?.id)) || ''}
-                  pad
-                >
-                  <SectionWrap
-                    title="Review your transfer transaction"
-                    rightAction={<CancelButton action={() => handleStepper(true)} />}
-                  >
-                    <ReviewTxItem label="Transfer Vault to: " icon={<FiPlusCircle />} value="new address" />
-                  </SectionWrap>
-                </ActiveTransaction>
-              )}
-            </Box>
-          )}
+              {actionActive.index === 0 &&
+                stepPosition[actionActive.index] !== 0 &&
+                !(repayTx.success || repayTx.failed) && (
+                  <TransactButton
+                    primary
+                    label={
+                      <Text size={mobile ? 'small' : undefined}>
+                        {`${repayTx.processActive ? 'Repaying' : 'Repay'} ${
+                          nFormatter(Number(repayInput), vaultBase?.digitFormat!) || ''
+                        } ${vaultBase?.symbol}`}
+                      </Text>
+                    }
+                    onClick={() => handleRepay()}
+                    disabled={repayDisabled || repayTx.processActive}
+                  />
+                )}
 
-          {actionActive.index === 5 && (
-            <Box>
-              {stepPosition[actionActive.index] === 0 && (
-                <Box pad={{ vertical: 'medium' }}>
-                  <InputWrap action={() => console.log('maxAction')} isError={null}>
-                    <TextInput
-                      plain
-                      type="string"
-                      placeholder="Type the name of the vault."
-                      // ref={(el:any) => { el && !repayOpen && !rateLockOpen && !mobile && el.focus(); setInputRef(el); }}
-                      value=""
-                      // onChange={(event:any) => setRepayInput(cleanValue(event.target.value))}
-                    />
-                  </InputWrap>
-                </Box>
-              )}
+              {actionActive.index === 1 &&
+                stepPosition[actionActive.index] !== 0 &&
+                !(rollTx.success || rollTx.failed) && (
+                  <TransactButton
+                    primary
+                    label={
+                      <Text size={mobile ? 'small' : undefined}>{`Roll${rollTx.processActive ? 'ing' : ''} debt`}</Text>
+                    }
+                    onClick={() => handleRoll()}
+                    disabled={rollTx.processActive}
+                  />
+                )}
 
-              {stepPosition[actionActive.index] !== 0 && (
-                <ActiveTransaction
-                  txCode={(selectedVault && getTxCode(ActionCodes.REPAY, selectedVault?.id)) || ''}
-                  pad
-                >
-                  <SectionWrap
-                    title="Review your delete transaction"
-                    rightAction={<CancelButton action={() => handleStepper(true)} />}
-                  >
-                    <ReviewTxItem
-                      label="Pay back all debt and delete vault:"
-                      icon={<FiPlusCircle />}
-                      value={`${selectedVault?.displayName}`}
-                    />
-                  </SectionWrap>
-                </ActiveTransaction>
-              )}
-            </Box>
-          )}
-        </Box>
-      </Box>
+              {actionActive.index === 2 &&
+                stepPosition[actionActive.index] !== 0 &&
+                addCollatInput &&
+                !(addCollateralTx.success || addCollateralTx.failed) && (
+                  <TransactButton
+                    primary
+                    label={
+                      <Text size={mobile ? 'small' : undefined}>
+                        {`${addCollateralTx.processActive ? 'Adding' : 'Add'} ${
+                          nFormatter(Number(addCollatInput), vaultIlk?.digitFormat!) || ''
+                        } ${vaultIlk?.symbol}`}
+                      </Text>
+                    }
+                    onClick={() => handleCollateral('ADD')}
+                    disabled={addCollateralTx.processActive}
+                  />
+                )}
 
-      <ActionButtonWrap pad>
-        {stepPosition[actionActive.index] === 0 && actionActive.index !== 3 && (
-          <NextButton
-            label={<Text size={mobile ? 'small' : undefined}> Next Step</Text>}
-            onClick={() => handleStepper()}
-            key="next"
-          />
-        )}
+              {actionActive.index === 2 &&
+                stepPosition[actionActive.index] !== 0 &&
+                removeCollatInput &&
+                !(removeCollateralTx.success || removeCollateralTx.failed) && (
+                  <TransactButton
+                    primary
+                    label={
+                      <Text size={mobile ? 'small' : undefined}>
+                        {`${removeCollateralTx.processActive ? 'Removing' : 'Remove'} ${
+                          nFormatter(Number(removeCollatInput), vaultIlk?.digitFormat!) || ''
+                        } ${vaultIlk?.symbol}`}
+                      </Text>
+                    }
+                    onClick={() => handleCollateral('REMOVE')}
+                    disabled={removeCollateralTx.processActive}
+                  />
+                )}
 
-        {/* TODO Marco this is screaming for more efficient code   -> simple array.map possibly? */}
+              {actionActive.index === 4 &&
+                stepPosition[actionActive.index] !== 0 &&
+                !(transferTx.success || transferTx.failed) && (
+                  <TransactButton
+                    primary
+                    label={
+                      <Text size={mobile ? 'small' : undefined}>
+                        {`Transfer${transferTx.processActive ? 'ing' : ''} Vault`}
+                      </Text>
+                    }
+                    onClick={() => handleTransfer()}
+                    disabled={transferTx.processActive}
+                  />
+                )}
 
-        {actionActive.index === 0 && stepPosition[actionActive.index] !== 0 && (
-          <TransactButton
-            primary
-            label={<Text size={mobile ? 'small' : undefined}> {`Repay ${cleanValue(repayInput, 6) || ''} Dai`} </Text>}
-            onClick={() => handleRepay()}
-            disabled={repayDisabled}
-          />
-        )}
+              {actionActive.index === 5 &&
+                stepPosition[actionActive.index] !== 0 &&
+                !(mergeTx.success || mergeTx.failed) && (
+                  <TransactButton
+                    primary
+                    label={
+                      <Text size={mobile ? 'small' : undefined}>
+                        {`${mergeTx.processActive ? 'Merging' : 'Merge'} Vaults`}
+                      </Text>
+                    }
+                    onClick={() => handleMerge()}
+                    disabled={mergeData.inkError || mergeData.artError || mergeTx.processActive}
+                  />
+                )}
 
-        {actionActive.index === 1 && stepPosition[actionActive.index] !== 0 && (
-          <TransactButton
-            primary
-            label={<Text size={mobile ? 'small' : undefined}> Roll debt </Text>}
-            onClick={() => handleRoll()}
-          />
-        )}
+              {/* TODO simplify this */}
 
-        {actionActive.index === 2 && stepPosition[actionActive.index] !== 0 && addCollatInput && (
-          <TransactButton
-            primary
-            label={<Text size={mobile ? 'small' : undefined}> Add </Text>}
-            onClick={() => handleCollateral('ADD')}
-          />
-        )}
+              {stepPosition[actionActive.index] === 1 &&
+                actionActive.index === 0 &&
+                !repayTx.processActive &&
+                (repayTx.success || repayTx.failed) && (
+                  <CompletedTx tx={repayTx} resetTx={resetRepayTx} actionCode={ActionCodes.REPAY} />
+                )}
 
-        {actionActive.index === 2 && stepPosition[actionActive.index] !== 0 && removeCollatInput && (
-          <TransactButton
-            primary
-            label={<Text size={mobile ? 'small' : undefined}> Remove </Text>}
-            onClick={() => handleCollateral('REMOVE')}
-          />
-        )}
+              {stepPosition[actionActive.index] === 1 &&
+                actionActive.index === 1 &&
+                !rollTx.processActive &&
+                (rollTx.success || rollTx.failed) && (
+                  <CompletedTx tx={rollTx} resetTx={resetRollTx} actionCode={ActionCodes.ROLL_POSITION} />
+                )}
 
-        {actionActive.index === 4 && stepPosition[actionActive.index] !== 0 && (
-          <TransactButton
-            primary
-            label={<Text size={mobile ? 'small' : undefined}> Transfer vault [todo] </Text>}
-            onClick={() => console.log('vault transfer')}
-            disabled={repayDisabled}
-          />
-        )}
+              {stepPosition[actionActive.index] === 1 &&
+                actionActive.index === 2 &&
+                !addCollateralTx.processActive &&
+                (addCollateralTx.success || addCollateralTx.failed) && (
+                  <CompletedTx
+                    tx={addCollateralTx}
+                    resetTx={resetAddCollateralTx}
+                    actionCode={ActionCodes.ADD_COLLATERAL}
+                  />
+                )}
 
-        {actionActive.index === 5 && stepPosition[actionActive.index] !== 0 && (
-          <TransactButton
-            primary
-            label={<Text size={mobile ? 'small' : undefined}> Delete [todo] </Text>}
-            onClick={() => console.log('vault transfer')}
-            disabled={repayDisabled}
-          />
-        )}
-      </ActionButtonWrap>
-    </CenterPanelWrap>
+              {stepPosition[actionActive.index] === 1 &&
+                actionActive.index === 2 &&
+                !removeCollateralTx.processActive &&
+                (removeCollateralTx.success || removeCollateralTx.failed) && (
+                  <CompletedTx
+                    tx={removeCollateralTx}
+                    resetTx={resetRemoveCollateralTx}
+                    actionCode={ActionCodes.REMOVE_COLLATERAL}
+                  />
+                )}
+
+              {stepPosition[actionActive.index] === 1 &&
+                actionActive.index === 4 &&
+                !transferTx.processActive &&
+                (transferTx.success || transferTx.failed) && (
+                  <CompletedTx tx={rollTx} resetTx={resetTransferTx} actionCode={ActionCodes.TRANSFER_VAULT} />
+                )}
+
+              {stepPosition[actionActive.index] === 1 &&
+                actionActive.index === 5 &&
+                !mergeTx.processActive &&
+                (mergeTx.success || mergeTx.failed) && (
+                  <CompletedTx tx={mergeTx} resetTx={resetMergeTx} actionCode={ActionCodes.MERGE_VAULT} />
+                )}
+            </ActionButtonWrap>
+          </CenterPanelWrap>
+        </ModalWrap>
+      )}
+    </>
   );
 };
 
-export default Vault;
+export default VaultPosition;

@@ -8,9 +8,18 @@ export const yieldTheme = {
       brand: '#3f53d9',
       focus: '#3f53d999',
       selected: '#3f53d9',
+
       'accent-1': '#FFCA58',
       'accent-2': '#81FCED',
       'tailwind-blue': '#2563EB',
+      'tailwind-blue-50': '#EFF6FF',
+      'tailwind-blue-100': '#DBEAFE',
+
+      'yield-gradient': {
+        dark: 'linear-gradient(60deg, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82)',
+        light: 'linear-gradient(60deg, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82)',
+      },
+
       text: {
         dark: '#EEEEEE',
         light: '#555555',
@@ -32,7 +41,7 @@ export const yieldTheme = {
         light: '#FFFFFF',
       },
     },
-    input: { weight: 700 },
+    // input: { weight: 700 },
   },
 
   grommet: {
@@ -58,8 +67,6 @@ export const yieldTheme = {
     `,
   },
 
-  // TODO marco fout issue
-
   textInput: {
     extend: ({ theme }: any) =>
       theme.dark ? `color: ${theme.global.colors.text.dark}` : `color: ${theme.global.colors.text.light}`,
@@ -67,21 +74,18 @@ export const yieldTheme = {
 
   button: {
     border: {
-      radius: '8px',
+      radius: '6px',
     },
-
     color: 'brand',
-
     primary: {
       extend: ({ theme }: any) => css`
         color: ${theme.global.colors.text.dark};
       `,
     },
-
     maxWidth: '300px',
     size: {
       large: {
-        border: { radius: '8px' },
+        border: { radius: '6px' },
       },
     },
   },
@@ -100,15 +104,15 @@ export const yieldTheme = {
     },
     zIndex: '15',
     overlay: {
-      background: '#00000096', // 60%
+      background: '#000000BF', // 60% - 96
     },
     border: {
-      radius: 'small',
+      radius: 'xsmall',
       // intelligentRounding: true,
     },
 
-    // backdrop-filter: ${(props: LayerProps) => (props.plain === true ? 'blur(3px)' : 'none')};
-    // -webkit-backdrop-filter: ${(props: LayerProps) => (props.plain === true ? 'blur(3px)' : 'none')};
+    // backdrop-filter: ${(props: LayerProps) => (true ? 'blur(3px)' : 'none')};
+    // -webkit-backdrop-filter: ${(props: LayerProps) => (true ? 'blur(3px)' : 'none')};
 
     // @ts-ignore
     extend: () => css`
@@ -128,92 +132,4 @@ export const yieldTheme = {
       }
     `,
   },
-
-  tab: {
-    color: 'text-weak',
-    active: {
-      background: 'background-contrast',
-    },
-    border: {
-      side: 'bottom',
-      color: 'none',
-      active: {
-        color: 'brand',
-      },
-      disabled: {
-        color: 'white',
-      },
-      hover: {
-        color: 'border',
-      },
-    },
-    disabled: {
-      color: 'text-xweak',
-    },
-    hover: {
-      background: 'background-contrast',
-      color: 'text',
-    },
-    margin: {
-      horizontal: 'none',
-    },
-    pad: 'xsmall',
-    extend: ({ theme }: { theme: any }) => css`
-
-    text-decoration: none;
-    /* padding: 8px; */
-  
-    -webkit-transition: background 0.3s ease-in-out;
-    -moz-transition: background 0.3s ease-in-out;
-    transition: background 0.3s ease-in-out;
-  
-    -webkit-transition: box-shadow 0.3s ease-in-out;
-    -moz-transition: box-shadow 0.3s ease-in-out;
-    transition: box-shadow 0.3s ease-in-out;
-  
-    -webkit-transition: transform 0.3s ease-in-out;
-    -moz-transition: transform 0.3s ease-in-out;
-    transition: transform 0.3s ease-in-out;
-    :hover {
-      transform: scale(1.1);
-    }
-
-      'box-shadow: ${theme.global.elevation.small}'
-    `,
-  },
-
-  // tab: {
-  //   active: {
-  //     background: 'dark-1',
-  //     color: 'accent-1',
-  //   },
-  //   // background: 'dark-3',
-  //   border: undefined,
-  //   color: 'white',
-  //   hover: {
-  //     background: 'dark-1',
-  //   },
-  //   margin: undefined,
-  //   pad: {
-  //     bottom: undefined,
-  //     horizontal: 'small',
-  //   },
-  //   extend: ({ theme } : { theme:any }) => css`
-  //     border-radius: ${theme.global.control.border.radius}
-  //     box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.5);
-  //     /* or 'box-shadow: ${theme.global.elevation.light.small}' */
-  //   `,
-  // },
-
-  tabs: {
-    gap: 'small',
-  },
-  //   panel: {
-  //     gap: 'small',
-  //   //   extend: ({ theme }: { theme:any }) => css`
-  //   //   padding: ${theme.global.edgeSize.large}
-  //   //    /* box-shadow: ${theme.global.elevation.light.medium} */
-  //   // `,
-  //   },
-  // },
 };
