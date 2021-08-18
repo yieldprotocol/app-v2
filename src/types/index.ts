@@ -35,6 +35,8 @@ export interface IUserContextState {
   dudeSalt: number;
   showInactiveVaults: boolean;
   slippageTolerance: number;
+  vaultsLoading: boolean;
+  seriesLoading: boolean;
 }
 
 export interface IUserContextActions {
