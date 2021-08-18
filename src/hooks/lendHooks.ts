@@ -7,9 +7,8 @@ import {
   SignType,
   ISeries,
   ActionCodes,
-  PoolRouterActions,
   LadleActions,
-  ReroutedActions,
+  RoutedActions,
   IUserContextState,
 } from '../types';
 import { getTxCode } from '../utils/appUtils';
@@ -57,11 +56,9 @@ export const useLend = (series: ISeries, input?:string|undefined) => {
 
 /* Lend Actions Hook */
 export const useLendActions = () => {
-  const {
-    chainState: { account, contractMap },
-  } = useContext(ChainContext);
+
   const { userState, userActions } = useContext(UserContext);
-  const { assetMap } = userState;
+  const { activeAccount:account, assetMap } = userState;
   const { updateSeries, updateAssets } = userActions;
 
   const { sign, transact } = useChain();
@@ -71,49 +68,45 @@ export const useLendActions = () => {
     const txCode = getTxCode(ActionCodes.LEND, series.id);
 
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
-    // const baseAddress = series.getBaseAddress();
     const base = assetMap.get(series.baseId);
-    const { fyTokenAddress } = series;
     const _isDaiBased = DAI_BASED_ASSETS.includes(series.baseId);
 
     const permits: ICallData[] = await sign(
       [
         {
           target: base,
-          spender: 'POOLROUTER',
+          spender: 'LADLE',
           series,
           type: _isDaiBased ? SignType.DAI : SignType.ERC2612, // Sign Type based on whether a DAI-TyPE base asset or not.
           message: 'Signing ERC20 Token approval',
           ignore: false, // ignore if user has previously signed. base.
         },
       ],
-      txCode,
-      true
+      txCode
     );
 
     const calls: ICallData[] = [
       ...permits,
       {
-        operation: PoolRouterActions.Fn.TRANSFER_TO_POOL,
+        operation: LadleActions.Fn.TRANSFER,
         args: [
           base.address,
-          fyTokenAddress,
-          base.address,
+          series.poolAddress,
           _input.toString(),
-        ] as PoolRouterActions.Args.TRANSFER_TO_POOL,
+        ] as LadleActions.Args.TRANSFER,
         series,
         ignore: false,
       },
-      /* pool.sellBase(address to, uint128 min) */
       {
-        operation: PoolRouterActions.Fn.ROUTE,
-        args: [account, ethers.constants.Zero] as ReroutedActions.Args.SELL_BASE, // TODO calc min transfer slippage
-        fnName: 'sellBase',
+        operation: LadleActions.Fn.ROUTE,
+        args: [account, ethers.constants.Zero] as RoutedActions.Args.SELL_BASE, // TODO calc minFYToken recieved >  transfer slippage
+        fnName: RoutedActions.Fn.SELL_BASE,
         series,
         ignore: false,
       },
     ];
-    await transact('PoolRouter', calls, txCode);
+
+    await transact(calls, txCode);
     updateSeries([series]);
     updateAssets([base]);
   };
@@ -122,9 +115,7 @@ export const useLendActions = () => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.ROLL_POSITION, fromSeries.id);
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
-    const baseAddress = fromSeries.getBaseAddress();
     const base = assetMap.get(fromSeries.baseId);
-    const { fyTokenAddress } = fromSeries;
 
     const _inputAsFyToken = sellBase(
       fromSeries.baseReserves,
@@ -141,28 +132,15 @@ export const useLendActions = () => {
     const permits: ICallData[] = await sign(
       [
         {
-          // router.forwardPermit ( fyToken.address, router.address, allowance, deadline, v, r, s )
-          target: fromSeries,
-          spender: 'POOLROUTER',
-          series: fromSeries,
-          type: SignType.FYTOKEN,
-          message: 'Signing ERC20 Token approval',
-          ignore: fromSeries.seriesIsMature,
-        },
-
-        /* AFTER MATURITY */
-        {
-          // ladle.forwardPermitAction(seriesId, false, ladle.address, allowance, deadline, v, r, s)
           target: fromSeries,
           spender: 'LADLE',
           series: fromSeries,
           type: SignType.FYTOKEN,
           message: 'Signing ERC20 Token approval',
-          ignore: !fromSeries.seriesIsMature,
+          ignore: false,
         },
       ],
-      txCode,
-      !fromSeries.seriesIsMature
+      txCode
     );
 
     const calls: ICallData[] = [
@@ -170,71 +148,64 @@ export const useLendActions = () => {
 
       /* BEFORE MATURITY */
       {
-        // router.transferToPoolAction( base.address, fyToken1.address, fyToken1.address, fyToken1Rolled)
-        operation: PoolRouterActions.Fn.TRANSFER_TO_POOL,
-        args: [baseAddress, fyTokenAddress, fyTokenAddress, _inputAsFyToken] as PoolRouterActions.Args.TRANSFER_TO_POOL,
+        operation: LadleActions.Fn.TRANSFER,
+        args: [fromSeries.fyTokenAddress, fromSeries.poolAddress, _inputAsFyToken] as LadleActions.Args.TRANSFER,
         series: fromSeries,
         ignore: fromSeries.seriesIsMature,
       },
       {
-        // router.sellFYTokenAction( pool.address, pool2.address, minimumBaseReceived)
-        operation: PoolRouterActions.Fn.ROUTE,
-        args: [toSeries.poolAddress, _inputAsFyTokenWithSlippage] as ReroutedActions.Args.SELL_FYTOKEN,
-        fnName: 'sellFYToken',
+        operation: LadleActions.Fn.ROUTE,
+        args: [toSeries.poolAddress, ethers.constants.Zero] as RoutedActions.Args.SELL_FYTOKEN,
+        fnName: RoutedActions.Fn.SELL_FYTOKEN,
         series: fromSeries,
         ignore: fromSeries.seriesIsMature,
       },
+
+      // TODO check if mininumums are the is the correct way around 
       {
-        // router.sellBaseAction( pool.address, receiver, minimumFYToken2Received)
-        operation: PoolRouterActions.Fn.ROUTE,
-        args: [account, ethers.constants.Zero] as ReroutedActions.Args.SELL_BASE,
-        fnName: 'sellBase',
+        operation: LadleActions.Fn.ROUTE,
+        args: [account, _inputAsFyTokenWithSlippage] as RoutedActions.Args.SELL_BASE,
+        fnName: RoutedActions.Fn.SELL_BASE,
         series: toSeries,
         ignore: fromSeries.seriesIsMature,
       },
 
       /* AFTER MATURITY */
       {
-        // ladle.transferToFYTokenAction(seriesId, fyTokenToRoll)
-        operation: LadleActions.Fn.TRANSFER_TO_FYTOKEN,
-        args: [fromSeries.id, _input] as LadleActions.Args.TRANSFER_TO_FYTOKEN,
+        operation: LadleActions.Fn.TRANSFER,
+        args: [fromSeries.address, toSeries.address, _inputAsFyToken] as LadleActions.Args.TRANSFER,
         series: fromSeries,
         ignore: !fromSeries.seriesIsMature,
       },
       {
         // ladle.redeemAction(seriesId, pool2.address, fyTokenToRoll)
         operation: LadleActions.Fn.REDEEM,
-        args: [fromSeries.id, toSeries.poolAddress, _input] as LadleActions.Args.REDEEM,
+        args: [fromSeries.address, toSeries.poolAddress, _inputAsFyToken] as LadleActions.Args.REDEEM,
         series: fromSeries,
         ignore: !fromSeries.seriesIsMature,
       },
       {
         // ladle.sellBaseAction(series2Id, receiver, minimumFYTokenToReceive)
         operation: LadleActions.Fn.ROUTE,
-        args: [account, ethers.constants.Zero] as ReroutedActions.Args.SELL_BASE,
-        fnName: 'sellBase',
+        args: [account, _inputAsFyTokenWithSlippage] as RoutedActions.Args.SELL_BASE,
+        fnName: RoutedActions.Fn.SELL_BASE,
         series: toSeries,
         ignore: !fromSeries.seriesIsMature,
       },
     ];
-    await transact(
-      fromSeries.seriesIsMature ? 'Ladle' : 'PoolRouter', // select router based on if series is seriesIsMature
-      calls,
-      txCode
-    );
+    await transact(calls, txCode);
     updateSeries([fromSeries, toSeries]);
     updateAssets([base]);
   };
 
   const closePosition = async (input: string | undefined, series: ISeries) => {
-    /* generate the reproducible txCode for tx tracking and tracing */
+
     const txCode = getTxCode(ActionCodes.CLOSE_POSITION, series.id);
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
-    const baseAddress = series.getBaseAddress();
     const base = assetMap.get(series.baseId);
-    const { fyTokenAddress } = series;
+    const { fyTokenAddress, poolAddress } = series;
 
-    const _inputAsFyToken = sellBase(
+    const _inputAsFyToken = buyBase(
       series.baseReserves,
       series.fyTokenReserves,
       _input,
@@ -250,7 +221,7 @@ export const useLendActions = () => {
       [
         {
           target: series,
-          spender: 'POOLROUTER',
+          spender: 'LADLE',
           series,
           type: SignType.FYTOKEN,
           message: 'Signing ERC20 Token approval',
@@ -258,34 +229,36 @@ export const useLendActions = () => {
         },
       ],
       txCode,
-      true
     );
 
     const calls: ICallData[] = [
       ...permits,
       {
-        operation: PoolRouterActions.Fn.TRANSFER_TO_POOL,
-        args: [baseAddress, fyTokenAddress, fyTokenAddress, _inputAsFyToken] as PoolRouterActions.Args.TRANSFER_TO_POOL,
+        operation: LadleActions.Fn.TRANSFER,
+        args: [fyTokenAddress, poolAddress, _inputAsFyToken] as LadleActions.Args.TRANSFER,
         series,
         ignore: false,
       },
       {
-        operation: PoolRouterActions.Fn.ROUTE,
-        args: [account, _inputAsFyTokenWithSlippage] as ReroutedActions.Args.SELL_FYTOKEN, // TODO calc min transfer slippage
-        fnName: 'sellFYToken',
+        operation: LadleActions.Fn.ROUTE,
+        args: [account, _inputAsFyTokenWithSlippage] as RoutedActions.Args.SELL_FYTOKEN, // TODO calc min transfer slippage
+        fnName: RoutedActions.Fn.SELL_FYTOKEN,
         series,
         ignore: false,
       },
     ];
-    await transact('PoolRouter', calls, txCode);
+    await transact(calls, txCode);
     updateSeries([series]);
     updateAssets([base]);
   };
 
+
+  /* NB TO DO */
   const redeem = async (series: ISeries, input: string | undefined) => {
     const txCode = getTxCode(ActionCodes.REDEEM, series.id);
     const base = assetMap.get(series.baseId);
     const _input = input ? ethers.utils.parseEther(input) : series.fyTokenBalance || ethers.constants.Zero;
+    
     const permits: ICallData[] = await sign(
       [
         /* AFTER MATURITY */
@@ -299,19 +272,17 @@ export const useLendActions = () => {
         },
       ],
       txCode,
-      false
     );
 
     const calls: ICallData[] = [
       ...permits,
 
       {
-        operation: LadleActions.Fn.TRANSFER_TO_FYTOKEN,
-        args: [series.id, _input] as LadleActions.Args.TRANSFER_TO_FYTOKEN,
+        operation: LadleActions.Fn.TRANSFER,
+        args: [ series.poolAddress, account, _input] as LadleActions.Args.TRANSFER,
         series,
         ignore: false,
       },
-
       {
         operation: LadleActions.Fn.REDEEM,
         args: [series.id, account, ethers.utils.parseEther('1')] as LadleActions.Args.REDEEM,
@@ -319,7 +290,7 @@ export const useLendActions = () => {
         ignore: false,
       },
     ];
-    transact('Ladle', calls, txCode);
+    transact(calls, txCode);
     updateAssets([base]);
   };
 
