@@ -26,8 +26,7 @@ const Dashboard = () => {
       {!mobile && (
         <PanelWrap align="end">
           <Box margin={{ top: '35%' }} gap="medium">
-            {/* {viewTypeRender} */}
-            <DashboardBalances debt="10" collateral="100" positionBalance="10" />
+            {/* <DashboardBalances debt="10" collateral="100" positionBalance="10" /> */}
           </Box>
           <YieldInfo />
         </PanelWrap>
