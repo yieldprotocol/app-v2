@@ -36,7 +36,7 @@ const Dashboard = () => {
       <Box fill pad="large" margin={{ top: 'xlarge' }}>
         {!account && !chainLoading && <Text>Please connect to your account</Text>}
         {account && (
-          <Box width={mobile ? undefined : '70%'} gap="medium">
+          <Box width={mobile ? undefined : '500px'} gap="medium">
             <Box gap="medium">
               <Text size="medium">Vaults</Text>
               {vaultsLoading ? (
