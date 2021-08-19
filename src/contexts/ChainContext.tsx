@@ -416,7 +416,7 @@ const ChainProvider = ({ children }: any) => {
               // ETH_BASED_ASSETS.includes(id) ? '1' : await ERC20.version()
             ]);
             console.log(name, symbol)
-            updateState({ type:'addStrategy', payload: { address:stratAddr, symbol, name } })
+            updateState({ type:'addStrategy', payload: { address:stratAddr, symbol, name, strategyContract: Strategy } })
 
           })
         )

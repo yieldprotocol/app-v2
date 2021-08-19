@@ -1,6 +1,6 @@
 import { ethers, BigNumber, BigNumberish } from 'ethers';
 import React from 'react';
-import { FYToken, Pool } from '../contracts';
+import { FYToken, Pool, Strategy } from '../contracts';
 
 export { LadleActions, RoutedActions } from './operations';
 
@@ -107,6 +107,7 @@ export interface IStrategyRoot {
   address: string;
   name: string;
   symbol: string;
+  strategyContract: Strategy;
 }
 
 export interface IVaultRoot {
