@@ -50,6 +50,7 @@ const initState: IUserContextState = {
   slippageTolerance: 0.01 as number,
   vaultsLoading: false as boolean,
   seriesLoading: false as boolean,
+  hideBalancesSetting: null as string | null,
 };
 
 const vaultNameConfig: Config = {
@@ -91,6 +92,8 @@ function userReducer(state: any, action: any) {
       return { ...state, dudeSalt: onlyIfChanged(action) };
     case 'showInactiveVaults':
       return { ...state, showInactiveVaults: onlyIfChanged(action) };
+    case 'hideBalancesSetting':
+      return { ...state, hideBalancesSetting: onlyIfChanged(action) };
     case 'setSlippageTolerance':
       return { ...state, slippageTolerance: onlyIfChanged(action) };
     case 'vaultsLoading':
@@ -467,6 +470,9 @@ const UserProvider = ({ children }: any) => {
 
     setSlippageTolerance: (slippageTolerance: number) =>
       updateState({ type: 'setSlippageTolerance', payload: slippageTolerance }),
+
+    setHideBalancesSetting: (hideBalancesSetting: string) =>
+      updateState({ type: 'hideBalancesSetting', payload: hideBalancesSetting }),
   };
 
   return <UserContext.Provider value={{ userState, userActions } as IUserContext}>{children}</UserContext.Provider>;

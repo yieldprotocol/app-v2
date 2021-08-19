@@ -9,6 +9,7 @@ import MainViewWrap from '../components/wraps/MainViewWrap';
 import PanelWrap from '../components/wraps/PanelWrap';
 import { UserContext } from '../contexts/UserContext';
 import ListWrap from '../components/wraps/ListWrap';
+import HideBalancesSetting from '../components/HideBalancesSetting';
 
 const Dashboard = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -18,7 +19,7 @@ const Dashboard = () => {
   } = useContext(ChainContext);
 
   const {
-    userState: { userLoading, vaultsLoading, seriesLoading },
+    userState: { vaultsLoading, seriesLoading },
   } = useContext(UserContext);
 
   return (
@@ -27,6 +28,7 @@ const Dashboard = () => {
         <PanelWrap align="end">
           <Box margin={{ top: '35%' }} gap="medium">
             {/* <DashboardBalances debt="10" collateral="100" positionBalance="10" /> */}
+            <HideBalancesSetting />
           </Box>
           <YieldInfo />
         </PanelWrap>
