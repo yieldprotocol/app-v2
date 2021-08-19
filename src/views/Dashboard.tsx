@@ -28,7 +28,7 @@ const Dashboard = () => {
         <PanelWrap align="end">
           <Box margin={{ top: '35%' }} gap="medium">
             {/* <DashboardBalances debt="10" collateral="100" positionBalance="10" /> */}
-            <HideBalancesSetting />
+            <HideBalancesSetting width="30%" />
           </Box>
           <YieldInfo />
         </PanelWrap>

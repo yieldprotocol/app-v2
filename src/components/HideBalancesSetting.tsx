@@ -9,7 +9,7 @@ const Input = styled(TextInput)`
   padding-right: 0;
 `;
 
-const HideBalancesSetting = () => {
+const HideBalancesSetting = (props: any) => {
   const {
     userState: { hideBalancesSetting },
     userActions: { setHideBalancesSetting },
@@ -18,7 +18,7 @@ const HideBalancesSetting = () => {
   return (
     <Box gap="small">
       <Text size="small">Hide Balances Below</Text>
-      <InputWrap border={{ color: 'tailwind-blue' }} width="40%">
+      <InputWrap border={{ color: 'tailwind-blue' }} width={props.width}>
         <Input
           textAlign="center"
           style={{ paddingLeft: 'none', paddingRight: 'none' }}

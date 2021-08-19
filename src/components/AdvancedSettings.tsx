@@ -11,7 +11,7 @@ const AdvancedSettings = () => {
   } = useContext(UserContext);
 
   return (
-    <Box fill="horizontal" gap="small">
+    <Box fill="horizontal" gap="medium">
       <Box
         direction="row"
         justify="between"
@@ -26,7 +26,7 @@ const AdvancedSettings = () => {
         />
       </Box>
       <SlippageSettings />
-      <HideBalancesSetting />
+      <HideBalancesSetting width="25%" />
     </Box>
   );
 };
