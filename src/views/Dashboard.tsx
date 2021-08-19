@@ -1,5 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { Box, ResponsiveContext, Text } from 'grommet';
+import Skeleton from 'react-loading-skeleton';
 import { ChainContext } from '../contexts/ChainContext';
 import DashboardPositions from '../components/DashboardPositions';
 import { ActionType } from '../types';
@@ -40,7 +41,7 @@ const Dashboard = () => {
             <Box gap="medium">
               <Text size="medium">Vaults</Text>
               {vaultsLoading ? (
-                <Text size="small">Loading...</Text>
+                <Skeleton width={600} count={1} height={40} />
               ) : (
                 <DashboardPositions actionType={ActionType.BORROW} />
               )}
@@ -48,7 +49,7 @@ const Dashboard = () => {
             <Box gap="medium">
               <Text size="medium">Lend Positions</Text>
               {seriesLoading ? (
-                <Text size="small">Loading...</Text>
+                <Skeleton width={600} count={1} height={40} />
               ) : (
                 <DashboardPositions actionType={ActionType.LEND} />
               )}
@@ -56,7 +57,7 @@ const Dashboard = () => {
             <Box gap="medium">
               <Text size="medium">Pool Positions</Text>
               {seriesLoading ? (
-                <Text size="small">Loading...</Text>
+                <Skeleton width={600} count={1} height={40} />
               ) : (
                 <DashboardPositions actionType={ActionType.POOL} />
               )}
