@@ -36,6 +36,7 @@ const initState: IUserContextState = {
 
   /* map of asset prices */
   priceMap: new Map<string, Map<string, any>>(),
+  pricesLoading: false as boolean,
 
   /* Current User selections */
   selectedSeriesId: null,
@@ -91,6 +92,8 @@ function userReducer(state: any, action: any) {
       return { ...state, showInactiveVaults: onlyIfChanged(action) };
     case 'setSlippageTolerance':
       return { ...state, slippageTolerance: onlyIfChanged(action) };
+    case 'pricesLoading':
+      return { ...state, pricesLoading: onlyIfChanged(action) };
 
     default:
       return state;
@@ -241,6 +244,8 @@ const UserProvider = ({ children }: any) => {
   /* Updates the prices from the oracle with latest data */ // TODO reduce redundant calls
   const updatePrice = useCallback(
     async (base: string, ilk: string): Promise<ethers.BigNumber> => {
+      updateState({ type: 'pricesLoading', payload: true });
+
       try {
         const _priceMap = userState.priceMap;
         const _basePriceMap = _priceMap.get(base) || new Map<string, any>();
@@ -338,6 +343,7 @@ const UserProvider = ({ children }: any) => {
 
       updateState({ type: 'seriesMap', payload: newSeriesMap });
       console.log('SERIES updated (with dynamic data): ', newSeriesMap);
+      updateState({ type: 'pricesLoading', payload: false });
       return newSeriesMap;
     },
     [account]
