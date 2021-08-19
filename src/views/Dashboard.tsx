@@ -9,7 +9,6 @@ import DashboardBalances from '../components/DashboardBalances';
 import MainViewWrap from '../components/wraps/MainViewWrap';
 import PanelWrap from '../components/wraps/PanelWrap';
 import { UserContext } from '../contexts/UserContext';
-import ListWrap from '../components/wraps/ListWrap';
 import HideBalancesSetting from '../components/HideBalancesSetting';
 
 const Dashboard = () => {
@@ -41,7 +40,7 @@ const Dashboard = () => {
             <Box gap="medium">
               <Text size="medium">Vaults</Text>
               {vaultsLoading ? (
-                <Skeleton width={600} count={1} height={40} />
+                <Skeleton width={mobile ? 300 : 600} count={1} height={40} />
               ) : (
                 <DashboardPositions actionType={ActionType.BORROW} />
               )}
@@ -49,7 +48,7 @@ const Dashboard = () => {
             <Box gap="medium">
               <Text size="medium">Lend Positions</Text>
               {seriesLoading ? (
-                <Skeleton width={600} count={1} height={40} />
+                <Skeleton width={mobile ? 300 : 600} count={1} height={40} />
               ) : (
                 <DashboardPositions actionType={ActionType.LEND} />
               )}
@@ -57,7 +56,7 @@ const Dashboard = () => {
             <Box gap="medium">
               <Text size="medium">Pool Positions</Text>
               {seriesLoading ? (
-                <Skeleton width={600} count={1} height={40} />
+                <Skeleton width={mobile ? 300 : 600} count={1} height={40} />
               ) : (
                 <DashboardPositions actionType={ActionType.POOL} />
               )}
