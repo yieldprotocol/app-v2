@@ -38,6 +38,7 @@ export interface IUserContextState {
   slippageTolerance: number;
   vaultsLoading: boolean;
   seriesLoading: boolean;
+  assetsLoading: boolean;
   hideBalancesSetting: string | null;
 }
 

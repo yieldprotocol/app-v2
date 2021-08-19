@@ -51,6 +51,7 @@ const initState: IUserContextState = {
   slippageTolerance: 0.01 as number,
   vaultsLoading: false as boolean,
   seriesLoading: false as boolean,
+  assetsLoading: false as boolean,
   hideBalancesSetting: null as string | null,
 };
 
@@ -189,6 +190,7 @@ const UserProvider = ({ children }: any) => {
   /* Updates the assets with relevant *user* data */
   const updateAssets = useCallback(
     async (assetList: IAssetRoot[]) => {
+      updateState({ type: 'assetsLoading', payload: true });
       let _publicData: IAssetRoot[] = [];
       let _accountData: IAsset[] = [];
 
@@ -228,7 +230,9 @@ const UserProvider = ({ children }: any) => {
               };
             })
           );
+          updateState({ type: 'assetsLoading', payload: false });
         } catch (e) {
+          updateState({ type: 'assetsLoading', payload: false });
           console.log(e);
         }
       }
