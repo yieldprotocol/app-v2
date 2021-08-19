@@ -58,7 +58,7 @@ const SlippageSettings = () => {
               <Text>{`${tolerance * 100}%`}</Text>
             </StyledBox>
           ))}
-          <InputWrap border={{ color: customTolerance ? 'brand' : '#dfe8f9' }}>
+          <InputWrap border={{ color: customTolerance ? 'tailwind-blue' : '#dfe8f9' }}>
             <Input
               textAlign="center"
               style={{ paddingLeft: 'none', paddingRight: 'none' }}

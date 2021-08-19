@@ -49,6 +49,9 @@ const initState: IUserContextState = {
   dudeSalt: 1,
   showInactiveVaults: false as boolean,
   slippageTolerance: 0.01 as number,
+  vaultsLoading: false as boolean,
+  seriesLoading: false as boolean,
+  hideBalancesSetting: null as string | null,
 };
 
 const vaultNameConfig: Config = {
@@ -90,10 +93,16 @@ function userReducer(state: any, action: any) {
       return { ...state, dudeSalt: onlyIfChanged(action) };
     case 'showInactiveVaults':
       return { ...state, showInactiveVaults: onlyIfChanged(action) };
+    case 'hideBalancesSetting':
+      return { ...state, hideBalancesSetting: onlyIfChanged(action) };
     case 'setSlippageTolerance':
       return { ...state, slippageTolerance: onlyIfChanged(action) };
     case 'pricesLoading':
       return { ...state, pricesLoading: onlyIfChanged(action) };
+    case 'vaultsLoading':
+      return { ...state, vaultsLoading: onlyIfChanged(action) };
+    case 'seriesLoading':
+      return { ...state, seriesLoading: onlyIfChanged(action) };
 
     default:
       return state;
@@ -258,9 +267,11 @@ const UserProvider = ({ children }: any) => {
         _priceMap.set(base, _basePriceMap);
         updateState({ type: 'priceMap', payload: _priceMap });
         console.log('Price Updated: ', base, '->', ilk, ':', price.toString());
+        updateState({ type: 'pricesLoading', payload: false });
         return price;
       } catch (error) {
         console.log(error);
+        updateState({ type: 'pricesLoading', payload: false });
         return ethers.constants.Zero;
       }
     },
@@ -270,6 +281,7 @@ const UserProvider = ({ children }: any) => {
   /* Updates the series with relevant *user* data */
   const updateSeries = useCallback(
     async (seriesList: ISeriesRoot[]) => {
+      updateState({ type: 'seriesLoading', payload: true });
       let _publicData: ISeries[] = [];
       let _accountData: ISeries[] = [];
 
@@ -343,7 +355,7 @@ const UserProvider = ({ children }: any) => {
 
       updateState({ type: 'seriesMap', payload: newSeriesMap });
       console.log('SERIES updated (with dynamic data): ', newSeriesMap);
-      updateState({ type: 'pricesLoading', payload: false });
+      updateState({ type: 'seriesLoading', payload: false });
       return newSeriesMap;
     },
     [account]
@@ -352,6 +364,7 @@ const UserProvider = ({ children }: any) => {
   /* Updates the vaults with *user* data */
   const updateVaults = useCallback(
     async (vaultList: IVaultRoot[], force: boolean = false) => {
+      updateState({ type: 'vaultsLoading', payload: true });
       let _vaultList: IVaultRoot[] = vaultList;
       const Cauldron = contractMap.get('Cauldron');
 
@@ -403,6 +416,7 @@ const UserProvider = ({ children }: any) => {
       vaultFromUrl && updateState({ type: 'selectedVaultId', payload: vaultFromUrl });
 
       console.log('VAULTS: ', newVaultMap);
+      updateState({ type: 'vaultsLoading', payload: false });
     },
     [contractMap, vaultFromUrl, _getVaults]
   );
@@ -463,6 +477,9 @@ const UserProvider = ({ children }: any) => {
 
     setSlippageTolerance: (slippageTolerance: number) =>
       updateState({ type: 'setSlippageTolerance', payload: slippageTolerance }),
+
+    setHideBalancesSetting: (hideBalancesSetting: string) =>
+      updateState({ type: 'hideBalancesSetting', payload: hideBalancesSetting }),
   };
 
   return <UserContext.Provider value={{ userState, userActions } as IUserContext}>{children}</UserContext.Provider>;

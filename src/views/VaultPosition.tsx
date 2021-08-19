@@ -315,7 +315,7 @@ const VaultPosition = ({ close }: { close: () => void }) => {
   return (
     <>
       {selectedVault && (
-        <ModalWrap toggleModalOpen={() => history.push('/borrow')}>
+        <ModalWrap>
           <CenterPanelWrap>
             <Box fill pad={mobile ? 'medium' : 'large'} gap="medium">
               <Box height={{ min: '250px' }} gap="medium">
@@ -327,7 +327,7 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                       <Text size="small"> {selectedVault?.id} </Text>
                     </Box>
                   </Box>
-                  <ExitButton action={() => history.push('/borrow')} />
+                  <ExitButton action={() => history.goBack()} />
                 </Box>
 
                 {selectedVault?.isActive ? (

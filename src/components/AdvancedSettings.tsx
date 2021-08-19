@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Box, CheckBox, Text } from 'grommet';
 import { UserContext } from '../contexts/UserContext';
 import SlippageSettings from './SlippageSettings';
+import HideBalancesSetting from './HideBalancesSetting';
 
 const AdvancedSettings = () => {
   const {
@@ -10,7 +11,7 @@ const AdvancedSettings = () => {
   } = useContext(UserContext);
 
   return (
-    <Box fill="horizontal" gap="small">
+    <Box fill="horizontal" gap="medium">
       <Box
         direction="row"
         justify="between"
@@ -25,6 +26,7 @@ const AdvancedSettings = () => {
         />
       </Box>
       <SlippageSettings />
+      <HideBalancesSetting width="25%" />
     </Box>
   );
 };

@@ -130,7 +130,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
   return (
     <>
       {selectedSeries && (
-        <ModalWrap toggleModalOpen={() => history.push('/pool')} series={selectedSeries}>
+        <ModalWrap series={selectedSeries}>
           <CenterPanelWrap>
             <Box fill pad={mobile ? 'medium' : 'large'} gap="medium">
               <Box height={{ min: '250px' }} gap="medium">
@@ -142,7 +142,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                       <Text size="small"> {abbreviateHash(selectedSeries?.fyTokenAddress!, 5)}</Text>
                     </Box>
                   </Box>
-                  <ExitButton action={() => history.push('/pool')} />
+                  <ExitButton action={() => history.goBack()} />
                 </Box>
 
                 <SectionWrap>
