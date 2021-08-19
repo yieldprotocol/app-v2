@@ -11,7 +11,7 @@ import { useCachedState } from '../hooks/generalHooks';
 
 import * as yieldEnv from './yieldEnv.json';
 import * as contracts from '../contracts';
-import { IAssetRoot, ISeriesRoot } from '../types';
+import { IAssetRoot, ISeriesRoot, IStrategyRoot } from '../types';
 
 import { ETH_BASED_ASSETS } from '../utils/constants';
 import { nameFromMaturity, getSeason, SeasonType } from '../utils/appUtils';
@@ -116,6 +116,7 @@ const initState = {
   contractMap: new Map<string, ContractFactory>(),
   assetRootMap: new Map<string, IAssetRoot>(),
   seriesRootMap: new Map<string, ISeriesRoot>(),
+  strategyRootMap: new Map<string, IStrategyRoot>(),
 };
 
 function chainReducer(state: any, action: any) {
@@ -157,6 +158,11 @@ function chainReducer(state: any, action: any) {
         ...state,
         assetRootMap: state.assetRootMap.set(action.payload.id, action.payload),
       };
+    case 'addStrategy':
+      return {
+        ...state,
+        strategyRootMap: state.strategyRootMap.set(action.payload.address, action.payload),
+      };
     /* special internal case for multi-updates - might remove from this context if not needed */
     case '_any':
       return { ...state, ...action.payload };
@@ -169,9 +175,6 @@ const ChainProvider = ({ children }: any) => {
   const [chainState, updateState] = React.useReducer(chainReducer, initState);
 
   const [lastChainId, setLastChainId] = useCachedState('lastChainId', 42);
-
-  const [cachedAssetAdded, setCachedAssetAdded] = useCachedState('AssetAdded', []);
-  const [cachedJoinAdded, setCachedJoinAdded] = useCachedState('JoinAdded', []);
 
   const [cachedAssets, setCachedAssets] = useCachedState('assets', []);
   const [cachedSeries, setCachedSeries] = useCachedState('series', []);
@@ -189,8 +192,8 @@ const ChainProvider = ({ children }: any) => {
     library: fallbackLibrary,
     chainId: fallbackChainId,
     activate: fallbackActivate,
-    active: fallbackActive,
-    error: fallbackError,
+    // active: fallbackActive,
+    // error: fallbackError,
   } = fallbackConnection;
 
   /**
@@ -215,6 +218,9 @@ const ChainProvider = ({ children }: any) => {
         fallbackLibrary
       );
 
+      /* get the strategies */
+      const strategies = (yieldEnv.strategies as any)[fallbackChainId];
+
       updateState({ type: 'appVersion', payload: process.env.REACT_APP_VERSION });
 
       console.log('VERSION: ', process.env.REACT_APP_VERSION);
@@ -232,10 +238,10 @@ const ChainProvider = ({ children }: any) => {
 
       updateState({ type: 'contractMap', payload: newContractMap });
 
-      let test: any;
-      (async () => {
-        test = await fallbackLibrary.getBalance('0x885Bc35dC9B10EA39f2d7B3C94a7452a9ea442A7');
-      })();
+      // let test: any;
+      // (async () => {
+      //   test = await fallbackLibrary.getBalance('0x885Bc35dC9B10EA39f2d7B3C94a7452a9ea442A7');
+      // })();
 
       /* add on extra/calculated ASSET info */
       const _chargeAsset = (asset: { id: string; address: string; symbol: string }) => {
@@ -306,7 +312,7 @@ const ChainProvider = ({ children }: any) => {
         console.log('Yield Protocol Asset data updated.');
       };
 
-      /* add on extra/calculated SERIES info */
+      /* add on extra/calculated ASYNC series info */
       const _chargeSeries = (series: {
         maturity: number;
         baseId: string;
@@ -395,6 +401,30 @@ const ChainProvider = ({ children }: any) => {
         console.log('Yield Protocol series data updated.');
       };
 
+
+
+      /* Iterate through the strategies list and update accordingly */
+      const _getStrategies = async() => {
+
+        const strategyMap = new Map([]);
+        const strategyList = await Promise.all(
+          strategies.map(async (stratAddr:string) => {
+            const Strategy = contracts.Strategy__factory.connect(stratAddr, fallbackLibrary);
+            const [name, symbol] = await Promise.all([
+              Strategy.name(),
+              Strategy.symbol(),
+              // ETH_BASED_ASSETS.includes(id) ? '1' : await ERC20.version()
+            ]);
+            console.log(name, symbol)
+            updateState({ type:'addStrategy', payload: { address:stratAddr, symbol, name } })
+
+          })
+        )
+
+
+      }
+
+
       /* LOAD the Series and Assets */
       if (cachedAssets.length === 0) {
         console.log('FIRST LOAD: Loading Asset and Series data ');
@@ -412,8 +442,9 @@ const ChainProvider = ({ children }: any) => {
         });
         updateState({ type: 'chainLoading', payload: false });
         console.log('Checking for new Assets and Series...');
+
         // then async check for any updates (they should automatically populate the map):
-        (async () => Promise.all([_getAssets(), _getSeries()]))();
+        (async () => Promise.all([ _getAssets(), _getSeries(), _getStrategies()]))();
       }
     }
   }, [

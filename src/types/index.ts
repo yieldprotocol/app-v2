@@ -103,6 +103,12 @@ export interface IAssetRoot {
   mintTest: () => Promise<VoidFunction>;
 }
 
+export interface IStrategyRoot {
+  address: string;
+  name: string;
+  symbol: string;
+}
+
 export interface IVaultRoot {
   id: string;
   ilkId: string;
@@ -156,6 +162,8 @@ export interface ICallData {
   args: (string | BigNumberish | boolean)[];
   operation: string | [number, string[]];
   series: ISeries;
+  /* optionals */
+  routeTarget?: string;
   fnName?: string;
   ignore?: boolean;
   overrides?: ethers.CallOverrides;
@@ -163,10 +171,9 @@ export interface ICallData {
 
 export interface ISignData {
   target: ISeries | IAsset | { id: string; name: string; version: string; address: string };
-  spender: 'POOLROUTER' | 'LADLE' | string;
+  spender: 'LADLE' | string;
   type: SignType;
   series: ISeries;
-
   /* optional Extention/advanced use-case options */
   message?: string; // optional messaging for UI
   ignore?: boolean; // conditional for ignoring
