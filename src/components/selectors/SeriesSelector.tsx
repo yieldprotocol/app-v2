@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Avatar, Box, Carousel, Grid, ResponsiveContext, Select, Stack, Text, ThemeContext } from 'grommet';
 
+import Skeleton from 'react-loading-skeleton';
 import { ethers } from 'ethers';
 import styled from 'styled-components';
 import { FiClock } from 'react-icons/fi';
@@ -28,6 +29,23 @@ const InsetBox = styled(Box)`
   border-radius: 8px;
   box-shadow: inset 1px 1px 1px #ddd, inset -0.25px -0.25px 0.25px #ddd;
 `;
+
+const CardSkeleton = () => (
+  <StyledBox
+    // border={series.id === selectedSeriesId}
+    pad="xsmall"
+    round="xsmall"
+    elevation="xsmall"
+    align="center"
+  >
+    <Box pad="small" width="small" direction="row" align="center" gap="small">
+      <Skeleton circle width={50} height={50} />
+      <Box>
+        <Skeleton count={2} width={100} />
+      </Box>
+    </Box>
+  </StyledBox>
+);
 
 interface ISeriesSelectorProps {
   actionType: ActionType;
@@ -108,7 +126,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const { userState, userActions } = useContext(UserContext);
-  const { selectedSeriesId, selectedBaseId, seriesMap, assetMap } = userState;
+  const { selectedSeriesId, selectedBaseId, seriesMap, assetMap, seriesLoading } = userState;
   const [localSeries, setLocalSeries] = useState<ISeries | null>();
   const [options, setOptions] = useState<ISeries[]>([]);
 
@@ -212,31 +230,38 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
       {cardLayout && (
         <Grid columns={mobile ? '100%' : 'small'} gap="small" fill pad={{ vertical: 'small' }}>
-          {options.map((series: ISeries) => (
-            <StyledBox
-              // border={series.id === selectedSeriesId}
-              key={series.id}
-              pad="xsmall"
-              round="xsmall"
-              onClick={() => handleSelect(series)}
-              background={series.id === selectedSeriesId ? series?.color : undefined}
-              elevation="xsmall"
-              align="center"
-            >
-              <Box pad="small" width="small" direction="row" align="center" gap="small">
-                <Avatar background="#FFF"> {series.seriesMark}</Avatar>
+          {seriesLoading ? (
+            <>
+              <CardSkeleton />
+              <CardSkeleton />
+            </>
+          ) : (
+            options.map((series: ISeries) => (
+              <StyledBox
+                // border={series.id === selectedSeriesId}
+                key={series.id}
+                pad="xsmall"
+                round="xsmall"
+                onClick={() => handleSelect(series)}
+                background={series.id === selectedSeriesId ? series?.color : undefined}
+                elevation="xsmall"
+                align="center"
+              >
+                <Box pad="small" width="small" direction="row" align="center" gap="small">
+                  <Avatar background="#FFF"> {series.seriesMark}</Avatar>
 
-                <Box>
-                  <Text size="medium" color={series.id === selectedSeriesId ? series.textColor : undefined}>
-                    <AprText inputValue={inputValue} series={series} actionType={actionType} />
-                  </Text>
-                  <Text size="small" color={series.id === selectedSeriesId ? series.textColor : undefined}>
-                    {series.displayName}
-                  </Text>
+                  <Box>
+                    <Text size="medium" color={series.id === selectedSeriesId ? series.textColor : undefined}>
+                      <AprText inputValue={inputValue} series={series} actionType={actionType} />
+                    </Text>
+                    <Text size="small" color={series.id === selectedSeriesId ? series.textColor : undefined}>
+                      {series.displayName}
+                    </Text>
+                  </Box>
                 </Box>
-              </Box>
-            </StyledBox>
-          ))}
+              </StyledBox>
+            ))
+          )}
         </Grid>
       )}
     </>

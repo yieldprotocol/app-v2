@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, Keyboard, ResponsiveContext, Text, TextInput } from 'grommet';
 import { ethers } from 'ethers';
+import Skeleton from 'react-loading-skeleton';
 
 import { FiClock, FiPocket, FiPercent, FiTrendingUp } from 'react-icons/fi';
 
@@ -248,8 +249,7 @@ const Borrow = () => {
 
                       <Box>
                         <Text size={mobile ? 'xsmall' : 'medium'} color="text-weak">
-                          {' '}
-                          Collateralization{' '}
+                          Collateralization
                         </Text>
                         <Text size={mobile ? 'large' : 'xlarge'}>
                           {parseFloat(collateralizationPercent!) > 10000
