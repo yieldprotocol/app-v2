@@ -39,7 +39,7 @@ const CardSkeleton = () => (
     align="center"
   >
     <Box pad="small" width="small" direction="row" align="center" gap="small">
-      <Skeleton circle width={50} height={50} />
+      <Skeleton circle width={45} height={45} />
       <Box>
         <Skeleton count={2} width={100} />
       </Box>
@@ -194,6 +194,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
   return (
     <>
+      {seriesLoading && <Skeleton width={180} />}
       {!cardLayout && (
         <InsetBox fill="horizontal" round="xsmall">
           <Select
