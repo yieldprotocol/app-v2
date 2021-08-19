@@ -104,6 +104,8 @@ function userReducer(state: any, action: any) {
       return { ...state, vaultsLoading: onlyIfChanged(action) };
     case 'seriesLoading':
       return { ...state, seriesLoading: onlyIfChanged(action) };
+    case 'assetsLoading':
+      return { ...state, assetsLoading: onlyIfChanged(action) };
 
     default:
       return state;
@@ -230,9 +232,7 @@ const UserProvider = ({ children }: any) => {
               };
             })
           );
-          updateState({ type: 'assetsLoading', payload: false });
         } catch (e) {
-          updateState({ type: 'assetsLoading', payload: false });
           console.log(e);
         }
       }
@@ -250,6 +250,7 @@ const UserProvider = ({ children }: any) => {
 
       updateState({ type: 'assetMap', payload: newAssetMap });
       console.log('ASSETS updated (with dynamic data): ', newAssetMap);
+      updateState({ type: 'assetsLoading', payload: false });
     },
     [account]
   );
