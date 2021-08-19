@@ -6,6 +6,7 @@ import { UserContext } from '../contexts/UserContext';
 import { ActionType, ISeries, IUserContext, IVault } from '../types';
 import { ZERO_BN } from '../utils/constants';
 import DashboardPosition from './DashboardPosition';
+import DashboardPositionSummary from './DashboardPositionSummary';
 
 interface IPositionItem {
   actionType: ActionType;
@@ -66,25 +67,27 @@ const DashboardPositions = ({ actionType }: { actionType: ActionType }) => {
 
   return (
     <>
-      {allPositions.map((item: IPositionItem) => (
-        <Box key={item.actionType}>
-          {actionType === item.actionType && item.positions.length === 0 && (
-            <Text weight={450} size="small">
-              No suggested positions
-            </Text>
-          )}
+      <DashboardPositionSummary>
+        {allPositions.map((item: IPositionItem) => (
+          <Box key={item.actionType}>
+            {actionType === item.actionType && item.positions.length === 0 && (
+              <Text weight={450} size="small">
+                No suggested positions
+              </Text>
+            )}
 
-          {actionType === item.actionType &&
-            item.positions.map((seriesOrVault: ISeries | IVault, i: number) => (
-              <DashboardPosition
-                seriesOrVault={seriesOrVault}
-                index={i}
-                actionType={actionType}
-                key={seriesOrVault.id}
-              />
-            ))}
-        </Box>
-      ))}
+            {actionType === item.actionType &&
+              item.positions.map((seriesOrVault: ISeries | IVault, i: number) => (
+                <DashboardPosition
+                  seriesOrVault={seriesOrVault}
+                  index={i}
+                  actionType={actionType}
+                  key={seriesOrVault.id}
+                />
+              ))}
+          </Box>
+        ))}
+      </DashboardPositionSummary>
     </>
   );
 };
