@@ -100,7 +100,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
         }
         onChange={({ option }: any) => handleSelect(option)}
         disabled={
-          (selectCollateral && options.filter((o, i) => (o.balance.eq(ethers.constants.Zero) ? i : null))) ||
+          (selectCollateral && options.filter((o, i) => (o.balance?.eq(ethers.constants.Zero) ? i : null))) ||
           (selectCollateral ? selectedSeries?.mature || !selectedSeries : null)
 
           // ( options.map((x:any, i:number) => {
