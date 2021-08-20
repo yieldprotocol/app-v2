@@ -169,7 +169,7 @@ export interface ICallData {
   operation: string | [number, string[]];
   series: ISeries;
   /* optionals */
-  routeTarget?: string;
+  routeTargetAddr?: string;
   fnName?: string;
   ignore?: boolean;
   overrides?: ethers.CallOverrides;
@@ -178,9 +178,10 @@ export interface ICallData {
 export interface ISignData {
   target: ISeries | IAsset | { id: string; name: string; version: string; address: string };
   spender: 'LADLE' | string;
-  type: SignType;
   series: ISeries;
   /* optional Extention/advanced use-case options */
+  amount?: BigNumberish;
+  
   message?: string; // optional messaging for UI
   ignore?: boolean; // conditional for ignoring
   domain?: IDomain;

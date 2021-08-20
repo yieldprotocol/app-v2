@@ -168,7 +168,6 @@ export const useCollateralActions = () => {
 
     /* check if the ilk/asset is an eth asset variety, if so pour to Ladle */
     const _isEthBased = ETH_BASED_ASSETS.includes(ilk.id);
-    const _isDaiBased = DAI_BASED_ASSETS.includes(base.id);
 
     const _pourTo = _isEthBased ? contractMap.get('Ladle').address : account;
 
@@ -177,7 +176,6 @@ export const useCollateralActions = () => {
       [
         {
           target: ilk,
-          type: _isDaiBased ? SignType.DAI : SignType.ERC2612,
           spender: ilk.joinAddress,
           series,
           ignore: _isEthBased,

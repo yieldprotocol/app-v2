@@ -49,7 +49,6 @@ export const useBorrowActions = () => {
           target: ilk,
           spender: ilk.joinAddress,
           series,
-          type: DAI_BASED_ASSETS.includes(selectedIlkId) ? SignType.DAI : SignType.ERC2612,
           ignore:
             ETH_BASED_ASSETS.includes(selectedIlkId) || ilk.hasJoinAuth /* Ignore if Eth varietal  or already signed */,
         },
@@ -74,7 +73,7 @@ export const useBorrowActions = () => {
       },
       {
         operation: LadleActions.Fn.SERVE,
-        args: [vaultId, account, _collInput, _input, MAX_128] as LadleActions.Args.SERVE,
+        args: [vaultId, account, _collInput, _input, MAX_128] as LadleActions.Args.SERVE, // TODO calculated slippage values
         ignore: false, // never ignore this
         series,
       },
@@ -82,7 +81,7 @@ export const useBorrowActions = () => {
 
     /* handle the transaction */
     await transact(calls, txCode);
-
+    
     /* When complete, update vaults.
       If a vault was provided, update it only,
       else update ALL vaults (by passing an empty array)
@@ -101,7 +100,6 @@ export const useBorrowActions = () => {
     const _collInput = ethers.utils.parseEther(collInput);
     const series: ISeries = seriesMap.get(vault.seriesId);
     const base = assetMap.get(vault.baseId);
-    const _isDaiBased = DAI_BASED_ASSETS.includes(vault.baseId);
 
     const _inputAsFyDai = sellBase(
       series.baseReserves,
@@ -119,7 +117,6 @@ export const useBorrowActions = () => {
           target: base,
           spender: 'LADLE',
           series,
-          type: _isDaiBased ? SignType.DAI : SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
           message: 'Signing Dai Approval',
           ignore: series.isMature() || base.hasLadleAuth,
         },
@@ -128,7 +125,6 @@ export const useBorrowActions = () => {
           target: base,
           spender: base.joinAddress,
           series,
-          type: _isDaiBased ? SignType.DAI : SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
           message: 'Signing Dai Approval',
           ignore: !series.isMature() || base.hasJoinAuth,
         },
@@ -200,7 +196,6 @@ export const useBorrowActions = () => {
     const txCode = getTxCode(ActionCodes.TRANSFER_VAULT, vault.id);
     const series = seriesMap.get(vault.seriesId);
     const base = assetMap.get(vault.baseId);
-    const _isDaiBased = DAI_BASED_ASSETS.includes(vault.baseId);
 
     const permits: ICallData[] = await sign(
       [
@@ -208,7 +203,6 @@ export const useBorrowActions = () => {
           target: base,
           spender: 'LADLE',
           series,
-          type: _isDaiBased ? SignType.DAI : SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
           message: 'Signing Dai Approval',
           ignore: series.mature || base.hasLadleAuth,
         },

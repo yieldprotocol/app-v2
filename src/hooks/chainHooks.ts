@@ -4,7 +4,7 @@ import { useContext } from 'react';
 import { toast } from 'react-toastify';
 import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
-import { MAX_128, MAX_256 } from '../utils/constants';
+import { DAI_BASED_ASSETS, MAX_128, MAX_256 } from '../utils/constants';
 import { ICallData, ISignData, ISeries, LadleActions } from '../types';
 import { ERC20, ERC20__factory, Ladle, Pool, PoolRouter } from '../contracts';
 import { UserContext } from '../contexts/UserContext';
@@ -24,9 +24,7 @@ const _getCallGas = (calls: ICallData[]): BigNumber | undefined => {
 
 /* Get ETH value from JOIN_ETHER OPCode, else zero -> N.B. other values sent in with other OPS are ignored for now */
 const _getCallValue = (calls: ICallData[]): BigNumber => {
-  const joinEtherCall = calls.find(
-    (call: any) => call.operation === LadleActions.Fn.JOIN_ETHER
-  );
+  const joinEtherCall = calls.find((call: any) => call.operation === LadleActions.Fn.JOIN_ETHER);
   return joinEtherCall ? BigNumber.from(joinEtherCall?.overrides?.value) : ethers.constants.Zero;
 };
 
@@ -60,15 +58,14 @@ export const useChain = () => {
     /* Encode each of the calls OR preEncoded route calls */
     const encodedCalls = _calls.map((call: ICallData) => {
       /* get the info required from the series */
-      const { poolContract, address: poolAddress } = call.series! as ISeries;
+      const { poolContract, poolAddress } = call.series! as ISeries;
+
+      console.log('address from contract:', poolContract.address);
 
       /* 'pre-encode' routed calls if required */
       if (call.operation === LadleActions.Fn.ROUTE) {
         if (call.fnName) {
           const encodedFn = (poolContract as Contract).interface.encodeFunctionData(call.fnName, call.args);
-          /* add in the extra/different parameters required for each specific rotuer */
-          // const extraParams = call.operation === LadleActions.Fn.ROUTE ? [seriesId] : [getBaseAddress(), fyTokenAddress];
-          // return _contract.interface.encodeFunctionData(LadleActions.Fn.ROUTE, [...extraParams, encodedFn]);
           return _contract.interface.encodeFunctionData(LadleActions.Fn.ROUTE, [poolAddress, encodedFn]);
         }
         throw new Error('Function name required for routing');
@@ -101,10 +98,7 @@ export const useChain = () => {
    * @param { boolean } viaPoolRouter DEFAULT: false
    * @returns { Promise<ICallData[]> }
    */
-  const sign = async (
-    requestedSignatures: ISignData[],
-    txCode: string,
-  ): Promise<ICallData[]> => {
+  const sign = async (requestedSignatures: ISignData[], txCode: string): Promise<ICallData[]> => {
     const signer = account ? provider.getSigner(account) : provider.getSigner(0);
 
     /* Get the spender if not provided, defaults to ladle */
@@ -121,15 +115,13 @@ export const useChain = () => {
     const signedList = await Promise.all(
       _requestedSigs.map(async (reqSig: ISignData) => {
         const _spender = getSpender(reqSig.spender);
-
         /* get an ERC20 contract instance. This is only used in the case of fallback tx (when signing is not available) */
         const tokenContract = ERC20__factory.connect(reqSig.target.address, signer) as any;
 
         /*
           Request the signature if using DaiType permit style
         */
-        if (reqSig.type === 'DAI_TYPE') {
-          // const ladleAddress = contractMap.get('Ladle').address;
+        if (DAI_BASED_ASSETS.includes(reqSig.series.baseId)) {
           const { v, r, s, nonce, expiry, allowed } = await handleSign(
             /* We are pass over the generated signFn and sigData to the signatureHandler for tracking/tracing/fallback handling */
             () =>
@@ -145,14 +137,24 @@ export const useChain = () => {
                 account,
                 _spender
               ),
-            /* this is the function for if using fallback approvals */
+
+            /* This is the function  to call if using fallback approvals */
             () => handleTx(() => tokenContract.approve(_spender, MAX_256), txCode, true),
             reqSig,
             txCode,
             approvalMethod
           );
 
-          const args = [reqSig.target.id, true, _spender, nonce, expiry, allowed, v, r, s];
+          const args = [
+            reqSig.target.id,
+            _spender,
+            nonce,
+            expiry,
+            allowed,
+            v,
+            r,
+            s,
+          ] as LadleActions.Args.FORWARD_DAI_PERMIT;
           const operation = LadleActions.Fn.FORWARD_DAI_PERMIT;
 
           return {
@@ -164,7 +166,7 @@ export const useChain = () => {
         }
 
         /*
-          Or else, request the signature using ERC2612 Permit style
+          Or else - if not DAI-BASED, request the signature using ERC2612 Permit style
           (handleSignature() wraps the sign function for in app tracking and tracing )
         */
         const { v, r, s, value, deadline } = await handleSign(
@@ -193,14 +195,13 @@ export const useChain = () => {
         // router.forwardPermit(ilkId, true, ilkJoin.address, amount, deadline, v, r, s)
         const args = [
           reqSig.target.id, // the asset id OR the seriesId (if signing fyToken)
-          reqSig.type !== 'FYTOKEN_TYPE', // true or false=fyToken
           _spender,
           value,
           deadline,
           v,
           r,
           s,
-        ];
+        ] as LadleActions.Args.FORWARD_PERMIT;
 
         const operation = LadleActions.Fn.FORWARD_PERMIT;
 

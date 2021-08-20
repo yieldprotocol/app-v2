@@ -69,7 +69,6 @@ export const useLendActions = () => {
 
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
     const base = assetMap.get(series.baseId);
-    const _isDaiBased = DAI_BASED_ASSETS.includes(series.baseId);
 
     const permits: ICallData[] = await sign(
       [
@@ -77,7 +76,6 @@ export const useLendActions = () => {
           target: base,
           spender: 'LADLE',
           series,
-          type: _isDaiBased ? SignType.DAI : SignType.ERC2612, // Sign Type based on whether a DAI-TyPE base asset or not.
           message: 'Signing ERC20 Token approval',
           ignore: false, // ignore if user has previously signed. base.
         },
@@ -135,7 +133,6 @@ export const useLendActions = () => {
           target: fromSeries,
           spender: 'LADLE',
           series: fromSeries,
-          type: SignType.FYTOKEN,
           message: 'Signing ERC20 Token approval',
           ignore: false,
         },
@@ -223,7 +220,6 @@ export const useLendActions = () => {
           target: series,
           spender: 'LADLE',
           series,
-          type: SignType.FYTOKEN,
           message: 'Signing ERC20 Token approval',
           ignore: false,
         },
@@ -266,7 +262,6 @@ export const useLendActions = () => {
           target: series,
           spender: 'LADLE',
           series,
-          type: SignType.FYTOKEN,
           message: 'Signing ERC20 Token approval',
           ignore: !series.seriesIsMature,
         },

@@ -1,4 +1,4 @@
-import { BigNumberish } from 'ethers';
+import { BigNumber, BigNumberish } from 'ethers';
 
 export namespace LadleActions {
   export enum Fn {
@@ -48,7 +48,6 @@ export namespace LadleActions {
 
     export type FORWARD_PERMIT = [
       id: string,
-      isAsset: boolean,
       spender: string,
       amount: BigNumberish,
       deadline: BigNumberish,
@@ -58,7 +57,6 @@ export namespace LadleActions {
     ];
     export type FORWARD_DAI_PERMIT = [
       id: string,
-      isAsset: boolean,
       spender: string,
       nonce: BigNumberish,
       deadline: BigNumberish,
@@ -76,6 +74,8 @@ export namespace RoutedActions {
   export enum Fn {
     SELL_BASE = 'sellBase',
     SELL_FYTOKEN = 'sellFYToken',
+    MINT = 'mint',
+    BURN = 'burn',
     MINT_WITH_BASE = 'mintWithBase',
     BURN_FOR_BASE = 'burnForBase',
   }
@@ -85,5 +85,7 @@ export namespace RoutedActions {
     export type SELL_FYTOKEN = [receiver: string, min: BigNumberish];
     export type MINT_WITH_BASE = [receiver: string, fyTokenToBuy: BigNumberish, minTokensMinted: BigNumberish];
     export type BURN_FOR_BASE = [receiver: string, minBaseOut: BigNumberish];
+    export type MINT = [receiver: string, calcFromBase:boolean, minLpReceived:BigNumberish] | [receiver: string];
+    export type BURN = [receiver: string, minBaseOut: BigNumberish, minFYTokenOut: BigNumberish] | [receiver: string];
   }
 }

@@ -1,14 +1,12 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
-import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
-import { ICallData, SignType, ISeries, ActionCodes, PoolRouterActions, LadleActions, ReroutedActions } from '../types';
+import { ICallData, SignType, ISeries, ActionCodes, LadleActions, RoutedActions } from '../types';
 import { getTxCode } from '../utils/appUtils';
 import { BLANK_VAULT, DAI_BASED_ASSETS, MAX_128, MAX_256 } from '../utils/constants';
 import { useChain } from './chainHooks';
 
-import { calculateSlippage, fyTokenForMint, mint } from '../utils/yieldMath';
-import { PoolRouter } from '../contracts';
+import { calculateSlippage, fyTokenForMint, mint, sellBase } from '../utils/yieldMath';
 
 export const usePool = (input: string | undefined) => {
   const poolMax = input;
@@ -17,23 +15,22 @@ export const usePool = (input: string | undefined) => {
 
 /* Hook for chain transactions */
 export const usePoolActions = () => {
-  const {
-    chainState: { account, contractMap },
-  } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
-  const { selectedIlkId, selectedSeriesId, assetMap } = userState;
+  const { activeAccount: account, selectedIlkId, selectedSeriesId, assetMap } = userState;
   const { updateSeries, updateAssets } = userActions;
-
   const { sign, transact } = useChain();
 
   const addLiquidity = async (
     input: string,
     series: ISeries,
-    strategy: 'BUY' | 'MINT' = 'BUY' // select a strategy default: BUY
+    method: 'BUY' | 'BORROW' | string = 'BUY',
+    strategyAddr: string | undefined = undefined,
   ) => {
     const txCode = getTxCode(ActionCodes.ADD_LIQUIDITY, series.id);
     const _input = ethers.utils.parseEther(input);
     const base = assetMap.get(series.baseId);
+
+    const _strategyAddr = ethers.utils.isAddress(strategyAddr!) ? strategyAddr : undefined;
 
     const _fyTokenToBuy = fyTokenForMint(
       series.baseReserves,
@@ -43,90 +40,108 @@ export const usePoolActions = () => {
       series.getTimeTillMaturity()
     );
 
+    const _inputAsFyToken = sellBase(
+      series.baseReserves,
+      series.fyTokenReserves,
+      _input,
+      series.getTimeTillMaturity() 
+    )
+
+    const _inputWithSlippage = calculateSlippage(_input);
+
     const permits: ICallData[] = await sign(
       [
         {
-          // router.forwardPermitAction( pool.address, base.address, router.address, allowance, deadline, v, r, s),
           target: base,
+          spender: 'LADLE',
           series,
-          type: DAI_BASED_ASSETS.includes(series.baseId) ? SignType.DAI : SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
-          spender: 'POOLROUTER',
           message: 'Signing ERC20 Token approval',
           ignore: false,
         },
       ],
-      txCode,
-      true
+      txCode
     );
 
     const calls: ICallData[] = [
       ...permits,
 
       /**
-       * BUYING STRATEGY FLOW:
+       * Provide liquidity by BUYING :
        * */
-
       {
-        // router.transferToPoolAction(pool.address, base.address, baseWithSlippage),
-        operation: PoolRouterActions.Fn.TRANSFER_TO_POOL,
-        args: [
-          series.getBaseAddress(),
-          series.fyTokenAddress,
-          series.getBaseAddress(),
-          calculateSlippage(_input),
-        ] as PoolRouterActions.Args.TRANSFER_TO_POOL,
+        operation: LadleActions.Fn.TRANSFER,
+        args: [series.getBaseAddress(), series.poolAddress, _inputWithSlippage] as LadleActions.Args.TRANSFER,
         series,
-        ignore: strategy !== 'BUY',
+        ignore: method !== 'BUY',
       },
       {
-        // router.mintWithBaseAction(pool.address, receiver, fyTokenToBuy, minLPReceived),
-        operation: PoolRouterActions.Fn.ROUTE,
-        args: [account, _fyTokenToBuy, ethers.constants.Zero] as ReroutedActions.Args.MINT_WITH_BASE, // TODO calc min transfer slippage
-        fnName: 'mintWithBase',
+        operation: LadleActions.Fn.ROUTE,
+        args: [
+          _strategyAddr || account, // reciever is _strategy (if it exists) or account
+          _fyTokenToBuy,
+          ethers.constants.Zero, // TODO calc minLPtokens slippage
+        ] as RoutedActions.Args.MINT_WITH_BASE,
+        fnName: RoutedActions.Fn.MINT_WITH_BASE,
         series,
-        ignore: strategy !== 'BUY',
+        ignore: method !== 'BUY',
+      },
+      {
+        operation: LadleActions.Fn.ROUTE,
+        args: [account] as RoutedActions.Args.MINT,
+        fnName: RoutedActions.Fn.MINT,
+        series,
+        routeTargetAddr: _strategyAddr,
+        ignore: method !== 'BUY' && !_strategyAddr,
       },
 
       /**
-       * MINT  STRATEGY FLOW: // TODO minting strategy
+       * Provide liquidity by BORROWING:
        * */
+      // ladle.transferAction(base, baseJoin, baseToFYToken),
+      // ladle.transferAction(base, pool, baseToPool),
+      // ladle.pourAction(0, pool, baseToFYToken, baseToFYToken),
+      // ladle.routeAction(pool, ['mint', [receiver, true, minimumLPTokenReceived]),
 
-      {
-        // build Vault with random id if required
-        operation: LadleActions.Fn.BUILD,
-        args: [selectedSeriesId, selectedIlkId, '0'] as LadleActions.Args.BUILD,
-        ignore: strategy !== 'MINT',
-        series,
-      },
-      {
-        // ladle.serveAction(vaultId, pool.address, 0, borrowed, maximum debt),
-        operation: LadleActions.Fn.SERVE,
-        args: [
-          BLANK_VAULT,
-          series.poolAddress,
-          ethers.constants.Zero,
-          _input.toString(),
-          MAX_128,
-        ] as LadleActions.Args.SERVE,
-        series,
-        ignore: strategy !== 'MINT',
-      },
-      {
-        // ladle.mintWithBaseAction(seriesId, receiver, fyTokenToBuy, minLPReceived)
-        operation: LadleActions.Fn.ROUTE,
-        args: [account, _fyTokenToBuy, ethers.constants.Zero] as ReroutedActions.Args.MINT_WITH_BASE,
-        fnName: 'mintWithBase',
-        series,
-        ignore: strategy !== 'MINT',
-      },
+      // {
+      //   // build Vault with random id if required
+      //   operation: LadleActions.Fn.BUILD,
+      //   args: [selectedSeriesId, selectedIlkId, '0'] as LadleActions.Args.BUILD,
+      //   series,
+      //   ignore: method !== 'BORROW',
+      // },
+
+      // {
+      //   operation: LadleActions.Fn.TRANSFER,
+      //   args: [series.getBaseAddress(), baseJoin, _inputAsFyToken] as LadleActions.Args.TRANSFER,
+      //   series,
+      //   ignore: method !== 'BORROW',
+      // },
+
+      // {
+      //   operation: LadleActions.Fn.TRANSFER,
+      //   args: [series.getBaseAddress(), series.poolAddress, _inputWithSlippage] as LadleActions.Args.TRANSFER,
+      //   series,
+      //   ignore: method !== 'BORROW',
+      // },
+
+      // {
+      //   operation: LadleActions.Fn.POUR,
+      //   args: [0, series.poolAddress, _inputAsFyToken, _inputAsFyToken] as LadleActions.Args.POUR,
+      //   series,
+      //   ignore: method !== 'BORROW',
+      // },
+
+      // {
+      //   // ladle.mintWithBaseAction(seriesId, receiver, fyTokenToBuy, minLPReceived)
+      //   operation: LadleActions.Fn.ROUTE,
+      //   args: [account, _fyTokenToBuy, ethers.constants.Zero] as RoutedActions.Args.MINT_WITH_BASE,
+      //   fnName: RoutedActions.Fn.MINT_WITH_BASE,
+      //   series,
+      //   ignore: method !== 'BORROW',
+      // },
     ];
 
-    await transact(
-      strategy === 'BUY' ? 'PoolRouter' : 'Ladle', // select router based on strategy
-      calls,
-      txCode
-    );
-
+    await transact(calls, txCode);
     updateSeries([series]);
     updateAssets([base]);
   };
@@ -146,6 +161,7 @@ export const usePoolActions = () => {
       toSeries.getTimeTillMaturity()
     );
 
+
     const permits: ICallData[] = await sign(
       [
         /* BEFORE MATURITY */
@@ -157,27 +173,23 @@ export const usePoolActions = () => {
             name: fromSeries.poolName,
             version: fromSeries.poolVersion,
           },
-          spender: 'POOLROUTER',
+          spender: 'LADLE',
           series: fromSeries,
-          type: SignType.ERC2612, // Type based on whether a DAI-TyPE base asset or not.
           message: 'Signing ERC20 Token approval',
           ignore: seriesMature,
         },
 
         /* AFTER MATURITY */
-
         {
           // ladle.forwardPermitAction(seriesId, false, ladle.address, allowance, deadline, v, r, s)
           target: fromSeries,
           spender: 'LADLE',
           series: fromSeries,
-          type: SignType.FYTOKEN,
           message: 'Signing ERC20 Token approval',
           ignore: !fromSeries.seriesIsMature,
         },
       ],
-      txCode,
-      !fromSeries.seriesIsMature
+      txCode
     );
 
     const calls: ICallData[] = [
@@ -187,29 +199,29 @@ export const usePoolActions = () => {
 
       {
         // router.transferToPool(base.address, fyToken1.address, pool1.address, WAD)
-        operation: PoolRouterActions.Fn.TRANSFER_TO_POOL,
+        operation: LadleActions.Fn.TRANSFER,
         args: [
-          fromSeries.getBaseAddress(),
+          // fromSeries.getBaseAddress(),
           fromSeries.fyTokenAddress,
           fromSeries.poolAddress,
           _input,
-        ] as PoolRouterActions.Args.TRANSFER_TO_POOL,
+        ] as LadleActions.Args.TRANSFER,
         series: fromSeries,
         ignore: seriesMature,
       },
       {
         // router.burnForBase(pool.address, pool2.address, minBaseReceived)
-        operation: PoolRouterActions.Fn.ROUTE,
-        args: [toSeries.poolAddress, _input] as ReroutedActions.Args.BURN_FOR_BASE,
-        fnName: 'burnForBase',
+        operation: LadleActions.Fn.ROUTE,
+        args: [toSeries.poolAddress, _input] as RoutedActions.Args.BURN_FOR_BASE,
+        fnName: RoutedActions.Fn.BURN_FOR_BASE,
         series: fromSeries,
         ignore: seriesMature,
       },
       {
         // router.mintWithBase( base.address, fyToken2.address, receiver, fyTokenToBuy, minLPReceived)
-        operation: PoolRouterActions.Fn.ROUTE,
-        args: [account, _fyTokenToBuy, ethers.constants.Zero] as ReroutedActions.Args.MINT_WITH_BASE,
-        fnName: 'mintWithBase',
+        operation: LadleActions.Fn.ROUTE,
+        args: [account, _fyTokenToBuy, ethers.constants.Zero] as RoutedActions.Args.MINT_WITH_BASE,
+        fnName: RoutedActions.Fn.MINT_WITH_BASE,
         series: toSeries,
         ignore: seriesMature,
       },
@@ -218,8 +230,8 @@ export const usePoolActions = () => {
 
       {
         // ladle.transferToFYTokenAction(seriesId, fyTokenToRoll)
-        operation: LadleActions.Fn.TRANSFER_TO_FYTOKEN,
-        args: [fromSeries.id, _input] as LadleActions.Args.TRANSFER_TO_FYTOKEN,
+        operation: LadleActions.Fn.TRANSFER,
+        args: [account, fromSeries.id, _input] as LadleActions.Args.TRANSFER,
         series: fromSeries,
         ignore: !fromSeries.seriesIsMature,
       },
@@ -233,18 +245,14 @@ export const usePoolActions = () => {
       {
         // ladle.mintWithBase(series2Id, receiver, fyTokenToBuy, minLPReceived),
         operation: LadleActions.Fn.ROUTE,
-        args: [account, _input, ethers.constants.Zero] as ReroutedActions.Args.MINT_WITH_BASE,
-        fnName: 'mintWithBase',
+        args: [account, _input, ethers.constants.Zero] as RoutedActions.Args.MINT_WITH_BASE,
+        fnName: RoutedActions.Fn.MINT_WITH_BASE,
         series: toSeries,
         ignore: !seriesMature,
       },
     ];
 
-    await transact(
-      seriesMature ? 'Ladle' : 'PoolRouter', // select router based on if series is seriesIsMature
-      calls,
-      txCode
-    );
+    await transact(calls, txCode);
     updateSeries([fromSeries, toSeries]);
     updateAssets([base]);
   };
@@ -266,24 +274,21 @@ export const usePoolActions = () => {
             version: series.poolVersion,
           },
           series,
-          type: SignType.ERC2612,
           spender: 'POOLROUTER',
           message: 'Signing ERC20 Token approval',
           ignore: false,
         },
       ],
-      txCode,
-      true
+      txCode
     );
 
     const calls: ICallData[] = [
       ...permits,
 
-      
       {
         // router.transferToPool(base.address, fyToken1.address, pool1.address, WAD)
-        operation: PoolRouterActions.Fn.TRANSFER_TO_POOL,
-        args: [series.getBaseAddress(), series.fyTokenAddress, series.poolAddress, _input],
+        operation: LadleActions.Fn.TRANSFER,
+        args: [series.fyTokenAddress, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
         series,
         ignore: series.seriesIsMature,
       },
@@ -291,9 +296,9 @@ export const usePoolActions = () => {
       // BEFORE MATURITY
       {
         // burnForBase(receiver, minBaseReceived),
-        operation: PoolRouterActions.Fn.ROUTE,
-        args: [account, ethers.constants.Zero] as ReroutedActions.Args.BURN_FOR_BASE,
-        fnName: 'burnForBase',
+        operation: LadleActions.Fn.ROUTE,
+        args: [account, ethers.constants.Zero] as RoutedActions.Args.BURN_FOR_BASE,
+        fnName: RoutedActions.Fn.BURN_FOR_BASE,
         series,
         ignore: series.seriesIsMature,
       },
@@ -301,21 +306,21 @@ export const usePoolActions = () => {
       // AFTER MATURITY
       {
         // router.transferToPool(base.address, fyToken1.address, pool1.address, WAD)
-        operation: PoolRouterActions.Fn.ROUTE,
-        args: [series.getBaseAddress(), series.fyTokenAddress, series.poolAddress, _input],
+        operation: LadleActions.Fn.TRANSFER,
+        args: [series.fyTokenAddress, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
         series,
         ignore: !series.seriesIsMature,
       },
       {
         // burnForBase(receiver, minBaseReceived),
-        operation: PoolRouterActions.Fn.ROUTE,
-        args: [account, ethers.constants.Zero] as ReroutedActions.Args.BURN_FOR_BASE,
-        fnName: 'burnForBase',
+        operation: LadleActions.Fn.ROUTE,
+        args: [account, ethers.constants.Zero] as RoutedActions.Args.BURN_FOR_BASE,
+        fnName: RoutedActions.Fn.BURN_FOR_BASE,
         series,
         ignore: !series.seriesIsMature,
       },
     ];
-    await transact('PoolRouter', calls, txCode);
+    await transact(calls, txCode);
     updateSeries([series]);
     updateAssets([base]);
   };
