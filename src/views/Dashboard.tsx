@@ -40,7 +40,7 @@ const Dashboard = () => {
             <Box gap="medium">
               <Text size="medium">Vaults</Text>
               {vaultsLoading ? (
-                <Skeleton width={mobile ? 300 : 600} count={1} height={40} />
+                <Skeleton width={mobile ? 300 : 500} count={1} height={40} />
               ) : (
                 <DashboardPositions actionType={ActionType.BORROW} />
               )}
@@ -48,7 +48,7 @@ const Dashboard = () => {
             <Box gap="medium">
               <Text size="medium">Lend Positions</Text>
               {seriesLoading ? (
-                <Skeleton width={mobile ? 300 : 600} count={1} height={40} />
+                <Skeleton width={mobile ? 300 : 500} count={1} height={40} />
               ) : (
                 <DashboardPositions actionType={ActionType.LEND} />
               )}
@@ -56,7 +56,7 @@ const Dashboard = () => {
             <Box gap="medium">
               <Text size="medium">Pool Positions</Text>
               {seriesLoading ? (
-                <Skeleton width={mobile ? 300 : 600} count={1} height={40} />
+                <Skeleton width={mobile ? 300 : 500} count={1} height={40} />
               ) : (
                 <DashboardPositions actionType={ActionType.POOL} />
               )}

@@ -4,7 +4,8 @@ import { ethers } from 'ethers';
 
 import { UserContext } from '../contexts/UserContext';
 import { ActionType, ISeries, IUserContext, IVault } from '../types';
-import { ZERO_BN } from '../utils/constants';
+import { ZERO_BN, DAI, WETH, USDC, ONE_BN } from '../utils/constants';
+import { cleanValue } from '../utils/appUtils';
 import DashboardPosition from './DashboardPosition';
 import DashboardPositionSummary from './DashboardPositionSummary';
 
@@ -16,13 +17,17 @@ interface IPositionItem {
 const DashboardPositions = ({ actionType }: { actionType: ActionType }) => {
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext) as IUserContext;
-  const { seriesMap, vaultMap, showInactiveVaults, hideBalancesSetting } = userState;
+  const { seriesMap, vaultMap, showInactiveVaults, hideBalancesSetting, priceMap } = userState;
 
   const [vaultPositions, setVaultPositions] = useState<IVault[]>([]);
   const [lendPositions, setLendPositions] = useState<ISeries[]>([]);
   const [poolPositions, setPoolPositions] = useState<ISeries[]>([]);
   const [allPositions, setAllPositions] = useState<IPositionItem[]>([]);
   const [filterEmpty, setFilterEmpty] = useState<boolean>(true);
+  const [totalDebt, setTotalDebt] = useState<string | null>(null);
+  const [totalCollateral, setTotalCollateral] = useState<string | null>(null);
+  const [totalLendBalance, setTotalLendBalance] = useState<string | null>(null);
+  const [totalPoolBalance, setTotalPoolBalance] = useState<string | null>(null);
 
   useEffect(() => {
     const _vaultPositions: IVault[] = Array.from(vaultMap.values())
@@ -30,6 +35,11 @@ const DashboardPositions = ({ actionType }: { actionType: ActionType }) => {
       .filter((vault: IVault) => filterEmpty && (vault.ink.gt(ZERO_BN) || vault.art.gt(ZERO_BN)));
     // .filter((vault: IVault) => hideBalancesSetting && vault.ink?.gt(ethers.utils.parseEther(hideBalancesSetting)));
     setVaultPositions(_vaultPositions);
+
+    // calculate total debt in usd
+    // set total debt in state
+    // calculate total collateral in usd
+    // set total collateral in state
   }, [vaultMap, actionType, showInactiveVaults, filterEmpty, hideBalancesSetting]);
 
   useEffect(() => {
@@ -65,30 +75,59 @@ const DashboardPositions = ({ actionType }: { actionType: ActionType }) => {
     // const getDebtInCurrency = allPositions.reduce()
   }, []);
 
-  return (
-    <>
-      <DashboardPositionSummary>
-        {allPositions.map((item: IPositionItem) => (
-          <Box key={item.actionType}>
-            {actionType === item.actionType && item.positions.length === 0 && (
-              <Text weight={450} size="small">
-                No suggested positions
-              </Text>
-            )}
+  /* get the vault's ink or art in dai: value can be art, ink, fyToken, or pooToken balances */
+  const getValueInDai = (baseOrIlkId: string, value: string) => {
+    const daiPrice = baseOrIlkId !== DAI && priceMap?.get(DAI)?.get(baseOrIlkId);
+    const daiPrice_ = daiPrice ? ethers.utils.formatEther(daiPrice) : '1';
+    return Number(daiPrice_) * Number(value);
+  };
 
-            {actionType === item.actionType &&
-              item.positions.map((seriesOrVault: ISeries | IVault, i: number) => (
-                <DashboardPosition
-                  seriesOrVault={seriesOrVault}
-                  index={i}
-                  actionType={actionType}
-                  key={seriesOrVault.id}
-                />
-              ))}
-          </Box>
-        ))}
-      </DashboardPositionSummary>
-    </>
+  useEffect(() => {
+    const _debts = vaultPositions?.map((vault: IVault) => getValueInDai(vault.baseId, vault.art_));
+    setTotalDebt(cleanValue(_debts.reduce((sum: number, debt: number) => sum + debt, 0).toString(), 2));
+
+    const _collaterals = vaultPositions?.map((vault: IVault) => getValueInDai(vault.ilkId, vault.ink_));
+    setTotalCollateral(cleanValue(_collaterals.reduce((sum: number, debt: number) => sum + debt, 0).toString(), 2));
+  }, [priceMap, vaultPositions]);
+
+  useEffect(() => {
+    const _lendBalances = lendPositions?.map((series: ISeries) =>
+      getValueInDai(series.baseId, series.fyTokenBalance_!)
+    );
+    setTotalLendBalance(cleanValue(_lendBalances.reduce((sum: number, debt: number) => sum + debt, 0).toString(), 2));
+
+    const _poolBalances = poolPositions?.map((series: ISeries) => getValueInDai(series.baseId, series.poolTokens_!));
+    setTotalPoolBalance(cleanValue(_poolBalances.reduce((sum: number, debt: number) => sum + debt, 0).toString(), 2));
+  }, [priceMap, lendPositions, poolPositions]);
+
+  return (
+    <DashboardPositionSummary
+      debt={totalDebt!}
+      collateral={totalCollateral!}
+      lendBalance={totalLendBalance!}
+      poolBalance={totalPoolBalance!}
+      actionType={actionType}
+    >
+      {allPositions.map((item: IPositionItem) => (
+        <Box key={item.actionType}>
+          {actionType === item.actionType && item.positions.length === 0 && (
+            <Text weight={450} size="small">
+              No suggested positions
+            </Text>
+          )}
+
+          {actionType === item.actionType &&
+            item.positions.map((seriesOrVault: ISeries | IVault, i: number) => (
+              <DashboardPosition
+                seriesOrVault={seriesOrVault}
+                index={i}
+                actionType={actionType}
+                key={seriesOrVault.id}
+              />
+            ))}
+        </Box>
+      ))}
+    </DashboardPositionSummary>
   );
 };
 
