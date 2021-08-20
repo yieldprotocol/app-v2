@@ -43,6 +43,7 @@ const VaultPosition = ({ close }: { close: () => void }) => {
 
   const { userState, userActions } = useContext(UserContext) as IUserContext;
   const { activeAccount, assetMap, seriesMap, vaultMap, selectedVaultId, vaultsLoading } = userState;
+
   const {
     chainState: { account },
   } = useContext(ChainContext);
