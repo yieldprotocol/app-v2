@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import styled from 'styled-components';
 import { Text, Box, ResponsiveContext } from 'grommet';
 import { FiSettings } from 'react-icons/fi';
+import Skeleton from 'react-loading-skeleton';
 
 import YieldBalances from './YieldBalances';
 
@@ -31,7 +32,7 @@ const YieldAccount = (props: any) => {
   } = useContext(ChainContext);
 
   const {
-    userState: { assetMap },
+    userState: { assetMap, assetsLoading },
   } = useContext(UserContext);
 
   const {
@@ -70,7 +71,7 @@ const YieldAccount = (props: any) => {
                   <Box direction="row" align="center" gap="small">
                     <Box direction="row" gap="small" align="center">
                       <StyledText size="small" color="text">
-                        <EthMark /> {ethBalance}
+                        <EthMark /> {assetsLoading ? <Skeleton width={40} /> : ethBalance}
                       </StyledText>
                     </Box>
                   </Box>

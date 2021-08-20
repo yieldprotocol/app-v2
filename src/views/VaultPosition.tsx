@@ -42,7 +42,8 @@ const VaultPosition = ({ close }: { close: () => void }) => {
   /* STATE FROM CONTEXT */
 
   const { userState, userActions } = useContext(UserContext) as IUserContext;
-  const { activeAccount, assetMap, seriesMap, vaultMap, selectedVaultId } = userState;
+  const { activeAccount, assetMap, seriesMap, vaultMap, selectedVaultId, vaultsLoading } = userState;
+
   const {
     chainState: { account },
   } = useContext(ChainContext);
@@ -337,6 +338,7 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                         label="Vault debt + interest:"
                         value={`${cleanValue(selectedVault?.art_, vaultBase?.digitFormat!)} ${vaultBase?.symbol}`}
                         icon={<FiTrendingUp />}
+                        loading={vaultsLoading}
                       />
                       <InfoBite
                         label="Maturity date:"
@@ -349,6 +351,7 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                           vaultIlk?.symbol
                         } ( ${collateralizationPercent} %)`}
                         icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
+                        loading={vaultsLoading}
                       />
                     </Box>
                   </SectionWrap>

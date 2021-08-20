@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, Text } from 'grommet';
+import { ethers } from 'ethers';
 
 import { UserContext } from '../contexts/UserContext';
 import { ActionType, ISeries, IUserContext, IVault } from '../types';
@@ -14,7 +15,7 @@ interface IPositionItem {
 const DashboardPositions = ({ actionType }: { actionType: ActionType }) => {
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext) as IUserContext;
-  const { seriesMap, vaultMap } = userState;
+  const { seriesMap, vaultMap, showInactiveVaults, hideBalancesSetting } = userState;
 
   const [vaultPositions, setVaultPositions] = useState<IVault[]>([]);
   const [lendPositions, setLendPositions] = useState<ISeries[]>([]);
@@ -24,22 +25,31 @@ const DashboardPositions = ({ actionType }: { actionType: ActionType }) => {
 
   useEffect(() => {
     const _vaultPositions: IVault[] = Array.from(vaultMap.values())
-      .filter((vault: IVault) => userState.showInactiveVaults || vault.isActive)
+      .filter((vault: IVault) => showInactiveVaults || vault.isActive)
       .filter((vault: IVault) => filterEmpty && (vault.ink.gt(ZERO_BN) || vault.art.gt(ZERO_BN)));
+    // .filter((vault: IVault) => hideBalancesSetting && vault.ink?.gt(ethers.utils.parseEther(hideBalancesSetting)));
     setVaultPositions(_vaultPositions);
-  }, [vaultMap, actionType, userState.showInactiveVaults, filterEmpty]);
+  }, [vaultMap, actionType, showInactiveVaults, filterEmpty, hideBalancesSetting]);
 
   useEffect(() => {
-    const _lendPositions: ISeries[] = Array.from(seriesMap.values()).filter((_series: ISeries) =>
-      actionType === ActionType.LEND && _series ? _series.fyTokenBalance?.gt(ZERO_BN) : true
-    );
+    const _lendPositions: ISeries[] = Array.from(seriesMap.values())
+      .filter((_series: ISeries) =>
+        actionType === ActionType.LEND && _series ? _series.fyTokenBalance?.gt(ZERO_BN) : true
+      )
+      .filter((_series: ISeries) =>
+        hideBalancesSetting ? Number(_series.fyTokenBalance_!) > Number(hideBalancesSetting) : true
+      );
     setLendPositions(_lendPositions);
 
-    const _poolPositions: ISeries[] = Array.from(seriesMap.values()).filter((_series: ISeries) =>
-      actionType === ActionType.POOL && _series ? _series.poolTokens?.gt(ZERO_BN) : true
-    );
+    const _poolPositions: ISeries[] = Array.from(seriesMap.values())
+      .filter((_series: ISeries) =>
+        actionType === ActionType.POOL && _series ? _series.poolTokens?.gt(ZERO_BN) : true
+      )
+      .filter((_series: ISeries) =>
+        hideBalancesSetting ? Number(_series.poolTokens_!) > Number(hideBalancesSetting) : true
+      );
     setPoolPositions(_poolPositions);
-  }, [seriesMap, actionType]);
+  }, [seriesMap, actionType, hideBalancesSetting]);
 
   useEffect(() => {
     setAllPositions([

@@ -1,5 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { Box, ResponsiveContext, Text } from 'grommet';
+import Skeleton from 'react-loading-skeleton';
 import { ChainContext } from '../contexts/ChainContext';
 import DashboardPositions from '../components/DashboardPositions';
 import { ActionType } from '../types';
@@ -8,7 +9,7 @@ import DashboardBalances from '../components/DashboardBalances';
 import MainViewWrap from '../components/wraps/MainViewWrap';
 import PanelWrap from '../components/wraps/PanelWrap';
 import { UserContext } from '../contexts/UserContext';
-import ListWrap from '../components/wraps/ListWrap';
+import HideBalancesSetting from '../components/HideBalancesSetting';
 
 const Dashboard = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -18,7 +19,7 @@ const Dashboard = () => {
   } = useContext(ChainContext);
 
   const {
-    userState: { userLoading, vaultsLoading, seriesLoading },
+    userState: { vaultsLoading, seriesLoading },
   } = useContext(UserContext);
 
   return (
@@ -27,6 +28,7 @@ const Dashboard = () => {
         <PanelWrap align="end">
           <Box margin={{ top: '35%' }} gap="medium">
             {/* <DashboardBalances debt="10" collateral="100" positionBalance="10" /> */}
+            <HideBalancesSetting width="30%" />
           </Box>
           <YieldInfo />
         </PanelWrap>
@@ -38,7 +40,7 @@ const Dashboard = () => {
             <Box gap="medium">
               <Text size="medium">Vaults</Text>
               {vaultsLoading ? (
-                <Text size="small">Loading...</Text>
+                <Skeleton width={mobile ? 300 : 600} count={1} height={40} />
               ) : (
                 <DashboardPositions actionType={ActionType.BORROW} />
               )}
@@ -46,7 +48,7 @@ const Dashboard = () => {
             <Box gap="medium">
               <Text size="medium">Lend Positions</Text>
               {seriesLoading ? (
-                <Text size="small">Loading...</Text>
+                <Skeleton width={mobile ? 300 : 600} count={1} height={40} />
               ) : (
                 <DashboardPositions actionType={ActionType.LEND} />
               )}
@@ -54,7 +56,7 @@ const Dashboard = () => {
             <Box gap="medium">
               <Text size="medium">Pool Positions</Text>
               {seriesLoading ? (
-                <Text size="small">Loading...</Text>
+                <Skeleton width={mobile ? 300 : 600} count={1} height={40} />
               ) : (
                 <DashboardPositions actionType={ActionType.POOL} />
               )}
