@@ -17,7 +17,7 @@ interface IPositionItem {
 const DashboardPositions = ({ actionType }: { actionType: ActionType }) => {
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext) as IUserContext;
-  const { seriesMap, vaultMap, showInactiveVaults, hideBalancesSetting, priceMap } = userState;
+  const { seriesMap, vaultMap, showInactiveVaults, hideBalancesSetting, priceMap, currencySetting } = userState;
 
   const [vaultPositions, setVaultPositions] = useState<IVault[]>([]);
   const [lendPositions, setLendPositions] = useState<ISeries[]>([]);
@@ -82,14 +82,25 @@ const DashboardPositions = ({ actionType }: { actionType: ActionType }) => {
     return Number(daiPrice_) * Number(value);
   };
 
+  /* get vault position total debt and collateral */
   useEffect(() => {
-    const _debts = vaultPositions?.map((vault: IVault) => getValueInDai(vault.baseId, vault.art_));
-    setTotalDebt(cleanValue(_debts.reduce((sum: number, debt: number) => sum + debt, 0).toString(), 2));
+    if (currencySetting === 'ETH') {
+      // get ether values
+      const _debts = vaultPositions?.map((vault: IVault) => Number(ethers.utils.formatEther(vault.art)));
+      setTotalDebt(cleanValue(_debts.reduce((sum: number, debt: number) => sum + debt, 0).toString(), 2));
 
-    const _collaterals = vaultPositions?.map((vault: IVault) => getValueInDai(vault.ilkId, vault.ink_));
-    setTotalCollateral(cleanValue(_collaterals.reduce((sum: number, debt: number) => sum + debt, 0).toString(), 2));
-  }, [priceMap, vaultPositions]);
+      const _collaterals = vaultPositions?.map((vault: IVault) => Number(ethers.utils.formatEther(vault.art)));
+      setTotalCollateral(cleanValue(_collaterals.reduce((sum: number, debt: number) => sum + debt, 0).toString(), 2));
+    } else {
+      const _debts = vaultPositions?.map((vault: IVault) => getValueInDai(vault.baseId, vault.art_));
+      setTotalDebt(cleanValue(_debts.reduce((sum: number, debt: number) => sum + debt, 0).toString(), 2));
 
+      const _collaterals = vaultPositions?.map((vault: IVault) => getValueInDai(vault.ilkId, vault.ink_));
+      setTotalCollateral(cleanValue(_collaterals.reduce((sum: number, debt: number) => sum + debt, 0).toString(), 2));
+    }
+  }, [priceMap, vaultPositions, currencySetting]);
+
+  /* get series positions' total balances */
   useEffect(() => {
     const _lendBalances = lendPositions?.map((series: ISeries) =>
       getValueInDai(series.baseId, series.fyTokenBalance_!)

@@ -10,6 +10,7 @@ import MainViewWrap from '../components/wraps/MainViewWrap';
 import PanelWrap from '../components/wraps/PanelWrap';
 import { UserContext } from '../contexts/UserContext';
 import HideBalancesSetting from '../components/HideBalancesSetting';
+import CurrencyToggle from '../components/CurrencyToggle';
 
 const Dashboard = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -29,6 +30,7 @@ const Dashboard = () => {
           <Box margin={{ top: '35%' }} gap="medium">
             {/* <DashboardBalances debt="10" collateral="100" positionBalance="10" /> */}
             <HideBalancesSetting width="30%" />
+            <CurrencyToggle />
           </Box>
           <YieldInfo />
         </PanelWrap>

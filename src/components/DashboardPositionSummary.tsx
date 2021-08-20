@@ -28,7 +28,6 @@ const DashboardPositionSummary = ({
   actionType,
   children,
 }: IDashSummary) => {
-  const DENOMINATED_ASSET = 'DAI';
   const [open, setOpen] = useState<boolean>(false);
 
   return (
