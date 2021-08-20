@@ -29,9 +29,12 @@ import ExitButton from '../components/buttons/ExitButton';
 import { useInputValidation } from '../hooks/inputValidationHook';
 import { useTx } from '../hooks/useTx';
 import ModalWrap from '../components/wraps/ModalWrap';
+import { ChainContext } from '../contexts/ChainContext';
+import { useCachedState } from '../hooks/generalHooks';
 
 const VaultPosition = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
+  const prevLoc = useCachedState('lastVisit', '')[0].slice(1).split('/')[0];
 
   const history = useHistory();
   const { id: idFromUrl } = useParams<{ id: string }>();
@@ -39,7 +42,11 @@ const VaultPosition = ({ close }: { close: () => void }) => {
   /* STATE FROM CONTEXT */
 
   const { userState, userActions } = useContext(UserContext) as IUserContext;
-  const { activeAccount, assetMap, seriesMap, vaultMap, selectedVaultId } = userState;
+  const { activeAccount, assetMap, seriesMap, vaultMap, selectedVaultId, vaultsLoading } = userState;
+
+  const {
+    chainState: { account },
+  } = useContext(ChainContext);
 
   const selectedVault: IVault | undefined = vaultMap && vaultMap.get(selectedVaultId || idFromUrl);
 
@@ -285,6 +292,10 @@ const VaultPosition = ({ close }: { close: () => void }) => {
     }
   }, [vaultMap, mergeData.toVault, mergeData.ink, mergeData.art]);
 
+  useEffect(() => {
+    if (account !== selectedVault?.owner) history.push(prevLoc);
+  }, [account, selectedVault, history, prevLoc]);
+
   /* INTERNAL COMPONENTS */
   const CompletedTx = (props: any) => (
     <>
@@ -305,7 +316,7 @@ const VaultPosition = ({ close }: { close: () => void }) => {
   return (
     <>
       {selectedVault && (
-        <ModalWrap toggleModalOpen={() => history.push('/borrow')}>
+        <ModalWrap>
           <CenterPanelWrap>
             <Box fill pad={mobile ? 'medium' : 'large'} gap="medium">
               <Box height={{ min: '250px' }} gap="medium">
@@ -317,7 +328,7 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                       <Text size="small"> {selectedVault?.id} </Text>
                     </Box>
                   </Box>
-                  <ExitButton action={() => history.push('/borrow')} />
+                  <ExitButton action={() => history.goBack()} />
                 </Box>
 
                 {selectedVault?.isActive ? (
@@ -327,6 +338,7 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                         label="Vault debt + interest:"
                         value={`${cleanValue(selectedVault?.art_, vaultBase?.digitFormat!)} ${vaultBase?.symbol}`}
                         icon={<FiTrendingUp />}
+                        loading={vaultsLoading}
                       />
                       <InfoBite
                         label="Maturity date:"
@@ -339,6 +351,7 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                           vaultIlk?.symbol
                         } ( ${collateralizationPercent} %)`}
                         icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
+                        loading={vaultsLoading}
                       />
                     </Box>
                   </SectionWrap>

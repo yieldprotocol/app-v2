@@ -34,7 +34,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
   /* STATE FROM CONTEXT */
 
   const { userState } = useContext(UserContext) as IUserContext;
-  const { selectedSeriesId, seriesMap, assetMap } = userState;
+  const { selectedSeriesId, seriesMap, assetMap, seriesLoading } = userState;
 
   const selectedSeries = seriesMap.get(selectedSeriesId || idFromUrl);
   const selectedBase = assetMap.get(selectedSeries?.baseId!);
@@ -124,7 +124,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
   return (
     <>
       {selectedSeries && (
-        <ModalWrap toggleModalOpen={() => history.push('/lend')} series={selectedSeries}>
+        <ModalWrap series={selectedSeries}>
           <CenterPanelWrap>
             <Box fill gap="medium" pad={mobile ? 'medium' : 'large'}>
               <Box height={{ min: '250px' }} gap="medium">
@@ -136,7 +136,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
                       <Text size="small"> {abbreviateHash(selectedSeries?.fyTokenAddress!, 5)}</Text>
                     </Box>
                   </Box>
-                  <ExitButton action={() => history.push('/lend')} />
+                  <ExitButton action={() => history.goBack()} />
                 </Box>
 
                 <SectionWrap>
@@ -149,11 +149,13 @@ const LendPosition = ({ close }: { close: () => void }) => {
                         selectedBase?.digitFormat!
                       )} ${selectedBase?.symbol!}`}
                       icon={<FiTrendingUp />}
+                      loading={seriesLoading}
                     />
                     <InfoBite
                       label="Current value"
                       value={`${cleanValue(currentValue, selectedBase?.digitFormat!)} ${selectedBase?.symbol!}`}
                       icon={selectedBase?.image}
+                      loading={seriesLoading}
                     />
                     <InfoBite
                       label="Maturity date:"
@@ -224,6 +226,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
                               label="Close Position"
                               icon={<FiArrowRight />}
                               value={`${cleanValue(closeInput, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
+                              loading={seriesLoading}
                             />
                           </Box>
                         </SectionWrap>
