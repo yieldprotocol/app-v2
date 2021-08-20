@@ -115,9 +115,10 @@ export const useChain = () => {
     const signedList = await Promise.all(
       _requestedSigs.map(async (reqSig: ISignData) => {
         const _spender = getSpender(reqSig.spender);
+        
         /* get an ERC20 contract instance. This is only used in the case of fallback tx (when signing is not available) */
         const tokenContract = ERC20__factory.connect(reqSig.target.address, signer) as any;
-
+        
         /*
           Request the signature if using DaiType permit style
         */
@@ -146,7 +147,7 @@ export const useChain = () => {
           );
 
           const args = [
-            reqSig.target.id,
+            reqSig.target.address,
             _spender,
             nonce,
             expiry,
@@ -194,7 +195,7 @@ export const useChain = () => {
 
         // router.forwardPermit(ilkId, true, ilkJoin.address, amount, deadline, v, r, s)
         const args = [
-          reqSig.target.id, // the asset id OR the seriesId (if signing fyToken)
+          reqSig.target.address, // the asset id OR the seriesId (if signing fyToken)
           _spender,
           value,
           deadline,
