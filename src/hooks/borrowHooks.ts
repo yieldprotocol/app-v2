@@ -50,7 +50,7 @@ export const useBorrowActions = () => {
           spender: ilk.joinAddress,
           series,
           ignore:
-            ETH_BASED_ASSETS.includes(selectedIlkId) || ilk.hasJoinAuth /* Ignore if Eth varietal  or already signed */,
+            ETH_BASED_ASSETS.includes(selectedIlkId) || ilk.hasJoinAuth /* Ignore if Eth varietal or already signed */,
         },
       ],
       txCode
@@ -71,6 +71,7 @@ export const useBorrowActions = () => {
         series,
         ignore: !!vault,
       },
+
       {
         operation: LadleActions.Fn.SERVE,
         args: [vaultId, account, _collInput, _input, MAX_128] as LadleActions.Args.SERVE, // TODO calculated slippage values
@@ -117,7 +118,7 @@ export const useBorrowActions = () => {
           target: base,
           spender: 'LADLE',
           series,
-          message: 'Signing Dai Approval',
+          message: 'Signing Approval',
           ignore: series.isMature() || base.hasLadleAuth,
         },
         {
@@ -134,6 +135,8 @@ export const useBorrowActions = () => {
 
     const calls: ICallData[] = [
       ...permits,
+
+      /* BEFORE MATURITY */
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [base.address, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
@@ -141,24 +144,20 @@ export const useBorrowActions = () => {
         ignore: series.isMature(),
       },
       {
-        /* ladle.repay(vaultId, owner, inkAmount, minAmountToRepay) */
         operation: LadleActions.Fn.REPAY,
         args: [vault.id, account, _collInput, _inputAsFyDaiWithSlippage] as LadleActions.Args.REPAY,
         series,
-        ignore: series.isMature() || inputGreaterThanDebt,
+        ignore: series.isMature() || inputGreaterThanDebt, // use if input is NOT more than debt
       },
       {
-        /* ladle.repayVault(vaultId, owner, inkAmount, maxToUse) */
         operation: LadleActions.Fn.REPAY_VAULT,
         args: [vault.id, account, _collInput, MAX_128] as LadleActions.Args.REPAY_VAULT,
         series,
-        ignore: series.isMature() || !inputGreaterThanDebt,
+        ignore: series.isMature() || !inputGreaterThanDebt, // use if input IS more than debt
       },
 
-      /* AFTER MATURITY */
-
+      /* AFTER MATURITY */ // TODO still
       {
-        /* ladle.repayVault(vaultId, owner, inkRetrieved, MAX) */
         operation: LadleActions.Fn.CLOSE,
         args: [vault.id, account, _collInput, _input.mul(-1)] as LadleActions.Args.CLOSE,
         series,
@@ -192,7 +191,7 @@ export const useBorrowActions = () => {
     updateAssets([base]);
   };
 
-  const transfer = async (vault: IVault, to: string) => {
+  const transfer = async (vault: IVault, to: string ) => {
     const txCode = getTxCode(ActionCodes.TRANSFER_VAULT, vault.id);
     const series = seriesMap.get(vault.seriesId);
     const base = assetMap.get(vault.baseId);
@@ -224,7 +223,8 @@ export const useBorrowActions = () => {
     updateVaults([]);
   };
 
-  const merge = async (vault: IVault, to: IVault, ink: string, art: string) => {
+
+  const merge = async (vault: IVault, to: IVault, ink: string, art: string, deleteVault: boolean=false ) => {
     const txCode = getTxCode(ActionCodes.MERGE_VAULT, vault.id);
     const series = seriesMap.get(vault.seriesId);
     const _ink = ink ? ethers.utils.parseEther(ink) : ethers.constants.Zero;
@@ -240,6 +240,13 @@ export const useBorrowActions = () => {
         series,
         ignore: series.mature,
       },
+      {
+        operation: LadleActions.Fn.DESTROY,
+        args: [vault.id] as LadleActions.Args.DESTROY,
+        series,
+        ignore: !deleteVault || vault.art.gt(ethers.constants.Zero) || vault.ink.gt(ethers.constants.Zero),
+      },
+
     ];
     await transact(calls, txCode);
     updateVaults([]);
