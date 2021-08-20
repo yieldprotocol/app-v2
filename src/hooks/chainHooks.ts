@@ -150,7 +150,7 @@ export const useChain = () => {
             _spender,
             nonce,
             expiry,
-            allowed,
+            reqSig.amount || allowed, // use amount if provided, else defaults to MAX.
             v,
             r,
             s,
@@ -183,7 +183,7 @@ export const useChain = () => {
               },
               account,
               _spender,
-              MAX_256
+              reqSig.amount?.toString() || MAX_256
             ),
           /* this is the function for if using fallback approvals */
           () => handleTx(() => tokenContract.approve(_spender, MAX_256), txCode, true),
