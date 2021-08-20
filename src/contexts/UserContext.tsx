@@ -48,6 +48,8 @@ const initState: IUserContextState = {
   dudeSalt: 1,
   showInactiveVaults: false as boolean,
   slippageTolerance: 0.01 as number,
+  vaultsLoading: false as boolean,
+  seriesLoading: false as boolean,
 };
 
 const vaultNameConfig: Config = {
@@ -91,6 +93,10 @@ function userReducer(state: any, action: any) {
       return { ...state, showInactiveVaults: onlyIfChanged(action) };
     case 'setSlippageTolerance':
       return { ...state, slippageTolerance: onlyIfChanged(action) };
+    case 'vaultsLoading':
+      return { ...state, vaultsLoading: onlyIfChanged(action) };
+    case 'seriesLoading':
+      return { ...state, seriesLoading: onlyIfChanged(action) };
 
     default:
       return state;
@@ -265,6 +271,7 @@ const UserProvider = ({ children }: any) => {
   /* Updates the series with relevant *user* data */
   const updateSeries = useCallback(
     async (seriesList: ISeriesRoot[]) => {
+      updateState({ type: 'seriesLoading', payload: true });
       let _publicData: ISeries[] = [];
       let _accountData: ISeries[] = [];
 
@@ -338,6 +345,7 @@ const UserProvider = ({ children }: any) => {
 
       updateState({ type: 'seriesMap', payload: newSeriesMap });
       console.log('SERIES updated (with dynamic data): ', newSeriesMap);
+      updateState({ type: 'seriesLoading', payload: false });
       return newSeriesMap;
     },
     [account]
@@ -346,6 +354,7 @@ const UserProvider = ({ children }: any) => {
   /* Updates the vaults with *user* data */
   const updateVaults = useCallback(
     async (vaultList: IVaultRoot[], force: boolean = false) => {
+      updateState({ type: 'vaultsLoading', payload: true });
       let _vaultList: IVaultRoot[] = vaultList;
       const Cauldron = contractMap.get('Cauldron');
 
@@ -397,6 +406,7 @@ const UserProvider = ({ children }: any) => {
       vaultFromUrl && updateState({ type: 'selectedVaultId', payload: vaultFromUrl });
 
       console.log('VAULTS: ', newVaultMap);
+      updateState({ type: 'vaultsLoading', payload: false });
     },
     [contractMap, vaultFromUrl, _getVaults]
   );

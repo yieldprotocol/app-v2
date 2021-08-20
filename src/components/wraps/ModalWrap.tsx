@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { Avatar, Box, Button, Grid, Header, Layer, ResponsiveContext } from 'grommet';
 
@@ -13,14 +13,14 @@ import { useCachedState } from '../../hooks/generalHooks';
 import { ISeries } from '../../types';
 
 interface IModalWrap {
-  toggleModalOpen: () => void;
   children: any;
   series?: ISeries | undefined;
 }
 
 const StyledLayer = styled(Layer)``;
 
-function ModalWrap({ children, series, toggleModalOpen }: IModalWrap) {
+function ModalWrap({ children, series }: IModalWrap) {
+  const history = useHistory();
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const prevLoc = useCachedState('lastVisit', '')[0].slice(1).split('/')[0];
 
@@ -31,7 +31,7 @@ function ModalWrap({ children, series, toggleModalOpen }: IModalWrap) {
   const _series = series || seriesMap.get(selectedSeriesId);
 
   return (
-    <StyledLayer onClickOutside={() => toggleModalOpen()} full background={_series?.color} animation="none">
+    <StyledLayer onClickOutside={() => history.goBack()} full background={_series?.color} animation="none">
       {!mobile && (
         <>
           <Header
@@ -57,7 +57,7 @@ function ModalWrap({ children, series, toggleModalOpen }: IModalWrap) {
               <Box />
 
               <Box align="end">
-                <Button icon={<FiX onClick={() => toggleModalOpen()} color={_series?.oppStartColor} />} />
+                <Button icon={<FiX onClick={() => history.goBack()} color={_series?.oppStartColor} />} />
               </Box>
             </Grid>
           </Header>
