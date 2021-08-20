@@ -36,6 +36,7 @@ const initState: IUserContextState = {
 
   /* map of asset prices */
   priceMap: new Map<string, Map<string, any>>(),
+  pricesLoading: false as boolean,
 
   /* Current User selections */
   selectedSeriesId: null,
@@ -50,6 +51,7 @@ const initState: IUserContextState = {
   slippageTolerance: 0.01 as number,
   vaultsLoading: false as boolean,
   seriesLoading: false as boolean,
+  assetsLoading: false as boolean,
   hideBalancesSetting: null as string | null,
 };
 
@@ -96,10 +98,14 @@ function userReducer(state: any, action: any) {
       return { ...state, hideBalancesSetting: onlyIfChanged(action) };
     case 'setSlippageTolerance':
       return { ...state, slippageTolerance: onlyIfChanged(action) };
+    case 'pricesLoading':
+      return { ...state, pricesLoading: onlyIfChanged(action) };
     case 'vaultsLoading':
       return { ...state, vaultsLoading: onlyIfChanged(action) };
     case 'seriesLoading':
       return { ...state, seriesLoading: onlyIfChanged(action) };
+    case 'assetsLoading':
+      return { ...state, assetsLoading: onlyIfChanged(action) };
 
     default:
       return state;
@@ -186,6 +192,7 @@ const UserProvider = ({ children }: any) => {
   /* Updates the assets with relevant *user* data */
   const updateAssets = useCallback(
     async (assetList: IAssetRoot[]) => {
+      updateState({ type: 'assetsLoading', payload: true });
       let _publicData: IAssetRoot[] = [];
       let _accountData: IAsset[] = [];
 
@@ -243,6 +250,7 @@ const UserProvider = ({ children }: any) => {
 
       updateState({ type: 'assetMap', payload: newAssetMap });
       console.log('ASSETS updated (with dynamic data): ', newAssetMap);
+      updateState({ type: 'assetsLoading', payload: false });
     },
     [account]
   );
@@ -250,6 +258,8 @@ const UserProvider = ({ children }: any) => {
   /* Updates the prices from the oracle with latest data */ // TODO reduce redundant calls
   const updatePrice = useCallback(
     async (base: string, ilk: string): Promise<ethers.BigNumber> => {
+      updateState({ type: 'pricesLoading', payload: true });
+
       try {
         const _priceMap = userState.priceMap;
         const _basePriceMap = _priceMap.get(base) || new Map<string, any>();
@@ -262,9 +272,11 @@ const UserProvider = ({ children }: any) => {
         _priceMap.set(base, _basePriceMap);
         updateState({ type: 'priceMap', payload: _priceMap });
         console.log('Price Updated: ', base, '->', ilk, ':', price.toString());
+        updateState({ type: 'pricesLoading', payload: false });
         return price;
       } catch (error) {
         console.log(error);
+        updateState({ type: 'pricesLoading', payload: false });
         return ethers.constants.Zero;
       }
     },

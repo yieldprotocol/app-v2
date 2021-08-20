@@ -37,7 +37,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
   /* STATE FROM CONTEXT */
 
   const { userState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, selectedSeriesId, seriesMap, assetMap } = userState;
+  const { activeAccount, selectedSeriesId, seriesMap, assetMap, seriesLoading } = userState;
 
   const selectedSeries = seriesMap.get(selectedSeriesId || idFromUrl);
   const selectedBase = assetMap.get(selectedSeries?.baseId!);
@@ -153,6 +153,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                       label="Liquidity Balance"
                       value={cleanValue(selectedSeries?.poolTokens_, selectedBase?.digitFormat!)}
                       icon={<YieldMark height="1em" startColor={selectedSeries?.startColor} />}
+                      loading={seriesLoading}
                     />
                     {/* <InfoBite 
                 label="Total Pool Liquidity"
@@ -166,6 +167,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                         2
                       )}`}
                       icon={<FiPercent />}
+                      loading={seriesLoading}
                     />
                     <InfoBite label="Maturity date:" value={`${selectedSeries?.fullDate}`} icon={<FiClock />} />
                   </Box>

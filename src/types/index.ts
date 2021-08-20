@@ -27,6 +27,7 @@ export interface IUserContextState {
   seriesMap: Map<string, ISeries>;
   vaultMap: Map<string, IVault>;
   priceMap: Map<string, Map<string, any>>;
+  pricesLoading: boolean;
   selectedSeriesId: string | null;
   selectedIlkId: string | null;
   selectedBaseId: string | null;
@@ -37,6 +38,7 @@ export interface IUserContextState {
   slippageTolerance: number;
   vaultsLoading: boolean;
   seriesLoading: boolean;
+  assetsLoading: boolean;
   hideBalancesSetting: string | null;
 }
 
