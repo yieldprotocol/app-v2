@@ -45,10 +45,6 @@ const Balances = () => {
   const selectedBase = assetMap.get(selectedBaseId);
   const selectedIlk = assetMap.get(selectedIlkId);
 
-  useEffect(() => {
-    console.log('loadingggggg', assetsLoading);
-  }, [assetsLoading]);
-
   return (
     <Box pad="small" justify="center" align="start">
       <Balance image={selectedBase?.image} balance={selectedBase?.balance_} loading={assetsLoading} />
