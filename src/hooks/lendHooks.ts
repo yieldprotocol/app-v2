@@ -92,14 +92,13 @@ export const useLendActions = () => {
           series.poolAddress,
           _input.toString(),
         ] as LadleActions.Args.TRANSFER,
-        series,
         ignore: false,
       },
       {
         operation: LadleActions.Fn.ROUTE,
         args: [account, ethers.constants.Zero] as RoutedActions.Args.SELL_BASE, // TODO calc minFYToken recieved >  transfer slippage
         fnName: RoutedActions.Fn.SELL_BASE,
-        series,
+        targetContract:series.poolContract,
         ignore: false,
       },
     ];
@@ -147,14 +146,13 @@ export const useLendActions = () => {
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [fromSeries.fyTokenAddress, fromSeries.poolAddress, _inputAsFyToken] as LadleActions.Args.TRANSFER,
-        series: fromSeries,
         ignore: fromSeries.seriesIsMature,
       },
       {
         operation: LadleActions.Fn.ROUTE,
         args: [toSeries.poolAddress, ethers.constants.Zero] as RoutedActions.Args.SELL_FYTOKEN,
         fnName: RoutedActions.Fn.SELL_FYTOKEN,
-        series: fromSeries,
+        targetContract:fromSeries.poolContract,
         ignore: fromSeries.seriesIsMature,
       },
 
@@ -163,7 +161,7 @@ export const useLendActions = () => {
         operation: LadleActions.Fn.ROUTE,
         args: [account, _inputAsFyTokenWithSlippage] as RoutedActions.Args.SELL_BASE,
         fnName: RoutedActions.Fn.SELL_BASE,
-        series: toSeries,
+        targetContract:toSeries.poolContract,
         ignore: fromSeries.seriesIsMature,
       },
 
@@ -171,14 +169,12 @@ export const useLendActions = () => {
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [fromSeries.address, toSeries.address, _inputAsFyToken] as LadleActions.Args.TRANSFER,
-        series: fromSeries,
         ignore: !fromSeries.seriesIsMature,
       },
       {
         // ladle.redeemAction(seriesId, pool2.address, fyTokenToRoll)
         operation: LadleActions.Fn.REDEEM,
         args: [fromSeries.address, toSeries.poolAddress, _inputAsFyToken] as LadleActions.Args.REDEEM,
-        series: fromSeries,
         ignore: !fromSeries.seriesIsMature,
       },
       {
@@ -186,7 +182,7 @@ export const useLendActions = () => {
         operation: LadleActions.Fn.ROUTE,
         args: [account, _inputAsFyTokenWithSlippage] as RoutedActions.Args.SELL_BASE,
         fnName: RoutedActions.Fn.SELL_BASE,
-        series: toSeries,
+        targetContract:toSeries.poolContract,
         ignore: !fromSeries.seriesIsMature,
       },
     ];
@@ -232,14 +228,13 @@ export const useLendActions = () => {
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [fyTokenAddress, poolAddress, _inputAsFyToken] as LadleActions.Args.TRANSFER,
-        series,
         ignore: false,
       },
       {
         operation: LadleActions.Fn.ROUTE,
         args: [account, _inputAsFyTokenWithSlippage] as RoutedActions.Args.SELL_FYTOKEN, // TODO calc min transfer slippage
         fnName: RoutedActions.Fn.SELL_FYTOKEN,
-        series,
+        targetContract:series.poolContract,
         ignore: false,
       },
     ];
@@ -275,13 +270,11 @@ export const useLendActions = () => {
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [ series.poolAddress, account, _input] as LadleActions.Args.TRANSFER,
-        series,
         ignore: false,
       },
       {
         operation: LadleActions.Fn.REDEEM,
         args: [series.id, account, ethers.utils.parseEther('1')] as LadleActions.Args.REDEEM,
-        series,
         ignore: false,
       },
     ];

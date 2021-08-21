@@ -6,7 +6,7 @@ import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
 import { DAI_BASED_ASSETS, MAX_128, MAX_256 } from '../utils/constants';
 import { ICallData, ISignData, ISeries, LadleActions } from '../types';
-import { ERC20, ERC20__factory, Ladle, Pool, PoolRouter } from '../contracts';
+import { ERC20, ERC20__factory, Ladle, Pool, PoolRouter, Strategy } from '../contracts';
 import { UserContext } from '../contexts/UserContext';
 
 /*  💨 Calculate the accumulative gas limit (IF ALL calls have a gaslimit then set the total, else undefined ) */
@@ -57,18 +57,17 @@ export const useChain = () => {
 
     /* Encode each of the calls OR preEncoded route calls */
     const encodedCalls = _calls.map((call: ICallData) => {
-      /* get the info required from the series */
-      const { poolContract, poolAddress } = call.series! as ISeries;
-
-      console.log('address from contract:', poolContract.address);
 
       /* 'pre-encode' routed calls if required */
       if (call.operation === LadleActions.Fn.ROUTE) {
-        if (call.fnName) {
-          const encodedFn = (poolContract as Contract).interface.encodeFunctionData(call.fnName, call.args);
-          return _contract.interface.encodeFunctionData(LadleActions.Fn.ROUTE, [poolAddress, encodedFn]);
+        if (call.fnName && call.targetContract) {
+          const encodedFn = (call.targetContract as any).interface.encodeFunctionData(call.fnName, call.args);
+          return _contract.interface.encodeFunctionData(LadleActions.Fn.ROUTE, [
+            call.targetContract.address,
+            encodedFn,
+          ]);
         }
-        throw new Error('Function name required for routing');
+        throw new Error('Function name and contract target required for routing');
       }
       return _contract.interface.encodeFunctionData(call.operation as string, call.args);
     });
@@ -115,10 +114,10 @@ export const useChain = () => {
     const signedList = await Promise.all(
       _requestedSigs.map(async (reqSig: ISignData) => {
         const _spender = getSpender(reqSig.spender);
-        
+
         /* get an ERC20 contract instance. This is only used in the case of fallback tx (when signing is not available) */
         const tokenContract = ERC20__factory.connect(reqSig.target.address, signer) as any;
-        
+
         /*
           Request the signature if using DaiType permit style
         */
@@ -162,7 +161,6 @@ export const useChain = () => {
             operation,
             args,
             ignore: !(v && r && s), // set ignore flag if signature returned is null (ie. fallbackTx was used)
-            series: reqSig.series,
           };
         }
 
@@ -210,7 +208,6 @@ export const useChain = () => {
           operation,
           args,
           ignore: !(v && r && s), // set ignore flag if signature returned is null (ie. fallbackTx was used)
-          series: reqSig.series,
         };
       })
     );

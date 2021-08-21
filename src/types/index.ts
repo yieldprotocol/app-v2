@@ -166,9 +166,8 @@ export interface IVault extends IVaultRoot {
 export interface ICallData {
   args: (string | BigNumberish | boolean)[];
   operation: string | [number, string[]];
-  series: ISeries;
   /* optionals */
-  routeTargetAddr?: string;
+  targetContract?: Strategy | Pool;
   fnName?: string;
   ignore?: boolean;
   overrides?: ethers.CallOverrides;

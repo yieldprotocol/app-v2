@@ -68,7 +68,6 @@ export const useBorrowActions = () => {
       {
         operation: LadleActions.Fn.BUILD,
         args: [selectedSeriesId, selectedIlkId, '0'] as LadleActions.Args.BUILD,
-        series,
         ignore: !!vault,
       },
 
@@ -76,7 +75,6 @@ export const useBorrowActions = () => {
         operation: LadleActions.Fn.SERVE,
         args: [vaultId, account, _collInput, _input, MAX_128] as LadleActions.Args.SERVE, // TODO calculated slippage values
         ignore: false, // never ignore this
-        series,
       },
     ];
 
@@ -140,19 +138,16 @@ export const useBorrowActions = () => {
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [base.address, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
-        series,
         ignore: series.isMature(),
       },
       {
         operation: LadleActions.Fn.REPAY,
         args: [vault.id, account, _collInput, _inputAsFyDaiWithSlippage] as LadleActions.Args.REPAY,
-        series,
         ignore: series.isMature() || inputGreaterThanDebt, // use if input is NOT more than debt
       },
       {
         operation: LadleActions.Fn.REPAY_VAULT,
         args: [vault.id, account, _collInput, MAX_128] as LadleActions.Args.REPAY_VAULT,
-        series,
         ignore: series.isMature() || !inputGreaterThanDebt, // use if input IS more than debt
       },
 
@@ -160,7 +155,6 @@ export const useBorrowActions = () => {
       {
         operation: LadleActions.Fn.CLOSE,
         args: [vault.id, account, _collInput, _input.mul(-1)] as LadleActions.Args.CLOSE,
-        series,
         ignore: !series.isMature(),
       },
 
@@ -183,7 +177,6 @@ export const useBorrowActions = () => {
         operation: LadleActions.Fn.ROLL,
         args: [vault.id, toSeries.id, '2', MAX_128] as LadleActions.Args.ROLL,
         ignore: false,
-        series,
       },
     ];
     await transact(calls, txCode);
@@ -214,7 +207,6 @@ export const useBorrowActions = () => {
       {
         operation: LadleActions.Fn.GIVE,
         args: [vault.id, to] as LadleActions.Args.GIVE,
-        series,
         ignore: series.mature,
       },
     ];
@@ -237,13 +229,11 @@ export const useBorrowActions = () => {
         args: [vault.id, to.id, vault.ink, vault.art] as LadleActions.Args.STIR,
         // TODO: #82 refactor to actually allow for custom ink and art values (right now seems like formatting issues) @marcomariscal
         // args: [vault.id, to.id, _ink, _art] as LadleActions.Args.STIR,
-        series,
         ignore: series.mature,
       },
       {
         operation: LadleActions.Fn.DESTROY,
         args: [vault.id] as LadleActions.Args.DESTROY,
-        series,
         ignore: !deleteVault || vault.art.gt(ethers.constants.Zero) || vault.ink.gt(ethers.constants.Zero),
       },
 

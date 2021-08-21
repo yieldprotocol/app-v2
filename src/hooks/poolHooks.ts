@@ -1,12 +1,14 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { UserContext } from '../contexts/UserContext';
-import { ICallData, SignType, ISeries, ActionCodes, LadleActions, RoutedActions } from '../types';
+import { ICallData, SignType, ISeries, ActionCodes, LadleActions, RoutedActions, IAsset } from '../types';
 import { getTxCode } from '../utils/appUtils';
 import { BLANK_VAULT, DAI_BASED_ASSETS, MAX_128, MAX_256 } from '../utils/constants';
 import { useChain } from './chainHooks';
 
-import { calculateSlippage, fyTokenForMint, mint, sellBase } from '../utils/yieldMath';
+import { calculateSlippage, fyTokenForMint, mint, mintWithBase, sellBase, splitLiquidity } from '../utils/yieldMath';
+import { ChainContext } from '../contexts/ChainContext';
+import SeriesSelector from '../components/selectors/SeriesSelector';
 
 export const usePool = (input: string | undefined) => {
   const poolMax = input;
@@ -15,6 +17,8 @@ export const usePool = (input: string | undefined) => {
 
 /* Hook for chain transactions */
 export const usePoolActions = () => {
+
+  const { chainState: {strategyRootMap} } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
   const { activeAccount: account, selectedIlkId, selectedSeriesId, assetMap } = userState;
   const { updateSeries, updateAssets } = userActions;
@@ -23,12 +27,12 @@ export const usePoolActions = () => {
   const addLiquidity = async (
     input: string,
     series: ISeries,
-    method: 'BUY' | 'BORROW' | string = 'BUY',
-    strategyAddr: string | undefined = undefined,
+    method: 'BUY' | 'BORROW' | string = 'BORROW',
+    strategyAddr: string | undefined = "0xdc70afc194261A7290fAc51E17992A4bF2D4b39b",
   ) => {
     const txCode = getTxCode(ActionCodes.ADD_LIQUIDITY, series.id);
     const _input = ethers.utils.parseEther(input);
-    const base = assetMap.get(series.baseId);
+    const base : IAsset = assetMap.get(series.baseId);
 
     const _strategyAddr = ethers.utils.isAddress(strategyAddr!) ? strategyAddr : undefined;
 
@@ -40,12 +44,22 @@ export const usePoolActions = () => {
       series.getTimeTillMaturity()
     );
 
-    const _inputAsFyToken = sellBase(
+    const [_baseProportion, _fyTokenPortion ] = splitLiquidity(
       series.baseReserves,
       series.fyTokenReserves,
       _input,
-      series.getTimeTillMaturity() 
     )
+    const _baseToFyToken = _baseProportion;
+    const _baseToPool = _input.sub(_baseProportion);
+
+    console.log(_baseProportion.toString(), _fyTokenPortion.toString())
+
+    // const _inputAsFyToken = sellBase(
+    //   series.baseReserves,
+    //   series.fyTokenReserves,
+    //   _input,
+    //   series.getTimeTillMaturity() 
+    // )
 
     const _inputWithSlippage = calculateSlippage(_input);
 
@@ -70,8 +84,7 @@ export const usePoolActions = () => {
        * */
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [series.getBaseAddress(), series.poolAddress, _inputWithSlippage] as LadleActions.Args.TRANSFER,
-        series,
+        args: [base.address, series.poolAddress, _inputWithSlippage] as LadleActions.Args.TRANSFER,
         ignore: method !== 'BUY',
       },
       {
@@ -82,63 +95,57 @@ export const usePoolActions = () => {
           ethers.constants.Zero, // TODO calc minLPtokens slippage
         ] as RoutedActions.Args.MINT_WITH_BASE,
         fnName: RoutedActions.Fn.MINT_WITH_BASE,
-        series,
+        targetContract: series.poolContract,
         ignore: method !== 'BUY',
       },
       {
         operation: LadleActions.Fn.ROUTE,
         args: [account] as RoutedActions.Args.MINT,
         fnName: RoutedActions.Fn.MINT,
-        series,
-        routeTargetAddr: _strategyAddr,
-        ignore: method !== 'BUY' && !_strategyAddr,
+        targetContract: strategyRootMap.get(_strategyAddr),
+        ignore: !(method === 'BUY' && !!_strategyAddr) ,
       },
 
       /**
        * Provide liquidity by BORROWING:
        * */
-      // ladle.transferAction(base, baseJoin, baseToFYToken),
-      // ladle.transferAction(base, pool, baseToPool),
-      // ladle.pourAction(0, pool, baseToFYToken, baseToFYToken),
-      // ladle.routeAction(pool, ['mint', [receiver, true, minimumLPTokenReceived]),
+      {
+        // build Vault with random id
+        operation: LadleActions.Fn.BUILD,
+        args: [selectedSeriesId, selectedIlkId, '0'] as LadleActions.Args.BUILD,
+        ignore: method !== 'BORROW',
+      },
 
-      // {
-      //   // build Vault with random id if required
-      //   operation: LadleActions.Fn.BUILD,
-      //   args: [selectedSeriesId, selectedIlkId, '0'] as LadleActions.Args.BUILD,
-      //   series,
-      //   ignore: method !== 'BORROW',
-      // },
+      {
+        operation: LadleActions.Fn.TRANSFER,
+        args: [base.address, base.joinAddress, _baseToFyToken] as LadleActions.Args.TRANSFER,
+        ignore: method !== 'BORROW',
+      },
 
-      // {
-      //   operation: LadleActions.Fn.TRANSFER,
-      //   args: [series.getBaseAddress(), baseJoin, _inputAsFyToken] as LadleActions.Args.TRANSFER,
-      //   series,
-      //   ignore: method !== 'BORROW',
-      // },
-
-      // {
-      //   operation: LadleActions.Fn.TRANSFER,
-      //   args: [series.getBaseAddress(), series.poolAddress, _inputWithSlippage] as LadleActions.Args.TRANSFER,
-      //   series,
-      //   ignore: method !== 'BORROW',
-      // },
-
-      // {
-      //   operation: LadleActions.Fn.POUR,
-      //   args: [0, series.poolAddress, _inputAsFyToken, _inputAsFyToken] as LadleActions.Args.POUR,
-      //   series,
-      //   ignore: method !== 'BORROW',
-      // },
-
-      // {
-      //   // ladle.mintWithBaseAction(seriesId, receiver, fyTokenToBuy, minLPReceived)
-      //   operation: LadleActions.Fn.ROUTE,
-      //   args: [account, _fyTokenToBuy, ethers.constants.Zero] as RoutedActions.Args.MINT_WITH_BASE,
-      //   fnName: RoutedActions.Fn.MINT_WITH_BASE,
-      //   series,
-      //   ignore: method !== 'BORROW',
-      // },
+      {
+        operation: LadleActions.Fn.TRANSFER,
+        args: [base.address, series.poolAddress, _baseToPool] as LadleActions.Args.TRANSFER,
+        ignore: method !== 'BORROW',
+      },
+      {
+        operation: LadleActions.Fn.POUR,
+        args: [BLANK_VAULT, series.poolAddress, _baseToFyToken, _baseToFyToken] as LadleActions.Args.POUR,
+        ignore: method !== 'BORROW',
+      },
+      {
+        operation: LadleActions.Fn.ROUTE,
+        args: [_strategyAddr || account, true, ethers.constants.Zero] as RoutedActions.Args.MINT,
+        fnName: RoutedActions.Fn.MINT,
+        targetContract: series.poolContract,
+        ignore: !(method === 'BORROW' && !!_strategyAddr),
+      },
+      {
+        operation: LadleActions.Fn.ROUTE,
+        args: [account] as RoutedActions.Args.MINT,
+        fnName: RoutedActions.Fn.MINT,
+        targetContract: strategyRootMap.get(_strategyAddr),
+        ignore: !(method === 'BUY' && !!_strategyAddr) ,
+      },
     ];
 
     await transact(calls, txCode);
@@ -161,7 +168,6 @@ export const usePoolActions = () => {
       toSeries.getTimeTillMaturity()
     );
 
-
     const permits: ICallData[] = await sign(
       [
         /* BEFORE MATURITY */
@@ -178,7 +184,7 @@ export const usePoolActions = () => {
           message: 'Signing ERC20 Token approval',
           ignore: seriesMature,
         },
-
+        
         /* AFTER MATURITY */
         {
           // ladle.forwardPermitAction(seriesId, false, ladle.address, allowance, deadline, v, r, s)
@@ -206,7 +212,6 @@ export const usePoolActions = () => {
           fromSeries.poolAddress,
           _input,
         ] as LadleActions.Args.TRANSFER,
-        series: fromSeries,
         ignore: seriesMature,
       },
       {
@@ -214,7 +219,7 @@ export const usePoolActions = () => {
         operation: LadleActions.Fn.ROUTE,
         args: [toSeries.poolAddress, _input] as RoutedActions.Args.BURN_FOR_BASE,
         fnName: RoutedActions.Fn.BURN_FOR_BASE,
-        series: fromSeries,
+        targetContract: fromSeries.poolContract,
         ignore: seriesMature,
       },
       {
@@ -222,7 +227,7 @@ export const usePoolActions = () => {
         operation: LadleActions.Fn.ROUTE,
         args: [account, _fyTokenToBuy, ethers.constants.Zero] as RoutedActions.Args.MINT_WITH_BASE,
         fnName: RoutedActions.Fn.MINT_WITH_BASE,
-        series: toSeries,
+        targetContract: toSeries.poolContract,
         ignore: seriesMature,
       },
 
@@ -232,14 +237,12 @@ export const usePoolActions = () => {
         // ladle.transferToFYTokenAction(seriesId, fyTokenToRoll)
         operation: LadleActions.Fn.TRANSFER,
         args: [account, fromSeries.id, _input] as LadleActions.Args.TRANSFER,
-        series: fromSeries,
         ignore: !fromSeries.seriesIsMature,
       },
       {
         // ladle.redeemAction(seriesId, pool2.address, fyTokenToRoll)
         operation: LadleActions.Fn.REDEEM,
         args: [fromSeries.id, toSeries.poolAddress, _input] as LadleActions.Args.REDEEM,
-        series: fromSeries,
         ignore: !fromSeries.seriesIsMature,
       },
       {
@@ -247,7 +250,7 @@ export const usePoolActions = () => {
         operation: LadleActions.Fn.ROUTE,
         args: [account, _input, ethers.constants.Zero] as RoutedActions.Args.MINT_WITH_BASE,
         fnName: RoutedActions.Fn.MINT_WITH_BASE,
-        series: toSeries,
+        targetContract: toSeries.poolContract,
         ignore: !seriesMature,
       },
     ];
@@ -289,7 +292,6 @@ export const usePoolActions = () => {
         // router.transferToPool(base.address, fyToken1.address, pool1.address, WAD)
         operation: LadleActions.Fn.TRANSFER,
         args: [series.fyTokenAddress, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
-        series,
         ignore: series.seriesIsMature,
       },
 
@@ -299,7 +301,6 @@ export const usePoolActions = () => {
         operation: LadleActions.Fn.ROUTE,
         args: [account, ethers.constants.Zero] as RoutedActions.Args.BURN_FOR_BASE,
         fnName: RoutedActions.Fn.BURN_FOR_BASE,
-        series,
         ignore: series.seriesIsMature,
       },
 
@@ -308,7 +309,6 @@ export const usePoolActions = () => {
         // router.transferToPool(base.address, fyToken1.address, pool1.address, WAD)
         operation: LadleActions.Fn.TRANSFER,
         args: [series.fyTokenAddress, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
-        series,
         ignore: !series.seriesIsMature,
       },
       {
@@ -316,7 +316,6 @@ export const usePoolActions = () => {
         operation: LadleActions.Fn.ROUTE,
         args: [account, ethers.constants.Zero] as RoutedActions.Args.BURN_FOR_BASE,
         fnName: RoutedActions.Fn.BURN_FOR_BASE,
-        series,
         ignore: !series.seriesIsMature,
       },
     ];

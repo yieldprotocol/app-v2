@@ -128,7 +128,6 @@ export const useCollateralActions = () => {
           args: [selectedIlkId] as LadleActions.Args.JOIN_ETHER,
           ignore: false,
           overrides: { value },
-          series,
         },
       ];
     }
@@ -145,7 +144,6 @@ export const useCollateralActions = () => {
           operation: LadleActions.Fn.EXIT_ETHER,
           args: [account] as LadleActions.Args.EXIT_ETHER,
           ignore: value.gte(ethers.constants.Zero),
-          series,
         },
       ];
     }
@@ -189,7 +187,6 @@ export const useCollateralActions = () => {
       {
         operation: LadleActions.Fn.BUILD,
         args: [selectedSeriesId, selectedIlkId, '0'] as LadleActions.Args.BUILD,
-        series,
         ignore: !!vault,
       },
       // ladle.joinEtherAction(ethId),
@@ -205,7 +202,6 @@ export const useCollateralActions = () => {
           _input,
           ethers.constants.Zero,
         ] as LadleActions.Args.POUR,
-        series,
         ignore: false,
       },
     ];
@@ -239,7 +235,6 @@ export const useCollateralActions = () => {
           _input,
           ethers.constants.Zero,
         ] as LadleActions.Args.POUR,
-        series,
         ignore: false,
       },
       ...removeEth(_input, series),
