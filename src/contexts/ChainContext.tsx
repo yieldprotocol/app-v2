@@ -347,6 +347,7 @@ const ChainProvider = ({ children }: any) => {
           oppEndColor,
           oppTextColor,
           seriesMark: <YieldMark startColor={startColor} endColor={endColor} />,
+          
           // built-in helper functions:
           getTimeTillMaturity: () => series.maturity - Math.round(new Date().getTime() / 1000),
           isMature: async () => series.maturity < (await fallbackLibrary.getBlock('latest')).timestamp,

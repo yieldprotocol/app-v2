@@ -32,7 +32,7 @@ export const useVaultAdmin = () => {
           spender: 'LADLE',
           series,
           message: 'Signing Dai Approval',
-          ignoreIf: series.mature || base.hasLadleAuth,
+          ignoreIf: series.seriesIsMature || base.hasLadleAuth,
         },
       ],
       txCode
@@ -43,7 +43,7 @@ export const useVaultAdmin = () => {
       {
         operation: LadleActions.Fn.GIVE,
         args: [vault.id, to] as LadleActions.Args.GIVE,
-        ignoreIf: series.mature,
+        ignoreIf: series.seriesIsmature,
       },
     ];
 
@@ -65,7 +65,7 @@ export const useVaultAdmin = () => {
         args: [vault.id, to.id, vault.ink, vault.art] as LadleActions.Args.STIR,
         // TODO: #82 refactor to actually allow for custom ink and art values (right now seems like formatting issues) @marcomariscal
         // args: [vault.id, to.id, _ink, _art] as LadleActions.Args.STIR,
-        ignoreIf: series.mature,
+        ignoreIf: series.seriesIsMature,
       },
       {
         operation: LadleActions.Fn.DESTROY,

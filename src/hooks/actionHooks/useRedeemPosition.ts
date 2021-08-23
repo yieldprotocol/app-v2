@@ -50,12 +50,12 @@ export const useRedeemPosition = () => {
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [ series.poolAddress, account, _input] as LadleActions.Args.TRANSFER,
-        ignoreIf: !series.isMature(),
+        ignoreIf: !series.seriesIsMature,
       },
       {
         operation: LadleActions.Fn.REDEEM,
-        args: [account, ethers.utils.parseEther('1')] as LadleActions.Args.REDEEM,
-        ignoreIf: !series.isMature(),
+        args: [series.id, account, ethers.utils.parseEther('1')] as LadleActions.Args.REDEEM,
+        ignoreIf: !series.seriesIsMature,
       },
     ];
     transact(calls, txCode);

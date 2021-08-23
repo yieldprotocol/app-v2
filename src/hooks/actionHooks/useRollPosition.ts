@@ -21,7 +21,7 @@ import { useChain } from '../useChain';
 export const useRollPosition = () => {
 
   const { userState, userActions } = useContext(UserContext);
-  const { activeAccount:account, assetMap } = userState;
+  const { activeAccount:account, assetMap, slippageTolerance } = userState;
   const { updateSeries, updateAssets } = userActions;
 
   const { sign, transact } = useChain();
@@ -36,11 +36,12 @@ export const useRollPosition = () => {
       fromSeries.baseReserves,
       fromSeries.fyTokenReserves,
       _input,
-      secondsToFrom(fromSeries.maturity.toString())
+      fromSeries.getTimeTillMaturity()
     );
+
     const _inputAsFyTokenWithSlippage = calculateSlippage(
       _inputAsFyToken,
-      userState.slippageTolerance.toString(),
+      slippageTolerance.toString(),
       true
     );
 
@@ -73,8 +74,6 @@ export const useRollPosition = () => {
         targetContract:fromSeries.poolContract,
         ignoreIf: fromSeries.seriesIsMature,
       },
-
-      // TODO check if mininumums are the is the correct way around 
       {
         operation: LadleActions.Fn.ROUTE,
         args: [account, _inputAsFyTokenWithSlippage] as RoutedActions.Args.SELL_BASE,
@@ -83,16 +82,26 @@ export const useRollPosition = () => {
         ignoreIf: fromSeries.seriesIsMature,
       },
 
+
+      // await ladle.batch([
+      //   ladle.forwardPermitAction(
+      //     fyToken, ladle, fyTokenRolled, deadline, v, r, s
+      //   ),
+      //   ladle.transferAction(fyToken, fyToken, fyTokenToRoll),
+      //   ladle.redeemAction(fyToken, pool2, fyTokenToRoll),
+      //   ladle.routeAction(pool2, ['sellBase', [receiver, minimumFYTokenReceived]),
+      // ])
+    
       /* AFTER MATURITY */
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [fromSeries.address, toSeries.address, _inputAsFyToken] as LadleActions.Args.TRANSFER,
+        args: [fromSeries.address, fromSeries.address, _inputAsFyToken] as LadleActions.Args.TRANSFER,
         ignoreIf: !fromSeries.seriesIsMature,
       },
       {
         // ladle.redeemAction(seriesId, pool2.address, fyTokenToRoll)
         operation: LadleActions.Fn.REDEEM,
-        args: [toSeries.poolAddress, _inputAsFyToken] as LadleActions.Args.REDEEM,
+        args: [fromSeries.id, fromSeries.poolAddress, _inputAsFyToken] as LadleActions.Args.REDEEM,
         ignoreIf: !fromSeries.seriesIsMature,
       },
       {
