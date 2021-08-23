@@ -14,7 +14,6 @@ import SectionWrap from '../components/wraps/SectionWrap';
 
 import MaxButton from '../components/buttons/MaxButton';
 
-import { useBorrowActions } from '../hooks/borrowHooks';
 import { useCollateralization } from '../hooks/collateralHooks';
 import { useTx } from '../hooks/useTx';
 
@@ -42,6 +41,7 @@ import AltText from '../components/texts/AltText';
 import EtherscanButton from '../components/buttons/EtherscanButton';
 import YieldMark from '../components/logos/YieldMark';
 import YieldCardHeader from '../components/YieldCardHeader';
+import { useBorrow } from '../hooks/useBorrow';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -67,7 +67,7 @@ const Borrow = () => {
   const [vaultToUse, setVaultToUse] = useState<IVault | undefined>(undefined);
   const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
 
-  const { borrow } = useBorrowActions();
+  const borrow = useBorrow();
 
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
   const borrowOutput = cleanValue(

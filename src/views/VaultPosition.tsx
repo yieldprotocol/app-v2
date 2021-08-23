@@ -13,7 +13,6 @@ import { ActionCodes, ActionType, IAsset, ISeries, IUserContext, IVault } from '
 import ActionButtonWrap from '../components/wraps/ActionButtonWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
 import { useCollateralActions, useCollateralization } from '../hooks/collateralHooks';
-import { useBorrowActions } from '../hooks/borrowHooks';
 import SeriesSelector from '../components/selectors/SeriesSelector';
 import MaxButton from '../components/buttons/MaxButton';
 import ActiveTransaction from '../components/ActiveTransaction';
@@ -29,8 +28,13 @@ import ExitButton from '../components/buttons/ExitButton';
 import { useInputValidation } from '../hooks/inputValidationHook';
 import { useTx } from '../hooks/useTx';
 import ModalWrap from '../components/wraps/ModalWrap';
+
 import { ChainContext } from '../contexts/ChainContext';
 import { useCachedState } from '../hooks/generalHooks';
+import { useRepayDebt } from '../hooks/useRepayDebt';
+import { useRollDebt } from '../hooks/useRollDebt';
+import { useVaultAdmin } from '../hooks/useVaultAdmin';
+
 
 const VaultPosition = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -116,7 +120,10 @@ const VaultPosition = ({ close }: { close: () => void }) => {
   const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
 
   /* HOOK FNS */
-  const { repay, borrow, rollDebt, transfer, merge } = useBorrowActions();
+  const repay = useRepayDebt();
+  const rollDebt = useRollDebt();
+  const { transfer, merge } = useVaultAdmin();
+
   const { addCollateral, removeCollateral } = useCollateralActions();
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries, [0, maxRepay]);
