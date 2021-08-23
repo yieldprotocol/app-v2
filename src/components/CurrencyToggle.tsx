@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { Box, Text } from 'grommet';
 import { UserContext } from '../contexts/UserContext';
 
-const CurrencyToggle = () => {
+const CurrencyToggle = (props: any) => {
   const {
     userState: { currencySetting },
     userActions: { setCurrencySetting },
@@ -11,7 +11,7 @@ const CurrencyToggle = () => {
   return (
     <Box gap="small">
       <Text size="small">Show Summary in:</Text>
-      <Box width="50%">
+      <Box width={props.width}>
         <Box direction="row" align="center" justify="center">
           <Box
             fill

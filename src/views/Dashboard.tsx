@@ -7,7 +7,7 @@ import { UserContext } from '../contexts/UserContext';
 import { ActionType, IUserContext, IVault, ISeries } from '../types';
 import YieldInfo from '../components/YieldInfo';
 import DashboardPositions from '../components/DashboardPositions';
-import DashboardBalances from '../components/DashboardBalances';
+import DashboardBalanceSummary from '../components/DashboardBalanceSummary';
 import MainViewWrap from '../components/wraps/MainViewWrap';
 import PanelWrap from '../components/wraps/PanelWrap';
 import HideBalancesSetting from '../components/HideBalancesSetting';
@@ -113,6 +113,7 @@ const Dashboard = () => {
     const _collaterals = vaultPositions?.map((vault: IVault) =>
       getPositionValue(vault.ilkId, vault.ink_, currencySettingAssetId)
     );
+    console.log(_collaterals);
     setTotalCollateral(
       cleanValue(_collaterals.reduce((sum: number, debt: number) => sum + debt, 0).toString(), currencySettingDigits)
     );
@@ -138,16 +139,19 @@ const Dashboard = () => {
   return (
     <MainViewWrap>
       {!mobile && (
-        <PanelWrap align="end">
-          <Box margin={{ top: '35%' }} gap="medium">
-            {/* <DashboardBalances debt="10" collateral="100" positionBalance="10" /> */}
-            <HideBalancesSetting width="30%" />
-            <CurrencyToggle />
+        <PanelWrap justify="between" basis="40%">
+          <Box margin={{ top: '35%' }} gap="medium" fill>
+            <DashboardBalanceSummary
+              debt={totalDebt!}
+              collateral={totalCollateral!}
+              positionBalance={(Number(totalLendBalance!) + Number(totalPoolBalance!)).toString()}
+              digits={currencySettingDigits}
+            />
           </Box>
           <YieldInfo />
         </PanelWrap>
       )}
-      <Box fill pad="large" margin={{ top: 'xlarge' }}>
+      <Box fill pad="large" margin={{ top: 'xlarge' }} align="center">
         {!account && !chainLoading && <Text>Please connect to your account</Text>}
         {account && (
           <Box width={mobile ? undefined : '500px'} gap="medium">
@@ -191,6 +195,12 @@ const Dashboard = () => {
           </Box>
         )}
       </Box>
+      <PanelWrap basis="40%">
+        <Box margin={{ top: '35%' }} gap="medium">
+          <HideBalancesSetting width="30%" />
+          <CurrencyToggle width="50%" />
+        </Box>
+      </PanelWrap>
     </MainViewWrap>
   );
 };
