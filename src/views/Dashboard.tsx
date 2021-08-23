@@ -50,7 +50,8 @@ const Dashboard = () => {
   useEffect(() => {
     const _vaultPositions: IVault[] = Array.from(vaultMap.values())
       .filter((vault: IVault) => showInactiveVaults || vault.isActive)
-      .filter((vault: IVault) => (filterEmpty ? vault.ink.gt(ZERO_BN) || vault.art.gt(ZERO_BN) : true));
+      .filter((vault: IVault) => (filterEmpty ? vault.ink.gt(ZERO_BN) || vault.art.gt(ZERO_BN) : true))
+      .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1));
     // .filter((vault: IVault) => hideBalancesSetting && vault.ink?.gt(ethers.utils.parseEther(hideBalancesSetting)));
     setVaultPositions(_vaultPositions);
   }, [vaultMap, showInactiveVaults, filterEmpty, hideBalancesSetting]);
