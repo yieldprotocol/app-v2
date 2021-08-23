@@ -61,14 +61,16 @@ const Dashboard = () => {
       .filter((_series: ISeries) => (_series ? _series.fyTokenBalance?.gt(ZERO_BN) : true))
       .filter((_series: ISeries) =>
         hideBalancesSetting ? Number(_series.fyTokenBalance_!) > Number(hideBalancesSetting) : true
-      );
+      )
+      .sort((_seriesA: ISeries, _seriesB: ISeries) => (_seriesA.fyTokenBalance?.lt(_seriesB.fyTokenBalance!) ? 1 : -1));
     setLendPositions(_lendPositions);
 
     const _poolPositions: ISeries[] = Array.from(seriesMap.values())
       .filter((_series: ISeries) => (_series ? _series.poolTokens?.gt(ZERO_BN) : true))
       .filter((_series: ISeries) =>
         hideBalancesSetting ? Number(_series.poolTokens_!) > Number(hideBalancesSetting) : true
-      );
+      )
+      .sort((_seriesA: ISeries, _seriesB: ISeries) => (_seriesA.fyTokenBalance?.gt(_seriesB.fyTokenBalance!) ? 1 : -1));
     setPoolPositions(_poolPositions);
   }, [seriesMap, hideBalancesSetting]);
 
