@@ -15,7 +15,6 @@ import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
 import { UserContext } from '../contexts/UserContext';
 import { ActionCodes, ActionType, ISeries, IUserContext } from '../types';
-import { usePool, usePoolActions } from '../hooks/poolHooks';
 import { useTx } from '../hooks/useTx';
 import MaxButton from '../components/buttons/MaxButton';
 import PanelWrap from '../components/wraps/PanelWrap';
@@ -33,6 +32,7 @@ import { useInputValidation } from '../hooks/inputValidationHook';
 import AltText from '../components/texts/AltText';
 import PositionListItem from '../components/PositionItem';
 import YieldCardHeader from '../components/YieldCardHeader';
+import { useAddLiquidity } from '../hooks/useAddLiquidity';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -55,8 +55,8 @@ function Pool() {
   const [stepPosition, setStepPosition] = useState<number>(0);
 
   /* HOOK FNS */
-  const { addLiquidity } = usePoolActions();
-  const { poolMax } = usePool(poolInput);
+  const addLiquidity = useAddLiquidity();
+
 
   /* input validation hooks */
   const { inputError: poolError } = useInputValidation(poolInput, ActionCodes.ADD_LIQUIDITY, selectedSeries, [
