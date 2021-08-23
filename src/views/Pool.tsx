@@ -33,6 +33,7 @@ import { useInputValidation } from '../hooks/inputValidationHook';
 import AltText from '../components/texts/AltText';
 import PositionListItem from '../components/PositionItem';
 import YieldCardHeader from '../components/YieldCardHeader';
+import TransactionWidget from '../components/TransactionWidget';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -264,6 +265,9 @@ function Pool() {
       </CenterPanelWrap>
 
       <PanelWrap right basis="40%">
+        <Box margin={{ top: '10%' }} height="5rem">
+          <TransactionWidget tx={poolTx} />
+        </Box>
         {/* <YieldLiquidity input={poolInput} /> */}
         {!mobile && <PositionSelector actionType={ActionType.POOL} />}
       </PanelWrap>

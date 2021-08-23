@@ -11,7 +11,6 @@ import { TxContext } from '../contexts/TxContext';
 
 import { abbreviateHash } from '../utils/appUtils';
 import YieldAvatar from './YieldAvatar';
-import TransactionWidget from './TransactionWidget';
 import ConnectButton from './buttons/ConnectButton';
 import SidebarSettings from './SidebarSettings';
 import EthMark from './logos/EthMark';
@@ -35,10 +34,6 @@ const YieldAccount = (props: any) => {
     userState: { assetMap, assetsLoading },
   } = useContext(UserContext);
 
-  const {
-    txState: { sigPending, txPending, processPending, processActive },
-  } = useContext(TxContext);
-
   const [settingsOpen, setSettingsOpen] = useState<boolean>();
   const [connectOpen, setConnectOpen] = useState<boolean>();
 
@@ -55,7 +50,7 @@ const YieldAccount = (props: any) => {
 
       {account ? (
         <Box direction="row" gap="xsmall" align="center">
-          {!mobile && <>{processActive ? <TransactionWidget /> : <YieldBalances />}</>}
+          {!mobile && <YieldBalances />}
           <Box round="xsmall" onClick={() => setSettingsOpen(true)} pad="small" justify="center">
             {mobile ? (
               <Text color="text">
