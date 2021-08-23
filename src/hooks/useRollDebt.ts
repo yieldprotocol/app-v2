@@ -8,7 +8,6 @@ import { ETH_BASED_ASSETS, DAI_BASED_ASSETS, MAX_128, BLANK_VAULT } from '../uti
 import { useChain } from './chainHooks';
 
 import { calculateSlippage, secondsToFrom, sellBase } from '../utils/yieldMath';
-import { useCollateralActions } from './collateralHooks';
 
 /* Generic hook for chain transactions */
 export const useRollDebt = () => {
@@ -19,8 +18,7 @@ export const useRollDebt = () => {
   const { selectedIlkId, selectedSeriesId, seriesMap, assetMap } = userState;
   const { updateVaults, updateAssets } = userActions;
 
-  const { addEth, removeEth } = useCollateralActions();
-  const { sign, transact } = useChain();
+  const { transact } = useChain();
 
   const rollDebt = async (vault: IVault, toSeries: ISeries) => {
     const txCode = getTxCode(ActionCodes.ROLL_DEBT, vault.id);

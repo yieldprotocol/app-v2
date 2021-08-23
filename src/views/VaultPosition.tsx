@@ -12,7 +12,6 @@ import { ActionCodes, ActionType, IAsset, ISeries, IUserContext, IVault } from '
 
 import ActionButtonWrap from '../components/wraps/ActionButtonWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
-import { useCollateralActions, useCollateralization } from '../hooks/collateralHooks';
 import SeriesSelector from '../components/selectors/SeriesSelector';
 import MaxButton from '../components/buttons/MaxButton';
 import ActiveTransaction from '../components/ActiveTransaction';
@@ -34,6 +33,9 @@ import { useCachedState } from '../hooks/generalHooks';
 import { useRepayDebt } from '../hooks/useRepayDebt';
 import { useRollDebt } from '../hooks/useRollDebt';
 import { useVaultAdmin } from '../hooks/useVaultAdmin';
+import { useCollateralHelpers } from '../hooks/useCollateralHelpers';
+import { useAddCollateral } from '../hooks/useAddCollateral';
+import { useRemoveCollateral } from '../hooks/useRemoveCollateral';
 
 
 const VaultPosition = ({ close }: { close: () => void }) => {
@@ -58,7 +60,7 @@ const VaultPosition = ({ close }: { close: () => void }) => {
   const vaultIlk: IAsset | undefined = assetMap.get(selectedVault?.ilkId!);
   const vaultSeries: ISeries | undefined = seriesMap.get(selectedVault?.seriesId!);
 
-  const { collateralizationPercent, maxRemove } = useCollateralization(
+  const { collateralizationPercent, maxRemove } = useCollateralHelpers(
     selectedVault?.art.toString(),
     selectedVault?.ink.toString(),
     selectedVault
@@ -124,7 +126,9 @@ const VaultPosition = ({ close }: { close: () => void }) => {
   const rollDebt = useRollDebt();
   const { transfer, merge } = useVaultAdmin();
 
-  const { addCollateral, removeCollateral } = useCollateralActions();
+  const { addCollateral }= useAddCollateral();
+  const { removeCollateral } = useRemoveCollateral();
+
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries, [0, maxRepay]);
   const { inputError: addCollatError } = useInputValidation(addCollatInput, ActionCodes.ADD_COLLATERAL, vaultSeries, [

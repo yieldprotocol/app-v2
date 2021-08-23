@@ -8,7 +8,6 @@ import { ETH_BASED_ASSETS, DAI_BASED_ASSETS, MAX_128, BLANK_VAULT } from '../uti
 import { useChain } from './chainHooks';
 
 import { calculateSlippage, secondsToFrom, sellBase } from '../utils/yieldMath';
-import { useCollateralActions } from './collateralHooks';
 
 export const useBorrowHelpers = () => {
   console.log('use borrow');

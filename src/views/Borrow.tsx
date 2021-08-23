@@ -14,7 +14,6 @@ import SectionWrap from '../components/wraps/SectionWrap';
 
 import MaxButton from '../components/buttons/MaxButton';
 
-import { useCollateralization } from '../hooks/collateralHooks';
 import { useTx } from '../hooks/useTx';
 
 import { UserContext } from '../contexts/UserContext';
@@ -42,6 +41,7 @@ import EtherscanButton from '../components/buttons/EtherscanButton';
 import YieldMark from '../components/logos/YieldMark';
 import YieldCardHeader from '../components/YieldCardHeader';
 import { useBorrow } from '../hooks/useBorrow';
+import { useCollateralHelpers } from '../hooks/useCollateralHelpers';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -75,7 +75,7 @@ const Borrow = () => {
     selectedBase?.digitFormat!
   );
 
-  const { collateralizationPercent, undercollateralized, minCollateral } = useCollateralization(
+  const { collateralizationPercent, undercollateralized, minCollateral } = useCollateralHelpers(
     borrowInput,
     collatInput,
     vaultToUse
