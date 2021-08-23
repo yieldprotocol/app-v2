@@ -32,7 +32,7 @@ import { ChainContext } from '../contexts/ChainContext';
 import { useCachedState } from '../hooks/generalHooks';
 import { useRepayDebt } from '../hooks/actionHooks/useRepayDebt';
 import { useRollDebt } from '../hooks/actionHooks/useRollDebt';
-import { useVaultAdmin } from '../hooks/useVaultAdmin';
+import { useVaultAdmin } from '../hooks/actionHooks/useVaultAdmin';
 import { useCollateralHelpers } from '../hooks/actionHelperHooks/useCollateralHelpers';
 import { useAddCollateral } from '../hooks/actionHooks/useAddCollateral';
 import { useRemoveCollateral } from '../hooks/actionHooks/useRemoveCollateral';
