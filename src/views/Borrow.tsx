@@ -35,7 +35,7 @@ import TransactButton from '../components/buttons/TransactButton';
 import { useApr } from '../hooks/aprHook';
 import PositionAvatar from '../components/PositionAvatar';
 import VaultDropSelector from '../components/selectors/VaultDropSelector';
-import { useInputValidation } from '../hooks/inputValidationHook';
+import { useInputValidation } from '../hooks/useInputValidation';
 import AltText from '../components/texts/AltText';
 import EtherscanButton from '../components/buttons/EtherscanButton';
 import YieldMark from '../components/logos/YieldMark';

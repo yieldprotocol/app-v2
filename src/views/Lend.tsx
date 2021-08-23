@@ -29,7 +29,7 @@ import InfoBite from '../components/InfoBite';
 import TransactButton from '../components/buttons/TransactButton';
 
 import { useApr } from '../hooks/aprHook';
-import { useInputValidation } from '../hooks/inputValidationHook';
+import { useInputValidation } from '../hooks/useInputValidation';
 import { useTx } from '../hooks/useTx';
 import AltText from '../components/texts/AltText';
 import PositionListItem from '../components/PositionItem';
