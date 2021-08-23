@@ -112,7 +112,6 @@ const DashboardPositions = ({ actionType }: { actionType: ActionType }) => {
     const _collaterals = vaultPositions?.map((vault: IVault) =>
       getPositionValue(vault.ilkId, vault.ink_, currencySettingAssetId)
     );
-    console.log(_collaterals);
     setTotalCollateral(
       cleanValue(_collaterals.reduce((sum: number, debt: number) => sum + debt, 0).toString(), currencySettingDigits)
     );
