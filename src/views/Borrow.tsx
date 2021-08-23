@@ -32,7 +32,7 @@ import { Gauge } from '../components/Gauge';
 import InfoBite from '../components/InfoBite';
 import NextButton from '../components/buttons/NextButton';
 import TransactButton from '../components/buttons/TransactButton';
-import { useApr } from '../hooks/aprHook';
+import { useApr } from '../hooks/useApr';
 import PositionAvatar from '../components/PositionAvatar';
 import VaultDropSelector from '../components/selectors/VaultDropSelector';
 import { useInputValidation } from '../hooks/useInputValidation';

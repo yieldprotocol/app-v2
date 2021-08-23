@@ -5,7 +5,7 @@ import { UserContext } from '../contexts/UserContext';
 import { ICallData, IVault, SignType, ISeries, ActionCodes, IUserContext, LadleActions } from '../types';
 import { getTxCode, cleanValue } from '../utils/appUtils';
 import { DAI_BASED_ASSETS, ETH_BASED_ASSETS } from '../utils/constants';
-import { useChain } from './chainHooks';
+import { useChain } from './useChain';
 
 import { calculateCollateralizationRatio, calculateMinCollateral } from '../utils/yieldMath';
 

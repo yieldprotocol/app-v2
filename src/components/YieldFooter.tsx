@@ -5,7 +5,7 @@ import { Text, Box, Button, ResponsiveContext, Footer, Collapsible, Select, Laye
 import { toast } from 'react-toastify';
 import { ChainContext } from '../contexts/ChainContext';
 
-import { useTimeTravel } from '../hooks/timeTravel';
+import { useTimeTravel } from '../hooks/useTimeTravel';
 import { UserContext } from '../contexts/UserContext';
 import { ApprovalType, IAsset } from '../types';
 

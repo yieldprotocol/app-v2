@@ -28,7 +28,7 @@ import NextButton from '../components/buttons/NextButton';
 import InfoBite from '../components/InfoBite';
 import TransactButton from '../components/buttons/TransactButton';
 
-import { useApr } from '../hooks/aprHook';
+import { useApr } from '../hooks/useApr';
 import { useInputValidation } from '../hooks/useInputValidation';
 import { useTx } from '../hooks/useTx';
 import AltText from '../components/texts/AltText';
