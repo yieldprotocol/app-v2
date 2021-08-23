@@ -45,7 +45,7 @@ const Dashboard = () => {
   const [totalLendBalance, setTotalLendBalance] = useState<string | null>(null);
   const [totalPoolBalance, setTotalPoolBalance] = useState<string | null>(null);
   const currencySettingAssetId = currencySetting === 'ETH' ? WETH : DAI;
-  const currencySettingDigits = currencySetting === 'ETH' ? 6 : 2;
+  const currencySettingDigits = currencySetting === 'ETH' ? 4 : 2;
 
   useEffect(() => {
     const _vaultPositions: IVault[] = Array.from(vaultMap.values())
@@ -74,9 +74,6 @@ const Dashboard = () => {
   useEffect(() => {
     setAllPositions([...vaultPositions, ...lendPositions, ...poolPositions]);
   }, [vaultPositions, lendPositions, poolPositions]);
-
-  // calculate total balances
-  useEffect(() => {}, []);
 
   /* get a single position's ink or art in dai or eth (input the asset id): value can be art, ink, fyToken, or pooToken balances */
   const getPositionValue = useCallback(
@@ -113,7 +110,6 @@ const Dashboard = () => {
     const _collaterals = vaultPositions?.map((vault: IVault) =>
       getPositionValue(vault.ilkId, vault.ink_, currencySettingAssetId)
     );
-    console.log(_collaterals);
     setTotalCollateral(
       cleanValue(_collaterals.reduce((sum: number, debt: number) => sum + debt, 0).toString(), currencySettingDigits)
     );
