@@ -1,21 +1,16 @@
 import { ethers } from 'ethers';
-import { useContext, useEffect, useState } from 'react';
-import { ChainContext } from '../../contexts/ChainContext';
+import { useContext } from 'react';
 import { UserContext } from '../../contexts/UserContext';
 import {
   ICallData,
-  SignType,
   ISeries,
   ActionCodes,
   LadleActions,
   RoutedActions,
-  IUserContextState,
 } from '../../types';
 import { getTxCode } from '../../utils/appUtils';
-import { DAI_BASED_ASSETS, MAX_128, MAX_256 } from '../../utils/constants';
-import { buyBase, buyFYToken, calculateSlippage, secondsToFrom, sellBase, sellFYToken } from '../../utils/yieldMath';
+import { calculateSlippage, sellBase } from '../../utils/yieldMath';
 import { useChain } from '../useChain';
-
 
 /* Lend Actions Hook */
 export const useRollPosition = () => {
@@ -39,7 +34,7 @@ export const useRollPosition = () => {
       fromSeries.getTimeTillMaturity()
     );
 
-    const _inputAsFyTokenWithSlippage = calculateSlippage(
+    const _minimumFYTokenReceived = calculateSlippage(
       _inputAsFyToken,
       slippageTolerance.toString(),
       true
@@ -76,22 +71,12 @@ export const useRollPosition = () => {
       },
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [account, _inputAsFyTokenWithSlippage] as RoutedActions.Args.SELL_BASE,
+        args: [account, _minimumFYTokenReceived] as RoutedActions.Args.SELL_BASE,
         fnName: RoutedActions.Fn.SELL_BASE,
         targetContract:toSeries.poolContract,
         ignoreIf: fromSeries.seriesIsMature,
       },
 
-
-      // await ladle.batch([
-      //   ladle.forwardPermitAction(
-      //     fyToken, ladle, fyTokenRolled, deadline, v, r, s
-      //   ),
-      //   ladle.transferAction(fyToken, fyToken, fyTokenToRoll),
-      //   ladle.redeemAction(fyToken, pool2, fyTokenToRoll),
-      //   ladle.routeAction(pool2, ['sellBase', [receiver, minimumFYTokenReceived]),
-      // ])
-    
       /* AFTER MATURITY */
       {
         operation: LadleActions.Fn.TRANSFER,
@@ -101,19 +86,21 @@ export const useRollPosition = () => {
       {
         // ladle.redeemAction(seriesId, pool2.address, fyTokenToRoll)
         operation: LadleActions.Fn.REDEEM,
-        args: [fromSeries.id, fromSeries.poolAddress, _inputAsFyToken] as LadleActions.Args.REDEEM,
+        args: [fromSeries.id, toSeries.poolAddress, _inputAsFyToken] as LadleActions.Args.REDEEM,
         ignoreIf: !fromSeries.seriesIsMature,
       },
       {
         // ladle.sellBaseAction(series2Id, receiver, minimumFYTokenToReceive)
         operation: LadleActions.Fn.ROUTE,
-        args: [account, _inputAsFyTokenWithSlippage] as RoutedActions.Args.SELL_BASE,
+        args: [account, _minimumFYTokenReceived] as RoutedActions.Args.SELL_BASE,
         fnName: RoutedActions.Fn.SELL_BASE,
-        targetContract:toSeries.poolContract,
+        targetContract: toSeries.poolContract,
         ignoreIf: !fromSeries.seriesIsMature,
       },
     ];
+
     await transact(calls, txCode);
+
     updateSeries([fromSeries, toSeries]);
     updateAssets([base]);
   };
