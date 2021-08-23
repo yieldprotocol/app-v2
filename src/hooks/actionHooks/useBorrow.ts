@@ -47,7 +47,7 @@ export const useBorrow = () => {
           spender: ilk.joinAddress,
           series,
           ignore:
-            ETH_BASED_ASSETS.includes(selectedIlkId) || ilk.hasJoinAuth /* Ignore if Eth varietal or already signed */,
+            ETH_BASED_ASSETS.includes(selectedIlkId),
         },
       ],
       txCode
@@ -67,7 +67,6 @@ export const useBorrow = () => {
         args: [selectedSeriesId, selectedIlkId, '0'] as LadleActions.Args.BUILD,
         ignore: !!vault,
       },
-
       {
         operation: LadleActions.Fn.SERVE,
         args: [vaultId, account, _collInput, _input, MAX_128] as LadleActions.Args.SERVE, // TODO calculated slippage values
@@ -77,7 +76,6 @@ export const useBorrow = () => {
 
     /* handle the transaction */
     await transact(calls, txCode);
-    
     /* When complete, update vaults.
       If a vault was provided, update it only,
       else update ALL vaults (by passing an empty array)

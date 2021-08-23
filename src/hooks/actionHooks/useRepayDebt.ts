@@ -51,7 +51,7 @@ export const useRepayDebt = () => {
           spender: 'LADLE',
           series,
           message: 'Signing Approval',
-          ignore: series.isMature() || base.hasLadleAuth,
+          ignore: series.isMature(),
         },
         {
           // after maturity
@@ -59,7 +59,7 @@ export const useRepayDebt = () => {
           spender: base.joinAddress,
           series,
           message: 'Signing Dai Approval',
-          ignore: !series.isMature() || base.hasJoinAuth,
+          ignore: !series.isMature(),
         },
       ],
       txCode
@@ -85,7 +85,7 @@ export const useRepayDebt = () => {
         ignore: series.isMature() || !inputGreaterThanDebt, // use if input IS more than debt
       },
 
-      /* AFTER MATURITY */ // TODO still
+      /* AFTER MATURITY */ 
       {
         operation: LadleActions.Fn.CLOSE,
         args: [vault.id, account, _collInput, _input.mul(-1)] as LadleActions.Args.CLOSE,
