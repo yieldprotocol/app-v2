@@ -70,7 +70,7 @@ export const useAddLiquidity = () => {
           spender: 'LADLE',
           series,
           message: 'Signing ERC20 Token approval',
-          ignore: false,
+          ignoreIf: false,
         },
       ],
       txCode
@@ -85,7 +85,7 @@ export const useAddLiquidity = () => {
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [base.address, series.poolAddress, _inputWithSlippage] as LadleActions.Args.TRANSFER,
-        ignore: method !== 'BUY',
+        ignoreIf: method !== 'BUY',
       },
       {
         operation: LadleActions.Fn.ROUTE,
@@ -96,14 +96,14 @@ export const useAddLiquidity = () => {
         ] as RoutedActions.Args.MINT_WITH_BASE,
         fnName: RoutedActions.Fn.MINT_WITH_BASE,
         targetContract: series.poolContract,
-        ignore: method !== 'BUY',
+        ignoreIf: method !== 'BUY',
       },
       {
         operation: LadleActions.Fn.ROUTE,
         args: [account] as RoutedActions.Args.MINT,
         fnName: RoutedActions.Fn.MINT,
         targetContract: strategyRootMap.get(_strategyAddr).strategyContract,
-        ignore: !(method === 'BUY' && !!_strategyAddr) ,
+        ignoreIf: !(method === 'BUY' && !!_strategyAddr) ,
       },
 
       /**
@@ -113,38 +113,38 @@ export const useAddLiquidity = () => {
         // build Vault with random id
         operation: LadleActions.Fn.BUILD,
         args: [selectedSeriesId, selectedIlkId, '0'] as LadleActions.Args.BUILD,
-        ignore: method !== 'BORROW',
+        ignoreIf: method !== 'BORROW',
       },
 
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [base.address, base.joinAddress, _baseToFyToken] as LadleActions.Args.TRANSFER,
-        ignore: method !== 'BORROW',
+        ignoreIf: method !== 'BORROW',
       },
 
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [base.address, series.poolAddress, _baseToPool] as LadleActions.Args.TRANSFER,
-        ignore: method !== 'BORROW',
+        ignoreIf: method !== 'BORROW',
       },
       {
         operation: LadleActions.Fn.POUR,
         args: [BLANK_VAULT, series.poolAddress, _baseToFyToken, _baseToFyToken] as LadleActions.Args.POUR,
-        ignore: method !== 'BORROW',
+        ignoreIf: method !== 'BORROW',
       },
       {
         operation: LadleActions.Fn.ROUTE,
         args: [_strategyAddr || account, true, ethers.constants.Zero] as RoutedActions.Args.MINT,
         fnName: RoutedActions.Fn.MINT,
         targetContract: series.poolContract,
-        ignore: !(method === 'BORROW' && !!_strategyAddr),
+        ignoreIf: !(method === 'BORROW' && !!_strategyAddr),
       },
       {
         operation: LadleActions.Fn.ROUTE,
         args: [account] as RoutedActions.Args.MINT,
         fnName: RoutedActions.Fn.MINT,
         targetContract: strategyRootMap.get(_strategyAddr).strategyContract,
-        ignore: !(method === 'BUY' && !!_strategyAddr) ,
+        ignoreIf: !(method === 'BUY' && !!_strategyAddr) ,
       },
     ];
 

@@ -27,7 +27,7 @@ export const useRemoveCollateral = () => {
         {
           operation: LadleActions.Fn.EXIT_ETHER,
           args: [account] as LadleActions.Args.EXIT_ETHER,
-          ignore: value.gte(ethers.constants.Zero),
+          ignoreIf: value.gte(ethers.constants.Zero),
         },
       ];
     }
@@ -59,7 +59,7 @@ export const useRemoveCollateral = () => {
           _input,
           ethers.constants.Zero,
         ] as LadleActions.Args.POUR,
-        ignore: false,
+        ignoreIf: false,
       },
       ...removeEth(_input, series),
     ];

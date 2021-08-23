@@ -30,7 +30,7 @@ export const useRollDebt = () => {
         // ladle.rollAction(vaultId: string, newSeriesId: string, max: BigNumberish)
         operation: LadleActions.Fn.ROLL,
         args: [vault.id, toSeries.id, '2', MAX_128] as LadleActions.Args.ROLL,
-        ignore: false,
+        ignoreIf: series.isMature(),
       },
     ];
     await transact(calls, txCode);

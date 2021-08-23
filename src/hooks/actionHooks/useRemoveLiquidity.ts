@@ -43,7 +43,7 @@ export const useRemoveLiquidity = () => {
           series,
           spender: 'POOLROUTER',
           message: 'Signing ERC20 Token approval',
-          ignore: false,
+          ignoreIf: false,
         },
       ],
       txCode
@@ -56,7 +56,7 @@ export const useRemoveLiquidity = () => {
         // router.transferToPool(base.address, fyToken1.address, pool1.address, WAD)
         operation: LadleActions.Fn.TRANSFER,
         args: [series.fyTokenAddress, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
-        ignore: series.seriesIsMature,
+        ignoreIf: series.seriesIsMature,
       },
 
       // BEFORE MATURITY
@@ -65,7 +65,7 @@ export const useRemoveLiquidity = () => {
         operation: LadleActions.Fn.ROUTE,
         args: [account, ethers.constants.Zero] as RoutedActions.Args.BURN_FOR_BASE,
         fnName: RoutedActions.Fn.BURN_FOR_BASE,
-        ignore: series.seriesIsMature,
+        ignoreIf: series.seriesIsMature,
       },
 
       // AFTER MATURITY
@@ -73,14 +73,14 @@ export const useRemoveLiquidity = () => {
         // router.transferToPool(base.address, fyToken1.address, pool1.address, WAD)
         operation: LadleActions.Fn.TRANSFER,
         args: [series.fyTokenAddress, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
-        ignore: !series.seriesIsMature,
+        ignoreIf: !series.seriesIsMature,
       },
       {
         // burnForBase(receiver, minBaseReceived),
         operation: LadleActions.Fn.ROUTE,
         args: [account, ethers.constants.Zero] as RoutedActions.Args.BURN_FOR_BASE,
         fnName: RoutedActions.Fn.BURN_FOR_BASE,
-        ignore: !series.seriesIsMature,
+        ignoreIf: !series.seriesIsMature,
       },
     ];
     await transact(calls, txCode);

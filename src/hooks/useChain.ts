@@ -52,7 +52,7 @@ export const useChain = () => {
     const _contract: Contract = contractMap.get('Ladle').connect(signer) as Ladle;
 
     /* First, filter out any ignored calls */
-    const _calls = calls.filter((call: ICallData) => !call.ignore);
+    const _calls = calls.filter((call: ICallData) => !call.ignoreIf);
     console.log('Batch multicalls: ', _calls);
 
     /* Encode each of the calls OR preEncoded route calls */
@@ -110,7 +110,7 @@ export const useChain = () => {
     };
 
     /* First, filter out any ignored calls */
-    const _requestedSigs = requestedSignatures.filter((_rs: ISignData) => !_rs.ignore);
+    const _requestedSigs = requestedSignatures.filter((_rs: ISignData) => !_rs.ignoreIf);
     const signedList = await Promise.all(
       _requestedSigs.map(async (reqSig: ISignData) => {
         const _spender = getSpender(reqSig.spender);
@@ -160,7 +160,7 @@ export const useChain = () => {
           return {
             operation,
             args,
-            ignore: !(v && r && s), // set ignore flag if signature returned is null (ie. fallbackTx was used)
+            ignoreIf: !(v && r && s), // set ignore flag if signature returned is null (ie. fallbackTx was used)
           };
         }
 
@@ -207,13 +207,13 @@ export const useChain = () => {
         return {
           operation,
           args,
-          ignore: !(v && r && s), // set ignore flag if signature returned is null (ie. fallbackTx was used)
+          ignoreIf: !(v && r && s), // set ignore flag if signature returned is null (ie. fallbackTx was used)
         };
       })
     );
 
     /* Returns the processed list of txs required as ICallData[] */
-    return signedList.filter((x: ICallData) => !x.ignore);
+    return signedList.filter((x: ICallData) => !x.ignoreIf);
   };
 
   return { sign, transact };

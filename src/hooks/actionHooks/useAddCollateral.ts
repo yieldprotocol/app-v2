@@ -28,7 +28,7 @@ export const useAddCollateral = () => {
         {
           operation: LadleActions.Fn.JOIN_ETHER,
           args: [selectedIlkId] as LadleActions.Args.JOIN_ETHER,
-          ignore: false,
+          ignoreIf: false,
           overrides: { value },
         },
       ];
@@ -62,7 +62,7 @@ export const useAddCollateral = () => {
           target: ilk,
           spender: ilk.joinAddress,
           series,
-          ignore: _isEthBased,
+          ignoreIf: _isEthBased,
         },
       ],
       txCode
@@ -73,7 +73,7 @@ export const useAddCollateral = () => {
       {
         operation: LadleActions.Fn.BUILD,
         args: [selectedSeriesId, selectedIlkId, '0'] as LadleActions.Args.BUILD,
-        ignore: !!vault,
+        ignoreIf: !!vault,
       },
       // ladle.joinEtherAction(ethId),
       ...addEth(_input, series),
@@ -88,7 +88,7 @@ export const useAddCollateral = () => {
           _input,
           ethers.constants.Zero,
         ] as LadleActions.Args.POUR,
-        ignore: false,
+        ignoreIf: false,
       },
     ];
 

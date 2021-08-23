@@ -169,7 +169,7 @@ export interface ICallData {
   /* optionals */
   targetContract?: Strategy | Pool;
   fnName?: string;
-  ignore?: boolean;
+  ignoreIf?: boolean;
   overrides?: ethers.CallOverrides;
 }
 
@@ -181,7 +181,7 @@ export interface ISignData {
   amount?: BigNumberish;
   
   message?: string; // optional messaging for UI
-  ignore?: boolean; // conditional for ignoring
+  ignoreIf?: boolean; // conditional for ignoring
   domain?: IDomain;
 }
 

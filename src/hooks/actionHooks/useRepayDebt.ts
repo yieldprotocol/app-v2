@@ -51,7 +51,7 @@ export const useRepayDebt = () => {
           spender: 'LADLE',
           series,
           message: 'Signing Approval',
-          ignore: series.isMature(),
+          ignoreIf: series.isMature(),
         },
         {
           // after maturity
@@ -59,7 +59,7 @@ export const useRepayDebt = () => {
           spender: base.joinAddress,
           series,
           message: 'Signing Dai Approval',
-          ignore: !series.isMature(),
+          ignoreIf: !series.isMature(),
         },
       ],
       txCode
@@ -72,24 +72,24 @@ export const useRepayDebt = () => {
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [base.address, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
-        ignore: series.isMature(),
+        ignoreIf: series.isMature(),
       },
       {
         operation: LadleActions.Fn.REPAY,
         args: [vault.id, account, _collInput, _inputAsFyDaiWithSlippage] as LadleActions.Args.REPAY,
-        ignore: series.isMature() || inputGreaterThanDebt, // use if input is NOT more than debt
+        ignoreIf: series.isMature() || inputGreaterThanDebt, // use if input is NOT more than debt
       },
       {
         operation: LadleActions.Fn.REPAY_VAULT,
         args: [vault.id, account, _collInput, MAX_128] as LadleActions.Args.REPAY_VAULT,
-        ignore: series.isMature() || !inputGreaterThanDebt, // use if input IS more than debt
+        ignoreIf: series.isMature() || !inputGreaterThanDebt, // use if input IS more than debt
       },
 
       /* AFTER MATURITY */ 
       {
         operation: LadleActions.Fn.CLOSE,
         args: [vault.id, account, _collInput, _input.mul(-1)] as LadleActions.Args.CLOSE,
-        ignore: !series.isMature(),
+        ignoreIf: !series.isMature(),
       },
 
       ...removeEth(_collInput, series),

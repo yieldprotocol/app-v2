@@ -53,7 +53,7 @@ export const useRollLiquidity = () => {
           spender: 'LADLE',
           series: fromSeries,
           message: 'Signing ERC20 Token approval',
-          ignore: seriesMature,
+          ignoreIf: seriesMature,
         },
         
         /* AFTER MATURITY */
@@ -63,7 +63,7 @@ export const useRollLiquidity = () => {
           spender: 'LADLE',
           series: fromSeries,
           message: 'Signing ERC20 Token approval',
-          ignore: !fromSeries.seriesIsMature,
+          ignoreIf: !fromSeries.seriesIsMature,
         },
       ],
       txCode
@@ -83,7 +83,7 @@ export const useRollLiquidity = () => {
           fromSeries.poolAddress,
           _input,
         ] as LadleActions.Args.TRANSFER,
-        ignore: seriesMature,
+        ignoreIf: seriesMature,
       },
       {
         // router.burnForBase(pool.address, pool2.address, minBaseReceived)
@@ -91,7 +91,7 @@ export const useRollLiquidity = () => {
         args: [toSeries.poolAddress, _input] as RoutedActions.Args.BURN_FOR_BASE,
         fnName: RoutedActions.Fn.BURN_FOR_BASE,
         targetContract: fromSeries.poolContract,
-        ignore: seriesMature,
+        ignoreIf: seriesMature,
       },
       {
         // router.mintWithBase( base.address, fyToken2.address, receiver, fyTokenToBuy, minLPReceived)
@@ -99,7 +99,7 @@ export const useRollLiquidity = () => {
         args: [account, _fyTokenToBuy, ethers.constants.Zero] as RoutedActions.Args.MINT_WITH_BASE,
         fnName: RoutedActions.Fn.MINT_WITH_BASE,
         targetContract: toSeries.poolContract,
-        ignore: seriesMature,
+        ignoreIf: seriesMature,
       },
 
       /* AFTER MATURITY */
@@ -108,13 +108,13 @@ export const useRollLiquidity = () => {
         // ladle.transferToFYTokenAction(seriesId, fyTokenToRoll)
         operation: LadleActions.Fn.TRANSFER,
         args: [account, fromSeries.id, _input] as LadleActions.Args.TRANSFER,
-        ignore: !fromSeries.seriesIsMature,
+        ignoreIf: !fromSeries.seriesIsMature,
       },
       {
         // ladle.redeemAction(seriesId, pool2.address, fyTokenToRoll)
         operation: LadleActions.Fn.REDEEM,
         args: [fromSeries.id, toSeries.poolAddress, _input] as LadleActions.Args.REDEEM,
-        ignore: !fromSeries.seriesIsMature,
+        ignoreIf: !fromSeries.seriesIsMature,
       },
       {
         // ladle.mintWithBase(series2Id, receiver, fyTokenToBuy, minLPReceived),
@@ -122,7 +122,7 @@ export const useRollLiquidity = () => {
         args: [account, _input, ethers.constants.Zero] as RoutedActions.Args.MINT_WITH_BASE,
         fnName: RoutedActions.Fn.MINT_WITH_BASE,
         targetContract: toSeries.poolContract,
-        ignore: !seriesMature,
+        ignoreIf: !seriesMature,
       },
     ];
 

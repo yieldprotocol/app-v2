@@ -51,7 +51,7 @@ export const useRollPosition = () => {
           spender: 'LADLE',
           series: fromSeries,
           message: 'Signing ERC20 Token approval',
-          ignore: false,
+          ignoreIf: false,
         },
       ],
       txCode
@@ -64,14 +64,14 @@ export const useRollPosition = () => {
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [fromSeries.fyTokenAddress, fromSeries.poolAddress, _inputAsFyToken] as LadleActions.Args.TRANSFER,
-        ignore: fromSeries.seriesIsMature,
+        ignoreIf: fromSeries.seriesIsMature,
       },
       {
         operation: LadleActions.Fn.ROUTE,
         args: [toSeries.poolAddress, ethers.constants.Zero] as RoutedActions.Args.SELL_FYTOKEN,
         fnName: RoutedActions.Fn.SELL_FYTOKEN,
         targetContract:fromSeries.poolContract,
-        ignore: fromSeries.seriesIsMature,
+        ignoreIf: fromSeries.seriesIsMature,
       },
 
       // TODO check if mininumums are the is the correct way around 
@@ -80,20 +80,20 @@ export const useRollPosition = () => {
         args: [account, _inputAsFyTokenWithSlippage] as RoutedActions.Args.SELL_BASE,
         fnName: RoutedActions.Fn.SELL_BASE,
         targetContract:toSeries.poolContract,
-        ignore: fromSeries.seriesIsMature,
+        ignoreIf: fromSeries.seriesIsMature,
       },
 
       /* AFTER MATURITY */
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [fromSeries.address, toSeries.address, _inputAsFyToken] as LadleActions.Args.TRANSFER,
-        ignore: !fromSeries.seriesIsMature,
+        ignoreIf: !fromSeries.seriesIsMature,
       },
       {
         // ladle.redeemAction(seriesId, pool2.address, fyTokenToRoll)
         operation: LadleActions.Fn.REDEEM,
         args: [fromSeries.address, toSeries.poolAddress, _inputAsFyToken] as LadleActions.Args.REDEEM,
-        ignore: !fromSeries.seriesIsMature,
+        ignoreIf: !fromSeries.seriesIsMature,
       },
       {
         // ladle.sellBaseAction(series2Id, receiver, minimumFYTokenToReceive)
@@ -101,7 +101,7 @@ export const useRollPosition = () => {
         args: [account, _inputAsFyTokenWithSlippage] as RoutedActions.Args.SELL_BASE,
         fnName: RoutedActions.Fn.SELL_BASE,
         targetContract:toSeries.poolContract,
-        ignore: !fromSeries.seriesIsMature,
+        ignoreIf: !fromSeries.seriesIsMature,
       },
     ];
     await transact(calls, txCode);

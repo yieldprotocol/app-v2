@@ -51,7 +51,7 @@ export const useClosePosition = () => {
           spender: 'LADLE',
           series,
           message: 'Signing ERC20 Token approval',
-          ignore: false,
+          ignoreIf: false,
         },
       ],
       txCode,
@@ -62,14 +62,14 @@ export const useClosePosition = () => {
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [fyTokenAddress, poolAddress, _inputAsFyToken] as LadleActions.Args.TRANSFER,
-        ignore: false,
+        ignoreIf: false,
       },
       {
         operation: LadleActions.Fn.ROUTE,
         args: [account, _inputAsFyTokenWithSlippage] as RoutedActions.Args.SELL_FYTOKEN, // TODO calc min transfer slippage
         fnName: RoutedActions.Fn.SELL_FYTOKEN,
         targetContract:series.poolContract,
-        ignore: false,
+        ignoreIf: false,
       },
     ];
     await transact(calls, txCode);

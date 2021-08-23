@@ -46,7 +46,7 @@ export const useBorrow = () => {
           target: ilk,
           spender: ilk.joinAddress,
           series,
-          ignore:
+          ignoreIf:
             ETH_BASED_ASSETS.includes(selectedIlkId),
         },
       ],
@@ -65,12 +65,12 @@ export const useBorrow = () => {
       {
         operation: LadleActions.Fn.BUILD,
         args: [selectedSeriesId, selectedIlkId, '0'] as LadleActions.Args.BUILD,
-        ignore: !!vault,
+        ignoreIf: !!vault,
       },
       {
         operation: LadleActions.Fn.SERVE,
         args: [vaultId, account, _collInput, _input, MAX_128] as LadleActions.Args.SERVE, // TODO calculated slippage values
-        ignore: false, // never ignore this
+        ignoreIf: false, // never ignore this
       },
     ];
 

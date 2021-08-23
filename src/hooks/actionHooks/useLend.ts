@@ -39,7 +39,7 @@ export const useLend = () => {
           spender: 'LADLE',
           series,
           message: 'Signing ERC20 Token approval',
-          ignore: false, // ignore if user has previously signed. base.
+          ignoreIf: false, // ignore if user has previously signed. base.
         },
       ],
       txCode
@@ -54,14 +54,14 @@ export const useLend = () => {
           series.poolAddress,
           _input.toString(),
         ] as LadleActions.Args.TRANSFER,
-        ignore: false,
+        ignoreIf: false,
       },
       {
         operation: LadleActions.Fn.ROUTE,
         args: [account, ethers.constants.Zero] as RoutedActions.Args.SELL_BASE, // TODO calc minFYToken recieved >  transfer slippage
         fnName: RoutedActions.Fn.SELL_BASE,
         targetContract:series.poolContract,
-        ignore: false,
+        ignoreIf: false,
       },
     ];
 
