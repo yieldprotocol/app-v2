@@ -11,27 +11,24 @@ const CurrencyToggle = () => {
   return (
     <Box gap="small">
       <Text size="small">Show Summary in:</Text>
-      <Box
-        direction="row"
-        border={{ color: 'tailwind-blue' }}
-        round="xsmall"
-        width="50%"
-        align="center"
-        justify="center"
-      >
+      <Box direction="row" align="center" justify="center">
         <Box
+          fill
           pad="small"
-          background={currencySetting === 'DAI' ? 'tailwind-blue-50' : undefined}
-          round="xsmall"
+          background={currencySetting === 'DAI' ? 'tailwind-blue' : 'tailwind-blue-100'}
+          round={{ corner: 'left', size: 'xsmall' }}
           onClick={() => setCurrencySetting('DAI')}
+          align="center"
         >
           <Text size="small">DAI</Text>
         </Box>
         <Box
+          fill
           pad="small"
-          background={currencySetting === 'ETH' ? 'tailwind-blue-50' : undefined}
-          round="xsmall"
+          background={currencySetting === 'ETH' ? 'tailwind-blue' : 'tailwind-blue-100'}
+          round={{ corner: 'right', size: 'xsmall' }}
           onClick={() => setCurrencySetting('ETH')}
+          align="center"
         >
           <Text size="small">ETH</Text>
         </Box>
