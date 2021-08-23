@@ -10,11 +10,6 @@ import { calculateSlippage, fyTokenForMint, mint, mintWithBase, sellBase, splitL
 import { ChainContext } from '../../contexts/ChainContext';
 import SeriesSelector from '../../components/selectors/SeriesSelector';
 
-export const usePool = (input: string | undefined) => {
-  const poolMax = input;
-  return { poolMax };
-};
-
 /* Hook for chain transactions */
 export const useAddLiquidity = () => {
 
@@ -28,12 +23,15 @@ export const useAddLiquidity = () => {
     input: string,
     series: ISeries,
     method: 'BUY' | 'BORROW' | string = 'BUY',
+    // strategyAddr: string | undefined = undefined,
     strategyAddr: string | undefined = "0xdc70afc194261A7290fAc51E17992A4bF2D4b39b",
+
   ) => {
+    
     const txCode = getTxCode(ActionCodes.ADD_LIQUIDITY, series.id);
-    const _input = ethers.utils.parseEther(input);
     const base : IAsset = assetMap.get(series.baseId);
 
+    const _input = ethers.utils.parseEther(input);
     const _strategyAddr = ethers.utils.isAddress(strategyAddr!) ? strategyAddr : undefined;
 
     const _fyTokenToBuy = fyTokenForMint(
@@ -53,13 +51,6 @@ export const useAddLiquidity = () => {
     const _baseToPool = _input.sub(_baseProportion);
 
     console.log(_baseProportion.toString(), _fyTokenPortion.toString())
-
-    // const _inputAsFyToken = sellBase(
-    //   series.baseReserves,
-    //   series.fyTokenReserves,
-    //   _input,
-    //   series.getTimeTillMaturity() 
-    // )
 
     const _inputWithSlippage = calculateSlippage(_input);
 
@@ -98,11 +89,13 @@ export const useAddLiquidity = () => {
         targetContract: series.poolContract,
         ignoreIf: method !== 'BUY',
       },
+
+      /* if strategy address is provided, use that address */
       {
         operation: LadleActions.Fn.ROUTE,
         args: [account] as RoutedActions.Args.MINT,
         fnName: RoutedActions.Fn.MINT,
-        targetContract: strategyRootMap.get(_strategyAddr).strategyContract,
+        targetContract: strategyRootMap.has(_strategyAddr) && strategyRootMap.get(_strategyAddr).strategyContract,
         ignoreIf: !(method === 'BUY' && !!_strategyAddr) ,
       },
 
@@ -110,10 +103,9 @@ export const useAddLiquidity = () => {
        * Provide liquidity by BORROWING:
        * */
       {
-        // build Vault with random id
         operation: LadleActions.Fn.BUILD,
         args: [selectedSeriesId, selectedIlkId, '0'] as LadleActions.Args.BUILD,
-        ignoreIf: method !== 'BORROW',
+        ignoreIf: method !== 'BORROW', // TODO exclude if vault is Provided.
       },
 
       {
@@ -139,12 +131,14 @@ export const useAddLiquidity = () => {
         targetContract: series.poolContract,
         ignoreIf: !(method === 'BORROW' && !!_strategyAddr),
       },
+
+      /* if strategy address is provided, and is found in the strategyMap, use that address */
       {
         operation: LadleActions.Fn.ROUTE,
         args: [account] as RoutedActions.Args.MINT,
         fnName: RoutedActions.Fn.MINT,
-        targetContract: strategyRootMap.get(_strategyAddr).strategyContract,
-        ignoreIf: !(method === 'BUY' && !!_strategyAddr) ,
+        targetContract: strategyRootMap.has(_strategyAddr) && strategyRootMap.get(_strategyAddr).strategyContract,
+        ignoreIf: !strategyRootMap.has(_strategyAddr),
       },
     ];
 
