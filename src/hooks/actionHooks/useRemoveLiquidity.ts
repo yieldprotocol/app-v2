@@ -63,7 +63,7 @@ export const useRemoveLiquidity = () => {
       /* BEFORE MATURITY */
 
       /* OPTION 1. Remove liquidity and repay - BEFORE MATURITY  */
-      // ladle.transferAction(pool, pool, lpTokensBurnt), ^^^^ DONE ABOVE^^^^
+      // (ladle.transferAction(pool, pool, lpTokensBurnt),  ^^^^ DONE ABOVE^^^^) 
       // ladle.routeAction(pool, ['burn', [ladle, ladle, minBaseReceived, minFYTokenReceived]),
       // ladle.repayFromLadleAction(vaultId, receiver),
       // ladle.closeFromLadleAction(vaultId, receiver),
@@ -86,7 +86,7 @@ export const useRemoveLiquidity = () => {
       },
 
       /* OPTION 2.Remove liquidity, repay and sell - BEFORE MATURITY */
-      // ladle.transferAction(pool, pool, LPTokensBurnt),  ^^^^ DONE ABOVE^^^^
+      // (ladle.transferAction(pool, pool, lpTokensBurnt),  ^^^^ DONE ABOVE^^^^) 
       // ladle.routeAction(pool, ['burn', [receiver, ladle, 0, 0]),
       // ladle.repayFromLadleAction(vaultId, pool),
       // ladle.routeAction(pool, ['sellBase', [receiver, minBaseReceived]),
@@ -111,7 +111,7 @@ export const useRemoveLiquidity = () => {
       },
 
       /* OPTION 4. Remove Liquidity and sell  - BEFORE MATURITY */
-      // ladle.transferAction(pool, pool, lpTokensBurnt),  ^^^^ DONE ABOVE^^^^
+      // (ladle.transferAction(pool, pool, lpTokensBurnt),  ^^^^ DONE ABOVE^^^^) 
       // ladle.routeAction(pool, ['burnForBase', [receiver, minBaseReceived]),
       {
         operation: LadleActions.Fn.ROUTE,
@@ -124,7 +124,7 @@ export const useRemoveLiquidity = () => {
       /* AFTER MATURITY REMOVES */
 
       /* OPTION 3. remove Liquidity and redeem  - AFTER MATURITY */
-      // ladle.transferAction(pool, pool, lpTokensBurnt),  ^^^^ DONE ABOVE^^^^
+      // (ladle.transferAction(pool, pool, lpTokensBurnt),  ^^^^ DONE ABOVE^^^^) 
       // ladle.routeAction(pool, ['burn', [receiver, fyToken, minBaseReceived, minFYTokenReceived]),
       // ladle.redeemAction(seriesId, receiver, 0),
       {
@@ -141,7 +141,7 @@ export const useRemoveLiquidity = () => {
       },
 
       /* OPTION 5. remove Liquidity, redeem and Close - AFTER MATURITY */
-      // ladle.transferAction(pool, pool, LPTokensBurnt),  ^^^^ DONE ABOVE^^^^
+      // (ladle.transferAction(pool, pool, lpTokensBurnt),  ^^^^ DONE ABOVE^^^^) 
       // ladle.routeAction(pool, ['burn', [ladle, fyToken, minBaseReceived, minFYTokenReceived]),
       // ladle.redeemAction(seriesId, ladle, 0),
       // ladle.closeFromLadleAction(vaultId, receiver),
