@@ -18,7 +18,7 @@ const HideBalancesSetting = (props: any) => {
 
   return (
     <Box gap="small">
-      <Box direction="row" gap="small">
+      <Box direction="row" gap="xsmall">
         <Text size="small">Hide Balances Below</Text>
         <Tip content={<Text size="xsmall">in native token balance</Text>} dropProps={{ align: { left: 'right' } }}>
           <Text size="small">
