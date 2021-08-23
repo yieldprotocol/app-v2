@@ -9,6 +9,7 @@ import { useChain } from '../useChain';
 import { calculateSlippage, fyTokenForMint, mint, mintWithBase, sellBase, splitLiquidity } from '../../utils/yieldMath';
 import { ChainContext } from '../../contexts/ChainContext';
 import SeriesSelector from '../../components/selectors/SeriesSelector';
+import { serializeTransaction } from 'ethers/lib/utils';
 
 export const usePool = (input: string | undefined) => {
   const poolMax = input;
@@ -18,7 +19,9 @@ export const usePool = (input: string | undefined) => {
 /* Hook for chain transactions */
 export const useRemoveLiquidity = () => {
 
-  const { chainState: {strategyRootMap} } = useContext(ChainContext);
+  const { chainState: { strategyRootMap, contractMap } } = useContext(ChainContext);
+  const ladleAddress = contractMap.get('Ladle').address;
+
   const { userState, userActions } = useContext(UserContext);
   const { activeAccount: account, selectedIlkId, selectedSeriesId, assetMap } = userState;
   const { updateSeries, updateAssets } = userActions;
@@ -41,7 +44,7 @@ export const useRemoveLiquidity = () => {
             version: series.poolVersion,
           },
           series,
-          spender: 'POOLROUTER',
+          spender: 'LADLE',
           message: 'Signing ERC20 Token approval',
           ignoreIf: false,
         },
@@ -52,14 +55,59 @@ export const useRemoveLiquidity = () => {
     const calls: ICallData[] = [
       ...permits,
 
+      /* BEFORE MATURITY */
+
       {
         // router.transferToPool(base.address, fyToken1.address, pool1.address, WAD)
         operation: LadleActions.Fn.TRANSFER,
-        args: [series.fyTokenAddress, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
-        ignoreIf: series.seriesIsMature,
+        args: [series.poolAddress, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
+        ignoreIf: series.seriesIsMature, // all 'removeLiquidity methods' use this tx
       },
 
-      // BEFORE MATURITY
+      {
+        operation: LadleActions.Fn.ROUTE,
+        args: [ladleAddress, ladleAddress, ethers.constants.Zero, ethers.constants.Zero] as RoutedActions.Args.BURN, // TODO slippage
+        fnName: RoutedActions.Fn.BURN,
+        targetContract: series.poolContract,
+        ignoreIf: series.seriesIsMature, // '1.Remove liquidity and repay' && '2. Remove liquidity, repay and sell' &&  '3. remove liquidity and Redeem'
+      },
+
+      /* '1. Remove liquidity and repay' */
+      // {
+      //   operation: LadleActions.Fn.REPAY_FROM_LADLE,
+      //   args: [ vaultId, account ] as LadleActions.Args.REPAY_FROM_LADLE, // TODO slippage
+      //   ignoreIf: series.seriesIsMature, // '1.Remove liquidity and repay' 
+      // },
+      // {
+      //   operation: LadleActions.Fn.CLOSE_FROM_LADLE,
+      //   args: [ vaultId, account ] as LadleActions.Args.CLOSE_FROM_LADLE, // TODO slippage
+      //   ignoreIf: series.seriesIsMature, // '1. Remove liquidity and repay' 
+      // },
+
+
+      /* 2.Remove liquidity and repay and sell */
+      // {
+      //   operation: LadleActions.Fn.REPAY_FROM_LADLE,
+      //   args: [vaultId, account ] as LadleActions.Args.REPAY_FROM_LADLE, // TODO slippage
+      //   ignoreIf: series.seriesIsMature, // '2.Remove liquidity and repay and sell' 
+      // },
+      // {
+      //   operation: LadleActions.Fn.ROUTE,
+      //   args: [account, ethers.constants.Zero] as RoutedActions.Args.SELL_BASE,
+      //   fnName: RoutedActions.Fn.SELL_BASE,
+      //   targetContract: series.poolContract,
+      //   ignoreIf: series.seriesIsMature, // '2.Remove liquidity and repay and sell' 
+      // },
+
+      /* remove Liquidity and redeem */
+       // {
+      //   operation: LadleActions.Fn.REDEEM,
+      //   args: [vaultId, account ] as LadleActions.Args.REPAY_FROM_LADLE, // TODO slippage
+      //   ignoreIf: series.seriesIsMature, // '2.Remove liquidity and repay and sell' 
+      // },
+
+
+
       {
         // burnForBase(receiver, minBaseReceived),
         operation: LadleActions.Fn.ROUTE,

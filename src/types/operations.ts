@@ -14,6 +14,10 @@ export namespace LadleActions {
     REPAY = 'repay',
     REPAY_VAULT = 'repayVault',
     REPAY_LADLE = 'repayLadle',
+
+    REPAY_FROM_LADLE = 'repayFromLadle',
+    CLOSE_FROM_LADLE = 'closeFromLadle',
+
     RETRIEVE = 'retrieve',
     FORWARD_PERMIT = 'forwardPermit',
     FORWARD_DAI_PERMIT = 'forwardDaiPermit',
@@ -39,10 +43,13 @@ export namespace LadleActions {
     export type REPAY_LADLE = [vaultId: string];
     export type RETRIEVE = [assetId: string, isAsset: boolean, to: string];
 
+    export type REPAY_FROM_LADLE = [vaultId: string, to: string];
+    export type CLOSE_FROM_LADLE = [vaultId: string, to: string];
+
     export type JOIN_ETHER = [etherId: string, overrides?: any];
     export type EXIT_ETHER = [to: string];
     export type TRANSFER = [token: string, receiver: string, wad: BigNumberish];
-  
+
     export type ROUTE = [seriesId: string, encodedpoolCall: string];
     export type REDEEM = [seriesId: string, to: string, wad: BigNumberish];
 
@@ -85,7 +92,9 @@ export namespace RoutedActions {
     export type SELL_FYTOKEN = [receiver: string, min: BigNumberish];
     export type MINT_WITH_BASE = [receiver: string, fyTokenToBuy: BigNumberish, minTokensMinted: BigNumberish];
     export type BURN_FOR_BASE = [receiver: string, minBaseOut: BigNumberish];
-    export type MINT = [receiver: string, calcFromBase:boolean, minLpReceived:BigNumberish] | [receiver: string];
-    export type BURN = [receiver: string, minBaseOut: BigNumberish, minFYTokenOut: BigNumberish] | [receiver: string];
+    export type MINT = [receiver: string, calcFromBase: boolean, minLpReceived: BigNumberish] | [receiver: string];
+    export type BURN =
+      | [baseTo: string, fyTokenTo: string, minBaseOut: BigNumberish, minFYTokenOut: BigNumberish]
+      | [receiver: string];
   }
 }
