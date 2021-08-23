@@ -1,13 +1,12 @@
-import { BigNumber, ethers } from 'ethers';
+import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, IVault, SignType, ISeries, ActionCodes, LadleActions } from '../../types';
+import { ICallData, IVault, ActionCodes, LadleActions } from '../../types';
 import { getTxCode } from '../../utils/appUtils';
-import { ETH_BASED_ASSETS, DAI_BASED_ASSETS, MAX_128, BLANK_VAULT } from '../../utils/constants';
-import { useChain } from '../useChain';
 
-import { calculateSlippage, secondsToFrom, sellBase } from '../../utils/yieldMath';
+import { ETH_BASED_ASSETS, MAX_128, BLANK_VAULT } from '../../utils/constants';
+import { useChain } from '../useChain';
 import { useAddCollateral } from './useAddCollateral';
 
 /* Generic hook for chain transactions */
@@ -20,20 +19,19 @@ export const useBorrow = () => {
   const { updateVaults, updateAssets } = userActions;
 
   const { addEth } = useAddCollateral();
-
   const { sign, transact } = useChain();
 
   const borrow = async (vault: IVault | undefined, input: string | undefined, collInput: string | undefined) => {
+    /* generate the reproducible txCode for tx tracking and tracing */
+    const txCode = getTxCode(ActionCodes.BORROW, selectedSeriesId);
+
     /* use the vault id provided OR 0 if new/ not provided */
-    const vaultId = vault?.id || BLANK_VAULT; // ethers.utils.hexlify(ethers.utils.randomBytes(12))
+    const vaultId = vault?.id || BLANK_VAULT;
 
     /* set the series and ilk based on the vault that has been selected or if it's a new vault, get from the globally selected SeriesId */
     const series = vault ? seriesMap.get(vault.seriesId) : seriesMap.get(selectedSeriesId);
     const base = assetMap.get(series.baseId);
     const ilk = vault ? assetMap.get(vault.ilkId) : assetMap.get(selectedIlkId);
-
-    /* generate the reproducible txCode for tx tracking and tracing */
-    const txCode = getTxCode(ActionCodes.BORROW, selectedSeriesId);
 
     /* parse inputs */
     const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
@@ -46,8 +44,7 @@ export const useBorrow = () => {
           target: ilk,
           spender: ilk.joinAddress,
           series,
-          ignoreIf:
-            ETH_BASED_ASSETS.includes(selectedIlkId),
+          ignoreIf: ETH_BASED_ASSETS.includes(selectedIlkId), // ignore if an ETH-BASED asset
         },
       ],
       txCode
@@ -76,6 +73,7 @@ export const useBorrow = () => {
 
     /* handle the transaction */
     await transact(calls, txCode);
+    
     /* When complete, update vaults.
       If a vault was provided, update it only,
       else update ALL vaults (by passing an empty array)
@@ -84,5 +82,5 @@ export const useBorrow = () => {
     updateAssets([base, ilk]);
   };
 
-  return borrow
+  return borrow;
 };
