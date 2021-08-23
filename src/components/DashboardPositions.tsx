@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Box, Text } from 'grommet';
 import { ethers } from 'ethers';
 
@@ -28,6 +28,8 @@ const DashboardPositions = ({ actionType }: { actionType: ActionType }) => {
   const [totalCollateral, setTotalCollateral] = useState<string | null>(null);
   const [totalLendBalance, setTotalLendBalance] = useState<string | null>(null);
   const [totalPoolBalance, setTotalPoolBalance] = useState<string | null>(null);
+  const currencySettingAssetId = currencySetting === 'ETH' ? WETH : DAI;
+  const currencySettingDigits = currencySetting === 'ETH' ? 6 : 2;
 
   useEffect(() => {
     const _vaultPositions: IVault[] = Array.from(vaultMap.values())
@@ -75,41 +77,63 @@ const DashboardPositions = ({ actionType }: { actionType: ActionType }) => {
     // const getDebtInCurrency = allPositions.reduce()
   }, []);
 
-  /* get the vault's ink or art in dai: value can be art, ink, fyToken, or pooToken balances */
-  const getValueInDai = (baseOrIlkId: string, value: string) => {
-    const daiPrice = baseOrIlkId !== DAI && priceMap?.get(DAI)?.get(baseOrIlkId);
-    const daiPrice_ = daiPrice ? ethers.utils.formatEther(daiPrice) : '1';
-    return Number(daiPrice_) * Number(value);
-  };
+  /* get the position's ink or art in dai or eth (input the asset id): value can be art, ink, fyToken, or pooToken balances */
+  const getPositionValue = useCallback(
+    (baseOrIlkId: string, value: string, assetId = DAI) => {
+      let positionValue;
+
+      if (assetId === WETH && baseOrIlkId !== WETH) {
+        // calculate DAIWETH price
+        const daiWethPrice = priceMap?.get(DAI)?.get(WETH);
+
+        const daiWethPrice_ = ethers.utils.formatEther(daiWethPrice);
+        // calculate WETHDAI price for 'ETH' currency setting
+        const wethDaiPrice = 1 / Number(daiWethPrice_);
+        positionValue = Number(wethDaiPrice) * Number(value);
+      } else {
+        const assetPrice = baseOrIlkId !== assetId && priceMap?.get(assetId)?.get(baseOrIlkId);
+        const assetPrice_ = assetPrice ? ethers.utils.formatEther(assetPrice) : '1';
+        positionValue = Number(assetPrice_) * Number(value);
+      }
+      return positionValue;
+    },
+    [priceMap]
+  );
 
   /* get vault position total debt and collateral */
   useEffect(() => {
-    if (currencySetting === 'ETH') {
-      // get ether values
-      const _debts = vaultPositions?.map((vault: IVault) => Number(ethers.utils.formatEther(vault.art)));
-      setTotalDebt(cleanValue(_debts.reduce((sum: number, debt: number) => sum + debt, 0).toString(), 2));
+    const _debts = vaultPositions?.map((vault: IVault) =>
+      getPositionValue(vault.baseId, vault.art_, currencySettingAssetId)
+    );
+    setTotalDebt(
+      cleanValue(_debts.reduce((sum: number, debt: number) => sum + debt, 0).toString(), currencySettingDigits)
+    );
 
-      const _collaterals = vaultPositions?.map((vault: IVault) => Number(ethers.utils.formatEther(vault.art)));
-      setTotalCollateral(cleanValue(_collaterals.reduce((sum: number, debt: number) => sum + debt, 0).toString(), 2));
-    } else {
-      const _debts = vaultPositions?.map((vault: IVault) => getValueInDai(vault.baseId, vault.art_));
-      setTotalDebt(cleanValue(_debts.reduce((sum: number, debt: number) => sum + debt, 0).toString(), 2));
-
-      const _collaterals = vaultPositions?.map((vault: IVault) => getValueInDai(vault.ilkId, vault.ink_));
-      setTotalCollateral(cleanValue(_collaterals.reduce((sum: number, debt: number) => sum + debt, 0).toString(), 2));
-    }
-  }, [priceMap, vaultPositions, currencySetting]);
+    const _collaterals = vaultPositions?.map((vault: IVault) =>
+      getPositionValue(vault.ilkId, vault.ink_, currencySettingAssetId)
+    );
+    console.log(_collaterals);
+    setTotalCollateral(
+      cleanValue(_collaterals.reduce((sum: number, debt: number) => sum + debt, 0).toString(), currencySettingDigits)
+    );
+  }, [priceMap, vaultPositions, currencySettingAssetId, getPositionValue, currencySettingDigits]);
 
   /* get series positions' total balances */
   useEffect(() => {
     const _lendBalances = lendPositions?.map((series: ISeries) =>
-      getValueInDai(series.baseId, series.fyTokenBalance_!)
+      getPositionValue(series.baseId, series.fyTokenBalance_!, currencySettingAssetId)
     );
-    setTotalLendBalance(cleanValue(_lendBalances.reduce((sum: number, debt: number) => sum + debt, 0).toString(), 2));
+    setTotalLendBalance(
+      cleanValue(_lendBalances.reduce((sum: number, debt: number) => sum + debt, 0).toString(), currencySettingDigits)
+    );
 
-    const _poolBalances = poolPositions?.map((series: ISeries) => getValueInDai(series.baseId, series.poolTokens_!));
-    setTotalPoolBalance(cleanValue(_poolBalances.reduce((sum: number, debt: number) => sum + debt, 0).toString(), 2));
-  }, [priceMap, lendPositions, poolPositions]);
+    const _poolBalances = poolPositions?.map((series: ISeries) =>
+      getPositionValue(series.baseId, series.poolTokens_!, currencySettingAssetId)
+    );
+    setTotalPoolBalance(
+      cleanValue(_poolBalances.reduce((sum: number, debt: number) => sum + debt, 0).toString(), currencySettingDigits)
+    );
+  }, [priceMap, lendPositions, poolPositions, currencySettingAssetId, getPositionValue, currencySettingDigits]);
 
   return (
     <DashboardPositionSummary
