@@ -12,8 +12,9 @@ import SeriesSelector from '../../components/selectors/SeriesSelector';
 
 /* Hook for chain transactions */
 export const useAddLiquidity = () => {
-
-  const { chainState: {strategyRootMap} } = useContext(ChainContext);
+  const {
+    chainState: { strategyRootMap },
+  } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
   const { activeAccount: account, selectedIlkId, selectedSeriesId, assetMap } = userState;
   const { updateSeries, updateAssets } = userActions;
@@ -24,16 +25,16 @@ export const useAddLiquidity = () => {
     series: ISeries,
     method: 'BUY' | 'BORROW' | string = 'BUY',
     // strategyAddr: string | undefined = undefined,
-    strategyAddr: string | undefined = "0xdc70afc194261A7290fAc51E17992A4bF2D4b39b",
-
+    strategyAddr: string | undefined = '0xdc70afc194261A7290fAc51E17992A4bF2D4b39b'
   ) => {
-    
     const txCode = getTxCode(ActionCodes.ADD_LIQUIDITY, series.id);
-    const base : IAsset = assetMap.get(series.baseId);
+    const base: IAsset = assetMap.get(series.baseId);
 
     const _input = ethers.utils.parseEther(input);
-    const _strategyAddr = ethers.utils.isAddress(strategyAddr!) ? strategyAddr : undefined;
 
+    const _strategyExists = ethers.utils.isAddress(strategyAddr!) && strategyRootMap.has(strategyAddr)
+    const _strategy = _strategyExists ? strategyAddr : undefined;
+    
     const _fyTokenToBuy = fyTokenForMint(
       series.baseReserves,
       series.fyTokenRealReserves,
@@ -42,15 +43,11 @@ export const useAddLiquidity = () => {
       series.getTimeTillMaturity()
     );
 
-    const [_baseProportion, _fyTokenPortion ] = splitLiquidity(
-      series.baseReserves,
-      series.fyTokenReserves,
-      _input,
-    )
+    const [_baseProportion, _fyTokenPortion] = splitLiquidity(series.baseReserves, series.fyTokenReserves, _input);
     const _baseToFyToken = _baseProportion;
     const _baseToPool = _input.sub(_baseProportion);
 
-    console.log(_baseProportion.toString(), _fyTokenPortion.toString())
+    console.log(_baseProportion.toString(), _fyTokenPortion.toString());
 
     const _inputWithSlippage = calculateSlippage(_input);
 
@@ -81,22 +78,13 @@ export const useAddLiquidity = () => {
       {
         operation: LadleActions.Fn.ROUTE,
         args: [
-          _strategyAddr || account, // reciever is _strategy (if it exists) or account
+          _strategy || account, // receiver is _strategyAddress (if it exists) or else account
           _fyTokenToBuy,
           ethers.constants.Zero, // TODO calc minLPtokens slippage
         ] as RoutedActions.Args.MINT_WITH_BASE,
         fnName: RoutedActions.Fn.MINT_WITH_BASE,
         targetContract: series.poolContract,
         ignoreIf: method !== 'BUY',
-      },
-
-      /* if strategy address is provided, use that address */
-      {
-        operation: LadleActions.Fn.ROUTE,
-        args: [account] as RoutedActions.Args.MINT,
-        fnName: RoutedActions.Fn.MINT,
-        targetContract: strategyRootMap.has(_strategyAddr) && strategyRootMap.get(_strategyAddr).strategyContract,
-        ignoreIf: !(method === 'BUY' && !!_strategyAddr) ,
       },
 
       /**
@@ -126,19 +114,19 @@ export const useAddLiquidity = () => {
       },
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [_strategyAddr || account, true, ethers.constants.Zero] as RoutedActions.Args.MINT,
+        args: [_strategy || account, true, ethers.constants.Zero] as RoutedActions.Args.MINT, // receiver is _strategyAddr (if it exists) or account
         fnName: RoutedActions.Fn.MINT,
         targetContract: series.poolContract,
-        ignoreIf: !(method === 'BORROW' && !!_strategyAddr),
+        ignoreIf: !(method === 'BORROW' && !!_strategy),
       },
 
-      /* if strategy address is provided, and is found in the strategyMap, use that address */
+      /* STRATEGY MINTING if strategy address is provided, and is found in the strategyMap, use that address */
       {
         operation: LadleActions.Fn.ROUTE,
         args: [account] as RoutedActions.Args.MINT,
         fnName: RoutedActions.Fn.MINT,
-        targetContract: strategyRootMap.has(_strategyAddr) && strategyRootMap.get(_strategyAddr).strategyContract,
-        ignoreIf: !strategyRootMap.has(_strategyAddr),
+        targetContract: _strategy && strategyRootMap.get(_strategy).strategyContract,
+        ignoreIf: !_strategy,
       },
     ];
 
@@ -147,5 +135,5 @@ export const useAddLiquidity = () => {
     updateAssets([base]);
   };
 
-  return addLiquidity
+  return addLiquidity;
 };
