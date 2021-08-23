@@ -113,7 +113,7 @@ export const useRollLiquidity = () => {
       {
         // ladle.redeemAction(seriesId, pool2.address, fyTokenToRoll)
         operation: LadleActions.Fn.REDEEM,
-        args: [fromSeries.id, toSeries.poolAddress, _input] as LadleActions.Args.REDEEM,
+        args: [toSeries.poolAddress, _input] as LadleActions.Args.REDEEM,
         ignoreIf: !fromSeries.seriesIsMature,
       },
       {

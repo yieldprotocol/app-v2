@@ -92,7 +92,7 @@ export const useRollPosition = () => {
       {
         // ladle.redeemAction(seriesId, pool2.address, fyTokenToRoll)
         operation: LadleActions.Fn.REDEEM,
-        args: [fromSeries.address, toSeries.poolAddress, _inputAsFyToken] as LadleActions.Args.REDEEM,
+        args: [toSeries.poolAddress, _inputAsFyToken] as LadleActions.Args.REDEEM,
         ignoreIf: !fromSeries.seriesIsMature,
       },
       {

@@ -51,7 +51,7 @@ export const useClosePosition = () => {
           spender: 'LADLE',
           series,
           message: 'Signing ERC20 Token approval',
-          ignoreIf: false,
+          ignoreIf: series.isMature(),
         },
       ],
       txCode,
@@ -59,18 +59,28 @@ export const useClosePosition = () => {
 
     const calls: ICallData[] = [
       ...permits,
+
+      /* BEFORE MATURITY */
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [fyTokenAddress, poolAddress, _inputAsFyToken] as LadleActions.Args.TRANSFER,
-        ignoreIf: false,
+        ignoreIf: series.isMature(),
       },
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [account, _inputAsFyTokenWithSlippage] as RoutedActions.Args.SELL_FYTOKEN, // TODO calc min transfer slippage
+        args: [account, _inputAsFyTokenWithSlippage] as RoutedActions.Args.SELL_FYTOKEN, 
         fnName: RoutedActions.Fn.SELL_FYTOKEN,
         targetContract:series.poolContract,
-        ignoreIf: false,
+        ignoreIf: series.isMature(),
       },
+
+      /* AFTER MATURITY */ // TODO 
+      {
+        operation: LadleActions.Fn.REDEEM,
+        args: [account, _inputAsFyToken] as LadleActions.Args.REDEEM, 
+        ignoreIf: !series.isMature(),
+      },
+
     ];
     await transact(calls, txCode);
     updateSeries([series]);

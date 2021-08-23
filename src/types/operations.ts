@@ -44,7 +44,7 @@ export namespace LadleActions {
     export type TRANSFER = [token: string, receiver: string, wad: BigNumberish];
   
     export type ROUTE = [seriesId: string, encodedpoolCall: string];
-    export type REDEEM = [seriesId: string, to: string, wad: BigNumberish];
+    export type REDEEM = [to: string, wad: BigNumberish];
 
     export type FORWARD_PERMIT = [
       id: string,

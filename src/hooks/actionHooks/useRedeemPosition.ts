@@ -39,7 +39,7 @@ export const useRedeemPosition = () => {
           spender: 'LADLE',
           series,
           message: 'Signing ERC20 Token approval',
-          ignoreIf: !series.seriesIsMature,
+          ignoreIf: !series.isMature(),
         },
       ],
       txCode,
@@ -47,16 +47,15 @@ export const useRedeemPosition = () => {
 
     const calls: ICallData[] = [
       ...permits,
-
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [ series.poolAddress, account, _input] as LadleActions.Args.TRANSFER,
-        ignoreIf: false,
+        ignoreIf: !series.isMature(),
       },
       {
         operation: LadleActions.Fn.REDEEM,
-        args: [series.id, account, ethers.utils.parseEther('1')] as LadleActions.Args.REDEEM,
-        ignoreIf: false,
+        args: [account, ethers.utils.parseEther('1')] as LadleActions.Args.REDEEM,
+        ignoreIf: !series.isMature(),
       },
     ];
     transact(calls, txCode);
