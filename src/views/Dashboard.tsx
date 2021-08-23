@@ -1,5 +1,5 @@
 import React, { useContext, useState, useCallback, useEffect } from 'react';
-import { Box, ResponsiveContext, Text } from 'grommet';
+import { Box, CheckBox, ResponsiveContext, Text } from 'grommet';
 import { ethers } from 'ethers';
 import Skeleton from 'react-loading-skeleton';
 import { ChainContext } from '../contexts/ChainContext';
@@ -50,7 +50,7 @@ const Dashboard = () => {
   useEffect(() => {
     const _vaultPositions: IVault[] = Array.from(vaultMap.values())
       .filter((vault: IVault) => showInactiveVaults || vault.isActive)
-      .filter((vault: IVault) => filterEmpty && (vault.ink.gt(ZERO_BN) || vault.art.gt(ZERO_BN)));
+      .filter((vault: IVault) => (filterEmpty ? vault.ink.gt(ZERO_BN) || vault.art.gt(ZERO_BN) : true));
     // .filter((vault: IVault) => hideBalancesSetting && vault.ink?.gt(ethers.utils.parseEther(hideBalancesSetting)));
     setVaultPositions(_vaultPositions);
   }, [vaultMap, showInactiveVaults, filterEmpty, hideBalancesSetting]);
@@ -142,6 +142,7 @@ const Dashboard = () => {
               collateral={totalCollateral!}
               positionBalance={(Number(totalLendBalance!) + Number(totalPoolBalance!)).toString()}
               digits={currencySettingDigits}
+              loading={vaultsLoading || seriesLoading}
             />
           </Box>
           <YieldInfo />
@@ -192,9 +193,17 @@ const Dashboard = () => {
         )}
       </Box>
       <PanelWrap basis="40%">
-        <Box margin={{ top: '35%' }} gap="medium">
-          <HideBalancesSetting width="30%" />
-          <CurrencyToggle width="50%" />
+        <Box margin={{ top: '35%' }}>
+          {!vaultsLoading && !seriesLoading && (
+            <Box gap="medium">
+              <HideBalancesSetting width="30%" />
+              <CurrencyToggle width="50%" />
+              <Box justify="between" gap="small">
+                <Text size="small">Filter empty vaults</Text>
+                <CheckBox toggle checked={filterEmpty} onChange={(event) => setFilterEmpty(event.target.checked)} />
+              </Box>
+            </Box>
+          )}
         </Box>
       </PanelWrap>
     </MainViewWrap>
