@@ -40,8 +40,8 @@ import AltText from '../components/texts/AltText';
 import EtherscanButton from '../components/buttons/EtherscanButton';
 import YieldMark from '../components/logos/YieldMark';
 import YieldCardHeader from '../components/YieldCardHeader';
-import { useBorrow } from '../hooks/useBorrow';
-import { useCollateralHelpers } from '../hooks/useCollateralHelpers';
+import { useBorrow } from '../hooks/actionHooks/useBorrow';
+import { useCollateralHelpers } from '../hooks/actionHelperHooks/useCollateralHelpers';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';

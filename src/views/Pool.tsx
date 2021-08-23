@@ -32,7 +32,7 @@ import { useInputValidation } from '../hooks/useInputValidation';
 import AltText from '../components/texts/AltText';
 import PositionListItem from '../components/PositionItem';
 import YieldCardHeader from '../components/YieldCardHeader';
-import { useAddLiquidity } from '../hooks/useAddLiquidity';
+import { useAddLiquidity } from '../hooks/actionHooks/useAddLiquidity';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';

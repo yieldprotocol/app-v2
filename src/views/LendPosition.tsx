@@ -24,10 +24,10 @@ import YieldHistory from '../components/YieldHistory';
 import ExitButton from '../components/buttons/ExitButton';
 import { useInputValidation } from '../hooks/useInputValidation';
 import ModalWrap from '../components/wraps/ModalWrap';
-import { useLendHelpers } from '../hooks/useLendHelpers';
-import { useClosePosition } from '../hooks/useClosePosition';
-import { useRedeemPosition } from '../hooks/useRedeemPosition';
-import { useRollPosition } from '../hooks/useRollPosition';
+import { useLendHelpers } from '../hooks/actionHelperHooks/useLendHelpers';
+import { useClosePosition } from '../hooks/actionHooks/useClosePosition';
+import { useRedeemPosition } from '../hooks/actionHooks/useRedeemPosition';
+import { useRollPosition } from '../hooks/actionHooks/useRollPosition';
 
 const LendPosition = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';

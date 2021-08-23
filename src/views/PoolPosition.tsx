@@ -27,8 +27,8 @@ import YieldHistory from '../components/YieldHistory';
 import ExitButton from '../components/buttons/ExitButton';
 import { useInputValidation } from '../hooks/useInputValidation';
 import ModalWrap from '../components/wraps/ModalWrap';
-import { useRemoveLiquidity } from '../hooks/useRemoveLiquidity';
-import { useRollLiquidity } from '../hooks/useRollLiquidity';
+import { useRemoveLiquidity } from '../hooks/actionHooks/useRemoveLiquidity';
+import { useRollLiquidity } from '../hooks/actionHooks/useRollLiquidity';
 
 const PoolPosition = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';

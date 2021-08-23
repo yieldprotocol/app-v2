@@ -30,12 +30,12 @@ import ModalWrap from '../components/wraps/ModalWrap';
 
 import { ChainContext } from '../contexts/ChainContext';
 import { useCachedState } from '../hooks/generalHooks';
-import { useRepayDebt } from '../hooks/useRepayDebt';
-import { useRollDebt } from '../hooks/useRollDebt';
+import { useRepayDebt } from '../hooks/actionHooks/useRepayDebt';
+import { useRollDebt } from '../hooks/actionHooks/useRollDebt';
 import { useVaultAdmin } from '../hooks/useVaultAdmin';
-import { useCollateralHelpers } from '../hooks/useCollateralHelpers';
-import { useAddCollateral } from '../hooks/useAddCollateral';
-import { useRemoveCollateral } from '../hooks/useRemoveCollateral';
+import { useCollateralHelpers } from '../hooks/actionHelperHooks/useCollateralHelpers';
+import { useAddCollateral } from '../hooks/actionHooks/useAddCollateral';
+import { useRemoveCollateral } from '../hooks/actionHooks/useRemoveCollateral';
 
 
 const VaultPosition = ({ close }: { close: () => void }) => {

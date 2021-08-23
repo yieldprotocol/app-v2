@@ -1,13 +1,13 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
-import { ChainContext } from '../contexts/ChainContext';
-import { UserContext } from '../contexts/UserContext';
-import { ICallData, IVault, SignType, ISeries, ActionCodes, IUserContext, LadleActions } from '../types';
-import { getTxCode, cleanValue } from '../utils/appUtils';
-import { DAI_BASED_ASSETS, ETH_BASED_ASSETS } from '../utils/constants';
-import { useChain } from './useChain';
+import { ChainContext } from '../../contexts/ChainContext';
+import { UserContext } from '../../contexts/UserContext';
+import { ICallData, IVault, SignType, ISeries, ActionCodes, IUserContext, LadleActions } from '../../types';
+import { getTxCode, cleanValue } from '../../utils/appUtils';
+import { DAI_BASED_ASSETS, ETH_BASED_ASSETS } from '../../utils/constants';
+import { useChain } from '../useChain';
 
-import { calculateCollateralizationRatio, calculateMinCollateral } from '../utils/yieldMath';
+import { calculateCollateralizationRatio, calculateMinCollateral } from '../../utils/yieldMath';
 
 export const useRemoveCollateral = () => {
   const {

@@ -35,9 +35,9 @@ import AltText from '../components/texts/AltText';
 import PositionListItem from '../components/PositionItem';
 import EtherscanButton from '../components/buttons/EtherscanButton';
 import YieldCardHeader from '../components/YieldCardHeader';
-import { useLendHelpers } from '../hooks/useLendHelpers';
-import { useLend } from '../hooks/useLend';
-import { useRedeemPosition } from '../hooks/useRedeemPosition';
+import { useLendHelpers } from '../hooks/actionHelperHooks/useLendHelpers';
+import { useLend } from '../hooks/actionHooks/useLend';
+import { useRedeemPosition } from '../hooks/actionHooks/useRedeemPosition';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
