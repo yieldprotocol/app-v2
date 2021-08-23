@@ -4,16 +4,13 @@ import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
 import {
   ICallData,
-  SignType,
   ISeries,
   ActionCodes,
   LadleActions,
   RoutedActions,
-  IUserContextState,
 } from '../../types';
 import { getTxCode } from '../../utils/appUtils';
-import { DAI_BASED_ASSETS, MAX_128, MAX_256 } from '../../utils/constants';
-import { buyBase, buyFYToken, calculateSlippage, secondsToFrom, sellBase, sellFYToken } from '../../utils/yieldMath';
+import { buyBase, calculateSlippage } from '../../utils/yieldMath';
 import { useChain } from '../useChain';
 
 /* Lend Actions Hook */
@@ -36,8 +33,9 @@ export const useClosePosition = () => {
       series.baseReserves,
       series.fyTokenReserves,
       _input,
-      secondsToFrom(series.maturity.toString())
+      series.getTimeTillMaturity()
     );
+
     const _inputAsFyTokenWithSlippage = calculateSlippage(
       _inputAsFyToken,
       userState.slippageTolerance.toString(),
@@ -70,7 +68,7 @@ export const useClosePosition = () => {
         operation: LadleActions.Fn.ROUTE,
         args: [account, _inputAsFyTokenWithSlippage] as RoutedActions.Args.SELL_FYTOKEN, 
         fnName: RoutedActions.Fn.SELL_FYTOKEN,
-        targetContract:series.poolContract,
+        targetContract: series.poolContract,
         ignoreIf: series.isMature(),
       },
 
