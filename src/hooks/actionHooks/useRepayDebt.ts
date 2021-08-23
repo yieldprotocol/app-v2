@@ -1,10 +1,10 @@
-import { BigNumber, ethers } from 'ethers';
+import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, IVault, SignType, ISeries, ActionCodes, LadleActions } from '../../types';
+import { ICallData, IVault, ISeries, ActionCodes, LadleActions } from '../../types';
 import { getTxCode } from '../../utils/appUtils';
-import { ETH_BASED_ASSETS, DAI_BASED_ASSETS, MAX_128, BLANK_VAULT } from '../../utils/constants';
+import { MAX_128 } from '../../utils/constants';
 import { useChain } from '../useChain';
 
 import { calculateSlippage, secondsToFrom, sellBase } from '../../utils/yieldMath';
@@ -16,7 +16,7 @@ export const useRepayDebt = () => {
     chainState: { account },
   } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
-  const { selectedIlkId, selectedSeriesId, seriesMap, assetMap } = userState;
+  const { seriesMap, assetMap } = userState;
   const { updateVaults, updateAssets } = userActions;
 
   const { removeEth } = useRemoveCollateral();

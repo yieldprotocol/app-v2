@@ -1,10 +1,10 @@
 import { BigNumber, ethers } from 'ethers';
-import { useContext, useEffect, useState } from 'react';
+import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, IVault, SignType, ISeries, ActionCodes, IUserContext, LadleActions } from '../../types';
-import { getTxCode, cleanValue } from '../../utils/appUtils';
-import { DAI_BASED_ASSETS, ETH_BASED_ASSETS } from '../../utils/constants';
+import { ICallData, IVault, ISeries, ActionCodes, LadleActions } from '../../types';
+import { getTxCode } from '../../utils/appUtils';
+import { ETH_BASED_ASSETS } from '../../utils/constants';
 import { useChain } from '../useChain';
 
 export const useAddCollateral = () => {
@@ -97,8 +97,5 @@ export const useAddCollateral = () => {
     updateAssets([base, ilk]);
   };
 
-  return {
-    addCollateral,
-    addEth,
-  };
+  return { addEth, addCollateral };
 };
