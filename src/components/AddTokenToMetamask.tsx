@@ -3,9 +3,9 @@ import { Box, Text } from 'grommet';
 import { ChainContext } from '../contexts/ChainContext';
 
 interface ITokenData {
-  address?: string;
-  symbol?: string;
-  decimals?: number;
+  address: string | undefined;
+  symbol: string | undefined;
+  decimals: number | undefined;
   image?: string;
 }
 
@@ -53,10 +53,7 @@ const AddTokenToMetamsk = ({ address, symbol, decimals, image }: ITokenData) => 
 };
 
 AddTokenToMetamsk.defaultProps = {
-  address: '0xd00981105e61274c8a5cd5a88fe7e037d935b513',
-  symbol: 'TUT',
-  decimals: 18,
-  image: 'http://placekitten.com/200/300',
+  image: '',
 };
 
 export default AddTokenToMetamsk;
