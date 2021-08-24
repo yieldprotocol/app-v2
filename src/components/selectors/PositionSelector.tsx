@@ -51,6 +51,7 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
         .filter((_series: ISeries) => (actionType === 'POOL' && _series ? _series.poolTokens?.gt(ZERO_BN) : true))
         .filter((_series: ISeries) => (base ? _series.baseId === base.id : true))
         .filter((_series: ISeries) => (series ? _series.id === series.id : true));
+
       setCurrentFilter({ base, series });
       setFilterLabels([base?.symbol, series?.displayNameMobile]);
       setFilteredSeries(_filteredSeries);
@@ -65,7 +66,13 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
     const _allPositions: ISeries[] = Array.from(seriesMap.values())
       /* filter by positive balances on either pool tokens or fyTokens */
       .filter((_series: ISeries) => (actionType === 'LEND' && _series ? _series.fyTokenBalance?.gt(ZERO_BN) : true))
-      .filter((_series: ISeries) => (actionType === 'POOL' && _series ? _series.poolTokens?.gt(ZERO_BN) : true));
+      .filter((_series: ISeries) => (actionType === 'POOL' && _series ? _series.poolTokens?.gt(ZERO_BN) : true))
+      .sort((_seriesA: ISeries, _seriesB: ISeries) =>
+        actionType === 'LEND' && _seriesA.fyTokenBalance?.gt(_seriesB.fyTokenBalance!) ? 1 : -1
+      )
+      .sort((_seriesA: ISeries, _seriesB: ISeries) =>
+        actionType === 'POOL' && _seriesA.poolTokens?.lt(_seriesB.poolTokens!) ? 1 : -1
+      );
     setAllPositions(_allPositions);
 
     if (selectedBase) handleFilter({ base: selectedBase, series: undefined });
