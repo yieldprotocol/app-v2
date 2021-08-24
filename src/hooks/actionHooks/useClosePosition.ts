@@ -25,8 +25,10 @@ export const useClosePosition = () => {
   const closePosition = async (input: string | undefined, series: ISeries) => {
 
     const txCode = getTxCode(ActionCodes.CLOSE_POSITION, series.id);
-    const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
+
     const base = assetMap.get(series.baseId);
+    const _input = input ? ethers.utils.parseUnits(input, base.decimals) : ethers.constants.Zero;
+
     const { fyTokenAddress, poolAddress, seriesIsMature } = series;
 
     const _inputAsFyToken = buyBase(

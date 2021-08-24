@@ -27,8 +27,9 @@ export const useRemoveLiquidity = () => {
   const removeLiquidity = async (input: string, series: ISeries) => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.REMOVE_LIQUIDITY, series.id);
-    const _input = ethers.utils.parseEther(input);
+    
     const base = assetMap.get(series.baseId);
+    const _input = ethers.utils.parseUnits(input, base.decimals);
 
     const permits: ICallData[] = await sign(
       [

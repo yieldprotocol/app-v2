@@ -24,8 +24,8 @@ export const useRollPosition = () => {
   const rollPosition = async (input: string | undefined, fromSeries: ISeries, toSeries: ISeries) => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.ROLL_POSITION, fromSeries.id);
-    const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
     const base = assetMap.get(fromSeries.baseId);
+    const _input = input ? ethers.utils.parseUnits(input, base.decimals) : ethers.constants.Zero;
 
     const _inputAsFyToken = sellBase(
       fromSeries.baseReserves,

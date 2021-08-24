@@ -282,9 +282,10 @@ const ChainProvider = ({ children }: any) => {
             const { assetId: id, asset: address } = Cauldron.interface.parseLog(x).args;
             const ERC20 = contracts.ERC20Permit__factory.connect(address, fallbackLibrary);
             /* Add in any extra static asset Data */ // TODO is there any other fixed asset data needed?
-            const [name, symbol] = await Promise.all([
+            const [name, symbol, decimals] = await Promise.all([
               ERC20.name(),
               ERC20.symbol(),
+              ERC20.decimals(),
               // ETH_BASED_ASSETS.includes(id) ? '1' : await ERC20.version()
             ]);
 
@@ -296,6 +297,7 @@ const ChainProvider = ({ children }: any) => {
               address,
               name,
               symbol,
+              decimals,
               version,
               joinAddress: joinMap.get(id),
             };

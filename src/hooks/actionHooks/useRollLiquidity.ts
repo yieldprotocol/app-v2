@@ -27,11 +27,11 @@ export const useRollLiquidity = () => {
   const rollLiquidity = async (input: string, fromSeries: ISeries, toSeries: ISeries) => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.ROLL_LIQUIDITY, fromSeries.id);
-    const _input = ethers.utils.parseEther(input);
-    const base = assetMap.get(fromSeries.baseId);
-    
-    // const seriesMature = fromSeries.seriesIsMature;
 
+    const base = assetMap.get(fromSeries.baseId);
+    const _input = ethers.utils.parseUnits(input, base.decimals);
+
+    // const seriesMature = fromSeries.seriesIsMature;
     const _fyTokenToBuy = fyTokenForMint(
       toSeries.baseReserves,
       toSeries.fyTokenRealReserves,

@@ -29,8 +29,7 @@ export const useAddLiquidity = () => {
   ) => {
     const txCode = getTxCode(ActionCodes.ADD_LIQUIDITY, series.id);
     const base: IAsset = assetMap.get(series.baseId);
-
-    const _input = ethers.utils.parseEther(input);
+    const _input = ethers.utils.parseUnits(input, base.decimals);
 
     const _strategyExists = ethers.utils.isAddress(strategyAddr!) && strategyRootMap.has(strategyAddr)
     const _strategy = _strategyExists ? strategyAddr : undefined;

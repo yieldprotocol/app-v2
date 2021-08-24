@@ -28,8 +28,10 @@ export const useRedeemPosition = () => {
   /* NB TO DO */
   const redeem = async (series: ISeries, input: string | undefined) => {
     const txCode = getTxCode(ActionCodes.REDEEM, series.id);
+    
     const base = assetMap.get(series.baseId);
     const _input = input ? ethers.utils.parseEther(input) : series.fyTokenBalance || ethers.constants.Zero;
+    // const _input = input ? ethers.utils.parseUnits(input, base.decimals) : ethers.constants.Zero;
     
     const permits: ICallData[] = await sign(
       [

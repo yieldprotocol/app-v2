@@ -24,8 +24,9 @@ export const useLend = () => {
   const lend = async (input: string | undefined, series: ISeries) => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.LEND, series.id);
-    const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
+    
     const base = assetMap.get(series.baseId);
+    const _input = input ? ethers.utils.parseUnits(input, base.decimals) : ethers.constants.Zero;
 
     const _inputAsFyToken = sellBase(
       series.baseReserves,
