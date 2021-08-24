@@ -16,7 +16,7 @@ const CurrencyToggle = (props: any) => {
           <Box
             fill
             pad="small"
-            background={currencySetting === 'USD' ? 'tailwind-blue' : 'tailwind-blue-100'}
+            background={currencySetting === 'DAI' ? 'tailwind-blue' : 'tailwind-blue-100'}
             round={{ corner: 'left', size: 'xsmall' }}
             onClick={() => setCurrencySetting('DAI')}
             align="center"
