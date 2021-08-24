@@ -32,6 +32,7 @@ const Dashboard = () => {
       currencySetting,
       vaultsLoading,
       seriesLoading,
+      pricesLoading,
     },
   } = useContext(UserContext) as IUserContext;
 
@@ -86,7 +87,7 @@ const Dashboard = () => {
       if (assetId === WETH && baseOrIlkId !== WETH) {
         // calculate DAIWETH price
         const daiWethPrice = priceMap?.get(DAI)?.get(WETH);
-
+        console.log('daiwethprice', daiWethPrice);
         const daiWethPrice_ = ethers.utils.formatEther(daiWethPrice);
         // calculate WETHDAI price for 'ETH' currency setting
         const wethDaiPrice = 1 / Number(daiWethPrice_);
@@ -145,7 +146,7 @@ const Dashboard = () => {
               collateral={totalCollateral!}
               positionBalance={(Number(totalLendBalance!) + Number(totalPoolBalance!)).toString()}
               digits={currencySettingDigits}
-              loading={vaultsLoading || seriesLoading}
+              loading={vaultsLoading || seriesLoading || pricesLoading}
             />
           </Box>
           <YieldInfo />
@@ -197,7 +198,7 @@ const Dashboard = () => {
       </Box>
       <PanelWrap basis="40%">
         <Box margin={{ top: '35%' }}>
-          {!vaultsLoading && !seriesLoading && (
+          {!vaultsLoading && !seriesLoading && !pricesLoading && (
             <Box gap="medium">
               <HideBalancesSetting width="30%" />
               <CurrencyToggle width="50%" />
