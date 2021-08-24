@@ -121,7 +121,7 @@ export const useChain = () => {
         /*
           Request the signature if using DaiType permit style
         */
-        if (DAI_BASED_ASSETS.includes(reqSig.series.baseId)) {
+        if ( DAI_BASED_ASSETS.includes(reqSig.series.baseId) ) {
           const { v, r, s, nonce, expiry, allowed } = await handleSign(
             /* We are pass over the generated signFn and sigData to the signatureHandler for tracking/tracing/fallback handling */
             () =>
