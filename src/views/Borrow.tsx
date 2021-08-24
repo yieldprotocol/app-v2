@@ -42,6 +42,7 @@ import AltText from '../components/texts/AltText';
 import EtherscanButton from '../components/buttons/EtherscanButton';
 import YieldMark from '../components/logos/YieldMark';
 import YieldCardHeader from '../components/YieldCardHeader';
+import AddTokenToMetamask from '../components/AddTokenToMetamask';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -217,6 +218,12 @@ const Borrow = () => {
                       </Box>
                       <Box basis={mobile ? undefined : '40%'}>
                         <AssetSelector />
+                        <AddTokenToMetamask
+                          address={selectedBase?.address}
+                          symbol={selectedBase?.symbol}
+                          decimals={18}
+                          image=""
+                        />
                       </Box>
                     </Box>
                   </SectionWrap>
@@ -288,6 +295,12 @@ const Borrow = () => {
                       </Box>
                       <Box basis={mobile ? undefined : '40%'}>
                         <AssetSelector selectCollateral />
+                        <AddTokenToMetamask
+                          address={selectedIlk?.address}
+                          symbol={selectedIlk?.symbol}
+                          decimals={18}
+                          image=""
+                        />
                       </Box>
                     </Box>
                   </SectionWrap>

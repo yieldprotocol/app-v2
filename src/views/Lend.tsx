@@ -36,6 +36,7 @@ import AltText from '../components/texts/AltText';
 import PositionListItem from '../components/PositionItem';
 import EtherscanButton from '../components/buttons/EtherscanButton';
 import YieldCardHeader from '../components/YieldCardHeader';
+import AddTokenToMetamask from '../components/AddTokenToMetamask';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -142,6 +143,12 @@ const Lend = () => {
                     </Box>
                     <Box basis={mobile ? '50%' : '40%'}>
                       <AssetSelector />
+                      <AddTokenToMetamask
+                        address={selectedBase?.address}
+                        symbol={selectedBase?.symbol}
+                        decimals={18}
+                        image=""
+                      />
                     </Box>
                   </Box>
                 </SectionWrap>
