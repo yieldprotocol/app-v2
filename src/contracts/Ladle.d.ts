@@ -34,6 +34,7 @@ interface LadleInterface extends ethers.utils.Interface {
     "build(bytes6,bytes6,uint8)": FunctionFragment;
     "cauldron()": FunctionFragment;
     "close(bytes12,address,int128,int128)": FunctionFragment;
+    "closeFromLadle(bytes12,address)": FunctionFragment;
     "destroy(bytes12)": FunctionFragment;
     "exitEther(address)": FunctionFragment;
     "forwardDaiPermit(address,address,uint256,uint256,bool,uint8,bytes32,bytes32)": FunctionFragment;
@@ -54,7 +55,7 @@ interface LadleInterface extends ethers.utils.Interface {
     "redeem(bytes6,address,uint256)": FunctionFragment;
     "renounceRole(bytes4,address)": FunctionFragment;
     "repay(bytes12,address,int128,uint128)": FunctionFragment;
-    "repayLadle(bytes12)": FunctionFragment;
+    "repayFromLadle(bytes12,address)": FunctionFragment;
     "repayVault(bytes12,address,int128,uint128)": FunctionFragment;
     "retrieve(address,address)": FunctionFragment;
     "revokeRole(bytes4,address)": FunctionFragment;
@@ -107,6 +108,10 @@ interface LadleInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "close",
     values: [BytesLike, string, BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "closeFromLadle",
+    values: [BytesLike, string]
   ): string;
   encodeFunctionData(functionFragment: "destroy", values: [BytesLike]): string;
   encodeFunctionData(functionFragment: "exitEther", values: [string]): string;
@@ -188,8 +193,8 @@ interface LadleInterface extends ethers.utils.Interface {
     values: [BytesLike, string, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "repayLadle",
-    values: [BytesLike]
+    functionFragment: "repayFromLadle",
+    values: [BytesLike, string]
   ): string;
   encodeFunctionData(
     functionFragment: "repayVault",
@@ -261,6 +266,10 @@ interface LadleInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "build", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "cauldron", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "close", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "closeFromLadle",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "destroy", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "exitEther", data: BytesLike): Result;
   decodeFunctionResult(
@@ -296,7 +305,10 @@ interface LadleInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "repay", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "repayLadle", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "repayFromLadle",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "repayVault", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "retrieve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
@@ -444,6 +456,12 @@ export class Ladle extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    closeFromLadle(
+      vaultId_: BytesLike,
+      to: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     destroy(
       vaultId_: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
@@ -556,8 +574,9 @@ export class Ladle extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    repayLadle(
+    repayFromLadle(
       vaultId_: BytesLike,
+      to: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -708,6 +727,12 @@ export class Ladle extends BaseContract {
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  closeFromLadle(
+    vaultId_: BytesLike,
+    to: string,
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   destroy(
     vaultId_: BytesLike,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
@@ -820,8 +845,9 @@ export class Ladle extends BaseContract {
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  repayLadle(
+  repayFromLadle(
     vaultId_: BytesLike,
+    to: string,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -978,6 +1004,12 @@ export class Ladle extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    closeFromLadle(
+      vaultId_: BytesLike,
+      to: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     destroy(vaultId_: BytesLike, overrides?: CallOverrides): Promise<void>;
 
     exitEther(to: string, overrides?: CallOverrides): Promise<BigNumber>;
@@ -1087,8 +1119,9 @@ export class Ladle extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    repayLadle(
+    repayFromLadle(
       vaultId_: BytesLike,
+      to: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1317,6 +1350,12 @@ export class Ladle extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    closeFromLadle(
+      vaultId_: BytesLike,
+      to: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     destroy(
       vaultId_: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
@@ -1432,8 +1471,9 @@ export class Ladle extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    repayLadle(
+    repayFromLadle(
       vaultId_: BytesLike,
+      to: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1585,6 +1625,12 @@ export class Ladle extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    closeFromLadle(
+      vaultId_: BytesLike,
+      to: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     destroy(
       vaultId_: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
@@ -1712,8 +1758,9 @@ export class Ladle extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    repayLadle(
+    repayFromLadle(
       vaultId_: BytesLike,
+      to: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

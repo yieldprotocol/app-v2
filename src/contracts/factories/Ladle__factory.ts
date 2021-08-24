@@ -453,6 +453,30 @@ const _abi = [
         name: "vaultId_",
         type: "bytes12",
       },
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+    ],
+    name: "closeFromLadle",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "repaid",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes12",
+        name: "vaultId_",
+        type: "bytes12",
+      },
     ],
     name: "destroy",
     outputs: [],
@@ -937,8 +961,13 @@ const _abi = [
         name: "vaultId_",
         type: "bytes12",
       },
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
     ],
-    name: "repayLadle",
+    name: "repayFromLadle",
     outputs: [
       {
         internalType: "uint256",
