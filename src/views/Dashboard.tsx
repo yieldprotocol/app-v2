@@ -47,6 +47,7 @@ const Dashboard = () => {
   const [totalPoolBalance, setTotalPoolBalance] = useState<string | null>(null);
   const currencySettingAssetId = currencySetting === 'ETH' ? WETH : DAI;
   const currencySettingDigits = currencySetting === 'ETH' ? 4 : 2;
+  const currencySettingSymbol = currencySetting === 'ETH' ? 'Ξ' : '$';
 
   useEffect(() => {
     const _vaultPositions: IVault[] = Array.from(vaultMap.values())
@@ -87,7 +88,6 @@ const Dashboard = () => {
       if (assetId === WETH && baseOrIlkId !== WETH) {
         // calculate DAIWETH price
         const daiWethPrice = priceMap?.get(DAI)?.get(WETH);
-        console.log('daiwethprice', daiWethPrice);
         const daiWethPrice_ = ethers.utils.formatEther(daiWethPrice);
         // calculate WETHDAI price for 'ETH' currency setting
         const wethDaiPrice = 1 / Number(daiWethPrice_);
@@ -147,6 +147,7 @@ const Dashboard = () => {
               positionBalance={(Number(totalLendBalance!) + Number(totalPoolBalance!)).toString()}
               digits={currencySettingDigits}
               loading={vaultsLoading || seriesLoading || pricesLoading}
+              symbol={currencySettingSymbol}
             />
           </Box>
           <YieldInfo />
@@ -164,8 +165,8 @@ const Dashboard = () => {
                 <DashboardPositions
                   actionType={ActionType.BORROW}
                   positions={vaultPositions}
-                  debt={totalDebt}
-                  collateral={totalCollateral}
+                  debt={`${currencySettingSymbol}${totalDebt}`}
+                  collateral={`${currencySettingSymbol}${totalCollateral}`}
                 />
               )}
             </Box>
@@ -177,7 +178,7 @@ const Dashboard = () => {
                 <DashboardPositions
                   actionType={ActionType.LEND}
                   positions={lendPositions}
-                  lendBalance={totalLendBalance}
+                  lendBalance={`${currencySettingSymbol}${totalLendBalance}`}
                 />
               )}
             </Box>
@@ -189,7 +190,7 @@ const Dashboard = () => {
                 <DashboardPositions
                   actionType={ActionType.POOL}
                   positions={poolPositions}
-                  poolBalance={totalPoolBalance}
+                  poolBalance={`${currencySettingSymbol}${totalPoolBalance}`}
                 />
               )}
             </Box>
