@@ -11,6 +11,9 @@ const initState = {
   transactions: new Map([]) as Map<string, IYieldTx>,
   processes: new Map([]) as Map<string, IYieldProcess>,
 
+  /* using the useTx hook to map tx hashes to tx data */
+  transactions_: new Map([]) as Map<string, any>,
+
   /* process active flags for convenience */
   processActive: false as boolean,
 
@@ -34,7 +37,7 @@ interface IYieldTx extends ContractTransaction {
 
 interface IYieldProcess {
   status: 'ACTIVE|INACTIVE';
-  hash?: string | undefined
+  hash?: string | undefined;
 }
 
 function txReducer(_state: any, action: any) {
@@ -69,7 +72,7 @@ function txReducer(_state: any, action: any) {
           _state.processes.set(action.payload.txCode, {
             ..._state.processes.get(action.payload.txCode),
             status: action.payload.status,
-            hash: action.payload.hash
+            hash: action.payload.hash,
           })
         ),
       };
@@ -78,14 +81,29 @@ function txReducer(_state: any, action: any) {
       return {
         ..._state,
         processActive: _onlyIfChanged(action),
-    };
+      };
 
     case 'signingActive':
       return {
         ..._state,
         signingActive: _onlyIfChanged(action),
-    };
-      
+      };
+
+    case 'addTx':
+      return {
+        ..._state,
+        transactions_: new Map(_state.transactions_.set(action.payload.id, action.payload)),
+      };
+
+    case 'removeTx': {
+      const txCopy: any = _state.transactions_;
+      txCopy.delete(action.payload.id);
+      return {
+        ..._state,
+        transactions_: txCopy,
+      };
+    }
+
     default:
       return _state;
   }
@@ -243,19 +261,20 @@ const TxProvider = ({ children }: any) => {
     return _sig;
   };
 
-
   /* simple process watcher */
-  useEffect(()=>{
-    if ( txState.processes.size ) {
-      const hasActiveProcess = Array.from(txState.processes.values()).some((x:any)=> x.status === 'ACTIVE')
+  useEffect(() => {
+    if (txState.processes.size) {
+      const hasActiveProcess = Array.from(txState.processes.values()).some((x: any) => x.status === 'ACTIVE');
       updateState({ type: 'processActive', payload: hasActiveProcess });
     }
-  },[txState.processes])
+  }, [txState.processes]);
 
   /* expose the required actions */
   const txActions = {
     handleTx,
     handleSign,
+    setTxInContext: (tx: any) => updateState({ type: 'addTx', payload: tx }),
+    removeTxFromContext: (tx: any) => updateState({ type: 'removeTx', payload: tx }),
   };
 
   return <TxContext.Provider value={{ txState, txActions }}>{children}</TxContext.Provider>;
