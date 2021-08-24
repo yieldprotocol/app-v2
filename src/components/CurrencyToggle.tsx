@@ -21,7 +21,7 @@ const CurrencyToggle = (props: any) => {
             onClick={() => setCurrencySetting('DAI')}
             align="center"
           >
-            <Text size="small">DAI</Text>
+            <Text size="small">USD</Text>
           </Box>
           <Box
             fill
