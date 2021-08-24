@@ -46,7 +46,7 @@ const initState: IUserContextState = {
 
   /* User Settings */
   approvalMethod: ApprovalType.SIG,
-  dudeSalt: 1,
+  dudeSalt: 20,
   showInactiveVaults: false as boolean,
   slippageTolerance: 0.01 as number,
   vaultsLoading: false as boolean,
@@ -476,7 +476,7 @@ const UserProvider = ({ children }: any) => {
 
     setApprovalMethod: (type: ApprovalType) => updateState({ type: 'approvalMethod', payload: type }),
 
-    updateDudeSalt: () => updateState({ type: 'dudeSalt', payload: userState.dudeSalt + 1 }),
+    updateDudeSalt: () => updateState({ type: 'dudeSalt', payload: userState.dudeSalt + 3 }),
 
     setShowInactiveVaults: (showInactiveVaults: boolean) =>
       updateState({ type: 'showInactiveVaults', payload: showInactiveVaults }),

@@ -8,7 +8,6 @@ import { useChain } from '../useChain';
 
 import { calculateSlippage, fyTokenForMint, mint, mintWithBase, sellBase, splitLiquidity } from '../../utils/yieldMath';
 import { ChainContext } from '../../contexts/ChainContext';
-import SeriesSelector from '../../components/selectors/SeriesSelector';
 
 /* Hook for chain transactions */
 export const useAddLiquidity = () => {
@@ -24,8 +23,7 @@ export const useAddLiquidity = () => {
     input: string,
     series: ISeries,
     method: 'BUY' | 'BORROW' | string = 'BUY',
-    // strategyAddr: string | undefined = undefined,
-    strategyAddr: string | undefined = '0xdc70afc194261A7290fAc51E17992A4bF2D4b39b'
+    strategyAddr: string | undefined = '0xCADEe4f50200c4c630c2355eD51Fac9D4276fEC0'
   ) => {
     const txCode = getTxCode(ActionCodes.ADD_LIQUIDITY, series.id);
     const base: IAsset = assetMap.get(series.baseId);
@@ -94,13 +92,11 @@ export const useAddLiquidity = () => {
         args: [selectedSeriesId, selectedIlkId, '0'] as LadleActions.Args.BUILD,
         ignoreIf: method !== 'BORROW', // TODO exclude if vault is Provided.
       },
-
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [base.address, base.joinAddress, _baseToFyToken] as LadleActions.Args.TRANSFER,
         ignoreIf: method !== 'BORROW',
       },
-
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [base.address, series.poolAddress, _baseToPool] as LadleActions.Args.TRANSFER,

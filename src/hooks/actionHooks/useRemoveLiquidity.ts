@@ -17,7 +17,7 @@ export const useRemoveLiquidity = () => {
   const {
     chainState: { strategyRootMap, contractMap },
   } = useContext(ChainContext);
-  const ladleAddress = contractMap.get('Ladle').address;
+  const ladleAddress = contractMap.get('Ladle')?.address;
 
   const { userState, userActions } = useContext(UserContext);
   const { activeAccount: account, assetMap } = userState;
