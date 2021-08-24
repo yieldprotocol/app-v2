@@ -42,7 +42,10 @@ import AltText from '../components/texts/AltText';
 import EtherscanButton from '../components/buttons/EtherscanButton';
 import YieldMark from '../components/logos/YieldMark';
 import YieldCardHeader from '../components/YieldCardHeader';
+
 import AddTokenToMetamask from '../components/AddTokenToMetamask';
+import TransactionWidget from '../components/TransactionWidget';
+
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -418,6 +421,9 @@ const Borrow = () => {
         </CenterPanelWrap>
 
         <PanelWrap right basis="40%">
+          <Box margin={{ top: '10%' }} height="5rem">
+            <TransactionWidget tx={borrowTx} />
+          </Box>
           {/* <StepperText
               position={stepPosition}
               values={[

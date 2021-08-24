@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
-import { Box, Text, TextInput } from 'grommet';
+import { FiInfo } from 'react-icons/fi';
+import { Box, Text, TextInput, Tip } from 'grommet';
 import { UserContext } from '../contexts/UserContext';
 import InputWrap from './wraps/InputWrap';
 
@@ -17,7 +18,14 @@ const HideBalancesSetting = (props: any) => {
 
   return (
     <Box gap="small">
-      <Text size="small">Hide Balances Below</Text>
+      <Box direction="row" gap="xsmall">
+        <Text size="small">Hide Balances Below</Text>
+        <Tip content={<Text size="xsmall">in position balance</Text>} dropProps={{ align: { bottom: 'top' } }}>
+          <Text size="small">
+            <FiInfo />
+          </Text>
+        </Tip>
+      </Box>
       <InputWrap border={{ color: 'tailwind-blue' }} width={props.width}>
         <Input
           textAlign="center"

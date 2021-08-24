@@ -70,9 +70,9 @@ export const useTx = (
       : setProcessActive(false);
   }, [processes, txCode]);
 
-  useEffect(()=>{
-    transactions.has(txHash) && setTxStatus(transactions.get(txHash).status)
-  },[txHash, transactions])
+  useEffect(() => {
+    transactions.has(txHash) && setTxStatus(transactions.get(txHash).status);
+  }, [txHash, transactions]);
 
   useEffect(() => {
     setTx((t) => ({ ...t, txCode, processActive }));
