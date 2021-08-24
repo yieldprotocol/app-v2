@@ -53,6 +53,7 @@ const initState: IUserContextState = {
   seriesLoading: false as boolean,
   assetsLoading: false as boolean,
   hideBalancesSetting: null as string | null,
+  currencySetting: 'DAI' as string,
 };
 
 const vaultNameConfig: Config = {
@@ -106,6 +107,8 @@ function userReducer(state: any, action: any) {
       return { ...state, seriesLoading: onlyIfChanged(action) };
     case 'assetsLoading':
       return { ...state, assetsLoading: onlyIfChanged(action) };
+    case 'currencySetting':
+      return { ...state, currencySetting: onlyIfChanged(action) };
 
     default:
       return state;
@@ -485,6 +488,8 @@ const UserProvider = ({ children }: any) => {
 
     setHideBalancesSetting: (hideBalancesSetting: string) =>
       updateState({ type: 'hideBalancesSetting', payload: hideBalancesSetting }),
+
+    setCurrencySetting: (currencySetting: string) => updateState({ type: 'currencySetting', payload: currencySetting }),
   };
 
   return <UserContext.Provider value={{ userState, userActions } as IUserContext}>{children}</UserContext.Provider>;
