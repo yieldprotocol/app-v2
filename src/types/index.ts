@@ -40,6 +40,7 @@ export interface IUserContextState {
   seriesLoading: boolean;
   assetsLoading: boolean;
   hideBalancesSetting: string | null;
+  currencySetting: string;
 }
 
 export interface IUserContextActions {
