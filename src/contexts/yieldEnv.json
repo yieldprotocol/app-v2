@@ -3,22 +3,19 @@
     "1": {
       "Cauldron": "0x324ee27d5f5A7Da8C926A5954CB86357b8e07F81",
       "Ladle": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-      "CompoundOracle": "0x17B6fC5c9b3C422255eB2e2E6d152bc5B9f261b9",
-      "ChainlinkOracle": "0x2C5f88E7BD899CE57242ecA7650F21a4a9c28D3f",
+      "ChainlinkMultiOracle": "0x2C5f88E7BD899CE57242ecA7650F21a4a9c28D3f",
       "CompositeMultiOracle": "0x77528b9E8300D4eF6075c18C7148420C86997106"
     },
     "42": {
       "Cauldron": "0x78F5fbc750f6a073D8b0Bc0dDDfdc846B9ba19bc",
       "Ladle": "0xAd35c74914CD2d61B6681ECC3E8b04a3966B261F",
-      "CompoundOracle": "0x448FDaaa4AB94Ee0863dadd278a4dAAb2E617A11",
-      "ChainlinkOracle": "0x3c08e86b202c0eE0D20D6eA5175e2B128eD63ee3",
+      "ChainlinkMultiOracle": "0x3c08e86b202c0eE0D20D6eA5175e2B128eD63ee3",
       "CompositeMultiOracle": "0x2fc70a86c47D7095bBd1E730694f1B6aFFAb0e33"
     },
     "31337": {
       "Cauldron": "0x7Dd21c63a12042759ce9D5207301F0f19b10c634",
       "Ladle": "0xb3768d474dc5464c50AFF228682a5D63c06335E8",
-      "CompoundOracle": "0xfc569FF2C8fB3212cFA47cFaa881CE16eB3e80bb",
-      "ChainlinkOracle": "0x06E5903f2Aa1935EE6f4B9f825F8A140C681C0F1",
+      "ChainlinkMulitOracle": "0x06E5903f2Aa1935EE6f4B9f825F8A140C681C0F1",
       "CompositeMultiOracle": "0x77528b9E8300D4eF6075c18C7148420C86997106"
     }
   },

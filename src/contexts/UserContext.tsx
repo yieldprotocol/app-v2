@@ -20,7 +20,7 @@ import { ChainContext } from './ChainContext';
 import { cleanValue, genVaultImage, bytesToBytes32 } from '../utils/appUtils';
 import { calculateAPR, divDecimal, floorDecimal, mulDecimal, secondsToFrom, sellFYToken } from '../utils/yieldMath';
 
-import { ONE_WEI_BN } from '../utils/constants';
+import { ONE_WEI_BN, ETH_BASED_ASSETS } from '../utils/constants';
 
 const UserContext = React.createContext<any>({});
 
@@ -264,10 +264,13 @@ const UserProvider = ({ children }: any) => {
       try {
         const _priceMap = userState.priceMap;
         const _basePriceMap = _priceMap.get(base) || new Map<string, any>();
-        // const Oracle = contractMap.get('ChainlinkOracle');
-        const Oracle = contractMap.get('CompositeMultiOracle');
-        const [price] = await Oracle.peek(bytesToBytes32(base, 6), bytesToBytes32(ilk, 6), ONE_WEI_BN);
-        // const [price] = await Oracle.peek(base, ilk, ONE_WEI_BN);
+        
+        // set oracle based on whether ILK is ETH-BASED
+        const Oracle = ETH_BASED_ASSETS.includes(ilk)
+          ? contractMap.get('ChainlinkMultiOracle') 
+          : contractMap.get('CompositeMultiOracle');
+
+        const [price] = await Oracle.peek(bytesToBytes32(ilk, 6), bytesToBytes32(base, 6),  ONE_WEI_BN);
 
         _basePriceMap.set(ilk, price);
         _priceMap.set(base, _basePriceMap);
