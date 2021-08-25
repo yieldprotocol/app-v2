@@ -25,8 +25,7 @@ export const useTx = (
 ) => {
   /* STATE FROM CONTEXT */
   const {
-    txState: { transactions, processes, transactions_ },
-    txActions: { setTxInContext, removeTxFromContext },
+    txState: { transactions, processes },
   } = useContext(TxContext);
   const {
     // userState: { selectedVaultId, selectedSeriesId },
