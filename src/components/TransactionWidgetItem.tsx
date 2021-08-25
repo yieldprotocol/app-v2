@@ -1,53 +1,38 @@
 import React from 'react';
 import { Box, Text, Spinner } from 'grommet';
 import { FiAlertTriangle, FiCheckCircle, FiXCircle } from 'react-icons/fi';
-import { abbreviateHash } from '../utils/appUtils';
-import CopyWrap from './wraps/CopyWrap';
+import EtherscanButton from './buttons/EtherscanButton';
+
+const TxItem = ({ tx, type }: { tx: any; type: string }) =>
+  tx[type] !== undefined && tx[type] ? (
+    <Box direction="row" align="center" gap="medium">
+      <Box direction="row" gap="xsmall" align="center">
+        {type === 'pending' && <Spinner color="tailwind-blue" size="small" />}
+        {type === 'success' && <FiCheckCircle size="20px" />}
+        {type === 'failed' && <FiXCircle size="20px" />}
+        <Text size="xsmall">Transaction {`${type[0].toUpperCase()}${type.slice(1)}`}</Text>
+      </Box>
+      <EtherscanButton txHash={tx.txHash} />
+    </Box>
+  ) : null;
 
 const TransactionWidgetItem = ({ tx }: any) => (
-  <Box
-    round="xsmall"
-    pad={{ horizontal: 'medium', vertical: 'xsmall' }}
-    elevation={tx.processActive || tx.success || tx.failed ? 'xsmall' : undefined}
-    gap="xsmall"
-    fill
-    align="center"
-    justify="center"
-  >
+  <Box round="xsmall" elevation="small" align="center" pad={{ horizontal: 'small', vertical: 'medium' }}>
     {!tx.pending && tx.processActive && (
-      <Box direction="row" gap="medium" align="center">
-        <FiAlertTriangle />
+      <Box direction="row" align="center" gap="medium">
+        <Box direction="row" gap="small" align="center">
+          <FiAlertTriangle size="20px" />
+          <Text size="xsmall">Action Required</Text>
+        </Box>
         <Box>
-          <Text size="small">Action Required</Text>
           <Text size="xsmall">Check your wallet</Text>
         </Box>
       </Box>
     )}
 
-    {tx.pending && (
-      <Box direction="row" gap="medium" align="center">
-        {/* <FiClock /> */}
-        <Spinner />
-        <Box>
-          <Text size="small">Transaction Pending</Text>
-          <Text size="xsmall">
-            <CopyWrap hash={tx.txHash}>{abbreviateHash(tx.txHash, 6)} </CopyWrap>
-          </Text>
-        </Box>
-      </Box>
-    )}
-    {tx.success && (
-      <Box direction="row" gap="small">
-        <FiCheckCircle />
-        <Text size="xsmall"> Transaction Complete </Text>
-      </Box>
-    )}
-    {tx.failed && (
-      <Box direction="row" gap="small">
-        <FiXCircle />
-        <Text size="xsmall"> Transaction Failed </Text>
-      </Box>
-    )}
+    <TxItem tx={tx} type="pending" />
+    <TxItem tx={tx} type="success" />
+    <TxItem tx={tx} type="failed" />
   </Box>
 );
 
