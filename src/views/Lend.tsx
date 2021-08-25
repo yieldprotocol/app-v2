@@ -267,7 +267,7 @@ const Lend = () => {
       </CenterPanelWrap>
 
       <PanelWrap right basis="40%">
-        <Box margin={{ top: '20%' }}>
+        <Box margin={{ top: '20%' }} pad="small">
           <TransactionWidget />
         </Box>
         {/* <YieldApr input={lendInput} actionType={ActionType.LEND} /> */}

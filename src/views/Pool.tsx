@@ -60,7 +60,6 @@ function Pool() {
   /* HOOK FNS */
   const addLiquidity = useAddLiquidity();
 
-
   /* input validation hooks */
   const { inputError: poolError } = useInputValidation(poolInput, ActionCodes.ADD_LIQUIDITY, selectedSeries, [
     0,
@@ -274,7 +273,7 @@ function Pool() {
       </CenterPanelWrap>
 
       <PanelWrap right basis="40%">
-        <Box margin={{ top: '20%' }}>
+        <Box margin={{ top: '20%' }} pad="small">
           <TransactionWidget />
         </Box>
         {/* <YieldLiquidity input={poolInput} /> */}
