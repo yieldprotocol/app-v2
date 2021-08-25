@@ -1,5 +1,4 @@
 import { useContext, useEffect, useState } from 'react';
-import { v4 as id } from 'uuid';
 import { useHistory } from 'react-router-dom';
 import { TxContext } from '../contexts/TxContext';
 import { UserContext } from '../contexts/UserContext';
@@ -15,7 +14,6 @@ interface ITx {
   txHash: any;
   processActive: boolean;
   complete: boolean;
-  id: string;
 }
 
 /* useTx hook returns the tx status, and redirects to home after success if shouldRedirect is specified */
@@ -46,7 +44,6 @@ export const useTx = (
     txHash: undefined,
     processActive: false,
     complete: false,
-    id: id(),
   };
 
   const [tx, setTx] = useState<ITx>(INITIAL_STATE);
@@ -105,7 +102,7 @@ export const useTx = (
   // adds a tx to global state
   useEffect(() => {
     setTxInContext(tx);
-  }, [tx.id, tx.processActive, tx.complete, tx.pending, tx.success, tx.failed, tx.rejected, tx.txCode]);
+  }, [tx.processActive, tx.complete, tx.pending, tx.success, tx.failed, tx.rejected, tx.txCode]);
 
   // remove a successful or failed tx after 3 seconds
   useEffect(() => {

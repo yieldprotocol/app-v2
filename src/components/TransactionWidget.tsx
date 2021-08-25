@@ -4,18 +4,19 @@ import { TxContext } from '../contexts/TxContext';
 import TransactionWidgetItem from './TransactionWidgetItem';
 
 const TransactionWidget = () => {
-  const { transactions_ } = useContext(TxContext);
+  const {
+    txState: { transactions_ },
+  } = useContext(TxContext);
 
   const txListRender = [...transactions_.keys()].map((t) => {
     const tx = transactions_.get(t);
     return <TransactionWidgetItem tx={tx} key={tx.id} />;
   });
 
-  return (
+  return transactions_.size ? (
     <Box
       round="xsmall"
       pad={{ horizontal: 'medium', vertical: 'xsmall' }}
-      elevation="xsmall"
       gap="xsmall"
       fill
       align="center"
@@ -23,7 +24,7 @@ const TransactionWidget = () => {
     >
       {txListRender}
     </Box>
-  );
+  ) : null;
 };
 
 export default TransactionWidget;
