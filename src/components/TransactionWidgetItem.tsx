@@ -12,12 +12,12 @@ const TxItem = ({ tx, type, wide }: { tx: any; type: string; wide: boolean }) =>
       {type === 'failed' && <FiXCircle size="1.5rem" />}
       <Box
         gap="small"
-        align="center"
+        align={wide ? 'center' : 'start'}
         direction={wide ? 'row' : undefined}
-        justify={wide ? 'between' : undefined}
+        justify={wide ? 'between' : 'start'}
         fill={wide ? 'horizontal' : undefined}
       >
-        <Box direction="row" justify="start" align="center">
+        <Box direction="row" justify="start" align="start">
           <Text size="xsmall">{`${tx.primaryInfo} ${type[0].toUpperCase()}${type.slice(1)}`}</Text>
         </Box>
         <Box direction={wide ? 'row' : undefined} align="center">
@@ -47,7 +47,7 @@ const TransactionWidgetItem = ({ tx, wide }: { tx: any; wide?: boolean }) => (
           direction={wide ? 'row' : undefined}
           gap="small"
           align="start"
-          justify={wide ? 'between' : undefined}
+          justify={wide ? 'between' : 'start'}
           fill={wide ? 'horizontal' : undefined}
         >
           <Box direction="row" justify="start">
@@ -66,6 +66,6 @@ const TransactionWidgetItem = ({ tx, wide }: { tx: any; wide?: boolean }) => (
   </Box>
 );
 
-TransactionWidgetItem.defaultProps = { wide: true };
+TransactionWidgetItem.defaultProps = { wide: false };
 
 export default TransactionWidgetItem;
