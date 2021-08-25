@@ -180,7 +180,7 @@ export interface ISignData {
   series: ISeries;
   /* optional Extention/advanced use-case options */
   amount?: BigNumberish;
-  
+
   message?: string; // optional messaging for UI
   ignoreIf?: boolean; // conditional for ignoring
   domain?: IDomain;
@@ -292,4 +292,17 @@ export interface IHistItemPosition extends IBaseHistItem {
   fyTokens_: string;
   poolTokens?: BigNumber;
   poolTokens_?: string;
+}
+
+export interface ITransactions_ {
+  txCode: string | undefined;
+  txHash: string | undefined;
+  processActive: boolean;
+  signing: boolean;
+  pending: boolean;
+  success: boolean;
+  failed: boolean;
+  rejected: boolean;
+  complete: boolean;
+  txId: string;
 }

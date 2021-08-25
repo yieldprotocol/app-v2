@@ -1,7 +1,7 @@
-import React, { useReducer, useEffect } from 'react';
+import React, { useReducer, useEffect, useState } from 'react';
 import { ethers, ContractTransaction, constants } from 'ethers';
 import { toast } from 'react-toastify';
-import { ApprovalType, ISignData, TxState } from '../types';
+import { ApprovalType, ISignData, TxState, ITransactions_ } from '../types';
 
 const TxContext = React.createContext<any>({});
 
@@ -12,7 +12,7 @@ const initState = {
   processes: new Map([]) as Map<string, IYieldProcess>,
 
   /* using the useTx hook to map tx hashes to tx data */
-  transactions_: new Map([]) as Map<string, any>,
+  transactions_: new Map([]) as Map<number, any>,
 
   /* process active flags for convenience */
   processActive: false as boolean,
@@ -89,20 +89,17 @@ function txReducer(_state: any, action: any) {
         signingActive: _onlyIfChanged(action),
       };
 
-    case 'addTx':
+    /* handling setting a tx in transaction_ state */
+    case 'transactions_':
       return {
         ..._state,
-        transactions_: new Map(_state.transactions_.set(action.payload.id, action.payload)),
+        transactions_: new Map(
+          _state.transactions_.set(action.payload.txId, {
+            ..._state.transactions_.get(action.payload.txId),
+            ...action.payload,
+          })
+        ),
       };
-
-    case 'removeTx': {
-      const txCopy: any = _state.transactions_;
-      txCopy.delete(action.payload.id);
-      return {
-        ..._state,
-        transactions_: txCopy,
-      };
-    }
 
     default:
       return _state;
@@ -112,10 +109,25 @@ function txReducer(_state: any, action: any) {
 const TxProvider = ({ children }: any) => {
   const [txState, updateState] = useReducer(txReducer, initState);
 
+  let txId: any;
+  const _addTx = (txCode: string) => {
+    txId = ethers.utils.hexlify(ethers.utils.randomBytes(6));
+    updateState({
+      type: 'transactions_',
+      payload: { txId, txCode },
+    });
+    return txId;
+  };
+
   const _startProcess = (txCode: string) => {
     updateState({
       type: 'processes',
       payload: { txCode, status: 'ACTIVE' },
+    });
+
+    updateState({
+      type: 'transactions_',
+      payload: { txId, processActive: true },
     });
   };
 
@@ -123,6 +135,11 @@ const TxProvider = ({ children }: any) => {
     updateState({
       type: 'processes',
       payload: { txCode, status: 'INACTIVE', hash: undefined },
+    });
+
+    updateState({
+      type: 'transactions_',
+      payload: { txId, processActive: false },
     });
   };
 
@@ -142,6 +159,11 @@ const TxProvider = ({ children }: any) => {
         console.log('Something went wrong: ', err);
       }
     }
+
+    updateState({
+      type: 'transactions_',
+      payload: { txId, rejected: true },
+    });
   };
 
   /* handle an error from a tx that was successfully submitted */
@@ -151,6 +173,11 @@ const TxProvider = ({ children }: any) => {
     _endProcess(txCode);
     console.log('txHash: ', tx.hash);
     console.log('txCode: ', txCode);
+
+    updateState({
+      type: 'transactions_',
+      payload: { txId, failed: true, pending: false },
+    });
   };
 
   /* Handle a tx */
@@ -174,6 +201,8 @@ const TxProvider = ({ children }: any) => {
         tx = await txFn();
         console.log(tx);
         updateState({ type: 'transactions', payload: { tx, txCode, receipt: null, status: TxState.PENDING } });
+
+        updateState({ type: 'transactions_', payload: { txHash: tx.hash, txId, pending: true } });
       } catch (e) {
         /* this case is when user rejects tx OR wallet rejects tx */
         _handleTxRejection(e, txCode);
@@ -185,6 +214,11 @@ const TxProvider = ({ children }: any) => {
       updateState({
         type: 'transactions',
         payload: { tx, txCode, receipt: res, status: txSuccess ? TxState.SUCCESSFUL : TxState.FAILED },
+      });
+
+      updateState({
+        type: 'transactions_',
+        payload: { txId, success: txSuccess, pending: false },
       });
 
       /* if the handleTx is NOT a fallback tx (from signing) - then end the process */
@@ -204,6 +238,7 @@ const TxProvider = ({ children }: any) => {
   };
 
   /* handle a sig and sig fallbacks */
+  /* returns the tx id to be used in handleTx */
   const handleSign = async (
     signFn: () => Promise<any>,
     fallbackFn: () => Promise<any>,
@@ -211,12 +246,19 @@ const TxProvider = ({ children }: any) => {
     txCode: string,
     approvalMethod: ApprovalType
   ) => {
+    _addTx(txCode);
+
     /* start a process */
     _startProcess(txCode);
     console.log(txState.processes);
 
     const uid = ethers.utils.hexlify(ethers.utils.randomBytes(6));
     updateState({ type: 'signatures', payload: { uid, txCode, sigData, status: TxState.PENDING } as IYieldSignature });
+
+    updateState({
+      type: 'transactions_',
+      payload: { txId, signing: true },
+    });
 
     let _sig;
     if (approvalMethod === ApprovalType.SIG) {
@@ -258,6 +300,11 @@ const TxProvider = ({ children }: any) => {
       type: 'signatures',
       payload: { uid, txCode, sigData, status: TxState.SUCCESSFUL } as IYieldSignature,
     });
+
+    updateState({
+      type: 'transactions_',
+      payload: { txId, signing: false },
+    });
     return _sig;
   };
 
@@ -273,8 +320,6 @@ const TxProvider = ({ children }: any) => {
   const txActions = {
     handleTx,
     handleSign,
-    setTxInContext: (tx: any) => updateState({ type: 'addTx', payload: tx }),
-    removeTxFromContext: (tx: any) => updateState({ type: 'removeTx', payload: tx }),
   };
 
   return <TxContext.Provider value={{ txState, txActions }}>{children}</TxContext.Provider>;

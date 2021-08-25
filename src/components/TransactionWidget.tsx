@@ -10,7 +10,7 @@ const TransactionWidget = () => {
 
   const txListRender = [...transactions_.keys()].map((t) => {
     const tx = transactions_.get(t);
-    return <TransactionWidgetItem tx={tx} key={tx.id} />;
+    return <TransactionWidgetItem tx={tx} key={tx.txId} />;
   });
 
   return transactions_.size ? (
