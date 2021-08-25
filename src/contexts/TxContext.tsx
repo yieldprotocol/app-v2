@@ -114,20 +114,20 @@ const TxProvider = ({ children }: any) => {
     txId = ethers.utils.hexlify(ethers.utils.randomBytes(6));
     updateState({
       type: 'transactions_',
-      payload: { txId, txCode, complete: false },
+      payload: { txId, txCode, active: true },
     });
     return txId;
   };
 
-  const _handleComplete = () => {
+  // the tx is active if it is not complete (success, failed, rejected)
+  const _endTx = () => {
     const timer = setTimeout(
       () =>
         updateState({
           type: 'transactions_',
-          payload: { txId, complete: true },
+          payload: { txId, complete: true, active: false },
         }),
-
-      3000
+      5000
     );
     return () => clearTimeout(timer);
   };
@@ -154,8 +154,6 @@ const TxProvider = ({ children }: any) => {
       type: 'transactions_',
       payload: { txId, processActive: false },
     });
-
-    _handleComplete();
   };
 
   /* handle case when user or wallet rejects the tx (before submission) */
@@ -179,14 +177,14 @@ const TxProvider = ({ children }: any) => {
       type: 'transactions_',
       payload: { txId, rejected: true },
     });
-    _handleComplete();
+    _endTx();
   };
 
   /* handle an error from a tx that was successfully submitted */
   const _handleTxError = (msg: string, tx: any, txCode: any) => {
+    _endProcess(txCode);
     toast.error(msg);
     updateState({ type: 'transactions', payload: { tx, txCode, receipt: undefined, status: TxState.FAILED } });
-    _endProcess(txCode);
     console.log('txHash: ', tx.hash);
     console.log('txCode: ', txCode);
 
@@ -194,7 +192,7 @@ const TxProvider = ({ children }: any) => {
       type: 'transactions_',
       payload: { txId, failed: true, pending: false },
     });
-    _handleComplete();
+    _endTx();
   };
 
   /* Handle a tx */
@@ -237,7 +235,7 @@ const TxProvider = ({ children }: any) => {
         type: 'transactions_',
         payload: { txId, success: txSuccess, pending: false },
       });
-      _handleComplete();
+      _endTx();
 
       /* if the handleTx is NOT a fallback tx (from signing) - then end the process */
       if (_isfallback === false) {
@@ -299,6 +297,10 @@ const TxProvider = ({ children }: any) => {
         });
         /* end the process on signature rejection */
         _endProcess(txCode);
+        updateState({
+          type: 'transactions_',
+          payload: { txId, signing: false, active: false },
+        });
         return Promise.reject(err);
       });
       /* on Completion of approval tx, send back an empty signed object (which will be ignored) */
