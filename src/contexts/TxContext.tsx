@@ -114,7 +114,13 @@ const TxProvider = ({ children }: any) => {
     txId = ethers.utils.hexlify(ethers.utils.randomBytes(6));
     updateState({
       type: 'transactions_',
-      payload: { txId, txCode, active: true, primaryInfo: `${txCode.split('_')[0]}` },
+      payload: {
+        txId,
+        txCode,
+        active: true,
+        primaryInfo: `${txCode.split('_')[0].toString()}`,
+        positionLink: `${txCode.split('_')[1].toString()}`,
+      },
     });
     return txId;
   };
@@ -127,7 +133,7 @@ const TxProvider = ({ children }: any) => {
           type: 'transactions_',
           payload: { txId, complete: true, active: false },
         }),
-      5000
+      10000
     );
     return () => clearTimeout(timer);
   };
@@ -185,7 +191,7 @@ const TxProvider = ({ children }: any) => {
     _endProcess(txCode);
     toast.error(msg);
     updateState({ type: 'transactions', payload: { tx, txCode, receipt: undefined, status: TxState.FAILED } });
-    console.log('txHash: ', tx.hash);
+    console.log('txHash: ', tx?.hash);
     console.log('txCode: ', txCode);
 
     updateState({
@@ -304,10 +310,12 @@ const TxProvider = ({ children }: any) => {
         });
         /* end the process on signature rejection */
         _endProcess(txCode);
+
         updateState({
           type: 'transactions_',
           payload: { txId, signing: false, active: false },
         });
+
         return Promise.reject(err);
       });
       /* on Completion of approval tx, send back an empty signed object (which will be ignored) */
