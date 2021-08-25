@@ -114,9 +114,22 @@ const TxProvider = ({ children }: any) => {
     txId = ethers.utils.hexlify(ethers.utils.randomBytes(6));
     updateState({
       type: 'transactions_',
-      payload: { txId, txCode },
+      payload: { txId, txCode, complete: false },
     });
     return txId;
+  };
+
+  const _handleComplete = () => {
+    const timer = setTimeout(
+      () =>
+        updateState({
+          type: 'transactions_',
+          payload: { txId, complete: true },
+        }),
+
+      3000
+    );
+    return () => clearTimeout(timer);
   };
 
   const _startProcess = (txCode: string) => {
@@ -141,6 +154,8 @@ const TxProvider = ({ children }: any) => {
       type: 'transactions_',
       payload: { txId, processActive: false },
     });
+
+    _handleComplete();
   };
 
   /* handle case when user or wallet rejects the tx (before submission) */
@@ -164,6 +179,7 @@ const TxProvider = ({ children }: any) => {
       type: 'transactions_',
       payload: { txId, rejected: true },
     });
+    _handleComplete();
   };
 
   /* handle an error from a tx that was successfully submitted */
@@ -178,6 +194,7 @@ const TxProvider = ({ children }: any) => {
       type: 'transactions_',
       payload: { txId, failed: true, pending: false },
     });
+    _handleComplete();
   };
 
   /* Handle a tx */
@@ -220,6 +237,7 @@ const TxProvider = ({ children }: any) => {
         type: 'transactions_',
         payload: { txId, success: txSuccess, pending: false },
       });
+      _handleComplete();
 
       /* if the handleTx is NOT a fallback tx (from signing) - then end the process */
       if (_isfallback === false) {
