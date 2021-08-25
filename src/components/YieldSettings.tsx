@@ -6,6 +6,8 @@ import { ChainContext, connectorNames } from '../contexts/ChainContext';
 import { abbreviateHash } from '../utils/appUtils';
 import YieldAvatar from './YieldAvatar';
 import AdvancedSettings from './AdvancedSettings';
+import { TxContext } from '../contexts/TxContext';
+import TransactionWidget from './TransactionWidget';
 
 const ChangeButton = styled(Button)`
   background: #dbeafe;
@@ -27,6 +29,9 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
   const {
     chainState: { account, chainData, provider },
   } = useContext(ChainContext);
+  const {
+    txState: { transactions_ },
+  } = useContext(TxContext);
   const connectorName = connectorNames.get(provider.connection.url);
   const [copySuccess, setCopySuccess] = useState<boolean>(false);
   const [transactionsOpen, toggleTransactionsOpen] = useState<boolean>(false);
@@ -103,7 +108,8 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
           )}
         </Box>
         <Collapsible open={transactionsOpen}>
-          <Text size="small">Your transactions will appear here...</Text>
+          {!transactions_.size && <Text size="small">Your transactions will appear here...</Text>}
+          <TransactionWidget showComplete wide />
         </Collapsible>
       </Box>
     </Box>

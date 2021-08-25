@@ -39,7 +39,7 @@ const TxItem = ({ tx, type, wide }: { tx: any; type: string; wide: boolean }) =>
   ) : null;
 
 const TransactionWidgetItem = ({ tx, wide }: { tx: any; wide?: boolean }) => (
-  <Box round="xsmall" elevation={wide ? undefined : 'small'} align="center" pad="medium">
+  <Box round="xsmall" elevation={wide ? undefined : 'small'} align="center" pad={wide ? 'xsmall' : 'medium'}>
     {!tx.pending && tx.processActive && (
       <Box align="center" fill direction="row" gap="small">
         <FiAlertTriangle size="1.5rem" />
