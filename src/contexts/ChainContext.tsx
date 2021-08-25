@@ -381,6 +381,7 @@ const ChainProvider = ({ children }: any) => {
                 const poolAddress: string = poolMap.get(id) as string;
                 const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackLibrary);
                 const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackLibrary);
+                // const baseContract = contracts.ERC20__factory.connect(fyToken, fallbackLibrary);
                 const [name, symbol, version, poolName, poolVersion, poolSymbol] = await Promise.all([
                   fyTokenContract.name(),
                   fyTokenContract.symbol(),
