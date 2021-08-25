@@ -278,7 +278,7 @@ const UserProvider = ({ children }: any) => {
       } catch (error) {
         console.log(error);
         updateState({ type: 'pricesLoading', payload: false });
-        return ethers.constants.Zero;
+        return ethers.utils.parseEther('1'); // set as 1:1 defualt for testing
       }
     },
     [contractMap, userState.priceMap]
