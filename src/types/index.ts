@@ -1,6 +1,6 @@
-import { ethers, BigNumber, BigNumberish } from 'ethers';
+import { ethers, BigNumber, BigNumberish, Contract } from 'ethers';
 import React from 'react';
-import { FYToken, Pool, Strategy } from '../contracts';
+import { ERC20, ERC20Permit, ERC20__factory, FYToken, Pool, Strategy } from '../contracts';
 
 export { LadleActions, RoutedActions } from './operations';
 
@@ -70,6 +70,8 @@ export interface ISeriesRoot {
   poolAddress: string;
   poolName: string;
   poolVersion: string; // for signing
+  poolSymbol: string; // for signing
+  
   baseId: string;
 
   color: string;
@@ -176,9 +178,9 @@ export interface ICallData {
 }
 
 export interface ISignData {
-  target: ISeries | IAsset | { id: string; name: string; version: string; address: string };
+  target: ISeries | IAsset | { name: string, version:string , address:string, symbol:string };
   spender: 'LADLE' | string;
-  series: ISeries;
+
   /* optional Extention/advanced use-case options */
   amount?: BigNumberish;
   

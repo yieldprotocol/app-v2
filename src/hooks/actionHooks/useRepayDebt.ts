@@ -53,7 +53,6 @@ export const useRepayDebt = () => {
           // before maturity
           target: base,
           spender: 'LADLE',
-          series,
           message: 'Signing Approval',
           ignoreIf: series.seriesIsMature,
         },
@@ -61,7 +60,6 @@ export const useRepayDebt = () => {
           // after maturity
           target: base,
           spender: base.joinAddress,
-          series,
           message: 'Signing Dai Approval',
           ignoreIf: !series.seriesIsMature,
         },

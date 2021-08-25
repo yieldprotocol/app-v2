@@ -35,12 +35,11 @@ export const useRemoveLiquidity = () => {
         {
           // router.forwardPermitAction(pool.address, pool.address, router.address, allowance, deadline, v, r, s),
           target: {
-            id: series.id,
             address: series.poolAddress,
             name: series.poolName,
             version: series.poolVersion,
+            symbol: series.poolSymbol,
           },
-          series,
           spender: 'LADLE',
           message: 'Signing ERC20 Token approval',
           ignoreIf: false,

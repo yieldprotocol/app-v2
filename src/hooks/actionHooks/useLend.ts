@@ -41,7 +41,6 @@ export const useLend = () => {
         {
           target: base,
           spender: 'LADLE',
-          series,
           message: 'Signing ERC20 Token approval',
           ignoreIf: false,
         },

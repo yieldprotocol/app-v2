@@ -50,9 +50,9 @@ export const useRollLiquidity = () => {
             address: fromSeries.poolAddress,
             name: fromSeries.poolName,
             version: fromSeries.poolVersion,
+            symbol: fromSeries.poolSymbol
           },
           spender: 'LADLE',
-          series: fromSeries,
           message: 'Signing ERC20 Token approval',
           ignoreIf: fromSeries.seriesIsMature,
         },
@@ -62,7 +62,6 @@ export const useRollLiquidity = () => {
           // ladle.forwardPermitAction(seriesId, false, ladle.address, allowance, deadline, v, r, s)
           target: fromSeries,
           spender: 'LADLE',
-          series: fromSeries,
           message: 'Signing ERC20 Token approval',
           ignoreIf: !fromSeries.seriesIsMature,
         },

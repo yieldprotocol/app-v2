@@ -30,7 +30,6 @@ export const useVaultAdmin = () => {
         {
           target: base,
           spender: 'LADLE',
-          series,
           message: 'Signing Dai Approval',
           ignoreIf: series.seriesIsMature || base.hasLadleAuth,
         },

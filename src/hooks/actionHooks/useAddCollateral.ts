@@ -61,7 +61,6 @@ export const useAddCollateral = () => {
         {
           target: ilk,
           spender: ilk.joinAddress,
-          series,
           ignoreIf: _isEthBased,
         },
       ],

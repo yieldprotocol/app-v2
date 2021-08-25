@@ -49,7 +49,6 @@ export const useClosePosition = () => {
         {
           target: series,
           spender: 'LADLE',
-          series,
           message: 'Signing ERC20 Token approval',
           ignoreIf: series.seriesIsMature,
         },

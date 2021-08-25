@@ -43,7 +43,6 @@ export const useBorrow = () => {
         {
           target: ilk,
           spender: ilk.joinAddress,
-          series,
           ignoreIf: ETH_BASED_ASSETS.includes(selectedIlkId), // ignore if an ETH-BASED asset
         },
       ],

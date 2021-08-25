@@ -6,7 +6,7 @@ import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
 import { DAI_BASED_ASSETS, MAX_128, MAX_256 } from '../utils/constants';
 import { ICallData, ISignData, ISeries, LadleActions } from '../types';
-import { ERC20, ERC20__factory, Ladle, Pool, PoolRouter, Strategy } from '../contracts';
+import { ERC20, ERC20Permit, ERC20__factory, Ladle, Pool, PoolRouter, Strategy } from '../contracts';
 import { UserContext } from '../contexts/UserContext';
 
 /*  💨 Calculate the accumulative gas limit (IF ALL calls have a gaslimit then set the total, else undefined ) */
@@ -83,7 +83,7 @@ export const useChain = () => {
     /* Finally, send out the transaction */
     return handleTx(
       () =>
-        _contract.batch(encodedCalls, { value: batchValue, gasLimit: BigNumber.from('750000') } as PayableOverrides),
+        _contract.batch(encodedCalls, { value: batchValue } as PayableOverrides),
       txCode
     );
   };
@@ -120,8 +120,8 @@ export const useChain = () => {
 
         /*
           Request the signature if using DaiType permit style
-        */
-        if ( DAI_BASED_ASSETS.includes(reqSig.series.baseId) ) {
+        */ 
+        if ( reqSig.target.symbol === 'DAI' ) {
           const { v, r, s, nonce, expiry, allowed } = await handleSign(
             /* We are pass over the generated signFn and sigData to the signatureHandler for tracking/tracing/fallback handling */
             () =>

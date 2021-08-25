@@ -45,7 +45,6 @@ export const useRollPosition = () => {
         {
           target: fromSeries,
           spender: 'LADLE',
-          series: fromSeries,
           message: 'Signing ERC20 Token approval',
           ignoreIf: false,
         },

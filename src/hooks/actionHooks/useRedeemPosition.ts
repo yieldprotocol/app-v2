@@ -39,7 +39,6 @@ export const useRedeemPosition = () => {
         {
           target: series,
           spender: 'LADLE',
-          series,
           message: 'Signing ERC20 Token approval',
           ignoreIf: !series.isMature(),
         },
