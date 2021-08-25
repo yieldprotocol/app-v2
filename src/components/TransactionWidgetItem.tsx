@@ -6,11 +6,11 @@ import EtherscanButton from './buttons/EtherscanButton';
 const TxItem = ({ tx, type }: { tx: any; type: string }) =>
   tx[type] !== undefined && tx[type] ? (
     <Box direction="row" align="center" gap="medium">
-      <Box direction="row" gap="xsmall" align="center">
+      <Box direction="row" gap="small" align="center">
         {type === 'pending' && <Spinner color="tailwind-blue" size="small" />}
         {type === 'success' && <FiCheckCircle size="20px" />}
         {type === 'failed' && <FiXCircle size="20px" />}
-        <Text size="xsmall">Transaction {`${type[0].toUpperCase()}${type.slice(1)}`}</Text>
+        <Text size="small">Transaction {`${type[0].toUpperCase()}${type.slice(1)}`}</Text>
       </Box>
       <EtherscanButton txHash={tx.txHash} />
     </Box>
@@ -22,11 +22,9 @@ const TransactionWidgetItem = ({ tx }: any) => (
       <Box direction="row" align="center" gap="medium">
         <Box direction="row" gap="small" align="center">
           <FiAlertTriangle size="20px" />
-          <Text size="xsmall">Action Required</Text>
+          <Text size="small">Action Required</Text>
         </Box>
-        <Box>
-          <Text size="xsmall">Check your wallet</Text>
-        </Box>
+        <Text size="xsmall">Check your wallet</Text>
       </Box>
     )}
 

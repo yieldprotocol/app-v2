@@ -175,7 +175,7 @@ const TxProvider = ({ children }: any) => {
 
     updateState({
       type: 'transactions_',
-      payload: { txId, rejected: true },
+      payload: { txId, active: false },
     });
     _endTx();
   };
