@@ -14,8 +14,6 @@ import SectionWrap from '../components/wraps/SectionWrap';
 
 import MaxButton from '../components/buttons/MaxButton';
 
-import { useBorrowActions } from '../hooks/borrowHooks';
-import { useCollateralization } from '../hooks/collateralHooks';
 import { useTx } from '../hooks/useTx';
 
 import { UserContext } from '../contexts/UserContext';
@@ -34,14 +32,16 @@ import { Gauge } from '../components/Gauge';
 import InfoBite from '../components/InfoBite';
 import NextButton from '../components/buttons/NextButton';
 import TransactButton from '../components/buttons/TransactButton';
-import { useApr } from '../hooks/aprHook';
+import { useApr } from '../hooks/useApr';
 import PositionAvatar from '../components/PositionAvatar';
 import VaultDropSelector from '../components/selectors/VaultDropSelector';
-import { useInputValidation } from '../hooks/inputValidationHook';
+import { useInputValidation } from '../hooks/useInputValidation';
 import AltText from '../components/texts/AltText';
 import EtherscanButton from '../components/buttons/EtherscanButton';
 import YieldMark from '../components/logos/YieldMark';
 import YieldCardHeader from '../components/YieldCardHeader';
+import { useBorrow } from '../hooks/actionHooks/useBorrow';
+import { useCollateralHelpers } from '../hooks/actionHelperHooks/useCollateralHelpers';
 
 import AddTokenToMetamask from '../components/AddTokenToMetamask';
 import TransactionWidget from '../components/TransactionWidget';
@@ -71,7 +71,7 @@ const Borrow = () => {
   const [vaultToUse, setVaultToUse] = useState<IVault | undefined>(undefined);
   const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
 
-  const { borrow } = useBorrowActions();
+  const borrow = useBorrow();
 
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
   const borrowOutput = cleanValue(
@@ -79,7 +79,7 @@ const Borrow = () => {
     selectedBase?.digitFormat!
   );
 
-  const { collateralizationPercent, undercollateralized, minCollateral } = useCollateralization(
+  const { collateralizationPercent, undercollateralized, minCollateral } = useCollateralHelpers(
     borrowInput,
     collatInput,
     vaultToUse

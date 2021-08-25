@@ -15,7 +15,6 @@ import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
 import { UserContext } from '../contexts/UserContext';
 import { ActionCodes, ActionType, ISeries, IUserContext } from '../types';
-import { usePool, usePoolActions } from '../hooks/poolHooks';
 import { useTx } from '../hooks/useTx';
 import MaxButton from '../components/buttons/MaxButton';
 import PanelWrap from '../components/wraps/PanelWrap';
@@ -29,10 +28,11 @@ import BackButton from '../components/buttons/BackButton';
 import YieldMark from '../components/logos/YieldMark';
 import NextButton from '../components/buttons/NextButton';
 import TransactButton from '../components/buttons/TransactButton';
-import { useInputValidation } from '../hooks/inputValidationHook';
+import { useInputValidation } from '../hooks/useInputValidation';
 import AltText from '../components/texts/AltText';
 import PositionListItem from '../components/PositionItem';
 import YieldCardHeader from '../components/YieldCardHeader';
+import { useAddLiquidity } from '../hooks/actionHooks/useAddLiquidity';
 
 import AddTokenToMetamask from '../components/AddTokenToMetamask';
 import TransactionWidget from '../components/TransactionWidget';
@@ -54,13 +54,14 @@ function Pool() {
 
   const [poolDisabled, setPoolDisabled] = useState<boolean>(true);
 
-  const [strategy, setStrategy] = useState<'BUY' | 'MINT'>('BUY');
+  const [poolMethod, setPoolMethod] = useState<'BUY' | 'BORROW'>('BUY');
 
   const [stepPosition, setStepPosition] = useState<number>(0);
 
   /* HOOK FNS */
-  const { addLiquidity } = usePoolActions();
-  const { poolMax } = usePool(poolInput);
+  const addLiquidity = useAddLiquidity();
+
+
   /* input validation hooks */
   const { inputError: poolError } = useInputValidation(poolInput, ActionCodes.ADD_LIQUIDITY, selectedSeries, [
     0,
@@ -72,7 +73,7 @@ function Pool() {
   /* LOCAL ACTION FNS */
   const handleAdd = () => {
     // !poolDisabled &&
-    selectedSeries && addLiquidity(poolInput!, selectedSeries, strategy);
+    selectedSeries && addLiquidity(poolInput!, selectedSeries, poolMethod);
   };
 
   const resetInputs = () => {
@@ -190,15 +191,15 @@ function Pool() {
                   {!selectedSeries?.seriesIsMature && (
                     <SectionWrap>
                       <Box direction="row" justify="between" fill align="center">
-                        {!mobile && <Text size="small"> Pooling strategy: </Text>}
+                        {!mobile && <Text size="small"> Pooling method: </Text>}
                         <RadioButtonGroup
                           name="strategy"
                           options={[
-                            { label: <Text size="small"> Buy & Pool </Text>, value: 'BUY' },
-                            { label: <Text size="small"> Mint & Pool </Text>, value: 'MINT', disabled: true },
+                            { label: <Text size="small"> Buy & pool</Text>, value: 'BUY' },
+                            { label: <Text size="small"> Borrow & Pool </Text>, value: 'BORROW' },
                           ]}
-                          value={strategy}
-                          onChange={(event: any) => setStrategy(event.target.value)}
+                          value={poolMethod}
+                          onChange={(event: any) => setPoolMethod(event.target.value)}
                           direction="row"
                           justify="between"
                         />

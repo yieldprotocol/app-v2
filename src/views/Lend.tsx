@@ -12,7 +12,6 @@ import SeriesSelector from '../components/selectors/SeriesSelector';
 import { cleanValue, getTxCode, nFormatter } from '../utils/appUtils';
 import SectionWrap from '../components/wraps/SectionWrap';
 
-import { useLend, useLendActions } from '../hooks/lendHooks';
 import { UserContext } from '../contexts/UserContext';
 import { ActionCodes, ActionType, IUserContext } from '../types';
 import MaxButton from '../components/buttons/MaxButton';
@@ -29,13 +28,16 @@ import NextButton from '../components/buttons/NextButton';
 import InfoBite from '../components/InfoBite';
 import TransactButton from '../components/buttons/TransactButton';
 
-import { useApr } from '../hooks/aprHook';
-import { useInputValidation } from '../hooks/inputValidationHook';
+import { useApr } from '../hooks/useApr';
+import { useInputValidation } from '../hooks/useInputValidation';
 import { useTx } from '../hooks/useTx';
 import AltText from '../components/texts/AltText';
 import PositionListItem from '../components/PositionItem';
 import EtherscanButton from '../components/buttons/EtherscanButton';
 import YieldCardHeader from '../components/YieldCardHeader';
+import { useLendHelpers } from '../hooks/actionHelperHooks/useLendHelpers';
+import { useLend } from '../hooks/actionHooks/useLend';
+import { useRedeemPosition } from '../hooks/actionHooks/useRedeemPosition';
 
 import AddTokenToMetamask from '../components/AddTokenToMetamask';
 
@@ -58,8 +60,9 @@ const Lend = () => {
   const [stepPosition, setStepPosition] = useState<number>(0);
 
   /* HOOK FNS */
-  const { maxLend, currentValue } = useLend(selectedSeries!);
-  const { lend, redeem } = useLendActions();
+  const { maxLend, currentValue } = useLendHelpers(selectedSeries!);
+  const lend = useLend();
+  const redeem = useRedeemPosition();
   const { apr } = useApr(lendInput, ActionType.LEND, selectedSeries);
 
   const lendOutput = cleanValue((Number(lendInput) * (1 + Number(apr) / 100)).toString(), selectedBase?.digitFormat!);

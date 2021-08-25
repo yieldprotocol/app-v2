@@ -14,7 +14,6 @@ import { UserContext } from '../contexts/UserContext';
 import { ActionCodes, ActionType, ISeries, IUserContext } from '../types';
 import MaxButton from '../components/buttons/MaxButton';
 import InfoBite from '../components/InfoBite';
-import { usePoolActions } from '../hooks/poolHooks';
 import { useTx } from '../hooks/useTx';
 import ActiveTransaction from '../components/ActiveTransaction';
 import PositionAvatar from '../components/PositionAvatar';
@@ -26,8 +25,10 @@ import CancelButton from '../components/buttons/CancelButton';
 import TransactButton from '../components/buttons/TransactButton';
 import YieldHistory from '../components/YieldHistory';
 import ExitButton from '../components/buttons/ExitButton';
-import { useInputValidation } from '../hooks/inputValidationHook';
+import { useInputValidation } from '../hooks/useInputValidation';
 import ModalWrap from '../components/wraps/ModalWrap';
+import { useRemoveLiquidity } from '../hooks/actionHooks/useRemoveLiquidity';
+import { useRollLiquidity } from '../hooks/actionHooks/useRollLiquidity';
 
 const PoolPosition = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -59,7 +60,8 @@ const PoolPosition = ({ close }: { close: () => void }) => {
   const [stepPosition, setStepPosition] = useState<number[]>([0, 0, 0]);
 
   /* HOOK FNS */
-  const { removeLiquidity, rollLiquidity } = usePoolActions();
+  const removeLiquidity = useRemoveLiquidity();
+  const rollLiquidity = useRollLiquidity();
 
   /* TX data */
   const { tx: removeTx, resetTx: resetRemoveTx } = useTx(ActionCodes.REMOVE_LIQUIDITY, selectedSeries?.id);

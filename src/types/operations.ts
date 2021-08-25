@@ -1,44 +1,4 @@
-import { BigNumberish } from 'ethers';
-
-export namespace PoolRouterActions {
-  export enum Fn {
-    FORWARD_PERMIT = 'forwardPermit',
-    FORWARD_DAI_PERMIT = 'forwardDaiPermit',
-    JOIN_ETHER = 'joinEther',
-    EXIT_ETHER = 'exitEther',
-    TRANSFER_TO_POOL = 'transferToPool',
-    ROUTE = 'route_p',
-  }
-  export namespace Args {
-    export type JOIN_ETHER = [base: string, fyToken: string];
-    export type EXIT_ETHER = [to: string];
-    export type TRANSFER_TO_POOL = [base: string, fyToken: string, token: string, wad: BigNumberish];
-    export type ROUTE = [base: string, fyToken: string, encodedPoolcall: string];
-
-    export type FORWARD_PERMIT = [
-      base: string,
-      fyToken: string,
-      token: string,
-      spender: string,
-      amount: BigNumberish,
-      deadline: BigNumberish,
-      v: BigNumberish,
-      r: Buffer,
-      s: Buffer
-    ];
-    export type FORWARD_DAI_PERMIT = [
-      base: string,
-      fyToken: string,
-      spender: string,
-      nonce: BigNumberish,
-      deadline: BigNumberish,
-      allowed: boolean,
-      v: BigNumberish,
-      r: Buffer,
-      s: Buffer
-    ];
-  }
-}
+import { BigNumber, BigNumberish } from 'ethers';
 
 export namespace LadleActions {
   export enum Fn {
@@ -54,14 +14,17 @@ export namespace LadleActions {
     REPAY = 'repay',
     REPAY_VAULT = 'repayVault',
     REPAY_LADLE = 'repayLadle',
+
+    REPAY_FROM_LADLE = 'repayFromLadle',
+    CLOSE_FROM_LADLE = 'closeFromLadle',
+
     RETRIEVE = 'retrieve',
     FORWARD_PERMIT = 'forwardPermit',
     FORWARD_DAI_PERMIT = 'forwardDaiPermit',
     JOIN_ETHER = 'joinEther',
     EXIT_ETHER = 'exitEther',
-    TRANSFER_TO_POOL = 'transferToPool',
-    ROUTE = 'route_l',
-    TRANSFER_TO_FYTOKEN = 'transferToFyToken',
+    TRANSFER = 'transfer',
+    ROUTE = 'route',
     REDEEM = 'redeem',
     MODULE = 'module',
   }
@@ -80,18 +43,18 @@ export namespace LadleActions {
     export type REPAY_LADLE = [vaultId: string];
     export type RETRIEVE = [assetId: string, isAsset: boolean, to: string];
 
+    export type REPAY_FROM_LADLE = [vaultId: string, to: string];
+    export type CLOSE_FROM_LADLE = [vaultId: string, to: string];
+
     export type JOIN_ETHER = [etherId: string, overrides?: any];
     export type EXIT_ETHER = [to: string];
-    export type TRANSFER_TO_POOL = [seriesId: string, base: boolean, wad: BigNumberish];
-    
-    export type ROUTE = [seriesId: string, encodedpoolCall: string];
+    export type TRANSFER = [token: string, receiver: string, wad: BigNumberish];
 
-    export type TRANSFER_TO_FYTOKEN = [seriesId: string, wad: BigNumberish];
+    export type ROUTE = [seriesId: string, encodedpoolCall: string];
     export type REDEEM = [seriesId: string, to: string, wad: BigNumberish];
 
     export type FORWARD_PERMIT = [
       id: string,
-      isAsset: boolean,
       spender: string,
       amount: BigNumberish,
       deadline: BigNumberish,
@@ -101,7 +64,6 @@ export namespace LadleActions {
     ];
     export type FORWARD_DAI_PERMIT = [
       id: string,
-      isAsset: boolean,
       spender: string,
       nonce: BigNumberish,
       deadline: BigNumberish,
@@ -115,10 +77,12 @@ export namespace LadleActions {
   }
 }
 
-export namespace ReroutedActions {
+export namespace RoutedActions {
   export enum Fn {
     SELL_BASE = 'sellBase',
     SELL_FYTOKEN = 'sellFYToken',
+    MINT = 'mint',
+    BURN = 'burn',
     MINT_WITH_BASE = 'mintWithBase',
     BURN_FOR_BASE = 'burnForBase',
   }
@@ -128,5 +92,9 @@ export namespace ReroutedActions {
     export type SELL_FYTOKEN = [receiver: string, min: BigNumberish];
     export type MINT_WITH_BASE = [receiver: string, fyTokenToBuy: BigNumberish, minTokensMinted: BigNumberish];
     export type BURN_FOR_BASE = [receiver: string, minBaseOut: BigNumberish];
+    export type MINT = [receiver: string, calcFromBase: boolean, minLpReceived: BigNumberish] | [receiver: string];
+    export type BURN =
+      | [baseTo: string, fyTokenTo: string, minBaseOut: BigNumberish, minFYTokenOut: BigNumberish]
+      | [receiver: string];
   }
 }

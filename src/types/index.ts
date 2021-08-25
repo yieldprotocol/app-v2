@@ -1,8 +1,8 @@
 import { ethers, BigNumber, BigNumberish } from 'ethers';
 import React from 'react';
-import { FYToken, Pool } from '../contracts';
+import { FYToken, Pool, Strategy } from '../contracts';
 
-export { LadleActions, PoolRouterActions, ReroutedActions } from './operations';
+export { LadleActions, RoutedActions } from './operations';
 
 export interface IHistoryList {
   lastBlock: number;
@@ -109,6 +109,13 @@ export interface IAssetRoot {
   mintTest: () => Promise<VoidFunction>;
 }
 
+export interface IStrategyRoot {
+  address: string;
+  name: string;
+  symbol: string;
+  strategyContract: Strategy;
+}
+
 export interface IVaultRoot {
   id: string;
   ilkId: string;
@@ -140,7 +147,6 @@ export interface IAsset extends IAssetRoot {
   isYieldBase: boolean;
   balance: BigNumber;
   balance_: string;
-  hasPoolRouterAuth: boolean;
   hasLadleAuth: boolean;
   hasJoinAuth: boolean;
 }
@@ -161,21 +167,22 @@ export interface IVault extends IVaultRoot {
 export interface ICallData {
   args: (string | BigNumberish | boolean)[];
   operation: string | [number, string[]];
-  series: ISeries;
+  /* optionals */
+  targetContract?: Strategy | Pool;
   fnName?: string;
-  ignore?: boolean;
+  ignoreIf?: boolean;
   overrides?: ethers.CallOverrides;
 }
 
 export interface ISignData {
   target: ISeries | IAsset | { id: string; name: string; version: string; address: string };
-  spender: 'POOLROUTER' | 'LADLE' | string;
-  type: SignType;
+  spender: 'LADLE' | string;
   series: ISeries;
-
   /* optional Extention/advanced use-case options */
+  amount?: BigNumberish;
+  
   message?: string; // optional messaging for UI
-  ignore?: boolean; // conditional for ignoring
+  ignoreIf?: boolean; // conditional for ignoring
   domain?: IDomain;
 }
 
