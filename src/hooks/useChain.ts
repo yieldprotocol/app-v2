@@ -83,7 +83,7 @@ export const useChain = () => {
     /* Finally, send out the transaction */
     return handleTx(
       () =>
-        _contract.batch(encodedCalls, { value: batchValue, gasPrice: '750000' } as PayableOverrides),
+        _contract.batch(encodedCalls, { value: batchValue, gasLimit: BigNumber.from('750000') } as PayableOverrides),
       txCode
     );
   };
