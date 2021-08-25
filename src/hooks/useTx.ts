@@ -99,23 +99,5 @@ export const useTx = (
     tx.success && shouldRedirect && history.push('/') && userActions.setSelectedVault(null);
   }, [tx.success, shouldRedirect, history, userActions]);
 
-  // adds a tx to global state
-  // useEffect(() => {
-  //   setTxInContext(tx);
-  // }, [tx.processActive, tx.complete, tx.pending, tx.success, tx.failed, tx.rejected, tx.txCode]);
-
-  // // remove a successful or failed tx after 3 seconds
-  // useEffect(() => {
-  //   let timer: any;
-  //   if (tx.success || tx.failed || !tx.txCode) {
-  //     timer = setTimeout(() => removeTxFromContext(tx), 3000);
-  //   }
-  //   return () => clearTimeout(timer);
-  // }, [tx.success, tx.failed]);
-
-  // useEffect(() => {
-  //   console.log('transactions_', transactions_);
-  // }, [transactions_]);
-
   return { tx, resetTx };
 };
