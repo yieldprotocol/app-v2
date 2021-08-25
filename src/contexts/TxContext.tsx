@@ -114,7 +114,7 @@ const TxProvider = ({ children }: any) => {
     txId = ethers.utils.hexlify(ethers.utils.randomBytes(6));
     updateState({
       type: 'transactions_',
-      payload: { txId, txCode, active: true },
+      payload: { txId, txCode, active: true, primaryInfo: `${txCode.split('_')[0]}` },
     });
     return txId;
   };
@@ -205,6 +205,9 @@ const TxProvider = ({ children }: any) => {
     let res: any;
 
     // google analytics sent txCode
+
+    // checking if tx id is not created, useful for when someone doesn't need to sign, so there shouldn't be a tx id yet
+    if (!txId) _addTx(txCode);
 
     /* start a new process (over-write if it has been started already) */
     _startProcess(txCode);

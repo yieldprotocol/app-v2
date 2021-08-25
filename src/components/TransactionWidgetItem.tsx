@@ -5,27 +5,35 @@ import EtherscanButton from './buttons/EtherscanButton';
 
 const TxItem = ({ tx, type }: { tx: any; type: string }) =>
   tx[type] !== undefined && tx[type] ? (
-    <Box direction="row" align="center" fill justify="between" gap="small">
-      <Box direction="row" gap="small" align="center">
-        {type === 'pending' && <Spinner color="tailwind-blue" />}
-        {type === 'success' && <FiCheckCircle size="1.5rem" />}
-        {type === 'failed' && <FiXCircle size="1.5rem" />}
-        <Text size="xsmall">Transaction {`${type[0].toUpperCase()}${type.slice(1)}`}</Text>
+    <Box align="center" fill direction="row" gap="small">
+      {type === 'pending' && <Spinner color="tailwind-blue" />}
+      {type === 'success' && <FiCheckCircle size="1.5rem" />}
+      {type === 'failed' && <FiXCircle size="1.5rem" />}
+      <Box gap="small" align="start">
+        <Box direction="row" justify="start">
+          <Text size="xsmall">
+            {tx.primaryInfo} {`${type[0].toUpperCase()}${type.slice(1)}`}
+          </Text>
+        </Box>
+        <Box>
+          <EtherscanButton txHash={tx.txHash} />
+        </Box>
       </Box>
-      <EtherscanButton txHash={tx.txHash} />
     </Box>
   ) : null;
 
 const TransactionWidgetItem = ({ tx }: any) => (
   <Box round="xsmall" elevation="small" align="center" pad="medium">
     {!tx.pending && tx.processActive && (
-      <Box direction="row" align="center" fill justify="between" gap="small">
-        <Box direction="row" gap="small" align="center">
-          <FiAlertTriangle size="1.5rem" />
-          <Text size="xsmall">Action Required</Text>
-        </Box>
-        <Box gap="small" align="center" direction="row">
-          <Text size="xsmall">Check your wallet</Text>
+      <Box align="center" fill direction="row" gap="small">
+        <FiAlertTriangle size="1.5rem" />
+        <Box gap="small" align="start">
+          <Box direction="row" justify="start">
+            <Text size="xsmall">Action Required</Text>
+          </Box>
+          <Box>
+            <Text size="xsmall">Check your wallet</Text>
+          </Box>
         </Box>
       </Box>
     )}
