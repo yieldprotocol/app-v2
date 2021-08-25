@@ -3,24 +3,20 @@
     "1": {
       "Cauldron": "0x324ee27d5f5A7Da8C926A5954CB86357b8e07F81",
       "Ladle": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-      "Witch": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-      "PoolRouter": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
       "CompoundOracle": "0x17B6fC5c9b3C422255eB2e2E6d152bc5B9f261b9",
       "ChainlinkOracle": "0x2C5f88E7BD899CE57242ecA7650F21a4a9c28D3f",
       "CompositeMultiOracle": "0x77528b9E8300D4eF6075c18C7148420C86997106"
     },
     "42": {
       "Cauldron": "0x324ee27d5f5A7Da8C926A5954CB86357b8e07F81",
-      "Ladle": "0xB4f7AaF28829DC86d8d988827e3cc6D90DFF8575",
-      "PoolRouter": "0x73c098458416f1a6100627b1D56b070926aefc35",
+      "Ladle": "0xb3768d474dc5464c50AFF228682a5D63c06335E8",
       "CompoundOracle": "0x7A59d2e3b2eB34d51c77c5dA88873191F50539Cc",
       "ChainlinkOracle": "0x05e24C295dBdAa1F4bf27377a1a3f1bd30606bA5",
       "CompositeMultiOracle": "0x77528b9E8300D4eF6075c18C7148420C86997106"
     },
     "31337": {
       "Cauldron": "0x7Dd21c63a12042759ce9D5207301F0f19b10c634",
-      "Ladle": "0x668fF464D0de4295a109c3Fa7B6C7bF8c0c61549",
-      "PoolRouter": "0xBa8E00E9797D6b98FA29306c0181010c8cECcd39",
+      "Ladle": "0xb3768d474dc5464c50AFF228682a5D63c06335E8",
       "CompoundOracle": "0xfc569FF2C8fB3212cFA47cFaa881CE16eB3e80bb",
       "ChainlinkOracle": "0x06E5903f2Aa1935EE6f4B9f825F8A140C681C0F1",
       "CompositeMultiOracle": "0x77528b9E8300D4eF6075c18C7148420C86997106"
@@ -39,5 +35,10 @@
     "SPRING": ["#6AD99E", "#FF6BE4", "#333333"],
     "SUMMER": ["#FFDE75", "#409C4D", "#333333"],
     "FALL": ["#7255BD", "#D95948", "#ffffff"]
+  },
+  "strategies": {
+    "1" : [],
+    "42" : ["0xdc70afc194261A7290fAc51E17992A4bF2D4b39b" ],
+    "31337": [ ]
   }
 }

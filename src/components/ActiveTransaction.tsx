@@ -72,10 +72,6 @@ const ActiveTransaction = ({
   const [iconSize, setIconSize] = useState<string>('1em');
 
   useEffect(() => {
-    console.log('HERE', tx);
-  }, [tx]);
-
-  useEffect(() => {
     tx.txCode && setSig(signatures.get(tx.txCode));
   }, [tx, signatures]);
 
