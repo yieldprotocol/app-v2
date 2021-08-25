@@ -286,6 +286,10 @@ const TxProvider = ({ children }: any) => {
         });
         /* end the process on signature rejection */
         _endProcess(txCode);
+        updateState({
+          type: 'transactions_',
+          payload: { txId, signing: false, active: false },
+        });
         return Promise.reject(err);
       });
     } else {
