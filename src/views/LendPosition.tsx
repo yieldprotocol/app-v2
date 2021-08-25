@@ -9,7 +9,6 @@ import SeriesSelector from '../components/selectors/SeriesSelector';
 import { abbreviateHash, cleanValue, nFormatter } from '../utils/appUtils';
 import SectionWrap from '../components/wraps/SectionWrap';
 
-import { useLend, useLendActions } from '../hooks/lendHooks';
 import { useTx } from '../hooks/useTx';
 import { UserContext } from '../contexts/UserContext';
 import { ActionCodes, ActionType, ISeries, IUserContext } from '../types';
@@ -23,8 +22,12 @@ import CancelButton from '../components/buttons/CancelButton';
 import TransactButton from '../components/buttons/TransactButton';
 import YieldHistory from '../components/YieldHistory';
 import ExitButton from '../components/buttons/ExitButton';
-import { useInputValidation } from '../hooks/inputValidationHook';
+import { useInputValidation } from '../hooks/useInputValidation';
 import ModalWrap from '../components/wraps/ModalWrap';
+import { useLendHelpers } from '../hooks/actionHelperHooks/useLendHelpers';
+import { useClosePosition } from '../hooks/actionHooks/useClosePosition';
+import { useRedeemPosition } from '../hooks/actionHooks/useRedeemPosition';
+import { useRollPosition } from '../hooks/actionHooks/useRollPosition';
 
 const LendPosition = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -55,8 +58,10 @@ const LendPosition = ({ close }: { close: () => void }) => {
   // const [redeemDisabled, setRedeemDisabled] = useState<boolean>(true);
 
   /* HOOK FNS */
-  const { currentValue } = useLend(selectedSeries!);
-  const { closePosition, rollPosition, redeem } = useLendActions();
+  const { currentValue } = useLendHelpers(selectedSeries!);
+  const closePosition = useClosePosition();
+  const rollPosition = useRollPosition();
+  const redeem = useRedeemPosition();
 
   /* TX data */
   const { tx: closeTx, resetTx: resetCloseTx } = useTx(ActionCodes.CLOSE_POSITION, selectedSeries?.id);

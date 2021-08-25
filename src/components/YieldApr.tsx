@@ -4,7 +4,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import Loader from 'react-spinners/GridLoader';
 import styled from 'styled-components';
 import { UserContext } from '../contexts/UserContext';
-import { useApr } from '../hooks/aprHook';
+import { useApr } from '../hooks/useApr';
 import { ActionType, ISeries, IUserContext } from '../types';
 import { cleanValue } from '../utils/appUtils';
 import { buyBase, calculateAPR, secondsToFrom, sellBase } from '../utils/yieldMath';

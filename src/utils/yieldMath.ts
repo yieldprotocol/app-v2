@@ -1,4 +1,4 @@
-import { ethers, BigNumber } from 'ethers';
+import { ethers, BigNumber, BigNumberish } from 'ethers';
 import { Decimal } from 'decimal.js';
 
 Decimal.set({ precision: 64 });
@@ -424,13 +424,15 @@ export function fyTokenForMint(
 export const splitLiquidity = (
   xReserves: BigNumber | string,
   yReserves: BigNumber | string,
-  xAmount: BigNumber | string
-): [string, string] => {
+  xAmount: BigNumber | string,
+  asBn: boolean = true,
+): [BigNumberish, BigNumberish] => {
   const xReserves_ = new Decimal(xReserves.toString());
   const yReserves_ = new Decimal(yReserves.toString());
   const xAmount_ = new Decimal(xAmount.toString());
   const xPortion = xAmount_.mul(xReserves_).div(yReserves_.add(xReserves_));
   const yPortion = xAmount_.sub(xPortion);
+  if (asBn) return [toBn(xPortion), toBn(yPortion)];
   return [xPortion.toFixed(), yPortion.toFixed()];
 };
 

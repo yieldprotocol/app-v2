@@ -12,8 +12,6 @@ import { ActionCodes, ActionType, IAsset, ISeries, IUserContext, IVault } from '
 
 import ActionButtonWrap from '../components/wraps/ActionButtonWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
-import { useCollateralActions, useCollateralization } from '../hooks/collateralHooks';
-import { useBorrowActions } from '../hooks/borrowHooks';
 import SeriesSelector from '../components/selectors/SeriesSelector';
 import MaxButton from '../components/buttons/MaxButton';
 import ActiveTransaction from '../components/ActiveTransaction';
@@ -26,11 +24,19 @@ import TransactButton from '../components/buttons/TransactButton';
 import CancelButton from '../components/buttons/CancelButton';
 import VaultDropSelector from '../components/selectors/VaultDropSelector';
 import ExitButton from '../components/buttons/ExitButton';
-import { useInputValidation } from '../hooks/inputValidationHook';
+import { useInputValidation } from '../hooks/useInputValidation';
 import { useTx } from '../hooks/useTx';
 import ModalWrap from '../components/wraps/ModalWrap';
+
 import { ChainContext } from '../contexts/ChainContext';
 import { useCachedState } from '../hooks/generalHooks';
+import { useRepayDebt } from '../hooks/actionHooks/useRepayDebt';
+import { useRollDebt } from '../hooks/actionHooks/useRollDebt';
+import { useVaultAdmin } from '../hooks/actionHooks/useVaultAdmin';
+import { useCollateralHelpers } from '../hooks/actionHelperHooks/useCollateralHelpers';
+import { useAddCollateral } from '../hooks/actionHooks/useAddCollateral';
+import { useRemoveCollateral } from '../hooks/actionHooks/useRemoveCollateral';
+
 
 const VaultPosition = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -54,7 +60,7 @@ const VaultPosition = ({ close }: { close: () => void }) => {
   const vaultIlk: IAsset | undefined = assetMap.get(selectedVault?.ilkId!);
   const vaultSeries: ISeries | undefined = seriesMap.get(selectedVault?.seriesId!);
 
-  const { collateralizationPercent, maxRemove } = useCollateralization(
+  const { collateralizationPercent, maxRemove } = useCollateralHelpers(
     selectedVault?.art.toString(),
     selectedVault?.ink.toString(),
     selectedVault
@@ -116,8 +122,13 @@ const VaultPosition = ({ close }: { close: () => void }) => {
   const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
 
   /* HOOK FNS */
-  const { repay, borrow, rollDebt, transfer, merge } = useBorrowActions();
-  const { addCollateral, removeCollateral } = useCollateralActions();
+  const repay = useRepayDebt();
+  const rollDebt = useRollDebt();
+  const { transfer, merge } = useVaultAdmin();
+
+  const { addCollateral }= useAddCollateral();
+  const { removeCollateral } = useRemoveCollateral();
+
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries, [0, maxRepay]);
   const { inputError: addCollatError } = useInputValidation(addCollatInput, ActionCodes.ADD_COLLATERAL, vaultSeries, [

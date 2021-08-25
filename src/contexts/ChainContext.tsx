@@ -11,7 +11,7 @@ import { useCachedState } from '../hooks/generalHooks';
 
 import * as yieldEnv from './yieldEnv.json';
 import * as contracts from '../contracts';
-import { IAssetRoot, ISeriesRoot } from '../types';
+import { IAssetRoot, ISeriesRoot, IStrategyRoot } from '../types';
 
 import { ETH_BASED_ASSETS } from '../utils/constants';
 import { nameFromMaturity, getSeason, SeasonType } from '../utils/appUtils';
@@ -23,7 +23,6 @@ import USDCMark from '../components/logos/USDCMark';
 import WBTCMark from '../components/logos/WBTCMark';
 import USDTMark from '../components/logos/USDTMark';
 import YieldMark from '../components/logos/YieldMark';
-import { ERC20Permit } from '../contracts';
 
 const markMap = new Map([
   ['DAI', <DaiMark key="dai" />],
@@ -117,6 +116,7 @@ const initState = {
   contractMap: new Map<string, ContractFactory>(),
   assetRootMap: new Map<string, IAssetRoot>(),
   seriesRootMap: new Map<string, ISeriesRoot>(),
+  strategyRootMap: new Map<string, IStrategyRoot>(),
 };
 
 function chainReducer(state: any, action: any) {
@@ -158,6 +158,11 @@ function chainReducer(state: any, action: any) {
         ...state,
         assetRootMap: state.assetRootMap.set(action.payload.id, action.payload),
       };
+    case 'addStrategy':
+      return {
+        ...state,
+        strategyRootMap: state.strategyRootMap.set(action.payload.address, action.payload),
+      };
     /* special internal case for multi-updates - might remove from this context if not needed */
     case '_any':
       return { ...state, ...action.payload };
@@ -170,9 +175,6 @@ const ChainProvider = ({ children }: any) => {
   const [chainState, updateState] = React.useReducer(chainReducer, initState);
 
   const [lastChainId, setLastChainId] = useCachedState('lastChainId', 42);
-
-  const [cachedAssetAdded, setCachedAssetAdded] = useCachedState('AssetAdded', []);
-  const [cachedJoinAdded, setCachedJoinAdded] = useCachedState('JoinAdded', []);
 
   const [cachedAssets, setCachedAssets] = useCachedState('assets', []);
   const [cachedSeries, setCachedSeries] = useCachedState('series', []);
@@ -190,8 +192,8 @@ const ChainProvider = ({ children }: any) => {
     library: fallbackLibrary,
     chainId: fallbackChainId,
     activate: fallbackActivate,
-    active: fallbackActive,
-    error: fallbackError,
+    // active: fallbackActive,
+    // error: fallbackError,
   } = fallbackConnection;
 
   /**
@@ -209,13 +211,15 @@ const ChainProvider = ({ children }: any) => {
       const addrs = (yieldEnv.addresses as any)[fallbackChainId];
       const Cauldron = contracts.Cauldron__factory.connect(addrs.Cauldron, fallbackLibrary);
       const Ladle = contracts.Ladle__factory.connect(addrs.Ladle, fallbackLibrary);
-      const PoolRouter = contracts.PoolRouter__factory.connect(addrs.PoolRouter, fallbackLibrary);
       const CompoundOracle = contracts.CompoundMultiOracle__factory.connect(addrs.CompoundOracle, fallbackLibrary);
       const ChainlinkOracle = contracts.ChainlinkMultiOracle__factory.connect(addrs.ChainlinkOracle, fallbackLibrary);
       const CompositeMultiOracle = contracts.CompositeMultiOracle__factory.connect(
         addrs.CompositeMultiOracle,
         fallbackLibrary
       );
+
+      /* get the strategies */
+      const strategies = (yieldEnv.strategies as any)[fallbackChainId];
 
       updateState({ type: 'appVersion', payload: process.env.REACT_APP_VERSION });
 
@@ -227,17 +231,17 @@ const ChainProvider = ({ children }: any) => {
       const newContractMap = chainState.contractMap;
       newContractMap.set('Cauldron', Cauldron);
       newContractMap.set('Ladle', Ladle);
-      newContractMap.set('PoolRouter', PoolRouter);
       newContractMap.set('CompoundOracle', CompoundOracle);
       newContractMap.set('ChainlinkOracle', ChainlinkOracle);
       newContractMap.set('CompositeMultiOracle', CompositeMultiOracle);
+      // newContractMap.set('Strategy_DAI3M', Strategy_DAI3M);
 
       updateState({ type: 'contractMap', payload: newContractMap });
 
-      let test: any;
-      (async () => {
-        test = await fallbackLibrary.getBalance('0x885Bc35dC9B10EA39f2d7B3C94a7452a9ea442A7');
-      })();
+      // let test: any;
+      // (async () => {
+      //   test = await fallbackLibrary.getBalance('0x885Bc35dC9B10EA39f2d7B3C94a7452a9ea442A7');
+      // })();
 
       /* add on extra/calculated ASSET info */
       const _chargeAsset = (asset: { id: string; address: string; symbol: string }) => {
@@ -308,24 +312,27 @@ const ChainProvider = ({ children }: any) => {
         console.log('Yield Protocol Asset data updated.');
       };
 
-      /* add on extra/calculated SERIES info */
+      /* add on extra/calculated ASYNC series info */
       const _chargeSeries = (series: {
         maturity: number;
         baseId: string;
         poolAddress: string;
         fyTokenAddress: string;
       }) => {
+
         const poolContract = contracts.Pool__factory.connect(series.poolAddress, fallbackLibrary);
         const fyTokenContract = contracts.FYToken__factory.connect(series.fyTokenAddress, fallbackLibrary);
+
         const season = getSeason(series.maturity) as SeasonType;
         const oppSeason = (_season: SeasonType) => getSeason(series.maturity + 23670000) as SeasonType;
         const [startColor, endColor, textColor]: string[] = yieldEnv.seasonColors[season];
         const [oppStartColor, oppEndColor, oppTextColor]: string[] = yieldEnv.seasonColors[oppSeason(season)];
-
         return {
           ...series,
+
           poolContract,
           fyTokenContract,
+
           fullDate: format(new Date(series.maturity * 1000), 'dd MMMM yyyy'),
           displayName: format(new Date(series.maturity * 1000), 'dd MMM yyyy'),
           displayNameMobile: `${nameFromMaturity(series.maturity, 'MMM yyyy')}`,
@@ -340,6 +347,7 @@ const ChainProvider = ({ children }: any) => {
           oppEndColor,
           oppTextColor,
           seriesMark: <YieldMark startColor={startColor} endColor={endColor} />,
+          
           // built-in helper functions:
           getTimeTillMaturity: () => series.maturity - Math.round(new Date().getTime() / 1000),
           isMature: async () => series.maturity < (await fallbackLibrary.getBlock('latest')).timestamp,
@@ -361,40 +369,67 @@ const ChainProvider = ({ children }: any) => {
 
         const newSeriesList: any[] = [];
         /* Add in any extra static series */
-        await Promise.all([
-          ...seriesAddedEvents.map(async (x: any): Promise<void> => {
-            const { seriesId: id, baseId, fyToken } = Cauldron.interface.parseLog(x).args;
-            const { maturity } = await Cauldron.series(id);
-            const poolAddress: string = poolMap.get(id) as string;
-            const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackLibrary);
-            const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackLibrary);
-            const [name, symbol, version, poolName, poolVersion] = await Promise.all([
-              fyTokenContract.name(),
-              fyTokenContract.symbol(),
-              fyTokenContract.version(),
-              poolContract.name(),
-              poolContract.version(),
-            ]);
-            const newSeries = {
-              id,
-              baseId,
-              maturity,
-              name,
-              symbol,
-              version,
-              address: fyToken,
-              fyTokenAddress: fyToken,
-              poolAddress,
-              poolVersion,
-              poolName,
-            };
-            updateState({ type: 'addSeries', payload: _chargeSeries(newSeries) });
-            newSeriesList.push(newSeries);
-          }),
-        ]);
+        try {
+          await Promise.all([
+            ...seriesAddedEvents.map(async (x: any): Promise<void> => {
+              const { seriesId: id, baseId, fyToken } = Cauldron.interface.parseLog(x).args;
+              const { maturity } = await Cauldron.series(id);
+
+              if (poolMap.has(id)) { // only add series if it has a pool
+                const poolAddress: string = poolMap.get(id) as string;
+                const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackLibrary);
+                const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackLibrary);
+                const [name, symbol, version, poolName, poolVersion] = await Promise.all([
+                  fyTokenContract.name(),
+                  fyTokenContract.symbol(),
+                  fyTokenContract.version(),
+                  poolContract.name(),
+                  poolContract.version(),
+                ]);
+                const newSeries = {
+                  id,
+                  baseId,
+                  maturity,
+                  name,
+                  symbol,
+                  version,
+                  address: fyToken,
+                  fyTokenAddress: fyToken,
+                  poolAddress,
+                  poolVersion,
+                  poolName
+                };
+                updateState({ type: 'addSeries', payload: _chargeSeries(newSeries) });
+                newSeriesList.push(newSeries);
+              }
+            }),
+          ]);
+        } catch (e) {
+          console.log('Error fetching series data: ', e);
+        }
         setLastSeriesUpdate(await fallbackLibrary?.getBlockNumber());
         setCachedSeries([...cachedSeries, ...newSeriesList]);
         console.log('Yield Protocol series data updated.');
+      };
+
+      /* Iterate through the strategies list and update accordingly */
+      const _getStrategies = async () => {
+        // const strategyMap = new Map([]);
+        await Promise.all(
+          strategies.map(async (stratAddr: string) => {
+            const Strategy = contracts.Strategy__factory.connect(stratAddr, fallbackLibrary);
+            const [name, symbol] = await Promise.all([
+              Strategy.name(),
+              Strategy.symbol(),
+              // ETH_BASED_ASSETS.includes(id) ? '1' : await ERC20.version()
+            ]);
+            console.log(name, symbol);
+            updateState({
+              type: 'addStrategy',
+              payload: { address: stratAddr, symbol, name, strategyContract: Strategy },
+            });
+          })
+        );
       };
 
       /* LOAD the Series and Assets */
@@ -415,7 +450,7 @@ const ChainProvider = ({ children }: any) => {
         updateState({ type: 'chainLoading', payload: false });
         console.log('Checking for new Assets and Series...');
         // then async check for any updates (they should automatically populate the map):
-        (async () => Promise.all([_getAssets(), _getSeries()]))();
+        (async () => Promise.all([_getAssets(), _getSeries(), _getStrategies()]))();
       }
     }
   }, [
