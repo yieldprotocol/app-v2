@@ -1,5 +1,4 @@
 import React, { useContext } from 'react';
-import { Box } from 'grommet';
 import { TxContext } from '../contexts/TxContext';
 import TransactionWidgetItem from './TransactionWidgetItem';
 
@@ -12,7 +11,7 @@ const TransactionWidget = () => {
     <>
       {[...transactions_.keys()].map((t) => {
         const tx = transactions_.get(t);
-        return tx.processActive || !tx.complete ? <TransactionWidgetItem tx={tx} key={tx.txId} /> : null;
+        return tx.active ? <TransactionWidgetItem tx={tx} key={tx.txId} /> : null;
       })}
     </>
   ) : null;
