@@ -47,7 +47,12 @@ function VaultSelector(target: any) {
 
   /* CHECK the list of current vaults which match the current series/ilk selection */
   useEffect(() => {
-    const _allVaults: IVault[] = Array.from(vaultMap.values()) as IVault[];
+    const _allVaults: IVault[] = (Array.from(vaultMap.values()) as IVault[])
+      // sorting by debt balance
+      .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1))
+      // sorting to prioritize active vaults
+      // eslint-disable-next-line no-nested-ternary
+      .sort((vaultA: IVault, vaultB: IVault) => (vaultA.isActive === vaultB.isActive ? 0 : vaultA.isActive ? -1 : 1));
     setAllVaults(_allVaults);
     if (selectedBase) {
       handleFilter({ base: selectedBase, series: undefined, ilk: undefined });

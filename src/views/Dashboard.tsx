@@ -32,6 +32,7 @@ const Dashboard = () => {
       currencySetting,
       vaultsLoading,
       seriesLoading,
+      pricesLoading,
     },
   } = useContext(UserContext) as IUserContext;
 
@@ -46,6 +47,7 @@ const Dashboard = () => {
   const [totalPoolBalance, setTotalPoolBalance] = useState<string | null>(null);
   const currencySettingAssetId = currencySetting === 'ETH' ? WETH : DAI;
   const currencySettingDigits = currencySetting === 'ETH' ? 4 : 2;
+  const currencySettingSymbol = currencySetting === 'ETH' ? 'Ξ' : '$';
 
   useEffect(() => {
     const _vaultPositions: IVault[] = Array.from(vaultMap.values())
@@ -86,7 +88,6 @@ const Dashboard = () => {
       if (assetId === WETH && baseOrIlkId !== WETH) {
         // calculate DAIWETH price
         const daiWethPrice = priceMap?.get(DAI)?.get(WETH);
-
         const daiWethPrice_ = ethers.utils.formatEther(daiWethPrice);
         // calculate WETHDAI price for 'ETH' currency setting
         const wethDaiPrice = 1 / Number(daiWethPrice_);
@@ -145,7 +146,8 @@ const Dashboard = () => {
               collateral={totalCollateral!}
               positionBalance={(Number(totalLendBalance!) + Number(totalPoolBalance!)).toString()}
               digits={currencySettingDigits}
-              loading={vaultsLoading || seriesLoading}
+              loading={vaultsLoading || seriesLoading || pricesLoading}
+              symbol={currencySettingSymbol}
             />
           </Box>
           <YieldInfo />
@@ -163,8 +165,8 @@ const Dashboard = () => {
                 <DashboardPositions
                   actionType={ActionType.BORROW}
                   positions={vaultPositions}
-                  debt={totalDebt}
-                  collateral={totalCollateral}
+                  debt={`${currencySettingSymbol}${totalDebt}`}
+                  collateral={`${currencySettingSymbol}${totalCollateral}`}
                 />
               )}
             </Box>
@@ -176,7 +178,7 @@ const Dashboard = () => {
                 <DashboardPositions
                   actionType={ActionType.LEND}
                   positions={lendPositions}
-                  lendBalance={totalLendBalance}
+                  lendBalance={`${currencySettingSymbol}${totalLendBalance}`}
                 />
               )}
             </Box>
@@ -188,7 +190,7 @@ const Dashboard = () => {
                 <DashboardPositions
                   actionType={ActionType.POOL}
                   positions={poolPositions}
-                  poolBalance={totalPoolBalance}
+                  poolBalance={`${currencySettingSymbol}${totalPoolBalance}`}
                 />
               )}
             </Box>
@@ -197,7 +199,7 @@ const Dashboard = () => {
       </Box>
       <PanelWrap basis="40%">
         <Box margin={{ top: '35%' }}>
-          {!vaultsLoading && !seriesLoading && (
+          {!vaultsLoading && !seriesLoading && !pricesLoading && (
             <Box gap="medium">
               <HideBalancesSetting width="30%" />
               <CurrencyToggle width="50%" />
