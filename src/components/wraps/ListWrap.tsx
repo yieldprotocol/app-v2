@@ -14,6 +14,7 @@ function ListWrap({ children, ...props }: IListWrap) {
       pad={{ horizontal: 'medium', bottom: 'large', top: 'small' }}
       gap="small"
       height={{ max: '300px' }}
+      {...props}
     >
       {children}
     </Box>
