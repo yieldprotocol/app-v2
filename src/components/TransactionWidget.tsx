@@ -1,27 +1,33 @@
-import React, { useContext } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
+import { Box, Text } from 'grommet';
+import { FiAlertTriangle } from 'react-icons/fi';
 import { TxContext } from '../contexts/TxContext';
-import TransactionWidgetItem from './TransactionWidgetItem';
+import Transactions from './Transactions';
+import { TxState } from '../types';
 
-const TransactionWidget = ({ showComplete, wide }: { showComplete?: boolean; wide?: boolean }) => {
+const TransactionWidget = () => {
   const {
-    txState: { transactions_ },
+    txState: { processes, transactions },
   } = useContext(TxContext);
+  const hasActiveProcess = [...processes.values()].some((p) => p.status === 'ACTIVE');
+  const isLastTxPending = [...transactions.values()][transactions.size - 1].status === TxState.PENDING;
 
-  return transactions_.size ? (
-    <>
-      {[...transactions_.keys()].map((t) => {
-        const tx = transactions_.get(t);
-        // eslint-disable-next-line no-nested-ternary
-        return tx.active ? (
-          <TransactionWidgetItem tx={tx} key={tx.txId} wide={wide} />
-        ) : showComplete && tx.complete ? (
-          <TransactionWidgetItem tx={tx} key={tx.txId} wide={wide} />
-        ) : null;
-      })}
-    </>
-  ) : null;
+  return (
+    <Box gap="xsmall">
+      {hasActiveProcess && !isLastTxPending && (
+        <Box direction="row" justify="start" align="center" fill elevation="small" gap="small" pad="small">
+          <Box width="3rem" align="center">
+            <FiAlertTriangle size="1.5rem" color="#D97706" />
+          </Box>
+          <Box align="start">
+            <Text size="small">Action Required</Text>
+            <Text size="xsmall">Please Check your wallet</Text>
+          </Box>
+        </Box>
+      )}
+      <Transactions elevation="small" pad="medium" />
+    </Box>
+  );
 };
-
-TransactionWidget.defaultProps = { showComplete: false, wide: false };
 
 export default TransactionWidget;
