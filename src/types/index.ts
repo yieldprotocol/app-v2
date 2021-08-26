@@ -293,16 +293,3 @@ export interface IHistItemPosition extends IBaseHistItem {
   poolTokens?: BigNumber;
   poolTokens_?: string;
 }
-
-export interface ITransactions_ {
-  txCode: string | undefined;
-  txHash: string | undefined;
-  processActive: boolean;
-  signing: boolean;
-  pending: boolean;
-  success: boolean;
-  failed: boolean;
-  rejected: boolean;
-  complete: boolean;
-  txId: string;
-}
