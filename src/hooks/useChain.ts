@@ -57,7 +57,6 @@ export const useChain = () => {
 
     /* Encode each of the calls OR preEncoded route calls */
     const encodedCalls = _calls.map((call: ICallData) => {
-
       /* 'pre-encode' routed calls if required */
       if (call.operation === LadleActions.Fn.ROUTE) {
         if (call.fnName && call.targetContract) {
@@ -120,8 +119,8 @@ export const useChain = () => {
 
         /*
           Request the signature if using DaiType permit style
-        */ 
-        if ( reqSig.target.symbol === 'DAI' ) {
+        */
+        if (reqSig.target.symbol === 'DAI') {
           const { v, r, s, nonce, expiry, allowed } = await handleSign(
             /* We are pass over the generated signFn and sigData to the signatureHandler for tracking/tracing/fallback handling */
             () =>

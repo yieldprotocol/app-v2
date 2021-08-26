@@ -35,7 +35,7 @@ export const useBorrow = () => {
 
     /* parse inputs */
     const _input = input ? ethers.utils.parseUnits(input, base.decimals) : ethers.constants.Zero;
-    const _collInput = collInput ? ethers.utils.parseUnits(collInput, ilk.decimals): ethers.constants.Zero;
+    const _collInput = collInput ? ethers.utils.parseUnits(collInput, ilk.decimals) : ethers.constants.Zero;
 
     /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
     const permits: ICallData[] = await sign(
@@ -72,7 +72,7 @@ export const useBorrow = () => {
 
     /* handle the transaction */
     await transact(calls, txCode);
-    
+
     /* When complete, update vaults.
       If a vault was provided, update it only,
       else update ALL vaults (by passing an empty array)

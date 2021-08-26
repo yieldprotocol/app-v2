@@ -17,8 +17,9 @@ export const usePool = (input: string | undefined) => {
 
 /* Hook for chain transactions */
 export const useRollLiquidity = () => {
-
-  const { chainState: {strategyRootMap} } = useContext(ChainContext);
+  const {
+    chainState: { strategyRootMap },
+  } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
   const { activeAccount: account, selectedIlkId, selectedSeriesId, assetMap } = userState;
   const { updateSeries, updateAssets } = userActions;
@@ -50,13 +51,13 @@ export const useRollLiquidity = () => {
             address: fromSeries.poolAddress,
             name: fromSeries.poolName,
             version: fromSeries.poolVersion,
-            symbol: fromSeries.poolSymbol
+            symbol: fromSeries.poolSymbol,
           },
           spender: 'LADLE',
           message: 'Signing ERC20 Token approval',
           ignoreIf: fromSeries.seriesIsMature,
         },
-        
+
         /* AFTER MATURITY */
         {
           // ladle.forwardPermitAction(seriesId, false, ladle.address, allowance, deadline, v, r, s)

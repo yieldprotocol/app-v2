@@ -1,22 +1,15 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { UserContext } from '../../contexts/UserContext';
-import {
-  ICallData,
-  ISeries,
-  ActionCodes,
-  LadleActions,
-  RoutedActions,
-} from '../../types';
+import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions } from '../../types';
 import { getTxCode } from '../../utils/appUtils';
 import { calculateSlippage, sellBase } from '../../utils/yieldMath';
 import { useChain } from '../useChain';
 
 /* Lend Actions Hook */
 export const useRollPosition = () => {
-
   const { userState, userActions } = useContext(UserContext);
-  const { activeAccount:account, assetMap, slippageTolerance } = userState;
+  const { activeAccount: account, assetMap, slippageTolerance } = userState;
   const { updateSeries, updateAssets } = userActions;
 
   const { sign, transact } = useChain();
@@ -34,11 +27,7 @@ export const useRollPosition = () => {
       fromSeries.getTimeTillMaturity()
     );
 
-    const _minimumFYTokenReceived = calculateSlippage(
-      _inputAsFyToken,
-      slippageTolerance.toString(),
-      true
-    );
+    const _minimumFYTokenReceived = calculateSlippage(_inputAsFyToken, slippageTolerance.toString(), true);
 
     const permits: ICallData[] = await sign(
       [
@@ -65,14 +54,14 @@ export const useRollPosition = () => {
         operation: LadleActions.Fn.ROUTE,
         args: [toSeries.poolAddress, ethers.constants.Zero] as RoutedActions.Args.SELL_FYTOKEN,
         fnName: RoutedActions.Fn.SELL_FYTOKEN,
-        targetContract:fromSeries.poolContract,
+        targetContract: fromSeries.poolContract,
         ignoreIf: fromSeries.seriesIsMature,
       },
       {
         operation: LadleActions.Fn.ROUTE,
         args: [account, _minimumFYTokenReceived] as RoutedActions.Args.SELL_BASE,
         fnName: RoutedActions.Fn.SELL_BASE,
-        targetContract:toSeries.poolContract,
+        targetContract: toSeries.poolContract,
         ignoreIf: fromSeries.seriesIsMature,
       },
 
@@ -104,6 +93,5 @@ export const useRollPosition = () => {
     updateAssets([base]);
   };
 
-  return rollPosition
-
+  return rollPosition;
 };

@@ -25,15 +25,14 @@ export const useAddLiquidity = () => {
     method: 'BUY' | 'BORROW' | string = 'BUY',
     // strategyAddr: string | undefined = undefined,
     strategyAddr: string | undefined = '0x3e445F82CeF33a862a0dEEA9E5C3685fFf1EF310'
-
   ) => {
     const txCode = getTxCode(ActionCodes.ADD_LIQUIDITY, series.id);
     const base: IAsset = assetMap.get(series.baseId);
     const _input = ethers.utils.parseUnits(input, base.decimals);
 
-    const _strategyExists = ethers.utils.isAddress(strategyAddr!) && strategyRootMap.has(strategyAddr)
+    const _strategyExists = ethers.utils.isAddress(strategyAddr!) && strategyRootMap.has(strategyAddr);
     const _strategy = _strategyExists ? strategyAddr : undefined;
-    
+
     const _fyTokenToBuy = fyTokenForMint(
       series.baseReserves,
       series.fyTokenRealReserves,

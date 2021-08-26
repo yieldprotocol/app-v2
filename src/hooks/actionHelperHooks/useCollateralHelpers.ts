@@ -36,11 +36,11 @@ export const useCollateralHelpers = (
 
   /* update the prices if anything changes */
   useEffect(() => {
-    if (priceMap.get(selectedIlkId)?.has(selectedBaseId) ) {
-      setOraclePrice(priceMap.get(selectedIlkId).get(selectedBaseId))
+    if (priceMap.get(selectedIlkId)?.has(selectedBaseId)) {
+      setOraclePrice(priceMap.get(selectedIlkId).get(selectedBaseId));
     } else {
       (async () => {
-        selectedBaseId && selectedIlkId && setOraclePrice( await updatePrice(selectedIlkId, selectedBaseId) )
+        selectedBaseId && selectedIlkId && setOraclePrice(await updatePrice(selectedIlkId, selectedBaseId));
       })();
     }
   }, [priceMap, selectedBaseId, selectedIlkId, updatePrice]);
@@ -75,7 +75,7 @@ export const useCollateralHelpers = (
 
     /* check minimum collateral required base on debt */
     if (oraclePrice?.gt(ethers.constants.Zero)) {
-      const min = calculateMinCollateral(oraclePrice, totalDebt, '1.5', existingCollateral)
+      const min = calculateMinCollateral(oraclePrice, totalDebt, '1.5', existingCollateral);
       setMinCollateral(min.toString());
     } else {
       setMinCollateral('0');
@@ -83,13 +83,12 @@ export const useCollateralHelpers = (
 
     /* check minimum collateral required base on debt */
     if (oraclePrice?.gt(ethers.constants.Zero)) {
-      const min_ = calculateMinCollateral(oraclePrice, totalDebt, '1.5', existingCollateral, true)
+      const min_ = calculateMinCollateral(oraclePrice, totalDebt, '1.5', existingCollateral, true);
       // const max_ = ethers.utils.parseEther(max!)
-      setMaxRemove( existingCollateral.sub(min_) );
+      setMaxRemove(existingCollateral.sub(min_));
     } else {
       setMaxRemove(ethers.constants.Zero);
     }
-
   }, [collInput, collateralizationPercent, debtInput, oraclePrice, vault]);
 
   // TODO marco add in collateralisation warning at about 150% - 200% " warning: vulnerable to liquidation"

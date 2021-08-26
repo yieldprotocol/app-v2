@@ -71,7 +71,7 @@ export interface ISeriesRoot {
   poolName: string;
   poolVersion: string; // for signing
   poolSymbol: string; // for signing
-  
+
   baseId: string;
 
   color: string;
@@ -178,12 +178,12 @@ export interface ICallData {
 }
 
 export interface ISignData {
-  target: ISeries | IAsset | { name: string, version:string , address:string, symbol:string };
+  target: ISeries | IAsset | { name: string; version: string; address: string; symbol: string };
   spender: 'LADLE' | string;
 
   /* optional Extention/advanced use-case options */
   amount?: BigNumberish;
-  
+
   message?: string; // optional messaging for UI
   ignoreIf?: boolean; // conditional for ignoring
   domain?: IDomain;
