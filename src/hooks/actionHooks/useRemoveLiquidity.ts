@@ -71,17 +71,17 @@ export const useRemoveLiquidity = () => {
         args: [ladleAddress, ladleAddress, ethers.constants.Zero, ethers.constants.Zero] as RoutedActions.Args.BURN, // TODO slippage
         fnName: RoutedActions.Fn.BURN,
         targetContract: series.poolContract,
-        ignoreIf: series.seriesIsMature,
+        ignoreIf: true || series.seriesIsMature,
       },
       {
         operation: LadleActions.Fn.REPAY_FROM_LADLE,
         args: ['vaultId', account] as LadleActions.Args.REPAY_FROM_LADLE, // TODO slippage
-        ignoreIf: series.seriesIsMature,
+        ignoreIf: true || series.seriesIsMature,
       },
       {
         operation: LadleActions.Fn.CLOSE_FROM_LADLE,
         args: ['vaultId', account] as LadleActions.Args.CLOSE_FROM_LADLE, // TODO slippage
-        ignoreIf: series.seriesIsMature,
+        ignoreIf: true || series.seriesIsMature,
       },
 
       /* OPTION 2.Remove liquidity, repay and sell - BEFORE MATURITY */
@@ -94,19 +94,19 @@ export const useRemoveLiquidity = () => {
         args: [account, ladleAddress, ethers.constants.Zero, ethers.constants.Zero] as RoutedActions.Args.BURN,
         fnName: RoutedActions.Fn.BURN,
         targetContract: series.poolContract,
-        ignoreIf: series.seriesIsMature,
+        ignoreIf: true || series.seriesIsMature,
       },
       {
         operation: LadleActions.Fn.REPAY_FROM_LADLE,
         args: ['vaultId', account] as LadleActions.Args.REPAY_FROM_LADLE,
-        ignoreIf: series.seriesIsMature,
+        ignoreIf: true || series.seriesIsMature,
       },
       {
         operation: LadleActions.Fn.ROUTE,
         args: [account, ethers.constants.Zero] as RoutedActions.Args.SELL_BASE, // TODO slippage
         fnName: RoutedActions.Fn.SELL_BASE,
         targetContract: series.poolContract,
-        ignoreIf: series.seriesIsMature,
+        ignoreIf: true || series.seriesIsMature,
       },
 
       /* OPTION 4. Remove Liquidity and sell  - BEFORE MATURITY */
@@ -171,7 +171,7 @@ export const useRemoveLiquidity = () => {
       {
         operation: LadleActions.Fn.CLOSE_FROM_LADLE,
         args: ['vaultId', account] as LadleActions.Args.CLOSE_FROM_LADLE, // TODO slippage
-        ignoreIf: series.seriesIsMature,
+        ignoreIf: !series.seriesIsMature,
       },
     ];
 
