@@ -109,7 +109,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
         </Box>
         <Collapsible open={transactionsOpen}>
           {!transactions.size && <Text size="small">Your transactions will appear here...</Text>}
-          <Transactions />
+          <Transactions pad="xsmall" />
         </Collapsible>
       </Box>
     </Box>
