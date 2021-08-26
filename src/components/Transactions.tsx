@@ -21,8 +21,8 @@ const Transactions = ({ ...props }) => {
           <Box align="center" fill direction="row" gap="small" {...props} key={t.hash}>
             <Box width="3rem">
               {status === TxState.PENDING && <Spinner color="tailwind-blue" />}
-              {status === TxState.SUCCESSFUL && <FiCheckCircle size="1.5rem" />}
-              {status === TxState.FAILED && <FiXCircle size="1.5rem" />}
+              {status === TxState.SUCCESSFUL && <FiCheckCircle size="1.5rem" color="#34D399" />}
+              {status === TxState.FAILED && <FiXCircle size="1.5rem" color="#F87171" />}
             </Box>
             <Box gap="small" align="center" direction="row" justify="between" fill="horizontal">
               <Box direction="row" justify="start" align="start">
