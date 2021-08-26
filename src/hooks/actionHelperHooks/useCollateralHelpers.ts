@@ -36,11 +36,11 @@ export const useCollateralHelpers = (
 
   /* update the prices if anything changes */
   useEffect(() => {
-    if (priceMap.get(selectedBaseId)?.has(selectedIlkId) ) {
-      setOraclePrice(priceMap.get(selectedBaseId).get(selectedIlkId))
+    if (priceMap.get(selectedIlkId)?.has(selectedBaseId) ) {
+      setOraclePrice(priceMap.get(selectedIlkId).get(selectedBaseId))
     } else {
       (async () => {
-        selectedBaseId && selectedIlkId && setOraclePrice( await updatePrice(selectedBaseId, selectedIlkId) )
+        selectedBaseId && selectedIlkId && setOraclePrice( await updatePrice(selectedIlkId, selectedBaseId) )
       })();
     }
   }, [priceMap, selectedBaseId, selectedIlkId, updatePrice]);

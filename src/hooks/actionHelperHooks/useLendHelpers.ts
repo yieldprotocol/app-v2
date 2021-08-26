@@ -1,20 +1,8 @@
 import { ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
-import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
-import {
-  ICallData,
-  SignType,
-  ISeries,
-  ActionCodes,
-  LadleActions,
-  RoutedActions,
-  IUserContextState,
-} from '../../types';
-import { getTxCode } from '../../utils/appUtils';
-import { DAI_BASED_ASSETS, MAX_128, MAX_256 } from '../../utils/constants';
-import { buyBase, buyFYToken, calculateSlippage, secondsToFrom, sellBase, sellFYToken } from '../../utils/yieldMath';
-import { useChain } from '../useChain';
+import {ISeries } from '../../types';
+import { secondsToFrom, sellFYToken } from '../../utils/yieldMath';
 
 export const useLendHelpers = (series: ISeries, input?:string|undefined) => {
   const { userState } = useContext(UserContext);
@@ -26,7 +14,6 @@ export const useLendHelpers = (series: ISeries, input?:string|undefined) => {
 
   /* set maxLend as the balance of the base token */
   useEffect(() => {
-
     /* Check max available lend (only if activeAccount to save call) */
     if (activeAccount) {
       (async () => {

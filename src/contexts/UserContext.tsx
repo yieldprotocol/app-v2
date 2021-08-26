@@ -263,7 +263,7 @@ const UserProvider = ({ children }: any) => {
 
       try {
         const _priceMap = userState.priceMap;
-        const _basePriceMap = _priceMap.get(base) || new Map<string, any>();
+        const _ilkPriceMap = _priceMap.get(ilk) || new Map<string, any>();
         
         // set oracle based on whether ILK is ETH-BASED
         const Oracle = ETH_BASED_ASSETS.includes(ilk)
@@ -272,12 +272,17 @@ const UserProvider = ({ children }: any) => {
 
         const [price] = await Oracle.peek(bytesToBytes32(ilk, 6), bytesToBytes32(base, 6),  ONE_WEI_BN);
 
-        _basePriceMap.set(ilk, price);
-        _priceMap.set(base, _basePriceMap);
+        console.log(price.toString())
+
+        _ilkPriceMap.set(base, price);
+        _priceMap.set(ilk, _ilkPriceMap);
+
         updateState({ type: 'priceMap', payload: _priceMap });
-        console.log('Price Updated: ', base, '->', ilk, ':', price.toString());
+        console.log('Price Updated: ', ilk, '->', base, ':', price.toString());
         updateState({ type: 'pricesLoading', payload: false });
+
         return price;
+
       } catch (error) {
         console.log(error);
         updateState({ type: 'pricesLoading', payload: false });
