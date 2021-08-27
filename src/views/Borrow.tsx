@@ -63,7 +63,7 @@ const Borrow = () => {
 
   const [borrowInput, setBorrowInput] = useState<string>('');
   const [collatInput, setCollatInput] = useState<string>('');
-  const [maxCollat, setMaxCollat] = useState<string | undefined>();
+  // const [maxCollat, setMaxCollat] = useState<string | undefined>();
 
   const [borrowDisabled, setBorrowDisabled] = useState<boolean>(true);
   const [stepDisabled, setStepDisabled] = useState<boolean>(true);
@@ -74,12 +74,13 @@ const Borrow = () => {
   const borrow = useBorrow();
 
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
+  
   const borrowOutput = cleanValue(
     (Number(borrowInput) * (1 + Number(apr) / 100)).toString(),
     selectedBase?.digitFormat!
   );
 
-  const { collateralizationPercent, undercollateralized, minCollateral } = useCollateralHelpers(
+  const { collateralizationPercent, undercollateralized, minCollateral, maxCollateral } = useCollateralHelpers(
     borrowInput,
     collatInput,
     vaultToUse
@@ -89,7 +90,7 @@ const Borrow = () => {
   const { inputError: borrowInputError } = useInputValidation(borrowInput, ActionCodes.BORROW, selectedSeries, []);
   const { inputError: collatInputError } = useInputValidation(collatInput, ActionCodes.ADD_COLLATERAL, selectedSeries, [
     minCollateral,
-    maxCollat,
+    maxCollateral,
   ]);
 
   /* TX info (for disabling buttons) */
@@ -108,15 +109,6 @@ const Borrow = () => {
     resetTx();
   };
 
-  /* SET MAX VALUES */
-  useEffect(() => {
-    /* CHECK collateral selection and sets the max available collateral */
-    activeAccount &&
-      (async () => {
-        const _max = await selectedIlk?.getBalance(activeAccount);
-        _max && setMaxCollat(ethers.utils.formatEther(_max)?.toString());
-      })();
-  }, [activeAccount, selectedIlk, setMaxCollat]);
 
   /* BORROW DISABLING LOGIC */
   useEffect(() => {
@@ -289,10 +281,10 @@ const Borrow = () => {
                             disabled={!selectedSeries || selectedSeries.seriesIsMature}
                           />
                           <MaxButton
-                            action={() => maxCollat && setCollatInput(maxCollat)}
-                            disabled={!selectedSeries || collatInput === maxCollat || selectedSeries.seriesIsMature}
+                            action={() => maxCollateral && setCollatInput(maxCollateral)}
+                            disabled={!selectedSeries || collatInput === maxCollateral || selectedSeries.seriesIsMature}
                             clearAction={() => setCollatInput('')}
-                            showingMax={!!collatInput && collatInput === maxCollat}
+                            showingMax={!!collatInput && collatInput === maxCollateral}
                           />
                         </InputWrap>
                       </Box>

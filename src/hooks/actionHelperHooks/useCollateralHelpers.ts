@@ -17,9 +17,11 @@ export const useCollateralHelpers = (
 ) => {
   /* STATE FROM CONTEXT */
   const {
-    userState: { selectedBaseId, selectedIlkId, priceMap },
+    userState: { activeAccount, selectedBaseId, selectedIlkId, assetMap, priceMap },
     userActions: { updatePrice },
   } = useContext(UserContext);
+
+  const selectedIlk = assetMap.get(selectedIlkId!);
 
   /* LOCAL STATE */
   const [collateralizationRatio, setCollateralizationRatio] = useState<string | undefined>();
@@ -28,11 +30,13 @@ export const useCollateralHelpers = (
   const [undercollateralized, setUndercollateralized] = useState<boolean>(true);
   const [oraclePrice, setOraclePrice] = useState<ethers.BigNumber>(ethers.constants.Zero);
 
+  const [minCollateral, setMinCollateral] = useState<string | undefined>();
+  const [maxCollateral, setMaxCollateral] = useState<string | undefined>();
+  const [maxRemove, setMaxRemove] = useState<ethers.BigNumber>(ethers.constants.Zero);
+
   // todo:
   const [collateralizationWarning, setCollateralizationWarning] = useState<string | undefined>();
   const [borrowingPower, setBorrowingPower] = useState<string | undefined>();
-  const [minCollateral, setMinCollateral] = useState<string | undefined>();
-  const [maxRemove, setMaxRemove] = useState<ethers.BigNumber>(ethers.constants.Zero);
 
   /* update the prices if anything changes */
   useEffect(() => {
@@ -45,6 +49,17 @@ export const useCollateralHelpers = (
     }
   }, [priceMap, selectedBaseId, selectedIlkId, updatePrice]);
 
+
+/* CHECK collateral selection and sets the max available collateral */
+  useEffect(() => {
+    activeAccount &&
+      (async () => {
+        const _max = await selectedIlk?.getBalance(activeAccount);
+        _max && setMaxCollateral(ethers.utils.formatEther(_max)?.toString());
+      })();
+  }, [activeAccount, selectedIlk, setMaxCollateral]);
+
+ /* handle changes to input values */ 
   useEffect(() => {
     const existingCollateral = vault?.ink || ethers.constants.Zero;
     const existingDebt = vault?.art || ethers.constants.Zero;
@@ -100,6 +115,7 @@ export const useCollateralHelpers = (
     collateralizationWarning,
     undercollateralized,
     minCollateral,
+    maxCollateral,
     maxRemove,
   };
 };
