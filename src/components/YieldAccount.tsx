@@ -1,49 +1,52 @@
 import React, { useState, useContext } from 'react';
-import { Text, Box, ResponsiveContext, Layer, Spinner } from 'grommet';
-import { FiCheckCircle, FiCircle, FiMenu, FiSettings } from 'react-icons/fi';
-
-import YieldBalances from './YieldBalances';
-
+import styled from 'styled-components';
+import { Text, Box, ResponsiveContext } from 'grommet';
+import { FiSettings } from 'react-icons/fi';
+import Skeleton from 'react-loading-skeleton';
 import { ChainContext } from '../contexts/ChainContext';
-import { TxContext } from '../contexts/TxContext';
-
 import { abbreviateHash } from '../utils/appUtils';
+import YieldBalances from './YieldBalances';
 import YieldAvatar from './YieldAvatar';
-import YieldSettings from './YieldSettings';
-import Connect from './Connect';
-import { TxState } from '../types';
-import TransactionWidget from './TransactionWidget';
+import ConnectButton from './buttons/ConnectButton';
+import SidebarSettings from './SidebarSettings';
+import EthMark from './logos/EthMark';
+import { UserContext } from '../contexts/UserContext';
+import { WETH } from '../utils/constants';
+
+const StyledText = styled(Text)`
+  svg,
+  span {
+    vertical-align: middle;
+  }
+`;
 
 const YieldAccount = (props: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
-    chainState: { account, chainData },
+    chainState: { account },
   } = useContext(ChainContext);
 
   const {
-    txState: { sigPending, txPending, processPending },
-  } = useContext(TxContext);
+    userState: { assetMap, assetsLoading },
+  } = useContext(UserContext);
 
   const [settingsOpen, setSettingsOpen] = useState<boolean>();
   const [connectOpen, setConnectOpen] = useState<boolean>();
 
+  const ethBalance = assetMap.get(WETH)?.balance_;
+
   return (
     <>
-      {connectOpen && (
-        <Layer onClickOutside={() => setConnectOpen(false)} onEsc={() => setConnectOpen(false)}>
-          <Connect setConnectOpen={setConnectOpen} />
-        </Layer>
-      )}
-
-      {account && settingsOpen && (
-        <Layer onClickOutside={() => setSettingsOpen(false)} onEsc={() => setSettingsOpen(false)}>
-          <YieldSettings setConnectOpen={setConnectOpen} setSettingsOpen={setSettingsOpen} />
-        </Layer>
-      )}
+      <SidebarSettings
+        settingsOpen={settingsOpen}
+        setSettingsOpen={setSettingsOpen}
+        connectOpen={connectOpen}
+        setConnectOpen={setConnectOpen}
+      />
 
       {account ? (
         <Box direction="row" gap="xsmall" align="center">
-          {!mobile && <>{processPending ? <TransactionWidget /> : <YieldBalances />}</>}
+          {!mobile && <YieldBalances />}
           <Box round="xsmall" onClick={() => setSettingsOpen(true)} pad="small" justify="center">
             {mobile ? (
               <Text color="text">
@@ -56,11 +59,12 @@ const YieldAccount = (props: any) => {
                     {abbreviateHash(account)}
                   </Text>
 
-                  <Box direction='row' align='center' gap='small'>          
-                  <FiCircle fill={chainData.color} color={chainData.color} size=".5rem" />
-                  <Text size="xsmall" color={chainData.color} alignSelf="end">
-                    {chainData.name}
-                  </Text>
+                  <Box direction="row" align="center" gap="small">
+                    <Box direction="row" gap="small" align="center">
+                      <StyledText size="small" color="text">
+                        <EthMark /> {assetsLoading ? <Skeleton width={40} /> : ethBalance}
+                      </StyledText>
+                    </Box>
                   </Box>
                 </Box>
                 <Box>
@@ -71,11 +75,7 @@ const YieldAccount = (props: any) => {
           </Box>
         </Box>
       ) : (
-        <Box border={!mobile} onClick={() => setConnectOpen(true)} pad="small">
-          <Text size="small" color="text">
-            {mobile ? <FiMenu /> : 'Connect Wallet'}
-          </Text>
-        </Box>
+        <ConnectButton action={() => setConnectOpen(true)} />
       )}
     </>
   );

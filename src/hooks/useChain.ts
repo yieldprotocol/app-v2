@@ -4,9 +4,9 @@ import { useContext } from 'react';
 import { toast } from 'react-toastify';
 import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
-import { MAX_128, MAX_256 } from '../utils/constants';
-import { ICallData, ISignData, ISeriesRoot, ISeries, LadleActions, PoolRouterActions } from '../types';
-import { ERC20, ERC20__factory, Ladle, Pool, PoolRouter } from '../contracts';
+import { DAI_BASED_ASSETS, MAX_128, MAX_256 } from '../utils/constants';
+import { ICallData, ISignData, ISeries, LadleActions } from '../types';
+import { ERC20, ERC20Permit, ERC20__factory, Ladle, Pool, PoolRouter, Strategy } from '../contracts';
 import { UserContext } from '../contexts/UserContext';
 
 /*  💨 Calculate the accumulative gas limit (IF ALL calls have a gaslimit then set the total, else undefined ) */
@@ -24,9 +24,7 @@ const _getCallGas = (calls: ICallData[]): BigNumber | undefined => {
 
 /* Get ETH value from JOIN_ETHER OPCode, else zero -> N.B. other values sent in with other OPS are ignored for now */
 const _getCallValue = (calls: ICallData[]): BigNumber => {
-  const joinEtherCall = calls.find(
-    (call: any) => call.operation === LadleActions.Fn.JOIN_ETHER || call.operation === PoolRouterActions.Fn.JOIN_ETHER
-  );
+  const joinEtherCall = calls.find((call: any) => call.operation === LadleActions.Fn.JOIN_ETHER);
   return joinEtherCall ? BigNumber.from(joinEtherCall?.overrides?.value) : ethers.constants.Zero;
 };
 
@@ -44,42 +42,32 @@ export const useChain = () => {
 
   /**
    * TRANSACTING
-   * @param { 'PoolRouter' | 'Ladle' } router
-   * @param { string| undefined } vaultId
    * @param { ICallsData[] } calls list of callData as ICallData
    * @param { string } txCode internal transaction code
    */
-  const transact = async (router: 'PoolRouter' | 'Ladle', calls: ICallData[], txCode: string): Promise<void> => {
+  const transact = async (calls: ICallData[], txCode: string): Promise<void> => {
     const signer = account ? provider.getSigner(account) : provider.getSigner(0);
 
     /* Set the router contract instance, ladle by default */
-    let _contract: Contract = contractMap.get('Ladle').connect(signer) as Ladle;
-
-    if (router === 'PoolRouter') _contract = contractMap.get('PoolRouter').connect(signer) as PoolRouter;
+    const _contract: Contract = contractMap.get('Ladle').connect(signer) as Ladle;
 
     /* First, filter out any ignored calls */
-    const _calls = calls.filter((call: ICallData) => !call.ignore);
+    const _calls = calls.filter((call: ICallData) => !call.ignoreIf);
     console.log('Batch multicalls: ', _calls);
 
     /* Encode each of the calls OR preEncoded route calls */
     const encodedCalls = _calls.map((call: ICallData) => {
-      /* get the info required from the series */
-      const { poolContract, id: seriesId, getBaseAddress, fyTokenAddress } = call.series! as ISeries;
-
       /* 'pre-encode' routed calls if required */
-      if (call.operation === LadleActions.Fn.ROUTE || call.operation === PoolRouterActions.Fn.ROUTE) {
-        if (call.fnName) {
-          const encodedFn = (poolContract as Contract).interface.encodeFunctionData(call.fnName, call.args);
-          /* add in the extra/different parameters required for each specific rotuer */
-          const extraParams =
-            call.operation === LadleActions.Fn.ROUTE ? [seriesId] : [getBaseAddress(), fyTokenAddress];
-          // return ethers.utils.defaultAbiCoder.encode('route', [...extraParams, encodedFn]);
-          return _contract.interface.encodeFunctionData('route', [...extraParams, encodedFn]); // not we don't use Fn.ROUTE here (because they are different)
+      if (call.operation === LadleActions.Fn.ROUTE) {
+        if (call.fnName && call.targetContract) {
+          const encodedFn = (call.targetContract as any).interface.encodeFunctionData(call.fnName, call.args);
+          return _contract.interface.encodeFunctionData(LadleActions.Fn.ROUTE, [
+            call.targetContract.address,
+            encodedFn,
+          ]);
         }
-        throw new Error('Function name required for routing');
+        throw new Error('Function name and contract target required for routing');
       }
-
-      // return ethers.utils.defaultAbiCoder.encode(call.operation, call.args);
       return _contract.interface.encodeFunctionData(call.operation as string, call.args);
     });
 
@@ -108,26 +96,20 @@ export const useChain = () => {
    * @param { boolean } viaPoolRouter DEFAULT: false
    * @returns { Promise<ICallData[]> }
    */
-  const sign = async (
-    requestedSignatures: ISignData[],
-    txCode: string,
-    viaPoolRouter: boolean = false
-  ): Promise<ICallData[]> => {
+  const sign = async (requestedSignatures: ISignData[], txCode: string): Promise<ICallData[]> => {
     const signer = account ? provider.getSigner(account) : provider.getSigner(0);
 
     /* Get the spender if not provided, defaults to ladle */
-    const getSpender = (spender: 'POOLROUTER' | 'LADLE' | string) => {
+    const getSpender = (spender: 'LADLE' | string) => {
       const _ladleAddr = contractMap.get('Ladle').address;
-      const _poolAddr = contractMap.get('PoolRouter').address;
       if (ethers.utils.isAddress(spender)) {
         return spender;
       }
-      if (spender === 'POOLROUTER') return _poolAddr;
       return _ladleAddr;
     };
 
     /* First, filter out any ignored calls */
-    const _requestedSigs = requestedSignatures.filter((_rs: ISignData) => !_rs.ignore);
+    const _requestedSigs = requestedSignatures.filter((_rs: ISignData) => !_rs.ignoreIf);
     const signedList = await Promise.all(
       _requestedSigs.map(async (reqSig: ISignData) => {
         const _spender = getSpender(reqSig.spender);
@@ -138,8 +120,7 @@ export const useChain = () => {
         /*
           Request the signature if using DaiType permit style
         */
-        if (reqSig.type === 'DAI_TYPE') {
-          // const ladleAddress = contractMap.get('Ladle').address;
+        if (reqSig.target.symbol === 'DAI') {
           const { v, r, s, nonce, expiry, allowed } = await handleSign(
             /* We are pass over the generated signFn and sigData to the signatureHandler for tracking/tracing/fallback handling */
             () =>
@@ -155,40 +136,35 @@ export const useChain = () => {
                 account,
                 _spender
               ),
-            /* this is the function for if using fallback approvals */
+
+            /* This is the function  to call if using fallback approvals */
             () => handleTx(() => tokenContract.approve(_spender, MAX_256), txCode, true),
             reqSig,
             txCode,
             approvalMethod
           );
 
-          const poolRouterArgs = [
-            reqSig.series.getBaseAddress(),
-            reqSig.series.fyTokenAddress,
+          const args = [
+            reqSig.target.address,
             _spender,
             nonce,
             expiry,
-            allowed,
+            reqSig.amount || allowed, // use amount if provided, else defaults to MAX.
             v,
             r,
             s,
-          ];
-          const ladleArgs = [reqSig.target.id, true, _spender, nonce, expiry, allowed, v, r, s];
-          const args = viaPoolRouter ? poolRouterArgs : ladleArgs;
-          const operation = viaPoolRouter
-            ? PoolRouterActions.Fn.FORWARD_DAI_PERMIT
-            : LadleActions.Fn.FORWARD_DAI_PERMIT;
+          ] as LadleActions.Args.FORWARD_DAI_PERMIT;
+          const operation = LadleActions.Fn.FORWARD_DAI_PERMIT;
 
           return {
             operation,
             args,
-            ignore: !(v && r && s), // set ignore flag if signature returned is null (ie. fallbackTx was used)
-            series: reqSig.series,
+            ignoreIf: !(v && r && s), // set ignore flag if signature returned is null (ie. fallbackTx was used)
           };
         }
 
         /*
-          Or else, request the signature using ERC2612 Permit style
+          Or else - if not DAI-BASED, request the signature using ERC2612 Permit style
           (handleSignature() wraps the sign function for in app tracking and tracing )
         */
         const { v, r, s, value, deadline } = await handleSign(
@@ -205,7 +181,7 @@ export const useChain = () => {
               },
               account,
               _spender,
-              MAX_256
+              reqSig.amount?.toString() || MAX_256
             ),
           /* this is the function for if using fallback approvals */
           () => handleTx(() => tokenContract.approve(_spender, MAX_256), txCode, true),
@@ -215,43 +191,28 @@ export const useChain = () => {
         );
 
         // router.forwardPermit(ilkId, true, ilkJoin.address, amount, deadline, v, r, s)
-        const poolRouterArgs = [
-          reqSig.series.getBaseAddress(),
-          reqSig.series.fyTokenAddress,
-          reqSig.target.address,
+        const args = [
+          reqSig.target.address, // the asset id OR the seriesId (if signing fyToken)
           _spender,
           value,
           deadline,
           v,
           r,
           s,
-        ];
+        ] as LadleActions.Args.FORWARD_PERMIT;
 
-        const ladleArgs = [
-          reqSig.target.id, // the asset id OR the seriesId (if signing fyToken)
-          reqSig.type !== 'FYTOKEN_TYPE', // true or false=fyToken
-          _spender,
-          value,
-          deadline,
-          v,
-          r,
-          s,
-        ];
-
-        const args = viaPoolRouter ? poolRouterArgs : ladleArgs;
-        const operation = viaPoolRouter ? PoolRouterActions.Fn.FORWARD_PERMIT : LadleActions.Fn.FORWARD_PERMIT;
+        const operation = LadleActions.Fn.FORWARD_PERMIT;
 
         return {
           operation,
           args,
-          ignore: !(v && r && s), // set ignore flag if signature returned is null (ie. fallbackTx was used)
-          series: reqSig.series,
+          ignoreIf: !(v && r && s), // set ignore flag if signature returned is null (ie. fallbackTx was used)
         };
       })
     );
 
     /* Returns the processed list of txs required as ICallData[] */
-    return signedList.filter((x: ICallData) => !x.ignore);
+    return signedList.filter((x: ICallData) => !x.ignoreIf);
   };
 
   return { sign, transact };

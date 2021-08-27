@@ -1,69 +1,51 @@
-import { Box, Text } from 'grommet';
-import React, { useContext, useEffect, useState } from 'react';
-import { BiWallet } from 'react-icons/bi';
-import { FiAlertTriangle, FiCheckCircle, FiClock, FiPenTool, FiX, FiXCircle } from 'react-icons/fi';
-import { TxContext } from '../contexts/TxContext';
-import { TxState } from '../types';
+import React from 'react';
+import { Box, Text, Spinner } from 'grommet';
+import { FiAlertTriangle, FiCheckCircle, FiClock, FiXCircle } from 'react-icons/fi';
 import { abbreviateHash } from '../utils/appUtils';
 import CopyWrap from './wraps/CopyWrap';
 
-const TransactionWidget = () => {
-  const { txState } = useContext(TxContext);
-  const { signatures, transactions, processes } = txState;
-
-  const [processArray, setProcessArray] = useState<any[]>([]);
-  const [sigArray, setSigArray] = useState<any[]>([]);
-  const [txArray, setTxArray] = useState<any[]>([]);
-
-  /* convert maps to arrays */
-  useEffect(() => {
-    setProcessArray(Array.from(processes.values()));
-    setTxArray(Array.from(transactions.values()));
-    setSigArray(Array.from(signatures.values()));
-  }, [processes, signatures, transactions]);
-
-  /* convert maps to arrays */
-  useEffect(() => {
-    console.log(processArray);
-    console.log(sigArray);
-    console.log(txArray);
-  }, [processArray, sigArray, txArray]);
+const TransactionWidget = ({ tx }: any) => {
+  if (!tx.txCode) return null;
 
   return (
-    <Box round="xsmall" pad={{ horizontal: 'medium', vertical: 'xsmall' }} elevation="xsmall" gap="xsmall">
-      {txArray.some((x: any) => x.status === TxState.PENDING) && (
-        <>
-          <Box direction="row" gap="medium" align="center">
-            <FiClock />
-            <Box>
-              <Text size="small">Transaction Pending</Text>
-              <Text size="xsmall">
-                <CopyWrap hash={txArray[0].tx.hash}>{abbreviateHash(txArray[0].tx.hash, 6)} </CopyWrap>
-              </Text>
-            </Box>
+    <Box
+      round="xsmall"
+      pad={{ horizontal: 'medium', vertical: 'xsmall' }}
+      elevation={tx.processActive || tx.success || tx.failed ? 'xsmall' : undefined}
+      gap="xsmall"
+      fill
+      align="center"
+      justify="center"
+    >
+      {!tx.pending && tx.processActive && (
+        <Box direction="row" gap="medium" align="center">
+          <FiAlertTriangle />
+          <Box>
+            <Text size="small">Action Required</Text>
+            <Text size="xsmall">Check your wallet</Text>
           </Box>
-        </>
+        </Box>
       )}
 
-      {processArray.length && !txArray.some((x: any) => x.status === TxState.PENDING) && (
-        <>
-          <Box direction="row" gap="medium" align="center">
-            <FiAlertTriangle />
-            <Box>
-              <Text size="small">Action Required</Text>
-              <Text size="xsmall">Check your wallet</Text>
-            </Box>
+      {tx.pending && (
+        <Box direction="row" gap="medium" align="center">
+          {/* <FiClock /> */}
+          <Spinner />
+          <Box>
+            <Text size="small">Transaction Pending</Text>
+            <Text size="xsmall">
+              <CopyWrap hash={tx.txHash}>{abbreviateHash(tx.txHash, 6)} </CopyWrap>
+            </Text>
           </Box>
-        </>
+        </Box>
       )}
-
-      {!processArray.length && txArray.some((x: any) => x.status === TxState.SUCCESSFUL) && (
+      {tx.success && (
         <Box direction="row" gap="small">
           <FiCheckCircle />
           <Text size="xsmall"> Transaction Complete </Text>
         </Box>
       )}
-      {!processArray.length && txArray.some((x: any) => x.status === TxState.FAILED) && (
+      {tx.failed && (
         <Box direction="row" gap="small">
           <FiXCircle />
           <Text size="xsmall"> Transaction Failed </Text>

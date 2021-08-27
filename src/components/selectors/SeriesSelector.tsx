@@ -1,13 +1,14 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Avatar, Box, Carousel, Grid, ResponsiveContext, Select, Stack, Text, ThemeContext } from 'grommet';
 
+import Skeleton from 'react-loading-skeleton';
 import { ethers } from 'ethers';
 import styled from 'styled-components';
 import { FiClock } from 'react-icons/fi';
 import { ActionType, ISeries } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { calculateAPR } from '../../utils/yieldMath';
-import { useApr } from '../../hooks/aprHook';
+import { useApr } from '../../hooks/useApr';
 import YieldMark from '../logos/YieldMark';
 import { nFormatter } from '../../utils/appUtils';
 
@@ -28,6 +29,23 @@ const InsetBox = styled(Box)`
   border-radius: 8px;
   box-shadow: inset 1px 1px 1px #ddd, inset -0.25px -0.25px 0.25px #ddd;
 `;
+
+const CardSkeleton = () => (
+  <StyledBox
+    // border={series.id === selectedSeriesId}
+    pad="xsmall"
+    round="xsmall"
+    elevation="xsmall"
+    align="center"
+  >
+    <Box pad="small" width="small" direction="row" align="center" gap="small">
+      <Skeleton circle width={45} height={45} />
+      <Box>
+        <Skeleton count={2} width={100} />
+      </Box>
+    </Box>
+  </StyledBox>
+);
 
 interface ISeriesSelectorProps {
   actionType: ActionType;
@@ -54,7 +72,11 @@ const AprText = ({
   const [limitHit, setLimitHit] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!series?.seriesIsMature && inputValue && ethers.utils.parseEther(inputValue).gt(series.baseReserves)) {
+    if (
+      !series?.seriesIsMature &&
+      inputValue &&
+      ethers.utils.parseUnits(inputValue, series.decimals).gt(series.baseReserves)
+    ) {
       setLimitHit(true);
     } else {
       setLimitHit(false);
@@ -64,34 +86,34 @@ const AprText = ({
   return (
     <>
       {actionType !== ActionType.POOL && !series.seriesIsMature && !inputValue && (
-        <Text size="small">
+        <Text size="medium">
           {series?.apr}% <Text size="xsmall">APR</Text>
         </Text>
       )}
 
       {actionType !== ActionType.POOL && !limitHit && !series?.seriesIsMature && inputValue && (
-        <Text size="small">
+        <Text size="medium">
           {apr}% <Text size="xsmall">APR</Text>
         </Text>
       )}
 
       {actionType !== ActionType.POOL && limitHit && (
         <Text size="xsmall" color="pink">
-          low liquidity 
+          low liquidity
         </Text>
       )}
 
       {actionType === ActionType.POOL && !series.seriesIsMature && !inputValue && (
-        <Text size="small">
+        <Text size="medium">
           {nFormatter(parseFloat(series?.totalSupply_), 2)} <Text size="xsmall"> liquidity </Text>
         </Text>
       )}
 
       {actionType === ActionType.POOL && !series.seriesIsMature && inputValue && (
         // TODO fix this asap - use a pool hook
-        <Text size="xsmall">
-          {nFormatter((parseFloat(inputValue) / (parseFloat(series?.totalSupply_) + parseFloat(inputValue))) * 100, 2)}{' '}
-          %<Text size="xsmall">of Pool</Text>
+        <Text size="medium">
+          {nFormatter((parseFloat(inputValue) / (parseFloat(series?.totalSupply_) + parseFloat(inputValue))) * 100, 2)}
+          <Text size="xsmall"> % of Pool</Text>
         </Text>
       )}
 
@@ -108,7 +130,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const { userState, userActions } = useContext(UserContext);
-  const { selectedSeriesId, selectedBaseId, seriesMap, assetMap } = userState;
+  const { selectedSeriesId, selectedBaseId, seriesMap, assetMap, seriesLoading } = userState;
   const [localSeries, setLocalSeries] = useState<ISeries | null>();
   const [options, setOptions] = useState<ISeries[]>([]);
 
@@ -119,12 +141,12 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     if (_series) {
       return `${mobile ? _series.displayNameMobile : _series.displayName}`;
     }
-    return 'Select a series';
+    return 'Select a maturity date';
   };
 
   const optionExtended = (_series: ISeries | undefined) => (
     <Box fill="horizontal" direction="row" justify="between" gap="small">
-      <Box align='center'>{_series?.seriesMark} </Box>
+      <Box align="center">{_series?.seriesMark} </Box>
       {optionText(_series)}
       {_series?.seriesIsMature && (
         <Box round="large" border pad={{ horizontal: 'small' }}>
@@ -139,9 +161,9 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
   useEffect(() => {
     const opts = Array.from(seriesMap.values()) as ISeries[];
 
-    /* filter out options based on base Id */
+    /* filter out options based on base Id and if mature */
     let filteredOpts = opts.filter(
-      (_series: ISeries) => _series.baseId === selectedBaseId
+      (_series: ISeries) => _series.baseId === selectedBaseId && !_series.seriesIsMature
       // !ignoredSeries?.includes(_series.baseId)
     );
 
@@ -159,8 +181,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     )
       userActions.setSelectedSeries(null);
 
-    setOptions(filteredOpts.sort((a:ISeries, b:ISeries) => a.maturity - b.maturity ));
-
+    setOptions(filteredOpts.sort((a: ISeries, b: ISeries) => a.maturity - b.maturity));
   }, [seriesMap, selectedBase, selectSeriesLocally, selectedSeries, userActions]);
 
   const handleSelect = (_series: ISeries) => {
@@ -177,6 +198,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
   return (
     <>
+      {seriesLoading && <Skeleton width={180} />}
       {!cardLayout && (
         <InsetBox fill="horizontal" round="xsmall">
           <Select
@@ -213,7 +235,13 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
       {cardLayout && (
         <Grid columns={mobile ? '100%' : 'small'} gap="small" fill pad={{ vertical: 'small' }}>
-            {options.map((series: ISeries) => (
+          {seriesLoading ? (
+            <>
+              <CardSkeleton />
+              <CardSkeleton />
+            </>
+          ) : (
+            options.map((series: ISeries) => (
               <StyledBox
                 // border={series.id === selectedSeriesId}
                 key={series.id}
@@ -228,17 +256,18 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
                   <Avatar background="#FFF"> {series.seriesMark}</Avatar>
 
                   <Box>
-                    <Text color={series.id === selectedSeriesId ? series.textColor : undefined}>
-                      {series.displayNameMobile}
-                    </Text>
-                    <Text color={series.id === selectedSeriesId ? series.textColor : undefined}>
+                    <Text size="medium" color={series.id === selectedSeriesId ? series.textColor : undefined}>
                       <AprText inputValue={inputValue} series={series} actionType={actionType} />
+                    </Text>
+                    <Text size="small" color={series.id === selectedSeriesId ? series.textColor : undefined}>
+                      {series.displayName}
                     </Text>
                   </Box>
                 </Box>
               </StyledBox>
-            ))}
-          </Grid>
+            ))
+          )}
+        </Grid>
       )}
     </>
   );

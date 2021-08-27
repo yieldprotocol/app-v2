@@ -1,15 +1,36 @@
+import React, { useContext, useEffect, useState } from 'react';
 import { Box, Collapsible, ResponsiveContext, Text } from 'grommet';
+import Skeleton from 'react-loading-skeleton';
 import { useLocation } from 'react-router-dom';
 
-import React, { useContext, useEffect, useState } from 'react';
+import styled from 'styled-components';
 import { FiMenu } from 'react-icons/fi';
 import { UserContext } from '../contexts/UserContext';
+import { WETH } from '../utils/constants';
+
+const StyledText = styled(Text)`
+  svg,
+  span {
+    vertical-align: middle;
+  }
+`;
+
+const Balance = ({ image, balance, loading }: { image: any; balance: string; loading: boolean }) => (
+  <Box direction="row" gap="small" align="center">
+    <StyledText size="small" color="text">
+      {loading ? <Skeleton circle height={15} width={15} /> : image}
+    </StyledText>
+    <StyledText size="small" color="text">
+      {loading ? <Skeleton width={40} /> : balance}
+    </StyledText>
+  </Box>
+);
 
 const Balances = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const {
-    userState: { assetMap, selectedBaseId, selectedIlkId },
+    userState: { assetMap, selectedBaseId, selectedIlkId, assetsLoading },
   } = useContext(UserContext);
 
   const { pathname } = useLocation();
@@ -25,26 +46,11 @@ const Balances = () => {
   const selectedIlk = assetMap.get(selectedIlkId);
 
   return (
-    <Box pad="small" justify="center" gap="xxxsmall" width="5rem">
-      <Box direction="row" gap="small" align="center">
-        <Text size="small" color="text">
-          {selectedBase?.image}
-        </Text>
-        <Text size="xsmall" color="text">
-          {selectedBase?.balance_}
-        </Text>
-      </Box>
-      {path === 'borrow' && selectedBase?.id !== selectedIlk?.id && (
-        <Box direction="row" gap="small" align="center">
-          <Text size="small" color="text">
-            {selectedIlk?.image}
-          </Text>
-          <Text size="xsmall" color="text">
-            {selectedIlk?.balance_}
-          </Text>
-        </Box>
+    <Box pad="small" justify="center" align="start">
+      <Balance image={selectedBase?.image} balance={selectedBase?.balance_} loading={assetsLoading} />
+      {path === 'borrow' && selectedBase?.id !== selectedIlk?.id && selectedIlk?.id !== WETH && (
+        <Balance image={selectedIlk?.image} balance={selectedIlk?.balance_} loading={assetsLoading} />
       )}
-
       <Collapsible open={allOpen}>Other balances</Collapsible>
     </Box>
   );

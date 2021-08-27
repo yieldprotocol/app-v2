@@ -1,22 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
-import {
-  Box,
-  Button,
-  CheckBox,
-  Header,
-  Heading,
-  Keyboard,
-  Layer,
-  ResponsiveContext,
-  Select,
-  Text,
-  TextInput,
-} from 'grommet';
-import { useHistory, useParams } from 'react-router-dom';
-import { ethers } from 'ethers';
-import styled from 'styled-components';
+import { Box, Keyboard, Layer, ResponsiveContext, Text, TextInput } from 'grommet';
 
-import { FiClock, FiPocket, FiLayers, FiLock, FiPercent, FiTrendingUp, FiInfo } from 'react-icons/fi';
+import { FiClock, FiPocket, FiPercent, FiTrendingUp } from 'react-icons/fi';
 
 import SeriesSelector from '../components/selectors/SeriesSelector';
 import MainViewWrap from '../components/wraps/MainViewWrap';
@@ -27,38 +12,40 @@ import SectionWrap from '../components/wraps/SectionWrap';
 
 import MaxButton from '../components/buttons/MaxButton';
 
-import { useBorrowActions } from '../hooks/borrowHooks';
-import { useCollateralization } from '../hooks/collateralHooks';
 import { useTx } from '../hooks/useTx';
 
 import { UserContext } from '../contexts/UserContext';
-import { ActionCodes, ActionType, ISeries, IUserContext, IVault } from '../types';
+import { ActionCodes, ActionType, IUserContext, IVault } from '../types';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
-import YieldApr from '../components/YieldApr';
 import StepperText from '../components/StepperText';
 import VaultSelector from '../components/selectors/VaultSelector';
 import ActiveTransaction from '../components/ActiveTransaction';
 
-import { cleanValue, getTxCode, nFormatter } from '../utils/appUtils';
+import { cleanValue, nFormatter } from '../utils/appUtils';
 
 import YieldInfo from '../components/YieldInfo';
 import BackButton from '../components/buttons/BackButton';
 import { Gauge } from '../components/Gauge';
 import InfoBite from '../components/InfoBite';
 import NextButton from '../components/buttons/NextButton';
-import YieldMark from '../components/logos/YieldMark';
 import TransactButton from '../components/buttons/TransactButton';
-import { useApr } from '../hooks/aprHook';
+import { useApr } from '../hooks/useApr';
 import PositionAvatar from '../components/PositionAvatar';
 import VaultDropSelector from '../components/selectors/VaultDropSelector';
-import { useInputValidation } from '../hooks/inputValidationHook';
+import { useInputValidation } from '../hooks/useInputValidation';
 import AltText from '../components/texts/AltText';
 import BorrowCalculator from '../components/BorrowCalculator';
+import YieldCardHeader from '../components/YieldCardHeader';
+import { useBorrow } from '../hooks/actionHooks/useBorrow';
+import { useCollateralHelpers } from '../hooks/actionHelperHooks/useCollateralHelpers';
+
+import AddTokenToMetamask from '../components/AddTokenToMetamask';
+import TransactionWidget from '../components/TransactionWidget';
+import { useBorrowHelpers } from '../hooks/actionHelperHooks/useBorrowHelpers';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-  const routerHistory = useHistory();
 
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext) as IUserContext;
@@ -68,15 +55,12 @@ const Borrow = () => {
   const selectedIlk = assetMap.get(selectedIlkId!);
   const selectedSeries = seriesMap.get(selectedSeriesId!);
 
-  /* TX info (for disabling buttons) */
-  const { tx: borrowTx } = useTx(ActionCodes.BORROW);
-
   /* LOCAL STATE */
   const [stepPosition, setStepPosition] = useState<number>(0);
 
   const [borrowInput, setBorrowInput] = useState<string>('');
   const [collatInput, setCollatInput] = useState<string>('');
-  const [maxCollat, setMaxCollat] = useState<string | undefined>();
+  // const [maxCollat, setMaxCollat] = useState<string | undefined>();
 
   const [borrowDisabled, setBorrowDisabled] = useState<boolean>(true);
   const [stepDisabled, setStepDisabled] = useState<boolean>(true);
@@ -84,30 +68,32 @@ const Borrow = () => {
   const [vaultToUse, setVaultToUse] = useState<IVault | undefined>(undefined);
   const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
 
-  const [disclaimerChecked, setDisclaimerChecked] = useState<boolean>(false);
-
   const [calculatorOpen, setCalculatorOpen] = useState<boolean>(false);
 
-  const { borrow } = useBorrowActions();
-
+  const borrow = useBorrow();
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
-  const borrowOutput = cleanValue(
-    (Number(borrowInput) * (1 + Number(apr) / 100)).toString(),
-    selectedBase?.digitFormat!
-  );
 
-  const { collateralizationPercent, undercollateralized, minCollateral } = useCollateralization(
+  const { collateralizationPercent, undercollateralized, minCollateral, maxCollateral } = useCollateralHelpers(
     borrowInput,
     collatInput,
     vaultToUse
   );
 
-  /* input validation hoooks */
-  const { inputError: borrowInputError } = useInputValidation(borrowInput, ActionCodes.BORROW, selectedSeries, []);
+  const { maxAllowedBorrow, minAllowedBorrow } = useBorrowHelpers(borrowInput, collatInput, vaultToUse);
+
+  /* input validation hooks */
+  const { inputError: borrowInputError } = useInputValidation(borrowInput, ActionCodes.BORROW, selectedSeries, [
+    minAllowedBorrow,
+    maxAllowedBorrow,
+  ]);
+
   const { inputError: collatInputError } = useInputValidation(collatInput, ActionCodes.ADD_COLLATERAL, selectedSeries, [
     minCollateral,
-    maxCollat,
+    maxCollateral,
   ]);
+
+  /* TX info (for disabling buttons) */
+  const { tx: borrowTx, resetTx } = useTx(ActionCodes.BORROW, selectedSeriesId!);
 
   /** LOCAL ACTION FNS */
   const handleBorrow = () => {
@@ -115,15 +101,12 @@ const Borrow = () => {
     !borrowDisabled && borrow(_vault, borrowInput, collatInput);
   };
 
-  /* SET MAX VALUES */
-  useEffect(() => {
-    /* CHECK collateral selection and sets the max available collateral */
-    activeAccount &&
-      (async () => {
-        const _max = await selectedIlk?.getBalance(activeAccount);
-        _max && setMaxCollat(ethers.utils.formatEther(_max)?.toString());
-      })();
-  }, [activeAccount, selectedIlk, setMaxCollat]);
+  const resetInputs = () => {
+    setBorrowInput('');
+    setCollatInput('');
+    setStepPosition(0);
+    resetTx();
+  };
 
   /* BORROW DISABLING LOGIC */
   useEffect(() => {
@@ -159,7 +142,7 @@ const Borrow = () => {
       : setStepDisabled(false); /* else if all pass, then unlock borrowing */
   }, [borrowInput, borrowInputError, selectedSeries, activeAccount]);
 
-  /* CHECK the list of current vaults which match the current series/ilk selection */
+  /* CHECK the list of current vaults which match the current series/ilk selection */ // TODO look at moving this to helper hook?
   useEffect(() => {
     if (selectedBase && selectedSeries && selectedIlk) {
       const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
@@ -178,19 +161,24 @@ const Borrow = () => {
     selectedIlk && setVaultToUse(undefined);
   }, [selectedIlk]);
 
+  // THIS VALUE IS ACTIUALLY JUST the fytoken value:
+  // const borrowOutput = cleanValue(
+  //   (Number(borrowInput) * (1 + Number(apr) / 100)).toString(),
+  //   selectedBase?.digitFormat!
+  // );
+
   return (
     <Keyboard onEsc={() => setCollatInput('')} onEnter={() => console.log('ENTER smashed')} target="document">
       <MainViewWrap>
-        {/* <PanelWrap background="linear-gradient(to right, #EEEEEE,rgba(255,255,255,1))"> */}
         {!mobile && (
           <PanelWrap>
             <Box margin={{ top: '35%' }}>
               <StepperText
                 position={stepPosition}
                 values={[
-                  ['Choose amount to', 'BORROW', ''],
-                  ['Add', 'COLLATERAL', ''],
-                  ['Review &', 'Transact', ''],
+                  ['Choose an amount and a maturity date', '', ''],
+                  ['Add Collateral', '', ''],
+                  ['Review & Transact', '', ''],
                 ]}
               />
             </Box>
@@ -199,23 +187,23 @@ const Borrow = () => {
         )}
 
         <CenterPanelWrap series={selectedSeries || undefined}>
-          <Box height="100%" pad="large">
+          <Box height="100%" pad={mobile ? 'medium' : 'large'}>
             {stepPosition === 0 && ( // INITIAL STEP
               <Box gap="medium">
-                <Box gap="xsmall">
-                  <AltText size="large">BORROW</AltText>
-                  <Box>
+                <YieldCardHeader logo={mobile} series={selectedSeries}>
+                  <Box gap={mobile ? undefined : 'xsmall'}>
+                    <AltText size={mobile ? 'small' : 'large'}>BORROW</AltText>
                     <AltText color="text-weak" size="xsmall">
                       popular ERC20 tokens at a fixed rate.
                     </AltText>
                   </Box>
-                </Box>
+                </YieldCardHeader>
 
-                <Box gap="small">
+                <Box gap="large">
                   {/* <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}> */}
                   <SectionWrap>
-                    <Box direction="row" gap="small">
-                      <Box basis={mobile ? '50%' : '60%'}>
+                    <Box direction="row-responsive" gap="small">
+                      <Box basis={mobile ? undefined : '60%'}>
                         <InputWrap action={() => console.log('maxAction')} isError={borrowInputError}>
                           <TextInput
                             plain
@@ -227,15 +215,23 @@ const Borrow = () => {
                           />
                         </InputWrap>
                       </Box>
-                      <Box basis={mobile ? '50%' : '40%'}>
+                      <Box basis={mobile ? undefined : '40%'}>
                         <AssetSelector />
+                        <AddTokenToMetamask
+                          address={selectedBase?.address}
+                          symbol={selectedBase?.symbol}
+                          decimals={18}
+                          image=""
+                        />
                       </Box>
                     </Box>
                   </SectionWrap>
 
                   <SectionWrap
                     title={
-                      seriesMap.size > 0 ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} series` : ''
+                      seriesMap.size > 0
+                        ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} maturity date`
+                        : ''
                     }
                   >
                     <SeriesSelector inputValue={borrowInput} actionType={ActionType.BORROW} />
@@ -257,12 +253,34 @@ const Borrow = () => {
 
             {stepPosition === 1 && ( // ADD COLLATERAL
               <Box gap="medium">
-                <BackButton action={() => setStepPosition(0)} />
+                <YieldCardHeader>
+                  <BackButton action={() => setStepPosition(0)} />
+                </YieldCardHeader>
 
-                <Box gap="medium" height="400px">
+                <Box gap="large" height="400px">
+                  <SectionWrap>
+                    <Box direction="row" gap="large" margin={{ vertical: 'medium' }}>
+                      <Box>
+                        <Gauge value={parseFloat(collateralizationPercent!)} size={mobile ? '6em' : '8em'} />
+                      </Box>
+
+                      <Box>
+                        <Text size={mobile ? 'xsmall' : 'medium'} color="text-weak">
+                          Collateralization
+                        </Text>
+                        <Text size={mobile ? 'large' : 'xlarge'}>
+                          {parseFloat(collateralizationPercent!) > 10000
+                            ? nFormatter(parseFloat(collateralizationPercent!), 2)
+                            : parseFloat(collateralizationPercent!)}
+                          %
+                        </Text>
+                      </Box>
+                    </Box>
+                  </SectionWrap>
+
                   <SectionWrap title="Amount of collateral to add">
-                    <Box direction="row" gap="small">
-                      <Box basis={mobile ? '50%' : '60%'} fill="horizontal">
+                    <Box direction="row-responsive" gap="small">
+                      <Box basis={mobile ? undefined : '60%'} fill="horizontal">
                         <InputWrap
                           action={() => console.log('maxAction')}
                           disabled={!selectedSeries}
@@ -278,54 +296,51 @@ const Borrow = () => {
                             disabled={!selectedSeries || selectedSeries.seriesIsMature}
                           />
                           <MaxButton
-                            action={() => maxCollat && setCollatInput(maxCollat)}
-                            disabled={!selectedSeries || collatInput === maxCollat || selectedSeries.seriesIsMature}
+                            action={() => maxCollateral && setCollatInput(maxCollateral)}
+                            disabled={!selectedSeries || collatInput === maxCollateral || selectedSeries.seriesIsMature}
                             clearAction={() => setCollatInput('')}
-                            showingMax={!!collatInput && collatInput === maxCollat}
+                            showingMax={!!collatInput && collatInput === maxCollateral}
                           />
                         </InputWrap>
                       </Box>
-                      <Box basis={mobile ? '50%' : '40%'}>
+                      <Box basis={mobile ? undefined : '40%'}>
                         <AssetSelector selectCollateral />
+                        <AddTokenToMetamask
+                          address={selectedIlk?.address}
+                          symbol={selectedIlk?.symbol}
+                          decimals={18}
+                          image=""
+                        />
                       </Box>
                     </Box>
                   </SectionWrap>
-
-                  <SectionWrap title="Add to an exisiting vault" disabled={matchingVaults.length < 1}>
-                    <VaultDropSelector
-                      vaults={matchingVaults}
-                      handleSelect={(option: any) => setVaultToUse(option)}
-                      itemSelected={vaultToUse}
-                      displayName="Create New Vault"
-                      placeholder="Create New Vault"
-                      defaultOptionValue="Create New Vault"
-                    />
-                  </SectionWrap>
-                </Box>
-
-                <Box direction="row" align="center" gap="large" justify="center">
-                  <Box>
-                    <Gauge value={parseFloat(collateralizationPercent!)} size="8em" />
-                  </Box>
-
-                  <Box>
-                    <Text size="small"> Collateralization </Text>
-                    <Text size="xlarge">
-                      {parseFloat(collateralizationPercent!) > 10000
-                        ? nFormatter(parseFloat(collateralizationPercent!), 2)
-                        : parseFloat(collateralizationPercent!)}
-                      %
-                    </Text>
-                  </Box>
+                  {matchingVaults.length > 0 && (
+                    <SectionWrap title="Add to an exisiting vault" disabled={matchingVaults.length < 1}>
+                      <VaultDropSelector
+                        vaults={matchingVaults}
+                        handleSelect={(option: any) => setVaultToUse(option)}
+                        itemSelected={vaultToUse}
+                        displayName="Create New Vault"
+                        placeholder="Create New Vault"
+                        defaultOptionValue="Create New Vault"
+                      />
+                    </SectionWrap>
+                  )}
                 </Box>
               </Box>
             )}
 
             {stepPosition === 2 && ( // REVIEW
               <Box gap="large">
-                <BackButton action={() => setStepPosition(1)} />
+                <YieldCardHeader>
+                  {!borrowTx.success && !borrowTx.failed ? (
+                    <BackButton action={() => setStepPosition(1)} />
+                  ) : (
+                    <Box pad="1em" />
+                  )}
+                </YieldCardHeader>
 
-                <ActiveTransaction txCode={borrowTx.txCode} full>
+                <ActiveTransaction full tx={borrowTx}>
                   <SectionWrap title="Review transaction:">
                     <Box
                       gap="small"
@@ -342,7 +357,7 @@ const Borrow = () => {
                       <InfoBite
                         label="Vault Debt Payable @ Maturity"
                         icon={<FiTrendingUp />}
-                        value={`${borrowOutput} ${selectedBase?.symbol}`}
+                        value={`${selectedSeries?.fyTokenBalance_} ${selectedBase?.symbol}`}
                       />
                       <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
                       <InfoBite
@@ -366,49 +381,55 @@ const Borrow = () => {
             )}
           </Box>
           <Box>
-            {stepPosition === 2 && (
-              <SectionWrap>
-                <Box pad={{ horizontal: 'large', vertical: 'small' }}>
-                  <CheckBox
-                    label={
-                      // TODO: #37 check for understood checkbox before completing transaction
-                      <Text size="xsmall"> disclaimer example: I understand the terms of transactions.</Text>
-                    }
-                    checked={disclaimerChecked}
-                    onChange={(event) => setDisclaimerChecked(event.target.checked)}
-                  />
-                </Box>
-              </SectionWrap>
-            )}
-
             <ActionButtonWrap pad>
               {(stepPosition === 0 || stepPosition === 1) && (
                 <NextButton
                   label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
                   onClick={() => setStepPosition(stepPosition + 1)}
                   disabled={stepPosition === 0 ? stepDisabled : borrowDisabled}
+                  errorLabel={stepPosition === 0 ? borrowInputError : collatInputError}
                 />
               )}
 
-              {stepPosition === 2 && (
+              {stepPosition === 2 && !(borrowTx.success || borrowTx.failed) && (
                 <TransactButton
                   primary
                   label={
                     <Text size={mobile ? 'small' : undefined}>
-                      {`Borrow${borrowTx.pending ? `ing` : ''} ${
+                      {`Borrow${borrowTx.processActive ? `ing` : ''} ${
                         nFormatter(Number(borrowInput), selectedBase?.digitFormat!) || ''
                       } ${selectedBase?.symbol || ''}`}
                     </Text>
                   }
                   onClick={() => handleBorrow()}
-                  disabled={borrowDisabled || !disclaimerChecked || borrowTx.pending}
+                  disabled={borrowDisabled || borrowTx.processActive}
                 />
+              )}
+
+              {stepPosition === 2 && !borrowTx.processActive && borrowTx.success && (
+                <NextButton
+                  label={<Text size={mobile ? 'small' : undefined}>Borrow more</Text>}
+                  onClick={() => resetInputs()}
+                />
+              )}
+
+              {stepPosition === 2 && !borrowTx.processActive && borrowTx.failed && (
+                <>
+                  <NextButton
+                    size="xsmall"
+                    label={<Text size={mobile ? 'xsmall' : undefined}> Report and go back</Text>}
+                    onClick={() => resetInputs()}
+                  />
+                </>
               )}
             </ActionButtonWrap>
           </Box>
         </CenterPanelWrap>
 
         <PanelWrap right basis="40%">
+          <Box margin={{ top: '10%' }} height="5rem">
+            <TransactionWidget tx={borrowTx} />
+          </Box>
           {/* <StepperText
               position={stepPosition}
               values={[

@@ -1,9 +1,10 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { ethers } from 'ethers';
 import { Box, ResponsiveContext, Select, Text } from 'grommet';
 import Loader from 'react-spinners/ScaleLoader';
 
 import styled from 'styled-components';
-import { IAsset, IAssetRoot } from '../../types';
+import { IAsset } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { DAI, WETH } from '../../utils/constants';
 
@@ -30,8 +31,8 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   const selectedBase = assetMap.get(selectedBaseId!);
   const selectedIlk = assetMap.get(selectedIlkId!);
 
-  const [options, setOptions] = useState<IAssetRoot[]>([]);
-  const optionText = (asset: IAssetRoot | undefined) =>
+  const [options, setOptions] = useState<IAsset[]>([]);
+  const optionText = (asset: IAsset | undefined) =>
     asset?.symbol ? (
       <Box direction="row" align="center" gap="xsmall">
         <Box flex={false}>{asset.image}</Box>
@@ -71,7 +72,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   /* make sure ilk (collateral) never matches baseId */
   useEffect(() => {
     if (selectedIlk === selectedBase) {
-      const firstNotBaseIlk = options.find((asset: IAssetRoot) => asset.id !== selectedIlk?.id)?.id;
+      const firstNotBaseIlk = options.find((asset: IAsset) => asset.id !== selectedIlk?.id)?.id;
       userActions.setSelectedIlk(firstNotBaseIlk);
     }
   }, [options, selectedIlk, selectedBase]);
@@ -91,7 +92,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
         placeholder="Select Asset"
         options={options}
         value={selectCollateral ? selectedIlk : selectedBase}
-        labelKey={(x: IAssetRoot | undefined) => optionText(x)}
+        labelKey={(x: IAsset | undefined) => optionText(x)}
         valueLabel={
           <Box pad={mobile ? 'medium' : { vertical: '0.55em', horizontal: 'small' }}>
             <Text color="text"> {optionText(selectCollateral ? selectedIlk : selectedBase)} </Text>
@@ -99,7 +100,9 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
         }
         onChange={({ option }: any) => handleSelect(option)}
         disabled={
-          selectCollateral ? selectedSeries?.mature || !selectedSeries : null // [ ]
+          (selectCollateral && options.filter((o, i) => (o.balance?.eq(ethers.constants.Zero) ? i : null))) ||
+          (selectCollateral ? selectedSeries?.mature || !selectedSeries : null)
+
           // ( options.map((x:any, i:number) => {
           //   if (x.isYieldBase) { return i }
           //   return null

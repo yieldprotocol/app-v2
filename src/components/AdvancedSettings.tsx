@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Box, CheckBox, Text } from 'grommet';
 import { UserContext } from '../contexts/UserContext';
 import SlippageSettings from './SlippageSettings';
+import HideBalancesSetting from './HideBalancesSetting';
 
 const AdvancedSettings = () => {
   const {
@@ -10,8 +11,13 @@ const AdvancedSettings = () => {
   } = useContext(UserContext);
 
   return (
-    <Box fill="horizontal" gap="small">
-      <Box direction="row" justify="between">
+    <Box fill="horizontal" gap="medium">
+      <Box
+        direction="row"
+        justify="between"
+        pad={{ vertical: 'small' }}
+        border={{ color: 'tailwind-blue-100', side: 'bottom' }}
+      >
         <Text size="small">Show Inactive Vaults</Text>
         <CheckBox
           toggle
@@ -20,6 +26,7 @@ const AdvancedSettings = () => {
         />
       </Box>
       <SlippageSettings />
+      <HideBalancesSetting width="25%" />
     </Box>
   );
 };

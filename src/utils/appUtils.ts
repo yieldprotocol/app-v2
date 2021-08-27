@@ -1,5 +1,5 @@
 import { format, getMonth, subDays } from 'date-fns';
-import { ethers } from 'ethers';
+import { BigNumber, BigNumberish, ethers } from 'ethers';
 import Identicon, { IdenticonOptions } from 'identicon.js';
 import { ActionCodes } from '../types';
 
@@ -20,6 +20,18 @@ export const copyToClipboard = (str: string) => {
  */
 export function bytesToBytes32(x: string, n: number): string {
   return x + '00'.repeat(32 - n);
+}
+
+/**
+ * Convert a bignumber with any decimal to a bn with decimal of 18
+ * @param x bn to convert.
+ * @param decimals of the current bignumber
+ * @returns BigNumber
+ */
+export function bnToDecimal18(x: BigNumber, decimals: number): BigNumber {
+  const paddedX = x.toString() + '0'.repeat(18 - decimals);
+  // const paddedX = x?.mul(Math.pow(10,(18-decimals))) // alternative?
+  return BigNumber.from(paddedX);
 }
 
 /* log to console + any extra action required, extracted  */
@@ -72,13 +84,12 @@ export const getSeason = (dateInSecs: number): SeasonType => {
 /* Trunctate a string value to a certain number of 'decimal' point */
 export const cleanValue = (input: string | undefined, decimals: number = 12) => {
   const re = new RegExp(`(\\d+\\.\\d{${decimals}})(\\d)`);
-
-  if (input !== undefined) {
-    const inpu = input.match(re); // inpu = truncated 'input'... get it?
+  if (input !== undefined ) {
+    const inpu = input?.match(re); // inpu = truncated 'input'... get it?
     if (inpu) {
       return inpu[1];
     }
-    return input.valueOf();
+    return input?.valueOf();
   }
   return '0.0';
 };

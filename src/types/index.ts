@@ -1,8 +1,8 @@
-import { ethers, BigNumber, BigNumberish } from 'ethers';
+import { ethers, BigNumber, BigNumberish, Contract } from 'ethers';
 import React from 'react';
-import { FYToken, Pool } from '../contracts';
+import { ERC20, ERC20Permit, ERC20__factory, FYToken, Pool, Strategy } from '../contracts';
 
-export { LadleActions, PoolRouterActions, ReroutedActions } from './operations';
+export { LadleActions, RoutedActions } from './operations';
 
 export interface IHistoryList {
   lastBlock: number;
@@ -27,6 +27,7 @@ export interface IUserContextState {
   seriesMap: Map<string, ISeries>;
   vaultMap: Map<string, IVault>;
   priceMap: Map<string, Map<string, any>>;
+  pricesLoading: boolean;
   selectedSeriesId: string | null;
   selectedIlkId: string | null;
   selectedBaseId: string | null;
@@ -35,6 +36,11 @@ export interface IUserContextState {
   dudeSalt: number;
   showInactiveVaults: boolean;
   slippageTolerance: number;
+  vaultsLoading: boolean;
+  seriesLoading: boolean;
+  assetsLoading: boolean;
+  hideBalancesSetting: string | null;
+  currencySetting: string;
 }
 
 export interface IUserContextActions {
@@ -43,9 +49,9 @@ export interface IUserContextActions {
   updateAssets: (assetList: IAsset[]) => void;
   updatePrice: (base: string, ilk: string) => void;
   setSelectedSeries: (seriesId: string) => void;
-  setSelectedIlk: (ilkId: string) => void;
-  setSelectedBase: (baseId: string) => void;
-  setSelectedVault: (vaultId: string) => void;
+  setSelectedIlk: (ilkId: string | null) => void;
+  setSelectedBase: (baseId: string | null) => void;
+  setSelectedVault: (vaultId: string | null) => void;
 }
 
 export interface ISeriesRoot {
@@ -64,6 +70,10 @@ export interface ISeriesRoot {
   poolAddress: string;
   poolName: string;
   poolVersion: string; // for signing
+  poolSymbol: string; // for signing
+
+  decimals: number;
+
   baseId: string;
 
   color: string;
@@ -89,6 +99,7 @@ export interface IAssetRoot {
   symbol: string;
   name: string;
   version: string;
+  decimals: number;
   color: string;
   image: React.FC;
   displayName: string;
@@ -101,6 +112,13 @@ export interface IAssetRoot {
   getBalance: (account: string) => Promise<BigNumber>;
   getAllowance: (account: string, spender: string) => Promise<BigNumber>;
   mintTest: () => Promise<VoidFunction>;
+}
+
+export interface IStrategyRoot {
+  address: string;
+  name: string;
+  symbol: string;
+  strategyContract: Strategy;
 }
 
 export interface IVaultRoot {
@@ -134,7 +152,6 @@ export interface IAsset extends IAssetRoot {
   isYieldBase: boolean;
   balance: BigNumber;
   balance_: string;
-  hasPoolRouterAuth: boolean;
   hasLadleAuth: boolean;
   hasJoinAuth: boolean;
 }
@@ -155,21 +172,22 @@ export interface IVault extends IVaultRoot {
 export interface ICallData {
   args: (string | BigNumberish | boolean)[];
   operation: string | [number, string[]];
-  series: ISeries;
+  /* optionals */
+  targetContract?: Strategy | Pool;
   fnName?: string;
-  ignore?: boolean;
+  ignoreIf?: boolean;
   overrides?: ethers.CallOverrides;
 }
 
 export interface ISignData {
-  target: ISeries | IAsset | { id: string; name: string; version: string; address: string };
-  spender: 'POOLROUTER' | 'LADLE' | string;
-  type: SignType;
-  series: ISeries;
+  target: ISeries | IAsset | { name: string; version: string; address: string; symbol: string };
+  spender: 'LADLE' | string;
 
   /* optional Extention/advanced use-case options */
+  amount?: BigNumberish;
+
   message?: string; // optional messaging for UI
-  ignore?: boolean; // conditional for ignoring
+  ignoreIf?: boolean; // conditional for ignoring
   domain?: IDomain;
 }
 

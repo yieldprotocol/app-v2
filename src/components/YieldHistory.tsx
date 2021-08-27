@@ -27,13 +27,13 @@ const YieldHistory = ({ seriesOrVault, view }: IYieldHistory) => {
   const [itemOpen, setItemOpen] = useState<any>(null);
 
   useEffect(() => {
-    if (view.includes('POOL')) setHistList(poolHistory.get(seriesOrVault.id));
-    if (view.includes('VAULT')) setHistList(vaultHistory.get(seriesOrVault.id));
-    if (view.includes('TRADE')) setHistList(tradeHistory.get(seriesOrVault.id));
+    if (view.includes('POOL') && poolHistory.size) setHistList(poolHistory.get(seriesOrVault.id));
+    if (view.includes('VAULT') && vaultHistory.size) setHistList(vaultHistory.get(seriesOrVault.id));
+    if (view.includes('TRADE') && tradeHistory.size) setHistList(tradeHistory.get(seriesOrVault.id));
   }, [isVault, poolHistory, seriesOrVault.id, tradeHistory, vaultHistory, view]);
 
   return (
-    <Box margin={{ top:'medium' }} height={{ max: '200px' }} style={{ overflow: 'auto' }} >
+    <Box margin={{ top: 'medium' }} height={{ max: '200px' }} style={{ overflow: 'auto' }}>
       <Box flex={false}>
         {histList.map((x: IBaseHistItem, i: number) => {
           const key_ = i;
@@ -52,13 +52,15 @@ const YieldHistory = ({ seriesOrVault, view }: IYieldHistory) => {
                   <Text size="xsmall"> {x.date_}</Text>
                 </Box>
                 <Box direction="row" fill justify="between">
-                  <Text size="xsmall" weight={900}> {x.histType} </Text>
+                  <Text size="xsmall" weight={900}>
+                    {x.histType}
+                  </Text>
                   {/* <Text size="xsmall"> {x.ink_ || x.bases_} </Text> */}
                   <Text size="xsmall"> {x.primaryInfo} </Text>
                 </Box>
               </Box>
               <Collapsible open={itemOpen === key_}>
-                <Box direction="row" justify='between'>
+                <Box direction="row" justify="between">
                   <Text size="xsmall"> {x.secondaryInfo} </Text>
                   <EtherscanButton txHash={x.transactionHash} />
                 </Box>
