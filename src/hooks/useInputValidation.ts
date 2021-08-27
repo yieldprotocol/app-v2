@@ -42,6 +42,8 @@ export const useInputValidation = (
             selectedSeries &&
             ethers.utils.parseEther(input).gt(selectedSeries.baseReserves) &&
             setInputError(`Amount exceeds the ${selectedBase?.symbol} currently available in pool`);
+          aboveMax && setInputError('Exceeds the max allowable debt for this series');
+          belowMin && setInputError('A minimum debt of 0.5 is required');   
           break;
 
         case ActionCodes.REPAY:

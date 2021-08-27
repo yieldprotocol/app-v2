@@ -55,7 +55,7 @@ export const useCollateralHelpers = (
     activeAccount &&
       (async () => {
         const _max = await selectedIlk?.getBalance(activeAccount);
-        _max && setMaxCollateral(ethers.utils.formatEther(_max)?.toString());
+        _max && setMaxCollateral(ethers.utils.formatUnits(_max, selectedIlk.decimals)?.toString());
       })();
   }, [activeAccount, selectedIlk, setMaxCollateral]);
 

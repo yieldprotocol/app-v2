@@ -37,14 +37,13 @@ import PositionAvatar from '../components/PositionAvatar';
 import VaultDropSelector from '../components/selectors/VaultDropSelector';
 import { useInputValidation } from '../hooks/useInputValidation';
 import AltText from '../components/texts/AltText';
-import EtherscanButton from '../components/buttons/EtherscanButton';
-import YieldMark from '../components/logos/YieldMark';
 import YieldCardHeader from '../components/YieldCardHeader';
 import { useBorrow } from '../hooks/actionHooks/useBorrow';
 import { useCollateralHelpers } from '../hooks/actionHelperHooks/useCollateralHelpers';
 
 import AddTokenToMetamask from '../components/AddTokenToMetamask';
 import TransactionWidget from '../components/TransactionWidget';
+import { useBorrowHelpers } from '../hooks/actionHelperHooks/useBorrowHelpers';
 
 
 const Borrow = () => {
@@ -73,13 +72,6 @@ const Borrow = () => {
 
   const borrow = useBorrow();
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
-  
-
-  
-  const borrowOutput = cleanValue(
-    (Number(borrowInput) * (1 + Number(apr) / 100)).toString(),
-    selectedBase?.digitFormat!
-  );
 
   const { collateralizationPercent, undercollateralized, minCollateral, maxCollateral } = useCollateralHelpers(
     borrowInput,
@@ -87,8 +79,18 @@ const Borrow = () => {
     vaultToUse
   );
 
+  const { maxAllowedBorrow, minAllowedBorrow } = useBorrowHelpers(
+    borrowInput,
+    collatInput,
+    vaultToUse
+  );
+
   /* input validation hooks */
-  const { inputError: borrowInputError } = useInputValidation(borrowInput, ActionCodes.BORROW, selectedSeries, []);
+  const { inputError: borrowInputError } = useInputValidation(borrowInput, ActionCodes.BORROW, selectedSeries, [
+    minAllowedBorrow,
+    maxAllowedBorrow
+  ]);
+
   const { inputError: collatInputError } = useInputValidation(collatInput, ActionCodes.ADD_COLLATERAL, selectedSeries, [
     minCollateral,
     maxCollateral,
@@ -162,6 +164,12 @@ const Borrow = () => {
   useEffect(() => {
     selectedIlk && setVaultToUse(undefined);
   }, [selectedIlk]);
+
+  // THIS VALUE IS ACTIUALLY JUST the fytoken value: 
+  // const borrowOutput = cleanValue(
+  //   (Number(borrowInput) * (1 + Number(apr) / 100)).toString(),
+  //   selectedBase?.digitFormat!
+  // );
 
   return (
     <Keyboard onEsc={() => setCollatInput('')} onEnter={() => console.log('ENTER smashed')} target="document">
@@ -342,7 +350,7 @@ const Borrow = () => {
                       <InfoBite
                         label="Vault Debt Payable @ Maturity"
                         icon={<FiTrendingUp />}
-                        value={`${borrowOutput} ${selectedBase?.symbol}`}
+                        value={`${selectedSeries?.fyTokenBalance_} ${selectedBase?.symbol}`}
                       />
                       <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
                       <InfoBite

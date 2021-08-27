@@ -18,20 +18,21 @@ export const useBorrowHelpers = (
 
   /* STATE FROM CONTEXT */
   const {
-    userState: { selectedBaseId, selectedIlkId, priceMap },
-    userActions: { updatePrice },
+    userState: { selectedBaseId, selectedIlkId },
   } = useContext(UserContext);
 
   /* LOCAL STATE */
   const [minAllowedBorrow, setMinAllowedBorrow] = useState<string | undefined>();
   const [maxAllowedBorrow, setMaxAllowedBorrow] = useState<string | undefined>();
 
+  const [maxRepayOrRoll, setMaxRepayOrRoll] = useState<string | undefined>();
+  const [minRepayOrRoll, setMinRepayOrRoll] = useState<string | undefined>();
 
   /* update the prices if anything changes */
   useEffect(() => {
-
-  }, [priceMap, selectedBaseId, selectedIlkId, updatePrice]);
-
+    setMinAllowedBorrow('0.5');
+    setMaxAllowedBorrow('1000000');
+  }, [selectedBaseId, selectedIlkId]);
 
   return {
     minAllowedBorrow,
