@@ -18,7 +18,7 @@ export const useApr = (input: string | undefined, actionType: ActionType, series
   useEffect(() => {
     let preview: ethers.BigNumber | Error = ethers.constants.Zero;
     if (selectedSeries) {
-      const baseAmount = ethers.utils.parseEther(input || '1');
+      const baseAmount = ethers.utils.parseUnits(input || '1', selectedSeries.decimals);
       const { baseReserves, fyTokenReserves, maturity } = selectedSeries;
       const ttm = secondsToFrom(maturity.toString());
 
@@ -31,9 +31,6 @@ export const useApr = (input: string | undefined, actionType: ActionType, series
       // setApr(selectedSeries.APR)
       // selectedSeries?.APR && setApr(selectedSeries.APR);
     }
-    // setFYDaiValue(parseFloat(ethers.utils.formatEther(preview)));
-    // _apr = calculateAPR(ethers.utils.parseEther(inputValue.toString()), preview, activeSeries?.maturity);
-    // setAPR(cleanValue(_apr.toString(), 2));
   }, [selectedSeries, input, actionType]);
 
   /* Get the min APR from all the series */

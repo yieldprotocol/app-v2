@@ -238,6 +238,15 @@ const VaultPosition = ({ close }: { close: () => void }) => {
     }
   };
 
+  useEffect(() => {
+    /* CHECK collateral selection and sets the max available collateral */
+    activeAccount &&
+      (async () => {
+        const _max = await vaultIlk?.getBalance(activeAccount);
+        _max && setMaxAddCollat(ethers.utils.formatEther(_max)?.toString());
+      })();
+  }, [activeAccount, vaultIlk, setMaxAddCollat]);
+
   /* ACTION DISABLING LOGIC */
   useEffect(() => {
     /* if ANY of the following conditions are met: block action */

@@ -53,8 +53,8 @@ export const useVaultAdmin = () => {
   const merge = async (vault: IVault, to: IVault, ink: string, art: string, deleteVault: boolean = false) => {
     const txCode = getTxCode(ActionCodes.MERGE_VAULT, vault.id);
     const series = seriesMap.get(vault.seriesId);
-    const _ink = ink ? ethers.utils.parseEther(ink) : ethers.constants.Zero;
-    const _art = art ? ethers.utils.parseEther(art) : ethers.constants.Zero;
+    const _ink = ink ? ethers.utils.parseUnits(ink, series.decimals ) : ethers.constants.Zero;
+    const _art = art ? ethers.utils.parseUnits(art, series.decimals ) : ethers.constants.Zero;
 
     /* ladle.stir(fromVault, toVault, ink, art) */
     const calls: ICallData[] = [

@@ -3,7 +3,7 @@ import { useContext, useEffect, useState } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, IVault, SignType, ISeries, ActionCodes, IUserContext, LadleActions } from '../../types';
-import { getTxCode, cleanValue } from '../../utils/appUtils';
+import { getTxCode, cleanValue, bnToDecimal18 } from '../../utils/appUtils';
 import { DAI_BASED_ASSETS, ETH_BASED_ASSETS } from '../../utils/constants';
 import { useChain } from '../useChain';
 
@@ -17,18 +17,24 @@ export const useCollateralHelpers = (
 ) => {
   /* STATE FROM CONTEXT */
   const {
+
     userState: { activeAccount, selectedBaseId, selectedIlkId, assetMap, priceMap },
     userActions: { updatePrice },
   } = useContext(UserContext);
 
   const selectedIlk = assetMap.get(selectedIlkId!);
 
+  // const base = assetMap.get(selectedBaseId);
+  const ilk = assetMap.get(selectedIlkId);
+
+
   /* LOCAL STATE */
   const [collateralizationRatio, setCollateralizationRatio] = useState<string | undefined>();
   const [collateralizationPercent, setCollateralizationPercent] = useState<string | undefined>();
-
   const [undercollateralized, setUndercollateralized] = useState<boolean>(true);
   const [oraclePrice, setOraclePrice] = useState<ethers.BigNumber>(ethers.constants.Zero);
+  const [minCollateral, setMinCollateral] = useState<string | undefined>();
+  const [maxRemove, setMaxRemove] = useState<ethers.BigNumber>(ethers.constants.Zero);
 
   const [minCollateral, setMinCollateral] = useState<string | undefined>();
   const [maxCollateral, setMaxCollateral] = useState<string | undefined>();
@@ -61,14 +67,17 @@ export const useCollateralHelpers = (
 
  /* handle changes to input values */ 
   useEffect(() => {
-    const existingCollateral = vault?.ink || ethers.constants.Zero;
-    const existingDebt = vault?.art || ethers.constants.Zero;
+    const existingCollateral_ = vault?.ink || ethers.constants.Zero;
+    const existingCollateralAsWei = bnToDecimal18(existingCollateral_, ilk?.decimals)
 
-    const dInput = debtInput ? ethers.utils.parseEther(debtInput) : ethers.constants.Zero;
-    const cInput = collInput ? ethers.utils.parseEther(collInput) : ethers.constants.Zero;
+    const existingDebt_ = vault?.art || ethers.constants.Zero;
+    const existingDebtAsWei = bnToDecimal18(existingDebt_, ilk?.decimals)
 
-    const totalCollateral = existingCollateral.add(cInput);
-    const totalDebt = existingDebt.add(dInput);
+    const dInput = debtInput ? ethers.utils.parseUnits(debtInput) : ethers.constants.Zero;
+    const cInput = collInput ? ethers.utils.parseUnits(collInput) : ethers.constants.Zero;
+
+    const totalCollateral = existingCollateralAsWei.add(cInput);
+    const totalDebt = existingDebtAsWei.add(dInput);
 
     /* set the collateral ratio when collateral is entered */
     if (oraclePrice?.gt(ethers.constants.Zero) && totalCollateral.gt(ethers.constants.Zero)) {
@@ -90,7 +99,7 @@ export const useCollateralHelpers = (
 
     /* check minimum collateral required base on debt */
     if (oraclePrice?.gt(ethers.constants.Zero)) {
-      const min = calculateMinCollateral(oraclePrice, totalDebt, '1.5', existingCollateral);
+      const min = calculateMinCollateral(oraclePrice, totalDebt, '1.5', existingCollateralAsWei);
       setMinCollateral(min.toString());
     } else {
       setMinCollateral('0');
@@ -98,9 +107,8 @@ export const useCollateralHelpers = (
 
     /* check minimum collateral required base on debt */
     if (oraclePrice?.gt(ethers.constants.Zero)) {
-      const min_ = calculateMinCollateral(oraclePrice, totalDebt, '1.5', existingCollateral, true);
-      // const max_ = ethers.utils.parseEther(max!)
-      setMaxRemove(existingCollateral.sub(min_));
+      const min_ = calculateMinCollateral(oraclePrice, totalDebt, '1.5', existingCollateralAsWei, true);
+      setMaxRemove(existingCollateralAsWei.sub(min_));
     } else {
       setMaxRemove(ethers.constants.Zero);
     }
