@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, Button, DateInput, Grid, RangeInput, ResponsiveContext, Text, TextInput, Tip } from 'grommet';
+import { Box, Button, DateInput, Grid, RangeInput, ResponsiveContext, Stack, Text, TextInput, Tip } from 'grommet';
 import { format, differenceInCalendarDays } from 'date-fns';
 import { FiInfo } from 'react-icons/fi';
 import CenterPanelWrap from './wraps/CenterPanelWrap';
@@ -127,15 +127,16 @@ const Calculator = ({ initialBorrow }: ICalculator) => {
             <Text>Pay @ maturity on</Text>
             <Text weight={900}>{selectedSeries.fullDate}</Text>
           </Box>
-          <Box direction="row" justify="between">
+          <Box direction="row" justify="center" gap="xlarge">
             <Box
               gap="xsmall"
               background="tailwind-blue-50"
               round="xsmall"
               pad="medium"
               border={{ color: 'tailwind-blue' }}
+              justify="center"
             >
-              <Text size="small">Total Amount To Pay</Text>
+              <Text size="small">Total Amount</Text>
               <Text size="xlarge" color="#10B981">
                 ${nFormatter(Number(initialRepayAmount) || 0, selectedBase.digitFormat!)}
               </Text>
@@ -158,56 +159,12 @@ const Calculator = ({ initialBorrow }: ICalculator) => {
         </Box>
       </Box>
 
-      <Box round="small" pad="medium" background={{ color: 'rgb(255, 255, 255)' }} gap="medium">
-        <Text size="medium">Want to pay early?</Text>
-        {/* <Grid
-          columns={['auto', 'auto']}
-          gap="medium"
-          justify={INITIAL_REPAY_DATE_INPUT === repayDateInput ? 'center' : 'stretch'}
-        >
-
-          {INITIAL_REPAY_DATE_INPUT !== repayDateInput && (
-            <Box gap="medium">
-              <Box>Repay Early</Box>
-              <Box gap="xsmall">
-                <Text size="small">Total</Text>
-                <Text size="xlarge" color="#10B981">
-                  ${nFormatter(Number(repayAmount), selectedBase.digitFormat!)}
-                </Text>
-                <Text size="xsmall" color="#111827">{`Paid On ${repayDate}`}</Text>
-              </Box>
-              <Box gap="medium">
-                <Box gap="xsmall">
-                  <Text size="small">Interest Owed</Text>
-                  <Text size="xlarge" color="#10B981">
-                    ${nFormatter(Number(repayAmount) - Number(borrowInput), selectedBase.digitFormat!)}
-                  </Text>
-                </Box>
-                <Box gap="xsmall">
-                  <Box direction="row" gap="xsmall">
-                    <Text size="xsmall">Effective Interest Rate</Text>
-                    <Tip
-                      plain
-                      content={
-                        <Box pad="small" gap="small" width={{ max: 'small' }} background="#374151" round="small">
-                          <Text size="xsmall">{`if the interest rate when you repay is at ${interestRate}%`}</Text>
-                        </Box>
-                      }
-                      dropProps={{ align: { right: 'left' } }}
-                    >
-                      <Button plain icon={<FiInfo />} />
-                    </Tip>
-                  </Box>
-                  <Text size="large" color={Number(effectiveAPR) < Number(apr) ? '#10B981' : '#EF4444'}>
-                    {cleanValue(effectiveAPR, 2)}%
-                  </Text>
-                </Box>
-              </Box>
-            </Box>
-          )}
-        </Grid> */}
+      <Box round="small" pad="medium" background={{ color: 'rgb(255, 255, 255)' }} gap="small">
+        <Text size="medium" color="tailwind-blue">
+          Want to pay early?
+        </Text>
         <Box direction="row" justify="between" gap="small" align="center">
-          <Text size="small">Select Repayment Date</Text>
+          <Text size="xsmall">Select Repayment Date</Text>
           <Box>
             <DateInput format="mm/dd/yyyy" value={repayDateInput} onChange={({ value }) => setRepayDateInput(value)} />
             {repayDateInputError && (
@@ -217,30 +174,30 @@ const Calculator = ({ initialBorrow }: ICalculator) => {
             )}
           </Box>
         </Box>
-        <Box direction="row" gap="xsmall">
-          <Text size="xsmall">Interest Rate</Text>
-          <Tip
-            plain
-            content={
-              <Box pad="small" gap="small" width={{ max: 'small' }} background="#374151" round="small">
-                <Text size="xsmall">early payment is subject to market changes in interest rates</Text>
-              </Box>
-            }
-            dropProps={{ align: { left: 'right' } }}
-          >
-            <Button plain icon={<FiInfo />} />
-          </Tip>
-        </Box>
-        <Box gap="medium">
-          <Box direction="row">
-            <Box direction="row" gap="small" align="center">
-              <RangeInput
-                value={interestRateInput}
-                onChange={(event) => setInterestRateInput(event.target.value)}
-                min="0"
-                max="10"
-                step={0.01}
-              />
+        <Box direction="row" justify="between" align="center">
+          <Box direction="row" align="center" gap="xsmall">
+            <Text size="xsmall">Interest Rate</Text>
+            <Tip
+              plain
+              content={
+                <Box pad="small" gap="small" width={{ max: 'small' }} background="#374151" round="small">
+                  <Text size="xsmall">interest rate changes will affect how much you pay when paying early</Text>
+                </Box>
+              }
+              dropProps={{ align: { left: 'right' } }}
+            >
+              <Button plain icon={<FiInfo size="1rem" />} />
+            </Tip>
+          </Box>
+          <Box gap="small" align="center" direction="row">
+            <RangeInput
+              value={interestRateInput}
+              onChange={(event) => setInterestRateInput(event.target.value)}
+              min="0"
+              max="10"
+              step={0.1}
+            />
+            <Box width="10rem">
               <InputWrap action={() => null} isError={null} width="small">
                 <TextInput
                   size="small"
@@ -251,13 +208,57 @@ const Calculator = ({ initialBorrow }: ICalculator) => {
                   onChange={(event: any) => setInterestRateInput(cleanValue(event.target.value))}
                   autoFocus={!mobile}
                 />
+                %
               </InputWrap>
-              %
             </Box>
           </Box>
         </Box>
-        <Box align="end">
-          <Button size="small" label="Reset" primary onClick={handleReset} />
+        <Box gap="medium">
+          <Box direction="row" gap="xsmall">
+            <Text>Pay on</Text>
+            <Text weight={900}>{repayDate}</Text>
+          </Box>
+          <Box direction="row" justify="center" gap="xlarge">
+            <Box
+              gap="xsmall"
+              background="tailwind-blue-50"
+              round="xsmall"
+              pad="medium"
+              border={{ color: 'tailwind-blue' }}
+              justify="center"
+            >
+              <Text size="small">Total Amount</Text>
+              <Text size="xlarge" color="#10B981">
+                ${nFormatter(Number(repayAmount) || 0, selectedBase.digitFormat!)}
+              </Text>
+            </Box>
+            <Box gap="small">
+              <Box gap="xsmall">
+                <Text size="xsmall">Interest Owed</Text>
+                <Text size="large" color="#10B981">
+                  ${nFormatter(Number(repayAmount) - Number(borrowInput), selectedBase.digitFormat!)}
+                </Text>
+              </Box>
+              <Box gap="xsmall">
+                <Text size="xsmall">Effective Interest Owed</Text>
+                <Text size="Large" color={Number(effectiveAPR) <= Number(apr) + 0.01 ? '#10B981' : '#EF4444'}>
+                  {cleanValue(effectiveAPR, 2)}%
+                </Text>
+              </Box>
+            </Box>
+          </Box>
+          <Box align="end">
+            <Box
+              height="2rem"
+              onClick={handleReset}
+              background="tailwind-blue"
+              round="xsmall"
+              justify="center"
+              pad="xsmall"
+            >
+              <Text size="xsmall">Reset</Text>
+            </Box>
+          </Box>
         </Box>
       </Box>
     </CenterPanelWrap>
