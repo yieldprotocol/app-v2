@@ -8,6 +8,7 @@ import { WalletConnectConnector } from '@web3-react/walletconnect-connector';
 import { format } from 'date-fns';
 
 import { useCachedState } from '../hooks/generalHooks';
+// import { useConnection } from '../hooks/useConnection';
 
 import * as yieldEnv from './yieldEnv.json';
 import * as contracts from '../contracts';
@@ -66,14 +67,12 @@ chainData.set(42, { name: 'Kovan', color: '#7F7FFE', supported: true });
 
 const connectors = new Map();
 const injectedName = 'metamask';
-
 connectors.set(
   injectedName,
   new InjectedConnector({
     supportedChainIds: [1, 42, 1337, 31337],
   })
 );
-
 connectors.set(
   'walletconnect',
   new WalletConnectConnector({
@@ -173,28 +172,23 @@ function chainReducer(state: any, action: any) {
 
 const ChainProvider = ({ children }: any) => {
   const [chainState, updateState] = React.useReducer(chainReducer, initState);
-
   const [lastChainId, setLastChainId] = useCachedState('lastChainId', 42);
-
-  const [cachedAssets, setCachedAssets] = useCachedState('assets', []);
-  const [cachedSeries, setCachedSeries] = useCachedState('series', []);
-
-  const [lastAssetUpdate, setLastAssetUpdate] = useCachedState('lastAssetUpdate', 0);
-  const [lastSeriesUpdate, setLastSeriesUpdate] = useCachedState('lastSeriesUpdate', 0);
-
   const [tried, setTried] = useState<boolean>(false);
 
   const primaryConnection = useWeb3React<ethers.providers.Web3Provider>();
   const { connector, library, chainId, account, activate, deactivate, active } = primaryConnection;
-
   const fallbackConnection = useWeb3React<ethers.providers.JsonRpcProvider>('fallback');
   const {
     library: fallbackLibrary,
     chainId: fallbackChainId,
     activate: fallbackActivate,
-    // active: fallbackActive,
-    // error: fallbackError,
   } = fallbackConnection;
+
+  const [cachedAssets, setCachedAssets] = useCachedState('assets', []);
+  const [cachedSeries, setCachedSeries] = useCachedState('series', []);
+  const [lastAssetUpdate, setLastAssetUpdate] = useCachedState('lastAssetUpdate', 0);
+  const [lastSeriesUpdate, setLastSeriesUpdate] = useCachedState('lastSeriesUpdate', 0);
+
 
   /**
    * Update on FALLBACK connection/state on network changes (id/library)
@@ -225,9 +219,9 @@ const ChainProvider = ({ children }: any) => {
 
       updateState({ type: 'appVersion', payload: process.env.REACT_APP_VERSION });
 
-      console.log('VERSION: ', process.env.REACT_APP_VERSION);
+      console.log('APP VERSION: ', process.env.REACT_APP_VERSION);
       console.log('Fallback ChainId: ', fallbackChainId);
-      console.log('ChainId: ', chainId);
+      console.log('Primary ChainId: ', chainId);
 
       /* Update the baseContracts state : ( hardcoded based on networkId ) */
       const newContractMap = chainState.contractMap;
@@ -235,14 +229,9 @@ const ChainProvider = ({ children }: any) => {
       newContractMap.set('Ladle', Ladle);
       newContractMap.set('ChainlinkMultiOracle', ChainlinkMultiOracle);
       newContractMap.set('CompositeMultiOracle', CompositeMultiOracle);
-      // newContractMap.set('Strategy_DAI3M', Strategy_DAI3M);
 
       updateState({ type: 'contractMap', payload: newContractMap });
 
-      // let test: any;
-      // (async () => {
-      //   test = await fallbackLibrary.getBalance('0x885Bc35dC9B10EA39f2d7B3C94a7452a9ea442A7');
-      // })();
 
       /* add on extra/calculated ASSET info */
       const _chargeAsset = (asset: { id: string; address: string; symbol: string }) => {
@@ -322,6 +311,8 @@ const ChainProvider = ({ children }: any) => {
         poolAddress: string;
         fyTokenAddress: string;
       }) => {
+
+        /* contracts need to be added in again in when charging because the cached state only holds strings */
         const poolContract = contracts.Pool__factory.connect(series.poolAddress, fallbackLibrary);
         const fyTokenContract = contracts.FYToken__factory.connect(series.fyTokenAddress, fallbackLibrary);
 
@@ -442,7 +433,7 @@ const ChainProvider = ({ children }: any) => {
       if (cachedAssets.length === 0) {
         console.log('FIRST LOAD: Loading Asset and Series data ');
         (async () => {
-          await Promise.all([_getAssets(), _getSeries()]);
+          await Promise.all([_getAssets(), _getSeries(), _getStrategies()]);
           updateState({ type: 'chainLoading', payload: false });
         })();
       } else {
