@@ -17,12 +17,16 @@ export const useCollateralHelpers = (
 ) => {
   /* STATE FROM CONTEXT */
   const {
-    userState: { selectedBaseId, selectedIlkId, priceMap, assetMap },
+
+    userState: { activeAccount, selectedBaseId, selectedIlkId, assetMap, priceMap },
     userActions: { updatePrice },
   } = useContext(UserContext);
 
+  const selectedIlk = assetMap.get(selectedIlkId!);
+
   // const base = assetMap.get(selectedBaseId);
   const ilk = assetMap.get(selectedIlkId);
+
 
   /* LOCAL STATE */
   const [collateralizationRatio, setCollateralizationRatio] = useState<string | undefined>();
@@ -32,10 +36,13 @@ export const useCollateralHelpers = (
   const [minCollateral, setMinCollateral] = useState<string | undefined>();
   const [maxRemove, setMaxRemove] = useState<ethers.BigNumber>(ethers.constants.Zero);
 
+  const [minCollateral, setMinCollateral] = useState<string | undefined>();
+  const [maxCollateral, setMaxCollateral] = useState<string | undefined>();
+  const [maxRemove, setMaxRemove] = useState<ethers.BigNumber>(ethers.constants.Zero);
+
   // todo:
   const [collateralizationWarning, setCollateralizationWarning] = useState<string | undefined>();
   const [borrowingPower, setBorrowingPower] = useState<string | undefined>();
-
 
   /* update the prices if anything changes */
   useEffect(() => {
@@ -48,6 +55,17 @@ export const useCollateralHelpers = (
     }
   }, [priceMap, selectedBaseId, selectedIlkId, updatePrice]);
 
+
+/* CHECK collateral selection and sets the max available collateral */
+  useEffect(() => {
+    activeAccount &&
+      (async () => {
+        const _max = await selectedIlk?.getBalance(activeAccount);
+        _max && setMaxCollateral(ethers.utils.formatUnits(_max, selectedIlk.decimals)?.toString());
+      })();
+  }, [activeAccount, selectedIlk, setMaxCollateral]);
+
+ /* handle changes to input values */ 
   useEffect(() => {
     const existingCollateral_ = vault?.ink || ethers.constants.Zero;
     const existingCollateralAsWei = bnToDecimal18(existingCollateral_, ilk?.decimals)
@@ -105,6 +123,7 @@ export const useCollateralHelpers = (
     collateralizationWarning,
     undercollateralized,
     minCollateral,
+    maxCollateral,
     maxRemove,
   };
 };

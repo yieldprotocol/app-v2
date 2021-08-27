@@ -37,14 +37,13 @@ import PositionAvatar from '../components/PositionAvatar';
 import VaultDropSelector from '../components/selectors/VaultDropSelector';
 import { useInputValidation } from '../hooks/useInputValidation';
 import AltText from '../components/texts/AltText';
-import EtherscanButton from '../components/buttons/EtherscanButton';
-import YieldMark from '../components/logos/YieldMark';
 import YieldCardHeader from '../components/YieldCardHeader';
 import { useBorrow } from '../hooks/actionHooks/useBorrow';
 import { useCollateralHelpers } from '../hooks/actionHelperHooks/useCollateralHelpers';
 
 import AddTokenToMetamask from '../components/AddTokenToMetamask';
 import TransactionWidget from '../components/TransactionWidget';
+import { useBorrowHelpers } from '../hooks/actionHelperHooks/useBorrowHelpers';
 
 
 const Borrow = () => {
@@ -63,7 +62,7 @@ const Borrow = () => {
 
   const [borrowInput, setBorrowInput] = useState<string>('');
   const [collatInput, setCollatInput] = useState<string>('');
-  const [maxCollat, setMaxCollat] = useState<string | undefined>();
+  // const [maxCollat, setMaxCollat] = useState<string | undefined>();
 
   const [borrowDisabled, setBorrowDisabled] = useState<boolean>(true);
   const [stepDisabled, setStepDisabled] = useState<boolean>(true);
@@ -72,24 +71,29 @@ const Borrow = () => {
   const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
 
   const borrow = useBorrow();
-
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
-  const borrowOutput = cleanValue(
-    (Number(borrowInput) * (1 + Number(apr) / 100)).toString(),
-    selectedBase?.digitFormat!
+
+  const { collateralizationPercent, undercollateralized, minCollateral, maxCollateral } = useCollateralHelpers(
+    borrowInput,
+    collatInput,
+    vaultToUse
   );
 
-  const { collateralizationPercent, undercollateralized, minCollateral } = useCollateralHelpers(
+  const { maxAllowedBorrow, minAllowedBorrow } = useBorrowHelpers(
     borrowInput,
     collatInput,
     vaultToUse
   );
 
   /* input validation hooks */
-  const { inputError: borrowInputError } = useInputValidation(borrowInput, ActionCodes.BORROW, selectedSeries, []);
+  const { inputError: borrowInputError } = useInputValidation(borrowInput, ActionCodes.BORROW, selectedSeries, [
+    minAllowedBorrow,
+    maxAllowedBorrow
+  ]);
+
   const { inputError: collatInputError } = useInputValidation(collatInput, ActionCodes.ADD_COLLATERAL, selectedSeries, [
     minCollateral,
-    maxCollat,
+    maxCollateral,
   ]);
 
   /* TX info (for disabling buttons) */
@@ -107,16 +111,6 @@ const Borrow = () => {
     setStepPosition(0);
     resetTx();
   };
-
-  /* SET MAX VALUES */
-  useEffect(() => {
-    /* CHECK collateral selection and sets the max available collateral */
-    activeAccount &&
-      (async () => {
-        const _max = await selectedIlk?.getBalance(activeAccount);
-        _max && setMaxCollat(ethers.utils.formatEther(_max)?.toString());
-      })();
-  }, [activeAccount, selectedIlk, setMaxCollat]);
 
   /* BORROW DISABLING LOGIC */
   useEffect(() => {
@@ -152,7 +146,7 @@ const Borrow = () => {
       : setStepDisabled(false); /* else if all pass, then unlock borrowing */
   }, [borrowInput, borrowInputError, selectedSeries, activeAccount]);
 
-  /* CHECK the list of current vaults which match the current series/ilk selection */
+  /* CHECK the list of current vaults which match the current series/ilk selection */ // TODO look at moving this to helper hook? 
   useEffect(() => {
     if (selectedBase && selectedSeries && selectedIlk) {
       const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
@@ -170,6 +164,12 @@ const Borrow = () => {
   useEffect(() => {
     selectedIlk && setVaultToUse(undefined);
   }, [selectedIlk]);
+
+  // THIS VALUE IS ACTIUALLY JUST the fytoken value: 
+  // const borrowOutput = cleanValue(
+  //   (Number(borrowInput) * (1 + Number(apr) / 100)).toString(),
+  //   selectedBase?.digitFormat!
+  // );
 
   return (
     <Keyboard onEsc={() => setCollatInput('')} onEnter={() => console.log('ENTER smashed')} target="document">
@@ -289,10 +289,10 @@ const Borrow = () => {
                             disabled={!selectedSeries || selectedSeries.seriesIsMature}
                           />
                           <MaxButton
-                            action={() => maxCollat && setCollatInput(maxCollat)}
-                            disabled={!selectedSeries || collatInput === maxCollat || selectedSeries.seriesIsMature}
+                            action={() => maxCollateral && setCollatInput(maxCollateral)}
+                            disabled={!selectedSeries || collatInput === maxCollateral || selectedSeries.seriesIsMature}
                             clearAction={() => setCollatInput('')}
-                            showingMax={!!collatInput && collatInput === maxCollat}
+                            showingMax={!!collatInput && collatInput === maxCollateral}
                           />
                         </InputWrap>
                       </Box>
@@ -350,7 +350,7 @@ const Borrow = () => {
                       <InfoBite
                         label="Vault Debt Payable @ Maturity"
                         icon={<FiTrendingUp />}
-                        value={`${borrowOutput} ${selectedBase?.symbol}`}
+                        value={`${selectedSeries?.fyTokenBalance_} ${selectedBase?.symbol}`}
                       />
                       <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
                       <InfoBite
