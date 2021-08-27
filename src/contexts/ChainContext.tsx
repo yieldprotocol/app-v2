@@ -383,14 +383,17 @@ const ChainProvider = ({ children }: any) => {
                 const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackLibrary);
                 const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackLibrary);
                 // const baseContract = contracts.ERC20__factory.connect(fyToken, fallbackLibrary);
-                const [name, symbol, version, poolName, poolVersion, poolSymbol] = await Promise.all([
-                  fyTokenContract.name(),
-                  fyTokenContract.symbol(),
-                  fyTokenContract.version(),
-                  poolContract.name(),
-                  poolContract.version(),
-                  poolContract.symbol(),
-                ]);
+                const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol, poolDecimals] =
+                  await Promise.all([
+                    fyTokenContract.name(),
+                    fyTokenContract.symbol(),
+                    fyTokenContract.version(),
+                    fyTokenContract.decimals(),
+                    poolContract.name(),
+                    poolContract.version(),
+                    poolContract.symbol(),
+                    poolContract.decimals(),
+                  ]);
                 const newSeries = {
                   id,
                   baseId,
@@ -400,10 +403,13 @@ const ChainProvider = ({ children }: any) => {
                   version,
                   address: fyToken,
                   fyTokenAddress: fyToken,
+                  decimals,
                   poolAddress,
                   poolVersion,
                   poolName,
                   poolSymbol,
+                  poolDecimals,
+
                 };
                 updateState({ type: 'addSeries', payload: _chargeSeries(newSeries) });
                 newSeriesList.push(newSeries);
