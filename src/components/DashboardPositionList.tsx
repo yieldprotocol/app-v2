@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Text } from 'grommet';
 
 import { ActionType, ISeries, IVault } from '../types';
-import DashboardPosition from './DashboardPosition';
+import DashboardPositionListItem from './DashboardPositionListItem';
 import DashboardPositionSummary from './DashboardPositionSummary';
 
 interface IDashPosition {
@@ -14,7 +14,14 @@ interface IDashPosition {
   positions: (ISeries | IVault)[];
 }
 
-const DashboardPositions = ({ debt, collateral, lendBalance, poolBalance, positions, actionType }: IDashPosition) => (
+const DashboardPositionList = ({
+  debt,
+  collateral,
+  lendBalance,
+  poolBalance,
+  positions,
+  actionType,
+}: IDashPosition) => (
   <DashboardPositionSummary debt={debt!} collateral={collateral!} lendBalance={lendBalance!} poolBalance={poolBalance!}>
     <Box>
       {positions.length === 0 && (
@@ -23,12 +30,17 @@ const DashboardPositions = ({ debt, collateral, lendBalance, poolBalance, positi
         </Text>
       )}
       {positions.map((seriesOrVault: ISeries | IVault, i: number) => (
-        <DashboardPosition seriesOrVault={seriesOrVault} index={i} actionType={actionType} key={seriesOrVault.id} />
+        <DashboardPositionListItem
+          seriesOrVault={seriesOrVault}
+          index={i}
+          actionType={actionType}
+          key={seriesOrVault.id}
+        />
       ))}
     </Box>
   </DashboardPositionSummary>
 );
 
-DashboardPositions.defaultProps = { debt: null, collateral: null, lendBalance: null, poolBalance: null };
+DashboardPositionList.defaultProps = { debt: null, collateral: null, lendBalance: null, poolBalance: null };
 
-export default DashboardPositions;
+export default DashboardPositionList;
