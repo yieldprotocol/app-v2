@@ -35,10 +35,7 @@ export const useCollateralHelpers = (
   const [oraclePrice, setOraclePrice] = useState<ethers.BigNumber>(ethers.constants.Zero);
   const [minCollateral, setMinCollateral] = useState<string | undefined>();
   const [maxRemove, setMaxRemove] = useState<ethers.BigNumber>(ethers.constants.Zero);
-
-  const [minCollateral, setMinCollateral] = useState<string | undefined>();
   const [maxCollateral, setMaxCollateral] = useState<string | undefined>();
-  const [maxRemove, setMaxRemove] = useState<ethers.BigNumber>(ethers.constants.Zero);
 
   // todo:
   const [collateralizationWarning, setCollateralizationWarning] = useState<string | undefined>();
