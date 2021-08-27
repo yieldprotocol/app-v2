@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Collapsible, Text } from 'grommet';
 import { FiChevronUp, FiChevronDown } from 'react-icons/fi';
+import ListWrap from './wraps/ListWrap';
 
 interface IDashSummary {
   debt: string | null;
@@ -21,16 +22,18 @@ const DashboardPositionSummary = ({ debt, collateral, lendBalance, poolBalance, 
   const [open, setOpen] = useState<boolean>(false);
 
   return (
-    <Box onClick={() => setOpen(!open)} border={{ color: 'tailwind-blue' }} round="xsmall" pad="small">
-      <Box direction="row" justify="between" align="center">
+    <Box>
+      <Box direction="row" justify="between" background="tailwind-blue-50" round="xsmall" pad="small">
         <Box direction="row" gap="small">
           {debt && <Summary label="Debt" value={debt} />}
           {collateral && <Summary label="Collateral" value={collateral} />}
           {lendBalance && <Summary label="Balance" value={lendBalance} />}
           {poolBalance && <Summary label="Balance" value={poolBalance} />}
         </Box>
-
-        <Box>
+      </Box>
+      <Box onClick={() => setOpen(!open)} direction="row" justify="between" round="xsmall" pad="small">
+        <Text size="small">{open ? 'Select Position' : 'View All Positions'}</Text>
+        <Box justify="center">
           {open ? (
             <Box color="tailwind-blue">
               <FiChevronUp />
@@ -40,7 +43,9 @@ const DashboardPositionSummary = ({ debt, collateral, lendBalance, poolBalance, 
           )}
         </Box>
       </Box>
-      <Collapsible open={open}>{children}</Collapsible>
+      <Collapsible open={open}>
+        <ListWrap pad="small">{children}</ListWrap>
+      </Collapsible>
     </Box>
   );
 };
