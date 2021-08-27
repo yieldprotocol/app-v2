@@ -72,8 +72,9 @@ const Borrow = () => {
   const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
 
   const borrow = useBorrow();
-
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
+  
+
   
   const borrowOutput = cleanValue(
     (Number(borrowInput) * (1 + Number(apr) / 100)).toString(),
@@ -109,7 +110,6 @@ const Borrow = () => {
     resetTx();
   };
 
-
   /* BORROW DISABLING LOGIC */
   useEffect(() => {
     /* if ANY of the following conditions are met: block action */
@@ -144,7 +144,7 @@ const Borrow = () => {
       : setStepDisabled(false); /* else if all pass, then unlock borrowing */
   }, [borrowInput, borrowInputError, selectedSeries, activeAccount]);
 
-  /* CHECK the list of current vaults which match the current series/ilk selection */
+  /* CHECK the list of current vaults which match the current series/ilk selection */ // TODO look at moving this to helper hook? 
   useEffect(() => {
     if (selectedBase && selectedSeries && selectedIlk) {
       const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
