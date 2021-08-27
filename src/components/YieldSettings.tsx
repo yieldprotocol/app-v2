@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Anchor, Box, Button, Collapsible, ResponsiveContext, Text } from 'grommet';
+import { Anchor, Box, Button, Collapsible, ResponsiveContext, Text, Tip } from 'grommet';
 import { FiCheckSquare, FiCopy, FiChevronUp, FiChevronDown, FiExternalLink, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
 import { ChainContext, connectorNames } from '../contexts/ChainContext';
@@ -7,15 +7,14 @@ import { abbreviateHash } from '../utils/appUtils';
 import YieldAvatar from './YieldAvatar';
 import AdvancedSettings from './AdvancedSettings';
 
-const ChangeButton = styled(Button)`
+const StyledButton = styled(Button)`
   background: #dbeafe;
   border: 2px solid #3b82f6;
-  height: 1.75rem;
-  width: 3rem;
   border-radius: 6px;
   font-size: 0.6rem;
   text-align: center;
   color: #2563eb;
+  width: 4rem;
 
   :hover {
     border: 2px solid #1d4ed8;
@@ -40,6 +39,12 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
     navigator.clipboard.writeText(text);
     setCopySuccess(true);
     setTimeout(() => setCopySuccess(false), 2000);
+  };
+
+  const handleResetApp = () => {
+    localStorage.clear();
+    // eslint-disable-next-line no-restricted-globals
+    location.reload();
   };
 
   return (
@@ -76,7 +81,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
         </Box>
         <Box justify="between" align="center" direction="row">
           {connectorName && <Text size="small">Connected with {connectorName}</Text>}
-          <ChangeButton onClick={handleChangeConnectType}>Change</ChangeButton>
+          <StyledButton onClick={handleChangeConnectType}>Change</StyledButton>
         </Box>
       </Box>
       <Box
@@ -87,6 +92,19 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
       >
         <AdvancedSettings />
       </Box>
+      <Box border={{ color: 'tailwind-blue-100', size: 'xsmall', side: 'top' }} pad="medium">
+        <Box alignSelf="end">
+          <Tip
+            content={<Text size="xsmall">Having issues? Try resetting the app.</Text>}
+            dropProps={{
+              align: { right: 'left' },
+            }}
+          >
+            <StyledButton onClick={handleResetApp}>App Reset</StyledButton>
+          </Tip>
+        </Box>
+      </Box>
+
       <Box
         margin={{ top: 'auto' }}
         border={{ color: 'tailwind-blue-100', size: 'xsmall', side: 'top' }}
