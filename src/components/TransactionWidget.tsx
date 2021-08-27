@@ -26,7 +26,7 @@ const TransactionWidget = () => {
           </Box>
         </Box>
       )}
-      <Transactions elevation="small" pad="medium" />
+      <Transactions removeOnComplete elevation="small" pad="medium" />
     </Box>
   );
 };
