@@ -112,7 +112,7 @@ const TxProvider = ({ children }: any) => {
   const _handleTxComplete = (tx: any) => {
     setTimeout(() => {
       updateState({ type: 'transactions', payload: { ...tx, complete: true } });
-    }, 3000);
+    }, 10000);
   };
 
   /* handle case when user or wallet rejects the tx (before submission) */
