@@ -72,6 +72,8 @@ export interface ISeriesRoot {
   poolVersion: string; // for signing
   poolSymbol: string; // for signing
 
+  decimals: number;
+
   baseId: string;
 
   color: string;

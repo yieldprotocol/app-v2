@@ -408,8 +408,6 @@ const ChainProvider = ({ children }: any) => {
                   poolVersion,
                   poolName,
                   poolSymbol,
-                  poolDecimals,
-
                 };
                 updateState({ type: 'addSeries', payload: _chargeSeries(newSeries) });
                 newSeriesList.push(newSeries);
