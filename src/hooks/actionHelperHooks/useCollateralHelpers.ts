@@ -84,7 +84,6 @@ export const useCollateralHelpers = (
     /* check minimum collateral required base on debt */
     if (oraclePrice?.gt(ethers.constants.Zero)) {
       const min_ = calculateMinCollateral(oraclePrice, totalDebt, '1.5', existingCollateral, true);
-      // const max_ = ethers.utils.parseEther(max!)
       setMaxRemove(existingCollateral.sub(min_));
     } else {
       setMaxRemove(ethers.constants.Zero);

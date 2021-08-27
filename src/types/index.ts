@@ -99,7 +99,7 @@ export interface IAssetRoot {
   symbol: string;
   name: string;
   version: string;
-  decimals: string;
+  decimals: number;
   color: string;
   image: React.FC;
   displayName: string;

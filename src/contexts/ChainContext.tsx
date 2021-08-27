@@ -245,23 +245,25 @@ const ChainProvider = ({ children }: any) => {
       // })();
 
       /* add on extra/calculated ASSET info */
-      const _chargeAsset = (asset: { id: string; address: string; symbol: string }) => {
+      const _chargeAsset = (asset: any) => {
         const ERC20 = contracts.ERC20Permit__factory.connect(asset.address, fallbackLibrary);
         return {
           ...asset,
           digitFormat: assetDigitFormatMap.has(asset.symbol) ? assetDigitFormatMap.get(asset.symbol) : 6,
           image: markMap.get(asset.symbol),
           color: (yieldEnv.assetColors as any)[asset.symbol],
+          
           /* baked in token fns */
           getBalance: async (acc: string) =>
             ETH_BASED_ASSETS.includes(asset.id) ? library?.getBalance(acc) : ERC20.balanceOf(acc),
           getAllowance: async (acc: string, spender: string) => ERC20.allowance(acc, spender),
+          
           /* TODO remove for prod */
           /* @ts-ignore */
           mintTest: async () =>
             contracts.ERC20Mock__factory.connect(asset.address, library?.getSigner()!).mint(
               account!,
-              ethers.utils.parseEther('100')
+              ethers.utils.parseUnits('100', asset.decimals)
             ),
         };
       };
@@ -301,7 +303,7 @@ const ChainProvider = ({ children }: any) => {
               decimals,
               version,
               joinAddress: joinMap.get(id),
-            };
+            } ;
             // Update state and cache
             updateState({ type: 'addAsset', payload: _chargeAsset(newAsset) });
             newAssetList.push(newAsset);
