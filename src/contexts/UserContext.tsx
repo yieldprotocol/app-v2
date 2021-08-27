@@ -286,7 +286,6 @@ const UserProvider = ({ children }: any) => {
         console.log(error);
         updateState({ type: 'pricesLoading', payload: false });
         return ethers.constants.Zero;
-        // return ethers.utils.parseEther('2'); // set as 2:1 defualt for testing
       }
     },
     [contractMap, userState.priceMap]
@@ -315,11 +314,13 @@ const UserProvider = ({ children }: any) => {
           const _sellRate = sellFYToken(
             baseReserves,
             fyTokenReserves,
-            ethers.utils.parseEther('1'),
+            ethers.utils.parseUnits('1', series.decimals),
             secondsToFrom(series.maturity.toString())
           );
-          const apr = calculateAPR(floorDecimal(_sellRate), ethers.utils.parseEther('1'), series.maturity) || '0';
-          // const { symbol } = assetRootMap.get(series.baseId);
+
+          const apr =
+            calculateAPR(floorDecimal(_sellRate), ethers.utils.parseUnits('1', series.decimals), series.maturity) ||
+            '0';
 
           return {
             ...series,

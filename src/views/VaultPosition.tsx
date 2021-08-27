@@ -246,7 +246,7 @@ const VaultPosition = ({ close }: { close: () => void }) => {
         _max && setMaxRepay(ethers.utils.formatEther(_max)?.toString());
       })();
 
-      setMinRepay(selectedVault?.art.sub(ethers.utils.parseEther('1')).toString());
+      setMinRepay(selectedVault?.art.sub(ethers.utils.parseUnits('1', vaultSeries?.decimals)).toString());
     }
   }, [activeAccount, selectedVault?.art, vaultBase, setMaxRepay]);
 

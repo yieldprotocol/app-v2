@@ -44,7 +44,7 @@ export const useRedeemPosition = () => {
       },
       {
         operation: LadleActions.Fn.REDEEM,
-        args: [series.id, account, ethers.utils.parseEther('1')] as LadleActions.Args.REDEEM,
+        args: [series.id, account, ethers.utils.parseUnits('1', series.decimals)] as LadleActions.Args.REDEEM,
         ignoreIf: !series.seriesIsMature,
       },
     ];
