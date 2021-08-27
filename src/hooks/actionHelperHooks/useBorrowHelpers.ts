@@ -2,12 +2,7 @@ import { BigNumber, ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, IVault, SignType, ISeries, ActionCodes, IUserContext, LadleActions, IAsset } from '../../types';
-import { getTxCode, cleanValue } from '../../utils/appUtils';
-import { DAI_BASED_ASSETS, ETH_BASED_ASSETS } from '../../utils/constants';
-import { useChain } from '../useChain';
-
-import { calculateCollateralizationRatio, calculateMinCollateral } from '../../utils/yieldMath';
+import { IVault, ISeries,IAsset } from '../../types';
 
 /* Collateralisation hook calculates collateralisation metrics */
 export const useBorrowHelpers = (
@@ -18,12 +13,10 @@ export const useBorrowHelpers = (
 
   /* STATE FROM CONTEXT */
   const {
-    userState: { activeAccount, selectedBaseId, selectedIlkId, assetMap, seriesMap },
+    userState: { activeAccount, selectedBaseId, selectedIlkId, assetMap },
   } = useContext(UserContext);
 
   const vaultBase: IAsset | undefined = assetMap.get(vault?.baseId!);
-  const vaultIlk: IAsset | undefined = assetMap.get(vault?.ilkId!);
-  const vaultSeries: ISeries | undefined = seriesMap.get(vault?.seriesId!);
 
   /* LOCAL STATE */
   const [minAllowedBorrow, setMinAllowedBorrow] = useState<string | undefined>();
@@ -41,20 +34,20 @@ export const useBorrowHelpers = (
   /* update the min max repayable or rollable */
   useEffect(() => {
 
-    const inputBn = input ? ethers.utils.parseUnits(input, vaultBase?.decimals ): ethers.constants.Zero;
+    const inputBn = input ? ethers.utils.parseUnits(input, vaultBase?.decimals): ethers.constants.Zero;
     const minDebt = ethers.utils.parseUnits('0.5', vaultBase?.decimals );
  
     /* CHECK the max available repay */
-    if (activeAccount) {
+    if (activeAccount && vault) {
       (async () => {
         const _maxToken = await vaultBase?.getBalance(activeAccount);
-        const _max = _maxToken && vault?.art.gt(_maxToken) ? _maxToken : vault?.art;
+        const _max = _maxToken && vault.art.gt(_maxToken) ? _maxToken : vault.art;
         _max && setMaxRepayOrRoll(ethers.utils.formatEther(_max)?.toString());
       })();
 
       /* if the input if less than the debt, make sure the minRepay is set to the debt less 0.5  - to leave 0.5 in the vault - above dust level */
-      if ( inputBn.lt(vault?.art!) ) {
-        setMinRepayOrRoll(vault?.art.sub(minDebt).toString());
+      if ( inputBn.lt(vault.art!) ) {
+        setMinRepayOrRoll(vault.art.sub(minDebt).toString());
       } else {
         setMinRepayOrRoll(undefined);
       }     
