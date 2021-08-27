@@ -20,7 +20,7 @@ export const useVaultAdmin = () => {
 
   const { sign, transact } = useChain();
 
-  const transfer = async (vault: IVault, to: string ) => {
+  const transfer = async (vault: IVault, to: string) => {
     const txCode = getTxCode(ActionCodes.TRANSFER_VAULT, vault.id);
     const series = seriesMap.get(vault.seriesId);
     const base = assetMap.get(vault.baseId);
@@ -30,7 +30,6 @@ export const useVaultAdmin = () => {
         {
           target: base,
           spender: 'LADLE',
-          series,
           message: 'Signing Dai Approval',
           ignoreIf: series.seriesIsMature || base.hasLadleAuth,
         },
@@ -51,8 +50,7 @@ export const useVaultAdmin = () => {
     updateVaults([]);
   };
 
-
-  const merge = async (vault: IVault, to: IVault, ink: string, art: string, deleteVault: boolean=false ) => {
+  const merge = async (vault: IVault, to: IVault, ink: string, art: string, deleteVault: boolean = false) => {
     const txCode = getTxCode(ActionCodes.MERGE_VAULT, vault.id);
     const series = seriesMap.get(vault.seriesId);
     const _ink = ink ? ethers.utils.parseEther(ink) : ethers.constants.Zero;
@@ -72,7 +70,6 @@ export const useVaultAdmin = () => {
         args: [vault.id] as LadleActions.Args.DESTROY,
         ignoreIf: !deleteVault || vault.art.gt(ethers.constants.Zero) || vault.ink.gt(ethers.constants.Zero),
       },
-
     ];
     await transact(calls, txCode);
     updateVaults([]);

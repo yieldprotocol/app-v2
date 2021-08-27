@@ -3,22 +3,19 @@
     "1": {
       "Cauldron": "0x324ee27d5f5A7Da8C926A5954CB86357b8e07F81",
       "Ladle": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-      "CompoundOracle": "0x17B6fC5c9b3C422255eB2e2E6d152bc5B9f261b9",
-      "ChainlinkOracle": "0x2C5f88E7BD899CE57242ecA7650F21a4a9c28D3f",
+      "ChainlinkMultiOracle": "0x2C5f88E7BD899CE57242ecA7650F21a4a9c28D3f",
       "CompositeMultiOracle": "0x77528b9E8300D4eF6075c18C7148420C86997106"
     },
     "42": {
-      "Cauldron": "0x324ee27d5f5A7Da8C926A5954CB86357b8e07F81",
-      "Ladle": "0xb3768d474dc5464c50AFF228682a5D63c06335E8",
-      "CompoundOracle": "0x7A59d2e3b2eB34d51c77c5dA88873191F50539Cc",
-      "ChainlinkOracle": "0x05e24C295dBdAa1F4bf27377a1a3f1bd30606bA5",
-      "CompositeMultiOracle": "0x77528b9E8300D4eF6075c18C7148420C86997106"
+      "Cauldron": "0x78F5fbc750f6a073D8b0Bc0dDDfdc846B9ba19bc",
+      "Ladle": "0xAd35c74914CD2d61B6681ECC3E8b04a3966B261F",
+      "ChainlinkMultiOracle": "0x3c08e86b202c0eE0D20D6eA5175e2B128eD63ee3",
+      "CompositeMultiOracle": "0x2fc70a86c47D7095bBd1E730694f1B6aFFAb0e33"
     },
     "31337": {
       "Cauldron": "0x7Dd21c63a12042759ce9D5207301F0f19b10c634",
       "Ladle": "0xb3768d474dc5464c50AFF228682a5D63c06335E8",
-      "CompoundOracle": "0xfc569FF2C8fB3212cFA47cFaa881CE16eB3e80bb",
-      "ChainlinkOracle": "0x06E5903f2Aa1935EE6f4B9f825F8A140C681C0F1",
+      "ChainlinkMulitOracle": "0x06E5903f2Aa1935EE6f4B9f825F8A140C681C0F1",
       "CompositeMultiOracle": "0x77528b9E8300D4eF6075c18C7148420C86997106"
     }
   },
@@ -37,8 +34,15 @@
     "FALL": ["#7255BD", "#D95948", "#ffffff"]
   },
   "strategies": {
-    "1" : [],
-    "42" : ["0xdc70afc194261A7290fAc51E17992A4bF2D4b39b" ],
-    "31337": [ ]
+    "1": [],
+    "42": [
+      "0x3e445F82CeF33a862a0dEEA9E5C3685fFf1EF310",
+      "0x61A290ecA36C90bBa8827a8E38d0a8CeAd5F8d74",
+      "0x29432ab1d52BEB44fBDabb24e3D2E9b08dbdfB28",
+      "0x19DC502C39937529b69D090787b332e09945ef56",
+      "0x1291653C66D158f65310dFf28F4725f63779C276",
+      "0xA935340957075b16E684593467B8a82A2d6DE1E6"
+    ],
+    "31337": []
   }
 }

@@ -20,7 +20,7 @@ import { ChainContext } from './ChainContext';
 import { cleanValue, genVaultImage, bytesToBytes32 } from '../utils/appUtils';
 import { calculateAPR, divDecimal, floorDecimal, mulDecimal, secondsToFrom, sellFYToken } from '../utils/yieldMath';
 
-import { ONE_WEI_BN } from '../utils/constants';
+import { ONE_WEI_BN, ETH_BASED_ASSETS } from '../utils/constants';
 
 const UserContext = React.createContext<any>({});
 
@@ -46,7 +46,7 @@ const initState: IUserContextState = {
 
   /* User Settings */
   approvalMethod: ApprovalType.SIG,
-  dudeSalt: 1,
+  dudeSalt: 20,
   showInactiveVaults: false as boolean,
   slippageTolerance: 0.01 as number,
   vaultsLoading: false as boolean,
@@ -263,22 +263,30 @@ const UserProvider = ({ children }: any) => {
 
       try {
         const _priceMap = userState.priceMap;
-        const _basePriceMap = _priceMap.get(base) || new Map<string, any>();
-        // const Oracle = contractMap.get('ChainlinkOracle');
-        const Oracle = contractMap.get('CompositeMultiOracle');
-        const [price] = await Oracle.peek(bytesToBytes32(base, 6), bytesToBytes32(ilk, 6), ONE_WEI_BN);
-        // const [price] = await Oracle.peek(base, ilk, ONE_WEI_BN);
+        const _ilkPriceMap = _priceMap.get(ilk) || new Map<string, any>();
 
-        _basePriceMap.set(ilk, price);
-        _priceMap.set(base, _basePriceMap);
+        // set oracle based on whether ILK is ETH-BASED
+        const Oracle = ETH_BASED_ASSETS.includes(ilk)
+          ? contractMap.get('ChainlinkMultiOracle')
+          : contractMap.get('CompositeMultiOracle');
+
+        const [price] = await Oracle.peek(bytesToBytes32(ilk, 6), bytesToBytes32(base, 6), ONE_WEI_BN);
+
+        console.log(price.toString());
+
+        _ilkPriceMap.set(base, price);
+        _priceMap.set(ilk, _ilkPriceMap);
+
         updateState({ type: 'priceMap', payload: _priceMap });
-        console.log('Price Updated: ', base, '->', ilk, ':', price.toString());
+        console.log('Price Updated: ', ilk, '->', base, ':', price.toString());
         updateState({ type: 'pricesLoading', payload: false });
+
         return price;
       } catch (error) {
         console.log(error);
         updateState({ type: 'pricesLoading', payload: false });
         return ethers.constants.Zero;
+        // return ethers.utils.parseEther('2'); // set as 2:1 defualt for testing
       }
     },
     [contractMap, userState.priceMap]
@@ -476,7 +484,7 @@ const UserProvider = ({ children }: any) => {
 
     setApprovalMethod: (type: ApprovalType) => updateState({ type: 'approvalMethod', payload: type }),
 
-    updateDudeSalt: () => updateState({ type: 'dudeSalt', payload: userState.dudeSalt + 1 }),
+    updateDudeSalt: () => updateState({ type: 'dudeSalt', payload: userState.dudeSalt + 3 }),
 
     setShowInactiveVaults: (showInactiveVaults: boolean) =>
       updateState({ type: 'showInactiveVaults', payload: showInactiveVaults }),

@@ -307,7 +307,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                     label={
                       <Text size={mobile ? 'small' : undefined}>
                         {`Remov${removeTx.processActive ? 'ing' : 'e'} ${
-                          nFormatter(Number(removeInput), selectedBase?.digitFormat!) || ''
+                          cleanValue(removeInput, selectedBase?.digitFormat!) || ''
                         } tokens`}
                       </Text>
                     }
@@ -318,13 +318,13 @@ const PoolPosition = ({ close }: { close: () => void }) => {
 
               {actionActive.index === 1 &&
                 stepPosition[actionActive.index] !== 0 &&
-                !(removeTx.success || removeTx.failed) && (
+                !(removeTx.success || removeTx.failed || rollTx.success || rollTx.failed) && (
                   <TransactButton
                     primary
                     label={
                       <Text size={mobile ? 'small' : undefined}>
                         {`Roll${rollTx.processActive ? 'ing' : ''} ${
-                          nFormatter(Number(rollInput), selectedBase?.digitFormat!) || ''
+                          cleanValue(rollInput, selectedBase?.digitFormat!) || ''
                         } tokens`}
                       </Text>
                     }

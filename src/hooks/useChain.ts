@@ -6,7 +6,7 @@ import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
 import { DAI_BASED_ASSETS, MAX_128, MAX_256 } from '../utils/constants';
 import { ICallData, ISignData, ISeries, LadleActions } from '../types';
-import { ERC20, ERC20__factory, Ladle, Pool, PoolRouter, Strategy } from '../contracts';
+import { ERC20, ERC20Permit, ERC20__factory, Ladle, Pool, PoolRouter, Strategy } from '../contracts';
 import { UserContext } from '../contexts/UserContext';
 
 /*  💨 Calculate the accumulative gas limit (IF ALL calls have a gaslimit then set the total, else undefined ) */
@@ -57,7 +57,6 @@ export const useChain = () => {
 
     /* Encode each of the calls OR preEncoded route calls */
     const encodedCalls = _calls.map((call: ICallData) => {
-
       /* 'pre-encode' routed calls if required */
       if (call.operation === LadleActions.Fn.ROUTE) {
         if (call.fnName && call.targetContract) {
@@ -121,7 +120,7 @@ export const useChain = () => {
         /*
           Request the signature if using DaiType permit style
         */
-        if (DAI_BASED_ASSETS.includes(reqSig.series.baseId)) {
+        if (reqSig.target.symbol === 'DAI') {
           const { v, r, s, nonce, expiry, allowed } = await handleSign(
             /* We are pass over the generated signFn and sigData to the signatureHandler for tracking/tracing/fallback handling */
             () =>

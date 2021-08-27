@@ -8,7 +8,6 @@ import { useChain } from '../useChain';
 
 import { calculateSlippage, fyTokenForMint, mint, mintWithBase, sellBase, splitLiquidity } from '../../utils/yieldMath';
 import { ChainContext } from '../../contexts/ChainContext';
-import SeriesSelector from '../../components/selectors/SeriesSelector';
 
 /* Hook for chain transactions */
 export const useAddLiquidity = () => {
@@ -25,16 +24,15 @@ export const useAddLiquidity = () => {
     series: ISeries,
     method: 'BUY' | 'BORROW' | string = 'BUY',
     // strategyAddr: string | undefined = undefined,
-    strategyAddr: string | undefined = '0xdc70afc194261A7290fAc51E17992A4bF2D4b39b'
+    strategyAddr: string | undefined = '0x3e445F82CeF33a862a0dEEA9E5C3685fFf1EF310'
   ) => {
     const txCode = getTxCode(ActionCodes.ADD_LIQUIDITY, series.id);
     const base: IAsset = assetMap.get(series.baseId);
+    const _input = ethers.utils.parseUnits(input, base.decimals);
 
-    const _input = ethers.utils.parseEther(input);
-
-    const _strategyExists = ethers.utils.isAddress(strategyAddr!) && strategyRootMap.has(strategyAddr)
+    const _strategyExists = ethers.utils.isAddress(strategyAddr!) && strategyRootMap.has(strategyAddr);
     const _strategy = _strategyExists ? strategyAddr : undefined;
-    
+
     const _fyTokenToBuy = fyTokenForMint(
       series.baseReserves,
       series.fyTokenRealReserves,
@@ -56,7 +54,6 @@ export const useAddLiquidity = () => {
         {
           target: base,
           spender: 'LADLE',
-          series,
           message: 'Signing ERC20 Token approval',
           ignoreIf: false,
         },
@@ -95,13 +92,11 @@ export const useAddLiquidity = () => {
         args: [selectedSeriesId, selectedIlkId, '0'] as LadleActions.Args.BUILD,
         ignoreIf: method !== 'BORROW', // TODO exclude if vault is Provided.
       },
-
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [base.address, base.joinAddress, _baseToFyToken] as LadleActions.Args.TRANSFER,
         ignoreIf: method !== 'BORROW',
       },
-
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [base.address, series.poolAddress, _baseToPool] as LadleActions.Args.TRANSFER,

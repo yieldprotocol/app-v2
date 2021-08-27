@@ -34,8 +34,8 @@ export const useBorrow = () => {
     const ilk = vault ? assetMap.get(vault.ilkId) : assetMap.get(selectedIlkId);
 
     /* parse inputs */
-    const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
-    const _collInput = collInput ? ethers.utils.parseEther(collInput) : ethers.constants.Zero;
+    const _input = input ? ethers.utils.parseUnits(input, base.decimals) : ethers.constants.Zero;
+    const _collInput = collInput ? ethers.utils.parseUnits(collInput, ilk.decimals) : ethers.constants.Zero;
 
     /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
     const permits: ICallData[] = await sign(
@@ -43,7 +43,6 @@ export const useBorrow = () => {
         {
           target: ilk,
           spender: ilk.joinAddress,
-          series,
           ignoreIf: ETH_BASED_ASSETS.includes(selectedIlkId), // ignore if an ETH-BASED asset
         },
       ],
@@ -73,7 +72,7 @@ export const useBorrow = () => {
 
     /* handle the transaction */
     await transact(calls, txCode);
-    
+
     /* When complete, update vaults.
       If a vault was provided, update it only,
       else update ALL vaults (by passing an empty array)

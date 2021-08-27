@@ -48,7 +48,7 @@ export const useAddCollateral = () => {
     const txCode = getTxCode(ActionCodes.ADD_COLLATERAL, vaultId);
 
     /* parse inputs to BigNumber in Wei */
-    const _input = ethers.utils.parseEther(input);
+    const _input = ethers.utils.parseUnits(input, ilk.decimals);
 
     /* check if the ilk/asset is an eth asset variety, if so pour to Ladle */
     const _isEthBased = ETH_BASED_ASSETS.includes(ilk.id);
@@ -61,7 +61,6 @@ export const useAddCollateral = () => {
         {
           target: ilk,
           spender: ilk.joinAddress,
-          series,
           ignoreIf: _isEthBased,
         },
       ],

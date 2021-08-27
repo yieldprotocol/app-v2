@@ -44,7 +44,7 @@ export const useRemoveCollateral = () => {
     const ilk = assetMap.get(vault.ilkId);
 
     /* parse inputs to BigNumber in Wei, and NEGATE */
-    const _input = ethers.utils.parseEther(input).mul(-1);
+    const _input = ethers.utils.parseUnits(input, ilk.decimals).mul(-1);
 
     /* check if the ilk/asset is an eth asset variety, if so pour to Ladle */
     const _pourTo = ETH_BASED_ASSETS.includes(ilk.id) ? contractMap.get('Ladle').address : account;

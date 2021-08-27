@@ -211,8 +211,10 @@ const ChainProvider = ({ children }: any) => {
       const addrs = (yieldEnv.addresses as any)[fallbackChainId];
       const Cauldron = contracts.Cauldron__factory.connect(addrs.Cauldron, fallbackLibrary);
       const Ladle = contracts.Ladle__factory.connect(addrs.Ladle, fallbackLibrary);
-      const CompoundOracle = contracts.CompoundMultiOracle__factory.connect(addrs.CompoundOracle, fallbackLibrary);
-      const ChainlinkOracle = contracts.ChainlinkMultiOracle__factory.connect(addrs.ChainlinkOracle, fallbackLibrary);
+      const ChainlinkMultiOracle = contracts.ChainlinkMultiOracle__factory.connect(
+        addrs.ChainlinkMultiOracle,
+        fallbackLibrary
+      );
       const CompositeMultiOracle = contracts.CompositeMultiOracle__factory.connect(
         addrs.CompositeMultiOracle,
         fallbackLibrary
@@ -231,8 +233,7 @@ const ChainProvider = ({ children }: any) => {
       const newContractMap = chainState.contractMap;
       newContractMap.set('Cauldron', Cauldron);
       newContractMap.set('Ladle', Ladle);
-      newContractMap.set('CompoundOracle', CompoundOracle);
-      newContractMap.set('ChainlinkOracle', ChainlinkOracle);
+      newContractMap.set('ChainlinkMultiOracle', ChainlinkMultiOracle);
       newContractMap.set('CompositeMultiOracle', CompositeMultiOracle);
       // newContractMap.set('Strategy_DAI3M', Strategy_DAI3M);
 
@@ -282,9 +283,10 @@ const ChainProvider = ({ children }: any) => {
             const { assetId: id, asset: address } = Cauldron.interface.parseLog(x).args;
             const ERC20 = contracts.ERC20Permit__factory.connect(address, fallbackLibrary);
             /* Add in any extra static asset Data */ // TODO is there any other fixed asset data needed?
-            const [name, symbol] = await Promise.all([
+            const [name, symbol, decimals] = await Promise.all([
               ERC20.name(),
               ERC20.symbol(),
+              ERC20.decimals(),
               // ETH_BASED_ASSETS.includes(id) ? '1' : await ERC20.version()
             ]);
 
@@ -296,6 +298,7 @@ const ChainProvider = ({ children }: any) => {
               address,
               name,
               symbol,
+              decimals,
               version,
               joinAddress: joinMap.get(id),
             };
@@ -319,7 +322,6 @@ const ChainProvider = ({ children }: any) => {
         poolAddress: string;
         fyTokenAddress: string;
       }) => {
-
         const poolContract = contracts.Pool__factory.connect(series.poolAddress, fallbackLibrary);
         const fyTokenContract = contracts.FYToken__factory.connect(series.fyTokenAddress, fallbackLibrary);
 
@@ -347,7 +349,7 @@ const ChainProvider = ({ children }: any) => {
           oppEndColor,
           oppTextColor,
           seriesMark: <YieldMark startColor={startColor} endColor={endColor} />,
-          
+
           // built-in helper functions:
           getTimeTillMaturity: () => series.maturity - Math.round(new Date().getTime() / 1000),
           isMature: async () => series.maturity < (await fallbackLibrary.getBlock('latest')).timestamp,
@@ -375,16 +377,19 @@ const ChainProvider = ({ children }: any) => {
               const { seriesId: id, baseId, fyToken } = Cauldron.interface.parseLog(x).args;
               const { maturity } = await Cauldron.series(id);
 
-              if (poolMap.has(id)) { // only add series if it has a pool
+              if (poolMap.has(id)) {
+                // only add series if it has a pool
                 const poolAddress: string = poolMap.get(id) as string;
                 const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackLibrary);
                 const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackLibrary);
-                const [name, symbol, version, poolName, poolVersion] = await Promise.all([
+                // const baseContract = contracts.ERC20__factory.connect(fyToken, fallbackLibrary);
+                const [name, symbol, version, poolName, poolVersion, poolSymbol] = await Promise.all([
                   fyTokenContract.name(),
                   fyTokenContract.symbol(),
                   fyTokenContract.version(),
                   poolContract.name(),
                   poolContract.version(),
+                  poolContract.symbol(),
                 ]);
                 const newSeries = {
                   id,
@@ -397,7 +402,8 @@ const ChainProvider = ({ children }: any) => {
                   fyTokenAddress: fyToken,
                   poolAddress,
                   poolVersion,
-                  poolName
+                  poolName,
+                  poolSymbol,
                 };
                 updateState({ type: 'addSeries', payload: _chargeSeries(newSeries) });
                 newSeriesList.push(newSeries);

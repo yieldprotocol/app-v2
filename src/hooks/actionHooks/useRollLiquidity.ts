@@ -17,8 +17,9 @@ export const usePool = (input: string | undefined) => {
 
 /* Hook for chain transactions */
 export const useRollLiquidity = () => {
-
-  const { chainState: {strategyRootMap} } = useContext(ChainContext);
+  const {
+    chainState: { strategyRootMap },
+  } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
   const { activeAccount: account, selectedIlkId, selectedSeriesId, assetMap } = userState;
   const { updateSeries, updateAssets } = userActions;
@@ -27,11 +28,11 @@ export const useRollLiquidity = () => {
   const rollLiquidity = async (input: string, fromSeries: ISeries, toSeries: ISeries) => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.ROLL_LIQUIDITY, fromSeries.id);
-    const _input = ethers.utils.parseEther(input);
-    const base = assetMap.get(fromSeries.baseId);
-    
-    // const seriesMature = fromSeries.seriesIsMature;
 
+    const base = assetMap.get(fromSeries.baseId);
+    const _input = ethers.utils.parseUnits(input, base.decimals);
+
+    // const seriesMature = fromSeries.seriesIsMature;
     const _fyTokenToBuy = fyTokenForMint(
       toSeries.baseReserves,
       toSeries.fyTokenRealReserves,
@@ -50,19 +51,18 @@ export const useRollLiquidity = () => {
             address: fromSeries.poolAddress,
             name: fromSeries.poolName,
             version: fromSeries.poolVersion,
+            symbol: fromSeries.poolSymbol,
           },
           spender: 'LADLE',
-          series: fromSeries,
           message: 'Signing ERC20 Token approval',
           ignoreIf: fromSeries.seriesIsMature,
         },
-        
+
         /* AFTER MATURITY */
         {
           // ladle.forwardPermitAction(seriesId, false, ladle.address, allowance, deadline, v, r, s)
           target: fromSeries,
           spender: 'LADLE',
-          series: fromSeries,
           message: 'Signing ERC20 Token approval',
           ignoreIf: !fromSeries.seriesIsMature,
         },

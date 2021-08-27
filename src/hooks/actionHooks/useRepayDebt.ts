@@ -29,10 +29,14 @@ export const useRepayDebt = () => {
     collInput: string | undefined = '0' // optional - add(+) / remove(-) collateral in same tx.
   ) => {
     const txCode = getTxCode(ActionCodes.REPAY, vault.id);
-    const _input = input ? ethers.utils.parseEther(input) : ethers.constants.Zero;
-    const _collInput = ethers.utils.parseEther(collInput);
+
     const series: ISeries = seriesMap.get(vault.seriesId);
     const base = assetMap.get(vault.baseId);
+    const ilk = assetMap.get(vault.ilkId);
+
+    /* parse inputs */
+    const _input = input ? ethers.utils.parseUnits(input, base.decimals) : ethers.constants.Zero;
+    const _collInput = collInput ? ethers.utils.parseUnits(collInput, ilk.decimals) : ethers.constants.Zero;
 
     const _inputAsFyDai = sellBase(
       series.baseReserves,
@@ -49,7 +53,6 @@ export const useRepayDebt = () => {
           // before maturity
           target: base,
           spender: 'LADLE',
-          series,
           message: 'Signing Approval',
           ignoreIf: series.seriesIsMature,
         },
@@ -57,7 +60,6 @@ export const useRepayDebt = () => {
           // after maturity
           target: base,
           spender: base.joinAddress,
-          series,
           message: 'Signing Dai Approval',
           ignoreIf: !series.seriesIsMature,
         },
@@ -85,7 +87,7 @@ export const useRepayDebt = () => {
         ignoreIf: series.seriesIsMature || !inputGreaterThanDebt, // use if input IS more than debt
       },
 
-      /* AFTER MATURITY */ 
+      /* AFTER MATURITY */
       {
         operation: LadleActions.Fn.CLOSE,
         args: [vault.id, account, _collInput, _input.mul(-1)] as LadleActions.Args.CLOSE,
@@ -93,7 +95,6 @@ export const useRepayDebt = () => {
       },
 
       ...removeEth(_collInput, series),
-
     ];
     await transact(calls, txCode);
     updateVaults([]);
