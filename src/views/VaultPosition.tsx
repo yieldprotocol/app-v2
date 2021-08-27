@@ -36,7 +36,7 @@ import { useVaultAdmin } from '../hooks/actionHooks/useVaultAdmin';
 import { useCollateralHelpers } from '../hooks/actionHelperHooks/useCollateralHelpers';
 import { useAddCollateral } from '../hooks/actionHooks/useAddCollateral';
 import { useRemoveCollateral } from '../hooks/actionHooks/useRemoveCollateral';
-
+import { useBorrowHelpers } from '../hooks/actionHelperHooks/useBorrowHelpers';
 
 const VaultPosition = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -59,12 +59,6 @@ const VaultPosition = ({ close }: { close: () => void }) => {
   const vaultBase: IAsset | undefined = assetMap.get(selectedVault?.baseId!);
   const vaultIlk: IAsset | undefined = assetMap.get(selectedVault?.ilkId!);
   const vaultSeries: ISeries | undefined = seriesMap.get(selectedVault?.seriesId!);
-
-  const { collateralizationPercent, maxRemove } = useCollateralHelpers(
-    selectedVault?.art.toString(),
-    selectedVault?.ink.toString(),
-    selectedVault
-  );
 
   /* TX info (for disabling buttons) */
   const { tx: repayTx, resetTx: resetRepayTx } = useTx(ActionCodes.REPAY, selectedVaultId!);
@@ -91,10 +85,6 @@ const VaultPosition = ({ close }: { close: () => void }) => {
   const [rollToSeries, setRollToSeries] = useState<ISeries | null>(null);
 
   const [transferToAddressInput, setTransferToAddressInput] = useState<string>('');
-
-  const [maxRepay, setMaxRepay] = useState<string | undefined>();
-  const [minRepay, setMinRepay] = useState<string | undefined>();
-  const [maxAddCollat, setMaxAddCollat] = useState<string | undefined>();
 
   const [repayDisabled, setRepayDisabled] = useState<boolean>(true);
   const [rollDisabled, setRollDisabled] = useState<boolean>(true);
@@ -126,15 +116,27 @@ const VaultPosition = ({ close }: { close: () => void }) => {
   const rollDebt = useRollDebt();
   const { transfer, merge } = useVaultAdmin();
 
-  const { addCollateral }= useAddCollateral();
+  const { addCollateral } = useAddCollateral();
   const { removeCollateral } = useRemoveCollateral();
 
+  const { maxCollateral, collateralizationPercent, maxRemove } = useCollateralHelpers(
+    selectedVault?.art.toString(),
+    selectedVault?.ink.toString(),
+    selectedVault
+  );
 
-  const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries, [0, maxRepay]);
+  const { maxRepayOrRoll, minRepayOrRoll } = useBorrowHelpers(repayInput, collatInput, selectedVault);
+
+  const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries, [
+    minRepayOrRoll,
+    maxRepayOrRoll,
+  ]);
+
   const { inputError: addCollatError } = useInputValidation(addCollatInput, ActionCodes.ADD_COLLATERAL, vaultSeries, [
     0,
-    maxAddCollat,
+    maxCollateral,
   ]);
+
   const { inputError: removeCollatError } = useInputValidation(
     removeCollatInput,
     ActionCodes.REMOVE_COLLATERAL,
@@ -235,29 +237,6 @@ const VaultPosition = ({ close }: { close: () => void }) => {
         break;
     }
   };
-
-  /* SET MAX / MIN VALUES */
-  useEffect(() => {
-    /* CHECK the max available repay */
-    if (activeAccount) {
-      (async () => {
-        const _maxToken = await vaultBase?.getBalance(activeAccount);
-        const _max = _maxToken && selectedVault?.art.gt(_maxToken) ? _maxToken : selectedVault?.art;
-        _max && setMaxRepay(ethers.utils.formatEther(_max)?.toString());
-      })();
-
-      setMinRepay(selectedVault?.art.sub(ethers.utils.parseEther('1')).toString());
-    }
-  }, [activeAccount, selectedVault?.art, vaultBase, setMaxRepay]);
-
-  useEffect(() => {
-    /* CHECK collateral selection and sets the max available collateral */
-    activeAccount &&
-      (async () => {
-        const _max = await vaultIlk?.getBalance(activeAccount);
-        _max && setMaxAddCollat(ethers.utils.formatEther(_max)?.toString());
-      })();
-  }, [activeAccount, vaultIlk, setMaxAddCollat]);
 
   /* ACTION DISABLING LOGIC */
   useEffect(() => {
@@ -422,9 +401,9 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                             icon={<>{vaultBase?.image}</>}
                           />
                           <MaxButton
-                            action={() => setRepayInput(maxRepay)}
+                            action={() => setRepayInput(maxRepayOrRoll)}
                             clearAction={() => setRepayInput('')}
-                            showingMax={!!repayInput && repayInput === maxRepay}
+                            showingMax={!!repayInput && repayInput === maxRepayOrRoll}
                           />
                         </InputWrap>
                       </Box>
@@ -497,9 +476,9 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                           />
                           <MaxButton
                             disabled={removeCollatInput}
-                            action={() => setAddCollatInput(maxAddCollat)}
+                            action={() => setAddCollatInput(maxCollateral)}
                             clearAction={() => setAddCollatInput('')}
-                            showingMax={!!addCollatInput && addCollatInput === maxAddCollat}
+                            showingMax={!!addCollatInput && addCollatInput === maxCollateral}
                           />
                         </InputWrap>
                         <InputWrap action={() => console.log('maxAction')} isError={removeCollatError}>
