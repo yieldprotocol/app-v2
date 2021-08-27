@@ -38,38 +38,34 @@ const Calculator = ({ initialBorrow }: ICalculator) => {
   const [repayDateInputError, setRepayDateInputError] = useState<string | null>(null);
 
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
-  const [interestRate, setInterestRate] = useState<string>(apr || '');
-  const [effectiveAPR, setEffectiveAPR] = useState<string>(apr || '');
+  const [interestRateInput, setInterestRateInput] = useState<string | undefined>(apr);
+  const [effectiveAPR, setEffectiveAPR] = useState<string | undefined>(apr);
 
   const handleReset = () => {
-    apr && setInterestRate(apr);
+    setInterestRateInput(apr);
     setRepayDateInput(INITIAL_REPAY_DATE_INPUT);
     setBorrowInput(initialBorrow);
   };
 
   const _fyTokensSold = (
     borrowed: string | undefined,
-    interest: string | undefined,
+    interestRate: string | undefined,
     borrowedDate: Date,
     maturity: Date
-  ) => Number(borrowed) * (1 + Number(interest) / 100) ** (differenceInCalendarDays(maturity, borrowedDate) / 365);
+  ) => Number(borrowed) * (1 + Number(interestRate) / 100) ** (differenceInCalendarDays(maturity, borrowedDate) / 365);
 
-  const _fyTokenCost = (interest: string | undefined, payDate: Date, maturity: Date) =>
-    1 / (1 + Number(interest) / 100) ** (differenceInCalendarDays(maturity, payDate) / 365);
+  const _fyTokenCost = (interestRate: string | undefined, payDate: Date, maturity: Date) =>
+    1 / (1 + Number(interestRate) / 100) ** (differenceInCalendarDays(maturity, payDate) / 365);
 
-  const _getEffectiveAPR = (borrowed: string | undefined, amountRepaid: string, borrowedDate: Date, payDate: Date) => {
-    const _apr =
-      (Number(amountRepaid) / Number(borrowed)) ** (365 / differenceInCalendarDays(payDate, borrowedDate)) - 1;
-    return _apr;
-  };
+  const _getEffectiveAPR = (borrowed: string | undefined, amountRepaid: string, borrowedDate: Date, payDate: Date) =>
+    (Number(amountRepaid) / Number(borrowed)) ** (365 / differenceInCalendarDays(payDate, borrowedDate)) - 1;
 
   useEffect(() => {
-    const borrowAmount = cleanValue(
+    const _repayAmount = cleanValue(
       (Number(borrowInput) * (1 + Number(apr) / 100)).toString(),
       selectedBase?.digitFormat!
     );
-    setRepayAmount(borrowAmount);
-    apr && setInterestRate(apr);
+    setRepayAmount(_repayAmount);
   }, [apr, borrowInput, selectedBase]);
 
   useEffect(() => {
@@ -85,8 +81,9 @@ const Calculator = ({ initialBorrow }: ICalculator) => {
   useEffect(() => {
     // number of fyTokens sold at initial borrow date
     const fyTokensSold = _fyTokensSold(borrowInput, apr, new Date(borrowDateInput), selectedSeriesMaturity);
-    const fyTokenCostAtRepay = _fyTokenCost(interestRate, new Date(repayDateInput), selectedSeriesMaturity);
+    const fyTokenCostAtRepay = _fyTokenCost(interestRateInput, new Date(repayDateInput), selectedSeriesMaturity);
     const amountRepaid = (fyTokensSold * fyTokenCostAtRepay).toString();
+
     const _effectiveAPR = _getEffectiveAPR(
       borrowInput,
       amountRepaid,
@@ -94,12 +91,14 @@ const Calculator = ({ initialBorrow }: ICalculator) => {
       new Date(repayDateInput)
     );
     const formattedAPR = (_effectiveAPR * 100).toString();
-
     setEffectiveAPR(formattedAPR);
+
     setInitialRepayAmount(fyTokensSold.toString());
     setRepayAmount(amountRepaid);
-    setInitialInterestOwed((fyTokensSold - Number(borrowInput)).toString());
-  }, [apr, borrowDateInput, repayDateInput, selectedSeriesMaturity, interestRate, borrowInput, initialBorrow]);
+
+    const _initialInterestOwed = (fyTokensSold - Number(borrowInput)).toString();
+    setInitialInterestOwed(_initialInterestOwed);
+  }, [apr, borrowDateInput, repayDateInput, selectedSeriesMaturity, interestRateInput, borrowInput, initialBorrow]);
 
   return (
     <CenterPanelWrap>
@@ -236,8 +235,8 @@ const Calculator = ({ initialBorrow }: ICalculator) => {
           <Box direction="row">
             <Box direction="row" gap="small" align="center">
               <RangeInput
-                value={interestRate}
-                onChange={(event) => setInterestRate(event.target.value)}
+                value={interestRateInput}
+                onChange={(event) => setInterestRateInput(event.target.value)}
                 min="0"
                 max="10"
                 step={0.01}
@@ -248,8 +247,8 @@ const Calculator = ({ initialBorrow }: ICalculator) => {
                   plain
                   type="number"
                   placeholder="Enter amount"
-                  value={interestRate}
-                  onChange={(event: any) => setInterestRate(cleanValue(event.target.value))}
+                  value={interestRateInput}
+                  onChange={(event: any) => setInterestRateInput(cleanValue(event.target.value))}
                   autoFocus={!mobile}
                 />
               </InputWrap>
