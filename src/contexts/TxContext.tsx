@@ -30,6 +30,7 @@ interface IYieldTx extends ContractTransaction {
   txCode: string;
   receipt: any | null;
   status: TxState;
+  complete?: boolean;
 }
 
 interface IYieldProcess {
@@ -108,6 +109,12 @@ const TxProvider = ({ children }: any) => {
     });
   };
 
+  const _handleTxComplete = (tx: any) => {
+    setTimeout(() => {
+      updateState({ type: 'transactions', payload: { ...tx, complete: true } });
+    }, 3000);
+  };
+
   /* handle case when user or wallet rejects the tx (before submission) */
   const _handleTxRejection = (err: any, txCode: string) => {
     _endProcess(txCode);
@@ -130,7 +137,9 @@ const TxProvider = ({ children }: any) => {
   const _handleTxError = (msg: string, tx: any, txCode: any) => {
     _endProcess(txCode);
     toast.error(msg);
-    updateState({ type: 'transactions', payload: { tx, txCode, receipt: undefined, status: TxState.FAILED } });
+    const _tx = { tx, txCode, receipt: undefined, status: TxState.FAILED };
+    updateState({ type: 'transactions', payload: _tx });
+    _handleTxComplete(_tx);
     console.log('txHash: ', tx?.hash);
     console.log('txCode: ', txCode);
   };
@@ -164,10 +173,12 @@ const TxProvider = ({ children }: any) => {
 
       res = await tx.wait();
       const txSuccess: boolean = res.status === 1 || false;
+      const _tx = { tx, txCode, receipt: res, status: txSuccess ? TxState.SUCCESSFUL : TxState.FAILED };
       updateState({
         type: 'transactions',
-        payload: { tx, txCode, receipt: res, status: txSuccess ? TxState.SUCCESSFUL : TxState.FAILED },
+        payload: _tx,
       });
+      _handleTxComplete(_tx);
 
       /* if the handleTx is NOT a fallback tx (from signing) - then end the process */
       if (_isfallback === false) {
