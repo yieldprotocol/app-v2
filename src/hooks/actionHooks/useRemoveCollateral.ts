@@ -1,20 +1,18 @@
 import { BigNumber, ethers } from 'ethers';
-import { useContext, useEffect, useState } from 'react';
+import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, IVault, SignType, ISeries, ActionCodes, IUserContext, LadleActions } from '../../types';
-import { getTxCode, cleanValue } from '../../utils/appUtils';
-import { DAI_BASED_ASSETS, ETH_BASED_ASSETS } from '../../utils/constants';
+import { ICallData, IVault, ISeries, ActionCodes, LadleActions } from '../../types';
+import { getTxCode } from '../../utils/appUtils';
+import { ETH_BASED_ASSETS } from '../../utils/constants';
 import { useChain } from '../useChain';
-
-import { calculateCollateralizationRatio, calculateMinCollateral } from '../../utils/yieldMath';
 
 export const useRemoveCollateral = () => {
   const {
     chainState: { account, contractMap },
   } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
-  const { selectedBaseId, selectedIlkId, selectedSeriesId, seriesMap, assetMap } = userState;
+  const { selectedIlkId, seriesMap, assetMap } = userState;
   const { updateAssets, updateVaults } = userActions;
 
   const { sign, transact } = useChain();

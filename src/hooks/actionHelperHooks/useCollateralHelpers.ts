@@ -22,11 +22,8 @@ export const useCollateralHelpers = (
     userActions: { updatePrice },
   } = useContext(UserContext);
 
-  const selectedIlk = assetMap.get(selectedIlkId!);
-
   // const base = assetMap.get(selectedBaseId);
   const ilk = assetMap.get(selectedIlkId);
-
 
   /* LOCAL STATE */
   const [collateralizationRatio, setCollateralizationRatio] = useState<string | undefined>();
@@ -47,7 +44,7 @@ export const useCollateralHelpers = (
       setOraclePrice(priceMap.get(selectedIlkId).get(selectedBaseId));
     } else {
       (async () => {
-        selectedBaseId && selectedIlkId && setOraclePrice(await updatePrice(selectedIlkId, selectedBaseId));
+        selectedBaseId && selectedIlkId && setOraclePrice(await updatePrice(selectedBaseId, selectedIlkId));
       })();
     }
   }, [priceMap, selectedBaseId, selectedIlkId, updatePrice]);
@@ -57,10 +54,11 @@ export const useCollateralHelpers = (
   useEffect(() => {
     activeAccount &&
       (async () => {
-        const _max = await selectedIlk?.getBalance(activeAccount);
-        _max && setMaxCollateral(ethers.utils.formatUnits(_max, selectedIlk.decimals)?.toString());
+        const _max = await ilk?.getBalance(activeAccount);
+        _max && setMaxCollateral(ethers.utils.formatUnits(_max, ilk.decimals)?.toString());
       })();
-  }, [activeAccount, selectedIlk, setMaxCollateral]);
+  }, [activeAccount, ilk, setMaxCollateral]);
+
 
  /* handle changes to input values */ 
   useEffect(() => {
@@ -87,17 +85,10 @@ export const useCollateralHelpers = (
       setCollateralizationPercent(cleanValue('0.0', 2));
     }
 
-    /* check for undercollateralisation */
-    if (collateralizationPercent && parseFloat(collateralizationPercent) <= 150) {
-      setUndercollateralized(true);
-    } else {
-      setUndercollateralized(false);
-    }
-
     /* check minimum collateral required base on debt */
     if (oraclePrice?.gt(ethers.constants.Zero)) {
-      const min = calculateMinCollateral(oraclePrice, totalDebt, '1.5', existingCollateralAsWei);
-      setMinCollateral(min.toString());
+      const min = calculateMinCollateral(oraclePrice, totalDebt, '1.5', existingCollateralAsWei );
+      setMinCollateral(ethers.utils.formatUnits(min, ilk.decimals)?.toString());
     } else {
       setMinCollateral('0');
     }
@@ -109,7 +100,12 @@ export const useCollateralHelpers = (
     } else {
       setMaxRemove(ethers.constants.Zero);
     }
-  }, [collInput, collateralizationPercent, debtInput, oraclePrice, vault]);
+  }, [collInput, debtInput, ilk?.decimals, oraclePrice, vault, collateralizationRatio]);
+
+  useEffect(()=>{
+    // parseFloat(collateralizationRatio!) >= 1.5 ?  console.log('fine'):  console.log('under')
+    parseFloat(collateralizationRatio!) >= 1.5 ?  setUndercollateralized(false):  setUndercollateralized(true)
+  }, [collateralizationRatio])
 
   // TODO marco add in collateralisation warning at about 150% - 200% " warning: vulnerable to liquidation"
 

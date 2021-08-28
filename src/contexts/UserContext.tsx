@@ -153,7 +153,7 @@ const UserProvider = ({ children }: any) => {
         return {
           id,
           seriesId,
-          baseId: series.baseId,
+          baseId: series?.baseId,
           ilkId,
           image: genVaultImage(id),
           displayName: uniqueNamesGenerator({ seed: parseInt(id.substring(14), 16), ...vaultNameConfig }),
@@ -270,9 +270,7 @@ const UserProvider = ({ children }: any) => {
           ? contractMap.get('ChainlinkMultiOracle')
           : contractMap.get('CompositeMultiOracle');
 
-        const [price] = await Oracle.peek(bytesToBytes32(ilk, 6), bytesToBytes32(base, 6), ONE_WEI_BN);
-
-        console.log(price.toString());
+        const [ price ] = await Oracle.peek(bytesToBytes32(ilk, 6), bytesToBytes32(base, 6), ONE_WEI_BN);
 
         _ilkPriceMap.set(base, price);
         _priceMap.set(ilk, _ilkPriceMap);
@@ -282,6 +280,7 @@ const UserProvider = ({ children }: any) => {
         updateState({ type: 'pricesLoading', payload: false });
 
         return price;
+
       } catch (error) {
         console.log(error);
         updateState({ type: 'pricesLoading', payload: false });
@@ -301,6 +300,7 @@ const UserProvider = ({ children }: any) => {
       /* Add in the dynamic series data of the series in the list */
       _publicData = await Promise.all(
         seriesList.map(async (series: ISeriesRoot): Promise<ISeries> => {
+
           /* Get all the data simultanenously in a promise.all */
           const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves, mature] = await Promise.all([
             series.poolContract.getBaseBalance(),
