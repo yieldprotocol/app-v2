@@ -491,24 +491,26 @@ export const calculateAPR = (
 /**
  * Calculates the collateralization ratio
  * based on the collat amount and value and debt value.
- * @param { BigNumber | string } collateralAmount  amount of collateral ( in wei)
- * @param { BigNumber | string } collateralPrice price of collateral (in USD)
- * @param { BigNumber | string } debtValue value of base debt (in USD)
+ * @param { BigNumber | string } collateralAmount  amount of collateral (in wei)
+ * @param { BigNumber | string } basePrice bases per unit of collateral (in wei)
+ * @param { BigNumber | string } baseAmount amount base debt (in wei)
  * @param {boolean} asPercent OPTIONAL: flag to return ratio as a percentage
  * @returns { string | undefined }
  */
 export const calculateCollateralizationRatio = (
   collateralAmount: BigNumber | string,
-  collateralPrice: BigNumber | string,
-  debtValue: BigNumber | string,
+  basePrice: BigNumber | string,
+  baseAmount: BigNumber | string,
   asPercent: boolean = false // OPTIONAL:  flag to return as percentage
 ): string | undefined => {
-  if (ethers.BigNumber.isBigNumber(debtValue) ? debtValue.isZero() : debtValue === '0') {
+
+  if (ethers.BigNumber.isBigNumber(baseAmount) ? baseAmount.isZero() : baseAmount === '0') {
     return undefined;
   }
-  const _unitPrice = divDecimal(collateralPrice, '1000000000000000000');
-  const _colVal = mulDecimal(collateralAmount, _unitPrice);
-  const _ratio = divDecimal(_colVal, debtValue);
+
+  const _baseUnitPrice = divDecimal(basePrice, '1000000000000000000'); 
+  const _baseVal = divDecimal(baseAmount, _baseUnitPrice, ); // base/debt value in terms of collateral 
+  const _ratio = divDecimal(collateralAmount, _baseVal); // collateralValue divide by debtValue
 
   if (asPercent) {
     return mulDecimal('100', _ratio);
@@ -519,30 +521,34 @@ export const calculateCollateralizationRatio = (
 /**
  * Calculates the collateralization ratio
  * based on the collat amount and value and debt value.
- * @param { BigNumber | string } collateralUnitPrice price of collateral in base
- * @param { BigNumber | string } debtValue value of base debt (in USD)
+ * @param { BigNumber | string } basePrice bases per unit collateral (in wei)
+ * @param { BigNumber | string } baseAmount amount of bases / debt (in wei)
  * @param {BigNumber | string} liquidationRatio  OPTIONAL: 1.5 (150%) as default
- * @param {BigNumber | string} existingCollateral  OPTIONAL: 0 as default
+ * @param {BigNumber | string} existingCollateral  0 as default (as wei)
+ * @param {Boolean} asBigNumber return as big number? in wei
+ * 
  * @returns { string | undefined }
  */
 export const calculateMinCollateral = (
-  collateralUnitPrice: BigNumber | string,
-  debtValue: BigNumber | string,
+  basePrice: BigNumber | string,
+  baseAmount: BigNumber | string,
   liquidationRatio: string = '1.5', // OPTIONAL: 150% as default
   existingCollateral: BigNumber | string = '0', // OPTIONAL add in 
   asBigNumber: boolean = false,
+
   ): string | BigNumber => {
 
-    const _existing = new Decimal(ethers.utils.formatEther(existingCollateral));
-    const _minCollatValue = mulDecimal(liquidationRatio, debtValue);
-    const _minCollatAmount = new Decimal(divDecimal(_minCollatValue, collateralUnitPrice));
+    const _baseUnitPrice = divDecimal(basePrice, '1000000000000000000');
+    const _baseVal = divDecimal(baseAmount, _baseUnitPrice);
+    const _existingCollateralValue = new Decimal(ethers.utils.formatUnits(existingCollateral, 18)); 
 
-    const requiredCollateral = _existing.gt(_minCollatAmount)  
+    const _minCollatValue = new Decimal ( mulDecimal(_baseVal, liquidationRatio) );
+
+    const requiredCollateral = _existingCollateralValue.gt(_minCollatValue)  
       ? new Decimal('0')
-      :_minCollatAmount.sub(_existing);
+      : _minCollatValue.sub(_existingCollateralValue)
 
-    return asBigNumber? toBn(requiredCollateral) : requiredCollateral.toString()
-
+    return asBigNumber? toBn(requiredCollateral) : requiredCollateral.toFixed(0);
 }
 
 /** 
