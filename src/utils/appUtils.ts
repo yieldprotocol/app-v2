@@ -82,7 +82,7 @@ export const getSeason = (dateInSecs: number): SeasonType => {
 };
 
 /* Trunctate a string value to a certain number of 'decimal' point */
-export const cleanValue = (input: string | undefined, decimals: number = 12) => {
+export const cleanValue = (input: string | undefined, decimals: number = 18) => {
   const re = new RegExp(`(\\d+\\.\\d{${decimals}})(\\d)`);
   if (input !== undefined ) {
     const inpu = input?.match(re); // inpu = truncated 'input'... get it?
