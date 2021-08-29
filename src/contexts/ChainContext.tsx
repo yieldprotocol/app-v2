@@ -421,18 +421,22 @@ const ChainProvider = ({ children }: any) => {
         await Promise.all(
           strategies.map(async (stratAddr: string) => {
             const Strategy = contracts.Strategy__factory.connect(stratAddr, fallbackLibrary);
-            const [name, symbol] = await Promise.all([
+            const [name, symbol, baseId, currentSeries] = await Promise.all([
               Strategy.name(),
               Strategy.symbol(),
+              Strategy.baseId(),
+              Strategy.seriesId(),
               // ETH_BASED_ASSETS.includes(id) ? '1' : await ERC20.version()
             ]);
             console.log(name, symbol);
             updateState({
               type: 'addStrategy',
-              payload: { address: stratAddr, symbol, name, strategyContract: Strategy },
+              payload: { address: stratAddr, symbol, name, baseId, currentSeries, strategyContract: Strategy },
             });
           })
         );
+        console.log('Yield Protocol strategies data updated')
+
       };
 
       /* LOAD the Series and Assets */

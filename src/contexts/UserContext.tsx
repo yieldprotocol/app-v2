@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useReducer, useCallback, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { BigNumber, ethers } from 'ethers';
+import { ethers } from 'ethers';
 
 import { uniqueNamesGenerator, Config, adjectives, animals } from 'unique-names-generator';
 
@@ -14,6 +14,8 @@ import {
   IUserContextState,
   IUserContext,
   ApprovalType,
+  IStrategyRoot,
+  IStrategy,
 } from '../types';
 
 import { ChainContext } from './ChainContext';
@@ -33,6 +35,7 @@ const initState: IUserContextState = {
   assetMap: new Map<string, IAsset>(),
   seriesMap: new Map<string, ISeries>(),
   vaultMap: new Map<string, IVault>(),
+  strategyMap: new Map<string, IStrategy>(),
 
   /* map of asset prices */
   priceMap: new Map<string, Map<string, any>>(),
@@ -119,7 +122,14 @@ const UserProvider = ({ children }: any) => {
   /* STATE FROM CONTEXT */
   // TODO const [cachedVaults, setCachedVaults] = useCachedState('vaults', { data: [], lastBlock: Number(process.env.REACT_APP_DEPLOY_BLOCK) });
   const { chainState } = useContext(ChainContext);
-  const { contractMap, account, chainLoading, seriesRootMap, assetRootMap } = chainState;
+  const { 
+      contractMap, 
+      account, 
+      chainLoading, 
+      seriesRootMap, 
+      assetRootMap, 
+      strategyRootMap 
+  } = chainState;
 
   const [userState, updateState] = useReducer(userReducer, initState);
 
@@ -270,7 +280,7 @@ const UserProvider = ({ children }: any) => {
           ? contractMap.get('ChainlinkMultiOracle')
           : contractMap.get('CompositeMultiOracle');
 
-        const [ price ] = await Oracle.peek(bytesToBytes32(ilk, 6), bytesToBytes32(base, 6), ONE_WEI_BN);
+        const [price] = await Oracle.peek(bytesToBytes32(ilk, 6), bytesToBytes32(base, 6), ONE_WEI_BN);
 
         _ilkPriceMap.set(base, price);
         _priceMap.set(ilk, _ilkPriceMap);
@@ -280,7 +290,6 @@ const UserProvider = ({ children }: any) => {
         updateState({ type: 'pricesLoading', payload: false });
 
         return price;
-
       } catch (error) {
         console.log(error);
         updateState({ type: 'pricesLoading', payload: false });
@@ -300,7 +309,6 @@ const UserProvider = ({ children }: any) => {
       /* Add in the dynamic series data of the series in the list */
       _publicData = await Promise.all(
         seriesList.map(async (series: ISeriesRoot): Promise<ISeries> => {
-
           /* Get all the data simultanenously in a promise.all */
           const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves, mature] = await Promise.all([
             series.poolContract.getBaseBalance(),
@@ -436,13 +444,25 @@ const UserProvider = ({ children }: any) => {
     [contractMap, vaultFromUrl, _getVaults]
   );
 
+  /* Updates the assets with relevant *user* data */
+  const updateStrategies = useCallback(
+
+    async (strategyList: IStrategyRoot[]) => {
+
+      console.log('STRat:List: ', strategyList);
+ 
+    },
+    []
+  );
+
   useEffect(() => {
     /* When the chainContext is finished loading get the dynamic series and asset data */
     if (!chainLoading) {
-      Array.from(seriesRootMap.values()).length && updateSeries(Array.from(seriesRootMap.values()));
-      Array.from(assetRootMap.values()).length && updateAssets(Array.from(assetRootMap.values()));
+      seriesRootMap.size && updateSeries(Array.from(seriesRootMap.values()));
+      assetRootMap.size && updateAssets(Array.from(assetRootMap.values()));
+      strategyRootMap.size && updateAssets(Array.from(strategyRootMap.values()));
     }
-  }, [account, chainLoading, assetRootMap, updateAssets, seriesRootMap, updateSeries]);
+  }, [account, chainLoading, assetRootMap, seriesRootMap, strategyRootMap, updateSeries, updateAssets]);
 
   useEffect(() => {
     /* When the chainContext is finished loading get the users vault data */
@@ -475,6 +495,7 @@ const UserProvider = ({ children }: any) => {
     updateSeries,
     updateAssets,
     updateVaults,
+    updateStrategies,
 
     updatePrice,
 
