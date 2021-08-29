@@ -30,12 +30,12 @@ const markMap = new Map([
   ['USDC', <USDCMark key="usdc" />],
   ['WBTC', <WBTCMark key="wbtc" />],
   ['TST', <TSTMark key="tst" />],
-  ['WETH', <EthMark key="eth" />],
+  ['ETH', <EthMark key="eth" />],
   ['USDT', <USDTMark key="eth" />],
 ]);
 
 const assetDigitFormatMap = new Map([
-  ['WETH', 6],
+  ['ETH', 6],
   ['WBTC', 6],
   ['DAI', 2],
   ['USDC', 2],
@@ -288,7 +288,7 @@ const ChainProvider = ({ children }: any) => {
               id,
               address,
               name,
-              symbol,
+              symbol: symbol!=='WETH' ? symbol: 'ETH',
               decimals,
               version,
               joinAddress: joinMap.get(id),

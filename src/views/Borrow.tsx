@@ -211,7 +211,7 @@ const Borrow = () => {
                             <Box pad='xsmall' direction='row' gap='small' align='center' animation='zoomIn'>
                               <FiInfo />
                               <Text size='xsmall'>
-                                Collateral required: <Text size='small'>{cleanValue(minCollateral, 4)} ETH</Text> (or equivalent)
+                                Collateral required: <Text size='small'>{cleanValue(minCollateral, 4)} {selectedIlk?.symbol}</Text> (or equivalent)
                               </Text>
                             </Box>
                           }
