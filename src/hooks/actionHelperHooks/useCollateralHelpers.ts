@@ -15,9 +15,9 @@ export const useCollateralHelpers = (
   collInput: string | undefined,
   vault: IVault | undefined
 ) => {
+
   /* STATE FROM CONTEXT */
   const {
-
     userState: { activeAccount, selectedBaseId, selectedIlkId, assetMap, priceMap },
     userActions: { updatePrice },
   } = useContext(UserContext);
@@ -31,7 +31,7 @@ export const useCollateralHelpers = (
   const [undercollateralized, setUndercollateralized] = useState<boolean>(true);
   const [oraclePrice, setOraclePrice] = useState<ethers.BigNumber>(ethers.constants.Zero);
   const [minCollateral, setMinCollateral] = useState<string | undefined>();
-  const [maxRemove, setMaxRemove] = useState<ethers.BigNumber>(ethers.constants.Zero);
+  const [maxRemovableCollateral, setMaxRemovableCollateral] = useState<string| undefined>();
   const [maxCollateral, setMaxCollateral] = useState<string | undefined>();
 
   // todo:
@@ -50,7 +50,7 @@ export const useCollateralHelpers = (
   }, [priceMap, selectedBaseId, selectedIlkId, updatePrice]);
 
 
-/* CHECK collateral selection and sets the max available collateral */
+/* CHECK collateral selection and sets the max available collateral a user can add */
   useEffect(() => {
     activeAccount &&
       (async () => {
@@ -58,6 +58,11 @@ export const useCollateralHelpers = (
         _max && setMaxCollateral(ethers.utils.formatUnits(_max, ilk.decimals)?.toString());
       })();
   }, [activeAccount, ilk, setMaxCollateral]);
+
+
+/* */
+
+
 
 
  /* handle changes to input values */ 
@@ -68,8 +73,8 @@ export const useCollateralHelpers = (
     const existingDebt_ = vault?.art || ethers.constants.Zero;
     const existingDebtAsWei = bnToDecimal18(existingDebt_, ilk?.decimals)
 
-    const dInput = debtInput ? ethers.utils.parseUnits(debtInput) : ethers.constants.Zero;
-    const cInput = collInput ? ethers.utils.parseUnits(collInput) : ethers.constants.Zero;
+    const dInput = debtInput ? ethers.utils.parseUnits(debtInput, 18) : ethers.constants.Zero;
+    const cInput = collInput ? ethers.utils.parseUnits(collInput, 18) : ethers.constants.Zero;
 
     const totalCollateral = existingCollateralAsWei.add(cInput);
     const totalDebt = existingDebtAsWei.add(dInput);
@@ -87,25 +92,38 @@ export const useCollateralHelpers = (
 
     /* check minimum collateral required base on debt */
     if (oraclePrice?.gt(ethers.constants.Zero)) {
-      const min = calculateMinCollateral(oraclePrice, totalDebt, '1.5', existingCollateralAsWei );
+      const min = calculateMinCollateral(oraclePrice, totalDebt, '1.5', existingCollateralAsWei);
       setMinCollateral(ethers.utils.formatUnits(min, ilk.decimals)?.toString());
     } else {
       setMinCollateral('0');
     }
 
-    /* check minimum collateral required base on debt */
+    /* Check max collateral that is removable (based on exisiting debt) */
     if (oraclePrice?.gt(ethers.constants.Zero)) {
-      const min_ = calculateMinCollateral(oraclePrice, totalDebt, '1.5', existingCollateralAsWei, true);
-      setMaxRemove(existingCollateralAsWei.sub(min_));
+
+      console.log(oraclePrice.toString(), totalDebt.toString(), '1.5', existingCollateralAsWei.toString() )
+      const _min = calculateMinCollateral(oraclePrice, totalDebt, '1.5', existingCollateralAsWei);
+      const _max = existingCollateralAsWei.sub(_min);
+
+      console.log('MIN', _min.toString())
+      
+      console.log('MAX', ethers.utils.formatUnits(_max, ilk.decimals)?.toString())
+
+      setMaxRemovableCollateral( ethers.utils.formatUnits(_max, ilk.decimals)?.toString() );
+
     } else {
-      setMaxRemove(ethers.constants.Zero);
+
+      setMaxRemovableCollateral('0');
     }
   }, [collInput, debtInput, ilk?.decimals, oraclePrice, vault, collateralizationRatio]);
 
+
+  /* Monitor for undercollaterization */
   useEffect(()=>{
-    // parseFloat(collateralizationRatio!) >= 1.5 ?  console.log('fine'):  console.log('under')
     parseFloat(collateralizationRatio!) >= 1.5 ?  setUndercollateralized(false):  setUndercollateralized(true)
   }, [collateralizationRatio])
+
+
 
   // TODO marco add in collateralisation warning at about 150% - 200% " warning: vulnerable to liquidation"
 
@@ -117,6 +135,6 @@ export const useCollateralHelpers = (
     undercollateralized,
     minCollateral,
     maxCollateral,
-    maxRemove,
+    maxRemovableCollateral,
   };
 };

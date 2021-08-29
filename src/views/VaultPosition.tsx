@@ -119,16 +119,16 @@ const VaultPosition = ({ close }: { close: () => void }) => {
   const { addCollateral } = useAddCollateral();
   const { removeCollateral } = useRemoveCollateral();
 
-  const { maxCollateral, collateralizationPercent, maxRemove } = useCollateralHelpers(
-    selectedVault?.art.toString(),
-    selectedVault?.ink.toString(),
+  const { maxCollateral, collateralizationPercent, maxRemovableCollateral, minCollateral } = useCollateralHelpers('0','0',selectedVault);
+
+  const { maxRepayOrRoll, minRepayOrRoll } = useBorrowHelpers(
+    repayInput, 
+    collatInput, 
     selectedVault
   );
 
-  const { maxRepayOrRoll, minRepayOrRoll } = useBorrowHelpers(repayInput, collatInput, selectedVault);
-
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries, [
-    minRepayOrRoll,
+    0,
     maxRepayOrRoll,
   ]);
 
@@ -141,7 +141,7 @@ const VaultPosition = ({ close }: { close: () => void }) => {
     removeCollatInput,
     ActionCodes.REMOVE_COLLATERAL,
     vaultSeries,
-    [0, ethers.utils.formatEther(maxRemove)]
+    [0, maxRemovableCollateral]
   );
   const { inputError: transferError } = useInputValidation(
     transferToAddressInput,
@@ -463,7 +463,7 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                 {actionActive.index === 2 && (
                   <>
                     {stepPosition[actionActive.index] === 0 && (
-                      <Box margin={{ top: 'medium' }} gap="medium">
+                      <Box margin={{ top: 'medium' }} >
                         <InputWrap action={() => console.log('maxAction')} isError={addCollatError}>
                           <TextInput
                             disabled={removeCollatInput}
@@ -493,10 +493,10 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                           />
                           <MaxButton
                             disabled={!!addCollatInput}
-                            action={() => setRemoveCollatInput(ethers.utils.formatEther(maxRemove))}
+                            action={() => setRemoveCollatInput(maxRemovableCollateral)}
                             clearAction={() => setRemoveCollatInput('')}
                             showingMax={
-                              !!removeCollatInput && ethers.utils.formatEther(maxRemove) === removeCollatInput
+                              !!removeCollatInput && maxRemovableCollateral === removeCollatInput
                             }
                           />
                         </InputWrap>
