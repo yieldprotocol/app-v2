@@ -43,7 +43,7 @@ const DashboardPositionSummary = ({ debt, collateral, lendBalance, poolBalance, 
         </Box>
       </Box>
       <Collapsible open={open}>
-        <ListWrap pad={{ vertical:'medium', horizontal:'large' }} >{children}</ListWrap>
+        <ListWrap pad={{ vertical:'medium', horizontal:'medium' }} >{children}</ListWrap>
       </Collapsible>
     </Box>
   );
