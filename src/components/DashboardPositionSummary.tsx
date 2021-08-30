@@ -31,7 +31,7 @@ const DashboardPositionSummary = ({ debt, collateral, lendBalance, poolBalance, 
         </Box>
       </Box>
       <Box onClick={() => setOpen(!open)} direction="row" justify="between" round="xsmall" pad="small">
-        <Text size="small">{open ? 'All Positions' : 'View All Positions'}</Text>
+        <Text size="small">{open ? 'Select Position' : 'View All Positions'}</Text>
         <Box justify="center">
           {open ? (
             <Box color="tailwind-blue">
