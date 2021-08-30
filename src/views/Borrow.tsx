@@ -72,11 +72,8 @@ const Borrow = () => {
   const borrow = useBorrow();
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
 
-  const { collateralizationPercent, undercollateralized, minCollateral, maxCollateral } = useCollateralHelpers(
-    borrowInput,
-    collatInput,
-    vaultToUse
-  );
+  const { collateralizationPercent, undercollateralized, minCollateral, minSafeCollateral, maxCollateral } =
+    useCollateralHelpers(borrowInput, collatInput, vaultToUse);
 
   const { maxAllowedBorrow, minAllowedBorrow } = useBorrowHelpers(borrowInput, collatInput, vaultToUse);
 
@@ -207,13 +204,17 @@ const Borrow = () => {
                           action={() => console.log('maxAction')}
                           isError={borrowInputError}
                           message={
-                            borrowInput && 
-                            <Box pad='xsmall' direction='row' gap='small' align='center' animation='zoomIn'>
-                              <FiInfo />
-                              <Text size='xsmall'>
-                                <Text size='small'>{cleanValue(minCollateral, 4)} {selectedIlk?.symbol}</Text> collateral required (or eqivalent)
-                              </Text>
-                            </Box>
+                            borrowInput && (
+                              <Box pad="xsmall" direction="row" gap="small" align="center" animation="zoomIn">
+                                <FiInfo />
+                                <Text size="xsmall">
+                                  <Text size="small">
+                                    {cleanValue(minCollateral, 4)} {selectedIlk?.symbol}
+                                  </Text>{' '}
+                                  collateral required (or eqivalent)
+                                </Text>
+                              </Box>
+                            )
                           }
                         >
                           <TextInput
@@ -285,6 +286,27 @@ const Borrow = () => {
                           action={() => console.log('maxAction')}
                           disabled={!selectedSeries}
                           isError={collatInputError}
+                          message={
+                            borrowInput && (
+                              <Box
+                                pad="xsmall"
+                                direction="row"
+                                gap="small"
+                                align="center"
+                                animation="zoomIn"
+                                onClick={() => setCollatInput(cleanValue(minSafeCollateral, 12))}
+                              >
+                                <FiInfo />
+                                <Text size="xsmall">
+                                  A safe minimum of{' '}
+                                  <Text size="small">
+                                    {cleanValue(minSafeCollateral, 4)} {selectedIlk?.symbol}
+                                  </Text>{' '}
+                                  collateral is reccommended.
+                                </Text>
+                              </Box>
+                            )
+                          }
                         >
                           <TextInput
                             plain
@@ -305,15 +327,16 @@ const Borrow = () => {
                       </Box>
                       <Box basis={mobile ? undefined : '40%'}>
                         <AssetSelector selectCollateral />
-                        <AddTokenToMetamask
+                        {/* <AddTokenToMetamask
                           address={selectedIlk?.address}
                           symbol={selectedIlk?.symbol}
                           decimals={18}
                           image=""
-                        />
+                        /> */}
                       </Box>
                     </Box>
                   </SectionWrap>
+
                   {matchingVaults.length > 0 && (
                     <SectionWrap title="Add to an exisiting vault" disabled={matchingVaults.length < 1}>
                       <VaultDropSelector

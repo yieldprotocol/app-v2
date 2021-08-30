@@ -541,13 +541,10 @@ export const calculateMinCollateral = (
     const _baseUnitPrice = divDecimal(basePrice, '1000000000000000000');
     const _baseVal = divDecimal(baseAmount, _baseUnitPrice);
     const _existingCollateralValue = new Decimal(ethers.utils.formatUnits(existingCollateral, 18)); 
-
     const _minCollatValue = new Decimal ( mulDecimal(_baseVal, liquidationRatio) );
-
     const requiredCollateral = _existingCollateralValue.gt(_minCollatValue)  
       ? new Decimal('0')
-      : _minCollatValue.sub(_existingCollateralValue)
-
+      : _minCollatValue.sub(_existingCollateralValue).add('1') // hmm, i had to add one check
     return asBigNumber? toBn(requiredCollateral) : requiredCollateral.toFixed(0);
 }
 

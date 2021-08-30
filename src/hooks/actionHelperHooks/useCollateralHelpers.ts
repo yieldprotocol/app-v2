@@ -31,6 +31,7 @@ export const useCollateralHelpers = (
   const [undercollateralized, setUndercollateralized] = useState<boolean>(true);
   const [oraclePrice, setOraclePrice] = useState<ethers.BigNumber>(ethers.constants.Zero);
   const [minCollateral, setMinCollateral] = useState<string | undefined>();
+  const [minSafeCollateral, setMinSafeCollateral] = useState<string | undefined>();
   const [maxRemovableCollateral, setMaxRemovableCollateral] = useState<string| undefined>();
   const [maxCollateral, setMaxCollateral] = useState<string | undefined>();
 
@@ -93,7 +94,10 @@ export const useCollateralHelpers = (
     /* check minimum collateral required base on debt */
     if (oraclePrice?.gt(ethers.constants.Zero)) {
       const min = calculateMinCollateral(oraclePrice, totalDebt, '1.5', existingCollateralAsWei);
+      const minSafe = calculateMinCollateral(oraclePrice, totalDebt, '2.5', existingCollateralAsWei);
+
       setMinCollateral(ethers.utils.formatUnits(min, ilk.decimals)?.toString());
+      setMinSafeCollateral(ethers.utils.formatUnits(minSafe, ilk.decimals)?.toString())
     } else {
       setMinCollateral('0');
     }
@@ -134,6 +138,7 @@ export const useCollateralHelpers = (
     collateralizationWarning,
     undercollateralized,
     minCollateral,
+    minSafeCollateral,
     maxCollateral,
     maxRemovableCollateral,
   };
