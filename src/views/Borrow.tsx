@@ -211,7 +211,7 @@ const Borrow = () => {
                             <Box pad='xsmall' direction='row' gap='small' align='center' animation='zoomIn'>
                               <FiInfo />
                               <Text size='xsmall'>
-                                Collateral required: <Text size='small'>{cleanValue(minCollateral, 4)} {selectedIlk?.symbol}</Text> (or equivalent)
+                                <Text size='small'>{cleanValue(minCollateral, 4)} {selectedIlk?.symbol}</Text> collateral required (or eqivalent)
                               </Text>
                             </Box>
                           }
@@ -236,22 +236,7 @@ const Borrow = () => {
                         /> */}
                       </Box>
                     </Box>
-
-                    {/* {borrowInput && (
-                      <Box pad="xsmall" round="xsmall">
-                        <Text size="xsmall">
-                          {`Requires ${cleanValue(minCollateral, 4)}ETH (or equivalent) collateral`}
-                        </Text>
-                      </Box>
-                    )} */}
                   </SectionWrap>
-
-                  {/* <SectionWrap>
-                    {borrowInput &&
-                   <Box pad='small' border round='xsmall'> 
-                     <Text size='xsmall'>{ `Requires ${cleanValue(minCollateral,4)}ETH (or equivalent) collateral`} </Text>
-                    </Box>}
-                  </SectionWrap> */}
 
                   <SectionWrap
                     title={

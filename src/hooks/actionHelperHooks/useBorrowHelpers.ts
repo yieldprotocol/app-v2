@@ -61,10 +61,6 @@ export const useBorrowHelpers = (
     }, [activeAccount, input, vault, vaultBase?.decimals]);
 
 
-
-
-
-
   return {
     minAllowedBorrow,
     maxAllowedBorrow,

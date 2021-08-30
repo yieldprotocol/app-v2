@@ -196,7 +196,7 @@ function Pool() {
                           name="strategy"
                           options={[
                             { label: <Text size="small"> Buy & pool</Text>, value: 'BUY' },
-                            { label: <Text size="small"> Borrow & Pool </Text>, value: 'BORROW' },
+                            { label: <Text size="small"> Borrow & Pool </Text>, value: 'BORROW', disabled:true },
                           ]}
                           value={poolMethod}
                           onChange={(event: any) => setPoolMethod(event.target.value)}

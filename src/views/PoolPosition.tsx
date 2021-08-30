@@ -36,7 +36,6 @@ const PoolPosition = ({ close }: { close: () => void }) => {
   const { id: idFromUrl } = useParams<{ id: string }>();
 
   /* STATE FROM CONTEXT */
-
   const { userState } = useContext(UserContext) as IUserContext;
   const { activeAccount, selectedSeriesId, seriesMap, assetMap, seriesLoading } = userState;
 
