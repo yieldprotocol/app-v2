@@ -86,7 +86,7 @@ function Pool() {
       /* Checks asset selection and sets the max available value */
       (async () => {
         const max = await selectedBase?.getBalance(activeAccount);
-        if (max) setMaxPool(ethers.utils.formatEther(max).toString());
+        if (max) setMaxPool(ethers.utils.formatUnits(max, selectedSeries?.decimals).toString());
       })();
     }
   }, [activeAccount, poolInput, selectedBase, setMaxPool]);
@@ -194,7 +194,7 @@ function Pool() {
                           name="strategy"
                           options={[
                             { label: <Text size="small"> Buy & pool</Text>, value: 'BUY' },
-                            { label: <Text size="small"> Borrow & Pool </Text>, value: 'BORROW' },
+                            { label: <Text size="small"> Borrow & Pool </Text>, value: 'BORROW', disabled:true },
                           ]}
                           value={poolMethod}
                           onChange={(event: any) => setPoolMethod(event.target.value)}

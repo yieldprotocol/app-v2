@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useReducer, useCallback, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { BigNumber, ethers } from 'ethers';
+import { ethers } from 'ethers';
 
 import { uniqueNamesGenerator, Config, adjectives, animals } from 'unique-names-generator';
 
@@ -14,6 +14,8 @@ import {
   IUserContextState,
   IUserContext,
   ApprovalType,
+  IStrategyRoot,
+  IStrategy,
 } from '../types';
 
 import { ChainContext } from './ChainContext';
@@ -33,6 +35,7 @@ const initState: IUserContextState = {
   assetMap: new Map<string, IAsset>(),
   seriesMap: new Map<string, ISeries>(),
   vaultMap: new Map<string, IVault>(),
+  strategyMap: new Map<string, IStrategy>(),
 
   /* map of asset prices */
   priceMap: new Map<string, Map<string, any>>(),
@@ -119,7 +122,14 @@ const UserProvider = ({ children }: any) => {
   /* STATE FROM CONTEXT */
   // TODO const [cachedVaults, setCachedVaults] = useCachedState('vaults', { data: [], lastBlock: Number(process.env.REACT_APP_DEPLOY_BLOCK) });
   const { chainState } = useContext(ChainContext);
-  const { contractMap, account, chainLoading, seriesRootMap, assetRootMap } = chainState;
+  const { 
+      contractMap, 
+      account, 
+      chainLoading, 
+      seriesRootMap, 
+      assetRootMap, 
+      strategyRootMap 
+  } = chainState;
 
   const [userState, updateState] = useReducer(userReducer, initState);
 
@@ -153,10 +163,11 @@ const UserProvider = ({ children }: any) => {
         return {
           id,
           seriesId,
-          baseId: series.baseId,
+          baseId: series?.baseId,
           ilkId,
           image: genVaultImage(id),
           displayName: uniqueNamesGenerator({ seed: parseInt(id.substring(14), 16), ...vaultNameConfig }),
+          decimals : series.decimals,
         };
       });
 
@@ -172,6 +183,7 @@ const UserProvider = ({ children }: any) => {
             ilkId,
             image: genVaultImage(id),
             displayName: uniqueNamesGenerator({ seed: parseInt(id.substring(14), 16), ...vaultNameConfig }), // TODO Marco move uniquNames generator into utils
+            decimals : series.decimals,
           };
         })
       );
@@ -228,8 +240,8 @@ const UserProvider = ({ children }: any) => {
                 hasJoinAuth: joinAllowance.gt(ethers.constants.Zero),
                 balance: balance || ethers.constants.Zero,
                 balance_: balance
-                  ? cleanValue(ethers.utils.formatEther(balance), 2)
-                  : cleanValue(ethers.utils.formatEther(ethers.constants.Zero)), // for display purposes only
+                  ? cleanValue(ethers.utils.formatUnits(balance, asset.decimals), 2)
+                  : cleanValue(ethers.utils.formatUnits(ethers.constants.Zero, asset.decimals)), // for display purposes only
               };
             })
           );
@@ -271,8 +283,6 @@ const UserProvider = ({ children }: any) => {
           : contractMap.get('CompositeMultiOracle');
 
         const [price] = await Oracle.peek(bytesToBytes32(ilk, 6), bytesToBytes32(base, 6), ONE_WEI_BN);
-
-        console.log(price.toString());
 
         _ilkPriceMap.set(base, price);
         _priceMap.set(ilk, _ilkPriceMap);
@@ -328,7 +338,7 @@ const UserProvider = ({ children }: any) => {
             fyTokenReserves,
             fyTokenRealReserves,
             totalSupply,
-            totalSupply_: ethers.utils.formatEther(totalSupply),
+            totalSupply_: ethers.utils.formatUnits(totalSupply,series.decimals),
             apr: `${Number(apr).toFixed(2)}`,
             seriesIsMature: mature,
           };
@@ -349,8 +359,8 @@ const UserProvider = ({ children }: any) => {
               ...series,
               poolTokens,
               fyTokenBalance,
-              poolTokens_: ethers.utils.formatEther(poolTokens),
-              fyTokenBalance_: ethers.utils.formatEther(fyTokenBalance),
+              poolTokens_: ethers.utils.formatUnits(poolTokens, series.decimals),
+              fyTokenBalance_: ethers.utils.formatUnits(fyTokenBalance, series.decimals),
               poolPercent,
             };
           })
@@ -390,7 +400,7 @@ const UserProvider = ({ children }: any) => {
       const vaultListMod = await Promise.all(
         _vaultList.map(async (vault: IVaultRoot): Promise<IVault> => {
           /* update balance and series  ( series - because a vault can have been rolled to another series) */
-          const [{ ink, art }, { owner, seriesId, ilkId }, { min, max }, price] = await Promise.all([
+          const [{ ink, art }, { owner, seriesId, ilkId }, { min: minDebt, max: maxDebt }, price] = await Promise.all([
             await Cauldron.balances(vault.id),
             await Cauldron.vaults(vault.id),
             await Cauldron.debt(vault.baseId, vault.ilkId),
@@ -405,12 +415,12 @@ const UserProvider = ({ children }: any) => {
             ilkId, // in case ilkId has been updated
             ink,
             art,
-            ink_: cleanValue(ethers.utils.formatEther(ink), 2), // for display purposes only
-            art_: cleanValue(ethers.utils.formatEther(art), 2), // for display purposes only
+            ink_: cleanValue(ethers.utils.formatUnits(ink, vault.decimals), 2), // for display purposes only
+            art_: cleanValue(ethers.utils.formatUnits(art, vault.decimals), 2), // for display purposes only
             price,
-            price_: cleanValue(ethers.utils.formatEther(price), 2),
-            min,
-            max,
+            price_: cleanValue(ethers.utils.formatUnits(price, 18), 2),
+            minDebt,
+            maxDebt,
           };
         })
       );
@@ -436,13 +446,23 @@ const UserProvider = ({ children }: any) => {
     [contractMap, vaultFromUrl, _getVaults]
   );
 
+  /* Updates the assets with relevant *user* data */
+  const updateStrategies = useCallback(
+
+    async (strategyList: IStrategyRoot[]) => {
+      console.log('Strategy:List: ', strategyList);
+    },
+    []
+  );
+
   useEffect(() => {
     /* When the chainContext is finished loading get the dynamic series and asset data */
     if (!chainLoading) {
-      Array.from(seriesRootMap.values()).length && updateSeries(Array.from(seriesRootMap.values()));
-      Array.from(assetRootMap.values()).length && updateAssets(Array.from(assetRootMap.values()));
+      seriesRootMap.size && updateSeries(Array.from(seriesRootMap.values()));
+      assetRootMap.size && updateAssets(Array.from(assetRootMap.values()));
+      strategyRootMap.size && updateStrategies(Array.from(strategyRootMap.values()));
     }
-  }, [account, chainLoading, assetRootMap, updateAssets, seriesRootMap, updateSeries]);
+  }, [account, chainLoading, assetRootMap, seriesRootMap, strategyRootMap, updateSeries, updateAssets]);
 
   useEffect(() => {
     /* When the chainContext is finished loading get the users vault data */
@@ -475,6 +495,7 @@ const UserProvider = ({ children }: any) => {
     updateSeries,
     updateAssets,
     updateVaults,
+    updateStrategies,
 
     updatePrice,
 

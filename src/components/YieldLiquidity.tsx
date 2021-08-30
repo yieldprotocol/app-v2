@@ -40,7 +40,7 @@ function YieldApr({ input }: IYieldApr) {
         seriesMap.forEach((x: ISeries) => {
           if (x.baseId === baseId) total = total.add(x.totalSupply);
         });
-      setTotalLiquidity(ethers.utils.formatEther(total).toString());
+      setTotalLiquidity(ethers.utils.formatUnits(total, selectedBase.decimals).toString());
     }
   }, [seriesMap, selectedBase]);
 

@@ -109,7 +109,7 @@ const HistoryProvider = ({ children }: any) => {
       /* Get all the Liquidity history transactions */
       await Promise.all(
         seriesList.map(async (series: ISeries) => {
-          const { poolContract, id: seriesId } = series;
+          const { poolContract, id: seriesId, decimals } = series;
           // event Liquidity(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens, int256 poolTokens);
           const _liqFilter = poolContract.filters.Liquidity(null, null, account, null, null, null);
           const eventList = await poolContract.queryFilter(_liqFilter, 0);
@@ -133,12 +133,12 @@ const HistoryProvider = ({ children }: any) => {
 
                 /* inferred trade type */
                 histType: type_,
-                primaryInfo: `${cleanValue(ethers.utils.formatEther(poolTokens), 2)} Pool tokens`,
+                primaryInfo: `${cleanValue(ethers.utils.formatUnits(poolTokens, decimals), 2)} Pool tokens`,
 
                 /* Formatted values:  */
-                poolTokens_: ethers.utils.formatEther(poolTokens),
-                fyTokens_: ethers.utils.formatEther(fyTokens),
-                bases_: ethers.utils.formatEther(bases),
+                poolTokens_: ethers.utils.formatUnits(poolTokens, decimals),
+                fyTokens_: ethers.utils.formatUnits(fyTokens, decimals),
+                bases_: ethers.utils.formatUnits(bases, decimals),
                 date_: dateFormat(date),
               };
             })
@@ -160,7 +160,7 @@ const HistoryProvider = ({ children }: any) => {
       /* get all the trade historical transactions */
       await Promise.all(
         seriesList.map(async (series: ISeries) => {
-          const { poolContract, id: seriesId, baseId } = series;
+          const { poolContract, id: seriesId, baseId, decimals } = series;
           const base: IAsset = assetRootMap.get(baseId);
           // event Trade(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens);
           const _filter = poolContract.filters.Trade(null, null, account, null, null);
@@ -188,13 +188,13 @@ const HistoryProvider = ({ children }: any) => {
                 /* inferred trade type */
                 histType: type_,
 
-                primaryInfo: `${cleanValue(ethers.utils.formatEther(bases), 2)} ${base.symbol}`,
+                primaryInfo: `${cleanValue(ethers.utils.formatUnits(bases, decimals), 2)} ${base.symbol}`,
                 secondaryInfo: `x.x% APR`,
 
                 /* Formatted values:  */
                 date_: dateFormat(date),
-                bases_: ethers.utils.formatEther(bases),
-                fyTokens_: ethers.utils.formatEther(fyTokens),
+                bases_: ethers.utils.formatUnits(bases, decimals),
+                fyTokens_: ethers.utils.formatUnits(fyTokens, decimals),
               };
             })
           );
@@ -234,10 +234,10 @@ const HistoryProvider = ({ children }: any) => {
 
         let primaryInfo:string = ''; 
         if (histType ===  ActionCodes.BORROW) primaryInfo = `
-          ${cleanValue(ethers.utils.formatEther(art), 2)} ${base_?.symbol!} @
+          ${cleanValue(ethers.utils.formatUnits(art, ilk.decimals), 2)} ${base_?.symbol!} @
           ${cleanValue( tradeApr, 2 )}%`
-        else if (histType ===  ActionCodes.REPAY) primaryInfo = `${cleanValue(ethers.utils.formatEther(art), 2)} ${base_?.symbol!}`
-        else if (histType ===  ActionCodes.ADD_COLLATERAL || histType === ActionCodes.REMOVE_COLLATERAL) primaryInfo = `${cleanValue(ethers.utils.formatEther(ink), 2)} ${ilk.symbol}`
+        else if (histType ===  ActionCodes.REPAY) primaryInfo = `${cleanValue(ethers.utils.formatUnits(art, ilk.decimals), 2)} ${base_?.symbol!}`
+        else if (histType ===  ActionCodes.ADD_COLLATERAL || histType === ActionCodes.REMOVE_COLLATERAL) primaryInfo = `${cleanValue(ethers.utils.formatUnits(ink, ilk.decimals), 2)} ${ilk.symbol}`
         
         return {
           /* histItem base */
@@ -250,7 +250,7 @@ const HistoryProvider = ({ children }: any) => {
           secondaryInfo:
           ink.gt(ethers.constants.Zero) && 
           histType === ActionCodes.BORROW && 
-          `added (${cleanValue(ethers.utils.formatEther(ink), 2)} ${ilk.symbol} collateral)`,
+          `added (${cleanValue(ethers.utils.formatUnits(ink, ilk.decimals), 2)} ${ilk.symbol} collateral)`,
 
           /* args info */
           ilkId,
@@ -261,10 +261,10 @@ const HistoryProvider = ({ children }: any) => {
 
           /* Formatted values:  */
           date_: dateFormat(date),
-          ink_: ethers.utils.formatEther(ink),
-          art_: ethers.utils.formatEther(art),
-          baseTraded_: ethers.utils.formatEther(baseTraded),
-          fyTokenTraded_: ethers.utils.formatEther(fyTokenTraded),
+          ink_: ethers.utils.formatUnits(ink, ilk.decimals),
+          art_: ethers.utils.formatUnits(art, ilk.decimals),
+          baseTraded_: ethers.utils.formatUnits(baseTraded, ilk.decimals),
+          fyTokenTraded_: ethers.utils.formatUnits(fyTokenTraded, ilk.decimals),
         } as IBaseHistItem;
       })
     );
@@ -308,14 +308,14 @@ const HistoryProvider = ({ children }: any) => {
           transactionHash,
           series,
           histType: ActionCodes.ROLL_DEBT,
-          primaryInfo: `Rolled ${cleanValue(ethers.utils.formatEther(art), 2)} debt to ${toSeries_.displayNameMobile}`,
+          primaryInfo: `Rolled ${cleanValue(ethers.utils.formatUnits(art, toSeries_.decimals), 2)} debt to ${toSeries_.displayNameMobile}`,
           /* args info */
           toSeries,
           art,
 
           /* Formatted values:  */
           date_: dateFormat(date),
-          art_: ethers.utils.formatEther(art),
+          art_: ethers.utils.formatUnits(art, toSeries_.decimals),
         } as IBaseHistItem;
       })
     );

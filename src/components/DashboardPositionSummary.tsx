@@ -20,7 +20,6 @@ const Summary = ({ label, value }: { label: string; value: string }) => (
 
 const DashboardPositionSummary = ({ debt, collateral, lendBalance, poolBalance, children }: IDashSummary) => {
   const [open, setOpen] = useState<boolean>(false);
-
   return (
     <Box>
       <Box direction="row" justify="between" background="tailwind-blue-50" round="xsmall" pad="small">
@@ -44,7 +43,7 @@ const DashboardPositionSummary = ({ debt, collateral, lendBalance, poolBalance, 
         </Box>
       </Box>
       <Collapsible open={open}>
-        <ListWrap pad="small">{children}</ListWrap>
+        <ListWrap pad={{ vertical:'medium', horizontal:'medium' }} >{children}</ListWrap>
       </Collapsible>
     </Box>
   );
