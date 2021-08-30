@@ -25,7 +25,6 @@ import ActiveTransaction from '../components/ActiveTransaction';
 import YieldInfo from '../components/YieldInfo';
 import YieldLiquidity from '../components/YieldLiquidity';
 import BackButton from '../components/buttons/BackButton';
-import YieldMark from '../components/logos/YieldMark';
 import NextButton from '../components/buttons/NextButton';
 import TransactButton from '../components/buttons/TransactButton';
 import { useInputValidation } from '../hooks/useInputValidation';
