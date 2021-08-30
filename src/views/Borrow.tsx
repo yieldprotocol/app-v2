@@ -148,7 +148,6 @@ const Borrow = () => {
       // reset the selected vault on every change
       setVaultToUse(undefined);
     }
-    console.log(selectedSeries);
   }, [vaultMap, selectedBase, selectedIlk, selectedSeries]);
 
   /* Reset the selected vault on every Ilk change */
