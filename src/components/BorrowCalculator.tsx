@@ -90,7 +90,7 @@ const Calculator = ({ initialBorrow }: ICalculator) => {
       new Date(borrowDateInput),
       new Date(repayDateInput)
     );
-    const formattedAPR = (_effectiveAPR * 100).toString();
+    const formattedAPR = _effectiveAPR ? (_effectiveAPR * 100).toString() : apr;
     setEffectiveAPR(formattedAPR);
 
     setInitialRepayAmount(fyTokensSold.toString());
@@ -160,56 +160,65 @@ const Calculator = ({ initialBorrow }: ICalculator) => {
       </Box>
 
       <Box round="small" pad="medium" background={{ color: 'rgb(255, 255, 255)' }} gap="small">
-        <Text size="medium" color="tailwind-blue">
-          Want to pay early?
-        </Text>
-        <Box direction="row" justify="between" gap="small" align="center">
-          <Text size="xsmall">Select Repayment Date</Text>
-          <Box>
-            <DateInput format="mm/dd/yyyy" value={repayDateInput} onChange={({ value }) => setRepayDateInput(value)} />
-            {repayDateInputError && (
-              <Text size="small" color="#EF4444">
-                {repayDateInputError}
-              </Text>
-            )}
-          </Box>
-        </Box>
-        <Box direction="row" justify="between" align="center">
-          <Box direction="row" align="center" gap="xsmall">
-            <Text size="xsmall">Interest Rate</Text>
-            <Tip
-              plain
-              content={
-                <Box pad="small" gap="small" width={{ max: 'small' }} background="#374151" round="small">
-                  <Text size="xsmall">interest rate changes will affect how much you pay when paying early</Text>
+        <Box gap="xsmall">
+          <Text size="medium" color="tailwind-blue" alignSelf="start">
+            Want to pay early?
+          </Text>
+
+          <Box direction="row" justify="between">
+            <Box direction="row" gap="xxsmall" align="center">
+              <Text size="xsmall">Select Repayment Date</Text>
+              <Box direction="row" align="center" hoverIndicator={{ background: 'tailwind-blue-50' }}>
+                {repayDateInputError && (
+                  <Text size="small" color="#EF4444">
+                    {repayDateInputError}
+                  </Text>
+                )}
+                <Box onClick={() => null} hoverIndicator={{ color: 'tailwind-blue-50' }} round="xsmall">
+                  <DateInput value={repayDateInput} onChange={({ value }) => setRepayDateInput(value)} />
                 </Box>
-              }
-              dropProps={{ align: { left: 'right' } }}
-            >
-              <Button plain icon={<FiInfo size="1rem" />} />
-            </Tip>
-          </Box>
-          <Box gap="small" align="center" direction="row">
-            <RangeInput
-              value={interestRateInput}
-              onChange={(event) => setInterestRateInput(event.target.value)}
-              min="0"
-              max="10"
-              step={0.1}
-            />
-            <Box width="10rem">
-              <InputWrap action={() => null} isError={null} width="small">
-                <TextInput
-                  size="small"
+              </Box>
+            </Box>
+
+            <Box justify="end" align="center">
+              <Box direction="row" align="center" gap="xsmall">
+                <Text size="xsmall">Interest Rate</Text>
+                <Tip
                   plain
-                  type="number"
-                  placeholder="Enter amount"
-                  value={interestRateInput}
-                  onChange={(event: any) => setInterestRateInput(cleanValue(event.target.value))}
-                  autoFocus={!mobile}
-                />
-                %
-              </InputWrap>
+                  content={
+                    <Box pad="small" gap="small" width={{ max: 'small' }} background="#374151" round="small">
+                      <Text size="xsmall">interest rate changes will affect how much you pay when paying early</Text>
+                    </Box>
+                  }
+                  dropProps={{ align: { left: 'right' } }}
+                >
+                  <Button plain icon={<FiInfo size="1rem" />} />
+                </Tip>
+              </Box>
+
+              <Box gap="small" align="center">
+                <Box width="10rem">
+                  <InputWrap action={() => null} isError={null} width="small">
+                    <TextInput
+                      size="small"
+                      plain
+                      type="number"
+                      placeholder="Enter amount"
+                      value={interestRateInput}
+                      onChange={(event: any) => setInterestRateInput(cleanValue(event.target.value))}
+                      autoFocus={false}
+                    />
+                    %
+                  </InputWrap>
+                  <RangeInput
+                    value={interestRateInput}
+                    onChange={(event) => setInterestRateInput(event.target.value)}
+                    min="0"
+                    max="10"
+                    step={0.1}
+                  />
+                </Box>
+              </Box>
             </Box>
           </Box>
         </Box>
@@ -240,7 +249,7 @@ const Calculator = ({ initialBorrow }: ICalculator) => {
                 </Text>
               </Box>
               <Box gap="xsmall">
-                <Text size="xsmall">Effective Interest Owed</Text>
+                <Text size="xsmall">Effective Interest Rate</Text>
                 <Text size="Large" color={Number(effectiveAPR) <= Number(apr) + 0.01 ? '#10B981' : '#EF4444'}>
                   {cleanValue(effectiveAPR, 2)}%
                 </Text>
