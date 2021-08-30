@@ -336,7 +336,7 @@ const UserProvider = ({ children }: any) => {
             fyTokenReserves,
             fyTokenRealReserves,
             totalSupply,
-            totalSupply_: ethers.utils.formatEther(totalSupply),
+            totalSupply_: ethers.utils.formatUnits(totalSupply,series.decimals),
             apr: `${Number(apr).toFixed(2)}`,
             seriesIsMature: mature,
           };
@@ -357,8 +357,8 @@ const UserProvider = ({ children }: any) => {
               ...series,
               poolTokens,
               fyTokenBalance,
-              poolTokens_: ethers.utils.formatEther(poolTokens),
-              fyTokenBalance_: ethers.utils.formatEther(fyTokenBalance),
+              poolTokens_: ethers.utils.formatUnits(poolTokens, series.decimals),
+              fyTokenBalance_: ethers.utils.formatUnits(fyTokenBalance, series.decimals),
               poolPercent,
             };
           })
@@ -460,7 +460,7 @@ const UserProvider = ({ children }: any) => {
     if (!chainLoading) {
       seriesRootMap.size && updateSeries(Array.from(seriesRootMap.values()));
       assetRootMap.size && updateAssets(Array.from(assetRootMap.values()));
-      strategyRootMap.size && updateAssets(Array.from(strategyRootMap.values()));
+      strategyRootMap.size && updateStrategies(Array.from(strategyRootMap.values()));
     }
   }, [account, chainLoading, assetRootMap, seriesRootMap, strategyRootMap, updateSeries, updateAssets]);
 
