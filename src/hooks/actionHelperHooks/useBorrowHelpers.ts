@@ -42,24 +42,22 @@ export const useBorrowHelpers = (
     }
   }, [activeAccount, vault, vaultBase, input]);
 
-    /* update the min repayable or rollable */
-    useEffect(() => {
-      const inputBn = input ? ethers.utils.parseUnits(input, vaultBase?.decimals) : ethers.constants.Zero;
-      const minDebt = ethers.utils.parseUnits('0.5', vaultBase?.decimals);
+  /* update the min repayable or rollable */
+  useEffect(() => {
+    const inputBn = input ? ethers.utils.parseUnits(input, vaultBase?.decimals) : ethers.constants.Zero;
+    const minDebt = ethers.utils.parseUnits('0.5', vaultBase?.decimals);
 
-      /* CHECK the max available repay */
-      if (activeAccount && vault) {
-        /* if the input if less than the debt, make sure the minRepay is set to the debt less 0.5  - to leave 0.5 in the vault - above dust level */
-        if (inputBn.lt(vault.art!)) {
-          const _min = vault.art.sub(minDebt);
-          setMinRepayOrRoll(ethers.utils.formatUnits(_min, vaultBase?.decimals)?.toString());
-        } else {
-          setMinRepayOrRoll(ethers.constants.Zero.toString());
-        }
+    /* CHECK the max available repay */
+    if (activeAccount && vault?.art) {
+      /* if the input if less than the debt, make sure the minRepay is set to the debt less 0.5  - to leave 0.5 in the vault - above dust level */
+      if (inputBn.lt(vault.art!)) {
+        const _min = vault.art.sub(minDebt);
+        setMinRepayOrRoll(ethers.utils.formatUnits(_min, vaultBase?.decimals)?.toString());
+      } else {
+        setMinRepayOrRoll(ethers.constants.Zero.toString());
       }
-  
-    }, [activeAccount, input, vault, vaultBase?.decimals]);
-
+    }
+  }, [activeAccount, input, vault, vaultBase?.decimals]);
 
   return {
     minAllowedBorrow,
