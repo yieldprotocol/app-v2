@@ -256,7 +256,7 @@ const Borrow = () => {
                   <BackButton action={() => setStepPosition(0)} />
                 </YieldCardHeader>
 
-                <Box gap="medium" height="400px">
+                <Box gap="large" height="400px">
                   <SectionWrap>
                     <Box direction="row" gap="large" margin={{ vertical: 'medium' }}>
                       <Box>
