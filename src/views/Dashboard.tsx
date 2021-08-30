@@ -6,7 +6,7 @@ import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
 import { ActionType, IUserContext, IVault, ISeries } from '../types';
 import YieldInfo from '../components/YieldInfo';
-import DashboardPositions from '../components/DashboardPositions';
+import DashboardPositionList from '../components/DashboardPositionList';
 import DashboardBalanceSummary from '../components/DashboardBalanceSummary';
 import MainViewWrap from '../components/wraps/MainViewWrap';
 import PanelWrap from '../components/wraps/PanelWrap';
@@ -162,7 +162,7 @@ const Dashboard = () => {
               {vaultsLoading ? (
                 <Skeleton width={mobile ? 300 : 500} count={1} height={40} />
               ) : (
-                <DashboardPositions
+                <DashboardPositionList
                   actionType={ActionType.BORROW}
                   positions={vaultPositions}
                   debt={`${currencySettingSymbol}${totalDebt}`}
@@ -175,7 +175,7 @@ const Dashboard = () => {
               {seriesLoading ? (
                 <Skeleton width={mobile ? 300 : 500} count={1} height={40} />
               ) : (
-                <DashboardPositions
+                <DashboardPositionList
                   actionType={ActionType.LEND}
                   positions={lendPositions}
                   lendBalance={`${currencySettingSymbol}${totalLendBalance}`}
@@ -187,7 +187,7 @@ const Dashboard = () => {
               {seriesLoading ? (
                 <Skeleton width={mobile ? 300 : 500} count={1} height={40} />
               ) : (
-                <DashboardPositions
+                <DashboardPositionList
                   actionType={ActionType.POOL}
                   positions={poolPositions}
                   poolBalance={`${currencySettingSymbol}${totalPoolBalance}`}

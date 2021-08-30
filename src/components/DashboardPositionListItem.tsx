@@ -5,7 +5,7 @@ import { UserContext } from '../contexts/UserContext';
 import VaultItem from './VaultItem';
 import PositionItem from './PositionItem';
 
-function DashboardPosition({
+function DashboardPositionListItem({
   seriesOrVault,
   index,
   actionType,
@@ -34,4 +34,4 @@ function DashboardPosition({
   );
 }
 
-export default DashboardPosition;
+export default DashboardPositionListItem;
