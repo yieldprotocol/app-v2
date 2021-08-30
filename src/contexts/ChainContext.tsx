@@ -252,7 +252,7 @@ const ChainProvider = ({ children }: any) => {
           mintTest: async () =>
             contracts.ERC20Mock__factory.connect(asset.address, library?.getSigner()!).mint(
               account!,
-              ethers.utils.parseUnits('100', 18)
+              ethers.utils.parseUnits('100', asset.decimals)
             ),
         };
       };

@@ -416,7 +416,7 @@ const UserProvider = ({ children }: any) => {
             ink,
             art,
             ink_: cleanValue(ethers.utils.formatUnits(ink, vault.decimals), 2), // for display purposes only
-            art_: cleanValue(ethers.utils.formatUnits(art, vault.decimals ), 2), // for display purposes only
+            art_: cleanValue(ethers.utils.formatUnits(art, vault.decimals), 2), // for display purposes only
             price,
             price_: cleanValue(ethers.utils.formatUnits(price, 18), 2),
             minDebt,
@@ -450,9 +450,7 @@ const UserProvider = ({ children }: any) => {
   const updateStrategies = useCallback(
 
     async (strategyList: IStrategyRoot[]) => {
-
-      console.log('STRat:List: ', strategyList);
- 
+      console.log('Strategy:List: ', strategyList);
     },
     []
   );

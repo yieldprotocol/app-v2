@@ -108,11 +108,6 @@ export const useCollateralHelpers = (
       console.log(oraclePrice.toString(), totalDebt.toString(), '1.5', existingCollateralAsWei.toString() )
       const _min = calculateMinCollateral(oraclePrice, totalDebt, '1.5', existingCollateralAsWei);
       const _max = existingCollateralAsWei.sub(_min);
-
-      console.log('MIN', _min.toString())
-      
-      console.log('MAX', ethers.utils.formatUnits(_max, ilk.decimals)?.toString())
-
       setMaxRemovableCollateral( ethers.utils.formatUnits(_max, ilk.decimals)?.toString() );
 
     } else {
@@ -126,8 +121,6 @@ export const useCollateralHelpers = (
   useEffect(()=>{
     parseFloat(collateralizationRatio!) >= 1.5 ?  setUndercollateralized(false):  setUndercollateralized(true)
   }, [collateralizationRatio])
-
-
 
   // TODO marco add in collateralisation warning at about 150% - 200% " warning: vulnerable to liquidation"
 
