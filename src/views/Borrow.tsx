@@ -148,6 +148,7 @@ const Borrow = () => {
       // reset the selected vault on every change
       setVaultToUse(undefined);
     }
+    console.log(selectedSeries);
   }, [vaultMap, selectedBase, selectedIlk, selectedSeries]);
 
   /* Reset the selected vault on every Ilk change */
@@ -155,11 +156,10 @@ const Borrow = () => {
     selectedIlk && setVaultToUse(undefined);
   }, [selectedIlk]);
 
-  // THIS VALUE IS ACTIUALLY JUST the fytoken value:
-  // const borrowOutput = cleanValue(
-  //   (Number(borrowInput) * (1 + Number(apr) / 100)).toString(),
-  //   selectedBase?.digitFormat!
-  // );
+  const borrowOutput = cleanValue(
+    (Number(borrowInput) * (1 + Number(apr) / 100)).toString(),
+    selectedBase?.digitFormat!
+  );
 
   return (
     <Keyboard onEsc={() => setCollatInput('')} onEnter={() => console.log('ENTER smashed')} target="document">
@@ -263,7 +263,7 @@ const Borrow = () => {
                         <Gauge value={parseFloat(collateralizationPercent!)} size={mobile ? '6em' : '8em'} />
                       </Box>
 
-                      <Box align='center'>
+                      <Box align="center">
                         <Text size={mobile ? 'xsmall' : 'medium'} color="text-weak">
                           Collateralization
                         </Text>
@@ -273,9 +273,7 @@ const Borrow = () => {
                             : parseFloat(collateralizationPercent!)}
                           %
                         </Text>
-
                       </Box>
-
                     </Box>
                     {/* <Box
                           pad="xsmall"
@@ -318,7 +316,7 @@ const Borrow = () => {
                                   A safe minimum of{' '}
                                   <Text size="small">
                                     {cleanValue(minSafeCollateral, 4)} {selectedIlk?.symbol}
-                                  </Text>{' '}
+                                  </Text>
                                   collateral is reccommended.
                                 </Text>
                               </Box>
@@ -397,7 +395,7 @@ const Borrow = () => {
                       <InfoBite
                         label="Vault Debt Payable @ Maturity"
                         icon={<FiTrendingUp />}
-                        value={`${selectedSeries?.fyTokenBalance_} ${selectedBase?.symbol}`}
+                        value={`${borrowOutput} ${selectedBase?.symbol}`}
                       />
                       <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
                       <InfoBite
