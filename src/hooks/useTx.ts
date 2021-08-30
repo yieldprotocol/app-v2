@@ -13,6 +13,7 @@ interface ITx {
   rejected: boolean;
   txHash: any;
   processActive: boolean;
+  complete: boolean;
 }
 
 /* useTx hook returns the tx status, and redirects to home after success if shouldRedirect is specified */
@@ -41,6 +42,7 @@ export const useTx = (
     rejected: false,
     txHash: undefined,
     processActive: false,
+    complete: false,
   };
 
   const [tx, setTx] = useState<ITx>(INITIAL_STATE);

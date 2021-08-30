@@ -45,7 +45,6 @@ import AddTokenToMetamask from '../components/AddTokenToMetamask';
 import TransactionWidget from '../components/TransactionWidget';
 import { useBorrowHelpers } from '../hooks/actionHelperHooks/useBorrowHelpers';
 
-
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
@@ -421,8 +420,8 @@ const Borrow = () => {
         </CenterPanelWrap>
 
         <PanelWrap right basis="40%">
-          <Box margin={{ top: '10%' }} height="5rem">
-            <TransactionWidget tx={borrowTx} />
+          <Box margin={{ top: '20%' }} pad="small">
+            <TransactionWidget />
           </Box>
           {/* <StepperText
               position={stepPosition}
