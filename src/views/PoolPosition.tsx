@@ -103,7 +103,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
   useEffect(() => {
     /* Checks the max available to roll or move */
     const max = selectedSeries?.poolTokens;
-    if (max) setMaxRemove(ethers.utils.formatEther(max).toString());
+    if (max) setMaxRemove(ethers.utils.formatUnits(max, selectedSeries?.decimals).toString());
   }, [rollInput, selectedSeries, setMaxRemove]);
 
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */

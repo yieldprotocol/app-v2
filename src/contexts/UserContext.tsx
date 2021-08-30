@@ -167,6 +167,7 @@ const UserProvider = ({ children }: any) => {
           ilkId,
           image: genVaultImage(id),
           displayName: uniqueNamesGenerator({ seed: parseInt(id.substring(14), 16), ...vaultNameConfig }),
+          decimals : series.decimals,
         };
       });
 
@@ -182,6 +183,7 @@ const UserProvider = ({ children }: any) => {
             ilkId,
             image: genVaultImage(id),
             displayName: uniqueNamesGenerator({ seed: parseInt(id.substring(14), 16), ...vaultNameConfig }), // TODO Marco move uniquNames generator into utils
+            decimals : series.decimals,
           };
         })
       );
@@ -238,8 +240,8 @@ const UserProvider = ({ children }: any) => {
                 hasJoinAuth: joinAllowance.gt(ethers.constants.Zero),
                 balance: balance || ethers.constants.Zero,
                 balance_: balance
-                  ? cleanValue(ethers.utils.formatEther(balance), 2)
-                  : cleanValue(ethers.utils.formatEther(ethers.constants.Zero)), // for display purposes only
+                  ? cleanValue(ethers.utils.formatUnits(balance, asset.decimals), 2)
+                  : cleanValue(ethers.utils.formatUnits(ethers.constants.Zero, asset.decimals)), // for display purposes only
               };
             })
           );
@@ -413,10 +415,10 @@ const UserProvider = ({ children }: any) => {
             ilkId, // in case ilkId has been updated
             ink,
             art,
-            ink_: cleanValue(ethers.utils.formatEther(ink), 2), // for display purposes only
-            art_: cleanValue(ethers.utils.formatEther(art), 2), // for display purposes only
+            ink_: cleanValue(ethers.utils.formatUnits(ink, vault.decimals), 2), // for display purposes only
+            art_: cleanValue(ethers.utils.formatUnits(art, vault.decimals ), 2), // for display purposes only
             price,
-            price_: cleanValue(ethers.utils.formatEther(price), 2),
+            price_: cleanValue(ethers.utils.formatUnits(price, 18), 2),
             minDebt,
             maxDebt,
           };

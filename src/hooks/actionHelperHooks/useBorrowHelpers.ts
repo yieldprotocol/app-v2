@@ -37,7 +37,7 @@ export const useBorrowHelpers = (
       (async () => {
         const _maxToken = await vaultBase?.getBalance(activeAccount);
         const _max = _maxToken && vault.art.gt(_maxToken) ? _maxToken : vault.art;
-        _max && setMaxRepayOrRoll(ethers.utils.formatEther(_max)?.toString());
+        _max && setMaxRepayOrRoll(ethers.utils.formatUnits(_max, vaultBase?.decimals)?.toString());
       })();
     }
   }, [activeAccount, vault, vaultBase, input]);
@@ -52,7 +52,7 @@ export const useBorrowHelpers = (
         /* if the input if less than the debt, make sure the minRepay is set to the debt less 0.5  - to leave 0.5 in the vault - above dust level */
         if (inputBn.lt(vault.art!)) {
           const _min = vault.art.sub(minDebt);
-          setMinRepayOrRoll(ethers.utils.formatEther(_min)?.toString());
+          setMinRepayOrRoll(ethers.utils.formatUnits(_min, vaultBase?.decimals)?.toString());
         } else {
           setMinRepayOrRoll(ethers.constants.Zero.toString());
         }

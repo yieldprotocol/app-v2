@@ -132,6 +132,7 @@ export interface IVaultRoot {
   seriesId: string;
   image: string;
   displayName: string;
+  decimals: number;
 }
 
 export interface ISeries extends ISeriesRoot {

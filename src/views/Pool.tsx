@@ -86,7 +86,7 @@ function Pool() {
       /* Checks asset selection and sets the max available value */
       (async () => {
         const max = await selectedBase?.getBalance(activeAccount);
-        if (max) setMaxPool(ethers.utils.formatEther(max).toString());
+        if (max) setMaxPool(ethers.utils.formatUnits(max, selectedSeries?.decimals).toString());
       })();
     }
   }, [activeAccount, poolInput, selectedBase, setMaxPool]);
