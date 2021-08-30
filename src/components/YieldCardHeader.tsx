@@ -1,17 +1,9 @@
-import React, { useContext, useState, useRef } from 'react';
-import { NavLink } from 'react-router-dom';
-import { Box, Collapsible, Header, Grid, Layer, ResponsiveContext, Text, Avatar } from 'grommet';
+import React, { useContext } from 'react';
+import { Box, ResponsiveContext, Avatar } from 'grommet';
 
-import { FiMenu, FiToggleRight, FiToggleLeft } from 'react-icons/fi';
-import { ChainContext } from '../contexts/ChainContext';
-import { TxContext } from '../contexts/TxContext';
-import YieldLogo from './logos/YieldLogo';
+import { FiMenu } from 'react-icons/fi';
 
-import YieldNavigation from './YieldNavigation';
-import YieldAccount from './YieldAccount';
 import YieldMark from './logos/YieldMark';
-import HandText from './texts/HandText';
-import { useCachedState } from '../hooks/generalHooks';
 import { ISeries } from '../types';
 
 interface IYieldHeaderProps {
@@ -33,7 +25,7 @@ const YieldCardHeader = ({ logo, series, children }: IYieldHeaderProps) => {
         <Box direction="row" gap="large" align="center">
           {logo && (
             <Avatar size="2.5rem">
-              <YieldMark startColor={series?.startColor} endColor={series?.endColor} height="1.75rem" />
+              <YieldMark startColor={series?.startColor} endColor={series?.endColor} height="2rem" />
             </Avatar>
           )}
           {children}
