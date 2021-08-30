@@ -18,7 +18,7 @@ const DashboardBalanceSummary = ({ debt, collateral, positionBalance, digits, lo
     <Box gap="xxsmall" border={{ side: 'bottom' }}>
       <Box gap="xxsmall">
         <Box direction="row" justify="between">
-          <Text size="xsmall">Total Position Balance:</Text>
+          <Text size="xsmall">Total Lent & Pooled:</Text>
           {loading ? (
             <Skeleton width={50} />
           ) : (
