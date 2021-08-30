@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
-import { Box, Collapsible, Text } from 'grommet';
-import { FiChevronUp, FiChevronDown } from 'react-icons/fi';
+import React from 'react';
+import { Box, Text } from 'grommet';
 import ListWrap from './wraps/ListWrap';
 
 interface IDashSummary {
@@ -28,7 +27,7 @@ const DashboardPositionSummary = ({ debt, collateral, lendBalance, poolBalance, 
         {poolBalance && <Summary label="Balance" value={poolBalance} />}
       </Box>
     </Box>
-    <ListWrap pad="xsmall">{children}</ListWrap>
+    <ListWrap pad={{ vertical: 'xsmall', horizontal: 'none' }}>{children}</ListWrap>
   </Box>
 );
 
