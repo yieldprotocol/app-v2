@@ -169,8 +169,8 @@ export interface IVault extends IVaultRoot {
   art_: string;
   price: BigNumber;
   price_: string;
-  min: BigNumber;
-  max: BigNumber;
+  minDebt: BigNumber;
+  maxDebt: BigNumber;
 }
 
 export interface IStrategy extends IStrategyRoot {
