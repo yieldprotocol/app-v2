@@ -478,27 +478,32 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                   <>
                     {stepPosition[actionActive.index] === 0 && (
                       <Box margin={{ top: 'medium' }}>
-                        <Box direction="row" gap="small" justify="between">
-                          <Box pad="small">
-                            <FiPlusCircle color={removeCollatInput ? 'lightgrey' : '#34D399'} size="1.5rem" />
+                        <Box gap="xxsmall">
+                          <Text color="gray" alignSelf="end" size="xsmall">
+                            Balance: {vaultIlk?.balance_!}
+                          </Text>
+                          <Box direction="row" gap="small" justify="between">
+                            <Box pad="small">
+                              <FiPlusCircle color={removeCollatInput ? 'lightgrey' : '#34D399'} size="1.5rem" />
+                            </Box>
+                            <InputWrap action={() => console.log('maxAction')} isError={addCollatError}>
+                              <TextInput
+                                disabled={removeCollatInput}
+                                plain
+                                type="number"
+                                placeholder="Additional collateral to add"
+                                value={addCollatInput || ''}
+                                onChange={(event: any) => setAddCollatInput(cleanValue(event.target.value))}
+                                icon={<>{vaultIlk?.image}</>}
+                              />
+                              <MaxButton
+                                disabled={removeCollatInput}
+                                action={() => setAddCollatInput(maxCollateral)}
+                                clearAction={() => setAddCollatInput('')}
+                                showingMax={!!addCollatInput && addCollatInput === maxCollateral}
+                              />
+                            </InputWrap>
                           </Box>
-                          <InputWrap action={() => console.log('maxAction')} isError={addCollatError}>
-                            <TextInput
-                              disabled={removeCollatInput}
-                              plain
-                              type="number"
-                              placeholder="Additional collateral to add"
-                              value={addCollatInput || ''}
-                              onChange={(event: any) => setAddCollatInput(cleanValue(event.target.value))}
-                              icon={<>{vaultIlk?.image}</>}
-                            />
-                            <MaxButton
-                              disabled={removeCollatInput}
-                              action={() => setAddCollatInput(maxCollateral)}
-                              clearAction={() => setAddCollatInput('')}
-                              showingMax={!!addCollatInput && addCollatInput === maxCollateral}
-                            />
-                          </InputWrap>
                         </Box>
 
                         <Box direction="row" gap="small" justify="between">
