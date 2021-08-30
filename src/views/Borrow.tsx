@@ -1,7 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, Keyboard, ResponsiveContext, Text, TextInput } from 'grommet';
-import { ethers } from 'ethers';
-import Skeleton from 'react-loading-skeleton';
 
 import { FiClock, FiPocket, FiPercent, FiTrendingUp, FiInfo } from 'react-icons/fi';
 
@@ -258,14 +256,14 @@ const Borrow = () => {
                   <BackButton action={() => setStepPosition(0)} />
                 </YieldCardHeader>
 
-                <Box gap="large" height="400px">
+                <Box gap="medium" height="400px">
                   <SectionWrap>
                     <Box direction="row" gap="large" margin={{ vertical: 'medium' }}>
                       <Box>
                         <Gauge value={parseFloat(collateralizationPercent!)} size={mobile ? '6em' : '8em'} />
                       </Box>
 
-                      <Box>
+                      <Box align='center'>
                         <Text size={mobile ? 'xsmall' : 'medium'} color="text-weak">
                           Collateralization
                         </Text>
@@ -275,8 +273,27 @@ const Borrow = () => {
                             : parseFloat(collateralizationPercent!)}
                           %
                         </Text>
+
                       </Box>
+
                     </Box>
+                    {/* <Box
+                          pad="xsmall"
+                          direction="row"
+                          gap="small"
+                          align="center"
+                          animation="zoomIn"
+                          onClick={() => setCollatInput(cleanValue(minSafeCollateral, 12))}
+                        >
+                          <FiInfo />
+                          <Text size="xsmall">
+                            A safe minimum of{' '}
+                            <Text size="small">
+                              {cleanValue(minSafeCollateral, 4)} {selectedIlk?.symbol}
+                            </Text>{' '}
+                            collateral is reccommended.
+                          </Text>
+                        </Box> */}
                   </SectionWrap>
 
                   <SectionWrap title="Amount of collateral to add">
