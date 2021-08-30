@@ -209,7 +209,7 @@ const Borrow = () => {
                                   <Text size="small">
                                     {cleanValue(minCollateral, 4)} {selectedIlk?.symbol}
                                   </Text>{' '}
-                                  collateral required (or eqivalent)
+                                  collateral required (or equivalent)
                                 </Text>
                               </Box>
                             )
