@@ -37,7 +37,6 @@ import { useAddLiquidity } from '../hooks/actionHooks/useAddLiquidity';
 import AddTokenToMetamask from '../components/AddTokenToMetamask';
 import TransactionWidget from '../components/TransactionWidget';
 
-
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
@@ -60,7 +59,6 @@ function Pool() {
 
   /* HOOK FNS */
   const addLiquidity = useAddLiquidity();
-
 
   /* input validation hooks */
   const { inputError: poolError } = useInputValidation(poolInput, ActionCodes.ADD_LIQUIDITY, selectedSeries, [
@@ -275,8 +273,8 @@ function Pool() {
       </CenterPanelWrap>
 
       <PanelWrap right basis="40%">
-        <Box margin={{ top: '10%' }} height="5rem">
-          <TransactionWidget tx={poolTx} />
+        <Box margin={{ top: '20%' }} pad="small">
+          <TransactionWidget />
         </Box>
         {/* <YieldLiquidity input={poolInput} /> */}
         {!mobile && <PositionSelector actionType={ActionType.POOL} />}
