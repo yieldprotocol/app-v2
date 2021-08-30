@@ -3,7 +3,16 @@ import { useHistory, useParams } from 'react-router-dom';
 import { Box, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import { ethers } from 'ethers';
 
-import { FiClock, FiTrendingUp, FiAlertTriangle, FiArrowRight, FiPlus, FiMinus, FiPlusCircle, FiMinusCircle } from 'react-icons/fi';
+import {
+  FiClock,
+  FiTrendingUp,
+  FiAlertTriangle,
+  FiArrowRight,
+  FiPlus,
+  FiMinus,
+  FiPlusCircle,
+  FiMinusCircle,
+} from 'react-icons/fi';
 import { abbreviateHash, cleanValue, nFormatter } from '../utils/appUtils';
 import { UserContext } from '../contexts/UserContext';
 import InputWrap from '../components/wraps/InputWrap';
@@ -119,13 +128,13 @@ const VaultPosition = ({ close }: { close: () => void }) => {
   const { addCollateral } = useAddCollateral();
   const { removeCollateral } = useRemoveCollateral();
 
-  const { maxCollateral, collateralizationPercent, maxRemovableCollateral, minCollateral } = useCollateralHelpers('0','0',selectedVault);
-
-  const { maxRepayOrRoll, minRepayOrRoll } = useBorrowHelpers(
-    repayInput, 
-    collatInput, 
+  const { maxCollateral, collateralizationPercent, maxRemovableCollateral, minCollateral } = useCollateralHelpers(
+    '0',
+    '0',
     selectedVault
   );
+
+  const { maxRepayOrRoll, minRepayOrRoll } = useBorrowHelpers(repayInput, collatInput, selectedVault);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries, [
     0,
@@ -463,50 +472,51 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                 {actionActive.index === 2 && (
                   <>
                     {stepPosition[actionActive.index] === 0 && (
-                      <Box margin={{ top: 'medium' }} >
-
-                        <Box direction='row' gap='small' justify='between'>
-                        <Box pad='small'><FiPlusCircle color={removeCollatInput? 'lightgrey': "#34D399"} size='1.5rem'/></Box>
-                        <InputWrap action={() => console.log('maxAction')} isError={addCollatError}>
-                          <TextInput
-                            disabled={removeCollatInput}
-                            plain
-                            type="number"
-                            placeholder="Additional collateral to add"
-                            value={addCollatInput || ''}
-                            onChange={(event: any) => setAddCollatInput(cleanValue(event.target.value))}
-                            icon={<>{vaultIlk?.image}</>}
-                          />
-                          <MaxButton
-                            disabled={removeCollatInput}
-                            action={() => setAddCollatInput(maxCollateral)}
-                            clearAction={() => setAddCollatInput('')}
-                            showingMax={!!addCollatInput && addCollatInput === maxCollateral}
-                          />
-                        </InputWrap>
+                      <Box margin={{ top: 'medium' }}>
+                        <Box direction="row" gap="small" justify="between">
+                          <Box pad="small">
+                            <FiPlusCircle color={removeCollatInput ? 'lightgrey' : '#34D399'} size="1.5rem" />
+                          </Box>
+                          <InputWrap action={() => console.log('maxAction')} isError={addCollatError}>
+                            <TextInput
+                              disabled={removeCollatInput}
+                              plain
+                              type="number"
+                              placeholder="Additional collateral to add"
+                              value={addCollatInput || ''}
+                              onChange={(event: any) => setAddCollatInput(cleanValue(event.target.value))}
+                              icon={<>{vaultIlk?.image}</>}
+                            />
+                            <MaxButton
+                              disabled={removeCollatInput}
+                              action={() => setAddCollatInput(maxCollateral)}
+                              clearAction={() => setAddCollatInput('')}
+                              showingMax={!!addCollatInput && addCollatInput === maxCollateral}
+                            />
+                          </InputWrap>
                         </Box>
 
-                        <Box direction='row' gap='small' justify='between'>
-                        <Box pad='small'><FiMinusCircle color={addCollatInput ? 'lightgrey':"#F87171"} size='1.5rem' /></Box>
-                        <InputWrap action={() => console.log('maxAction')} isError={removeCollatError}>
-                          <TextInput
-                            disabled={addCollatInput}
-                            plain
-                            type="number"
-                            placeholder="Collateral to remove"
-                            value={removeCollatInput || ''}
-                            onChange={(event: any) => setRemoveCollatInput(cleanValue(event.target.value))}
-                            icon={<>{vaultIlk?.image}</>}
-                          />
-                          <MaxButton
-                            disabled={!!addCollatInput}
-                            action={() => setRemoveCollatInput(maxRemovableCollateral)}
-                            clearAction={() => setRemoveCollatInput('')}
-                            showingMax={
-                              !!removeCollatInput && maxRemovableCollateral === removeCollatInput
-                            }
-                          />
-                        </InputWrap>
+                        <Box direction="row" gap="small" justify="between">
+                          <Box pad="small">
+                            <FiMinusCircle color={addCollatInput ? 'lightgrey' : '#F87171'} size="1.5rem" />
+                          </Box>
+                          <InputWrap action={() => console.log('maxAction')} isError={removeCollatError}>
+                            <TextInput
+                              disabled={addCollatInput}
+                              plain
+                              type="number"
+                              placeholder="Collateral to remove"
+                              value={removeCollatInput || ''}
+                              onChange={(event: any) => setRemoveCollatInput(cleanValue(event.target.value))}
+                              icon={<>{vaultIlk?.image}</>}
+                            />
+                            <MaxButton
+                              disabled={!!addCollatInput}
+                              action={() => setRemoveCollatInput(maxRemovableCollateral)}
+                              clearAction={() => setRemoveCollatInput('')}
+                              showingMax={!!removeCollatInput && maxRemovableCollateral === removeCollatInput}
+                            />
+                          </InputWrap>
                         </Box>
                       </Box>
                     )}
@@ -665,6 +675,7 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                     (actionActive.index === 1 && rollDisabled) ||
                     (actionActive.index === 2 && removeCollatInput && removeCollateralDisabled) ||
                     (actionActive.index === 2 && addCollatInput && addCollateralDisabled) ||
+                    (actionActive.index === 2 && !addCollatInput && !removeCollatInput) ||
                     (actionActive.index === 4 && transferDisabled) ||
                     (actionActive.index === 5 && mergeDisabled)
                   }
