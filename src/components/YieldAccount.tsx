@@ -56,7 +56,7 @@ const YieldAccount = (props: any) => {
             hoverIndicator={{ color: 'tailwind-blue-50' }}
           >
             {mobile ? (
-              <Text color="text"></Text>
+              <Text color="text">
                 <FiSettings />
               </Text>
             ) : (
