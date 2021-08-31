@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
+import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
 import { UserContext } from '../contexts/UserContext';
 import { ActionCodes, TxState } from '../types';
@@ -14,6 +15,7 @@ interface ITx {
   txHash: any;
   processActive: boolean;
   complete: boolean;
+  positionPath: string | undefined;
 }
 
 /* useTx hook returns the tx status, and redirects to home after success if shouldRedirect is specified */
@@ -31,6 +33,9 @@ export const useTx = (
     // userState: { selectedVaultId, selectedSeriesId },
     userActions,
   } = useContext(UserContext);
+  const {
+    chainState: { contractMap },
+  } = useContext(ChainContext);
 
   const history = useHistory();
 
@@ -43,6 +48,7 @@ export const useTx = (
     txHash: undefined,
     processActive: false,
     complete: false,
+    positionPath: undefined,
   };
 
   const [tx, setTx] = useState<ITx>(INITIAL_STATE);
@@ -56,6 +62,18 @@ export const useTx = (
     setTxHash(undefined);
     setTxStatus(undefined);
     setProcessActive(false);
+  };
+
+  const getPositionPathPrefix = (_actionCode: string) => {
+    const _action = _actionCode.split('_')[0];
+    switch (_action) {
+      case ActionCodes.BORROW:
+        return 'vaultposition';
+      case ActionCodes.ADD_LIQUIDITY:
+        return 'poolposition';
+      default:
+        return `${_action.toLowerCase()}position`;
+    }
   };
 
   useEffect(() => {
@@ -97,6 +115,23 @@ export const useTx = (
   useEffect(() => {
     tx.success && shouldRedirect && history.push('/') && userActions.setSelectedVault(null);
   }, [tx.success, shouldRedirect, history, userActions]);
+
+  // get the vault id after borrowing or the lend/pool position id's
+  useEffect(() => {
+    let positionId: string | undefined;
+    const receipt = transactions?.get(txHash)?.receipt!;
+
+    if (actionCode.includes(ActionCodes.BORROW) && receipt) {
+      const cauldronAddr = contractMap.get('Cauldron').address;
+      const cauldronEvents = receipt?.events?.filter((e: any) => e.address === cauldronAddr)[0];
+      const vaultIdHex = cauldronEvents?.topics[1];
+      const vaultId = vaultIdHex.slice(0, 26);
+      positionId = vaultId;
+    } else {
+      positionId = actionCode?.split('_')[1];
+    }
+    setTx((t) => ({ ...t, positionPath: `${getPositionPathPrefix(actionCode)}/${positionId}` }));
+  }, [transactions, contractMap, actionCode, txHash]);
 
   return { tx, resetTx };
 };

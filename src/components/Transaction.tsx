@@ -12,31 +12,32 @@ const Transaction = ({ tx, removeOnComplete, ...props }: { tx: any; removeOnComp
     chainState: { contractMap },
   } = useContext(ChainContext);
   const { status, txCode, tx: t, complete, receipt } = tx;
-
-  const [positionId, setPositionId] = useState(txCode.split('_')[1]);
-
   const action = txCode.split('_')[0];
-  const getLinkPathPrefix = (_action: string) => {
-    switch (_action) {
+
+  const getPositionPathPrefix = (_txCode: string) => {
+    const actionCode = _txCode.split('_')[0];
+    switch (actionCode) {
       case ActionCodes.BORROW:
         return 'vaultposition';
       case ActionCodes.ADD_LIQUIDITY:
         return 'poolposition';
       default:
-        return `${_action.toLowerCase()}position`;
+        return `${actionCode.toLowerCase()}position`;
     }
   };
 
+  const [positionPath, setPositionPath] = useState(`${getPositionPathPrefix(txCode)}/${txCode.split('_')[1]}`);
+
   // get the vault id after successfull borrowing
   useEffect(() => {
-    if (action === ActionCodes.BORROW && receipt) {
+    if (txCode.includes(ActionCodes.BORROW) && receipt) {
       const cauldronAddr = contractMap.get('Cauldron').address;
       const cauldronEvents = receipt?.events?.filter((e: any) => e.address === cauldronAddr)[0];
       const vaultIdHex = cauldronEvents?.topics[1];
       const vaultId = vaultIdHex.slice(0, 26);
-      setPositionId(vaultId);
+      setPositionPath(`${getPositionPathPrefix(txCode)}/${vaultId}`);
     }
-  }, [receipt, contractMap, action]);
+  }, [receipt, contractMap, txCode]);
 
   return removeOnComplete && complete ? null : (
     <Box align="center" fill direction="row" gap="small" {...props} key={t.hash}>
@@ -51,7 +52,7 @@ const Transaction = ({ tx, removeOnComplete, ...props }: { tx: any; removeOnComp
         </Box>
         <Box direction="row" align="center">
           {status === TxState.SUCCESSFUL ? (
-            <Link to={`${getLinkPathPrefix(action)}/${positionId}`} style={{ textDecoration: 'none' }}>
+            <Link to={positionPath} style={{ textDecoration: 'none' }}>
               <Text size="xsmall" color="tailwind-blue" style={{ verticalAlign: 'middle' }}>
                 View Position
               </Text>
