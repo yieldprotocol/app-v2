@@ -15,10 +15,10 @@ const DropContent = ({ assetMap }: { assetMap: any }) => (
             <Text size="xsmall"> </Text>
           </TableCell>
           <TableCell scope="col">
-            <Text size="xsmall">Asset</Text>
+            <Text size="xsmall"> </Text>
           </TableCell>
           <TableCell scope="col">
-            <Text size="xsmall">Balance</Text>
+            <Text size="xsmall"> </Text>
           </TableCell>
           <TableCell scope="col">
             <Text size="xsmall">Add To Metamask</Text>
@@ -69,6 +69,8 @@ const SettingsBalances = () => {
         onClose={onClose}
         dropContent={<DropContent assetMap={assetMap} />}
         dropProps={{ align: { top: 'bottom' } }}
+        hoverIndicator={{ color: 'tailwind-blue-50' }}
+        style={{ borderRadius: '6px' }}
       >
         <YieldBalances />
       </DropButton>
