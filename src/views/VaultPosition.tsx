@@ -685,6 +685,7 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                     (actionActive.index === 1 && rollDisabled) ||
                     (actionActive.index === 2 && removeCollatInput && removeCollateralDisabled) ||
                     (actionActive.index === 2 && addCollatInput && addCollateralDisabled) ||
+                    (actionActive.index === 2 && !addCollatInput && !removeCollatInput) ||
                     (actionActive.index === 4 && transferDisabled) ||
                     (actionActive.index === 5 && mergeDisabled)
                   }

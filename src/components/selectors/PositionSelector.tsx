@@ -96,7 +96,7 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
             </Text>
           </Box>
 
-          <ListWrap>
+          <ListWrap overflow="auto">
             {filteredSeries.length === 0 && !showAllPositions && (
               <Text weight={450} size="small">
                 No suggested positions

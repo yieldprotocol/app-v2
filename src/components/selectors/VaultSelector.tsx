@@ -77,7 +77,7 @@ function VaultSelector(target: any) {
               </Text>
             </Box>
 
-            <ListWrap>
+            <ListWrap overflow="auto">
               {allVaults.length > 0 && filteredVaults.length === 0 && !showAllVaults && (
                 <Text weight={450} size="small">
                   No suggested vaults
