@@ -1,7 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { Box, DropButton, Table, TableHeader, TableCell, TableRow, Text, TableBody } from 'grommet';
 import styled from 'styled-components';
-import { FiPlusCircle } from 'react-icons/fi';
 import { UserContext } from '../contexts/UserContext';
 import { IAsset } from '../types';
 import AddTokenToMetamask from './AddTokenToMetamask';

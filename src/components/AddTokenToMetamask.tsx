@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, Button, Text } from 'grommet';
+import { Box, Button } from 'grommet';
 import { FiPlusCircle } from 'react-icons/fi';
 import { ChainContext } from '../contexts/ChainContext';
 
