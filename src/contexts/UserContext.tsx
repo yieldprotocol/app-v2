@@ -459,18 +459,18 @@ const UserProvider = ({ children }: any) => {
       _publicData = await Promise.all(
         strategyList.map(async (strategy: IStrategyRoot): Promise<IStrategy> => {
           /* Get all the data simultanenously in a promise.all */
-          const [ totalSupply ] = await Promise.all([
-            // strategy.strategyContract.totalSupply(),
-            '345345'
+          const [ totalSupply, currentSeries, current ] = await Promise.all([
+            strategy.strategyContract.totalSupply(),
+            strategy.strategyContract.seriesId(),
+            strategy.strategyContract.pool(),
           ])
           return {
             ...strategy,
             totalSupply,
-            currentSeries: '45645',
-            current: '34534',
+            currentSeries,
+            current,
           };
         })
-
       );
 
       if (account) {
@@ -495,7 +495,6 @@ const UserProvider = ({ children }: any) => {
 
   }, [ account ]);
 
-
   useEffect(() => {
     /* When the chainContext is finished loading get the dynamic series, asset and strategies data */
     if (!chainLoading) {
@@ -516,19 +515,19 @@ const UserProvider = ({ children }: any) => {
   ]);
 
   useEffect(() => {
+
     /* When the chainContext is finished loading get the users vault data */
     if (!chainLoading && account !== null) {
       console.log('Checking User Vaults');
       /* trigger update of update all vaults by passing empty array */
       updateVaults([], true);
     }
+    /* keep checking the active account when it changes/ chainlaoding */ 
+    updateState({ type: 'activeAccount', payload: account });
+
   }, [account, chainLoading]); // updateVaults ignored here on purpose
 
   /* TODO SUBSCRIBE TO EVENTS */
-  // /* Subscribe to vault event listeners */
-  // useEffect(() => {
-  //   updateState({ type: 'activeAccount', payload: account });
-  // }, [account]);
   // useEffect(() => {
   //   !chainLoading &&
   //     seriesRootMap &&
