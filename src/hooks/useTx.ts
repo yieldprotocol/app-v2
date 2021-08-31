@@ -120,18 +120,17 @@ export const useTx = (
   useEffect(() => {
     let positionId: string | undefined;
     const receipt = transactions?.get(txHash)?.receipt!;
-
-    if (actionCode.includes(ActionCodes.BORROW) && receipt) {
+    if (txCode?.includes(ActionCodes.BORROW) && receipt) {
       const cauldronAddr = contractMap.get('Cauldron').address;
       const cauldronEvents = receipt?.events?.filter((e: any) => e.address === cauldronAddr)[0];
       const vaultIdHex = cauldronEvents?.topics[1];
       const vaultId = vaultIdHex.slice(0, 26);
       positionId = vaultId;
     } else {
-      positionId = actionCode?.split('_')[1];
+      positionId = txCode?.split('_')[1];
     }
-    setTx((t) => ({ ...t, positionPath: `${getPositionPathPrefix(actionCode)}/${positionId}` }));
-  }, [transactions, contractMap, actionCode, txHash]);
+    txCode && setTx((t) => ({ ...t, positionPath: `${getPositionPathPrefix(txCode!)}/${positionId}` }));
+  }, [transactions, contractMap, txCode, txHash]);
 
   return { tx, resetTx };
 };
