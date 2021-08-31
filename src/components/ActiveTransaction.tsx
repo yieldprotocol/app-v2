@@ -1,7 +1,6 @@
 import { constants } from 'ethers';
 import { Box, Button, Text } from 'grommet';
 import React, { useContext, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { BiWallet } from 'react-icons/bi';
 import { FiCheckCircle, FiClock, FiPenTool, FiX } from 'react-icons/fi';
 import { TxContext } from '../contexts/TxContext';
@@ -168,17 +167,7 @@ const ActiveTransaction = ({
             title="Transaction Failed"
             subTitle={<CopyWrap hash={tx.txHash}> {abbreviateHash(tx.txHash, 6)} </CopyWrap>}
             icon={<FiX size={iconSize} />}
-            button={
-              tx.success && tx.positionPath ? (
-                <Link to={`${tx.positionPath}`} style={{ textDecoration: 'none' }}>
-                  <Text size="xsmall" color="tailwind-blue" style={{ verticalAlign: 'middle' }}>
-                    View Position
-                  </Text>
-                </Link>
-              ) : (
-                <EtherscanButton txHash={tx.txHash} />
-              )
-            }
+            button={<EtherscanButton txHash={tx.txHash} />}
             full={full}
           />
         )}
