@@ -65,7 +65,7 @@ export const useTx = (
   };
 
   const getPositionPathPrefix = (_actionCode: string) => {
-    const _action = _actionCode.split('_')[0];
+    const _action = _actionCode?.split('_')[0];
     switch (_action) {
       case ActionCodes.BORROW:
         return 'vaultposition';
@@ -118,19 +118,26 @@ export const useTx = (
 
   // get the vault id after borrowing or the lend/pool position id's
   useEffect(() => {
-    let positionId: string | undefined;
-    const receipt = transactions?.get(txHash)?.receipt!;
-    if (txCode?.includes(ActionCodes.BORROW) && receipt) {
-      const cauldronAddr = contractMap.get('Cauldron').address;
-      const cauldronEvents = receipt?.events?.filter((e: any) => e.address === cauldronAddr)[0];
-      const vaultIdHex = cauldronEvents?.topics[1];
-      const vaultId = vaultIdHex.slice(0, 26);
-      positionId = vaultId;
+    const pathPrefix = txCode && getPositionPathPrefix(txCode!);
+    const positionId = txCode?.split('_')[1];
+
+    if (txCode?.includes(ActionCodes.BORROW)) {
+      if (transactions.has(txHash) && tx.success) {
+        const receipt = transactions?.get(txHash)?.receipt!;
+        const cauldronAddr = contractMap.get('Cauldron').address;
+        const vaultIdHex = receipt.events.filter((e: any) => e.address === cauldronAddr)[0].topics[1];
+        const vaultId = vaultIdHex.slice(0, 26);
+
+        setTx((t) => ({ ...t, positionPath: `${pathPrefix}/${vaultId}` }));
+      } else {
+        setTx((t) => ({ ...t, positionPath: undefined }));
+      }
     } else {
-      positionId = txCode?.split('_')[1];
+      setTx((t) => ({ ...t, positionPath: `${pathPrefix}/${positionId}` }));
     }
-    txCode && setTx((t) => ({ ...t, positionPath: `${getPositionPathPrefix(txCode!)}/${positionId}` }));
-  }, [transactions, contractMap, txCode, txHash]);
+
+    console.log(tx);
+  }, [transactions, contractMap, txCode, txHash, tx.success]);
 
   return { tx, resetTx };
 };
