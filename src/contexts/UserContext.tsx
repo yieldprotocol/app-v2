@@ -36,9 +36,13 @@ const initState: IUserContextState = {
   seriesMap: new Map<string, ISeries>(),
   vaultMap: new Map<string, IVault>(),
   strategyMap: new Map<string, IStrategy>(),
-
   /* map of asset prices */
   priceMap: new Map<string, Map<string, any>>(),
+
+  vaultsLoading: false as boolean,
+  seriesLoading: false as boolean,
+  assetsLoading: false as boolean,
+  strategiesLoading: false as boolean,
   pricesLoading: false as boolean,
 
   /* Current User selections */
@@ -52,9 +56,7 @@ const initState: IUserContextState = {
   dudeSalt: 20,
   showInactiveVaults: false as boolean,
   slippageTolerance: 0.01 as number,
-  vaultsLoading: false as boolean,
-  seriesLoading: false as boolean,
-  assetsLoading: false as boolean,
+
   hideBalancesSetting: null as string | null,
   currencySetting: 'DAI' as string,
 };
@@ -74,8 +76,10 @@ function userReducer(state: any, action: any) {
   switch (action.type) {
     case 'userLoading':
       return { ...state, userLoading: onlyIfChanged(action) };
+
     case 'activeAccount':
       return { ...state, activeAccount: onlyIfChanged(action) };
+
     case 'selectedVaultId':
       return { ...state, selectedVaultId: onlyIfChanged(action) };
     case 'selectedSeriesId':
@@ -84,14 +88,18 @@ function userReducer(state: any, action: any) {
       return { ...state, selectedIlkId: onlyIfChanged(action) };
     case 'selectedBaseId':
       return { ...state, selectedBaseId: onlyIfChanged(action) };
+
     case 'assetMap':
       return { ...state, assetMap: onlyIfChanged(action) };
     case 'seriesMap':
       return { ...state, seriesMap: onlyIfChanged(action) };
     case 'vaultMap':
       return { ...state, vaultMap: onlyIfChanged(action) };
+    case 'strategyMap':
+      return { ...state, strategyMap: onlyIfChanged(action) };
     case 'priceMap':
       return { ...state, priceMap: onlyIfChanged(action) };
+
     case 'approvalMethod':
       return { ...state, approvalMethod: onlyIfChanged(action) };
     case 'dudeSalt':
@@ -122,14 +130,7 @@ const UserProvider = ({ children }: any) => {
   /* STATE FROM CONTEXT */
   // TODO const [cachedVaults, setCachedVaults] = useCachedState('vaults', { data: [], lastBlock: Number(process.env.REACT_APP_DEPLOY_BLOCK) });
   const { chainState } = useContext(ChainContext);
-  const { 
-      contractMap, 
-      account, 
-      chainLoading, 
-      seriesRootMap, 
-      assetRootMap, 
-      strategyRootMap 
-  } = chainState;
+  const { contractMap, account, chainLoading, seriesRootMap, assetRootMap, strategyRootMap } = chainState;
 
   const [userState, updateState] = useReducer(userReducer, initState);
 
@@ -167,7 +168,7 @@ const UserProvider = ({ children }: any) => {
           ilkId,
           image: genVaultImage(id),
           displayName: uniqueNamesGenerator({ seed: parseInt(id.substring(14), 16), ...vaultNameConfig }),
-          decimals : series.decimals,
+          decimals: series.decimals,
         };
       });
 
@@ -183,7 +184,7 @@ const UserProvider = ({ children }: any) => {
             ilkId,
             image: genVaultImage(id),
             displayName: uniqueNamesGenerator({ seed: parseInt(id.substring(14), 16), ...vaultNameConfig }), // TODO Marco move uniquNames generator into utils
-            decimals : series.decimals,
+            decimals: series.decimals,
           };
         })
       );
@@ -338,7 +339,7 @@ const UserProvider = ({ children }: any) => {
             fyTokenReserves,
             fyTokenRealReserves,
             totalSupply,
-            totalSupply_: ethers.utils.formatUnits(totalSupply,series.decimals),
+            totalSupply_: ethers.utils.formatUnits(totalSupply, series.decimals),
             apr: `${Number(apr).toFixed(2)}`,
             seriesIsMature: mature,
           };
@@ -448,47 +449,96 @@ const UserProvider = ({ children }: any) => {
 
   /* Updates the assets with relevant *user* data */
   const updateStrategies = useCallback(
-
     async (strategyList: IStrategyRoot[]) => {
-      console.log('Strategy:List: ', strategyList);
-    },
-    []
-  );
+      updateState({ type: 'strategiesLoading', payload: true });
+      let _publicData: IStrategy[] = [];
+      let _accountData: IStrategy[] = [];
+
+      console.log(strategyList);
+      
+      _publicData = await Promise.all(
+        strategyList.map(async (strategy: IStrategyRoot): Promise<IStrategy> => {
+          /* Get all the data simultanenously in a promise.all */
+          const [ totalSupply ] = await Promise.all([
+            // strategy.strategyContract.totalSupply(),
+            '345345'
+          ])
+          return {
+            ...strategy,
+            totalSupply,
+            currentSeries: '45645',
+            current: '34534',
+          };
+        })
+
+      );
+
+      if (account) {
+        // _accountData = await Promise.all(
+        // )
+        _accountData = []
+      }
+
+      const _combinedData = _accountData.length ? _accountData : _publicData;
+      /* combined account and public series data reduced into a single Map */
+      const newStratMap = new Map(
+        _combinedData.reduce((acc: any, item: any) => {
+          const _map = acc;
+          _map.set(item.address, item);
+          return _map;
+        }, userState.strategyMap)
+      );
+      updateState({ type: 'strategyMap', payload: newStratMap });
+      console.log('STRATEGIES updated (with dynamic data): ', newStratMap);
+      updateState({ type: 'strategiesLoading', payload: false });
+      return newStratMap;
+
+  }, [ account ]);
+
 
   useEffect(() => {
-    /* When the chainContext is finished loading get the dynamic series and asset data */
+    /* When the chainContext is finished loading get the dynamic series, asset and strategies data */
     if (!chainLoading) {
+      console.log('Maps: ',seriesRootMap, assetRootMap, strategyRootMap)
       seriesRootMap.size && updateSeries(Array.from(seriesRootMap.values()));
       assetRootMap.size && updateAssets(Array.from(assetRootMap.values()));
       strategyRootMap.size && updateStrategies(Array.from(strategyRootMap.values()));
     }
-  }, [account, chainLoading, assetRootMap, seriesRootMap, strategyRootMap, updateSeries, updateAssets]);
+  }, [
+    account,
+    chainLoading,
+    assetRootMap,
+    seriesRootMap,
+    strategyRootMap,
+    updateSeries,
+    updateAssets,
+    updateStrategies,
+  ]);
 
   useEffect(() => {
     /* When the chainContext is finished loading get the users vault data */
-    if (account !== null && !chainLoading) {
-      console.log('checking vaults');
+    if (!chainLoading && account !== null) {
+      console.log('Checking User Vaults');
       /* trigger update of update all vaults by passing empty array */
       updateVaults([], true);
     }
-  }, [account, chainLoading]);
+  }, [account, chainLoading]); // updateVaults ignored here on purpose
 
-  /* Subscribe to vault event listeners */
-  useEffect(() => {
-    updateState({ type: 'activeAccount', payload: account });
-  }, [account]);
-
-  /* TODO Subscribe to oracle price changes */
-  useEffect(() => {
-    !chainLoading &&
-      seriesRootMap &&
-      (async () => {
-        const Oracle = contractMap.get('CompositeMultiOracle');
-        // const filter = Oracle.filters.SourceSet(null, null, null);
-        // const eventList = await Oracle.queryFilter(filter, 1);
-        // console.log('Oracle events: ', eventList);
-      })();
-  }, [chainLoading, contractMap, seriesRootMap]);
+  /* TODO SUBSCRIBE TO EVENTS */
+  // /* Subscribe to vault event listeners */
+  // useEffect(() => {
+  //   updateState({ type: 'activeAccount', payload: account });
+  // }, [account]);
+  // useEffect(() => {
+  //   !chainLoading &&
+  //     seriesRootMap &&
+  //     (async () => {
+  //       const Oracle = contractMap.get('CompositeMultiOracle');
+  //       // const filter = Oracle.filters.SourceSet(null, null, null);
+  //       // const eventList = await Oracle.queryFilter(filter, 1);
+  //       // console.log('Oracle events: ', eventList);
+  //     })();
+  // }, [chainLoading, contractMap, seriesRootMap]);
 
   /* Exposed userActions */
   const userActions = {
@@ -504,19 +554,16 @@ const UserProvider = ({ children }: any) => {
     setSelectedSeries: (seriesId: string | null) => updateState({ type: 'selectedSeriesId', payload: seriesId }),
     setSelectedBase: (assetId: string | null) => updateState({ type: 'selectedBaseId', payload: assetId }),
 
+
+    // TODO To reduce exposure, maybe we have a single 'change setting' function?  > that handles all the below? not urgent. 
     setApprovalMethod: (type: ApprovalType) => updateState({ type: 'approvalMethod', payload: type }),
-
     updateDudeSalt: () => updateState({ type: 'dudeSalt', payload: userState.dudeSalt + 3 }),
-
     setShowInactiveVaults: (showInactiveVaults: boolean) =>
       updateState({ type: 'showInactiveVaults', payload: showInactiveVaults }),
-
     setSlippageTolerance: (slippageTolerance: number) =>
       updateState({ type: 'setSlippageTolerance', payload: slippageTolerance }),
-
     setHideBalancesSetting: (hideBalancesSetting: string) =>
       updateState({ type: 'hideBalancesSetting', payload: hideBalancesSetting }),
-
     setCurrencySetting: (currencySetting: string) => updateState({ type: 'currencySetting', payload: currencySetting }),
   };
 
