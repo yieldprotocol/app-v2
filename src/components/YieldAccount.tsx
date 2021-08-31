@@ -12,6 +12,7 @@ import SidebarSettings from './SidebarSettings';
 import EthMark from './logos/EthMark';
 import { UserContext } from '../contexts/UserContext';
 import { WETH } from '../utils/constants';
+import SettingsBalances from './SettingsBalances';
 
 const StyledText = styled(Text)`
   svg,
@@ -30,8 +31,8 @@ const YieldAccount = (props: any) => {
     userState: { assetMap, assetsLoading },
   } = useContext(UserContext);
 
-  const [settingsOpen, setSettingsOpen] = useState<boolean>();
-  const [connectOpen, setConnectOpen] = useState<boolean>();
+  const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
+  const [connectOpen, setConnectOpen] = useState<boolean>(false);
 
   const ethBalance = assetMap.get(WETH)?.balance_;
 
@@ -46,7 +47,7 @@ const YieldAccount = (props: any) => {
 
       {account ? (
         <Box direction="row" gap="xsmall" align="center">
-          {!mobile && <YieldBalances />}
+          {!mobile && <SettingsBalances />}
           <Box round="xsmall" onClick={() => setSettingsOpen(true)} pad="small" justify="center">
             {mobile ? (
               <Text color="text">
