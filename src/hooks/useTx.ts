@@ -135,8 +135,6 @@ export const useTx = (
     } else {
       setTx((t) => ({ ...t, positionPath: `${pathPrefix}/${positionId}` }));
     }
-
-    console.log(tx);
   }, [transactions, contractMap, txCode, txHash, tx.success]);
 
   return { tx, resetTx };
