@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, Text } from 'grommet';
+import { Box, Button, Text } from 'grommet';
+import { FiPlusCircle } from 'react-icons/fi';
 import { ChainContext } from '../contexts/ChainContext';
 
 interface ITokenData {
@@ -46,8 +47,8 @@ const AddTokenToMetamsk = ({ address, symbol, decimals, image }: ITokenData) => 
   }, [provider]);
 
   return metamask ? (
-    <Box round="xsmall" align="center" pad="small" onClick={() => handleAddToken()}>
-      <Text size="xsmall">Add To Metamask</Text>
+    <Box align="center">
+      <Button plain color="#3B82F6" hoverIndicator={{}} onClick={() => handleAddToken()} icon={<FiPlusCircle />} />
     </Box>
   ) : null;
 };
