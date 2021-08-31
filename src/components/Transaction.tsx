@@ -2,13 +2,23 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Box, Text, Spinner } from 'grommet';
 import { FiCheckCircle, FiXCircle } from 'react-icons/fi';
-import { TxState } from '../types';
+import { ActionCodes, TxState } from '../types';
 import EtherscanButton from './buttons/EtherscanButton';
 
 const Transaction = ({ tx, removeOnComplete, ...props }: { tx: any; removeOnComplete?: boolean }) => {
   const { status, txCode, tx: t, complete } = tx;
   const action = txCode.split('_')[0];
   const link = txCode.split('_')[1];
+  const getLinkPathPrefix = (_action: string) => {
+    switch (_action) {
+      case ActionCodes.BORROW:
+        return 'vault';
+      case ActionCodes.ADD_LIQUIDITY:
+        return 'pool';
+      default:
+        return _action.toLowerCase();
+    }
+  };
 
   return removeOnComplete && complete ? null : (
     <Box align="center" fill direction="row" gap="small" {...props} key={t.hash}>
@@ -23,10 +33,7 @@ const Transaction = ({ tx, removeOnComplete, ...props }: { tx: any; removeOnComp
         </Box>
         <Box direction="row" align="center">
           {status === TxState.SUCCESSFUL && action !== 'Borrow' ? (
-            <Link
-              to={`${action !== 'Borrow' ? action.toLowerCase() : 'vault'}position/${link}`}
-              style={{ textDecoration: 'none' }}
-            >
+            <Link to={`${getLinkPathPrefix(action)}position/${link}`} style={{ textDecoration: 'none' }}>
               <Text size="xsmall" color="tailwind-blue" style={{ verticalAlign: 'middle' }}>
                 View Position
               </Text>
