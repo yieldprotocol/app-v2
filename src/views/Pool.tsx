@@ -1,11 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, Button, RadioButtonGroup, ResponsiveContext, Text, TextInput } from 'grommet';
+import { Box, RadioButtonGroup, ResponsiveContext, Text, TextInput } from 'grommet';
 
 import { ethers } from 'ethers';
 
-import { FiSquare, FiClock, FiTrendingUp, FiPercent, FiInfo } from 'react-icons/fi';
+import { FiClock, FiPercent } from 'react-icons/fi';
 import { BiCoinStack, BiMessageSquareAdd } from 'react-icons/bi';
-import { cleanValue, getTxCode, nFormatter } from '../utils/appUtils';
+import { cleanValue, nFormatter } from '../utils/appUtils';
 import AssetSelector from '../components/selectors/AssetSelector';
 import MainViewWrap from '../components/wraps/MainViewWrap';
 import SeriesSelector from '../components/selectors/SeriesSelector';
@@ -14,7 +14,7 @@ import InfoBite from '../components/InfoBite';
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
 import { UserContext } from '../contexts/UserContext';
-import { ActionCodes, ActionType, ISeries, IUserContext } from '../types';
+import { ActionCodes, ActionType, IUserContext } from '../types';
 import { useTx } from '../hooks/useTx';
 import MaxButton from '../components/buttons/MaxButton';
 import PanelWrap from '../components/wraps/PanelWrap';
@@ -23,13 +23,11 @@ import StepperText from '../components/StepperText';
 import PositionSelector from '../components/selectors/PositionSelector';
 import ActiveTransaction from '../components/ActiveTransaction';
 import YieldInfo from '../components/YieldInfo';
-import YieldLiquidity from '../components/YieldLiquidity';
 import BackButton from '../components/buttons/BackButton';
 import NextButton from '../components/buttons/NextButton';
 import TransactButton from '../components/buttons/TransactButton';
 import { useInputValidation } from '../hooks/useInputValidation';
 import AltText from '../components/texts/AltText';
-import PositionListItem from '../components/PositionItem';
 import YieldCardHeader from '../components/YieldCardHeader';
 import { useAddLiquidity } from '../hooks/actionHooks/useAddLiquidity';
 
@@ -42,18 +40,14 @@ function Pool() {
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext) as IUserContext;
   const { activeAccount, assetMap, seriesMap, selectedSeriesId, selectedBaseId } = userState;
-
   const selectedSeries = seriesMap.get(selectedSeriesId!);
   const selectedBase = assetMap.get(selectedBaseId!);
 
   /* LOCAL STATE */
   const [poolInput, setPoolInput] = useState<string | undefined>(undefined);
   const [maxPool, setMaxPool] = useState<string | undefined>();
-
   const [poolDisabled, setPoolDisabled] = useState<boolean>(true);
-
   const [poolMethod, setPoolMethod] = useState<'BUY' | 'BORROW'>('BUY');
-
   const [stepPosition, setStepPosition] = useState<number>(0);
 
   /* HOOK FNS */

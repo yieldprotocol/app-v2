@@ -23,25 +23,28 @@ export interface IUserContext {
 export interface IUserContextState {
   userLoading: boolean;
   activeAccount: string | null;
+
   assetMap: Map<string, IAsset>;
   seriesMap: Map<string, ISeries>;
   vaultMap: Map<string, IVault>;
   strategyMap: Map<string, IStrategy>;
-
   priceMap: Map<string, Map<string, any>>;
 
+  vaultsLoading: boolean;
+  seriesLoading: boolean;
+  assetsLoading: boolean;
+  strategiesLoading: boolean;
   pricesLoading: boolean;
+
   selectedSeriesId: string | null;
   selectedIlkId: string | null;
   selectedBaseId: string | null;
   selectedVaultId: string | null;
+
   approvalMethod: ApprovalType;
   dudeSalt: number;
   showInactiveVaults: boolean;
   slippageTolerance: number;
-  vaultsLoading: boolean;
-  seriesLoading: boolean;
-  assetsLoading: boolean;
   hideBalancesSetting: string | null;
   currencySetting: string;
 }
@@ -175,8 +178,10 @@ export interface IVault extends IVaultRoot {
 }
 
 export interface IStrategy extends IStrategyRoot {
+  totalSupply: any;
   currentSeries: string;
   current: string;
+
 }
 
 export interface ICallData {
