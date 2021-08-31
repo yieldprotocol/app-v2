@@ -40,7 +40,7 @@ const Dashboard = () => {
   const [lendPositions, setLendPositions] = useState<ISeries[]>([]);
   const [poolPositions, setPoolPositions] = useState<ISeries[]>([]);
   const [allPositions, setAllPositions] = useState<(ISeries | IVault)[]>([]);
-  const [filterEmpty, setFilterEmpty] = useState<boolean>(true);
+  const [showEmpty, setShowEmpty] = useState<boolean>(false);
   const [totalDebt, setTotalDebt] = useState<string | null>(null);
   const [totalCollateral, setTotalCollateral] = useState<string | null>(null);
   const [totalLendBalance, setTotalLendBalance] = useState<string | null>(null);
@@ -52,11 +52,10 @@ const Dashboard = () => {
   useEffect(() => {
     const _vaultPositions: IVault[] = Array.from(vaultMap.values())
       .filter((vault: IVault) => showInactiveVaults || vault.isActive)
-      .filter((vault: IVault) => (filterEmpty ? vault.ink.gt(ZERO_BN) || vault.art.gt(ZERO_BN) : true))
+      .filter((vault: IVault) => (showEmpty ? true : vault.ink.gt(ZERO_BN) || vault.art.gt(ZERO_BN)))
       .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1));
-    // .filter((vault: IVault) => hideBalancesSetting && vault.ink?.gt(ethers.utils.parseUnits(hideBalancesSetting )));
     setVaultPositions(_vaultPositions);
-  }, [vaultMap, showInactiveVaults, filterEmpty, hideBalancesSetting]);
+  }, [vaultMap, showInactiveVaults, showEmpty, hideBalancesSetting]);
 
   useEffect(() => {
     const _lendPositions: ISeries[] = Array.from(seriesMap.values())
@@ -206,8 +205,8 @@ const Dashboard = () => {
               <HideBalancesSetting width="30%" />
               <CurrencyToggle width="50%" />
               <Box justify="between" gap="small">
-                <Text size="small">Filter empty vaults</Text>
-                <CheckBox toggle checked={filterEmpty} onChange={(event) => setFilterEmpty(event.target.checked)} />
+                <Text size="small">Show Empty Vaults</Text>
+                <CheckBox toggle checked={showEmpty} onChange={(event) => setShowEmpty(event.target.checked)} />
               </Box>
             </Box>
           )}
