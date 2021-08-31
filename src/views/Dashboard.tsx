@@ -87,13 +87,13 @@ const Dashboard = () => {
 
       if (assetId === WETH && baseOrIlkId !== WETH) {
         // calculate DAIWETH price
-        const daiWethPrice = priceMap?.get(DAI)?.get(WETH);
+        const daiWethPrice = priceMap?.get(WETH)?.get(DAI);
         const daiWethPrice_ = ethers.utils.formatEther(daiWethPrice);
         // calculate WETHDAI price for 'ETH' currency setting
         const wethDaiPrice = 1 / Number(daiWethPrice_);
         positionValue = Number(wethDaiPrice) * Number(value);
       } else {
-        const assetPrice = baseOrIlkId !== assetId && priceMap?.get(assetId)?.get(baseOrIlkId);
+        const assetPrice = baseOrIlkId !== assetId && priceMap?.get(baseOrIlkId)?.get(assetId);
         const assetPrice_ = assetPrice ? ethers.utils.formatEther(assetPrice) : '1';
         positionValue = Number(assetPrice_) * Number(value);
       }
@@ -110,12 +110,14 @@ const Dashboard = () => {
     setTotalDebt(
       cleanValue(_debts.reduce((sum: number, debt: number) => sum + debt, 0).toString(), currencySettingDigits)
     );
-
     const _collaterals = vaultPositions?.map((vault: IVault) =>
       getPositionValue(vault.ilkId, vault.ink_, currencySettingAssetId)
     );
     setTotalCollateral(
-      cleanValue(_collaterals.reduce((sum: number, debt: number) => sum + debt, 0).toString(), currencySettingDigits)
+      cleanValue(
+        _collaterals.reduce((sum: number, collateral: number) => sum + collateral, 0).toString(),
+        currencySettingDigits
+      )
     );
   }, [priceMap, vaultPositions, currencySettingAssetId, getPositionValue, currencySettingDigits]);
 
