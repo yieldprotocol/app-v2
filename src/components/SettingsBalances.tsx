@@ -7,9 +7,8 @@ import AddTokenToMetamask from './AddTokenToMetamask';
 import YieldBalances from './YieldBalances';
 
 const StyledTableCell = styled(TableCell)`
-  padding: 0.3rem;
+  padding: 0.3rem 0.5rem;
   span {
-    line-height: normal;
     svg {
       vertical-align: middle;
     }
@@ -41,7 +40,7 @@ const DropContent = ({ assetMap }: { assetMap: any }) => (
         {[...assetMap.values()].map((asset: IAsset) => (
           <TableRow key={asset.address}>
             <StyledTableCell plain>
-              <Text size="large">{asset.image}</Text>
+              <Text size="medium">{asset.image}</Text>
             </StyledTableCell>
             <StyledTableCell plain>
               <Text size="small" color="gray">
