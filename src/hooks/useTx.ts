@@ -4,7 +4,7 @@ import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
 import { UserContext } from '../contexts/UserContext';
 import { ActionCodes, TxState } from '../types';
-import { getTxCode } from '../utils/appUtils';
+import { getTxCode, getPositionPathPrefix, getVaultIdFromReceipt } from '../utils/appUtils';
 
 interface ITx {
   txCode: any;
@@ -55,25 +55,15 @@ export const useTx = (
   const [txCode, setTxCode] = useState<string>();
   const [txHash, setTxHash] = useState<string>();
   const [txStatus, setTxStatus] = useState<TxState>();
+  const [txReceipt, setTxReceipt] = useState<any>();
   const [processActive, setProcessActive] = useState<boolean>(false);
 
   const resetTx = () => {
     setTx(INITIAL_STATE);
     setTxHash(undefined);
     setTxStatus(undefined);
+    setTxReceipt(undefined);
     setProcessActive(false);
-  };
-
-  const getPositionPathPrefix = (_actionCode: string) => {
-    const _action = _actionCode?.split('_')[0];
-    switch (_action) {
-      case ActionCodes.BORROW:
-        return 'vaultposition';
-      case ActionCodes.ADD_LIQUIDITY:
-        return 'poolposition';
-      default:
-        return `${_action.toLowerCase()}position`;
-    }
   };
 
   useEffect(() => {
@@ -92,6 +82,7 @@ export const useTx = (
 
   useEffect(() => {
     transactions.has(txHash) && setTxStatus(transactions.get(txHash).status);
+    transactions.has(txHash) && setTxReceipt(transactions.get(txHash).receipt);
   }, [txHash, transactions]);
 
   useEffect(() => {
@@ -119,23 +110,19 @@ export const useTx = (
   // get the vault id after borrowing or the lend/pool position id's
   useEffect(() => {
     const pathPrefix = txCode && getPositionPathPrefix(txCode!);
-    const positionId = txCode?.split('_')[1];
 
-    if (txCode?.includes(ActionCodes.BORROW)) {
-      if (transactions.has(txHash) && tx.success) {
-        const receipt = transactions?.get(txHash)?.receipt!;
-        const cauldronAddr = contractMap.get('Cauldron').address;
-        const vaultIdHex = receipt.events.filter((e: any) => e.address === cauldronAddr)[0].topics[1];
-        const vaultId = vaultIdHex.slice(0, 26);
-
-        setTx((t) => ({ ...t, positionPath: `${pathPrefix}/${vaultId}` }));
-      } else {
-        setTx((t) => ({ ...t, positionPath: undefined }));
-      }
+    if (txCode?.includes(ActionCodes.BORROW) && txReceipt) {
+      console.log('receipt', txReceipt);
+      const vaultId = getVaultIdFromReceipt(txReceipt, contractMap);
+      setTx((t) => ({ ...t, positionPath: `${pathPrefix}/${vaultId}` }));
+    } else if (txCode?.includes(ActionCodes.BORROW) && !txReceipt) {
+      setTx((t) => ({ ...t, positionPath: undefined }));
     } else {
+      const positionId = txCode && txCode.split('_')[1];
       setTx((t) => ({ ...t, positionPath: `${pathPrefix}/${positionId}` }));
     }
-  }, [transactions, contractMap, txCode, txHash, tx.success]);
+    console.log(tx.positionPath);
+  }, [transactions, contractMap, txCode, txHash, txReceipt]);
 
   return { tx, resetTx };
 };
