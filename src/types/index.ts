@@ -182,12 +182,6 @@ export interface IVault extends IVaultRoot {
 }
 
 export interface IStrategy extends IStrategyRoot {
-  
-  strategyTotalSupply: BigNumber;
-  poolTotalSupply: BigNumber;
-
-  strategyPoolBalance:BigNumber;
-  strategyPoolPercent: string;
 
   currentSeriesId: string;
   currentPoolAddr: string;
@@ -196,12 +190,23 @@ export interface IStrategy extends IStrategyRoot {
   currentSeries: ISeries| undefined;
   nextSeries: ISeries| undefined;
   active: boolean;
+  
+  strategyTotalSupply?: BigNumber;
+  strategyTotalSupply_?: string;
+
+  poolTotalSupply?: BigNumber;
+  poolTotalSupply_?: string;
+
+  strategyPoolBalance?:BigNumber;
+  strategyPoolBalance_?:string;
+  strategyPoolPercent?: string;
 
   accountBalance?: BigNumber;
   accountBalance_?: string;
+  accountStrategyPercent?: string| undefined;
+
   accountPoolBalance?: BigNumber;
   accountPoolBalance_?: string;
-
   accountPoolPercent?: string | undefined;
 }
 

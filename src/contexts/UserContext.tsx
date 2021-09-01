@@ -478,13 +478,17 @@ const UserProvider = ({ children }: any) => {
               currentSeries?.poolContract.totalSupply(),
               currentSeries?.poolContract.balanceOf(_strategy.address)
             ]);
+
             const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
 
             return {
               ..._strategy,
               strategyTotalSupply,
+              strategyTotalSupply_: ethers.utils.formatUnits(strategyTotalSupply, _strategy.decimals),
               poolTotalSupply,
+              poolTotalSupply_: ethers.utils.formatUnits(poolTotalSupply, _strategy.decimals),
               strategyPoolBalance,
+              strategyPoolBalance_: ethers.utils.formatUnits(strategyPoolBalance, _strategy.decimals),
               strategyPoolPercent, 
               currentSeriesId,
               currentPoolAddr,
@@ -494,13 +498,10 @@ const UserProvider = ({ children }: any) => {
               active: true,
             }
           }
+          
           /* else return an 'EMPTY' strategy */
           return {
             ..._strategy,
-            strategyTotalSupply,
-            poolTotalSupply: ZERO_BN,
-            strategyPoolBalance: ZERO_BN,
-            strategyPoolPercent: '0',
             currentSeriesId,
             currentPoolAddr,
             nextSeriesId,
@@ -521,11 +522,15 @@ const UserProvider = ({ children }: any) => {
               _strategy.strategyContract.balanceOf(account),
               _strategy.currentSeries?.poolContract.balanceOf(account)
             ]);
+
+            const accountStrategyPercent = mulDecimal(divDecimal(accountBalance, _strategy.strategyTotalSupply || '0'), '100');
+
             return {
               ..._strategy,
               accountBalance,
               accountBalance_: ethers.utils.formatUnits(accountBalance, _strategy.decimals),
               accountPoolBalance,
+              accountStrategyPercent,
             };
           })
         );

@@ -37,10 +37,13 @@ const PoolPosition = ({ close }: { close: () => void }) => {
 
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, selectedSeriesId, seriesMap, assetMap, seriesLoading } = userState;
+  const { activeAccount, selectedStrategyAddr, strategyMap,  assetMap, seriesLoading } = userState;
 
-  const selectedSeries = seriesMap.get(selectedSeriesId || idFromUrl);
-  const selectedBase = assetMap.get(selectedSeries?.baseId!);
+  // const selectedSeries = seriesMap.get(selectedSeriesId || idFromUrl);
+  // const selectedBase = assetMap.get(selectedSeries?.baseId!);
+  const selectedStrategy = strategyMap.get(selectedStrategyAddr || idFromUrl)
+  const selectedSeries = selectedStrategy?.currentSeries;
+  const selectedBase = assetMap.get(selectedStrategy?.baseId!);
 
   /* LOCAL STATE */
   const [removeInput, setRemoveInput] = useState<string | undefined>(undefined);
@@ -89,6 +92,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
     console.log(selectedSeries?.displayName);
     selectedSeries && removeLiquidity(removeInput!, selectedSeries);
   };
+
   const handleRoll = () => {
     // !rollDisabled &&
     selectedSeries && rollToSeries && rollLiquidity(rollInput!, selectedSeries, rollToSeries);
@@ -102,9 +106,9 @@ const PoolPosition = ({ close }: { close: () => void }) => {
   /* SET MAX VALUES */
   useEffect(() => {
     /* Checks the max available to roll or move */
-    const max = selectedSeries?.poolTokens;
-    if (max) setMaxRemove(ethers.utils.formatUnits(max, selectedSeries?.decimals).toString());
-  }, [rollInput, selectedSeries, setMaxRemove]);
+    const max = selectedStrategy?.accountBalance;
+    if (max) setMaxRemove(ethers.utils.formatUnits(max, selectedStrategy?.decimals).toString());
+  }, [rollInput, selectedStrategy, setMaxRemove]);
 
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
   useEffect(() => {
@@ -130,17 +134,17 @@ const PoolPosition = ({ close }: { close: () => void }) => {
 
   return (
     <>
-      {selectedSeries && (
+      {selectedStrategy && (
         <ModalWrap series={selectedSeries}>
           <CenterPanelWrap>
             <Box fill pad={mobile ? 'medium' : 'large'} gap="medium">
               <Box height={{ min: '250px' }} gap="medium">
                 <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
                   <Box direction="row" align="center" gap="medium">
-                    <PositionAvatar position={selectedSeries!} />
+                    {/* <PositionAvatar position={selectedStrategy} /> */}
                     <Box>
-                      <Text size={mobile ? 'medium' : 'large'}> {selectedSeries?.displayName} </Text>
-                      <Text size="small"> {abbreviateHash(selectedSeries?.fyTokenAddress!, 5)}</Text>
+                      <Text size={mobile ? 'medium' : 'large'}> {selectedStrategy?.name} </Text>
+                      <Text size="small"> {abbreviateHash(selectedStrategyAddr!, 5)}</Text>
                     </Box>
                   </Box>
                   <ExitButton action={() => history.goBack()} />
@@ -151,26 +155,23 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                     {/* <InfoBite label="Vault debt + interest:" value={`${selectedVault?.art_} ${vaultBase?.symbol}`} icon={<FiTrendingUp />} /> */}
 
                     <InfoBite
-                      label="Liquidity Balance"
-                      value={cleanValue(selectedSeries?.poolTokens_, selectedBase?.digitFormat!)}
+                      label="LP Strategy Balance"
+                      value={cleanValue(selectedStrategy?.accountBalance_, selectedBase?.digitFormat!)}
                       icon={<YieldMark height="1em" startColor={selectedSeries?.startColor} />}
                       loading={seriesLoading}
                     />
-                    {/* <InfoBite 
-                label="Total Pool Liquidity"
-                value={cleanValue(selectedSeries?.totalSupply_, 2)}
-                icon={<BiCoinStack />}
-              /> */}
                     <InfoBite
-                      label="Pool percentage"
-                      value={`${cleanValue(selectedSeries?.poolPercent, 4)} %  of ${nFormatter(
-                        parseFloat(selectedSeries?.totalSupply_!),
+                      label="LP Strategy percentage"
+                      value={`${cleanValue(selectedStrategy?.accountStrategyPercent, 4)} %  of ${nFormatter(
+                        parseFloat(selectedStrategy?.strategyTotalSupply_!),
                         2
                       )}`}
                       icon={<FiPercent />}
                       loading={seriesLoading}
                     />
-                    <InfoBite label="Maturity date:" value={`${selectedSeries?.fullDate}`} icon={<FiClock />} />
+
+                    {/* <InfoBite label="Maturity date:" value={`${selectedSeries?.fullDate}`} icon={<FiClock />} /> */}
+
                   </Box>
                 </SectionWrap>
               </Box>
