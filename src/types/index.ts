@@ -40,6 +40,7 @@ export interface IUserContextState {
   selectedIlkId: string | null;
   selectedBaseId: string | null;
   selectedVaultId: string | null;
+  selectedStrategyAddr: string | null;
 
   approvalMethod: ApprovalType;
   dudeSalt: number;
@@ -178,10 +179,20 @@ export interface IVault extends IVaultRoot {
 }
 
 export interface IStrategy extends IStrategyRoot {
-  totalSupply: any;
-  currentSeries: string;
-  current: string;
+  
+  strategyTotalSupply: BigNumber;
+  poolTotalSupply: BigNumber;
 
+  currentSeriesId: string;
+  currentPoolAddr: string;
+  nextSeriesId: string;
+
+  currentSeries: ISeries|undefined;
+  nextSeries: ISeries|undefined;
+  active: boolean;
+
+  balance?: BigNumber;
+  balance_?: string;
 }
 
 export interface ICallData {
