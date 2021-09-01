@@ -8,7 +8,6 @@ import { BiCoinStack, BiMessageSquareAdd } from 'react-icons/bi';
 import { cleanValue, nFormatter } from '../utils/appUtils';
 import AssetSelector from '../components/selectors/AssetSelector';
 import MainViewWrap from '../components/wraps/MainViewWrap';
-import SeriesSelector from '../components/selectors/SeriesSelector';
 import InputWrap from '../components/wraps/InputWrap';
 import InfoBite from '../components/InfoBite';
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
@@ -33,6 +32,7 @@ import { useAddLiquidity } from '../hooks/actionHooks/useAddLiquidity';
 
 import AddTokenToMetamask from '../components/AddTokenToMetamask';
 import TransactionWidget from '../components/TransactionWidget';
+import StrategySelector from '../components/selectors/StrategySelector';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -98,7 +98,7 @@ function Pool() {
               position={stepPosition}
               values={[
                 // ['Choose amount to', 'POOL', ''],
-                ['Choose an amount and a maturity date', '', ''],
+                ['Choose an amount and a strategy to invest in', '', ''],
                 ['Review &', 'Transact', ''],
               ]}
             />
@@ -144,12 +144,12 @@ function Pool() {
 
                     <Box basis={mobile ? '50%' : '40%'}>
                       <AssetSelector />
-                      <AddTokenToMetamask
+                      {/* <AddTokenToMetamask
                         address={selectedBase?.address}
                         symbol={selectedBase?.symbol}
                         decimals={18}
                         image=""
-                      />
+                      /> */}
                     </Box>
                   </Box>
                 </SectionWrap>
@@ -157,11 +157,11 @@ function Pool() {
                 <SectionWrap
                   title={
                     seriesMap.size > 0
-                      ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} maturity date`
+                      ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} strategy`
                       : ''
                   }
                 >
-                  <SeriesSelector actionType={ActionType.POOL} inputValue={poolInput} />
+                  <StrategySelector inputValue={poolInput} />
                 </SectionWrap>
               </Box>
             </Box>
