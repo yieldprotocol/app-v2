@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { constants } from 'ethers';
 import { Box, Button, Text } from 'grommet';
 import { BiWallet } from 'react-icons/bi';
@@ -71,9 +71,10 @@ const ActiveTransaction = ({
     userState: { approvalMethod },
   } = useContext(UserContext);
 
+  const { pathname } = useLocation();
+
   const [sig, setSig] = useState<any>();
   const [iconSize, setIconSize] = useState<string>('1em');
-
   useEffect(() => {
     tx.txCode && setSig(signatures.get(tx.txCode));
   }, [tx, signatures]);
@@ -158,7 +159,7 @@ const ActiveTransaction = ({
           subTitle={<CopyWrap hash={tx.txHash}> {abbreviateHash(tx.txHash, 6)} </CopyWrap>}
           icon={<FiCheckCircle size={iconSize} />}
           button={
-            tx.positionPath ? (
+            tx.positionPath && !pathname.includes('position') ? (
               <Link to={tx.positionPath} style={{ textDecoration: 'none' }}>
                 <Text size="xsmall" color="tailwind-blue" style={{ verticalAlign: 'middle' }}>
                   View Position
