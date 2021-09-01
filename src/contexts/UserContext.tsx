@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useReducer, useCallback, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { ethers } from 'ethers';
+import { BigNumber, BigNumberish, ethers } from 'ethers';
 
 import { uniqueNamesGenerator, Config, adjectives, animals } from 'unique-names-generator';
 
@@ -22,7 +22,7 @@ import { ChainContext } from './ChainContext';
 import { cleanValue, genVaultImage, bytesToBytes32 } from '../utils/appUtils';
 import { calculateAPR, divDecimal, floorDecimal, mulDecimal, secondsToFrom, sellFYToken } from '../utils/yieldMath';
 
-import { ONE_WEI_BN, ETH_BASED_ASSETS } from '../utils/constants';
+import { ONE_WEI_BN, ETH_BASED_ASSETS, BLANK_VAULT, BLANK_SERIES, ZERO_BN } from '../utils/constants';
 
 const UserContext = React.createContext<any>({});
 
@@ -50,6 +50,7 @@ const initState: IUserContextState = {
   selectedIlkId: null, // initial ilk
   selectedBaseId: null, // initial base
   selectedVaultId: null,
+  selectedStrategyAddr: null,
 
   /* User Settings */
   approvalMethod: ApprovalType.SIG,
@@ -88,6 +89,8 @@ function userReducer(state: any, action: any) {
       return { ...state, selectedIlkId: onlyIfChanged(action) };
     case 'selectedBaseId':
       return { ...state, selectedBaseId: onlyIfChanged(action) };
+    case 'selectedStrategyAddr':
+      return { ...state, selectedStrategyAddr: onlyIfChanged(action) };
 
     case 'assetMap':
       return { ...state, assetMap: onlyIfChanged(action) };
@@ -110,6 +113,7 @@ function userReducer(state: any, action: any) {
       return { ...state, hideBalancesSetting: onlyIfChanged(action) };
     case 'setSlippageTolerance':
       return { ...state, slippageTolerance: onlyIfChanged(action) };
+
     case 'pricesLoading':
       return { ...state, pricesLoading: onlyIfChanged(action) };
     case 'vaultsLoading':
@@ -118,6 +122,9 @@ function userReducer(state: any, action: any) {
       return { ...state, seriesLoading: onlyIfChanged(action) };
     case 'assetsLoading':
       return { ...state, assetsLoading: onlyIfChanged(action) };
+    case 'strategiesLoading':
+      return { ...state, strategiesLoading: onlyIfChanged(action) };
+
     case 'currencySetting':
       return { ...state, currencySetting: onlyIfChanged(action) };
 
@@ -454,32 +461,60 @@ const UserProvider = ({ children }: any) => {
       let _publicData: IStrategy[] = [];
       let _accountData: IStrategy[] = [];
 
-      console.log(strategyList);
-      
       _publicData = await Promise.all(
-        strategyList.map(async (strategy: IStrategyRoot): Promise<IStrategy> => {
+        strategyList
+        .map(async (_strategy: IStrategyRoot): Promise<IStrategy> => {
           /* Get all the data simultanenously in a promise.all */
-          const [ totalSupply, currentSeries, current ] = await Promise.all([
-            strategy.strategyContract.totalSupply(),
-            strategy.strategyContract.seriesId(),
-            strategy.strategyContract.pool(),
-          ])
+          const [strategyTotalSupply, currentSeriesId, currentPoolAddr, nextSeriesId] = await Promise.all([
+            _strategy.strategyContract.totalSupply(),
+            _strategy.strategyContract.seriesId(),
+            _strategy.strategyContract.pool(),
+            _strategy.strategyContract.nextSeriesId(),
+          ]);
+
+          let currentSeries: ISeries|undefined;
+          let nextSeries: ISeries|undefined;
+          let poolTotalSupply: BigNumber = ZERO_BN;
+          if ( seriesRootMap.has(currentSeriesId) ) {
+            currentSeries = seriesRootMap.get(currentSeriesId);    
+            nextSeries = seriesRootMap.get(nextSeriesId);       
+            poolTotalSupply = await currentSeries?.poolContract.totalSupply() || ZERO_BN;
+          }
+
           return {
-            ...strategy,
-            totalSupply,
+            ..._strategy,
+            strategyTotalSupply,
+            poolTotalSupply,
+            currentSeriesId,
+            currentPoolAddr,
+            nextSeriesId,
             currentSeries,
-            current,
+            nextSeries,
+            active: !!currentSeries,
           };
         })
       );
 
       if (account) {
-        // _accountData = await Promise.all(
-        // )
-        _accountData = []
+        _accountData = await Promise.all(
+          _publicData
+          // .filter( (s:IStrategy) => s.active) // filter out strategies with no current series
+          .map(async (_strategy: IStrategy): Promise<IStrategy> => {
+
+            const [ balance ] = await Promise.all( [_strategy.currentSeries?.poolContract.balanceOf(account) ]);
+
+            return {
+              ..._strategy,
+              balance,
+            };
+          })
+        );
       }
 
-      const _combinedData = _accountData.length ? _accountData : _publicData;
+      const _combinedData = _accountData.length 
+      ? _accountData 
+      : _publicData // .filter( (s:IStrategy) => s.active) ; // filter out strategies with no current series
+
       /* combined account and public series data reduced into a single Map */
       const newStratMap = new Map(
         _combinedData.reduce((acc: any, item: any) => {
@@ -492,13 +527,13 @@ const UserProvider = ({ children }: any) => {
       console.log('STRATEGIES updated (with dynamic data): ', newStratMap);
       updateState({ type: 'strategiesLoading', payload: false });
       return newStratMap;
-
-  }, [ account ]);
+    },
+    [account, seriesRootMap]
+  );
 
   useEffect(() => {
     /* When the chainContext is finished loading get the dynamic series, asset and strategies data */
     if (!chainLoading) {
-      console.log('Maps: ',seriesRootMap, assetRootMap, strategyRootMap)
       seriesRootMap.size && updateSeries(Array.from(seriesRootMap.values()));
       assetRootMap.size && updateAssets(Array.from(assetRootMap.values()));
       strategyRootMap.size && updateStrategies(Array.from(strategyRootMap.values()));
@@ -515,16 +550,14 @@ const UserProvider = ({ children }: any) => {
   ]);
 
   useEffect(() => {
-
     /* When the chainContext is finished loading get the users vault data */
     if (!chainLoading && account !== null) {
       console.log('Checking User Vaults');
       /* trigger update of update all vaults by passing empty array */
       updateVaults([], true);
     }
-    /* keep checking the active account when it changes/ chainlaoding */ 
+    /* keep checking the active account when it changes/ chainlaoding */
     updateState({ type: 'activeAccount', payload: account });
-
   }, [account, chainLoading]); // updateVaults ignored here on purpose
 
   /* TODO SUBSCRIBE TO EVENTS */
@@ -552,9 +585,10 @@ const UserProvider = ({ children }: any) => {
     setSelectedIlk: (assetId: string | null) => updateState({ type: 'selectedIlkId', payload: assetId }),
     setSelectedSeries: (seriesId: string | null) => updateState({ type: 'selectedSeriesId', payload: seriesId }),
     setSelectedBase: (assetId: string | null) => updateState({ type: 'selectedBaseId', payload: assetId }),
+    setSelectedStrategy: (strategyAddr: string | null) =>
+      updateState({ type: 'selectedStrategyAddr', payload: strategyAddr }),
 
-
-    // TODO To reduce exposure, maybe we have a single 'change setting' function?  > that handles all the below? not urgent. 
+    // TODO To reduce exposure, maybe we have a single 'change setting' function?  > that handles all the below? not urgent.
     setApprovalMethod: (type: ApprovalType) => updateState({ type: 'approvalMethod', payload: type }),
     updateDudeSalt: () => updateState({ type: 'dudeSalt', payload: userState.dudeSalt + 3 }),
     setShowInactiveVaults: (showInactiveVaults: boolean) =>
