@@ -15,6 +15,7 @@ interface ITx {
   txHash: any;
   processActive: boolean;
   positionPath: string | undefined;
+  receipt: any | undefined;
 }
 
 /* useTx hook returns the tx status, and redirects to home after success if shouldRedirect is specified */
@@ -47,20 +48,19 @@ export const useTx = (
     txHash: undefined,
     processActive: false,
     positionPath: undefined,
+    receipt: undefined,
   };
 
   const [tx, setTx] = useState<ITx>(INITIAL_STATE);
   const [txCode, setTxCode] = useState<string>();
   const [txHash, setTxHash] = useState<string>();
   const [txStatus, setTxStatus] = useState<TxState>();
-  const [txReceipt, setTxReceipt] = useState<any>();
   const [processActive, setProcessActive] = useState<boolean>(false);
 
   const resetTx = () => {
     setTx(INITIAL_STATE);
     setTxHash(undefined);
     setTxStatus(undefined);
-    setTxReceipt(undefined);
     setProcessActive(false);
   };
 
@@ -69,12 +69,7 @@ export const useTx = (
   }, [actionCode, seriesOrVaultId]);
 
   useEffect(() => {
-    const _txHash = processes.get(txCode!)?.hash!;
-
-    if (txCode && _txHash) {
-      setTxHash(_txHash);
-      setTx((t) => ({ ...t, txHash: _txHash }));
-    }
+    txCode && setTxHash(processes.get(txCode!)?.hash!);
   }, [processes, txCode, processActive]);
 
   useEffect(() => {
@@ -84,11 +79,16 @@ export const useTx = (
   }, [processes, txCode]);
 
   useEffect(() => {
-    if (transactions.has(txHash)) {
-      setTxStatus(transactions.get(txHash).status);
-      setTxReceipt(transactions.get(txHash).receipt);
-    }
+    processActive && transactions.has(txHash) && setTxStatus(transactions.get(txHash).status);
+  }, [txHash, transactions, processActive]);
+
+  useEffect(() => {
+    transactions.has(txHash) && setTx((t) => ({ ...t, receipt: transactions.get(txHash).receipt }));
   }, [txHash, transactions]);
+
+  useEffect(() => {
+    console.log(tx);
+  }, [tx]);
 
   useEffect(() => {
     setTx((t) => ({ ...t, txCode, processActive }));
@@ -116,16 +116,16 @@ export const useTx = (
   useEffect(() => {
     const pathPrefix = txCode && getPositionPathPrefix(txCode!);
 
-    if (txCode?.includes(ActionCodes.BORROW) && txReceipt) {
-      const vaultId = getVaultIdFromReceipt(txReceipt, contractMap);
+    if (txCode?.includes(ActionCodes.BORROW) && tx.receipt) {
+      const vaultId = getVaultIdFromReceipt(tx.receipt, contractMap);
       setTx((t) => ({ ...t, positionPath: `${pathPrefix}/${vaultId}` }));
-    } else if (txCode?.includes(ActionCodes.BORROW) && !txReceipt) {
+    } else if (txCode?.includes(ActionCodes.BORROW) && !tx.receipt) {
       setTx((t) => ({ ...t, positionPath: undefined }));
     } else {
       const positionId = txCode && txCode.split('_')[1];
       setTx((t) => ({ ...t, positionPath: `${pathPrefix}/${positionId}` }));
     }
-  }, [transactions, contractMap, txCode, txHash, txReceipt]);
+  }, [transactions, contractMap, txCode, txHash, tx.receipt]);
 
   return { tx, resetTx };
 };
