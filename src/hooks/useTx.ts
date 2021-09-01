@@ -87,10 +87,6 @@ export const useTx = (
   }, [txHash, transactions]);
 
   useEffect(() => {
-    console.log(tx);
-  }, [tx]);
-
-  useEffect(() => {
     setTx((t) => ({ ...t, txCode, processActive }));
     switch (txStatus) {
       case TxState.PENDING:
