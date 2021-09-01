@@ -19,7 +19,7 @@ import MaxButton from '../components/buttons/MaxButton';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import StepperText from '../components/StepperText';
-import PositionSelector from '../components/selectors/PositionSelector';
+import StrategyPositionSelector from '../components/selectors/StrategyPositionSelector';
 import ActiveTransaction from '../components/ActiveTransaction';
 import YieldInfo from '../components/YieldInfo';
 import BackButton from '../components/buttons/BackButton';
@@ -270,7 +270,7 @@ function Pool() {
           <TransactionWidget />
         </Box>
         {/* <YieldLiquidity input={poolInput} /> */}
-        {!mobile && <PositionSelector actionType={ActionType.POOL} />}
+        {!mobile && <StrategyPositionSelector />}
       </PanelWrap>
     </MainViewWrap>
   );

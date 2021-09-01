@@ -2,8 +2,8 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Box } from 'grommet';
 import { ActionType, ISeries, IUserContext, IVault } from '../types';
 import { UserContext } from '../contexts/UserContext';
-import VaultItem from './VaultItem';
-import PositionItem from './PositionItem';
+import VaultItem from './positionItems/VaultItem';
+import PositionItem from './positionItems/LendItem';
 
 function DashboardPositionListItem({
   seriesOrVault,

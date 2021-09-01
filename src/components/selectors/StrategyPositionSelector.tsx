@@ -4,81 +4,68 @@ import { useHistory } from 'react-router-dom';
 import { Box, Button, Text } from 'grommet';
 
 import { UserContext } from '../../contexts/UserContext';
-import { ActionType, IAsset, ISeries, IUserContext } from '../../types';
+import { IAsset, ISeries, IStrategy, IUserContext } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
-import LendPosition from '../../views/LendPosition';
-import PoolPosition from '../../views/PoolPosition';
-import PositionListItem from '../PositionItem';
+import StrategyItem from '../positionItems/StrategyItem';
 import ListWrap from '../wraps/ListWrap';
-import ModalWrap from '../wraps/ModalWrap';
 
-interface IPositionFilter {
+interface IStrategyFilter {
   base: IAsset | undefined;
   series: ISeries | undefined;
+  strategy: IStrategy | undefined;
 }
 
-function PositionSelector({ actionType }: { actionType: ActionType }) {
-  const history = useHistory();
-  /* STATE FROM CONTEXT */
+function StrategyPositionSelector() {
 
+  const history = useHistory();
+  
+  /* STATE FROM CONTEXT */
   const { userState, userActions } = useContext(UserContext) as IUserContext;
-  const { activeAccount, assetMap, seriesMap, selectedSeriesId, selectedBaseId } = userState;
+  const { assetMap, seriesMap, strategyMap, selectedSeriesId, selectedBaseId, selectedStrategyAddr } = userState;
 
   const selectedSeries = seriesMap.get(selectedSeriesId!);
   const selectedBase = assetMap.get(selectedBaseId!);
+  const selectedStrategy = strategyMap.get(selectedStrategyAddr!);
 
-  const [allPositions, setAllPositions] = useState<ISeries[]>([]);
+  const [allPositions, setAllPositions] = useState<IStrategy[]>([]);
   const [showAllPositions, setShowAllPositions] = useState<boolean>(false);
 
-  const [currentFilter, setCurrentFilter] = useState<IPositionFilter>();
+  const [currentFilter, setCurrentFilter] = useState<IStrategyFilter>();
   const [filterLabels, setFilterLabels] = useState<(string | undefined)[]>([]);
-  const [filteredSeries, setFilteredSeries] = useState<ISeries[]>([]);
-
-  const handleSelect = (_series: ISeries) => {
-    console.log(_series.id);
-    userActions.setSelectedBase(_series.baseId);
-    userActions.setSelectedSeries(_series.id);
-
-    actionType === 'LEND' ? history.push(`/lendposition/${_series.id}`) : history.push(`/poolposition/${_series.id}`);
-  };
+  const [filteredSeries, setFilteredSeries] = useState<IStrategy[]>([]);
 
   const handleFilter = useCallback(
-    ({ base, series }: IPositionFilter) => {
+    ({ base, series, strategy }: IStrategyFilter) => {
       /* filter all positions by base if base is selected */
-      const _filteredSeries: ISeries[] = Array.from(seriesMap.values())
-        /* filter by positive balances on either pool tokens or fyTokens */
-        .filter((_series: ISeries) => (actionType === 'LEND' && _series ? _series.fyTokenBalance?.gt(ZERO_BN) : true))
-        .filter((_series: ISeries) => (actionType === 'POOL' && _series ? _series.poolTokens?.gt(ZERO_BN) : true))
-        .filter((_series: ISeries) => (base ? _series.baseId === base.id : true))
-        .filter((_series: ISeries) => (series ? _series.id === series.id : true));
+      const _filteredStrategies: IStrategy[] = Array.from(strategyMap.values())
+        /* filters */
+        // .filter((_strategy: IStrategy) => _strategy.balance?.gt(ZERO_BN))
+        // .filter((_strategy: IStrategy) => (base ? _strategy.baseId === base.id : true))
+        // .filter((_strategy: IStrategy) => (strategy ? _strategy.address === strategy.address : true));
 
-      setCurrentFilter({ base, series });
+      setCurrentFilter({ base, series, strategy });
       setFilterLabels([base?.symbol, series?.displayNameMobile]);
-      setFilteredSeries(_filteredSeries);
+      setFilteredSeries(_filteredStrategies);
     },
-    [seriesMap, actionType]
+    [strategyMap]
   );
 
   /* CHECK the list of current vaults which match the current base series selection */
   useEffect(() => {
-    /* only if veiwing the main screen (not when modal is showing) */
-    // if (!showPositionModal) {
-    const _allPositions: ISeries[] = Array.from(seriesMap.values())
-      /* filter by positive balances on either pool tokens or fyTokens */
-      .filter((_series: ISeries) => (actionType === 'LEND' && _series ? _series.fyTokenBalance?.gt(ZERO_BN) : true))
-      .filter((_series: ISeries) => (actionType === 'POOL' && _series ? _series.poolTokens?.gt(ZERO_BN) : true))
-      .sort((_seriesA: ISeries, _seriesB: ISeries) =>
-        actionType === 'LEND' && _seriesA.fyTokenBalance?.gt(_seriesB.fyTokenBalance!) ? 1 : -1
-      )
-      .sort((_seriesA: ISeries, _seriesB: ISeries) =>
-        actionType === 'POOL' && _seriesA.poolTokens?.lt(_seriesB.poolTokens!) ? 1 : -1
-      );
-    setAllPositions(_allPositions);
 
-    if (selectedBase) handleFilter({ base: selectedBase, series: undefined });
-    if (selectedBase && selectedSeries) handleFilter({ base: selectedBase, series: selectedSeries });
-    // }
-  }, [selectedBase, selectedSeries, handleFilter, seriesMap, actionType]);
+    /* only if veiwing the main screen (not when modal is showing) */
+    const _allPositions: IStrategy[] = Array.from(strategyMap.values())
+      /* filter by positive strategy balances */
+      .filter((_strategy: IStrategy) => _strategy.balance?.gt(ZERO_BN) )
+      .sort((_strategyA: IStrategy, _strategyB: IStrategy) =>
+      _strategyA.balance?.lt(_strategyB.balance!) ? 1 : -1
+      );
+    
+    setAllPositions(_allPositions);
+    // if (selectedBase) handleFilter({ base: selectedBase, series: undefined });
+    // if (selectedBase && selectedSeries) handleFilter({ base: selectedBase, series: selectedSeries });
+
+  }, [strategyMap]);
 
   useEffect(() => {
     allPositions.length <= 5 && setShowAllPositions(true);
@@ -91,8 +78,8 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
           <Box animation="fadeIn" justify="center" align="center" direction="row" gap="small">
             <Text size="small" color="text-weak">
               {showAllPositions
-                ? `Open ${actionType === 'LEND' ? 'lending' : 'pool'} positions`
-                : `Filtered ${actionType === 'LEND' ? 'lending' : 'pool'} positions`}
+                ? `Open strategy positions`
+                : `Filtered strategy positions`}
             </Text>
           </Box>
 
@@ -103,8 +90,8 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
               </Text>
             )}
 
-            {(!showAllPositions ? filteredSeries : allPositions).map((x: ISeries, i: number) => (
-              <PositionListItem series={x} actionType={actionType} index={i} key={x.id} />
+            {(!showAllPositions ? filteredSeries : allPositions).map((x: IStrategy, i: number) => (
+              <StrategyItem strategy={x} index={i} key={x.address} />
             ))}
           </ListWrap>
 
@@ -121,11 +108,11 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
                   <Text size="xsmall">{filterLabels[0]}</Text>
                   <Text
                     size="xsmall"
-                    onClick={() =>
-                      handleFilter({
-                        ...currentFilter,
-                        base: undefined,
-                      } as IPositionFilter)
+                    onClick={() => null
+                      // handleFilter({
+                      //   ...currentFilter,
+                      //   base: undefined,
+                      // } as IPositionFilter)
                     }
                   >
                     <Button plain icon={<FiX style={{ verticalAlign: 'middle' }} />} />
@@ -143,11 +130,11 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
                   <Text size="xsmall">{filterLabels[1]}</Text>
                   <Text
                     size="xsmall"
-                    onClick={() =>
-                      handleFilter({
-                        ...currentFilter,
-                        series: undefined,
-                      } as IPositionFilter)
+                    onClick={() => null
+                      // handleFilter({
+                      //   ...currentFilter,
+                      //   series: undefined,
+                      // } as IPositionFilter)
                     }
                   >
                     <Button plain icon={<FiX style={{ verticalAlign: 'middle' }} />} />
@@ -172,4 +159,4 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
   );
 }
 
-export default PositionSelector;
+export default StrategyPositionSelector;
