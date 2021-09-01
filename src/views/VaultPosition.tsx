@@ -292,7 +292,7 @@ const VaultPosition = ({ close }: { close: () => void }) => {
   }, [vaultMap, mergeData.toVault, mergeData.ink, mergeData.art]);
 
   useEffect(() => {
-    if (account !== selectedVault?.owner) history.push(prevLoc);
+    if (selectedVault && account !== selectedVault?.owner) history.push(prevLoc);
   }, [account, selectedVault, history, prevLoc]);
 
   /* INTERNAL COMPONENTS */
