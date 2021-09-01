@@ -361,7 +361,6 @@ const UserProvider = ({ children }: any) => {
               series.poolContract.balanceOf(account),
               series.fyTokenContract.balanceOf(account),
             ]);
-
             const poolPercent = mulDecimal(divDecimal(poolTokens, series.totalSupply), '100');
             return {
               ...series,
@@ -472,67 +471,81 @@ const UserProvider = ({ children }: any) => {
             _strategy.strategyContract.nextSeriesId(),
           ]);
 
-          let currentSeries: ISeries|undefined;
-          let nextSeries: ISeries|undefined;
-          let poolTotalSupply: BigNumber = ZERO_BN;
           if ( seriesRootMap.has(currentSeriesId) ) {
-            currentSeries = seriesRootMap.get(currentSeriesId);    
-            nextSeries = seriesRootMap.get(nextSeriesId);       
-            poolTotalSupply = await currentSeries?.poolContract.totalSupply() || ZERO_BN;
-          }
+            const currentSeries = seriesRootMap.get(currentSeriesId);    
+            const nextSeries = seriesRootMap.get(nextSeriesId); 
+            const [ poolTotalSupply, strategyPoolBalance ] = await Promise.all([      
+              currentSeries?.poolContract.totalSupply(),
+              currentSeries?.poolContract.balanceOf(_strategy.address)
+            ]);
+            const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
 
+            return {
+              ..._strategy,
+              strategyTotalSupply,
+              poolTotalSupply,
+              strategyPoolBalance,
+              strategyPoolPercent, 
+              currentSeriesId,
+              currentPoolAddr,
+              nextSeriesId,
+              currentSeries,
+              nextSeries,
+              active: true,
+            }
+          }
+          /* else return an 'EMPTY' strategy */
           return {
             ..._strategy,
             strategyTotalSupply,
-            poolTotalSupply,
+            poolTotalSupply: ZERO_BN,
+            strategyPoolBalance: ZERO_BN,
+            strategyPoolPercent: '0',
             currentSeriesId,
             currentPoolAddr,
             nextSeriesId,
-            currentSeries,
-            nextSeries,
-            active: !!currentSeries,
+            currentSeries: undefined,
+            nextSeries:undefined,
+            active: false,
           };
         })
       );
 
+      /* add in account specific data */
       if (account) {
         _accountData = await Promise.all(
           _publicData
           // .filter( (s:IStrategy) => s.active) // filter out strategies with no current series
           .map(async (_strategy: IStrategy): Promise<IStrategy> => {
-
-            const [ strategyBalance, poolBalance ] = await Promise.all( [ 
+            const [ accountBalance, accountPoolBalance ] = await Promise.all( [ 
               _strategy.strategyContract.balanceOf(account),
-              _strategy.currentSeries?.poolContract.balanceOf(account) 
-            
+              _strategy.currentSeries?.poolContract.balanceOf(account)
             ]);
-
             return {
               ..._strategy,
-              strategyBalance,
-              strategyBalance_: ethers.utils.formatUnits(strategyBalance, 18 ),
-              poolBalance
+              accountBalance,
+              accountBalance_: ethers.utils.formatUnits(accountBalance, _strategy.decimals),
+              accountPoolBalance,
             };
           })
         );
       }
 
-      const _combinedData = _accountData.length 
-      ? _accountData 
-      : _publicData // .filter( (s:IStrategy) => s.active) ; // filter out strategies with no current series
+      const _combinedData = _accountData.length ? _accountData : _publicData // .filter( (s:IStrategy) => s.active) ; // filter out strategies with no current series
 
       /* combined account and public series data reduced into a single Map */
-      const newStratMap = new Map(
+      const newStrategyMap = new Map(
         _combinedData.reduce((acc: any, item: any) => {
           const _map = acc;
           _map.set(item.address, item);
           return _map;
         }, userState.strategyMap)
       );
-      updateState({ type: 'strategyMap', payload: newStratMap });
-      console.log('STRATEGIES updated (with dynamic data): ', newStratMap);
+
+      updateState({ type: 'strategyMap', payload: newStrategyMap });
+      console.log('STRATEGIES updated (with dynamic data): ', newStrategyMap);
       updateState({ type: 'strategiesLoading', payload: false });
-      return newStratMap;
+      return newStrategyMap;
     },
     [account, seriesRootMap]
   );

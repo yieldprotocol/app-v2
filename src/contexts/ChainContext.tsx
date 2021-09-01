@@ -421,21 +421,25 @@ const ChainProvider = ({ children }: any) => {
         const newStrategyList: any[] = [];
         await Promise.all(
           strategyAddresses.map(async (strategyAddr: string) => {
+
             /* if the strategy is already in the cache : */
             if (cachedStrategies.findIndex((_s: any) => _s.address === strategyAddr) === -1) {
               const Strategy = contracts.Strategy__factory.connect(strategyAddr, fallbackLibrary);
-              const [name, symbol, baseId] = await Promise.all([
+              const [name, symbol, baseId, decimals] = await Promise.all([
                 Strategy.name(),
                 Strategy.symbol(),
                 Strategy.baseId(),
                 Strategy.seriesId(),
+                Strategy.decimals()
               ]);
+
               const newStrategy = {
                 id: strategyAddr,
                 address: strategyAddr,
                 symbol,
                 name,
                 baseId,
+                decimals,
               };
               // update state and cache
               updateState({ type: 'addStrategy', payload: _chargeStrategy(newStrategy) });

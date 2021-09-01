@@ -128,6 +128,7 @@ export interface IStrategyRoot {
   name: string;
   symbol: string;
   baseId: string;
+  decimals: number;
   strategyContract: Strategy;
 }
 
@@ -185,19 +186,23 @@ export interface IStrategy extends IStrategyRoot {
   strategyTotalSupply: BigNumber;
   poolTotalSupply: BigNumber;
 
+  strategyPoolBalance:BigNumber;
+  strategyPoolPercent: string;
+
   currentSeriesId: string;
   currentPoolAddr: string;
   nextSeriesId: string;
 
-  currentSeries: ISeries|undefined;
-  nextSeries: ISeries|undefined;
+  currentSeries: ISeries| undefined;
+  nextSeries: ISeries| undefined;
   active: boolean;
 
-  strategyBalance?: BigNumber;
-  strategyBalance_?: string;
+  accountBalance?: BigNumber;
+  accountBalance_?: string;
+  accountPoolBalance?: BigNumber;
+  accountPoolBalance_?: string;
 
-  poolBalance?: BigNumber;
-  poolBalance_?: string;
+  accountPoolPercent?: string | undefined;
 }
 
 export interface ICallData {
