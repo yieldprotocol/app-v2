@@ -193,8 +193,11 @@ export interface IStrategy extends IStrategyRoot {
   nextSeries: ISeries|undefined;
   active: boolean;
 
-  balance?: BigNumber;
-  balance_?: string;
+  strategyBalance?: BigNumber;
+  strategyBalance_?: string;
+
+  poolBalance?: BigNumber;
+  poolBalance_?: string;
 }
 
 export interface ICallData {

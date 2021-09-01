@@ -15,7 +15,7 @@ export const useAddLiquidity = () => {
     chainState: { strategyRootMap },
   } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
-  const { activeAccount: account, selectedIlkId, selectedSeriesId, assetMap } = userState;
+  const { activeAccount: account, selectedIlkId, selectedSeriesId, assetMap, selectedStrategyAddr } = userState;
   const { updateSeries, updateAssets } = userActions;
   const { sign, transact } = useChain();
 
@@ -23,16 +23,15 @@ export const useAddLiquidity = () => {
     input: string,
     series: ISeries,
     method: 'BUY' | 'BORROW' | string = 'BUY',
-    strategyAddr: string | undefined = undefined,
-    // strategyAddr: string | undefined = '0xA711725a06205509D13EFB454bf8BD4fCDE53187'
-
   ) => {
+
     const txCode = getTxCode(ActionCodes.ADD_LIQUIDITY, series.id);
     const base: IAsset = assetMap.get(series.baseId);
     const _input = ethers.utils.parseUnits(input, base.decimals);
 
-    const _strategyExists = ethers.utils.isAddress(strategyAddr!) && strategyRootMap.has(strategyAddr);
-    const _strategy = _strategyExists ? strategyAddr : undefined;
+    // const _strategyExists = ethers.utils.isAddress(strategyAddr!) && strategyRootMap.has(strategyAddr);
+    // const _strategy = _strategyExists ? strategyAddr : undefined;
+    const _strategy = selectedStrategyAddr || undefined;
 
     const _fyTokenToBuy = fyTokenForMint(
       series.baseReserves,

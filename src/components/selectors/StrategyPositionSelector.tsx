@@ -56,9 +56,9 @@ function StrategyPositionSelector() {
     /* only if veiwing the main screen (not when modal is showing) */
     const _allPositions: IStrategy[] = Array.from(strategyMap.values())
       /* filter by positive strategy balances */
-      .filter((_strategy: IStrategy) => _strategy.balance?.gt(ZERO_BN) )
+      .filter((_strategy: IStrategy) => _strategy.strategyBalance?.gt(ZERO_BN) )
       .sort((_strategyA: IStrategy, _strategyB: IStrategy) =>
-      _strategyA.balance?.lt(_strategyB.balance!) ? 1 : -1
+      _strategyA.strategyBalance?.lt(_strategyB.strategyBalance!) ? 1 : -1
       );
     
     setAllPositions(_allPositions);

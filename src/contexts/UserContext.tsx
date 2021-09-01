@@ -501,11 +501,17 @@ const UserProvider = ({ children }: any) => {
           // .filter( (s:IStrategy) => s.active) // filter out strategies with no current series
           .map(async (_strategy: IStrategy): Promise<IStrategy> => {
 
-            const [ balance ] = await Promise.all( [_strategy.currentSeries?.poolContract.balanceOf(account) ]);
+            const [ strategyBalance, poolBalance ] = await Promise.all( [ 
+              _strategy.strategyContract.balanceOf(account),
+              _strategy.currentSeries?.poolContract.balanceOf(account) 
+            
+            ]);
 
             return {
               ..._strategy,
-              balance,
+              strategyBalance,
+              strategyBalance_: ethers.utils.formatUnits(strategyBalance, 18 ),
+              poolBalance
             };
           })
         );

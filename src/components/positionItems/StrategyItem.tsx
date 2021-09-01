@@ -43,10 +43,10 @@ function StrategyItem({
           <Box direction="row" gap="small">
               <Text weight={450} size="xsmall">
                 {/* Tokens:  {cleanValue(series.poolTokens_, 2)} */}
-                Tokens: {nFormatter(parseFloat(strategy.balance_!), 2)}
+                Tokens: {nFormatter(parseFloat(strategy.strategyBalance_!), 2)}
               </Text>
               <Text weight={450} size="xsmall">
-                Strategy %: {cleanValue(strategy.balance_, 2)}
+                Strategy %: {cleanValue(strategy.strategyBalance_, 2)}
               </Text>
           </Box>
         </Box>
