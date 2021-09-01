@@ -59,6 +59,7 @@ export interface IUserContextActions {
   setSelectedIlk: (ilkId: string | null) => void;
   setSelectedBase: (baseId: string | null) => void;
   setSelectedVault: (vaultId: string | null) => void;
+  setSelectedStrategy: (strategyAddr: string | null) => void;
 }
 
 export interface ISeriesRoot {
@@ -122,6 +123,7 @@ export interface IAssetRoot {
 }
 
 export interface IStrategyRoot {
+  id: string;
   address: string;
   name: string;
   symbol: string;

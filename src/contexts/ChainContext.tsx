@@ -431,6 +431,7 @@ const ChainProvider = ({ children }: any) => {
                 Strategy.seriesId(),
               ]);
               const newStrategy = {
+                id: strategyAddr,
                 address: strategyAddr,
                 symbol,
                 name,
