@@ -14,7 +14,6 @@ interface ITx {
   rejected: boolean;
   txHash: any;
   processActive: boolean;
-  complete: boolean;
   positionPath: string | undefined;
 }
 
@@ -47,7 +46,6 @@ export const useTx = (
     rejected: false,
     txHash: undefined,
     processActive: false,
-    complete: false,
     positionPath: undefined,
   };
 
@@ -71,7 +69,12 @@ export const useTx = (
   }, [actionCode, seriesOrVaultId]);
 
   useEffect(() => {
-    txCode && setTxHash(processes.get(txCode)?.hash!);
+    const _txHash = processes.get(txCode!)?.hash!;
+
+    if (txCode && _txHash) {
+      setTxHash(_txHash);
+      setTx((t) => ({ ...t, txHash: _txHash }));
+    }
   }, [processes, txCode, processActive]);
 
   useEffect(() => {
@@ -81,8 +84,10 @@ export const useTx = (
   }, [processes, txCode]);
 
   useEffect(() => {
-    transactions.has(txHash) && setTxStatus(transactions.get(txHash).status);
-    transactions.has(txHash) && setTxReceipt(transactions.get(txHash).receipt);
+    if (transactions.has(txHash)) {
+      setTxStatus(transactions.get(txHash).status);
+      setTxReceipt(transactions.get(txHash).receipt);
+    }
   }, [txHash, transactions]);
 
   useEffect(() => {
@@ -112,7 +117,6 @@ export const useTx = (
     const pathPrefix = txCode && getPositionPathPrefix(txCode!);
 
     if (txCode?.includes(ActionCodes.BORROW) && txReceipt) {
-      console.log('receipt', txReceipt);
       const vaultId = getVaultIdFromReceipt(txReceipt, contractMap);
       setTx((t) => ({ ...t, positionPath: `${pathPrefix}/${vaultId}` }));
     } else if (txCode?.includes(ActionCodes.BORROW) && !txReceipt) {
@@ -121,7 +125,6 @@ export const useTx = (
       const positionId = txCode && txCode.split('_')[1];
       setTx((t) => ({ ...t, positionPath: `${pathPrefix}/${positionId}` }));
     }
-    console.log(tx.positionPath);
   }, [transactions, contractMap, txCode, txHash, txReceipt]);
 
   return { tx, resetTx };
