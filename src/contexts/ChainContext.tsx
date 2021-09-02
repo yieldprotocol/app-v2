@@ -227,17 +227,19 @@ const ChainProvider = ({ children }: any) => {
 
       /* add on extra/calculated ASSET info  and contract instances */
       const _chargeAsset = (asset: any) => {
-        const ERC20 = contracts.ERC20Permit__factory.connect(asset.address, fallbackLibrary);
+        const ERC20Permit = contracts.ERC20Permit__factory.connect(asset.address, fallbackLibrary);
         return {
           ...asset,
           digitFormat: assetDigitFormatMap.has(asset.symbol) ? assetDigitFormatMap.get(asset.symbol) : 6,
           image: markMap.get(asset.symbol),
           color: (yieldEnv.assetColors as any)[asset.symbol],
 
+          baseContract: ERC20Permit,
+
           /* baked in token fns */
           getBalance: async (acc: string) =>
-            ETH_BASED_ASSETS.includes(asset.id) ? library?.getBalance(acc) : ERC20.balanceOf(acc),
-          getAllowance: async (acc: string, spender: string) => ERC20.allowance(acc, spender),
+            ETH_BASED_ASSETS.includes(asset.id) ? library?.getBalance(acc) : ERC20Permit.balanceOf(acc),
+          getAllowance: async (acc: string, spender: string) => ERC20Permit.allowance(acc, spender),
 
           /* TODO remove for prod */
           /* @ts-ignore */
