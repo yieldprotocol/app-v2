@@ -1,9 +1,14 @@
 import React from 'react';
 import { Box, Text } from 'grommet';
+import styled from 'styled-components';
 
 import { ActionType, ISeries, IVault } from '../types';
 import DashboardPositionListItem from './DashboardPositionListItem';
 import DashboardPositionSummary from './DashboardPositionSummary';
+
+const StyledBox = styled(Box)`
+  max-height: 1000px;
+`;
 
 interface IDashPosition {
   debt?: string | null;
@@ -23,7 +28,7 @@ const DashboardPositionList = ({
   actionType,
 }: IDashPosition) => (
   <DashboardPositionSummary debt={debt!} collateral={collateral!} lendBalance={lendBalance!} poolBalance={poolBalance!}>
-    <Box>
+    <StyledBox>
       {positions.length === 0 && (
         <Text weight={450} size="small">
           No suggested positions
@@ -37,7 +42,7 @@ const DashboardPositionList = ({
           key={seriesOrVault.id}
         />
       ))}
-    </Box>
+    </StyledBox>
   </DashboardPositionSummary>
 );
 
