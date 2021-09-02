@@ -154,10 +154,18 @@ export const useChain = () => {
             r,
             s,
           ] as LadleActions.Args.FORWARD_DAI_PERMIT;
-          const operation = LadleActions.Fn.FORWARD_DAI_PERMIT;
 
+          if (reqSig.asRoute) {
+            return {
+              operation: 'route',
+              args,
+              fnName: 'permit',
+              targetContract: tokenContract,
+              ignoreIf: !(v && r && s),
+            };
+          }
           return {
-            operation,
+            operation: LadleActions.Fn.FORWARD_DAI_PERMIT,
             args,
             ignoreIf: !(v && r && s), // set ignore flag if signature returned is null (ie. fallbackTx was used)
           };
@@ -201,10 +209,17 @@ export const useChain = () => {
           s,
         ] as LadleActions.Args.FORWARD_PERMIT;
 
-        const operation = LadleActions.Fn.FORWARD_PERMIT;
-
+        if (reqSig.asRoute) {
+          return {
+            operation: 'route',
+            args,
+            fnName: 'permit',
+            targetContract: tokenContract,
+            ignoreIf: !(v && r && s),
+          };
+        }
         return {
-          operation,
+          operation: LadleActions.Fn.FORWARD_PERMIT,
           args,
           ignoreIf: !(v && r && s), // set ignore flag if signature returned is null (ie. fallbackTx was used)
         };

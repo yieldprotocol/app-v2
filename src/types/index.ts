@@ -218,8 +218,9 @@ export interface IPool extends IPoolRoot {
 export interface ICallData {
   args: (string | BigNumberish | boolean)[];
   operation: string | [number, string[]];
+
   /* optionals */
-  targetContract?: Strategy | Pool;
+  targetContract?: Strategy | Pool | ERC20;
   fnName?: string;
   ignoreIf?: boolean;
   overrides?: ethers.CallOverrides;
@@ -231,10 +232,10 @@ export interface ISignData {
 
   /* optional Extention/advanced use-case options */
   amount?: BigNumberish;
-
   message?: string; // optional messaging for UI
+  domain?: IDomain; // optional Domain if required
   ignoreIf?: boolean; // conditional for ignoring
-  domain?: IDomain;
+  asRoute?: boolean; // is the sign via a route call
 }
 
 export interface IDaiPermitMessage {

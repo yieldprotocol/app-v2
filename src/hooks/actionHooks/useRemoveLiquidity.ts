@@ -41,7 +41,9 @@ export const useRemoveLiquidity = () => {
           spender: 'LADLE',
           message: 'Authorize moving tokens out of the strategy',
           ignoreIf: !_strategy,
+          asRoute: true,
         },
+
         /* give pool permission to sell tokens */
         {
           // router.forwardPermitAction(pool.address, pool.address, router.address, allowance, deadline, v, r, s),
