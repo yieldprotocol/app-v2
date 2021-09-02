@@ -30,7 +30,6 @@ interface IYieldTx extends ContractTransaction {
   txCode: string;
   receipt: any | null;
   status: TxState;
-  complete?: boolean;
 }
 
 interface IYieldProcess {
@@ -109,12 +108,6 @@ const TxProvider = ({ children }: any) => {
     });
   };
 
-  const _handleTxComplete = (tx: any) => {
-    setTimeout(() => {
-      updateState({ type: 'transactions', payload: { ...tx, complete: true } });
-    }, 10000);
-  };
-
   /* handle case when user or wallet rejects the tx (before submission) */
   const _handleTxRejection = (err: any, txCode: string) => {
     _endProcess(txCode);
@@ -139,7 +132,6 @@ const TxProvider = ({ children }: any) => {
     toast.error(msg);
     const _tx = { tx, txCode, receipt: undefined, status: TxState.FAILED };
     updateState({ type: 'transactions', payload: _tx });
-    _handleTxComplete(_tx);
     console.log('txHash: ', tx?.hash);
     console.log('txCode: ', txCode);
   };
@@ -178,7 +170,6 @@ const TxProvider = ({ children }: any) => {
         type: 'transactions',
         payload: _tx,
       });
-      _handleTxComplete(_tx);
 
       /* if the handleTx is NOT a fallback tx (from signing) - then end the process */
       if (_isfallback === false) {

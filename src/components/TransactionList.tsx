@@ -1,20 +1,20 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Box } from 'grommet';
-import { TxContext } from '../contexts/TxContext';
 import TransactionListItem from './TransactionListItem';
 
-const Transactions = ({ ...props }) => {
-  const {
-    txState: { transactions },
-  } = useContext(TxContext);
+interface ITransactionList {
+  transactions: any;
+  wide?: boolean;
+}
 
-  return (
-    <Box>
-      {[...transactions.values()].map((tx: any) => (
-        <TransactionListItem tx={tx} {...props} key={tx.tx.hash} />
-      ))}
-    </Box>
-  );
-};
+const TransactionList = ({ transactions, wide }: ITransactionList) => (
+  <Box>
+    {transactions.map((tx: any) => (
+      <TransactionListItem tx={tx} key={tx.tx.hash} wide={wide} />
+    ))}
+  </Box>
+);
 
-export default Transactions;
+TransactionList.defaultProps = { wide: false };
+
+export default TransactionList;

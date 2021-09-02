@@ -5,22 +5,26 @@ import { FiCheckCircle, FiXCircle } from 'react-icons/fi';
 import { TxState } from '../types';
 import EtherscanButton from './buttons/EtherscanButton';
 
-const Transaction = ({
-  tx,
-  removeOnComplete,
-  wide,
-  ...props
-}: {
+interface ITransactionListItem {
   tx: any;
-  removeOnComplete?: boolean;
   wide?: boolean;
-}) => {
-  const { status, txCode, tx: t, complete } = tx;
+}
+
+const TransactionListItem = ({ tx, wide }: ITransactionListItem) => {
+  const { status, txCode, tx: t } = tx;
   const action = txCode.split('_')[0];
   const link = txCode.split('_')[1];
 
-  return removeOnComplete && complete ? null : (
-    <Box align="center" fill direction="row" gap="small" {...props} key={t.hash}>
+  return tx.remove ? null : (
+    <Box
+      align="center"
+      fill
+      direction="row"
+      gap="small"
+      elevation={wide ? undefined : 'small'}
+      pad={wide ? 'xsmall' : 'small'}
+      key={t.hash}
+    >
       <Box width="3rem">
         {status === TxState.PENDING && <Spinner color="tailwind-blue" />}
         {status === TxState.SUCCESSFUL && <FiCheckCircle size="1.5rem" color="#34D399" />}
@@ -49,6 +53,6 @@ const Transaction = ({
   );
 };
 
-Transaction.defaultProps = { removeOnComplete: false, wide: false };
+TransactionListItem.defaultProps = { wide: false };
 
-export default Transaction;
+export default TransactionListItem;
