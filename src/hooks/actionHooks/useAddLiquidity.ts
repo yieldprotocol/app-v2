@@ -109,8 +109,8 @@ export const useAddLiquidity = () => {
       },
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [_strategy || account, true, ethers.constants.Zero] as RoutedActions.Args.MINT, // receiver is _strategyAddr (if it exists) or account
-        fnName: RoutedActions.Fn.MINT,
+        args: [_strategy || account, true, ethers.constants.Zero] as RoutedActions.Args.MINT_POOL_TOKENS, // receiver is _strategyAddr (if it exists) or account
+        fnName: RoutedActions.Fn.MINT_POOL_TOKENS,
         targetContract: series.poolContract,
         ignoreIf: !(method === 'BORROW' && !!_strategy),
       },
@@ -118,8 +118,8 @@ export const useAddLiquidity = () => {
       /* STRATEGY MINTING if strategy address is provided, and is found in the strategyMap, use that address */
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [account] as RoutedActions.Args.MINT,
-        fnName: RoutedActions.Fn.MINT,
+        args: [account] as RoutedActions.Args.MINT_STRATEGY_TOKENS,
+        fnName: RoutedActions.Fn.MINT_STRATEGY_TOKENS,
         targetContract: _strategy && strategyRootMap.get(_strategy).strategyContract,
         ignoreIf: !_strategy,
       },
