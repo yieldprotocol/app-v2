@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Box } from 'grommet';
 import { TxContext } from '../contexts/TxContext';
-import Transaction from './Transaction';
+import TransactionListItem from './TransactionListItem';
 
 const Transactions = ({ ...props }) => {
   const {
@@ -11,7 +11,7 @@ const Transactions = ({ ...props }) => {
   return (
     <Box>
       {[...transactions.values()].map((tx: any) => (
-        <Transaction tx={tx} {...props} key={tx.tx.hash} />
+        <TransactionListItem tx={tx} {...props} key={tx.tx.hash} />
       ))}
     </Box>
   );

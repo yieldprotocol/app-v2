@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { Box, Text } from 'grommet';
 import { FiAlertTriangle } from 'react-icons/fi';
 import { TxContext } from '../contexts/TxContext';
-import Transactions from './Transactions';
+import TransactionList from './TransactionList';
 import { TxState } from '../types';
 
 const TransactionWidget = () => {
@@ -26,7 +26,7 @@ const TransactionWidget = () => {
           </Box>
         </Box>
       )}
-      <Transactions removeOnComplete elevation="small" pad="medium" />
+      <TransactionList removeOnComplete elevation="small" pad="medium" />
     </Box>
   );
 };
