@@ -268,14 +268,14 @@ const ChainProvider = ({ children }: any) => {
             const { assetId: id, asset: address } = Cauldron.interface.parseLog(x).args;
             const ERC20 = contracts.ERC20Permit__factory.connect(address, fallbackLibrary);
             /* Add in any extra static asset Data */ // TODO is there any other fixed asset data needed?
-            const [name, symbol, decimals] = await Promise.all([
+            const [ name, symbol, decimals ] = await Promise.all([
               ERC20.name(),
               ERC20.symbol(),
               ERC20.decimals(),
-              // ETH_BASED_ASSETS.includes(id) ? '1' : await ERC20.version()
+              // ETH_BASED_ASSETS.includes(id) ? async () =>'1' : ERC20.version()
             ]);
 
-            console.log(symbol, ':', id);
+            // console.log(symbol, ':', id);
             // TODO check if any other tokens have different versions. maybe abstract this logic somewhere?
             const version = id === '0x555344430000' ? '2' : '1';
 
@@ -370,7 +370,7 @@ const ChainProvider = ({ children }: any) => {
                 const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackLibrary);
                 const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackLibrary);
                 // const baseContract = contracts.ERC20__factory.connect(fyToken, fallbackLibrary);
-                const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol, poolDecimals] =
+                const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol ] =
                   await Promise.all([
                     fyTokenContract.name(),
                     fyTokenContract.symbol(),
@@ -379,7 +379,7 @@ const ChainProvider = ({ children }: any) => {
                     poolContract.name(),
                     poolContract.version(),
                     poolContract.symbol(),
-                    poolContract.decimals(),
+                    // poolContract.decimals(),
                   ]);
                 const newSeries = {
                   id,
@@ -427,12 +427,12 @@ const ChainProvider = ({ children }: any) => {
             /* if the strategy is already in the cache : */
             if (cachedStrategies.findIndex((_s: any) => _s.address === strategyAddr) === -1) {
               const Strategy = contracts.Strategy__factory.connect(strategyAddr, fallbackLibrary);
-              const [name, symbol, baseId, decimals] = await Promise.all([
+              const [name, symbol, baseId, decimals, version ] = await Promise.all([
                 Strategy.name(),
                 Strategy.symbol(),
                 Strategy.baseId(),
-                Strategy.seriesId(),
-                Strategy.decimals()
+                Strategy.decimals(),
+                Strategy.version(),
               ]);
 
               const newStrategy = {
@@ -440,6 +440,7 @@ const ChainProvider = ({ children }: any) => {
                 address: strategyAddr,
                 symbol,
                 name,
+                version,
                 baseId,
                 decimals,
               };
