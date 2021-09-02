@@ -20,7 +20,7 @@ const HideBalancesSetting = (props: any) => {
     <Box gap="small">
       <Box direction="row" gap="xsmall">
         <Text size="small">Hide Balances Below</Text>
-        <Tip content={<Text size="xsmall">in position balance</Text>} dropProps={{ align: { bottom: 'top' } }}>
+        <Tip content={<Text size="xsmall">in position balance</Text>} dropProps={{ align: { left: 'right' } }}>
           <Text size="small">
             <FiInfo />
           </Text>
