@@ -82,12 +82,12 @@ export namespace RoutedActions {
     SELL_BASE = 'sellBase',
     SELL_FYTOKEN = 'sellFYToken',
 
-    MINT_POOL_TOKENS = 'burn',
+    MINT_POOL_TOKENS = 'mint',
     BURN_POOL_TOKENS = 'burn',
     MINT_WITH_BASE = 'mintWithBase',
     BURN_FOR_BASE = 'burnForBase',
 
-    MINT_STRATEGY_TOKENS = 'burn',
+    MINT_STRATEGY_TOKENS = 'mint',
     BURN_STRATEGY_TOKENS = 'burn',
 
   }
