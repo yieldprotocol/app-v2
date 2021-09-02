@@ -59,6 +59,12 @@ const _abi = [
         type: "address",
       },
       {
+        indexed: true,
+        internalType: "address",
+        name: "fyTokenTo",
+        type: "address",
+      },
+      {
         indexed: false,
         internalType: "int256",
         name: "bases",
@@ -315,7 +321,12 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "to",
+        name: "baseTo",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "fyTokenTo",
         type: "address",
       },
       {
