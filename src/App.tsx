@@ -17,6 +17,7 @@ import YieldHeader from './components/YieldHeader';
 import NetworkError from './components/NetworkError';
 import LendPosition from './views/LendPosition';
 import PoolPosition from './views/PoolPosition';
+import TransactionWidget from './components/TransactionWidget';
 
 function App() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -32,6 +33,7 @@ function App() {
       {chainData && !chainData.supported && <NetworkError />}
 
       <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
+      <TransactionWidget />
 
       <Box flex={!mobile} overflow="auto">
         <ToastContainer position="top-center" />

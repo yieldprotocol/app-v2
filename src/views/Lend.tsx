@@ -41,8 +41,6 @@ import { useRedeemPosition } from '../hooks/actionHooks/useRedeemPosition';
 
 import AddTokenToMetamask from '../components/AddTokenToMetamask';
 
-import TransactionWidget from '../components/TransactionWidget';
-
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
@@ -267,9 +265,6 @@ const Lend = () => {
       </CenterPanelWrap>
 
       <PanelWrap right basis="40%">
-        <Box margin={{ top: '20%' }} pad="small">
-          <TransactionWidget />
-        </Box>
         {/* <YieldApr input={lendInput} actionType={ActionType.LEND} /> */}
         {!mobile && <PositionSelector actionType={ActionType.LEND} />}
       </PanelWrap>

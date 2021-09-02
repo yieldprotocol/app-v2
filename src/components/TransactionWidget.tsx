@@ -1,9 +1,16 @@
 import React, { useContext } from 'react';
+import styled from 'styled-components';
 import { Box, Text } from 'grommet';
 import { FiAlertTriangle } from 'react-icons/fi';
 import { TxContext } from '../contexts/TxContext';
 import TransactionList from './TransactionList';
 import { TxState } from '../types';
+
+const StyledBox = styled(Box)`
+  position: absolute;
+  margin-top: 10%;
+  right: 6rem;
+`;
 
 const TransactionWidget = () => {
   const {
@@ -14,7 +21,7 @@ const TransactionWidget = () => {
   const isLastTxPending = lastTx?.status === TxState.PENDING;
 
   return (
-    <Box gap="xsmall">
+    <StyledBox gap="xsmall">
       {hasActiveProcess && !isLastTxPending && (
         <Box direction="row" justify="start" align="center" fill elevation="small" gap="small" pad="small">
           <Box width="3rem" align="center">
@@ -27,7 +34,7 @@ const TransactionWidget = () => {
         </Box>
       )}
       <TransactionList removeOnComplete elevation="small" pad="medium" />
-    </Box>
+    </StyledBox>
   );
 };
 

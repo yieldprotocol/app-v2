@@ -34,7 +34,6 @@ import YieldCardHeader from '../components/YieldCardHeader';
 import { useAddLiquidity } from '../hooks/actionHooks/useAddLiquidity';
 
 import AddTokenToMetamask from '../components/AddTokenToMetamask';
-import TransactionWidget from '../components/TransactionWidget';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -193,7 +192,7 @@ function Pool() {
                           name="strategy"
                           options={[
                             { label: <Text size="small"> Buy & pool</Text>, value: 'BUY' },
-                            { label: <Text size="small"> Borrow & Pool </Text>, value: 'BORROW', disabled:true },
+                            { label: <Text size="small"> Borrow & Pool </Text>, value: 'BORROW', disabled: true },
                           ]}
                           value={poolMethod}
                           onChange={(event: any) => setPoolMethod(event.target.value)}
@@ -272,9 +271,6 @@ function Pool() {
       </CenterPanelWrap>
 
       <PanelWrap right basis="40%">
-        <Box margin={{ top: '20%' }} pad="small">
-          <TransactionWidget />
-        </Box>
         {/* <YieldLiquidity input={poolInput} /> */}
         {!mobile && <PositionSelector actionType={ActionType.POOL} />}
       </PanelWrap>

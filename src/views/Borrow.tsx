@@ -40,7 +40,6 @@ import { useBorrow } from '../hooks/actionHooks/useBorrow';
 import { useCollateralHelpers } from '../hooks/actionHelperHooks/useCollateralHelpers';
 
 import AddTokenToMetamask from '../components/AddTokenToMetamask';
-import TransactionWidget from '../components/TransactionWidget';
 import { useBorrowHelpers } from '../hooks/actionHelperHooks/useBorrowHelpers';
 
 const Borrow = () => {
@@ -263,7 +262,7 @@ const Borrow = () => {
                         <Gauge value={parseFloat(collateralizationPercent!)} size={mobile ? '6em' : '8em'} />
                       </Box>
 
-                      <Box align='center'>
+                      <Box align="center">
                         <Text size={mobile ? 'xsmall' : 'medium'} color="text-weak">
                           Collateralization
                         </Text>
@@ -273,9 +272,7 @@ const Borrow = () => {
                             : parseFloat(collateralizationPercent!)}
                           %
                         </Text>
-
                       </Box>
-
                     </Box>
                     {/* <Box
                           pad="xsmall"
@@ -468,9 +465,6 @@ const Borrow = () => {
         </CenterPanelWrap>
 
         <PanelWrap right basis="40%">
-          <Box margin={{ top: '20%' }} pad="small">
-            <TransactionWidget />
-          </Box>
           {/* <StepperText
               position={stepPosition}
               values={[
