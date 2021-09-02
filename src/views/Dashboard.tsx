@@ -141,7 +141,7 @@ const Dashboard = () => {
     <MainViewWrap>
       {!mobile && (
         <PanelWrap justify="between" basis="40%">
-          <Box margin={{ top: '35%' }} gap="medium" fill>
+          <Box margin={{ top: '35%' }} gap="medium">
             <DashboardBalanceSummary
               debt={totalDebt!}
               collateral={totalCollateral!}
@@ -150,6 +150,16 @@ const Dashboard = () => {
               loading={vaultsLoading || seriesLoading || pricesLoading}
               symbol={currencySettingSymbol}
             />
+            {!vaultsLoading && !seriesLoading && !pricesLoading && (
+              <Box gap="medium">
+                <HideBalancesSetting width="30%" />
+                <CurrencyToggle width="50%" />
+                <Box justify="between" gap="small">
+                  <Text size="small">Show Empty Vaults</Text>
+                  <CheckBox toggle checked={showEmpty} onChange={(event) => setShowEmpty(event.target.checked)} />
+                </Box>
+              </Box>
+            )}
           </Box>
           <YieldInfo />
         </PanelWrap>
@@ -198,19 +208,8 @@ const Dashboard = () => {
           </Box>
         )}
       </Box>
-      <PanelWrap basis="40%">
-        <Box margin={{ top: '35%' }}>
-          {!vaultsLoading && !seriesLoading && !pricesLoading && (
-            <Box gap="medium">
-              <HideBalancesSetting width="30%" />
-              <CurrencyToggle width="50%" />
-              <Box justify="between" gap="small">
-                <Text size="small">Show Empty Vaults</Text>
-                <CheckBox toggle checked={showEmpty} onChange={(event) => setShowEmpty(event.target.checked)} />
-              </Box>
-            </Box>
-          )}
-        </Box>
+      <PanelWrap right basis="40%">
+        {' '}
       </PanelWrap>
     </MainViewWrap>
   );
