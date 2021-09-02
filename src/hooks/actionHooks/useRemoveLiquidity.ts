@@ -36,7 +36,6 @@ export const useRemoveLiquidity = () => {
       [
         /* give strategy permission to sell tokens to pool */
         {
-          // router.forwardPermitAction(strategy, ladle, strategyTokensBurnt, deadline, v, r, s),
           target: _strategy,
           spender: 'LADLE',
           message: 'Authorize moving tokens out of the strategy',
@@ -46,7 +45,6 @@ export const useRemoveLiquidity = () => {
 
         /* give pool permission to sell tokens */
         {
-          // router.forwardPermitAction(pool.address, pool.address, router.address, allowance, deadline, v, r, s),
           target: {
             address: series.poolAddress,
             name: series.poolName,
@@ -64,15 +62,7 @@ export const useRemoveLiquidity = () => {
     const calls: ICallData[] = [
       ...permits,
 
-      /* FIRST BURN STRATEGY BURNING if strategy address is provided, and is found in the strategyMap, use that address */
-
-      // ladle.forwardPermitAction(
-      //   strategy, ladle, strategyTokensBurnt, deadline, v, r, s
-      // ),
-      // ladle.transferAction(strategy, strategy, strategyTokensBurnt),
-      // ladle.routeAction(strategy, ['burn', [pool, 0]),
-      // ladle.routeAction(pool, ['burn', [ladle, ladle, minBaseReceived, minFYTokenReceived]),
-
+      /* FOR ALL REMOVES (when using a strategy) > move tokens from stragegy to pool tokens  */
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [selectedStrategyAddr, selectedStrategyAddr, _input] as LadleActions.Args.TRANSFER,
@@ -93,12 +83,11 @@ export const useRemoveLiquidity = () => {
         ignoreIf: !_strategy,
       },
 
-      /* ALL REMOVES FIRST USE (if not using strategy) : */
-
+      /* FOR ALL REMOVES (if not using a strategy) >  move tokens to poolAddress  : */
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [series.poolAddress, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
-        ignoreIf: _strategy || series.seriesIsMature, // ALL 'removeLiquidity methods' use this tx
+        ignoreIf: _strategy || series.seriesIsMature, 
       },
 
       /* BEFORE MATURITY */
