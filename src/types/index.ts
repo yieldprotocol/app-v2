@@ -1,6 +1,6 @@
 import { ethers, BigNumber, BigNumberish } from 'ethers';
 import React from 'react';
-import { FYToken, Pool, Strategy } from '../contracts';
+import { ERC20, ERC20Permit, FYToken, Pool, Strategy } from '../contracts';
 
 export { LadleActions, RoutedActions } from './operations';
 
@@ -62,12 +62,15 @@ export interface IUserContextActions {
   setSelectedStrategy: (strategyAddr: string | null) => void;
 }
 
-export interface ISeriesRoot {
+export interface ISignable {
+  name: string; 
+  version: string; 
+  address: string; 
+  symbol: string
+}
+
+export interface ISeriesRoot extends ISignable {
   id: string;
-  name: string;
-  symbol: string;
-  address: string;
-  version: string;
   displayName: string;
   displayNameMobile: string;
   maturity: number;
@@ -101,20 +104,18 @@ export interface ISeriesRoot {
   getBaseAddress: () => string; // antipattern, but required here because app simulatneoulsy gets assets and series
 }
 
-export interface IAssetRoot {
+export interface IAssetRoot extends ISignable {
   // fixed/static:
   id: string;
-  symbol: string;
-  name: string;
-  version: string;
   decimals: number;
   color: string;
   image: React.FC;
   displayName: string;
   displayNameMobile: string;
-  address: string;
   joinAddress: string;
   digitFormat: number;
+
+  baseContract: ERC20Permit;
 
   // baked in token fns
   getBalance: (account: string) => Promise<BigNumber>;
@@ -122,11 +123,8 @@ export interface IAssetRoot {
   mintTest: () => Promise<VoidFunction>;
 }
 
-export interface IStrategyRoot {
+export interface IStrategyRoot extends ISignable {
   id: string;
-  address: string;
-  name: string;
-  symbol: string;
   baseId: string;
   decimals: number;
   strategyContract: Strategy;
@@ -140,6 +138,9 @@ export interface IVaultRoot {
   image: string;
   displayName: string;
   decimals: number;
+}
+
+export interface IPoolRoot extends ISignable {
 }
 
 export interface ISeries extends ISeriesRoot {
@@ -210,6 +211,10 @@ export interface IStrategy extends IStrategyRoot {
   accountPoolPercent?: string | undefined;
 }
 
+export interface IPool extends IPoolRoot {
+
+}
+
 export interface ICallData {
   args: (string | BigNumberish | boolean)[];
   operation: string | [number, string[]];
@@ -221,7 +226,7 @@ export interface ICallData {
 }
 
 export interface ISignData {
-  target: ISeries | IAsset | { name: string; version: string; address: string; symbol: string };
+  target: ISignable;
   spender: 'LADLE' | string;
 
   /* optional Extention/advanced use-case options */
