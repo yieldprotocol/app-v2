@@ -220,7 +220,7 @@ export interface ICallData {
   operation: string | [number, string[]];
 
   /* optionals */
-  targetContract?: Strategy | Pool | ERC20;
+  targetContract?: Strategy | Pool | ERC20Permit;
   fnName?: string;
   ignoreIf?: boolean;
   overrides?: ethers.CallOverrides;

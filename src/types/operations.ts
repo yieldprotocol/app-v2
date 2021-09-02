@@ -54,7 +54,7 @@ export namespace LadleActions {
     export type REDEEM = [seriesId: string, to: string, wad: BigNumberish];
 
     export type FORWARD_PERMIT = [
-      id: string,
+      token: string,
       spender: string,
       amount: BigNumberish,
       deadline: BigNumberish,
@@ -63,7 +63,7 @@ export namespace LadleActions {
       s: Buffer
     ];
     export type FORWARD_DAI_PERMIT = [
-      id: string,
+      token: string,
       spender: string,
       nonce: BigNumberish,
       deadline: BigNumberish,

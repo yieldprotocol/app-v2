@@ -342,7 +342,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                   />
                 )}
 
-              {stepPosition[actionActive.index] === 2 &&
+              {stepPosition[actionActive.index] === 1 &&
                 actionActive.index === 0 &&
                 !removeTx.processActive &&
                 (removeTx.success || removeTx.failed) && (
@@ -355,6 +355,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                 (rollTx.success || rollTx.failed) && (
                   <CompletedTx tx={rollTx} resetTx={resetRollTx} actionCode={ActionCodes.ROLL_LIQUIDITY} />
                 )}
+
             </ActionButtonGroup>
           </CenterPanelWrap>
         </ModalWrap>
