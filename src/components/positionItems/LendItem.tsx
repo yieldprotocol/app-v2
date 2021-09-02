@@ -32,7 +32,7 @@ function LendItem({
   return (
     <ItemWrap action={() => handleSelect(series)} index={index}>
       <Box direction="row" gap="small" align="center" pad="small" height={condensed ? '3rem' : undefined}>
-        <PositionAvatar position={series} condensed={condensed} />
+        <PositionAvatar position={series} condensed={condensed} actionType={ActionType.LEND} />
         <Box
           fill={condensed ? 'horizontal' : undefined}
           justify={condensed ? 'between' : undefined}

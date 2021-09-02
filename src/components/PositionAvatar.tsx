@@ -1,9 +1,18 @@
 import { Stack, Avatar, Box, Text } from 'grommet';
 import React, { useContext } from 'react';
+import { MdAutorenew } from 'react-icons/md';
 import { UserContext } from '../contexts/UserContext';
-import { IVault, ISeries, IAsset, IUserContext, IStrategy } from '../types';
+import { IVault, ISeries, IAsset, IUserContext, IStrategy, ActionType } from '../types';
 
-function PositionAvatar({ position, condensed }: { position: IVault | ISeries | IStrategy; condensed?: boolean }) {
+function PositionAvatar({
+  position,
+  condensed,
+  actionType,
+}: {
+  position: IVault | ISeries | IStrategy;
+  actionType?: ActionType;
+  condensed?: boolean;
+}) {
   const isVault = position?.id.length > 15;
 
   /* STATE FROM CONTEXT */
@@ -24,20 +33,21 @@ function PositionAvatar({ position, condensed }: { position: IVault | ISeries | 
             {base?.image}
           </Box>
         </Avatar>
-        {ilk &&
-          <Avatar background='#fff' size={condensed ? '0.75rem' : 'xsmall'}>
-                {ilk?.image || null}
-          </Avatar>}
-        {/* { true &&
-          <Avatar background='#fff' size={condensed ? '1rem' : '2rem'}>
-             <Text size='xsmall'> 3m</Text>
+        {actionType === ActionType.BORROW && (
+          <Avatar background="#fff" size={condensed ? '0.75rem' : 'xsmall'}>
+            {ilk?.image || null}
           </Avatar>
-        } */}
+        )}
+        {actionType === ActionType.POOL && (
+          <Avatar background="#fff" size={condensed ? '0.75rem' : 'xsmall'}>
+            <MdAutorenew />
+          </Avatar>
+        )}
       </Stack>
     </>
   );
 }
 
-PositionAvatar.defaultProps = { condensed: false };
+PositionAvatar.defaultProps = { actionType: ActionType.LEND, condensed: false };
 
 export default PositionAvatar;
