@@ -80,7 +80,7 @@ export const useRemoveLiquidity = () => {
         operation: LadleActions.Fn.ROUTE,
         args: [account] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
         fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
-        targetContract: _strategy,
+        targetContract: _strategy.strategyContract,
         ignoreIf: !_strategy,
       },
       {
@@ -229,28 +229,6 @@ export const useRemoveLiquidity = () => {
         ignoreIf: !series.seriesIsMature,
       },
 
-      /* STRATEGY BURNING if strategy address is provided, and is found in the strategyMap, use that address */
-
-      // ladle.forwardPermitAction(
-      //   strategy, ladle, strategyTokensBurnt, deadline, v, r, s
-      // ),
-      // ladle.transferAction(strategy, strategy, strategyTokensBurnt),
-      // ladle.routeAction(strategy, ['burn', [pool, 0]),
-      // ladle.routeAction(pool, ['burn', [ladle, ladle, minBaseReceived, minFYTokenReceived]),
-      {
-        operation: LadleActions.Fn.ROUTE,
-        args: [account] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
-        fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
-        targetContract: _strategy,
-        ignoreIf: !_strategy,
-      },
-      {
-        operation: LadleActions.Fn.ROUTE,
-        args: [account] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
-        fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
-        targetContract: _strategy,
-        ignoreIf: !_strategy,
-      },
     ];
 
     await transact(calls, txCode);
