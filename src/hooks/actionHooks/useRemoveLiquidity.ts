@@ -55,7 +55,7 @@ export const useRemoveLiquidity = () => {
           },
           spender: 'LADLE',
           message: 'Authorize selling of LP tokens ',
-          ignoreIf: false,
+          ignoreIf: _strategy,
         },
       ],
       txCode
@@ -93,12 +93,12 @@ export const useRemoveLiquidity = () => {
         ignoreIf: !_strategy,
       },
 
-      /* ALL REMOVES FIRST USE : */
+      /* ALL REMOVES FIRST USE (if not using strategy) : */
 
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [series.poolAddress, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
-        ignoreIf: series.seriesIsMature, // ALL 'removeLiquidity methods' use this tx
+        ignoreIf: _strategy || series.seriesIsMature, // ALL 'removeLiquidity methods' use this tx
       },
 
       /* BEFORE MATURITY */
