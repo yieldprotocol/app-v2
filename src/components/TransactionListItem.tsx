@@ -17,11 +17,11 @@ const Transaction = ({ tx, removeOnComplete, ...props }: { tx: any; removeOnComp
         {status === TxState.SUCCESSFUL && <FiCheckCircle size="1.5rem" color="#34D399" />}
         {status === TxState.FAILED && <FiXCircle size="1.5rem" color="#F87171" />}
       </Box>
-      <Box gap="small" align="center" direction="row" justify="between" fill="horizontal">
-        <Box direction="row" justify="start" align="start">
+      <Box gap="small" align="center" justify="between" fill="horizontal">
+        <Box direction="row" justify="start" alignSelf="start">
           <Text size="small">{action}</Text>
         </Box>
-        <Box direction="row" align="center">
+        <Box direction="row" alignSelf="start">
           {status === TxState.SUCCESSFUL && action !== 'Borrow' ? (
             <Link
               to={`${action !== 'Borrow' ? action.toLowerCase() : 'vault'}position/${link}`}

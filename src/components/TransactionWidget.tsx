@@ -24,7 +24,7 @@ const TransactionWidget = () => {
     <StyledBox gap="xsmall">
       {hasActiveProcess && !isLastTxPending && (
         <Box direction="row" justify="start" align="center" fill elevation="small" gap="small" pad="small">
-          <Box width="3rem" align="center">
+          <Box align="center">
             <FiAlertTriangle size="1.5rem" color="#D97706" />
           </Box>
           <Box align="start">
@@ -33,7 +33,7 @@ const TransactionWidget = () => {
           </Box>
         </Box>
       )}
-      <TransactionList removeOnComplete elevation="small" pad="medium" />
+      <TransactionList removeOnComplete elevation="small" pad="small" />
     </StyledBox>
   );
 };
