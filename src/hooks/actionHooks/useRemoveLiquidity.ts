@@ -19,7 +19,7 @@ export const useRemoveLiquidity = () => {
   const ladleAddress = contractMap?.get('Ladle')?.address;
 
   const { userState, userActions } = useContext(UserContext);
-  const { activeAccount: account, assetMap } = userState;
+  const { activeAccount: account, assetMap, selectedStrategyAddr } = userState;
   const { updateSeries, updateAssets } = userActions;
   const { sign, transact } = useChain();
 
@@ -30,8 +30,19 @@ export const useRemoveLiquidity = () => {
     const base = assetMap.get(series.baseId);
     const _input = ethers.utils.parseUnits(input, base.decimals);
 
+    const _strategy = strategyRootMap.get(selectedStrategyAddr);
+
     const permits: ICallData[] = await sign(
       [
+        /* give strategy permission to sell tokens to pool */
+        {
+          // router.forwardPermitAction(strategy, ladle, strategyTokensBurnt, deadline, v, r, s),
+          target: _strategy,
+          spender: 'LADLE',
+          message: 'Authorize moving tokens out of the strategy',
+          ignoreIf: !_strategy,
+        },
+        /* give pool permission to sell tokens */
         {
           // router.forwardPermitAction(pool.address, pool.address, router.address, allowance, deadline, v, r, s),
           target: {
@@ -41,7 +52,7 @@ export const useRemoveLiquidity = () => {
             symbol: series.poolSymbol,
           },
           spender: 'LADLE',
-          message: 'Signing ERC20 Token approval',
+          message: 'Authorize selling of LP tokens ',
           ignoreIf: false,
         },
       ],
@@ -50,6 +61,35 @@ export const useRemoveLiquidity = () => {
 
     const calls: ICallData[] = [
       ...permits,
+
+      /* FIRST BURN STRATEGY BURNING if strategy address is provided, and is found in the strategyMap, use that address */
+
+      // ladle.forwardPermitAction(
+      //   strategy, ladle, strategyTokensBurnt, deadline, v, r, s
+      // ),
+      // ladle.transferAction(strategy, strategy, strategyTokensBurnt),
+      // ladle.routeAction(strategy, ['burn', [pool, 0]),
+      // ladle.routeAction(pool, ['burn', [ladle, ladle, minBaseReceived, minFYTokenReceived]),
+
+      {
+        operation: LadleActions.Fn.TRANSFER,
+        args: [selectedStrategyAddr, selectedStrategyAddr, _input] as LadleActions.Args.TRANSFER,
+        ignoreIf: !_strategy,
+      },
+      {
+        operation: LadleActions.Fn.ROUTE,
+        args: [account] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
+        fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
+        targetContract: _strategy,
+        ignoreIf: !_strategy,
+      },
+      {
+        operation: LadleActions.Fn.ROUTE,
+        args: [ladleAddress, ladleAddress, '0', '0'] as RoutedActions.Args.BURN_POOL_TOKENS, // TODO minimuums
+        fnName: RoutedActions.Fn.BURN_POOL_TOKENS,
+        targetContract: series.poolContract,
+        ignoreIf: !_strategy,
+      },
 
       /* ALL REMOVES FIRST USE : */
 
@@ -68,8 +108,13 @@ export const useRemoveLiquidity = () => {
       // ladle.closeFromLadleAction(vaultId, receiver),
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [ladleAddress, ladleAddress, ethers.constants.Zero, ethers.constants.Zero] as RoutedActions.Args.BURN, // TODO slippage
-        fnName: RoutedActions.Fn.BURN,
+        args: [
+          ladleAddress,
+          ladleAddress,
+          ethers.constants.Zero,
+          ethers.constants.Zero,
+        ] as RoutedActions.Args.BURN_POOL_TOKENS, // TODO slippage
+        fnName: RoutedActions.Fn.BURN_POOL_TOKENS,
         targetContract: series.poolContract,
         ignoreIf: true || series.seriesIsMature,
       },
@@ -91,8 +136,13 @@ export const useRemoveLiquidity = () => {
       // ladle.routeAction(pool, ['sellBase', [receiver, minBaseReceived]),
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [account, ladleAddress, ethers.constants.Zero, ethers.constants.Zero] as RoutedActions.Args.BURN,
-        fnName: RoutedActions.Fn.BURN,
+        args: [
+          account,
+          ladleAddress,
+          ethers.constants.Zero,
+          ethers.constants.Zero,
+        ] as RoutedActions.Args.BURN_POOL_TOKENS,
+        fnName: RoutedActions.Fn.BURN_POOL_TOKENS,
         targetContract: series.poolContract,
         ignoreIf: true || series.seriesIsMature,
       },
@@ -128,8 +178,13 @@ export const useRemoveLiquidity = () => {
       // ladle.redeemAction(seriesId, receiver, 0),
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [account, series.fyTokenAddress, ethers.constants.Zero, ethers.constants.Zero] as RoutedActions.Args.BURN, // TODO slippages
-        fnName: RoutedActions.Fn.BURN,
+        args: [
+          account,
+          series.fyTokenAddress,
+          ethers.constants.Zero,
+          ethers.constants.Zero,
+        ] as RoutedActions.Args.BURN_POOL_TOKENS, // TODO slippages
+        fnName: RoutedActions.Fn.BURN_POOL_TOKENS,
         targetContract: series.poolContract,
         ignoreIf: !series.seriesIsMature,
       },
@@ -151,8 +206,8 @@ export const useRemoveLiquidity = () => {
           series.fyTokenAddress,
           ethers.constants.Zero,
           ethers.constants.Zero,
-        ] as RoutedActions.Args.BURN, // TODO slippages
-        fnName: RoutedActions.Fn.BURN,
+        ] as RoutedActions.Args.BURN_POOL_TOKENS, // TODO slippages
+        fnName: RoutedActions.Fn.BURN_POOL_TOKENS,
         targetContract: series.poolContract,
         ignoreIf: !series.seriesIsMature,
       },
@@ -172,6 +227,29 @@ export const useRemoveLiquidity = () => {
         operation: LadleActions.Fn.CLOSE_FROM_LADLE,
         args: ['vaultId', account] as LadleActions.Args.CLOSE_FROM_LADLE, // TODO slippage
         ignoreIf: !series.seriesIsMature,
+      },
+
+      /* STRATEGY BURNING if strategy address is provided, and is found in the strategyMap, use that address */
+
+      // ladle.forwardPermitAction(
+      //   strategy, ladle, strategyTokensBurnt, deadline, v, r, s
+      // ),
+      // ladle.transferAction(strategy, strategy, strategyTokensBurnt),
+      // ladle.routeAction(strategy, ['burn', [pool, 0]),
+      // ladle.routeAction(pool, ['burn', [ladle, ladle, minBaseReceived, minFYTokenReceived]),
+      {
+        operation: LadleActions.Fn.ROUTE,
+        args: [account] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
+        fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
+        targetContract: _strategy,
+        ignoreIf: !_strategy,
+      },
+      {
+        operation: LadleActions.Fn.ROUTE,
+        args: [account] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
+        fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
+        targetContract: _strategy,
+        ignoreIf: !_strategy,
       },
     ];
 
