@@ -5,7 +5,16 @@ import { FiCheckCircle, FiXCircle } from 'react-icons/fi';
 import { TxState } from '../types';
 import EtherscanButton from './buttons/EtherscanButton';
 
-const Transaction = ({ tx, removeOnComplete, ...props }: { tx: any; removeOnComplete?: boolean }) => {
+const Transaction = ({
+  tx,
+  removeOnComplete,
+  wide,
+  ...props
+}: {
+  tx: any;
+  removeOnComplete?: boolean;
+  wide?: boolean;
+}) => {
   const { status, txCode, tx: t, complete } = tx;
   const action = txCode.split('_')[0];
   const link = txCode.split('_')[1];
@@ -17,8 +26,8 @@ const Transaction = ({ tx, removeOnComplete, ...props }: { tx: any; removeOnComp
         {status === TxState.SUCCESSFUL && <FiCheckCircle size="1.5rem" color="#34D399" />}
         {status === TxState.FAILED && <FiXCircle size="1.5rem" color="#F87171" />}
       </Box>
-      <Box gap="small" align="center" justify="between" fill="horizontal">
-        <Box direction="row" justify="start" alignSelf="start">
+      <Box direction={wide ? 'row' : undefined} gap="small" align="center" justify="between" fill="horizontal">
+        <Box direction="row" justify="start" alignSelf={wide ? undefined : 'start'}>
           <Text size="small">{action}</Text>
         </Box>
         <Box direction="row" alignSelf="start">
@@ -40,6 +49,6 @@ const Transaction = ({ tx, removeOnComplete, ...props }: { tx: any; removeOnComp
   );
 };
 
-Transaction.defaultProps = { removeOnComplete: false };
+Transaction.defaultProps = { removeOnComplete: false, wide: false };
 
 export default Transaction;
