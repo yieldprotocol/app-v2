@@ -26,17 +26,17 @@ export const useRepayDebt = () => {
   const repay = async (
     vault: IVault,
     input: string | undefined,
-    collInput: string | undefined = '0' // optional - add(+) / remove(-) collateral in same tx.
+    reclaimCollateral: boolean,
   ) => {
     const txCode = getTxCode(ActionCodes.REPAY, vault.id);
 
     const series: ISeries = seriesMap.get(vault.seriesId);
     const base = assetMap.get(vault.baseId);
-    const ilk = assetMap.get(vault.ilkId);
 
     /* parse inputs */
     const _input = input ? ethers.utils.parseUnits(input, base.decimals) : ethers.constants.Zero;
-    const _collInput = collInput ? ethers.utils.parseUnits(collInput, ilk.decimals) : ethers.constants.Zero;
+    /* if requested, and all debt will be repaid, automatically remove collateral */
+    const _collateralToRemove = (reclaimCollateral && _input >= vault.art) ? vault.ink : ethers.constants.Zero;
 
     const _inputAsFyDai = sellBase(
       series.baseReserves,
@@ -78,23 +78,23 @@ export const useRepayDebt = () => {
       },
       {
         operation: LadleActions.Fn.REPAY,
-        args: [vault.id, account, _collInput, _inputAsFyDaiWithSlippage] as LadleActions.Args.REPAY,
+        args: [vault.id, account, ethers.constants.Zero, _inputAsFyDaiWithSlippage] as LadleActions.Args.REPAY,
         ignoreIf: series.seriesIsMature || inputGreaterThanDebt, // use if input is NOT more than debt
       },
       {
         operation: LadleActions.Fn.REPAY_VAULT,
-        args: [vault.id, account, _collInput, MAX_128] as LadleActions.Args.REPAY_VAULT,
+        args: [vault.id, account, ethers.constants.Zero, MAX_128] as LadleActions.Args.REPAY_VAULT,
         ignoreIf: series.seriesIsMature || !inputGreaterThanDebt, // use if input IS more than debt
       },
 
       /* AFTER MATURITY */
       {
         operation: LadleActions.Fn.CLOSE,
-        args: [vault.id, account, _collInput, _input.mul(-1)] as LadleActions.Args.CLOSE,
+        args: [vault.id, account, ethers.constants.Zero, _input.mul(-1)] as LadleActions.Args.CLOSE,
         ignoreIf: !series.seriesIsMature,
       },
 
-      ...removeEth(_collInput, series),
+      ...removeEth(_collateralToRemove, series), // after the complete tranasction, this will remove all the collateral (if requested). 
     ];
     await transact(calls, txCode);
     updateVaults([]);
