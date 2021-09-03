@@ -36,7 +36,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
   const { id: idFromUrl } = useParams<{ id: string }>();
 
   /* STATE FROM CONTEXT */
-  const { userState } = useContext(UserContext) as IUserContext;
+  const { userState, userActions } = useContext(UserContext) as IUserContext;
   const { activeAccount, selectedStrategyAddr, strategyMap, assetMap, seriesLoading } = userState;
 
   // const selectedSeries = seriesMap.get(selectedSeriesId || idFromUrl);
@@ -116,6 +116,10 @@ const PoolPosition = ({ close }: { close: () => void }) => {
     !rollInput || !rollToSeries || rollError ? setRollDisabled(true) : setRollDisabled(false);
   }, [activeAccount, removeError, removeInput, rollError, rollInput, rollToSeries]);
 
+  useEffect(() => {
+    !selectedStrategyAddr && idFromUrl && userActions.setSelectedStrategy(idFromUrl);
+  }, [selectedStrategyAddr, idFromUrl, userActions.setSelectedStrategy]);
+
   /* INTERNAL COMPONENTS */
   const CompletedTx = (props: any) => (
     <>
@@ -142,10 +146,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                 <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
                   <Box direction="row" align="center" gap="medium">
                     {/* <PositionAvatar position={selectedStrategy} /> */}
-                    <PositionAvatar
-                      position={selectedSeries!}
-                      actionType={ActionType.POOL}
-                    />
+                    <PositionAvatar position={selectedSeries!} actionType={ActionType.POOL} />
                     <Box>
                       <Text size={mobile ? 'medium' : 'large'}> {selectedStrategy?.name} </Text>
                       <Text size="small"> {abbreviateHash(selectedStrategyAddr!, 5)}</Text>
@@ -173,7 +174,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                       icon={<FiPercent />}
                       loading={seriesLoading}
                     />
-                   <InfoBite
+                    <InfoBite
                       label="Returns in current Pool"
                       value={`${cleanValue(selectedStrategy?.accountStrategyPercent, 4)}% `}
                       icon={<FiTrendingUp />}
@@ -193,7 +194,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                       options={[
                         { text: 'Remove Liquidity', index: 0 },
                         { text: 'View Transaction History', index: 1 },
-                       // { text: 'Roll Liquidity', index: 2 },
+                        // { text: 'Roll Liquidity', index: 2 },
                       ]}
                       labelKey="text"
                       valueKey="index"
@@ -293,7 +294,6 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                     )}
                   </>
                 )}
-
               </Box>
             </Box>
 
@@ -355,7 +355,6 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                 (rollTx.success || rollTx.failed) && (
                   <CompletedTx tx={rollTx} resetTx={resetRollTx} actionCode={ActionCodes.ROLL_LIQUIDITY} />
                 )}
-
             </ActionButtonGroup>
           </CenterPanelWrap>
         </ModalWrap>
