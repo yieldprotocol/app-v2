@@ -400,7 +400,7 @@ const Borrow = () => {
                       {vaultToUse?.id && (
                         <InfoBite
                           label="Adding to Existing Vault"
-                          icon={<PositionAvatar position={vaultToUse} condensed />}
+                          icon={<PositionAvatar position={vaultToUse} condensed actionType={ActionType.BORROW}/>}
                           value={`${vaultToUse.displayName}`}
                         />
                       )}
