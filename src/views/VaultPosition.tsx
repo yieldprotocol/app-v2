@@ -320,7 +320,7 @@ const VaultPosition = ({ close }: { close: () => void }) => {
               <Box height={{ min: '250px' }} gap="medium">
                 <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
                   <Box direction="row" align="center" gap="medium">
-                    <PositionAvatar position={selectedVault!} />
+                    <PositionAvatar position={selectedVault!} actionType={ActionType.BORROW} />
                     <Box>
                       <Text size={mobile ? 'medium' : 'large'}> {selectedVault?.displayName} </Text>
                       <Text size="small"> {selectedVault?.id} </Text>
@@ -399,10 +399,15 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                     {stepPosition[0] === 0 && (
                       <Box margin={{ top: 'medium' }} gap="medium">
                         <Box gap="xxsmall">
-                          <Text color="gray" alignSelf="end" size="xsmall">
-                            Balance: {vaultBase?.balance_!}
-                          </Text>
-                          <InputWrap action={() => console.log('maxAction')} isError={repayError}>
+                          <InputWrap
+                            action={() => console.log('maxAction')}
+                            isError={repayError}
+                            message={
+                              <Text color="gray" alignSelf="end" size="xsmall">
+                                Balance: {vaultBase?.balance_!}
+                              </Text>
+                            }
+                          >
                             <TextInput
                               plain
                               type="number"

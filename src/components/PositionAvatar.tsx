@@ -10,7 +10,7 @@ function PositionAvatar({
   actionType,
 }: {
   position: IVault | ISeries | IStrategy;
-  actionType?: ActionType;
+  actionType: ActionType;
   condensed?: boolean;
 }) {
   const isVault = position?.id.length > 15;
@@ -35,7 +35,7 @@ function PositionAvatar({
         </Avatar>
         {actionType === ActionType.BORROW && (
           <Avatar background="#fff" size={condensed ? '0.75rem' : 'xsmall'}>
-            {ilk?.image || null}
+            {ilk?.image}
           </Avatar>
         )}
         {actionType === ActionType.POOL && (
@@ -48,6 +48,6 @@ function PositionAvatar({
   );
 }
 
-PositionAvatar.defaultProps = { actionType: ActionType.LEND, condensed: false };
+PositionAvatar.defaultProps = { condensed: false };
 
 export default PositionAvatar;
