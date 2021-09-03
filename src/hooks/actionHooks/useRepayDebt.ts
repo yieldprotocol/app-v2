@@ -2,9 +2,9 @@ import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, IVault, ISeries, ActionCodes, LadleActions } from '../../types';
+import { ICallData, IVault, ISeries, ActionCodes, LadleActions, IAsset } from '../../types';
 import { getTxCode } from '../../utils/appUtils';
-import { MAX_128 } from '../../utils/constants';
+import { ETH_BASED_ASSETS, MAX_128 } from '../../utils/constants';
 import { useChain } from '../useChain';
 
 import { calculateSlippage, secondsToFrom, sellBase } from '../../utils/yieldMath';
@@ -31,7 +31,10 @@ export const useRepayDebt = () => {
     const txCode = getTxCode(ActionCodes.REPAY, vault.id);
 
     const series: ISeries = seriesMap.get(vault.seriesId);
-    const base = assetMap.get(vault.baseId);
+    const base: IAsset = assetMap.get(vault.baseId);
+    const ethIlk:boolean = ETH_BASED_ASSETS.includes(vault.ilkId)
+
+    console.log('is eth based? ', ethIlk)
 
     /* parse inputs */
     const _input = input ? ethers.utils.parseUnits(input, base.decimals) : ethers.constants.Zero;
@@ -45,6 +48,7 @@ export const useRepayDebt = () => {
       secondsToFrom(series.maturity.toString())
     );
     const _inputAsFyDaiWithSlippage = calculateSlippage(_inputAsFyDai, userState.slippageTolerance.toString(), true);
+
     const inputGreaterThanDebt: boolean = ethers.BigNumber.from(_inputAsFyDai).gte(vault.art);
 
     const permits: ICallData[] = await sign(

@@ -73,6 +73,7 @@ const Lend = () => {
   const handleLend = () => {
     !lendDisabled && lend(lendInput, selectedSeries!);
   };
+  
   const handleRedeem = () => {
     redeem(selectedSeries!, undefined);
   };
