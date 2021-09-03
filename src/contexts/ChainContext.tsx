@@ -30,12 +30,12 @@ const markMap = new Map([
   ['USDC', <USDCMark key="usdc" />],
   ['WBTC', <WBTCMark key="wbtc" />],
   ['TST', <TSTMark key="tst" />],
-  ['WETH', <EthMark key="eth" />],
+  ['ETH', <EthMark key="eth" />],
   ['USDT', <USDTMark key="eth" />],
 ]);
 
 const assetDigitFormatMap = new Map([
-  ['WETH', 6],
+  ['ETH', 6],
   ['WBTC', 6],
   ['DAI', 2],
   ['USDC', 2],
@@ -284,11 +284,12 @@ const ChainProvider = ({ children }: any) => {
             console.log(symbol, ':', id);
             // TODO check if any other tokens have different versions. maybe abstract this logic somewhere?
             const version = id === '0x555344430000' ? '2' : '1';
+
             const newAsset = {
               id,
               address,
               name,
-              symbol,
+              symbol: symbol !=='WETH' ? symbol : 'ETH',
               decimals,
               version,
               joinAddress: joinMap.get(id),
@@ -421,18 +422,22 @@ const ChainProvider = ({ children }: any) => {
         await Promise.all(
           strategies.map(async (stratAddr: string) => {
             const Strategy = contracts.Strategy__factory.connect(stratAddr, fallbackLibrary);
-            const [name, symbol] = await Promise.all([
+            const [name, symbol, baseId, currentSeries] = await Promise.all([
               Strategy.name(),
               Strategy.symbol(),
+              Strategy.baseId(),
+              Strategy.seriesId(),
               // ETH_BASED_ASSETS.includes(id) ? '1' : await ERC20.version()
             ]);
             console.log(name, symbol);
             updateState({
               type: 'addStrategy',
-              payload: { address: stratAddr, symbol, name, strategyContract: Strategy },
+              payload: { address: stratAddr, symbol, name, baseId, currentSeries, strategyContract: Strategy },
             });
           })
         );
+        console.log('Yield Protocol strategies data updated')
+
       };
 
       /* LOAD the Series and Assets */

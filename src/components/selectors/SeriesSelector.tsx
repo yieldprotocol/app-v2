@@ -9,7 +9,6 @@ import { ActionType, ISeries } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { calculateAPR } from '../../utils/yieldMath';
 import { useApr } from '../../hooks/useApr';
-import YieldMark from '../logos/YieldMark';
 import { nFormatter } from '../../utils/appUtils';
 
 const StyledBox = styled(Box)`

@@ -6,7 +6,7 @@ import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
 import { ActionType, IUserContext, IVault, ISeries } from '../types';
 import YieldInfo from '../components/YieldInfo';
-import DashboardPositions from '../components/DashboardPositions';
+import DashboardPositionList from '../components/DashboardPositionList';
 import DashboardBalanceSummary from '../components/DashboardBalanceSummary';
 import MainViewWrap from '../components/wraps/MainViewWrap';
 import PanelWrap from '../components/wraps/PanelWrap';
@@ -40,7 +40,7 @@ const Dashboard = () => {
   const [lendPositions, setLendPositions] = useState<ISeries[]>([]);
   const [poolPositions, setPoolPositions] = useState<ISeries[]>([]);
   const [allPositions, setAllPositions] = useState<(ISeries | IVault)[]>([]);
-  const [filterEmpty, setFilterEmpty] = useState<boolean>(true);
+  const [showEmpty, setShowEmpty] = useState<boolean>(false);
   const [totalDebt, setTotalDebt] = useState<string | null>(null);
   const [totalCollateral, setTotalCollateral] = useState<string | null>(null);
   const [totalLendBalance, setTotalLendBalance] = useState<string | null>(null);
@@ -52,11 +52,10 @@ const Dashboard = () => {
   useEffect(() => {
     const _vaultPositions: IVault[] = Array.from(vaultMap.values())
       .filter((vault: IVault) => showInactiveVaults || vault.isActive)
-      .filter((vault: IVault) => (filterEmpty ? vault.ink.gt(ZERO_BN) || vault.art.gt(ZERO_BN) : true))
+      .filter((vault: IVault) => (showEmpty ? true : vault.ink.gt(ZERO_BN) || vault.art.gt(ZERO_BN)))
       .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1));
-    // .filter((vault: IVault) => hideBalancesSetting && vault.ink?.gt(ethers.utils.parseUnits(hideBalancesSetting )));
     setVaultPositions(_vaultPositions);
-  }, [vaultMap, showInactiveVaults, filterEmpty, hideBalancesSetting]);
+  }, [vaultMap, showInactiveVaults, showEmpty, hideBalancesSetting]);
 
   useEffect(() => {
     const _lendPositions: ISeries[] = Array.from(seriesMap.values())
@@ -87,13 +86,13 @@ const Dashboard = () => {
 
       if (assetId === WETH && baseOrIlkId !== WETH) {
         // calculate DAIWETH price
-        const daiWethPrice = priceMap?.get(DAI)?.get(WETH);
+        const daiWethPrice = priceMap?.get(WETH)?.get(DAI);
         const daiWethPrice_ = ethers.utils.formatEther(daiWethPrice);
         // calculate WETHDAI price for 'ETH' currency setting
         const wethDaiPrice = 1 / Number(daiWethPrice_);
         positionValue = Number(wethDaiPrice) * Number(value);
       } else {
-        const assetPrice = baseOrIlkId !== assetId && priceMap?.get(assetId)?.get(baseOrIlkId);
+        const assetPrice = baseOrIlkId !== assetId && priceMap?.get(baseOrIlkId)?.get(assetId);
         const assetPrice_ = assetPrice ? ethers.utils.formatEther(assetPrice) : '1';
         positionValue = Number(assetPrice_) * Number(value);
       }
@@ -110,12 +109,14 @@ const Dashboard = () => {
     setTotalDebt(
       cleanValue(_debts.reduce((sum: number, debt: number) => sum + debt, 0).toString(), currencySettingDigits)
     );
-
     const _collaterals = vaultPositions?.map((vault: IVault) =>
       getPositionValue(vault.ilkId, vault.ink_, currencySettingAssetId)
     );
     setTotalCollateral(
-      cleanValue(_collaterals.reduce((sum: number, debt: number) => sum + debt, 0).toString(), currencySettingDigits)
+      cleanValue(
+        _collaterals.reduce((sum: number, collateral: number) => sum + collateral, 0).toString(),
+        currencySettingDigits
+      )
     );
   }, [priceMap, vaultPositions, currencySettingAssetId, getPositionValue, currencySettingDigits]);
 
@@ -162,7 +163,7 @@ const Dashboard = () => {
               {vaultsLoading ? (
                 <Skeleton width={mobile ? 300 : 500} count={1} height={40} />
               ) : (
-                <DashboardPositions
+                <DashboardPositionList
                   actionType={ActionType.BORROW}
                   positions={vaultPositions}
                   debt={`${currencySettingSymbol}${totalDebt}`}
@@ -175,7 +176,7 @@ const Dashboard = () => {
               {seriesLoading ? (
                 <Skeleton width={mobile ? 300 : 500} count={1} height={40} />
               ) : (
-                <DashboardPositions
+                <DashboardPositionList
                   actionType={ActionType.LEND}
                   positions={lendPositions}
                   lendBalance={`${currencySettingSymbol}${totalLendBalance}`}
@@ -187,7 +188,7 @@ const Dashboard = () => {
               {seriesLoading ? (
                 <Skeleton width={mobile ? 300 : 500} count={1} height={40} />
               ) : (
-                <DashboardPositions
+                <DashboardPositionList
                   actionType={ActionType.POOL}
                   positions={poolPositions}
                   poolBalance={`${currencySettingSymbol}${totalPoolBalance}`}
@@ -204,8 +205,8 @@ const Dashboard = () => {
               <HideBalancesSetting width="30%" />
               <CurrencyToggle width="50%" />
               <Box justify="between" gap="small">
-                <Text size="small">Filter empty vaults</Text>
-                <CheckBox toggle checked={filterEmpty} onChange={(event) => setFilterEmpty(event.target.checked)} />
+                <Text size="small">Show Empty Vaults</Text>
+                <CheckBox toggle checked={showEmpty} onChange={(event) => setShowEmpty(event.target.checked)} />
               </Box>
             </Box>
           )}

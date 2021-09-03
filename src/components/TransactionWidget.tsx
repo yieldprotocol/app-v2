@@ -1,56 +1,31 @@
-import React from 'react';
-import { Box, Text, Spinner } from 'grommet';
-import { FiAlertTriangle, FiCheckCircle, FiClock, FiXCircle } from 'react-icons/fi';
-import { abbreviateHash } from '../utils/appUtils';
-import CopyWrap from './wraps/CopyWrap';
+import React, { useContext } from 'react';
+import { Box, Text } from 'grommet';
+import { FiAlertTriangle } from 'react-icons/fi';
+import { TxContext } from '../contexts/TxContext';
+import Transactions from './Transactions';
+import { TxState } from '../types';
 
-const TransactionWidget = ({ tx }: any) => {
-  if (!tx.txCode) return null;
+const TransactionWidget = () => {
+  const {
+    txState: { processes, transactions },
+  } = useContext(TxContext);
+  const hasActiveProcess = [...processes.values()].some((p) => p.status === 'ACTIVE');
+  const lastTx = [...transactions?.values()][transactions.size - 1];
 
   return (
-    <Box
-      round="xsmall"
-      pad={{ horizontal: 'medium', vertical: 'xsmall' }}
-      elevation={tx.processActive || tx.success || tx.failed ? 'xsmall' : undefined}
-      gap="xsmall"
-      fill
-      align="center"
-      justify="center"
-    >
-      {!tx.pending && tx.processActive && (
-        <Box direction="row" gap="medium" align="center">
-          <FiAlertTriangle />
-          <Box>
+    <Box gap="xsmall">
+      {hasActiveProcess && lastTx?.status !== (TxState.PENDING || TxState.FAILED) && (
+        <Box direction="row" justify="start" align="center" fill elevation="small" gap="small" pad="small">
+          <Box width="3rem" align="center">
+            <FiAlertTriangle size="1.5rem" color="#D97706" />
+          </Box>
+          <Box align="start">
             <Text size="small">Action Required</Text>
-            <Text size="xsmall">Check your wallet</Text>
+            <Text size="xsmall">Please Check your wallet</Text>
           </Box>
         </Box>
       )}
-
-      {tx.pending && (
-        <Box direction="row" gap="medium" align="center">
-          {/* <FiClock /> */}
-          <Spinner />
-          <Box>
-            <Text size="small">Transaction Pending</Text>
-            <Text size="xsmall">
-              <CopyWrap hash={tx.txHash}>{abbreviateHash(tx.txHash, 6)} </CopyWrap>
-            </Text>
-          </Box>
-        </Box>
-      )}
-      {tx.success && (
-        <Box direction="row" gap="small">
-          <FiCheckCircle />
-          <Text size="xsmall"> Transaction Complete </Text>
-        </Box>
-      )}
-      {tx.failed && (
-        <Box direction="row" gap="small">
-          <FiXCircle />
-          <Text size="xsmall"> Transaction Failed </Text>
-        </Box>
-      )}
+      <Transactions removeOnComplete elevation="small" pad="medium" />
     </Box>
   );
 };

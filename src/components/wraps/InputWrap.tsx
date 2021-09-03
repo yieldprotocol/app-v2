@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import { Box, BoxProps, Text, ResponsiveContext } from 'grommet';
 import styled, { css } from 'styled-components';
 import { modColor } from '../../utils/appUtils';
@@ -8,6 +8,7 @@ interface IInputWrap extends BoxProps {
   disabled?: boolean;
   isError?: string | null;
   showErrorText?: boolean;
+  message?: string | ReactElement | undefined;
   children: any;
 }
 
@@ -16,7 +17,7 @@ const InsetBox = styled(Box)`
   box-shadow: inset 1px 1px 1px #ddd, inset -0.25px -0.25px 0.25px #ddd;
 `;
 
-function InputWrap({ action, disabled, isError, showErrorText, children, ...props }: IInputWrap) {
+function InputWrap({ action, disabled, isError, showErrorText, message, children, ...props }: IInputWrap) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   return (
@@ -31,15 +32,22 @@ function InputWrap({ action, disabled, isError, showErrorText, children, ...prop
       >
         {children}
       </InsetBox>
-      <Box>
-        <Text style={{ position: 'absolute' }} color="pink" size="xsmall">
+      <Box pad='xsmall'>
+        <Text style={{ position: 'absolute' }} size="xsmall">
           {showErrorText && isError}
+          {message}
         </Text>
       </Box>
     </Box>
   );
 }
 
-InputWrap.defaultProps = { action: () => null, disabled: false, isError: null, showErrorText: false };
+InputWrap.defaultProps = {
+  action: () => null,
+  disabled: false,
+  isError: null,
+  showErrorText: false,
+  message: undefined,
+};
 
 export default InputWrap;

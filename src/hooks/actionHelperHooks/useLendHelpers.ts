@@ -18,7 +18,7 @@ export const useLendHelpers = (series: ISeries, input?:string|undefined) => {
     if (activeAccount) {
       (async () => {
         const max = await selectedBase?.getBalance(activeAccount);
-        if (max) setMaxLend(ethers.utils.formatEther(max).toString());
+        if (max) setMaxLend(ethers.utils.formatUnits(max, selectedBase?.decimals).toString());
       })();
     }
 
@@ -34,7 +34,7 @@ export const useLendHelpers = (series: ISeries, input?:string|undefined) => {
         series.fyTokenBalance || ethers.constants.Zero,
         secondsToFrom(series.maturity.toString())
       );
-      setCurrentValue(ethers.utils.formatEther(value))
+      setCurrentValue(ethers.utils.formatUnits(value, selectedBase?.decimals))
     }
   }, [series]);
 

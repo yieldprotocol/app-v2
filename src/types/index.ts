@@ -1,6 +1,6 @@
-import { ethers, BigNumber, BigNumberish, Contract } from 'ethers';
+import { ethers, BigNumber, BigNumberish } from 'ethers';
 import React from 'react';
-import { ERC20, ERC20Permit, ERC20__factory, FYToken, Pool, Strategy } from '../contracts';
+import { FYToken, Pool, Strategy } from '../contracts';
 
 export { LadleActions, RoutedActions } from './operations';
 
@@ -26,7 +26,10 @@ export interface IUserContextState {
   assetMap: Map<string, IAsset>;
   seriesMap: Map<string, ISeries>;
   vaultMap: Map<string, IVault>;
+  strategyMap: Map<string, IStrategy>;
+
   priceMap: Map<string, Map<string, any>>;
+
   pricesLoading: boolean;
   selectedSeriesId: string | null;
   selectedIlkId: string | null;
@@ -118,6 +121,7 @@ export interface IStrategyRoot {
   address: string;
   name: string;
   symbol: string;
+  baseId: string;
   strategyContract: Strategy;
 }
 
@@ -128,6 +132,7 @@ export interface IVaultRoot {
   seriesId: string;
   image: string;
   displayName: string;
+  decimals: number;
 }
 
 export interface ISeries extends ISeriesRoot {
@@ -165,8 +170,13 @@ export interface IVault extends IVaultRoot {
   art_: string;
   price: BigNumber;
   price_: string;
-  min: BigNumber;
-  max: BigNumber;
+  minDebt: BigNumber;
+  maxDebt: BigNumber;
+}
+
+export interface IStrategy extends IStrategyRoot {
+  currentSeries: string;
+  current: string;
 }
 
 export interface ICallData {

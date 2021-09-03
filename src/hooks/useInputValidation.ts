@@ -49,7 +49,7 @@ export const useInputValidation = (
         case ActionCodes.REPAY:
         case ActionCodes.ROLL_DEBT:
           aboveMax && setInputError('Amount exceeds your current debt');
-          belowMin && setInputError('Remaining debt below dust levels');
+          // belowMin && setInputError('Remaining debt below dust levels');
           break;
 
         case ActionCodes.ADD_COLLATERAL:
@@ -57,7 +57,8 @@ export const useInputValidation = (
           break;
 
         case ActionCodes.REMOVE_COLLATERAL:
-          aboveMax && setInputError('Vault will be undercollateralised ');
+          belowMin && setInputError('Vault will be undercollateralised');
+          aboveMax && setInputError('Vault will be undercollateralised');
           break;
 
         case ActionCodes.TRANSFER_VAULT:

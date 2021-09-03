@@ -40,18 +40,17 @@ const Balances = () => {
     pathname && setPath(pathname.split('/')[1]);
   }, [pathname]);
 
-  const [allOpen, setAllOpen] = useState<boolean>(false);
-
   const selectedBase = assetMap.get(selectedBaseId);
   const selectedIlk = assetMap.get(selectedIlkId);
 
   return (
     <Box pad="small" justify="center" align="start">
-      <Balance image={selectedBase?.image} balance={selectedBase?.balance_} loading={assetsLoading} />
-      {path === 'borrow' && selectedBase?.id !== selectedIlk?.id && selectedIlk?.id !== WETH && (
-        <Balance image={selectedIlk?.image} balance={selectedIlk?.balance_} loading={assetsLoading} />
-      )}
-      <Collapsible open={allOpen}>Other balances</Collapsible>
+      <Box>
+        <Balance image={selectedBase?.image} balance={selectedBase?.balance_} loading={assetsLoading} />
+        {path === 'borrow' && selectedBase?.id !== selectedIlk?.id && selectedIlk?.id !== WETH && (
+          <Balance image={selectedIlk?.image} balance={selectedIlk?.balance_} loading={assetsLoading} />
+        )}
+      </Box>
     </Box>
   );
 };

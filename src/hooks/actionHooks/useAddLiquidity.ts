@@ -23,8 +23,9 @@ export const useAddLiquidity = () => {
     input: string,
     series: ISeries,
     method: 'BUY' | 'BORROW' | string = 'BUY',
-    // strategyAddr: string | undefined = undefined,
-    strategyAddr: string | undefined = '0x3e445F82CeF33a862a0dEEA9E5C3685fFf1EF310'
+    strategyAddr: string | undefined = undefined,
+    // strategyAddr: string | undefined = '0xA711725a06205509D13EFB454bf8BD4fCDE53187'
+
   ) => {
     const txCode = getTxCode(ActionCodes.ADD_LIQUIDITY, series.id);
     const base: IAsset = assetMap.get(series.baseId);

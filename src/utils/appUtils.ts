@@ -82,9 +82,9 @@ export const getSeason = (dateInSecs: number): SeasonType => {
 };
 
 /* Trunctate a string value to a certain number of 'decimal' point */
-export const cleanValue = (input: string | undefined, decimals: number = 12) => {
+export const cleanValue = (input: string | undefined, decimals: number = 18) => {
   const re = new RegExp(`(\\d+\\.\\d{${decimals}})(\\d)`);
-  if (input !== undefined ) {
+  if (input !== undefined) {
     const inpu = input?.match(re); // inpu = truncated 'input'... get it?
     if (inpu) {
       return inpu[1];
@@ -202,3 +202,37 @@ export const buildGradient = (colorFrom: string, colorTo: string) => `linear-gra
       ${modColor(colorTo, 0)}, 
       ${modColor(colorTo, 0)})
     `;
+
+export const getPositionPathPrefix = (txCode: string) => {
+  const action = txCode.split('_')[0];
+  switch (action) {
+    // BORROW
+    case ActionCodes.BORROW:
+    case ActionCodes.REMOVE_COLLATERAL:
+    case ActionCodes.REPAY:
+    case ActionCodes.ROLL_DEBT:
+    case ActionCodes.TRANSFER_VAULT:
+    case ActionCodes.MERGE_VAULT:
+      return 'vaultposition';
+    // LEND
+    case ActionCodes.LEND:
+    case ActionCodes.CLOSE_POSITION:
+    case ActionCodes.ROLL_POSITION:
+    case ActionCodes.REDEEM:
+      return 'lendposition';
+    // POOL
+    case ActionCodes.ADD_LIQUIDITY:
+    case ActionCodes.REMOVE_LIQUIDITY:
+    case ActionCodes.ROLL_LIQUIDITY:
+      return 'poolposition';
+
+    default:
+      return `${action.toLowerCase()}position`;
+  }
+};
+
+export const getVaultIdFromReceipt = (receipt: any, contractMap: any) => {
+  const cauldronAddr = contractMap.get('Cauldron').address;
+  const vaultIdHex = receipt.events.filter((e: any) => e.address === cauldronAddr)[0].topics[1];
+  return vaultIdHex.slice(0, 26);
+};

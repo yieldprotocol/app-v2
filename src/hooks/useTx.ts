@@ -1,9 +1,10 @@
 import { useContext, useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
+import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
 import { UserContext } from '../contexts/UserContext';
 import { ActionCodes, TxState } from '../types';
-import { getTxCode } from '../utils/appUtils';
+import { getTxCode, getPositionPathPrefix, getVaultIdFromReceipt } from '../utils/appUtils';
 
 interface ITx {
   txCode: any;
@@ -13,6 +14,8 @@ interface ITx {
   rejected: boolean;
   txHash: any;
   processActive: boolean;
+  positionPath: string | undefined;
+  receipt: any | undefined;
 }
 
 /* useTx hook returns the tx status, and redirects to home after success if shouldRedirect is specified */
@@ -30,6 +33,9 @@ export const useTx = (
     // userState: { selectedVaultId, selectedSeriesId },
     userActions,
   } = useContext(UserContext);
+  const {
+    chainState: { contractMap },
+  } = useContext(ChainContext);
 
   const history = useHistory();
 
@@ -41,6 +47,8 @@ export const useTx = (
     rejected: false,
     txHash: undefined,
     processActive: false,
+    positionPath: undefined,
+    receipt: undefined,
   };
 
   const [tx, setTx] = useState<ITx>(INITIAL_STATE);
@@ -61,7 +69,7 @@ export const useTx = (
   }, [actionCode, seriesOrVaultId]);
 
   useEffect(() => {
-    txCode && setTxHash(processes.get(txCode)?.hash!);
+    txCode && setTxHash(processes.get(txCode!)?.hash!);
   }, [processes, txCode, processActive]);
 
   useEffect(() => {
@@ -71,7 +79,11 @@ export const useTx = (
   }, [processes, txCode]);
 
   useEffect(() => {
-    transactions.has(txHash) && setTxStatus(transactions.get(txHash).status);
+    processActive && transactions.has(txHash) && setTxStatus(transactions.get(txHash).status);
+  }, [txHash, transactions, processActive]);
+
+  useEffect(() => {
+    transactions.has(txHash) && setTx((t) => ({ ...t, receipt: transactions.get(txHash).receipt }));
   }, [txHash, transactions]);
 
   useEffect(() => {
@@ -95,6 +107,21 @@ export const useTx = (
   useEffect(() => {
     tx.success && shouldRedirect && history.push('/') && userActions.setSelectedVault(null);
   }, [tx.success, shouldRedirect, history, userActions]);
+
+  // get the vault id after borrowing or the lend/pool position id's
+  useEffect(() => {
+    const pathPrefix = txCode && getPositionPathPrefix(txCode!);
+
+    if (txCode?.includes(ActionCodes.BORROW) && tx.receipt) {
+      const vaultId = getVaultIdFromReceipt(tx.receipt, contractMap);
+      setTx((t) => ({ ...t, positionPath: `${pathPrefix}/${vaultId}` }));
+    } else if (txCode?.includes(ActionCodes.BORROW) && !tx.receipt) {
+      setTx((t) => ({ ...t, positionPath: undefined }));
+    } else {
+      const positionId = txCode && txCode.split('_')[1];
+      setTx((t) => ({ ...t, positionPath: `${pathPrefix}/${positionId}` }));
+    }
+  }, [transactions, contractMap, txCode, txHash, tx.receipt]);
 
   return { tx, resetTx };
 };

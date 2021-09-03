@@ -34,7 +34,7 @@ function App() {
       <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
 
       <Box flex={!mobile} overflow="auto">
-        <ToastContainer />
+        <ToastContainer position="top-center" />
         {menuLayerOpen && <MenuLayer toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} />}
         <Switch>
           <Route path="/borrow/:series?/:asset?/:amnt?">
