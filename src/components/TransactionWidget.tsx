@@ -21,24 +21,28 @@ const TransactionWidget = () => {
   const lastTx = [...transactions?.values()][transactions.size - 1];
   const isLastTxPending = lastTx?.status === TxState.PENDING;
 
-  const [txs, setTxs] = useState<any>(transactions);
+  const [txs, setTxs] = useState<any>(new Map());
+
+  const handleRemove = useCallback(
+    (txHash: string) => {
+      const updatedTx = { ...txs.get(txHash), remove: true };
+      setTxs((_txs: any) => _txs.set(txHash, updatedTx));
+      console.log('inhere', txs);
+    },
+    [txs]
+  );
 
   // remove on success
   useEffect(() => {
-    const handleRemove = (txHash: string) => setTxs(new Map(txs.set(txHash, { ...txs.get(txHash), remove: true })));
-
-    [...txs.values()].map((tx: any) =>
-      tx.status === TxState.SUCCESSFUL
-        ? setTimeout(() => {
-            handleRemove(tx.tx.hash);
-          }, 5000)
-        : null
-    );
-  }, [txs]);
+    txs.size &&
+      [...txs.values()].map(
+        (tx: any) => tx.status === TxState.SUCCESSFUL && setTimeout(() => handleRemove(tx.tx.hash), 5000)
+      );
+  }, [txs, handleRemove]);
 
   useEffect(() => {
-    setTxs((_txs: any) => transactions);
-  }, [txs, transactions]);
+    setTxs(new Map(transactions));
+  }, [transactions]);
 
   return (
     <StyledBox gap="xsmall">
@@ -53,7 +57,7 @@ const TransactionWidget = () => {
           </Box>
         </Box>
       )}
-      <TransactionList transactions={[...txs.values()]} />
+      <TransactionList transactions={[...txs.values()]} handleRemove={handleRemove} />
     </StyledBox>
   );
 };

@@ -1,19 +1,21 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Box, Text, Spinner } from 'grommet';
-import { FiCheckCircle, FiXCircle } from 'react-icons/fi';
+import { FiX, FiCheckCircle, FiXCircle } from 'react-icons/fi';
 import { TxState } from '../types';
 import EtherscanButton from './buttons/EtherscanButton';
 
 interface ITransactionListItem {
   tx: any;
+  handleRemove?: any;
   wide?: boolean;
 }
 
-const TransactionListItem = ({ tx, wide }: ITransactionListItem) => {
+const TransactionListItem = ({ tx, handleRemove, wide }: ITransactionListItem) => {
   const { status, txCode, tx: t } = tx;
   const action = txCode.split('_')[0];
   const link = txCode.split('_')[1];
+  console.log(tx);
 
   return tx.remove ? null : (
     <Box
@@ -48,11 +50,12 @@ const TransactionListItem = ({ tx, wide }: ITransactionListItem) => {
             <EtherscanButton txHash={t.hash} />
           )}
         </Box>
+        {status === TxState.FAILED && <FiX size="1.5rem" />}
       </Box>
     </Box>
   );
 };
 
-TransactionListItem.defaultProps = { wide: false };
+TransactionListItem.defaultProps = { wide: false, handleRemove: () => null };
 
 export default TransactionListItem;
