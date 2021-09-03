@@ -20,7 +20,7 @@ export const useRemoveLiquidity = () => {
 
   const { userState, userActions } = useContext(UserContext);
   const { activeAccount: account, assetMap, selectedStrategyAddr } = userState;
-  const { updateSeries, updateAssets } = userActions;
+  const { updateSeries, updateAssets, updateStrategies } = userActions;
   const { sign, transact } = useChain();
 
   const removeLiquidity = async (input: string, series: ISeries) => {
@@ -29,7 +29,6 @@ export const useRemoveLiquidity = () => {
 
     const base = assetMap.get(series.baseId);
     const _input = ethers.utils.parseUnits(input, base.decimals);
-
     const _strategy = strategyRootMap.get(selectedStrategyAddr);
 
     const permits: ICallData[] = await sign(
@@ -87,7 +86,7 @@ export const useRemoveLiquidity = () => {
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [series.poolAddress, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
-        ignoreIf: _strategy || series.seriesIsMature, 
+        ignoreIf: _strategy || series.seriesIsMature,
       },
 
       /* BEFORE MATURITY */
@@ -219,12 +218,12 @@ export const useRemoveLiquidity = () => {
         args: ['vaultId', account] as LadleActions.Args.CLOSE_FROM_LADLE, // TODO slippage
         ignoreIf: !series.seriesIsMature,
       },
-
     ];
 
     await transact(calls, txCode);
     updateSeries([series]);
     updateAssets([base]);
+    updateStrategies([_strategy]);
   };
 
   return removeLiquidity;
