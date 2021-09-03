@@ -39,8 +39,6 @@ import { useLendHelpers } from '../hooks/actionHelperHooks/useLendHelpers';
 import { useLend } from '../hooks/actionHooks/useLend';
 import { useRedeemPosition } from '../hooks/actionHooks/useRedeemPosition';
 
-import AddTokenToMetamask from '../components/AddTokenToMetamask';
-
 import TransactionWidget from '../components/TransactionWidget';
 
 const Lend = () => {
@@ -149,12 +147,6 @@ const Lend = () => {
                     </Box>
                     <Box basis={mobile ? '50%' : '40%'}>
                       <AssetSelector />
-                      <AddTokenToMetamask
-                        address={selectedBase?.address}
-                        symbol={selectedBase?.symbol}
-                        decimals={18}
-                        image=""
-                      />
                     </Box>
                   </Box>
                 </SectionWrap>
