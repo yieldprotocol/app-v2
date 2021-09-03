@@ -461,8 +461,7 @@ const UserProvider = ({ children }: any) => {
       let _accountData: IStrategy[] = [];
 
       _publicData = await Promise.all(
-        strategyList
-        .map(async (_strategy: IStrategyRoot): Promise<IStrategy> => {
+        strategyList.map(async (_strategy: IStrategyRoot): Promise<IStrategy> => {
           /* Get all the data simultanenously in a promise.all */
           const [strategyTotalSupply, currentSeriesId, currentPoolAddr, nextSeriesId] = await Promise.all([
             _strategy.strategyContract.totalSupply(),
@@ -471,12 +470,12 @@ const UserProvider = ({ children }: any) => {
             _strategy.strategyContract.nextSeriesId(),
           ]);
 
-          if ( seriesRootMap.has(currentSeriesId) ) {
-            const currentSeries = seriesRootMap.get(currentSeriesId);    
-            const nextSeries = seriesRootMap.get(nextSeriesId); 
-            const [ poolTotalSupply, strategyPoolBalance ] = await Promise.all([      
+          if (seriesRootMap.has(currentSeriesId)) {
+            const currentSeries = seriesRootMap.get(currentSeriesId);
+            const nextSeries = seriesRootMap.get(nextSeriesId);
+            const [poolTotalSupply, strategyPoolBalance] = await Promise.all([
               currentSeries?.poolContract.totalSupply(),
-              currentSeries?.poolContract.balanceOf(_strategy.address)
+              currentSeries?.poolContract.balanceOf(_strategy.address),
             ]);
 
             const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
@@ -489,16 +488,16 @@ const UserProvider = ({ children }: any) => {
               poolTotalSupply_: ethers.utils.formatUnits(poolTotalSupply, _strategy.decimals),
               strategyPoolBalance,
               strategyPoolBalance_: ethers.utils.formatUnits(strategyPoolBalance, _strategy.decimals),
-              strategyPoolPercent, 
+              strategyPoolPercent,
               currentSeriesId,
               currentPoolAddr,
               nextSeriesId,
               currentSeries,
               nextSeries,
               active: true,
-            }
+            };
           }
-          
+
           /* else return an 'EMPTY' strategy */
           return {
             ..._strategy,
@@ -506,7 +505,7 @@ const UserProvider = ({ children }: any) => {
             currentPoolAddr,
             nextSeriesId,
             currentSeries: undefined,
-            nextSeries:undefined,
+            nextSeries: undefined,
             active: false,
           };
         })
@@ -516,27 +515,30 @@ const UserProvider = ({ children }: any) => {
       if (account) {
         _accountData = await Promise.all(
           _publicData
-          // .filter( (s:IStrategy) => s.active) // filter out strategies with no current series
-          .map(async (_strategy: IStrategy): Promise<IStrategy> => {
-            const [ accountBalance, accountPoolBalance ] = await Promise.all( [ 
-              _strategy.strategyContract.balanceOf(account),
-              _strategy.currentSeries?.poolContract.balanceOf(account)
-            ]);
+            // .filter( (s:IStrategy) => s.active) // filter out strategies with no current series
+            .map(async (_strategy: IStrategy): Promise<IStrategy> => {
+              const [accountBalance, accountPoolBalance] = await Promise.all([
+                _strategy.strategyContract.balanceOf(account),
+                _strategy.currentSeries?.poolContract.balanceOf(account),
+              ]);
 
-            const accountStrategyPercent = mulDecimal(divDecimal(accountBalance, _strategy.strategyTotalSupply || '0'), '100');
+              const accountStrategyPercent = mulDecimal(
+                divDecimal(accountBalance, _strategy.strategyTotalSupply || '0'),
+                '100'
+              );
 
-            return {
-              ..._strategy,
-              accountBalance,
-              accountBalance_: ethers.utils.formatUnits(accountBalance, _strategy.decimals),
-              accountPoolBalance,
-              accountStrategyPercent,
-            };
-          })
+              return {
+                ..._strategy,
+                accountBalance,
+                accountBalance_: ethers.utils.formatUnits(accountBalance, _strategy.decimals),
+                accountPoolBalance,
+                accountStrategyPercent,
+              };
+            })
         );
       }
 
-      const _combinedData = _accountData.length ? _accountData : _publicData // .filter( (s:IStrategy) => s.active) ; // filter out strategies with no current series
+      const _combinedData = _accountData.length ? _accountData : _publicData; // .filter( (s:IStrategy) => s.active) ; // filter out strategies with no current series
 
       /* combined account and public series data reduced into a single Map */
       const newStrategyMap = new Map(

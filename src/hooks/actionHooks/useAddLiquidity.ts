@@ -16,15 +16,10 @@ export const useAddLiquidity = () => {
   } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
   const { activeAccount: account, selectedIlkId, selectedSeriesId, assetMap, selectedStrategyAddr } = userState;
-  const { updateSeries, updateAssets } = userActions;
+  const { updateSeries, updateAssets, updateStrategies } = userActions;
   const { sign, transact } = useChain();
 
-  const addLiquidity = async (
-    input: string,
-    series: ISeries,
-    method: 'BUY' | 'BORROW' | string = 'BUY',
-  ) => {
-
+  const addLiquidity = async (input: string, series: ISeries, method: 'BUY' | 'BORROW' | string = 'BUY') => {
     const txCode = getTxCode(ActionCodes.ADD_LIQUIDITY, series.id);
     const base: IAsset = assetMap.get(series.baseId);
     const _input = ethers.utils.parseUnits(input, base.decimals);
@@ -128,6 +123,7 @@ export const useAddLiquidity = () => {
     await transact(calls, txCode);
     updateSeries([series]);
     updateAssets([base]);
+    updateStrategies([strategyRootMap.get(_strategy)]);
   };
 
   return addLiquidity;

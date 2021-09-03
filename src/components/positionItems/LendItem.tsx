@@ -47,19 +47,6 @@ function LendItem({
                 Balance: {cleanValue(series.fyTokenBalance_, 2)}
               </Text>
             )}
-
-            {actionType === 'POOL' && (
-              <Text weight={450} size="xsmall">
-                {/* Tokens:  {cleanValue(series.poolTokens_, 2)} */}
-                Tokens: {nFormatter(parseFloat(series.poolTokens_!), 2)}
-              </Text>
-            )}
-
-            {actionType === 'POOL' && (
-              <Text weight={450} size="xsmall">
-                Pool %: {cleanValue(series.poolPercent, 2)}
-              </Text>
-            )}
           </Box>
         </Box>
       </Box>
