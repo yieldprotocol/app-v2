@@ -23,8 +23,13 @@ export const useClosePosition = () => {
 
     const { fyTokenAddress, poolAddress, seriesIsMature } = series;
 
-    const _inputAsFyToken = buyBase(series.baseReserves, series.fyTokenReserves, _input, series.getTimeTillMaturity());
-
+    const _inputAsFyToken = buyBase(
+      series.baseReserves, 
+      series.fyTokenReserves, 
+      _input, 
+      series.getTimeTillMaturity()
+    );
+    
     const _inputAsFyTokenWithSlippage = calculateSlippage(
       _inputAsFyToken,
       userState.slippageTolerance.toString(),
@@ -37,7 +42,7 @@ export const useClosePosition = () => {
           target: series,
           spender: 'LADLE',
           message: 'Signing ERC20 Token approval',
-          ignoreIf: series.seriesIsMature,
+          ignoreIf: false, // never ignore
         },
       ],
       txCode
@@ -47,13 +52,18 @@ export const useClosePosition = () => {
 
     const calls: ICallData[] = [
       ...permits,
-
-      /* BEFORE MATURITY */
+  
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [fyTokenAddress, poolAddress, _inputAsFyToken] as LadleActions.Args.TRANSFER,
-        ignoreIf: seriesIsMature,
+        args: [
+          fyTokenAddress, 
+          seriesIsMature ? fyTokenAddress : poolAddress,  // select dest based on maturity 
+          _inputAsFyToken
+        ] as LadleActions.Args.TRANSFER,
+        ignoreIf: false, // never ignore
       },
+
+      /* BEFORE MATURITY */
       {
         operation: LadleActions.Fn.ROUTE,
         args: [account, _inputAsFyTokenWithSlippage] as RoutedActions.Args.SELL_FYTOKEN,
@@ -62,12 +72,13 @@ export const useClosePosition = () => {
         ignoreIf: seriesIsMature,
       },
 
-      /* AFTER MATURITY */ // TODO
+      /* AFTER MATURITY */
       {
         operation: LadleActions.Fn.REDEEM,
         args: [series.id, account, _inputAsFyToken] as LadleActions.Args.REDEEM,
         ignoreIf: !seriesIsMature,
       },
+
     ];
     await transact(calls, txCode);
     updateSeries([series]);
