@@ -255,7 +255,7 @@ const Borrow = () => {
                         <Gauge value={parseFloat(collateralizationPercent!)} size={mobile ? '6em' : '8em'} />
                       </Box>
 
-                      <Box align='center'>
+                      <Box align="center">
                         <Text size={mobile ? 'xsmall' : 'medium'} color="text-weak">
                           Collateralization
                         </Text>
@@ -265,9 +265,7 @@ const Borrow = () => {
                             : parseFloat(collateralizationPercent!)}
                           %
                         </Text>
-
                       </Box>
-
                     </Box>
                     {/* <Box
                           pad="xsmall"

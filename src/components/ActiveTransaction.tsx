@@ -1,6 +1,7 @@
+import React, { useContext, useEffect, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { constants } from 'ethers';
 import { Box, Button, Text } from 'grommet';
-import React, { useContext, useEffect, useState } from 'react';
 import { BiWallet } from 'react-icons/bi';
 import { FiCheckCircle, FiClock, FiPenTool, FiX } from 'react-icons/fi';
 import { TxContext } from '../contexts/TxContext';
@@ -41,11 +42,13 @@ const InfoBlock = ({
           <Box gap="xsmall">
             <Text size="medium">{title}</Text>
             <Box direction="row" gap="xsmall">
-              <Text size="small" color='text-weak'>{subTitle}</Text>   
+              <Text size="small" color="text-weak">
+                {subTitle}
+              </Text>
             </Box>
           </Box>
         </Box>
-        <Box alignSelf='center'>{button}</Box>
+        <Box alignSelf="center">{button}</Box>
       </Box>
     )}
   </>
@@ -68,9 +71,10 @@ const ActiveTransaction = ({
     userState: { approvalMethod },
   } = useContext(UserContext);
 
+  const { pathname } = useLocation();
+
   const [sig, setSig] = useState<any>();
   const [iconSize, setIconSize] = useState<string>('1em');
-
   useEffect(() => {
     tx.txCode && setSig(signatures.get(tx.txCode));
   }, [tx, signatures]);
@@ -149,28 +153,36 @@ const ActiveTransaction = ({
           />
         )} */}
 
-      {!tx.processActive &&
-        tx.success && (
+      {!tx.processActive && tx.success && (
         <InfoBlock
           title="Transaction Complete"
           subTitle={<CopyWrap hash={tx.txHash}> {abbreviateHash(tx.txHash, 6)} </CopyWrap>}
           icon={<FiCheckCircle size={iconSize} />}
-          button={<EtherscanButton txHash={tx.txHash} />}
+          button={
+            tx.positionPath && !pathname.includes('position') ? (
+              <Link to={tx.positionPath} style={{ textDecoration: 'none' }}>
+                <Text size="xsmall" color="tailwind-blue" style={{ verticalAlign: 'middle' }}>
+                  View Position
+                </Text>
+              </Link>
+            ) : (
+              <EtherscanButton txHash={tx.txHash} />
+            )
+          }
           full={full}
         />
       )}
 
-      {
-      !tx.processActive &&
-      tx.failed && ( // Case: transaction failed.
-        <InfoBlock
-          title="Transaction Failed"
-          subTitle={<CopyWrap hash={tx.txHash}> {abbreviateHash(tx.txHash, 6)} </CopyWrap>}
-          icon={<FiX size={iconSize} />}
-          button={<EtherscanButton txHash={tx.txHash} />}
-          full={full}
-        />
-      )}
+      {!tx.processActive &&
+        tx.failed && ( // Case: transaction failed.
+          <InfoBlock
+            title="Transaction Failed"
+            subTitle={<CopyWrap hash={tx.txHash}> {abbreviateHash(tx.txHash, 6)} </CopyWrap>}
+            icon={<FiX size={iconSize} />}
+            button={<EtherscanButton txHash={tx.txHash} />}
+            full={full}
+          />
+        )}
     </Box>
   );
 };
