@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Box, ResponsiveContext, Select, Text } from 'grommet';
 import { FiPlusCircle } from 'react-icons/fi';
-import { IVault } from '../../types';
+import { ActionType, IVault } from '../../types';
 import PositionAvatar from '../PositionAvatar';
 import { UserContext } from '../../contexts/UserContext';
 
@@ -44,7 +44,7 @@ function VaultDropSelector({
         valueLabel={
           itemSelected?.id ? (
             <Box pad={mobile ? 'medium' : 'small'} direction="row" gap="medium" align="center">
-              <PositionAvatar position={itemSelected} condensed />
+              <PositionAvatar position={itemSelected} condensed actionType={ActionType.BORROW}/>
               <Text>{itemSelected?.displayName}</Text>
             </Box>
           ) : (
@@ -61,7 +61,7 @@ function VaultDropSelector({
           <>
             {x.id ? (
               <Box pad="small" direction="row" gap="small" align="center">
-                <PositionAvatar position={x} condensed />
+                <PositionAvatar position={x} condensed actionType={ActionType.BORROW} />
                 <Box>
                   <Text size="small" weight={700}>
                     {x.displayName}

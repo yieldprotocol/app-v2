@@ -3,7 +3,7 @@ import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { Box, Text } from 'grommet';
-import { IUserContext, IVault } from '../../types';
+import { ActionType, IUserContext, IVault } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 
 import PositionAvatar from '../PositionAvatar';
@@ -38,7 +38,7 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
   return (
     <ItemWrap action={() => handleSelect(vault)} index={index}>
       <Box direction="row" gap="small" align="center" pad="small" height={condensed ? '3rem' : undefined}>
-        <PositionAvatar position={vault} condensed={condensed} />
+        <PositionAvatar position={vault} condensed={condensed} actionType={ActionType.BORROW} />
         <Box
           fill={condensed ? 'horizontal' : undefined}
           justify={condensed ? 'between' : undefined}

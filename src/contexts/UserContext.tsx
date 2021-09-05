@@ -414,18 +414,21 @@ const UserProvider = ({ children }: any) => {
             await updatePrice(vault.baseId, vault.ilkId),
           ]);
 
+          const baseRoot:IAssetRoot = assetRootMap.get(vault.baseId);
+          const ilkRoot:IAssetRoot = assetRootMap.get(ilkId);
+
           return {
             ...vault,
-            owner,
+            owner, // refreshed in case owner has been updated
             isActive: owner === account,
-            seriesId, // in case seriesId has been updated
-            ilkId, // in case ilkId has been updated
+            seriesId, // refreshed in case seriesId has been updated
+            ilkId, // refreshed in case ilkId has been updated
             ink,
             art,
-            ink_: cleanValue(ethers.utils.formatUnits(ink, vault.decimals), 2), // for display purposes only
-            art_: cleanValue(ethers.utils.formatUnits(art, vault.decimals), 2), // for display purposes only
+            ink_: cleanValue(ethers.utils.formatUnits(ink, ilkRoot.decimals), ilkRoot.digitFormat), // for display purposes only
+            art_: cleanValue(ethers.utils.formatUnits(art, baseRoot.decimals), baseRoot.digitFormat), // for display purposes only
             price,
-            price_: cleanValue(ethers.utils.formatUnits(price, 18), 2),
+            price_: cleanValue(ethers.utils.formatUnits(price, 18), baseRoot.digitFormat), // for display purposes only
             minDebt,
             maxDebt,
           };

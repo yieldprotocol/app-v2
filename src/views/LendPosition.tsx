@@ -135,7 +135,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
               <Box height={{ min: '250px' }} gap="medium">
                 <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
                   <Box direction="row" align="center" gap="medium">
-                    <PositionAvatar position={selectedSeries!} />
+                    <PositionAvatar position={selectedSeries!} actionType={ActionType.LEND} />
                     <Box>
                       <Text size={mobile ? 'medium' : 'large'}> {selectedSeries?.displayName} </Text>
                       <Text size="small"> {abbreviateHash(selectedSeries?.fyTokenAddress!, 5)}</Text>
