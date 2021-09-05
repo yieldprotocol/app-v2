@@ -3,7 +3,7 @@ import { useContext } from 'react';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions } from '../../types';
 import { getTxCode } from '../../utils/appUtils';
-import { calculateSlippage, sellBase } from '../../utils/yieldMath';
+import { buyBase, calculateSlippage, sellBase } from '../../utils/yieldMath';
 import { useChain } from '../useChain';
 
 /* Lend Actions Hook */
@@ -20,14 +20,11 @@ export const useRollPosition = () => {
     const base = assetMap.get(fromSeries.baseId);
     const _input = input ? ethers.utils.parseUnits(input, base.decimals) : ethers.constants.Zero;
 
-    const _inputAsFyToken = sellBase(
-      fromSeries.baseReserves,
-      fromSeries.fyTokenReserves,
-      _input,
-      fromSeries.getTimeTillMaturity()
-    );
+    const _fyTokenValueOfInput = fromSeries.seriesIsMature
+      ? _input
+      : buyBase(fromSeries.baseReserves, fromSeries.fyTokenReserves, _input, fromSeries.getTimeTillMaturity());
 
-    const _minimumFYTokenReceived = calculateSlippage(_inputAsFyToken, slippageTolerance.toString(), true);
+    const _minimumFYTokenReceived = calculateSlippage(_fyTokenValueOfInput, slippageTolerance.toString(), true);
 
     const permits: ICallData[] = await sign(
       [
@@ -44,12 +41,13 @@ export const useRollPosition = () => {
     const calls: ICallData[] = [
       ...permits,
 
-      /* BEFORE MATURITY */
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [fromSeries.fyTokenAddress, fromSeries.poolAddress, _inputAsFyToken] as LadleActions.Args.TRANSFER,
-        ignoreIf: fromSeries.seriesIsMature,
+        args: [fromSeries.fyTokenAddress, fromSeries.poolAddress, _fyTokenValueOfInput] as LadleActions.Args.TRANSFER,
+        ignoreIf: false, // never ignore
       },
+
+      /* BEFORE MATURITY */
       {
         operation: LadleActions.Fn.ROUTE,
         args: [toSeries.poolAddress, ethers.constants.Zero] as RoutedActions.Args.SELL_FYTOKEN,
@@ -67,14 +65,9 @@ export const useRollPosition = () => {
 
       /* AFTER MATURITY */
       {
-        operation: LadleActions.Fn.TRANSFER,
-        args: [fromSeries.address, fromSeries.address, _inputAsFyToken] as LadleActions.Args.TRANSFER,
-        ignoreIf: !fromSeries.seriesIsMature,
-      },
-      {
         // ladle.redeemAction(seriesId, pool2.address, fyTokenToRoll)
         operation: LadleActions.Fn.REDEEM,
-        args: [fromSeries.id, toSeries.poolAddress, _inputAsFyToken] as LadleActions.Args.REDEEM,
+        args: [fromSeries.id, toSeries.poolAddress, _fyTokenValueOfInput] as LadleActions.Args.REDEEM,
         ignoreIf: !fromSeries.seriesIsMature,
       },
       {

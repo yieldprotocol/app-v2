@@ -19,7 +19,7 @@ import { ActionCodes, ActionType, IUserContext, IVault } from '../types';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import StepperText from '../components/StepperText';
-import VaultSelector from '../components/selectors/VaultSelector';
+import VaultSelector from '../components/selectors/VaultPositionSelector';
 import ActiveTransaction from '../components/ActiveTransaction';
 
 import { cleanValue, nFormatter } from '../utils/appUtils';
@@ -38,8 +38,6 @@ import AltText from '../components/texts/AltText';
 import YieldCardHeader from '../components/YieldCardHeader';
 import { useBorrow } from '../hooks/actionHooks/useBorrow';
 import { useCollateralHelpers } from '../hooks/actionHelperHooks/useCollateralHelpers';
-
-import AddTokenToMetamask from '../components/AddTokenToMetamask';
 import TransactionWidget from '../components/TransactionWidget';
 import { useBorrowHelpers } from '../hooks/actionHelperHooks/useBorrowHelpers';
 
@@ -227,12 +225,6 @@ const Borrow = () => {
                       </Box>
                       <Box basis={mobile ? undefined : '40%'}>
                         <AssetSelector />
-                        {/* <AddTokenToMetamask
-                          address={selectedBase?.address}
-                          symbol={selectedBase?.symbol}
-                          decimals={18}
-                          image=""
-                        /> */}
                       </Box>
                     </Box>
                   </SectionWrap>
@@ -263,7 +255,7 @@ const Borrow = () => {
                         <Gauge value={parseFloat(collateralizationPercent!)} size={mobile ? '6em' : '8em'} />
                       </Box>
 
-                      <Box align='center'>
+                      <Box align="center">
                         <Text size={mobile ? 'xsmall' : 'medium'} color="text-weak">
                           Collateralization
                         </Text>
@@ -273,9 +265,7 @@ const Borrow = () => {
                             : parseFloat(collateralizationPercent!)}
                           %
                         </Text>
-
                       </Box>
-
                     </Box>
                     {/* <Box
                           pad="xsmall"
@@ -410,7 +400,7 @@ const Borrow = () => {
                       {vaultToUse?.id && (
                         <InfoBite
                           label="Adding to Existing Vault"
-                          icon={<PositionAvatar position={vaultToUse} condensed />}
+                          icon={<PositionAvatar position={vaultToUse} condensed actionType={ActionType.BORROW}/>}
                           value={`${vaultToUse.displayName}`}
                         />
                       )}

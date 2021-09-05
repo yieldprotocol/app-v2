@@ -19,7 +19,7 @@ import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 
 import StepperText from '../components/StepperText';
-import PositionSelector from '../components/selectors/PositionSelector';
+import PositionSelector from '../components/selectors/LendPositionSelector';
 import ActiveTransaction from '../components/ActiveTransaction';
 import YieldInfo from '../components/YieldInfo';
 import BackButton from '../components/buttons/BackButton';
@@ -32,14 +32,10 @@ import { useApr } from '../hooks/useApr';
 import { useInputValidation } from '../hooks/useInputValidation';
 import { useTx } from '../hooks/useTx';
 import AltText from '../components/texts/AltText';
-import PositionListItem from '../components/PositionItem';
-import EtherscanButton from '../components/buttons/EtherscanButton';
 import YieldCardHeader from '../components/YieldCardHeader';
 import { useLendHelpers } from '../hooks/actionHelperHooks/useLendHelpers';
 import { useLend } from '../hooks/actionHooks/useLend';
 import { useRedeemPosition } from '../hooks/actionHooks/useRedeemPosition';
-
-import AddTokenToMetamask from '../components/AddTokenToMetamask';
 
 import TransactionWidget from '../components/TransactionWidget';
 
@@ -75,6 +71,7 @@ const Lend = () => {
   const handleLend = () => {
     !lendDisabled && lend(lendInput, selectedSeries!);
   };
+  
   const handleRedeem = () => {
     redeem(selectedSeries!, undefined);
   };
@@ -149,12 +146,6 @@ const Lend = () => {
                     </Box>
                     <Box basis={mobile ? '50%' : '40%'}>
                       <AssetSelector />
-                      <AddTokenToMetamask
-                        address={selectedBase?.address}
-                        symbol={selectedBase?.symbol}
-                        decimals={18}
-                        image=""
-                      />
                     </Box>
                   </Box>
                 </SectionWrap>

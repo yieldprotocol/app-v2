@@ -2,10 +2,11 @@ import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, IVault, ActionCodes, LadleActions } from '../../types';
+import { ICallData, IVault, ActionCodes, LadleActions, ISeries } from '../../types';
 import { getTxCode } from '../../utils/appUtils';
 
 import { ETH_BASED_ASSETS, MAX_128, BLANK_VAULT } from '../../utils/constants';
+import { calculateSlippage, sellBase } from '../../utils/yieldMath';
 import { useChain } from '../useChain';
 import { useAddCollateral } from './useAddCollateral';
 
@@ -15,7 +16,7 @@ export const useBorrow = () => {
     chainState: { account },
   } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
-  const { selectedIlkId, selectedSeriesId, seriesMap, assetMap } = userState;
+  const { selectedIlkId, selectedSeriesId, seriesMap, assetMap, slippageTolerance } = userState;
   const { updateVaults, updateAssets } = userActions;
 
   const { addEth } = useAddCollateral();
@@ -29,13 +30,22 @@ export const useBorrow = () => {
     const vaultId = vault?.id || BLANK_VAULT;
 
     /* set the series and ilk based on the vault that has been selected or if it's a new vault, get from the globally selected SeriesId */
-    const series = vault ? seriesMap.get(vault.seriesId) : seriesMap.get(selectedSeriesId);
+    const series: ISeries = vault ? seriesMap.get(vault.seriesId) : seriesMap.get(selectedSeriesId);
     const base = assetMap.get(series.baseId);
     const ilk = vault ? assetMap.get(vault.ilkId) : assetMap.get(selectedIlkId);
 
     /* parse inputs */
     const _input = input ? ethers.utils.parseUnits(input, base.decimals) : ethers.constants.Zero;
     const _collInput = collInput ? ethers.utils.parseUnits(collInput, ilk.decimals) : ethers.constants.Zero;
+
+    /* calculate expected debt(fytokens) */
+    const _expectedFyToken = sellBase(
+      series.baseReserves,
+      series.fyTokenReserves,
+      _input,
+      series.getTimeTillMaturity(),
+    )
+    const _expectedFyTokenWithSlippage = calculateSlippage( _expectedFyToken, slippageTolerance )
 
     /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
     const permits: ICallData[] = await sign(
@@ -65,7 +75,7 @@ export const useBorrow = () => {
       },
       {
         operation: LadleActions.Fn.SERVE,
-        args: [vaultId, account, _collInput, _input, MAX_128] as LadleActions.Args.SERVE, // TODO calculated slippage values
+        args: [vaultId, account, _collInput, _input, _expectedFyTokenWithSlippage] as LadleActions.Args.SERVE,
         ignoreIf: false, // never ignore this
       },
     ];

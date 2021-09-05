@@ -102,20 +102,6 @@ const AprText = ({
         </Text>
       )}
 
-      {actionType === ActionType.POOL && !series.seriesIsMature && !inputValue && (
-        <Text size="medium">
-          {nFormatter(parseFloat(series?.totalSupply_), 2)} <Text size="xsmall"> liquidity </Text>
-        </Text>
-      )}
-
-      {actionType === ActionType.POOL && !series.seriesIsMature && inputValue && (
-        // TODO fix this asap - use a pool hook
-        <Text size="medium">
-          {nFormatter((parseFloat(inputValue) / (parseFloat(series?.totalSupply_) + parseFloat(inputValue))) * 100, 2)}
-          <Text size="xsmall"> % of Pool</Text>
-        </Text>
-      )}
-
       {series.seriesIsMature && (
         <Box direction="row" gap="xsmall" align="center">
           <Text size="xsmall">Mature</Text>
@@ -198,7 +184,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
   return (
     <>
       {seriesLoading && <Skeleton width={180} />}
-      {!cardLayout && (
+      { (!cardLayout || options.length > 4) && (
         <InsetBox fill="horizontal" round="xsmall">
           <Select
             plain
@@ -232,7 +218,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
         </InsetBox>
       )}
 
-      {cardLayout && (
+      { cardLayout && options.length <= 4 && (
         <Grid columns={mobile ? '100%' : 'small'} gap="small" fill pad={{ vertical: 'small' }}>
           {seriesLoading ? (
             <>
