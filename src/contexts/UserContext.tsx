@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useReducer, useCallback, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { ethers } from 'ethers';
+import { BigNumber, BigNumberish, ethers } from 'ethers';
 
 import { uniqueNamesGenerator, Config, adjectives, animals } from 'unique-names-generator';
 
@@ -22,7 +22,7 @@ import { ChainContext } from './ChainContext';
 import { cleanValue, genVaultImage, bytesToBytes32 } from '../utils/appUtils';
 import { calculateAPR, divDecimal, floorDecimal, mulDecimal, secondsToFrom, sellFYToken } from '../utils/yieldMath';
 
-import { ONE_WEI_BN, ETH_BASED_ASSETS } from '../utils/constants';
+import { ONE_WEI_BN, ETH_BASED_ASSETS, BLANK_VAULT, BLANK_SERIES, ZERO_BN } from '../utils/constants';
 
 const UserContext = React.createContext<any>({});
 
@@ -36,9 +36,13 @@ const initState: IUserContextState = {
   seriesMap: new Map<string, ISeries>(),
   vaultMap: new Map<string, IVault>(),
   strategyMap: new Map<string, IStrategy>(),
-
   /* map of asset prices */
   priceMap: new Map<string, Map<string, any>>(),
+
+  vaultsLoading: false as boolean,
+  seriesLoading: false as boolean,
+  assetsLoading: false as boolean,
+  strategiesLoading: false as boolean,
   pricesLoading: false as boolean,
 
   /* Current User selections */
@@ -46,15 +50,14 @@ const initState: IUserContextState = {
   selectedIlkId: null, // initial ilk
   selectedBaseId: null, // initial base
   selectedVaultId: null,
+  selectedStrategyAddr: null,
 
   /* User Settings */
   approvalMethod: ApprovalType.SIG,
   dudeSalt: 20,
   showInactiveVaults: false as boolean,
   slippageTolerance: 0.01 as number,
-  vaultsLoading: false as boolean,
-  seriesLoading: false as boolean,
-  assetsLoading: false as boolean,
+
   hideBalancesSetting: null as string | null,
   currencySetting: 'DAI' as string,
 };
@@ -74,8 +77,10 @@ function userReducer(state: any, action: any) {
   switch (action.type) {
     case 'userLoading':
       return { ...state, userLoading: onlyIfChanged(action) };
+
     case 'activeAccount':
       return { ...state, activeAccount: onlyIfChanged(action) };
+
     case 'selectedVaultId':
       return { ...state, selectedVaultId: onlyIfChanged(action) };
     case 'selectedSeriesId':
@@ -84,14 +89,20 @@ function userReducer(state: any, action: any) {
       return { ...state, selectedIlkId: onlyIfChanged(action) };
     case 'selectedBaseId':
       return { ...state, selectedBaseId: onlyIfChanged(action) };
+    case 'selectedStrategyAddr':
+      return { ...state, selectedStrategyAddr: onlyIfChanged(action) };
+
     case 'assetMap':
       return { ...state, assetMap: onlyIfChanged(action) };
     case 'seriesMap':
       return { ...state, seriesMap: onlyIfChanged(action) };
     case 'vaultMap':
       return { ...state, vaultMap: onlyIfChanged(action) };
+    case 'strategyMap':
+      return { ...state, strategyMap: onlyIfChanged(action) };
     case 'priceMap':
       return { ...state, priceMap: onlyIfChanged(action) };
+
     case 'approvalMethod':
       return { ...state, approvalMethod: onlyIfChanged(action) };
     case 'dudeSalt':
@@ -102,6 +113,7 @@ function userReducer(state: any, action: any) {
       return { ...state, hideBalancesSetting: onlyIfChanged(action) };
     case 'setSlippageTolerance':
       return { ...state, slippageTolerance: onlyIfChanged(action) };
+
     case 'pricesLoading':
       return { ...state, pricesLoading: onlyIfChanged(action) };
     case 'vaultsLoading':
@@ -110,6 +122,9 @@ function userReducer(state: any, action: any) {
       return { ...state, seriesLoading: onlyIfChanged(action) };
     case 'assetsLoading':
       return { ...state, assetsLoading: onlyIfChanged(action) };
+    case 'strategiesLoading':
+      return { ...state, strategiesLoading: onlyIfChanged(action) };
+
     case 'currencySetting':
       return { ...state, currencySetting: onlyIfChanged(action) };
 
@@ -122,14 +137,7 @@ const UserProvider = ({ children }: any) => {
   /* STATE FROM CONTEXT */
   // TODO const [cachedVaults, setCachedVaults] = useCachedState('vaults', { data: [], lastBlock: Number(process.env.REACT_APP_DEPLOY_BLOCK) });
   const { chainState } = useContext(ChainContext);
-  const { 
-      contractMap, 
-      account, 
-      chainLoading, 
-      seriesRootMap, 
-      assetRootMap, 
-      strategyRootMap 
-  } = chainState;
+  const { contractMap, account, chainLoading, seriesRootMap, assetRootMap, strategyRootMap } = chainState;
 
   const [userState, updateState] = useReducer(userReducer, initState);
 
@@ -167,7 +175,7 @@ const UserProvider = ({ children }: any) => {
           ilkId,
           image: genVaultImage(id),
           displayName: uniqueNamesGenerator({ seed: parseInt(id.substring(14), 16), ...vaultNameConfig }),
-          decimals : series.decimals,
+          decimals: series.decimals,
         };
       });
 
@@ -183,7 +191,7 @@ const UserProvider = ({ children }: any) => {
             ilkId,
             image: genVaultImage(id),
             displayName: uniqueNamesGenerator({ seed: parseInt(id.substring(14), 16), ...vaultNameConfig }), // TODO Marco move uniquNames generator into utils
-            decimals : series.decimals,
+            decimals: series.decimals,
           };
         })
       );
@@ -338,7 +346,7 @@ const UserProvider = ({ children }: any) => {
             fyTokenReserves,
             fyTokenRealReserves,
             totalSupply,
-            totalSupply_: ethers.utils.formatUnits(totalSupply,series.decimals),
+            totalSupply_: ethers.utils.formatUnits(totalSupply, series.decimals),
             apr: `${Number(apr).toFixed(2)}`,
             seriesIsMature: mature,
           };
@@ -353,7 +361,6 @@ const UserProvider = ({ children }: any) => {
               series.poolContract.balanceOf(account),
               series.fyTokenContract.balanceOf(account),
             ]);
-
             const poolPercent = mulDecimal(divDecimal(poolTokens, series.totalSupply), '100');
             return {
               ...series,
@@ -448,47 +455,148 @@ const UserProvider = ({ children }: any) => {
 
   /* Updates the assets with relevant *user* data */
   const updateStrategies = useCallback(
-
     async (strategyList: IStrategyRoot[]) => {
-      console.log('Strategy:List: ', strategyList);
+      updateState({ type: 'strategiesLoading', payload: true });
+      let _publicData: IStrategy[] = [];
+      let _accountData: IStrategy[] = [];
+
+      _publicData = await Promise.all(
+        strategyList.map(async (_strategy: IStrategyRoot): Promise<IStrategy> => {
+          /* Get all the data simultanenously in a promise.all */
+          const [strategyTotalSupply, currentSeriesId, currentPoolAddr, nextSeriesId] = await Promise.all([
+            _strategy.strategyContract.totalSupply(),
+            _strategy.strategyContract.seriesId(),
+            _strategy.strategyContract.pool(),
+            _strategy.strategyContract.nextSeriesId(),
+          ]);
+
+          if (seriesRootMap.has(currentSeriesId)) {
+            const currentSeries = seriesRootMap.get(currentSeriesId);
+            const nextSeries = seriesRootMap.get(nextSeriesId);
+            const [poolTotalSupply, strategyPoolBalance] = await Promise.all([
+              currentSeries?.poolContract.totalSupply(),
+              currentSeries?.poolContract.balanceOf(_strategy.address),
+            ]);
+
+            const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
+
+            return {
+              ..._strategy,
+              strategyTotalSupply,
+              strategyTotalSupply_: ethers.utils.formatUnits(strategyTotalSupply, _strategy.decimals),
+              poolTotalSupply,
+              poolTotalSupply_: ethers.utils.formatUnits(poolTotalSupply, _strategy.decimals),
+              strategyPoolBalance,
+              strategyPoolBalance_: ethers.utils.formatUnits(strategyPoolBalance, _strategy.decimals),
+              strategyPoolPercent,
+              currentSeriesId,
+              currentPoolAddr,
+              nextSeriesId,
+              currentSeries,
+              nextSeries,
+              active: true,
+            };
+          }
+
+          /* else return an 'EMPTY' strategy */
+          return {
+            ..._strategy,
+            currentSeriesId,
+            currentPoolAddr,
+            nextSeriesId,
+            currentSeries: undefined,
+            nextSeries: undefined,
+            active: false,
+          };
+        })
+      );
+
+      /* add in account specific data */
+      if (account) {
+        _accountData = await Promise.all(
+          _publicData
+            // .filter( (s:IStrategy) => s.active) // filter out strategies with no current series
+            .map(async (_strategy: IStrategy): Promise<IStrategy> => {
+              const [accountBalance, accountPoolBalance] = await Promise.all([
+                _strategy.strategyContract.balanceOf(account),
+                _strategy.currentSeries?.poolContract.balanceOf(account),
+              ]);
+
+              const accountStrategyPercent = mulDecimal(
+                divDecimal(accountBalance, _strategy.strategyTotalSupply || '0'),
+                '100'
+              );
+
+              return {
+                ..._strategy,
+                accountBalance,
+                accountBalance_: ethers.utils.formatUnits(accountBalance, _strategy.decimals),
+                accountPoolBalance,
+                accountStrategyPercent,
+              };
+            })
+        );
+      }
+
+      const _combinedData = _accountData.length ? _accountData : _publicData; // .filter( (s:IStrategy) => s.active) ; // filter out strategies with no current series
+
+      /* combined account and public series data reduced into a single Map */
+      const newStrategyMap = new Map(
+        _combinedData.reduce((acc: any, item: any) => {
+          const _map = acc;
+          _map.set(item.address, item);
+          return _map;
+        }, userState.strategyMap)
+      );
+
+      updateState({ type: 'strategyMap', payload: newStrategyMap });
+      console.log('STRATEGIES updated (with dynamic data): ', newStrategyMap);
+      updateState({ type: 'strategiesLoading', payload: false });
+      return newStrategyMap;
     },
-    []
+    [account, seriesRootMap]
   );
 
   useEffect(() => {
-    /* When the chainContext is finished loading get the dynamic series and asset data */
+    /* When the chainContext is finished loading get the dynamic series, asset and strategies data */
     if (!chainLoading) {
       seriesRootMap.size && updateSeries(Array.from(seriesRootMap.values()));
       assetRootMap.size && updateAssets(Array.from(assetRootMap.values()));
       strategyRootMap.size && updateStrategies(Array.from(strategyRootMap.values()));
     }
-  }, [account, chainLoading, assetRootMap, seriesRootMap, strategyRootMap, updateSeries, updateAssets]);
+  }, [
+    account,
+    chainLoading,
+    assetRootMap,
+    seriesRootMap,
+    strategyRootMap,
+    updateSeries,
+    updateAssets,
+    updateStrategies,
+  ]);
 
   useEffect(() => {
     /* When the chainContext is finished loading get the users vault data */
-    if (account !== null && !chainLoading) {
-      console.log('checking vaults');
+    if (!chainLoading && account !== null) {
+      console.log('Checking User Vaults');
       /* trigger update of update all vaults by passing empty array */
       updateVaults([], true);
     }
-  }, [account, chainLoading]);
-
-  /* Subscribe to vault event listeners */
-  useEffect(() => {
+    /* keep checking the active account when it changes/ chainlaoding */
     updateState({ type: 'activeAccount', payload: account });
-  }, [account]);
+  }, [account, chainLoading]); // updateVaults ignored here on purpose
 
-  /* TODO Subscribe to oracle price changes */
-  useEffect(() => {
-    !chainLoading &&
-      seriesRootMap &&
-      (async () => {
-        const Oracle = contractMap.get('CompositeMultiOracle');
-        // const filter = Oracle.filters.SourceSet(null, null, null);
-        // const eventList = await Oracle.queryFilter(filter, 1);
-        // console.log('Oracle events: ', eventList);
-      })();
-  }, [chainLoading, contractMap, seriesRootMap]);
+  /* TODO SUBSCRIBE TO EVENTS */
+  // useEffect(() => {
+  //   !chainLoading &&
+  //     seriesRootMap &&
+  //     (async () => {
+  //       const Oracle = contractMap.get('CompositeMultiOracle');
+  //       // const filter = Oracle.filters.SourceSet(null, null, null);
+  //       // const eventList = await Oracle.queryFilter(filter, 1);
+  //       // console.log('Oracle events: ', eventList);
+  //     })();
+  // }, [chainLoading, contractMap, seriesRootMap]);
 
   /* Exposed userActions */
   const userActions = {
@@ -503,20 +611,18 @@ const UserProvider = ({ children }: any) => {
     setSelectedIlk: (assetId: string | null) => updateState({ type: 'selectedIlkId', payload: assetId }),
     setSelectedSeries: (seriesId: string | null) => updateState({ type: 'selectedSeriesId', payload: seriesId }),
     setSelectedBase: (assetId: string | null) => updateState({ type: 'selectedBaseId', payload: assetId }),
+    setSelectedStrategy: (strategyAddr: string | null) =>
+      updateState({ type: 'selectedStrategyAddr', payload: strategyAddr }),
 
+    // TODO To reduce exposure, maybe we have a single 'change setting' function?  > that handles all the below? not urgent.
     setApprovalMethod: (type: ApprovalType) => updateState({ type: 'approvalMethod', payload: type }),
-
     updateDudeSalt: () => updateState({ type: 'dudeSalt', payload: userState.dudeSalt + 3 }),
-
     setShowInactiveVaults: (showInactiveVaults: boolean) =>
       updateState({ type: 'showInactiveVaults', payload: showInactiveVaults }),
-
     setSlippageTolerance: (slippageTolerance: number) =>
       updateState({ type: 'setSlippageTolerance', payload: slippageTolerance }),
-
     setHideBalancesSetting: (hideBalancesSetting: string) =>
       updateState({ type: 'hideBalancesSetting', payload: hideBalancesSetting }),
-
     setCurrencySetting: (currencySetting: string) => updateState({ type: 'currencySetting', payload: currencySetting }),
   };
 

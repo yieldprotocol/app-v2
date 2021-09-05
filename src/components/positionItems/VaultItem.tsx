@@ -3,11 +3,11 @@ import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { Box, Text } from 'grommet';
-import { IUserContext, IVault } from '../types';
-import { UserContext } from '../contexts/UserContext';
+import { IUserContext, IVault } from '../../types';
+import { UserContext } from '../../contexts/UserContext';
 
-import PositionAvatar from './PositionAvatar';
-import ItemWrap from './wraps/ItemWrap';
+import PositionAvatar from '../PositionAvatar';
+import ItemWrap from '../wraps/ItemWrap';
 
 const StyledBox = styled(Box)`
   -webkit-transition: transform 0.3s ease-in-out;
@@ -51,7 +51,7 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
           {vault.isActive ? (
             <Box direction="column">
               <Text weight={450} size="xsmall">
-                {series?.displayNameMobile}
+                {series?.displayName}
               </Text>
               <Text weight={450} size="xsmall">
                 Debt: {vault.art_}

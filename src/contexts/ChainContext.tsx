@@ -178,17 +178,14 @@ const ChainProvider = ({ children }: any) => {
   const primaryConnection = useWeb3React<ethers.providers.Web3Provider>();
   const { connector, library, chainId, account, activate, deactivate, active } = primaryConnection;
   const fallbackConnection = useWeb3React<ethers.providers.JsonRpcProvider>('fallback');
-  const {
-    library: fallbackLibrary,
-    chainId: fallbackChainId,
-    activate: fallbackActivate,
-  } = fallbackConnection;
+  const { library: fallbackLibrary, chainId: fallbackChainId, activate: fallbackActivate } = fallbackConnection;
 
   const [cachedAssets, setCachedAssets] = useCachedState('assets', []);
   const [cachedSeries, setCachedSeries] = useCachedState('series', []);
+  const [cachedStrategies, setCachedStrategies] = useCachedState('strategies', []);
+
   const [lastAssetUpdate, setLastAssetUpdate] = useCachedState('lastAssetUpdate', 0);
   const [lastSeriesUpdate, setLastSeriesUpdate] = useCachedState('lastSeriesUpdate', 0);
-
 
   /**
    * Update on FALLBACK connection/state on network changes (id/library)
@@ -197,11 +194,13 @@ const ChainProvider = ({ children }: any) => {
   useEffect(() => {
     fallbackLibrary && updateState({ type: 'fallbackProvider', payload: fallbackLibrary });
 
-    // fallbackChainId && console.log('fallback chainID :', fallbackChainId);
-    // chainId && console.log('chainID :', chainId);
-
     if (fallbackLibrary && fallbackChainId) {
-      /* Get the instance of the Base contracts */
+      updateState({ type: 'appVersion', payload: process.env.REACT_APP_VERSION });
+      console.log('APP VERSION: ', process.env.REACT_APP_VERSION);
+      console.log('Fallback ChainId: ', fallbackChainId);
+      console.log('Primary ChainId: ', chainId);
+
+      /* Get the instances of the Base contracts */
       const addrs = (yieldEnv.addresses as any)[fallbackChainId];
       const Cauldron = contracts.Cauldron__factory.connect(addrs.Cauldron, fallbackLibrary);
       const Ladle = contracts.Ladle__factory.connect(addrs.Ladle, fallbackLibrary);
@@ -214,15 +213,6 @@ const ChainProvider = ({ children }: any) => {
         fallbackLibrary
       );
 
-      /* get the strategies */
-      const strategies = (yieldEnv.strategies as any)[fallbackChainId];
-
-      updateState({ type: 'appVersion', payload: process.env.REACT_APP_VERSION });
-
-      console.log('APP VERSION: ', process.env.REACT_APP_VERSION);
-      console.log('Fallback ChainId: ', fallbackChainId);
-      console.log('Primary ChainId: ', chainId);
-
       /* Update the baseContracts state : ( hardcoded based on networkId ) */
       const newContractMap = chainState.contractMap;
       newContractMap.set('Cauldron', Cauldron);
@@ -232,21 +222,25 @@ const ChainProvider = ({ children }: any) => {
 
       updateState({ type: 'contractMap', payload: newContractMap });
 
+      /* Get the hardcoded strategy addresses */
+      const strategyAddresses = (yieldEnv.strategies as any)[fallbackChainId];
 
-      /* add on extra/calculated ASSET info */
+      /* add on extra/calculated ASSET info  and contract instances */
       const _chargeAsset = (asset: any) => {
-        const ERC20 = contracts.ERC20Permit__factory.connect(asset.address, fallbackLibrary);
+        const ERC20Permit = contracts.ERC20Permit__factory.connect(asset.address, fallbackLibrary);
         return {
           ...asset,
           digitFormat: assetDigitFormatMap.has(asset.symbol) ? assetDigitFormatMap.get(asset.symbol) : 6,
           image: markMap.get(asset.symbol),
           color: (yieldEnv.assetColors as any)[asset.symbol],
-          
+
+          baseContract: ERC20Permit,
+
           /* baked in token fns */
           getBalance: async (acc: string) =>
-            ETH_BASED_ASSETS.includes(asset.id) ? library?.getBalance(acc) : ERC20.balanceOf(acc),
-          getAllowance: async (acc: string, spender: string) => ERC20.allowance(acc, spender),
-          
+            ETH_BASED_ASSETS.includes(asset.id) ? library?.getBalance(acc) : ERC20Permit.balanceOf(acc),
+          getAllowance: async (acc: string, spender: string) => ERC20Permit.allowance(acc, spender),
+
           /* TODO remove for prod */
           /* @ts-ignore */
           mintTest: async () =>
@@ -274,14 +268,14 @@ const ChainProvider = ({ children }: any) => {
             const { assetId: id, asset: address } = Cauldron.interface.parseLog(x).args;
             const ERC20 = contracts.ERC20Permit__factory.connect(address, fallbackLibrary);
             /* Add in any extra static asset Data */ // TODO is there any other fixed asset data needed?
-            const [name, symbol, decimals] = await Promise.all([
+            const [ name, symbol, decimals ] = await Promise.all([
               ERC20.name(),
               ERC20.symbol(),
               ERC20.decimals(),
-              // ETH_BASED_ASSETS.includes(id) ? '1' : await ERC20.version()
+              // ETH_BASED_ASSETS.includes(id) ? async () =>'1' : ERC20.version()
             ]);
 
-            console.log(symbol, ':', id);
+            // console.log(symbol, ':', id);
             // TODO check if any other tokens have different versions. maybe abstract this logic somewhere?
             const version = id === '0x555344430000' ? '2' : '1';
 
@@ -289,11 +283,11 @@ const ChainProvider = ({ children }: any) => {
               id,
               address,
               name,
-              symbol: symbol !=='WETH' ? symbol : 'ETH',
+              symbol: symbol !== 'WETH' ? symbol : 'ETH',
               decimals,
               version,
               joinAddress: joinMap.get(id),
-            } ;
+            };
             // Update state and cache
             updateState({ type: 'addAsset', payload: _chargeAsset(newAsset) });
             newAssetList.push(newAsset);
@@ -307,14 +301,13 @@ const ChainProvider = ({ children }: any) => {
         console.log('Yield Protocol Asset data updated.');
       };
 
-      /* add on extra/calculated ASYNC series info */
+      /* add on extra/calculated ASYNC series info and contract instances */
       const _chargeSeries = (series: {
         maturity: number;
         baseId: string;
         poolAddress: string;
         fyTokenAddress: string;
       }) => {
-
         /* contracts need to be added in again in when charging because the cached state only holds strings */
         const poolContract = contracts.Pool__factory.connect(series.poolAddress, fallbackLibrary);
         const fyTokenContract = contracts.FYToken__factory.connect(series.fyTokenAddress, fallbackLibrary);
@@ -377,7 +370,7 @@ const ChainProvider = ({ children }: any) => {
                 const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackLibrary);
                 const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackLibrary);
                 // const baseContract = contracts.ERC20__factory.connect(fyToken, fallbackLibrary);
-                const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol, poolDecimals] =
+                const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol ] =
                   await Promise.all([
                     fyTokenContract.name(),
                     fyTokenContract.symbol(),
@@ -386,7 +379,7 @@ const ChainProvider = ({ children }: any) => {
                     poolContract.name(),
                     poolContract.version(),
                     poolContract.symbol(),
-                    poolContract.decimals(),
+                    // poolContract.decimals(),
                   ]);
                 const newSeries = {
                   id,
@@ -413,50 +406,77 @@ const ChainProvider = ({ children }: any) => {
         }
         setLastSeriesUpdate(await fallbackLibrary?.getBlockNumber());
         setCachedSeries([...cachedSeries, ...newSeriesList]);
-        console.log('Yield Protocol series data updated.');
+        console.log('Yield Protocol Series data updated.');
+      };
+
+      /* Attach contract instance */
+      const _chargeStrategy = (strategy: any) => {
+        const Strategy = contracts.Strategy__factory.connect(strategy.address, fallbackLibrary);
+        return {
+          ...strategy,
+          strategyContract: Strategy,
+        };
       };
 
       /* Iterate through the strategies list and update accordingly */
       const _getStrategies = async () => {
-        // const strategyMap = new Map([]);
+        const newStrategyList: any[] = [];
         await Promise.all(
-          strategies.map(async (stratAddr: string) => {
-            const Strategy = contracts.Strategy__factory.connect(stratAddr, fallbackLibrary);
-            const [name, symbol, baseId, currentSeries] = await Promise.all([
-              Strategy.name(),
-              Strategy.symbol(),
-              Strategy.baseId(),
-              Strategy.seriesId(),
-              // ETH_BASED_ASSETS.includes(id) ? '1' : await ERC20.version()
-            ]);
-            console.log(name, symbol);
-            updateState({
-              type: 'addStrategy',
-              payload: { address: stratAddr, symbol, name, baseId, currentSeries, strategyContract: Strategy },
-            });
+          strategyAddresses.map(async (strategyAddr: string) => {
+
+            /* if the strategy is already in the cache : */
+            if (cachedStrategies.findIndex((_s: any) => _s.address === strategyAddr) === -1) {
+              const Strategy = contracts.Strategy__factory.connect(strategyAddr, fallbackLibrary);
+              const [name, symbol, baseId, decimals, version ] = await Promise.all([
+                Strategy.name(),
+                Strategy.symbol(),
+                Strategy.baseId(),
+                Strategy.decimals(),
+                Strategy.version(),
+              ]);
+
+              const newStrategy = {
+                id: strategyAddr,
+                address: strategyAddr,
+                symbol,
+                name,
+                version,
+                baseId,
+                decimals,
+              };
+              // update state and cache
+              updateState({ type: 'addStrategy', payload: _chargeStrategy(newStrategy) });
+              newStrategyList.push(newStrategy);
+            }
           })
         );
-        console.log('Yield Protocol strategies data updated')
 
+        setCachedStrategies([...cachedStrategies, ...newStrategyList]);
+        console.log('Yield Protocol Series data updated.');
       };
 
       /* LOAD the Series and Assets */
-      if (cachedAssets.length === 0) {
-        console.log('FIRST LOAD: Loading Asset and Series data ');
+      if (cachedAssets.length === 0 || cachedSeries.length === 0) {
+        console.log('FIRST LOAD: Loading Asset, Series and Strategies data ');
         (async () => {
           await Promise.all([_getAssets(), _getSeries(), _getStrategies()]);
           updateState({ type: 'chainLoading', payload: false });
         })();
       } else {
-        // get assets and series from cache and 'charge' them, and add to state:
+        // get assets, series and strategies from cache and 'charge' them, and add to state:
         cachedAssets.forEach((a: IAssetRoot) => {
           updateState({ type: 'addAsset', payload: _chargeAsset(a) });
         });
         cachedSeries.forEach((s: ISeriesRoot) => {
           updateState({ type: 'addSeries', payload: _chargeSeries(s) });
         });
+        cachedStrategies.forEach((st: IStrategyRoot) => {
+          updateState({ type: 'addStrategy', payload: _chargeStrategy(st) });
+        });
+
         updateState({ type: 'chainLoading', payload: false });
-        console.log('Checking for new Assets and Series...');
+
+        console.log('Checking for new Assets and Series, and Strategies ...');
         // then async check for any updates (they should automatically populate the map):
         (async () => Promise.all([_getAssets(), _getSeries(), _getStrategies()]))();
       }
@@ -467,17 +487,10 @@ const ChainProvider = ({ children }: any) => {
     fallbackLibrary,
     chainState.assetRootMap,
     chainState.seriesRootMap,
+    chainState.strategyRootMap,
     chainState.contractMap,
     chainId,
   ]);
-
-  /**
-   * Once the series list updates, update the list with the associated joins > this needs to be seperate from above to
-   * allow for caching - and watching for any newly added assets
-   */
-  // useEffect(() => {
-  //   chainState.seriesRootMap && console.log(chainState.seriesRootMap);
-  // }, [chainState.seriesRootMap]);
 
   /**
    * Update on PRIMARY connection any network changes (likely via metamask/walletConnect)
@@ -543,6 +556,7 @@ const ChainProvider = ({ children }: any) => {
           }
         });
   }, [activate, chainState.connectOnLoad]);
+
   /* If web3 connected, wait until we get confirmation of that to flip the flag */
   useEffect(() => {
     if (!tried && active) {
