@@ -24,6 +24,12 @@ background 0.3s ease-in-out;
 }
 `;
 
+// TODO shaebox
+const ShadeBox = styled(Box)` 
+ /* -webkit-box-shadow: inset 0px ${ props => props ? '-50px': '50px'} 30px -30px rgba(0,0,0,0.30); 
+  box-shadow: inset 0px ${ props => props ? '-50px': '50px'} 30px -30px rgba(0,0,0,0.30); */
+`
+
 const InsetBox = styled(Box)`
   border-radius: 8px;
   box-shadow: inset 1px 1px 1px #ddd, inset -0.25px -0.25px 0.25px #ddd;
@@ -219,7 +225,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
       )}
 
       {cardLayout && (
-        <Box 
+        <ShadeBox 
           overflow={mobile?undefined:"auto"} 
           height={mobile?undefined:"250px"} 
           pad="xsmall"
@@ -245,7 +251,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
                   align="center"
                 >
                   <Box pad="small" width="small" direction="row" align="center" gap="small">
-                    <Avatar background="#FFF"> {series.seriesMark}</Avatar>
+                    <Avatar background="#FFF" > {series.seriesMark}</Avatar>
 
                     <Box>
                       <Text size="medium" color={series.id === selectedSeriesId ? series.textColor : undefined}>
@@ -260,7 +266,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
               ))
             )}
           </Grid>
-        </Box>
+        </ShadeBox>
       )}
     </>
   );
