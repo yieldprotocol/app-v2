@@ -46,7 +46,6 @@ export const useBorrowHelpers = (
         _max && setMaxRepayOrRoll(ethers.utils.formatUnits(_max, vaultBase?.decimals)?.toString());
         _maxDust && setMaxRepayDustLimit(ethers.utils.formatUnits(_maxDust, vaultBase?.decimals)?.toString());
 
-        console.log(ethers.utils.formatUnits(_max, vaultBase?.decimals)?.toString(), ethers.utils.formatUnits(_maxDust, vaultBase?.decimals)?.toString() )
       })();
     }
 
