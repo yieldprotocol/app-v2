@@ -83,7 +83,6 @@ const Calculator = ({ initialBorrow }: ICalculator) => {
     const fyTokensSold = _fyTokensSold(borrowInput, apr, new Date(borrowDateInput), selectedSeriesMaturity);
     const fyTokenCostAtRepay = _fyTokenCost(interestRateInput, new Date(repayDateInput), selectedSeriesMaturity);
     const amountRepaid = (fyTokensSold * fyTokenCostAtRepay).toString();
-
     const _effectiveAPR = _getEffectiveAPR(
       borrowInput,
       amountRepaid,
@@ -106,7 +105,6 @@ const Calculator = ({ initialBorrow }: ICalculator) => {
         round="small"
         pad="medium"
         background={{ color: 'rgb(247, 248, 250)' }}
-        gap="medium"
         border={{ color: '#DBEAFE', size: 'xsmall', side: 'right' }}
       >
         <Box direction="row" justify="between" align="center">
@@ -122,7 +120,7 @@ const Calculator = ({ initialBorrow }: ICalculator) => {
             />
           </InputWrap>
         </Box>
-        <Box gap="medium">
+        <Box gap="medium" align="start">
           <Box direction="row" gap="xsmall">
             <Text>Pay @ maturity on</Text>
             <Text weight={900}>{selectedSeries.fullDate}</Text>
@@ -166,7 +164,7 @@ const Calculator = ({ initialBorrow }: ICalculator) => {
           </Text>
 
           <Box direction="row" justify="between">
-            <Box direction="row" gap="xxsmall" align="center">
+            <Box direction="row" gap="small" align="center">
               <Text size="xsmall">Select Repayment Date</Text>
               <Box direction="row" align="center" hoverIndicator={{ background: 'tailwind-blue-50' }}>
                 {repayDateInputError && (
@@ -179,8 +177,7 @@ const Calculator = ({ initialBorrow }: ICalculator) => {
                 </Box>
               </Box>
             </Box>
-
-            <Box justify="end" align="center">
+            <Box direction="row" align="center" gap="small">
               <Box direction="row" align="center" gap="xsmall">
                 <Text size="xsmall">Interest Rate</Text>
                 <Tip
@@ -195,34 +192,32 @@ const Calculator = ({ initialBorrow }: ICalculator) => {
                   <Button plain icon={<FiInfo size="1rem" />} />
                 </Tip>
               </Box>
-
-              <Box gap="small" align="center">
-                <Box width="10rem">
-                  <InputWrap action={() => null} isError={null} width="small">
-                    <TextInput
-                      size="small"
-                      plain
-                      type="number"
-                      placeholder="Enter amount"
-                      value={interestRateInput}
-                      onChange={(event: any) => setInterestRateInput(cleanValue(event.target.value))}
-                      autoFocus={false}
-                    />
-                    %
-                  </InputWrap>
-                  <RangeInput
-                    value={interestRateInput}
-                    onChange={(event) => setInterestRateInput(event.target.value)}
-                    min="0"
-                    max="10"
-                    step={0.1}
-                  />
-                </Box>
-              </Box>
+              <InputWrap action={() => null} isError={null} width="xsmall">
+                <TextInput
+                  size="small"
+                  plain
+                  type="number"
+                  placeholder="Enter amount"
+                  value={interestRateInput}
+                  onChange={(event: any) => setInterestRateInput(cleanValue(event.target.value))}
+                  autoFocus={false}
+                />
+                %
+              </InputWrap>
             </Box>
+            {/* <Box justify="start" gap="small">
+              <RangeInput
+                value={interestRateInput}
+                onChange={(event) => setInterestRateInput(event.target.value)}
+                min="0"
+                max="10"
+                step={0.1}
+              />
+            </Box> */}
           </Box>
         </Box>
-        <Box gap="medium">
+
+        <Box gap="medium" align="start">
           <Box direction="row" gap="xsmall">
             <Text>Pay on</Text>
             <Text weight={900}>{repayDate}</Text>
@@ -256,7 +251,7 @@ const Calculator = ({ initialBorrow }: ICalculator) => {
               </Box>
             </Box>
           </Box>
-          <Box align="end">
+          <Box alignSelf="end">
             <Box
               height="2rem"
               onClick={handleReset}

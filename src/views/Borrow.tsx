@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, Keyboard, Layer, ResponsiveContext, Text, TextInput } from 'grommet';
+import { Box, Button, Keyboard, Layer, ResponsiveContext, Text, TextInput } from 'grommet';
 
 import { FiClock, FiPocket, FiPercent, FiTrendingUp, FiInfo } from 'react-icons/fi';
 
@@ -246,9 +246,9 @@ const Borrow = () => {
             )}
 
             {selectedBaseId && selectedSeriesId && stepPosition === 0 && (
-              <Box pad={{ vertical: 'small' }} onClick={() => setCalculatorOpen(true)}>
+              <Button plain onClick={() => setCalculatorOpen(true)} hoverIndicator={{}}>
                 <Text size="small">Need help calculating your repayment?</Text>
-              </Box>
+              </Button>
             )}
             {calculatorOpen && (
               <Layer onClickOutside={() => setCalculatorOpen(false)} onEsc={() => setCalculatorOpen(false)}>
@@ -414,7 +414,7 @@ const Borrow = () => {
                       {vaultToUse?.id && (
                         <InfoBite
                           label="Adding to Existing Vault"
-                          icon={<PositionAvatar position={vaultToUse} condensed actionType={ActionType.BORROW}/>}
+                          icon={<PositionAvatar position={vaultToUse} condensed actionType={ActionType.BORROW} />}
                           value={`${vaultToUse.displayName}`}
                         />
                       )}
