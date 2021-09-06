@@ -134,10 +134,10 @@ const VaultPosition = ({ close }: { close: () => void }) => {
     selectedVault
   );
 
-  const { maxRepayOrRoll, minRepayOrRoll } = useBorrowHelpers(repayInput, '0', selectedVault);
+  const { maxRepayOrRoll, maxRepayDustLimit } = useBorrowHelpers(repayInput, '0', selectedVault);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries, [
-    0,
+    maxRepayDustLimit, // this is the max pay to get to dust limit.  note different logic in input validation hook. 
     maxRepayOrRoll,
   ]);
 
