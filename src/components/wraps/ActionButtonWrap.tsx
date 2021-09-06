@@ -11,7 +11,7 @@ function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
   } = useContext(ChainContext);
 
   return mobile ? (
-    <Layer position="bottom" modal={false} responsive={false} full="horizontal" animate={false} background="#00000000">
+    <Layer position="bottom" modal={false} responsive={false} full="horizontal" animate={false}>
       <Box gap="small" fill="horizontal" pad="small">
         {children}
       </Box>

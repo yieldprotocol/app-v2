@@ -40,6 +40,7 @@ import { useBorrow } from '../hooks/actionHooks/useBorrow';
 import { useCollateralHelpers } from '../hooks/actionHelperHooks/useCollateralHelpers';
 import TransactionWidget from '../components/TransactionWidget';
 import { useBorrowHelpers } from '../hooks/actionHelperHooks/useBorrowHelpers';
+import InputInfoWrap from '../components/wraps/InputInfoWrap';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -201,15 +202,14 @@ const Borrow = () => {
                           isError={borrowInputError}
                           message={
                             borrowInput && (
-                              <Box pad="xsmall" direction="row" gap="small" align="center" animation="zoomIn">
-                                <FiInfo />
-                                <Text size="xsmall">
+                              <InputInfoWrap>
+                                <Text size="small">
                                   <Text size="small">
                                     {cleanValue(minCollateral, 4)} {selectedIlk?.symbol}
                                   </Text>{' '}
                                   collateral required (or equivalent)
                                 </Text>
-                              </Box>
+                              </InputInfoWrap>
                             )
                           }
                         >
@@ -267,23 +267,7 @@ const Borrow = () => {
                         </Text>
                       </Box>
                     </Box>
-                    {/* <Box
-                          pad="xsmall"
-                          direction="row"
-                          gap="small"
-                          align="center"
-                          animation="zoomIn"
-                          onClick={() => setCollatInput(cleanValue(minSafeCollateral, 12))}
-                        >
-                          <FiInfo />
-                          <Text size="xsmall">
-                            A safe minimum of{' '}
-                            <Text size="small">
-                              {cleanValue(minSafeCollateral, 4)} {selectedIlk?.symbol}
-                            </Text>{' '}
-                            collateral is reccommended.
-                          </Text>
-                        </Box> */}
+
                   </SectionWrap>
 
                   <SectionWrap title="Amount of collateral to add">
@@ -295,23 +279,17 @@ const Borrow = () => {
                           isError={collatInputError}
                           message={
                             borrowInput && (
-                              <Box
-                                pad="xsmall"
-                                direction="row"
-                                gap="small"
-                                align="center"
-                                animation="zoomIn"
-                                onClick={() => setCollatInput(cleanValue(minSafeCollateral, 12))}
-                              >
-                                <FiInfo />
-                                <Text size="xsmall">
-                                  A safe minimum of{' '}
-                                  <Text size="small">
-                                    {cleanValue(minSafeCollateral, 4)} {selectedIlk?.symbol}
-                                  </Text>{' '}
+
+                              <InputInfoWrap action={ () => setCollatInput(cleanValue(minSafeCollateral, 12))}> 
+   
+                                <Text size="small">
+                                  A safe minimum of
+                                  <Text size="small" weight='bold'>
+                                    {' '}{cleanValue(minSafeCollateral, 4)} {selectedIlk?.symbol} {' '}
+                                  </Text>
                                   collateral is reccommended.
                                 </Text>
-                              </Box>
+                              </ InputInfoWrap>
                             )
                           }
                         >
@@ -400,7 +378,7 @@ const Borrow = () => {
                       {vaultToUse?.id && (
                         <InfoBite
                           label="Adding to Existing Vault"
-                          icon={<PositionAvatar position={vaultToUse} condensed actionType={ActionType.BORROW}/>}
+                          icon={<PositionAvatar position={vaultToUse} condensed actionType={ActionType.BORROW} />}
                           value={`${vaultToUse.displayName}`}
                         />
                       )}
