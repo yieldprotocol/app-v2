@@ -25,10 +25,10 @@ background 0.3s ease-in-out;
 `;
 
 // TODO shaebox
-const ShadeBox = styled(Box)` 
- /* -webkit-box-shadow: inset 0px ${ props => props ? '-50px': '50px'} 30px -30px rgba(0,0,0,0.30); 
-  box-shadow: inset 0px ${ props => props ? '-50px': '50px'} 30px -30px rgba(0,0,0,0.30); */
-`
+const ShadeBox = styled(Box)`
+  /* -webkit-box-shadow: inset 0px ${(props) => (props ? '-50px' : '50px')} 30px -30px rgba(0,0,0,0.30); 
+  box-shadow: inset 0px ${(props) => (props ? '-50px' : '50px')} 30px -30px rgba(0,0,0,0.30); */
+`;
 
 const InsetBox = styled(Box)`
   border-radius: 8px;
@@ -225,10 +225,10 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
       )}
 
       {cardLayout && (
-        <ShadeBox 
-          overflow={mobile?undefined:"auto"} 
-          height={mobile?undefined:"250px"} 
-          pad="xsmall"
+        <ShadeBox
+          overflow={mobile ? undefined : 'auto'}
+          height={mobile ? undefined : '250px'}
+          pad={{ vertical: 'small', horizontal: 'xsmall' }}
         >
           <Grid columns={mobile ? '100%' : '40%'} gap="small">
             {seriesLoading ? (
@@ -251,7 +251,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
                   align="center"
                 >
                   <Box pad="small" width="small" direction="row" align="center" gap="small">
-                    <Avatar background="#FFF" > {series.seriesMark}</Avatar>
+                    <Avatar background="#FFF"> {series.seriesMark}</Avatar>
 
                     <Box>
                       <Text size="medium" color={series.id === selectedSeriesId ? series.textColor : undefined}>
