@@ -9,7 +9,7 @@ const CurrencyToggle = (props: any) => {
   } = useContext(UserContext);
 
   return (
-    <Box gap="small">
+    <Box gap="xsmall">
       <Text size="small">Show Summary in:</Text>
       <Box width={props.width}>
         <Box direction="row" align="center" justify="center">
