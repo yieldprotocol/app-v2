@@ -9,7 +9,7 @@ import { ActionType, ISeries } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { calculateAPR } from '../../utils/yieldMath';
 import { useApr } from '../../hooks/useApr';
-import { nFormatter } from '../../utils/appUtils';
+import { chunkArray, nFormatter } from '../../utils/appUtils';
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
@@ -217,6 +217,11 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
           />
         </InsetBox>
       )}
+
+
+
+      { console.log( chunkArray(options, 4) ) } 
+
 
       { cardLayout && options.length <= 4 && (
         <Grid columns={mobile ? '100%' : 'small'} gap="small" fill pad={{ vertical: 'small' }}>
