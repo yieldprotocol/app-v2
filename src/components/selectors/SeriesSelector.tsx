@@ -184,7 +184,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
   return (
     <>
       {seriesLoading && <Skeleton width={180} />}
-      { (!cardLayout || options.length > 4) && (
+      {!cardLayout && (
         <InsetBox fill="horizontal" round="xsmall">
           <Select
             plain
@@ -218,46 +218,43 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
         </InsetBox>
       )}
 
+      {cardLayout && (
+        <Box overflow={mobile?undefined:"auto"} height={mobile?undefined:"250px"} pad="xsmall">
+          <Grid columns={mobile ? '100%' : '40%'} gap="small">
+            {seriesLoading ? (
+              <>
+                <CardSkeleton />
+                <CardSkeleton />
+              </>
+            ) : (
+              options.map((series: ISeries) => (
+                <StyledBox
+                  // border={series.id === selectedSeriesId}
+                  key={series.id}
+                  pad="xsmall"
+                  round="xsmall"
+                  onClick={() => handleSelect(series)}
+                  background={series.id === selectedSeriesId ? series?.color : undefined}
+                  elevation="xsmall"
+                  align="center"
+                >
+                  <Box pad="small" width="small" direction="row" align="center" gap="small">
+                    <Avatar background="#FFF"> {series.seriesMark}</Avatar>
 
-
-      { console.log( chunkArray(options, 4) ) } 
-
-
-      { cardLayout && options.length <= 4 && (
-        <Grid columns={mobile ? '100%' : 'small'} gap="small" fill pad={{ vertical: 'small' }}>
-          {seriesLoading ? (
-            <>
-              <CardSkeleton />
-              <CardSkeleton />
-            </>
-          ) : (
-            options.map((series: ISeries) => (
-              <StyledBox
-                // border={series.id === selectedSeriesId}
-                key={series.id}
-                pad="xsmall"
-                round="xsmall"
-                onClick={() => handleSelect(series)}
-                background={series.id === selectedSeriesId ? series?.color : undefined}
-                elevation="xsmall"
-                align="center"
-              >
-                <Box pad="small" width="small" direction="row" align="center" gap="small">
-                  <Avatar background="#FFF"> {series.seriesMark}</Avatar>
-
-                  <Box>
-                    <Text size="medium" color={series.id === selectedSeriesId ? series.textColor : undefined}>
-                      <AprText inputValue={inputValue} series={series} actionType={actionType} />
-                    </Text>
-                    <Text size="small" color={series.id === selectedSeriesId ? series.textColor : undefined}>
-                      {series.displayName}
-                    </Text>
+                    <Box>
+                      <Text size="medium" color={series.id === selectedSeriesId ? series.textColor : undefined}>
+                        <AprText inputValue={inputValue} series={series} actionType={actionType} />
+                      </Text>
+                      <Text size="small" color={series.id === selectedSeriesId ? series.textColor : undefined}>
+                        {series.displayName}
+                      </Text>
+                    </Box>
                   </Box>
-                </Box>
-              </StyledBox>
-            ))
-          )}
-        </Grid>
+                </StyledBox>
+              ))
+            )}
+          </Grid>
+        </Box>
       )}
     </>
   );
