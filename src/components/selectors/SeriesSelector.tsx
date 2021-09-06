@@ -219,10 +219,16 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
       )}
 
       {cardLayout && (
-        <Box overflow={mobile?undefined:"auto"} height={mobile?undefined:"250px"} pad="xsmall">
+        <Box 
+          overflow={mobile?undefined:"auto"} 
+          height={mobile?undefined:"250px"} 
+          pad="xsmall"
+        >
           <Grid columns={mobile ? '100%' : '40%'} gap="small">
             {seriesLoading ? (
               <>
+                <CardSkeleton />
+                <CardSkeleton />
                 <CardSkeleton />
                 <CardSkeleton />
               </>
