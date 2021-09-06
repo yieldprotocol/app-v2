@@ -60,6 +60,21 @@ export const useBorrowHelpers = (
   
     }, [activeAccount, input, vault, vaultBase?.decimals]);
 
+  
+    // const [inputAsFyToken, setInputAsFytoken] = useState<BigNumber>();
+
+    // /* Set input value as fytokens */
+    // useEffect(()=>{
+    //   const _input = input ? ethers.utils.parseUnits(input, vault?.decimals) : ethers.constants.Zero;
+    //   const _inputAsFyToken = sellBase(
+    //     vaultSeries.baseReserves,
+    //     series.fyTokenReserves,
+    //     _input,
+    //     series.getTimeTillMaturity(),
+    //   )
+    //   setInputAsFytoken(_inputAsFyToken);
+    // },[input, series])
+
 
   return {
     minAllowedBorrow,

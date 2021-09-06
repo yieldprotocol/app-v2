@@ -55,7 +55,7 @@ const Lend = () => {
   const [stepPosition, setStepPosition] = useState<number>(0);
 
   /* HOOK FNS */
-  const { maxLend, currentValue } = useLendHelpers(selectedSeries!);
+  const { maxLend, fyTokenMarketValue } = useLendHelpers(selectedSeries!);
   const lend = useLend();
   const redeem = useRedeemPosition();
   const { apr } = useApr(lendInput, ActionType.LEND, selectedSeries);
