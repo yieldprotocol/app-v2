@@ -60,12 +60,7 @@ export const useCollateralHelpers = (
       })();
   }, [activeAccount, ilk, setMaxCollateral]);
 
-
-/* */
-
-
-
-
+  
  /* handle changes to input values */ 
   useEffect(() => {
     const existingCollateral_ = vault?.ink || ethers.constants.Zero;

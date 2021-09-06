@@ -19,7 +19,7 @@ import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 
 import StepperText from '../components/StepperText';
-import PositionSelector from '../components/selectors/PositionSelector';
+import PositionSelector from '../components/selectors/LendPositionSelector';
 import ActiveTransaction from '../components/ActiveTransaction';
 import YieldInfo from '../components/YieldInfo';
 import BackButton from '../components/buttons/BackButton';
@@ -32,8 +32,6 @@ import { useApr } from '../hooks/useApr';
 import { useInputValidation } from '../hooks/useInputValidation';
 import { useTx } from '../hooks/useTx';
 import AltText from '../components/texts/AltText';
-import PositionListItem from '../components/PositionItem';
-import EtherscanButton from '../components/buttons/EtherscanButton';
 import YieldCardHeader from '../components/YieldCardHeader';
 import { useLendHelpers } from '../hooks/actionHelperHooks/useLendHelpers';
 import { useLend } from '../hooks/actionHooks/useLend';
@@ -73,6 +71,7 @@ const Lend = () => {
   const handleLend = () => {
     !lendDisabled && lend(lendInput, selectedSeries!);
   };
+  
   const handleRedeem = () => {
     redeem(selectedSeries!, undefined);
   };

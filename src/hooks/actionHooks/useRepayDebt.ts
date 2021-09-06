@@ -2,9 +2,9 @@ import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, IVault, ISeries, ActionCodes, LadleActions } from '../../types';
+import { ICallData, IVault, ISeries, ActionCodes, LadleActions, IAsset } from '../../types';
 import { getTxCode } from '../../utils/appUtils';
-import { MAX_128 } from '../../utils/constants';
+import { ETH_BASED_ASSETS, MAX_128 } from '../../utils/constants';
 import { useChain } from '../useChain';
 
 import { calculateSlippage, secondsToFrom, sellBase } from '../../utils/yieldMath';
@@ -26,17 +26,20 @@ export const useRepayDebt = () => {
   const repay = async (
     vault: IVault,
     input: string | undefined,
-    collInput: string | undefined = '0' // optional - add(+) / remove(-) collateral in same tx.
+    reclaimCollateral: boolean,
   ) => {
     const txCode = getTxCode(ActionCodes.REPAY, vault.id);
 
     const series: ISeries = seriesMap.get(vault.seriesId);
-    const base = assetMap.get(vault.baseId);
-    const ilk = assetMap.get(vault.ilkId);
+    const base: IAsset = assetMap.get(vault.baseId);
+    const ethIlk:boolean = ETH_BASED_ASSETS.includes(vault.ilkId)
+
+    console.log('is eth based? ', ethIlk)
 
     /* parse inputs */
     const _input = input ? ethers.utils.parseUnits(input, base.decimals) : ethers.constants.Zero;
-    const _collInput = collInput ? ethers.utils.parseUnits(collInput, ilk.decimals) : ethers.constants.Zero;
+    /* if requested, and all debt will be repaid, automatically remove collateral */
+    const _collateralToRemove = (reclaimCollateral && _input >= vault.art) ? vault.ink : ethers.constants.Zero;
 
     const _inputAsFyDai = sellBase(
       series.baseReserves,
@@ -45,6 +48,7 @@ export const useRepayDebt = () => {
       secondsToFrom(series.maturity.toString())
     );
     const _inputAsFyDaiWithSlippage = calculateSlippage(_inputAsFyDai, userState.slippageTolerance.toString(), true);
+
     const inputGreaterThanDebt: boolean = ethers.BigNumber.from(_inputAsFyDai).gte(vault.art);
 
     const permits: ICallData[] = await sign(
@@ -78,23 +82,23 @@ export const useRepayDebt = () => {
       },
       {
         operation: LadleActions.Fn.REPAY,
-        args: [vault.id, account, _collInput, _inputAsFyDaiWithSlippage] as LadleActions.Args.REPAY,
+        args: [vault.id, account, ethers.constants.Zero, _inputAsFyDaiWithSlippage] as LadleActions.Args.REPAY,
         ignoreIf: series.seriesIsMature || inputGreaterThanDebt, // use if input is NOT more than debt
       },
       {
         operation: LadleActions.Fn.REPAY_VAULT,
-        args: [vault.id, account, _collInput, MAX_128] as LadleActions.Args.REPAY_VAULT,
+        args: [vault.id, account, ethers.constants.Zero, MAX_128] as LadleActions.Args.REPAY_VAULT,
         ignoreIf: series.seriesIsMature || !inputGreaterThanDebt, // use if input IS more than debt
       },
 
       /* AFTER MATURITY */
       {
         operation: LadleActions.Fn.CLOSE,
-        args: [vault.id, account, _collInput, _input.mul(-1)] as LadleActions.Args.CLOSE,
+        args: [vault.id, account, ethers.constants.Zero, _input.mul(-1)] as LadleActions.Args.CLOSE,
         ignoreIf: !series.seriesIsMature,
       },
 
-      ...removeEth(_collInput, series),
+      ...removeEth(_collateralToRemove, series), // after the complete tranasction, this will remove all the collateral (if requested). 
     ];
     await transact(calls, txCode);
     updateVaults([]);

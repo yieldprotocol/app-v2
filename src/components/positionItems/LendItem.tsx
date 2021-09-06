@@ -1,13 +1,13 @@
 import React, { useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Box, Text } from 'grommet';
-import { ActionType, ISeries, IUserContext } from '../types';
-import { UserContext } from '../contexts/UserContext';
-import { cleanValue, nFormatter } from '../utils/appUtils';
-import PositionAvatar from './PositionAvatar';
-import ItemWrap from './wraps/ItemWrap';
+import { ActionType, ISeries, IUserContext } from '../../types';
+import { UserContext } from '../../contexts/UserContext';
+import { cleanValue, nFormatter } from '../../utils/appUtils';
+import PositionAvatar from '../PositionAvatar';
+import ItemWrap from '../wraps/ItemWrap';
 
-function PositionItem({
+function LendItem({
   series,
   index,
   actionType,
@@ -32,7 +32,7 @@ function PositionItem({
   return (
     <ItemWrap action={() => handleSelect(series)} index={index}>
       <Box direction="row" gap="small" align="center" pad="small" height={condensed ? '3rem' : undefined}>
-        <PositionAvatar position={series} condensed={condensed} />
+        <PositionAvatar position={series} condensed={condensed} actionType={ActionType.LEND} />
         <Box
           fill={condensed ? 'horizontal' : undefined}
           justify={condensed ? 'between' : undefined}
@@ -47,19 +47,6 @@ function PositionItem({
                 Balance: {cleanValue(series.fyTokenBalance_, 2)}
               </Text>
             )}
-
-            {actionType === 'POOL' && (
-              <Text weight={450} size="xsmall">
-                {/* Tokens:  {cleanValue(series.poolTokens_, 2)} */}
-                Tokens: {nFormatter(parseFloat(series.poolTokens_!), 2)}
-              </Text>
-            )}
-
-            {actionType === 'POOL' && (
-              <Text weight={450} size="xsmall">
-                Pool %: {cleanValue(series.poolPercent, 2)}
-              </Text>
-            )}
           </Box>
         </Box>
       </Box>
@@ -67,6 +54,6 @@ function PositionItem({
   );
 }
 
-PositionItem.defaultProps = { condensed: false };
+LendItem.defaultProps = { condensed: false };
 
-export default PositionItem;
+export default LendItem;

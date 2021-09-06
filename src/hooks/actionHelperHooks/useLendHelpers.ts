@@ -34,9 +34,11 @@ export const useLendHelpers = (series: ISeries, input?:string|undefined) => {
         series.fyTokenBalance || ethers.constants.Zero,
         secondsToFrom(series.maturity.toString())
       );
-      setCurrentValue(ethers.utils.formatUnits(value, selectedBase?.decimals))
+      value.lte(ethers.constants.Zero) 
+        ? setCurrentValue('0') 
+        : setCurrentValue(ethers.utils.formatUnits(value, selectedBase?.decimals))
     }
-  }, [series]);
+  }, [selectedBase?.decimals, series]);
 
   return { maxLend, currentValue };
 };

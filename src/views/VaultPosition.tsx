@@ -86,7 +86,7 @@ const VaultPosition = ({ close }: { close: () => void }) => {
   const [stepPosition, setStepPosition] = useState<number[]>(new Array(7).fill(0));
 
   const [repayInput, setRepayInput] = useState<any>(undefined);
-  const [collatInput, setCollatInput] = useState<any>(undefined);
+  const [reclaimCollateral, setReclaimCollateral] = useState<boolean>(false);
 
   const [addCollatInput, setAddCollatInput] = useState<any>(undefined);
   const [removeCollatInput, setRemoveCollatInput] = useState<any>(undefined);
@@ -134,7 +134,7 @@ const VaultPosition = ({ close }: { close: () => void }) => {
     selectedVault
   );
 
-  const { maxRepayOrRoll, minRepayOrRoll } = useBorrowHelpers(repayInput, collatInput, selectedVault);
+  const { maxRepayOrRoll, minRepayOrRoll } = useBorrowHelpers(repayInput, '0', selectedVault);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries, [
     0,
@@ -181,7 +181,7 @@ const VaultPosition = ({ close }: { close: () => void }) => {
   };
 
   const handleRepay = () => {
-    selectedVault && repay(selectedVault, repayInput?.toString());
+    selectedVault && repay(selectedVault, repayInput?.toString(), reclaimCollateral);
   };
 
   const handleCollateral = (action: 'ADD' | 'REMOVE') => {
@@ -259,7 +259,6 @@ const VaultPosition = ({ close }: { close: () => void }) => {
   }, [
     repayInput,
     repayError,
-    collatInput,
     rollToSeries,
     mergeData,
     transferToAddressInput,
@@ -321,7 +320,7 @@ const VaultPosition = ({ close }: { close: () => void }) => {
               <Box height={{ min: '250px' }} gap="medium">
                 <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
                   <Box direction="row" align="center" gap="medium">
-                    <PositionAvatar position={selectedVault!} />
+                    <PositionAvatar position={selectedVault!} actionType={ActionType.BORROW} />
                     <Box>
                       <Text size={mobile ? 'medium' : 'large'}> {selectedVault?.displayName} </Text>
                       <Text size="small"> {selectedVault?.id} </Text>
@@ -346,7 +345,7 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                       />
                       <InfoBite
                         label="Collateral posted:"
-                        value={`${cleanValue(selectedVault?.ink_, vaultIlk?.digitFormat!)} ${
+                        value={`${cleanValue(selectedVault?.ink_, 18)} ${
                           vaultIlk?.symbol
                         } ( ${collateralizationPercent} %)`}
                         icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
@@ -400,10 +399,15 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                     {stepPosition[0] === 0 && (
                       <Box margin={{ top: 'medium' }} gap="medium">
                         <Box gap="xxsmall">
-                          <Text color="gray" alignSelf="end" size="xsmall">
-                            Balance: {vaultBase?.balance_!}
-                          </Text>
-                          <InputWrap action={() => console.log('maxAction')} isError={repayError}>
+                          <InputWrap
+                            action={() => console.log('maxAction')}
+                            isError={repayError}
+                            message={
+                              <Text color="gray" alignSelf="end" size="xsmall">
+                                Balance: {vaultBase?.balance_!}
+                              </Text>
+                            }
+                          >
                             <TextInput
                               plain
                               type="number"

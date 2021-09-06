@@ -4,7 +4,7 @@ import { FiX } from 'react-icons/fi';
 import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
 import { IAsset, ISeries, IUserContext, IVault } from '../../types';
-import VaultListItem from '../VaultItem';
+import VaultListItem from '../positionItems/VaultItem';
 import ListWrap from '../wraps/ListWrap';
 
 interface IVaultFilter {
