@@ -58,7 +58,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
   // const [redeemDisabled, setRedeemDisabled] = useState<boolean>(true);
 
   /* HOOK FNS */
-  const { currentValue } = useLendHelpers(selectedSeries!);
+  const { fyTokenMarketValue } = useLendHelpers(selectedSeries!);
   const closePosition = useClosePosition();
   const rollPosition = useRollPosition();
   const redeem = useRedeemPosition();
@@ -70,12 +70,12 @@ const LendPosition = ({ close }: { close: () => void }) => {
   /* input validation hoooks */
   const { inputError: closeError } = useInputValidation(closeInput, ActionCodes.CLOSE_POSITION, selectedSeries, [
     0,
-    currentValue,
+    fyTokenMarketValue,
   ]);
 
   const { inputError: rollError } = useInputValidation(rollInput, ActionCodes.ROLL_POSITION, selectedSeries, [
     0,
-    currentValue,
+    fyTokenMarketValue,
   ]);
 
   /* LOCAL FNS */
@@ -158,7 +158,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
                     />
                     <InfoBite
                       label="Current value"
-                      value={`${cleanValue(currentValue, selectedBase?.digitFormat!)} ${selectedBase?.symbol!}`}
+                      value={`${cleanValue(fyTokenMarketValue, selectedBase?.digitFormat!)} ${selectedBase?.symbol!}`}
                       icon={selectedBase?.image}
                       loading={seriesLoading}
                     />
@@ -211,10 +211,10 @@ const LendPosition = ({ close }: { close: () => void }) => {
                             icon={<>{selectedBase?.image}</>}
                           />
                           <MaxButton
-                            action={() => setCloseInput(currentValue)}
-                            disabled={currentValue === '0.0' || !selectedSeries}
+                            action={() => setCloseInput(fyTokenMarketValue)}
+                            disabled={fyTokenMarketValue === '0.0' || !selectedSeries}
                             clearAction={() => setCloseInput('')}
-                            showingMax={!!closeInput && closeInput === currentValue}
+                            showingMax={!!closeInput && closeInput === fyTokenMarketValue}
                           />
                         </InputWrap>
                       </Box>
@@ -259,10 +259,10 @@ const LendPosition = ({ close }: { close: () => void }) => {
                             icon={<>{selectedBase?.image}</>}
                           />
                           <MaxButton
-                            action={() => setRollInput(currentValue)}
-                            disabled={currentValue === '0.0' || !selectedSeries}
+                            action={() => setRollInput(fyTokenMarketValue)}
+                            disabled={fyTokenMarketValue === '0.0' || !selectedSeries}
                             clearAction={() => setRollInput('')}
-                            showingMax={!!rollInput && rollInput === currentValue}
+                            showingMax={!!rollInput && rollInput === fyTokenMarketValue}
                           />
                         </InputWrap>
 

@@ -24,8 +24,10 @@ export const useInputValidation = (
 
   useEffect(() => {
     if (activeAccount && (input || input === '')) {
-      const aboveMax: boolean = !!limits[1] && parseFloat(input) > parseFloat(limits[1].toString());
-      const belowMin: boolean = !!limits[0] && parseFloat(input) < parseFloat(limits[0].toString());
+
+      const _inputAsFloat = parseFloat(input);
+      const aboveMax: boolean = !!limits[1] && _inputAsFloat > parseFloat(limits[1].toString());
+      const belowMin: boolean = !!limits[0] && _inputAsFloat < parseFloat(limits[0].toString());
 
       // General input validation here:
       if (parseFloat(input) <= 0) {
@@ -48,8 +50,14 @@ export const useInputValidation = (
 
         case ActionCodes.REPAY:
         case ActionCodes.ROLL_DEBT:
-          aboveMax && setInputError('Amount exceeds your current debt');
-          // belowMin && setInputError('Remaining debt below dust levels');
+          
+          /* set dust limit Error between 0 and dustLimit */
+          limits[0] && limits[1] &&
+          _inputAsFloat >= parseFloat(limits[0].toString()) &&
+          _inputAsFloat !== parseFloat(limits[1].toString()) &&
+          setInputError('Remaining debt below dust levels');
+          /* set dustError between 0 and dustLimit */
+          aboveMax && setInputError('Amount exceeds your current debt');        
           break;
 
         case ActionCodes.ADD_COLLATERAL:
