@@ -9,7 +9,11 @@ function ListWrap({ children, ...props }: IListWrap) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   return (
-    <Box pad={{ horizontal: 'medium', bottom: 'large', top: 'small' }} gap="small" height={{ max: '300px' }} {...props}>
+    <Box 
+      pad={{ horizontal: 'medium', bottom: 'large', top: 'small' }} 
+      gap="small" height={{ max: '300px' }} 
+      {...props}
+    >
       {children}
     </Box>
   );

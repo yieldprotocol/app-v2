@@ -46,6 +46,7 @@ import { useCollateralHelpers } from '../hooks/actionHelperHooks/useCollateralHe
 import { useAddCollateral } from '../hooks/actionHooks/useAddCollateral';
 import { useRemoveCollateral } from '../hooks/actionHooks/useRemoveCollateral';
 import { useBorrowHelpers } from '../hooks/actionHelperHooks/useBorrowHelpers';
+import InputInfoWrap from '../components/wraps/InputInfoWrap';
 
 const VaultPosition = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -403,9 +404,11 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                             action={() => console.log('maxAction')}
                             isError={repayError}
                             message={
+                              <InputInfoWrap>
                               <Text color="gray" alignSelf="end" size="xsmall">
-                                Balance: {vaultBase?.balance_!}
+                                Current {vaultBase?.symbol!} balance: {vaultBase?.balance_!}
                               </Text>
+                              </InputInfoWrap>
                             }
                           >
                             <TextInput

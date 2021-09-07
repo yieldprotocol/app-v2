@@ -246,13 +246,13 @@ const Lend = () => {
             </>
           )}
 
-          {selectedSeries?.seriesIsMature && (
+          {/* {selectedSeries?.seriesIsMature && (
             <NextButton
               primary
               label={<Text size={mobile ? 'small' : undefined}> Redeem </Text>}
               onClick={() => handleRedeem()}
             />
-          )}
+          )} */}
         </ActionButtonGroup>
       </CenterPanelWrap>
 

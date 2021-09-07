@@ -221,7 +221,8 @@ export function sellBase(
   const Zxa = baseReserves_.add(dai_).pow(a);
   const sum = Za.add(Ya).sub(Zxa);
   const y = fyTokenReserves_.sub(sum.pow(invA));
-  const yFee = y.sub(precisionFee);
+  // const yFee = y.sub(precisionFee);
+  const yFee = y;
 
   return yFee.isNaN() ? ethers.constants.Zero : toBn(yFee);
 }
@@ -256,7 +257,9 @@ export function sellFYToken(
   const Yxa = fyTokenReserves_.add(fyDai_).pow(a);
   const sum = Za.add(Ya.sub(Yxa));
   const y = baseReserves_.sub(sum.pow(invA));
-  const yFee = y.sub(precisionFee);
+  
+  // const yFee = y.sub(precisionFee);
+  const yFee = y;
 
   return yFee.isNaN() ? ethers.constants.Zero : toBn(yFee);
 }
@@ -291,7 +294,8 @@ export function buyBase(
   const Zxa = baseReserves_.sub(dai_).pow(a);
   const sum = Za.add(Ya).sub(Zxa);
   const y = sum.pow(invA).sub(fyTokenReserves_);
-  const yFee = y.add(precisionFee);
+  // const yFee = y.add(precisionFee);
+  const yFee = y;
 
   return yFee.isNaN() ? ethers.constants.Zero : toBn(yFee);
 }
@@ -326,7 +330,8 @@ export function buyFYToken(
   const Yxa = fyTokenReserves_.sub(fyDai_).pow(a);
   const sum = Za.add(Ya.sub(Yxa));
   const y = sum.pow(invA).sub(baseReserves_);
-  const yFee = y.add(precisionFee);
+  // const yFee = y.add(precisionFee);
+  const yFee = y;
 
   return yFee.isNaN() ? ethers.constants.Zero : toBn(yFee);
 }
@@ -508,7 +513,7 @@ export const calculateCollateralizationRatio = (
     return undefined;
   }
 
-  const _baseUnitPrice = divDecimal(basePrice, '1000000000000000000'); 
+  const _baseUnitPrice = divDecimal(basePrice, '1000000000000000000');
   const _baseVal = divDecimal(baseAmount, _baseUnitPrice, ); // base/debt value in terms of collateral 
   const _ratio = divDecimal(collateralAmount, _baseVal); // collateralValue divide by debtValue
 
