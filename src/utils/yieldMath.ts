@@ -39,7 +39,7 @@ export const decimalNToDecimal18 = (x: BigNumber, decimals: number): BigNumber =
  */
 export const decimal18ToDecimalN = (x: BigNumber, decimals: number): BigNumber => {
   const str = x.toString();
-  const first = str.slice( 0, str.length - (18-decimals) );
+  const first = str.slice(0, str.length - (18 - decimals));
   return BigNumber.from(first);
 };
 
@@ -164,6 +164,8 @@ export function burn(
  * @param { BigNumber | string } totalSupply
  * @param { BigNumber | string } fyToken
  * @param { BigNumber | string } timeTillMaturity
+ *  @param { number } decimals
+ * 
  * @returns {[BigNumber, BigNumber]}
  */
 export function mintWithBase(
@@ -172,14 +174,17 @@ export function mintWithBase(
   fyTokenReservesReal: BigNumber | string,
   supply: BigNumber | string,
   fyToken: BigNumber | string,
-  timeTillMaturity: BigNumber | string
+  timeTillMaturity: BigNumber | string,
+  decimals: number = 18,
 ): [BigNumber, BigNumber] {
   const Z = new Decimal(baseReserves.toString());
   const YR = new Decimal(fyTokenReservesReal.toString());
   const S = new Decimal(supply.toString());
   const y = new Decimal(fyToken.toString());
   // buyFyToken:
-  const z1 = new Decimal(buyFYToken(baseReserves, fyTokenReservesVirtual, fyToken, timeTillMaturity).toString());
+  const z1 = new Decimal(
+    buyFYToken(baseReserves, fyTokenReservesVirtual, fyToken, timeTillMaturity, decimals).toString()
+  );
   // Mint specifying how much fyToken to take in. Reverse of `mint`.
   const m = S.mul(y).div(YR.sub(y));
   const z2 = Z.add(z1).mul(m).div(S);
@@ -193,6 +198,8 @@ export function mintWithBase(
  * @param { BigNumber | string } totalSupply
  * @param { BigNumber | string } lpTokens
  * @param { BigNumber | string } timeTillMaturity
+ * 
+  *  @param { number } decimals
  * @returns { BigNumber }
  */
 export function burnForBase(
@@ -201,12 +208,13 @@ export function burnForBase(
   fyTokenReservesReal: BigNumber,
   supply: BigNumber,
   lpTokens: BigNumber,
-  timeTillMaturity: BigNumber
+  timeTillMaturity: BigNumber,
+  decimals: number=18,
 ): BigNumber {
   // Burn FyToken
   const [z1, y] = burn(baseReserves, fyTokenReservesReal, supply, lpTokens);
   // Sell FyToken for base
-  const z2 = sellFYToken(baseReserves, fyTokenReservesVirtual, y, timeTillMaturity);
+  const z2 = sellFYToken(baseReserves, fyTokenReservesVirtual, y, timeTillMaturity, decimals);
   const z1D = new Decimal(z1.toString());
   const z2D = new Decimal(z2.toString());
   return toBn(z1D.add(z2D));
