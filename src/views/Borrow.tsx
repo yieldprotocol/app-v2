@@ -267,7 +267,6 @@ const Borrow = () => {
                         </Text>
                       </Box>
                     </Box>
-
                   </SectionWrap>
 
                   <SectionWrap title="Amount of collateral to add">
@@ -279,12 +278,12 @@ const Borrow = () => {
                           isError={collatInputError}
                           message={
                             borrowInput && (
-
-                              <InputInfoWrap action={ () => setCollatInput(cleanValue(minSafeCollateral, 12))}> 
+                              <InputInfoWrap action={() => setCollatInput(cleanValue(minSafeCollateral, 12))}>
                                 <Text size="small">
-                                  Safe minimum {': '}{cleanValue(minSafeCollateral, 4)} {selectedIlk?.symbol}
+                                  Safe minimum {': '}
+                                  {cleanValue(minSafeCollateral, 4)} {selectedIlk?.symbol}
                                 </Text>
-                              </ InputInfoWrap>
+                              </InputInfoWrap>
                             )
                           }
                         >
