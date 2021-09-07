@@ -37,8 +37,11 @@ export const decimalNToDecimal18 = (x: BigNumber, decimals: number): BigNumber =
  * @param decimals required
  * @returns BigNumber
  */
-export const decimal18ToDecimalN = (x: BigNumber, decimals: number): BigNumber =>
-  BigNumber.from(x.toString().substring(0, decimals + 1));
+export const decimal18ToDecimalN = (x: BigNumber, decimals: number): BigNumber => {
+  const str = x.toString();
+  const first = str.slice( 0, str.length - (18-decimals) );
+  return BigNumber.from(first);
+};
 
 /**
  * @param { BigNumber | string } multiplicant
@@ -249,9 +252,7 @@ export function sellBase(
   const yFee = y.sub(precisionFee);
 
   // return yFee.isNaN() ? ethers.constants.Zero : toBn(yFee);
-  return yFee.isNaN() 
-  ? ethers.constants.Zero 
-  : decimal18ToDecimalN(toBn(yFee), decimals);
+  return yFee.isNaN() ? ethers.constants.Zero : decimal18ToDecimalN(toBn(yFee), decimals);
 }
 
 /**
@@ -294,10 +295,7 @@ export function sellFYToken(
   const yFee = y.sub(precisionFee);
 
   // return yFee.isNaN() ? ethers.constants.Zero : toBn(yFee);
-  return yFee.isNaN() 
-  ? ethers.constants.Zero 
-  : decimal18ToDecimalN(toBn(yFee), decimals);
-
+  return yFee.isNaN() ? ethers.constants.Zero : decimal18ToDecimalN(toBn(yFee), decimals);
 }
 
 /**
@@ -339,9 +337,7 @@ export function buyBase(
 
   const yFee = y.add(precisionFee);
 
-  return yFee.isNaN() 
-    ? ethers.constants.Zero 
-    : decimal18ToDecimalN(toBn(yFee), decimals);
+  return yFee.isNaN() ? ethers.constants.Zero : decimal18ToDecimalN(toBn(yFee), decimals);
 }
 
 /**
@@ -352,6 +348,7 @@ export function buyBase(
  * @param { boolean } withNoFee
  * @returns { BigNumber }
  */
+// NOT USED YET
 export function buyFYToken(
   baseReserves: BigNumber | string,
   fyTokenReserves: BigNumber | string,
@@ -385,10 +382,7 @@ export function buyFYToken(
 
   // return yFee.isNaN() ? ethers.constants.Zero : toBn(yFee);
 
-  return yFee.isNaN() 
-  ? ethers.constants.Zero 
-  : decimal18ToDecimalN(toBn(yFee), decimals);
-
+  return yFee.isNaN() ? ethers.constants.Zero : decimal18ToDecimalN(toBn(yFee), decimals);
 }
 
 /**
