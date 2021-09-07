@@ -142,6 +142,7 @@ const HistoryProvider = ({ children }: any) => {
         updateState({ type: 'poolHistory', payload: liqHistMap });
         console.log('Pool History updated: ', liqHistMap);
       } catch (e) {
+        console.log('error getting pool history', e);
         throw new Error(e);
       }
     },
@@ -205,6 +206,7 @@ const HistoryProvider = ({ children }: any) => {
         updateState({ type: 'tradeHistory', payload: tradeHistMap });
         console.log('Trade history updated: ', tradeHistMap);
       } catch (e) {
+        console.log('error getting trade history', e);
         throw new Error(e);
       }
     },
@@ -387,6 +389,7 @@ const HistoryProvider = ({ children }: any) => {
         updateState({ type: 'vaultHistory', payload: vaultHistMap });
         console.log('Vault history updated: ', vaultHistMap);
       } catch (e) {
+        console.log('error getting vault history', e);
         throw new Error(e);
       }
     },
