@@ -6,7 +6,7 @@ import { getTxCode } from '../../utils/appUtils';
 import { BLANK_VAULT, DAI_BASED_ASSETS, MAX_128, MAX_256 } from '../../utils/constants';
 import { useChain } from '../useChain';
 
-import { calculateSlippage, fyTokenForMint, mint, mintWithBase, sellBase, splitLiquidity } from '../../utils/yieldMath';
+import { calculateSlippage, fyTokenForMint, splitLiquidity } from '../../utils/yieldMath';
 import { ChainContext } from '../../contexts/ChainContext';
 
 /* Hook for chain transactions */
@@ -33,14 +33,13 @@ export const useAddLiquidity = () => {
       series.fyTokenRealReserves,
       series.fyTokenReserves,
       _input,
-      series.getTimeTillMaturity()
+      series.getTimeTillMaturity(),
+      series.decimals
     );
 
     const [_baseProportion, _fyTokenPortion] = splitLiquidity(series.baseReserves, series.fyTokenReserves, _input);
     const _baseToFyToken = _baseProportion;
     const _baseToPool = _input.sub(_baseProportion);
-
-    console.log(_baseProportion.toString(), _fyTokenPortion.toString());
 
     const _inputWithSlippage = calculateSlippage(_input);
 
