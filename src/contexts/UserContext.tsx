@@ -334,10 +334,9 @@ const UserProvider = ({ children }: any) => {
             fyTokenReserves,
             ethers.utils.parseUnits('1', series.decimals),
             secondsToFrom(series.maturity.toString()),
+            // series.decimals
           );
           
-          console.log(baseReserves.toString(), fyTokenReserves.toString(), _sellRate.toString(), series.baseId )
-
           const apr =
             calculateAPR(floorDecimal(_sellRate), ethers.utils.parseUnits('1', series.decimals), series.maturity) ||
             '0';
