@@ -228,27 +228,32 @@ const ChainProvider = ({ children }: any) => {
       /* add on extra/calculated ASSET info  and contract instances */
       const _chargeAsset = (asset: any) => {
         const ERC20Permit = contracts.ERC20Permit__factory.connect(asset.address, fallbackLibrary);
-        return {
-          ...asset,
-          digitFormat: assetDigitFormatMap.has(asset.symbol) ? assetDigitFormatMap.get(asset.symbol) : 6,
-          image: markMap.get(asset.symbol),
-          color: (yieldEnv.assetColors as any)[asset.symbol],
+        try {
+          return {
+            ...asset,
+            digitFormat: assetDigitFormatMap.has(asset.symbol) ? assetDigitFormatMap.get(asset.symbol) : 6,
+            image: markMap.get(asset.symbol),
+            color: (yieldEnv.assetColors as any)[asset.symbol],
 
-          baseContract: ERC20Permit,
+            baseContract: ERC20Permit,
 
-          /* baked in token fns */
-          getBalance: async (acc: string) =>
-            ETH_BASED_ASSETS.includes(asset.id) ? library?.getBalance(acc) : ERC20Permit.balanceOf(acc),
-          getAllowance: async (acc: string, spender: string) => ERC20Permit.allowance(acc, spender),
+            /* baked in token fns */
+            getBalance: async (acc: string) =>
+              ETH_BASED_ASSETS.includes(asset.id) ? library?.getBalance(acc) : ERC20Permit.balanceOf(acc),
+            getAllowance: async (acc: string, spender: string) => ERC20Permit.allowance(acc, spender),
 
-          /* TODO remove for prod */
-          /* @ts-ignore */
-          mintTest: async () =>
-            contracts.ERC20Mock__factory.connect(asset.address, library?.getSigner()!).mint(
-              account!,
-              ethers.utils.parseUnits('100', asset.decimals)
-            ),
-        };
+            /* TODO remove for prod */
+            /* @ts-ignore */
+            mintTest: async () =>
+              contracts.ERC20Mock__factory.connect(asset.address, library?.getSigner()!).mint(
+                account!,
+                ethers.utils.parseUnits('100', asset.decimals)
+              ),
+          };
+        } catch (e) {
+          console.log(`error charging ${asset}`);
+          throw new Error(e);
+        }
       };
 
       const _getAssets = async () => {
@@ -263,39 +268,49 @@ const ChainProvider = ({ children }: any) => {
         );
 
         const newAssetList: any[] = [];
-        await Promise.all(
-          assetAddedEvents.map(async (x: any) => {
-            const { assetId: id, asset: address } = Cauldron.interface.parseLog(x).args;
-            const ERC20 = contracts.ERC20Permit__factory.connect(address, fallbackLibrary);
-            /* Add in any extra static asset Data */ // TODO is there any other fixed asset data needed?
-            const [ name, symbol, decimals ] = await Promise.all([
-              ERC20.name(),
-              ERC20.symbol(),
-              ERC20.decimals(),
-              // ETH_BASED_ASSETS.includes(id) ? async () =>'1' : ERC20.version()
-            ]);
+        try {
+          await Promise.all(
+            assetAddedEvents.map(async (x: any) => {
+              const { assetId: id, asset: address } = Cauldron.interface.parseLog(x).args;
+              const ERC20 = contracts.ERC20Permit__factory.connect(address, fallbackLibrary);
+              /* Add in any extra static asset Data */ // TODO is there any other fixed asset data needed?
+              const [name, symbol, decimals] = await Promise.all([
+                ERC20.name(),
+                ERC20.symbol(),
+                ERC20.decimals(),
+                // ETH_BASED_ASSETS.includes(id) ? async () =>'1' : ERC20.version()
+              ]);
 
-            // console.log(symbol, ':', id);
-            // TODO check if any other tokens have different versions. maybe abstract this logic somewhere?
-            const version = id === '0x555344430000' ? '2' : '1';
+              // console.log(symbol, ':', id);
+              // TODO check if any other tokens have different versions. maybe abstract this logic somewhere?
+              const version = id === '0x555344430000' ? '2' : '1';
 
-            const newAsset = {
-              id,
-              address,
-              name,
-              symbol: symbol !== 'WETH' ? symbol : 'ETH',
-              decimals,
-              version,
-              joinAddress: joinMap.get(id),
-            };
-            // Update state and cache
-            updateState({ type: 'addAsset', payload: _chargeAsset(newAsset) });
-            newAssetList.push(newAsset);
-          })
-        );
+              const newAsset = {
+                id,
+                address,
+                name,
+                symbol: symbol !== 'WETH' ? symbol : 'ETH',
+                decimals,
+                version,
+                joinAddress: joinMap.get(id),
+              };
+              // Update state and cache
+              updateState({ type: 'addAsset', payload: _chargeAsset(newAsset) });
+              newAssetList.push(newAsset);
+            })
+          );
+        } catch (e) {
+          console.log('error getting assets', e);
+          throw new Error(e);
+        }
 
         // set the 'last checked' block
-        setLastAssetUpdate(await library?.getBlockNumber());
+        try {
+          setLastAssetUpdate(await library?.getBlockNumber());
+        } catch (e) {
+          console.log('error getting block number', e);
+          throw new Error(e);
+        }
         // log the new assets in the cache
         setCachedAssets([...cachedAssets, ...newAssetList]);
         console.log('Yield Protocol Asset data updated.');
@@ -370,17 +385,16 @@ const ChainProvider = ({ children }: any) => {
                 const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackLibrary);
                 const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackLibrary);
                 // const baseContract = contracts.ERC20__factory.connect(fyToken, fallbackLibrary);
-                const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol ] =
-                  await Promise.all([
-                    fyTokenContract.name(),
-                    fyTokenContract.symbol(),
-                    fyTokenContract.version(),
-                    fyTokenContract.decimals(),
-                    poolContract.name(),
-                    poolContract.version(),
-                    poolContract.symbol(),
-                    // poolContract.decimals(),
-                  ]);
+                const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol] = await Promise.all([
+                  fyTokenContract.name(),
+                  fyTokenContract.symbol(),
+                  fyTokenContract.version(),
+                  fyTokenContract.decimals(),
+                  poolContract.name(),
+                  poolContract.version(),
+                  poolContract.symbol(),
+                  // poolContract.decimals(),
+                ]);
                 const newSeries = {
                   id,
                   baseId,
@@ -403,6 +417,7 @@ const ChainProvider = ({ children }: any) => {
           ]);
         } catch (e) {
           console.log('Error fetching series data: ', e);
+          throw new Error(e);
         }
         setLastSeriesUpdate(await fallbackLibrary?.getBlockNumber());
         setCachedSeries([...cachedSeries, ...newSeriesList]);
@@ -421,36 +436,39 @@ const ChainProvider = ({ children }: any) => {
       /* Iterate through the strategies list and update accordingly */
       const _getStrategies = async () => {
         const newStrategyList: any[] = [];
-        await Promise.all(
-          strategyAddresses.map(async (strategyAddr: string) => {
+        try {
+          await Promise.all(
+            strategyAddresses.map(async (strategyAddr: string) => {
+              /* if the strategy is already in the cache : */
+              if (cachedStrategies.findIndex((_s: any) => _s.address === strategyAddr) === -1) {
+                const Strategy = contracts.Strategy__factory.connect(strategyAddr, fallbackLibrary);
+                const [name, symbol, baseId, decimals, version] = await Promise.all([
+                  Strategy.name(),
+                  Strategy.symbol(),
+                  Strategy.baseId(),
+                  Strategy.decimals(),
+                  Strategy.version(),
+                ]);
 
-            /* if the strategy is already in the cache : */
-            if (cachedStrategies.findIndex((_s: any) => _s.address === strategyAddr) === -1) {
-              const Strategy = contracts.Strategy__factory.connect(strategyAddr, fallbackLibrary);
-              const [name, symbol, baseId, decimals, version ] = await Promise.all([
-                Strategy.name(),
-                Strategy.symbol(),
-                Strategy.baseId(),
-                Strategy.decimals(),
-                Strategy.version(),
-              ]);
-
-              const newStrategy = {
-                id: strategyAddr,
-                address: strategyAddr,
-                symbol,
-                name,
-                version,
-                baseId,
-                decimals,
-              };
-              // update state and cache
-              updateState({ type: 'addStrategy', payload: _chargeStrategy(newStrategy) });
-              newStrategyList.push(newStrategy);
-            }
-          })
-        );
-
+                const newStrategy = {
+                  id: strategyAddr,
+                  address: strategyAddr,
+                  symbol,
+                  name,
+                  version,
+                  baseId,
+                  decimals,
+                };
+                // update state and cache
+                updateState({ type: 'addStrategy', payload: _chargeStrategy(newStrategy) });
+                newStrategyList.push(newStrategy);
+              }
+            })
+          );
+        } catch (e) {
+          console.log('error getting strategies', e)
+          throw new Error(e);
+        }
         setCachedStrategies([...cachedStrategies, ...newStrategyList]);
         console.log('Yield Protocol Series data updated.');
       };
