@@ -22,7 +22,13 @@ export const useRollPosition = () => {
 
     const _fyTokenValueOfInput = fromSeries.seriesIsMature
       ? _input
-      : buyBase(fromSeries.baseReserves, fromSeries.fyTokenReserves, _input, fromSeries.getTimeTillMaturity());
+      : buyBase(
+          fromSeries.baseReserves,
+          fromSeries.fyTokenReserves,
+          _input,
+          fromSeries.getTimeTillMaturity(),
+          fromSeries.decimals
+        );
 
     const _minimumFYTokenReceived = calculateSlippage(_fyTokenValueOfInput, slippageTolerance.toString(), true);
 

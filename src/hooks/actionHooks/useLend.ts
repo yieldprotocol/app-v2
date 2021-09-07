@@ -21,7 +21,13 @@ export const useLend = () => {
     const base = assetMap.get(series.baseId);
     const _input = input ? ethers.utils.parseUnits(input, base.decimals) : ethers.constants.Zero;
 
-    const _inputAsFyToken = sellBase(series.baseReserves, series.fyTokenReserves, _input, series.getTimeTillMaturity());
+    const _inputAsFyToken = sellBase(
+      series.baseReserves,
+      series.fyTokenReserves,
+      _input,
+      series.getTimeTillMaturity(),
+      series.decimals
+    );
     const _inputAsFyTokenWithSlippage = calculateSlippage(_inputAsFyToken, slippageTolerance.toString(), true);
 
     const permits: ICallData[] = await sign(

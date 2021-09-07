@@ -38,7 +38,7 @@ export const useRollLiquidity = () => {
       toSeries.fyTokenRealReserves,
       toSeries.fyTokenReserves,
       _input,
-      toSeries.getTimeTillMaturity()
+      toSeries.getTimeTillMaturity(),
     );
 
     const permits: ICallData[] = await sign(

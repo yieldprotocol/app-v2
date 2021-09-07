@@ -45,7 +45,8 @@ export const useRepayDebt = () => {
       series.baseReserves,
       series.fyTokenReserves,
       _input,
-      secondsToFrom(series.maturity.toString())
+      secondsToFrom(series.maturity.toString()),
+      series.decimals
     );
     const _inputAsFyDaiWithSlippage = calculateSlippage(_inputAsFyDai, userState.slippageTolerance.toString(), true);
 

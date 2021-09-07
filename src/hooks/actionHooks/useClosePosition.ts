@@ -26,7 +26,7 @@ export const useClosePosition = () => {
     // buy fyToken value ( after maturity  fytoken === base value )
     const _fyTokenValueOfInput = seriesIsMature
       ? _input
-      : buyBase(series.baseReserves, series.fyTokenReserves, _input, series.getTimeTillMaturity());
+      : buyBase(series.baseReserves, series.fyTokenReserves, _input, series.getTimeTillMaturity(), series.decimals);
 
     const _fyTokenValueOfInputWithSlippage = calculateSlippage(
       _fyTokenValueOfInput,
