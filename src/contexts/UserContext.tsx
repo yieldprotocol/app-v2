@@ -296,7 +296,7 @@ const UserProvider = ({ children }: any) => {
         _priceMap.set(ilk, _ilkPriceMap);
 
         updateState({ type: 'priceMap', payload: _priceMap });
-        console.log('Price Updated: ', ilk, '->', base, ':', price.toString());
+        // TODO console.log('Price Updated: ', ilk, '->', base, ':', price.toString());
         updateState({ type: 'pricesLoading', payload: false });
 
         return price;

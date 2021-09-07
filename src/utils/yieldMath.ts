@@ -1,6 +1,5 @@
 import { ethers, BigNumber, BigNumberish } from 'ethers';
 import { Decimal } from 'decimal.js';
-import { decimal18ToDecimalN, decimalNToDecimal18 } from './appUtils';
 
 Decimal.set({ precision: 64 });
 
@@ -22,6 +21,24 @@ const precisionFee = new Decimal(1000000000000);
 /** *************************
  Support functions
  *************************** */
+
+/**
+ * Convert a bignumber with any decimal to a bn with decimal of 18
+ * @param x bn to convert.
+ * @param decimals of the current bignumber
+ * @returns BigNumber
+ */
+export const decimalNToDecimal18 = (x: BigNumber, decimals: number): BigNumber =>
+  BigNumber.from(x.toString() + '0'.repeat(18 - decimals));
+
+/**
+ * Convert a decimal18 to a bn of any decimal
+ * @param x 18 decimal to reduce
+ * @param decimals required
+ * @returns BigNumber
+ */
+export const decimal18ToDecimalN = (x: BigNumber, decimals: number): BigNumber =>
+  BigNumber.from(x.toString().substring(0, decimals + 1));
 
 /**
  * @param { BigNumber | string } multiplicant
@@ -231,7 +248,10 @@ export function sellBase(
 
   const yFee = y.sub(precisionFee);
 
-  return yFee.isNaN() ? ethers.constants.Zero : decimal18ToDecimalN(toBn(yFee), decimals);
+  // return yFee.isNaN() ? ethers.constants.Zero : toBn(yFee);
+  return yFee.isNaN() 
+  ? ethers.constants.Zero 
+  : decimal18ToDecimalN(toBn(yFee), decimals);
 }
 
 /**
@@ -248,7 +268,6 @@ export function sellFYToken(
   fyToken: BigNumber | string,
   timeTillMaturity: BigNumber | string,
   decimals: number = 18, // optional : default === 18
-
   withNoFee: boolean = false // optional: default === false
 ): BigNumber {
   /* convert to 18 decimals, if required */
@@ -256,10 +275,10 @@ export function sellFYToken(
   const fyTokenReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenReserves), decimals);
   const fyToken18 = decimalNToDecimal18(BigNumber.from(fyToken), decimals);
 
-  const baseReserves_ = new Decimal(baseReserves.toString());
-  const fyTokenReserves_ = new Decimal(fyTokenReserves.toString());
+  const baseReserves_ = new Decimal(baseReserves18.toString());
+  const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
   const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
-  const fyDai_ = new Decimal(fyToken.toString());
+  const fyDai_ = new Decimal(fyToken18.toString());
 
   const g = withNoFee ? ONE : g2;
   const t = k.mul(timeTillMaturity_);
@@ -274,7 +293,11 @@ export function sellFYToken(
 
   const yFee = y.sub(precisionFee);
 
-  return yFee.isNaN() ? ethers.constants.Zero : decimal18ToDecimalN(toBn(yFee), decimals);
+  // return yFee.isNaN() ? ethers.constants.Zero : toBn(yFee);
+  return yFee.isNaN() 
+  ? ethers.constants.Zero 
+  : decimal18ToDecimalN(toBn(yFee), decimals);
+
 }
 
 /**
@@ -316,7 +339,9 @@ export function buyBase(
 
   const yFee = y.add(precisionFee);
 
-  return yFee.isNaN() ? ethers.constants.Zero : decimal18ToDecimalN(toBn(yFee), decimals);
+  return yFee.isNaN() 
+    ? ethers.constants.Zero 
+    : decimal18ToDecimalN(toBn(yFee), decimals);
 }
 
 /**
@@ -358,7 +383,12 @@ export function buyFYToken(
 
   const yFee = y.add(precisionFee);
 
-  return yFee.isNaN() ? ethers.constants.Zero : decimal18ToDecimalN(toBn(yFee), decimals);
+  // return yFee.isNaN() ? ethers.constants.Zero : toBn(yFee);
+
+  return yFee.isNaN() 
+  ? ethers.constants.Zero 
+  : decimal18ToDecimalN(toBn(yFee), decimals);
+
 }
 
 /**
