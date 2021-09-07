@@ -1,13 +1,10 @@
-import { ethers } from 'ethers';
 import { Box, ResponsiveContext, Text } from 'grommet';
-import React, { useContext, useEffect, useState } from 'react';
-import Loader from 'react-spinners/GridLoader';
+import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { UserContext } from '../contexts/UserContext';
 import { useApr } from '../hooks/useApr';
-import { ActionType, ISeries, IUserContext } from '../types';
+import { ActionType, IUserContext } from '../types';
 import { cleanValue } from '../utils/appUtils';
-import { buyBase, calculateAPR, secondsToFrom, sellBase } from '../utils/yieldMath';
 import HandText from './texts/HandText';
 
 interface IYieldApr {

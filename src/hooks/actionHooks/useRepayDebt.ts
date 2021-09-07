@@ -3,7 +3,7 @@ import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, IVault, ISeries, ActionCodes, LadleActions, IAsset } from '../../types';
-import { getTxCode } from '../../utils/appUtils';
+import { decimalNToDecimal18, getTxCode } from '../../utils/appUtils';
 import { ETH_BASED_ASSETS, MAX_128 } from '../../utils/constants';
 import { useChain } from '../useChain';
 

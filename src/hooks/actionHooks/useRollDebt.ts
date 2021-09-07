@@ -7,7 +7,6 @@ import { getTxCode } from '../../utils/appUtils';
 import { MAX_128 } from '../../utils/constants';
 import { useChain } from '../useChain';
 
-import { calculateSlippage, secondsToFrom, sellBase } from '../../utils/yieldMath';
 
 /* Generic hook for chain transactions */
 export const useRollDebt = () => {

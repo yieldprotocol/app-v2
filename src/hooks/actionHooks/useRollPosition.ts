@@ -3,7 +3,7 @@ import { useContext } from 'react';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions } from '../../types';
 import { getTxCode } from '../../utils/appUtils';
-import { buyBase, calculateSlippage, sellBase } from '../../utils/yieldMath';
+import { buyBase, calculateSlippage } from '../../utils/yieldMath';
 import { useChain } from '../useChain';
 
 /* Lend Actions Hook */

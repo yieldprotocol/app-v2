@@ -2,7 +2,7 @@ import { BigNumber, ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../contexts/UserContext';
 import {ISeries } from '../../types';
-import { secondsToFrom, sellBase, sellFYToken } from '../../utils/yieldMath';
+import { secondsToFrom, sellFYToken } from '../../utils/yieldMath';
 
 export const useLendHelpers = (series: ISeries, input?:string|undefined) => {
   const { userState } = useContext(UserContext);
