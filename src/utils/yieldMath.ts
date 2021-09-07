@@ -430,7 +430,8 @@ export function fyTokenForMint(
   fyTokenRealReserves: BigNumber | string,
   fyTokenVirtualReserves: BigNumber | string,
   base: BigNumber | string,
-  timeTillMaturity: BigNumber | string
+  timeTillMaturity: BigNumber | string,
+  decimals: number = 18
 ): string {
   const baseReserves_ = new Decimal(baseReserves.toString());
   const fyDaiRealReserves_ = new Decimal(fyTokenRealReserves.toString());
@@ -448,7 +449,8 @@ export function fyTokenForMint(
         baseReserves,
         fyTokenVirtualReserves,
         BigNumber.from(yOut.toFixed(0)),
-        timeTillMaturity_.toString()
+        timeTillMaturity_.toString(),
+        decimals
       ).toString()
     );
     const Z_1 = baseReserves_.add(zIn); // New base reserves
