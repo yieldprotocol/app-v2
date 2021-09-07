@@ -3,7 +3,7 @@ import { useContext, useEffect, useState } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, IVault, SignType, ISeries, ActionCodes, IUserContext, LadleActions } from '../../types';
-import { getTxCode, cleanValue, bnToDecimal18 } from '../../utils/appUtils';
+import { getTxCode, cleanValue, decimalNToDecimal18 } from '../../utils/appUtils';
 import { DAI_BASED_ASSETS, ETH_BASED_ASSETS } from '../../utils/constants';
 import { useChain } from '../useChain';
 
@@ -64,10 +64,10 @@ export const useCollateralHelpers = (
  /* handle changes to input values */ 
   useEffect(() => {
     const existingCollateral_ = vault?.ink || ethers.constants.Zero;
-    const existingCollateralAsWei = bnToDecimal18(existingCollateral_, ilk?.decimals)
+    const existingCollateralAsWei = decimalNToDecimal18(existingCollateral_, ilk?.decimals)
 
     const existingDebt_ = vault?.art || ethers.constants.Zero;
-    const existingDebtAsWei = bnToDecimal18(existingDebt_, ilk?.decimals)
+    const existingDebtAsWei = decimalNToDecimal18(existingDebt_, ilk?.decimals)
 
     const dInput = debtInput ? ethers.utils.parseUnits(debtInput, 18) : ethers.constants.Zero;
     const cInput = collInput ? ethers.utils.parseUnits(collInput, 18) : ethers.constants.Zero;

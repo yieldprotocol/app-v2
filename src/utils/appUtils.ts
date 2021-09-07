@@ -18,7 +18,9 @@ export const copyToClipboard = (str: string) => {
  * @param n current bytes value eg. bytes6 or bytes12
  * @returns string bytes32
  */
-export function bytesToBytes32(x: string, n: number): string { return x + '00'.repeat(32 - n); }
+export function bytesToBytes32(x: string, n: number): string {
+  return x + '00'.repeat(32 - n);
+}
 
 /**
  * Convert a bignumber with any decimal to a bn with decimal of 18
@@ -26,18 +28,26 @@ export function bytesToBytes32(x: string, n: number): string { return x + '00'.r
  * @param decimals of the current bignumber
  * @returns BigNumber
  */
-export const bnToDecimal18 = (x: BigNumber, decimals: number): BigNumber => BigNumber.from( x.toString() + '0'.repeat(18 - decimals) );
+export const decimalNToDecimal18 = (x: BigNumber, decimals: number): BigNumber =>
+  BigNumber.from(x.toString() + '0'.repeat(18 - decimals));
 
+/**
+ * Convert a decimal18 to a bn of any decimal
+ * @param x 18 decimal to reduce
+ * @param decimals required
+ * @returns BigNumber
+ */
+export const decimal18ToDecimalN = (x: BigNumber, decimals: number): BigNumber =>
+  BigNumber.from(x.toString().substring(0, 18 - decimals));
 
 /**
  * Convert array to chunks of arrays with size n
  * @param a any array
  * @param size chunk size
- * @returns array of any[] 
+ * @returns array of any[]
  */
- export const chunkArray = (a:any[], size:number) =>
- Array.from(new Array(Math.ceil(a.length / size)), (_, i) => a.slice(i * size, i * size + size));
-
+export const chunkArray = (a: any[], size: number) =>
+  Array.from(new Array(Math.ceil(a.length / size)), (_, i) => a.slice(i * size, i * size + size));
 
 /* log to console + any extra action required, extracted  */
 export const toLog = (message: string, type: string = 'info') => {
@@ -59,7 +69,6 @@ export const getTxCode = (txType: ActionCodes, vaultOrSeriesId: string | null) =
 //     }
 //   }
 // };
-
 
 // TODO make it change based on hemisphere ( ie swap winter and summer)
 export enum SeasonType {

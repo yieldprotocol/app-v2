@@ -19,7 +19,7 @@ import {
 } from '../types';
 
 import { ChainContext } from './ChainContext';
-import { cleanValue, genVaultImage, bytesToBytes32, bnToDecimal18 } from '../utils/appUtils';
+import { cleanValue, genVaultImage, bytesToBytes32  } from '../utils/appUtils';
 import { calculateAPR, divDecimal, floorDecimal, mulDecimal, secondsToFrom, sellFYToken } from '../utils/yieldMath';
 
 import { ONE_WEI_BN, ETH_BASED_ASSETS, BLANK_VAULT, BLANK_SERIES, ZERO_BN } from '../utils/constants';
