@@ -18,25 +18,33 @@ import ErrorBoundary from './components/ErrorBoundary';
 
 /* Init the signing web3 environment */
 function getLibrary(provider: ethers.providers.ExternalProvider, connector: any) {
-  const library = new ethers.providers.Web3Provider(provider);
-  library.pollingInterval = 12000;
-  return library;
+  try {
+    const library = new ethers.providers.Web3Provider(provider);
+    library.pollingInterval = 12000;
+    return library;
+  } catch (e) {
+    throw new Error(e);
+  }
 }
 
 /* Init the calling web3 environment */
 const Web3FallbackProvider = createWeb3ReactRoot('fallback');
 
 function getFallbackLibrary(provider: any, connector: any) {
-  let library: ethers.providers.JsonRpcProvider;
-  if (provider.chainId === 31337) {
-    library = new ethers.providers.JsonRpcProvider(process.env.REACT_APP_RPC_URL_31337 as string);
+  try {
+    let library: ethers.providers.JsonRpcProvider;
+    if (provider.chainId === 31337) {
+      library = new ethers.providers.JsonRpcProvider(process.env.REACT_APP_RPC_URL_31337 as string);
+      library.pollingInterval = 12000;
+      return library;
+    }
+    // library = new ethers.providers.JsonRpcProvider(process.env.REACT_APP_RPC_URL_1 as string);
+    library = new ethers.providers.InfuraProvider(provider.chainId, '646dc0f33d2449878b28e0afa25267f6');
     library.pollingInterval = 12000;
     return library;
+  } catch (e) {
+    throw new Error(e);
   }
-  // library = new ethers.providers.JsonRpcProvider(process.env.REACT_APP_RPC_URL_1 as string);
-  library = new ethers.providers.InfuraProvider(provider.chainId, '646dc0f33d2449878b28e0afa25267f6');
-  library.pollingInterval = 12000;
-  return library;
 }
 
 ReactDOM.render(
