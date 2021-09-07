@@ -30,7 +30,8 @@ export const useLendHelpers = (series: ISeries, input?:string|undefined) => {
         series.baseReserves,
         series.fyTokenReserves,
         series.fyTokenBalance || ethers.constants.Zero,
-        secondsToFrom(series.maturity.toString())
+        secondsToFrom(series.maturity.toString()),
+        series.decimals
       );
       value.lte(ethers.constants.Zero) 
         ? setFyTokenMarketValue('0') 
