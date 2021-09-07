@@ -81,7 +81,7 @@ const Borrow = () => {
   ]);
 
   const { inputError: collatInputError } = useInputValidation(collatInput, ActionCodes.ADD_COLLATERAL, selectedSeries, [
-    minCollateral,
+    Number(minCollateral) - Number(vaultToUse?.ink_),
     maxCollateral,
   ]);
 
@@ -280,7 +280,7 @@ const Borrow = () => {
                             borrowInput && (
                               <InputInfoWrap action={() => setCollatInput(cleanValue(minSafeCollateral, 12))}>
                                 <Text size="small">
-                                  Safe minimum {': '}
+                                  Safe minimum{': '}
                                   {cleanValue(minSafeCollateral, 4)} {selectedIlk?.symbol}
                                 </Text>
                               </InputInfoWrap>
