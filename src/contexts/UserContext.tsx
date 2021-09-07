@@ -19,7 +19,7 @@ import {
 } from '../types';
 
 import { ChainContext } from './ChainContext';
-import { cleanValue, genVaultImage, bytesToBytes32 } from '../utils/appUtils';
+import { cleanValue, genVaultImage, bytesToBytes32, bnToDecimal18 } from '../utils/appUtils';
 import { calculateAPR, divDecimal, floorDecimal, mulDecimal, secondsToFrom, sellFYToken } from '../utils/yieldMath';
 
 import { ONE_WEI_BN, ETH_BASED_ASSETS, BLANK_VAULT, BLANK_SERIES, ZERO_BN } from '../utils/constants';
@@ -175,7 +175,7 @@ const UserProvider = ({ children }: any) => {
           ilkId,
           image: genVaultImage(id),
           displayName: uniqueNamesGenerator({ seed: parseInt(id.substring(14), 16), ...vaultNameConfig }),
-          decimals: series.decimals,
+          decimals: series?.decimals,
         };
       });
 
@@ -187,11 +187,11 @@ const UserProvider = ({ children }: any) => {
           return {
             id,
             seriesId,
-            baseId: series.baseId,
+            baseId: series?.baseId,
             ilkId,
             image: genVaultImage(id),
             displayName: uniqueNamesGenerator({ seed: parseInt(id.substring(14), 16), ...vaultNameConfig }), // TODO Marco move uniquNames generator into utils
-            decimals: series.decimals,
+            decimals: series?.decimals,
           };
         })
       );
@@ -329,17 +329,19 @@ const UserProvider = ({ children }: any) => {
           ]);
 
           /* Calculates the base/fyToken unit selling price */
-          const _sellRate = sellFYToken(
+          const _sellRate = sellFYToken( 
             baseReserves,
             fyTokenReserves,
             ethers.utils.parseUnits('1', series.decimals),
-            secondsToFrom(series.maturity.toString())
+            secondsToFrom(series.maturity.toString()),
           );
+          
+          console.log(baseReserves.toString(), fyTokenReserves.toString(), _sellRate.toString(), series.baseId )
 
           const apr =
             calculateAPR(floorDecimal(_sellRate), ethers.utils.parseUnits('1', series.decimals), series.maturity) ||
             '0';
-
+          
           return {
             ...series,
             baseReserves,
