@@ -98,48 +98,52 @@ const HistoryProvider = ({ children }: any) => {
     async (seriesList: ISeries[]) => {
       const liqHistMap = new Map<string, IHistItemPosition[]>([]);
       /* Get all the Liquidity history transactions */
-      await Promise.all(
-        seriesList.map(async (series: ISeries) => {
-          const { poolContract, id: seriesId, decimals } = series;
-          // event Liquidity(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens, int256 poolTokens);
-          const _liqFilter = poolContract.filters.Liquidity(null, null, account, null, null, null);
-          const eventList = await poolContract.queryFilter(_liqFilter, 0);
+      try {
+        await Promise.all(
+          seriesList.map(async (series: ISeries) => {
+            const { poolContract, id: seriesId, decimals } = series;
+            // event Liquidity(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens, int256 poolTokens);
+            const _liqFilter = poolContract.filters.Liquidity(null, null, account, null, null, null);
+            const eventList = await poolContract.queryFilter(_liqFilter, 0);
 
-          const liqLogs = await Promise.all(
-            eventList.map(async (log: any) => {
-              const { blockNumber, transactionHash } = log;
-              const { maturity, bases, fyTokens, poolTokens } = poolContract.interface.parseLog(log).args;
-              const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
-              const type_ = poolTokens.gt(ZERO_BN) ? ActionCodes.ADD_LIQUIDITY : ActionCodes.REMOVE_LIQUIDITY;
+            const liqLogs = await Promise.all(
+              eventList.map(async (log: any) => {
+                const { blockNumber, transactionHash } = log;
+                const { maturity, bases, fyTokens, poolTokens } = poolContract.interface.parseLog(log).args;
+                const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
+                const type_ = poolTokens.gt(ZERO_BN) ? ActionCodes.ADD_LIQUIDITY : ActionCodes.REMOVE_LIQUIDITY;
 
-              return {
-                blockNumber,
-                date,
-                transactionHash,
-                maturity,
-                bases,
-                fyTokens,
-                series,
-                poolTokens,
+                return {
+                  blockNumber,
+                  date,
+                  transactionHash,
+                  maturity,
+                  bases,
+                  fyTokens,
+                  series,
+                  poolTokens,
 
-                /* inferred trade type */
-                histType: type_,
-                primaryInfo: `${cleanValue(ethers.utils.formatUnits(poolTokens, decimals), 2)} Pool tokens`,
+                  /* inferred trade type */
+                  histType: type_,
+                  primaryInfo: `${cleanValue(ethers.utils.formatUnits(poolTokens, decimals), 2)} Pool tokens`,
 
-                /* Formatted values:  */
-                poolTokens_: ethers.utils.formatUnits(poolTokens, decimals),
-                fyTokens_: ethers.utils.formatUnits(fyTokens, decimals),
-                bases_: ethers.utils.formatUnits(bases, decimals),
-                date_: dateFormat(date),
-              };
-            })
-          );
+                  /* Formatted values:  */
+                  poolTokens_: ethers.utils.formatUnits(poolTokens, decimals),
+                  fyTokens_: ethers.utils.formatUnits(fyTokens, decimals),
+                  bases_: ethers.utils.formatUnits(bases, decimals),
+                  date_: dateFormat(date),
+                };
+              })
+            );
 
-          liqHistMap.set(seriesId, liqLogs);
-        })
-      );
-      updateState({ type: 'poolHistory', payload: liqHistMap });
-      console.log('Pool History updated: ', liqHistMap);
+            liqHistMap.set(seriesId, liqLogs);
+          })
+        );
+        updateState({ type: 'poolHistory', payload: liqHistMap });
+        console.log('Pool History updated: ', liqHistMap);
+      } catch (e) {
+        throw new Error(e);
+      }
     },
     [account, fallbackProvider]
   );
@@ -149,53 +153,60 @@ const HistoryProvider = ({ children }: any) => {
     async (seriesList: ISeries[]) => {
       const tradeHistMap = new Map<string, IHistItemPosition[]>([]);
       /* get all the trade historical transactions */
-      await Promise.all(
-        seriesList.map(async (series: ISeries) => {
-          const { poolContract, id: seriesId, baseId, decimals } = series;
-          const base: IAsset = assetRootMap.get(baseId);
-          // event Trade(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens);
-          const _filter = poolContract.filters.Trade(null, null, account, null, null);
-          const eventList = await poolContract.queryFilter(_filter, 0);
+      try {
+        await Promise.all(
+          seriesList.map(async (series: ISeries) => {
+            const { poolContract, id: seriesId, baseId, decimals } = series;
+            const base: IAsset = assetRootMap.get(baseId);
+            // event Trade(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens);
+            const _filter = poolContract.filters.Trade(null, null, account, null, null);
+            const eventList = await poolContract.queryFilter(_filter, 0);
 
-          const tradeLogs = await Promise.all(
-            eventList
-              .filter((log: any) => poolContract.interface.parseLog(log).args.from !== '0xf7611BC6f78AE082f9C3E290F67349dE3b8591Cf') // TODO make this for any ladle (Past/future)
-              .map(async (log: any) => {
-                const { blockNumber, transactionHash } = log;
-                const { maturity, bases, fyTokens } = poolContract.interface.parseLog(log).args;
-                const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
-                const type_ = fyTokens.gt(ZERO_BN) ? ActionCodes.LEND : ActionCodes.CLOSE_POSITION;
-                const tradeApr = calculateAPR(bases.abs(), fyTokens.abs(), series?.maturity, date);
+            const tradeLogs = await Promise.all(
+              eventList
+                .filter(
+                  (log: any) =>
+                    poolContract.interface.parseLog(log).args.from !== '0xf7611BC6f78AE082f9C3E290F67349dE3b8591Cf'
+                ) // TODO make this for any ladle (Past/future)
+                .map(async (log: any) => {
+                  const { blockNumber, transactionHash } = log;
+                  const { maturity, bases, fyTokens } = poolContract.interface.parseLog(log).args;
+                  const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
+                  const type_ = fyTokens.gt(ZERO_BN) ? ActionCodes.LEND : ActionCodes.CLOSE_POSITION;
+                  const tradeApr = calculateAPR(bases.abs(), fyTokens.abs(), series?.maturity, date);
 
-                return {
-                  blockNumber,
-                  date,
-                  transactionHash,
-                  maturity,
-                  bases,
-                  fyTokens,
-                  poolTokens: ZERO_BN,
-                  series,
-                  vaultId: null,
+                  return {
+                    blockNumber,
+                    date,
+                    transactionHash,
+                    maturity,
+                    bases,
+                    fyTokens,
+                    poolTokens: ZERO_BN,
+                    series,
+                    vaultId: null,
 
-                  /* inferred trade type */
-                  histType: type_,
+                    /* inferred trade type */
+                    histType: type_,
 
-                  primaryInfo: `${cleanValue(ethers.utils.formatUnits(bases.abs(), decimals), 2)} ${base.symbol}`,
-                  secondaryInfo: `${cleanValue(tradeApr, 2)}% APR`,
+                    primaryInfo: `${cleanValue(ethers.utils.formatUnits(bases.abs(), decimals), 2)} ${base.symbol}`,
+                    secondaryInfo: `${cleanValue(tradeApr, 2)}% APR`,
 
-                  /* Formatted values:  */
-                  date_: dateFormat(date),
-                  bases_: ethers.utils.formatUnits(bases, decimals),
-                  fyTokens_: ethers.utils.formatUnits(fyTokens, decimals),
-                };
-              })
-          );
-          tradeHistMap.set(seriesId, tradeLogs);
-        })
-      );
-      updateState({ type: 'tradeHistory', payload: tradeHistMap });
-      console.log('Trade history updated: ', tradeHistMap);
+                    /* Formatted values:  */
+                    date_: dateFormat(date),
+                    bases_: ethers.utils.formatUnits(bases, decimals),
+                    fyTokens_: ethers.utils.formatUnits(fyTokens, decimals),
+                  };
+                })
+            );
+            tradeHistMap.set(seriesId, tradeLogs);
+          })
+        );
+        updateState({ type: 'tradeHistory', payload: tradeHistMap });
+        console.log('Trade history updated: ', tradeHistMap);
+      } catch (e) {
+        throw new Error(e);
+      }
     },
     [account, assetRootMap, fallbackProvider]
   );
@@ -332,48 +343,52 @@ const HistoryProvider = ({ children }: any) => {
       const vaultHistMap = new Map<string, IBaseHistItem[]>([]);
       const cauldronContract = contractMap.get('Cauldron') as Cauldron;
       /* Get all the Vault historical Pour transactions */
-      await Promise.all(
-        vaultList.map(async (vault: IVault) => {
-          const { id: vaultId, seriesId } = vault;
-          const vaultId32 = bytesToBytes32(vaultId, 12);
-          const series = seriesRootMap.get(seriesId);
+      try {
+        await Promise.all(
+          vaultList.map(async (vault: IVault) => {
+            const { id: vaultId, seriesId } = vault;
+            const vaultId32 = bytesToBytes32(vaultId, 12);
+            const series = seriesRootMap.get(seriesId);
 
-          const givenFilter = cauldronContract.filters.VaultGiven(vaultId32, null);
-          const pourFilter = cauldronContract.filters.VaultPoured(vaultId32);
-          const rolledFilter = cauldronContract.filters.VaultRolled(vaultId32);
-          // const destroyedFilter = cauldronContract.filters.VaultDestroyed(vaultId32);
-          // const stirredFilter = cauldronContract.filters.VaultStirred(vaultId32);
+            const givenFilter = cauldronContract.filters.VaultGiven(vaultId32, null);
+            const pourFilter = cauldronContract.filters.VaultPoured(vaultId32);
+            const rolledFilter = cauldronContract.filters.VaultRolled(vaultId32);
+            // const destroyedFilter = cauldronContract.filters.VaultDestroyed(vaultId32);
+            // const stirredFilter = cauldronContract.filters.VaultStirred(vaultId32);
 
-          /* get all the logs available */
-          const [pourEventList, givenEventList, rolledEventList]: // destroyedEventList,
-          // stirredEventList,
-          ethers.Event[][] = await Promise.all([
-            cauldronContract.queryFilter(pourFilter, 0),
-            cauldronContract.queryFilter(givenFilter, 0),
-            cauldronContract.queryFilter(rolledFilter, 0),
-            // cauldronContract.queryFilter(destroyedFilter, 0),
-            // cauldronContract.queryFilter(stirredFilter, 0),
-          ]);
+            /* get all the logs available */
+            const [pourEventList, givenEventList, rolledEventList]: // destroyedEventList,
+            // stirredEventList,
+            ethers.Event[][] = await Promise.all([
+              cauldronContract.queryFilter(pourFilter, 0),
+              cauldronContract.queryFilter(givenFilter, 0),
+              cauldronContract.queryFilter(rolledFilter, 0),
+              // cauldronContract.queryFilter(destroyedFilter, 0),
+              // cauldronContract.queryFilter(stirredFilter, 0),
+            ]);
 
-          /* parse/process the log information  */
-          const [pourLogs, givenLogs, rolledLogs]: // destroyedLogs,
-          // strirredLogs,
-          IBaseHistItem[][] = await Promise.all([
-            _parsePourLogs(pourEventList, cauldronContract, series),
-            _parseGivenLogs(givenEventList, cauldronContract, series),
-            _parseRolledLogs(rolledEventList, cauldronContract, series),
-            // _parseDestroyedLogs(destroyedEventList, cauldronContract),
-            // _parseStirredLogs(stirredEventList, cauldronContract),
-          ]);
+            /* parse/process the log information  */
+            const [pourLogs, givenLogs, rolledLogs]: // destroyedLogs,
+            // strirredLogs,
+            IBaseHistItem[][] = await Promise.all([
+              _parsePourLogs(pourEventList, cauldronContract, series),
+              _parseGivenLogs(givenEventList, cauldronContract, series),
+              _parseRolledLogs(rolledEventList, cauldronContract, series),
+              // _parseDestroyedLogs(destroyedEventList, cauldronContract),
+              // _parseStirredLogs(stirredEventList, cauldronContract),
+            ]);
 
-          const combinedLogs: IBaseHistItem[] = [...pourLogs, ...givenLogs, ...rolledLogs].sort(
-            (a: IBaseHistItem, b: IBaseHistItem) => a.blockNumber - b.blockNumber
-          );
-          vaultHistMap.set(vaultId, combinedLogs);
-        })
-      );
-      updateState({ type: 'vaultHistory', payload: vaultHistMap });
-      console.log('Vault history updated: ', vaultHistMap);
+            const combinedLogs: IBaseHistItem[] = [...pourLogs, ...givenLogs, ...rolledLogs].sort(
+              (a: IBaseHistItem, b: IBaseHistItem) => a.blockNumber - b.blockNumber
+            );
+            vaultHistMap.set(vaultId, combinedLogs);
+          })
+        );
+        updateState({ type: 'vaultHistory', payload: vaultHistMap });
+        console.log('Vault history updated: ', vaultHistMap);
+      } catch (e) {
+        throw new Error(e);
+      }
     },
     [contractMap, fallbackProvider]
   );
