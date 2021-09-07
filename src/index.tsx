@@ -14,6 +14,7 @@ import { ChainProvider } from './contexts/ChainContext';
 import { TxProvider } from './contexts/TxContext';
 import { UserProvider } from './contexts/UserContext';
 import { HistoryProvider } from './contexts/HistoryContext';
+import ErrorBoundary from './components/ErrorBoundary';
 
 /* Init the signing web3 environment */
 function getLibrary(provider: ethers.providers.ExternalProvider, connector: any) {
@@ -40,23 +41,25 @@ function getFallbackLibrary(provider: any, connector: any) {
 
 ReactDOM.render(
   <React.StrictMode>
-    <Router>
-      <Web3FallbackProvider getLibrary={getFallbackLibrary}>
-        <Web3ReactProvider getLibrary={getLibrary}>
-          <ChainProvider>
-            <UserProvider>
-              <TxProvider>
-                <HistoryProvider>
-                  <Grommet theme={deepMerge(base, yieldTheme)} full>
-                    <App />
-                  </Grommet>
-                </HistoryProvider>
-              </TxProvider>
-            </UserProvider>
-          </ChainProvider>
-        </Web3ReactProvider>
-      </Web3FallbackProvider>
-    </Router>
+    <ErrorBoundary>
+      <Router>
+        <Web3FallbackProvider getLibrary={getFallbackLibrary}>
+          <Web3ReactProvider getLibrary={getLibrary}>
+            <ChainProvider>
+              <UserProvider>
+                <TxProvider>
+                  <HistoryProvider>
+                    <Grommet theme={deepMerge(base, yieldTheme)} full>
+                      <App />
+                    </Grommet>
+                  </HistoryProvider>
+                </TxProvider>
+              </UserProvider>
+            </ChainProvider>
+          </Web3ReactProvider>
+        </Web3FallbackProvider>
+      </Router>
+    </ErrorBoundary>
   </React.StrictMode>,
   document.getElementById('root')
 );
