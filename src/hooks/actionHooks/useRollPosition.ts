@@ -49,7 +49,11 @@ export const useRollPosition = () => {
 
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [fromSeries.fyTokenAddress, fromSeries.poolAddress, _fyTokenValueOfInput] as LadleActions.Args.TRANSFER,
+        args: [
+          fromSeries.fyTokenAddress, 
+          fromSeries.seriesIsMature ? fromSeries.fyTokenAddress : fromSeries.poolAddress,  // mature/not
+          _fyTokenValueOfInput
+        ] as LadleActions.Args.TRANSFER,
         ignoreIf: false, // never ignore
       },
 

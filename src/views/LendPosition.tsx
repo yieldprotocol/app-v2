@@ -178,7 +178,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
                       plain
                       dropProps={{ round: 'xsmall' }}
                       options={[
-                        { text: 'Close Position', index: 0 },
+                        { text: `Redeem ${selectedBase?.symbol}`, index: 0 },
                         { text: 'Roll Position', index: 1 },
                         { text: 'View Transaction History', index: 2 },
                         { text: 'Redeem', index: 3 },
@@ -204,7 +204,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
                           <TextInput
                             plain
                             type="number"
-                            placeholder={`Amount of ${selectedBase?.symbol} to reclaim`}
+                            placeholder='Amount to reclaim'
                             value={closeInput || ''}
                             onChange={(event: any) => setCloseInput(cleanValue(event.target.value))}
                             disabled={!selectedSeries}
@@ -223,12 +223,12 @@ const LendPosition = ({ close }: { close: () => void }) => {
                     {stepPosition[0] !== 0 && (
                       <ActiveTransaction pad tx={closeTx}>
                         <SectionWrap
-                          title="Review your remove transaction"
+                          title="Review your redeem transaction"
                           rightAction={<CancelButton action={() => handleStepper(true)} />}
                         >
                           <Box margin={{ top: 'medium' }}>
                             <InfoBite
-                              label="Close Position"
+                              label={`Redeem Position ${selectedBase?.symbol}`}
                               icon={<FiArrowRight />}
                               value={`${cleanValue(closeInput, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
                               loading={seriesLoading}
