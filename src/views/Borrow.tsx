@@ -72,7 +72,6 @@ const Borrow = () => {
 
   const { collateralizationPercent, undercollateralized, minCollateral, minSafeCollateral, maxCollateral } =
     useCollateralHelpers(borrowInput, collatInput, vaultToUse);
-  console.log('minsafe in borrow', minSafeCollateral);
 
   const { maxAllowedBorrow, minAllowedBorrow } = useBorrowHelpers(borrowInput, collatInput, vaultToUse);
 
