@@ -230,32 +230,27 @@ const ChainProvider = ({ children }: any) => {
       /* add on extra/calculated ASSET info  and contract instances */
       const _chargeAsset = (asset: any) => {
         const ERC20Permit = contracts.ERC20Permit__factory.connect(asset.address, fallbackLibrary);
-        try {
-          return {
-            ...asset,
-            digitFormat: assetDigitFormatMap.has(asset.symbol) ? assetDigitFormatMap.get(asset.symbol) : 6,
-            image: markMap.get(asset.symbol),
-            color: (yieldEnv.assetColors as any)[asset.symbol],
+        return {
+          ...asset,
+          digitFormat: assetDigitFormatMap.has(asset.symbol) ? assetDigitFormatMap.get(asset.symbol) : 6,
+          image: markMap.get(asset.symbol),
+          color: (yieldEnv.assetColors as any)[asset.symbol],
 
-            baseContract: ERC20Permit,
+          baseContract: ERC20Permit,
 
-            /* baked in token fns */
-            getBalance: async (acc: string) =>
-              ETH_BASED_ASSETS.includes(asset.id) ? library?.getBalance(acc) : ERC20Permit.balanceOf(acc),
-            getAllowance: async (acc: string, spender: string) => ERC20Permit.allowance(acc, spender),
+          /* baked in token fns */
+          getBalance: async (acc: string) =>
+            ETH_BASED_ASSETS.includes(asset.id) ? library?.getBalance(acc) : ERC20Permit.balanceOf(acc),
+          getAllowance: async (acc: string, spender: string) => ERC20Permit.allowance(acc, spender),
 
-            /* TODO remove for prod */
-            /* @ts-ignore */
-            mintTest: async () =>
-              contracts.ERC20Mock__factory.connect(asset.address, library?.getSigner()!).mint(
-                account!,
-                ethers.utils.parseUnits('100', asset.decimals)
-              ),
-          };
-        } catch (e) {
-          console.log(`error charging ${asset}`);
-          updateState({ type: 'error', payload: 'Error charging asset' });
-        }
+          /* TODO remove for prod */
+          /* @ts-ignore */
+          mintTest: async () =>
+            contracts.ERC20Mock__factory.connect(asset.address, library?.getSigner()!).mint(
+              account!,
+              ethers.utils.parseUnits('100', asset.decimals)
+            ),
+        };
       };
 
       const _getAssets = async () => {
