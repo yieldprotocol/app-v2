@@ -23,6 +23,7 @@ export interface IUserContext {
 export interface IUserContextState {
   userLoading: boolean;
   activeAccount: string | null;
+  error: string | null;
 
   assetMap: Map<string, IAsset>;
   seriesMap: Map<string, ISeries>;
@@ -63,10 +64,10 @@ export interface IUserContextActions {
 }
 
 export interface ISignable {
-  name: string; 
-  version: string; 
-  address: string; 
-  symbol: string
+  name: string;
+  version: string;
+  address: string;
+  symbol: string;
 }
 
 export interface ISeriesRoot extends ISignable {
@@ -140,8 +141,7 @@ export interface IVaultRoot {
   decimals: number;
 }
 
-export interface IPoolRoot extends ISignable {
-}
+export interface IPoolRoot extends ISignable {}
 
 export interface ISeries extends ISeriesRoot {
   apr: string;
@@ -183,37 +183,34 @@ export interface IVault extends IVaultRoot {
 }
 
 export interface IStrategy extends IStrategyRoot {
-
   currentSeriesId: string;
   currentPoolAddr: string;
   nextSeriesId: string;
 
-  currentSeries: ISeries| undefined;
-  nextSeries: ISeries| undefined;
+  currentSeries: ISeries | undefined;
+  nextSeries: ISeries | undefined;
   active: boolean;
-  
+
   strategyTotalSupply?: BigNumber;
   strategyTotalSupply_?: string;
 
   poolTotalSupply?: BigNumber;
   poolTotalSupply_?: string;
 
-  strategyPoolBalance?:BigNumber;
-  strategyPoolBalance_?:string;
+  strategyPoolBalance?: BigNumber;
+  strategyPoolBalance_?: string;
   strategyPoolPercent?: string;
 
   accountBalance?: BigNumber;
   accountBalance_?: string;
-  accountStrategyPercent?: string| undefined;
+  accountStrategyPercent?: string | undefined;
 
   accountPoolBalance?: BigNumber;
   accountPoolBalance_?: string;
   accountPoolPercent?: string | undefined;
 }
 
-export interface IPool extends IPoolRoot {
-
-}
+export interface IPool extends IPoolRoot {}
 
 export interface ICallData {
   args: (string | BigNumberish | boolean)[];
