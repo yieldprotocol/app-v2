@@ -401,6 +401,7 @@ const UserProvider = ({ children }: any) => {
       } catch (e) {
         console.log(e);
         updateState({ type: 'error', payload: 'Error updating series data' });
+        return undefined;
       }
     },
     [account]
@@ -468,9 +469,11 @@ const UserProvider = ({ children }: any) => {
 
         console.log('VAULTS: ', newVaultMap);
         updateState({ type: 'vaultsLoading', payload: false });
+        return newVaultMap;
       } catch (e) {
         console.log(e);
         updateState({ type: 'error', payload: 'Error updating vault data' });
+        return undefined;
       }
     },
     [contractMap, vaultFromUrl, _getVaults]
@@ -580,6 +583,7 @@ const UserProvider = ({ children }: any) => {
       } catch (e) {
         console.log(e);
         updateState({ type: 'error', payload: 'Error updating strategy data' });
+        return undefined;
       }
     },
     [account, seriesRootMap]
