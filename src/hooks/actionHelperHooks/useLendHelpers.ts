@@ -1,10 +1,11 @@
 import { BigNumber, ethers } from 'ethers';
+import { serializeTransaction } from 'ethers/lib/utils';
 import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../contexts/UserContext';
-import {ISeries } from '../../types';
+import { ISeries } from '../../types';
 import { secondsToFrom, sellFYToken } from '../../utils/yieldMath';
 
-export const useLendHelpers = (series: ISeries, input?:string|undefined) => {
+export const useLendHelpers = (series: ISeries, input?: string | undefined) => {
   const { userState } = useContext(UserContext);
   const { assetMap, activeAccount, selectedBaseId } = userState;
   const selectedBase = assetMap.get(selectedBaseId!);
@@ -25,7 +26,7 @@ export const useLendHelpers = (series: ISeries, input?:string|undefined) => {
 
   /* Sets currentValue as the market Value of fyTokens held in base tokens */
   useEffect(() => {
-    if (series) {
+    if (series && !series.seriesIsMature) {
       const value = sellFYToken(
         series.baseReserves,
         series.fyTokenReserves,
@@ -33,11 +34,17 @@ export const useLendHelpers = (series: ISeries, input?:string|undefined) => {
         secondsToFrom(series.maturity.toString()),
         series.decimals
       );
-      value.lte(ethers.constants.Zero) 
-        ? setFyTokenMarketValue('0') 
-        : setFyTokenMarketValue(ethers.utils.formatUnits(value, selectedBase?.decimals))
+      value.lte(ethers.constants.Zero)
+        ? setFyTokenMarketValue('0')
+        : setFyTokenMarketValue(ethers.utils.formatUnits(value, selectedBase?.decimals));
     }
+
+    if (series && series.seriesIsMature)
+      setFyTokenMarketValue(
+        ethers.utils.formatUnits(series.fyTokenBalance!, selectedBase?.decimals)
+      );
+
   }, [selectedBase?.decimals, series]);
 
-  return { maxLend, fyTokenMarketValue,  };
+  return { maxLend, fyTokenMarketValue };
 };
