@@ -23,7 +23,8 @@ function getLibrary(provider: ethers.providers.ExternalProvider, connector: any)
     library.pollingInterval = 12000;
     return library;
   } catch (e) {
-    throw new Error(e);
+    console.log('Error getting library', e);
+    return undefined;
   }
 }
 
@@ -43,7 +44,8 @@ function getFallbackLibrary(provider: any, connector: any) {
     library.pollingInterval = 12000;
     return library;
   } catch (e) {
-    throw new Error(e);
+    console.log('Error getting fallback library', e);
+    return undefined;
   }
 }
 
