@@ -566,7 +566,7 @@ const ChainProvider = ({ children }: any) => {
           urls: { 1: RPC_URLS[1], 42: RPC_URLS[42], 31337: RPC_URLS[31337], 1337: RPC_URLS[1337] },
           defaultChainId: _chainId,
         }),
-        (e: any) => console.log(e),
+        (e: any) => console.log('error activating fallback', e),
         true
       );
 
