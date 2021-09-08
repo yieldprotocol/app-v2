@@ -9,7 +9,7 @@ import { ActionType, ISeries } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { calculateAPR } from '../../utils/yieldMath';
 import { useApr } from '../../hooks/useApr';
-import { nFormatter } from '../../utils/appUtils';
+import { chunkArray, nFormatter } from '../../utils/appUtils';
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
@@ -22,6 +22,12 @@ background 0.3s ease-in-out;
 :active {
   transform: scale(1);
 }
+`;
+
+// TODO shaebox
+const ShadeBox = styled(Box)`
+  /* -webkit-box-shadow: inset 0px ${(props) => (props ? '-50px' : '50px')} 30px -30px rgba(0,0,0,0.30); 
+  box-shadow: inset 0px ${(props) => (props ? '-50px' : '50px')} 30px -30px rgba(0,0,0,0.30); */
 `;
 
 const InsetBox = styled(Box)`
@@ -184,7 +190,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
   return (
     <>
       {seriesLoading && <Skeleton width={180} />}
-      { (!cardLayout || options.length > 4) && (
+      {!cardLayout && (
         <InsetBox fill="horizontal" round="xsmall">
           <Select
             plain
@@ -218,41 +224,49 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
         </InsetBox>
       )}
 
-      { cardLayout && options.length <= 4 && (
-        <Grid columns={mobile ? '100%' : 'small'} gap="small" fill pad={{ vertical: 'small' }}>
-          {seriesLoading ? (
-            <>
-              <CardSkeleton />
-              <CardSkeleton />
-            </>
-          ) : (
-            options.map((series: ISeries) => (
-              <StyledBox
-                // border={series.id === selectedSeriesId}
-                key={series.id}
-                pad="xsmall"
-                round="xsmall"
-                onClick={() => handleSelect(series)}
-                background={series.id === selectedSeriesId ? series?.color : undefined}
-                elevation="xsmall"
-                align="center"
-              >
-                <Box pad="small" width="small" direction="row" align="center" gap="small">
-                  <Avatar background="#FFF"> {series.seriesMark}</Avatar>
+      {cardLayout && (
+        <ShadeBox
+          overflow={mobile ? undefined : 'auto'}
+          height={mobile ? undefined : '250px'}
+          pad={{ vertical: 'small', horizontal: 'xsmall' }}
+        >
+          <Grid columns={mobile ? '100%' : '40%'} gap="small">
+            {seriesLoading ? (
+              <>
+                <CardSkeleton />
+                <CardSkeleton />
+                <CardSkeleton />
+                <CardSkeleton />
+              </>
+            ) : (
+              options.map((series: ISeries) => (
+                <StyledBox
+                  // border={series.id === selectedSeriesId}
+                  key={series.id}
+                  pad="xsmall"
+                  round="xsmall"
+                  onClick={() => handleSelect(series)}
+                  background={series.id === selectedSeriesId ? series?.color : undefined}
+                  elevation="xsmall"
+                  align="center"
+                >
+                  <Box pad="small" width="small" direction="row" align="center" gap="small">
+                    <Avatar background="#FFF"> {series.seriesMark}</Avatar>
 
-                  <Box>
-                    <Text size="medium" color={series.id === selectedSeriesId ? series.textColor : undefined}>
-                      <AprText inputValue={inputValue} series={series} actionType={actionType} />
-                    </Text>
-                    <Text size="small" color={series.id === selectedSeriesId ? series.textColor : undefined}>
-                      {series.displayName}
-                    </Text>
+                    <Box>
+                      <Text size="medium" color={series.id === selectedSeriesId ? series.textColor : undefined}>
+                        <AprText inputValue={inputValue} series={series} actionType={actionType} />
+                      </Text>
+                      <Text size="small" color={series.id === selectedSeriesId ? series.textColor : undefined}>
+                        {series.displayName}
+                      </Text>
+                    </Box>
                   </Box>
-                </Box>
-              </StyledBox>
-            ))
-          )}
-        </Grid>
+                </StyledBox>
+              ))
+            )}
+          </Grid>
+        </ShadeBox>
       )}
     </>
   );

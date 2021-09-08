@@ -103,9 +103,9 @@ export const yieldTheme = {
       zIndex: '20',
     },
     zIndex: '15',
-    overlay: {
-      background: '#000000BF', // 60% - 96
-    },
+    // overlay: {
+    //   background: '#000000BF', // 60% - 96
+    // },
     border: {
       radius: 'xsmall',
       // intelligentRounding: true,

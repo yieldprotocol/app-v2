@@ -46,6 +46,7 @@ import { useCollateralHelpers } from '../hooks/actionHelperHooks/useCollateralHe
 import { useAddCollateral } from '../hooks/actionHooks/useAddCollateral';
 import { useRemoveCollateral } from '../hooks/actionHooks/useRemoveCollateral';
 import { useBorrowHelpers } from '../hooks/actionHelperHooks/useBorrowHelpers';
+import InputInfoWrap from '../components/wraps/InputInfoWrap';
 
 const VaultPosition = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -134,10 +135,10 @@ const VaultPosition = ({ close }: { close: () => void }) => {
     selectedVault
   );
 
-  const { maxRepayOrRoll, minRepayOrRoll } = useBorrowHelpers(repayInput, '0', selectedVault);
+  const { maxRepayOrRoll, maxRepayDustLimit } = useBorrowHelpers(repayInput, '0', selectedVault);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries, [
-    0,
+    maxRepayDustLimit, // this is the max pay to get to dust limit.  note different logic in input validation hook. 
     maxRepayOrRoll,
   ]);
 
@@ -403,9 +404,11 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                             action={() => console.log('maxAction')}
                             isError={repayError}
                             message={
+                              <InputInfoWrap>
                               <Text color="gray" alignSelf="end" size="xsmall">
-                                Balance: {vaultBase?.balance_!}
+                                Current {vaultBase?.symbol!} balance: {vaultBase?.balance_!}
                               </Text>
+                              </InputInfoWrap>
                             }
                           >
                             <TextInput

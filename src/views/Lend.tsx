@@ -1,15 +1,14 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Box, Button, ResponsiveContext, Text, TextInput } from 'grommet';
-import { ethers } from 'ethers';
 
-import { FiPocket, FiClock, FiTrendingUp, FiPercent, FiSquare, FiInfo } from 'react-icons/fi';
+import { FiClock, FiTrendingUp, FiPercent } from 'react-icons/fi';
 import { BiMessageSquareAdd } from 'react-icons/bi';
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import AssetSelector from '../components/selectors/AssetSelector';
 import InputWrap from '../components/wraps/InputWrap';
 import MainViewWrap from '../components/wraps/MainViewWrap';
 import SeriesSelector from '../components/selectors/SeriesSelector';
-import { cleanValue, getTxCode, nFormatter } from '../utils/appUtils';
+import { cleanValue, nFormatter } from '../utils/appUtils';
 import SectionWrap from '../components/wraps/SectionWrap';
 
 import { UserContext } from '../contexts/UserContext';
@@ -55,7 +54,7 @@ const Lend = () => {
   const [stepPosition, setStepPosition] = useState<number>(0);
 
   /* HOOK FNS */
-  const { maxLend, currentValue } = useLendHelpers(selectedSeries!);
+  const { maxLend, fyTokenMarketValue } = useLendHelpers(selectedSeries!);
   const lend = useLend();
   const redeem = useRedeemPosition();
   const { apr } = useApr(lendInput, ActionType.LEND, selectedSeries);
@@ -247,13 +246,13 @@ const Lend = () => {
             </>
           )}
 
-          {selectedSeries?.seriesIsMature && (
+          {/* {selectedSeries?.seriesIsMature && (
             <NextButton
               primary
               label={<Text size={mobile ? 'small' : undefined}> Redeem </Text>}
               onClick={() => handleRedeem()}
             />
-          )}
+          )} */}
         </ActionButtonGroup>
       </CenterPanelWrap>
 

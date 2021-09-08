@@ -141,7 +141,9 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
       )} */}
 
       {cardLayout && (
-        <Grid columns={mobile ? '100%' : 'small'} gap="small" fill pad={{ vertical: 'small' }}>
+
+<Box overflow={mobile?undefined:"auto"} height={mobile?undefined:"250px"} pad="xsmall">
+        <Grid columns={mobile ? '100%' : '40%'} gap="small" >
           {strategiesLoading ? (
             <>
               <CardSkeleton />
@@ -174,6 +176,7 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
             ))
           )}
         </Grid>
+        </Box>
       )}
     </>
   );
