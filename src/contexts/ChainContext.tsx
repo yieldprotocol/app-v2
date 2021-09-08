@@ -104,12 +104,12 @@ const initState = {
   fallbackActive: false as boolean,
   connectors,
   connector: null as any,
-
   /* settings */
   connectOnLoad: true as boolean,
 
   /* flags */
   chainLoading: true,
+  error: null as string | null,
 
   /* Connected Contract Maps */
   contractMap: new Map<string, ContractFactory>(),
@@ -252,6 +252,7 @@ const ChainProvider = ({ children }: any) => {
           };
         } catch (e) {
           console.log(`error charging ${asset}`);
+          updateState({ type: 'error', payload: 'Error charging asset' });
           throw new Error(e);
         }
       };
@@ -301,6 +302,7 @@ const ChainProvider = ({ children }: any) => {
           );
         } catch (e) {
           console.log('error getting assets', e);
+          updateState({ type: 'error', payload: 'Error getting assets' });
           throw new Error(e);
         }
 
@@ -309,6 +311,7 @@ const ChainProvider = ({ children }: any) => {
           setLastAssetUpdate(await library?.getBlockNumber());
         } catch (e) {
           console.log('error getting block number', e);
+          updateState({ type: 'error', payload: 'Error getting block number' });
           throw new Error(e);
         }
         // log the new assets in the cache
@@ -416,7 +419,8 @@ const ChainProvider = ({ children }: any) => {
             }),
           ]);
         } catch (e) {
-          console.log('Error fetching series data: ', e);
+          console.log('Error getting series data: ', e);
+          updateState({ type: 'error', payload: 'Error getting series data' });
           throw new Error(e);
         }
         setLastSeriesUpdate(await fallbackLibrary?.getBlockNumber());
@@ -466,7 +470,8 @@ const ChainProvider = ({ children }: any) => {
             })
           );
         } catch (e) {
-          console.log('error getting strategies', e)
+          console.log('error getting strategies', e);
+          updateState({ type: 'error', payload: 'Error getting strategy data' });
           throw new Error(e);
         }
         setCachedStrategies([...cachedStrategies, ...newStrategyList]);
@@ -477,8 +482,14 @@ const ChainProvider = ({ children }: any) => {
       if (cachedAssets.length === 0 || cachedSeries.length === 0) {
         console.log('FIRST LOAD: Loading Asset, Series and Strategies data ');
         (async () => {
-          await Promise.all([_getAssets(), _getSeries(), _getStrategies()]);
-          updateState({ type: 'chainLoading', payload: false });
+          try {
+            await Promise.all([_getAssets(), _getSeries(), _getStrategies()]);
+            updateState({ type: 'chainLoading', payload: false });
+          } catch (e) {
+            console.log('chain loading error', e);
+            updateState({ type: 'error', payload: 'Network slow/connection error' });
+            throw new Error(e);
+          }
         })();
       } else {
         // get assets, series and strategies from cache and 'charge' them, and add to state:
@@ -496,7 +507,13 @@ const ChainProvider = ({ children }: any) => {
 
         console.log('Checking for new Assets and Series, and Strategies ...');
         // then async check for any updates (they should automatically populate the map):
-        (async () => Promise.all([_getAssets(), _getSeries(), _getStrategies()]))();
+        try {
+          (async () => Promise.all([_getAssets(), _getSeries(), _getStrategies()]))();
+        } catch (e) {
+          console.log('chain loading error', e);
+          updateState({ type: 'error', payload: 'Network slow/connection error' });
+          throw new Error(e);
+        }
       }
     }
   }, [
