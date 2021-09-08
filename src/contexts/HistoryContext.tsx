@@ -23,6 +23,7 @@ const HistoryContext = React.createContext<any>({});
 
 const initState: IHistoryContextState = {
   historyLoading: true,
+  error: null,
   tradeHistory: {
     lastBlock: 0,
     items: [] as IBaseHistItem[],
@@ -46,6 +47,8 @@ function historyReducer(state: any, action: any) {
   switch (action.type) {
     case 'historyLoading':
       return { ...state, historyLoading: onlyIfChanged(action) };
+    case 'error':
+      return { ...state, error: onlyIfChanged(action) };
     case 'tradeHistory':
       return {
         ...state,
@@ -143,7 +146,7 @@ const HistoryProvider = ({ children }: any) => {
         console.log('Pool History updated: ', liqHistMap);
       } catch (e) {
         console.log('error getting pool history', e);
-        throw new Error(e);
+        updateState({ type: 'error', payload: 'Error getting pool history' });
       }
     },
     [account, fallbackProvider]
@@ -207,7 +210,7 @@ const HistoryProvider = ({ children }: any) => {
         console.log('Trade history updated: ', tradeHistMap);
       } catch (e) {
         console.log('error getting trade history', e);
-        throw new Error(e);
+        updateState({ type: 'error', payload: 'Error getting trade history' });
       }
     },
     [account, assetRootMap, fallbackProvider]
@@ -390,7 +393,7 @@ const HistoryProvider = ({ children }: any) => {
         console.log('Vault history updated: ', vaultHistMap);
       } catch (e) {
         console.log('error getting vault history', e);
-        throw new Error(e);
+        updateState({ type: 'error', payload: 'Error getting vaults history' });
       }
     },
     [contractMap, fallbackProvider]
