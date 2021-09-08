@@ -7,6 +7,7 @@ import { TxState } from '../types';
 import TransactionList from './TransactionList';
 import { useTimeout } from '../hooks/generalHooks';
 
+// look to see if there is a better way
 const StyledBox = styled(Box)`
   position: absolute;
   margin-top: 10%;
