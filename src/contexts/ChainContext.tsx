@@ -253,7 +253,6 @@ const ChainProvider = ({ children }: any) => {
         } catch (e) {
           console.log(`error charging ${asset}`);
           updateState({ type: 'error', payload: 'Error charging asset' });
-          throw new Error(e);
         }
       };
 
@@ -303,7 +302,6 @@ const ChainProvider = ({ children }: any) => {
         } catch (e) {
           console.log('error getting assets', e);
           updateState({ type: 'error', payload: 'Error getting assets' });
-          throw new Error(e);
         }
 
         // set the 'last checked' block
@@ -312,7 +310,6 @@ const ChainProvider = ({ children }: any) => {
         } catch (e) {
           console.log('error getting block number', e);
           updateState({ type: 'error', payload: 'Error getting block number' });
-          throw new Error(e);
         }
         // log the new assets in the cache
         setCachedAssets([...cachedAssets, ...newAssetList]);
@@ -421,7 +418,6 @@ const ChainProvider = ({ children }: any) => {
         } catch (e) {
           console.log('Error getting series data: ', e);
           updateState({ type: 'error', payload: 'Error getting series data' });
-          throw new Error(e);
         }
         setLastSeriesUpdate(await fallbackLibrary?.getBlockNumber());
         setCachedSeries([...cachedSeries, ...newSeriesList]);
@@ -472,7 +468,6 @@ const ChainProvider = ({ children }: any) => {
         } catch (e) {
           console.log('error getting strategies', e);
           updateState({ type: 'error', payload: 'Error getting strategy data' });
-          throw new Error(e);
         }
         setCachedStrategies([...cachedStrategies, ...newStrategyList]);
         console.log('Yield Protocol Series data updated.');
@@ -488,7 +483,6 @@ const ChainProvider = ({ children }: any) => {
           } catch (e) {
             console.log('chain loading error', e);
             updateState({ type: 'error', payload: 'Network slow/connection error' });
-            throw new Error(e);
           }
         })();
       } else {
@@ -512,7 +506,6 @@ const ChainProvider = ({ children }: any) => {
         } catch (e) {
           console.log('chain loading error', e);
           updateState({ type: 'error', payload: 'Network slow/connection error' });
-          throw new Error(e);
         }
       }
     }
