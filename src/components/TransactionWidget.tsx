@@ -23,6 +23,7 @@ const TransactionWidget = () => {
 
   const [txs, setTxs] = useState<any>(new Map());
 
+  // infinite loop issues
   const handleRemove = useCallback(
     (txHash: string) => {
       const updatedTx = { ...txs.get(txHash), remove: true };
@@ -40,6 +41,7 @@ const TransactionWidget = () => {
       );
   }, [txs, handleRemove]);
 
+  // set the tx in local state on each change in context
   useEffect(() => {
     setTxs(new Map(transactions));
   }, [transactions]);
