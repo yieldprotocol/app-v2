@@ -99,9 +99,9 @@ const HistoryProvider = ({ children }: any) => {
   /* update Pool Historical data */
   const updatePoolHistory = useCallback(
     async (seriesList: ISeries[]) => {
-      const liqHistMap = new Map<string, IHistItemPosition[]>([]);
-      /* Get all the Liquidity history transactions */
       try {
+        const liqHistMap = new Map<string, IHistItemPosition[]>([]);
+        /* Get all the Liquidity history transactions */
         await Promise.all(
           seriesList.map(async (series: ISeries) => {
             const { poolContract, id: seriesId, decimals } = series;
@@ -155,9 +155,9 @@ const HistoryProvider = ({ children }: any) => {
   /* update Trading Historical data  */
   const updateTradeHistory = useCallback(
     async (seriesList: ISeries[]) => {
-      const tradeHistMap = new Map<string, IHistItemPosition[]>([]);
-      /* get all the trade historical transactions */
       try {
+        const tradeHistMap = new Map<string, IHistItemPosition[]>([]);
+        /* get all the trade historical transactions */
         await Promise.all(
           seriesList.map(async (series: ISeries) => {
             const { poolContract, id: seriesId, baseId, decimals } = series;
@@ -345,10 +345,10 @@ const HistoryProvider = ({ children }: any) => {
 
   const updateVaultHistory = useCallback(
     async (vaultList: IVault[]) => {
-      const vaultHistMap = new Map<string, IBaseHistItem[]>([]);
-      const cauldronContract = contractMap.get('Cauldron') as Cauldron;
-      /* Get all the Vault historical Pour transactions */
       try {
+        const vaultHistMap = new Map<string, IBaseHistItem[]>([]);
+        const cauldronContract = contractMap.get('Cauldron') as Cauldron;
+        /* Get all the Vault historical Pour transactions */
         await Promise.all(
           vaultList.map(async (vault: IVault) => {
             const { id: vaultId, seriesId } = vault;

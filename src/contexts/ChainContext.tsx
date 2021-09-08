@@ -252,7 +252,7 @@ const ChainProvider = ({ children }: any) => {
                 ethers.utils.parseUnits('100', asset.decimals)
               ),
           };
-        } catch (error) {
+        } catch (e) {
           console.log('Error charging asset', e);
           updateState({ type: 'error', payload: 'Error charging asset' });
           return undefined;
