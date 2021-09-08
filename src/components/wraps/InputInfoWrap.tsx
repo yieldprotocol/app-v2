@@ -15,23 +15,23 @@ const StyledBox = styled(Box)`
 
 function InputInfoWrap({ action, index, children }: { children: any; index?: number; action?: () => void }) {
   return (
-      <Box 
-        pad="small" 
-        direction="row" 
-        gap="small" 
-        align="center" 
-        animation="zoomIn"
-        onClick={ action ? () => action(): undefined} 
-        round='xsmall'
-        // elevation='xsmall' 
-        hoverIndicator={{ elevation:'xsmall' }}
-      >
-       <FiInfo  size='1.25rem' color='orange' />
-       { children }
-      </Box>
+    <Box
+      pad="small"
+      direction="row"
+      gap="small"
+      align="center"
+      animation="zoomIn"
+      onClick={action ? () => action() : undefined}
+      round="xsmall"
+      // elevation='xsmall'
+      hoverIndicator={{ elevation: 'xsmall' }}
+    >
+      <FiInfo size="1.25rem" color="orange" />
+      {children}
+    </Box>
   );
 }
 
-InputInfoWrap.defaultProps = {index: 0, action: undefined }
+InputInfoWrap.defaultProps = { index: 0, action: undefined };
 
 export default InputInfoWrap;

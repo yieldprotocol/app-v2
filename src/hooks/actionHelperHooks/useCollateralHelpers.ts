@@ -85,11 +85,19 @@ export const useCollateralHelpers = (
     /* check minimum collateral required base on debt */
     if (oraclePrice?.gt(ethers.constants.Zero)) {
       const min = calculateMinCollateral(oraclePrice, totalDebt, '1.5', existingCollateralAsWei);
-      const minSafe = calculateMinCollateral(oraclePrice, totalDebt, '2.5', existingCollateralAsWei);
-      const minSafeWithInput = vault?.ink ? BigNumber.from(minSafe).sub(cInput) : minSafe; // factor in the current collateral input if there is a valid chosen vault
+      const minSafeCalc = calculateMinCollateral(oraclePrice, totalDebt, '2.5', existingCollateralAsWei);
+
+      const minSafeWithInput =
+        vault?.ink && cInput ? BigNumber.from(minSafeCalc).sub(cInput) : BigNumber.from(minSafeCalc); // factor in the current collateral input if there is a valid chosen vault
+
+      // check for valid min safe scenarios
+      const minSafe =
+        minSafeWithInput.gt(ethers.constants.Zero) && minSafeWithInput.gt(existingCollateral_)
+          ? ethers.utils.formatUnits(minSafeWithInput, ilk.decimals)?.toString()
+          : undefined;
 
       setMinCollateral(ethers.utils.formatUnits(min, ilk.decimals)?.toString());
-      setMinSafeCollateral(ethers.utils.formatUnits(minSafeWithInput, ilk.decimals)?.toString());
+      setMinSafeCollateral(minSafe);
     } else {
       setMinCollateral('0');
     }

@@ -72,7 +72,7 @@ const Borrow = () => {
 
   const { collateralizationPercent, undercollateralized, minCollateral, minSafeCollateral, maxCollateral } =
     useCollateralHelpers(borrowInput, collatInput, vaultToUse);
-  console.log('min safe in borrow', minSafeCollateral);
+  console.log('minsafe in borrow', minSafeCollateral);
 
   const { maxAllowedBorrow, minAllowedBorrow } = useBorrowHelpers(borrowInput, collatInput, vaultToUse);
 
@@ -279,7 +279,8 @@ const Borrow = () => {
                           disabled={!selectedSeries}
                           isError={collatInputError}
                           message={
-                            borrowInput && (
+                            borrowInput &&
+                            minSafeCollateral && (
                               <InputInfoWrap action={() => setCollatInput(cleanValue(minSafeCollateral, 12))}>
                                 <Text size="small">
                                   Safe Minimum{': '}
