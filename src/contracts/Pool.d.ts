@@ -27,7 +27,7 @@ interface PoolInterface extends ethers.utils.Interface {
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "base()": FunctionFragment;
-    "burn(address,uint256,uint256)": FunctionFragment;
+    "burn(address,address,uint256,uint256)": FunctionFragment;
     "burnForBase(address,uint256)": FunctionFragment;
     "buyBase(address,uint128,uint128)": FunctionFragment;
     "buyBasePreview(uint128)": FunctionFragment;
@@ -86,7 +86,7 @@ interface PoolInterface extends ethers.utils.Interface {
   encodeFunctionData(functionFragment: "base", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "burn",
-    values: [string, BigNumberish, BigNumberish]
+    values: [string, string, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "burnForBase",
@@ -305,7 +305,7 @@ interface PoolInterface extends ethers.utils.Interface {
 
   events: {
     "Approval(address,address,uint256)": EventFragment;
-    "Liquidity(uint32,address,address,int256,int256,int256)": EventFragment;
+    "Liquidity(uint32,address,address,address,int256,int256,int256)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "ParameterSet(bytes32,int128)": EventFragment;
     "Sync(uint112,uint112,uint256)": EventFragment;
@@ -387,7 +387,8 @@ export class Pool extends BaseContract {
     base(overrides?: CallOverrides): Promise<[string]>;
 
     burn(
-      to: string,
+      baseTo: string,
+      fyTokenTo: string,
       minBaseOut: BigNumberish,
       minFYTokenOut: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -566,7 +567,8 @@ export class Pool extends BaseContract {
   base(overrides?: CallOverrides): Promise<string>;
 
   burn(
-    to: string,
+    baseTo: string,
+    fyTokenTo: string,
     minBaseOut: BigNumberish,
     minFYTokenOut: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -743,7 +745,8 @@ export class Pool extends BaseContract {
     base(overrides?: CallOverrides): Promise<string>;
 
     burn(
-      to: string,
+      baseTo: string,
+      fyTokenTo: string,
       minBaseOut: BigNumberish,
       minFYTokenOut: BigNumberish,
       overrides?: CallOverrides
@@ -909,15 +912,17 @@ export class Pool extends BaseContract {
       maturity?: null,
       from?: string | null,
       to?: string | null,
+      fyTokenTo?: string | null,
       bases?: null,
       fyTokens?: null,
       poolTokens?: null
     ): TypedEventFilter<
-      [number, string, string, BigNumber, BigNumber, BigNumber],
+      [number, string, string, string, BigNumber, BigNumber, BigNumber],
       {
         maturity: number;
         from: string;
         to: string;
+        fyTokenTo: string;
         bases: BigNumber;
         fyTokens: BigNumber;
         poolTokens: BigNumber;
@@ -1002,7 +1007,8 @@ export class Pool extends BaseContract {
     base(overrides?: CallOverrides): Promise<BigNumber>;
 
     burn(
-      to: string,
+      baseTo: string,
+      fyTokenTo: string,
       minBaseOut: BigNumberish,
       minFYTokenOut: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1183,7 +1189,8 @@ export class Pool extends BaseContract {
     base(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     burn(
-      to: string,
+      baseTo: string,
+      fyTokenTo: string,
       minBaseOut: BigNumberish,
       minFYTokenOut: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }

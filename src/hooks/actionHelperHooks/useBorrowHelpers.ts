@@ -22,7 +22,7 @@ export const useBorrowHelpers = (
   const [maxAllowedBorrow, setMaxAllowedBorrow] = useState<string | undefined>();
 
   const [maxRepayOrRoll, setMaxRepayOrRoll] = useState<string | undefined>();
-  const [minRepayOrRoll, setMinRepayOrRoll] = useState<string | undefined>();
+  const [maxRepayDustLimit, setMaxRepayDustLimit] = useState<string | undefined>();
 
   /* update the minimum maxmimum allowable debt */
   useEffect(() => {
@@ -32,39 +32,30 @@ export const useBorrowHelpers = (
 
   /* update the min max repayable or rollable */
   useEffect(() => {
+    
     /* CHECK the max available repay */
     if (activeAccount && vault) {
+
+      const minDebt = ethers.utils.parseUnits('0.5', vaultBase?.decimals);
       (async () => {
         const _maxToken = await vaultBase?.getBalance(activeAccount);
+
         const _max = _maxToken && vault.art.gt(_maxToken) ? _maxToken : vault.art;
+        const _maxDust = _max.sub(minDebt);
+
         _max && setMaxRepayOrRoll(ethers.utils.formatUnits(_max, vaultBase?.decimals)?.toString());
+        _maxDust && setMaxRepayDustLimit(ethers.utils.formatUnits(_maxDust, vaultBase?.decimals)?.toString());
+
       })();
     }
-  }, [activeAccount, vault, vaultBase, input]);
 
-    /* update the min repayable or rollable */
-    useEffect(() => {
-      const inputBn = input ? ethers.utils.parseUnits(input, vaultBase?.decimals) : ethers.constants.Zero;
-      const minDebt = ethers.utils.parseUnits('0.5', vaultBase?.decimals);
-
-      /* CHECK the max available repay */
-      if (activeAccount && vault) {
-        /* if the input if less than the debt, make sure the minRepay is set to the debt less 0.5  - to leave 0.5 in the vault - above dust level */
-        if (inputBn.lt(vault.art!)) {
-          const _min = vault.art.sub(minDebt);
-          setMinRepayOrRoll(ethers.utils.formatUnits(_min, vaultBase?.decimals)?.toString());
-        } else {
-          setMinRepayOrRoll(ethers.constants.Zero.toString());
-        }
-      }
-  
-    }, [activeAccount, input, vault, vaultBase?.decimals]);
+  }, [activeAccount, vault, vaultBase ]);
 
 
   return {
     minAllowedBorrow,
     maxAllowedBorrow,
     maxRepayOrRoll,
-    minRepayOrRoll,
+    maxRepayDustLimit,
   };
 };

@@ -1,7 +1,8 @@
 import React, { useContext, useState, useCallback, useEffect } from 'react';
-import { Box, CheckBox, ResponsiveContext, Text } from 'grommet';
 import styled from 'styled-components';
+import { Box, CheckBox, DropButton, ResponsiveContext, Text } from 'grommet';
 import { ethers } from 'ethers';
+import { FiChevronDown, FiTool } from 'react-icons/fi';
 import Skeleton from 'react-loading-skeleton';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
@@ -54,6 +55,7 @@ const Dashboard = () => {
   const [totalCollateral, setTotalCollateral] = useState<string | null>(null);
   const [totalLendBalance, setTotalLendBalance] = useState<string | null>(null);
   const [totalPoolBalance, setTotalPoolBalance] = useState<string | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
   const currencySettingAssetId = currencySetting === 'ETH' ? WETH : DAI;
   const currencySettingDigits = currencySetting === 'ETH' ? 4 : 2;
   const currencySettingSymbol = currencySetting === 'ETH' ? 'Ξ' : '$';
@@ -159,16 +161,50 @@ const Dashboard = () => {
               loading={vaultsLoading || seriesLoading || pricesLoading}
               symbol={currencySettingSymbol}
             />
-            {!vaultsLoading && !seriesLoading && !pricesLoading && (
-              <Box gap="medium">
-                <HideBalancesSetting width="30%" />
-                <CurrencyToggle width="50%" />
-                <Box justify="between" gap="small">
-                  <Text size="small">Show Empty Vaults</Text>
-                  <CheckBox toggle checked={showEmpty} onChange={(event) => setShowEmpty(event.target.checked)} />
-                </Box>
-              </Box>
-            )}
+            <Box>
+              {!vaultsLoading && !seriesLoading && !pricesLoading && (
+                <DropButton
+                  open={settingsOpen}
+                  onOpen={() => setSettingsOpen(true)}
+                  onClose={() => setSettingsOpen(false)}
+                  dropContent={
+                    <Box pad="small">
+                      <HideBalancesSetting width="30%" />
+                      <Box gap="small">
+                        <CurrencyToggle width="50%" />
+                        <Box direction="row" justify="between">
+                          <Text size="small">Show Empty Vaults</Text>
+                          <CheckBox
+                            toggle
+                            checked={showEmpty}
+                            onChange={(event) => setShowEmpty(event.target.checked)}
+                          />
+                        </Box>
+                      </Box>
+                    </Box>
+                  }
+                  dropProps={{ align: { top: 'bottom', left: 'left' } }}
+                  hoverIndicator={{}}
+                  style={{ borderRadius: '6px' }}
+                >
+                  <Box
+                    direction="row"
+                    gap="xsmall"
+                    pad="xsmall"
+                    border={{ color: 'tailwind-blue-100' }}
+                    round="xsmall"
+                    background="tailwind-blue-50"
+                    align="center"
+                    justify="between"
+                    width="8rem"
+                  >
+                    <FiTool size="1rem" />
+                    <Text size="small">Customize</Text>
+                    <FiChevronDown size=".75rem" />
+                  </Box>
+                </DropButton>
+              )}
+            </Box>
           </Box>
           <YieldInfo />
         </PanelWrap>

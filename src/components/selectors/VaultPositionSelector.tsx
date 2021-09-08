@@ -4,7 +4,7 @@ import { FiX } from 'react-icons/fi';
 import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
 import { IAsset, ISeries, IUserContext, IVault } from '../../types';
-import VaultListItem from '../VaultItem';
+import VaultListItem from '../positionItems/VaultItem';
 import ListWrap from '../wraps/ListWrap';
 
 interface IVaultFilter {
@@ -13,7 +13,7 @@ interface IVaultFilter {
   ilk: IAsset | undefined;
 }
 
-function VaultSelector(target: any) {
+function VaultPositionSelector(target: any) {
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext) as IUserContext;
   const {
@@ -148,4 +148,4 @@ function VaultSelector(target: any) {
   );
 }
 
-export default VaultSelector;
+export default VaultPositionSelector;

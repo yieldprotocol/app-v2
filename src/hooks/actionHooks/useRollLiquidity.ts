@@ -47,7 +47,6 @@ export const useRollLiquidity = () => {
         {
           // router.forwardPermitAction(pool.address, pool.address, router.address, allowance, deadline, v, r, s )
           target: {
-            id: fromSeries.id,
             address: fromSeries.poolAddress,
             name: fromSeries.poolName,
             version: fromSeries.poolVersion,

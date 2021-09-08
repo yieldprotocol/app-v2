@@ -10,6 +10,7 @@ interface IMaxButtonProps {
   clearAction?: () => void;
   showingMax?: boolean;
   disabled?: boolean;
+  customText?: string;
 }
 
 const StyledBox = styled(Box)`
@@ -26,7 +27,7 @@ const StyledBox = styled(Box)`
   }
 `;
 
-function MaxButton({ action, clearAction, showingMax, disabled }: IMaxButtonProps) {
+function MaxButton({ action, clearAction, showingMax, disabled, customText }: IMaxButtonProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   /* state from context */
   const { userState } = useContext(UserContext) as IUserContext;
@@ -44,7 +45,7 @@ function MaxButton({ action, clearAction, showingMax, disabled }: IMaxButtonProp
           width="xxsmall"
         >
           <Text size="xsmall" color={disabled ? 'text-xweak' : 'text-weak'}>
-            {showingMax ? 'Clear' : 'Max'}
+            {showingMax ? 'Clear' : customText || 'Max' }
           </Text>
         </StyledBox>
       )}
@@ -52,6 +53,6 @@ function MaxButton({ action, clearAction, showingMax, disabled }: IMaxButtonProp
   );
 }
 
-MaxButton.defaultProps = { disabled: false, clearAction: () => null, showingMax: false };
+MaxButton.defaultProps = { disabled: false, clearAction: () => null, showingMax: false , customText: undefined};
 
 export default MaxButton;

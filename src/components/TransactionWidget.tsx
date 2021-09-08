@@ -20,7 +20,6 @@ const TransactionWidget = () => {
   } = useContext(TxContext);
   const hasActiveProcess = [...processes.values()].some((p) => p.status === 'ACTIVE');
   const lastTx = [...transactions?.values()][transactions.size - 1];
-  const isLastTxPending = lastTx?.status === TxState.PENDING;
 
   const [txs, setTxs] = useState<any>(new Map());
 
@@ -49,7 +48,7 @@ const TransactionWidget = () => {
 
   return (
     <StyledBox gap="xsmall">
-      {hasActiveProcess && !isLastTxPending && (
+      {hasActiveProcess && lastTx?.status !== (TxState.PENDING || TxState.FAILED) && (
         <Box direction="row" justify="start" align="center" fill elevation="small" gap="small" pad="small">
           <Box align="center">
             <FiAlertTriangle size="1.5rem" color="#D97706" />

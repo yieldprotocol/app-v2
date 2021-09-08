@@ -3,11 +3,11 @@ import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { Box, Text } from 'grommet';
-import { IUserContext, IVault } from '../types';
-import { UserContext } from '../contexts/UserContext';
+import { ActionType, IUserContext, IVault } from '../../types';
+import { UserContext } from '../../contexts/UserContext';
 
-import PositionAvatar from './PositionAvatar';
-import ItemWrap from './wraps/ItemWrap';
+import PositionAvatar from '../PositionAvatar';
+import ItemWrap from '../wraps/ItemWrap';
 
 const StyledBox = styled(Box)`
   -webkit-transition: transform 0.3s ease-in-out;
@@ -38,7 +38,7 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
   return (
     <ItemWrap action={() => handleSelect(vault)} index={index}>
       <Box direction="row" gap="small" align="center" pad="small" height={condensed ? '3rem' : undefined}>
-        <PositionAvatar position={vault} condensed={condensed} />
+        <PositionAvatar position={vault} condensed={condensed} actionType={ActionType.BORROW} />
         <Box
           fill={condensed ? 'horizontal' : undefined}
           justify={condensed ? 'between' : undefined}
@@ -51,7 +51,7 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
           {vault.isActive ? (
             <Box direction="column">
               <Text weight={450} size="xsmall">
-                {series?.displayNameMobile}
+                {series?.displayName}
               </Text>
               <Text weight={450} size="xsmall">
                 Debt: {vault.art_}

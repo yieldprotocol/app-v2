@@ -15,24 +15,18 @@ export const useAddLiquidity = () => {
     chainState: { strategyRootMap },
   } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
-  const { activeAccount: account, selectedIlkId, selectedSeriesId, assetMap } = userState;
-  const { updateSeries, updateAssets } = userActions;
+  const { activeAccount: account, selectedIlkId, selectedSeriesId, assetMap, selectedStrategyAddr } = userState;
+  const { updateSeries, updateAssets, updateStrategies } = userActions;
   const { sign, transact } = useChain();
 
-  const addLiquidity = async (
-    input: string,
-    series: ISeries,
-    method: 'BUY' | 'BORROW' | string = 'BUY',
-    strategyAddr: string | undefined = undefined,
-    // strategyAddr: string | undefined = '0xA711725a06205509D13EFB454bf8BD4fCDE53187'
-
-  ) => {
+  const addLiquidity = async (input: string, series: ISeries, method: 'BUY' | 'BORROW' | string = 'BUY') => {
     const txCode = getTxCode(ActionCodes.ADD_LIQUIDITY, series.id);
     const base: IAsset = assetMap.get(series.baseId);
     const _input = ethers.utils.parseUnits(input, base.decimals);
 
-    const _strategyExists = ethers.utils.isAddress(strategyAddr!) && strategyRootMap.has(strategyAddr);
-    const _strategy = _strategyExists ? strategyAddr : undefined;
+    // const _strategyExists = ethers.utils.isAddress(strategyAddr!) && strategyRootMap.has(strategyAddr);
+    // const _strategy = _strategyExists ? strategyAddr : undefined;
+    const _strategy = selectedStrategyAddr || undefined;
 
     const _fyTokenToBuy = fyTokenForMint(
       series.baseReserves,
@@ -110,8 +104,8 @@ export const useAddLiquidity = () => {
       },
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [_strategy || account, true, ethers.constants.Zero] as RoutedActions.Args.MINT, // receiver is _strategyAddr (if it exists) or account
-        fnName: RoutedActions.Fn.MINT,
+        args: [_strategy || account, true, ethers.constants.Zero] as RoutedActions.Args.MINT_POOL_TOKENS, // receiver is _strategyAddr (if it exists) or account
+        fnName: RoutedActions.Fn.MINT_POOL_TOKENS,
         targetContract: series.poolContract,
         ignoreIf: !(method === 'BORROW' && !!_strategy),
       },
@@ -119,8 +113,8 @@ export const useAddLiquidity = () => {
       /* STRATEGY MINTING if strategy address is provided, and is found in the strategyMap, use that address */
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [account] as RoutedActions.Args.MINT,
-        fnName: RoutedActions.Fn.MINT,
+        args: [account] as RoutedActions.Args.MINT_STRATEGY_TOKENS,
+        fnName: RoutedActions.Fn.MINT_STRATEGY_TOKENS,
         targetContract: _strategy && strategyRootMap.get(_strategy).strategyContract,
         ignoreIf: !_strategy,
       },
@@ -129,6 +123,7 @@ export const useAddLiquidity = () => {
     await transact(calls, txCode);
     updateSeries([series]);
     updateAssets([base]);
+    updateStrategies([strategyRootMap.get(_strategy)]);
   };
 
   return addLiquidity;

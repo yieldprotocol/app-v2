@@ -1,15 +1,14 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Box, Button, ResponsiveContext, Text, TextInput } from 'grommet';
-import { ethers } from 'ethers';
 
-import { FiPocket, FiClock, FiTrendingUp, FiPercent, FiSquare, FiInfo } from 'react-icons/fi';
+import { FiClock, FiTrendingUp, FiPercent } from 'react-icons/fi';
 import { BiMessageSquareAdd } from 'react-icons/bi';
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import AssetSelector from '../components/selectors/AssetSelector';
 import InputWrap from '../components/wraps/InputWrap';
 import MainViewWrap from '../components/wraps/MainViewWrap';
 import SeriesSelector from '../components/selectors/SeriesSelector';
-import { cleanValue, getTxCode, nFormatter } from '../utils/appUtils';
+import { cleanValue, nFormatter } from '../utils/appUtils';
 import SectionWrap from '../components/wraps/SectionWrap';
 
 import { UserContext } from '../contexts/UserContext';
@@ -19,7 +18,7 @@ import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 
 import StepperText from '../components/StepperText';
-import PositionSelector from '../components/selectors/PositionSelector';
+import PositionSelector from '../components/selectors/LendPositionSelector';
 import ActiveTransaction from '../components/ActiveTransaction';
 import YieldInfo from '../components/YieldInfo';
 import BackButton from '../components/buttons/BackButton';
@@ -32,14 +31,10 @@ import { useApr } from '../hooks/useApr';
 import { useInputValidation } from '../hooks/useInputValidation';
 import { useTx } from '../hooks/useTx';
 import AltText from '../components/texts/AltText';
-import PositionListItem from '../components/PositionItem';
-import EtherscanButton from '../components/buttons/EtherscanButton';
 import YieldCardHeader from '../components/YieldCardHeader';
 import { useLendHelpers } from '../hooks/actionHelperHooks/useLendHelpers';
 import { useLend } from '../hooks/actionHooks/useLend';
 import { useRedeemPosition } from '../hooks/actionHooks/useRedeemPosition';
-
-import AddTokenToMetamask from '../components/AddTokenToMetamask';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -57,7 +52,7 @@ const Lend = () => {
   const [stepPosition, setStepPosition] = useState<number>(0);
 
   /* HOOK FNS */
-  const { maxLend, currentValue } = useLendHelpers(selectedSeries!);
+  const { maxLend, fyTokenMarketValue } = useLendHelpers(selectedSeries!);
   const lend = useLend();
   const redeem = useRedeemPosition();
   const { apr } = useApr(lendInput, ActionType.LEND, selectedSeries);
@@ -73,6 +68,7 @@ const Lend = () => {
   const handleLend = () => {
     !lendDisabled && lend(lendInput, selectedSeries!);
   };
+
   const handleRedeem = () => {
     redeem(selectedSeries!, undefined);
   };
@@ -147,12 +143,6 @@ const Lend = () => {
                     </Box>
                     <Box basis={mobile ? '50%' : '40%'}>
                       <AssetSelector />
-                      <AddTokenToMetamask
-                        address={selectedBase?.address}
-                        symbol={selectedBase?.symbol}
-                        decimals={18}
-                        image=""
-                      />
                     </Box>
                   </Box>
                 </SectionWrap>
@@ -254,13 +244,13 @@ const Lend = () => {
             </>
           )}
 
-          {selectedSeries?.seriesIsMature && (
+          {/* {selectedSeries?.seriesIsMature && (
             <NextButton
               primary
               label={<Text size={mobile ? 'small' : undefined}> Redeem </Text>}
               onClick={() => handleRedeem()}
             />
-          )}
+          )} */}
         </ActionButtonGroup>
       </CenterPanelWrap>
 

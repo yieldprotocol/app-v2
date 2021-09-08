@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Box, Text, Spinner } from 'grommet';
 import { FiX, FiCheckCircle, FiXCircle } from 'react-icons/fi';
 import { TxState } from '../types';
 import EtherscanButton from './buttons/EtherscanButton';
+import { ChainContext } from '../contexts/ChainContext';
+import { getPositionPathPrefix, getVaultIdFromReceipt } from '../utils/appUtils';
 
 interface ITransactionListItem {
   tx: any;

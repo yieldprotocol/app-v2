@@ -1,12 +1,11 @@
 import { BigNumber, Contract, ethers, PayableOverrides } from 'ethers';
 import { signDaiPermit, signERC2612Permit } from 'eth-permit';
 import { useContext } from 'react';
-import { toast } from 'react-toastify';
 import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
-import { DAI_BASED_ASSETS, MAX_128, MAX_256 } from '../utils/constants';
-import { ICallData, ISignData, ISeries, LadleActions } from '../types';
-import { ERC20, ERC20Permit, ERC20__factory, Ladle, Pool, PoolRouter, Strategy } from '../contracts';
+import { MAX_256 } from '../utils/constants';
+import { ICallData, ISignData, LadleActions } from '../types';
+import { ERC20Permit__factory, Ladle } from '../contracts';
 import { UserContext } from '../contexts/UserContext';
 
 /*  💨 Calculate the accumulative gas limit (IF ALL calls have a gaslimit then set the total, else undefined ) */
@@ -115,7 +114,7 @@ export const useChain = () => {
         const _spender = getSpender(reqSig.spender);
 
         /* get an ERC20 contract instance. This is only used in the case of fallback tx (when signing is not available) */
-        const tokenContract = ERC20__factory.connect(reqSig.target.address, signer) as any;
+        const tokenContract = ERC20Permit__factory.connect(reqSig.target.address, signer) as any;
 
         /*
           Request the signature if using DaiType permit style
@@ -154,10 +153,18 @@ export const useChain = () => {
             r,
             s,
           ] as LadleActions.Args.FORWARD_DAI_PERMIT;
-          const operation = LadleActions.Fn.FORWARD_DAI_PERMIT;
 
+          if (reqSig.asRoute) {
+            return {
+              operation: 'route',
+              args: [account, _spender, nonce, expiry, reqSig.amount || allowed, v, r, s],
+              fnName: 'permit',
+              targetContract: tokenContract,
+              ignoreIf: !(v && r && s),
+            };
+          }
           return {
-            operation,
+            operation: LadleActions.Fn.FORWARD_DAI_PERMIT,
             args,
             ignoreIf: !(v && r && s), // set ignore flag if signature returned is null (ie. fallbackTx was used)
           };
@@ -190,7 +197,6 @@ export const useChain = () => {
           approvalMethod
         );
 
-        // router.forwardPermit(ilkId, true, ilkJoin.address, amount, deadline, v, r, s)
         const args = [
           reqSig.target.address, // the asset id OR the seriesId (if signing fyToken)
           _spender,
@@ -201,10 +207,17 @@ export const useChain = () => {
           s,
         ] as LadleActions.Args.FORWARD_PERMIT;
 
-        const operation = LadleActions.Fn.FORWARD_PERMIT;
-
+        if (reqSig.asRoute) {
+          return {
+            operation: 'route',
+            args: [account, _spender, value, deadline, v, r, s],
+            fnName: 'permit',
+            targetContract: tokenContract,
+            ignoreIf: !(v && r && s),
+          };
+        }
         return {
-          operation,
+          operation: LadleActions.Fn.FORWARD_PERMIT,
           args,
           ignoreIf: !(v && r && s), // set ignore flag if signature returned is null (ie. fallbackTx was used)
         };

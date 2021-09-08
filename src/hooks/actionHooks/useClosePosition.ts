@@ -4,7 +4,7 @@ import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions } from '../../types';
 import { getTxCode } from '../../utils/appUtils';
-import { buyBase, calculateSlippage } from '../../utils/yieldMath';
+import { buyBase, calculateSlippage, sellFYToken } from '../../utils/yieldMath';
 import { useChain } from '../useChain';
 
 /* Lend Actions Hook */
@@ -23,10 +23,13 @@ export const useClosePosition = () => {
 
     const { fyTokenAddress, poolAddress, seriesIsMature } = series;
 
-    const _inputAsFyToken = buyBase(series.baseReserves, series.fyTokenReserves, _input, series.getTimeTillMaturity());
+    // buy fyToken value ( after maturity  fytoken === base value )
+    const _fyTokenValueOfInput = seriesIsMature
+      ? _input
+      : buyBase(series.baseReserves, series.fyTokenReserves, _input, series.getTimeTillMaturity());
 
-    const _inputAsFyTokenWithSlippage = calculateSlippage(
-      _inputAsFyToken,
+    const _fyTokenValueOfInputWithSlippage = calculateSlippage(
+      _fyTokenValueOfInput,
       userState.slippageTolerance.toString(),
       true
     );
@@ -36,36 +39,41 @@ export const useClosePosition = () => {
         {
           target: series,
           spender: 'LADLE',
-          message: 'Signing ERC20 Token approval',
-          ignoreIf: series.seriesIsMature,
+          message: 'Allow Ladle to move your fyTokens',
+          ignoreIf: false, // never ignore
         },
       ],
       txCode
     );
 
-    console.log('sereis mature: ', seriesIsMature);
+    console.log('series mature: ', seriesIsMature);
 
     const calls: ICallData[] = [
       ...permits,
 
-      /* BEFORE MATURITY */
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [fyTokenAddress, poolAddress, _inputAsFyToken] as LadleActions.Args.TRANSFER,
-        ignoreIf: seriesIsMature,
+        args: [
+          fyTokenAddress,
+          seriesIsMature ? fyTokenAddress : poolAddress, // select dest based on maturity
+          _fyTokenValueOfInput,
+        ] as LadleActions.Args.TRANSFER,
+        ignoreIf: false, // never ignore
       },
+
+      /* BEFORE MATURITY */
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [account, _inputAsFyTokenWithSlippage] as RoutedActions.Args.SELL_FYTOKEN,
+        args: [account, _fyTokenValueOfInputWithSlippage] as RoutedActions.Args.SELL_FYTOKEN,
         fnName: RoutedActions.Fn.SELL_FYTOKEN,
         targetContract: series.poolContract,
         ignoreIf: seriesIsMature,
       },
 
-      /* AFTER MATURITY */ // TODO
+      /* AFTER MATURITY */
       {
         operation: LadleActions.Fn.REDEEM,
-        args: [series.id, account, _inputAsFyToken] as LadleActions.Args.REDEEM,
+        args: [series.id, account, _fyTokenValueOfInput] as LadleActions.Args.REDEEM,
         ignoreIf: !seriesIsMature,
       },
     ];

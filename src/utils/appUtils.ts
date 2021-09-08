@@ -18,9 +18,7 @@ export const copyToClipboard = (str: string) => {
  * @param n current bytes value eg. bytes6 or bytes12
  * @returns string bytes32
  */
-export function bytesToBytes32(x: string, n: number): string {
-  return x + '00'.repeat(32 - n);
-}
+export function bytesToBytes32(x: string, n: number): string { return x + '00'.repeat(32 - n); }
 
 /**
  * Convert a bignumber with any decimal to a bn with decimal of 18
@@ -28,11 +26,18 @@ export function bytesToBytes32(x: string, n: number): string {
  * @param decimals of the current bignumber
  * @returns BigNumber
  */
-export function bnToDecimal18(x: BigNumber, decimals: number): BigNumber {
-  const paddedX = x.toString() + '0'.repeat(18 - decimals);
-  // const paddedX = x?.mul(Math.pow(10,(18-decimals))) // alternative?
-  return BigNumber.from(paddedX);
-}
+export const bnToDecimal18 = (x: BigNumber, decimals: number): BigNumber => BigNumber.from( x.toString() + '0'.repeat(18 - decimals) );
+
+
+/**
+ * Convert array to chunks of arrays with size n
+ * @param a any array
+ * @param size chunk size
+ * @returns array of any[] 
+ */
+ export const chunkArray = (a:any[], size:number) =>
+ Array.from(new Array(Math.ceil(a.length / size)), (_, i) => a.slice(i * size, i * size + size));
+
 
 /* log to console + any extra action required, extracted  */
 export const toLog = (message: string, type: string = 'info') => {
@@ -54,6 +59,7 @@ export const getTxCode = (txType: ActionCodes, vaultOrSeriesId: string | null) =
 //     }
 //   }
 // };
+
 
 // TODO make it change based on hemisphere ( ie swap winter and summer)
 export enum SeasonType {
@@ -84,7 +90,7 @@ export const getSeason = (dateInSecs: number): SeasonType => {
 /* Trunctate a string value to a certain number of 'decimal' point */
 export const cleanValue = (input: string | undefined, decimals: number = 18) => {
   const re = new RegExp(`(\\d+\\.\\d{${decimals}})(\\d)`);
-  if (input !== undefined ) {
+  if (input !== undefined) {
     const inpu = input?.match(re); // inpu = truncated 'input'... get it?
     if (inpu) {
       return inpu[1];
@@ -202,3 +208,37 @@ export const buildGradient = (colorFrom: string, colorTo: string) => `linear-gra
       ${modColor(colorTo, 0)}, 
       ${modColor(colorTo, 0)})
     `;
+
+export const getPositionPathPrefix = (txCode: string) => {
+  const action = txCode.split('_')[0];
+  switch (action) {
+    // BORROW
+    case ActionCodes.BORROW:
+    case ActionCodes.REMOVE_COLLATERAL:
+    case ActionCodes.REPAY:
+    case ActionCodes.ROLL_DEBT:
+    case ActionCodes.TRANSFER_VAULT:
+    case ActionCodes.MERGE_VAULT:
+      return 'vaultposition';
+    // LEND
+    case ActionCodes.LEND:
+    case ActionCodes.CLOSE_POSITION:
+    case ActionCodes.ROLL_POSITION:
+    case ActionCodes.REDEEM:
+      return 'lendposition';
+    // POOL
+    case ActionCodes.ADD_LIQUIDITY:
+    case ActionCodes.REMOVE_LIQUIDITY:
+    case ActionCodes.ROLL_LIQUIDITY:
+      return 'poolposition';
+
+    default:
+      return `${action.toLowerCase()}position`;
+  }
+};
+
+export const getVaultIdFromReceipt = (receipt: any, contractMap: any) => {
+  const cauldronAddr = contractMap.get('Cauldron').address;
+  const vaultIdHex = receipt.events.filter((e: any) => e.address === cauldronAddr)[0].topics[1];
+  return vaultIdHex.slice(0, 26);
+};

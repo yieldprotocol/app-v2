@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Anchor, Box, Button, Collapsible, ResponsiveContext, Text, Tip } from 'grommet';
+import { Anchor, Box, Button, Collapsible, Layer, ResponsiveContext, Text, Tip } from 'grommet';
 import { FiCheckSquare, FiCopy, FiChevronUp, FiChevronDown, FiExternalLink, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
 import { ChainContext, connectorNames } from '../contexts/ChainContext';
@@ -125,6 +125,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
             <FiChevronUp size="1.5rem" color="tailwind-blue" />
           )}
         </Box>
+
         <Collapsible open={transactionsOpen}>
           {!transactions.size && <Text size="small">Your transactions will appear here...</Text>}
           <TransactionList transactions={[...transactions.values()]} wide />

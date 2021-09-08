@@ -54,7 +54,7 @@ export namespace LadleActions {
     export type REDEEM = [seriesId: string, to: string, wad: BigNumberish];
 
     export type FORWARD_PERMIT = [
-      id: string,
+      token: string,
       spender: string,
       amount: BigNumberish,
       deadline: BigNumberish,
@@ -63,7 +63,7 @@ export namespace LadleActions {
       s: Buffer
     ];
     export type FORWARD_DAI_PERMIT = [
-      id: string,
+      token: string,
       spender: string,
       nonce: BigNumberish,
       deadline: BigNumberish,
@@ -81,20 +81,32 @@ export namespace RoutedActions {
   export enum Fn {
     SELL_BASE = 'sellBase',
     SELL_FYTOKEN = 'sellFYToken',
-    MINT = 'mint',
-    BURN = 'burn',
+
+    MINT_POOL_TOKENS = 'mint',
+    BURN_POOL_TOKENS = 'burn',
     MINT_WITH_BASE = 'mintWithBase',
     BURN_FOR_BASE = 'burnForBase',
+
+    MINT_STRATEGY_TOKENS = 'mint',
+    BURN_STRATEGY_TOKENS = 'burn',
+
   }
 
   export namespace Args {
     export type SELL_BASE = [receiver: string, min: BigNumberish];
     export type SELL_FYTOKEN = [receiver: string, min: BigNumberish];
+
+    export type MINT_POOL_TOKENS = [receiver: string, calcFromBase: boolean, minLpReceived: BigNumberish];
+    export type BURN_POOL_TOKENS = [
+      baseTo: string,
+      fyTokenTo: string,
+      minBaseOut: BigNumberish,
+      minFYTokenOut: BigNumberish
+    ];
     export type MINT_WITH_BASE = [receiver: string, fyTokenToBuy: BigNumberish, minTokensMinted: BigNumberish];
     export type BURN_FOR_BASE = [receiver: string, minBaseOut: BigNumberish];
-    export type MINT = [receiver: string, calcFromBase: boolean, minLpReceived: BigNumberish] | [receiver: string];
-    export type BURN =
-      | [baseTo: string, fyTokenTo: string, minBaseOut: BigNumberish, minFYTokenOut: BigNumberish]
-      | [receiver: string];
+
+    export type MINT_STRATEGY_TOKENS = [receiver: string];
+    export type BURN_STRATEGY_TOKENS = [receiver: string];
   }
 }
