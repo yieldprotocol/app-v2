@@ -127,6 +127,8 @@ function chainReducer(state: any, action: any) {
   switch (action.type) {
     case 'chainLoading':
       return { ...state, chainLoading: onlyIfChanged(action) };
+    case 'error':
+      return { ...state, error: onlyIfChanged(action) };
     case 'appVersion':
       return { ...state, appVersion: onlyIfChanged(action) };
     case 'provider':
