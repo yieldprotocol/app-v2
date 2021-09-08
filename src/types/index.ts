@@ -10,6 +10,7 @@ export interface IHistoryList {
 }
 export interface IHistoryContextState {
   historyLoading: boolean;
+  error: string | null;
   tradeHistory: IHistoryList;
   poolHistory: IHistoryList;
   vaultHistory: IHistoryList;
