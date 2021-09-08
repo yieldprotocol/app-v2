@@ -613,6 +613,14 @@ const ChainProvider = ({ children }: any) => {
     activatingConnector && activatingConnector === connector && setActivatingConnector(undefined);
   }, [activatingConnector, connector]);
 
+  // update error when the chain is loading for too long (set to 20 seconds) on initial load
+  useEffect(() => {
+    (async () => {
+      await new Promise((p) => setTimeout(p, 20000));
+      chainState.chainLoading && updateState({ type: 'error', payload: 'Slow connection/network error homie' });
+    })();
+  }, []);
+
   const chainActions = {
     isConnected: (connection: string) => connectors.get(connection) === connector,
     connect: (connection: string = injectedName) => activate(connectors.get(connection)),
