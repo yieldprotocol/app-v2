@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, Keyboard, ResponsiveContext, Text, TextInput } from 'grommet';
+import { BigNumber } from 'ethers';
 
 import { FiClock, FiPocket, FiPercent, FiTrendingUp, FiInfo } from 'react-icons/fi';
 
@@ -71,6 +72,7 @@ const Borrow = () => {
 
   const { collateralizationPercent, undercollateralized, minCollateral, minSafeCollateral, maxCollateral } =
     useCollateralHelpers(borrowInput, collatInput, vaultToUse);
+  console.log('min safe in borrow', minSafeCollateral);
 
   const { maxAllowedBorrow, minAllowedBorrow } = useBorrowHelpers(borrowInput, collatInput, vaultToUse);
 
@@ -280,7 +282,7 @@ const Borrow = () => {
                             borrowInput && (
                               <InputInfoWrap action={() => setCollatInput(cleanValue(minSafeCollateral, 12))}>
                                 <Text size="small">
-                                  Safe minimum{': '}
+                                  Safe Minimum{': '}
                                   {cleanValue(minSafeCollateral, 4)} {selectedIlk?.symbol}
                                 </Text>
                               </InputInfoWrap>

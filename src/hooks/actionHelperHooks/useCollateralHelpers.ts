@@ -86,9 +86,10 @@ export const useCollateralHelpers = (
     if (oraclePrice?.gt(ethers.constants.Zero)) {
       const min = calculateMinCollateral(oraclePrice, totalDebt, '1.5', existingCollateralAsWei);
       const minSafe = calculateMinCollateral(oraclePrice, totalDebt, '2.5', existingCollateralAsWei);
+      const minSafeWithInput = vault?.ink ? BigNumber.from(minSafe).sub(cInput) : minSafe; // factor in the current collateral input if there is a valid chosen vault
 
       setMinCollateral(ethers.utils.formatUnits(min, ilk.decimals)?.toString());
-      setMinSafeCollateral(ethers.utils.formatUnits(minSafe, ilk.decimals)?.toString());
+      setMinSafeCollateral(ethers.utils.formatUnits(minSafeWithInput, ilk.decimals)?.toString());
     } else {
       setMinCollateral('0');
     }
