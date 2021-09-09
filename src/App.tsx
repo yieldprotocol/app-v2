@@ -18,7 +18,6 @@ import NetworkError from './components/NetworkError';
 import LendPosition from './views/LendPosition';
 import PoolPosition from './views/PoolPosition';
 import { UserContext } from './contexts/UserContext';
-import { HistoryContext } from './contexts/HistoryContext';
 
 function App() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -28,9 +27,6 @@ function App() {
   const {
     userState: { error: userError },
   } = useContext(UserContext);
-  const {
-    historyState: { error: historyError },
-  } = useContext(HistoryContext);
 
   /* LOCAL STATE */
   const [menuLayerOpen, setMenuLayerOpen] = useState<boolean>(false);
@@ -38,8 +34,7 @@ function App() {
   useEffect(() => {
     chainError && toast.error(chainError);
     userError && toast.error(userError);
-    historyError && toast.error(historyError);
-  }, [chainError, userError, historyError]);
+  }, [chainError, userError]);
 
   return (
     <Box fill>
