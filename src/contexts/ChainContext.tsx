@@ -614,13 +614,13 @@ const ChainProvider = ({ children }: any) => {
   }, [activatingConnector, connector]);
 
   // update error when the chain is loading for too long (set to 20 seconds) on initial load
-  useEffect(() => {
-    (async () => {
-      await new Promise((r) => setTimeout(r, 20000));
-      chainState.chainLoading &&
-        updateState({ type: 'error', payload: 'Slow connection: network taking too long to load' });
-    })();
-  }, []);
+  // useEffect(() => {
+  //   (async () => {
+  //     await new Promise((r) => setTimeout(r, 20000));
+  //     chainState.chainLoading &&
+  //       updateState({ type: 'error', payload: 'Slow connection: network taking too long to load' });
+  //   })();
+  // }, []);
 
   const chainActions = {
     isConnected: (connection: string) => connectors.get(connection) === connector,
