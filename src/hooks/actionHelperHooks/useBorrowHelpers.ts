@@ -32,10 +32,8 @@ export const useBorrowHelpers = (
 
   /* update the min max repayable or rollable */
   useEffect(() => {
-    
     /* CHECK the max available repay */
-    if (activeAccount && vault) {
-
+    if (activeAccount && vault && vaultBase) {
       const minDebt = ethers.utils.parseUnits('0.5', vaultBase?.decimals);
       (async () => {
         const _maxToken = await vaultBase?.getBalance(activeAccount);
@@ -45,12 +43,9 @@ export const useBorrowHelpers = (
 
         _max && setMaxRepayOrRoll(ethers.utils.formatUnits(_max, vaultBase?.decimals)?.toString());
         _maxDust && setMaxRepayDustLimit(ethers.utils.formatUnits(_maxDust, vaultBase?.decimals)?.toString());
-
       })();
     }
-
-  }, [activeAccount, vault, vaultBase ]);
-
+  }, [activeAccount, vault, vaultBase]);
 
   return {
     minAllowedBorrow,
