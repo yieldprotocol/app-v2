@@ -28,6 +28,7 @@ import { useLendHelpers } from '../hooks/actionHelperHooks/useLendHelpers';
 import { useClosePosition } from '../hooks/actionHooks/useClosePosition';
 import { useRedeemPosition } from '../hooks/actionHooks/useRedeemPosition';
 import { useRollPosition } from '../hooks/actionHooks/useRollPosition';
+import { HistoryContext } from '../contexts/HistoryContext';
 
 const LendPosition = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -38,6 +39,9 @@ const LendPosition = ({ close }: { close: () => void }) => {
 
   const { userState } = useContext(UserContext) as IUserContext;
   const { selectedSeriesId, seriesMap, assetMap, seriesLoading } = userState;
+  const {
+    historyState: { errors },
+  } = useContext(HistoryContext);
 
   const selectedSeries = seriesMap.get(selectedSeriesId || idFromUrl);
   const selectedBase = assetMap.get(selectedSeries?.baseId!);
@@ -297,6 +301,9 @@ const LendPosition = ({ close }: { close: () => void }) => {
                 )}
 
                 {actionActive.index === 2 && <YieldHistory seriesOrVault={selectedSeries!} view={['TRADE']} />}
+                {actionActive.index === 2 && errors.has('trade') && (
+                  <Text size="small">{errors.get('trade').message}</Text>
+                )}
               </Box>
             </Box>
 

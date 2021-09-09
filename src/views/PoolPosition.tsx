@@ -29,6 +29,7 @@ import { useInputValidation } from '../hooks/useInputValidation';
 import ModalWrap from '../components/wraps/ModalWrap';
 import { useRemoveLiquidity } from '../hooks/actionHooks/useRemoveLiquidity';
 import { useRollLiquidity } from '../hooks/actionHooks/useRollLiquidity';
+import { HistoryContext } from '../contexts/HistoryContext';
 
 const PoolPosition = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -38,6 +39,9 @@ const PoolPosition = ({ close }: { close: () => void }) => {
   /* STATE FROM CONTEXT */
   const { userState, userActions } = useContext(UserContext) as IUserContext;
   const { activeAccount, selectedStrategyAddr, strategyMap, assetMap, seriesLoading } = userState;
+  const {
+    historyState: { errors },
+  } = useContext(HistoryContext);
 
   // const selectedSeries = seriesMap.get(selectedSeriesId || idFromUrl);
   // const selectedBase = assetMap.get(selectedSeries?.baseId!);
@@ -246,6 +250,9 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                 )}
 
                 {actionActive.index === 1 && <YieldHistory seriesOrVault={selectedSeries!} view={['POOL']} />}
+                {actionActive.index === 1 && errors.has('pool') && (
+                  <Text size="small">{errors.get('pool').message}</Text>
+                )}
 
                 {actionActive.index === 2 && (
                   <>

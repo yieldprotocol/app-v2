@@ -617,7 +617,8 @@ const ChainProvider = ({ children }: any) => {
   useEffect(() => {
     (async () => {
       await new Promise((p) => setTimeout(p, 20000));
-      chainState.chainLoading && updateState({ type: 'error', payload: 'Slow connection/network error homie' });
+      chainState.chainLoading &&
+        updateState({ type: 'error', payload: 'Slow connection/network taking too long to load' });
     })();
   }, []);
 

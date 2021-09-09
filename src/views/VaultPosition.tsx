@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { Box, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import { ethers } from 'ethers';
+import 'react-toastify/dist/ReactToastify.css';
 
 import {
   FiClock,
@@ -47,6 +48,7 @@ import { useAddCollateral } from '../hooks/actionHooks/useAddCollateral';
 import { useRemoveCollateral } from '../hooks/actionHooks/useRemoveCollateral';
 import { useBorrowHelpers } from '../hooks/actionHelperHooks/useBorrowHelpers';
 import InputInfoWrap from '../components/wraps/InputInfoWrap';
+import { HistoryContext } from '../contexts/HistoryContext';
 
 const VaultPosition = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -63,6 +65,9 @@ const VaultPosition = ({ close }: { close: () => void }) => {
   const {
     chainState: { account },
   } = useContext(ChainContext);
+  const {
+    historyState: { errors },
+  } = useContext(HistoryContext);
 
   const selectedVault: IVault | undefined = vaultMap && vaultMap.get(selectedVaultId || idFromUrl);
 
@@ -138,7 +143,7 @@ const VaultPosition = ({ close }: { close: () => void }) => {
   const { maxRepayOrRoll, maxRepayDustLimit } = useBorrowHelpers(repayInput, '0', selectedVault);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries, [
-    maxRepayDustLimit, // this is the max pay to get to dust limit.  note different logic in input validation hook. 
+    maxRepayDustLimit, // this is the max pay to get to dust limit.  note different logic in input validation hook.
     maxRepayOrRoll,
   ]);
 
@@ -405,9 +410,9 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                             isError={repayError}
                             message={
                               <InputInfoWrap>
-                              <Text color="gray" alignSelf="end" size="xsmall">
-                                Current {vaultBase?.symbol!} balance: {vaultBase?.balance_!}
-                              </Text>
+                                <Text color="gray" alignSelf="end" size="xsmall">
+                                  Current {vaultBase?.symbol!} balance: {vaultBase?.balance_!}
+                                </Text>
                               </InputInfoWrap>
                             }
                           >
@@ -567,6 +572,9 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                 )}
 
                 {actionActive.index === 3 && <YieldHistory seriesOrVault={selectedVault!} view={['VAULT']} />}
+                {actionActive.index === 3 && errors.has('vault') && (
+                  <Text size="small">{errors.get('vault').message}</Text>
+                )}
 
                 {actionActive.index === 4 && (
                   <>

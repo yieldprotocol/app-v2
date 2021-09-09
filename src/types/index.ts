@@ -8,9 +8,13 @@ export interface IHistoryList {
   lastBlock: number;
   items: any[];
 }
+export interface IHistoryError {
+  type: string;
+  message: string;
+}
 export interface IHistoryContextState {
   historyLoading: boolean;
-  error: string | null;
+  errors: Map<string, IHistoryError>;
   tradeHistory: IHistoryList;
   poolHistory: IHistoryList;
   vaultHistory: IHistoryList;
