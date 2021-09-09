@@ -251,7 +251,19 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
                   align="center"
                 >
                   <Box pad="small" width="small" direction="row" align="center" gap="small">
-                    <Avatar background="#FFF"> {series.seriesMark}</Avatar>
+                    <Avatar
+                      background={ series.id === selectedSeriesId ? '#fff' : '#fff' }
+                      border={series.id === selectedSeriesId ? undefined : { color: series.endColor.toString().concat('25')} }
+                      style={{
+                        boxShadow: 
+                          series.id === selectedSeriesId 
+                          ? `inset 1px 1px 2px ${ series.endColor.toString().concat('69') }`
+                          // : `-1px -1px 1px ${ series.endColor.toString().concat('30') }, 1px 1px 1px ${ series.endColor.toString().concat('30') }`
+                          : undefined
+                       }}
+                    >
+                      {series.seriesMark}
+                    </Avatar>
 
                     <Box>
                       <Text size="medium" color={series.id === selectedSeriesId ? series.textColor : undefined}>
