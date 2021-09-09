@@ -22,7 +22,7 @@ import { UserContext } from './contexts/UserContext';
 function App() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
-    chainState: { chainData, chainError },
+    chainState: { chainData, error: chainError },
   } = useContext(ChainContext);
   const {
     userState: { error: userError },
