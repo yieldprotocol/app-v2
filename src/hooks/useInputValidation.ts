@@ -36,7 +36,6 @@ export const useInputValidation = (
       } else setInputError(null);
 
       // Action specific rules: - or message customising/Overriding:
-
       switch (actionCode) {
         case ActionCodes.BORROW:
           input &&
