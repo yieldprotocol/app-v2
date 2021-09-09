@@ -1,6 +1,7 @@
 import { ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
+import { HistoryContext } from '../../contexts/HistoryContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions } from '../../types';
 import { getTxCode } from '../../utils/appUtils';
@@ -12,6 +13,9 @@ export const useClosePosition = () => {
   const { userState, userActions } = useContext(UserContext);
   const { activeAccount: account, assetMap } = userState;
   const { updateSeries, updateAssets } = userActions;
+
+  const { historyActions: { updateTradeHistory } } = useContext(HistoryContext);
+
 
   const { sign, transact } = useChain();
 
@@ -80,6 +84,7 @@ export const useClosePosition = () => {
     await transact(calls, txCode);
     updateSeries([series]);
     updateAssets([base]);
+    updateTradeHistory([series]);
   };
 
   return closePosition;

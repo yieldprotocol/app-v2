@@ -1,6 +1,7 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
+import { HistoryContext } from '../../contexts/HistoryContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, IVault, ISeries, ActionCodes, LadleActions } from '../../types';
 import { getTxCode } from '../../utils/appUtils';
@@ -13,6 +14,9 @@ export const useRollDebt = () => {
   const { userState, userActions } = useContext(UserContext);
   const { seriesMap, assetMap } = userState;
   const { updateVaults, updateAssets } = userActions;
+
+  const { historyActions: { updateVaultHistory } } = useContext(HistoryContext);
+
 
   const { transact } = useChain();
 
@@ -30,8 +34,10 @@ export const useRollDebt = () => {
       },
     ];
     await transact(calls, txCode);
-    updateVaults([]);
+    updateVaults([vault]);
     updateAssets([base]);
+    updateVaultHistory([vault]);
+
   };
 
   return rollDebt;

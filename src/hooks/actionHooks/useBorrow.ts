@@ -1,6 +1,7 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
+import { HistoryContext } from '../../contexts/HistoryContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, IVault, ActionCodes, LadleActions, ISeries } from '../../types';
 import { getTxCode } from '../../utils/appUtils';
@@ -18,6 +19,9 @@ export const useBorrow = () => {
   const { userState, userActions } = useContext(UserContext);
   const { selectedIlkId, selectedSeriesId, seriesMap, assetMap, slippageTolerance } = userState;
   const { updateVaults, updateAssets } = userActions;
+
+  const { historyActions: { updateVaultHistory } } = useContext(HistoryContext);
+
 
   const { addEth } = useAddCollateral();
   const { sign, transact } = useChain();
@@ -90,6 +94,7 @@ export const useBorrow = () => {
     */
     updateVaults([]);
     updateAssets([base, ilk]);
+    updateVaultHistory([])
   };
 
   return borrow;

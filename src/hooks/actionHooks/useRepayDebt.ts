@@ -9,6 +9,7 @@ import { useChain } from '../useChain';
 
 import { calculateSlippage, secondsToFrom, sellBase } from '../../utils/yieldMath';
 import { useRemoveCollateral } from './useRemoveCollateral';
+import { HistoryContext } from '../../contexts/HistoryContext';
 
 /* Generic hook for chain transactions */
 export const useRepayDebt = () => {
@@ -18,6 +19,8 @@ export const useRepayDebt = () => {
   const { userState, userActions } = useContext(UserContext);
   const { seriesMap, assetMap } = userState;
   const { updateVaults, updateAssets } = userActions;
+
+  const { historyActions: { updateVaultHistory } } = useContext(HistoryContext);
 
   const { removeEth } = useRemoveCollateral();
 
@@ -102,8 +105,9 @@ export const useRepayDebt = () => {
       ...removeEth(_collateralToRemove, series), // after the complete tranasction, this will remove all the collateral (if requested). 
     ];
     await transact(calls, txCode);
-    updateVaults([]);
+    updateVaults([vault]);
     updateAssets([base]);
+    updateVaultHistory([vault]);
   };
 
   return repay;

@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
+import { HistoryContext } from '../../contexts/HistoryContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions } from '../../types';
 import { getTxCode } from '../../utils/appUtils';
@@ -11,6 +12,9 @@ export const useRollPosition = () => {
   const { userState, userActions } = useContext(UserContext);
   const { activeAccount: account, assetMap, slippageTolerance } = userState;
   const { updateSeries, updateAssets } = userActions;
+
+  const { historyActions: { updateVaultHistory } } = useContext(HistoryContext);
+
 
   const { sign, transact } = useChain();
 
@@ -94,6 +98,7 @@ export const useRollPosition = () => {
 
     updateSeries([fromSeries, toSeries]);
     updateAssets([base]);
+    updateVaultHistory([fromSeries, toSeries]);
   };
 
   return rollPosition;
