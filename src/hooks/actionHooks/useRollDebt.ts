@@ -36,8 +36,6 @@ export const useRollDebt = () => {
     await transact(calls, txCode);
     updateVaults([vault]);
     updateAssets([base]);
-    updateVaultHistory([vault]);
-
   };
 
   return rollDebt;

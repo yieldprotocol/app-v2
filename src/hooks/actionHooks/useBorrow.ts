@@ -94,7 +94,6 @@ export const useBorrow = () => {
     */
     updateVaults([]);
     updateAssets([base, ilk]);
-    updateVaultHistory([])
   };
 
   return borrow;

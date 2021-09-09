@@ -107,7 +107,6 @@ export const useRepayDebt = () => {
     await transact(calls, txCode);
     updateVaults([vault]);
     updateAssets([base]);
-    updateVaultHistory([vault]);
   };
 
   return repay;

@@ -97,7 +97,6 @@ export const useAddCollateral = () => {
     await transact(calls, txCode);
     updateVaults([vault]);
     updateAssets([base, ilk]);
-    updateVaultHistory([vault]);
   };
 
   return { addEth, addCollateral };

@@ -68,7 +68,6 @@ export const useRemoveCollateral = () => {
     await transact(calls, txCode);
     updateVaults([vault]);
     updateAssets([ilk]);
-    updateVaultHistory([vault]);
   };
 
   return {
