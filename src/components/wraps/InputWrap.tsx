@@ -22,26 +22,27 @@ function InputWrap({ action, disabled, isError, showErrorText, message, children
 
   return (
     <Box>
+
       <InsetBox
         {...props}
         direction="row"
         round="xsmall"
         align="center"
         background={isError ? '#ff00004D' : undefined}
-        pad={{ horizontal: 'small', vertical: '1px' }}
+        // pad={{ horizontal: 'small', vertical: '1px' }}
       >
         {children}
       </InsetBox>
 
-      <Box pad={{ vertical: "xsmall" }}>
+      <Box>
         {!mobile && (
           <Text style={{ position: 'absolute' }} size="xsmall">
             {showErrorText && isError}
             {message}
           </Text>
         )}
-
       </Box>
+
     </Box>
   );
 }

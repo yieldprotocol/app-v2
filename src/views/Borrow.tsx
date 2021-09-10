@@ -274,8 +274,8 @@ const Borrow = () => {
                   </SectionWrap>
 
                   <SectionWrap title="Amount of collateral to add">
-                    <Box direction="row-responsive" gap="small">
-                      <Box basis={mobile ? undefined : '60%'} fill="horizontal">
+                    <Box direction="row-responsive" gap='small'>
+                      <Box basis={mobile ? undefined : '60%'} fill="horizontal" >
                         <InputWrap
                           action={() => console.log('maxAction')}
                           disabled={!selectedSeries}
