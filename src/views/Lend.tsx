@@ -37,6 +37,7 @@ import { useLend } from '../hooks/actionHooks/useLend';
 import { useRedeemPosition } from '../hooks/actionHooks/useRedeemPosition';
 
 import TransactionWidget from '../components/TransactionWidget';
+import ColorText from '../components/texts/ColorText';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -110,9 +111,9 @@ const Lend = () => {
             <Box gap="medium">
               <YieldCardHeader logo={mobile} series={selectedSeries}>
                 <Box gap={mobile ? undefined : 'xsmall'}>
-                  <AltText size={mobile ? 'small' : 'large'}>LEND</AltText>
+                <ColorText size={mobile ? 'medium' : '2rem'}>LEND</ColorText>
                   <AltText color="text-weak" size="xsmall">
-                    popular ERC20 tokens for fixed returns.
+                    Lend popular ERC20 tokens for <ColorText size="small"> fixed returns</ColorText>
                   </AltText>
                 </Box>
               </YieldCardHeader>

@@ -42,6 +42,8 @@ import { useCollateralHelpers } from '../hooks/actionHelperHooks/useCollateralHe
 import TransactionWidget from '../components/TransactionWidget';
 import { useBorrowHelpers } from '../hooks/actionHelperHooks/useBorrowHelpers';
 import InputInfoWrap from '../components/wraps/InputInfoWrap';
+import NavText from '../components/texts/NavText';
+import ColorText from '../components/texts/ColorText';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -186,9 +188,9 @@ const Borrow = () => {
               <Box gap="medium">
                 <YieldCardHeader logo={mobile} series={selectedSeries}>
                   <Box gap={mobile ? undefined : 'xsmall'}>
-                    <AltText size={mobile ? 'small' : 'large'}>BORROW</AltText>
+                    <ColorText size={mobile ? 'medium' : '2rem'}>BORROW</ColorText>
                     <AltText color="text-weak" size="xsmall">
-                      popular ERC20 tokens at a fixed rate.
+                      Borrow popular ERC20 tokens at a <ColorText size="small"> fixed rate </ColorText>
                     </AltText>
                   </Box>
                 </YieldCardHeader>
