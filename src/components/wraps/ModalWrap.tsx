@@ -88,8 +88,8 @@ function ModalWrap({ children, series }: IModalWrap) {
 
               <Box  align='end'>
                 <StyledBox direction='row' align='center' onClick={() => history.goBack()}>
-                  <Text size='small' color={_series?.oppStartColor} > Close </Text>
-                  <Button icon={<FiLogOut color={_series?.oppStartColor} />} />     
+                  <Text size='small' color={_series?.oppStartColor || 'black'} > Close </Text>
+                  <Button icon={<FiLogOut color={_series?.oppStartColor || 'black'} />} />     
                 </StyledBox>        
               </Box>
 
