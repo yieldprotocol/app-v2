@@ -245,7 +245,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                   </>
                 )}
 
-                {actionActive.index === 1 && <YieldHistory seriesOrVault={selectedSeries!} view={['POOL']} />}
+                {actionActive.index === 1 && <YieldHistory seriesOrVault={selectedStrategy!} view={['POOL']} />}
 
                 {actionActive.index === 2 && (
                   <>

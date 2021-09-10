@@ -5,6 +5,7 @@ import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions, IStrategy
 import { getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import { ChainContext } from '../../contexts/ChainContext';
+import { HistoryContext } from '../../contexts/HistoryContext';
 
 export const usePool = (input: string | undefined) => {
   const poolMax = input;
@@ -22,6 +23,8 @@ export const useRemoveLiquidity = () => {
   const { activeAccount: account, assetMap, selectedStrategyAddr } = userState;
   const { updateSeries, updateAssets, updateStrategies } = userActions;
   const { sign, transact } = useChain();
+
+  const { historyActions: { updateStrategyHistory } } = useContext(HistoryContext);
 
   const removeLiquidity = async (input: string, series: ISeries) => {
     /* generate the reproducible txCode for tx tracking and tracing */
@@ -227,6 +230,7 @@ export const useRemoveLiquidity = () => {
     updateSeries([series]);
     updateAssets([base]);
     updateStrategies([_strategy]);
+    updateStrategyHistory([_strategy]);
   };
 
   return removeLiquidity;

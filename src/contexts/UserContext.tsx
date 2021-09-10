@@ -383,20 +383,20 @@ const UserProvider = ({ children }: any) => {
           const _map = acc;
           _map.set(item.id, item);
           return _map;
-        }, new Map([]))
+        }, userState.seriesMap)
       );
 
-      const combinedSeriesMap = new Map([...userState.seriesMap, ...newSeriesMap ])
+      // const combinedSeriesMap = new Map([...userState.seriesMap, ...newSeriesMap ])
 
-      updateState({ type: 'seriesMap', payload: combinedSeriesMap });
-      console.log('SERIES updated (with dynamic data): ', combinedSeriesMap);
+      updateState({ type: 'seriesMap', payload: newSeriesMap});
+      console.log('SERIES updated (with dynamic data): ', newSeriesMap);
       updateState({ type: 'seriesLoading', payload: false });
       
-      return combinedSeriesMap;
-    },
-    [account]
-  ); 
+      return newSeriesMap;
 
+    },
+    [ account ]
+  ); 
 
   /* Updates the vaults with *user* data */
   const updateVaults = useCallback(
@@ -558,10 +558,10 @@ const UserProvider = ({ children }: any) => {
           const _map = acc;
           _map.set(item.address, item);
           return _map;
-        }, new Map())
+        }, userState.strategyMap)
       );
 
-      const combinedMap = new Map([...userState.strategyMap, ...newStrategyMap ]);
+      const combinedMap = newStrategyMap;
 
       updateState({ type: 'strategyMap', payload: combinedMap });
       updateState({ type: 'strategiesLoading', payload: false });
@@ -570,7 +570,7 @@ const UserProvider = ({ children }: any) => {
 
       return combinedMap;
     },
-    [account, seriesRootMap]
+    [account, seriesRootMap ]
   );
 
   useEffect(() => {
