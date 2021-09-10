@@ -25,7 +25,7 @@ const YieldCardHeader = ({ logo, series, children }: IYieldHeaderProps) => {
         <Box direction="row" gap="large" align="center">
           {logo && (
             <Avatar size="2.5rem">
-              <YieldMark startColor={series?.startColor} endColor={series?.endColor} height="2rem" />
+              <YieldMark colors={[series?.startColor!, series?.endColor!] } height="2rem" />
             </Avatar>
           )}
           {children}

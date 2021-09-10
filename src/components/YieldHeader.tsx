@@ -30,7 +30,7 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
             <Box direction="row" gap={mobile ? '0.25em' : 'large'} align="center">
               <Avatar>
                 <NavLink to={`/${prevLoc}`}>
-                  <YieldMark height={mobile ? '1.0em' : '2em'} />
+                  <YieldMark height={mobile ? '1.0em' : '2em'} colors={['#f79533', '#f37055', '#ef4e7b', '#a166ab', '#5073b8', '#1098ad', '#07b39b', '#6fba82'] } />
                 </NavLink>
               </Avatar>
               {!mobile && <YieldNavigation />}

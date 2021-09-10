@@ -163,7 +163,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                     <InfoBite
                       label="Strategy Token Balance"
                       value={cleanValue(selectedStrategy?.accountBalance_, selectedBase?.digitFormat!)}
-                      icon={<YieldMark height="1em" startColor={selectedSeries?.startColor} />}
+                      icon={<YieldMark height="1em" colors={[selectedSeries?.startColor!]} />}
                       loading={seriesLoading}
                     />
 

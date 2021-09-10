@@ -65,8 +65,7 @@ function ModalWrap({ children, series }: IModalWrap) {
                   <NavLink to={`/${prevLoc}`}>
                     <YieldMark
                       height={mobile ? '1em' : '2em'}
-                      startColor={_series?.oppStartColor}
-                      endColor={_series?.oppEndColor}
+                      colors ={[ _series?.oppStartColor,_series?.oppEndColor]}
                     />
                   </NavLink>
                   <Box />

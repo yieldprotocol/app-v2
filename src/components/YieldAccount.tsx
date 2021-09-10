@@ -76,7 +76,7 @@ const YieldAccount = (props: any) => {
               <Box direction="row" align="center" gap="small">
                 <Box>
                   <Text color="text" size="small">
-                    {abbreviateHash(account)}
+                    {abbreviateHash(account, 5)}
                   </Text>
 
                   <Box direction="row" align="center" gap="small">
