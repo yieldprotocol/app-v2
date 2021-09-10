@@ -9,7 +9,7 @@ function InputInfoWrap({ action, index, children }: { children: any; index?: num
     <>
       {action ? (
         <BoxWrap
-          pad="small"
+          pad={{ vertical: 'small' }}
           direction="row"
           gap="small"
           align="center"
@@ -19,13 +19,7 @@ function InputInfoWrap({ action, index, children }: { children: any; index?: num
           {children}
         </BoxWrap>
       ) : (
-        <Box
-          pad="small"
-          direction="row"
-          gap="small"
-          align="center"
-          animation="zoomIn"
-        >
+        <Box pad={{ vertical: 'small' }} direction="row" gap="small" align="center" animation="zoomIn">
           <FiInfo size="1.25rem" color="orange" />
           {children}
         </Box>

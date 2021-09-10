@@ -207,7 +207,7 @@ const Borrow = () => {
                           message={
                             borrowInput && (
                               <InputInfoWrap>
-                                <Text size="small">
+                                <Text size="small" color='text-weak'>
                                   <Text size="small">
                                     {cleanValue(minCollateral, 4)} {selectedIlk?.symbol}
                                   </Text>{' '}
@@ -284,7 +284,7 @@ const Borrow = () => {
                             borrowInput &&
                             minSafeCollateral && (
                               <InputInfoWrap action={() => setCollatInput(cleanValue(minSafeCollateral, 12))}>
-                                <Text size="small">
+                                <Text size="small" color='text-weak'>
                                   Safe Minimum{': '}
                                   {cleanValue(minSafeCollateral, 4)} {selectedIlk?.symbol}
                                 </Text>
