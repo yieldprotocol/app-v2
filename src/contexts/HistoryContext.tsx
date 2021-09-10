@@ -100,11 +100,9 @@ const HistoryProvider = ({ children }: any) => {
       const poolLogs = await Promise.all(
         eventList.map(async (log: any) => {
           const { blockNumber, transactionHash } = log;
-          const { from ,to, maturity, bases, fyTokens, poolTokens } = poolContract.interface.parseLog(log).args;
+          const { maturity, bases, fyTokens, poolTokens } = poolContract.interface.parseLog(log).args;
           const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
           const type_ = poolTokens.gt(ZERO_BN) ? ActionCodes.ADD_LIQUIDITY : ActionCodes.REMOVE_LIQUIDITY;
-          
-          console.log( 'from:', from, 'to;', to )
           
           return {
             initiator: account,
