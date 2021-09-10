@@ -88,7 +88,7 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
   useEffect(() => {
     const opts = Array.from(strategyMap.values()) as IStrategy[];
 
-    const filteredOpts = opts.filter((_st: IStrategy) => _st.baseId === selectedBaseId);
+    const filteredOpts = opts.filter((_st: IStrategy) => _st.baseId === selectedBaseId && _st.currentSeries );
     // .filter((_st: IStrategy) => _st.currentSeries);
     setOptions(filteredOpts);
   }, [selectedBaseId, strategyMap]);
