@@ -5,6 +5,7 @@ import { UserContext } from '../contexts/UserContext';
 import { IAsset } from '../types';
 import AddTokenToMetamask from './AddTokenToMetamask';
 import YieldBalances from './YieldBalances';
+import BoxWrap from './wraps/BoxWrap';
 
 const StyledTableCell = styled(TableCell)`
   padding: 0.3rem 0.5rem;
@@ -76,17 +77,19 @@ const SettingsBalances = () => {
 
   return (
     <Box pad="medium">
+      <BoxWrap>
       <DropButton
         open={open}
         onOpen={onOpen}
         onClose={onClose}
         dropContent={<DropContent assetMap={assetMap} />}
         dropProps={{ align: { top: 'bottom', right: 'right' } }}
-        hoverIndicator={{ color: 'tailwind-blue-50' }}
+        // hoverIndicator={{ border: 'tailwind-blue-50' }}
         style={{ borderRadius: '6px' }}
       >
         <YieldBalances />
       </DropButton>
+      </BoxWrap>
     </Box>
   );
 };
