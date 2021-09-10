@@ -1,6 +1,7 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
+import { HistoryContext } from '../../contexts/HistoryContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, IVault, ISeries, ActionCodes, LadleActions } from '../../types';
 import { getTxCode } from '../../utils/appUtils';
@@ -14,6 +15,8 @@ export const useRemoveCollateral = () => {
   const { userState, userActions } = useContext(UserContext);
   const { selectedIlkId, seriesMap, assetMap } = userState;
   const { updateAssets, updateVaults } = userActions;
+
+  const { historyActions: { updateVaultHistory } } = useContext(HistoryContext);
 
   const { sign, transact } = useChain();
 
@@ -63,7 +66,7 @@ export const useRemoveCollateral = () => {
     ];
 
     await transact(calls, txCode);
-    updateVaults([]);
+    updateVaults([vault]);
     updateAssets([ilk]);
   };
 

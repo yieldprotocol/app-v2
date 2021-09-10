@@ -383,16 +383,20 @@ const UserProvider = ({ children }: any) => {
           const _map = acc;
           _map.set(item.id, item);
           return _map;
-        }, userState.seriesMap)
+        }, new Map([]))
       );
 
-      updateState({ type: 'seriesMap', payload: newSeriesMap });
-      console.log('SERIES updated (with dynamic data): ', newSeriesMap);
+      const combinedSeriesMap = new Map([...userState.seriesMap, ...newSeriesMap ])
+
+      updateState({ type: 'seriesMap', payload: combinedSeriesMap });
+      console.log('SERIES updated (with dynamic data): ', combinedSeriesMap);
       updateState({ type: 'seriesLoading', payload: false });
-      return newSeriesMap;
+      
+      return combinedSeriesMap;
     },
     [account]
-  ); // TODO oops > sort out this dependency error. (is cyclic)
+  ); 
+
 
   /* Updates the vaults with *user* data */
   const updateVaults = useCallback(
@@ -444,17 +448,21 @@ const UserProvider = ({ children }: any) => {
             _map.set(item.id, item);
             return _map;
           },
-          force ? new Map() : userState.vaultMap
+          new Map()
         )
       );
 
-      updateState({ type: 'vaultMap', payload: newVaultMap });
-      vaultFromUrl && updateState({ type: 'selectedVaultId', payload: vaultFromUrl });
+      const combinedVaultMap = new Map([...userState.vaultMap, ...newVaultMap]);
 
-      console.log('VAULTS: ', newVaultMap);
+      /* update state */ 
+      updateState({ type: 'vaultMap', payload: combinedVaultMap });
+      vaultFromUrl && updateState({ type: 'selectedVaultId', payload: vaultFromUrl });
       updateState({ type: 'vaultsLoading', payload: false });
+
+      console.log('VAULTS: ', combinedVaultMap);
+      
     },
-    [contractMap, vaultFromUrl, _getVaults]
+    [contractMap, _getVaults, userState.vaultMap, vaultFromUrl, updatePrice, assetRootMap, account]
   );
 
   /* Updates the assets with relevant *user* data */
@@ -550,13 +558,17 @@ const UserProvider = ({ children }: any) => {
           const _map = acc;
           _map.set(item.address, item);
           return _map;
-        }, userState.strategyMap)
+        }, new Map())
       );
 
-      updateState({ type: 'strategyMap', payload: newStrategyMap });
-      console.log('STRATEGIES updated (with dynamic data): ', newStrategyMap);
+      const combinedMap = new Map([...userState.strategyMap, ...newStrategyMap ]);
+
+      updateState({ type: 'strategyMap', payload: combinedMap });
       updateState({ type: 'strategiesLoading', payload: false });
-      return newStrategyMap;
+
+      console.log('STRATEGIES updated (with dynamic data): ', combinedMap);
+
+      return combinedMap;
     },
     [account, seriesRootMap]
   );
@@ -590,17 +602,6 @@ const UserProvider = ({ children }: any) => {
     updateState({ type: 'activeAccount', payload: account });
   }, [account, chainLoading]); // updateVaults ignored here on purpose
 
-  /* TODO SUBSCRIBE TO EVENTS */
-  // useEffect(() => {
-  //   !chainLoading &&
-  //     seriesRootMap &&
-  //     (async () => {
-  //       const Oracle = contractMap.get('CompositeMultiOracle');
-  //       // const filter = Oracle.filters.SourceSet(null, null, null);
-  //       // const eventList = await Oracle.queryFilter(filter, 1);
-  //       // console.log('Oracle events: ', eventList);
-  //     })();
-  // }, [chainLoading, contractMap, seriesRootMap]);
 
   /* Exposed userActions */
   const userActions = {
