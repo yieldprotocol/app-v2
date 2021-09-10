@@ -141,7 +141,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
                       <Text size="small"> {abbreviateHash(selectedSeries?.fyTokenAddress!, 5)}</Text>
                     </Box>
                   </Box>
-                  <ExitButton action={() => history.goBack()} />
+                  {/* <ExitButton action={() => history.goBack()} /> */}
                 </Box>
 
                 <SectionWrap>

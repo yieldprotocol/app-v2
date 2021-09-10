@@ -1,9 +1,9 @@
 import React, { useContext } from 'react';
 import { NavLink, useHistory } from 'react-router-dom';
 import styled from 'styled-components';
-import { Avatar, Box, Button, Grid, Header, Layer, ResponsiveContext } from 'grommet';
+import { Avatar, Box, Button, Grid, Header, Layer, ResponsiveContext, Text } from 'grommet';
 
-import { FiX } from 'react-icons/fi';
+import { FiLogOut , FiX} from 'react-icons/fi';
 import MainViewWrap from './MainViewWrap';
 import PanelWrap from './PanelWrap';
 
@@ -11,11 +11,24 @@ import { UserContext } from '../../contexts/UserContext';
 import YieldMark from '../logos/YieldMark';
 import { useCachedState } from '../../hooks/generalHooks';
 import { ISeries } from '../../types';
+import ColorText from '../texts/ColorText';
+import ExitButton from '../buttons/ExitButton';
 
 interface IModalWrap {
   children: any;
   series?: ISeries | undefined;
 }
+
+
+const StyledBox = styled(Box)`
+-webkit-transition: transform 0.3s ease-in-out;
+-moz-transition: transform 0.3s ease-in-out;
+transition: transform 0.3s ease-in-out;
+background 0.3s ease-in-out;
+:hover {
+  transform: scale(1.1);
+}
+`;
 
 const StyledLayer = styled(Layer)``;
 
@@ -31,7 +44,12 @@ function ModalWrap({ children, series }: IModalWrap) {
   const _series = series || seriesMap.get(selectedSeriesId);
 
   return (
-    <StyledLayer onClickOutside={() => history.goBack()} full background={_series?.color} animation="none">
+    <StyledLayer 
+      onClickOutside={() => history.goBack()} 
+      full 
+      background={`linear-gradient( ${_series.startColor.toString().concat('99')} , ${_series.endColor.toString().concat('99')} )`} 
+      animation="none"
+    >
       {!mobile && (
         <>
           <Header
@@ -56,9 +74,6 @@ function ModalWrap({ children, series }: IModalWrap) {
               </Box>
               <Box />
 
-              <Box align="end">
-                <Button icon={<FiX onClick={() => history.goBack()} color={_series?.oppStartColor} />} />
-              </Box>
             </Grid>
           </Header>
 
@@ -67,9 +82,20 @@ function ModalWrap({ children, series }: IModalWrap) {
               <PanelWrap>
                 <Box />
               </PanelWrap>
-              <Box gap="large" width="600px" pad={{ top: 'large' }}>
+
+
+              <Box  width="600px" pad={{ top: 'large' }}>
+
+              <Box  align='end'>
+                <StyledBox direction='row' align='center' onClick={() => history.goBack()}>
+                  <Text size='small' color={_series?.oppStartColor} > Close </Text>
+                  <Button icon={<FiLogOut color={_series?.oppStartColor} />} />     
+                </StyledBox>        
+              </Box>
+
                 {children}
               </Box>
+
               <PanelWrap>
                 <Box />
               </PanelWrap>

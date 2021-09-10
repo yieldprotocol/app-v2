@@ -152,7 +152,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                       <Text size="small"> {abbreviateHash(selectedStrategyAddr!, 5)}</Text>
                     </Box>
                   </Box>
-                  <ExitButton action={() => history.goBack()} />
+                  {/* <ExitButton action={() => history.goBack()} /> */}
                 </Box>
 
                 <SectionWrap>

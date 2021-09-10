@@ -238,7 +238,7 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                       <Text size="small"> {selectedVault?.id} </Text>
                     </Box>
                   </Box>
-                  <ExitButton action={() => history.goBack()} />
+                  {/* <ExitButton action={() => history.goBack()} /> */}
                 </Box>
 
                 {selectedVault?.isActive ? (
