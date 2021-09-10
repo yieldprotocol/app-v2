@@ -8,6 +8,7 @@ import { useChain } from '../useChain';
 
 import { calculateSlippage, fyTokenForMint, splitLiquidity } from '../../utils/yieldMath';
 import { ChainContext } from '../../contexts/ChainContext';
+import { HistoryContext } from '../../contexts/HistoryContext';
 
 /* Hook for chain transactions */
 export const useAddLiquidity = () => {
@@ -18,6 +19,8 @@ export const useAddLiquidity = () => {
   const { activeAccount: account, selectedIlkId, selectedSeriesId, assetMap, selectedStrategyAddr } = userState;
   const { updateSeries, updateAssets, updateStrategies } = userActions;
   const { sign, transact } = useChain();
+
+  const { historyActions: { updateStrategyHistory } } = useContext(HistoryContext);
 
   const addLiquidity = async (input: string, series: ISeries, method: 'BUY' | 'BORROW' | string = 'BUY') => {
     const txCode = getTxCode(ActionCodes.ADD_LIQUIDITY, series.id);
@@ -123,6 +126,7 @@ export const useAddLiquidity = () => {
     updateSeries([series]);
     updateAssets([base]);
     updateStrategies([strategyRootMap.get(_strategy)]);
+    updateStrategyHistory([strategyRootMap.get(_strategy)]);
   };
 
   return addLiquidity;

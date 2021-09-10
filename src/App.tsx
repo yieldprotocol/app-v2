@@ -29,6 +29,7 @@ function App() {
 
   return (
     <Box fill>
+
       {chainData && !chainData.supported && <NetworkError />}
 
       <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />

@@ -20,9 +20,6 @@ export const useBorrow = () => {
   const { selectedIlkId, selectedSeriesId, seriesMap, assetMap, slippageTolerance } = userState;
   const { updateVaults, updateAssets } = userActions;
 
-  const { historyActions: { updateVaultHistory } } = useContext(HistoryContext);
-
-
   const { addEth } = useAddCollateral();
   const { sign, transact } = useChain();
 

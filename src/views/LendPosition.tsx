@@ -181,7 +181,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
                         { text: `Redeem ${selectedBase?.symbol}`, index: 0 },
                         { text: 'Roll Position', index: 1 },
                         { text: 'View Transaction History', index: 2 },
-                        { text: 'Redeem', index: 3 },
+                        // { text: 'Redeem', index: 3 },
                       ]}
                       labelKey="text"
                       valueKey="index"
