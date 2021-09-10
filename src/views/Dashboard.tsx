@@ -251,7 +251,7 @@ const Dashboard = () => {
             </Box>
             <Box gap="medium">
               <Text size="medium">Pool Positions</Text>
-              {seriesLoading ? (
+              {strategiesLoading ? (
                 <Skeleton width={mobile ? 300 : 500} count={1} height={40} />
               ) : (
                 <DashboardPositionList
