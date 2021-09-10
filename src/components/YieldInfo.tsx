@@ -15,6 +15,7 @@ import { FaDiscord as Discord } from 'react-icons/fa';
 import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
 import { UserContext } from '../contexts/UserContext';
+import BoxWrap from './wraps/BoxWrap';
 
 const IconSize = '1.15rem';
 const IconGap = 'small';
@@ -59,6 +60,7 @@ const YieldInfo = () => {
       </Box>
 
       <Box direction="row" gap={IconGap}>
+        <BoxWrap>
         <Anchor
           color="grey"
           href="https://github.com/yieldprotocol"
@@ -67,9 +69,15 @@ const YieldInfo = () => {
         >
           <Github size={IconSize} />
         </Anchor>
+        </BoxWrap>
+
+        <BoxWrap>
         <Anchor color="grey" href="http://docs.yield.is" target="_blank" onClick={() => handleExternal('Docs')}>
           <Docs size={IconSize} />
         </Anchor>
+        </BoxWrap>
+        
+        <BoxWrap>
         <Anchor
           color="grey"
           href="https://discord.gg/JAFfDj5"
@@ -78,6 +86,7 @@ const YieldInfo = () => {
         >
           <Discord size={IconSize} />
         </Anchor>
+        </BoxWrap>
       </Box>
 
       {account ? (
