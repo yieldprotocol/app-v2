@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { Box, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import { ethers } from 'ethers';
 import { useHistory, useParams } from 'react-router-dom';
-import { FiArrowRight, FiClock, FiPercent, FiTrendingUp } from 'react-icons/fi';
+import { FiArrowRight, FiClock, FiPercent, FiSlash, FiTrendingUp } from 'react-icons/fi';
 
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import InputWrap from '../components/wraps/InputWrap';
@@ -165,21 +165,37 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                       icon={<YieldMark height="1em" startColor={selectedSeries?.startColor} />}
                       loading={seriesLoading}
                     />
-                    <InfoBite
-                      label="Strategy Token percentage"
-                      value={`${cleanValue(selectedStrategy?.accountStrategyPercent, 4)} %  of ${nFormatter(
-                        parseFloat(selectedStrategy?.strategyTotalSupply_!),
-                        2
-                      )}`}
-                      icon={<FiPercent />}
-                      loading={seriesLoading}
-                    />
-                    <InfoBite
-                      label="Returns in current Pool"
-                      value={`${cleanValue(selectedStrategy?.accountStrategyPercent, 4)}% `}
-                      icon={<FiTrendingUp />}
-                      loading={seriesLoading}
-                    />
+
+                    {!selectedStrategy.currentSeries && (
+                      <InfoBite
+                        label="Strategy is currently inactive"
+                        value="Only token removal allowed"
+                        icon={<FiSlash />}
+                        loading={seriesLoading}
+                      />
+                    )}
+
+                    {selectedStrategy.currentSeries && (
+                      <InfoBite
+                        label="Strategy Token percentage"
+                        value={`${cleanValue(selectedStrategy?.accountStrategyPercent, 4)} %  of ${nFormatter(
+                          parseFloat(selectedStrategy?.strategyTotalSupply_!),
+                          2
+                        )}`}
+                        icon={<FiPercent />}
+                        loading={seriesLoading}
+                      />
+                    )}
+
+                    {selectedStrategy.currentSeries && (
+                      <InfoBite
+                        label="Returns in current Pool"
+                        value={`${cleanValue(selectedStrategy?.accountStrategyPercent, 4)}% `}
+                        icon={<FiTrendingUp />}
+                        loading={seriesLoading}
+                      />
+                    )}
+
                     {/* <InfoBite label="Maturity date:" value={`${selectedSeries?.fullDate}`} icon={<FiClock />} /> */}
                   </Box>
                 </SectionWrap>
