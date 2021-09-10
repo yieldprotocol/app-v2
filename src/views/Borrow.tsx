@@ -185,7 +185,8 @@ const Borrow = () => {
         <CenterPanelWrap series={selectedSeries || undefined}>
           <Box height="100%" pad={mobile ? 'medium' : 'large'}>
             {stepPosition === 0 && ( // INITIAL STEP
-              <Box gap="medium">
+              <Box gap="large">
+
                 <YieldCardHeader logo={mobile} series={selectedSeries}>
                   <Box gap={mobile ? undefined : 'xsmall'}>
                     <ColorText size={mobile ? 'medium' : '2rem'}>BORROW</ColorText>

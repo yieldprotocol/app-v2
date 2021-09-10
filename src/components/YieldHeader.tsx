@@ -27,7 +27,7 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
           fill="horizontal"
         >
           <Grid columns={['auto', '1fr', 'auto']} fill="horizontal">
-            <Box direction="row" gap={mobile ? '0.25em' : 'medium'} align="center">
+            <Box direction="row" gap={mobile ? '0.25em' : 'large'} align="center">
               <Avatar>
                 <NavLink to={`/${prevLoc}`}>
                   <YieldMark height={mobile ? '1.0em' : '2em'} />

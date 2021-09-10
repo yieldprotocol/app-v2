@@ -108,7 +108,7 @@ const Lend = () => {
       <CenterPanelWrap series={selectedSeries}>
         <Box height="100%" pad={mobile ? 'medium' : 'large'}>
           {stepPosition === 0 && (
-            <Box gap="medium">
+            <Box gap="large">
               <YieldCardHeader logo={mobile} series={selectedSeries}>
                 <Box gap={mobile ? undefined : 'xsmall'}>
                 <ColorText size={mobile ? 'medium' : '2rem'}>LEND</ColorText>
