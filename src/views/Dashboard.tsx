@@ -1,5 +1,6 @@
 import React, { useContext, useState, useCallback, useEffect } from 'react';
 import { Box, CheckBox, DropButton, ResponsiveContext, Text } from 'grommet';
+import styled from 'styled-components';
 import { ethers } from 'ethers';
 import { FiChevronDown, FiTool } from 'react-icons/fi';
 import Skeleton from 'react-loading-skeleton';
@@ -15,6 +16,15 @@ import HideBalancesSetting from '../components/HideBalancesSetting';
 import CurrencyToggle from '../components/CurrencyToggle';
 import { ZERO_BN, DAI, WETH } from '../utils/constants';
 import { cleanValue } from '../utils/appUtils';
+
+const StyledBox = styled(Box)`
+  * {
+    min-height: auto;
+    max-height: fit-content;
+  }
+  height: auto;
+  overflow-y: auto;
+`;
 
 const Dashboard = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -200,7 +210,7 @@ const Dashboard = () => {
           <YieldInfo />
         </PanelWrap>
       )}
-      <Box fill pad="large" margin={{ top: 'xlarge' }} align="center">
+      <StyledBox fill pad="large" margin={{ top: 'xlarge' }} align="center">
         {!account && !chainLoading && <Text>Please connect to your account</Text>}
         {account && (
           <Box width={mobile ? undefined : '500px'} gap="medium">
@@ -243,7 +253,7 @@ const Dashboard = () => {
             </Box>
           </Box>
         )}
-      </Box>
+      </StyledBox>
       <PanelWrap basis="40%"> </PanelWrap>
     </MainViewWrap>
   );

@@ -29,12 +29,11 @@ function App() {
 
   return (
     <Box fill>
-
       {chainData && !chainData.supported && <NetworkError />}
 
       <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
 
-      <Box flex={!mobile} overflow="auto">
+      <Box flex={!mobile} overflow="hidden">
         <ToastContainer position="top-center" />
         {menuLayerOpen && <MenuLayer toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} />}
         <Switch>
