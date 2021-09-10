@@ -17,10 +17,10 @@ const HideBalancesSetting = (props: any) => {
   } = useContext(UserContext);
 
   return (
-    <Box gap="small">
+    <Box gap="xsmall">
       <Box direction="row" gap="xsmall">
         <Text size="small">Hide Balances Below</Text>
-        <Tip content={<Text size="xsmall">in position balance</Text>} dropProps={{ align: { bottom: 'top' } }}>
+        <Tip content={<Text size="xsmall">in position balance</Text>} dropProps={{ align: { left: 'right' } }}>
           <Text size="small">
             <FiInfo />
           </Text>

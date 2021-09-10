@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, Keyboard, ResponsiveContext, Text, TextInput } from 'grommet';
+import { BigNumber } from 'ethers';
 
 import { FiClock, FiPocket, FiPercent, FiTrendingUp, FiInfo } from 'react-icons/fi';
 
@@ -81,7 +82,7 @@ const Borrow = () => {
   ]);
 
   const { inputError: collatInputError } = useInputValidation(collatInput, ActionCodes.ADD_COLLATERAL, selectedSeries, [
-    minCollateral,
+    Number(minCollateral) - Number(vaultToUse?.ink_),
     maxCollateral,
   ]);
 
@@ -267,7 +268,6 @@ const Borrow = () => {
                         </Text>
                       </Box>
                     </Box>
-
                   </SectionWrap>
 
                   <SectionWrap title="Amount of collateral to add">
@@ -278,13 +278,14 @@ const Borrow = () => {
                           disabled={!selectedSeries}
                           isError={collatInputError}
                           message={
-                            borrowInput && (
-
-                              <InputInfoWrap action={ () => setCollatInput(cleanValue(minSafeCollateral, 12))}> 
+                            borrowInput &&
+                            minSafeCollateral && (
+                              <InputInfoWrap action={() => setCollatInput(cleanValue(minSafeCollateral, 12))}>
                                 <Text size="small">
-                                  Safe minimum {': '}{cleanValue(minSafeCollateral, 4)} {selectedIlk?.symbol}
+                                  Safe Minimum{': '}
+                                  {cleanValue(minSafeCollateral, 4)} {selectedIlk?.symbol}
                                 </Text>
-                              </ InputInfoWrap>
+                              </InputInfoWrap>
                             )
                           }
                         >

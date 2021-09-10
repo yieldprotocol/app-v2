@@ -299,7 +299,7 @@ export function sellFYToken(
   const Yxa = fyTokenReserves_.add(fyDai_).pow(a);
   const sum = Za.add(Ya.sub(Yxa));
   const y = baseReserves_.sub(sum.pow(invA));
-
+  
   const yFee = y.sub(precisionFee);
 
   // return yFee.isNaN() ? ethers.constants.Zero : toBn(yFee);
