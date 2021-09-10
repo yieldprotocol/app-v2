@@ -63,11 +63,11 @@ export const useCollateralHelpers = (
 
   /* handle changes to input values */
   useEffect(() => {
-    const existingCollateral_ = vault?.ink || ethers.constants.Zero;
+    const existingCollateral_ = vault ? vault.ink  : ethers.constants.Zero;
     const existingCollateralAsWei = decimalNToDecimal18(existingCollateral_, ilk?.decimals)
 
-    const existingDebt_ = vault?.art || ethers.constants.Zero;
-    const existingDebtAsWei = decimalNToDecimal18(existingDebt_, ilk?.decimals)
+    const existingDebt_ = vault ? vault.art : ethers.constants.Zero;
+    const existingDebtAsWei = decimalNToDecimal18(existingDebt_, base?.decimals)
 
     const dInput = debtInput ? ethers.utils.parseUnits(debtInput, 18) : ethers.constants.Zero;
     const cInput = collInput ? ethers.utils.parseUnits(collInput, 18) : ethers.constants.Zero;
@@ -76,7 +76,7 @@ export const useCollateralHelpers = (
     const totalDebt = existingDebtAsWei.add(dInput);
 
     // console.log(base);
-    const priceAsWei = base && decimalNToDecimal18(oraclePrice, base?.decimals||18)
+    const priceAsWei = base && decimalNToDecimal18(oraclePrice, base?.decimals)
 
     /* set the collateral ratio when collateral is entered */
     if (priceAsWei?.gt(ethers.constants.Zero) && totalCollateral.gt(ethers.constants.Zero)) {
