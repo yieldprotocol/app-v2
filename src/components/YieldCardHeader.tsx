@@ -16,11 +16,7 @@ const YieldCardHeader = ({ logo, series, children }: IYieldHeaderProps) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   return (
-    <Box
-      // margin={mobile ? { bottom: 'large' } : { bottom: 'small' }}
-      background="background"
-      // style={mobile? { position:'fixed', top: '0px' }: {}}
-    >
+    <Box>
       <Box pad={mobile ? { bottom: 'large' } : { bottom: 'small' }} direction="row" align="center" justify="between">
         <Box direction="row" gap="large" align="center">
           {logo && (
