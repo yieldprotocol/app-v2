@@ -151,6 +151,11 @@ const LendPosition = ({ close }: { close: () => void }) => {
                   <Box gap="small">
                     {/* <InfoBite label="Vault debt + interest:" value={`${selectedVault?.art_} ${vaultBase?.symbol}`} icon={<FiTrendingUp />} /> */}
                     <InfoBite
+                      label="Maturity date:"
+                      value={`${selectedSeries?.fullDate}`}
+                      icon={<FiClock color={selectedSeries?.color} />}
+                    />
+                    <InfoBite
                       label="Portfolio value at Maturity"
                       value={`${cleanValue(
                         selectedSeries?.fyTokenBalance_!,
@@ -164,11 +169,6 @@ const LendPosition = ({ close }: { close: () => void }) => {
                       value={`${cleanValue(fyTokenMarketValue, selectedBase?.digitFormat!)} ${selectedBase?.symbol!}`}
                       icon={selectedBase?.image}
                       loading={seriesLoading}
-                    />
-                    <InfoBite
-                      label="Maturity date:"
-                      value={`${selectedSeries?.fullDate}`}
-                      icon={<FiClock color={selectedSeries?.color} />}
                     />
                   </Box>
                 </SectionWrap>

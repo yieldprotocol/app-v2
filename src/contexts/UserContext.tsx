@@ -278,7 +278,7 @@ const UserProvider = ({ children }: any) => {
 
   /* Updates the prices from the oracle with latest data */ // TODO reduce redundant calls
   const updatePrice = useCallback(
-    async (base: string, ilk: string): Promise<ethers.BigNumber> => {
+    async (ilk: string, base: string ): Promise<ethers.BigNumber> => {
       updateState({ type: 'pricesLoading', payload: true });
 
       try {
@@ -298,8 +298,9 @@ const UserProvider = ({ children }: any) => {
         updateState({ type: 'priceMap', payload: _priceMap });
         // TODO console.log('Price Updated: ', ilk, '->', base, ':', price.toString());
         updateState({ type: 'pricesLoading', payload: false });
-
+        
         return price;
+
       } catch (error) {
         console.log(error);
         updateState({ type: 'pricesLoading', payload: false });
@@ -416,7 +417,7 @@ const UserProvider = ({ children }: any) => {
             await Cauldron.balances(vault.id),
             await Cauldron.vaults(vault.id),
             await Cauldron.debt(vault.baseId, vault.ilkId),
-            await updatePrice(vault.baseId, vault.ilkId),
+            await updatePrice(vault.ilkId, vault.baseId),
           ]);
 
           const baseRoot:IAssetRoot = assetRootMap.get(vault.baseId);

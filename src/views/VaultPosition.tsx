@@ -245,16 +245,16 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                 {selectedVault?.isActive ? (
                   <SectionWrap>
                     <Box gap="small">
+                    <InfoBite
+                        label="Maturity date:"
+                        value={`${vaultSeries?.displayName}`}
+                        icon={<FiClock color={vaultSeries?.color} />}
+                      />
                       <InfoBite
                         label="Vault debt + interest:"
                         value={`${cleanValue(selectedVault?.art_, vaultBase?.digitFormat!)} ${vaultBase?.symbol}`}
                         icon={<FiTrendingUp />}
                         loading={vaultsLoading}
-                      />
-                      <InfoBite
-                        label="Maturity date:"
-                        value={`${vaultSeries?.displayName}`}
-                        icon={<FiClock color={vaultSeries?.color} />}
                       />
                       <InfoBite
                         label="Collateral posted:"
