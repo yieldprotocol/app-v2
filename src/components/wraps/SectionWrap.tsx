@@ -9,18 +9,24 @@ interface ISectionWrap {
   disabled?: boolean;
   rightAction?: any;
   children: any;
+  icon?: any;
 }
 
-function SectionWrap({ title, border, disabled, children, rightAction }: ISectionWrap) {
+function SectionWrap({ icon, title, border, disabled, children, rightAction }: ISectionWrap) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   return (
     <Box border={border} justify="center">
       {title && (
         <Box pad={{ vertical: 'xsmall' }} direction="row" fill="horizontal" justify="between" align="center">
-          <AltText size={mobile ? 'xsmall' : 'xsmall'} color={disabled ? 'text-xweak' : 'text-weak'}>
-            {title}
+          <Box direction="row" gap='xsmall' align='center' >
+          {/* <AltText size={mobile ? 'xsmall' : 'small'} color={disabled ? 'text-xweak' : 'text-weak'} >
+            {icon}
+          </AltText> */}
+          <AltText size={mobile ? 'xsmall' : 'xsmall'} color={disabled ? 'text-xweak' : 'text-weak'} >
+           {title}
           </AltText>
+          </Box>
           {rightAction}
         </Box>
       )}
@@ -34,5 +40,6 @@ SectionWrap.defaultProps = {
   border: undefined,
   disabled: false,
   rightAction: undefined,
+  icon:undefined,
 };
 export default SectionWrap;

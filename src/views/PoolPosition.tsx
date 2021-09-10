@@ -29,6 +29,7 @@ import { useInputValidation } from '../hooks/useInputValidation';
 import ModalWrap from '../components/wraps/ModalWrap';
 import { useRemoveLiquidity } from '../hooks/actionHooks/useRemoveLiquidity';
 import { useRollLiquidity } from '../hooks/actionHooks/useRollLiquidity';
+import CopyWrap from '../components/wraps/CopyWrap';
 
 const PoolPosition = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -141,15 +142,15 @@ const PoolPosition = ({ close }: { close: () => void }) => {
       {selectedStrategy && (
         <ModalWrap series={selectedSeries}>
           <CenterPanelWrap>
-            <Box fill pad={mobile ? 'medium' : 'large'} gap="medium">
-              <Box height={{ min: '250px' }} gap="medium">
+            <Box fill pad={mobile ? 'medium' : 'large'} gap="small">
+              <Box height={{ min: '250px' }} gap="2em">
                 <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
                   <Box direction="row" align="center" gap="medium">
                     {/* <PositionAvatar position={selectedStrategy} /> */}
                     <PositionAvatar position={selectedSeries!} actionType={ActionType.POOL} />
                     <Box>
                       <Text size={mobile ? 'medium' : 'large'}> {selectedStrategy?.name} </Text>
-                      <Text size="small"> {abbreviateHash(selectedStrategyAddr!, 5)}</Text>
+                      <CopyWrap><Text size="small"> {abbreviateHash(selectedStrategyAddr!, 6)}</Text></CopyWrap>
                     </Box>
                   </Box>
                   {/* <ExitButton action={() => history.goBack()} /> */}

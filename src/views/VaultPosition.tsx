@@ -47,6 +47,7 @@ import { useAddCollateral } from '../hooks/actionHooks/useAddCollateral';
 import { useRemoveCollateral } from '../hooks/actionHooks/useRemoveCollateral';
 import { useBorrowHelpers } from '../hooks/actionHelperHooks/useBorrowHelpers';
 import InputInfoWrap from '../components/wraps/InputInfoWrap';
+import CopyWrap from '../components/wraps/CopyWrap';
 
 const VaultPosition = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -228,14 +229,14 @@ const VaultPosition = ({ close }: { close: () => void }) => {
       {selectedVault && (
         <ModalWrap>
           <CenterPanelWrap>
-            <Box fill pad={mobile ? 'medium' : 'large'} gap="medium">
-              <Box height={{ min: '250px' }} gap="medium">
+            <Box fill pad={mobile ? 'medium' : 'large'} gap="small">
+              <Box height={{ min: '250px' }} gap="2em">
                 <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
                   <Box direction="row" align="center" gap="medium">
                     <PositionAvatar position={selectedVault!} actionType={ActionType.BORROW} />
                     <Box>
                       <Text size={mobile ? 'medium' : 'large'}> {selectedVault?.displayName} </Text>
-                      <Text size="small"> {selectedVault?.id} </Text>
+                      <CopyWrap><Text size="small"> {abbreviateHash(selectedVault?.id, 6)} </Text></CopyWrap>
                     </Box>
                   </Box>
                   {/* <ExitButton action={() => history.goBack()} /> */}

@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Box, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import { useHistory, useParams } from 'react-router-dom';
-import { FiArrowRight, FiClock, FiTrendingUp } from 'react-icons/fi';
+import { FiArrowRight, FiClock, FiTool, FiTrendingUp } from 'react-icons/fi';
 
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import InputWrap from '../components/wraps/InputWrap';
@@ -28,6 +28,7 @@ import { useLendHelpers } from '../hooks/actionHelperHooks/useLendHelpers';
 import { useClosePosition } from '../hooks/actionHooks/useClosePosition';
 import { useRedeemPosition } from '../hooks/actionHooks/useRedeemPosition';
 import { useRollPosition } from '../hooks/actionHooks/useRollPosition';
+import CopyWrap from '../components/wraps/CopyWrap';
 
 const LendPosition = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -131,14 +132,16 @@ const LendPosition = ({ close }: { close: () => void }) => {
       {selectedSeries && (
         <ModalWrap series={selectedSeries}>
           <CenterPanelWrap>
-            <Box fill gap="medium" pad={mobile ? 'medium' : 'large'}>
-              <Box height={{ min: '250px' }} gap="medium">
+
+            <Box fill gap="small" pad={mobile ? 'medium' : 'large'}>
+
+              <Box height={{ min: '250px' }} gap="2em">
                 <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
                   <Box direction="row" align="center" gap="medium">
                     <PositionAvatar position={selectedSeries!} actionType={ActionType.LEND} />
                     <Box>
                       <Text size={mobile ? 'medium' : 'large'}> {selectedSeries?.displayName} </Text>
-                      <Text size="small"> {abbreviateHash(selectedSeries?.fyTokenAddress!, 5)}</Text>
+                      <CopyWrap><Text size="small"> {abbreviateHash(selectedSeries?.fyTokenAddress!, 6)}</Text></CopyWrap>
                     </Box>
                   </Box>
                   {/* <ExitButton action={() => history.goBack()} /> */}
@@ -172,7 +175,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
               </Box>
 
               <Box height={{ min: '300px' }}>
-                <SectionWrap title="Position Actions">
+                <SectionWrap title="Position Actions" icon={<FiTool />}>
                   <Box elevation="xsmall" round="xsmall">
                     <Select
                       plain
