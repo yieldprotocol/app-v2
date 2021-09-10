@@ -47,7 +47,7 @@ function ModalWrap({ children, series }: IModalWrap) {
     <StyledLayer 
       onClickOutside={() => history.goBack()} 
       full 
-      background={`linear-gradient( ${_series.startColor.toString().concat('80')} , ${_series.endColor.toString()} )`} 
+      background={ `linear-gradient( ${_series?.startColor.toString().concat('80')} , ${_series?.endColor.toString()} )`} 
       animation="fadeIn"
     >
       {!mobile && (
