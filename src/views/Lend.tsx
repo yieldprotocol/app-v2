@@ -91,14 +91,14 @@ const Lend = () => {
       {!mobile && (
         <PanelWrap>
           <Box margin={{ top: '35%' }}>
-            <StepperText
+            {/* <StepperText
               position={stepPosition}
               values={[
                 // ['Choose amount to', 'LEND', ''],
                 ['Choose an amount and a maturity date', '', ''],
                 ['Review & Transact', '', ''],
               ]}
-            />
+            /> */}
           </Box>
           <YieldInfo />
         </PanelWrap>

@@ -167,14 +167,14 @@ const Borrow = () => {
         {!mobile && (
           <PanelWrap>
             <Box margin={{ top: '35%' }}>
-              <StepperText
+              {/* <StepperText
                 position={stepPosition}
                 values={[
                   ['Choose an amount and a maturity date', '', ''],
                   ['Add Collateral', '', ''],
                   ['Review & Transact', '', ''],
                 ]}
-              />
+              /> */}
             </Box>
             <YieldInfo />
           </PanelWrap>

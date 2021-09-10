@@ -94,14 +94,14 @@ function Pool() {
       {!mobile && (
         <PanelWrap>
           <Box margin={{ top: '35%' }}>
-            <StepperText
+            {/* <StepperText
               position={stepPosition}
               values={[
                 // ['Choose amount to', 'POOL', ''],
                 ['Choose an amount and a strategy to invest in', '', ''],
                 ['Review &', 'Transact', ''],
               ]}
-            />
+            /> */}
           </Box>
           <YieldInfo />
         </PanelWrap>
