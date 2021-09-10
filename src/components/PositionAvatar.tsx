@@ -2,6 +2,7 @@ import { Stack, Avatar, Box, Text } from 'grommet';
 import React, { useContext } from 'react';
 import { FiSlash } from 'react-icons/fi';
 import { MdAutorenew } from 'react-icons/md';
+import Skeleton from 'react-loading-skeleton';
 import { UserContext } from '../contexts/UserContext';
 import { IVault, ISeries, IAsset, IUserContext, IStrategy, ActionType } from '../types';
 
@@ -29,11 +30,15 @@ function PositionAvatar({
   return (
     <>
       <Stack anchor="top-right">
+
+        
         <Avatar background={series?.color || 'lightGrey'} size={condensed ? '1.5rem' : undefined}>
+      
           <Box round="large" background={base?.color || 'grey'} pad={condensed ? 'none' : 'xsmall'} align="center">
-            {base?.image || <FiSlash />}
+            {base?.image || <Skeleton circle width={45} height={45} />}
           </Box>
         </Avatar>
+
         {actionType === ActionType.BORROW && (
           <Avatar background="#fff" size={condensed ? '0.75rem' : 'xsmall'}>
             {ilk?.image}
