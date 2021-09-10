@@ -1,5 +1,6 @@
 import { Stack, Avatar, Box, Text } from 'grommet';
 import React, { useContext } from 'react';
+import { FiSlash } from 'react-icons/fi';
 import { MdAutorenew } from 'react-icons/md';
 import { UserContext } from '../contexts/UserContext';
 import { IVault, ISeries, IAsset, IUserContext, IStrategy, ActionType } from '../types';
@@ -28,9 +29,9 @@ function PositionAvatar({
   return (
     <>
       <Stack anchor="top-right">
-        <Avatar background={series?.color} size={condensed ? '1.5rem' : undefined}>
-          <Box round="large" background={base?.color} pad={condensed ? 'none' : 'xsmall'} align="center">
-            {base?.image}
+        <Avatar background={series?.color || 'lightGrey'} size={condensed ? '1.5rem' : undefined}>
+          <Box round="large" background={base?.color || 'grey'} pad={condensed ? 'none' : 'xsmall'} align="center">
+            {base?.image || <FiSlash />}
           </Box>
         </Avatar>
         {actionType === ActionType.BORROW && (

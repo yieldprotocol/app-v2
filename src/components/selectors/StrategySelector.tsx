@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Avatar, Box, Grid, ResponsiveContext, Select, Text } from 'grommet';
 import { toast } from 'react-toastify';
+import { FiSlash } from 'react-icons/fi';
 
 import Skeleton from 'react-loading-skeleton';
 import { ethers } from 'ethers';
@@ -9,6 +10,7 @@ import { ActionType, ISeries, IStrategy } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { useApr } from '../../hooks/useApr';
 import { nFormatter } from '../../utils/appUtils';
+
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
@@ -162,7 +164,7 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
                 align="center"
               >
                 <Box pad="small" width="small" direction="row" align="center" gap="small">
-                  <Avatar background="#FFF"> {strategy.currentSeries?.seriesMark}</Avatar>
+                  <Avatar background="#FFF"> {strategy.currentSeries?.seriesMark || <FiSlash />}</Avatar>
                   <Box>
                     <Text size="medium" color={strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined}>
                         {strategy.name}
