@@ -1,7 +1,8 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import { Box, ResponsiveContext, Select, Text } from 'grommet';
-import Loader from 'react-spinners/ScaleLoader';
+
+import Skeleton from 'react-loading-skeleton';
 
 import styled from 'styled-components';
 import { IAsset } from '../../types';
@@ -39,7 +40,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
         {asset?.symbol}
       </Box>
     ) : (
-      <Loader height="14px" color="lightgrey" margin="0.5px" />
+      <Skeleton width={50} />
     );
 
   const handleSelect = (asset: IAsset) => {
