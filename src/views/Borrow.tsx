@@ -157,11 +157,11 @@ const Borrow = () => {
     selectedIlk && setVaultToUse(undefined);
   }, [selectedIlk]);
 
-  // THIS VALUE IS ACTIUALLY JUST the fytoken value:
-  // const borrowOutput = cleanValue(
-  //   (Number(borrowInput) * (1 + Number(apr) / 100)).toString(),
-  //   selectedBase?.digitFormat!
-  // );
+  // IS THIS VALUE IS ACTIUALLY JUST the fytoken value:
+  const borrowOutput = cleanValue(
+    (Number(borrowInput) * (1 + Number(apr) / 100)).toString(),
+    selectedBase?.digitFormat!
+  );
 
   return (
     <Keyboard onEsc={() => setCollatInput('')} onEnter={() => console.log('ENTER smashed')} target="document">
@@ -364,7 +364,7 @@ const Borrow = () => {
                       <InfoBite
                         label="Vault Debt Payable @ Maturity"
                         icon={<FiTrendingUp />}
-                        value={`${selectedSeries?.fyTokenBalance_} ${selectedBase?.symbol}`}
+                        value={`${borrowOutput} ${selectedBase?.symbol}`}
                       />
                       <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
                       <InfoBite
