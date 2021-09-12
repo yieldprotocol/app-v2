@@ -63,11 +63,13 @@ export const useCollateralHelpers = (
 
   /* handle changes to input values */
   useEffect(() => {
+
     const existingCollateral_ = vault ? vault.ink  : ethers.constants.Zero;
     const existingCollateralAsWei = decimalNToDecimal18(existingCollateral_, ilk?.decimals)
 
     const existingDebt_ = vault ? vault.art : ethers.constants.Zero;
     const existingDebtAsWei = decimalNToDecimal18(existingDebt_, base?.decimals)
+
 
     const dInput = debtInput ? ethers.utils.parseUnits(debtInput, 18) : ethers.constants.Zero;
     const cInput = collInput ? ethers.utils.parseUnits(collInput, 18) : ethers.constants.Zero;
@@ -94,14 +96,13 @@ export const useCollateralHelpers = (
       const min = calculateMinCollateral(priceAsWei, totalDebt, '1.5', existingCollateralAsWei);
       const minSafeCalc = calculateMinCollateral(priceAsWei, totalDebt, '2.5', existingCollateralAsWei);
 
-      const minSafeWithInput =
-        vault?.ink && cInput ? BigNumber.from(minSafeCalc).sub(cInput) : BigNumber.from(minSafeCalc); // factor in the current collateral input if there is a valid chosen vault
+      // factor in the current collateral input if there is a valid chosen vault
+      const minSafeWithCollat = BigNumber.from(minSafeCalc).sub(existingCollateral_);
 
       // check for valid min safe scenarios
-      const minSafe =
-        minSafeWithInput.gt(ethers.constants.Zero) && minSafeWithInput.gt(existingCollateral_)
-          ? ethers.utils.formatUnits(minSafeWithInput, ilk.decimals)?.toString()
-          : undefined;
+      const minSafe = minSafeWithCollat.gt(ethers.constants.Zero)
+        ? ethers.utils.formatUnits(minSafeWithCollat, ilk.decimals)?.toString()
+        : undefined;
 
       setMinCollateral(ethers.utils.formatUnits(min, ilk.decimals)?.toString());
       setMinSafeCollateral(minSafe);
