@@ -6,8 +6,7 @@ import { Box, Button, Text } from 'grommet';
 import { UserContext } from '../../contexts/UserContext';
 import { ActionType, IAsset, ISeries, IStrategy, IUserContext } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
-import PositionItem from '../positionItems/LendItem';
-import StrategyItem from '../positionItems/StrategyItem';
+import LendItem from '../positionItems/LendItem';
 import ListWrap from '../wraps/ListWrap';
 
 interface IPositionFilter {
@@ -95,7 +94,7 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
             )}
 
             {(!showAllPositions ? filteredSeries : allPositions).map((x: ISeries, i: number) => (
-              <PositionItem series={x} actionType={actionType} index={i} key={x.id} />
+              <LendItem series={x} actionType={actionType} index={i} key={x.id} />
             ))}
           </ListWrap>
 

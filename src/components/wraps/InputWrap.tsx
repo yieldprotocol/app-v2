@@ -28,9 +28,8 @@ function InputWrap({ action, disabled, isError, showErrorText, message, children
         direction="row"
         round="xsmall"
         align="center"
-        background={isError ? '#ff00004D' : undefined}
+        background={isError ? 'pink' : 'solid'}
         pad={{ horizontal: 'small' }}
-
       >
         {children}
       </InsetBox>

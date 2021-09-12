@@ -229,6 +229,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
           overflow={mobile ? undefined : 'auto'}
           height={mobile ? undefined : '250px'}
           pad={{ vertical: 'small', horizontal: 'xsmall' }}
+
         >
           <Grid columns={mobile ? '100%' : '40%'} gap="small">
             {seriesLoading ? (
@@ -246,7 +247,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
                   pad="xsmall"
                   round="xsmall"
                   onClick={() => handleSelect(series)}
-                  background={series.id === selectedSeriesId ? series?.color : undefined}
+                  background={series.id === selectedSeriesId ? series?.color : 'solid'}
                   elevation="xsmall"
                   align="center"
                 >

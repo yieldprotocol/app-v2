@@ -159,7 +159,7 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
                 pad="xsmall"
                 round="xsmall"
                 onClick={() => handleSelect(strategy)}
-                background={strategy.address === selectedStrategyAddr ? strategy.currentSeries?.color : undefined}
+                background={strategy.address === selectedStrategyAddr ? strategy.currentSeries?.color :'solid'}
                 elevation="xsmall"
                 align="center"
               >
