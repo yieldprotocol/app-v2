@@ -18,13 +18,13 @@ function ItemWrap({ action, index, children }: { children: any; index: number; a
   return (
     <StyledBox
       animation={{ type: 'fadeIn', delay: index * 100, duration: 1500 }}
-      hoverIndicator={{ elevation: 'large', background: '#fff' }}
+      hoverIndicator={{ elevation: 'large', background: 'solid' }}
       onClick={() => action()}
       round="xsmall"
       elevation="xsmall"
       flex={false}
       fill="horizontal"
-      background='#ffffff'
+      background='solid'
     >
       {children}
     </StyledBox>

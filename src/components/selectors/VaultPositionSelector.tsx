@@ -70,7 +70,7 @@ function VaultPositionSelector(target: any) {
     account && (
       <Box justify="end" fill>
         {allVaults.length > 0 && (
-          <Box justify="between" alignSelf="end" gap="small" pad="small">
+          <Box justify="between" alignSelf="end" gap="small" pad="small" background="hover" round="xsmall">
             <Box animation="fadeIn" justify="center" align="center" direction="row" gap="small">
               <Text size="small" color="text-weak">
                 {showAllVaults ? 'All my existing vaults' : 'Filtered vaults '}

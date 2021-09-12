@@ -66,7 +66,7 @@ const YieldAccount = (props: any) => {
             onClick={() => setSettingsOpen(true)}
             pad="xsmall"
             justify="center"
-            hoverIndicator={ { background: '#ffffff69' }}
+            hoverIndicator={ { background: 'hover' }}
           >
             {mobile ? (
               <Text color="text">

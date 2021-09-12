@@ -76,8 +76,8 @@ const SettingsBalances = () => {
   };
 
   return (
-    <Box pad="medium">
-      <BoxWrap>
+    <Box pad="medium" hoverIndicator={ { background: 'hover' }}>
+      <BoxWrap >
       <DropButton
         open={open}
         onOpen={onOpen}
@@ -86,6 +86,7 @@ const SettingsBalances = () => {
         dropProps={{ align: { top: 'bottom', right: 'right' } }}
         // hoverIndicator={{ border: 'tailwind-blue-50' }}
         style={{ borderRadius: '6px' }}
+        hoverIndicator='hover'
       >
         <YieldBalances />
       </DropButton>

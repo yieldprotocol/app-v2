@@ -72,9 +72,16 @@ function StrategyPositionSelector() {
   }, [allPositions]);
 
   return (
-    <Box justify="end" fill>
+    <Box justify="end" fill >
       {allPositions.length !== 0 && (
-        <Box justify="between" alignSelf="end" gap="small" pad="small">
+        <Box 
+          justify="between" 
+          alignSelf="end" 
+          gap="small" 
+          pad="small" 
+          background='hover'
+          round='xsmall'
+        >
           <Box animation="fadeIn" justify="center" align="center" direction="row" gap="small">
             <Text size="small" color="text-weak">
               {showAllPositions
@@ -83,7 +90,7 @@ function StrategyPositionSelector() {
             </Text>
           </Box>
 
-          <ListWrap overflow="auto">
+          <ListWrap overflow="auto" >
             {filteredSeries.length === 0 && !showAllPositions && (
               <Text weight={450} size="small">
                 No suggested positions

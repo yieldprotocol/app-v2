@@ -16,7 +16,6 @@ interface IPositionFilter {
 }
 
 function PositionSelector({ actionType }: { actionType: ActionType }) {
-
   const history = useHistory();
   /* STATE FROM CONTEXT */
 
@@ -79,7 +78,7 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
   return (
     <Box justify="end" fill>
       {allPositions.length !== 0 && (
-        <Box justify="between" alignSelf="end" gap="small" pad="small">
+        <Box justify="between" alignSelf="end" gap="small" pad="small" background="hover" round="xsmall">
           <Box animation="fadeIn" justify="center" align="center" direction="row" gap="small">
             <Text size="small" color="text-weak">
               {showAllPositions

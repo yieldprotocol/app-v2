@@ -12,6 +12,8 @@ export const yieldTheme = {
       brand: '#2563EB',
       focus: '#2563EB99',
       selected: '#2563EB',
+      'hover' : '#ffffff69', 
+      'solid' :'#ffffff',
 
       'accent-1': '#FFCA58',
       'accent-2': '#81FCED',
