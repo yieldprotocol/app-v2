@@ -4,8 +4,7 @@ import { Box, Text } from 'grommet';
 import { FiAlertTriangle } from 'react-icons/fi';
 import { TxContext } from '../contexts/TxContext';
 import { TxState } from '../types';
-import TransactionList from './TransactionList';
-import { useTimeout } from '../hooks/generalHooks';
+import TransactionItem from './TransactionItem';
 
 // look to see if there is a better way
 const StyledBox = styled(Box)`
@@ -69,7 +68,13 @@ const TransactionWidget = () => {
           </Box>
         </Box>
       )}
-      <TransactionList transactions={[...txs.values()]} handleRemove={handleRemove} />
+
+      <Box>
+          {[...txs.values()].map((tx: any) => (
+            <TransactionItem tx={tx} key={tx.tx.hash} wide={false} handleRemove={handleRemove} />
+          ))}
+      </Box>
+
     </StyledBox>
   );
 };

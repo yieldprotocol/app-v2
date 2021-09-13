@@ -7,8 +7,8 @@ import { abbreviateHash } from '../utils/appUtils';
 import YieldAvatar from './YieldAvatar';
 import AdvancedSettings from './AdvancedSettings';
 import { TxContext } from '../contexts/TxContext';
-import TransactionList from './TransactionList';
 import CopyWrap from './wraps/CopyWrap';
+import TransactionItem from './TransactionItem';
 
 const StyledButton = styled(Button)`
   background: #dbeafe;
@@ -114,7 +114,11 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
 
         <Collapsible open={transactionsOpen}>
           {!transactions.size && <Text size="small">Your transactions will appear here...</Text>}
-          <TransactionList transactions={[...transactions.values()]} wide />
+          <Box>
+          {[...transactions.values()].map((tx: any) => (
+            <TransactionItem tx={tx} key={tx.tx.hash} wide={true} />
+          ))}
+          </Box>
         </Collapsible>
       </Box>
     </Box>

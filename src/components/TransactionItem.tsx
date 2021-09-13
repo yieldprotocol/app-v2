@@ -4,16 +4,14 @@ import { Box, Text, Spinner } from 'grommet';
 import { FiX, FiCheckCircle, FiXCircle } from 'react-icons/fi';
 import { TxState } from '../types';
 import EtherscanButton from './buttons/EtherscanButton';
-import { ChainContext } from '../contexts/ChainContext';
-import { getPositionPathPrefix, getVaultIdFromReceipt } from '../utils/appUtils';
 
-interface ITransactionListItem {
+interface ITransactionItem {
   tx: any;
   handleRemove?: any;
   wide?: boolean;
 }
 
-const TransactionListItem = ({ tx, handleRemove, wide }: ITransactionListItem) => {
+const TransactionItem = ({ tx, handleRemove, wide }: ITransactionItem) => {
   const { status, txCode, tx: t } = tx;
   const action = txCode.split('_')[0];
   const link = txCode.split('_')[1];
@@ -58,6 +56,6 @@ const TransactionListItem = ({ tx, handleRemove, wide }: ITransactionListItem) =
   );
 };
 
-TransactionListItem.defaultProps = { wide: false, handleRemove: () => null };
+TransactionItem.defaultProps = { wide: false, handleRemove: () => null };
 
-export default TransactionListItem;
+export default TransactionItem;
