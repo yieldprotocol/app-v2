@@ -28,6 +28,8 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   const { userState, userActions } = useContext(UserContext);
   const { selectedIlkId, selectedSeriesId, selectedBaseId, assetMap, seriesMap } = userState;
 
+  const { setSelectedIlk, setSelectedBase } = userActions
+
   const selectedSeries = seriesMap.get(selectedSeriesId!);
   const selectedBase = assetMap.get(selectedBaseId!);
   const selectedIlk = assetMap.get(selectedIlkId!);
@@ -46,10 +48,10 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   const handleSelect = (asset: IAsset) => {
     if (selectCollateral) {
       console.log('Collateral selected: ', asset.id);
-      userActions.setSelectedIlk(asset.id);
+      setSelectedIlk(asset.id);
     } else {
       console.log('Base selected: ', asset.id);
-      userActions.setSelectedBase(asset.id);
+      setSelectedBase(asset.id);
     }
   };
 
@@ -65,17 +67,18 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   /* initiate base selector to Dai available asset and selected ilk ETH */
   useEffect(() => {
     if (Array.from(assetMap.values()).length) {
-      !selectedBaseId && userActions.setSelectedBase(assetMap.get(DAI).id);
-      !selectedIlkId && userActions.setSelectedIlk(assetMap.get(WETH).id);
+      !selectedBaseId && setSelectedBase(DAI);
+      !selectedIlkId && setSelectedIlk(WETH);
     }
-  }, [assetMap]);
+  }, [assetMap, selectedBaseId, selectedIlkId]);
 
   /* make sure ilk (collateral) never matches baseId */
   useEffect(() => {
     if (selectedIlk === selectedBase) {
       const firstNotBaseIlk = options.find((asset: IAsset) => asset.id !== selectedIlk?.id)?.id;
-      userActions.setSelectedIlk(firstNotBaseIlk);
+      setSelectedIlk(firstNotBaseIlk);
     }
+
   }, [options, selectedIlk, selectedBase]);
 
   return (
