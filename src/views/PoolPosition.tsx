@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { Box, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import { ethers } from 'ethers';
 import { useHistory, useParams } from 'react-router-dom';
-import { FiArrowRight, FiClock, FiPercent, FiTrendingUp } from 'react-icons/fi';
+import { FiArrowRight, FiClock, FiPercent, FiSlash, FiTrendingUp } from 'react-icons/fi';
 
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import InputWrap from '../components/wraps/InputWrap';
@@ -29,6 +29,7 @@ import { useInputValidation } from '../hooks/useInputValidation';
 import ModalWrap from '../components/wraps/ModalWrap';
 import { useRemoveLiquidity } from '../hooks/actionHooks/useRemoveLiquidity';
 import { useRollLiquidity } from '../hooks/actionHooks/useRollLiquidity';
+import CopyWrap from '../components/wraps/CopyWrap';
 
 const PoolPosition = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -141,18 +142,18 @@ const PoolPosition = ({ close }: { close: () => void }) => {
       {selectedStrategy && (
         <ModalWrap series={selectedSeries}>
           <CenterPanelWrap>
-            <Box fill pad={mobile ? 'medium' : 'large'} gap="medium">
-              <Box height={{ min: '250px' }} gap="medium">
+            <Box fill pad={mobile ? 'medium' : 'large'} gap="small">
+              <Box height={{ min: '250px' }} gap="2em">
                 <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
                   <Box direction="row" align="center" gap="medium">
                     {/* <PositionAvatar position={selectedStrategy} /> */}
                     <PositionAvatar position={selectedSeries!} actionType={ActionType.POOL} />
                     <Box>
                       <Text size={mobile ? 'medium' : 'large'}> {selectedStrategy?.name} </Text>
-                      <Text size="small"> {abbreviateHash(selectedStrategyAddr!, 5)}</Text>
+                      <CopyWrap><Text size="small"> {abbreviateHash(selectedStrategyAddr!, 6)}</Text></CopyWrap>
                     </Box>
                   </Box>
-                  <ExitButton action={() => history.goBack()} />
+                  {/* <ExitButton action={() => history.goBack()} /> */}
                 </Box>
 
                 <SectionWrap>
@@ -162,24 +163,40 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                     <InfoBite
                       label="Strategy Token Balance"
                       value={cleanValue(selectedStrategy?.accountBalance_, selectedBase?.digitFormat!)}
-                      icon={<YieldMark height="1em" startColor={selectedSeries?.startColor} />}
+                      icon={<YieldMark height="1em" colors={[selectedSeries?.startColor!]} />}
                       loading={seriesLoading}
                     />
-                    <InfoBite
-                      label="Strategy Token percentage"
-                      value={`${cleanValue(selectedStrategy?.accountStrategyPercent, 4)} %  of ${nFormatter(
-                        parseFloat(selectedStrategy?.strategyTotalSupply_!),
-                        2
-                      )}`}
-                      icon={<FiPercent />}
-                      loading={seriesLoading}
-                    />
-                    <InfoBite
-                      label="Returns in current Pool"
-                      value={`${cleanValue(selectedStrategy?.accountStrategyPercent, 4)}% `}
-                      icon={<FiTrendingUp />}
-                      loading={seriesLoading}
-                    />
+
+                    {!selectedStrategy.currentSeries && (
+                      <InfoBite
+                        label="Strategy is currently inactive"
+                        value="Only token removal allowed"
+                        icon={<FiSlash />}
+                        loading={seriesLoading}
+                      />
+                    )}
+
+                    {selectedStrategy.currentSeries && (
+                      <InfoBite
+                        label="Strategy Token percentage"
+                        value={`${cleanValue(selectedStrategy?.accountStrategyPercent, 4)} %  of ${nFormatter(
+                          parseFloat(selectedStrategy?.strategyTotalSupply_!),
+                          2
+                        )}`}
+                        icon={<FiPercent />}
+                        loading={seriesLoading}
+                      />
+                    )}
+
+                    {selectedStrategy.currentSeries && (
+                      <InfoBite
+                        label="Returns in current Pool"
+                        value={`${cleanValue(selectedStrategy?.accountStrategyPercent, 4)}% `}
+                        icon={<FiTrendingUp />}
+                        loading={seriesLoading}
+                      />
+                    )}
+
                     {/* <InfoBite label="Maturity date:" value={`${selectedSeries?.fullDate}`} icon={<FiClock />} /> */}
                   </Box>
                 </SectionWrap>
@@ -245,7 +262,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                   </>
                 )}
 
-                {actionActive.index === 1 && <YieldHistory seriesOrVault={selectedSeries!} view={['POOL']} />}
+                {actionActive.index === 1 && <YieldHistory seriesOrVault={selectedStrategy!} view={['POOL']} />}
 
                 {actionActive.index === 2 && (
                   <>

@@ -22,8 +22,8 @@ export const useApr = (input: string | undefined, actionType: ActionType, series
       const { baseReserves, fyTokenReserves, maturity } = selectedSeries;
       const ttm = secondsToFrom(maturity.toString());
 
-      if (actionType === 'LEND') preview = sellBase(baseReserves, fyTokenReserves, baseAmount, ttm);
-      if (actionType === 'BORROW') preview = buyBase(baseReserves, fyTokenReserves, baseAmount, ttm);
+      if (actionType === 'LEND') preview = sellBase(baseReserves, fyTokenReserves, baseAmount, ttm, selectedSeries.decimals);
+      if (actionType === 'BORROW') preview = buyBase(baseReserves, fyTokenReserves, baseAmount, ttm, selectedSeries.decimals);
 
       const _apr = calculateAPR(baseAmount, preview, selectedSeries?.maturity);
       _apr ? setApr(cleanValue(_apr, 2)) : setApr(selectedSeries.apr);

@@ -23,6 +23,27 @@ const precisionFee = new Decimal(1000000000000);
  *************************** */
 
 /**
+ * Convert a bignumber with any decimal to a bn with decimal of 18
+ * @param x bn to convert.
+ * @param decimals of the current bignumber
+ * @returns BigNumber
+ */
+export const decimalNToDecimal18 = (x: BigNumber, decimals: number): BigNumber =>
+  BigNumber.from(x.toString() + '0'.repeat(18 - decimals));
+
+/**
+ * Convert a decimal18 to a bn of any decimal
+ * @param x 18 decimal to reduce
+ * @param decimals required
+ * @returns BigNumber
+ */
+export const decimal18ToDecimalN = (x: BigNumber, decimals: number): BigNumber => {
+  const str = x.toString();
+  const first = str.slice(0, str.length - (18 - decimals));
+  return BigNumber.from(first);
+};
+
+/**
  * @param { BigNumber | string } multiplicant
  * @param { BigNumber | string } multiplier
  * @param { string } precisionDifference  // Difference between multiplicant and mulitplier precision (eg. wei vs ray '1e-27' )
@@ -143,6 +164,8 @@ export function burn(
  * @param { BigNumber | string } totalSupply
  * @param { BigNumber | string } fyToken
  * @param { BigNumber | string } timeTillMaturity
+ *  @param { number } decimals
+ * 
  * @returns {[BigNumber, BigNumber]}
  */
 export function mintWithBase(
@@ -151,14 +174,17 @@ export function mintWithBase(
   fyTokenReservesReal: BigNumber | string,
   supply: BigNumber | string,
   fyToken: BigNumber | string,
-  timeTillMaturity: BigNumber | string
+  timeTillMaturity: BigNumber | string,
+  decimals: number = 18,
 ): [BigNumber, BigNumber] {
   const Z = new Decimal(baseReserves.toString());
   const YR = new Decimal(fyTokenReservesReal.toString());
   const S = new Decimal(supply.toString());
   const y = new Decimal(fyToken.toString());
   // buyFyToken:
-  const z1 = new Decimal(buyFYToken(baseReserves, fyTokenReservesVirtual, fyToken, timeTillMaturity).toString());
+  const z1 = new Decimal(
+    buyFYToken(baseReserves, fyTokenReservesVirtual, fyToken, timeTillMaturity, decimals).toString()
+  );
   // Mint specifying how much fyToken to take in. Reverse of `mint`.
   const m = S.mul(y).div(YR.sub(y));
   const z2 = Z.add(z1).mul(m).div(S);
@@ -172,6 +198,8 @@ export function mintWithBase(
  * @param { BigNumber | string } totalSupply
  * @param { BigNumber | string } lpTokens
  * @param { BigNumber | string } timeTillMaturity
+ * 
+  *  @param { number } decimals
  * @returns { BigNumber }
  */
 export function burnForBase(
@@ -180,12 +208,13 @@ export function burnForBase(
   fyTokenReservesReal: BigNumber,
   supply: BigNumber,
   lpTokens: BigNumber,
-  timeTillMaturity: BigNumber
+  timeTillMaturity: BigNumber,
+  decimals: number=18,
 ): BigNumber {
   // Burn FyToken
   const [z1, y] = burn(baseReserves, fyTokenReservesReal, supply, lpTokens);
   // Sell FyToken for base
-  const z2 = sellFYToken(baseReserves, fyTokenReservesVirtual, y, timeTillMaturity);
+  const z2 = sellFYToken(baseReserves, fyTokenReservesVirtual, y, timeTillMaturity, decimals);
   const z1D = new Decimal(z1.toString());
   const z2D = new Decimal(z2.toString());
   return toBn(z1D.add(z2D));
@@ -204,12 +233,18 @@ export function sellBase(
   fyTokenReserves: BigNumber | string,
   base: BigNumber | string,
   timeTillMaturity: BigNumber | string,
+  decimals: number = 18, // optional : default === 18
   withNoFee: boolean = false // optional: default === false
 ): BigNumber {
-  const baseReserves_ = new Decimal(baseReserves.toString());
-  const fyTokenReserves_ = new Decimal(fyTokenReserves.toString());
+  /* convert to 18 decimals, if required */
+  const baseReserves18 = decimalNToDecimal18(BigNumber.from(baseReserves), decimals);
+  const fyTokenReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenReserves), decimals);
+  const base18 = decimalNToDecimal18(BigNumber.from(base), decimals);
+
+  const baseReserves_ = new Decimal(baseReserves18.toString());
+  const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
   const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
-  const dai_ = new Decimal(base.toString());
+  const base_ = new Decimal(base18.toString());
 
   const g = withNoFee ? ONE : g1;
   const t = k.mul(timeTillMaturity_);
@@ -218,13 +253,14 @@ export function sellBase(
 
   const Za = baseReserves_.pow(a);
   const Ya = fyTokenReserves_.pow(a);
-  const Zxa = baseReserves_.add(dai_).pow(a);
+  const Zxa = baseReserves_.add(base_).pow(a);
   const sum = Za.add(Ya).sub(Zxa);
   const y = fyTokenReserves_.sub(sum.pow(invA));
-  // const yFee = y.sub(precisionFee);
-  const yFee = y;
 
-  return yFee.isNaN() ? ethers.constants.Zero : toBn(yFee);
+  const yFee = y.sub(precisionFee);
+
+  // return yFee.isNaN() ? ethers.constants.Zero : toBn(yFee);
+  return yFee.isNaN() ? ethers.constants.Zero : decimal18ToDecimalN(toBn(yFee), decimals);
 }
 
 /**
@@ -240,12 +276,18 @@ export function sellFYToken(
   fyTokenReserves: BigNumber | string,
   fyToken: BigNumber | string,
   timeTillMaturity: BigNumber | string,
+  decimals: number = 18, // optional : default === 18
   withNoFee: boolean = false // optional: default === false
 ): BigNumber {
-  const baseReserves_ = new Decimal(baseReserves.toString());
-  const fyTokenReserves_ = new Decimal(fyTokenReserves.toString());
+  /* convert to 18 decimals, if required */
+  const baseReserves18 = decimalNToDecimal18(BigNumber.from(baseReserves), decimals);
+  const fyTokenReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenReserves), decimals);
+  const fyToken18 = decimalNToDecimal18(BigNumber.from(fyToken), decimals);
+
+  const baseReserves_ = new Decimal(baseReserves18.toString());
+  const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
   const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
-  const fyDai_ = new Decimal(fyToken.toString());
+  const fyDai_ = new Decimal(fyToken18.toString());
 
   const g = withNoFee ? ONE : g2;
   const t = k.mul(timeTillMaturity_);
@@ -258,10 +300,10 @@ export function sellFYToken(
   const sum = Za.add(Ya.sub(Yxa));
   const y = baseReserves_.sub(sum.pow(invA));
   
-  // const yFee = y.sub(precisionFee);
-  const yFee = y;
+  const yFee = y.sub(precisionFee);
 
-  return yFee.isNaN() ? ethers.constants.Zero : toBn(yFee);
+  // return yFee.isNaN() ? ethers.constants.Zero : toBn(yFee);
+  return yFee.isNaN() ? ethers.constants.Zero : decimal18ToDecimalN(toBn(yFee), decimals);
 }
 
 /**
@@ -277,12 +319,18 @@ export function buyBase(
   fyTokenReserves: BigNumber | string,
   base: BigNumber | string,
   timeTillMaturity: BigNumber | string,
+  decimals: number = 18, // optional : default === 18
   withNoFee: boolean = false // optional: default === false
 ): BigNumber {
-  const baseReserves_ = new Decimal(baseReserves.toString());
-  const fyTokenReserves_ = new Decimal(fyTokenReserves.toString());
+  /* convert to 18 decimals, if required */
+  const baseReserves18 = decimalNToDecimal18(BigNumber.from(baseReserves), decimals);
+  const fyTokenReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenReserves), decimals);
+  const base18 = decimalNToDecimal18(BigNumber.from(base), decimals);
+
+  const baseReserves_ = new Decimal(baseReserves18.toString());
+  const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
   const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
-  const dai_ = new Decimal(base.toString());
+  const base_ = new Decimal(base18.toString());
 
   const g = withNoFee ? ONE : g2;
   const t = k.mul(timeTillMaturity_);
@@ -291,13 +339,13 @@ export function buyBase(
 
   const Za = baseReserves_.pow(a);
   const Ya = fyTokenReserves_.pow(a);
-  const Zxa = baseReserves_.sub(dai_).pow(a);
+  const Zxa = baseReserves_.sub(base_).pow(a);
   const sum = Za.add(Ya).sub(Zxa);
   const y = sum.pow(invA).sub(fyTokenReserves_);
-  // const yFee = y.add(precisionFee);
-  const yFee = y;
 
-  return yFee.isNaN() ? ethers.constants.Zero : toBn(yFee);
+  const yFee = y.add(precisionFee);
+
+  return yFee.isNaN() ? ethers.constants.Zero : decimal18ToDecimalN(toBn(yFee), decimals);
 }
 
 /**
@@ -308,17 +356,24 @@ export function buyBase(
  * @param { boolean } withNoFee
  * @returns { BigNumber }
  */
+// NOT USED YET
 export function buyFYToken(
   baseReserves: BigNumber | string,
   fyTokenReserves: BigNumber | string,
   fyToken: BigNumber | string,
   timeTillMaturity: BigNumber | string,
+  decimals: number = 18, // optional : default === 18
   withNoFee: boolean = false // optional: default === false
 ): BigNumber {
-  const baseReserves_ = new Decimal(baseReserves.toString());
-  const fyTokenReserves_ = new Decimal(fyTokenReserves.toString());
+  /* convert to 18 decimals, if required */
+  const baseReserves18 = decimalNToDecimal18(BigNumber.from(baseReserves), decimals);
+  const fyTokenReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenReserves), decimals);
+  const fyToken18 = decimalNToDecimal18(BigNumber.from(fyToken), decimals);
+
+  const baseReserves_ = new Decimal(baseReserves18.toString());
+  const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
   const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
-  const fyDai_ = new Decimal(fyToken.toString());
+  const fyDai_ = new Decimal(fyToken18.toString());
 
   const g = withNoFee ? ONE : g1;
   const t = k.mul(timeTillMaturity_);
@@ -330,10 +385,12 @@ export function buyFYToken(
   const Yxa = fyTokenReserves_.sub(fyDai_).pow(a);
   const sum = Za.add(Ya.sub(Yxa));
   const y = sum.pow(invA).sub(baseReserves_);
-  // const yFee = y.add(precisionFee);
-  const yFee = y;
 
-  return yFee.isNaN() ? ethers.constants.Zero : toBn(yFee);
+  const yFee = y.add(precisionFee);
+
+  // return yFee.isNaN() ? ethers.constants.Zero : toBn(yFee);
+
+  return yFee.isNaN() ? ethers.constants.Zero : decimal18ToDecimalN(toBn(yFee), decimals);
 }
 
 /**
@@ -354,7 +411,7 @@ export function getFee(
 
   if (fyToken_.gte(ethers.constants.Zero)) {
     const tokenWithFee: BigNumber = buyFYToken(baseReserves, fyTokenReserves, fyToken, timeTillMaturity);
-    const tokenWithoutFee: BigNumber = buyFYToken(baseReserves, fyTokenReserves, fyToken, timeTillMaturity, true);
+    const tokenWithoutFee: BigNumber = buyFYToken(baseReserves, fyTokenReserves, fyToken, timeTillMaturity, 18, true);
     fee_ = new Decimal(tokenWithFee.toString()).sub(new Decimal(tokenWithoutFee.toString()));
   } else {
     const tokenWithFee: BigNumber = sellFYToken(
@@ -368,6 +425,7 @@ export function getFee(
       fyTokenReserves,
       fyToken_.mul(BigNumber.from('-1')),
       timeTillMaturity,
+      18,
       true
     );
     fee_ = new Decimal(tokenWithoutFee.toString()).sub(new Decimal(tokenWithFee.toString()));
@@ -380,7 +438,8 @@ export function fyTokenForMint(
   fyTokenRealReserves: BigNumber | string,
   fyTokenVirtualReserves: BigNumber | string,
   base: BigNumber | string,
-  timeTillMaturity: BigNumber | string
+  timeTillMaturity: BigNumber | string,
+  decimals: number = 18
 ): string {
   const baseReserves_ = new Decimal(baseReserves.toString());
   const fyDaiRealReserves_ = new Decimal(fyTokenRealReserves.toString());
@@ -398,7 +457,8 @@ export function fyTokenForMint(
         baseReserves,
         fyTokenVirtualReserves,
         BigNumber.from(yOut.toFixed(0)),
-        timeTillMaturity_.toString()
+        timeTillMaturity_.toString(),
+        decimals
       ).toString()
     );
     const Z_1 = baseReserves_.add(zIn); // New base reserves
@@ -430,7 +490,7 @@ export const splitLiquidity = (
   xReserves: BigNumber | string,
   yReserves: BigNumber | string,
   xAmount: BigNumber | string,
-  asBn: boolean = true,
+  asBn: boolean = true
 ): [BigNumberish, BigNumberish] => {
   const xReserves_ = new Decimal(xReserves.toString());
   const yReserves_ = new Decimal(yReserves.toString());
@@ -508,13 +568,12 @@ export const calculateCollateralizationRatio = (
   baseAmount: BigNumber | string,
   asPercent: boolean = false // OPTIONAL:  flag to return as percentage
 ): string | undefined => {
-
   if (ethers.BigNumber.isBigNumber(baseAmount) ? baseAmount.isZero() : baseAmount === '0') {
     return undefined;
   }
 
   const _baseUnitPrice = divDecimal(basePrice, '1000000000000000000');
-  const _baseVal = divDecimal(baseAmount, _baseUnitPrice, ); // base/debt value in terms of collateral 
+  const _baseVal = divDecimal(baseAmount, _baseUnitPrice); // base/debt value in terms of collateral
   const _ratio = divDecimal(collateralAmount, _baseVal); // collateralValue divide by debtValue
 
   if (asPercent) {
@@ -531,29 +590,27 @@ export const calculateCollateralizationRatio = (
  * @param {BigNumber | string} liquidationRatio  OPTIONAL: 1.5 (150%) as default
  * @param {BigNumber | string} existingCollateral  0 as default (as wei)
  * @param {Boolean} asBigNumber return as big number? in wei
- * 
+ *
  * @returns { string | undefined }
  */
 export const calculateMinCollateral = (
   basePrice: BigNumber | string,
   baseAmount: BigNumber | string,
   liquidationRatio: string = '1.5', // OPTIONAL: 150% as default
-  existingCollateral: BigNumber | string = '0', // OPTIONAL add in 
-  asBigNumber: boolean = false,
+  existingCollateral: BigNumber | string = '0', // OPTIONAL add in
+  asBigNumber: boolean = false
+): string | BigNumber => {
+  const _baseUnitPrice = divDecimal(basePrice, '1000000000000000000');
+  const _baseVal = divDecimal(baseAmount, _baseUnitPrice);
+  const _existingCollateralValue = new Decimal(ethers.utils.formatUnits(existingCollateral, 18));
+  const _minCollatValue = new Decimal(mulDecimal(_baseVal, liquidationRatio));
+  const requiredCollateral = _existingCollateralValue.gt(_minCollatValue)
+    ? new Decimal('0')
+    : _minCollatValue.sub(_existingCollateralValue).add('1'); // hmm, i had to add one check
+  return asBigNumber ? toBn(requiredCollateral) : requiredCollateral.toFixed(0);
+};
 
-  ): string | BigNumber => {
-
-    const _baseUnitPrice = divDecimal(basePrice, '1000000000000000000');
-    const _baseVal = divDecimal(baseAmount, _baseUnitPrice);
-    const _existingCollateralValue = new Decimal(ethers.utils.formatUnits(existingCollateral, 18)); 
-    const _minCollatValue = new Decimal ( mulDecimal(_baseVal, liquidationRatio) );
-    const requiredCollateral = _existingCollateralValue.gt(_minCollatValue)  
-      ? new Decimal('0')
-      : _minCollatValue.sub(_existingCollateralValue).add('1') // hmm, i had to add one check
-    return asBigNumber? toBn(requiredCollateral) : requiredCollateral.toFixed(0);
-}
-
-/** 
+/**
  * Calcualtes the amount (base, or other variant) that can be borrowed based on
  * an amount of collateral (ETH, or other), and collateral price.
  *

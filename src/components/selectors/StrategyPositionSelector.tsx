@@ -8,6 +8,7 @@ import { IAsset, ISeries, IStrategy, IUserContext } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
 import StrategyItem from '../positionItems/StrategyItem';
 import ListWrap from '../wraps/ListWrap';
+import DashButton from '../buttons/DashButton';
 
 interface IStrategyFilter {
   base: IAsset | undefined;
@@ -16,9 +17,8 @@ interface IStrategyFilter {
 }
 
 function StrategyPositionSelector() {
-
   const history = useHistory();
-  
+
   /* STATE FROM CONTEXT */
   const { userState, userActions } = useContext(UserContext) as IUserContext;
   const { assetMap, seriesMap, strategyMap, selectedSeriesId, selectedBaseId, selectedStrategyAddr } = userState;
@@ -37,11 +37,11 @@ function StrategyPositionSelector() {
   const handleFilter = useCallback(
     ({ base, series, strategy }: IStrategyFilter) => {
       /* filter all positions by base if base is selected */
-      const _filteredStrategies: IStrategy[] = Array.from(strategyMap.values())
-        /* filters */
-        // .filter((_strategy: IStrategy) => _strategy.balance?.gt(ZERO_BN))
-        // .filter((_strategy: IStrategy) => (base ? _strategy.baseId === base.id : true))
-        // .filter((_strategy: IStrategy) => (strategy ? _strategy.address === strategy.address : true));
+      const _filteredStrategies: IStrategy[] = Array.from(strategyMap.values());
+      /* filters */
+      // .filter((_strategy: IStrategy) => _strategy.balance?.gt(ZERO_BN))
+      // .filter((_strategy: IStrategy) => (base ? _strategy.baseId === base.id : true))
+      // .filter((_strategy: IStrategy) => (strategy ? _strategy.address === strategy.address : true));
 
       setCurrentFilter({ base, series, strategy });
       setFilterLabels([base?.symbol, series?.displayNameMobile]);
@@ -52,19 +52,17 @@ function StrategyPositionSelector() {
 
   /* CHECK the list of current vaults which match the current base series selection */
   useEffect(() => {
-
     /* only if veiwing the main screen (not when modal is showing) */
     const _allPositions: IStrategy[] = Array.from(strategyMap.values())
       /* filter by positive strategy balances */
-      .filter((_strategy: IStrategy) => _strategy.accountBalance?.gt(ZERO_BN) )
+      .filter((_strategy: IStrategy) => _strategy.accountBalance?.gt(ZERO_BN))
       .sort((_strategyA: IStrategy, _strategyB: IStrategy) =>
-      _strategyA.accountBalance?.lt(_strategyB.accountBalance!) ? 1 : -1
+        _strategyA.accountBalance?.lt(_strategyB.accountBalance!) ? 1 : -1
       );
-    
+
     setAllPositions(_allPositions);
     // if (selectedBase) handleFilter({ base: selectedBase, series: undefined });
     // if (selectedBase && selectedSeries) handleFilter({ base: selectedBase, series: selectedSeries });
-
   }, [strategyMap]);
 
   useEffect(() => {
@@ -74,12 +72,19 @@ function StrategyPositionSelector() {
   return (
     <Box justify="end" fill>
       {allPositions.length !== 0 && (
-        <Box justify="between" alignSelf="end" gap="small" pad="small">
-          <Box animation="fadeIn" justify="center" align="center" direction="row" gap="small">
-            <Text size="small" color="text-weak">
-              {showAllPositions
-                ? `Open strategy positions`
-                : `Filtered strategy positions`}
+        <Box justify="between" alignSelf="end" gap="small" pad="small" background="hover" round="xsmall">
+          <Box
+            animation="fadeIn"
+            justify="between"
+            direction="row"
+            gap="small"
+            pad={{ horizontal: 'medium', vertical: 'xsmall' }}
+          >
+            <Text size="small" color="text-weak" textAlign="center">
+              {showAllPositions ? `All Strategy Positions` : `Filtered Strategy Positions`}
+            </Text>
+            <Text color="text-weak" textAlign="center">
+              <DashButton />
             </Text>
           </Box>
 
@@ -108,7 +113,8 @@ function StrategyPositionSelector() {
                   <Text size="xsmall">{filterLabels[0]}</Text>
                   <Text
                     size="xsmall"
-                    onClick={() => null
+                    onClick={
+                      () => null
                       // handleFilter({
                       //   ...currentFilter,
                       //   base: undefined,
@@ -130,7 +136,8 @@ function StrategyPositionSelector() {
                   <Text size="xsmall">{filterLabels[1]}</Text>
                   <Text
                     size="xsmall"
-                    onClick={() => null
+                    onClick={
+                      () => null
                       // handleFilter({
                       //   ...currentFilter,
                       //   series: undefined,

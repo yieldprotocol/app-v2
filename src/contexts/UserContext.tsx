@@ -19,7 +19,7 @@ import {
 } from '../types';
 
 import { ChainContext } from './ChainContext';
-import { cleanValue, genVaultImage, bytesToBytes32, bnToDecimal18 } from '../utils/appUtils';
+import { cleanValue, genVaultImage, bytesToBytes32  } from '../utils/appUtils';
 import { calculateAPR, divDecimal, floorDecimal, mulDecimal, secondsToFrom, sellFYToken } from '../utils/yieldMath';
 
 import { ONE_WEI_BN, ETH_BASED_ASSETS, BLANK_VAULT, BLANK_SERIES, ZERO_BN } from '../utils/constants';
@@ -154,9 +154,9 @@ const UserProvider = ({ children }: any) => {
 
   /* internal function for getting the users vaults */
   const _getVaults = useCallback(
-    async (fromBlock: number = 1) => {
+    // async (fromBlock: number = 27096000) => {
+      async (fromBlock: number = 1) => {
       const Cauldron = contractMap.get('Cauldron');
-
       const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account);
       const vaultsReceivedfilter = Cauldron.filters.VaultGiven(null, account);
 
@@ -171,13 +171,13 @@ const UserProvider = ({ children }: any) => {
         return {
           id,
           seriesId,
-          baseId: series?.baseId,
+          baseId: series?.baseId!,
           ilkId,
           image: genVaultImage(id),
           displayName: uniqueNamesGenerator({ seed: parseInt(id.substring(14), 16), ...vaultNameConfig }),
-          decimals: series?.decimals,
+          decimals: series?.decimals!,
         };
-      });
+      })
 
       const recievedEventsList: IVaultRoot[] = await Promise.all(
         vaultsReceived.map(async (x: any): Promise<IVaultRoot> => {
@@ -187,11 +187,11 @@ const UserProvider = ({ children }: any) => {
           return {
             id,
             seriesId,
-            baseId: series?.baseId,
+            baseId: series?.baseId!,
             ilkId,
             image: genVaultImage(id),
             displayName: uniqueNamesGenerator({ seed: parseInt(id.substring(14), 16), ...vaultNameConfig }), // TODO Marco move uniquNames generator into utils
-            decimals: series?.decimals,
+            decimals: series?.decimals!,
           };
         })
       );
@@ -278,7 +278,7 @@ const UserProvider = ({ children }: any) => {
 
   /* Updates the prices from the oracle with latest data */ // TODO reduce redundant calls
   const updatePrice = useCallback(
-    async (base: string, ilk: string): Promise<ethers.BigNumber> => {
+    async (ilk: string, base: string ): Promise<ethers.BigNumber> => {
       updateState({ type: 'pricesLoading', payload: true });
 
       try {
@@ -296,10 +296,11 @@ const UserProvider = ({ children }: any) => {
         _priceMap.set(ilk, _ilkPriceMap);
 
         updateState({ type: 'priceMap', payload: _priceMap });
-        console.log('Price Updated: ', ilk, '->', base, ':', price.toString());
+        // TODO console.log('Price Updated: ', ilk, '->', base, ':', price.toString());
         updateState({ type: 'pricesLoading', payload: false });
-
+        
         return price;
+
       } catch (error) {
         console.log(error);
         updateState({ type: 'pricesLoading', payload: false });
@@ -334,10 +335,9 @@ const UserProvider = ({ children }: any) => {
             fyTokenReserves,
             ethers.utils.parseUnits('1', series.decimals),
             secondsToFrom(series.maturity.toString()),
+            series.decimals
           );
           
-          console.log(baseReserves.toString(), fyTokenReserves.toString(), _sellRate.toString(), series.baseId )
-
           const apr =
             calculateAPR(floorDecimal(_sellRate), ethers.utils.parseUnits('1', series.decimals), series.maturity) ||
             '0';
@@ -387,13 +387,17 @@ const UserProvider = ({ children }: any) => {
         }, userState.seriesMap)
       );
 
-      updateState({ type: 'seriesMap', payload: newSeriesMap });
+      // const combinedSeriesMap = new Map([...userState.seriesMap, ...newSeriesMap ])
+
+      updateState({ type: 'seriesMap', payload: newSeriesMap});
       console.log('SERIES updated (with dynamic data): ', newSeriesMap);
       updateState({ type: 'seriesLoading', payload: false });
+      
       return newSeriesMap;
+
     },
-    [account]
-  ); // TODO oops > sort out this dependency error. (is cyclic)
+    [ account ]
+  ); 
 
   /* Updates the vaults with *user* data */
   const updateVaults = useCallback(
@@ -413,7 +417,7 @@ const UserProvider = ({ children }: any) => {
             await Cauldron.balances(vault.id),
             await Cauldron.vaults(vault.id),
             await Cauldron.debt(vault.baseId, vault.ilkId),
-            await updatePrice(vault.baseId, vault.ilkId),
+            await updatePrice(vault.ilkId, vault.baseId),
           ]);
 
           const baseRoot:IAssetRoot = assetRootMap.get(vault.baseId);
@@ -445,17 +449,21 @@ const UserProvider = ({ children }: any) => {
             _map.set(item.id, item);
             return _map;
           },
-          force ? new Map() : userState.vaultMap
+          new Map()
         )
       );
 
-      updateState({ type: 'vaultMap', payload: newVaultMap });
-      vaultFromUrl && updateState({ type: 'selectedVaultId', payload: vaultFromUrl });
+      const combinedVaultMap = new Map([...userState.vaultMap, ...newVaultMap]);
 
-      console.log('VAULTS: ', newVaultMap);
+      /* update state */ 
+      updateState({ type: 'vaultMap', payload: combinedVaultMap });
+      vaultFromUrl && updateState({ type: 'selectedVaultId', payload: vaultFromUrl });
       updateState({ type: 'vaultsLoading', payload: false });
+
+      console.log('VAULTS: ', combinedVaultMap);
+      
     },
-    [contractMap, vaultFromUrl, _getVaults]
+    [contractMap, _getVaults, userState.vaultMap, vaultFromUrl, updatePrice, assetRootMap, account]
   );
 
   /* Updates the assets with relevant *user* data */
@@ -554,12 +562,16 @@ const UserProvider = ({ children }: any) => {
         }, userState.strategyMap)
       );
 
-      updateState({ type: 'strategyMap', payload: newStrategyMap });
-      console.log('STRATEGIES updated (with dynamic data): ', newStrategyMap);
+      const combinedMap = newStrategyMap;
+
+      updateState({ type: 'strategyMap', payload: combinedMap });
       updateState({ type: 'strategiesLoading', payload: false });
-      return newStrategyMap;
+
+      console.log('STRATEGIES updated (with dynamic data): ', combinedMap);
+
+      return combinedMap;
     },
-    [account, seriesRootMap]
+    [account, seriesRootMap ]
   );
 
   useEffect(() => {
@@ -591,17 +603,6 @@ const UserProvider = ({ children }: any) => {
     updateState({ type: 'activeAccount', payload: account });
   }, [account, chainLoading]); // updateVaults ignored here on purpose
 
-  /* TODO SUBSCRIBE TO EVENTS */
-  // useEffect(() => {
-  //   !chainLoading &&
-  //     seriesRootMap &&
-  //     (async () => {
-  //       const Oracle = contractMap.get('CompositeMultiOracle');
-  //       // const filter = Oracle.filters.SourceSet(null, null, null);
-  //       // const eventList = await Oracle.queryFilter(filter, 1);
-  //       // console.log('Oracle events: ', eventList);
-  //     })();
-  // }, [chainLoading, contractMap, seriesRootMap]);
 
   /* Exposed userActions */
   const userActions = {

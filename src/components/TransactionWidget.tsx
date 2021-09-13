@@ -49,8 +49,18 @@ const TransactionWidget = () => {
   return (
     <StyledBox gap="xsmall">
       {hasActiveProcess && lastTx?.status !== (TxState.PENDING || TxState.FAILED) && (
-        <Box direction="row" justify="start" align="center" fill elevation="small" gap="small" pad="small">
-          <Box align="center">
+        <Box
+          direction="row"
+          justify="start"
+          align="center"
+          fill
+          // elevation="small"
+          gap="small"
+          pad="small"
+          background="hover"
+          round="xsmall"
+        >
+          <Box width="3rem" align="center">
             <FiAlertTriangle size="1.5rem" color="#D97706" />
           </Box>
           <Box align="start">

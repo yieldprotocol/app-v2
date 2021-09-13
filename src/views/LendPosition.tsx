@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Box, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import { useHistory, useParams } from 'react-router-dom';
-import { FiArrowRight, FiClock, FiTrendingUp } from 'react-icons/fi';
+import { FiArrowRight, FiClock, FiTool, FiTrendingUp } from 'react-icons/fi';
 
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import InputWrap from '../components/wraps/InputWrap';
@@ -28,6 +28,7 @@ import { useLendHelpers } from '../hooks/actionHelperHooks/useLendHelpers';
 import { useClosePosition } from '../hooks/actionHooks/useClosePosition';
 import { useRedeemPosition } from '../hooks/actionHooks/useRedeemPosition';
 import { useRollPosition } from '../hooks/actionHooks/useRollPosition';
+import CopyWrap from '../components/wraps/CopyWrap';
 
 const LendPosition = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -131,22 +132,29 @@ const LendPosition = ({ close }: { close: () => void }) => {
       {selectedSeries && (
         <ModalWrap series={selectedSeries}>
           <CenterPanelWrap>
-            <Box fill gap="medium" pad={mobile ? 'medium' : 'large'}>
-              <Box height={{ min: '250px' }} gap="medium">
+
+            <Box fill gap="small" pad={mobile ? 'medium' : 'large'}>
+
+              <Box height={{ min: '250px' }} gap="2em">
                 <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
                   <Box direction="row" align="center" gap="medium">
                     <PositionAvatar position={selectedSeries!} actionType={ActionType.LEND} />
                     <Box>
                       <Text size={mobile ? 'medium' : 'large'}> {selectedSeries?.displayName} </Text>
-                      <Text size="small"> {abbreviateHash(selectedSeries?.fyTokenAddress!, 5)}</Text>
+                      <CopyWrap><Text size="small"> {abbreviateHash(selectedSeries?.fyTokenAddress!, 6)}</Text></CopyWrap>
                     </Box>
                   </Box>
-                  <ExitButton action={() => history.goBack()} />
+                  {/* <ExitButton action={() => history.goBack()} /> */}
                 </Box>
 
                 <SectionWrap>
                   <Box gap="small">
                     {/* <InfoBite label="Vault debt + interest:" value={`${selectedVault?.art_} ${vaultBase?.symbol}`} icon={<FiTrendingUp />} /> */}
+                    <InfoBite
+                      label="Maturity date:"
+                      value={`${selectedSeries?.fullDate}`}
+                      icon={<FiClock color={selectedSeries?.color} />}
+                    />
                     <InfoBite
                       label="Portfolio value at Maturity"
                       value={`${cleanValue(
@@ -162,26 +170,21 @@ const LendPosition = ({ close }: { close: () => void }) => {
                       icon={selectedBase?.image}
                       loading={seriesLoading}
                     />
-                    <InfoBite
-                      label="Maturity date:"
-                      value={`${selectedSeries?.fullDate}`}
-                      icon={<FiClock color={selectedSeries?.color} />}
-                    />
                   </Box>
                 </SectionWrap>
               </Box>
 
               <Box height={{ min: '300px' }}>
-                <SectionWrap title="Position Actions">
+                <SectionWrap title="Position Actions" icon={<FiTool />}>
                   <Box elevation="xsmall" round="xsmall">
                     <Select
                       plain
                       dropProps={{ round: 'xsmall' }}
                       options={[
-                        { text: 'Close Position', index: 0 },
+                        { text: `Redeem ${selectedBase?.symbol}`, index: 0 },
                         { text: 'Roll Position', index: 1 },
                         { text: 'View Transaction History', index: 2 },
-                        { text: 'Redeem', index: 3 },
+                        // { text: 'Redeem', index: 3 },
                       ]}
                       labelKey="text"
                       valueKey="index"
@@ -204,7 +207,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
                           <TextInput
                             plain
                             type="number"
-                            placeholder={`Amount of ${selectedBase?.symbol} to reclaim`}
+                            placeholder='Amount to reclaim'
                             value={closeInput || ''}
                             onChange={(event: any) => setCloseInput(cleanValue(event.target.value))}
                             disabled={!selectedSeries}
@@ -223,12 +226,12 @@ const LendPosition = ({ close }: { close: () => void }) => {
                     {stepPosition[0] !== 0 && (
                       <ActiveTransaction pad tx={closeTx}>
                         <SectionWrap
-                          title="Review your remove transaction"
+                          title="Review your redeem transaction"
                           rightAction={<CancelButton action={() => handleStepper(true)} />}
                         >
                           <Box margin={{ top: 'medium' }}>
                             <InfoBite
-                              label="Close Position"
+                              label={`Redeem Position ${selectedBase?.symbol}`}
                               icon={<FiArrowRight />}
                               value={`${cleanValue(closeInput, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
                               loading={seriesLoading}

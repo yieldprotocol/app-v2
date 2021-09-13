@@ -5,9 +5,15 @@ export const yieldTheme = {
   global: {
     focus: 'none',
     colors: {
-      brand: '#3f53d9',
-      focus: '#3f53d999',
-      selected: '#3f53d9',
+      // brand: '#3f53d9',
+      // focus: '#3f53d999',
+      // selected: '#3f53d9',
+
+      brand: '#2563EB',
+      focus: '#2563EB99',
+      selected: '#2563EB',
+      'hover' : '#ffffff69', 
+      'solid' :'#ffffff',
 
       'accent-1': '#FFCA58',
       'accent-2': '#81FCED',
@@ -36,10 +42,10 @@ export const yieldTheme = {
       darkBackground: {
         text: '#AAAAAA',
       },
-      background: {
-        dark: '#DDDDDD',
-        light: '#FFFFFF',
-      },
+      // background: {
+      //   dark: '#DDDDDD',
+      //   light: '#FFFFFF',
+      // },
     },
     // input: { weight: 700 },
   },

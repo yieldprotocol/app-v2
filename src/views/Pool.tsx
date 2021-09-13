@@ -30,6 +30,7 @@ import AltText from '../components/texts/AltText';
 import YieldCardHeader from '../components/YieldCardHeader';
 import { useAddLiquidity } from '../hooks/actionHooks/useAddLiquidity';
 import StrategySelector from '../components/selectors/StrategySelector';
+import ColorText from '../components/texts/ColorText';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -91,14 +92,14 @@ function Pool() {
       {!mobile && (
         <PanelWrap>
           <Box margin={{ top: '35%' }}>
-            <StepperText
+            {/* <StepperText
               position={stepPosition}
               values={[
                 // ['Choose amount to', 'POOL', ''],
                 ['Choose an amount and a strategy to invest in', '', ''],
                 ['Review &', 'Transact', ''],
               ]}
-            />
+            /> */}
           </Box>
           <YieldInfo />
         </PanelWrap>
@@ -107,12 +108,12 @@ function Pool() {
       <CenterPanelWrap series={selectedSeries}>
         <Box height="100%" pad={mobile ? 'medium' : 'large'}>
           {stepPosition === 0 && (
-            <Box gap="medium">
+            <Box gap="large">
               <YieldCardHeader logo={mobile} series={selectedSeries}>
                 <Box gap={mobile ? undefined : 'xsmall'}>
-                  <AltText size={mobile ? 'small' : 'large'}>PROVIDE LIQUIDITY</AltText>
+                  <ColorText size={mobile ? 'medium' : '2rem'}>PROVIDE LIQUIDITY</ColorText>
                   <AltText color="text-weak" size="xsmall">
-                    for variable returns based on protocol usage.
+                    Pool tokens for <ColorText size="small"> variable returns</ColorText> based on protocol usage.
                   </AltText>
                 </Box>
               </YieldCardHeader>

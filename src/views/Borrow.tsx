@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, Keyboard, ResponsiveContext, Text, TextInput } from 'grommet';
+import { BigNumber } from 'ethers';
 
 import { FiClock, FiPocket, FiPercent, FiTrendingUp, FiInfo } from 'react-icons/fi';
 
@@ -40,6 +41,8 @@ import { useBorrow } from '../hooks/actionHooks/useBorrow';
 import { useCollateralHelpers } from '../hooks/actionHelperHooks/useCollateralHelpers';
 import { useBorrowHelpers } from '../hooks/actionHelperHooks/useBorrowHelpers';
 import InputInfoWrap from '../components/wraps/InputInfoWrap';
+import NavText from '../components/texts/NavText';
+import ColorText from '../components/texts/ColorText';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -80,7 +83,7 @@ const Borrow = () => {
   ]);
 
   const { inputError: collatInputError } = useInputValidation(collatInput, ActionCodes.ADD_COLLATERAL, selectedSeries, [
-    minCollateral,
+    Number(minCollateral) - Number(vaultToUse?.ink_),
     maxCollateral,
   ]);
 
@@ -153,11 +156,11 @@ const Borrow = () => {
     selectedIlk && setVaultToUse(undefined);
   }, [selectedIlk]);
 
-  // THIS VALUE IS ACTIUALLY JUST the fytoken value:
-  // const borrowOutput = cleanValue(
-  //   (Number(borrowInput) * (1 + Number(apr) / 100)).toString(),
-  //   selectedBase?.digitFormat!
-  // );
+  // IS THIS VALUE IS ACTIUALLY JUST the fytoken value:
+  const borrowOutput = cleanValue(
+    (Number(borrowInput) * (1 + Number(apr) / 100)).toString(),
+    selectedBase?.digitFormat!
+  );
 
   return (
     <Keyboard onEsc={() => setCollatInput('')} onEnter={() => console.log('ENTER smashed')} target="document">
@@ -165,14 +168,14 @@ const Borrow = () => {
         {!mobile && (
           <PanelWrap>
             <Box margin={{ top: '35%' }}>
-              <StepperText
+              {/* <StepperText
                 position={stepPosition}
                 values={[
                   ['Choose an amount and a maturity date', '', ''],
                   ['Add Collateral', '', ''],
                   ['Review & Transact', '', ''],
                 ]}
-              />
+              /> */}
             </Box>
             <YieldInfo />
           </PanelWrap>
@@ -181,12 +184,12 @@ const Borrow = () => {
         <CenterPanelWrap series={selectedSeries || undefined}>
           <Box height="100%" pad={mobile ? 'medium' : 'large'}>
             {stepPosition === 0 && ( // INITIAL STEP
-              <Box gap="medium">
+              <Box gap="large">
                 <YieldCardHeader logo={mobile} series={selectedSeries}>
                   <Box gap={mobile ? undefined : 'xsmall'}>
-                    <AltText size={mobile ? 'small' : 'large'}>BORROW</AltText>
+                    <ColorText size={mobile ? 'medium' : '2rem'}>BORROW</ColorText>
                     <AltText color="text-weak" size="xsmall">
-                      popular ERC20 tokens at a fixed rate.
+                      Borrow popular ERC20 tokens at a <ColorText size="small"> fixed rate </ColorText>
                     </AltText>
                   </Box>
                 </YieldCardHeader>
@@ -202,11 +205,9 @@ const Borrow = () => {
                           message={
                             borrowInput && (
                               <InputInfoWrap>
-                                <Text size="small">
-                                  <Text size="small">
-                                    {cleanValue(minCollateral, 4)} {selectedIlk?.symbol}
-                                  </Text>{' '}
-                                  collateral required (or equivalent)
+                                <Text size="small" color="text-weak">
+                                  {cleanValue(minCollateral, 4)} {selectedIlk?.symbol} collateral required (or
+                                  equivalent)
                                 </Text>
                               </InputInfoWrap>
                             )
@@ -231,9 +232,9 @@ const Borrow = () => {
                   <SectionWrap
                     title={
                       seriesMap.size > 0
-                        ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} maturity date`
+                        ? `Available ${selectedBase?.symbol}${selectedBase && '-based'} maturity dates`
                         : ''
-                    }
+                    }          
                   >
                     <SeriesSelector inputValue={borrowInput} actionType={ActionType.BORROW} />
                   </SectionWrap>
@@ -276,10 +277,11 @@ const Borrow = () => {
                           disabled={!selectedSeries}
                           isError={collatInputError}
                           message={
-                            borrowInput && (
+                            borrowInput &&
+                            minSafeCollateral && (
                               <InputInfoWrap action={() => setCollatInput(cleanValue(minSafeCollateral, 12))}>
-                                <Text size="small">
-                                  Safe minimum {': '}
+                                <Text size="small" color="text-weak">
+                                  Safe Minimum{': '}
                                   {cleanValue(minSafeCollateral, 4)} {selectedIlk?.symbol}
                                 </Text>
                               </InputInfoWrap>
@@ -358,7 +360,7 @@ const Borrow = () => {
                       <InfoBite
                         label="Vault Debt Payable @ Maturity"
                         icon={<FiTrendingUp />}
-                        value={`${selectedSeries?.fyTokenBalance_} ${selectedBase?.symbol}`}
+                        value={`${borrowOutput} ${selectedBase?.symbol}`}
                       />
                       <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
                       <InfoBite
@@ -386,7 +388,8 @@ const Borrow = () => {
             <ActionButtonWrap pad>
               {(stepPosition === 0 || stepPosition === 1) && (
                 <NextButton
-                  label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
+                  // label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
+                  label = { (borrowInput  && !selectedSeries) ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} Maturity` : 'Next Step' }
                   onClick={() => setStepPosition(stepPosition + 1)}
                   disabled={stepPosition === 0 ? stepDisabled : borrowDisabled}
                   errorLabel={stepPosition === 0 ? borrowInputError : collatInputError}
