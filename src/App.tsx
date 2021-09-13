@@ -2,6 +2,9 @@ import React, { useContext, useState } from 'react';
 import { Box, ResponsiveContext } from 'grommet';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
+import ParticlesBg from 'particles-bg';
+
 import { Redirect, Route, Switch } from 'react-router-dom';
 import { ChainContext } from './contexts/ChainContext';
 
@@ -28,52 +31,67 @@ function App() {
   const [menuLayerOpen, setMenuLayerOpen] = useState<boolean>(false);
 
   return (
-    <Box fill>
-      {chainData && !chainData.supported && <NetworkError />}
+    <>
+      <ParticlesBg type="circle" num={7} bg={true} />
+      {/* "color"
+          "ball"
+          "lines"
+          "thick"
+          "circle"
+          "cobweb"
+          "polygon"
+          "square"
+          "tadpole"
+          "fountain"
+          "random"
+          "custom" */}
+      <Box fill >
+        {chainData && !chainData.supported && <NetworkError />}
 
-      <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
+        <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
 
-      <Box flex={!mobile} overflow="auto">
-        <ToastContainer position="top-center" />
-        {menuLayerOpen && <MenuLayer toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} />}
-        <Switch>
-          <Route path="/borrow/:series?/:asset?/:amnt?">
-            <Borrow />
-          </Route>
+        <Box flex={!mobile} overflow="hidden" >
+          <ToastContainer position="top-center" />
+          {menuLayerOpen && <MenuLayer toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} />}
+          <Switch>
+            <Route path="/borrow/:series?/:asset?/:amnt?">
+              <Borrow />
+            </Route>
 
-          <Route path="/lend/:series?/:asset?/:amnt?">
-            <Lend />
-          </Route>
+            <Route path="/lend/:series?/:asset?/:amnt?">
+              <Lend />
+            </Route>
 
-          <Route path="/pool/:series?/:asset?/:amnt?">
-            <Pool />
-          </Route>
+            <Route path="/pool/:series?/:asset?/:amnt?">
+              <Pool />
+            </Route>
 
-          <Route path="/dashboard">
-            <Dashboard />
-          </Route>
+            <Route path="/dashboard">
+              <Dashboard />
+            </Route>
 
-          <Route exact path="/">
-            <Redirect to="/borrow" />
-          </Route>
+            <Route exact path="/">
+              <Redirect to="/borrow" />
+            </Route>
 
-          <Route path="/vaultposition/:id">
-            <VaultPosition close={() => null} />
-          </Route>
+            <Route path="/vaultposition/:id">
+              <VaultPosition close={() => null} />
+            </Route>
 
-          <Route path="/lendposition/:id">
-            <LendPosition close={() => null} />
-          </Route>
+            <Route path="/lendposition/:id">
+              <LendPosition close={() => null} />
+            </Route>
 
-          <Route path="/poolposition/:id">
-            <PoolPosition close={() => null} />
-          </Route>
+            <Route path="/poolposition/:id">
+              <PoolPosition close={() => null} />
+            </Route>
 
-          <Route path="/*"> 404 </Route>
-        </Switch>
+            <Route path="/*"> 404 </Route>
+          </Switch>
+        </Box>
+        <YieldFooter />
       </Box>
-      <YieldFooter />
-    </Box>
+    </>
   );
 }
 

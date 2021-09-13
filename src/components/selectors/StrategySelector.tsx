@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Avatar, Box, Grid, ResponsiveContext, Select, Text } from 'grommet';
 import { toast } from 'react-toastify';
+import { FiSlash } from 'react-icons/fi';
 
 import Skeleton from 'react-loading-skeleton';
 import { ethers } from 'ethers';
@@ -9,6 +10,7 @@ import { ActionType, ISeries, IStrategy } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { useApr } from '../../hooks/useApr';
 import { nFormatter } from '../../utils/appUtils';
+
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
@@ -86,7 +88,7 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
   useEffect(() => {
     const opts = Array.from(strategyMap.values()) as IStrategy[];
 
-    const filteredOpts = opts.filter((_st: IStrategy) => _st.baseId === selectedBaseId);
+    const filteredOpts = opts.filter((_st: IStrategy) => _st.baseId === selectedBaseId && _st.currentSeries );
     // .filter((_st: IStrategy) => _st.currentSeries);
     setOptions(filteredOpts);
   }, [selectedBaseId, strategyMap]);
@@ -142,7 +144,7 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
 
       {cardLayout && (
 
-<Box overflow={mobile?undefined:"auto"} height={mobile?undefined:"250px"} pad="xsmall">
+<Box overflow={mobile?undefined:"auto"} height={mobile?undefined:"250px"} pad="xsmall" >
         <Grid columns={mobile ? '100%' : '40%'} gap="small" >
           {strategiesLoading ? (
             <>
@@ -157,12 +159,12 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
                 pad="xsmall"
                 round="xsmall"
                 onClick={() => handleSelect(strategy)}
-                background={strategy.address === selectedStrategyAddr ? strategy.currentSeries?.color : undefined}
+                background={strategy.address === selectedStrategyAddr ? strategy.currentSeries?.color :'solid'}
                 elevation="xsmall"
                 align="center"
               >
                 <Box pad="small" width="small" direction="row" align="center" gap="small">
-                  <Avatar background="#FFF"> {strategy.currentSeries?.seriesMark}</Avatar>
+                  <Avatar background="solid"> {strategy.currentSeries?.seriesMark || <FiSlash />}</Avatar>
                   <Box>
                     <Text size="medium" color={strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined}>
                         {strategy.name}

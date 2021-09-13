@@ -1,6 +1,7 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
+import { HistoryContext } from '../../contexts/HistoryContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, IVault, ActionCodes, LadleActions, ISeries } from '../../types';
 import { getTxCode } from '../../utils/appUtils';
@@ -44,6 +45,7 @@ export const useBorrow = () => {
       series.fyTokenReserves,
       _input,
       series.getTimeTillMaturity(),
+      series.decimals,
     )
     const _expectedFyTokenWithSlippage = calculateSlippage( _expectedFyToken, slippageTolerance )
 

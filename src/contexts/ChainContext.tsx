@@ -185,7 +185,9 @@ const ChainProvider = ({ children }: any) => {
   const [cachedStrategies, setCachedStrategies] = useCachedState('strategies', []);
 
   const [lastAssetUpdate, setLastAssetUpdate] = useCachedState('lastAssetUpdate', 0);
+  // const [lastSeriesUpdate, setLastSeriesUpdate] = useCachedState('lastSeriesUpdate', 27090000);
   const [lastSeriesUpdate, setLastSeriesUpdate] = useCachedState('lastSeriesUpdate', 0);
+
 
   /**
    * Update on FALLBACK connection/state on network changes (id/library)
@@ -335,7 +337,7 @@ const ChainProvider = ({ children }: any) => {
           oppStartColor,
           oppEndColor,
           oppTextColor,
-          seriesMark: <YieldMark startColor={startColor} endColor={endColor} />,
+          seriesMark: <YieldMark colors={[startColor, endColor] } />,
 
           // built-in helper functions:
           getTimeTillMaturity: () => series.maturity - Math.round(new Date().getTime() / 1000),
@@ -357,6 +359,7 @@ const ChainProvider = ({ children }: any) => {
         );
 
         const newSeriesList: any[] = [];
+
         /* Add in any extra static series */
         try {
           await Promise.all([
