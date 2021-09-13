@@ -20,6 +20,7 @@ import YieldHeader from './components/YieldHeader';
 import NetworkError from './components/NetworkError';
 import LendPosition from './views/LendPosition';
 import PoolPosition from './views/PoolPosition';
+import TransactionWidget from './components/TransactionWidget';
 
 function App() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -47,6 +48,7 @@ function App() {
           "custom" */}
       <Box fill >
         {chainData && !chainData.supported && <NetworkError />}
+        <TransactionWidget />
 
         <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
 
