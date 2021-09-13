@@ -1,6 +1,6 @@
 import { Box, Button, ResponsiveContext, Text } from 'grommet';
 import React, { useContext, useState } from 'react';
-import { RiDashboard2Line } from 'react-icons/ri';
+import { RiDashboard2Line, RiDashboard3Line } from 'react-icons/ri';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -24,7 +24,7 @@ function DashButton() {
 
   return (
     <Box align="center" direction="row">
-      <StyledButton onClick={() => routerHistory.push(`/dashboard`) } icon={<RiDashboard2Line size={mobile ? '1em' : '1em'} />} />
+      <StyledButton onClick={() => routerHistory.push(`/dashboard`) } icon={<RiDashboard3Line size={mobile ? '1em' : '1em'} />} />
     </Box>
   );
 }
