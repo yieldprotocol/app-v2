@@ -186,7 +186,6 @@ const Borrow = () => {
           <Box height="100%" pad={mobile ? 'medium' : 'large'}>
             {stepPosition === 0 && ( // INITIAL STEP
               <Box gap="large">
-
                 <YieldCardHeader logo={mobile} series={selectedSeries}>
                   <Box gap={mobile ? undefined : 'xsmall'}>
                     <ColorText size={mobile ? 'medium' : '2rem'}>BORROW</ColorText>
@@ -207,11 +206,9 @@ const Borrow = () => {
                           message={
                             borrowInput && (
                               <InputInfoWrap>
-                                <Text size="small" color='text-weak'>
-                                  <Text size="small">
-                                    {cleanValue(minCollateral, 4)} {selectedIlk?.symbol}
-                                  </Text>{' '}
-                                  collateral required (or equivalent)
+                                <Text size="small" color="text-weak">
+                                  {cleanValue(minCollateral, 4)} {selectedIlk?.symbol} collateral required (or
+                                  equivalent)
                                 </Text>
                               </InputInfoWrap>
                             )
@@ -236,9 +233,9 @@ const Borrow = () => {
                   <SectionWrap
                     title={
                       seriesMap.size > 0
-                        ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} maturity date`
+                        ? `Available ${selectedBase?.symbol}${selectedBase && '-based'} maturity dates`
                         : ''
-                    }
+                    }          
                   >
                     <SeriesSelector inputValue={borrowInput} actionType={ActionType.BORROW} />
                   </SectionWrap>
@@ -274,8 +271,8 @@ const Borrow = () => {
                   </SectionWrap>
 
                   <SectionWrap title="Amount of collateral to add">
-                    <Box direction="row-responsive" gap='small'>
-                      <Box basis={mobile ? undefined : '60%'} fill="horizontal" >
+                    <Box direction="row-responsive" gap="small">
+                      <Box basis={mobile ? undefined : '60%'} fill="horizontal">
                         <InputWrap
                           action={() => console.log('maxAction')}
                           disabled={!selectedSeries}
@@ -284,7 +281,7 @@ const Borrow = () => {
                             borrowInput &&
                             minSafeCollateral && (
                               <InputInfoWrap action={() => setCollatInput(cleanValue(minSafeCollateral, 12))}>
-                                <Text size="small" color='text-weak'>
+                                <Text size="small" color="text-weak">
                                   Safe Minimum{': '}
                                   {cleanValue(minSafeCollateral, 4)} {selectedIlk?.symbol}
                                 </Text>
@@ -392,7 +389,8 @@ const Borrow = () => {
             <ActionButtonWrap pad>
               {(stepPosition === 0 || stepPosition === 1) && (
                 <NextButton
-                  label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
+                  // label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
+                  label = { (borrowInput  && !selectedSeries) ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} Maturity` : 'Next Step' }
                   onClick={() => setStepPosition(stepPosition + 1)}
                   disabled={stepPosition === 0 ? stepDisabled : borrowDisabled}
                   errorLabel={stepPosition === 0 ? borrowInputError : collatInputError}

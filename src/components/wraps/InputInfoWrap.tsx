@@ -6,25 +6,20 @@ import BoxWrap from './BoxWrap';
 
 function InputInfoWrap({ action, index, children }: { children: any; index?: number; action?: () => void }) {
   return (
-    <>
-      {action ? (
+
         <BoxWrap
-          pad={{ vertical: 'small' }}
+          pad='small'
           direction="row"
           gap="small"
           align="center"
+          animation= { action? undefined : "zoomIn"}
           onClick={action ? () => action() : undefined}
+          justify='center'
+          fill
         >
-          <FiPlayCircle size="1.25rem" color="orange" />
+          {action?  <FiPlayCircle size="1.25rem" color="orange" /> :   <FiInfo size="1.25rem" color="orange" />}
           {children}
         </BoxWrap>
-      ) : (
-        <Box pad={{ vertical: 'small' }} direction="row" gap="small" align="center" animation="zoomIn">
-          <FiInfo size="1.25rem" color="orange" />
-          {children}
-        </Box>
-      )}
-    </>
   );
 }
 

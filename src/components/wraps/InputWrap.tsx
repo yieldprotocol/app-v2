@@ -21,8 +21,7 @@ function InputWrap({ action, disabled, isError, showErrorText, message, children
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   return (
-    <Box>
-
+    <Box height={{ min: '3em' }} gap="small">
       <InsetBox
         {...props}
         direction="row"
@@ -34,7 +33,7 @@ function InputWrap({ action, disabled, isError, showErrorText, message, children
         {children}
       </InsetBox>
 
-      <Box>
+      <Box >
         {!mobile && (
           <Text style={{ position: 'absolute' }} size="xsmall">
             {showErrorText && isError}
@@ -42,7 +41,6 @@ function InputWrap({ action, disabled, isError, showErrorText, message, children
           </Text>
         )}
       </Box>
-
     </Box>
   );
 }
