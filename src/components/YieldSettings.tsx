@@ -8,7 +8,6 @@ import YieldAvatar from './YieldAvatar';
 import AdvancedSettings from './AdvancedSettings';
 import { TxContext } from '../contexts/TxContext';
 import TransactionList from './TransactionList';
-import Transactions from './Transactions';
 import CopyWrap from './wraps/CopyWrap';
 
 const StyledButton = styled(Button)`

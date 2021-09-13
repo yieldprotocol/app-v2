@@ -27,7 +27,12 @@ const DashboardPositionList = ({
   positions,
   actionType,
 }: IDashPosition) => (
-
+  <DashboardPositionSummary
+    debt={debt!}
+    collateral={collateral!}
+    lendBalance={lendBalance!}
+    strategyBalance={strategyBalance!}
+  >
     <StyledBox>
       {positions.length === 0 && (
         <Text weight={450} size="small">
