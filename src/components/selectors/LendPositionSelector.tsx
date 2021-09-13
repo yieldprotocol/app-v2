@@ -8,6 +8,7 @@ import { ActionType, IAsset, ISeries, IStrategy, IUserContext } from '../../type
 import { ZERO_BN } from '../../utils/constants';
 import LendItem from '../positionItems/LendItem';
 import ListWrap from '../wraps/ListWrap';
+import DashButton from '../buttons/DashButton';
 
 interface IPositionFilter {
   base: IAsset | undefined;
@@ -78,13 +79,17 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
     <Box justify="end" fill>
       {allPositions.length !== 0 && (
         <Box justify="between" alignSelf="end" gap="small" pad="small" background="hover" round="xsmall">
-          <Box animation="fadeIn" justify="center" align="center" direction="row" gap="small">
-            <Text size="small" color="text-weak">
+
+          <Box animation="fadeIn" justify="between" direction="row" gap="small" pad={{ horizontal: 'medium', vertical:'xsmall' }}>
+              <Text size="small" color="text-weak" textAlign="center">
               {showAllPositions
-                ? `Open ${actionType === 'LEND' ? 'lending' : 'pool'} positions`
-                : `Filtered ${actionType === 'LEND' ? 'lending' : 'pool'} positions`}
-            </Text>
-          </Box>
+                ? `All Lending Positions`
+                : `Filtered Lending Positions`}
+              </Text>
+              <Text color="text-weak" textAlign="center">
+                <DashButton />
+              </Text>
+            </Box>
 
           <ListWrap overflow="auto">
             {filteredSeries.length === 0 && !showAllPositions && (

@@ -35,7 +35,7 @@ function PositionAvatar({
         <Avatar background={series?.color || 'lightGrey'} size={condensed ? '1.5rem' : undefined}>
       
           <Box round="large" background={base?.color || 'grey'} pad={condensed ? 'none' : 'xsmall'} align="center">
-            {base?.image || <Skeleton circle width={45} height={45} />}
+            {base?.image }
           </Box>
         </Avatar>
 

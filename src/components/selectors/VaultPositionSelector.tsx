@@ -1,11 +1,13 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Box, Button, Text } from 'grommet';
 import { FiX } from 'react-icons/fi';
+import { RiDashboard2Line } from 'react-icons/ri';
 import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
 import { IAsset, ISeries, IUserContext, IVault } from '../../types';
 import VaultListItem from '../positionItems/VaultItem';
 import ListWrap from '../wraps/ListWrap';
+import DashButton from '../buttons/DashButton';
 
 interface IVaultFilter {
   base: IAsset | undefined;
@@ -71,9 +73,12 @@ function VaultPositionSelector(target: any) {
       <Box justify="end" fill>
         {allVaults.length > 0 && (
           <Box justify="between" alignSelf="end" gap="small" pad="small" background="hover" round="xsmall">
-            <Box animation="fadeIn" justify="center" align="center" direction="row" gap="small">
-              <Text size="small" color="text-weak">
-                {showAllVaults ? 'All my existing vaults' : 'Filtered vaults '}
+            <Box animation="fadeIn" justify="between" direction="row" gap="small" pad={{ horizontal: 'medium', vertical:'xsmall' }}>
+              <Text size="small" color="text-weak" textAlign="center">
+                {showAllVaults ? 'All vaults' : 'Filtered vaults '}
+              </Text>
+              <Text color="text-weak" textAlign="center">
+                <DashButton />
               </Text>
             </Box>
 
