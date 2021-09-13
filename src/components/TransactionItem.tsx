@@ -26,6 +26,8 @@ const TransactionItem = ({ tx, handleRemove, wide }: ITransactionItem) => {
       elevation={wide ? undefined : 'small'}
       pad={wide ? 'xsmall' : 'small'}
       key={t.hash}
+      background="hover"
+      round="xsmall"
     >
       <Box width="3rem">
         {status === TxState.PENDING && <Spinner color="tailwind-blue" />}

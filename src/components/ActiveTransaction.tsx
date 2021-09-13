@@ -6,7 +6,7 @@ import { BiWallet } from 'react-icons/bi';
 import { FiCheckCircle, FiClock, FiPenTool, FiX } from 'react-icons/fi';
 import { TxContext } from '../contexts/TxContext';
 import { UserContext } from '../contexts/UserContext';
-import { useTx } from '../hooks/useTx';
+import { useTxProcess } from '../hooks/useTxProcess';
 import { ActionCodes, ApprovalType, TxState } from '../types';
 import { abbreviateHash } from '../utils/appUtils';
 import EtherscanButton from './buttons/EtherscanButton';
@@ -75,6 +75,11 @@ const ActiveTransaction = ({
 
   const [sig, setSig] = useState<any>();
   const [iconSize, setIconSize] = useState<string>('1em');
+
+  const tx2 = useTxProcess(undefined, undefined, tx.txCode);
+
+  console.log(tx2);
+  
   useEffect(() => {
     tx.txCode && setSig(signatures.get(tx.txCode));
   }, [tx, signatures]);

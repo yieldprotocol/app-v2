@@ -265,6 +265,7 @@ export enum ApprovalType {
   TX = 'TX',
   SIG = 'SIG',
 }
+
 export enum SignType {
   ERC2612 = 'ERC2612_TYPE',
   DAI = 'DAI_TYPE',
@@ -276,6 +277,15 @@ export enum TxState {
   SUCCESSFUL = 'SUCCESSFUL',
   FAILED = 'FAILED',
   REJECTED = 'REJECTED',
+}
+
+export enum YieldTxProcess {
+  'PROCESS_INACTIVE' = 0,
+  'SIGNING_REQUESTED' = 1,
+  'SIGNING_TRANSACTION_ACTIVE' = 2,
+  'SIGNING_COMPLETE' = 3,
+  'TRANSACTION_ACTIVE' = 4,
+  'PROCESS_COMPLETE' = 5,
 }
 
 export enum MenuView {

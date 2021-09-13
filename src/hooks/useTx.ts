@@ -21,16 +21,17 @@ interface ITx {
 /* useTx hook returns the tx status, and redirects to home after success if shouldRedirect is specified */
 /* the return tx looks like any object of {txCode, isPending, isSuccess, isFailed, isRejected} */
 export const useTx = (
-  actionCode: ActionCodes,
+  actionCode: ActionCodes | undefined,
   seriesOrVaultId: string | undefined,
+  transactionCode: string | undefined = undefined,
   shouldRedirect: boolean = false
 ) => {
+
   /* STATE FROM CONTEXT */
   const {
     txState: { transactions, processes },
   } = useContext(TxContext);
   const {
-    // userState: { selectedVaultId, selectedSeriesId },
     userActions,
   } = useContext(UserContext);
   const {
@@ -64,28 +65,38 @@ export const useTx = (
     setProcessActive(false);
   };
 
+  // 1. Set the transaction code from provided... or based on seriesId and actionCode 
   useEffect(() => {
-    seriesOrVaultId ? setTxCode(getTxCode(actionCode, seriesOrVaultId)) : setTxCode(undefined);
-  }, [actionCode, seriesOrVaultId]);
+    if (transactionCode) {
+      setTxCode(transactionCode);
+     } else {
+      (actionCode && seriesOrVaultId) ? setTxCode(getTxCode(actionCode, seriesOrVaultId)) : setTxCode(undefined);
+     }
+  }, [actionCode, seriesOrVaultId, transactionCode]);
 
+  // 2. Get the txHash (if there is one)
   useEffect(() => {
     txCode && setTxHash(processes.get(txCode!)?.hash!);
   }, [processes, txCode, processActive]);
 
+  // 3. Check/set if the process is active or not
   useEffect(() => {
     txCode && processes.has(txCode) && processes.get(txCode).status === 'ACTIVE'
       ? setProcessActive(true)
       : setProcessActive(false);
   }, [processes, txCode]);
 
+  // 4. If the process has an associated Transaction... get its status
   useEffect(() => {
     processActive && transactions.has(txHash) && setTxStatus(transactions.get(txHash).status);
   }, [txHash, transactions, processActive]);
 
+  // 5. If the transaction has an associated receipt, add it to the  
   useEffect(() => {
     transactions.has(txHash) && setTx((t) => ({ ...t, receipt: transactions.get(txHash).receipt }));
   }, [txHash, transactions]);
 
+  // WATCH and set if the txStatus changes 
   useEffect(() => {
     setTx((t) => ({ ...t, txCode, processActive }));
     switch (txStatus) {
