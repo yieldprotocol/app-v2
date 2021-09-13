@@ -1,35 +1,21 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box } from 'grommet';
-import { ActionType, ISeries, IUserContext, IVault } from '../types';
+import { ActionType, ISeries, IStrategy, IUserContext, IVault } from '../types';
 import { UserContext } from '../contexts/UserContext';
 import VaultItem from './positionItems/VaultItem';
-import PositionItem from './positionItems/LendItem';
+import LendItem from './positionItems/LendItem';
+import StrategyItem from './positionItems/StrategyItem';
 
-function DashboardPositionListItem({
-  seriesOrVault,
-  index,
-  actionType,
-}: {
-  seriesOrVault: any;
-  index: number;
-  actionType: ActionType;
-}) {
+function DashboardPositionListItem({ item, index, actionType }: { item: any; index: number; actionType: ActionType }) {
   const {
-    userState: { vaultMap, seriesMap },
+    userState: { vaultMap, seriesMap, strategyMap },
   } = useContext(UserContext) as IUserContext;
-  const [vault, setVault] = useState<IVault>();
-  const [series, setSeries] = useState<ISeries>();
-
-  useEffect(() => {
-    actionType === ActionType.BORROW
-      ? setVault(vaultMap?.get(seriesOrVault.id))
-      : setSeries(seriesMap?.get(seriesOrVault.id));
-  }, [seriesOrVault, actionType, vaultMap, seriesMap]);
 
   return (
     <Box>
-      {vault && <VaultItem vault={seriesOrVault!} index={index} condensed />}
-      {series && <PositionItem series={seriesOrVault!} index={index} actionType={actionType} condensed />}
+      {vaultMap?.has(item.id!) && <VaultItem vault={item!} index={index} condensed />}
+      {seriesMap?.has(item.id) && <LendItem series={item!} index={index} actionType={actionType} condensed />}
+      {strategyMap?.has(item.id) && <StrategyItem strategy={item!} index={index} condensed />}
     </Box>
   );
 }

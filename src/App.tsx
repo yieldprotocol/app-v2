@@ -50,7 +50,7 @@ function App() {
 
         <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
 
-        <Box flex={!mobile} overflow="auto" >
+        <Box flex={!mobile} overflow="hidden" >
           <ToastContainer position="top-center" />
           {menuLayerOpen && <MenuLayer toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} />}
           <Switch>

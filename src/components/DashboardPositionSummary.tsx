@@ -6,7 +6,7 @@ interface IDashSummary {
   debt: string | null;
   collateral: string | null;
   lendBalance: string | null;
-  poolBalance: string | null;
+  strategyBalance: string | null;
   children: any;
 }
 
@@ -17,14 +17,14 @@ const Summary = ({ label, value }: { label: string; value: string }) => (
   </Box>
 );
 
-const DashboardPositionSummary = ({ debt, collateral, lendBalance, poolBalance, children }: IDashSummary) => (
+const DashboardPositionSummary = ({ debt, collateral, lendBalance, strategyBalance, children }: IDashSummary) => (
   <Box>
     <Box direction="row" justify="between" background="tailwind-blue-50" round="xsmall" pad="small">
       <Box direction="row" gap="small">
         {debt && <Summary label="Debt" value={debt} />}
         {collateral && <Summary label="Collateral" value={collateral} />}
         {lendBalance && <Summary label="Balance" value={lendBalance} />}
-        {poolBalance && <Summary label="Balance" value={poolBalance} />}
+        {strategyBalance && <Summary label="Balance" value={strategyBalance} />}
       </Box>
     </Box>
     <ListWrap pad={{ vertical: 'xsmall', horizontal: 'none' }}>{children}</ListWrap>
