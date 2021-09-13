@@ -51,7 +51,7 @@ const YieldInfo = () => {
   };
 
   return (
-    <Box gap="small">
+    <Box gap="small" >
       <Box>
         <Text size="xsmall" color="grey">
           App version: v{appVersion}

@@ -6,8 +6,7 @@ import { Box, Button, Text } from 'grommet';
 import { UserContext } from '../../contexts/UserContext';
 import { ActionType, IAsset, ISeries, IStrategy, IUserContext } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
-import PositionItem from '../positionItems/LendItem';
-import StrategyItem from '../positionItems/StrategyItem';
+import LendItem from '../positionItems/LendItem';
 import ListWrap from '../wraps/ListWrap';
 
 interface IPositionFilter {
@@ -16,7 +15,6 @@ interface IPositionFilter {
 }
 
 function PositionSelector({ actionType }: { actionType: ActionType }) {
-
   const history = useHistory();
   /* STATE FROM CONTEXT */
 
@@ -79,7 +77,7 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
   return (
     <Box justify="end" fill>
       {allPositions.length !== 0 && (
-        <Box justify="between" alignSelf="end" gap="small" pad="small">
+        <Box justify="between" alignSelf="end" gap="small" pad="small" background="hover" round="xsmall">
           <Box animation="fadeIn" justify="center" align="center" direction="row" gap="small">
             <Text size="small" color="text-weak">
               {showAllPositions
@@ -96,7 +94,7 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
             )}
 
             {(!showAllPositions ? filteredSeries : allPositions).map((x: ISeries, i: number) => (
-              <PositionItem series={x} actionType={actionType} index={i} key={x.id} />
+              <LendItem series={x} actionType={actionType} index={i} key={x.id} />
             ))}
           </ListWrap>
 

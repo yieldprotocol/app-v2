@@ -144,7 +144,7 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
 
       {cardLayout && (
 
-<Box overflow={mobile?undefined:"auto"} height={mobile?undefined:"250px"} pad="xsmall">
+<Box overflow={mobile?undefined:"auto"} height={mobile?undefined:"250px"} pad="xsmall" >
         <Grid columns={mobile ? '100%' : '40%'} gap="small" >
           {strategiesLoading ? (
             <>
@@ -159,12 +159,12 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
                 pad="xsmall"
                 round="xsmall"
                 onClick={() => handleSelect(strategy)}
-                background={strategy.address === selectedStrategyAddr ? strategy.currentSeries?.color : undefined}
+                background={strategy.address === selectedStrategyAddr ? strategy.currentSeries?.color :'solid'}
                 elevation="xsmall"
                 align="center"
               >
                 <Box pad="small" width="small" direction="row" align="center" gap="small">
-                  <Avatar background="#FFF"> {strategy.currentSeries?.seriesMark || <FiSlash />}</Avatar>
+                  <Avatar background="solid"> {strategy.currentSeries?.seriesMark || <FiSlash />}</Avatar>
                   <Box>
                     <Text size="medium" color={strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined}>
                         {strategy.name}

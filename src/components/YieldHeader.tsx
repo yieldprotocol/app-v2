@@ -22,16 +22,17 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
           pad={mobile ? 'xsmall' : 'large'}
           height={mobile ? undefined : 'xsmall'}
           style={{ position: 'fixed', top: '0px' }}
-          background="background"
           direction="row"
           fill="horizontal"
         >
           <Grid columns={['auto', '1fr', 'auto']} fill="horizontal">
             <Box direction="row" gap={mobile ? '0.25em' : 'large'} align="center">
-              <Avatar>
+              <Avatar background='#ffffff69' size='medium'>
+
                 <NavLink to={`/${prevLoc}`}>
-                  <YieldMark height={mobile ? '1.0em' : '2em'} colors={['#f79533', '#f37055', '#ef4e7b', '#a166ab', '#5073b8', '#1098ad', '#07b39b', '#6fba82'] } />
+                  <YieldMark height={mobile ? 'small' : 'medium'} colors={['#f79533', '#f37055', '#ef4e7b', '#a166ab', '#5073b8', '#1098ad', '#07b39b', '#6fba82'] } />
                 </NavLink>
+                
               </Avatar>
               {!mobile && <YieldNavigation />}
             </Box>
