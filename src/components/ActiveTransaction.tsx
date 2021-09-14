@@ -6,7 +6,7 @@ import { BiWallet } from 'react-icons/bi';
 import { FiCheckCircle, FiClock, FiPenTool, FiX } from 'react-icons/fi';
 import { TxContext } from '../contexts/TxContext';
 import { UserContext } from '../contexts/UserContext';
-import { useTxProcess } from '../hooks/useTxProcess';
+import { useProcess } from '../hooks/useProcess';
 import { ActionCodes, ApprovalType, TxState } from '../types';
 import { abbreviateHash } from '../utils/appUtils';
 import EtherscanButton from './buttons/EtherscanButton';
@@ -76,10 +76,8 @@ const ActiveTransaction = ({
   const [sig, setSig] = useState<any>();
   const [iconSize, setIconSize] = useState<string>('1em');
 
-  const tx2 = useTxProcess(undefined, undefined, tx.txCode);
+  const process = useProcess(undefined, undefined, tx.txCode);
 
-  console.log(tx2);
-  
   useEffect(() => {
     tx.txCode && setSig(signatures.get(tx.txCode));
   }, [tx, signatures]);
@@ -90,6 +88,7 @@ const ActiveTransaction = ({
   }, [full]);
 
   return (
+
     <Box pad={pad ? { horizontal: 'small', vertical: 'medium' } : undefined}>
       {!tx.processActive && // CASE: no tx or signing activity
         (!sig || sig?.status === TxState.REJECTED || sig?.status === TxState.SUCCESSFUL) &&
@@ -145,18 +144,6 @@ const ActiveTransaction = ({
             full={full}
           />
         )}
-
-      {/* {tx.processActive &&
-        sig?.status === TxState.SUCCESSFUL &&
-        tx.success && ( // Case:  TX complete. if process still active, assume that the tx was an approval.
-          <InfoBlock
-            title="Token Approval Complete"
-            subTitle="Please check your wallet/provider to confirm second step"
-            icon={<FiClock size={iconSize} />}
-            button={<EtherscanButton txHash={tx.txHash} />}
-            full={full}
-          />
-        )} */}
 
       {!tx.processActive && tx.success && (
         <InfoBlock

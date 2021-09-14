@@ -279,7 +279,7 @@ export enum TxState {
   REJECTED = 'REJECTED',
 }
 
-export enum YieldTxProcess {
+export enum ProcessStage {
   'PROCESS_INACTIVE' = 0,
   'SIGNING_REQUESTED' = 1,
   'SIGNING_TRANSACTION_PENDING' = 2,

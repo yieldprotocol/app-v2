@@ -32,8 +32,10 @@ interface IYieldTx extends ContractTransaction {
 }
 
 interface IYieldProcess {
+  txCode: string;
   stage: ProcessStage;
-  txHash?: string | undefined;
+  tx: IYieldTx;
+  // positionPath?: string | undefined;
 }
 
 function txReducer(_state: any, action: any) {
@@ -47,20 +49,19 @@ function txReducer(_state: any, action: any) {
       return {
         ..._state,
         transactions: new Map(_state.transactions.set(action.payload.tx.hash, action.payload)),
-        // also update processes with tx hash:
+        // also update processes with tx:
         processes: new Map(
           _state.processes.set(action.payload.txCode, {
             ..._state.processes.get(action.payload.txCode),
-            hash: action.payload.tx.hash,
+            tx: action.payload,
           })
         ),
       };
-    case 'signatures':
-      return {
-        ..._state,
-        signatures: new Map(_state.signatures.set(action.payload.txCode, action.payload)),
-      };
-
+    // case 'signatures':
+    //   return {
+    //     ..._state,
+    //     signatures: new Map(_state.signatures.set(action.payload.txCode, action.payload)),
+    //   };
     case 'processes':
       return {
         ..._state,
@@ -68,7 +69,6 @@ function txReducer(_state: any, action: any) {
           _state.processes.set(action.payload.txCode, {
             ..._state.processes.get(action.payload.txCode),
             stage: action.payload.stage,
-            hash: action.payload.hash,
           })
         ),
       };
@@ -79,12 +79,6 @@ function txReducer(_state: any, action: any) {
         processActive: _onlyIfChanged(action),
       };
 
-    case 'signingActive':
-      return {
-        ..._state,
-        signingActive: _onlyIfChanged(action),
-      };
-
     default:
       return _state;
   }
@@ -92,7 +86,6 @@ function txReducer(_state: any, action: any) {
 
 const TxProvider = ({ children }: any) => {
   const [txState, updateState] = useReducer(txReducer, initState);
-
   const _setProcessStage = (txCode: string, stage: ProcessStage) => {
     updateState({
       type: 'processes',
@@ -119,10 +112,8 @@ const TxProvider = ({ children }: any) => {
   };
 
   /* handle an error from a tx that was successfully submitted */
-  const _handleTxError = (msg: string, tx: any, txCode: any) => {
-    
+  const _handleTxError = (msg: string, tx: any, txCode: any) => { 
     _setProcessStage(txCode, ProcessStage.PROCESS_INACTIVE);
-
     toast.error(msg);
     const _tx = { tx, txCode, receipt: undefined, status: TxState.FAILED };
     updateState({ type: 'transactions', payload: _tx });
@@ -248,11 +239,7 @@ const TxProvider = ({ children }: any) => {
     return _sig;
   };
 
-  useEffect(() => {
-    console.log(txState.processes);
-  }, [txState.processes]);
-
-  /* simple process watcher */
+  /* Simple process watcher for any active Process */
   useEffect(() => {
     if (txState.processes.size) {
       const hasActiveProcess = Array.from(txState.processes.values()).some((x: any) => x.stage === 1 || x.stage === 2);
