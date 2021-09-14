@@ -7,7 +7,7 @@ import { FiCheckCircle, FiClock, FiPenTool, FiX } from 'react-icons/fi';
 import { TxContext } from '../contexts/TxContext';
 import { UserContext } from '../contexts/UserContext';
 import { useProcess } from '../hooks/useProcess';
-import { ActionCodes, ApprovalType, TxState } from '../types';
+import { ActionCodes, ApprovalType, ProcessStage, TxState } from '../types';
 import { abbreviateHash } from '../utils/appUtils';
 import EtherscanButton from './buttons/EtherscanButton';
 import CopyWrap from './wraps/CopyWrap';
@@ -55,75 +55,58 @@ const InfoBlock = ({
 );
 
 const ActiveTransaction = ({
-  tx,
+  txCode,
   full,
   children,
   pad,
 }: {
-  tx: any;
+  txCode: string;
   children: React.ReactNode;
   full?: boolean;
   pad?: boolean;
 }) => {
   const { txState } = useContext(TxContext);
-  const { signatures } = txState;
+  const { processes } = txState;
+
   const {
     userState: { approvalMethod },
   } = useContext(UserContext);
 
   const { pathname } = useLocation();
 
-  const [sig, setSig] = useState<any>();
-  const [iconSize, setIconSize] = useState<string>('1em');
+  const [iconSize, setIconSize] = useState<string>(full ? '2.5em' : '1.5em');
 
-  const process = useProcess(undefined, undefined, tx.txCode);
-
-  useEffect(() => {
-    tx.txCode && setSig(signatures.get(tx.txCode));
-  }, [tx, signatures]);
-
-  useEffect(() => {
-    full && setIconSize('2.5em');
-    !full && setIconSize('1.5em');
-  }, [full]);
+  const activeProcess = processes.get(txCode);
 
   return (
-
     <Box pad={pad ? { horizontal: 'small', vertical: 'medium' } : undefined}>
-      {!tx.processActive && // CASE: no tx or signing activity
-        (!sig || sig?.status === TxState.REJECTED || sig?.status === TxState.SUCCESSFUL) &&
-        !tx.success &&
-        !tx.failed &&
-        !tx.rejected && <Box>{children}</Box>}
+      {(activeProcess?.stage === ProcessStage.PROCESS_INACTIVE || !activeProcess) && <Box>{children}</Box>}
 
-      {tx.processActive &&
-        sig?.status === TxState.PENDING && ( // CASE: Signature/ approval required
-          <InfoBlock
-            title={approvalMethod === ApprovalType.SIG ? 'Signature required' : 'Approval transaction required'}
-            subTitle={
-              approvalMethod === ApprovalType.SIG
-                ? 'Please check your wallet/provider'
-                : 'Confirm approval transaction with your wallet/provider'
-            }
-            icon={<FiPenTool size={iconSize} />}
-            button={null}
-            full={full}
-          />
-        )}
+      {activeProcess?.stage === ProcessStage.SIGNING_REQUESTED && (
+        <InfoBlock
+          title={approvalMethod === ApprovalType.SIG ? 'Signature required' : 'Approval transaction required'}
+          subTitle={
+            approvalMethod === ApprovalType.SIG
+              ? 'Please check your wallet/provider'
+              : 'Confirm approval transaction with your wallet/provider'
+          }
+          icon={<FiPenTool size={iconSize} />}
+          button={null}
+          full={full}
+        />
+      )}
 
-      {tx.processActive &&
-        sig?.status === TxState.PENDING && // CASE: APPROVAL transaction pending (sig pending and tx pending)
-        tx.pending && (
-          <InfoBlock
-            title="Token Approval"
-            subTitle="Transaction Pending..."
-            icon={<FiClock size={iconSize} />}
-            button={<EtherscanButton txHash={tx.txHash} />}
-            full={full}
-          />
-        )}
+      {activeProcess?.stage === ProcessStage.SIGNING_TRANSACTION_PENDING && (
+        <InfoBlock
+          title="Token Approval"
+          subTitle="Transaction Pending..."
+          icon={<FiClock size={iconSize} />}
+          button={<EtherscanButton txHash={activeProcess.tx.hash} />}
+          full={full}
+        />
+      )}
 
-      {tx.processActive && !tx.txHash && sig?.status !== TxState.PENDING && (
+      {activeProcess?.stage === ProcessStage.TRANSACTION_REQUESTED && (
         <InfoBlock
           title="Transaction Confirmation..."
           subTitle="Please check your wallet/provider."
@@ -133,48 +116,45 @@ const ActiveTransaction = ({
         />
       )}
 
-      {tx.processActive && // CASE: TX processing but signature complete
-        tx.pending &&
-        (!sig || sig?.status === TxState.SUCCESSFUL) && (
-          <InfoBlock
-            title="Transaction Pending..."
-            subTitle={<CopyWrap hash={tx.txHash}> {abbreviateHash(tx.txHash, 6)} </CopyWrap>}
-            icon={<FiClock size={iconSize} />}
-            button={<EtherscanButton txHash={tx.txHash} />}
-            full={full}
-          />
-        )}
+      {activeProcess?.stage === ProcessStage.TRANSACTION_PENDING && (
+        <InfoBlock
+          title="Transaction Pending..."
+          subTitle={<CopyWrap hash={activeProcess.tx.hash}> {abbreviateHash(activeProcess.tx.hash, 6)} </CopyWrap>}
+          icon={<FiClock size={iconSize} />}
+          button={<EtherscanButton txHash={activeProcess.tx.hash} />}
+          full={full}
+        />
+      )}
 
-      {!tx.processActive && tx.success && (
+      {activeProcess?.stage === ProcessStage.PROCESS_COMPLETE && activeProcess.tx.status === TxState.SUCCESSFUL && (
         <InfoBlock
           title="Transaction Complete"
-          subTitle={<CopyWrap hash={tx.txHash}> {abbreviateHash(tx.txHash, 6)} </CopyWrap>}
+          subTitle={<CopyWrap hash={activeProcess.tx.hash}> {abbreviateHash(activeProcess.tx.hash, 6)} </CopyWrap>}
           icon={<FiCheckCircle size={iconSize} />}
           button={
-            tx.positionPath && !pathname.includes('position') ? (
-              <Link to={tx.positionPath} style={{ textDecoration: 'none' }}>
+            activeProcess.tx.positionPath && !pathname.includes('position') ? (
+              <Link to={activeProcess.tx.positionPath} style={{ textDecoration: 'none' }}>
                 <Text size="xsmall" color="tailwind-blue" style={{ verticalAlign: 'middle' }}>
                   View Position
                 </Text>
               </Link>
             ) : (
-              <EtherscanButton txHash={tx.txHash} />
+              <EtherscanButton txHash={activeProcess.tx.hash} />
             )
           }
           full={full}
         />
       )}
 
-      {!tx.processActive &&
-        tx.failed && ( // Case: transaction failed.
-          <InfoBlock
-            title="Transaction Failed"
-            subTitle={<CopyWrap hash={tx.txHash}> {abbreviateHash(tx.txHash, 6)} </CopyWrap>}
-            icon={<FiX size={iconSize} />}
-            button={<EtherscanButton txHash={tx.txHash} />}
-            full={full}
-          />
-        )}
+      {activeProcess?.stage === ProcessStage.PROCESS_COMPLETE && activeProcess.tx.status === TxState.FAILED && (
+        <InfoBlock
+          title="Transaction Failed"
+          subTitle={<CopyWrap hash={activeProcess.tx.hash}> {abbreviateHash(activeProcess.tx.hash, 6)} </CopyWrap>}
+          icon={<FiX size={iconSize} />}
+          button={<EtherscanButton txHash={activeProcess.tx.hash} />}
+          full={full}
+        />
+      )}
     </Box>
   );
 };

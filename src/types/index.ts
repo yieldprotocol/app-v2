@@ -289,6 +289,7 @@ export enum ProcessStage {
   'PROCESS_COMPLETE' = 6,
 }
 
+
 export enum MenuView {
   account = 'ACCOUNT',
   settings = 'SETTINGS',
