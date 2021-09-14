@@ -43,6 +43,7 @@ import { useBorrowHelpers } from '../hooks/actionHelperHooks/useBorrowHelpers';
 import InputInfoWrap from '../components/wraps/InputInfoWrap';
 import NavText from '../components/texts/NavText';
 import ColorText from '../components/texts/ColorText';
+import { useProcess } from '../hooks/useProcess';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -88,7 +89,7 @@ const Borrow = () => {
   ]);
 
   /* TX info (for disabling buttons) */
-  const { tx: borrowTx, resetTx } = useTx(ActionCodes.BORROW, selectedSeriesId!);
+  const { txProcess: borrowTx, resetProcess } = useProcess(ActionCodes.BORROW, selectedSeriesId!);
 
   /** LOCAL ACTION FNS */
   const handleBorrow = () => {
@@ -100,7 +101,7 @@ const Borrow = () => {
     setBorrowInput('');
     setCollatInput('');
     setStepPosition(0);
-    resetTx();
+    resetProcess();
   };
 
   /* BORROW DISABLING LOGIC */
@@ -343,7 +344,7 @@ const Borrow = () => {
                   )}
                 </YieldCardHeader>
 
-                <ActiveTransaction full tx={borrowTx}>
+                <ActiveTransaction full txProcess={borrowTx}>
                   <SectionWrap title="Review transaction:">
                     <Box
                       gap="small"

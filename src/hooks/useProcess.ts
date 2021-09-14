@@ -25,17 +25,27 @@ export const useProcess = (
 ) => {
   /* STATE FROM CONTEXT */
   const {
-    txState: { transactions, processes, signatures },
+    txState: { transactions, processes },
   } = useContext(TxContext);
 
+
+  const [txCode, setTxCode] = useState<any>(); 
+  const [txProcess, setTxProcess] = useState<any>();
+  
   // 1. Set the transaction code from provided... or based on seriesId and actionCode
-  // useEffect(() => {
-  //   if (transactionCode) {
-  //     setTxCode(transactionCode);
-  //   } else {
-  //     actionCode && seriesOrVaultId ? setTxCode(getTxCode(actionCode, seriesOrVaultId)) : setTxCode(undefined);
-  //   }
-  // }, [actionCode, seriesOrVaultId, transactionCode]);
+  useEffect(() => {
+    if (transactionCode) {
+      setTxCode(transactionCode);
+    } else {
+      actionCode && seriesOrVaultId ? setTxCode(getTxCode(actionCode, seriesOrVaultId)) : setTxCode(undefined);
+    }
+  }, [actionCode, seriesOrVaultId, transactionCode]);
+
+
+  useEffect(()=>{
+    setTxProcess( processes.get(txCode))
+  }, [processes, txCode])
+
 
   // 2. If the process has an associated Transaction... get its status
   // useEffect(() => {
@@ -89,5 +99,8 @@ export const useProcess = (
   //   }
   // }, [transactions, contractMap, txCode, txHash, txProcess.receipt]);
 
-  // return { txProcess, resetTx };
+  const resetProcess = ()=> null;
+
+  return { txProcess, resetProcess };
+
 };

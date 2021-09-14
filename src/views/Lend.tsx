@@ -38,6 +38,7 @@ import { useRedeemPosition } from '../hooks/actionHooks/useRedeemPosition';
 
 import TransactionWidget from '../components/TransactionWidget';
 import ColorText from '../components/texts/ColorText';
+import { useProcess } from '../hooks/useProcess';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -62,7 +63,7 @@ const Lend = () => {
 
   const lendOutput = cleanValue((Number(lendInput) * (1 + Number(apr) / 100)).toString(), selectedBase?.digitFormat!);
 
-  const { tx: lendTx, resetTx } = useTx(ActionCodes.LEND, selectedSeries?.id);
+  const { txProcess: lendTx, resetProcess } = useProcess(ActionCodes.LEND, selectedSeries?.id);
 
   /* input validation hooks */
   const { inputError: lendError } = useInputValidation(lendInput, ActionCodes.LEND, selectedSeries, [0, maxLend]);
@@ -79,7 +80,7 @@ const Lend = () => {
   const resetInputs = () => {
     setLendInput(undefined);
     setStepPosition(0);
-    resetTx();
+    resetProcess();
   };
 
   /* ACTION DISABLING LOGIC  - if conditions are met: allow action */
@@ -173,7 +174,7 @@ const Lend = () => {
                 )}
               </YieldCardHeader>
 
-              <ActiveTransaction full tx={lendTx}>
+              <ActiveTransaction full txProcess={lendTx}>
                 <SectionWrap title="Review transaction:">
                   <Box
                     gap="small"

@@ -30,6 +30,7 @@ import ModalWrap from '../components/wraps/ModalWrap';
 import { useRemoveLiquidity } from '../hooks/actionHooks/useRemoveLiquidity';
 import { useRollLiquidity } from '../hooks/actionHooks/useRollLiquidity';
 import CopyWrap from '../components/wraps/CopyWrap';
+import { useProcess } from '../hooks/useProcess';
 
 const PoolPosition = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -67,8 +68,11 @@ const PoolPosition = ({ close }: { close: () => void }) => {
   const rollLiquidity = useRollLiquidity();
 
   /* TX data */
-  const { tx: removeTx, resetTx: resetRemoveTx } = useTx(ActionCodes.REMOVE_LIQUIDITY, selectedSeries?.id);
-  const { tx: rollTx, resetTx: resetRollTx } = useTx(ActionCodes.ROLL_LIQUIDITY, selectedSeries?.id);
+  const { txProcess: removeTx, resetProcess: resetRemoveTx } = useProcess(
+    ActionCodes.REMOVE_LIQUIDITY,
+    selectedSeries?.id
+  );
+  const { txProcess: rollTx, resetProcess: resetRollTx } = useProcess(ActionCodes.ROLL_LIQUIDITY, selectedSeries?.id);
 
   /* input validation hoooks */
   const { inputError: removeError } = useInputValidation(removeInput, ActionCodes.REMOVE_LIQUIDITY, selectedSeries, [
@@ -150,7 +154,9 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                     <PositionAvatar position={selectedSeries!} actionType={ActionType.POOL} />
                     <Box>
                       <Text size={mobile ? 'medium' : 'large'}> {selectedStrategy?.name} </Text>
-                      <CopyWrap><Text size="small"> {abbreviateHash(selectedStrategyAddr!, 6)}</Text></CopyWrap>
+                      <CopyWrap>
+                        <Text size="small"> {abbreviateHash(selectedStrategyAddr!, 6)}</Text>
+                      </CopyWrap>
                     </Box>
                   </Box>
                   {/* <ExitButton action={() => history.goBack()} /> */}
@@ -244,7 +250,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                     )}
 
                     {stepPosition[0] !== 0 && (
-                      <ActiveTransaction pad tx={removeTx}>
+                      <ActiveTransaction pad txProcess={removeTx}>
                         <SectionWrap
                           title="Review your remove transaction"
                           rightAction={<CancelButton action={() => handleStepper(true)} />}
@@ -292,7 +298,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                     )}
 
                     {stepPosition[actionActive.index] !== 0 && (
-                      <ActiveTransaction pad tx={rollTx}>
+                      <ActiveTransaction pad txProcess={rollTx}>
                         <SectionWrap
                           title="Review your roll transaction"
                           rightAction={<CancelButton action={() => handleStepper(true)} />}

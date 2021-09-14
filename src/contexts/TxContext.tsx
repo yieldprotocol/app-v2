@@ -35,7 +35,7 @@ interface IYieldProcess {
   txCode: string;
   stage: ProcessStage;
   tx: IYieldTx;
-  // positionPath?: string | undefined;
+  positionPath?: string | undefined;
 }
 
 function txReducer(_state: any, action: any) {

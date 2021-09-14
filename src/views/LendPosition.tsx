@@ -29,6 +29,7 @@ import { useClosePosition } from '../hooks/actionHooks/useClosePosition';
 import { useRedeemPosition } from '../hooks/actionHooks/useRedeemPosition';
 import { useRollPosition } from '../hooks/actionHooks/useRollPosition';
 import CopyWrap from '../components/wraps/CopyWrap';
+import { useProcess } from '../hooks/useProcess';
 
 const LendPosition = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -65,8 +66,8 @@ const LendPosition = ({ close }: { close: () => void }) => {
   const redeem = useRedeemPosition();
 
   /* TX data */
-  const { tx: closeTx, resetTx: resetCloseTx } = useTx(ActionCodes.CLOSE_POSITION, selectedSeries?.id);
-  const { tx: rollTx, resetTx: resetRollTx } = useTx(ActionCodes.ROLL_POSITION, selectedSeries?.id);
+  const { txProcess: closeTx, resetProcess: resetCloseTx } = useProcess(ActionCodes.CLOSE_POSITION, selectedSeries?.id);
+  const { txProcess: rollTx, resetProcess: resetRollTx } = useProcess(ActionCodes.ROLL_POSITION, selectedSeries?.id);
 
   /* input validation hoooks */
   const { inputError: closeError } = useInputValidation(closeInput, ActionCodes.CLOSE_POSITION, selectedSeries, [
@@ -224,7 +225,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
                     )}
 
                     {stepPosition[0] !== 0 && (
-                      <ActiveTransaction pad tx={closeTx}>
+                      <ActiveTransaction pad txProcess={closeTx}>
                         <SectionWrap
                           title="Review your redeem transaction"
                           rightAction={<CancelButton action={() => handleStepper(true)} />}
@@ -278,7 +279,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
                     )}
 
                     {stepPosition[actionActive.index] !== 0 && (
-                      <ActiveTransaction pad tx={rollTx}>
+                      <ActiveTransaction pad txProcess={rollTx}>
                         <SectionWrap
                           title="Review your roll transaction"
                           rightAction={<CancelButton action={() => handleStepper(true)} />}

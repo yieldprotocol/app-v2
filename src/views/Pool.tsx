@@ -31,6 +31,7 @@ import YieldCardHeader from '../components/YieldCardHeader';
 import { useAddLiquidity } from '../hooks/actionHooks/useAddLiquidity';
 import StrategySelector from '../components/selectors/StrategySelector';
 import ColorText from '../components/texts/ColorText';
+import { useProcess } from '../hooks/useProcess';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -57,7 +58,7 @@ function Pool() {
     maxPool,
   ]);
 
-  const { tx: poolTx, resetTx } = useTx(ActionCodes.ADD_LIQUIDITY, selectedSeries?.id);
+  const { txProcess: poolTx, resetProcess } = useProcess(ActionCodes.ADD_LIQUIDITY, selectedSeries?.id);
 
   /* LOCAL ACTION FNS */
   const handleAdd = () => {
@@ -68,7 +69,7 @@ function Pool() {
   const resetInputs = () => {
     setPoolInput(undefined);
     setStepPosition(0);
-    resetTx();
+    resetProcess();
   };
 
   /* SET MAX VALUES */
@@ -173,7 +174,7 @@ function Pool() {
                 )}
               </YieldCardHeader>
 
-              <ActiveTransaction full tx={poolTx}>
+              <ActiveTransaction full txProcess={poolTx}>
                 <Box gap="large">
                   {!selectedSeries?.seriesIsMature && (
                     <SectionWrap>

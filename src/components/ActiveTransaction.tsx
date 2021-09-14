@@ -7,7 +7,7 @@ import { FiCheckCircle, FiClock, FiPenTool, FiX } from 'react-icons/fi';
 import { TxContext } from '../contexts/TxContext';
 import { UserContext } from '../contexts/UserContext';
 import { useProcess } from '../hooks/useProcess';
-import { ActionCodes, ApprovalType, ProcessStage, TxState } from '../types';
+import { ActionCodes, ApprovalType, IYieldProcess, ProcessStage, TxState } from '../types';
 import { abbreviateHash } from '../utils/appUtils';
 import EtherscanButton from './buttons/EtherscanButton';
 import CopyWrap from './wraps/CopyWrap';
@@ -55,18 +55,16 @@ const InfoBlock = ({
 );
 
 const ActiveTransaction = ({
-  txCode,
+  txProcess,
   full,
   children,
   pad,
 }: {
-  txCode: string;
+  txProcess: IYieldProcess;
   children: React.ReactNode;
   full?: boolean;
   pad?: boolean;
 }) => {
-  const { txState } = useContext(TxContext);
-  const { processes } = txState;
 
   const {
     userState: { approvalMethod },
@@ -76,7 +74,7 @@ const ActiveTransaction = ({
 
   const [iconSize, setIconSize] = useState<string>(full ? '2.5em' : '1.5em');
 
-  const activeProcess = processes.get(txCode);
+  const activeProcess = txProcess;
 
   return (
     <Box pad={pad ? { horizontal: 'small', vertical: 'medium' } : undefined}>
@@ -132,15 +130,15 @@ const ActiveTransaction = ({
           subTitle={<CopyWrap hash={activeProcess.tx.hash}> {abbreviateHash(activeProcess.tx.hash, 6)} </CopyWrap>}
           icon={<FiCheckCircle size={iconSize} />}
           button={
-            activeProcess.tx.positionPath && !pathname.includes('position') ? (
-              <Link to={activeProcess.tx.positionPath} style={{ textDecoration: 'none' }}>
-                <Text size="xsmall" color="tailwind-blue" style={{ verticalAlign: 'middle' }}>
-                  View Position
-                </Text>
-              </Link>
-            ) : (
+            // activeProcess.tx.positionPath && !pathname.includes('position') ? (
+            //   <Link to={activeProcess.tx.positionPath} style={{ textDecoration: 'none' }}>
+            //     <Text size="xsmall" color="tailwind-blue" style={{ verticalAlign: 'middle' }}>
+            //       View Position
+            //     </Text>
+            //   </Link>
+            // ) : (
               <EtherscanButton txHash={activeProcess.tx.hash} />
-            )
+            // )
           }
           full={full}
         />
