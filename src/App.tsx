@@ -31,11 +31,12 @@ function App() {
   /* LOCAL STATE */
   const [menuLayerOpen, setMenuLayerOpen] = useState<boolean>(false);
 
+
   return (
     <>
-      <ParticlesBg type="circle" num={7} bg={true} />
+      {/* <ParticlesBg type="color" num={10} bg={true} /> */}
       {/* "color"
-          "ball"
+          "ball"‰
           "lines"
           "thick"
           "circle"
@@ -46,13 +47,14 @@ function App() {
           "fountain"
           "random"
           "custom" */}
-      <Box fill >
+
+      <Box fill>
         {chainData && !chainData.supported && <NetworkError />}
         <TransactionWidget />
 
         <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
 
-        <Box flex={!mobile} overflow="hidden" >
+        <Box flex={!mobile} overflow="hidden">
           <ToastContainer position="top-center" />
           {menuLayerOpen && <MenuLayer toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} />}
           <Switch>
