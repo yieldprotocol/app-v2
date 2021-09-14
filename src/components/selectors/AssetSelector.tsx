@@ -1,14 +1,13 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import { Box, ResponsiveContext, Select, Text } from 'grommet';
 
 import Skeleton from 'react-loading-skeleton';
 
 import styled from 'styled-components';
-import { IAsset, IAssetRoot } from '../../types';
+import { IAsset } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { DAI, WETH } from '../../utils/constants';
-import { ChainContext } from '../../contexts/ChainContext';
 
 interface IAssetSelectorProps {
   selectCollateral?: boolean;
