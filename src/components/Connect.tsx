@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useState } from 'react';
-import styled from 'styled-components';
 import { Box, Button, ResponsiveContext, Text } from 'grommet';
 import { FiCheckSquare, FiX } from 'react-icons/fi';
 import { ChainContext, connectorNames } from '../contexts/ChainContext';
@@ -41,37 +40,24 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
     const connected = currentConnector === connector;
 
     return (
-      <Box
+      <Button
         key={name}
-        onClick={() => !connected && disclaimerChecked && handleConnect(name)}
-        pad="small"
-        round="xsmall"
-        border={{ color: disclaimerChecked ? 'tailwind-blue' : 'tailwind-blue-100', size: 'xsmall' }}
-        background={connected ? 'tailwind-blue' : 'white'}
-        hoverIndicator={{
-          background: { color: connected || !disclaimerChecked ? 'tailwind-blue' : 'tailwind-blue' },
-          color: connected ? 'gray' : 'white',
-        }}
-        direction="row"
-        gap="xsmall"
-        align="center"
+        plain
+        onClick={() => !connected && handleConnect(name)}
+        disabled={!disclaimerChecked}
+        primary={connected}
+        secondary={!connected}
+        style={{ border: '#2563EB solid 1px', borderRadius: '6px', padding: '12px' }}
+        hoverIndicator={{ color: 'brand' }}
       >
         {connected && <FiCheckSquare color="#34D399" />}
         {activating ? 'Connecting' : connectorNames.get(name)}
-      </Box>
+      </Button>
     );
   });
 
   return (
-    <Box
-      fill="vertical"
-      basis="auto"
-      width={mobile ? undefined : '400px'}
-      pad="medium"
-      gap="small"
-      // border={{ side: 'left', color: 'tailwind-blue-100' }}
-      elevation="xlarge"
-    >
+    <Box fill="vertical" basis="auto" width={mobile ? undefined : '400px'} pad="medium" gap="small" elevation="xlarge">
       <Box justify="between" align="center" direction="row">
         {account ? (
           <BackButton
@@ -88,7 +74,7 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
       <Box gap="xsmall">{connectorsRender}</Box>
 
       {!disclaimerChecked && (
-        <Box border={{ color: 'tailwind-blue' }} round="small">
+        <Box border={{ color: 'brand' }} round="xsmall">
           <Disclaimer
             checked={disclaimerChecked}
             onChange={(event: any) => setDisclaimerChecked(event.target.checked)}
