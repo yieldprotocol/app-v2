@@ -1,7 +1,7 @@
 import React, { useReducer, useEffect } from 'react';
 import { ethers, ContractTransaction } from 'ethers';
 import { toast } from 'react-toastify';
-import { ApprovalType, ISignData, TxState, YieldTxProcess } from '../types';
+import { ApprovalType, ISignData, TxState, ProcessStage } from '../types';
 
 const TxContext = React.createContext<any>({});
 
@@ -26,15 +26,14 @@ interface IYieldSignature {
 }
 
 interface IYieldTx extends ContractTransaction {
-  id: string;
   txCode: string;
   receipt: any | null;
   status: TxState;
 }
 
 interface IYieldProcess {
-  stage: YieldTxProcess;
-  hash?: string | undefined;
+  stage: ProcessStage;
+  txHash?: string | undefined;
 }
 
 function txReducer(_state: any, action: any) {
@@ -94,7 +93,7 @@ function txReducer(_state: any, action: any) {
 const TxProvider = ({ children }: any) => {
   const [txState, updateState] = useReducer(txReducer, initState);
 
-  const _setProcessStage = (txCode: string, stage: YieldTxProcess) => {
+  const _setProcessStage = (txCode: string, stage: ProcessStage) => {
     updateState({
       type: 'processes',
       payload: { txCode, stage },
@@ -103,7 +102,7 @@ const TxProvider = ({ children }: any) => {
 
   /* handle case when user or wallet rejects the tx (before submission) */
   const _handleTxRejection = (err: any, txCode: string) => {
-    _setProcessStage(txCode, YieldTxProcess.PROCESS_INACTIVE);
+    _setProcessStage(txCode, ProcessStage.PROCESS_INACTIVE);
     /* If user cancelled/rejected the tx */
     if (err.code === 4001) {
       toast.warning('Transaction rejected by user');
@@ -121,7 +120,8 @@ const TxProvider = ({ children }: any) => {
 
   /* handle an error from a tx that was successfully submitted */
   const _handleTxError = (msg: string, tx: any, txCode: any) => {
-    _setProcessStage(txCode, YieldTxProcess.PROCESS_INACTIVE);
+    
+    _setProcessStage(txCode, ProcessStage.PROCESS_INACTIVE);
 
     toast.error(msg);
     const _tx = { tx, txCode, receipt: undefined, status: TxState.FAILED };
@@ -140,17 +140,17 @@ const TxProvider = ({ children }: any) => {
     let res: any;
 
     /* update process if not fallback Transaction */
-    !_isfallback && _setProcessStage(txCode, YieldTxProcess.TRANSACTION_REQUESTED);
+    !_isfallback && _setProcessStage(txCode, ProcessStage.TRANSACTION_REQUESTED);
 
     try {
       /* try the transaction with connected wallet and catch any 'pre-chain'/'pre-tx' errors */
       try {
         tx = await txFn();
-        console.log(tx);
+        console.log('TX: ', tx);
         updateState({ type: 'transactions', payload: { tx, txCode, receipt: null, status: TxState.PENDING } });
         _setProcessStage(
           txCode,
-          _isfallback ? YieldTxProcess.SIGNING_TRANSACTION_PENDING : YieldTxProcess.TRANSACTION_PENDING
+          _isfallback ? ProcessStage.SIGNING_TRANSACTION_PENDING : ProcessStage.TRANSACTION_PENDING
         );
 
       } catch (e) {
@@ -171,11 +171,11 @@ const TxProvider = ({ children }: any) => {
       if (_isfallback === false) {
         /* transaction completion : success OR failure */
         txSuccess ? toast.success('Transaction successfull') : toast.error('Transaction failed :| ');
-        _setProcessStage(txCode, YieldTxProcess.PROCESS_COMPLETE);
+        _setProcessStage(txCode, ProcessStage.PROCESS_COMPLETE);
         return res;
       }
       /* this is the case when the tx was a fallback from a permit/allowance tx */
-      _setProcessStage(txCode, YieldTxProcess.SIGNING_COMPLETE);
+      _setProcessStage(txCode, ProcessStage.SIGNING_COMPLETE);
       return res;
     } catch (e) {
       /* catch tx errors */
@@ -194,32 +194,36 @@ const TxProvider = ({ children }: any) => {
     approvalMethod: ApprovalType
   ) => {
     /* start a process */
-    _setProcessStage(txCode, YieldTxProcess.SIGNING_REQUESTED);
+    _setProcessStage(txCode, ProcessStage.SIGNING_REQUESTED);
 
-    const uid = ethers.utils.hexlify(ethers.utils.randomBytes(6));
-    updateState({ type: 'signatures', payload: { uid, txCode, sigData, status: TxState.PENDING } as IYieldSignature });
+    // const uid = ethers.utils.hexlify(ethers.utils.randomBytes(6));
+    // updateState({ type: 'signatures', payload: { uid, txCode, sigData, status: TxState.PENDING } as IYieldSignature });
 
     let _sig;
     if (approvalMethod === ApprovalType.SIG) {
       _sig = await signFn().catch((err: any) => {
         console.log(err);
-        updateState({
-          type: 'signatures',
-          payload: { uid, txCode, sigData, status: TxState.REJECTED } as IYieldSignature,
-        });
+
+        // updateState({
+        //   type: 'signatures',
+        //   payload: { uid, txCode, sigData, status: TxState.REJECTED } as IYieldSignature,
+        // });
+
         /* end the process on signature rejection */
-        _setProcessStage(txCode, YieldTxProcess.PROCESS_INACTIVE);
+        _setProcessStage(txCode, ProcessStage.PROCESS_INACTIVE);
         return Promise.reject(err);
       });
     } else {
       await fallbackFn().catch((err: any) => {
         console.log(err);
-        updateState({
-          type: 'signatures',
-          payload: { uid, txCode, sigData, status: TxState.REJECTED } as IYieldSignature,
-        });
+
+        // updateState({
+        //   type: 'signatures',
+        //   payload: { uid, txCode, sigData, status: TxState.REJECTED } as IYieldSignature,
+        // });
+
         /* end the process on signature rejection */
-        _setProcessStage(txCode, YieldTxProcess.PROCESS_INACTIVE);
+        _setProcessStage(txCode, ProcessStage.PROCESS_INACTIVE);
         return Promise.reject(err);
       });
       /* on Completion of approval tx, send back an empty signed object (which will be ignored) */
@@ -235,12 +239,12 @@ const TxProvider = ({ children }: any) => {
       };
     }
 
-    updateState({
-      type: 'signatures',
-      payload: { uid, txCode, sigData, status: TxState.SUCCESSFUL } as IYieldSignature,
-    });
+    // updateState({
+    //   type: 'signatures',
+    //   payload: { uid, txCode, sigData, status: TxState.SUCCESSFUL } as IYieldSignature,
+    // });
 
-    _setProcessStage(txCode, YieldTxProcess.SIGNING_COMPLETE);
+    _setProcessStage(txCode, ProcessStage.SIGNING_COMPLETE);
     return _sig;
   };
 
