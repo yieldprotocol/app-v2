@@ -1,6 +1,5 @@
 import React from 'react';
 import { Box, Text } from 'grommet';
-import ListWrap from './wraps/ListWrap';
 
 interface IDashSummary {
   debt: string | null;
