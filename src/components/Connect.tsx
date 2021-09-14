@@ -50,8 +50,10 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
         style={{ border: '#2563EB solid 1px', borderRadius: '6px', padding: '12px' }}
         hoverIndicator={{ color: 'brand' }}
       >
-        {connected && <FiCheckSquare color="#34D399" />}
-        {activating ? 'Connecting' : connectorNames.get(name)}
+        <Box direction="row" gap="xsmall">
+          {connected && <FiCheckSquare color="#34D399" />}
+          {activating ? 'Connecting' : connectorNames.get(name)}
+        </Box>
       </Button>
     );
   });
