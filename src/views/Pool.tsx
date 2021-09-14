@@ -13,7 +13,7 @@ import InfoBite from '../components/InfoBite';
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
 import { UserContext } from '../contexts/UserContext';
-import { ActionCodes, ActionType, IUserContext } from '../types';
+import { ActionCodes, ActionType, IUserContext, ProcessStage } from '../types';
 import { useTx } from '../hooks/useTx';
 import MaxButton from '../components/buttons/MaxButton';
 import PanelWrap from '../components/wraps/PanelWrap';
@@ -58,7 +58,7 @@ function Pool() {
     maxPool,
   ]);
 
-  const { txProcess: poolTx, resetProcess } = useProcess(ActionCodes.ADD_LIQUIDITY, selectedSeries?.id);
+  const { txProcess: poolProcess, resetProcess } = useProcess(ActionCodes.ADD_LIQUIDITY, selectedSeries?.id);
 
   /* LOCAL ACTION FNS */
   const handleAdd = () => {
@@ -167,14 +167,14 @@ function Pool() {
           {stepPosition === 1 && (
             <Box gap="large">
               <YieldCardHeader>
-                {!poolTx.success && !poolTx.failed ? (
+                {poolProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
                   <BackButton action={() => setStepPosition(0)} />
                 ) : (
                   <Box pad="1em" />
                 )}
               </YieldCardHeader>
 
-              <ActiveTransaction full txProcess={poolTx}>
+              <ActiveTransaction full txProcess={poolProcess}>
                 <Box gap="large">
                   {!selectedSeries?.seriesIsMature && (
                     <SectionWrap>
@@ -232,25 +232,27 @@ function Pool() {
               errorLabel={poolError}
             />
           )}
-          {stepPosition === 1 && !selectedSeries?.seriesIsMature && !poolTx.success && !poolTx.failed && (
-            <TransactButton
-              primary
-              label={
-                <Text size={mobile ? 'small' : undefined}>
-                  {`Pool${poolTx.processActive ? `ing` : ''} ${
-                    nFormatter(Number(poolInput), selectedBase?.digitFormat!) || ''
-                  } ${selectedBase?.symbol || ''}`}
-                </Text>
-              }
-              onClick={() => handleAdd()}
-              disabled={poolDisabled || poolTx.processActive}
-            />
-          )}
+          {stepPosition === 1 &&
+            !selectedSeries?.seriesIsMature &&
+            poolProcess?.stage !== ProcessStage.PROCESS_COMPLETE && (
+              <TransactButton
+                primary
+                label={
+                  <Text size={mobile ? 'small' : undefined}>
+                    {`Pool${poolProcess?.processActive ? `ing` : ''} ${
+                      nFormatter(Number(poolInput), selectedBase?.digitFormat!) || ''
+                    } ${selectedBase?.symbol || ''}`}
+                  </Text>
+                }
+                onClick={() => handleAdd()}
+                disabled={poolDisabled || poolProcess?.processActive}
+              />
+            )}
 
           {stepPosition === 1 &&
             !selectedSeries?.seriesIsMature &&
-            !poolTx.processActive &&
-            (poolTx.success || poolTx.failed) && (
+            !poolProcess?.processActive &&
+            poolProcess?.stage === ProcessStage.PROCESS_COMPLETE && (
               <>
                 {/* <PositionListItem series={selectedSeries!} actionType={ActionType.POOL} /> */}
                 <NextButton

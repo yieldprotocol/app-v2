@@ -60,7 +60,7 @@ const ActiveTransaction = ({
   children,
   pad,
 }: {
-  txProcess: IYieldProcess;
+  txProcess: IYieldProcess| undefined;
   children: React.ReactNode;
   full?: boolean;
   pad?: boolean;

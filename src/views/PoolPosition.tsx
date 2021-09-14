@@ -11,7 +11,7 @@ import { abbreviateHash, cleanValue, nFormatter } from '../utils/appUtils';
 import SectionWrap from '../components/wraps/SectionWrap';
 
 import { UserContext } from '../contexts/UserContext';
-import { ActionCodes, ActionType, ISeries, IUserContext } from '../types';
+import { ActionCodes, ActionType, ISeries, IUserContext, ProcessStage } from '../types';
 import MaxButton from '../components/buttons/MaxButton';
 import InfoBite from '../components/InfoBite';
 import { useTx } from '../hooks/useTx';
@@ -68,11 +68,14 @@ const PoolPosition = ({ close }: { close: () => void }) => {
   const rollLiquidity = useRollLiquidity();
 
   /* TX data */
-  const { txProcess: removeTx, resetProcess: resetRemoveTx } = useProcess(
+  const { txProcess: removeProcess, resetProcess: resetRemoveTx } = useProcess(
     ActionCodes.REMOVE_LIQUIDITY,
     selectedSeries?.id
   );
-  const { txProcess: rollTx, resetProcess: resetRollTx } = useProcess(ActionCodes.ROLL_LIQUIDITY, selectedSeries?.id);
+  const { txProcess: rollProcess, resetProcess: resetRollTx } = useProcess(
+    ActionCodes.ROLL_LIQUIDITY,
+    selectedSeries?.id
+  );
 
   /* input validation hoooks */
   const { inputError: removeError } = useInputValidation(removeInput, ActionCodes.REMOVE_LIQUIDITY, selectedSeries, [
@@ -250,7 +253,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                     )}
 
                     {stepPosition[0] !== 0 && (
-                      <ActiveTransaction pad txProcess={removeTx}>
+                      <ActiveTransaction pad txProcess={removeProcess}>
                         <SectionWrap
                           title="Review your remove transaction"
                           rightAction={<CancelButton action={() => handleStepper(true)} />}
@@ -298,7 +301,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                     )}
 
                     {stepPosition[actionActive.index] !== 0 && (
-                      <ActiveTransaction pad txProcess={rollTx}>
+                      <ActiveTransaction pad txProcess={rollProcess}>
                         <SectionWrap
                           title="Review your roll transaction"
                           rightAction={<CancelButton action={() => handleStepper(true)} />}
@@ -333,50 +336,54 @@ const PoolPosition = ({ close }: { close: () => void }) => {
 
               {actionActive.index === 0 &&
                 stepPosition[actionActive.index] !== 0 &&
-                !(removeTx.success || removeTx.failed) && (
+
+                removeProcess?.stage !== ProcessStage.PROCESS_COMPLETE && (
+                // !(removeTx.success || removeTx.failed) && (
                   <TransactButton
                     primary
                     label={
                       <Text size={mobile ? 'small' : undefined}>
-                        {`Remov${removeTx.processActive ? 'ing' : 'e'} ${
+                        {`Remov${removeProcess?.processActive ? 'ing' : 'e'} ${
                           cleanValue(removeInput, selectedBase?.digitFormat!) || ''
                         } tokens`}
                       </Text>
                     }
                     onClick={() => handleRemove()}
-                    disabled={removeDisabled || removeTx.processActive}
+                    disabled={removeDisabled || removeProcess?.processActive}
                   />
                 )}
 
               {actionActive.index === 2 &&
                 stepPosition[actionActive.index] !== 0 &&
-                !(removeTx.success || removeTx.failed || rollTx.success || rollTx.failed) && (
+                removeProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
+                rollProcess?.stage === ProcessStage.PROCESS_COMPLETE && (
+                // !(removeTx.success || removeTx.failed || rollTx.success || rollTx.failed) && (
                   <TransactButton
                     primary
                     label={
                       <Text size={mobile ? 'small' : undefined}>
-                        {`Roll${rollTx.processActive ? 'ing' : ''} ${
+                        {`Roll${rollProcess?.processActive ? 'ing' : ''} ${
                           cleanValue(rollInput, selectedBase?.digitFormat!) || ''
                         } tokens`}
                       </Text>
                     }
                     onClick={() => handleRoll()}
-                    disabled={rollDisabled || rollTx.processActive}
+                    disabled={rollDisabled || rollProcess?.processActive}
                   />
                 )}
 
               {stepPosition[actionActive.index] === 1 &&
                 actionActive.index === 0 &&
-                !removeTx.processActive &&
-                (removeTx.success || removeTx.failed) && (
-                  <CompletedTx tx={removeTx} resetTx={resetRemoveTx} actionCode={ActionCodes.REMOVE_LIQUIDITY} />
+                !removeProcess?.processActive &&
+                removeProcess?.stage === ProcessStage.PROCESS_COMPLETE && (
+                  <CompletedTx tx={removeProcess} resetTx={resetRemoveTx} actionCode={ActionCodes.REMOVE_LIQUIDITY} />
                 )}
 
               {stepPosition[actionActive.index] === 2 &&
                 actionActive.index === 2 &&
-                !rollTx.processActive &&
-                (rollTx.success || rollTx.failed) && (
-                  <CompletedTx tx={rollTx} resetTx={resetRollTx} actionCode={ActionCodes.ROLL_LIQUIDITY} />
+                !rollProcess?.processActive &&
+                rollProcess?.stage === ProcessStage.PROCESS_COMPLETE && (
+                  <CompletedTx tx={rollProcess} resetTx={resetRollTx} actionCode={ActionCodes.ROLL_LIQUIDITY} />
                 )}
             </ActionButtonGroup>
           </CenterPanelWrap>

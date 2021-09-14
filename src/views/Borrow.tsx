@@ -16,7 +16,7 @@ import MaxButton from '../components/buttons/MaxButton';
 import { useTx } from '../hooks/useTx';
 
 import { UserContext } from '../contexts/UserContext';
-import { ActionCodes, ActionType, IUserContext, IVault } from '../types';
+import { ActionCodes, ActionType, IUserContext, IVault, ProcessStage, TxState } from '../types';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import StepperText from '../components/StepperText';
@@ -89,7 +89,7 @@ const Borrow = () => {
   ]);
 
   /* TX info (for disabling buttons) */
-  const { txProcess: borrowTx, resetProcess } = useProcess(ActionCodes.BORROW, selectedSeriesId!);
+  const { txProcess: borrowProcess, resetProcess } = useProcess(ActionCodes.BORROW, selectedSeriesId!);
 
   /** LOCAL ACTION FNS */
   const handleBorrow = () => {
@@ -235,7 +235,7 @@ const Borrow = () => {
                       seriesMap.size > 0
                         ? `Available ${selectedBase?.symbol}${selectedBase && '-based'} maturity dates`
                         : ''
-                    }          
+                    }
                   >
                     <SeriesSelector inputValue={borrowInput} actionType={ActionType.BORROW} />
                   </SectionWrap>
@@ -337,14 +337,10 @@ const Borrow = () => {
             {stepPosition === 2 && ( // REVIEW
               <Box gap="large">
                 <YieldCardHeader>
-                  {!borrowTx.success && !borrowTx.failed ? (
-                    <BackButton action={() => setStepPosition(1)} />
-                  ) : (
-                    <Box pad="1em" />
-                  )}
+                  {borrowProcess?.processActive ? <BackButton action={() => setStepPosition(1)} /> : <Box pad="1em" />}
                 </YieldCardHeader>
 
-                <ActiveTransaction full txProcess={borrowTx}>
+                <ActiveTransaction full txProcess={borrowProcess}>
                   <SectionWrap title="Review transaction:">
                     <Box
                       gap="small"
@@ -390,36 +386,43 @@ const Borrow = () => {
               {(stepPosition === 0 || stepPosition === 1) && (
                 <NextButton
                   // label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
-                  label = { (borrowInput  && !selectedSeries) ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} Maturity` : 'Next Step' }
+                  label={
+                    borrowInput && !selectedSeries
+                      ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} Maturity`
+                      : 'Next Step'
+                  }
                   onClick={() => setStepPosition(stepPosition + 1)}
                   disabled={stepPosition === 0 ? stepDisabled : borrowDisabled}
                   errorLabel={stepPosition === 0 ? borrowInputError : collatInputError}
                 />
               )}
 
-              {stepPosition === 2 && !(borrowTx.success || borrowTx.failed) && (
+              {stepPosition === 2 && borrowProcess?.stage !== ProcessStage.PROCESS_COMPLETE && (
                 <TransactButton
                   primary
                   label={
                     <Text size={mobile ? 'small' : undefined}>
-                      {`Borrow${borrowTx.processActive ? `ing` : ''} ${
+                      {`Borrow${borrowProcess?.processActive ? `ing` : ''} ${
                         nFormatter(Number(borrowInput), selectedBase?.digitFormat!) || ''
                       } ${selectedBase?.symbol || ''}`}
                     </Text>
                   }
                   onClick={() => handleBorrow()}
-                  disabled={borrowDisabled || borrowTx.processActive}
+                  disabled={borrowDisabled || borrowProcess?.processActive}
                 />
               )}
 
-              {stepPosition === 2 && !borrowTx.processActive && borrowTx.success && (
-                <NextButton
-                  label={<Text size={mobile ? 'small' : undefined}>Borrow more</Text>}
-                  onClick={() => resetInputs()}
-                />
-              )}
+              {stepPosition === 2 &&
+                borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
+                borrowProcess?.tx.status === TxState.SUCCESSFUL && (
+                  <NextButton
+                    label={<Text size={mobile ? 'small' : undefined}>Borrow more</Text>}
+                    onClick={() => resetInputs()}
+                  />
+                )}
 
-              {stepPosition === 2 && !borrowTx.processActive && borrowTx.failed && (
+              {stepPosition === 2 && borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE && 
+              borrowProcess?.tx.status === TxState.FAILED && (
                 <>
                   <NextButton
                     size="xsmall"

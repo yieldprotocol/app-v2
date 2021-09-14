@@ -299,6 +299,7 @@ export interface IYieldProcess {
   txCode: string;
   stage: ProcessStage;
   tx: IYieldTx;
+  processActive?: boolean;
   positionPath?: string | undefined;
 }
 

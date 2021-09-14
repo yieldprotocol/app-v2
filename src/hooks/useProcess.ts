@@ -3,7 +3,7 @@ import { useHistory } from 'react-router-dom';
 import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
 import { UserContext } from '../contexts/UserContext';
-import { ActionCodes, TxState, ProcessStage } from '../types';
+import { ActionCodes, TxState, ProcessStage, IYieldProcess } from '../types';
 import { getTxCode, getPositionPathPrefix, getVaultIdFromReceipt } from '../utils/appUtils';
 
 interface IProcess {
@@ -28,11 +28,10 @@ export const useProcess = (
     txState: { transactions, processes },
   } = useContext(TxContext);
 
+  const [txCode, setTxCode] = useState<string>();
+  const [txProcess, setTxProcess] = useState<IYieldProcess>();
 
-  const [txCode, setTxCode] = useState<any>(); 
-  const [txProcess, setTxProcess] = useState<any>();
-  
-  // 1. Set the transaction code from provided... or based on seriesId and actionCode
+  // 1. Set the txCode from provided... or based on seriesId and actionCode
   useEffect(() => {
     if (transactionCode) {
       setTxCode(transactionCode);
@@ -41,11 +40,17 @@ export const useProcess = (
     }
   }, [actionCode, seriesOrVaultId, transactionCode]);
 
+  useEffect(() => {
+    const _process = processes.get(txCode);
 
-  useEffect(()=>{
-    setTxProcess( processes.get(txCode))
-  }, [processes, txCode])
-
+    if (_process) {
+      setTxProcess({
+        ..._process,
+        processActive:
+          _process?.stage !== ProcessStage.PROCESS_INACTIVE || _process?.stage !== ProcessStage.PROCESS_COMPLETE,
+      });
+    }
+  }, [processes, txCode, transactions]);
 
   // 2. If the process has an associated Transaction... get its status
   // useEffect(() => {
@@ -58,7 +63,6 @@ export const useProcess = (
   // useEffect(() => {
   //   transactions.has(txHash) && setTxProcess((t) => ({ ...t, receipt: transactions.get(txHash).receipt }));
   // }, [txHash, transactions]);
-
 
   // WATCH and set if the txStatus changes
   // useEffect(() => {
@@ -79,7 +83,6 @@ export const useProcess = (
   //   }
   // }, [txCode, processStage, txStatus, txHash]);
 
-
   // useEffect(() => {
   //   txProcess.txStatus === 'SUCCESS' && shouldRedirect && history.push('/') && userActions.setSelectedVault(null);
   // }, [txProcess.txStatus, shouldRedirect, history, userActions]);
@@ -99,8 +102,7 @@ export const useProcess = (
   //   }
   // }, [transactions, contractMap, txCode, txHash, txProcess.receipt]);
 
-  const resetProcess = ()=> null;
+  const resetProcess = () => null;
 
   return { txProcess, resetProcess };
-
 };

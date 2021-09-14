@@ -12,7 +12,7 @@ import { cleanValue, nFormatter } from '../utils/appUtils';
 import SectionWrap from '../components/wraps/SectionWrap';
 
 import { UserContext } from '../contexts/UserContext';
-import { ActionCodes, ActionType, IUserContext } from '../types';
+import { ActionCodes, ActionType, IUserContext, ProcessStage, TxState } from '../types';
 import MaxButton from '../components/buttons/MaxButton';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
@@ -63,7 +63,7 @@ const Lend = () => {
 
   const lendOutput = cleanValue((Number(lendInput) * (1 + Number(apr) / 100)).toString(), selectedBase?.digitFormat!);
 
-  const { txProcess: lendTx, resetProcess } = useProcess(ActionCodes.LEND, selectedSeries?.id);
+  const { txProcess: lendProcess, resetProcess } = useProcess(ActionCodes.LEND, selectedSeries?.id);
 
   /* input validation hooks */
   const { inputError: lendError } = useInputValidation(lendInput, ActionCodes.LEND, selectedSeries, [0, maxLend]);
@@ -167,14 +167,14 @@ const Lend = () => {
           {stepPosition === 1 && (
             <Box gap="large">
               <YieldCardHeader>
-                {!lendTx.success && !lendTx.failed ? (
+                {lendProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
                   <BackButton action={() => setStepPosition(0)} />
                 ) : (
                   <Box pad="1em" />
                 )}
               </YieldCardHeader>
 
-              <ActiveTransaction full txProcess={lendTx}>
+              <ActiveTransaction full txProcess={lendProcess}>
                 <SectionWrap title="Review transaction:">
                   <Box
                     gap="small"
@@ -202,7 +202,8 @@ const Lend = () => {
         </Box>
 
         <ActionButtonGroup pad>
-          {stepPosition !== 1 && !selectedSeries?.seriesIsMature && (
+          {stepPosition !== 1 && 
+          !selectedSeries?.seriesIsMature && (
             <NextButton
               secondary
               disabled={lendDisabled}
@@ -213,22 +214,30 @@ const Lend = () => {
             />
           )}
 
-          {stepPosition === 1 && !selectedSeries?.seriesIsMature && !(lendTx.success || lendTx.failed) && (
+          {stepPosition === 1 && 
+          !selectedSeries?.seriesIsMature &&
+          lendProcess?.stage !== ProcessStage.PROCESS_COMPLETE && 
+          // !(lendTx.success || lendTx.failed) &&         
+          (
             <TransactButton
               primary
               label={
                 <Text size={mobile ? 'small' : undefined}>
-                  {`Supply${lendTx.processActive ? `ing` : ''} ${
+                  {`Supply${lendProcess?.processActive ? `ing` : ''} ${
                     nFormatter(Number(lendInput), selectedBase?.digitFormat!) || ''
                   } ${selectedBase?.symbol || ''}`}
                 </Text>
               }
               onClick={() => handleLend()}
-              disabled={lendDisabled || lendTx.processActive}
+              disabled={lendDisabled || lendProcess?.processActive}
             />
           )}
 
-          {stepPosition === 1 && !selectedSeries?.seriesIsMature && !lendTx.processActive && lendTx.success && (
+          {stepPosition === 1 && 
+          !selectedSeries?.seriesIsMature && 
+          lendProcess?.stage === ProcessStage.PROCESS_COMPLETE && 
+          lendProcess?.tx.status === TxState.SUCCESSFUL && 
+          ( // lendTx.success && (
             <>
               {/* <PositionListItem series={selectedSeries!} actionType={ActionType.LEND} /> */}
               <NextButton
@@ -238,7 +247,10 @@ const Lend = () => {
             </>
           )}
 
-          {stepPosition === 1 && !lendTx.processActive && lendTx.failed && (
+          {stepPosition === 1 && 
+          lendProcess?.stage === ProcessStage.PROCESS_COMPLETE && 
+          lendProcess?.tx.status === TxState.FAILED &&
+          (
             <>
               <NextButton
                 size="xsmall"
