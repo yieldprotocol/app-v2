@@ -5,9 +5,10 @@ import { Box, ResponsiveContext, Select, Text } from 'grommet';
 import Skeleton from 'react-loading-skeleton';
 
 import styled from 'styled-components';
-import { IAsset } from '../../types';
+import { IAsset, IAssetRoot } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { DAI, WETH } from '../../utils/constants';
+import { ChainContext } from '../../contexts/ChainContext';
 
 interface IAssetSelectorProps {
   selectCollateral?: boolean;
@@ -27,13 +28,16 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const { userState, userActions } = useContext(UserContext);
   const { selectedIlkId, selectedSeriesId, selectedBaseId, assetMap, seriesMap } = userState;
+  const {
+    chainState: { assetRootMap, seriesRootMap },
+  } = useContext(ChainContext);
 
   const selectedSeries = seriesMap.get(selectedSeriesId!);
   const selectedBase = assetMap.get(selectedBaseId!);
   const selectedIlk = assetMap.get(selectedIlkId!);
 
   const [options, setOptions] = useState<IAsset[]>([]);
-  const optionText = (asset: IAsset | undefined) =>
+  const optionText = (asset: IAssetRoot | undefined) =>
     asset?.symbol ? (
       <Box direction="row" align="center" gap="xsmall">
         <Box flex={false}>{asset.image}</Box>
@@ -43,7 +47,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
       <Skeleton width={50} />
     );
 
-  const handleSelect = (asset: IAsset) => {
+  const handleSelect = (asset: IAssetRoot) => {
     if (selectCollateral) {
       console.log('Collateral selected: ', asset.id);
       userActions.setSelectedIlk(asset.id);
@@ -84,7 +88,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
       round="xsmall"
       // border={(selectCollateral && !selectedSeries) ? { color: 'text-xweak' } : true}
       elevation="xsmall"
-      background='solid'
+      background="solid"
     >
       <Select
         plain
