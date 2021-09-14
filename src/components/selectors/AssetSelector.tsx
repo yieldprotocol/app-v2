@@ -28,16 +28,13 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const { userState, userActions } = useContext(UserContext);
   const { selectedIlkId, selectedSeriesId, selectedBaseId, assetMap, seriesMap } = userState;
-  const {
-    chainState: { assetRootMap, seriesRootMap },
-  } = useContext(ChainContext);
 
   const selectedSeries = seriesMap.get(selectedSeriesId!);
   const selectedBase = assetMap.get(selectedBaseId!);
   const selectedIlk = assetMap.get(selectedIlkId!);
 
   const [options, setOptions] = useState<IAsset[]>([]);
-  const optionText = (asset: IAssetRoot | undefined) =>
+  const optionText = (asset: IAsset | undefined) =>
     asset?.symbol ? (
       <Box direction="row" align="center" gap="xsmall">
         <Box flex={false}>{asset.image}</Box>
@@ -47,7 +44,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
       <Skeleton width={50} />
     );
 
-  const handleSelect = (asset: IAssetRoot) => {
+  const handleSelect = (asset: IAsset) => {
     if (selectCollateral) {
       console.log('Collateral selected: ', asset.id);
       userActions.setSelectedIlk(asset.id);
