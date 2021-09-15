@@ -39,6 +39,7 @@ import { useRedeemPosition } from '../hooks/actionHooks/useRedeemPosition';
 import TransactionWidget from '../components/TransactionWidget';
 import ColorText from '../components/texts/ColorText';
 import { useProcess } from '../hooks/useProcess';
+import LendItem from '../components/positionItems/LendItem';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -112,9 +113,9 @@ const Lend = () => {
             <Box gap="large">
               <YieldCardHeader logo={mobile} series={selectedSeries}>
                 <Box gap={mobile ? undefined : 'xsmall'}>
-                <ColorText size={mobile ? 'medium' : '2rem'}>LEND</ColorText>
+                  <ColorText size={mobile ? 'medium' : '2rem'}>LEND</ColorText>
                   <AltText color="text-weak" size="xsmall">
-                    Lend popular ERC20 tokens for <ColorText size="small"> fixed returns</ColorText>
+                    Lend popular ERC20 tokens for <Text size="small" color='text'> fixed returns</Text>
                   </AltText>
                 </Box>
               </YieldCardHeader>
@@ -197,13 +198,20 @@ const Lend = () => {
                   </Box>
                 </SectionWrap>
               </ActiveTransaction>
+
+              {lendProcess?.stage === ProcessStage.PROCESS_COMPLETE && 
+              lendProcess?.tx.status === TxState.SUCCESSFUL && (
+                <Box pad="large" gap="small">
+                  <Text size="small"> View position: </Text>
+                  <LendItem series={selectedSeries!} index={0} actionType={ActionType.LEND} condensed />
+                </Box>
+              )}
             </Box>
           )}
         </Box>
 
         <ActionButtonGroup pad>
-          {stepPosition !== 1 && 
-          !selectedSeries?.seriesIsMature && (
+          {stepPosition !== 1 && !selectedSeries?.seriesIsMature && (
             <NextButton
               secondary
               disabled={lendDisabled}
@@ -214,51 +222,48 @@ const Lend = () => {
             />
           )}
 
-          {stepPosition === 1 && 
-          !selectedSeries?.seriesIsMature &&
-          lendProcess?.stage !== ProcessStage.PROCESS_COMPLETE && 
-          // !(lendTx.success || lendTx.failed) &&         
-          (
-            <TransactButton
-              primary
-              label={
-                <Text size={mobile ? 'small' : undefined}>
-                  {`Supply${lendProcess?.processActive ? `ing` : ''} ${
-                    nFormatter(Number(lendInput), selectedBase?.digitFormat!) || ''
-                  } ${selectedBase?.symbol || ''}`}
-                </Text>
-              }
-              onClick={() => handleLend()}
-              disabled={lendDisabled || lendProcess?.processActive}
-            />
-          )}
-
-          {stepPosition === 1 && 
-          !selectedSeries?.seriesIsMature && 
-          lendProcess?.stage === ProcessStage.PROCESS_COMPLETE && 
-          lendProcess?.tx.status === TxState.SUCCESSFUL && 
-          ( // lendTx.success && (
-            <>
-              {/* <PositionListItem series={selectedSeries!} actionType={ActionType.LEND} /> */}
-              <NextButton
-                label={<Text size={mobile ? 'small' : undefined}>Lend some more</Text>}
-                onClick={() => resetInputs()}
+          {stepPosition === 1 &&
+            !selectedSeries?.seriesIsMature &&
+            lendProcess?.stage !== ProcessStage.PROCESS_COMPLETE && (
+              // !(lendTx.success || lendTx.failed) &&
+              <TransactButton
+                primary
+                label={
+                  <Text size={mobile ? 'small' : undefined}>
+                    {`Supply${lendProcess?.processActive ? `ing` : ''} ${
+                      nFormatter(Number(lendInput), selectedBase?.digitFormat!) || ''
+                    } ${selectedBase?.symbol || ''}`}
+                  </Text>
+                }
+                onClick={() => handleLend()}
+                disabled={lendDisabled || lendProcess?.processActive}
               />
-            </>
-          )}
+            )}
 
-          {stepPosition === 1 && 
-          lendProcess?.stage === ProcessStage.PROCESS_COMPLETE && 
-          lendProcess?.tx.status === TxState.FAILED &&
-          (
-            <>
-              <NextButton
-                size="xsmall"
-                label={<Text size={mobile ? 'xsmall' : undefined}> Report and go back</Text>}
-                onClick={() => resetInputs()}
-              />
-            </>
-          )}
+          {stepPosition === 1 &&
+            !selectedSeries?.seriesIsMature &&
+            lendProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
+            lendProcess?.tx.status === TxState.SUCCESSFUL && ( // lendTx.success && (
+              <>
+                {/* <PositionListItem series={selectedSeries!} actionType={ActionType.LEND} /> */}
+                <NextButton
+                  label={<Text size={mobile ? 'small' : undefined}>Lend some more</Text>}
+                  onClick={() => resetInputs()}
+                />
+              </>
+            )}
+
+          {stepPosition === 1 &&
+            lendProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
+            lendProcess?.tx.status === TxState.FAILED && (
+              <>
+                <NextButton
+                  size="xsmall"
+                  label={<Text size={mobile ? 'xsmall' : undefined}> Report and go back</Text>}
+                  onClick={() => resetInputs()}
+                />
+              </>
+            )}
 
           {/* {selectedSeries?.seriesIsMature && (
             <NextButton

@@ -114,7 +114,7 @@ function Pool() {
                 <Box gap={mobile ? undefined : 'xsmall'}>
                   <ColorText size={mobile ? 'medium' : '2rem'}>PROVIDE LIQUIDITY</ColorText>
                   <AltText color="text-weak" size="xsmall">
-                    Pool tokens for <ColorText size="small"> variable returns</ColorText> based on protocol usage.
+                    Pool tokens for <Text size="small" color='text'> variable returns</Text> based on protocol usage.
                   </AltText>
                 </Box>
               </YieldCardHeader>
