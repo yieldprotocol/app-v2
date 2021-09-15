@@ -81,7 +81,7 @@ export const useTx = (
 
   // 3. Check/set if the process is active or not
   useEffect(() => {
-    txCode && processes.has(txCode) && processes.get(txCode).status === 'ACTIVE'
+    txCode && processes.get(txCode)?.status === 'ACTIVE'
       ? setProcessActive(true)
       : setProcessActive(false);
   }, [processes, txCode]);

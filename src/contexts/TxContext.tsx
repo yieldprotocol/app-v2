@@ -1,7 +1,7 @@
 import React, { useReducer, useEffect } from 'react';
 import { ethers, ContractTransaction } from 'ethers';
 import { toast } from 'react-toastify';
-import { ApprovalType, ISignData, TxState, ProcessStage } from '../types';
+import { ApprovalType, ISignData, TxState, ProcessStage, IYieldProcess } from '../types';
 
 const TxContext = React.createContext<any>({});
 
@@ -12,7 +12,7 @@ const initState = {
   processes: new Map([]) as Map<string, IYieldProcess>,
 
   /* process active flags for convenience */
-  processActive: false as boolean,
+  anyProcessActive: false as boolean,
 
   /* user settings */
   useFallbackTxs: false as boolean,
@@ -31,12 +31,11 @@ interface IYieldTx extends ContractTransaction {
   status: TxState;
 }
 
-interface IYieldProcess {
-  txCode: string;
-  stage: ProcessStage;
-  tx: IYieldTx;
-  positionPath?: string | undefined;
-}
+// interface IYieldProcess {
+//   txCode: string;
+//   stage: ProcessStage;
+//   hash: string;
+// }
 
 function txReducer(_state: any, action: any) {
   /* Helper: only change the state if different from existing */
@@ -49,26 +48,37 @@ function txReducer(_state: any, action: any) {
       return {
         ..._state,
         transactions: new Map(_state.transactions.set(action.payload.tx.hash, action.payload)),
-        // also update processes with tx:
+        // also update processes with tx info:
         processes: new Map(
           _state.processes.set(action.payload.txCode, {
             ..._state.processes.get(action.payload.txCode),
+            txHash: action.payload.tx.hash,
             tx: action.payload,
           })
-        ),
+        ) as Map<string, IYieldProcess>,
       };
-    // case 'signatures':
-    //   return {
-    //     ..._state,
-    //     signatures: new Map(_state.signatures.set(action.payload.txCode, action.payload)),
-    //   };
+
     case 'processes':
       return {
         ..._state,
         processes: new Map(
           _state.processes.set(action.payload.txCode, {
             ..._state.processes.get(action.payload.txCode),
+            txCode: action.payload.txCode,
             stage: action.payload.stage,
+            processActive: action.payload.stage !== 0 || action.payload.stage !== 6
+          })
+        ) as Map<string, IYieldProcess>,
+      };
+
+    case 'resetProcess':
+      return {
+        ..._state,
+        processes: new Map(
+          _state.processes.set(action.payload, {
+            txCode: action.payload,
+            stage: 0,
+            processActive: false,
           })
         ),
       };
@@ -112,7 +122,7 @@ const TxProvider = ({ children }: any) => {
   };
 
   /* handle an error from a tx that was successfully submitted */
-  const _handleTxError = (msg: string, tx: any, txCode: any) => { 
+  const _handleTxError = (msg: string, tx: any, txCode: any) => {
     _setProcessStage(txCode, ProcessStage.PROCESS_INACTIVE);
     toast.error(msg);
     const _tx = { tx, txCode, receipt: undefined, status: TxState.FAILED };
@@ -143,7 +153,6 @@ const TxProvider = ({ children }: any) => {
           txCode,
           _isfallback ? ProcessStage.SIGNING_TRANSACTION_PENDING : ProcessStage.TRANSACTION_PENDING
         );
-
       } catch (e) {
         /* this case is when user rejects tx OR wallet rejects tx */
         _handleTxRejection(e, txCode);
@@ -239,10 +248,21 @@ const TxProvider = ({ children }: any) => {
     return _sig;
   };
 
+
+    /* Simple process watcher for any active Process */
+    useEffect(() => {
+      console.log(txState.processes);
+    }, [txState.processes]);
+  
+
   /* Simple process watcher for any active Process */
   useEffect(() => {
     if (txState.processes.size) {
-      const hasActiveProcess = Array.from(txState.processes.values()).some((x: any) => x.stage === 1 || x.stage === 2);
+      const hasActiveProcess = 
+        Array.from(txState.processes.values())
+        .some(
+          (x: any) => x.stage === 1 || x.stage === 2 ||  x.stage === 3 || x.stage === 4 || x.stage === 5 
+        );
       updateState({ type: 'processActive', payload: hasActiveProcess });
     }
   }, [txState.processes]);
@@ -251,6 +271,7 @@ const TxProvider = ({ children }: any) => {
   const txActions = {
     handleTx,
     handleSign,
+    resetProcess: (txCode: string) => updateState({ type: 'resetProcess', payload: txCode }),
   };
 
   return <TxContext.Provider value={{ txState, txActions }}>{children}</TxContext.Provider>;

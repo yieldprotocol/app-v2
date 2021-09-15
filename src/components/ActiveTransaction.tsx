@@ -32,8 +32,8 @@ const InfoBlock = ({
         <Box gap="medium" align="center">
           <Text size="large">{title}</Text>
           <Text size="small">{subTitle}</Text>
-        </Box>
-        {button}
+          {button}
+        </Box>  
       </Box>
     ) : (
       <Box gap="medium">
@@ -74,7 +74,13 @@ const ActiveTransaction = ({
 
   const [iconSize, setIconSize] = useState<string>(full ? '2.5em' : '1.5em');
 
+
+
   const activeProcess = txProcess;
+
+  useEffect(()=>{
+
+  })
 
   return (
     <Box pad={pad ? { horizontal: 'small', vertical: 'medium' } : undefined}>
@@ -117,39 +123,33 @@ const ActiveTransaction = ({
       {activeProcess?.stage === ProcessStage.TRANSACTION_PENDING && (
         <InfoBlock
           title="Transaction Pending..."
-          subTitle={<CopyWrap hash={activeProcess.tx.hash}> {abbreviateHash(activeProcess.tx.hash, 6)} </CopyWrap>}
+          subTitle={<CopyWrap hash={activeProcess.txHash}> {abbreviateHash(activeProcess.txHash, 6)} </CopyWrap>}
           icon={<FiClock size={iconSize} />}
-          button={<EtherscanButton txHash={activeProcess.tx.hash} />}
+          button={<EtherscanButton txHash={activeProcess.txHash} />}
           full={full}
         />
       )}
 
-      {activeProcess?.stage === ProcessStage.PROCESS_COMPLETE && activeProcess.tx.status === TxState.SUCCESSFUL && (
+      {activeProcess?.stage === ProcessStage.PROCESS_COMPLETE 
+      && activeProcess.tx.status === TxState.SUCCESSFUL && (
         <InfoBlock
           title="Transaction Complete"
-          subTitle={<CopyWrap hash={activeProcess.tx.hash}> {abbreviateHash(activeProcess.tx.hash, 6)} </CopyWrap>}
+          subTitle={<CopyWrap hash={activeProcess.txHash}> {abbreviateHash(activeProcess.txHash, 6)} </CopyWrap>}
           icon={<FiCheckCircle size={iconSize} />}
           button={
-            // activeProcess.tx.positionPath && !pathname.includes('position') ? (
-            //   <Link to={activeProcess.tx.positionPath} style={{ textDecoration: 'none' }}>
-            //     <Text size="xsmall" color="tailwind-blue" style={{ verticalAlign: 'middle' }}>
-            //       View Position
-            //     </Text>
-            //   </Link>
-            // ) : (
-              <EtherscanButton txHash={activeProcess.tx.hash} />
-            // )
+              <EtherscanButton txHash={activeProcess.txHash} />
           }
           full={full}
         />
       )}
 
-      {activeProcess?.stage === ProcessStage.PROCESS_COMPLETE && activeProcess.tx.status === TxState.FAILED && (
+      {activeProcess?.stage === ProcessStage.PROCESS_COMPLETE 
+      && activeProcess.tx.status === TxState.FAILED && (
         <InfoBlock
           title="Transaction Failed"
-          subTitle={<CopyWrap hash={activeProcess.tx.hash}> {abbreviateHash(activeProcess.tx.hash, 6)} </CopyWrap>}
+          subTitle={<CopyWrap hash={activeProcess.txHash}> {abbreviateHash(activeProcess.txHash, 6)} </CopyWrap>}
           icon={<FiX size={iconSize} />}
-          button={<EtherscanButton txHash={activeProcess.tx.hash} />}
+          button={<EtherscanButton txHash={activeProcess.txHash} />}
           full={full}
         />
       )}
