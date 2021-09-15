@@ -177,7 +177,7 @@ const TxProvider = ({ children }: any) => {
       /* this is the case when the tx was a fallback from a permit/allowance tx */
       _setProcessStage(txCode, ProcessStage.SIGNING_COMPLETE);
       return res;
-    } catch (e) {
+    } catch (e:any) {
       /* catch tx errors */
       _handleTxError('Transaction failed', e.transaction, txCode);
       return null;
