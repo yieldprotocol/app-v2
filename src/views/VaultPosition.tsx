@@ -284,7 +284,9 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                       <Box direction="row" pad="medium" gap="small" align="center">
                         <FiAlertTriangle size="3em" />
                         <Box gap="xsmall">
-                          <Text>This vault has been liquidated and the account no longer owns this vault</Text>
+                          <Text>
+                            This vault is in the process of being liquidated and the account no longer owns this vault
+                          </Text>
                         </Box>
                       </Box>
                     </Box>
