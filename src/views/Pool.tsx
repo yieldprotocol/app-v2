@@ -13,7 +13,7 @@ import InfoBite from '../components/InfoBite';
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
 import { UserContext } from '../contexts/UserContext';
-import { ActionCodes, ActionType, IUserContext, ProcessStage } from '../types';
+import { ActionCodes, ActionType, IUserContext, ProcessStage, TxState } from '../types';
 import { useTx } from '../hooks/useTx';
 import MaxButton from '../components/buttons/MaxButton';
 import PanelWrap from '../components/wraps/PanelWrap';
@@ -114,7 +114,12 @@ function Pool() {
                 <Box gap={mobile ? undefined : 'xsmall'}>
                   <ColorText size={mobile ? 'medium' : '2rem'}>PROVIDE LIQUIDITY</ColorText>
                   <AltText color="text-weak" size="xsmall">
-                    Pool tokens for <Text size="small" color='text'> variable returns</Text> based on protocol usage.
+                    Pool tokens for{' '}
+                    <Text size="small" color="text">
+                      {' '}
+                      variable returns
+                    </Text>{' '}
+                    based on protocol usage.
                   </AltText>
                 </Box>
               </YieldCardHeader>
@@ -223,7 +228,8 @@ function Pool() {
         </Box>
 
         <ActionButtonGroup pad>
-          {stepPosition !== 1 && !selectedSeries?.seriesIsMature && (
+          {stepPosition !== 1 && 
+          !selectedSeries?.seriesIsMature && (
             <NextButton
               secondary
               label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
@@ -233,7 +239,6 @@ function Pool() {
             />
           )}
           {stepPosition === 1 &&
-            !selectedSeries?.seriesIsMature &&
             poolProcess?.stage !== ProcessStage.PROCESS_COMPLETE && (
               <TransactButton
                 primary
@@ -249,14 +254,26 @@ function Pool() {
               />
             )}
 
-          {stepPosition === 1 &&
-            !selectedSeries?.seriesIsMature &&
-            !poolProcess?.processActive &&
-            poolProcess?.stage === ProcessStage.PROCESS_COMPLETE && (
+          { stepPosition === 1 &&
+            poolProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
+            poolProcess?.tx.status === TxState.SUCCESSFUL && (
               <>
                 {/* <PositionListItem series={selectedSeries!} actionType={ActionType.POOL} /> */}
                 <NextButton
                   label={<Text size={mobile ? 'small' : undefined}>Add more Liquidity</Text>}
+                  onClick={() => resetInputs()}
+                />
+              </>
+            )}
+
+        { stepPosition === 1 &&
+            !selectedSeries?.seriesIsMature &&
+            poolProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
+            poolProcess?.tx.status === TxState.FAILED && (
+              <>
+                {/* <PositionListItem series={selectedSeries!} actionType={ActionType.POOL} /> */}
+                <NextButton
+                  label={<Text size={mobile ? 'small' : undefined}>Report and go back</Text>}
                   onClick={() => resetInputs()}
                 />
               </>

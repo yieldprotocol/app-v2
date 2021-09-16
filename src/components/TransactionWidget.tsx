@@ -60,10 +60,10 @@ const TransactionWidget = () => {
                   justify="start"
                   align="center"
                   fill
-                  // elevation="small"
+                  elevation="small"
                   gap="small"
                   pad="small"
-                  background="hover"
+                  background='-webkit-linear-gradient(90deg, #f7953369, #f3705569, #ef4e7b69, #a166ab69, #5073b869, #1098ad69, #07b39b69, #6fba8269)'
                   round="xsmall"
                 >
                   <Box width="3rem" align="center">

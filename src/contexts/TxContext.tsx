@@ -60,7 +60,7 @@ function txReducer(_state: any, action: any) {
             ..._state.processes.get(action.payload.txCode),
             txCode: action.payload.txCode,
             stage: action.payload.stage,
-            processActive: action.payload.stage !== 0 || action.payload.stage !== 6,
+            processActive: ( action.payload.stage !== 0 || action.payload.stage !== 6),
           })
         ) as Map<string, IYieldProcess>,
       };
@@ -97,9 +97,12 @@ const TxProvider = ({ children }: any) => {
     });
   };
 
+  const _resetProcess = (txCode:string) => updateState({ type: 'resetProcess', payload: txCode })
+
   /* handle case when user or wallet rejects the tx (before submission) */
   const _handleTxRejection = (err: any, txCode: string) => {
-    _setProcessStage(txCode, ProcessStage.PROCESS_INACTIVE);
+
+    _resetProcess(txCode)
     /* If user cancelled/rejected the tx */
     if (err.code === 4001) {
       toast.warning('Transaction rejected by user');
@@ -117,13 +120,16 @@ const TxProvider = ({ children }: any) => {
 
   /* handle an error from a tx that was successfully submitted */
   const _handleTxError = (msg: string, tx: any, txCode: any) => {
-    _setProcessStage(txCode, ProcessStage.PROCESS_INACTIVE);
+    // _setProcessStage(txCode, ProcessStage.PROCESS_INACTIVE);
+    // updateState({ type: 'resetProcess', payload: txCode })
+    _setProcessStage(txCode, ProcessStage.PROCESS_COMPLETE);
     toast.error(msg);
     const _tx = { tx, txCode, receipt: undefined, status: TxState.FAILED };
     updateState({ type: 'transactions', payload: _tx });
     console.log('txHash: ', tx?.hash);
     console.log('txCode: ', txCode);
   };
+
 
   /* Handle a tx */
   const handleTx = async (
@@ -190,34 +196,19 @@ const TxProvider = ({ children }: any) => {
     /* start a process */
     _setProcessStage(txCode, ProcessStage.SIGNING_REQUESTED);
 
-    // const uid = ethers.utils.hexlify(ethers.utils.randomBytes(6));
-    // updateState({ type: 'signatures', payload: { uid, txCode, sigData, status: TxState.PENDING } as IYieldSignature });
-
     let _sig;
     if (approvalMethod === ApprovalType.SIG) {
       _sig = await signFn().catch((err: any) => {
         console.log(err);
-
-        // updateState({
-        //   type: 'signatures',
-        //   payload: { uid, txCode, sigData, status: TxState.REJECTED } as IYieldSignature,
-        // });
-
         /* end the process on signature rejection */
-        _setProcessStage(txCode, ProcessStage.PROCESS_INACTIVE);
+        _resetProcess(txCode)
         return Promise.reject(err);
       });
     } else {
       await fallbackFn().catch((err: any) => {
         console.log(err);
-
-        // updateState({
-        //   type: 'signatures',
-        //   payload: { uid, txCode, sigData, status: TxState.REJECTED } as IYieldSignature,
-        // });
-
         /* end the process on signature rejection */
-        _setProcessStage(txCode, ProcessStage.PROCESS_INACTIVE);
+        _resetProcess(txCode)
         return Promise.reject(err);
       });
       /* on Completion of approval tx, send back an empty signed object (which will be ignored) */
@@ -233,22 +224,13 @@ const TxProvider = ({ children }: any) => {
       };
     }
 
-    // updateState({
-    //   type: 'signatures',
-    //   payload: { uid, txCode, sigData, status: TxState.SUCCESSFUL } as IYieldSignature,
-    // });
-
     _setProcessStage(txCode, ProcessStage.SIGNING_COMPLETE);
     return _sig;
   };
 
   /* Simple process watcher for any active Process */
   useEffect(() => {
-
-    
     console.log(txState.processes);
-
-
 
   }, [txState.processes]);
 
