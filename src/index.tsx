@@ -33,6 +33,7 @@ function getFallbackLibrary(provider: any, connector: any) {
     return library;
   }
   // library = new ethers.providers.JsonRpcProvider(process.env.REACT_APP_RPC_URL_1 as string);
+
   library = new ethers.providers.InfuraProvider(provider.chainId, '646dc0f33d2449878b28e0afa25267f6');
   library.pollingInterval = 12000;
   return library;

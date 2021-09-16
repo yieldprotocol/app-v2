@@ -45,10 +45,12 @@ const assetDigitFormatMap = new Map([
 /* Set up web3react config */
 const POLLING_INTERVAL = 12000;
 const RPC_URLS: { [chainId: number]: string } = {
-  1: process.env.REACT_APP_RPC_URL_1 as string,
-  42: process.env.REACT_APP_RPC_URL_42 as string,
+  1: process.env.REACT_APP_RPC_URL_1 as string, // mainnet
+  42: process.env.REACT_APP_RPC_URL_42 as string, // kovan
   1337: process.env.REACT_APP_RPC_URL_1337 as string,
   31337: process.env.REACT_APP_RPC_URL_31337 as string,
+  137: process.env.REACT_APP_RPC_URL_137 as string, // polygon
+  80001: process.env.REACT_APP_RPC_URL_80001 as string, // polygon testnet
 };
 
 interface IChainData {
@@ -64,13 +66,15 @@ chainData.set(4, { name: 'Rinkeby', color: '#f6c343', supported: false });
 chainData.set(5, { name: 'Goerli', color: '#3099f2', supported: false });
 chainData.set(10, { name: 'Optimism', color: '#EB0822', supported: false });
 chainData.set(42, { name: 'Kovan', color: '#7F7FFE', supported: true });
+chainData.set(137, { name: 'Polygon', color: '#8247E5', supported: false });
+chainData.set(80001, { name: 'Polygon Testnet', color: '#8247A5', supported: true });
 
 const connectors = new Map();
 const injectedName = 'metamask';
 connectors.set(
   injectedName,
   new InjectedConnector({
-    supportedChainIds: [1, 42, 1337, 31337],
+    supportedChainIds: [1, 42, 1337, 31337, 80001],
   })
 );
 connectors.set(
@@ -188,7 +192,6 @@ const ChainProvider = ({ children }: any) => {
   // const [lastSeriesUpdate, setLastSeriesUpdate] = useCachedState('lastSeriesUpdate', 27090000);
   const [lastSeriesUpdate, setLastSeriesUpdate] = useCachedState('lastSeriesUpdate', 0);
 
-
   /**
    * Update on FALLBACK connection/state on network changes (id/library)
    */
@@ -270,7 +273,7 @@ const ChainProvider = ({ children }: any) => {
             const { assetId: id, asset: address } = Cauldron.interface.parseLog(x).args;
             const ERC20 = contracts.ERC20Permit__factory.connect(address, fallbackLibrary);
             /* Add in any extra static asset Data */ // TODO is there any other fixed asset data needed?
-            const [ name, symbol, decimals ] = await Promise.all([
+            const [name, symbol, decimals] = await Promise.all([
               ERC20.name(),
               ERC20.symbol(),
               ERC20.decimals(),
@@ -337,7 +340,7 @@ const ChainProvider = ({ children }: any) => {
           oppStartColor,
           oppEndColor,
           oppTextColor,
-          seriesMark: <YieldMark colors={[startColor, endColor] } />,
+          seriesMark: <YieldMark colors={[startColor, endColor]} />,
 
           // built-in helper functions:
           getTimeTillMaturity: () => series.maturity - Math.round(new Date().getTime() / 1000),
@@ -373,17 +376,16 @@ const ChainProvider = ({ children }: any) => {
                 const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackLibrary);
                 const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackLibrary);
                 // const baseContract = contracts.ERC20__factory.connect(fyToken, fallbackLibrary);
-                const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol ] =
-                  await Promise.all([
-                    fyTokenContract.name(),
-                    fyTokenContract.symbol(),
-                    fyTokenContract.version(),
-                    fyTokenContract.decimals(),
-                    poolContract.name(),
-                    poolContract.version(),
-                    poolContract.symbol(),
-                    // poolContract.decimals(),
-                  ]);
+                const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol] = await Promise.all([
+                  fyTokenContract.name(),
+                  fyTokenContract.symbol(),
+                  fyTokenContract.version(),
+                  fyTokenContract.decimals(),
+                  poolContract.name(),
+                  poolContract.version(),
+                  poolContract.symbol(),
+                  // poolContract.decimals(),
+                ]);
                 const newSeries = {
                   id,
                   baseId,
@@ -426,11 +428,10 @@ const ChainProvider = ({ children }: any) => {
         const newStrategyList: any[] = [];
         await Promise.all(
           strategyAddresses.map(async (strategyAddr: string) => {
-
             /* if the strategy is already in the cache : */
             if (cachedStrategies.findIndex((_s: any) => _s.address === strategyAddr) === -1) {
               const Strategy = contracts.Strategy__factory.connect(strategyAddr, fallbackLibrary);
-              const [name, symbol, baseId, decimals, version ] = await Promise.all([
+              const [name, symbol, baseId, decimals, version] = await Promise.all([
                 Strategy.name(),
                 Strategy.symbol(),
                 Strategy.baseId(),
@@ -521,9 +522,16 @@ const ChainProvider = ({ children }: any) => {
 
     /* Connect the fallback */
     tried &&
+      chainId !== 80001 &&
       fallbackActivate(
         new NetworkConnector({
-          urls: { 1: RPC_URLS[1], 42: RPC_URLS[42], 31337: RPC_URLS[31337], 1337: RPC_URLS[1337] },
+          urls: {
+            1: RPC_URLS[1],
+            42: RPC_URLS[42],
+            31337: RPC_URLS[31337],
+            1337: RPC_URLS[1337],
+            80001: RPC_URLS[80001],
+          },
           defaultChainId: _chainId,
         }),
         (e: any) => console.log(e),
@@ -580,7 +588,13 @@ const ChainProvider = ({ children }: any) => {
     connectTest: () =>
       activate(
         new NetworkConnector({
-          urls: { 31337: RPC_URLS[31337], 1337: RPC_URLS[1337] },
+          urls: {
+            1: RPC_URLS[1],
+            42: RPC_URLS[42],
+            31337: RPC_URLS[31337],
+            1337: RPC_URLS[1337],
+            80001: RPC_URLS[80001],
+          },
           defaultChainId: 42,
         }),
         (e: any) => console.log(e),
