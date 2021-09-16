@@ -58,6 +58,7 @@ interface IChainData {
   color: string;
   supported: boolean;
   bridge?: string;
+  showBanner?: boolean;
 }
 
 const chainData = new Map<number, IChainData>();
@@ -72,6 +73,7 @@ chainData.set(137, {
   color: '#8247E5',
   supported: true,
   bridge: 'https://wallet.polygon.technology/bridge',
+  showBanner: true,
 });
 chainData.set(80001, { name: 'Polygon Testnet', color: '#8247A5', supported: true });
 
@@ -608,6 +610,8 @@ const ChainProvider = ({ children }: any) => {
         (e: any) => console.log(e),
         true
       ),
+    removeNetworkBanner: () =>
+      updateState({ type: 'chainData', payload: { ...chainState.chainData, showBanner: false } }),
   };
 
   return <ChainContext.Provider value={{ chainState, chainActions }}>{children}</ChainContext.Provider>;

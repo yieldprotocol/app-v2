@@ -9,17 +9,16 @@ const StyledBox = styled(Box)``;
 const NetworkBanner = () => {
   const {
     chainState: { chainData, chainId },
+    chainActions: { removeNetworkBanner },
   } = useContext(ChainContext);
   const showableChains = [137];
   const name = chainData?.name;
 
-  const [show, setShow] = useState<boolean>(true);
-
-  return showableChains.includes(chainId) && show ? (
+  return showableChains.includes(chainId) && chainData.showBanner ? (
     <StyledBox pad="small" background={chainData?.color} round="xsmall" gap="small">
       <Box direction="row" justify="between">
         <Box>Yield on {name}</Box>
-        <Button onClick={() => setShow(false)}>
+        <Button onClick={() => removeNetworkBanner()}>
           <FiX color="white" />
         </Button>
       </Box>
