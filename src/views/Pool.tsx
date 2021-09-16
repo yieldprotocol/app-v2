@@ -34,6 +34,7 @@ import AddTokenToMetamask from '../components/AddTokenToMetamask';
 import TransactionWidget from '../components/TransactionWidget';
 import StrategySelector from '../components/selectors/StrategySelector';
 import ColorText from '../components/texts/ColorText';
+import NetworkBanner from '../components/NetworkBanner';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -265,7 +266,8 @@ function Pool() {
       </CenterPanelWrap>
 
       <PanelWrap right basis="40%">
-        <Box margin={{ top: '20%' }} pad="small">
+        <Box margin={{ top: '20%' }} pad="small" fill>
+          <NetworkBanner />
           <TransactionWidget />
         </Box>
         {/* <YieldLiquidity input={poolInput} /> */}

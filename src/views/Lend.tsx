@@ -38,6 +38,7 @@ import { useRedeemPosition } from '../hooks/actionHooks/useRedeemPosition';
 
 import TransactionWidget from '../components/TransactionWidget';
 import ColorText from '../components/texts/ColorText';
+import NetworkBanner from '../components/NetworkBanner';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -71,7 +72,7 @@ const Lend = () => {
   const handleLend = () => {
     !lendDisabled && lend(lendInput, selectedSeries!);
   };
-  
+
   const handleRedeem = () => {
     redeem(selectedSeries!, undefined);
   };
@@ -111,7 +112,7 @@ const Lend = () => {
             <Box gap="large">
               <YieldCardHeader logo={mobile} series={selectedSeries}>
                 <Box gap={mobile ? undefined : 'xsmall'}>
-                <ColorText size={mobile ? 'medium' : '2rem'}>LEND</ColorText>
+                  <ColorText size={mobile ? 'medium' : '2rem'}>LEND</ColorText>
                   <AltText color="text-weak" size="xsmall">
                     Lend popular ERC20 tokens for <ColorText size="small"> fixed returns</ColorText>
                   </AltText>
@@ -258,7 +259,8 @@ const Lend = () => {
       </CenterPanelWrap>
 
       <PanelWrap right basis="40%">
-        <Box margin={{ top: '20%' }} pad="small">
+        <Box margin={{ top: '20%' }} pad="small" fill>
+          <NetworkBanner />
           <TransactionWidget />
         </Box>
         {/* <YieldApr input={lendInput} actionType={ActionType.LEND} /> */}

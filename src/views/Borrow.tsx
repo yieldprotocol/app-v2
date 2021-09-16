@@ -44,6 +44,7 @@ import { useBorrowHelpers } from '../hooks/actionHelperHooks/useBorrowHelpers';
 import InputInfoWrap from '../components/wraps/InputInfoWrap';
 import NavText from '../components/texts/NavText';
 import ColorText from '../components/texts/ColorText';
+import NetworkBanner from '../components/NetworkBanner';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -235,7 +236,7 @@ const Borrow = () => {
                       seriesMap.size > 0
                         ? `Available ${selectedBase?.symbol}${selectedBase && '-based'} maturity dates`
                         : ''
-                    }          
+                    }
                   >
                     <SeriesSelector inputValue={borrowInput} actionType={ActionType.BORROW} />
                   </SectionWrap>
@@ -390,7 +391,11 @@ const Borrow = () => {
               {(stepPosition === 0 || stepPosition === 1) && (
                 <NextButton
                   // label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
-                  label = { (borrowInput  && !selectedSeries) ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} Maturity` : 'Next Step' }
+                  label={
+                    borrowInput && !selectedSeries
+                      ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} Maturity`
+                      : 'Next Step'
+                  }
                   onClick={() => setStepPosition(stepPosition + 1)}
                   disabled={stepPosition === 0 ? stepDisabled : borrowDisabled}
                   errorLabel={stepPosition === 0 ? borrowInputError : collatInputError}
@@ -433,8 +438,9 @@ const Borrow = () => {
         </CenterPanelWrap>
 
         <PanelWrap right basis="40%">
-          <Box margin={{ top: '20%' }} pad="small">
+          <Box margin={{ top: '20%' }} pad="small" fill>
             <TransactionWidget />
+            <NetworkBanner />
           </Box>
           {/* <StepperText
               position={stepPosition}

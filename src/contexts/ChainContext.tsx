@@ -57,6 +57,7 @@ interface IChainData {
   name: string;
   color: string;
   supported: boolean;
+  bridge?: string;
 }
 
 const chainData = new Map<number, IChainData>();
@@ -66,7 +67,12 @@ chainData.set(4, { name: 'Rinkeby', color: '#f6c343', supported: false });
 chainData.set(5, { name: 'Goerli', color: '#3099f2', supported: false });
 chainData.set(10, { name: 'Optimism', color: '#EB0822', supported: false });
 chainData.set(42, { name: 'Kovan', color: '#7F7FFE', supported: true });
-chainData.set(137, { name: 'Polygon', color: '#8247E5', supported: true });
+chainData.set(137, {
+  name: 'Polygon',
+  color: '#8247E5',
+  supported: true,
+  bridge: 'https://wallet.polygon.technology/bridge',
+});
 chainData.set(80001, { name: 'Polygon Testnet', color: '#8247A5', supported: true });
 
 const connectors = new Map();
