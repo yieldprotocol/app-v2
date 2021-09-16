@@ -87,11 +87,14 @@ const PoolPosition = () => {
   ]);
 
   /* LOCAL FNS */
-  const handleStepper = (back: boolean = false) => {
-    const step = back ? -1 : 1;
-    const newStepArray = stepPosition.map((x: any, i: number) => (i === actionActive.index ? x + step : x));
-    setStepPosition(newStepArray);
-  };
+  const handleStepper = useCallback(
+    (back: boolean = false) => {
+      const step = back ? -1 : 1;
+      const newStepArray = stepPosition.map((x: any, i: number) => (i === actionActive.index ? x + step : x));
+      setStepPosition(newStepArray);
+    },
+    [actionActive.index, stepPosition]
+  );
 
   const handleRemove = () => {
     // !removeDisabled &&
@@ -107,15 +110,17 @@ const PoolPosition = () => {
   const resetInputs = useCallback(
     (actionCode: ActionCodes) => {
       if (actionCode === ActionCodes.REMOVE_LIQUIDITY) {
+        handleStepper(true);
         setRemoveInput(undefined);
         resetRemoveProcess();
       }
       if (actionCode === ActionCodes.ROLL_LIQUIDITY) {
+        handleStepper(true);
         setRollInput(undefined);
         resetRollProcess();
       }
     },
-    [resetRemoveProcess, resetRollProcess]
+    [handleStepper, resetRemoveProcess, resetRollProcess]
   );
 
   /* SET MAX VALUES */
@@ -266,11 +271,12 @@ const PoolPosition = () => {
                     )}
 
                     {stepPosition[0] !== 0 && (
-                      <ActiveTransaction pad txProcess={removeProcess}>
-                        <SectionWrap
-                          title="Review your remove transaction"
-                          rightAction={<CancelButton action={() => handleStepper(true)} />}
-                        >
+                      <ActiveTransaction
+                        pad
+                        txProcess={removeProcess}
+                        cancelAction={() => resetInputs(ActionCodes.REMOVE_LIQUIDITY)}
+                      >
+
                           <Box margin={{ top: 'medium' }}>
                             <InfoBite
                               label="Remove Liquidity"
@@ -278,7 +284,7 @@ const PoolPosition = () => {
                               value={`${cleanValue(removeInput, selectedBase?.digitFormat!)} liquidity tokens`}
                             />
                           </Box>
-                        </SectionWrap>
+
                       </ActiveTransaction>
                     )}
                   </>
@@ -314,11 +320,11 @@ const PoolPosition = () => {
                     )}
 
                     {stepPosition[actionActive.index] !== 0 && (
-                      <ActiveTransaction pad txProcess={rollProcess}>
-                        <SectionWrap
-                          title="Review your roll transaction"
-                          rightAction={<CancelButton action={() => handleStepper(true)} />}
-                        >
+                      <ActiveTransaction
+                        pad
+                        txProcess={rollProcess}
+                        cancelAction={() => resetInputs(ActionCodes.ROLL_LIQUIDITY)}
+                      >
                           <Box margin={{ top: 'medium' }}>
                             <InfoBite
                               label="Roll Liquidity"
@@ -328,7 +334,6 @@ const PoolPosition = () => {
                               } `}
                             />
                           </Box>
-                        </SectionWrap>
                       </ActiveTransaction>
                     )}
                   </>

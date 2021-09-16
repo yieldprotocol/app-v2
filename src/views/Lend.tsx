@@ -167,30 +167,29 @@ const Lend = () => {
               </YieldCardHeader>
 
               <ActiveTransaction full txProcess={lendProcess}>
-                <SectionWrap title="Review transaction:">
-                  <Box
-                    gap="small"
-                    pad={{ horizontal: 'large', vertical: 'medium' }}
-                    round="xsmall"
-                    animation={{ type: 'zoomIn', size: 'small' }}
-                  >
-                    <InfoBite
-                      label="Amount to lend"
-                      icon={<BiMessageSquareAdd />}
-                      value={`${cleanValue(lendInput, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
-                    />
-                    <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
-                    <InfoBite
-                      label="Redeemable @ Maturity"
-                      icon={<FiTrendingUp />}
-                      value={`${lendOutput} ${selectedBase?.symbol}`}
-                    />
-                    <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
-                  </Box>
-                </SectionWrap>
+                <Box
+                  gap="small"
+                  pad={{ horizontal: 'large', vertical: 'medium' }}
+                  round="xsmall"
+                  animation={{ type: 'zoomIn', size: 'small' }}
+                >
+                  <InfoBite
+                    label="Amount to lend"
+                    icon={<BiMessageSquareAdd />}
+                    value={`${cleanValue(lendInput, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
+                  />
+                  <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
+                  <InfoBite
+                    label="Redeemable @ Maturity"
+                    icon={<FiTrendingUp />}
+                    value={`${lendOutput} ${selectedBase?.symbol}`}
+                  />
+                  <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
+                </Box>
               </ActiveTransaction>
 
-              {lendProcess?.stage === ProcessStage.PROCESS_COMPLETE && lendProcess?.tx.status === TxState.SUCCESSFUL && (
+              {lendProcess?.stage === ProcessStage.PROCESS_COMPLETE && 
+              lendProcess?.tx.status === TxState.SUCCESSFUL && (
                 <Box pad="large" gap="small">
                   <Text size="small"> View position: </Text>
                   <LendItem series={selectedSeries!} index={0} actionType={ActionType.LEND} condensed />

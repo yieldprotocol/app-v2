@@ -1,16 +1,17 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { constants } from 'ethers';
-import { Box, Button, Text } from 'grommet';
+import { useLocation } from 'react-router-dom';
+import { Box, Text } from 'grommet';
 import { BiWallet } from 'react-icons/bi';
 import { FiCheckCircle, FiClock, FiPenTool, FiX } from 'react-icons/fi';
-import { TxContext } from '../contexts/TxContext';
+import ParticlesBg from 'particles-bg';
+
 import { UserContext } from '../contexts/UserContext';
 import { useProcess } from '../hooks/useProcess';
 import { ActionCodes, ApprovalType, IYieldProcess, ProcessStage, TxState } from '../types';
 import { abbreviateHash } from '../utils/appUtils';
 import EtherscanButton from './buttons/EtherscanButton';
 import CopyWrap from './wraps/CopyWrap';
+import CancelButton from './buttons/CancelButton';
 
 const InfoBlock = ({
   title,
@@ -59,9 +60,11 @@ const ActiveTransaction = ({
   full,
   children,
   pad,
+  cancelAction,
 }: {
   txProcess: IYieldProcess| undefined;
   children: React.ReactNode;
+  cancelAction?: ()=>void ;
   full?: boolean;
   pad?: boolean;
 }) => {
@@ -74,8 +77,6 @@ const ActiveTransaction = ({
 
   const [iconSize, setIconSize] = useState<string>(full ? '2.5em' : '1.5em');
 
-
-
   const activeProcess = txProcess;
 
   useEffect(()=>{
@@ -83,8 +84,25 @@ const ActiveTransaction = ({
   })
 
   return (
-    <Box pad={pad ? { horizontal: 'small', vertical: 'medium' } : undefined}>
-      {(activeProcess?.stage === ProcessStage.PROCESS_INACTIVE || !activeProcess) && <Box>{children}</Box>}
+    <Box pad={pad ? { horizontal: 'small', vertical: 'medium' } : undefined} >
+
+      {!full &&
+      (activeProcess?.stage === ProcessStage.PROCESS_INACTIVE || !activeProcess) &&
+        <Box justify='between' direction='row' pad='xsmall'>
+        <Text size='xsmall'> Review Transaction </Text>
+        {!full && <CancelButton action = {cancelAction ? ()=>cancelAction() : ()=>null}  /> }
+        </Box>
+      }
+      <Box 
+        background='gradient-transparent' 
+        round='xsmall'
+      > 
+
+      {(activeProcess?.stage === ProcessStage.PROCESS_INACTIVE || !activeProcess) && (
+      <Box gap='small' pad='small'>
+        {full && <Text size='medium'> Review Transaction </Text>}
+        {children}   
+      </Box>)}
 
       {activeProcess?.stage === ProcessStage.SIGNING_REQUESTED && (
         <InfoBlock
@@ -153,10 +171,11 @@ const ActiveTransaction = ({
           full={full}
         />
       )}
+      </Box>
     </Box>
   );
 };
 
-ActiveTransaction.defaultProps = { full: false, pad: false };
+ActiveTransaction.defaultProps = { full: false, pad: false, cancelAction: ()=>null };
 
 export default ActiveTransaction;

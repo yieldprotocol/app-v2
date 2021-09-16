@@ -32,6 +32,6 @@ function CancelButton({ action }: { action: () => void }) {
   );
 }
 
-// BackButton.defaultProps = { color: 'grey' };
+// CancelButton.defaultProps = { action : () => console.log('234') };
 
 export default CancelButton;

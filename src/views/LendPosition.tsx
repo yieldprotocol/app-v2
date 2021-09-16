@@ -82,11 +82,14 @@ const LendPosition = () => {
   ]);
 
   /* LOCAL FNS */
-  const handleStepper = (back: boolean = false) => {
-    const step = back ? -1 : 1;
-    const newStepArray = stepPosition.map((x: any, i: number) => (i === actionActive.index ? x + step : x));
-    setStepPosition(newStepArray);
-  };
+  const handleStepper = useCallback(
+    (back: boolean = false) => {
+      const step = back ? -1 : 1;
+      const newStepArray = stepPosition.map((x: any, i: number) => (i === actionActive.index ? x + step : x));
+      setStepPosition(newStepArray);
+    },
+    [actionActive.index, stepPosition]
+  );
 
   const handleClosePosition = () => {
     !closeDisabled && closePosition(closeInput, selectedSeries!);
@@ -99,15 +102,17 @@ const LendPosition = () => {
   const resetInputs = useCallback(
     (actionCode: ActionCodes) => {
       if (actionCode === ActionCodes.CLOSE_POSITION) {
+        handleStepper(true);
         setCloseInput(undefined);
         resetCloseProcess();
       }
       if (actionCode === ActionCodes.ROLL_POSITION) {
+        handleStepper(true);
         setRollInput(undefined);
         resetRollProcess();
       }
     },
-    [resetCloseProcess, resetRollProcess]
+    [handleStepper, resetCloseProcess, resetRollProcess]
   );
 
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
@@ -233,11 +238,11 @@ const LendPosition = () => {
                     )}
 
                     {stepPosition[0] !== 0 && (
-                      <ActiveTransaction pad txProcess={closeProcess}>
-                        <SectionWrap
-                          title="Review your redeem transaction"
-                          rightAction={<CancelButton action={() => handleStepper(true)} />}
-                        >
+                      <ActiveTransaction
+                        pad
+                        txProcess={closeProcess}
+                        cancelAction={() => resetInputs(ActionCodes.CLOSE_POSITION)}
+                      >
                           <Box margin={{ top: 'medium' }}>
                             <InfoBite
                               label={`Redeem Position ${selectedBase?.symbol}`}
@@ -246,7 +251,6 @@ const LendPosition = () => {
                               loading={seriesLoading}
                             />
                           </Box>
-                        </SectionWrap>
                       </ActiveTransaction>
                     )}
                   </>
@@ -287,11 +291,11 @@ const LendPosition = () => {
                     )}
 
                     {stepPosition[actionActive.index] !== 0 && (
-                      <ActiveTransaction pad txProcess={rollProcess}>
-                        <SectionWrap
-                          title="Review your roll transaction"
-                          rightAction={<CancelButton action={() => handleStepper(true)} />}
-                        >
+                      <ActiveTransaction
+                        pad
+                        txProcess={rollProcess}
+                        cancelAction={() => resetInputs(ActionCodes.ROLL_POSITION)}
+                      >
                           <Box margin={{ top: 'medium' }}>
                             <InfoBite
                               label="Roll To Series"
@@ -302,7 +306,6 @@ const LendPosition = () => {
                               )} ${selectedBase?.symbol} to ${rollToSeries?.displayName}`}
                             />
                           </Box>
-                        </SectionWrap>
                       </ActiveTransaction>
                     )}
                   </>

@@ -348,7 +348,7 @@ const Borrow = () => {
                 </YieldCardHeader>
 
                 <ActiveTransaction full txProcess={borrowProcess}>
-                  <SectionWrap title="Review transaction:">
+   
                     <Box
                       gap="small"
                       pad={{ horizontal: 'large', vertical: 'medium' }}
@@ -382,7 +382,7 @@ const Borrow = () => {
                         />
                       )}
                     </Box>
-                  </SectionWrap>
+    
                 </ActiveTransaction>
               </Box>
             )}
