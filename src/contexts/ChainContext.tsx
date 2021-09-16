@@ -522,7 +522,7 @@ const ChainProvider = ({ children }: any) => {
 
     /* Connect the fallback */
     tried &&
-      chainId !== 80001 &&
+      chainId !== (80001 || 137) &&
       fallbackActivate(
         new NetworkConnector({
           urls: {
@@ -530,6 +530,7 @@ const ChainProvider = ({ children }: any) => {
             42: RPC_URLS[42],
             31337: RPC_URLS[31337],
             1337: RPC_URLS[1337],
+            137: RPC_URLS[137],
             80001: RPC_URLS[80001],
           },
           defaultChainId: _chainId,
