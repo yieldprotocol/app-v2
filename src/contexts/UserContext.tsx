@@ -23,6 +23,7 @@ import { cleanValue, genVaultImage, bytesToBytes32 } from '../utils/appUtils';
 import { calculateAPR, divDecimal, floorDecimal, mulDecimal, secondsToFrom, sellFYToken } from '../utils/yieldMath';
 
 import { ONE_WEI_BN, ETH_BASED_ASSETS, BLANK_VAULT, BLANK_SERIES, ZERO_BN } from '../utils/constants';
+import * as yieldEnv from './yieldEnv.json';
 
 const UserContext = React.createContext<any>({});
 
@@ -137,7 +138,7 @@ const UserProvider = ({ children }: any) => {
   /* STATE FROM CONTEXT */
   // TODO const [cachedVaults, setCachedVaults] = useCachedState('vaults', { data: [], lastBlock: Number(process.env.REACT_APP_DEPLOY_BLOCK) });
   const { chainState } = useContext(ChainContext);
-  const { contractMap, account, chainLoading, seriesRootMap, assetRootMap, strategyRootMap } = chainState;
+  const { contractMap, account, chainLoading, seriesRootMap, assetRootMap, strategyRootMap, chainId } = chainState;
 
   const [userState, updateState] = useReducer(userReducer, initState);
 
@@ -420,9 +421,13 @@ const UserProvider = ({ children }: any) => {
           const baseRoot: IAssetRoot = assetRootMap.get(vault.baseId);
           const ilkRoot: IAssetRoot = assetRootMap.get(ilkId);
 
+          // check if witch is the owner (in liquidation process)
+          const isWitchOwner = (yieldEnv.addresses as any)[chainId]?.Witch === owner;
+
           return {
             ...vault,
             owner, // refreshed in case owner has been updated
+            isWitchOwner,
             isActive: owner === account,
             seriesId, // refreshed in case seriesId has been updated
             ilkId, // refreshed in case ilkId has been updated

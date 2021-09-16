@@ -48,7 +48,6 @@ import { useRemoveCollateral } from '../hooks/actionHooks/useRemoveCollateral';
 import { useBorrowHelpers } from '../hooks/actionHelperHooks/useBorrowHelpers';
 import InputInfoWrap from '../components/wraps/InputInfoWrap';
 import CopyWrap from '../components/wraps/CopyWrap';
-import * as yieldEnv from '../contexts/yieldEnv.json';
 
 const VaultPosition = ({ close }: { close: () => void }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -63,11 +62,10 @@ const VaultPosition = ({ close }: { close: () => void }) => {
   const { activeAccount, assetMap, seriesMap, vaultMap, selectedVaultId, vaultsLoading } = userState;
 
   const {
-    chainState: { account, chainId },
+    chainState: { account },
   } = useContext(ChainContext);
 
   const selectedVault: IVault | undefined = vaultMap && vaultMap.get(selectedVaultId || idFromUrl);
-  const isWitchOwner = (yieldEnv.addresses as any)[chainId]?.Witch === selectedVault?.owner;
 
   const vaultBase: IAsset | undefined = assetMap.get(selectedVault?.baseId!);
   const vaultIlk: IAsset | undefined = assetMap.get(selectedVault?.ilkId!);
@@ -262,7 +260,7 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                     </Box>
                   </SectionWrap>
                 )}
-                {!selectedVault?.isActive && !isWitchOwner && (
+                {!selectedVault?.isActive && !selectedVault?.isWitchOwner && (
                   <SectionWrap>
                     <Box fill align="center" justify="center">
                       <Box direction="row" pad="medium" gap="small" align="center">
@@ -278,7 +276,7 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                     </Box>
                   </SectionWrap>
                 )}
-                {isWitchOwner && (
+                {selectedVault?.isWitchOwner && (
                   <SectionWrap>
                     <Box fill align="center" justify="center">
                       <Box direction="row" pad="medium" gap="small" align="center">
