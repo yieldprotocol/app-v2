@@ -1,6 +1,5 @@
 import React from 'react';
 import { Box, Text } from 'grommet';
-import ListWrap from './wraps/ListWrap';
 
 interface IDashSummary {
   debt: string | null;
@@ -27,7 +26,7 @@ const DashboardPositionSummary = ({ debt, collateral, lendBalance, strategyBalan
         {strategyBalance && <Summary label="Balance" value={strategyBalance} />}
       </Box>
     </Box>
-    <ListWrap pad={{ vertical: 'xsmall', horizontal: 'none' }}>{children}</ListWrap>
+    <Box pad={{ vertical: 'xsmall', horizontal: 'none' }}>{children}</Box>
   </Box>
 );
 
