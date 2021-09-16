@@ -187,7 +187,7 @@ function Pool() {
                       <Box direction="row" justify="between" fill align="center">
                         {!mobile && (
                           <Box direction="row" gap="xsmall">
-                            <Text size="small"> Pooling method: </Text>
+                            <Text size="small">Pooling method:</Text>
                             <Tip
                               content={<Text size="xsmall">some info</Text>}
                               dropProps={{ align: { bottom: 'top' } }}

@@ -188,7 +188,6 @@ const ChainProvider = ({ children }: any) => {
   // const [lastSeriesUpdate, setLastSeriesUpdate] = useCachedState('lastSeriesUpdate', 27090000);
   const [lastSeriesUpdate, setLastSeriesUpdate] = useCachedState('lastSeriesUpdate', 0);
 
-
   /**
    * Update on FALLBACK connection/state on network changes (id/library)
    */
@@ -270,7 +269,7 @@ const ChainProvider = ({ children }: any) => {
             const { assetId: id, asset: address } = Cauldron.interface.parseLog(x).args;
             const ERC20 = contracts.ERC20Permit__factory.connect(address, fallbackLibrary);
             /* Add in any extra static asset Data */ // TODO is there any other fixed asset data needed?
-            const [ name, symbol, decimals ] = await Promise.all([
+            const [name, symbol, decimals] = await Promise.all([
               ERC20.name(),
               ERC20.symbol(),
               ERC20.decimals(),
@@ -337,7 +336,7 @@ const ChainProvider = ({ children }: any) => {
           oppStartColor,
           oppEndColor,
           oppTextColor,
-          seriesMark: <YieldMark colors={[startColor, endColor] } />,
+          seriesMark: <YieldMark colors={[startColor, endColor]} />,
 
           // built-in helper functions:
           getTimeTillMaturity: () => series.maturity - Math.round(new Date().getTime() / 1000),
@@ -373,17 +372,16 @@ const ChainProvider = ({ children }: any) => {
                 const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackLibrary);
                 const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackLibrary);
                 // const baseContract = contracts.ERC20__factory.connect(fyToken, fallbackLibrary);
-                const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol ] =
-                  await Promise.all([
-                    fyTokenContract.name(),
-                    fyTokenContract.symbol(),
-                    fyTokenContract.version(),
-                    fyTokenContract.decimals(),
-                    poolContract.name(),
-                    poolContract.version(),
-                    poolContract.symbol(),
-                    // poolContract.decimals(),
-                  ]);
+                const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol] = await Promise.all([
+                  fyTokenContract.name(),
+                  fyTokenContract.symbol(),
+                  fyTokenContract.version(),
+                  fyTokenContract.decimals(),
+                  poolContract.name(),
+                  poolContract.version(),
+                  poolContract.symbol(),
+                  // poolContract.decimals(),
+                ]);
                 const newSeries = {
                   id,
                   baseId,
@@ -426,16 +424,16 @@ const ChainProvider = ({ children }: any) => {
         const newStrategyList: any[] = [];
         await Promise.all(
           strategyAddresses.map(async (strategyAddr: string) => {
-
             /* if the strategy is already in the cache : */
             if (cachedStrategies.findIndex((_s: any) => _s.address === strategyAddr) === -1) {
               const Strategy = contracts.Strategy__factory.connect(strategyAddr, fallbackLibrary);
-              const [name, symbol, baseId, decimals, version ] = await Promise.all([
+              const [name, symbol, baseId, decimals, version, strategyTotalSupply] = await Promise.all([
                 Strategy.name(),
                 Strategy.symbol(),
                 Strategy.baseId(),
                 Strategy.decimals(),
                 Strategy.version(),
+                Strategy.totalSupply(),
               ]);
 
               const newStrategy = {
@@ -446,6 +444,8 @@ const ChainProvider = ({ children }: any) => {
                 version,
                 baseId,
                 decimals,
+                strategyTotalSupply,
+                strategyTotalSupply_: ethers.utils.formatUnits(strategyTotalSupply, decimals),
               };
               // update state and cache
               updateState({ type: 'addStrategy', payload: _chargeStrategy(newStrategy) });
