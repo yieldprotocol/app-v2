@@ -28,7 +28,7 @@ const DashboardPositionList = ({
     lendBalance={lendBalance!}
     strategyBalance={strategyBalance!}
   >
-    <Box>
+    <Box gap="xsmall">
       {positions.length === 0 && (
         <Text weight={450} size="small">
           No suggested positions
