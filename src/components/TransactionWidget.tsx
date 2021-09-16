@@ -17,34 +17,8 @@ const StyledBox = styled(Box)`
 
 const TransactionWidget = () => {
   const {
-    txState: { processes, transactions, processActive },
+    txState: { processes },
   } = useContext(TxContext);
-
-  const lastTx = [...transactions?.values()][transactions.size - 1];
-  const [txs, setTxs] = useState<any>(new Map());
-
-  // infinite loop issues
-  const handleRemove = useCallback(
-    (txHash: string) => {
-      const updatedTx = { ...txs.get(txHash), remove: true };
-      setTxs((_txs: any) => _txs.set(txHash, updatedTx));
-      console.log('inhere', txs);
-    },
-    [txs]
-  );
-
-  // remove on success
-  useEffect(() => {
-    txs.size &&
-      [...txs.values()].map(
-        (tx: any) => tx.status === TxState.SUCCESSFUL && setTimeout(() => handleRemove(tx.tx.hash), 5000)
-      );
-  }, [txs, handleRemove]);
-
-  // set the tx in local state on each change in context
-  useEffect(() => {
-    setTxs(new Map(transactions));
-  }, [transactions]);
 
   return (
     <>
@@ -70,8 +44,8 @@ const TransactionWidget = () => {
                     <FiAlertTriangle size="1.5rem" color="#D97706" />
                   </Box>
                   <Box align="start">
-                    <Text size="small">Action Required</Text>
-                    <Text size="xsmall">Please Check your wallet</Text>
+                    <Text size="small" color='text'>Action Required</Text>
+                    <Text size="xsmall" color='text'>Please Check your wallet</Text>
                   </Box>
                 </Box>
               )}
@@ -101,7 +75,7 @@ const TransactionWidget = () => {
 
               {(process.stage === ProcessStage.TRANSACTION_PENDING ||   
                 process.stage === ProcessStage.PROCESS_COMPLETE) && (
-                <TransactionItem tx={process.tx!} key={process.txHash} wide={false} handleRemove={handleRemove} />
+                <TransactionItem tx={process.tx!} key={process.txHash} wide={false} />
               )}
             </StyledBox>
           );

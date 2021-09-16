@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { Box, Button, ResponsiveContext, Text, TextInput } from 'grommet';
 
 import { FiClock, FiTrendingUp, FiPercent } from 'react-icons/fi';
@@ -65,7 +65,7 @@ const Lend = () => {
   const lendOutput = cleanValue((Number(lendInput) * (1 + Number(apr) / 100)).toString(), selectedBase?.digitFormat!);
 
   
-  const { txProcess: lendProcess, resetProcess } = useProcess(ActionCodes.LEND, selectedSeries?.id);
+  const { txProcess: lendProcess, resetProcess: resetLendProcess } = useProcess(ActionCodes.LEND, selectedSeries?.id);
 
   /* input validation hooks */
   const { inputError: lendError } = useInputValidation(lendInput, ActionCodes.LEND, selectedSeries, [0, maxLend]);
@@ -79,16 +79,20 @@ const Lend = () => {
     redeem(selectedSeries!, undefined);
   };
 
-  const resetInputs = () => {
+  const resetInputs = useCallback(() => {
     setLendInput(undefined);
     setStepPosition(0);
-    resetProcess();
-  };
+    resetLendProcess();
+  }, [resetLendProcess]);
 
   /* ACTION DISABLING LOGIC  - if conditions are met: allow action */
   useEffect(() => {
     activeAccount && lendInput && selectedSeries && !lendError ? setLendDisabled(false) : setLendDisabled(true);
   }, [lendInput, activeAccount, lendError, selectedSeries]);
+
+  useEffect(()=>{
+    lendProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs()
+  },[lendProcess, resetInputs])
 
   return (
     <MainViewWrap>

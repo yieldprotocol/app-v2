@@ -1,4 +1,4 @@
-import React, { useReducer, useEffect } from 'react';
+import React, { useReducer, useEffect, useState } from 'react';
 import { ethers, ContractTransaction } from 'ethers';
 import { toast } from 'react-toastify';
 import { ApprovalType, ISignData, TxState, ProcessStage, IYieldProcess } from '../types';
@@ -60,7 +60,7 @@ function txReducer(_state: any, action: any) {
             ..._state.processes.get(action.payload.txCode),
             txCode: action.payload.txCode,
             stage: action.payload.stage,
-            processActive: ( action.payload.stage !== 0 || action.payload.stage !== 6),
+            processActive: ( action.payload.stage !== 0 || action.payload.stage !== 6 || action.payload.stage !== 7 ),
           })
         ) as Map<string, IYieldProcess>,
       };
@@ -90,6 +90,10 @@ function txReducer(_state: any, action: any) {
 
 const TxProvider = ({ children }: any) => {
   const [txState, updateState] = useReducer(txReducer, initState);
+
+  const [terminateProcessTimer, setTerminateProcessTimer] = useState<Map<string, boolean>>();
+  const [processTimer, setProcessTimer] = useState<Map<string, boolean>>();
+
   const _setProcessStage = (txCode: string, stage: ProcessStage) => {
     updateState({
       type: 'processes',
@@ -98,6 +102,11 @@ const TxProvider = ({ children }: any) => {
   };
 
   const _resetProcess = (txCode:string) => updateState({ type: 'resetProcess', payload: txCode })
+
+  const _startProcessTimer = async (txCode:string) => { 
+    await new Promise(resolve => setTimeout(resolve, 10000));
+    _setProcessStage(txCode, ProcessStage.PROCESS_COMPLETE_TIMEOUT);
+  }
 
   /* handle case when user or wallet rejects the tx (before submission) */
   const _handleTxRejection = (err: any, txCode: string) => {
@@ -184,6 +193,8 @@ const TxProvider = ({ children }: any) => {
     }
   };
 
+  // const handlePreProcess = (txCode:string) => _setProcessStage(txCode, ProcessStage.PROCESS_CONFIRMATION);
+
   /* handle a sig and sig fallbacks */
   /* returns the tx id to be used in handleTx */
   const handleSign = async (
@@ -228,19 +239,23 @@ const TxProvider = ({ children }: any) => {
     return _sig;
   };
 
-  /* Simple process watcher for any active Process */
-  useEffect(() => {
-    console.log(txState.processes);
-
-  }, [txState.processes]);
 
   /* Simple process watcher for any active Process */
-  useEffect(() => {
+  useEffect(() => {  
     if (txState.processes.size) {
-      const hasActiveProcess = Array.from(txState.processes.values()).some(
+      /* 1. watch for any active process */
+      const _processes: IYieldProcess[] = Array.from(txState.processes.values())     
+      const hasActiveProcess = _processes.some(
         (x: any) => x.stage === 1 || x.stage === 2 || x.stage === 3 || x.stage === 4 || x.stage === 5
       );
       updateState({ type: 'processActive', payload: hasActiveProcess });
+
+      /* 2. Set timer on process complete */ 
+      _processes.forEach((p:IYieldProcess) => { 
+        p.stage === ProcessStage.PROCESS_COMPLETE && 
+        p.tx.status === TxState.SUCCESSFUL &&
+        _startProcessTimer(p.txCode)
+      })
     }
   }, [txState.processes]);
 

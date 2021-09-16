@@ -50,9 +50,9 @@ function App() {
 
       <Box fill>
         {chainData && !chainData.supported && <NetworkError />}
-        <TransactionWidget />
-
+        
         <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
+        <TransactionWidget />
 
         <Box flex={!mobile} overflow="hidden">
           <ToastContainer position="top-center" />
