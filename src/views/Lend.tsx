@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect, useCallback } from 'react';
-import { Box, Button, ResponsiveContext, Text, TextInput } from 'grommet';
+import { Box, ResponsiveContext, Text, TextInput } from 'grommet';
 
 import { FiClock, FiTrendingUp, FiPercent } from 'react-icons/fi';
 import { BiMessageSquareAdd } from 'react-icons/bi';
@@ -17,7 +17,6 @@ import MaxButton from '../components/buttons/MaxButton';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 
-import StepperText from '../components/StepperText';
 import PositionSelector from '../components/selectors/LendPositionSelector';
 import ActiveTransaction from '../components/ActiveTransaction';
 import YieldInfo from '../components/YieldInfo';
@@ -29,14 +28,11 @@ import TransactButton from '../components/buttons/TransactButton';
 
 import { useApr } from '../hooks/useApr';
 import { useInputValidation } from '../hooks/useInputValidation';
-import { useTx } from '../hooks/useTx';
 import AltText from '../components/texts/AltText';
 import YieldCardHeader from '../components/YieldCardHeader';
 import { useLendHelpers } from '../hooks/actionHelperHooks/useLendHelpers';
 import { useLend } from '../hooks/actionHooks/useLend';
-import { useRedeemPosition } from '../hooks/actionHooks/useRedeemPosition';
 
-import TransactionWidget from '../components/TransactionWidget';
 import ColorText from '../components/texts/ColorText';
 import { useProcess } from '../hooks/useProcess';
 import LendItem from '../components/positionItems/LendItem';
@@ -57,14 +53,12 @@ const Lend = () => {
   const [stepPosition, setStepPosition] = useState<number>(0);
 
   /* HOOK FNS */
-  const { maxLend, fyTokenMarketValue } = useLendHelpers(selectedSeries!);
+  const { maxLend } = useLendHelpers(selectedSeries!);
   const lend = useLend();
-  const redeem = useRedeemPosition();
   const { apr } = useApr(lendInput, ActionType.LEND, selectedSeries);
 
   const lendOutput = cleanValue((Number(lendInput) * (1 + Number(apr) / 100)).toString(), selectedBase?.digitFormat!);
 
-  
   const { txProcess: lendProcess, resetProcess: resetLendProcess } = useProcess(ActionCodes.LEND, selectedSeries?.id);
 
   /* input validation hooks */
@@ -73,10 +67,6 @@ const Lend = () => {
   /* LOCAL FNS */
   const handleLend = () => {
     !lendDisabled && lend(lendInput, selectedSeries!);
-  };
-
-  const handleRedeem = () => {
-    redeem(selectedSeries!, undefined);
   };
 
   const resetInputs = useCallback(() => {
@@ -90,24 +80,16 @@ const Lend = () => {
     activeAccount && lendInput && selectedSeries && !lendError ? setLendDisabled(false) : setLendDisabled(true);
   }, [lendInput, activeAccount, lendError, selectedSeries]);
 
-  useEffect(()=>{
-    lendProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs()
-  },[lendProcess, resetInputs])
+  /* Watch process timeouts */
+  useEffect(() => {
+    lendProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs();
+  }, [lendProcess, resetInputs]);
 
   return (
     <MainViewWrap>
       {!mobile && (
         <PanelWrap>
-          <Box margin={{ top: '35%' }}>
-            {/* <StepperText
-              position={stepPosition}
-              values={[
-                // ['Choose amount to', 'LEND', ''],
-                ['Choose an amount and a maturity date', '', ''],
-                ['Review & Transact', '', ''],
-              ]}
-            /> */}
-          </Box>
+          <Box margin={{ top: '35%' }} />
           <YieldInfo />
         </PanelWrap>
       )}
@@ -120,7 +102,11 @@ const Lend = () => {
                 <Box gap={mobile ? undefined : 'xsmall'}>
                   <ColorText size={mobile ? 'medium' : '2rem'}>LEND</ColorText>
                   <AltText color="text-weak" size="xsmall">
-                    Lend popular ERC20 tokens for <Text size="small" color='text'> fixed returns</Text>
+                    Lend popular ERC20 tokens for{' '}
+                    <Text size="small" color="text">
+                      {' '}
+                      fixed returns
+                    </Text>
                   </AltText>
                 </Box>
               </YieldCardHeader>
@@ -204,8 +190,7 @@ const Lend = () => {
                 </SectionWrap>
               </ActiveTransaction>
 
-              {lendProcess?.stage === ProcessStage.PROCESS_COMPLETE && 
-              lendProcess?.tx.status === TxState.SUCCESSFUL && (
+              {lendProcess?.stage === ProcessStage.PROCESS_COMPLETE && lendProcess?.tx.status === TxState.SUCCESSFUL && (
                 <Box pad="large" gap="small">
                   <Text size="small"> View position: </Text>
                   <LendItem series={selectedSeries!} index={0} actionType={ActionType.LEND} condensed />
@@ -250,7 +235,6 @@ const Lend = () => {
             lendProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
             lendProcess?.tx.status === TxState.SUCCESSFUL && ( // lendTx.success && (
               <>
-                {/* <PositionListItem series={selectedSeries!} actionType={ActionType.LEND} /> */}
                 <NextButton
                   label={<Text size={mobile ? 'small' : undefined}>Lend some more</Text>}
                   onClick={() => resetInputs()}
@@ -269,19 +253,10 @@ const Lend = () => {
                 />
               </>
             )}
-
-          {/* {selectedSeries?.seriesIsMature && (
-            <NextButton
-              primary
-              label={<Text size={mobile ? 'small' : undefined}> Redeem </Text>}
-              onClick={() => handleRedeem()}
-            />
-          )} */}
         </ActionButtonGroup>
       </CenterPanelWrap>
 
       <PanelWrap right basis="40%">
-        {/* <YieldApr input={lendInput} actionType={ActionType.LEND} /> */}
         {!mobile && <PositionSelector actionType={ActionType.LEND} />}
       </PanelWrap>
     </MainViewWrap>

@@ -1,6 +1,6 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { Box, ResponsiveContext, Select, Text, TextInput } from 'grommet';
-import { useHistory, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { FiArrowRight, FiClock, FiTool, FiTrendingUp } from 'react-icons/fi';
 
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
@@ -9,7 +9,6 @@ import SeriesSelector from '../components/selectors/SeriesSelector';
 import { abbreviateHash, cleanValue, nFormatter } from '../utils/appUtils';
 import SectionWrap from '../components/wraps/SectionWrap';
 
-import { useTx } from '../hooks/useTx';
 import { UserContext } from '../contexts/UserContext';
 import { ActionCodes, ActionType, ISeries, IUserContext, ProcessStage } from '../types';
 import MaxButton from '../components/buttons/MaxButton';
@@ -21,19 +20,16 @@ import NextButton from '../components/buttons/NextButton';
 import CancelButton from '../components/buttons/CancelButton';
 import TransactButton from '../components/buttons/TransactButton';
 import YieldHistory from '../components/YieldHistory';
-import ExitButton from '../components/buttons/ExitButton';
 import { useInputValidation } from '../hooks/useInputValidation';
 import ModalWrap from '../components/wraps/ModalWrap';
 import { useLendHelpers } from '../hooks/actionHelperHooks/useLendHelpers';
 import { useClosePosition } from '../hooks/actionHooks/useClosePosition';
-import { useRedeemPosition } from '../hooks/actionHooks/useRedeemPosition';
 import { useRollPosition } from '../hooks/actionHooks/useRollPosition';
 import CopyWrap from '../components/wraps/CopyWrap';
 import { useProcess } from '../hooks/useProcess';
 
-const LendPosition = ({ close }: { close: () => void }) => {
+const LendPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-  const history = useHistory();
   const { id: idFromUrl } = useParams<{ id: string }>();
 
   /* STATE FROM CONTEXT */
@@ -63,14 +59,13 @@ const LendPosition = ({ close }: { close: () => void }) => {
   const { fyTokenMarketValue } = useLendHelpers(selectedSeries!);
   const closePosition = useClosePosition();
   const rollPosition = useRollPosition();
-  const redeem = useRedeemPosition();
 
-  /* TX data */
-  const { txProcess: closeProcess, resetProcess: resetCloseTx } = useProcess(
+  /* Processes to watch */
+  const { txProcess: closeProcess, resetProcess: resetCloseProcess } = useProcess(
     ActionCodes.CLOSE_POSITION,
     selectedSeries?.id
   );
-  const { txProcess: rollProcess, resetProcess: resetRollTx } = useProcess(
+  const { txProcess: rollProcess, resetProcess: resetRollProcess } = useProcess(
     ActionCodes.ROLL_POSITION,
     selectedSeries?.id
   );
@@ -101,14 +96,19 @@ const LendPosition = ({ close }: { close: () => void }) => {
     !rollDisabled && rollToSeries && rollPosition(rollInput, selectedSeries!, rollToSeries);
   };
 
-  const handleRedeem = () => {
-    redeem(selectedSeries!, undefined);
-  };
-
-  const resetInputs = (actionCode: ActionCodes) => {
-    if (actionCode === ActionCodes.CLOSE_POSITION) setCloseInput(undefined);
-    if (actionCode === ActionCodes.ROLL_POSITION) setRollInput(undefined);
-  };
+  const resetInputs = useCallback(
+    (actionCode: ActionCodes) => {
+      if (actionCode === ActionCodes.CLOSE_POSITION) {
+        setCloseInput(undefined);
+        resetCloseProcess();
+      }
+      if (actionCode === ActionCodes.ROLL_POSITION) {
+        setRollInput(undefined);
+        resetRollProcess();
+      }
+    },
+    [resetCloseProcess, resetRollProcess]
+  );
 
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
   useEffect(() => {
@@ -116,11 +116,16 @@ const LendPosition = ({ close }: { close: () => void }) => {
     !rollInput || !rollToSeries || rollError ? setRollDisabled(true) : setRollDisabled(false);
   }, [closeInput, closeError, rollInput, rollToSeries, rollError]);
 
+  /* Watch process timeouts */
+  useEffect(() => {
+    closeProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs(ActionCodes.CLOSE_POSITION);
+    rollProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs(ActionCodes.ROLL_POSITION);
+  }, [closeProcess?.stage, resetInputs, rollProcess?.stage]);
+
   /* INTERNAL COMPONENTS */
   const CompletedTx = (props: any) => (
     <>
       <NextButton
-        // size="xsmall"
         label={<Text size={mobile ? 'xsmall' : undefined}>Go back</Text>}
         onClick={() => {
           props.resetTx();
@@ -128,9 +133,6 @@ const LendPosition = ({ close }: { close: () => void }) => {
           resetInputs(props.actionCode);
         }}
       />
-      {/* {props.tx.failed &&
-      <EtherscanButton txHash={props.tx.txHash} />
-      } */}
     </>
   );
 
@@ -357,16 +359,22 @@ const LendPosition = ({ close }: { close: () => void }) => {
 
               {stepPosition[actionActive.index] === 1 &&
                 actionActive.index === 0 &&
-                !closeProcess?.processActive &&
                 closeProcess?.stage === ProcessStage.PROCESS_COMPLETE && (
-                  <CompletedTx tx={closeProcess} resetTx={resetCloseTx} actionCode={ActionCodes.CLOSE_POSITION} />
+                  <CompletedTx
+                    tx={closeProcess}
+                    resetTx={() => resetCloseProcess()}
+                    actionCode={ActionCodes.CLOSE_POSITION}
+                  />
                 )}
 
               {stepPosition[actionActive.index] === 1 &&
                 actionActive.index === 1 &&
-                !rollProcess?.processActive &&
                 rollProcess?.stage === ProcessStage.PROCESS_COMPLETE && (
-                  <CompletedTx tx={rollProcess} resetTx={() => resetRollTx()} actionCode={ActionCodes.ROLL_POSITION} />
+                  <CompletedTx
+                    tx={rollProcess}
+                    resetTx={() => resetRollProcess()}
+                    actionCode={ActionCodes.ROLL_POSITION}
+                  />
                 )}
             </ActionButtonGroup>
           </CenterPanelWrap>

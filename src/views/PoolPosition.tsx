@@ -1,8 +1,8 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { Box, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import { ethers } from 'ethers';
 import { useHistory, useParams } from 'react-router-dom';
-import { FiArrowRight, FiClock, FiPercent, FiSlash, FiTrendingUp } from 'react-icons/fi';
+import { FiArrowRight, FiPercent, FiSlash, FiTrendingUp } from 'react-icons/fi';
 
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import InputWrap from '../components/wraps/InputWrap';
@@ -14,7 +14,6 @@ import { UserContext } from '../contexts/UserContext';
 import { ActionCodes, ActionType, ISeries, IUserContext, ProcessStage } from '../types';
 import MaxButton from '../components/buttons/MaxButton';
 import InfoBite from '../components/InfoBite';
-import { useTx } from '../hooks/useTx';
 import ActiveTransaction from '../components/ActiveTransaction';
 import PositionAvatar from '../components/PositionAvatar';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
@@ -24,7 +23,6 @@ import YieldMark from '../components/logos/YieldMark';
 import CancelButton from '../components/buttons/CancelButton';
 import TransactButton from '../components/buttons/TransactButton';
 import YieldHistory from '../components/YieldHistory';
-import ExitButton from '../components/buttons/ExitButton';
 import { useInputValidation } from '../hooks/useInputValidation';
 import ModalWrap from '../components/wraps/ModalWrap';
 import { useRemoveLiquidity } from '../hooks/actionHooks/useRemoveLiquidity';
@@ -32,7 +30,7 @@ import { useRollLiquidity } from '../hooks/actionHooks/useRollLiquidity';
 import CopyWrap from '../components/wraps/CopyWrap';
 import { useProcess } from '../hooks/useProcess';
 
-const PoolPosition = ({ close }: { close: () => void }) => {
+const PoolPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const history = useHistory();
   const { id: idFromUrl } = useParams<{ id: string }>();
@@ -68,11 +66,11 @@ const PoolPosition = ({ close }: { close: () => void }) => {
   const rollLiquidity = useRollLiquidity();
 
   /* TX data */
-  const { txProcess: removeProcess, resetProcess: resetRemoveTx } = useProcess(
+  const { txProcess: removeProcess, resetProcess: resetRemoveProcess } = useProcess(
     ActionCodes.REMOVE_LIQUIDITY,
     selectedSeries?.id
   );
-  const { txProcess: rollProcess, resetProcess: resetRollTx } = useProcess(
+  const { txProcess: rollProcess, resetProcess: resetRollProcess } = useProcess(
     ActionCodes.ROLL_LIQUIDITY,
     selectedSeries?.id
   );
@@ -106,10 +104,19 @@ const PoolPosition = ({ close }: { close: () => void }) => {
     selectedSeries && rollToSeries && rollLiquidity(rollInput!, selectedSeries, rollToSeries);
   };
 
-  const resetInputs = (actionCode: ActionCodes) => {
-    if (actionCode === ActionCodes.REMOVE_LIQUIDITY) setRemoveInput(undefined);
-    if (actionCode === ActionCodes.ROLL_LIQUIDITY) setRollInput(undefined);
-  };
+  const resetInputs = useCallback(
+    (actionCode: ActionCodes) => {
+      if (actionCode === ActionCodes.REMOVE_LIQUIDITY) {
+        setRemoveInput(undefined);
+        resetRemoveProcess();
+      }
+      if (actionCode === ActionCodes.ROLL_LIQUIDITY) {
+        setRollInput(undefined);
+        resetRollProcess();
+      }
+    },
+    [resetRemoveProcess, resetRollProcess]
+  );
 
   /* SET MAX VALUES */
   useEffect(() => {
@@ -127,6 +134,12 @@ const PoolPosition = ({ close }: { close: () => void }) => {
   useEffect(() => {
     !selectedStrategyAddr && idFromUrl && userActions.setSelectedStrategy(idFromUrl);
   }, [selectedStrategyAddr, idFromUrl, userActions.setSelectedStrategy]);
+
+  /* watch process timeouts */
+  useEffect(() => {
+    removeProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs(ActionCodes.REMOVE_LIQUIDITY);
+    rollProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs(ActionCodes.ROLL_LIQUIDITY);
+  }, [removeProcess?.stage, resetInputs, rollProcess?.stage]);
 
   /* INTERNAL COMPONENTS */
   const CompletedTx = (props: any) => (
@@ -336,9 +349,8 @@ const PoolPosition = ({ close }: { close: () => void }) => {
 
               {actionActive.index === 0 &&
                 stepPosition[actionActive.index] !== 0 &&
-
                 removeProcess?.stage !== ProcessStage.PROCESS_COMPLETE && (
-                // !(removeTx.success || removeTx.failed) && (
+                  // !(removeTx.success || removeTx.failed) && (
                   <TransactButton
                     primary
                     label={
@@ -357,7 +369,7 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                 stepPosition[actionActive.index] !== 0 &&
                 removeProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
                 rollProcess?.stage === ProcessStage.PROCESS_COMPLETE && (
-                // !(removeTx.success || removeTx.failed || rollTx.success || rollTx.failed) && (
+                  // !(removeTx.success || removeTx.failed || rollTx.success || rollTx.failed) && (
                   <TransactButton
                     primary
                     label={
@@ -376,14 +388,22 @@ const PoolPosition = ({ close }: { close: () => void }) => {
                 actionActive.index === 0 &&
                 !removeProcess?.processActive &&
                 removeProcess?.stage === ProcessStage.PROCESS_COMPLETE && (
-                  <CompletedTx tx={removeProcess} resetTx={resetRemoveTx} actionCode={ActionCodes.REMOVE_LIQUIDITY} />
+                  <CompletedTx
+                    tx={removeProcess}
+                    resetTx={() => resetRemoveProcess()}
+                    actionCode={ActionCodes.REMOVE_LIQUIDITY}
+                  />
                 )}
 
               {stepPosition[actionActive.index] === 2 &&
                 actionActive.index === 2 &&
                 !rollProcess?.processActive &&
                 rollProcess?.stage === ProcessStage.PROCESS_COMPLETE && (
-                  <CompletedTx tx={rollProcess} resetTx={resetRollTx} actionCode={ActionCodes.ROLL_LIQUIDITY} />
+                  <CompletedTx
+                    tx={rollProcess}
+                    resetTx={() => resetRollProcess()}
+                    actionCode={ActionCodes.ROLL_LIQUIDITY}
+                  />
                 )}
             </ActionButtonGroup>
           </CenterPanelWrap>

@@ -31,7 +31,6 @@ function App() {
   /* LOCAL STATE */
   const [menuLayerOpen, setMenuLayerOpen] = useState<boolean>(false);
 
-
   return (
     <>
       {/* <ParticlesBg type="circle" num={7} bg={true} /> */}
@@ -50,7 +49,7 @@ function App() {
 
       <Box fill>
         {chainData && !chainData.supported && <NetworkError />}
-        
+
         <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
         <TransactionWidget />
 
@@ -79,15 +78,15 @@ function App() {
             </Route>
 
             <Route path="/vaultposition/:id">
-              <VaultPosition close={() => null} />
+              <VaultPosition />
             </Route>
 
             <Route path="/lendposition/:id">
-              <LendPosition close={() => null} />
+              <LendPosition />
             </Route>
 
             <Route path="/poolposition/:id">
-              <PoolPosition close={() => null} />
+              <PoolPosition />
             </Route>
 
             <Route path="/*"> 404 </Route>

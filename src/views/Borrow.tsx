@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Box, Keyboard, ResponsiveContext, Text, TextInput } from 'grommet';
 
 import { FiClock, FiPocket, FiPercent, FiTrendingUp } from 'react-icons/fi';
@@ -92,12 +92,12 @@ const Borrow = () => {
     !borrowDisabled && borrow(_vault, borrowInput, collatInput);
   };
 
-  const resetInputs = () => {
+  const resetInputs = useCallback(() => {
     setBorrowInput('');
     setCollatInput('');
     setStepPosition(0);
     resetProcess();
-  };
+  }, [resetProcess]);
 
   /* BORROW DISABLING LOGIC */
   useEffect(() => {
@@ -157,6 +157,10 @@ const Borrow = () => {
     (Number(borrowInput) * (1 + Number(apr) / 100)).toString(),
     selectedBase?.digitFormat!
   );
+
+  useEffect(()=>{
+    borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs()
+  },[borrowProcess, resetInputs])
 
   return (
     <Keyboard onEsc={() => setCollatInput('')} onEnter={() => console.log('ENTER smashed')} target="document">

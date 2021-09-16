@@ -1,18 +1,8 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { Box, ResponsiveContext, Select, Text, TextInput } from 'grommet';
-import { ethers } from 'ethers';
 
-import {
-  FiClock,
-  FiTrendingUp,
-  FiAlertTriangle,
-  FiArrowRight,
-  FiPlus,
-  FiMinus,
-  FiPlusCircle,
-  FiMinusCircle,
-} from 'react-icons/fi';
+import { FiClock, FiTrendingUp, FiAlertTriangle, FiArrowRight, FiPlusCircle, FiMinusCircle } from 'react-icons/fi';
 import { abbreviateHash, cleanValue, nFormatter } from '../utils/appUtils';
 import { UserContext } from '../contexts/UserContext';
 import InputWrap from '../components/wraps/InputWrap';
@@ -31,10 +21,7 @@ import { Gauge } from '../components/Gauge';
 import YieldHistory from '../components/YieldHistory';
 import TransactButton from '../components/buttons/TransactButton';
 import CancelButton from '../components/buttons/CancelButton';
-import VaultDropSelector from '../components/selectors/VaultDropSelector';
-import ExitButton from '../components/buttons/ExitButton';
 import { useInputValidation } from '../hooks/useInputValidation';
-import { useTx } from '../hooks/useTx';
 import ModalWrap from '../components/wraps/ModalWrap';
 
 import { ChainContext } from '../contexts/ChainContext';
@@ -50,7 +37,7 @@ import InputInfoWrap from '../components/wraps/InputInfoWrap';
 import CopyWrap from '../components/wraps/CopyWrap';
 import { useProcess } from '../hooks/useProcess';
 
-const VaultPosition = ({ close }: { close: () => void }) => {
+const VaultPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const prevLoc = useCachedState('lastVisit', '')[0].slice(1).split('/')[0];
 
@@ -73,13 +60,16 @@ const VaultPosition = ({ close }: { close: () => void }) => {
   const vaultSeries: ISeries | undefined = seriesMap.get(selectedVault?.seriesId!);
 
   /* TX info (for disabling buttons) */
-  const { txProcess: repayProcess, resetProcess: resetRepayTx } = useProcess(ActionCodes.REPAY, selectedVaultId!);
-  const { txProcess: rollProcess, resetProcess: resetRollTx } = useProcess(ActionCodes.ROLL_DEBT, selectedVaultId!);
-  const { txProcess: addCollateralProcess, resetProcess: resetAddCollateralTx } = useProcess(
+  const { txProcess: repayProcess, resetProcess: resetRepayProcess } = useProcess(ActionCodes.REPAY, selectedVaultId!);
+  const { txProcess: rollProcess, resetProcess: resetRollProcess } = useProcess(
+    ActionCodes.ROLL_DEBT,
+    selectedVaultId!
+  );
+  const { txProcess: addCollateralProcess, resetProcess: resetAddCollateralProcess } = useProcess(
     ActionCodes.ADD_COLLATERAL,
     selectedVaultId!
   );
-  const { txProcess: removeCollateralProcess, resetProcess: resetRemoveCollateralTx } = useProcess(
+  const { txProcess: removeCollateralProcess, resetProcess: resetRemoveCollateralProcess } = useProcess(
     ActionCodes.REMOVE_COLLATERAL,
     selectedVaultId!
   );
@@ -165,19 +155,28 @@ const VaultPosition = ({ close }: { close: () => void }) => {
     rollToSeries && selectedVault && rollDebt(selectedVault, rollToSeries);
   };
 
-  const resetInputs = (actionCode: ActionCodes) => {
-    switch (actionCode) {
-      case ActionCodes.REPAY:
-        setRepayInput(undefined);
-        break;
-      case ActionCodes.ADD_COLLATERAL:
-        setAddCollatInput(undefined);
-        break;
-      case ActionCodes.REMOVE_COLLATERAL:
-        setRemoveCollatInput(undefined);
-        break;
-    }
-  };
+  const resetInputs = useCallback(
+    (actionCode: ActionCodes) => {
+      switch (actionCode) {
+        case ActionCodes.REPAY:
+          setRepayInput(undefined);
+          resetRepayProcess();
+          break;
+        case ActionCodes.ROLL_DEBT:
+          resetRollProcess();
+          break;
+        case ActionCodes.ADD_COLLATERAL:
+          setAddCollatInput(undefined);
+          resetAddCollateralProcess();
+          break;
+        case ActionCodes.REMOVE_COLLATERAL:
+          setRemoveCollatInput(undefined);
+          resetRemoveCollateralProcess();
+          break;
+      }
+    },
+    [resetAddCollateralProcess, resetRemoveCollateralProcess, resetRepayProcess, resetRollProcess]
+  );
 
   /* ACTION DISABLING LOGIC */
   useEffect(() => {
@@ -201,22 +200,14 @@ const VaultPosition = ({ close }: { close: () => void }) => {
     if (selectedVault && account !== selectedVault?.owner) history.push(prevLoc);
   }, [account, selectedVault, history, prevLoc]);
 
-  /* INTERNAL COMPONENTS */
-  const CompletedTx = (props: any) => (
-    <>
-      <NextButton
-        // size="xsmall"
-        label={
-          <Text size={mobile ? 'xsmall' : undefined}>{props.tx.failed ? 'Report issue and go back' : 'Got it!'} </Text>
-        }
-        onClick={() => {
-          props.resetTx();
-          handleStepper(true);
-          resetInputs(props.actionCode);
-        }}
-      />
-    </>
-  );
+  /* watch if the processes timeout - if so, reset() */
+  useEffect(() => {
+    repayProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs(ActionCodes.REPAY);
+    // rollProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs(ActionCodes.ROLL_DEBT);
+    addCollateralProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs(ActionCodes.ADD_COLLATERAL);
+    removeCollateralProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT &&
+      resetInputs(ActionCodes.REMOVE_COLLATERAL);
+  }, [addCollateralProcess, removeCollateralProcess, repayProcess, resetInputs, rollProcess]);
 
   return (
     <>
@@ -523,7 +514,6 @@ const VaultPosition = ({ close }: { close: () => void }) => {
 
               {actionActive.index === 0 &&
                 stepPosition[actionActive.index] !== 0 &&
-
                 repayProcess?.stage !== ProcessStage.PROCESS_COMPLETE && (
                   <TransactButton
                     primary
@@ -545,7 +535,9 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                   <TransactButton
                     primary
                     label={
-                      <Text size={mobile ? 'small' : undefined}>{`Roll${rollProcess?.processActive ? 'ing' : ''} debt`}</Text>
+                      <Text size={mobile ? 'small' : undefined}>{`Roll${
+                        rollProcess?.processActive ? 'ing' : ''
+                      } debt`}</Text>
                     }
                     onClick={() => handleRoll()}
                     disabled={rollProcess?.processActive}
