@@ -1,10 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, RadioButtonGroup, ResponsiveContext, Text, TextInput } from 'grommet';
+import { Box, RadioButtonGroup, ResponsiveContext, Text, TextInput, Tip } from 'grommet';
 
 import { ethers } from 'ethers';
 
-import { FiClock, FiPercent } from 'react-icons/fi';
+import { FiClock, FiInfo, FiPercent } from 'react-icons/fi';
 import { BiCoinStack, BiMessageSquareAdd } from 'react-icons/bi';
+import { MdAutorenew } from 'react-icons/md';
 import { cleanValue, nFormatter } from '../utils/appUtils';
 import AssetSelector from '../components/selectors/AssetSelector';
 import MainViewWrap from '../components/wraps/MainViewWrap';
@@ -40,9 +41,11 @@ function Pool() {
 
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, assetMap, seriesMap, selectedSeriesId, selectedBaseId } = userState;
+  const { activeAccount, assetMap, seriesMap, selectedSeriesId, selectedBaseId, selectedStrategyAddr, strategyMap } =
+    userState;
   const selectedSeries = seriesMap.get(selectedSeriesId!);
   const selectedBase = assetMap.get(selectedBaseId!);
+  const selectedStrategy = strategyMap.get(selectedStrategyAddr!);
 
   /* LOCAL STATE */
   const [poolInput, setPoolInput] = useState<string | undefined>(undefined);
@@ -65,6 +68,7 @@ function Pool() {
   /* LOCAL ACTION FNS */
   const handleAdd = () => {
     // !poolDisabled &&
+    // TODO update for strategy
     selectedSeries && addLiquidity(poolInput!, selectedSeries, poolMethod);
   };
 
@@ -87,8 +91,8 @@ function Pool() {
 
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
   useEffect(() => {
-    !activeAccount || !poolInput || !selectedSeries || poolError ? setPoolDisabled(true) : setPoolDisabled(false);
-  }, [poolInput, activeAccount, poolError, selectedSeries]);
+    !activeAccount || !poolInput || poolError || !selectedStrategy ? setPoolDisabled(true) : setPoolDisabled(false);
+  }, [poolInput, activeAccount, poolError, selectedStrategy]);
 
   return (
     <MainViewWrap>
@@ -181,7 +185,19 @@ function Pool() {
                   {!selectedSeries?.seriesIsMature && (
                     <SectionWrap>
                       <Box direction="row" justify="between" fill align="center">
-                        {!mobile && <Text size="small"> Pooling method: </Text>}
+                        {!mobile && (
+                          <Box direction="row" gap="xsmall">
+                            <Text size="small"> Pooling method: </Text>
+                            <Tip
+                              content={<Text size="xsmall">some info</Text>}
+                              dropProps={{ align: { bottom: 'top' } }}
+                            >
+                              <Text size="small">
+                                <FiInfo />
+                              </Text>
+                            </Tip>
+                          </Box>
+                        )}
                         <RadioButtonGroup
                           name="strategy"
                           options={[
@@ -209,12 +225,12 @@ function Pool() {
                         icon={<BiMessageSquareAdd />}
                         value={`${cleanValue(poolInput, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
                       />
-                      <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
-                      <InfoBite
+                      <InfoBite label="Strategy" icon={<MdAutorenew />} value={`${selectedStrategy?.name}`} />
+                      {/* <InfoBite
                         label="Amount of liquidity tokens recieved"
                         icon={<BiCoinStack />}
                         value={`${'[todo]'} Liquidity tokens`}
-                      />
+                      /> */}
                       <InfoBite label="Percentage of pool" icon={<FiPercent />} value={`${'[todo]'}%`} />
                     </Box>
                   </SectionWrap>
