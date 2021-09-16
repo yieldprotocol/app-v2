@@ -297,10 +297,10 @@ export interface IYieldProcess {
   stage: ProcessStage;
   tx: IYieldTx;
   txHash: string;
+  timeout: boolean;
   processActive?: boolean;
   positionPath?: string | undefined;
 }
-
 
 export enum MenuView {
   account = 'ACCOUNT',

@@ -1,8 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, Keyboard, ResponsiveContext, Text, TextInput } from 'grommet';
-import { BigNumber } from 'ethers';
 
-import { FiClock, FiPocket, FiPercent, FiTrendingUp, FiInfo } from 'react-icons/fi';
+import { FiClock, FiPocket, FiPercent, FiTrendingUp } from 'react-icons/fi';
 
 import SeriesSelector from '../components/selectors/SeriesSelector';
 import MainViewWrap from '../components/wraps/MainViewWrap';
@@ -13,13 +12,10 @@ import SectionWrap from '../components/wraps/SectionWrap';
 
 import MaxButton from '../components/buttons/MaxButton';
 
-import { useTx } from '../hooks/useTx';
-
 import { UserContext } from '../contexts/UserContext';
 import { ActionCodes, ActionType, IUserContext, IVault, ProcessStage, TxState } from '../types';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
-import StepperText from '../components/StepperText';
 import VaultSelector from '../components/selectors/VaultPositionSelector';
 import ActiveTransaction from '../components/ActiveTransaction';
 
@@ -41,7 +37,6 @@ import { useBorrow } from '../hooks/actionHooks/useBorrow';
 import { useCollateralHelpers } from '../hooks/actionHelperHooks/useCollateralHelpers';
 import { useBorrowHelpers } from '../hooks/actionHelperHooks/useBorrowHelpers';
 import InputInfoWrap from '../components/wraps/InputInfoWrap';
-import NavText from '../components/texts/NavText';
 import ColorText from '../components/texts/ColorText';
 import { useProcess } from '../hooks/useProcess';
 
@@ -190,7 +185,11 @@ const Borrow = () => {
                   <Box gap={mobile ? undefined : 'xsmall'}>
                     <ColorText size={mobile ? 'medium' : '2rem'}>BORROW</ColorText>
                     <AltText color="text-weak" size="xsmall">
-                      Borrow popular ERC20 tokens at a <Text size="small" color='text'> fixed rate </Text>
+                      Borrow popular ERC20 tokens at a{' '}
+                      <Text size="small" color="text">
+                        {' '}
+                        fixed rate{' '}
+                      </Text>
                     </AltText>
                   </Box>
                 </YieldCardHeader>
@@ -337,7 +336,11 @@ const Borrow = () => {
             {stepPosition === 2 && ( // REVIEW
               <Box gap="large">
                 <YieldCardHeader>
-                  {borrowProcess?.processActive ? <BackButton action={() => setStepPosition(1)} /> : <Box pad="1em" />}
+                  {borrowProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
+                    <BackButton action={() => setStepPosition(1)} />
+                  ) : (
+                    <Box pad="1em" />
+                  )}
                 </YieldCardHeader>
 
                 <ActiveTransaction full txProcess={borrowProcess}>
@@ -421,16 +424,17 @@ const Borrow = () => {
                   />
                 )}
 
-              {stepPosition === 2 && borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE && 
-              borrowProcess?.tx.status === TxState.FAILED && (
-                <>
-                  <NextButton
-                    size="xsmall"
-                    label={<Text size={mobile ? 'xsmall' : undefined}> Report and go back</Text>}
-                    onClick={() => resetInputs()}
-                  />
-                </>
-              )}
+              {stepPosition === 2 &&
+                borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
+                borrowProcess?.tx.status === TxState.FAILED && (
+                  <>
+                    <NextButton
+                      size="xsmall"
+                      label={<Text size={mobile ? 'xsmall' : undefined}> Report and go back</Text>}
+                      onClick={() => resetInputs()}
+                    />
+                  </>
+                )}
             </ActionButtonWrap>
           </Box>
         </CenterPanelWrap>
