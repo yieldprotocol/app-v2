@@ -72,7 +72,6 @@ export const divDecimal = (
   divisor: BigNumber | string,
   precisionDifference: string = '1' // DEFAULT = 1 (same precision)
 ): string => {
-  console.log('num', numerator, 'div', divisor);
   const numerator_ = new Decimal(numerator.toString());
   const divisor_ = new Decimal(divisor.toString());
   const _preDif = new Decimal(precisionDifference.toString());
