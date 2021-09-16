@@ -66,7 +66,7 @@ chainData.set(4, { name: 'Rinkeby', color: '#f6c343', supported: false });
 chainData.set(5, { name: 'Goerli', color: '#3099f2', supported: false });
 chainData.set(10, { name: 'Optimism', color: '#EB0822', supported: false });
 chainData.set(42, { name: 'Kovan', color: '#7F7FFE', supported: true });
-chainData.set(137, { name: 'Polygon', color: '#8247E5', supported: false });
+chainData.set(137, { name: 'Polygon', color: '#8247E5', supported: true });
 chainData.set(80001, { name: 'Polygon Testnet', color: '#8247A5', supported: true });
 
 const connectors = new Map();
@@ -74,7 +74,7 @@ const injectedName = 'metamask';
 connectors.set(
   injectedName,
   new InjectedConnector({
-    supportedChainIds: [1, 42, 1337, 31337, 80001],
+    supportedChainIds: [1, 42, 1337, 31337, 137, 80001],
   })
 );
 connectors.set(
@@ -522,7 +522,7 @@ const ChainProvider = ({ children }: any) => {
 
     /* Connect the fallback */
     tried &&
-      chainId !== (80001 || 137) &&
+      chainId !== (80001 || 137) && // don't try to connect fallback for polygon networks
       fallbackActivate(
         new NetworkConnector({
           urls: {
@@ -594,6 +594,7 @@ const ChainProvider = ({ children }: any) => {
             42: RPC_URLS[42],
             31337: RPC_URLS[31337],
             1337: RPC_URLS[1337],
+            137: RPC_URLS[137],
             80001: RPC_URLS[80001],
           },
           defaultChainId: 42,
