@@ -526,7 +526,7 @@ const UserProvider = ({ children }: any) => {
               ]);
 
               const accountStrategyPercent = mulDecimal(
-                divDecimal(accountBalance, _strategy.strategyTotalSupply || '0'),
+                divDecimal(accountBalance, BigNumber.from(_strategy.strategyTotalSupply) || '0'),
                 '100'
               );
 
