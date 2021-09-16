@@ -64,6 +64,7 @@ const Lend = () => {
 
   const lendOutput = cleanValue((Number(lendInput) * (1 + Number(apr) / 100)).toString(), selectedBase?.digitFormat!);
 
+  
   const { txProcess: lendProcess, resetProcess } = useProcess(ActionCodes.LEND, selectedSeries?.id);
 
   /* input validation hooks */

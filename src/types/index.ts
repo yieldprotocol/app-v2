@@ -279,6 +279,13 @@ export enum TxState {
   REJECTED = 'REJECTED',
 }
 
+
+export interface IYieldTx extends ContractTransaction {
+  txCode: string;
+  receipt: any | null;
+  status: TxState;
+}
+
 export enum ProcessStage {
   'PROCESS_INACTIVE' = 0,
   'SIGNING_REQUESTED' = 1,
@@ -287,12 +294,6 @@ export enum ProcessStage {
   'TRANSACTION_REQUESTED' = 4,
   'TRANSACTION_PENDING' = 5,
   'PROCESS_COMPLETE' = 6,
-}
-
-export interface IYieldTx extends ContractTransaction {
-  txCode: string;
-  receipt: any | null;
-  status: TxState;
 }
 
 export interface IYieldProcess {

@@ -1,7 +1,7 @@
 import React, { useCallback, useState, useContext, useEffect } from 'react';
 import styled from 'styled-components';
 import { Box, Text } from 'grommet';
-import { FiAlertTriangle } from 'react-icons/fi';
+import { FiAlertCircle, FiAlertTriangle } from 'react-icons/fi';
 import { TxContext } from '../contexts/TxContext';
 import { IYieldProcess, ProcessStage, TxState } from '../types';
 import TransactionItem from './TransactionItem';
@@ -76,8 +76,30 @@ const TransactionWidget = () => {
                 </Box>
               )}
 
-              {(process.stage === ProcessStage.TRANSACTION_PENDING ||
-                process.stage === ProcessStage.SIGNING_TRANSACTION_PENDING ||
+            {process.stage === ProcessStage.SIGNING_TRANSACTION_PENDING 
+              && (
+                <Box
+                  direction="row"
+                  justify="start"
+                  align="center"
+                  fill
+                  // elevation="small"
+                  gap="small"
+                  pad="small"
+                  background="hover"
+                  round="xsmall"
+                >
+                  <Box width="3rem" align="center">
+                    <FiAlertCircle size="1.5rem" color="#D97706" />
+                  </Box>
+                  <Box align="start">
+                    <Text size="small">Aproval transaction pending</Text>
+                    <Text size="xsmall">....</Text>
+                  </Box>
+                </Box>
+              )}
+
+              {(process.stage === ProcessStage.TRANSACTION_PENDING ||   
                 process.stage === ProcessStage.PROCESS_COMPLETE) && (
                 <TransactionItem tx={process.tx!} key={process.txHash} wide={false} handleRemove={handleRemove} />
               )}

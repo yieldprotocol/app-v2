@@ -31,12 +31,6 @@ interface IYieldTx extends ContractTransaction {
   status: TxState;
 }
 
-// interface IYieldProcess {
-//   txCode: string;
-//   stage: ProcessStage;
-//   hash: string;
-// }
-
 function txReducer(_state: any, action: any) {
   /* Helper: only change the state if different from existing */
   const _onlyIfChanged = (_action: any) =>
@@ -66,7 +60,7 @@ function txReducer(_state: any, action: any) {
             ..._state.processes.get(action.payload.txCode),
             txCode: action.payload.txCode,
             stage: action.payload.stage,
-            processActive: action.payload.stage !== 0 || action.payload.stage !== 6
+            processActive: action.payload.stage !== 0 || action.payload.stage !== 6,
           })
         ) as Map<string, IYieldProcess>,
       };
@@ -177,7 +171,7 @@ const TxProvider = ({ children }: any) => {
       /* this is the case when the tx was a fallback from a permit/allowance tx */
       _setProcessStage(txCode, ProcessStage.SIGNING_COMPLETE);
       return res;
-    } catch (e:any) {
+    } catch (e: any) {
       /* catch tx errors */
       _handleTxError('Transaction failed', e.transaction, txCode);
       return null;
@@ -248,21 +242,22 @@ const TxProvider = ({ children }: any) => {
     return _sig;
   };
 
+  /* Simple process watcher for any active Process */
+  useEffect(() => {
 
-    /* Simple process watcher for any active Process */
-    useEffect(() => {
-      console.log(txState.processes);
-    }, [txState.processes]);
-  
+    
+    console.log(txState.processes);
+
+
+
+  }, [txState.processes]);
 
   /* Simple process watcher for any active Process */
   useEffect(() => {
     if (txState.processes.size) {
-      const hasActiveProcess = 
-        Array.from(txState.processes.values())
-        .some(
-          (x: any) => x.stage === 1 || x.stage === 2 ||  x.stage === 3 || x.stage === 4 || x.stage === 5 
-        );
+      const hasActiveProcess = Array.from(txState.processes.values()).some(
+        (x: any) => x.stage === 1 || x.stage === 2 || x.stage === 3 || x.stage === 4 || x.stage === 5
+      );
       updateState({ type: 'processActive', payload: hasActiveProcess });
     }
   }, [txState.processes]);
