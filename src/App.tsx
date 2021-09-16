@@ -34,7 +34,7 @@ function App() {
 
   return (
     <>
-      {/* <ParticlesBg type="color" num={10} bg={true} /> */}
+      {/* <ParticlesBg type="circle" num={7} bg={true} /> */}
       {/* "color"
           "ball"‰
           "lines"

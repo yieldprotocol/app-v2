@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import { Box, ResponsiveContext, Select, Text } from 'grommet';
 
@@ -87,7 +87,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
       round="xsmall"
       // border={(selectCollateral && !selectedSeries) ? { color: 'text-xweak' } : true}
       elevation="xsmall"
-      background='solid'
+      background="solid"
     >
       <Select
         plain
