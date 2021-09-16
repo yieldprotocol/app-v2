@@ -19,7 +19,7 @@ import {
 } from '../types';
 
 import { ChainContext } from './ChainContext';
-import { cleanValue, genVaultImage, bytesToBytes32  } from '../utils/appUtils';
+import { cleanValue, genVaultImage, bytesToBytes32 } from '../utils/appUtils';
 import { calculateAPR, divDecimal, floorDecimal, mulDecimal, secondsToFrom, sellFYToken } from '../utils/yieldMath';
 
 import { ONE_WEI_BN, ETH_BASED_ASSETS, BLANK_VAULT, BLANK_SERIES, ZERO_BN } from '../utils/constants';
@@ -155,7 +155,7 @@ const UserProvider = ({ children }: any) => {
   /* internal function for getting the users vaults */
   const _getVaults = useCallback(
     // async (fromBlock: number = 27096000) => {
-      async (fromBlock: number = 1) => {
+    async (fromBlock: number = 1) => {
       const Cauldron = contractMap.get('Cauldron');
       const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account);
       const vaultsReceivedfilter = Cauldron.filters.VaultGiven(null, account);
@@ -177,7 +177,7 @@ const UserProvider = ({ children }: any) => {
           displayName: uniqueNamesGenerator({ seed: parseInt(id.substring(14), 16), ...vaultNameConfig }),
           decimals: series?.decimals!,
         };
-      })
+      });
 
       const recievedEventsList: IVaultRoot[] = await Promise.all(
         vaultsReceived.map(async (x: any): Promise<IVaultRoot> => {
@@ -222,8 +222,10 @@ const UserProvider = ({ children }: any) => {
       _publicData = await Promise.all(
         assetList.map(async (asset: IAssetRoot): Promise<IAssetRoot> => {
           const rate = 'rate';
+          const isYieldBase = !!Array.from(seriesRootMap.values()).find((x: any) => x.baseId === asset.id);
           return {
             ...asset,
+            isYieldBase,
           };
         })
       );
@@ -239,11 +241,8 @@ const UserProvider = ({ children }: any) => {
                 asset.getAllowance(account, asset.joinAddress),
               ]);
 
-              const isYieldBase = !!Array.from(seriesRootMap.values()).find((x: any) => x.baseId === asset.id);
-
               return {
                 ...asset,
-                isYieldBase,
                 hasLadleAuth: ladleAllowance.gt(ethers.constants.Zero),
                 hasJoinAuth: joinAllowance.gt(ethers.constants.Zero),
                 balance: balance || ethers.constants.Zero,
@@ -278,7 +277,7 @@ const UserProvider = ({ children }: any) => {
 
   /* Updates the prices from the oracle with latest data */ // TODO reduce redundant calls
   const updatePrice = useCallback(
-    async (ilk: string, base: string ): Promise<ethers.BigNumber> => {
+    async (ilk: string, base: string): Promise<ethers.BigNumber> => {
       updateState({ type: 'pricesLoading', payload: true });
 
       try {
@@ -298,9 +297,8 @@ const UserProvider = ({ children }: any) => {
         updateState({ type: 'priceMap', payload: _priceMap });
         // TODO console.log('Price Updated: ', ilk, '->', base, ':', price.toString());
         updateState({ type: 'pricesLoading', payload: false });
-        
-        return price;
 
+        return price;
       } catch (error) {
         console.log(error);
         updateState({ type: 'pricesLoading', payload: false });
@@ -330,18 +328,18 @@ const UserProvider = ({ children }: any) => {
           ]);
 
           /* Calculates the base/fyToken unit selling price */
-          const _sellRate = sellFYToken( 
+          const _sellRate = sellFYToken(
             baseReserves,
             fyTokenReserves,
             ethers.utils.parseUnits('1', series.decimals),
             secondsToFrom(series.maturity.toString()),
             series.decimals
           );
-          
+
           const apr =
             calculateAPR(floorDecimal(_sellRate), ethers.utils.parseUnits('1', series.decimals), series.maturity) ||
             '0';
-          
+
           return {
             ...series,
             baseReserves,
@@ -389,15 +387,14 @@ const UserProvider = ({ children }: any) => {
 
       // const combinedSeriesMap = new Map([...userState.seriesMap, ...newSeriesMap ])
 
-      updateState({ type: 'seriesMap', payload: newSeriesMap});
+      updateState({ type: 'seriesMap', payload: newSeriesMap });
       console.log('SERIES updated (with dynamic data): ', newSeriesMap);
       updateState({ type: 'seriesLoading', payload: false });
-      
-      return newSeriesMap;
 
+      return newSeriesMap;
     },
-    [ account ]
-  ); 
+    [account]
+  );
 
   /* Updates the vaults with *user* data */
   const updateVaults = useCallback(
@@ -420,8 +417,8 @@ const UserProvider = ({ children }: any) => {
             await updatePrice(vault.ilkId, vault.baseId),
           ]);
 
-          const baseRoot:IAssetRoot = assetRootMap.get(vault.baseId);
-          const ilkRoot:IAssetRoot = assetRootMap.get(ilkId);
+          const baseRoot: IAssetRoot = assetRootMap.get(vault.baseId);
+          const ilkRoot: IAssetRoot = assetRootMap.get(ilkId);
 
           return {
             ...vault,
@@ -443,25 +440,21 @@ const UserProvider = ({ children }: any) => {
 
       /* Get the previous version (Map) of the vaultMap and update it */
       const newVaultMap = new Map(
-        vaultListMod.reduce(
-          (acc: any, item: any) => {
-            const _map = acc;
-            _map.set(item.id, item);
-            return _map;
-          },
-          new Map()
-        )
+        vaultListMod.reduce((acc: any, item: any) => {
+          const _map = acc;
+          _map.set(item.id, item);
+          return _map;
+        }, new Map())
       );
 
       const combinedVaultMap = new Map([...userState.vaultMap, ...newVaultMap]);
 
-      /* update state */ 
+      /* update state */
       updateState({ type: 'vaultMap', payload: combinedVaultMap });
       vaultFromUrl && updateState({ type: 'selectedVaultId', payload: vaultFromUrl });
       updateState({ type: 'vaultsLoading', payload: false });
 
       console.log('VAULTS: ', combinedVaultMap);
-      
     },
     [contractMap, _getVaults, userState.vaultMap, vaultFromUrl, updatePrice, assetRootMap, account]
   );
@@ -571,7 +564,7 @@ const UserProvider = ({ children }: any) => {
 
       return combinedMap;
     },
-    [account, seriesRootMap ]
+    [account, seriesRootMap]
   );
 
   useEffect(() => {
@@ -602,7 +595,6 @@ const UserProvider = ({ children }: any) => {
     /* keep checking the active account when it changes/ chainlaoding */
     updateState({ type: 'activeAccount', payload: account });
   }, [account, chainLoading]); // updateVaults ignored here on purpose
-
 
   /* Exposed userActions */
   const userActions = {
