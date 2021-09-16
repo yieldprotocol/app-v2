@@ -10,8 +10,9 @@ import { useProcess } from '../hooks/useProcess';
 // look to see if there is a better way
 const StyledBox = styled(Box)`
   position: absolute;
-  margin-top: 10%;
-  right: 6rem;
+  top: 6rem;
+  right: 3rem;
+  min-width: 250px;
 `;
 
 const TransactionWidget = () => {
@@ -60,7 +61,6 @@ const TransactionWidget = () => {
                   justify="start"
                   align="center"
                   fill
-                  elevation="small"
                   gap="small"
                   pad="small"
                   background='-webkit-linear-gradient(90deg, #f7953369, #f3705569, #ef4e7b69, #a166ab69, #5073b869, #1098ad69, #07b39b69, #6fba8269)'
