@@ -84,10 +84,10 @@ function Pool() {
       /* Checks asset selection and sets the max available value */
       (async () => {
         const max = await selectedBase?.getBalance(activeAccount);
-        if (max) setMaxPool(ethers.utils.formatUnits(max, selectedSeries?.decimals).toString());
+        if (max) setMaxPool(ethers.utils.formatUnits(max, selectedBase?.decimals).toString());
       })();
     }
-  }, [activeAccount, poolInput, selectedBase, setMaxPool]);
+  }, [activeAccount, poolInput, selectedBase, setMaxPool, selectedStrategy]);
 
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
   useEffect(() => {
