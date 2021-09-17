@@ -4,7 +4,6 @@ import { FiMoreVertical } from 'react-icons/fi';
 import { UserContext } from '../contexts/UserContext';
 import { ActionType, IUserContext } from '../types';
 import HideBalancesSetting from './HideBalancesSetting';
-import CurrencyToggle from './CurrencyToggle';
 
 const DashboardSettings = ({ actionType }: { actionType: string }) => {
   const {
@@ -18,7 +17,6 @@ const DashboardSettings = ({ actionType }: { actionType: string }) => {
     hidePoolPositions,
     hideLendBalancesSetting,
     hidePoolBalancesSetting,
-    currencySetting,
   } = dashSettings;
 
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
@@ -75,20 +73,19 @@ const DashboardSettings = ({ actionType }: { actionType: string }) => {
   );
 
   return (
-    <Box>
-      <DropButton
-        open={settingsOpen}
-        onOpen={() => setSettingsOpen(true)}
-        onClose={() => setSettingsOpen(false)}
-        dropContent={dropContentRender}
-        dropProps={{ align: { top: 'bottom', right: 'right' } }}
-        style={{ borderRadius: '6px' }}
-      >
-        <Box direction="row" gap="xsmall" round="xsmall" align="center">
-          <FiMoreVertical size="1.5rem" />
-        </Box>
-      </DropButton>
-    </Box>
+    <DropButton
+      open={settingsOpen}
+      onOpen={() => setSettingsOpen(true)}
+      onClose={() => setSettingsOpen(false)}
+      dropContent={dropContentRender}
+      dropProps={{ align: { top: 'bottom', right: 'right' } }}
+      style={{ borderRadius: '6px' }}
+      hoverIndicator={{ color: 'tailwind-blue-100' }}
+    >
+      <Box align="center" pad="xsmall">
+        <FiMoreVertical size="1.5rem" />
+      </Box>
+    </DropButton>
   );
 };
 
