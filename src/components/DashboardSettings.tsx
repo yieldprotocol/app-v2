@@ -15,7 +15,7 @@ const DashboardSettings = ({ actionType }: { actionType: string }) => {
     hideEmptyVaults,
     hideInactiveVaults,
     hideLendPositions,
-    hideStrategyPositions,
+    hidePoolPositions,
     hideLendBalancesSetting,
     hidePoolBalancesSetting,
     currencySetting,
@@ -64,7 +64,7 @@ const DashboardSettings = ({ actionType }: { actionType: string }) => {
             <Text size="xsmall">Hide Strategy Positions</Text>
             <CheckBox
               toggle
-              checked={hideStrategyPositions}
+              checked={hidePoolPositions}
               onChange={(event) => setDashSettings('hidePoolPositions', event.target.checked)}
             />
           </Box>
