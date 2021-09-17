@@ -180,14 +180,14 @@ function Pool() {
                         {!mobile && (
                           <Box direction="row" gap="xsmall">
                             <Text size="small">Pooling method:</Text>
-                            <Tip
+                            {/* <Tip
                               content={<Text size="xsmall">some info</Text>}
                               dropProps={{ align: { bottom: 'top' } }}
                             >
                               <Text size="small">
                                 <FiInfo />
                               </Text>
-                            </Tip>
+                            </Tip> */}
                           </Box>
                         )}
                         <RadioButtonGroup
