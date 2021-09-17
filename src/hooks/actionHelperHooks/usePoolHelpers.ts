@@ -8,17 +8,27 @@ import { cleanValue } from '../../utils/appUtils';
 export const usePoolHelpers = (input: string | undefined) => {
   /* STATE FROM CONTEXT */
   const {
-    userState: { selectedStrategyAddr, strategyMap, assetMap },
+    userState: { selectedStrategyAddr, strategyMap, assetMap, activeAccount },
   } = useContext(UserContext);
 
   const strategy: IStrategy | undefined = strategyMap?.get(selectedStrategyAddr);
   const strategyBase: IAsset | undefined = assetMap?.get(strategy?.baseId);
 
-  const poolMax = input;
-
   /* LOCAL STATE */
   const [poolPercentPreview, setPoolPercentPreview] = useState<string | undefined>();
   const [poolTokenPreview, setPoolTokenPreview] = useState<string | undefined>(input);
+  const [maxPool, setMaxPool] = useState<string | undefined>();
+
+  /* SET MAX VALUES */
+  useEffect(() => {
+    if (activeAccount) {
+      /* Checks asset selection and sets the max available value */
+      (async () => {
+        const max = await strategyBase?.getBalance(activeAccount);
+        if (max) setMaxPool(ethers.utils.formatUnits(max, strategyBase?.decimals).toString());
+      })();
+    }
+  }, [input, activeAccount, strategyBase]);
 
   useEffect(() => {
     if (input && strategy) {
@@ -35,5 +45,5 @@ export const usePoolHelpers = (input: string | undefined) => {
     }
   }, [input, strategy, strategyBase]);
 
-  return { poolMax, poolTokenPreview, poolPercentPreview };
+  return { maxPool, poolTokenPreview, poolPercentPreview };
 };

@@ -46,14 +46,13 @@ function Pool() {
 
   /* LOCAL STATE */
   const [poolInput, setPoolInput] = useState<string | undefined>(undefined);
-  const [maxPool, setMaxPool] = useState<string | undefined>();
   const [poolDisabled, setPoolDisabled] = useState<boolean>(true);
   const [poolMethod, setPoolMethod] = useState<'BUY' | 'BORROW'>('BUY');
   const [stepPosition, setStepPosition] = useState<number>(0);
 
   /* HOOK FNS */
   const addLiquidity = useAddLiquidity();
-  const { poolMax, poolPercentPreview } = usePoolHelpers(poolInput);
+  const { maxPool, poolPercentPreview } = usePoolHelpers(poolInput);
 
   /* input validation hooks */
   const { inputError: poolError } = useInputValidation(poolInput, ActionCodes.ADD_LIQUIDITY, selectedSeries, [
@@ -69,17 +68,6 @@ function Pool() {
     // TODO update for strategy
     selectedSeries && addLiquidity(poolInput!, selectedSeries, poolMethod);
   };
-
-  /* SET MAX VALUES */
-  useEffect(() => {
-    if (activeAccount) {
-      /* Checks asset selection and sets the max available value */
-      (async () => {
-        const max = await selectedBase?.getBalance(activeAccount);
-        if (max) setMaxPool(ethers.utils.formatUnits(max, selectedBase?.decimals).toString());
-      })();
-    }
-  }, [activeAccount, poolInput, selectedBase, setMaxPool, selectedStrategy]);
 
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
   useEffect(() => {
