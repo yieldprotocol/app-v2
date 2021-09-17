@@ -474,12 +474,13 @@ const UserProvider = ({ children }: any) => {
       _publicData = await Promise.all(
         strategyList.map(async (_strategy: IStrategyRoot): Promise<IStrategy> => {
           /* Get all the data simultanenously in a promise.all */
-          const [strategyTotalSupply, currentSeriesId, currentPoolAddr, nextSeriesId, ] = await Promise.all([
+          const [strategyTotalSupply, currentSeriesId, currentPoolAddr, nextSeriesId ] = await Promise.all([
             _strategy.strategyContract.totalSupply(),
             _strategy.strategyContract.seriesId(),
             _strategy.strategyContract.pool(),
             _strategy.strategyContract.nextSeriesId(),
           ]);
+
           const initInvariant = await _strategy.strategyContract.invariants(currentPoolAddr);
 
           if (seriesRootMap.has(currentSeriesId)) {
