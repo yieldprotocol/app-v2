@@ -229,13 +229,14 @@ const VaultPosition = () => {
                   {/* <ExitButton action={() => history.goBack()} /> */}
                 </Box>
 
-                {selectedVault?.isActive ? (
+                {selectedVault?.isActive && (
                   <SectionWrap>
                     <Box gap="small">
                       <InfoBite
                         label="Maturity date:"
                         value={`${vaultSeries?.displayName}`}
                         icon={<FiClock color={vaultSeries?.color} />}
+                        loading={vaultsLoading}
                       />
                       <InfoBite
                         label="Vault debt + interest:"
@@ -253,7 +254,8 @@ const VaultPosition = () => {
                       />
                     </Box>
                   </SectionWrap>
-                ) : (
+                )}
+                {!selectedVault?.isActive && !selectedVault?.isWitchOwner && (
                   <SectionWrap>
                     <Box fill align="center" justify="center">
                       <Box direction="row" pad="medium" gap="small" align="center">
@@ -265,6 +267,20 @@ const VaultPosition = () => {
 
                       <Box pad={{ horizontal: 'medium' }}>
                         <Text size="xsmall">Vault {selectedVault?.id} has either been transfered or deleted.</Text>
+                      </Box>
+                    </Box>
+                  </SectionWrap>
+                )}
+                {selectedVault?.isWitchOwner && (
+                  <SectionWrap>
+                    <Box fill align="center" justify="center">
+                      <Box direction="row" pad="medium" gap="small" align="center">
+                        <FiAlertTriangle size="3em" />
+                        <Box gap="xsmall">
+                          <Text>
+                            This vault is in the process of being liquidated and the account no longer owns this vault
+                          </Text>
+                        </Box>
                       </Box>
                     </Box>
                   </SectionWrap>
@@ -412,6 +428,7 @@ const VaultPosition = () => {
                     )}
 
                     {stepPosition[actionActive.index] !== 0 && (
+
                       <ActiveTransaction
                         pad
                         txProcess={addCollatInput ? addCollateralProcess : removeCollateralProcess}
@@ -424,6 +441,7 @@ const VaultPosition = () => {
                             value={`${cleanValue(addCollatInput, vaultIlk?.digitFormat!)} ${vaultIlk?.symbol}`}
                           />
                         </Box>
+
                       </ActiveTransaction>
                     )}
                   </>
@@ -459,6 +477,7 @@ const VaultPosition = () => {
                     )}
 
                     {stepPosition[actionActive.index] !== 0 && (
+
                       <ActiveTransaction
                         pad
                         txProcess={addCollatInput ? addCollateralProcess : removeCollateralProcess}
@@ -471,6 +490,7 @@ const VaultPosition = () => {
                             value={`${cleanValue(removeCollatInput, vaultIlk?.digitFormat!)} ${vaultIlk?.symbol}`}
                           />
                         </Box>
+
                       </ActiveTransaction>
                     )}
                   </>
@@ -604,6 +624,7 @@ const VaultPosition = () => {
                     actionCode={ActionCodes.REMOVE_COLLATERAL}
                   />
                 )} */}
+
             </ActionButtonWrap>
           </CenterPanelWrap>
         </ModalWrap>

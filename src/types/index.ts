@@ -170,6 +170,7 @@ export interface IAsset extends IAssetRoot {
 
 export interface IVault extends IVaultRoot {
   owner: string;
+  isWitchOwner: boolean;
   isActive: boolean;
   ink: BigNumber;
   art: BigNumber;
