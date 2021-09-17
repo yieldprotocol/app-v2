@@ -113,6 +113,12 @@ const VaultPosition = () => {
     selectedVault
   );
 
+  const { collateralizationPercent: collateralEstimate } = useCollateralHelpers(
+    `-${repayInput! || '0'}`,
+    '0',
+    selectedVault
+  );
+
   const { maxRepayOrRoll, maxRepayDustLimit } = useBorrowHelpers(repayInput, '0', selectedVault);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries, [
@@ -319,11 +325,56 @@ const VaultPosition = () => {
                             action={() => console.log('maxAction')}
                             isError={repayError}
                             message={
-                              <InputInfoWrap>
-                                <Text color="gray" alignSelf="end" size="xsmall">
-                                  Current {vaultBase?.symbol!} balance: {vaultBase?.balance_!}
-                                </Text>
-                              </InputInfoWrap>
+                              // is debt greater than token balance?
+                              !repayInput ? (
+                                <InputInfoWrap action={() => setRepayInput(maxRepayOrRoll)}>
+                                  {selectedVault.art.gt(vaultBase?.balance!) ? (
+                                    <Text color="gray" alignSelf="end" size="xsmall">
+                                      Maximum repayable is {vaultBase?.balance_!} {vaultBase?.symbol!} (your token
+                                      balance).
+                                    </Text>
+                                  ) : (
+                                    <Text color="gray" alignSelf="end" size="xsmall">
+                                      Max debt repayable ( {selectedVault?.art_!} {vaultBase?.symbol!} )
+                                    </Text>
+                                  )}
+                                </InputInfoWrap>
+                              ) : (
+
+                                
+                                <InputInfoWrap>
+
+                                  {/* <Text color="gray" alignSelf="end" size="xsmall">
+                                    Repaying {cleanValue(repayInput, 2)} will 
+                                  </Text> */}
+                                  {collateralEstimate &&
+                                    parseFloat(collateralEstimate) > 10000 &&
+                                      <Text color="gray" alignSelf="end" size="xsmall">
+                                        Repaying this amount will leave a small amount of debt.
+                                      </Text>
+                                  }
+                                  
+                                  {collateralEstimate &&
+                                    parseFloat(collateralEstimate) < 10000 &&
+                                    parseFloat(collateralEstimate) !== 0 && (
+                                      <Text color="gray" alignSelf="end" size="xsmall">
+                                        Collateralisation ratio after repayment: {' '}
+                                        {collateralEstimate && nFormatter(parseFloat(collateralEstimate), 2)}%
+                                      </Text>
+                                  )}
+
+                                {repayInput === maxRepayOrRoll &&
+                                      <Text color="gray" alignSelf="end" size="xsmall">
+                                        All debt will be repayed.
+                                      </Text>
+                            }
+
+                                </InputInfoWrap>
+                              )
+
+                              //   repayInput && <Text color="gray" alignSelf="end" size="xsmall">
+                              //   Max debt repayable ( {selectedVault?.art_!} {vaultBase?.symbol!} )
+                              // </Text>
                             }
                           >
                             <TextInput
@@ -428,7 +479,6 @@ const VaultPosition = () => {
                     )}
 
                     {stepPosition[actionActive.index] !== 0 && (
-
                       <ActiveTransaction
                         pad
                         txProcess={addCollatInput ? addCollateralProcess : removeCollateralProcess}
@@ -441,7 +491,6 @@ const VaultPosition = () => {
                             value={`${cleanValue(addCollatInput, vaultIlk?.digitFormat!)} ${vaultIlk?.symbol}`}
                           />
                         </Box>
-
                       </ActiveTransaction>
                     )}
                   </>
@@ -477,7 +526,6 @@ const VaultPosition = () => {
                     )}
 
                     {stepPosition[actionActive.index] !== 0 && (
-
                       <ActiveTransaction
                         pad
                         txProcess={addCollatInput ? addCollateralProcess : removeCollateralProcess}
@@ -490,7 +538,6 @@ const VaultPosition = () => {
                             value={`${cleanValue(removeCollatInput, vaultIlk?.digitFormat!)} ${vaultIlk?.symbol}`}
                           />
                         </Box>
-
                       </ActiveTransaction>
                     )}
                   </>
@@ -624,7 +671,6 @@ const VaultPosition = () => {
                     actionCode={ActionCodes.REMOVE_COLLATERAL}
                   />
                 )} */}
-
             </ActionButtonWrap>
           </CenterPanelWrap>
         </ModalWrap>

@@ -125,8 +125,8 @@ export const yieldTheme = {
     // @ts-ignore
     extend: () => css`
 
-    backdrop-filter: ${(props: LayerProps) => (true ? 'blur(3px)' : 'none')};
-    -webkit-backdrop-filter: ${(props: LayerProps) => (true ? 'blur(3px)' : 'none')};
+    backdrop-filter: ${(props: LayerProps) => (props.responsive ? 'blur(3px)' : 'none')};
+    -webkit-backdrop-filter: ${(props: LayerProps) => (props.responsive? 'blur(3px)' : 'none')};
 
       input::-webkit-outer-spin-button,
       input::-webkit-inner-spin-button {
