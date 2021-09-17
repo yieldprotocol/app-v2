@@ -44,10 +44,9 @@ export interface IUserContextState {
 
   approvalMethod: ApprovalType;
   dudeSalt: number;
-  showInactiveVaults: boolean;
   slippageTolerance: number;
-  hideBalancesSetting: string | null;
-  currencySetting: string;
+
+  dashSettings: IDashSettings;
 }
 
 export interface IUserContextActions {
@@ -289,8 +288,8 @@ export enum ProcessStage {
   'SIGNING_COMPLETE' = 3,
   'TRANSACTION_REQUESTED' = 4,
   'TRANSACTION_PENDING' = 5,
-  'PROCESS_COMPLETE'= 6,
-  'PROCESS_COMPLETE_TIMEOUT'= 7,
+  'PROCESS_COMPLETE' = 6,
+  'PROCESS_COMPLETE_TIMEOUT' = 7,
 }
 
 export interface IYieldProcess {
@@ -369,4 +368,14 @@ export interface IHistItemPosition extends IBaseHistItem {
   fyTokens_: string;
   poolTokens?: BigNumber;
   poolTokens_?: string;
+}
+
+export interface IDashSettings {
+  hideEmptyVaults: boolean;
+  showInactiveVaults: boolean;
+  hideInactiveVaults: boolean;
+  hideLendPositions: boolean;
+  hideStrategyPositions: boolean;
+  currencySetting: string;
+  hideBalancesSetting: string | null;
 }

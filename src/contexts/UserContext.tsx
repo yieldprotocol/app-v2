@@ -16,6 +16,7 @@ import {
   ApprovalType,
   IStrategyRoot,
   IStrategy,
+  IDashSettings,
 } from '../types';
 
 import { ChainContext } from './ChainContext';
@@ -56,11 +57,16 @@ const initState: IUserContextState = {
   /* User Settings */
   approvalMethod: ApprovalType.SIG,
   dudeSalt: 20,
-  showInactiveVaults: false as boolean,
   slippageTolerance: 0.01 as number,
-
-  hideBalancesSetting: null as string | null,
-  currencySetting: 'DAI' as string,
+  dashSettings: {
+    hideEmptyVaults: false,
+    showInactiveVaults: false,
+    hideInactiveVaults: false,
+    hideLendPositions: false,
+    hideStrategyPositions: false,
+    currencySetting: 'DAI',
+    hideBalancesSetting: null,
+  } as IDashSettings,
 };
 
 const vaultNameConfig: Config = {

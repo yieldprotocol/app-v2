@@ -38,38 +38,47 @@ const Dashboard = () => {
       strategyMap,
       seriesMap,
       vaultMap,
-      showInactiveVaults,
-      hideBalancesSetting,
       priceMap,
-      currencySetting,
       vaultsLoading,
       seriesLoading,
       pricesLoading,
       strategiesLoading,
+      dashSettings,
     },
   } = useContext(UserContext) as IUserContext;
+  const {
+    hideEmptyVaults,
+    hideInactiveVaults,
+    hideLendPositions,
+    hideStrategyPositions,
+    hideBalancesSetting,
+    currencySetting,
+  } = dashSettings;
 
+  const [showEmpty, setShowEmpty] = useState<boolean>(false);
   const [vaultPositions, setVaultPositions] = useState<IVault[]>([]);
   const [lendPositions, setLendPositions] = useState<ISeries[]>([]);
   const [strategyPositions, setStrategyPositions] = useState<IStrategy[]>([]);
   const [allPositions, setAllPositions] = useState<(ISeries | IVault | IStrategy)[]>([]);
-  const [showEmpty, setShowEmpty] = useState<boolean>(false);
+
   const [totalDebt, setTotalDebt] = useState<string>('');
   const [totalCollateral, setTotalCollateral] = useState<string>('');
   const [totalLendBalance, setTotalLendBalance] = useState<string>('');
   const [totalStrategyBalance, setTotalStrategyBalance] = useState<string>('');
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
+
+  // currency settings
   const currencySettingAssetId = currencySetting === 'ETH' ? WETH : DAI;
   const currencySettingDigits = currencySetting === 'ETH' ? 4 : 2;
   const currencySettingSymbol = currencySetting === 'ETH' ? 'Ξ' : '$';
 
   useEffect(() => {
     const _vaultPositions: IVault[] = Array.from(vaultMap.values())
-      .filter((vault: IVault) => showInactiveVaults || vault.isActive)
-      .filter((vault: IVault) => (showEmpty ? true : vault.ink.gt(ZERO_BN) || vault.art.gt(ZERO_BN)))
+      .filter((vault: IVault) => hideEmptyVaults || vault.isActive)
+      .filter((vault: IVault) => (hideEmptyVaults ? vault.ink.gt(ZERO_BN) || vault.art.gt(ZERO_BN) : true))
       .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1));
     setVaultPositions(_vaultPositions);
-  }, [vaultMap, showInactiveVaults, showEmpty, hideBalancesSetting]);
+  }, [vaultMap, hideEmptyVaults, showEmpty, hideBalancesSetting]);
 
   useEffect(() => {
     const _lendPositions: ISeries[] = Array.from(seriesMap.values())
