@@ -61,7 +61,7 @@ const DashboardSettings = ({ actionType }: { actionType: string }) => {
       {actionType === ActionType.POOL && (
         <Box gap="small">
           <Box direction="row" justify="between" gap="small" align="center">
-            <Text size="xsmall">Hide Strategy Positions</Text>
+            <Text size="xsmall">Hide Pool Positions</Text>
             <CheckBox
               toggle
               checked={hidePoolPositions}
