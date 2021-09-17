@@ -94,7 +94,7 @@ const Dashboard = () => {
       .filter((_strategy: IStrategy) => !hidePoolPositions && true)
       .filter((_strategy: IStrategy) => (_strategy ? _strategy.accountBalance?.gt(ZERO_BN) : true))
       .filter((_strategy: IStrategy) =>
-        hidePoolBalancesSetting ? Number(_strategy.accountBalance!) > Number(hidePoolBalancesSetting) : true
+        hidePoolBalancesSetting ? Number(_strategy.accountBalance_!) > Number(hidePoolBalancesSetting) : true
       )
       .sort((_strategyA: IStrategy, _strategyB: IStrategy) =>
         _strategyA.accountBalance?.gt(_strategyB.accountBalance!) ? 1 : -1
