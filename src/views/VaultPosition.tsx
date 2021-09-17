@@ -136,7 +136,8 @@ const VaultPosition = () => {
   const handleStepper = (back: boolean = false) => {
     const step = back ? -1 : 1;
     const newStepArray = stepPosition.map((x: any, i: number) => (i === actionActive.index ? x + step : x));
-    setStepPosition(newStepArray);
+    const validatedSteps = newStepArray.map((x: number) => (x >= 0 ? x : 0));
+    setStepPosition(validatedSteps);
   };
 
   const handleRepay = () => {
@@ -158,7 +159,7 @@ const VaultPosition = () => {
     switch (actionCode) {
       case ActionCodes.REPAY:
         handleStepper(true);
-        setRepayInput(undefined);
+        setRepayInput(null);
         resetRepayProcess();
         break;
       case ActionCodes.ROLL_DEBT:
@@ -428,7 +429,6 @@ const VaultPosition = () => {
                     )}
 
                     {stepPosition[actionActive.index] !== 0 && (
-
                       <ActiveTransaction
                         pad
                         txProcess={addCollatInput ? addCollateralProcess : removeCollateralProcess}
@@ -441,7 +441,6 @@ const VaultPosition = () => {
                             value={`${cleanValue(addCollatInput, vaultIlk?.digitFormat!)} ${vaultIlk?.symbol}`}
                           />
                         </Box>
-
                       </ActiveTransaction>
                     )}
                   </>
@@ -477,7 +476,6 @@ const VaultPosition = () => {
                     )}
 
                     {stepPosition[actionActive.index] !== 0 && (
-
                       <ActiveTransaction
                         pad
                         txProcess={addCollatInput ? addCollateralProcess : removeCollateralProcess}
@@ -490,7 +488,6 @@ const VaultPosition = () => {
                             value={`${cleanValue(removeCollatInput, vaultIlk?.digitFormat!)} ${vaultIlk?.symbol}`}
                           />
                         </Box>
-
                       </ActiveTransaction>
                     )}
                   </>
@@ -624,7 +621,6 @@ const VaultPosition = () => {
                     actionCode={ActionCodes.REMOVE_COLLATERAL}
                   />
                 )} */}
-
             </ActionButtonWrap>
           </CenterPanelWrap>
         </ModalWrap>
