@@ -35,6 +35,7 @@ import AddTokenToMetamask from '../components/AddTokenToMetamask';
 import TransactionWidget from '../components/TransactionWidget';
 import StrategySelector from '../components/selectors/StrategySelector';
 import ColorText from '../components/texts/ColorText';
+import { usePoolHelpers } from '../hooks/actionHelperHooks/usePoolHelpers';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -56,6 +57,7 @@ function Pool() {
 
   /* HOOK FNS */
   const addLiquidity = useAddLiquidity();
+  const { poolMax, poolPercentPreview } = usePoolHelpers(poolInput);
 
   /* input validation hooks */
   const { inputError: poolError } = useInputValidation(poolInput, ActionCodes.ADD_LIQUIDITY, selectedSeries, [
@@ -231,7 +233,7 @@ function Pool() {
                         icon={<BiCoinStack />}
                         value={`${'[todo]'} Liquidity tokens`}
                       /> */}
-                      <InfoBite label="Percentage of pool" icon={<FiPercent />} value={`${'[todo]'}%`} />
+                      <InfoBite label="Percentage of pool" icon={<FiPercent />} value={`${poolPercentPreview}%`} />
                     </Box>
                   </SectionWrap>
                 </Box>
