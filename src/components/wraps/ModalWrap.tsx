@@ -3,7 +3,7 @@ import { NavLink, useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { Avatar, Box, Button, Grid, Header, Layer, ResponsiveContext, Text } from 'grommet';
 
-import { FiLogOut , FiX} from 'react-icons/fi';
+import { FiLogOut } from 'react-icons/fi';
 import MainViewWrap from './MainViewWrap';
 import PanelWrap from './PanelWrap';
 
@@ -11,8 +11,6 @@ import { UserContext } from '../../contexts/UserContext';
 import YieldMark from '../logos/YieldMark';
 import { useCachedState } from '../../hooks/generalHooks';
 import { ISeries } from '../../types';
-import ColorText from '../texts/ColorText';
-import ExitButton from '../buttons/ExitButton';
 
 interface IModalWrap {
   children: any;
@@ -47,7 +45,7 @@ function ModalWrap({ children, series }: IModalWrap) {
     <StyledLayer 
       onClickOutside={() => history.goBack()} 
       full 
-      background={ `linear-gradient( ${_series?.startColor?.toString().concat('96')} , ${_series?.endColor?.toString()} )`} 
+      background={ `linear-gradient( 45deg ,  ${_series?.startColor?.toString().concat('96')} , ${_series?.endColor?.toString()} )`} 
       animation="fadeIn"
     >
       {!mobile && (

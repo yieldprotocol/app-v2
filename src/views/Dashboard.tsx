@@ -1,6 +1,6 @@
 import React, { useContext, useState, useCallback, useEffect } from 'react';
-import { Box, CheckBox, DropButton, ResponsiveContext, Text } from 'grommet';
 import styled from 'styled-components';
+import { Box, CheckBox, DropButton, ResponsiveContext, Text } from 'grommet';
 import { ethers } from 'ethers';
 import { FiChevronDown, FiTool } from 'react-icons/fi';
 import Skeleton from 'react-loading-skeleton';
@@ -8,7 +8,6 @@ import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
 import { ActionType, IUserContext, IVault, ISeries, IStrategy } from '../types';
 import YieldInfo from '../components/YieldInfo';
-import DashboardPositionList from '../components/DashboardPositionList';
 import DashboardBalanceSummary from '../components/DashboardBalanceSummary';
 import MainViewWrap from '../components/wraps/MainViewWrap';
 import PanelWrap from '../components/wraps/PanelWrap';
@@ -16,6 +15,7 @@ import HideBalancesSetting from '../components/HideBalancesSetting';
 import CurrencyToggle from '../components/CurrencyToggle';
 import { ZERO_BN, DAI, WETH } from '../utils/constants';
 import { cleanValue } from '../utils/appUtils';
+import DashboardPositionList from '../components/DashboardPositionList';
 
 const StyledBox = styled(Box)`
   * {
@@ -54,10 +54,10 @@ const Dashboard = () => {
   const [strategyPositions, setStrategyPositions] = useState<IStrategy[]>([]);
   const [allPositions, setAllPositions] = useState<(ISeries | IVault | IStrategy)[]>([]);
   const [showEmpty, setShowEmpty] = useState<boolean>(false);
-  const [totalDebt, setTotalDebt] = useState<string | null>(null);
-  const [totalCollateral, setTotalCollateral] = useState<string | null>(null);
-  const [totalLendBalance, setTotalLendBalance] = useState<string | null>(null);
-  const [totalStrategyBalance, setTotalStrategyBalance] = useState<string | null>(null);
+  const [totalDebt, setTotalDebt] = useState<string>('');
+  const [totalCollateral, setTotalCollateral] = useState<string>('');
+  const [totalLendBalance, setTotalLendBalance] = useState<string>('');
+  const [totalStrategyBalance, setTotalStrategyBalance] = useState<string>('');
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
   const currencySettingAssetId = currencySetting === 'ETH' ? WETH : DAI;
   const currencySettingDigits = currencySetting === 'ETH' ? 4 : 2;
@@ -163,7 +163,7 @@ const Dashboard = () => {
     <MainViewWrap>
       {!mobile && (
         <PanelWrap justify="between" basis="40%">
-          <Box margin={{ top: '35%' }} gap="medium" fill>
+          <Box margin={{ top: '35%' }} gap="medium">
             <DashboardBalanceSummary
               debt={totalDebt!}
               collateral={totalCollateral!}

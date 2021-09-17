@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Box, RadioButtonGroup, ResponsiveContext, Text, TextInput, Tip } from 'grommet';
 
 import { ethers } from 'ethers';
@@ -14,12 +14,10 @@ import InfoBite from '../components/InfoBite';
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
 import { UserContext } from '../contexts/UserContext';
-import { ActionCodes, ActionType, IUserContext } from '../types';
-import { useTx } from '../hooks/useTx';
+import { ActionCodes, IUserContext, ProcessStage, TxState } from '../types';
 import MaxButton from '../components/buttons/MaxButton';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
-import StepperText from '../components/StepperText';
 import StrategyPositionSelector from '../components/selectors/StrategyPositionSelector';
 import ActiveTransaction from '../components/ActiveTransaction';
 import YieldInfo from '../components/YieldInfo';
@@ -30,12 +28,10 @@ import { useInputValidation } from '../hooks/useInputValidation';
 import AltText from '../components/texts/AltText';
 import YieldCardHeader from '../components/YieldCardHeader';
 import { useAddLiquidity } from '../hooks/actionHooks/useAddLiquidity';
-
-import AddTokenToMetamask from '../components/AddTokenToMetamask';
-import TransactionWidget from '../components/TransactionWidget';
 import StrategySelector from '../components/selectors/StrategySelector';
 import ColorText from '../components/texts/ColorText';
 import { usePoolHelpers } from '../hooks/actionHelperHooks/usePoolHelpers';
+import { useProcess } from '../hooks/useProcess';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -65,19 +61,13 @@ function Pool() {
     maxPool,
   ]);
 
-  const { tx: poolTx, resetTx } = useTx(ActionCodes.ADD_LIQUIDITY, selectedSeries?.id);
+  const { txProcess: poolProcess, resetProcess } = useProcess(ActionCodes.ADD_LIQUIDITY, selectedSeries?.id);
 
   /* LOCAL ACTION FNS */
   const handleAdd = () => {
     // !poolDisabled &&
     // TODO update for strategy
     selectedSeries && addLiquidity(poolInput!, selectedSeries, poolMethod);
-  };
-
-  const resetInputs = () => {
-    setPoolInput(undefined);
-    setStepPosition(0);
-    resetTx();
   };
 
   /* SET MAX VALUES */
@@ -96,20 +86,21 @@ function Pool() {
     !activeAccount || !poolInput || poolError || !selectedStrategy ? setPoolDisabled(true) : setPoolDisabled(false);
   }, [poolInput, activeAccount, poolError, selectedStrategy]);
 
+  const resetInputs = useCallback(() => {
+    setPoolInput(undefined);
+    setStepPosition(0);
+    resetProcess();
+  }, [resetProcess]);
+
+  useEffect(() => {
+    poolProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs();
+  }, [poolProcess, resetInputs]);
+
   return (
     <MainViewWrap>
       {!mobile && (
         <PanelWrap>
-          <Box margin={{ top: '35%' }}>
-            {/* <StepperText
-              position={stepPosition}
-              values={[
-                // ['Choose amount to', 'POOL', ''],
-                ['Choose an amount and a strategy to invest in', '', ''],
-                ['Review &', 'Transact', ''],
-              ]}
-            /> */}
-          </Box>
+          <Box margin={{ top: '35%' }} />
           <YieldInfo />
         </PanelWrap>
       )}
@@ -122,7 +113,12 @@ function Pool() {
                 <Box gap={mobile ? undefined : 'xsmall'}>
                   <ColorText size={mobile ? 'medium' : '2rem'}>PROVIDE LIQUIDITY</ColorText>
                   <AltText color="text-weak" size="xsmall">
-                    Pool tokens for <ColorText size="small"> variable returns</ColorText> based on protocol usage.
+                    Pool tokens for{' '}
+                    <Text size="small" color="text">
+                      {' '}
+                      variable returns
+                    </Text>{' '}
+                    based on protocol usage.
                   </AltText>
                 </Box>
               </YieldCardHeader>
@@ -151,12 +147,6 @@ function Pool() {
 
                     <Box basis={mobile ? '50%' : '40%'}>
                       <AssetSelector />
-                      {/* <AddTokenToMetamask
-                        address={selectedBase?.address}
-                        symbol={selectedBase?.symbol}
-                        decimals={18}
-                        image=""
-                      /> */}
                     </Box>
                   </Box>
                 </SectionWrap>
@@ -175,14 +165,14 @@ function Pool() {
           {stepPosition === 1 && (
             <Box gap="large">
               <YieldCardHeader>
-                {!poolTx.success && !poolTx.failed ? (
+                {poolProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
                   <BackButton action={() => setStepPosition(0)} />
                 ) : (
                   <Box pad="1em" />
                 )}
               </YieldCardHeader>
 
-              <ActiveTransaction full tx={poolTx}>
+              <ActiveTransaction full txProcess={poolProcess}>
                 <Box gap="large">
                   {!selectedSeries?.seriesIsMature && (
                     <SectionWrap>
@@ -252,25 +242,24 @@ function Pool() {
               errorLabel={poolError}
             />
           )}
-          {stepPosition === 1 && !selectedSeries?.seriesIsMature && !poolTx.success && !poolTx.failed && (
+          {stepPosition === 1 && poolProcess?.stage !== ProcessStage.PROCESS_COMPLETE && (
             <TransactButton
               primary
               label={
                 <Text size={mobile ? 'small' : undefined}>
-                  {`Pool${poolTx.processActive ? `ing` : ''} ${
+                  {`Pool${poolProcess?.processActive ? `ing` : ''} ${
                     nFormatter(Number(poolInput), selectedBase?.digitFormat!) || ''
                   } ${selectedBase?.symbol || ''}`}
                 </Text>
               }
               onClick={() => handleAdd()}
-              disabled={poolDisabled || poolTx.processActive}
+              disabled={poolDisabled || poolProcess?.processActive}
             />
           )}
 
           {stepPosition === 1 &&
-            !selectedSeries?.seriesIsMature &&
-            !poolTx.processActive &&
-            (poolTx.success || poolTx.failed) && (
+            poolProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
+            poolProcess?.tx.status === TxState.SUCCESSFUL && (
               <>
                 {/* <PositionListItem series={selectedSeries!} actionType={ActionType.POOL} /> */}
                 <NextButton
@@ -279,13 +268,23 @@ function Pool() {
                 />
               </>
             )}
+
+          {stepPosition === 1 &&
+            !selectedSeries?.seriesIsMature &&
+            poolProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
+            poolProcess?.tx.status === TxState.FAILED && (
+              <>
+                {/* <PositionListItem series={selectedSeries!} actionType={ActionType.POOL} /> */}
+                <NextButton
+                  label={<Text size={mobile ? 'small' : undefined}>Report and go back</Text>}
+                  onClick={() => resetInputs()}
+                />
+              </>
+            )}
         </ActionButtonGroup>
       </CenterPanelWrap>
 
       <PanelWrap right basis="40%">
-        <Box margin={{ top: '20%' }} pad="small">
-          <TransactionWidget />
-        </Box>
         {/* <YieldLiquidity input={poolInput} /> */}
         {!mobile && <StrategyPositionSelector />}
       </PanelWrap>

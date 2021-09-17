@@ -1,23 +1,13 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { Box, ResponsiveContext, Select, Text, TextInput } from 'grommet';
-import { ethers } from 'ethers';
 
-import {
-  FiClock,
-  FiTrendingUp,
-  FiAlertTriangle,
-  FiArrowRight,
-  FiPlus,
-  FiMinus,
-  FiPlusCircle,
-  FiMinusCircle,
-} from 'react-icons/fi';
+import { FiClock, FiTrendingUp, FiAlertTriangle, FiArrowRight, FiPlusCircle, FiMinusCircle } from 'react-icons/fi';
 import { abbreviateHash, cleanValue, nFormatter } from '../utils/appUtils';
 import { UserContext } from '../contexts/UserContext';
 import InputWrap from '../components/wraps/InputWrap';
 import InfoBite from '../components/InfoBite';
-import { ActionCodes, ActionType, IAsset, ISeries, IUserContext, IVault } from '../types';
+import { ActionCodes, ActionType, IAsset, ISeries, IUserContext, IVault, ProcessStage } from '../types';
 
 import ActionButtonWrap from '../components/wraps/ActionButtonWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
@@ -31,10 +21,7 @@ import { Gauge } from '../components/Gauge';
 import YieldHistory from '../components/YieldHistory';
 import TransactButton from '../components/buttons/TransactButton';
 import CancelButton from '../components/buttons/CancelButton';
-import VaultDropSelector from '../components/selectors/VaultDropSelector';
-import ExitButton from '../components/buttons/ExitButton';
 import { useInputValidation } from '../hooks/useInputValidation';
-import { useTx } from '../hooks/useTx';
 import ModalWrap from '../components/wraps/ModalWrap';
 
 import { ChainContext } from '../contexts/ChainContext';
@@ -48,8 +35,9 @@ import { useRemoveCollateral } from '../hooks/actionHooks/useRemoveCollateral';
 import { useBorrowHelpers } from '../hooks/actionHelperHooks/useBorrowHelpers';
 import InputInfoWrap from '../components/wraps/InputInfoWrap';
 import CopyWrap from '../components/wraps/CopyWrap';
+import { useProcess } from '../hooks/useProcess';
 
-const VaultPosition = ({ close }: { close: () => void }) => {
+const VaultPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const prevLoc = useCachedState('lastVisit', '')[0].slice(1).split('/')[0];
 
@@ -72,14 +60,20 @@ const VaultPosition = ({ close }: { close: () => void }) => {
   const vaultSeries: ISeries | undefined = seriesMap.get(selectedVault?.seriesId!);
 
   /* TX info (for disabling buttons) */
-  const { tx: repayTx, resetTx: resetRepayTx } = useTx(ActionCodes.REPAY, selectedVaultId!);
-  const { tx: rollTx, resetTx: resetRollTx } = useTx(ActionCodes.ROLL_DEBT, selectedVaultId!);
-  const { tx: addCollateralTx, resetTx: resetAddCollateralTx } = useTx(ActionCodes.ADD_COLLATERAL, selectedVaultId!);
-  const { tx: removeCollateralTx, resetTx: resetRemoveCollateralTx } = useTx(
+  const { txProcess: repayProcess, resetProcess: resetRepayProcess } = useProcess(ActionCodes.REPAY, selectedVaultId!);
+  const { txProcess: rollProcess, resetProcess: resetRollProcess } = useProcess(
+    ActionCodes.ROLL_DEBT,
+    selectedVaultId!
+  );
+  const { txProcess: addCollateralProcess, resetProcess: resetAddCollateralProcess } = useProcess(
+    ActionCodes.ADD_COLLATERAL,
+    selectedVaultId!
+  );
+  const { txProcess: removeCollateralProcess, resetProcess: resetRemoveCollateralProcess } = useProcess(
     ActionCodes.REMOVE_COLLATERAL,
     selectedVaultId!
   );
-  
+
   // const { tx: transferTx, resetTx: resetTransferTx } = useTx(ActionCodes.TRANSFER_VAULT, selectedVaultId!, true);
   // const { tx: mergeTx, resetTx: resetMergeTx } = useTx(ActionCodes.MERGE_VAULT, selectedVaultId!);
 
@@ -100,7 +94,6 @@ const VaultPosition = ({ close }: { close: () => void }) => {
   const [rollDisabled, setRollDisabled] = useState<boolean>(true);
   const [removeCollateralDisabled, setRemoveCollateralDisabled] = useState<boolean>(true);
   const [addCollateralDisabled, setAddCollateralDisabled] = useState<boolean>(true);
-
 
   const [actionActive, setActionActive] = useState<any>(
     selectedVault && !selectedVault.isActive ? { index: 3 } : { index: 0 }
@@ -123,7 +116,7 @@ const VaultPosition = ({ close }: { close: () => void }) => {
   const { maxRepayOrRoll, maxRepayDustLimit } = useBorrowHelpers(repayInput, '0', selectedVault);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries, [
-    maxRepayDustLimit, // this is the max pay to get to dust limit.  note different logic in input validation hook. 
+    maxRepayDustLimit, // this is the max pay to get to dust limit.  note different logic in input validation hook.
     maxRepayOrRoll,
   ]);
 
@@ -149,6 +142,9 @@ const VaultPosition = ({ close }: { close: () => void }) => {
   const handleRepay = () => {
     selectedVault && repay(selectedVault, repayInput?.toString(), reclaimCollateral);
   };
+  const handleRoll = () => {
+    rollToSeries && selectedVault && rollDebt(selectedVault, rollToSeries);
+  };
 
   const handleCollateral = (action: 'ADD' | 'REMOVE') => {
     const remove: boolean = action === 'REMOVE';
@@ -158,20 +154,26 @@ const VaultPosition = ({ close }: { close: () => void }) => {
     }
   };
 
-  const handleRoll = () => {
-    rollToSeries && selectedVault && rollDebt(selectedVault, rollToSeries);
-  };
-
   const resetInputs = (actionCode: ActionCodes) => {
     switch (actionCode) {
       case ActionCodes.REPAY:
+        handleStepper(true);
         setRepayInput(undefined);
+        resetRepayProcess();
+        break;
+      case ActionCodes.ROLL_DEBT:
+        handleStepper(true);
+        resetRollProcess();
         break;
       case ActionCodes.ADD_COLLATERAL:
+        handleStepper(true);
         setAddCollatInput(undefined);
+        resetAddCollateralProcess();
         break;
       case ActionCodes.REMOVE_COLLATERAL:
+        handleStepper(true);
         setRemoveCollatInput(undefined);
+        resetRemoveCollateralProcess();
         break;
     }
   };
@@ -183,15 +185,7 @@ const VaultPosition = ({ close }: { close: () => void }) => {
     !rollToSeries ? setRollDisabled(true) : setRollDisabled(false);
     !addCollatInput || addCollatError ? setAddCollateralDisabled(true) : setAddCollateralDisabled(false);
     !removeCollatInput || removeCollatError ? setRemoveCollateralDisabled(true) : setRemoveCollateralDisabled(false);
-  }, [
-    repayInput,
-    repayError,
-    rollToSeries,
-    addCollatInput,
-    removeCollatInput,
-    addCollatError,
-    removeCollatError,
-  ]);
+  }, [repayInput, repayError, rollToSeries, addCollatInput, removeCollatInput, addCollatError, removeCollatError]);
 
   /* EXTRA INITIATIONS */
 
@@ -202,27 +196,18 @@ const VaultPosition = ({ close }: { close: () => void }) => {
     selectedVault && userActions.setSelectedIlk(selectedVault.ilkId);
   }, [vaultMap, selectedVault]);
 
-
   useEffect(() => {
     if (selectedVault && account !== selectedVault?.owner) history.push(prevLoc);
   }, [account, selectedVault, history, prevLoc]);
 
-  /* INTERNAL COMPONENTS */
-  const CompletedTx = (props: any) => (
-    <>
-      <NextButton
-        // size="xsmall"
-        label={
-          <Text size={mobile ? 'xsmall' : undefined}>{props.tx.failed ? 'Report issue and go back' : 'Got it!'} </Text>
-        }
-        onClick={() => {
-          props.resetTx();
-          handleStepper(true);
-          resetInputs(props.actionCode);
-        }}
-      />
-    </>
-  );
+  /* watch if the processes timeout - if so, reset() */
+  useEffect(() => {
+    repayProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs(ActionCodes.REPAY);
+    // rollProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs(ActionCodes.ROLL_DEBT);
+    addCollateralProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs(ActionCodes.ADD_COLLATERAL);
+    removeCollateralProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT &&
+      resetInputs(ActionCodes.REMOVE_COLLATERAL);
+  }, [addCollateralProcess, removeCollateralProcess, repayProcess, rollProcess]);
 
   return (
     <>
@@ -236,19 +221,22 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                     <PositionAvatar position={selectedVault!} actionType={ActionType.BORROW} />
                     <Box>
                       <Text size={mobile ? 'medium' : 'large'}> {selectedVault?.displayName} </Text>
-                      <CopyWrap><Text size="small"> {abbreviateHash(selectedVault?.id, 6)} </Text></CopyWrap>
+                      <CopyWrap>
+                        <Text size="small"> {abbreviateHash(selectedVault?.id, 6)} </Text>
+                      </CopyWrap>
                     </Box>
                   </Box>
                   {/* <ExitButton action={() => history.goBack()} /> */}
                 </Box>
 
-                {selectedVault?.isActive ? (
+                {selectedVault?.isActive && (
                   <SectionWrap>
                     <Box gap="small">
-                    <InfoBite
+                      <InfoBite
                         label="Maturity date:"
                         value={`${vaultSeries?.displayName}`}
                         icon={<FiClock color={vaultSeries?.color} />}
+                        loading={vaultsLoading}
                       />
                       <InfoBite
                         label="Vault debt + interest:"
@@ -266,7 +254,8 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                       />
                     </Box>
                   </SectionWrap>
-                ) : (
+                )}
+                {!selectedVault?.isActive && !selectedVault?.isWitchOwner && (
                   <SectionWrap>
                     <Box fill align="center" justify="center">
                       <Box direction="row" pad="medium" gap="small" align="center">
@@ -278,6 +267,20 @@ const VaultPosition = ({ close }: { close: () => void }) => {
 
                       <Box pad={{ horizontal: 'medium' }}>
                         <Text size="xsmall">Vault {selectedVault?.id} has either been transfered or deleted.</Text>
+                      </Box>
+                    </Box>
+                  </SectionWrap>
+                )}
+                {selectedVault?.isWitchOwner && (
+                  <SectionWrap>
+                    <Box fill align="center" justify="center">
+                      <Box direction="row" pad="medium" gap="small" align="center">
+                        <FiAlertTriangle size="3em" />
+                        <Box gap="xsmall">
+                          <Text>
+                            This vault is in the process of being liquidated and the account no longer owns this vault
+                          </Text>
+                        </Box>
                       </Box>
                     </Box>
                   </SectionWrap>
@@ -297,7 +300,6 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                         { text: 'Remove Collateral', index: 3 },
 
                         { text: 'View Transaction History', index: 4 },
-
                       ]}
                       labelKey="text"
                       valueKey="index"
@@ -310,7 +312,7 @@ const VaultPosition = ({ close }: { close: () => void }) => {
 
                 {actionActive.index === 0 && (
                   <>
-                    {stepPosition[0] === 0 && (
+                    {stepPosition[actionActive.index] === 0 && (
                       <Box margin={{ top: 'medium' }} gap="medium">
                         <Box gap="xxsmall">
                           <InputWrap
@@ -318,9 +320,9 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                             isError={repayError}
                             message={
                               <InputInfoWrap>
-                              <Text color="gray" alignSelf="end" size="xsmall">
-                                Current {vaultBase?.symbol!} balance: {vaultBase?.balance_!}
-                              </Text>
+                                <Text color="gray" alignSelf="end" size="xsmall">
+                                  Current {vaultBase?.symbol!} balance: {vaultBase?.balance_!}
+                                </Text>
                               </InputInfoWrap>
                             }
                           >
@@ -343,21 +345,19 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                       </Box>
                     )}
 
-                    {stepPosition[0] !== 0 && (
-                      <ActiveTransaction pad tx={repayTx}>
-                        {/* <ActiveTransaction txCode={(selectedVault && repayTx.txCode) || ''} pad> */}
-                        <SectionWrap
-                          title="Review transaction:"
-                          rightAction={<CancelButton action={() => handleStepper(true)} />}
-                        >
-                          <Box margin={{ top: 'medium' }}>
-                            <InfoBite
-                              label="Repay Debt"
-                              icon={<FiArrowRight />}
-                              value={`${cleanValue(repayInput, vaultBase?.digitFormat!)} ${vaultBase?.symbol}`}
-                            />
-                          </Box>
-                        </SectionWrap>
+                    {stepPosition[actionActive.index] === 1 && (
+                      <ActiveTransaction
+                        pad
+                        txProcess={repayProcess}
+                        cancelAction={() => resetInputs(ActionCodes.REPAY)}
+                      >
+                        <Box>
+                          <InfoBite
+                            label="Repay Debt"
+                            icon={<FiArrowRight />}
+                            value={`${cleanValue(repayInput, vaultBase?.digitFormat!)} ${vaultBase?.symbol}`}
+                          />
+                        </Box>
                       </ActiveTransaction>
                     )}
                   </>
@@ -376,19 +376,18 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                     )}
 
                     {stepPosition[actionActive.index] !== 0 && (
-                      <ActiveTransaction pad tx={rollTx}>
-                        <SectionWrap
-                          title="Review transaction:"
-                          rightAction={<CancelButton action={() => handleStepper(true)} />}
-                        >
-                          <Box margin={{ top: 'medium' }}>
-                            <InfoBite
-                              label="Roll Debt to Series"
-                              icon={<FiArrowRight />}
-                              value={`${rollToSeries?.displayName}`}
-                            />
-                          </Box>
-                        </SectionWrap>
+                      <ActiveTransaction
+                        pad
+                        txProcess={rollProcess}
+                        cancelAction={() => resetInputs(ActionCodes.ADD_COLLATERAL)}
+                      >
+                        <Box margin={{ top: 'medium' }}>
+                          <InfoBite
+                            label="Roll Debt to Series"
+                            icon={<FiArrowRight />}
+                            value={`${rollToSeries?.displayName}`}
+                          />
+                        </Box>
                       </ActiveTransaction>
                     )}
                   </>
@@ -429,19 +428,20 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                     )}
 
                     {stepPosition[actionActive.index] !== 0 && (
-                      <ActiveTransaction pad tx={addCollatInput ? addCollateralTx : removeCollateralTx}>
-                        <SectionWrap
-                          title="Review transaction:"
-                          rightAction={<CancelButton action={() => handleStepper(true)} />}
-                        >
-                          <Box margin={{ top: 'medium' }}>
-                              <InfoBite
-                                label="Add Collateral"
-                                icon={<FiArrowRight />}
-                                value={`${cleanValue(addCollatInput, vaultIlk?.digitFormat!)} ${vaultIlk?.symbol}`}
-                              />
-                          </Box>
-                        </SectionWrap>
+
+                      <ActiveTransaction
+                        pad
+                        txProcess={addCollatInput ? addCollateralProcess : removeCollateralProcess}
+                        cancelAction={() => resetInputs(ActionCodes.ADD_COLLATERAL)}
+                      >
+                        <Box margin={{ top: 'medium' }}>
+                          <InfoBite
+                            label="Add Collateral"
+                            icon={<FiArrowRight />}
+                            value={`${cleanValue(addCollatInput, vaultIlk?.digitFormat!)} ${vaultIlk?.symbol}`}
+                          />
+                        </Box>
+
                       </ActiveTransaction>
                     )}
                   </>
@@ -451,7 +451,6 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                   <>
                     {stepPosition[actionActive.index] === 0 && (
                       <Box margin={{ top: 'medium' }}>
-
                         <Box direction="row" gap="small" justify="between">
                           <Box pad="small">
                             <FiMinusCircle color={addCollatInput ? 'lightgrey' : '#F87171'} size="1.5rem" />
@@ -478,26 +477,26 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                     )}
 
                     {stepPosition[actionActive.index] !== 0 && (
-                      <ActiveTransaction pad tx={addCollatInput ? addCollateralTx : removeCollateralTx}>
-                        <SectionWrap
-                          title="Review transaction:"
-                          rightAction={<CancelButton action={() => handleStepper(true)} />}
-                        >
-                          <Box margin={{ top: 'medium' }}>
-                              <InfoBite
-                                label="Remove Collateral"
-                                icon={<FiArrowRight />}
-                                value={`${cleanValue(removeCollatInput, vaultIlk?.digitFormat!)} ${vaultIlk?.symbol}`}
-                              />
-                          </Box>
-                        </SectionWrap>
+
+                      <ActiveTransaction
+                        pad
+                        txProcess={addCollatInput ? addCollateralProcess : removeCollateralProcess}
+                        cancelAction={() => resetInputs(ActionCodes.REMOVE_COLLATERAL)}
+                      >
+                        <Box margin={{ top: 'medium' }}>
+                          <InfoBite
+                            label="Remove Collateral"
+                            icon={<FiArrowRight />}
+                            value={`${cleanValue(removeCollatInput, vaultIlk?.digitFormat!)} ${vaultIlk?.symbol}`}
+                          />
+                        </Box>
+
                       </ActiveTransaction>
                     )}
                   </>
                 )}
 
                 {actionActive.index === 4 && <YieldHistory seriesOrVault={selectedVault!} view={['VAULT']} />}
-
               </Box>
             </Box>
 
@@ -512,87 +511,87 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                     (actionActive.index === 1 && rollDisabled) ||
                     (actionActive.index === 3 && removeCollatInput && removeCollateralDisabled) ||
                     (actionActive.index === 2 && addCollatInput && addCollateralDisabled) ||
-                    ((actionActive.index === 2 || actionActive.index === 3)  && !addCollatInput && !removeCollatInput)
-
+                    ((actionActive.index === 2 || actionActive.index === 3) && !addCollatInput && !removeCollatInput)
                   }
                   errorLabel={
                     (actionActive.index === 0 && repayError) ||
                     (actionActive.index === 3 && removeCollatError) ||
                     (actionActive.index === 2 && addCollatError)
-
                   }
                 />
               )}
 
               {actionActive.index === 0 &&
                 stepPosition[actionActive.index] !== 0 &&
-                !(repayTx.success || repayTx.failed) && (
+                repayProcess?.stage !== ProcessStage.PROCESS_COMPLETE && (
                   <TransactButton
                     primary
                     label={
                       <Text size={mobile ? 'small' : undefined}>
-                        {`${repayTx.processActive ? 'Repaying' : 'Repay'} ${
+                        {`${repayProcess?.processActive ? 'Repaying' : 'Repay'} ${
                           nFormatter(Number(repayInput), vaultBase?.digitFormat!) || ''
                         } ${vaultBase?.symbol}`}
                       </Text>
                     }
                     onClick={() => handleRepay()}
-                    disabled={repayDisabled || repayTx.processActive}
+                    disabled={repayDisabled || repayProcess?.processActive}
                   />
                 )}
 
               {actionActive.index === 1 &&
                 stepPosition[actionActive.index] !== 0 &&
-                !(rollTx.success || rollTx.failed) && (
+                rollProcess?.stage !== ProcessStage.PROCESS_COMPLETE && (
                   <TransactButton
                     primary
                     label={
-                      <Text size={mobile ? 'small' : undefined}>{`Roll${rollTx.processActive ? 'ing' : ''} debt`}</Text>
+                      <Text size={mobile ? 'small' : undefined}>{`Roll${
+                        rollProcess?.processActive ? 'ing' : ''
+                      } debt`}</Text>
                     }
                     onClick={() => handleRoll()}
-                    disabled={rollTx.processActive}
+                    disabled={rollProcess?.processActive}
                   />
                 )}
 
               {actionActive.index === 2 &&
                 stepPosition[actionActive.index] !== 0 &&
                 addCollatInput &&
-                !(addCollateralTx.success || addCollateralTx.failed) && (
+                addCollateralProcess?.stage !== ProcessStage.PROCESS_COMPLETE && (
                   <TransactButton
                     primary
                     label={
                       <Text size={mobile ? 'small' : undefined}>
-                        {`${addCollateralTx.processActive ? 'Adding' : 'Add'} ${
+                        {`${addCollateralProcess?.processActive ? 'Adding' : 'Add'} ${
                           nFormatter(Number(addCollatInput), vaultIlk?.digitFormat!) || ''
                         } ${vaultIlk?.symbol}`}
                       </Text>
                     }
                     onClick={() => handleCollateral('ADD')}
-                    disabled={addCollateralTx.processActive}
+                    disabled={addCollateralProcess?.processActive}
                   />
                 )}
 
               {actionActive.index === 3 &&
                 stepPosition[actionActive.index] !== 0 &&
                 removeCollatInput &&
-                !(removeCollateralTx.success || removeCollateralTx.failed) && (
+                removeCollateralProcess?.stage !== ProcessStage.PROCESS_COMPLETE && (
                   <TransactButton
                     primary
                     label={
                       <Text size={mobile ? 'small' : undefined}>
-                        {`${removeCollateralTx.processActive ? 'Removing' : 'Remove'} ${
+                        {`${removeCollateralProcess?.processActive ? 'Removing' : 'Remove'} ${
                           nFormatter(Number(removeCollatInput), vaultIlk?.digitFormat!) || ''
                         } ${vaultIlk?.symbol}`}
                       </Text>
                     }
                     onClick={() => handleCollateral('REMOVE')}
-                    disabled={removeCollateralTx.processActive}
+                    disabled={removeCollateralProcess?.processActive}
                   />
                 )}
 
-              {stepPosition[actionActive.index] === 1 &&
+              {/* {stepPosition[actionActive.index] === 1 &&
                 actionActive.index === 0 &&
-                !repayTx.processActive &&
+                !repayProcess?.processActive &&
                 (repayTx.success || repayTx.failed) && (
                   <CompletedTx tx={repayTx} resetTx={resetRepayTx} actionCode={ActionCodes.REPAY} />
                 )}
@@ -624,7 +623,7 @@ const VaultPosition = ({ close }: { close: () => void }) => {
                     resetTx={resetRemoveCollateralTx}
                     actionCode={ActionCodes.REMOVE_COLLATERAL}
                   />
-                )}
+                )} */}
 
             </ActionButtonWrap>
           </CenterPanelWrap>

@@ -1,6 +1,6 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { Box, ResponsiveContext, Select, Text, TextInput } from 'grommet';
-import { useHistory, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { FiArrowRight, FiClock, FiTool, FiTrendingUp } from 'react-icons/fi';
 
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
@@ -9,9 +9,8 @@ import SeriesSelector from '../components/selectors/SeriesSelector';
 import { abbreviateHash, cleanValue, nFormatter } from '../utils/appUtils';
 import SectionWrap from '../components/wraps/SectionWrap';
 
-import { useTx } from '../hooks/useTx';
 import { UserContext } from '../contexts/UserContext';
-import { ActionCodes, ActionType, ISeries, IUserContext } from '../types';
+import { ActionCodes, ActionType, ISeries, IUserContext, ProcessStage } from '../types';
 import MaxButton from '../components/buttons/MaxButton';
 import InfoBite from '../components/InfoBite';
 import ActiveTransaction from '../components/ActiveTransaction';
@@ -21,18 +20,16 @@ import NextButton from '../components/buttons/NextButton';
 import CancelButton from '../components/buttons/CancelButton';
 import TransactButton from '../components/buttons/TransactButton';
 import YieldHistory from '../components/YieldHistory';
-import ExitButton from '../components/buttons/ExitButton';
 import { useInputValidation } from '../hooks/useInputValidation';
 import ModalWrap from '../components/wraps/ModalWrap';
 import { useLendHelpers } from '../hooks/actionHelperHooks/useLendHelpers';
 import { useClosePosition } from '../hooks/actionHooks/useClosePosition';
-import { useRedeemPosition } from '../hooks/actionHooks/useRedeemPosition';
 import { useRollPosition } from '../hooks/actionHooks/useRollPosition';
 import CopyWrap from '../components/wraps/CopyWrap';
+import { useProcess } from '../hooks/useProcess';
 
-const LendPosition = ({ close }: { close: () => void }) => {
+const LendPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-  const history = useHistory();
   const { id: idFromUrl } = useParams<{ id: string }>();
 
   /* STATE FROM CONTEXT */
@@ -62,11 +59,16 @@ const LendPosition = ({ close }: { close: () => void }) => {
   const { fyTokenMarketValue } = useLendHelpers(selectedSeries!);
   const closePosition = useClosePosition();
   const rollPosition = useRollPosition();
-  const redeem = useRedeemPosition();
 
-  /* TX data */
-  const { tx: closeTx, resetTx: resetCloseTx } = useTx(ActionCodes.CLOSE_POSITION, selectedSeries?.id);
-  const { tx: rollTx, resetTx: resetRollTx } = useTx(ActionCodes.ROLL_POSITION, selectedSeries?.id);
+  /* Processes to watch */
+  const { txProcess: closeProcess, resetProcess: resetCloseProcess } = useProcess(
+    ActionCodes.CLOSE_POSITION,
+    selectedSeries?.id
+  );
+  const { txProcess: rollProcess, resetProcess: resetRollProcess } = useProcess(
+    ActionCodes.ROLL_POSITION,
+    selectedSeries?.id
+  );
 
   /* input validation hoooks */
   const { inputError: closeError } = useInputValidation(closeInput, ActionCodes.CLOSE_POSITION, selectedSeries, [
@@ -94,13 +96,17 @@ const LendPosition = ({ close }: { close: () => void }) => {
     !rollDisabled && rollToSeries && rollPosition(rollInput, selectedSeries!, rollToSeries);
   };
 
-  const handleRedeem = () => {
-    redeem(selectedSeries!, undefined);
-  };
-
   const resetInputs = (actionCode: ActionCodes) => {
-    if (actionCode === ActionCodes.CLOSE_POSITION) setCloseInput(undefined);
-    if (actionCode === ActionCodes.ROLL_POSITION) setRollInput(undefined);
+    if (actionCode === ActionCodes.CLOSE_POSITION) {
+      handleStepper(true);
+      setCloseInput(undefined);
+      resetCloseProcess();
+    }
+    if (actionCode === ActionCodes.ROLL_POSITION) {
+      handleStepper(true);
+      setRollInput(undefined);
+      resetRollProcess();
+    }
   };
 
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
@@ -109,11 +115,16 @@ const LendPosition = ({ close }: { close: () => void }) => {
     !rollInput || !rollToSeries || rollError ? setRollDisabled(true) : setRollDisabled(false);
   }, [closeInput, closeError, rollInput, rollToSeries, rollError]);
 
+  /* Watch process timeouts */
+  useEffect(() => {
+    closeProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs(ActionCodes.CLOSE_POSITION);
+    rollProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs(ActionCodes.ROLL_POSITION);
+  }, [closeProcess?.stage, rollProcess?.stage]);
+
   /* INTERNAL COMPONENTS */
   const CompletedTx = (props: any) => (
     <>
       <NextButton
-        // size="xsmall"
         label={<Text size={mobile ? 'xsmall' : undefined}>Go back</Text>}
         onClick={() => {
           props.resetTx();
@@ -121,9 +132,6 @@ const LendPosition = ({ close }: { close: () => void }) => {
           resetInputs(props.actionCode);
         }}
       />
-      {/* {props.tx.failed &&
-      <EtherscanButton txHash={props.tx.txHash} />
-      } */}
     </>
   );
 
@@ -132,16 +140,16 @@ const LendPosition = ({ close }: { close: () => void }) => {
       {selectedSeries && (
         <ModalWrap series={selectedSeries}>
           <CenterPanelWrap>
-
             <Box fill gap="small" pad={mobile ? 'medium' : 'large'}>
-
               <Box height={{ min: '250px' }} gap="2em">
                 <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
                   <Box direction="row" align="center" gap="medium">
                     <PositionAvatar position={selectedSeries!} actionType={ActionType.LEND} />
                     <Box>
                       <Text size={mobile ? 'medium' : 'large'}> {selectedSeries?.displayName} </Text>
-                      <CopyWrap><Text size="small"> {abbreviateHash(selectedSeries?.fyTokenAddress!, 6)}</Text></CopyWrap>
+                      <CopyWrap>
+                        <Text size="small"> {abbreviateHash(selectedSeries?.fyTokenAddress!, 6)}</Text>
+                      </CopyWrap>
                     </Box>
                   </Box>
                   {/* <ExitButton action={() => history.goBack()} /> */}
@@ -207,7 +215,7 @@ const LendPosition = ({ close }: { close: () => void }) => {
                           <TextInput
                             plain
                             type="number"
-                            placeholder='Amount to reclaim'
+                            placeholder="Amount to reclaim"
                             value={closeInput || ''}
                             onChange={(event: any) => setCloseInput(cleanValue(event.target.value))}
                             disabled={!selectedSeries}
@@ -224,20 +232,19 @@ const LendPosition = ({ close }: { close: () => void }) => {
                     )}
 
                     {stepPosition[0] !== 0 && (
-                      <ActiveTransaction pad tx={closeTx}>
-                        <SectionWrap
-                          title="Review your redeem transaction"
-                          rightAction={<CancelButton action={() => handleStepper(true)} />}
-                        >
-                          <Box margin={{ top: 'medium' }}>
-                            <InfoBite
-                              label={`Redeem Position ${selectedBase?.symbol}`}
-                              icon={<FiArrowRight />}
-                              value={`${cleanValue(closeInput, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
-                              loading={seriesLoading}
-                            />
-                          </Box>
-                        </SectionWrap>
+                      <ActiveTransaction
+                        pad
+                        txProcess={closeProcess}
+                        cancelAction={() => resetInputs(ActionCodes.CLOSE_POSITION)}
+                      >
+                        <Box margin={{ top: 'medium' }}>
+                          <InfoBite
+                            label={`Redeem Position ${selectedBase?.symbol}`}
+                            icon={<FiArrowRight />}
+                            value={`${cleanValue(closeInput, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
+                            loading={seriesLoading}
+                          />
+                        </Box>
                       </ActiveTransaction>
                     )}
                   </>
@@ -278,22 +285,21 @@ const LendPosition = ({ close }: { close: () => void }) => {
                     )}
 
                     {stepPosition[actionActive.index] !== 0 && (
-                      <ActiveTransaction pad tx={rollTx}>
-                        <SectionWrap
-                          title="Review your roll transaction"
-                          rightAction={<CancelButton action={() => handleStepper(true)} />}
-                        >
-                          <Box margin={{ top: 'medium' }}>
-                            <InfoBite
-                              label="Roll To Series"
-                              icon={<FiArrowRight />}
-                              value={` Roll${rollTx.pending ? 'ing' : ''}  ${cleanValue(
-                                rollInput,
-                                selectedBase?.digitFormat!
-                              )} ${selectedBase?.symbol} to ${rollToSeries?.displayName}`}
-                            />
-                          </Box>
-                        </SectionWrap>
+                      <ActiveTransaction
+                        pad
+                        txProcess={rollProcess}
+                        cancelAction={() => resetInputs(ActionCodes.ROLL_POSITION)}
+                      >
+                        <Box margin={{ top: 'medium' }}>
+                          <InfoBite
+                            label="Roll To Series"
+                            icon={<FiArrowRight />}
+                            value={` Roll${rollProcess?.processActive ? 'ing' : ''}  ${cleanValue(
+                              rollInput,
+                              selectedBase?.digitFormat!
+                            )} ${selectedBase?.symbol} to ${rollToSeries?.displayName}`}
+                          />
+                        </Box>
                       </ActiveTransaction>
                     )}
                   </>
@@ -316,50 +322,57 @@ const LendPosition = ({ close }: { close: () => void }) => {
 
               {actionActive.index === 0 &&
                 stepPosition[actionActive.index] !== 0 &&
-                !(closeTx.failed || closeTx.success) && (
+                closeProcess?.stage !== ProcessStage.PROCESS_COMPLETE &&
+                closeProcess?.stage !== ProcessStage.PROCESS_COMPLETE_TIMEOUT && (
                   <TransactButton
                     primary
                     label={
                       <Text size={mobile ? 'small' : undefined}>
-                        {`Clos${closeTx.processActive ? 'ing' : 'e'} ${
+                        {`Clos${closeProcess?.processActive ? 'ing' : 'e'} ${
                           nFormatter(Number(closeInput), selectedBase?.digitFormat!) || ''
                         } ${selectedBase?.symbol}`}
                       </Text>
                     }
                     onClick={() => handleClosePosition()}
-                    disabled={closeDisabled || closeTx.processActive}
+                    disabled={closeDisabled || closeProcess?.processActive}
                   />
                 )}
 
               {actionActive.index === 1 &&
                 stepPosition[actionActive.index] !== 0 &&
-                !(rollTx.failed || rollTx.success) && (
+                rollProcess?.stage !== ProcessStage.PROCESS_COMPLETE && (
                   <TransactButton
                     primary
                     label={
                       <Text size={mobile ? 'small' : undefined}>
-                        {`Roll${rollTx.processActive ? 'ing' : ''} ${
+                        {`Roll${rollProcess?.processActive ? 'ing' : ''} ${
                           nFormatter(Number(rollInput), selectedBase?.digitFormat!) || ''
                         } ${selectedBase?.symbol}`}
                       </Text>
                     }
                     onClick={() => handleRollPosition()}
-                    disabled={rollDisabled || rollTx.processActive}
+                    disabled={rollDisabled || rollProcess?.processActive}
                   />
                 )}
 
               {stepPosition[actionActive.index] === 1 &&
                 actionActive.index === 0 &&
-                !closeTx.processActive &&
-                (closeTx.failed || closeTx.success) && (
-                  <CompletedTx tx={closeTx} resetTx={resetCloseTx} actionCode={ActionCodes.CLOSE_POSITION} />
+                closeProcess?.stage === ProcessStage.PROCESS_COMPLETE && (
+                  <CompletedTx
+                    tx={closeProcess}
+                    resetTx={() => resetCloseProcess()}
+                    actionCode={ActionCodes.CLOSE_POSITION}
+                  />
                 )}
 
               {stepPosition[actionActive.index] === 1 &&
                 actionActive.index === 1 &&
-                !rollTx.processActive &&
-                (rollTx.failed || rollTx.success) && (
-                  <CompletedTx tx={rollTx} resetTx={() => resetRollTx()} actionCode={ActionCodes.ROLL_POSITION} />
+                rollProcess?.stage === ProcessStage.PROCESS_COMPLETE && (
+                  <CompletedTx
+                    tx={rollProcess}
+                    resetTx={() => resetRollProcess()}
+                    actionCode={ActionCodes.ROLL_POSITION}
+                  />
                 )}
             </ActionButtonGroup>
           </CenterPanelWrap>
