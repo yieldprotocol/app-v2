@@ -4,6 +4,7 @@ import { UserContext } from '../../contexts/UserContext';
 import { ChainContext } from '../../contexts/ChainContext';
 import { IAsset, IStrategy } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
+import { mulDecimal, divDecimal } from '../../utils/yieldMath';
 
 export const usePoolHelpers = (input: string | undefined) => {
   /* STATE FROM CONTEXT */
@@ -32,15 +33,13 @@ export const usePoolHelpers = (input: string | undefined) => {
 
   useEffect(() => {
     if (input && strategy) {
-      console.log(strategy);
       // update the below to get an actual estimated token value based on the input
-      const _poolTokenPreview = BigNumber.from(ethers.utils.parseUnits(input, strategy.decimals));
-
-      console.log(BigNumber.from('100').div(strategy?.strategyTotalSupply!));
+      const _poolTokenPreview = BigNumber.from(ethers.utils.parseUnits(input, strategyBase?.decimals));
       const _poolPercentPreview = cleanValue(
-        _poolTokenPreview.div(strategy?.strategyTotalSupply!).mul(100).toString(),
+        mulDecimal(divDecimal(_poolTokenPreview, strategy.strategyTotalSupply!), '100'),
         2
       );
+
       setPoolPercentPreview(_poolPercentPreview);
     }
   }, [input, strategy, strategyBase]);
