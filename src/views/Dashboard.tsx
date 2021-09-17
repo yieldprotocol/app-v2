@@ -173,6 +173,9 @@ const Dashboard = () => {
       {!mobile && (
         <PanelWrap justify="between" basis="40%">
           <Box margin={{ top: '35%' }} gap="medium" fill>
+            <Box width="5rem" height="2rem">
+              <CurrencyToggle />
+            </Box>
             <DashboardBalanceSummary
               debt={totalDebt!}
               collateral={totalCollateral!}
@@ -181,7 +184,6 @@ const Dashboard = () => {
               loading={vaultsLoading || seriesLoading || pricesLoading || strategiesLoading}
               symbol={currencySettingSymbol}
             />
-            <CurrencyToggle width="50%" />
           </Box>
           <YieldInfo />
         </PanelWrap>
