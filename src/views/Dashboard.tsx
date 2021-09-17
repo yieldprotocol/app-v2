@@ -48,13 +48,12 @@ const Dashboard = () => {
     hideEmptyVaults,
     hideInactiveVaults,
     hideLendPositions,
-    hideStrategyPositions,
+    hidePoolPositions,
     hideLendBalancesSetting,
     hidePoolBalancesSetting,
     currencySetting,
   } = dashSettings;
 
-  const [showEmpty, setShowEmpty] = useState<boolean>(false);
   const [vaultPositions, setVaultPositions] = useState<IVault[]>([]);
   const [lendPositions, setLendPositions] = useState<ISeries[]>([]);
   const [strategyPositions, setStrategyPositions] = useState<IStrategy[]>([]);
@@ -76,20 +75,23 @@ const Dashboard = () => {
       .filter((vault: IVault) => (hideEmptyVaults ? vault.ink.gt(ZERO_BN) || vault.art.gt(ZERO_BN) : true))
       .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1));
     setVaultPositions(_vaultPositions);
-  }, [vaultMap, hideEmptyVaults]);
+  }, [vaultMap, hideEmptyVaults, hideInactiveVaults]);
 
   useEffect(() => {
     const _lendPositions: ISeries[] = Array.from(seriesMap.values())
+      .filter((_series: ISeries) => !hideLendPositions && true)
       .filter((_series: ISeries) => (_series ? _series.fyTokenBalance?.gt(ZERO_BN) : true))
       .filter((_series: ISeries) =>
         hideLendBalancesSetting ? Number(_series.fyTokenBalance_!) > Number(hideLendBalancesSetting) : true
       )
       .sort((_seriesA: ISeries, _seriesB: ISeries) => (_seriesA.fyTokenBalance?.lt(_seriesB.fyTokenBalance!) ? 1 : -1));
     setLendPositions(_lendPositions);
-  }, [seriesMap, hideLendBalancesSetting]);
+  }, [seriesMap, hideLendBalancesSetting, hideLendPositions]);
 
   useEffect(() => {
     const _strategyPositions: IStrategy[] = Array.from(strategyMap.values())
+
+      .filter((_strategy: IStrategy) => !hidePoolPositions && true)
       .filter((_strategy: IStrategy) => (_strategy ? _strategy.accountBalance?.gt(ZERO_BN) : true))
       .filter((_strategy: IStrategy) =>
         hidePoolBalancesSetting ? Number(_strategy.accountBalance!) > Number(hidePoolBalancesSetting) : true
@@ -98,7 +100,7 @@ const Dashboard = () => {
         _strategyA.accountBalance?.gt(_strategyB.accountBalance!) ? 1 : -1
       );
     setStrategyPositions(_strategyPositions);
-  }, [strategyMap, hidePoolBalancesSetting]);
+  }, [strategyMap, hidePoolBalancesSetting, hidePoolPositions]);
 
   useEffect(() => {
     setAllPositions([...vaultPositions, ...lendPositions, ...strategyPositions]);
