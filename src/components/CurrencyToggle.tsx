@@ -4,8 +4,10 @@ import { UserContext } from '../contexts/UserContext';
 
 const CurrencyToggle = (props: any) => {
   const {
-    userState: { currencySetting },
-    userActions: { setCurrencySetting },
+    userState: {
+      dashSettings: { currencySetting },
+    },
+    userActions: { setDashSettings },
   } = useContext(UserContext);
 
   return (
@@ -18,7 +20,7 @@ const CurrencyToggle = (props: any) => {
             pad="small"
             background={currencySetting === 'DAI' ? 'tailwind-blue' : 'tailwind-blue-100'}
             round={{ corner: 'left', size: 'xsmall' }}
-            onClick={() => setCurrencySetting('DAI')}
+            onClick={() => setDashSettings('currencySetting', 'DAI')}
             align="center"
           >
             <Text size="small">USD</Text>
@@ -28,7 +30,7 @@ const CurrencyToggle = (props: any) => {
             pad="small"
             background={currencySetting === 'ETH' ? 'tailwind-blue' : 'tailwind-blue-100'}
             round={{ corner: 'right', size: 'xsmall' }}
-            onClick={() => setCurrencySetting('ETH')}
+            onClick={() => setDashSettings('currencySetting', 'ETH')}
             align="center"
           >
             <Text size="small">ETH</Text>
