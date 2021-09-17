@@ -104,19 +104,18 @@ const PoolPosition = () => {
     selectedSeries && rollToSeries && rollLiquidity(rollInput!, selectedSeries, rollToSeries);
   };
 
-  const resetInputs = 
-    (actionCode: ActionCodes) => {
-      if (actionCode === ActionCodes.REMOVE_LIQUIDITY) {
-        handleStepper(true);
-        setRemoveInput(undefined);
-        resetRemoveProcess();
-      }
-      if (actionCode === ActionCodes.ROLL_LIQUIDITY) {
-        handleStepper(true);
-        setRollInput(undefined);
-        resetRollProcess();
-      }
-    };
+  const resetInputs = (actionCode: ActionCodes) => {
+    if (actionCode === ActionCodes.REMOVE_LIQUIDITY) {
+      handleStepper(true);
+      setRemoveInput(undefined);
+      resetRemoveProcess();
+    }
+    if (actionCode === ActionCodes.ROLL_LIQUIDITY) {
+      handleStepper(true);
+      setRollInput(undefined);
+      resetRollProcess();
+    }
+  };
 
   /* SET MAX VALUES */
   useEffect(() => {
@@ -201,7 +200,7 @@ const PoolPosition = () => {
                     {selectedStrategy.currentSeries && (
                       <InfoBite
                         label="Strategy Token percentage"
-                        value={`${cleanValue(selectedStrategy?.accountStrategyPercent, 4)} %  of ${nFormatter(
+                        value={`${cleanValue(selectedStrategy?.accountStrategyPercent, 2)} %  of ${nFormatter(
                           parseFloat(selectedStrategy?.strategyTotalSupply_!),
                           2
                         )}`}
@@ -213,7 +212,7 @@ const PoolPosition = () => {
                     {selectedStrategy.currentSeries && (
                       <InfoBite
                         label="Returns in current Pool"
-                        value={`${cleanValue(selectedStrategy?.accountStrategyPercent, 4)}% `}
+                        value={`${cleanValue(selectedStrategy?.accountStrategyPercent, 2)}% `}
                         icon={<FiTrendingUp />}
                         loading={seriesLoading}
                       />
