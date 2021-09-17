@@ -7,7 +7,7 @@ import ParticlesBg from 'particles-bg';
 
 import { UserContext } from '../contexts/UserContext';
 import { useProcess } from '../hooks/useProcess';
-import { ActionCodes, ApprovalType, IYieldProcess, ProcessStage, TxState } from '../types';
+import { ActionCodes, ApprovalType, ISeries, IYieldProcess, ProcessStage, TxState } from '../types';
 import { abbreviateHash } from '../utils/appUtils';
 import EtherscanButton from './buttons/EtherscanButton';
 import CopyWrap from './wraps/CopyWrap';
@@ -70,21 +70,22 @@ const ActiveTransaction = ({
 }) => {
 
   const {
-    userState: { approvalMethod },
+    userState: { approvalMethod, selectedSeriesId, seriesMap  },
   } = useContext(UserContext);
 
   const { pathname } = useLocation();
 
+  const [series, setSeries] = useState<ISeries>();
   const [iconSize, setIconSize] = useState<string>(full ? '2.5em' : '1.5em');
 
   const activeProcess = txProcess;
 
   useEffect(()=>{
-
-  })
+    selectedSeriesId && setSeries( seriesMap.get(selectedSeriesId) )
+  }, [selectedSeriesId, seriesMap] )
 
   return (
-    <Box pad={pad ? { horizontal: 'small', vertical: 'medium' } : undefined} >
+    <Box pad={pad ? { vertical: 'medium' } : undefined} >
 
       {!full &&
       (activeProcess?.stage === ProcessStage.PROCESS_INACTIVE || !activeProcess) &&
@@ -94,8 +95,9 @@ const ActiveTransaction = ({
         </Box>
       }
       <Box 
-        background='gradient-transparent' 
-        round='xsmall'
+      // background={ `linear-gradient( ${series?.startColor?.toString().concat('80')} , ${series?.endColor?.toString().concat('80')} )`} 
+      background='gradient-transparent'
+      round='xsmall'
       > 
 
       {(activeProcess?.stage === ProcessStage.PROCESS_INACTIVE || !activeProcess) && (

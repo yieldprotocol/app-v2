@@ -82,14 +82,11 @@ const LendPosition = () => {
   ]);
 
   /* LOCAL FNS */
-  const handleStepper = useCallback(
-    (back: boolean = false) => {
-      const step = back ? -1 : 1;
-      const newStepArray = stepPosition.map((x: any, i: number) => (i === actionActive.index ? x + step : x));
-      setStepPosition(newStepArray);
-    },
-    [actionActive.index, stepPosition]
-  );
+  const handleStepper = (back: boolean = false) => {
+    const step = back ? -1 : 1;
+    const newStepArray = stepPosition.map((x: any, i: number) => (i === actionActive.index ? x + step : x));
+    setStepPosition(newStepArray);
+  };
 
   const handleClosePosition = () => {
     !closeDisabled && closePosition(closeInput, selectedSeries!);
@@ -99,21 +96,18 @@ const LendPosition = () => {
     !rollDisabled && rollToSeries && rollPosition(rollInput, selectedSeries!, rollToSeries);
   };
 
-  const resetInputs = useCallback(
-    (actionCode: ActionCodes) => {
-      if (actionCode === ActionCodes.CLOSE_POSITION) {
-        handleStepper(true);
-        setCloseInput(undefined);
-        resetCloseProcess();
-      }
-      if (actionCode === ActionCodes.ROLL_POSITION) {
-        handleStepper(true);
-        setRollInput(undefined);
-        resetRollProcess();
-      }
-    },
-    [handleStepper, resetCloseProcess, resetRollProcess]
-  );
+  const resetInputs = (actionCode: ActionCodes) => {
+    if (actionCode === ActionCodes.CLOSE_POSITION) {
+      handleStepper(true);
+      setCloseInput(undefined);
+      resetCloseProcess();
+    }
+    if (actionCode === ActionCodes.ROLL_POSITION) {
+      handleStepper(true);
+      setRollInput(undefined);
+      resetRollProcess();
+    }
+  };
 
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
   useEffect(() => {
@@ -125,7 +119,7 @@ const LendPosition = () => {
   useEffect(() => {
     closeProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs(ActionCodes.CLOSE_POSITION);
     rollProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs(ActionCodes.ROLL_POSITION);
-  }, [closeProcess?.stage, resetInputs, rollProcess?.stage]);
+  }, [closeProcess?.stage, rollProcess?.stage]);
 
   /* INTERNAL COMPONENTS */
   const CompletedTx = (props: any) => (
@@ -243,14 +237,14 @@ const LendPosition = () => {
                         txProcess={closeProcess}
                         cancelAction={() => resetInputs(ActionCodes.CLOSE_POSITION)}
                       >
-                          <Box margin={{ top: 'medium' }}>
-                            <InfoBite
-                              label={`Redeem Position ${selectedBase?.symbol}`}
-                              icon={<FiArrowRight />}
-                              value={`${cleanValue(closeInput, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
-                              loading={seriesLoading}
-                            />
-                          </Box>
+                        <Box margin={{ top: 'medium' }}>
+                          <InfoBite
+                            label={`Redeem Position ${selectedBase?.symbol}`}
+                            icon={<FiArrowRight />}
+                            value={`${cleanValue(closeInput, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
+                            loading={seriesLoading}
+                          />
+                        </Box>
                       </ActiveTransaction>
                     )}
                   </>
@@ -296,16 +290,16 @@ const LendPosition = () => {
                         txProcess={rollProcess}
                         cancelAction={() => resetInputs(ActionCodes.ROLL_POSITION)}
                       >
-                          <Box margin={{ top: 'medium' }}>
-                            <InfoBite
-                              label="Roll To Series"
-                              icon={<FiArrowRight />}
-                              value={` Roll${rollProcess?.processActive ? 'ing' : ''}  ${cleanValue(
-                                rollInput,
-                                selectedBase?.digitFormat!
-                              )} ${selectedBase?.symbol} to ${rollToSeries?.displayName}`}
-                            />
-                          </Box>
+                        <Box margin={{ top: 'medium' }}>
+                          <InfoBite
+                            label="Roll To Series"
+                            icon={<FiArrowRight />}
+                            value={` Roll${rollProcess?.processActive ? 'ing' : ''}  ${cleanValue(
+                              rollInput,
+                              selectedBase?.digitFormat!
+                            )} ${selectedBase?.symbol} to ${rollToSeries?.displayName}`}
+                          />
+                        </Box>
                       </ActiveTransaction>
                     )}
                   </>
@@ -328,7 +322,8 @@ const LendPosition = () => {
 
               {actionActive.index === 0 &&
                 stepPosition[actionActive.index] !== 0 &&
-                closeProcess?.stage !== ProcessStage.PROCESS_COMPLETE && (
+                closeProcess?.stage !== ProcessStage.PROCESS_COMPLETE &&
+                closeProcess?.stage !== ProcessStage.PROCESS_COMPLETE_TIMEOUT && (
                   <TransactButton
                     primary
                     label={

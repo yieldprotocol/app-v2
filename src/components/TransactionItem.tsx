@@ -26,7 +26,7 @@ const TransactionItem = ({ tx, handleRemove, wide }: ITransactionItem) => {
       elevation={wide ? undefined : 'small'}
       pad={wide ? 'xsmall' : 'small'}
       key={t.hash}
-      background="hover"
+      background='white'
       round="xsmall"
     >
       <Box width="3rem">

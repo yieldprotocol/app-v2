@@ -133,11 +133,11 @@ const VaultPosition = () => {
   );
 
   /* LOCAL FNS */
-  const handleStepper = useCallback((back: boolean = false) => {
+  const handleStepper = (back: boolean = false) => {
     const step = back ? -1 : 1;
     const newStepArray = stepPosition.map((x: any, i: number) => (i === actionActive.index ? x + step : x));
     setStepPosition(newStepArray);
-  },[actionActive.index, stepPosition]);
+  };
 
   const handleRepay = () => {
     selectedVault && repay(selectedVault, repayInput?.toString(), reclaimCollateral);
@@ -154,32 +154,29 @@ const VaultPosition = () => {
     }
   };
 
-  const resetInputs = useCallback(
-    (actionCode: ActionCodes) => {
-      switch (actionCode) {
-        case ActionCodes.REPAY:
-          handleStepper(true);
-          setRepayInput(undefined);
-          resetRepayProcess();
-          break;
-        case ActionCodes.ROLL_DEBT:
-          handleStepper(true);
-          resetRollProcess();
-          break;
-        case ActionCodes.ADD_COLLATERAL:
-          handleStepper(true);
-          setAddCollatInput(undefined);
-          resetAddCollateralProcess();
-          break;
-        case ActionCodes.REMOVE_COLLATERAL:
-          handleStepper(true);
-          setRemoveCollatInput(undefined);
-          resetRemoveCollateralProcess();
-          break;
-      }
-    },
-    [handleStepper, resetAddCollateralProcess, resetRemoveCollateralProcess, resetRepayProcess, resetRollProcess]
-  );
+  const resetInputs = (actionCode: ActionCodes) => {
+    switch (actionCode) {
+      case ActionCodes.REPAY:
+        handleStepper(true);
+        setRepayInput(undefined);
+        resetRepayProcess();
+        break;
+      case ActionCodes.ROLL_DEBT:
+        handleStepper(true);
+        resetRollProcess();
+        break;
+      case ActionCodes.ADD_COLLATERAL:
+        handleStepper(true);
+        setAddCollatInput(undefined);
+        resetAddCollateralProcess();
+        break;
+      case ActionCodes.REMOVE_COLLATERAL:
+        handleStepper(true);
+        setRemoveCollatInput(undefined);
+        resetRemoveCollateralProcess();
+        break;
+    }
+  };
 
   /* ACTION DISABLING LOGIC */
   useEffect(() => {
@@ -210,7 +207,7 @@ const VaultPosition = () => {
     addCollateralProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs(ActionCodes.ADD_COLLATERAL);
     removeCollateralProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT &&
       resetInputs(ActionCodes.REMOVE_COLLATERAL);
-  }, [addCollateralProcess, removeCollateralProcess, repayProcess, resetInputs, rollProcess]);
+  }, [addCollateralProcess, removeCollateralProcess, repayProcess, rollProcess]);
 
   return (
     <>
@@ -299,7 +296,7 @@ const VaultPosition = () => {
 
                 {actionActive.index === 0 && (
                   <>
-                    {stepPosition[0] === 0 && (
+                    {stepPosition[actionActive.index] === 0 && (
                       <Box margin={{ top: 'medium' }} gap="medium">
                         <Box gap="xxsmall">
                           <InputWrap
@@ -332,7 +329,7 @@ const VaultPosition = () => {
                       </Box>
                     )}
 
-                    {stepPosition[0] !== 0 && (
+                    {stepPosition[actionActive.index] === 1 && (
                       <ActiveTransaction
                         pad
                         txProcess={repayProcess}
@@ -363,18 +360,18 @@ const VaultPosition = () => {
                     )}
 
                     {stepPosition[actionActive.index] !== 0 && (
-                      <ActiveTransaction 
-                        pad 
+                      <ActiveTransaction
+                        pad
                         txProcess={rollProcess}
                         cancelAction={() => resetInputs(ActionCodes.ADD_COLLATERAL)}
                       >
-                          <Box margin={{ top: 'medium' }}>
-                            <InfoBite
-                              label="Roll Debt to Series"
-                              icon={<FiArrowRight />}
-                              value={`${rollToSeries?.displayName}`}
-                            />
-                          </Box>
+                        <Box margin={{ top: 'medium' }}>
+                          <InfoBite
+                            label="Roll Debt to Series"
+                            icon={<FiArrowRight />}
+                            value={`${rollToSeries?.displayName}`}
+                          />
+                        </Box>
                       </ActiveTransaction>
                     )}
                   </>
@@ -420,13 +417,13 @@ const VaultPosition = () => {
                         txProcess={addCollatInput ? addCollateralProcess : removeCollateralProcess}
                         cancelAction={() => resetInputs(ActionCodes.ADD_COLLATERAL)}
                       >
-                          <Box margin={{ top: 'medium' }}>
-                            <InfoBite
-                              label="Add Collateral"
-                              icon={<FiArrowRight />}
-                              value={`${cleanValue(addCollatInput, vaultIlk?.digitFormat!)} ${vaultIlk?.symbol}`}
-                            />
-                          </Box>
+                        <Box margin={{ top: 'medium' }}>
+                          <InfoBite
+                            label="Add Collateral"
+                            icon={<FiArrowRight />}
+                            value={`${cleanValue(addCollatInput, vaultIlk?.digitFormat!)} ${vaultIlk?.symbol}`}
+                          />
+                        </Box>
                       </ActiveTransaction>
                     )}
                   </>
@@ -467,13 +464,13 @@ const VaultPosition = () => {
                         txProcess={addCollatInput ? addCollateralProcess : removeCollateralProcess}
                         cancelAction={() => resetInputs(ActionCodes.REMOVE_COLLATERAL)}
                       >
-                          <Box margin={{ top: 'medium' }}>
-                            <InfoBite
-                              label="Remove Collateral"
-                              icon={<FiArrowRight />}
-                              value={`${cleanValue(removeCollatInput, vaultIlk?.digitFormat!)} ${vaultIlk?.symbol}`}
-                            />
-                          </Box>
+                        <Box margin={{ top: 'medium' }}>
+                          <InfoBite
+                            label="Remove Collateral"
+                            icon={<FiArrowRight />}
+                            value={`${cleanValue(removeCollatInput, vaultIlk?.digitFormat!)} ${vaultIlk?.symbol}`}
+                          />
+                        </Box>
                       </ActiveTransaction>
                     )}
                   </>

@@ -15,7 +15,6 @@ export const yieldTheme = {
       'hover' : '#ffffff69', 
       'solid' :'#ffffff',
 
-
       'accent-1': '#FFCA58',
       'accent-2': '#81FCED',
       'tailwind-blue': '#2563EB',
@@ -23,13 +22,13 @@ export const yieldTheme = {
       'tailwind-blue-100': '#DBEAFE',
 
       'gradient': {
-        dark: 'linear-gradient(60deg, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82)',
-        light: 'linear-gradient(60deg, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82)',
+        dark: 'linear-gradient(135deg, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82)',
+        light: 'linear-gradient(135deg, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82)',
       },
 
       'gradient-transparent': {
-        dark: '-webkit-linear-gradient(90deg, #f7953380, #f3705580, #ef4e7b80, #a166ab80, #5073b880, #1098ad80, #07b39b80, #6fba8280)',
-        light: '-webkit-linear-gradient(90deg, #f7953380, #f3705580, #ef4e7b80, #a166ab80, #5073b880, #1098ad80, #07b39b80, #6fba8280)',
+        dark: '-webkit-linear-gradient(135deg, #f7953380, #f3705580, #ef4e7b80, #a166ab80, #5073b880, #1098ad80, #07b39b80, #6fba8280)',
+        light: '-webkit-linear-gradient(135deg, #f7953340, #f3705540, #ef4e7b40, #a166ab40, #5073b840, #1098ad40, #07b39b40, #6fba8240)',
       },
 
       text: {

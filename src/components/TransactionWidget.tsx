@@ -11,8 +11,9 @@ import { useProcess } from '../hooks/useProcess';
 const StyledBox = styled(Box)`
   position: absolute;
   top: 6rem;
-  right: 3rem;
-  min-width: 250px;
+  right: 0rem;
+  min-width: 350px;
+  z-index: 500;
 `;
 
 const TransactionWidget = () => {
@@ -37,8 +38,11 @@ const TransactionWidget = () => {
                   fill
                   gap="small"
                   pad="small"
-                  background='-webkit-linear-gradient(90deg, #f7953369, #f3705569, #ef4e7b69, #a166ab69, #5073b869, #1098ad69, #07b39b69, #6fba8269)'
-                  round="xsmall"
+                  elevation="small"
+                  // background='gradient-transparent'
+                  animation={{ type:'slideLeft', size:'large' }}
+                  background='white'
+                  round={{size:"xsmall", corner:"left"}}
                 >
                   <Box width="3rem" align="center">
                     <FiAlertTriangle size="1.5rem" color="#D97706" />
@@ -60,7 +64,7 @@ const TransactionWidget = () => {
                   // elevation="small"
                   gap="small"
                   pad="small"
-                  background="hover"
+                  background='white'
                   round="xsmall"
                 >
                   <Box width="3rem" align="center">

@@ -87,14 +87,11 @@ const PoolPosition = () => {
   ]);
 
   /* LOCAL FNS */
-  const handleStepper = useCallback(
-    (back: boolean = false) => {
-      const step = back ? -1 : 1;
-      const newStepArray = stepPosition.map((x: any, i: number) => (i === actionActive.index ? x + step : x));
-      setStepPosition(newStepArray);
-    },
-    [actionActive.index, stepPosition]
-  );
+  const handleStepper = (back: boolean = false) => {
+    const step = back ? -1 : 1;
+    const newStepArray = stepPosition.map((x: any, i: number) => (i === actionActive.index ? x + step : x));
+    setStepPosition(newStepArray);
+  };
 
   const handleRemove = () => {
     // !removeDisabled &&
@@ -107,7 +104,7 @@ const PoolPosition = () => {
     selectedSeries && rollToSeries && rollLiquidity(rollInput!, selectedSeries, rollToSeries);
   };
 
-  const resetInputs = useCallback(
+  const resetInputs = 
     (actionCode: ActionCodes) => {
       if (actionCode === ActionCodes.REMOVE_LIQUIDITY) {
         handleStepper(true);
@@ -119,9 +116,7 @@ const PoolPosition = () => {
         setRollInput(undefined);
         resetRollProcess();
       }
-    },
-    [handleStepper, resetRemoveProcess, resetRollProcess]
-  );
+    };
 
   /* SET MAX VALUES */
   useEffect(() => {
@@ -144,7 +139,7 @@ const PoolPosition = () => {
   useEffect(() => {
     removeProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs(ActionCodes.REMOVE_LIQUIDITY);
     rollProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs(ActionCodes.ROLL_LIQUIDITY);
-  }, [removeProcess?.stage, resetInputs, rollProcess?.stage]);
+  }, [removeProcess?.stage, rollProcess?.stage]);
 
   /* INTERNAL COMPONENTS */
   const CompletedTx = (props: any) => (
@@ -276,15 +271,13 @@ const PoolPosition = () => {
                         txProcess={removeProcess}
                         cancelAction={() => resetInputs(ActionCodes.REMOVE_LIQUIDITY)}
                       >
-
-                          <Box margin={{ top: 'medium' }}>
-                            <InfoBite
-                              label="Remove Liquidity"
-                              icon={<FiArrowRight />}
-                              value={`${cleanValue(removeInput, selectedBase?.digitFormat!)} liquidity tokens`}
-                            />
-                          </Box>
-
+                        <Box margin={{ top: 'medium' }}>
+                          <InfoBite
+                            label="Remove Liquidity"
+                            icon={<FiArrowRight />}
+                            value={`${cleanValue(removeInput, selectedBase?.digitFormat!)} liquidity tokens`}
+                          />
+                        </Box>
                       </ActiveTransaction>
                     )}
                   </>
@@ -325,15 +318,15 @@ const PoolPosition = () => {
                         txProcess={rollProcess}
                         cancelAction={() => resetInputs(ActionCodes.ROLL_LIQUIDITY)}
                       >
-                          <Box margin={{ top: 'medium' }}>
-                            <InfoBite
-                              label="Roll Liquidity"
-                              icon={<FiArrowRight />}
-                              value={`${cleanValue(rollInput, selectedBase?.digitFormat!)} Liquidity Tokens to ${
-                                rollToSeries?.displayName
-                              } `}
-                            />
-                          </Box>
+                        <Box margin={{ top: 'medium' }}>
+                          <InfoBite
+                            label="Roll Liquidity"
+                            icon={<FiArrowRight />}
+                            value={`${cleanValue(rollInput, selectedBase?.digitFormat!)} Liquidity Tokens to ${
+                              rollToSeries?.displayName
+                            } `}
+                          />
+                        </Box>
                       </ActiveTransaction>
                     )}
                   </>
