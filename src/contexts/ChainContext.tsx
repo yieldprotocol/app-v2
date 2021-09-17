@@ -427,13 +427,12 @@ const ChainProvider = ({ children }: any) => {
             /* if the strategy is already in the cache : */
             if (cachedStrategies.findIndex((_s: any) => _s.address === strategyAddr) === -1) {
               const Strategy = contracts.Strategy__factory.connect(strategyAddr, fallbackLibrary);
-              const [name, symbol, baseId, decimals, version, strategyTotalSupply] = await Promise.all([
+              const [name, symbol, baseId, decimals, version] = await Promise.all([
                 Strategy.name(),
                 Strategy.symbol(),
                 Strategy.baseId(),
                 Strategy.decimals(),
                 Strategy.version(),
-                Strategy.totalSupply(),
               ]);
 
               const newStrategy = {
@@ -444,8 +443,6 @@ const ChainProvider = ({ children }: any) => {
                 version,
                 baseId,
                 decimals,
-                strategyTotalSupply,
-                strategyTotalSupply_: ethers.utils.formatUnits(strategyTotalSupply, decimals),
               };
               // update state and cache
               updateState({ type: 'addStrategy', payload: _chargeStrategy(newStrategy) });

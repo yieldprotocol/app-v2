@@ -469,7 +469,8 @@ const UserProvider = ({ children }: any) => {
       _publicData = await Promise.all(
         strategyList.map(async (_strategy: IStrategyRoot): Promise<IStrategy> => {
           /* Get all the data simultanenously in a promise.all */
-          const [currentSeriesId, currentPoolAddr, nextSeriesId] = await Promise.all([
+          const [strategyTotalSupply, currentSeriesId, currentPoolAddr, nextSeriesId] = await Promise.all([
+            _strategy.strategyContract.totalSupply(),
             _strategy.strategyContract.seriesId(),
             _strategy.strategyContract.pool(),
             _strategy.strategyContract.nextSeriesId(),
@@ -487,6 +488,8 @@ const UserProvider = ({ children }: any) => {
 
             return {
               ..._strategy,
+              strategyTotalSupply,
+              strategyTotalSupply_: ethers.utils.formatUnits(strategyTotalSupply, _strategy.decimals),
               poolTotalSupply,
               poolTotalSupply_: ethers.utils.formatUnits(poolTotalSupply, _strategy.decimals),
               strategyPoolBalance,
@@ -526,7 +529,7 @@ const UserProvider = ({ children }: any) => {
               ]);
 
               const accountStrategyPercent = mulDecimal(
-                divDecimal(accountBalance, BigNumber.from(_strategy.strategyTotalSupply) || '0'),
+                divDecimal(accountBalance, _strategy.strategyTotalSupply || '0'),
                 '100'
               );
 
