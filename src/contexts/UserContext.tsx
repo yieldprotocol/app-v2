@@ -63,7 +63,7 @@ const initState: IUserContextState = {
     showInactiveVaults: false,
     hideInactiveVaults: false,
     hideLendPositions: false,
-    hideStrategyPositions: false,
+    hidePoolPositions: false,
     currencySetting: 'DAI',
     hideLendBalancesSetting: null,
     hidePoolBalancesSetting: null,

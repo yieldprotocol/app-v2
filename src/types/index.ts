@@ -376,7 +376,7 @@ export interface IDashSettings {
   showInactiveVaults: boolean;
   hideInactiveVaults: boolean;
   hideLendPositions: boolean;
-  hideStrategyPositions: boolean;
+  hidePoolPositions: boolean;
   currencySetting: string;
   hideLendBalancesSetting: string | null;
   hidePoolBalancesSetting: string | null;
