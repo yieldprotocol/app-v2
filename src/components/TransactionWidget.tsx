@@ -71,7 +71,7 @@ const TransactionWidget = () => {
                   <FiAlertCircle size="1.5rem" color="#D97706" />
                 </Box>
                 <Box align="start">
-                  <Text size="small">Aproval transaction pending</Text>
+                  <Text size="small">Approval transaction pending</Text>
                   <Text size="xsmall">....</Text>
                 </Box>
               </Box>
