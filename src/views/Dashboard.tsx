@@ -54,10 +54,10 @@ const Dashboard = () => {
   const [strategyPositions, setStrategyPositions] = useState<IStrategy[]>([]);
   const [allPositions, setAllPositions] = useState<(ISeries | IVault | IStrategy)[]>([]);
   const [showEmpty, setShowEmpty] = useState<boolean>(false);
-  const [totalDebt, setTotalDebt] = useState<string | null>(null);
-  const [totalCollateral, setTotalCollateral] = useState<string | null>(null);
-  const [totalLendBalance, setTotalLendBalance] = useState<string | null>(null);
-  const [totalStrategyBalance, setTotalStrategyBalance] = useState<string | null>(null);
+  const [totalDebt, setTotalDebt] = useState<string>('');
+  const [totalCollateral, setTotalCollateral] = useState<string>('');
+  const [totalLendBalance, setTotalLendBalance] = useState<string>('');
+  const [totalStrategyBalance, setTotalStrategyBalance] = useState<string>('');
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
   const currencySettingAssetId = currencySetting === 'ETH' ? WETH : DAI;
   const currencySettingDigits = currencySetting === 'ETH' ? 4 : 2;
