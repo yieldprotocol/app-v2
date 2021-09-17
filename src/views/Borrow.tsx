@@ -274,7 +274,7 @@ const Borrow = () => {
                   </SectionWrap>
 
                   <SectionWrap title="Amount of collateral to add">
-                    <Box direction="row-responsive" gap="small">
+                    <Box direction="row-responsive" gap="medium">
                       <Box basis={mobile ? undefined : '60%'} fill="horizontal">
                         <InputWrap
                           action={() => console.log('maxAction')}
@@ -285,7 +285,7 @@ const Borrow = () => {
                             minSafeCollateral && (
                               <InputInfoWrap action={() => setCollatInput(cleanValue(minSafeCollateral, 12))}>
                                 <Text size="small" color="text-weak">
-                                  Safe Minimum{': '}
+                                  Use Safe Minimum{': '}
                                   {cleanValue(minSafeCollateral, 4)} {selectedIlk?.symbol}
                                 </Text>
                               </InputInfoWrap>
@@ -311,12 +311,6 @@ const Borrow = () => {
                       </Box>
                       <Box basis={mobile ? undefined : '40%'}>
                         <AssetSelector selectCollateral />
-                        {/* <AddTokenToMetamask
-                          address={selectedIlk?.address}
-                          symbol={selectedIlk?.symbol}
-                          decimals={18}
-                          image=""
-                        /> */}
                       </Box>
                     </Box>
                   </SectionWrap>
