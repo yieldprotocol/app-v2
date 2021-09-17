@@ -1,8 +1,7 @@
 import React, { useContext, useState, useCallback, useEffect } from 'react';
 import styled from 'styled-components';
-import { Box, CheckBox, DropButton, ResponsiveContext, Text } from 'grommet';
+import { Box, ResponsiveContext, Text } from 'grommet';
 import { ethers } from 'ethers';
-import { FiChevronDown, FiTool } from 'react-icons/fi';
 import Skeleton from 'react-loading-skeleton';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
@@ -11,11 +10,10 @@ import YieldInfo from '../components/YieldInfo';
 import DashboardBalanceSummary from '../components/DashboardBalanceSummary';
 import MainViewWrap from '../components/wraps/MainViewWrap';
 import PanelWrap from '../components/wraps/PanelWrap';
-import HideBalancesSetting from '../components/HideBalancesSetting';
-import CurrencyToggle from '../components/CurrencyToggle';
 import { ZERO_BN, DAI, WETH } from '../utils/constants';
 import { cleanValue } from '../utils/appUtils';
 import DashboardPositionList from '../components/DashboardPositionList';
+import CurrencyToggle from '../components/CurrencyToggle';
 
 const StyledBox = styled(Box)`
   * {
@@ -51,7 +49,8 @@ const Dashboard = () => {
     hideInactiveVaults,
     hideLendPositions,
     hideStrategyPositions,
-    hideBalancesSetting,
+    hideLendBalancesSetting,
+    hidePoolBalancesSetting,
     currencySetting,
   } = dashSettings;
 
@@ -65,7 +64,6 @@ const Dashboard = () => {
   const [totalCollateral, setTotalCollateral] = useState<string>('');
   const [totalLendBalance, setTotalLendBalance] = useState<string>('');
   const [totalStrategyBalance, setTotalStrategyBalance] = useState<string>('');
-  const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
 
   // currency settings
   const currencySettingAssetId = currencySetting === 'ETH' ? WETH : DAI;
@@ -74,33 +72,33 @@ const Dashboard = () => {
 
   useEffect(() => {
     const _vaultPositions: IVault[] = Array.from(vaultMap.values())
-      .filter((vault: IVault) => hideEmptyVaults || vault.isActive)
+      .filter((vault: IVault) => !hideInactiveVaults || vault.isActive)
       .filter((vault: IVault) => (hideEmptyVaults ? vault.ink.gt(ZERO_BN) || vault.art.gt(ZERO_BN) : true))
       .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1));
     setVaultPositions(_vaultPositions);
-  }, [vaultMap, hideEmptyVaults, showEmpty, hideBalancesSetting]);
+  }, [vaultMap, hideEmptyVaults]);
 
   useEffect(() => {
     const _lendPositions: ISeries[] = Array.from(seriesMap.values())
       .filter((_series: ISeries) => (_series ? _series.fyTokenBalance?.gt(ZERO_BN) : true))
       .filter((_series: ISeries) =>
-        hideBalancesSetting ? Number(_series.fyTokenBalance_!) > Number(hideBalancesSetting) : true
+        hideLendBalancesSetting ? Number(_series.fyTokenBalance_!) > Number(hideLendBalancesSetting) : true
       )
       .sort((_seriesA: ISeries, _seriesB: ISeries) => (_seriesA.fyTokenBalance?.lt(_seriesB.fyTokenBalance!) ? 1 : -1));
     setLendPositions(_lendPositions);
-  }, [seriesMap, hideBalancesSetting]);
+  }, [seriesMap, hideLendBalancesSetting]);
 
   useEffect(() => {
     const _strategyPositions: IStrategy[] = Array.from(strategyMap.values())
       .filter((_strategy: IStrategy) => (_strategy ? _strategy.accountBalance?.gt(ZERO_BN) : true))
       .filter((_strategy: IStrategy) =>
-        hideBalancesSetting ? Number(_strategy.accountBalance!) > Number(hideBalancesSetting) : true
+        hidePoolBalancesSetting ? Number(_strategy.accountBalance!) > Number(hidePoolBalancesSetting) : true
       )
       .sort((_strategyA: IStrategy, _strategyB: IStrategy) =>
         _strategyA.accountBalance?.gt(_strategyB.accountBalance!) ? 1 : -1
       );
     setStrategyPositions(_strategyPositions);
-  }, [strategyMap, hideBalancesSetting]);
+  }, [strategyMap, hidePoolBalancesSetting]);
 
   useEffect(() => {
     setAllPositions([...vaultPositions, ...lendPositions, ...strategyPositions]);
@@ -181,50 +179,7 @@ const Dashboard = () => {
               loading={vaultsLoading || seriesLoading || pricesLoading || strategiesLoading}
               symbol={currencySettingSymbol}
             />
-            <Box>
-              {!vaultsLoading && !seriesLoading && !pricesLoading && !strategiesLoading && (
-                <DropButton
-                  open={settingsOpen}
-                  onOpen={() => setSettingsOpen(true)}
-                  onClose={() => setSettingsOpen(false)}
-                  dropContent={
-                    <Box pad="small">
-                      <HideBalancesSetting width="30%" />
-                      <Box gap="small">
-                        <CurrencyToggle width="50%" />
-                        <Box direction="row" justify="between">
-                          <Text size="small">Show Empty Vaults</Text>
-                          <CheckBox
-                            toggle
-                            checked={showEmpty}
-                            onChange={(event) => setShowEmpty(event.target.checked)}
-                          />
-                        </Box>
-                      </Box>
-                    </Box>
-                  }
-                  dropProps={{ align: { top: 'bottom', left: 'left' } }}
-                  hoverIndicator={{}}
-                  style={{ borderRadius: '6px' }}
-                >
-                  <Box
-                    direction="row"
-                    gap="xsmall"
-                    pad="xsmall"
-                    border={{ color: 'tailwind-blue-100' }}
-                    round="xsmall"
-                    background="tailwind-blue-50"
-                    align="center"
-                    justify="between"
-                    width="8rem"
-                  >
-                    <FiTool size="1rem" />
-                    <Text size="small">Customize</Text>
-                    <FiChevronDown size=".75rem" />
-                  </Box>
-                </DropButton>
-              )}
-            </Box>
+            <CurrencyToggle width="50%" />
           </Box>
           <YieldInfo />
         </PanelWrap>

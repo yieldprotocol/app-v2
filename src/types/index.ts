@@ -59,6 +59,7 @@ export interface IUserContextActions {
   setSelectedBase: (baseId: string | null) => void;
   setSelectedVault: (vaultId: string | null) => void;
   setSelectedStrategy: (strategyAddr: string | null) => void;
+  setDashSettings: (settingName: any, settingValue: any) => void;
 }
 
 export interface ISignable {
@@ -377,5 +378,6 @@ export interface IDashSettings {
   hideLendPositions: boolean;
   hideStrategyPositions: boolean;
   currencySetting: string;
-  hideBalancesSetting: string | null;
+  hideLendBalancesSetting: string | null;
+  hidePoolBalancesSetting: string | null;
 }
