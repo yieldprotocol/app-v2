@@ -10,23 +10,17 @@ const Input = styled(TextInput)`
   padding-right: 0;
 `;
 
-const HideBalancesSetting = (props: any) => {
+const HideBalancesSetting = ({ settingName, settingValue }: { settingName: string; settingValue: string | null }) => {
   const {
-    userState: { hideBalancesSetting },
-    userActions: { setHideBalancesSetting },
+    userActions: { setDashSettings },
   } = useContext(UserContext);
 
   return (
     <Box gap="xsmall">
-      <Box direction="row" gap="xsmall">
-        <Text size="small">Hide Balances Below</Text>
-        <Tip content={<Text size="xsmall">in position balance</Text>} dropProps={{ align: { left: 'right' } }}>
-          <Text size="small">
-            <FiInfo />
-          </Text>
-        </Tip>
+      <Box direction="row" gap="xsmall" justify="start">
+        <Text size="xsmall">Hide Balances Below</Text>
       </Box>
-      <InputWrap border={{ color: 'tailwind-blue' }} width={props.width}>
+      <InputWrap border={{ color: 'tailwind-blue' }}>
         <Input
           textAlign="center"
           style={{ paddingLeft: 'none', paddingRight: 'none' }}
@@ -34,8 +28,8 @@ const HideBalancesSetting = (props: any) => {
           plain
           type="number"
           placeholder=".01"
-          value={hideBalancesSetting || ''}
-          onChange={(event: any) => setHideBalancesSetting(event.target.value !== '' ? event.target.value : null)}
+          value={settingValue || ''}
+          onChange={(event: any) => setDashSettings(settingName, event.target.value !== '' ? event.target.value : null)}
         />
       </InputWrap>
     </Box>
