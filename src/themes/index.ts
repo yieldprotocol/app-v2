@@ -114,9 +114,6 @@ export const yieldTheme = {
       zIndex: '20',
     },
     zIndex: '15',
-    // overlay: {
-    //   background: '#000000BF', // 60% - 96
-    // },
     border: {
       radius: 'xsmall',
       // intelligentRounding: true,
@@ -127,6 +124,10 @@ export const yieldTheme = {
 
     // @ts-ignore
     extend: () => css`
+
+    backdrop-filter: ${(props: LayerProps) => (true ? 'blur(3px)' : 'none')};
+    -webkit-backdrop-filter: ${(props: LayerProps) => (true ? 'blur(3px)' : 'none')};
+
       input::-webkit-outer-spin-button,
       input::-webkit-inner-spin-button {
         -webkit-appearance: none;
