@@ -21,7 +21,8 @@ function StrategyPositionSelector() {
 
   /* STATE FROM CONTEXT */
   const { userState, userActions } = useContext(UserContext) as IUserContext;
-  const { assetMap, seriesMap, strategyMap, selectedSeriesId, selectedBaseId, selectedStrategyAddr } = userState;
+  const { activeAccount, assetMap, seriesMap, strategyMap, selectedSeriesId, selectedBaseId, selectedStrategyAddr } =
+    userState;
 
   const selectedSeries = seriesMap.get(selectedSeriesId!);
   const selectedBase = assetMap.get(selectedBaseId!);
@@ -71,7 +72,7 @@ function StrategyPositionSelector() {
 
   return (
     <Box justify="end" fill>
-      {allPositions.length !== 0 && (
+      {activeAccount && allPositions.length !== 0 && (
         <Box justify="between" alignSelf="end" gap="small" pad="small" background="hover" round="xsmall">
           <Box
             animation="fadeIn"

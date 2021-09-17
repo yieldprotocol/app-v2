@@ -21,7 +21,8 @@ function VaultPositionSelector(target: any) {
   const {
     chainState: { account },
   } = useContext(ChainContext);
-  const { assetMap, vaultMap, seriesMap, selectedSeriesId, selectedBaseId, showInactiveVaults } = userState;
+  const { activeAccount, assetMap, vaultMap, seriesMap, selectedSeriesId, selectedBaseId, showInactiveVaults } =
+    userState;
 
   const selectedBase = assetMap.get(selectedBaseId!);
   const selectedSeries = seriesMap.get(selectedSeriesId!);
@@ -71,9 +72,15 @@ function VaultPositionSelector(target: any) {
   return (
     account && (
       <Box justify="end" fill>
-        {allVaults.length > 0 && (
+        {activeAccount && allVaults.length > 0 && (
           <Box justify="between" alignSelf="end" gap="small" pad="small" background="hover" round="xsmall">
-            <Box animation="fadeIn" justify="between" direction="row" gap="small" pad={{ horizontal: 'medium', vertical:'xsmall' }}>
+            <Box
+              animation="fadeIn"
+              justify="between"
+              direction="row"
+              gap="small"
+              pad={{ horizontal: 'medium', vertical: 'xsmall' }}
+            >
               <Text size="small" color="text-weak" textAlign="center">
                 {showAllVaults ? 'All vaults' : 'Filtered vaults '}
               </Text>
