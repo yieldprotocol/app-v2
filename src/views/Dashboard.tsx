@@ -163,7 +163,7 @@ const Dashboard = () => {
     <MainViewWrap>
       {!mobile && (
         <PanelWrap justify="between" basis="40%">
-          <Box margin={{ top: '35%' }} gap="medium">
+          <Box margin={{ top: '35%' }} gap="medium" fill>
             <DashboardBalanceSummary
               debt={totalDebt!}
               collateral={totalCollateral!}
