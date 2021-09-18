@@ -1,10 +1,11 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Box, RadioButtonGroup, ResponsiveContext, Text, TextInput } from 'grommet';
+import { Box, RadioButtonGroup, ResponsiveContext, Text, TextInput, Tip } from 'grommet';
 
 import { ethers } from 'ethers';
 
-import { FiClock, FiPercent } from 'react-icons/fi';
+import { FiClock, FiInfo, FiPercent } from 'react-icons/fi';
 import { BiCoinStack, BiMessageSquareAdd } from 'react-icons/bi';
+import { MdAutorenew } from 'react-icons/md';
 import { cleanValue, nFormatter } from '../utils/appUtils';
 import AssetSelector from '../components/selectors/AssetSelector';
 import MainViewWrap from '../components/wraps/MainViewWrap';
@@ -29,6 +30,7 @@ import YieldCardHeader from '../components/YieldCardHeader';
 import { useAddLiquidity } from '../hooks/actionHooks/useAddLiquidity';
 import StrategySelector from '../components/selectors/StrategySelector';
 import ColorText from '../components/texts/ColorText';
+import { usePoolHelpers } from '../hooks/actionHelperHooks/usePoolHelpers';
 import { useProcess } from '../hooks/useProcess';
 
 function Pool() {
@@ -36,19 +38,21 @@ function Pool() {
 
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, assetMap, seriesMap, selectedSeriesId, selectedBaseId } = userState;
+  const { activeAccount, assetMap, seriesMap, selectedSeriesId, selectedBaseId, selectedStrategyAddr, strategyMap } =
+    userState;
   const selectedSeries = seriesMap.get(selectedSeriesId!);
   const selectedBase = assetMap.get(selectedBaseId!);
+  const selectedStrategy = strategyMap.get(selectedStrategyAddr!);
 
   /* LOCAL STATE */
   const [poolInput, setPoolInput] = useState<string | undefined>(undefined);
-  const [maxPool, setMaxPool] = useState<string | undefined>();
   const [poolDisabled, setPoolDisabled] = useState<boolean>(true);
   const [poolMethod, setPoolMethod] = useState<'BUY' | 'BORROW'>('BUY');
   const [stepPosition, setStepPosition] = useState<number>(0);
 
   /* HOOK FNS */
   const addLiquidity = useAddLiquidity();
+  const { maxPool, poolPercentPreview } = usePoolHelpers(poolInput);
 
   /* input validation hooks */
   const { inputError: poolError } = useInputValidation(poolInput, ActionCodes.ADD_LIQUIDITY, selectedSeries, [
@@ -61,24 +65,14 @@ function Pool() {
   /* LOCAL ACTION FNS */
   const handleAdd = () => {
     // !poolDisabled &&
+    // TODO update for strategy
     selectedSeries && addLiquidity(poolInput!, selectedSeries, poolMethod);
   };
 
-  /* SET MAX VALUES */
-  useEffect(() => {
-    if (activeAccount) {
-      /* Checks asset selection and sets the max available value */
-      (async () => {
-        const max = await selectedBase?.getBalance(activeAccount);
-        if (max) setMaxPool(ethers.utils.formatUnits(max, selectedSeries?.decimals).toString());
-      })();
-    }
-  }, [activeAccount, poolInput, selectedBase, setMaxPool]);
-
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
   useEffect(() => {
-    !activeAccount || !poolInput || !selectedSeries || poolError ? setPoolDisabled(true) : setPoolDisabled(false);
-  }, [poolInput, activeAccount, poolError, selectedSeries]);
+    !activeAccount || !poolInput || poolError || !selectedStrategy ? setPoolDisabled(true) : setPoolDisabled(false);
+  }, [poolInput, activeAccount, poolError, selectedStrategy]);
 
   const resetInputs = useCallback(() => {
     setPoolInput(undefined);
@@ -171,7 +165,19 @@ function Pool() {
                   {!selectedSeries?.seriesIsMature && (
                     <SectionWrap>
                       <Box direction="row" justify="between" fill align="center">
-                        {!mobile && <Text size="small"> Pooling method: </Text>}
+                        {!mobile && (
+                          <Box direction="row" gap="xsmall">
+                            <Text size="small">Pooling method:</Text>
+                            {/* <Tip
+                              content={<Text size="xsmall">some info</Text>}
+                              dropProps={{ align: { bottom: 'top' } }}
+                            >
+                              <Text size="small">
+                                <FiInfo />
+                              </Text>
+                            </Tip> */}
+                          </Box>
+                        )}
                         <RadioButtonGroup
                           name="strategy"
                           options={[
@@ -199,13 +205,13 @@ function Pool() {
                         icon={<BiMessageSquareAdd />}
                         value={`${cleanValue(poolInput, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
                       />
-                      <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
-                      <InfoBite
+                      <InfoBite label="Strategy" icon={<MdAutorenew />} value={`${selectedStrategy?.name}`} />
+                      {/* <InfoBite
                         label="Amount of liquidity tokens recieved"
                         icon={<BiCoinStack />}
                         value={`${'[todo]'} Liquidity tokens`}
-                      />
-                      <InfoBite label="Percentage of pool" icon={<FiPercent />} value={`${'[todo]'}%`} />
+                      /> */}
+                      <InfoBite label="Percentage of pool" icon={<FiPercent />} value={`~${poolPercentPreview}%`} />
                     </Box>
                   </SectionWrap>
                 </Box>

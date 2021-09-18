@@ -191,6 +191,7 @@ export interface IStrategy extends IStrategyRoot {
   nextSeries: ISeries | undefined;
   active: boolean;
 
+
   currentInvariant?: BigNumber;
 
   strategyTotalSupply?: BigNumber;

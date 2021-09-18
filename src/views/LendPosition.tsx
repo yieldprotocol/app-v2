@@ -85,7 +85,8 @@ const LendPosition = () => {
   const handleStepper = (back: boolean = false) => {
     const step = back ? -1 : 1;
     const newStepArray = stepPosition.map((x: any, i: number) => (i === actionActive.index ? x + step : x));
-    setStepPosition(newStepArray);
+    const validatedSteps = newStepArray.map((x: number) => (x >= 0 ? x : 0));
+    setStepPosition(validatedSteps);
   };
 
   const handleClosePosition = () => {
