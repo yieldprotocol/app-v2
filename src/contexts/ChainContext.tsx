@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ContractFactory, ethers } from 'ethers';
+import { ContractFactory, ethers, utils } from 'ethers';
 import { useWeb3React } from '@web3-react/core';
 import { InjectedConnector } from '@web3-react/injected-connector';
 import { NetworkConnector } from '@web3-react/network-connector';
@@ -14,7 +14,7 @@ import * as yieldEnv from './yieldEnv.json';
 import * as contracts from '../contracts';
 import { IAssetRoot, ISeriesRoot, IStrategyRoot } from '../types';
 
-import { ETH_BASED_ASSETS } from '../utils/constants';
+import { ETH_BASED_ASSETS, USDC } from '../utils/constants';
 import { nameFromMaturity, getSeason, SeasonType } from '../utils/appUtils';
 
 import DaiMark from '../components/logos/DaiMark';
@@ -279,7 +279,7 @@ const ChainProvider = ({ children }: any) => {
 
             // console.log(symbol, ':', id);
             // TODO check if any other tokens have different versions. maybe abstract this logic somewhere?
-            const version = id === '0x555344430000' ? '2' : '1';
+            const version = id === USDC ? '2' : '1';
 
             const newAsset = {
               id,
