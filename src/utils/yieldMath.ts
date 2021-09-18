@@ -165,7 +165,7 @@ export function burn(
  * @param { BigNumber | string } fyToken
  * @param { BigNumber | string } timeTillMaturity
  *  @param { number } decimals
- * 
+ *
  * @returns {[BigNumber, BigNumber]}
  */
 export function mintWithBase(
@@ -175,7 +175,7 @@ export function mintWithBase(
   supply: BigNumber | string,
   fyToken: BigNumber | string,
   timeTillMaturity: BigNumber | string,
-  decimals: number = 18,
+  decimals: number = 18
 ): [BigNumber, BigNumber] {
   const Z = new Decimal(baseReserves.toString());
   const YR = new Decimal(fyTokenReservesReal.toString());
@@ -198,8 +198,8 @@ export function mintWithBase(
  * @param { BigNumber | string } totalSupply
  * @param { BigNumber | string } lpTokens
  * @param { BigNumber | string } timeTillMaturity
- * 
-  *  @param { number } decimals
+ *
+ *  @param { number } decimals
  * @returns { BigNumber }
  */
 export function burnForBase(
@@ -209,7 +209,7 @@ export function burnForBase(
   supply: BigNumber,
   lpTokens: BigNumber,
   timeTillMaturity: BigNumber,
-  decimals: number=18,
+  decimals: number = 18
 ): BigNumber {
   // Burn FyToken
   const [z1, y] = burn(baseReserves, fyTokenReservesReal, supply, lpTokens);
@@ -299,7 +299,7 @@ export function sellFYToken(
   const Yxa = fyTokenReserves_.add(fyDai_).pow(a);
   const sum = Za.add(Ya.sub(Yxa));
   const y = baseReserves_.sub(sum.pow(invA));
-  
+
   const yFee = y.sub(precisionFee);
 
   // return yFee.isNaN() ? ethers.constants.Zero : toBn(yFee);

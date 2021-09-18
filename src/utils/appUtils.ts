@@ -223,6 +223,7 @@ export const getPositionPathPrefix = (txCode: string) => {
   switch (action) {
     // BORROW
     case ActionCodes.BORROW:
+    case ActionCodes.ADD_COLLATERAL:
     case ActionCodes.REMOVE_COLLATERAL:
     case ActionCodes.REPAY:
     case ActionCodes.ROLL_DEBT:
