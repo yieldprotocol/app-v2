@@ -89,11 +89,11 @@ export const useAddLiquidity = () => {
         args: [selectedSeriesId, selectedIlkId, '0'] as LadleActions.Args.BUILD,
         ignoreIf: method !== 'BORROW', // TODO exclude if vault is Provided.
       },
-      {
-        operation: LadleActions.Fn.TRANSFER,
-        args: [base.address, base.joinAddress, _baseToFyToken] as LadleActions.Args.TRANSFER,
-        ignoreIf: method !== 'BORROW',
-      },
+      // {
+      //   operation: LadleActions.Fn.TRANSFER,
+      //   args: [base.address, base.joinAddress, _baseToFyToken] as LadleActions.Args.TRANSFER,
+      //   ignoreIf: method !== 'BORROW',
+      // },
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [base.address, series.poolAddress, _baseToPool] as LadleActions.Args.TRANSFER,
@@ -101,7 +101,7 @@ export const useAddLiquidity = () => {
       },
       {
         operation: LadleActions.Fn.POUR,
-        args: [BLANK_VAULT, series.poolAddress, _baseToFyToken, _baseToFyToken] as LadleActions.Args.POUR,
+        args: [BLANK_VAULT, series.poolAddress, '0', _baseToFyToken] as LadleActions.Args.POUR,
         ignoreIf: method !== 'BORROW',
       },
       {

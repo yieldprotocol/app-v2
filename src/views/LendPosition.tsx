@@ -254,7 +254,7 @@ const LendPosition = () => {
                 {actionActive.index === 1 && (
                   <>
                     {stepPosition[actionActive.index] === 0 && (
-                      <Box margin={{ top: 'medium' }} gap="medium">
+                      <Box margin={{ top: 'medium' }} gap="small">
                         <InputWrap
                           action={() => console.log('maxAction')}
                           isError={closeError}

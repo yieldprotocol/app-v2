@@ -129,8 +129,6 @@ export interface IStrategyRoot extends ISignable {
   baseId: string;
   decimals: number;
   strategyContract: Strategy;
-  strategyTotalSupply?: BigNumber;
-  strategyTotalSupply_?: string;
 }
 
 export interface IVaultRoot {
@@ -193,6 +191,12 @@ export interface IStrategy extends IStrategyRoot {
   nextSeries: ISeries | undefined;
   active: boolean;
 
+
+  currentInvariant?: BigNumber;
+
+  strategyTotalSupply?: BigNumber;
+  strategyTotalSupply_?: string;
+
   poolTotalSupply?: BigNumber;
   poolTotalSupply_?: string;
 
@@ -207,6 +211,7 @@ export interface IStrategy extends IStrategyRoot {
   accountPoolBalance?: BigNumber;
   accountPoolBalance_?: string;
   accountPoolPercent?: string | undefined;
+
 }
 
 export interface IPool extends IPoolRoot {}
