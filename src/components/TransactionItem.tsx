@@ -2,8 +2,10 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Box, Text, Spinner } from 'grommet';
 import { FiX, FiCheckCircle, FiXCircle } from 'react-icons/fi';
-import { TxState } from '../types';
+import { ActionCodes, TxState } from '../types';
 import EtherscanButton from './buttons/EtherscanButton';
+import { getPositionPathPrefix, getVaultIdFromReceipt } from '../utils/appUtils';
+import { ChainContext } from '../contexts/ChainContext';
 
 interface ITransactionItem {
   tx: any;
@@ -12,10 +14,19 @@ interface ITransactionItem {
 }
 
 const TransactionItem = ({ tx, handleRemove, wide }: ITransactionItem) => {
-  const { status, txCode, tx: t } = tx;
-  const action = txCode.split('_')[0];
-  const link = txCode.split('_')[1];
+  const {
+    chainState: { contractMap },
+  } = useContext(ChainContext);
+
+  const { status, txCode, tx: t, receipt } = tx;
   console.log(tx);
+
+  /* get position link based on position id */
+  const action = txCode.split('_')[0];
+  const pathPrefix = getPositionPathPrefix(txCode);
+  const positionId =
+    action === ActionCodes.BORROW && receipt ? getVaultIdFromReceipt(receipt, contractMap) : txCode.split('_')[1];
+  const link = `${pathPrefix}/${positionId}`;
 
   return tx.remove ? null : (
     <Box
@@ -26,7 +37,7 @@ const TransactionItem = ({ tx, handleRemove, wide }: ITransactionItem) => {
       elevation={wide ? undefined : 'small'}
       pad={wide ? 'xsmall' : 'small'}
       key={t.hash}
-      background='white'
+      background="white"
       round="xsmall"
     >
       <Box width="3rem">
@@ -40,10 +51,7 @@ const TransactionItem = ({ tx, handleRemove, wide }: ITransactionItem) => {
         </Box>
         <Box direction="row" alignSelf="start">
           {status === TxState.SUCCESSFUL && action !== 'Borrow' ? (
-            <Link
-              to={`${action !== 'Borrow' ? action.toLowerCase() : 'vault'}position/${link}`}
-              style={{ textDecoration: 'none' }}
-            >
+            <Link to={link} style={{ textDecoration: 'none' }}>
               <Text size="xsmall" color="tailwind-blue" style={{ verticalAlign: 'middle' }}>
                 View Position
               </Text>
