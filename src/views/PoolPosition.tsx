@@ -201,7 +201,7 @@ const PoolPosition = () => {
                     {selectedStrategy.currentSeries && (
                       <InfoBite
                         label="Strategy Token percentage"
-                        value={`${cleanValue(selectedStrategy?.accountStrategyPercent, 4)} %  of ${nFormatter(
+                        value={`${cleanValue(selectedStrategy?.accountStrategyPercent, 2)} %  of ${nFormatter(
                           parseFloat(selectedStrategy?.strategyTotalSupply_!),
                           2
                         )}`}
@@ -213,7 +213,7 @@ const PoolPosition = () => {
                     {selectedStrategy.currentSeries && (
                       <InfoBite
                         label="Returns in current Pool"
-                        value={`${cleanValue(selectedStrategy?.accountStrategyPercent, 4)}% `}
+                        value={`${cleanValue(selectedStrategy?.accountStrategyPercent, 2)}% `}
                         icon={<FiTrendingUp />}
                         loading={seriesLoading}
                       />

@@ -7,19 +7,11 @@ import { cleanValue, nFormatter } from '../../utils/appUtils';
 import PositionAvatar from '../PositionAvatar';
 import ItemWrap from '../wraps/ItemWrap';
 
-function StrategyItem({
-  strategy,
-  index,
-  condensed,
-}: {
-  strategy: IStrategy;
-  index: number;
-  condensed?: boolean;
-}) {
+function StrategyItem({ strategy, index, condensed }: { strategy: IStrategy; index: number; condensed?: boolean }) {
   const history = useHistory();
 
   const { userState, userActions } = useContext(UserContext) as IUserContext;
-  
+
   const handleSelect = (_series: IStrategy) => {
     userActions.setSelectedBase(strategy.baseId);
     userActions.setSelectedSeries(strategy.currentSeriesId);
@@ -41,13 +33,13 @@ function StrategyItem({
             {strategy.name}
           </Text>
           <Box direction="row" gap="small">
-              <Text weight={450} size="xsmall">
-                {/* Tokens:  {cleanValue(series.poolTokens_, 2)} */}
-                Tokens: {nFormatter(parseFloat(strategy.accountBalance_!), 2)}
-              </Text>
-              <Text weight={450} size="xsmall">
-                Strategy %: {cleanValue(strategy.accountBalance_, 2)}
-              </Text>
+            <Text weight={450} size="xsmall">
+              {/* Tokens:  {cleanValue(series.poolTokens_, 2)} */}
+              Tokens: {nFormatter(parseFloat(strategy.accountBalance_!), 2)}
+            </Text>
+            <Text weight={450} size="xsmall">
+              Strategy %: {cleanValue(strategy.accountStrategyPercent, 2)}
+            </Text>
           </Box>
         </Box>
       </Box>
