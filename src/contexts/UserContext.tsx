@@ -607,7 +607,6 @@ const UserProvider = ({ children }: any) => {
     updateAssets,
     updateVaults,
     updateStrategies,
-
     updatePrice,
 
     setSelectedVault: (vaultId: string | null) => updateState({ type: 'selectedVaultId', payload: vaultId }),
