@@ -441,10 +441,16 @@ export function fyTokenForMint(
   timeTillMaturity: BigNumber | string,
   decimals: number = 18
 ): string {
-  const baseReserves_ = new Decimal(baseReserves.toString());
-  const fyDaiRealReserves_ = new Decimal(fyTokenRealReserves.toString());
+  /* convert to 18 decimals */
+  const baseReserves18 = decimalNToDecimal18(BigNumber.from(baseReserves), decimals);
+  const fyTokenRealReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenRealReserves), decimals);
+  const fyTokenVirtualReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenVirtualReserves), decimals);
+  const base18 = decimalNToDecimal18(BigNumber.from(base), decimals);
+
+  const baseReserves_ = new Decimal(baseReserves18.toString());
+  const fyDaiRealReserves_ = new Decimal(fyTokenRealReserves18.toString());
+  const base_ = new Decimal(base18.toString());
   const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
-  const base_ = new Decimal(base.toString());
 
   let min = ZERO;
   let max = base_;
@@ -454,11 +460,11 @@ export function fyTokenForMint(
   while (true) {
     const zIn = new Decimal(
       buyFYToken(
-        baseReserves,
-        fyTokenVirtualReserves,
+        baseReserves18,
+        fyTokenVirtualReserves18,
         BigNumber.from(yOut.toFixed(0)),
         timeTillMaturity_.toString(),
-        decimals
+        18
       ).toString()
     );
     const Z_1 = baseReserves_.add(zIn); // New base reserves
@@ -474,8 +480,10 @@ export function fyTokenForMint(
     yOut = yOut.add(min).div(TWO); // bought too much fyToken, buy a bit less
     if (PZ.mul(new Decimal(1.000001)) > pz && pz > PZ) return Decimal.floor(yOut).toFixed(); // Just right
 
+    const yOutFloor = Decimal.floor(yOut)
+    const yOut_ = decimal18ToDecimalN(toBn(yOutFloor), decimals)
     // eslint-disable-next-line no-plusplus
-    if (i++ > 10000) return Decimal.floor(yOut).toFixed();
+    if (i++ > 10000) return yOut_.toString();
   }
 }
 
