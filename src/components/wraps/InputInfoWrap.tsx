@@ -14,10 +14,9 @@ function InputInfoWrap({ action, index, children }: { children: any; index?: num
           align="center"
           animation= { action? undefined : "zoomIn"}
           onClick={action ? () => action() : undefined}
-          justify='center'
           fill='horizontal'
         >
-          {action?  <FiPlayCircle size="1.25rem" color="orange" /> :   <FiInfo size="1.25rem" color="orange" />}
+          {action?  <FiPlayCircle size="1.25rem" color="green" /> :   <FiInfo size="1.25rem" color="orange" />}
           {children}
         </BoxWrap>
   );

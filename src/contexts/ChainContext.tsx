@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ContractFactory, ethers } from 'ethers';
+import { ContractFactory, ethers, utils } from 'ethers';
 import { useWeb3React } from '@web3-react/core';
 import { InjectedConnector } from '@web3-react/injected-connector';
 import { NetworkConnector } from '@web3-react/network-connector';
@@ -14,7 +14,7 @@ import * as yieldEnv from './yieldEnv.json';
 import * as contracts from '../contracts';
 import { IAssetRoot, ISeriesRoot, IStrategyRoot } from '../types';
 
-import { ETH_BASED_ASSETS } from '../utils/constants';
+import { ETH_BASED_ASSETS, USDC } from '../utils/constants';
 import { nameFromMaturity, getSeason, SeasonType } from '../utils/appUtils';
 
 import DaiMark from '../components/logos/DaiMark';
@@ -188,7 +188,6 @@ const ChainProvider = ({ children }: any) => {
   // const [lastSeriesUpdate, setLastSeriesUpdate] = useCachedState('lastSeriesUpdate', 27090000);
   const [lastSeriesUpdate, setLastSeriesUpdate] = useCachedState('lastSeriesUpdate', 0);
 
-
   /**
    * Update on FALLBACK connection/state on network changes (id/library)
    */
@@ -270,16 +269,16 @@ const ChainProvider = ({ children }: any) => {
             const { assetId: id, asset: address } = Cauldron.interface.parseLog(x).args;
             const ERC20 = contracts.ERC20Permit__factory.connect(address, fallbackLibrary);
             /* Add in any extra static asset Data */ // TODO is there any other fixed asset data needed?
-            const [ name, symbol, decimals ] = await Promise.all([
+            const [name, symbol, decimals] = await Promise.all([
               ERC20.name(),
               ERC20.symbol(),
               ERC20.decimals(),
-              // ETH_BASED_ASSETS.includes(id) ? async () =>'1' : ERC20.version()
+              // ERC20.version()
             ]);
 
             // console.log(symbol, ':', id);
             // TODO check if any other tokens have different versions. maybe abstract this logic somewhere?
-            const version = id === '0x555344430000' ? '2' : '1';
+            const version = id === USDC ? '2' : '1';
 
             const newAsset = {
               id,
@@ -337,7 +336,7 @@ const ChainProvider = ({ children }: any) => {
           oppStartColor,
           oppEndColor,
           oppTextColor,
-          seriesMark: <YieldMark colors={[startColor, endColor] } />,
+          seriesMark: <YieldMark colors={[startColor, endColor]} />,
 
           // built-in helper functions:
           getTimeTillMaturity: () => series.maturity - Math.round(new Date().getTime() / 1000),
@@ -373,17 +372,16 @@ const ChainProvider = ({ children }: any) => {
                 const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackLibrary);
                 const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackLibrary);
                 // const baseContract = contracts.ERC20__factory.connect(fyToken, fallbackLibrary);
-                const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol ] =
-                  await Promise.all([
-                    fyTokenContract.name(),
-                    fyTokenContract.symbol(),
-                    fyTokenContract.version(),
-                    fyTokenContract.decimals(),
-                    poolContract.name(),
-                    poolContract.version(),
-                    poolContract.symbol(),
-                    // poolContract.decimals(),
-                  ]);
+                const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol] = await Promise.all([
+                  fyTokenContract.name(),
+                  fyTokenContract.symbol(),
+                  fyTokenContract.version(),
+                  fyTokenContract.decimals(),
+                  poolContract.name(),
+                  poolContract.version(),
+                  poolContract.symbol(),
+                  // poolContract.decimals(),
+                ]);
                 const newSeries = {
                   id,
                   baseId,
@@ -426,11 +424,10 @@ const ChainProvider = ({ children }: any) => {
         const newStrategyList: any[] = [];
         await Promise.all(
           strategyAddresses.map(async (strategyAddr: string) => {
-
             /* if the strategy is already in the cache : */
             if (cachedStrategies.findIndex((_s: any) => _s.address === strategyAddr) === -1) {
               const Strategy = contracts.Strategy__factory.connect(strategyAddr, fallbackLibrary);
-              const [name, symbol, baseId, decimals, version ] = await Promise.all([
+              const [name, symbol, baseId, decimals, version] = await Promise.all([
                 Strategy.name(),
                 Strategy.symbol(),
                 Strategy.baseId(),

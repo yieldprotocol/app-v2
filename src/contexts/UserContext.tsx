@@ -479,22 +479,30 @@ const UserProvider = ({ children }: any) => {
       _publicData = await Promise.all(
         strategyList.map(async (_strategy: IStrategyRoot): Promise<IStrategy> => {
           /* Get all the data simultanenously in a promise.all */
-          const [strategyTotalSupply, currentSeriesId, currentPoolAddr, nextSeriesId] = await Promise.all([
+          const [strategyTotalSupply, currentSeriesId, currentPoolAddr, nextSeriesId ] = await Promise.all([
             _strategy.strategyContract.totalSupply(),
             _strategy.strategyContract.seriesId(),
             _strategy.strategyContract.pool(),
             _strategy.strategyContract.nextSeriesId(),
           ]);
 
-          if (seriesRootMap.has(currentSeriesId)) {
-            const currentSeries = seriesRootMap.get(currentSeriesId);
+          const currentSeries:ISeries = seriesRootMap.get(currentSeriesId);
+
+          if ( seriesRootMap.has(currentSeriesId) ) {
+            // const currentSeries = seriesRootMap.get(currentSeriesId);
             const nextSeries = seriesRootMap.get(nextSeriesId);
-            const [poolTotalSupply, strategyPoolBalance] = await Promise.all([
-              currentSeries?.poolContract.totalSupply(),
-              currentSeries?.poolContract.balanceOf(_strategy.address),
+            console.log(currentSeries?.poolContract.address);
+            
+            const [poolTotalSupply, strategyPoolBalance, currentInvariant, initInvariant ] = await Promise.all([
+              currentSeries.poolContract.totalSupply(),
+              currentSeries.poolContract.balanceOf(_strategy.address),
+              undefined, // currentSeries.poolContract.invariant(),
+              undefined, // _strategy.strategyContract.invariants(currentPoolAddr),
             ]);
 
             const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
+            // const returnRate = currentInvariant && currentInvariant.sub(initInvariant)!;
+            const returnRate = BigNumber.from('0');
 
             return {
               ..._strategy,
@@ -510,6 +518,10 @@ const UserProvider = ({ children }: any) => {
               nextSeriesId,
               currentSeries,
               nextSeries,
+              initInvariant: initInvariant || BigNumber.from('0'),
+              currentInvariant: currentInvariant || BigNumber.from('0'),
+              returnRate,
+              returnRate_: returnRate.toString(),
               active: true,
             };
           }
@@ -612,7 +624,6 @@ const UserProvider = ({ children }: any) => {
     updateAssets,
     updateVaults,
     updateStrategies,
-
     updatePrice,
 
     setSelectedVault: (vaultId: string | null) => updateState({ type: 'selectedVaultId', payload: vaultId }),

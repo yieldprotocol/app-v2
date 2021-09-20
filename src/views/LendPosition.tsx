@@ -85,7 +85,8 @@ const LendPosition = () => {
   const handleStepper = (back: boolean = false) => {
     const step = back ? -1 : 1;
     const newStepArray = stepPosition.map((x: any, i: number) => (i === actionActive.index ? x + step : x));
-    setStepPosition(newStepArray);
+    const validatedSteps = newStepArray.map((x: number) => (x >= 0 ? x : 0));
+    setStepPosition(validatedSteps);
   };
 
   const handleClosePosition = () => {
@@ -253,7 +254,7 @@ const LendPosition = () => {
                 {actionActive.index === 1 && (
                   <>
                     {stepPosition[actionActive.index] === 0 && (
-                      <Box margin={{ top: 'medium' }} gap="medium">
+                      <Box margin={{ top: 'medium' }} gap="small">
                         <InputWrap
                           action={() => console.log('maxAction')}
                           isError={closeError}

@@ -40,14 +40,21 @@ export const useAddLiquidity = () => {
       series.decimals
     );
 
-    const [_baseProportion, _fyTokenPortion] = splitLiquidity(series.baseReserves, series.fyTokenReserves, _input);
-    const _baseToFyToken = _baseProportion;
-    const _baseToPool = _input.sub(_baseProportion);
-
+    const [baseProportion, fyTokenPortion] = splitLiquidity(series.baseReserves, series.fyTokenReserves, _input);
+    
+    const _baseToPool = _input.sub(baseProportion);
+    const _baseToFyToken =  baseProportion;  // just put in the rest of the provided input
+    
     const _inputWithSlippage = calculateSlippage(_input);
 
     const permits: ICallData[] = await sign(
       [
+        // {
+        //   target: base,
+        //   spender: base.joinAddress,
+        //   message: 'Signing ERC20 Token approval',
+        //   ignoreIf: method !== 'BORROW',
+        // },
         {
           target: base,
           spender: 'LADLE',
@@ -109,7 +116,7 @@ export const useAddLiquidity = () => {
         args: [_strategy || account, true, ethers.constants.Zero] as RoutedActions.Args.MINT_POOL_TOKENS, // receiver is _strategyAddr (if it exists) or account
         fnName: RoutedActions.Fn.MINT_POOL_TOKENS,
         targetContract: series.poolContract,
-        ignoreIf: !(method === 'BORROW' && !!_strategy),
+        ignoreIf: method !== 'BORROW',
       },
 
       /* STRATEGY MINTING if strategy address is provided, and is found in the strategyMap, use that address */

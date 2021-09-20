@@ -1,10 +1,11 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Box, RadioButtonGroup, ResponsiveContext, Text, TextInput } from 'grommet';
+import { Box, RadioButtonGroup, ResponsiveContext, Text, TextInput, Tip } from 'grommet';
 
 import { ethers } from 'ethers';
 
-import { FiClock, FiPercent } from 'react-icons/fi';
+import { FiClock, FiInfo, FiPercent } from 'react-icons/fi';
 import { BiCoinStack, BiMessageSquareAdd } from 'react-icons/bi';
+import { MdAutorenew } from 'react-icons/md';
 import { cleanValue, nFormatter } from '../utils/appUtils';
 import AssetSelector from '../components/selectors/AssetSelector';
 import MainViewWrap from '../components/wraps/MainViewWrap';
@@ -29,6 +30,7 @@ import YieldCardHeader from '../components/YieldCardHeader';
 import { useAddLiquidity } from '../hooks/actionHooks/useAddLiquidity';
 import StrategySelector from '../components/selectors/StrategySelector';
 import ColorText from '../components/texts/ColorText';
+import { usePoolHelpers } from '../hooks/actionHelperHooks/usePoolHelpers';
 import { useProcess } from '../hooks/useProcess';
 
 function Pool() {
@@ -36,19 +38,21 @@ function Pool() {
 
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, assetMap, seriesMap, selectedSeriesId, selectedBaseId } = userState;
+  const { activeAccount, assetMap, seriesMap, selectedSeriesId, selectedBaseId, selectedStrategyAddr, strategyMap } =
+    userState;
   const selectedSeries = seriesMap.get(selectedSeriesId!);
   const selectedBase = assetMap.get(selectedBaseId!);
+  const selectedStrategy = strategyMap.get(selectedStrategyAddr!);
 
   /* LOCAL STATE */
   const [poolInput, setPoolInput] = useState<string | undefined>(undefined);
-  const [maxPool, setMaxPool] = useState<string | undefined>();
   const [poolDisabled, setPoolDisabled] = useState<boolean>(true);
   const [poolMethod, setPoolMethod] = useState<'BUY' | 'BORROW'>('BUY');
   const [stepPosition, setStepPosition] = useState<number>(0);
 
   /* HOOK FNS */
   const addLiquidity = useAddLiquidity();
+  const { maxPool, poolPercentPreview } = usePoolHelpers(poolInput);
 
   /* input validation hooks */
   const { inputError: poolError } = useInputValidation(poolInput, ActionCodes.ADD_LIQUIDITY, selectedSeries, [
@@ -61,24 +65,14 @@ function Pool() {
   /* LOCAL ACTION FNS */
   const handleAdd = () => {
     // !poolDisabled &&
+    // TODO update for strategy
     selectedSeries && addLiquidity(poolInput!, selectedSeries, poolMethod);
   };
 
-  /* SET MAX VALUES */
-  useEffect(() => {
-    if (activeAccount) {
-      /* Checks asset selection and sets the max available value */
-      (async () => {
-        const max = await selectedBase?.getBalance(activeAccount);
-        if (max) setMaxPool(ethers.utils.formatUnits(max, selectedSeries?.decimals).toString());
-      })();
-    }
-  }, [activeAccount, poolInput, selectedBase, setMaxPool]);
-
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
   useEffect(() => {
-    !activeAccount || !poolInput || !selectedSeries || poolError ? setPoolDisabled(true) : setPoolDisabled(false);
-  }, [poolInput, activeAccount, poolError, selectedSeries]);
+    !activeAccount || !poolInput || poolError || !selectedStrategy ? setPoolDisabled(true) : setPoolDisabled(false);
+  }, [poolInput, activeAccount, poolError, selectedStrategy]);
 
   const resetInputs = useCallback(() => {
     setPoolInput(undefined);
@@ -100,9 +94,9 @@ function Pool() {
       )}
 
       <CenterPanelWrap series={selectedSeries}>
-        <Box height="100%" pad={mobile ? 'medium' : 'large'}>
+        <Box height="100%" pad={mobile ? 'medium' : { top: 'large', horizontal: 'large' }}>
           {stepPosition === 0 && (
-            <Box gap="large">
+            <Box fill gap="large">
               <YieldCardHeader logo={mobile} series={selectedSeries}>
                 <Box gap={mobile ? undefined : 'xsmall'}>
                   <ColorText size={mobile ? 'medium' : '2rem'}>PROVIDE LIQUIDITY</ColorText>
@@ -166,17 +160,26 @@ function Pool() {
                 )}
               </YieldCardHeader>
 
-              <ActiveTransaction full txProcess={poolProcess}>
-                <Box gap="large">
-                  {!selectedSeries?.seriesIsMature && (
-                    <SectionWrap>
+              <SectionWrap>
                       <Box direction="row" justify="between" fill align="center">
-                        {!mobile && <Text size="small"> Pooling method: </Text>}
+                        {!mobile && (
+                          <Box direction="row" gap="xsmall">
+                            <Text size="small">Pooling method:</Text>
+                            {/* <Tip
+                              content={<Text size="xsmall">some info</Text>}
+                              dropProps={{ align: { bottom: 'top' } }}
+                            >
+                              <Text size="small">
+                                <FiInfo />
+                              </Text>
+                            </Tip> */}
+                          </Box>
+                        )}
                         <RadioButtonGroup
                           name="strategy"
                           options={[
                             { label: <Text size="small"> Buy & pool</Text>, value: 'BUY' },
-                            { label: <Text size="small"> Borrow & Pool </Text>, value: 'BORROW', disabled: true },
+                            { label: <Text size="small"> Borrow & Pool </Text>, value: 'BORROW' },
                           ]}
                           value={poolMethod}
                           onChange={(event: any) => setPoolMethod(event.target.value)}
@@ -185,9 +188,11 @@ function Pool() {
                         />
                       </Box>
                     </SectionWrap>
-                  )}
 
-                  <SectionWrap title="Review transaction:">
+              <ActiveTransaction full txProcess={poolProcess}>
+                <Box gap="large">
+
+                  <SectionWrap >
                     <Box
                       gap="small"
                       pad={{ horizontal: 'large', vertical: 'medium' }}
@@ -199,13 +204,13 @@ function Pool() {
                         icon={<BiMessageSquareAdd />}
                         value={`${cleanValue(poolInput, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
                       />
-                      <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
-                      <InfoBite
+                      <InfoBite label="Strategy" icon={<MdAutorenew />} value={`${selectedStrategy?.name}`} />
+                      {/* <InfoBite
                         label="Amount of liquidity tokens recieved"
                         icon={<BiCoinStack />}
                         value={`${'[todo]'} Liquidity tokens`}
-                      />
-                      <InfoBite label="Percentage of pool" icon={<FiPercent />} value={`${'[todo]'}%`} />
+                      /> */}
+                      <InfoBite label="Strategy Ownership" icon={<FiPercent />} value={`${cleanValue(poolPercentPreview, 2)}%`} />
                     </Box>
                   </SectionWrap>
                 </Box>
@@ -215,7 +220,7 @@ function Pool() {
         </Box>
 
         <ActionButtonGroup pad>
-          {stepPosition !== 1 && !selectedSeries?.seriesIsMature && (
+          {stepPosition !== 1 && (
             <NextButton
               secondary
               label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
@@ -252,7 +257,6 @@ function Pool() {
             )}
 
           {stepPosition === 1 &&
-            !selectedSeries?.seriesIsMature &&
             poolProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
             poolProcess?.tx.status === TxState.FAILED && (
               <>
@@ -264,6 +268,7 @@ function Pool() {
               </>
             )}
         </ActionButtonGroup>
+
       </CenterPanelWrap>
 
       <PanelWrap right basis="40%">

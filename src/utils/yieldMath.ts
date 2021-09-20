@@ -165,7 +165,7 @@ export function burn(
  * @param { BigNumber | string } fyToken
  * @param { BigNumber | string } timeTillMaturity
  *  @param { number } decimals
- * 
+ *
  * @returns {[BigNumber, BigNumber]}
  */
 export function mintWithBase(
@@ -175,7 +175,7 @@ export function mintWithBase(
   supply: BigNumber | string,
   fyToken: BigNumber | string,
   timeTillMaturity: BigNumber | string,
-  decimals: number = 18,
+  decimals: number = 18
 ): [BigNumber, BigNumber] {
   const Z = new Decimal(baseReserves.toString());
   const YR = new Decimal(fyTokenReservesReal.toString());
@@ -198,8 +198,8 @@ export function mintWithBase(
  * @param { BigNumber | string } totalSupply
  * @param { BigNumber | string } lpTokens
  * @param { BigNumber | string } timeTillMaturity
- * 
-  *  @param { number } decimals
+ *
+ *  @param { number } decimals
  * @returns { BigNumber }
  */
 export function burnForBase(
@@ -209,7 +209,7 @@ export function burnForBase(
   supply: BigNumber,
   lpTokens: BigNumber,
   timeTillMaturity: BigNumber,
-  decimals: number=18,
+  decimals: number = 18
 ): BigNumber {
   // Burn FyToken
   const [z1, y] = burn(baseReserves, fyTokenReservesReal, supply, lpTokens);
@@ -299,7 +299,7 @@ export function sellFYToken(
   const Yxa = fyTokenReserves_.add(fyDai_).pow(a);
   const sum = Za.add(Ya.sub(Yxa));
   const y = baseReserves_.sub(sum.pow(invA));
-  
+
   const yFee = y.sub(precisionFee);
 
   // return yFee.isNaN() ? ethers.constants.Zero : toBn(yFee);
@@ -441,10 +441,22 @@ export function fyTokenForMint(
   timeTillMaturity: BigNumber | string,
   decimals: number = 18
 ): string {
-  const baseReserves_ = new Decimal(baseReserves.toString());
-  const fyDaiRealReserves_ = new Decimal(fyTokenRealReserves.toString());
+  /* convert to 18 decimals */
+  const baseReserves18 = decimalNToDecimal18(BigNumber.from(baseReserves), decimals);
+  const fyTokenRealReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenRealReserves), decimals);
+  const fyTokenVirtualReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenVirtualReserves), decimals);
+  const base18 = decimalNToDecimal18(BigNumber.from(base), decimals);
+
+  const baseReserves_ = new Decimal(baseReserves18.toString());
+  const fyDaiRealReserves_ = new Decimal(fyTokenRealReserves18.toString());
+  const base_ = new Decimal(base18.toString());
   const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
-  const base_ = new Decimal(base.toString());
+
+  console.log(decimals);
+  console.log(baseReserves.toString(), baseReserves18.toString());
+  console.log(fyTokenRealReserves.toString(), fyTokenRealReserves18.toString());
+  console.log(fyTokenVirtualReserves.toString(), fyTokenVirtualReserves18.toString());
+  console.log(base.toString(), base18.toString());
 
   let min = ZERO;
   let max = base_;
@@ -454,11 +466,11 @@ export function fyTokenForMint(
   while (true) {
     const zIn = new Decimal(
       buyFYToken(
-        baseReserves,
-        fyTokenVirtualReserves,
+        baseReserves18,
+        fyTokenVirtualReserves18,
         BigNumber.from(yOut.toFixed(0)),
         timeTillMaturity_.toString(),
-        decimals
+        18
       ).toString()
     );
     const Z_1 = baseReserves_.add(zIn); // New base reserves
@@ -472,10 +484,26 @@ export function fyTokenForMint(
 
     if (pz <= PZ) max = yOut;
     yOut = yOut.add(min).div(TWO); // bought too much fyToken, buy a bit less
-    if (PZ.mul(new Decimal(1.000001)) > pz && pz > PZ) return Decimal.floor(yOut).toFixed(); // Just right
+
+    console.log( decimal18ToDecimalN( // (converted back to original decimals)
+    BigNumber.from(Decimal.floor(yOut).toFixed(0)),
+    decimals 
+  ).toString()
+  )
+    // if (PZ.mul(new Decimal(1.000001)) > pz && pz > PZ) return Decimal.floor(yOut).toFixed(0); // Just right
+    if (PZ.mul(new Decimal(1.000001)) > pz && pz > PZ)
+      return decimal18ToDecimalN( // (converted back to original decimals)
+        BigNumber.from(Decimal.floor(yOut).toFixed(0)),
+        decimals 
+      ).toString(); // Just right
 
     // eslint-disable-next-line no-plusplus
-    if (i++ > 10000) return Decimal.floor(yOut).toFixed();
+    if (i++ > 10000)
+      return decimal18ToDecimalN( // (converted back to original decimals)
+        BigNumber.from(Decimal.floor(yOut).toFixed(0)),
+        decimals 
+      ).toString();
+    // if (i++ > 10000) return Decimal.floor(yOut).toFixed(0);
   }
 }
 
