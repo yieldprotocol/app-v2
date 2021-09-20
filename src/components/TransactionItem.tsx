@@ -1,25 +1,27 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { Box, Text, Spinner } from 'grommet';
 import { FiX, FiCheckCircle, FiXCircle } from 'react-icons/fi';
-import { ActionCodes, TxState } from '../types';
+import { ActionCodes, ProcessStage, TxState } from '../types';
 import EtherscanButton from './buttons/EtherscanButton';
 import { getPositionPathPrefix, getVaultIdFromReceipt } from '../utils/appUtils';
 import { ChainContext } from '../contexts/ChainContext';
+import { TxContext } from '../contexts/TxContext';
 
 interface ITransactionItem {
   tx: any;
-  handleRemove?: any;
   wide?: boolean;
 }
 
-const TransactionItem = ({ tx, handleRemove, wide }: ITransactionItem) => {
+const TransactionItem = ({ tx, wide }: ITransactionItem) => {
   const {
     chainState: { contractMap },
   } = useContext(ChainContext);
+  const {
+    txActions: { updateTxStage },
+  } = useContext(TxContext);
 
   const { status, txCode, tx: t, receipt } = tx;
-  console.log(tx);
 
   /* get position link based on position id */
   const action = txCode.split('_')[0];
@@ -28,28 +30,36 @@ const TransactionItem = ({ tx, handleRemove, wide }: ITransactionItem) => {
     action === ActionCodes.BORROW && receipt ? getVaultIdFromReceipt(receipt, contractMap) : txCode.split('_')[1];
   const link = `${pathPrefix}/${positionId}`;
 
-  return tx.remove ? null : (
+  return (
     <Box
       align="center"
       fill
-      direction="row"
-      gap="small"
+      gap="xsmall"
       elevation={wide ? undefined : 'small'}
-      pad={wide ? 'xsmall' : 'small'}
+      pad={wide ? 'xsmall' : 'medium'}
       key={t.hash}
-      background="white"
+      background={wide ? 'tailwind-blue-50' : 'white'}
       round="xsmall"
     >
-      <Box width="3rem">
-        {status === TxState.PENDING && <Spinner color="tailwind-blue" />}
-        {status === TxState.SUCCESSFUL && <FiCheckCircle size="1.5rem" color="#34D399" />}
-        {status === TxState.FAILED && <FiXCircle size="1.5rem" color="#F87171" />}
-      </Box>
-      <Box direction={wide ? 'row' : undefined} gap="small" align="center" justify="between" fill="horizontal">
-        <Box direction="row" justify="start" alignSelf={wide ? undefined : 'start'}>
+      {!wide && (
+        <Box
+          alignSelf="end"
+          onClick={() => updateTxStage(txCode, ProcessStage.PROCESS_COMPLETE_TIMEOUT)}
+          hoverIndicator={{}}
+        >
+          {status === TxState.FAILED && <FiX size="1.2rem" />}
+        </Box>
+      )}
+      <Box direction="row" fill justify="between">
+        <Box direction="row" align="center">
+          <Box width="3rem">
+            {status === TxState.PENDING && <Spinner color="tailwind-blue" />}
+            {status === TxState.SUCCESSFUL && <FiCheckCircle size="1.5rem" color="#34D399" />}
+            {status === TxState.FAILED && <FiXCircle size="1.5rem" color="#F87171" />}
+          </Box>
           <Text size="small">{action}</Text>
         </Box>
-        <Box direction="row" alignSelf="start">
+        <Box align="center" direction="row">
           {status === TxState.SUCCESSFUL && action !== 'Borrow' ? (
             <Link to={link} style={{ textDecoration: 'none' }}>
               <Text size="xsmall" color="tailwind-blue" style={{ verticalAlign: 'middle' }}>
@@ -60,12 +70,11 @@ const TransactionItem = ({ tx, handleRemove, wide }: ITransactionItem) => {
             <EtherscanButton txHash={t.hash} />
           )}
         </Box>
-        {status === TxState.FAILED && <FiX size="1.5rem" />}
       </Box>
     </Box>
   );
 };
 
-TransactionItem.defaultProps = { wide: false, handleRemove: () => null };
+TransactionItem.defaultProps = { wide: false };
 
 export default TransactionItem;
