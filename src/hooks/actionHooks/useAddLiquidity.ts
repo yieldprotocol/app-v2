@@ -40,10 +40,11 @@ export const useAddLiquidity = () => {
       series.decimals
     );
 
-    const [_baseProportion, _fyTokenPortion] = splitLiquidity(series.baseReserves, series.fyTokenReserves, _input);
-    const _baseToFyToken = _baseProportion;
-    const _baseToPool = _input.sub(_baseProportion);
-
+    const [baseProportion, fyTokenPortion] = splitLiquidity(series.baseReserves, series.fyTokenReserves, _input);
+    
+    const _baseToPool = _input.sub(baseProportion);
+    const _baseToFyToken =  baseProportion;  // just put in the rest of the provided input
+    
     const _inputWithSlippage = calculateSlippage(_input);
 
     const permits: ICallData[] = await sign(
@@ -101,7 +102,7 @@ export const useAddLiquidity = () => {
       },
       {
         operation: LadleActions.Fn.POUR,
-        args: [BLANK_VAULT, series.poolAddress, '0', _baseToFyToken] as LadleActions.Args.POUR,
+        args: [BLANK_VAULT, series.poolAddress, _baseToFyToken, _baseToFyToken] as LadleActions.Args.POUR,
         ignoreIf: method !== 'BORROW',
       },
       {
@@ -113,13 +114,13 @@ export const useAddLiquidity = () => {
       },
 
       /* STRATEGY MINTING if strategy address is provided, and is found in the strategyMap, use that address */
-      {
-        operation: LadleActions.Fn.ROUTE,
-        args: [account] as RoutedActions.Args.MINT_STRATEGY_TOKENS,
-        fnName: RoutedActions.Fn.MINT_STRATEGY_TOKENS,
-        targetContract: _strategy && strategyRootMap.get(_strategy).strategyContract,
-        ignoreIf: !_strategy,
-      },
+      // {
+      //   operation: LadleActions.Fn.ROUTE,
+      //   args: [account] as RoutedActions.Args.MINT_STRATEGY_TOKENS,
+      //   fnName: RoutedActions.Fn.MINT_STRATEGY_TOKENS,
+      //   targetContract: _strategy && strategyRootMap.get(_strategy).strategyContract,
+      //   ignoreIf: !_strategy,
+      // },
     ];
 
     await transact(calls, txCode);
