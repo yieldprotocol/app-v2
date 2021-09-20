@@ -140,9 +140,9 @@ const UserProvider = ({ children }: any) => {
   const { chainState } = useContext(ChainContext);
   const { contractMap, account, chainLoading, seriesRootMap, assetRootMap, strategyRootMap, chainId } = chainState;
 
+  /* LOCAL STATE */
   const [userState, updateState] = useReducer(userReducer, initState);
 
-  /* LOCAL STATE */
   const [vaultFromUrl, setVaultFromUrl] = useState<string | null>(null);
 
   /* HOOKS */
@@ -402,6 +402,7 @@ const UserProvider = ({ children }: any) => {
       updateState({ type: 'vaultsLoading', payload: true });
       let _vaultList: IVaultRoot[] = vaultList;
       const Cauldron = contractMap.get('Cauldron');
+      const Witch = contractMap.get('Witch');
 
       /* if vaultList is empty, fetch complete Vaultlist from chain via _getVaults */
       if (vaultList.length === 0) _vaultList = Array.from((await _getVaults()).values());
@@ -420,14 +421,11 @@ const UserProvider = ({ children }: any) => {
           const baseRoot: IAssetRoot = assetRootMap.get(vault.baseId);
           const ilkRoot: IAssetRoot = assetRootMap.get(ilkId);
 
-          // check if witch is the owner (in liquidation process)
-          const isWitchOwner = (yieldEnv.addresses as any)[chainId]?.Witch === owner;
-
           return {
             ...vault,
             owner, // refreshed in case owner has been updated
-            isWitchOwner,
-            isActive: owner === account,
+            isWitchOwner: Witch.address === owner, // check if witch is the owner (in liquidation process)
+            isActive: owner === account, // refreshed in case owner has been updated
             seriesId, // refreshed in case seriesId has been updated
             ilkId, // refreshed in case ilkId has been updated
             ink,
@@ -473,28 +471,30 @@ const UserProvider = ({ children }: any) => {
       _publicData = await Promise.all(
         strategyList.map(async (_strategy: IStrategyRoot): Promise<IStrategy> => {
           /* Get all the data simultanenously in a promise.all */
-          const [strategyTotalSupply, currentSeriesId, currentPoolAddr, nextSeriesId ] = await Promise.all([
+          const [strategyTotalSupply, currentSeriesId, currentPoolAddr, nextSeriesId] = await Promise.all([
             _strategy.strategyContract.totalSupply(),
             _strategy.strategyContract.seriesId(),
             _strategy.strategyContract.pool(),
             _strategy.strategyContract.nextSeriesId(),
           ]);
-          const currentSeries:ISeries = seriesRootMap.get(currentSeriesId);
+          const currentSeries: ISeries = userState.seriesMap.get(currentSeriesId);
 
-          if ( seriesRootMap.has(currentSeriesId) ) {
+          // console.log('CURENT SERIES:', currentSeries && currentSeries.seriesIsMature);
+
+          if (currentSeries && !currentSeries.seriesIsMature) {
             // const currentSeries = seriesRootMap.get(currentSeriesId);
             const nextSeries = seriesRootMap.get(nextSeriesId);
-            
-            const [poolTotalSupply, strategyPoolBalance, currentInvariant, initInvariant ] = await Promise.all([
+
+            const [poolTotalSupply, strategyPoolBalance, currentInvariant, initInvariant] = await Promise.all([
               currentSeries.poolContract.totalSupply(),
               currentSeries.poolContract.balanceOf(_strategy.address),
-              undefined, // currentSeries.poolContract.invariant(),
-              undefined, // _strategy.strategyContract.invariants(currentPoolAddr),
+              currentSeries.poolContract.invariant(),
+              _strategy.strategyContract.invariants(currentPoolAddr),
             ]);
 
             const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
-            // const returnRate = currentInvariant && currentInvariant.sub(initInvariant)!;
-            const returnRate = BigNumber.from('0');
+            const returnRate = currentInvariant && currentInvariant.sub(initInvariant)!;
+            // const returnRate = BigNumber.from('0');
 
             return {
               ..._strategy,
@@ -586,18 +586,22 @@ const UserProvider = ({ children }: any) => {
     if (!chainLoading) {
       seriesRootMap.size && updateSeries(Array.from(seriesRootMap.values()));
       assetRootMap.size && updateAssets(Array.from(assetRootMap.values()));
-      strategyRootMap.size && updateStrategies(Array.from(strategyRootMap.values()));
     }
   }, [
     account,
     chainLoading,
     assetRootMap,
     seriesRootMap,
-    strategyRootMap,
     updateSeries,
     updateAssets,
-    updateStrategies,
   ]);
+
+  useEffect(()=> {
+    /* When seriesContext is finished loading get the strategies data */
+    !userState.seriesLoading && 
+    strategyRootMap.size && 
+    updateStrategies(Array.from(strategyRootMap.values()));
+  },[strategyRootMap, updateStrategies, userState.seriesLoading])
 
   useEffect(() => {
     /* When the chainContext is finished loading get the users vault data */
