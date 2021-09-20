@@ -2,10 +2,11 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Box, Text, Spinner } from 'grommet';
 import { FiX, FiCheckCircle, FiXCircle } from 'react-icons/fi';
-import { ActionCodes, TxState } from '../types';
+import { ActionCodes, ProcessStage, TxState } from '../types';
 import EtherscanButton from './buttons/EtherscanButton';
 import { getPositionPathPrefix, getVaultIdFromReceipt } from '../utils/appUtils';
 import { ChainContext } from '../contexts/ChainContext';
+import { TxContext } from '../contexts/TxContext';
 
 interface ITransactionItem {
   tx: any;
@@ -17,6 +18,9 @@ const TransactionItem = ({ tx, handleRemove, wide }: ITransactionItem) => {
   const {
     chainState: { contractMap },
   } = useContext(ChainContext);
+  const {
+    txActions: { updateTxStage },
+  } = useContext(TxContext);
 
   const { status, txCode, tx: t, receipt } = tx;
   console.log(tx);
@@ -28,7 +32,7 @@ const TransactionItem = ({ tx, handleRemove, wide }: ITransactionItem) => {
     action === ActionCodes.BORROW && receipt ? getVaultIdFromReceipt(receipt, contractMap) : txCode.split('_')[1];
   const link = `${pathPrefix}/${positionId}`;
 
-  return tx.remove ? null : (
+  return (
     <Box
       align="center"
       fill
@@ -39,7 +43,15 @@ const TransactionItem = ({ tx, handleRemove, wide }: ITransactionItem) => {
       background={wide ? 'tailwind-blue-50' : 'white'}
       round="xsmall"
     >
-      {!wide && <Box alignSelf="end">{status === TxState.FAILED && <FiX size="1.2rem" />}</Box>}
+      {!wide && (
+        <Box
+          alignSelf="end"
+          onClick={() => updateTxStage(txCode, ProcessStage.PROCESS_COMPLETE_TIMEOUT)}
+          hoverIndicator={{}}
+        >
+          {status === TxState.FAILED && <FiX size="1.2rem" />}
+        </Box>
+      )}
       <Box direction="row" fill justify="between">
         <Box direction="row" align="center">
           <Box width="3rem">

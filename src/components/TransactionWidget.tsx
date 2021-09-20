@@ -34,7 +34,7 @@ const TransactionWidget = () => {
                 align="center"
                 fill
                 gap="small"
-                pad="small"
+                pad="medium"
                 elevation="small"
                 // background='gradient-transparent'
                 animation={{ type: 'slideLeft', size: 'large' }}
