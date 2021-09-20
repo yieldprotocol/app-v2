@@ -222,7 +222,6 @@ const UserProvider = ({ children }: any) => {
 
       _publicData = await Promise.all(
         assetList.map(async (asset: IAssetRoot): Promise<IAssetRoot> => {
-          const rate = 'rate';
           const isYieldBase = !!Array.from(seriesRootMap.values()).find((x: any) => x.baseId === asset.id);
           return {
             ...asset,

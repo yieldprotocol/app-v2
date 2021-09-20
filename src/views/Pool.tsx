@@ -1,10 +1,8 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Box, RadioButtonGroup, ResponsiveContext, Text, TextInput, Tip } from 'grommet';
 
-import { ethers } from 'ethers';
-
-import { FiClock, FiInfo, FiPercent } from 'react-icons/fi';
-import { BiCoinStack, BiMessageSquareAdd } from 'react-icons/bi';
+import { FiPercent } from 'react-icons/fi';
+import { BiMessageSquareAdd } from 'react-icons/bi';
 import { MdAutorenew } from 'react-icons/md';
 import { cleanValue, nFormatter } from '../utils/appUtils';
 import AssetSelector from '../components/selectors/AssetSelector';
@@ -38,9 +36,9 @@ function Pool() {
 
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, assetMap, seriesMap, selectedSeriesId, selectedBaseId, selectedStrategyAddr, strategyMap } =
+  const { activeAccount, assetMap, seriesMap, selectedBaseId, selectedStrategyAddr, strategyMap } =
     userState;
-  const selectedSeries = seriesMap.get(selectedSeriesId!);
+  // const selectedSeries = seriesMap.get(selectedSeriesId!);
   const selectedBase = assetMap.get(selectedBaseId!);
   const selectedStrategy = strategyMap.get(selectedStrategyAddr!);
 
@@ -55,18 +53,23 @@ function Pool() {
   const { maxPool, poolPercentPreview } = usePoolHelpers(poolInput);
 
   /* input validation hooks */
-  const { inputError: poolError } = useInputValidation(poolInput, ActionCodes.ADD_LIQUIDITY, selectedSeries, [
-    0,
-    maxPool,
-  ]);
+  const { inputError: poolError } = useInputValidation(
+    poolInput,
+    ActionCodes.ADD_LIQUIDITY,
+    selectedStrategy?.currentSeries,
+    [0, maxPool]
+  );
 
-  const { txProcess: poolProcess, resetProcess } = useProcess(ActionCodes.ADD_LIQUIDITY, selectedSeries?.id);
+  const { txProcess: poolProcess, resetProcess } = useProcess(
+    ActionCodes.ADD_LIQUIDITY,
+    selectedStrategy?.id
+  );
 
   /* LOCAL ACTION FNS */
   const handleAdd = () => {
     // !poolDisabled &&
     // TODO update for strategy
-    selectedSeries && addLiquidity(poolInput!, selectedSeries, poolMethod);
+    selectedStrategy && addLiquidity(poolInput!, selectedStrategy, poolMethod);
   };
 
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
@@ -93,11 +96,11 @@ function Pool() {
         </PanelWrap>
       )}
 
-      <CenterPanelWrap series={selectedSeries}>
+      <CenterPanelWrap series={selectedStrategy?.currentSeries}>
         <Box height="100%" pad={mobile ? 'medium' : { top: 'large', horizontal: 'large' }}>
           {stepPosition === 0 && (
             <Box fill gap="large">
-              <YieldCardHeader logo={mobile} series={selectedSeries}>
+              <YieldCardHeader logo={mobile} series={selectedStrategy?.currentSeries}>
                 <Box gap={mobile ? undefined : 'xsmall'}>
                   <ColorText size={mobile ? 'medium' : '2rem'}>PROVIDE LIQUIDITY</ColorText>
                   <AltText color="text-weak" size="xsmall">
@@ -161,11 +164,11 @@ function Pool() {
               </YieldCardHeader>
 
               <SectionWrap>
-                      <Box direction="row" justify="between" fill align="center">
-                        {!mobile && (
-                          <Box direction="row" gap="xsmall">
-                            <Text size="small">Pooling method:</Text>
-                            {/* <Tip
+                <Box direction="row" justify="between" fill align="center">
+                  {!mobile && (
+                    <Box direction="row" gap="xsmall">
+                      <Text size="small">Pooling method:</Text>
+                      {/* <Tip
                               content={<Text size="xsmall">some info</Text>}
                               dropProps={{ align: { bottom: 'top' } }}
                             >
@@ -173,26 +176,25 @@ function Pool() {
                                 <FiInfo />
                               </Text>
                             </Tip> */}
-                          </Box>
-                        )}
-                        <RadioButtonGroup
-                          name="strategy"
-                          options={[
-                            { label: <Text size="small"> Buy & pool</Text>, value: 'BUY' },
-                            { label: <Text size="small"> Borrow & Pool </Text>, value: 'BORROW' },
-                          ]}
-                          value={poolMethod}
-                          onChange={(event: any) => setPoolMethod(event.target.value)}
-                          direction="row"
-                          justify="between"
-                        />
-                      </Box>
-                    </SectionWrap>
+                    </Box>
+                  )}
+                  <RadioButtonGroup
+                    name="strategy"
+                    options={[
+                      { label: <Text size="small"> Buy & pool</Text>, value: 'BUY' },
+                      { label: <Text size="small"> Borrow & Pool </Text>, value: 'BORROW' },
+                    ]}
+                    value={poolMethod}
+                    onChange={(event: any) => setPoolMethod(event.target.value)}
+                    direction="row"
+                    justify="between"
+                  />
+                </Box>
+              </SectionWrap>
 
               <ActiveTransaction full txProcess={poolProcess}>
                 <Box gap="large">
-
-                  <SectionWrap >
+                  <SectionWrap>
                     <Box
                       gap="small"
                       pad={{ horizontal: 'large', vertical: 'medium' }}
@@ -210,7 +212,11 @@ function Pool() {
                         icon={<BiCoinStack />}
                         value={`${'[todo]'} Liquidity tokens`}
                       /> */}
-                      <InfoBite label="Strategy Ownership" icon={<FiPercent />} value={`${cleanValue(poolPercentPreview, 2)}%`} />
+                      <InfoBite
+                        label="Strategy Ownership"
+                        icon={<FiPercent />}
+                        value={`${cleanValue(poolPercentPreview, 2)}%`}
+                      />
                     </Box>
                   </SectionWrap>
                 </Box>
@@ -268,7 +274,6 @@ function Pool() {
               </>
             )}
         </ActionButtonGroup>
-
       </CenterPanelWrap>
 
       <PanelWrap right basis="40%">
