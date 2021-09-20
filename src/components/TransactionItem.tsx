@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { Box, Text, Spinner } from 'grommet';
 import { FiX, FiCheckCircle, FiXCircle } from 'react-icons/fi';
@@ -10,11 +10,10 @@ import { TxContext } from '../contexts/TxContext';
 
 interface ITransactionItem {
   tx: any;
-  handleRemove?: any;
   wide?: boolean;
 }
 
-const TransactionItem = ({ tx, handleRemove, wide }: ITransactionItem) => {
+const TransactionItem = ({ tx, wide }: ITransactionItem) => {
   const {
     chainState: { contractMap },
   } = useContext(ChainContext);
@@ -23,7 +22,6 @@ const TransactionItem = ({ tx, handleRemove, wide }: ITransactionItem) => {
   } = useContext(TxContext);
 
   const { status, txCode, tx: t, receipt } = tx;
-  console.log(tx);
 
   /* get position link based on position id */
   const action = txCode.split('_')[0];
@@ -77,6 +75,6 @@ const TransactionItem = ({ tx, handleRemove, wide }: ITransactionItem) => {
   );
 };
 
-TransactionItem.defaultProps = { wide: false, handleRemove: () => null };
+TransactionItem.defaultProps = { wide: false };
 
 export default TransactionItem;
