@@ -273,7 +273,7 @@ const ChainProvider = ({ children }: any) => {
               ERC20.name(),
               ERC20.symbol(),
               ERC20.decimals(),
-              // ETH_BASED_ASSETS.includes(id) ? async () =>'1' : ERC20.version()
+              // ERC20.version()
             ]);
 
             // console.log(symbol, ':', id);

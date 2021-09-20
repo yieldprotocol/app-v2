@@ -19,12 +19,16 @@ export const CHAI_BYTES = ethers.utils.formatBytes32String('CHAI');
 export const CHI = ethers.utils.formatBytes32String('chi');
 export const RATE = ethers.utils.formatBytes32String('rate');
 
-export const WETH =  '0x303000000000' // '0x455448000000';
-export const DAI = '0x303100000000'; // 0x444149000000';
-export const USDC = '0x303200000000'; // '0x555344430000';
+// export const WETH =  '0x303000000000' // '0x455448000000';
+// export const DAI = '0x303100000000'; // 0x444149000000';
+// export const USDC = '0x303200000000'; // '0x555344430000';
 
-export const ETH_BASED_ASSETS = ['0x303000000000', ethers.utils.formatBytes32String('ETH').slice(0, 14)];
-export const DAI_BASED_ASSETS = ['0x303100000000'];
+export const WETH =  '0x455448000000';
+export const DAI = '0x444149000000';
+export const USDC = '0x555344430000';
+
+export const ETH_BASED_ASSETS = [WETH, ethers.utils.formatBytes32String('ETH').slice(0, 14), '0x455448000000'];
+export const DAI_BASED_ASSETS = [DAI, '0x444149000000'];
 
 export const BLANK_VAULT = '0x000000000000000000000000';
 export const BLANK_SERIES = '0x000000000000'
