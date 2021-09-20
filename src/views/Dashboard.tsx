@@ -220,7 +220,7 @@ const Dashboard = () => {
           <YieldInfo />
         </PanelWrap>
       )}
-      <StyledBox fill pad="large" margin={{ top: 'xlarge' }} align="center">
+      <StyledBox fill pad={mobile ? 'medium' : 'large'} margin={{ top: 'xlarge' }} align="center">
         {!account && !chainLoading && <Text>Please connect to your account</Text>}
         {account && (
           <Box width={mobile ? '100%' : '500px'} gap="medium">
