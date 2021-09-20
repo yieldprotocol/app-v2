@@ -213,14 +213,15 @@ const ChainProvider = ({ children }: any) => {
         addrs.CompositeMultiOracle,
         fallbackLibrary
       );
+      const Witch = contracts.Witch__factory.connect(addrs.Witch, fallbackLibrary);
 
       /* Update the baseContracts state : ( hardcoded based on networkId ) */
       const newContractMap = chainState.contractMap;
       newContractMap.set('Cauldron', Cauldron);
       newContractMap.set('Ladle', Ladle);
+      newContractMap.set('Witch', Witch);
       newContractMap.set('ChainlinkMultiOracle', ChainlinkMultiOracle);
       newContractMap.set('CompositeMultiOracle', CompositeMultiOracle);
-
       updateState({ type: 'contractMap', payload: newContractMap });
 
       /* Get the hardcoded strategy addresses */
@@ -234,7 +235,6 @@ const ChainProvider = ({ children }: any) => {
           digitFormat: assetDigitFormatMap.has(asset.symbol) ? assetDigitFormatMap.get(asset.symbol) : 6,
           image: markMap.get(asset.symbol),
           color: (yieldEnv.assetColors as any)[asset.symbol],
-
           baseContract: ERC20Permit,
 
           /* baked in token fns */
@@ -269,17 +269,13 @@ const ChainProvider = ({ children }: any) => {
             const { assetId: id, asset: address } = Cauldron.interface.parseLog(x).args;
             const ERC20 = contracts.ERC20Permit__factory.connect(address, fallbackLibrary);
             /* Add in any extra static asset Data */ // TODO is there any other fixed asset data needed?
-            const [name, symbol, decimals] = await Promise.all([
+            const [name, symbol, decimals, version] = await Promise.all([
               ERC20.name(),
               ERC20.symbol(),
               ERC20.decimals(),
-              // ERC20.version()
+              id === USDC ? '2' : '1' // TODO  ERC20.version()
             ]);
-
-            // console.log(symbol, ':', id);
-            // TODO check if any other tokens have different versions. maybe abstract this logic somewhere?
-            const version = id === USDC ? '2' : '1';
-
+            
             const newAsset = {
               id,
               address,

@@ -1,10 +1,8 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Box, RadioButtonGroup, ResponsiveContext, Text, TextInput, Tip } from 'grommet';
 
-import { ethers } from 'ethers';
-
-import { FiClock, FiInfo, FiPercent } from 'react-icons/fi';
-import { BiCoinStack, BiMessageSquareAdd } from 'react-icons/bi';
+import { FiPercent } from 'react-icons/fi';
+import { BiMessageSquareAdd } from 'react-icons/bi';
 import { MdAutorenew } from 'react-icons/md';
 import { cleanValue, nFormatter } from '../utils/appUtils';
 import AssetSelector from '../components/selectors/AssetSelector';
@@ -32,15 +30,15 @@ import StrategySelector from '../components/selectors/StrategySelector';
 import ColorText from '../components/texts/ColorText';
 import { usePoolHelpers } from '../hooks/actionHelperHooks/usePoolHelpers';
 import { useProcess } from '../hooks/useProcess';
+import StrategyItem from '../components/positionItems/StrategyItem';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, assetMap, seriesMap, selectedSeriesId, selectedBaseId, selectedStrategyAddr, strategyMap } =
-    userState;
-  const selectedSeries = seriesMap.get(selectedSeriesId!);
+  const { activeAccount, assetMap, seriesMap, selectedBaseId, selectedStrategyAddr, strategyMap } = userState;
+  // const selectedSeries = seriesMap.get(selectedSeriesId!);
   const selectedBase = assetMap.get(selectedBaseId!);
   const selectedStrategy = strategyMap.get(selectedStrategyAddr!);
 
@@ -55,18 +53,20 @@ function Pool() {
   const { maxPool, poolPercentPreview } = usePoolHelpers(poolInput);
 
   /* input validation hooks */
-  const { inputError: poolError } = useInputValidation(poolInput, ActionCodes.ADD_LIQUIDITY, selectedSeries, [
-    0,
-    maxPool,
-  ]);
+  const { inputError: poolError } = useInputValidation(
+    poolInput,
+    ActionCodes.ADD_LIQUIDITY,
+    selectedStrategy?.currentSeries,
+    [0, maxPool]
+  );
 
-  const { txProcess: poolProcess, resetProcess } = useProcess(ActionCodes.ADD_LIQUIDITY, selectedSeries?.id);
+  const { txProcess: poolProcess, resetProcess } = useProcess(ActionCodes.ADD_LIQUIDITY, selectedStrategy?.id);
 
   /* LOCAL ACTION FNS */
   const handleAdd = () => {
     // !poolDisabled &&
     // TODO update for strategy
-    selectedSeries && addLiquidity(poolInput!, selectedSeries, poolMethod);
+    selectedStrategy && addLiquidity(poolInput!, selectedStrategy, poolMethod);
   };
 
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
@@ -93,7 +93,7 @@ function Pool() {
         </PanelWrap>
       )}
 
-      <CenterPanelWrap series={selectedSeries}>
+      <CenterPanelWrap series={selectedStrategy?.currentSeries}>
         <Box height="100%" pad={mobile ? 'medium' : { top: 'large', horizontal: 'large' }}>
           {stepPosition === 0 && (
             <Box fill gap="large">
@@ -218,6 +218,13 @@ function Pool() {
                   </SectionWrap>
                 </Box>
               </ActiveTransaction>
+            </Box>
+          )}
+
+          {poolProcess?.stage === ProcessStage.PROCESS_COMPLETE && poolProcess?.tx.status === TxState.SUCCESSFUL && (
+            <Box pad="large" gap="small">
+              <Text size="small"> View strategy Position: </Text>
+              <StrategyItem strategy={selectedStrategy!} index={0} condensed />
             </Box>
           )}
         </Box>

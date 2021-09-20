@@ -196,6 +196,13 @@ const Lend = () => {
               )}
             </Box>
           )}
+
+          {lendProcess?.stage === ProcessStage.PROCESS_COMPLETE && lendProcess?.tx.status === TxState.SUCCESSFUL && (
+            <Box pad="large" gap="small">
+              <Text size="small"> View position: </Text>
+              <LendItem series={selectedSeries!} index={0} actionType={ActionType.LEND} condensed />
+            </Box>
+          )}
         </Box>
 
         <ActionButtonGroup pad>
