@@ -10,14 +10,7 @@ const DashboardSettings = ({ actionType }: { actionType: string }) => {
     userState: { dashSettings },
     userActions: { setDashSettings },
   } = useContext(UserContext) as IUserContext;
-  const {
-    hideEmptyVaults,
-    hideInactiveVaults,
-    hideLendPositions,
-    hidePoolPositions,
-    hideLendBalancesSetting,
-    hidePoolBalancesSetting,
-  } = dashSettings;
+  const { hideEmptyVaults, hideInactiveVaults, hideLendBalancesSetting, hidePoolBalancesSetting } = dashSettings;
 
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
 
@@ -45,27 +38,11 @@ const DashboardSettings = ({ actionType }: { actionType: string }) => {
       )}
       {actionType === ActionType.LEND && (
         <Box gap="small">
-          <Box direction="row" justify="between" gap="xsmall" align="center">
-            <Text size="xsmall">Hide Lend Positions</Text>
-            <CheckBox
-              toggle
-              checked={hideLendPositions}
-              onChange={(event) => setDashSettings('hideLendPositions', event.target.checked)}
-            />
-          </Box>
           <HideBalancesSetting settingName="hideLendBalancesSetting" settingValue={hideLendBalancesSetting} />
         </Box>
       )}
       {actionType === ActionType.POOL && (
         <Box gap="small">
-          <Box direction="row" justify="between" gap="small" align="center">
-            <Text size="xsmall">Hide Pool Positions</Text>
-            <CheckBox
-              toggle
-              checked={hidePoolPositions}
-              onChange={(event) => setDashSettings('hidePoolPositions', event.target.checked)}
-            />
-          </Box>
           <HideBalancesSetting settingName="hidePoolBalancesSetting" settingValue={hidePoolBalancesSetting} />
         </Box>
       )}

@@ -217,18 +217,20 @@ const Dashboard = () => {
                 />
               )}
             </Box>
-            <Box gap="medium">
-              <Text size="medium">Pool Positions</Text>
-              {strategiesLoading ? (
-                <Skeleton width={mobile ? 300 : 500} count={1} height={40} />
-              ) : (
-                <DashboardPositionList
-                  actionType={ActionType.POOL}
-                  positions={strategyPositions}
-                  strategyBalance={`${currencySettingSymbol}${totalStrategyBalance}`}
-                />
-              )}
-            </Box>
+            {!hidePoolPositions && (
+              <Box gap="medium">
+                <Text size="medium">Pool Positions</Text>
+                {strategiesLoading ? (
+                  <Skeleton width={mobile ? 300 : 500} count={1} height={40} />
+                ) : (
+                  <DashboardPositionList
+                    actionType={ActionType.POOL}
+                    positions={strategyPositions}
+                    strategyBalance={`${currencySettingSymbol}${totalStrategyBalance}`}
+                  />
+                )}
+              </Box>
+            )}
           </Box>
         )}
       </StyledBox>
