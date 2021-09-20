@@ -16,23 +16,31 @@ const DashboardSettings = ({ actionType }: { actionType: string }) => {
   const dropContentRender = (
     <Box pad="xsmall" round="xsmall" fill>
       {actionType === ActionType.BORROW && (
-        <Box gap="small">
-          <Box direction="row" justify="between" gap="small" align="center">
-            <Text size="xsmall">Hide Empty Vaults</Text>
-            <CheckBox
-              toggle
-              checked={hideEmptyVaults}
-              onChange={(event) => setDashSettings('hideEmptyVaults', event.target.checked)}
-            />
-          </Box>
-          <Box direction="row" justify="between" gap="small" align="center">
-            <Text size="xsmall">Hide Inactive Vaults</Text>
-            <CheckBox
-              toggle
-              checked={hideInactiveVaults}
-              onChange={(event) => setDashSettings('hideInactiveVaults', event.target.checked)}
-            />
-          </Box>
+        <Box gap="xxsmall">
+          <Button
+            onClick={() => {
+              setDashSettings('hideZeroLendBalances', !hideEmptyVaults);
+              setSettingsOpen(false);
+            }}
+            plain
+            hoverIndicator={{ color: 'tailwind-blue-50' }}
+          >
+            <Box pad="xsmall" round="xsmall">
+              <Text size="small">{hideEmptyVaults ? 'Show Empty Vaults' : 'Hide Empty Vaults'}</Text>
+            </Box>
+          </Button>
+          <Button
+            onClick={() => {
+              setDashSettings('hideInactiveVaults', !hideInactiveVaults);
+              setSettingsOpen(false);
+            }}
+            plain
+            hoverIndicator={{ color: 'tailwind-blue-50' }}
+          >
+            <Box pad="xsmall" round="xsmall">
+              <Text size="small">{hideInactiveVaults ? 'Show Inactive Vaults' : 'Hide Inactive Vaults'}</Text>
+            </Box>
+          </Button>
         </Box>
       )}
       {actionType === ActionType.LEND && (
