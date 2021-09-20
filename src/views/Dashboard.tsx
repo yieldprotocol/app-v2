@@ -101,7 +101,7 @@ const Dashboard = () => {
     const _strategyPositions: IStrategy[] = Array.from(strategyMap.values())
       .filter((_strategy: IStrategy) => (hideZeroPoolBalances ? _strategy.accountBalance?.gt(ZERO_BN) : true))
       .sort((_strategyA: IStrategy, _strategyB: IStrategy) =>
-        _strategyA.accountBalance?.gt(_strategyB.accountBalance!) ? 1 : -1
+        _strategyA.accountBalance?.lt(_strategyB.accountBalance!) ? 1 : -1
       );
     setStrategyPositions(_strategyPositions);
   }, [strategyMap, hideZeroPoolBalances, hidePoolPositions]);
