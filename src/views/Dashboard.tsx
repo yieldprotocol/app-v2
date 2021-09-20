@@ -25,6 +25,12 @@ const StyledBox = styled(Box)`
   overflow-y: auto;
 `;
 
+interface IPositions {
+  vaultPositions: IVault[];
+  lendPositions: ISeries[];
+  poolPositions: IStrategy[];
+}
+
 const Dashboard = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
@@ -60,7 +66,11 @@ const Dashboard = () => {
   const [vaultPositions, setVaultPositions] = useState<IVault[]>([]);
   const [lendPositions, setLendPositions] = useState<ISeries[]>([]);
   const [strategyPositions, setStrategyPositions] = useState<IStrategy[]>([]);
-  const [allPositions, setAllPositions] = useState<(ISeries | IVault | IStrategy)[]>([]);
+  const [allPositions, setAllPositions] = useState<IPositions>({
+    vaultPositions: [],
+    lendPositions: [],
+    poolPositions: [],
+  });
 
   const [totalDebt, setTotalDebt] = useState<string>('');
   const [totalCollateral, setTotalCollateral] = useState<string>('');
@@ -97,7 +107,11 @@ const Dashboard = () => {
   }, [strategyMap, hideZeroPoolBalances, hidePoolPositions]);
 
   useEffect(() => {
-    setAllPositions([...vaultPositions, ...lendPositions, ...strategyPositions]);
+    setAllPositions({
+      vaultPositions: [...vaultPositions],
+      lendPositions: [...lendPositions],
+      poolPositions: [...strategyPositions],
+    });
   }, [vaultPositions, lendPositions, strategyPositions]);
 
   /* get a single position's ink or art in dai or eth (input the asset id): value can be art, ink, fyToken, or pooToken balances */
@@ -122,15 +136,22 @@ const Dashboard = () => {
     [priceMap]
   );
 
-  /* get vault position total debt and collateral */
+  /* get vault, lend, and pool position total debt, collateral, and balances */
   useEffect(() => {
-    const _debts = vaultPositions?.map((vault: IVault) =>
-      getPositionValue(vault.baseId, vault.art_, currencySettingAssetId)
+    const {
+      vaultPositions: _vaultPositions,
+      lendPositions: _lendPositions,
+      poolPositions: _strategyPositions,
+    } = allPositions;
+
+    const _debts = _vaultPositions?.map((position: any) =>
+      getPositionValue(position.baseId, position.art_, currencySettingAssetId)
     );
     setTotalDebt(
       cleanValue(_debts.reduce((sum: number, debt: number) => sum + debt, 0).toString(), currencySettingDigits)
     );
-    const _collaterals = vaultPositions?.map((vault: IVault) =>
+
+    const _collaterals = _vaultPositions?.map((vault: IVault) =>
       getPositionValue(vault.ilkId, vault.ink_, currencySettingAssetId)
     );
     setTotalCollateral(
@@ -139,18 +160,15 @@ const Dashboard = () => {
         currencySettingDigits
       )
     );
-  }, [priceMap, vaultPositions, currencySettingAssetId, getPositionValue, currencySettingDigits]);
 
-  /* get series positions' total balances */
-  useEffect(() => {
-    const _lendBalances = lendPositions?.map((series: ISeries) =>
+    const _lendBalances = _lendPositions?.map((series: ISeries) =>
       getPositionValue(series.baseId, series.fyTokenBalance_!, currencySettingAssetId)
     );
     setTotalLendBalance(
       cleanValue(_lendBalances.reduce((sum: number, debt: number) => sum + debt, 0).toString(), currencySettingDigits)
     );
 
-    const _strategyBalances = strategyPositions?.map((strategy: IStrategy) =>
+    const _strategyBalances = _strategyPositions?.map((strategy: IStrategy) =>
       getPositionValue(strategy.baseId, strategy.accountBalance_!, currencySettingAssetId)
     );
 
@@ -160,7 +178,7 @@ const Dashboard = () => {
         currencySettingDigits
       )
     );
-  }, [priceMap, lendPositions, strategyPositions, currencySettingAssetId, getPositionValue, currencySettingDigits]);
+  }, [priceMap, allPositions, currencySettingAssetId, getPositionValue, currencySettingDigits]);
 
   return (
     <MainViewWrap>
