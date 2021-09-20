@@ -66,8 +66,8 @@ const initState: IUserContextState = {
     hideLendPositions: false,
     hidePoolPositions: false,
     currencySetting: 'DAI',
-    hideLendBalancesSetting: null,
-    hidePoolBalancesSetting: null,
+    hideZeroLendBalances: false,
+    hideZeroPoolBalances: false,
   } as IDashSettings,
 };
 

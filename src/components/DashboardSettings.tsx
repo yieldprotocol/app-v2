@@ -1,21 +1,20 @@
 import React, { useState, useContext } from 'react';
-import { CheckBox, DropButton, Text, Box } from 'grommet';
+import { Button, CheckBox, DropButton, Text, Box } from 'grommet';
 import { FiMoreVertical } from 'react-icons/fi';
 import { UserContext } from '../contexts/UserContext';
 import { ActionType, IUserContext } from '../types';
-import HideBalancesSetting from './HideBalancesSetting';
 
 const DashboardSettings = ({ actionType }: { actionType: string }) => {
   const {
     userState: { dashSettings },
     userActions: { setDashSettings },
   } = useContext(UserContext) as IUserContext;
-  const { hideEmptyVaults, hideInactiveVaults, hideLendBalancesSetting, hidePoolBalancesSetting } = dashSettings;
+  const { hideEmptyVaults, hideInactiveVaults, hideZeroLendBalances, hideZeroPoolBalances } = dashSettings;
 
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
 
   const dropContentRender = (
-    <Box pad="small" round="xsmall" fill>
+    <Box pad="xsmall" round="xsmall" fill>
       {actionType === ActionType.BORROW && (
         <Box gap="small">
           <Box direction="row" justify="between" gap="small" align="center">
@@ -38,12 +37,38 @@ const DashboardSettings = ({ actionType }: { actionType: string }) => {
       )}
       {actionType === ActionType.LEND && (
         <Box gap="small">
-          <HideBalancesSetting settingName="hideLendBalancesSetting" settingValue={hideLendBalancesSetting} />
+          <Button
+            onClick={() => {
+              setDashSettings('hideZeroLendBalances', !hideZeroLendBalances);
+              setSettingsOpen(false);
+            }}
+            plain
+            hoverIndicator={{ color: 'tailwind-blue-50' }}
+          >
+            <Box pad="xsmall" round="xsmall">
+              <Text size="small">
+                {hideZeroLendBalances ? 'Show Zero Balance Positions' : 'Hide Zero Balance Positions'}
+              </Text>
+            </Box>
+          </Button>
         </Box>
       )}
       {actionType === ActionType.POOL && (
         <Box gap="small">
-          <HideBalancesSetting settingName="hidePoolBalancesSetting" settingValue={hidePoolBalancesSetting} />
+          <Button
+            onClick={() => {
+              setDashSettings('hideZeroPoolBalances', !hideZeroPoolBalances);
+              setSettingsOpen(false);
+            }}
+            plain
+            hoverIndicator={{ color: 'tailwind-blue-50' }}
+          >
+            <Box pad="xsmall" round="xsmall">
+              <Text size="small">
+                {hideZeroPoolBalances ? 'Show Zero Balance Positions' : 'Hide Zero Balance Positions'}
+              </Text>
+            </Box>
+          </Button>
         </Box>
       )}
     </Box>

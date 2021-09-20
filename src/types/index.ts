@@ -384,6 +384,6 @@ export interface IDashSettings {
   hideLendPositions: boolean;
   hidePoolPositions: boolean;
   currencySetting: string;
-  hideLendBalancesSetting: string | null;
-  hidePoolBalancesSetting: string | null;
+  hideZeroLendBalances: boolean;
+  hideZeroPoolBalances: boolean;
 }
