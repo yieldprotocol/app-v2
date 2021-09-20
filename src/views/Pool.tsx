@@ -210,7 +210,7 @@ function Pool() {
                         icon={<BiCoinStack />}
                         value={`${'[todo]'} Liquidity tokens`}
                       /> */}
-                      <InfoBite label="Est. Strategy Percentage" icon={<FiPercent />} value={`${cleanValue(poolPercentPreview, 2)}%`} />
+                      <InfoBite label="Strategy Ownership" icon={<FiPercent />} value={`${cleanValue(poolPercentPreview, 2)}%`} />
                     </Box>
                   </SectionWrap>
                 </Box>

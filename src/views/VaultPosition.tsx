@@ -419,7 +419,7 @@ const VaultPosition = () => {
                           actionType={ActionType.BORROW}
                           cardLayout={false}
                         />
-                        <Box fill='horizontal' background='red'>
+                        <Box fill='horizontal'>
                         { rollToSeries &&
                           <InputInfoWrap>
                               <Text color="text-weak" size="xsmall"> All debt ({cleanValue(maxRepayOrRoll,2)} {vaultBase?.symbol}) will be rolled</Text>
