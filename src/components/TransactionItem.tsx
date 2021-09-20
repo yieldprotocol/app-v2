@@ -32,24 +32,24 @@ const TransactionItem = ({ tx, handleRemove, wide }: ITransactionItem) => {
     <Box
       align="center"
       fill
-      direction="row"
-      gap="small"
+      gap="xsmall"
       elevation={wide ? undefined : 'small'}
-      pad={wide ? 'xsmall' : 'small'}
+      pad={wide ? 'xsmall' : 'medium'}
       key={t.hash}
-      background="white"
+      background={wide ? 'tailwind-blue-50' : 'white'}
       round="xsmall"
     >
-      <Box width="3rem">
-        {status === TxState.PENDING && <Spinner color="tailwind-blue" />}
-        {status === TxState.SUCCESSFUL && <FiCheckCircle size="1.5rem" color="#34D399" />}
-        {status === TxState.FAILED && <FiXCircle size="1.5rem" color="#F87171" />}
-      </Box>
-      <Box direction={wide ? 'row' : undefined} gap="small" align="center" justify="between" fill="horizontal">
-        <Box direction="row" justify="start" alignSelf={wide ? undefined : 'start'}>
+      {!wide && <Box alignSelf="end">{status === TxState.FAILED && <FiX size="1.2rem" />}</Box>}
+      <Box direction="row" fill justify="between">
+        <Box direction="row" align="center">
+          <Box width="3rem">
+            {status === TxState.PENDING && <Spinner color="tailwind-blue" />}
+            {status === TxState.SUCCESSFUL && <FiCheckCircle size="1.5rem" color="#34D399" />}
+            {status === TxState.FAILED && <FiXCircle size="1.5rem" color="#F87171" />}
+          </Box>
           <Text size="small">{action}</Text>
         </Box>
-        <Box direction="row" alignSelf="start">
+        <Box align="center" direction="row">
           {status === TxState.SUCCESSFUL && action !== 'Borrow' ? (
             <Link to={link} style={{ textDecoration: 'none' }}>
               <Text size="xsmall" color="tailwind-blue" style={{ verticalAlign: 'middle' }}>
@@ -60,7 +60,6 @@ const TransactionItem = ({ tx, handleRemove, wide }: ITransactionItem) => {
             <EtherscanButton txHash={t.hash} />
           )}
         </Box>
-        {status === TxState.FAILED && <FiX size="1.5rem" />}
       </Box>
     </Box>
   );
