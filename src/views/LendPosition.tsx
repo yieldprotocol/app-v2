@@ -238,7 +238,7 @@ const LendPosition = () => {
                         txProcess={closeProcess}
                         cancelAction={() => resetInputs(ActionCodes.CLOSE_POSITION)}
                       >
-                        <Box margin={{ top: 'medium' }}>
+                        <Box>
                           <InfoBite
                             label={`Redeem Position ${selectedBase?.symbol}`}
                             icon={<FiArrowRight />}
@@ -291,7 +291,7 @@ const LendPosition = () => {
                         txProcess={rollProcess}
                         cancelAction={() => resetInputs(ActionCodes.ROLL_POSITION)}
                       >
-                        <Box margin={{ top: 'medium' }}>
+                        <Box>
                           <InfoBite
                             label="Roll To Series"
                             icon={<FiArrowRight />}

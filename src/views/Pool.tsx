@@ -30,6 +30,7 @@ import StrategySelector from '../components/selectors/StrategySelector';
 import ColorText from '../components/texts/ColorText';
 import { usePoolHelpers } from '../hooks/actionHelperHooks/usePoolHelpers';
 import { useProcess } from '../hooks/useProcess';
+import StrategyItem from '../components/positionItems/StrategyItem';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -223,6 +224,15 @@ function Pool() {
               </ActiveTransaction>
             </Box>
           )}
+
+        {poolProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
+                    poolProcess?.tx.status === TxState.SUCCESSFUL && (
+                      <Box pad="large" gap="small">
+                        <Text size="small"> View strategy Position: </Text>
+                        <StrategyItem strategy={selectedStrategy!} index={0} condensed />
+                      </Box>
+          )}
+
         </Box>
 
         <ActionButtonGroup pad>
