@@ -223,7 +223,7 @@ const Dashboard = () => {
       <StyledBox fill pad="large" margin={{ top: 'xlarge' }} align="center">
         {!account && !chainLoading && <Text>Please connect to your account</Text>}
         {account && (
-          <Box width={mobile ? undefined : '500px'} gap="medium">
+          <Box width={mobile ? '100%' : '500px'} gap="medium">
             <Box gap="medium">
               <Text size="medium">Vaults</Text>
               {vaultsLoading ? (
@@ -264,7 +264,7 @@ const Dashboard = () => {
           </Box>
         )}
       </StyledBox>
-      <PanelWrap basis="40%"> </PanelWrap>
+      {!mobile && <PanelWrap basis="40%"> </PanelWrap>}
     </MainViewWrap>
   );
 };
