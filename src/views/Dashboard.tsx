@@ -2,6 +2,7 @@ import React, { useContext, useState, useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 import { Box, ResponsiveContext, Text } from 'grommet';
 import { ethers } from 'ethers';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 import Skeleton from 'react-loading-skeleton';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
@@ -43,10 +44,12 @@ const Dashboard = () => {
       strategiesLoading,
       dashSettings,
     },
+    userActions: { setDashSettings },
   } = useContext(UserContext) as IUserContext;
   const {
     hideEmptyVaults,
     hideInactiveVaults,
+    hideVaultPositions,
     hideLendPositions,
     hidePoolPositions,
     hideLendBalancesSetting,
@@ -193,44 +196,69 @@ const Dashboard = () => {
         {account && (
           <Box width={mobile ? undefined : '500px'} gap="medium">
             <Box gap="medium">
-              <Text size="medium">Vaults</Text>
-              {vaultsLoading ? (
-                <Skeleton width={mobile ? 300 : 500} count={1} height={40} />
-              ) : (
-                <DashboardPositionList
-                  actionType={ActionType.BORROW}
-                  positions={vaultPositions}
-                  debt={`${currencySettingSymbol}${totalDebt}`}
-                  collateral={`${currencySettingSymbol}${totalCollateral}`}
-                />
+              <Box justify="between" direction="row" align="center">
+                <Text size="medium">Vaults</Text>
+                <Box onClick={() => setDashSettings('hideVaultPositions', !hideVaultPositions)} pad="xsmall">
+                  {hideVaultPositions ? <FiEye /> : <FiEyeOff />}
+                </Box>
+              </Box>
+              {!hideVaultPositions && (
+                <>
+                  {vaultsLoading ? (
+                    <Skeleton width={mobile ? 300 : 500} count={1} height={40} />
+                  ) : (
+                    <DashboardPositionList
+                      actionType={ActionType.BORROW}
+                      positions={vaultPositions}
+                      debt={`${currencySettingSymbol}${totalDebt}`}
+                      collateral={`${currencySettingSymbol}${totalCollateral}`}
+                    />
+                  )}
+                </>
               )}
             </Box>
             <Box gap="medium">
-              <Text size="medium">Lend Positions</Text>
-              {seriesLoading ? (
-                <Skeleton width={mobile ? 300 : 500} count={1} height={40} />
-              ) : (
-                <DashboardPositionList
-                  actionType={ActionType.LEND}
-                  positions={lendPositions}
-                  lendBalance={`${currencySettingSymbol}${totalLendBalance}`}
-                />
+              <Box justify="between" direction="row" align="center">
+                <Text size="medium">Lend Positions</Text>
+                <Box onClick={() => setDashSettings('hideLendPositions', !hideLendPositions)} pad="xsmall">
+                  {hideLendPositions ? <FiEye /> : <FiEyeOff />}
+                </Box>
+              </Box>
+              {!hideLendPositions && (
+                <>
+                  {seriesLoading ? (
+                    <Skeleton width={mobile ? 300 : 500} count={1} height={40} />
+                  ) : (
+                    <DashboardPositionList
+                      actionType={ActionType.LEND}
+                      positions={lendPositions}
+                      lendBalance={`${currencySettingSymbol}${totalLendBalance}`}
+                    />
+                  )}
+                </>
               )}
             </Box>
-            {!hidePoolPositions && (
-              <Box gap="medium">
+            <Box gap="medium">
+              <Box justify="between" direction="row" align="center">
                 <Text size="medium">Pool Positions</Text>
-                {strategiesLoading ? (
-                  <Skeleton width={mobile ? 300 : 500} count={1} height={40} />
-                ) : (
-                  <DashboardPositionList
-                    actionType={ActionType.POOL}
-                    positions={strategyPositions}
-                    strategyBalance={`${currencySettingSymbol}${totalStrategyBalance}`}
-                  />
-                )}
+                <Box onClick={() => setDashSettings('hidePoolPositions', !hidePoolPositions)} pad="xsmall">
+                  {hidePoolPositions ? <FiEye /> : <FiEyeOff />}
+                </Box>
               </Box>
-            )}
+              {!hidePoolPositions && (
+                <>
+                  {strategiesLoading ? (
+                    <Skeleton width={mobile ? 300 : 500} count={1} height={40} />
+                  ) : (
+                    <DashboardPositionList
+                      actionType={ActionType.POOL}
+                      positions={strategyPositions}
+                      strategyBalance={`${currencySettingSymbol}${totalStrategyBalance}`}
+                    />
+                  )}
+                </>
+              )}
+            </Box>
           </Box>
         )}
       </StyledBox>

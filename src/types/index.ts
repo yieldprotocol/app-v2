@@ -194,7 +194,7 @@ export interface IStrategy extends IStrategyRoot {
   initInvariant?: BigNumber;
   currentInvariant?: BigNumber;
   returnRate?: BigNumber;
-  returnRate_?:string;
+  returnRate_?: string;
 
   strategyTotalSupply?: BigNumber;
   strategyTotalSupply_?: string;
@@ -213,7 +213,6 @@ export interface IStrategy extends IStrategyRoot {
   accountPoolBalance?: BigNumber;
   accountPoolBalance_?: string;
   accountPoolPercent?: string | undefined;
-
 }
 
 export interface IPool extends IPoolRoot {}
@@ -381,6 +380,7 @@ export interface IDashSettings {
   hideEmptyVaults: boolean;
   showInactiveVaults: boolean;
   hideInactiveVaults: boolean;
+  hideVaultPositions: boolean;
   hideLendPositions: boolean;
   hidePoolPositions: boolean;
   currencySetting: string;

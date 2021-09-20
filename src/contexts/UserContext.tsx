@@ -62,6 +62,7 @@ const initState: IUserContextState = {
     hideEmptyVaults: false,
     showInactiveVaults: false,
     hideInactiveVaults: false,
+    hideVaultPositions: false,
     hideLendPositions: false,
     hidePoolPositions: false,
     currencySetting: 'DAI',
@@ -479,21 +480,21 @@ const UserProvider = ({ children }: any) => {
       _publicData = await Promise.all(
         strategyList.map(async (_strategy: IStrategyRoot): Promise<IStrategy> => {
           /* Get all the data simultanenously in a promise.all */
-          const [strategyTotalSupply, currentSeriesId, currentPoolAddr, nextSeriesId ] = await Promise.all([
+          const [strategyTotalSupply, currentSeriesId, currentPoolAddr, nextSeriesId] = await Promise.all([
             _strategy.strategyContract.totalSupply(),
             _strategy.strategyContract.seriesId(),
             _strategy.strategyContract.pool(),
             _strategy.strategyContract.nextSeriesId(),
           ]);
 
-          const currentSeries:ISeries = seriesRootMap.get(currentSeriesId);
+          const currentSeries: ISeries = seriesRootMap.get(currentSeriesId);
 
-          if ( seriesRootMap.has(currentSeriesId) ) {
+          if (seriesRootMap.has(currentSeriesId)) {
             // const currentSeries = seriesRootMap.get(currentSeriesId);
             const nextSeries = seriesRootMap.get(nextSeriesId);
             console.log(currentSeries?.poolContract.address);
-            
-            const [poolTotalSupply, strategyPoolBalance, currentInvariant, initInvariant ] = await Promise.all([
+
+            const [poolTotalSupply, strategyPoolBalance, currentInvariant, initInvariant] = await Promise.all([
               currentSeries.poolContract.totalSupply(),
               currentSeries.poolContract.balanceOf(_strategy.address),
               undefined, // currentSeries.poolContract.invariant(),
