@@ -291,8 +291,6 @@ const UserProvider = ({ children }: any) => {
         const Oracle = contractMap.get('ChainlinkMultiOracle');
         const [price] = await Oracle.peek(bytesToBytes32(ilk, 6), bytesToBytes32(base, 6), ONE_WEI_BN);
 
-        console.log(price.toString())
-
         _ilkPriceMap.set(base, price);
         _priceMap.set(ilk, _ilkPriceMap);
 
@@ -481,13 +479,11 @@ const UserProvider = ({ children }: any) => {
             _strategy.strategyContract.pool(),
             _strategy.strategyContract.nextSeriesId(),
           ]);
-
           const currentSeries:ISeries = seriesRootMap.get(currentSeriesId);
 
           if ( seriesRootMap.has(currentSeriesId) ) {
             // const currentSeries = seriesRootMap.get(currentSeriesId);
             const nextSeries = seriesRootMap.get(nextSeriesId);
-            console.log(currentSeries?.poolContract.address);
             
             const [poolTotalSupply, strategyPoolBalance, currentInvariant, initInvariant ] = await Promise.all([
               currentSeries.poolContract.totalSupply(),
