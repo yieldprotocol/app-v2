@@ -82,7 +82,6 @@ const Dashboard = () => {
 
   useEffect(() => {
     const _lendPositions: ISeries[] = Array.from(seriesMap.values())
-      .filter((_series: ISeries) => !hideLendPositions && true)
       .filter((_series: ISeries) => (_series ? _series.fyTokenBalance?.gt(ZERO_BN) : true))
       .filter((_series: ISeries) =>
         hideLendBalancesSetting ? Number(_series.fyTokenBalance_!) > Number(hideLendBalancesSetting) : true
@@ -93,8 +92,6 @@ const Dashboard = () => {
 
   useEffect(() => {
     const _strategyPositions: IStrategy[] = Array.from(strategyMap.values())
-
-      .filter((_strategy: IStrategy) => !hidePoolPositions && true)
       .filter((_strategy: IStrategy) => (_strategy ? _strategy.accountBalance?.gt(ZERO_BN) : true))
       .filter((_strategy: IStrategy) =>
         hidePoolBalancesSetting ? Number(_strategy.accountBalance_!) > Number(hidePoolBalancesSetting) : true
