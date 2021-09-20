@@ -452,6 +452,12 @@ export function fyTokenForMint(
   const base_ = new Decimal(base18.toString());
   const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
 
+  // console.log(decimals);
+  // console.log(baseReserves.toString(), baseReserves18.toString());
+  // console.log(fyTokenRealReserves.toString(), fyTokenRealReserves18.toString());
+  // console.log(fyTokenVirtualReserves.toString(), fyTokenVirtualReserves18.toString());
+  // console.log(base.toString(), base18.toString());
+
   let min = ZERO;
   let max = base_;
   let yOut = Decimal.floor(min.add(max).div(TWO));
@@ -479,10 +485,20 @@ export function fyTokenForMint(
     if (pz <= PZ) max = yOut;
     yOut = yOut.add(min).div(TWO); // bought too much fyToken, buy a bit less
 
-    if (PZ.mul(new Decimal(1.000001)) > pz && pz > PZ) return Decimal.floor(yOut).toFixed(0); // Just right 
+    // if (PZ.mul(new Decimal(1.000001)) > pz && pz > PZ) return Decimal.floor(yOut).toFixed(0); // Just right
+    if (PZ.mul(new Decimal(1.000001)) > pz && pz > PZ)
+      return decimal18ToDecimalN( // (converted back to original decimals)
+        BigNumber.from(Decimal.floor(yOut).toFixed(0)),
+        decimals 
+      ).toString(); // Just right
 
     // eslint-disable-next-line no-plusplus
-    if (i++ > 10000) return Decimal.floor(yOut).toFixed(0);
+    if (i++ > 10000)
+      return decimal18ToDecimalN( // (converted back to original decimals)
+        BigNumber.from(Decimal.floor(yOut).toFixed(0)),
+        decimals 
+      ).toString();
+    // if (i++ > 10000) return Decimal.floor(yOut).toFixed(0);
   }
 }
 
