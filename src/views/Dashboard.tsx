@@ -74,7 +74,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     const _vaultPositions: IVault[] = Array.from(vaultMap.values())
-      .filter((vault: IVault) => !hideInactiveVaults || vault.isActive)
+      .filter((vault: IVault) => (hideInactiveVaults ? vault.isActive : true))
       .filter((vault: IVault) => (hideEmptyVaults ? vault.ink.gt(ZERO_BN) || vault.art.gt(ZERO_BN) : true))
       .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1));
     setVaultPositions(_vaultPositions);

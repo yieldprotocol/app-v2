@@ -19,7 +19,7 @@ const DashboardSettings = ({ actionType }: { actionType: string }) => {
         <Box gap="xxsmall">
           <Button
             onClick={() => {
-              setDashSettings('hideZeroLendBalances', !hideEmptyVaults);
+              setDashSettings('hideEmptyVaults', !hideEmptyVaults);
               setSettingsOpen(false);
             }}
             plain
