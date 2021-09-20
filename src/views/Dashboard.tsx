@@ -93,7 +93,7 @@ const Dashboard = () => {
   useEffect(() => {
     const _lendPositions: ISeries[] = Array.from(seriesMap.values())
       .filter((_series: ISeries) => (hideZeroLendBalances ? _series.fyTokenBalance?.gt(ZERO_BN) : true))
-      .sort((_seriesA: ISeries, _seriesB: ISeries) => (_seriesA.fyTokenBalance?.lt(_seriesB.fyTokenBalance!) ? 1 : -1));
+      .sort((_seriesA: ISeries, _seriesB: ISeries) => (_seriesA.fyTokenBalance?.gt(_seriesB.fyTokenBalance!) ? 1 : -1));
     setLendPositions(_lendPositions);
   }, [seriesMap, hideZeroLendBalances, hideLendPositions]);
 
