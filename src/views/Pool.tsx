@@ -160,10 +160,7 @@ function Pool() {
                 )}
               </YieldCardHeader>
 
-              <ActiveTransaction full txProcess={poolProcess}>
-                <Box gap="large">
-                  {!selectedSeries?.seriesIsMature && (
-                    <SectionWrap>
+              <SectionWrap>
                       <Box direction="row" justify="between" fill align="center">
                         {!mobile && (
                           <Box direction="row" gap="xsmall">
@@ -191,9 +188,11 @@ function Pool() {
                         />
                       </Box>
                     </SectionWrap>
-                  )}
 
-                  <SectionWrap title="Review transaction:">
+              <ActiveTransaction full txProcess={poolProcess}>
+                <Box gap="large">
+
+                  <SectionWrap >
                     <Box
                       gap="small"
                       pad={{ horizontal: 'large', vertical: 'medium' }}
@@ -211,7 +210,7 @@ function Pool() {
                         icon={<BiCoinStack />}
                         value={`${'[todo]'} Liquidity tokens`}
                       /> */}
-                      <InfoBite label="Percentage of pool" icon={<FiPercent />} value={`~${poolPercentPreview}%`} />
+                      <InfoBite label="Est. Strategy Percentage" icon={<FiPercent />} value={`${cleanValue(poolPercentPreview, 2)}%`} />
                     </Box>
                   </SectionWrap>
                 </Box>
@@ -221,7 +220,7 @@ function Pool() {
         </Box>
 
         <ActionButtonGroup pad>
-          {stepPosition !== 1 && !selectedSeries?.seriesIsMature && (
+          {stepPosition !== 1 && (
             <NextButton
               secondary
               label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}

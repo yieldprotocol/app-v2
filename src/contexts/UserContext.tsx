@@ -481,15 +481,18 @@ const UserProvider = ({ children }: any) => {
             _strategy.strategyContract.nextSeriesId(),
           ]);
 
-          const initInvariant = await _strategy.strategyContract.invariants(currentPoolAddr);
-
           if (seriesRootMap.has(currentSeriesId)) {
+
             const currentSeries = seriesRootMap.get(currentSeriesId);
             const nextSeries = seriesRootMap.get(nextSeriesId);
-            const [poolTotalSupply, strategyPoolBalance, currentInvariant ] = await Promise.all([
-              currentSeries?.poolContract.totalSupply(),
-              currentSeries?.poolContract.balanceOf(_strategy.address),
-              currentSeries?.poolContract.invariant(),
+
+            console.log(currentSeries?.poolContract.address);
+            
+            const [poolTotalSupply, strategyPoolBalance, currentInvariant, initInvariant ] = await Promise.all([
+              currentSeries.poolContract.totalSupply(),
+              currentSeries.poolContract.balanceOf(_strategy.address),
+              currentSeries.poolContract.totalSupply(),
+              _strategy.strategyContract.invariants(currentPoolAddr),
             ]);
 
             const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
@@ -509,7 +512,7 @@ const UserProvider = ({ children }: any) => {
               currentSeries,
               nextSeries,
               initInvariant,
-              currentInvariant,
+              currentInvariant: BigNumber.from('0'),
               active: true,
             };
           }

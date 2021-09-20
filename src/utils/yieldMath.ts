@@ -478,12 +478,11 @@ export function fyTokenForMint(
 
     if (pz <= PZ) max = yOut;
     yOut = yOut.add(min).div(TWO); // bought too much fyToken, buy a bit less
-    if (PZ.mul(new Decimal(1.000001)) > pz && pz > PZ) return Decimal.floor(yOut).toFixed(); // Just right
 
-    const yOutFloor = Decimal.floor(yOut)
-    const yOut_ = decimal18ToDecimalN(toBn(yOutFloor), decimals)
+    if (PZ.mul(new Decimal(1.000001)) > pz && pz > PZ) return Decimal.floor(yOut).toFixed(0); // Just right 
+
     // eslint-disable-next-line no-plusplus
-    if (i++ > 10000) return yOut_.toString();
+    if (i++ > 10000) return Decimal.floor(yOut).toFixed(0);
   }
 }
 
