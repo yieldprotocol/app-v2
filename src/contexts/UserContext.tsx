@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useReducer, useCallback, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { BigNumber, BigNumberish, ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 
 import { uniqueNamesGenerator, Config, adjectives, animals } from 'unique-names-generator';
 
@@ -22,8 +22,7 @@ import { ChainContext } from './ChainContext';
 import { cleanValue, genVaultImage, bytesToBytes32 } from '../utils/appUtils';
 import { calculateAPR, divDecimal, floorDecimal, mulDecimal, secondsToFrom, sellFYToken } from '../utils/yieldMath';
 
-import { ONE_WEI_BN, ETH_BASED_ASSETS, BLANK_VAULT, BLANK_SERIES, ZERO_BN } from '../utils/constants';
-import * as yieldEnv from './yieldEnv.json';
+import { ONE_WEI_BN } from '../utils/constants';
 
 const UserContext = React.createContext<any>({});
 
@@ -142,7 +141,6 @@ const UserProvider = ({ children }: any) => {
 
   /* LOCAL STATE */
   const [userState, updateState] = useReducer(userReducer, initState);
-
   const [vaultFromUrl, setVaultFromUrl] = useState<string | null>(null);
 
   /* HOOKS */
@@ -478,13 +476,9 @@ const UserProvider = ({ children }: any) => {
             _strategy.strategyContract.nextSeriesId(),
           ]);
           const currentSeries: ISeries = userState.seriesMap.get(currentSeriesId);
-
-          // console.log('CURENT SERIES:', currentSeries && currentSeries.seriesIsMature);
+          const nextSeries: ISeries = userState.seriesMap.get(nextSeriesId);
 
           if (currentSeries && !currentSeries.seriesIsMature) {
-            // const currentSeries = seriesRootMap.get(currentSeriesId);
-            const nextSeries = seriesRootMap.get(nextSeriesId);
-
             const [poolTotalSupply, strategyPoolBalance, currentInvariant, initInvariant] = await Promise.all([
               currentSeries.poolContract.totalSupply(),
               currentSeries.poolContract.balanceOf(_strategy.address),
@@ -494,7 +488,6 @@ const UserProvider = ({ children }: any) => {
 
             const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
             const returnRate = currentInvariant && currentInvariant.sub(initInvariant)!;
-            // const returnRate = BigNumber.from('0');
 
             return {
               ..._strategy,
@@ -578,7 +571,7 @@ const UserProvider = ({ children }: any) => {
 
       return combinedMap;
     },
-    [account, seriesRootMap]
+    [account, userState.seriesMap ]
   );
 
   useEffect(() => {
@@ -605,7 +598,10 @@ const UserProvider = ({ children }: any) => {
 
   useEffect(() => {
     /* When the chainContext is finished loading get the users vault data */
-    if (!chainLoading && account !== null) {
+    if (
+      !chainLoading && 
+      account !== null
+      ) {
       console.log('Checking User Vaults');
       /* trigger update of update all vaults by passing empty array */
       updateVaults([], true);
