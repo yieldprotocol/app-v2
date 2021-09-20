@@ -115,7 +115,7 @@ const VaultPosition = () => {
 
   const { collateralizationPercent: repayCollEst } = useCollateralHelpers(`-${repayInput! || '0'}`, '0', selectedVault);
 
-  const { collateralizationPercent: removeCollEst  } = useCollateralHelpers(
+  const { collateralizationPercent: removeCollEst } = useCollateralHelpers(
     '0',
     `-${removeCollatInput! || '0'}`,
     selectedVault
@@ -359,7 +359,7 @@ const VaultPosition = () => {
                                   parseFloat(repayCollEst) < 10000 &&
                                   parseFloat(repayCollEst) !== 0 &&
                                   repayInput !== maxRepayOrRoll && (
-                                    <Text color="text-weak"alignSelf="end" size="xsmall">
+                                    <Text color="text-weak" alignSelf="end" size="xsmall">
                                       Collateralisation ratio after repayment:{' '}
                                       {repayCollEst && nFormatter(parseFloat(repayCollEst), 2)}%
                                     </Text>
@@ -398,13 +398,11 @@ const VaultPosition = () => {
                         txProcess={repayProcess}
                         cancelAction={() => resetInputs(ActionCodes.REPAY)}
                       >
-                        <Box>
-                          <InfoBite
-                            label="Repay Debt"
-                            icon={<FiArrowRight />}
-                            value={`${cleanValue(repayInput, vaultBase?.digitFormat!)} ${vaultBase?.symbol}`}
-                          />
-                        </Box>
+                        <InfoBite
+                          label="Repay Debt"
+                          icon={<FiArrowRight />}
+                          value={`${cleanValue(repayInput, vaultBase?.digitFormat!)} ${vaultBase?.symbol}`}
+                        />
                       </ActiveTransaction>
                     )}
                   </>
@@ -419,12 +417,15 @@ const VaultPosition = () => {
                           actionType={ActionType.BORROW}
                           cardLayout={false}
                         />
-                        <Box fill='horizontal'>
-                        { rollToSeries &&
-                          <InputInfoWrap>
-                              <Text color="text-weak" size="xsmall"> All debt ({cleanValue(maxRepayOrRoll,2)} {vaultBase?.symbol}) will be rolled</Text>
-                          </InputInfoWrap>
-                        }
+                        <Box fill="horizontal">
+                          {rollToSeries && (
+                            <InputInfoWrap>
+                              <Text color="text-weak" size="xsmall">
+                                {' '}
+                                All debt ({cleanValue(maxRepayOrRoll, 2)} {vaultBase?.symbol}) will be rolled
+                              </Text>
+                            </InputInfoWrap>
+                          )}
                         </Box>
                       </Box>
                     )}
@@ -435,13 +436,11 @@ const VaultPosition = () => {
                         txProcess={rollProcess}
                         cancelAction={() => resetInputs(ActionCodes.ROLL_DEBT)}
                       >
-                        <Box margin={{ top: 'medium' }}>
-                          <InfoBite
-                            label="Roll Debt to Series"
-                            icon={<FiArrowRight />}
-                            value={`${rollToSeries?.displayName}`}
-                          />
-                        </Box>
+                        <InfoBite
+                          label="Roll Debt to Series"
+                          icon={<FiArrowRight />}
+                          value={`${rollToSeries?.displayName}`}
+                        />
                       </ActiveTransaction>
                     )}
                   </>
@@ -497,13 +496,11 @@ const VaultPosition = () => {
                         txProcess={addCollatInput ? addCollateralProcess : removeCollateralProcess}
                         cancelAction={() => resetInputs(ActionCodes.ADD_COLLATERAL)}
                       >
-                        <Box margin={{ top: 'medium' }}>
-                          <InfoBite
-                            label="Add Collateral"
-                            icon={<FiArrowRight />}
-                            value={`${cleanValue(addCollatInput, vaultIlk?.digitFormat!)} ${vaultIlk?.symbol}`}
-                          />
-                        </Box>
+                        <InfoBite
+                          label="Add Collateral"
+                          icon={<FiArrowRight />}
+                          value={`${cleanValue(addCollatInput, vaultIlk?.digitFormat!)} ${vaultIlk?.symbol}`}
+                        />
                       </ActiveTransaction>
                     )}
                   </>
@@ -513,40 +510,40 @@ const VaultPosition = () => {
                   <>
                     {stepPosition[actionActive.index] === 0 && (
                       <Box margin={{ top: 'medium' }}>
-                          <InputWrap 
-                            action={() => console.log('maxAction')} 
-                            isError={removeCollatError}
-                            message={
-                              !removeCollatInput ? (
-                                <InputInfoWrap action={() => setRemoveCollatInput(maxRemovableCollateral)}>
-                                  <Text size="xsmall" color="text-weak">
-                                    Max removable collateral: {cleanValue(maxRemovableCollateral,6)} {vaultIlk?.symbol!}
-                                  </Text>
-                                </InputInfoWrap>
-                              ) : (
-                                <InputInfoWrap>
-                                  <Text color="gray" alignSelf="end" size="xsmall">
-                                    Your collateralisation ratio will be: {nFormatter(parseFloat(removeCollEst!), 2)}%
-                                  </Text>
-                                </InputInfoWrap>
-                              )
-                            }                                            
-                            >
-                            <TextInput
-                              // disabled={addCollatInput}
-                              plain
-                              type="number"
-                              placeholder="Collateral to remove"
-                              value={removeCollatInput || ''}
-                              onChange={(event: any) => setRemoveCollatInput(cleanValue(event.target.value))}
-                              icon={<>{vaultIlk?.image}</>}
-                            />
-                            <MaxButton
-                              action={() => setRemoveCollatInput(maxRemovableCollateral)}
-                              clearAction={() => setRemoveCollatInput('')}
-                              showingMax={!!removeCollatInput && maxRemovableCollateral === removeCollatInput}
-                            />
-                          </InputWrap>
+                        <InputWrap
+                          action={() => console.log('maxAction')}
+                          isError={removeCollatError}
+                          message={
+                            !removeCollatInput ? (
+                              <InputInfoWrap action={() => setRemoveCollatInput(maxRemovableCollateral)}>
+                                <Text size="xsmall" color="text-weak">
+                                  Max removable collateral: {cleanValue(maxRemovableCollateral, 6)} {vaultIlk?.symbol!}
+                                </Text>
+                              </InputInfoWrap>
+                            ) : (
+                              <InputInfoWrap>
+                                <Text color="gray" alignSelf="end" size="xsmall">
+                                  Your collateralisation ratio will be: {nFormatter(parseFloat(removeCollEst!), 2)}%
+                                </Text>
+                              </InputInfoWrap>
+                            )
+                          }
+                        >
+                          <TextInput
+                            // disabled={addCollatInput}
+                            plain
+                            type="number"
+                            placeholder="Collateral to remove"
+                            value={removeCollatInput || ''}
+                            onChange={(event: any) => setRemoveCollatInput(cleanValue(event.target.value))}
+                            icon={<>{vaultIlk?.image}</>}
+                          />
+                          <MaxButton
+                            action={() => setRemoveCollatInput(maxRemovableCollateral)}
+                            clearAction={() => setRemoveCollatInput('')}
+                            showingMax={!!removeCollatInput && maxRemovableCollateral === removeCollatInput}
+                          />
+                        </InputWrap>
                       </Box>
                     )}
 
@@ -556,7 +553,7 @@ const VaultPosition = () => {
                         txProcess={addCollatInput ? addCollateralProcess : removeCollateralProcess}
                         cancelAction={() => resetInputs(ActionCodes.REMOVE_COLLATERAL)}
                       >
-                        <Box margin={{ top: 'medium' }}>
+                        <Box>
                           <InfoBite
                             label="Remove Collateral"
                             icon={<FiArrowRight />}
