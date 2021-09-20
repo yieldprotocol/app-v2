@@ -481,21 +481,22 @@ const UserProvider = ({ children }: any) => {
             _strategy.strategyContract.nextSeriesId(),
           ]);
 
-          if (seriesRootMap.has(currentSeriesId)) {
+          const currentSeries:ISeries = seriesRootMap.get(currentSeriesId);
 
-            const currentSeries = seriesRootMap.get(currentSeriesId);
+          if (currentSeries && !currentSeries.seriesIsMature ) {
+            // const currentSeries = seriesRootMap.get(currentSeriesId);
             const nextSeries = seriesRootMap.get(nextSeriesId);
-
             console.log(currentSeries?.poolContract.address);
             
             const [poolTotalSupply, strategyPoolBalance, currentInvariant, initInvariant ] = await Promise.all([
               currentSeries.poolContract.totalSupply(),
               currentSeries.poolContract.balanceOf(_strategy.address),
-              undefined, // currentSeries.poolContract.totalSupply(),
-              undefined // _strategy.strategyContract.invariants(currentPoolAddr),
+              currentSeries.poolContract.invariant(),
+              _strategy.strategyContract.invariants(currentPoolAddr),
             ]);
 
             const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
+            const returnRate = currentInvariant.sub(initInvariant);
 
             return {
               ..._strategy,
@@ -512,7 +513,9 @@ const UserProvider = ({ children }: any) => {
               currentSeries,
               nextSeries,
               initInvariant: initInvariant || BigNumber.from('0'),
-              currentInvariant: initInvariant || BigNumber.from('0'),
+              currentInvariant: currentInvariant || BigNumber.from('0'),
+              returnRate,
+              returnRate_: returnRate.toString(),
               active: true,
             };
           }

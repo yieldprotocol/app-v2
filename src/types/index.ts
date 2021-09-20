@@ -193,6 +193,8 @@ export interface IStrategy extends IStrategyRoot {
 
   initInvariant?: BigNumber;
   currentInvariant?: BigNumber;
+  returnRate?: BigNumber;
+  returnRate_?:string;
 
   strategyTotalSupply?: BigNumber;
   strategyTotalSupply_?: string;

@@ -49,6 +49,12 @@ export const useAddLiquidity = () => {
 
     const permits: ICallData[] = await sign(
       [
+        // {
+        //   target: base,
+        //   spender: base.joinAddress,
+        //   message: 'Signing ERC20 Token approval',
+        //   ignoreIf: method !== 'BORROW',
+        // },
         {
           target: base,
           spender: 'LADLE',
@@ -90,11 +96,11 @@ export const useAddLiquidity = () => {
         args: [selectedSeriesId, selectedIlkId, '0'] as LadleActions.Args.BUILD,
         ignoreIf: method !== 'BORROW', // TODO exclude if vault is Provided.
       },
-      // {
-      //   operation: LadleActions.Fn.TRANSFER,
-      //   args: [base.address, base.joinAddress, _baseToFyToken] as LadleActions.Args.TRANSFER,
-      //   ignoreIf: method !== 'BORROW',
-      // },
+      {
+        operation: LadleActions.Fn.TRANSFER,
+        args: [base.address, base.joinAddress, _baseToFyToken] as LadleActions.Args.TRANSFER,
+        ignoreIf: method !== 'BORROW',
+      },
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [base.address, series.poolAddress, _baseToPool] as LadleActions.Args.TRANSFER,
@@ -110,17 +116,17 @@ export const useAddLiquidity = () => {
         args: [_strategy || account, true, ethers.constants.Zero] as RoutedActions.Args.MINT_POOL_TOKENS, // receiver is _strategyAddr (if it exists) or account
         fnName: RoutedActions.Fn.MINT_POOL_TOKENS,
         targetContract: series.poolContract,
-        ignoreIf: !(method === 'BORROW' && !!_strategy),
+        ignoreIf: method !== 'BORROW',
       },
 
       /* STRATEGY MINTING if strategy address is provided, and is found in the strategyMap, use that address */
-      // {
-      //   operation: LadleActions.Fn.ROUTE,
-      //   args: [account] as RoutedActions.Args.MINT_STRATEGY_TOKENS,
-      //   fnName: RoutedActions.Fn.MINT_STRATEGY_TOKENS,
-      //   targetContract: _strategy && strategyRootMap.get(_strategy).strategyContract,
-      //   ignoreIf: !_strategy,
-      // },
+      {
+        operation: LadleActions.Fn.ROUTE,
+        args: [account] as RoutedActions.Args.MINT_STRATEGY_TOKENS,
+        fnName: RoutedActions.Fn.MINT_STRATEGY_TOKENS,
+        targetContract: _strategy && strategyRootMap.get(_strategy).strategyContract,
+        ignoreIf: !_strategy,
+      },
     ];
 
     await transact(calls, txCode);

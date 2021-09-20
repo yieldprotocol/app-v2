@@ -1,13 +1,27 @@
 {
   "addresses": {
+    "1": {},
     "42": {
-      "Cauldron": "0x0d41dd4A7A034540c3CEC7F44880f1d3B4142491",
-      "Ladle": "0x5f959B615D75B5622f2d3eC7747a7278fc0fbf74",
-      "ChainlinkMultiOracle": "0xf31Ace24F217Fd1CD3A0D34889cFA64797129382",
-      "CompositeMultiOracle": "0xa2aB80dFffC066C1EDE88b5BC8794a821CFAF615",
-      "Witch": "0xA0f79C2b3483e2936411b4FA579cEFB7b7f9c166"
-    }
+      "Cauldron": "0xE3c33408b72adCA6DdB17D6bcAB0400Ae79Bd85B",
+      "Ladle": "0x5840069B175D3EEa154C58b065edC06095bB9217",
+      "ChainlinkMultiOracle": "0x4376c9982621F62799a4CEB3f4645bEeA01064E3",
+      "CompositeMultiOracle": "0xF040F5392D51755fa278F05BC8D7866738aaab70",
+      "Witch": "0x8a36B0369148A12B1B91130F3c92Bfc14F971Eb6"
+    },
+    "31337": {}
   },
+  "strategies": {
+    "1": [],
+    "42": [
+      "0xEA6A127922c3fB52152f7cCd87a9446F2511c844",
+      "0x0fE76C4F082C9d26eBAbeec8af504Cb27A059c8D",
+      "0xE008b2D27f14Afc43530BF11773B0dd32415737C",
+      "0x1E6bB1B5D0C350737aac3202758489166bA0e10b",
+      "0xcA56912Fa2c689822b44275854EF41BfB0EE20a7"
+    ],
+    "31337": []
+  },
+  
   "assetColors": {
     "DAI": "#F5AC37",
     "USDC": "#2775CA",
@@ -21,12 +35,6 @@
     "SPRING": ["#6AD99E", "#FF6BE4", "#333333"],
     "SUMMER": ["#FFDE75", "#409C4D", "#333333"],
     "FALL": ["#7255BD", "#D95948", "#ffffff"]
-  },
-  "strategies": {
-    "42": [
-      "0x5006608dC996896cF0b5Ead3908A2E4e9FDE7cdE",
-      "0x5c3Dd6017969e1a02066fa2Fbe52DC85a08E08A8",
-      "0x5a1303cc860f68f86617E4C024fF52B518FA1cBb"
-    ]
   }
+
 }
