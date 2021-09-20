@@ -185,7 +185,7 @@ const Borrow = () => {
           <Box height="100%" pad={mobile ? 'medium' : { top: 'large', horizontal: 'large' }}>
             {stepPosition === 0 && ( // INITIAL STEP
               <Box fill gap="large">
-                <YieldCardHeader logo={mobile} series={selectedSeries}>
+                <YieldCardHeader>
                   <Box gap={mobile ? undefined : 'xsmall'}>
                     <ColorText size={mobile ? 'medium' : '2rem'}>BORROW</ColorText>
                     <AltText color="text-weak" size="xsmall">

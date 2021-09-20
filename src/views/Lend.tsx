@@ -98,7 +98,7 @@ const Lend = () => {
         <Box height="100%" pad={mobile ? 'medium' : { top: 'large', horizontal: 'large' }}>
           {stepPosition === 0 && (
             <Box fill gap="large">
-              <YieldCardHeader logo={mobile} series={selectedSeries}>
+              <YieldCardHeader>
                 <Box gap={mobile ? undefined : 'xsmall'}>
                   <ColorText size={mobile ? 'medium' : '2rem'}>LEND</ColorText>
                   <AltText color="text-weak" size="xsmall">
@@ -188,8 +188,7 @@ const Lend = () => {
                 </Box>
               </ActiveTransaction>
 
-              {lendProcess?.stage === ProcessStage.PROCESS_COMPLETE && 
-              lendProcess?.tx.status === TxState.SUCCESSFUL && (
+              {lendProcess?.stage === ProcessStage.PROCESS_COMPLETE && lendProcess?.tx.status === TxState.SUCCESSFUL && (
                 <Box pad="large" gap="small">
                   <Text size="small"> View position: </Text>
                   <LendItem series={selectedSeries!} index={0} actionType={ActionType.LEND} condensed />
