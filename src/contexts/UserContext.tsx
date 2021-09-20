@@ -483,7 +483,7 @@ const UserProvider = ({ children }: any) => {
 
           const currentSeries:ISeries = seriesRootMap.get(currentSeriesId);
 
-          if (currentSeries && !currentSeries.seriesIsMature ) {
+          if ( seriesRootMap.has(currentSeriesId) ) {
             // const currentSeries = seriesRootMap.get(currentSeriesId);
             const nextSeries = seriesRootMap.get(nextSeriesId);
             console.log(currentSeries?.poolContract.address);
@@ -491,10 +491,8 @@ const UserProvider = ({ children }: any) => {
             const [poolTotalSupply, strategyPoolBalance, currentInvariant, initInvariant ] = await Promise.all([
               currentSeries.poolContract.totalSupply(),
               currentSeries.poolContract.balanceOf(_strategy.address),
-              // currentSeries.poolContract.invariant(),
-              // _strategy.strategyContract.invariants(currentPoolAddr),
-              undefined,
-              undefined
+              undefined, // currentSeries.poolContract.invariant(),
+              undefined, // _strategy.strategyContract.invariants(currentPoolAddr),
             ]);
 
             const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');

@@ -170,7 +170,7 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
                         {strategy.name}
                      </Text>
                     <Text size="small" color={strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined}>
-                        {!strategy.active ? 'Coming soon' : '0.14% returns'}
+                        {!strategy.active ? 'Coming soon' : `${strategy.returnRate_}%`}
                     </Text>
                   </Box>
                 </Box>
