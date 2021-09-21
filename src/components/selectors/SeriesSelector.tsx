@@ -191,7 +191,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     <>
       {seriesLoading && <Skeleton width={180} />}
       {!cardLayout && (
-        <InsetBox fill="horizontal" round="xsmall">
+        <InsetBox fill="horizontal" round="xsmall" background={mobile ? 'white' : undefined}>
           <Select
             plain
             dropProps={{ round: 'xsmall' }}
