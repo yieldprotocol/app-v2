@@ -16,6 +16,7 @@ import {
   ApprovalType,
   IStrategyRoot,
   IStrategy,
+  IDashSettings,
 } from '../types';
 
 import { ChainContext } from './ChainContext';
@@ -55,11 +56,18 @@ const initState: IUserContextState = {
   /* User Settings */
   approvalMethod: ApprovalType.SIG,
   dudeSalt: 20,
-  showInactiveVaults: false as boolean,
   slippageTolerance: 0.01 as number,
-
-  hideBalancesSetting: null as string | null,
-  currencySetting: 'DAI' as string,
+  dashSettings: {
+    hideEmptyVaults: false,
+    showInactiveVaults: false,
+    hideInactiveVaults: false,
+    hideVaultPositions: false,
+    hideLendPositions: false,
+    hidePoolPositions: false,
+    currencySetting: 'DAI',
+    hideZeroLendBalances: false,
+    hideZeroPoolBalances: false,
+  } as IDashSettings,
 };
 
 const vaultNameConfig: Config = {
@@ -107,10 +115,6 @@ function userReducer(state: any, action: any) {
       return { ...state, approvalMethod: onlyIfChanged(action) };
     case 'dudeSalt':
       return { ...state, dudeSalt: onlyIfChanged(action) };
-    case 'showInactiveVaults':
-      return { ...state, showInactiveVaults: onlyIfChanged(action) };
-    case 'hideBalancesSetting':
-      return { ...state, hideBalancesSetting: onlyIfChanged(action) };
     case 'setSlippageTolerance':
       return { ...state, slippageTolerance: onlyIfChanged(action) };
 
@@ -125,8 +129,10 @@ function userReducer(state: any, action: any) {
     case 'strategiesLoading':
       return { ...state, strategiesLoading: onlyIfChanged(action) };
 
-    case 'currencySetting':
-      return { ...state, currencySetting: onlyIfChanged(action) };
+    case 'showInactiveVaults':
+      return { ...state, showInactiveVaults: onlyIfChanged(action) };
+    case 'dashSettings':
+      return { ...state, dashSettings: onlyIfChanged(action) };
 
     default:
       return state;
@@ -479,6 +485,7 @@ const UserProvider = ({ children }: any) => {
           const nextSeries: ISeries = userState.seriesMap.get(nextSeriesId);
 
           if (currentSeries && !currentSeries.seriesIsMature) {
+
             const [poolTotalSupply, strategyPoolBalance, currentInvariant, initInvariant] = await Promise.all([
               currentSeries.poolContract.totalSupply(),
               currentSeries.poolContract.balanceOf(_strategy.address),
@@ -628,13 +635,14 @@ const UserProvider = ({ children }: any) => {
     // TODO To reduce exposure, maybe we have a single 'change setting' function?  > that handles all the below? not urgent.
     setApprovalMethod: (type: ApprovalType) => updateState({ type: 'approvalMethod', payload: type }),
     updateDudeSalt: () => updateState({ type: 'dudeSalt', payload: userState.dudeSalt + 3 }),
-    setShowInactiveVaults: (showInactiveVaults: boolean) =>
-      updateState({ type: 'showInactiveVaults', payload: showInactiveVaults }),
     setSlippageTolerance: (slippageTolerance: number) =>
       updateState({ type: 'setSlippageTolerance', payload: slippageTolerance }),
-    setHideBalancesSetting: (hideBalancesSetting: string) =>
-      updateState({ type: 'hideBalancesSetting', payload: hideBalancesSetting }),
-    setCurrencySetting: (currencySetting: string) => updateState({ type: 'currencySetting', payload: currencySetting }),
+
+    setShowInactiveVaults: (showInactiveVaults: boolean) =>
+      updateState({ type: 'showInactiveVaults', payload: showInactiveVaults }),
+
+    setDashSettings: (name: any, value: any) =>
+      updateState({ type: 'dashSettings', payload: { ...userState.dashSettings, [name]: value } }),
   };
 
   return <UserContext.Provider value={{ userState, userActions } as IUserContext}>{children}</UserContext.Provider>;

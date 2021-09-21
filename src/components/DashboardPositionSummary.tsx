@@ -1,11 +1,13 @@
 import React from 'react';
 import { Box, Text } from 'grommet';
+import DashboardSettings from './DashboardSettings';
 
 interface IDashSummary {
   debt: string | null;
   collateral: string | null;
   lendBalance: string | null;
   strategyBalance: string | null;
+  actionType: string;
   children: any;
 }
 
@@ -16,7 +18,14 @@ const Summary = ({ label, value }: { label: string; value: string }) => (
   </Box>
 );
 
-const DashboardPositionSummary = ({ debt, collateral, lendBalance, strategyBalance, children }: IDashSummary) => (
+const DashboardPositionSummary = ({
+  debt,
+  collateral,
+  lendBalance,
+  strategyBalance,
+  actionType,
+  children,
+}: IDashSummary) => (
   <Box>
     <Box direction="row" justify="between" background="tailwind-blue-50" round="xsmall" pad="small">
       <Box direction="row" gap="small">
@@ -25,6 +34,7 @@ const DashboardPositionSummary = ({ debt, collateral, lendBalance, strategyBalan
         {lendBalance && <Summary label="Balance" value={lendBalance} />}
         {strategyBalance && <Summary label="Balance" value={strategyBalance} />}
       </Box>
+      <DashboardSettings actionType={actionType} />
     </Box>
     <Box pad={{ vertical: 'xsmall', horizontal: 'none' }}>{children}</Box>
   </Box>
