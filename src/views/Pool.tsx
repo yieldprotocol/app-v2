@@ -31,6 +31,7 @@ import ColorText from '../components/texts/ColorText';
 import { usePoolHelpers } from '../hooks/actionHelperHooks/usePoolHelpers';
 import { useProcess } from '../hooks/useProcess';
 import StrategyItem from '../components/positionItems/StrategyItem';
+import DashButton from '../components/buttons/DashButton';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -278,6 +279,11 @@ function Pool() {
               </>
             )}
         </ActionButtonGroup>
+        {mobile && (
+          <Box align="end" margin={{ right: 'medium' }}>
+            <DashButton />
+          </Box>
+        )}
       </CenterPanelWrap>
 
       <PanelWrap right basis="40%">

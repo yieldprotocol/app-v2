@@ -39,6 +39,7 @@ import { useBorrowHelpers } from '../hooks/actionHelperHooks/useBorrowHelpers';
 import InputInfoWrap from '../components/wraps/InputInfoWrap';
 import ColorText from '../components/texts/ColorText';
 import { useProcess } from '../hooks/useProcess';
+import DashButton from '../components/buttons/DashButton';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -429,6 +430,11 @@ const Borrow = () => {
                 )}
             </ActionButtonWrap>
           </Box>
+          {mobile && (
+            <Box align="end" margin={{ right: 'medium' }}>
+              <DashButton />
+            </Box>
+          )}
         </CenterPanelWrap>
 
         <PanelWrap right basis="40%">
