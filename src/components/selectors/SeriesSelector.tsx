@@ -235,8 +235,12 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
               <>
                 <CardSkeleton />
                 <CardSkeleton />
-                <CardSkeleton />
-                <CardSkeleton />
+                {!mobile && (
+                  <>
+                    <CardSkeleton />
+                    <CardSkeleton />
+                  </>
+                )}
               </>
             ) : (
               options.map((series: ISeries) => (
