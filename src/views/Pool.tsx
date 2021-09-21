@@ -60,8 +60,6 @@ function Pool() {
     [0, maxPool]
   );
 
-  console.log(maxPool);
-
   const { txProcess: poolProcess, resetProcess } = useProcess(ActionCodes.ADD_LIQUIDITY, selectedStrategy?.id);
 
   /* LOCAL ACTION FNS */

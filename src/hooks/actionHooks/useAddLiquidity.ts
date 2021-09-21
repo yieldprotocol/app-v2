@@ -33,11 +33,6 @@ export const useAddLiquidity = () => {
 
     const _input = ethers.utils.parseUnits(input, base.decimals);
 
-    // const _strategyExists = ethers.utils.isAddress(strategyAddr!) && strategyRootMap.has(strategyAddr);
-    // const _strategy : IStrategy = _strategyExists ? strategyAddr : undefined;
-    // const _strategy = selectedStrategyAddr || undefined;
-    // const _strategyAddr = strategy.id;
-
     const _fyTokenToBuy = fyTokenForMint(
       series.baseReserves,
       series.fyTokenRealReserves,
@@ -58,13 +53,19 @@ export const useAddLiquidity = () => {
           target: base,
           spender: 'LADLE',
           message: 'Signing ERC20 Token approval',
-          ignoreIf: false,
+          ignoreIf: method === 'BORROW',
+        },
+        {
+          target: base,
+          spender: base.joinAddress,
+          message: 'Signing ERC20 Token approval',
+          ignoreIf: method === 'BUY',
         },
       ],
       txCode
     );
 
-    console.log(_baseToFyToken.toString());
+    console.log(_fyTokenToBuy.toString())
 
     const calls: ICallData[] = [
       ...permits,
@@ -75,7 +76,7 @@ export const useAddLiquidity = () => {
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [base.address, series.poolAddress, _inputWithSlippage] as LadleActions.Args.TRANSFER,
-        ignoreIf: method !== 'BUY',
+        ignoreIf: method === 'BORROW',
       },
       {
         operation: LadleActions.Fn.ROUTE,
@@ -86,7 +87,7 @@ export const useAddLiquidity = () => {
         ] as RoutedActions.Args.MINT_WITH_BASE,
         fnName: RoutedActions.Fn.MINT_WITH_BASE,
         targetContract: series.poolContract,
-        ignoreIf: method !== 'BUY',
+        ignoreIf: method === 'BORROW',
       },
 
       /**
@@ -95,44 +96,44 @@ export const useAddLiquidity = () => {
       {
         operation: LadleActions.Fn.BUILD,
         args: [series.id, base.id, '0'] as LadleActions.Args.BUILD,
-        ignoreIf: method !== 'BORROW', // TODO exclude if vault is Provided.
+        ignoreIf: method === 'BUY', // TODO exclude if vault is Provided.
       },
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [base.address, ladleAddress, '2000000000000000000'] as LadleActions.Args.TRANSFER,
-        ignoreIf: method !== 'BORROW',
+        args: [base.address, base.joinAddress, _baseToFyToken] as LadleActions.Args.TRANSFER,
+        ignoreIf: method === 'BUY',
       },
-      // {
-      //   operation: LadleActions.Fn.TRANSFER,
-      //   args: [base.address, series.poolAddress, _baseToPool] as LadleActions.Args.TRANSFER,
-      //   ignoreIf: method !== 'BORROW',
-      // },
+      {
+        operation: LadleActions.Fn.TRANSFER,
+        args: [base.address, series.poolAddress, _baseToPool] as LadleActions.Args.TRANSFER,
+        ignoreIf: method === 'BUY',
+      },
       {
         operation: LadleActions.Fn.POUR,
         args: [
           BLANK_VAULT,
           series.poolAddress,
-          '2000000000000000000',
-          '2000000000000000000',
+          _baseToFyToken,
+          _baseToFyToken,
         ] as LadleActions.Args.POUR,
-        ignoreIf: method !== 'BORROW',
+        ignoreIf: method === 'BUY',
       },
-      // {
-      //   operation: LadleActions.Fn.ROUTE,
-      //   args: [strategy.id || account, true, ethers.constants.Zero] as RoutedActions.Args.MINT_POOL_TOKENS, // receiver is _strategyAddr (if it exists) or account
-      //   fnName: RoutedActions.Fn.MINT_POOL_TOKENS,
-      //   targetContract: series.poolContract,
-      //   ignoreIf: method !== 'BORROW',
-      // },
+      {
+        operation: LadleActions.Fn.ROUTE,
+        args: [strategy.id || account, true, ethers.constants.Zero] as RoutedActions.Args.MINT_POOL_TOKENS, // receiver is _strategyAddr (if it exists) or account
+        fnName: RoutedActions.Fn.MINT_POOL_TOKENS,
+        targetContract: series.poolContract,
+        ignoreIf: method === 'BUY',
+      },
 
-      // // /* STRATEGY MINTING if strategy address is provided, and is found in the strategyMap, use that address */
-      // {
-      //   operation: LadleActions.Fn.ROUTE,
-      //   args: [account] as RoutedActions.Args.MINT_STRATEGY_TOKENS,
-      //   fnName: RoutedActions.Fn.MINT_STRATEGY_TOKENS,
-      //   targetContract: strategy.strategyContract,
-      //   ignoreIf: !strategy,
-      // },
+      // /* STRATEGY MINTING if strategy address is provided, and is found in the strategyMap, use that address */
+      {
+        operation: LadleActions.Fn.ROUTE,
+        args: [account] as RoutedActions.Args.MINT_STRATEGY_TOKENS,
+        fnName: RoutedActions.Fn.MINT_STRATEGY_TOKENS,
+        targetContract: strategy.strategyContract,
+        ignoreIf: !strategy,
+      },
     ];
 
     await transact(calls, txCode);
