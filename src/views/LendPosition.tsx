@@ -185,7 +185,7 @@ const LendPosition = () => {
 
               <Box height={{ min: '300px' }}>
                 <SectionWrap title="Position Actions" icon={<FiTool />}>
-                  <Box elevation="xsmall" round="xsmall">
+                  <Box elevation="xsmall" round="xsmall" background={mobile ? 'white' : undefined}>
                     <Select
                       plain
                       dropProps={{ round: 'xsmall' }}
