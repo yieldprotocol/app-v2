@@ -60,7 +60,10 @@ function Pool() {
     [0, maxPool]
   );
 
-  const { txProcess: poolProcess, resetProcess } = useProcess(ActionCodes.ADD_LIQUIDITY, selectedStrategy?.id);
+  const { txProcess: poolProcess, resetProcess } = useProcess(
+    ActionCodes.ADD_LIQUIDITY,
+    selectedStrategy?.id
+  );
 
   /* LOCAL ACTION FNS */
   const handleAdd = () => {

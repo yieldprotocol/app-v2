@@ -32,8 +32,8 @@ const DashboardPositionList = ({
     collateral={collateral!}
     lendBalance={lendBalance!}
     strategyBalance={strategyBalance!}
+    actionType={actionType}
   >
-
     <StyledBox gap="xsmall">
       {positions.length === 0 && (
         <Text weight={450} size="small">

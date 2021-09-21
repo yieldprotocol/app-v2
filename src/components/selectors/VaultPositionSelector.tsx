@@ -1,7 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Box, Button, Text } from 'grommet';
 import { FiX } from 'react-icons/fi';
-import { RiDashboard2Line } from 'react-icons/ri';
 import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
 import { IAsset, ISeries, IUserContext, IVault } from '../../types';
@@ -21,8 +20,7 @@ function VaultPositionSelector(target: any) {
   const {
     chainState: { account },
   } = useContext(ChainContext);
-  const { activeAccount, assetMap, vaultMap, seriesMap, selectedSeriesId, selectedBaseId, showInactiveVaults } =
-    userState;
+  const { activeAccount, assetMap, vaultMap, seriesMap, selectedSeriesId, selectedBaseId, dashSettings } = userState;
 
   const selectedBase = assetMap.get(selectedBaseId!);
   const selectedSeries = seriesMap.get(selectedSeriesId!);
@@ -37,7 +35,7 @@ function VaultPositionSelector(target: any) {
   const handleFilter = useCallback(
     ({ base, series, ilk }: IVaultFilter) => {
       const _filteredVaults: IVault[] = Array.from(vaultMap.values())
-        .filter((vault: IVault) => showInactiveVaults || vault.isActive)
+        .filter((vault: IVault) => dashSettings.showInactiveVaults || vault.isActive)
         .filter((vault: IVault) => (base ? vault.baseId === base.id : true))
         .filter((vault: IVault) => (series ? vault.seriesId === series.id : true))
         .filter((vault: IVault) => (ilk ? vault.ilkId === ilk.id : true))
@@ -45,7 +43,7 @@ function VaultPositionSelector(target: any) {
       setFilter({ base, series, ilk });
       setFilteredVaults(_filteredVaults);
     },
-    [vaultMap, showInactiveVaults]
+    [vaultMap, dashSettings.showInactiveVaults]
   );
 
   /* CHECK the list of current vaults which match the current series/ilk selection */
