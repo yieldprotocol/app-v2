@@ -54,12 +54,16 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
       // border={{ side: 'left', color: 'tailwind-blue-100' }}
       elevation="xlarge"
     >
-      <Box gap="small" pad="small">
-        <Button alignSelf="end" icon={<FiX size="1.5rem" />} onClick={() => setSettingsOpen(false)} plain />
-        
+      <Box gap="small" pad="medium">
+        <Box alignSelf="end" onClick={() => setSettingsOpen(false)} pad="xsmall">
+          <FiX size="1.5rem" />
+        </Box>
+
         <Box align="center" gap="medium">
           <YieldAvatar address={account} size={5} />
-          <CopyWrap><Text size="xlarge">{abbreviateHash(account, 6)}</Text></CopyWrap>
+          <CopyWrap>
+            <Text size="xlarge">{abbreviateHash(account, 6)}</Text>
+          </CopyWrap>
         </Box>
 
         <Box align="center" direction="row" gap="small" justify="center">
@@ -115,9 +119,9 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
         <Collapsible open={transactionsOpen}>
           {!transactions.size && <Text size="small">Your transactions will appear here...</Text>}
           <Box>
-          {[...transactions.values()].map((tx: any) => (
-            <TransactionItem tx={tx} key={tx.tx.hash} wide={true} />
-          ))}
+            {[...transactions.values()].map((tx: any) => (
+              <TransactionItem tx={tx} key={tx.tx.hash} wide={true} />
+            ))}
           </Box>
         </Collapsible>
       </Box>

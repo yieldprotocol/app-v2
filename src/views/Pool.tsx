@@ -37,8 +37,7 @@ function Pool() {
 
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, assetMap, seriesMap, selectedBaseId, selectedStrategyAddr, strategyMap } =
-    userState;
+  const { activeAccount, assetMap, seriesMap, selectedBaseId, selectedStrategyAddr, strategyMap } = userState;
   // const selectedSeries = seriesMap.get(selectedSeriesId!);
   const selectedBase = assetMap.get(selectedBaseId!);
   const selectedStrategy = strategyMap.get(selectedStrategyAddr!);
@@ -60,8 +59,6 @@ function Pool() {
     selectedStrategy?.currentSeries,
     [0, maxPool]
   );
-
-  console.log(maxPool);
 
   const { txProcess: poolProcess, resetProcess } = useProcess(
     ActionCodes.ADD_LIQUIDITY,
@@ -103,7 +100,7 @@ function Pool() {
         <Box height="100%" pad={mobile ? 'medium' : { top: 'large', horizontal: 'large' }}>
           {stepPosition === 0 && (
             <Box fill gap="large">
-              <YieldCardHeader logo={mobile} series={selectedStrategy?.currentSeries}>
+              <YieldCardHeader>
                 <Box gap={mobile ? undefined : 'xsmall'}>
                   <ColorText size={mobile ? 'medium' : '2rem'}>PROVIDE LIQUIDITY</ColorText>
                   <AltText color="text-weak" size="xsmall">
@@ -227,14 +224,12 @@ function Pool() {
             </Box>
           )}
 
-        {poolProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
-                    poolProcess?.tx.status === TxState.SUCCESSFUL && (
-                      <Box pad="large" gap="small">
-                        <Text size="small"> View strategy Position: </Text>
-                        <StrategyItem strategy={selectedStrategy!} index={0} condensed />
-                      </Box>
+          {poolProcess?.stage === ProcessStage.PROCESS_COMPLETE && poolProcess?.tx.status === TxState.SUCCESSFUL && (
+            <Box pad="large" gap="small">
+              <Text size="small"> View strategy Position: </Text>
+              <StrategyItem strategy={selectedStrategy!} index={0} condensed />
+            </Box>
           )}
-
         </Box>
 
         <ActionButtonGroup pad>

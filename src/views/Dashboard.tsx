@@ -200,10 +200,10 @@ const Dashboard = () => {
           <YieldInfo />
         </PanelWrap>
       )}
-      <StyledBox fill pad="large" margin={{ top: 'xlarge' }} align="center">
+      <StyledBox fill pad={mobile ? 'medium' : 'large'} margin={{ top: 'xlarge' }} align="center">
         {!account && !chainLoading && <Text>Please connect to your account</Text>}
         {account && (
-          <Box width={mobile ? undefined : '500px'} gap="medium">
+          <Box width={mobile ? '100%' : '500px'} gap="medium">
             <Box gap="medium">
               <Box justify="between" direction="row" align="center">
                 <Text size="medium">Vaults</Text>
@@ -271,7 +271,7 @@ const Dashboard = () => {
           </Box>
         )}
       </StyledBox>
-      <PanelWrap basis="40%"> </PanelWrap>
+      {!mobile && <PanelWrap basis="40%"> </PanelWrap>}
     </MainViewWrap>
   );
 };
