@@ -44,10 +44,9 @@ export interface IUserContextState {
 
   approvalMethod: ApprovalType;
   dudeSalt: number;
-  showInactiveVaults: boolean;
   slippageTolerance: number;
-  hideBalancesSetting: string | null;
-  currencySetting: string;
+
+  dashSettings: IDashSettings;
 }
 
 export interface IUserContextActions {
@@ -60,6 +59,7 @@ export interface IUserContextActions {
   setSelectedBase: (baseId: string | null) => void;
   setSelectedVault: (vaultId: string | null) => void;
   setSelectedStrategy: (strategyAddr: string | null) => void;
+  setDashSettings: (settingName: any, settingValue: any) => void;
 }
 
 export interface ISignable {
@@ -194,7 +194,7 @@ export interface IStrategy extends IStrategyRoot {
   initInvariant?: BigNumber;
   currentInvariant?: BigNumber;
   returnRate?: BigNumber;
-  returnRate_?:string;
+  returnRate_?: string;
 
   strategyTotalSupply?: BigNumber;
   strategyTotalSupply_?: string;
@@ -213,7 +213,6 @@ export interface IStrategy extends IStrategyRoot {
   accountPoolBalance?: BigNumber;
   accountPoolBalance_?: string;
   accountPoolPercent?: string | undefined;
-
 }
 
 export interface IPool extends IPoolRoot {}
@@ -295,8 +294,8 @@ export enum ProcessStage {
   'SIGNING_COMPLETE' = 3,
   'TRANSACTION_REQUESTED' = 4,
   'TRANSACTION_PENDING' = 5,
-  'PROCESS_COMPLETE'= 6,
-  'PROCESS_COMPLETE_TIMEOUT'= 7,
+  'PROCESS_COMPLETE' = 6,
+  'PROCESS_COMPLETE_TIMEOUT' = 7,
 }
 
 export interface IYieldProcess {
@@ -375,4 +374,16 @@ export interface IHistItemPosition extends IBaseHistItem {
   fyTokens_: string;
   poolTokens?: BigNumber;
   poolTokens_?: string;
+}
+
+export interface IDashSettings {
+  hideEmptyVaults: boolean;
+  showInactiveVaults: boolean;
+  hideInactiveVaults: boolean;
+  hideVaultPositions: boolean;
+  hideLendPositions: boolean;
+  hidePoolPositions: boolean;
+  currencySetting: string;
+  hideZeroLendBalances: boolean;
+  hideZeroPoolBalances: boolean;
 }
