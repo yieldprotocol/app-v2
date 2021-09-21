@@ -1,8 +1,8 @@
 import React, { useContext, useState, useCallback, useEffect } from 'react';
 import styled from 'styled-components';
-import { Box, CheckBox, DropButton, ResponsiveContext, Text } from 'grommet';
+import { Box, ResponsiveContext, Text } from 'grommet';
 import { ethers } from 'ethers';
-import { FiChevronDown, FiTool } from 'react-icons/fi';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 import Skeleton from 'react-loading-skeleton';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
@@ -11,11 +11,10 @@ import YieldInfo from '../components/YieldInfo';
 import DashboardBalanceSummary from '../components/DashboardBalanceSummary';
 import MainViewWrap from '../components/wraps/MainViewWrap';
 import PanelWrap from '../components/wraps/PanelWrap';
-import HideBalancesSetting from '../components/HideBalancesSetting';
-import CurrencyToggle from '../components/CurrencyToggle';
 import { ZERO_BN, DAI, WETH } from '../utils/constants';
 import { cleanValue } from '../utils/appUtils';
 import DashboardPositionList from '../components/DashboardPositionList';
+import CurrencyToggle from '../components/CurrencyToggle';
 
 const StyledBox = styled(Box)`
   * {
@@ -25,6 +24,12 @@ const StyledBox = styled(Box)`
   height: auto;
   overflow-y: auto;
 `;
+
+interface IPositions {
+  vaultPositions: IVault[];
+  lendPositions: ISeries[];
+  poolPositions: IStrategy[];
+}
 
 const Dashboard = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -38,63 +43,75 @@ const Dashboard = () => {
       strategyMap,
       seriesMap,
       vaultMap,
-      showInactiveVaults,
-      hideBalancesSetting,
       priceMap,
-      currencySetting,
       vaultsLoading,
       seriesLoading,
       pricesLoading,
       strategiesLoading,
+      dashSettings,
     },
+    userActions: { setDashSettings },
   } = useContext(UserContext) as IUserContext;
+  const {
+    hideEmptyVaults,
+    hideInactiveVaults,
+    hideVaultPositions,
+    hideLendPositions,
+    hidePoolPositions,
+    hideZeroLendBalances,
+    hideZeroPoolBalances,
+    currencySetting,
+  } = dashSettings;
 
   const [vaultPositions, setVaultPositions] = useState<IVault[]>([]);
   const [lendPositions, setLendPositions] = useState<ISeries[]>([]);
   const [strategyPositions, setStrategyPositions] = useState<IStrategy[]>([]);
-  const [allPositions, setAllPositions] = useState<(ISeries | IVault | IStrategy)[]>([]);
-  const [showEmpty, setShowEmpty] = useState<boolean>(false);
+  const [allPositions, setAllPositions] = useState<IPositions>({
+    vaultPositions: [],
+    lendPositions: [],
+    poolPositions: [],
+  });
+
   const [totalDebt, setTotalDebt] = useState<string>('');
   const [totalCollateral, setTotalCollateral] = useState<string>('');
   const [totalLendBalance, setTotalLendBalance] = useState<string>('');
   const [totalStrategyBalance, setTotalStrategyBalance] = useState<string>('');
-  const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
+
+  // currency settings
   const currencySettingAssetId = currencySetting === 'ETH' ? WETH : DAI;
   const currencySettingDigits = currencySetting === 'ETH' ? 4 : 2;
   const currencySettingSymbol = currencySetting === 'ETH' ? 'Ξ' : '$';
 
   useEffect(() => {
     const _vaultPositions: IVault[] = Array.from(vaultMap.values())
-      .filter((vault: IVault) => showInactiveVaults || vault.isActive)
-      .filter((vault: IVault) => (showEmpty ? true : vault.ink.gt(ZERO_BN) || vault.art.gt(ZERO_BN)))
+      .filter((vault: IVault) => (hideInactiveVaults ? vault.isActive : true))
+      .filter((vault: IVault) => (hideEmptyVaults ? vault.ink.gt(ZERO_BN) || vault.art.gt(ZERO_BN) : true))
       .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1));
     setVaultPositions(_vaultPositions);
-  }, [vaultMap, showInactiveVaults, showEmpty, hideBalancesSetting]);
+  }, [vaultMap, hideEmptyVaults, hideInactiveVaults]);
 
   useEffect(() => {
     const _lendPositions: ISeries[] = Array.from(seriesMap.values())
-      .filter((_series: ISeries) => (_series ? _series.fyTokenBalance?.gt(ZERO_BN) : true))
-      .filter((_series: ISeries) =>
-        hideBalancesSetting ? Number(_series.fyTokenBalance_!) > Number(hideBalancesSetting) : true
-      )
-      .sort((_seriesA: ISeries, _seriesB: ISeries) => (_seriesA.fyTokenBalance?.lt(_seriesB.fyTokenBalance!) ? 1 : -1));
+      .filter((_series: ISeries) => (hideZeroLendBalances ? _series.fyTokenBalance?.gt(ZERO_BN) : true))
+      .sort((_seriesA: ISeries, _seriesB: ISeries) => (_seriesA.fyTokenBalance?.gt(_seriesB.fyTokenBalance!) ? 1 : -1));
     setLendPositions(_lendPositions);
-  }, [seriesMap, hideBalancesSetting]);
+  }, [seriesMap, hideZeroLendBalances, hideLendPositions]);
 
   useEffect(() => {
     const _strategyPositions: IStrategy[] = Array.from(strategyMap.values())
-      .filter((_strategy: IStrategy) => (_strategy ? _strategy.accountBalance?.gt(ZERO_BN) : true))
-      .filter((_strategy: IStrategy) =>
-        hideBalancesSetting ? Number(_strategy.accountBalance!) > Number(hideBalancesSetting) : true
-      )
+      .filter((_strategy: IStrategy) => (hideZeroPoolBalances ? _strategy.accountBalance?.gt(ZERO_BN) : true))
       .sort((_strategyA: IStrategy, _strategyB: IStrategy) =>
-        _strategyA.accountBalance?.gt(_strategyB.accountBalance!) ? 1 : -1
+        _strategyA.accountBalance?.lt(_strategyB.accountBalance!) ? 1 : -1
       );
     setStrategyPositions(_strategyPositions);
-  }, [strategyMap, hideBalancesSetting]);
+  }, [strategyMap, hideZeroPoolBalances, hidePoolPositions]);
 
   useEffect(() => {
-    setAllPositions([...vaultPositions, ...lendPositions, ...strategyPositions]);
+    setAllPositions({
+      vaultPositions: [...vaultPositions],
+      lendPositions: [...lendPositions],
+      poolPositions: [...strategyPositions],
+    });
   }, [vaultPositions, lendPositions, strategyPositions]);
 
   /* get a single position's ink or art in dai or eth (input the asset id): value can be art, ink, fyToken, or pooToken balances */
@@ -119,15 +136,22 @@ const Dashboard = () => {
     [priceMap]
   );
 
-  /* get vault position total debt and collateral */
+  /* get vault, lend, and pool position total debt, collateral, and balances */
   useEffect(() => {
-    const _debts = vaultPositions?.map((vault: IVault) =>
-      getPositionValue(vault.baseId, vault.art_, currencySettingAssetId)
+    const {
+      vaultPositions: _vaultPositions,
+      lendPositions: _lendPositions,
+      poolPositions: _strategyPositions,
+    } = allPositions;
+
+    const _debts = _vaultPositions?.map((position: any) =>
+      getPositionValue(position.baseId, position.art_, currencySettingAssetId)
     );
     setTotalDebt(
       cleanValue(_debts.reduce((sum: number, debt: number) => sum + debt, 0).toString(), currencySettingDigits)
     );
-    const _collaterals = vaultPositions?.map((vault: IVault) =>
+
+    const _collaterals = _vaultPositions?.map((vault: IVault) =>
       getPositionValue(vault.ilkId, vault.ink_, currencySettingAssetId)
     );
     setTotalCollateral(
@@ -136,18 +160,15 @@ const Dashboard = () => {
         currencySettingDigits
       )
     );
-  }, [priceMap, vaultPositions, currencySettingAssetId, getPositionValue, currencySettingDigits]);
 
-  /* get series positions' total balances */
-  useEffect(() => {
-    const _lendBalances = lendPositions?.map((series: ISeries) =>
+    const _lendBalances = _lendPositions?.map((series: ISeries) =>
       getPositionValue(series.baseId, series.fyTokenBalance_!, currencySettingAssetId)
     );
     setTotalLendBalance(
       cleanValue(_lendBalances.reduce((sum: number, debt: number) => sum + debt, 0).toString(), currencySettingDigits)
     );
 
-    const _strategyBalances = strategyPositions?.map((strategy: IStrategy) =>
+    const _strategyBalances = _strategyPositions?.map((strategy: IStrategy) =>
       getPositionValue(strategy.baseId, strategy.accountBalance_!, currencySettingAssetId)
     );
 
@@ -157,13 +178,16 @@ const Dashboard = () => {
         currencySettingDigits
       )
     );
-  }, [priceMap, lendPositions, strategyPositions, currencySettingAssetId, getPositionValue, currencySettingDigits]);
+  }, [priceMap, allPositions, currencySettingAssetId, getPositionValue, currencySettingDigits]);
 
   return (
     <MainViewWrap>
       {!mobile && (
         <PanelWrap justify="between" basis="40%">
-          <Box margin={{ top: '35%' }} gap="medium">
+          <Box margin={{ top: '35%' }} gap="medium" fill>
+            <Box width="5rem" height="2rem">
+              <CurrencyToggle />
+            </Box>
             <DashboardBalanceSummary
               debt={totalDebt!}
               collateral={totalCollateral!}
@@ -172,50 +196,6 @@ const Dashboard = () => {
               loading={vaultsLoading || seriesLoading || pricesLoading || strategiesLoading}
               symbol={currencySettingSymbol}
             />
-            <Box>
-              {!vaultsLoading && !seriesLoading && !pricesLoading && !strategiesLoading && (
-                <DropButton
-                  open={settingsOpen}
-                  onOpen={() => setSettingsOpen(true)}
-                  onClose={() => setSettingsOpen(false)}
-                  dropContent={
-                    <Box pad="small">
-                      <HideBalancesSetting width="30%" />
-                      <Box gap="small">
-                        <CurrencyToggle width="50%" />
-                        <Box direction="row" justify="between">
-                          <Text size="small">Show Empty Vaults</Text>
-                          <CheckBox
-                            toggle
-                            checked={showEmpty}
-                            onChange={(event) => setShowEmpty(event.target.checked)}
-                          />
-                        </Box>
-                      </Box>
-                    </Box>
-                  }
-                  dropProps={{ align: { top: 'bottom', left: 'left' } }}
-                  hoverIndicator={{}}
-                  style={{ borderRadius: '6px' }}
-                >
-                  <Box
-                    direction="row"
-                    gap="xsmall"
-                    pad="xsmall"
-                    border={{ color: 'tailwind-blue-100' }}
-                    round="xsmall"
-                    background="tailwind-blue-50"
-                    align="center"
-                    justify="between"
-                    width="8rem"
-                  >
-                    <FiTool size="1rem" />
-                    <Text size="small">Customize</Text>
-                    <FiChevronDown size=".75rem" />
-                  </Box>
-                </DropButton>
-              )}
-            </Box>
           </Box>
           <YieldInfo />
         </PanelWrap>
@@ -225,40 +205,67 @@ const Dashboard = () => {
         {account && (
           <Box width={mobile ? '100%' : '500px'} gap="medium">
             <Box gap="medium">
-              <Text size="medium">Vaults</Text>
-              {vaultsLoading ? (
-                <Skeleton width={mobile ? 300 : 500} count={1} height={40} />
-              ) : (
-                <DashboardPositionList
-                  actionType={ActionType.BORROW}
-                  positions={vaultPositions}
-                  debt={`${currencySettingSymbol}${totalDebt}`}
-                  collateral={`${currencySettingSymbol}${totalCollateral}`}
-                />
+              <Box justify="between" direction="row" align="center">
+                <Text size="medium">Vaults</Text>
+                <Box onClick={() => setDashSettings('hideVaultPositions', !hideVaultPositions)} pad="xsmall">
+                  {hideVaultPositions ? <FiEye /> : <FiEyeOff />}
+                </Box>
+              </Box>
+              {!hideVaultPositions && (
+                <>
+                  {vaultsLoading ? (
+                    <Skeleton width={mobile ? 300 : 500} count={1} height={40} />
+                  ) : (
+                    <DashboardPositionList
+                      actionType={ActionType.BORROW}
+                      positions={vaultPositions}
+                      debt={`${currencySettingSymbol}${totalDebt}`}
+                      collateral={`${currencySettingSymbol}${totalCollateral}`}
+                    />
+                  )}
+                </>
               )}
             </Box>
             <Box gap="medium">
-              <Text size="medium">Lend Positions</Text>
-              {seriesLoading ? (
-                <Skeleton width={mobile ? 300 : 500} count={1} height={40} />
-              ) : (
-                <DashboardPositionList
-                  actionType={ActionType.LEND}
-                  positions={lendPositions}
-                  lendBalance={`${currencySettingSymbol}${totalLendBalance}`}
-                />
+              <Box justify="between" direction="row" align="center">
+                <Text size="medium">Lend Positions</Text>
+                <Box onClick={() => setDashSettings('hideLendPositions', !hideLendPositions)} pad="xsmall">
+                  {hideLendPositions ? <FiEye /> : <FiEyeOff />}
+                </Box>
+              </Box>
+              {!hideLendPositions && (
+                <>
+                  {seriesLoading ? (
+                    <Skeleton width={mobile ? 300 : 500} count={1} height={40} />
+                  ) : (
+                    <DashboardPositionList
+                      actionType={ActionType.LEND}
+                      positions={lendPositions}
+                      lendBalance={`${currencySettingSymbol}${totalLendBalance}`}
+                    />
+                  )}
+                </>
               )}
             </Box>
             <Box gap="medium">
-              <Text size="medium">Pool Positions</Text>
-              {strategiesLoading ? (
-                <Skeleton width={mobile ? 300 : 500} count={1} height={40} />
-              ) : (
-                <DashboardPositionList
-                  actionType={ActionType.POOL}
-                  positions={strategyPositions}
-                  strategyBalance={`${currencySettingSymbol}${totalStrategyBalance}`}
-                />
+              <Box justify="between" direction="row" align="center">
+                <Text size="medium">Pool Positions</Text>
+                <Box onClick={() => setDashSettings('hidePoolPositions', !hidePoolPositions)} pad="xsmall">
+                  {hidePoolPositions ? <FiEye /> : <FiEyeOff />}
+                </Box>
+              </Box>
+              {!hidePoolPositions && (
+                <>
+                  {strategiesLoading ? (
+                    <Skeleton width={mobile ? 300 : 500} count={1} height={40} />
+                  ) : (
+                    <DashboardPositionList
+                      actionType={ActionType.POOL}
+                      positions={strategyPositions}
+                      strategyBalance={`${currencySettingSymbol}${totalStrategyBalance}`}
+                    />
+                  )}
+                </>
               )}
             </Box>
           </Box>

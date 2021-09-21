@@ -9,11 +9,11 @@ import { mulDecimal, divDecimal } from '../../utils/yieldMath';
 export const usePoolHelpers = (input: string | undefined) => {
   /* STATE FROM CONTEXT */
   const {
-    userState: { selectedStrategyAddr, strategyMap, assetMap, activeAccount },
+    userState: { selectedBaseId, selectedStrategyAddr, strategyMap, assetMap, activeAccount },
   } = useContext(UserContext);
 
   const strategy: IStrategy | undefined = strategyMap?.get(selectedStrategyAddr);
-  const strategyBase: IAsset | undefined = assetMap?.get(strategy?.baseId);
+  const strategyBase: IAsset | undefined = assetMap?.get(selectedStrategyAddr ?  strategy?.baseId : selectedBaseId );
 
   /* LOCAL STATE */
   const [poolPercentPreview, setPoolPercentPreview] = useState<string | undefined>();
