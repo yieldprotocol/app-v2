@@ -599,7 +599,8 @@ const UserProvider = ({ children }: any) => {
   useEffect(() => {
     /* When the chainContext is finished loading get the users vault data */
     if (
-      !chainLoading && 
+      !chainLoading &&
+      !userState.seriesLoading &&
       account !== null
       ) {
       console.log('Checking User Vaults');
