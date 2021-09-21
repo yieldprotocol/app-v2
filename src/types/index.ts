@@ -353,7 +353,7 @@ export interface IBaseHistItem {
   date: Date;
   transactionHash: string;
   series: ISeries;
-  histType: ActionCodes;
+  actionCode: ActionCodes;
   date_: string;
   primaryInfo: string;
   secondaryInfo?: string;

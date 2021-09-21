@@ -53,7 +53,7 @@ const YieldHistory = ({ seriesOrVault, view }: IYieldHistory) => {
                 </Box>
                 <Box direction="row" fill justify="between">
                   <Text size="xsmall" weight={900}>
-                    {x.histType}
+                    {x.actionCode}
                   </Text>
                   {/* <Text size="xsmall"> {x.ink_ || x.bases_} </Text> */}
                   <Text size="xsmall"> {x.primaryInfo} </Text>

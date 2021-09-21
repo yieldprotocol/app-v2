@@ -5,7 +5,6 @@ import { format } from 'date-fns';
 import {
   ISeries,
   IVault,
-  IHistoryContextState,
   IHistItemPosition,
   ActionCodes,
   IBaseHistItem,
@@ -83,7 +82,7 @@ const HistoryProvider = ({ children }: any) => {
     chainState;
 
   const { userState } = useContext(UserContext);
-  const { vaultMap } = userState;
+  const { vaultMap, seriesMap, strategyMap } = userState;
 
   const [historyState, updateState] = useReducer(historyReducer, initState);
 
@@ -91,19 +90,16 @@ const HistoryProvider = ({ children }: any) => {
   const _parsePoolLogs = useCallback(
     async (strategyAddress: string, poolAddress: string, decimals: number) => {
       const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackProvider);
-
       // event Liquidity(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens, int256 poolTokens);
       const _liqFilter = poolContract.filters.Liquidity(null, null, account, null, null, null);
-
       const eventList = await poolContract.queryFilter(_liqFilter, 0);
-
       const poolLogs = await Promise.all(
         eventList.map(async (log: any) => {
           const { blockNumber, transactionHash } = log;
           const { maturity, bases, fyTokens, poolTokens } = poolContract.interface.parseLog(log).args;
           const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
           const type_ = poolTokens.gt(ZERO_BN) ? ActionCodes.ADD_LIQUIDITY : ActionCodes.REMOVE_LIQUIDITY;
-          
+
           return {
             initiator: account,
             blockNumber,
@@ -116,7 +112,7 @@ const HistoryProvider = ({ children }: any) => {
             poolAddress,
 
             /* inferred trade type */
-            histType: type_,
+            actionCode: type_,
             primaryInfo: `${cleanValue(ethers.utils.formatUnits(poolTokens, decimals), 2)} Pool tokens`,
 
             /* Formatted values:  */
@@ -141,23 +137,64 @@ const HistoryProvider = ({ children }: any) => {
       await Promise.all(
         strategyList.map(async (strategy: IStrategy) => {
           const { strategyContract, id, decimals } = strategy;
-          // event PoolStarted(address pool);
-          const _liqFilter = strategyContract.filters.PoolStarted(null);
-          const eventList = await strategyContract.queryFilter(_liqFilter, 0);
+          const _transferInFilter = strategyContract.filters.Transfer(null, account);
+          const _transferOutFilter = strategyContract.filters.Transfer(account);
 
-          await Promise.all(
-            eventList.map(async (log: any) => {
+          // TODO add in start and end events if required
+          // const _startedFilter = strategyContract.filters.PoolStarted(null);
+          // const _endedFilter = strategyContract.filters.PoolEnded(null);
+          // const startEventList = await strategyContract.queryFilter(_startedFilter, 0);
+          // const endEventList = await strategyContract.queryFilter(_endedFilter, 0);
+
+          const inEventList = await strategyContract.queryFilter(_transferInFilter, 0);
+          const outEventList = await strategyContract.queryFilter(_transferOutFilter, 0);
+
+
+          const events = await Promise.all([
+
+            ...inEventList.map( async (log:any) => {
               const { blockNumber, transactionHash } = log;
-              const { pool } = strategyContract.interface.parseLog(log).args;
-              const poolHist = await _parsePoolLogs(id, pool, decimals);
-              const existing = liqHistMap.get(id) || [];
-              liqHistMap.set(id, [
+              const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
+              const { value } = strategyContract.interface.parseLog(log).args;
+              return {
+                blockNumber,
+                transactionHash, 
+                date,
+                poolTokens: value,
+                actionCode: ActionCodes.ADD_LIQUIDITY,
+                primaryInfo: `${cleanValue(ethers.utils.formatUnits(value, decimals), 2)} Pool tokens`,
+                /* Formatted values:  */
+                poolTokens_: ethers.utils.formatUnits(value, decimals),
+                date_: dateFormat(date),
+              }
+            }),
+
+            ...outEventList.map( async (log:any) => {
+              const { blockNumber, transactionHash } = log;
+              const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
+              const { value } = strategyContract.interface.parseLog(log).args;
+              return {
+                id,
+                blockNumber,
+                transactionHash,
+                date, 
+                poolTokens:value,
+                actionCode: ActionCodes.REMOVE_LIQUIDITY,
+                primaryInfo: `${cleanValue(ethers.utils.formatUnits(value, decimals), 2)} Pool tokens`,
+                /* Formatted values:  */
+                poolTokens_: ethers.utils.formatUnits(value, decimals),
+                date_: dateFormat(date),
+              }
+            }),
+
+          ])
+
+          const existing = liqHistMap.get(id) || [];
+          liqHistMap.set(id, [
                 ...existing,
-                ...poolHist,
-                ...[{ initiator: 'protocol', poolStart: pool, blockNumber, transactionHash }],
-              ]);
-            })
-          );
+                ...events,
+          ]);
+
         })
       );
 
@@ -166,7 +203,7 @@ const HistoryProvider = ({ children }: any) => {
       console.log('Strategy History updated: ', combinedStrategyMap);
     },
 
-    [_parsePoolLogs, historyState.strategyHistory]
+    [account, fallbackProvider]
   );
 
   /* update Pool Historical data */
@@ -199,7 +236,7 @@ const HistoryProvider = ({ children }: any) => {
                 poolTokens,
 
                 /* inferred trade type */
-                histType: type_,
+                actionCode: type_,
                 primaryInfo: `${cleanValue(ethers.utils.formatUnits(poolTokens, decimals), 2)} Pool tokens`,
 
                 /* Formatted values:  */
@@ -258,7 +295,7 @@ const HistoryProvider = ({ children }: any) => {
                   vaultId: null,
 
                   /* inferred trade type */
-                  histType: type_,
+                  actionCode: type_,
 
                   primaryInfo: `${cleanValue(ethers.utils.formatUnits(bases.abs(), decimals), 2)} ${base.symbol}`,
                   secondaryInfo: `${cleanValue(tradeApr, 2)}% APR`,
@@ -312,18 +349,18 @@ const HistoryProvider = ({ children }: any) => {
           const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
           const ilk = assetRootMap.get(ilkId);
 
-          const histType = _inferType(art, ink);
+          const actionCode = _inferType(art, ink);
 
           const tradeApr = calculateAPR(baseTraded.abs(), art.abs(), series?.maturity, date);
 
           let primaryInfo: string = '';
-          if (histType === ActionCodes.BORROW)
+          if (actionCode === ActionCodes.BORROW)
             primaryInfo = `
           ${cleanValue(ethers.utils.formatUnits(art, ilk.decimals), 2)} ${base_?.symbol!} @
           ${cleanValue(tradeApr, 2)}%`;
-          else if (histType === ActionCodes.REPAY)
+          else if (actionCode === ActionCodes.REPAY)
             primaryInfo = `${cleanValue(ethers.utils.formatUnits(art, ilk.decimals), 2)} ${base_?.symbol!}`;
-          else if (histType === ActionCodes.ADD_COLLATERAL || histType === ActionCodes.REMOVE_COLLATERAL)
+          else if (actionCode === ActionCodes.ADD_COLLATERAL || actionCode === ActionCodes.REMOVE_COLLATERAL)
             primaryInfo = `${cleanValue(ethers.utils.formatUnits(ink, ilk.decimals), 2)} ${ilk.symbol}`;
 
           return {
@@ -332,11 +369,11 @@ const HistoryProvider = ({ children }: any) => {
             date,
             transactionHash,
             series,
-            histType,
+            actionCode,
             primaryInfo,
             secondaryInfo:
               ink.gt(ethers.constants.Zero) &&
-              histType === ActionCodes.BORROW &&
+              actionCode === ActionCodes.BORROW &&
               `added (${cleanValue(ethers.utils.formatUnits(ink, ilk.decimals), 2)} ${ilk.symbol} collateral)`,
 
             /* args info */
@@ -373,7 +410,7 @@ const HistoryProvider = ({ children }: any) => {
             blockNumber,
             date,
             transactionHash,
-            histType: ActionCodes.TRANSFER_VAULT,
+            actionCode: ActionCodes.TRANSFER_VAULT,
             primaryInfo: `Transferred to ${abbreviateHash(receiver)}`,
 
             /* arg info */
@@ -400,7 +437,7 @@ const HistoryProvider = ({ children }: any) => {
             date,
             transactionHash,
             series,
-            histType: ActionCodes.ROLL_DEBT,
+            actionCode: ActionCodes.ROLL_DEBT,
             primaryInfo: `Rolled ${cleanValue(ethers.utils.formatUnits(art, toSeries_.decimals), 2)} debt to ${
               toSeries_.displayNameMobile
             }`,
@@ -469,26 +506,26 @@ const HistoryProvider = ({ children }: any) => {
     [_parseGivenLogs, _parsePourLogs, _parseRolledLogs, contractMap, historyState.vaultHistory, seriesRootMap]
   );
 
-  // useEffect(() => {
-  //   /* When the chainContext is finished loading get the Pool and Trade historical  data */
-  //   if (!chainLoading && account) {
-  //     // strategyRootMap.size && updateStrategyHistory(Array.from(strategyRootMap.values()) as IStrategy[]);
-  //     seriesRootMap.size && updateTradeHistory(Array.from(seriesRootMap.values()) as ISeries[]);
-  //     // seriesRootMap.size && updatePoolHistory(Array.from(seriesRootMap.values()) as ISeries[]);
-  //   }
-  // }, [account, seriesRootMap, chainLoading]); // updateXHistory omiteed on purpose
+  useEffect(() => {
+    /* When the chainContext is finished loading get the Pool and Trade historical  data */
+    if (account && !chainLoading ) {
+      seriesMap.size && updateTradeHistory(Array.from(seriesMap.values()) as ISeries[]);
+    }
+  }, [account, seriesMap, chainLoading]); // updateXHistory omiteed on purpose
 
-  // useEffect(() => {
-  //   /* When the chainContext is finished loading get the Pool and Trade historical  data */
-  //   if (!chainLoading && account) {
-  //     strategyRootMap.size && updateStrategyHistory(Array.from(strategyRootMap.values()) as IStrategy[]);
-  //   }
-  // }, [account, strategyRootMap, chainLoading]); // updateXHistory omiteed on purpose
+  useEffect(() => {
+    /* When the chainContext is finished loading get the Pool and Trade historical  data */
+    if (account && !chainLoading ) {
+      strategyMap.size && updateStrategyHistory(Array.from(strategyMap.values()) as IStrategy[]);
+    }
+  }, [account, strategyMap, chainLoading]); // updateXHistory omiteed on purpose
 
-  // useEffect(() => {
-  //   /* When the chainContext is finished loading get the historical data */
-  //   !chainLoading && account && vaultMap.size && updateVaultHistory(Array.from(vaultMap.values()) as IVault[]);
-  // }, [account, chainLoading, vaultMap]); // updateVaultHisotry omittted on purpose
+  useEffect(() => {
+    /* When the chainContext is finished loading get the historical data */
+    if (account && !chainLoading) {
+      vaultMap.size && updateVaultHistory(Array.from(vaultMap.values()) as IVault[]);
+    }
+  }, [account, chainLoading, vaultMap]); // updateVaultHisotry omittted on purpose
 
   /* Exposed userActions */
   const historyActions = {
