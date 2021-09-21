@@ -65,8 +65,6 @@ const initState: IUserContextState = {
     hideLendPositions: false,
     hidePoolPositions: false,
     currencySetting: 'DAI',
-    hideZeroLendBalances: false,
-    hideZeroPoolBalances: false,
   } as IDashSettings,
 };
 
@@ -454,9 +452,7 @@ const UserProvider = ({ children }: any) => {
       );
 
       /* if there are no vaults provided - assume a forced refresh of all vaults : */
-      const combinedVaultMap = vaultList.length > 0 
-        ? new Map([...userState.vaultMap, ...newVaultMap]) 
-        : newVaultMap; 
+      const combinedVaultMap = vaultList.length > 0 ? new Map([...userState.vaultMap, ...newVaultMap]) : newVaultMap;
 
       /* update state */
       updateState({ type: 'vaultMap', payload: combinedVaultMap });
@@ -488,7 +484,6 @@ const UserProvider = ({ children }: any) => {
           const nextSeries: ISeries = userState.seriesMap.get(nextSeriesId);
 
           if (currentSeries && !currentSeries.seriesIsMature) {
-
             const [poolTotalSupply, strategyPoolBalance, currentInvariant, initInvariant] = await Promise.all([
               currentSeries.poolContract.totalSupply(),
               currentSeries.poolContract.balanceOf(_strategy.address),
@@ -581,7 +576,7 @@ const UserProvider = ({ children }: any) => {
 
       return combinedMap;
     },
-    [account, userState.seriesMap ]
+    [account, userState.seriesMap]
   );
 
   useEffect(() => {
@@ -590,36 +585,22 @@ const UserProvider = ({ children }: any) => {
       seriesRootMap.size && updateSeries(Array.from(seriesRootMap.values()));
       assetRootMap.size && updateAssets(Array.from(assetRootMap.values()));
     }
-  }, [
-    account,
-    chainLoading,
-    assetRootMap,
-    seriesRootMap,
-    updateSeries,
-    updateAssets,
-  ]);
+  }, [account, chainLoading, assetRootMap, seriesRootMap, updateSeries, updateAssets]);
 
-  useEffect(()=> {
+  useEffect(() => {
     /* When seriesContext is finished loading get the strategies data */
-    !userState.seriesLoading && 
-    strategyRootMap.size && 
-    updateStrategies(Array.from(strategyRootMap.values()));
-  },[strategyRootMap, updateStrategies, userState.seriesLoading])
+    !userState.seriesLoading && strategyRootMap.size && updateStrategies(Array.from(strategyRootMap.values()));
+  }, [strategyRootMap, updateStrategies, userState.seriesLoading]);
 
   useEffect(() => {
     /* When the chainContext is finished loading get the users vault data */
-    if (
-      !chainLoading &&
-      !userState.seriesLoading &&
-      account !== null
-      ) {
+    if (!chainLoading && !userState.seriesLoading && account !== null) {
       console.log('Checking User Vaults');
       /* trigger update of update all vaults by passing empty array */
       updateVaults([]);
     }
     /* keep checking the active account when it changes/ chainlaoding */
     updateState({ type: 'activeAccount', payload: account });
-
   }, [account, chainLoading]); // updateVaults ignored here on purpose
 
   /* Exposed userActions */

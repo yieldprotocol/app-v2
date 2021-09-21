@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Text } from 'grommet';
 import DashboardSettings from './DashboardSettings';
+import { ActionType } from '../types';
 
 interface IDashSummary {
   debt: string | null;
@@ -34,7 +35,7 @@ const DashboardPositionSummary = ({
         {lendBalance && <Summary label="Balance" value={lendBalance} />}
         {strategyBalance && <Summary label="Balance" value={strategyBalance} />}
       </Box>
-      <DashboardSettings actionType={actionType} />
+      {actionType === ActionType.BORROW && <DashboardSettings actionType={actionType} />}
     </Box>
     <Box pad={{ vertical: 'xsmall', horizontal: 'none' }}>{children}</Box>
   </Box>
