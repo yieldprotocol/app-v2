@@ -226,10 +226,9 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
       {cardLayout && (
         <ShadeBox
-          overflow={mobile ? undefined : 'auto'}
+          overflow={mobile ? 'auto' : 'auto'}
           height={mobile ? undefined : '250px'}
           pad={{ vertical: 'small', horizontal: 'xsmall' }}
-
         >
           <Grid columns={mobile ? '100%' : '40%'} gap="small">
             {seriesLoading ? (
@@ -253,15 +252,15 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
                 >
                   <Box pad="small" width="small" direction="row" align="center" gap="small">
                     <Avatar
-                      background={ series.id === selectedSeriesId ? 'solid' : series.endColor.toString().concat('10') }
+                      background={series.id === selectedSeriesId ? 'solid' : series.endColor.toString().concat('10')}
                       // border={series.id === selectedSeriesId ? undefined : { color: series.endColor.toString().concat('25')} }
                       style={{
-                        boxShadow: 
-                          series.id === selectedSeriesId 
-                          ? `inset 1px 1px 2px ${ series.endColor.toString().concat('69') }`
-                          // : `-1px -1px 1px ${ series.endColor.toString().concat('30') }, 1px 1px 1px ${ series.endColor.toString().concat('30') }`
-                          : undefined
-                       }}
+                        boxShadow:
+                          series.id === selectedSeriesId
+                            ? `inset 1px 1px 2px ${series.endColor.toString().concat('69')}`
+                            : // : `-1px -1px 1px ${ series.endColor.toString().concat('30') }, 1px 1px 1px ${ series.endColor.toString().concat('30') }`
+                              undefined,
+                      }}
                     >
                       {series.seriesMark}
                     </Avatar>
