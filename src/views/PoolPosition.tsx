@@ -271,13 +271,11 @@ const PoolPosition = () => {
                         txProcess={removeProcess}
                         cancelAction={() => resetInputs(ActionCodes.REMOVE_LIQUIDITY)}
                       >
-                        <Box margin={{ top: 'medium' }}>
-                          <InfoBite
-                            label="Remove Liquidity"
-                            icon={<FiArrowRight />}
-                            value={`${cleanValue(removeInput, selectedBase?.digitFormat!)} liquidity tokens`}
-                          />
-                        </Box>
+                        <InfoBite
+                          label="Remove Liquidity"
+                          icon={<FiArrowRight />}
+                          value={`${cleanValue(removeInput, selectedBase?.digitFormat!)} liquidity tokens`}
+                        />
                       </ActiveTransaction>
                     )}
                   </>
@@ -318,15 +316,13 @@ const PoolPosition = () => {
                         txProcess={rollProcess}
                         cancelAction={() => resetInputs(ActionCodes.ROLL_LIQUIDITY)}
                       >
-                        <Box margin={{ top: 'medium' }}>
-                          <InfoBite
-                            label="Roll Liquidity"
-                            icon={<FiArrowRight />}
-                            value={`${cleanValue(rollInput, selectedBase?.digitFormat!)} Liquidity Tokens to ${
-                              rollToSeries?.displayName
-                            } `}
-                          />
-                        </Box>
+                        <InfoBite
+                          label="Roll Liquidity"
+                          icon={<FiArrowRight />}
+                          value={`${cleanValue(rollInput, selectedBase?.digitFormat!)} Liquidity Tokens to ${
+                            rollToSeries?.displayName
+                          } `}
+                        />
                       </ActiveTransaction>
                     )}
                   </>

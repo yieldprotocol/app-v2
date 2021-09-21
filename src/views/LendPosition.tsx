@@ -238,14 +238,12 @@ const LendPosition = () => {
                         txProcess={closeProcess}
                         cancelAction={() => resetInputs(ActionCodes.CLOSE_POSITION)}
                       >
-                        <Box margin={{ top: 'medium' }}>
-                          <InfoBite
-                            label={`Redeem Position ${selectedBase?.symbol}`}
-                            icon={<FiArrowRight />}
-                            value={`${cleanValue(closeInput, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
-                            loading={seriesLoading}
-                          />
-                        </Box>
+                        <InfoBite
+                          label={`Redeem Position ${selectedBase?.symbol}`}
+                          icon={<FiArrowRight />}
+                          value={`${cleanValue(closeInput, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
+                          loading={seriesLoading}
+                        />
                       </ActiveTransaction>
                     )}
                   </>
@@ -291,16 +289,14 @@ const LendPosition = () => {
                         txProcess={rollProcess}
                         cancelAction={() => resetInputs(ActionCodes.ROLL_POSITION)}
                       >
-                        <Box margin={{ top: 'medium' }}>
-                          <InfoBite
-                            label="Roll To Series"
-                            icon={<FiArrowRight />}
-                            value={` Roll${rollProcess?.processActive ? 'ing' : ''}  ${cleanValue(
-                              rollInput,
-                              selectedBase?.digitFormat!
-                            )} ${selectedBase?.symbol} to ${rollToSeries?.displayName}`}
-                          />
-                        </Box>
+                        <InfoBite
+                          label="Roll To Series"
+                          icon={<FiArrowRight />}
+                          value={` Roll${rollProcess?.processActive ? 'ing' : ''}  ${cleanValue(
+                            rollInput,
+                            selectedBase?.digitFormat!
+                          )} ${selectedBase?.symbol} to ${rollToSeries?.displayName}`}
+                        />
                       </ActiveTransaction>
                     )}
                   </>
