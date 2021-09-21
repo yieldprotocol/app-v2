@@ -396,7 +396,7 @@ const UserProvider = ({ children }: any) => {
 
   /* Updates the vaults with *user* data */
   const updateVaults = useCallback(
-    async (vaultList: IVaultRoot[], force: boolean = false) => {
+    async (vaultList: IVaultRoot[]) => {
       updateState({ type: 'vaultsLoading', payload: true });
       let _vaultList: IVaultRoot[] = vaultList;
       const Cauldron = contractMap.get('Cauldron');
@@ -447,7 +447,10 @@ const UserProvider = ({ children }: any) => {
         }, new Map())
       );
 
-      const combinedVaultMap = new Map([...userState.vaultMap, ...newVaultMap]);
+      /* if there are no vaults provided - assume a forced refresh of all vaults : */
+      const combinedVaultMap = vaultList.length > 0 
+        ? new Map([...userState.vaultMap, ...newVaultMap]) 
+        : newVaultMap; 
 
       /* update state */
       updateState({ type: 'vaultMap', payload: combinedVaultMap });
@@ -605,10 +608,11 @@ const UserProvider = ({ children }: any) => {
       ) {
       console.log('Checking User Vaults');
       /* trigger update of update all vaults by passing empty array */
-      updateVaults([], true);
+      updateVaults([]);
     }
     /* keep checking the active account when it changes/ chainlaoding */
     updateState({ type: 'activeAccount', payload: account });
+
   }, [account, chainLoading]); // updateVaults ignored here on purpose
 
   /* Exposed userActions */
