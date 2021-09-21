@@ -304,7 +304,7 @@ const VaultPosition = () => {
 
               <Box height={{ min: '300px' }}>
                 <SectionWrap title="Vault Actions">
-                  <Box elevation="xsmall" round="xsmall">
+                  <Box elevation="xsmall" round="xsmall" background={mobile ? 'white' : undefined}>
                     <Select
                       dropProps={{ round: 'xsmall' }}
                       plain
@@ -313,7 +313,6 @@ const VaultPosition = () => {
                         { text: 'Roll Debt', index: 1 },
                         { text: 'Add More Collateral', index: 2 },
                         { text: 'Remove Collateral', index: 3 },
-
                         { text: 'View Transaction History', index: 4 },
                       ]}
                       labelKey="text"
