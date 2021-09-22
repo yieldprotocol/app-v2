@@ -286,8 +286,8 @@ const PoolPosition = () => {
                 )}
 
                 {actionActive.index === 1 && <YieldHistory seriesOrVault={selectedSeries!} view={['POOL']} />}
-                {actionActive.index === 1 && errors.has('pool') && (
-                  <Text size="small">{errors.get('pool').message}</Text>
+                {actionActive.index === 1 && errors.has('strategy') && (
+                  <Text size="small">{errors.get('strategy').message}</Text>
                 )}
 
                 {actionActive.index === 2 && (
