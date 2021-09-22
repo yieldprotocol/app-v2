@@ -274,6 +274,7 @@ const UserProvider = ({ children }: any) => {
         updateState({ type: 'assetMap', payload: newAssetMap });
         console.log('ASSETS updated (with dynamic data): ', newAssetMap);
         updateState({ type: 'assetsLoading', payload: false });
+        return newAssetMap;
       } catch (e) {
         console.log(e);
         updateState({ type: 'error', payload: 'Error updating assets' });
@@ -477,6 +478,7 @@ const UserProvider = ({ children }: any) => {
         updateState({ type: 'vaultsLoading', payload: false });
 
         console.log('VAULTS: ', combinedVaultMap);
+        return newVaultMap;
       } catch (e) {
         console.log(e);
         updateState({ type: 'error', payload: 'Error updating vaults' });
