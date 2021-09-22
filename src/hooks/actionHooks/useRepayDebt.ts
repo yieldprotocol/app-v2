@@ -3,12 +3,13 @@ import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, IVault, ISeries, ActionCodes, LadleActions, IAsset } from '../../types';
-import { getTxCode } from '../../utils/appUtils';
+import { decimalNToDecimal18, getTxCode } from '../../utils/appUtils';
 import { ETH_BASED_ASSETS, MAX_128 } from '../../utils/constants';
 import { useChain } from '../useChain';
 
 import { calculateSlippage, secondsToFrom, sellBase } from '../../utils/yieldMath';
 import { useRemoveCollateral } from './useRemoveCollateral';
+import { HistoryContext } from '../../contexts/HistoryContext';
 
 /* Generic hook for chain transactions */
 export const useRepayDebt = () => {
@@ -18,6 +19,8 @@ export const useRepayDebt = () => {
   const { userState, userActions } = useContext(UserContext);
   const { seriesMap, assetMap } = userState;
   const { updateVaults, updateAssets } = userActions;
+
+  const { historyActions: { updateVaultHistory } } = useContext(HistoryContext);
 
   const { removeEth } = useRemoveCollateral();
 
@@ -45,7 +48,8 @@ export const useRepayDebt = () => {
       series.baseReserves,
       series.fyTokenReserves,
       _input,
-      secondsToFrom(series.maturity.toString())
+      secondsToFrom(series.maturity.toString()),
+      series.decimals
     );
     const _inputAsFyDaiWithSlippage = calculateSlippage(_inputAsFyDai, userState.slippageTolerance.toString(), true);
 
@@ -101,7 +105,7 @@ export const useRepayDebt = () => {
       ...removeEth(_collateralToRemove, series), // after the complete tranasction, this will remove all the collateral (if requested). 
     ];
     await transact(calls, txCode);
-    updateVaults([]);
+    updateVaults([vault]);
     updateAssets([base]);
   };
 

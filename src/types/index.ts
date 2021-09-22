@@ -1,4 +1,4 @@
-import { ethers, BigNumber, BigNumberish } from 'ethers';
+import { ethers, BigNumber, BigNumberish, ContractTransaction } from 'ethers';
 import React from 'react';
 import { ERC20, ERC20Permit, FYToken, Pool, Strategy } from '../contracts';
 
@@ -50,22 +50,22 @@ export interface IUserContextState {
 
   approvalMethod: ApprovalType;
   dudeSalt: number;
-  showInactiveVaults: boolean;
   slippageTolerance: number;
-  hideBalancesSetting: string | null;
-  currencySetting: string;
+
+  dashSettings: IDashSettings;
 }
 
 export interface IUserContextActions {
   updateVaults: (vaultList: IVault[]) => void;
   updateSeries: (seriesList: ISeries[]) => void;
   updateAssets: (assetList: IAsset[]) => void;
-  updatePrice: (base: string, ilk: string) => void;
+  updatePrice: (ilkId: string, baseId: string) => void;
   setSelectedSeries: (seriesId: string) => void;
   setSelectedIlk: (ilkId: string | null) => void;
   setSelectedBase: (baseId: string | null) => void;
   setSelectedVault: (vaultId: string | null) => void;
   setSelectedStrategy: (strategyAddr: string | null) => void;
+  setDashSettings: (settingName: any, settingValue: any) => void;
 }
 
 export interface ISignable {
@@ -122,6 +122,7 @@ export interface IAssetRoot extends ISignable {
   digitFormat: number;
 
   baseContract: ERC20Permit;
+  isYieldBase: boolean;
 
   // baked in token fns
   getBalance: (account: string) => Promise<BigNumber>;
@@ -167,7 +168,6 @@ export interface ISeries extends ISeriesRoot {
 }
 
 export interface IAsset extends IAssetRoot {
-  isYieldBase: boolean;
   balance: BigNumber;
   balance_: string;
   hasLadleAuth: boolean;
@@ -176,6 +176,7 @@ export interface IAsset extends IAssetRoot {
 
 export interface IVault extends IVaultRoot {
   owner: string;
+  isWitchOwner: boolean;
   isActive: boolean;
   ink: BigNumber;
   art: BigNumber;
@@ -195,6 +196,11 @@ export interface IStrategy extends IStrategyRoot {
   currentSeries: ISeries | undefined;
   nextSeries: ISeries | undefined;
   active: boolean;
+
+  initInvariant?: BigNumber;
+  currentInvariant?: BigNumber;
+  returnRate?: BigNumber;
+  returnRate_?: string;
 
   strategyTotalSupply?: BigNumber;
   strategyTotalSupply_?: string;
@@ -267,6 +273,7 @@ export enum ApprovalType {
   TX = 'TX',
   SIG = 'SIG',
 }
+
 export enum SignType {
   ERC2612 = 'ERC2612_TYPE',
   DAI = 'DAI_TYPE',
@@ -278,6 +285,33 @@ export enum TxState {
   SUCCESSFUL = 'SUCCESSFUL',
   FAILED = 'FAILED',
   REJECTED = 'REJECTED',
+}
+
+export interface IYieldTx extends ContractTransaction {
+  txCode: string;
+  receipt: any | null;
+  status: TxState;
+}
+
+export enum ProcessStage {
+  'PROCESS_INACTIVE' = 0,
+  'SIGNING_REQUESTED' = 1,
+  'SIGNING_TRANSACTION_PENDING' = 2,
+  'SIGNING_COMPLETE' = 3,
+  'TRANSACTION_REQUESTED' = 4,
+  'TRANSACTION_PENDING' = 5,
+  'PROCESS_COMPLETE' = 6,
+  'PROCESS_COMPLETE_TIMEOUT' = 7,
+}
+
+export interface IYieldProcess {
+  txCode: string;
+  stage: ProcessStage;
+  tx: IYieldTx;
+  txHash: string;
+  timeout: boolean;
+  processActive?: boolean;
+  positionPath?: string | undefined;
 }
 
 export enum MenuView {
@@ -325,7 +359,7 @@ export interface IBaseHistItem {
   date: Date;
   transactionHash: string;
   series: ISeries;
-  histType: ActionCodes;
+  actionCode: ActionCodes;
   date_: string;
   primaryInfo: string;
   secondaryInfo?: string;
@@ -346,4 +380,14 @@ export interface IHistItemPosition extends IBaseHistItem {
   fyTokens_: string;
   poolTokens?: BigNumber;
   poolTokens_?: string;
+}
+
+export interface IDashSettings {
+  hideEmptyVaults: boolean;
+  showInactiveVaults: boolean;
+  hideInactiveVaults: boolean;
+  hideVaultPositions: boolean;
+  hideLendPositions: boolean;
+  hidePoolPositions: boolean;
+  currencySetting: string;
 }

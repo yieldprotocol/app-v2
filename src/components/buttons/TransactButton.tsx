@@ -8,7 +8,7 @@ const StyledButton = styled(Button)`
 
 const TransactButton = (props: any) => (
   <Box>
-    <StyledButton {...props} />
+    <StyledButton {...props} color='gradient' />
   </Box>
 );
 

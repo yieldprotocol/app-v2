@@ -7,7 +7,8 @@ import { abbreviateHash } from '../utils/appUtils';
 import YieldAvatar from './YieldAvatar';
 import AdvancedSettings from './AdvancedSettings';
 import { TxContext } from '../contexts/TxContext';
-import Transactions from './Transactions';
+import CopyWrap from './wraps/CopyWrap';
+import TransactionItem from './TransactionItem';
 
 const StyledButton = styled(Button)`
   background: #dbeafe;
@@ -32,18 +33,11 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
     txState: { transactions },
   } = useContext(TxContext);
   const connectorName = connectorNames.get(provider.connection.url);
-  const [copySuccess, setCopySuccess] = useState<boolean>(false);
   const [transactionsOpen, toggleTransactionsOpen] = useState<boolean>(false);
 
   const handleChangeConnectType = () => {
     setSettingsOpen(false);
     setConnectOpen(true);
-  };
-
-  const handleCopy = (text: any) => {
-    navigator.clipboard.writeText(text);
-    setCopySuccess(true);
-    setTimeout(() => setCopySuccess(false), 2000);
   };
 
   const handleResetApp = () => {
@@ -61,22 +55,18 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
       elevation="xlarge"
     >
       <Box gap="small" pad="medium">
-        <Button alignSelf="end" icon={<FiX size="1.5rem" />} onClick={() => setSettingsOpen(false)} plain />
-        <Box align="center" gap="small">
-          <YieldAvatar address={account} size={3} />
-          <Text size="xlarge">{abbreviateHash(account)}</Text>
+        <Box alignSelf="end" onClick={() => setSettingsOpen(false)} pad="xsmall">
+          <FiX size="1.5rem" />
         </Box>
+
+        <Box align="center" gap="medium">
+          <YieldAvatar address={account} size={5} />
+          <CopyWrap>
+            <Text size="xlarge">{abbreviateHash(account, 6)}</Text>
+          </CopyWrap>
+        </Box>
+
         <Box align="center" direction="row" gap="small" justify="center">
-          <Button onClick={() => handleCopy(account)}>
-            {copySuccess ? (
-              <FiCheckSquare size="1rem" style={{ verticalAlign: 'middle' }} />
-            ) : (
-              <FiCopy size="1rem" style={{ verticalAlign: 'middle' }} />
-            )}
-            <Text margin="xxsmall" size="xsmall">
-              {copySuccess ? 'Copied' : 'Copy Address'}
-            </Text>
-          </Button>
           <Anchor href={`https://${chainData.name}.etherscan.io/address/${account}`} margin="xsmall" target="_blank">
             <FiExternalLink size="1rem" style={{ verticalAlign: 'middle' }} />
             <Text margin="xxsmall" size="xsmall">
@@ -128,7 +118,11 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
 
         <Collapsible open={transactionsOpen}>
           {!transactions.size && <Text size="small">Your transactions will appear here...</Text>}
-          <Transactions pad="xsmall" />
+          <Box>
+            {[...transactions.values()].map((tx: any) => (
+              <TransactionItem tx={tx} key={tx.tx.hash} wide={true} />
+            ))}
+          </Box>
         </Collapsible>
       </Box>
     </Box>

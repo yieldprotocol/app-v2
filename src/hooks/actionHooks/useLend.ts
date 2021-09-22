@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
+import { HistoryContext } from '../../contexts/HistoryContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions } from '../../types';
 import { getTxCode } from '../../utils/appUtils';
@@ -12,6 +13,8 @@ export const useLend = () => {
   const { activeAccount: account, assetMap, slippageTolerance } = userState;
   const { updateSeries, updateAssets } = userActions;
 
+  const { historyActions: { updateTradeHistory } } = useContext(HistoryContext);
+
   const { sign, transact } = useChain();
 
   const lend = async (input: string | undefined, series: ISeries) => {
@@ -21,7 +24,13 @@ export const useLend = () => {
     const base = assetMap.get(series.baseId);
     const _input = input ? ethers.utils.parseUnits(input, base.decimals) : ethers.constants.Zero;
 
-    const _inputAsFyToken = sellBase(series.baseReserves, series.fyTokenReserves, _input, series.getTimeTillMaturity());
+    const _inputAsFyToken = sellBase(
+      series.baseReserves,
+      series.fyTokenReserves,
+      _input,
+      series.getTimeTillMaturity(),
+      series.decimals
+    );
     const _inputAsFyTokenWithSlippage = calculateSlippage(_inputAsFyToken, slippageTolerance.toString(), true);
 
     const permits: ICallData[] = await sign(
@@ -55,6 +64,7 @@ export const useLend = () => {
     await transact(calls, txCode);
     updateSeries([series]);
     updateAssets([base]);
+    updateTradeHistory([series]);
   };
 
   return lend;

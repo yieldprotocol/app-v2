@@ -1,9 +1,10 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
+import { HistoryContext } from '../../contexts/HistoryContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions } from '../../types';
 import { getTxCode } from '../../utils/appUtils';
-import { buyBase, calculateSlippage, sellBase } from '../../utils/yieldMath';
+import { buyBase, calculateSlippage } from '../../utils/yieldMath';
 import { useChain } from '../useChain';
 
 /* Lend Actions Hook */
@@ -11,6 +12,9 @@ export const useRollPosition = () => {
   const { userState, userActions } = useContext(UserContext);
   const { activeAccount: account, assetMap, slippageTolerance } = userState;
   const { updateSeries, updateAssets } = userActions;
+
+  const { historyActions: { updateVaultHistory } } = useContext(HistoryContext);
+
 
   const { sign, transact } = useChain();
 
@@ -22,7 +26,13 @@ export const useRollPosition = () => {
 
     const _fyTokenValueOfInput = fromSeries.seriesIsMature
       ? _input
-      : buyBase(fromSeries.baseReserves, fromSeries.fyTokenReserves, _input, fromSeries.getTimeTillMaturity());
+      : buyBase(
+          fromSeries.baseReserves,
+          fromSeries.fyTokenReserves,
+          _input,
+          fromSeries.getTimeTillMaturity(),
+          fromSeries.decimals
+        );
 
     const _minimumFYTokenReceived = calculateSlippage(_fyTokenValueOfInput, slippageTolerance.toString(), true);
 
@@ -43,7 +53,11 @@ export const useRollPosition = () => {
 
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [fromSeries.fyTokenAddress, fromSeries.poolAddress, _fyTokenValueOfInput] as LadleActions.Args.TRANSFER,
+        args: [
+          fromSeries.fyTokenAddress, 
+          fromSeries.seriesIsMature ? fromSeries.fyTokenAddress : fromSeries.poolAddress,  // mature/not
+          _fyTokenValueOfInput
+        ] as LadleActions.Args.TRANSFER,
         ignoreIf: false, // never ignore
       },
 
@@ -84,6 +98,7 @@ export const useRollPosition = () => {
 
     updateSeries([fromSeries, toSeries]);
     updateAssets([base]);
+    updateVaultHistory([fromSeries, toSeries]);
   };
 
   return rollPosition;
