@@ -21,15 +21,16 @@ import NetworkError from './components/NetworkError';
 import LendPosition from './views/LendPosition';
 import PoolPosition from './views/PoolPosition';
 import TransactionWidget from './components/TransactionWidget';
+import { useUnsupportedNetwork } from './hooks/useUnsupportedNetwork';
 
 function App() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-  const {
-    chainState: { chainData, chainId },
-  } = useContext(ChainContext);
 
   /* LOCAL STATE */
   const [menuLayerOpen, setMenuLayerOpen] = useState<boolean>(false);
+
+  /* HOOKS */
+  const unsupportedNetwork = useUnsupportedNetwork();
 
   return (
     <>
@@ -48,7 +49,7 @@ function App() {
           "custom" */}
 
       <Box fill>
-        {(!chainData || !chainData.get(chainId).supported) && <NetworkError />}
+        {unsupportedNetwork && <NetworkError />}
 
         <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
         <TransactionWidget />
