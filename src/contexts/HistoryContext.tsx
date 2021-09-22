@@ -126,9 +126,9 @@ const HistoryProvider = ({ children }: any) => {
   /* update Pool Historical data */
   const updateStrategyHistory = useCallback(
     async (strategyList: IStrategy[]) => {
-      try {
-        const liqHistMap = new Map<string, any[]>([]);
+      const liqHistMap = new Map<string, any[]>([]);
 
+      try {
         /* Get all the Liquidity history transactions */
         await Promise.all(
           strategyList.map(async (strategy: IStrategy) => {
