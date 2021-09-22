@@ -32,7 +32,7 @@ function VaultItem({
 }) {
   const history = useHistory();
 
-  const { userActions } = useContext(UserContext) as IUserContext;
+  const { userState: { seriesMap }, userActions } = useContext(UserContext) as IUserContext;
   const { setSelectedVault } = userActions;
 
   const handleSelect = (_vaultId: string) => {
@@ -56,7 +56,7 @@ function VaultItem({
           {vault.isActive ? (
             <Box direction="column">
               <Text weight={450} size="xsmall">
-                {vault.displayName}
+                {seriesMap.get(vault.seriesId!)?.displayName}
               </Text>
               <Text weight={450} size="xsmall">
                 Debt: {vault.art_}
