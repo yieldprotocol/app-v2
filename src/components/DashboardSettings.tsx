@@ -9,7 +9,7 @@ const DashboardSettings = ({ actionType }: { actionType: string }) => {
     userState: { dashSettings },
     userActions: { setDashSettings },
   } = useContext(UserContext) as IUserContext;
-  const { hideEmptyVaults, hideInactiveVaults, hideZeroLendBalances, hideZeroPoolBalances } = dashSettings;
+  const { hideEmptyVaults, hideInactiveVaults } = dashSettings;
 
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
 
@@ -39,42 +39,6 @@ const DashboardSettings = ({ actionType }: { actionType: string }) => {
           >
             <Box pad="xsmall" round="xsmall">
               <Text size="small">{hideInactiveVaults ? 'Show Inactive Vaults' : 'Hide Inactive Vaults'}</Text>
-            </Box>
-          </Button>
-        </Box>
-      )}
-      {actionType === ActionType.LEND && (
-        <Box gap="small">
-          <Button
-            onClick={() => {
-              setDashSettings('hideZeroLendBalances', !hideZeroLendBalances);
-              setSettingsOpen(false);
-            }}
-            plain
-            hoverIndicator={{ color: 'tailwind-blue-50' }}
-          >
-            <Box pad="xsmall" round="xsmall">
-              <Text size="small">
-                {hideZeroLendBalances ? 'Show Zero Balance Positions' : 'Hide Zero Balance Positions'}
-              </Text>
-            </Box>
-          </Button>
-        </Box>
-      )}
-      {actionType === ActionType.POOL && (
-        <Box gap="small">
-          <Button
-            onClick={() => {
-              setDashSettings('hideZeroPoolBalances', !hideZeroPoolBalances);
-              setSettingsOpen(false);
-            }}
-            plain
-            hoverIndicator={{ color: 'tailwind-blue-50' }}
-          >
-            <Box pad="xsmall" round="xsmall">
-              <Text size="small">
-                {hideZeroPoolBalances ? 'Show Zero Balance Positions' : 'Hide Zero Balance Positions'}
-              </Text>
             </Box>
           </Button>
         </Box>
