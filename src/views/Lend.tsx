@@ -187,13 +187,6 @@ const Lend = () => {
                   <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
                 </Box>
               </ActiveTransaction>
-
-              {lendProcess?.stage === ProcessStage.PROCESS_COMPLETE && lendProcess?.tx.status === TxState.SUCCESSFUL && (
-                <Box pad="large" gap="small">
-                  <Text size="small"> View position: </Text>
-                  <LendItem series={selectedSeries!} index={0} actionType={ActionType.LEND} condensed />
-                </Box>
-              )}
             </Box>
           )}
 
