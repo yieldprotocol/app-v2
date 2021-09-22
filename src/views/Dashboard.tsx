@@ -208,7 +208,7 @@ const Dashboard = () => {
               <Box justify="between" direction="row" align="center">
                 <Text size="medium">Vaults</Text>
                 <Box onClick={() => setDashSettings('hideVaultPositions', !hideVaultPositions)} pad="xsmall">
-                  {hideVaultPositions ? <FiEye /> : <FiEyeOff />}
+                  {hideVaultPositions ? <FiEyeOff />: <FiEye /> }
                 </Box>
               </Box>
               {!hideVaultPositions && (
@@ -230,7 +230,7 @@ const Dashboard = () => {
               <Box justify="between" direction="row" align="center">
                 <Text size="medium">Lend Positions</Text>
                 <Box onClick={() => setDashSettings('hideLendPositions', !hideLendPositions)} pad="xsmall">
-                  {hideLendPositions ? <FiEye /> : <FiEyeOff />}
+                  {hideLendPositions ? <FiEyeOff />: <FiEye />  }
                 </Box>
               </Box>
               {!hideLendPositions && (
@@ -251,7 +251,7 @@ const Dashboard = () => {
               <Box justify="between" direction="row" align="center">
                 <Text size="medium">Pool Positions</Text>
                 <Box onClick={() => setDashSettings('hidePoolPositions', !hidePoolPositions)} pad="xsmall">
-                  {hidePoolPositions ? <FiEye /> : <FiEyeOff />}
+                  {hidePoolPositions ? <FiEyeOff />: <FiEye />}
                 </Box>
               </Box>
               {!hidePoolPositions && (
