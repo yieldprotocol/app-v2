@@ -55,15 +55,16 @@ interface IChainData {
   name: string;
   color: string;
   supported: boolean;
+  id: number;
 }
 
-const chainData = new Map<number, IChainData>();
-chainData.set(1, { name: 'Mainnet', color: '#29b6af', supported: false });
-chainData.set(3, { name: 'Ropsten', color: '#ff4a8d', supported: false });
-chainData.set(4, { name: 'Rinkeby', color: '#f6c343', supported: false });
-chainData.set(5, { name: 'Goerli', color: '#3099f2', supported: false });
-chainData.set(10, { name: 'Optimism', color: '#EB0822', supported: false });
-chainData.set(42, { name: 'Kovan', color: '#7F7FFE', supported: true });
+export const chainData = new Map<number, IChainData>();
+chainData.set(1, { name: 'Mainnet', color: '#29b6af', supported: false, id: 1 });
+chainData.set(3, { name: 'Ropsten', color: '#ff4a8d', supported: false, id: 3 });
+chainData.set(4, { name: 'Rinkeby', color: '#f6c343', supported: false, id: 4 });
+chainData.set(5, { name: 'Goerli', color: '#3099f2', supported: false, id: 5 });
+chainData.set(10, { name: 'Optimism', color: '#EB0822', supported: false, id: 10 });
+chainData.set(42, { name: 'Kovan', color: '#7F7FFE', supported: true, id: 42 });
 
 const connectors = new Map();
 const injectedName = 'metamask';
