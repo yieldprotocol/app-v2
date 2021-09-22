@@ -231,7 +231,13 @@ const VaultPosition = () => {
           <CenterPanelWrap>
             <Box fill pad={mobile ? 'medium' : 'large'} gap="small">
               <Box height={{ min: '250px' }} gap="2em">
-                <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
+                <Box
+                  direction="row-responsive"
+                  justify="between"
+                  fill="horizontal"
+                  align="center"
+                  pad={{ top: mobile ? 'medium' : undefined }}
+                >
                   <Box direction="row" align="center" gap="medium">
                     <PositionAvatar position={selectedVault!} actionType={ActionType.BORROW} />
                     <Box>

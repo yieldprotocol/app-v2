@@ -143,7 +143,13 @@ const LendPosition = () => {
           <CenterPanelWrap>
             <Box fill gap="small" pad={mobile ? 'medium' : 'large'}>
               <Box height={{ min: '250px' }} gap="2em">
-                <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
+                <Box
+                  direction="row-responsive"
+                  justify="between"
+                  fill="horizontal"
+                  align="center"
+                  pad={{ top: mobile ? 'medium' : undefined }}
+                >
                   <Box direction="row" align="center" gap="medium">
                     <PositionAvatar position={selectedSeries!} actionType={ActionType.LEND} />
                     <Box>
