@@ -1,10 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
-import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
-import { UserContext } from '../contexts/UserContext';
-import { ActionCodes, TxState, ProcessStage, IYieldProcess } from '../types';
-import { getTxCode, getPositionPathPrefix, getVaultIdFromReceipt } from '../utils/appUtils';
+import { ActionCodes, IYieldProcess } from '../types';
+import { getTxCode } from '../utils/appUtils';
 
 /* useTx hook returns the tx status, and redirects to home after success if shouldRedirect is specified */
 /* the return tx looks like any object of {txCode, isPending, isSuccess, isFailed, isRejected} */
