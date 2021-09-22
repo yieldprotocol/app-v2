@@ -24,6 +24,7 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
         style={{ position: 'fixed', top: '0px' }}
         direction="row"
         fill="horizontal"
+        background="white"
       >
         <Grid columns={['auto', '1fr', 'auto']} fill="horizontal">
           <Box direction="row" gap="large" align="center">
