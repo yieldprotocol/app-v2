@@ -97,7 +97,7 @@ function Pool() {
         <Box height="100%" pad={mobile ? 'medium' : { top: 'large', horizontal: 'large' }}>
           {stepPosition === 0 && (
             <Box fill gap="large">
-              <YieldCardHeader logo={mobile} series={selectedStrategy?.currentSeries}>
+              <YieldCardHeader>
                 <Box gap={mobile ? undefined : 'xsmall'}>
                   <ColorText size={mobile ? 'medium' : '2rem'}>PROVIDE LIQUIDITY</ColorText>
                   <AltText color="text-weak" size="xsmall">

@@ -66,12 +66,12 @@ const YieldAccount = (props: any) => {
             onClick={() => setSettingsOpen(true)}
             pad="xsmall"
             justify="center"
-            hoverIndicator={ { background: 'hover' }}
+            hoverIndicator={{ background: 'hover' }}
           >
             {mobile ? (
-              <Text color="text">
+              <Box>
                 <FiSettings />
-              </Text>
+              </Box>
             ) : (
               <Box direction="row" align="center" gap="small">
                 <Box>
@@ -82,14 +82,13 @@ const YieldAccount = (props: any) => {
                   <Box direction="row" align="center" gap="small">
                     <Box direction="row" gap="xsmall" align="center">
                       <StyledText size="small" color="text">
-                        { assetsLoading &&  <Skeleton circle height={15} width={15} />}  
-                        { ethBalance  && <EthMark /> }
+                        {assetsLoading && <Skeleton circle height={15} width={15} />}
+                        {ethBalance && <EthMark />}
                       </StyledText>
                       <StyledText size="small" color="text">
                         {assetsLoading ? <Skeleton width={40} /> : ethBalance}
                       </StyledText>
                     </Box>
-
                   </Box>
                 </Box>
                 <Box>
