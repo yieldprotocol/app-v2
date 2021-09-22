@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { ContractFactory, ethers } from 'ethers';
-import React, { useEffect, useState } from 'react';
-import { ContractFactory, ethers, utils } from 'ethers';
 import { useWeb3React } from '@web3-react/core';
 import { InjectedConnector } from '@web3-react/injected-connector';
 import { NetworkConnector } from '@web3-react/network-connector';
@@ -367,19 +365,6 @@ const ChainProvider = ({ children }: any) => {
 
           const newSeriesList: any[] = [];
 
-          /* Add in any extra static series */
-          /* get poolAdded events and series events at the same time */
-          const [seriesAddedEvents, poolAddedEvents] = await Promise.all([
-            Cauldron.queryFilter('SeriesAdded' as any, lastSeriesUpdate),
-            Ladle.queryFilter('PoolAdded' as any, lastSeriesUpdate),
-          ]);
-
-          /* build a map from the poolAdded event data */
-          const poolMap: Map<string, string> = new Map(
-            poolAddedEvents.map((log: any) => Ladle.interface.parseLog(log).args) as [[string, string]]
-          );
-
-          const newSeriesList: any[] = [];
           /* Add in any extra static series */
           await Promise.all([
             ...seriesAddedEvents.map(async (x: any): Promise<void> => {
