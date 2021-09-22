@@ -58,8 +58,6 @@ const Dashboard = () => {
     hideVaultPositions,
     hideLendPositions,
     hidePoolPositions,
-    hideZeroLendBalances,
-    hideZeroPoolBalances,
     currencySetting,
   } = dashSettings;
 
@@ -92,19 +90,19 @@ const Dashboard = () => {
 
   useEffect(() => {
     const _lendPositions: ISeries[] = Array.from(seriesMap.values())
-      .filter((_series: ISeries) => (hideZeroLendBalances ? _series.fyTokenBalance?.gt(ZERO_BN) : true))
+      .filter((_series: ISeries) => _series.fyTokenBalance?.gt(ZERO_BN))
       .sort((_seriesA: ISeries, _seriesB: ISeries) => (_seriesA.fyTokenBalance?.gt(_seriesB.fyTokenBalance!) ? 1 : -1));
     setLendPositions(_lendPositions);
-  }, [seriesMap, hideZeroLendBalances, hideLendPositions]);
+  }, [seriesMap, hideLendPositions]);
 
   useEffect(() => {
     const _strategyPositions: IStrategy[] = Array.from(strategyMap.values())
-      .filter((_strategy: IStrategy) => (hideZeroPoolBalances ? _strategy.accountBalance?.gt(ZERO_BN) : true))
+      .filter((_strategy: IStrategy) => _strategy.accountBalance?.gt(ZERO_BN))
       .sort((_strategyA: IStrategy, _strategyB: IStrategy) =>
         _strategyA.accountBalance?.lt(_strategyB.accountBalance!) ? 1 : -1
       );
     setStrategyPositions(_strategyPositions);
-  }, [strategyMap, hideZeroPoolBalances, hidePoolPositions]);
+  }, [strategyMap, hidePoolPositions]);
 
   useEffect(() => {
     setAllPositions({
