@@ -28,6 +28,7 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
         direction="row"
         fill="horizontal"
         background="white"
+        elevation={mobile && isPositionPath ? 'small' : undefined}
       >
         <Grid columns={['auto', '1fr', 'auto']} fill="horizontal">
           <Box direction="row" gap="large" align="center">
@@ -38,16 +39,18 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
             )}
             {mobile && isPositionPath && <BackButton action={() => history.goBack()} />}
             {!mobile && (
-              <Avatar background="hover" size="3rem">
-                <NavLink to={`/${prevLoc}`} style={{ height: '50%' }}>
-                  <YieldMark
-                    height="1.75rem"
-                    colors={['#f79533', '#f37055', '#ef4e7b', '#a166ab', '#5073b8', '#1098ad', '#07b39b', '#6fba82']}
-                  />
-                </NavLink>
-              </Avatar>
+              <>
+                <Avatar background="hover" size="3rem">
+                  <NavLink to={`/${prevLoc}`} style={{ height: '50%' }}>
+                    <YieldMark
+                      height="1.75rem"
+                      colors={['#f79533', '#f37055', '#ef4e7b', '#a166ab', '#5073b8', '#1098ad', '#07b39b', '#6fba82']}
+                    />
+                  </NavLink>
+                </Avatar>
+                <YieldNavigation />
+              </>
             )}
-            {!mobile && <YieldNavigation />}
           </Box>
           <Box />
 
