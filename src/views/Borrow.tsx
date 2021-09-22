@@ -19,7 +19,7 @@ import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import VaultSelector from '../components/selectors/VaultPositionSelector';
 import ActiveTransaction from '../components/ActiveTransaction';
 
-import { cleanValue, nFormatter } from '../utils/appUtils';
+import { cleanValue, getVaultIdFromReceipt, nFormatter } from '../utils/appUtils';
 
 import YieldInfo from '../components/YieldInfo';
 import BackButton from '../components/buttons/BackButton';
@@ -39,11 +39,17 @@ import { useBorrowHelpers } from '../hooks/actionHelperHooks/useBorrowHelpers';
 import InputInfoWrap from '../components/wraps/InputInfoWrap';
 import ColorText from '../components/texts/ColorText';
 import { useProcess } from '../hooks/useProcess';
+import VaultItem from '../components/positionItems/VaultItem';
+import { ChainContext } from '../contexts/ChainContext';
+import DummyVaultItem from '../components/positionItems/DummyVaultItem';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   /* STATE FROM CONTEXT */
+  const {
+    chainState: { contractMap },
+  } = useContext(ChainContext);
   const { userState } = useContext(UserContext) as IUserContext;
   const { activeAccount, assetMap, vaultMap, seriesMap, selectedSeriesId, selectedIlkId, selectedBaseId } = userState;
 
@@ -62,6 +68,8 @@ const Borrow = () => {
   const [stepDisabled, setStepDisabled] = useState<boolean>(true);
 
   const [vaultToUse, setVaultToUse] = useState<IVault | undefined>(undefined);
+  const [newVaultId, setNewVaultId] = useState<string | undefined>(undefined);
+
   const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
 
   const borrow = useBorrow();
@@ -142,15 +150,13 @@ const Borrow = () => {
           v.ilkId === selectedIlk.id && v.baseId === selectedBase.id && v.seriesId === selectedSeries.id && v.isActive
       );
       setMatchingVaults(_matchingVaults);
-      // reset the selected vault on every change
-      setVaultToUse(undefined);
     }
   }, [vaultMap, selectedBase, selectedIlk, selectedSeries]);
 
-  /* Reset the selected vault on every Ilk change */
-  useEffect(() => {
-    selectedIlk && setVaultToUse(undefined);
-  }, [selectedIlk]);
+  /* reset the selected vault on every component change */
+  useEffect(()=>{
+    setVaultToUse(undefined);
+  },[selectedIlk, selectedBase, selectedSeries ])
 
   // IS THIS VALUE IS ACTIUALLY JUST the fytoken value:
   const borrowOutput = cleanValue(
@@ -159,6 +165,14 @@ const Borrow = () => {
   );
 
   useEffect(() => {
+    if (
+      borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
+      borrowProcess?.tx.status === TxState.SUCCESSFUL &&
+      !vaultToUse
+    ) {
+      setNewVaultId(getVaultIdFromReceipt(borrowProcess?.tx?.receipt, contractMap)!);
+    }
+
     borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs();
   }, [borrowProcess, resetInputs]);
 
@@ -167,16 +181,7 @@ const Borrow = () => {
       <MainViewWrap>
         {!mobile && (
           <PanelWrap>
-            <Box margin={{ top: '35%' }}>
-              {/* <StepperText
-                position={stepPosition}
-                values={[
-                  ['Choose an amount and a maturity date', '', ''],
-                  ['Add Collateral', '', ''],
-                  ['Review & Transact', '', ''],
-                ]}
-              /> */}
-            </Box>
+            <Box margin={{ top: '35%' }} />
             <YieldInfo />
           </PanelWrap>
         )}
@@ -374,6 +379,17 @@ const Borrow = () => {
                 </ActiveTransaction>
               </Box>
             )}
+
+            {stepPosition === 2 &&
+              borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
+              borrowProcess?.tx.status === TxState.SUCCESSFUL && (
+                <Box pad="large" gap="small">
+                  <Text size="small"> View Vault: </Text>
+                  {newVaultId && 
+                    <DummyVaultItem series={selectedSeries!} vaultId={newVaultId!} condensed />
+                  }
+                </Box>
+              )}
           </Box>
 
           <Box>

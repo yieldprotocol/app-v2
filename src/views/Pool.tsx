@@ -37,8 +37,7 @@ function Pool() {
 
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, assetMap, seriesMap, selectedBaseId, selectedStrategyAddr, strategyMap } =
-    userState;
+  const { activeAccount, assetMap, seriesMap, selectedBaseId, selectedStrategyAddr, strategyMap } = userState;
   // const selectedSeries = seriesMap.get(selectedSeriesId!);
   const selectedBase = assetMap.get(selectedBaseId!);
   const selectedStrategy = strategyMap.get(selectedStrategyAddr!);
@@ -61,10 +60,7 @@ function Pool() {
     [0, maxPool]
   );
 
-  const { txProcess: poolProcess, resetProcess } = useProcess(
-    ActionCodes.ADD_LIQUIDITY,
-    selectedStrategy?.id
-  );
+  const { txProcess: poolProcess, resetProcess } = useProcess(ActionCodes.ADD_LIQUIDITY, selectedStrategy?.id);
 
   /* LOCAL ACTION FNS */
   const handleAdd = () => {
@@ -225,14 +221,14 @@ function Pool() {
             </Box>
           )}
 
-        {poolProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
-                    poolProcess?.tx.status === TxState.SUCCESSFUL && (
-                      <Box pad="large" gap="small">
-                        <Text size="small"> View strategy Position: </Text>
-                        <StrategyItem strategy={selectedStrategy!} index={0} condensed />
-                      </Box>
-          )}
-
+          {stepPosition === 1 &&
+            poolProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
+            poolProcess?.tx.status === TxState.SUCCESSFUL && (
+              <Box pad="large" gap="small">
+                <Text size="small"> View strategy Position: </Text>
+                <StrategyItem strategy={selectedStrategy!} index={0} condensed />
+              </Box>
+            )}
         </Box>
 
         <ActionButtonGroup pad>

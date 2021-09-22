@@ -23,7 +23,7 @@ export const useProcess = (
   const [txCode, setTxCode] = useState<string>();
   const [txProcess, setTxProcess] = useState<IYieldProcess>();
 
-  const resetProcess = () => txActions.resetProcess(txCode)
+  const resetProcess = () => txActions.resetProcess(txCode);
 
   // 1. Set the txCode from provided... or based on seriesId and actionCode
   useEffect(() => {
@@ -36,8 +36,8 @@ export const useProcess = (
 
   useEffect(() => {
     const _process = processes.get(txCode);
-    if (_process) setTxProcess(_process)
-  }, [ processes, txCode ]);
+    if (_process) setTxProcess(_process);
+  }, [processes, txCode]);
 
   return { txProcess, resetProcess };
 };
