@@ -273,9 +273,9 @@ const ChainProvider = ({ children }: any) => {
               ERC20.name(),
               ERC20.symbol(),
               ERC20.decimals(),
-              id === USDC ? '2' : '1' // TODO  ERC20.version()
+              id === USDC ? '2' : '1', // TODO  ERC20.version()
             ]);
-            
+
             const newAsset = {
               id,
               address,
@@ -535,10 +535,10 @@ const ChainProvider = ({ children }: any) => {
   }, [chainId, fallbackActivate, lastChainId, tried]);
 
   /**
-   * Try connect automatically to an injected provider on first load
+   * Try connect automatically to an injected provider on first load, or if user tries to connect, but fails
    * */
   useEffect(() => {
-    chainState.connectOnLoad &&
+    if (chainState.connectOnLoad && !chainState.web3Active) {
       connectors
         .get(injectedName)
         .isAuthorized()
@@ -551,7 +551,8 @@ const ChainProvider = ({ children }: any) => {
             setTried(true); // just move on do nothing nore
           }
         });
-  }, [activate, chainState.connectOnLoad]);
+    }
+  }, [activate, chainState.connectOnLoad, chainState.web3Active]);
 
   /* If web3 connected, wait until we get confirmation of that to flip the flag */
   useEffect(() => {
