@@ -10,7 +10,7 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
     chainState: { account, connector, connectors },
-    chainActions: { connect, disconnect },
+    chainActions: { connect },
   } = useContext(ChainContext);
 
   const [disclaimerCheckedInStorage, setDisclaimerCheckedInStorage] = useCachedState('disclaimerChecked', false);
@@ -25,7 +25,6 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
 
   const handleConnect = (connectorName: string) => {
     setActivatingConnector(connectorName);
-    disconnect();
     connect(connectorName);
     setConnectOpen(false);
   };
