@@ -25,7 +25,7 @@ import TransactionWidget from './components/TransactionWidget';
 function App() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
-    chainState: { chainData },
+    chainState: { chainData, chainId },
   } = useContext(ChainContext);
 
   /* LOCAL STATE */
@@ -48,7 +48,7 @@ function App() {
           "custom" */}
 
       <Box fill>
-        {chainData && !chainData.supported && <NetworkError />}
+        {(!chainData || !chainData.get(chainId).supported) && <NetworkError />}
 
         <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
         <TransactionWidget />
