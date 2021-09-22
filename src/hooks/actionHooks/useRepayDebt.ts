@@ -49,7 +49,11 @@ export const useRepayDebt = () => {
       secondsToFrom(series.maturity.toString()),
       series.decimals
     );
-    const _inputAsFyDaiWithSlippage = calculateSlippage(_inputAsFyToken, userState.slippageTolerance.toString(), true);
+    const _inputAsFyTokenWithSlippage = calculateSlippage(
+      _inputAsFyToken,
+      userState.slippageTolerance.toString(),
+      true
+    );
 
     const inputGreaterThanDebt: boolean = ethers.BigNumber.from(_inputAsFyToken).gte(vault.art);
 
@@ -86,7 +90,7 @@ export const useRepayDebt = () => {
       },
       {
         operation: LadleActions.Fn.REPAY,
-        args: [vault.id, account, ethers.constants.Zero, _inputAsFyDaiWithSlippage] as LadleActions.Args.REPAY,
+        args: [vault.id, account, ethers.constants.Zero, _inputAsFyTokenWithSlippage] as LadleActions.Args.REPAY,
         ignoreIf:
           series.seriesIsMature ||
           inputGreaterThanDebt || // use if input is NOT more than debt
