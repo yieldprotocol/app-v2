@@ -46,7 +46,6 @@ const Dashboard = () => {
       priceMap,
       vaultsLoading,
       seriesLoading,
-      pricesLoading,
       strategiesLoading,
       dashSettings,
     },
@@ -192,7 +191,6 @@ const Dashboard = () => {
               lendBalance={totalLendBalance}
               poolBalance={totalStrategyBalance}
               digits={currencySettingDigits}
-              loading={vaultsLoading || seriesLoading || pricesLoading || strategiesLoading}
               symbol={currencySettingSymbol}
             />
           </Box>
