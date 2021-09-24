@@ -3,7 +3,7 @@ import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, IVault, ISeries, ActionCodes, LadleActions, IAsset } from '../../types';
-import { decimalNToDecimal18, getTxCode } from '../../utils/appUtils';
+import { getTxCode } from '../../utils/appUtils';
 import { ETH_BASED_ASSETS, MAX_128 } from '../../utils/constants';
 import { useChain } from '../useChain';
 
@@ -33,9 +33,6 @@ export const useRepayDebt = () => {
 
     const series: ISeries = seriesMap.get(vault.seriesId);
     const base: IAsset = assetMap.get(vault.baseId);
-    const ethIlk: boolean = ETH_BASED_ASSETS.includes(vault.ilkId);
-
-    console.log('is eth based? ', ethIlk);
 
     /* parse inputs */
     const _input = input ? ethers.utils.parseUnits(input, base.decimals) : ethers.constants.Zero;
@@ -49,6 +46,7 @@ export const useRepayDebt = () => {
       secondsToFrom(series.maturity.toString()),
       series.decimals
     );
+
     const _inputAsFyTokenWithSlippage = calculateSlippage(
       _inputAsFyToken,
       userState.slippageTolerance.toString(),
@@ -56,8 +54,10 @@ export const useRepayDebt = () => {
     );
 
     const inputGreaterThanDebt: boolean = ethers.BigNumber.from(_inputAsFyToken).gte(vault.art);
-
     const fyTokenInputGreaterThanReserves = _inputAsFyToken.gte(series.fyTokenRealReserves);
+
+    const maxBaseIn = (series?.fyTokenReserves.sub(series?.baseReserves)).div(2)
+    const inputGreaterThanMaxBaseIn = _input.gt(maxBaseIn);
 
     const permits: ICallData[] = await sign(
       [
@@ -86,7 +86,10 @@ export const useRepayDebt = () => {
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [base.address, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
-        ignoreIf: series.seriesIsMature || fyTokenInputGreaterThanReserves,
+        ignoreIf: 
+        series.seriesIsMature || 
+        // fyTokenInputGreaterThanReserves ||
+        inputGreaterThanMaxBaseIn, 
       },
       {
         operation: LadleActions.Fn.REPAY,
@@ -94,7 +97,8 @@ export const useRepayDebt = () => {
         ignoreIf:
           series.seriesIsMature ||
           inputGreaterThanDebt || // use if input is NOT more than debt
-          fyTokenInputGreaterThanReserves, // OR ignore if fytoken required is greater than fyTokenReserves
+          // fyTokenInputGreaterThanReserves, // OR ignore if fytoken required is greater than fyTokenReserves
+          inputGreaterThanMaxBaseIn,
       },
       {
         operation: LadleActions.Fn.REPAY_VAULT,
@@ -102,12 +106,15 @@ export const useRepayDebt = () => {
         ignoreIf:
           series.seriesIsMature ||
           !inputGreaterThanDebt || // use if input IS more than debt OR
-          fyTokenInputGreaterThanReserves, // OR ignore if fytoken required is greater than fyTokenReserves
+          // fyTokenInputGreaterThanReserves, // OR ignore if fytoken required is greater than fyTokenReserves
+          inputGreaterThanMaxBaseIn,
       },
       {
         operation: LadleActions.Fn.CLOSE,
         args: [vault.id, account, ethers.constants.Zero, _input.mul(-1)] as LadleActions.Args.CLOSE,
-        ignoreIf: series.seriesIsMature || !fyTokenInputGreaterThanReserves, // OR ignore if fytoken required is less than fyTokenReserves
+        ignoreIf: series.seriesIsMature || 
+        // !fyTokenInputGreaterThanReserves, // OR ignore if fytoken required is less than fyTokenReserves
+        !inputGreaterThanMaxBaseIn,
       },
 
       /* AFTER MATURITY */

@@ -97,7 +97,7 @@ export const useRollLiquidity = () => {
       {
         // router.mintWithBase( base.address, fyToken2.address, receiver, fyTokenToBuy, minLPReceived)
         operation: LadleActions.Fn.ROUTE,
-        args: [account, _fyTokenToBuy, ethers.constants.Zero] as RoutedActions.Args.MINT_WITH_BASE,
+        args: [account, _fyTokenToBuy.toString(), ethers.constants.Zero] as RoutedActions.Args.MINT_WITH_BASE,
         fnName: RoutedActions.Fn.MINT_WITH_BASE,
         targetContract: toSeries.poolContract,
         ignoreIf: fromSeries.seriesIsMature,

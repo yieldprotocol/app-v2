@@ -8,6 +8,9 @@ import { getTxCode } from '../../utils/appUtils';
 import { ETH_BASED_ASSETS } from '../../utils/constants';
 import { useChain } from '../useChain';
 
+
+// TODO will fail if balance of join is less than amount
+ 
 export const useRemoveCollateral = () => {
   const {
     chainState: { account, contractMap },
