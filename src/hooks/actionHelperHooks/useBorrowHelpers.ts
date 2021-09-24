@@ -1,9 +1,7 @@
-import { BigNumber, BigNumberish, ethers } from 'ethers';
+import { BigNumberish, ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
-import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
 import { IVault, ISeries, IAsset } from '../../types';
-import { buyFYToken, sellBase, sellFYToken } from '../../utils/yieldMath';
 
 /* Collateralisation hook calculates collateralisation metrics */
 export const useBorrowHelpers = (
@@ -49,16 +47,17 @@ export const useBorrowHelpers = (
         /* the the dust limit */
         _maxDust && setMaxRepayDustLimit(ethers.utils.formatUnits(_maxDust, vaultBase?.decimals)?.toString());    
         /* set the maxBas available for both user and protocol */
-        _maxUser && setUserBaseAvailable(ethers.utils.formatUnits(_maxUser, vaultBase?.decimals)?.toString());
-        _maxProtocol &&
-          setProtocolBaseAvailable(ethers.utils.formatUnits(_maxProtocol, vaultBase?.decimals)?.toString());    
-          /* set the maxRepay as the buggest of the two */
+        _maxUser && setUserBaseAvailable(_maxUser);
+        _maxProtocol && setProtocolBaseAvailable(_maxProtocol);    
+        
+          /* set the maxRepay as the buggest of the two, human readbale */
         _maxUser && _maxProtocol && _maxUser.gt(_maxProtocol)
           ? setMaxRepayOrRoll(ethers.utils.formatUnits(_maxUser, vaultBase?.decimals)?.toString())
           : setMaxRepayOrRoll(ethers.utils.formatUnits(_maxProtocol, vaultBase?.decimals)?.toString());
       })();
     }
   }, [activeAccount, seriesMap, vault, vaultBase]);
+
 
   return {
     minAllowedBorrow,
