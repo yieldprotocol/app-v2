@@ -2,6 +2,8 @@ import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { Box, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 
+import { ethers } from 'ethers';
+
 import { FiClock, FiTrendingUp, FiAlertTriangle, FiArrowRight, FiPlusCircle, FiMinusCircle } from 'react-icons/fi';
 import { abbreviateHash, cleanValue, nFormatter } from '../utils/appUtils';
 import { UserContext } from '../contexts/UserContext';
@@ -126,7 +128,7 @@ const VaultPosition = () => {
     selectedVault
   );
 
-  const { maxRepayOrRoll, maxRepayDustLimit, protocolBaseAvailable, userBaseAvailable } = useBorrowHelpers(
+  const { maxAsBn, maxRepayOrRoll, maxRepayDustLimit, protocolBaseAvailable, userBaseAvailable } = useBorrowHelpers(
     undefined,
     undefined,
     selectedVault
@@ -336,49 +338,48 @@ const VaultPosition = () => {
                           action={() => console.log('maxAction')}
                           isError={repayError}
                           message={
-                            // is debt greater than token balance?
                             <>
-                            {!repayInput && 
-                              <InputInfoWrap action={() => setRepayInput(maxRepayOrRoll)}>
-                                {selectedVault.art.gt(vaultBase?.balance!) ? (
-                                  <Text color="gray" alignSelf="end" size="xsmall">
-                                    Maximum repayable is {vaultBase?.balance_!} {vaultBase?.symbol!}
-                                    {userBaseAvailable.lt(protocolBaseAvailable) ? '(based on your token balance)': '(based on protocol reserves)'}
-                                  </Text>
-                                ) : (
-                                  <Text color="gray" alignSelf="end" size="xsmall">
-                                    Max debt repayable ( {selectedVault?.art_!} {vaultBase?.symbol!} )
-                                  </Text>
-                                )}
-                              </InputInfoWrap>
-                            } 
-                            {repayInput && 
-                            !repayError &&
-                              (
-                              <InputInfoWrap>
-                                {repayCollEst && parseFloat(repayCollEst) > 10000 && 
-                                repayInput !== maxRepayOrRoll &&
-                                (
-                                  <Text color="text-weak" alignSelf="end" size="xsmall">
-                                    Repaying this amount will leave a small amount of debt.
-                                  </Text>
-                                )}
-                                {repayCollEst &&
-                                  parseFloat(repayCollEst) < 10000 &&
-                                  parseFloat(repayCollEst) !== 0 &&
-                                  repayInput !== maxRepayOrRoll && (
-                                    <Text color="text-weak" alignSelf="end" size="xsmall">
-                                      Collateralisation ratio after repayment:{' '}
-                                      {repayCollEst && nFormatter(parseFloat(repayCollEst), 2)}%
+                              {!repayInput && maxRepayOrRoll && (
+                                <InputInfoWrap action={() => setRepayInput(maxRepayOrRoll)}>
+                                  {selectedVault.art.gt(maxAsBn) ? (
+                                    <Text color="gray" alignSelf="end" size="xsmall">
+                                      Maximum repayable is {cleanValue(maxRepayOrRoll!, 2)}
+                                      {vaultBase?.symbol!}{' '}
+                                      {userBaseAvailable.lt(protocolBaseAvailable)
+                                        ? '(based on your token balance)'
+                                        : '(based on protocol reserves)'}
+                                    </Text>
+                                  ) : (
+                                    <Text color="gray" alignSelf="end" size="xsmall">
+                                      Max debt repayable ( {selectedVault?.art_!} {vaultBase?.symbol!} )
                                     </Text>
                                   )}
-                                {repayInput === maxRepayOrRoll && (
-                                  <Text color="text-weak" alignSelf="end" size="xsmall">
-                                    All debt will be repayed.
-                                  </Text>
-                                )}
-                              </InputInfoWrap>
-                            )}
+                                </InputInfoWrap>
+                              )}
+
+                              {repayInput && !repayError && (
+                                <InputInfoWrap>
+                                  {repayCollEst && parseFloat(repayCollEst) > 10000 && repayInput !== maxRepayOrRoll && (
+                                    <Text color="text-weak" alignSelf="end" size="xsmall">
+                                      Repaying this amount will leave a small amount of debt.
+                                    </Text>
+                                  )}
+                                  {repayCollEst &&
+                                    parseFloat(repayCollEst) < 10000 &&
+                                    parseFloat(repayCollEst) !== 0 &&
+                                    selectedVault.art.gt(maxAsBn) && (
+                                      <Text color="text-weak" alignSelf="end" size="xsmall">
+                                        Collateralisation ratio after repayment:{' '}
+                                        {repayCollEst && nFormatter(parseFloat(repayCollEst), 2)}%
+                                      </Text>
+                                    )}
+                                  {selectedVault.art.lte(maxAsBn) && (
+                                    <Text color="text-weak" alignSelf="end" size="xsmall">
+                                      All debt will be repayed.
+                                    </Text>
+                                  )}
+                                </InputInfoWrap>
+                              )}
                             </>
                           }
                         >
@@ -664,7 +665,6 @@ const VaultPosition = () => {
                     disabled={removeCollateralProcess?.processActive}
                   />
                 )}
-
             </ActionButtonWrap>
           </CenterPanelWrap>
         </ModalWrap>

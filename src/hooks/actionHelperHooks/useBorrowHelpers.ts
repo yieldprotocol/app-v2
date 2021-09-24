@@ -22,7 +22,8 @@ export const useBorrowHelpers = (
 
   const [maxRepayOrRoll, setMaxRepayOrRoll] = useState<string | undefined>();
   const [maxRepayDustLimit, setMaxRepayDustLimit] = useState<string | undefined>();
-  
+
+  const [maxAsBn, setMaxAsBn] = useState<BigNumber>(ethers.constants.Zero);
   const [userBaseAvailable, setUserBaseAvailable] = useState<BigNumber>(ethers.constants.Zero);
   const [protocolBaseAvailable, setProtocolBaseAvailable] = useState<BigNumber>(ethers.constants.Zero);
 
@@ -34,7 +35,6 @@ export const useBorrowHelpers = (
 
   /* update the min max repayable or rollable */
   useEffect(() => {
-
     if (activeAccount && vault && vaultBase) {
       const vaultSeries: ISeries = seriesMap.get(vault?.seriesId!);
       const minDebt = ethers.utils.parseUnits('0.5', vaultBase?.decimals);
@@ -44,27 +44,40 @@ export const useBorrowHelpers = (
         /* max user is either the max tokens they have or max debt */
         const _maxUser = _maxToken && _maxDebt.gt(_maxToken) ? _maxToken : _maxDebt;
         const _maxDust = _maxUser.sub(minDebt);
+
+        
+        
         const _maxProtocol = vaultSeries?.fyTokenReserves.sub(vaultSeries?.baseReserves).div(2);
+
+
+        console.log(vaultSeries?.fyTokenReserves.toString(), vaultSeries?.baseReserves.toString(), _maxProtocol.toString() )
         /* the the dust limit */
-        _maxDust && setMaxRepayDustLimit(ethers.utils.formatUnits(_maxDust, vaultBase?.decimals)?.toString());    
+        _maxDust && setMaxRepayDustLimit(ethers.utils.formatUnits(_maxDust, vaultBase?.decimals)?.toString());
         /* set the maxBas available for both user and protocol */
         _maxUser && setUserBaseAvailable(_maxUser);
-        _maxProtocol && setProtocolBaseAvailable(_maxProtocol);    
-        
-          /* set the maxRepay as the buggest of the two, human readbale */
+        _maxProtocol && setProtocolBaseAvailable(_maxProtocol);
+
+        /* set the maxRepay as the buggest of the two, human readbale */
         _maxUser && _maxProtocol && _maxUser.gt(_maxProtocol)
           ? setMaxRepayOrRoll(ethers.utils.formatUnits(_maxProtocol, vaultBase?.decimals)?.toString())
           : setMaxRepayOrRoll(ethers.utils.formatUnits(_maxUser, vaultBase?.decimals)?.toString());
+
+        /* set the maxRepay as the buggest of the two, human readbale */
+        _maxUser && _maxProtocol && _maxUser.gt(_maxProtocol)
+          ? setMaxAsBn(_maxProtocol)
+          : setMaxAsBn(_maxUser);
+          
       })();
     }
   }, [activeAccount, seriesMap, vault, vaultBase]);
-
 
   return {
     minAllowedBorrow,
     maxAllowedBorrow,
     maxRepayOrRoll,
     maxRepayDustLimit,
+
+    maxAsBn,
 
     userBaseAvailable,
     protocolBaseAvailable,
