@@ -189,7 +189,8 @@ const Dashboard = () => {
             <DashboardBalanceSummary
               debt={totalDebt!}
               collateral={totalCollateral!}
-              positionBalance={(Number(totalLendBalance!) + Number(totalStrategyBalance!)).toString()}
+              lendBalance={totalLendBalance}
+              poolBalance={totalStrategyBalance}
               digits={currencySettingDigits}
               loading={vaultsLoading || seriesLoading || pricesLoading || strategiesLoading}
               symbol={currencySettingSymbol}
@@ -206,7 +207,7 @@ const Dashboard = () => {
               <Box justify="between" direction="row" align="center">
                 <Text size="medium">Vaults</Text>
                 <Box onClick={() => setDashSettings('hideVaultPositions', !hideVaultPositions)} pad="xsmall">
-                  {hideVaultPositions ? <FiEyeOff />: <FiEye /> }
+                  {hideVaultPositions ? <FiEyeOff /> : <FiEye />}
                 </Box>
               </Box>
               {!hideVaultPositions && (
@@ -228,7 +229,7 @@ const Dashboard = () => {
               <Box justify="between" direction="row" align="center">
                 <Text size="medium">Lend Positions</Text>
                 <Box onClick={() => setDashSettings('hideLendPositions', !hideLendPositions)} pad="xsmall">
-                  {hideLendPositions ? <FiEyeOff />: <FiEye />  }
+                  {hideLendPositions ? <FiEyeOff /> : <FiEye />}
                 </Box>
               </Box>
               {!hideLendPositions && (
@@ -249,7 +250,7 @@ const Dashboard = () => {
               <Box justify="between" direction="row" align="center">
                 <Text size="medium">Pool Positions</Text>
                 <Box onClick={() => setDashSettings('hidePoolPositions', !hidePoolPositions)} pad="xsmall">
-                  {hidePoolPositions ? <FiEyeOff />: <FiEye />}
+                  {hidePoolPositions ? <FiEyeOff /> : <FiEye />}
                 </Box>
               </Box>
               {!hidePoolPositions && (

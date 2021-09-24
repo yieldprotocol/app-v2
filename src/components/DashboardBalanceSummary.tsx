@@ -7,24 +7,45 @@ import { cleanValue } from '../utils/appUtils';
 interface IDashboardBalance {
   debt: string;
   collateral: string;
-  positionBalance: string;
+  lendBalance: string;
+  poolBalance: string;
   digits?: number;
   loading?: boolean;
   symbol?: string;
 }
 
-const DashboardBalanceSummary = ({ debt, collateral, positionBalance, digits, loading, symbol }: IDashboardBalance) => (
+const DashboardBalanceSummary = ({
+  debt,
+  collateral,
+  lendBalance,
+  poolBalance,
+  digits,
+  loading,
+  symbol,
+}: IDashboardBalance) => (
   <Box gap="medium">
     <Box gap="xxsmall" border={{ side: 'bottom' }}>
       <Box gap="xxsmall">
         <Box direction="row" justify="between">
-          <Text size="xsmall">Total Lent & Pooled:</Text>
+          <Text size="xsmall">Total Lent:</Text>
           {loading ? (
             <Skeleton width={50} />
           ) : (
             <Text size="small">
               {symbol}
-              {cleanValue(positionBalance, digits)}
+              {cleanValue(lendBalance, digits)}
+            </Text>
+          )}
+        </Box>
+        <FiPlus color="#34D399" />
+        <Box direction="row" justify="between">
+          <Text size="xsmall">Total Pooled:</Text>
+          {loading ? (
+            <Skeleton width={50} />
+          ) : (
+            <Text size="small">
+              {symbol}
+              {cleanValue(poolBalance, digits)}
             </Text>
           )}
         </Box>
@@ -59,13 +80,16 @@ const DashboardBalanceSummary = ({ debt, collateral, positionBalance, digits, lo
       </Box>
     </Box>
     <Box direction="row" justify="between">
-      <Text size="small">Total</Text>
+      <Text size="small">Total:</Text>
       {loading ? (
         <Skeleton width={50} />
       ) : (
         <Text size="medium">
           {symbol}
-          {cleanValue((Number(collateral) - Number(debt) + Number(positionBalance)).toString(), digits)}
+          {cleanValue(
+            (Number(collateral) - Number(debt) + Number(lendBalance) + Number(poolBalance)).toString(),
+            digits
+          )}
         </Text>
       )}
     </Box>
