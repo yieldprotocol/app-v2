@@ -72,7 +72,6 @@ export const useCollateralHelpers = (
     const totalCollateral = existingCollateralAsWei.add(cInput);
     const totalDebt = existingDebtAsWei.add(dInput);
 
-    // console.log(base);
     const priceAsWei = base && decimalNToDecimal18(oraclePrice, base?.decimals);
 
     /* set the collateral ratio when collateral is entered */
@@ -96,10 +95,10 @@ export const useCollateralHelpers = (
 
       // check for valid min safe scenarios
       const minSafe = minSafeWithCollat.gt(ethers.constants.Zero)
-        ? ethers.utils.formatUnits(minSafeWithCollat, ilk.decimals)?.toString()
+        ? ethers.utils.formatUnits(minSafeWithCollat, ilk?.decimals)?.toString()
         : undefined;
 
-      setMinCollateral(ethers.utils.formatUnits(min, ilk.decimals)?.toString());
+      setMinCollateral(ethers.utils.formatUnits(min, ilk?.decimals)?.toString());
       setMinSafeCollateral(minSafe);
     } else {
       setMinCollateral('0');
@@ -109,18 +108,18 @@ export const useCollateralHelpers = (
     if (priceAsWei?.gt(ethers.constants.Zero)) {
       const _min = calculateMinCollateral(priceAsWei, totalDebt, '1.5', existingCollateralAsWei);
       const _max = existingCollateralAsWei.sub(_min);
-      setMaxRemovableCollateral(ethers.utils.formatUnits(_max, ilk.decimals)?.toString());
+      setMaxRemovableCollateral(ethers.utils.formatUnits(_max, ilk?.decimals)?.toString());
     } else {
       setMaxRemovableCollateral('0');
     }
-  }, [collInput, debtInput, ilk?.decimals, oraclePrice, vault, collateralizationRatio]);
+  }, [collInput, debtInput, ilk, oraclePrice, vault, collateralizationRatio, base]);
 
   /* Monitor for undercollaterization */
   useEffect(() => {
     parseFloat(collateralizationRatio!) >= 1.5 ? setUndercollateralized(false) : setUndercollateralized(true);
   }, [collateralizationRatio]);
 
-  // TODO marco add in collateralisation warning at about 150% - 200% " warning: vulnerable to liquidation"
+  // TODO Marco add in collateralisation warning at about 150% - 200% " warning: vulnerable to liquidation"
 
   return {
     collateralizationRatio,
