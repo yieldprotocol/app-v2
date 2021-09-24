@@ -18,12 +18,12 @@ export const useApr = (input: string | undefined, actionType: ActionType, series
   useEffect(() => {
     let preview: ethers.BigNumber | Error = ethers.constants.Zero;
     if (selectedSeries) {
-      const baseAmount = ethers.utils.parseUnits(input || '1', selectedSeries.decimals);
-      const { baseReserves, fyTokenReserves, maturity } = selectedSeries;
-      const ttm = secondsToFrom(maturity.toString());
 
-      if (actionType === 'LEND') preview = sellBase(baseReserves, fyTokenReserves, baseAmount, ttm, selectedSeries.decimals);
-      if (actionType === 'BORROW') preview = buyBase(baseReserves, fyTokenReserves, baseAmount, ttm, selectedSeries.decimals);
+      const baseAmount = ethers.utils.parseUnits(input || '1', selectedSeries.decimals);
+      const { baseReserves, fyTokenReserves } = selectedSeries;
+
+      if (actionType === 'LEND') preview = sellBase(baseReserves, fyTokenReserves, baseAmount, selectedSeries.getTimeTillMaturity(), selectedSeries.decimals);
+      if (actionType === 'BORROW') preview = buyBase(baseReserves, fyTokenReserves, baseAmount, selectedSeries.getTimeTillMaturity(), selectedSeries.decimals);
 
       const _apr = calculateAPR(baseAmount, preview, selectedSeries?.maturity);
       _apr ? setApr(cleanValue(_apr, 2)) : setApr(selectedSeries.apr);

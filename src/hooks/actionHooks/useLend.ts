@@ -54,7 +54,8 @@ export const useLend = () => {
       },
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [account, _inputAsFyTokenWithSlippage] as RoutedActions.Args.SELL_BASE,
+        // args: [account, _inputAsFyTokenWithSlippage] as RoutedActions.Args.SELL_BASE,
+        args: [account, ethers.constants.Zero] as RoutedActions.Args.SELL_BASE,
         fnName: RoutedActions.Fn.SELL_BASE,
         targetContract: series.poolContract,
         ignoreIf: false,

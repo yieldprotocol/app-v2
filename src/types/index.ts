@@ -325,6 +325,16 @@ export enum ActionType {
   POOL = 'POOL',
 }
 
+export enum YieldColors {
+  SUCCESS = 'green',
+  FAILED = 'red',
+  WARNING = 'orange',
+  GRADIENT = '',
+  GRADIENT_TRANSPARENT = '',
+  PRIMARY = '',
+  SECONDARY = '',
+}
+
 export enum ActionCodes {
   // COLLATERAL
   ADD_COLLATERAL = 'Add Collateral',

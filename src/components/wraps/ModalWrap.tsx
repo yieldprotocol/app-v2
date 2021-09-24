@@ -65,15 +65,15 @@ function ModalWrap({ children, series }: IModalWrap) {
           >
             <Grid columns={['medium', 'flex', 'medium']} fill="horizontal">
               <Box direction="row" gap={mobile ? '0.25em' : 'medium'} align="center">
-                <Avatar>
+                {/* <Avatar>
                   <NavLink to={`/${prevLoc}`}>
                     <YieldMark
-                      height={mobile ? 'small' : 'medium'}
-                      colors={[_series?.oppStartColor, _series?.oppEndColor]}
+                      height={mobile ? '1rem' : '1.75rem'}
+                      colors ={[ _series?.oppStartColor,_series?.oppEndColor]}
                     />
                   </NavLink>
                   <Box />
-                </Avatar>
+                </Avatar> */}
               </Box>
               <Box />
             </Grid>

@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Box, Text } from 'grommet';
+import { Box, Spinner, Text } from 'grommet';
 import { BiWallet } from 'react-icons/bi';
 import { FiCheckCircle, FiClock, FiPenTool, FiX } from 'react-icons/fi';
 import ParticlesBg from 'particles-bg';
@@ -127,7 +127,7 @@ const ActiveTransaction = ({
           <InfoBlock
             title="Token Approval"
             subTitle="Transaction Pending..."
-            icon={<FiClock size={iconSize} />}
+            icon={<Spinner color="tailwind-blue" size='medium' /> }
             button={<EtherscanButton txHash={activeProcess.tx.hash} />}
             full={full}
           />
@@ -148,7 +148,7 @@ const ActiveTransaction = ({
             title="Transaction Pending..."
             // subTitle={<CopyWrap hash={activeProcess.txHash}> {abbreviateHash(activeProcess.txHash, 3)} </CopyWrap>}
             subTitle={null}
-            icon={<FiClock size={iconSize} />}
+            icon={<Spinner color="tailwind-blue" size='small' />}
             button={<EtherscanButton txHash={activeProcess.txHash} />}
             full={full}
           />
@@ -159,7 +159,7 @@ const ActiveTransaction = ({
             title="Transaction Complete"
             // subTitle={<CopyWrap hash={activeProcess.txHash}> {abbreviateHash(activeProcess.txHash, 3)} </CopyWrap>}
             subTitle={null}
-            icon={<FiCheckCircle size={iconSize} />}
+            icon={<FiCheckCircle size={iconSize} color='green' />}
             button={<EtherscanButton txHash={activeProcess.txHash} />}
             full={full}
           />

@@ -1,5 +1,4 @@
-import { BigNumber, ethers } from 'ethers';
-import { serializeTransaction } from 'ethers/lib/utils';
+import { BigNumber, BigNumberish, ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../contexts/UserContext';
 import { ISeries } from '../../types';
@@ -11,18 +10,56 @@ export const useLendHelpers = (series: ISeries, input?: string | undefined) => {
   const selectedBase = assetMap.get(selectedBaseId!);
 
   const [maxLend, setMaxLend] = useState<string>();
+  const [maxClose, setMaxClose] = useState<string>();
+
+  const [userBaseAvailable, setUserBaseAvailable] = useState<BigNumber>(ethers.constants.Zero);
+  const [protocolBaseAvailable, setProtocolBaseAvailable] = useState<BigNumber>(ethers.constants.Zero);
+
   const [fyTokenMarketValue, setFyTokenMarketValue] = useState<string>();
 
-  /* Sets maxLend as the account BALANCE of the base token */
+  /* check the protocol max limits */
   useEffect(() => {
-    /* Check max available lend (only if activeAccount to save call) */
+    if (series) {
+      console.log(series.fyTokenReserves.toString(), series.baseReserves.toString());    
+      const _maxProtocol = series.fyTokenReserves.sub(series.baseReserves).div(2);
+      _maxProtocol && setProtocolBaseAvailable(_maxProtocol);
+    }
+  }, [series]);
+
+  /* Check max available lend (only if activeAccount).   */
+  useEffect(() => {
     if (activeAccount) {
       (async () => {
-        const max = await selectedBase?.getBalance(activeAccount);
-        if (max) setMaxLend(ethers.utils.formatUnits(max, selectedBase?.decimals).toString());
+        const userMax = await selectedBase?.getBalance(activeAccount);
+        userMax && setUserBaseAvailable(userMax);
       })();
     }
-  }, [activeAccount, assetMap, selectedBase, series]);
+  }, [activeAccount, selectedBase, series]);
+
+  useEffect(() => {
+    if (!series && selectedBase) {
+      setMaxLend(ethers.utils.formatUnits(userBaseAvailable, selectedBase.decimals).toString());
+    }
+    if (series) {
+      /* if user balance > protocol max */
+      
+      setMaxClose( ethers.utils.formatUnits(series.baseReserves, series.decimals).toString())
+
+      /* user balance or max Lend */
+      userBaseAvailable.lt(series.baseReserves)
+        ? setMaxLend(ethers.utils.formatUnits(userBaseAvailable, series.decimals).toString())
+        : setMaxLend(ethers.utils.formatUnits(series.baseReserves, series.decimals).toString());
+    }
+  }, [userBaseAvailable, protocolBaseAvailable, series, selectedBase]);
+
+  useEffect(() => {
+
+    if (series) {
+     
+      setMaxClose( ethers.utils.formatUnits(series.baseReserves, series.decimals).toString())
+    }
+  }, [fyTokenMarketValue]);
+
 
   /* Sets currentValue as the market Value of fyTokens held in base tokens */
   useEffect(() => {
@@ -31,20 +68,23 @@ export const useLendHelpers = (series: ISeries, input?: string | undefined) => {
         series.baseReserves,
         series.fyTokenReserves,
         series.fyTokenBalance || ethers.constants.Zero,
-        secondsToFrom(series.maturity.toString()),
+        series.getTimeTillMaturity(),
         series.decimals
       );
+
       value.lte(ethers.constants.Zero)
         ? setFyTokenMarketValue('0')
-        : setFyTokenMarketValue(ethers.utils.formatUnits(value, selectedBase?.decimals));
+        : setFyTokenMarketValue(ethers.utils.formatUnits(value, series.decimals));
+      
+      /* set max Closing */ 
+      value.lte(ethers.constants.Zero) 
+        ? setMaxClose( ethers.utils.formatUnits(series.baseReserves, series.decimals).toString() )
+        : setMaxClose( ethers.utils.formatUnits(value, series.decimals).toString() )
     }
-
     if (series && series.seriesIsMature)
-      setFyTokenMarketValue(
-        ethers.utils.formatUnits(series.fyTokenBalance!, selectedBase?.decimals)
-      );
+      setFyTokenMarketValue(ethers.utils.formatUnits(series.fyTokenBalance!, series.decimals));
 
-  }, [selectedBase?.decimals, series]);
+  }, [maxLend, series]);
 
-  return { maxLend, fyTokenMarketValue };
+  return { maxLend, fyTokenMarketValue, protocolBaseAvailable, userBaseAvailable, maxClose };
 };

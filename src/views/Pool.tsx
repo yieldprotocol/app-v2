@@ -222,12 +222,14 @@ function Pool() {
             </Box>
           )}
 
-          {poolProcess?.stage === ProcessStage.PROCESS_COMPLETE && poolProcess?.tx.status === TxState.SUCCESSFUL && (
-            <Box pad="large" gap="small">
-              <Text size="small"> View strategy Position: </Text>
-              <StrategyItem strategy={selectedStrategy!} index={0} condensed />
-            </Box>
-          )}
+          {stepPosition === 1 &&
+            poolProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
+            poolProcess?.tx.status === TxState.SUCCESSFUL && (
+              <Box pad="large" gap="small">
+                <Text size="small"> View strategy Position: </Text>
+                <StrategyItem strategy={selectedStrategy!} index={0} condensed />
+              </Box>
+            )}
         </Box>
 
         <ActionButtonGroup pad>

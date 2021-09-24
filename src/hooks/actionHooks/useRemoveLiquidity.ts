@@ -119,7 +119,6 @@ export const useRemoveLiquidity = () => {
       },
 
       /* OPTION 2.Remove liquidity, repay and sell - BEFORE MATURITY */
-
       // (ladle.transferAction(pool, pool, lpTokensBurnt),  ^^^^ DONE ABOVE^^^^)
       // ladle.routeAction(pool, ['burn', [receiver, ladle, 0, 0]),
       // ladle.repayFromLadleAction(vaultId, pool),
@@ -161,14 +160,13 @@ export const useRemoveLiquidity = () => {
         ignoreIf: series.seriesIsMature,
       },
 
-
       /**
        * 
        * AFTER MATURITY  ( DIRECT POOL REMOVES ONLY ) 
        * 
        * */
-
-      /* OPTION 3. remove Liquidity and redeem  - AFTER MATURITY */
+ 
+      /* OPTION 3. remove Liquidity and redeem  - AFTER MATURITY */  // FIRST CHOICE after maturity
       // (ladle.transferAction(pool, pool, lpTokensBurnt),  ^^^^ DONE ABOVE^^^^)
       // ladle.routeAction(pool, ['burn', [receiver, fyToken, minBaseReceived, minFYTokenReceived]),
       // ladle.redeemAction(seriesId, receiver, 0),
@@ -182,12 +180,12 @@ export const useRemoveLiquidity = () => {
         ] as RoutedActions.Args.BURN_POOL_TOKENS, // TODO slippages
         fnName: RoutedActions.Fn.BURN_POOL_TOKENS,
         targetContract: series.poolContract,
-        ignoreIf: _strategy || !series.seriesIsMature,
+        ignoreIf: !series.seriesIsMature,
       },
       {
         operation: LadleActions.Fn.REDEEM,
         args: [series.id, account, '0'] as LadleActions.Args.REDEEM, // TODO slippage
-        ignoreIf: _strategy || !series.seriesIsMature,
+        ignoreIf: !series.seriesIsMature,
       },
 
       /* OPTION 5. remove Liquidity, redeem and Close - AFTER MATURITY */
@@ -205,14 +203,14 @@ export const useRemoveLiquidity = () => {
         ] as RoutedActions.Args.BURN_POOL_TOKENS, // TODO slippages
         fnName: RoutedActions.Fn.BURN_POOL_TOKENS,
         targetContract: series.poolContract,
-        ignoreIf: _strategy || !series.seriesIsMature,
+        ignoreIf: true || _strategy || !series.seriesIsMature,
       },
       {
         operation: LadleActions.Fn.ROUTE,
         args: [account, ethers.constants.Zero] as RoutedActions.Args.BURN_FOR_BASE, // TODO slippage
         fnName: RoutedActions.Fn.BURN_FOR_BASE,
         targetContract: series.poolContract,
-        ignoreIf: _strategy || !series.seriesIsMature,
+        ignoreIf: true || _strategy || !series.seriesIsMature,
       },
       {
         operation: LadleActions.Fn.REDEEM,
@@ -222,7 +220,7 @@ export const useRemoveLiquidity = () => {
       {
         operation: LadleActions.Fn.CLOSE_FROM_LADLE,
         args: ['vaultId', account] as LadleActions.Args.CLOSE_FROM_LADLE, // TODO slippage
-        ignoreIf: _strategy || !series.seriesIsMature,
+        ignoreIf: true || _strategy || !series.seriesIsMature,
       },
     ];
 

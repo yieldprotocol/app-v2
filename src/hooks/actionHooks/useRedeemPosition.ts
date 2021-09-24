@@ -14,7 +14,8 @@ export const useRedeemPosition = () => {
   const { updateSeries, updateAssets } = userActions;
   const { sign, transact } = useChain();
 
-  /* NB TO DO */
+  // TODO will fail if balance of join is less than amount
+  
   const redeem = async (series: ISeries, input: string | undefined) => {
     const txCode = getTxCode(ActionCodes.REDEEM, series.id);
 
@@ -53,3 +54,5 @@ export const useRedeemPosition = () => {
 
   return redeem;
 };
+
+

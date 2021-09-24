@@ -36,7 +36,10 @@ import { useLend } from '../hooks/actionHooks/useLend';
 import ColorText from '../components/texts/ColorText';
 import { useProcess } from '../hooks/useProcess';
 import LendItem from '../components/positionItems/LendItem';
+
+import InputInfoWrap from '../components/wraps/InputInfoWrap';
 import DashButton from '../components/buttons/DashButton';
+
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -54,7 +57,8 @@ const Lend = () => {
   const [stepPosition, setStepPosition] = useState<number>(0);
 
   /* HOOK FNS */
-  const { maxLend } = useLendHelpers(selectedSeries!);
+  const { maxLend, protocolBaseAvailable, userBaseAvailable } = useLendHelpers(selectedSeries!);
+  
   const lend = useLend();
   const { apr } = useApr(lendInput, ActionType.LEND, selectedSeries);
 
@@ -121,6 +125,21 @@ const Lend = () => {
                         action={() => console.log('maxAction')}
                         isError={lendError}
                         disabled={selectedSeries?.seriesIsMature}
+                        message={
+                           (selectedSeries &&
+                            <InputInfoWrap action={() => setLendInput(maxLend)}>
+                              <Text size="xsmall" color="text-weak">
+                                Max lend is 
+                                {' '}
+                                <Text size="small" color="text-weak">
+                                  {cleanValue(maxLend,2)} {selectedBase?.symbol}
+                                </Text>
+                                {' '}
+                                { userBaseAvailable.lt(selectedSeries.baseReserves) ? ' (your token balance)' : ' (limited by protocol liquididty)'}
+                              </Text>
+                            </InputInfoWrap>
+                          )
+                        }
                       >
                         <TextInput
                           plain
@@ -188,22 +207,17 @@ const Lend = () => {
                   <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
                 </Box>
               </ActiveTransaction>
-
-              {lendProcess?.stage === ProcessStage.PROCESS_COMPLETE && lendProcess?.tx.status === TxState.SUCCESSFUL && (
-                <Box pad="large" gap="small">
-                  <Text size="small"> View position: </Text>
-                  <LendItem series={selectedSeries!} index={0} actionType={ActionType.LEND} condensed />
-                </Box>
-              )}
             </Box>
           )}
 
-          {lendProcess?.stage === ProcessStage.PROCESS_COMPLETE && lendProcess?.tx.status === TxState.SUCCESSFUL && (
-            <Box pad="large" gap="small">
-              <Text size="small"> View position: </Text>
-              <LendItem series={selectedSeries!} index={0} actionType={ActionType.LEND} condensed />
-            </Box>
-          )}
+          {stepPosition === 1 &&
+            lendProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
+            lendProcess?.tx.status === TxState.SUCCESSFUL && (
+              <Box pad="large" gap="small">
+                <Text size="small"> View position: </Text>
+                <LendItem series={selectedSeries!} index={0} actionType={ActionType.LEND} condensed />
+              </Box>
+            )}
         </Box>
 
         <ActionButtonGroup pad>

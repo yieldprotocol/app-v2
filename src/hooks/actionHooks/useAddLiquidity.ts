@@ -64,9 +64,7 @@ export const useAddLiquidity = () => {
       ],
       txCode
     );
-
-    console.log(_fyTokenToBuy.toString())
-
+    
     const calls: ICallData[] = [
       ...permits,
 
@@ -82,7 +80,7 @@ export const useAddLiquidity = () => {
         operation: LadleActions.Fn.ROUTE,
         args: [
           strategy.id || account, // receiver is _strategyAddress (if it exists) or else account
-          _fyTokenToBuy,
+          _fyTokenToBuy.toString(),
           ethers.constants.Zero, // TODO calc minLPtokens slippage
         ] as RoutedActions.Args.MINT_WITH_BASE,
         fnName: RoutedActions.Fn.MINT_WITH_BASE,

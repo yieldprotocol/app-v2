@@ -2,6 +2,8 @@ import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { Box, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 
+import { ethers } from 'ethers';
+
 import { FiClock, FiTrendingUp, FiAlertTriangle, FiArrowRight, FiPlusCircle, FiMinusCircle } from 'react-icons/fi';
 import { abbreviateHash, cleanValue, nFormatter } from '../utils/appUtils';
 import { UserContext } from '../contexts/UserContext';
@@ -78,7 +80,6 @@ const VaultPosition = () => {
   // const { tx: mergeTx, resetTx: resetMergeTx } = useTx(ActionCodes.MERGE_VAULT, selectedVaultId!);
 
   /* LOCAL STATE */
-
   // stepper for stepping within multiple tabs
   const [stepPosition, setStepPosition] = useState<number[]>(new Array(7).fill(0));
 
@@ -127,10 +128,14 @@ const VaultPosition = () => {
     selectedVault
   );
 
-  const { maxRepayOrRoll, maxRepayDustLimit } = useBorrowHelpers(repayInput, '0', selectedVault);
+  const { maxAsBn, maxRepayOrRoll, maxRepayDustLimit, protocolBaseAvailable, userBaseAvailable } = useBorrowHelpers(
+    undefined,
+    undefined,
+    selectedVault
+  );
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries, [
-    maxRepayDustLimit, // this is the max pay to get to dust limit.  note different logic in input validation hook.
+    maxRepayDustLimit, // this is the max pay to get to dust limit. note different logic in input validation hook.
     maxRepayOrRoll,
   ]);
 
@@ -338,45 +343,49 @@ const VaultPosition = () => {
                           action={() => console.log('maxAction')}
                           isError={repayError}
                           message={
-                            // is debt greater than token balance?
-                            !repayInput ? (
-                              <InputInfoWrap action={() => setRepayInput(maxRepayOrRoll)}>
-                                {selectedVault.art.gt(vaultBase?.balance!) ? (
-                                  <Text color="gray" alignSelf="end" size="xsmall">
-                                    Maximum repayable is {vaultBase?.balance_!} {vaultBase?.symbol!} (your token
-                                    balance).
-                                  </Text>
-                                ) : (
-                                  <Text color="gray" alignSelf="end" size="xsmall">
-                                    Max debt repayable ( {selectedVault?.art_!} {vaultBase?.symbol!} )
-                                  </Text>
-                                )}
-                              </InputInfoWrap>
-                            ) : (
-                              <InputInfoWrap>
-                                {repayCollEst && parseFloat(repayCollEst) > 10000 && (
-                                  <Text color="text-weak" alignSelf="end" size="xsmall">
-                                    Repaying this amount will leave a small amount of debt.
-                                  </Text>
-                                )}
-
-                                {repayCollEst &&
-                                  parseFloat(repayCollEst) < 10000 &&
-                                  parseFloat(repayCollEst) !== 0 &&
-                                  repayInput !== maxRepayOrRoll && (
-                                    <Text color="text-weak" alignSelf="end" size="xsmall">
-                                      Collateralisation ratio after repayment:{' '}
-                                      {repayCollEst && nFormatter(parseFloat(repayCollEst), 2)}%
+                            <>
+                              {!repayInput && maxRepayOrRoll && (
+                                <InputInfoWrap action={() => setRepayInput(maxRepayOrRoll)}>
+                                  {selectedVault.art.gt(maxAsBn) ? (
+                                    <Text color="gray" alignSelf="end" size="xsmall">
+                                      Maximum repayable is {cleanValue(maxRepayOrRoll!, 2)}
+                                      {vaultBase?.symbol!}{' '}
+                                      {userBaseAvailable.lt(protocolBaseAvailable)
+                                        ? '(based on your token balance)'
+                                        : '(limited by protocol reserves)'}
+                                    </Text>
+                                  ) : (
+                                    <Text color="gray" alignSelf="end" size="xsmall">
+                                      Max debt repayable ( {selectedVault?.art_!} {vaultBase?.symbol!} )
                                     </Text>
                                   )}
+                                </InputInfoWrap>
+                              )}
 
-                                {repayInput === maxRepayOrRoll && (
-                                  <Text color="text-weak" alignSelf="end" size="xsmall">
-                                    All debt will be repayed.
-                                  </Text>
-                                )}
-                              </InputInfoWrap>
-                            )
+                              {repayInput && !repayError && (
+                                <InputInfoWrap>
+                                  {repayCollEst && parseFloat(repayCollEst) > 10000 && repayInput !== maxRepayOrRoll && (
+                                    <Text color="text-weak" alignSelf="end" size="xsmall">
+                                      Repaying this amount will leave a small amount of debt.
+                                    </Text>
+                                  )}
+                                  {repayCollEst &&
+                                    parseFloat(repayCollEst) < 10000 &&
+                                    parseFloat(repayCollEst) !== 0 &&
+                                    selectedVault.art.gt(maxAsBn) && (
+                                      <Text color="text-weak" alignSelf="end" size="xsmall">
+                                        Collateralisation ratio after repayment:{' '}
+                                        {repayCollEst && nFormatter(parseFloat(repayCollEst), 2)}%
+                                      </Text>
+                                    )}
+                                  {selectedVault.art.lte(maxAsBn) && (
+                                    <Text color="text-weak" alignSelf="end" size="xsmall">
+                                      All debt will be repayed.
+                                    </Text>
+                                  )}
+                                </InputInfoWrap>
+                              )}
+                            </>
                           }
                         >
                           <TextInput
@@ -426,8 +435,8 @@ const VaultPosition = () => {
                           {rollToSeries && (
                             <InputInfoWrap>
                               <Text color="text-weak" size="xsmall">
-                                {' '}
-                                All debt ({cleanValue(maxRepayOrRoll, 2)} {vaultBase?.symbol}) will be rolled
+                                Debt of {cleanValue(maxRepayOrRoll, 2)} {vaultBase?.symbol} will be rolled
+                                {userBaseAvailable.lt(protocolBaseAvailable) ? '.':' ( limited by protocol reserves).'}
                               </Text>
                             </InputInfoWrap>
                           )}
@@ -662,42 +671,6 @@ const VaultPosition = () => {
                     disabled={removeCollateralProcess?.processActive}
                   />
                 )}
-
-              {/* {stepPosition[actionActive.index] === 1 &&
-                actionActive.index === 0 &&
-                !repayProcess?.processActive &&
-                (repayTx.success || repayTx.failed) && (
-                  <CompletedTx tx={repayTx} resetTx={resetRepayTx} actionCode={ActionCodes.REPAY} />
-                )}
-
-              {stepPosition[actionActive.index] === 1 &&
-                actionActive.index === 1 &&
-                !rollTx.processActive &&
-                (rollTx.success || rollTx.failed) && (
-                  <CompletedTx tx={rollTx} resetTx={resetRollTx} actionCode={ActionCodes.ROLL_POSITION} />
-                )}
-
-              {stepPosition[actionActive.index] === 1 &&
-                actionActive.index === 2 &&
-                !addCollateralTx.processActive &&
-                (addCollateralTx.success || addCollateralTx.failed) && (
-                  <CompletedTx
-                    tx={addCollateralTx}
-                    resetTx={resetAddCollateralTx}
-                    actionCode={ActionCodes.ADD_COLLATERAL}
-                  />
-                )}
-
-              {stepPosition[actionActive.index] === 1 &&
-                actionActive.index === 3 &&
-                !removeCollateralTx.processActive &&
-                (removeCollateralTx.success || removeCollateralTx.failed) && (
-                  <CompletedTx
-                    tx={removeCollateralTx}
-                    resetTx={resetRemoveCollateralTx}
-                    actionCode={ActionCodes.REMOVE_COLLATERAL}
-                  />
-                )} */}
             </ActionButtonWrap>
           </CenterPanelWrap>
         </ModalWrap>

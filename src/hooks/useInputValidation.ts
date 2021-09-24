@@ -55,7 +55,7 @@ export const useInputValidation = (
             _inputAsFloat !== parseFloat(limits[1].toString()) &&
             setInputError('Remaining debt below dust levels');
           /* set dustError between 0 and dustLimit */
-          aboveMax && setInputError('Amount exceeds your current debt');
+          aboveMax && setInputError('Amount exceeds the maximum repayable');
           break;
 
         case ActionCodes.ADD_COLLATERAL:
