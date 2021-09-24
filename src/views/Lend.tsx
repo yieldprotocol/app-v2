@@ -36,7 +36,10 @@ import { useLend } from '../hooks/actionHooks/useLend';
 import ColorText from '../components/texts/ColorText';
 import { useProcess } from '../hooks/useProcess';
 import LendItem from '../components/positionItems/LendItem';
+
 import InputInfoWrap from '../components/wraps/InputInfoWrap';
+import DashButton from '../components/buttons/DashButton';
+
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -271,6 +274,11 @@ const Lend = () => {
               </>
             )}
         </ActionButtonGroup>
+        {mobile && (
+          <Box align="end" margin={{ right: 'medium' }}>
+            <DashButton />
+          </Box>
+        )}
       </CenterPanelWrap>
 
       <PanelWrap right basis="40%">

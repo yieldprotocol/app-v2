@@ -236,7 +236,13 @@ const VaultPosition = () => {
           <CenterPanelWrap>
             <Box fill pad={mobile ? 'medium' : 'large'} gap="small">
               <Box height={{ min: '250px' }} gap="2em">
-                <Box direction="row-responsive" justify="between" fill="horizontal" align="center">
+                <Box
+                  direction="row-responsive"
+                  justify="between"
+                  fill="horizontal"
+                  align="center"
+                  pad={{ top: mobile ? 'medium' : undefined }}
+                >
                   <Box direction="row" align="center" gap="medium">
                     <PositionAvatar position={selectedVault!} actionType={ActionType.BORROW} />
                     <Box>
@@ -309,7 +315,7 @@ const VaultPosition = () => {
 
               <Box height={{ min: '300px' }}>
                 <SectionWrap title="Vault Actions">
-                  <Box elevation="xsmall" round="xsmall">
+                  <Box elevation="xsmall" round="xsmall" background={mobile ? 'white' : undefined}>
                     <Select
                       dropProps={{ round: 'xsmall' }}
                       plain
@@ -318,7 +324,6 @@ const VaultPosition = () => {
                         { text: 'Roll Debt', index: 1 },
                         { text: 'Add More Collateral', index: 2 },
                         { text: 'Remove Collateral', index: 3 },
-
                         { text: 'View Transaction History', index: 4 },
                       ]}
                       labelKey="text"
