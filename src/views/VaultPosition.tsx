@@ -347,7 +347,7 @@ const VaultPosition = () => {
                                       {vaultBase?.symbol!}{' '}
                                       {userBaseAvailable.lt(protocolBaseAvailable)
                                         ? '(based on your token balance)'
-                                        : '(based on protocol reserves)'}
+                                        : '(limited by protocol reserves)'}
                                     </Text>
                                   ) : (
                                     <Text color="gray" alignSelf="end" size="xsmall">
@@ -430,7 +430,8 @@ const VaultPosition = () => {
                           {rollToSeries && (
                             <InputInfoWrap>
                               <Text color="text-weak" size="xsmall">
-                                All debt will be rolled ({cleanValue(maxRepayOrRoll, 2)} {vaultBase?.symbol})
+                                Debt of {cleanValue(maxRepayOrRoll, 2)} {vaultBase?.symbol} will be rolled
+                                {userBaseAvailable.lt(protocolBaseAvailable) ? '.':' ( limited by protocol reserves).'}
                               </Text>
                             </InputInfoWrap>
                           )}
