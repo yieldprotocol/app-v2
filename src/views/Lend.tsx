@@ -36,6 +36,7 @@ import { useLend } from '../hooks/actionHooks/useLend';
 import ColorText from '../components/texts/ColorText';
 import { useProcess } from '../hooks/useProcess';
 import LendItem from '../components/positionItems/LendItem';
+import InputInfoWrap from '../components/wraps/InputInfoWrap';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -53,7 +54,7 @@ const Lend = () => {
   const [stepPosition, setStepPosition] = useState<number>(0);
 
   /* HOOK FNS */
-  const { maxLend } = useLendHelpers(selectedSeries!);
+  const { maxLend, protocolBaseAvailable, userBaseAvailable } = useLendHelpers(selectedSeries!);
   const lend = useLend();
   const { apr } = useApr(lendInput, ActionType.LEND, selectedSeries);
 
@@ -120,6 +121,16 @@ const Lend = () => {
                         action={() => console.log('maxAction')}
                         isError={lendError}
                         disabled={selectedSeries?.seriesIsMature}
+                        message={
+                           (selectedSeries &&
+                            <InputInfoWrap action={() => setLendInput(maxLend)}>
+                              <Text size="xsmall" color="text-weak">
+                                Max lend is {cleanValue(maxLend,2)} {selectedBase?.symbol} {' '}
+                                { userBaseAvailable.lt(selectedSeries.baseReserves) ? ' - your token balance' : ' - limited by protocol liquididty'}
+                              </Text>
+                            </InputInfoWrap>
+                          )
+                        }
                       >
                         <TextInput
                           plain

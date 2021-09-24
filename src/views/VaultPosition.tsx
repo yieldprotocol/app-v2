@@ -78,7 +78,6 @@ const VaultPosition = () => {
   // const { tx: mergeTx, resetTx: resetMergeTx } = useTx(ActionCodes.MERGE_VAULT, selectedVaultId!);
 
   /* LOCAL STATE */
-
   // stepper for stepping within multiple tabs
   const [stepPosition, setStepPosition] = useState<number[]>(new Array(7).fill(0));
 
@@ -127,10 +126,14 @@ const VaultPosition = () => {
     selectedVault
   );
 
-  const { maxRepayOrRoll, maxRepayDustLimit } = useBorrowHelpers(repayInput, '0', selectedVault);
+  const { maxRepayOrRoll, maxRepayDustLimit, protocolBaseAvailable, userBaseAvailable } = useBorrowHelpers(
+    undefined,
+    undefined,
+    selectedVault
+  );
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries, [
-    maxRepayDustLimit, // this is the max pay to get to dust limit.  note different logic in input validation hook.
+    maxRepayDustLimit, // this is the max pay to get to dust limit. note different logic in input validation hook.
     maxRepayOrRoll,
   ]);
 
@@ -334,12 +337,13 @@ const VaultPosition = () => {
                           isError={repayError}
                           message={
                             // is debt greater than token balance?
-                            !repayInput ? (
+                            <>
+                            {!repayInput && 
                               <InputInfoWrap action={() => setRepayInput(maxRepayOrRoll)}>
                                 {selectedVault.art.gt(vaultBase?.balance!) ? (
                                   <Text color="gray" alignSelf="end" size="xsmall">
-                                    Maximum repayable is {vaultBase?.balance_!} {vaultBase?.symbol!} (your token
-                                    balance).
+                                    Maximum repayable is {vaultBase?.balance_!} {vaultBase?.symbol!}
+                                    {userBaseAvailable.lt(protocolBaseAvailable) ? '(based on your token balance)': '(based on protocol reserves)'}
                                   </Text>
                                 ) : (
                                   <Text color="gray" alignSelf="end" size="xsmall">
@@ -347,14 +351,18 @@ const VaultPosition = () => {
                                   </Text>
                                 )}
                               </InputInfoWrap>
-                            ) : (
+                            } 
+                            {repayInput && 
+                            !repayError &&
+                              (
                               <InputInfoWrap>
-                                {repayCollEst && parseFloat(repayCollEst) > 10000 && (
+                                {repayCollEst && parseFloat(repayCollEst) > 10000 && 
+                                repayInput !== maxRepayOrRoll &&
+                                (
                                   <Text color="text-weak" alignSelf="end" size="xsmall">
                                     Repaying this amount will leave a small amount of debt.
                                   </Text>
                                 )}
-
                                 {repayCollEst &&
                                   parseFloat(repayCollEst) < 10000 &&
                                   parseFloat(repayCollEst) !== 0 &&
@@ -364,14 +372,14 @@ const VaultPosition = () => {
                                       {repayCollEst && nFormatter(parseFloat(repayCollEst), 2)}%
                                     </Text>
                                   )}
-
                                 {repayInput === maxRepayOrRoll && (
                                   <Text color="text-weak" alignSelf="end" size="xsmall">
                                     All debt will be repayed.
                                   </Text>
                                 )}
                               </InputInfoWrap>
-                            )
+                            )}
+                            </>
                           }
                         >
                           <TextInput
@@ -421,8 +429,7 @@ const VaultPosition = () => {
                           {rollToSeries && (
                             <InputInfoWrap>
                               <Text color="text-weak" size="xsmall">
-                                {' '}
-                                All debt ({cleanValue(maxRepayOrRoll, 2)} {vaultBase?.symbol}) will be rolled
+                                All debt will be rolled ({cleanValue(maxRepayOrRoll, 2)} {vaultBase?.symbol})
                               </Text>
                             </InputInfoWrap>
                           )}
@@ -658,41 +665,6 @@ const VaultPosition = () => {
                   />
                 )}
 
-              {/* {stepPosition[actionActive.index] === 1 &&
-                actionActive.index === 0 &&
-                !repayProcess?.processActive &&
-                (repayTx.success || repayTx.failed) && (
-                  <CompletedTx tx={repayTx} resetTx={resetRepayTx} actionCode={ActionCodes.REPAY} />
-                )}
-
-              {stepPosition[actionActive.index] === 1 &&
-                actionActive.index === 1 &&
-                !rollTx.processActive &&
-                (rollTx.success || rollTx.failed) && (
-                  <CompletedTx tx={rollTx} resetTx={resetRollTx} actionCode={ActionCodes.ROLL_POSITION} />
-                )}
-
-              {stepPosition[actionActive.index] === 1 &&
-                actionActive.index === 2 &&
-                !addCollateralTx.processActive &&
-                (addCollateralTx.success || addCollateralTx.failed) && (
-                  <CompletedTx
-                    tx={addCollateralTx}
-                    resetTx={resetAddCollateralTx}
-                    actionCode={ActionCodes.ADD_COLLATERAL}
-                  />
-                )}
-
-              {stepPosition[actionActive.index] === 1 &&
-                actionActive.index === 3 &&
-                !removeCollateralTx.processActive &&
-                (removeCollateralTx.success || removeCollateralTx.failed) && (
-                  <CompletedTx
-                    tx={removeCollateralTx}
-                    resetTx={resetRemoveCollateralTx}
-                    actionCode={ActionCodes.REMOVE_COLLATERAL}
-                  />
-                )} */}
             </ActionButtonWrap>
           </CenterPanelWrap>
         </ModalWrap>
