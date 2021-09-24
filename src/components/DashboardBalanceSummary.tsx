@@ -59,7 +59,7 @@ const DashboardBalanceSummary = ({ debt, collateral, positionBalance, digits, lo
       </Box>
     </Box>
     <Box direction="row" justify="between">
-      <Text size="small">Net Worth</Text>
+      <Text size="small">Total</Text>
       {loading ? (
         <Skeleton width={50} />
       ) : (
