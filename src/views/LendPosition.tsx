@@ -72,11 +72,12 @@ const LendPosition = () => {
     selectedSeries?.id
   );
 
-  /* input validation hoooks */
+  /* input validation hooks */
   const { inputError: closeError } = useInputValidation(closeInput, ActionCodes.CLOSE_POSITION, selectedSeries, [
     0,
+    
     // fyTokenMarketValue,
-    maxClose
+    // maxClose
   ]);
 
   const { inputError: rollError } = useInputValidation(rollInput, ActionCodes.ROLL_POSITION, selectedSeries, [
