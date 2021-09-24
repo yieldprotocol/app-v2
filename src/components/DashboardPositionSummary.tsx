@@ -29,7 +29,7 @@ const DashboardPositionSummary = ({
 }: IDashSummary) => (
   <Box>
     <Box direction="row" justify="between" background="tailwind-blue-50" round="xsmall" pad="small">
-      <Box direction="row" gap="small">
+      <Box direction="row-responsive" gap="small">
         {debt && <Summary label="Debt" value={debt} />}
         {collateral && <Summary label="Collateral" value={collateral} />}
         {lendBalance && <Summary label="Balance" value={lendBalance} />}
