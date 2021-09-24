@@ -44,13 +44,8 @@ export const useBorrowHelpers = (
         /* max user is either the max tokens they have or max debt */
         const _maxUser = _maxToken && _maxDebt.gt(_maxToken) ? _maxToken : _maxDebt;
         const _maxDust = _maxUser.sub(minDebt);
-
-        
-        
         const _maxProtocol = vaultSeries?.fyTokenReserves.sub(vaultSeries?.baseReserves).div(2);
 
-
-        console.log(vaultSeries?.fyTokenReserves.toString(), vaultSeries?.baseReserves.toString(), _maxProtocol.toString() )
         /* the the dust limit */
         _maxDust && setMaxRepayDustLimit(ethers.utils.formatUnits(_maxDust, vaultBase?.decimals)?.toString());
         /* set the maxBas available for both user and protocol */
