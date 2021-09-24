@@ -125,8 +125,13 @@ const Lend = () => {
                            (selectedSeries &&
                             <InputInfoWrap action={() => setLendInput(maxLend)}>
                               <Text size="xsmall" color="text-weak">
-                                Max lend is {cleanValue(maxLend,2)} {selectedBase?.symbol} {' '}
-                                { userBaseAvailable.lt(selectedSeries.baseReserves) ? ' - your token balance' : ' - limited by protocol liquididty'}
+                                Max lend is 
+                                {' '}
+                                <Text size="small" color="text-weak">
+                                  {cleanValue(maxLend,2)} {selectedBase?.symbol}
+                                </Text>
+                                {' '}
+                                { userBaseAvailable.lt(selectedSeries.baseReserves) ? ' (your token balance)' : ' (limited by protocol liquididty)'}
                               </Text>
                             </InputInfoWrap>
                           )
