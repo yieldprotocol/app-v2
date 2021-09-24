@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
-import { Box, Text } from 'grommet';
+import { Box, ResponsiveContext, Text } from 'grommet';
 import { FiAlertCircle, FiAlertTriangle } from 'react-icons/fi';
 import { TxContext } from '../contexts/TxContext';
 import { IYieldProcess, ProcessStage } from '../types';
@@ -16,11 +16,12 @@ const StyledBox = styled(Box)`
 `;
 
 const TransactionWidget = () => {
+  const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
     txState: { processes },
   } = useContext(TxContext);
 
-  return (
+  return !mobile ? (
     <>
       {Array.from(processes.values() as IYieldProcess[])
         .filter((process: IYieldProcess) => process.stage > 0)
@@ -84,7 +85,7 @@ const TransactionWidget = () => {
           </StyledBox>
         ))}
     </>
-  );
+  ) : null;
 };
 
 export default TransactionWidget;

@@ -24,7 +24,12 @@ function DashButton() {
 
   return (
     <Box align="center" direction="row">
-      <StyledButton onClick={() => routerHistory.push(`/dashboard`) } icon={<RiDashboard3Line size={mobile ? '1em' : '1em'} />} />
+      <StyledButton onClick={() => routerHistory.push(`/dashboard`)}>
+        <Box direction="row" align="center" gap="small">
+          <RiDashboard3Line size={mobile ? '1em' : '1em'} />
+          {mobile ? <Text size="small">Dashboard</Text> : null}
+        </Box>
+      </StyledButton>
     </Box>
   );
 }

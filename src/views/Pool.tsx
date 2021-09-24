@@ -31,6 +31,7 @@ import ColorText from '../components/texts/ColorText';
 import { usePoolHelpers } from '../hooks/actionHelperHooks/usePoolHelpers';
 import { useProcess } from '../hooks/useProcess';
 import StrategyItem from '../components/positionItems/StrategyItem';
+import DashButton from '../components/buttons/DashButton';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -60,10 +61,7 @@ function Pool() {
     [0, maxPool]
   );
 
-  const { txProcess: poolProcess, resetProcess } = useProcess(
-    ActionCodes.ADD_LIQUIDITY,
-    selectedStrategy?.id
-  );
+  const { txProcess: poolProcess, resetProcess } = useProcess(ActionCodes.ADD_LIQUIDITY, selectedStrategy?.id);
 
   /* LOCAL ACTION FNS */
   const handleAdd = () => {
@@ -281,6 +279,11 @@ function Pool() {
               </>
             )}
         </ActionButtonGroup>
+        {mobile && (
+          <Box align="end" margin={{ right: 'medium' }}>
+            <DashButton />
+          </Box>
+        )}
       </CenterPanelWrap>
 
       <PanelWrap right basis="40%">
