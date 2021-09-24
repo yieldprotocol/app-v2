@@ -422,7 +422,6 @@ export function maxBaseToSpend(
   const Ya = fyTokenReserves_.pow(a);
   const sum = Za.add(Ya).div(2);
   const y = sum.pow(invA).sub(baseReserves_);
-  console.log('yyyyy', floorDecimal(y.toFixed()));
   return decimal18ToDecimalN(toBn(y), decimals);
 }
 /**
