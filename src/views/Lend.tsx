@@ -40,7 +40,6 @@ import LendItem from '../components/positionItems/LendItem';
 import InputInfoWrap from '../components/wraps/InputInfoWrap';
 import DashButton from '../components/buttons/DashButton';
 
-
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
@@ -58,7 +57,7 @@ const Lend = () => {
 
   /* HOOK FNS */
   const { maxLend, protocolBaseAvailable, userBaseAvailable } = useLendHelpers(selectedSeries!);
-  
+
   const lend = useLend();
   const { apr } = useApr(lendInput, ActionType.LEND, selectedSeries);
 
@@ -126,16 +125,16 @@ const Lend = () => {
                         isError={lendError}
                         disabled={selectedSeries?.seriesIsMature}
                         message={
-                           (selectedSeries &&
+                          selectedSeries && (
                             <InputInfoWrap action={() => setLendInput(maxLend)}>
                               <Text size="xsmall" color="text-weak">
-                                Max lend is 
-                                {' '}
+                                Max lend is{' '}
                                 <Text size="small" color="text-weak">
-                                  {cleanValue(maxLend,2)} {selectedBase?.symbol}
-                                </Text>
-                                {' '}
-                                { userBaseAvailable.lt(selectedSeries.baseReserves) ? ' (your token balance)' : ' (limited by protocol liquididty)'}
+                                  {cleanValue(maxLend, 2)} {selectedBase?.symbol}
+                                </Text>{' '}
+                                {userBaseAvailable.lt(protocolBaseAvailable)
+                                  ? ' (your token balance)'
+                                  : ' (limited by protocol liquidity)'}
                               </Text>
                             </InputInfoWrap>
                           )

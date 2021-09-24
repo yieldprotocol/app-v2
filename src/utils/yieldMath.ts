@@ -396,6 +396,38 @@ export function buyFYToken(
 /**
  * @param { BigNumber | string } baseReserves
  * @param { BigNumber | string } fyTokenReserves
+ * @param { BigNumber | string } timeTillMaturity
+ * @returns { BigNumber }
+ */
+export function maxBaseToSpend(
+  baseReserves: BigNumber | string,
+  fyTokenReserves: BigNumber | string,
+  timeTillMaturity: BigNumber | string,
+  decimals: number = 18 // optional : default === 18
+): BigNumber {
+  /* convert to 18 decimals, if required */
+  const baseReserves18 = decimalNToDecimal18(BigNumber.from(baseReserves), decimals);
+  const fyTokenReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenReserves), decimals);
+
+  const baseReserves_ = new Decimal(baseReserves18.toString());
+  const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
+  const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
+
+  const g = g1;
+  const t = k.mul(timeTillMaturity_);
+  const a = ONE.sub(g.mul(t));
+  const invA = ONE.div(a);
+
+  const Za = baseReserves_.pow(a);
+  const Ya = fyTokenReserves_.pow(a);
+  const sum = Za.add(Ya).div(2);
+  const y = sum.pow(invA).sub(baseReserves_);
+  console.log('yyyyy', floorDecimal(y.toFixed()));
+  return decimal18ToDecimalN(toBn(y), decimals);
+}
+/**
+ * @param { BigNumber | string } baseReserves
+ * @param { BigNumber | string } fyTokenReserves
  * @param { BigNumber | string } fyToken
  * @param { BigNumber | string } timeTillMaturity
  * @returns { BigNumber }
@@ -492,9 +524,9 @@ export function fyTokenForMint(
         decimals
       ).toString()
     );
-    
+
     // if (PZ.mul(new Decimal(1.000001)) > pz && pz > PZ) return Decimal.floor(yOut).toFixed(0); // Just right
-    if (PZ.mul(new Decimal(1.000001)) > pz && pz > PZ) {  
+    if (PZ.mul(new Decimal(1.000001)) > pz && pz > PZ) {
       return decimal18ToDecimalN(
         // (converted back to original decimals)
         BigNumber.from(Decimal.floor(yOut).toFixed(0)),
