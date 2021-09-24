@@ -422,7 +422,11 @@ export function maxBaseToSpend(
   const Ya = fyTokenReserves_.pow(a);
   const sum = Za.add(Ya).div(2);
   const y = sum.pow(invA).sub(baseReserves_);
-  return decimal18ToDecimalN(toBn(y), decimals);
+
+  // discount by small amount to prevent potential issues (clock issues, tx time to mine, etc.)
+  const yWithMargin = y.mul(0.999);
+
+  return decimal18ToDecimalN(toBn(yWithMargin), decimals);
 }
 /**
  * @param { BigNumber | string } baseReserves
