@@ -45,6 +45,7 @@ import { ChainContext } from '../contexts/ChainContext';
 import DummyVaultItem from '../components/positionItems/DummyVaultItem';
 
 import DashButton from '../components/buttons/DashButton';
+import DashMobileButton from '../components/buttons/DashMobileButton';
 
 
 const Borrow = () => {
@@ -182,6 +183,7 @@ const Borrow = () => {
 
   return (
     <Keyboard onEsc={() => setCollatInput('')} onEnter={() => console.log('ENTER smashed')} target="document">
+      {mobile && <DashMobileButton transparent={!!borrowInput}  />}
       <MainViewWrap>
         {!mobile && (
           <PanelWrap>
@@ -449,11 +451,7 @@ const Borrow = () => {
                 )}
             </ActionButtonWrap>
           </Box>
-          {mobile && (
-            <Box align="end" margin={{ right: 'medium' }}>
-              <DashButton />
-            </Box>
-          )}
+
         </CenterPanelWrap>
 
         <PanelWrap right basis="40%">
