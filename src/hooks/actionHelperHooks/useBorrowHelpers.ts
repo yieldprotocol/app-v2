@@ -1,4 +1,4 @@
-import { BigNumberish, ethers } from 'ethers';
+import { BigNumber, BigNumberish, ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../contexts/UserContext';
 import { IVault, ISeries, IAsset } from '../../types';
@@ -23,8 +23,8 @@ export const useBorrowHelpers = (
   const [maxRepayOrRoll, setMaxRepayOrRoll] = useState<string | undefined>();
   const [maxRepayDustLimit, setMaxRepayDustLimit] = useState<string | undefined>();
   
-  const [userBaseAvailable, setUserBaseAvailable] = useState<BigNumberish | undefined>();
-  const [protocolBaseAvailable, setProtocolBaseAvailable] = useState<BigNumberish | undefined>();
+  const [userBaseAvailable, setUserBaseAvailable] = useState<BigNumber>(ethers.constants.Zero);
+  const [protocolBaseAvailable, setProtocolBaseAvailable] = useState<BigNumber>(ethers.constants.Zero);
 
   /* update the minimum maxmimum allowable debt */
   useEffect(() => {
@@ -40,8 +40,9 @@ export const useBorrowHelpers = (
       const minDebt = ethers.utils.parseUnits('0.5', vaultBase?.decimals);
       (async () => {
         const _maxToken = await vaultBase?.getBalance(activeAccount);
+        const _maxDebt = vault.art;
         /* max user is either the max tokens they have or max debt */
-        const _maxUser = _maxToken && vault.art.gt(_maxToken) ? _maxToken : vault.art;
+        const _maxUser = _maxToken && _maxDebt.gt(_maxToken) ? _maxToken : _maxDebt;
         const _maxDust = _maxUser.sub(minDebt);
         const _maxProtocol = vaultSeries?.fyTokenReserves.sub(vaultSeries?.baseReserves).div(2);
         /* the the dust limit */
@@ -52,8 +53,8 @@ export const useBorrowHelpers = (
         
           /* set the maxRepay as the buggest of the two, human readbale */
         _maxUser && _maxProtocol && _maxUser.gt(_maxProtocol)
-          ? setMaxRepayOrRoll(ethers.utils.formatUnits(_maxUser, vaultBase?.decimals)?.toString())
-          : setMaxRepayOrRoll(ethers.utils.formatUnits(_maxProtocol, vaultBase?.decimals)?.toString());
+          ? setMaxRepayOrRoll(ethers.utils.formatUnits(_maxProtocol, vaultBase?.decimals)?.toString())
+          : setMaxRepayOrRoll(ethers.utils.formatUnits(_maxUser, vaultBase?.decimals)?.toString());
       })();
     }
   }, [activeAccount, seriesMap, vault, vaultBase]);
@@ -64,6 +65,7 @@ export const useBorrowHelpers = (
     maxAllowedBorrow,
     maxRepayOrRoll,
     maxRepayDustLimit,
+
     userBaseAvailable,
     protocolBaseAvailable,
   };
