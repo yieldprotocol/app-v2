@@ -48,7 +48,6 @@ const Dashboard = () => {
       priceMap,
       vaultsLoading,
       seriesLoading,
-      pricesLoading,
       strategiesLoading,
       dashSettings,
     },
@@ -191,9 +190,9 @@ const Dashboard = () => {
             <DashboardBalanceSummary
               debt={totalDebt!}
               collateral={totalCollateral!}
-              positionBalance={(Number(totalLendBalance!) + Number(totalStrategyBalance!)).toString()}
+              lendBalance={totalLendBalance}
+              poolBalance={totalStrategyBalance}
               digits={currencySettingDigits}
-              loading={vaultsLoading || seriesLoading || pricesLoading || strategiesLoading}
               symbol={currencySettingSymbol}
             />
           </Box>
@@ -210,6 +209,7 @@ const Dashboard = () => {
                 <Box onClick={() => setDashSettings('hideVaultPositions', !hideVaultPositions)} pad="xsmall">
                   {/* {hideVaultPositions ? <FiEyeOff size="0.75em" /> : <FiEye color="grey" size="0.75em" />} */}
                   {hideVaultPositions ? <Text size='xsmall' color='text-weak'> show </Text> : <Text size='xsmall' color='text-weak'> hide </Text>}
+
 
                 </Box>
               </Box>
@@ -232,6 +232,7 @@ const Dashboard = () => {
               <Box justify="between" direction="row" align="center">
                 <Text size="medium">Lend Positions</Text>
                 <Box onClick={() => setDashSettings('hideLendPositions', !hideLendPositions)} pad="xsmall">
+
                   {/* {hideLendPositions ? <FiEyeOff size="0.75em" /> : <FiEye color="grey" size="0.75em" />} */}
                   {hideLendPositions ? <Text size='xsmall' color='text-weak'> show </Text> : <Text size='xsmall' color='text-weak'> hide </Text>}
 
@@ -255,8 +256,10 @@ const Dashboard = () => {
               <Box justify="between" direction="row" align="center">
                 <Text size="medium">Pool Positions</Text>
                 <Box onClick={() => setDashSettings('hidePoolPositions', !hidePoolPositions)} pad="xsmall">
+
                   {/* {hidePoolPositions ? <FiEyeOff size="0.75em" /> : <FiEye color="grey" size="0.75em" />} */}
                   {hidePoolPositions ? <Text size='xsmall' color='text-weak'> show </Text> : <Text size='xsmall' color='text-weak'> hide </Text>}
+
 
                 </Box>
               </Box>
