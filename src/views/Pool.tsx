@@ -32,6 +32,7 @@ import { usePoolHelpers } from '../hooks/actionHelperHooks/usePoolHelpers';
 import { useProcess } from '../hooks/useProcess';
 import StrategyItem from '../components/positionItems/StrategyItem';
 import DashButton from '../components/buttons/DashButton';
+import DashMobileButton from '../components/buttons/DashMobileButton';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -87,6 +88,7 @@ function Pool() {
 
   return (
     <MainViewWrap>
+      {mobile && <DashMobileButton transparent={!!poolInput}   />}
       {!mobile && (
         <PanelWrap>
           <Box margin={{ top: '35%' }} />
@@ -281,11 +283,7 @@ function Pool() {
               </>
             )}
         </ActionButtonGroup>
-        {mobile && (
-          <Box align="end" margin={{ right: 'medium' }}>
-            <DashButton />
-          </Box>
-        )}
+
       </CenterPanelWrap>
 
       <PanelWrap right basis="40%">

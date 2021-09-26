@@ -131,7 +131,7 @@ const TxProvider = ({ children }: any) => {
     // _setProcessStage(txCode, ProcessStage.PROCESS_INACTIVE);
     // updateState({ type: 'resetProcess', payload: txCode })
     _setProcessStage(txCode, ProcessStage.PROCESS_COMPLETE);
-    toast.error(msg);
+    // toast.error(msg);
     const _tx = { tx, txCode, receipt: undefined, status: TxState.FAILED };
     updateState({ type: 'transactions', payload: _tx });
     console.log('txHash: ', tx?.hash);
@@ -177,7 +177,7 @@ const TxProvider = ({ children }: any) => {
       /* if the handleTx is NOT a fallback tx (from signing) - then end the process */
       if (_isfallback === false) {
         /* transaction completion : success OR failure */
-        txSuccess ? toast.success('Transaction successfull') : toast.error('Transaction failed :| ');
+        // txSuccess ? toast.success('Transaction successfull') : toast.error('Transaction failed :| ');
         _setProcessStage(txCode, ProcessStage.PROCESS_COMPLETE);
         return res;
       }

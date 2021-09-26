@@ -39,6 +39,7 @@ import LendItem from '../components/positionItems/LendItem';
 
 import InputInfoWrap from '../components/wraps/InputInfoWrap';
 import DashButton from '../components/buttons/DashButton';
+import DashMobileButton from '../components/buttons/DashMobileButton';
 
 
 const Lend = () => {
@@ -92,6 +93,7 @@ const Lend = () => {
 
   return (
     <MainViewWrap>
+      {mobile && <DashMobileButton  transparent={!!lendInput}  />}
       {!mobile && (
         <PanelWrap>
           <Box margin={{ top: '35%' }} />
@@ -274,11 +276,7 @@ const Lend = () => {
               </>
             )}
         </ActionButtonGroup>
-        {mobile && (
-          <Box align="end" margin={{ right: 'medium' }}>
-            <DashButton />
-          </Box>
-        )}
+
       </CenterPanelWrap>
 
       <PanelWrap right basis="40%">

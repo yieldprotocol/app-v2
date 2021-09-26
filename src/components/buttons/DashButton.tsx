@@ -23,7 +23,7 @@ function DashButton() {
   const routerHistory = useHistory();
 
   return (
-    <Box align="center" direction="row">
+    <Box align="center" direction="row" >
       <StyledButton onClick={() => routerHistory.push(`/dashboard`)}>
         <Box direction="row" align="center" gap="small">
           <RiDashboard3Line size={mobile ? '1em' : '1em'} />

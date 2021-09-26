@@ -39,7 +39,8 @@ const TransactionItem = ({ tx, wide }: ITransactionItem) => {
       pad={wide ? 'xsmall' : 'medium'}
       key={t.hash}
       background={wide ? 'tailwind-blue-50' : 'white'}
-      round="xsmall"
+
+      round={{ size: 'xsmall', corner: 'left' }}
     >
       {!wide && (
         <Box

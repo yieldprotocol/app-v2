@@ -21,6 +21,8 @@ import NetworkError from './components/NetworkError';
 import LendPosition from './views/LendPosition';
 import PoolPosition from './views/PoolPosition';
 import TransactionWidget from './components/TransactionWidget';
+import DashButton from './components/buttons/DashButton';
+import DashMobileButton from './components/buttons/DashMobileButton';
 
 function App() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -92,7 +94,7 @@ function App() {
             <Route path="/*"> 404 </Route>
           </Switch>
         </Box>
-        <YieldFooter />
+        {/* <YieldFooter /> */}
       </Box>
     </>
   );
