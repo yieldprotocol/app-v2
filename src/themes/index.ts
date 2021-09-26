@@ -86,6 +86,7 @@ export const yieldTheme = {
   button: {
     border: {
       radius: '6px',
+      color: 'brand',
     },
     color: 'brand',
     primary: {

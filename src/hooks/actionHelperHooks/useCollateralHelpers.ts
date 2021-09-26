@@ -60,9 +60,10 @@ export const useCollateralHelpers = (
 
   /* handle changes to input values */
   useEffect(() => {
+
     const existingCollateral_ = vault?.ink ? vault.ink : ethers.constants.Zero;
     const existingCollateralAsWei = decimalNToDecimal18(existingCollateral_, ilk?.decimals);
-
+    
     const existingDebt_ = vault?.art ? vault.art : ethers.constants.Zero;
     const existingDebtAsWei = decimalNToDecimal18(existingDebt_, base?.decimals);
 
