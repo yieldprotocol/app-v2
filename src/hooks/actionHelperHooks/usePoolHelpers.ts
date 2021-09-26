@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { ethers, BigNumber } from 'ethers';
 import { UserContext } from '../../contexts/UserContext';
 import { ChainContext } from '../../contexts/ChainContext';
-import { IAsset, ISeries, IStrategy } from '../../types';
+import { IAsset, ISeries, IStrategy, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import { mulDecimal, divDecimal, fyTokenForMint } from '../../utils/yieldMath';
 
@@ -15,6 +15,7 @@ export const usePoolHelpers = (input: string | undefined) => {
       selectedStrategyAddr,
       strategyMap,
       seriesMap,
+      vaultMap,
       assetMap,
       activeAccount,
     },
@@ -31,12 +32,13 @@ export const usePoolHelpers = (input: string | undefined) => {
   /* LOCAL STATE */
   const [poolPercentPreview, setPoolPercentPreview] = useState<string | undefined>();
   const [maxPool, setMaxPool] = useState<string | undefined>();
-  const [canBuyAndPool, setCanBuyAndPool] = useState<string | undefined>();
+  const [canBuyAndPool, setCanBuyAndPool] = useState<boolean | undefined>();
+
+  const [matchingVault, setMatchingVault] = useState<IVault | undefined>();
 
   /* Check if can use 'buy and pool ' method to get liquidity */
   useEffect(() => {
     if (strategySeries && _input.gt(ethers.constants.Zero) ) {
-      // console.log(_input.toString() )
       const _fyTokenToBuy = fyTokenForMint(
         strategySeries.baseReserves,
         strategySeries.fyTokenRealReserves,
@@ -45,10 +47,24 @@ export const usePoolHelpers = (input: string | undefined) => {
         strategySeries.getTimeTillMaturity(),
         strategySeries.decimals
       );
-      console.log( _fyTokenToBuy.toString() )
-      console.log( strategySeries.fyTokenRealReserves.toString() )
+      const _maxProtocol = strategySeries?.fyTokenReserves.sub(strategySeries?.baseReserves).div(2);
+      setCanBuyAndPool(_maxProtocol.lt(_fyTokenToBuy));
+      // console.log( _fyTokenToBuy.toString(), _maxProtocol, _maxProtocol.lt(_fyTokenToBuy) )
+      // console.log( strategySeries.fyTokenRealReserves.toString() )
     }
   }, [_input, strategySeries]);
+
+  /* CHECK FOR ANY VAULTS WITH THE SAME BASE/ILK */
+  useEffect(() => {
+    if (strategyBase && strategySeries) {
+      const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
+      const _matchingVault = arr.find(
+        (v: IVault) =>
+          v.ilkId === strategyBase.id && v.baseId === strategyBase.id && v.seriesId === strategySeries.id && v.isActive
+      );
+      setMatchingVault(_matchingVault);
+    }
+  }, [vaultMap, strategyBase, strategySeries]);
 
   /* SET MAX VALUES */
   useEffect(() => {
@@ -70,5 +86,6 @@ export const usePoolHelpers = (input: string | undefined) => {
     }
   }, [_input, strategy]);
 
-  return { maxPool, poolPercentPreview, canBuyAndPool };
+
+  return { maxPool, poolPercentPreview, canBuyAndPool, matchingVault };
 };
