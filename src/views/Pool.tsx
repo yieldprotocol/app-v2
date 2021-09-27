@@ -66,7 +66,8 @@ function Pool() {
 
   /* LOCAL ACTION FNS */
   const handleAdd = () => {
-    selectedStrategy && addLiquidity(poolInput!, selectedStrategy, poolMethod);
+    const _method = !canBuyAndPool ? 'BORROW' : poolMethod;
+    selectedStrategy && addLiquidity(poolInput!, selectedStrategy, _method);
   };
 
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
@@ -84,8 +85,6 @@ function Pool() {
     poolProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs();
   }, [poolProcess, resetInputs]);
 
-
-  /* if not able to BUY, set method to BORROW ALWAYS */
   useEffect(() => {
     !canBuyAndPool && setPoolMethod('BORROW')
   }, [canBuyAndPool]);
