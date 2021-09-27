@@ -27,13 +27,26 @@ export const usePoolHelpers = (input: string | undefined) => {
   );
   const strategyBase: IAsset | undefined = assetMap?.get(selectedStrategyAddr ? strategy?.baseId : selectedBaseId);
 
-  const _input = input ? ethers.utils.parseUnits(input!, strategyBase?.decimals) : ethers.constants.Zero;
-
   /* LOCAL STATE */
+  const [_input, setInput] = useState<BigNumber>(ethers.constants.Zero);
   const [poolPercentPreview, setPoolPercentPreview] = useState<string | undefined>();
   const [maxPool, setMaxPool] = useState<string | undefined>();
   const [canBuyAndPool, setCanBuyAndPool] = useState<boolean | undefined>(true);
   const [matchingVault, setMatchingVault] = useState<IVault | undefined>();
+
+  /* set input (need to make sure we can parse the input value) */
+  useEffect(() => {
+    if (input) {
+      try {
+        const parsedInput = ethers.utils.parseUnits(input!, strategyBase?.decimals);
+        setInput(parsedInput);
+      } catch (e) {
+        console.log(e);
+      }
+    } else {
+      setInput(ethers.constants.Zero);
+    }
+  }, [input, strategyBase]);
 
   /* Check if can use 'buy and pool ' method to get liquidity */
   useEffect(() => {
