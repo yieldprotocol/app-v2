@@ -76,7 +76,7 @@ export const useLendHelpers = (series: ISeries, input?: string | undefined) => {
       );
 
       value.lte(ethers.constants.Zero)
-        ? setFyTokenMarketValue('0')
+        ? setFyTokenMarketValue('Low liquidity: unable to redeem all ')
         : setFyTokenMarketValue(ethers.utils.formatUnits(value, series.decimals));
 
       /* set max Closing */
