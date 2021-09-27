@@ -60,6 +60,8 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
 
   const [options, setOptions] = useState<IStrategy[]>([]);
 
+  const [percentOwnership, setPercentOwnership] = useState<IStrategy[]>([]);
+
   // const selectedBase = assetMap.get(selectedBaseId!);
   // const selectedStrategy: IStrategy = strategyMap.get(selectedStrategyAddr);
   // const series: ISeries = seriesMap.get(selectedStrategy?.currentSeries);
@@ -103,6 +105,7 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
       console.log('strategy not yet active')
     }
   };
+
 
   return (
     <>
@@ -169,9 +172,19 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
                     <Text size="medium" color={strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined}>
                         {strategy.name}
                      </Text>
+
+                     { ( !selectedStrategyAddr || !inputValue )  &&
                     <Text size="small" color={strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined}>
-                        {!strategy.active ? 'Coming soon' : `${strategy.returnRate_}%`}
-                    </Text>
+                        {!strategy.active ? 'Coming soon' : `${nFormatter(parseFloat(strategy.strategyTotalSupply_!),1)} Tokens`}
+                    </Text>}
+
+                    { selectedStrategyAddr && inputValue &&
+                    <Text size="small" color={strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined}>
+                        
+                        {!strategy.active 
+                          ? 'Coming soon' 
+                          : `${ (parseFloat(inputValue!)/ (parseFloat(strategy.strategyTotalSupply_!)+parseFloat(inputValue!) )*100).toFixed(2) } %`}
+                    </Text>}
                   </Box>
                 </Box>
               </StyledBox>
