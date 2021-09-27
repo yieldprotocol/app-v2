@@ -2,15 +2,7 @@ import React, { useContext, useEffect, useReducer, useCallback, useState } from 
 import { BigNumber, ethers } from 'ethers';
 import { format } from 'date-fns';
 
-import {
-  ISeries,
-  IVault,
-  IHistItemPosition,
-  ActionCodes,
-  IBaseHistItem,
-  IAsset,
-  IStrategy,
-} from '../types';
+import { ISeries, IVault, IHistItemPosition, ActionCodes, IBaseHistItem, IAsset, IStrategy } from '../types';
 
 import * as contracts from '../contracts';
 
@@ -149,16 +141,14 @@ const HistoryProvider = ({ children }: any) => {
           const inEventList = await strategyContract.queryFilter(_transferInFilter, 0);
           const outEventList = await strategyContract.queryFilter(_transferOutFilter, 0);
 
-
           const events = await Promise.all([
-
-            ...inEventList.map( async (log:any) => {
+            ...inEventList.map(async (log: any) => {
               const { blockNumber, transactionHash } = log;
               const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
               const { value } = strategyContract.interface.parseLog(log).args;
               return {
                 blockNumber,
-                transactionHash, 
+                transactionHash,
                 date,
                 poolTokens: value,
                 actionCode: ActionCodes.ADD_LIQUIDITY,
@@ -166,10 +156,10 @@ const HistoryProvider = ({ children }: any) => {
                 /* Formatted values:  */
                 poolTokens_: ethers.utils.formatUnits(value, decimals),
                 date_: dateFormat(date),
-              }
+              };
             }),
 
-            ...outEventList.map( async (log:any) => {
+            ...outEventList.map(async (log: any) => {
               const { blockNumber, transactionHash } = log;
               const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
               const { value } = strategyContract.interface.parseLog(log).args;
@@ -177,24 +167,19 @@ const HistoryProvider = ({ children }: any) => {
                 id,
                 blockNumber,
                 transactionHash,
-                date, 
-                poolTokens:value,
+                date,
+                poolTokens: value,
                 actionCode: ActionCodes.REMOVE_LIQUIDITY,
                 primaryInfo: `${cleanValue(ethers.utils.formatUnits(value, decimals), 2)} Pool tokens`,
                 /* Formatted values:  */
                 poolTokens_: ethers.utils.formatUnits(value, decimals),
                 date_: dateFormat(date),
-              }
+              };
             }),
-
-          ])
-
-          const existing = liqHistMap.get(id) || [];
-          liqHistMap.set(id, [
-                ...existing,
-                ...events,
           ]);
 
+          const existing = liqHistMap.get(id) || [];
+          liqHistMap.set(id, [...existing, ...events]);
         })
       );
 
@@ -298,7 +283,7 @@ const HistoryProvider = ({ children }: any) => {
                   actionCode: type_,
 
                   primaryInfo: `${cleanValue(ethers.utils.formatUnits(bases.abs(), decimals), 2)} ${base.symbol}`,
-                  secondaryInfo: `${cleanValue(tradeApr, 2)}% APR`,
+                  secondaryInfo: `${cleanValue(tradeApr, 2)}% APY`,
 
                   /* Formatted values:  */
                   date_: dateFormat(date),
@@ -508,14 +493,14 @@ const HistoryProvider = ({ children }: any) => {
 
   useEffect(() => {
     /* When the chainContext is finished loading get the Pool and Trade historical  data */
-    if (account && !chainLoading ) {
+    if (account && !chainLoading) {
       seriesMap.size && updateTradeHistory(Array.from(seriesMap.values()) as ISeries[]);
     }
   }, [account, seriesMap, chainLoading]); // updateXHistory omiteed on purpose
 
   useEffect(() => {
     /* When the chainContext is finished loading get the Pool and Trade historical  data */
-    if (account && !chainLoading ) {
+    if (account && !chainLoading) {
       strategyMap.size && updateStrategyHistory(Array.from(strategyMap.values()) as IStrategy[]);
     }
   }, [account, strategyMap, chainLoading]); // updateXHistory omiteed on purpose
