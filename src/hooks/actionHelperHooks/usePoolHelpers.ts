@@ -4,7 +4,7 @@ import { UserContext } from '../../contexts/UserContext';
 import { ChainContext } from '../../contexts/ChainContext';
 import { IAsset, ISeries, IStrategy, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
-import { mulDecimal, divDecimal, fyTokenForMint, maxBaseToSpend } from '../../utils/yieldMath';
+import { mulDecimal, divDecimal, fyTokenForMint, maxBaseToSpend, splitLiquidity } from '../../utils/yieldMath';
 
 export const usePoolHelpers = (input: string | undefined) => {
   /* STATE FROM CONTEXT */
@@ -33,20 +33,31 @@ export const usePoolHelpers = (input: string | undefined) => {
   const [poolPercentPreview, setPoolPercentPreview] = useState<string | undefined>();
   const [maxPool, setMaxPool] = useState<string | undefined>();
   const [canBuyAndPool, setCanBuyAndPool] = useState<boolean | undefined>(true);
-
   const [matchingVault, setMatchingVault] = useState<IVault | undefined>();
 
   /* Check if can use 'buy and pool ' method to get liquidity */
   useEffect(() => {
     if (strategySeries && _input.gt(ethers.constants.Zero)) {
+      const [_baseProtion, _fyTokenPortion] = splitLiquidity(
+        strategySeries?.baseReserves,
+        strategySeries?.fyTokenReserves,
+        _input
+      );
 
-      let _fyTokenToBuy= ethers.constants.Zero;
+    }
+  }, [_input, strategySeries]);
+
+  /* Check if can use 'buy and pool ' method to get liquidity */
+  useEffect(() => {
+    if (strategySeries && _input.gt(ethers.constants.Zero)) {
+      const [, _fyTokenPortion] = splitLiquidity(strategySeries?.baseReserves, strategySeries?.fyTokenReserves, _input);
+
+      let _fyTokenToBuy = ethers.constants.Zero;
       const _maxProtocol = maxBaseToSpend(
         strategySeries.baseReserves,
         strategySeries.fyTokenReserves,
         strategySeries.getTimeTillMaturity()
       );
-
       if (_input.lt(strategySeries.baseReserves.mul(2))) {
         _fyTokenToBuy = fyTokenForMint(
           strategySeries.baseReserves,
@@ -56,26 +67,31 @@ export const usePoolHelpers = (input: string | undefined) => {
           strategySeries.getTimeTillMaturity(),
           strategySeries.decimals
         );
-        console.log(_maxProtocol.toString(),_fyTokenToBuy.toString() ); 
         setCanBuyAndPool(_maxProtocol.lt(_fyTokenToBuy));
       }
-    
-      // } else {
-      //   console.log('Only borrow');
-      //   setCanBuyAndPool(false);
-      // }
-
     }
   }, [_input, strategySeries]);
 
   /* CHECK FOR ANY VAULTS WITH THE SAME BASE/ILK */
   useEffect(() => {
     if (strategyBase && strategySeries) {
+
+      const [, _fyTokenPortion] = splitLiquidity(
+        strategySeries?.baseReserves,
+        strategySeries?.fyTokenReserves,
+        _input
+      );
+
       const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
       const _matchingVault = arr.find(
         (v: IVault) =>
-          v.ilkId === strategyBase.id && v.baseId === strategyBase.id && v.seriesId === strategySeries.id && v.isActive
+          v.ilkId === strategyBase.id && 
+          v.baseId === strategyBase.id && 
+          v.seriesId === strategySeries.id && 
+          v.art.gte(_fyTokenPortion) &&
+          v.isActive
       );
+
       setMatchingVault(_matchingVault);
     }
   }, [vaultMap, strategyBase, strategySeries]);
