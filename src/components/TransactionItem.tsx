@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
+import styled from 'styled-components';
 import { Box, Text, Spinner } from 'grommet';
 import { FiX, FiCheckCircle, FiXCircle } from 'react-icons/fi';
 import { ActionCodes, ProcessStage, TxState } from '../types';
@@ -12,6 +13,15 @@ interface ITransactionItem {
   tx: any;
   wide?: boolean;
 }
+
+const StyledLink = styled(Link)`
+  text-decoration: none;
+  vertical-align: middle;
+  color: black;
+  :hover {
+    text-decoration: underline;
+  }
+`;
 
 const TransactionItem = ({ tx, wide }: ITransactionItem) => {
   const {
@@ -39,7 +49,6 @@ const TransactionItem = ({ tx, wide }: ITransactionItem) => {
       pad={wide ? 'xsmall' : 'medium'}
       key={t.hash}
       background={wide ? 'tailwind-blue-50' : 'white'}
-
       round={{ size: 'xsmall', corner: 'left' }}
     >
       {!wide && (
@@ -58,18 +67,20 @@ const TransactionItem = ({ tx, wide }: ITransactionItem) => {
             {status === TxState.SUCCESSFUL && <FiCheckCircle size="1.5rem" color="#34D399" />}
             {status === TxState.FAILED && <FiXCircle size="1.5rem" color="#F87171" />}
           </Box>
-          <Text size="small">{action}</Text>
+          {status === TxState.SUCCESSFUL ? (
+            <StyledLink to={link}>
+              <Text size="small" style={{ verticalAlign: 'middle' }}>
+                {action}
+              </Text>
+            </StyledLink>
+          ) : (
+            <Text size="small" color="black">
+              {action}
+            </Text>
+          )}
         </Box>
         <Box align="center" direction="row">
-          {status === TxState.SUCCESSFUL && action !== 'Borrow' ? (
-            <Link to={link} style={{ textDecoration: 'none' }}>
-              <Text size="xsmall" color="tailwind-blue" style={{ verticalAlign: 'middle' }}>
-                View Position
-              </Text>
-            </Link>
-          ) : (
-            <EtherscanButton txHash={t.hash} />
-          )}
+          <EtherscanButton txHash={t.hash} />
         </Box>
       </Box>
     </Box>
