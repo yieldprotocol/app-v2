@@ -39,6 +39,7 @@ function VaultPositionSelector(target: any) {
         .filter((vault: IVault) => (base ? vault.baseId === base.id : true))
         .filter((vault: IVault) => (series ? vault.seriesId === series.id : true))
         .filter((vault: IVault) => (ilk ? vault.ilkId === ilk.id : true))
+        .filter((vault: IVault) => vault.baseId !== vault.ilkId)
         .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1));
       setFilter({ base, series, ilk });
       setFilteredVaults(_filteredVaults);
@@ -49,6 +50,8 @@ function VaultPositionSelector(target: any) {
   /* CHECK the list of current vaults which match the current series/ilk selection */
   useEffect(() => {
     const _allVaults: IVault[] = (Array.from(vaultMap.values()) as IVault[])
+      // filter out vaults that have same base and ilk (borrow and pool liquidity positions)
+      .filter((vault: IVault) => vault.baseId !== vault.ilkId)
       // sorting by debt balance
       .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1))
       // sorting to prioritize active vaults

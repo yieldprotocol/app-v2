@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Box, ResponsiveContext, Text } from 'grommet';
 import { ethers } from 'ethers';
 // import { FiEye, FiEyeOff } from 'react-icons/fi';
-import { FiChevronDown as FiEyeOff , FiChevronUp as FiEye } from 'react-icons/fi';
+import { FiChevronDown as FiEyeOff, FiChevronUp as FiEye } from 'react-icons/fi';
 
 import Skeleton from 'react-loading-skeleton';
 import { ChainContext } from '../contexts/ChainContext';
@@ -85,6 +85,7 @@ const Dashboard = () => {
     const _vaultPositions: IVault[] = Array.from(vaultMap.values())
       .filter((vault: IVault) => (hideInactiveVaults ? vault.isActive : true))
       .filter((vault: IVault) => (hideEmptyVaults ? vault.ink.gt(ZERO_BN) || vault.art.gt(ZERO_BN) : true))
+      .filter((vault: IVault) => vault.baseId !== vault.ilkId)
       .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1));
     setVaultPositions(_vaultPositions);
   }, [vaultMap, hideEmptyVaults, hideInactiveVaults]);
@@ -208,9 +209,15 @@ const Dashboard = () => {
                 <Text size="medium">Vaults</Text>
                 <Box onClick={() => setDashSettings('hideVaultPositions', !hideVaultPositions)} pad="xsmall">
                   {/* {hideVaultPositions ? <FiEyeOff size="0.75em" /> : <FiEye color="grey" size="0.75em" />} */}
-                  {hideVaultPositions ? <Text size='xsmall' color='text-weak'> show </Text> : <Text size='xsmall' color='text-weak'> hide </Text>}
-
-
+                  {hideVaultPositions ? (
+                    <Text size="xsmall" color="text-weak">
+                      show
+                    </Text>
+                  ) : (
+                    <Text size="xsmall" color="text-weak">
+                      hide
+                    </Text>
+                  )}
                 </Box>
               </Box>
               {!hideVaultPositions && (
@@ -232,10 +239,16 @@ const Dashboard = () => {
               <Box justify="between" direction="row" align="center">
                 <Text size="medium">Lend Positions</Text>
                 <Box onClick={() => setDashSettings('hideLendPositions', !hideLendPositions)} pad="xsmall">
-
                   {/* {hideLendPositions ? <FiEyeOff size="0.75em" /> : <FiEye color="grey" size="0.75em" />} */}
-                  {hideLendPositions ? <Text size='xsmall' color='text-weak'> show </Text> : <Text size='xsmall' color='text-weak'> hide </Text>}
-
+                  {hideLendPositions ? (
+                    <Text size="xsmall" color="text-weak">
+                      show
+                    </Text>
+                  ) : (
+                    <Text size="xsmall" color="text-weak">
+                      hide
+                    </Text>
+                  )}
                 </Box>
               </Box>
               {!hideLendPositions && (
@@ -256,11 +269,16 @@ const Dashboard = () => {
               <Box justify="between" direction="row" align="center">
                 <Text size="medium">Pool Positions</Text>
                 <Box onClick={() => setDashSettings('hidePoolPositions', !hidePoolPositions)} pad="xsmall">
-
                   {/* {hidePoolPositions ? <FiEyeOff size="0.75em" /> : <FiEye color="grey" size="0.75em" />} */}
-                  {hidePoolPositions ? <Text size='xsmall' color='text-weak'> show </Text> : <Text size='xsmall' color='text-weak'> hide </Text>}
-
-
+                  {hidePoolPositions ? (
+                    <Text size="xsmall" color="text-weak">
+                      show
+                    </Text>
+                  ) : (
+                    <Text size="xsmall" color="text-weak">
+                      hide
+                    </Text>
+                  )}
                 </Box>
               </Box>
               {!hidePoolPositions && (
