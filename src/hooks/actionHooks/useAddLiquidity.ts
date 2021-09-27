@@ -16,7 +16,7 @@ export const useAddLiquidity = () => {
     chainState: { contractMap, strategyRootMap },
   } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
-  const { activeAccount: account, assetMap, seriesMap } = userState;
+  const { activeAccount: account, assetMap, seriesMap, slippageTolerance } = userState;
   const { updateSeries, updateAssets, updateStrategies } = userActions;
   const { sign, transact } = useChain();
 
@@ -40,11 +40,12 @@ export const useAddLiquidity = () => {
       series.getTimeTillMaturity(),
       series.decimals
     );
+    console.log('series dec', series.decimals);
 
     const [baseProportion, fyTokenPortion] = splitLiquidity(series.baseReserves, series.fyTokenReserves, _input);
     const _baseToPool = _input.sub(baseProportion);
     const _baseToFyToken = baseProportion; // just put in the rest of the provided input
-    const _inputWithSlippage = calculateSlippage(_input);
+    const _inputWithSlippage = calculateSlippage(_input, slippageTolerance.toString(), true);
 
     const permits: ICallData[] = await sign(
       [
@@ -63,7 +64,7 @@ export const useAddLiquidity = () => {
       ],
       txCode
     );
-    
+
     const calls: ICallData[] = [
       ...permits,
 
@@ -107,12 +108,7 @@ export const useAddLiquidity = () => {
       },
       {
         operation: LadleActions.Fn.POUR,
-        args: [
-          BLANK_VAULT,
-          series.poolAddress,
-          _baseToFyToken,
-          _baseToFyToken,
-        ] as LadleActions.Args.POUR,
+        args: [BLANK_VAULT, series.poolAddress, _baseToFyToken, _baseToFyToken] as LadleActions.Args.POUR,
         ignoreIf: method === 'BUY',
       },
       {
