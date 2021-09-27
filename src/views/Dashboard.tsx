@@ -211,13 +211,11 @@ const Dashboard = () => {
                   {/* {hideVaultPositions ? <FiEyeOff size="0.75em" /> : <FiEye color="grey" size="0.75em" />} */}
                   {hideVaultPositions ? (
                     <Text size="xsmall" color="text-weak">
-                      {' '}
-                      show{' '}
+                      show
                     </Text>
                   ) : (
                     <Text size="xsmall" color="text-weak">
-                      {' '}
-                      hide{' '}
+                      hide
                     </Text>
                   )}
                 </Box>
@@ -244,13 +242,11 @@ const Dashboard = () => {
                   {/* {hideLendPositions ? <FiEyeOff size="0.75em" /> : <FiEye color="grey" size="0.75em" />} */}
                   {hideLendPositions ? (
                     <Text size="xsmall" color="text-weak">
-                      {' '}
-                      show{' '}
+                      show
                     </Text>
                   ) : (
                     <Text size="xsmall" color="text-weak">
-                      {' '}
-                      hide{' '}
+                      hide
                     </Text>
                   )}
                 </Box>
@@ -276,13 +272,11 @@ const Dashboard = () => {
                   {/* {hidePoolPositions ? <FiEyeOff size="0.75em" /> : <FiEye color="grey" size="0.75em" />} */}
                   {hidePoolPositions ? (
                     <Text size="xsmall" color="text-weak">
-                      {' '}
-                      show{' '}
+                      show
                     </Text>
                   ) : (
                     <Text size="xsmall" color="text-weak">
-                      {' '}
-                      hide{' '}
+                      hide
                     </Text>
                   )}
                 </Box>
