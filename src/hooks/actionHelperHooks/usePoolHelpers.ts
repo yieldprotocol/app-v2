@@ -66,8 +66,13 @@ export const usePoolHelpers = (input: string | undefined) => {
           strategySeries.getTimeTillMaturity(),
           strategySeries.decimals
         );
+
+        console.log("can buyAndPool?", _maxProtocol.lt(_fyTokenToBuy)) 
         setCanBuyAndPool(_maxProtocol.lt(_fyTokenToBuy));
-      }
+      } 
+    }else {  
+      console.log('canbuy and pool reset');
+      setCanBuyAndPool(true);
     }
   }, [_input, strategySeries]);
 

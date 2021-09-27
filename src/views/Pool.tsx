@@ -31,7 +31,6 @@ import ColorText from '../components/texts/ColorText';
 import { usePoolHelpers } from '../hooks/actionHelperHooks/usePoolHelpers';
 import { useProcess } from '../hooks/useProcess';
 import StrategyItem from '../components/positionItems/StrategyItem';
-import DashButton from '../components/buttons/DashButton';
 import DashMobileButton from '../components/buttons/DashMobileButton';
 
 function Pool() {
@@ -184,7 +183,7 @@ function Pool() {
                   <RadioButtonGroup
                     name="strategy"
                     options={[
-                      { label: <Text size="small"> Buy & pool</Text>, value: 'BUY', disabled: !canBuyAndPool },
+                      { label: <Text size="small"> Buy & pool</Text>, value: 'BUY', disabled: !canBuyAndPool }  ,
                       { label: <Text size="small"> Borrow & Pool </Text>, value: 'BORROW' },
                     ]}
                     value={poolMethod}
