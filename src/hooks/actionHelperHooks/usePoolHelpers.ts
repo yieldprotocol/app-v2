@@ -81,7 +81,6 @@ export const usePoolHelpers = (input: string | undefined) => {
         strategySeries?.fyTokenReserves,
         _input
       );
-
       const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
       const _matchingVault = arr.find(
         (v: IVault) =>
@@ -91,10 +90,10 @@ export const usePoolHelpers = (input: string | undefined) => {
           v.art.gte(_fyTokenPortion) &&
           v.isActive
       );
-
       setMatchingVault(_matchingVault);
+      console.log('Matching Vault:', _matchingVault?.id || 'No matching vault.')
     }
-  }, [vaultMap, strategyBase, strategySeries]);
+  }, [vaultMap, strategyBase, strategySeries, _input]);
 
   /* SET MAX VALUES */
   useEffect(() => {

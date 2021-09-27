@@ -25,9 +25,8 @@ export const useAddLiquidity = () => {
   } = useContext(HistoryContext);
 
   const addLiquidity = async (input: string, strategy: IStrategy, method: 'BUY' | 'BORROW' | string = 'BUY') => {
-    const ladleAddress = contractMap.get('Ladle').address;
+    // const ladleAddress = contractMap.get('Ladle').address;
     const txCode = getTxCode(ActionCodes.ADD_LIQUIDITY, strategy.id);
-
     const series = seriesMap.get(strategy.currentSeriesId);
     const base: IAsset = assetMap.get(series.baseId);
 

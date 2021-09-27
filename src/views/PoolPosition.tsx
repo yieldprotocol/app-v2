@@ -20,7 +20,6 @@ import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import NextButton from '../components/buttons/NextButton';
 
 import YieldMark from '../components/logos/YieldMark';
-import CancelButton from '../components/buttons/CancelButton';
 import TransactButton from '../components/buttons/TransactButton';
 import YieldHistory from '../components/YieldHistory';
 import { useInputValidation } from '../hooks/useInputValidation';
@@ -29,6 +28,7 @@ import { useRemoveLiquidity } from '../hooks/actionHooks/useRemoveLiquidity';
 import { useRollLiquidity } from '../hooks/actionHooks/useRollLiquidity';
 import CopyWrap from '../components/wraps/CopyWrap';
 import { useProcess } from '../hooks/useProcess';
+import { usePoolHelpers } from '../hooks/actionHelperHooks/usePoolHelpers';
 
 const PoolPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -51,8 +51,7 @@ const PoolPosition = () => {
   const [rollToSeries, setRollToSeries] = useState<ISeries | null>(null);
   const [maxRemove, setMaxRemove] = useState<string | undefined>();
 
-  // const [removeError, setRemoveError] = useState<string | null>(null);
-  // const [rollError, setRollError] = useState<string | null>(null);
+  const [ignoreVault, setIgnoreVault] = useState<boolean>(false);
 
   const [removeDisabled, setRemoveDisabled] = useState<boolean>(true);
   const [rollDisabled, setRollDisabled] = useState<boolean>(true);
@@ -64,6 +63,9 @@ const PoolPosition = () => {
   /* HOOK FNS */
   const removeLiquidity = useRemoveLiquidity();
   const rollLiquidity = useRollLiquidity();
+
+  const { matchingVault: removeVault } = usePoolHelpers(removeInput);
+  const { matchingVault: rollVault } = usePoolHelpers(rollInput);
 
   /* TX data */
   const { txProcess: removeProcess, resetProcess: resetRemoveProcess } = useProcess(
@@ -96,8 +98,8 @@ const PoolPosition = () => {
 
   const handleRemove = () => {
     // !removeDisabled &&
-    console.log(selectedSeries?.displayName);
-    selectedSeries && removeLiquidity(removeInput!, selectedSeries);
+    const _vault = ignoreVault? undefined: removeVault
+    selectedSeries && removeLiquidity(removeInput!, selectedSeries, _vault);
   };
 
   const handleRoll = () => {
