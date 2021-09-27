@@ -38,7 +38,11 @@ export const usePoolHelpers = (input: string | undefined) => {
 
   /* Check if can use 'buy and pool ' method to get liquidity */
   useEffect(() => {
-    if (strategySeries && _input.gt(ethers.constants.Zero) ) {
+
+    if (strategySeries && 
+      _input.gt(ethers.constants.Zero) &&
+      _input.lt(strategySeries.baseReserves.mul(2))
+      ) {
       const _fyTokenToBuy = fyTokenForMint(
         strategySeries.baseReserves,
         strategySeries.fyTokenRealReserves,
@@ -49,9 +53,10 @@ export const usePoolHelpers = (input: string | undefined) => {
       );
       const _maxProtocol = strategySeries?.fyTokenReserves.sub(strategySeries?.baseReserves).div(2);
       setCanBuyAndPool(_maxProtocol.lt(_fyTokenToBuy));
-      // console.log( _fyTokenToBuy.toString(), _maxProtocol, _maxProtocol.lt(_fyTokenToBuy) )
-      // console.log( strategySeries.fyTokenRealReserves.toString() )
+    } else {
+      setCanBuyAndPool(false);
     }
+
   }, [_input, strategySeries]);
 
   /* CHECK FOR ANY VAULTS WITH THE SAME BASE/ILK */
@@ -85,7 +90,6 @@ export const usePoolHelpers = (input: string | undefined) => {
       setPoolPercentPreview(_poolPercentPreview);
     }
   }, [_input, strategy]);
-
 
   return { maxPool, poolPercentPreview, canBuyAndPool, matchingVault };
 };

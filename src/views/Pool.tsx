@@ -47,12 +47,12 @@ function Pool() {
   /* LOCAL STATE */
   const [poolInput, setPoolInput] = useState<string | undefined>(undefined);
   const [poolDisabled, setPoolDisabled] = useState<boolean>(true);
-  const [poolMethod, setPoolMethod] = useState<'BUY' | 'BORROW'>('BUY');
+  const [poolMethod, setPoolMethod] = useState<'BUY' | 'BORROW'>('BUY'); // BUY default
   const [stepPosition, setStepPosition] = useState<number>(0);
 
   /* HOOK FNS */
   const addLiquidity = useAddLiquidity();
-  const { maxPool, poolPercentPreview } = usePoolHelpers(poolInput);
+  const { maxPool, poolPercentPreview, canBuyAndPool } = usePoolHelpers(poolInput);
 
   /* input validation hooks */
   const { inputError: poolError } = useInputValidation(
@@ -66,8 +66,6 @@ function Pool() {
 
   /* LOCAL ACTION FNS */
   const handleAdd = () => {
-    // !poolDisabled &&
-    // TODO update for strategy
     selectedStrategy && addLiquidity(poolInput!, selectedStrategy, poolMethod);
   };
 
@@ -86,9 +84,15 @@ function Pool() {
     poolProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs();
   }, [poolProcess, resetInputs]);
 
+
+  /* if not able to BUY, set method to BORROW ALWAYS */
+  useEffect(() => {
+    !canBuyAndPool && setPoolMethod('BORROW')
+  }, [canBuyAndPool]);
+
   return (
     <MainViewWrap>
-      {mobile && <DashMobileButton transparent={!!poolInput}   />}
+      {mobile && <DashMobileButton transparent={!!poolInput} />}
       {!mobile && (
         <PanelWrap>
           <Box margin={{ top: '35%' }} />
@@ -181,7 +185,7 @@ function Pool() {
                   <RadioButtonGroup
                     name="strategy"
                     options={[
-                      { label: <Text size="small"> Buy & pool</Text>, value: 'BUY' },
+                      { label: <Text size="small"> Buy & pool</Text>, value: 'BUY', disabled: !canBuyAndPool },
                       { label: <Text size="small"> Borrow & Pool </Text>, value: 'BORROW' },
                     ]}
                     value={poolMethod}
@@ -283,7 +287,6 @@ function Pool() {
               </>
             )}
         </ActionButtonGroup>
-
       </CenterPanelWrap>
 
       <PanelWrap right basis="40%">

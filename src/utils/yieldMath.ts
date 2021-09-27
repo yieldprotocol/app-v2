@@ -487,12 +487,6 @@ export function fyTokenForMint(
   const base_ = new Decimal(base18.toString());
   const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
 
-  // console.log(decimals);
-  // console.log(baseReserves.toString(), baseReserves18.toString());
-  // console.log(fyTokenRealReserves.toString(), fyTokenRealReserves18.toString());
-  // console.log(fyTokenVirtualReserves.toString(), fyTokenVirtualReserves18.toString());
-  // console.log(base.toString(), base18.toString());
-
   let min = ZERO;
   let max = base_;
   let yOut = Decimal.floor(min.add(max).div(TWO));
