@@ -7,7 +7,6 @@ import EtherscanButton from './buttons/EtherscanButton';
 import { getSeriesAfterLendRoll, getPositionPathPrefix, getVaultIdFromReceipt } from '../utils/appUtils';
 import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
-import { UserContext } from '../contexts/UserContext';
 
 interface ITransactionItem {
   tx: any;
