@@ -92,13 +92,14 @@ const AprText = ({
     <>
       {actionType !== ActionType.POOL && !series.seriesIsMature && !inputValue && (
         <Text size="medium">
-          {series?.apr}% <Text size="xsmall">APR</Text>
+          {series?.apr}%{' '}
+          <Text size="xsmall">{[ActionType.LEND, ActionType.POOL].includes(actionType) ? 'APY' : 'APR'}</Text>
         </Text>
       )}
 
       {actionType !== ActionType.POOL && !limitHit && !series?.seriesIsMature && inputValue && (
         <Text size="medium">
-          {apr}% <Text size="xsmall">APR</Text>
+          {apr}% <Text size="xsmall">{[ActionType.LEND, ActionType.POOL].includes(actionType) ? 'APY' : 'APR'}</Text>
         </Text>
       )}
 
