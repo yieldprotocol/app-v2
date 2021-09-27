@@ -499,7 +499,7 @@ export function fyTokenForMint(
         fyTokenVirtualReserves18,
         BigNumber.from(yOut.toFixed(0)),
         timeTillMaturity_.toString(),
-        18
+        decimals
       ).toString()
     );
     const Z_1 = baseReserves_.add(zIn); // New base reserves
