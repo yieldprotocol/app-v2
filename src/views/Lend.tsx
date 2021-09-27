@@ -92,7 +92,7 @@ const Lend = () => {
 
   return (
     <MainViewWrap>
-      {mobile && <DashMobileButton  transparent={!!lendInput}  />}
+      {mobile && <DashMobileButton transparent={!!lendInput} />}
       {!mobile && (
         <PanelWrap>
           <Box margin={{ top: '35%' }} />
@@ -205,7 +205,7 @@ const Lend = () => {
                     icon={<FiTrendingUp />}
                     value={`${lendOutput} ${selectedBase?.symbol}`}
                   />
-                  <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
+                  <InfoBite label="Effective APY" icon={<FiPercent />} value={`${apr}%`} />
                 </Box>
               </ActiveTransaction>
             </Box>
@@ -275,7 +275,6 @@ const Lend = () => {
               </>
             )}
         </ActionButtonGroup>
-
       </CenterPanelWrap>
 
       <PanelWrap right basis="40%">
