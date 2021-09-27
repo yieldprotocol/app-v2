@@ -40,12 +40,12 @@ export const useAddLiquidity = () => {
       series.getTimeTillMaturity(),
       series.decimals
     );
-    console.log('series dec', series.decimals);
+    // slippage is incorporated during mint with base
+    const _fyTokenToBuyWithSlippage = calculateSlippage(_fyTokenToBuy, slippageTolerance.toString(), true);
 
     const [baseProportion, fyTokenPortion] = splitLiquidity(series.baseReserves, series.fyTokenReserves, _input);
     const _baseToPool = _input.sub(baseProportion);
     const _baseToFyToken = baseProportion; // just put in the rest of the provided input
-    const _inputWithSlippage = calculateSlippage(_input, slippageTolerance.toString(), true);
 
     const permits: ICallData[] = await sign(
       [
@@ -73,7 +73,7 @@ export const useAddLiquidity = () => {
        * */
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [base.address, series.poolAddress, _inputWithSlippage] as LadleActions.Args.TRANSFER,
+        args: [base.address, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
         ignoreIf: method === 'BORROW',
       },
       {
@@ -81,7 +81,7 @@ export const useAddLiquidity = () => {
         args: [
           strategy.id || account, // receiver is _strategyAddress (if it exists) or else account
           _fyTokenToBuy.toString(),
-          ethers.constants.Zero, // TODO calc minLPtokens slippage
+          _fyTokenToBuyWithSlippage.toString(), // TODO calc minLPtokens slippage
         ] as RoutedActions.Args.MINT_WITH_BASE,
         fnName: RoutedActions.Fn.MINT_WITH_BASE,
         targetContract: series.poolContract,
