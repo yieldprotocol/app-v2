@@ -21,9 +21,6 @@ const TransactionItem = ({ tx, wide }: ITransactionItem) => {
   const {
     txActions: { updateTxStage },
   } = useContext(TxContext);
-  const {
-    userAction: { userActions },
-  } = useContext(UserContext);
 
   const { status, txCode, tx: t, receipt } = tx;
   const action = txCode.split('_')[0];
