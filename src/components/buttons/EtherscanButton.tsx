@@ -16,33 +16,23 @@ const StyledBox = styled(Box)`
 
 function EtherscanButton({ txHash }: { txHash: string }) {
   const [hover, setHover] = useState<boolean>();
-  const [network, setNetwork] = useState<string>('');
 
   const {
-    chainState: { chainId }
+    chainState: { chainData },
   } = useContext(ChainContext);
-
-  useEffect(() => {
-    if (chainId === 42) {
-      setNetwork('kovan.');
-    } else {
-      setNetwork('');
-    }
-  }, [chainId]);
 
   return (
     <StyledBox
       direction="row"
       onClick={(e: any) => {
         e.stopPropagation();
-        window.open(`https://${network}etherscan.io/tx/${txHash}`, '_blank');
+        window.open(`https://${chainData.name}.etherscan.io/tx/${txHash}`, '_blank');
       }}
       gap="small"
       align="center"
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
-      
       <Text size="xsmall" color={hover ? '#333333' : 'grey'}>
         View on Etherscan
       </Text>
