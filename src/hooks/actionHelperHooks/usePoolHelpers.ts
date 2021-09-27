@@ -86,6 +86,8 @@ export const usePoolHelpers = (input: string | undefined) => {
       );
       setMatchingVault(_matchingVault);
       console.log('Matching Vault:', _matchingVault?.id || 'No matching vault.');
+    } else {
+      setMatchingVault(undefined);
     }
   }, [vaultMap, strategyBase, strategySeries, _input]);
 

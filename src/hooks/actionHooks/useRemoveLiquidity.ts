@@ -48,6 +48,7 @@ export const useRemoveLiquidity = () => {
 
     console.log(matchingVaultId, vaultDebt?.toString(), _fyTokenPortion.toString(),  );
     console.log('Strategy :', _strategy);
+    console.log('Vault to use for removal :', matchingVaultId);
 
     // const _baseReceived = buyBase(
     //   series.baseReserves, 
@@ -158,7 +159,7 @@ export const useRemoveLiquidity = () => {
       },
       {
         operation: LadleActions.Fn.REPAY_FROM_LADLE,
-        args: ['vaultId', account] as LadleActions.Args.REPAY_FROM_LADLE,
+        args: [matchingVaultId, account] as LadleActions.Args.REPAY_FROM_LADLE,
         ignoreIf: series.seriesIsMature || !vaultAvailable,
       },
       {
