@@ -43,7 +43,6 @@ export const usePoolHelpers = (input: string | undefined) => {
         strategySeries?.fyTokenReserves,
         _input
       );
-
     }
   }, [_input, strategySeries]);
 
@@ -74,24 +73,19 @@ export const usePoolHelpers = (input: string | undefined) => {
 
   /* CHECK FOR ANY VAULTS WITH THE SAME BASE/ILK */
   useEffect(() => {
-    if (strategyBase && strategySeries) {
-
-      const [, _fyTokenPortion] = splitLiquidity(
-        strategySeries?.baseReserves,
-        strategySeries?.fyTokenReserves,
-        _input
-      );
+    if (strategyBase && strategySeries && _input.gt(ethers.constants.Zero)) {
+      const [, _fyTokenPortion] = splitLiquidity(strategySeries?.baseReserves, strategySeries?.fyTokenReserves, _input);
       const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
       const _matchingVault = arr.find(
         (v: IVault) =>
-          v.ilkId === strategyBase.id && 
-          v.baseId === strategyBase.id && 
-          v.seriesId === strategySeries.id && 
+          v.ilkId === strategyBase.id &&
+          v.baseId === strategyBase.id &&
+          v.seriesId === strategySeries.id &&
           v.art.gte(_fyTokenPortion) &&
           v.isActive
       );
       setMatchingVault(_matchingVault);
-      console.log('Matching Vault:', _matchingVault?.id || 'No matching vault.')
+      console.log('Matching Vault:', _matchingVault?.id || 'No matching vault.');
     }
   }, [vaultMap, strategyBase, strategySeries, _input]);
 
