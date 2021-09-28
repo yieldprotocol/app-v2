@@ -50,15 +50,6 @@ export const useRemoveLiquidity = () => {
     console.log('Strategy :', _strategy);
     console.log('Vault to use for removal :', matchingVaultId);
 
-    // const _baseReceived = buyBase(
-    //   series.baseReserves, 
-    //   series.fyTokenReserves, 
-    //   _input, 
-    //   series.getTimeTillMaturity(),
-    //   series.decimals
-    // );
-    // const _minBaseReceived =  calculateSlippage(_baseReceived);
-
     const permits: ICallData[] = await sign(
       [
         /* give strategy permission to sell tokens to pool */
@@ -167,6 +158,11 @@ export const useRemoveLiquidity = () => {
         args: [account, ethers.constants.Zero] as RoutedActions.Args.SELL_FYTOKEN, // TODO slippage
         fnName: RoutedActions.Fn.SELL_FYTOKEN,
         targetContract: series.poolContract,
+        ignoreIf: series.seriesIsMature || !vaultAvailable,
+      },
+      {
+        operation: LadleActions.Fn.POUR,
+        args: [matchingVaultId, account, vaultDebt?.mul(-1), ethers.constants.Zero] as LadleActions.Args.POUR,
         ignoreIf: series.seriesIsMature || !vaultAvailable,
       },
 
