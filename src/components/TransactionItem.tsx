@@ -1,11 +1,11 @@
-import React, { useContext } from 'react';
+import React, { useEffect, useContext, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { Box, Text, Spinner } from 'grommet';
 import { FiX, FiCheckCircle, FiXCircle } from 'react-icons/fi';
 import { ActionCodes, ProcessStage, TxState } from '../types';
 import EtherscanButton from './buttons/EtherscanButton';
-import { getPositionPathPrefix, getVaultIdFromReceipt } from '../utils/appUtils';
+import { getSeriesAfterRollPosition, getPositionPathPrefix, getVaultIdFromReceipt } from '../utils/appUtils';
 import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
 
@@ -25,20 +25,31 @@ const StyledLink = styled(Link)`
 
 const TransactionItem = ({ tx, wide }: ITransactionItem) => {
   const {
-    chainState: { contractMap },
+    chainState: { contractMap, seriesRootMap },
   } = useContext(ChainContext);
   const {
     txActions: { updateTxStage },
   } = useContext(TxContext);
 
   const { status, txCode, tx: t, receipt } = tx;
-
-  /* get position link based on position id */
   const action = txCode.split('_')[0];
-  const pathPrefix = getPositionPathPrefix(txCode);
-  const positionId =
-    action === ActionCodes.BORROW && receipt ? getVaultIdFromReceipt(receipt, contractMap) : txCode.split('_')[1];
-  const link = `${pathPrefix}/${positionId}`;
+
+  const [link, setLink] = useState<string>('');
+
+  /* get position link for viewing position */
+  useEffect(() => {
+    const pathPrefix = getPositionPathPrefix(txCode);
+
+    let positionId;
+
+    if (receipt) {
+      if (action === ActionCodes.BORROW) positionId = getVaultIdFromReceipt(receipt, contractMap);
+      if (action === ActionCodes.ROLL_POSITION) positionId = getSeriesAfterRollPosition(receipt, seriesRootMap);
+    } else {
+      positionId = txCode?.split('_')[1];
+    }
+    setLink(`${pathPrefix}/${positionId}`);
+  }, [receipt, contractMap, seriesRootMap, txCode, action]);
 
   return (
     <Box

@@ -252,3 +252,9 @@ export const getVaultIdFromReceipt = (receipt: any, contractMap: any) => {
   const vaultIdHex = receipt.events.filter((e: any) => e.address === cauldronAddr)[0].topics[1];
   return vaultIdHex.slice(0, 26);
 };
+
+export const getSeriesAfterRollPosition = (receipt: any, seriesMap: any) => {
+  const contractAddress = receipt.events[6].address;
+  const series = [...seriesMap.values()].filter((s) => s.address === contractAddress)[0].id;
+  return series;
+};

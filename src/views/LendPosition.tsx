@@ -34,7 +34,7 @@ const LendPosition = () => {
 
   /* STATE FROM CONTEXT */
 
-  const { userState } = useContext(UserContext) as IUserContext;
+  const { userState, userActions } = useContext(UserContext) as IUserContext;
   const { selectedSeriesId, seriesMap, assetMap, seriesLoading } = userState;
 
   const selectedSeries = seriesMap.get(selectedSeriesId || idFromUrl);
@@ -75,7 +75,7 @@ const LendPosition = () => {
   /* input validation hooks */
   const { inputError: closeError } = useInputValidation(closeInput, ActionCodes.CLOSE_POSITION, selectedSeries, [
     0,
-    
+
     // fyTokenMarketValue,
     // maxClose
   ]);
@@ -130,6 +130,10 @@ const LendPosition = () => {
     closeProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs(ActionCodes.CLOSE_POSITION);
     rollProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs(ActionCodes.ROLL_POSITION);
   }, [closeProcess?.stage, rollProcess?.stage]);
+
+  useEffect(() => {
+    idFromUrl && userActions.setSelectedSeries(idFromUrl);
+  }, [idFromUrl]);
 
   /* INTERNAL COMPONENTS */
   const CompletedTx = (props: any) => (
