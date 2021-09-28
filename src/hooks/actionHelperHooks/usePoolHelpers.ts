@@ -4,7 +4,15 @@ import { UserContext } from '../../contexts/UserContext';
 import { ChainContext } from '../../contexts/ChainContext';
 import { IAsset, ISeries, IStrategy, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
-import { mulDecimal, divDecimal, fyTokenForMint, maxBaseToSpend, splitLiquidity } from '../../utils/yieldMath';
+import {
+  mulDecimal,
+  divDecimal,
+  fyTokenForMint,
+  maxBaseToSpend,
+  splitLiquidity,
+  burn,
+  burnForBase,
+} from '../../utils/yieldMath';
 
 export const usePoolHelpers = (input: string | undefined) => {
   /* STATE FROM CONTEXT */
@@ -59,23 +67,27 @@ export const usePoolHelpers = (input: string | undefined) => {
 
   /* set max for removal with no vault  */
   useEffect(() => {
-    if (strategySeries && _input.gt(ethers.constants.Zero) && !matchingVault) {
-      const [_basePortion, _fyTokenPortion] = splitLiquidity(
-        strategySeries?.baseReserves,
-        strategySeries?.fyTokenReserves,
-        _input
-      );
-      /* if series is mature set max to user tokens, else set a max as the base reserves */
-      strategySeries.seriesIsMature
-        ? setMaxRemoveNoVault(ethers.utils.formatUnits(strategy?.accountBalance!, strategySeries.decimals))
-        : setMaxRemoveNoVault(ethers.utils.formatUnits(strategySeries.baseReserves, strategySeries.decimals));
-
-      /* if series is mature set max to user tokens, else set a max as the base reserves */
-      // strategySeries.seriesIsMature
-      //   ? setMaxRemoveWithVault(ethers.utils.formatUnits(strategy?.accountBalance!, strategySeries.decimals))
-      //   : setMaxRemoveWithVault(ethers.utils.formatUnits(strategySeries.baseReserves, strategySeries.decimals));
+    if (strategySeries) {
+      /* if series is mature set max to user tokens, else set a max depending on if there is a vault */
+      if (strategySeries.seriesIsMature) {
+        setMaxRemoveNoVault(ethers.utils.formatUnits(strategy?.accountBalance!, strategySeries.decimals));
+      } else {
+        /* limit when using no vault */
+        strategySeries.baseReserves.gt(strategy?.accountBalance!)
+          ? setMaxRemoveNoVault(ethers.utils.formatUnits(strategy?.accountBalance!, strategySeries.decimals))
+          : setMaxRemoveNoVault(ethers.utils.formatUnits(strategySeries.baseReserves, strategySeries.decimals));
+      }
     }
-  }, [_input, matchingVault, strategy, strategySeries]);
+  }, [matchingVault, strategy, strategySeries]);
+
+  /* set max for removal with a vault  */
+  useEffect(() => {
+    /* if series is mature set max to user tokens, else set a max depending on if there is a vault */
+    strategy &&
+      strategySeries &&
+      matchingVault &&
+      setMaxRemoveWithVault(ethers.utils.formatUnits(strategy?.accountBalance!, strategySeries.decimals));
+  }, [_input, matchingVault, strategy, strategySeries, vaultMap]);
 
   /* Check if can use 'buy and pool' method to get liquidity */
   useEffect(() => {
@@ -86,7 +98,12 @@ export const usePoolHelpers = (input: string | undefined) => {
         strategySeries.fyTokenReserves,
         strategySeries.getTimeTillMaturity()
       );
-      if (_input.lt(strategySeries.baseReserves.mul(2))) {
+
+      // console.log( strategySeries.baseReserves.toString() )
+      if (
+        _input.lt(strategySeries.baseReserves.mul(2)) && 
+        strategySeries.baseReserves.gt(ethers.utils.parseUnits('10', strategySeries.decimals)) // only if greater than 10
+      ) {
         _fyTokenToBuy = fyTokenForMint(
           strategySeries.baseReserves,
           strategySeries.fyTokenRealReserves,
@@ -106,8 +123,12 @@ export const usePoolHelpers = (input: string | undefined) => {
 
   /* CHECK FOR ANY VAULTS WITH THE SAME BASE/ILK */
   useEffect(() => {
-    if (strategyBase && strategySeries && _input.gt(ethers.constants.Zero)) {
-      const [, _fyTokenPortion] = splitLiquidity(strategySeries?.baseReserves, strategySeries?.fyTokenReserves, _input);
+    if (strategySeries && strategyBase && strategySeries) {
+      const [, _fyTokenPortion] = splitLiquidity(
+        strategySeries?.baseReserves,
+        strategySeries?.fyTokenReserves,
+        strategy?.accountBalance! // _input
+      );
       const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
       const _matchingVault = arr.find(
         (v: IVault) =>
@@ -122,7 +143,7 @@ export const usePoolHelpers = (input: string | undefined) => {
     } else {
       setMatchingVault(undefined);
     }
-  }, [vaultMap, strategyBase, strategySeries, _input]);
+  }, [vaultMap, strategyBase, strategySeries]);
 
   /* SET MAX VALUES */
   useEffect(() => {

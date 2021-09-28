@@ -52,6 +52,7 @@ function VaultPositionSelector(target: any) {
     const _allVaults: IVault[] = (Array.from(vaultMap.values()) as IVault[])
       // filter out vaults that have same base and ilk (borrow and pool liquidity positions)
       .filter((vault: IVault) => vault.baseId !== vault.ilkId)
+
       // sorting by debt balance
       .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1))
       // sorting to prioritize active vaults

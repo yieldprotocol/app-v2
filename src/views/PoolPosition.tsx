@@ -50,7 +50,6 @@ const PoolPosition = () => {
   const [ignoreVault, setIgnoreVault] = useState<boolean>(false);
 
   const [removeDisabled, setRemoveDisabled] = useState<boolean>(true);
-  const [rollDisabled, setRollDisabled] = useState<boolean>(true);
 
   // multi-tracking stepper
   const [actionActive, setActionActive] = useState<any>({ text: 'Close Position', index: 0 });
@@ -66,10 +65,11 @@ const PoolPosition = () => {
     selectedSeries?.id
   );
 
-  /* input validation hoooks */
+  /* input validation hooks */
   const { inputError: removeError } = useInputValidation(removeInput, ActionCodes.REMOVE_LIQUIDITY, selectedSeries, [
     0,
-    matchingVault ? maxRemoveWithVault : maxRemoveNoVault,
+    // matchingVault ? maxRemoveWithVault : maxRemoveNoVault,
+    '1000'
   ]);
 
   /* LOCAL FNS */
@@ -97,11 +97,14 @@ const PoolPosition = () => {
   /* SET MAX VALUES */
   useEffect(() => {
     /* Checks the max available to roll or move */
-    const max = selectedStrategy?.accountBalance;
-    if (max) setMaxRemove(ethers.utils.formatUnits(max, selectedStrategy?.decimals).toString());
-  }, [selectedStrategy, setMaxRemove]);
+    selectedStrategy && matchingVault 
+      // ? setMaxRemove( maxRemoveWithVault )  
+      ? setMaxRemove( maxRemoveNoVault ) 
+      : setMaxRemove( maxRemoveNoVault )
 
-  /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
+  }, [selectedStrategy, matchingVault, maxRemoveNoVault, maxRemoveWithVault, setMaxRemove]);
+
+  /* ACTION DISABLING LOGIC - if ANY conditions are met: block action */
   useEffect(() => {
     !removeInput || removeError ? setRemoveDisabled(true) : setRemoveDisabled(false);
   }, [activeAccount, removeError, removeInput]);
