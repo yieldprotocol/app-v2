@@ -7,7 +7,7 @@ import { ICallData, IVault, ActionCodes, LadleActions, ISeries } from '../../typ
 import { getTxCode } from '../../utils/appUtils';
 
 import { ETH_BASED_ASSETS, MAX_128, BLANK_VAULT } from '../../utils/constants';
-import { calculateSlippage, sellBase } from '../../utils/yieldMath';
+import { buyBase, calculateSlippage, sellBase } from '../../utils/yieldMath';
 import { useChain } from '../useChain';
 import { useAddCollateral } from './useAddCollateral';
 
@@ -40,7 +40,7 @@ export const useBorrow = () => {
     const _collInput = collInput ? ethers.utils.parseUnits(collInput, ilk.decimals) : ethers.constants.Zero;
 
     /* calculate expected debt(fytokens) */
-    const _expectedFyToken = sellBase(
+    const _expectedFyToken = buyBase(
       series.baseReserves,
       series.fyTokenReserves,
       _input,
@@ -78,7 +78,7 @@ export const useBorrow = () => {
       {
         operation: LadleActions.Fn.SERVE,
         args: [vaultId, account, _collInput, _input, _expectedFyTokenWithSlippage] as LadleActions.Args.SERVE,
-        ignoreIf: false, // never ignore this
+        ignoreIf: false,
       },
     ];
 
