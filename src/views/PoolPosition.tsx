@@ -27,6 +27,7 @@ import { useRemoveLiquidity } from '../hooks/actionHooks/useRemoveLiquidity';
 import CopyWrap from '../components/wraps/CopyWrap';
 import { useProcess } from '../hooks/useProcess';
 import { usePoolHelpers } from '../hooks/actionHelperHooks/usePoolHelpers';
+import InputInfoWrap from '../components/wraps/InputInfoWrap';
 
 const PoolPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -69,8 +70,7 @@ const PoolPosition = () => {
   /* input validation hooks */
   const { inputError: removeError } = useInputValidation(removeInput, ActionCodes.REMOVE_LIQUIDITY, selectedSeries, [
     0,
-    // matchingVault ? maxRemoveWithVault : maxRemoveNoVault,
-    '1000',
+    matchingVault ? maxRemoveWithVault : maxRemoveNoVault,
   ]);
 
   /* LOCAL FNS */
@@ -222,7 +222,32 @@ const PoolPosition = () => {
                   <>
                     {stepPosition[0] === 0 && (
                       <Box margin={{ top: 'medium' }} gap="medium">
-                        <InputWrap action={() => console.log('maxAction')} isError={removeError}>
+                        <InputWrap
+                          action={() => console.log('maxAction')}
+                          isError={removeError}
+                          message={
+                            <>
+                            {!healthyBaseReserves &&
+                             !removeInput &&
+                            <InputInfoWrap>
+                              <Text color="text-weak" alignSelf="end" size="xsmall">
+                                Pools aren't healthy as they could be. Currently, not all of your liquidity tokens are
+                                redeemable for the base.
+                              </Text>
+                            </InputInfoWrap>
+                            }
+                            {!healthyBaseReserves &&
+                            removeInput && 
+                            !fyTokenTradePossible &&
+                            <InputInfoWrap>
+                              <Text color="text-weak" alignSelf="end" size="xsmall">
+                                Input amount exceeds maximum currently tradeable.
+                              </Text>
+                            </InputInfoWrap>
+                            }
+                            </>
+                          }
+                        >
                           <TextInput
                             plain
                             type="number"
@@ -266,7 +291,7 @@ const PoolPosition = () => {
                   label={<Text size={mobile ? 'small' : undefined}> Next Step</Text>}
                   onClick={() => handleStepper()}
                   key="next"
-                  disabled={( actionActive.index === 0 && removeDisabled) || !fyTokenTradePossible}
+                  disabled={(actionActive.index === 0 && removeDisabled) || !fyTokenTradePossible}
                   errorLabel={actionActive.index === 0 && removeError}
                 />
               )}
