@@ -22,7 +22,6 @@ export const useBorrowHelpers = (
 
   const [maxRepayOrRoll, setMaxRepayOrRoll] = useState<BigNumber>(ethers.constants.Zero);
   const [maxRepayOrRoll_, setMaxRepayOrRoll_] = useState<string | undefined>();
-
   const [maxRepayDustLimit, setMaxRepayDustLimit] = useState<string | undefined>();
 
   const [userBaseAvailable, setUserBaseAvailable] = useState<BigNumber>(ethers.constants.Zero);

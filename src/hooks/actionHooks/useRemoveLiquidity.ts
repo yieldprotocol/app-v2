@@ -233,11 +233,10 @@ export const useRemoveLiquidity = () => {
         targetContract: series.poolContract,
         ignoreIf: true || _strategy || !series.seriesIsMature,
       },
-
       {
         operation: LadleActions.Fn.REDEEM,
         args: [series.id, ladleAddress, '0'] as LadleActions.Args.REDEEM, // TODO slippage
-        ignoreIf: _strategy || !series.seriesIsMature,
+        ignoreIf: true || _strategy || !series.seriesIsMature,
       },
       {
         operation: LadleActions.Fn.CLOSE_FROM_LADLE,

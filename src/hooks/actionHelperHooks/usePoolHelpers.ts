@@ -30,9 +30,16 @@ export const usePoolHelpers = (input: string | undefined) => {
   /* LOCAL STATE */
   const [_input, setInput] = useState<BigNumber>(ethers.constants.Zero);
   const [poolPercentPreview, setPoolPercentPreview] = useState<string | undefined>();
+
   const [maxPool, setMaxPool] = useState<string | undefined>();
   const [canBuyAndPool, setCanBuyAndPool] = useState<boolean | undefined>(true);
+
+  /* remove liquidity helpers */
   const [matchingVault, setMatchingVault] = useState<IVault | undefined>();
+  const [maxRemoveNoVault, setMaxRemoveNoVault] = useState<string | undefined>();
+  const [maxRemoveWithVault, setMaxRemoveWithVault] = useState<string | undefined>();
+
+  const [maxRemoveAfterMaturity, setMAxRemoveAfterMaturity] = useState<string | undefined>();
 
   /* set input (need to make sure we can parse the input value) */
   useEffect(() => {
@@ -48,22 +55,31 @@ export const usePoolHelpers = (input: string | undefined) => {
     }
   }, [input, strategyBase]);
 
-  /* Check if can use 'buy and pool ' method to get liquidity */
+  useEffect(() => {}, [strategySeries]);
+
+  /* set max for removal with no vault  */
   useEffect(() => {
-    if (strategySeries && _input.gt(ethers.constants.Zero)) {
-      const [_baseProtion, _fyTokenPortion] = splitLiquidity(
+    if (strategySeries && _input.gt(ethers.constants.Zero) && !matchingVault) {
+      const [_basePortion, _fyTokenPortion] = splitLiquidity(
         strategySeries?.baseReserves,
         strategySeries?.fyTokenReserves,
         _input
       );
-    }
-  }, [_input, strategySeries]);
+      /* if series is mature set max to user tokens, else set a max as the base reserves */
+      strategySeries.seriesIsMature
+        ? setMaxRemoveNoVault(ethers.utils.formatUnits(strategy?.accountBalance!, strategySeries.decimals))
+        : setMaxRemoveNoVault(ethers.utils.formatUnits(strategySeries.baseReserves, strategySeries.decimals));
 
-  /* Check if can use 'buy and pool ' method to get liquidity */
+      /* if series is mature set max to user tokens, else set a max as the base reserves */
+      // strategySeries.seriesIsMature
+      //   ? setMaxRemoveWithVault(ethers.utils.formatUnits(strategy?.accountBalance!, strategySeries.decimals))
+      //   : setMaxRemoveWithVault(ethers.utils.formatUnits(strategySeries.baseReserves, strategySeries.decimals));
+    }
+  }, [_input, matchingVault, strategy, strategySeries]);
+
+  /* Check if can use 'buy and pool' method to get liquidity */
   useEffect(() => {
     if (strategySeries && _input.gt(ethers.constants.Zero)) {
-      const [, _fyTokenPortion] = splitLiquidity(strategySeries?.baseReserves, strategySeries?.fyTokenReserves, _input);
-
       let _fyTokenToBuy = ethers.constants.Zero;
       const _maxProtocol = maxBaseToSpend(
         strategySeries.baseReserves,
@@ -79,7 +95,6 @@ export const usePoolHelpers = (input: string | undefined) => {
           strategySeries.getTimeTillMaturity(),
           strategySeries.decimals
         );
-
         console.log('can buyAndPool?', _maxProtocol.lt(_fyTokenToBuy));
         setCanBuyAndPool(_maxProtocol.lt(_fyTokenToBuy));
       }
@@ -129,5 +144,12 @@ export const usePoolHelpers = (input: string | undefined) => {
     }
   }, [_input, strategy]);
 
-  return { maxPool, poolPercentPreview, canBuyAndPool, matchingVault };
+  return {
+    maxPool,
+    poolPercentPreview,
+    canBuyAndPool,
+    matchingVault,
+    maxRemoveNoVault,
+    maxRemoveWithVault,
+  };
 };

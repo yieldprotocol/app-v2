@@ -64,8 +64,8 @@ const PoolPosition = () => {
   const removeLiquidity = useRemoveLiquidity();
   const rollLiquidity = useRollLiquidity();
 
-  const { matchingVault: removeVault } = usePoolHelpers(removeInput);
-  const { matchingVault: rollVault } = usePoolHelpers(rollInput);
+  const { matchingVault, maxRemoveWithVault, maxRemoveNoVault  } = usePoolHelpers(removeInput);
+  const { matchingVault: rollMatchingVault } = usePoolHelpers(rollInput);
 
   /* TX data */
   const { txProcess: removeProcess, resetProcess: resetRemoveProcess } = useProcess(
@@ -80,7 +80,7 @@ const PoolPosition = () => {
   /* input validation hoooks */
   const { inputError: removeError } = useInputValidation(removeInput, ActionCodes.REMOVE_LIQUIDITY, selectedSeries, [
     0,
-    maxRemove,
+    matchingVault? maxRemoveWithVault : maxRemoveNoVault,
   ]);
 
   const { inputError: rollError } = useInputValidation(rollInput, ActionCodes.ROLL_LIQUIDITY, selectedSeries, [
@@ -98,7 +98,7 @@ const PoolPosition = () => {
 
   const handleRemove = () => {
     // !removeDisabled &&
-    const _vault = ignoreVault? undefined: removeVault
+    const _vault = ignoreVault? undefined: matchingVault
     selectedSeries && removeLiquidity(removeInput!, selectedSeries, _vault);
   };
 
@@ -147,7 +147,6 @@ const PoolPosition = () => {
   const CompletedTx = (props: any) => (
     <>
       <NextButton
-        // size="xsmall"
         label={<Text size={mobile ? 'xsmall' : undefined}>Go back</Text>}
         onClick={() => {
           props.resetTx();
@@ -155,7 +154,6 @@ const PoolPosition = () => {
           resetInputs(props.actionCode);
         }}
       />
-      {/* {props.tx.failed && <EtherscanButton txHash={props.tx.txHash} />} */}
     </>
   );
 
