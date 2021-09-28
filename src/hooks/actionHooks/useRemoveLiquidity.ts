@@ -164,8 +164,8 @@ export const useRemoveLiquidity = () => {
       },
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [account, ethers.constants.Zero] as RoutedActions.Args.SELL_BASE, // TODO slippage
-        fnName: RoutedActions.Fn.SELL_BASE,
+        args: [account, ethers.constants.Zero] as RoutedActions.Args.SELL_FYTOKEN, // TODO slippage
+        fnName: RoutedActions.Fn.SELL_FYTOKEN,
         targetContract: series.poolContract,
         ignoreIf: series.seriesIsMature || !vaultAvailable,
       },
