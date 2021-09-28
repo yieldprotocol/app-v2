@@ -122,14 +122,17 @@ export function mint(
   baseReserves: BigNumber | string,
   fyTokenReserves: BigNumber | string,
   totalSupply: BigNumber | string,
-  base: BigNumber | string
+  base: BigNumber | string,
+  fromBase: boolean = true,
 ): [BigNumber, BigNumber] {
   const baseReserves_ = new Decimal(baseReserves.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves.toString());
   const supply_ = new Decimal(totalSupply.toString());
   const base_ = new Decimal(base.toString());
-  const m = supply_.mul(base_).div(baseReserves_);
-  const y = fyTokenReserves_.mul(m).div(supply_);
+
+  const m = fromBase ? supply_.mul(base_).div(baseReserves_) : supply_.mul(base_).div(fyTokenReserves_)
+  const y = fromBase ? fyTokenReserves_.mul(m).div(supply_) : baseReserves_.mul(m).div(supply_)
+
   return [toBn(m), toBn(y)];
 }
 
