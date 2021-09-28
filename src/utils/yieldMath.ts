@@ -514,13 +514,13 @@ export function fyTokenForMint(
     if (pz <= PZ) max = yOut;
     yOut = yOut.add(min).div(TWO); // bought too much fyToken, buy a bit less
 
-    console.log(
-      decimal18ToDecimalN(
-        // (converted back to original decimals)
-        BigNumber.from(Decimal.floor(yOut).toFixed(0)),
-        decimals
-      ).toString()
-    );
+    // console.log(
+    //   decimal18ToDecimalN(
+    //     // (converted back to original decimals)
+    //     BigNumber.from(Decimal.floor(yOut).toFixed(0)),
+    //     decimals
+    //   ).toString()
+    // );
 
     // if (PZ.mul(new Decimal(1.000001)) > pz && pz > PZ) return Decimal.floor(yOut).toFixed(0); // Just right
     if (PZ.mul(new Decimal(1.000001)) > pz && pz > PZ) {
