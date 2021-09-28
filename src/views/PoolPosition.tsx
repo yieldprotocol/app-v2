@@ -57,7 +57,8 @@ const PoolPosition = () => {
 
   /* HOOK FNS */
   const removeLiquidity = useRemoveLiquidity();
-  const { matchingVault, maxRemoveWithVault, maxRemoveNoVault } = usePoolHelpers(removeInput);
+  const { matchingVault, maxRemoveWithVault, maxRemoveNoVault, healthyBaseReserves, fyTokenTradePossible } =
+    usePoolHelpers(removeInput);
 
   /* TX data */
   const { txProcess: removeProcess, resetProcess: resetRemoveProcess } = useProcess(
@@ -69,7 +70,7 @@ const PoolPosition = () => {
   const { inputError: removeError } = useInputValidation(removeInput, ActionCodes.REMOVE_LIQUIDITY, selectedSeries, [
     0,
     // matchingVault ? maxRemoveWithVault : maxRemoveNoVault,
-    '1000'
+    '1000',
   ]);
 
   /* LOCAL FNS */
@@ -97,11 +98,10 @@ const PoolPosition = () => {
   /* SET MAX VALUES */
   useEffect(() => {
     /* Checks the max available to roll or move */
-    selectedStrategy && matchingVault 
-      // ? setMaxRemove( maxRemoveWithVault )  
-      ? setMaxRemove( maxRemoveNoVault ) 
-      : setMaxRemove( maxRemoveNoVault )
-
+    selectedStrategy && matchingVault
+      ? // ? setMaxRemove( maxRemoveWithVault )
+        setMaxRemove(maxRemoveNoVault)
+      : setMaxRemove(maxRemoveNoVault);
   }, [selectedStrategy, matchingVault, maxRemoveNoVault, maxRemoveWithVault, setMaxRemove]);
 
   /* ACTION DISABLING LOGIC - if ANY conditions are met: block action */
@@ -232,7 +232,7 @@ const PoolPosition = () => {
                           />
                           <MaxButton
                             action={() => setRemoveInput(maxRemove)}
-                            disabled={maxRemove === '0.0'}
+                            disabled={maxRemove === '0.0' || !healthyBaseReserves}
                             clearAction={() => setRemoveInput('')}
                             showingMax={!!removeInput && removeInput === maxRemove}
                           />
@@ -266,8 +266,8 @@ const PoolPosition = () => {
                   label={<Text size={mobile ? 'small' : undefined}> Next Step</Text>}
                   onClick={() => handleStepper()}
                   key="next"
-                  disabled={(actionActive.index === 0 && removeDisabled)}
-                  errorLabel={(actionActive.index === 0 && removeError)}
+                  disabled={( actionActive.index === 0 && removeDisabled) || !fyTokenTradePossible}
+                  errorLabel={actionActive.index === 0 && removeError}
                 />
               )}
 

@@ -12,6 +12,7 @@ import {
   splitLiquidity,
   burn,
   burnForBase,
+  sellFYToken,
 } from '../../utils/yieldMath';
 
 export const usePoolHelpers = (input: string | undefined) => {
@@ -47,7 +48,8 @@ export const usePoolHelpers = (input: string | undefined) => {
   const [maxRemoveNoVault, setMaxRemoveNoVault] = useState<string | undefined>();
   const [maxRemoveWithVault, setMaxRemoveWithVault] = useState<string | undefined>();
 
-  const [maxRemoveAfterMaturity, setMAxRemoveAfterMaturity] = useState<string | undefined>();
+  const [healthyBaseReserves, setHealthyBaseReserves] = useState<boolean>();
+  const [fyTokenTradePossible, setFyTokenTradePossible] = useState<boolean>();
 
   /* set input (need to make sure we can parse the input value) */
   useEffect(() => {
@@ -65,20 +67,99 @@ export const usePoolHelpers = (input: string | undefined) => {
 
   useEffect(() => {}, [strategySeries]);
 
-  /* set max for removal with no vault  */
+  // /* set max for removal with no vault  */
+  // useEffect(() => {
+  //   if (strategySeries) {
+
+  //     const [_baseTokens, _fytokens] = burn(
+  //       strategySeries.baseReserves,
+  //       strategySeries.fyTokenReserves,
+  //       strategySeries.totalSupply,
+  //       _input
+  //     )
+  //     const newBaseReserves = strategySeries.baseReserves.sub(_baseTokens);
+  //     const newFyTokenReserves = strategySeries.fyTokenReserves.sub(_fytokens);
+  //     const sellOutcome = sellFYToken(
+  //       newBaseReserves,
+  //       newFyTokenReserves,
+  //       _fytokens,
+  //       strategySeries.getTimeTillMaturity(),
+  //       strategySeries.decimals
+  //     )
+  //     // 1. calc amount base/fytonken recieved from burn
+  //     // 2. calculate new reseverves ( base reserves and fytokesreserevs)
+  //     // 3. check fytoken > base reserves
+
+  //     // if fails > use burn().  > user gets base and fytoken
+
+  //     /* if series is mature set max to user tokens, else set a max depending on if there is a vault */
+  //     if (strategySeries.seriesIsMature) {
+  //       setMaxRemoveNoVault(ethers.utils.formatUnits(strategy?.accountBalance!, strategySeries.decimals));
+  //     } else {
+  //       /* limit when using no vault */
+  //       sellOutcome.gt(ethers.constants.Zero)
+  //         ? setMaxRemoveNoVault(ethers.utils.formatUnits(strategy?.accountBalance!, strategySeries.decimals))
+  //         : setMaxRemoveNoVault(ethers.utils.formatUnits(strategySeries.baseReserves, strategySeries.decimals));
+  //     }
+  //   }
+  // }, [_input, matchingVault, strategy, strategySeries]);
+
+  /* Check if base reserves are too low for max trade  */
+  useEffect(() => {
+    if (strategy && strategySeries) {
+      // 1. calc amount base/fytonken recieved from burn
+      // 2. calculate new reseverves ( base reserves and fytokesreserevs)
+      // 3. check fytoken > base reserves
+      const [_baseTokens, _fytokens] = burn(
+        strategySeries.baseReserves,
+        strategySeries.fyTokenReserves,
+        strategySeries.totalSupply,
+        strategy.accountBalance!
+      );
+      const newBaseReserves = strategySeries.baseReserves.sub(_baseTokens);
+      const newFyTokenReserves = strategySeries.fyTokenReserves.sub(_fytokens);
+      const sellOutcome = sellFYToken(
+        newBaseReserves,
+        newFyTokenReserves,
+        _fytokens,
+        strategySeries.getTimeTillMaturity(),
+        strategySeries.decimals
+      );
+      const tradeable = sellOutcome.gt(ethers.constants.Zero);
+
+      setHealthyBaseReserves(tradeable);
+      setMaxRemoveNoVault(ethers.utils.formatUnits(strategy?.accountBalance!, strategySeries.decimals))
+    }
+  }, [ matchingVault, strategy, strategySeries ]);
+
+
+  /* check if base reserves are too low for specific input  */
   useEffect(() => {
     if (strategySeries) {
-      /* if series is mature set max to user tokens, else set a max depending on if there is a vault */
-      if (strategySeries.seriesIsMature) {
-        setMaxRemoveNoVault(ethers.utils.formatUnits(strategy?.accountBalance!, strategySeries.decimals));
-      } else {
-        /* limit when using no vault */
-        strategySeries.baseReserves.gt(strategy?.accountBalance!)
-          ? setMaxRemoveNoVault(ethers.utils.formatUnits(strategy?.accountBalance!, strategySeries.decimals))
-          : setMaxRemoveNoVault(ethers.utils.formatUnits(strategySeries.baseReserves, strategySeries.decimals));
-      }
+      // 1. calc amount base/fytonken recieved from burn
+      // 2. calculate new reseverves ( base reserves and fytokesreserevs)
+      // 3. check fytoken > base reserves
+      const [_baseTokens, _fytokens] = burn(
+        strategySeries.baseReserves,
+        strategySeries.fyTokenReserves,
+        strategySeries.totalSupply,
+        _input
+      );
+      const newBaseReserves = strategySeries.baseReserves.sub(_baseTokens);
+      const newFyTokenReserves = strategySeries.fyTokenReserves.sub(_fytokens);
+      const sellOutcome = sellFYToken(
+        newBaseReserves,
+        newFyTokenReserves,
+        _fytokens,
+        strategySeries.getTimeTillMaturity(),
+        strategySeries.decimals
+      );
+
+      const tradeable = sellOutcome.gt(ethers.constants.Zero);
+      console.log('Is tradeable:', tradeable);
+      setFyTokenTradePossible(sellOutcome.gt(ethers.constants.Zero));
     }
-  }, [matchingVault, strategy, strategySeries]);
+  }, [_input, matchingVault, strategy, strategySeries]);
 
   /* set max for removal with a vault  */
   useEffect(() => {
@@ -101,7 +182,7 @@ export const usePoolHelpers = (input: string | undefined) => {
 
       // console.log( strategySeries.baseReserves.toString() )
       if (
-        _input.lt(strategySeries.baseReserves.mul(2)) && 
+        _input.lt(strategySeries.baseReserves.mul(2)) &&
         strategySeries.baseReserves.gt(ethers.utils.parseUnits('10', strategySeries.decimals)) // only if greater than 10
       ) {
         _fyTokenToBuy = fyTokenForMint(
@@ -143,7 +224,7 @@ export const usePoolHelpers = (input: string | undefined) => {
     } else {
       setMatchingVault(undefined);
     }
-  }, [vaultMap, strategyBase, strategySeries]);
+  }, [vaultMap, strategyBase, strategySeries, strategy]);
 
   /* SET MAX VALUES */
   useEffect(() => {
@@ -172,5 +253,8 @@ export const usePoolHelpers = (input: string | undefined) => {
     matchingVault,
     maxRemoveNoVault,
     maxRemoveWithVault,
+
+    healthyBaseReserves,
+    fyTokenTradePossible
   };
 };
