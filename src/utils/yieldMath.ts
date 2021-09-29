@@ -123,15 +123,15 @@ export function mint(
   fyTokenReserves: BigNumber | string,
   totalSupply: BigNumber | string,
   base: BigNumber | string,
-  fromBase: boolean = true,
+  fromBase: boolean = true
 ): [BigNumber, BigNumber] {
   const baseReserves_ = new Decimal(baseReserves.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves.toString());
   const supply_ = new Decimal(totalSupply.toString());
   const base_ = new Decimal(base.toString());
 
-  const m = fromBase ? supply_.mul(base_).div(baseReserves_) : supply_.mul(base_).div(fyTokenReserves_)
-  const y = fromBase ? fyTokenReserves_.mul(m).div(supply_) : baseReserves_.mul(m).div(supply_)
+  const m = fromBase ? supply_.mul(base_).div(baseReserves_) : supply_.mul(base_).div(fyTokenReserves_);
+  const y = fromBase ? fyTokenReserves_.mul(m).div(supply_) : baseReserves_.mul(m).div(supply_);
 
   return [toBn(m), toBn(y)];
 }
@@ -211,7 +211,7 @@ export function burnForBase(
   fyTokenReservesReal: BigNumber,
   supply: BigNumber,
   lpTokens: BigNumber,
-  timeTillMaturity: BigNumber|string,
+  timeTillMaturity: BigNumber | string,
   decimals: number = 18
 ): BigNumber {
   // Burn FyToken
@@ -517,16 +517,26 @@ export function fyTokenForMint(
     if (pz <= PZ) max = yOut;
     yOut = yOut.add(min).div(TWO); // bought too much fyToken, buy a bit less
 
-    // console.log(
-    //   decimal18ToDecimalN(
-    //     // (converted back to original decimals)
-    //     BigNumber.from(Decimal.floor(yOut).toFixed(0)),
-    //     decimals
-    //   ).toString()
-    // );
+    console.log(
+      decimal18ToDecimalN(
+        // (converted back to original decimals)
+        BigNumber.from(Decimal.floor(yOut).toFixed(0)),
+        decimals
+      ).toString()
+    );
 
     // if (PZ.mul(new Decimal(1.000001)) > pz && pz > PZ) return Decimal.floor(yOut).toFixed(0); // Just right
     if (PZ.mul(new Decimal(1.000001)) > pz && pz > PZ) {
+
+      console.log('Zin :', zIn.toString() );
+      console.log('PZ :',  PZ.toString() );
+      console.log('pz :',  pz.toString() );
+      console.log( 'baseREs', baseReserves18.toString() );
+      console.log( 'virtual', fyTokenVirtualReserves18.toString() );
+      console.log( 'z_1', Z_1.toString());
+      console.log( 'y_1', Y_1.toString());
+
+
       return decimal18ToDecimalN(
         // (converted back to original decimals)
         BigNumber.from(Decimal.floor(yOut).toFixed(0)),
