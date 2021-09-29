@@ -396,6 +396,7 @@ const VaultPosition = () => {
                             value={repayInput || ''}
                             onChange={(event: any) => setRepayInput(cleanValue(event.target.value))}
                             icon={<>{vaultBase?.image}</>}
+                            min="0"
                           />
                           <MaxButton
                             action={() => setRepayInput(maxRepayOrRoll)}
@@ -436,7 +437,9 @@ const VaultPosition = () => {
                             <InputInfoWrap>
                               <Text color="text-weak" size="xsmall">
                                 Debt of {cleanValue(maxRepayOrRoll, 2)} {vaultBase?.symbol} will be rolled
-                                {userBaseAvailable.lt(protocolBaseAvailable) ? '.':' ( limited by protocol reserves).'}
+                                {userBaseAvailable.lt(protocolBaseAvailable)
+                                  ? '.'
+                                  : ' ( limited by protocol reserves).'}
                               </Text>
                             </InputInfoWrap>
                           )}
@@ -492,6 +495,7 @@ const VaultPosition = () => {
                               value={addCollatInput || ''}
                               onChange={(event: any) => setAddCollatInput(cleanValue(event.target.value))}
                               icon={<>{vaultIlk?.image}</>}
+                              min="0"
                             />
                             <MaxButton
                               // disabled={removeCollatInput}
@@ -551,6 +555,7 @@ const VaultPosition = () => {
                             value={removeCollatInput || ''}
                             onChange={(event: any) => setRemoveCollatInput(cleanValue(event.target.value))}
                             icon={<>{vaultIlk?.image}</>}
+                            min="0"
                           />
                           <MaxButton
                             action={() => setRemoveCollatInput(maxRemovableCollateral)}
