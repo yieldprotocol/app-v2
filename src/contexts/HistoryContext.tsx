@@ -259,7 +259,7 @@ const HistoryProvider = ({ children }: any) => {
             eventList
               .filter(
                 (log: any) =>
-                  poolContract.interface.parseLog(log).args.from !== '0xf7611BC6f78AE082f9C3E290F67349dE3b8591Cf'
+                  poolContract.interface.parseLog(log).args.from !== contractMap.get('Ladle')
               ) // TODO make this for any ladle (Past/future)
               .map(async (log: any) => {
                 const { blockNumber, transactionHash } = log;
