@@ -1,5 +1,6 @@
 import { ethers, BigNumber, BigNumberish } from 'ethers';
 import { Decimal } from 'decimal.js';
+import { WAD_BN } from './constants';
 
 Decimal.set({ precision: 64 });
 
@@ -42,6 +43,16 @@ export const decimal18ToDecimalN = (x: BigNumber, decimals: number): BigNumber =
   const first = str.slice(0, str.length - (18 - decimals));
   return BigNumber.from(first);
 };
+
+/**
+ * Convert bytesX to bytes32 (BigEndian?)
+ * @param x string to convert.
+ * @param n current bytes value eg. bytes6 or bytes12
+ * @returns string bytes32
+ */
+ export function bytesToBytes32(x: string, n: number): string {
+  return x + '00'.repeat(32 - n);
+}
 
 /**
  * @param { BigNumber | string } multiplicant
@@ -631,13 +642,14 @@ export const calculateCollateralizationRatio = (
   collateralAmount: BigNumber | string,
   basePrice: BigNumber | string,
   baseAmount: BigNumber | string,
+  decimals: number = 18,
   asPercent: boolean = false // OPTIONAL:  flag to return as percentage
 ): string | undefined => {
   if (ethers.BigNumber.isBigNumber(baseAmount) ? baseAmount.isZero() : baseAmount === '0') {
     return undefined;
   }
-
-  const _baseUnitPrice = divDecimal(basePrice, '1000000000000000000');
+  const _baseUnitPrice = divDecimal(basePrice, WAD_BN);
+  // const _baseUnitPrice = divDecimal(basePrice, decimal18ToDecimalN(WAD_BN, decimals).toString());
   const _baseVal = divDecimal(baseAmount, _baseUnitPrice); // base/debt value in terms of collateral
   const _ratio = divDecimal(collateralAmount, _baseVal); // collateralValue divide by debtValue
 
@@ -663,15 +675,17 @@ export const calculateMinCollateral = (
   baseAmount: BigNumber | string,
   liquidationRatio: string = '1.5', // OPTIONAL: 150% as default
   existingCollateral: BigNumber | string = '0', // OPTIONAL add in
-  asBigNumber: boolean = false
+  asBigNumber: boolean = false,
+  decimals: number = 18,
 ): string | BigNumber => {
-  const _baseUnitPrice = divDecimal(basePrice, '1000000000000000000');
+
+  const _baseUnitPrice = divDecimal(basePrice, WAD_BN);
   const _baseVal = divDecimal(baseAmount, _baseUnitPrice);
-  const _existingCollateralValue = new Decimal(ethers.utils.formatUnits(existingCollateral, 18));
+  const _existingCollateralValue = new Decimal(ethers.utils.formatUnits(existingCollateral, decimals));
   const _minCollatValue = new Decimal(mulDecimal(_baseVal, liquidationRatio));
   const requiredCollateral = _existingCollateralValue.gt(_minCollatValue)
     ? new Decimal('0')
-    : _minCollatValue.sub(_existingCollateralValue).add('1'); // hmm, i had to add one check
+    : _minCollatValue.sub(_existingCollateralValue); // .add('1'); // hmm, i had to add one check
   return asBigNumber ? toBn(requiredCollateral) : requiredCollateral.toFixed(0);
 };
 
