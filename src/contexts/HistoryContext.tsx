@@ -7,11 +7,11 @@ import { ISeries, IVault, IHistItemPosition, ActionCodes, IBaseHistItem, IAsset,
 import * as contracts from '../contracts';
 
 import { ChainContext } from './ChainContext';
-import { abbreviateHash, bytesToBytes32, cleanValue } from '../utils/appUtils';
+import { abbreviateHash,  cleanValue } from '../utils/appUtils';
 import { UserContext } from './UserContext';
 import { ZERO_BN } from '../utils/constants';
 import { Cauldron } from '../contracts';
-import { calculateAPR } from '../utils/yieldMath';
+import { calculateAPR, bytesToBytes32 } from '../utils/yieldMath';
 
 const dateFormat = (dateInSecs: number) => format(new Date(dateInSecs * 1000), 'dd MMM yyyy');
 

@@ -47,7 +47,6 @@ import DummyVaultItem from '../components/positionItems/DummyVaultItem';
 import DashButton from '../components/buttons/DashButton';
 import DashMobileButton from '../components/buttons/DashMobileButton';
 
-
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
@@ -159,9 +158,9 @@ const Borrow = () => {
   }, [vaultMap, selectedBase, selectedIlk, selectedSeries]);
 
   /* reset the selected vault on every component change */
-  useEffect(()=>{
+  useEffect(() => {
     setVaultToUse(undefined);
-  },[selectedIlk, selectedBase, selectedSeries ])
+  }, [selectedIlk, selectedBase, selectedSeries]);
 
   // IS THIS VALUE IS ACTIUALLY JUST the fytoken value:
   const borrowOutput = cleanValue(
@@ -183,7 +182,7 @@ const Borrow = () => {
 
   return (
     <Keyboard onEsc={() => setCollatInput('')} onEnter={() => console.log('ENTER smashed')} target="document">
-      {mobile && <DashMobileButton transparent={!!borrowInput}  />}
+      {mobile && <DashMobileButton transparent={!!borrowInput} />}
       <MainViewWrap>
         {!mobile && (
           <PanelWrap>
@@ -219,7 +218,8 @@ const Borrow = () => {
                           borrowInput && (
                             <InputInfoWrap>
                               <Text size="small" color="text-weak">
-                                Requires {cleanValue(minCollateral, 4)} {selectedIlk?.symbol} collateral
+                                Requires {cleanValue(minCollateral, selectedIlk?.digitFormat)} {selectedIlk?.symbol}{' '}
+                                collateral
                               </Text>
                             </InputInfoWrap>
                           )
@@ -391,9 +391,7 @@ const Borrow = () => {
               borrowProcess?.tx.status === TxState.SUCCESSFUL && (
                 <Box pad="large" gap="small">
                   <Text size="small"> View Vault: </Text>
-                  {newVaultId && 
-                    <DummyVaultItem series={selectedSeries!} vaultId={newVaultId!} condensed />
-                  }
+                  {newVaultId && <DummyVaultItem series={selectedSeries!} vaultId={newVaultId!} condensed />}
                 </Box>
               )}
           </Box>
@@ -451,7 +449,6 @@ const Borrow = () => {
                 )}
             </ActionButtonWrap>
           </Box>
-
         </CenterPanelWrap>
 
         <PanelWrap right basis="40%">

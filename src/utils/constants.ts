@@ -8,8 +8,8 @@ export const ZERO_BN = ethers.constants.Zero;
 export const ONE_BN = ethers.constants.One;
 export const MINUS_ONE_BN = ethers.constants.One.mul(-1);
 
-export const ONE_RAY_BN = BigNumber.from('1000000000000000000000000000');
-export const ONE_WEI_BN = BigNumber.from('1000000000000000000');
+export const WAD_RAY_BN = BigNumber.from('1000000000000000000000000000');
+export const WAD_BN = BigNumber.from('1000000000000000000');
 
 export const SECONDS_PER_YEAR: number = 365 * 24 * 60 * 60;
 

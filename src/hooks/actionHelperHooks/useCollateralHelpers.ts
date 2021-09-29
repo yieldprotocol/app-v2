@@ -3,11 +3,11 @@ import { useContext, useEffect, useState } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, IVault, SignType, ISeries, ActionCodes, IUserContext, LadleActions } from '../../types';
-import { getTxCode, cleanValue, decimalNToDecimal18 } from '../../utils/appUtils';
+import { getTxCode, cleanValue } from '../../utils/appUtils';
 import { DAI_BASED_ASSETS, ETH_BASED_ASSETS } from '../../utils/constants';
 import { useChain } from '../useChain';
 
-import { calculateCollateralizationRatio, calculateMinCollateral } from '../../utils/yieldMath';
+import { calculateCollateralizationRatio, calculateMinCollateral, decimalNToDecimal18 } from '../../utils/yieldMath';
 
 /* Collateralisation hook calculates collateralisation metrics */
 export const useCollateralHelpers = (
@@ -41,13 +41,16 @@ export const useCollateralHelpers = (
   /* update the prices if anything changes */
   useEffect(() => {
     if (priceMap.get(selectedIlkId)?.has(selectedBaseId)) {
-      setOraclePrice(priceMap.get(selectedIlkId).get(selectedBaseId));
+      const _price = priceMap.get(selectedIlkId).get(selectedBaseId);  // get the price
+      setOraclePrice( decimalNToDecimal18(_price, base?.decimals) ); // make sure the price is 18decimals based
     } else {
       (async () => {
-        selectedBaseId && selectedIlkId && setOraclePrice(await updatePrice(selectedIlkId, selectedBaseId));
+        selectedBaseId &&
+          selectedIlkId &&
+          setOraclePrice(await updatePrice(selectedIlkId, selectedBaseId, ilk.decimals)); 
       })();
     }
-  }, [priceMap, selectedBaseId, selectedIlkId, updatePrice]);
+  }, [priceMap, selectedBaseId, selectedIlkId, updatePrice, ilk, base?.decimals]);
 
   /* CHECK collateral selection and sets the max available collateral a user can add */
   useEffect(() => {
@@ -61,24 +64,23 @@ export const useCollateralHelpers = (
   /* handle changes to input values */
   useEffect(() => {
 
+    /* NOTE: this whole function ONLY deals with decimal18, existing values are converted to decimal18 */
     const existingCollateral_ = vault?.ink ? vault.ink : ethers.constants.Zero;
     const existingCollateralAsWei = decimalNToDecimal18(existingCollateral_, ilk?.decimals);
-    
+
     const existingDebt_ = vault?.art ? vault.art : ethers.constants.Zero;
     const existingDebtAsWei = decimalNToDecimal18(existingDebt_, base?.decimals);
-
+   
     const dInput = debtInput ? ethers.utils.parseUnits(debtInput, 18) : ethers.constants.Zero;
     const cInput = collInput ? ethers.utils.parseUnits(collInput, 18) : ethers.constants.Zero;
 
     const totalCollateral = existingCollateralAsWei.add(cInput);
     const totalDebt = existingDebtAsWei.add(dInput);
 
-    const priceAsWei = base && decimalNToDecimal18(oraclePrice, base?.decimals);
-
     /* set the collateral ratio when collateral is entered */
-    if (priceAsWei?.gt(ethers.constants.Zero) && totalCollateral.gt(ethers.constants.Zero)) {
-      const ratio = calculateCollateralizationRatio(totalCollateral, priceAsWei, totalDebt, false);
-      const percent = calculateCollateralizationRatio(totalCollateral, priceAsWei, totalDebt, true);
+    if (oraclePrice?.gt(ethers.constants.Zero) && totalCollateral.gt(ethers.constants.Zero)) {
+      const ratio = calculateCollateralizationRatio(totalCollateral, oraclePrice, totalDebt, false);
+      const percent = calculateCollateralizationRatio(totalCollateral, oraclePrice, totalDebt, true);
       setCollateralizationRatio(ratio);
       setCollateralizationPercent(cleanValue(percent, 2));
     } else {
@@ -87,29 +89,29 @@ export const useCollateralHelpers = (
     }
 
     /* check minimum collateral required base on debt */
-    if (priceAsWei?.gt(ethers.constants.Zero)) {
-      const min = calculateMinCollateral(priceAsWei, totalDebt, '1.5', existingCollateralAsWei);
-      const minSafeCalc = calculateMinCollateral(priceAsWei, totalDebt, '2.5', existingCollateralAsWei);
+    if (oraclePrice?.gt(ethers.constants.Zero)) {
+      const min = calculateMinCollateral(oraclePrice, totalDebt, '1.5', existingCollateralAsWei);
+      const minSafeCalc = calculateMinCollateral(oraclePrice, totalDebt, '2.5', existingCollateralAsWei);
 
       // factor in the current collateral input if there is a valid chosen vault
       const minSafeWithCollat = BigNumber.from(minSafeCalc).sub(existingCollateral_);
 
       // check for valid min safe scenarios
       const minSafe = minSafeWithCollat.gt(ethers.constants.Zero)
-        ? ethers.utils.formatUnits(minSafeWithCollat, ilk?.decimals)?.toString()
+        ? ethers.utils.formatUnits(minSafeWithCollat, 18).toString()
         : undefined;
 
-      setMinCollateral(ethers.utils.formatUnits(min, ilk?.decimals)?.toString());
+      setMinCollateral(ethers.utils.formatUnits(min, 18).toString());
       setMinSafeCollateral(minSafe);
     } else {
       setMinCollateral('0');
     }
 
     /* Check max collateral that is removable (based on exisiting debt) */
-    if (priceAsWei?.gt(ethers.constants.Zero)) {
-      const _min = calculateMinCollateral(priceAsWei, totalDebt, '1.5', existingCollateralAsWei);
+    if (oraclePrice?.gt(ethers.constants.Zero)) {
+      const _min = calculateMinCollateral(oraclePrice, totalDebt, '1.5', existingCollateralAsWei);
       const _max = existingCollateralAsWei.sub(_min);
-      setMaxRemovableCollateral(ethers.utils.formatUnits(_max, ilk?.decimals)?.toString());
+      setMaxRemovableCollateral(ethers.utils.formatUnits(_max, 18).toString());
     } else {
       setMaxRemovableCollateral('0');
     }
