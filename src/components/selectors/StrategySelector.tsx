@@ -11,7 +11,6 @@ import { UserContext } from '../../contexts/UserContext';
 import { useApr } from '../../hooks/useApr';
 import { nFormatter } from '../../utils/appUtils';
 
-
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
 -moz-transition: transform 0.3s ease-in-out;
@@ -90,7 +89,7 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
   useEffect(() => {
     const opts = Array.from(strategyMap.values()) as IStrategy[];
 
-    const filteredOpts = opts.filter((_st: IStrategy) => _st.baseId === selectedBaseId && _st.currentSeries );
+    const filteredOpts = opts.filter((_st: IStrategy) => _st.baseId === selectedBaseId && _st.currentSeries);
     // .filter((_st: IStrategy) => _st.currentSeries);
     setOptions(filteredOpts);
   }, [selectedBaseId, strategyMap]);
@@ -100,97 +99,99 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
       console.log('Strategy selected: ', _strategy.address);
       userActions.setSelectedStrategy(_strategy.address);
       userActions.setSelectedSeries(_strategy.currentSeries?.id);
-    } else { 
-      toast.info('Strategy coming soon')
-      console.log('strategy not yet active')
+    } else {
+      toast.info('Strategy coming soon');
+      console.log('strategy not yet active');
     }
   };
-
 
   return (
     <>
       {strategiesLoading && <Skeleton width={180} />}
-      {/* 
-      {!cardLayout && (
-        <InsetBox fill="horizontal" round="xsmall">
-          <Select
-            plain
-            dropProps={{ round: 'xsmall' }}
-            id="seriesSelect"
-            name="seriesSelect"
-            placeholder="Select Series"
-            options={options}
-            value={selectedSeries}
-            labelKey={(x: any) => optionText(x)}
-            valueLabel={
-              options.length ? (
-                <Box pad={mobile ? 'medium' : '0.55em'}>
-                  <Text color="text"> {optionExtended(selectedSeries)}</Text>
-                </Box>
-              ) : (
-                <Box pad={mobile ? 'medium' : '0.55em'}>
-                  <Text color="text-weak"> No available series yet.</Text>
-                </Box>
-              )
-            }
-            disabled={options.length === 0}
-            onChange={({ option }: any) => handleSelect(option)}
-            // eslint-disable-next-line react/no-children-prop
-            children={(x: any) => (
-              <Box pad={mobile ? 'medium' : 'small'} gap="small" direction="row">
-                <Text color="text"> {optionExtended(x)}</Text>
-              </Box>
-            )}
-          />
-        </InsetBox>
-      )} */}
 
       {cardLayout && (
-
-<Box overflow={mobile?undefined:"auto"} height={mobile?undefined:"250px"} pad="xsmall" >
-        <Grid columns={mobile ? '100%' : '40%'} gap="small" >
-          {strategiesLoading ? (
-            <>
-              <CardSkeleton />
-              <CardSkeleton />
-            </>
-          ) : (
-            options.map((strategy: IStrategy) => (
-              <StyledBox
-                // border={series.id === selectedSeriesId}
-                key={strategy.address}
-                pad="xsmall"
-                round="xsmall"
-                onClick={() => handleSelect(strategy)}
-                background={strategy.address === selectedStrategyAddr ? strategy.currentSeries?.color :'solid'}
-                elevation="xsmall"
-                align="center"
-              >
-                <Box pad="small" width="small" direction="row" align="center" gap="small">
-                  <Avatar background="solid"> {strategy.currentSeries?.seriesMark || <FiSlash />}</Avatar>
-                  <Box>
-                    <Text size="medium" color={strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined}>
+        <Box overflow={mobile ? undefined : 'auto'} height={mobile ? undefined : '250px'} pad="xsmall">
+          <Grid columns={mobile ? '100%' : '40%'} gap="small">
+            {strategiesLoading ? (
+              <>
+                <CardSkeleton />
+                <CardSkeleton />
+              </>
+            ) : (
+              options.map((strategy: IStrategy) => (
+                <StyledBox
+                  // border={series.id === selectedSeriesId}
+                  key={strategy.address}
+                  pad="xsmall"
+                  round="xsmall"
+                  onClick={() => handleSelect(strategy)}
+                  background={strategy.address === selectedStrategyAddr ? strategy.currentSeries?.color : 'solid'}
+                  elevation="xsmall"
+                  align="center"
+                >
+                  <Box pad="small" width="small" direction="row" align="center" gap="small">
+                    <Avatar background="solid"> {strategy.currentSeries?.seriesMark || <FiSlash />}</Avatar>
+                    <Box>
+                      <Text
+                        size="medium"
+                        color={
+                          strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined
+                        }
+                      >
                         {strategy.name}
-                     </Text>
+                      </Text>
 
-                     { ( !selectedStrategyAddr || !inputValue )  &&
-                    <Text size="small" color={strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined}>
-                        {!strategy.active ? 'Coming soon' : `${nFormatter(parseFloat(strategy.strategyTotalSupply_!),1)} Tokens`}
-                    </Text>}
+                      {(!selectedStrategyAddr || !inputValue) && (
+                        <>
+                          <Text
+                            size="small"
+                            color={
+                              strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined
+                            }
+                          >
+                            {nFormatter(parseFloat(strategy.strategyTotalSupply_!), 1)}
+                          </Text>
+                          <Text
+                            size="xsmall"
+                            color={
+                              strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined
+                            }
+                          >
+                            Tokens pooled
+                          </Text>
+                        </>
+                      )}
 
-                    { selectedStrategyAddr && inputValue &&
-                    <Text size="small" color={strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined}>
-                        
-                        {!strategy.active 
-                          ? 'Coming soon' 
-                          : `${ (parseFloat(inputValue!)/ (parseFloat(strategy.strategyTotalSupply_!)+parseFloat(inputValue!) )*100).toFixed(2) } %`}
-                    </Text>}
+                      {selectedStrategyAddr && inputValue && (
+                        <>
+                          <Text
+                            size="small"
+                            color={
+                              strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined
+                            }
+                          >
+                            {(
+                              (parseFloat(inputValue!) /
+                                (parseFloat(strategy.strategyTotalSupply_!) + parseFloat(inputValue!))) *
+                              100
+                            ).toFixed(2)}
+                          </Text>
+                          <Text
+                            size="xsmall"
+                            color={
+                              strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined
+                            }
+                          >
+                            of strategy
+                          </Text>
+                        </>
+                      )}
+                    </Box>
                   </Box>
-                </Box>
-              </StyledBox>
-            ))
-          )}
-        </Grid>
+                </StyledBox>
+              ))
+            )}
+          </Grid>
         </Box>
       )}
     </>
