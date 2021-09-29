@@ -58,12 +58,6 @@ export const useLendHelpers = (series: ISeries, input?: string | undefined) => {
     }
   }, [userBaseAvailable, protocolBaseAvailable, series, selectedBase]);
 
-  useEffect(() => {
-    if (series) {
-      setMaxClose(ethers.utils.formatUnits(series.baseReserves, series.decimals).toString());
-    }
-  }, [fyTokenMarketValue, series]);
-
   /* Sets currentValue as the market Value of fyTokens held in base tokens */
   useEffect(() => {
     if (series && !series.seriesIsMature) {
