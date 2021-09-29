@@ -40,11 +40,11 @@ const initState: IUserContextState = {
   /* map of asset prices */
   priceMap: new Map<string, Map<string, any>>(),
 
-  vaultsLoading: false as boolean,
-  seriesLoading: false as boolean,
-  assetsLoading: false as boolean,
-  strategiesLoading: false as boolean,
-  pricesLoading: false as boolean,
+  vaultsLoading: true as boolean,
+  seriesLoading: true as boolean,
+  assetsLoading: true as boolean,
+  strategiesLoading: true as boolean,
+  pricesLoading: true as boolean,
 
   /* Current User selections */
   selectedSeriesId: null,
@@ -281,11 +281,9 @@ const UserProvider = ({ children }: any) => {
   const updatePrice = useCallback(
     async (ilk: string, base: string): Promise<ethers.BigNumber> => {
       updateState({ type: 'pricesLoading', payload: true });
-
       try {
         const _priceMap = userState.priceMap;
         const _ilkPriceMap = _priceMap.get(ilk) || new Map<string, any>();
-
         // set oracle based on whether ILK is ETH-BASED
         // const Oracle = ETH_BASED_ASSETS.includes(ilk)
         //   ? contractMap.get('ChainlinkMultiOracle')
@@ -594,7 +592,7 @@ const UserProvider = ({ children }: any) => {
 
   useEffect(() => {
     /* When the chainContext is finished loading get the users vault data */
-    if (!chainLoading && !userState.seriesLoading && account !== null) {
+    if (!chainLoading && account !== null) {
       console.log('Checking User Vaults');
       /* trigger update of update all vaults by passing empty array */
       updateVaults([]);
