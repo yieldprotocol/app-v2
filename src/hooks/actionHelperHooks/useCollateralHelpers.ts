@@ -66,8 +66,10 @@ export const useCollateralHelpers = (
     const existingDebt_ = vault?.art ? vault.art : ethers.constants.Zero;
     const existingDebtAsWei = decimalNToDecimal18(existingDebt_, base?.decimals);
 
-    const dInput = debtInput ? ethers.utils.parseUnits(debtInput!, 18) : ethers.constants.Zero;
-    const cInput = collInput ? ethers.utils.parseUnits(collInput!, 18) : ethers.constants.Zero;
+    const dInput =
+      debtInput && !isNaN(Number(debtInput)) ? ethers.utils.parseUnits(debtInput!, 18) : ethers.constants.Zero;
+    const cInput =
+      collInput && !isNaN(Number(collInput)) ? ethers.utils.parseUnits(collInput!, 18) : ethers.constants.Zero;
 
     const totalCollateral = existingCollateralAsWei.add(cInput);
     const totalDebt = existingDebtAsWei.add(dInput);
