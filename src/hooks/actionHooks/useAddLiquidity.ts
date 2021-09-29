@@ -41,6 +41,8 @@ export const useAddLiquidity = () => {
       series.decimals
     );
 
+    const [_baseToPool, _baseToFyToken] = splitLiquidity(series.baseReserves, series.fyTokenReserves, _input);
+
     const [_mintedWithBase, ] = mintWithBase(
       series.baseReserves,
       series.fyTokenReserves,
@@ -49,34 +51,14 @@ export const useAddLiquidity = () => {
       _fyTokenToBuy,
       series.getTimeTillMaturity()
     );
-    console.log('mintedWithBase', _mintedWithBase.toString());
-
-    const [_minted, ] = mint(series.baseReserves, series.fyTokenReserves, series.totalSupply, _input);
-    console.log('minted', _minted.toString());
-
-    const [basePortion, fyTokenPortion] = splitLiquidity(series.baseReserves, series.fyTokenReserves, _input);
-
-    // const _baseToPool = _input.sub(baseProportion);
-    // const _baseToFyToken = basePortion; // just put in the rest of the provided input
-    // const _inputWithSlippage = calculateSlippage(_input, slippageTolerance , true);
-    const _baseToPool = basePortion;
-    const _baseToFyToken = fyTokenPortion; // just put in the rest of the provided input
-
     const _mintedWithBaseWithSlippage = calculateSlippage(_mintedWithBase, slippageTolerance, true);
-    const _mintedWithSlippage = calculateSlippage(_minted, slippageTolerance, true);
-
+    console.log('mintedWithBase', _mintedWithBase.toString());
     console.log('_mintedWithBaseWithSlippage: ', _mintedWithBaseWithSlippage.toString());
-    console.log('_mintedWithSlippage: ', _mintedWithSlippage.toString());
 
-    // const _mintedWithSlippage = calculateSlippage(_minted, slippageTolerance , true);
-    // console.log(_baseToFyToken, _inputWithSlippage )
-    // console.log('input' , input.toString())
-    // console.log('_input' , _input.toString())
-    // console.log('basePortion:' , basePortion.toString() )
-    // console.log('fyTokenPortion:' , fyTokenPortion.toString() )
-    // console.log('base reseves:' , series.baseReserves.toString() )
-    // console.log('fytoken reserves reseves:' , series.fyTokenReserves.toString() )
-    // console.log('fytoken to buy:' , _fyTokenToBuy.toString())
+    const [_minted, ] = mint(series.baseReserves, series.fyTokenRealReserves, series.totalSupply, _input);
+    const _mintedWithSlippage = calculateSlippage(_minted, slippageTolerance, true);
+    console.log('minted', _minted.toString());
+    console.log('_mintedWithSlippage: ', _mintedWithSlippage.toString());
 
     const permits: ICallData[] = await sign(
       [

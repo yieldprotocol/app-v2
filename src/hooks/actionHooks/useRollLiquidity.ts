@@ -6,7 +6,7 @@ import { getTxCode } from '../../utils/appUtils';
 import { BLANK_VAULT, DAI_BASED_ASSETS, MAX_128, MAX_256 } from '../../utils/constants';
 import { useChain } from '../useChain';
 
-import { calculateSlippage, fyTokenForMint, mint, mintWithBase, splitLiquidity } from '../../utils/yieldMath';
+import { calculateSlippage, fyTokenForMint } from '../../utils/yieldMath';
 import { ChainContext } from '../../contexts/ChainContext';
 import SeriesSelector from '../../components/selectors/SeriesSelector';
 

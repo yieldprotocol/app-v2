@@ -30,7 +30,7 @@ export const useLendHelpers = (series: ISeries, input?: string | undefined) => {
         );
         _maxBaseToSpend && setProtocolBaseAvailable(_maxBaseToSpend);
       } catch (e) {
-        console.log('no lendable amount');
+        console.log('No lendable amount');
       }
     }
   }, [series]);

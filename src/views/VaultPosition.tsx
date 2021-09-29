@@ -22,7 +22,6 @@ import NextButton from '../components/buttons/NextButton';
 import { Gauge } from '../components/Gauge';
 import YieldHistory from '../components/YieldHistory';
 import TransactButton from '../components/buttons/TransactButton';
-import CancelButton from '../components/buttons/CancelButton';
 import { useInputValidation } from '../hooks/useInputValidation';
 import ModalWrap from '../components/wraps/ModalWrap';
 
@@ -30,7 +29,6 @@ import { ChainContext } from '../contexts/ChainContext';
 import { useCachedState } from '../hooks/generalHooks';
 import { useRepayDebt } from '../hooks/actionHooks/useRepayDebt';
 import { useRollDebt } from '../hooks/actionHooks/useRollDebt';
-import { useVaultAdmin } from '../hooks/actionHooks/useVaultAdmin';
 import { useCollateralHelpers } from '../hooks/actionHelperHooks/useCollateralHelpers';
 import { useAddCollateral } from '../hooks/actionHooks/useAddCollateral';
 import { useRemoveCollateral } from '../hooks/actionHooks/useRemoveCollateral';
@@ -128,7 +126,13 @@ const VaultPosition = () => {
     selectedVault
   );
 
-  const { maxRepayOrRoll, maxRepayOrRoll_, maxRepayDustLimit, protocolBaseAvailable, userBaseAvailable } = useBorrowHelpers(
+  const { 
+    maxRepayOrRoll, 
+    maxRepayOrRoll_, 
+    maxRepayDustLimit, 
+    protocolBaseAvailable, 
+    userBaseAvailable
+  } = useBorrowHelpers(
     undefined,
     undefined,
     selectedVault
