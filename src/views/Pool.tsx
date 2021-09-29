@@ -145,7 +145,7 @@ function Pool() {
 
                 <SectionWrap
                   title={
-                    seriesMap.size > 0 ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} strategy` : ''
+                    strategyMap.size > 0 ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} strategy` : ''
                   }
                 >
                   <StrategySelector inputValue={poolInput} />
