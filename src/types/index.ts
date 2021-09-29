@@ -53,7 +53,7 @@ export interface IUserContextActions {
   updateVaults: (vaultList: IVault[]) => void;
   updateSeries: (seriesList: ISeries[]) => void;
   updateAssets: (assetList: IAsset[]) => void;
-  updatePrice: (ilkId: string, baseId: string) => void;
+  updatePrice: (ilkId: string, baseId: string, decimals: number) => void;
   setSelectedSeries: (seriesId: string) => void;
   setSelectedIlk: (ilkId: string | null) => void;
   setSelectedBase: (baseId: string | null) => void;
