@@ -50,7 +50,7 @@ export const decimal18ToDecimalN = (x: BigNumber, decimals: number): BigNumber =
  * @param n current bytes value eg. bytes6 or bytes12
  * @returns string bytes32
  */
- export function bytesToBytes32(x: string, n: number): string {
+export function bytesToBytes32(x: string, n: number): string {
   return x + '00'.repeat(32 - n);
 }
 
@@ -642,7 +642,6 @@ export const calculateCollateralizationRatio = (
   collateralAmount: BigNumber | string,
   basePrice: BigNumber | string,
   baseAmount: BigNumber | string,
-  decimals: number = 18,
   asPercent: boolean = false // OPTIONAL:  flag to return as percentage
 ): string | undefined => {
   if (ethers.BigNumber.isBigNumber(baseAmount) ? baseAmount.isZero() : baseAmount === '0') {
@@ -675,17 +674,16 @@ export const calculateMinCollateral = (
   baseAmount: BigNumber | string,
   liquidationRatio: string = '1.5', // OPTIONAL: 150% as default
   existingCollateral: BigNumber | string = '0', // OPTIONAL add in
-  asBigNumber: boolean = false,
-  decimals: number = 18,
+  asBigNumber: boolean = false
 ): string | BigNumber => {
-
   const _baseUnitPrice = divDecimal(basePrice, WAD_BN);
   const _baseVal = divDecimal(baseAmount, _baseUnitPrice);
-  const _existingCollateralValue = new Decimal(ethers.utils.formatUnits(existingCollateral, decimals));
+  const _existingCollateralValue = new Decimal(ethers.utils.formatUnits(existingCollateral, 18));
   const _minCollatValue = new Decimal(mulDecimal(_baseVal, liquidationRatio));
   const requiredCollateral = _existingCollateralValue.gt(_minCollatValue)
     ? new Decimal('0')
     : _minCollatValue.sub(_existingCollateralValue); // .add('1'); // hmm, i had to add one check
+
   return asBigNumber ? toBn(requiredCollateral) : requiredCollateral.toFixed(0);
 };
 
