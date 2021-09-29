@@ -151,6 +151,11 @@ const VaultPosition = () => {
     [0, maxRemovableCollateral]
   );
 
+  const { inputError: rollError } = useInputValidation(selectedVault?.art_, ActionCodes.ROLL_DEBT, vaultSeries, [
+    0,
+    maxRepayOrRoll,
+  ]);
+
   /* LOCAL FNS */
   const handleStepper = (back: boolean = false) => {
     const step = back ? -1 : 1;
@@ -202,7 +207,7 @@ const VaultPosition = () => {
   useEffect(() => {
     /* if ANY of the following conditions are met: block action */
     !repayInput || repayError ? setRepayDisabled(true) : setRepayDisabled(false);
-    !rollToSeries ? setRollDisabled(true) : setRollDisabled(false);
+    !rollToSeries || rollError ? setRollDisabled(true) : setRollDisabled(false);
     !addCollatInput || addCollatError ? setAddCollateralDisabled(true) : setAddCollateralDisabled(false);
     !removeCollatInput || removeCollatError ? setRemoveCollateralDisabled(true) : setRemoveCollateralDisabled(false);
   }, [repayInput, repayError, rollToSeries, addCollatInput, removeCollatInput, addCollatError, removeCollatError]);
@@ -436,7 +441,9 @@ const VaultPosition = () => {
                             <InputInfoWrap>
                               <Text color="text-weak" size="xsmall">
                                 Debt of {cleanValue(maxRepayOrRoll, 2)} {vaultBase?.symbol} will be rolled
-                                {userBaseAvailable.lt(protocolBaseAvailable) ? '.':' ( limited by protocol reserves).'}
+                                {userBaseAvailable.lt(protocolBaseAvailable)
+                                  ? '.'
+                                  : ' ( limited by protocol reserves).'}
                               </Text>
                             </InputInfoWrap>
                           )}
