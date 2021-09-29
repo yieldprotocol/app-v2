@@ -130,11 +130,8 @@ const VaultPosition = () => {
     selectedVault
   );
 
-  const { maxAsBn, maxRepayOrRoll, maxRepayDustLimit, protocolBaseAvailable, userBaseAvailable } = useBorrowHelpers(
-    undefined,
-    undefined,
-    selectedVault
-  );
+  const { maxAsBn, maxRepayOrRoll, maxRepayDustLimit, protocolBaseAvailable, userBaseAvailable, userBaseAvailable_ } =
+    useBorrowHelpers(undefined, undefined, selectedVault);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries, [
     maxRepayDustLimit, // this is the max pay to get to dust limit. note different logic in input validation hook.
@@ -366,21 +363,24 @@ const VaultPosition = () => {
 
                               {repayInput && !repayError && (
                                 <InputInfoWrap>
-                                  {repayCollEst && parseFloat(repayCollEst) > 10000 && repayInput !== maxRepayOrRoll && (
-                                    <Text color="text-weak" alignSelf="end" size="xsmall">
-                                      Repaying this amount will leave a small amount of debt.
-                                    </Text>
-                                  )}
+                                  {repayCollEst &&
+                                    parseFloat(repayCollEst) > 10000 &&
+                                    repayInput !== userBaseAvailable_ && (
+                                      <Text color="text-weak" alignSelf="end" size="xsmall">
+                                        Repaying this amount will leave a small amount of debt.
+                                      </Text>
+                                    )}
                                   {repayCollEst &&
                                     parseFloat(repayCollEst) < 10000 &&
                                     parseFloat(repayCollEst) !== 0 &&
-                                    selectedVault.art.gte(maxAsBn) && (
+                                    selectedVault.art.gte(maxAsBn) &&
+                                    repayInput !== userBaseAvailable_ && (
                                       <Text color="text-weak" alignSelf="end" size="xsmall">
                                         Collateralisation ratio after repayment:{' '}
                                         {repayCollEst && nFormatter(parseFloat(repayCollEst), 2)}%
                                       </Text>
                                     )}
-                                  {parsedInput.eq(userBaseAvailable) && (
+                                  {repayInput === userBaseAvailable_ && (
                                     <Text color="text-weak" alignSelf="end" size="xsmall">
                                       All debt will be repayed.
                                     </Text>
