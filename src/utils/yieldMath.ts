@@ -9,11 +9,15 @@ export const ONE_DEC: Decimal = new Decimal(1);
 export const TWO_DEC: Decimal = new Decimal(2);
 export const SECONDS_PER_YEAR: number = 365 * 24 * 60 * 60;
 
+export const secondsInOneYear = BigNumber.from(31557600)
+export const secondsInTenYears = secondsInOneYear.mul(10) // Seconds in 10 years
+
 /* locally used constants */
 const ZERO = ZERO_DEC;
 const ONE = ONE_DEC;
 const TWO = TWO_DEC;
-const k = new Decimal(1 / 126144000); // inv of seconds in 4 years
+// const k = new Decimal(1 / 126144000); // inv of seconds in 4 years
+const k = new Decimal(1 / secondsInTenYears.toNumber()); // inv of seconds in 10 years
 const g1 = new Decimal(950 / 1000);
 const g2 = new Decimal(1000 / 950);
 const precisionFee = new Decimal(1000000000000);
@@ -535,7 +539,6 @@ export function fyTokenForMint(
       console.log( 'virtual', fyTokenVirtualReserves18.toString() );
       console.log( 'z_1', Z_1.toString());
       console.log( 'y_1', Y_1.toString());
-
 
       return decimal18ToDecimalN(
         // (converted back to original decimals)

@@ -49,13 +49,11 @@ export const useAddCollateral = () => {
     const base = vault ? assetMap.get(vault.baseId) : assetMap.get(selectedBaseId);
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.ADD_COLLATERAL, vaultId);
-
     /* parse inputs to BigNumber in Wei */
     const _input = ethers.utils.parseUnits(input, ilk.decimals);
-
+    
     /* check if the ilk/asset is an eth asset variety, if so pour to Ladle */
     const _isEthBased = ETH_BASED_ASSETS.includes(ilk.id);
-
     const _pourTo = _isEthBased ? contractMap.get('Ladle').address : account;
 
     /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
