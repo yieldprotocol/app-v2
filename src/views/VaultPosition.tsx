@@ -100,6 +100,8 @@ const VaultPosition = () => {
     selectedVault && !selectedVault.isActive ? { index: 3 } : { index: 0 }
   );
 
+  const parsedInput = repayInput ? ethers.utils.parseUnits(repayInput, vaultBase?.decimals) : ethers.constants.Zero;
+
   /* HOOK FNS */
   const repay = useRepayDebt();
   const rollDebt = useRollDebt();
@@ -372,13 +374,13 @@ const VaultPosition = () => {
                                   {repayCollEst &&
                                     parseFloat(repayCollEst) < 10000 &&
                                     parseFloat(repayCollEst) !== 0 &&
-                                    selectedVault.art.gt(maxAsBn) && (
+                                    selectedVault.art.gte(maxAsBn) && (
                                       <Text color="text-weak" alignSelf="end" size="xsmall">
                                         Collateralisation ratio after repayment:{' '}
                                         {repayCollEst && nFormatter(parseFloat(repayCollEst), 2)}%
                                       </Text>
                                     )}
-                                  {selectedVault.art.lte(maxAsBn) && (
+                                  {parsedInput.eq(userBaseAvailable) && (
                                     <Text color="text-weak" alignSelf="end" size="xsmall">
                                       All debt will be repayed.
                                     </Text>
@@ -436,7 +438,9 @@ const VaultPosition = () => {
                             <InputInfoWrap>
                               <Text color="text-weak" size="xsmall">
                                 Debt of {cleanValue(maxRepayOrRoll, 2)} {vaultBase?.symbol} will be rolled
-                                {userBaseAvailable.lt(protocolBaseAvailable) ? '.':' ( limited by protocol reserves).'}
+                                {userBaseAvailable.lt(protocolBaseAvailable)
+                                  ? '.'
+                                  : ' ( limited by protocol reserves).'}
                               </Text>
                             </InputInfoWrap>
                           )}
