@@ -10,7 +10,7 @@ export const useBorrowHelpers = (
   input: string | undefined,
   collateralInput: string | undefined,
   vault: IVault | undefined,
-  rollToSeries:ISeries | undefined = undefined,
+  rollToSeries: ISeries | undefined = undefined
 ) => {
   /* STATE FROM CONTEXT */
   const {
@@ -27,8 +27,8 @@ export const useBorrowHelpers = (
   const [maxRepay_, setMaxRepay_] = useState<string | undefined>();
   const [maxRepayDustLimit, setMaxRepayDustLimit] = useState<string | undefined>();
 
-  const [ maxRoll, setMaxRoll ] = useState<BigNumber>(ethers.constants.Zero);
-  const [ maxRoll_, setMaxRoll_ ] = useState<string | undefined>();
+  const [maxRoll, setMaxRoll] = useState<BigNumber>(ethers.constants.Zero);
+  const [maxRoll_, setMaxRoll_] = useState<string | undefined>();
   const [rollPossible, setRollPossible] = useState<boolean>(false);
 
   const [userBaseAvailable, setUserBaseAvailable] = useState<BigNumber>(ethers.constants.Zero);
@@ -41,22 +41,21 @@ export const useBorrowHelpers = (
     setMaxAllowedBorrow('1000000');
   }, [selectedBaseId, selectedIlkId]);
 
-
   /* check if the rollToSeries have sufficient base value */
-  useEffect (()=> {
+  useEffect(() => {
     if (rollToSeries && vault) {
       const _maxProtocol = maxBaseToSpend(
         rollToSeries.baseReserves,
         rollToSeries.fyTokenReserves,
         rollToSeries.getTimeTillMaturity()
       );
-      const rollable  = _maxProtocol.gte(vault.art)
-      rollable && console.log('roll possible')
+      const rollable = _maxProtocol.gte(vault.art);
+      rollable && console.log('roll possible');
       setMaxRoll(_maxProtocol);
-      setMaxRoll_(ethers.utils.formatUnits(_maxProtocol, rollToSeries.decimals).toString())
+      setMaxRoll_(ethers.utils.formatUnits(_maxProtocol, rollToSeries.decimals).toString());
       setRollPossible(true);
     }
-  },[rollToSeries, vault])
+  }, [rollToSeries, vault]);
 
   /* update the min max repayable or rollable */
   useEffect(() => {
@@ -82,12 +81,12 @@ export const useBorrowHelpers = (
         _maxDust && setMaxRepayDustLimit(ethers.utils.formatUnits(_maxDust, vaultBase?.decimals)?.toString());
         _maxProtocol && setProtocolBaseAvailable(_maxProtocol);
 
-        /* set the maxBas available for both user and protocol */
+        /* set the maxBase available for both user and protocol */
         if (_maxUser) {
           setUserBaseAvailable(_maxUser);
           setUserBaseAvailable_(ethers.utils.formatUnits(_maxUser, vaultBase.decimals!).toString());
         }
-      
+
         /* set the maxRepay as the biggest of the two, human readbale and BN */
         if (_maxUser && _maxProtocol && _maxUser.gt(_maxProtocol)) {
           setMaxRepay_(ethers.utils.formatUnits(_maxProtocol, vaultBase?.decimals)?.toString());
