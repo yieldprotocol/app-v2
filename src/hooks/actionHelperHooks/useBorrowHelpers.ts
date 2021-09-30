@@ -1,7 +1,9 @@
-import { BigNumber, BigNumberish, ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../contexts/UserContext';
 import { IVault, ISeries, IAsset } from '../../types';
+
+import { maxBaseToSpend } from '../../utils/yieldMath';
 
 /* Collateralisation hook calculates collateralisation metrics */
 export const useBorrowHelpers = (
@@ -47,7 +49,12 @@ export const useBorrowHelpers = (
         /* max user is either the max tokens they have or max debt */
         const _maxUser = _maxToken && _maxDebt?.gt(_maxToken) ? _maxToken : _maxDebt;
         const _maxDust = _maxUser.sub(minDebt);
-        const _maxProtocol = vaultSeries?.fyTokenReserves.sub(vaultSeries?.baseReserves).div(2);
+        
+        const _maxProtocol = maxBaseToSpend( 
+          vaultSeries.baseReserves,
+          vaultSeries.fyTokenReserves,
+          vaultSeries.getTimeTillMaturity()
+        )
 
         /* The the dust limit */
         _maxDust && setMaxRepayDustLimit(ethers.utils.formatUnits(_maxDust, vaultBase?.decimals)?.toString());
@@ -76,8 +83,8 @@ export const useBorrowHelpers = (
     minAllowedBorrow,
     maxAllowedBorrow,
     maxRepayOrRoll_,
-    maxRepayDustLimit,
     maxRepayOrRoll,
+    maxRepayDustLimit,
     userBaseAvailable,
     protocolBaseAvailable,
     userBaseAvailable_,

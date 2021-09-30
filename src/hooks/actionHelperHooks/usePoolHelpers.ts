@@ -1,7 +1,6 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { ethers, BigNumber } from 'ethers';
 import { UserContext } from '../../contexts/UserContext';
-import { ChainContext } from '../../contexts/ChainContext';
 import { IAsset, ISeries, IStrategy, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import {
@@ -11,11 +10,9 @@ import {
   maxBaseToSpend,
   splitLiquidity,
   burn,
-  burnForBase,
   sellFYToken,
 } from '../../utils/yieldMath';
 import { ZERO_BN } from '../../utils/constants';
-import { Strategy } from '../../contracts';
 
 export const usePoolHelpers = (input: string | undefined) => {
   /* STATE FROM CONTEXT */
