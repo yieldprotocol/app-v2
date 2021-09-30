@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { ethers, BigNumber, BigNumberish } from 'ethers';
 import { Decimal } from 'decimal.js';
-import { WAD_BN } from './constants';
+import { WAD_BN, ZERO_BN } from './constants';
 
 Decimal.set({ precision: 64 });
 
@@ -522,7 +523,11 @@ export function fyTokenForMint(
 
   let i = 0;
   while (true) {
-    if (i++ > 100)  throw 'Not converging'
+    // eslint-disable-next-line no-plusplus
+    // if (i++ > 100)  throw 'Not converging'
+
+    // eslint-disable-next-line no-plusplus
+    if (i++ > 100) return ZERO_BN;
 
     zIn = new Decimal(
       buyFYToken(
