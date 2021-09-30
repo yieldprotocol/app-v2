@@ -4,7 +4,16 @@ import { UserContext } from '../../contexts/UserContext';
 import { ChainContext } from '../../contexts/ChainContext';
 import { IAsset, ISeries, IStrategy, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
-import { mulDecimal, divDecimal, fyTokenForMint, maxBaseToSpend, splitLiquidity } from '../../utils/yieldMath';
+import {
+  mulDecimal,
+  divDecimal,
+  fyTokenForMint,
+  maxBaseToSpend,
+  splitLiquidity,
+  burn,
+  burnForBase,
+  sellFYToken,
+} from '../../utils/yieldMath';
 
 export const usePoolHelpers = (input: string | undefined) => {
   /* STATE FROM CONTEXT */
@@ -30,9 +39,17 @@ export const usePoolHelpers = (input: string | undefined) => {
   /* LOCAL STATE */
   const [_input, setInput] = useState<BigNumber>(ethers.constants.Zero);
   const [poolPercentPreview, setPoolPercentPreview] = useState<string | undefined>();
+
   const [maxPool, setMaxPool] = useState<string | undefined>();
   const [canBuyAndPool, setCanBuyAndPool] = useState<boolean | undefined>(true);
+
+  /* remove liquidity helpers */
   const [matchingVault, setMatchingVault] = useState<IVault | undefined>();
+  const [maxRemoveNoVault, setMaxRemoveNoVault] = useState<string | undefined>();
+  const [maxRemoveWithVault, setMaxRemoveWithVault] = useState<string | undefined>();
+
+  const [healthyBaseReserves, setHealthyBaseReserves] = useState<boolean>();
+  const [fyTokenTradePossible, setFyTokenTradePossible] = useState<boolean>();
 
   /* set input (need to make sure we can parse the input value) */
   useEffect(() => {
@@ -48,29 +65,126 @@ export const usePoolHelpers = (input: string | undefined) => {
     }
   }, [input, strategyBase]);
 
-  /* Check if can use 'buy and pool ' method to get liquidity */
+  useEffect(() => {}, [strategySeries]);
+
+  // /* set max for removal with no vault  */
+  // useEffect(() => {
+  //   if (strategySeries) {
+
+  //     const [_baseTokens, _fytokens] = burn(
+  //       strategySeries.baseReserves,
+  //       strategySeries.fyTokenReserves,
+  //       strategySeries.totalSupply,
+  //       _input
+  //     )
+  //     const newBaseReserves = strategySeries.baseReserves.sub(_baseTokens);
+  //     const newFyTokenReserves = strategySeries.fyTokenReserves.sub(_fytokens);
+  //     const sellOutcome = sellFYToken(
+  //       newBaseReserves,
+  //       newFyTokenReserves,
+  //       _fytokens,
+  //       strategySeries.getTimeTillMaturity(),
+  //       strategySeries.decimals
+  //     )
+  //     // 1. calc amount base/fytonken recieved from burn
+  //     // 2. calculate new reseverves ( base reserves and fytokesreserevs)
+  //     // 3. check fytoken > base reserves
+
+  //     // if fails > use burn().  > user gets base and fytoken
+
+  //     /* if series is mature set max to user tokens, else set a max depending on if there is a vault */
+  //     if (strategySeries.seriesIsMature) {
+  //       setMaxRemoveNoVault(ethers.utils.formatUnits(strategy?.accountBalance!, strategySeries.decimals));
+  //     } else {
+  //       /* limit when using no vault */
+  //       sellOutcome.gt(ethers.constants.Zero)
+  //         ? setMaxRemoveNoVault(ethers.utils.formatUnits(strategy?.accountBalance!, strategySeries.decimals))
+  //         : setMaxRemoveNoVault(ethers.utils.formatUnits(strategySeries.baseReserves, strategySeries.decimals));
+  //     }
+  //   }
+  // }, [_input, matchingVault, strategy, strategySeries]);
+
+  /* Check if base reserves are too low for max trade  */
   useEffect(() => {
-    if (strategySeries && _input.gt(ethers.constants.Zero)) {
-      const [_baseProtion, _fyTokenPortion] = splitLiquidity(
-        strategySeries?.baseReserves,
-        strategySeries?.fyTokenReserves,
+    if (strategy && strategySeries) {
+      // 1. calc amount base/fytonken recieved from burn
+      // 2. calculate new reseverves ( base reserves and fytokesreserevs)
+      // 3. check fytoken > base reserves
+      const [_baseTokens, _fytokens] = burn(
+        strategySeries.baseReserves,
+        strategySeries.fyTokenReserves,
+        strategySeries.totalSupply,
+        strategy.accountBalance!
+      );
+      const newBaseReserves = strategySeries.baseReserves.sub(_baseTokens);
+      const newFyTokenReserves = strategySeries.fyTokenReserves.sub(_fytokens);
+      const sellOutcome = sellFYToken(
+        newBaseReserves,
+        newFyTokenReserves,
+        _fytokens,
+        strategySeries.getTimeTillMaturity(),
+        strategySeries.decimals
+      );
+      const tradeable = sellOutcome.gt(ethers.constants.Zero);
+
+      setHealthyBaseReserves(tradeable);
+      setMaxRemoveNoVault(ethers.utils.formatUnits(strategy?.accountBalance!, strategySeries.decimals))
+    }
+  }, [ matchingVault, strategy, strategySeries ]);
+
+
+  /* check if base reserves are too low for specific input  */
+  useEffect(() => {
+    if (strategySeries) {
+      // 1. calc amount base/fytonken recieved from burn
+      // 2. calculate new reseverves ( base reserves and fytokesreserevs)
+      // 3. check fytoken > base reserves
+      const [_baseTokens, _fytokens] = burn(
+        strategySeries.baseReserves,
+        strategySeries.fyTokenReserves,
+        strategySeries.totalSupply,
         _input
       );
-    }
-  }, [_input, strategySeries]);
+      const newBaseReserves = strategySeries.baseReserves.sub(_baseTokens);
+      const newFyTokenReserves = strategySeries.fyTokenReserves.sub(_fytokens);
+      const sellOutcome = sellFYToken(
+        newBaseReserves,
+        newFyTokenReserves,
+        _fytokens,
+        strategySeries.getTimeTillMaturity(),
+        strategySeries.decimals
+      );
 
-  /* Check if can use 'buy and pool ' method to get liquidity */
+      const tradeable = sellOutcome.gt(ethers.constants.Zero);
+      console.log('Is tradeable:', tradeable);
+      setFyTokenTradePossible(sellOutcome.gt(ethers.constants.Zero));
+    }
+  }, [_input, matchingVault, strategy, strategySeries]);
+
+  /* set max for removal with a vault  */
+  useEffect(() => {
+    /* if series is mature set max to user tokens, else set a max depending on if there is a vault */
+    strategy &&
+      strategySeries &&
+      matchingVault &&
+      setMaxRemoveWithVault(ethers.utils.formatUnits(strategy?.accountBalance!, strategySeries.decimals));
+  }, [_input, matchingVault, strategy, strategySeries, vaultMap]);
+
+  /* Check if can use 'buy and pool' method to get liquidity */
   useEffect(() => {
     if (strategySeries && _input.gt(ethers.constants.Zero)) {
-      const [, _fyTokenPortion] = splitLiquidity(strategySeries?.baseReserves, strategySeries?.fyTokenReserves, _input);
-
       let _fyTokenToBuy = ethers.constants.Zero;
       const _maxProtocol = maxBaseToSpend(
         strategySeries.baseReserves,
         strategySeries.fyTokenReserves,
         strategySeries.getTimeTillMaturity()
       );
-      if (_input.lt(strategySeries.baseReserves.mul(2))) {
+
+      // console.log( strategySeries.baseReserves.toString() )
+      if (
+        _input.lt(strategySeries.baseReserves.mul(2)) &&
+        strategySeries.baseReserves.gt(ethers.utils.parseUnits('10', strategySeries.decimals)) // only if greater than 10
+      ) {
         _fyTokenToBuy = fyTokenForMint(
           strategySeries.baseReserves,
           strategySeries.fyTokenRealReserves,
@@ -79,7 +193,6 @@ export const usePoolHelpers = (input: string | undefined) => {
           strategySeries.getTimeTillMaturity(),
           strategySeries.decimals
         );
-
         console.log('can buyAndPool?', _maxProtocol.lt(_fyTokenToBuy));
         setCanBuyAndPool(_maxProtocol.lt(_fyTokenToBuy));
       }
@@ -91,8 +204,12 @@ export const usePoolHelpers = (input: string | undefined) => {
 
   /* CHECK FOR ANY VAULTS WITH THE SAME BASE/ILK */
   useEffect(() => {
-    if (strategyBase && strategySeries && _input.gt(ethers.constants.Zero)) {
-      const [, _fyTokenPortion] = splitLiquidity(strategySeries?.baseReserves, strategySeries?.fyTokenReserves, _input);
+    if (strategySeries && strategyBase && strategySeries) {
+      const [, _fyTokenPortion] = splitLiquidity(
+        strategySeries?.baseReserves,
+        strategySeries?.fyTokenReserves,
+        strategy?.accountBalance! // _input
+      );
       const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
       const _matchingVault = arr.find(
         (v: IVault) =>
@@ -107,7 +224,7 @@ export const usePoolHelpers = (input: string | undefined) => {
     } else {
       setMatchingVault(undefined);
     }
-  }, [vaultMap, strategyBase, strategySeries, _input]);
+  }, [vaultMap, strategyBase, strategySeries, strategy]);
 
   /* SET MAX VALUES */
   useEffect(() => {
@@ -129,5 +246,15 @@ export const usePoolHelpers = (input: string | undefined) => {
     }
   }, [_input, strategy]);
 
-  return { maxPool, poolPercentPreview, canBuyAndPool, matchingVault };
+  return {
+    maxPool,
+    poolPercentPreview,
+    canBuyAndPool,
+    matchingVault,
+    maxRemoveNoVault,
+    maxRemoveWithVault,
+
+    healthyBaseReserves,
+    fyTokenTradePossible
+  };
 };

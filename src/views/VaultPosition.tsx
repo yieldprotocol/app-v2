@@ -22,7 +22,6 @@ import NextButton from '../components/buttons/NextButton';
 import { Gauge } from '../components/Gauge';
 import YieldHistory from '../components/YieldHistory';
 import TransactButton from '../components/buttons/TransactButton';
-import CancelButton from '../components/buttons/CancelButton';
 import { useInputValidation } from '../hooks/useInputValidation';
 import ModalWrap from '../components/wraps/ModalWrap';
 
@@ -30,7 +29,6 @@ import { ChainContext } from '../contexts/ChainContext';
 import { useCachedState } from '../hooks/generalHooks';
 import { useRepayDebt } from '../hooks/actionHooks/useRepayDebt';
 import { useRollDebt } from '../hooks/actionHooks/useRollDebt';
-import { useVaultAdmin } from '../hooks/actionHooks/useVaultAdmin';
 import { useCollateralHelpers } from '../hooks/actionHelperHooks/useCollateralHelpers';
 import { useAddCollateral } from '../hooks/actionHooks/useAddCollateral';
 import { useRemoveCollateral } from '../hooks/actionHooks/useRemoveCollateral';
@@ -130,12 +128,22 @@ const VaultPosition = () => {
     selectedVault
   );
 
-  const { maxAsBn, maxRepayOrRoll, maxRepayDustLimit, protocolBaseAvailable, userBaseAvailable, userBaseAvailable_ } =
-    useBorrowHelpers(undefined, undefined, selectedVault);
+  const { 
+    maxRepayOrRoll, 
+    maxRepayOrRoll_, 
+    maxRepayDustLimit, 
+    protocolBaseAvailable, 
+    userBaseAvailable
+  } = useBorrowHelpers(
+    undefined,
+    undefined,
+    selectedVault
+  );
+
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries, [
     maxRepayDustLimit, // this is the max pay to get to dust limit. note different logic in input validation hook.
-    maxRepayOrRoll,
+    maxRepayOrRoll_,
   ]);
 
   const { inputError: addCollatError } = useInputValidation(addCollatInput, ActionCodes.ADD_COLLATERAL, vaultSeries, [
@@ -343,11 +351,11 @@ const VaultPosition = () => {
                           isError={repayError}
                           message={
                             <>
-                              {!repayInput && maxRepayOrRoll && (
-                                <InputInfoWrap action={() => setRepayInput(maxRepayOrRoll)}>
-                                  {selectedVault.art.gt(maxAsBn) ? (
+                              {!repayInput && maxRepayOrRoll_ && (
+                                <InputInfoWrap action={() => setRepayInput(maxRepayOrRoll_)}>
+                                  {selectedVault.art.gt(maxRepayOrRoll) ? (
                                     <Text color="gray" alignSelf="end" size="xsmall">
-                                      Maximum repayable is {cleanValue(maxRepayOrRoll!, 2)}
+                                      Maximum repayable is {cleanValue(maxRepayOrRoll_!, 2)}
                                       {vaultBase?.symbol!}{' '}
                                       {userBaseAvailable.lt(protocolBaseAvailable)
                                         ? '(based on your token balance)'
@@ -363,6 +371,8 @@ const VaultPosition = () => {
 
                               {repayInput && !repayError && (
                                 <InputInfoWrap>
+
+
                                   {repayCollEst &&
                                     parseFloat(repayCollEst) > 10000 &&
                                     repayInput !== userBaseAvailable_ && (
@@ -375,11 +385,13 @@ const VaultPosition = () => {
                                     parseFloat(repayCollEst) !== 0 &&
                                     selectedVault.art.gte(maxAsBn) &&
                                     repayInput !== userBaseAvailable_ && (
+
                                       <Text color="text-weak" alignSelf="end" size="xsmall">
                                         Collateralisation ratio after repayment:{' '}
                                         {repayCollEst && nFormatter(parseFloat(repayCollEst), 2)}%
                                       </Text>
                                     )}
+
                                   {repayInput === userBaseAvailable_ && (
                                     <Text color="text-weak" alignSelf="end" size="xsmall">
                                       All debt will be repayed.
@@ -400,9 +412,9 @@ const VaultPosition = () => {
                             icon={<>{vaultBase?.image}</>}
                           />
                           <MaxButton
-                            action={() => setRepayInput(maxRepayOrRoll)}
+                            action={() => setRepayInput(maxRepayOrRoll_)}
                             clearAction={() => setRepayInput('')}
-                            showingMax={!!repayInput && repayInput === maxRepayOrRoll}
+                            showingMax={!!repayInput && repayInput === maxRepayOrRoll_}
                           />
                         </InputWrap>
                       </Box>

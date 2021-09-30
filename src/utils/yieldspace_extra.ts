@@ -1,6 +1,5 @@
 import { ethers, BigNumber, BigNumberish } from 'ethers';
 import { Decimal } from 'decimal.js';
-import { WAD_BN } from './constants';
 
 Decimal.set({ precision: 64 });
 
@@ -10,8 +9,8 @@ export const ONE_DEC: Decimal = new Decimal(1);
 export const TWO_DEC: Decimal = new Decimal(2);
 export const SECONDS_PER_YEAR: number = 365 * 24 * 60 * 60;
 
-export const secondsInOneYear = BigNumber.from(31557600);
-export const secondsInTenYears = secondsInOneYear.mul(10); // Seconds in 10 years
+export const secondsInOneYear = BigNumber.from(31557600)
+export const secondsInTenYears = secondsInOneYear.mul(10) // Seconds in 10 years
 
 /* locally used constants */
 const ZERO = ZERO_DEC;
@@ -47,16 +46,6 @@ export const decimal18ToDecimalN = (x: BigNumber, decimals: number): BigNumber =
   const first = str.slice(0, str.length - (18 - decimals));
   return BigNumber.from(first);
 };
-
-/**
- * Convert bytesX to bytes32 (BigEndian?)
- * @param x string to convert.
- * @param n current bytes value eg. bytes6 or bytes12
- * @returns string bytes32
- */
-export function bytesToBytes32(x: string, n: number): string {
-  return x + '00'.repeat(32 - n);
-}
 
 /**
  * @param { BigNumber | string } multiplicant
@@ -489,7 +478,7 @@ export function getFee(
 export function fyTokenForMint(
   baseReserves: BigNumber | string,
   fyTokenRealReserves: BigNumber | string,
-  fyTokenReserves: BigNumber | string,
+  fyTokenVirtualReserves: BigNumber | string,
   base: BigNumber | string,
   timeTillMaturity: BigNumber | string,
   decimals: number = 18
@@ -497,7 +486,7 @@ export function fyTokenForMint(
   /* convert to 18 decimals */
   const baseReserves18 = decimalNToDecimal18(BigNumber.from(baseReserves), decimals);
   const fyTokenRealReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenRealReserves), decimals);
-  const fyTokenReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenReserves), decimals);
+  const fyTokenVirtualReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenVirtualReserves), decimals);
   const base18 = decimalNToDecimal18(BigNumber.from(base), decimals);
 
   const baseReserves_ = new Decimal(baseReserves18.toString());
@@ -514,8 +503,7 @@ export function fyTokenForMint(
     const zIn = new Decimal(
       buyFYToken(
         baseReserves18,
-        fyTokenReserves18,
-        // BigNumber.from(yOut.toFixed(0)),
+        fyTokenVirtualReserves18,
         BigNumber.from(yOut.toFixed(0)),
         timeTillMaturity_.toString(),
         18
@@ -527,40 +515,34 @@ export function fyTokenForMint(
     const PZ = Z_1.div(Z_1.add(Y_1)); // base proportion in the reserves
 
     // The base proportion in my assets needs to be higher than but very close to the base proportion in the reserves, to make sure all the fyToken is used.
-    if (PZ.mul(new Decimal(1.000001)) <= pz) {
-      min = yOut;
-      yOut = yOut.add(max).div(TWO);
-    } // bought too little fyToken, buy some more
+    if (PZ.mul(new Decimal(1.000001)) <= pz) min = yOut;
+    yOut = yOut.add(max).div(TWO); // bought too little fyToken, buy some more
 
     if (pz <= PZ) max = yOut;
     yOut = yOut.add(min).div(TWO); // bought too much fyToken, buy a bit less
 
-    // console.log(
-    //   decimal18ToDecimalN(
-    //     // (converted back to original decimals)
-    //     BigNumber.from(Decimal.floor(yOut).toFixed(0)),
-    //     decimals
-    //   ).toString()
-    // );
-
-    // console.log('floored:',  Decimal.floor(yOut).toFixed(0) )
-    // console.log('not: ', yOut.toFixed(0) )
+    console.log(
+      decimal18ToDecimalN(
+        // (converted back to original decimals)
+        BigNumber.from(Decimal.floor(yOut).toFixed(0)),
+        decimals
+      ).toString()
+    );
 
     // if (PZ.mul(new Decimal(1.000001)) > pz && pz > PZ) return Decimal.floor(yOut).toFixed(0); // Just right
     if (PZ.mul(new Decimal(1.000001)) > pz && pz > PZ) {
-      console.log('TimeToMaturity:', timeTillMaturity_.toString());
-      console.log('yOut: ', yOut.toFixed(0));
-      console.log('Zin: ', zIn.toString());
-      console.log('PZ: ', PZ.toString());
-      console.log('pz: ', pz.toString());
-      console.log('baseREs: ', baseReserves18.toString());
-      console.log('virtual: ', fyTokenReserves18.toString());
-      console.log('z_1: ', Z_1.toString());
-      console.log('y_1: ', Y_1.toString());
+
+      console.log('Zin :', zIn.toString() );
+      console.log('PZ :',  PZ.toString() );
+      console.log('pz :',  pz.toString() );
+      console.log( 'baseREs', baseReserves18.toString() );
+      console.log( 'virtual', fyTokenVirtualReserves18.toString() );
+      console.log( 'z_1', Z_1.toString());
+      console.log( 'y_1', Y_1.toString());
 
       return decimal18ToDecimalN(
         // (converted back to original decimals)
-        BigNumber.from(yOut.toFixed(0)),
+        BigNumber.from(Decimal.floor(yOut).toFixed(0)),
         decimals
       ); // Just right
     }
@@ -569,10 +551,11 @@ export function fyTokenForMint(
     if (i++ > 10000) {
       return decimal18ToDecimalN(
         // (converted back to original decimals)
-        BigNumber.from(yOut.toFixed(0)),
+        BigNumber.from(Decimal.floor(yOut).toFixed(0)),
         decimals
       );
     }
+
     // if (i++ > 10000) return Decimal.floor(yOut).toFixed(0);
   }
 }
@@ -669,8 +652,8 @@ export const calculateCollateralizationRatio = (
   if (ethers.BigNumber.isBigNumber(baseAmount) ? baseAmount.isZero() : baseAmount === '0') {
     return undefined;
   }
-  const _baseUnitPrice = divDecimal(basePrice, WAD_BN);
-  // const _baseUnitPrice = divDecimal(basePrice, decimal18ToDecimalN(WAD_BN, decimals).toString());
+
+  const _baseUnitPrice = divDecimal(basePrice, '1000000000000000000');
   const _baseVal = divDecimal(baseAmount, _baseUnitPrice); // base/debt value in terms of collateral
   const _ratio = divDecimal(collateralAmount, _baseVal); // collateralValue divide by debtValue
 
@@ -698,14 +681,13 @@ export const calculateMinCollateral = (
   existingCollateral: BigNumber | string = '0', // OPTIONAL add in
   asBigNumber: boolean = false
 ): string | BigNumber => {
-  const _baseUnitPrice = divDecimal(basePrice, WAD_BN);
+  const _baseUnitPrice = divDecimal(basePrice, '1000000000000000000');
   const _baseVal = divDecimal(baseAmount, _baseUnitPrice);
   const _existingCollateralValue = new Decimal(ethers.utils.formatUnits(existingCollateral, 18));
   const _minCollatValue = new Decimal(mulDecimal(_baseVal, liquidationRatio));
   const requiredCollateral = _existingCollateralValue.gt(_minCollatValue)
     ? new Decimal('0')
-    : _minCollatValue.sub(_existingCollateralValue); // .add('1'); // hmm, i had to add one check
-
+    : _minCollatValue.sub(_existingCollateralValue).add('1'); // hmm, i had to add one check
   return asBigNumber ? toBn(requiredCollateral) : requiredCollateral.toFixed(0);
 };
 

@@ -6,14 +6,14 @@ import { getTxCode } from '../../utils/appUtils';
 import { BLANK_VAULT, DAI_BASED_ASSETS, MAX_128, MAX_256 } from '../../utils/constants';
 import { useChain } from '../useChain';
 
-import { calculateSlippage, fyTokenForMint, mintWithBase, splitLiquidity } from '../../utils/yieldMath';
+import { calculateSlippage, fyTokenForMint, mint, mintWithBase, splitLiquidity } from '../../utils/yieldMath';
 import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
 
 /* Hook for chain transactions */
 export const useAddLiquidity = () => {
   const {
-    chainState: { contractMap, strategyRootMap },
+    chainState: { strategyRootMap },
   } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
   const { activeAccount: account, assetMap, seriesMap, slippageTolerance } = userState;
@@ -31,7 +31,8 @@ export const useAddLiquidity = () => {
     const base: IAsset = assetMap.get(series.baseId);
 
     const _input = ethers.utils.parseUnits(input, base.decimals);
-
+ 
+    console.log( 'pool TotalSupply :', (await series.poolContract.totalSupply()).toString() ) 
     const _fyTokenToBuy = fyTokenForMint(
       series.baseReserves,
       series.fyTokenRealReserves,
@@ -41,37 +42,24 @@ export const useAddLiquidity = () => {
       series.decimals
     );
 
-    const [, _minted]= mintWithBase(
-      series.baseReserves,
-      series.fyTokenReserves,
-      series.fyTokenRealReserves,
-      series.totalSupply,
-      _input,
-      series.getTimeTillMaturity(),
-    )
+    const [_baseToPool, _baseToFyToken] = splitLiquidity(series.baseReserves, series.fyTokenReserves, _input);
 
-    console.log('minted', _minted.toString())
+    // const [_mintedWithBase, ] = mintWithBase(
+    //   series.baseReserves,
+    //   series.fyTokenReserves,
+    //   series.fyTokenRealReserves,
+    //   series.totalSupply,
+    //   _fyTokenToBuy,
+    //   series.getTimeTillMaturity()
+    // );
+    // const _mintedWithBaseWithSlippage = calculateSlippage(_mintedWithBase, slippageTolerance, true);
+    // console.log('mintedWithBase', _mintedWithBase.toString());
+    // console.log('_mintedWithBaseWithSlippage: ', _mintedWithBaseWithSlippage.toString());
 
-    const [basePortion, fyTokenPortion] = splitLiquidity(series.baseReserves, series.fyTokenReserves, _input);  
-    // const _baseToPool = _input.sub(baseProportion);
-    // const _baseToFyToken = baseProportion; // just put in the rest of the provided input
-    // const _inputWithSlippage = calculateSlippage(_input, slippageTolerance , true);
-    const _baseToPool = basePortion;
-    const _baseToFyToken = fyTokenPortion; // just put in the rest of the provided input
-
-    const _inputWithSlippage = calculateSlippage(_input, slippageTolerance , true);
-
-    // const _mintedWithSlippage = calculateSlippage(_minted, slippageTolerance , true);
-    // console.log(_baseToFyToken, _inputWithSlippage )
-    
-    console.log('input' , input.toString() )
-    console.log('_input' , _input.toString() )
-    console.log('basePortion:' , basePortion.toString() )
-    console.log('fyTokenPortion:' , fyTokenPortion.toString() )
-
-    console.log('base reseves:' , series.baseReserves.toString() )
-    console.log('fytoken reserves reseves:' , series.fyTokenReserves.toString() )
-    console.log('fytoken to buy:' , _fyTokenToBuy.toString() )
+    // const [_minted, ] = mint(series.baseReserves, series.fyTokenRealReserves, series.totalSupply, _input);
+    // const _mintedWithSlippage = calculateSlippage(_minted, slippageTolerance, true);
+    // console.log('minted', _minted.toString());
+    // console.log('_mintedWithSlippage: ', _mintedWithSlippage.toString());
 
     const permits: ICallData[] = await sign(
       [
@@ -90,28 +78,28 @@ export const useAddLiquidity = () => {
       ],
       txCode
     );
-    
+
     const calls: ICallData[] = [
       ...permits,
-
       /**
        * Provide liquidity by BUYING :
        * */
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [base.address, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
-        ignoreIf: method === 'BORROW',
+        ignoreIf: method !== 'BUY',
       },
       {
         operation: LadleActions.Fn.ROUTE,
         args: [
           strategy.id || account, // receiver is _strategyAddress (if it exists) or else account
-          _fyTokenToBuy.toString(),
-          ethers.constants.Zero, // TODO calc minLPtokens slippage 
+          _fyTokenToBuy,
+          // _mintedWithBaseWithSlippage,
+          ethers.constants.Zero, // TODO  comment for prod
         ] as RoutedActions.Args.MINT_WITH_BASE,
         fnName: RoutedActions.Fn.MINT_WITH_BASE,
         targetContract: series.poolContract,
-        ignoreIf: method === 'BORROW',
+        ignoreIf: method !== 'BUY',
       },
 
       /**
@@ -120,34 +108,34 @@ export const useAddLiquidity = () => {
       {
         operation: LadleActions.Fn.BUILD,
         args: [series.id, base.id, '0'] as LadleActions.Args.BUILD,
-        ignoreIf: method === 'BUY', 
+        ignoreIf: method !== 'BORROW',
       },
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [base.address, base.joinAddress, _baseToFyToken] as LadleActions.Args.TRANSFER,
-        ignoreIf: method === 'BUY',
+        ignoreIf: method !== 'BORROW',
       },
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [base.address, series.poolAddress, _baseToPool] as LadleActions.Args.TRANSFER,
-        ignoreIf: method === 'BUY',
+        ignoreIf: method !== 'BORROW',
       },
       {
         operation: LadleActions.Fn.POUR,
-        args: [
-          BLANK_VAULT,
-          series.poolAddress,
-          _baseToFyToken,
-          _baseToFyToken,
-        ] as LadleActions.Args.POUR,
-        ignoreIf: method === 'BUY',
+        args: [BLANK_VAULT, series.poolAddress, _baseToFyToken, _baseToFyToken] as LadleActions.Args.POUR,
+        ignoreIf: method !== 'BORROW',
       },
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [strategy.id || account, true, ethers.constants.Zero] as RoutedActions.Args.MINT_POOL_TOKENS, // receiver is _strategyAddr (if it exists) or account
+        args: [
+          strategy.id || account, 
+          true,
+          // _mintedWithSlippage,
+          ethers.constants.Zero // TODO  comment for prod
+        ] as RoutedActions.Args.MINT_POOL_TOKENS, // receiver is _strategyAddr (if it exists) or account
         fnName: RoutedActions.Fn.MINT_POOL_TOKENS,
         targetContract: series.poolContract,
-        ignoreIf: method === 'BUY',
+        ignoreIf: method !== 'BORROW',
       },
 
       // /* STRATEGY MINTING if strategy address is provided, and is found in the strategyMap, use that address */

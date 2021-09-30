@@ -85,7 +85,7 @@ function Pool() {
   }, [poolProcess, resetInputs]);
 
   useEffect(() => {
-    !canBuyAndPool && setPoolMethod('BORROW')
+    !canBuyAndPool && setPoolMethod('BORROW');
   }, [canBuyAndPool]);
 
   return (
@@ -108,7 +108,6 @@ function Pool() {
                   <AltText color="text-weak" size="xsmall">
                     Pool tokens for{' '}
                     <Text size="small" color="text">
-                      {' '}
                       variable returns
                     </Text>{' '}
                     based on protocol usage.
@@ -146,7 +145,7 @@ function Pool() {
 
                 <SectionWrap
                   title={
-                    seriesMap.size > 0 ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} strategy` : ''
+                    strategyMap.size > 0 ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} strategy` : ''
                   }
                 >
                   <StrategySelector inputValue={poolInput} />
@@ -183,7 +182,7 @@ function Pool() {
                   <RadioButtonGroup
                     name="strategy"
                     options={[
-                      { label: <Text size="small"> Buy & pool</Text>, value: 'BUY', disabled: !canBuyAndPool }  ,
+                      { label: <Text size="small"> Buy & pool</Text>, value: 'BUY', disabled: !canBuyAndPool },
                       { label: <Text size="small"> Borrow & Pool </Text>, value: 'BORROW' },
                     ]}
                     value={poolMethod}

@@ -20,10 +20,10 @@ import {
 } from '../types';
 
 import { ChainContext } from './ChainContext';
-import { cleanValue, genVaultImage, bytesToBytes32 } from '../utils/appUtils';
-import { calculateAPR, divDecimal, floorDecimal, mulDecimal, secondsToFrom, sellFYToken } from '../utils/yieldMath';
+import { cleanValue, genVaultImage,  } from '../utils/appUtils';
+import { calculateAPR, divDecimal, bytesToBytes32, floorDecimal, mulDecimal, secondsToFrom, sellFYToken, decimal18ToDecimalN, decimalNToDecimal18 } from '../utils/yieldMath';
 
-import { ONE_WEI_BN } from '../utils/constants';
+import { WAD_BN } from '../utils/constants';
 
 const UserContext = React.createContext<any>({});
 
@@ -40,11 +40,11 @@ const initState: IUserContextState = {
   /* map of asset prices */
   priceMap: new Map<string, Map<string, any>>(),
 
-  vaultsLoading: false as boolean,
-  seriesLoading: false as boolean,
-  assetsLoading: false as boolean,
-  strategiesLoading: false as boolean,
-  pricesLoading: false as boolean,
+  vaultsLoading: true as boolean,
+  seriesLoading: true as boolean,
+  assetsLoading: true as boolean,
+  strategiesLoading: true as boolean,
+  pricesLoading: true as boolean,
 
   /* Current User selections */
   selectedSeriesId: null,
@@ -279,30 +279,34 @@ const UserProvider = ({ children }: any) => {
 
   /* Updates the prices from the oracle with latest data */ // TODO reduce redundant calls
   const updatePrice = useCallback(
-    async (ilk: string, base: string): Promise<ethers.BigNumber> => {
+    async (priceBase: string, quote: string, decimals: number=18) : Promise<ethers.BigNumber> => {
       updateState({ type: 'pricesLoading', payload: true });
-
       try {
-        const _priceMap = userState.priceMap;
-        const _ilkPriceMap = _priceMap.get(ilk) || new Map<string, any>();
 
+        const _quoteMap = userState.priceMap;
+        const _basePriceMap = _quoteMap.get(priceBase) || new Map<string, any>();
+        // console.log(decimal18ToDecimalN( WAD_BN, decimals))
         // set oracle based on whether ILK is ETH-BASED
         // const Oracle = ETH_BASED_ASSETS.includes(ilk)
         //   ? contractMap.get('ChainlinkMultiOracle')
         //   : contractMap.get('CompositeMultiOracle');
+
         const Oracle = contractMap.get('ChainlinkMultiOracle');
-        const [price] = await Oracle.peek(bytesToBytes32(ilk, 6), bytesToBytes32(base, 6), ONE_WEI_BN);
+        const [ price ] = await Oracle.peek(
+          bytesToBytes32(priceBase, 6),
+          bytesToBytes32(quote, 6),
+          decimal18ToDecimalN(WAD_BN, decimals),
+        );
+        _basePriceMap.set(quote, price);
+        _quoteMap.set(priceBase, _basePriceMap);
 
-        _ilkPriceMap.set(base, price);
-        _priceMap.set(ilk, _ilkPriceMap);
-
-        updateState({ type: 'priceMap', payload: _priceMap });
-        // TODO console.log('Price Updated: ', ilk, '->', base, ':', price.toString());
+        updateState({ type: 'priceMap', payload: _quoteMap });
+        console.log('Price Updated: ', priceBase, ' (', decimals, ') ->', quote, ':', price.toString());
         updateState({ type: 'pricesLoading', payload: false });
 
         return price;
       } catch (error) {
-        console.log(error);
+        console.log('ERROR here', error);
         updateState({ type: 'pricesLoading', payload: false });
         return ethers.constants.Zero;
       }
@@ -412,16 +416,17 @@ const UserProvider = ({ children }: any) => {
       /* Add in the dynamic vault data by mapping the vaults list */
       const vaultListMod = await Promise.all(
         _vaultList.map(async (vault: IVaultRoot): Promise<IVault> => {
+
           /* update balance and series  ( series - because a vault can have been rolled to another series) */
-          const [{ ink, art }, { owner, seriesId, ilkId }, { min: minDebt, max: maxDebt }, price] = await Promise.all([
+          const [{ ink, art }, { owner, seriesId, ilkId }, { min: minDebt, max: maxDebt }] = await Promise.all([
             await Cauldron.balances(vault.id),
             await Cauldron.vaults(vault.id),
             await Cauldron.debt(vault.baseId, vault.ilkId),
-            await updatePrice(vault.ilkId, vault.baseId),
           ]);
-
+          
           const baseRoot: IAssetRoot = assetRootMap.get(vault.baseId);
           const ilkRoot: IAssetRoot = assetRootMap.get(ilkId);
+          const price = await updatePrice(vault.ilkId, vault.baseId, ilkRoot.decimals)
 
           return {
             ...vault,
@@ -594,7 +599,7 @@ const UserProvider = ({ children }: any) => {
 
   useEffect(() => {
     /* When the chainContext is finished loading get the users vault data */
-    if (!chainLoading && !userState.seriesLoading && account !== null) {
+    if (!chainLoading && account !== null) {
       console.log('Checking User Vaults');
       /* trigger update of update all vaults by passing empty array */
       updateVaults([]);
