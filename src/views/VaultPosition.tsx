@@ -133,7 +133,8 @@ const VaultPosition = () => {
     maxRepayOrRoll_, 
     maxRepayDustLimit, 
     protocolBaseAvailable, 
-    userBaseAvailable
+    userBaseAvailable,
+    userBaseAvailable_
   } = useBorrowHelpers(
     undefined,
     undefined,
@@ -160,7 +161,7 @@ const VaultPosition = () => {
 
   const { inputError: rollError } = useInputValidation(selectedVault?.art_, ActionCodes.ROLL_DEBT, vaultSeries, [
     0,
-    maxRepayOrRoll,
+    maxRepayOrRoll_,
   ]);
 
   /* LOCAL FNS */
@@ -388,7 +389,7 @@ const VaultPosition = () => {
                                   {repayCollEst &&
                                     parseFloat(repayCollEst) < 10000 &&
                                     parseFloat(repayCollEst) !== 0 &&
-                                    selectedVault.art.gte(maxAsBn) &&
+                                    // selectedVault.art.gte(maxAsBn) &&
                                     repayInput !== userBaseAvailable_ && (
 
                                       <Text color="text-weak" alignSelf="end" size="xsmall">
@@ -454,7 +455,7 @@ const VaultPosition = () => {
                           {rollToSeries && (
                             <InputInfoWrap>
                               <Text color="text-weak" size="xsmall">
-                                Debt of {cleanValue(maxRepayOrRoll, 2)} {vaultBase?.symbol} will be rolled
+                                Debt of {cleanValue(maxRepayOrRoll_, 2)} {vaultBase?.symbol} will be rolled
                                 {userBaseAvailable.lt(protocolBaseAvailable)
                                   ? '.'
                                   : ' ( limited by protocol reserves).'}
