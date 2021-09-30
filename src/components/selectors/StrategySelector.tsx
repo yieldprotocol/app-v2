@@ -1,16 +1,15 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Avatar, Box, Grid, ResponsiveContext, Select, Text } from 'grommet';
+import { ethers } from 'ethers';
+import { Avatar, Box, Grid, ResponsiveContext, Text } from 'grommet';
 import { toast } from 'react-toastify';
 import { FiSlash } from 'react-icons/fi';
 
 import Skeleton from 'react-loading-skeleton';
-import { ethers } from 'ethers';
 import styled from 'styled-components';
-import { ActionType, ISeries, IStrategy } from '../../types';
+import { IStrategy } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
-import { useApr } from '../../hooks/useApr';
-import { nFormatter } from '../../utils/appUtils';
-import { usePoolHelpers } from '../../hooks/actionHelperHooks/usePoolHelpers';
+import { cleanValue, nFormatter } from '../../utils/appUtils';
+import { divDecimal, mulDecimal } from '../../utils/yieldMath';
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
@@ -56,11 +55,11 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const { userState, userActions } = useContext(UserContext);
-  const { selectedStrategyAddr, selectedBaseId, seriesMap, assetMap, strategiesLoading, strategyMap } = userState;
+  const { selectedStrategyAddr, selectedBaseId, strategiesLoading, strategyMap } = userState;
 
   const [options, setOptions] = useState<IStrategy[]>([]);
 
-  const { poolPercentPreview } = usePoolHelpers(inputValue)
+  const calcStrategyPercentage = (_input: string, _strategy: IStrategy) => {};
 
   /* Keeping options/selection fresh and valid: */
   useEffect(() => {
@@ -125,7 +124,8 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
                               strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined
                             }
                           >
-                            {nFormatter(parseFloat(strategy.strategyTotalSupply_!), 1)} <Text size='xsmall'> tokens </Text>
+                            {nFormatter(parseFloat(strategy.strategyTotalSupply_!), 1)}{' '}
+                            <Text size="xsmall"> tokens </Text>
                           </Text>
                           <Text
                             size="xsmall"
@@ -133,7 +133,7 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
                               strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined
                             }
                           >
-                             in the strategy 
+                            in the strategy
                           </Text>
                         </>
                       )}
@@ -146,7 +146,17 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
                               strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined
                             }
                           >
-                            {poolPercentPreview}%
+                            {cleanValue(
+                              mulDecimal(
+                                divDecimal(
+                                  ethers.utils.parseUnits(inputValue, strategy.decimals),
+                                  strategy.strategyTotalSupply!
+                                ),
+                                '100'
+                              ),
+                              2
+                            )}
+                            %
                           </Text>
                           <Text
                             size="xsmall"
