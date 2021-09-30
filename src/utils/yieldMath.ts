@@ -523,11 +523,10 @@ export function fyTokenForMint(
 
   let i = 0;
   while (true) {
-    // eslint-disable-next-line no-plusplus
     // if (i++ > 100)  throw 'Not converging'
 
     // eslint-disable-next-line no-plusplus
-    if (i++ > 100) return ZERO_BN;
+    if (i++ > 100)  return ZERO_BN
 
     zIn = new Decimal(
       buyFYToken(
