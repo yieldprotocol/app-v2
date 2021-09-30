@@ -80,7 +80,7 @@ const LendPosition = () => {
 
   const { inputError: rollError } = useInputValidation(rollInput, ActionCodes.ROLL_POSITION, selectedSeries, [
     0,
-    maxClose,
+    maxLend,
   ]);
 
   const { inputError: rollToError } = useInputValidation(rollInput, ActionCodes.ROLL_POSITION, rollToSeries!, [
@@ -119,6 +119,7 @@ const LendPosition = () => {
 
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
   useEffect(() => {
+    console.log(maxClose);
     !closeInput || closeError || !maxClose ? setCloseDisabled(true) : setCloseDisabled(false);
     !rollInput || !rollToSeries || rollError || parseFloat(maxLend!) === 0
       ? setRollDisabled(true)
