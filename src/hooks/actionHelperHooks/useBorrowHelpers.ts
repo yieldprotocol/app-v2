@@ -41,7 +41,7 @@ export const useBorrowHelpers = (
     if (activeAccount && vault && vaultBase) {
       const vaultSeries: ISeries = seriesMap.get(vault?.seriesId!);
       const minDebt = ethers.utils.parseUnits('0.5', vaultBase?.decimals);
-      
+
       (async () => {
         const _maxToken = await vaultBase?.getBalance(activeAccount);
         const _maxDebt = vault.art;
@@ -49,32 +49,33 @@ export const useBorrowHelpers = (
         /* max user is either the max tokens they have or max debt */
         const _maxUser = _maxToken && _maxDebt?.gt(_maxToken) ? _maxToken : _maxDebt;
         const _maxDust = _maxUser.sub(minDebt);
-        
-        const _maxProtocol = maxBaseToSpend( 
+
+        const _maxProtocol = maxBaseToSpend(
           vaultSeries.baseReserves,
           vaultSeries.fyTokenReserves,
           vaultSeries.getTimeTillMaturity()
-        )
+        );
+
+        console.log(_maxProtocol.toString());
 
         /* The the dust limit */
         _maxDust && setMaxRepayDustLimit(ethers.utils.formatUnits(_maxDust, vaultBase?.decimals)?.toString());
-
-        /* set the maxBas available for both user and protocol */
-        _maxUser && setUserBaseAvailable(_maxUser);
-        _maxUser && setUserBaseAvailable_(ethers.utils.formatUnits(_maxUser, vaultBase.decimals!).toString());
         _maxProtocol && setProtocolBaseAvailable(_maxProtocol);
 
-        /* set the maxRepay as the biggest of the two, human readbale */
-        _maxUser && _maxProtocol && _maxUser.gt(_maxProtocol)
-          ? setMaxRepayOrRoll_(ethers.utils.formatUnits(_maxProtocol, vaultBase?.decimals)?.toString())
-          : setMaxRepayOrRoll_(ethers.utils.formatUnits(_maxUser, vaultBase?.decimals)?.toString());
-
-        /* set the maxRepay as the buggest of the two , as a bn */
-        _maxUser && _maxProtocol && _maxUser.gt(_maxProtocol)
-          ? setMaxRepayOrRoll(_maxProtocol)
-          : setMaxRepayOrRoll(_maxUser);
-          
-
+        /* set the maxBas available for both user and protocol */
+        if (_maxUser) {
+          setUserBaseAvailable(_maxUser);
+          setUserBaseAvailable_(ethers.utils.formatUnits(_maxUser, vaultBase.decimals!).toString());
+        }
+      
+        /* set the maxRepay as the biggest of the two, human readbale and BN */
+        if (_maxUser && _maxProtocol && _maxUser.gt(_maxProtocol)) {
+          setMaxRepayOrRoll_(ethers.utils.formatUnits(_maxProtocol, vaultBase?.decimals)?.toString());
+          setMaxRepayOrRoll(_maxProtocol);
+        } else {
+          setMaxRepayOrRoll_(ethers.utils.formatUnits(_maxUser, vaultBase?.decimals)?.toString());
+          setMaxRepayOrRoll(_maxUser);
+        }
       })();
     }
   }, [activeAccount, seriesMap, vault, vaultBase]);
@@ -82,9 +83,12 @@ export const useBorrowHelpers = (
   return {
     minAllowedBorrow,
     maxAllowedBorrow,
+
     maxRepayOrRoll_,
     maxRepayOrRoll,
+
     maxRepayDustLimit,
+
     userBaseAvailable,
     protocolBaseAvailable,
     userBaseAvailable_,
