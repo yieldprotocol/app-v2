@@ -25,6 +25,7 @@ export const useBorrowHelpers = (
   const [maxRepayDustLimit, setMaxRepayDustLimit] = useState<string | undefined>();
 
   const [userBaseAvailable, setUserBaseAvailable] = useState<BigNumber>(ethers.constants.Zero);
+  const [userBaseAvailable_, setUserBaseAvailable_] = useState<string | undefined>();
   const [protocolBaseAvailable, setProtocolBaseAvailable] = useState<BigNumber>(ethers.constants.Zero);
 
   /* update the minimum maxmimum allowable debt */
@@ -53,9 +54,10 @@ export const useBorrowHelpers = (
 
         /* set the maxBas available for both user and protocol */
         _maxUser && setUserBaseAvailable(_maxUser);
+        _maxUser && setUserBaseAvailable_(ethers.utils.formatUnits(_maxUser, vaultBase.decimals!).toString());
         _maxProtocol && setProtocolBaseAvailable(_maxProtocol);
 
-        /* set the maxRepay as the buggest of the two, human readbale */
+        /* set the maxRepay as the biggest of the two, human readbale */
         _maxUser && _maxProtocol && _maxUser.gt(_maxProtocol)
           ? setMaxRepayOrRoll_(ethers.utils.formatUnits(_maxProtocol, vaultBase?.decimals)?.toString())
           : setMaxRepayOrRoll_(ethers.utils.formatUnits(_maxUser, vaultBase?.decimals)?.toString());
@@ -65,6 +67,7 @@ export const useBorrowHelpers = (
           ? setMaxRepayOrRoll(_maxProtocol)
           : setMaxRepayOrRoll(_maxUser);
           
+
       })();
     }
   }, [activeAccount, seriesMap, vault, vaultBase]);
@@ -77,5 +80,6 @@ export const useBorrowHelpers = (
     maxRepayOrRoll,
     userBaseAvailable,
     protocolBaseAvailable,
+    userBaseAvailable_,
   };
 };

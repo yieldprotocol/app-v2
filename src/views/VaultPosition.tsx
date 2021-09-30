@@ -98,6 +98,8 @@ const VaultPosition = () => {
     selectedVault && !selectedVault.isActive ? { index: 3 } : { index: 0 }
   );
 
+  const parsedInput = repayInput ? ethers.utils.parseUnits(repayInput, vaultBase?.decimals) : ethers.constants.Zero;
+
   /* HOOK FNS */
   const repay = useRepayDebt();
   const rollDebt = useRollDebt();
@@ -137,6 +139,7 @@ const VaultPosition = () => {
     undefined,
     selectedVault
   );
+
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries, [
     maxRepayDustLimit, // this is the max pay to get to dust limit. note different logic in input validation hook.
@@ -368,21 +371,28 @@ const VaultPosition = () => {
 
                               {repayInput && !repayError && (
                                 <InputInfoWrap>
-                                  {repayCollEst && parseFloat(repayCollEst) > 10000 && repayInput !== maxRepayOrRoll_ && (
-                                    <Text color="text-weak" alignSelf="end" size="xsmall">
-                                      Repaying this amount will leave a small amount of debt.
-                                    </Text>
-                                  )}
+
+
+                                  {repayCollEst &&
+                                    parseFloat(repayCollEst) > 10000 &&
+                                    repayInput !== userBaseAvailable_ && (
+                                      <Text color="text-weak" alignSelf="end" size="xsmall">
+                                        Repaying this amount will leave a small amount of debt.
+                                      </Text>
+                                    )}
                                   {repayCollEst &&
                                     parseFloat(repayCollEst) < 10000 &&
                                     parseFloat(repayCollEst) !== 0 &&
-                                    selectedVault.art.gt(maxRepayOrRoll) && (
+                                    selectedVault.art.gte(maxAsBn) &&
+                                    repayInput !== userBaseAvailable_ && (
+
                                       <Text color="text-weak" alignSelf="end" size="xsmall">
                                         Collateralisation ratio after repayment:{' '}
                                         {repayCollEst && nFormatter(parseFloat(repayCollEst), 2)}%
                                       </Text>
                                     )}
-                                  {selectedVault.art.lte(maxRepayOrRoll) && (
+
+                                  {repayInput === userBaseAvailable_ && (
                                     <Text color="text-weak" alignSelf="end" size="xsmall">
                                       All debt will be repayed.
                                     </Text>
@@ -439,8 +449,10 @@ const VaultPosition = () => {
                           {rollToSeries && (
                             <InputInfoWrap>
                               <Text color="text-weak" size="xsmall">
-                                Debt of {cleanValue(maxRepayOrRoll_, 2)} {vaultBase?.symbol} will be rolled
-                                {userBaseAvailable.lt(protocolBaseAvailable) ? '.':' ( limited by protocol reserves).'}
+                                Debt of {cleanValue(maxRepayOrRoll, 2)} {vaultBase?.symbol} will be rolled
+                                {userBaseAvailable.lt(protocolBaseAvailable)
+                                  ? '.'
+                                  : ' ( limited by protocol reserves).'}
                               </Text>
                             </InputInfoWrap>
                           )}
