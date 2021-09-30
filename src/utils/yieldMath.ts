@@ -1,6 +1,6 @@
 import { ethers, BigNumber, BigNumberish } from 'ethers';
 import { Decimal } from 'decimal.js';
-import { WAD_BN } from './constants';
+import { WAD_BN, ZERO_BN } from './constants';
 
 Decimal.set({ precision: 64 });
 
@@ -535,6 +535,8 @@ export function fyTokenForMint(
     if (pz <= PZ) max = yOut;
     yOut = yOut.add(min).div(TWO); // bought too much fyToken, buy a bit less
 
+    if (yOut < min || yOut > max || min === max) return ZERO_BN; // Abort logic
+
     // console.log(
     //   decimal18ToDecimalN(
     //     // (converted back to original decimals)
@@ -566,7 +568,7 @@ export function fyTokenForMint(
     }
 
     // eslint-disable-next-line no-plusplus
-    if (i++ > 10000) {
+    if (i++ > 100) {
       return decimal18ToDecimalN(
         // (converted back to original decimals)
         BigNumber.from(yOut.toFixed(0)),
