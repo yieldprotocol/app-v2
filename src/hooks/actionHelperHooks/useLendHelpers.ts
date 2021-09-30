@@ -16,7 +16,6 @@ export const useLendHelpers = (series: ISeries, input?: string | undefined) => {
   const [protocolBaseAvailable, setProtocolBaseAvailable] = useState<BigNumber>(ethers.constants.Zero);
 
   const [fyTokenMarketValue, setFyTokenMarketValue] = useState<string>();
-
   /* check the protocol max limits */
   useEffect(() => {
     if (series) {
@@ -69,15 +68,18 @@ export const useLendHelpers = (series: ISeries, input?: string | undefined) => {
         series.decimals
       );
 
-      value.lte(ethers.constants.Zero)
-        ? setFyTokenMarketValue('Low liquidity: unable to redeem all ')
-        : setFyTokenMarketValue(ethers.utils.formatUnits(value, series.decimals));
-
-      /* set max Closing */
-      value.lte(ethers.constants.Zero)
-        ? setMaxClose(ethers.utils.formatUnits(series.baseReserves, series.decimals).toString())
-        : setMaxClose(ethers.utils.formatUnits(value, series.decimals).toString());
+      if (value.gt(ethers.constants.Zero)) {
+        setFyTokenMarketValue(ethers.utils.formatUnits(value, series.decimals));
+        setMaxClose(ethers.utils.formatUnits(value, series.decimals).toString());
+      } else if (value.lt(ethers.constants.Zero) && series.fyTokenBalance?.gt(ethers.constants.Zero)) {
+        setFyTokenMarketValue('Low liquidity: unable to redeem all ');
+        setMaxClose(ethers.utils.formatUnits(ethers.constants.Zero, series.decimals).toString()); // TODO need to find the actual max amount that can be closed based on avail base reserves
+      } else {
+        setFyTokenMarketValue('0');
+        setMaxClose(ethers.utils.formatUnits(ethers.constants.Zero, series.decimals).toString());
+      }
     }
+
     if (series && series.seriesIsMature)
       setFyTokenMarketValue(ethers.utils.formatUnits(series.fyTokenBalance!, series.decimals));
   }, [maxLend, series]);
