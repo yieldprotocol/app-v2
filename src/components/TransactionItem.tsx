@@ -5,7 +5,7 @@ import { Box, Text, Spinner } from 'grommet';
 import { FiX, FiCheckCircle, FiXCircle } from 'react-icons/fi';
 import { ActionCodes, ProcessStage, TxState } from '../types';
 import EtherscanButton from './buttons/EtherscanButton';
-import { getSeriesAfterRollPosition, getPositionPathPrefix, getVaultIdFromReceipt } from '../utils/appUtils';
+import { getPositionPath } from '../utils/appUtils';
 import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
 
@@ -37,18 +37,9 @@ const TransactionItem = ({ tx, wide }: ITransactionItem) => {
 
   /* get position link for viewing position */
   useEffect(() => {
-    const pathPrefix = getPositionPathPrefix(txCode);
-
-    let positionId;
-
-    if (receipt) {
-      if (action === ActionCodes.BORROW) positionId = getVaultIdFromReceipt(receipt, contractMap);
-      if (action === ActionCodes.ROLL_POSITION) positionId = getSeriesAfterRollPosition(receipt, seriesRootMap);
-    } else {
-      positionId = txCode?.split('_')[1];
-    }
-    setLink(`${pathPrefix}/${positionId}`);
-  }, [receipt, contractMap, seriesRootMap, txCode, action]);
+    const path = getPositionPath(txCode, receipt, contractMap, seriesRootMap);
+    setLink(path);
+  }, [receipt, contractMap, seriesRootMap, txCode]);
 
   return (
     <Box
