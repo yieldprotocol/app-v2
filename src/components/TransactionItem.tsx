@@ -61,10 +61,10 @@ const TransactionItem = ({ tx, wide }: ITransactionItem) => {
           {status === TxState.FAILED && <FiX size="1.2rem" />}
         </Box>
       )}
-      <Box direction="row" fill justify="between">
-        <Box direction="row" align="center">
+      <Box direction="row" fill justify="between" align="center">
+        <Box direction="row">
           <Box width="3rem">
-            {status === TxState.PENDING && <Spinner color="tailwind-blue" />}
+            {status === TxState.PENDING && <Spinner color="brand" />}
             {status === TxState.SUCCESSFUL && <FiCheckCircle size="1.5rem" color="#34D399" />}
             {status === TxState.FAILED && <FiXCircle size="1.5rem" color="#F87171" />}
           </Box>
@@ -80,9 +80,7 @@ const TransactionItem = ({ tx, wide }: ITransactionItem) => {
             </Text>
           )}
         </Box>
-        <Box align="center" direction="row">
-          <EtherscanButton txHash={t.hash} />
-        </Box>
+        <EtherscanButton txHash={t.hash} />
       </Box>
     </Box>
   );
