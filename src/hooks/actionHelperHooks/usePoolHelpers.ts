@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { ethers, BigNumber } from 'ethers';
 import { UserContext } from '../../contexts/UserContext';
 import { ChainContext } from '../../contexts/ChainContext';
@@ -14,6 +14,8 @@ import {
   burnForBase,
   sellFYToken,
 } from '../../utils/yieldMath';
+import { ZERO_BN } from '../../utils/constants';
+import { Strategy } from '../../contracts';
 
 export const usePoolHelpers = (input: string | undefined) => {
   /* STATE FROM CONTEXT */
@@ -51,6 +53,36 @@ export const usePoolHelpers = (input: string | undefined) => {
   const [healthyBaseReserves, setHealthyBaseReserves] = useState<boolean>();
   const [fyTokenTradePossible, setFyTokenTradePossible] = useState<boolean>();
 
+  const [inputTradeValue, setInputTradeValue] = useState<string | undefined>();
+  const [accountTradeValue, setAccountTradeValue] = useState<string | undefined>();
+
+  const checkTrade = useCallback(
+    (tradeInput: BigNumber): BigNumber => {
+      // 1. calc amount base/fytonken recieved from burn
+      // 2. calculate new reseverves ( base reserves and fytokesreserevs)
+      if (strategySeries) {
+        const [_baseTokens, _fytokens] = burn(
+          strategySeries.baseReserves,
+          strategySeries.fyTokenReserves,
+          strategySeries.totalSupply,
+          tradeInput
+        );
+        const newBaseReserves = strategySeries.baseReserves.sub(_baseTokens);
+        const newFyTokenReserves = strategySeries.fyTokenReserves.sub(_fytokens);
+        const sellOutcome = sellFYToken(
+          newBaseReserves,
+          newFyTokenReserves,
+          _fytokens,
+          strategySeries.getTimeTillMaturity(),
+          strategySeries.decimals
+        );
+        return sellOutcome;
+      }
+      return ZERO_BN;
+    },
+    [strategySeries]
+  );
+
   /* set input (need to make sure we can parse the input value) */
   useEffect(() => {
     if (input) {
@@ -67,99 +99,36 @@ export const usePoolHelpers = (input: string | undefined) => {
 
   useEffect(() => {}, [strategySeries]);
 
-  // /* set max for removal with no vault  */
-  // useEffect(() => {
-  //   if (strategySeries) {
-
-  //     const [_baseTokens, _fytokens] = burn(
-  //       strategySeries.baseReserves,
-  //       strategySeries.fyTokenReserves,
-  //       strategySeries.totalSupply,
-  //       _input
-  //     )
-  //     const newBaseReserves = strategySeries.baseReserves.sub(_baseTokens);
-  //     const newFyTokenReserves = strategySeries.fyTokenReserves.sub(_fytokens);
-  //     const sellOutcome = sellFYToken(
-  //       newBaseReserves,
-  //       newFyTokenReserves,
-  //       _fytokens,
-  //       strategySeries.getTimeTillMaturity(),
-  //       strategySeries.decimals
-  //     )
-  //     // 1. calc amount base/fytonken recieved from burn
-  //     // 2. calculate new reseverves ( base reserves and fytokesreserevs)
-  //     // 3. check fytoken > base reserves
-
-  //     // if fails > use burn().  > user gets base and fytoken
-
-  //     /* if series is mature set max to user tokens, else set a max depending on if there is a vault */
-  //     if (strategySeries.seriesIsMature) {
-  //       setMaxRemoveNoVault(ethers.utils.formatUnits(strategy?.accountBalance!, strategySeries.decimals));
-  //     } else {
-  //       /* limit when using no vault */
-  //       sellOutcome.gt(ethers.constants.Zero)
-  //         ? setMaxRemoveNoVault(ethers.utils.formatUnits(strategy?.accountBalance!, strategySeries.decimals))
-  //         : setMaxRemoveNoVault(ethers.utils.formatUnits(strategySeries.baseReserves, strategySeries.decimals));
-  //     }
-  //   }
-  // }, [_input, matchingVault, strategy, strategySeries]);
-
   /* Check if base reserves are too low for max trade  */
   useEffect(() => {
     if (strategy && strategySeries) {
-      // 1. calc amount base/fytonken recieved from burn
-      // 2. calculate new reseverves ( base reserves and fytokesreserevs)
-      // 3. check fytoken > base reserves
-      const [_baseTokens, _fytokens] = burn(
-        strategySeries.baseReserves,
-        strategySeries.fyTokenReserves,
-        strategySeries.totalSupply,
-        strategy.accountBalance!
-      );
-      const newBaseReserves = strategySeries.baseReserves.sub(_baseTokens);
-      const newFyTokenReserves = strategySeries.fyTokenReserves.sub(_fytokens);
-      const sellOutcome = sellFYToken(
-        newBaseReserves,
-        newFyTokenReserves,
-        _fytokens,
-        strategySeries.getTimeTillMaturity(),
-        strategySeries.decimals
-      );
-      const tradeable = sellOutcome.gt(ethers.constants.Zero);
-
+      const tradeable = checkTrade(strategy.accountBalance!).gt(ethers.constants.Zero);
       setHealthyBaseReserves(tradeable);
-      setMaxRemoveNoVault(ethers.utils.formatUnits(strategy?.accountBalance!, strategySeries.decimals))
+      setMaxRemoveNoVault(ethers.utils.formatUnits(strategy?.accountBalance!, strategySeries.decimals));
     }
-  }, [ matchingVault, strategy, strategySeries ]);
+  }, [checkTrade, strategy, strategySeries]);
 
-
-  /* check if base reserves are too low for specific input  */
+  /* set the trade value and check if base reserves are too low for specific input  */
   useEffect(() => {
     if (strategySeries) {
-      // 1. calc amount base/fytonken recieved from burn
-      // 2. calculate new reseverves ( base reserves and fytokesreserevs)
-      // 3. check fytoken > base reserves
-      const [_baseTokens, _fytokens] = burn(
-        strategySeries.baseReserves,
-        strategySeries.fyTokenReserves,
-        strategySeries.totalSupply,
-        _input
-      );
-      const newBaseReserves = strategySeries.baseReserves.sub(_baseTokens);
-      const newFyTokenReserves = strategySeries.fyTokenReserves.sub(_fytokens);
-      const sellOutcome = sellFYToken(
-        newBaseReserves,
-        newFyTokenReserves,
-        _fytokens,
-        strategySeries.getTimeTillMaturity(),
-        strategySeries.decimals
-      );
-
-      const tradeable = sellOutcome.gt(ethers.constants.Zero);
+      const _tradeValue = checkTrade(_input);
+      const tradeable = _tradeValue.gt(ethers.constants.Zero);
       console.log('Is tradeable:', tradeable);
-      setFyTokenTradePossible(sellOutcome.gt(ethers.constants.Zero));
+      setFyTokenTradePossible(tradeable);
+      setInputTradeValue(ethers.utils.formatUnits(_tradeValue, strategySeries.decimals));
     }
-  }, [_input, matchingVault, strategy, strategySeries]);
+  }, [_input, checkTrade, strategySeries]);
+
+  /* check account token trade value */
+
+  /* set the trade value and check if base reserves are too low for specific input  */
+  useEffect(() => {
+    if (strategy?.accountBalance?.gt(ZERO_BN) ) {
+      const _tradeValue = checkTrade(strategy?.accountBalance);
+      const tradeable = _tradeValue.gt(ethers.constants.Zero);
+      tradeable && setAccountTradeValue(ethers.utils.formatUnits(_tradeValue, strategy.decimals));
+    }
+  }, [_input, checkTrade, strategy?.accountBalance, strategy?.decimals]);
 
   /* set max for removal with a vault  */
   useEffect(() => {
@@ -255,6 +224,10 @@ export const usePoolHelpers = (input: string | undefined) => {
     maxRemoveWithVault,
 
     healthyBaseReserves,
-    fyTokenTradePossible
+
+    fyTokenTradePossible,
+
+    inputTradeValue,
+    accountTradeValue,
   };
 };

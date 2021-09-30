@@ -59,8 +59,15 @@ const PoolPosition = () => {
 
   /* HOOK FNS */
   const removeLiquidity = useRemoveLiquidity();
-  const { matchingVault, maxRemoveWithVault, maxRemoveNoVault, healthyBaseReserves, fyTokenTradePossible } =
-    usePoolHelpers(removeInput);
+  const {
+    accountTradeValue,
+    matchingVault,
+    maxRemoveWithVault,
+    maxRemoveNoVault,
+    healthyBaseReserves,
+    fyTokenTradePossible,
+    inputTradeValue,
+  } = usePoolHelpers(removeInput);
 
   /* TX data */
   const { txProcess: removeProcess, resetProcess: resetRemoveProcess } = useProcess(
@@ -178,7 +185,7 @@ const PoolPosition = () => {
 
                     {selectedStrategy.currentSeries && (
                       <InfoBite
-                        label="Strategy Token percentage"
+                        label="Strategy Token Ownership"
                         value={`${cleanValue(selectedStrategy?.accountStrategyPercent, 2)} %  of ${nFormatter(
                           parseFloat(selectedStrategy?.strategyTotalSupply_!),
                           2
@@ -188,10 +195,11 @@ const PoolPosition = () => {
                       />
                     )}
 
-                    {selectedStrategy.currentSeries && (
+                    {selectedStrategy.currentSeries && 
+                    fyTokenTradePossible && (
                       <InfoBite
-                        label="Returns in current Pool"
-                        value={`${cleanValue(selectedStrategy?.accountStrategyPercent, 2)}% `}
+                        label="Strategy Token Value"
+                        value={accountTradeValue!}
                         icon={<FiTrendingUp />}
                         loading={seriesLoading}
                       />
@@ -228,25 +236,21 @@ const PoolPosition = () => {
                           isError={removeError}
                           message={
                             <>
-                            {!healthyBaseReserves &&
-                             !removeInput &&
-                             selectedStrategy?.accountBalance?.gt(ZERO_BN) &&
-                            <InputInfoWrap>
-                              <Text color="text-weak" alignSelf="end" size="xsmall">
-                                Pools aren't healthy as they could be. Currently, not all of your liquidity tokens are
-                                redeemable for the base.
-                              </Text>
-                            </InputInfoWrap>
-                            }
-                            {!healthyBaseReserves &&
-                            removeInput && 
-                            !fyTokenTradePossible &&
-                            <InputInfoWrap>
-                              <Text color="text-weak" alignSelf="end" size="xsmall">
-                                Input amount exceeds maximum currently tradeable.
-                              </Text>
-                            </InputInfoWrap>
-                            }
+                              {!healthyBaseReserves && !removeInput && selectedStrategy?.accountBalance?.gt(ZERO_BN) && (
+                                <InputInfoWrap>
+                                  <Text color="text-weak" alignSelf="end" size="xsmall">
+                                    Pools aren't healthy as they could be. Currently, not all of your liquidity tokens
+                                    are redeemable for the base.
+                                  </Text>
+                                </InputInfoWrap>
+                              )}
+                              {!healthyBaseReserves && removeInput && !fyTokenTradePossible && (
+                                <InputInfoWrap>
+                                  <Text color="text-weak" alignSelf="end" size="xsmall">
+                                    Input amount exceeds maximum currently tradeable.
+                                  </Text>
+                                </InputInfoWrap>
+                              )}
                             </>
                           }
                         >
