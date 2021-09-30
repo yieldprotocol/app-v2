@@ -203,10 +203,19 @@ export function mintWithBase(
   const z1 = new Decimal(
     buyFYToken(baseReserves, fyTokenReservesVirtual, fyToken, timeTillMaturity, decimals).toString()
   );
+  const Z2 = Z.add(z1)  // Base reserves after the trade
+  const YR2 = YR.sub(y) // FYToken reserves after the trade
+
   // Mint specifying how much fyToken to take in. Reverse of `mint`.
-  const m = S.mul(y).div(YR.sub(y));
-  const z2 = Z.add(z1).mul(m).div(S);
-  return [toBn(m), toBn(z1.add(z2))];
+  const [m, z2] =  mint(
+    Z2.floor().toFixed(),
+    YR2.floor().toFixed(),
+    supply,
+    fyToken,
+    false
+  )
+
+  return [m, toBn(z1).add(z2)];
 }
 
 /**
@@ -489,7 +498,7 @@ export function getFee(
 export function fyTokenForMint(
   baseReserves: BigNumber | string,
   fyTokenRealReserves: BigNumber | string,
-  fyTokenReserves: BigNumber | string,
+  fyTokenVirtualReserves: BigNumber | string,
   base: BigNumber | string,
   timeTillMaturity: BigNumber | string,
   decimals: number = 18
@@ -497,84 +506,70 @@ export function fyTokenForMint(
   /* convert to 18 decimals */
   const baseReserves18 = decimalNToDecimal18(BigNumber.from(baseReserves), decimals);
   const fyTokenRealReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenRealReserves), decimals);
-  const fyTokenReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenReserves), decimals);
+  const fyTokenVirtualReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenVirtualReserves), decimals);
   const base18 = decimalNToDecimal18(BigNumber.from(base), decimals);
 
   const baseReserves_ = new Decimal(baseReserves18.toString());
   const fyDaiRealReserves_ = new Decimal(fyTokenRealReserves18.toString());
+  const fyDaiVirtualReserves_ = new Decimal(fyTokenVirtualReserves18.toString());
   const base_ = new Decimal(base18.toString());
   const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
 
   let min = ZERO;
-  let max = base_;
+  let max = base_.mul(TWO);
   let yOut = Decimal.floor(min.add(max).div(TWO));
+  let zIn: Decimal
 
   let i = 0;
   while (true) {
-    const zIn = new Decimal(
+    if (i++ > 100)  throw 'Not converging'
+
+    zIn = new Decimal(
       buyFYToken(
-        baseReserves18,
-        fyTokenReserves18,
-        // BigNumber.from(yOut.toFixed(0)),
-        BigNumber.from(yOut.toFixed(0)),
+        baseReserves_,
+        fyDaiVirtualReserves_,
+        BigNumber.from(yOut.toFixed()),
         timeTillMaturity_.toString(),
         18
       ).toString()
     );
-    const Z_1 = baseReserves_.add(zIn); // New base reserves
-    const Y_1 = fyDaiRealReserves_.sub(yOut); // New fyToken reserves
-    const pz = base_.sub(zIn).div(base_.sub(zIn).add(yOut)); // base proportion in my assets
-    const PZ = Z_1.div(Z_1.add(Y_1)); // base proportion in the reserves
+    const Z_1 = baseReserves_.add(zIn); // New base balance
+    const z_1 = base_.sub(zIn) // My remaining base
+    const Y_1 = fyDaiRealReserves_.sub(yOut); // New fyToken balance
+    const y_1 = yOut // My fyToken
+    const pz = z_1.div(z_1.add(y_1)); // base proportion in my assets
+    const PZ = Z_1.div(Z_1.add(Y_1)); // base proportion in the balances
 
-    // The base proportion in my assets needs to be higher than but very close to the base proportion in the reserves, to make sure all the fyToken is used.
-    if (PZ.mul(new Decimal(1.000001)) <= pz) {
-      min = yOut;
-      yOut = yOut.add(max).div(TWO);
-    } // bought too little fyToken, buy some more
+    // Targeting between 0.001% and 0.002% slippage (surplus)
+    // Lower both if getting "Not enough base in" errors. That means that
+    // the calculation that was done off-chain was stale when the actual mint happened.
+    // It might be reasonable to set `minTarget` to half the slippage, and `maxTarget`
+    // to the slippage. That would also mean that the algorithm would aim to waste at
+    // least half the slippage allowed.
+    // For large trades, it would make sense to append a `retrieveBase` action at the
+    // end of the batch.
+    const minTarget = new Decimal(1.00001) // Consider making this a parameter
+    const maxTarget = new Decimal(1.00002) // Consider making this a parameter
 
-    if (pz <= PZ) max = yOut;
-    yOut = yOut.add(min).div(TWO); // bought too much fyToken, buy a bit less
-
-    // console.log(
-    //   decimal18ToDecimalN(
-    //     // (converted back to original decimals)
-    //     BigNumber.from(Decimal.floor(yOut).toFixed(0)),
-    //     decimals
-    //   ).toString()
-    // );
-
-    // console.log('floored:',  Decimal.floor(yOut).toFixed(0) )
-    // console.log('not: ', yOut.toFixed(0) )
-
-    // if (PZ.mul(new Decimal(1.000001)) > pz && pz > PZ) return Decimal.floor(yOut).toFixed(0); // Just right
-    if (PZ.mul(new Decimal(1.000001)) > pz && pz > PZ) {
-      console.log('TimeToMaturity:', timeTillMaturity_.toString());
-      console.log('yOut: ', yOut.toFixed(0));
-      console.log('Zin: ', zIn.toString());
-      console.log('PZ: ', PZ.toString());
-      console.log('pz: ', pz.toString());
-      console.log('baseREs: ', baseReserves18.toString());
-      console.log('virtual: ', fyTokenReserves18.toString());
-      console.log('z_1: ', Z_1.toString());
-      console.log('y_1: ', Y_1.toString());
-
-      return decimal18ToDecimalN(
-        // (converted back to original decimals)
-        BigNumber.from(yOut.toFixed(0)),
-        decimals
-      ); // Just right
-    }
-
+    // The base proportion in my assets needs to be higher than but very close to the
+    // base proportion in the balances, to make sure all the fyToken is used.
     // eslint-disable-next-line no-plusplus
-    if (i++ > 10000) {
-      return decimal18ToDecimalN(
-        // (converted back to original decimals)
-        BigNumber.from(yOut.toFixed(0)),
-        decimals
-      );
+    if ((PZ.mul(maxTarget) > pz && PZ.mul(minTarget) < pz)) {
+      break; // Too many iterations, or found the result
+    } else if (PZ.mul(maxTarget) <= pz) {
+      min = yOut;
+      yOut = (yOut.add(max)).div(TWO); // bought too little fyToken, buy some more
+    } else {
+      max = yOut;
+      yOut = (yOut.add(min)).div(TWO); // bought too much fyToken, buy a bit less
     }
-    // if (i++ > 10000) return Decimal.floor(yOut).toFixed(0);
   }
+
+  return decimal18ToDecimalN(
+    // (converted back to original decimals)
+    BigNumber.from(yOut.toFixed()),
+    decimals
+  );
 }
 
 /**
