@@ -9,7 +9,8 @@ import { maxBaseToSpend } from '../../utils/yieldMath';
 export const useBorrowHelpers = (
   input: string | undefined,
   collateralInput: string | undefined,
-  vault: IVault | undefined
+  vault: IVault | undefined,
+  rollToSeries:ISeries | undefined = undefined,
 ) => {
   /* STATE FROM CONTEXT */
   const {
@@ -22,9 +23,13 @@ export const useBorrowHelpers = (
   const [minAllowedBorrow, setMinAllowedBorrow] = useState<string | undefined>();
   const [maxAllowedBorrow, setMaxAllowedBorrow] = useState<string | undefined>();
 
-  const [maxRepayOrRoll, setMaxRepayOrRoll] = useState<BigNumber>(ethers.constants.Zero);
-  const [maxRepayOrRoll_, setMaxRepayOrRoll_] = useState<string | undefined>();
+  const [maxRepay, setMaxRepay] = useState<BigNumber>(ethers.constants.Zero);
+  const [maxRepay_, setMaxRepay_] = useState<string | undefined>();
   const [maxRepayDustLimit, setMaxRepayDustLimit] = useState<string | undefined>();
+
+  const [ maxRoll, setMaxRoll ] = useState<BigNumber>(ethers.constants.Zero);
+  const [ maxRoll_, setMaxRoll_ ] = useState<string | undefined>();
+  const [rollPossible, setRollPossible] = useState<boolean>(false);
 
   const [userBaseAvailable, setUserBaseAvailable] = useState<BigNumber>(ethers.constants.Zero);
   const [userBaseAvailable_, setUserBaseAvailable_] = useState<string | undefined>();
@@ -35,6 +40,23 @@ export const useBorrowHelpers = (
     setMinAllowedBorrow('0.5');
     setMaxAllowedBorrow('1000000');
   }, [selectedBaseId, selectedIlkId]);
+
+
+  /* check if the rollToSeries have sufficient base value */
+  useEffect (()=> {
+    if (rollToSeries && vault) {
+      const _maxProtocol = maxBaseToSpend(
+        rollToSeries.baseReserves,
+        rollToSeries.fyTokenReserves,
+        rollToSeries.getTimeTillMaturity()
+      );
+      const rollable  = _maxProtocol.gte(vault.art)
+      rollable && console.log('roll possible')
+      setMaxRoll(_maxProtocol);
+      setMaxRoll_(ethers.utils.formatUnits(_maxProtocol, rollToSeries.decimals).toString())
+      setRollPossible(true);
+    }
+  },[rollToSeries, vault])
 
   /* update the min max repayable or rollable */
   useEffect(() => {
@@ -56,8 +78,6 @@ export const useBorrowHelpers = (
           vaultSeries.getTimeTillMaturity()
         );
 
-        console.log(_maxProtocol.toString());
-
         /* The the dust limit */
         _maxDust && setMaxRepayDustLimit(ethers.utils.formatUnits(_maxDust, vaultBase?.decimals)?.toString());
         _maxProtocol && setProtocolBaseAvailable(_maxProtocol);
@@ -70,11 +90,11 @@ export const useBorrowHelpers = (
       
         /* set the maxRepay as the biggest of the two, human readbale and BN */
         if (_maxUser && _maxProtocol && _maxUser.gt(_maxProtocol)) {
-          setMaxRepayOrRoll_(ethers.utils.formatUnits(_maxProtocol, vaultBase?.decimals)?.toString());
-          setMaxRepayOrRoll(_maxProtocol);
+          setMaxRepay_(ethers.utils.formatUnits(_maxProtocol, vaultBase?.decimals)?.toString());
+          setMaxRepay(_maxProtocol);
         } else {
-          setMaxRepayOrRoll_(ethers.utils.formatUnits(_maxUser, vaultBase?.decimals)?.toString());
-          setMaxRepayOrRoll(_maxUser);
+          setMaxRepay_(ethers.utils.formatUnits(_maxUser, vaultBase?.decimals)?.toString());
+          setMaxRepay(_maxUser);
         }
       })();
     }
@@ -84,8 +104,12 @@ export const useBorrowHelpers = (
     minAllowedBorrow,
     maxAllowedBorrow,
 
-    maxRepayOrRoll_,
-    maxRepayOrRoll,
+    maxRepay_,
+    maxRepay,
+
+    maxRoll,
+    maxRoll_,
+    rollPossible,
 
     maxRepayDustLimit,
 
