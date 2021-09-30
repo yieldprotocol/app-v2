@@ -125,21 +125,15 @@ const VaultPosition = () => {
     selectedVault
   );
 
-  const { 
-    maxRepay, 
-    maxRepay_, 
-    maxRepayDustLimit, 
-    protocolBaseAvailable, 
+  const {
+    maxRepay,
+    maxRepay_,
+    maxRepayDustLimit,
+    protocolBaseAvailable,
     userBaseAvailable,
     userBaseAvailable_,
     maxRoll_,
-  } = useBorrowHelpers(
-    undefined,
-    undefined,
-    selectedVault,
-    rollToSeries
-  );
-
+  } = useBorrowHelpers(undefined, undefined, selectedVault, rollToSeries);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries, [
     maxRepayDustLimit, // this is the max pay to get to dust limit. note different logic in input validation hook.
@@ -376,26 +370,25 @@ const VaultPosition = () => {
 
                               {repayInput && !repayError && (
                                 <InputInfoWrap>
-
-
                                   {repayCollEst &&
                                     parseFloat(repayCollEst) > 10000 &&
-                                    repayInput !== userBaseAvailable_ && (
+                                    repayInput !== selectedVault.art_ && (
                                       <Text color="text-weak" alignSelf="end" size="xsmall">
                                         Repaying this amount will leave a small amount of debt.
                                       </Text>
                                     )}
+
                                   {repayCollEst &&
                                     parseFloat(repayCollEst) < 10000 &&
                                     parseFloat(repayCollEst) !== 0 &&
-                                    repayInput !== userBaseAvailable_ && (
+                                    repayInput !== selectedVault.art_ && (
                                       <Text color="text-weak" alignSelf="end" size="xsmall">
                                         Collateralisation ratio after repayment:{' '}
                                         {repayCollEst && nFormatter(parseFloat(repayCollEst), 2)}%
                                       </Text>
                                     )}
 
-                                  {repayInput === userBaseAvailable_ && (
+                                  {repayInput === selectedVault.art_ && (
                                     <Text color="text-weak" alignSelf="end" size="xsmall">
                                       All debt will be repayed.
                                     </Text>
