@@ -4,8 +4,8 @@ import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, IVault, ISeries, ActionCodes, LadleActions } from '../../types';
-import { getTxCode } from '../../utils/appUtils';
-import { ETH_BASED_ASSETS } from '../../utils/constants';
+import { cleanValue, getTxCode } from '../../utils/appUtils';
+import { BLANK_VAULT, ETH_BASED_ASSETS } from '../../utils/constants';
 import { useChain } from '../useChain';
 
 export const useAddCollateral = () => {
@@ -16,7 +16,9 @@ export const useAddCollateral = () => {
   const { selectedBaseId, selectedIlkId, selectedSeriesId, seriesMap, assetMap } = userState;
   const { updateAssets, updateVaults } = userActions;
 
-  const { historyActions: { updateVaultHistory } } = useContext(HistoryContext);
+  const {
+    historyActions: { updateVaultHistory },
+  } = useContext(HistoryContext);
 
   const { sign, transact } = useChain();
 
@@ -41,17 +43,22 @@ export const useAddCollateral = () => {
   };
 
   const addCollateral = async (vault: IVault | undefined, input: string) => {
-    /* use the vault id provided OR Get a random vault number ready if reqd. */
-    const vaultId = vault?.id || ethers.utils.hexlify(ethers.utils.randomBytes(12));
+
+    /* use the vault id provided OR 0 if new/ not provided */
+    const vaultId = vault?.id || BLANK_VAULT;
+
     /* set the series and ilk based on if a vault has been selected or it's a new vault */
     const series = vault ? seriesMap.get(vault.seriesId) : seriesMap.get(selectedSeriesId);
     const ilk = vault ? assetMap.get(vault.ilkId) : assetMap.get(selectedIlkId);
     const base = vault ? assetMap.get(vault.baseId) : assetMap.get(selectedBaseId);
+
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.ADD_COLLATERAL, vaultId);
+
     /* parse inputs to BigNumber in Wei */
-    const _input = ethers.utils.parseUnits(input, ilk.decimals);
-    
+    const cleanedInput = cleanValue(input, ilk.decimals);
+    const _input = ethers.utils.parseUnits(cleanedInput, ilk.decimals);
+
     /* check if the ilk/asset is an eth asset variety, if so pour to Ladle */
     const _isEthBased = ETH_BASED_ASSETS.includes(ilk.id);
     const _pourTo = _isEthBased ? contractMap.get('Ladle').address : account;
@@ -63,6 +70,7 @@ export const useAddCollateral = () => {
           target: ilk,
           spender: ilk.joinAddress,
           ignoreIf: _isEthBased,
+          amount: _input,
         },
       ],
       txCode

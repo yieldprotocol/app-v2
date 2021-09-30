@@ -518,13 +518,12 @@ export function fyTokenForMint(
 
   let min = ZERO;
   let max = base_.mul(TWO);
-  let yOut = Decimal.floor(min.add(max).div(TWO));
+  let yOut = min.add(max).div(TWO).floor();
   let zIn: Decimal
 
   let i = 0;
   while (true) {
     // if (i++ > 100)  throw 'Not converging'
-
     // eslint-disable-next-line no-plusplus
     if (i++ > 100)  return ZERO_BN
 
@@ -532,7 +531,7 @@ export function fyTokenForMint(
       buyFYToken(
         baseReserves18,
         fyTokenVirtualReserves18,
-        BigNumber.from(yOut.toFixed()),
+        BigNumber.from(yOut.floor().toFixed()),
         timeTillMaturity_.toString(),
         18
       ).toString()
@@ -571,7 +570,7 @@ export function fyTokenForMint(
 
   return decimal18ToDecimalN(
     // (converted back to original decimals)
-    BigNumber.from(yOut.toFixed()),
+    BigNumber.from(yOut.floor().toFixed()),
     decimals
   );
 }

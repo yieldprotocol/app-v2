@@ -1,7 +1,6 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { ethers, BigNumber } from 'ethers';
 import { UserContext } from '../../contexts/UserContext';
-import { ChainContext } from '../../contexts/ChainContext';
 import { IAsset, ISeries, IStrategy, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import {
@@ -11,11 +10,9 @@ import {
   maxBaseToSpend,
   splitLiquidity,
   burn,
-  burnForBase,
   sellFYToken,
 } from '../../utils/yieldMath';
 import { ZERO_BN } from '../../utils/constants';
-import { Strategy } from '../../contracts';
 
 export const usePoolHelpers = (input: string | undefined) => {
   /* STATE FROM CONTEXT */
@@ -60,7 +57,7 @@ export const usePoolHelpers = (input: string | undefined) => {
     (tradeInput: BigNumber): BigNumber => {
       // 1. calc amount base/fytonken recieved from burn
       // 2. calculate new reseverves ( base reserves and fytokesreserevs)
-      // 3. try trade with new reserves 
+      // 3. try trade with new reserves
       if (strategySeries) {
         const [_baseTokens, _fytokens] = burn(
           strategySeries.baseReserves,
@@ -120,7 +117,7 @@ export const usePoolHelpers = (input: string | undefined) => {
 
   /* check account token trade value */
   useEffect(() => {
-    if (strategy?.accountBalance?.gt(ZERO_BN) ) {
+    if (strategy?.accountBalance?.gt(ZERO_BN)) {
       const _tradeValue = checkTrade(strategy?.accountBalance);
       const tradeable = _tradeValue.gt(ethers.constants.Zero);
       tradeable && setAccountTradeValue(ethers.utils.formatUnits(_tradeValue, strategy.decimals));
@@ -147,21 +144,17 @@ export const usePoolHelpers = (input: string | undefined) => {
       );
 
       // console.log( strategySeries.baseReserves.toString() )
-      if (
-        _input.lt(strategySeries.baseReserves.mul(2)) &&
-        strategySeries.baseReserves.gt(ethers.utils.parseUnits('10', strategySeries.decimals)) // only if greater than 10
-      ) {
-        _fyTokenToBuy = fyTokenForMint(
-          strategySeries.baseReserves,
-          strategySeries.fyTokenRealReserves,
-          strategySeries.fyTokenReserves,
-          _input,
-          strategySeries.getTimeTillMaturity(),
-          strategySeries.decimals
-        );
-        console.log('can buyAndPool?', _maxProtocol.lt(_fyTokenToBuy));
-        setCanBuyAndPool(_maxProtocol.lt(_fyTokenToBuy));
-      }
+      _fyTokenToBuy = fyTokenForMint(
+        strategySeries.baseReserves,
+        strategySeries.fyTokenRealReserves,
+        strategySeries.fyTokenReserves,
+        _input,
+        strategySeries.getTimeTillMaturity(),
+        strategySeries.decimals
+      );
+      console.log('can buyAndPool?', _maxProtocol.lt(_fyTokenToBuy));
+      setCanBuyAndPool(_maxProtocol.lt(_fyTokenToBuy));
+      
     } else {
       console.log('canbuy and pool reset');
       setCanBuyAndPool(true);
@@ -205,12 +198,10 @@ export const usePoolHelpers = (input: string | undefined) => {
 
   useEffect(() => {
     if (_input !== ethers.constants.Zero && strategy) {
-      
       // update the below to get an actual estimated token value based on the input
       // const _poolTokenPreview = ethers.utils.parseUnits(input, strategyBase?.decimals);
       const _poolPercentPreview = cleanValue(mulDecimal(divDecimal(_input, strategy.strategyTotalSupply!), '100'), 2);
       setPoolPercentPreview(_poolPercentPreview);
-
     }
   }, [_input, strategy]);
 
