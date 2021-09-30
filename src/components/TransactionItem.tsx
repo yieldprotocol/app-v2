@@ -17,7 +17,6 @@ interface ITransactionItem {
 const StyledLink = styled(Link)`
   text-decoration: none;
   vertical-align: middle;
-  color: black;
   :hover {
     text-decoration: underline;
   }
@@ -80,7 +79,7 @@ const TransactionItem = ({ tx, wide }: ITransactionItem) => {
           </Box>
           {status === TxState.SUCCESSFUL ? (
             <StyledLink to={link}>
-              <Text size="small" style={{ verticalAlign: 'middle' }}>
+              <Text size="small" style={{ color: 'black', verticalAlign: 'middle' }}>
                 {action}
               </Text>
             </StyledLink>
