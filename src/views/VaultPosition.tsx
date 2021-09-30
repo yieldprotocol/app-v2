@@ -125,21 +125,15 @@ const VaultPosition = () => {
     selectedVault
   );
 
-  const { 
-    maxRepay, 
-    maxRepay_, 
-    maxRepayDustLimit, 
-    protocolBaseAvailable, 
+  const {
+    maxRepay,
+    maxRepay_,
+    maxRepayDustLimit,
+    protocolBaseAvailable,
     userBaseAvailable,
     userBaseAvailable_,
     maxRoll_,
-  } = useBorrowHelpers(
-    undefined,
-    undefined,
-    selectedVault,
-    rollToSeries
-  );
-
+  } = useBorrowHelpers(undefined, undefined, selectedVault, rollToSeries);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries, [
     maxRepayDustLimit, // this is the max pay to get to dust limit. note different logic in input validation hook.
@@ -360,8 +354,7 @@ const VaultPosition = () => {
                                 <InputInfoWrap action={() => setRepayInput(maxRepay_)}>
                                   {selectedVault.art.gt(maxRepay) ? (
                                     <Text color="gray" alignSelf="end" size="xsmall">
-                                      Maximum repayable is {cleanValue(maxRepay_!, 2)}
-                                      {vaultBase?.symbol!}{' '}
+                                      Maximum repayable is {cleanValue(maxRepay_!, 2)} {vaultBase?.symbol!}{' '}
                                       {userBaseAvailable.lt(protocolBaseAvailable)
                                         ? '(based on your token balance)'
                                         : '(limited by protocol reserves)'}
@@ -376,8 +369,6 @@ const VaultPosition = () => {
 
                               {repayInput && !repayError && (
                                 <InputInfoWrap>
-
-
                                   {repayCollEst &&
                                     parseFloat(repayCollEst) > 10000 &&
                                     repayInput !== userBaseAvailable_ && (
