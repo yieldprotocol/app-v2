@@ -28,6 +28,7 @@ import CopyWrap from '../components/wraps/CopyWrap';
 import { useProcess } from '../hooks/useProcess';
 import { usePoolHelpers } from '../hooks/actionHelperHooks/usePoolHelpers';
 import InputInfoWrap from '../components/wraps/InputInfoWrap';
+import { ZERO_BN } from '../utils/constants';
 
 const PoolPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -229,6 +230,7 @@ const PoolPosition = () => {
                             <>
                             {!healthyBaseReserves &&
                              !removeInput &&
+                             selectedStrategy?.accountBalance?.gt(ZERO_BN) &&
                             <InputInfoWrap>
                               <Text color="text-weak" alignSelf="end" size="xsmall">
                                 Pools aren't healthy as they could be. Currently, not all of your liquidity tokens are

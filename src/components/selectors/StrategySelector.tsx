@@ -10,6 +10,7 @@ import { ActionType, ISeries, IStrategy } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { useApr } from '../../hooks/useApr';
 import { nFormatter } from '../../utils/appUtils';
+import { usePoolHelpers } from '../../hooks/actionHelperHooks/usePoolHelpers';
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
@@ -59,31 +60,7 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
 
   const [options, setOptions] = useState<IStrategy[]>([]);
 
-  const [percentOwnership, setPercentOwnership] = useState<IStrategy[]>([]);
-
-  // const selectedBase = assetMap.get(selectedBaseId!);
-  // const selectedStrategy: IStrategy = strategyMap.get(selectedStrategyAddr);
-  // const series: ISeries = seriesMap.get(selectedStrategy?.currentSeries);
-
-  const optionText = (_series: ISeries | undefined) => {
-    if (_series) {
-      return `${mobile ? _series?.displayNameMobile : _series?.displayName}`;
-    }
-    return 'Select a maturity date';
-  };
-
-  const optionExtended = (_series: ISeries | undefined) => (
-    <Box fill="horizontal" direction="row" justify="between" gap="small">
-      <Box align="center">{_series?.seriesMark} </Box>
-      {optionText(_series)}
-      {_series?.seriesIsMature && (
-        <Box round="large" border pad={{ horizontal: 'small' }}>
-          <Text size="xsmall"> Mature </Text>
-        </Box>
-      )}
-      {/* <AprText inputValue={inputValue} series={_series!} actionType={ActionType.POOL} /> */}
-    </Box>
-  );
+  const { poolPercentPreview } = usePoolHelpers(inputValue)
 
   /* Keeping options/selection fresh and valid: */
   useEffect(() => {
@@ -149,7 +126,7 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
                               strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined
                             }
                           >
-                            {nFormatter(parseFloat(strategy.strategyTotalSupply_!), 1)}
+                            {nFormatter(parseFloat(strategy.strategyTotalSupply_!), 1)} <Text size='xsmall'> tokens </Text>
                           </Text>
                           <Text
                             size="xsmall"
@@ -157,7 +134,7 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
                               strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined
                             }
                           >
-                            Tokens pooled
+                             in the strategy 
                           </Text>
                         </>
                       )}
@@ -170,11 +147,7 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
                               strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined
                             }
                           >
-                            {(
-                              (parseFloat(inputValue!) /
-                                (parseFloat(strategy.strategyTotalSupply_!) + parseFloat(inputValue!))) *
-                              100
-                            ).toFixed(2)}
+                            {poolPercentPreview}%
                           </Text>
                           <Text
                             size="xsmall"
