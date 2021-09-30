@@ -526,8 +526,8 @@ export function fyTokenForMint(
 
     zIn = new Decimal(
       buyFYToken(
-        baseReserves_,
-        fyDaiVirtualReserves_,
+        baseReserves18,
+        fyTokenVirtualReserves18,
         BigNumber.from(yOut.toFixed()),
         timeTillMaturity_.toString(),
         18
