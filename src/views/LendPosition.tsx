@@ -119,11 +119,8 @@ const LendPosition = () => {
 
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
   useEffect(() => {
-    console.log(maxClose);
     !closeInput || closeError || !maxClose ? setCloseDisabled(true) : setCloseDisabled(false);
-    !rollInput || !rollToSeries || rollError || parseFloat(maxLend!) === 0
-      ? setRollDisabled(true)
-      : setRollDisabled(false);
+    !rollInput || !rollToSeries || rollError ? setRollDisabled(true) : setRollDisabled(false);
   }, [closeInput, closeError, rollInput, rollToSeries, rollError, maxClose, maxLend]);
 
   /* Watch process timeouts */
