@@ -98,8 +98,6 @@ export const usePoolHelpers = (input: string | undefined) => {
     }
   }, [input, strategyBase]);
 
-  useEffect(() => {}, [strategySeries]);
-
   /* Check if base reserves are too low for max trade  */
   useEffect(() => {
     if (strategy && strategySeries) {
@@ -121,15 +119,13 @@ export const usePoolHelpers = (input: string | undefined) => {
   }, [_input, checkTrade, strategySeries]);
 
   /* check account token trade value */
-
-  /* set the trade value and check if base reserves are too low for specific input  */
   useEffect(() => {
     if (strategy?.accountBalance?.gt(ZERO_BN) ) {
       const _tradeValue = checkTrade(strategy?.accountBalance);
       const tradeable = _tradeValue.gt(ethers.constants.Zero);
       tradeable && setAccountTradeValue(ethers.utils.formatUnits(_tradeValue, strategy.decimals));
     }
-  }, [_input, checkTrade, strategy?.accountBalance, strategy?.decimals]);
+  }, [checkTrade, strategy?.accountBalance, strategy?.decimals]);
 
   /* set max for removal with a vault  */
   useEffect(() => {
