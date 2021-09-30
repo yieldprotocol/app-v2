@@ -60,6 +60,7 @@ export const usePoolHelpers = (input: string | undefined) => {
     (tradeInput: BigNumber): BigNumber => {
       // 1. calc amount base/fytonken recieved from burn
       // 2. calculate new reseverves ( base reserves and fytokesreserevs)
+      // 3. try trade with new reserves 
       if (strategySeries) {
         const [_baseTokens, _fytokens] = burn(
           strategySeries.baseReserves,
