@@ -3,7 +3,7 @@ import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, IVault, ActionCodes, LadleActions, ISeries } from '../../types';
-import { getTxCode } from '../../utils/appUtils';
+import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { ETH_BASED_ASSETS, BLANK_VAULT } from '../../utils/constants';
 import { buyBase, calculateSlippage } from '../../utils/yieldMath';
 import { useChain } from '../useChain';
@@ -32,9 +32,14 @@ export const useBorrow = () => {
     const base = assetMap.get(series.baseId);
     const ilk = vault ? assetMap.get(vault.ilkId) : assetMap.get(selectedIlkId);
 
-    /* parse inputs */
-    const _input = input ? ethers.utils.parseUnits(input, base.decimals) : ethers.constants.Zero;
-    const _collInput = collInput ? ethers.utils.parseUnits(collInput, ilk.decimals) : ethers.constants.Zero;
+    /* parse inputs  ( clean down to base/ilk decimals so that there is never an underlow)  */
+    const cleanInput = cleanValue(input, base.decimals)
+    const _input = input ? ethers.utils.parseUnits(cleanInput, base.decimals) : ethers.constants.Zero;
+
+    const cleanCollInput = cleanValue(collInput, ilk.decimals);
+    const _collInput = collInput
+      ? ethers.utils.parseUnits(cleanCollInput, ilk.decimals)
+      : ethers.constants.Zero;
 
     /* Calculate expected debt(fytokens) */
     const _expectedFyToken = buyBase(
@@ -42,9 +47,9 @@ export const useBorrow = () => {
       series.fyTokenReserves,
       _input,
       series.getTimeTillMaturity(),
-      series.decimals,
-    )
-    const _expectedFyTokenWithSlippage = calculateSlippage( _expectedFyToken, slippageTolerance )
+      series.decimals
+    );
+    const _expectedFyTokenWithSlippage = calculateSlippage(_expectedFyToken, slippageTolerance);
 
     /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
     const permits: ICallData[] = await sign(
