@@ -35,6 +35,8 @@ export const useBorrowHelpers = (
   const [userBaseAvailable_, setUserBaseAvailable_] = useState<string | undefined>();
   const [protocolBaseAvailable, setProtocolBaseAvailable] = useState<BigNumber>(ethers.constants.Zero);
 
+  const [maxDebt_, setMaxDebt_] = useState<string | undefined>();
+
   /* update the minimum maxmimum allowable debt */
   useEffect(() => {
     setMinAllowedBorrow('0.5');
@@ -66,11 +68,11 @@ export const useBorrowHelpers = (
       (async () => {
         const _maxToken = await vaultBase?.getBalance(activeAccount);
         const _maxDebt = vault.art;
+        setMaxDebt_(ethers.utils.formatUnits(vault.art, vaultBase.decimals));
 
         /* max user is either the max tokens they have or max debt */
         const _maxUser = _maxToken && _maxDebt?.gt(_maxToken) ? _maxToken : _maxDebt;
         const _maxDust = _maxUser.sub(minDebt);
-
         const _maxProtocol = maxBaseToSpend(
           vaultSeries.baseReserves,
           vaultSeries.fyTokenReserves,
@@ -115,5 +117,6 @@ export const useBorrowHelpers = (
     userBaseAvailable,
     protocolBaseAvailable,
     userBaseAvailable_,
+    maxDebt_,
   };
 };
