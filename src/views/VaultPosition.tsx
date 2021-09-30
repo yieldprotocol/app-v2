@@ -389,9 +389,7 @@ const VaultPosition = () => {
                                   {repayCollEst &&
                                     parseFloat(repayCollEst) < 10000 &&
                                     parseFloat(repayCollEst) !== 0 &&
-                                    // selectedVault.art.gte(maxAsBn) &&
                                     repayInput !== userBaseAvailable_ && (
-
                                       <Text color="text-weak" alignSelf="end" size="xsmall">
                                         Collateralisation ratio after repayment:{' '}
                                         {repayCollEst && nFormatter(parseFloat(repayCollEst), 2)}%
