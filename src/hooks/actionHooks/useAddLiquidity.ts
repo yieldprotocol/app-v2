@@ -31,7 +31,8 @@ export const useAddLiquidity = () => {
     const base: IAsset = assetMap.get(series.baseId);
 
     const _input = ethers.utils.parseUnits(input, base.decimals);
-
+ 
+    console.log( 'pool TotalSupply :', (await series.poolContract.totalSupply()).toString() ) 
     const _fyTokenToBuy = fyTokenForMint(
       series.baseReserves,
       series.fyTokenRealReserves,
@@ -43,22 +44,22 @@ export const useAddLiquidity = () => {
 
     const [_baseToPool, _baseToFyToken] = splitLiquidity(series.baseReserves, series.fyTokenReserves, _input);
 
-    const [_mintedWithBase, ] = mintWithBase(
-      series.baseReserves,
-      series.fyTokenReserves,
-      series.fyTokenRealReserves,
-      series.totalSupply,
-      _fyTokenToBuy,
-      series.getTimeTillMaturity()
-    );
-    const _mintedWithBaseWithSlippage = calculateSlippage(_mintedWithBase, slippageTolerance, true);
-    console.log('mintedWithBase', _mintedWithBase.toString());
-    console.log('_mintedWithBaseWithSlippage: ', _mintedWithBaseWithSlippage.toString());
+    // const [_mintedWithBase, ] = mintWithBase(
+    //   series.baseReserves,
+    //   series.fyTokenReserves,
+    //   series.fyTokenRealReserves,
+    //   series.totalSupply,
+    //   _fyTokenToBuy,
+    //   series.getTimeTillMaturity()
+    // );
+    // const _mintedWithBaseWithSlippage = calculateSlippage(_mintedWithBase, slippageTolerance, true);
+    // console.log('mintedWithBase', _mintedWithBase.toString());
+    // console.log('_mintedWithBaseWithSlippage: ', _mintedWithBaseWithSlippage.toString());
 
-    const [_minted, ] = mint(series.baseReserves, series.fyTokenRealReserves, series.totalSupply, _input);
-    const _mintedWithSlippage = calculateSlippage(_minted, slippageTolerance, true);
-    console.log('minted', _minted.toString());
-    console.log('_mintedWithSlippage: ', _mintedWithSlippage.toString());
+    // const [_minted, ] = mint(series.baseReserves, series.fyTokenRealReserves, series.totalSupply, _input);
+    // const _mintedWithSlippage = calculateSlippage(_minted, slippageTolerance, true);
+    // console.log('minted', _minted.toString());
+    // console.log('_mintedWithSlippage: ', _mintedWithSlippage.toString());
 
     const permits: ICallData[] = await sign(
       [
