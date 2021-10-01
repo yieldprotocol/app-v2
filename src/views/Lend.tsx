@@ -57,7 +57,7 @@ const Lend = () => {
   const [stepPosition, setStepPosition] = useState<number>(0);
 
   /* HOOK FNS */
-  const { maxLend, protocolBaseAvailable, userBaseAvailable, canLend } = useLendHelpers(selectedSeries, lendInput);
+  const { maxLend_, protocolBaseAvailable, userBaseAvailable } = useLendHelpers(selectedSeries, lendInput);
 
   const lend = useLend();
   const { apr } = useApr(lendInput, ActionType.LEND, selectedSeries);
@@ -67,7 +67,7 @@ const Lend = () => {
   const { txProcess: lendProcess, resetProcess: resetLendProcess } = useProcess(ActionCodes.LEND, selectedSeries?.id);
 
   /* input validation hooks */
-  const { inputError: lendError } = useInputValidation(lendInput, ActionCodes.LEND, selectedSeries, [0, maxLend]);
+  const { inputError: lendError } = useInputValidation(lendInput, ActionCodes.LEND, selectedSeries, [0, maxLend_]);
 
   /* LOCAL FNS */
   const handleLend = () => {
@@ -132,11 +132,11 @@ const Lend = () => {
                         disabled={selectedSeries?.seriesIsMature}
                         message={
                           selectedSeries && (
-                            <InputInfoWrap action={() => setLendInput(maxLend)}>
+                            <InputInfoWrap action={() => setLendInput(maxLend_)}>
                               <Text size="xsmall" color="text-weak">
                                 Max lend is{' '}
                                 <Text size="small" color="text-weak">
-                                  {cleanValue(maxLend, 2)} {selectedBase?.symbol}
+                                  {cleanValue(maxLend_, 2)} {selectedBase?.symbol}
                                 </Text>{' '}
                                 {userBaseAvailable.lt(protocolBaseAvailable)
                                   ? ' (your token balance)'
@@ -155,10 +155,10 @@ const Lend = () => {
                           disabled={selectedSeries?.seriesIsMature}
                         />
                         <MaxButton
-                          action={() => setLendInput(maxLend)}
-                          disabled={maxLend === '0' || selectedSeries?.seriesIsMature}
+                          action={() => setLendInput(maxLend_)}
+                          disabled={maxLend_ === '0' || selectedSeries?.seriesIsMature}
                           clearAction={() => setLendInput('')}
-                          showingMax={!!lendInput && (lendInput === maxLend || !!lendError)}
+                          showingMax={!!lendInput && (lendInput === maxLend_ || !!lendError)}
                         />
                       </InputWrap>
                     </Box>

@@ -1,12 +1,16 @@
-import { BigNumber, BigNumberish, ethers } from 'ethers';
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { BigNumber, ethers } from 'ethers';
+import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../contexts/UserContext';
 import { ISeries } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
-import { WAD_BN, ZERO_BN } from '../../utils/constants';
+import { ZERO_BN } from '../../utils/constants';
 import { maxBaseToSpend, sellBase, sellFYToken } from '../../utils/yieldMath';
 
-export const useLendHelpers = (series: ISeries | undefined, input: string | undefined) => {
+export const useLendHelpers = (
+  series: ISeries | undefined,
+  input: string | undefined,
+  rollToSeries: ISeries | undefined = undefined
+) => {
   const { userState } = useContext(UserContext);
   const { assetMap, activeAccount, selectedBaseId } = userState;
   const selectedBase = assetMap.get(selectedBaseId!);
@@ -14,14 +18,11 @@ export const useLendHelpers = (series: ISeries | undefined, input: string | unde
   /* clean to prevent underflow */
   const _input = cleanValue(input, selectedBase?.decimals);
 
-  const [maxLend, setMaxLend] = useState<string>();
-  const [canLend, setCanLend] = useState<boolean>();
+  const [maxLend, setMaxLend] = useState<BigNumber>(ZERO_BN);
+  const [maxLend_, setMaxLend_] = useState<string>();
 
-  const [maxClose, setMaxClose] = useState<string>();
-  const [canClose, setCanClose] = useState<string>();
-
-  const [maxRoll, setMaxRoll] = useState<string>();
-  const [canRoll, setCanRoll] = useState<boolean>();
+  const [maxClose, setMaxClose] = useState<BigNumber>(ZERO_BN);
+  const [maxClose_, setMaxClose_] = useState<string>();
 
   const [userBaseAvailable, setUserBaseAvailable] = useState<BigNumber>(ethers.constants.Zero);
   const [protocolBaseAvailable, setProtocolBaseAvailable] = useState<BigNumber>(ethers.constants.Zero);
@@ -38,7 +39,7 @@ export const useLendHelpers = (series: ISeries | undefined, input: string | unde
         series.decimals
       );
       // console.log(trade.toString());
-      setCanLend(trade.gt(ZERO_BN));
+      // setCanLend(trade.gt(ZERO_BN));
     }
   }, [_input, series]);
 
@@ -69,17 +70,19 @@ export const useLendHelpers = (series: ISeries | undefined, input: string | unde
   /* set maxLend based on either max user or max protocol */
   useEffect(() => {
     if (!series && selectedBase) {
-      setMaxLend(ethers.utils.formatUnits(userBaseAvailable, selectedBase.decimals).toString());
+      setMaxLend(userBaseAvailable);
+      setMaxLend_(ethers.utils.formatUnits(userBaseAvailable, selectedBase.decimals).toString());
     }
     if (series) {
       /* user balance or max Lend (max base to spend) */
       userBaseAvailable.lt(protocolBaseAvailable)
-        ? setMaxLend(ethers.utils.formatUnits(userBaseAvailable, series.decimals).toString())
-        : setMaxLend(ethers.utils.formatUnits(protocolBaseAvailable, series.decimals).toString());
+        ? setMaxLend_(ethers.utils.formatUnits(userBaseAvailable, series.decimals).toString())
+        : setMaxLend_(ethers.utils.formatUnits(protocolBaseAvailable, series.decimals).toString());
+      userBaseAvailable.lt(protocolBaseAvailable) ? setMaxLend(userBaseAvailable) : setMaxLend(protocolBaseAvailable);
     }
   }, [userBaseAvailable, protocolBaseAvailable, series, selectedBase]);
 
-  /* Sets currentValue as the market Value of fyTokens held in base tokens */
+  /* Sets max close and current market Value of fyTokens held in base tokens */
   useEffect(() => {
     if (series && !series.seriesIsMature) {
       const value = sellFYToken(
@@ -89,39 +92,40 @@ export const useLendHelpers = (series: ISeries | undefined, input: string | unde
         series.getTimeTillMaturity(),
         series.decimals
       );
-      
+
       value.lte(ethers.constants.Zero)
         ? setFyTokenMarketValue('Low liquidity: unable to redeem all ')
         : setFyTokenMarketValue(ethers.utils.formatUnits(value, series.decimals));
 
       /* set max Closing */
       value.lte(ethers.constants.Zero)
-        ? setMaxClose(ethers.utils.formatUnits(series.baseReserves, series.decimals).toString())
-        : setMaxClose(ethers.utils.formatUnits(value, series.decimals).toString());
+        ? setMaxClose_(ethers.utils.formatUnits(series.baseReserves, series.decimals).toString())
+        : setMaxClose_(ethers.utils.formatUnits(value, series.decimals).toString());
+
+      /* set max Closing */
+      value.lte(ethers.constants.Zero)
+        ? setMaxClose(series.baseReserves)
+        : setMaxClose(value);
     }
 
     if (series && series.seriesIsMature) {
-      const val = ethers.utils.formatUnits(series.fyTokenBalance!, series.decimals)
+      const val = ethers.utils.formatUnits(series.fyTokenBalance!, series.decimals);
       setFyTokenMarketValue(val);
-      setMaxClose(val);
+      setMaxClose_(val);
+      setMaxClose(series.fyTokenBalance!);
     }
-      
   }, [series]);
 
   return {
-    
-    canLend,
     maxLend,
-    
+    maxLend_,
+
+    maxClose,
+    maxClose_,
+
     fyTokenMarketValue,
+
     protocolBaseAvailable,
     userBaseAvailable,
- 
-    canClose,
-    maxClose,
-
-    canRoll,
-    maxRoll,
-
   };
 };

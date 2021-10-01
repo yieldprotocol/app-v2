@@ -71,15 +71,19 @@ export const useInputValidation = (
           input && !ethers.utils.isAddress(input) && setInputError('Not a valid Address');
           break;
 
+        case ActionCodes.ROLL_POSITION: 
+          aboveMax && setInputError('Rolling is limited by protocol liquidity');
+          break;
+
         case ActionCodes.LEND:
         case ActionCodes.ADD_LIQUIDITY:
         case ActionCodes.CLOSE_POSITION:
-        case ActionCodes.ROLL_POSITION:
         case ActionCodes.REMOVE_LIQUIDITY:
         case ActionCodes.ROLL_LIQUIDITY:
           aboveMax && setInputError('Amount exceeds available balance');
           belowMin && setInputError('Amount should be expressed as a positive value');
           break;
+        
 
         default:
           setInputError(null);
