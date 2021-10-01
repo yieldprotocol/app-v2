@@ -16,7 +16,12 @@ export const useLendHelpers = (series: ISeries | undefined, input: string | unde
 
   const [maxLend, setMaxLend] = useState<string>();
   const [canLend, setCanLend] = useState<boolean>();
+
   const [maxClose, setMaxClose] = useState<string>();
+  const [canClose, setCanClose] = useState<string>();
+
+  const [maxRoll, setMaxRoll] = useState<string>();
+  const [canRoll, setCanRoll] = useState<boolean>();
 
   const [userBaseAvailable, setUserBaseAvailable] = useState<BigNumber>(ethers.constants.Zero);
   const [protocolBaseAvailable, setProtocolBaseAvailable] = useState<BigNumber>(ethers.constants.Zero);
@@ -32,12 +37,12 @@ export const useLendHelpers = (series: ISeries | undefined, input: string | unde
         series.getTimeTillMaturity(),
         series.decimals
       );
-      console.log(trade.toString());
+      // console.log(trade.toString());
       setCanLend(trade.gt(ZERO_BN));
     }
   }, [_input, series]);
 
-  /* check the protocol max limits */
+  /* check and set the protocol Base max limits */
   useEffect(() => {
     if (series) {
       const timeTillMaturity = series.getTimeTillMaturity();
@@ -51,7 +56,7 @@ export const useLendHelpers = (series: ISeries | undefined, input: string | unde
     }
   }, [series]);
 
-  /* Check max available lend (only if activeAccount).   */
+  /* Check and set Max available lend by user (only if activeAccount).   */
   useEffect(() => {
     if (activeAccount) {
       (async () => {
@@ -61,6 +66,7 @@ export const useLendHelpers = (series: ISeries | undefined, input: string | unde
     }
   }, [activeAccount, selectedBase, series]);
 
+  /* set maxLend based on either max user or max protocol */
   useEffect(() => {
     if (!series && selectedBase) {
       setMaxLend(ethers.utils.formatUnits(userBaseAvailable, selectedBase.decimals).toString());
@@ -83,7 +89,7 @@ export const useLendHelpers = (series: ISeries | undefined, input: string | unde
         series.getTimeTillMaturity(),
         series.decimals
       );
-
+      
       value.lte(ethers.constants.Zero)
         ? setFyTokenMarketValue('Low liquidity: unable to redeem all ')
         : setFyTokenMarketValue(ethers.utils.formatUnits(value, series.decimals));
@@ -93,16 +99,29 @@ export const useLendHelpers = (series: ISeries | undefined, input: string | unde
         ? setMaxClose(ethers.utils.formatUnits(series.baseReserves, series.decimals).toString())
         : setMaxClose(ethers.utils.formatUnits(value, series.decimals).toString());
     }
-    if (series && series.seriesIsMature)
-      setFyTokenMarketValue(ethers.utils.formatUnits(series.fyTokenBalance!, series.decimals));
+
+    if (series && series.seriesIsMature) {
+      const val = ethers.utils.formatUnits(series.fyTokenBalance!, series.decimals)
+      setFyTokenMarketValue(val);
+      setMaxClose(val);
+    }
+      
   }, [series]);
 
   return {
+    
     canLend,
     maxLend,
+    
     fyTokenMarketValue,
     protocolBaseAvailable,
     userBaseAvailable,
+ 
+    canClose,
     maxClose,
+
+    canRoll,
+    maxRoll,
+
   };
 };
