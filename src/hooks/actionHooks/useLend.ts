@@ -13,7 +13,9 @@ export const useLend = () => {
   const { activeAccount: account, assetMap, slippageTolerance } = userState;
   const { updateSeries, updateAssets } = userActions;
 
-  const { historyActions: { updateTradeHistory } } = useContext(HistoryContext);
+  const {
+    historyActions: { updateTradeHistory },
+  } = useContext(HistoryContext);
 
   const { sign, transact } = useChain();
 
@@ -22,7 +24,7 @@ export const useLend = () => {
     const txCode = getTxCode(ActionCodes.LEND, series.id);
 
     const base = assetMap.get(series.baseId);
-    const cleanedInput = cleanValue(input,base.decimals)
+    const cleanedInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanedInput, base.decimals) : ethers.constants.Zero;
 
     const _inputAsFyToken = sellBase(

@@ -1,11 +1,10 @@
 import { ethers } from 'ethers';
-import { useContext, useEffect, useState } from 'react';
-import { ChainContext } from '../../contexts/ChainContext';
+import { useContext } from 'react';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions } from '../../types';
-import { getTxCode } from '../../utils/appUtils';
-import { buyBase, calculateSlippage, sellFYToken } from '../../utils/yieldMath';
+import { cleanValue, getTxCode } from '../../utils/appUtils';
+import { buyBase, calculateSlippage } from '../../utils/yieldMath';
 import { useChain } from '../useChain';
 
 /* Lend Actions Hook */
@@ -13,21 +12,19 @@ export const useClosePosition = () => {
   const { userState, userActions } = useContext(UserContext);
   const { activeAccount: account, assetMap } = userState;
   const { updateSeries, updateAssets } = userActions;
-
   const { historyActions: { updateTradeHistory } } = useContext(HistoryContext);
-
 
   const { sign, transact } = useChain();
 
   const closePosition = async (input: string | undefined, series: ISeries) => {
     const txCode = getTxCode(ActionCodes.CLOSE_POSITION, series.id);
-
     const base = assetMap.get(series.baseId);
-    const _input = input ? ethers.utils.parseUnits(input, base.decimals) : ethers.constants.Zero;
+    const cleanedInput = cleanValue(input, base.decimals)
+    const _input = input ? ethers.utils.parseUnits(cleanedInput, base.decimals) : ethers.constants.Zero;
 
     const { fyTokenAddress, poolAddress, seriesIsMature } = series;
 
-    // buy fyToken value ( after maturity  fytoken === base value )
+    /* buy fyToken value ( after maturity  fytoken === base value ) */
     const _fyTokenValueOfInput = seriesIsMature
       ? _input
       : buyBase(series.baseReserves, series.fyTokenReserves, _input, series.getTimeTillMaturity(), series.decimals);
@@ -43,18 +40,15 @@ export const useClosePosition = () => {
         {
           target: series,
           spender: 'LADLE',
-          message: 'Allow Ladle to move your fyTokens',
+          amount: _fyTokenValueOfInput,
           ignoreIf: false, // never ignore
         },
       ],
       txCode
     );
 
-    console.log('series mature: ', seriesIsMature);
-
     const calls: ICallData[] = [
       ...permits,
-
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [
@@ -62,7 +56,7 @@ export const useClosePosition = () => {
           seriesIsMature ? fyTokenAddress : poolAddress, // select dest based on maturity
           _fyTokenValueOfInput,
         ] as LadleActions.Args.TRANSFER,
-        ignoreIf: false, // never ignore
+        ignoreIf: false, // never ignore even after maturity because we go through the ladle.
       },
 
       /* BEFORE MATURITY */

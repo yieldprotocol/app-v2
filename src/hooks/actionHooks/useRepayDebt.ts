@@ -4,17 +4,15 @@ import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, IVault, ISeries, ActionCodes, LadleActions, IAsset } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { MAX_128 } from '../../utils/constants';
 import { useChain } from '../useChain';
 import { calculateSlippage, maxBaseToSpend, secondsToFrom, sellBase } from '../../utils/yieldMath';
 import { useRemoveCollateral } from './useRemoveCollateral';
-import { useBorrowHelpers } from '../actionHelperHooks/useBorrowHelpers';
 
 export const useRepayDebt = () => {
   const {
     chainState: { account },
   } = useContext(ChainContext);
-  const { userState, userActions, selectedVault } = useContext(UserContext);
+  const { userState, userActions } = useContext(UserContext);
   const { seriesMap, assetMap } = userState;
   const { updateVaults, updateAssets } = userActions;
 
@@ -55,7 +53,6 @@ export const useRepayDebt = () => {
 
     const inputGreaterThanDebt: boolean = ethers.BigNumber.from(_inputAsFyToken).gte(vault.art);
     const inputGreaterThanMaxBaseIn = _input.gt(protocolMax);
-    const fyTokenInputGreaterThanReserves = _inputAsFyToken.gte(series.fyTokenRealReserves);
 
     const permits: ICallData[] = await sign(
       [
@@ -104,7 +101,6 @@ export const useRepayDebt = () => {
         ignoreIf:
           series.seriesIsMature ||
           !inputGreaterThanDebt || // use if input IS more than debt OR
-          // fyTokenInputGreaterThanReserves, // OR ignore if fytoken required is greater than fyTokenReserves
           inputGreaterThanMaxBaseIn,
       },
 
