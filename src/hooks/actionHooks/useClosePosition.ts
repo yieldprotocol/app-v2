@@ -29,8 +29,9 @@ export const useClosePosition = () => {
       ? _input
       : buyBase(series.baseReserves, series.fyTokenReserves, _input, series.getTimeTillMaturity(), series.decimals);
 
-    const _fyTokenValueOfInputWithSlippage = calculateSlippage(
-      _fyTokenValueOfInput,
+    /* calculate slippage on the base token expected to recieve ie. input */ 
+    const _inputWithSlippage = calculateSlippage(
+      _input,
       userState.slippageTolerance.toString(),
       true
     );
@@ -62,7 +63,7 @@ export const useClosePosition = () => {
       /* BEFORE MATURITY */
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [account, _fyTokenValueOfInputWithSlippage] as RoutedActions.Args.SELL_FYTOKEN,
+        args: [account, _inputWithSlippage] as RoutedActions.Args.SELL_FYTOKEN,
         fnName: RoutedActions.Fn.SELL_FYTOKEN,
         targetContract: series.poolContract,
         ignoreIf: seriesIsMature,
