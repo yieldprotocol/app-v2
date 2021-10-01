@@ -57,7 +57,7 @@ const Lend = () => {
   const [stepPosition, setStepPosition] = useState<number>(0);
 
   /* HOOK FNS */
-  const { maxLend, protocolBaseAvailable, userBaseAvailable } = useLendHelpers(selectedSeries!);
+  const { maxLend, protocolBaseAvailable, userBaseAvailable, canLend } = useLendHelpers(selectedSeries, lendInput);
 
   const lend = useLend();
   const { apr } = useApr(lendInput, ActionType.LEND, selectedSeries);

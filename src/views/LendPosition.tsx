@@ -56,8 +56,8 @@ const LendPosition = () => {
   // const [redeemDisabled, setRedeemDisabled] = useState<boolean>(true);
 
   /* HOOK FNS */
-  const { fyTokenMarketValue, maxClose } = useLendHelpers(selectedSeries!);
-  const { maxLend } = useLendHelpers(rollToSeries!);
+  const { fyTokenMarketValue, maxClose } = useLendHelpers(selectedSeries!, closeInput);
+  const { maxLend } = useLendHelpers(rollToSeries!, rollInput);
 
   const closePosition = useClosePosition();
   const rollPosition = useRollPosition();
