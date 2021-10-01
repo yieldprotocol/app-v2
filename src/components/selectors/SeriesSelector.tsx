@@ -155,7 +155,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
     /* filter out options based on base Id and if mature */
     let filteredOpts = opts.filter(
-      (_series: ISeries) => _series.baseId === selectedBaseId && !_series.seriesIsMature
+      (_series: ISeries) => _series.baseId === selectedBaseId  && !_series.seriesIsMature
       // !ignoredSeries?.includes(_series.baseId)
     );
 
@@ -168,13 +168,13 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     set the selected series to null. */
     if (
       selectedSeries &&
-      (filteredOpts.findIndex((_series: ISeries) => _series.id !== selectedSeriesId) < 0 ||
-        selectedSeries.baseId !== selectedBaseId)
+      // (filteredOpts.findIndex((_series: ISeries) => _series.id !== selectedSeriesId) < 0 ||
+        selectedSeries.baseId !== selectedBaseId // )
     )
       userActions.setSelectedSeries(null);
 
     setOptions(filteredOpts.sort((a: ISeries, b: ISeries) => a.maturity - b.maturity));
-  }, [seriesMap, selectedBase, selectSeriesLocally, selectedSeries, userActions]);
+  }, [seriesMap, selectedBase, selectSeriesLocally, selectedSeries, userActions, selectedBaseId, selectedSeriesId]);
 
   const handleSelect = (_series: ISeries) => {
     if (!selectSeriesLocally) {
