@@ -85,7 +85,9 @@ export const usePoolHelpers = (input: string | undefined) => {
   useEffect(() => {
     if (input) {
       try {
-        const parsedInput = ethers.utils.parseUnits(input!, strategyBase?.decimals);
+        // const _inputWithSlippage = calculateSlippage(_input, slippageTolerance );
+        const cleanedInput = cleanValue(input, strategy?.decimals )
+        const parsedInput = ethers.utils.parseUnits(cleanedInput, strategyBase?.decimals);
         setInput(parsedInput);
       } catch (e) {
         console.log(e);
@@ -137,6 +139,7 @@ export const usePoolHelpers = (input: string | undefined) => {
   useEffect(() => {
     if (strategySeries && _input.gt(ethers.constants.Zero)) {
       let _fyTokenToBuy = ethers.constants.Zero;
+      
       const _maxProtocol = maxBaseToSpend(
         strategySeries.baseReserves,
         strategySeries.fyTokenReserves,
@@ -152,11 +155,10 @@ export const usePoolHelpers = (input: string | undefined) => {
         strategySeries.getTimeTillMaturity(),
         strategySeries.decimals
       );
-      console.log('can buyAndPool?', _maxProtocol.lt(_fyTokenToBuy));
-      setCanBuyAndPool(_maxProtocol.lt(_fyTokenToBuy));
-      
+
+      console.log('Can BuyAndPool? ', _maxProtocol.lt(_fyTokenToBuy));
+      setCanBuyAndPool(_maxProtocol.lt(_fyTokenToBuy));   
     } else {
-      console.log('canbuy and pool reset');
       setCanBuyAndPool(true);
     }
   }, [_input, strategySeries]);
