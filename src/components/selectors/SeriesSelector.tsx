@@ -83,11 +83,14 @@ const AprText = ({
   )
 
   useEffect(() => {
+
+    if (
       !series?.seriesIsMature &&
-      _inputValue &&
+      _inputValue 
+    )  
       actionType === ActionType.LEND 
         ? setLimitHit( (ethers.utils.parseUnits(_inputValue, series?.decimals)).gt(maxBase) ) // lending max
-        : setLimitHit( false ) //  TODO borrow max 
+        : setLimitHit( ethers.utils.parseUnits(_inputValue, series?.decimals).gt(series?.baseReserves) ) //  TODO borrow max 
 
   }, [_inputValue, actionType, maxBase, series.baseReserves, series.decimals, series?.seriesIsMature, setLimitHit]);
 
