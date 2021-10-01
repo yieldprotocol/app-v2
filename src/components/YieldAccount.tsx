@@ -21,6 +21,19 @@ const StyledText = styled(Text)`
   }
 `;
 
+const StyledBox = styled(Box)`
+  text-decoration: none;
+  padding: 8px;
+
+  -webkit-transition: transform 0.3s ease-in-out;
+  -moz-transition: transform 0.3s ease-in-out;
+  transition: transform 0.3s ease-in-out;
+
+  :hover {
+    transform: scale(1.1);
+  }
+`;
+
 const YieldAccount = (props: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
@@ -48,28 +61,32 @@ const YieldAccount = (props: any) => {
       {account ? (
         <Box direction="row" gap="xsmall" align="center">
           {!mobile && <SettingsBalances />}
-          <Box
+          <StyledBox
             round="xsmall"
             onClick={() => setSettingsOpen(true)}
             pad="xsmall"
             justify="center"
-            hoverIndicator={{ color: 'tailwind-blue-50' }}
+            hoverIndicator={{ background: 'hover' }}
           >
             {mobile ? (
-              <Text color="text">
+              <Box>
                 <FiSettings />
-              </Text>
+              </Box>
             ) : (
               <Box direction="row" align="center" gap="small">
                 <Box>
                   <Text color="text" size="small">
-                    {abbreviateHash(account)}
+                    {abbreviateHash(account, 5)}
                   </Text>
 
                   <Box direction="row" align="center" gap="small">
-                    <Box direction="row" gap="small" align="center">
+                    <Box direction="row" gap="xsmall" align="center">
                       <StyledText size="small" color="text">
-                        <EthMark /> {assetsLoading ? <Skeleton width={40} /> : ethBalance}
+                        {assetsLoading && <Skeleton circle height={15} width={15} />}
+                        {ethBalance && <EthMark />}
+                      </StyledText>
+                      <StyledText size="small" color="text">
+                        {assetsLoading ? <Skeleton width={40} /> : ethBalance}
                       </StyledText>
                     </Box>
                   </Box>
@@ -79,7 +96,7 @@ const YieldAccount = (props: any) => {
                 </Box>
               </Box>
             )}
-          </Box>
+          </StyledBox>
         </Box>
       ) : (
         <ConnectButton action={() => setConnectOpen(true)} />

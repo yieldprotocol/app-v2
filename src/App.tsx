@@ -2,6 +2,9 @@ import React, { useContext, useState } from 'react';
 import { Box, ResponsiveContext } from 'grommet';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
+import ParticlesBg from 'particles-bg';
+
 import { Redirect, Route, Switch } from 'react-router-dom';
 import { ChainContext } from './contexts/ChainContext';
 
@@ -17,6 +20,9 @@ import YieldHeader from './components/YieldHeader';
 import NetworkError from './components/NetworkError';
 import LendPosition from './views/LendPosition';
 import PoolPosition from './views/PoolPosition';
+import TransactionWidget from './components/TransactionWidget';
+import DashButton from './components/buttons/DashButton';
+import DashMobileButton from './components/buttons/DashMobileButton';
 
 function App() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -28,52 +34,69 @@ function App() {
   const [menuLayerOpen, setMenuLayerOpen] = useState<boolean>(false);
 
   return (
-    <Box fill>
-      {chainData && !chainData.supported && <NetworkError />}
+    <>
+      {/* <ParticlesBg type="circle" num={7} bg={true} /> */}
+      {/* "color"
+          "ball"‰
+          "lines"
+          "thick"
+          "circle"
+          "cobweb"
+          "polygon"
+          "square"
+          "tadpole"
+          "fountain"
+          "random"
+          "custom" */}
 
-      <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
+      <Box fill>
+        {chainData && !chainData.supported && <NetworkError />}
 
-      <Box flex={!mobile} overflow="auto">
-        <ToastContainer position="top-center" />
-        {menuLayerOpen && <MenuLayer toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} />}
-        <Switch>
-          <Route path="/borrow/:series?/:asset?/:amnt?">
-            <Borrow />
-          </Route>
+        <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
+        <TransactionWidget />
 
-          <Route path="/lend/:series?/:asset?/:amnt?">
-            <Lend />
-          </Route>
+        <Box flex={!mobile} overflow="hidden">
+          <ToastContainer position="top-center" />
+          {menuLayerOpen && <MenuLayer toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} />}
+          <Switch>
+            <Route path="/borrow/:series?/:asset?/:amnt?">
+              <Borrow />
+            </Route>
 
-          <Route path="/pool/:series?/:asset?/:amnt?">
-            <Pool />
-          </Route>
+            <Route path="/lend/:series?/:asset?/:amnt?">
+              <Lend />
+            </Route>
 
-          <Route path="/dashboard">
-            <Dashboard />
-          </Route>
+            <Route path="/pool/:series?/:asset?/:amnt?">
+              <Pool />
+            </Route>
 
-          <Route exact path="/">
-            <Redirect to="/borrow" />
-          </Route>
+            <Route path="/dashboard">
+              <Dashboard />
+            </Route>
 
-          <Route path="/vaultposition/:id">
-            <VaultPosition close={() => null} />
-          </Route>
+            <Route exact path="/">
+              <Redirect to="/borrow" />
+            </Route>
 
-          <Route path="/lendposition/:id">
-            <LendPosition close={() => null} />
-          </Route>
+            <Route path="/vaultposition/:id">
+              <VaultPosition />
+            </Route>
 
-          <Route path="/poolposition/:id">
-            <PoolPosition close={() => null} />
-          </Route>
+            <Route path="/lendposition/:id">
+              <LendPosition />
+            </Route>
 
-          <Route path="/*"> 404 </Route>
-        </Switch>
+            <Route path="/poolposition/:id">
+              <PoolPosition />
+            </Route>
+
+            <Route path="/*"> 404 </Route>
+          </Switch>
+        </Box>
+        <YieldFooter />
       </Box>
-      <YieldFooter />
-    </Box>
+    </>
   );
 }
 

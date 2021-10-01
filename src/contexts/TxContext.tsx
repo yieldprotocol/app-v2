@@ -1,7 +1,7 @@
-import React, { useReducer, useEffect } from 'react';
+import React, { useReducer, useEffect, useState } from 'react';
 import { ethers, ContractTransaction } from 'ethers';
 import { toast } from 'react-toastify';
-import { ApprovalType, ISignData, TxState } from '../types';
+import { ApprovalType, ISignData, TxState, ProcessStage, IYieldProcess } from '../types';
 
 const TxContext = React.createContext<any>({});
 
@@ -12,7 +12,7 @@ const initState = {
   processes: new Map([]) as Map<string, IYieldProcess>,
 
   /* process active flags for convenience */
-  processActive: false as boolean,
+  anyProcessActive: false as boolean,
 
   /* user settings */
   useFallbackTxs: false as boolean,
@@ -26,16 +26,9 @@ interface IYieldSignature {
 }
 
 interface IYieldTx extends ContractTransaction {
-  id: string;
   txCode: string;
   receipt: any | null;
   status: TxState;
-  complete?: boolean;
-}
-
-interface IYieldProcess {
-  status: 'ACTIVE|INACTIVE';
-  hash?: string | undefined;
 }
 
 function txReducer(_state: any, action: any) {
@@ -49,18 +42,14 @@ function txReducer(_state: any, action: any) {
       return {
         ..._state,
         transactions: new Map(_state.transactions.set(action.payload.tx.hash, action.payload)),
-        // also update processes with tx hash:
+        // also update processes with tx info:
         processes: new Map(
           _state.processes.set(action.payload.txCode, {
             ..._state.processes.get(action.payload.txCode),
-            hash: action.payload.tx.hash,
+            txHash: action.payload.tx.hash,
+            tx: action.payload,
           })
-        ),
-      };
-    case 'signatures':
-      return {
-        ..._state,
-        signatures: new Map(_state.signatures.set(action.payload.txCode, action.payload)),
+        ) as Map<string, IYieldProcess>,
       };
 
     case 'processes':
@@ -69,8 +58,21 @@ function txReducer(_state: any, action: any) {
         processes: new Map(
           _state.processes.set(action.payload.txCode, {
             ..._state.processes.get(action.payload.txCode),
-            status: action.payload.status,
-            hash: action.payload.hash,
+            txCode: action.payload.txCode,
+            stage: action.payload.stage,
+            processActive: action.payload.stage !== 0 || action.payload.stage !== 6 || action.payload.stage !== 7,
+          })
+        ) as Map<string, IYieldProcess>,
+      };
+
+    case 'resetProcess':
+      return {
+        ..._state,
+        processes: new Map(
+          _state.processes.set(action.payload, {
+            txCode: action.payload,
+            stage: 0,
+            processActive: false,
           })
         ),
       };
@@ -81,12 +83,6 @@ function txReducer(_state: any, action: any) {
         processActive: _onlyIfChanged(action),
       };
 
-    case 'signingActive':
-      return {
-        ..._state,
-        signingActive: _onlyIfChanged(action),
-      };
-
     default:
       return _state;
   }
@@ -95,29 +91,26 @@ function txReducer(_state: any, action: any) {
 const TxProvider = ({ children }: any) => {
   const [txState, updateState] = useReducer(txReducer, initState);
 
-  const _startProcess = (txCode: string) => {
+  const [terminateProcessTimer, setTerminateProcessTimer] = useState<Map<string, boolean>>();
+  const [processTimer, setProcessTimer] = useState<Map<string, boolean>>();
+
+  const _setProcessStage = (txCode: string, stage: ProcessStage) => {
     updateState({
       type: 'processes',
-      payload: { txCode, status: 'ACTIVE' },
+      payload: { txCode, stage },
     });
   };
 
-  const _endProcess = (txCode: string) => {
-    updateState({
-      type: 'processes',
-      payload: { txCode, status: 'INACTIVE', hash: undefined },
-    });
-  };
+  const _resetProcess = (txCode: string) => updateState({ type: 'resetProcess', payload: txCode });
 
-  const _handleTxComplete = (tx: any) => {
-    setTimeout(() => {
-      updateState({ type: 'transactions', payload: { ...tx, complete: true } });
-    }, 10000);
+  const _startProcessTimer = async (txCode: string) => {
+    await new Promise((resolve) => setTimeout(resolve, 10000));
+    _setProcessStage(txCode, ProcessStage.PROCESS_COMPLETE_TIMEOUT);
   };
 
   /* handle case when user or wallet rejects the tx (before submission) */
   const _handleTxRejection = (err: any, txCode: string) => {
-    _endProcess(txCode);
+    _resetProcess(txCode);
     /* If user cancelled/rejected the tx */
     if (err.code === 4001) {
       toast.warning('Transaction rejected by user');
@@ -135,11 +128,12 @@ const TxProvider = ({ children }: any) => {
 
   /* handle an error from a tx that was successfully submitted */
   const _handleTxError = (msg: string, tx: any, txCode: any) => {
-    _endProcess(txCode);
-    toast.error(msg);
+    // _setProcessStage(txCode, ProcessStage.PROCESS_INACTIVE);
+    // updateState({ type: 'resetProcess', payload: txCode })
+    _setProcessStage(txCode, ProcessStage.PROCESS_COMPLETE);
+    // toast.error(msg);
     const _tx = { tx, txCode, receipt: undefined, status: TxState.FAILED };
     updateState({ type: 'transactions', payload: _tx });
-    _handleTxComplete(_tx);
     console.log('txHash: ', tx?.hash);
     console.log('txCode: ', txCode);
   };
@@ -153,18 +147,19 @@ const TxProvider = ({ children }: any) => {
     let tx: ContractTransaction;
     let res: any;
 
-    // google analytics sent txCode
-
-    /* start a new process (over-write if it has been started already) */
-    _startProcess(txCode);
-    console.log(txState.processes);
+    /* update process if not fallback Transaction */
+    !_isfallback && _setProcessStage(txCode, ProcessStage.TRANSACTION_REQUESTED);
 
     try {
       /* try the transaction with connected wallet and catch any 'pre-chain'/'pre-tx' errors */
       try {
         tx = await txFn();
-        console.log(tx);
+        console.log('TX: ', tx);
         updateState({ type: 'transactions', payload: { tx, txCode, receipt: null, status: TxState.PENDING } });
+        _setProcessStage(
+          txCode,
+          _isfallback ? ProcessStage.SIGNING_TRANSACTION_PENDING : ProcessStage.TRANSACTION_PENDING
+        );
       } catch (e) {
         /* this case is when user rejects tx OR wallet rejects tx */
         _handleTxRejection(e, txCode);
@@ -178,23 +173,25 @@ const TxProvider = ({ children }: any) => {
         type: 'transactions',
         payload: _tx,
       });
-      _handleTxComplete(_tx);
 
       /* if the handleTx is NOT a fallback tx (from signing) - then end the process */
       if (_isfallback === false) {
         /* transaction completion : success OR failure */
-        txSuccess ? toast.success('Transaction successfull') : toast.error('Transaction failed :| ');
-        _endProcess(txCode);
+        // txSuccess ? toast.success('Transaction successfull') : toast.error('Transaction failed :| ');
+        _setProcessStage(txCode, ProcessStage.PROCESS_COMPLETE);
         return res;
       }
       /* this is the case when the tx was a fallback from a permit/allowance tx */
+      _setProcessStage(txCode, ProcessStage.SIGNING_COMPLETE);
       return res;
-    } catch (e) {
+    } catch (e: any) {
       /* catch tx errors */
       _handleTxError('Transaction failed', e.transaction, txCode);
       return null;
     }
   };
+
+  // const handlePreProcess = (txCode:string) => _setProcessStage(txCode, ProcessStage.PROCESS_CONFIRMATION);
 
   /* handle a sig and sig fallbacks */
   /* returns the tx id to be used in handleTx */
@@ -206,34 +203,21 @@ const TxProvider = ({ children }: any) => {
     approvalMethod: ApprovalType
   ) => {
     /* start a process */
-    _startProcess(txCode);
-    console.log(txState.processes);
-
-    const uid = ethers.utils.hexlify(ethers.utils.randomBytes(6));
-    updateState({ type: 'signatures', payload: { uid, txCode, sigData, status: TxState.PENDING } as IYieldSignature });
+    _setProcessStage(txCode, ProcessStage.SIGNING_REQUESTED);
 
     let _sig;
     if (approvalMethod === ApprovalType.SIG) {
       _sig = await signFn().catch((err: any) => {
         console.log(err);
-        updateState({
-          type: 'signatures',
-          payload: { uid, txCode, sigData, status: TxState.REJECTED } as IYieldSignature,
-        });
         /* end the process on signature rejection */
-        _endProcess(txCode);
+        _resetProcess(txCode);
         return Promise.reject(err);
       });
     } else {
       await fallbackFn().catch((err: any) => {
         console.log(err);
-        updateState({
-          type: 'signatures',
-          payload: { uid, txCode, sigData, status: TxState.REJECTED } as IYieldSignature,
-        });
         /* end the process on signature rejection */
-        _endProcess(txCode);
-
+        _resetProcess(txCode);
         return Promise.reject(err);
       });
       /* on Completion of approval tx, send back an empty signed object (which will be ignored) */
@@ -249,19 +233,24 @@ const TxProvider = ({ children }: any) => {
       };
     }
 
-    updateState({
-      type: 'signatures',
-      payload: { uid, txCode, sigData, status: TxState.SUCCESSFUL } as IYieldSignature,
-    });
-
+    _setProcessStage(txCode, ProcessStage.SIGNING_COMPLETE);
     return _sig;
   };
 
-  /* simple process watcher */
+  /* Simple process watcher for any active Process */
   useEffect(() => {
     if (txState.processes.size) {
-      const hasActiveProcess = Array.from(txState.processes.values()).some((x: any) => x.status === 'ACTIVE');
+      /* 1. watch for any active process */
+      const _processes: IYieldProcess[] = Array.from(txState.processes.values());
+      const hasActiveProcess = _processes.some(
+        (x: any) => x.stage === 1 || x.stage === 2 || x.stage === 3 || x.stage === 4 || x.stage === 5
+      );
       updateState({ type: 'processActive', payload: hasActiveProcess });
+
+      /* 2. Set timer on process complete */
+      _processes.forEach((p: IYieldProcess) => {
+        p.stage === ProcessStage.PROCESS_COMPLETE && p.tx.status === TxState.SUCCESSFUL && _startProcessTimer(p.txCode);
+      });
     }
   }, [txState.processes]);
 
@@ -269,6 +258,9 @@ const TxProvider = ({ children }: any) => {
   const txActions = {
     handleTx,
     handleSign,
+    resetProcess: (txCode: string) => updateState({ type: 'resetProcess', payload: txCode }),
+    updateTxStage: (txCode: string, stage: ProcessStage) =>
+      updateState({ type: 'processes', payload: { ...txState.processes.get(txCode), stage } }),
   };
 
   return <TxContext.Provider value={{ txState, txActions }}>{children}</TxContext.Provider>;

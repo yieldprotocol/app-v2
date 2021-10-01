@@ -112,13 +112,10 @@ export const useChain = () => {
     const signedList = await Promise.all(
       _requestedSigs.map(async (reqSig: ISignData) => {
         const _spender = getSpender(reqSig.spender);
-
         /* get an ERC20 contract instance. This is only used in the case of fallback tx (when signing is not available) */
         const tokenContract = ERC20Permit__factory.connect(reqSig.target.address, signer) as any;
 
-        /*
-          Request the signature if using DaiType permit style
-        */
+        /* Request the signature if using DaiType permit style */
         if (reqSig.target.symbol === 'DAI') {
           const { v, r, s, nonce, expiry, allowed } = await handleSign(
             /* We are pass over the generated signFn and sigData to the signatureHandler for tracking/tracing/fallback handling */
@@ -148,7 +145,7 @@ export const useChain = () => {
             _spender,
             nonce,
             expiry,
-            reqSig.amount || allowed, // use amount if provided, else defaults to MAX.
+            allowed, // TODO check use amount if provided, else defaults to MAX.
             v,
             r,
             s,
@@ -157,7 +154,7 @@ export const useChain = () => {
           if (reqSig.asRoute) {
             return {
               operation: 'route',
-              args: [account, _spender, nonce, expiry, reqSig.amount || allowed, v, r, s],
+              args: [account, _spender, nonce, expiry, allowed, v, r, s],
               fnName: 'permit',
               targetContract: tokenContract,
               ignoreIf: !(v && r && s),

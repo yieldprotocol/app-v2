@@ -6,9 +6,9 @@ import { Box, Button, Text } from 'grommet';
 import { UserContext } from '../../contexts/UserContext';
 import { ActionType, IAsset, ISeries, IStrategy, IUserContext } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
-import PositionItem from '../positionItems/LendItem';
-import StrategyItem from '../positionItems/StrategyItem';
+import LendItem from '../positionItems/LendItem';
 import ListWrap from '../wraps/ListWrap';
+import DashButton from '../buttons/DashButton';
 
 interface IPositionFilter {
   base: IAsset | undefined;
@@ -16,12 +16,12 @@ interface IPositionFilter {
 }
 
 function PositionSelector({ actionType }: { actionType: ActionType }) {
-
   const history = useHistory();
   /* STATE FROM CONTEXT */
 
   const { userState, userActions } = useContext(UserContext) as IUserContext;
-  const { assetMap, seriesMap, strategyMap, selectedSeriesId, selectedBaseId, selectedStrategyAddr } = userState;
+  const { activeAccount, assetMap, seriesMap, strategyMap, selectedSeriesId, selectedBaseId, selectedStrategyAddr } =
+    userState;
 
   const selectedSeries = seriesMap.get(selectedSeriesId!);
   const selectedBase = assetMap.get(selectedBaseId!);
@@ -78,13 +78,20 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
 
   return (
     <Box justify="end" fill>
-      {allPositions.length !== 0 && (
-        <Box justify="between" alignSelf="end" gap="small" pad="small">
-          <Box animation="fadeIn" justify="center" align="center" direction="row" gap="small">
-            <Text size="small" color="text-weak">
-              {showAllPositions
-                ? `Open ${actionType === 'LEND' ? 'lending' : 'pool'} positions`
-                : `Filtered ${actionType === 'LEND' ? 'lending' : 'pool'} positions`}
+      {activeAccount && allPositions.length !== 0 && (
+        <Box justify="between" alignSelf="end" gap="small" pad="small" background="hover" round="xsmall">
+          <Box
+            animation="fadeIn"
+            justify="between"
+            direction="row"
+            gap="small"
+            pad={{ horizontal: 'medium', vertical: 'xsmall' }}
+          >
+            <Text size="small" color="text-weak" textAlign="center">
+              {showAllPositions ? `All Lending Positions` : `Filtered Lending Positions`}
+            </Text>
+            <Text color="text-weak" textAlign="center">
+              <DashButton />
             </Text>
           </Box>
 
@@ -96,7 +103,7 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
             )}
 
             {(!showAllPositions ? filteredSeries : allPositions).map((x: ISeries, i: number) => (
-              <PositionItem series={x} actionType={actionType} index={i} key={x.id} />
+              <LendItem series={x} actionType={actionType} index={i} key={x.id} />
             ))}
           </ListWrap>
 

@@ -1,19 +1,37 @@
 import React, { useContext, useState, useCallback, useEffect } from 'react';
-import { Box, CheckBox, ResponsiveContext, Text } from 'grommet';
+import styled from 'styled-components';
+import { Box, ResponsiveContext, Text } from 'grommet';
 import { ethers } from 'ethers';
+// import { FiEye, FiEyeOff } from 'react-icons/fi';
+import { FiChevronDown as FiEyeOff, FiChevronUp as FiEye } from 'react-icons/fi';
+
 import Skeleton from 'react-loading-skeleton';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
-import { ActionType, IUserContext, IVault, ISeries } from '../types';
+import { ActionType, IUserContext, IVault, ISeries, IStrategy } from '../types';
 import YieldInfo from '../components/YieldInfo';
-import DashboardPositionList from '../components/DashboardPositionList';
 import DashboardBalanceSummary from '../components/DashboardBalanceSummary';
 import MainViewWrap from '../components/wraps/MainViewWrap';
 import PanelWrap from '../components/wraps/PanelWrap';
-import HideBalancesSetting from '../components/HideBalancesSetting';
-import CurrencyToggle from '../components/CurrencyToggle';
 import { ZERO_BN, DAI, WETH } from '../utils/constants';
 import { cleanValue } from '../utils/appUtils';
+import DashboardPositionList from '../components/DashboardPositionList';
+import CurrencyToggle from '../components/CurrencyToggle';
+
+const StyledBox = styled(Box)`
+  * {
+    min-height: auto;
+    max-height: fit-content;
+  }
+  height: auto;
+  overflow-y: auto;
+`;
+
+interface IPositions {
+  vaultPositions: IVault[];
+  lendPositions: ISeries[];
+  poolPositions: IStrategy[];
+}
 
 const Dashboard = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -24,60 +42,77 @@ const Dashboard = () => {
   } = useContext(ChainContext);
   const {
     userState: {
+      strategyMap,
       seriesMap,
       vaultMap,
-      showInactiveVaults,
-      hideBalancesSetting,
       priceMap,
-      currencySetting,
       vaultsLoading,
       seriesLoading,
-      pricesLoading,
+      strategiesLoading,
+      dashSettings,
     },
+    userActions: { setDashSettings },
   } = useContext(UserContext) as IUserContext;
+  const {
+    hideEmptyVaults,
+    hideInactiveVaults,
+    hideVaultPositions,
+    hideLendPositions,
+    hidePoolPositions,
+    currencySetting,
+  } = dashSettings;
 
   const [vaultPositions, setVaultPositions] = useState<IVault[]>([]);
   const [lendPositions, setLendPositions] = useState<ISeries[]>([]);
-  const [poolPositions, setPoolPositions] = useState<ISeries[]>([]);
-  const [allPositions, setAllPositions] = useState<(ISeries | IVault)[]>([]);
-  const [showEmpty, setShowEmpty] = useState<boolean>(false);
-  const [totalDebt, setTotalDebt] = useState<string | null>(null);
-  const [totalCollateral, setTotalCollateral] = useState<string | null>(null);
-  const [totalLendBalance, setTotalLendBalance] = useState<string | null>(null);
-  const [totalPoolBalance, setTotalPoolBalance] = useState<string | null>(null);
+  const [strategyPositions, setStrategyPositions] = useState<IStrategy[]>([]);
+  const [allPositions, setAllPositions] = useState<IPositions>({
+    vaultPositions: [],
+    lendPositions: [],
+    poolPositions: [],
+  });
+
+  const [totalDebt, setTotalDebt] = useState<string>('');
+  const [totalCollateral, setTotalCollateral] = useState<string>('');
+  const [totalLendBalance, setTotalLendBalance] = useState<string>('');
+  const [totalStrategyBalance, setTotalStrategyBalance] = useState<string>('');
+
+  // currency settings
   const currencySettingAssetId = currencySetting === 'ETH' ? WETH : DAI;
   const currencySettingDigits = currencySetting === 'ETH' ? 4 : 2;
   const currencySettingSymbol = currencySetting === 'ETH' ? 'Ξ' : '$';
 
   useEffect(() => {
     const _vaultPositions: IVault[] = Array.from(vaultMap.values())
-      .filter((vault: IVault) => showInactiveVaults || vault.isActive)
-      .filter((vault: IVault) => (showEmpty ? true : vault.ink.gt(ZERO_BN) || vault.art.gt(ZERO_BN)))
+      .filter((vault: IVault) => (hideInactiveVaults ? vault.isActive : true))
+      .filter((vault: IVault) => (hideEmptyVaults ? vault.ink.gt(ZERO_BN) || vault.art.gt(ZERO_BN) : true))
+      .filter((vault: IVault) => vault.baseId !== vault.ilkId)
       .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1));
     setVaultPositions(_vaultPositions);
-  }, [vaultMap, showInactiveVaults, showEmpty, hideBalancesSetting]);
+  }, [vaultMap, hideEmptyVaults, hideInactiveVaults]);
 
   useEffect(() => {
     const _lendPositions: ISeries[] = Array.from(seriesMap.values())
-      .filter((_series: ISeries) => (_series ? _series.fyTokenBalance?.gt(ZERO_BN) : true))
-      .filter((_series: ISeries) =>
-        hideBalancesSetting ? Number(_series.fyTokenBalance_!) > Number(hideBalancesSetting) : true
-      )
-      .sort((_seriesA: ISeries, _seriesB: ISeries) => (_seriesA.fyTokenBalance?.lt(_seriesB.fyTokenBalance!) ? 1 : -1));
-    setLendPositions(_lendPositions);
-
-    const _poolPositions: ISeries[] = Array.from(seriesMap.values())
-      .filter((_series: ISeries) => (_series ? _series.poolTokens?.gt(ZERO_BN) : true))
-      .filter((_series: ISeries) =>
-        hideBalancesSetting ? Number(_series.poolTokens_!) > Number(hideBalancesSetting) : true
-      )
+      .filter((_series: ISeries) => _series.fyTokenBalance?.gt(ZERO_BN))
       .sort((_seriesA: ISeries, _seriesB: ISeries) => (_seriesA.fyTokenBalance?.gt(_seriesB.fyTokenBalance!) ? 1 : -1));
-    setPoolPositions(_poolPositions);
-  }, [seriesMap, hideBalancesSetting]);
+    setLendPositions(_lendPositions);
+  }, [seriesMap, hideLendPositions]);
 
   useEffect(() => {
-    setAllPositions([...vaultPositions, ...lendPositions, ...poolPositions]);
-  }, [vaultPositions, lendPositions, poolPositions]);
+    const _strategyPositions: IStrategy[] = Array.from(strategyMap.values())
+      .filter((_strategy: IStrategy) => _strategy.accountBalance?.gt(ZERO_BN))
+      .sort((_strategyA: IStrategy, _strategyB: IStrategy) =>
+        _strategyA.accountBalance?.lt(_strategyB.accountBalance!) ? 1 : -1
+      );
+    setStrategyPositions(_strategyPositions);
+  }, [strategyMap, hidePoolPositions]);
+
+  useEffect(() => {
+    setAllPositions({
+      vaultPositions: [...vaultPositions],
+      lendPositions: [...lendPositions],
+      poolPositions: [...strategyPositions],
+    });
+  }, [vaultPositions, lendPositions, strategyPositions]);
 
   /* get a single position's ink or art in dai or eth (input the asset id): value can be art, ink, fyToken, or pooToken balances */
   const getPositionValue = useCallback(
@@ -101,15 +136,22 @@ const Dashboard = () => {
     [priceMap]
   );
 
-  /* get vault position total debt and collateral */
+  /* get vault, lend, and pool position total debt, collateral, and balances */
   useEffect(() => {
-    const _debts = vaultPositions?.map((vault: IVault) =>
-      getPositionValue(vault.baseId, vault.art_, currencySettingAssetId)
+    const {
+      vaultPositions: _vaultPositions,
+      lendPositions: _lendPositions,
+      poolPositions: _strategyPositions,
+    } = allPositions;
+
+    const _debts = _vaultPositions?.map((position: any) =>
+      getPositionValue(position.baseId, position.art_, currencySettingAssetId)
     );
     setTotalDebt(
       cleanValue(_debts.reduce((sum: number, debt: number) => sum + debt, 0).toString(), currencySettingDigits)
     );
-    const _collaterals = vaultPositions?.map((vault: IVault) =>
+
+    const _collaterals = _vaultPositions?.map((vault: IVault) =>
       getPositionValue(vault.ilkId, vault.ink_, currencySettingAssetId)
     );
     setTotalCollateral(
@@ -118,100 +160,145 @@ const Dashboard = () => {
         currencySettingDigits
       )
     );
-  }, [priceMap, vaultPositions, currencySettingAssetId, getPositionValue, currencySettingDigits]);
 
-  /* get series positions' total balances */
-  useEffect(() => {
-    const _lendBalances = lendPositions?.map((series: ISeries) =>
+    const _lendBalances = _lendPositions?.map((series: ISeries) =>
       getPositionValue(series.baseId, series.fyTokenBalance_!, currencySettingAssetId)
     );
     setTotalLendBalance(
       cleanValue(_lendBalances.reduce((sum: number, debt: number) => sum + debt, 0).toString(), currencySettingDigits)
     );
 
-    const _poolBalances = poolPositions?.map((series: ISeries) =>
-      getPositionValue(series.baseId, series.poolTokens_!, currencySettingAssetId)
+    const _strategyBalances = _strategyPositions?.map((strategy: IStrategy) =>
+      getPositionValue(strategy.baseId, strategy.accountBalance_!, currencySettingAssetId)
     );
-    setTotalPoolBalance(
-      cleanValue(_poolBalances.reduce((sum: number, debt: number) => sum + debt, 0).toString(), currencySettingDigits)
+
+    setTotalStrategyBalance(
+      cleanValue(
+        _strategyBalances.reduce((sum: number, debt: number) => sum + debt, 0).toString(),
+        currencySettingDigits
+      )
     );
-  }, [priceMap, lendPositions, poolPositions, currencySettingAssetId, getPositionValue, currencySettingDigits]);
+  }, [priceMap, allPositions, currencySettingAssetId, getPositionValue, currencySettingDigits]);
 
   return (
     <MainViewWrap>
       {!mobile && (
         <PanelWrap justify="between" basis="40%">
           <Box margin={{ top: '35%' }} gap="medium" fill>
+            <Box width="5rem" height="2rem">
+              <CurrencyToggle />
+            </Box>
             <DashboardBalanceSummary
               debt={totalDebt!}
               collateral={totalCollateral!}
-              positionBalance={(Number(totalLendBalance!) + Number(totalPoolBalance!)).toString()}
+              lendBalance={totalLendBalance}
+              poolBalance={totalStrategyBalance}
               digits={currencySettingDigits}
-              loading={vaultsLoading || seriesLoading || pricesLoading}
               symbol={currencySettingSymbol}
             />
           </Box>
           <YieldInfo />
         </PanelWrap>
       )}
-      <Box fill pad="large" margin={{ top: 'xlarge' }} align="center">
+      <StyledBox fill pad={mobile ? 'medium' : 'large'} margin={{ top: 'xlarge' }} align="center">
         {!account && !chainLoading && <Text>Please connect to your account</Text>}
         {account && (
-          <Box width={mobile ? undefined : '500px'} gap="medium">
+          <Box width={mobile ? '100%' : '500px'} gap="medium">
             <Box gap="medium">
-              <Text size="medium">Vaults</Text>
-              {vaultsLoading ? (
-                <Skeleton width={mobile ? 300 : 500} count={1} height={40} />
-              ) : (
-                <DashboardPositionList
-                  actionType={ActionType.BORROW}
-                  positions={vaultPositions}
-                  debt={`${currencySettingSymbol}${totalDebt}`}
-                  collateral={`${currencySettingSymbol}${totalCollateral}`}
-                />
+              <Box justify="between" direction="row" align="center">
+                <Text size="medium">Vaults</Text>
+                <Box onClick={() => setDashSettings('hideVaultPositions', !hideVaultPositions)} pad="xsmall">
+                  {/* {hideVaultPositions ? <FiEyeOff size="0.75em" /> : <FiEye color="grey" size="0.75em" />} */}
+                  {hideVaultPositions ? (
+                    <Text size="xsmall" color="text-weak">
+                      show
+                    </Text>
+                  ) : (
+                    <Text size="xsmall" color="text-weak">
+                      hide
+                    </Text>
+                  )}
+                </Box>
+              </Box>
+              {!hideVaultPositions && (
+                <>
+                  {vaultsLoading ? (
+                    <Skeleton width={mobile ? 300 : 500} count={1} height={40} />
+                  ) : (
+                    <DashboardPositionList
+                      actionType={ActionType.BORROW}
+                      positions={vaultPositions}
+                      debt={`${currencySettingSymbol}${totalDebt}`}
+                      collateral={`${currencySettingSymbol}${totalCollateral}`}
+                    />
+                  )}
+                </>
               )}
             </Box>
             <Box gap="medium">
-              <Text size="medium">Lend Positions</Text>
-              {seriesLoading ? (
-                <Skeleton width={mobile ? 300 : 500} count={1} height={40} />
-              ) : (
-                <DashboardPositionList
-                  actionType={ActionType.LEND}
-                  positions={lendPositions}
-                  lendBalance={`${currencySettingSymbol}${totalLendBalance}`}
-                />
+              <Box justify="between" direction="row" align="center">
+                <Text size="medium">Lend Positions</Text>
+                <Box onClick={() => setDashSettings('hideLendPositions', !hideLendPositions)} pad="xsmall">
+                  {/* {hideLendPositions ? <FiEyeOff size="0.75em" /> : <FiEye color="grey" size="0.75em" />} */}
+                  {hideLendPositions ? (
+                    <Text size="xsmall" color="text-weak">
+                      show
+                    </Text>
+                  ) : (
+                    <Text size="xsmall" color="text-weak">
+                      hide
+                    </Text>
+                  )}
+                </Box>
+              </Box>
+              {!hideLendPositions && (
+                <>
+                  {seriesLoading ? (
+                    <Skeleton width={mobile ? 300 : 500} count={1} height={40} />
+                  ) : (
+                    <DashboardPositionList
+                      actionType={ActionType.LEND}
+                      positions={lendPositions}
+                      lendBalance={`${currencySettingSymbol}${totalLendBalance}`}
+                    />
+                  )}
+                </>
               )}
             </Box>
             <Box gap="medium">
-              <Text size="medium">Pool Positions</Text>
-              {seriesLoading ? (
-                <Skeleton width={mobile ? 300 : 500} count={1} height={40} />
-              ) : (
-                <DashboardPositionList
-                  actionType={ActionType.POOL}
-                  positions={poolPositions}
-                  poolBalance={`${currencySettingSymbol}${totalPoolBalance}`}
-                />
+              <Box justify="between" direction="row" align="center">
+                <Text size="medium">Pool Positions</Text>
+                <Box onClick={() => setDashSettings('hidePoolPositions', !hidePoolPositions)} pad="xsmall">
+                  {/* {hidePoolPositions ? <FiEyeOff size="0.75em" /> : <FiEye color="grey" size="0.75em" />} */}
+                  {hidePoolPositions ? (
+                    <Text size="xsmall" color="text-weak">
+                      show
+                    </Text>
+                  ) : (
+                    <Text size="xsmall" color="text-weak">
+                      hide
+                    </Text>
+                  )}
+                </Box>
+              </Box>
+              {!hidePoolPositions && (
+                <>
+                  {strategiesLoading ? (
+                    <Skeleton width={mobile ? 300 : 500} count={1} height={40} />
+                  ) : (
+                    <DashboardPositionList
+                      actionType={ActionType.POOL}
+                      positions={strategyPositions}
+                      strategyBalance={`${currencySettingSymbol}${totalStrategyBalance}`}
+                    />
+                  )}
+                </>
               )}
             </Box>
           </Box>
         )}
-      </Box>
-      <PanelWrap basis="40%">
-        <Box margin={{ top: '35%' }}>
-          {!vaultsLoading && !seriesLoading && !pricesLoading && (
-            <Box gap="medium">
-              <HideBalancesSetting width="30%" />
-              <CurrencyToggle width="50%" />
-              <Box justify="between" gap="small">
-                <Text size="small">Show Empty Vaults</Text>
-                <CheckBox toggle checked={showEmpty} onChange={(event) => setShowEmpty(event.target.checked)} />
-              </Box>
-            </Box>
-          )}
-        </Box>
-      </PanelWrap>
+      </StyledBox>
+      {!mobile && <PanelWrap basis="40%"> </PanelWrap>}
     </MainViewWrap>
   );
 };

@@ -6,6 +6,7 @@ import { UserContext } from '../../contexts/UserContext';
 import { IAsset, ISeries, IUserContext, IVault } from '../../types';
 import VaultListItem from '../positionItems/VaultItem';
 import ListWrap from '../wraps/ListWrap';
+import DashButton from '../buttons/DashButton';
 
 interface IVaultFilter {
   base: IAsset | undefined;
@@ -13,13 +14,13 @@ interface IVaultFilter {
   ilk: IAsset | undefined;
 }
 
-function VaultSelector(target: any) {
+function VaultPositionSelector(target: any) {
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext) as IUserContext;
   const {
     chainState: { account },
   } = useContext(ChainContext);
-  const { assetMap, vaultMap, seriesMap, selectedSeriesId, selectedBaseId, showInactiveVaults } = userState;
+  const { activeAccount, assetMap, vaultMap, seriesMap, selectedSeriesId, selectedBaseId, dashSettings } = userState;
 
   const selectedBase = assetMap.get(selectedBaseId!);
   const selectedSeries = seriesMap.get(selectedSeriesId!);
@@ -34,20 +35,24 @@ function VaultSelector(target: any) {
   const handleFilter = useCallback(
     ({ base, series, ilk }: IVaultFilter) => {
       const _filteredVaults: IVault[] = Array.from(vaultMap.values())
-        .filter((vault: IVault) => showInactiveVaults || vault.isActive)
+        .filter((vault: IVault) => dashSettings.showInactiveVaults || vault.isActive)
         .filter((vault: IVault) => (base ? vault.baseId === base.id : true))
         .filter((vault: IVault) => (series ? vault.seriesId === series.id : true))
         .filter((vault: IVault) => (ilk ? vault.ilkId === ilk.id : true))
+        .filter((vault: IVault) => vault.baseId !== vault.ilkId)
         .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1));
       setFilter({ base, series, ilk });
       setFilteredVaults(_filteredVaults);
     },
-    [vaultMap, showInactiveVaults]
+    [vaultMap, dashSettings.showInactiveVaults]
   );
 
   /* CHECK the list of current vaults which match the current series/ilk selection */
   useEffect(() => {
     const _allVaults: IVault[] = (Array.from(vaultMap.values()) as IVault[])
+      // filter out vaults that have same base and ilk (borrow and pool liquidity positions)
+      .filter((vault: IVault) => vault.baseId !== vault.ilkId)
+
       // sorting by debt balance
       .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1))
       // sorting to prioritize active vaults
@@ -69,11 +74,20 @@ function VaultSelector(target: any) {
   return (
     account && (
       <Box justify="end" fill>
-        {allVaults.length > 0 && (
-          <Box justify="between" alignSelf="end" gap="small" pad="small">
-            <Box animation="fadeIn" justify="center" align="center" direction="row" gap="small">
-              <Text size="small" color="text-weak">
-                {showAllVaults ? 'All my existing vaults' : 'Filtered vaults '}
+        {activeAccount && allVaults.length > 0 && (
+          <Box justify="between" alignSelf="end" gap="small" pad="small" background="hover" round="xsmall">
+            <Box
+              animation="fadeIn"
+              justify="between"
+              direction="row"
+              gap="small"
+              pad={{ horizontal: 'medium', vertical: 'xsmall' }}
+            >
+              <Text size="small" color="text-weak" textAlign="center">
+                {showAllVaults ? 'All vaults' : 'Filtered vaults '}
+              </Text>
+              <Text color="text-weak" textAlign="center">
+                <DashButton />
               </Text>
             </Box>
 
@@ -148,4 +162,4 @@ function VaultSelector(target: any) {
   );
 }
 
-export default VaultSelector;
+export default VaultPositionSelector;

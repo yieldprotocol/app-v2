@@ -3,14 +3,11 @@ import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, IVault, ISeries, ActionCodes, LadleActions, IAsset } from '../../types';
-import { getTxCode } from '../../utils/appUtils';
-import { ETH_BASED_ASSETS, MAX_128 } from '../../utils/constants';
+import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
-
-import { calculateSlippage, secondsToFrom, sellBase } from '../../utils/yieldMath';
+import { calculateSlippage, maxBaseToSpend, secondsToFrom, sellBase } from '../../utils/yieldMath';
 import { useRemoveCollateral } from './useRemoveCollateral';
 
-/* Generic hook for chain transactions */
 export const useRepayDebt = () => {
   const {
     chainState: { account },
@@ -20,36 +17,42 @@ export const useRepayDebt = () => {
   const { updateVaults, updateAssets } = userActions;
 
   const { removeEth } = useRemoveCollateral();
-
   const { sign, transact } = useChain();
 
-  const repay = async (
-    vault: IVault,
-    input: string | undefined,
-    reclaimCollateral: boolean,
-  ) => {
+  const repay = async (vault: IVault, input: string | undefined, reclaimCollateral: boolean) => {
     const txCode = getTxCode(ActionCodes.REPAY, vault.id);
-
     const series: ISeries = seriesMap.get(vault.seriesId);
     const base: IAsset = assetMap.get(vault.baseId);
-    const ethIlk:boolean = ETH_BASED_ASSETS.includes(vault.ilkId)
 
-    console.log('is eth based? ', ethIlk)
-
-    /* parse inputs */
-    const _input = input ? ethers.utils.parseUnits(input, base.decimals) : ethers.constants.Zero;
+    /* Parse inputs */
+    const cleanInput = cleanValue(input, base.decimals)
+    const _input = input ? ethers.utils.parseUnits(cleanInput, base.decimals) : ethers.constants.Zero;
+    
     /* if requested, and all debt will be repaid, automatically remove collateral */
-    const _collateralToRemove = (reclaimCollateral && _input >= vault.art) ? vault.ink : ethers.constants.Zero;
+    const _collateralToRemove = reclaimCollateral && _input >= vault.art ? vault.ink : ethers.constants.Zero;
 
-    const _inputAsFyDai = sellBase(
+    const protocolMax  = maxBaseToSpend (
+      series.baseReserves,
+      series.fyTokenReserves,
+      series.getTimeTillMaturity()
+    )
+
+    const _inputAsFyToken = sellBase(
       series.baseReserves,
       series.fyTokenReserves,
       _input,
-      secondsToFrom(series.maturity.toString())
+      secondsToFrom(series.maturity.toString()),
+      series.decimals
     );
-    const _inputAsFyDaiWithSlippage = calculateSlippage(_inputAsFyDai, userState.slippageTolerance.toString(), true);
 
-    const inputGreaterThanDebt: boolean = ethers.BigNumber.from(_inputAsFyDai).gte(vault.art);
+    const _inputAsFyTokenWithSlippage = calculateSlippage(
+      _inputAsFyToken,
+      userState.slippageTolerance.toString(),
+      true // minimize
+    );
+
+    const inputGreaterThanDebt: boolean = ethers.BigNumber.from(_inputAsFyToken).gte(vault.art);
+    const inputGreaterThanMaxBaseIn = _input.gt(protocolMax);
 
     const permits: ICallData[] = await sign(
       [
@@ -57,14 +60,14 @@ export const useRepayDebt = () => {
           // before maturity
           target: base,
           spender: 'LADLE',
-          message: 'Signing Approval',
+          amount: _input,
           ignoreIf: series.seriesIsMature,
         },
         {
           // after maturity
           target: base,
           spender: base.joinAddress,
-          message: 'Signing Dai Approval',
+          amount:_input,
           ignoreIf: !series.seriesIsMature,
         },
       ],
@@ -78,17 +81,27 @@ export const useRepayDebt = () => {
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [base.address, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
-        ignoreIf: series.seriesIsMature,
+        ignoreIf: 
+        series.seriesIsMature || 
+        inputGreaterThanMaxBaseIn,
       },
+
       {
         operation: LadleActions.Fn.REPAY,
-        args: [vault.id, account, ethers.constants.Zero, _inputAsFyDaiWithSlippage] as LadleActions.Args.REPAY,
-        ignoreIf: series.seriesIsMature || inputGreaterThanDebt, // use if input is NOT more than debt
+        args: [vault.id, account, ethers.constants.Zero, _inputAsFyTokenWithSlippage] as LadleActions.Args.REPAY,
+        ignoreIf:
+          series.seriesIsMature ||
+          inputGreaterThanDebt || // use if input is NOT more than debt
+          inputGreaterThanMaxBaseIn,
       },
+
       {
         operation: LadleActions.Fn.REPAY_VAULT,
-        args: [vault.id, account, ethers.constants.Zero, MAX_128] as LadleActions.Args.REPAY_VAULT,
-        ignoreIf: series.seriesIsMature || !inputGreaterThanDebt, // use if input IS more than debt
+        args: [vault.id, account, ethers.constants.Zero, _input] as LadleActions.Args.REPAY_VAULT,
+        ignoreIf:
+          series.seriesIsMature ||
+          !inputGreaterThanDebt || // use if input IS more than debt OR
+          inputGreaterThanMaxBaseIn,
       },
 
       /* AFTER MATURITY */
@@ -98,10 +111,10 @@ export const useRepayDebt = () => {
         ignoreIf: !series.seriesIsMature,
       },
 
-      ...removeEth(_collateralToRemove, series), // after the complete tranasction, this will remove all the collateral (if requested). 
+      ...removeEth(_collateralToRemove), // after the complete tranasction, this will remove all the collateral (if requested).
     ];
     await transact(calls, txCode);
-    updateVaults([]);
+    updateVaults([vault]);
     updateAssets([base]);
   };
 

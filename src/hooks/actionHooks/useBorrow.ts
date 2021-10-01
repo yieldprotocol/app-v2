@@ -3,14 +3,12 @@ import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, IVault, ActionCodes, LadleActions, ISeries } from '../../types';
-import { getTxCode } from '../../utils/appUtils';
-
-import { ETH_BASED_ASSETS, MAX_128, BLANK_VAULT } from '../../utils/constants';
-import { calculateSlippage, sellBase } from '../../utils/yieldMath';
+import { cleanValue, getTxCode } from '../../utils/appUtils';
+import { ETH_BASED_ASSETS, BLANK_VAULT } from '../../utils/constants';
+import { buyBase, calculateSlippage } from '../../utils/yieldMath';
 import { useChain } from '../useChain';
 import { useAddCollateral } from './useAddCollateral';
 
-/* Generic hook for chain transactions */
 export const useBorrow = () => {
   const {
     chainState: { account },
@@ -29,23 +27,29 @@ export const useBorrow = () => {
     /* use the vault id provided OR 0 if new/ not provided */
     const vaultId = vault?.id || BLANK_VAULT;
 
-    /* set the series and ilk based on the vault that has been selected or if it's a new vault, get from the globally selected SeriesId */
+    /* Set the series and ilk based on the vault that has been selected or if it's a new vault, get from the globally selected SeriesId */
     const series: ISeries = vault ? seriesMap.get(vault.seriesId) : seriesMap.get(selectedSeriesId);
     const base = assetMap.get(series.baseId);
     const ilk = vault ? assetMap.get(vault.ilkId) : assetMap.get(selectedIlkId);
 
-    /* parse inputs */
-    const _input = input ? ethers.utils.parseUnits(input, base.decimals) : ethers.constants.Zero;
-    const _collInput = collInput ? ethers.utils.parseUnits(collInput, ilk.decimals) : ethers.constants.Zero;
+    /* parse inputs  ( clean down to base/ilk decimals so that there is never an underlow)  */
+    const cleanInput = cleanValue(input, base.decimals)
+    const _input = input ? ethers.utils.parseUnits(cleanInput, base.decimals) : ethers.constants.Zero;
 
-    /* calculate expected debt(fytokens) */
-    const _expectedFyToken = sellBase(
+    const cleanCollInput = cleanValue(collInput, ilk.decimals);
+    const _collInput = collInput
+      ? ethers.utils.parseUnits(cleanCollInput, ilk.decimals)
+      : ethers.constants.Zero;
+
+    /* Calculate expected debt(fytokens) */
+    const _expectedFyToken = buyBase(
       series.baseReserves,
       series.fyTokenReserves,
       _input,
       series.getTimeTillMaturity(),
-    )
-    const _expectedFyTokenWithSlippage = calculateSlippage( _expectedFyToken, slippageTolerance )
+      series.decimals
+    );
+    const _expectedFyTokenWithSlippage = calculateSlippage(_expectedFyToken, slippageTolerance);
 
     /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
     const permits: ICallData[] = await sign(
@@ -54,6 +58,8 @@ export const useBorrow = () => {
           target: ilk,
           spender: ilk.joinAddress,
           ignoreIf: ETH_BASED_ASSETS.includes(selectedIlkId), // ignore if an ETH-BASED asset
+          message: `Allow Yield Protocol to move ${ilk.symbol}`,
+          amount: _input,
         },
       ],
       txCode
@@ -76,7 +82,7 @@ export const useBorrow = () => {
       {
         operation: LadleActions.Fn.SERVE,
         args: [vaultId, account, _collInput, _input, _expectedFyTokenWithSlippage] as LadleActions.Args.SERVE,
-        ignoreIf: false, // never ignore this
+        ignoreIf: false,
       },
     ];
 

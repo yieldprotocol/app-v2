@@ -6,7 +6,7 @@ import { getTxCode } from '../../utils/appUtils';
 import { BLANK_VAULT, DAI_BASED_ASSETS, MAX_128, MAX_256 } from '../../utils/constants';
 import { useChain } from '../useChain';
 
-import { calculateSlippage, fyTokenForMint, mint, mintWithBase, sellBase, splitLiquidity } from '../../utils/yieldMath';
+import { calculateSlippage, fyTokenForMint } from '../../utils/yieldMath';
 import { ChainContext } from '../../contexts/ChainContext';
 import SeriesSelector from '../../components/selectors/SeriesSelector';
 
@@ -38,7 +38,8 @@ export const useRollLiquidity = () => {
       toSeries.fyTokenRealReserves,
       toSeries.fyTokenReserves,
       _input,
-      toSeries.getTimeTillMaturity()
+      toSeries.getTimeTillMaturity(),
+      toSeries.decimals
     );
 
     const permits: ICallData[] = await sign(
@@ -96,7 +97,7 @@ export const useRollLiquidity = () => {
       {
         // router.mintWithBase( base.address, fyToken2.address, receiver, fyTokenToBuy, minLPReceived)
         operation: LadleActions.Fn.ROUTE,
-        args: [account, _fyTokenToBuy, ethers.constants.Zero] as RoutedActions.Args.MINT_WITH_BASE,
+        args: [account, _fyTokenToBuy.toString(), ethers.constants.Zero] as RoutedActions.Args.MINT_WITH_BASE,
         fnName: RoutedActions.Fn.MINT_WITH_BASE,
         targetContract: toSeries.poolContract,
         ignoreIf: fromSeries.seriesIsMature,

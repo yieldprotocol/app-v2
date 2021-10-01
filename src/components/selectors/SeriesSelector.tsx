@@ -7,9 +7,9 @@ import styled from 'styled-components';
 import { FiClock } from 'react-icons/fi';
 import { ActionType, ISeries } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
-import { calculateAPR } from '../../utils/yieldMath';
+import { calculateAPR, maxBaseToSpend } from '../../utils/yieldMath';
 import { useApr } from '../../hooks/useApr';
-import { nFormatter } from '../../utils/appUtils';
+import { chunkArray, cleanValue, nFormatter } from '../../utils/appUtils';
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
@@ -22,6 +22,12 @@ background 0.3s ease-in-out;
 :active {
   transform: scale(1);
 }
+`;
+
+// TODO shaebox
+const ShadeBox = styled(Box)`
+  /* -webkit-box-shadow: inset 0px ${(props) => (props ? '-50px' : '50px')} 30px -30px rgba(0,0,0,0.30); 
+  box-shadow: inset 0px ${(props) => (props ? '-50px' : '50px')} 30px -30px rgba(0,0,0,0.30); */
 `;
 
 const InsetBox = styled(Box)`
@@ -64,39 +70,46 @@ const AprText = ({
   series: ISeries;
   actionType: ActionType;
 }) => {
-  const { apr } = useApr(inputValue, actionType, series);
 
-  // const { poolPercent } = usePool(inputValue, series);
-
+  const _inputValue = cleanValue(inputValue, series.decimals)
+  const { apr } = useApr(_inputValue, actionType, series);
   const [limitHit, setLimitHit] = useState<boolean>(false);
 
+  const maxBase = maxBaseToSpend(
+    series.baseReserves,
+    series.fyTokenReserves,
+    series.getTimeTillMaturity(),
+    series.decimals
+  )
+
   useEffect(() => {
+
     if (
       !series?.seriesIsMature &&
-      inputValue &&
-      ethers.utils.parseUnits(inputValue, series.decimals).gt(series.baseReserves)
-    ) {
-      setLimitHit(true);
-    } else {
-      setLimitHit(false);
-    }
-  }, [inputValue, series.baseReserves, series?.seriesIsMature, setLimitHit]);
+      _inputValue 
+    )  
+      actionType === ActionType.LEND 
+        ? setLimitHit( (ethers.utils.parseUnits(_inputValue, series?.decimals)).gt(maxBase) ) // lending max
+        : setLimitHit( ethers.utils.parseUnits(_inputValue, series?.decimals).gt(series?.baseReserves) ) //  TODO borrow max 
+
+  }, [_inputValue, actionType, maxBase, series.baseReserves, series.decimals, series?.seriesIsMature, setLimitHit]);
 
   return (
     <>
-      {actionType !== ActionType.POOL && !series.seriesIsMature && !inputValue && (
+      {!series.seriesIsMature && !_inputValue && !limitHit && (
         <Text size="medium">
-          {series?.apr}% <Text size="xsmall">APR</Text>
+          {series?.apr}%{' '}
+          <Text size="xsmall">{[ActionType.LEND, ActionType.POOL].includes(actionType) ? 'APY' : 'APR'}</Text>
         </Text>
       )}
 
-      {actionType !== ActionType.POOL && !limitHit && !series?.seriesIsMature && inputValue && (
+      {!series?.seriesIsMature && _inputValue && !limitHit && (
         <Text size="medium">
-          {apr}% <Text size="xsmall">APR</Text>
+          {apr}% <Text size="xsmall">{[ActionType.LEND, ActionType.POOL].includes(actionType) ? 'APY' : 'APR'}</Text>
         </Text>
       )}
 
-      {actionType !== ActionType.POOL && limitHit && (
+      {limitHit && (
         <Text size="xsmall" color="pink">
           low liquidity
         </Text>
@@ -122,6 +135,9 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
   const selectedSeries = selectSeriesLocally ? localSeries : seriesMap.get(selectedSeriesId!);
   const selectedBase = assetMap.get(selectedBaseId!);
 
+  /* prevent underflow */
+  const _inputValue = cleanValue(inputValue, selectedSeries?.decimals);
+
   const optionText = (_series: ISeries | undefined) => {
     if (_series) {
       return `${mobile ? _series.displayNameMobile : _series.displayName}`;
@@ -138,7 +154,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
           <Text size="xsmall"> Mature </Text>
         </Box>
       )}
-      {_series && actionType !== 'POOL' && <AprText inputValue={inputValue} series={_series} actionType={actionType} />}
+      {_series && actionType !== 'POOL' && <AprText inputValue={_inputValue} series={_series} actionType={actionType} />}
     </Box>
   );
 
@@ -148,7 +164,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
     /* filter out options based on base Id and if mature */
     let filteredOpts = opts.filter(
-      (_series: ISeries) => _series.baseId === selectedBaseId && !_series.seriesIsMature
+      (_series: ISeries) => _series.baseId === selectedBaseId  && !_series.seriesIsMature
       // !ignoredSeries?.includes(_series.baseId)
     );
 
@@ -161,13 +177,13 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     set the selected series to null. */
     if (
       selectedSeries &&
-      (filteredOpts.findIndex((_series: ISeries) => _series.id !== selectedSeriesId) < 0 ||
-        selectedSeries.baseId !== selectedBaseId)
+      // (filteredOpts.findIndex((_series: ISeries) => _series.id !== selectedSeriesId) < 0 ||
+        selectedSeries.baseId !== selectedBaseId // )
     )
       userActions.setSelectedSeries(null);
 
     setOptions(filteredOpts.sort((a: ISeries, b: ISeries) => a.maturity - b.maturity));
-  }, [seriesMap, selectedBase, selectSeriesLocally, selectedSeries, userActions]);
+  }, [seriesMap, selectedBase, selectSeriesLocally, selectedSeries, userActions, selectedBaseId, selectedSeriesId]);
 
   const handleSelect = (_series: ISeries) => {
     if (!selectSeriesLocally) {
@@ -184,8 +200,8 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
   return (
     <>
       {seriesLoading && <Skeleton width={180} />}
-      { (!cardLayout || options.length > 4) && (
-        <InsetBox fill="horizontal" round="xsmall">
+      {!cardLayout && (
+        <InsetBox fill="horizontal" round="xsmall" background={mobile ? 'white' : undefined}>
           <Select
             plain
             dropProps={{ round: 'xsmall' }}
@@ -218,41 +234,65 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
         </InsetBox>
       )}
 
-      { cardLayout && options.length <= 4 && (
-        <Grid columns={mobile ? '100%' : 'small'} gap="small" fill pad={{ vertical: 'small' }}>
-          {seriesLoading ? (
-            <>
-              <CardSkeleton />
-              <CardSkeleton />
-            </>
-          ) : (
-            options.map((series: ISeries) => (
-              <StyledBox
-                // border={series.id === selectedSeriesId}
-                key={series.id}
-                pad="xsmall"
-                round="xsmall"
-                onClick={() => handleSelect(series)}
-                background={series.id === selectedSeriesId ? series?.color : undefined}
-                elevation="xsmall"
-                align="center"
-              >
-                <Box pad="small" width="small" direction="row" align="center" gap="small">
-                  <Avatar background="#FFF"> {series.seriesMark}</Avatar>
+      {cardLayout && (
+        <ShadeBox
+          overflow={mobile ? 'auto' : 'auto'}
+          height={mobile ? undefined : '250px'}
+          pad={{ vertical: 'small', horizontal: 'xsmall' }}
+        >
+          <Grid columns={mobile ? '100%' : '40%'} gap="small">
+            {seriesLoading ? (
+              <>
+                <CardSkeleton />
+                <CardSkeleton />
+                {!mobile && (
+                  <>
+                    <CardSkeleton />
+                    <CardSkeleton />
+                  </>
+                )}
+              </>
+            ) : (
+              options.map((series: ISeries) => (
+                <StyledBox
+                  // border={series.id === selectedSeriesId}
+                  key={series.id}
+                  pad="xsmall"
+                  round="xsmall"
+                  onClick={() => handleSelect(series)}
+                  background={series.id === selectedSeriesId ? series?.color : 'solid'}
+                  elevation="xsmall"
+                  align="center"
+                >
+                  <Box pad="small" width="small" direction="row" align="center" gap="small">
+                    <Avatar
+                      background={series.id === selectedSeriesId ? 'solid' : series.endColor.toString().concat('10')}
+                      // border={series.id === selectedSeriesId ? undefined : { color: series.endColor.toString().concat('25')} }
+                      style={{
+                        boxShadow:
+                          series.id === selectedSeriesId
+                            ? `inset 1px 1px 2px ${series.endColor.toString().concat('69')}`
+                            : // : `-1px -1px 1px ${ series.endColor.toString().concat('30') }, 1px 1px 1px ${ series.endColor.toString().concat('30') }`
+                              undefined,
+                      }}
+                    >
+                      {series.seriesMark}
+                    </Avatar>
 
-                  <Box>
-                    <Text size="medium" color={series.id === selectedSeriesId ? series.textColor : undefined}>
-                      <AprText inputValue={inputValue} series={series} actionType={actionType} />
-                    </Text>
-                    <Text size="small" color={series.id === selectedSeriesId ? series.textColor : undefined}>
-                      {series.displayName}
-                    </Text>
+                    <Box>
+                      <Text size="medium" color={series.id === selectedSeriesId ? series.textColor : undefined}>
+                        <AprText inputValue={_inputValue} series={series} actionType={actionType} />
+                      </Text>
+                      <Text size="small" color={series.id === selectedSeriesId ? series.textColor : undefined}>
+                        {series.displayName}
+                      </Text>
+                    </Box>
                   </Box>
-                </Box>
-              </StyledBox>
-            ))
-          )}
-        </Grid>
+                </StyledBox>
+              ))
+            )}
+          </Grid>
+        </ShadeBox>
       )}
     </>
   );

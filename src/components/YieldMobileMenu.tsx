@@ -7,7 +7,7 @@ import styled, { CSSProperties, ThemeContext } from 'styled-components';
 import { UserContext } from '../contexts/UserContext';
 import { IUserContext, IVault, IVaultRoot, MenuView } from '../types';
 import YieldNavigation from './YieldNavigation';
-import YieldMenu from './YieldMenu';
+import YieldMark from './logos/YieldMark';
 
 const StyledBox = styled(Box)`
   text-decoration: none;
@@ -51,14 +51,14 @@ const YieldMobileMenu = ({ toggleMenu }: { toggleMenu: () => void }) => {
   return (
     <Box justify="between" fill>
       <Header pad="medium" justify="between">
-        <Box background="brand" pad="xsmall">
-          <Text size="xsmall"> YIELD</Text>
-        </Box>
+        <YieldMark
+          height="1.5rem"
+          colors={['#f79533', '#f37055', '#ef4e7b', '#a166ab', '#5073b8', '#1098ad', '#07b39b', '#6fba82']}
+        />
         <Box onClick={() => toggleMenu()} pad="small">
-          <Text size="small" color="text">
-            {' '}
-            <FiX />{' '}
-          </Text>
+          <Box>
+            <FiX size="1.5rem" />
+          </Box>
         </Box>
       </Header>
 
@@ -74,51 +74,12 @@ const YieldMobileMenu = ({ toggleMenu }: { toggleMenu: () => void }) => {
               >
                 <Text size="small">My Vaults</Text>
               </StyledBox>
-
-              <StyledBox
-                onClick={() => setView(MenuView.account)}
-                style={view === MenuView.account ? activeStyle : undefined}
-              >
-                <Text size="small">Account Details</Text>
-              </StyledBox>
             </Box>
           </Header>
-
-          {view === MenuView.account && <Box> Accounts view </Box>}
-
-          {view === MenuView.vaults && (
-            <Box gap="medium">
-              {Array.from(vaultMap.values()).map((x: IVault) => (
-                <Box key={x.id} pad="small" border onClick={() => handleSelect(x)}>
-                  <Text size="small">
-                    {' '}
-                    {x.id} {x.seriesId}{' '}
-                  </Text>
-                </Box>
-              ))}
-            </Box>
-          )}
         </Box>
       )}
-
-      <Box direction="row" pad="medium" fill="horizontal" justify="center">
-        {!view && (
-          <Box onClick={() => setView(MenuView.vaults)}>
-            {' '}
-            <Text size="small">Vaults and Account</Text>{' '}
-          </Box>
-        )}
-        {view && (
-          <Box onClick={() => setView(undefined)} gap="medium" direction="row" align="center">
-            <FiArrowLeftCircle />
-            <Text size="small"> back to menu </Text>
-          </Box>
-        )}
-      </Box>
     </Box>
   );
 };
-
-// YieldMobileMenu.defaultProps = { callback: () => null };
 
 export default YieldMobileMenu;

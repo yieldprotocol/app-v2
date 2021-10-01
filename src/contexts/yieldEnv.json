@@ -1,24 +1,27 @@
 {
   "addresses": {
-    "1": {
-      "Cauldron": "0x324ee27d5f5A7Da8C926A5954CB86357b8e07F81",
-      "Ladle": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-      "ChainlinkMultiOracle": "0x2C5f88E7BD899CE57242ecA7650F21a4a9c28D3f",
-      "CompositeMultiOracle": "0x77528b9E8300D4eF6075c18C7148420C86997106"
-    },
+    "1": {},
     "42": {
-      "Cauldron": "0xc3EE4DF58b09184A7E47b50cFB4e457D5042a382",
-      "Ladle": "0xf7611BC6f78AE082f9C3E290F67349dE3b8591Cf",
-      "ChainlinkMultiOracle": "0x585Aa99cF4F9F5C65E347d6f6A4a23E992e37E68",
-      "CompositeMultiOracle": "0xC9BdCf50604bC2430800d902183c574B31723dD0"
+      "Cauldron": "0xE3c33408b72adCA6DdB17D6bcAB0400Ae79Bd85B",
+      "Ladle": "0x5840069B175D3EEa154C58b065edC06095bB9217",
+      "ChainlinkMultiOracle": "0x4376c9982621F62799a4CEB3f4645bEeA01064E3",
+      "CompositeMultiOracle": "0xF040F5392D51755fa278F05BC8D7866738aaab70",
+      "Witch": "0x8a36B0369148A12B1B91130F3c92Bfc14F971Eb6"
     },
-    "31337": {
-      "Cauldron": "0x7Dd21c63a12042759ce9D5207301F0f19b10c634",
-      "Ladle": "0xb3768d474dc5464c50AFF228682a5D63c06335E8",
-      "ChainlinkMulitOracle": "0x06E5903f2Aa1935EE6f4B9f825F8A140C681C0F1",
-      "CompositeMultiOracle": "0x77528b9E8300D4eF6075c18C7148420C86997106"
-    }
+    "31337": {}
   },
+  "strategies": {
+    "1": [],
+    "42": [
+      "0xEA6A127922c3fB52152f7cCd87a9446F2511c844",
+      "0x0fE76C4F082C9d26eBAbeec8af504Cb27A059c8D",
+      "0xE008b2D27f14Afc43530BF11773B0dd32415737C",
+      "0x1E6bB1B5D0C350737aac3202758489166bA0e10b",
+      "0xcA56912Fa2c689822b44275854EF41BfB0EE20a7"
+    ],
+    "31337": []
+  },
+  
   "assetColors": {
     "DAI": "#F5AC37",
     "USDC": "#2775CA",
@@ -32,17 +35,6 @@
     "SPRING": ["#6AD99E", "#FF6BE4", "#333333"],
     "SUMMER": ["#FFDE75", "#409C4D", "#333333"],
     "FALL": ["#7255BD", "#D95948", "#ffffff"]
-  },
-  "strategies": {
-    "1": [],
-    "42": [
-      "0xA711725a06205509D13EFB454bf8BD4fCDE53187",
-      "0x1CDCaa6EFDb2d951941D7FBa87eA14B983870cC9",
-      "0x2603c930D4B391D64f094875Ceaf4E9555524e63",
-      "0x62c264533c6C0A73c06dF570E1b40787Ee3AF570",
-      "0x08bC133474cBc6a9eAaC208492E46391000412B3",
-      "0xEB18c9F0eA6200A3A2a6aA5CbFE667f20fF4d5c9"
-    ],
-    "31337": []
   }
+
 }

@@ -13,26 +13,13 @@ export const copyToClipboard = (str: string) => {
 };
 
 /**
- * Convert bytesX to bytes32 (BigEndian?)
- * @param x string to convert.
- * @param n current bytes value eg. bytes6 or bytes12
- * @returns string bytes32
+ * Convert array to chunks of arrays with size n
+ * @param a any array
+ * @param size chunk size
+ * @returns array of any[]
  */
-export function bytesToBytes32(x: string, n: number): string {
-  return x + '00'.repeat(32 - n);
-}
-
-/**
- * Convert a bignumber with any decimal to a bn with decimal of 18
- * @param x bn to convert.
- * @param decimals of the current bignumber
- * @returns BigNumber
- */
-export function bnToDecimal18(x: BigNumber, decimals: number): BigNumber {
-  const paddedX = x.toString() + '0'.repeat(18 - decimals);
-  // const paddedX = x?.mul(Math.pow(10,(18-decimals))) // alternative?
-  return BigNumber.from(paddedX);
-}
+export const chunkArray = (a: any[], size: number) =>
+  Array.from(new Array(Math.ceil(a.length / size)), (_, i) => a.slice(i * size, i * size + size));
 
 /* log to console + any extra action required, extracted  */
 export const toLog = (message: string, type: string = 'info') => {
@@ -203,36 +190,48 @@ export const buildGradient = (colorFrom: string, colorTo: string) => `linear-gra
       ${modColor(colorTo, 0)})
     `;
 
-export const getPositionPathPrefix = (txCode: string) => {
+export const getPositionPath = (txCode: string, receipt: any, contractMap?: any, seriesMap?: any) => {
   const action = txCode.split('_')[0];
+  const positionId = txCode.split('_')[1];
+
   switch (action) {
     // BORROW
     case ActionCodes.BORROW:
+    case ActionCodes.ADD_COLLATERAL:
     case ActionCodes.REMOVE_COLLATERAL:
     case ActionCodes.REPAY:
     case ActionCodes.ROLL_DEBT:
     case ActionCodes.TRANSFER_VAULT:
     case ActionCodes.MERGE_VAULT:
-      return 'vaultposition';
+      return `/vaultposition/${getVaultIdFromReceipt(receipt, contractMap)}`;
     // LEND
     case ActionCodes.LEND:
     case ActionCodes.CLOSE_POSITION:
-    case ActionCodes.ROLL_POSITION:
     case ActionCodes.REDEEM:
-      return 'lendposition';
+      return `/lendposition/${positionId}`;
+    case ActionCodes.ROLL_POSITION:
+      return `/lendposition/${getSeriesAfterRollPosition(receipt, seriesMap)}`;
     // POOL
     case ActionCodes.ADD_LIQUIDITY:
     case ActionCodes.REMOVE_LIQUIDITY:
     case ActionCodes.ROLL_LIQUIDITY:
-      return 'poolposition';
+      return `/poolposition/${positionId}`;
 
     default:
-      return `${action.toLowerCase()}position`;
+      return '/';
   }
 };
 
 export const getVaultIdFromReceipt = (receipt: any, contractMap: any) => {
+  if (!receipt) return '';
   const cauldronAddr = contractMap.get('Cauldron').address;
   const vaultIdHex = receipt.events.filter((e: any) => e.address === cauldronAddr)[0].topics[1];
   return vaultIdHex.slice(0, 26);
+};
+
+export const getSeriesAfterRollPosition = (receipt: any, seriesMap: any) => {
+  if (!receipt) return '';
+  const contractAddress = receipt.events[6].address;
+  const series = [...seriesMap.values()].filter((s) => s.address === contractAddress)[0].id;
+  return series;
 };

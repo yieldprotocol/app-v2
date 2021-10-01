@@ -7,7 +7,6 @@ import { getTxCode } from '../../utils/appUtils';
 import { ETH_BASED_ASSETS, DAI_BASED_ASSETS, MAX_128, BLANK_VAULT } from '../../utils/constants';
 import { useChain } from '../useChain';
 
-import { calculateSlippage, secondsToFrom, sellBase } from '../../utils/yieldMath';
 
 /* Generic hook for chain transactions */
 export const useVaultAdmin = () => {

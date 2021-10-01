@@ -1,13 +1,9 @@
-import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
-import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, IVault, ISeries, ActionCodes, LadleActions } from '../../types';
 import { getTxCode } from '../../utils/appUtils';
 import { MAX_128 } from '../../utils/constants';
 import { useChain } from '../useChain';
-
-import { calculateSlippage, secondsToFrom, sellBase } from '../../utils/yieldMath';
 
 /* Generic hook for chain transactions */
 export const useRollDebt = () => {
@@ -21,7 +17,7 @@ export const useRollDebt = () => {
     const txCode = getTxCode(ActionCodes.ROLL_DEBT, vault.id);
     const series = seriesMap.get(vault.seriesId);
     const base = assetMap.get(vault.baseId);
-
+    
     const calls: ICallData[] = [
       {
         // ladle.rollAction(vaultId: string, newSeriesId: string, max: BigNumberish)
@@ -31,7 +27,7 @@ export const useRollDebt = () => {
       },
     ];
     await transact(calls, txCode);
-    updateVaults([]);
+    updateVaults([vault]);
     updateAssets([base]);
   };
 

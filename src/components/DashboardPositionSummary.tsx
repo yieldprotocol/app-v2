@@ -1,12 +1,14 @@
 import React from 'react';
 import { Box, Text } from 'grommet';
-import ListWrap from './wraps/ListWrap';
+import DashboardSettings from './DashboardSettings';
+import { ActionType } from '../types';
 
 interface IDashSummary {
   debt: string | null;
   collateral: string | null;
   lendBalance: string | null;
-  poolBalance: string | null;
+  strategyBalance: string | null;
+  actionType: string;
   children: any;
 }
 
@@ -17,17 +19,25 @@ const Summary = ({ label, value }: { label: string; value: string }) => (
   </Box>
 );
 
-const DashboardPositionSummary = ({ debt, collateral, lendBalance, poolBalance, children }: IDashSummary) => (
+const DashboardPositionSummary = ({
+  debt,
+  collateral,
+  lendBalance,
+  strategyBalance,
+  actionType,
+  children,
+}: IDashSummary) => (
   <Box>
     <Box direction="row" justify="between" background="tailwind-blue-50" round="xsmall" pad="small">
-      <Box direction="row" gap="small">
+      <Box direction="row-responsive" gap="small">
         {debt && <Summary label="Debt" value={debt} />}
         {collateral && <Summary label="Collateral" value={collateral} />}
         {lendBalance && <Summary label="Balance" value={lendBalance} />}
-        {poolBalance && <Summary label="Balance" value={poolBalance} />}
+        {strategyBalance && <Summary label="Balance" value={strategyBalance} />}
       </Box>
+      {actionType === ActionType.BORROW && <DashboardSettings actionType={actionType} />}
     </Box>
-    <ListWrap pad={{ vertical: 'xsmall', horizontal: 'none' }}>{children}</ListWrap>
+    <Box pad={{ vertical: 'xsmall', horizontal: 'none' }}>{children}</Box>
   </Box>
 );
 
