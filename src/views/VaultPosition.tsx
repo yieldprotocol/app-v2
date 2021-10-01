@@ -134,6 +134,7 @@ const VaultPosition = () => {
     userBaseAvailable_,
     maxRoll_,
     maxDebt_,
+
   } = useBorrowHelpers(undefined, undefined, selectedVault, rollToSeries);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries, [
@@ -355,8 +356,7 @@ const VaultPosition = () => {
                                 <InputInfoWrap action={() => setRepayInput(maxRepay_)}>
                                   {selectedVault.art.gt(maxRepay) ? (
                                     <Text color="gray" alignSelf="end" size="xsmall">
-                                      Maximum repayable is {cleanValue(maxRepay_!, 2)}
-                                      {vaultBase?.symbol!}{' '}
+                                      Maximum repayable is {cleanValue(maxRepay_!, 2)} {vaultBase?.symbol!}{' '}
                                       {userBaseAvailable.lt(protocolBaseAvailable)
                                         ? '(based on your token balance)'
                                         : '(limited by protocol reserves)'}
@@ -371,12 +371,12 @@ const VaultPosition = () => {
 
                               {repayInput && !repayError && (
                                 <InputInfoWrap>
+
                                   {repayCollEst && parseFloat(repayCollEst) > 10000 && repayInput !== maxDebt_ && (
                                     <Text color="text-weak" alignSelf="end" size="xsmall">
                                       Repaying this amount will leave a small amount of debt.
                                     </Text>
                                   )}
-
                                   {repayCollEst &&
                                     parseFloat(repayCollEst) < 10000 &&
                                     parseFloat(repayCollEst) !== 0 &&
