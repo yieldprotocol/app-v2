@@ -3,7 +3,7 @@ import { useContext } from 'react';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions } from '../../types';
-import { getTxCode } from '../../utils/appUtils';
+import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { buyBase, calculateSlippage } from '../../utils/yieldMath';
 import { useChain } from '../useChain';
 
@@ -13,8 +13,7 @@ export const useRollPosition = () => {
   const { activeAccount: account, assetMap, slippageTolerance } = userState;
   const { updateSeries, updateAssets } = userActions;
 
-  const { historyActions: { updateVaultHistory } } = useContext(HistoryContext);
-
+  const { historyActions: { updateTradeHistory } } = useContext(HistoryContext);
 
   const { sign, transact } = useChain();
 
@@ -22,7 +21,8 @@ export const useRollPosition = () => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.ROLL_POSITION, fromSeries.id);
     const base = assetMap.get(fromSeries.baseId);
-    const _input = input ? ethers.utils.parseUnits(input, base.decimals) : ethers.constants.Zero;
+    const cleanInput = cleanValue(input, base.decimals);
+    const _input = input ? ethers.utils.parseUnits(cleanInput, base.decimals) : ethers.constants.Zero;
 
     const _fyTokenValueOfInput = fromSeries.seriesIsMature
       ? _input
@@ -41,7 +41,7 @@ export const useRollPosition = () => {
         {
           target: fromSeries,
           spender: 'LADLE',
-          message: 'Signing ERC20 Token approval',
+          amount: _fyTokenValueOfInput,
           ignoreIf: false,
         },
       ],
@@ -95,10 +95,9 @@ export const useRollPosition = () => {
     ];
 
     await transact(calls, txCode);
-
     updateSeries([fromSeries, toSeries]);
     updateAssets([base]);
-    updateVaultHistory([fromSeries, toSeries]);
+    updateTradeHistory([fromSeries, toSeries]);
   };
 
   return rollPosition;
