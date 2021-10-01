@@ -7,9 +7,9 @@ import styled from 'styled-components';
 import { FiClock } from 'react-icons/fi';
 import { ActionType, ISeries } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
-import { calculateAPR } from '../../utils/yieldMath';
+import { calculateAPR, maxBaseToSpend } from '../../utils/yieldMath';
 import { useApr } from '../../hooks/useApr';
-import { chunkArray, nFormatter } from '../../utils/appUtils';
+import { chunkArray, cleanValue, nFormatter } from '../../utils/appUtils';
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
@@ -70,40 +70,43 @@ const AprText = ({
   series: ISeries;
   actionType: ActionType;
 }) => {
-  const { apr } = useApr(inputValue, actionType, series);
 
-  // const { poolPercent } = usePool(inputValue, series);
-
+  const _inputValue = cleanValue(inputValue, series.decimals)
+  const { apr } = useApr(_inputValue, actionType, series);
   const [limitHit, setLimitHit] = useState<boolean>(false);
 
+  const maxBase = maxBaseToSpend(
+    series.baseReserves,
+    series.fyTokenReserves,
+    series.getTimeTillMaturity(),
+    series.decimals
+  )
+
   useEffect(() => {
-    if (
       !series?.seriesIsMature &&
-      inputValue &&
-      ethers.utils.parseUnits(inputValue, series.decimals).gt(series.baseReserves)
-    ) {
-      setLimitHit(true);
-    } else {
-      setLimitHit(false);
-    }
-  }, [inputValue, series.baseReserves, series?.seriesIsMature, setLimitHit]);
+      _inputValue &&
+      actionType === ActionType.LEND 
+        ? setLimitHit( (ethers.utils.parseUnits(_inputValue, series?.decimals)).gt(maxBase) ) // lending max
+        : setLimitHit( false ) //  TODO borrow max 
+
+  }, [_inputValue, actionType, maxBase, series.baseReserves, series.decimals, series?.seriesIsMature, setLimitHit]);
 
   return (
     <>
-      {actionType !== ActionType.POOL && !series.seriesIsMature && !inputValue && (
+      {!series.seriesIsMature && !_inputValue && !limitHit && (
         <Text size="medium">
           {series?.apr}%{' '}
           <Text size="xsmall">{[ActionType.LEND, ActionType.POOL].includes(actionType) ? 'APY' : 'APR'}</Text>
         </Text>
       )}
 
-      {actionType !== ActionType.POOL && !limitHit && !series?.seriesIsMature && inputValue && (
+      {!series?.seriesIsMature && _inputValue && !limitHit && (
         <Text size="medium">
           {apr}% <Text size="xsmall">{[ActionType.LEND, ActionType.POOL].includes(actionType) ? 'APY' : 'APR'}</Text>
         </Text>
       )}
 
-      {actionType !== ActionType.POOL && limitHit && (
+      {limitHit && (
         <Text size="xsmall" color="pink">
           low liquidity
         </Text>
@@ -129,6 +132,9 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
   const selectedSeries = selectSeriesLocally ? localSeries : seriesMap.get(selectedSeriesId!);
   const selectedBase = assetMap.get(selectedBaseId!);
 
+  /* prevent underflow */
+  const _inputValue = cleanValue(inputValue, selectedSeries?.decimals);
+
   const optionText = (_series: ISeries | undefined) => {
     if (_series) {
       return `${mobile ? _series.displayNameMobile : _series.displayName}`;
@@ -145,7 +151,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
           <Text size="xsmall"> Mature </Text>
         </Box>
       )}
-      {_series && actionType !== 'POOL' && <AprText inputValue={inputValue} series={_series} actionType={actionType} />}
+      {_series && actionType !== 'POOL' && <AprText inputValue={_inputValue} series={_series} actionType={actionType} />}
     </Box>
   );
 
@@ -168,13 +174,13 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     set the selected series to null. */
     if (
       selectedSeries &&
-      (filteredOpts.findIndex((_series: ISeries) => _series.id !== selectedSeriesId) < 0 ||
-        selectedSeries.baseId !== selectedBaseId)
+      // (filteredOpts.findIndex((_series: ISeries) => _series.id !== selectedSeriesId) < 0 ||
+        selectedSeries.baseId !== selectedBaseId // )
     )
       userActions.setSelectedSeries(null);
 
     setOptions(filteredOpts.sort((a: ISeries, b: ISeries) => a.maturity - b.maturity));
-  }, [seriesMap, selectedBase, selectSeriesLocally, selectedSeries, userActions]);
+  }, [seriesMap, selectedBase, selectSeriesLocally, selectedSeries, userActions, selectedBaseId, selectedSeriesId]);
 
   const handleSelect = (_series: ISeries) => {
     if (!selectSeriesLocally) {
@@ -272,7 +278,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
                     <Box>
                       <Text size="medium" color={series.id === selectedSeriesId ? series.textColor : undefined}>
-                        <AprText inputValue={inputValue} series={series} actionType={actionType} />
+                        <AprText inputValue={_inputValue} series={series} actionType={actionType} />
                       </Text>
                       <Text size="small" color={series.id === selectedSeriesId ? series.textColor : undefined}>
                         {series.displayName}

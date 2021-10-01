@@ -2,6 +2,7 @@ import { BigNumber, BigNumberish, ethers } from 'ethers';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../contexts/UserContext';
 import { ISeries } from '../../types';
+import { cleanValue } from '../../utils/appUtils';
 import { WAD_BN, ZERO_BN } from '../../utils/constants';
 import { maxBaseToSpend, sellBase, sellFYToken } from '../../utils/yieldMath';
 
@@ -9,6 +10,9 @@ export const useLendHelpers = (series: ISeries | undefined, input: string | unde
   const { userState } = useContext(UserContext);
   const { assetMap, activeAccount, selectedBaseId } = userState;
   const selectedBase = assetMap.get(selectedBaseId!);
+
+  /* clean to prevent underflow */
+  const _input = cleanValue(input, selectedBase?.decimals);
 
   const [maxLend, setMaxLend] = useState<string>();
   const [canLend, setCanLend] = useState<boolean>();
@@ -19,37 +23,31 @@ export const useLendHelpers = (series: ISeries | undefined, input: string | unde
 
   const [fyTokenMarketValue, setFyTokenMarketValue] = useState<string>();
 
-  useEffect (()=>{
-
-    console.log(series)
-    console.log(input)
-    series && input && console.log(ethers.utils.parseUnits(input, series.decimals));
-    // const trade = series && input && sellBase(
-    //   series.baseReserves,
-    //   series.fyTokenReserves,
-    //   ethers.utils.parseUnits(input, series.decimals),
-    //   series.getTimeTillMaturity(),
-    //   series.decimals
-    // );
-    // console.log(trade && trade.toString());
-
-  },[input, series])
+  useEffect(() => {
+    if (series && _input) {
+      const trade = sellBase(
+        series.baseReserves,
+        series.fyTokenReserves,
+        ethers.utils.parseUnits(_input, series.decimals),
+        series.getTimeTillMaturity(),
+        series.decimals
+      );
+      console.log(trade.toString());
+      setCanLend(trade.gt(ZERO_BN));
+    }
+  }, [_input, series]);
 
   /* check the protocol max limits */
   useEffect(() => {
     if (series) {
       const timeTillMaturity = series.getTimeTillMaturity();
-      try {
-        const _maxBaseToSpend = maxBaseToSpend(
-          series.baseReserves,
-          series.fyTokenReserves,
-          timeTillMaturity,
-          series.decimals
-        );
-        _maxBaseToSpend && setProtocolBaseAvailable(_maxBaseToSpend);
-      } catch (e) {
-        console.log('No lendable amount');
-      }
+      const _maxProtocolBaseToSpend = maxBaseToSpend(
+        series.baseReserves,
+        series.fyTokenReserves,
+        timeTillMaturity,
+        series.decimals
+      );
+      _maxProtocolBaseToSpend && setProtocolBaseAvailable(_maxProtocolBaseToSpend);
     }
   }, [series]);
 
@@ -74,7 +72,6 @@ export const useLendHelpers = (series: ISeries | undefined, input: string | unde
         : setMaxLend(ethers.utils.formatUnits(protocolBaseAvailable, series.decimals).toString());
     }
   }, [userBaseAvailable, protocolBaseAvailable, series, selectedBase]);
-
 
   /* Sets currentValue as the market Value of fyTokens held in base tokens */
   useEffect(() => {

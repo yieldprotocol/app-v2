@@ -82,7 +82,11 @@ const Lend = () => {
 
   /* ACTION DISABLING LOGIC  - if conditions are met: allow action */
   useEffect(() => {
-    activeAccount && lendInput && selectedSeries && !lendError ? setLendDisabled(false) : setLendDisabled(true);
+    activeAccount && 
+    lendInput && 
+    selectedSeries && 
+    !lendError ? setLendDisabled(false) : setLendDisabled(true);
+    // setLendDisabled(false)
   }, [lendInput, activeAccount, lendError, selectedSeries]);
 
   /* Watch process timeouts */
@@ -236,7 +240,6 @@ const Lend = () => {
           {stepPosition === 1 &&
             !selectedSeries?.seriesIsMature &&
             lendProcess?.stage !== ProcessStage.PROCESS_COMPLETE && (
-              // !(lendTx.success || lendTx.failed) &&
               <TransactButton
                 primary
                 label={
