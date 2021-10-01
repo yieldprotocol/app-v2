@@ -3,7 +3,7 @@ import { useContext } from 'react';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions } from '../../types';
-import { getTxCode } from '../../utils/appUtils';
+import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { calculateSlippage, sellBase } from '../../utils/yieldMath';
 import { useChain } from '../useChain';
 
@@ -13,7 +13,9 @@ export const useLend = () => {
   const { activeAccount: account, assetMap, slippageTolerance } = userState;
   const { updateSeries, updateAssets } = userActions;
 
-  const { historyActions: { updateTradeHistory } } = useContext(HistoryContext);
+  const {
+    historyActions: { updateTradeHistory },
+  } = useContext(HistoryContext);
 
   const { sign, transact } = useChain();
 
@@ -22,7 +24,8 @@ export const useLend = () => {
     const txCode = getTxCode(ActionCodes.LEND, series.id);
 
     const base = assetMap.get(series.baseId);
-    const _input = input ? ethers.utils.parseUnits(input, base.decimals) : ethers.constants.Zero;
+    const cleanedInput = cleanValue(input, base.decimals);
+    const _input = input ? ethers.utils.parseUnits(cleanedInput, base.decimals) : ethers.constants.Zero;
 
     const _inputAsFyToken = sellBase(
       series.baseReserves,
@@ -38,7 +41,7 @@ export const useLend = () => {
         {
           target: base,
           spender: 'LADLE',
-          message: 'Signing ERC20 Token approval',
+          amount: _input,
           ignoreIf: false,
         },
       ],
@@ -49,13 +52,12 @@ export const useLend = () => {
       ...permits,
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [base.address, series.poolAddress, _input.toString()] as LadleActions.Args.TRANSFER,
+        args: [base.address, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
         ignoreIf: false,
       },
       {
         operation: LadleActions.Fn.ROUTE,
-        // args: [account, _inputAsFyTokenWithSlippage] as RoutedActions.Args.SELL_BASE,
-        args: [account, ethers.constants.Zero] as RoutedActions.Args.SELL_BASE,
+        args: [account, _inputAsFyTokenWithSlippage] as RoutedActions.Args.SELL_BASE,
         fnName: RoutedActions.Fn.SELL_BASE,
         targetContract: series.poolContract,
         ignoreIf: false,

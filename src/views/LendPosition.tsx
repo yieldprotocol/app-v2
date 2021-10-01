@@ -27,6 +27,7 @@ import { useClosePosition } from '../hooks/actionHooks/useClosePosition';
 import { useRollPosition } from '../hooks/actionHooks/useRollPosition';
 import CopyWrap from '../components/wraps/CopyWrap';
 import { useProcess } from '../hooks/useProcess';
+import InputInfoWrap from '../components/wraps/InputInfoWrap';
 
 const LendPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -50,17 +51,22 @@ const LendPosition = () => {
   const [closeInput, setCloseInput] = useState<string | undefined>();
   const [rollInput, setRollInput] = useState<string | undefined>();
   const [rollToSeries, setRollToSeries] = useState<ISeries | null>(null);
+  const [maxRoll_, setMaxRoll_] = useState<string | undefined>();
 
   const [closeDisabled, setCloseDisabled] = useState<boolean>(true);
   const [rollDisabled, setRollDisabled] = useState<boolean>(true);
-  // const [redeemDisabled, setRedeemDisabled] = useState<boolean>(true);
 
   /* HOOK FNS */
-  const { fyTokenMarketValue, maxClose } = useLendHelpers(selectedSeries!);
-  const { maxLend } = useLendHelpers(rollToSeries!);
+  const { fyTokenMarketValue, maxClose_, maxClose } = useLendHelpers(selectedSeries!, closeInput);
+  const { maxLend_, maxLend } = useLendHelpers(rollToSeries!, rollInput);
 
   const closePosition = useClosePosition();
   const rollPosition = useRollPosition();
+
+  /* set max roll to the lower of either:  maxLend of the rollToseries or,  maxclose of the current series */
+  useEffect(() => {
+    maxLend.gt(maxClose) ? setMaxRoll_(maxClose_) : setMaxRoll_(maxLend_);
+  }, [maxClose, maxClose_, maxLend, maxLend_]);
 
   /* Processes to watch */
   const { txProcess: closeProcess, resetProcess: resetCloseProcess } = useProcess(
@@ -75,17 +81,12 @@ const LendPosition = () => {
   /* input validation hooks */
   const { inputError: closeError } = useInputValidation(closeInput, ActionCodes.CLOSE_POSITION, selectedSeries, [
     0,
-    maxClose,
+    maxClose_,
   ]);
 
   const { inputError: rollError } = useInputValidation(rollInput, ActionCodes.ROLL_POSITION, selectedSeries, [
     0,
-    maxClose,
-  ]);
-
-  const { inputError: rollToError } = useInputValidation(rollInput, ActionCodes.ROLL_POSITION, rollToSeries!, [
-    0,
-    maxLend,
+    maxRoll_,
   ]);
 
   /* LOCAL FNS */
@@ -227,6 +228,18 @@ const LendPosition = () => {
                           action={() => console.log('maxAction')}
                           isError={closeError}
                           disabled={!selectedSeries}
+                          message={
+                            <>
+                              {maxClose.lt(selectedSeries?.fyTokenBalance!) && (
+                                <InputInfoWrap action={() => setCloseInput(maxClose_)}>
+                                  <Text color="gray" alignSelf="end" size="xsmall">
+                                    Max redeemable is {cleanValue(maxClose_, 2)} {selectedBase?.symbol} (limited by
+                                    protocol liquidity).
+                                  </Text>
+                                </InputInfoWrap>
+                              )}
+                            </>
+                          }
                         >
                           <TextInput
                             plain
@@ -238,10 +251,10 @@ const LendPosition = () => {
                             icon={<>{selectedBase?.image}</>}
                           />
                           <MaxButton
-                            action={() => setCloseInput(maxClose)}
-                            disabled={maxClose === '0.0' || !selectedSeries}
+                            action={() => setCloseInput(maxClose_)}
+                            disabled={maxClose_ === '0.0' || !selectedSeries}
                             clearAction={() => setCloseInput('')}
-                            showingMax={!!closeInput && closeInput === maxClose}
+                            showingMax={!!closeInput && closeInput === maxClose_}
                           />
                         </InputWrap>
                       </Box>
@@ -283,10 +296,10 @@ const LendPosition = () => {
                             icon={<>{selectedBase?.image}</>}
                           />
                           <MaxButton
-                            action={() => setRollInput(maxClose)}
-                            disabled={maxClose === '0.0' || !selectedSeries}
+                            action={() => setRollInput(maxRoll_)}
+                            disabled={maxRoll_ === '0.0' || !selectedSeries}
                             clearAction={() => setRollInput('')}
-                            showingMax={!!rollInput && rollInput === maxClose}
+                            showingMax={!!rollInput && rollInput === maxRoll_}
                           />
                         </InputWrap>
 
