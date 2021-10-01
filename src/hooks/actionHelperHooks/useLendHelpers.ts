@@ -29,20 +29,6 @@ export const useLendHelpers = (
 
   const [fyTokenMarketValue, setFyTokenMarketValue] = useState<string>();
 
-  useEffect(() => {
-    if (series && _input) {
-      const trade = sellBase(
-        series.baseReserves,
-        series.fyTokenReserves,
-        ethers.utils.parseUnits(_input, series.decimals),
-        series.getTimeTillMaturity(),
-        series.decimals
-      );
-      // console.log(trade.toString());
-      // setCanLend(trade.gt(ZERO_BN));
-    }
-  }, [_input, series]);
-
   /* check and set the protocol Base max limits */
   useEffect(() => {
     if (series) {
@@ -103,9 +89,7 @@ export const useLendHelpers = (
         : setMaxClose_(ethers.utils.formatUnits(value, series.decimals).toString());
 
       /* set max Closing */
-      value.lte(ethers.constants.Zero)
-        ? setMaxClose(series.baseReserves)
-        : setMaxClose(value);
+      value.lte(ethers.constants.Zero) ? setMaxClose(series.baseReserves) : setMaxClose(value);
     }
 
     if (series && series.seriesIsMature) {
