@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, Button, DateInput, Grid, RangeInput, ResponsiveContext, Stack, Text, TextInput, Tip } from 'grommet';
+import { Box, Button, DateInput, ResponsiveContext, Text, TextInput, Tip } from 'grommet';
 import { format, differenceInCalendarDays } from 'date-fns';
 import { FiInfo } from 'react-icons/fi';
 import CenterPanelWrap from './wraps/CenterPanelWrap';
@@ -20,44 +20,41 @@ const Calculator = ({ initialBorrow }: ICalculator) => {
   } = useContext(UserContext);
   const selectedBase = assetMap.get(selectedBaseId!);
   const selectedSeries = seriesMap.get(selectedSeriesId!);
+
   const formatDate = (date: any) => format(new Date(date), 'dd MMMM yyyy');
 
-  // const INITIAL_BORROW_AMOUNT = '10000';
+  // these can be potentially used for inputting borrow dates (maybe when repaying debt?)
   const today = new Date();
-  const [borrowInput, setBorrowInput] = useState<string | undefined>(initialBorrow);
+  const [borrowInput, setBorrowInput] = useState<string>(initialBorrow || '10000');
   const [borrowDateInput, setBorrowDateInput] = useState<any>(today.toISOString());
   const [borrowDate, setBorrowDate] = useState<any>(formatDate(borrowDateInput));
 
-  const selectedSeriesMaturity = new Date(selectedSeries.maturity * 1000);
-  const INITIAL_REPAY_DATE_INPUT = selectedSeriesMaturity.toISOString();
+  const [selectedSeriesMaturity, setSelectedSeriesMaturity] = useState<any>(new Date(selectedSeries.maturity * 1000));
+  const [initialRepayDate, setInitialRepayDate] = useState<any>(selectedSeriesMaturity.toISOString());
   const [initialRepayAmount, setInitialRepayAmount] = useState<string>('');
   const [initialInterestOwed, setInitialInterestOwed] = useState<string>('');
   const [repayAmount, setRepayAmount] = useState<string>('');
-  const [repayDateInput, setRepayDateInput] = useState<any>(INITIAL_REPAY_DATE_INPUT);
+  const [repayDateInput, setRepayDateInput] = useState<any>(initialRepayDate);
   const [repayDate, setRepayDate] = useState<string>(selectedSeries.fullDate);
   const [repayDateInputError, setRepayDateInputError] = useState<string | null>(null);
 
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
-  const [interestRateInput, setInterestRateInput] = useState<string | undefined>(apr);
-  const [effectiveAPR, setEffectiveAPR] = useState<string | undefined>(apr);
+  const [interestRateInput, setInterestRateInput] = useState<string>('0');
+  const [effectiveAPR, setEffectiveAPR] = useState<string>('0');
 
   const handleReset = () => {
-    setInterestRateInput(apr);
-    setRepayDateInput(INITIAL_REPAY_DATE_INPUT);
-    setBorrowInput(initialBorrow);
+    setInterestRateInput(apr || '0');
+    setRepayDateInput(initialRepayDate);
+    setBorrowInput(initialBorrow || '10000');
   };
 
-  const _fyTokensSold = (
-    borrowed: string | undefined,
-    interestRate: string | undefined,
-    borrowedDate: Date,
-    maturity: Date
-  ) => Number(borrowed) * (1 + Number(interestRate) / 100) ** (differenceInCalendarDays(maturity, borrowedDate) / 365);
+  const _fyTokensSold = (borrowed: string, interestRate: string, borrowedDate: Date, maturity: Date) =>
+    Number(borrowed) * (1 + Number(interestRate) / 100) ** (differenceInCalendarDays(maturity, borrowedDate) / 365);
 
-  const _fyTokenCost = (interestRate: string | undefined, payDate: Date, maturity: Date) =>
+  const _fyTokenCost = (interestRate: string, payDate: Date, maturity: Date) =>
     1 / (1 + Number(interestRate) / 100) ** (differenceInCalendarDays(maturity, payDate) / 365);
 
-  const _getEffectiveAPR = (borrowed: string | undefined, amountRepaid: string, borrowedDate: Date, payDate: Date) =>
+  const _getEffectiveAPR = (borrowed: string, amountRepaid: string, borrowedDate: Date, payDate: Date) =>
     (Number(amountRepaid) / Number(borrowed)) ** (365 / differenceInCalendarDays(payDate, borrowedDate)) - 1;
 
   useEffect(() => {
@@ -69,35 +66,59 @@ const Calculator = ({ initialBorrow }: ICalculator) => {
   }, [apr, borrowInput, selectedBase]);
 
   useEffect(() => {
-    ((input) => {
+    if (repayDateInput) {
       try {
         setRepayDate(formatDate(repayDateInput));
       } catch (error) {
         console.log(error);
       }
-    })();
+    }
   }, [repayDateInput]);
 
+  /* Calculate the amount of interest and effective apr based on inputs */
   useEffect(() => {
     // number of fyTokens sold at initial borrow date
-    const fyTokensSold = _fyTokensSold(borrowInput, apr, new Date(borrowDateInput), selectedSeriesMaturity);
-    const fyTokenCostAtRepay = _fyTokenCost(interestRateInput, new Date(repayDateInput), selectedSeriesMaturity);
-    const amountRepaid = (fyTokensSold * fyTokenCostAtRepay).toString();
+    const fyTokensSold = _fyTokensSold(
+      borrowInput,
+      apr || '0',
+      new Date(borrowDateInput),
+      new Date(selectedSeriesMaturity)
+    );
+
+    const fyTokenCostAtRepay = _fyTokenCost(
+      interestRateInput,
+      new Date(repayDateInput),
+      new Date(selectedSeriesMaturity)
+    );
+
+    const amountRepaid =
+      fyTokensSold && fyTokenCostAtRepay ? (fyTokensSold * fyTokenCostAtRepay).toString() : fyTokensSold?.toString();
+
     const _effectiveAPR = _getEffectiveAPR(
       borrowInput,
       amountRepaid,
       new Date(borrowDateInput),
       new Date(repayDateInput)
     );
-    const formattedAPR = _effectiveAPR ? (_effectiveAPR * 100).toString() : apr;
-    setEffectiveAPR(formattedAPR);
+
+    const formattedAPR = (_effectiveAPR * 100).toString();
+    setEffectiveAPR(formattedAPR!);
 
     setInitialRepayAmount(fyTokensSold.toString());
-    setRepayAmount(amountRepaid);
+    setRepayAmount(amountRepaid!);
 
     const _initialInterestOwed = (fyTokensSold - Number(borrowInput)).toString();
     setInitialInterestOwed(_initialInterestOwed);
   }, [apr, borrowDateInput, repayDateInput, selectedSeriesMaturity, interestRateInput, borrowInput, initialBorrow]);
+
+  // set the selected series maturity
+  useEffect(() => {}, [selectedSeries.maturity]);
+
+  // set initial values
+  useEffect(() => {
+    setInterestRateInput(apr || '0');
+    setEffectiveAPR(apr || '0');
+  }, [apr]);
 
   return (
     <CenterPanelWrap>
