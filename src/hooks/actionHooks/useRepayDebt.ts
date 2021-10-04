@@ -34,7 +34,8 @@ export const useRepayDebt = () => {
     const protocolMax  = maxBaseToSpend (
       series.baseReserves,
       series.fyTokenReserves,
-      series.getTimeTillMaturity()
+      series.getTimeTillMaturity(),
+      series.decimals
     )
 
     const _inputAsFyToken = sellBase(

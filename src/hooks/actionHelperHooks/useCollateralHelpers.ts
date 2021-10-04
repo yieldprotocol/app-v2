@@ -29,7 +29,10 @@ export const useCollateralHelpers = (
   const [collateralizationPercent, setCollateralizationPercent] = useState<string | undefined>();
   const [undercollateralized, setUndercollateralized] = useState<boolean>(true);
   const [oraclePrice, setOraclePrice] = useState<ethers.BigNumber>(ethers.constants.Zero);
-  const [minCollateral, setMinCollateral] = useState<string | undefined>();
+  
+  const [minCollateral, setMinCollateral] = useState<BigNumber>();
+  const [minCollateral_, setMinCollateral_] = useState<string | undefined>();
+
   const [minSafeCollateral, setMinSafeCollateral] = useState<string | undefined>();
   const [maxRemovableCollateral, setMaxRemovableCollateral] = useState<string | undefined>();
   const [maxCollateral, setMaxCollateral] = useState<string | undefined>();
@@ -81,7 +84,7 @@ export const useCollateralHelpers = (
       const ratio = calculateCollateralizationRatio(totalCollateral, oraclePrice, totalDebt, false);
       const percent = calculateCollateralizationRatio(totalCollateral, oraclePrice, totalDebt, true);
       setCollateralizationRatio(ratio);
-      setCollateralizationPercent(cleanValue(percent, 2));
+      setCollateralizationPercent(parseFloat(percent!).toFixed(2));
     } else {
       setCollateralizationRatio('0.0');
       setCollateralizationPercent(cleanValue('0.0', 2));
@@ -100,10 +103,11 @@ export const useCollateralHelpers = (
         ? ethers.utils.formatUnits(minSafeWithCollat, 18).toString()
         : undefined;
 
-      setMinCollateral(ethers.utils.formatUnits(min, 18).toString());
+      setMinCollateral(min as BigNumber);
+      setMinCollateral_(ethers.utils.formatUnits(min, 18).toString());
       setMinSafeCollateral(minSafe);
     } else {
-      setMinCollateral('0');
+      setMinCollateral_('0');
     }
 
     /* Check max collateral that is removable (based on exisiting debt) */
@@ -130,6 +134,7 @@ export const useCollateralHelpers = (
     collateralizationWarning,
     undercollateralized,
     minCollateral,
+    minCollateral_,
     minSafeCollateral,
     maxCollateral,
     maxRemovableCollateral,

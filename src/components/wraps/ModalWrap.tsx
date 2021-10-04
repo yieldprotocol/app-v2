@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { NavLink, useHistory } from 'react-router-dom';
 import styled from 'styled-components';
-import { Avatar, Box, Button, Grid, Header, Layer, ResponsiveContext, Text } from 'grommet';
+import { Avatar, Box, Button, Grid, Header, Keyboard, Layer, ResponsiveContext, Text } from 'grommet';
 
 import { FiLogOut } from 'react-icons/fi';
 import MainViewWrap from './MainViewWrap';
@@ -29,7 +29,6 @@ background 0.3s ease-in-out;
 }
 `;
 
-const StyledLayer = styled(Layer)``;
 
 function ModalWrap({ children, series }: IModalWrap) {
   const history = useHistory();
@@ -46,8 +45,8 @@ function ModalWrap({ children, series }: IModalWrap) {
   const [menuLayerOpen, setMenuLayerOpen] = useState<boolean>(false);
 
   return (
-    <StyledLayer
-      onClickOutside={() => history.goBack()}
+    <Keyboard onEsc={()=> history.goBack()}>
+    <Layer
       full
       background={`linear-gradient( 45deg ,  ${_series?.startColor?.toString().concat('80')} , ${_series?.endColor
         ?.toString()
@@ -79,8 +78,8 @@ function ModalWrap({ children, series }: IModalWrap) {
             </Grid>
           </Header>
 
-          <Box flex={!mobile} overflow="auto" margin={mobile ? {} : { top: 'xlarge' }}>
-            <MainViewWrap pad={mobile ? 'medium' : 'large'}>
+          <Box flex={!mobile} overflow="auto" margin={mobile ? {} : { top: 'xlarge' }} >
+            <MainViewWrap pad={mobile ? 'medium' : 'large'} >
               <PanelWrap>
                 <Box />
               </PanelWrap>
@@ -99,7 +98,7 @@ function ModalWrap({ children, series }: IModalWrap) {
                 {children}
               </Box>
 
-              <PanelWrap>
+              <PanelWrap >
                 <Box />
               </PanelWrap>
             </MainViewWrap>
@@ -113,7 +112,8 @@ function ModalWrap({ children, series }: IModalWrap) {
           {menuLayerOpen ? <MenuLayer toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} /> : children}
         </Box>
       )}
-    </StyledLayer>
+    </Layer>
+    </Keyboard>
   );
 }
 

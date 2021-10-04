@@ -254,7 +254,7 @@ const VaultPosition = () => {
                     <PositionAvatar position={selectedVault!} actionType={ActionType.BORROW} />
                     <Box>
                       <Text size={mobile ? 'medium' : 'large'}> {selectedVault?.displayName} </Text>
-                      <CopyWrap>
+                      <CopyWrap hash={selectedVault?.id}>
                         <Text size="small"> {abbreviateHash(selectedVault?.id, 6)} </Text>
                       </CopyWrap>
                     </Box>

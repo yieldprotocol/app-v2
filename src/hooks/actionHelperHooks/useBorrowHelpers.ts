@@ -49,7 +49,8 @@ export const useBorrowHelpers = (
       const _maxProtocol = maxBaseToSpend(
         rollToSeries.baseReserves,
         rollToSeries.fyTokenReserves,
-        rollToSeries.getTimeTillMaturity()
+        rollToSeries.getTimeTillMaturity(),
+        rollToSeries.decimals
       );
       const rollable = _maxProtocol.gte(vault.art);
       rollable && console.log('roll possible');
@@ -76,7 +77,8 @@ export const useBorrowHelpers = (
         const _maxProtocol = maxBaseToSpend(
           vaultSeries.baseReserves,
           vaultSeries.fyTokenReserves,
-          vaultSeries.getTimeTillMaturity()
+          vaultSeries.getTimeTillMaturity(),
+          vaultSeries.decimals,
         );
 
         /* The the dust limit */
