@@ -5,7 +5,7 @@ import { IVault, ISeries, IAsset } from '../../types';
 
 import { maxBaseToSpend } from '../../utils/yieldMath';
 
-/* Collateralisation hook calculates collateralisation metrics */
+/* Collateralization hook calculates collateralization metrics */
 export const useBorrowHelpers = (
   input: string | undefined,
   collateralInput: string | undefined,

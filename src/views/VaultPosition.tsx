@@ -134,7 +134,6 @@ const VaultPosition = () => {
     userBaseAvailable_,
     maxRoll_,
     maxDebt_,
-
   } = useBorrowHelpers(undefined, undefined, selectedVault, rollToSeries);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries, [
@@ -371,7 +370,6 @@ const VaultPosition = () => {
 
                               {repayInput && !repayError && (
                                 <InputInfoWrap>
-
                                   {repayCollEst && parseFloat(repayCollEst) > 10000 && repayInput !== maxDebt_ && (
                                     <Text color="text-weak" alignSelf="end" size="xsmall">
                                       Repaying this amount will leave a small amount of debt.
@@ -382,14 +380,14 @@ const VaultPosition = () => {
                                     parseFloat(repayCollEst) !== 0 &&
                                     repayInput !== maxDebt_ && (
                                       <Text color="text-weak" alignSelf="end" size="xsmall">
-                                        Collateralisation ratio after repayment:{' '}
+                                        Collateralization ratio after repayment:{' '}
                                         {repayCollEst && nFormatter(parseFloat(repayCollEst), 2)}%
                                       </Text>
                                     )}
 
                                   {repayInput === maxDebt_ && (
                                     <Text color="text-weak" alignSelf="end" size="xsmall">
-                                      All debt will be repayed.
+                                      All debt will be repaid.
                                     </Text>
                                   )}
                                 </InputInfoWrap>
@@ -489,7 +487,7 @@ const VaultPosition = () => {
                               ) : (
                                 <InputInfoWrap>
                                   <Text color="gray" alignSelf="end" size="xsmall">
-                                    New collateralisation ratio will be: {nFormatter(parseFloat(addCollEst!), 2)}%
+                                    New collateralization ratio will be: {nFormatter(parseFloat(addCollEst!), 2)}%
                                   </Text>
                                 </InputInfoWrap>
                               )
@@ -548,7 +546,7 @@ const VaultPosition = () => {
                             ) : (
                               <InputInfoWrap>
                                 <Text color="gray" alignSelf="end" size="xsmall">
-                                  Your collateralisation ratio will be: {nFormatter(parseFloat(removeCollEst!), 2)}%
+                                  Your collateralization ratio will be: {nFormatter(parseFloat(removeCollEst!), 2)}%
                                 </Text>
                               </InputInfoWrap>
                             )

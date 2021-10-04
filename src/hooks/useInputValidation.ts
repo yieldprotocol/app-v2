@@ -63,15 +63,15 @@ export const useInputValidation = (
           break;
 
         case ActionCodes.REMOVE_COLLATERAL:
-          belowMin && setInputError('Vault will be undercollateralised');
-          aboveMax && setInputError('Vault will be undercollateralised');
+          belowMin && setInputError('Vault will be undercollateralized');
+          aboveMax && setInputError('Vault will be undercollateralized');
           break;
 
         case ActionCodes.TRANSFER_VAULT:
           input && !ethers.utils.isAddress(input) && setInputError('Not a valid Address');
           break;
 
-        case ActionCodes.ROLL_POSITION: 
+        case ActionCodes.ROLL_POSITION:
           aboveMax && setInputError('Rolling is limited by protocol liquidity');
           break;
 
@@ -83,7 +83,6 @@ export const useInputValidation = (
           aboveMax && setInputError('Amount exceeds available balance');
           belowMin && setInputError('Amount should be expressed as a positive value');
           break;
-        
 
         default:
           setInputError(null);
