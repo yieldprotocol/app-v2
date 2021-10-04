@@ -79,7 +79,7 @@ const Borrow = () => {
   const borrow = useBorrow();
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
 
-  const { collateralizationPercent, undercollateralized, minCollateral, minSafeCollateral, maxCollateral } =
+  const { collateralizationPercent, undercollateralized, minCollateral_, minSafeCollateral, maxCollateral } =
     useCollateralHelpers(borrowInput, collatInput, vaultToUse);
 
   const { maxAllowedBorrow, minAllowedBorrow } = useBorrowHelpers(borrowInput, collatInput, vaultToUse);
@@ -91,7 +91,7 @@ const Borrow = () => {
   ]);
 
   const { inputError: collatInputError } = useInputValidation(collatInput, ActionCodes.ADD_COLLATERAL, selectedSeries, [
-    Number(minCollateral) - Number(vaultToUse?.ink_),
+    Number(minCollateral_) - Number(vaultToUse?.ink_),
     maxCollateral,
   ]);
 
@@ -218,7 +218,7 @@ const Borrow = () => {
                           borrowInput && (
                             <InputInfoWrap>
                               <Text size="small" color="text-weak">
-                                Requires {cleanValue(minCollateral, selectedIlk?.digitFormat)} {selectedIlk?.symbol}{' '}
+                                Requires equivalent of {cleanValue(minCollateral_, selectedIlk?.digitFormat)} {selectedIlk?.symbol}{' '}
                                 collateral
                               </Text>
                             </InputInfoWrap>
