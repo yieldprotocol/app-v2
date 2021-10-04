@@ -72,9 +72,10 @@ const AprText = ({
 }) => {
 
   const _inputValue = cleanValue(inputValue, series.decimals)
+
   const { apr } = useApr(_inputValue, actionType, series);
   const [limitHit, setLimitHit] = useState<boolean>(false);
-
+  
   const maxBase = maxBaseToSpend(
     series.baseReserves,
     series.fyTokenReserves,
@@ -83,7 +84,6 @@ const AprText = ({
   )
 
   useEffect(() => {
-
     if (
       !series?.seriesIsMature &&
       _inputValue 

@@ -59,7 +59,8 @@ export const useAddLiquidity = () => {
       series.fyTokenRealReserves,
       series.totalSupply,
       _fyTokenToBuy,
-      series.getTimeTillMaturity()
+      series.getTimeTillMaturity(),
+      series.decimals
     );
     const _mintedWithBaseWithSlippage = calculateSlippage(_mintedWithBase, slippageTolerance, true);
     console.log('mintedWithBase', _mintedWithBase.toString());

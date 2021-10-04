@@ -143,7 +143,8 @@ export const usePoolHelpers = (input: string | undefined) => {
       const _maxProtocol = maxBaseToSpend(
         strategySeries.baseReserves,
         strategySeries.fyTokenReserves,
-        strategySeries.getTimeTillMaturity()
+        strategySeries.getTimeTillMaturity(),
+        strategySeries.decimals,
       );
 
       // console.log( strategySeries.baseReserves.toString() )

@@ -46,7 +46,7 @@ export const decimalNToDecimal18 = (x: BigNumber, decimals: number): BigNumber =
 export const decimal18ToDecimalN = (x: BigNumber, decimals: number): BigNumber => {
   const str = x.toString();
   const first = str.slice(0, str.length - (18 - decimals));
-  return BigNumber.from(first);
+  return BigNumber.from(first || 0); // zero if slice removes more than the number of decimals
 };
 
 /**
@@ -194,7 +194,7 @@ export function mintWithBase(
   supply: BigNumber | string,
   fyToken: BigNumber | string,
   timeTillMaturity: BigNumber | string,
-  decimals: number = 18
+  decimals: number,
 ): [BigNumber, BigNumber] {
   const Z = new Decimal(baseReserves.toString());
   const YR = new Decimal(fyTokenReservesReal.toString());
@@ -237,7 +237,7 @@ export function burnForBase(
   supply: BigNumber,
   lpTokens: BigNumber,
   timeTillMaturity: BigNumber | string,
-  decimals: number = 18
+  decimals: number,
 ): BigNumber {
   // Burn FyToken
   const [z1, y] = burn(baseReserves, fyTokenReservesReal, supply, lpTokens);
@@ -261,7 +261,7 @@ export function sellBase(
   fyTokenReserves: BigNumber | string,
   base: BigNumber | string,
   timeTillMaturity: BigNumber | string,
-  decimals: number = 18, // optional : default === 18
+  decimals: number, // optional : default === 18
   withNoFee: boolean = false // optional: default === false
 ): BigNumber {
   /* convert to 18 decimals, if required */
@@ -304,7 +304,7 @@ export function sellFYToken(
   fyTokenReserves: BigNumber | string,
   fyToken: BigNumber | string,
   timeTillMaturity: BigNumber | string,
-  decimals: number = 18, // optional : default === 18
+  decimals: number, // optional : default === 18
   withNoFee: boolean = false // optional: default === false
 ): BigNumber {
   /* convert to 18 decimals, if required */
@@ -347,7 +347,7 @@ export function buyBase(
   fyTokenReserves: BigNumber | string,
   base: BigNumber | string,
   timeTillMaturity: BigNumber | string,
-  decimals: number = 18, // optional : default === 18
+  decimals: number, // optional : default === 18
   withNoFee: boolean = false // optional: default === false
 ): BigNumber {
   /* convert to 18 decimals, if required */
@@ -390,7 +390,7 @@ export function buyFYToken(
   fyTokenReserves: BigNumber | string,
   fyToken: BigNumber | string,
   timeTillMaturity: BigNumber | string,
-  decimals: number = 18, // optional : default === 18
+  decimals: number, // optional : default === 18
   withNoFee: boolean = false // optional: default === false
 ): BigNumber {
   /* convert to 18 decimals, if required */
@@ -415,9 +415,6 @@ export function buyFYToken(
   const y = sum.pow(invA).sub(baseReserves_);
 
   const yFee = y.add(precisionFee);
-
-  // return yFee.isNaN() ? ethers.constants.Zero : toBn(yFee);
-
   return yFee.isNaN() ? ethers.constants.Zero : decimal18ToDecimalN(toBn(yFee), decimals);
 }
 
@@ -431,7 +428,7 @@ export function maxBaseToSpend(
   baseReserves: BigNumber | string,
   fyTokenReserves: BigNumber | string,
   timeTillMaturity: BigNumber | string,
-  decimals: number = 18 // optional : default === 18
+  decimals: number
 ): BigNumber {
   /* convert to 18 decimals, if required */
   const baseReserves18 = decimalNToDecimal18(BigNumber.from(baseReserves), decimals);
@@ -467,13 +464,14 @@ export function getFee(
   baseReserves: BigNumber | string,
   fyTokenReserves: BigNumber | string,
   fyToken: BigNumber | string,
-  timeTillMaturity: BigNumber | string
+  timeTillMaturity: BigNumber | string,
+  decimals: number
 ): BigNumber {
   let fee_: Decimal = ZERO;
   const fyToken_: BigNumber = BigNumber.isBigNumber(fyToken) ? fyToken : BigNumber.from(fyToken);
 
   if (fyToken_.gte(ethers.constants.Zero)) {
-    const tokenWithFee: BigNumber = buyFYToken(baseReserves, fyTokenReserves, fyToken, timeTillMaturity);
+    const tokenWithFee: BigNumber = buyFYToken(baseReserves, fyTokenReserves, fyToken, timeTillMaturity, decimals);
     const tokenWithoutFee: BigNumber = buyFYToken(baseReserves, fyTokenReserves, fyToken, timeTillMaturity, 18, true);
     fee_ = new Decimal(tokenWithFee.toString()).sub(new Decimal(tokenWithoutFee.toString()));
   } else {
@@ -481,7 +479,8 @@ export function getFee(
       baseReserves,
       fyTokenReserves,
       fyToken_.mul(BigNumber.from('-1')),
-      timeTillMaturity
+      timeTillMaturity,
+      decimals
     );
     const tokenWithoutFee: BigNumber = sellFYToken(
       baseReserves,
@@ -502,7 +501,7 @@ export function fyTokenForMint(
   fyTokenVirtualReserves: BigNumber | string,
   base: BigNumber | string,
   timeTillMaturity: BigNumber | string,
-  decimals: number = 18
+  decimals: number
 ): BigNumber {
   /* convert to 18 decimals */
   const baseReserves18 = decimalNToDecimal18(BigNumber.from(baseReserves), decimals);

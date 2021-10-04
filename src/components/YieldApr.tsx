@@ -57,12 +57,10 @@ function YieldApr({ actionType, input }: IYieldApr) {
             </StyledText>
             <Box fill="vertical" justify="evenly">
               <StyledText size="large" color={selectedSeries?.color}>
-                {' '}
-                %{' '}
+                %
               </StyledText>
               <StyledText size="large" color={selectedSeries?.color}>
-                {' '}
-                APR{' '}
+                APR
               </StyledText>
             </Box>
           </Box>
