@@ -380,7 +380,7 @@ const VaultPosition = () => {
                                     parseFloat(repayCollEst) !== 0 &&
                                     repayInput !== maxDebt_ && (
                                       <Text color="text-weak" alignSelf="end" size="xsmall">
-                                        Collateralisation ratio after repayment:{' '}
+                                        Collateralization ratio after repayment:{' '}
                                         {repayCollEst && nFormatter(parseFloat(repayCollEst), 2)}%
                                       </Text>
                                     )}
@@ -487,7 +487,7 @@ const VaultPosition = () => {
                               ) : (
                                 <InputInfoWrap>
                                   <Text color="gray" alignSelf="end" size="xsmall">
-                                    New collateralisation ratio will be: {nFormatter(parseFloat(addCollEst!), 2)}%
+                                    New collateralization ratio will be: {nFormatter(parseFloat(addCollEst!), 2)}%
                                   </Text>
                                 </InputInfoWrap>
                               )
@@ -546,7 +546,7 @@ const VaultPosition = () => {
                             ) : (
                               <InputInfoWrap>
                                 <Text color="gray" alignSelf="end" size="xsmall">
-                                  Your collateralisation ratio will be: {nFormatter(parseFloat(removeCollEst!), 2)}%
+                                  Your collateralization ratio will be: {nFormatter(parseFloat(removeCollEst!), 2)}%
                                 </Text>
                               </InputInfoWrap>
                             )

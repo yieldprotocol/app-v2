@@ -9,7 +9,7 @@ import { useChain } from '../useChain';
 
 import { calculateCollateralizationRatio, calculateMinCollateral, decimalNToDecimal18 } from '../../utils/yieldMath';
 
-/* Collateralisation hook calculates collateralisation metrics */
+/* Collateralization hook calculates collateralization metrics */
 export const useCollateralHelpers = (
   debtInput: string | undefined,
   collInput: string | undefined,
@@ -41,13 +41,13 @@ export const useCollateralHelpers = (
   /* update the prices if anything changes */
   useEffect(() => {
     if (priceMap.get(selectedIlkId)?.has(selectedBaseId)) {
-      const _price = priceMap.get(selectedIlkId).get(selectedBaseId);  // get the price
-      setOraclePrice( decimalNToDecimal18(_price, base?.decimals) ); // make sure the price is 18decimals based
+      const _price = priceMap.get(selectedIlkId).get(selectedBaseId); // get the price
+      setOraclePrice(decimalNToDecimal18(_price, base?.decimals)); // make sure the price is 18decimals based
     } else {
       (async () => {
         selectedBaseId &&
           selectedIlkId &&
-          setOraclePrice(await updatePrice(selectedIlkId, selectedBaseId, ilk.decimals)); 
+          setOraclePrice(await updatePrice(selectedIlkId, selectedBaseId, ilk.decimals));
       })();
     }
   }, [priceMap, selectedBaseId, selectedIlkId, updatePrice, ilk, base?.decimals]);
@@ -63,14 +63,13 @@ export const useCollateralHelpers = (
 
   /* handle changes to input values */
   useEffect(() => {
-
     /* NOTE: this whole function ONLY deals with decimal18, existing values are converted to decimal18 */
     const existingCollateral_ = vault?.ink ? vault.ink : ethers.constants.Zero;
     const existingCollateralAsWei = decimalNToDecimal18(existingCollateral_, ilk?.decimals);
 
     const existingDebt_ = vault?.art ? vault.art : ethers.constants.Zero;
     const existingDebtAsWei = decimalNToDecimal18(existingDebt_, base?.decimals);
-   
+
     const dInput = debtInput ? ethers.utils.parseUnits(debtInput, 18) : ethers.constants.Zero;
     const cInput = collInput ? ethers.utils.parseUnits(collInput, 18) : ethers.constants.Zero;
 
@@ -122,7 +121,7 @@ export const useCollateralHelpers = (
     parseFloat(collateralizationRatio!) >= 1.5 ? setUndercollateralized(false) : setUndercollateralized(true);
   }, [collateralizationRatio]);
 
-  // TODO Marco add in collateralisation warning at about 150% - 200% " warning: vulnerable to liquidation"
+  // TODO Marco add in collateralization warning at about 150% - 200% " warning: vulnerable to liquidation"
 
   return {
     collateralizationRatio,
