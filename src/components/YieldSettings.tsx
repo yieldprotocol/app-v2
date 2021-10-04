@@ -61,7 +61,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
 
         <Box align="center" gap="medium">
           <YieldAvatar address={account} size={5} />
-          <CopyWrap>
+          <CopyWrap hash={account}>
             <Text size="xlarge">{abbreviateHash(account, 6)}</Text>
           </CopyWrap>
         </Box>
