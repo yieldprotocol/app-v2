@@ -134,7 +134,6 @@ const VaultPosition = () => {
     userBaseAvailable_,
     maxRoll_,
     maxDebt_,
-
   } = useBorrowHelpers(undefined, undefined, selectedVault, rollToSeries);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries, [
@@ -371,7 +370,6 @@ const VaultPosition = () => {
 
                               {repayInput && !repayError && (
                                 <InputInfoWrap>
-
                                   {repayCollEst && parseFloat(repayCollEst) > 10000 && repayInput !== maxDebt_ && (
                                     <Text color="text-weak" alignSelf="end" size="xsmall">
                                       Repaying this amount will leave a small amount of debt.
@@ -389,7 +387,7 @@ const VaultPosition = () => {
 
                                   {repayInput === maxDebt_ && (
                                     <Text color="text-weak" alignSelf="end" size="xsmall">
-                                      All debt will be repayed.
+                                      All debt will be repaid.
                                     </Text>
                                   )}
                                 </InputInfoWrap>
