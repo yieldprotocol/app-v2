@@ -259,7 +259,7 @@ const VaultPosition = () => {
                     <PositionAvatar position={selectedVault!} actionType={ActionType.BORROW} />
                     <Box>
                       <Text size={mobile ? 'medium' : 'large'}> {selectedVault?.displayName} </Text>
-                      <CopyWrap>
+                      <CopyWrap hash={selectedVault?.id}>
                         <Text size="small"> {abbreviateHash(selectedVault?.id, 6)} </Text>
                       </CopyWrap>
                     </Box>
@@ -397,7 +397,7 @@ const VaultPosition = () => {
 
                                   {repayInput === userBaseAvailable_ && (
                                     <Text color="text-weak" alignSelf="end" size="xsmall">
-                                      All debt will be repayed.
+                                      All debt will be repaid.
                                     </Text>
                                   )}
                                 </InputInfoWrap>
