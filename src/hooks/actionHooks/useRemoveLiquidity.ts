@@ -54,10 +54,10 @@ export const useRemoveLiquidity = () => {
 
     const matchingVaultId: string|undefined = matchingVault?.id;
     const vaultDebt: BigNumber|undefined = matchingVault?.art;
-    const vaultCollat: BigNumber|undefined = matchingVault?.ink;
-    
-    const fyTokenRecievedGreaterThanDebt : boolean  = _fyTokenReceived.gt(vaultDebt!); 
 
+    const vaultCollat: BigNumber|undefined = matchingVault?.ink;
+
+    const fyTokenRecievedGreaterThanDebt : boolean  = _fyTokenReceived.gt(vaultDebt!);
     const vaultAvailable: boolean = !!matchingVault || vaultDebt?.lt(_fyTokenReceived)!; // ignore vault flag if  matchign vaults is undefined or debt less than required fyToken
 
     console.log('Strategy: ', _strategy);
@@ -116,7 +116,11 @@ export const useRemoveLiquidity = () => {
         ignoreIf: _strategy || series.seriesIsMature,
       },
 
-      /* BEFORE MATURITY */
+      /** 
+       * 
+       * BEFORE MATURITY 
+       * 
+       * */
 
       /* OPTION 1. Remove liquidity and repay - BEFORE MATURITY  */ // use if fytokenRecieved > debt
       // (ladle.transferAction(pool, pool, lpTokensBurnt),  ^^^^ DONE ABOVE^^^^)
@@ -146,8 +150,6 @@ export const useRemoveLiquidity = () => {
         args: [matchingVaultId, account] as LadleActions.Args.CLOSE_FROM_LADLE,
         ignoreIf: !fyTokenRecievedGreaterThanDebt || series.seriesIsMature || !vaultAvailable,
       },
-
-
 
       /* OPTION 2.Remove liquidity, repay and sell - BEFORE MATURITY */
       // (ladle.transferAction(pool, pool, lpTokensBurnt),  ^^^^ DONE ABOVE^^^^)
@@ -185,9 +187,6 @@ export const useRemoveLiquidity = () => {
       //   args: [matchingVaultId, account, vaultCollat?.mul(-1), ethers.constants.Zero] as LadleActions.Args.POUR,
       //   ignoreIf: series.seriesIsMature || !vaultAvailable,
       // },
-
-
-
 
       /* OPTION 4. Remove Liquidity and sell  - BEFORE MATURITY */
       // (ladle.transferAction(pool, pool, lpTokensBurnt),  ^^^^ DONE ABOVE^^^^)
