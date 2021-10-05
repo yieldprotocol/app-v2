@@ -6,7 +6,7 @@ import { getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
-import { burn, buyBase, calculateSlippage, sellFYToken, splitLiquidity } from '../../utils/yieldMath';
+import { burn, burnFromStrategy, buyBase, calculateSlippage, sellFYToken, splitLiquidity } from '../../utils/yieldMath';
 
 export const usePool = (input: string | undefined) => {
   const poolMax = input;
@@ -16,12 +16,12 @@ export const usePool = (input: string | undefined) => {
 /* Hook for chain transactions */
 export const useRemoveLiquidity = () => {
   const {
-    chainState: { strategyRootMap, contractMap },
+    chainState: { contractMap },
   } = useContext(ChainContext);
   const ladleAddress = contractMap?.get('Ladle')?.address;
 
   const { userState, userActions } = useContext(UserContext);
-  const { activeAccount: account, assetMap, selectedStrategyAddr } = userState;
+  const { activeAccount: account, assetMap, selectedStrategyAddr, strategyMap } = userState;
   const { updateSeries, updateAssets, updateStrategies } = userActions;
   const { sign, transact } = useChain();
 
@@ -34,32 +34,36 @@ export const useRemoveLiquidity = () => {
 
     const base = assetMap.get(series.baseId);
     const _input = ethers.utils.parseUnits(input, base.decimals);
-    const _strategy = strategyRootMap.get(selectedStrategyAddr);
+    const _strategy = strategyMap.get(selectedStrategyAddr);
 
     const [_basePortion, _fyTokenPortion] =  splitLiquidity(
       series.baseReserves,
       series.fyTokenReserves,
       _input
-    )
+    ) 
+    
+    console.log(_strategy, _input);
 
-    const [ ,fyTokenReceived] = burn(
+    const lpReceived = burnFromStrategy(_strategy.poolTotalSupply!, _strategy.strategyTotalSupply!, _input);
+    const [_fyTokenReceived, ] = burn(
       series.baseReserves,
       series.fyTokenReserves,
       series.totalSupply,
-      _input,
+      lpReceived,
     )
 
     const matchingVaultId: string|undefined = matchingVault?.id;
     const vaultDebt: BigNumber|undefined = matchingVault?.art;
     const vaultCollat: BigNumber|undefined = matchingVault?.ink;
-    const fyTokenRecievedGreaterThanDebt : boolean  = fyTokenReceived.gt(vaultDebt!); 
+    
+    const fyTokenRecievedGreaterThanDebt : boolean  = _fyTokenReceived.gt(vaultDebt!); 
 
-    const vaultAvailable: boolean = !!matchingVault || vaultDebt?.lt(_fyTokenPortion)!; // ignore vault flag if  matchign vaults is undefined or debt less than required fyToken
+    const vaultAvailable: boolean = !!matchingVault || vaultDebt?.lt(_fyTokenReceived)!; // ignore vault flag if  matchign vaults is undefined or debt less than required fyToken
 
-    console.log(matchingVaultId, vaultDebt?.toString(), _fyTokenPortion.toString(),  );
     console.log('Strategy: ', _strategy);
     console.log('Vault to use for removal: ', matchingVaultId);
-    console.log('fyToken recieved: ', fyTokenReceived.toString())
+    console.log('lpTokens recieved from strategy token burn:', lpReceived.toString() )
+    console.log('fyToken recieved from lpTokenburn: ', _fyTokenReceived.toString())
     console.log('Debt: ', vaultDebt?.toString())
     console.log('Is FyToken Recieved Greater Than Debt: ', fyTokenRecievedGreaterThanDebt)
 
@@ -116,6 +120,7 @@ export const useRemoveLiquidity = () => {
 
       /* OPTION 1. Remove liquidity and repay - BEFORE MATURITY  */ // use if fytokenRecieved > debt
       // (ladle.transferAction(pool, pool, lpTokensBurnt),  ^^^^ DONE ABOVE^^^^)
+      
       // ladle.routeAction(pool, ['burn', [ladle, ladle, minBaseReceived, minFYTokenReceived]),
       // ladle.repayFromLadleAction(vaultId, receiver),
       // ladle.closeFromLadleAction(vaultId, receiver),
@@ -175,11 +180,11 @@ export const useRemoveLiquidity = () => {
       },
 
       /* for option 1 and 2 remove collateral after */ 
-      {
-        operation: LadleActions.Fn.POUR,
-        args: [matchingVaultId, account, vaultCollat?.mul(-1), ethers.constants.Zero] as LadleActions.Args.POUR,
-        ignoreIf: series.seriesIsMature || !vaultAvailable,
-      },
+      // {
+      //   operation: LadleActions.Fn.POUR,
+      //   args: [matchingVaultId, account, vaultCollat?.mul(-1), ethers.constants.Zero] as LadleActions.Args.POUR,
+      //   ignoreIf: series.seriesIsMature || !vaultAvailable,
+      // },
 
 
 
