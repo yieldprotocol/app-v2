@@ -1,12 +1,12 @@
-import { BigNumber, ethers } from 'ethers';
+import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, SignType, ISeries, ActionCodes, LadleActions, RoutedActions, IAsset, IStrategy } from '../../types';
+import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions, IAsset, IStrategy } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { BLANK_VAULT, DAI_BASED_ASSETS, MAX_128, MAX_256 } from '../../utils/constants';
+import { BLANK_VAULT} from '../../utils/constants';
 import { useChain } from '../useChain';
 
-import { calculateSlippage, fyTokenForMint, mint, mintWithBase, splitLiquidity } from '../../utils/yieldMath';
+import { calculateSlippage, fyTokenForMint, mintWithBase, splitLiquidity } from '../../utils/yieldMath';
 import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
 
@@ -35,9 +35,6 @@ export const useAddLiquidity = () => {
     // const _inputWithSlippage = calculateSlippage(_input, slippageTolerance);
     const _inputLessSlippage = calculateSlippage(_input, slippageTolerance, true);
 
-    console.log(_inputLessSlippage.toString())
-
-    console.log('pool TotalSupply :', (await series.poolContract.totalSupply()).toString());
     const _fyTokenToBuy = fyTokenForMint(
       series.baseReserves,
       series.fyTokenRealReserves,
@@ -65,11 +62,6 @@ export const useAddLiquidity = () => {
     const _mintedWithBaseWithSlippage = calculateSlippage(_mintedWithBase, slippageTolerance, true);
     console.log('mintedWithBase', _mintedWithBase.toString());
     console.log('_mintedWithBaseWithSlippage: ', _mintedWithBaseWithSlippage.toString());
-
-    // const [_minted, ] = mint(series.baseReserves, series.fyTokenRealReserves, series.totalSupply, _input);
-    // const _mintedWithSlippage = calculateSlippage(_minted, slippageTolerance, true);
-    // console.log('minted', _minted.toString());
-    // console.log('_mintedWithSlippage: ', _mintedWithSlippage.toString());
 
     const permits: ICallData[] = await sign(
       [

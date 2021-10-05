@@ -1,12 +1,12 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions, IStrategy, IVault } from '../../types';
+import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions, IVault } from '../../types';
 import { getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
-import { burn, burnFromStrategy, buyBase, calculateSlippage, sellFYToken, splitLiquidity } from '../../utils/yieldMath';
+import { burn, burnFromStrategy } from '../../utils/yieldMath';
 
 export const usePool = (input: string | undefined) => {
   const poolMax = input;
@@ -36,14 +36,6 @@ export const useRemoveLiquidity = () => {
     const _input = ethers.utils.parseUnits(input, base.decimals);
     const _strategy = strategyMap.get(selectedStrategyAddr);
 
-    const [_basePortion, _fyTokenPortion] =  splitLiquidity(
-      series.baseReserves,
-      series.fyTokenReserves,
-      _input
-    ) 
-    
-    console.log(_strategy, _input);
-
     const lpReceived = burnFromStrategy(_strategy.poolTotalSupply!, _strategy.strategyTotalSupply!, _input);
     const [_fyTokenReceived, ] = burn(
       series.baseReserves,
@@ -54,8 +46,7 @@ export const useRemoveLiquidity = () => {
 
     const matchingVaultId: string|undefined = matchingVault?.id;
     const vaultDebt: BigNumber|undefined = matchingVault?.art;
-
-    const vaultCollat: BigNumber|undefined = matchingVault?.ink;
+    // const vaultCollat: BigNumber|undefined = matchingVault?.ink;
 
     const fyTokenRecievedGreaterThanDebt : boolean  = _fyTokenReceived.gt(vaultDebt!);
     const vaultAvailable: boolean = !!matchingVault || vaultDebt?.lt(_fyTokenReceived)!; // ignore vault flag if  matchign vaults is undefined or debt less than required fyToken
@@ -239,26 +230,26 @@ export const useRemoveLiquidity = () => {
           series.fyTokenAddress,
           ethers.constants.Zero,
           ethers.constants.Zero,
-        ] as RoutedActions.Args.BURN_POOL_TOKENS, // TODO slippages
+        ] as RoutedActions.Args.BURN_POOL_TOKENS,
         fnName: RoutedActions.Fn.BURN_POOL_TOKENS,
         targetContract: series.poolContract,
         ignoreIf: true || _strategy || !series.seriesIsMature,
       },
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [account, ethers.constants.Zero] as RoutedActions.Args.BURN_FOR_BASE, // TODO slippage
+        args: [account, ethers.constants.Zero] as RoutedActions.Args.BURN_FOR_BASE,
         fnName: RoutedActions.Fn.BURN_FOR_BASE,
         targetContract: series.poolContract,
         ignoreIf: true || _strategy || !series.seriesIsMature,
       },
       {
         operation: LadleActions.Fn.REDEEM,
-        args: [series.id, ladleAddress, '0'] as LadleActions.Args.REDEEM, // TODO slippage
+        args: [series.id, ladleAddress, '0'] as LadleActions.Args.REDEEM,
         ignoreIf: true || _strategy || !series.seriesIsMature,
       },
       {
         operation: LadleActions.Fn.CLOSE_FROM_LADLE,
-        args: ['vaultId', account] as LadleActions.Args.CLOSE_FROM_LADLE, // TODO slippage
+        args: ['vaultId', account] as LadleActions.Args.CLOSE_FROM_LADLE,
         ignoreIf: true || _strategy || !series.seriesIsMature,
       },
     ];

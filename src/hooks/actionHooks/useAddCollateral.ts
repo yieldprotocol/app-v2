@@ -1,7 +1,6 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
-import { HistoryContext } from '../../contexts/HistoryContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, IVault, ISeries, ActionCodes, LadleActions } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
@@ -16,13 +15,7 @@ export const useAddCollateral = () => {
   const { selectedBaseId, selectedIlkId, selectedSeriesId, seriesMap, assetMap } = userState;
   const { updateAssets, updateVaults } = userActions;
 
-  const {
-    historyActions: { updateVaultHistory },
-  } = useContext(HistoryContext);
-
   const { sign, transact } = useChain();
-
-  // TODO MARCO > look at possibly refactoring to remove addEth and removeEth
 
   const addEth = (value: BigNumber, series: ISeries): ICallData[] => {
     const isPositive = value.gte(ethers.constants.Zero);
