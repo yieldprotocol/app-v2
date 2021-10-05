@@ -133,12 +133,12 @@ export const useRemoveLiquidity = () => {
       },
       {
         operation: LadleActions.Fn.REPAY_FROM_LADLE,
-        args: ['vaultId', account] as LadleActions.Args.REPAY_FROM_LADLE, 
+        args: [matchingVaultId, account] as LadleActions.Args.REPAY_FROM_LADLE, 
         ignoreIf: !fyTokenRecievedGreaterThanDebt || series.seriesIsMature || !vaultAvailable, 
       },
       {
         operation: LadleActions.Fn.CLOSE_FROM_LADLE,
-        args: ['vaultId', account] as LadleActions.Args.CLOSE_FROM_LADLE,
+        args: [matchingVaultId, account] as LadleActions.Args.CLOSE_FROM_LADLE,
         ignoreIf: !fyTokenRecievedGreaterThanDebt || series.seriesIsMature || !vaultAvailable,
       },
 
@@ -182,7 +182,7 @@ export const useRemoveLiquidity = () => {
       },
 
 
-      
+
 
       /* OPTION 4. Remove Liquidity and sell  - BEFORE MATURITY */
       // (ladle.transferAction(pool, pool, lpTokensBurnt),  ^^^^ DONE ABOVE^^^^)
