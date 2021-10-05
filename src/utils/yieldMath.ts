@@ -194,7 +194,7 @@ export function mintWithBase(
   supply: BigNumber | string,
   fyToken: BigNumber | string,
   timeTillMaturity: BigNumber | string,
-  decimals: number,
+  decimals: number
 ): [BigNumber, BigNumber] {
   const Z = new Decimal(baseReserves.toString());
   const YR = new Decimal(fyTokenReservesReal.toString());
@@ -204,17 +204,11 @@ export function mintWithBase(
   const z1 = new Decimal(
     buyFYToken(baseReserves, fyTokenReservesVirtual, fyToken, timeTillMaturity, decimals).toString()
   );
-  const Z2 = Z.add(z1)  // Base reserves after the trade
-  const YR2 = YR.sub(y) // FYToken reserves after the trade
+  const Z2 = Z.add(z1); // Base reserves after the trade
+  const YR2 = YR.sub(y); // FYToken reserves after the trade
 
   // Mint specifying how much fyToken to take in. Reverse of `mint`.
-  const [m, z2] =  mint(
-    Z2.floor().toFixed(),
-    YR2.floor().toFixed(),
-    supply,
-    fyToken,
-    false
-  )
+  const [m, z2] = mint(Z2.floor().toFixed(), YR2.floor().toFixed(), supply, fyToken, false);
 
   return [m, toBn(z1).add(z2)];
 }
@@ -237,7 +231,7 @@ export function burnForBase(
   supply: BigNumber,
   lpTokens: BigNumber,
   timeTillMaturity: BigNumber | string,
-  decimals: number,
+  decimals: number
 ): BigNumber {
   // Burn FyToken
   const [z1, y] = burn(baseReserves, fyTokenReservesReal, supply, lpTokens);
@@ -518,13 +512,13 @@ export function fyTokenForMint(
   let min = ZERO;
   let max = base_.mul(TWO);
   let yOut = min.add(max).div(TWO).floor();
-  let zIn: Decimal
+  let zIn: Decimal;
 
   let i = 0;
   while (true) {
     // if (i++ > 100)  throw 'Not converging'
     // eslint-disable-next-line no-plusplus
-    if (i++ > 100)  return ZERO_BN
+    if (i++ > 100) return ZERO_BN;
 
     zIn = new Decimal(
       buyFYToken(
@@ -536,9 +530,9 @@ export function fyTokenForMint(
       ).toString()
     );
     const Z_1 = baseReserves_.add(zIn); // New base balance
-    const z_1 = base_.sub(zIn) // My remaining base
+    const z_1 = base_.sub(zIn); // My remaining base
     const Y_1 = fyDaiRealReserves_.sub(yOut); // New fyToken balance
-    const y_1 = yOut // My fyToken
+    const y_1 = yOut; // My fyToken
     const pz = z_1.div(z_1.add(y_1)); // base proportion in my assets
     const PZ = Z_1.div(Z_1.add(Y_1)); // base proportion in the balances
 
@@ -550,20 +544,20 @@ export function fyTokenForMint(
     // least half the slippage allowed.
     // For large trades, it would make sense to append a `retrieveBase` action at the
     // end of the batch.
-    const minTarget = new Decimal(1.00001) // Consider making this a parameter
-    const maxTarget = new Decimal(1.00002) // Consider making this a parameter
+    const minTarget = new Decimal(1.00001); // Consider making this a parameter
+    const maxTarget = new Decimal(1.00002); // Consider making this a parameter
 
     // The base proportion in my assets needs to be higher than but very close to the
     // base proportion in the balances, to make sure all the fyToken is used.
     // eslint-disable-next-line no-plusplus
-    if ((PZ.mul(maxTarget) > pz && PZ.mul(minTarget) < pz)) {
+    if (PZ.mul(maxTarget) > pz && PZ.mul(minTarget) < pz) {
       break; // Too many iterations, or found the result
     } else if (PZ.mul(maxTarget) <= pz) {
       min = yOut;
-      yOut = (yOut.add(max)).div(TWO); // bought too little fyToken, buy some more
+      yOut = yOut.add(max).div(TWO); // bought too little fyToken, buy some more
     } else {
       max = yOut;
-      yOut = (yOut.add(min)).div(TWO); // bought too much fyToken, buy a bit less
+      yOut = yOut.add(min).div(TWO); // bought too much fyToken, buy a bit less
     }
   }
 
