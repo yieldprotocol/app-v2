@@ -158,7 +158,7 @@ const PoolPosition = () => {
                     <PositionAvatar position={selectedSeries!} actionType={ActionType.POOL} />
                     <Box>
                       <Text size={mobile ? 'medium' : 'large'}> {selectedStrategy?.name} </Text>
-                      <CopyWrap>
+                      <CopyWrap hash={selectedStrategyAddr}>
                         <Text size="small"> {abbreviateHash(selectedStrategyAddr!, 6)}</Text>
                       </CopyWrap>
                     </Box>
@@ -195,8 +195,7 @@ const PoolPosition = () => {
                       />
                     )}
 
-                    {selectedStrategy.currentSeries && 
-                    fyTokenTradePossible && (
+                    {selectedStrategy.currentSeries && fyTokenTradePossible && (
                       <InfoBite
                         label="Strategy Token Value"
                         value={accountTradeValue!}

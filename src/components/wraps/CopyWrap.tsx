@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Text } from 'grommet';
+import { Box } from 'grommet';
 import { FiCheckCircle as Check, FiCopy as Copy } from 'react-icons/fi';
 import { copyToClipboard } from '../../utils/appUtils';
 
@@ -18,7 +18,7 @@ const CopyWrap = ({ children, hash }: any) => {
 
   return (
     <Box direction="row" gap="small" align="center" onClick={(e: any) => copy(e)}>
-      { children }
+      {children}
       {copied ? <Check /> : <Copy />}
     </Box>
   );
