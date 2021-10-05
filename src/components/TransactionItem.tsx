@@ -5,7 +5,7 @@ import { Box, Text, Spinner } from 'grommet';
 import { FiX, FiCheckCircle, FiXCircle } from 'react-icons/fi';
 import { ActionCodes, ProcessStage, TxState } from '../types';
 import EtherscanButton from './buttons/EtherscanButton';
-import { getSeriesAfterRollPosition, getPositionPathPrefix, getVaultIdFromReceipt } from '../utils/appUtils';
+import { getPositionPath } from '../utils/appUtils';
 import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
 
@@ -17,7 +17,6 @@ interface ITransactionItem {
 const StyledLink = styled(Link)`
   text-decoration: none;
   vertical-align: middle;
-  color: black;
   :hover {
     text-decoration: underline;
   }
@@ -38,18 +37,9 @@ const TransactionItem = ({ tx, wide }: ITransactionItem) => {
 
   /* get position link for viewing position */
   useEffect(() => {
-    const pathPrefix = getPositionPathPrefix(txCode);
-
-    let positionId;
-
-    if (receipt) {
-      if (action === ActionCodes.BORROW) positionId = getVaultIdFromReceipt(receipt, contractMap);
-      if (action === ActionCodes.ROLL_POSITION) positionId = getSeriesAfterRollPosition(receipt, seriesRootMap);
-    } else {
-      positionId = txCode?.split('_')[1];
-    }
-    setLink(`${pathPrefix}/${positionId}`);
-  }, [receipt, contractMap, seriesRootMap, txCode, action]);
+    const path = getPositionPath(txCode, receipt, contractMap, seriesRootMap);
+    setLink(path);
+  }, [receipt, contractMap, seriesRootMap, txCode]);
 
   return (
     <Box
@@ -71,16 +61,16 @@ const TransactionItem = ({ tx, wide }: ITransactionItem) => {
           {status === TxState.FAILED && <FiX size="1.2rem" />}
         </Box>
       )}
-      <Box direction="row" fill justify="between">
-        <Box direction="row" align="center">
+      <Box direction="row" fill justify="between" align="center">
+        <Box direction="row">
           <Box width="3rem">
-            {status === TxState.PENDING && <Spinner color="tailwind-blue" />}
+            {status === TxState.PENDING && <Spinner color="brand" />}
             {status === TxState.SUCCESSFUL && <FiCheckCircle size="1.5rem" color="#34D399" />}
             {status === TxState.FAILED && <FiXCircle size="1.5rem" color="#F87171" />}
           </Box>
           {status === TxState.SUCCESSFUL ? (
             <StyledLink to={link}>
-              <Text size="small" style={{ verticalAlign: 'middle' }}>
+              <Text size="small" style={{ color: 'black', verticalAlign: 'middle' }}>
                 {action}
               </Text>
             </StyledLink>
@@ -90,9 +80,7 @@ const TransactionItem = ({ tx, wide }: ITransactionItem) => {
             </Text>
           )}
         </Box>
-        <Box align="center" direction="row">
-          <EtherscanButton txHash={t.hash} />
-        </Box>
+        <EtherscanButton txHash={t.hash} />
       </Box>
     </Box>
   );

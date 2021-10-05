@@ -164,7 +164,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
     /* filter out options based on base Id and if mature */
     let filteredOpts = opts.filter(
-      (_series: ISeries) => _series.baseId === selectedBaseId && !_series.seriesIsMature
+      (_series: ISeries) => _series.baseId === selectedBaseId  && !_series.seriesIsMature
       // !ignoredSeries?.includes(_series.baseId)
     );
 

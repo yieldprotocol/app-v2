@@ -28,7 +28,7 @@ function EtherscanButton({ txHash }: { txHash: string }) {
         e.stopPropagation();
         window.open(`https://${chainData.name}.etherscan.io/tx/${txHash}`, '_blank');
       }}
-      gap="small"
+      gap="xsmall"
       align="center"
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
@@ -37,7 +37,7 @@ function EtherscanButton({ txHash }: { txHash: string }) {
         View on Etherscan
       </Text>
       <Text size="xsmall" color={hover ? '#333333' : 'grey'}>
-        <FiExternalLink />
+        <FiExternalLink style={{ verticalAlign: 'top' }} />
       </Text>
       {/* <EtherscanMark /> */}
     </StyledBox>

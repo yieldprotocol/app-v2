@@ -190,8 +190,10 @@ export const buildGradient = (colorFrom: string, colorTo: string) => `linear-gra
       ${modColor(colorTo, 0)})
     `;
 
-export const getPositionPathPrefix = (txCode: string) => {
+export const getPositionPath = (txCode: string, receipt: any, contractMap?: any, seriesMap?: any) => {
   const action = txCode.split('_')[0];
+  const positionId = txCode.split('_')[1];
+
   switch (action) {
     // BORROW
     case ActionCodes.BORROW:
@@ -201,31 +203,34 @@ export const getPositionPathPrefix = (txCode: string) => {
     case ActionCodes.ROLL_DEBT:
     case ActionCodes.TRANSFER_VAULT:
     case ActionCodes.MERGE_VAULT:
-      return 'vaultposition';
+      return `/vaultposition/${getVaultIdFromReceipt(receipt, contractMap)}`;
     // LEND
     case ActionCodes.LEND:
     case ActionCodes.CLOSE_POSITION:
-    case ActionCodes.ROLL_POSITION:
     case ActionCodes.REDEEM:
-      return 'lendposition';
+      return `/lendposition/${positionId}`;
+    case ActionCodes.ROLL_POSITION:
+      return `/lendposition/${getSeriesAfterRollPosition(receipt, seriesMap)}`;
     // POOL
     case ActionCodes.ADD_LIQUIDITY:
     case ActionCodes.REMOVE_LIQUIDITY:
     case ActionCodes.ROLL_LIQUIDITY:
-      return 'poolposition';
+      return `/poolposition/${positionId}`;
 
     default:
-      return `${action.toLowerCase()}position`;
+      return '/';
   }
 };
 
 export const getVaultIdFromReceipt = (receipt: any, contractMap: any) => {
+  if (!receipt) return '';
   const cauldronAddr = contractMap.get('Cauldron').address;
   const vaultIdHex = receipt.events.filter((e: any) => e.address === cauldronAddr)[0].topics[1];
   return vaultIdHex.slice(0, 26);
 };
 
 export const getSeriesAfterRollPosition = (receipt: any, seriesMap: any) => {
+  if (!receipt) return '';
   const contractAddress = receipt.events[6].address;
   const series = [...seriesMap.values()].filter((s) => s.address === contractAddress)[0].id;
   return series;
