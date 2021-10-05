@@ -76,14 +76,13 @@ export const useAddLiquidity = () => {
         {
           target: base,
           spender: 'LADLE',
-          message: 'Signing ERC20 Token approval',
-          ignoreIf: method === 'BORROW',
+          ignoreIf: false // method !== 'BUY',
         },
         {
           target: base,
           spender: base.joinAddress,
           amount: _input,
-          ignoreIf: method === 'BUY',
+          ignoreIf: true // method !== 'BORROW',
         },
       ],
       txCode

@@ -203,7 +203,7 @@ export const usePoolHelpers = (input: string | undefined) => {
     if (_input !== ethers.constants.Zero && strategy) {
       // update the below to get an actual estimated token value based on the input
       // const _poolTokenPreview = ethers.utils.parseUnits(input, strategyBase?.decimals);
-      const _poolPercentPreview = cleanValue(mulDecimal(divDecimal(_input, strategy.strategyTotalSupply!), '100'), 2);
+      const _poolPercentPreview = cleanValue(mulDecimal(divDecimal(_input, strategy?.strategyTotalSupply!), '100'), 2);
       setPoolPercentPreview(_poolPercentPreview);
     }
   }, [_input, strategy]);
