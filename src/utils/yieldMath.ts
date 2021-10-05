@@ -184,9 +184,7 @@ export function burnFromStrategy(
   const pS = new Decimal(poolTotalSupply.toString());
   const sS = new Decimal(strategyTotalsupply.toString());
   const tS = new Decimal(strategyTokensToBurn.toString());
-
   const x = pS.mul( tS.div(sS) );
-
   return toBn(x);
 }
 

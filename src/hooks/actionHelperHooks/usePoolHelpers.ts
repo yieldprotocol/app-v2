@@ -209,6 +209,7 @@ export const usePoolHelpers = (input: string | undefined) => {
   }, [_input, strategy]);
 
   return {
+    
     maxPool,
     poolPercentPreview,
     canBuyAndPool,

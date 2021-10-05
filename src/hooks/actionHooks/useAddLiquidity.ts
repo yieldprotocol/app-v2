@@ -32,6 +32,7 @@ export const useAddLiquidity = () => {
 
     const cleanInput = cleanValue(input, base.decimals);
     const _input = ethers.utils.parseUnits(cleanInput, base.decimals);
+    
     // const _inputWithSlippage = calculateSlippage(_input, slippageTolerance);
     const _inputLessSlippage = calculateSlippage(_input, slippageTolerance, true);
 
@@ -59,6 +60,7 @@ export const useAddLiquidity = () => {
       series.getTimeTillMaturity(),
       series.decimals
     );
+    
     const _mintedWithBaseWithSlippage = calculateSlippage(_mintedWithBase, slippageTolerance, true);
     console.log('mintedWithBase', _mintedWithBase.toString());
     console.log('_mintedWithBaseWithSlippage: ', _mintedWithBaseWithSlippage.toString());
