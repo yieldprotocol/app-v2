@@ -152,7 +152,9 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
                               mulDecimal(
                                 divDecimal(
                                   ethers.utils.parseUnits(inputValue, strategy.decimals),
-                                  strategy.strategyTotalSupply!
+                                  strategy.strategyTotalSupply!.add(
+                                    ethers.utils.parseUnits(inputValue, strategy.decimals)
+                                  )
                                 ),
                                 '100'
                               ),

@@ -124,8 +124,8 @@ export const useRemoveLiquidity = () => {
         args: [
           ladleAddress,
           ladleAddress,
-          ethers.constants.Zero, // TODO slippage
-          ethers.constants.Zero, // TODO slippage
+          ethers.constants.Zero, 
+          ethers.constants.Zero,
         ] as RoutedActions.Args.BURN_POOL_TOKENS,
         fnName: RoutedActions.Fn.BURN_POOL_TOKENS,
         targetContract: series.poolContract,
