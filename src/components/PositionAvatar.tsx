@@ -32,7 +32,7 @@ function PositionAvatar({
       <Stack anchor="top-right">
 
         
-        <Avatar background={ series?.seriesIsMature ? series.color  : 'lightGrey'} size={condensed ? '1.5rem' : undefined}>
+        <Avatar background={ series?.seriesIsMature ? 'lightGrey' : series?.color } size={condensed ? '1.5rem' : undefined}>
       
           <Box round="large" background={base?.color || 'grey'} pad={condensed ? 'none' : 'xsmall'} align="center">
             {base?.image }
@@ -46,7 +46,7 @@ function PositionAvatar({
         )}
         {actionType === ActionType.POOL && (
           <Avatar background="solid" size={condensed ? '0.75rem' : 'xsmall'}>
-            {series?.seriesIsMature ?  <MdAutorenew /> : <FiClock /> } 
+            {series?.seriesIsMature ? <FiClock />: <MdAutorenew />  } 
           </Avatar>
         )}
       </Stack>
