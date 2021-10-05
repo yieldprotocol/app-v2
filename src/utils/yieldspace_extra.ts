@@ -9,8 +9,8 @@ export const ONE_DEC: Decimal = new Decimal(1);
 export const TWO_DEC: Decimal = new Decimal(2);
 export const SECONDS_PER_YEAR: number = 365 * 24 * 60 * 60;
 
-export const secondsInOneYear = BigNumber.from(31557600)
-export const secondsInTenYears = secondsInOneYear.mul(10) // Seconds in 10 years
+export const secondsInOneYear = BigNumber.from(31557600);
+export const secondsInTenYears = secondsInOneYear.mul(10); // Seconds in 10 years
 
 /* locally used constants */
 const ZERO = ZERO_DEC;
@@ -44,7 +44,7 @@ export const decimalNToDecimal18 = (x: BigNumber, decimals: number): BigNumber =
 export const decimal18ToDecimalN = (x: BigNumber, decimals: number): BigNumber => {
   const str = x.toString();
   const first = str.slice(0, str.length - (18 - decimals));
-  return BigNumber.from(first);
+  return BigNumber.from(first || 0);
 };
 
 /**
@@ -531,14 +531,13 @@ export function fyTokenForMint(
 
     // if (PZ.mul(new Decimal(1.000001)) > pz && pz > PZ) return Decimal.floor(yOut).toFixed(0); // Just right
     if (PZ.mul(new Decimal(1.000001)) > pz && pz > PZ) {
-
-      console.log('Zin :', zIn.toString() );
-      console.log('PZ :',  PZ.toString() );
-      console.log('pz :',  pz.toString() );
-      console.log( 'baseREs', baseReserves18.toString() );
-      console.log( 'virtual', fyTokenVirtualReserves18.toString() );
-      console.log( 'z_1', Z_1.toString());
-      console.log( 'y_1', Y_1.toString());
+      console.log('Zin :', zIn.toString());
+      console.log('PZ :', PZ.toString());
+      console.log('pz :', pz.toString());
+      console.log('baseREs', baseReserves18.toString());
+      console.log('virtual', fyTokenVirtualReserves18.toString());
+      console.log('z_1', Z_1.toString());
+      console.log('y_1', Y_1.toString());
 
       return decimal18ToDecimalN(
         // (converted back to original decimals)
