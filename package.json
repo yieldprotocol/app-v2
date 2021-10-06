@@ -1,6 +1,6 @@
 {
   "name": "app-v2",
-  "version": "0.11.4",
+  "version": "0.11.5",
   "private": true,
   "dependencies": {
     "@multiavatar/multiavatar": "^1.0.6",
