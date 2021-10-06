@@ -28,7 +28,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   const { userState, userActions } = useContext(UserContext);
   const { selectedIlkId, selectedSeriesId, selectedBaseId, assetMap, seriesMap } = userState;
 
-  const { setSelectedIlk, setSelectedBase } = userActions
+  const { setSelectedIlk, setSelectedBase } = userActions;
 
   const selectedSeries = seriesMap.get(selectedSeriesId!);
   const selectedBase = assetMap.get(selectedBaseId!);
@@ -58,8 +58,9 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   /* update options on any changes */
   useEffect(() => {
     const opts = Array.from(assetMap.values()) as IAsset[];
+
     const filteredOptions = selectCollateral
-      ? opts.filter((a: IAsset) => a.id !== selectedBaseId)
+      ? opts.filter((a: IAsset) => a.id !== selectedBaseId).filter((a: IAsset) => a.balance?.gt(ethers.constants.Zero))
       : opts.filter((a: IAsset) => a.isYieldBase);
     setOptions(filteredOptions);
   }, [assetMap, selectCollateral, selectedSeriesId, selectedBaseId]);
@@ -78,7 +79,6 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
       const firstNotBaseIlk = options.find((asset: IAsset) => asset.id !== selectedIlk?.id)?.id;
       setSelectedIlk(firstNotBaseIlk);
     }
-
   }, [options, selectedIlk, selectedBase]);
 
   return (
