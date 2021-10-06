@@ -86,7 +86,7 @@ export const usePoolHelpers = (input: string | undefined) => {
     if (input) {
       try {
         // const _inputWithSlippage = calculateSlippage(_input, slippageTolerance );
-        const cleanedInput = cleanValue(input, strategy?.decimals )
+        const cleanedInput = cleanValue(input, strategy?.decimals);
         const parsedInput = ethers.utils.parseUnits(cleanedInput, strategyBase?.decimals);
         setInput(parsedInput);
       } catch (e) {
@@ -139,12 +139,12 @@ export const usePoolHelpers = (input: string | undefined) => {
   useEffect(() => {
     if (strategySeries && _input.gt(ethers.constants.Zero)) {
       let _fyTokenToBuy = ethers.constants.Zero;
-      
+
       const _maxProtocol = maxBaseToSpend(
         strategySeries.baseReserves,
         strategySeries.fyTokenReserves,
         strategySeries.getTimeTillMaturity(),
-        strategySeries.decimals,
+        strategySeries.decimals
       );
 
       // console.log( strategySeries.baseReserves.toString() )
@@ -158,7 +158,7 @@ export const usePoolHelpers = (input: string | undefined) => {
       );
 
       console.log('Can BuyAndPool? ', _maxProtocol.lt(_fyTokenToBuy));
-      setCanBuyAndPool(_maxProtocol.lt(_fyTokenToBuy));   
+      setCanBuyAndPool(_maxProtocol.lt(_fyTokenToBuy));
     } else {
       setCanBuyAndPool(true);
     }
@@ -203,7 +203,10 @@ export const usePoolHelpers = (input: string | undefined) => {
     if (_input !== ethers.constants.Zero && strategy) {
       // update the below to get an actual estimated token value based on the input
       // const _poolTokenPreview = ethers.utils.parseUnits(input, strategyBase?.decimals);
-      const _poolPercentPreview = cleanValue(mulDecimal(divDecimal(_input, strategy.strategyTotalSupply!), '100'), 2);
+      const _poolPercentPreview = cleanValue(
+        mulDecimal(divDecimal(_input, strategy.strategyTotalSupply! || '0'), '100'),
+        2
+      );
       setPoolPercentPreview(_poolPercentPreview);
     }
   }, [_input, strategy]);
