@@ -17,6 +17,8 @@ import { ZERO_BN, DAI, WETH } from '../utils/constants';
 import { cleanValue } from '../utils/appUtils';
 import DashboardPositionList from '../components/DashboardPositionList';
 import CurrencyToggle from '../components/CurrencyToggle';
+import { useLendHelpers } from '../hooks/actionHelperHooks/useLendHelpers';
+import { sellFYToken } from '../utils/yieldspace_extra';
 
 const StyledBox = styled(Box)`
   * {
@@ -29,7 +31,7 @@ const StyledBox = styled(Box)`
 
 interface IPositions {
   vaultPositions: IVault[];
-  lendPositions: ISeries[];
+  lendPositions: any[];
   poolPositions: IStrategy[];
 }
 
@@ -92,6 +94,18 @@ const Dashboard = () => {
 
   useEffect(() => {
     const _lendPositions: ISeries[] = Array.from(seriesMap.values())
+      .map((_series: ISeries) => {
+        const currentValue = sellFYToken(
+          _series.baseReserves,
+          _series.fyTokenReserves,
+          _series.fyTokenBalance || ethers.constants.Zero,
+          _series.getTimeTillMaturity(),
+          _series.decimals!
+        );
+
+        const currentValue_ = ethers.utils.formatUnits(currentValue, _series.decimals!);
+        return { ..._series, currentValue_ };
+      })
       .filter((_series: ISeries) => _series.fyTokenBalance?.gt(ZERO_BN))
       .sort((_seriesA: ISeries, _seriesB: ISeries) => (_seriesA.fyTokenBalance?.gt(_seriesB.fyTokenBalance!) ? 1 : -1));
     setLendPositions(_lendPositions);
@@ -161,9 +175,11 @@ const Dashboard = () => {
       )
     );
 
-    const _lendBalances = _lendPositions?.map((series: ISeries) =>
-      getPositionValue(series.baseId, series.fyTokenBalance_!, currencySettingAssetId)
+    const _lendBalances = _lendPositions?.map((_series: any) =>
+      getPositionValue(_series.baseId, _series.currentValue_!, currencySettingAssetId)
     );
+
+    // using the current fyToken Value denominated in currency setting
     setTotalLendBalance(
       cleanValue(_lendBalances.reduce((sum: number, debt: number) => sum + debt, 0).toString(), currencySettingDigits)
     );
