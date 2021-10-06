@@ -40,11 +40,8 @@ import InputInfoWrap from '../components/wraps/InputInfoWrap';
 import ColorText from '../components/texts/ColorText';
 import { useProcess } from '../hooks/useProcess';
 
-import VaultItem from '../components/positionItems/VaultItem';
 import { ChainContext } from '../contexts/ChainContext';
 import DummyVaultItem from '../components/positionItems/DummyVaultItem';
-
-import DashButton from '../components/buttons/DashButton';
 import DashMobileButton from '../components/buttons/DashMobileButton';
 
 const Borrow = () => {
