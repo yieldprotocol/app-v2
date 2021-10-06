@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions, IAsset, IStrategy } from '../../types';
@@ -33,7 +33,7 @@ export const useAddLiquidity = () => {
     const cleanInput = cleanValue(input, base.decimals);
     const _input = ethers.utils.parseUnits(cleanInput, base.decimals);
     
-    // const _inputWithSlippage = calculateSlippage(_input, slippageTolerance);
+    const _inputWithSlippage = calculateSlippage(_input, slippageTolerance);
     const _inputLessSlippage = calculateSlippage(_input, slippageTolerance, true);
 
     const _fyTokenToBuy = fyTokenForMint(
@@ -44,13 +44,15 @@ export const useAddLiquidity = () => {
       series.getTimeTillMaturity(),
       series.decimals
     );
+    const _fyTokenToBuyWithSlippage = calculateSlippage(_fyTokenToBuy, slippageTolerance, true)
 
     const [_baseToPool, _baseToFyToken] = splitLiquidity(
       series.baseReserves,
       series.fyTokenReserves,
-      _inputLessSlippage
-    );
-
+      _inputLessSlippage,
+      true
+    ) as [BigNumber, BigNumber];
+    
     const [_mintedWithBase] = mintWithBase(
       series.baseReserves,
       series.fyTokenReserves,
@@ -70,6 +72,7 @@ export const useAddLiquidity = () => {
         {
           target: base,
           spender: 'LADLE',
+          amount: _baseToPool.add(_baseToFyToken),
           ignoreIf: false // method !== 'BUY',
         },
         {
@@ -89,7 +92,7 @@ export const useAddLiquidity = () => {
        * */
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [base.address, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
+        args: [base.address, series.poolAddress, _input ] as LadleActions.Args.TRANSFER,
         ignoreIf: method !== 'BUY',
       },
       {
@@ -98,7 +101,7 @@ export const useAddLiquidity = () => {
           strategy.id || account, // receiver is _strategyAddress (if it exists) or else account
           _fyTokenToBuy,
           // _mintedWithBaseWithSlippage,
-          ethers.constants.Zero, // TODO  comment for prod
+          ethers.constants.Zero, // TODO   _fyTokenToBuyWithSlippage
         ] as RoutedActions.Args.MINT_WITH_BASE,
         fnName: RoutedActions.Fn.MINT_WITH_BASE,
         targetContract: series.poolContract,

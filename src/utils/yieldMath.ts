@@ -585,6 +585,7 @@ export function fyTokenForMint(
  * @param { BigNumber } xReserves // eg. base reserves
  * @param { BigNumber } yReserves // eg. fyToken reservers
  * @param {BigNumber} xAmount // amount to split in wei
+ * @param {BigNumber} asBn
  * @returns  [ BigNumber, BigNumber ] returns an array of [base, fyToken]
  */
 export const splitLiquidity = (
