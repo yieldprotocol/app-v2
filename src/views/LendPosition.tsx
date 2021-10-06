@@ -233,8 +233,9 @@ const LendPosition = () => {
                               {maxClose.lt(selectedSeries?.fyTokenBalance!) && (
                                 <InputInfoWrap action={() => setCloseInput(maxClose_)}>
                                   <Text color="gray" alignSelf="end" size="xsmall">
-                                    Max redeemable is {cleanValue(maxClose_, 2)} {selectedBase?.symbol} (limited by
-                                    protocol liquidity).
+                                    Max redeemable is {cleanValue(maxClose_, 2)} {selectedBase?.symbol}
+                                    {selectedSeries.baseReserves.eq(maxClose) 
+                                      && '(limited by protocol)'}
                                   </Text>
                                 </InputInfoWrap>
                               )}
