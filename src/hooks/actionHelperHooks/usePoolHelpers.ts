@@ -49,7 +49,8 @@ export const usePoolHelpers = (input: string | undefined) => {
   const [healthyBaseReserves, setHealthyBaseReserves] = useState<boolean>();
   const [fyTokenTradePossible, setFyTokenTradePossible] = useState<boolean>();
 
-  const [inputTradeValue, setInputTradeValue] = useState<string | undefined>();
+  const [inputTradeValue, setInputTradeValue] = useState<BigNumber | undefined>();
+  const [inputTradeValue_, setInputTradeValue_] = useState<string | undefined>();
   const [accountTradeValue, setAccountTradeValue] = useState<string | undefined>();
 
   /* set input (need to make sure we can parse the input value) */
@@ -84,7 +85,8 @@ export const usePoolHelpers = (input: string | undefined) => {
       const tradeable = _tradeValue.gt(ethers.constants.Zero);
       console.log('Is tradeable:', tradeable);
       setFyTokenTradePossible(tradeable);
-      setInputTradeValue(ethers.utils.formatUnits(_tradeValue, strategySeries.decimals));
+      setInputTradeValue(_tradeValue);
+      setInputTradeValue_(ethers.utils.formatUnits(_tradeValue, strategySeries.decimals));
     }
   }, [_input, strategySeries]);
 
@@ -195,6 +197,7 @@ export const usePoolHelpers = (input: string | undefined) => {
     fyTokenTradePossible,
 
     inputTradeValue,
+    inputTradeValue_,
     accountTradeValue,
   };
 };
