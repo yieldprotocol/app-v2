@@ -289,18 +289,13 @@ const UserProvider = ({ children }: any) => {
 
   /* Updates the prices from the oracle with latest data */ // TODO reduce redundant calls
   const updatePrice = useCallback(
-    async (priceBase: string, quote: string, decimals: number = 18): Promise<ethers.BigNumber> => {
+
+    async (priceBase: string, quote: string, decimals: number = 18): Promise<BigNumber> => {
       updateState({ type: 'pricesLoading', payload: true });
-      
+
       try {
         const _quoteMap = userState.priceMap;
         const _basePriceMap = _quoteMap.get(priceBase) || new Map<string, any>();
-        // console.log(decimal18ToDecimalN( WAD_BN, decimals))
-        // set oracle based on whether ILK is ETH-BASED
-        // const Oracle = ETH_BASED_ASSETS.includes(ilk)
-        //   ? contractMap.get('ChainlinkMultiOracle')
-        //   : contractMap.get('CompositeMultiOracle');
-
         const Oracle = contractMap.get('ChainlinkMultiOracle');
         const [price] = await Oracle.peek(
           bytesToBytes32(priceBase, 6),
@@ -315,8 +310,9 @@ const UserProvider = ({ children }: any) => {
         updateState({ type: 'pricesLoading', payload: false });
 
         return price;
+
       } catch (error) {
-        console.log('ERROR here', error);
+        console.log('Error getting pricing', error);
         updateState({ type: 'pricesLoading', payload: false });
         return ethers.constants.Zero;
       }

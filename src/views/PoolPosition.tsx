@@ -304,7 +304,6 @@ const PoolPosition = () => {
                     )}
                   </>
                 )}
-
                 {actionActive.index === 1 && <YieldHistory seriesOrVault={selectedStrategy!} view={['POOL']} />}
               </Box>
             </Box>
