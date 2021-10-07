@@ -36,9 +36,7 @@ export const useRemoveLiquidity = () => {
     const base = assetMap.get(series.baseId);
     const _input = ethers.utils.parseUnits(input, base.decimals);
     const _strategy = strategyMap.get(selectedStrategyAddr);
-
     const lpReceived = burnFromStrategy(_strategy.poolTotalSupply!, _strategy.strategyTotalSupply!, _input);
-
     const [_baseTokenReceived, _fyTokenReceived] = burn(
       series.baseReserves,
       series.fyTokenReserves,
@@ -80,7 +78,7 @@ export const useRemoveLiquidity = () => {
           },
           spender: 'LADLE',
           message: 'Authorize selling of LP tokens ',
-          ignoreIf: _strategy,
+          ignoreIf: !!_strategy,
         },
       ],
       txCode
@@ -174,13 +172,6 @@ export const useRemoveLiquidity = () => {
         targetContract: series.poolContract,
         ignoreIf: fyTokenReceivedGreaterThanDebt || series.seriesIsMature || !vaultAvailable,
       },
-
-      /* for option 1 and 2 remove collateral after */ 
-      // {
-      //   operation: LadleActions.Fn.POUR,
-      //   args: [matchingVaultId, account, vaultCollat?.mul(-1), ethers.constants.Zero] as LadleActions.Args.POUR,
-      //   ignoreIf: series.seriesIsMature || !vaultAvailable,
-      // },
 
       /* OPTION 4. Remove Liquidity and sell  - BEFORE MATURITY */
       // (ladle.transferAction(pool, pool, lpTokensBurnt),  ^^^^ DONE ABOVE^^^^)

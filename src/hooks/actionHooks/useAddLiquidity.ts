@@ -29,7 +29,7 @@ export const useAddLiquidity = () => {
     const txCode = getTxCode(ActionCodes.ADD_LIQUIDITY, strategy.id);
     const series: ISeries = seriesMap.get(strategy.currentSeriesId);
     const base: IAsset = assetMap.get(series.baseId);
-
+    
     const cleanInput = cleanValue(input, base.decimals);
     const _input = ethers.utils.parseUnits(cleanInput, base.decimals);
     
@@ -46,12 +46,24 @@ export const useAddLiquidity = () => {
     );
     const _fyTokenToBuyWithSlippage = calculateSlippage(_fyTokenToBuy, slippageTolerance, true)
 
+    console.log(_fyTokenToBuy.toString())
+
     const [_baseToPool, _baseToFyToken] = splitLiquidity(
       series.baseReserves,
       series.fyTokenReserves,
       _inputLessSlippage,
       true
     ) as [BigNumber, BigNumber];
+
+    console.log(
+      series.baseReserves.toString(),
+      series.fyTokenReserves.toString(),
+      series.fyTokenRealReserves.toString(),
+      series.totalSupply.toString(),
+      _fyTokenToBuy.toString(),
+      series.getTimeTillMaturity().toString(),
+      series.decimals
+    );
     
     const [_mintedWithBase] = mintWithBase(
       series.baseReserves,
