@@ -9,6 +9,7 @@ import styled from 'styled-components';
 import { IStrategy } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { getPoolPercent } from '../../utils/yieldMath';
+import { formatStrategyName, getStrategySymbol } from '../../utils/appUtils';
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
@@ -104,16 +105,18 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
                   align="center"
                 >
                   <Box pad="small" width="small" direction="row" align="center" gap="small">
-                    <Avatar background="solid"> {strategy.currentSeries?.seriesMark || <FiSlash />}</Avatar>
+                    <Avatar background="solid">{strategy.currentSeries?.seriesMark || <FiSlash />}</Avatar>
                     <Box>
-                      <Text
-                        size="medium"
-                        color={
-                          strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined
-                        }
-                      >
-                        {strategy.name}
-                      </Text>
+                      {(!selectedStrategyAddr || !inputValue) && (
+                        <Text
+                          size="small"
+                          color={
+                            strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined
+                          }
+                        >
+                          {formatStrategyName(strategy.name)}
+                        </Text>
+                      )}
 
                       {selectedStrategyAddr && inputValue && (
                         <>
