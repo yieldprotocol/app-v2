@@ -185,7 +185,7 @@ const Dashboard = () => {
       cleanValue(_lendBalances.reduce((sum: number, debt: number) => sum + debt, 0).toString(), currencySettingDigits)
     );
 
-    const _strategyBalances = strategyPositions?.map((strategy: any) =>
+    const _strategyBalances = _strategyPositions?.map((strategy: any) =>
       getPositionValue(strategy.baseId, strategy.currentValue!, currencySettingAssetId)
     );
 
