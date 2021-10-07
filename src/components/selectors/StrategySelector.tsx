@@ -64,7 +64,9 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
   /* Keeping options/selection fresh and valid: */
   useEffect(() => {
     const opts = Array.from(strategyMap.values()) as IStrategy[];
-    const filteredOpts = opts.filter((_st: IStrategy) => _st.baseId === selectedBaseId && _st.currentSeries);
+    const filteredOpts = opts.filter(
+      (_st: IStrategy) => _st.baseId === selectedBaseId && !_st.currentSeries?.seriesIsMature
+    );
     // .filter((_st: IStrategy) => _st.currentSeries);
     setOptions(filteredOpts);
   }, [selectedBaseId, strategyMap]);
@@ -150,7 +152,9 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
                               mulDecimal(
                                 divDecimal(
                                   ethers.utils.parseUnits(inputValue, strategy.decimals),
-                                  strategy.strategyTotalSupply!
+                                  strategy.strategyTotalSupply!.add(
+                                    ethers.utils.parseUnits(inputValue, strategy.decimals)
+                                  )
                                 ),
                                 '100'
                               ),

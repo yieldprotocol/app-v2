@@ -1,21 +1,15 @@
-import { BigNumber, ethers } from 'ethers';
+import { ethers } from 'ethers';
 import { useContext } from 'react';
-import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, IVault, SignType, ISeries, ActionCodes, LadleActions } from '../../types';
+import { ICallData, IVault, ActionCodes, LadleActions } from '../../types';
 import { getTxCode } from '../../utils/appUtils';
-import { ETH_BASED_ASSETS, DAI_BASED_ASSETS, MAX_128, BLANK_VAULT } from '../../utils/constants';
 import { useChain } from '../useChain';
-
 
 /* Generic hook for chain transactions */
 export const useVaultAdmin = () => {
-  const {
-    chainState: { account },
-  } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
-  const { selectedIlkId, selectedSeriesId, seriesMap, assetMap } = userState;
-  const { updateVaults, updateAssets } = userActions;
+  const { seriesMap, assetMap } = userState;
+  const { updateVaults } = userActions;
 
   const { sign, transact } = useChain();
 
@@ -52,8 +46,6 @@ export const useVaultAdmin = () => {
   const merge = async (vault: IVault, to: IVault, ink: string, art: string, deleteVault: boolean = false) => {
     const txCode = getTxCode(ActionCodes.MERGE_VAULT, vault.id);
     const series = seriesMap.get(vault.seriesId);
-    const _ink = ink ? ethers.utils.parseUnits(ink, series.decimals ) : ethers.constants.Zero;
-    const _art = art ? ethers.utils.parseUnits(art, series.decimals ) : ethers.constants.Zero;
 
     /* ladle.stir(fromVault, toVault, ink, art) */
     const calls: ICallData[] = [

@@ -1,12 +1,12 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, SignType, ISeries, ActionCodes, LadleActions, RoutedActions, IAsset, IStrategy } from '../../types';
+import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions, IAsset, IStrategy } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { BLANK_VAULT, DAI_BASED_ASSETS, MAX_128, MAX_256 } from '../../utils/constants';
+import { BLANK_VAULT} from '../../utils/constants';
 import { useChain } from '../useChain';
 
-import { calculateSlippage, fyTokenForMint, mint, mintWithBase, splitLiquidity } from '../../utils/yieldMath';
+import { calculateSlippage, fyTokenForMint, mintWithBase, splitLiquidity } from '../../utils/yieldMath';
 import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
 
@@ -29,15 +29,13 @@ export const useAddLiquidity = () => {
     const txCode = getTxCode(ActionCodes.ADD_LIQUIDITY, strategy.id);
     const series: ISeries = seriesMap.get(strategy.currentSeriesId);
     const base: IAsset = assetMap.get(series.baseId);
-
+    
     const cleanInput = cleanValue(input, base.decimals);
     const _input = ethers.utils.parseUnits(cleanInput, base.decimals);
-    // const _inputWithSlippage = calculateSlippage(_input, slippageTolerance);
+    
+    const _inputWithSlippage = calculateSlippage(_input, slippageTolerance);
     const _inputLessSlippage = calculateSlippage(_input, slippageTolerance, true);
 
-    console.log(_inputLessSlippage.toString())
-
-    console.log('pool TotalSupply :', (await series.poolContract.totalSupply()).toString());
     const _fyTokenToBuy = fyTokenForMint(
       series.baseReserves,
       series.fyTokenRealReserves,
@@ -46,13 +44,27 @@ export const useAddLiquidity = () => {
       series.getTimeTillMaturity(),
       series.decimals
     );
+    const _fyTokenToBuyWithSlippage = calculateSlippage(_fyTokenToBuy, slippageTolerance, true)
+
+    console.log(_fyTokenToBuy.toString())
 
     const [_baseToPool, _baseToFyToken] = splitLiquidity(
       series.baseReserves,
       series.fyTokenReserves,
-      _inputLessSlippage
-    );
+      _inputLessSlippage,
+      true
+    ) as [BigNumber, BigNumber];
 
+    console.log(
+      series.baseReserves.toString(),
+      series.fyTokenReserves.toString(),
+      series.fyTokenRealReserves.toString(),
+      series.totalSupply.toString(),
+      _fyTokenToBuy.toString(),
+      series.getTimeTillMaturity().toString(),
+      series.decimals
+    );
+    
     const [_mintedWithBase] = mintWithBase(
       series.baseReserves,
       series.fyTokenReserves,
@@ -62,28 +74,24 @@ export const useAddLiquidity = () => {
       series.getTimeTillMaturity(),
       series.decimals
     );
+    
     const _mintedWithBaseWithSlippage = calculateSlippage(_mintedWithBase, slippageTolerance, true);
     console.log('mintedWithBase', _mintedWithBase.toString());
     console.log('_mintedWithBaseWithSlippage: ', _mintedWithBaseWithSlippage.toString());
-
-    // const [_minted, ] = mint(series.baseReserves, series.fyTokenRealReserves, series.totalSupply, _input);
-    // const _mintedWithSlippage = calculateSlippage(_minted, slippageTolerance, true);
-    // console.log('minted', _minted.toString());
-    // console.log('_mintedWithSlippage: ', _mintedWithSlippage.toString());
 
     const permits: ICallData[] = await sign(
       [
         {
           target: base,
           spender: 'LADLE',
-          message: 'Signing ERC20 Token approval',
-          ignoreIf: method === 'BORROW',
+          amount: _baseToPool.add(_baseToFyToken),
+          ignoreIf: false // method !== 'BUY',
         },
         {
           target: base,
           spender: base.joinAddress,
           amount: _input,
-          ignoreIf: method === 'BUY',
+          ignoreIf: true // method !== 'BORROW',
         },
       ],
       txCode
@@ -96,7 +104,7 @@ export const useAddLiquidity = () => {
        * */
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [base.address, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
+        args: [base.address, series.poolAddress, _input ] as LadleActions.Args.TRANSFER,
         ignoreIf: method !== 'BUY',
       },
       {
@@ -105,7 +113,7 @@ export const useAddLiquidity = () => {
           strategy.id || account, // receiver is _strategyAddress (if it exists) or else account
           _fyTokenToBuy,
           // _mintedWithBaseWithSlippage,
-          ethers.constants.Zero, // TODO  comment for prod
+          ethers.constants.Zero, // TODO   _fyTokenToBuyWithSlippage
         ] as RoutedActions.Args.MINT_WITH_BASE,
         fnName: RoutedActions.Fn.MINT_WITH_BASE,
         targetContract: series.poolContract,

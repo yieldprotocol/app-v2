@@ -20,10 +20,20 @@ import {
 } from '../types';
 
 import { ChainContext } from './ChainContext';
-import { cleanValue, genVaultImage,  } from '../utils/appUtils';
-import { calculateAPR, divDecimal, bytesToBytes32, floorDecimal, mulDecimal, secondsToFrom, sellFYToken, decimal18ToDecimalN, decimalNToDecimal18 } from '../utils/yieldMath';
+import { cleanValue, genVaultImage } from '../utils/appUtils';
+import {
+  calculateAPR,
+  divDecimal,
+  bytesToBytes32,
+  floorDecimal,
+  mulDecimal,
+  secondsToFrom,
+  sellFYToken,
+  decimal18ToDecimalN,
+  decimalNToDecimal18,
+} from '../utils/yieldMath';
 
-import { WAD_BN } from '../utils/constants';
+import { WAD_BN, ZERO_BN } from '../utils/constants';
 
 const UserContext = React.createContext<any>({});
 
@@ -279,10 +289,9 @@ const UserProvider = ({ children }: any) => {
 
   /* Updates the prices from the oracle with latest data */ // TODO reduce redundant calls
   const updatePrice = useCallback(
-    async (priceBase: string, quote: string, decimals: number=18) : Promise<ethers.BigNumber> => {
+    async (priceBase: string, quote: string, decimals: number = 18): Promise<ethers.BigNumber> => {
       updateState({ type: 'pricesLoading', payload: true });
       try {
-
         const _quoteMap = userState.priceMap;
         const _basePriceMap = _quoteMap.get(priceBase) || new Map<string, any>();
         // console.log(decimal18ToDecimalN( WAD_BN, decimals))
@@ -292,16 +301,16 @@ const UserProvider = ({ children }: any) => {
         //   : contractMap.get('CompositeMultiOracle');
 
         const Oracle = contractMap.get('ChainlinkMultiOracle');
-        const [ price ] = await Oracle.peek(
+        const [price] = await Oracle.peek(
           bytesToBytes32(priceBase, 6),
           bytesToBytes32(quote, 6),
-          decimal18ToDecimalN(WAD_BN, decimals),
+          decimal18ToDecimalN(WAD_BN, decimals)
         );
         _basePriceMap.set(quote, price);
         _quoteMap.set(priceBase, _basePriceMap);
 
         updateState({ type: 'priceMap', payload: _quoteMap });
-        // TODO console.log('Price Updated: ', priceBase, ' (', decimals, ') ->', quote, ':', price.toString());
+        console.log('Price Updated: ', priceBase, ' (', decimals, ') ->', quote, ':', price.toString());
         updateState({ type: 'pricesLoading', payload: false });
 
         return price;
@@ -416,17 +425,16 @@ const UserProvider = ({ children }: any) => {
       /* Add in the dynamic vault data by mapping the vaults list */
       const vaultListMod = await Promise.all(
         _vaultList.map(async (vault: IVaultRoot): Promise<IVault> => {
-
           /* update balance and series  ( series - because a vault can have been rolled to another series) */
           const [{ ink, art }, { owner, seriesId, ilkId }, { min: minDebt, max: maxDebt }] = await Promise.all([
             await Cauldron.balances(vault.id),
             await Cauldron.vaults(vault.id),
             await Cauldron.debt(vault.baseId, vault.ilkId),
           ]);
-          
+
           const baseRoot: IAssetRoot = assetRootMap.get(vault.baseId);
           const ilkRoot: IAssetRoot = assetRootMap.get(ilkId);
-          const price = await updatePrice(vault.ilkId, vault.baseId, ilkRoot.decimals)
+          const price = await updatePrice(vault.ilkId, vault.baseId, ilkRoot.decimals);
 
           return {
             ...vault,
@@ -488,13 +496,18 @@ const UserProvider = ({ children }: any) => {
           const currentSeries: ISeries = userState.seriesMap.get(currentSeriesId);
           const nextSeries: ISeries = userState.seriesMap.get(nextSeriesId);
 
-          if (currentSeries && !currentSeries.seriesIsMature) {
-            const [poolTotalSupply, strategyPoolBalance, currentInvariant, initInvariant] = await Promise.all([
+          if (currentSeries) {
+            const [poolTotalSupply, strategyPoolBalance] = await Promise.all([
               currentSeries.poolContract.totalSupply(),
               currentSeries.poolContract.balanceOf(_strategy.address),
-              currentSeries.poolContract.invariant(),
-              _strategy.strategyContract.invariants(currentPoolAddr),
             ]);
+
+            const [currentInvariant, initInvariant] = currentSeries.seriesIsMature
+              ? [ZERO_BN, ZERO_BN]
+              : await Promise.all([
+                  currentSeries.poolContract.invariant(),
+                  _strategy.strategyContract.invariants(currentPoolAddr),
+                ]);
 
             const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
             const returnRate = currentInvariant && currentInvariant.sub(initInvariant)!;
@@ -581,7 +594,7 @@ const UserProvider = ({ children }: any) => {
 
       return combinedMap;
     },
-    [account, userState.seriesMap]
+    [account, userState.seriesMap] // userState.strategyMap excluded on purpose
   );
 
   useEffect(() => {

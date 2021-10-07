@@ -81,7 +81,7 @@ export const useBorrowHelpers = (
           vaultSeries.decimals,
         );
 
-        /* The the dust limit */
+        /* set the dust limit */
         _maxDust && setMaxRepayDustLimit(ethers.utils.formatUnits(_maxDust, vaultBase?.decimals)?.toString());
         _maxProtocol && setProtocolBaseAvailable(_maxProtocol);
 

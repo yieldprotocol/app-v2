@@ -176,6 +176,18 @@ export function burn(
   return [toBn(z), toBn(y)];
 }
 
+export function burnFromStrategy(
+  poolTotalSupply: BigNumber | string,
+  strategyTotalsupply: BigNumber | string,
+  strategyTokensToBurn: BigNumber | string
+): BigNumber {
+  const pS = new Decimal(poolTotalSupply.toString());
+  const sS = new Decimal(strategyTotalsupply.toString());
+  const tS = new Decimal(strategyTokensToBurn.toString());
+  const x = pS.mul(tS.div(sS));
+  return toBn(x);
+}
+
 /**
  * @param { BigNumber | string } baseReserves
  * @param { BigNumber | string } fyTokenReservesVirtual
@@ -183,7 +195,7 @@ export function burn(
  * @param { BigNumber | string } totalSupply
  * @param { BigNumber | string } fyToken
  * @param { BigNumber | string } timeTillMaturity
- *  @param { number } decimals
+ * @param { number } decimals
  *
  * @returns {[BigNumber, BigNumber]}
  */
@@ -220,8 +232,7 @@ export function mintWithBase(
  * @param { BigNumber | string } totalSupply
  * @param { BigNumber | string } lpTokens
  * @param { BigNumber | string } timeTillMaturity
- *
- *  @param { number } decimals
+ * @param { number } decimals
  * @returns { BigNumber }
  */
 export function burnForBase(
@@ -247,6 +258,7 @@ export function burnForBase(
  * @param { BigNumber | string } fyTokenReserves
  * @param { BigNumber | string } base
  * @param { BigNumber | string } timeTillMaturity
+ * @param { number } decimals
  * @param { boolean } withNoFee
  * @returns { BigNumber }
  */
@@ -290,6 +302,7 @@ export function sellBase(
  * @param { BigNumber | string } fyTokenReserves
  * @param { BigNumber | string } fyToken
  * @param { BigNumber | string } timeTillMaturity
+ * @param { number } decimals
  * @param { boolean } withNoFee
  * @returns { BigNumber }
  */
@@ -333,6 +346,7 @@ export function sellFYToken(
  * @param { BigNumber | string } fyTokenReserves
  * @param { BigNumber | string } base
  * @param { BigNumber | string } timeTillMaturity
+ * @param { number } decimals
  * @param { boolean } withNoFee
  * @returns { BigNumber }
  */
@@ -505,7 +519,7 @@ export function fyTokenForMint(
 
   const baseReserves_ = new Decimal(baseReserves18.toString());
   const fyDaiRealReserves_ = new Decimal(fyTokenRealReserves18.toString());
-  const fyDaiVirtualReserves_ = new Decimal(fyTokenVirtualReserves18.toString());
+  const fyDaiVirtualReserves_ = new Decimal(fyTokenVirtualReserves18.toString()); // TODO remove
   const base_ = new Decimal(base18.toString());
   const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
 
@@ -573,6 +587,7 @@ export function fyTokenForMint(
  * @param { BigNumber } xReserves // eg. base reserves
  * @param { BigNumber } yReserves // eg. fyToken reservers
  * @param {BigNumber} xAmount // amount to split in wei
+ * @param {BigNumber} asBn
  * @returns  [ BigNumber, BigNumber ] returns an array of [base, fyToken]
  */
 export const splitLiquidity = (

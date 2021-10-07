@@ -3,7 +3,6 @@ import { Box, ResponsiveContext } from 'grommet';
 import styled from 'styled-components';
 import { FiSliders } from 'react-icons/fi';
 
-
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
 -moz-transition: transform 0.3s ease-in-out;

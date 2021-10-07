@@ -95,7 +95,7 @@ export const usePoolHelpers = (input: string | undefined) => {
     } else {
       setInput(ethers.constants.Zero);
     }
-  }, [input, strategyBase]);
+  }, [input, strategy?.decimals, strategyBase]);
 
   /* Check if base reserves are too low for max trade  */
   useEffect(() => {
@@ -106,7 +106,7 @@ export const usePoolHelpers = (input: string | undefined) => {
     }
   }, [checkTrade, strategy, strategySeries]);
 
-  /* set the trade value and check if base reserves are too low for specific input  */
+  /* Set the trade value and check if base reserves are too low for specific input  */
   useEffect(() => {
     if (strategySeries) {
       const _tradeValue = checkTrade(_input);
@@ -203,15 +203,13 @@ export const usePoolHelpers = (input: string | undefined) => {
     if (_input !== ethers.constants.Zero && strategy) {
       // update the below to get an actual estimated token value based on the input
       // const _poolTokenPreview = ethers.utils.parseUnits(input, strategyBase?.decimals);
-      const _poolPercentPreview = cleanValue(
-        mulDecimal(divDecimal(_input, strategy.strategyTotalSupply! || '0'), '100'),
-        2
-      );
+      const _poolPercentPreview = cleanValue(mulDecimal( divDecimal(_input, strategy?.strategyTotalSupply!.add(_input) ), '100'), 2);
       setPoolPercentPreview(_poolPercentPreview);
     }
   }, [_input, strategy]);
 
   return {
+    
     maxPool,
     poolPercentPreview,
     canBuyAndPool,

@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect, useCallback } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { Box, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import { useParams } from 'react-router-dom';
 import { FiArrowRight, FiClock, FiTool, FiTrendingUp } from 'react-icons/fi';
@@ -17,7 +17,6 @@ import ActiveTransaction from '../components/ActiveTransaction';
 import PositionAvatar from '../components/PositionAvatar';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import NextButton from '../components/buttons/NextButton';
-import CancelButton from '../components/buttons/CancelButton';
 import TransactButton from '../components/buttons/TransactButton';
 import YieldHistory from '../components/YieldHistory';
 import { useInputValidation } from '../hooks/useInputValidation';
@@ -37,22 +36,18 @@ const LendPosition = () => {
 
   const { userState, userActions } = useContext(UserContext) as IUserContext;
   const { selectedSeriesId, seriesMap, assetMap, seriesLoading } = userState;
-
   const selectedSeries = seriesMap.get(selectedSeriesId || idFromUrl);
   const selectedBase = assetMap.get(selectedSeries?.baseId!);
 
   /* LOCAL STATE */
-
   const [actionActive, setActionActive] = useState<any>({ text: 'Close Position', index: 0 });
 
   // stepper for stepping within multiple tabs
   const [stepPosition, setStepPosition] = useState<number[]>([0, 0, 0]);
-
   const [closeInput, setCloseInput] = useState<string | undefined>();
   const [rollInput, setRollInput] = useState<string | undefined>();
   const [rollToSeries, setRollToSeries] = useState<ISeries | null>(null);
   const [maxRoll_, setMaxRoll_] = useState<string | undefined>();
-
   const [closeDisabled, setCloseDisabled] = useState<boolean>(true);
   const [rollDisabled, setRollDisabled] = useState<boolean>(true);
 
@@ -233,8 +228,9 @@ const LendPosition = () => {
                               {maxClose.lt(selectedSeries?.fyTokenBalance!) && (
                                 <InputInfoWrap action={() => setCloseInput(maxClose_)}>
                                   <Text color="gray" alignSelf="end" size="xsmall">
-                                    Max redeemable is {cleanValue(maxClose_, 2)} {selectedBase?.symbol} (limited by
-                                    protocol liquidity).
+                                    Max redeemable is {cleanValue(maxClose_, 2)} {selectedBase?.symbol}
+                                    {selectedSeries.baseReserves.eq(maxClose) 
+                                      && '(limited by protocol)'}
                                   </Text>
                                 </InputInfoWrap>
                               )}

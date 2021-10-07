@@ -196,7 +196,8 @@ const PoolPosition = () => {
                       />
                     )}
 
-                    {selectedStrategy.currentSeries && fyTokenTradePossible && (
+                    {selectedStrategy.currentSeries && accountTradeValue && (
+
                       <InfoBite
                         label="Strategy Token Value"
                         value={accountTradeValue!}
@@ -236,29 +237,30 @@ const PoolPosition = () => {
                           isError={removeError}
                           message={
                             <>
-                              {selectedSeries &&
-                                !healthyBaseReserves &&
-                                !removeInput &&
-                                selectedStrategy?.accountBalance?.gt(ZERO_BN) &&
-                                !selectedSeries?.isMature() && (
-                                  <InputInfoWrap>
-                                    <Text color="text-weak" alignSelf="end" size="xsmall">
-                                      Pools aren't healthy as they could be. Currently, not all of your liquidity tokens
-                                      are redeemable for the base.
-                                    </Text>
-                                  </InputInfoWrap>
-                                )}
-                              {removeInput &&
-                                !healthyBaseReserves &&
-                                !fyTokenTradePossible &&
-                                selectedSeries &&
-                                !selectedSeries.isMature() && (
-                                  <InputInfoWrap>
-                                    <Text color="text-weak" alignSelf="end" size="xsmall">
-                                      Input amount exceeds maximum currently tradeable.
-                                    </Text>
-                                  </InputInfoWrap>
-                                )}
+                              {!healthyBaseReserves && !removeInput && selectedStrategy?.accountBalance?.gt(ZERO_BN) && (
+                                <InputInfoWrap>
+                                  <Text color="text-weak" alignSelf="end" size="xsmall">
+                                    Pools aren't healthy as they could be. Currently, not all of your liquidity tokens
+                                    are redeemable for the base.
+                                  </Text>
+                                </InputInfoWrap>
+                              )}
+                              {!healthyBaseReserves && removeInput && !fyTokenTradePossible && (
+                                <InputInfoWrap>
+                                  <Text color="text-weak" alignSelf="end" size="xsmall">
+                                    Input amount exceeds maximum currently tradeable.
+                                  </Text>
+                                </InputInfoWrap>
+                              )}
+                              {removeInput && fyTokenTradePossible && (
+                                <InputInfoWrap>
+                                  <Text color="text-weak" alignSelf="end" size="small">
+                                    Approx. return {cleanValue(inputTradeValue, selectedBase?.digitFormat)}{' '}
+                                    {selectedBase?.symbol}
+                                  </Text>
+                                </InputInfoWrap>
+                              )}
+
                             </>
                           }
                         >
