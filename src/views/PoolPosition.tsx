@@ -253,7 +253,7 @@ const PoolPosition = () => {
                                 !fyTokenTradePossible &&
                                 selectedSeries &&
                                 !selectedSeries.isMature()) ||
-                                (inputTradeValue?.lte(ethers.constants.Zero) && (
+                                (inputTradeValue?.eq(ethers.constants.Zero) && (
                                   <InputInfoWrap>
                                     <Text color="text-weak" alignSelf="end" size="xsmall">
                                       Input amount exceeds maximum currently tradeable.
