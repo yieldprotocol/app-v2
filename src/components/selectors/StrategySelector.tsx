@@ -59,8 +59,6 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
 
   const [options, setOptions] = useState<IStrategy[]>([]);
 
-  const calcStrategyPercentage = (_input: string, _strategy: IStrategy) => {};
-
   /* Keeping options/selection fresh and valid: */
   useEffect(() => {
     const opts = Array.from(strategyMap.values()) as IStrategy[];
