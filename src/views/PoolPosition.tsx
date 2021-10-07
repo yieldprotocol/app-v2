@@ -67,6 +67,7 @@ const PoolPosition = () => {
     healthyBaseReserves,
     fyTokenTradePossible,
     inputTradeValue,
+    inputTradeValue_,
   } = usePoolHelpers(removeInput);
 
   /* TX data */
@@ -242,26 +243,28 @@ const PoolPosition = () => {
                                 !selectedSeries?.isMature() && (
                                   <InputInfoWrap>
                                     <Text color="text-weak" alignSelf="end" size="xsmall">
-                                      Pools aren't healthy as they could be. Currently, not all of your liquidity tokens
-                                      are redeemable for the base.
+                                      Pools aren't as healthy as they could be. Currently, not all of your liquidity
+                                      tokens are redeemable for the base.
                                     </Text>
                                   </InputInfoWrap>
                                 )}
-                              {!healthyBaseReserves &&
+                              {(!healthyBaseReserves &&
                                 removeInput &&
                                 !fyTokenTradePossible &&
                                 selectedSeries &&
-                                !selectedSeries.isMature() && (
+                                !selectedSeries.isMature()) ||
+                                (inputTradeValue?.lte(ethers.constants.Zero) && (
                                   <InputInfoWrap>
                                     <Text color="text-weak" alignSelf="end" size="xsmall">
                                       Input amount exceeds maximum currently tradeable.
                                     </Text>
                                   </InputInfoWrap>
-                                )}
+                                ))}
+
                               {removeInput && fyTokenTradePossible && (
                                 <InputInfoWrap>
                                   <Text color="text-weak" alignSelf="end" size="small">
-                                    Approx. return {cleanValue(inputTradeValue, selectedBase?.digitFormat)}{' '}
+                                    Approx. return {cleanValue(inputTradeValue_, selectedBase?.digitFormat)}{' '}
                                     {selectedBase?.symbol}
                                   </Text>
                                 </InputInfoWrap>
