@@ -15,7 +15,7 @@ import { cleanValue } from '../utils/appUtils';
 import DashboardPositionList from '../components/DashboardPositionList';
 import CurrencyToggle from '../components/CurrencyToggle';
 import { useLendHelpers } from '../hooks/actionHelperHooks/useLendHelpers';
-import { sellFYToken } from '../utils/yieldspace_extra';
+import { sellFYToken } from '../utils/yieldMath';
 
 const StyledBox = styled(Box)`
   * {
