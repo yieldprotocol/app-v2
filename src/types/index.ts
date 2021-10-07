@@ -176,8 +176,6 @@ export interface IVault extends IVaultRoot {
   art: BigNumber;
   ink_: string;
   art_: string;
-  price: BigNumber;
-  price_: string;
   minDebt: BigNumber;
   maxDebt: BigNumber;
 }

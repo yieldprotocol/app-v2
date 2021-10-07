@@ -291,6 +291,7 @@ const UserProvider = ({ children }: any) => {
   const updatePrice = useCallback(
     async (priceBase: string, quote: string, decimals: number = 18): Promise<ethers.BigNumber> => {
       updateState({ type: 'pricesLoading', payload: true });
+      
       try {
         const _quoteMap = userState.priceMap;
         const _basePriceMap = _quoteMap.get(priceBase) || new Map<string, any>();
@@ -434,7 +435,6 @@ const UserProvider = ({ children }: any) => {
 
           const baseRoot: IAssetRoot = assetRootMap.get(vault.baseId);
           const ilkRoot: IAssetRoot = assetRootMap.get(ilkId);
-          const price = await updatePrice(vault.ilkId, vault.baseId, ilkRoot.decimals);
 
           return {
             ...vault,
@@ -447,8 +447,6 @@ const UserProvider = ({ children }: any) => {
             art,
             ink_: cleanValue(ethers.utils.formatUnits(ink, ilkRoot.decimals), ilkRoot.digitFormat), // for display purposes only
             art_: cleanValue(ethers.utils.formatUnits(art, baseRoot.decimals), baseRoot.digitFormat), // for display purposes only
-            price,
-            price_: cleanValue(ethers.utils.formatUnits(price, 18), baseRoot.digitFormat), // for display purposes only
             minDebt,
             maxDebt,
           };
