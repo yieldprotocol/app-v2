@@ -110,9 +110,11 @@ const Dashboard = () => {
   useEffect(() => {
     const _strategyPositions: IStrategy[] = Array.from(strategyMap.values())
       .map((_strategy: IStrategy) => {
-        const currentStrategySeries: any = strategyMap.get(_strategy.currentSeriesId);
+        const currentStrategySeries: any = seriesMap.get(_strategy.currentSeriesId);
         const currentValue = checkPoolTrade(_strategy.accountBalance!, currentStrategySeries);
-        const currentValue_ = ethers.utils.formatUnits(currentValue, _strategy.decimals!);
+        const currentValue_ = currentValue.eq(ethers.constants.Zero)
+          ? _strategy.accountBalance_
+          : ethers.utils.formatUnits(currentValue, _strategy.decimals!);
         return { ..._strategy, currentValue_ };
       })
       .filter((_strategy: IStrategy) => _strategy.accountBalance?.gt(ZERO_BN))
