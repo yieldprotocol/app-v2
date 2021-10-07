@@ -317,7 +317,7 @@ const PoolPosition = () => {
                   key="next"
                   disabled={
                     (actionActive.index === 0 && removeDisabled) ||
-                    (!fyTokenTradePossible && selectedSeries && selectedSeries.isMature())
+                    (!fyTokenTradePossible && !!selectedSeries && selectedSeries.isMature())
                   }
                   errorLabel={actionActive.index === 0 && removeError}
                 />
