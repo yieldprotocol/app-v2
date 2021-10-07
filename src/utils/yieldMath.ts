@@ -2,7 +2,8 @@
 import { ethers, BigNumber, BigNumberish } from 'ethers';
 import { Decimal } from 'decimal.js';
 import { WAD_BN, ZERO_BN } from './constants';
-import { ISeries } from '../types';
+import { ISeries, IStrategy } from '../types';
+import { cleanValue } from './appUtils';
 
 Decimal.set({ precision: 64 });
 
@@ -773,3 +774,14 @@ export const checkPoolTrade = (poolTokenAmount: BigNumber | string, strategySeri
   }
   return ZERO_BN;
 };
+
+/**
+ * Calculates the estimated percentage of the pool given an inputted base amount.
+ *
+ * @param {BigNumber} input amount of base
+ * @param {BigNumber} strategyTotalSupply strategy's total supply
+ *
+ * @returns {BigNumber}
+ */
+export const getPoolPercent = (input: BigNumber, strategyTotalSupply: BigNumber): string =>
+  cleanValue(mulDecimal(divDecimal(input, strategyTotalSupply.add(input)), '100'), 2);
