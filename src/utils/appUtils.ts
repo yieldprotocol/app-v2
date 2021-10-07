@@ -234,3 +234,11 @@ export const getSeriesAfterRollPosition = (receipt: any, seriesMap: any) => {
   const series = [...seriesMap.values()].filter((s) => s.address === contractAddress)[0].id;
   return series;
 };
+
+export const formatStrategyName = (name: string) => {
+  const name_ = name.toLowerCase();
+  const timeFrame = name_.slice(-2) === 'q1' ? 'Quarter' : '2 Quarters';
+  return `Rolling every ${timeFrame}`;
+};
+
+export const getStrategySymbol = (name: string) => name.slice(2).slice(0, -2);
