@@ -184,7 +184,7 @@ export function burnFromStrategy(
   const pS = new Decimal(poolTotalSupply.toString());
   const sS = new Decimal(strategyTotalsupply.toString());
   const tS = new Decimal(strategyTokensToBurn.toString());
-  const x = pS.mul( tS.div(sS) );
+  const x = pS.mul(tS.div(sS));
   return toBn(x);
 }
 
@@ -195,7 +195,7 @@ export function burnFromStrategy(
  * @param { BigNumber | string } totalSupply
  * @param { BigNumber | string } fyToken
  * @param { BigNumber | string } timeTillMaturity
- *  @param { number } decimals
+ * @param { number } decimals
  *
  * @returns {[BigNumber, BigNumber]}
  */
@@ -232,8 +232,7 @@ export function mintWithBase(
  * @param { BigNumber | string } totalSupply
  * @param { BigNumber | string } lpTokens
  * @param { BigNumber | string } timeTillMaturity
- *
- *  @param { number } decimals
+ * @param { number } decimals
  * @returns { BigNumber }
  */
 export function burnForBase(
@@ -259,6 +258,7 @@ export function burnForBase(
  * @param { BigNumber | string } fyTokenReserves
  * @param { BigNumber | string } base
  * @param { BigNumber | string } timeTillMaturity
+ * @param { number } decimals
  * @param { boolean } withNoFee
  * @returns { BigNumber }
  */
@@ -302,6 +302,7 @@ export function sellBase(
  * @param { BigNumber | string } fyTokenReserves
  * @param { BigNumber | string } fyToken
  * @param { BigNumber | string } timeTillMaturity
+ * @param { number } decimals
  * @param { boolean } withNoFee
  * @returns { BigNumber }
  */
@@ -345,6 +346,7 @@ export function sellFYToken(
  * @param { BigNumber | string } fyTokenReserves
  * @param { BigNumber | string } base
  * @param { BigNumber | string } timeTillMaturity
+ * @param { number } decimals
  * @param { boolean } withNoFee
  * @returns { BigNumber }
  */
@@ -517,7 +519,7 @@ export function fyTokenForMint(
 
   const baseReserves_ = new Decimal(baseReserves18.toString());
   const fyDaiRealReserves_ = new Decimal(fyTokenRealReserves18.toString());
-  const fyDaiVirtualReserves_ = new Decimal(fyTokenVirtualReserves18.toString());
+  const fyDaiVirtualReserves_ = new Decimal(fyTokenVirtualReserves18.toString()); // TODO remove
   const base_ = new Decimal(base18.toString());
   const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
 

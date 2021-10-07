@@ -2,9 +2,6 @@ import React, { useContext, useState, useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 import { Box, ResponsiveContext, Text } from 'grommet';
 import { ethers } from 'ethers';
-// import { FiEye, FiEyeOff } from 'react-icons/fi';
-import { FiChevronDown as FiEyeOff, FiChevronUp as FiEye } from 'react-icons/fi';
-
 import Skeleton from 'react-loading-skeleton';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';

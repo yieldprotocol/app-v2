@@ -84,12 +84,12 @@ export const useLendHelpers = (
         : setFyTokenMarketValue(ethers.utils.formatUnits(value, series.decimals));
 
       /* set max Closing */
+      value.lte(ethers.constants.Zero) ? setMaxClose(series.baseReserves) : setMaxClose(value);
+
+      /* set max Closing human readable */
       value.lte(ethers.constants.Zero)
         ? setMaxClose_(ethers.utils.formatUnits(series.baseReserves, series.decimals).toString())
         : setMaxClose_(ethers.utils.formatUnits(value, series.decimals).toString());
-
-      /* set max Closing */
-      value.lte(ethers.constants.Zero) ? setMaxClose(series.baseReserves) : setMaxClose(value);
     }
 
     if (series && series.seriesIsMature) {
