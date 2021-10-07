@@ -10,6 +10,7 @@ import {
   maxBaseToSpend,
   splitLiquidity,
   checkPoolTrade,
+  getPoolPercent,
 } from '../../utils/yieldMath';
 import { ZERO_BN } from '../../utils/constants';
 
@@ -174,13 +175,7 @@ export const usePoolHelpers = (input: string | undefined) => {
 
   useEffect(() => {
     if (_input !== ethers.constants.Zero && strategy) {
-      // update the below to get an actual estimated token value based on the input
-      // const _poolTokenPreview = ethers.utils.parseUnits(input, strategyBase?.decimals);
-      const _poolPercentPreview = cleanValue(
-        mulDecimal(divDecimal(_input, strategy?.strategyTotalSupply!.add(_input)), '100'),
-        2
-      );
-      setPoolPercentPreview(_poolPercentPreview);
+      setPoolPercentPreview(getPoolPercent(_input, strategy?.strategyTotalSupply!));
     }
   }, [_input, strategy]);
 
