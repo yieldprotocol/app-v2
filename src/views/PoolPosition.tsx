@@ -126,6 +126,7 @@ const PoolPosition = () => {
     removeProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs(ActionCodes.REMOVE_LIQUIDITY);
   }, [removeProcess?.stage]);
 
+  // console.log('mature', selectedStrategy?.series.isMature());
   /* INTERNAL COMPONENTS */
   const CompletedTx = (props: any) => (
     <>
@@ -235,21 +236,29 @@ const PoolPosition = () => {
                           isError={removeError}
                           message={
                             <>
-                              {!healthyBaseReserves && !removeInput && selectedStrategy?.accountBalance?.gt(ZERO_BN) && (
-                                <InputInfoWrap>
-                                  <Text color="text-weak" alignSelf="end" size="xsmall">
-                                    Pools aren't healthy as they could be. Currently, not all of your liquidity tokens
-                                    are redeemable for the base.
-                                  </Text>
-                                </InputInfoWrap>
-                              )}
-                              {!healthyBaseReserves && removeInput && !fyTokenTradePossible && (
-                                <InputInfoWrap>
-                                  <Text color="text-weak" alignSelf="end" size="xsmall">
-                                    Input amount exceeds maximum currently tradeable.
-                                  </Text>
-                                </InputInfoWrap>
-                              )}
+                              {selectedSeries &&
+                                !healthyBaseReserves &&
+                                !removeInput &&
+                                selectedStrategy?.accountBalance?.gt(ZERO_BN) &&
+                                !selectedSeries?.isMature() && (
+                                  <InputInfoWrap>
+                                    <Text color="text-weak" alignSelf="end" size="xsmall">
+                                      Pools aren't healthy as they could be. Currently, not all of your liquidity tokens
+                                      are redeemable for the base.
+                                    </Text>
+                                  </InputInfoWrap>
+                                )}
+                              {removeInput &&
+                                !healthyBaseReserves &&
+                                !fyTokenTradePossible &&
+                                selectedSeries &&
+                                !selectedSeries.isMature() && (
+                                  <InputInfoWrap>
+                                    <Text color="text-weak" alignSelf="end" size="xsmall">
+                                      Input amount exceeds maximum currently tradeable.
+                                    </Text>
+                                  </InputInfoWrap>
+                                )}
                             </>
                           }
                         >
@@ -262,7 +271,10 @@ const PoolPosition = () => {
                           />
                           <MaxButton
                             action={() => setRemoveInput(maxRemove)}
-                            disabled={maxRemove === '0.0' || !healthyBaseReserves}
+                            disabled={
+                              maxRemove === '0.0' ||
+                              (!healthyBaseReserves && selectedSeries && !selectedSeries.isMature())
+                            }
                             clearAction={() => setRemoveInput('')}
                             showingMax={!!removeInput && removeInput === maxRemove}
                           />
@@ -296,7 +308,10 @@ const PoolPosition = () => {
                   label={<Text size={mobile ? 'small' : undefined}> Next Step</Text>}
                   onClick={() => handleStepper()}
                   key="next"
-                  disabled={(actionActive.index === 0 && removeDisabled) || !fyTokenTradePossible}
+                  disabled={
+                    (actionActive.index === 0 && removeDisabled) ||
+                    (!fyTokenTradePossible && selectedSeries && selectedSeries.isMature())
+                  }
                   errorLabel={actionActive.index === 0 && removeError}
                 />
               )}
