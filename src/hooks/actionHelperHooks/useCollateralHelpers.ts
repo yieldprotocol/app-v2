@@ -29,7 +29,7 @@ export const useCollateralHelpers = (
   const [collateralizationPercent, setCollateralizationPercent] = useState<string | undefined>();
   const [undercollateralized, setUndercollateralized] = useState<boolean>(true);
   const [oraclePrice, setOraclePrice] = useState<ethers.BigNumber>(ethers.constants.Zero);
-  
+
   const [minCollateral, setMinCollateral] = useState<BigNumber>();
   const [minCollateral_, setMinCollateral_] = useState<string | undefined>();
 
@@ -84,7 +84,7 @@ export const useCollateralHelpers = (
       const ratio = calculateCollateralizationRatio(totalCollateral, oraclePrice, totalDebt, false);
       const percent = calculateCollateralizationRatio(totalCollateral, oraclePrice, totalDebt, true);
       setCollateralizationRatio(ratio);
-      setCollateralizationPercent(parseFloat(percent!).toFixed(2));
+      setCollateralizationPercent(parseFloat(percent! || '0').toFixed(2));
     } else {
       setCollateralizationRatio('0.0');
       setCollateralizationPercent(cleanValue('0.0', 2));
