@@ -112,7 +112,8 @@ const Dashboard = () => {
       .map((_strategy: IStrategy) => {
         const currentStrategySeries: any = strategyMap.get(_strategy.currentSeriesId);
         const currentValue = checkPoolTrade(_strategy.accountBalance!, currentStrategySeries);
-        return { ..._strategy, currentValue };
+        const currentValue_ = ethers.utils.formatUnits(currentValue, _strategy.decimals!);
+        return { ..._strategy, currentValue_ };
       })
       .filter((_strategy: IStrategy) => _strategy.accountBalance?.gt(ZERO_BN))
       .sort((_strategyA: IStrategy, _strategyB: IStrategy) =>
@@ -186,7 +187,7 @@ const Dashboard = () => {
     );
 
     const _strategyBalances = _strategyPositions?.map((strategy: any) =>
-      getPositionValue(strategy.baseId, strategy.currentValue!, currencySettingAssetId)
+      getPositionValue(strategy.baseId, strategy.currentValue_!, currencySettingAssetId)
     );
 
     setTotalStrategyBalance(
