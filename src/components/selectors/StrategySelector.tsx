@@ -8,8 +8,7 @@ import Skeleton from 'react-loading-skeleton';
 import styled from 'styled-components';
 import { IStrategy } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
-import { cleanValue, nFormatter } from '../../utils/appUtils';
-import { divDecimal, getPoolPercent, mulDecimal } from '../../utils/yieldMath';
+import { getPoolPercent } from '../../utils/yieldMath';
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
