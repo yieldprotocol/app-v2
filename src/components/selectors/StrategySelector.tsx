@@ -9,7 +9,7 @@ import styled from 'styled-components';
 import { IStrategy } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { cleanValue, nFormatter } from '../../utils/appUtils';
-import { divDecimal, mulDecimal } from '../../utils/yieldMath';
+import { divDecimal, getPoolPercent, mulDecimal } from '../../utils/yieldMath';
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
@@ -126,17 +126,9 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
                               strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined
                             }
                           >
-                            {cleanValue(
-                              mulDecimal(
-                                divDecimal(
-                                  ethers.utils.parseUnits(inputValue, strategy.decimals),
-                                  strategy.strategyTotalSupply!.add(
-                                    ethers.utils.parseUnits(inputValue, strategy.decimals)
-                                  )
-                                ),
-                                '100'
-                              ),
-                              2
+                            {getPoolPercent(
+                              ethers.utils.parseUnits(inputValue, strategy.decimals),
+                              strategy.strategyTotalSupply!
                             )}
                             %
                           </Text>
