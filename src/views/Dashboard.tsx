@@ -14,8 +14,7 @@ import { ZERO_BN, DAI, WETH } from '../utils/constants';
 import { cleanValue } from '../utils/appUtils';
 import DashboardPositionList from '../components/DashboardPositionList';
 import CurrencyToggle from '../components/CurrencyToggle';
-import { useLendHelpers } from '../hooks/actionHelperHooks/useLendHelpers';
-import { sellFYToken } from '../utils/yieldMath';
+import { sellFYToken, checkPoolTrade } from '../utils/yieldMath';
 
 const StyledBox = styled(Box)`
   * {
@@ -110,6 +109,14 @@ const Dashboard = () => {
 
   useEffect(() => {
     const _strategyPositions: IStrategy[] = Array.from(strategyMap.values())
+      .map((_strategy: IStrategy) => {
+        const currentStrategySeries: any = seriesMap.get(_strategy.currentSeriesId);
+        const currentValue = checkPoolTrade(_strategy.accountBalance!, currentStrategySeries);
+        const currentValue_ = currentValue.eq(ethers.constants.Zero)
+          ? _strategy.accountBalance_
+          : ethers.utils.formatUnits(currentValue, _strategy.decimals!);
+        return { ..._strategy, currentValue_ };
+      })
       .filter((_strategy: IStrategy) => _strategy.accountBalance?.gt(ZERO_BN))
       .sort((_strategyA: IStrategy, _strategyB: IStrategy) =>
         _strategyA.accountBalance?.lt(_strategyB.accountBalance!) ? 1 : -1
@@ -181,8 +188,8 @@ const Dashboard = () => {
       cleanValue(_lendBalances.reduce((sum: number, debt: number) => sum + debt, 0).toString(), currencySettingDigits)
     );
 
-    const _strategyBalances = _strategyPositions?.map((strategy: IStrategy) =>
-      getPositionValue(strategy.baseId, strategy.accountBalance_!, currencySettingAssetId)
+    const _strategyBalances = _strategyPositions?.map((strategy: any) =>
+      getPositionValue(strategy.baseId, strategy.currentValue_!, currencySettingAssetId)
     );
 
     setTotalStrategyBalance(
@@ -191,7 +198,7 @@ const Dashboard = () => {
         currencySettingDigits
       )
     );
-  }, [priceMap, allPositions, currencySettingAssetId, getPositionValue, currencySettingDigits]);
+  }, [priceMap, allPositions, currencySettingAssetId, getPositionValue, currencySettingDigits, strategyPositions]);
 
   return (
     <MainViewWrap>

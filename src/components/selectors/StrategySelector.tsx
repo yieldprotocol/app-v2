@@ -8,8 +8,8 @@ import Skeleton from 'react-loading-skeleton';
 import styled from 'styled-components';
 import { IStrategy } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
-import { cleanValue, nFormatter } from '../../utils/appUtils';
-import { divDecimal, mulDecimal } from '../../utils/yieldMath';
+import { getPoolPercent } from '../../utils/yieldMath';
+import { formatStrategyName, getStrategySymbol } from '../../utils/appUtils';
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
@@ -59,8 +59,6 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
 
   const [options, setOptions] = useState<IStrategy[]>([]);
 
-  const calcStrategyPercentage = (_input: string, _strategy: IStrategy) => {};
-
   /* Keeping options/selection fresh and valid: */
   useEffect(() => {
     const opts = Array.from(strategyMap.values()) as IStrategy[];
@@ -107,37 +105,17 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
                   align="center"
                 >
                   <Box pad="small" width="small" direction="row" align="center" gap="small">
-                    <Avatar background="solid"> {strategy.currentSeries?.seriesMark || <FiSlash />}</Avatar>
+                    <Avatar background="solid">{strategy.currentSeries?.seriesMark || <FiSlash />}</Avatar>
                     <Box>
-                      <Text
-                        size="medium"
-                        color={
-                          strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined
-                        }
-                      >
-                        {strategy.name}
-                      </Text>
-
                       {(!selectedStrategyAddr || !inputValue) && (
-                        <>
-                          <Text
-                            size="small"
-                            color={
-                              strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined
-                            }
-                          >
-                            {nFormatter(parseFloat(strategy.strategyTotalSupply_!), 1)}{' '}
-                            <Text size="xsmall"> tokens </Text>
-                          </Text>
-                          <Text
-                            size="xsmall"
-                            color={
-                              strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined
-                            }
-                          >
-                            in the strategy
-                          </Text>
-                        </>
+                        <Text
+                          size="small"
+                          color={
+                            strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined
+                          }
+                        >
+                          {formatStrategyName(strategy.name)}
+                        </Text>
                       )}
 
                       {selectedStrategyAddr && inputValue && (
@@ -148,17 +126,9 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
                               strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined
                             }
                           >
-                            {cleanValue(
-                              mulDecimal(
-                                divDecimal(
-                                  ethers.utils.parseUnits(inputValue, strategy.decimals),
-                                  strategy.strategyTotalSupply!.add(
-                                    ethers.utils.parseUnits(inputValue, strategy.decimals)
-                                  )
-                                ),
-                                '100'
-                              ),
-                              2
+                            {getPoolPercent(
+                              ethers.utils.parseUnits(inputValue, strategy.decimals),
+                              strategy.strategyTotalSupply!
                             )}
                             %
                           </Text>

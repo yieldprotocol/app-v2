@@ -81,7 +81,7 @@ export const useCollateralHelpers = (
       const ratio = calculateCollateralizationRatio(totalCollateral, oraclePrice, totalDebt, false);
       const percent = calculateCollateralizationRatio(totalCollateral, oraclePrice, totalDebt, true);
       setCollateralizationRatio(ratio);
-      setCollateralizationPercent(parseFloat(percent!).toFixed(2));
+      setCollateralizationPercent(parseFloat(percent! || '0').toFixed(2));
     } else {
       setCollateralizationRatio('0.0');
       setCollateralizationPercent(cleanValue('0.0', 2));
