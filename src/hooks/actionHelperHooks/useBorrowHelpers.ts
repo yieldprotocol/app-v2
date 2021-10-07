@@ -46,21 +46,22 @@ export const useBorrowHelpers = (
   /* check if the rollToSeries have sufficient base value */
   useEffect(() => {
     if (rollToSeries && vault) {
-      const _maxProtocol = maxBaseToSpend(
-        rollToSeries.baseReserves,
-        rollToSeries.fyTokenReserves,
-        rollToSeries.getTimeTillMaturity(),
-        rollToSeries.decimals
-      );
-      const rollable = _maxProtocol.gte(vault.art);
-      rollable && console.log('roll possible');
-      setMaxRoll(_maxProtocol);
-      setMaxRoll_(ethers.utils.formatUnits(_maxProtocol, rollToSeries.decimals).toString());
-      setRollPossible(true);
+      // const _maxProtocol = maxBaseToSpend(
+      //   rollToSeries.baseReserves,
+      //   rollToSeries.fyTokenReserves,
+      //   rollToSeries.getTimeTillMaturity(),
+      //   rollToSeries.decimals
+      // );
+      // setMaxRoll(_maxProtocol);
+      // setMaxRoll_(ethers.utils.formatUnits(_maxProtocol, rollToSeries.decimals).toString());
+      setMaxRoll(rollToSeries.baseReserves);
+      setMaxRoll_(ethers.utils.formatUnits(rollToSeries.baseReserves, rollToSeries.decimals).toString());
+
+      setRollPossible( vault.art.lt(rollToSeries.baseReserves ) ) ;
     }
   }, [rollToSeries, vault]);
 
-  /* update the min max repayable or rollable */
+  /* update the min max repayable */
   useEffect(() => {
     if (activeAccount && vault && vaultBase) {
       const vaultSeries: ISeries = seriesMap.get(vault?.seriesId!);
