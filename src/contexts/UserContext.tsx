@@ -310,7 +310,7 @@ const UserProvider = ({ children }: any) => {
         _quoteMap.set(priceBase, _basePriceMap);
 
         updateState({ type: 'priceMap', payload: _quoteMap });
-        // TODO console.log('Price Updated: ', priceBase, ' (', decimals, ') ->', quote, ':', price.toString());
+        console.log('Price Updated: ', priceBase, ' (', decimals, ') ->', quote, ':', price.toString());
         updateState({ type: 'pricesLoading', payload: false });
 
         return price;
