@@ -118,28 +118,6 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
                         {strategy.name}
                       </Text>
 
-                      {(!selectedStrategyAddr || !inputValue) && (
-                        <>
-                          <Text
-                            size="small"
-                            color={
-                              strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined
-                            }
-                          >
-                            {nFormatter(parseFloat(strategy.strategyTotalSupply_!), 1)}{' '}
-                            <Text size="xsmall"> tokens </Text>
-                          </Text>
-                          <Text
-                            size="xsmall"
-                            color={
-                              strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined
-                            }
-                          >
-                            in the strategy
-                          </Text>
-                        </>
-                      )}
-
                       {selectedStrategyAddr && inputValue && (
                         <>
                           <Text
