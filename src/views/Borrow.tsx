@@ -214,11 +214,10 @@ const Borrow = () => {
                         message={
                           borrowInput && (
                             <InputInfoWrap>
-                              { parseFloat(minCollateral_!)<10000 &&
                               <Text size="small" color="text-weak">
                                 Requires equivalent of {cleanValue(minCollateral_, selectedIlk?.digitFormat)} {selectedIlk?.symbol}{' '}
                                 collateral
-                              </Text>}
+                              </Text>
                             </InputInfoWrap>
                           )
                         }
