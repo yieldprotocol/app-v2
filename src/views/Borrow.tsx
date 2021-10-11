@@ -366,7 +366,7 @@ const Borrow = () => {
                     />
                     <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
                     <InfoBite
-                      label="Supporting Collateral"
+                      label="Total Supporting Collateral"
                       icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
                       value={`${cleanValue(collatInput, selectedIlk?.digitFormat!)} ${
                         selectedIlk?.symbol

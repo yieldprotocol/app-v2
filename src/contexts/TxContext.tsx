@@ -191,8 +191,6 @@ const TxProvider = ({ children }: any) => {
     }
   };
 
-  // const handlePreProcess = (txCode:string) => _setProcessStage(txCode, ProcessStage.PROCESS_CONFIRMATION);
-
   /* handle a sig and sig fallbacks */
   /* returns the tx id to be used in handleTx */
   const handleSign = async (

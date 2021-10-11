@@ -8,19 +8,6 @@ import { ICallData, ISignData, LadleActions } from '../types';
 import { ERC20Permit__factory, Ladle } from '../contracts';
 import { UserContext } from '../contexts/UserContext';
 
-/*  💨 Calculate the accumulative gas limit (IF ALL calls have a gaslimit then set the total, else undefined ) */
-const _getCallGas = (calls: ICallData[]): BigNumber | undefined => {
-  const allCallsHaveGas = calls.length && calls.every((_c: ICallData) => _c.overrides && _c.overrides.gasLimit);
-  if (allCallsHaveGas) {
-    const accumulatedGas = calls.reduce(
-      (_t: BigNumber, _c: ICallData) => BigNumber.from(_c.overrides?.gasLimit).add(_t),
-      ethers.constants.Zero
-    );
-    return accumulatedGas.gt(ethers.constants.Zero) ? accumulatedGas : undefined;
-  }
-  return undefined;
-};
-
 /* Get ETH value from JOIN_ETHER OPCode, else zero -> N.B. other values sent in with other OPS are ignored for now */
 const _getCallValue = (calls: ICallData[]): BigNumber => {
   const joinEtherCall = calls.find((call: any) => call.operation === LadleActions.Fn.JOIN_ETHER);
@@ -75,13 +62,13 @@ export const useChain = () => {
     console.log('Batch value sent:', batchValue.toString());
 
     /* calculate the gas required */
-    const batchGas = _getCallGas(_calls);
-    console.log('Batch gas sent: ', batchGas?.toString());
+    const gasEst = await _contract.estimateGas.batch(encodedCalls, { value: batchValue } as PayableOverrides)
+    console.log('Auto gas estimate:',  gasEst.mul(120).div(100).toString() ) ;
 
     /* Finally, send out the transaction */
     return handleTx(
       () =>
-        _contract.batch(encodedCalls, { value: batchValue, gasLimit: BigNumber.from('750000') } as PayableOverrides),
+        _contract.batch(encodedCalls, { value: batchValue, gasLimit: gasEst.mul(120).div(100) } as PayableOverrides),
       txCode
     );
   };

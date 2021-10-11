@@ -131,9 +131,10 @@ const VaultPosition = () => {
     maxRepayDustLimit,
     protocolBaseAvailable,
     userBaseAvailable,
-    userBaseAvailable_,
+    maxRoll,
     maxRoll_,
     maxDebt_,
+    rollPossible,
   } = useBorrowHelpers(undefined, undefined, selectedVault, rollToSeries);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries, [
@@ -169,8 +170,11 @@ const VaultPosition = () => {
   const handleRepay = () => {
     selectedVault && repay(selectedVault, repayInput?.toString(), reclaimCollateral);
   };
+
   const handleRoll = () => {
-    rollToSeries && selectedVault && rollDebt(selectedVault, rollToSeries);
+    rollToSeries && 
+    selectedVault && 
+    rollDebt(selectedVault, rollToSeries);
   };
 
   const handleCollateral = (action: 'ADD' | 'REMOVE') => {
@@ -328,7 +332,7 @@ const VaultPosition = () => {
                       plain
                       options={[
                         { text: 'Repay Debt', index: 0 },
-                        { text: 'Roll Debt', index: 1 },
+                        { text: 'Roll Debt', index: 1 , disabled: rollPossible },
                         { text: 'Add More Collateral', index: 2 },
                         { text: 'Remove Collateral', index: 3 },
                         { text: 'View Transaction History', index: 4 },
@@ -442,8 +446,8 @@ const VaultPosition = () => {
                           {rollToSeries && (
                             <InputInfoWrap>
                               <Text color="text-weak" size="xsmall">
-                                Debt of {cleanValue(maxRepay_, 2)} {vaultBase?.symbol} will be rolled
-                                {userBaseAvailable.lt(protocolBaseAvailable)
+                                Debt of {cleanValue(maxRoll_, 2)} {vaultBase?.symbol} will be rolled
+                                {userBaseAvailable.lt(maxRoll)
                                   ? '.'
                                   : ' ( limited by protocol reserves).'}
                               </Text>

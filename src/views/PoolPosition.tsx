@@ -200,7 +200,7 @@ const PoolPosition = () => {
                     {selectedStrategy.currentSeries && accountTradeValue && (
                       <InfoBite
                         label="Strategy Token Value"
-                        value={accountTradeValue!}
+                        value={`${cleanValue(accountTradeValue!, selectedBase?.digitFormat)} ${selectedBase?.symbol}`}
                         icon={<FiTrendingUp />}
                         loading={seriesLoading}
                       />
@@ -307,7 +307,6 @@ const PoolPosition = () => {
                     )}
                   </>
                 )}
-
                 {actionActive.index === 1 && <YieldHistory seriesOrVault={selectedStrategy!} view={['POOL']} />}
               </Box>
             </Box>
@@ -319,8 +318,10 @@ const PoolPosition = () => {
                   onClick={() => handleStepper()}
                   key="next"
                   disabled={
-                    (actionActive.index === 0 && removeDisabled) ||
-                    (!fyTokenTradePossible && selectedSeries && selectedSeries.isMature())
+                    actionActive.index === 0 && 
+                    removeDisabled &&
+                    ( !fyTokenTradePossible || selectedSeries?.isMature())
+                    // (!fyTokenTradePossible && selectedSeries?.isMature())
                   }
                   errorLabel={actionActive.index === 0 && removeError}
                 />

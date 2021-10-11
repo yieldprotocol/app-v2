@@ -289,17 +289,13 @@ const UserProvider = ({ children }: any) => {
 
   /* Updates the prices from the oracle with latest data */ // TODO reduce redundant calls
   const updatePrice = useCallback(
-    async (priceBase: string, quote: string, decimals: number = 18): Promise<ethers.BigNumber> => {
+
+    async (priceBase: string, quote: string, decimals: number = 18): Promise<BigNumber> => {
       updateState({ type: 'pricesLoading', payload: true });
+
       try {
         const _quoteMap = userState.priceMap;
         const _basePriceMap = _quoteMap.get(priceBase) || new Map<string, any>();
-        // console.log(decimal18ToDecimalN( WAD_BN, decimals))
-        // set oracle based on whether ILK is ETH-BASED
-        // const Oracle = ETH_BASED_ASSETS.includes(ilk)
-        //   ? contractMap.get('ChainlinkMultiOracle')
-        //   : contractMap.get('CompositeMultiOracle');
-
         const Oracle = contractMap.get('ChainlinkMultiOracle');
         const [price] = await Oracle.peek(
           bytesToBytes32(priceBase, 6),
@@ -314,8 +310,9 @@ const UserProvider = ({ children }: any) => {
         updateState({ type: 'pricesLoading', payload: false });
 
         return price;
+
       } catch (error) {
-        console.log('ERROR here', error);
+        console.log('Error getting pricing', error);
         updateState({ type: 'pricesLoading', payload: false });
         return ethers.constants.Zero;
       }
@@ -434,7 +431,6 @@ const UserProvider = ({ children }: any) => {
 
           const baseRoot: IAssetRoot = assetRootMap.get(vault.baseId);
           const ilkRoot: IAssetRoot = assetRootMap.get(ilkId);
-          const price = await updatePrice(vault.ilkId, vault.baseId, ilkRoot.decimals);
 
           return {
             ...vault,
@@ -447,8 +443,6 @@ const UserProvider = ({ children }: any) => {
             art,
             ink_: cleanValue(ethers.utils.formatUnits(ink, ilkRoot.decimals), ilkRoot.digitFormat), // for display purposes only
             art_: cleanValue(ethers.utils.formatUnits(art, baseRoot.decimals), baseRoot.digitFormat), // for display purposes only
-            price,
-            price_: cleanValue(ethers.utils.formatUnits(price, 18), baseRoot.digitFormat), // for display purposes only
             minDebt,
             maxDebt,
           };
