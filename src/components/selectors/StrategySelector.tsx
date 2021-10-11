@@ -9,7 +9,7 @@ import styled from 'styled-components';
 import { IStrategy } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { getPoolPercent } from '../../utils/yieldMath';
-import { formatStrategyName, getStrategySymbol } from '../../utils/appUtils';
+import { formatStrategyName } from '../../utils/appUtils';
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
@@ -55,7 +55,7 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const { userState, userActions } = useContext(UserContext);
-  const { selectedStrategyAddr, selectedBaseId, strategiesLoading, strategyMap } = userState;
+  const { selectedStrategyAddr, selectedBaseId, strategiesLoading, strategyMap, seriesMap } = userState;
 
   const [options, setOptions] = useState<IStrategy[]>([]);
 
@@ -108,14 +108,24 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
                     <Avatar background="solid">{strategy.currentSeries?.seriesMark || <FiSlash />}</Avatar>
                     <Box>
                       {(!selectedStrategyAddr || !inputValue) && (
-                        <Text
-                          size="small"
-                          color={
-                            strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined
-                          }
-                        >
-                          {formatStrategyName(strategy.name)}
-                        </Text>
+                        <>
+                          <Text
+                            size="small"
+                            color={
+                              strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined
+                            }
+                          >
+                            {formatStrategyName(strategy.name)}
+                          </Text>
+                          <Text
+                            size="xsmall"
+                            color={
+                              strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined
+                            }
+                          >
+                            Rolling {seriesMap.get(strategy.currentSeriesId)?.displayName}
+                          </Text>
+                        </>
                       )}
 
                       {selectedStrategyAddr && inputValue && (
