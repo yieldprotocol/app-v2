@@ -50,26 +50,29 @@ const RPC_URLS: { [chainId: number]: string } = {
   42: process.env.REACT_APP_RPC_URL_42 as string,
 };
 
-interface IChainData {
-  name: string;
-  color: string;
-  supported: boolean;
-}
+const CHAIN_INFO = new Map<number, { name: string; color: string; supported: boolean }>();
+CHAIN_INFO.set(1, { name: 'Mainnet', color: '#29b6af', supported: false });
+CHAIN_INFO.set(3, { name: 'Ropsten', color: '#ff4a8d', supported: false });
+CHAIN_INFO.set(4, { name: 'Rinkeby', color: '#f6c343', supported: false });
+CHAIN_INFO.set(5, { name: 'Goerli', color: '#3099f2', supported: false });
+CHAIN_INFO.set(10, { name: 'Optimism', color: '#EB0822', supported: false });
+CHAIN_INFO.set(42, { name: 'Kovan', color: '#7F7FFE', supported: true });
 
-const chainData = new Map<number, IChainData>();
-chainData.set(1, { name: 'Mainnet', color: '#29b6af', supported: false });
-chainData.set(3, { name: 'Ropsten', color: '#ff4a8d', supported: false });
-chainData.set(4, { name: 'Rinkeby', color: '#f6c343', supported: false });
-chainData.set(5, { name: 'Goerli', color: '#3099f2', supported: false });
-chainData.set(10, { name: 'Optimism', color: '#EB0822', supported: false });
-chainData.set(42, { name: 'Kovan', color: '#7F7FFE', supported: true });
+// Map the provider connection url name to a nicer format
+const CONNECTOR_NAMES = new Map([
+  ['metamask', 'Metamask'],
+  ['metamaskWithLedger', 'MetaMask with Ledger'],
+  ['ledger', 'Ledger'],
+  ['walletconnect', 'WalletConnect'],
+]);
 
-const injectedName = 'metamask';
+const INIT_INJECTED = 'metamask';
+
 const connectors = new Map();
 connectors.set(
-  injectedName,
+  INIT_INJECTED,
   new InjectedConnector({
-    supportedChainIds: [ 1, 42 ],
+    supportedChainIds: [1, 42],
   })
 );
 
@@ -84,20 +87,12 @@ connectors.set(
 );
 connectors.set(
   'ledger',
-  new LedgerConnector({ 
-    chainId: 1, 
-    url: RPC_URLS[1], 
-    pollingInterval: POLLING_INTERVAL 
+  new LedgerConnector({
+    chainId: 1,
+    url: RPC_URLS[1],
+    pollingInterval: POLLING_INTERVAL,
   })
-)
-
-// map the provider connection url name to a nicer format
-export const connectorNames = new Map([
-  ['metamask', 'Metamask'],
-  ['metamaskWithLedger', 'MetaMask with Ledger'],
-  ['ledger', 'Ledger'],
-  ['walletconnect', 'WalletConnect'],
-]);
+);
 
 /* Build the context */
 const ChainContext = React.createContext<any>({});
@@ -105,7 +100,6 @@ const ChainContext = React.createContext<any>({});
 const initState = {
   appVersion: '0.0.0' as string,
   chainId: Number(process.env.REACT_APP_DEFAULT_CHAINID) as number | null,
-  chainData: null as any | null,
   provider: null as ethers.providers.Web3Provider | null,
   fallbackProvider: null as ethers.providers.Web3Provider | null,
   signer: null as ethers.providers.JsonRpcSigner | null,
@@ -114,6 +108,11 @@ const initState = {
   fallbackActive: false as boolean,
   connectors,
   connector: null as any,
+
+  /* constants */
+  CHAIN_INFO,
+  CONNECTOR_NAMES,
+  INIT_INJECTED,
 
   /* settings */
   connectOnLoad: true as boolean,
@@ -157,6 +156,7 @@ function chainReducer(state: any, action: any) {
       return { ...state, connector: onlyIfChanged(action) };
     case 'contractMap':
       return { ...state, contractMap: onlyIfChanged(action) };
+
     case 'addSeries':
       return {
         ...state,
@@ -172,9 +172,7 @@ function chainReducer(state: any, action: any) {
         ...state,
         strategyRootMap: state.strategyRootMap.set(action.payload.address, action.payload),
       };
-    /* special internal case for multi-updates - might remove from this context if not needed */
-    case '_any':
-      return { ...state, ...action.payload };
+
     default:
       return state;
   }
@@ -205,7 +203,7 @@ const ChainProvider = ({ children }: any) => {
   useEffect(() => {
     fallbackLibrary && updateState({ type: 'fallbackProvider', payload: fallbackLibrary });
 
-    if (fallbackLibrary && fallbackChainId) {
+    if (fallbackLibrary && fallbackChainId && CHAIN_INFO.get(fallbackChainId)?.supported ) {
       updateState({ type: 'appVersion', payload: process.env.REACT_APP_VERSION });
       console.log('APP VERSION: ', process.env.REACT_APP_VERSION);
       console.log('Fallback ChainId: ', fallbackChainId);
@@ -283,9 +281,9 @@ const ChainProvider = ({ children }: any) => {
               ERC20.name(),
               ERC20.symbol(),
               ERC20.decimals(),
-              id === USDC ? '2' : '1' // TODO  ERC20.version()
+              id === USDC ? '2' : '1', // TODO  ERC20.version()
             ]);
-            
+
             const newAsset = {
               id,
               address,
@@ -504,7 +502,7 @@ const ChainProvider = ({ children }: any) => {
   useEffect(() => {
     console.log('Wallet/Account Active: ', active);
     updateState({ type: 'chainId', payload: chainId });
-    chainId && updateState({ type: 'chainData', payload: chainData.get(chainId) });
+    updateState({ type: 'chainData', payload: CHAIN_INFO.get(chainId!) || null });
     updateState({ type: 'web3Active', payload: active });
     updateState({ type: 'provider', payload: library || null });
     updateState({ type: 'account', payload: account || null });
@@ -526,7 +524,7 @@ const ChainProvider = ({ children }: any) => {
     tried &&
       fallbackActivate(
         new NetworkConnector({
-          urls: { 1: RPC_URLS[1], 42: RPC_URLS[42], 31337: RPC_URLS[31337], 1337: RPC_URLS[1337] },
+          urls: { 1: RPC_URLS[1], 42: RPC_URLS[42] },
           defaultChainId: _chainId,
         }),
         (e: any) => console.log(e),
@@ -544,19 +542,18 @@ const ChainProvider = ({ children }: any) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId, fallbackActivate, lastChainId, tried]);
 
-
   /**
    * Try connect automatically to an injected provider on first load
    * */
   useEffect(() => {
     chainState.connectOnLoad &&
-    !chainState.web3Active &&
+      !chainState.web3Active &&
       connectors
-        .get(injectedName)
+        .get(INIT_INJECTED)
         .isAuthorized()
         .then((isAuthorized: boolean) => {
           if (isAuthorized) {
-            activate(connectors.get(injectedName), undefined, true).catch(() => {
+            activate(connectors.get(INIT_INJECTED), undefined, true).catch(() => {
               setTried(true);
             });
           } else {
@@ -580,17 +577,8 @@ const ChainProvider = ({ children }: any) => {
 
   const chainActions = {
     isConnected: (connection: string) => connectors.get(connection) === connector,
-    connect: (connection: string = injectedName) => activate(connectors.get(connection)),
+    connect: (connection: string = INIT_INJECTED) => activate(connectors.get(connection)),
     disconnect: () => connector && deactivate(),
-    connectTest: () =>
-      activate(
-        new NetworkConnector({
-          urls: { 31337: RPC_URLS[31337], 1337: RPC_URLS[1337] },
-          defaultChainId: 42,
-        }),
-        (e: any) => console.log(e),
-        true
-      ),
   };
 
   return <ChainContext.Provider value={{ chainState, chainActions }}>{children}</ChainContext.Provider>;
