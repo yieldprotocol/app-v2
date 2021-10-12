@@ -30,20 +30,6 @@ function App() {
 
   return (
     <>
-      {/* <ParticlesBg type="circle" num={7} bg={true} /> */}
-      {/* "color"
-          "ball"‰
-          "lines"
-          "thick"
-          "circle"
-          "cobweb"
-          "polygon"
-          "square"
-          "tadpole"
-          "fountain"
-          "random"
-          "custom" */}
-
       <Box fill>
         {unsupportedNetwork && <NetworkError />}
 
