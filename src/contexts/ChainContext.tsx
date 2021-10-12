@@ -537,14 +537,6 @@ const ChainProvider = ({ children }: any) => {
     if (chainId && chainId !== lastChainId) {
       window.localStorage.clear();
       // eslint-disable-next-line no-restricted-globals
-      location.reload();
-    }
-
-    /* Handle app version changes -> complete refresh */
-    if (process.env.REACT_APP_VERSION !== lastAppVersion) {
-      window.localStorage.clear();
-      // eslint-disable-next-line no-restricted-globals
-      location.reload();
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
