@@ -16,8 +16,6 @@
     "eth-permit": "^0.1.10",
     "ethers": "^5.4.7",
     "grommet": "^2.18.0",
-    "identicon.js": "^2.3.3",
-    "particles-bg": "^2.5.5",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-icons": "^4.2.0",

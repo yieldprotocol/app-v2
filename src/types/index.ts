@@ -139,7 +139,6 @@ export interface IVaultRoot {
   ilkId: string;
   baseId: string;
   seriesId: string;
-  image: string;
   displayName: string;
   decimals: number;
 }
