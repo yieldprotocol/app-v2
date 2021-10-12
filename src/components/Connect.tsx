@@ -25,7 +25,6 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
 
   const handleConnect = (connectorName: string) => {
     setActivatingConnector(connectorName);
-    // disconnect();
     connect(connectorName);
     setConnectOpen(false);
   };

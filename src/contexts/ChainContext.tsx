@@ -48,8 +48,6 @@ const POLLING_INTERVAL = 12000;
 const RPC_URLS: { [chainId: number]: string } = {
   1: process.env.REACT_APP_RPC_URL_1 as string,
   42: process.env.REACT_APP_RPC_URL_42 as string,
-  1337: process.env.REACT_APP_RPC_URL_1337 as string,
-  31337: process.env.REACT_APP_RPC_URL_31337 as string,
 };
 
 interface IChainData {
@@ -71,9 +69,10 @@ const connectors = new Map();
 connectors.set(
   injectedName,
   new InjectedConnector({
-    supportedChainIds: [1, 42, 1337, 31337],
+    supportedChainIds: [ 1, 42 ],
   })
 );
+
 connectors.set(
   'walletconnect',
   new WalletConnectConnector({
