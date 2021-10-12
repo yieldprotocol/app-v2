@@ -179,7 +179,7 @@ function chainReducer(state: any, action: any) {
 
 const ChainProvider = ({ children }: any) => {
   const [chainState, updateState] = React.useReducer(chainReducer, initState);
-  const [lastChainId, setLastChainId] = useCachedState('lastChainId', 42);
+
   const [tried, setTried] = useState<boolean>(false);
 
   const primaryConnection = useWeb3React<ethers.providers.Web3Provider>();
@@ -187,13 +187,17 @@ const ChainProvider = ({ children }: any) => {
   const fallbackConnection = useWeb3React<ethers.providers.JsonRpcProvider>('fallback');
   const { library: fallbackLibrary, chainId: fallbackChainId, activate: fallbackActivate } = fallbackConnection;
 
+  /* CACHED VARIABLES */
+
+  const [lastChainId, setLastChainId] = useCachedState('lastChainId', 42);
+  const [lastAppVersion, setLastAppVersion] = useCachedState('lastAppVersion', '');
+
+  const [lastAssetUpdate, setLastAssetUpdate] = useCachedState('lastAssetUpdate', 0);
+  const [lastSeriesUpdate, setLastSeriesUpdate] = useCachedState('lastSeriesUpdate', 0);
+
   const [cachedAssets, setCachedAssets] = useCachedState('assets', []);
   const [cachedSeries, setCachedSeries] = useCachedState('series', []);
   const [cachedStrategies, setCachedStrategies] = useCachedState('strategies', []);
-
-  const [lastAssetUpdate, setLastAssetUpdate] = useCachedState('lastAssetUpdate', 0);
-  // const [lastSeriesUpdate, setLastSeriesUpdate] = useCachedState('lastSeriesUpdate', 27090000);
-  const [lastSeriesUpdate, setLastSeriesUpdate] = useCachedState('lastSeriesUpdate', 0);
 
   /**
    * Update on FALLBACK connection/state on network changes (id/library)
@@ -202,9 +206,7 @@ const ChainProvider = ({ children }: any) => {
   useEffect(() => {
     fallbackLibrary && updateState({ type: 'fallbackProvider', payload: fallbackLibrary });
 
-    if (fallbackLibrary && fallbackChainId && CHAIN_INFO.get(fallbackChainId)?.supported ) {
-      updateState({ type: 'appVersion', payload: process.env.REACT_APP_VERSION });
-      console.log('APP VERSION: ', process.env.REACT_APP_VERSION);
+    if (fallbackLibrary && fallbackChainId && CHAIN_INFO.get(fallbackChainId)?.supported) {
       console.log('Fallback ChainId: ', fallbackChainId);
       console.log('Primary ChainId: ', chainId);
 
@@ -531,15 +533,36 @@ const ChainProvider = ({ children }: any) => {
         true
       );
 
-    /* handle chain changes -> complete refresh */
-    // eslint-disable-next-line no-restricted-globals
-    chainId && chainId !== lastChainId && location.reload();
+    /* Handle chain changes  -> complete refresh */
     if (chainId && chainId !== lastChainId) {
-      window.localStorage.clear()
+      window.localStorage.clear();
+      // eslint-disable-next-line no-restricted-globals
+      location.reload();
+    }
+
+    /* Handle app version changes -> complete refresh */
+    if (process.env.REACT_APP_VERSION !== lastAppVersion) {
+      window.localStorage.clear();
+      // eslint-disable-next-line no-restricted-globals
+      location.reload();
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId, fallbackActivate, lastChainId, tried]);
+
+
+  /* Handle version updates on first load -> complete refresh if app is different */
+  useEffect(() => {
+    updateState({ type: 'appVersion', payload: process.env.REACT_APP_VERSION });
+    console.log('APP VERSION: ', process.env.REACT_APP_VERSION);
+    if (process.env.REACT_APP_VERSION !== lastAppVersion) {
+      window.localStorage.clear();
+      // eslint-disable-next-line no-restricted-globals
+      location.reload();
+    }
+    setLastAppVersion(process.env.REACT_APP_VERSION);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[]); // ignored to only happen once on init
 
   /**
    * Try connect automatically to an injected provider on first load
