@@ -2,11 +2,7 @@ import React, { useContext, useState } from 'react';
 import { Box, ResponsiveContext } from 'grommet';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
-import ParticlesBg from 'particles-bg';
-
 import { Redirect, Route, Switch } from 'react-router-dom';
-import { ChainContext } from './contexts/ChainContext';
 
 import Borrow from './views/Borrow';
 import Lend from './views/Lend';
@@ -21,17 +17,16 @@ import NetworkError from './components/NetworkError';
 import LendPosition from './views/LendPosition';
 import PoolPosition from './views/PoolPosition';
 import TransactionWidget from './components/TransactionWidget';
-import DashButton from './components/buttons/DashButton';
-import DashMobileButton from './components/buttons/DashMobileButton';
+import { useUnsupportedNetwork } from './hooks/useUnsupportedNetwork';
 
 function App() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-  const {
-    chainState: { chainData },
-  } = useContext(ChainContext);
 
   /* LOCAL STATE */
   const [menuLayerOpen, setMenuLayerOpen] = useState<boolean>(false);
+
+  /* HOOKS */
+  const unsupportedNetwork = useUnsupportedNetwork();
 
   return (
     <>
@@ -50,7 +45,7 @@ function App() {
           "custom" */}
 
       <Box fill>
-        {chainData && !chainData.supported && <NetworkError />}
+        {unsupportedNetwork && <NetworkError />}
 
         <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
         <TransactionWidget />
