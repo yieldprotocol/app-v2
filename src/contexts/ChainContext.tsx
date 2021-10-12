@@ -61,7 +61,6 @@ CHAIN_INFO.set(42, { name: 'Kovan', color: '#7F7FFE', supported: true });
 // Map the provider connection url name to a nicer format
 const CONNECTOR_NAMES = new Map([
   ['metamask', 'Metamask'],
-  ['metamaskWithLedger', 'MetaMask with Ledger'],
   ['ledger', 'Ledger'],
   ['walletconnect', 'WalletConnect'],
 ]);
@@ -517,6 +516,7 @@ const ChainProvider = ({ children }: any) => {
   */
   useEffect(() => {
     const _chainId = chainId || lastChainId;
+
     /* cache the change of networkId */
     chainId && setLastChainId(chainId);
 
@@ -531,12 +531,11 @@ const ChainProvider = ({ children }: any) => {
         true
       );
 
+    /* handle chain changes -> complete refresh */
     // eslint-disable-next-line no-restricted-globals
     chainId && chainId !== lastChainId && location.reload();
-
     if (chainId && chainId !== lastChainId) {
-      setCachedAssets([]);
-      setCachedSeries([]);
+      window.localStorage.clear()
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
