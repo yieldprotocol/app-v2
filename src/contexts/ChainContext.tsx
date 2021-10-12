@@ -4,6 +4,7 @@ import { useWeb3React } from '@web3-react/core';
 import { InjectedConnector } from '@web3-react/injected-connector';
 import { NetworkConnector } from '@web3-react/network-connector';
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector';
+import { LedgerConnector } from '@web3-react/ledger-connector';
 
 import { format } from 'date-fns';
 
@@ -65,8 +66,8 @@ chainData.set(5, { name: 'Goerli', color: '#3099f2', supported: false });
 chainData.set(10, { name: 'Optimism', color: '#EB0822', supported: false });
 chainData.set(42, { name: 'Kovan', color: '#7F7FFE', supported: true });
 
-const connectors = new Map();
 const injectedName = 'metamask';
+const connectors = new Map();
 connectors.set(
   injectedName,
   new InjectedConnector({
@@ -82,10 +83,20 @@ connectors.set(
     pollingInterval: POLLING_INTERVAL,
   })
 );
+connectors.set(
+  'ledger',
+  new LedgerConnector({ 
+    chainId: 1, 
+    url: RPC_URLS[1], 
+    pollingInterval: POLLING_INTERVAL 
+  })
+)
 
 // map the provider connection url name to a nicer format
 export const connectorNames = new Map([
   ['metamask', 'Metamask'],
+  ['metamaskWithLedger', 'MetaMask with Ledger'],
+  ['ledger', 'Ledger'],
   ['walletconnect', 'WalletConnect'],
 ]);
 
@@ -534,11 +545,13 @@ const ChainProvider = ({ children }: any) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId, fallbackActivate, lastChainId, tried]);
 
+
   /**
    * Try connect automatically to an injected provider on first load
    * */
   useEffect(() => {
     chainState.connectOnLoad &&
+    !chainState.web3Active &&
       connectors
         .get(injectedName)
         .isAuthorized()
@@ -551,7 +564,7 @@ const ChainProvider = ({ children }: any) => {
             setTried(true); // just move on do nothing nore
           }
         });
-  }, [activate, chainState.connectOnLoad]);
+  }, [activate, chainState.connectOnLoad, chainState.web3Active]);
 
   /* If web3 connected, wait until we get confirmation of that to flip the flag */
   useEffect(() => {
