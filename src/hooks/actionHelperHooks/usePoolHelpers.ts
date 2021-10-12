@@ -4,8 +4,6 @@ import { UserContext } from '../../contexts/UserContext';
 import { IAsset, ISeries, IStrategy, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import {
-  mulDecimal,
-  divDecimal,
   fyTokenForMint,
   maxBaseToSpend,
   splitLiquidity,
