@@ -73,7 +73,15 @@ export const usePoolHelpers = (input: string | undefined) => {
   /* Check if base reserves are too low for max trade  */
   useEffect(() => {
     if (strategy && strategySeries) {
-      const tradeable = checkPoolTrade(strategy.accountBalance!, strategySeries).gt(ethers.constants.Zero);
+      const tradeable = checkPoolTrade(
+        strategy.accountBalance!, 
+        strategySeries.baseReserves,
+        strategySeries.fyTokenReserves,
+        strategySeries.totalSupply,
+        strategySeries.getTimeTillMaturity(),
+        strategySeries.decimals
+
+      ).gt(ethers.constants.Zero);
       setHealthyBaseReserves(tradeable);
       setMaxRemoveNoVault(ethers.utils.formatUnits(strategy?.accountBalance!, strategySeries.decimals));
     }
@@ -82,7 +90,14 @@ export const usePoolHelpers = (input: string | undefined) => {
   /* Set the trade value and check if base reserves are too low for specific input  */
   useEffect(() => {
     if (strategySeries) {
-      const _tradeValue = checkPoolTrade(_input, strategySeries);
+      const _tradeValue = checkPoolTrade(
+        _input,
+        strategySeries.baseReserves,
+        strategySeries.fyTokenReserves,
+        strategySeries.totalSupply,
+        strategySeries.getTimeTillMaturity(),
+        strategySeries.decimals
+        );
       const tradeable = _tradeValue.gt(ethers.constants.Zero);
       console.log('Is tradeable:', tradeable);
       setFyTokenTradePossible(tradeable);
@@ -93,8 +108,15 @@ export const usePoolHelpers = (input: string | undefined) => {
 
   /* check account token trade value */
   useEffect(() => {
-    if (strategy?.accountBalance?.gt(ZERO_BN)) {
-      const _tradeValue = checkPoolTrade(strategy?.accountBalance, strategySeries);
+    if (strategySeries && strategy?.accountBalance?.gt(ZERO_BN)) {
+      const _tradeValue = checkPoolTrade(
+        strategy?.accountBalance,
+        strategySeries.baseReserves,
+        strategySeries.fyTokenReserves,
+        strategySeries.totalSupply,
+        strategySeries.getTimeTillMaturity(),
+        strategySeries.decimals
+      );
       const tradeable = _tradeValue.gt(ethers.constants.Zero);
       tradeable && setAccountTradeValue(ethers.utils.formatUnits(_tradeValue, strategy.decimals));
     }

@@ -111,7 +111,14 @@ const Dashboard = () => {
     const _strategyPositions: IStrategy[] = Array.from(strategyMap.values())
       .map((_strategy: IStrategy) => {
         const currentStrategySeries: any = seriesMap.get(_strategy.currentSeriesId);
-        const currentValue = checkPoolTrade(_strategy.accountBalance!, currentStrategySeries);
+        const currentValue = checkPoolTrade(
+          _strategy.accountBalance!, 
+          currentStrategySeries.baseReserves,
+          currentStrategySeries.fyTokenReserves,
+          currentStrategySeries.totalSupply,
+          currentStrategySeries.getTimeTillMaturity(),
+          currentStrategySeries.decimals   
+        );
         const currentValue_ = currentValue.eq(ethers.constants.Zero)
           ? _strategy.accountBalance_
           : ethers.utils.formatUnits(currentValue, _strategy.decimals!);
