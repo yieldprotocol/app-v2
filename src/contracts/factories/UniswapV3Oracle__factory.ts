@@ -5,9 +5,9 @@
 import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
 import type {
-  ChainlinkMultiOracle,
-  ChainlinkMultiOracleInterface,
-} from "../ChainlinkMultiOracle";
+  UniswapV3Oracle,
+  UniswapV3OracleInterface,
+} from "../UniswapV3Oracle";
 
 const _abi = [
   {
@@ -84,27 +84,28 @@ const _abi = [
     inputs: [
       {
         indexed: true,
-        internalType: "bytes6",
-        name: "baseId",
-        type: "bytes6",
+        internalType: "uint32",
+        name: "secondsAgo",
+        type: "uint32",
       },
+    ],
+    name: "SecondsAgoSet",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
       {
-        indexed: false,
-        internalType: "contract IERC20Metadata",
+        indexed: true,
+        internalType: "bytes6",
         name: "base",
-        type: "address",
+        type: "bytes6",
       },
       {
         indexed: true,
         internalType: "bytes6",
-        name: "quoteId",
-        type: "bytes6",
-      },
-      {
-        indexed: false,
-        internalType: "contract IERC20Metadata",
         name: "quote",
-        type: "address",
+        type: "bytes6",
       },
       {
         indexed: true,
@@ -172,17 +173,17 @@ const _abi = [
     inputs: [
       {
         internalType: "bytes32",
-        name: "baseId",
+        name: "base",
         type: "bytes32",
       },
       {
         internalType: "bytes32",
-        name: "quoteId",
+        name: "quote",
         type: "bytes32",
       },
       {
         internalType: "uint256",
-        name: "amountBase",
+        name: "amount",
         type: "uint256",
       },
     ],
@@ -190,7 +191,7 @@ const _abi = [
     outputs: [
       {
         internalType: "uint256",
-        name: "amountQuote",
+        name: "value",
         type: "uint256",
       },
       {
@@ -298,17 +299,17 @@ const _abi = [
     inputs: [
       {
         internalType: "bytes32",
-        name: "baseId",
+        name: "base",
         type: "bytes32",
       },
       {
         internalType: "bytes32",
-        name: "quoteId",
+        name: "quote",
         type: "bytes32",
       },
       {
         internalType: "uint256",
-        name: "amountBase",
+        name: "amount",
         type: "uint256",
       },
     ],
@@ -316,7 +317,7 @@ const _abi = [
     outputs: [
       {
         internalType: "uint256",
-        name: "amountQuote",
+        name: "value",
         type: "uint256",
       },
       {
@@ -383,6 +384,19 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "secondsAgo",
+    outputs: [
+      {
+        internalType: "uint32",
+        name: "",
+        type: "uint32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "bytes4",
@@ -403,24 +417,27 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes6",
-        name: "baseId",
-        type: "bytes6",
+        internalType: "uint32",
+        name: "secondsAgo_",
+        type: "uint32",
       },
+    ],
+    name: "setSecondsAgo",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
       {
-        internalType: "contract IERC20Metadata",
+        internalType: "bytes6",
         name: "base",
-        type: "address",
-      },
-      {
-        internalType: "bytes6",
-        name: "quoteId",
         type: "bytes6",
       },
       {
-        internalType: "contract IERC20Metadata",
+        internalType: "bytes6",
         name: "quote",
-        type: "address",
+        type: "bytes6",
       },
       {
         internalType: "address",
@@ -454,16 +471,6 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "uint8",
-        name: "baseDecimals",
-        type: "uint8",
-      },
-      {
-        internalType: "uint8",
-        name: "quoteDecimals",
-        type: "uint8",
-      },
-      {
         internalType: "bool",
         name: "inverse",
         type: "bool",
@@ -472,21 +479,51 @@ const _abi = [
     stateMutability: "view",
     type: "function",
   },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "sourcesData",
+    outputs: [
+      {
+        internalType: "address",
+        name: "factory",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "baseToken",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "quoteToken",
+        type: "address",
+      },
+      {
+        internalType: "uint24",
+        name: "fee",
+        type: "uint24",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
 ];
 
-export class ChainlinkMultiOracle__factory {
+export class UniswapV3Oracle__factory {
   static readonly abi = _abi;
-  static createInterface(): ChainlinkMultiOracleInterface {
-    return new utils.Interface(_abi) as ChainlinkMultiOracleInterface;
+  static createInterface(): UniswapV3OracleInterface {
+    return new utils.Interface(_abi) as UniswapV3OracleInterface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
-  ): ChainlinkMultiOracle {
-    return new Contract(
-      address,
-      _abi,
-      signerOrProvider
-    ) as ChainlinkMultiOracle;
+  ): UniswapV3Oracle {
+    return new Contract(address, _abi, signerOrProvider) as UniswapV3Oracle;
   }
 }

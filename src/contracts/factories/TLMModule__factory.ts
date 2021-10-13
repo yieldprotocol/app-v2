@@ -4,7 +4,7 @@
 
 import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-import type { LadleStorage, LadleStorageInterface } from "../LadleStorage";
+import type { TLMModule, TLMModuleInterface } from "../TLMModule";
 
 const _abi = [
   {
@@ -17,6 +17,11 @@ const _abi = [
       {
         internalType: "contract IWETH9",
         name: "weth_",
+        type: "address",
+      },
+      {
+        internalType: "contract DssTlmAbstract",
+        name: "tlm_",
         type: "address",
       },
     ],
@@ -117,6 +122,25 @@ const _abi = [
     inputs: [
       {
         indexed: true,
+        internalType: "bytes6",
+        name: "seriesId",
+        type: "bytes6",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "ilk",
+        type: "bytes32",
+      },
+    ],
+    name: "SeriesRegistered",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
         internalType: "address",
         name: "token",
         type: "address",
@@ -130,6 +154,19 @@ const _abi = [
     ],
     name: "TokenAdded",
     type: "event",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes6",
+        name: "seriesId",
+        type: "bytes6",
+      },
+    ],
+    name: "approve",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
     inputs: [],
@@ -234,11 +271,103 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "bytes6",
+        name: "seriesId",
+        type: "bytes6",
+      },
+      {
+        internalType: "bytes32",
+        name: "ilk",
+        type: "bytes32",
+      },
+    ],
+    name: "register",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "router",
     outputs: [
       {
         internalType: "contract Router",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes6",
+        name: "seriesId",
+        type: "bytes6",
+      },
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "fyDaiToSell",
+        type: "uint256",
+      },
+    ],
+    name: "sell",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes6",
+        name: "",
+        type: "bytes6",
+      },
+    ],
+    name: "seriesToIlk",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "tlm",
+    outputs: [
+      {
+        internalType: "contract DssTlmAbstract",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "tlmModule",
+    outputs: [
+      {
+        internalType: "contract TLMModule",
         name: "",
         type: "address",
       },
@@ -280,15 +409,15 @@ const _abi = [
   },
 ];
 
-export class LadleStorage__factory {
+export class TLMModule__factory {
   static readonly abi = _abi;
-  static createInterface(): LadleStorageInterface {
-    return new utils.Interface(_abi) as LadleStorageInterface;
+  static createInterface(): TLMModuleInterface {
+    return new utils.Interface(_abi) as TLMModuleInterface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
-  ): LadleStorage {
-    return new Contract(address, _abi, signerOrProvider) as LadleStorage;
+  ): TLMModule {
+    return new Contract(address, _abi, signerOrProvider) as TLMModule;
   }
 }

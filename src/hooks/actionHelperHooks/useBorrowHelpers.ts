@@ -14,7 +14,6 @@ export const useBorrowHelpers = (
   vault: IVault | undefined,
   futureSeries: ISeries | undefined = undefined // Future or rollToSeries
 ) => {
-
   /* STATE FROM CONTEXT */
   const {
     userState: { activeAccount, selectedBaseId, selectedIlkId, assetMap, seriesMap, limitMap },
@@ -66,7 +65,7 @@ export const useBorrowHelpers = (
 
   /* calculate an estimated sale based on the input and future stragey, assuming correct collateralisation */
   useEffect(() => {
-    if ( input && futureSeries && parseFloat(input)>0 ) {
+    if (input && futureSeries && parseFloat(input) > 0) {
       const cleanedInput = cleanValue(input, futureSeries?.decimals);
       const input_ = ethers.utils.parseUnits(cleanedInput, futureSeries?.decimals);
       const estimate = sellBase(
@@ -87,6 +86,11 @@ export const useBorrowHelpers = (
       setMaxRoll(futureSeries.baseReserves);
       setMaxRoll_(ethers.utils.formatUnits(futureSeries.baseReserves, futureSeries.decimals).toString());
       setRollPossible(vault.art.lt(futureSeries.baseReserves));
+
+      if (vault.art.lt(futureSeries.baseReserves)) {
+        setMaxRoll(vault.art);
+        setMaxRoll_(ethers.utils.formatUnits(vault.art, futureSeries.decimals).toString());
+      }
     }
   }, [futureSeries, vault]);
 

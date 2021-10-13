@@ -19,30 +19,28 @@ import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 
-interface WitchInterface extends ethers.utils.Interface {
+interface UniswapV3OracleInterface extends ethers.utils.Interface {
   functions: {
     "LOCK()": FunctionFragment;
     "LOCK8605463013()": FunctionFragment;
     "ROOT()": FunctionFragment;
     "ROOT4146650865()": FunctionFragment;
-    "auction(bytes12)": FunctionFragment;
-    "auctions(bytes12)": FunctionFragment;
-    "buy(bytes12,uint128,uint128)": FunctionFragment;
-    "cauldron()": FunctionFragment;
+    "get(bytes32,bytes32,uint256)": FunctionFragment;
     "getRoleAdmin(bytes4)": FunctionFragment;
     "grantRole(bytes4,address)": FunctionFragment;
     "grantRoles(bytes4[],address)": FunctionFragment;
     "hasRole(bytes4,address)": FunctionFragment;
-    "ilks(bytes6)": FunctionFragment;
-    "ladle()": FunctionFragment;
     "lockRole(bytes4)": FunctionFragment;
-    "payAll(bytes12,uint128)": FunctionFragment;
-    "point(bytes32,address)": FunctionFragment;
+    "peek(bytes32,bytes32,uint256)": FunctionFragment;
     "renounceRole(bytes4,address)": FunctionFragment;
     "revokeRole(bytes4,address)": FunctionFragment;
     "revokeRoles(bytes4[],address)": FunctionFragment;
-    "setIlk(bytes6,uint32,uint64,uint128,bool)": FunctionFragment;
+    "secondsAgo()": FunctionFragment;
     "setRoleAdmin(bytes4,bytes4)": FunctionFragment;
+    "setSecondsAgo(uint32)": FunctionFragment;
+    "setSource(bytes6,bytes6,address)": FunctionFragment;
+    "sources(bytes6,bytes6)": FunctionFragment;
+    "sourcesData(address)": FunctionFragment;
   };
 
   encodeFunctionData(functionFragment: "LOCK", values?: undefined): string;
@@ -55,13 +53,10 @@ interface WitchInterface extends ethers.utils.Interface {
     functionFragment: "ROOT4146650865",
     values?: undefined
   ): string;
-  encodeFunctionData(functionFragment: "auction", values: [BytesLike]): string;
-  encodeFunctionData(functionFragment: "auctions", values: [BytesLike]): string;
   encodeFunctionData(
-    functionFragment: "buy",
-    values: [BytesLike, BigNumberish, BigNumberish]
+    functionFragment: "get",
+    values: [BytesLike, BytesLike, BigNumberish]
   ): string;
-  encodeFunctionData(functionFragment: "cauldron", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "getRoleAdmin",
     values: [BytesLike]
@@ -78,16 +73,10 @@ interface WitchInterface extends ethers.utils.Interface {
     functionFragment: "hasRole",
     values: [BytesLike, string]
   ): string;
-  encodeFunctionData(functionFragment: "ilks", values: [BytesLike]): string;
-  encodeFunctionData(functionFragment: "ladle", values?: undefined): string;
   encodeFunctionData(functionFragment: "lockRole", values: [BytesLike]): string;
   encodeFunctionData(
-    functionFragment: "payAll",
-    values: [BytesLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "point",
-    values: [BytesLike, string]
+    functionFragment: "peek",
+    values: [BytesLike, BytesLike, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "renounceRole",
@@ -102,13 +91,26 @@ interface WitchInterface extends ethers.utils.Interface {
     values: [BytesLike[], string]
   ): string;
   encodeFunctionData(
-    functionFragment: "setIlk",
-    values: [BytesLike, BigNumberish, BigNumberish, BigNumberish, boolean]
+    functionFragment: "secondsAgo",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "setRoleAdmin",
     values: [BytesLike, BytesLike]
   ): string;
+  encodeFunctionData(
+    functionFragment: "setSecondsAgo",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setSource",
+    values: [BytesLike, BytesLike, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "sources",
+    values: [BytesLike, BytesLike]
+  ): string;
+  encodeFunctionData(functionFragment: "sourcesData", values: [string]): string;
 
   decodeFunctionResult(functionFragment: "LOCK", data: BytesLike): Result;
   decodeFunctionResult(
@@ -120,10 +122,7 @@ interface WitchInterface extends ethers.utils.Interface {
     functionFragment: "ROOT4146650865",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "auction", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "auctions", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "buy", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "cauldron", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "get", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getRoleAdmin",
     data: BytesLike
@@ -131,11 +130,8 @@ interface WitchInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "grantRoles", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "ilks", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "ladle", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "lockRole", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "payAll", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "point", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "peek", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "renounceRole",
     data: BytesLike
@@ -145,57 +141,36 @@ interface WitchInterface extends ethers.utils.Interface {
     functionFragment: "revokeRoles",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "setIlk", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "secondsAgo", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setRoleAdmin",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "setSecondsAgo",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "setSource", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "sources", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "sourcesData",
+    data: BytesLike
+  ): Result;
 
   events: {
-    "Auctioned(bytes12,uint256)": EventFragment;
-    "Bought(bytes12,address,uint256,uint256)": EventFragment;
-    "IlkSet(bytes6,uint32,uint64,uint128,bool)": EventFragment;
-    "Point(bytes32,address)": EventFragment;
     "RoleAdminChanged(bytes4,bytes4)": EventFragment;
     "RoleGranted(bytes4,address,address)": EventFragment;
     "RoleRevoked(bytes4,address,address)": EventFragment;
+    "SecondsAgoSet(uint32)": EventFragment;
+    "SourceSet(bytes6,bytes6,address)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "Auctioned"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Bought"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "IlkSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Point"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleRevoked"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SecondsAgoSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SourceSet"): EventFragment;
 }
-
-export type AuctionedEvent = TypedEvent<
-  [string, BigNumber] & { vaultId: string; start: BigNumber }
->;
-
-export type BoughtEvent = TypedEvent<
-  [string, string, BigNumber, BigNumber] & {
-    vaultId: string;
-    buyer: string;
-    ink: BigNumber;
-    art: BigNumber;
-  }
->;
-
-export type IlkSetEvent = TypedEvent<
-  [string, number, BigNumber, BigNumber, boolean] & {
-    ilkId: string;
-    duration: number;
-    initialOffer: BigNumber;
-    dust: BigNumber;
-    active: boolean;
-  }
->;
-
-export type PointEvent = TypedEvent<
-  [string, string] & { param: string; value: string }
->;
 
 export type RoleAdminChangedEvent = TypedEvent<
   [string, string] & { role: string; newAdminRole: string }
@@ -209,7 +184,13 @@ export type RoleRevokedEvent = TypedEvent<
   [string, string, string] & { role: string; account: string; sender: string }
 >;
 
-export class Witch extends BaseContract {
+export type SecondsAgoSetEvent = TypedEvent<[number] & { secondsAgo: number }>;
+
+export type SourceSetEvent = TypedEvent<
+  [string, string, string] & { base: string; quote: string; source: string }
+>;
+
+export class UniswapV3Oracle extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -250,7 +231,7 @@ export class Witch extends BaseContract {
     toBlock?: string | number | undefined
   ): Promise<Array<TypedEvent<EventArgsArray & EventArgsObject>>>;
 
-  interface: WitchInterface;
+  interface: UniswapV3OracleInterface;
 
   functions: {
     LOCK(overrides?: CallOverrides): Promise<[string]>;
@@ -261,24 +242,12 @@ export class Witch extends BaseContract {
 
     ROOT4146650865(overrides?: CallOverrides): Promise<[string]>;
 
-    auction(
-      vaultId: BytesLike,
+    get(
+      base: BytesLike,
+      quote: BytesLike,
+      amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    auctions(
-      arg0: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[string, number] & { owner: string; start: number }>;
-
-    buy(
-      vaultId: BytesLike,
-      base: BigNumberish,
-      min: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    cauldron(overrides?: CallOverrides): Promise<[string]>;
 
     getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<[string]>;
 
@@ -300,36 +269,19 @@ export class Witch extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    ilks(
-      arg0: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<
-      [boolean, number, BigNumber, BigNumber] & {
-        active: boolean;
-        duration: number;
-        initialOffer: BigNumber;
-        dust: BigNumber;
-      }
-    >;
-
-    ladle(overrides?: CallOverrides): Promise<[string]>;
-
     lockRole(
       role: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    payAll(
-      vaultId: BytesLike,
-      min: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    point(
-      param: BytesLike,
-      value: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    peek(
+      base: BytesLike,
+      quote: BytesLike,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<
+      [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
+    >;
 
     renounceRole(
       role: BytesLike,
@@ -349,20 +301,43 @@ export class Witch extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    setIlk(
-      ilkId: BytesLike,
-      duration: BigNumberish,
-      initialOffer: BigNumberish,
-      dust: BigNumberish,
-      active: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    secondsAgo(overrides?: CallOverrides): Promise<[number]>;
 
     setRoleAdmin(
       role: BytesLike,
       adminRole: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    setSecondsAgo(
+      secondsAgo_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setSource(
+      base: BytesLike,
+      quote: BytesLike,
+      source: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    sources(
+      arg0: BytesLike,
+      arg1: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[string, boolean] & { source: string; inverse: boolean }>;
+
+    sourcesData(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<
+      [string, string, string, number] & {
+        factory: string;
+        baseToken: string;
+        quoteToken: string;
+        fee: number;
+      }
+    >;
   };
 
   LOCK(overrides?: CallOverrides): Promise<string>;
@@ -373,24 +348,12 @@ export class Witch extends BaseContract {
 
   ROOT4146650865(overrides?: CallOverrides): Promise<string>;
 
-  auction(
-    vaultId: BytesLike,
+  get(
+    base: BytesLike,
+    quote: BytesLike,
+    amount: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
-
-  auctions(
-    arg0: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<[string, number] & { owner: string; start: number }>;
-
-  buy(
-    vaultId: BytesLike,
-    base: BigNumberish,
-    min: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  cauldron(overrides?: CallOverrides): Promise<string>;
 
   getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
 
@@ -412,36 +375,19 @@ export class Witch extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  ilks(
-    arg0: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<
-    [boolean, number, BigNumber, BigNumber] & {
-      active: boolean;
-      duration: number;
-      initialOffer: BigNumber;
-      dust: BigNumber;
-    }
-  >;
-
-  ladle(overrides?: CallOverrides): Promise<string>;
-
   lockRole(
     role: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  payAll(
-    vaultId: BytesLike,
-    min: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  point(
-    param: BytesLike,
-    value: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  peek(
+    base: BytesLike,
+    quote: BytesLike,
+    amount: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<
+    [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
+  >;
 
   renounceRole(
     role: BytesLike,
@@ -461,20 +407,43 @@ export class Witch extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  setIlk(
-    ilkId: BytesLike,
-    duration: BigNumberish,
-    initialOffer: BigNumberish,
-    dust: BigNumberish,
-    active: boolean,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  secondsAgo(overrides?: CallOverrides): Promise<number>;
 
   setRoleAdmin(
     role: BytesLike,
     adminRole: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  setSecondsAgo(
+    secondsAgo_: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setSource(
+    base: BytesLike,
+    quote: BytesLike,
+    source: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  sources(
+    arg0: BytesLike,
+    arg1: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<[string, boolean] & { source: string; inverse: boolean }>;
+
+  sourcesData(
+    arg0: string,
+    overrides?: CallOverrides
+  ): Promise<
+    [string, string, string, number] & {
+      factory: string;
+      baseToken: string;
+      quoteToken: string;
+      fee: number;
+    }
+  >;
 
   callStatic: {
     LOCK(overrides?: CallOverrides): Promise<string>;
@@ -485,21 +454,14 @@ export class Witch extends BaseContract {
 
     ROOT4146650865(overrides?: CallOverrides): Promise<string>;
 
-    auction(vaultId: BytesLike, overrides?: CallOverrides): Promise<void>;
-
-    auctions(
-      arg0: BytesLike,
+    get(
+      base: BytesLike,
+      quote: BytesLike,
+      amount: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<[string, number] & { owner: string; start: number }>;
-
-    buy(
-      vaultId: BytesLike,
-      base: BigNumberish,
-      min: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    cauldron(overrides?: CallOverrides): Promise<string>;
+    ): Promise<
+      [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
+    >;
 
     getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
 
@@ -521,33 +483,16 @@ export class Witch extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    ilks(
-      arg0: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<
-      [boolean, number, BigNumber, BigNumber] & {
-        active: boolean;
-        duration: number;
-        initialOffer: BigNumber;
-        dust: BigNumber;
-      }
-    >;
-
-    ladle(overrides?: CallOverrides): Promise<string>;
-
     lockRole(role: BytesLike, overrides?: CallOverrides): Promise<void>;
 
-    payAll(
-      vaultId: BytesLike,
-      min: BigNumberish,
+    peek(
+      base: BytesLike,
+      quote: BytesLike,
+      amount: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    point(
-      param: BytesLike,
-      value: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<
+      [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
+    >;
 
     renounceRole(
       role: BytesLike,
@@ -567,103 +512,46 @@ export class Witch extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setIlk(
-      ilkId: BytesLike,
-      duration: BigNumberish,
-      initialOffer: BigNumberish,
-      dust: BigNumberish,
-      active: boolean,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    secondsAgo(overrides?: CallOverrides): Promise<number>;
 
     setRoleAdmin(
       role: BytesLike,
       adminRole: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    setSecondsAgo(
+      secondsAgo_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setSource(
+      base: BytesLike,
+      quote: BytesLike,
+      source: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    sources(
+      arg0: BytesLike,
+      arg1: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[string, boolean] & { source: string; inverse: boolean }>;
+
+    sourcesData(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<
+      [string, string, string, number] & {
+        factory: string;
+        baseToken: string;
+        quoteToken: string;
+        fee: number;
+      }
+    >;
   };
 
   filters: {
-    "Auctioned(bytes12,uint256)"(
-      vaultId?: BytesLike | null,
-      start?: BigNumberish | null
-    ): TypedEventFilter<
-      [string, BigNumber],
-      { vaultId: string; start: BigNumber }
-    >;
-
-    Auctioned(
-      vaultId?: BytesLike | null,
-      start?: BigNumberish | null
-    ): TypedEventFilter<
-      [string, BigNumber],
-      { vaultId: string; start: BigNumber }
-    >;
-
-    "Bought(bytes12,address,uint256,uint256)"(
-      vaultId?: BytesLike | null,
-      buyer?: string | null,
-      ink?: null,
-      art?: null
-    ): TypedEventFilter<
-      [string, string, BigNumber, BigNumber],
-      { vaultId: string; buyer: string; ink: BigNumber; art: BigNumber }
-    >;
-
-    Bought(
-      vaultId?: BytesLike | null,
-      buyer?: string | null,
-      ink?: null,
-      art?: null
-    ): TypedEventFilter<
-      [string, string, BigNumber, BigNumber],
-      { vaultId: string; buyer: string; ink: BigNumber; art: BigNumber }
-    >;
-
-    "IlkSet(bytes6,uint32,uint64,uint128,bool)"(
-      ilkId?: BytesLike | null,
-      duration?: null,
-      initialOffer?: null,
-      dust?: null,
-      active?: null
-    ): TypedEventFilter<
-      [string, number, BigNumber, BigNumber, boolean],
-      {
-        ilkId: string;
-        duration: number;
-        initialOffer: BigNumber;
-        dust: BigNumber;
-        active: boolean;
-      }
-    >;
-
-    IlkSet(
-      ilkId?: BytesLike | null,
-      duration?: null,
-      initialOffer?: null,
-      dust?: null,
-      active?: null
-    ): TypedEventFilter<
-      [string, number, BigNumber, BigNumber, boolean],
-      {
-        ilkId: string;
-        duration: number;
-        initialOffer: BigNumber;
-        dust: BigNumber;
-        active: boolean;
-      }
-    >;
-
-    "Point(bytes32,address)"(
-      param?: BytesLike | null,
-      value?: null
-    ): TypedEventFilter<[string, string], { param: string; value: string }>;
-
-    Point(
-      param?: BytesLike | null,
-      value?: null
-    ): TypedEventFilter<[string, string], { param: string; value: string }>;
-
     "RoleAdminChanged(bytes4,bytes4)"(
       role?: BytesLike | null,
       newAdminRole?: BytesLike | null
@@ -715,6 +603,32 @@ export class Witch extends BaseContract {
       [string, string, string],
       { role: string; account: string; sender: string }
     >;
+
+    "SecondsAgoSet(uint32)"(
+      secondsAgo?: BigNumberish | null
+    ): TypedEventFilter<[number], { secondsAgo: number }>;
+
+    SecondsAgoSet(
+      secondsAgo?: BigNumberish | null
+    ): TypedEventFilter<[number], { secondsAgo: number }>;
+
+    "SourceSet(bytes6,bytes6,address)"(
+      base?: BytesLike | null,
+      quote?: BytesLike | null,
+      source?: string | null
+    ): TypedEventFilter<
+      [string, string, string],
+      { base: string; quote: string; source: string }
+    >;
+
+    SourceSet(
+      base?: BytesLike | null,
+      quote?: BytesLike | null,
+      source?: string | null
+    ): TypedEventFilter<
+      [string, string, string],
+      { base: string; quote: string; source: string }
+    >;
   };
 
   estimateGas: {
@@ -726,21 +640,12 @@ export class Witch extends BaseContract {
 
     ROOT4146650865(overrides?: CallOverrides): Promise<BigNumber>;
 
-    auction(
-      vaultId: BytesLike,
+    get(
+      base: BytesLike,
+      quote: BytesLike,
+      amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
-
-    auctions(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
-
-    buy(
-      vaultId: BytesLike,
-      base: BigNumberish,
-      min: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    cauldron(overrides?: CallOverrides): Promise<BigNumber>;
 
     getRoleAdmin(
       role: BytesLike,
@@ -765,25 +670,16 @@ export class Witch extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    ilks(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
-
-    ladle(overrides?: CallOverrides): Promise<BigNumber>;
-
     lockRole(
       role: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    payAll(
-      vaultId: BytesLike,
-      min: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    point(
-      param: BytesLike,
-      value: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+    peek(
+      base: BytesLike,
+      quote: BytesLike,
+      amount: BigNumberish,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     renounceRole(
@@ -804,20 +700,33 @@ export class Witch extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    setIlk(
-      ilkId: BytesLike,
-      duration: BigNumberish,
-      initialOffer: BigNumberish,
-      dust: BigNumberish,
-      active: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    secondsAgo(overrides?: CallOverrides): Promise<BigNumber>;
 
     setRoleAdmin(
       role: BytesLike,
       adminRole: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    setSecondsAgo(
+      secondsAgo_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setSource(
+      base: BytesLike,
+      quote: BytesLike,
+      source: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    sources(
+      arg0: BytesLike,
+      arg1: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    sourcesData(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -829,24 +738,12 @@ export class Witch extends BaseContract {
 
     ROOT4146650865(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    auction(
-      vaultId: BytesLike,
+    get(
+      base: BytesLike,
+      quote: BytesLike,
+      amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
-
-    auctions(
-      arg0: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    buy(
-      vaultId: BytesLike,
-      base: BigNumberish,
-      min: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    cauldron(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getRoleAdmin(
       role: BytesLike,
@@ -871,28 +768,16 @@ export class Witch extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    ilks(
-      arg0: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    ladle(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     lockRole(
       role: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    payAll(
-      vaultId: BytesLike,
-      min: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    point(
-      param: BytesLike,
-      value: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+    peek(
+      base: BytesLike,
+      quote: BytesLike,
+      amount: BigNumberish,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     renounceRole(
@@ -913,19 +798,35 @@ export class Witch extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    setIlk(
-      ilkId: BytesLike,
-      duration: BigNumberish,
-      initialOffer: BigNumberish,
-      dust: BigNumberish,
-      active: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
+    secondsAgo(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     setRoleAdmin(
       role: BytesLike,
       adminRole: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setSecondsAgo(
+      secondsAgo_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setSource(
+      base: BytesLike,
+      quote: BytesLike,
+      source: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    sources(
+      arg0: BytesLike,
+      arg1: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    sourcesData(
+      arg0: string,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };
 }

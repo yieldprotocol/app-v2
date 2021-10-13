@@ -11,6 +11,7 @@ import {
   PopulatedTransaction,
   BaseContract,
   ContractTransaction,
+  Overrides,
   CallOverrides,
 } from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
@@ -18,19 +19,26 @@ import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 
-interface LadleStorageInterface extends ethers.utils.Interface {
+interface TLMModuleInterface extends ethers.utils.Interface {
   functions: {
+    "approve(bytes6)": FunctionFragment;
     "borrowingFee()": FunctionFragment;
     "cauldron()": FunctionFragment;
     "integrations(address)": FunctionFragment;
     "joins(bytes6)": FunctionFragment;
     "modules(address)": FunctionFragment;
     "pools(bytes6)": FunctionFragment;
+    "register(bytes6,bytes32)": FunctionFragment;
     "router()": FunctionFragment;
+    "sell(bytes6,address,uint256)": FunctionFragment;
+    "seriesToIlk(bytes6)": FunctionFragment;
+    "tlm()": FunctionFragment;
+    "tlmModule()": FunctionFragment;
     "tokens(address)": FunctionFragment;
     "weth()": FunctionFragment;
   };
 
+  encodeFunctionData(functionFragment: "approve", values: [BytesLike]): string;
   encodeFunctionData(
     functionFragment: "borrowingFee",
     values?: undefined
@@ -43,10 +51,25 @@ interface LadleStorageInterface extends ethers.utils.Interface {
   encodeFunctionData(functionFragment: "joins", values: [BytesLike]): string;
   encodeFunctionData(functionFragment: "modules", values: [string]): string;
   encodeFunctionData(functionFragment: "pools", values: [BytesLike]): string;
+  encodeFunctionData(
+    functionFragment: "register",
+    values: [BytesLike, BytesLike]
+  ): string;
   encodeFunctionData(functionFragment: "router", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "sell",
+    values: [BytesLike, string, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "seriesToIlk",
+    values: [BytesLike]
+  ): string;
+  encodeFunctionData(functionFragment: "tlm", values?: undefined): string;
+  encodeFunctionData(functionFragment: "tlmModule", values?: undefined): string;
   encodeFunctionData(functionFragment: "tokens", values: [string]): string;
   encodeFunctionData(functionFragment: "weth", values?: undefined): string;
 
+  decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "borrowingFee",
     data: BytesLike
@@ -59,7 +82,15 @@ interface LadleStorageInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "joins", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "modules", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "pools", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "register", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "router", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "sell", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "seriesToIlk",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "tlm", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "tlmModule", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "tokens", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "weth", data: BytesLike): Result;
 
@@ -69,6 +100,7 @@ interface LadleStorageInterface extends ethers.utils.Interface {
     "JoinAdded(bytes6,address)": EventFragment;
     "ModuleAdded(address,bool)": EventFragment;
     "PoolAdded(bytes6,address)": EventFragment;
+    "SeriesRegistered(bytes6,bytes32)": EventFragment;
     "TokenAdded(address,bool)": EventFragment;
   };
 
@@ -77,6 +109,7 @@ interface LadleStorageInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "JoinAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ModuleAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PoolAdded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SeriesRegistered"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenAdded"): EventFragment;
 }
 
@@ -98,11 +131,15 @@ export type PoolAddedEvent = TypedEvent<
   [string, string] & { seriesId: string; pool: string }
 >;
 
+export type SeriesRegisteredEvent = TypedEvent<
+  [string, string] & { seriesId: string; ilk: string }
+>;
+
 export type TokenAddedEvent = TypedEvent<
   [string, boolean] & { token: string; set: boolean }
 >;
 
-export class LadleStorage extends BaseContract {
+export class TLMModule extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -143,9 +180,14 @@ export class LadleStorage extends BaseContract {
     toBlock?: string | number | undefined
   ): Promise<Array<TypedEvent<EventArgsArray & EventArgsObject>>>;
 
-  interface: LadleStorageInterface;
+  interface: TLMModuleInterface;
 
   functions: {
+    approve(
+      seriesId: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     borrowingFee(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     cauldron(overrides?: CallOverrides): Promise<[string]>;
@@ -158,12 +200,36 @@ export class LadleStorage extends BaseContract {
 
     pools(arg0: BytesLike, overrides?: CallOverrides): Promise<[string]>;
 
+    register(
+      seriesId: BytesLike,
+      ilk: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     router(overrides?: CallOverrides): Promise<[string]>;
+
+    sell(
+      seriesId: BytesLike,
+      to: string,
+      fyDaiToSell: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    seriesToIlk(arg0: BytesLike, overrides?: CallOverrides): Promise<[string]>;
+
+    tlm(overrides?: CallOverrides): Promise<[string]>;
+
+    tlmModule(overrides?: CallOverrides): Promise<[string]>;
 
     tokens(arg0: string, overrides?: CallOverrides): Promise<[boolean]>;
 
     weth(overrides?: CallOverrides): Promise<[string]>;
   };
+
+  approve(
+    seriesId: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   borrowingFee(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -177,13 +243,34 @@ export class LadleStorage extends BaseContract {
 
   pools(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
 
+  register(
+    seriesId: BytesLike,
+    ilk: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   router(overrides?: CallOverrides): Promise<string>;
+
+  sell(
+    seriesId: BytesLike,
+    to: string,
+    fyDaiToSell: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  seriesToIlk(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
+
+  tlm(overrides?: CallOverrides): Promise<string>;
+
+  tlmModule(overrides?: CallOverrides): Promise<string>;
 
   tokens(arg0: string, overrides?: CallOverrides): Promise<boolean>;
 
   weth(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
+    approve(seriesId: BytesLike, overrides?: CallOverrides): Promise<void>;
+
     borrowingFee(overrides?: CallOverrides): Promise<BigNumber>;
 
     cauldron(overrides?: CallOverrides): Promise<string>;
@@ -196,7 +283,26 @@ export class LadleStorage extends BaseContract {
 
     pools(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
 
+    register(
+      seriesId: BytesLike,
+      ilk: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     router(overrides?: CallOverrides): Promise<string>;
+
+    sell(
+      seriesId: BytesLike,
+      to: string,
+      fyDaiToSell: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    seriesToIlk(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
+
+    tlm(overrides?: CallOverrides): Promise<string>;
+
+    tlmModule(overrides?: CallOverrides): Promise<string>;
 
     tokens(arg0: string, overrides?: CallOverrides): Promise<boolean>;
 
@@ -256,6 +362,16 @@ export class LadleStorage extends BaseContract {
       pool?: string | null
     ): TypedEventFilter<[string, string], { seriesId: string; pool: string }>;
 
+    "SeriesRegistered(bytes6,bytes32)"(
+      seriesId?: BytesLike | null,
+      ilk?: BytesLike | null
+    ): TypedEventFilter<[string, string], { seriesId: string; ilk: string }>;
+
+    SeriesRegistered(
+      seriesId?: BytesLike | null,
+      ilk?: BytesLike | null
+    ): TypedEventFilter<[string, string], { seriesId: string; ilk: string }>;
+
     "TokenAdded(address,bool)"(
       token?: string | null,
       set?: boolean | null
@@ -268,6 +384,11 @@ export class LadleStorage extends BaseContract {
   };
 
   estimateGas: {
+    approve(
+      seriesId: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     borrowingFee(overrides?: CallOverrides): Promise<BigNumber>;
 
     cauldron(overrides?: CallOverrides): Promise<BigNumber>;
@@ -280,7 +401,26 @@ export class LadleStorage extends BaseContract {
 
     pools(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
 
+    register(
+      seriesId: BytesLike,
+      ilk: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     router(overrides?: CallOverrides): Promise<BigNumber>;
+
+    sell(
+      seriesId: BytesLike,
+      to: string,
+      fyDaiToSell: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    seriesToIlk(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
+
+    tlm(overrides?: CallOverrides): Promise<BigNumber>;
+
+    tlmModule(overrides?: CallOverrides): Promise<BigNumber>;
 
     tokens(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -288,6 +428,11 @@ export class LadleStorage extends BaseContract {
   };
 
   populateTransaction: {
+    approve(
+      seriesId: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     borrowingFee(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     cauldron(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -312,7 +457,29 @@ export class LadleStorage extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    register(
+      seriesId: BytesLike,
+      ilk: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     router(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    sell(
+      seriesId: BytesLike,
+      to: string,
+      fyDaiToSell: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    seriesToIlk(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    tlm(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    tlmModule(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     tokens(
       arg0: string,

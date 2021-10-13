@@ -17,12 +17,14 @@ import {
 import { BytesLike } from "@ethersproject/bytes";
 import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
-import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
+import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 
 interface JoinInterface extends ethers.utils.Interface {
   functions: {
     "LOCK()": FunctionFragment;
+    "LOCK8605463013()": FunctionFragment;
     "ROOT()": FunctionFragment;
+    "ROOT4146650865()": FunctionFragment;
     "asset()": FunctionFragment;
     "exit(address,uint128)": FunctionFragment;
     "flashFee(address,uint256)": FunctionFragment;
@@ -45,7 +47,15 @@ interface JoinInterface extends ethers.utils.Interface {
   };
 
   encodeFunctionData(functionFragment: "LOCK", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "LOCK8605463013",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "ROOT", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "ROOT4146650865",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "asset", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "exit",
@@ -118,7 +128,15 @@ interface JoinInterface extends ethers.utils.Interface {
   ): string;
 
   decodeFunctionResult(functionFragment: "LOCK", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "LOCK8605463013",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "ROOT", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "ROOT4146650865",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "asset", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "exit", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "flashFee", data: BytesLike): Result;
@@ -176,6 +194,22 @@ interface JoinInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "RoleRevoked"): EventFragment;
 }
 
+export type FlashFeeFactorSetEvent = TypedEvent<
+  [BigNumber] & { fee: BigNumber }
+>;
+
+export type RoleAdminChangedEvent = TypedEvent<
+  [string, string] & { role: string; newAdminRole: string }
+>;
+
+export type RoleGrantedEvent = TypedEvent<
+  [string, string, string] & { role: string; account: string; sender: string }
+>;
+
+export type RoleRevokedEvent = TypedEvent<
+  [string, string, string] & { role: string; account: string; sender: string }
+>;
+
 export class Join extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
@@ -222,7 +256,11 @@ export class Join extends BaseContract {
   functions: {
     LOCK(overrides?: CallOverrides): Promise<[string]>;
 
+    LOCK8605463013(overrides?: CallOverrides): Promise<[string]>;
+
     ROOT(overrides?: CallOverrides): Promise<[string]>;
+
+    ROOT4146650865(overrides?: CallOverrides): Promise<[string]>;
 
     asset(overrides?: CallOverrides): Promise<[string]>;
 
@@ -324,7 +362,11 @@ export class Join extends BaseContract {
 
   LOCK(overrides?: CallOverrides): Promise<string>;
 
+  LOCK8605463013(overrides?: CallOverrides): Promise<string>;
+
   ROOT(overrides?: CallOverrides): Promise<string>;
+
+  ROOT4146650865(overrides?: CallOverrides): Promise<string>;
 
   asset(overrides?: CallOverrides): Promise<string>;
 
@@ -423,7 +465,11 @@ export class Join extends BaseContract {
   callStatic: {
     LOCK(overrides?: CallOverrides): Promise<string>;
 
+    LOCK8605463013(overrides?: CallOverrides): Promise<string>;
+
     ROOT(overrides?: CallOverrides): Promise<string>;
+
+    ROOT4146650865(overrides?: CallOverrides): Promise<string>;
 
     asset(overrides?: CallOverrides): Promise<string>;
 
@@ -518,9 +564,21 @@ export class Join extends BaseContract {
   };
 
   filters: {
+    "FlashFeeFactorSet(uint256)"(
+      fee?: BigNumberish | null
+    ): TypedEventFilter<[BigNumber], { fee: BigNumber }>;
+
     FlashFeeFactorSet(
       fee?: BigNumberish | null
     ): TypedEventFilter<[BigNumber], { fee: BigNumber }>;
+
+    "RoleAdminChanged(bytes4,bytes4)"(
+      role?: BytesLike | null,
+      newAdminRole?: BytesLike | null
+    ): TypedEventFilter<
+      [string, string],
+      { role: string; newAdminRole: string }
+    >;
 
     RoleAdminChanged(
       role?: BytesLike | null,
@@ -530,7 +588,25 @@ export class Join extends BaseContract {
       { role: string; newAdminRole: string }
     >;
 
+    "RoleGranted(bytes4,address,address)"(
+      role?: BytesLike | null,
+      account?: string | null,
+      sender?: string | null
+    ): TypedEventFilter<
+      [string, string, string],
+      { role: string; account: string; sender: string }
+    >;
+
     RoleGranted(
+      role?: BytesLike | null,
+      account?: string | null,
+      sender?: string | null
+    ): TypedEventFilter<
+      [string, string, string],
+      { role: string; account: string; sender: string }
+    >;
+
+    "RoleRevoked(bytes4,address,address)"(
       role?: BytesLike | null,
       account?: string | null,
       sender?: string | null
@@ -552,7 +628,11 @@ export class Join extends BaseContract {
   estimateGas: {
     LOCK(overrides?: CallOverrides): Promise<BigNumber>;
 
+    LOCK8605463013(overrides?: CallOverrides): Promise<BigNumber>;
+
     ROOT(overrides?: CallOverrides): Promise<BigNumber>;
+
+    ROOT4146650865(overrides?: CallOverrides): Promise<BigNumber>;
 
     asset(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -655,7 +735,11 @@ export class Join extends BaseContract {
   populateTransaction: {
     LOCK(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    LOCK8605463013(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     ROOT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    ROOT4146650865(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     asset(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

@@ -17,7 +17,7 @@ import {
 import { BytesLike } from "@ethersproject/bytes";
 import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
-import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
+import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 
 interface StrategyInterface extends ethers.utils.Interface {
   functions: {
@@ -360,6 +360,68 @@ interface StrategyInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "UserRewardsUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "YieldSet"): EventFragment;
 }
+
+export type ApprovalEvent = TypedEvent<
+  [string, string, BigNumber] & {
+    owner: string;
+    spender: string;
+    value: BigNumber;
+  }
+>;
+
+export type ClaimedEvent = TypedEvent<
+  [string, BigNumber] & { receiver: string; claimed: BigNumber }
+>;
+
+export type NextPoolSetEvent = TypedEvent<
+  [string, string] & { pool: string; seriesId: string }
+>;
+
+export type PoolEndedEvent = TypedEvent<[string] & { pool: string }>;
+
+export type PoolStartedEvent = TypedEvent<[string] & { pool: string }>;
+
+export type RewardsPerTokenUpdatedEvent = TypedEvent<
+  [BigNumber] & { accumulated: BigNumber }
+>;
+
+export type RewardsSetEvent = TypedEvent<
+  [number, number, BigNumber] & { start: number; end: number; rate: BigNumber }
+>;
+
+export type RewardsTokenSetEvent = TypedEvent<[string] & { token: string }>;
+
+export type RoleAdminChangedEvent = TypedEvent<
+  [string, string] & { role: string; newAdminRole: string }
+>;
+
+export type RoleGrantedEvent = TypedEvent<
+  [string, string, string] & { role: string; account: string; sender: string }
+>;
+
+export type RoleRevokedEvent = TypedEvent<
+  [string, string, string] & { role: string; account: string; sender: string }
+>;
+
+export type TokenIdSetEvent = TypedEvent<[string] & { id: string }>;
+
+export type TokenJoinResetEvent = TypedEvent<[string] & { join: string }>;
+
+export type TransferEvent = TypedEvent<
+  [string, string, BigNumber] & { from: string; to: string; value: BigNumber }
+>;
+
+export type UserRewardsUpdatedEvent = TypedEvent<
+  [string, BigNumber, BigNumber] & {
+    user: string;
+    userRewards: BigNumber;
+    paidRewardPerToken: BigNumber;
+  }
+>;
+
+export type YieldSetEvent = TypedEvent<
+  [string, string] & { ladle: string; cauldron: string }
+>;
 
 export class Strategy extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -1030,6 +1092,15 @@ export class Strategy extends BaseContract {
   };
 
   filters: {
+    "Approval(address,address,uint256)"(
+      owner?: string | null,
+      spender?: string | null,
+      value?: null
+    ): TypedEventFilter<
+      [string, string, BigNumber],
+      { owner: string; spender: string; value: BigNumber }
+    >;
+
     Approval(
       owner?: string | null,
       spender?: string | null,
@@ -1037,6 +1108,14 @@ export class Strategy extends BaseContract {
     ): TypedEventFilter<
       [string, string, BigNumber],
       { owner: string; spender: string; value: BigNumber }
+    >;
+
+    "Claimed(address,uint256)"(
+      receiver?: null,
+      claimed?: null
+    ): TypedEventFilter<
+      [string, BigNumber],
+      { receiver: string; claimed: BigNumber }
     >;
 
     Claimed(
@@ -1047,18 +1126,44 @@ export class Strategy extends BaseContract {
       { receiver: string; claimed: BigNumber }
     >;
 
+    "NextPoolSet(address,bytes6)"(
+      pool?: string | null,
+      seriesId?: BytesLike | null
+    ): TypedEventFilter<[string, string], { pool: string; seriesId: string }>;
+
     NextPoolSet(
       pool?: string | null,
       seriesId?: BytesLike | null
     ): TypedEventFilter<[string, string], { pool: string; seriesId: string }>;
 
+    "PoolEnded(address)"(
+      pool?: null
+    ): TypedEventFilter<[string], { pool: string }>;
+
     PoolEnded(pool?: null): TypedEventFilter<[string], { pool: string }>;
 
+    "PoolStarted(address)"(
+      pool?: null
+    ): TypedEventFilter<[string], { pool: string }>;
+
     PoolStarted(pool?: null): TypedEventFilter<[string], { pool: string }>;
+
+    "RewardsPerTokenUpdated(uint256)"(
+      accumulated?: null
+    ): TypedEventFilter<[BigNumber], { accumulated: BigNumber }>;
 
     RewardsPerTokenUpdated(
       accumulated?: null
     ): TypedEventFilter<[BigNumber], { accumulated: BigNumber }>;
+
+    "RewardsSet(uint32,uint32,uint256)"(
+      start?: null,
+      end?: null,
+      rate?: null
+    ): TypedEventFilter<
+      [number, number, BigNumber],
+      { start: number; end: number; rate: BigNumber }
+    >;
 
     RewardsSet(
       start?: null,
@@ -1069,9 +1174,21 @@ export class Strategy extends BaseContract {
       { start: number; end: number; rate: BigNumber }
     >;
 
+    "RewardsTokenSet(address)"(
+      token?: null
+    ): TypedEventFilter<[string], { token: string }>;
+
     RewardsTokenSet(
       token?: null
     ): TypedEventFilter<[string], { token: string }>;
+
+    "RoleAdminChanged(bytes4,bytes4)"(
+      role?: BytesLike | null,
+      newAdminRole?: BytesLike | null
+    ): TypedEventFilter<
+      [string, string],
+      { role: string; newAdminRole: string }
+    >;
 
     RoleAdminChanged(
       role?: BytesLike | null,
@@ -1081,7 +1198,25 @@ export class Strategy extends BaseContract {
       { role: string; newAdminRole: string }
     >;
 
+    "RoleGranted(bytes4,address,address)"(
+      role?: BytesLike | null,
+      account?: string | null,
+      sender?: string | null
+    ): TypedEventFilter<
+      [string, string, string],
+      { role: string; account: string; sender: string }
+    >;
+
     RoleGranted(
+      role?: BytesLike | null,
+      account?: string | null,
+      sender?: string | null
+    ): TypedEventFilter<
+      [string, string, string],
+      { role: string; account: string; sender: string }
+    >;
+
+    "RoleRevoked(bytes4,address,address)"(
       role?: BytesLike | null,
       account?: string | null,
       sender?: string | null
@@ -1099,9 +1234,24 @@ export class Strategy extends BaseContract {
       { role: string; account: string; sender: string }
     >;
 
+    "TokenIdSet(bytes6)"(id?: null): TypedEventFilter<[string], { id: string }>;
+
     TokenIdSet(id?: null): TypedEventFilter<[string], { id: string }>;
 
+    "TokenJoinReset(address)"(
+      join?: null
+    ): TypedEventFilter<[string], { join: string }>;
+
     TokenJoinReset(join?: null): TypedEventFilter<[string], { join: string }>;
+
+    "Transfer(address,address,uint256)"(
+      from?: string | null,
+      to?: string | null,
+      value?: null
+    ): TypedEventFilter<
+      [string, string, BigNumber],
+      { from: string; to: string; value: BigNumber }
+    >;
 
     Transfer(
       from?: string | null,
@@ -1112,6 +1262,15 @@ export class Strategy extends BaseContract {
       { from: string; to: string; value: BigNumber }
     >;
 
+    "UserRewardsUpdated(address,uint256,uint256)"(
+      user?: null,
+      userRewards?: null,
+      paidRewardPerToken?: null
+    ): TypedEventFilter<
+      [string, BigNumber, BigNumber],
+      { user: string; userRewards: BigNumber; paidRewardPerToken: BigNumber }
+    >;
+
     UserRewardsUpdated(
       user?: null,
       userRewards?: null,
@@ -1120,6 +1279,11 @@ export class Strategy extends BaseContract {
       [string, BigNumber, BigNumber],
       { user: string; userRewards: BigNumber; paidRewardPerToken: BigNumber }
     >;
+
+    "YieldSet(address,address)"(
+      ladle?: null,
+      cauldron?: null
+    ): TypedEventFilter<[string, string], { ladle: string; cauldron: string }>;
 
     YieldSet(
       ladle?: null,

@@ -73,12 +73,18 @@ const _abi = [
     inputs: [
       {
         indexed: true,
+        internalType: "bytes32",
+        name: "param",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
         internalType: "address",
-        name: "oracle",
+        name: "value",
         type: "address",
       },
     ],
-    name: "OracleSet",
+    name: "Point",
     type: "event",
   },
   {
@@ -247,6 +253,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "LOCK8605463013",
+    outputs: [
+      {
+        internalType: "bytes4",
+        name: "",
+        type: "bytes4",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "PERMIT_TYPEHASH",
     outputs: [
       {
@@ -261,6 +280,19 @@ const _abi = [
   {
     inputs: [],
     name: "ROOT",
+    outputs: [
+      {
+        internalType: "bytes4",
+        name: "",
+        type: "bytes4",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "ROOT4146650865",
     outputs: [
       {
         internalType: "bytes4",
@@ -629,6 +661,24 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "mintWithUnderlying",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "name",
     outputs: [
@@ -719,6 +769,24 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes32",
+        name: "param",
+        type: "bytes32",
+      },
+      {
+        internalType: "address",
+        name: "value",
+        type: "address",
+      },
+    ],
+    name: "point",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "address",
         name: "to",
         type: "address",
@@ -790,19 +858,6 @@ const _abi = [
       },
     ],
     name: "revokeRoles",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "contract IOracle",
-        name: "oracle_",
-        type: "address",
-      },
-    ],
-    name: "setOracle",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

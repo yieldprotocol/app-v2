@@ -121,7 +121,7 @@ const _abi = [
       },
       {
         indexed: true,
-        internalType: "address",
+        internalType: "contract IOracle",
         name: "source",
         type: "address",
       },
@@ -132,6 +132,19 @@ const _abi = [
   {
     inputs: [],
     name: "LOCK",
+    outputs: [
+      {
+        internalType: "bytes4",
+        name: "",
+        type: "bytes4",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "LOCK8605463013",
     outputs: [
       {
         internalType: "bytes4",
@@ -157,12 +170,12 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "decimals",
+    name: "ROOT4146650865",
     outputs: [
       {
-        internalType: "uint8",
+        internalType: "bytes4",
         name: "",
-        type: "uint8",
+        type: "bytes4",
       },
     ],
     stateMutability: "view",
@@ -182,7 +195,7 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "amount",
+        name: "amountBase",
         type: "uint256",
       },
     ],
@@ -190,7 +203,7 @@ const _abi = [
     outputs: [
       {
         internalType: "uint256",
-        name: "value",
+        name: "amountQuote",
         type: "uint256",
       },
       {
@@ -337,7 +350,7 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "amount",
+        name: "amountBase",
         type: "uint256",
       },
     ],
@@ -345,7 +358,7 @@ const _abi = [
     outputs: [
       {
         internalType: "uint256",
-        name: "value",
+        name: "amountQuote",
         type: "uint256",
       },
       {
@@ -437,29 +450,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes6[]",
-        name: "bases",
-        type: "bytes6[]",
-      },
-      {
-        internalType: "bytes6[]",
-        name: "quotes",
-        type: "bytes6[]",
-      },
-      {
-        internalType: "bytes6[][]",
-        name: "paths_",
-        type: "bytes6[][]",
-      },
-    ],
-    name: "setPaths",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "bytes4",
         name: "role",
         type: "bytes4",
@@ -479,44 +469,21 @@ const _abi = [
     inputs: [
       {
         internalType: "bytes6",
-        name: "base",
+        name: "baseId",
         type: "bytes6",
       },
       {
         internalType: "bytes6",
-        name: "quote",
+        name: "quoteId",
         type: "bytes6",
       },
       {
-        internalType: "address",
+        internalType: "contract IOracle",
         name: "source",
         type: "address",
       },
     ],
     name: "setSource",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes6[]",
-        name: "bases",
-        type: "bytes6[]",
-      },
-      {
-        internalType: "bytes6[]",
-        name: "quotes",
-        type: "bytes6[]",
-      },
-      {
-        internalType: "address[]",
-        name: "sources_",
-        type: "address[]",
-      },
-    ],
-    name: "setSources",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -537,14 +504,9 @@ const _abi = [
     name: "sources",
     outputs: [
       {
-        internalType: "address",
-        name: "source",
+        internalType: "contract IOracle",
+        name: "",
         type: "address",
-      },
-      {
-        internalType: "uint8",
-        name: "decimals",
-        type: "uint8",
       },
     ],
     stateMutability: "view",
