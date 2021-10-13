@@ -14,7 +14,8 @@ export const useBorrowHelpers = (
 ) => {
   /* STATE FROM CONTEXT */
   const {
-    userState: { activeAccount, selectedBaseId, selectedIlkId, assetMap, seriesMap },
+    userState: { activeAccount, selectedBaseId, selectedIlkId, assetMap, seriesMap, limitMap },
+    userActions: { updateLimit },
   } = useContext(UserContext);
 
   const vaultBase: IAsset | undefined = assetMap.get(vault?.baseId!);
@@ -37,31 +38,36 @@ export const useBorrowHelpers = (
 
   const [maxDebt_, setMaxDebt_] = useState<string | undefined>();
 
-  /* update the minimum maxmimum allowable debt */
+  /* Update the borrow limits if ilk or base changes */
   useEffect(() => {
-    setMinAllowedBorrow('0.5');
-    setMaxAllowedBorrow('1000000');
-  }, [selectedBaseId, selectedIlkId]);
+    if (limitMap.get(selectedBaseId)?.has(selectedIlkId)) {
+      const _limit = limitMap.get(selectedBaseId).get(selectedIlkId); // get the limit from the map
+      setMinAllowedBorrow(_limit[1].toString());
+      setMaxAllowedBorrow(_limit[0].toString());
+      console.log('Cached:', 'MIN LIMIT:', _limit[1].toString(), 'MAX LIMIT:', _limit[0].toString());
+    } else {
+      (async () => {
+        if (selectedIlkId && selectedBaseId) {
+          /* Update Price before setting */
+          const _limit = await updateLimit(selectedBaseId, selectedIlkId);
+          setMinAllowedBorrow(_limit[1].toString());
+          setMaxAllowedBorrow(_limit[0].toString());
+          console.log('External call:', 'MIN LIMIT:', _limit[1].toString(), 'MAX LIMIT:', _limit[0].toString());
+        }
+      })();
+    }
+  }, [limitMap, selectedBaseId, selectedIlkId, updateLimit]);
 
-  /* check if the rollToSeries have sufficient base value */
+  /* Check if the rollToSeries have sufficient base value */
   useEffect(() => {
     if (rollToSeries && vault) {
-      // const _maxProtocol = maxBaseToSpend(
-      //   rollToSeries.baseReserves,
-      //   rollToSeries.fyTokenReserves,
-      //   rollToSeries.getTimeTillMaturity(),
-      //   rollToSeries.decimals
-      // );
-      // setMaxRoll(_maxProtocol);
-      // setMaxRoll_(ethers.utils.formatUnits(_maxProtocol, rollToSeries.decimals).toString());
       setMaxRoll(rollToSeries.baseReserves);
       setMaxRoll_(ethers.utils.formatUnits(rollToSeries.baseReserves, rollToSeries.decimals).toString());
-
-      setRollPossible( vault.art.lt(rollToSeries.baseReserves ) ) ;
+      setRollPossible(vault.art.lt(rollToSeries.baseReserves));
     }
   }, [rollToSeries, vault]);
 
-  /* update the min max repayable */
+  /* Update the min max repayable amounts */
   useEffect(() => {
     if (activeAccount && vault && vaultBase) {
       const vaultSeries: ISeries = seriesMap.get(vault?.seriesId!);
@@ -79,7 +85,7 @@ export const useBorrowHelpers = (
           vaultSeries.baseReserves,
           vaultSeries.fyTokenReserves,
           vaultSeries.getTimeTillMaturity(),
-          vaultSeries.decimals,
+          vaultSeries.decimals
         );
 
         /* set the dust limit */

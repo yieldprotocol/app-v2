@@ -49,6 +49,7 @@ const initState: IUserContextState = {
   strategyMap: new Map<string, IStrategy>(),
   /* map of asset prices */
   priceMap: new Map<string, Map<string, any>>(),
+  limitMap: new Map<string, Map<string, any>>(),
 
   vaultsLoading: true as boolean,
   seriesLoading: true as boolean,
@@ -289,7 +290,6 @@ const UserProvider = ({ children }: any) => {
 
   /* Updates the prices from the oracle with latest data */ // TODO reduce redundant calls
   const updatePrice = useCallback(
-
     async (priceBase: string, quote: string, decimals: number = 18): Promise<BigNumber> => {
       updateState({ type: 'pricesLoading', payload: true });
 
@@ -310,7 +310,6 @@ const UserProvider = ({ children }: any) => {
         updateState({ type: 'pricesLoading', payload: false });
 
         return price;
-
       } catch (error) {
         console.log('Error getting pricing', error);
         updateState({ type: 'pricesLoading', payload: false });
@@ -318,6 +317,32 @@ const UserProvider = ({ children }: any) => {
       }
     },
     [contractMap, userState.priceMap]
+  );
+
+  /* Updates the prices from the oracle with latest data */ // TODO reduce redundant calls
+  const updateLimit = useCallback(
+    async (ilk: string, base: string): Promise<[BigNumber, BigNumber]> => {
+      updateState({ type: 'pricesLoading', payload: true });
+      const Cauldron = contractMap.get('Cauldron');
+      try {
+        const _limitMap = userState.limitMap;
+        const _baseLimitMap = _limitMap.get(ilk) || new Map<string, any>();
+        const [min, max] = await Cauldron.debt(ilk, base);
+        _baseLimitMap.set(base, [min, max]);
+        _limitMap.set(ilk, _baseLimitMap);
+
+        updateState({ type: 'priceMap', payload: _limitMap });
+        console.log('Limit checked: ', ilk, ' ->', base, ':', min.toString(), max.toString());
+        updateState({ type: 'pricesLoading', payload: false });
+
+        return [min, max];
+      } catch (error) {
+        console.log('Error getting limits', error);
+        updateState({ type: 'limitsLoading', payload: false });
+        return [ethers.constants.Zero, ethers.constants.Zero];
+      }
+    },
+    [contractMap, userState.limitMap]
   );
 
   /* Updates the series with relevant *user* data */
@@ -423,11 +448,12 @@ const UserProvider = ({ children }: any) => {
       const vaultListMod = await Promise.all(
         _vaultList.map(async (vault: IVaultRoot): Promise<IVault> => {
           /* update balance and series  ( series - because a vault can have been rolled to another series) */
-          const [{ ink, art }, { owner, seriesId, ilkId }, { min: minDebt, max: maxDebt }] = await Promise.all([
-            await Cauldron.balances(vault.id),
-            await Cauldron.vaults(vault.id),
-            await Cauldron.debt(vault.baseId, vault.ilkId),
-          ]);
+          const [{ ink, art }, { owner, seriesId, ilkId }, { min: minDebt, max: maxDebt, sum: baseTotalDebt }] =
+            await Promise.all([
+              await Cauldron.balances(vault.id),
+              await Cauldron.vaults(vault.id),
+              await Cauldron.debt(vault.baseId, vault.ilkId),
+            ]);
 
           const baseRoot: IAssetRoot = assetRootMap.get(vault.baseId);
           const ilkRoot: IAssetRoot = assetRootMap.get(ilkId);
@@ -468,7 +494,7 @@ const UserProvider = ({ children }: any) => {
 
       console.log('VAULTS: ', combinedVaultMap);
     },
-    [contractMap, _getVaults, userState.vaultMap, vaultFromUrl, updatePrice, assetRootMap, account]
+    [contractMap, _getVaults, userState.vaultMap, vaultFromUrl, assetRootMap, account]
   );
 
   /* Updates the assets with relevant *user* data */
@@ -622,6 +648,7 @@ const UserProvider = ({ children }: any) => {
     updateVaults,
     updateStrategies,
     updatePrice,
+    updateLimit,
 
     setSelectedVault: (vaultId: string | null) => updateState({ type: 'selectedVaultId', payload: vaultId }),
     setSelectedIlk: (assetId: string | null) => updateState({ type: 'selectedIlkId', payload: assetId }),
