@@ -1,8 +1,8 @@
 import React, { useContext, useState } from 'react';
-import { Anchor, Box, Button, Collapsible, Layer, ResponsiveContext, Text, Tip } from 'grommet';
-import { FiCheckSquare, FiCopy, FiChevronUp, FiChevronDown, FiExternalLink, FiX } from 'react-icons/fi';
+import { Anchor, Box, Button, Collapsible, ResponsiveContext, Text, Tip } from 'grommet';
+import { FiChevronUp, FiChevronDown, FiExternalLink, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
-import { ChainContext, connectorNames } from '../contexts/ChainContext';
+import { ChainContext } from '../contexts/ChainContext';
 import { abbreviateHash } from '../utils/appUtils';
 import YieldAvatar from './YieldAvatar';
 import AdvancedSettings from './AdvancedSettings';
@@ -27,12 +27,12 @@ const StyledButton = styled(Button)`
 const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
-    chainState: { account, chainData, provider },
+    chainState: { account, chainData, provider, CONNECTOR_NAMES },
   } = useContext(ChainContext);
   const {
     txState: { transactions },
   } = useContext(TxContext);
-  const connectorName = connectorNames.get(provider.connection.url);
+  const connectorName = CONNECTOR_NAMES.get(provider.connection.url);
   const [transactionsOpen, toggleTransactionsOpen] = useState<boolean>(false);
 
   const handleChangeConnectType = () => {
