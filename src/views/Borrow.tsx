@@ -79,7 +79,12 @@ const Borrow = () => {
   const { collateralizationPercent, undercollateralized, minCollateral_, minSafeCollateral, maxCollateral } =
     useCollateralHelpers(borrowInput, collatInput, vaultToUse);
 
-  const { maxAllowedBorrow, minAllowedBorrow } = useBorrowHelpers(borrowInput, collatInput, vaultToUse);
+  const { maxAllowedBorrow, minAllowedBorrow, borrowEstimate_ } = useBorrowHelpers(
+    borrowInput,
+    collatInput,
+    vaultToUse,
+    selectedSeries
+  );
 
   /* input validation hooks */
   const { inputError: borrowInputError } = useInputValidation(borrowInput, ActionCodes.BORROW, selectedSeries, [
@@ -159,11 +164,11 @@ const Borrow = () => {
     setVaultToUse(undefined);
   }, [selectedIlk, selectedBase, selectedSeries]);
 
-  // IS THIS VALUE IS ACTIUALLY JUST the fytoken value:
-  const borrowOutput = cleanValue(
-    (Number(borrowInput) * (1 + Number(apr) / 100)).toString(),
-    selectedBase?.digitFormat!
-  );
+  // // IS THIS VALUE IS ACTIUALLY JUST the fytoken value:
+  // const borrowOutput = cleanValue(
+  //   (Number(borrowInput) * (1 + Number(apr) / 100)).toString(),
+  //   selectedBase?.digitFormat!
+  // );
 
   useEffect(() => {
     if (
@@ -215,8 +220,8 @@ const Borrow = () => {
                           borrowInput && (
                             <InputInfoWrap>
                               <Text size="small" color="text-weak">
-                                Requires equivalent of {cleanValue(minCollateral_, selectedIlk?.digitFormat)} {selectedIlk?.symbol}{' '}
-                                collateral
+                                Requires equivalent of {cleanValue(minCollateral_, selectedIlk?.digitFormat)}{' '}
+                                {selectedIlk?.symbol} collateral
                               </Text>
                             </InputInfoWrap>
                           )
@@ -361,7 +366,7 @@ const Borrow = () => {
                     <InfoBite
                       label="Vault Debt Payable @ Maturity"
                       icon={<FiTrendingUp />}
-                      value={`${borrowOutput} ${selectedBase?.symbol}`}
+                      value={`${cleanValue(borrowEstimate_, selectedBase?.digitFormat! )} ${selectedBase?.symbol}`}
                     />
                     <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
                     <InfoBite

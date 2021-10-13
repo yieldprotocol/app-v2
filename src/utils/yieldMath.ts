@@ -2,7 +2,6 @@
 import { ethers, BigNumber, BigNumberish } from 'ethers';
 import { Decimal } from 'decimal.js';
 import { WAD_BN, ZERO_BN } from './constants';
-import { ISeries, IStrategy } from '../types';
 import { cleanValue } from './appUtils';
 
 Decimal.set({ precision: 64 });
@@ -746,33 +745,42 @@ export const calculateBorrowingPower = (
  * pool position value.
  *
  * @param {BigNumber | string} poolTokenAmount amount of pool token
- * @param {ISeries | undefined} strategySeries series associated with the strategy
- *
+ * 
+ * @param {BigNumber}  strategyBaseReserves
+ * @param {BigNumber}  strategyFyTokenReserves
+ * @param {BigNumber}  strategyTotalSupply
+ * @param {number}  strategyTimeToMaturity
+ * @param {number}  strategyDecimals
+ * 
  * @returns {BigNumber}
  */
-export const checkPoolTrade = (poolTokenAmount: BigNumber | string, strategySeries: ISeries | undefined): BigNumber => {
+export const checkPoolTrade = (
+  poolTokenAmount: BigNumber | string, 
+  strategyBaseReserves: BigNumber,
+  strategyFyTokenReserves: BigNumber,
+  strategyTotalSupply: BigNumber,
+  strategyTimeToMaturity: string | BigNumber,
+  strategyDecimals: number,
+  ) : BigNumber => {
   // 1. calc amount base/fyToken recieved from burn
   // 2. calculate new reseverves ( base reserves and fytokesreserevs)
   // 3. try trade with new reserves
-  if (strategySeries) {
     const [_baseTokens, _fytokens] = burn(
-      strategySeries.baseReserves,
-      strategySeries.fyTokenReserves,
-      strategySeries.totalSupply,
+      strategyBaseReserves,
+      strategyFyTokenReserves,
+      strategyTotalSupply,
       poolTokenAmount
     );
-    const newBaseReserves = strategySeries.baseReserves.sub(_baseTokens);
-    const newFyTokenReserves = strategySeries.fyTokenReserves.sub(_fytokens);
+    const newBaseReserves = strategyBaseReserves.sub(_baseTokens);
+    const newFyTokenReserves = strategyFyTokenReserves.sub(_fytokens);
     const sellOutcome = sellFYToken(
       newBaseReserves,
       newFyTokenReserves,
       _fytokens,
-      strategySeries.getTimeTillMaturity(),
-      strategySeries.decimals
+      strategyTimeToMaturity.toString(),
+      strategyDecimals
     );
     return sellOutcome;
-  }
-  return ZERO_BN;
 };
 
 /**
