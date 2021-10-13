@@ -34,7 +34,8 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
   const {
     txState: { transactions },
   } = useContext(TxContext);
-  const connectorName = CONNECTOR_NAMES.get(provider.connection.url);
+
+  const connectorName = CONNECTOR_NAMES.get( provider.connection.url );
   const [transactionsOpen, toggleTransactionsOpen] = useState<boolean>(false);
 
   const handleChangeConnectType = () => {

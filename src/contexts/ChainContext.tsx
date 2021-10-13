@@ -43,17 +43,6 @@ const ChainContext = React.createContext<any>({});
 
 const initState = {
   appVersion: '0.0.0' as string,
-
-  // chainId: Number(process.env.REACT_APP_DEFAULT_CHAINID) as number | null,
-  // provider: null as ethers.providers.Web3Provider | null,
-  // fallbackProvider: null as ethers.providers.Web3Provider | null,
-
-  // signer: null as ethers.providers.JsonRpcSigner | null,
-  // account: null as string | null,
-
-  // web3Active: false as boolean,
-  // fallbackActive: false as boolean,
-
   connection: {
     chainId: Number(process.env.REACT_APP_DEFAULT_CHAINID) as number | null,
     provider: null as ethers.providers.Web3Provider | null,
@@ -87,34 +76,6 @@ function chainReducer(state: any, action: any) {
     case 'appVersion':
       return { ...state, appVersion: onlyIfChanged(action) };
 
-    // case 'provider':
-    //   return { ...state, provider: onlyIfChanged(action) };
-    // case 'fallbackProvider':
-    //   return { ...state, fallbackProvider: onlyIfChanged(action) };
-    // case 'signer':
-    //   return { ...state, signer: onlyIfChanged(action) };
-
-    // case 'chainId':
-    //   return { ...state, chainId: onlyIfChanged(action) };
-    // case 'CHAIN_INFO':
-    //   return { ...state, CHAIN_INFO: onlyIfChanged(action) };
-    // case 'account':
-    //   return { ...state, account: onlyIfChanged(action) };
-    // case 'web3Active':
-    //   return { ...state, web3Active: onlyIfChanged(action) };
-    // case 'connector':
-    //   return { ...state, connector: onlyIfChanged(action) };
-
-    // case 'activatingConnector':
-    //     return { ...state, activatingConnector: onlyIfChanged(action) };
-
-    // case 'CHAIN_INFO':
-    //   return { ...state, CHAIN_INFO: onlyIfChanged(action) };
-    // case 'CONNECTOR_NAMES':
-    //   return { ...state, CONNECTOR_NAMES: onlyIfChanged(action) };
-    // case 'CONNECTORS':
-    //   return { ...state, CONNECTORS: onlyIfChanged(action) };
-
     case 'connection':
       return { ...state, connection: onlyIfChanged(action) };
 
@@ -147,13 +108,22 @@ const ChainProvider = ({ children }: any) => {
 
   const { connectionState, connectionActions } = useConnection();
 
-  const { provider, chainId, account, fallbackProvider, fallbackChainId, CHAIN_INFO } = connectionState;
-
-  // const { isConnected, connect, disconnect } = connectionActions;
+  const {
+    provider,
+    chainId,
+    account,
+    fallbackProvider,
+    fallbackChainId,
+    CHAIN_INFO,
+    CONNECTOR_NAMES,
+    CONNECTORS,
+    connector,
+    chainInfo,
+    active,
+    activatingConnector,
+  } = connectionState;
 
   /* CACHED VARIABLES */
-
-  // const [lastChainId, setLastChainId] = useCachedState('lastChainId', 42);
   const [lastAppVersion, setLastAppVersion] = useCachedState('lastAppVersion', '');
 
   const [lastAssetUpdate, setLastAssetUpdate] = useCachedState('lastAssetUpdate', 0);
@@ -450,44 +420,54 @@ const ChainProvider = ({ children }: any) => {
         (async () => Promise.all([_getAssets(), _getSeries(), _getStrategies()]))();
       }
     }
-  }, [ account,
+  }, [
+    account,
     fallbackChainId,
     fallbackProvider,
     chainState.assetRootMap,
     chainState.seriesRootMap,
     chainState.strategyRootMap,
     chainState.contractMap,
-    chainId
+    chainId,
   ]);
 
-  // /**
-  //  * Update on PRIMARY connection any network changes (likely via metamask/walletConnect)
-  //  */
-  // useEffect(() => {
-  //   console.log('Wallet/Account Active: ', active);
-  //   updateState({ type: 'chainId', payload: chainId });
-  //   updateState({ type: 'CHAIN_INFO', payload: CHAIN_INFO.get(chainId!) || null });
-  //   updateState({ type: 'web3Active', payload: active });
-  //   updateState({ type: 'provider', payload: library || null });
-  //   updateState({ type: 'account', payload: account || null });
-  //   updateState({ type: 'signer', payload: library?.getSigner(account!) || null });
-  //   updateState({ type: 'connector', payload: connector || null });
-  //   updateState({ type: 'activatingConnector', payload: activatingConnector || null });
-
-  //   updateState({ type: 'CHAIN_INFO', payload: CHAIN_INFO || null });
-  //   updateState({ type: 'CONNECTORS', payload: CONNECTORS || null });
-  //   updateState({ type: 'CONNECTOR_NAMES', payload: CONNECTOR_NAMES || null });
-
-  // }, [active, activatingConnector, account, chainId, library, connector, CHAIN_INFO, CONNECTORS, CONNECTOR_NAMES ]);
-
   /**
-   * Update on PRIMARY connection any network changes (likely via metamask/walletConnect)
+   * Update on PRIMARY connection information on ANY network changes (likely via metamask/walletConnect)
    */
   useEffect(() => {
-    updateState({ type: 'connection', payload: { provider, chainId, account, fallbackProvider, fallbackChainId, CHAIN_INFO } });
-  }, [provider, chainId, account, fallbackProvider, fallbackChainId, CHAIN_INFO ]);
+    updateState({
+      type: 'connection',
+      payload: {
+        provider,
+        chainId,
+        account,
+        fallbackProvider,
+        fallbackChainId,
+        CHAIN_INFO,
+        CONNECTOR_NAMES,
+        CONNECTORS,
+        connector,
+        chainInfo,
+        active,
+        activatingConnector,
+      },
+    });
+  }, [
+    CHAIN_INFO,
+    CONNECTORS,
+    CONNECTOR_NAMES,
+    account,
+    activatingConnector,
+    active,
+    chainId,
+    chainInfo,
+    connector,
+    fallbackChainId,
+    fallbackProvider,
+    provider,
+  ]);
 
-  /* Handle version updates on first load -> complete refresh if app is different */
+  /* Handle version updates on first load -> complete refresh if app is different to published version */
   useEffect(() => {
     updateState({ type: 'appVersion', payload: process.env.REACT_APP_VERSION });
     console.log('APP VERSION: ', process.env.REACT_APP_VERSION);
@@ -500,7 +480,7 @@ const ChainProvider = ({ children }: any) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // ignored to only happen once on init
 
-  /* Pass on the connection actions */
+  /* simply Pass on the connection actions */
   const chainActions = connectionActions;
 
   return <ChainContext.Provider value={{ chainState, chainActions }}>{children}</ChainContext.Provider>;

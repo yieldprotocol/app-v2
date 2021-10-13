@@ -38,10 +38,8 @@ const AddTokenToMetamsk = ({ address, symbol, decimals, image }: ITokenData) => 
 
   useEffect(() => {
     if (provider) {
-      const { provider: _provider } = provider;
-      if (_provider && _provider.connection.url === 'metamask') {
-        const { provider: _prov } = _provider;
-        setMetamask(_prov);
+      if (provider.connection.url === 'metamask') {
+        setMetamask(provider.provider);
       }
     }
   }, [provider]);
