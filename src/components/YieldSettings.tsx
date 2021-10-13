@@ -28,7 +28,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
     chainState: {
-      connection: { account, provider, CONNECTOR_NAMES, CHAIN_INFO }
+      connection: { account, provider, CONNECTOR_NAMES, CHAIN_INFO },
     },
   } = useContext(ChainContext);
   const {

@@ -147,9 +147,9 @@ const ChainProvider = ({ children }: any) => {
 
   const { connectionState, connectionActions } = useConnection();
 
-  const { library, chainId, account, fallbackLibrary, fallbackChainId, CHAIN_INFO } = connectionState;
+  const { provider, chainId, account, fallbackProvider, fallbackChainId, CHAIN_INFO } = connectionState;
 
-  const { isConnected, connect, disconnect } = connectionActions;
+  // const { isConnected, connect, disconnect } = connectionActions;
 
   /* CACHED VARIABLES */
 
@@ -168,25 +168,25 @@ const ChainProvider = ({ children }: any) => {
    */
 
   useEffect(() => {
-    fallbackLibrary && updateState({ type: 'fallbackProvider', payload: fallbackLibrary });
+    fallbackProvider && updateState({ type: 'fallbackProvider', payload: fallbackProvider });
 
-    if (fallbackLibrary && fallbackChainId && CHAIN_INFO.get(fallbackChainId)?.supported) {
+    if (fallbackProvider && fallbackChainId && CHAIN_INFO.get(fallbackChainId)?.supported) {
       console.log('Fallback ChainId: ', fallbackChainId);
       console.log('Primary ChainId: ', chainId);
 
       /* Get the instances of the Base contracts */
       const addrs = (yieldEnv.addresses as any)[fallbackChainId];
-      const Cauldron = contracts.Cauldron__factory.connect(addrs.Cauldron, fallbackLibrary);
-      const Ladle = contracts.Ladle__factory.connect(addrs.Ladle, fallbackLibrary);
+      const Cauldron = contracts.Cauldron__factory.connect(addrs.Cauldron, fallbackProvider);
+      const Ladle = contracts.Ladle__factory.connect(addrs.Ladle, fallbackProvider);
       const ChainlinkMultiOracle = contracts.ChainlinkMultiOracle__factory.connect(
         addrs.ChainlinkMultiOracle,
-        fallbackLibrary
+        fallbackProvider
       );
       const CompositeMultiOracle = contracts.CompositeMultiOracle__factory.connect(
         addrs.CompositeMultiOracle,
-        fallbackLibrary
+        fallbackProvider
       );
-      const Witch = contracts.Witch__factory.connect(addrs.Witch, fallbackLibrary);
+      const Witch = contracts.Witch__factory.connect(addrs.Witch, fallbackProvider);
 
       /* Update the baseContracts state : ( hardcoded based on networkId ) */
       const newContractMap = chainState.contractMap;
@@ -202,7 +202,7 @@ const ChainProvider = ({ children }: any) => {
 
       /* add on extra/calculated ASSET info  and contract instances */
       const _chargeAsset = (asset: any) => {
-        const ERC20Permit = contracts.ERC20Permit__factory.connect(asset.address, fallbackLibrary);
+        const ERC20Permit = contracts.ERC20Permit__factory.connect(asset.address, fallbackProvider);
         return {
           ...asset,
           digitFormat: assetDigitFormatMap.has(asset.symbol) ? assetDigitFormatMap.get(asset.symbol) : 6,
@@ -212,13 +212,13 @@ const ChainProvider = ({ children }: any) => {
 
           /* baked in token fns */
           getBalance: async (acc: string) =>
-            ETH_BASED_ASSETS.includes(asset.id) ? library?.getBalance(acc) : ERC20Permit.balanceOf(acc),
+            ETH_BASED_ASSETS.includes(asset.id) ? provider?.getBalance(acc) : ERC20Permit.balanceOf(acc),
           getAllowance: async (acc: string, spender: string) => ERC20Permit.allowance(acc, spender),
 
           /* TODO remove for prod */
           /* @ts-ignore */
           mintTest: async () =>
-            contracts.ERC20Mock__factory.connect(asset.address, library?.getSigner()!).mint(
+            contracts.ERC20Mock__factory.connect(asset.address, provider?.getSigner()!).mint(
               account!,
               ethers.utils.parseUnits('100', asset.decimals)
             ),
@@ -240,7 +240,7 @@ const ChainProvider = ({ children }: any) => {
         await Promise.all(
           assetAddedEvents.map(async (x: any) => {
             const { assetId: id, asset: address } = Cauldron.interface.parseLog(x).args;
-            const ERC20 = contracts.ERC20Permit__factory.connect(address, fallbackLibrary);
+            const ERC20 = contracts.ERC20Permit__factory.connect(address, fallbackProvider);
             /* Add in any extra static asset Data */ // TODO is there any other fixed asset data needed?
             const [name, symbol, decimals, version] = await Promise.all([
               ERC20.name(),
@@ -265,7 +265,7 @@ const ChainProvider = ({ children }: any) => {
         );
 
         // set the 'last checked' block
-        setLastAssetUpdate(await library?.getBlockNumber());
+        setLastAssetUpdate(await provider?.getBlockNumber());
         // log the new assets in the cache
         setCachedAssets([...cachedAssets, ...newAssetList]);
         console.log('Yield Protocol Asset data updated.');
@@ -279,8 +279,8 @@ const ChainProvider = ({ children }: any) => {
         fyTokenAddress: string;
       }) => {
         /* contracts need to be added in again in when charging because the cached state only holds strings */
-        const poolContract = contracts.Pool__factory.connect(series.poolAddress, fallbackLibrary);
-        const fyTokenContract = contracts.FYToken__factory.connect(series.fyTokenAddress, fallbackLibrary);
+        const poolContract = contracts.Pool__factory.connect(series.poolAddress, fallbackProvider);
+        const fyTokenContract = contracts.FYToken__factory.connect(series.fyTokenAddress, fallbackProvider);
 
         const season = getSeason(series.maturity) as SeasonType;
         const oppSeason = (_season: SeasonType) => getSeason(series.maturity + 23670000) as SeasonType;
@@ -309,7 +309,7 @@ const ChainProvider = ({ children }: any) => {
 
           // built-in helper functions:
           getTimeTillMaturity: () => series.maturity - Math.round(new Date().getTime() / 1000),
-          isMature: async () => series.maturity < (await fallbackLibrary.getBlock('latest')).timestamp,
+          isMature: async () => series.maturity < (await fallbackProvider.getBlock('latest')).timestamp,
           getBaseAddress: () => chainState.assetRootMap.get(series.baseId).address, // TODO refactor to get this static - if possible?
         };
       };
@@ -338,8 +338,8 @@ const ChainProvider = ({ children }: any) => {
               if (poolMap.has(id)) {
                 // only add series if it has a pool
                 const poolAddress: string = poolMap.get(id) as string;
-                const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackLibrary);
-                const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackLibrary);
+                const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackProvider);
+                const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackProvider);
                 // const baseContract = contracts.ERC20__factory.connect(fyToken, fallbackLibrary);
                 const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol] = await Promise.all([
                   fyTokenContract.name(),
@@ -374,14 +374,14 @@ const ChainProvider = ({ children }: any) => {
         } catch (e) {
           console.log('Error fetching series data: ', e);
         }
-        setLastSeriesUpdate(await fallbackLibrary?.getBlockNumber());
+        setLastSeriesUpdate(await fallbackProvider?.getBlockNumber());
         setCachedSeries([...cachedSeries, ...newSeriesList]);
         console.log('Yield Protocol Series data updated.');
       };
 
       /* Attach contract instance */
       const _chargeStrategy = (strategy: any) => {
-        const Strategy = contracts.Strategy__factory.connect(strategy.address, fallbackLibrary);
+        const Strategy = contracts.Strategy__factory.connect(strategy.address, fallbackProvider);
         return {
           ...strategy,
           strategyContract: Strategy,
@@ -395,7 +395,7 @@ const ChainProvider = ({ children }: any) => {
           strategyAddresses.map(async (strategyAddr: string) => {
             /* if the strategy is already in the cache : */
             if (cachedStrategies.findIndex((_s: any) => _s.address === strategyAddr) === -1) {
-              const Strategy = contracts.Strategy__factory.connect(strategyAddr, fallbackLibrary);
+              const Strategy = contracts.Strategy__factory.connect(strategyAddr, fallbackProvider);
               const [name, symbol, baseId, decimals, version] = await Promise.all([
                 Strategy.name(),
                 Strategy.symbol(),
@@ -452,7 +452,7 @@ const ChainProvider = ({ children }: any) => {
     }
   }, [ account,
     fallbackChainId,
-    fallbackLibrary,
+    fallbackProvider,
     chainState.assetRootMap,
     chainState.seriesRootMap,
     chainState.strategyRootMap,
@@ -484,8 +484,8 @@ const ChainProvider = ({ children }: any) => {
    * Update on PRIMARY connection any network changes (likely via metamask/walletConnect)
    */
   useEffect(() => {
-    updateState({ type: 'connection', payload: { library, chainId, account, fallbackLibrary, fallbackChainId, CHAIN_INFO } });
-  }, [library, chainId, account, fallbackLibrary, fallbackChainId, CHAIN_INFO ]);
+    updateState({ type: 'connection', payload: { provider, chainId, account, fallbackProvider, fallbackChainId, CHAIN_INFO } });
+  }, [provider, chainId, account, fallbackProvider, fallbackChainId, CHAIN_INFO ]);
 
   /* Handle version updates on first load -> complete refresh if app is different */
   useEffect(() => {
@@ -501,11 +501,7 @@ const ChainProvider = ({ children }: any) => {
   }, []); // ignored to only happen once on init
 
   /* Pass on the connection actions */
-  const chainActions = {
-    isConnected,
-    connect,
-    disconnect,
-  };
+  const chainActions = connectionActions;
 
   return <ChainContext.Provider value={{ chainState, chainActions }}>{children}</ChainContext.Provider>;
 };

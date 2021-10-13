@@ -68,14 +68,14 @@ export const useConnection = () => {
   const [lastChainId, setLastChainId] = useCachedState('lastChainId', 42);
 
   const primaryConnection = useWeb3React<ethers.providers.Web3Provider>();
-  const { connector, library, chainId, account, activate, deactivate, active } = primaryConnection;
+  const { connector, library:provider, chainId, account, activate, deactivate, active } = primaryConnection;
 
   const fallbackConnection = useWeb3React<ethers.providers.JsonRpcProvider>('fallback');
-  const { library: fallbackLibrary, chainId: fallbackChainId, activate: fallbackActivate } = fallbackConnection;
+  const { library: fallbackProvider, chainId: fallbackChainId, activate: fallbackActivate } = fallbackConnection;
 
   const isConnected = useCallback((connection: string) => CONNECTORS.get(connection) === connector, [connector]);
   const connect = useCallback((connection: string = INIT_INJECTED) => activate(CONNECTORS.get(connection)), [activate]);
-  const disconnect = useCallback(() => connector && deactivate(), [connector]);
+  const disconnect = useCallback(() => connector && deactivate(), [connector, deactivate]);
 
   /*
       Watch the chainId for changes (most likely instigated by metamask),
@@ -150,21 +150,21 @@ export const useConnection = () => {
       CONNECTORS,
       CHAIN_INFO,
       CONNECTOR_NAMES,
-
+      
       /* connections */
       connector,
-      library,
+      provider,
+      fallbackProvider,
       chainId,
+      fallbackChainId,
+
       chainInfo,
       account,
       active,
-      fallbackLibrary,
-      fallbackChainId,
 
       activatingConnector,
     },
 
-    /* actions */
     connectionActions: {
       connect,
       disconnect,
