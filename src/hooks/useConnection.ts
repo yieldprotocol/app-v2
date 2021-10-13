@@ -57,6 +57,12 @@ CONNECTORS.set(
     pollingInterval: POLLING_INTERVAL,
   })
 );
+CONNECTORS.set(
+  'ledgerWithMetamask',
+  new InjectedConnector({
+    supportedChainIds: [1, 42],
+  })
+);
 
 /* APR hook calculatess APR, min and max aprs for selected series and BORROW or LEND type */
 export const useConnection = () => {

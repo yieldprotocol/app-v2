@@ -18,33 +18,10 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
   const [disclaimerChecked, setDisclaimerChecked] = useCachedState('disclaimerChecked', false);
 
   const handleConnect = (connectorName: string) => {
+    console.log(connectorName)
     connect(connectorName);
     setConnectOpen(false);
   };
-
-  const connectorsRenderer = [...CONNECTORS.keys()].map((name: string) => {
-    const currentConnector = CONNECTORS.get(name);
-    const activating = currentConnector === activatingConnector;
-    const connected = isConnected(name);
-
-    return (
-      <Button
-        key={name}
-        plain
-        onClick={() => !connected && handleConnect(name)}
-        disabled={!disclaimerChecked}
-        primary={connected}
-        secondary={!connected}
-        style={{ border: '#2563EB solid 1px', borderRadius: '6px', padding: '12px' }}
-        hoverIndicator={{ color: 'brand' }}
-      >
-        <Box direction="row" gap="xsmall">
-          {connected && <FiCheckSquare color="#34D399" />}
-          {activating ? 'Connecting' : CONNECTOR_NAMES.get(name)}
-        </Box>
-      </Button>
-    );
-  });
 
   return (
     <Box fill="vertical" basis="auto" width={mobile ? undefined : '400px'} pad="medium" gap="small" elevation="xlarge">
@@ -61,7 +38,31 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
         )}
         <Button icon={<FiX size="1.5rem" />} onClick={() => setConnectOpen(false)} plain />
       </Box>
-      <Box gap="xsmall">{connectorsRenderer}</Box>
+      <Box gap="xsmall">
+        {[...CONNECTORS.keys()].map((name: string) => {
+          const currentConnector = CONNECTORS.get(name);
+          const activating = currentConnector === activatingConnector;
+          const connected = isConnected(name);
+
+          return (
+            <Button
+              key={name}
+              plain
+              onClick={() => !connected && handleConnect(name)}
+              disabled={!disclaimerChecked}
+              primary={connected}
+              secondary={!connected}
+              style={{ border: '#2563EB solid 1px', borderRadius: '6px', padding: '12px' }}
+              hoverIndicator={{ color: 'brand' }}
+            >
+              <Box direction="row" gap="xsmall">
+                {connected && <FiCheckSquare color="#34D399" />}
+                {activating ? 'Connecting' : CONNECTOR_NAMES.get(name)}
+              </Box>
+            </Button>
+          );
+        })}
+      </Box>
       {!disclaimerChecked && (
         <Box border={{ color: 'brand' }} round="xsmall">
           <Disclaimer
