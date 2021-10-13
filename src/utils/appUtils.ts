@@ -1,5 +1,4 @@
 import { format, getMonth, subDays } from 'date-fns';
-import Identicon, { IdenticonOptions } from 'identicon.js';
 import { ActionCodes } from '../types';
 
 export const copyToClipboard = (str: string) => {
@@ -92,18 +91,6 @@ export const abbreviateHash = (addr: string, buffer: number = 4) =>
  * */
 export const nameFromMaturity = (maturity: number, style: string = 'MMMM yyyy') =>
   format(subDays(new Date(maturity * 1000), 2), style);
-
-export const genVaultImage = (id: string) => {
-  const options = {
-    foreground: [0, 0, 255, 255], // rgba black
-    background: [255, 255, 255, 255], // rgba white
-    margin: 0.2, // 20% margin
-    size: 16,
-    format: 'svg', // use SVG instead of PNG
-  } as IdenticonOptions;
-  const data = new Identicon(id, options).toString();
-  return `data:image/svg+xml;base64,${data}`;
-};
 
 /**
  * Number formatting if reqd.
@@ -237,8 +224,8 @@ export const getSeriesAfterRollPosition = (receipt: any, seriesMap: any) => {
 
 export const formatStrategyName = (name: string) => {
   const name_ = name.toLowerCase();
-  const timeFrame = name_.slice(-2) === 'q1' ? 'Quarter' : '2 Quarters';
-  return `Rolling every ${timeFrame}`;
+  const timeFrame = name_.slice(-2) === 'q2' ? '3 Month' : '6 Month';
+  return `${timeFrame}`;
 };
 
 export const getStrategySymbol = (name: string) => name.slice(2).slice(0, -2);

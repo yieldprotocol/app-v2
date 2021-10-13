@@ -20,7 +20,7 @@ import {
 } from '../types';
 
 import { ChainContext } from './ChainContext';
-import { cleanValue, genVaultImage } from '../utils/appUtils';
+import { cleanValue } from '../utils/appUtils';
 import {
   calculateAPR,
   divDecimal,
@@ -30,7 +30,6 @@ import {
   secondsToFrom,
   sellFYToken,
   decimal18ToDecimalN,
-  decimalNToDecimal18,
 } from '../utils/yieldMath';
 
 import { WAD_BN, ZERO_BN } from '../utils/constants';
@@ -195,7 +194,6 @@ const UserProvider = ({ children }: any) => {
           seriesId,
           baseId: series?.baseId!,
           ilkId,
-          image: genVaultImage(id),
           displayName: uniqueNamesGenerator({ seed: parseInt(id.substring(14), 16), ...vaultNameConfig }),
           decimals: series?.decimals!,
         };
@@ -211,7 +209,6 @@ const UserProvider = ({ children }: any) => {
             seriesId,
             baseId: series?.baseId!,
             ilkId,
-            image: genVaultImage(id),
             displayName: uniqueNamesGenerator({ seed: parseInt(id.substring(14), 16), ...vaultNameConfig }), // TODO Marco move uniquNames generator into utils
             decimals: series?.decimals!,
           };

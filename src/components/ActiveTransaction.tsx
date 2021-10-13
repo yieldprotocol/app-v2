@@ -2,8 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Box, Spinner, Text } from 'grommet';
 import { BiWallet } from 'react-icons/bi';
-import { FiCheckCircle, FiClock, FiPenTool, FiX } from 'react-icons/fi';
-import ParticlesBg from 'particles-bg';
+import { FiCheckCircle, FiPenTool, FiX } from 'react-icons/fi';
 
 import { UserContext } from '../contexts/UserContext';
 import { useProcess } from '../hooks/useProcess';
