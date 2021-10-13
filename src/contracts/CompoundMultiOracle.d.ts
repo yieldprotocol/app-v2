@@ -17,14 +17,14 @@ import {
 import { BytesLike } from "@ethersproject/bytes";
 import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
-import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
+import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 
 interface CompoundMultiOracleInterface extends ethers.utils.Interface {
   functions: {
     "LOCK()": FunctionFragment;
+    "LOCK8605463013()": FunctionFragment;
     "ROOT()": FunctionFragment;
-    "SCALE_FACTOR()": FunctionFragment;
-    "decimals()": FunctionFragment;
+    "ROOT4146650865()": FunctionFragment;
     "get(bytes32,bytes32,uint256)": FunctionFragment;
     "getRoleAdmin(bytes4)": FunctionFragment;
     "grantRole(bytes4,address)": FunctionFragment;
@@ -37,17 +37,19 @@ interface CompoundMultiOracleInterface extends ethers.utils.Interface {
     "revokeRoles(bytes4[],address)": FunctionFragment;
     "setRoleAdmin(bytes4,bytes4)": FunctionFragment;
     "setSource(bytes6,bytes6,address)": FunctionFragment;
-    "setSources(bytes6[],bytes6[],address[])": FunctionFragment;
     "sources(bytes6,bytes6)": FunctionFragment;
   };
 
   encodeFunctionData(functionFragment: "LOCK", values?: undefined): string;
-  encodeFunctionData(functionFragment: "ROOT", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "SCALE_FACTOR",
+    functionFragment: "LOCK8605463013",
     values?: undefined
   ): string;
-  encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
+  encodeFunctionData(functionFragment: "ROOT", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "ROOT4146650865",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "get",
     values: [BytesLike, BytesLike, BigNumberish]
@@ -94,21 +96,20 @@ interface CompoundMultiOracleInterface extends ethers.utils.Interface {
     values: [BytesLike, BytesLike, string]
   ): string;
   encodeFunctionData(
-    functionFragment: "setSources",
-    values: [BytesLike[], BytesLike[], string[]]
-  ): string;
-  encodeFunctionData(
     functionFragment: "sources",
     values: [BytesLike, BytesLike]
   ): string;
 
   decodeFunctionResult(functionFragment: "LOCK", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "ROOT", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "SCALE_FACTOR",
+    functionFragment: "LOCK8605463013",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "ROOT", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "ROOT4146650865",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "get", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getRoleAdmin",
@@ -133,7 +134,6 @@ interface CompoundMultiOracleInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "setSource", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "setSources", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "sources", data: BytesLike): Result;
 
   events: {
@@ -148,6 +148,22 @@ interface CompoundMultiOracleInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "RoleRevoked"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SourceSet"): EventFragment;
 }
+
+export type RoleAdminChangedEvent = TypedEvent<
+  [string, string] & { role: string; newAdminRole: string }
+>;
+
+export type RoleGrantedEvent = TypedEvent<
+  [string, string, string] & { role: string; account: string; sender: string }
+>;
+
+export type RoleRevokedEvent = TypedEvent<
+  [string, string, string] & { role: string; account: string; sender: string }
+>;
+
+export type SourceSetEvent = TypedEvent<
+  [string, string, string] & { baseId: string; kind: string; source: string }
+>;
 
 export class CompoundMultiOracle extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -195,16 +211,16 @@ export class CompoundMultiOracle extends BaseContract {
   functions: {
     LOCK(overrides?: CallOverrides): Promise<[string]>;
 
+    LOCK8605463013(overrides?: CallOverrides): Promise<[string]>;
+
     ROOT(overrides?: CallOverrides): Promise<[string]>;
 
-    SCALE_FACTOR(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    decimals(overrides?: CallOverrides): Promise<[number]>;
+    ROOT4146650865(overrides?: CallOverrides): Promise<[string]>;
 
     get(
       base: BytesLike,
       kind: BytesLike,
-      amount: BigNumberish,
+      arg2: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -236,10 +252,10 @@ export class CompoundMultiOracle extends BaseContract {
     peek(
       base: BytesLike,
       kind: BytesLike,
-      amount: BigNumberish,
+      arg2: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
+      [BigNumber, BigNumber] & { accumulator: BigNumber; updateTime: BigNumber }
     >;
 
     renounceRole(
@@ -273,13 +289,6 @@ export class CompoundMultiOracle extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    setSources(
-      bases: BytesLike[],
-      kinds: BytesLike[],
-      sources_: string[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     sources(
       arg0: BytesLike,
       arg1: BytesLike,
@@ -289,16 +298,16 @@ export class CompoundMultiOracle extends BaseContract {
 
   LOCK(overrides?: CallOverrides): Promise<string>;
 
+  LOCK8605463013(overrides?: CallOverrides): Promise<string>;
+
   ROOT(overrides?: CallOverrides): Promise<string>;
 
-  SCALE_FACTOR(overrides?: CallOverrides): Promise<BigNumber>;
-
-  decimals(overrides?: CallOverrides): Promise<number>;
+  ROOT4146650865(overrides?: CallOverrides): Promise<string>;
 
   get(
     base: BytesLike,
     kind: BytesLike,
-    amount: BigNumberish,
+    arg2: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -330,10 +339,10 @@ export class CompoundMultiOracle extends BaseContract {
   peek(
     base: BytesLike,
     kind: BytesLike,
-    amount: BigNumberish,
+    arg2: BigNumberish,
     overrides?: CallOverrides
   ): Promise<
-    [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
+    [BigNumber, BigNumber] & { accumulator: BigNumber; updateTime: BigNumber }
   >;
 
   renounceRole(
@@ -367,13 +376,6 @@ export class CompoundMultiOracle extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  setSources(
-    bases: BytesLike[],
-    kinds: BytesLike[],
-    sources_: string[],
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   sources(
     arg0: BytesLike,
     arg1: BytesLike,
@@ -383,19 +385,19 @@ export class CompoundMultiOracle extends BaseContract {
   callStatic: {
     LOCK(overrides?: CallOverrides): Promise<string>;
 
+    LOCK8605463013(overrides?: CallOverrides): Promise<string>;
+
     ROOT(overrides?: CallOverrides): Promise<string>;
 
-    SCALE_FACTOR(overrides?: CallOverrides): Promise<BigNumber>;
-
-    decimals(overrides?: CallOverrides): Promise<number>;
+    ROOT4146650865(overrides?: CallOverrides): Promise<string>;
 
     get(
       base: BytesLike,
       kind: BytesLike,
-      amount: BigNumberish,
+      arg2: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
+      [BigNumber, BigNumber] & { accumulator: BigNumber; updateTime: BigNumber }
     >;
 
     getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
@@ -423,10 +425,10 @@ export class CompoundMultiOracle extends BaseContract {
     peek(
       base: BytesLike,
       kind: BytesLike,
-      amount: BigNumberish,
+      arg2: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, BigNumber] & { value: BigNumber; updateTime: BigNumber }
+      [BigNumber, BigNumber] & { accumulator: BigNumber; updateTime: BigNumber }
     >;
 
     renounceRole(
@@ -460,13 +462,6 @@ export class CompoundMultiOracle extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setSources(
-      bases: BytesLike[],
-      kinds: BytesLike[],
-      sources_: string[],
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     sources(
       arg0: BytesLike,
       arg1: BytesLike,
@@ -475,6 +470,14 @@ export class CompoundMultiOracle extends BaseContract {
   };
 
   filters: {
+    "RoleAdminChanged(bytes4,bytes4)"(
+      role?: BytesLike | null,
+      newAdminRole?: BytesLike | null
+    ): TypedEventFilter<
+      [string, string],
+      { role: string; newAdminRole: string }
+    >;
+
     RoleAdminChanged(
       role?: BytesLike | null,
       newAdminRole?: BytesLike | null
@@ -483,7 +486,25 @@ export class CompoundMultiOracle extends BaseContract {
       { role: string; newAdminRole: string }
     >;
 
+    "RoleGranted(bytes4,address,address)"(
+      role?: BytesLike | null,
+      account?: string | null,
+      sender?: string | null
+    ): TypedEventFilter<
+      [string, string, string],
+      { role: string; account: string; sender: string }
+    >;
+
     RoleGranted(
+      role?: BytesLike | null,
+      account?: string | null,
+      sender?: string | null
+    ): TypedEventFilter<
+      [string, string, string],
+      { role: string; account: string; sender: string }
+    >;
+
+    "RoleRevoked(bytes4,address,address)"(
       role?: BytesLike | null,
       account?: string | null,
       sender?: string | null
@@ -501,6 +522,15 @@ export class CompoundMultiOracle extends BaseContract {
       { role: string; account: string; sender: string }
     >;
 
+    "SourceSet(bytes6,bytes6,address)"(
+      baseId?: BytesLike | null,
+      kind?: BytesLike | null,
+      source?: string | null
+    ): TypedEventFilter<
+      [string, string, string],
+      { baseId: string; kind: string; source: string }
+    >;
+
     SourceSet(
       baseId?: BytesLike | null,
       kind?: BytesLike | null,
@@ -514,16 +544,16 @@ export class CompoundMultiOracle extends BaseContract {
   estimateGas: {
     LOCK(overrides?: CallOverrides): Promise<BigNumber>;
 
+    LOCK8605463013(overrides?: CallOverrides): Promise<BigNumber>;
+
     ROOT(overrides?: CallOverrides): Promise<BigNumber>;
 
-    SCALE_FACTOR(overrides?: CallOverrides): Promise<BigNumber>;
-
-    decimals(overrides?: CallOverrides): Promise<BigNumber>;
+    ROOT4146650865(overrides?: CallOverrides): Promise<BigNumber>;
 
     get(
       base: BytesLike,
       kind: BytesLike,
-      amount: BigNumberish,
+      arg2: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -558,7 +588,7 @@ export class CompoundMultiOracle extends BaseContract {
     peek(
       base: BytesLike,
       kind: BytesLike,
-      amount: BigNumberish,
+      arg2: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -590,13 +620,6 @@ export class CompoundMultiOracle extends BaseContract {
       base: BytesLike,
       kind: BytesLike,
       source: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setSources(
-      bases: BytesLike[],
-      kinds: BytesLike[],
-      sources_: string[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -610,16 +633,16 @@ export class CompoundMultiOracle extends BaseContract {
   populateTransaction: {
     LOCK(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    LOCK8605463013(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     ROOT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    SCALE_FACTOR(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    ROOT4146650865(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     get(
       base: BytesLike,
       kind: BytesLike,
-      amount: BigNumberish,
+      arg2: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -654,7 +677,7 @@ export class CompoundMultiOracle extends BaseContract {
     peek(
       base: BytesLike,
       kind: BytesLike,
-      amount: BigNumberish,
+      arg2: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -686,13 +709,6 @@ export class CompoundMultiOracle extends BaseContract {
       base: BytesLike,
       kind: BytesLike,
       source: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setSources(
-      bases: BytesLike[],
-      kinds: BytesLike[],
-      sources_: string[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

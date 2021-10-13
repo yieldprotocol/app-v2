@@ -4,12 +4,64 @@
 
 import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-import type {
-  ChainlinkMultiOracle,
-  ChainlinkMultiOracleInterface,
-} from "../ChainlinkMultiOracle";
+import type { Wand, WandInterface } from "../Wand";
 
 const _abi = [
+  {
+    inputs: [
+      {
+        internalType: "contract ICauldronGov",
+        name: "cauldron_",
+        type: "address",
+      },
+      {
+        internalType: "contract ILadleGov",
+        name: "ladle_",
+        type: "address",
+      },
+      {
+        internalType: "contract IWitchGov",
+        name: "witch_",
+        type: "address",
+      },
+      {
+        internalType: "contract IPoolFactory",
+        name: "poolFactory_",
+        type: "address",
+      },
+      {
+        internalType: "contract IJoinFactory",
+        name: "joinFactory_",
+        type: "address",
+      },
+      {
+        internalType: "contract IFYTokenFactory",
+        name: "fyTokenFactory_",
+        type: "address",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "constructor",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "param",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "value",
+        type: "address",
+      },
+    ],
+    name: "Point",
+    type: "event",
+  },
   {
     anonymous: false,
     inputs: [
@@ -80,41 +132,43 @@ const _abi = [
     type: "event",
   },
   {
-    anonymous: false,
-    inputs: [
+    inputs: [],
+    name: "BURN",
+    outputs: [
       {
-        indexed: true,
-        internalType: "bytes6",
-        name: "baseId",
-        type: "bytes6",
-      },
-      {
-        indexed: false,
-        internalType: "contract IERC20Metadata",
-        name: "base",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "bytes6",
-        name: "quoteId",
-        type: "bytes6",
-      },
-      {
-        indexed: false,
-        internalType: "contract IERC20Metadata",
-        name: "quote",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "source",
-        type: "address",
+        internalType: "bytes4",
+        name: "",
+        type: "bytes4",
       },
     ],
-    name: "SourceSet",
-    type: "event",
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "EXIT",
+    outputs: [
+      {
+        internalType: "bytes4",
+        name: "",
+        type: "bytes4",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "JOIN",
+    outputs: [
+      {
+        internalType: "bytes4",
+        name: "",
+        type: "bytes4",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
   },
   {
     inputs: [],
@@ -132,6 +186,19 @@ const _abi = [
   {
     inputs: [],
     name: "LOCK8605463013",
+    outputs: [
+      {
+        internalType: "bytes4",
+        name: "",
+        type: "bytes4",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "MINT",
     outputs: [
       {
         internalType: "bytes4",
@@ -171,35 +238,83 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes32",
-        name: "baseId",
-        type: "bytes32",
+        internalType: "bytes6",
+        name: "assetId",
+        type: "bytes6",
       },
       {
-        internalType: "bytes32",
-        name: "quoteId",
-        type: "bytes32",
-      },
-      {
-        internalType: "uint256",
-        name: "amountBase",
-        type: "uint256",
+        internalType: "address",
+        name: "asset",
+        type: "address",
       },
     ],
-    name: "get",
+    name: "addAsset",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes6",
+        name: "seriesId",
+        type: "bytes6",
+      },
+      {
+        internalType: "bytes6",
+        name: "baseId",
+        type: "bytes6",
+      },
+      {
+        internalType: "uint32",
+        name: "maturity",
+        type: "uint32",
+      },
+      {
+        internalType: "bytes6[]",
+        name: "ilkIds",
+        type: "bytes6[]",
+      },
+      {
+        internalType: "string",
+        name: "name",
+        type: "string",
+      },
+      {
+        internalType: "string",
+        name: "symbol",
+        type: "string",
+      },
+    ],
+    name: "addSeries",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "cauldron",
     outputs: [
       {
-        internalType: "uint256",
-        name: "amountQuote",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "updateTime",
-        type: "uint256",
+        internalType: "contract ICauldronGov",
+        name: "",
+        type: "address",
       },
     ],
-    stateMutability: "nonpayable",
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "fyTokenFactory",
+    outputs: [
+      {
+        internalType: "contract IFYTokenFactory",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -282,6 +397,32 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "joinFactory",
+    outputs: [
+      {
+        internalType: "contract IJoinFactory",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "ladle",
+    outputs: [
+      {
+        internalType: "contract ILadleGov",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "bytes4",
@@ -297,32 +438,90 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes32",
-        name: "baseId",
-        type: "bytes32",
+        internalType: "bytes6",
+        name: "assetId",
+        type: "bytes6",
       },
       {
-        internalType: "bytes32",
-        name: "quoteId",
-        type: "bytes32",
-      },
-      {
-        internalType: "uint256",
-        name: "amountBase",
-        type: "uint256",
+        internalType: "contract IMultiOracleGov",
+        name: "oracle",
+        type: "address",
       },
     ],
-    name: "peek",
-    outputs: [
+    name: "makeBase",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
       {
-        internalType: "uint256",
-        name: "amountQuote",
-        type: "uint256",
+        internalType: "bytes6",
+        name: "baseId",
+        type: "bytes6",
       },
       {
-        internalType: "uint256",
-        name: "updateTime",
-        type: "uint256",
+        internalType: "bytes6",
+        name: "ilkId",
+        type: "bytes6",
+      },
+      {
+        internalType: "contract IMultiOracleGov",
+        name: "oracle",
+        type: "address",
+      },
+      {
+        internalType: "uint32",
+        name: "ratio",
+        type: "uint32",
+      },
+      {
+        internalType: "uint96",
+        name: "max",
+        type: "uint96",
+      },
+      {
+        internalType: "uint24",
+        name: "min",
+        type: "uint24",
+      },
+      {
+        internalType: "uint8",
+        name: "dec",
+        type: "uint8",
+      },
+    ],
+    name: "makeIlk",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "param",
+        type: "bytes32",
+      },
+      {
+        internalType: "address",
+        name: "value",
+        type: "address",
+      },
+    ],
+    name: "point",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "poolFactory",
+    outputs: [
+      {
+        internalType: "contract IPoolFactory",
+        name: "",
+        type: "address",
       },
     ],
     stateMutability: "view",
@@ -401,72 +600,13 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "bytes6",
-        name: "baseId",
-        type: "bytes6",
-      },
-      {
-        internalType: "contract IERC20Metadata",
-        name: "base",
-        type: "address",
-      },
-      {
-        internalType: "bytes6",
-        name: "quoteId",
-        type: "bytes6",
-      },
-      {
-        internalType: "contract IERC20Metadata",
-        name: "quote",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "source",
-        type: "address",
-      },
-    ],
-    name: "setSource",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes6",
-        name: "",
-        type: "bytes6",
-      },
-      {
-        internalType: "bytes6",
-        name: "",
-        type: "bytes6",
-      },
-    ],
-    name: "sources",
+    inputs: [],
+    name: "witch",
     outputs: [
       {
-        internalType: "address",
-        name: "source",
+        internalType: "contract IWitchGov",
+        name: "",
         type: "address",
-      },
-      {
-        internalType: "uint8",
-        name: "baseDecimals",
-        type: "uint8",
-      },
-      {
-        internalType: "uint8",
-        name: "quoteDecimals",
-        type: "uint8",
-      },
-      {
-        internalType: "bool",
-        name: "inverse",
-        type: "bool",
       },
     ],
     stateMutability: "view",
@@ -474,19 +614,12 @@ const _abi = [
   },
 ];
 
-export class ChainlinkMultiOracle__factory {
+export class Wand__factory {
   static readonly abi = _abi;
-  static createInterface(): ChainlinkMultiOracleInterface {
-    return new utils.Interface(_abi) as ChainlinkMultiOracleInterface;
+  static createInterface(): WandInterface {
+    return new utils.Interface(_abi) as WandInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): ChainlinkMultiOracle {
-    return new Contract(
-      address,
-      _abi,
-      signerOrProvider
-    ) as ChainlinkMultiOracle;
+  static connect(address: string, signerOrProvider: Signer | Provider): Wand {
+    return new Contract(address, _abi, signerOrProvider) as Wand;
   }
 }

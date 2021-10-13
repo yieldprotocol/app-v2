@@ -521,13 +521,15 @@ const UserProvider = ({ children }: any) => {
               currentSeries.poolContract.totalSupply(),
               currentSeries.poolContract.balanceOf(_strategy.address),
             ]);
-
+    
             const [currentInvariant, initInvariant] = currentSeries.seriesIsMature
               ? [ZERO_BN, ZERO_BN]
-              : await Promise.all([
-                  currentSeries.poolContract.invariant(),
-                  _strategy.strategyContract.invariants(currentPoolAddr),
-                ]);
+              : [ZERO_BN, ZERO_BN]
+              // TODO Re-include invariant
+              // : await Promise.all([
+              //     currentSeries.poolContract.invariant(),
+              //     _strategy.strategyContract.invariants(currentPoolAddr),
+              //   ]);
 
             const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
             const returnRate = currentInvariant && currentInvariant.sub(initInvariant)!;

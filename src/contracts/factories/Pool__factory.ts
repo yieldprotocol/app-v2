@@ -293,12 +293,12 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "minBaseOut",
+        name: "minRatio",
         type: "uint256",
       },
       {
         internalType: "uint256",
-        name: "minFYTokenOut",
+        name: "maxRatio",
         type: "uint256",
       },
     ],
@@ -332,7 +332,12 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "minBaseOut",
+        name: "minRatio",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "maxRatio",
         type: "uint256",
       },
     ],
@@ -577,19 +582,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "invariant",
-    outputs: [
-      {
-        internalType: "uint128",
-        name: "",
-        type: "uint128",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
     name: "maturity",
     outputs: [
       {
@@ -615,7 +607,12 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "minTokensMinted",
+        name: "minRatio",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "maxRatio",
         type: "uint256",
       },
     ],
@@ -654,7 +651,12 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "minTokensMinted",
+        name: "minRatio",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "maxRatio",
         type: "uint256",
       },
     ],
