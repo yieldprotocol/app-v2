@@ -25,7 +25,6 @@ import TransactButton from '../components/buttons/TransactButton';
 import { useInputValidation } from '../hooks/useInputValidation';
 import ModalWrap from '../components/wraps/ModalWrap';
 
-import { ChainContext } from '../contexts/ChainContext';
 import { useCachedState } from '../hooks/generalHooks';
 import { useRepayDebt } from '../hooks/actionHooks/useRepayDebt';
 import { useRollDebt } from '../hooks/actionHooks/useRollDebt';
@@ -47,11 +46,8 @@ const VaultPosition = () => {
   /* STATE FROM CONTEXT */
 
   const { userState, userActions } = useContext(UserContext) as IUserContext;
-  const { assetMap, seriesMap, vaultMap, selectedVaultId, vaultsLoading } = userState;
+  const { activeAccount: account, assetMap, seriesMap, vaultMap, selectedVaultId, vaultsLoading } = userState;
 
-  const {
-    chainState: { account },
-  } = useContext(ChainContext);
 
   const selectedVault: IVault | undefined = vaultMap && vaultMap.get(selectedVaultId || idFromUrl);
 
@@ -172,9 +168,7 @@ const VaultPosition = () => {
   };
 
   const handleRoll = () => {
-    rollToSeries && 
-    selectedVault && 
-    rollDebt(selectedVault, rollToSeries);
+    rollToSeries && selectedVault && rollDebt(selectedVault, rollToSeries);
   };
 
   const handleCollateral = (action: 'ADD' | 'REMOVE') => {
@@ -332,7 +326,7 @@ const VaultPosition = () => {
                       plain
                       options={[
                         { text: 'Repay Debt', index: 0 },
-                        { text: 'Roll Debt', index: 1 , disabled: rollPossible },
+                        { text: 'Roll Debt', index: 1, disabled: rollPossible },
                         { text: 'Add More Collateral', index: 2 },
                         { text: 'Remove Collateral', index: 3 },
                         { text: 'View Transaction History', index: 4 },
@@ -447,9 +441,7 @@ const VaultPosition = () => {
                             <InputInfoWrap>
                               <Text color="text-weak" size="xsmall">
                                 Debt of {cleanValue(maxRoll_, 2)} {vaultBase?.symbol} will be rolled
-                                {userBaseAvailable.lt(maxRoll)
-                                  ? '.'
-                                  : ' ( limited by protocol reserves).'}
+                                {userBaseAvailable.lt(maxRoll) ? '.' : ' ( limited by protocol reserves).'}
                               </Text>
                             </InputInfoWrap>
                           )}

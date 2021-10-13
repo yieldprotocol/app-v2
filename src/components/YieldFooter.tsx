@@ -11,9 +11,10 @@ import { ApprovalType, IAsset } from '../types';
 
 const YieldFooter = (props: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
+  
   const { chainState, chainActions } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
-  const { account, fallbackProvider } = chainState;
+  const { connection: { account, fallbackProvider } } = chainState;
 
   const [testOpen, setTestOpen] = useState<boolean>(false);
   const { advanceTimeAndBlock, takeSnapshot, revertToT0 } = useTimeTravel();

@@ -1,15 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { ContractFactory, ethers, utils } from 'ethers';
-import { useWeb3React } from '@web3-react/core';
-import { InjectedConnector } from '@web3-react/injected-connector';
-import { NetworkConnector } from '@web3-react/network-connector';
-import { WalletConnectConnector } from '@web3-react/walletconnect-connector';
-import { LedgerConnector } from '@web3-react/ledger-connector';
+import React, { useEffect } from 'react';
+import { ContractFactory, ethers } from 'ethers';
 
 import { format } from 'date-fns';
 
 import { useCachedState } from '../hooks/generalHooks';
-// import { useConnection } from '../hooks/useConnection';
+import { useConnection } from '../hooks/useConnection';
 
 import * as yieldEnv from './yieldEnv.json';
 import * as contracts from '../contracts';
@@ -43,78 +38,31 @@ const assetDigitFormatMap = new Map([
   ['USDT', 2],
 ]);
 
-/* Set up web3react config */
-const POLLING_INTERVAL = 12000;
-const RPC_URLS: { [chainId: number]: string } = {
-  1: process.env.REACT_APP_RPC_URL_1 as string,
-  42: process.env.REACT_APP_RPC_URL_42 as string,
-};
-
-const CHAIN_INFO = new Map<number, { name: string; color: string; supported: boolean }>();
-CHAIN_INFO.set(1, { name: 'Mainnet', color: '#29b6af', supported: false });
-CHAIN_INFO.set(3, { name: 'Ropsten', color: '#ff4a8d', supported: false });
-CHAIN_INFO.set(4, { name: 'Rinkeby', color: '#f6c343', supported: false });
-CHAIN_INFO.set(5, { name: 'Goerli', color: '#3099f2', supported: false });
-CHAIN_INFO.set(10, { name: 'Optimism', color: '#EB0822', supported: false });
-CHAIN_INFO.set(42, { name: 'Kovan', color: '#7F7FFE', supported: true });
-
-// Map the provider connection url name to a nicer format
-const CONNECTOR_NAMES = new Map([
-  ['metamask', 'Metamask'],
-  ['ledger', 'Ledger'],
-  ['walletconnect', 'WalletConnect'],
-]);
-
-const INIT_INJECTED = 'metamask';
-
-const connectors = new Map();
-connectors.set(
-  INIT_INJECTED,
-  new InjectedConnector({
-    supportedChainIds: [1, 42],
-  })
-);
-
-connectors.set(
-  'walletconnect',
-  new WalletConnectConnector({
-    rpc: { 1: RPC_URLS[1], 42: RPC_URLS[42] },
-    bridge: 'https://bridge.walletconnect.org',
-    qrcode: true,
-    pollingInterval: POLLING_INTERVAL,
-  })
-);
-connectors.set(
-  'ledger',
-  new LedgerConnector({
-    chainId: 1,
-    url: RPC_URLS[1],
-    pollingInterval: POLLING_INTERVAL,
-  })
-);
-
 /* Build the context */
 const ChainContext = React.createContext<any>({});
 
 const initState = {
   appVersion: '0.0.0' as string,
-  chainId: Number(process.env.REACT_APP_DEFAULT_CHAINID) as number | null,
-  provider: null as ethers.providers.Web3Provider | null,
-  fallbackProvider: null as ethers.providers.Web3Provider | null,
-  signer: null as ethers.providers.JsonRpcSigner | null,
-  account: null as string | null,
-  web3Active: false as boolean,
-  fallbackActive: false as boolean,
-  connectors,
-  connector: null as any,
 
-  /* constants */
-  CHAIN_INFO,
-  CONNECTOR_NAMES,
-  INIT_INJECTED,
+  // chainId: Number(process.env.REACT_APP_DEFAULT_CHAINID) as number | null,
+  // provider: null as ethers.providers.Web3Provider | null,
+  // fallbackProvider: null as ethers.providers.Web3Provider | null,
 
-  /* settings */
-  connectOnLoad: true as boolean,
+  // signer: null as ethers.providers.JsonRpcSigner | null,
+  // account: null as string | null,
+
+  // web3Active: false as boolean,
+  // fallbackActive: false as boolean,
+
+  connection: {
+    chainId: Number(process.env.REACT_APP_DEFAULT_CHAINID) as number | null,
+    provider: null as ethers.providers.Web3Provider | null,
+    fallbackProvider: null as ethers.providers.Web3Provider | null,
+    signer: null as ethers.providers.JsonRpcSigner | null,
+    account: null as string | null,
+    web3Active: false as boolean,
+    fallbackActive: false as boolean,
+  },
 
   /* flags */
   chainLoading: true,
@@ -135,24 +83,41 @@ function chainReducer(state: any, action: any) {
   switch (action.type) {
     case 'chainLoading':
       return { ...state, chainLoading: onlyIfChanged(action) };
+
     case 'appVersion':
       return { ...state, appVersion: onlyIfChanged(action) };
-    case 'provider':
-      return { ...state, provider: onlyIfChanged(action) };
-    case 'fallbackProvider':
-      return { ...state, fallbackProvider: onlyIfChanged(action) };
-    case 'signer':
-      return { ...state, signer: onlyIfChanged(action) };
-    case 'chainId':
-      return { ...state, chainId: onlyIfChanged(action) };
-    case 'chainData':
-      return { ...state, chainData: onlyIfChanged(action) };
-    case 'account':
-      return { ...state, account: onlyIfChanged(action) };
-    case 'web3Active':
-      return { ...state, web3Active: onlyIfChanged(action) };
-    case 'connector':
-      return { ...state, connector: onlyIfChanged(action) };
+
+    // case 'provider':
+    //   return { ...state, provider: onlyIfChanged(action) };
+    // case 'fallbackProvider':
+    //   return { ...state, fallbackProvider: onlyIfChanged(action) };
+    // case 'signer':
+    //   return { ...state, signer: onlyIfChanged(action) };
+
+    // case 'chainId':
+    //   return { ...state, chainId: onlyIfChanged(action) };
+    // case 'CHAIN_INFO':
+    //   return { ...state, CHAIN_INFO: onlyIfChanged(action) };
+    // case 'account':
+    //   return { ...state, account: onlyIfChanged(action) };
+    // case 'web3Active':
+    //   return { ...state, web3Active: onlyIfChanged(action) };
+    // case 'connector':
+    //   return { ...state, connector: onlyIfChanged(action) };
+
+    // case 'activatingConnector':
+    //     return { ...state, activatingConnector: onlyIfChanged(action) };
+
+    // case 'CHAIN_INFO':
+    //   return { ...state, CHAIN_INFO: onlyIfChanged(action) };
+    // case 'CONNECTOR_NAMES':
+    //   return { ...state, CONNECTOR_NAMES: onlyIfChanged(action) };
+    // case 'CONNECTORS':
+    //   return { ...state, CONNECTORS: onlyIfChanged(action) };
+
+    case 'connection':
+      return { ...state, connection: onlyIfChanged(action) };
+
     case 'contractMap':
       return { ...state, contractMap: onlyIfChanged(action) };
 
@@ -180,16 +145,15 @@ function chainReducer(state: any, action: any) {
 const ChainProvider = ({ children }: any) => {
   const [chainState, updateState] = React.useReducer(chainReducer, initState);
 
-  const [tried, setTried] = useState<boolean>(false);
+  const { connectionState, connectionActions } = useConnection();
 
-  const primaryConnection = useWeb3React<ethers.providers.Web3Provider>();
-  const { connector, library, chainId, account, activate, deactivate, active } = primaryConnection;
-  const fallbackConnection = useWeb3React<ethers.providers.JsonRpcProvider>('fallback');
-  const { library: fallbackLibrary, chainId: fallbackChainId, activate: fallbackActivate } = fallbackConnection;
+  const { library, chainId, account, fallbackLibrary, fallbackChainId, CHAIN_INFO } = connectionState;
+
+  const { isConnected, connect, disconnect } = connectionActions;
 
   /* CACHED VARIABLES */
 
-  const [lastChainId, setLastChainId] = useCachedState('lastChainId', 42);
+  // const [lastChainId, setLastChainId] = useCachedState('lastChainId', 42);
   const [lastAppVersion, setLastAppVersion] = useCachedState('lastAppVersion', '');
 
   const [lastAssetUpdate, setLastAssetUpdate] = useCachedState('lastAssetUpdate', 0);
@@ -486,62 +450,42 @@ const ChainProvider = ({ children }: any) => {
         (async () => Promise.all([_getAssets(), _getSeries(), _getStrategies()]))();
       }
     }
-  }, [
-    account,
+  }, [ account,
     fallbackChainId,
     fallbackLibrary,
     chainState.assetRootMap,
     chainState.seriesRootMap,
     chainState.strategyRootMap,
     chainState.contractMap,
-    chainId,
+    chainId
   ]);
+
+  // /**
+  //  * Update on PRIMARY connection any network changes (likely via metamask/walletConnect)
+  //  */
+  // useEffect(() => {
+  //   console.log('Wallet/Account Active: ', active);
+  //   updateState({ type: 'chainId', payload: chainId });
+  //   updateState({ type: 'CHAIN_INFO', payload: CHAIN_INFO.get(chainId!) || null });
+  //   updateState({ type: 'web3Active', payload: active });
+  //   updateState({ type: 'provider', payload: library || null });
+  //   updateState({ type: 'account', payload: account || null });
+  //   updateState({ type: 'signer', payload: library?.getSigner(account!) || null });
+  //   updateState({ type: 'connector', payload: connector || null });
+  //   updateState({ type: 'activatingConnector', payload: activatingConnector || null });
+
+  //   updateState({ type: 'CHAIN_INFO', payload: CHAIN_INFO || null });
+  //   updateState({ type: 'CONNECTORS', payload: CONNECTORS || null });
+  //   updateState({ type: 'CONNECTOR_NAMES', payload: CONNECTOR_NAMES || null });
+
+  // }, [active, activatingConnector, account, chainId, library, connector, CHAIN_INFO, CONNECTORS, CONNECTOR_NAMES ]);
 
   /**
    * Update on PRIMARY connection any network changes (likely via metamask/walletConnect)
    */
   useEffect(() => {
-    console.log('Wallet/Account Active: ', active);
-    updateState({ type: 'chainId', payload: chainId });
-    updateState({ type: 'chainData', payload: CHAIN_INFO.get(chainId!) || null });
-    updateState({ type: 'web3Active', payload: active });
-    updateState({ type: 'provider', payload: library || null });
-    updateState({ type: 'account', payload: account || null });
-    updateState({ type: 'signer', payload: library?.getSigner(account!) || null });
-    updateState({ type: 'connector', payload: connector || null });
-  }, [active, account, chainId, library, connector]);
-
-  /*
-      Watch the chainId for changes (most likely instigated by metamask),
-      and change the FALLBACK provider accordingly.
-      NOTE: Currently, there is no way to change the fallback provider manually, but the last chainId is cached.
-  */
-  useEffect(() => {
-    const _chainId = chainId || lastChainId;
-
-    /* cache the change of networkId */
-    chainId && setLastChainId(chainId);
-
-    /* Connect the fallback */
-    tried &&
-      fallbackActivate(
-        new NetworkConnector({
-          urls: { 1: RPC_URLS[1], 42: RPC_URLS[42] },
-          defaultChainId: _chainId,
-        }),
-        (e: any) => console.log(e),
-        true
-      );
-
-    /* Handle chain changes  -> complete refresh */
-    if (chainId && chainId !== lastChainId) {
-      window.localStorage.clear();
-      // eslint-disable-next-line no-restricted-globals
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chainId, fallbackActivate, lastChainId, tried]);
-
+    updateState({ type: 'connection', payload: { library, chainId, account, fallbackLibrary, fallbackChainId, CHAIN_INFO } });
+  }, [library, chainId, account, fallbackLibrary, fallbackChainId, CHAIN_INFO ]);
 
   /* Handle version updates on first load -> complete refresh if app is different */
   useEffect(() => {
@@ -553,46 +497,14 @@ const ChainProvider = ({ children }: any) => {
       location.reload();
     }
     setLastAppVersion(process.env.REACT_APP_VERSION);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[]); // ignored to only happen once on init
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // ignored to only happen once on init
 
-  /**
-   * Try connect automatically to an injected provider on first load
-   * */
-  useEffect(() => {
-    chainState.connectOnLoad &&
-      !chainState.web3Active &&
-      connectors
-        .get(INIT_INJECTED)
-        .isAuthorized()
-        .then((isAuthorized: boolean) => {
-          if (isAuthorized) {
-            activate(connectors.get(INIT_INJECTED), undefined, true).catch(() => {
-              setTried(true);
-            });
-          } else {
-            setTried(true); // just move on do nothing nore
-          }
-        });
-  }, [activate, chainState.connectOnLoad, chainState.web3Active]);
-
-  /* If web3 connected, wait until we get confirmation of that to flip the flag */
-  useEffect(() => {
-    if (!tried && active) {
-      setTried(true);
-    }
-  }, [tried, active]);
-
-  /* Handle logic to recognize the connector currently being activated */
-  const [activatingConnector, setActivatingConnector] = useState<any>();
-  useEffect(() => {
-    activatingConnector && activatingConnector === connector && setActivatingConnector(undefined);
-  }, [activatingConnector, connector]);
-
+  /* Pass on the connection actions */
   const chainActions = {
-    isConnected: (connection: string) => connectors.get(connection) === connector,
-    connect: (connection: string = INIT_INJECTED) => activate(connectors.get(connection)),
-    disconnect: () => connector && deactivate(),
+    isConnected,
+    connect,
+    disconnect,
   };
 
   return <ChainContext.Provider value={{ chainState, chainActions }}>{children}</ChainContext.Provider>;

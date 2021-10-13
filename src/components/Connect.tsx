@@ -9,34 +9,23 @@ import { useCachedState } from '../hooks/generalHooks';
 const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
-    chainState: { account, connector, connectors, CONNECTOR_NAMES },
-    chainActions: { connect, disconnect },
+    chainState: {
+      connection: { account, activatingConnector, CONNECTORS, CONNECTOR_NAMES },
+    },
+    chainActions: { connect, isConnected },
   } = useContext(ChainContext);
 
-  const [disclaimerCheckedInStorage, setDisclaimerCheckedInStorage] = useCachedState('disclaimerChecked', false);
-  const [disclaimerChecked, setDisclaimerChecked] = useState<boolean>(disclaimerCheckedInStorage);
-
-  const [activatingConnector, setActivatingConnector] = useState<any>();
-
-  /* Handle logic to recognize the connector currently being activated */
-  useEffect(() => {
-    activatingConnector && activatingConnector === connector && setActivatingConnector(undefined);
-  }, [activatingConnector, connector]);
+  const [disclaimerChecked, setDisclaimerChecked] = useCachedState('disclaimerChecked', false);
 
   const handleConnect = (connectorName: string) => {
-    setActivatingConnector(connectorName);
     connect(connectorName);
     setConnectOpen(false);
   };
 
-  useEffect(() => {
-    setDisclaimerCheckedInStorage(disclaimerChecked);
-  }, [disclaimerChecked, setDisclaimerCheckedInStorage]);
-
-  const connectorsRender = [...connectors.keys()].map((name: string) => {
-    const currentConnector = connectors.get(name);
+  const connectorsRenderer = [...CONNECTORS.keys()].map((name: string) => {
+    const currentConnector = CONNECTORS.get(name);
     const activating = currentConnector === activatingConnector;
-    const connected = currentConnector === connector;
+    const connected = isConnected(name);
 
     return (
       <Button
@@ -60,7 +49,7 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
   return (
     <Box fill="vertical" basis="auto" width={mobile ? undefined : '400px'} pad="medium" gap="small" elevation="xlarge">
       <Box justify="between" align="center" direction="row">
-        {account ? (
+        {account && CONNECTORS ? (
           <BackButton
             action={() => {
               setSettingsOpen(true);
@@ -72,8 +61,7 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
         )}
         <Button icon={<FiX size="1.5rem" />} onClick={() => setConnectOpen(false)} plain />
       </Box>
-      <Box gap="xsmall">{connectorsRender}</Box>
-
+      <Box gap="xsmall">{connectorsRenderer}</Box>
       {!disclaimerChecked && (
         <Box border={{ color: 'brand' }} round="xsmall">
           <Disclaimer

@@ -7,7 +7,7 @@ import { ISeries, IVault, IHistItemPosition, ActionCodes, IBaseHistItem, IAsset,
 import * as contracts from '../contracts';
 
 import { ChainContext } from './ChainContext';
-import { abbreviateHash,  cleanValue } from '../utils/appUtils';
+import { abbreviateHash, cleanValue } from '../utils/appUtils';
 import { UserContext } from './UserContext';
 import { ZERO_BN } from '../utils/constants';
 import { Cauldron } from '../contracts';
@@ -70,10 +70,15 @@ const HistoryProvider = ({ children }: any) => {
   // TODO const [cachedVaults, setCachedVaults] = useCachedState('vaults', { data: [], lastBlock: Number(process.env.REACT_APP_DEPLOY_BLOCK) });
   const { chainState } = useContext(ChainContext);
 
-  const { chainLoading, fallbackProvider, contractMap, account, seriesRootMap, assetRootMap, strategyRootMap } =
-    chainState;
+  const {
+    chainLoading,
+    contractMap,
+    connection: { fallbackProvider },
+    seriesRootMap,
+    assetRootMap,
+  } = chainState;
 
-  const { userState } = useContext(UserContext);
+  const { activeAccount: account, userState } = useContext(UserContext);
   const { vaultMap, seriesMap, strategyMap } = userState;
 
   const [historyState, updateState] = useReducer(historyReducer, initState);
@@ -257,10 +262,7 @@ const HistoryProvider = ({ children }: any) => {
 
           const tradeLogs = await Promise.all(
             eventList
-              .filter(
-                (log: any) =>
-                  poolContract.interface.parseLog(log).args.from !== contractMap.get('Ladle')
-              ) // TODO make this for any ladle (Past/future)
+              .filter((log: any) => poolContract.interface.parseLog(log).args.from !== contractMap.get('Ladle')) // TODO make this for any ladle (Past/future)
               .map(async (log: any) => {
                 const { blockNumber, transactionHash } = log;
                 const { maturity, bases, fyTokens } = poolContract.interface.parseLog(log).args;
