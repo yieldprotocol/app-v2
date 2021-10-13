@@ -62,7 +62,7 @@ CONNECTORS.set(
 export const useConnection = () => {
   const [tried, setTried] = useState<boolean>(false);
   const [connectOnLoad, setConnectOnLoad] = useState<boolean>(true);
-  const [chainInfo, setChainInfo] = useState<any>();
+  const [currentChainInfo, setChainInfo] = useState<any>();
 
   /* CACHED VARIABLES */
   const [lastChainId, setLastChainId] = useCachedState('lastChainId', 42);
@@ -158,7 +158,7 @@ export const useConnection = () => {
       chainId,
       fallbackChainId,
 
-      chainInfo,
+      currentChainInfo,
       account,
       active,
 

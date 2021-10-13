@@ -10,7 +10,6 @@ import {
 import { FaDiscord as Discord } from 'react-icons/fa';
 
 import { ChainContext } from '../contexts/ChainContext';
-import { UserContext } from '../contexts/UserContext';
 import BoxWrap from './wraps/BoxWrap';
 
 const IconSize = '1.15rem';
@@ -18,27 +17,21 @@ const IconGap = 'small';
 
 const YieldInfo = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
+  
   const {
     chainState: {
-      connection: { account, CHAIN_INFO },
+      connection: { account, currentChainInfo },
       appVersion,
     },
     chainActions: { connect, disconnect },
   } = useContext(ChainContext);
 
   const { pathname } = useLocation();
-  const [path, setPath] = useState<string>();
+  const [ path, setPath] = useState<string>();
   /* If the url references a series/vault...set that one as active */
   useEffect(() => {
     pathname && setPath(pathname.split('/')[1]);
   }, [pathname]);
-
-  const {
-    userState: { assetMap, selectedBaseId, selectedIlkId },
-  } = useContext(UserContext);
-
-  const selectedBase = assetMap.get(selectedBaseId);
-  const selectedIlk = assetMap.get(selectedIlkId);
 
   const handleExternal = (destination: string) => {
     // analyticsLogEvent('external_link', {
@@ -89,8 +82,8 @@ const YieldInfo = () => {
         <Box direction="row-responsive" gap="small">
           <Text size="xsmall">
             {`Connected to: `}
-            <Text size="xsmall" color={CHAIN_INFO.color}>
-              {CHAIN_INFO.name}
+            <Text size="xsmall" color={currentChainInfo?.color}>
+              {currentChainInfo?.name}
             </Text>
           </Text>
           <Box onClick={() => disconnect()}>
