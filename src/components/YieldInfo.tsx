@@ -5,10 +5,11 @@ import React, { useContext, useEffect, useState } from 'react';
 import {
   FiMenu,
   FiGithub as Github,
-  FiFileText as Docs,
+  FiBookOpen as Docs,
   FiSun as Sun,
   FiMoon as Moon,
   FiClock as Clock,
+  FiFileText as Terms,
 } from 'react-icons/fi';
 import { FaDiscord as Discord } from 'react-icons/fa';
 
@@ -51,7 +52,7 @@ const YieldInfo = () => {
   };
 
   return (
-    <Box gap="small" >
+    <Box gap="small">
       <Box>
         <Text size="xsmall" color="grey">
           App version: v{appVersion}
@@ -61,31 +62,37 @@ const YieldInfo = () => {
 
       <Box direction="row" gap={IconGap}>
         <BoxWrap>
-        <Anchor
-          color="grey"
-          href="https://github.com/yieldprotocol"
-          target="_blank"
-          onClick={() => handleExternal('Github')}
-        >
-          <Github size={IconSize} />
-        </Anchor>
+          <Anchor
+            color="grey"
+            href="https://github.com/yieldprotocol"
+            target="_blank"
+            onClick={() => handleExternal('Github')}
+          >
+            <Github size={IconSize} />
+          </Anchor>
         </BoxWrap>
 
         <BoxWrap>
-        <Anchor color="grey" href="http://docs.yield.is" target="_blank" onClick={() => handleExternal('Docs')}>
-          <Docs size={IconSize} />
-        </Anchor>
+          <Anchor color="grey" href="http://docs.yield.is" target="_blank" onClick={() => handleExternal('Docs')}>
+            <Docs size={IconSize} />
+          </Anchor>
         </BoxWrap>
-        
+
         <BoxWrap>
-        <Anchor
-          color="grey"
-          href="https://discord.gg/JAFfDj5"
-          target="_blank"
-          onClick={() => handleExternal('Discord')}
-        >
-          <Discord size={IconSize} />
-        </Anchor>
+          <Anchor
+            color="grey"
+            href="https://discord.gg/JAFfDj5"
+            target="_blank"
+            onClick={() => handleExternal('Discord')}
+          >
+            <Discord size={IconSize} />
+          </Anchor>
+        </BoxWrap>
+
+        <BoxWrap>
+          <Anchor color="grey" href="/terms" target="_blank" onClick={() => handleExternal('Terms')}>
+            <Terms size={IconSize} />
+          </Anchor>
         </BoxWrap>
       </Box>
 
