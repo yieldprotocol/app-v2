@@ -85,9 +85,9 @@ export const useBorrowHelpers = (
     if (futureSeries && vault) {
       setMaxRoll(futureSeries.baseReserves);
       setMaxRoll_(ethers.utils.formatUnits(futureSeries.baseReserves, futureSeries.decimals).toString());
-      setRollPossible(vault.art.lt(futureSeries.baseReserves));
+      setRollPossible(vault.art?.lt(futureSeries.baseReserves));
 
-      if (vault.art.lt(futureSeries.baseReserves)) {
+      if (vault.art?.lt(futureSeries.baseReserves)) {
         setMaxRoll(vault.art);
         setMaxRoll_(ethers.utils.formatUnits(vault.art, futureSeries.decimals).toString());
       }
