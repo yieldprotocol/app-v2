@@ -5,11 +5,8 @@ import { BiWallet } from 'react-icons/bi';
 import { FiCheckCircle, FiPenTool, FiX } from 'react-icons/fi';
 
 import { UserContext } from '../contexts/UserContext';
-import { useProcess } from '../hooks/useProcess';
-import { ActionCodes, ApprovalType, ISeries, IYieldProcess, ProcessStage, TxState } from '../types';
-import { abbreviateHash } from '../utils/appUtils';
+import { ApprovalType, ISeries, IYieldProcess, ProcessStage, TxState } from '../types';
 import EtherscanButton from './buttons/EtherscanButton';
-import CopyWrap from './wraps/CopyWrap';
 import CancelButton from './buttons/CancelButton';
 
 const InfoBlock = ({

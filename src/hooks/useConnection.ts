@@ -1,5 +1,10 @@
-import { useWeb3React } from '@web3-react/core';
-import { InjectedConnector } from '@web3-react/injected-connector';
+import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
+import {
+  InjectedConnector,
+  NoEthereumProviderError,
+  UserRejectedRequestError as UserRejectedRequestErrorInjected,
+} from '@web3-react/injected-connector';
+
 import { LedgerConnector } from '@web3-react/ledger-connector';
 import { NetworkConnector } from '@web3-react/network-connector';
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector';
@@ -68,16 +73,22 @@ CONNECTORS.set(
 export const useConnection = () => {
   const [tried, setTried] = useState<boolean>(false);
   const [connectOnLoad, setConnectOnLoad] = useState<boolean>(true);
-  const [currentChainInfo, setChainInfo] = useState<any>();
+
+  const [currentChainInfo, setCurrentChainInfo] = useState<any>();
+  const [chainSupported, setChainSupported] = useState<boolean>(false);
 
   /* CACHED VARIABLES */
   const [lastChainId, setLastChainId] = useCachedState('lastChainId', 42);
 
   const primaryConnection = useWeb3React<ethers.providers.Web3Provider>();
-  const { connector, library:provider, chainId, account, activate, deactivate, active } = primaryConnection;
+  const { connector, library: provider, chainId, account, activate, deactivate, active } = primaryConnection;
 
   const fallbackConnection = useWeb3React<ethers.providers.JsonRpcProvider>('fallback');
   const { library: fallbackProvider, chainId: fallbackChainId, activate: fallbackActivate } = fallbackConnection;
+
+  /* extra hooks */ 
+  const { handleErrorMessage } = useWeb3Errors();
+
 
   const isConnected = useCallback((connection: string) => CONNECTORS.get(connection) === connector, [connector]);
   const connect = useCallback((connection: string = INIT_INJECTED) => activate(CONNECTORS.get(connection)), [activate]);
@@ -90,8 +101,10 @@ export const useConnection = () => {
   */
   useEffect(() => {
     const _chainId = chainId || lastChainId;
+
     /* cache the change of networkId */
     chainId && setLastChainId(chainId);
+
     /* Connect the fallback */
     tried &&
       fallbackActivate(
@@ -99,14 +112,17 @@ export const useConnection = () => {
           urls: { 1: RPC_URLS[1], 42: RPC_URLS[42] },
           defaultChainId: _chainId,
         }),
-        (e: any) => console.log(e),
+        (e: any) => handleErrorMessage(e),
         true
       );
-    /* Handle chain changes  -> complete refresh */
+
+    /* Handle chain changes  -> clear cache */
     if (chainId && chainId !== lastChainId) {
       window.localStorage.clear();
-      // eslint-disable-next-line no-restricted-globals
     }
+
+    setCurrentChainInfo(CHAIN_INFO.get(_chainId));
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId, fallbackActivate, lastChainId, tried]);
 
@@ -120,14 +136,14 @@ export const useConnection = () => {
         .isAuthorized()
         .then((isAuthorized: boolean) => {
           if (isAuthorized) {
-            activate(CONNECTORS.get(INIT_INJECTED), undefined, true).catch(() => {
+            activate(CONNECTORS.get(INIT_INJECTED), (e:any)=> handleErrorMessage(e) , true).catch(() => {
               setTried(true);
             });
           } else {
             setTried(true); // just move on do nothing nore
           }
         });
-  }, [activate, connectOnLoad, active]);
+  }, [activate, connectOnLoad, active, handleErrorMessage]);
 
   /* If web3 connected, wait until we get confirmation of that to flip the flag */
   useEffect(() => {
@@ -138,25 +154,20 @@ export const useConnection = () => {
 
   /* Handle logic to recognize the connector currently being activated */
   const [activatingConnector, setActivatingConnector] = useState<any>();
-
   useEffect(() => {
     activatingConnector && activatingConnector === connector && setActivatingConnector(undefined);
   }, [activatingConnector, connector]);
 
-  useEffect(() => {
-    if (chainId && CHAIN_INFO.has(chainId)) {
-      setChainInfo(CHAIN_INFO.get(chainId));
-    }
-  }, [chainId]);
+  useEffect(() => {}, [chainId]);
+
 
   return {
-    
     connectionState: {
       /* constants */
       CONNECTORS,
       CHAIN_INFO,
       CONNECTOR_NAMES,
-      
+
       /* connections */
       connector,
       provider,
@@ -164,10 +175,11 @@ export const useConnection = () => {
       chainId,
       fallbackChainId,
 
+      chainSupported,
+
       currentChainInfo,
       account,
       active,
-
       activatingConnector,
     },
 
@@ -177,4 +189,33 @@ export const useConnection = () => {
       isConnected,
     },
   };
+};
+
+// TODO better error handling */ 
+const useWeb3Errors = ()=> {
+  const NO_BROWSER_EXT = 'No Ethereum browser extension detected, install MetaMask on desktop or visit from a dApp browser on mobile.';
+  const UNSUPPORTED_NETWORK = 'Your Wallet or Browser is connected to an unsupported network.';
+  const UNAUTHORISED_SITE = 'Please authorize this website to access your Ethereum account.';
+  const UNKNOWN_ERROR = 'An unknown error occurred. Check the console for more details.';
+  const handleErrorMessage = (error: Error) => {
+    if (error instanceof NoEthereumProviderError) {
+      // eslint-disable-next-line no-console
+      console.log(NO_BROWSER_EXT);
+      return NO_BROWSER_EXT;
+    }
+    if (error instanceof UnsupportedChainIdError) {
+      // eslint-disable-next-line no-console
+      console.log(UNSUPPORTED_NETWORK);
+      return UNSUPPORTED_NETWORK;
+    }
+    if (
+      error instanceof UserRejectedRequestErrorInjected // || error instanceof UserRejectedRequestErrorWalletConnect || error instanceof UserRejectedRequestErrorFrame
+    ) {
+      return UNAUTHORISED_SITE;
+    }
+    // eslint-disable-next-line no-console
+    console.error(error);
+    return  UNKNOWN_ERROR;
+  };
+  return { handleErrorMessage };
 };

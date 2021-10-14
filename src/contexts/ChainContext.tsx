@@ -43,6 +43,7 @@ const ChainContext = React.createContext<any>({});
 
 const initState = {
   appVersion: '0.0.0' as string,
+  
   connection: {
     chainId: Number(process.env.REACT_APP_DEFAULT_CHAINID) as number | null,
     provider: null as ethers.providers.Web3Provider | null,
@@ -87,11 +88,13 @@ function chainReducer(state: any, action: any) {
         ...state,
         seriesRootMap: state.seriesRootMap.set(action.payload.id, action.payload),
       };
+
     case 'addAsset':
       return {
         ...state,
         assetRootMap: state.assetRootMap.set(action.payload.id, action.payload),
       };
+
     case 'addStrategy':
       return {
         ...state,
@@ -105,23 +108,9 @@ function chainReducer(state: any, action: any) {
 
 const ChainProvider = ({ children }: any) => {
   const [chainState, updateState] = React.useReducer(chainReducer, initState);
-
+  
   const { connectionState, connectionActions } = useConnection();
-
-  const {
-    provider,
-    chainId,
-    account,
-    fallbackProvider,
-    fallbackChainId,
-    CHAIN_INFO,
-    CONNECTOR_NAMES,
-    CONNECTORS,
-    connector,
-    currentChainInfo,
-    active,
-    activatingConnector,
-  } = connectionState;
+  const { fallbackProvider, fallbackChainId, chainSupported } = connectionState;
 
   /* CACHED VARIABLES */
   const [lastAppVersion, setLastAppVersion] = useCachedState('lastAppVersion', '');
@@ -138,11 +127,11 @@ const ChainProvider = ({ children }: any) => {
    */
 
   useEffect(() => {
-    fallbackProvider && updateState({ type: 'fallbackProvider', payload: fallbackProvider });
-
-    if (fallbackProvider && fallbackChainId && CHAIN_INFO.get(fallbackChainId)?.supported) {
+  
+    if ( fallbackProvider && fallbackChainId && chainSupported ) {
+      
       console.log('Fallback ChainId: ', fallbackChainId);
-      console.log('Primary ChainId: ', chainId);
+      console.log('Primary ChainId: ', connectionState.chainId);
 
       /* Get the instances of the Base contracts */
       const addrs = (yieldEnv.addresses as any)[fallbackChainId];
@@ -182,14 +171,14 @@ const ChainProvider = ({ children }: any) => {
 
           /* baked in token fns */
           getBalance: async (acc: string) =>
-            ETH_BASED_ASSETS.includes(asset.id) ? provider?.getBalance(acc) : ERC20Permit.balanceOf(acc),
+            ETH_BASED_ASSETS.includes(asset.id) ? fallbackProvider?.getBalance(acc) : ERC20Permit.balanceOf(acc),
           getAllowance: async (acc: string, spender: string) => ERC20Permit.allowance(acc, spender),
 
           /* TODO remove for prod */
           /* @ts-ignore */
           mintTest: async () =>
-            contracts.ERC20Mock__factory.connect(asset.address, provider?.getSigner()!).mint(
-              account!,
+            contracts.ERC20Mock__factory.connect(asset.address, connectionState.provider?.getSigner()!).mint(
+              connectionState.account!,
               ethers.utils.parseUnits('100', asset.decimals)
             ),
         };
@@ -235,7 +224,7 @@ const ChainProvider = ({ children }: any) => {
         );
 
         // set the 'last checked' block
-        setLastAssetUpdate(await provider?.getBlockNumber());
+        setLastAssetUpdate(await fallbackProvider?.getBlockNumber());
         // log the new assets in the cache
         setCachedAssets([...cachedAssets, ...newAssetList]);
         console.log('Yield Protocol Asset data updated.');
@@ -420,54 +409,11 @@ const ChainProvider = ({ children }: any) => {
         (async () => Promise.all([_getAssets(), _getSeries(), _getStrategies()]))();
       }
     }
-  }, [
-    account,
-    fallbackChainId,
-    fallbackProvider,
-    chainState.assetRootMap,
-    chainState.seriesRootMap,
-    chainState.strategyRootMap,
-    chainState.contractMap,
-    chainId,
-  ]);
+  }, [ fallbackChainId, fallbackProvider ]);
 
   /**
-   * Update on PRIMARY connection information on ANY network changes (likely via metamask/walletConnect)
+   * Handle version updates on first load -> complete refresh if app is different to published version
    */
-  useEffect(() => {
-    updateState({
-      type: 'connection',
-      payload: {
-        provider,
-        chainId,
-        account,
-        fallbackProvider,
-        fallbackChainId,
-        CHAIN_INFO,
-        CONNECTOR_NAMES,
-        CONNECTORS,
-        connector,
-        currentChainInfo,
-        active,
-        activatingConnector,
-      },
-    });
-  }, [
-    CHAIN_INFO,
-    CONNECTORS,
-    CONNECTOR_NAMES,
-    account,
-    activatingConnector,
-    active,
-    chainId,
-    currentChainInfo,
-    connector,
-    fallbackChainId,
-    fallbackProvider,
-    provider,
-  ]);
-
-  /* Handle version updates on first load -> complete refresh if app is different to published version */
   useEffect(() => {
     updateState({ type: 'appVersion', payload: process.env.REACT_APP_VERSION });
     console.log('APP VERSION: ', process.env.REACT_APP_VERSION);
@@ -479,6 +425,20 @@ const ChainProvider = ({ children }: any) => {
     setLastAppVersion(process.env.REACT_APP_VERSION);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // ignored to only happen once on init
+
+  /**
+   * Update on PRIMARY connection information on specific network changes (likely via metamask/walletConnect)
+   */
+  useEffect(() => {
+    updateState({
+      type: 'connection',
+      payload: connectionState,
+    });
+  }, [
+    connectionState.fallbackChainId,
+    connectionState.chainId,
+    connectionState.account,
+  ]);
 
   /* simply Pass on the connection actions */
   const chainActions = connectionActions;
