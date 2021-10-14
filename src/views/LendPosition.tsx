@@ -239,7 +239,7 @@ const LendPosition = () => {
                           <TextInput
                             plain
                             type="number"
-                            placeholder="Amount to reclaim"
+                            placeholder="Amount to redeem"
                             value={closeInput || ''}
                             onChange={(event: any) => setCloseInput(cleanValue(event.target.value))}
                             disabled={!selectedSeries}
