@@ -91,8 +91,8 @@ export const useLendHelpers = (
         : setMaxClose_(ethers.utils.formatUnits(value, series.decimals).toString());
 
       /* explicitly set max close to 0 when applicable */
-      maxClose.lte(ethers.constants.Zero) && setMaxClose(ethers.constants.Zero);
-      maxClose.lte(ethers.constants.Zero) && setMaxClose_('0');
+      // maxClose.lte(ethers.constants.Zero) && setMaxClose(ethers.constants.Zero);
+      // maxClose.lte(ethers.constants.Zero) && setMaxClose_('0');
     }
 
     if (series && series.seriesIsMature) {
@@ -101,6 +101,7 @@ export const useLendHelpers = (
       setMaxClose_(val);
       setMaxClose(series.fyTokenBalance!);
     }
+    
   }, [series]);
 
   return {
