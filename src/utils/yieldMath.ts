@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { ethers, BigNumber, BigNumberish } from 'ethers';
 import { Decimal } from 'decimal.js';
-import { WAD_BN, ZERO_BN } from './constants';
+import { MAX_256, WAD_BN, ZERO_BN } from './constants';
 import { cleanValue } from './appUtils';
 
 Decimal.set({ precision: 64 });
@@ -463,7 +463,6 @@ export function maxBaseToSpend(
   return decimal18ToDecimalN(toBn(yWithMargin), decimals);
 }
 
-
 /**
  * @param { BigNumber | string } baseReserves
  * @param { BigNumber | string } fyTokenReserves
@@ -747,42 +746,42 @@ export const calculateBorrowingPower = (
  * pool position value.
  *
  * @param {BigNumber | string} poolTokenAmount amount of pool token
- * 
+ *
  * @param {BigNumber}  strategyBaseReserves
  * @param {BigNumber}  strategyFyTokenReserves
  * @param {BigNumber}  strategyTotalSupply
  * @param {number}  strategyTimeToMaturity
  * @param {number}  strategyDecimals
- * 
+ *
  * @returns {BigNumber}
  */
 export const checkPoolTrade = (
-  poolTokenAmount: BigNumber | string, 
+  poolTokenAmount: BigNumber | string,
   strategyBaseReserves: BigNumber,
   strategyFyTokenReserves: BigNumber,
   strategyTotalSupply: BigNumber,
   strategyTimeToMaturity: string | BigNumber,
-  strategyDecimals: number,
-  ) : BigNumber => {
+  strategyDecimals: number
+): BigNumber => {
   // 1. calc amount base/fyToken recieved from burn
   // 2. calculate new reseverves ( base reserves and fytokesreserevs)
   // 3. try trade with new reserves
-    const [_baseTokens, _fytokens] = burn(
-      strategyBaseReserves,
-      strategyFyTokenReserves,
-      strategyTotalSupply,
-      poolTokenAmount
-    );
-    const newBaseReserves = strategyBaseReserves.sub(_baseTokens);
-    const newFyTokenReserves = strategyFyTokenReserves.sub(_fytokens);
-    const sellOutcome = sellFYToken(
-      newBaseReserves,
-      newFyTokenReserves,
-      _fytokens,
-      strategyTimeToMaturity.toString(),
-      strategyDecimals
-    );
-    return sellOutcome;
+  const [_baseTokens, _fytokens] = burn(
+    strategyBaseReserves,
+    strategyFyTokenReserves,
+    strategyTotalSupply,
+    poolTokenAmount
+  );
+  const newBaseReserves = strategyBaseReserves.sub(_baseTokens);
+  const newFyTokenReserves = strategyFyTokenReserves.sub(_fytokens);
+  const sellOutcome = sellFYToken(
+    newBaseReserves,
+    newFyTokenReserves,
+    _fytokens,
+    strategyTimeToMaturity.toString(),
+    strategyDecimals
+  );
+  return sellOutcome;
 };
 
 /**
@@ -795,3 +794,35 @@ export const checkPoolTrade = (
  */
 export const getPoolPercent = (input: BigNumber, strategyTotalSupply: BigNumber): string =>
   cleanValue(mulDecimal(divDecimal(input, strategyTotalSupply.add(input)), '100'), 2);
+
+/**
+ * Calcualtes the MIN and MAX reserve ratios of a pool for a given slippage value
+ *
+ * @param {BigNumber}  baseReserves
+ * @param {BigNumber}  fyTokenReserves
+ * @param {number} slippage
+ *
+ * @returns {[BigNumber, BigNumber] }
+ */
+
+export const calcPoolRatios = (
+  baseReserves: BigNumber,
+  fyTokenReserves: BigNumber,
+  slippage: number
+): [BigNumber, BigNumber] => {
+
+  const baseReserves_ = new Decimal(baseReserves.toString());
+  const fyTokenReserves_ = new Decimal(fyTokenReserves.toString());
+  const slippage_ = new Decimal(slippage.toString());
+
+  console.log( baseReserves_.toString(),  fyTokenReserves_.toString() )
+  const ratio = divDecimal(baseReserves, fyTokenReserves); 
+  console.log( ratio); 
+  // const ratioSlippage = ratio.mul(slippage_);
+  // const min = ratio.sub(ratioSlippage);
+  // const max = ratio.add(ratioSlippage);
+  // console.log( ratio, min, max)
+
+  return [ZERO_BN, ethers.constants.MaxInt256];
+
+};

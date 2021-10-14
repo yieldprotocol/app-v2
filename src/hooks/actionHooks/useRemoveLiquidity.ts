@@ -6,7 +6,7 @@ import { getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
-import { burn, burnFromStrategy } from '../../utils/yieldMath';
+import { burn, burnFromStrategy, calcPoolRatios } from '../../utils/yieldMath';
 import { ZERO_BN } from '../../utils/constants';
 
 export const usePool = (input: string | undefined) => {
@@ -22,7 +22,7 @@ export const useRemoveLiquidity = () => {
   const ladleAddress = contractMap?.get('Ladle')?.address;
 
   const { userState, userActions } = useContext(UserContext);
-  const { activeAccount: account, assetMap, selectedStrategyAddr, strategyMap } = userState;
+  const { activeAccount: account, assetMap, selectedStrategyAddr, strategyMap, slippageTolerance  } = userState;
   const { updateSeries, updateAssets, updateStrategies } = userActions;
   const { sign, transact } = useChain();
 
@@ -47,6 +47,8 @@ export const useRemoveLiquidity = () => {
     const matchingVaultId: string|undefined = matchingVault?.id;
     const vaultDebt: BigNumber = matchingVault?.art || ZERO_BN;
     // const vaultCollat: BigNumber|undefined = matchingVault?.ink;
+
+    const [ minRatio, maxRatio ] = calcPoolRatios( series.baseReserves, series.fyTokenReserves, slippageTolerance )
 
     const fyTokenReceivedGreaterThanDebt : boolean  = _fyTokenReceived.gt(vaultDebt);
     const vaultAvailable: boolean = !!matchingVault || vaultDebt?.lt(_fyTokenReceived)!; // ignore vault flag if matchign vaults is undefined or debt less than required fyToken
@@ -125,8 +127,8 @@ export const useRemoveLiquidity = () => {
         args: [
           ladleAddress,
           ladleAddress,
-          ethers.constants.Zero, 
-          ethers.constants.Zero,
+          minRatio, 
+          maxRatio,
         ] as RoutedActions.Args.BURN_POOL_TOKENS,
         fnName: RoutedActions.Fn.BURN_POOL_TOKENS,
         targetContract: series.poolContract,
@@ -153,8 +155,8 @@ export const useRemoveLiquidity = () => {
         args: [
           account,
           ladleAddress,
-          ethers.constants.Zero,
-          ethers.constants.Zero,
+          minRatio,
+          maxRatio,
         ] as RoutedActions.Args.BURN_POOL_TOKENS,
         fnName: RoutedActions.Fn.BURN_POOL_TOKENS,
         targetContract: series.poolContract,
@@ -178,7 +180,7 @@ export const useRemoveLiquidity = () => {
       // ladle.routeAction(pool, ['burnForBase', [receiver, minBaseReceived]),
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [account, ethers.constants.Zero] as RoutedActions.Args.BURN_FOR_BASE, // TODO slippage minBase Recieved
+        args: [account, minRatio, maxRatio] as RoutedActions.Args.BURN_FOR_BASE, // TODO slippage minBase Recieved
         fnName: RoutedActions.Fn.BURN_FOR_BASE,
         targetContract: series.poolContract,
         ignoreIf: series.seriesIsMature || vaultAvailable,
@@ -199,8 +201,8 @@ export const useRemoveLiquidity = () => {
         args: [
           account,
           series.fyTokenAddress,
-          ethers.constants.Zero,
-          ethers.constants.Zero,
+          minRatio,
+          maxRatio,
         ] as RoutedActions.Args.BURN_POOL_TOKENS, // TODO slippages
         fnName: RoutedActions.Fn.BURN_POOL_TOKENS,
         targetContract: series.poolContract,
@@ -231,7 +233,7 @@ export const useRemoveLiquidity = () => {
       },
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [account, ethers.constants.Zero] as RoutedActions.Args.BURN_FOR_BASE,
+        args: [account, minRatio, maxRatio] as RoutedActions.Args.BURN_FOR_BASE,
         fnName: RoutedActions.Fn.BURN_FOR_BASE,
         targetContract: series.poolContract,
         ignoreIf: true || _strategy || !series.seriesIsMature,
@@ -243,7 +245,7 @@ export const useRemoveLiquidity = () => {
       },
       {
         operation: LadleActions.Fn.CLOSE_FROM_LADLE,
-        args: ['vaultId', account] as LadleActions.Args.CLOSE_FROM_LADLE,
+        args: [matchingVaultId, account] as LadleActions.Args.CLOSE_FROM_LADLE,
         ignoreIf: true || _strategy || !series.seriesIsMature,
       },
     ];
