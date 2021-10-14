@@ -3,7 +3,9 @@ import { ChainContext } from '../contexts/ChainContext';
 
 export const useUnsupportedNetwork = () => {
   const {
-    chainState: { connection: currentChainInfo },
+    chainState: {
+      connection: { currentChainInfo },
+    },
   } = useContext(ChainContext);
 
   const [unsupportedNetwork, setUnsupportedNetwork] = useState<boolean>(false);
