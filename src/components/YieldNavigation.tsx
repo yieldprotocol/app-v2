@@ -8,6 +8,7 @@ import NavText from './texts/NavText';
 const StyledLink = styled(NavLink)`
   text-decoration: none;
   padding: 8px;
+  border-radius: 5px;
 
   -webkit-transition: background 0.3s ease-in-out;
   -moz-transition: background 0.3s ease-in-out;
@@ -23,6 +24,7 @@ const StyledLink = styled(NavLink)`
 
   :hover {
     transform: scale(1.2);
+    background: #ffffff69;
   }
 `;
 
@@ -42,13 +44,13 @@ const YieldNavigation = ({ callbackFn }: IYieldNavigation) => {
   const activeStyle = {
     transform: 'scale(1.3)',
     color: `${textColor}`,
-    // background: `${textBack}`,
   } as CSSProperties;
 
   const linksArr = [
     { label: 'BORROW', to: '/borrow' },
     { label: 'LEND', to: '/lend' },
     { label: 'POOL', to: '/pool' },
+    { label: 'DASHBOARD', to: '/dashboard' },
     // { label: 'Markets', to: '/markets' },
   ];
 
@@ -56,7 +58,7 @@ const YieldNavigation = ({ callbackFn }: IYieldNavigation) => {
     <Box direction={mobile ? 'column' : 'row'} gap="medium" align="center" justify="center" fill={mobile}>
       {linksArr.map((x: any) => (
         <StyledLink to={x.to} activeStyle={activeStyle} key={x.label} onClick={() => callbackFn()}>
-          <NavText color={mobile ? 'text-weak' : undefined} size={mobile ? 'small' : 'small'}>
+          <NavText color={mobile ? 'text-weak' : undefined} size={mobile ? 'medium' : 'small'}>
             {x.label}
           </NavText>
         </StyledLink>

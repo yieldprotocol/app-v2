@@ -1,7 +1,8 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import { Box, ResponsiveContext, Select, Text } from 'grommet';
-import Loader from 'react-spinners/ScaleLoader';
+
+import Skeleton from 'react-loading-skeleton';
 
 import styled from 'styled-components';
 import { IAsset } from '../../types';
@@ -27,6 +28,8 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   const { userState, userActions } = useContext(UserContext);
   const { selectedIlkId, selectedSeriesId, selectedBaseId, assetMap, seriesMap } = userState;
 
+  const { setSelectedIlk, setSelectedBase } = userActions;
+
   const selectedSeries = seriesMap.get(selectedSeriesId!);
   const selectedBase = assetMap.get(selectedBaseId!);
   const selectedIlk = assetMap.get(selectedIlkId!);
@@ -39,24 +42,25 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
         {asset?.symbol}
       </Box>
     ) : (
-      <Loader height="14px" color="lightgrey" margin="0.5px" />
+      <Skeleton width={50} />
     );
 
   const handleSelect = (asset: IAsset) => {
     if (selectCollateral) {
       console.log('Collateral selected: ', asset.id);
-      userActions.setSelectedIlk(asset.id);
+      setSelectedIlk(asset.id);
     } else {
       console.log('Base selected: ', asset.id);
-      userActions.setSelectedBase(asset.id);
+      setSelectedBase(asset.id);
     }
   };
 
   /* update options on any changes */
   useEffect(() => {
     const opts = Array.from(assetMap.values()) as IAsset[];
+
     const filteredOptions = selectCollateral
-      ? opts.filter((a: IAsset) => a.id !== selectedBaseId)
+      ? opts.filter((a: IAsset) => a.id !== selectedBaseId).filter((a: IAsset) => a.balance?.gt(ethers.constants.Zero))
       : opts.filter((a: IAsset) => a.isYieldBase);
     setOptions(filteredOptions);
   }, [assetMap, selectCollateral, selectedSeriesId, selectedBaseId]);
@@ -64,16 +68,16 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   /* initiate base selector to Dai available asset and selected ilk ETH */
   useEffect(() => {
     if (Array.from(assetMap.values()).length) {
-      !selectedBaseId && userActions.setSelectedBase(assetMap.get(DAI).id);
-      !selectedIlkId && userActions.setSelectedIlk(assetMap.get(WETH).id);
+      !selectedBaseId && setSelectedBase(DAI);
+      !selectedIlkId && setSelectedIlk(WETH);
     }
-  }, [assetMap]);
+  }, [assetMap, selectedBaseId, selectedIlkId]);
 
   /* make sure ilk (collateral) never matches baseId */
   useEffect(() => {
     if (selectedIlk === selectedBase) {
       const firstNotBaseIlk = options.find((asset: IAsset) => asset.id !== selectedIlk?.id)?.id;
-      userActions.setSelectedIlk(firstNotBaseIlk);
+      setSelectedIlk(firstNotBaseIlk);
     }
   }, [options, selectedIlk, selectedBase]);
 
@@ -83,6 +87,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
       round="xsmall"
       // border={(selectCollateral && !selectedSeries) ? { color: 'text-xweak' } : true}
       elevation="xsmall"
+      background="solid"
     >
       <Select
         plain
@@ -100,7 +105,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
         }
         onChange={({ option }: any) => handleSelect(option)}
         disabled={
-          (selectCollateral && options.filter((o, i) => (o.balance.eq(ethers.constants.Zero) ? i : null))) ||
+          (selectCollateral && options.filter((o, i) => (o.balance?.eq(ethers.constants.Zero) ? i : null))) ||
           (selectCollateral ? selectedSeries?.mature || !selectedSeries : null)
 
           // ( options.map((x:any, i:number) => {

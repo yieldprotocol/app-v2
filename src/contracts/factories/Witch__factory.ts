@@ -100,8 +100,33 @@ const _abi = [
         name: "dust",
         type: "uint128",
       },
+      {
+        indexed: false,
+        internalType: "bool",
+        name: "active",
+        type: "bool",
+      },
     ],
     name: "IlkSet",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "param",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "value",
+        type: "address",
+      },
+    ],
+    name: "Point",
     type: "event",
   },
   {
@@ -188,7 +213,33 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "LOCK8605463013",
+    outputs: [
+      {
+        internalType: "bytes4",
+        name: "",
+        type: "bytes4",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "ROOT",
+    outputs: [
+      {
+        internalType: "bytes4",
+        name: "",
+        type: "bytes4",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "ROOT4146650865",
     outputs: [
       {
         internalType: "bytes4",
@@ -368,6 +419,11 @@ const _abi = [
     name: "ilks",
     outputs: [
       {
+        internalType: "bool",
+        name: "active",
+        type: "bool",
+      },
+      {
         internalType: "uint32",
         name: "duration",
         type: "uint32",
@@ -433,6 +489,24 @@ const _abi = [
         type: "uint256",
       },
     ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "param",
+        type: "bytes32",
+      },
+      {
+        internalType: "address",
+        name: "value",
+        type: "address",
+      },
+    ],
+    name: "point",
+    outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },
@@ -511,6 +585,11 @@ const _abi = [
         internalType: "uint128",
         name: "dust",
         type: "uint128",
+      },
+      {
+        internalType: "bool",
+        name: "active",
+        type: "bool",
       },
     ],
     name: "setIlk",

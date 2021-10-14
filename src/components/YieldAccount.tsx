@@ -2,25 +2,35 @@ import React, { useState, useContext } from 'react';
 import styled from 'styled-components';
 import { Text, Box, ResponsiveContext } from 'grommet';
 import { FiSettings } from 'react-icons/fi';
-
-import YieldBalances from './YieldBalances';
-
+import Skeleton from 'react-loading-skeleton';
 import { ChainContext } from '../contexts/ChainContext';
-import { TxContext } from '../contexts/TxContext';
-
 import { abbreviateHash } from '../utils/appUtils';
+import YieldBalances from './YieldBalances';
 import YieldAvatar from './YieldAvatar';
-import TransactionWidget from './TransactionWidget';
 import ConnectButton from './buttons/ConnectButton';
 import SidebarSettings from './SidebarSettings';
 import EthMark from './logos/EthMark';
 import { UserContext } from '../contexts/UserContext';
 import { WETH } from '../utils/constants';
+import SettingsBalances from './SettingsBalances';
 
 const StyledText = styled(Text)`
   svg,
   span {
     vertical-align: middle;
+  }
+`;
+
+const StyledBox = styled(Box)`
+  text-decoration: none;
+  padding: 8px;
+
+  -webkit-transition: transform 0.3s ease-in-out;
+  -moz-transition: transform 0.3s ease-in-out;
+  transition: transform 0.3s ease-in-out;
+
+  :hover {
+    transform: scale(1.1);
   }
 `;
 
@@ -31,15 +41,11 @@ const YieldAccount = (props: any) => {
   } = useContext(ChainContext);
 
   const {
-    userState: { assetMap },
+    userState: { assetMap, assetsLoading },
   } = useContext(UserContext);
 
-  const {
-    txState: { sigPending, txPending, processPending, processActive },
-  } = useContext(TxContext);
-
-  const [settingsOpen, setSettingsOpen] = useState<boolean>();
-  const [connectOpen, setConnectOpen] = useState<boolean>();
+  const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
+  const [connectOpen, setConnectOpen] = useState<boolean>(false);
 
   const ethBalance = assetMap.get(WETH)?.balance_;
 
@@ -54,23 +60,33 @@ const YieldAccount = (props: any) => {
 
       {account ? (
         <Box direction="row" gap="xsmall" align="center">
-          {!mobile && <>{processActive ? <TransactionWidget /> : <YieldBalances />}</>}
-          <Box round="xsmall" onClick={() => setSettingsOpen(true)} pad="small" justify="center">
+          {!mobile && <SettingsBalances />}
+          <StyledBox
+            round="xsmall"
+            onClick={() => setSettingsOpen(true)}
+            pad="xsmall"
+            justify="center"
+            hoverIndicator={{ background: 'hover' }}
+          >
             {mobile ? (
-              <Text color="text">
+              <Box>
                 <FiSettings />
-              </Text>
+              </Box>
             ) : (
               <Box direction="row" align="center" gap="small">
                 <Box>
                   <Text color="text" size="small">
-                    {abbreviateHash(account)}
+                    {abbreviateHash(account, 5)}
                   </Text>
 
                   <Box direction="row" align="center" gap="small">
-                    <Box direction="row" gap="small" align="center">
+                    <Box direction="row" gap="xsmall" align="center">
                       <StyledText size="small" color="text">
-                        <EthMark /> {ethBalance}
+                        {assetsLoading && <Skeleton circle height={15} width={15} />}
+                        {ethBalance && <EthMark />}
+                      </StyledText>
+                      <StyledText size="small" color="text">
+                        {assetsLoading ? <Skeleton width={40} /> : ethBalance}
                       </StyledText>
                     </Box>
                   </Box>
@@ -80,7 +96,7 @@ const YieldAccount = (props: any) => {
                 </Box>
               </Box>
             )}
-          </Box>
+          </StyledBox>
         </Box>
       ) : (
         <ConnectButton action={() => setConnectOpen(true)} />

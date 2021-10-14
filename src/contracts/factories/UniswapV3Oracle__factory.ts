@@ -132,6 +132,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "LOCK8605463013",
+    outputs: [
+      {
+        internalType: "bytes4",
+        name: "",
+        type: "bytes4",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "ROOT",
     outputs: [
       {
@@ -145,12 +158,12 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "decimals",
+    name: "ROOT4146650865",
     outputs: [
       {
-        internalType: "uint8",
+        internalType: "bytes4",
         name: "",
-        type: "uint8",
+        type: "bytes4",
       },
     ],
     stateMutability: "view",
@@ -433,29 +446,6 @@ const _abi = [
       },
     ],
     name: "setSource",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes6[]",
-        name: "bases",
-        type: "bytes6[]",
-      },
-      {
-        internalType: "bytes6[]",
-        name: "quotes",
-        type: "bytes6[]",
-      },
-      {
-        internalType: "address[]",
-        name: "sources_",
-        type: "address[]",
-      },
-    ],
-    name: "setSources",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

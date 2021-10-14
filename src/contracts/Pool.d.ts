@@ -17,7 +17,7 @@ import {
 import { BytesLike } from "@ethersproject/bytes";
 import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
-import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
+import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 
 interface PoolInterface extends ethers.utils.Interface {
   functions: {
@@ -27,8 +27,8 @@ interface PoolInterface extends ethers.utils.Interface {
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "base()": FunctionFragment;
-    "burn(address,uint256,uint256)": FunctionFragment;
-    "burnForBase(address,uint256)": FunctionFragment;
+    "burn(address,address,uint256,uint256)": FunctionFragment;
+    "burnForBase(address,uint256,uint256)": FunctionFragment;
     "buyBase(address,uint128,uint128)": FunctionFragment;
     "buyBasePreview(uint128)": FunctionFragment;
     "buyFYToken(address,uint128,uint128)": FunctionFragment;
@@ -37,32 +37,30 @@ interface PoolInterface extends ethers.utils.Interface {
     "decimals()": FunctionFragment;
     "deploymentChainId()": FunctionFragment;
     "fyToken()": FunctionFragment;
+    "g1()": FunctionFragment;
+    "g2()": FunctionFragment;
     "getBaseBalance()": FunctionFragment;
     "getCache()": FunctionFragment;
     "getFYTokenBalance()": FunctionFragment;
-    "getG1()": FunctionFragment;
-    "getG2()": FunctionFragment;
-    "getK()": FunctionFragment;
     "maturity()": FunctionFragment;
-    "mint(address,bool,uint256)": FunctionFragment;
-    "mintWithBase(address,uint256,uint256)": FunctionFragment;
+    "mint(address,bool,uint256,uint256)": FunctionFragment;
+    "mintWithBase(address,uint256,uint256,uint256)": FunctionFragment;
     "name()": FunctionFragment;
     "nonces(address)": FunctionFragment;
-    "owner()": FunctionFragment;
     "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)": FunctionFragment;
     "retrieveBase(address)": FunctionFragment;
     "retrieveFYToken(address)": FunctionFragment;
+    "scaleFactor()": FunctionFragment;
     "sellBase(address,uint128)": FunctionFragment;
     "sellBasePreview(uint128)": FunctionFragment;
     "sellFYToken(address,uint128)": FunctionFragment;
     "sellFYTokenPreview(uint128)": FunctionFragment;
-    "setParameter(bytes32,int128)": FunctionFragment;
     "symbol()": FunctionFragment;
     "sync()": FunctionFragment;
     "totalSupply()": FunctionFragment;
     "transfer(address,uint256)": FunctionFragment;
     "transferFrom(address,address,uint256)": FunctionFragment;
-    "transferOwnership(address)": FunctionFragment;
+    "ts()": FunctionFragment;
     "version()": FunctionFragment;
   };
 
@@ -86,11 +84,11 @@ interface PoolInterface extends ethers.utils.Interface {
   encodeFunctionData(functionFragment: "base", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "burn",
-    values: [string, BigNumberish, BigNumberish]
+    values: [string, string, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "burnForBase",
-    values: [string, BigNumberish]
+    values: [string, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "buyBase",
@@ -118,6 +116,8 @@ interface PoolInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "fyToken", values?: undefined): string;
+  encodeFunctionData(functionFragment: "g1", values?: undefined): string;
+  encodeFunctionData(functionFragment: "g2", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "getBaseBalance",
     values?: undefined
@@ -127,21 +127,17 @@ interface PoolInterface extends ethers.utils.Interface {
     functionFragment: "getFYTokenBalance",
     values?: undefined
   ): string;
-  encodeFunctionData(functionFragment: "getG1", values?: undefined): string;
-  encodeFunctionData(functionFragment: "getG2", values?: undefined): string;
-  encodeFunctionData(functionFragment: "getK", values?: undefined): string;
   encodeFunctionData(functionFragment: "maturity", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "mint",
-    values: [string, boolean, BigNumberish]
+    values: [string, boolean, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "mintWithBase",
-    values: [string, BigNumberish, BigNumberish]
+    values: [string, BigNumberish, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(functionFragment: "nonces", values: [string]): string;
-  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "permit",
     values: [
@@ -163,6 +159,10 @@ interface PoolInterface extends ethers.utils.Interface {
     values: [string]
   ): string;
   encodeFunctionData(
+    functionFragment: "scaleFactor",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "sellBase",
     values: [string, BigNumberish]
   ): string;
@@ -178,10 +178,6 @@ interface PoolInterface extends ethers.utils.Interface {
     functionFragment: "sellFYTokenPreview",
     values: [BigNumberish]
   ): string;
-  encodeFunctionData(
-    functionFragment: "setParameter",
-    values: [BytesLike, BigNumberish]
-  ): string;
   encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
   encodeFunctionData(functionFragment: "sync", values?: undefined): string;
   encodeFunctionData(
@@ -196,10 +192,7 @@ interface PoolInterface extends ethers.utils.Interface {
     functionFragment: "transferFrom",
     values: [string, string, BigNumberish]
   ): string;
-  encodeFunctionData(
-    functionFragment: "transferOwnership",
-    values: [string]
-  ): string;
+  encodeFunctionData(functionFragment: "ts", values?: undefined): string;
   encodeFunctionData(functionFragment: "version", values?: undefined): string;
 
   decodeFunctionResult(
@@ -239,6 +232,8 @@ interface PoolInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "fyToken", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "g1", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "g2", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getBaseBalance",
     data: BytesLike
@@ -248,9 +243,6 @@ interface PoolInterface extends ethers.utils.Interface {
     functionFragment: "getFYTokenBalance",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "getG1", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getG2", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getK", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "maturity", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
   decodeFunctionResult(
@@ -259,7 +251,6 @@ interface PoolInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "nonces", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "permit", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "retrieveBase",
@@ -267,6 +258,10 @@ interface PoolInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "retrieveFYToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "scaleFactor",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "sellBase", data: BytesLike): Result;
@@ -282,10 +277,6 @@ interface PoolInterface extends ethers.utils.Interface {
     functionFragment: "sellFYTokenPreview",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "setParameter",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "sync", data: BytesLike): Result;
   decodeFunctionResult(
@@ -297,17 +288,12 @@ interface PoolInterface extends ethers.utils.Interface {
     functionFragment: "transferFrom",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferOwnership",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "ts", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "version", data: BytesLike): Result;
 
   events: {
     "Approval(address,address,uint256)": EventFragment;
-    "Liquidity(uint32,address,address,int256,int256,int256)": EventFragment;
-    "OwnershipTransferred(address,address)": EventFragment;
-    "ParameterSet(bytes32,int128)": EventFragment;
+    "Liquidity(uint32,address,address,address,int256,int256,int256)": EventFragment;
     "Sync(uint112,uint112,uint256)": EventFragment;
     "Trade(uint32,address,address,int256,int256)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
@@ -315,12 +301,52 @@ interface PoolInterface extends ethers.utils.Interface {
 
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Liquidity"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ParameterSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Sync"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Trade"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
 }
+
+export type ApprovalEvent = TypedEvent<
+  [string, string, BigNumber] & {
+    owner: string;
+    spender: string;
+    value: BigNumber;
+  }
+>;
+
+export type LiquidityEvent = TypedEvent<
+  [number, string, string, string, BigNumber, BigNumber, BigNumber] & {
+    maturity: number;
+    from: string;
+    to: string;
+    fyTokenTo: string;
+    bases: BigNumber;
+    fyTokens: BigNumber;
+    poolTokens: BigNumber;
+  }
+>;
+
+export type SyncEvent = TypedEvent<
+  [BigNumber, BigNumber, BigNumber] & {
+    baseCached: BigNumber;
+    fyTokenCached: BigNumber;
+    cumulativeBalancesRatio: BigNumber;
+  }
+>;
+
+export type TradeEvent = TypedEvent<
+  [number, string, string, BigNumber, BigNumber] & {
+    maturity: number;
+    from: string;
+    to: string;
+    bases: BigNumber;
+    fyTokens: BigNumber;
+  }
+>;
+
+export type TransferEvent = TypedEvent<
+  [string, string, BigNumber] & { from: string; to: string; value: BigNumber }
+>;
 
 export class Pool extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -387,15 +413,17 @@ export class Pool extends BaseContract {
     base(overrides?: CallOverrides): Promise<[string]>;
 
     burn(
-      to: string,
-      minBaseOut: BigNumberish,
-      minFYTokenOut: BigNumberish,
+      baseTo: string,
+      fyTokenTo: string,
+      minRatio: BigNumberish,
+      maxRatio: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     burnForBase(
       to: string,
-      minBaseOut: BigNumberish,
+      minRatio: BigNumberish,
+      maxRatio: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -431,6 +459,10 @@ export class Pool extends BaseContract {
 
     fyToken(overrides?: CallOverrides): Promise<[string]>;
 
+    g1(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    g2(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     getBaseBalance(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     getCache(
@@ -439,33 +471,27 @@ export class Pool extends BaseContract {
 
     getFYTokenBalance(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    getG1(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    getG2(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    getK(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     maturity(overrides?: CallOverrides): Promise<[number]>;
 
     mint(
       to: string,
       calculateFromBase: boolean,
-      minTokensMinted: BigNumberish,
+      minRatio: BigNumberish,
+      maxRatio: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     mintWithBase(
       to: string,
       fyTokenToBuy: BigNumberish,
-      minTokensMinted: BigNumberish,
+      minRatio: BigNumberish,
+      maxRatio: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     name(overrides?: CallOverrides): Promise<[string]>;
 
     nonces(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    owner(overrides?: CallOverrides): Promise<[string]>;
 
     permit(
       owner: string,
@@ -487,6 +513,8 @@ export class Pool extends BaseContract {
       to: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    scaleFactor(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     sellBase(
       to: string,
@@ -510,12 +538,6 @@ export class Pool extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    setParameter(
-      parameter: BytesLike,
-      value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     symbol(overrides?: CallOverrides): Promise<[string]>;
 
     sync(
@@ -537,10 +559,7 @@ export class Pool extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    transferOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    ts(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     version(overrides?: CallOverrides): Promise<[string]>;
   };
@@ -566,15 +585,17 @@ export class Pool extends BaseContract {
   base(overrides?: CallOverrides): Promise<string>;
 
   burn(
-    to: string,
-    minBaseOut: BigNumberish,
-    minFYTokenOut: BigNumberish,
+    baseTo: string,
+    fyTokenTo: string,
+    minRatio: BigNumberish,
+    maxRatio: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   burnForBase(
     to: string,
-    minBaseOut: BigNumberish,
+    minRatio: BigNumberish,
+    maxRatio: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -610,39 +631,37 @@ export class Pool extends BaseContract {
 
   fyToken(overrides?: CallOverrides): Promise<string>;
 
+  g1(overrides?: CallOverrides): Promise<BigNumber>;
+
+  g2(overrides?: CallOverrides): Promise<BigNumber>;
+
   getBaseBalance(overrides?: CallOverrides): Promise<BigNumber>;
 
   getCache(overrides?: CallOverrides): Promise<[BigNumber, BigNumber, number]>;
 
   getFYTokenBalance(overrides?: CallOverrides): Promise<BigNumber>;
 
-  getG1(overrides?: CallOverrides): Promise<BigNumber>;
-
-  getG2(overrides?: CallOverrides): Promise<BigNumber>;
-
-  getK(overrides?: CallOverrides): Promise<BigNumber>;
-
   maturity(overrides?: CallOverrides): Promise<number>;
 
   mint(
     to: string,
     calculateFromBase: boolean,
-    minTokensMinted: BigNumberish,
+    minRatio: BigNumberish,
+    maxRatio: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   mintWithBase(
     to: string,
     fyTokenToBuy: BigNumberish,
-    minTokensMinted: BigNumberish,
+    minRatio: BigNumberish,
+    maxRatio: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   name(overrides?: CallOverrides): Promise<string>;
 
   nonces(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-  owner(overrides?: CallOverrides): Promise<string>;
 
   permit(
     owner: string,
@@ -664,6 +683,8 @@ export class Pool extends BaseContract {
     to: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  scaleFactor(overrides?: CallOverrides): Promise<BigNumber>;
 
   sellBase(
     to: string,
@@ -687,12 +708,6 @@ export class Pool extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  setParameter(
-    parameter: BytesLike,
-    value: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   symbol(overrides?: CallOverrides): Promise<string>;
 
   sync(
@@ -714,10 +729,7 @@ export class Pool extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  transferOwnership(
-    newOwner: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  ts(overrides?: CallOverrides): Promise<BigNumber>;
 
   version(overrides?: CallOverrides): Promise<string>;
 
@@ -743,15 +755,17 @@ export class Pool extends BaseContract {
     base(overrides?: CallOverrides): Promise<string>;
 
     burn(
-      to: string,
-      minBaseOut: BigNumberish,
-      minFYTokenOut: BigNumberish,
+      baseTo: string,
+      fyTokenTo: string,
+      minRatio: BigNumberish,
+      maxRatio: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber, BigNumber, BigNumber]>;
 
     burnForBase(
       to: string,
-      minBaseOut: BigNumberish,
+      minRatio: BigNumberish,
+      maxRatio: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, BigNumber] & { tokensBurned: BigNumber; baseOut: BigNumber }
@@ -789,6 +803,10 @@ export class Pool extends BaseContract {
 
     fyToken(overrides?: CallOverrides): Promise<string>;
 
+    g1(overrides?: CallOverrides): Promise<BigNumber>;
+
+    g2(overrides?: CallOverrides): Promise<BigNumber>;
+
     getBaseBalance(overrides?: CallOverrides): Promise<BigNumber>;
 
     getCache(
@@ -797,33 +815,27 @@ export class Pool extends BaseContract {
 
     getFYTokenBalance(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getG1(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getG2(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getK(overrides?: CallOverrides): Promise<BigNumber>;
-
     maturity(overrides?: CallOverrides): Promise<number>;
 
     mint(
       to: string,
       calculateFromBase: boolean,
-      minTokensMinted: BigNumberish,
+      minRatio: BigNumberish,
+      maxRatio: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber, BigNumber, BigNumber]>;
 
     mintWithBase(
       to: string,
       fyTokenToBuy: BigNumberish,
-      minTokensMinted: BigNumberish,
+      minRatio: BigNumberish,
+      maxRatio: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber, BigNumber, BigNumber]>;
 
     name(overrides?: CallOverrides): Promise<string>;
 
     nonces(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    owner(overrides?: CallOverrides): Promise<string>;
 
     permit(
       owner: string,
@@ -839,6 +851,8 @@ export class Pool extends BaseContract {
     retrieveBase(to: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     retrieveFYToken(to: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    scaleFactor(overrides?: CallOverrides): Promise<BigNumber>;
 
     sellBase(
       to: string,
@@ -862,12 +876,6 @@ export class Pool extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    setParameter(
-      parameter: BytesLike,
-      value: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     symbol(overrides?: CallOverrides): Promise<string>;
 
     sync(overrides?: CallOverrides): Promise<void>;
@@ -887,15 +895,21 @@ export class Pool extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    transferOwnership(
-      newOwner: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    ts(overrides?: CallOverrides): Promise<BigNumber>;
 
     version(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {
+    "Approval(address,address,uint256)"(
+      owner?: string | null,
+      spender?: string | null,
+      value?: null
+    ): TypedEventFilter<
+      [string, string, BigNumber],
+      { owner: string; spender: string; value: BigNumber }
+    >;
+
     Approval(
       owner?: string | null,
       spender?: string | null,
@@ -905,39 +919,59 @@ export class Pool extends BaseContract {
       { owner: string; spender: string; value: BigNumber }
     >;
 
-    Liquidity(
+    "Liquidity(uint32,address,address,address,int256,int256,int256)"(
       maturity?: null,
       from?: string | null,
       to?: string | null,
+      fyTokenTo?: string | null,
       bases?: null,
       fyTokens?: null,
       poolTokens?: null
     ): TypedEventFilter<
-      [number, string, string, BigNumber, BigNumber, BigNumber],
+      [number, string, string, string, BigNumber, BigNumber, BigNumber],
       {
         maturity: number;
         from: string;
         to: string;
+        fyTokenTo: string;
         bases: BigNumber;
         fyTokens: BigNumber;
         poolTokens: BigNumber;
       }
     >;
 
-    OwnershipTransferred(
-      oldOwner?: string | null,
-      newOwner?: string | null
+    Liquidity(
+      maturity?: null,
+      from?: string | null,
+      to?: string | null,
+      fyTokenTo?: string | null,
+      bases?: null,
+      fyTokens?: null,
+      poolTokens?: null
     ): TypedEventFilter<
-      [string, string],
-      { oldOwner: string; newOwner: string }
+      [number, string, string, string, BigNumber, BigNumber, BigNumber],
+      {
+        maturity: number;
+        from: string;
+        to: string;
+        fyTokenTo: string;
+        bases: BigNumber;
+        fyTokens: BigNumber;
+        poolTokens: BigNumber;
+      }
     >;
 
-    ParameterSet(
-      parameter?: null,
-      k?: null
+    "Sync(uint112,uint112,uint256)"(
+      baseCached?: null,
+      fyTokenCached?: null,
+      cumulativeBalancesRatio?: null
     ): TypedEventFilter<
-      [string, BigNumber],
-      { parameter: string; k: BigNumber }
+      [BigNumber, BigNumber, BigNumber],
+      {
+        baseCached: BigNumber;
+        fyTokenCached: BigNumber;
+        cumulativeBalancesRatio: BigNumber;
+      }
     >;
 
     Sync(
@@ -950,6 +984,23 @@ export class Pool extends BaseContract {
         baseCached: BigNumber;
         fyTokenCached: BigNumber;
         cumulativeBalancesRatio: BigNumber;
+      }
+    >;
+
+    "Trade(uint32,address,address,int256,int256)"(
+      maturity?: null,
+      from?: string | null,
+      to?: string | null,
+      bases?: null,
+      fyTokens?: null
+    ): TypedEventFilter<
+      [number, string, string, BigNumber, BigNumber],
+      {
+        maturity: number;
+        from: string;
+        to: string;
+        bases: BigNumber;
+        fyTokens: BigNumber;
       }
     >;
 
@@ -968,6 +1019,15 @@ export class Pool extends BaseContract {
         bases: BigNumber;
         fyTokens: BigNumber;
       }
+    >;
+
+    "Transfer(address,address,uint256)"(
+      from?: string | null,
+      to?: string | null,
+      value?: null
+    ): TypedEventFilter<
+      [string, string, BigNumber],
+      { from: string; to: string; value: BigNumber }
     >;
 
     Transfer(
@@ -1002,15 +1062,17 @@ export class Pool extends BaseContract {
     base(overrides?: CallOverrides): Promise<BigNumber>;
 
     burn(
-      to: string,
-      minBaseOut: BigNumberish,
-      minFYTokenOut: BigNumberish,
+      baseTo: string,
+      fyTokenTo: string,
+      minRatio: BigNumberish,
+      maxRatio: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     burnForBase(
       to: string,
-      minBaseOut: BigNumberish,
+      minRatio: BigNumberish,
+      maxRatio: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1046,39 +1108,37 @@ export class Pool extends BaseContract {
 
     fyToken(overrides?: CallOverrides): Promise<BigNumber>;
 
+    g1(overrides?: CallOverrides): Promise<BigNumber>;
+
+    g2(overrides?: CallOverrides): Promise<BigNumber>;
+
     getBaseBalance(overrides?: CallOverrides): Promise<BigNumber>;
 
     getCache(overrides?: CallOverrides): Promise<BigNumber>;
 
     getFYTokenBalance(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getG1(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getG2(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getK(overrides?: CallOverrides): Promise<BigNumber>;
-
     maturity(overrides?: CallOverrides): Promise<BigNumber>;
 
     mint(
       to: string,
       calculateFromBase: boolean,
-      minTokensMinted: BigNumberish,
+      minRatio: BigNumberish,
+      maxRatio: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     mintWithBase(
       to: string,
       fyTokenToBuy: BigNumberish,
-      minTokensMinted: BigNumberish,
+      minRatio: BigNumberish,
+      maxRatio: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     name(overrides?: CallOverrides): Promise<BigNumber>;
 
     nonces(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     permit(
       owner: string,
@@ -1100,6 +1160,8 @@ export class Pool extends BaseContract {
       to: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    scaleFactor(overrides?: CallOverrides): Promise<BigNumber>;
 
     sellBase(
       to: string,
@@ -1123,12 +1185,6 @@ export class Pool extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    setParameter(
-      parameter: BytesLike,
-      value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     symbol(overrides?: CallOverrides): Promise<BigNumber>;
 
     sync(
@@ -1150,10 +1206,7 @@ export class Pool extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    transferOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    ts(overrides?: CallOverrides): Promise<BigNumber>;
 
     version(overrides?: CallOverrides): Promise<BigNumber>;
   };
@@ -1183,15 +1236,17 @@ export class Pool extends BaseContract {
     base(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     burn(
-      to: string,
-      minBaseOut: BigNumberish,
-      minFYTokenOut: BigNumberish,
+      baseTo: string,
+      fyTokenTo: string,
+      minRatio: BigNumberish,
+      maxRatio: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     burnForBase(
       to: string,
-      minBaseOut: BigNumberish,
+      minRatio: BigNumberish,
+      maxRatio: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1229,31 +1284,31 @@ export class Pool extends BaseContract {
 
     fyToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    g1(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    g2(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     getBaseBalance(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getCache(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getFYTokenBalance(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    getG1(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getG2(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getK(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     maturity(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     mint(
       to: string,
       calculateFromBase: boolean,
-      minTokensMinted: BigNumberish,
+      minRatio: BigNumberish,
+      maxRatio: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     mintWithBase(
       to: string,
       fyTokenToBuy: BigNumberish,
-      minTokensMinted: BigNumberish,
+      minRatio: BigNumberish,
+      maxRatio: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1263,8 +1318,6 @@ export class Pool extends BaseContract {
       arg0: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
-
-    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     permit(
       owner: string,
@@ -1286,6 +1339,8 @@ export class Pool extends BaseContract {
       to: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    scaleFactor(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     sellBase(
       to: string,
@@ -1309,12 +1364,6 @@ export class Pool extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    setParameter(
-      parameter: BytesLike,
-      value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     symbol(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     sync(
@@ -1336,10 +1385,7 @@ export class Pool extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    transferOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
+    ts(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     version(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };

@@ -16,7 +16,7 @@ const _abi = [
       },
       {
         internalType: "contract IWETH9",
-        name: "weth_",
+        name: "weth",
         type: "address",
       },
     ],
@@ -34,6 +34,25 @@ const _abi = [
       },
     ],
     name: "FeeSet",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "integration",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "bool",
+        name: "set",
+        type: "bool",
+      },
+    ],
+    name: "IntegrationAdded",
     type: "event",
   },
   {
@@ -71,7 +90,7 @@ const _abi = [
         type: "bool",
       },
     ],
-    name: "ModuleSet",
+    name: "ModuleAdded",
     type: "event",
   },
   {
@@ -163,8 +182,40 @@ const _abi = [
     type: "event",
   },
   {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "token",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "bool",
+        name: "set",
+        type: "bool",
+      },
+    ],
+    name: "TokenAdded",
+    type: "event",
+  },
+  {
     inputs: [],
     name: "LOCK",
+    outputs: [
+      {
+        internalType: "bytes4",
+        name: "",
+        type: "bytes4",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "LOCK8605463013",
     outputs: [
       {
         internalType: "bytes4",
@@ -189,6 +240,37 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "ROOT4146650865",
+    outputs: [
+      {
+        internalType: "bytes4",
+        name: "",
+        type: "bytes4",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "integration",
+        type: "address",
+      },
+      {
+        internalType: "bool",
+        name: "set",
+        type: "bool",
+      },
+    ],
+    name: "addIntegration",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "bytes6",
@@ -209,6 +291,24 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "module",
+        type: "address",
+      },
+      {
+        internalType: "bool",
+        name: "set",
+        type: "bool",
+      },
+    ],
+    name: "addModule",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes6",
         name: "seriesId",
         type: "bytes6",
@@ -220,6 +320,24 @@ const _abi = [
       },
     ],
     name: "addPool",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "token",
+        type: "address",
+      },
+      {
+        internalType: "bool",
+        name: "set",
+        type: "bool",
+      },
+    ],
+    name: "addToken",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -361,6 +479,30 @@ const _abi = [
         name: "vaultId_",
         type: "bytes12",
       },
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+    ],
+    name: "closeFromLadle",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "repaid",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes12",
+        name: "vaultId_",
+        type: "bytes12",
+      },
     ],
     name: "destroy",
     outputs: [],
@@ -389,14 +531,9 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes6",
-        name: "id",
-        type: "bytes6",
-      },
-      {
-        internalType: "bool",
-        name: "isAsset",
-        type: "bool",
+        internalType: "contract DaiAbstract",
+        name: "token",
+        type: "address",
       },
       {
         internalType: "address",
@@ -442,14 +579,9 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes6",
-        name: "id",
-        type: "bytes6",
-      },
-      {
-        internalType: "bool",
-        name: "isAsset",
-        type: "bool",
+        internalType: "contract IERC2612",
+        name: "token",
+        type: "address",
       },
       {
         internalType: "address",
@@ -597,6 +729,25 @@ const _abi = [
       },
     ],
     name: "hasRole",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "integrations",
     outputs: [
       {
         internalType: "bool",
@@ -836,8 +987,13 @@ const _abi = [
         name: "vaultId_",
         type: "bytes12",
       },
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
     ],
-    name: "repayLadle",
+    name: "repayFromLadle",
     outputs: [
       {
         internalType: "uint256",
@@ -885,14 +1041,9 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes6",
-        name: "id",
-        type: "bytes6",
-      },
-      {
-        internalType: "bool",
-        name: "isAsset",
-        type: "bool",
+        internalType: "contract IERC20",
+        name: "token",
+        type: "address",
       },
       {
         internalType: "address",
@@ -1006,9 +1157,9 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes6",
-        name: "seriesId",
-        type: "bytes6",
+        internalType: "address",
+        name: "integration",
+        type: "address",
       },
       {
         internalType: "bytes",
@@ -1025,6 +1176,19 @@ const _abi = [
       },
     ],
     stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "router",
+    outputs: [
+      {
+        internalType: "contract Router",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -1082,24 +1246,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "module",
-        type: "address",
-      },
-      {
-        internalType: "bool",
-        name: "set",
-        type: "bool",
-      },
-    ],
-    name: "setModule",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "bytes4",
         name: "role",
         type: "bytes4",
@@ -1146,32 +1292,33 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes6",
-        name: "seriesId",
-        type: "bytes6",
-      },
-      {
-        internalType: "uint256",
-        name: "wad",
-        type: "uint256",
+        internalType: "address",
+        name: "",
+        type: "address",
       },
     ],
-    name: "transferToFYToken",
-    outputs: [],
-    stateMutability: "payable",
+    name: "tokens",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
     inputs: [
       {
-        internalType: "bytes6",
-        name: "seriesId",
-        type: "bytes6",
+        internalType: "contract IERC20",
+        name: "token",
+        type: "address",
       },
       {
-        internalType: "bool",
-        name: "isBase",
-        type: "bool",
+        internalType: "address",
+        name: "receiver",
+        type: "address",
       },
       {
         internalType: "uint128",
@@ -1179,7 +1326,7 @@ const _abi = [
         type: "uint128",
       },
     ],
-    name: "transferToPool",
+    name: "transfer",
     outputs: [],
     stateMutability: "payable",
     type: "function",

@@ -14,6 +14,11 @@ const _abi = [
         name: "cauldron_",
         type: "address",
       },
+      {
+        internalType: "contract IWETH9",
+        name: "weth_",
+        type: "address",
+      },
     ],
     stateMutability: "nonpayable",
     type: "constructor",
@@ -29,6 +34,25 @@ const _abi = [
       },
     ],
     name: "FeeSet",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "integration",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "bool",
+        name: "set",
+        type: "bool",
+      },
+    ],
+    name: "IntegrationAdded",
     type: "event",
   },
   {
@@ -66,7 +90,7 @@ const _abi = [
         type: "bool",
       },
     ],
-    name: "ModuleSet",
+    name: "ModuleAdded",
     type: "event",
   },
   {
@@ -86,6 +110,25 @@ const _abi = [
       },
     ],
     name: "PoolAdded",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "token",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "bool",
+        name: "set",
+        type: "bool",
+      },
+    ],
+    name: "TokenAdded",
     type: "event",
   },
   {
@@ -109,6 +152,25 @@ const _abi = [
         internalType: "contract ICauldron",
         name: "",
         type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "integrations",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
       },
     ],
     stateMutability: "view",
@@ -164,6 +226,51 @@ const _abi = [
     outputs: [
       {
         internalType: "contract IPool",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "router",
+    outputs: [
+      {
+        internalType: "contract Router",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "tokens",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "weth",
+    outputs: [
+      {
+        internalType: "contract IWETH9",
         name: "",
         type: "address",
       },

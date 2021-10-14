@@ -1,21 +1,23 @@
 import React, { useContext, useState } from 'react';
-import { Anchor, Box, Button, Collapsible, ResponsiveContext, Text } from 'grommet';
-import { FiCheckSquare, FiCopy, FiChevronUp, FiChevronDown, FiExternalLink, FiX } from 'react-icons/fi';
+import { Anchor, Box, Button, Collapsible, ResponsiveContext, Text, Tip } from 'grommet';
+import { FiChevronUp, FiChevronDown, FiExternalLink, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
-import { ChainContext, connectorNames } from '../contexts/ChainContext';
+import { ChainContext } from '../contexts/ChainContext';
 import { abbreviateHash } from '../utils/appUtils';
 import YieldAvatar from './YieldAvatar';
 import AdvancedSettings from './AdvancedSettings';
+import { TxContext } from '../contexts/TxContext';
+import CopyWrap from './wraps/CopyWrap';
+import TransactionItem from './TransactionItem';
 
-const ChangeButton = styled(Button)`
+const StyledButton = styled(Button)`
   background: #dbeafe;
   border: 2px solid #3b82f6;
-  height: 1.75rem;
-  width: 3rem;
   border-radius: 6px;
   font-size: 0.6rem;
   text-align: center;
   color: #2563eb;
+  width: 4rem;
 
   :hover {
     border: 2px solid #1d4ed8;
@@ -25,10 +27,12 @@ const ChangeButton = styled(Button)`
 const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
-    chainState: { account, chainData, provider },
+    chainState: { account, chainData, provider, CONNECTOR_NAMES },
   } = useContext(ChainContext);
-  const connectorName = connectorNames.get(provider.connection.url);
-  const [copySuccess, setCopySuccess] = useState<boolean>(false);
+  const {
+    txState: { transactions },
+  } = useContext(TxContext);
+  const connectorName = CONNECTOR_NAMES.get(provider.connection.url);
   const [transactionsOpen, toggleTransactionsOpen] = useState<boolean>(false);
 
   const handleChangeConnectType = () => {
@@ -36,10 +40,10 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
     setConnectOpen(true);
   };
 
-  const handleCopy = (text: any) => {
-    navigator.clipboard.writeText(text);
-    setCopySuccess(true);
-    setTimeout(() => setCopySuccess(false), 2000);
+  const handleResetApp = () => {
+    localStorage.clear();
+    // eslint-disable-next-line no-restricted-globals
+    location.reload();
   };
 
   return (
@@ -51,22 +55,18 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
       elevation="xlarge"
     >
       <Box gap="small" pad="medium">
-        <Button alignSelf="end" icon={<FiX size="1.5rem" />} onClick={() => setSettingsOpen(false)} plain />
-        <Box align="center" gap="small">
-          <YieldAvatar address={account} size={3} />
-          <Text size="xlarge">{abbreviateHash(account)}</Text>
+        <Box alignSelf="end" onClick={() => setSettingsOpen(false)} pad="xsmall">
+          <FiX size="1.5rem" />
         </Box>
+
+        <Box align="center" gap="medium">
+          <YieldAvatar address={account} size={5} />
+          <CopyWrap hash={account}>
+            <Text size="xlarge">{abbreviateHash(account, 6)}</Text>
+          </CopyWrap>
+        </Box>
+
         <Box align="center" direction="row" gap="small" justify="center">
-          <Button onClick={() => handleCopy(account)}>
-            {copySuccess ? (
-              <FiCheckSquare size="1rem" style={{ verticalAlign: 'middle' }} />
-            ) : (
-              <FiCopy size="1rem" style={{ verticalAlign: 'middle' }} />
-            )}
-            <Text margin="xxsmall" size="xsmall">
-              {copySuccess ? 'Copied' : 'Copy Address'}
-            </Text>
-          </Button>
           <Anchor href={`https://${chainData.name}.etherscan.io/address/${account}`} margin="xsmall" target="_blank">
             <FiExternalLink size="1rem" style={{ verticalAlign: 'middle' }} />
             <Text margin="xxsmall" size="xsmall">
@@ -76,7 +76,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
         </Box>
         <Box justify="between" align="center" direction="row">
           {connectorName && <Text size="small">Connected with {connectorName}</Text>}
-          <ChangeButton onClick={handleChangeConnectType}>Change</ChangeButton>
+          <StyledButton onClick={handleChangeConnectType}>Change</StyledButton>
         </Box>
       </Box>
       <Box
@@ -87,6 +87,19 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
       >
         <AdvancedSettings />
       </Box>
+      <Box border={{ color: 'tailwind-blue-100', size: 'xsmall', side: 'top' }} pad="medium">
+        <Box alignSelf="end">
+          <Tip
+            content={<Text size="xsmall">Having issues? Try resetting the app.</Text>}
+            dropProps={{
+              align: { right: 'left' },
+            }}
+          >
+            <StyledButton onClick={handleResetApp}>App Reset</StyledButton>
+          </Tip>
+        </Box>
+      </Box>
+
       <Box
         margin={{ top: 'auto' }}
         border={{ color: 'tailwind-blue-100', size: 'xsmall', side: 'top' }}
@@ -102,8 +115,14 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
             <FiChevronUp size="1.5rem" color="tailwind-blue" />
           )}
         </Box>
+
         <Collapsible open={transactionsOpen}>
-          <Text size="small">Your transactions will appear here...</Text>
+          {!transactions.size && <Text size="small">Your transactions will appear here...</Text>}
+          <Box>
+            {[...transactions.values()].map((tx: any) => (
+              <TransactionItem tx={tx} key={tx.tx.hash} wide={true} />
+            ))}
+          </Box>
         </Collapsible>
       </Box>
     </Box>

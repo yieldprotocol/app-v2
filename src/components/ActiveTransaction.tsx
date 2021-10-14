@@ -1,15 +1,16 @@
-import { constants } from 'ethers';
-import { Box, Button, Text } from 'grommet';
 import React, { useContext, useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import { Box, Spinner, Text } from 'grommet';
 import { BiWallet } from 'react-icons/bi';
-import { FiCheckCircle, FiClock, FiPenTool, FiX } from 'react-icons/fi';
-import { TxContext } from '../contexts/TxContext';
+import { FiCheckCircle, FiPenTool, FiX } from 'react-icons/fi';
+
 import { UserContext } from '../contexts/UserContext';
-import { useTx } from '../hooks/useTx';
-import { ActionCodes, ApprovalType, TxState } from '../types';
+import { useProcess } from '../hooks/useProcess';
+import { ActionCodes, ApprovalType, ISeries, IYieldProcess, ProcessStage, TxState } from '../types';
 import { abbreviateHash } from '../utils/appUtils';
 import EtherscanButton from './buttons/EtherscanButton';
 import CopyWrap from './wraps/CopyWrap';
+import CancelButton from './buttons/CancelButton';
 
 const InfoBlock = ({
   title,
@@ -27,73 +28,87 @@ const InfoBlock = ({
   <>
     {full ? (
       <Box direction="column" align="center" justify="center" gap="large" pad={{ vertical: 'large' }}>
-        {icon}
         <Box gap="medium" align="center">
-          <Text size="large">{title}</Text>
-          <Text size="small">{subTitle}</Text>
+          <Box direction="row" gap="medium">
+            {icon}
+            <Text size="large"> {title}</Text>
+          </Box>
+          <Box direction="row" gap="medium">
+            <Text size="small">{subTitle}</Text>
+            {button}
+          </Box>
         </Box>
-        {button}
       </Box>
     ) : (
       <Box gap="medium">
-        <Box direction="row" gap="medium" pad="medium" align="center" justify="center">
+        <Box direction="row" gap="medium" pad="medium" align="center" >
           {icon}
           <Box gap="xsmall">
             <Text size="medium">{title}</Text>
             <Box direction="row" gap="xsmall">
-              <Text size="small" color='text-weak'>{subTitle}</Text>   
+              <Text size="small" color="text-weak">
+                {subTitle}
+              </Text>
             </Box>
+            <Box alignSelf="center">{button}</Box>
           </Box>
         </Box>
-        <Box alignSelf='center'>{button}</Box>
       </Box>
     )}
   </>
 );
 
 const ActiveTransaction = ({
-  tx,
+  txProcess,
   full,
   children,
   pad,
+  cancelAction,
 }: {
-  tx: any;
+  txProcess: IYieldProcess | undefined;
   children: React.ReactNode;
+  cancelAction?: () => void;
   full?: boolean;
   pad?: boolean;
 }) => {
-  const { txState } = useContext(TxContext);
-  const { signatures } = txState;
   const {
-    userState: { approvalMethod },
+    userState: { approvalMethod, selectedSeriesId, seriesMap },
   } = useContext(UserContext);
 
-  const [sig, setSig] = useState<any>();
-  const [iconSize, setIconSize] = useState<string>('1em');
+  const { pathname } = useLocation();
+
+  const [series, setSeries] = useState<ISeries>();
+  // const [iconSize, setIconSize] = useState<string>(full ? '1.5em' : '1.5em');
+
+  const iconSize = '1.5em';
+
+  const activeProcess = txProcess;
 
   useEffect(() => {
-    console.log('HERE', tx);
-  }, [tx]);
-
-  useEffect(() => {
-    tx.txCode && setSig(signatures.get(tx.txCode));
-  }, [tx, signatures]);
-
-  useEffect(() => {
-    full && setIconSize('2.5em');
-    !full && setIconSize('1.5em');
-  }, [full]);
+    selectedSeriesId && setSeries(seriesMap.get(selectedSeriesId));
+  }, [selectedSeriesId, seriesMap]);
 
   return (
-    <Box pad={pad ? { horizontal: 'small', vertical: 'medium' } : undefined}>
-      {!tx.processActive && // CASE: no tx or signing activity
-        (!sig || sig?.status === TxState.REJECTED || sig?.status === TxState.SUCCESSFUL) &&
-        !tx.success &&
-        !tx.failed &&
-        !tx.rejected && <Box>{children}</Box>}
+    <Box pad={pad ? { vertical: 'medium' } : undefined}>
+      {!full && (activeProcess?.stage === ProcessStage.PROCESS_INACTIVE || !activeProcess) && (
+        <Box justify="between" direction="row" pad="xsmall">
+          <Text size="xsmall"> Review Transaction </Text>
+          {!full && <CancelButton action={cancelAction ? () => cancelAction() : () => null} />}
+        </Box>
+      )}
+      <Box
+        // background={ `linear-gradient( ${series?.startColor?.toString().concat('80')} , ${series?.endColor?.toString().concat('80')} )`}
+        background="gradient-transparent"
+        round="xsmall"
+      >
+        {(activeProcess?.stage === ProcessStage.PROCESS_INACTIVE || !activeProcess) && (
+          <Box gap="small" pad="small">
+            {full && <Text size="medium"> Review Transaction </Text>}
+            {children}
+          </Box>
+        )}
 
-      {tx.processActive &&
-        sig?.status === TxState.PENDING && ( // CASE: Signature/ approval required
+        {activeProcess?.stage === ProcessStage.SIGNING_REQUESTED && (
           <InfoBlock
             title={approvalMethod === ApprovalType.SIG ? 'Signature required' : 'Approval transaction required'}
             subTitle={
@@ -107,78 +122,63 @@ const ActiveTransaction = ({
           />
         )}
 
-      {tx.processActive &&
-        sig?.status === TxState.PENDING && // CASE: APPROVAL transaction pending (sig pending and tx pending)
-        tx.pending && (
+        {activeProcess?.stage === ProcessStage.SIGNING_TRANSACTION_PENDING && (
           <InfoBlock
             title="Token Approval"
             subTitle="Transaction Pending..."
-            icon={<FiClock size={iconSize} />}
-            button={<EtherscanButton txHash={tx.txHash} />}
+            icon={<Spinner color="tailwind-blue" size='medium' /> }
+            button={<EtherscanButton txHash={activeProcess.tx.hash} />}
             full={full}
           />
         )}
 
-      {tx.processActive && !tx.txHash && sig?.status !== TxState.PENDING && (
-        <InfoBlock
-          title="Transaction Confirmation..."
-          subTitle="Please check your wallet/provider."
-          icon={<BiWallet size={iconSize} />}
-          button={null}
-          full={full}
-        />
-      )}
+        {activeProcess?.stage === ProcessStage.TRANSACTION_REQUESTED && (
+          <InfoBlock
+            title="Transaction Confirmation..."
+            subTitle="Please check your wallet/provider."
+            icon={<BiWallet size={iconSize} />}
+            button={null}
+            full={full}
+          />
+        )}
 
-      {tx.processActive && // CASE: TX processing but signature complete
-        tx.pending &&
-        (!sig || sig?.status === TxState.SUCCESSFUL) && (
+        {activeProcess?.stage === ProcessStage.TRANSACTION_PENDING && (
           <InfoBlock
             title="Transaction Pending..."
-            subTitle={<CopyWrap hash={tx.txHash}> {abbreviateHash(tx.txHash, 6)} </CopyWrap>}
-            icon={<FiClock size={iconSize} />}
-            button={<EtherscanButton txHash={tx.txHash} />}
+            // subTitle={<CopyWrap hash={activeProcess.txHash}> {abbreviateHash(activeProcess.txHash, 3)} </CopyWrap>}
+            subTitle={null}
+            icon={<Spinner color="tailwind-blue" size='small' />}
+            button={<EtherscanButton txHash={activeProcess.txHash} />}
             full={full}
           />
         )}
 
-      {/* {tx.processActive &&
-        sig?.status === TxState.SUCCESSFUL &&
-        tx.success && ( // Case:  TX complete. if process still active, assume that the tx was an approval.
+        {activeProcess?.stage === ProcessStage.PROCESS_COMPLETE && activeProcess.tx.status === TxState.SUCCESSFUL && (
           <InfoBlock
-            title="Token Approval Complete"
-            subTitle="Please check your wallet/provider to confirm second step"
-            icon={<FiClock size={iconSize} />}
-            button={<EtherscanButton txHash={tx.txHash} />}
+            title="Transaction Complete"
+            // subTitle={<CopyWrap hash={activeProcess.txHash}> {abbreviateHash(activeProcess.txHash, 3)} </CopyWrap>}
+            subTitle={null}
+            icon={<FiCheckCircle size={iconSize} color='green' />}
+            button={<EtherscanButton txHash={activeProcess.txHash} />}
             full={full}
           />
-        )} */}
+        )}
 
-      {!tx.processActive &&
-        tx.success && (
-        <InfoBlock
-          title="Transaction Complete"
-          subTitle={<CopyWrap hash={tx.txHash}> {abbreviateHash(tx.txHash, 6)} </CopyWrap>}
-          icon={<FiCheckCircle size={iconSize} />}
-          button={<EtherscanButton txHash={tx.txHash} />}
-          full={full}
-        />
-      )}
-
-      {
-      !tx.processActive &&
-      tx.failed && ( // Case: transaction failed.
-        <InfoBlock
-          title="Transaction Failed"
-          subTitle={<CopyWrap hash={tx.txHash}> {abbreviateHash(tx.txHash, 6)} </CopyWrap>}
-          icon={<FiX size={iconSize} />}
-          button={<EtherscanButton txHash={tx.txHash} />}
-          full={full}
-        />
-      )}
+        {activeProcess?.stage === ProcessStage.PROCESS_COMPLETE && activeProcess.tx.status === TxState.FAILED && (
+          <InfoBlock
+            title="Transaction Failed"
+            subTitle={null}
+            // subTitle={<CopyWrap hash={activeProcess.txHash}> {abbreviateHash(activeProcess.txHash, 3)} </CopyWrap>}
+            icon={<FiX size={iconSize} />}
+            button={<EtherscanButton txHash={activeProcess.txHash} />}
+            full={full}
+          />
+        )}
+      </Box>
     </Box>
   );
 };
 
-ActiveTransaction.defaultProps = { full: false, pad: false };
+ActiveTransaction.defaultProps = { full: false, pad: false, cancelAction: () => null };
 
 export default ActiveTransaction;

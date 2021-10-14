@@ -126,7 +126,7 @@ function Collateralization({ percent }: { percent: number }) {
         <text textAnchor="middle" x="20" y="15" fontSize="17" fill="url(#gradient)" fillOpacity="0.1">{percent}%</text>
         */}
       </svg>
-      <Text> Collateralisation rate: {percent}% </Text>
+      <Text> Collateralization rate: {percent}% </Text>
     </Box>
   );
 }

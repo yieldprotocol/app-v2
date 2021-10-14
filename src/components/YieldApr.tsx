@@ -1,13 +1,10 @@
-import { ethers } from 'ethers';
 import { Box, ResponsiveContext, Text } from 'grommet';
-import React, { useContext, useEffect, useState } from 'react';
-import Loader from 'react-spinners/GridLoader';
+import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { UserContext } from '../contexts/UserContext';
-import { useApr } from '../hooks/aprHook';
-import { ActionType, ISeries, IUserContext } from '../types';
+import { useApr } from '../hooks/useApr';
+import { ActionType, IUserContext } from '../types';
 import { cleanValue } from '../utils/appUtils';
-import { buyBase, calculateAPR, secondsToFrom, sellBase } from '../utils/yieldMath';
 import HandText from './texts/HandText';
 
 interface IYieldApr {
@@ -60,12 +57,10 @@ function YieldApr({ actionType, input }: IYieldApr) {
             </StyledText>
             <Box fill="vertical" justify="evenly">
               <StyledText size="large" color={selectedSeries?.color}>
-                {' '}
-                %{' '}
+                %
               </StyledText>
               <StyledText size="large" color={selectedSeries?.color}>
-                {' '}
-                APR{' '}
+                APR
               </StyledText>
             </Box>
           </Box>

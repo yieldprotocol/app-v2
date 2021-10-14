@@ -441,7 +441,33 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "LOCK8605463013",
+    outputs: [
+      {
+        internalType: "bytes4",
+        name: "",
+        type: "bytes4",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "ROOT",
+    outputs: [
+      {
+        internalType: "bytes4",
+        name: "",
+        type: "bytes4",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "ROOT4146650865",
     outputs: [
       {
         internalType: "bytes4",
@@ -787,24 +813,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes12",
-        name: "vaultId",
-        type: "bytes12",
-      },
-      {
-        internalType: "address",
-        name: "receiver",
-        type: "address",
-      },
-    ],
-    name: "grab",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "bytes4",
         name: "role",
         type: "bytes4",
@@ -881,6 +889,25 @@ const _abi = [
         internalType: "bool",
         name: "",
         type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes6",
+        name: "",
+        type: "bytes6",
+      },
+    ],
+    name: "lendingOracles",
+    outputs: [
+      {
+        internalType: "contract IOracle",
+        name: "",
+        type: "address",
       },
     ],
     stateMutability: "view",
@@ -970,25 +997,6 @@ const _abi = [
       },
     ],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes6",
-        name: "",
-        type: "bytes6",
-      },
-    ],
-    name: "rateOracles",
-    outputs: [
-      {
-        internalType: "contract IOracle",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {
@@ -1202,7 +1210,7 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "setRateOracle",
+    name: "setLendingOracle",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

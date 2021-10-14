@@ -16,15 +16,19 @@ import {
 import { BytesLike } from "@ethersproject/bytes";
 import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
-import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
+import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 
 interface LadleStorageInterface extends ethers.utils.Interface {
   functions: {
     "borrowingFee()": FunctionFragment;
     "cauldron()": FunctionFragment;
+    "integrations(address)": FunctionFragment;
     "joins(bytes6)": FunctionFragment;
     "modules(address)": FunctionFragment;
     "pools(bytes6)": FunctionFragment;
+    "router()": FunctionFragment;
+    "tokens(address)": FunctionFragment;
+    "weth()": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -32,31 +36,71 @@ interface LadleStorageInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "cauldron", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "integrations",
+    values: [string]
+  ): string;
   encodeFunctionData(functionFragment: "joins", values: [BytesLike]): string;
   encodeFunctionData(functionFragment: "modules", values: [string]): string;
   encodeFunctionData(functionFragment: "pools", values: [BytesLike]): string;
+  encodeFunctionData(functionFragment: "router", values?: undefined): string;
+  encodeFunctionData(functionFragment: "tokens", values: [string]): string;
+  encodeFunctionData(functionFragment: "weth", values?: undefined): string;
 
   decodeFunctionResult(
     functionFragment: "borrowingFee",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "cauldron", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "integrations",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "joins", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "modules", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "pools", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "router", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "tokens", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "weth", data: BytesLike): Result;
 
   events: {
     "FeeSet(uint256)": EventFragment;
+    "IntegrationAdded(address,bool)": EventFragment;
     "JoinAdded(bytes6,address)": EventFragment;
-    "ModuleSet(address,bool)": EventFragment;
+    "ModuleAdded(address,bool)": EventFragment;
     "PoolAdded(bytes6,address)": EventFragment;
+    "TokenAdded(address,bool)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "FeeSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "IntegrationAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "JoinAdded"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ModuleSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ModuleAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PoolAdded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "TokenAdded"): EventFragment;
 }
+
+export type FeeSetEvent = TypedEvent<[BigNumber] & { fee: BigNumber }>;
+
+export type IntegrationAddedEvent = TypedEvent<
+  [string, boolean] & { integration: string; set: boolean }
+>;
+
+export type JoinAddedEvent = TypedEvent<
+  [string, string] & { assetId: string; join: string }
+>;
+
+export type ModuleAddedEvent = TypedEvent<
+  [string, boolean] & { module: string; set: boolean }
+>;
+
+export type PoolAddedEvent = TypedEvent<
+  [string, string] & { seriesId: string; pool: string }
+>;
+
+export type TokenAddedEvent = TypedEvent<
+  [string, boolean] & { token: string; set: boolean }
+>;
 
 export class LadleStorage extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -106,16 +150,26 @@ export class LadleStorage extends BaseContract {
 
     cauldron(overrides?: CallOverrides): Promise<[string]>;
 
+    integrations(arg0: string, overrides?: CallOverrides): Promise<[boolean]>;
+
     joins(arg0: BytesLike, overrides?: CallOverrides): Promise<[string]>;
 
     modules(arg0: string, overrides?: CallOverrides): Promise<[boolean]>;
 
     pools(arg0: BytesLike, overrides?: CallOverrides): Promise<[string]>;
+
+    router(overrides?: CallOverrides): Promise<[string]>;
+
+    tokens(arg0: string, overrides?: CallOverrides): Promise<[boolean]>;
+
+    weth(overrides?: CallOverrides): Promise<[string]>;
   };
 
   borrowingFee(overrides?: CallOverrides): Promise<BigNumber>;
 
   cauldron(overrides?: CallOverrides): Promise<string>;
+
+  integrations(arg0: string, overrides?: CallOverrides): Promise<boolean>;
 
   joins(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
 
@@ -123,35 +177,94 @@ export class LadleStorage extends BaseContract {
 
   pools(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
 
+  router(overrides?: CallOverrides): Promise<string>;
+
+  tokens(arg0: string, overrides?: CallOverrides): Promise<boolean>;
+
+  weth(overrides?: CallOverrides): Promise<string>;
+
   callStatic: {
     borrowingFee(overrides?: CallOverrides): Promise<BigNumber>;
 
     cauldron(overrides?: CallOverrides): Promise<string>;
+
+    integrations(arg0: string, overrides?: CallOverrides): Promise<boolean>;
 
     joins(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
 
     modules(arg0: string, overrides?: CallOverrides): Promise<boolean>;
 
     pools(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
+
+    router(overrides?: CallOverrides): Promise<string>;
+
+    tokens(arg0: string, overrides?: CallOverrides): Promise<boolean>;
+
+    weth(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {
+    "FeeSet(uint256)"(
+      fee?: null
+    ): TypedEventFilter<[BigNumber], { fee: BigNumber }>;
+
     FeeSet(fee?: null): TypedEventFilter<[BigNumber], { fee: BigNumber }>;
+
+    "IntegrationAdded(address,bool)"(
+      integration?: string | null,
+      set?: boolean | null
+    ): TypedEventFilter<
+      [string, boolean],
+      { integration: string; set: boolean }
+    >;
+
+    IntegrationAdded(
+      integration?: string | null,
+      set?: boolean | null
+    ): TypedEventFilter<
+      [string, boolean],
+      { integration: string; set: boolean }
+    >;
+
+    "JoinAdded(bytes6,address)"(
+      assetId?: BytesLike | null,
+      join?: string | null
+    ): TypedEventFilter<[string, string], { assetId: string; join: string }>;
 
     JoinAdded(
       assetId?: BytesLike | null,
       join?: string | null
     ): TypedEventFilter<[string, string], { assetId: string; join: string }>;
 
-    ModuleSet(
+    "ModuleAdded(address,bool)"(
       module?: string | null,
       set?: boolean | null
     ): TypedEventFilter<[string, boolean], { module: string; set: boolean }>;
+
+    ModuleAdded(
+      module?: string | null,
+      set?: boolean | null
+    ): TypedEventFilter<[string, boolean], { module: string; set: boolean }>;
+
+    "PoolAdded(bytes6,address)"(
+      seriesId?: BytesLike | null,
+      pool?: string | null
+    ): TypedEventFilter<[string, string], { seriesId: string; pool: string }>;
 
     PoolAdded(
       seriesId?: BytesLike | null,
       pool?: string | null
     ): TypedEventFilter<[string, string], { seriesId: string; pool: string }>;
+
+    "TokenAdded(address,bool)"(
+      token?: string | null,
+      set?: boolean | null
+    ): TypedEventFilter<[string, boolean], { token: string; set: boolean }>;
+
+    TokenAdded(
+      token?: string | null,
+      set?: boolean | null
+    ): TypedEventFilter<[string, boolean], { token: string; set: boolean }>;
   };
 
   estimateGas: {
@@ -159,17 +272,30 @@ export class LadleStorage extends BaseContract {
 
     cauldron(overrides?: CallOverrides): Promise<BigNumber>;
 
+    integrations(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
     joins(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
 
     modules(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     pools(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
+
+    router(overrides?: CallOverrides): Promise<BigNumber>;
+
+    tokens(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    weth(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
     borrowingFee(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     cauldron(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    integrations(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     joins(
       arg0: BytesLike,
@@ -185,5 +311,14 @@ export class LadleStorage extends BaseContract {
       arg0: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    router(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    tokens(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    weth(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

@@ -1,36 +1,36 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, Collapsible, Text } from 'grommet';
 import { HistoryContext } from '../contexts/HistoryContext';
-import { IBaseHistItem, ISeries, IVault } from '../types';
+import { IBaseHistItem, ISeries, IStrategy, IVault } from '../types';
 import { modColor } from '../utils/appUtils';
 import { UserContext } from '../contexts/UserContext';
 import EtherscanButton from './buttons/EtherscanButton';
 
 interface IYieldHistory {
-  seriesOrVault: IVault | ISeries;
+  seriesOrVault: IVault | ISeries | IStrategy;
   view: ('POOL' | 'VAULT' | 'TRADE')[];
 }
 
 const YieldHistory = ({ seriesOrVault, view }: IYieldHistory) => {
   /* STATE FROM CONTEXT */
   const { historyState, historyActions } = useContext(HistoryContext);
-  const {
-    userState: { seriesMap },
-  } = useContext(UserContext);
-  const { vaultHistory, tradeHistory, poolHistory } = historyState;
+  // const {
+  //   userState: { seriesMap },
+  // } = useContext(UserContext);
+  const { vaultHistory, tradeHistory, strategyHistory } = historyState;
 
   const isVault = seriesOrVault && seriesOrVault.id.length > 12; // is a vault or a series.
-  const _series: ISeries = isVault ? seriesMap.get((seriesOrVault as IVault).seriesId) : seriesOrVault;
 
   /* LOCAL STATE */
   const [histList, setHistList] = useState<IBaseHistItem[]>([]);
   const [itemOpen, setItemOpen] = useState<any>(null);
 
   useEffect(() => {
-    if (view.includes('POOL') && poolHistory.size) setHistList(poolHistory.get(seriesOrVault.id));
+    // if (view.includes('POOL') && poolHistory.size) setHistList(poolHistory.get(seriesOrVault.id));
+    if (view.includes('POOL') && strategyHistory.size) setHistList(strategyHistory.get(seriesOrVault.id));
     if (view.includes('VAULT') && vaultHistory.size) setHistList(vaultHistory.get(seriesOrVault.id));
     if (view.includes('TRADE') && tradeHistory.size) setHistList(tradeHistory.get(seriesOrVault.id));
-  }, [isVault, poolHistory, seriesOrVault.id, tradeHistory, vaultHistory, view]);
+  }, [isVault, strategyHistory, seriesOrVault.id, tradeHistory, vaultHistory, view]);
 
   return (
     <Box margin={{ top: 'medium' }} height={{ max: '200px' }} style={{ overflow: 'auto' }}>
@@ -53,7 +53,7 @@ const YieldHistory = ({ seriesOrVault, view }: IYieldHistory) => {
                 </Box>
                 <Box direction="row" fill justify="between">
                   <Text size="xsmall" weight={900}>
-                    {x.histType}
+                    {x.actionCode}
                   </Text>
                   {/* <Text size="xsmall"> {x.ink_ || x.bases_} </Text> */}
                   <Text size="xsmall"> {x.primaryInfo} </Text>

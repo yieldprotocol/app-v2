@@ -55,10 +55,10 @@ const SlippageSettings = () => {
               align="center"
               justify="center"
             >
-              <Text>{`${tolerance * 100}%`}</Text>
+              <Text>{`${tolerance * 100} %`}</Text>
             </StyledBox>
           ))}
-          <InputWrap border={{ color: customTolerance ? 'brand' : '#dfe8f9' }}>
+          <Box direction="row" round="xsmall" border={{ color: customTolerance ? 'tailwind-blue' : '#dfe8f9' }}>
             <Input
               textAlign="center"
               style={{ paddingLeft: 'none', paddingRight: 'none' }}
@@ -69,10 +69,10 @@ const SlippageSettings = () => {
               value={input || ''}
               onChange={(event: any) => setInput(event.target.value)}
             />
-            <Box margin="none" pad="none">
+            <Box pad="xsmall" align="center" justify="center">
               <FiPercent />
             </Box>
-          </InputWrap>
+          </Box>
         </Grid>
       </Box>
     </Box>

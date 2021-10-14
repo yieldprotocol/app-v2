@@ -89,10 +89,22 @@ const _abi = [
         type: "bytes6",
       },
       {
+        indexed: false,
+        internalType: "contract IERC20Metadata",
+        name: "base",
+        type: "address",
+      },
+      {
         indexed: true,
         internalType: "bytes6",
         name: "quoteId",
         type: "bytes6",
+      },
+      {
+        indexed: false,
+        internalType: "contract IERC20Metadata",
+        name: "quote",
+        type: "address",
       },
       {
         indexed: true,
@@ -119,6 +131,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "LOCK8605463013",
+    outputs: [
+      {
+        internalType: "bytes4",
+        name: "",
+        type: "bytes4",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "ROOT",
     outputs: [
       {
@@ -132,12 +157,12 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "decimals",
+    name: "ROOT4146650865",
     outputs: [
       {
-        internalType: "uint8",
+        internalType: "bytes4",
         name: "",
-        type: "uint8",
+        type: "bytes4",
       },
     ],
     stateMutability: "view",
@@ -147,17 +172,17 @@ const _abi = [
     inputs: [
       {
         internalType: "bytes32",
-        name: "base",
+        name: "baseId",
         type: "bytes32",
       },
       {
         internalType: "bytes32",
-        name: "quote",
+        name: "quoteId",
         type: "bytes32",
       },
       {
         internalType: "uint256",
-        name: "amount",
+        name: "amountBase",
         type: "uint256",
       },
     ],
@@ -165,7 +190,7 @@ const _abi = [
     outputs: [
       {
         internalType: "uint256",
-        name: "value",
+        name: "amountQuote",
         type: "uint256",
       },
       {
@@ -273,17 +298,17 @@ const _abi = [
     inputs: [
       {
         internalType: "bytes32",
-        name: "base",
+        name: "baseId",
         type: "bytes32",
       },
       {
         internalType: "bytes32",
-        name: "quote",
+        name: "quoteId",
         type: "bytes32",
       },
       {
         internalType: "uint256",
-        name: "amount",
+        name: "amountBase",
         type: "uint256",
       },
     ],
@@ -291,7 +316,7 @@ const _abi = [
     outputs: [
       {
         internalType: "uint256",
-        name: "value",
+        name: "amountQuote",
         type: "uint256",
       },
       {
@@ -379,13 +404,23 @@ const _abi = [
     inputs: [
       {
         internalType: "bytes6",
-        name: "base",
+        name: "baseId",
         type: "bytes6",
       },
       {
+        internalType: "contract IERC20Metadata",
+        name: "base",
+        type: "address",
+      },
+      {
         internalType: "bytes6",
-        name: "quote",
+        name: "quoteId",
         type: "bytes6",
+      },
+      {
+        internalType: "contract IERC20Metadata",
+        name: "quote",
+        type: "address",
       },
       {
         internalType: "address",
@@ -394,29 +429,6 @@ const _abi = [
       },
     ],
     name: "setSource",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes6[]",
-        name: "bases",
-        type: "bytes6[]",
-      },
-      {
-        internalType: "bytes6[]",
-        name: "quotes",
-        type: "bytes6[]",
-      },
-      {
-        internalType: "address[]",
-        name: "sources_",
-        type: "address[]",
-      },
-    ],
-    name: "setSources",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -443,7 +455,12 @@ const _abi = [
       },
       {
         internalType: "uint8",
-        name: "decimals",
+        name: "baseDecimals",
+        type: "uint8",
+      },
+      {
+        internalType: "uint8",
+        name: "quoteDecimals",
         type: "uint8",
       },
       {

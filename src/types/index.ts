@@ -1,8 +1,8 @@
-import { ethers, BigNumber, BigNumberish } from 'ethers';
+import { ethers, BigNumber, BigNumberish, ContractTransaction } from 'ethers';
 import React from 'react';
-import { FYToken, Pool } from '../contracts';
+import { ERC20, ERC20Permit, FYToken, Pool, Strategy } from '../contracts';
 
-export { LadleActions, PoolRouterActions, ReroutedActions } from './operations';
+export { LadleActions, RoutedActions } from './operations';
 
 export interface IHistoryList {
   lastBlock: number;
@@ -23,37 +23,57 @@ export interface IUserContext {
 export interface IUserContextState {
   userLoading: boolean;
   activeAccount: string | null;
+
   assetMap: Map<string, IAsset>;
   seriesMap: Map<string, ISeries>;
   vaultMap: Map<string, IVault>;
-  priceMap: Map<string, Map<string, any>>;
+  strategyMap: Map<string, IStrategy>;
+
+  priceMap: Map<string, Map<string, any>>; // oracle pricing
+  limitMap: Map<string, Map<string, [BigNumber, BigNumber]>>; // min/max limits
+
+  vaultsLoading: boolean;
+  seriesLoading: boolean;
+  assetsLoading: boolean;
+  strategiesLoading: boolean;
+  pricesLoading: boolean;
+
   selectedSeriesId: string | null;
   selectedIlkId: string | null;
   selectedBaseId: string | null;
   selectedVaultId: string | null;
+  selectedStrategyAddr: string | null;
+
   approvalMethod: ApprovalType;
   dudeSalt: number;
-  showInactiveVaults: boolean;
   slippageTolerance: number;
+
+  dashSettings: IDashSettings;
 }
 
 export interface IUserContextActions {
   updateVaults: (vaultList: IVault[]) => void;
   updateSeries: (seriesList: ISeries[]) => void;
   updateAssets: (assetList: IAsset[]) => void;
-  updatePrice: (base: string, ilk: string) => void;
+  updatePrice: (ilkId: string, baseId: string, decimals: number) => void;
+  updateLimit: (ilkId: string, baseId: string) => void;
   setSelectedSeries: (seriesId: string) => void;
   setSelectedIlk: (ilkId: string | null) => void;
   setSelectedBase: (baseId: string | null) => void;
   setSelectedVault: (vaultId: string | null) => void;
+  setSelectedStrategy: (strategyAddr: string | null) => void;
+  setDashSettings: (settingName: any, settingValue: any) => void;
 }
 
-export interface ISeriesRoot {
-  id: string;
+export interface ISignable {
   name: string;
-  symbol: string;
-  address: string;
   version: string;
+  address: string;
+  symbol: string;
+}
+
+export interface ISeriesRoot extends ISignable {
+  id: string;
   displayName: string;
   displayNameMobile: string;
   maturity: number;
@@ -64,6 +84,10 @@ export interface ISeriesRoot {
   poolAddress: string;
   poolName: string;
   poolVersion: string; // for signing
+  poolSymbol: string; // for signing
+
+  decimals: number;
+
   baseId: string;
 
   color: string;
@@ -83,19 +107,19 @@ export interface ISeriesRoot {
   getBaseAddress: () => string; // antipattern, but required here because app simulatneoulsy gets assets and series
 }
 
-export interface IAssetRoot {
+export interface IAssetRoot extends ISignable {
   // fixed/static:
   id: string;
-  symbol: string;
-  name: string;
-  version: string;
+  decimals: number;
   color: string;
   image: React.FC;
   displayName: string;
   displayNameMobile: string;
-  address: string;
   joinAddress: string;
   digitFormat: number;
+
+  baseContract: ERC20Permit;
+  isYieldBase: boolean;
 
   // baked in token fns
   getBalance: (account: string) => Promise<BigNumber>;
@@ -103,14 +127,23 @@ export interface IAssetRoot {
   mintTest: () => Promise<VoidFunction>;
 }
 
+export interface IStrategyRoot extends ISignable {
+  id: string;
+  baseId: string;
+  decimals: number;
+  strategyContract: Strategy;
+}
+
 export interface IVaultRoot {
   id: string;
   ilkId: string;
   baseId: string;
   seriesId: string;
-  image: string;
   displayName: string;
+  decimals: number;
 }
+
+export interface IPoolRoot extends ISignable {}
 
 export interface ISeries extends ISeriesRoot {
   apr: string;
@@ -131,46 +164,80 @@ export interface ISeries extends ISeriesRoot {
 }
 
 export interface IAsset extends IAssetRoot {
-  isYieldBase: boolean;
   balance: BigNumber;
   balance_: string;
-  hasPoolRouterAuth: boolean;
   hasLadleAuth: boolean;
   hasJoinAuth: boolean;
 }
 
 export interface IVault extends IVaultRoot {
   owner: string;
+  isWitchOwner: boolean;
   isActive: boolean;
   ink: BigNumber;
   art: BigNumber;
   ink_: string;
   art_: string;
-  price: BigNumber;
-  price_: string;
-  min: BigNumber;
-  max: BigNumber;
+  minDebt: BigNumber;
+  maxDebt: BigNumber;
 }
+
+export interface IStrategy extends IStrategyRoot {
+  currentSeriesId: string;
+  currentPoolAddr: string;
+  nextSeriesId: string;
+
+  currentSeries: ISeries | undefined;
+  nextSeries: ISeries | undefined;
+  active: boolean;
+
+  initInvariant?: BigNumber;
+  currentInvariant?: BigNumber;
+  returnRate?: BigNumber;
+  returnRate_?: string;
+
+  strategyTotalSupply?: BigNumber;
+  strategyTotalSupply_?: string;
+
+  poolTotalSupply?: BigNumber;
+  poolTotalSupply_?: string;
+
+  strategyPoolBalance?: BigNumber;
+  strategyPoolBalance_?: string;
+  strategyPoolPercent?: string;
+
+  accountBalance?: BigNumber;
+  accountBalance_?: string;
+  accountStrategyPercent?: string | undefined;
+
+  accountPoolBalance?: BigNumber;
+  accountPoolBalance_?: string;
+  accountPoolPercent?: string | undefined;
+}
+
+export interface IPool extends IPoolRoot {}
 
 export interface ICallData {
   args: (string | BigNumberish | boolean)[];
   operation: string | [number, string[]];
-  series: ISeries;
+
+  /* optionals */
+  targetContract?: Strategy | Pool | ERC20Permit;
   fnName?: string;
-  ignore?: boolean;
+  ignoreIf?: boolean;
   overrides?: ethers.CallOverrides;
 }
 
 export interface ISignData {
-  target: ISeries | IAsset | { id: string; name: string; version: string; address: string };
-  spender: 'POOLROUTER' | 'LADLE' | string;
-  type: SignType;
-  series: ISeries;
+  target: ISignable;
+  spender: 'LADLE' | string;
 
   /* optional Extention/advanced use-case options */
+  amount?: BigNumberish;
   message?: string; // optional messaging for UI
-  ignore?: boolean; // conditional for ignoring
-  domain?: IDomain;
+  domain?: IDomain; // optional Domain if required
+  ignoreIf?: boolean; // conditional for ignoring
+  asRoute?: boolean; // is the sign via a route call
 }
 
 export interface IDaiPermitMessage {
@@ -200,6 +267,7 @@ export enum ApprovalType {
   TX = 'TX',
   SIG = 'SIG',
 }
+
 export enum SignType {
   ERC2612 = 'ERC2612_TYPE',
   DAI = 'DAI_TYPE',
@@ -211,6 +279,33 @@ export enum TxState {
   SUCCESSFUL = 'SUCCESSFUL',
   FAILED = 'FAILED',
   REJECTED = 'REJECTED',
+}
+
+export interface IYieldTx extends ContractTransaction {
+  txCode: string;
+  receipt: any | null;
+  status: TxState;
+}
+
+export enum ProcessStage {
+  'PROCESS_INACTIVE' = 0,
+  'SIGNING_REQUESTED' = 1,
+  'SIGNING_TRANSACTION_PENDING' = 2,
+  'SIGNING_COMPLETE' = 3,
+  'TRANSACTION_REQUESTED' = 4,
+  'TRANSACTION_PENDING' = 5,
+  'PROCESS_COMPLETE' = 6,
+  'PROCESS_COMPLETE_TIMEOUT' = 7,
+}
+
+export interface IYieldProcess {
+  txCode: string;
+  stage: ProcessStage;
+  tx: IYieldTx;
+  txHash: string;
+  timeout: boolean;
+  processActive?: boolean;
+  positionPath?: string | undefined;
 }
 
 export enum MenuView {
@@ -230,6 +325,16 @@ export enum ActionType {
   POOL = 'POOL',
 }
 
+export enum YieldColors {
+  SUCCESS = 'green',
+  FAILED = 'red',
+  WARNING = 'orange',
+  GRADIENT = '',
+  GRADIENT_TRANSPARENT = '',
+  PRIMARY = '',
+  SECONDARY = '',
+}
+
 export enum ActionCodes {
   // COLLATERAL
   ADD_COLLATERAL = 'Add Collateral',
@@ -240,7 +345,7 @@ export enum ActionCodes {
   ROLL_DEBT = 'Roll Debt',
   // LEND
   LEND = 'Lend',
-  CLOSE_POSITION = 'Close Position',
+  CLOSE_POSITION = 'Redeem Position',
   ROLL_POSITION = 'Roll Position',
   REDEEM = 'Redeem',
   // POOL
@@ -258,7 +363,7 @@ export interface IBaseHistItem {
   date: Date;
   transactionHash: string;
   series: ISeries;
-  histType: ActionCodes;
+  actionCode: ActionCodes;
   date_: string;
   primaryInfo: string;
   secondaryInfo?: string;
@@ -279,4 +384,14 @@ export interface IHistItemPosition extends IBaseHistItem {
   fyTokens_: string;
   poolTokens?: BigNumber;
   poolTokens_?: string;
+}
+
+export interface IDashSettings {
+  hideEmptyVaults: boolean;
+  showInactiveVaults: boolean;
+  hideInactiveVaults: boolean;
+  hideVaultPositions: boolean;
+  hideLendPositions: boolean;
+  hidePoolPositions: boolean;
+  currencySetting: string;
 }

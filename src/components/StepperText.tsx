@@ -10,7 +10,7 @@ interface IStepperText {
   position: number;
 }
 
-const StyledText = styled(AltText)`
+export const StyledText = styled(AltText)`
   font-family: 'Raleway';
   background: ${(props) => props.color};
   background: -webkit-linear-gradient(60deg, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82);
@@ -23,7 +23,7 @@ function StepperText({ values, position }: IStepperText) {
   return (
     <Box width={{ max: '200px' }} gap="small">
       {values.map((x: string[], i: number) => (
-        <Box key={x[1].concat(i.toString())} >
+        <Box key={x[1].concat(i.toString())}>
           {position === i && (
             <Text weight="bold" color="text-weak" size="small">
               STEP {i + 1}
@@ -33,7 +33,10 @@ function StepperText({ values, position }: IStepperText) {
             {position === i ? (
               <StyledText size="xxlarge" color="text-weak">
                 {x[0]}
-                <StyledText size="xxlarge" color="text-weak"> {x[1]} </StyledText>
+                <StyledText size="xxlarge" color="text-weak">
+                  {' '}
+                  {x[1]}{' '}
+                </StyledText>
                 {x[2]}
               </StyledText>
             ) : (

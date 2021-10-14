@@ -25,7 +25,9 @@ export const useCachedState = (key: string, initialValue: any, account?:string) 
       console.log(error);
     }
   };
-  return [storedValue, setValue] as const;
+  const clearAll = () => window.localStorage.clear();
+  
+  return [storedValue, setValue, clearAll] as const;
 };
 
 /* Hook to debounce input */

@@ -17,21 +17,25 @@ import {
 import { BytesLike } from "@ethersproject/bytes";
 import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
-import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
+import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 
 interface TLMModuleInterface extends ethers.utils.Interface {
   functions: {
     "approve(bytes6)": FunctionFragment;
     "borrowingFee()": FunctionFragment;
     "cauldron()": FunctionFragment;
+    "integrations(address)": FunctionFragment;
     "joins(bytes6)": FunctionFragment;
     "modules(address)": FunctionFragment;
     "pools(bytes6)": FunctionFragment;
     "register(bytes6,bytes32)": FunctionFragment;
+    "router()": FunctionFragment;
     "sell(bytes6,address,uint256)": FunctionFragment;
     "seriesToIlk(bytes6)": FunctionFragment;
     "tlm()": FunctionFragment;
     "tlmModule()": FunctionFragment;
+    "tokens(address)": FunctionFragment;
+    "weth()": FunctionFragment;
   };
 
   encodeFunctionData(functionFragment: "approve", values: [BytesLike]): string;
@@ -40,6 +44,10 @@ interface TLMModuleInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "cauldron", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "integrations",
+    values: [string]
+  ): string;
   encodeFunctionData(functionFragment: "joins", values: [BytesLike]): string;
   encodeFunctionData(functionFragment: "modules", values: [string]): string;
   encodeFunctionData(functionFragment: "pools", values: [BytesLike]): string;
@@ -47,6 +55,7 @@ interface TLMModuleInterface extends ethers.utils.Interface {
     functionFragment: "register",
     values: [BytesLike, BytesLike]
   ): string;
+  encodeFunctionData(functionFragment: "router", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "sell",
     values: [BytesLike, string, BigNumberish]
@@ -57,6 +66,8 @@ interface TLMModuleInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "tlm", values?: undefined): string;
   encodeFunctionData(functionFragment: "tlmModule", values?: undefined): string;
+  encodeFunctionData(functionFragment: "tokens", values: [string]): string;
+  encodeFunctionData(functionFragment: "weth", values?: undefined): string;
 
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(
@@ -64,10 +75,15 @@ interface TLMModuleInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "cauldron", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "integrations",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "joins", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "modules", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "pools", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "register", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "router", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "sell", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "seriesToIlk",
@@ -75,21 +91,53 @@ interface TLMModuleInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "tlm", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "tlmModule", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "tokens", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "weth", data: BytesLike): Result;
 
   events: {
     "FeeSet(uint256)": EventFragment;
+    "IntegrationAdded(address,bool)": EventFragment;
     "JoinAdded(bytes6,address)": EventFragment;
-    "ModuleSet(address,bool)": EventFragment;
+    "ModuleAdded(address,bool)": EventFragment;
     "PoolAdded(bytes6,address)": EventFragment;
     "SeriesRegistered(bytes6,bytes32)": EventFragment;
+    "TokenAdded(address,bool)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "FeeSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "IntegrationAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "JoinAdded"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ModuleSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ModuleAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PoolAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SeriesRegistered"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "TokenAdded"): EventFragment;
 }
+
+export type FeeSetEvent = TypedEvent<[BigNumber] & { fee: BigNumber }>;
+
+export type IntegrationAddedEvent = TypedEvent<
+  [string, boolean] & { integration: string; set: boolean }
+>;
+
+export type JoinAddedEvent = TypedEvent<
+  [string, string] & { assetId: string; join: string }
+>;
+
+export type ModuleAddedEvent = TypedEvent<
+  [string, boolean] & { module: string; set: boolean }
+>;
+
+export type PoolAddedEvent = TypedEvent<
+  [string, string] & { seriesId: string; pool: string }
+>;
+
+export type SeriesRegisteredEvent = TypedEvent<
+  [string, string] & { seriesId: string; ilk: string }
+>;
+
+export type TokenAddedEvent = TypedEvent<
+  [string, boolean] & { token: string; set: boolean }
+>;
 
 export class TLMModule extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -144,6 +192,8 @@ export class TLMModule extends BaseContract {
 
     cauldron(overrides?: CallOverrides): Promise<[string]>;
 
+    integrations(arg0: string, overrides?: CallOverrides): Promise<[boolean]>;
+
     joins(arg0: BytesLike, overrides?: CallOverrides): Promise<[string]>;
 
     modules(arg0: string, overrides?: CallOverrides): Promise<[boolean]>;
@@ -155,6 +205,8 @@ export class TLMModule extends BaseContract {
       ilk: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    router(overrides?: CallOverrides): Promise<[string]>;
 
     sell(
       seriesId: BytesLike,
@@ -168,6 +220,10 @@ export class TLMModule extends BaseContract {
     tlm(overrides?: CallOverrides): Promise<[string]>;
 
     tlmModule(overrides?: CallOverrides): Promise<[string]>;
+
+    tokens(arg0: string, overrides?: CallOverrides): Promise<[boolean]>;
+
+    weth(overrides?: CallOverrides): Promise<[string]>;
   };
 
   approve(
@@ -178,6 +234,8 @@ export class TLMModule extends BaseContract {
   borrowingFee(overrides?: CallOverrides): Promise<BigNumber>;
 
   cauldron(overrides?: CallOverrides): Promise<string>;
+
+  integrations(arg0: string, overrides?: CallOverrides): Promise<boolean>;
 
   joins(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
 
@@ -190,6 +248,8 @@ export class TLMModule extends BaseContract {
     ilk: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  router(overrides?: CallOverrides): Promise<string>;
 
   sell(
     seriesId: BytesLike,
@@ -204,12 +264,18 @@ export class TLMModule extends BaseContract {
 
   tlmModule(overrides?: CallOverrides): Promise<string>;
 
+  tokens(arg0: string, overrides?: CallOverrides): Promise<boolean>;
+
+  weth(overrides?: CallOverrides): Promise<string>;
+
   callStatic: {
     approve(seriesId: BytesLike, overrides?: CallOverrides): Promise<void>;
 
     borrowingFee(overrides?: CallOverrides): Promise<BigNumber>;
 
     cauldron(overrides?: CallOverrides): Promise<string>;
+
+    integrations(arg0: string, overrides?: CallOverrides): Promise<boolean>;
 
     joins(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
 
@@ -223,6 +289,8 @@ export class TLMModule extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    router(overrides?: CallOverrides): Promise<string>;
+
     sell(
       seriesId: BytesLike,
       to: string,
@@ -235,30 +303,84 @@ export class TLMModule extends BaseContract {
     tlm(overrides?: CallOverrides): Promise<string>;
 
     tlmModule(overrides?: CallOverrides): Promise<string>;
+
+    tokens(arg0: string, overrides?: CallOverrides): Promise<boolean>;
+
+    weth(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {
+    "FeeSet(uint256)"(
+      fee?: null
+    ): TypedEventFilter<[BigNumber], { fee: BigNumber }>;
+
     FeeSet(fee?: null): TypedEventFilter<[BigNumber], { fee: BigNumber }>;
+
+    "IntegrationAdded(address,bool)"(
+      integration?: string | null,
+      set?: boolean | null
+    ): TypedEventFilter<
+      [string, boolean],
+      { integration: string; set: boolean }
+    >;
+
+    IntegrationAdded(
+      integration?: string | null,
+      set?: boolean | null
+    ): TypedEventFilter<
+      [string, boolean],
+      { integration: string; set: boolean }
+    >;
+
+    "JoinAdded(bytes6,address)"(
+      assetId?: BytesLike | null,
+      join?: string | null
+    ): TypedEventFilter<[string, string], { assetId: string; join: string }>;
 
     JoinAdded(
       assetId?: BytesLike | null,
       join?: string | null
     ): TypedEventFilter<[string, string], { assetId: string; join: string }>;
 
-    ModuleSet(
+    "ModuleAdded(address,bool)"(
       module?: string | null,
       set?: boolean | null
     ): TypedEventFilter<[string, boolean], { module: string; set: boolean }>;
+
+    ModuleAdded(
+      module?: string | null,
+      set?: boolean | null
+    ): TypedEventFilter<[string, boolean], { module: string; set: boolean }>;
+
+    "PoolAdded(bytes6,address)"(
+      seriesId?: BytesLike | null,
+      pool?: string | null
+    ): TypedEventFilter<[string, string], { seriesId: string; pool: string }>;
 
     PoolAdded(
       seriesId?: BytesLike | null,
       pool?: string | null
     ): TypedEventFilter<[string, string], { seriesId: string; pool: string }>;
 
+    "SeriesRegistered(bytes6,bytes32)"(
+      seriesId?: BytesLike | null,
+      ilk?: BytesLike | null
+    ): TypedEventFilter<[string, string], { seriesId: string; ilk: string }>;
+
     SeriesRegistered(
       seriesId?: BytesLike | null,
       ilk?: BytesLike | null
     ): TypedEventFilter<[string, string], { seriesId: string; ilk: string }>;
+
+    "TokenAdded(address,bool)"(
+      token?: string | null,
+      set?: boolean | null
+    ): TypedEventFilter<[string, boolean], { token: string; set: boolean }>;
+
+    TokenAdded(
+      token?: string | null,
+      set?: boolean | null
+    ): TypedEventFilter<[string, boolean], { token: string; set: boolean }>;
   };
 
   estimateGas: {
@@ -270,6 +392,8 @@ export class TLMModule extends BaseContract {
     borrowingFee(overrides?: CallOverrides): Promise<BigNumber>;
 
     cauldron(overrides?: CallOverrides): Promise<BigNumber>;
+
+    integrations(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     joins(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -283,6 +407,8 @@ export class TLMModule extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    router(overrides?: CallOverrides): Promise<BigNumber>;
+
     sell(
       seriesId: BytesLike,
       to: string,
@@ -295,6 +421,10 @@ export class TLMModule extends BaseContract {
     tlm(overrides?: CallOverrides): Promise<BigNumber>;
 
     tlmModule(overrides?: CallOverrides): Promise<BigNumber>;
+
+    tokens(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    weth(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -306,6 +436,11 @@ export class TLMModule extends BaseContract {
     borrowingFee(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     cauldron(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    integrations(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     joins(
       arg0: BytesLike,
@@ -328,6 +463,8 @@ export class TLMModule extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    router(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     sell(
       seriesId: BytesLike,
       to: string,
@@ -343,5 +480,12 @@ export class TLMModule extends BaseContract {
     tlm(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     tlmModule(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    tokens(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    weth(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }
