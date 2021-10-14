@@ -5,6 +5,7 @@ import { ChainContext } from '../contexts/ChainContext';
 import BackButton from './buttons/BackButton';
 import Disclaimer from './Disclaimer';
 import { useCachedState } from '../hooks/generalHooks';
+import { UserContext } from '../contexts/UserContext';
 
 const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -14,12 +15,16 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
     },
     chainActions: { connect, isConnected },
   } = useContext(ChainContext);
+  const {
+    userActions: { setApprovalMethod },
+  } = useContext(UserContext);
 
   const [disclaimerChecked, setDisclaimerChecked] = useCachedState('disclaimerChecked', false);
 
   const handleConnect = (connectorName: string) => {
-    console.log(connectorName)
+    console.log(connectorName);
     connect(connectorName);
+    if (connectorName === 'ledgerWithMetamask') setApprovalMethod('TX');
     setConnectOpen(false);
   };
 
