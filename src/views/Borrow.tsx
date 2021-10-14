@@ -295,7 +295,7 @@ const Borrow = () => {
                               <InputInfoWrap action={() => setCollatInput(cleanValue(minSafeCollateral, 12))}>
                                 <Text size="small" color="text-weak">
                                   Use Safe Minimum{': '}
-                                  {cleanValue(minSafeCollateral, 4)} {selectedIlk?.symbol}
+                                  {cleanValue(minSafeCollateral, selectedIlk?.digitFormat)} {selectedIlk?.symbol}
                                 </Text>
                               </InputInfoWrap>
                             )
