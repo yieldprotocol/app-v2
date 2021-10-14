@@ -217,9 +217,9 @@ export const getVaultIdFromReceipt = (receipt: any, contractMap: any) => {
 
 export const getSeriesAfterRollPosition = (receipt: any, seriesMap: any) => {
   if (!receipt) return '';
-  const contractAddress = receipt.events[6].address;
-  const series = [...seriesMap.values()].filter((s) => s.address === contractAddress)[0].id;
-  return series;
+  const contractAddress = receipt.events[7].address;
+  const series = [...seriesMap.values()].filter((s) => s.address === contractAddress)[0];
+  return series?.id! || '';
 };
 
 export const formatStrategyName = (name: string) => {
