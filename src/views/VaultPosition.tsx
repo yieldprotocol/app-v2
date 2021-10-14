@@ -137,6 +137,12 @@ const VaultPosition = () => {
     rollPossible,
   } = useBorrowHelpers(undefined, undefined, selectedVault, rollToSeries);
 
+  const { undercollateralized: rollUnderCollateralized } = useCollateralHelpers(
+    maxRoll_,
+    selectedVault?.ink_,
+    selectedVault
+  );
+
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries, [
     maxRepayDustLimit, // this is the max pay to get to dust limit. note different logic in input validation hook.
     maxRepay_,
@@ -211,7 +217,7 @@ const VaultPosition = () => {
   useEffect(() => {
     /* if ANY of the following conditions are met: block action */
     !repayInput || repayError ? setRepayDisabled(true) : setRepayDisabled(false);
-    !rollToSeries || rollError ? setRollDisabled(true) : setRollDisabled(false);
+    !rollToSeries || rollError || rollUnderCollateralized ? setRollDisabled(true) : setRollDisabled(false);
     !addCollatInput || addCollatError ? setAddCollateralDisabled(true) : setAddCollateralDisabled(false);
     !removeCollatInput || removeCollatError ? setRemoveCollateralDisabled(true) : setRemoveCollateralDisabled(false);
   }, [repayInput, repayError, rollToSeries, addCollatInput, removeCollatInput, addCollatError, removeCollatError]);
@@ -444,8 +450,10 @@ const VaultPosition = () => {
                           {rollToSeries && (
                             <InputInfoWrap>
                               <Text color="text-weak" size="xsmall">
-                                Debt of {cleanValue(maxRoll_, 2)} {vaultBase?.symbol} will be rolled
-                                {userBaseAvailable.lt(maxRoll) ? '.' : ' (limited by protocol reserves).'}
+                                {rollPossible && !rollUnderCollateralized
+                                  ? `Debt of ${cleanValue(maxRoll_, 2)} ${vaultBase?.symbol} will be rolled
+                                ${userBaseAvailable.lt(maxRoll) ? '.' : ' (limited by protocol reserves).'}`
+                                  : `Vault would be undercollateralized after rolling.`}
                               </Text>
                             </InputInfoWrap>
                           )}
