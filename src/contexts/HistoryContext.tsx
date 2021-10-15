@@ -338,7 +338,7 @@ const HistoryProvider = ({ children }: any) => {
           let primaryInfo: string = '';
           if (actionCode === ActionCodes.BORROW)
             primaryInfo = `
-          ${cleanValue(ethers.utils.formatUnits(art, base_.decimals), base_.digitFormat!)} ${base_?.symbol!} @
+          ${cleanValue(ethers.utils.formatUnits(baseTraded, base_.decimals), base_.digitFormat!)} ${base_?.symbol!} @
           ${cleanValue(tradeApr, 2)}%`;
           else if (actionCode === ActionCodes.REPAY)
             primaryInfo = `${cleanValue(
