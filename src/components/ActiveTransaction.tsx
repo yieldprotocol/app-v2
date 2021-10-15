@@ -41,7 +41,7 @@ const InfoBlock = ({
       </Box>
     ) : (
       <Box gap="medium">
-        <Box direction="row" gap="medium" pad="medium" align="center" >
+        <Box direction="row" gap="medium" pad="medium" align="center">
           {icon}
           <Box gap="xsmall">
             <Text size="medium">{title}</Text>
@@ -126,8 +126,8 @@ const ActiveTransaction = ({
           <InfoBlock
             title="Token Approval"
             subTitle="Transaction Pending..."
-            icon={<Spinner color="tailwind-blue" size='medium' /> }
-            button={<EtherscanButton txHash={activeProcess.tx.hash} />}
+            icon={<Spinner color="tailwind-blue" size="small" />}
+            button={<EtherscanButton txHash={activeProcess.txHash} />}
             full={full}
           />
         )}
@@ -147,7 +147,7 @@ const ActiveTransaction = ({
             title="Transaction Pending..."
             // subTitle={<CopyWrap hash={activeProcess.txHash}> {abbreviateHash(activeProcess.txHash, 3)} </CopyWrap>}
             subTitle={null}
-            icon={<Spinner color="tailwind-blue" size='small' />}
+            icon={<Spinner color="tailwind-blue" size="small" />}
             button={<EtherscanButton txHash={activeProcess.txHash} />}
             full={full}
           />
@@ -158,7 +158,7 @@ const ActiveTransaction = ({
             title="Transaction Complete"
             // subTitle={<CopyWrap hash={activeProcess.txHash}> {abbreviateHash(activeProcess.txHash, 3)} </CopyWrap>}
             subTitle={null}
-            icon={<FiCheckCircle size={iconSize} color='green' />}
+            icon={<FiCheckCircle size={iconSize} color="green" />}
             button={<EtherscanButton txHash={activeProcess.txHash} />}
             full={full}
           />
