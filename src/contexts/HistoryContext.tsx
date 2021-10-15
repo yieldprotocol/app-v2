@@ -338,11 +338,11 @@ const HistoryProvider = ({ children }: any) => {
           let primaryInfo: string = '';
           if (actionCode === ActionCodes.BORROW)
             primaryInfo = `
-          ${cleanValue(ethers.utils.formatUnits(art, art.decimals), base_.digitFormat!)} ${base_?.symbol!} @
+          ${cleanValue(ethers.utils.formatUnits(art, base_.decimals), base_.digitFormat!)} ${base_?.symbol!} @
           ${cleanValue(tradeApr, 2)}%`;
           else if (actionCode === ActionCodes.REPAY)
             primaryInfo = `${cleanValue(
-              ethers.utils.formatUnits(art, art.decimals),
+              ethers.utils.formatUnits(baseTraded.abs(), base_.decimals),
               base_.digitFormat!
             )} ${base_?.symbol!}`;
           else if (actionCode === ActionCodes.ADD_COLLATERAL || actionCode === ActionCodes.REMOVE_COLLATERAL)
@@ -373,9 +373,9 @@ const HistoryProvider = ({ children }: any) => {
             /* Formatted values:  */
             date_: dateFormat(date),
             ink_: ethers.utils.formatUnits(ink, ilk.decimals),
-            art_: ethers.utils.formatUnits(art, ilk.decimals),
-            baseTraded_: ethers.utils.formatUnits(baseTraded, ilk.decimals),
-            fyTokenTraded_: ethers.utils.formatUnits(fyTokenTraded, ilk.decimals),
+            art_: ethers.utils.formatUnits(art, base_.decimals),
+            baseTraded_: ethers.utils.formatUnits(baseTraded, base_.decimals),
+            fyTokenTraded_: ethers.utils.formatUnits(fyTokenTraded, base_.decimals),
           } as IBaseHistItem;
         })
       );
