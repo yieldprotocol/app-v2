@@ -33,7 +33,7 @@ const TransactionItem = ({ tx, wide }: ITransactionItem) => {
   const { status, txCode, tx: t, receipt } = tx;
   const action = txCode.split('_')[0];
 
-  const [link, setLink] = useState<string>('');
+  const [link, setLink] = useState<string | null>(null);
 
   /* get position link for viewing position */
   useEffect(() => {
