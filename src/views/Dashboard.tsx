@@ -132,7 +132,7 @@ const Dashboard = () => {
         _strategyA.accountBalance?.lt(_strategyB.accountBalance!) ? 1 : -1
       );
     setStrategyPositions(_strategyPositions);
-  }, [strategyMap, hidePoolPositions]);
+  }, [strategyMap, hidePoolPositions, seriesMap]);
 
   useEffect(() => {
     setAllPositions({
