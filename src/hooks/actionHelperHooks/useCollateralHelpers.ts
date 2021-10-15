@@ -97,13 +97,15 @@ export const useCollateralHelpers = (
       setMaxRemovableCollateral(ethers.utils.formatUnits(_max, 18).toString());
 
       // factor in the current collateral input if there is a valid chosen vault
-      const minSafeWithCollat = BigNumber.from(minSafeCalc).sub(existingCollateral_);
+      const minSafeWithCollat = BigNumber.from(minSafeCalc).sub(existingCollateralAsWei);
 
       // check for valid min safe scenarios
       const minSafe = minSafeWithCollat.gt(ethers.constants.Zero)
         ? ethers.utils.formatUnits(minSafeWithCollat, 18).toString()
         : undefined;
-
+      console.log('collat', ethers.utils.formatUnits(existingCollateral_, ilk.decimals!));
+      console.log('minsafe', minSafe);
+      console.log('minsafewithcollat', ethers.utils.formatUnits(minSafeWithCollat, 18));
       setMinCollateral(min as BigNumber);
       setMinCollateral_(ethers.utils.formatUnits(min, 18).toString());
       setMinSafeCollateral(minSafe);
