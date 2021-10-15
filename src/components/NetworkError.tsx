@@ -5,32 +5,20 @@ import { ChainContext } from '../contexts/ChainContext';
 
 const NetworkError = () => {
   const {
-    chainState: { connection } ,
+    chainState: { connection },
   } = useContext(ChainContext);
 
-  // const [unsupportedNetwork, setUnsupportedNetwork] = useState<boolean>(false);
-  // useEffect(() => {
-  //   console.log();
-  //   if (connection.support)
-  //     connection.currentChainInfo.supported ? setUnsupportedNetwork(false) : setUnsupportedNetwork(true);
-  // }, [connection]);
-
   return (
+    <>
+    { connection.errorMessage &&
     <Layer>
       <Box pad="medium" round="small" gap="small" align="center" width="600px">
-        <FiAlertCircle size="2em" /> <Text size="large">Oops. Unsupported network</Text>
-        <Text size="small"> Please connect your wallet to one of the supported networks: </Text>
-        <Box gap="xsmall">
-          {[...connection.CHAIN_INFO.values()].map((c) =>
-            c.supported ? (
-              <Text color={c.color} size="small" key={c.name}>
-                {c.name}
-              </Text>
-            ) : null
-          )}
-        </Box>
+        <FiAlertCircle size="2em" /> <Text size="large">Oops. There was a connection error. </Text>
+        <Text size="small"> {connection.errorMessage} </Text>
       </Box>
     </Layer>
+    }
+    </>
   );
 };
 

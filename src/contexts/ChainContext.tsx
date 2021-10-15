@@ -110,7 +110,7 @@ const ChainProvider = ({ children }: any) => {
   const [chainState, updateState] = React.useReducer(chainReducer, initState);
   
   const { connectionState, connectionActions } = useConnection();
-  const { fallbackProvider, fallbackChainId, chainSupported } = connectionState;
+  const { fallbackProvider, fallbackChainId } = connectionState;
 
   /* CACHED VARIABLES */
   const [lastAppVersion, setLastAppVersion] = useCachedState('lastAppVersion', '');
@@ -125,11 +125,10 @@ const ChainProvider = ({ children }: any) => {
   /**
    * Update on FALLBACK connection/state on network changes (id/library)
    */
-
   useEffect(() => {
   
-    if ( fallbackProvider && fallbackChainId && chainSupported ) {
-      
+    if ( fallbackProvider && fallbackChainId ) {
+
       console.log('Fallback ChainId: ', fallbackChainId);
       console.log('Primary ChainId: ', connectionState.chainId);
 
@@ -438,6 +437,8 @@ const ChainProvider = ({ children }: any) => {
     connectionState.fallbackChainId,
     connectionState.chainId,
     connectionState.account,
+    connectionState.errorMessage,
+    connectionState.fallbackErrorMessage
   ]);
 
   /* simply Pass on the connection actions */
