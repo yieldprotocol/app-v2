@@ -248,12 +248,15 @@ const UserProvider = ({ children }: any) => {
         })
       );
 
+      console.log('PUBLIC DATA', _publicData );
+
       /* add in the dynamic asset data of the assets in the list */
       if (account) {
         try {
           _accountData = await Promise.all(
             _publicData.map(async (asset: IAssetRoot): Promise<IAsset> => {
-              const [balance, ladleAllowance, joinAllowance] = await Promise.all([
+                         
+              const [balance, ladleAllowance, joinAllowance ] = await Promise.all([
                 asset.getBalance(account),
                 asset.getAllowance(account, contractMap.get('Ladle').address),
                 asset.getAllowance(account, asset.joinAddress),

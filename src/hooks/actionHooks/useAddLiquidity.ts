@@ -6,7 +6,7 @@ import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { BLANK_VAULT} from '../../utils/constants';
 import { useChain } from '../useChain';
 
-import { calculateSlippage, fyTokenForMint, mintWithBase, splitLiquidity } from '../../utils/yieldMath';
+import { calcPoolRatios, calculateSlippage, fyTokenForMint, splitLiquidity } from '../../utils/yieldMath';
 import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
 
@@ -33,7 +33,6 @@ export const useAddLiquidity = () => {
     const cleanInput = cleanValue(input, base.decimals);
     const _input = ethers.utils.parseUnits(cleanInput, base.decimals);
     
-    const _inputWithSlippage = calculateSlippage(_input, slippageTolerance);
     const _inputLessSlippage = calculateSlippage(_input, slippageTolerance, true);
 
     const _fyTokenToBuy = fyTokenForMint(
@@ -44,9 +43,9 @@ export const useAddLiquidity = () => {
       series.getTimeTillMaturity(),
       series.decimals
     );
-    const _fyTokenToBuyWithSlippage = calculateSlippage(_fyTokenToBuy, slippageTolerance, true)
 
-    console.log(_fyTokenToBuy.toString())
+    const [ minRatio, maxRatio ] = calcPoolRatios( series.baseReserves, series.fyTokenReserves, slippageTolerance )
+    // const poolRatio = series.baseReserves.div(series.fyTokenReserves)
 
     const [_baseToPool, _baseToFyToken] = splitLiquidity(
       series.baseReserves,
@@ -54,30 +53,6 @@ export const useAddLiquidity = () => {
       _inputLessSlippage,
       true
     ) as [BigNumber, BigNumber];
-
-    console.log(
-      series.baseReserves.toString(),
-      series.fyTokenReserves.toString(),
-      series.fyTokenRealReserves.toString(),
-      series.totalSupply.toString(),
-      _fyTokenToBuy.toString(),
-      series.getTimeTillMaturity().toString(),
-      series.decimals
-    );
-    
-    const [_mintedWithBase] = mintWithBase(
-      series.baseReserves,
-      series.fyTokenReserves,
-      series.fyTokenRealReserves,
-      series.totalSupply,
-      _fyTokenToBuy,
-      series.getTimeTillMaturity(),
-      series.decimals
-    );
-    
-    const _mintedWithBaseWithSlippage = calculateSlippage(_mintedWithBase, slippageTolerance, true);
-    console.log('mintedWithBase', _mintedWithBase.toString());
-    console.log('_mintedWithBaseWithSlippage: ', _mintedWithBaseWithSlippage.toString());
 
     const permits: ICallData[] = await sign(
       [
@@ -113,7 +88,9 @@ export const useAddLiquidity = () => {
           strategy.id || account, // receiver is _strategyAddress (if it exists) or else account
           _fyTokenToBuy,
           // _mintedWithBaseWithSlippage,
-          ethers.constants.Zero, // TODO   _fyTokenToBuyWithSlippage
+          // ethers.constants.Zero, // TODO  _fyTokenToBuyWithSlippage
+          minRatio,
+          maxRatio,
         ] as RoutedActions.Args.MINT_WITH_BASE,
         fnName: RoutedActions.Fn.MINT_WITH_BASE,
         targetContract: series.poolContract,
@@ -149,7 +126,9 @@ export const useAddLiquidity = () => {
           strategy.id || account,
           true,
           // _mintedWithSlippage,
-          ethers.constants.Zero, // TODO  comment for prod
+          // ethers.constants.Zero, // TODO  comment for prod
+          minRatio,
+          maxRatio
         ] as RoutedActions.Args.MINT_POOL_TOKENS, // receiver is _strategyAddr (if it exists) or account
         fnName: RoutedActions.Fn.MINT_POOL_TOKENS,
         targetContract: series.poolContract,

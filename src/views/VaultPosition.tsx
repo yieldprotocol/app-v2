@@ -277,7 +277,7 @@ const VaultPosition = () => {
                       />
                       <InfoBite
                         label="Collateral posted:"
-                        value={`${cleanValue(selectedVault?.ink_, 18)} ${
+                        value={`${cleanValue(selectedVault?.ink_, vaultIlk?.decimals!)} ${
                           vaultIlk?.symbol
                         } ( ${collateralizationPercent} %)`}
                         icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
@@ -617,7 +617,10 @@ const VaultPosition = () => {
                     label={
                       <Text size={mobile ? 'small' : undefined}>
                         {`${repayProcess?.processActive ? 'Repaying' : 'Repay'} ${
-                          nFormatter(Number(repayInput), vaultBase?.digitFormat!) || ''
+                          nFormatter(
+                            Number(cleanValue(repayInput, vaultBase?.digitFormat!)),
+                            vaultBase?.digitFormat!
+                          ) || ''
                         } ${vaultBase?.symbol}`}
                       </Text>
                     }
@@ -650,7 +653,10 @@ const VaultPosition = () => {
                     label={
                       <Text size={mobile ? 'small' : undefined}>
                         {`${addCollateralProcess?.processActive ? 'Adding' : 'Add'} ${
-                          nFormatter(Number(addCollatInput), vaultIlk?.digitFormat!) || ''
+                          nFormatter(
+                            Number(cleanValue(addCollatInput, vaultIlk?.digitFormat!)),
+                            vaultIlk?.digitFormat!
+                          ) || ''
                         } ${vaultIlk?.symbol}`}
                       </Text>
                     }
@@ -668,7 +674,7 @@ const VaultPosition = () => {
                     label={
                       <Text size={mobile ? 'small' : undefined}>
                         {`${removeCollateralProcess?.processActive ? 'Removing' : 'Remove'} ${
-                          nFormatter(Number(removeCollatInput), vaultIlk?.digitFormat!) || ''
+                          Number(cleanValue(removeCollatInput, vaultIlk?.digitFormat!)) || ''
                         } ${vaultIlk?.symbol}`}
                       </Text>
                     }

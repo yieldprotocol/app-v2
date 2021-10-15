@@ -96,15 +96,21 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "uint128",
-        name: "dust",
-        type: "uint128",
+        internalType: "uint96",
+        name: "line",
+        type: "uint96",
       },
       {
         indexed: false,
-        internalType: "bool",
-        name: "active",
-        type: "bool",
+        internalType: "uint24",
+        name: "dust",
+        type: "uint24",
+      },
+      {
+        indexed: false,
+        internalType: "uint8",
+        name: "dec",
+        type: "uint8",
       },
     ],
     name: "IlkSet",
@@ -419,11 +425,6 @@ const _abi = [
     name: "ilks",
     outputs: [
       {
-        internalType: "bool",
-        name: "active",
-        type: "bool",
-      },
-      {
         internalType: "uint32",
         name: "duration",
         type: "uint32",
@@ -432,11 +433,6 @@ const _abi = [
         internalType: "uint64",
         name: "initialOffer",
         type: "uint64",
-      },
-      {
-        internalType: "uint128",
-        name: "dust",
-        type: "uint128",
       },
     ],
     stateMutability: "view",
@@ -450,6 +446,40 @@ const _abi = [
         internalType: "contract ILadle",
         name: "",
         type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes6",
+        name: "",
+        type: "bytes6",
+      },
+    ],
+    name: "limits",
+    outputs: [
+      {
+        internalType: "uint96",
+        name: "line",
+        type: "uint96",
+      },
+      {
+        internalType: "uint24",
+        name: "dust",
+        type: "uint24",
+      },
+      {
+        internalType: "uint8",
+        name: "dec",
+        type: "uint8",
+      },
+      {
+        internalType: "uint128",
+        name: "sum",
+        type: "uint128",
       },
     ],
     stateMutability: "view",
@@ -582,14 +612,19 @@ const _abi = [
         type: "uint64",
       },
       {
-        internalType: "uint128",
-        name: "dust",
-        type: "uint128",
+        internalType: "uint96",
+        name: "line",
+        type: "uint96",
       },
       {
-        internalType: "bool",
-        name: "active",
-        type: "bool",
+        internalType: "uint24",
+        name: "dust",
+        type: "uint24",
+      },
+      {
+        internalType: "uint8",
+        name: "dec",
+        type: "uint8",
       },
     ],
     name: "setIlk",

@@ -62,7 +62,7 @@ const TransactionItem = ({ tx, wide }: ITransactionItem) => {
         </Box>
       )}
       <Box direction="row" fill justify="between" align="center">
-        <Box direction="row">
+        <Box direction="row" align="center">
           <Box width="3rem">
             {status === TxState.PENDING && <Spinner color="brand" />}
             {status === TxState.SUCCESSFUL && <FiCheckCircle size="1.5rem" color="#34D399" />}

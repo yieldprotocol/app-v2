@@ -81,12 +81,18 @@ export const useLendHelpers = (
         : setFyTokenMarketValue(ethers.utils.formatUnits(value, series.decimals));
 
       /* set max Closing */
-      value.lte(ethers.constants.Zero) ? setMaxClose(series.baseReserves) : setMaxClose(value);
+      value.lte(ethers.constants.Zero) && series.fyTokenBalance?.gt(series.baseReserves)
+        ? setMaxClose(series.baseReserves)
+        : setMaxClose(value);
 
       /* set max Closing human readable */
-      value.lte(ethers.constants.Zero)
+      value.lte(ethers.constants.Zero) && series.fyTokenBalance?.gt(series.baseReserves)
         ? setMaxClose_(ethers.utils.formatUnits(series.baseReserves, series.decimals).toString())
         : setMaxClose_(ethers.utils.formatUnits(value, series.decimals).toString());
+
+      /* explicitly set max close to 0 when applicable */
+      // maxClose.lte(ethers.constants.Zero) && setMaxClose(ethers.constants.Zero);
+      // maxClose.lte(ethers.constants.Zero) && setMaxClose_('0');
     }
 
     if (series && series.seriesIsMature) {
@@ -95,6 +101,7 @@ export const useLendHelpers = (
       setMaxClose_(val);
       setMaxClose(series.fyTokenBalance!);
     }
+    
   }, [series]);
 
   return {
