@@ -150,7 +150,6 @@ export const useConnection = () => {
     if (!tried && active) {
       setTried(true);
     }
-    
   }, [activate, active, handleErrorMessage, tried]);
 
   /*
@@ -191,11 +190,10 @@ export const useConnection = () => {
       );
     }
 
-    chainId && console.log( chainId )
+    chainId && console.log(chainId);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tried, chainId, fallbackActivate, lastChainId ]);
-
+  }, [tried, chainId, fallbackActivate, lastChainId]);
 
   /* Watch the connector currently being activated */
   const [activatingConnector, setActivatingConnector] = useState<any>();
@@ -256,7 +254,6 @@ const useWeb3Errors = () => {
   };
   return { handleErrorMessage };
 };
-
 
 const useInactiveListener = (suppress: boolean = false) => {
   const { active, error, activate, chainId: _chainId } = useWeb3React();
