@@ -35,7 +35,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
     txState: { transactions },
   } = useContext(TxContext);
 
-  const connectorName = CONNECTOR_NAMES.get( provider.connection.url );
+  const connectorName = CONNECTOR_NAMES.get(provider.connection.url);
   const [transactionsOpen, toggleTransactionsOpen] = useState<boolean>(false);
 
   const handleChangeConnectType = () => {
@@ -70,7 +70,11 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
         </Box>
 
         <Box align="center" direction="row" gap="small" justify="center">
-          <Anchor href={`https://${currentChainInfo.name}.etherscan.io/address/${account}`} margin="xsmall" target="_blank">
+          <Anchor
+            href={`https://${currentChainInfo.name}.etherscan.io/address/${account}`}
+            margin="xsmall"
+            target="_blank"
+          >
             <FiExternalLink size="1rem" style={{ verticalAlign: 'middle' }} />
             <Text margin="xxsmall" size="xsmall">
               View on Explorer

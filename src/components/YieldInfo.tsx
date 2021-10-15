@@ -2,11 +2,7 @@ import { Anchor, Box, ResponsiveContext, Text } from 'grommet';
 import { useLocation } from 'react-router-dom';
 
 import React, { useContext, useEffect, useState } from 'react';
-import {
-  FiGithub as Github,
-  FiFileText as Docs,
-
-} from 'react-icons/fi';
+import { FiGithub as Github, FiFileText as Docs } from 'react-icons/fi';
 import { FaDiscord as Discord } from 'react-icons/fa';
 
 import { ChainContext } from '../contexts/ChainContext';
@@ -17,7 +13,7 @@ const IconGap = 'small';
 
 const YieldInfo = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-  
+
   const {
     chainState: {
       connection: { account, currentChainInfo },
@@ -27,7 +23,7 @@ const YieldInfo = () => {
   } = useContext(ChainContext);
 
   const { pathname } = useLocation();
-  const [ path, setPath] = useState<string>();
+  const [path, setPath] = useState<string>();
   /* If the url references a series/vault...set that one as active */
   useEffect(() => {
     pathname && setPath(pathname.split('/')[1]);
