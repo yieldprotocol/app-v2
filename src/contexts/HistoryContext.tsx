@@ -7,7 +7,7 @@ import { ISeries, IVault, IHistItemPosition, ActionCodes, IBaseHistItem, IAsset,
 import * as contracts from '../contracts';
 
 import { ChainContext } from './ChainContext';
-import { abbreviateHash,  cleanValue } from '../utils/appUtils';
+import { abbreviateHash, cleanValue } from '../utils/appUtils';
 import { UserContext } from './UserContext';
 import { ZERO_BN } from '../utils/constants';
 import { Cauldron } from '../contracts';
@@ -257,10 +257,7 @@ const HistoryProvider = ({ children }: any) => {
 
           const tradeLogs = await Promise.all(
             eventList
-              .filter(
-                (log: any) =>
-                  poolContract.interface.parseLog(log).args.from !== contractMap.get('Ladle')
-              ) // TODO make this for any ladle (Past/future)
+              .filter((log: any) => poolContract.interface.parseLog(log).args.from !== contractMap.get('Ladle')) // TODO make this for any ladle (Past/future)
               .map(async (log: any) => {
                 const { blockNumber, transactionHash } = log;
                 const { maturity, bases, fyTokens } = poolContract.interface.parseLog(log).args;
@@ -341,10 +338,10 @@ const HistoryProvider = ({ children }: any) => {
           let primaryInfo: string = '';
           if (actionCode === ActionCodes.BORROW)
             primaryInfo = `
-          ${cleanValue(ethers.utils.formatUnits(art, ilk.decimals), 2)} ${base_?.symbol!} @
+          ${cleanValue(ethers.utils.formatUnits(art, art.decimals), 2)} ${base_?.symbol!} @
           ${cleanValue(tradeApr, 2)}%`;
           else if (actionCode === ActionCodes.REPAY)
-            primaryInfo = `${cleanValue(ethers.utils.formatUnits(art, ilk.decimals), 2)} ${base_?.symbol!}`;
+            primaryInfo = `${cleanValue(ethers.utils.formatUnits(art, art.decimals), 2)} ${base_?.symbol!}`;
           else if (actionCode === ActionCodes.ADD_COLLATERAL || actionCode === ActionCodes.REMOVE_COLLATERAL)
             primaryInfo = `${cleanValue(ethers.utils.formatUnits(ink, ilk.decimals), 2)} ${ilk.symbol}`;
 
