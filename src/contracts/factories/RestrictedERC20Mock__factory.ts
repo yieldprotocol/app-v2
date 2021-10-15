@@ -4,20 +4,23 @@
 
 import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-import type { Witch, WitchInterface } from "../Witch";
+import type {
+  RestrictedERC20Mock,
+  RestrictedERC20MockInterface,
+} from "../RestrictedERC20Mock";
 
 const _abi = [
   {
     inputs: [
       {
-        internalType: "contract ICauldron",
-        name: "cauldron_",
-        type: "address",
+        internalType: "string",
+        name: "name",
+        type: "string",
       },
       {
-        internalType: "contract ILadle",
-        name: "ladle_",
-        type: "address",
+        internalType: "string",
+        name: "symbol",
+        type: "string",
       },
     ],
     stateMutability: "nonpayable",
@@ -28,111 +31,24 @@ const _abi = [
     inputs: [
       {
         indexed: true,
-        internalType: "bytes12",
-        name: "vaultId",
-        type: "bytes12",
-      },
-      {
-        indexed: true,
-        internalType: "uint256",
-        name: "start",
-        type: "uint256",
-      },
-    ],
-    name: "Auctioned",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "bytes12",
-        name: "vaultId",
-        type: "bytes12",
+        internalType: "address",
+        name: "owner",
+        type: "address",
       },
       {
         indexed: true,
         internalType: "address",
-        name: "buyer",
+        name: "spender",
         type: "address",
       },
       {
         indexed: false,
         internalType: "uint256",
-        name: "ink",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "art",
-        type: "uint256",
-      },
-    ],
-    name: "Bought",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "bytes6",
-        name: "ilkId",
-        type: "bytes6",
-      },
-      {
-        indexed: false,
-        internalType: "uint32",
-        name: "duration",
-        type: "uint32",
-      },
-      {
-        indexed: false,
-        internalType: "uint64",
-        name: "initialOffer",
-        type: "uint64",
-      },
-      {
-        indexed: false,
-        internalType: "uint96",
-        name: "line",
-        type: "uint96",
-      },
-      {
-        indexed: false,
-        internalType: "uint24",
-        name: "dust",
-        type: "uint24",
-      },
-      {
-        indexed: false,
-        internalType: "uint8",
-        name: "dec",
-        type: "uint8",
-      },
-    ],
-    name: "IlkSet",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "param",
-        type: "bytes32",
-      },
-      {
-        indexed: false,
-        internalType: "address",
         name: "value",
-        type: "address",
+        type: "uint256",
       },
     ],
-    name: "Point",
+    name: "Approval",
     type: "event",
   },
   {
@@ -205,6 +121,44 @@ const _abi = [
     type: "event",
   },
   {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "from",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "value",
+        type: "uint256",
+      },
+    ],
+    name: "Transfer",
+    type: "event",
+  },
+  {
+    inputs: [],
+    name: "DOMAIN_SEPARATOR",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "LOCK",
     outputs: [
@@ -225,6 +179,19 @@ const _abi = [
         internalType: "bytes4",
         name: "",
         type: "bytes4",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "PERMIT_TYPEHASH",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
       },
     ],
     stateMutability: "view",
@@ -259,35 +226,22 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes12",
-        name: "vaultId",
-        type: "bytes12",
-      },
-    ],
-    name: "auction",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes12",
-        name: "",
-        type: "bytes12",
-      },
-    ],
-    name: "auctions",
-    outputs: [
-      {
         internalType: "address",
         name: "owner",
         type: "address",
       },
       {
-        internalType: "uint32",
-        name: "start",
-        type: "uint32",
+        internalType: "address",
+        name: "spender",
+        type: "address",
+      },
+    ],
+    name: "allowance",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
       },
     ],
     stateMutability: "view",
@@ -296,40 +250,85 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes12",
-        name: "vaultId",
-        type: "bytes12",
+        internalType: "address",
+        name: "spender",
+        type: "address",
       },
-      {
-        internalType: "uint128",
-        name: "base",
-        type: "uint128",
-      },
-      {
-        internalType: "uint128",
-        name: "min",
-        type: "uint128",
-      },
-    ],
-    name: "buy",
-    outputs: [
       {
         internalType: "uint256",
-        name: "ink",
+        name: "wad",
         type: "uint256",
+      },
+    ],
+    name: "approve",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
       },
     ],
     stateMutability: "nonpayable",
     type: "function",
   },
   {
-    inputs: [],
-    name: "cauldron",
+    inputs: [
+      {
+        internalType: "address",
+        name: "guy",
+        type: "address",
+      },
+    ],
+    name: "balanceOf",
     outputs: [
       {
-        internalType: "contract ICauldron",
+        internalType: "uint256",
         name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "from",
         type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "burn",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "decimals",
+    outputs: [
+      {
+        internalType: "uint8",
+        name: "",
+        type: "uint8",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "deploymentChainId",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
       },
     ],
     stateMutability: "view",
@@ -417,77 +416,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes6",
-        name: "",
-        type: "bytes6",
-      },
-    ],
-    name: "ilks",
-    outputs: [
-      {
-        internalType: "uint32",
-        name: "duration",
-        type: "uint32",
-      },
-      {
-        internalType: "uint64",
-        name: "initialOffer",
-        type: "uint64",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "ladle",
-    outputs: [
-      {
-        internalType: "contract ILadle",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes6",
-        name: "",
-        type: "bytes6",
-      },
-    ],
-    name: "limits",
-    outputs: [
-      {
-        internalType: "uint96",
-        name: "line",
-        type: "uint96",
-      },
-      {
-        internalType: "uint24",
-        name: "dust",
-        type: "uint24",
-      },
-      {
-        internalType: "uint8",
-        name: "dec",
-        type: "uint8",
-      },
-      {
-        internalType: "uint128",
-        name: "sum",
-        type: "uint128",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "bytes4",
         name: "role",
         type: "bytes4",
@@ -501,41 +429,92 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes12",
-        name: "vaultId",
-        type: "bytes12",
+        internalType: "address",
+        name: "to",
+        type: "address",
       },
-      {
-        internalType: "uint128",
-        name: "min",
-        type: "uint128",
-      },
-    ],
-    name: "payAll",
-    outputs: [
       {
         internalType: "uint256",
-        name: "ink",
+        name: "amount",
         type: "uint256",
       },
     ],
+    name: "mint",
+    outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "name",
+    outputs: [
+      {
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
     inputs: [
       {
-        internalType: "bytes32",
-        name: "param",
-        type: "bytes32",
-      },
-      {
         internalType: "address",
-        name: "value",
+        name: "",
         type: "address",
       },
     ],
-    name: "point",
+    name: "nonces",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "owner",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "spender",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "deadline",
+        type: "uint256",
+      },
+      {
+        internalType: "uint8",
+        name: "v",
+        type: "uint8",
+      },
+      {
+        internalType: "bytes32",
+        name: "r",
+        type: "bytes32",
+      },
+      {
+        internalType: "bytes32",
+        name: "s",
+        type: "bytes32",
+      },
+    ],
+    name: "permit",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -597,44 +576,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes6",
-        name: "ilkId",
-        type: "bytes6",
-      },
-      {
-        internalType: "uint32",
-        name: "duration",
-        type: "uint32",
-      },
-      {
-        internalType: "uint64",
-        name: "initialOffer",
-        type: "uint64",
-      },
-      {
-        internalType: "uint96",
-        name: "line",
-        type: "uint96",
-      },
-      {
-        internalType: "uint24",
-        name: "dust",
-        type: "uint24",
-      },
-      {
-        internalType: "uint8",
-        name: "dec",
-        type: "uint8",
-      },
-    ],
-    name: "setIlk",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "bytes4",
         name: "role",
         type: "bytes4",
@@ -650,14 +591,109 @@ const _abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
+  {
+    inputs: [],
+    name: "symbol",
+    outputs: [
+      {
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "totalSupply",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "dst",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "wad",
+        type: "uint256",
+      },
+    ],
+    name: "transfer",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "src",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "dst",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "wad",
+        type: "uint256",
+      },
+    ],
+    name: "transferFrom",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "version",
+    outputs: [
+      {
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+    ],
+    stateMutability: "pure",
+    type: "function",
+  },
 ];
 
-export class Witch__factory {
+export class RestrictedERC20Mock__factory {
   static readonly abi = _abi;
-  static createInterface(): WitchInterface {
-    return new utils.Interface(_abi) as WitchInterface;
+  static createInterface(): RestrictedERC20MockInterface {
+    return new utils.Interface(_abi) as RestrictedERC20MockInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): Witch {
-    return new Contract(address, _abi, signerOrProvider) as Witch;
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): RestrictedERC20Mock {
+    return new Contract(address, _abi, signerOrProvider) as RestrictedERC20Mock;
   }
 }
