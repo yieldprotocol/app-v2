@@ -338,12 +338,15 @@ const HistoryProvider = ({ children }: any) => {
           let primaryInfo: string = '';
           if (actionCode === ActionCodes.BORROW)
             primaryInfo = `
-          ${cleanValue(ethers.utils.formatUnits(art, art.decimals), 2)} ${base_?.symbol!} @
+          ${cleanValue(ethers.utils.formatUnits(art, art.decimals), base_.digitFormat!)} ${base_?.symbol!} @
           ${cleanValue(tradeApr, 2)}%`;
           else if (actionCode === ActionCodes.REPAY)
-            primaryInfo = `${cleanValue(ethers.utils.formatUnits(art, art.decimals), 2)} ${base_?.symbol!}`;
+            primaryInfo = `${cleanValue(
+              ethers.utils.formatUnits(art, art.decimals),
+              base_.digitFormat!
+            )} ${base_?.symbol!}`;
           else if (actionCode === ActionCodes.ADD_COLLATERAL || actionCode === ActionCodes.REMOVE_COLLATERAL)
-            primaryInfo = `${cleanValue(ethers.utils.formatUnits(ink, ilk.decimals), 2)} ${ilk.symbol}`;
+            primaryInfo = `${cleanValue(ethers.utils.formatUnits(ink, ilk.decimals), ilk.digitFormat!)} ${ilk.symbol}`;
 
           return {
             /* histItem base */
@@ -356,7 +359,9 @@ const HistoryProvider = ({ children }: any) => {
             secondaryInfo:
               ink.gt(ethers.constants.Zero) &&
               actionCode === ActionCodes.BORROW &&
-              `added (${cleanValue(ethers.utils.formatUnits(ink, ilk.decimals), 2)} ${ilk.symbol} collateral)`,
+              `added (${cleanValue(ethers.utils.formatUnits(ink, ilk.decimals), ilk.digitFormat!)} ${
+                ilk.symbol
+              } collateral)`,
 
             /* args info */
             ilkId,
