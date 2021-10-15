@@ -438,7 +438,8 @@ const ChainProvider = ({ children }: any) => {
     connectionState.chainId,
     connectionState.account,
     connectionState.errorMessage,
-    connectionState.fallbackErrorMessage
+    connectionState.fallbackErrorMessage,
+    connectionState.active,
   ]);
 
   /* simply Pass on the connection actions */

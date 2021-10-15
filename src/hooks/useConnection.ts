@@ -109,6 +109,7 @@ export const useConnection = () => {
   const isConnected = (connection: string) => CONNECTORS.get(connection) === connector;
   const disconnect = () => connector && deactivate();
   const connect = (connection: string = INIT_INJECTED) => {
+    setErrorMessage(undefined);
     activate(
       CONNECTORS.get(connection),
       (e: Error) => {
@@ -126,6 +127,7 @@ export const useConnection = () => {
    * */
   useEffect(() => {
     if (!tried && !active) {
+      setErrorMessage(undefined);
       CONNECTORS.get(INIT_INJECTED)
         .isAuthorized()
         .then((isAuthorized: boolean) => {
@@ -160,6 +162,7 @@ export const useConnection = () => {
     /* Case: Auto Connection FAILURE > Set the fallback connector to the lastChainId */
     if (tried && !chainId) {
       console.log('Connecting fallback Provider to the default network');
+      setFallbackErrorMessage(undefined);
       fallbackActivate(
         new NetworkConnector({
           urls: { 1: RPC_URLS[1], 42: RPC_URLS[42] },
@@ -175,6 +178,7 @@ export const useConnection = () => {
     /* Case: Auto Connection SUCCESS > set the fallback connector to the same as the chainId */
     if (tried && chainId) {
       console.log('Connecting fallback Provider to the same network as connected wallet ');
+      setFallbackErrorMessage(undefined);
       fallbackActivate(
         new NetworkConnector({
           urls: { 1: RPC_URLS[1], 42: RPC_URLS[42] },

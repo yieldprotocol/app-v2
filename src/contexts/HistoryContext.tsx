@@ -78,8 +78,8 @@ const HistoryProvider = ({ children }: any) => {
     assetRootMap,
   } = chainState;
 
-  const { activeAccount: account, userState } = useContext(UserContext);
-  const { vaultMap, seriesMap, strategyMap } = userState;
+  const { userState } = useContext(UserContext);
+  const { activeAccount: account, vaultMap, seriesMap, strategyMap } = userState;
 
   const [historyState, updateState] = useReducer(historyReducer, initState);
 
@@ -343,10 +343,10 @@ const HistoryProvider = ({ children }: any) => {
           let primaryInfo: string = '';
           if (actionCode === ActionCodes.BORROW)
             primaryInfo = `
-          ${cleanValue(ethers.utils.formatUnits(art, ilk.decimals), 2)} ${base_?.symbol!} @
+          ${cleanValue(ethers.utils.formatUnits(baseTraded.abs(), base_.decimals), 2)} ${base_?.symbol!} @
           ${cleanValue(tradeApr, 2)}%`;
           else if (actionCode === ActionCodes.REPAY)
-            primaryInfo = `${cleanValue(ethers.utils.formatUnits(art, ilk.decimals), 2)} ${base_?.symbol!}`;
+            primaryInfo = `${cleanValue(ethers.utils.formatUnits(baseTraded.abs(), base_.decimals), 2)} ${base_?.symbol!}`;
           else if (actionCode === ActionCodes.ADD_COLLATERAL || actionCode === ActionCodes.REMOVE_COLLATERAL)
             primaryInfo = `${cleanValue(ethers.utils.formatUnits(ink, ilk.decimals), 2)} ${ilk.symbol}`;
 

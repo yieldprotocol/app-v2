@@ -18,9 +18,8 @@ const _getCallValue = (calls: ICallData[]): BigNumber => {
 export const useChain = () => {
   const {
     chainState: {
-      connection: { account, provider },
+      connection: { account, provider, chainId },
       contractMap,
-      chainId,
     },
   } = useContext(ChainContext);
   const {
