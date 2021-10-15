@@ -764,8 +764,9 @@ export const checkPoolTrade = (
   strategyDecimals: number
 ): BigNumber => {
   // 1. calc amount base/fyToken recieved from burn
-  // 2. calculate new reseverves ( base reserves and fytokesreserevs)
+  // 2. calculate new reserves (baseReserves and fyTokenReserevs)
   // 3. try trade with new reserves
+  // 4. add the estimated base derived from selling fyTokens and the current base tokens of the poolToken
   const [_baseTokens, _fytokens] = burn(
     strategyBaseReserves,
     strategyFyTokenReserves,
@@ -781,7 +782,8 @@ export const checkPoolTrade = (
     strategyTimeToMaturity.toString(),
     strategyDecimals
   );
-  return sellOutcome;
+  const total = sellOutcome.add(_baseTokens);
+  return total;
 };
 
 /**
@@ -810,19 +812,17 @@ export const calcPoolRatios = (
   fyTokenReserves: BigNumber,
   slippage: number
 ): [BigNumber, BigNumber] => {
-
   const baseReserves_ = new Decimal(baseReserves.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves.toString());
   const slippage_ = new Decimal(slippage.toString());
 
-  console.log( baseReserves_.toString(),  fyTokenReserves_.toString() )
-  const ratio = divDecimal(baseReserves, fyTokenReserves); 
-  console.log( ratio); 
+  console.log(baseReserves_.toString(), fyTokenReserves_.toString());
+  const ratio = divDecimal(baseReserves, fyTokenReserves);
+  console.log(ratio);
   // const ratioSlippage = ratio.mul(slippage_);
   // const min = ratio.sub(ratioSlippage);
   // const max = ratio.add(ratioSlippage);
   // console.log( ratio, min, max)
 
   return [ZERO_BN, ethers.constants.MaxInt256];
-
 };
