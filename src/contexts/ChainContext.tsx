@@ -43,7 +43,7 @@ const ChainContext = React.createContext<any>({});
 
 const initState = {
   appVersion: '0.0.0' as string,
-  
+
   connection: {
     chainId: Number(process.env.REACT_APP_DEFAULT_CHAINID) as number | null,
     provider: null as ethers.providers.Web3Provider | null,
@@ -108,7 +108,7 @@ function chainReducer(state: any, action: any) {
 
 const ChainProvider = ({ children }: any) => {
   const [chainState, updateState] = React.useReducer(chainReducer, initState);
-  
+
   const { connectionState, connectionActions } = useConnection();
   const { fallbackProvider, fallbackChainId } = connectionState;
 
@@ -126,9 +126,7 @@ const ChainProvider = ({ children }: any) => {
    * Update on FALLBACK connection/state on network changes (id/library)
    */
   useEffect(() => {
-  
-    if ( fallbackProvider && fallbackChainId ) {
-
+    if (fallbackProvider && fallbackChainId) {
       console.log('Fallback ChainId: ', fallbackChainId);
       console.log('Primary ChainId: ', connectionState.chainId);
 
@@ -408,7 +406,7 @@ const ChainProvider = ({ children }: any) => {
         (async () => Promise.all([_getAssets(), _getSeries(), _getStrategies()]))();
       }
     }
-  }, [ fallbackChainId, fallbackProvider ]);
+  }, [fallbackChainId, fallbackProvider]);
 
   /**
    * Handle version updates on first load -> complete refresh if app is different to published version
