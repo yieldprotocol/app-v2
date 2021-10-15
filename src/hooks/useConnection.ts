@@ -78,7 +78,6 @@ CONNECTORS.set(
   })
 );
 
-/* APR hook calculatess APR, min and max aprs for selected series and BORROW or LEND type */
 export const useConnection = () => {
   const [tried, setTried] = useState<boolean>(false);
 
