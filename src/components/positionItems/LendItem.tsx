@@ -3,9 +3,10 @@ import { useHistory } from 'react-router-dom';
 import { Box, Text } from 'grommet';
 import { ActionType, ISeries, IUserContext } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
-import { cleanValue, nFormatter } from '../../utils/appUtils';
+import { cleanValue } from '../../utils/appUtils';
 import PositionAvatar from '../PositionAvatar';
 import ItemWrap from '../wraps/ItemWrap';
+import { useLendHelpers } from '../../hooks/actionHelperHooks/useLendHelpers';
 
 function LendItem({
   series,
@@ -21,6 +22,8 @@ function LendItem({
   const history = useHistory();
 
   const { userState, userActions } = useContext(UserContext) as IUserContext;
+  const { fyTokenMarketValue } = useLendHelpers(series!, '0');
+  const selectedBase = userState.assetMap?.get(series?.baseId!);
 
   const handleSelect = (_series: ISeries) => {
     userActions.setSelectedBase(_series.baseId);
@@ -31,7 +34,7 @@ function LendItem({
 
   return (
     <ItemWrap action={() => handleSelect(series)} index={index}>
-      <Box direction="row" gap="small" align="center" pad="small" height={condensed ? '3rem' : undefined} >
+      <Box direction="row" gap="small" align="center" pad="small" height={condensed ? '3rem' : undefined}>
         <PositionAvatar position={series} condensed={condensed} actionType={ActionType.LEND} />
         <Box
           fill={condensed ? 'horizontal' : undefined}
@@ -44,7 +47,7 @@ function LendItem({
           <Box direction="row" gap="small">
             {actionType === 'LEND' && (
               <Text weight={450} size="xsmall">
-                Balance: {cleanValue(series.fyTokenBalance_, 2)}
+                Balance: {cleanValue(fyTokenMarketValue, selectedBase?.digitFormat!)}
               </Text>
             )}
           </Box>
