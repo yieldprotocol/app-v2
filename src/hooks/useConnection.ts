@@ -200,6 +200,10 @@ export const useConnection = () => {
     activatingConnector && activatingConnector === connector && setActivatingConnector(undefined);
   }, [activatingConnector, connector]);
 
+  useEffect(() => {
+    chainId && setCurrentChainInfo(CHAIN_INFO.get(chainId));
+  }, [chainId]);
+
   return {
     connectionState: {
       /* constants */
