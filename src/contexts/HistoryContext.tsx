@@ -343,12 +343,15 @@ const HistoryProvider = ({ children }: any) => {
           let primaryInfo: string = '';
           if (actionCode === ActionCodes.BORROW)
             primaryInfo = `
-          ${cleanValue(ethers.utils.formatUnits(baseTraded.abs(), base_.decimals), 2)} ${base_?.symbol!} @
+          ${cleanValue(ethers.utils.formatUnits(baseTraded, base_.decimals), base_.digitFormat!)} ${base_?.symbol!} @
           ${cleanValue(tradeApr, 2)}%`;
           else if (actionCode === ActionCodes.REPAY)
-            primaryInfo = `${cleanValue(ethers.utils.formatUnits(baseTraded.abs(), base_.decimals), 2)} ${base_?.symbol!}`;
+            primaryInfo = `${cleanValue(
+              ethers.utils.formatUnits(baseTraded.abs(), base_.decimals),
+              base_.digitFormat!
+            )} ${base_?.symbol!}`;
           else if (actionCode === ActionCodes.ADD_COLLATERAL || actionCode === ActionCodes.REMOVE_COLLATERAL)
-            primaryInfo = `${cleanValue(ethers.utils.formatUnits(ink, ilk.decimals), 2)} ${ilk.symbol}`;
+            primaryInfo = `${cleanValue(ethers.utils.formatUnits(ink, ilk.decimals), ilk.digitFormat!)} ${ilk.symbol}`;
 
           return {
             /* histItem base */
@@ -361,7 +364,9 @@ const HistoryProvider = ({ children }: any) => {
             secondaryInfo:
               ink.gt(ethers.constants.Zero) &&
               actionCode === ActionCodes.BORROW &&
-              `added (${cleanValue(ethers.utils.formatUnits(ink, ilk.decimals), 2)} ${ilk.symbol} collateral)`,
+              `added (${cleanValue(ethers.utils.formatUnits(ink, ilk.decimals), ilk.digitFormat!)} ${
+                ilk.symbol
+              } collateral)`,
 
             /* args info */
             ilkId,
@@ -373,9 +378,9 @@ const HistoryProvider = ({ children }: any) => {
             /* Formatted values:  */
             date_: dateFormat(date),
             ink_: ethers.utils.formatUnits(ink, ilk.decimals),
-            art_: ethers.utils.formatUnits(art, ilk.decimals),
-            baseTraded_: ethers.utils.formatUnits(baseTraded, ilk.decimals),
-            fyTokenTraded_: ethers.utils.formatUnits(fyTokenTraded, ilk.decimals),
+            art_: ethers.utils.formatUnits(art, base_.decimals),
+            baseTraded_: ethers.utils.formatUnits(baseTraded, base_.decimals),
+            fyTokenTraded_: ethers.utils.formatUnits(fyTokenTraded, base_.decimals),
           } as IBaseHistItem;
         })
       );

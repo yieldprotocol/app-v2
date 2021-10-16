@@ -232,6 +232,7 @@ const VaultPosition = () => {
     addCollateralProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs(ActionCodes.ADD_COLLATERAL);
     removeCollateralProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT &&
       resetInputs(ActionCodes.REMOVE_COLLATERAL);
+    rollProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs(ActionCodes.ROLL_DEBT);
   }, [addCollateralProcess, removeCollateralProcess, repayProcess, rollProcess]);
 
   return (

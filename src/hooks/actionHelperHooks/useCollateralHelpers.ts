@@ -70,8 +70,10 @@ export const useCollateralHelpers = (
     const existingDebt_ = vault?.art ? vault.art : ethers.constants.Zero;
     const existingDebtAsWei = decimalNToDecimal18(existingDebt_, base?.decimals);
 
-    const dInput = debtInput ? ethers.utils.parseUnits(debtInput, 18) : ethers.constants.Zero;
-    const cInput = collInput ? ethers.utils.parseUnits(collInput, 18) : ethers.constants.Zero;
+    const dInput =
+      debtInput && parseFloat(debtInput) > 0 ? ethers.utils.parseUnits(debtInput, 18) : ethers.constants.Zero;
+    const cInput =
+      collInput && parseFloat(collInput) > 0 ? ethers.utils.parseUnits(collInput, 18) : ethers.constants.Zero;
 
     const totalCollateral = existingCollateralAsWei.add(cInput);
     const totalDebt = existingDebtAsWei.add(dInput);
@@ -97,13 +99,15 @@ export const useCollateralHelpers = (
       setMaxRemovableCollateral(ethers.utils.formatUnits(_max, 18).toString());
 
       // factor in the current collateral input if there is a valid chosen vault
-      const minSafeWithCollat = BigNumber.from(minSafeCalc).sub(existingCollateral_);
+      const minSafeWithCollat = BigNumber.from(minSafeCalc).sub(existingCollateralAsWei);
 
       // check for valid min safe scenarios
       const minSafe = minSafeWithCollat.gt(ethers.constants.Zero)
         ? ethers.utils.formatUnits(minSafeWithCollat, 18).toString()
         : undefined;
-
+      console.log('collat', ethers.utils.formatUnits(existingCollateral_, ilk.decimals!));
+      console.log('minsafe', minSafe);
+      console.log('minsafewithcollat', ethers.utils.formatUnits(minSafeWithCollat, 18));
       setMinCollateral(min as BigNumber);
       setMinCollateral_(ethers.utils.formatUnits(min, 18).toString());
       setMinSafeCollateral(minSafe);

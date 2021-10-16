@@ -65,7 +65,14 @@ export const useChain = () => {
     console.log('Batch value sent:', batchValue.toString());
 
     /* calculate the gas required */
-    const gasEst = await _contract.estimateGas.batch(encodedCalls, { value: batchValue } as PayableOverrides);
+    let gasEst: BigNumber;
+    try {
+      gasEst = await _contract.estimateGas.batch(encodedCalls, { value: batchValue } as PayableOverrides);
+    } catch (e) {
+      gasEst = BigNumber.from('300000');
+      console.log('Failed to get gas estimate', e);
+    }
+
     console.log('Auto gas estimate:', gasEst.mul(120).div(100).toString());
 
     /* Finally, send out the transaction */

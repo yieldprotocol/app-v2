@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { Box, Grid, Text, TextInput } from 'grommet';
 import { FiPercent } from 'react-icons/fi';
 import { UserContext } from '../contexts/UserContext';
-import InputWrap from './wraps/InputWrap';
 import { cleanValue } from '../utils/appUtils';
 
 const Input = styled(TextInput)`
@@ -47,10 +46,9 @@ const SlippageSettings = () => {
           {tolerances.map((tolerance) => (
             <StyledBox
               fill
-              border={{ color: tolerance === slippageTolerance ? 'tailwind-blue' : ' #dfe8f9' }}
+              border={{ color: tolerance === slippageTolerance ? 'tailwind-blue' : '#BFDBFE' }}
               round="xsmall"
               key={tolerance}
-              hoverIndicator={{}}
               onClick={() => setSlippageTolerance(tolerance)}
               align="center"
               justify="center"
