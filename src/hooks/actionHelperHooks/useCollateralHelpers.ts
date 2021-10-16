@@ -105,9 +105,6 @@ export const useCollateralHelpers = (
       const minSafe = minSafeWithCollat.gt(ethers.constants.Zero)
         ? ethers.utils.formatUnits(minSafeWithCollat, 18).toString()
         : undefined;
-      console.log('collat', ethers.utils.formatUnits(existingCollateral_, ilk.decimals!));
-      console.log('minsafe', minSafe);
-      console.log('minsafewithcollat', ethers.utils.formatUnits(minSafeWithCollat, 18));
       setMinCollateral(min as BigNumber);
       setMinCollateral_(ethers.utils.formatUnits(min, 18).toString());
       setMinSafeCollateral(minSafe);
