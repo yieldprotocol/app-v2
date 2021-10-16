@@ -36,7 +36,10 @@ const Dashboard = () => {
 
   /* STATE FROM CONTEXT */
   const {
-    chainState: { account, chainLoading },
+    chainState: {
+      connection: { account },
+      chainLoading,
+    },
   } = useContext(ChainContext);
   const {
     userState: {

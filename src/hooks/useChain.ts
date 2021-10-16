@@ -17,7 +17,10 @@ const _getCallValue = (calls: ICallData[]): BigNumber => {
 /* Generic hook for chain transactions */
 export const useChain = () => {
   const {
-    chainState: { account, provider, contractMap, chainId },
+    chainState: {
+      connection: { account, provider, chainId },
+      contractMap,
+    },
   } = useContext(ChainContext);
   const {
     userState: { approvalMethod },
@@ -62,8 +65,15 @@ export const useChain = () => {
     console.log('Batch value sent:', batchValue.toString());
 
     /* calculate the gas required */
-    const gasEst = await _contract.estimateGas.batch(encodedCalls, { value: batchValue } as PayableOverrides)
-    console.log('Auto gas estimate:',  gasEst.mul(120).div(100).toString() ) ;
+    let gasEst: BigNumber;
+    try {
+      gasEst = await _contract.estimateGas.batch(encodedCalls, { value: batchValue } as PayableOverrides);
+    } catch (e) {
+      gasEst = BigNumber.from('300000');
+      console.log('Failed to get gas estimate', e);
+    }
+
+    console.log('Auto gas estimate:', gasEst.mul(120).div(100).toString());
 
     /* Finally, send out the transaction */
     return handleTx(

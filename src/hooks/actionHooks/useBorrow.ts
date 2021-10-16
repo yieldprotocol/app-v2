@@ -10,11 +10,9 @@ import { useChain } from '../useChain';
 import { useAddCollateral } from './useAddCollateral';
 
 export const useBorrow = () => {
-  const {
-    chainState: { account },
-  } = useContext(ChainContext);
+
   const { userState, userActions } = useContext(UserContext);
-  const { selectedIlkId, selectedSeriesId, seriesMap, assetMap, slippageTolerance } = userState;
+  const { activeAccount: account, selectedIlkId, selectedSeriesId, seriesMap, assetMap, slippageTolerance } = userState;
   const { updateVaults, updateAssets } = userActions;
 
   const { addEth } = useAddCollateral();

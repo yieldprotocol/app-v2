@@ -33,12 +33,12 @@ const TransactionItem = ({ tx, wide }: ITransactionItem) => {
   const { status, txCode, tx: t, receipt } = tx;
   const action = txCode.split('_')[0];
 
-  const [link, setLink] = useState<string>('');
+  const [link, setLink] = useState<string | null>(null);
 
   /* get position link for viewing position */
   useEffect(() => {
     const path = getPositionPath(txCode, receipt, contractMap, seriesRootMap);
-    setLink(path);
+    path && setLink(path);
   }, [receipt, contractMap, seriesRootMap, txCode]);
 
   return (
@@ -68,7 +68,7 @@ const TransactionItem = ({ tx, wide }: ITransactionItem) => {
             {status === TxState.SUCCESSFUL && <FiCheckCircle size="1.5rem" color="#34D399" />}
             {status === TxState.FAILED && <FiXCircle size="1.5rem" color="#F87171" />}
           </Box>
-          {status === TxState.SUCCESSFUL ? (
+          {status === TxState.SUCCESSFUL && link ? (
             <StyledLink to={link}>
               <Text size="small" style={{ color: 'black', verticalAlign: 'middle' }}>
                 {action}

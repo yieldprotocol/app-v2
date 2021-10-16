@@ -1,7 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Box, Button, Text } from 'grommet';
 import { FiX } from 'react-icons/fi';
-import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
 import { IAsset, ISeries, IUserContext, IVault } from '../../types';
 import VaultListItem from '../positionItems/VaultItem';
@@ -17,10 +16,16 @@ interface IVaultFilter {
 function VaultPositionSelector(target: any) {
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext) as IUserContext;
+
   const {
-    chainState: { account },
-  } = useContext(ChainContext);
-  const { activeAccount, assetMap, vaultMap, seriesMap, selectedSeriesId, selectedBaseId, dashSettings } = userState;
+    activeAccount: account,
+    assetMap,
+    vaultMap,
+    seriesMap,
+    selectedSeriesId,
+    selectedBaseId,
+    dashSettings,
+  } = userState;
 
   const selectedBase = assetMap.get(selectedBaseId!);
   const selectedSeries = seriesMap.get(selectedSeriesId!);
@@ -72,9 +77,10 @@ function VaultPositionSelector(target: any) {
   }, [allVaults]);
 
   return (
-    account && (
+    <>
+    { account && (
       <Box justify="end" fill>
-        {activeAccount && allVaults.length > 0 && (
+        {account && allVaults.length > 0 && (
           <Box justify="between" alignSelf="end" gap="small" pad="small" background="hover" round="xsmall">
             <Box
               animation="fadeIn"
@@ -158,7 +164,8 @@ function VaultPositionSelector(target: any) {
           </Box>
         )}
       </Box>
-    )
+    )}
+    </>
   );
 }
 
