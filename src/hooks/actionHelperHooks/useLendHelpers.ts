@@ -8,7 +8,7 @@ import { maxBaseToSpend, sellFYToken } from '../../utils/yieldMath';
 export const useLendHelpers = (
   series: ISeries | undefined,
   input: string | undefined,
-  rollFromSeries: ISeries | undefined = undefined
+  rollToSeries: ISeries | undefined = undefined
 ) => {
   const { userState } = useContext(UserContext);
   const { assetMap, activeAccount, selectedBaseId } = userState;
@@ -45,11 +45,11 @@ export const useLendHelpers = (
     if (activeAccount) {
       (async () => {
         // user base available when rolling is the user's from series lend position balance
-        const userMax = rollFromSeries ? rollFromSeries?.fyTokenBalance : await selectedBase?.getBalance(activeAccount);
+        const userMax = series ? series?.fyTokenBalance : await selectedBase?.getBalance(activeAccount);
         userMax && setUserBaseAvailable(userMax);
       })();
     }
-  }, [activeAccount, selectedBase, series, rollFromSeries]);
+  }, [activeAccount, selectedBase, series ]);
 
   /* set maxLend based on either max user or max protocol */
   useEffect(() => {
