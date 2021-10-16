@@ -2,7 +2,6 @@ import { BigNumber, ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../contexts/UserContext';
 import { ISeries } from '../../types';
-import { ZERO_BN } from '../../utils/constants';
 import { maxBaseToSpend, sellFYToken } from '../../utils/yieldMath';
 
 export const useLendHelpers = (
@@ -15,10 +14,10 @@ export const useLendHelpers = (
   const selectedBase = assetMap.get(selectedBaseId!);
 
   /* clean to prevent underflow */
-  const [maxLend, setMaxLend] = useState<BigNumber>(ZERO_BN);
+  const [maxLend, setMaxLend] = useState<BigNumber>(ethers.constants.Zero);
   const [maxLend_, setMaxLend_] = useState<string>();
 
-  const [maxClose, setMaxClose] = useState<BigNumber>(ZERO_BN);
+  const [maxClose, setMaxClose] = useState<BigNumber>(ethers.constants.Zero);
   const [maxClose_, setMaxClose_] = useState<string>();
 
   const [userBaseAvailable, setUserBaseAvailable] = useState<BigNumber>(ethers.constants.Zero);
