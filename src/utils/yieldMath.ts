@@ -143,7 +143,7 @@ const _computeA = (timeToMaturity: BigNumber | string, g: Decimal = g1, ts: Deci
   return [a, invA]; /* returns a and inverse of a */
 };
 
-const _computeB = (timeToMaturity: BigNumber | string, g: Decimal = g2, ts: Decimal = k): [Decimal, Decimal] => {
+const _computeB = (timeToMaturity: BigNumber | string, g: Decimal = g1, ts: Decimal = k): [Decimal, Decimal] => {
   const timeTillMaturity_ = new Decimal(timeToMaturity.toString());
   // t = ts * timeTillMaturity
   const t = ts.mul(timeTillMaturity_);
@@ -429,7 +429,6 @@ export function buyBase(
  * @param { boolean } withNoFee
  * @returns { BigNumber }
  */
-// NOT USED YET
 export function buyFYToken(
   baseReserves: BigNumber | string,
   fyTokenReserves: BigNumber | string,
@@ -973,17 +972,16 @@ export const getPoolPercent = (input: BigNumber, strategyTotalSupply: BigNumber)
 /**
  * Calcualtes the MIN and MAX reserve ratios of a pool for a given slippage value
  *
- * @param {BigNumber}  baseReserves
- * @param {BigNumber}  fyTokenReserves
+ * @param {BigNumber} baseReserves
+ * @param {BigNumber} fyTokenReserves
  * @param {number} slippage
  *
  * @returns {[BigNumber, BigNumber] }
  */
-
 export const calcPoolRatios = (
   baseReserves: BigNumber,
   fyTokenReserves: BigNumber,
-  slippage: number
+  slippage: number = 0.05
 ): [BigNumber, BigNumber] => {
   const baseReserves_ = new Decimal(baseReserves.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves.toString());
@@ -995,7 +993,6 @@ export const calcPoolRatios = (
   // const ratioSlippage = ratio.mul(slippage_);
   // const min = ratio.sub(ratioSlippage);
   // const max = ratio.add(ratioSlippage);
-  // console.log( ratio, min, max)
-
+  // console.log( ratio, min, max);
   return [ZERO_BN, ethers.constants.MaxInt256];
 };
