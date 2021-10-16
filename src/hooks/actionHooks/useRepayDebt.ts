@@ -4,7 +4,7 @@ import { UserContext } from '../../contexts/UserContext';
 import { ICallData, IVault, ISeries, ActionCodes, LadleActions, IAsset } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
-import { calculateSlippage, maxBaseToSpend, secondsToFrom, sellBase } from '../../utils/yieldMath';
+import { calculateSlippage, maxBaseIn, secondsToFrom, sellBase } from '../../utils/yieldMath';
 import { useRemoveCollateral } from './useRemoveCollateral';
 
 export const useRepayDebt = () => {
@@ -28,7 +28,7 @@ export const useRepayDebt = () => {
     /* if requested, and all debt will be repaid, automatically remove collateral */
     const _collateralToRemove = reclaimCollateral && _input >= vault.art ? vault.ink : ethers.constants.Zero;
 
-    const protocolMax = maxBaseToSpend(
+    const protocolMax = maxBaseIn(
       series.baseReserves,
       series.fyTokenReserves,
       series.getTimeTillMaturity(),

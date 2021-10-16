@@ -5,7 +5,7 @@ import { IVault, ISeries, IAsset } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import { ZERO_BN } from '../../utils/constants';
 
-import { maxBaseToSpend, sellBase } from '../../utils/yieldMath';
+import { maxBaseIn, sellBase } from '../../utils/yieldMath';
 
 /* Collateralization hook calculates collateralization metrics */
 export const useBorrowHelpers = (
@@ -108,7 +108,7 @@ export const useBorrowHelpers = (
         /* max user is either the max tokens they have or max debt */
         const _maxUser = _maxToken && _maxDebt?.gt(_maxToken) ? _maxToken : _maxDebt;
         const _maxDust = _maxUser.sub(minDebt);
-        const _maxProtocol = maxBaseToSpend(
+        const _maxProtocol = maxBaseIn(
           vaultSeries.baseReserves,
           vaultSeries.fyTokenReserves,
           vaultSeries.getTimeTillMaturity(),

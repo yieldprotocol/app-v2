@@ -464,42 +464,6 @@ export function buyFYToken(
 }
 
 /**
- * @param { BigNumber | string } baseReserves
- * @param { BigNumber | string } fyTokenReserves
- * @param { BigNumber | string } timeTillMaturity
- * @returns { BigNumber }
- */
-export function maxBaseToSpend(
-  baseReserves: BigNumber | string,
-  fyTokenReserves: BigNumber | string,
-  timeTillMaturity: BigNumber | string,
-  decimals: number
-): BigNumber {
-  /* convert to 18 decimals, if required */
-  const baseReserves18 = decimalNToDecimal18(BigNumber.from(baseReserves), decimals);
-  const fyTokenReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenReserves), decimals);
-
-  const baseReserves_ = new Decimal(baseReserves18.toString());
-  const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
-  const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
-
-  const g = g1;
-  const t = k.mul(timeTillMaturity_);
-  const a = ONE.sub(g.mul(t));
-  const invA = ONE.div(a);
-
-  const Za = baseReserves_.pow(a);
-  const Ya = fyTokenReserves_.pow(a);
-  const sum = Za.add(Ya).div(2);
-  const y = sum.pow(invA).sub(baseReserves_);
-
-  // discount by small amount to prevent potential issues (clock issues, tx time to mine, etc.)
-  const yWithMargin = y.mul(0.999);
-
-  return decimal18ToDecimalN(toBn(yWithMargin), decimals);
-}
-
-/**
  * Calculate the max amount of base that can be sold to into the pool without making the interest rate negative.
  *
  * @param { BigNumber | string } baseReserves

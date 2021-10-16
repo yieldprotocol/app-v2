@@ -7,9 +7,9 @@ import styled from 'styled-components';
 import { FiClock } from 'react-icons/fi';
 import { ActionType, ISeries } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
-import { calculateAPR, maxBaseToSpend } from '../../utils/yieldMath';
+import { maxBaseIn } from '../../utils/yieldMath';
 import { useApr } from '../../hooks/useApr';
-import { chunkArray, cleanValue, nFormatter } from '../../utils/appUtils';
+import { cleanValue } from '../../utils/appUtils';
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
@@ -76,7 +76,7 @@ const AprText = ({
   const { apr } = useApr(_inputValue, actionType, series);
   const [limitHit, setLimitHit] = useState<boolean>(false);
   
-  const maxBase = maxBaseToSpend(
+  const maxBase = maxBaseIn(
     series.baseReserves,
     series.fyTokenReserves,
     series.getTimeTillMaturity(),
