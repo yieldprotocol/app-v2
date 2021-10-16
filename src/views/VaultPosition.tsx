@@ -25,7 +25,6 @@ import TransactButton from '../components/buttons/TransactButton';
 import { useInputValidation } from '../hooks/useInputValidation';
 import ModalWrap from '../components/wraps/ModalWrap';
 
-import { ChainContext } from '../contexts/ChainContext';
 import { useCachedState } from '../hooks/generalHooks';
 import { useRepayDebt } from '../hooks/actionHooks/useRepayDebt';
 import { useRollDebt } from '../hooks/actionHooks/useRollDebt';
@@ -47,11 +46,8 @@ const VaultPosition = () => {
   /* STATE FROM CONTEXT */
 
   const { userState, userActions } = useContext(UserContext) as IUserContext;
-  const { assetMap, seriesMap, vaultMap, selectedVaultId, vaultsLoading } = userState;
+  const { activeAccount: account, assetMap, seriesMap, vaultMap, selectedVaultId, vaultsLoading } = userState;
 
-  const {
-    chainState: { account },
-  } = useContext(ChainContext);
 
   const selectedVault: IVault | undefined = vaultMap && vaultMap.get(selectedVaultId || idFromUrl);
 

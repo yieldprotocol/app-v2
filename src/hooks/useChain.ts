@@ -17,7 +17,10 @@ const _getCallValue = (calls: ICallData[]): BigNumber => {
 /* Generic hook for chain transactions */
 export const useChain = () => {
   const {
-    chainState: { account, provider, contractMap, chainId },
+    chainState: {
+      connection: { account, provider, chainId },
+      contractMap,
+    },
   } = useContext(ChainContext);
   const {
     userState: { approvalMethod },
@@ -71,6 +74,7 @@ export const useChain = () => {
     }
 
     console.log('Auto gas estimate:', gasEst.mul(120).div(100).toString());
+
     /* Finally, send out the transaction */
     return handleTx(
       () =>

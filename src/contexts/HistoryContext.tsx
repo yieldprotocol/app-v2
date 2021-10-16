@@ -70,11 +70,16 @@ const HistoryProvider = ({ children }: any) => {
   // TODO const [cachedVaults, setCachedVaults] = useCachedState('vaults', { data: [], lastBlock: Number(process.env.REACT_APP_DEPLOY_BLOCK) });
   const { chainState } = useContext(ChainContext);
 
-  const { chainLoading, fallbackProvider, contractMap, account, seriesRootMap, assetRootMap, strategyRootMap } =
-    chainState;
+  const {
+    chainLoading,
+    contractMap,
+    connection: { fallbackProvider },
+    seriesRootMap,
+    assetRootMap,
+  } = chainState;
 
   const { userState } = useContext(UserContext);
-  const { vaultMap, seriesMap, strategyMap } = userState;
+  const { activeAccount: account, vaultMap, seriesMap, strategyMap } = userState;
 
   const [historyState, updateState] = useReducer(historyReducer, initState);
 

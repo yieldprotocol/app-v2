@@ -36,7 +36,10 @@ const Dashboard = () => {
 
   /* STATE FROM CONTEXT */
   const {
-    chainState: { account, chainLoading },
+    chainState: {
+      connection: { account },
+      chainLoading,
+    },
   } = useContext(ChainContext);
   const {
     userState: {
@@ -112,12 +115,12 @@ const Dashboard = () => {
       .map((_strategy: IStrategy) => {
         const currentStrategySeries: any = seriesMap.get(_strategy.currentSeriesId);
         const currentValue = checkPoolTrade(
-          _strategy.accountBalance!, 
+          _strategy.accountBalance!,
           currentStrategySeries.baseReserves,
           currentStrategySeries.fyTokenReserves,
           currentStrategySeries.totalSupply,
           currentStrategySeries.getTimeTillMaturity(),
-          currentStrategySeries.decimals   
+          currentStrategySeries.decimals
         );
         const currentValue_ = currentValue.eq(ethers.constants.Zero)
           ? _strategy.accountBalance_
