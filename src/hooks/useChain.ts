@@ -6,7 +6,7 @@ import { TxContext } from '../contexts/TxContext';
 import { MAX_256 } from '../utils/constants';
 import { ICallData, ISignData, LadleActions } from '../types';
 import { ERC20Permit__factory, Ladle } from '../contracts';
-import { UserContext } from '../contexts/UserContext';
+import { useApprovalMethod } from './useApprovalMethod';
 
 /* Get ETH value from JOIN_ETHER OPCode, else zero -> N.B. other values sent in with other OPS are ignored for now */
 const _getCallValue = (calls: ICallData[]): BigNumber => {
@@ -22,12 +22,12 @@ export const useChain = () => {
       contractMap,
     },
   } = useContext(ChainContext);
-  const {
-    userState: { approvalMethod },
-  } = useContext(UserContext);
+
   const {
     txActions: { handleTx, handleSign },
   } = useContext(TxContext);
+
+  const approvalMethod = useApprovalMethod();
 
   /**
    * TRANSACTING
@@ -90,6 +90,7 @@ export const useChain = () => {
    * @param { ISignData[] } requestedSignatures
    * @param { string } txCode
    * @param { boolean } viaPoolRouter DEFAULT: false
+   *
    * @returns { Promise<ICallData[]> }
    */
   const sign = async (requestedSignatures: ISignData[], txCode: string): Promise<ICallData[]> => {

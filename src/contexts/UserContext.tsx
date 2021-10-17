@@ -63,10 +63,11 @@ const initState: IUserContextState = {
   selectedVaultId: null,
   selectedStrategyAddr: null,
 
-  /* User Settings */
-  approvalMethod: ApprovalType.SIG,
-  dudeSalt: 20,
-  slippageTolerance: 0.01 as number,
+  /* User Settings ( getting from the cache first ) */
+  approvalMethod: JSON.parse( localStorage.getItem('cachedApprovalMethod')! ) as ApprovalType || ApprovalType.SIG ,
+  slippageTolerance: JSON.parse( localStorage.getItem('slippageTolerance')! ) as number || 0.01 as number,
+  dudeSalt: 21,
+
   dashSettings: {
     hideEmptyVaults: false,
     showInactiveVaults: false,
@@ -76,6 +77,7 @@ const initState: IUserContextState = {
     hidePoolPositions: false,
     currencySetting: 'DAI',
   } as IDashSettings,
+
 };
 
 const vaultNameConfig: Config = {
@@ -670,6 +672,7 @@ const UserProvider = ({ children }: any) => {
     // TODO To reduce exposure, maybe we have a single 'change setting' function?  > that handles all the below? not urgent.
     setApprovalMethod: (type: ApprovalType) => updateState({ type: 'approvalMethod', payload: type }),
     updateDudeSalt: () => updateState({ type: 'dudeSalt', payload: userState.dudeSalt + 3 }),
+    
     setSlippageTolerance: (slippageTolerance: number) =>
       updateState({ type: 'setSlippageTolerance', payload: slippageTolerance }),
 

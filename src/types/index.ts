@@ -264,8 +264,8 @@ export interface IDomain {
 }
 
 export enum ApprovalType {
-  TX = 'TX',
-  SIG = 'SIG',
+  TX = "TX",
+  SIG = "SIG",
 }
 
 export enum SignType {
