@@ -95,7 +95,7 @@ const AprText = ({
     if (!series?.seriesIsMature && _inputValue)
       actionType === ActionType.LEND
         ? setLimitHit(ethers.utils.parseUnits(_inputValue, series?.decimals).gt(baseOut)) // lending max
-        : setLimitHit(ethers.utils.parseUnits(_inputValue, series?.decimals).gt(baseIn)); // borrow max
+        : setLimitHit(ethers.utils.parseUnits(_inputValue, series?.decimals).gt(series.baseReserves)); // borrow max
   }, [
     _inputValue,
     actionType,
