@@ -81,7 +81,7 @@ CONNECTORS.set(
 export const useConnection = () => {
   const [tried, setTried] = useState<boolean>(false);
 
-  const [connectionName, _setConnectionName] = useState<string>();
+  const [connectionName, _setConnectionName] = useCachedState('connectionName', '');
   const [currentChainInfo, setCurrentChainInfo] = useState<any>();
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
   const [fallbackErrorMessage, setFallbackErrorMessage] = useState<string | undefined>(undefined);
