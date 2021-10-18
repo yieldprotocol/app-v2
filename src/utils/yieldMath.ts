@@ -628,8 +628,8 @@ export function maxFyTokenOut(
   const res = inaccessible.gt(fyTokenReserves_) ? ZERO : fyTokenReserves_.sub(inaccessible);
 
   /* Handle precision variations */
-  const safeRes = res.gt( MAX.sub(precisionFee) ) ? MAX : res.add(precisionFee);
-  
+  const safeRes = res.gt(MAX.sub(precisionFee)) ? MAX : res.add(precisionFee);
+
   /* convert to back to token native decimals, if required */
   return decimal18ToDecimalN(toBn(safeRes), decimals);
 }
