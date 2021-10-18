@@ -3,7 +3,7 @@ import { ethers, BigNumber } from 'ethers';
 import { UserContext } from '../../contexts/UserContext';
 import { IAsset, ISeries, IStrategy, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
-import { fyTokenForMint, maxBaseIn, splitLiquidity, checkPoolTrade, getPoolPercent } from '../../utils/yieldMath';
+import { fyTokenForMint, splitLiquidity, checkPoolTrade, getPoolPercent, maxFyTokenOut } from '../../utils/yieldMath';
 import { ZERO_BN } from '../../utils/constants';
 
 export const usePoolHelpers = (input: string | undefined) => {
@@ -129,7 +129,7 @@ export const usePoolHelpers = (input: string | undefined) => {
     if (strategySeries && _input.gt(ethers.constants.Zero)) {
       let _fyTokenToBuy = ethers.constants.Zero;
 
-      const _maxProtocol = maxBaseIn(
+      const _maxFyTokenOut = maxFyTokenOut(
         strategySeries.baseReserves,
         strategySeries.fyTokenReserves,
         strategySeries.getTimeTillMaturity(),
@@ -146,8 +146,8 @@ export const usePoolHelpers = (input: string | undefined) => {
         strategySeries.decimals
       );
 
-      console.log('Can BuyAndPool? ', _maxProtocol.lt(_fyTokenToBuy));
-      setCanBuyAndPool(_maxProtocol.lt(_fyTokenToBuy));
+      console.log('Can BuyAndPool? ', _maxFyTokenOut.lt(_fyTokenToBuy));
+      setCanBuyAndPool(_maxFyTokenOut.lt(_fyTokenToBuy));
     } else {
       setCanBuyAndPool(true);
     }

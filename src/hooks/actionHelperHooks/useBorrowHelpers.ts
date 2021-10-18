@@ -108,7 +108,7 @@ export const useBorrowHelpers = (
         /* max user is either the max tokens they have or max debt */
         const _maxUser = _maxToken && _maxDebt?.gt(_maxToken) ? _maxToken : _maxDebt;
         const _maxDust = _maxUser.sub(minDebt);
-        const _maxProtocol = maxBaseIn(
+        const _maxBaseIn = maxBaseIn(
           vaultSeries.baseReserves,
           vaultSeries.fyTokenReserves,
           vaultSeries.getTimeTillMaturity(),
@@ -117,7 +117,7 @@ export const useBorrowHelpers = (
 
         /* set the dust limit */
         _maxDust && setMaxRepayDustLimit(ethers.utils.formatUnits(_maxDust, vaultBase?.decimals)?.toString());
-        _maxProtocol && setProtocolBaseAvailable(_maxProtocol);
+        _maxBaseIn && setProtocolBaseAvailable(_maxBaseIn);
 
         /* set the maxBase available for both user and protocol */
         if (_maxUser) {
@@ -126,9 +126,9 @@ export const useBorrowHelpers = (
         }
 
         /* set the maxRepay as the biggest of the two, human readbale and BN */
-        if (_maxUser && _maxProtocol && _maxUser.gt(_maxProtocol)) {
-          setMaxRepay_(ethers.utils.formatUnits(_maxProtocol, vaultBase?.decimals)?.toString());
-          setMaxRepay(_maxProtocol);
+        if (_maxUser && _maxBaseIn && _maxUser.gt(_maxBaseIn)) {
+          setMaxRepay_(ethers.utils.formatUnits(_maxBaseIn, vaultBase?.decimals)?.toString());
+          setMaxRepay(_maxBaseIn);
         } else {
           setMaxRepay_(ethers.utils.formatUnits(_maxUser, vaultBase?.decimals)?.toString());
           setMaxRepay(_maxUser);
