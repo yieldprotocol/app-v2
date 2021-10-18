@@ -64,20 +64,18 @@ const initState: IUserContextState = {
   selectedStrategyAddr: null,
 
   /* User Settings ( getting from the cache first ) */
-  approvalMethod: JSON.parse( localStorage.getItem('cachedApprovalMethod')! ) as ApprovalType || ApprovalType.SIG ,
-  slippageTolerance: JSON.parse( localStorage.getItem('slippageTolerance')! ) as number || 0.01 as number,
+  approvalMethod: (JSON.parse(localStorage.getItem('cachedApprovalMethod')!) as ApprovalType) || ApprovalType.SIG,
+  slippageTolerance: (JSON.parse(localStorage.getItem('slippageTolerance')!) as number) || (0.01 as number),
   dudeSalt: 21,
 
   dashSettings: {
     hideEmptyVaults: false,
-    showInactiveVaults: false,
     hideInactiveVaults: false,
     hideVaultPositions: false,
     hideLendPositions: false,
     hidePoolPositions: false,
     currencySetting: 'DAI',
   } as IDashSettings,
-
 };
 
 const vaultNameConfig: Config = {
@@ -250,15 +248,14 @@ const UserProvider = ({ children }: any) => {
         })
       );
 
-      console.log('PUBLIC DATA', _publicData );
+      console.log('PUBLIC DATA', _publicData);
 
       /* add in the dynamic asset data of the assets in the list */
       if (account) {
         try {
           _accountData = await Promise.all(
             _publicData.map(async (asset: IAssetRoot): Promise<IAsset> => {
-                         
-              const [balance, ladleAllowance, joinAllowance ] = await Promise.all([
+              const [balance, ladleAllowance, joinAllowance] = await Promise.all([
                 asset.getBalance(account),
                 asset.getAllowance(account, contractMap.get('Ladle').address),
                 asset.getAllowance(account, asset.joinAddress),
@@ -672,12 +669,9 @@ const UserProvider = ({ children }: any) => {
     // TODO To reduce exposure, maybe we have a single 'change setting' function?  > that handles all the below? not urgent.
     setApprovalMethod: (type: ApprovalType) => updateState({ type: 'approvalMethod', payload: type }),
     updateDudeSalt: () => updateState({ type: 'dudeSalt', payload: userState.dudeSalt + 3 }),
-    
+
     setSlippageTolerance: (slippageTolerance: number) =>
       updateState({ type: 'setSlippageTolerance', payload: slippageTolerance }),
-
-    setShowInactiveVaults: (showInactiveVaults: boolean) =>
-      updateState({ type: 'showInactiveVaults', payload: showInactiveVaults }),
 
     setDashSettings: (name: any, value: any) =>
       updateState({ type: 'dashSettings', payload: { ...userState.dashSettings, [name]: value } }),
