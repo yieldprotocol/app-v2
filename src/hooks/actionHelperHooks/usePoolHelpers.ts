@@ -146,12 +146,8 @@ export const usePoolHelpers = (input: string | undefined) => {
         strategySeries.decimals
       );
 
-      console.log( _maxFyTokenOut.toString())
-      console.log(
-        _fyTokenToBuy.toString(), 
-        'Can BuyAndPool? ', _maxFyTokenOut.lt(_fyTokenToBuy));
-
-      setCanBuyAndPool(_maxFyTokenOut.lt(_fyTokenToBuy));
+      console.log('Can BuyAndPool?', _fyTokenToBuy.lt(_maxFyTokenOut));
+      setCanBuyAndPool(_fyTokenToBuy.lt(_maxFyTokenOut));
     } else {
       setCanBuyAndPool(true);
     }
@@ -194,7 +190,7 @@ export const usePoolHelpers = (input: string | undefined) => {
 
   useEffect(() => {
     if (_input !== ethers.constants.Zero && strategy) {
-      setPoolPercentPreview(getPoolPercent(_input, strategy?.strategyTotalSupply!));
+      setPoolPercentPreview(cleanValue(getPoolPercent(_input, strategy?.strategyTotalSupply!), 3));
     }
   }, [_input, strategy]);
 

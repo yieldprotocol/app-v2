@@ -1,14 +1,16 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions, IAsset, IStrategy } from '../../types';
+import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions, IAsset, IStrategy, AddLiquidityType } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { BLANK_VAULT} from '../../utils/constants';
+import { BLANK_VAULT } from '../../utils/constants';
 import { useChain } from '../useChain';
 
 import { calcPoolRatios, calculateSlippage, fyTokenForMint, splitLiquidity } from '../../utils/yieldMath';
 import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
+
+
 
 /* Hook for chain transactions */
 export const useAddLiquidity = () => {
@@ -24,28 +26,29 @@ export const useAddLiquidity = () => {
     historyActions: { updateStrategyHistory },
   } = useContext(HistoryContext);
 
-  const addLiquidity = async (input: string, strategy: IStrategy, method: 'BUY' | 'BORROW' | string = 'BUY') => {
+  const addLiquidity = async (input: string, strategy: IStrategy, method: AddLiquidityType = AddLiquidityType.BUY) => {
     // const ladleAddress = contractMap.get('Ladle').address;
     const txCode = getTxCode(ActionCodes.ADD_LIQUIDITY, strategy.id);
     const series: ISeries = seriesMap.get(strategy.currentSeriesId);
     const base: IAsset = assetMap.get(series.baseId);
-    
+
     const cleanInput = cleanValue(input, base.decimals);
+
     const _input = ethers.utils.parseUnits(cleanInput, base.decimals);
-    
     const _inputLessSlippage = calculateSlippage(_input, slippageTolerance, true);
 
-    const _fyTokenToBuy = fyTokenForMint(
-      series.baseReserves,
-      series.fyTokenRealReserves,
-      series.fyTokenReserves,
-      _inputLessSlippage,
+    const [cachedBaseReserves, cachedFyTokenReserves] = await series.poolContract.getCache();
+    const cachedRealReserves = cachedFyTokenReserves.sub(series.totalSupply);
+
+    const _fyTokenToBeMinted = fyTokenForMint(
+      cachedBaseReserves,
+      cachedFyTokenReserves,
+      cachedRealReserves,
+      _input,
       series.getTimeTillMaturity(),
       series.decimals
     );
-
-    const [ minRatio, maxRatio ] = calcPoolRatios( series.baseReserves, series.fyTokenReserves, slippageTolerance )
-    // const poolRatio = series.baseReserves.div(series.fyTokenReserves)
+    const [minRatio, maxRatio] = calcPoolRatios(cachedBaseReserves, cachedFyTokenReserves, slippageTolerance);
 
     const [_baseToPool, _baseToFyToken] = splitLiquidity(
       series.baseReserves,
@@ -59,14 +62,8 @@ export const useAddLiquidity = () => {
         {
           target: base,
           spender: 'LADLE',
-          amount: _baseToPool.add(_baseToFyToken),
-          ignoreIf: false // method !== 'BUY',
-        },
-        {
-          target: base,
-          spender: base.joinAddress,
-          amount: _input,
-          ignoreIf: true // method !== 'BORROW',
+          amount: method !== AddLiquidityType.BUY ? _input : _baseToFyToken.add(_baseToPool),
+          ignoreIf: false,
         },
       ],
       txCode
@@ -79,22 +76,20 @@ export const useAddLiquidity = () => {
        * */
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [base.address, series.poolAddress, _input ] as LadleActions.Args.TRANSFER,
-        ignoreIf: method !== 'BUY',
+        args: [base.address, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
+        ignoreIf: method !== AddLiquidityType.BUY,
       },
       {
         operation: LadleActions.Fn.ROUTE,
         args: [
           strategy.id || account, // receiver is _strategyAddress (if it exists) or else account
-          _fyTokenToBuy,
-          // _mintedWithBaseWithSlippage,
-          // ethers.constants.Zero, // TODO  _fyTokenToBuyWithSlippage
+          _fyTokenToBeMinted,
           minRatio,
           maxRatio,
         ] as RoutedActions.Args.MINT_WITH_BASE,
         fnName: RoutedActions.Fn.MINT_WITH_BASE,
         targetContract: series.poolContract,
-        ignoreIf: method !== 'BUY',
+        ignoreIf: method !== AddLiquidityType.BUY,
       },
 
       /**
@@ -103,39 +98,32 @@ export const useAddLiquidity = () => {
       {
         operation: LadleActions.Fn.BUILD,
         args: [series.id, base.id, '0'] as LadleActions.Args.BUILD,
-        ignoreIf: method !== 'BORROW',
+        ignoreIf: method !== AddLiquidityType.BORROW,
       },
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [base.address, base.joinAddress, _baseToFyToken] as LadleActions.Args.TRANSFER,
-        ignoreIf: method !== 'BORROW',
+        ignoreIf: method !== AddLiquidityType.BORROW,
       },
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [base.address, series.poolAddress, _baseToPool] as LadleActions.Args.TRANSFER,
-        ignoreIf: method !== 'BORROW',
+        ignoreIf: method !== AddLiquidityType.BORROW,
       },
       {
         operation: LadleActions.Fn.POUR,
         args: [BLANK_VAULT, series.poolAddress, _baseToFyToken, _baseToFyToken] as LadleActions.Args.POUR,
-        ignoreIf: method !== 'BORROW',
+        ignoreIf: method !== AddLiquidityType.BORROW,
       },
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [
-          strategy.id || account,
-          true,
-          // _mintedWithSlippage,
-          // ethers.constants.Zero, // TODO  comment for prod
-          minRatio,
-          maxRatio
-        ] as RoutedActions.Args.MINT_POOL_TOKENS, // receiver is _strategyAddr (if it exists) or account
+        args: [strategy.id || account, true, minRatio, maxRatio] as RoutedActions.Args.MINT_POOL_TOKENS, 
         fnName: RoutedActions.Fn.MINT_POOL_TOKENS,
         targetContract: series.poolContract,
-        ignoreIf: method !== 'BORROW',
+        ignoreIf: method !== AddLiquidityType.BORROW,
       },
 
-      // /* STRATEGY MINTING if strategy address is provided, and is found in the strategyMap, use that address */
+      // /* STRATEGY TOKEN MINTING  (for all AddLiquididy recipes that use strategy > if strategy address is provided, and is found in the strategyMap, use that address */
       {
         operation: LadleActions.Fn.ROUTE,
         args: [account] as RoutedActions.Args.MINT_STRATEGY_TOKENS,
