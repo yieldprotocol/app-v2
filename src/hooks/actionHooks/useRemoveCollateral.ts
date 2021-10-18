@@ -10,10 +10,10 @@ import { useChain } from '../useChain';
 // TODO will fail if balance of join is less than amount
 export const useRemoveCollateral = () => {
   const {
-    chainState: { account, contractMap },
+    chainState: { contractMap },
   } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
-  const { selectedIlkId, assetMap } = userState;
+  const { activeAccount: account, selectedIlkId, assetMap } = userState;
   const { updateAssets, updateVaults } = userActions;
 
   const { transact } = useChain();

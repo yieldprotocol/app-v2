@@ -8,7 +8,7 @@ import Connect from './Connect';
 const SidebarSettings = ({ settingsOpen, setSettingsOpen, connectOpen, setConnectOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
-    chainState: { account },
+    chainState: {  connection: { account } } ,
   } = useContext(ChainContext);
 
   return (

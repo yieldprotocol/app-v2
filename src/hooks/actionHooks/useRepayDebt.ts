@@ -1,19 +1,16 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
-import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, IVault, ISeries, ActionCodes, LadleActions, IAsset } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
-import { calculateSlippage, maxBaseToSpend, secondsToFrom, sellBase } from '../../utils/yieldMath';
+import { calculateSlippage, maxBaseIn, secondsToFrom, sellBase } from '../../utils/yieldMath';
 import { useRemoveCollateral } from './useRemoveCollateral';
 
 export const useRepayDebt = () => {
-  const {
-    chainState: { account },
-  } = useContext(ChainContext);
+
   const { userState, userActions } = useContext(UserContext);
-  const { seriesMap, assetMap } = userState;
+  const { activeAccount: account, seriesMap, assetMap } = userState;
   const { updateVaults, updateAssets } = userActions;
 
   const { removeEth } = useRemoveCollateral();
@@ -25,18 +22,18 @@ export const useRepayDebt = () => {
     const base: IAsset = assetMap.get(vault.baseId);
 
     /* Parse inputs */
-    const cleanInput = cleanValue(input, base.decimals)
+    const cleanInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanInput, base.decimals) : ethers.constants.Zero;
-    
+
     /* if requested, and all debt will be repaid, automatically remove collateral */
     const _collateralToRemove = reclaimCollateral && _input >= vault.art ? vault.ink : ethers.constants.Zero;
 
-    const protocolMax  = maxBaseToSpend (
+    const protocolMax = maxBaseIn(
       series.baseReserves,
       series.fyTokenReserves,
       series.getTimeTillMaturity(),
       series.decimals
-    )
+    );
 
     const _inputAsFyToken = sellBase(
       series.baseReserves,
@@ -68,7 +65,7 @@ export const useRepayDebt = () => {
           // after maturity
           target: base,
           spender: base.joinAddress,
-          amount:_input,
+          amount: _input,
           ignoreIf: !series.seriesIsMature,
         },
       ],
@@ -82,9 +79,7 @@ export const useRepayDebt = () => {
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [base.address, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
-        ignoreIf: 
-        series.seriesIsMature || 
-        inputGreaterThanMaxBaseIn,
+        ignoreIf: series.seriesIsMature || inputGreaterThanMaxBaseIn,
       },
 
       {
