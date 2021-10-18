@@ -43,8 +43,8 @@ interface PoolInterface extends ethers.utils.Interface {
     "getCache()": FunctionFragment;
     "getFYTokenBalance()": FunctionFragment;
     "maturity()": FunctionFragment;
-    "mint(address,bool,uint256,uint256)": FunctionFragment;
-    "mintWithBase(address,uint256,uint256,uint256)": FunctionFragment;
+    "mint(address,address,uint256,uint256)": FunctionFragment;
+    "mintWithBase(address,address,uint256,uint256,uint256)": FunctionFragment;
     "name()": FunctionFragment;
     "nonces(address)": FunctionFragment;
     "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)": FunctionFragment;
@@ -130,11 +130,11 @@ interface PoolInterface extends ethers.utils.Interface {
   encodeFunctionData(functionFragment: "maturity", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "mint",
-    values: [string, boolean, BigNumberish, BigNumberish]
+    values: [string, string, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "mintWithBase",
-    values: [string, BigNumberish, BigNumberish, BigNumberish]
+    values: [string, string, BigNumberish, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(functionFragment: "nonces", values: [string]): string;
@@ -475,7 +475,7 @@ export class Pool extends BaseContract {
 
     mint(
       to: string,
-      calculateFromBase: boolean,
+      remainder: string,
       minRatio: BigNumberish,
       maxRatio: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -483,6 +483,7 @@ export class Pool extends BaseContract {
 
     mintWithBase(
       to: string,
+      remainder: string,
       fyTokenToBuy: BigNumberish,
       minRatio: BigNumberish,
       maxRatio: BigNumberish,
@@ -645,7 +646,7 @@ export class Pool extends BaseContract {
 
   mint(
     to: string,
-    calculateFromBase: boolean,
+    remainder: string,
     minRatio: BigNumberish,
     maxRatio: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -653,6 +654,7 @@ export class Pool extends BaseContract {
 
   mintWithBase(
     to: string,
+    remainder: string,
     fyTokenToBuy: BigNumberish,
     minRatio: BigNumberish,
     maxRatio: BigNumberish,
@@ -819,7 +821,7 @@ export class Pool extends BaseContract {
 
     mint(
       to: string,
-      calculateFromBase: boolean,
+      remainder: string,
       minRatio: BigNumberish,
       maxRatio: BigNumberish,
       overrides?: CallOverrides
@@ -827,6 +829,7 @@ export class Pool extends BaseContract {
 
     mintWithBase(
       to: string,
+      remainder: string,
       fyTokenToBuy: BigNumberish,
       minRatio: BigNumberish,
       maxRatio: BigNumberish,
@@ -1122,7 +1125,7 @@ export class Pool extends BaseContract {
 
     mint(
       to: string,
-      calculateFromBase: boolean,
+      remainder: string,
       minRatio: BigNumberish,
       maxRatio: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1130,6 +1133,7 @@ export class Pool extends BaseContract {
 
     mintWithBase(
       to: string,
+      remainder: string,
       fyTokenToBuy: BigNumberish,
       minRatio: BigNumberish,
       maxRatio: BigNumberish,
@@ -1298,7 +1302,7 @@ export class Pool extends BaseContract {
 
     mint(
       to: string,
-      calculateFromBase: boolean,
+      remainder: string,
       minRatio: BigNumberish,
       maxRatio: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1306,6 +1310,7 @@ export class Pool extends BaseContract {
 
     mintWithBase(
       to: string,
+      remainder: string,
       fyTokenToBuy: BigNumberish,
       minRatio: BigNumberish,
       maxRatio: BigNumberish,

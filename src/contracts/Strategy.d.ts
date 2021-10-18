@@ -69,7 +69,7 @@ interface StrategyInterface extends ethers.utils.Interface {
     "setRoleAdmin(bytes4,bytes4)": FunctionFragment;
     "setTokenId(bytes6)": FunctionFragment;
     "setYield(address)": FunctionFragment;
-    "startPool()": FunctionFragment;
+    "startPool(uint256,uint256)": FunctionFragment;
     "symbol()": FunctionFragment;
     "totalSupply()": FunctionFragment;
     "transfer(address,uint256)": FunctionFragment;
@@ -202,7 +202,10 @@ interface StrategyInterface extends ethers.utils.Interface {
     values: [BytesLike]
   ): string;
   encodeFunctionData(functionFragment: "setYield", values: [string]): string;
-  encodeFunctionData(functionFragment: "startPool", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "startPool",
+    values: [BigNumberish, BigNumberish]
+  ): string;
   encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "totalSupply",
@@ -661,6 +664,8 @@ export class Strategy extends BaseContract {
     ): Promise<ContractTransaction>;
 
     startPool(
+      minRatio: BigNumberish,
+      maxRatio: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -878,6 +883,8 @@ export class Strategy extends BaseContract {
   ): Promise<ContractTransaction>;
 
   startPool(
+    minRatio: BigNumberish,
+    maxRatio: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -1069,7 +1076,11 @@ export class Strategy extends BaseContract {
 
     setYield(ladle_: string, overrides?: CallOverrides): Promise<void>;
 
-    startPool(overrides?: CallOverrides): Promise<void>;
+    startPool(
+      minRatio: BigNumberish,
+      maxRatio: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     symbol(overrides?: CallOverrides): Promise<string>;
 
@@ -1474,6 +1485,8 @@ export class Strategy extends BaseContract {
     ): Promise<BigNumber>;
 
     startPool(
+      minRatio: BigNumberish,
+      maxRatio: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1692,6 +1705,8 @@ export class Strategy extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     startPool(
+      minRatio: BigNumberish,
+      maxRatio: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

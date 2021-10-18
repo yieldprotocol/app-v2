@@ -2,7 +2,6 @@
 import { ethers, BigNumber, BigNumberish } from 'ethers';
 import { Decimal } from 'decimal.js';
 import { MAX_256, WAD_BN, ZERO_BN } from './constants';
-import { cleanValue } from './appUtils';
 
 Decimal.set({ precision: 64 });
 
@@ -126,14 +125,10 @@ export const secondsToFrom = (
   return to_.sub(from_).toString();
 };
 
-/** ************************
- YieldSpace functions
- *************************** */
-
 /**
- * Internal Yieldspace functions
+ * specific Yieldspace helper functions
  * */
-const _computeA = (timeToMaturity: BigNumber | string, g: Decimal = g1, ts: Decimal = k): [Decimal, Decimal] => {
+ const _computeA = (timeToMaturity: BigNumber | string, g: Decimal = g1, ts: Decimal = k): [Decimal, Decimal] => {
   const timeTillMaturity_ = new Decimal(timeToMaturity.toString());
   // t = ts * timeTillMaturity
   const t = ts.mul(timeTillMaturity_);
@@ -153,6 +148,11 @@ const _computeB = (timeToMaturity: BigNumber | string, g: Decimal = g1, ts: Deci
   return [b, invB]; /* returns b and inverse of b */
 };
 
+
+/** ************************
+ YieldSpace functions
+ *************************** */
+
 /**
  * @param { BigNumber | string } baseReserves
  * @param { BigNumber | string } fyTokenReserves
@@ -167,7 +167,7 @@ export function mint(
   fyTokenReserves: BigNumber | string,
   totalSupply: BigNumber | string,
   base: BigNumber | string,
-  fromBase: boolean = true
+  fromBase: boolean = false
 ): [BigNumber, BigNumber] {
   const baseReserves_ = new Decimal(baseReserves.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves.toString());
@@ -291,6 +291,8 @@ export function burnForBase(
 }
 
 /**
+ * Calculate the amount of fyToken a user would get for given amount of Base.
+ * fyTokenOutForBaseIn
  * @param { BigNumber | string } baseReserves
  * @param { BigNumber | string } fyTokenReserves
  * @param { BigNumber | string } base
@@ -314,13 +316,10 @@ export function sellBase(
 
   const baseReserves_ = new Decimal(baseReserves18.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
-  const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
   const base_ = new Decimal(base18.toString());
 
-  const g = withNoFee ? ONE : g1;
-  const t = k.mul(timeTillMaturity_);
-  const a = ONE.sub(g.mul(t));
-  const invA = ONE.div(a);
+  const _g = withNoFee ? ONE : g1;
+  const [a, invA] = _computeA(timeTillMaturity, _g )
 
   const Za = baseReserves_.pow(a);
   const Ya = fyTokenReserves_.pow(a);
@@ -335,6 +334,8 @@ export function sellBase(
 }
 
 /**
+ * Calculate the amount of base a user would get for certain amount of fyToken.
+ * baseOutForFYTokenIn
  * @param { BigNumber | string } baseReserves
  * @param { BigNumber | string } fyTokenReserves
  * @param { BigNumber | string } fyToken
@@ -358,13 +359,10 @@ export function sellFYToken(
 
   const baseReserves_ = new Decimal(baseReserves18.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
-  const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
   const fyDai_ = new Decimal(fyToken18.toString());
 
-  const g = withNoFee ? ONE : g2;
-  const t = k.mul(timeTillMaturity_);
-  const a = ONE.sub(g.mul(t));
-  const invA = ONE.div(a);
+  const _g = withNoFee ? ONE : g2;
+  const [a, invA] = _computeA(timeTillMaturity, _g )
 
   const Za = baseReserves_.pow(a);
   const Ya = fyTokenReserves_.pow(a);
@@ -379,6 +377,8 @@ export function sellFYToken(
 }
 
 /**
+ * Calculate the amount of fyToken a user could sell for given amount of Base.
+ * fyTokenInForBaseOut
  * @param { BigNumber | string } baseReserves
  * @param { BigNumber | string } fyTokenReserves
  * @param { BigNumber | string } base
@@ -402,13 +402,10 @@ export function buyBase(
 
   const baseReserves_ = new Decimal(baseReserves18.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
-  const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
   const base_ = new Decimal(base18.toString());
 
-  const g = withNoFee ? ONE : g2;
-  const t = k.mul(timeTillMaturity_);
-  const a = ONE.sub(g.mul(t));
-  const invA = ONE.div(a);
+  const _g = withNoFee ? ONE : g2;
+  const [a, invA] = _computeA(timeTillMaturity, _g )
 
   const Za = baseReserves_.pow(a);
   const Ya = fyTokenReserves_.pow(a);
@@ -422,6 +419,8 @@ export function buyBase(
 }
 
 /**
+ * Calculate the amount of base a user would have to pay for certain amount of fyToken.
+ * baseInForFYTokenOut
  * @param { BigNumber | string } baseReserves
  * @param { BigNumber | string } fyTokenReserves
  * @param { BigNumber | string } fyToken
@@ -444,13 +443,10 @@ export function buyFYToken(
 
   const baseReserves_ = new Decimal(baseReserves18.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
-  const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
   const fyDai_ = new Decimal(fyToken18.toString());
 
-  const g = withNoFee ? ONE : g1;
-  const t = k.mul(timeTillMaturity_);
-  const a = ONE.sub(g.mul(t));
-  const invA = ONE.div(a);
+  const _g = withNoFee ? ONE : g1;
+  const [a, invA] = _computeA(timeTillMaturity, _g )
 
   const Za = baseReserves_.pow(a);
   const Ya = fyTokenReserves_.pow(a);
@@ -509,7 +505,7 @@ export function maxBaseIn(
   const res = sum.pow(invA).sub(baseReserves_);
 
   /* Handle precision variations */
-  const safeRes = res.gt(MAX.sub(precisionFee)) ? MAX: res.add(precisionFee);
+  const safeRes = res.gt(MAX.sub(precisionFee)) ? MAX : res.add(precisionFee);
 
   /* Convert to back to token native decimals, if required */
   return decimal18ToDecimalN(toBn(safeRes), decimals);
@@ -638,48 +634,6 @@ export function maxFyTokenOut(
   return decimal18ToDecimalN(toBn(safeRes), decimals);
 }
 
-/**
- * @param { BigNumber | string } baseReserves
- * @param { BigNumber | string } fyTokenReserves
- * @param { BigNumber | string } fyToken
- * @param { BigNumber | string } timeTillMaturity
- * @returns { BigNumber }
- */
-export function getFee(
-  baseReserves: BigNumber | string,
-  fyTokenReserves: BigNumber | string,
-  fyToken: BigNumber | string,
-  timeTillMaturity: BigNumber | string,
-  decimals: number
-): BigNumber {
-  let fee_: Decimal = ZERO;
-  const fyToken_: BigNumber = BigNumber.isBigNumber(fyToken) ? fyToken : BigNumber.from(fyToken);
-
-  if (fyToken_.gte(ethers.constants.Zero)) {
-    const tokenWithFee: BigNumber = buyFYToken(baseReserves, fyTokenReserves, fyToken, timeTillMaturity, decimals);
-    const tokenWithoutFee: BigNumber = buyFYToken(baseReserves, fyTokenReserves, fyToken, timeTillMaturity, 18, true);
-    fee_ = new Decimal(tokenWithFee.toString()).sub(new Decimal(tokenWithoutFee.toString()));
-  } else {
-    const tokenWithFee: BigNumber = sellFYToken(
-      baseReserves,
-      fyTokenReserves,
-      fyToken_.mul(BigNumber.from('-1')),
-      timeTillMaturity,
-      decimals
-    );
-    const tokenWithoutFee: BigNumber = sellFYToken(
-      baseReserves,
-      fyTokenReserves,
-      fyToken_.mul(BigNumber.from('-1')),
-      timeTillMaturity,
-      18,
-      true
-    );
-    fee_ = new Decimal(tokenWithoutFee.toString()).sub(new Decimal(tokenWithFee.toString()));
-  }
-  return toBn(fee_);
-}
-
 export function fyTokenForMint(
   baseReserves: BigNumber | string,
   fyTokenRealReserves: BigNumber | string,
@@ -756,6 +710,48 @@ export function fyTokenForMint(
     BigNumber.from(yOut.floor().toFixed()),
     decimals
   );
+}
+
+/**
+ * @param { BigNumber | string } baseReserves
+ * @param { BigNumber | string } fyTokenReserves
+ * @param { BigNumber | string } fyToken
+ * @param { BigNumber | string } timeTillMaturity
+ * @returns { BigNumber }
+ */
+ export function getFee(
+  baseReserves: BigNumber | string,
+  fyTokenReserves: BigNumber | string,
+  fyToken: BigNumber | string,
+  timeTillMaturity: BigNumber | string,
+  decimals: number
+): BigNumber {
+  let fee_: Decimal = ZERO;
+  const fyToken_: BigNumber = BigNumber.isBigNumber(fyToken) ? fyToken : BigNumber.from(fyToken);
+
+  if (fyToken_.gte(ethers.constants.Zero)) {
+    const tokenWithFee: BigNumber = buyFYToken(baseReserves, fyTokenReserves, fyToken, timeTillMaturity, decimals);
+    const tokenWithoutFee: BigNumber = buyFYToken(baseReserves, fyTokenReserves, fyToken, timeTillMaturity, 18, true);
+    fee_ = new Decimal(tokenWithFee.toString()).sub(new Decimal(tokenWithoutFee.toString()));
+  } else {
+    const tokenWithFee: BigNumber = sellFYToken(
+      baseReserves,
+      fyTokenReserves,
+      fyToken_.mul(BigNumber.from('-1')),
+      timeTillMaturity,
+      decimals
+    );
+    const tokenWithoutFee: BigNumber = sellFYToken(
+      baseReserves,
+      fyTokenReserves,
+      fyToken_.mul(BigNumber.from('-1')),
+      timeTillMaturity,
+      18,
+      true
+    );
+    fee_ = new Decimal(tokenWithoutFee.toString()).sub(new Decimal(tokenWithFee.toString()));
+  }
+  return toBn(fee_);
 }
 
 /**
@@ -968,8 +964,17 @@ export const checkPoolTrade = (
  *
  * @returns {BigNumber}
  */
-export const getPoolPercent = (input: BigNumber, strategyTotalSupply: BigNumber): string =>
-  cleanValue(mulDecimal(divDecimal(input, strategyTotalSupply.add(input)), '100'), 2);
+export const getPoolPercent = (input: BigNumber, strategyTotalSupply: BigNumber): string => {
+
+  const input_ = new Decimal(input.toString());
+  const totalSupply_ = new Decimal(strategyTotalSupply.toString());
+
+  const ratio = input_.div( totalSupply_.add(input_) );
+  const percent = ratio.mul(new Decimal(100));
+
+  return percent.toString();
+
+}
 
 /**
  * Calcualtes the MIN and MAX reserve ratios of a pool for a given slippage value
@@ -989,9 +994,9 @@ export const calcPoolRatios = (
   const fyTokenReserves_ = new Decimal(fyTokenReserves.toString());
   const slippage_ = new Decimal(slippage.toString());
 
-  console.log(baseReserves_.toString(), fyTokenReserves_.toString());
+  // console.log(baseReserves_.toString(), fyTokenReserves_.toString());
   const ratio = divDecimal(baseReserves, fyTokenReserves);
-  console.log(ratio);
+  // console.log(ratio);
   // const ratioSlippage = ratio.mul(slippage_);
   // const min = ratio.sub(ratioSlippage);
   // const max = ratio.add(ratioSlippage);

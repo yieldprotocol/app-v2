@@ -8,6 +8,7 @@ import { UserContext } from '../contexts/UserContext';
 import { ApprovalType, ISeries, IYieldProcess, ProcessStage, TxState } from '../types';
 import EtherscanButton from './buttons/EtherscanButton';
 import CancelButton from './buttons/CancelButton';
+import { useApprovalMethod } from '../hooks/useApprovalMethod';
 
 const InfoBlock = ({
   title,
@@ -69,8 +70,10 @@ const ActiveTransaction = ({
   pad?: boolean;
 }) => {
   const {
-    userState: { approvalMethod, selectedSeriesId, seriesMap },
+    userState: { selectedSeriesId, seriesMap },
   } = useContext(UserContext);
+
+  const [approvalMethod] =  useApprovalMethod();
 
   const { pathname } = useLocation();
 

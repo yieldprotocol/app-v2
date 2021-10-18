@@ -9,7 +9,7 @@ import styled from 'styled-components';
 import { IStrategy } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { getPoolPercent } from '../../utils/yieldMath';
-import { formatStrategyName } from '../../utils/appUtils';
+import { cleanValue, formatStrategyName } from '../../utils/appUtils';
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
@@ -155,10 +155,10 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
                               strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined
                             }
                           >
-                            {getPoolPercent(
+                            {cleanValue ( getPoolPercent(
                               ethers.utils.parseUnits(inputValue, strategy.decimals),
                               strategy.strategyTotalSupply!
-                            )}
+                            ), 3) }
                             %
                           </Text>
                           <Text
