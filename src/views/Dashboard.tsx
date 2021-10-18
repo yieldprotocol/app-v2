@@ -25,12 +25,6 @@ const StyledBox = styled(Box)`
   overflow-y: auto;
 `;
 
-interface IPositions {
-  vaultPositions: IVault[];
-  lendPositions: any[];
-  poolPositions: IStrategy[];
-}
-
 const Dashboard = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
