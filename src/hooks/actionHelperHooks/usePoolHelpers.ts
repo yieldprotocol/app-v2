@@ -94,8 +94,8 @@ export const usePoolHelpers = (input: string | undefined) => {
 
       console.log('Is tradeable:', tradeable);
       setFyTokenTradePossible(tradeable);
-      setInputTradeValue(_totalValue);
-      setInputTradeValue_(ethers.utils.formatUnits(_totalValue, strategySeries.decimals));
+      setInputTradeValue(_sellValue);
+      setInputTradeValue_(ethers.utils.formatUnits(_sellValue, strategySeries.decimals));
     }
   }, [_input, strategySeries]);
 
@@ -111,7 +111,7 @@ export const usePoolHelpers = (input: string | undefined) => {
         strategySeries.decimals
       );
       const tradeable = _sellValue.gt(ethers.constants.Zero);
-      tradeable && setAccountTradeValue(ethers.utils.formatUnits(_totalValue, strategy.decimals));
+      tradeable && setAccountTradeValue(ethers.utils.formatUnits(_sellValue, strategy.decimals));
     }
   }, [strategy?.accountBalance, strategy?.decimals, strategySeries]);
 
