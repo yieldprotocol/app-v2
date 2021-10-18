@@ -24,7 +24,6 @@ background 0.3s ease-in-out;
 }
 `;
 
-// TODO shaebox
 const ShadeBox = styled(Box)`
   /* -webkit-box-shadow: inset 0px ${(props) => (props ? '-50px' : '50px')} 30px -30px rgba(0,0,0,0.30); 
   box-shadow: inset 0px ${(props) => (props ? '-50px' : '50px')} 30px -30px rgba(0,0,0,0.30); */
@@ -267,13 +266,11 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
                   <Box pad="small" width="small" direction="row" align="center" gap="small">
                     <Avatar
                       background={series.id === selectedSeriesId ? 'solid' : series.endColor.toString().concat('10')}
-                      // border={series.id === selectedSeriesId ? undefined : { color: series.endColor.toString().concat('25')} }
                       style={{
                         boxShadow:
                           series.id === selectedSeriesId
                             ? `inset 1px 1px 2px ${series.endColor.toString().concat('69')}`
-                            : // : `-1px -1px 1px ${ series.endColor.toString().concat('30') }, 1px 1px 1px ${ series.endColor.toString().concat('30') }`
-                              undefined,
+                            : undefined,
                       }}
                     >
                       {series.seriesMark}
