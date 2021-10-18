@@ -91,9 +91,6 @@ function txReducer(_state: any, action: any) {
 const TxProvider = ({ children }: any) => {
   const [txState, updateState] = useReducer(txReducer, initState);
 
-  const [terminateProcessTimer, setTerminateProcessTimer] = useState<Map<string, boolean>>();
-  const [processTimer, setProcessTimer] = useState<Map<string, boolean>>();
-
   const _setProcessStage = (txCode: string, stage: ProcessStage) => {
     updateState({
       type: 'processes',

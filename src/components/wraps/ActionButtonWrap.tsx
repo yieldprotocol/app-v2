@@ -6,7 +6,9 @@ function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const {
-    chainState: { account },
+    chainState: {
+      connection: { account },
+    },
     chainActions: { connect },
   } = useContext(ChainContext);
 
@@ -29,7 +31,6 @@ function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
           secondary
           label={<Text size={mobile ? 'small' : undefined}> Connect Wallet </Text>}
           onClick={() => connect()}
-          disabled
         />
       )}
     </Box>

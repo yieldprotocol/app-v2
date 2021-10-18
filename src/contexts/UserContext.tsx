@@ -151,7 +151,15 @@ const UserProvider = ({ children }: any) => {
   /* STATE FROM CONTEXT */
   // TODO const [cachedVaults, setCachedVaults] = useCachedState('vaults', { data: [], lastBlock: Number(process.env.REACT_APP_DEPLOY_BLOCK) });
   const { chainState } = useContext(ChainContext);
-  const { contractMap, account, chainLoading, seriesRootMap, assetRootMap, strategyRootMap, chainId } = chainState;
+  // const { contractMap, account, chainLoading, seriesRootMap, assetRootMap, strategyRootMap } = chainState;
+  const {
+    contractMap,
+    connection: { account },
+    chainLoading,
+    seriesRootMap,
+    assetRootMap,
+    strategyRootMap,
+  } = chainState;
 
   /* LOCAL STATE */
   const [userState, updateState] = useReducer(userReducer, initState);
@@ -240,12 +248,15 @@ const UserProvider = ({ children }: any) => {
         })
       );
 
+      console.log('PUBLIC DATA', _publicData );
+
       /* add in the dynamic asset data of the assets in the list */
       if (account) {
         try {
           _accountData = await Promise.all(
             _publicData.map(async (asset: IAssetRoot): Promise<IAsset> => {
-              const [balance, ladleAllowance, joinAllowance] = await Promise.all([
+                         
+              const [balance, ladleAllowance, joinAllowance ] = await Promise.all([
                 asset.getBalance(account),
                 asset.getAllowance(account, contractMap.get('Ladle').address),
                 asset.getAllowance(account, asset.joinAddress),
@@ -518,15 +529,15 @@ const UserProvider = ({ children }: any) => {
               currentSeries.poolContract.totalSupply(),
               currentSeries.poolContract.balanceOf(_strategy.address),
             ]);
-    
+
             const [currentInvariant, initInvariant] = currentSeries.seriesIsMature
               ? [ZERO_BN, ZERO_BN]
-              : [ZERO_BN, ZERO_BN]
-              // TODO Re-include invariant
-              // : await Promise.all([
-              //     currentSeries.poolContract.invariant(),
-              //     _strategy.strategyContract.invariants(currentPoolAddr),
-              //   ]);
+              : [ZERO_BN, ZERO_BN];
+            // TODO Re-include invariant
+            // : await Promise.all([
+            //     currentSeries.poolContract.invariant(),
+            //     _strategy.strategyContract.invariants(currentPoolAddr),
+            //   ]);
 
             const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
             const returnRate = currentInvariant && currentInvariant.sub(initInvariant)!;

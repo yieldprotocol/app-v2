@@ -18,7 +18,9 @@ function EtherscanButton({ txHash }: { txHash: string }) {
   const [hover, setHover] = useState<boolean>();
 
   const {
-    chainState: { chainData },
+    chainState: {
+      connection: { currentChainInfo },
+    },
   } = useContext(ChainContext);
 
   return (
@@ -26,7 +28,7 @@ function EtherscanButton({ txHash }: { txHash: string }) {
       direction="row"
       onClick={(e: any) => {
         e.stopPropagation();
-        window.open(`https://${chainData.name}.etherscan.io/tx/${txHash}`, '_blank');
+        window.open(`https://${currentChainInfo.name}.etherscan.io/tx/${txHash}`, '_blank');
       }}
       gap="xsmall"
       align="center"
