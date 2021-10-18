@@ -7,9 +7,9 @@ import styled from 'styled-components';
 import { FiClock } from 'react-icons/fi';
 import { ActionType, ISeries } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
-import { calculateAPR, maxBaseToSpend } from '../../utils/yieldMath';
+import { maxBaseIn } from '../../utils/yieldMath';
 import { useApr } from '../../hooks/useApr';
-import { chunkArray, cleanValue, nFormatter } from '../../utils/appUtils';
+import { cleanValue } from '../../utils/appUtils';
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
@@ -24,7 +24,6 @@ background 0.3s ease-in-out;
 }
 `;
 
-// TODO shaebox
 const ShadeBox = styled(Box)`
   /* -webkit-box-shadow: inset 0px ${(props) => (props ? '-50px' : '50px')} 30px -30px rgba(0,0,0,0.30); 
   box-shadow: inset 0px ${(props) => (props ? '-50px' : '50px')} 30px -30px rgba(0,0,0,0.30); */
@@ -76,7 +75,7 @@ const AprText = ({
   const { apr } = useApr(_inputValue, actionType, series);
   const [limitHit, setLimitHit] = useState<boolean>(false);
   
-  const maxBase = maxBaseToSpend(
+  const maxBase = maxBaseIn(
     series.baseReserves,
     series.fyTokenReserves,
     series.getTimeTillMaturity(),
@@ -267,13 +266,11 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
                   <Box pad="small" width="small" direction="row" align="center" gap="small">
                     <Avatar
                       background={series.id === selectedSeriesId ? 'solid' : series.endColor.toString().concat('10')}
-                      // border={series.id === selectedSeriesId ? undefined : { color: series.endColor.toString().concat('25')} }
                       style={{
                         boxShadow:
                           series.id === selectedSeriesId
                             ? `inset 1px 1px 2px ${series.endColor.toString().concat('69')}`
-                            : // : `-1px -1px 1px ${ series.endColor.toString().concat('30') }, 1px 1px 1px ${ series.endColor.toString().concat('30') }`
-                              undefined,
+                            : undefined,
                       }}
                     >
                       {series.seriesMark}

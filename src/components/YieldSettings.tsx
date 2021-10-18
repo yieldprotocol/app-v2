@@ -27,11 +27,14 @@ const StyledButton = styled(Button)`
 const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
-    chainState: { account, chainData, provider, CONNECTOR_NAMES },
+    chainState: {
+      connection: { account, provider, CONNECTOR_NAMES, currentChainInfo },
+    },
   } = useContext(ChainContext);
   const {
     txState: { transactions },
   } = useContext(TxContext);
+
   const connectorName = CONNECTOR_NAMES.get(provider.connection.url);
   const [transactionsOpen, toggleTransactionsOpen] = useState<boolean>(false);
 
@@ -67,7 +70,11 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
         </Box>
 
         <Box align="center" direction="row" gap="small" justify="center">
-          <Anchor href={`https://${chainData.name}.etherscan.io/address/${account}`} margin="xsmall" target="_blank">
+          <Anchor
+            href={`https://${currentChainInfo.name}.etherscan.io/address/${account}`}
+            margin="xsmall"
+            target="_blank"
+          >
             <FiExternalLink size="1rem" style={{ verticalAlign: 'middle' }} />
             <Text margin="xxsmall" size="xsmall">
               View on Explorer

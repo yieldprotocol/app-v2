@@ -29,18 +29,6 @@ const DashboardSettings = ({ actionType }: { actionType: string }) => {
               <Text size="small">{hideEmptyVaults ? 'Show Empty Vaults' : 'Hide Empty Vaults'}</Text>
             </Box>
           </Button>
-          <Button
-            onClick={() => {
-              setDashSettings('hideInactiveVaults', !hideInactiveVaults);
-              setSettingsOpen(false);
-            }}
-            plain
-            hoverIndicator={{ color: 'tailwind-blue-50' }}
-          >
-            <Box pad="xsmall" round="xsmall">
-              <Text size="small">{hideInactiveVaults ? 'Show Inactive Vaults' : 'Hide Inactive Vaults'}</Text>
-            </Box>
-          </Button>
         </Box>
       )}
     </Box>

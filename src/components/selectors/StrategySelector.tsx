@@ -24,6 +24,11 @@ background 0.3s ease-in-out;
 }
 `;
 
+const ShadeBox = styled(Box)`
+  /* -webkit-box-shadow: inset 0px ${(props) => (props ? '-50px' : '50px')} 30px -30px rgba(0,0,0,0.30); 
+  box-shadow: inset 0px ${(props) => (props ? '-50px' : '50px')} 30px -30px rgba(0,0,0,0.30); */
+`;
+
 const InsetBox = styled(Box)`
   border-radius: 8px;
   box-shadow: inset 1px 1px 1px #ddd, inset -0.25px -0.25px 0.25px #ddd;
@@ -85,7 +90,11 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
       {strategiesLoading && <Skeleton width={180} />}
 
       {cardLayout && (
-        <Box overflow={mobile ? undefined : 'auto'} height={mobile ? undefined : '250px'} pad="xsmall">
+        <ShadeBox 
+          overflow={mobile ? 'auto' : 'auto'}
+          height={mobile ? undefined : '250px'}
+          pad={{ vertical: 'small', horizontal: 'xsmall' }}
+        >
           <Grid columns={mobile ? '100%' : '40%'} gap="small">
             {strategiesLoading ? (
               <>
@@ -105,7 +114,17 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
                   align="center"
                 >
                   <Box pad="small" width="small" direction="row" align="center" gap="small">
-                    <Avatar background="solid">{strategy.currentSeries?.seriesMark || <FiSlash />}</Avatar>
+                  <Avatar
+                      background={strategy.address === selectedStrategyAddr? 'solid' : strategy.currentSeries?.endColor.toString().concat('10')}
+                      style={{
+                        boxShadow:
+                        strategy.address === selectedStrategyAddr
+                            ? `inset 1px 1px 2px ${strategy.currentSeries?.endColor.toString().concat('69')}`
+                            : undefined,
+                      }}
+                    >
+                      {strategy.currentSeries?.seriesMark || <FiSlash />}
+                    </Avatar>
                     <Box>
                       {(!selectedStrategyAddr || !inputValue) && (
                         <>
@@ -158,7 +177,7 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
               ))
             )}
           </Grid>
-        </Box>
+        </ShadeBox>
       )}
     </>
   );

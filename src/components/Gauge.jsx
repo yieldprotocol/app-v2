@@ -2,14 +2,6 @@ import React from 'react';
 import { arc } from 'd3-shape';
 import { scaleLinear } from 'd3-scale';
 
-// import { nFormatter } from '../utils/appUtils';
-// import { format } from 'd3-format';
-
-// const getCoordsOnArc = (angle, offset = 10) => [
-//   Math.cos(angle - (Math.PI / 2)) * offset,
-//   Math.sin(angle - (Math.PI / 2)) * offset,
-// ];
-
 export const Gauge = ({ value = 50, min = 150, max = 750, size = '1em' }) => {
   const backgroundArc = arc()
     .innerRadius(0.65)

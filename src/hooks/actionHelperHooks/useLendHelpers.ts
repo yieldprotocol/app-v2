@@ -2,7 +2,8 @@ import { BigNumber, ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../contexts/UserContext';
 import { ISeries } from '../../types';
-import { maxBaseToSpend, sellFYToken } from '../../utils/yieldMath';
+import { ZERO_BN } from '../../utils/constants';
+import { maxBaseIn, sellFYToken } from '../../utils/yieldMath';
 
 export const useLendHelpers = (
   series: ISeries | undefined,
@@ -29,7 +30,7 @@ export const useLendHelpers = (
   useEffect(() => {
     if (series) {
       const timeTillMaturity = series.getTimeTillMaturity();
-      const _maxProtocolBaseToSpend = maxBaseToSpend(
+      const _maxProtocolBaseToSpend = maxBaseIn(
         series.baseReserves,
         series.fyTokenReserves,
         timeTillMaturity,
