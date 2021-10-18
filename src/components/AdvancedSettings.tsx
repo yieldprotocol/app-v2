@@ -7,18 +7,23 @@ import { useCachedState } from '../hooks/generalHooks';
 
 const AdvancedSettings = () => {
   const {
-    userState: { showInactiveVaults, approvalMethod },
-    userActions: { setShowInactiveVaults, setApprovalMethod },
+    userState: { approvalMethod },
+    userActions: { setApprovalMethod },
   } = useContext(UserContext);
 
-  const [cachedApprovalMethod, setCachedApprovalMethod]  =  useCachedState('cachedApprovalMethod', approvalMethod )
+  const [cachedApprovalMethod, setCachedApprovalMethod] = useCachedState('cachedApprovalMethod', approvalMethod);
 
-  const handleApprovalToggle = (type: ApprovalType ) => {
+  const handleApprovalToggle = (type: ApprovalType) => {
     /* set for current session */
     setApprovalMethod(type);
     /* set cached for future sessions */
     setCachedApprovalMethod(type);
-  }
+  };
+
+  /* update the cached approval method if any changes made via connections */
+  useEffect(() => {
+    setCachedApprovalMethod(approvalMethod);
+  }, [approvalMethod, setCachedApprovalMethod]);
 
   return (
     <Box fill="horizontal" gap="medium">
@@ -29,18 +34,8 @@ const AdvancedSettings = () => {
             toggle
             checked={cachedApprovalMethod === ApprovalType.TX}
             onChange={(event) =>
-              event?.target.checked
-                ? handleApprovalToggle(ApprovalType.TX)
-                : handleApprovalToggle(ApprovalType.SIG)
+              event?.target.checked ? handleApprovalToggle(ApprovalType.TX) : handleApprovalToggle(ApprovalType.SIG)
             }
-          />
-        </Box>
-        <Box direction="row" justify="between">
-          <Text size="small">Show Inactive Vaults</Text>
-          <CheckBox
-            toggle
-            checked={showInactiveVaults}
-            onChange={(event) => setShowInactiveVaults(event?.target.checked)}
           />
         </Box>
       </Box>
