@@ -3,7 +3,6 @@ import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../contexts/UserContext';
 import { IVault, ISeries, IAsset } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
-import { ZERO_BN } from '../../utils/constants';
 
 import { maxBaseIn, sellBase } from '../../utils/yieldMath';
 
