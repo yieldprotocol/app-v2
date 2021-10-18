@@ -57,7 +57,7 @@ const Lend = () => {
   const [stepPosition, setStepPosition] = useState<number>(0);
 
   /* HOOK FNS */
-  const { maxLend_, protocolBaseAvailable, userBaseAvailable } = useLendHelpers(selectedSeries, lendInput);
+  const { maxLend_, protocolBaseIn, userBaseAvailable } = useLendHelpers(selectedSeries, lendInput);
 
   const lend = useLend();
   const { apr } = useApr(lendInput, ActionType.LEND, selectedSeries);
@@ -138,7 +138,7 @@ const Lend = () => {
                                 <Text size="small" color="text-weak">
                                   {cleanValue(maxLend_, 2)} {selectedBase?.symbol}
                                 </Text>{' '}
-                                {userBaseAvailable.lt(protocolBaseAvailable)
+                                {userBaseAvailable.lt(protocolBaseIn)
                                   ? ' (your token balance)'
                                   : ' (limited by protocol liquidity)'}
                               </Text>
