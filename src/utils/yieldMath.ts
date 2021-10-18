@@ -936,10 +936,11 @@ export const checkPoolTrade = (
   strategyTotalSupply: BigNumber,
   strategyTimeToMaturity: string | BigNumber,
   strategyDecimals: number
-): BigNumber => {
+): [BigNumber, BigNumber] => {
   // 1. calc amount base/fyToken recieved from burn
-  // 2. calculate new reseverves ( base reserves and fytokesreserevs)
+  // 2. calculate new reserves (baseReserves and fyTokenReserevs)
   // 3. try trade with new reserves
+  // 4. add the estimated base derived from selling fyTokens and the current base tokens of the poolToken
   const [_baseTokens, _fytokens] = burn(
     strategyBaseReserves,
     strategyFyTokenReserves,
@@ -948,14 +949,15 @@ export const checkPoolTrade = (
   );
   const newBaseReserves = strategyBaseReserves.sub(_baseTokens);
   const newFyTokenReserves = strategyFyTokenReserves.sub(_fytokens);
-  const sellOutcome = sellFYToken(
+  const sellValue = sellFYToken(
     newBaseReserves,
     newFyTokenReserves,
     _fytokens,
     strategyTimeToMaturity.toString(),
     strategyDecimals
   );
-  return sellOutcome;
+  const totalValue = sellValue.add(_baseTokens);
+  return [ sellValue, totalValue ];
 };
 
 /**

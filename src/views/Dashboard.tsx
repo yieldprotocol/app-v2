@@ -114,8 +114,8 @@ const Dashboard = () => {
     const _strategyPositions: IStrategy[] = Array.from(strategyMap.values())
       .map((_strategy: IStrategy) => {
         const currentStrategySeries: any = seriesMap.get(_strategy.currentSeriesId);
-        const currentValue = checkPoolTrade(
-          _strategy.accountBalance!,
+        const [ , currentValue] = checkPoolTrade(
+          _strategy.accountBalance!, 
           currentStrategySeries.baseReserves,
           currentStrategySeries.fyTokenReserves,
           currentStrategySeries.totalSupply,
