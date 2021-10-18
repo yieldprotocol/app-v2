@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import { Box, CheckBox, Text } from 'grommet';
 import { UserContext } from '../contexts/UserContext';
 import SlippageSettings from './SlippageSettings';
