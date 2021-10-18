@@ -63,14 +63,14 @@ CONNECTORS.set(
     pollingInterval: POLLING_INTERVAL,
   })
 );
-CONNECTORS.set(
-  'ledger',
-  new LedgerConnector({
-    chainId: 1,
-    url: RPC_URLS[1],
-    pollingInterval: POLLING_INTERVAL,
-  })
-);
+// CONNECTORS.set(
+//   'ledger',
+//   new LedgerConnector({
+//     chainId: 1,
+//     url: RPC_URLS[1],
+//     pollingInterval: POLLING_INTERVAL,
+//   })
+// );
 CONNECTORS.set(
   'ledgerWithMetamask',
   new InjectedConnector({
