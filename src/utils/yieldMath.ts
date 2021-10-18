@@ -974,8 +974,6 @@ export const getPoolPercent = (input: BigNumber, strategyTotalSupply: BigNumber)
 
 }
 
-  
-
 /**
  * Calcualtes the MIN and MAX reserve ratios of a pool for a given slippage value
  *
@@ -994,9 +992,9 @@ export const calcPoolRatios = (
   const fyTokenReserves_ = new Decimal(fyTokenReserves.toString());
   const slippage_ = new Decimal(slippage.toString());
 
-  console.log(baseReserves_.toString(), fyTokenReserves_.toString());
+  // console.log(baseReserves_.toString(), fyTokenReserves_.toString());
   const ratio = divDecimal(baseReserves, fyTokenReserves);
-  console.log(ratio);
+  // console.log(ratio);
   // const ratioSlippage = ratio.mul(slippage_);
   // const min = ratio.sub(ratioSlippage);
   // const max = ratio.add(ratioSlippage);

@@ -325,6 +325,14 @@ export enum ActionType {
   POOL = 'POOL',
 }
 
+export enum AddLiquidityType {
+  BUY = 'BUY',
+  BORROW = 'BORROW'
+}
+
+export enum ContractNames {
+}
+
 export enum YieldColors {
   SUCCESS = 'green',
   FAILED = 'red',
