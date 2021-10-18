@@ -3,12 +3,22 @@ import { Box, CheckBox, Text } from 'grommet';
 import { UserContext } from '../contexts/UserContext';
 import SlippageSettings from './SlippageSettings';
 import { ApprovalType } from '../types';
+import { useCachedState } from '../hooks/generalHooks';
 
 const AdvancedSettings = () => {
   const {
-    userState: { showInactiveVaults, approvalMethod },
-    userActions: { setShowInactiveVaults, setApprovalMethod },
+    userState: { approvalMethod },
+    userActions: { setApprovalMethod },
   } = useContext(UserContext);
+
+  const [, setCachedApprovalMethod] = useCachedState('cachedApprovalMethod', approvalMethod);
+
+  const handleApprovalToggle = (type: ApprovalType) => {
+    /* set for current session */
+    setApprovalMethod(type);
+    /* set cached for future sessions */
+    setCachedApprovalMethod(type);
+  };
 
   return (
     <Box fill="horizontal" gap="medium">
@@ -19,16 +29,8 @@ const AdvancedSettings = () => {
             toggle
             checked={approvalMethod === ApprovalType.TX}
             onChange={(event) =>
-              event?.target.checked ? setApprovalMethod(ApprovalType.TX) : setApprovalMethod(ApprovalType.SIG)
+              event?.target.checked ? handleApprovalToggle(ApprovalType.TX) : handleApprovalToggle(ApprovalType.SIG)
             }
-          />
-        </Box>
-        <Box direction="row" justify="between">
-          <Text size="small">Show Inactive Vaults</Text>
-          <CheckBox
-            toggle
-            checked={showInactiveVaults}
-            onChange={(event) => setShowInactiveVaults(event?.target.checked)}
           />
         </Box>
       </Box>

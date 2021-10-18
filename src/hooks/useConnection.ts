@@ -63,14 +63,14 @@ CONNECTORS.set(
     pollingInterval: POLLING_INTERVAL,
   })
 );
-CONNECTORS.set(
-  'ledger',
-  new LedgerConnector({
-    chainId: 1,
-    url: RPC_URLS[1],
-    pollingInterval: POLLING_INTERVAL,
-  })
-);
+// CONNECTORS.set(
+//   'ledger',
+//   new LedgerConnector({
+//     chainId: 1,
+//     url: RPC_URLS[1],
+//     pollingInterval: POLLING_INTERVAL,
+//   })
+// );
 CONNECTORS.set(
   'ledgerWithMetamask',
   new InjectedConnector({
@@ -81,6 +81,7 @@ CONNECTORS.set(
 export const useConnection = () => {
   const [tried, setTried] = useState<boolean>(false);
 
+  const [connectionName, _setConnectionName] = useCachedState('connectionName', '');
   const [currentChainInfo, setCurrentChainInfo] = useState<any>();
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
   const [fallbackErrorMessage, setFallbackErrorMessage] = useState<string | undefined>(undefined);
@@ -118,6 +119,7 @@ export const useConnection = () => {
       false
     );
   };
+  const setConnectionName = (name: string) => CONNECTORS.has(name) && _setConnectionName(name);
 
   // const connect = (connection: string) => console.log('Connecting: ', connection);
 
@@ -212,6 +214,7 @@ export const useConnection = () => {
       CONNECTOR_NAMES,
 
       /* connections */
+      connectionName,
       connector,
       provider,
       fallbackProvider,
@@ -231,6 +234,7 @@ export const useConnection = () => {
       connect,
       disconnect,
       isConnected,
+      setConnectionName,
     },
   };
 };
