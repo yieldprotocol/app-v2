@@ -3,7 +3,7 @@ import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../contexts/UserContext';
 import { ISeries } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
-import { maxBaseIn, sellFYToken } from '../../utils/yieldMath';
+import { maxBaseOut, sellFYToken } from '../../utils/yieldMath';
 
 export const useLendHelpers = (
   series: ISeries | undefined,
@@ -30,13 +30,13 @@ export const useLendHelpers = (
   useEffect(() => {
     if (series) {
       const timeTillMaturity = series.getTimeTillMaturity();
-      const _maxProtocolBaseToSpend = maxBaseIn(
+      const _maxBaseOut = maxBaseOut(
         series.baseReserves,
         series.fyTokenReserves,
         timeTillMaturity,
         series.decimals
       );
-      _maxProtocolBaseToSpend && setProtocolBaseAvailable(_maxProtocolBaseToSpend);
+      _maxBaseOut && setProtocolBaseAvailable(_maxBaseOut);
     }
   }, [series]);
 
