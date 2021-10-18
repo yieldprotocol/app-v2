@@ -11,19 +11,13 @@ const AdvancedSettings = () => {
     userActions: { setApprovalMethod },
   } = useContext(UserContext);
 
-  const [cachedApprovalMethod, setCachedApprovalMethod] = useCachedState('cachedApprovalMethod', approvalMethod);
-
+  const [, setCachedApprovalMethod] = useCachedState('cachedApprovalMethod', approvalMethod);
   const handleApprovalToggle = (type: ApprovalType) => {
     /* set for current session */
     setApprovalMethod(type);
     /* set cached for future sessions */
     setCachedApprovalMethod(type);
   };
-
-  /* update the cached approval method if any changes made via connections */
-  useEffect(() => {
-    setCachedApprovalMethod(approvalMethod);
-  }, [approvalMethod, setCachedApprovalMethod]);
 
   return (
     <Box fill="horizontal" gap="medium">
@@ -32,7 +26,7 @@ const AdvancedSettings = () => {
           <Text size="small">Use Approval Method</Text>
           <CheckBox
             toggle
-            checked={cachedApprovalMethod === ApprovalType.TX}
+            checked={approvalMethod === ApprovalType.TX}
             onChange={(event) =>
               event?.target.checked ? handleApprovalToggle(ApprovalType.TX) : handleApprovalToggle(ApprovalType.SIG)
             }
