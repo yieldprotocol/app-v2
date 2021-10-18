@@ -15,10 +15,10 @@ export const useLendHelpers = (
   const selectedBase = assetMap.get(selectedBaseId!);
 
   /* clean to prevent underflow */
-  const [maxLend, setMaxLend] = useState<BigNumber>(ZERO_BN);
+  const [maxLend, setMaxLend] = useState<BigNumber>(ethers.constants.Zero);
   const [maxLend_, setMaxLend_] = useState<string>();
 
-  const [maxClose, setMaxClose] = useState<BigNumber>(ZERO_BN);
+  const [maxClose, setMaxClose] = useState<BigNumber>(ethers.constants.Zero);
   const [maxClose_, setMaxClose_] = useState<string>();
 
   const [userBaseAvailable, setUserBaseAvailable] = useState<BigNumber>(ethers.constants.Zero);
@@ -44,11 +44,12 @@ export const useLendHelpers = (
   useEffect(() => {
     if (activeAccount) {
       (async () => {
-        const userMax = await selectedBase?.getBalance(activeAccount);
+        // user base available when rolling is the user's from series lend position balance
+        const userMax = series ? series?.fyTokenBalance : await selectedBase?.getBalance(activeAccount);
         userMax && setUserBaseAvailable(userMax);
       })();
     }
-  }, [activeAccount, selectedBase, series]);
+  }, [activeAccount, selectedBase, series ]);
 
   /* set maxLend based on either max user or max protocol */
   useEffect(() => {
@@ -101,7 +102,6 @@ export const useLendHelpers = (
       setMaxClose_(val);
       setMaxClose(series.fyTokenBalance!);
     }
-    
   }, [series]);
 
   return {
