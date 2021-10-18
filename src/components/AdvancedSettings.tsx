@@ -12,6 +12,7 @@ const AdvancedSettings = () => {
   } = useContext(UserContext);
 
   const [, setCachedApprovalMethod] = useCachedState('cachedApprovalMethod', approvalMethod);
+
   const handleApprovalToggle = (type: ApprovalType) => {
     /* set for current session */
     setApprovalMethod(type);
