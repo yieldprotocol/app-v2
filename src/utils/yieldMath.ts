@@ -505,7 +505,7 @@ export function maxBaseIn(
   const res = sum.pow(invA).sub(baseReserves_);
 
   /* Handle precision variations */
-  const safeRes = res.gt(MAX.sub(precisionFee)) ? res.add(precisionFee) : MAX;
+  const safeRes = res.gt(MAX.sub(precisionFee)) ? MAX : res.add(precisionFee);
 
   /* Convert to back to token native decimals, if required */
   return decimal18ToDecimalN(toBn(safeRes), decimals);
@@ -628,8 +628,8 @@ export function maxFyTokenOut(
   const res = inaccessible.gt(fyTokenReserves_) ? ZERO : fyTokenReserves_.sub(inaccessible);
 
   /* Handle precision variations */
-  const safeRes = res.gt(MAX.sub(precisionFee)) ? res.add(precisionFee) : MAX;
-
+  const safeRes = res.gt( MAX.sub(precisionFee) ) ? MAX : res.add(precisionFee);
+  
   /* convert to back to token native decimals, if required */
   return decimal18ToDecimalN(toBn(safeRes), decimals);
 }

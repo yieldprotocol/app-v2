@@ -146,7 +146,11 @@ export const usePoolHelpers = (input: string | undefined) => {
         strategySeries.decimals
       );
 
-      console.log('Can BuyAndPool? ', _maxFyTokenOut.lt(_fyTokenToBuy));
+      console.log( _maxFyTokenOut.toString())
+      console.log(
+        _fyTokenToBuy.toString(), 
+        'Can BuyAndPool? ', _maxFyTokenOut.lt(_fyTokenToBuy));
+
       setCanBuyAndPool(_maxFyTokenOut.lt(_fyTokenToBuy));
     } else {
       setCanBuyAndPool(true);
