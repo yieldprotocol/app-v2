@@ -1,11 +1,10 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import { Box, Button, ResponsiveContext, Text } from 'grommet';
 import { FiCheckSquare, FiX } from 'react-icons/fi';
 import { ChainContext } from '../contexts/ChainContext';
 import BackButton from './buttons/BackButton';
 import Disclaimer from './Disclaimer';
 import { useCachedState } from '../hooks/generalHooks';
-import { UserContext } from '../contexts/UserContext';
 
 const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -13,18 +12,14 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
     chainState: {
       connection: { account, activatingConnector, CONNECTORS, CONNECTOR_NAMES },
     },
-    chainActions: { connect, isConnected },
+    chainActions: { connect, isConnected, setConnectionName },
   } = useContext(ChainContext);
-  const {
-    userActions: { setApprovalMethod },
-  } = useContext(UserContext);
 
   const [disclaimerChecked, setDisclaimerChecked] = useCachedState('disclaimerChecked', false);
 
   const handleConnect = (connectorName: string) => {
-    console.log(connectorName);
+    setConnectionName(connectorName);
     connect(connectorName);
-    if (connectorName === 'ledgerWithMetamask') setApprovalMethod('TX');
     setConnectOpen(false);
   };
 
