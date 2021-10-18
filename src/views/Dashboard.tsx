@@ -41,12 +41,13 @@ const Dashboard = () => {
       seriesMap,
       vaultMap,
       priceMap,
+      assetMap,
       vaultsLoading,
       seriesLoading,
       strategiesLoading,
       dashSettings,
     },
-    userActions: { setDashSettings },
+    userActions: { setDashSettings, updatePrice },
   } = useContext(UserContext) as IUserContext;
   const {
     hideEmptyVaults,
@@ -106,8 +107,8 @@ const Dashboard = () => {
     const _strategyPositions: IStrategy[] = Array.from(strategyMap.values())
       .map((_strategy: IStrategy) => {
         const currentStrategySeries: any = seriesMap.get(_strategy.currentSeriesId);
-        const [ , currentValue] = checkPoolTrade(
-          _strategy.accountBalance!, 
+        const [, currentValue] = checkPoolTrade(
+          _strategy.accountBalance!,
           currentStrategySeries.baseReserves,
           currentStrategySeries.fyTokenReserves,
           currentStrategySeries.totalSupply,
@@ -130,6 +131,8 @@ const Dashboard = () => {
   const getPositionValue = useCallback(
     (baseOrIlkId: string, value: string, assetId = DAI) => {
       let positionValue;
+      const base = assetMap?.get(baseOrIlkId);
+      if (!priceMap.get(baseOrIlkId)?.has(assetId)) updatePrice(baseOrIlkId, assetId, base?.decimals!);
 
       if (assetId === WETH && baseOrIlkId !== WETH) {
         // calculate DAIWETH price
@@ -139,14 +142,13 @@ const Dashboard = () => {
         const wethDaiPrice = 1 / Number(daiWethPrice_);
         positionValue = Number(wethDaiPrice) * Number(value);
       } else {
-        console.log(priceMap);
         const assetPrice = baseOrIlkId !== assetId && priceMap?.get(baseOrIlkId)?.get(assetId);
         const assetPrice_ = assetPrice ? ethers.utils.formatEther(assetPrice) : '1';
         positionValue = Number(assetPrice_) * Number(value);
       }
       return positionValue;
     },
-    [priceMap]
+    [priceMap, assetMap]
   );
 
   /* get vault, lend, and pool position total debt, collateral, and balances */
