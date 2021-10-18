@@ -3,7 +3,7 @@ import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../contexts/UserContext';
 import { ISeries } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
-import { maxBaseIn, sellFYToken } from '../../utils/yieldMath';
+import { maxBaseIn, maxBaseOut, sellFYToken } from '../../utils/yieldMath';
 
 export const useLendHelpers = (
   series: ISeries | undefined,
@@ -15,14 +15,16 @@ export const useLendHelpers = (
   const selectedBase = assetMap.get(selectedBaseId!);
 
   /* clean to prevent underflow */
-  const [maxLend, setMaxLend] = useState<BigNumber>(ZERO_BN);
+  const [maxLend, setMaxLend] = useState<BigNumber>(ethers.constants.Zero);
   const [maxLend_, setMaxLend_] = useState<string>();
 
-  const [maxClose, setMaxClose] = useState<BigNumber>(ZERO_BN);
+  const [maxClose, setMaxClose] = useState<BigNumber>(ethers.constants.Zero);
   const [maxClose_, setMaxClose_] = useState<string>();
 
   const [userBaseAvailable, setUserBaseAvailable] = useState<BigNumber>(ethers.constants.Zero);
-  const [protocolBaseAvailable, setProtocolBaseAvailable] = useState<BigNumber>(ethers.constants.Zero);
+  
+  const [protocolBaseOut, setProtocolBaseOut] = useState<BigNumber>(ethers.constants.Zero);
+  const [protocolBaseIn, setProtocolBaseIn] = useState<BigNumber>(ethers.constants.Zero);
 
   const [fyTokenMarketValue, setFyTokenMarketValue] = useState<string>();
 
@@ -30,13 +32,24 @@ export const useLendHelpers = (
   useEffect(() => {
     if (series) {
       const timeTillMaturity = series.getTimeTillMaturity();
-      const _maxProtocolBaseToSpend = maxBaseIn(
+
+      const _maxBaseOut = maxBaseOut(
         series.baseReserves,
         series.fyTokenReserves,
         timeTillMaturity,
         series.decimals
       );
-      _maxProtocolBaseToSpend && setProtocolBaseAvailable(_maxProtocolBaseToSpend);
+      _maxBaseOut && setProtocolBaseOut(_maxBaseOut);
+
+      const _maxBaseIn = maxBaseIn(
+        series.baseReserves,
+        series.fyTokenReserves,
+        timeTillMaturity,
+        series.decimals
+      );
+
+      console.log('BASE IN : ',  _maxBaseIn.toString() )
+      _maxBaseIn && setProtocolBaseIn(_maxBaseIn);
     }
   }, [series]);
 
@@ -44,11 +57,12 @@ export const useLendHelpers = (
   useEffect(() => {
     if (activeAccount) {
       (async () => {
+        // user base available when rolling is the user's from series lend position balance
         const userMax = await selectedBase?.getBalance(activeAccount);
         userMax && setUserBaseAvailable(userMax);
       })();
     }
-  }, [activeAccount, selectedBase, series]);
+  }, [activeAccount, selectedBase, series ]);
 
   /* set maxLend based on either max user or max protocol */
   useEffect(() => {
@@ -58,12 +72,12 @@ export const useLendHelpers = (
     }
     if (series) {
       /* user balance or max Lend (max base to spend) */
-      userBaseAvailable.lt(protocolBaseAvailable)
+      userBaseAvailable.lt(protocolBaseIn) ? setMaxLend(userBaseAvailable) : setMaxLend(protocolBaseIn);
+      userBaseAvailable.lt(protocolBaseIn)
         ? setMaxLend_(ethers.utils.formatUnits(userBaseAvailable, series.decimals).toString())
-        : setMaxLend_(ethers.utils.formatUnits(protocolBaseAvailable, series.decimals).toString());
-      userBaseAvailable.lt(protocolBaseAvailable) ? setMaxLend(userBaseAvailable) : setMaxLend(protocolBaseAvailable);
+        : setMaxLend_(ethers.utils.formatUnits(protocolBaseIn, series.decimals).toString());
     }
-  }, [userBaseAvailable, protocolBaseAvailable, series, selectedBase]);
+  }, [userBaseAvailable, protocolBaseOut, series, selectedBase, protocolBaseIn]);
 
   /* Sets max close and current market Value of fyTokens held in base tokens */
   useEffect(() => {
@@ -101,7 +115,6 @@ export const useLendHelpers = (
       setMaxClose_(val);
       setMaxClose(series.fyTokenBalance!);
     }
-    
   }, [series]);
 
   return {
@@ -113,7 +126,8 @@ export const useLendHelpers = (
 
     fyTokenMarketValue,
 
-    protocolBaseAvailable,
+    protocolBaseOut,
+    protocolBaseIn,
     userBaseAvailable,
   };
 };

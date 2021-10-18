@@ -54,6 +54,7 @@ const LendPosition = () => {
   /* HOOK FNS */
   const { fyTokenMarketValue, maxClose_, maxClose } = useLendHelpers(selectedSeries!, closeInput);
   const { maxLend_, maxLend } = useLendHelpers(rollToSeries!, rollInput);
+  // const { maxLend_, maxLend } = useLendHelpers(selectedSeries!, rollInput);
 
   const closePosition = useClosePosition();
   const rollPosition = useRollPosition();

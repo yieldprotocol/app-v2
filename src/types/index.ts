@@ -264,8 +264,8 @@ export interface IDomain {
 }
 
 export enum ApprovalType {
-  TX = 'TX',
-  SIG = 'SIG',
+  TX = "TX",
+  SIG = "SIG",
 }
 
 export enum SignType {
@@ -323,6 +323,14 @@ export enum ActionType {
   BORROW = 'BORROW',
   LEND = 'LEND',
   POOL = 'POOL',
+}
+
+export enum AddLiquidityType {
+  BUY = 'BUY',
+  BORROW = 'BORROW'
+}
+
+export enum ContractNames {
 }
 
 export enum YieldColors {

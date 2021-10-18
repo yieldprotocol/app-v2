@@ -96,15 +96,16 @@ export namespace RoutedActions {
     export type SELL_FYTOKEN = [receiver: string, min: BigNumberish];
 
     export type MINT_POOL_TOKENS = [
-      receiver: string,
-      calcFromBase: boolean,
+      to: string,
+      remainderTo: string,
       minRatio: BigNumberish,
       maxRatio: BigNumberish
     ];
     export type BURN_POOL_TOKENS = [baseTo: string, fyTokenTo: string, minRatio: BigNumberish, maxRatio: BigNumberish];
     
     export type MINT_WITH_BASE = [
-      receiver: string,
+      to: string,
+      remainderTo: string,
       fyTokenToBuy: BigNumberish,
       minRatio: BigNumberish,
       maxRatio: BigNumberish

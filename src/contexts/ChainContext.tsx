@@ -52,6 +52,7 @@ const initState = {
     account: null as string | null,
     web3Active: false as boolean,
     fallbackActive: false as boolean,
+    connectorName: null as string | null,
   },
 
   /* flags */
@@ -438,6 +439,7 @@ const ChainProvider = ({ children }: any) => {
     connectionState.errorMessage,
     connectionState.fallbackErrorMessage,
     connectionState.active,
+    connectionState.connectionName,
   ]);
 
   /* simply Pass on the connection actions */
