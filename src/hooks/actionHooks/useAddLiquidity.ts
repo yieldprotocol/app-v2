@@ -83,6 +83,7 @@ export const useAddLiquidity = () => {
         operation: LadleActions.Fn.ROUTE,
         args: [
           strategy.id || account, // receiver is _strategyAddress (if it exists) or else account
+          account, // check with @alberto
           _fyTokenToBeMinted,
           minRatio,
           maxRatio,
@@ -117,7 +118,7 @@ export const useAddLiquidity = () => {
       },
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [strategy.id || account, true, minRatio, maxRatio] as RoutedActions.Args.MINT_POOL_TOKENS, 
+        args: [strategy.id || account, account, minRatio, maxRatio] as RoutedActions.Args.MINT_POOL_TOKENS, 
         fnName: RoutedActions.Fn.MINT_POOL_TOKENS,
         targetContract: series.poolContract,
         ignoreIf: method !== AddLiquidityType.BORROW,
