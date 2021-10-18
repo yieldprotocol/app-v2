@@ -3,8 +3,8 @@ import { signDaiPermit, signERC2612Permit } from 'eth-permit';
 import { useContext } from 'react';
 import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
-import { MAX_256 } from '../utils/constants';
-import { ICallData, ISignData, LadleActions } from '../types';
+import { MAX_256, NON_PERMIT_ASSETS } from '../utils/constants';
+import { ApprovalType, ICallData, ISignData, LadleActions } from '../types';
 import { ERC20Permit__factory, Ladle } from '../contracts';
 import { useApprovalMethod } from './useApprovalMethod';
 
@@ -189,7 +189,8 @@ export const useChain = () => {
           () => handleTx(() => tokenContract.approve(_spender, MAX_256), txCode, true),
           reqSig,
           txCode,
-          approvalMethod
+          // TODO extract this out to ( also possibly use asset id) 
+          NON_PERMIT_ASSETS.includes( reqSig.target.symbol ) ? ApprovalType.TX : approvalMethod
         );
 
         const args = [

@@ -21,8 +21,8 @@ export const useApprovalMethod = (): ApprovalType => {
       setApprovalMethodToUse(ApprovalType.TX);
     } else if (
       /* else check other conditions to see if to use apporvals by tx */
-      isConnected('ledgerWithMetamask') || // Ledger with MetaMask connected
-      selectedIlkId === '0x303300000000' // is the asset WBTC
+      isConnected('ledgerWithMetamask') // Ledger with MetaMask connected
+      // selectedIlkId === '0x303300000000' // is the asset WBTC
     ) {
       setApprovalMethodToUse(ApprovalType.TX);
     } else {
