@@ -17,7 +17,6 @@ import NetworkError from './components/NetworkError';
 import LendPosition from './views/LendPosition';
 import PoolPosition from './views/PoolPosition';
 import TransactionWidget from './components/TransactionWidget';
-// import { useUnsupportedNetwork } from './hooks/useUnsupportedNetwork';
 
 function App() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -25,14 +24,10 @@ function App() {
   /* LOCAL STATE */
   const [menuLayerOpen, setMenuLayerOpen] = useState<boolean>(false);
 
-  // /* HOOKS */
-  // const unsupportedNetwork = useUnsupportedNetwork();
-
   return (
     <>
       <Box fill>
         
-
         <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
         <TransactionWidget />
         <NetworkError />
