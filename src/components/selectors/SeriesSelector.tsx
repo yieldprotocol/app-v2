@@ -1,13 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Avatar, Box, Carousel, Grid, ResponsiveContext, Select, Stack, Text, ThemeContext } from 'grommet';
+import { Avatar, Box, Grid, ResponsiveContext, Select, Text } from 'grommet';
 
 import Skeleton from 'react-loading-skeleton';
-import { BigNumber, ethers } from 'ethers';
+import { ethers } from 'ethers';
 import styled from 'styled-components';
-import { FiClock } from 'react-icons/fi';
 import { ActionType, ISeries } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
-import { maxBaseIn, maxBaseOut } from '../../utils/yieldMath';
+import { maxBaseIn, maxBaseOut, maxFyTokenIn, maxFyTokenOut } from '../../utils/yieldMath';
 import { useApr } from '../../hooks/useApr';
 import { cleanValue } from '../../utils/appUtils';
 
@@ -88,14 +87,30 @@ const AprText = ({
     series.decimals
   );
 
-  // console.log( series.id, baseIn.toString() )
-  // console.log( series.id, baseOut.toString() )
+  const tokenOut = maxFyTokenOut(
+    series.baseReserves,
+    series.fyTokenReserves,
+    series.getTimeTillMaturity(),
+    series.decimals
+  );
+
+  const tokenIn = maxFyTokenIn(
+    series.baseReserves,
+    series.fyTokenReserves,
+    series.getTimeTillMaturity(),
+    series.decimals
+  );
+
+  // console.log( series.id, ' maxbaseIn', baseIn.toString() )
+  // console.log( series.id, ' maxbaseOut', baseOut.toString() )
+  // console.log( series.id, ' tokenIn', tokenIn.toString() )
+  // console.log( series.id, ' tokenOut', tokenOut.toString() )
 
   useEffect(() => {
     if (!series?.seriesIsMature && _inputValue)
       actionType === ActionType.LEND
-        ? setLimitHit(ethers.utils.parseUnits(_inputValue, series?.decimals).gt(baseOut)) // lending max
-        : setLimitHit(ethers.utils.parseUnits(_inputValue, series?.decimals).gt(baseIn)); // borrow max
+        ? setLimitHit(ethers.utils.parseUnits(_inputValue, series?.decimals).gt(baseIn)) // lending max
+        : setLimitHit(ethers.utils.parseUnits(_inputValue, series?.decimals).gt(series.baseReserves)); // borrow max
   }, [
     _inputValue,
     actionType,

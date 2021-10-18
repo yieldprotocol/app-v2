@@ -551,7 +551,9 @@ export function maxBaseOut(
   // sum = za + ya - yxa
   const sum = za.add(ya).sub(yxa);
   // result = baseReserves - (sum ** (1/a))
-  const res = baseReserves_.sub(sum.pow(invA));
+  const res = baseReserves_.sub( sum.pow(invA) );
+
+  // console.log( sum.toString() )
 
   /* Handle precision variations */
   const safeRes = res.gt(precisionFee) ? res.sub(precisionFee) : ZERO;

@@ -102,7 +102,10 @@ const Dashboard = () => {
           _series.decimals!
         );
 
-        const currentValue_ = ethers.utils.formatUnits(currentValue, _series.decimals!);
+        const currentValue_ =
+          currentValue.lte(ethers.constants.Zero) && _series.fyTokenBalance?.gt(ethers.constants.Zero)
+            ? _series.fyTokenBalance_
+            : ethers.utils.formatUnits(currentValue, _series.decimals!);
         return { ..._series, currentValue_ };
       })
       .filter((_series: ISeries) => _series.fyTokenBalance?.gt(ZERO_BN))
