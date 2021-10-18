@@ -2,7 +2,6 @@
 import { ethers, BigNumber, BigNumberish } from 'ethers';
 import { Decimal } from 'decimal.js';
 import { MAX_256, WAD_BN, ZERO_BN } from './constants';
-import { cleanValue } from './appUtils';
 
 Decimal.set({ precision: 64 });
 
@@ -126,14 +125,10 @@ export const secondsToFrom = (
   return to_.sub(from_).toString();
 };
 
-/** ************************
- YieldSpace functions
- *************************** */
-
 /**
- * Internal Yieldspace functions
+ * specific Yieldspace helper functions
  * */
-const _computeA = (timeToMaturity: BigNumber | string, g: Decimal = g1, ts: Decimal = k): [Decimal, Decimal] => {
+ const _computeA = (timeToMaturity: BigNumber | string, g: Decimal = g1, ts: Decimal = k): [Decimal, Decimal] => {
   const timeTillMaturity_ = new Decimal(timeToMaturity.toString());
   // t = ts * timeTillMaturity
   const t = ts.mul(timeTillMaturity_);
@@ -152,6 +147,11 @@ const _computeB = (timeToMaturity: BigNumber | string, g: Decimal = g1, ts: Deci
   const invB = ONE.div(b);
   return [b, invB]; /* returns b and inverse of b */
 };
+
+
+/** ************************
+ YieldSpace functions
+ *************************** */
 
 /**
  * @param { BigNumber | string } baseReserves
@@ -962,8 +962,19 @@ export const checkPoolTrade = (
  *
  * @returns {BigNumber}
  */
-export const getPoolPercent = (input: BigNumber, strategyTotalSupply: BigNumber): string =>
-  cleanValue(mulDecimal(divDecimal(input, strategyTotalSupply.add(input)), '100'), 2);
+export const getPoolPercent = (input: BigNumber, strategyTotalSupply: BigNumber): string => {
+
+  const input_ = new Decimal(input.toString());
+  const totalSupply_ = new Decimal(strategyTotalSupply.toString());
+
+  const ratio = input_.div( totalSupply_.add(input_) );
+  const percent = ratio.mul(new Decimal(100));
+
+  return percent.toString();
+
+}
+
+  
 
 /**
  * Calcualtes the MIN and MAX reserve ratios of a pool for a given slippage value
