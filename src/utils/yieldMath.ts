@@ -128,7 +128,7 @@ export const secondsToFrom = (
 /**
  * specific Yieldspace helper functions
  * */
- const _computeA = (timeToMaturity: BigNumber | string, g: Decimal = g1, ts: Decimal = k): [Decimal, Decimal] => {
+const _computeA = (timeToMaturity: BigNumber | string, g: Decimal = g1, ts: Decimal = k): [Decimal, Decimal] => {
   const timeTillMaturity_ = new Decimal(timeToMaturity.toString());
   // t = ts * timeTillMaturity
   const t = ts.mul(timeTillMaturity_);
@@ -147,7 +147,6 @@ const _computeB = (timeToMaturity: BigNumber | string, g: Decimal = g1, ts: Deci
   const invB = ONE.div(b);
   return [b, invB]; /* returns b and inverse of b */
 };
-
 
 /** ************************
  YieldSpace functions
@@ -319,7 +318,7 @@ export function sellBase(
   const base_ = new Decimal(base18.toString());
 
   const _g = withNoFee ? ONE : g1;
-  const [a, invA] = _computeA(timeTillMaturity, _g )
+  const [a, invA] = _computeA(timeTillMaturity, _g);
 
   const Za = baseReserves_.pow(a);
   const Ya = fyTokenReserves_.pow(a);
@@ -362,7 +361,7 @@ export function sellFYToken(
   const fyDai_ = new Decimal(fyToken18.toString());
 
   const _g = withNoFee ? ONE : g2;
-  const [a, invA] = _computeA(timeTillMaturity, _g )
+  const [a, invA] = _computeA(timeTillMaturity, _g);
 
   const Za = baseReserves_.pow(a);
   const Ya = fyTokenReserves_.pow(a);
@@ -405,7 +404,7 @@ export function buyBase(
   const base_ = new Decimal(base18.toString());
 
   const _g = withNoFee ? ONE : g2;
-  const [a, invA] = _computeA(timeTillMaturity, _g )
+  const [a, invA] = _computeA(timeTillMaturity, _g);
 
   const Za = baseReserves_.pow(a);
   const Ya = fyTokenReserves_.pow(a);
@@ -446,7 +445,7 @@ export function buyFYToken(
   const fyDai_ = new Decimal(fyToken18.toString());
 
   const _g = withNoFee ? ONE : g1;
-  const [a, invA] = _computeA(timeTillMaturity, _g )
+  const [a, invA] = _computeA(timeTillMaturity, _g);
 
   const Za = baseReserves_.pow(a);
   const Ya = fyTokenReserves_.pow(a);
@@ -551,7 +550,7 @@ export function maxBaseOut(
   // sum = za + ya - yxa
   const sum = za.add(ya).sub(yxa);
   // result = baseReserves - (sum ** (1/a))
-  const res = baseReserves_.sub( sum.pow(invA) );
+  const res = baseReserves_.sub(sum.pow(invA));
 
   // console.log( sum.toString() )
 
@@ -662,10 +661,9 @@ export function fyTokenForMint(
 
   let i = 0;
   while (true) {
-    
-    /* NB return ZERO when not converging > not mintable */ 
+    /* NB return ZERO when not converging > not mintable */
     // eslint-disable-next-line no-plusplus
-    if (i++ > 100) return ZERO_BN; 
+    if (i++ > 100) return ZERO_BN;
     // if (i++ > 100)  throw 'Not converging'
 
     zIn = new Decimal(
@@ -723,7 +721,7 @@ export function fyTokenForMint(
  * @param { BigNumber | string } timeTillMaturity
  * @returns { BigNumber }
  */
- export function getFee(
+export function getFee(
   baseReserves: BigNumber | string,
   fyTokenReserves: BigNumber | string,
   fyToken: BigNumber | string,
@@ -916,48 +914,81 @@ export const calculateBorrowingPower = (
 };
 
 /**
- * Calcualtes the amount of base that can be removed based on
- * pool position value.
+ * Calculates the amount of base that can be obtained from burning pool tokens
  *
  * @param {BigNumber | string} poolTokenAmount amount of pool token
+ * @param {BigNumber}  poolBaseReserves
+ * @param {BigNumber}  poolFyTokenReserves
+ * @param {BigNumber}  poolTotalSupply
+ * @param {number}  poolTimeToMaturity
+ * @param {number}  poolDecimals
  *
- * @param {BigNumber}  strategyBaseReserves
- * @param {BigNumber}  strategyFyTokenReserves
- * @param {BigNumber}  strategyTotalSupply
- * @param {number}  strategyTimeToMaturity
- * @param {number}  strategyDecimals
- *
- * @returns {BigNumber}
+ * @returns [BigNumber, BigNumber]
  */
-export const checkPoolTrade = (
+export const poolTokenValue = (
   poolTokenAmount: BigNumber | string,
-  strategyBaseReserves: BigNumber,
-  strategyFyTokenReserves: BigNumber,
-  strategyTotalSupply: BigNumber,
-  strategyTimeToMaturity: string | BigNumber,
-  strategyDecimals: number
+  poolBaseReserves: BigNumber,
+  poolFyTokenReserves: BigNumber,
+  poolTotalSupply: BigNumber,
+  poolTimeToMaturity: string | BigNumber,
+  poolDecimals: number
 ): [BigNumber, BigNumber] => {
   // 1. calc amount base/fyToken recieved from burn
   // 2. calculate new reserves (baseReserves and fyTokenReserevs)
   // 3. try trade with new reserves
   // 4. add the estimated base derived from selling fyTokens and the current base tokens of the poolToken
-  const [_baseTokens, _fytokens] = burn(
-    strategyBaseReserves,
-    strategyFyTokenReserves,
-    strategyTotalSupply,
-    poolTokenAmount
-  );
-  const newBaseReserves = strategyBaseReserves.sub(_baseTokens);
-  const newFyTokenReserves = strategyFyTokenReserves.sub(_fytokens);
+  const [_baseTokens, _fytokens] = burn(poolBaseReserves, poolFyTokenReserves, poolTotalSupply, poolTokenAmount);
+  const newBaseReserves = poolBaseReserves.sub(_baseTokens);
+  const newFyTokenReserves = poolFyTokenReserves.sub(_fytokens);
   const sellValue = sellFYToken(
     newBaseReserves,
     newFyTokenReserves,
     _fytokens,
-    strategyTimeToMaturity.toString(),
-    strategyDecimals
+    poolTimeToMaturity.toString(),
+    poolDecimals
   );
   const totalValue = sellValue.add(_baseTokens);
-  return [ sellValue, totalValue ];
+  return [sellValue, totalValue];
+};
+
+/**
+ * Calculates the amount of base that can be obtained from burning strategy tokens
+ *
+ * @param {BigNumber | string} strategyTokenAmount amount of pool token
+ * @param {BigNumber}  strategyLpReserves
+ * @param {BigNumber}  strategyTotalSupply
+ * @param {BigNumber}  poolBaseReserves
+ * @param {BigNumber}  poolFyTokenReserves
+ * @param {BigNumber}  poolTotalSupply
+ * @param {number} poolTimeToMaturity
+ * @param {number} poolDecimals
+ *
+ * @returns [BigNumber, BigNumber]
+ */
+export const strategyTokenValue = (
+  strategyTokenAmount: BigNumber | string,
+  strategyLpReserves: BigNumber,
+  strategyTotalSupply: BigNumber,
+  poolBaseReserves: BigNumber,
+  poolFyTokenReserves: BigNumber,
+  poolTotalSupply: BigNumber,
+  poolTimeToMaturity: string | BigNumber,
+  poolDecimals: number
+): [BigNumber, BigNumber] => {
+  // 1. multiply strategy token amount by strategy lp reserves, divided by the strategy total supply
+  // 2. enter output of 1 (pool token amount) to poolTokenValue function
+  const poolTokenAmount = BigNumber.from(strategyTokenAmount.toString())
+    .mul(strategyLpReserves)
+    .div(strategyTotalSupply);
+
+  return poolTokenValue(
+    poolTokenAmount,
+    poolBaseReserves,
+    poolFyTokenReserves,
+    poolTotalSupply,
+    poolTimeToMaturity,
+    poolDecimals
+  );
 };
 
 /**
@@ -969,16 +1000,14 @@ export const checkPoolTrade = (
  * @returns {BigNumber}
  */
 export const getPoolPercent = (input: BigNumber, strategyTotalSupply: BigNumber): string => {
-
   const input_ = new Decimal(input.toString());
   const totalSupply_ = new Decimal(strategyTotalSupply.toString());
 
-  const ratio = input_.div( totalSupply_.add(input_) );
+  const ratio = input_.div(totalSupply_.add(input_));
   const percent = ratio.mul(new Decimal(100));
 
   return percent.toString();
-
-}
+};
 
 /**
  * Calcualtes the MIN and MAX reserve ratios of a pool for a given slippage value

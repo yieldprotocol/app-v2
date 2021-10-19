@@ -3,7 +3,14 @@ import { ethers, BigNumber } from 'ethers';
 import { UserContext } from '../../contexts/UserContext';
 import { IAsset, ISeries, IStrategy, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
-import { fyTokenForMint, splitLiquidity, checkPoolTrade, getPoolPercent, maxFyTokenOut } from '../../utils/yieldMath';
+import {
+  fyTokenForMint,
+  splitLiquidity,
+  checkPoolTrade,
+  getPoolPercent,
+  maxFyTokenOut,
+  strategyTokenValue,
+} from '../../utils/yieldMath';
 import { ZERO_BN } from '../../utils/constants';
 
 export const usePoolHelpers = (input: string | undefined) => {
@@ -82,27 +89,29 @@ export const usePoolHelpers = (input: string | undefined) => {
   /* Set the trade value and check if base reserves are too low for specific input  */
   useEffect(() => {
     if (strategySeries) {
-      const [ _sellValue, _totalValue] = checkPoolTrade(
+      const _totalValue = strategyTokenValue(
         _input,
-        strategySeries.baseReserves,
-        strategySeries.fyTokenReserves,
-        strategySeries.totalSupply,
+        strategySeries.strategyLpReserves,
+        strategySeries.strategyTotalSupply,
+        strategySeries.poolBaseReserves,
+        strategySeries.poolFyTokenReserves,
+        strategySeries.poolTotalSupply,
         strategySeries.getTimeTillMaturity(),
         strategySeries.decimals
-        );
-      const tradeable = _sellValue.gt(ethers.constants.Zero);
+      );
+      const tradeable = _totalValue.gt(ethers.constants.Zero);
 
       console.log('Is tradeable:', tradeable);
       setFyTokenTradePossible(tradeable);
-      setInputTradeValue(_sellValue);
-      setInputTradeValue_(ethers.utils.formatUnits(_sellValue, strategySeries.decimals));
+      setInputTradeValue(_totalValue);
+      setInputTradeValue_(ethers.utils.formatUnits(_totalValue, strategySeries.decimals));
     }
   }, [_input, strategySeries]);
 
   /* check account token trade value */
   useEffect(() => {
     if (strategySeries && strategy?.accountBalance?.gt(ZERO_BN)) {
-      const [ _sellValue, _totalValue]  = checkPoolTrade(
+      const [_sellValue, _totalValue] = checkPoolTrade(
         strategy?.accountBalance,
         strategySeries.baseReserves,
         strategySeries.fyTokenReserves,
@@ -146,14 +155,13 @@ export const usePoolHelpers = (input: string | undefined) => {
       );
 
       /* check if buy and pool option is allowed */
-      const buyAndPoolAllowed = _fyTokenToBuy.gt(ethers.constants.Zero) && _fyTokenToBuy.lt(_maxFyTokenOut)
+      const buyAndPoolAllowed = _fyTokenToBuy.gt(ethers.constants.Zero) && _fyTokenToBuy.lt(_maxFyTokenOut);
 
-      console.log( 'fTokenToBuy, maxFyTokenOut ', _fyTokenToBuy.toString(),_maxFyTokenOut );
+      console.log('fTokenToBuy, maxFyTokenOut ', _fyTokenToBuy.toString(), _maxFyTokenOut);
       setCanBuyAndPool(buyAndPoolAllowed);
       console.log('Can BuyAndPool?', buyAndPoolAllowed);
-      console.log( 'fTokenToBuy: ', _fyTokenToBuy.toString());
-      console.log( 'maxFyTokenOut: ',_maxFyTokenOut.toString());
-      
+      console.log('fTokenToBuy: ', _fyTokenToBuy.toString());
+      console.log('maxFyTokenOut: ', _maxFyTokenOut.toString());
     } else {
       /* allowed by default */
       setCanBuyAndPool(false);
