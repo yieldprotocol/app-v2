@@ -1,15 +1,22 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import { Box, CheckBox, Text } from 'grommet';
 import { UserContext } from '../contexts/UserContext';
 import SlippageSettings from './SlippageSettings';
 import { ApprovalType } from '../types';
 import { useCachedState } from '../hooks/generalHooks';
+import { ChainContext } from '../contexts/ChainContext';
 
 const AdvancedSettings = () => {
   const {
     userState: { approvalMethod },
     userActions: { setApprovalMethod },
   } = useContext(UserContext);
+
+  const {
+    chainState: {
+      connection: { connectionName },
+    },
+  } = useContext(ChainContext);
 
   const [, setCachedApprovalMethod] = useCachedState('cachedApprovalMethod', approvalMethod);
 
@@ -20,6 +27,7 @@ const AdvancedSettings = () => {
     setCachedApprovalMethod(type);
   };
 
+  if (connectionName === 'ledgerWithMetamask') return null;
   return (
     <Box fill="horizontal" gap="medium">
       <Box gap="small" pad={{ vertical: 'small' }} border={{ color: 'tailwind-blue-100', side: 'bottom' }}>
