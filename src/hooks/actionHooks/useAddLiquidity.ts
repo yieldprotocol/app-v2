@@ -57,19 +57,27 @@ export const useAddLiquidity = () => {
     );
     const [minRatio, maxRatio] = calcPoolRatios(cachedBaseReserves, cachedFyTokenReserves, slippageTolerance);
 
-    const [ _basePortionToPool, _fyTokenPortionToPool ] = splitLiquidity(
-      series.baseReserves,
-      series.fyTokenReserves,
+    const [ _baseToPool, _baseToFyToken ] = splitLiquidity(
+      cachedBaseReserves,
+      cachedRealReserves,
       _input,
       true
     ) as [BigNumber, BigNumber];
+
+    console.log(
+      'base:', cachedBaseReserves.toString(),
+      'real: ',cachedRealReserves.toString(),
+      'virtual: ',cachedFyTokenReserves.toString(),
+      '>> baseSplit: ',_baseToPool.toString(), 
+      '>> fyTokenSplit: ',_baseToFyToken.toString(),
+    )
 
     const permits: ICallData[] = await sign(
       [
         {
           target: base,
           spender: 'LADLE',
-          amount: method !== AddLiquidityType.BUY ? _input : _basePortionToPool.add(_fyTokenPortionToPool),
+          amount: method !== AddLiquidityType.BUY ? _input : _baseToPool.add(_baseToFyToken),
           ignoreIf: false,
         },
       ],
@@ -110,17 +118,17 @@ export const useAddLiquidity = () => {
       },
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [base.address, base.joinAddress, _fyTokenPortionToPool] as LadleActions.Args.TRANSFER,
+        args: [base.address, base.joinAddress, _baseToFyToken] as LadleActions.Args.TRANSFER,
         ignoreIf: method !== AddLiquidityType.BORROW,
       },
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [base.address, series.poolAddress, _basePortionToPool] as LadleActions.Args.TRANSFER,
+        args: [base.address, series.poolAddress, _baseToPool] as LadleActions.Args.TRANSFER,
         ignoreIf: method !== AddLiquidityType.BORROW,
       },
       {
         operation: LadleActions.Fn.POUR,
-        args: [BLANK_VAULT, series.poolAddress, _fyTokenPortionToPool, _fyTokenPortionToPool] as LadleActions.Args.POUR,
+        args: [BLANK_VAULT, series.poolAddress, _baseToFyToken, _baseToFyToken] as LadleActions.Args.POUR,
         ignoreIf: method !== AddLiquidityType.BORROW,
       },
       {
