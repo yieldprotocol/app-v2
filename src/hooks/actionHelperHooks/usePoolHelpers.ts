@@ -147,8 +147,12 @@ export const usePoolHelpers = (input: string | undefined) => {
 
       /* check if buy and pool option is allowed */
       const buyAndPoolAllowed = _fyTokenToBuy.gt(ethers.constants.Zero) && _fyTokenToBuy.lt(_maxFyTokenOut)
+
+      console.log( 'fTokenToBuy, maxFyTokenOut ', _fyTokenToBuy.toString(),_maxFyTokenOut );
       setCanBuyAndPool(buyAndPoolAllowed);
       console.log('Can BuyAndPool?', buyAndPoolAllowed);
+      console.log( 'fTokenToBuy: ', _fyTokenToBuy.toString());
+      console.log( 'maxFyTokenOut: ',_maxFyTokenOut.toString());
       
     } else {
       /* allowed by default */

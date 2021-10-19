@@ -82,7 +82,7 @@ export const useAddLiquidity = () => {
         {
           target: base,
           spender: 'LADLE',
-          amount: method !== AddLiquidityType.BUY ? _input : _baseToPoolWithSlippage.add(_baseToFyToken),
+          amount: _input,
           ignoreIf: false,
         },
       ],
