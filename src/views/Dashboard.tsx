@@ -108,12 +108,11 @@ const Dashboard = () => {
       .map((_strategy: IStrategy) => {
         const currentStrategySeries: any = seriesMap.get(_strategy.currentSeriesId);
         const [, currentValue] = strategyTokenValue(
-          _strategy?.accountBalance!,
-          _strategy.strategyTotalSupply!,
+          _strategy.accountBalance!,
           _strategy.strategyTotalSupply!,
           currentStrategySeries.baseReserves,
           currentStrategySeries.fyTokenReserves,
-          currentStrategySeries.totalSupply,
+          _strategy.poolTotalSupply!,
           currentStrategySeries.getTimeTillMaturity(),
           currentStrategySeries.decimals
         );

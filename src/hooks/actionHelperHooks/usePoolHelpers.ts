@@ -74,10 +74,9 @@ export const usePoolHelpers = (input: string | undefined) => {
       const tradeable = strategyTokenValue(
         strategy.accountBalance!,
         strategy.strategyTotalSupply!,
-        strategy.strategyTotalSupply!,
         strategySeries.baseReserves,
         strategySeries.fyTokenReserves,
-        strategySeries.totalSupply,
+        strategy.poolTotalSupply!,
         strategySeries.getTimeTillMaturity(),
         strategySeries.decimals
       )[0].gt(ethers.constants.Zero);
@@ -93,10 +92,9 @@ export const usePoolHelpers = (input: string | undefined) => {
       const [_sellValue, _totalValue] = strategyTokenValue(
         _input,
         strategy.strategyTotalSupply!,
-        strategy.strategyTotalSupply!,
         strategySeries.baseReserves,
         strategySeries.fyTokenReserves,
-        strategySeries.totalSupply,
+        strategy.poolTotalSupply!,
         strategySeries.getTimeTillMaturity(),
         strategySeries.decimals
       );
@@ -115,17 +113,22 @@ export const usePoolHelpers = (input: string | undefined) => {
       const [_sellValue, _totalValue] = strategyTokenValue(
         strategy?.accountBalance,
         strategy.strategyTotalSupply!,
-        strategy.strategyTotalSupply!,
         strategySeries.baseReserves,
         strategySeries.fyTokenReserves,
-        strategySeries.totalSupply,
+        strategy.poolTotalSupply!,
         strategySeries.getTimeTillMaturity(),
         strategySeries.decimals
       );
       const tradeable = _sellValue.gt(ethers.constants.Zero);
       tradeable && setAccountTradeValue(ethers.utils.formatUnits(_sellValue, strategy.decimals));
     }
-  }, [strategy?.accountBalance, strategy?.decimals, strategySeries, strategy?.strategyTotalSupply]);
+  }, [
+    strategy?.accountBalance,
+    strategy?.decimals,
+    strategySeries,
+    strategy?.strategyTotalSupply,
+    strategy?.poolTotalSupply,
+  ]);
 
   /* set max for removal with a vault  */
   useEffect(() => {
