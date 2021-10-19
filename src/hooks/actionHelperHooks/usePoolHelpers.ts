@@ -32,7 +32,7 @@ export const usePoolHelpers = (input: string | undefined) => {
   const [poolPercentPreview, setPoolPercentPreview] = useState<string | undefined>();
 
   const [maxPool, setMaxPool] = useState<string | undefined>();
-  const [canBuyAndPool, setCanBuyAndPool] = useState<boolean | undefined>(true);
+  const [canBuyAndPool, setCanBuyAndPool] = useState<boolean | undefined>(false);
 
   /* remove liquidity helpers */
   const [matchingVault, setMatchingVault] = useState<IVault | undefined>();
@@ -136,7 +136,6 @@ export const usePoolHelpers = (input: string | undefined) => {
         strategySeries.decimals
       );
 
-      // console.log( strategySeries.baseReserves.toString() )
       _fyTokenToBuy = fyTokenForMint(
         strategySeries.baseReserves,
         strategySeries.fyTokenRealReserves,
@@ -146,10 +145,14 @@ export const usePoolHelpers = (input: string | undefined) => {
         strategySeries.decimals
       );
 
-      console.log('Can BuyAndPool?', _fyTokenToBuy.lt(_maxFyTokenOut));
-      setCanBuyAndPool(_fyTokenToBuy.lt(_maxFyTokenOut));
+      /* check if buy and pool option is allowed */
+      const buyAndPoolAllowed = _fyTokenToBuy.gt(ethers.constants.Zero) && _fyTokenToBuy.lt(_maxFyTokenOut)
+      setCanBuyAndPool(buyAndPoolAllowed);
+      console.log('Can BuyAndPool?', buyAndPoolAllowed);
+      
     } else {
-      setCanBuyAndPool(true);
+      /* allowed by default */
+      setCanBuyAndPool(false);
     }
   }, [_input, strategySeries]);
 
