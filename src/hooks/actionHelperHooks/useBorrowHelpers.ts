@@ -66,7 +66,7 @@ export const useBorrowHelpers = (
 
   /* check if the user can borrow the specified amount based on protocol base reserves */
   useEffect(() => {
-    if (input && parseFloat(input) > 0) {
+    if (input && selectedSeries && parseFloat(input) > 0) {
       const cleanedInput = cleanValue(input, selectedSeries?.decimals);
       const input_ = ethers.utils.parseUnits(cleanedInput, selectedSeries?.decimals);
       input_.lte(selectedSeries?.baseReserves!) ? setBorrowPossible(true) : setBorrowPossible(false);
