@@ -57,9 +57,6 @@ export const useAddCollateral = () => {
     const _isEthBased = ETH_BASED_ASSETS.includes(ilk.id);
     const _pourTo = _isEthBased ? contractMap.get('Ladle').address : account;
 
-
-    console.log( _input.eq(ethers.constants.Zero));
-
     /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
     const permits: ICallData[] = await sign(
       [
