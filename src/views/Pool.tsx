@@ -63,7 +63,8 @@ function Pool() {
 
   /* LOCAL ACTION FNS */
   const handleAdd = () => {
-    const _method = !canBuyAndPool ? AddLiquidityType.BORROW : poolMethod;
+    console.log('POOLING METHOD: ', poolMethod)
+    const _method = !canBuyAndPool ? AddLiquidityType.BORROW : poolMethod; // double check
     selectedStrategy && addLiquidity(poolInput!, selectedStrategy, _method);
   };
 
@@ -83,7 +84,9 @@ function Pool() {
   }, [poolProcess, resetInputs]);
 
   useEffect(() => {
-    !canBuyAndPool && setPoolMethod(AddLiquidityType.BORROW);
+    canBuyAndPool 
+      ? setPoolMethod(AddLiquidityType.BUY)
+      : setPoolMethod(AddLiquidityType.BORROW);
   }, [canBuyAndPool]);
 
   return (
