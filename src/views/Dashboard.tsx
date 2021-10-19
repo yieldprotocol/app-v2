@@ -14,7 +14,7 @@ import { ZERO_BN, DAI, WETH } from '../utils/constants';
 import { cleanValue } from '../utils/appUtils';
 import DashboardPositionList from '../components/DashboardPositionList';
 import CurrencyToggle from '../components/CurrencyToggle';
-import { sellFYToken, checkPoolTrade } from '../utils/yieldMath';
+import { sellFYToken, strategyTokenValue } from '../utils/yieldMath';
 
 const StyledBox = styled(Box)`
   * {
@@ -107,8 +107,10 @@ const Dashboard = () => {
     const _strategyPositions: IStrategy[] = Array.from(strategyMap.values())
       .map((_strategy: IStrategy) => {
         const currentStrategySeries: any = seriesMap.get(_strategy.currentSeriesId);
-        const [, currentValue] = checkPoolTrade(
-          _strategy.accountBalance!,
+        const [, currentValue] = strategyTokenValue(
+          _strategy?.accountBalance!,
+          _strategy.strategyTotalSupply!,
+          _strategy.strategyTotalSupply!,
           currentStrategySeries.baseReserves,
           currentStrategySeries.fyTokenReserves,
           currentStrategySeries.totalSupply,

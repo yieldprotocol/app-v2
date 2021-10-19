@@ -6,7 +6,6 @@ import { cleanValue } from '../../utils/appUtils';
 import {
   fyTokenForMint,
   splitLiquidity,
-  checkPoolTrade,
   getPoolPercent,
   maxFyTokenOut,
   strategyTokenValue,
@@ -72,8 +71,10 @@ export const usePoolHelpers = (input: string | undefined) => {
   /* Check if base reserves are too low for max trade  */
   useEffect(() => {
     if (strategy && strategySeries) {
-      const tradeable = checkPoolTrade(
+      const tradeable = strategyTokenValue(
         strategy.accountBalance!,
+        strategy.strategyTotalSupply!,
+        strategy.strategyTotalSupply!,
         strategySeries.baseReserves,
         strategySeries.fyTokenReserves,
         strategySeries.totalSupply,
@@ -88,31 +89,33 @@ export const usePoolHelpers = (input: string | undefined) => {
 
   /* Set the trade value and check if base reserves are too low for specific input  */
   useEffect(() => {
-    if (strategySeries) {
-      const _totalValue = strategyTokenValue(
+    if (strategy && strategySeries) {
+      const [_sellValue, _totalValue] = strategyTokenValue(
         _input,
-        strategySeries.strategyLpReserves,
-        strategySeries.strategyTotalSupply,
-        strategySeries.poolBaseReserves,
-        strategySeries.poolFyTokenReserves,
-        strategySeries.poolTotalSupply,
+        strategy.strategyTotalSupply!,
+        strategy.strategyTotalSupply!,
+        strategySeries.baseReserves,
+        strategySeries.fyTokenReserves,
+        strategySeries.totalSupply,
         strategySeries.getTimeTillMaturity(),
         strategySeries.decimals
       );
-      const tradeable = _totalValue.gt(ethers.constants.Zero);
+      const tradeable = _sellValue.gt(ethers.constants.Zero);
 
       console.log('Is tradeable:', tradeable);
       setFyTokenTradePossible(tradeable);
-      setInputTradeValue(_totalValue);
-      setInputTradeValue_(ethers.utils.formatUnits(_totalValue, strategySeries.decimals));
+      setInputTradeValue(_sellValue);
+      setInputTradeValue_(ethers.utils.formatUnits(_sellValue, strategySeries.decimals));
     }
-  }, [_input, strategySeries]);
+  }, [_input, strategySeries, strategy]);
 
   /* check account token trade value */
   useEffect(() => {
     if (strategySeries && strategy?.accountBalance?.gt(ZERO_BN)) {
-      const [_sellValue, _totalValue] = checkPoolTrade(
+      const [_sellValue, _totalValue] = strategyTokenValue(
         strategy?.accountBalance,
+        strategy.strategyTotalSupply!,
+        strategy.strategyTotalSupply!,
         strategySeries.baseReserves,
         strategySeries.fyTokenReserves,
         strategySeries.totalSupply,
@@ -122,7 +125,7 @@ export const usePoolHelpers = (input: string | undefined) => {
       const tradeable = _sellValue.gt(ethers.constants.Zero);
       tradeable && setAccountTradeValue(ethers.utils.formatUnits(_sellValue, strategy.decimals));
     }
-  }, [strategy?.accountBalance, strategy?.decimals, strategySeries]);
+  }, [strategy?.accountBalance, strategy?.decimals, strategySeries, strategy?.strategyTotalSupply]);
 
   /* set max for removal with a vault  */
   useEffect(() => {
