@@ -156,7 +156,7 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
                             }
                           >
                             {cleanValue ( getPoolPercent(
-                              ethers.utils.parseUnits(inputValue, strategy.decimals),
+                              ethers.utils.parseUnits(cleanValue(inputValue, strategy.decimals) , strategy.decimals),
                               strategy.strategyTotalSupply!
                             ), 3) }
                             %

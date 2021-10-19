@@ -191,8 +191,6 @@ export const useConnection = () => {
       );
     }
 
-    chainId && console.log(chainId);
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tried, chainId, fallbackActivate, lastChainId]);
 
