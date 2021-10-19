@@ -55,7 +55,7 @@ export const useBorrow = () => {
         {
           target: ilk,
           spender: ilk.joinAddress,
-          ignoreIf: ETH_BASED_ASSETS.includes(selectedIlkId), // ignore if an ETH-BASED asset
+          ignoreIf: ETH_BASED_ASSETS.includes(selectedIlkId) || _collInput.eq(ethers.constants.Zero) , // ignore if an ETH-BASED asset
           message: `Allow Yield Protocol to move ${ilk.symbol}`,
           amount: _input,
         },
