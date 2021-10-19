@@ -58,7 +58,7 @@ const Lend = () => {
 
   /* HOOK FNS */
   const { maxLend_, protocolBaseIn, userBaseAvailable } = useLendHelpers(selectedSeries, lendInput);
-  console.log(maxLend_);
+
   const lend = useLend();
   const { apr } = useApr(lendInput, ActionType.LEND, selectedSeries);
 
