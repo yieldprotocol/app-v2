@@ -15,7 +15,7 @@ interface IDashSummary {
 const Summary = ({ label, value }: { label: string; value: string }) => (
   <Box gap="small" direction="row" align="center">
     <Text size="small">{label}:</Text>
-    <Text color="tailwind-blue">{value}</Text>
+    <Text color={label === 'Debt' ? '#EF4444' : 'brand'}>{value}</Text>
   </Box>
 );
 
