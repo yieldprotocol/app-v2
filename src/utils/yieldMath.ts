@@ -967,7 +967,6 @@ export const poolTokenValue = (
  */
 export const strategyTokenValue = (
   strategyTokenAmount: BigNumber | string,
-  strategyLpReserves: BigNumber,
   strategyTotalSupply: BigNumber,
   poolBaseReserves: BigNumber,
   poolFyTokenReserves: BigNumber,
@@ -977,9 +976,12 @@ export const strategyTokenValue = (
 ): [BigNumber, BigNumber] => {
   // 1. multiply strategy token amount by strategy lp reserves, divided by the strategy total supply
   // 2. enter output of 1 (pool token amount) to poolTokenValue function
-  const poolTokenAmount = BigNumber.from(strategyTokenAmount.toString())
-    .mul(strategyLpReserves)
-    .div(strategyTotalSupply);
+  // const poolTokenAmount = BigNumber.from(strategyTokenAmount.toString())
+  //   .div(strategyTotalSupply)
+  //   .mul(poolTotalSupply)
+  //   .toString();
+
+  const poolTokenAmount = burnFromStrategy(poolTotalSupply, strategyTotalSupply, strategyTokenAmount);
 
   return poolTokenValue(
     poolTokenAmount,
