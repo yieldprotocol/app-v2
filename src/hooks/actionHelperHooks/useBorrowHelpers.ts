@@ -15,11 +15,12 @@ export const useBorrowHelpers = (
 ) => {
   /* STATE FROM CONTEXT */
   const {
-    userState: { activeAccount, selectedBaseId, selectedIlkId, assetMap, seriesMap, limitMap },
+    userState: { activeAccount, selectedBaseId, selectedIlkId, assetMap, seriesMap, limitMap, selectedSeriesId },
     userActions: { updateLimit },
   } = useContext(UserContext);
 
   const vaultBase: IAsset | undefined = assetMap.get(vault?.baseId!);
+  const selectedSeries: ISeries | undefined = seriesMap.get(selectedSeriesId!);
 
   /* LOCAL STATE */
   const [borrowEstimate, setBorrowEstimate] = useState<BigNumber>(ethers.constants.Zero);
@@ -27,6 +28,7 @@ export const useBorrowHelpers = (
 
   const [minAllowedBorrow, setMinAllowedBorrow] = useState<string | undefined>();
   const [maxAllowedBorrow, setMaxAllowedBorrow] = useState<string | undefined>();
+  const [borrowPossible, setBorrowPossible] = useState<boolean>(false);
 
   const [maxRepay, setMaxRepay] = useState<BigNumber>(ethers.constants.Zero);
   const [maxRepay_, setMaxRepay_] = useState<string | undefined>();
@@ -61,6 +63,15 @@ export const useBorrowHelpers = (
       })();
     }
   }, [limitMap, selectedBaseId, selectedIlkId, updateLimit]);
+
+  /* check if the user can borrow the specified amount based on protocol base reserves */
+  useEffect(() => {
+    if (input && parseFloat(input) > 0) {
+      const cleanedInput = cleanValue(input, selectedSeries?.decimals);
+      const input_ = ethers.utils.parseUnits(cleanedInput, selectedSeries?.decimals);
+      input_.lte(selectedSeries?.baseReserves!) ? setBorrowPossible(true) : setBorrowPossible(false);
+    }
+  }, [input, selectedSeries]);
 
   /* calculate an estimated sale based on the input and future stragey, assuming correct collateralisation */
   useEffect(() => {
@@ -142,6 +153,7 @@ export const useBorrowHelpers = (
 
     minAllowedBorrow,
     maxAllowedBorrow,
+    borrowPossible,
 
     maxRepay_,
     maxRepay,
