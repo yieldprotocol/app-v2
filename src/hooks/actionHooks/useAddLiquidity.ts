@@ -42,7 +42,7 @@ export const useAddLiquidity = () => {
     const cleanInput = cleanValue(input, base.decimals);
 
     const _input = ethers.utils.parseUnits(cleanInput, base.decimals);
-    // const _inputLessSlippage = calculateSlippage(_input, slippageTolerance, true);
+    const _inputLessSlippage = calculateSlippage(_input, slippageTolerance, true);
 
     const [cachedBaseReserves, cachedFyTokenReserves] = await series.poolContract.getCache();
     const cachedRealReserves = cachedFyTokenReserves.sub(series.totalSupply);
@@ -51,7 +51,7 @@ export const useAddLiquidity = () => {
       cachedBaseReserves,
       cachedRealReserves,
       cachedFyTokenReserves,
-      _input,
+      _inputLessSlippage,
       series.getTimeTillMaturity(),
       series.decimals
     );
@@ -60,16 +60,21 @@ export const useAddLiquidity = () => {
     const [ _baseToPool, _baseToFyToken ] = splitLiquidity(
       cachedBaseReserves,
       cachedRealReserves,
-      _input,
+      _inputLessSlippage,
       true
     ) as [BigNumber, BigNumber];
 
+    const _baseToPoolWithSlippage = BigNumber.from(calculateSlippage(_baseToPool, slippageTolerance ));
+
     console.log(
-      'base:', cachedBaseReserves.toString(),
+      'input: ' , _input.toString(),
+      'inputLessSlippage: ' , _inputLessSlippage.toString(),
+      'base: ', cachedBaseReserves.toString(),
       'real: ',cachedRealReserves.toString(),
       'virtual: ',cachedFyTokenReserves.toString(),
       '>> baseSplit: ',_baseToPool.toString(), 
       '>> fyTokenSplit: ',_baseToFyToken.toString(),
+      '>> baseSplitWithSlippage: ', _baseToPoolWithSlippage.toString(),
     )
 
     const permits: ICallData[] = await sign(
@@ -77,7 +82,7 @@ export const useAddLiquidity = () => {
         {
           target: base,
           spender: 'LADLE',
-          amount: method !== AddLiquidityType.BUY ? _input : _baseToPool.add(_baseToFyToken),
+          amount: method !== AddLiquidityType.BUY ? _input : _baseToPoolWithSlippage.add(_baseToFyToken),
           ignoreIf: false,
         },
       ],
@@ -123,7 +128,7 @@ export const useAddLiquidity = () => {
       },
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [base.address, series.poolAddress, _baseToPool] as LadleActions.Args.TRANSFER,
+        args: [base.address, series.poolAddress, _baseToPoolWithSlippage] as LadleActions.Args.TRANSFER,
         ignoreIf: method !== AddLiquidityType.BORROW,
       },
       {
