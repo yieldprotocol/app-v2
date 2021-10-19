@@ -662,9 +662,11 @@ export function fyTokenForMint(
 
   let i = 0;
   while (true) {
-    // if (i++ > 100)  throw 'Not converging'
+    
+    /* NB return ZERO when not converging > not mintable */ 
     // eslint-disable-next-line no-plusplus
-    if (i++ > 100) return ZERO_BN;
+    if (i++ > 100) return ZERO_BN; 
+    // if (i++ > 100)  throw 'Not converging'
 
     zIn = new Decimal(
       buyFYToken(
