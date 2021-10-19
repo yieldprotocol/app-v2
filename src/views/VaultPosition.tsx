@@ -48,7 +48,6 @@ const VaultPosition = () => {
   const { userState, userActions } = useContext(UserContext) as IUserContext;
   const { activeAccount: account, assetMap, seriesMap, vaultMap, selectedVaultId, vaultsLoading } = userState;
 
-
   const selectedVault: IVault | undefined = vaultMap && vaultMap.get(selectedVaultId || idFromUrl);
 
   const vaultBase: IAsset | undefined = assetMap.get(selectedVault?.baseId!);
@@ -280,7 +279,7 @@ const VaultPosition = () => {
                         label="Collateral posted:"
                         value={`${cleanValue(selectedVault?.ink_, vaultIlk?.decimals!)} ${
                           vaultIlk?.symbol
-                        } ( ${collateralizationPercent} %)`}
+                        } (${collateralizationPercent} %)`}
                         icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
                         loading={vaultsLoading}
                       />
@@ -361,7 +360,7 @@ const VaultPosition = () => {
                                     </Text>
                                   ) : (
                                     <Text color="gray" alignSelf="end" size="xsmall">
-                                      Max debt repayable ( {selectedVault?.art_!} {vaultBase?.symbol!} )
+                                      Max debt repayable ({selectedVault?.art_!} {vaultBase?.symbol!})
                                     </Text>
                                   )}
                                 </InputInfoWrap>
