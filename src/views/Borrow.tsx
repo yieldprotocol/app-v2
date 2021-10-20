@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Box, Keyboard, ResponsiveContext, Text, TextInput } from 'grommet';
+import { Box, Keyboard, Layer, ResponsiveContext, Text, TextInput } from 'grommet';
 
 import { FiClock, FiPocket, FiPercent, FiTrendingUp } from 'react-icons/fi';
 
@@ -43,6 +43,7 @@ import { useProcess } from '../hooks/useProcess';
 import { ChainContext } from '../contexts/ChainContext';
 import DummyVaultItem from '../components/positionItems/DummyVaultItem';
 import DashMobileButton from '../components/buttons/DashMobileButton';
+import SeriesSelectorModal from '../components/selectors/SeriesSelectorModal';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -59,6 +60,7 @@ const Borrow = () => {
   const selectedSeries = seriesMap.get(selectedSeriesId!);
 
   /* LOCAL STATE */
+  const [modalOpen, toggleModal] = useState<boolean>(false);
   const [stepPosition, setStepPosition] = useState<number>(0);
 
   const [borrowInput, setBorrowInput] = useState<string>('');
@@ -243,15 +245,24 @@ const Borrow = () => {
                   </Box>
                 </SectionWrap>
 
-                <SectionWrap
-                  title={
-                    seriesMap.size > 0
-                      ? `Available ${selectedBase?.symbol}${selectedBase && '-based'} maturity dates`
-                      : ''
-                  }
-                >
-                  <SeriesSelector inputValue={borrowInput} actionType={ActionType.BORROW} />
-                </SectionWrap>
+                {mobile ? (
+                  <SeriesSelectorModal
+                    inputValue={borrowInput}
+                    actionType={ActionType.BORROW}
+                    open={modalOpen}
+                    setOpen={toggleModal}
+                  />
+                ) : (
+                  <SectionWrap
+                    title={
+                      seriesMap.size > 0
+                        ? `Available ${selectedBase?.symbol}${selectedBase && '-based'} maturity dates`
+                        : ''
+                    }
+                  >
+                    <SeriesSelector inputValue={borrowInput} actionType={ActionType.BORROW} />
+                  </SectionWrap>
+                )}
               </Box>
             )}
 
@@ -366,7 +377,7 @@ const Borrow = () => {
                     <InfoBite
                       label="Vault Debt Payable @ Maturity"
                       icon={<FiTrendingUp />}
-                      value={`${cleanValue(borrowEstimate_, selectedBase?.digitFormat! )} ${selectedBase?.symbol}`}
+                      value={`${cleanValue(borrowEstimate_, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
                     />
                     <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
                     <InfoBite
