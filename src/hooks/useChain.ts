@@ -71,8 +71,8 @@ export const useChain = () => {
     } catch (e) {
       gasEst = BigNumber.from('300000');
       console.log('Failed to get gas estimate', e);
+      // throw( Error('Transaction will always revert.'));
     }
-
     console.log('Auto gas estimate:', gasEst.mul(120).div(100).toString());
 
     /* Finally, send out the transaction */
@@ -189,8 +189,8 @@ export const useChain = () => {
           () => handleTx(() => tokenContract.approve(_spender, MAX_256), txCode, true),
           reqSig,
           txCode,
-          // TODO extract this out to ( also possibly use asset id) 
-          NON_PERMIT_ASSETS.includes( reqSig.target.symbol ) ? ApprovalType.TX : approvalMethod
+          // TODO extract this out to ( also possibly use asset id)
+          NON_PERMIT_ASSETS.includes(reqSig.target.symbol) ? ApprovalType.TX : approvalMethod
         );
 
         const args = [
