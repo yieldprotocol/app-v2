@@ -112,7 +112,7 @@ const Dashboard = () => {
           _strategy.strategyTotalSupply!,
           currentStrategySeries.baseReserves,
           currentStrategySeries.fyTokenReserves,
-          _strategy.poolTotalSupply!,
+          currentStrategySeries.totalSupply,
           currentStrategySeries.getTimeTillMaturity(),
           currentStrategySeries.decimals
         );
