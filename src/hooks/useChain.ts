@@ -189,8 +189,8 @@ export const useChain = () => {
           () => handleTx(() => tokenContract.approve(_spender, MAX_256), txCode, true),
           reqSig,
           txCode,
-          // TODO extract this out to ( also possibly use asset id) 
-          NON_PERMIT_ASSETS.includes( reqSig.target.symbol ) ? ApprovalType.TX : approvalMethod
+          // TODO extract this out to ( also possibly use asset id)
+          NON_PERMIT_ASSETS.includes(reqSig.target.symbol) ? ApprovalType.TX : approvalMethod
         );
 
         const args = [

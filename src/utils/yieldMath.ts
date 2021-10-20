@@ -128,7 +128,7 @@ export const secondsToFrom = (
 /**
  * specific Yieldspace helper functions
  * */
- const _computeA = (timeToMaturity: BigNumber | string, g: Decimal = g1, ts: Decimal = k): [Decimal, Decimal] => {
+const _computeA = (timeToMaturity: BigNumber | string, g: Decimal = g1, ts: Decimal = k): [Decimal, Decimal] => {
   const timeTillMaturity_ = new Decimal(timeToMaturity.toString());
   // t = ts * timeTillMaturity
   const t = ts.mul(timeTillMaturity_);
@@ -147,7 +147,6 @@ const _computeB = (timeToMaturity: BigNumber | string, g: Decimal = g1, ts: Deci
   const invB = ONE.div(b);
   return [b, invB]; /* returns b and inverse of b */
 };
-
 
 /** ************************
  YieldSpace functions
@@ -319,7 +318,7 @@ export function sellBase(
   const base_ = new Decimal(base18.toString());
 
   const _g = withNoFee ? ONE : g1;
-  const [a, invA] = _computeA(timeTillMaturity, _g )
+  const [a, invA] = _computeA(timeTillMaturity, _g);
 
   const Za = baseReserves_.pow(a);
   const Ya = fyTokenReserves_.pow(a);
@@ -362,7 +361,7 @@ export function sellFYToken(
   const fyDai_ = new Decimal(fyToken18.toString());
 
   const _g = withNoFee ? ONE : g2;
-  const [a, invA] = _computeA(timeTillMaturity, _g )
+  const [a, invA] = _computeA(timeTillMaturity, _g);
 
   const Za = baseReserves_.pow(a);
   const Ya = fyTokenReserves_.pow(a);
@@ -405,7 +404,7 @@ export function buyBase(
   const base_ = new Decimal(base18.toString());
 
   const _g = withNoFee ? ONE : g2;
-  const [a, invA] = _computeA(timeTillMaturity, _g )
+  const [a, invA] = _computeA(timeTillMaturity, _g);
 
   const Za = baseReserves_.pow(a);
   const Ya = fyTokenReserves_.pow(a);
@@ -446,7 +445,7 @@ export function buyFYToken(
   const fyDai_ = new Decimal(fyToken18.toString());
 
   const _g = withNoFee ? ONE : g1;
-  const [a, invA] = _computeA(timeTillMaturity, _g )
+  const [a, invA] = _computeA(timeTillMaturity, _g);
 
   const Za = baseReserves_.pow(a);
   const Ya = fyTokenReserves_.pow(a);
@@ -551,7 +550,7 @@ export function maxBaseOut(
   // sum = za + ya - yxa
   const sum = za.add(ya).sub(yxa);
   // result = baseReserves - (sum ** (1/a))
-  const res = baseReserves_.sub( sum.pow(invA) );
+  const res = baseReserves_.sub(sum.pow(invA));
 
   // console.log( sum.toString() )
 
@@ -662,10 +661,9 @@ export function fyTokenForMint(
 
   let i = 0;
   while (true) {
-    
-    /* NB return ZERO when not converging > not mintable */ 
+    /* NB return ZERO when not converging > not mintable */
     // eslint-disable-next-line no-plusplus
-    if (i++ > 100) return ZERO_BN; 
+    if (i++ > 100) return ZERO_BN;
     // if (i++ > 100)  throw 'Not converging'
 
     zIn = new Decimal(
@@ -723,7 +721,7 @@ export function fyTokenForMint(
  * @param { BigNumber | string } timeTillMaturity
  * @returns { BigNumber }
  */
- export function getFee(
+export function getFee(
   baseReserves: BigNumber | string,
   fyTokenReserves: BigNumber | string,
   fyToken: BigNumber | string,
@@ -957,7 +955,7 @@ export const checkPoolTrade = (
     strategyDecimals
   );
   const totalValue = sellValue.add(_baseTokens);
-  return [ sellValue, totalValue ];
+  return [sellValue, totalValue];
 };
 
 /**
@@ -969,16 +967,14 @@ export const checkPoolTrade = (
  * @returns {BigNumber}
  */
 export const getPoolPercent = (input: BigNumber, strategyTotalSupply: BigNumber): string => {
-
   const input_ = new Decimal(input.toString());
   const totalSupply_ = new Decimal(strategyTotalSupply.toString());
 
-  const ratio = input_.div( totalSupply_.add(input_) );
+  const ratio = input_.div(totalSupply_.add(input_));
   const percent = ratio.mul(new Decimal(100));
 
   return percent.toString();
-
-}
+};
 
 /**
  * Calcualtes the MIN and MAX reserve ratios of a pool for a given slippage value
@@ -992,22 +988,21 @@ export const getPoolPercent = (input: BigNumber, strategyTotalSupply: BigNumber)
 export const calcPoolRatios = (
   baseReserves: BigNumber,
   fyTokenReserves: BigNumber,
-  slippage: number = 0.10,
+  slippage: number = 0.1
 ): [BigNumber, BigNumber] => {
   const baseReserves_ = new Decimal(baseReserves.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves.toString());
   const slippage_ = new Decimal(slippage.toString());
   const wad = new Decimal(WAD_BN.toString());
-  
-  const ratio = ((baseReserves_).div(fyTokenReserves_)).mul(wad)
+
+  const ratio = baseReserves_.div(fyTokenReserves_).mul(wad);
   const ratioSlippage = ratio.mul(slippage_);
 
-  const min = toBn( ratio.sub(ratioSlippage)) ;
-  const max = toBn ( ratio.add(ratioSlippage)) ;
+  const min = toBn(ratio.sub(ratioSlippage));
+  const max = toBn(ratio.add(ratioSlippage));
 
   console.log('ratio: ', toBn(ratio).toString());
 
   return [min, max];
   // return [toBn(ZERO), toBn(MAX) ]
-
 };

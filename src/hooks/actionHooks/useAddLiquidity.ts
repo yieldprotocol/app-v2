@@ -57,27 +57,37 @@ export const useAddLiquidity = () => {
     );
     const [minRatio, maxRatio] = calcPoolRatios(series.baseReserves, series.fyTokenRealReserves);
 
-    const [ _baseToPool, _baseToFyToken ] = splitLiquidity(
+    const [_baseToPool, _baseToFyToken] = splitLiquidity(
       cachedBaseReserves,
       cachedRealReserves,
       _inputLessSlippage,
       true
     ) as [BigNumber, BigNumber];
 
-    const _baseToPoolWithSlippage = BigNumber.from(calculateSlippage(_baseToPool, slippageTolerance ));
+    const _baseToPoolWithSlippage = BigNumber.from(calculateSlippage(_baseToPool, slippageTolerance));
 
     console.log(
-      'input: ' , _input.toString(),
-      'inputLessSlippage: ' , _inputLessSlippage.toString(),
-      'base: ', cachedBaseReserves.toString(),
-      'real: ',cachedRealReserves.toString(),
-      'virtual: ',cachedFyTokenReserves.toString(),
-      '>> baseSplit: ',_baseToPool.toString(), 
-      '>> fyTokenSplit: ',_baseToFyToken.toString(),
-      '>> baseSplitWithSlippage: ', _baseToPoolWithSlippage.toString(),
-      '>> minRatio', minRatio.toString(),
-      '>> maxRatio', maxRatio.toString(),
-    )
+      'input: ',
+      _input.toString(),
+      'inputLessSlippage: ',
+      _inputLessSlippage.toString(),
+      'base: ',
+      cachedBaseReserves.toString(),
+      'real: ',
+      cachedRealReserves.toString(),
+      'virtual: ',
+      cachedFyTokenReserves.toString(),
+      '>> baseSplit: ',
+      _baseToPool.toString(),
+      '>> fyTokenSplit: ',
+      _baseToFyToken.toString(),
+      '>> baseSplitWithSlippage: ',
+      _baseToPoolWithSlippage.toString(),
+      '>> minRatio',
+      minRatio.toString(),
+      '>> maxRatio',
+      maxRatio.toString()
+    );
 
     const permits: ICallData[] = await sign(
       [
@@ -140,12 +150,7 @@ export const useAddLiquidity = () => {
       },
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [
-          strategy.id || account,
-          account,
-          minRatio,
-          maxRatio,
-        ] as RoutedActions.Args.MINT_POOL_TOKENS,
+        args: [strategy.id || account, account, minRatio, maxRatio] as RoutedActions.Args.MINT_POOL_TOKENS,
         fnName: RoutedActions.Fn.MINT_POOL_TOKENS,
         targetContract: series.poolContract,
         ignoreIf: method !== AddLiquidityType.BORROW,
