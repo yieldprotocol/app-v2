@@ -70,16 +70,18 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
         </Box>
 
         <Box align="center" direction="row" gap="small" justify="center">
-          <Anchor
-            href={`https://${currentChainInfo.name}.etherscan.io/address/${account}`}
-            margin="xsmall"
-            target="_blank"
-          >
-            <FiExternalLink size="1rem" style={{ verticalAlign: 'middle' }} />
-            <Text margin="xxsmall" size="xsmall">
-              View on Explorer
-            </Text>
-          </Anchor>
+          {currentChainInfo?.name && (
+            <Anchor
+              href={`https://${currentChainInfo.name}.etherscan.io/address/${account}`}
+              margin="xsmall"
+              target="_blank"
+            >
+              <FiExternalLink size="1rem" style={{ verticalAlign: 'middle' }} />
+              <Text margin="xxsmall" size="xsmall">
+                View on Explorer
+              </Text>
+            </Anchor>
+          )}
         </Box>
         <Box justify="between" align="center" direction="row">
           {connectorName && <Text size="small">Connected with {connectorName}</Text>}
