@@ -441,7 +441,7 @@ const VaultPosition = () => {
                             <InputInfoWrap>
                               <Text color="text-weak" size="xsmall">
                                 Debt of {cleanValue(maxRoll_, 2)} {vaultBase?.symbol} will be rolled
-                                {userBaseAvailable.lt(maxRoll) ? '.' : ' (limited by protocol reserves).'}
+                                {userBaseAvailable.lte(maxRoll) ? '.' : ' (limited by protocol reserves).'}
                               </Text>
                             </InputInfoWrap>
                           )}
