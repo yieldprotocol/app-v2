@@ -133,17 +133,30 @@ const ChainProvider = ({ children }: any) => {
 
       /* Get the instances of the Base contracts */
       const addrs = (yieldEnv.addresses as any)[fallbackChainId];
-      const Cauldron = contracts.Cauldron__factory.connect(addrs.Cauldron, fallbackProvider);
-      const Ladle = contracts.Ladle__factory.connect(addrs.Ladle, fallbackProvider);
-      const ChainlinkMultiOracle = contracts.ChainlinkMultiOracle__factory.connect(
-        addrs.ChainlinkMultiOracle,
-        fallbackProvider
-      );
-      const CompositeMultiOracle = contracts.CompositeMultiOracle__factory.connect(
-        addrs.CompositeMultiOracle,
-        fallbackProvider
-      );
-      const Witch = contracts.Witch__factory.connect(addrs.Witch, fallbackProvider);
+
+      let Cauldron: any;
+      let Ladle: any;
+      let ChainlinkMultiOracle: any;
+      let CompositeMultiOracle: any;
+      let Witch: any;
+
+      try {
+        Cauldron = contracts.Cauldron__factory.connect(addrs.Cauldron, fallbackProvider);
+        Ladle = contracts.Ladle__factory.connect(addrs.Ladle, fallbackProvider);
+        ChainlinkMultiOracle = contracts.ChainlinkMultiOracle__factory.connect(
+          addrs.ChainlinkMultiOracle,
+          fallbackProvider
+        );
+        CompositeMultiOracle = contracts.CompositeMultiOracle__factory.connect(
+          addrs.CompositeMultiOracle,
+          fallbackProvider
+        );
+        Witch = contracts.Witch__factory.connect(addrs.Witch, fallbackProvider);
+      } catch (e) {
+        console.log(e, 'could not connect to contracts');
+      }
+
+      if (!Cauldron || !Ladle || !ChainlinkMultiOracle || !CompositeMultiOracle || !Witch) return;
 
       /* Update the baseContracts state : ( hardcoded based on networkId ) */
       const newContractMap = chainState.contractMap;
