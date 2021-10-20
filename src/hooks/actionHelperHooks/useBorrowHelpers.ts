@@ -5,6 +5,7 @@ import { IVault, ISeries, IAsset } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 
 import { maxBaseIn, maxFyTokenIn, sellBase } from '../../utils/yieldMath';
+import { useCollateralHelpers } from './useCollateralHelpers';
 
 /* Collateralization hook calculates collateralization metrics */
 export const useBorrowHelpers = (
@@ -13,6 +14,7 @@ export const useBorrowHelpers = (
   vault: IVault | undefined,
   futureSeries: ISeries | undefined = undefined // Future or rollToSeries
 ) => {
+
   /* STATE FROM CONTEXT */
   const {
     userState: { activeAccount, selectedBaseId, selectedIlkId, assetMap, seriesMap, limitMap, selectedSeriesId },
@@ -103,10 +105,10 @@ export const useBorrowHelpers = (
       setMaxRoll(_maxFyTokenIn);
       setMaxRoll_(ethers.utils.formatUnits(_maxFyTokenIn, futureSeries.decimals).toString());
 
-      // console.log(_maxFyTokenIn.toString() )
-      // console.log(vault.art.toString() )
-      console.log('Roll possible: ', vault.art.lt(_maxFyTokenIn))
-      setRollPossible(vault.art.lt(_maxFyTokenIn));
+      const rollable = vault.art.lt(_maxFyTokenIn)
+
+      console.log('Roll possible: ', rollable)
+      setRollPossible(rollable);
 
       if (vault.art?.lt(_maxFyTokenIn)) {
         setMaxRoll(vault.art);
