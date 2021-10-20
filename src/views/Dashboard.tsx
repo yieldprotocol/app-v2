@@ -108,7 +108,7 @@ const Dashboard = () => {
       .map((_strategy: IStrategy) => {
         const currentStrategySeries: any = seriesMap.get(_strategy.currentSeriesId);
         const [, currentValue] = checkPoolTrade(
-          _strategy.accountBalance!,
+          _strategy.accountBalance || ethers.constants.Zero,
           currentStrategySeries.baseReserves,
           currentStrategySeries.fyTokenReserves,
           currentStrategySeries.totalSupply,
@@ -204,17 +204,21 @@ const Dashboard = () => {
       {!mobile && (
         <PanelWrap justify="between" basis="40%">
           <Box margin={{ top: '35%' }} gap="medium" fill>
-            <Box width="5rem" height="2rem">
-              <CurrencyToggle />
-            </Box>
-            <DashboardBalanceSummary
-              debt={totalDebt!}
-              collateral={totalCollateral!}
-              lendBalance={totalLendBalance}
-              poolBalance={totalStrategyBalance}
-              digits={currencySettingDigits}
-              symbol={currencySettingSymbol}
-            />
+            {account && (
+              <>
+                <Box width="5rem" height="2rem">
+                  <CurrencyToggle />
+                </Box>
+                <DashboardBalanceSummary
+                  debt={totalDebt!}
+                  collateral={totalCollateral!}
+                  lendBalance={totalLendBalance}
+                  poolBalance={totalStrategyBalance}
+                  digits={currencySettingDigits}
+                  symbol={currencySettingSymbol}
+                />
+              </>
+            )}
           </Box>
           <YieldInfo />
         </PanelWrap>
