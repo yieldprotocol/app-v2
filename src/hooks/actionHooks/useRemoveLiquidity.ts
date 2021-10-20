@@ -69,6 +69,7 @@ export const useRemoveLiquidity = () => {
         {
           target: _strategy!,
           spender: 'LADLE',
+          amount: _input,
           ignoreIf: !_strategy,
         },
 
@@ -81,7 +82,7 @@ export const useRemoveLiquidity = () => {
             symbol: series.poolSymbol,
           },
           spender: 'LADLE',
-          message: 'Authorize selling of LP tokens ',
+          amount: _input,
           ignoreIf: !!_strategy,
         },
       ],
