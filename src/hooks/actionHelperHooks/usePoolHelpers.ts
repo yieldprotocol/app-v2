@@ -67,7 +67,7 @@ export const usePoolHelpers = (input: string | undefined) => {
   useEffect(() => {
     if (strategy && strategySeries) {
       const tradeable = checkPoolTrade(
-        strategy.accountBalance!,
+        strategy.accountBalance || ethers.constants.Zero,
         strategySeries.baseReserves,
         strategySeries.fyTokenReserves,
         strategySeries.totalSupply,
@@ -76,21 +76,23 @@ export const usePoolHelpers = (input: string | undefined) => {
       )[0].gt(ethers.constants.Zero);
 
       setHealthyBaseReserves(tradeable);
-      setMaxRemoveNoVault(ethers.utils.formatUnits(strategy?.accountBalance!, strategySeries.decimals));
+      setMaxRemoveNoVault(
+        ethers.utils.formatUnits(strategy?.accountBalance! || ethers.constants.Zero, strategySeries.decimals)
+      );
     }
   }, [strategy, strategySeries]);
 
   /* Set the trade value and check if base reserves are too low for specific input  */
   useEffect(() => {
     if (strategySeries) {
-      const [ _sellValue, _totalValue] = checkPoolTrade(
+      const [_sellValue, _totalValue] = checkPoolTrade(
         _input,
         strategySeries.baseReserves,
         strategySeries.fyTokenReserves,
         strategySeries.totalSupply,
         strategySeries.getTimeTillMaturity(),
         strategySeries.decimals
-        );
+      );
       const tradeable = _sellValue.gt(ethers.constants.Zero);
 
       console.log('Is tradeable:', tradeable);
@@ -103,8 +105,8 @@ export const usePoolHelpers = (input: string | undefined) => {
   /* check account token trade value */
   useEffect(() => {
     if (strategySeries && strategy?.accountBalance?.gt(ZERO_BN)) {
-      const [ _sellValue, _totalValue]  = checkPoolTrade(
-        strategy?.accountBalance,
+      const [_sellValue, _totalValue] = checkPoolTrade(
+        strategy?.accountBalance || ethers.constants.Zero,
         strategySeries.baseReserves,
         strategySeries.fyTokenReserves,
         strategySeries.totalSupply,
@@ -122,7 +124,9 @@ export const usePoolHelpers = (input: string | undefined) => {
     strategy &&
       strategySeries &&
       matchingVault &&
-      setMaxRemoveWithVault(ethers.utils.formatUnits(strategy?.accountBalance!, strategySeries.decimals));
+      setMaxRemoveWithVault(
+        ethers.utils.formatUnits(strategy?.accountBalance! || ethers.constants.Zero, strategySeries.decimals)
+      );
   }, [_input, matchingVault, strategy, strategySeries, vaultMap]);
 
   /* Check if can use 'buy and pool' method to get liquidity */
@@ -148,14 +152,13 @@ export const usePoolHelpers = (input: string | undefined) => {
       );
 
       /* check if buy and pool option is allowed */
-      const buyAndPoolAllowed = _fyTokenToBuy.gt(ethers.constants.Zero) && _fyTokenToBuy.lt(_maxFyTokenOut)
+      const buyAndPoolAllowed = _fyTokenToBuy.gt(ethers.constants.Zero) && _fyTokenToBuy.lt(_maxFyTokenOut);
 
-      console.log( 'fTokenToBuy, maxFyTokenOut ', _fyTokenToBuy.toString(),_maxFyTokenOut );
+      console.log('fTokenToBuy, maxFyTokenOut ', _fyTokenToBuy.toString(), _maxFyTokenOut);
       setCanBuyAndPool(buyAndPoolAllowed);
       console.log('Can BuyAndPool?', buyAndPoolAllowed);
-      console.log( 'fTokenToBuy: ', _fyTokenToBuy.toString());
-      console.log( 'maxFyTokenOut: ',_maxFyTokenOut.toString());
-      
+      console.log('fTokenToBuy: ', _fyTokenToBuy.toString());
+      console.log('maxFyTokenOut: ', _maxFyTokenOut.toString());
     } else {
       /* allowed by default */
       setCanBuyAndPool(false);
@@ -166,9 +169,9 @@ export const usePoolHelpers = (input: string | undefined) => {
   useEffect(() => {
     if (strategySeries && strategyBase && strategySeries) {
       const [, _fyTokenPortion] = splitLiquidity(
-        strategySeries?.baseReserves,
+        strategySeries?.baseReserves!,
         strategySeries?.fyTokenReserves,
-        strategy?.accountBalance! // _input
+        strategy?.accountBalance || ethers.constants.Zero // _input
       );
       const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
       const _matchingVault = arr.find(
