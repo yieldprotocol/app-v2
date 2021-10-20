@@ -1007,7 +1007,7 @@ export const calcPoolRatios = (
 
   console.log('ratio: ', toBn(ratio).toString());
 
-  // return [min, max];
-  return [toBn(ZERO), toBn(MAX) ]
+  return [min, max];
+  // return [toBn(ZERO), toBn(MAX) ]
 
 };
