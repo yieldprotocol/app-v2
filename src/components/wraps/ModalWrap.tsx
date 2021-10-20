@@ -65,11 +65,15 @@ function ModalWrap({ children, series }: IModalWrap) {
               <Box align="end" elevation="xsmall" round="xsmall" fill>
                 <Box>
                   <ItemWrap action={() => history.goBack()} index={1}>
-                    <Box direction="row" align="center" pad={{ vertical: 'xxsmall', horizontal: 'xsmall' }}>
-                      <Text size="small" color={_series?.oppStartColor || 'black'}>
-                        Close{' '}
-                      </Text>
-                      <Button icon={<FiLogOut color={_series?.oppStartColor || 'black'} />} />
+                    <Box direction="row" align="center">
+                      <Box pad="xsmall">
+                        <Text size="small" color={_series?.startColor || 'black'}>
+                          Close{' '}
+                        </Text>
+                      </Box>
+                      <Box pad="xsmall">
+                        <FiLogOut color={_series?.startColor || 'black'} />
+                      </Box>
                     </Box>
                   </ItemWrap>
                 </Box>
