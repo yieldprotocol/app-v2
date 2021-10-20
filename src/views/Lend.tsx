@@ -40,6 +40,7 @@ import LendItem from '../components/positionItems/LendItem';
 import InputInfoWrap from '../components/wraps/InputInfoWrap';
 import DashButton from '../components/buttons/DashButton';
 import DashMobileButton from '../components/buttons/DashMobileButton';
+import SeriesSelectorModal from '../components/selectors/SeriesSelectorModal';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -51,6 +52,7 @@ const Lend = () => {
   const selectedBase = assetMap.get(selectedBaseId!);
 
   /* LOCAL STATE */
+  const [modalOpen, toggleModal] = useState<boolean>(false);
   const [lendInput, setLendInput] = useState<string | undefined>(undefined);
   // const [maxLend, setMaxLend] = useState<string | undefined>();
   const [lendDisabled, setLendDisabled] = useState<boolean>(true);
@@ -82,10 +84,7 @@ const Lend = () => {
 
   /* ACTION DISABLING LOGIC  - if conditions are met: allow action */
   useEffect(() => {
-    activeAccount && 
-    lendInput && 
-    selectedSeries && 
-    !lendError ? setLendDisabled(false) : setLendDisabled(true);
+    activeAccount && lendInput && selectedSeries && !lendError ? setLendDisabled(false) : setLendDisabled(true);
     // setLendDisabled(false)
   }, [lendInput, activeAccount, lendError, selectedSeries]);
 
@@ -168,15 +167,24 @@ const Lend = () => {
                   </Box>
                 </SectionWrap>
 
-                <SectionWrap
-                  title={
-                    seriesMap.size > 0
-                      ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} maturity date`
-                      : ''
-                  }
-                >
-                  <SeriesSelector inputValue={lendInput} actionType={ActionType.LEND} />
-                </SectionWrap>
+                {mobile ? (
+                  <SeriesSelectorModal
+                    inputValue={lendInput!}
+                    actionType={ActionType.LEND}
+                    open={modalOpen}
+                    setOpen={toggleModal}
+                  />
+                ) : (
+                  <SectionWrap
+                    title={
+                      seriesMap.size > 0
+                        ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} maturity date`
+                        : ''
+                    }
+                  >
+                    <SeriesSelector inputValue={lendInput} actionType={ActionType.LEND} />
+                  </SectionWrap>
+                )}
               </Box>
             </Box>
           )}
