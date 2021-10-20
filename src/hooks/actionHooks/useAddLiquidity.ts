@@ -55,7 +55,7 @@ export const useAddLiquidity = () => {
       series.getTimeTillMaturity(),
       series.decimals
     );
-    const [minRatio, maxRatio] = calcPoolRatios(cachedBaseReserves, cachedFyTokenReserves, slippageTolerance);
+    const [minRatio, maxRatio] = calcPoolRatios(series.baseReserves, series.fyTokenRealReserves );
 
     const [ _baseToPool, _baseToFyToken ] = splitLiquidity(
       cachedBaseReserves,
@@ -75,6 +75,8 @@ export const useAddLiquidity = () => {
       '>> baseSplit: ',_baseToPool.toString(), 
       '>> fyTokenSplit: ',_baseToFyToken.toString(),
       '>> baseSplitWithSlippage: ', _baseToPoolWithSlippage.toString(),
+      '>> minRatio', minRatio.toString(),
+      '>> maxRatio', maxRatio.toString(),
     )
 
     const permits: ICallData[] = await sign(

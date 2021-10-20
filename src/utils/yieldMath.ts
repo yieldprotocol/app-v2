@@ -992,18 +992,20 @@ export const getPoolPercent = (input: BigNumber, strategyTotalSupply: BigNumber)
 export const calcPoolRatios = (
   baseReserves: BigNumber,
   fyTokenReserves: BigNumber,
-  slippage: number = 0.05
+  slippage: number = 0.15,
 ): [BigNumber, BigNumber] => {
   const baseReserves_ = new Decimal(baseReserves.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves.toString());
   const slippage_ = new Decimal(slippage.toString());
+  const wad = new Decimal(WAD_BN.toString());
+  
+  const ratio = (baseReserves_.div(fyTokenReserves_)).mul(wad)
+  const ratioSlippage = ratio.mul(slippage_);
 
-  // console.log(baseReserves_.toString(), fyTokenReserves_.toString());
-  const ratio = divDecimal(baseReserves, fyTokenReserves);
-  // console.log(ratio);
-  // const ratioSlippage = ratio.mul(slippage_);
-  // const min = ratio.sub(ratioSlippage);
-  // const max = ratio.add(ratioSlippage);
-  // console.log( ratio, min, max);
-  return [ZERO_BN, ethers.constants.MaxInt256];
+  const min = toBn( ratio.sub(ratioSlippage)) ;
+  const max = toBn ( ratio.add(ratioSlippage)) ;
+
+  console.log('ratio: ', toBn(ratio).toString());
+
+  return [min, max];
 };

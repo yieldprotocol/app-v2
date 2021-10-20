@@ -50,7 +50,7 @@ export const useRemoveLiquidity = () => {
     // Choose use use matching vault or not : matchign vaults is undefined or debt less than required fyToken
     const useMatchingVault: boolean = !!matchingVault && _fyTokenReceived.lte(matchingVaultDebt)
 
-    const [ minRatio, maxRatio ] = calcPoolRatios( series.baseReserves, series.fyTokenReserves, slippageTolerance )
+    const [ minRatio, maxRatio ] = calcPoolRatios( series.baseReserves, series.fyTokenReserves )
     const fyTokenReceivedGreaterThanDebt : boolean  = _fyTokenReceived.gt(matchingVaultDebt);
 
     console.log('Strategy: ', _strategy);

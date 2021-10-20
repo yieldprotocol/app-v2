@@ -71,8 +71,8 @@ export const useChain = () => {
     } catch (e) {
       gasEst = BigNumber.from('300000');
       console.log('Failed to get gas estimate', e);
+      // throw( Error('Transaction will always revert.'));
     }
-
     console.log('Auto gas estimate:', gasEst.mul(120).div(100).toString());
 
     /* Finally, send out the transaction */
