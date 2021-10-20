@@ -3,8 +3,9 @@ import { Box, Layer } from 'grommet';
 import { FiX } from 'react-icons/fi';
 import SeriesSelector from './SeriesSelector';
 import { ActionType } from '../../types';
+import StrategySelector from './StrategySelector';
 
-const SeriesSelectorModal = ({
+const SeriesOrStrategySelectorModal = ({
   inputValue,
   actionType,
   open,
@@ -27,15 +28,19 @@ const SeriesSelectorModal = ({
           <Box alignSelf="end" onClick={() => setOpen(false)} pad="xsmall">
             <FiX size="1.5rem" />
           </Box>
-          <SeriesSelector inputValue={inputValue} actionType={actionType} setOpen={setOpen} />
+          {actionType === ActionType.POOL ? (
+            <StrategySelector inputValue={inputValue} setOpen={setOpen} />
+          ) : (
+            <SeriesSelector inputValue={inputValue} actionType={actionType} setOpen={setOpen} />
+          )}
         </Box>
       </Layer>
     )}
   </>
 );
 
-SeriesSelectorModal.defaultProps = {
+SeriesOrStrategySelectorModal.defaultProps = {
   setOpen: () => null,
 };
 
-export default SeriesSelectorModal;
+export default SeriesOrStrategySelectorModal;

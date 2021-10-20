@@ -40,7 +40,7 @@ import LendItem from '../components/positionItems/LendItem';
 import InputInfoWrap from '../components/wraps/InputInfoWrap';
 import DashButton from '../components/buttons/DashButton';
 import DashMobileButton from '../components/buttons/DashMobileButton';
-import SeriesSelectorModal from '../components/selectors/SeriesSelectorModal';
+import SeriesOrStrategySelectorModal from '../components/selectors/SeriesOrStrategySelectorModal';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -168,7 +168,7 @@ const Lend = () => {
                 </SectionWrap>
 
                 {mobile ? (
-                  <SeriesSelectorModal
+                  <SeriesOrStrategySelectorModal
                     inputValue={lendInput!}
                     actionType={ActionType.LEND}
                     open={modalOpen}

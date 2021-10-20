@@ -43,7 +43,7 @@ import { useProcess } from '../hooks/useProcess';
 import { ChainContext } from '../contexts/ChainContext';
 import DummyVaultItem from '../components/positionItems/DummyVaultItem';
 import DashMobileButton from '../components/buttons/DashMobileButton';
-import SeriesSelectorModal from '../components/selectors/SeriesSelectorModal';
+import SeriesOrStrategySelectorModal from '../components/selectors/SeriesOrStrategySelectorModal';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -246,7 +246,7 @@ const Borrow = () => {
                 </SectionWrap>
 
                 {mobile ? (
-                  <SeriesSelectorModal
+                  <SeriesOrStrategySelectorModal
                     inputValue={borrowInput}
                     actionType={ActionType.BORROW}
                     open={modalOpen}
