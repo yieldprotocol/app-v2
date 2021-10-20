@@ -436,16 +436,21 @@ const VaultPosition = () => {
                           actionType={ActionType.BORROW}
                           cardLayout={false}
                         />
+                        { rollToSeries &&
                         <Box fill="horizontal">
-                          {rollToSeries && (
+                          {rollPossible ?
                             <InputInfoWrap>
                               <Text color="text-weak" size="xsmall">
-                                Debt of {cleanValue(maxRoll_, 2)} {vaultBase?.symbol} will be rolled
-                                {userBaseAvailable.lt(maxRoll) ? '.' : ' (limited by protocol reserves).'}
+                                All debt {cleanValue(maxRoll_, 2)} {vaultBase?.symbol} can be rolled.
                               </Text>
                             </InputInfoWrap>
-                          )}
-                        </Box>
+                            :
+                            <InputInfoWrap>
+                              <Text color="text-weak" size="xsmall">
+                                It is not currently possible to roll debt to this series.
+                              </Text>
+                            </InputInfoWrap>}
+                        </Box>}
                       </Box>
                     )}
 

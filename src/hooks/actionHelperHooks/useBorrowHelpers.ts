@@ -4,7 +4,7 @@ import { UserContext } from '../../contexts/UserContext';
 import { IVault, ISeries, IAsset } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 
-import { maxBaseIn, sellBase } from '../../utils/yieldMath';
+import { maxBaseIn, maxFyTokenIn, sellBase } from '../../utils/yieldMath';
 
 /* Collateralization hook calculates collateralization metrics */
 export const useBorrowHelpers = (
@@ -90,14 +90,25 @@ export const useBorrowHelpers = (
     }
   }, [input, futureSeries]);
 
-  /* Check if the rollToSeries have sufficient base value */
+  /* Check if the rollToSeries have sufficient base value AND won't be undercollaterallised */
   useEffect(() => {
     if (futureSeries && vault) {
-      setMaxRoll(futureSeries.baseReserves);
-      setMaxRoll_(ethers.utils.formatUnits(futureSeries.baseReserves, futureSeries.decimals).toString());
-      setRollPossible(vault.art?.lt(futureSeries.baseReserves));
 
-      if (vault.art?.lt(futureSeries.baseReserves)) {
+      const _maxFyTokenIn  = maxFyTokenIn(
+        futureSeries.baseReserves,
+        futureSeries.fyTokenReserves,
+        futureSeries.getTimeTillMaturity(),
+        futureSeries.decimals
+      )
+      setMaxRoll(_maxFyTokenIn);
+      setMaxRoll_(ethers.utils.formatUnits(_maxFyTokenIn, futureSeries.decimals).toString());
+
+      // console.log(_maxFyTokenIn.toString() )
+      // console.log(vault.art.toString() )
+      console.log('Roll possible: ', vault.art.lt(_maxFyTokenIn))
+      setRollPossible(vault.art.lt(_maxFyTokenIn));
+
+      if (vault.art?.lt(_maxFyTokenIn)) {
         setMaxRoll(vault.art);
         setMaxRoll_(ethers.utils.formatUnits(vault.art, futureSeries.decimals).toString());
       }
