@@ -58,34 +58,15 @@ function ModalWrap({ children, series }: IModalWrap) {
           <Header
             pad="large"
             height={mobile ? undefined : 'xsmall'}
-            justify="between"
             fill="horizontal"
             style={{ position: 'fixed', top: '0px' }}
           >
-            <Grid columns={['medium', 'flex', 'medium']} fill="horizontal">
-              <Box direction="row" gap={mobile ? '0.25em' : 'medium'} align="center">
-                {/* <Avatar>
-                  <NavLink to={`/${prevLoc}`}>
-                    <YieldMark
-                      height={mobile ? '1rem' : '1.75rem'}
-                      colors ={[ _series?.oppStartColor,_series?.oppEndColor]}
-                    />
-                  </NavLink>
-                  <Box />
-                </Avatar> */}
-              </Box>
-              <Box />
-            </Grid>
-          </Header>
-
-          <Box flex={!mobile} overflow="auto" margin={mobile ? {} : { top: 'xlarge' }} >
-            <MainViewWrap pad={mobile ? 'medium' : 'large'} >
-              <PanelWrap>
-                <Box />
-              </PanelWrap>
-
-              <Box width="600px" pad={{ top: 'large' }}>
-                <Box align="end">
+              <Box 
+                align='end' 
+                elevation='xsmall' 
+                round='xsmall' 
+                fill
+              >
                   <StyledBox direction="row" align="center" onClick={() => history.goBack()}>
                     <Text size="small" color={_series?.oppStartColor || 'black'}>
                       {' '}
@@ -94,7 +75,15 @@ function ModalWrap({ children, series }: IModalWrap) {
                     <Button icon={<FiLogOut color={_series?.oppStartColor || 'black'} />} />
                   </StyledBox>
                 </Box>
+          </Header>
 
+          <Box flex={!mobile} overflow="auto" >
+            <MainViewWrap pad={mobile ? 'medium' : 'large'} >
+              <PanelWrap>
+                <Box />
+              </PanelWrap>
+
+              <Box width="600px" pad={{ top: '5%' }}>
                 {children}
               </Box>
 
