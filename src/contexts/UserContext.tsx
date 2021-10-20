@@ -387,6 +387,7 @@ const UserProvider = ({ children }: any) => {
           return {
             ...series,
             baseReserves,
+            baseReserves_: ethers.utils.formatUnits(baseReserves, series.decimals),
             fyTokenReserves,
             fyTokenRealReserves,
             totalSupply,

@@ -82,10 +82,7 @@ const Lend = () => {
 
   /* ACTION DISABLING LOGIC  - if conditions are met: allow action */
   useEffect(() => {
-    activeAccount && 
-    lendInput && 
-    selectedSeries && 
-    !lendError ? setLendDisabled(false) : setLendDisabled(true);
+    activeAccount && lendInput && selectedSeries && !lendError ? setLendDisabled(false) : setLendDisabled(true);
     // setLendDisabled(false)
   }, [lendInput, activeAccount, lendError, selectedSeries]);
 
@@ -131,18 +128,18 @@ const Lend = () => {
                         isError={lendError}
                         disabled={selectedSeries?.seriesIsMature}
                         message={
-                          selectedSeries && (
+                          selectedSeries && userBaseAvailable.gt(protocolBaseIn) ? (
                             <InputInfoWrap action={() => setLendInput(maxLend_)}>
                               <Text size="xsmall" color="text-weak">
                                 Max lend is{' '}
                                 <Text size="small" color="text-weak">
                                   {cleanValue(maxLend_, 2)} {selectedBase?.symbol}
                                 </Text>{' '}
-                                {userBaseAvailable.lt(protocolBaseIn)
-                                  ? ' (your token balance)'
-                                  : ' (limited by protocol liquidity)'}
+                                (limited by protocol liquidity)
                               </Text>
                             </InputInfoWrap>
+                          ) : (
+                            <></>
                           )
                         }
                       >

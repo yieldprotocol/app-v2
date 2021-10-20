@@ -79,7 +79,7 @@ const Borrow = () => {
   const { collateralizationPercent, undercollateralized, minCollateral_, minSafeCollateral, maxCollateral } =
     useCollateralHelpers(borrowInput, collatInput, vaultToUse);
 
-  const { maxAllowedBorrow, minAllowedBorrow, borrowEstimate_ } = useBorrowHelpers(
+  const { maxAllowedBorrow, minAllowedBorrow, borrowPossible, borrowEstimate_ } = useBorrowHelpers(
     borrowInput,
     collatInput,
     vaultToUse,
@@ -217,14 +217,27 @@ const Borrow = () => {
                         action={() => console.log('maxAction')}
                         isError={borrowInputError}
                         message={
-                          borrowInput && (
-                            <InputInfoWrap>
-                              <Text size="small" color="text-weak">
-                                Requires equivalent of {cleanValue(minCollateral_, selectedIlk?.digitFormat)}{' '}
-                                {selectedIlk?.symbol} collateral
-                              </Text>
-                            </InputInfoWrap>
-                          )
+                          <>
+                            {borrowInput && !borrowPossible && selectedSeries && (
+                              <InputInfoWrap action={() => setBorrowInput(selectedSeries?.baseReserves_!)}>
+                                <Text size="xsmall" color="text-weak">
+                                  Max borrow is{' '}
+                                  <Text size="small" color="text-weak">
+                                    {cleanValue(selectedSeries?.baseReserves_!, 2)} {selectedBase?.symbol}
+                                  </Text>{' '}
+                                  (limited by protocol liquidity)
+                                </Text>
+                              </InputInfoWrap>
+                            )}
+                            {borrowInput && borrowPossible && selectedSeries && (
+                              <InputInfoWrap>
+                                <Text size="small" color="text-weak">
+                                  Requires equivalent of {cleanValue(minCollateral_, selectedIlk?.digitFormat)}{' '}
+                                  {selectedIlk?.symbol} collateral
+                                </Text>
+                              </InputInfoWrap>
+                            )}
+                          </>
                         }
                       >
                         <TextInput
@@ -366,7 +379,7 @@ const Borrow = () => {
                     <InfoBite
                       label="Vault Debt Payable @ Maturity"
                       icon={<FiTrendingUp />}
-                      value={`${cleanValue(borrowEstimate_, selectedBase?.digitFormat! )} ${selectedBase?.symbol}`}
+                      value={`${cleanValue(borrowEstimate_, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
                     />
                     <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
                     <InfoBite
