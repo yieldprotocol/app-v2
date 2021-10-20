@@ -643,7 +643,7 @@ export function fyTokenForMint(
   base: BigNumber | string,
   timeTillMaturity: BigNumber | string,
   decimals: number,
-  slippage: number = 0.1 // 10% default
+  slippage: number = 0.01 // 1% default
 ): BigNumber {
   /* convert to 18 decimals */
   const baseReserves18 = decimalNToDecimal18(BigNumber.from(baseReserves), decimals);
@@ -656,7 +656,7 @@ export function fyTokenForMint(
   const fyDaiRealReserves_ = new Decimal(fyTokenRealReserves18.toString());
   const base_ = new Decimal(base18.toString());
   const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
-  const slippage_ = new Decimal(slippage);
+  const slippage_ = new Decimal(slippage).mul(new Decimal(10)); /* multiply the user slippage by 10 */
 
   let min = ZERO;
   let max = base_.mul(TWO);
@@ -689,7 +689,7 @@ export function fyTokenForMint(
 
     const slippageAllowance = PZ.mul(slippage_) // PZ with slippage
     const PZ_min =  PZ.add(slippageAllowance)  // should be 100% (PZ) + slippage
-    const PZ_max =  PZ.mul(new Decimal(1.00001)).add(slippageAllowance)  // should be 100.01% () + slippage
+    const PZ_max =  PZ.add(slippageAllowance).mul(new Decimal(1.00001))  // should be 100.01% () + slippage
 
     // The base proportion in my assets needs to be higher than but very close to the
     // base proportion in the balances, to make sure all the fyToken is used.
