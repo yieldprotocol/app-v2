@@ -13,6 +13,7 @@ import { useCachedState } from '../../hooks/generalHooks';
 import { ISeries } from '../../types';
 import YieldHeader from '../YieldHeader';
 import MenuLayer from '../../layers/MenuLayer';
+import ItemWrap from './ItemWrap';
 
 interface IModalWrap {
   children: any;
@@ -24,11 +25,11 @@ const StyledBox = styled(Box)`
 -moz-transition: transform 0.3s ease-in-out;
 transition: transform 0.3s ease-in-out;
 background 0.3s ease-in-out;
+background-color: white;
 :hover {
   transform: scale(1.1);
 }
 `;
-
 
 function ModalWrap({ children, series }: IModalWrap) {
   const history = useHistory();
@@ -45,63 +46,61 @@ function ModalWrap({ children, series }: IModalWrap) {
   const [menuLayerOpen, setMenuLayerOpen] = useState<boolean>(false);
 
   return (
-    <Keyboard onEsc={()=> history.goBack()}>
-    <Layer
-      full
-      background={`linear-gradient( 45deg ,  ${_series?.startColor?.toString().concat('80')} , ${_series?.endColor
-        ?.toString()
-        .concat('80')} )`}
-      animation="fadeIn"
-    >
-      {!mobile && (
-        <>
-          <Header
-            pad="large"
-            height={mobile ? undefined : 'xsmall'}
-            fill="horizontal"
-            style={{ position: 'fixed', top: '0px' }}
-          >
-              <Box 
-                align='end' 
-                elevation='xsmall' 
-                round='xsmall' 
-                fill
-              >
-                  <StyledBox direction="row" align="center" onClick={() => history.goBack()}>
-                    <Text size="small" color={_series?.oppStartColor || 'black'}>
-                      {' '}
-                      Close{' '}
-                    </Text>
-                    <Button icon={<FiLogOut color={_series?.oppStartColor || 'black'} />} />
-                  </StyledBox>
+    <Keyboard onEsc={() => history.goBack()}>
+      <Layer
+        full
+        background={`linear-gradient( 45deg ,  ${_series?.startColor?.toString().concat('80')} , ${_series?.endColor
+          ?.toString()
+          .concat('80')} )`}
+        animation="fadeIn"
+      >
+        {!mobile && (
+          <>
+            <Header
+              pad="large"
+              height={mobile ? undefined : 'xsmall'}
+              fill="horizontal"
+              style={{ position: 'fixed', top: '0px' }}
+            >
+              <Box align="end" elevation="xsmall" round="xsmall" fill>
+                <Box>
+                  <ItemWrap action={() => history.goBack()} index={1}>
+                    <Box direction="row" align="center" pad={{ vertical: 'xxsmall', horizontal: 'xsmall' }}>
+                      <Text size="small" color={_series?.oppStartColor || 'black'}>
+                        Close{' '}
+                      </Text>
+                      <Button icon={<FiLogOut color={_series?.oppStartColor || 'black'} />} />
+                    </Box>
+                  </ItemWrap>
                 </Box>
-          </Header>
-
-          <Box flex={!mobile} overflow="auto" >
-            <MainViewWrap pad={mobile ? 'medium' : 'large'} >
-              <PanelWrap>
-                <Box />
-              </PanelWrap>
-
-              <Box width="600px" pad={{ top: '5%' }}>
-                {children}
               </Box>
+            </Header>
 
-              <PanelWrap >
-                <Box />
-              </PanelWrap>
-            </MainViewWrap>
+            <Box flex={!mobile} overflow="auto">
+              <MainViewWrap pad={mobile ? 'medium' : 'large'}>
+                <PanelWrap>
+                  <Box />
+                </PanelWrap>
+
+                <Box width="600px" pad={{ top: '5%' }}>
+                  {children}
+                </Box>
+
+                <PanelWrap>
+                  <Box />
+                </PanelWrap>
+              </MainViewWrap>
+            </Box>
+          </>
+        )}
+
+        {mobile && (
+          <Box>
+            <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
+            {menuLayerOpen ? <MenuLayer toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} /> : children}
           </Box>
-        </>
-      )}
-
-      {mobile && (
-        <Box>
-          <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
-          {menuLayerOpen ? <MenuLayer toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} /> : children}
-        </Box>
-      )}
-    </Layer>
+        )}
+      </Layer>
     </Keyboard>
   );
 }
