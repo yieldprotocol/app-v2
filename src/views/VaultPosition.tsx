@@ -474,7 +474,6 @@ const VaultPosition = () => {
                   <>
                     {stepPosition[actionActive.index] === 0 && (
                       <Box margin={{ top: 'medium' }}>
-                        <Box direction="row" gap="small">
                           <InputWrap
                             action={() => console.log('maxAction')}
                             isError={addCollatError}
@@ -510,7 +509,6 @@ const VaultPosition = () => {
                               showingMax={!!addCollatInput && addCollatInput === maxCollateral}
                             />
                           </InputWrap>
-                        </Box>
                       </Box>
                     )}
 
