@@ -24,15 +24,17 @@ const SeriesOrStrategySelectorModal = ({
     )}
     {open && (
       <Layer>
-        <Box gap="small" pad="medium">
+        <Box gap="small" pad="medium" fill>
           <Box alignSelf="end" onClick={() => setOpen(false)} pad="xsmall">
             <FiX size="1.5rem" />
           </Box>
-          {actionType === ActionType.POOL ? (
-            <StrategySelector inputValue={inputValue} setOpen={setOpen} />
-          ) : (
-            <SeriesSelector inputValue={inputValue} actionType={actionType} setOpen={setOpen} />
-          )}
+          <Box justify="center" fill>
+            {actionType === ActionType.POOL ? (
+              <StrategySelector inputValue={inputValue} setOpen={setOpen} />
+            ) : (
+              <SeriesSelector inputValue={inputValue} actionType={actionType} setOpen={setOpen} />
+            )}
+          </Box>
         </Box>
       </Layer>
     )}
