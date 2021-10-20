@@ -55,7 +55,7 @@ export const useAddLiquidity = () => {
       series.getTimeTillMaturity(),
       series.decimals
     );
-    const [minRatio, maxRatio] = calcPoolRatios(series.baseReserves, series.fyTokenRealReserves,  );
+    const [minRatio, maxRatio] = calcPoolRatios(series.baseReserves, series.fyTokenRealReserves);
 
     const [ _baseToPool, _baseToFyToken ] = splitLiquidity(
       cachedBaseReserves,
