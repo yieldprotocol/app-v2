@@ -39,6 +39,9 @@ export const useRemoveLiquidity = () => {
     const _strategy = strategyMap.get(selectedStrategyAddr);
     const lpReceived = burnFromStrategy(_strategy.poolTotalSupply!, _strategy.strategyTotalSupply!, _input);
 
+    const [cachedBaseReserves, cachedFyTokenReserves] = await series.poolContract.getCache();
+    const cachedRealReserves = cachedFyTokenReserves.sub(series.totalSupply);
+
     const [_baseTokenReceived, _fyTokenReceived] = burn(
       series.baseReserves,
       series.fyTokenReserves,
@@ -51,7 +54,7 @@ export const useRemoveLiquidity = () => {
     // Choose use use matching vault or not : matchign vaults is undefined or debt less than required fyToken
     const useMatchingVault: boolean = !!matchingVault && _fyTokenReceived.lte(matchingVaultDebt);
 
-    const [minRatio, maxRatio] = calcPoolRatios(series.baseReserves, series.fyTokenReserves);
+    const [minRatio, maxRatio] = calcPoolRatios(cachedBaseReserves, cachedRealReserves);
     const fyTokenReceivedGreaterThanDebt: boolean = _fyTokenReceived.gt(matchingVaultDebt);
 
     console.log('Strategy: ', _strategy);

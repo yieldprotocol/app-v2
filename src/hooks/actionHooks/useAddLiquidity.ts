@@ -56,7 +56,8 @@ export const useAddLiquidity = () => {
       series.decimals,
       slippageTolerance,
     );
-    const [minRatio, maxRatio] = calcPoolRatios(series.baseReserves, series.fyTokenRealReserves);
+
+    const [minRatio, maxRatio] = calcPoolRatios(cachedBaseReserves, cachedRealReserves,);
 
     const [_baseToPool, _baseToFyToken] = splitLiquidity(
       cachedBaseReserves,
