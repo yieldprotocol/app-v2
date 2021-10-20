@@ -318,8 +318,8 @@ const PoolPosition = () => {
                   onClick={() => handleStepper()}
                   key="next"
                   disabled={
-                    actionActive.index === 0 && removeDisabled && (!fyTokenTradePossible || selectedSeries?.isMature())
-                    // (!fyTokenTradePossible && selectedSeries?.isMature())
+                    (actionActive.index === 0 && removeDisabled) ||
+                    (!fyTokenTradePossible && selectedSeries?.isMature())
                   }
                   errorLabel={actionActive.index === 0 && removeError}
                 />
