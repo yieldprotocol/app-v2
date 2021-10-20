@@ -218,7 +218,7 @@ const Borrow = () => {
                         isError={borrowInputError}
                         message={
                           <>
-                            {borrowInput && !borrowPossible && (
+                            {borrowInput && !borrowPossible && selectedSeries && (
                               <InputInfoWrap action={() => setBorrowInput(selectedSeries?.baseReserves_!)}>
                                 <Text size="xsmall" color="text-weak">
                                   Max borrow is{' '}
@@ -229,7 +229,7 @@ const Borrow = () => {
                                 </Text>
                               </InputInfoWrap>
                             )}
-                            {borrowInput && borrowPossible && (
+                            {borrowInput && borrowPossible && selectedSeries && (
                               <InputInfoWrap>
                                 <Text size="small" color="text-weak">
                                   Requires equivalent of {cleanValue(minCollateral_, selectedIlk?.digitFormat)}{' '}
