@@ -641,7 +641,8 @@ export function fyTokenForMint(
   fyTokenVirtualReserves: BigNumber | string,
   base: BigNumber | string,
   timeTillMaturity: BigNumber | string,
-  decimals: number
+  decimals: number,
+  slippage: number = 0.01 // 1% default
 ): BigNumber {
   /* convert to 18 decimals */
   const baseReserves18 = decimalNToDecimal18(BigNumber.from(baseReserves), decimals);
@@ -649,10 +650,12 @@ export function fyTokenForMint(
   const fyTokenVirtualReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenVirtualReserves), decimals);
   const base18 = decimalNToDecimal18(BigNumber.from(base), decimals);
 
+
   const baseReserves_ = new Decimal(baseReserves18.toString());
   const fyDaiRealReserves_ = new Decimal(fyTokenRealReserves18.toString());
   const base_ = new Decimal(base18.toString());
   const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
+  const slippage_ = new Decimal(slippage).mul(new Decimal(10)); /* multiply the user slippage by 10 */
 
   let min = ZERO;
   let max = base_.mul(TWO);
@@ -682,23 +685,16 @@ export function fyTokenForMint(
     const pz = z_1.div(z_1.add(y_1)); // base proportion in my assets
     const PZ = Z_1.div(Z_1.add(Y_1)); // base proportion in the balances
 
-    // Targeting between 0.001% and 0.002% slippage (surplus)
-    // Lower both if getting "Not enough base in" errors. That means that
-    // the calculation that was done off-chain was stale when the actual mint happened.
-    // It might be reasonable to set `minTarget` to half the slippage, and `maxTarget`
-    // to the slippage. That would also mean that the algorithm would aim to waste at
-    // least half the slippage allowed.
-    // For large trades, it would make sense to append a `retrieveBase` action at the
-    // end of the batch.
-    const minTarget = new Decimal(1.00001); // Consider making this a parameter
-    const maxTarget = new Decimal(1.00002); // Consider making this a parameter
+    const slippageAllowance = PZ.mul(slippage_) // PZ with slippage
+    const PZ_min =  PZ.add(slippageAllowance)  // should be 100% (PZ) + slippage
+    const PZ_max =  PZ.add(slippageAllowance).mul(new Decimal(1.00001))  // should be 100.01% () + slippage
 
     // The base proportion in my assets needs to be higher than but very close to the
     // base proportion in the balances, to make sure all the fyToken is used.
     // eslint-disable-next-line no-plusplus
-    if (PZ.mul(maxTarget) > pz && PZ.mul(minTarget) < pz) {
+    if (PZ_max > pz && PZ_min < pz) {
       break; // Too many iterations, or found the result
-    } else if (PZ.mul(maxTarget) <= pz) {
+    } else if (PZ_max <= pz) {
       min = yOut;
       yOut = yOut.add(max).div(TWO); // bought too little fyToken, buy some more
     } else {

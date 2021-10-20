@@ -18,6 +18,7 @@ export const usePoolHelpers = (input: string | undefined) => {
       vaultMap,
       assetMap,
       activeAccount,
+      slippageTolerance
     },
   } = useContext(UserContext);
 
@@ -142,7 +143,8 @@ export const usePoolHelpers = (input: string | undefined) => {
         strategySeries.fyTokenReserves,
         _input,
         strategySeries.getTimeTillMaturity(),
-        strategySeries.decimals
+        strategySeries.decimals, 
+        slippageTolerance, 
       );
 
       /* check if buy and pool option is allowed */

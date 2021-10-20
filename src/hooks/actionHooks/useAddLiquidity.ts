@@ -53,7 +53,8 @@ export const useAddLiquidity = () => {
       cachedFyTokenReserves,
       _inputLessSlippage,
       series.getTimeTillMaturity(),
-      series.decimals
+      series.decimals,
+      slippageTolerance,
     );
     const [minRatio, maxRatio] = calcPoolRatios(series.baseReserves, series.fyTokenRealReserves);
 
