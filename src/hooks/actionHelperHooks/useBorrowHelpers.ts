@@ -46,11 +46,18 @@ export const useBorrowHelpers = (
 
   /* Update the borrow limits if ilk or base changes */
   useEffect(() => {
-    if (limitMap.get(selectedBaseId)?.has(selectedIlkId)) {
+    if (limitMap.get(selectedBaseId)?.has(selectedIlkId!)) {
       const _limit = limitMap.get(selectedBaseId).get(selectedIlkId); // get the limit from the map
-      setMinAllowedBorrow(_limit[1].toString());
-      setMaxAllowedBorrow(_limit[0].toString());
-      console.log('Cached:', 'MIN LIMIT:', _limit[1].toString(), 'MAX LIMIT:', _limit[0].toString());
+      console.log('limit', _limit);
+      _limit[1] && setMinAllowedBorrow(_limit[1].toString());
+      _limit[0] && setMaxAllowedBorrow(_limit[0].toString());
+      console.log(
+        'Cached:',
+        'MIN LIMIT:',
+        _limit[1] && _limit[1].toString(),
+        'MAX LIMIT:',
+        _limit[0] && _limit[0].toString()
+      );
     } else {
       (async () => {
         if (selectedIlkId && selectedBaseId) {

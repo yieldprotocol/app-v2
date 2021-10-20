@@ -38,7 +38,7 @@ export const useCollateralHelpers = (
 
   /* update the prices if anything changes */
   useEffect(() => {
-    if (priceMap.get(selectedIlkId)?.has(selectedBaseId)) {
+    if (priceMap.get(selectedIlkId)?.has(selectedBaseId!)) {
       const _price = priceMap.get(selectedIlkId).get(selectedBaseId); // get the price
       setOraclePrice(decimalNToDecimal18(_price, base?.decimals)); // make sure the price is 18decimals based
     } else {
