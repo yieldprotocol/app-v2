@@ -11,7 +11,7 @@ import InfoBite from '../components/InfoBite';
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
 import { UserContext } from '../contexts/UserContext';
-import { ActionCodes, AddLiquidityType, IUserContext, ProcessStage, TxState } from '../types';
+import { ActionCodes, ActionType, AddLiquidityType, IUserContext, ProcessStage, TxState } from '../types';
 import MaxButton from '../components/buttons/MaxButton';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
@@ -31,6 +31,7 @@ import { usePoolHelpers } from '../hooks/actionHelperHooks/usePoolHelpers';
 import { useProcess } from '../hooks/useProcess';
 import StrategyItem from '../components/positionItems/StrategyItem';
 import DashMobileButton from '../components/buttons/DashMobileButton';
+import SeriesOrStrategySelectorModal from '../components/selectors/SeriesOrStrategySelectorModal';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -42,6 +43,7 @@ function Pool() {
   const selectedStrategy = strategyMap.get(selectedStrategyAddr!);
 
   /* LOCAL STATE */
+  const [modalOpen, toggleModal] = useState<boolean>(false);
   const [poolInput, setPoolInput] = useState<string | undefined>(undefined);
   const [poolDisabled, setPoolDisabled] = useState<boolean>(true);
   const [poolMethod, setPoolMethod] = useState<AddLiquidityType>(AddLiquidityType.BUY); // BUY default
@@ -146,13 +148,22 @@ function Pool() {
                   </Box>
                 </SectionWrap>
 
-                <SectionWrap
-                  title={
-                    strategyMap.size > 0 ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} strategy` : ''
-                  }
-                >
-                  <StrategySelector inputValue={poolInput} />
-                </SectionWrap>
+                {mobile ? (
+                  <SeriesOrStrategySelectorModal
+                    inputValue={poolInput!}
+                    actionType={ActionType.POOL}
+                    open={modalOpen}
+                    setOpen={toggleModal}
+                  />
+                ) : (
+                  <SectionWrap
+                    title={
+                      strategyMap.size > 0 ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} strategy` : ''
+                    }
+                  >
+                    <StrategySelector inputValue={poolInput} />
+                  </SectionWrap>
+                )}
               </Box>
             </Box>
           )}
