@@ -70,7 +70,8 @@ export const getSeason = (dateInSecs: number): SeasonType => {
 export const cleanValue = (input: string | undefined, decimals: number = 18) => {
   const re = new RegExp(`(\\d+\\.\\d{${decimals}})(\\d)`);
   if (input !== undefined) {
-    const inpu = input?.match(re); // inpu = truncated 'input'... get it?
+    const input_ = input![0] === '.' ? '0'.concat(input!) : input; 
+    const inpu = input_?.match(re); // inpu = truncated 'input'... get it?
     if (inpu) {
       return inpu[1];
     }

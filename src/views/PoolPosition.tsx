@@ -277,7 +277,9 @@ const PoolPosition = () => {
                             type="number"
                             placeholder="Tokens to remove"
                             value={removeInput || ''}
-                            onChange={(event: any) => setRemoveInput(cleanValue(event.target.value))}
+                            onChange={(event: any) =>
+                              setRemoveInput(cleanValue(event.target.value, selectedSeries?.decimals))
+                            }
                           />
                           <MaxButton
                             action={() => setRemoveInput(maxRemove)}
