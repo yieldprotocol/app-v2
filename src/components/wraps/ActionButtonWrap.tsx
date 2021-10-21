@@ -24,15 +24,7 @@ function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
       fill="horizontal"
       pad={pad ? { horizontal: 'large', vertical: 'medium', bottom: 'large' } : undefined}
     >
-      {account ? (
-        children
-      ) : (
-        <Button
-          secondary
-          label={<Text size={mobile ? 'small' : undefined}> Connect Wallet </Text>}
-          onClick={() => connect()}
-        />
-      )}
+      {children}
     </Box>
   );
 }
