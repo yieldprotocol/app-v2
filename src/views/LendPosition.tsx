@@ -242,7 +242,9 @@ const LendPosition = () => {
                             type="number"
                             placeholder="Amount to redeem"
                             value={closeInput || ''}
-                            onChange={(event: any) => setCloseInput(cleanValue(event.target.value))}
+                            onChange={(event: any) =>
+                              setCloseInput(cleanValue(event.target.value, selectedSeries.decimals))
+                            }
                             disabled={!selectedSeries}
                             icon={<>{selectedBase?.image}</>}
                           />
@@ -287,7 +289,9 @@ const LendPosition = () => {
                             type="number"
                             placeholder={`Amount of ${selectedBase?.symbol} to roll`}
                             value={rollInput || ''}
-                            onChange={(event: any) => setRollInput(cleanValue(event.target.value))}
+                            onChange={(event: any) =>
+                              setRollInput(cleanValue(event.target.value, selectedSeries.decimals))
+                            }
                             disabled={!selectedSeries}
                             icon={<>{selectedBase?.image}</>}
                           />
