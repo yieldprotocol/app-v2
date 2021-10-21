@@ -245,7 +245,9 @@ const Borrow = () => {
                           type="number"
                           placeholder="Enter amount"
                           value={borrowInput}
-                          onChange={(event: any) => setBorrowInput(cleanValue(event.target.value))}
+                          onChange={(event: any) =>
+                            setBorrowInput(cleanValue(event.target.value, selectedSeries?.decimals))
+                          }
                           autoFocus={!mobile}
                         />
                       </InputWrap>
@@ -305,7 +307,9 @@ const Borrow = () => {
                           message={
                             borrowInput &&
                             minSafeCollateral && (
-                              <InputInfoWrap action={() => setCollatInput(cleanValue(minSafeCollateral, 12))}>
+                              <InputInfoWrap
+                                action={() => setCollatInput(cleanValue(minSafeCollateral, selectedIlk?.decimals))}
+                              >
                                 <Text size="small" color="text-weak">
                                   Use Safe Minimum{': '}
                                   {cleanValue(minSafeCollateral, selectedIlk?.digitFormat)} {selectedIlk?.symbol}
@@ -320,7 +324,9 @@ const Borrow = () => {
                             placeholder="Enter amount"
                             // ref={(el:any) => { el && el.focus(); }}
                             value={collatInput}
-                            onChange={(event: any) => setCollatInput(cleanValue(event.target.value))}
+                            onChange={(event: any) =>
+                              setCollatInput(cleanValue(event.target.value, selectedIlk?.decimals))
+                            }
                             disabled={!selectedSeries || selectedSeries.seriesIsMature}
                           />
                           <MaxButton
