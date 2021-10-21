@@ -478,9 +478,11 @@ const Borrow = () => {
           </Box>
         </CenterPanelWrap>
 
-        <PanelWrap right basis="40%">
-          {!mobile && <VaultSelector />}
-        </PanelWrap>
+        {!mobile && (
+          <PanelWrap right basis="40%">
+            <VaultSelector />
+          </PanelWrap>
+        )}
       </MainViewWrap>
     </Keyboard>
   );

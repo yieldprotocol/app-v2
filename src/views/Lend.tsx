@@ -282,9 +282,11 @@ const Lend = () => {
         </ActionButtonGroup>
       </CenterPanelWrap>
 
-      <PanelWrap right basis="40%">
-        {!mobile && <PositionSelector actionType={ActionType.LEND} />}
-      </PanelWrap>
+      {!mobile && (
+        <PanelWrap right basis="40%">
+          <PositionSelector actionType={ActionType.LEND} />
+        </PanelWrap>
+      )}
     </MainViewWrap>
   );
 };

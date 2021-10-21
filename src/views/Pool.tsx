@@ -293,10 +293,12 @@ function Pool() {
         </ActionButtonGroup>
       </CenterPanelWrap>
 
-      <PanelWrap right basis="40%">
-        {/* <YieldLiquidity input={poolInput} /> */}
-        {!mobile && <StrategyPositionSelector />}
-      </PanelWrap>
+      {!mobile && (
+        <PanelWrap right basis="40%">
+          {/* <YieldLiquidity input={poolInput} /> */}
+          <StrategyPositionSelector />
+        </PanelWrap>
+      )}
     </MainViewWrap>
   );
 }
