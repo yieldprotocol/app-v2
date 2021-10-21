@@ -2,11 +2,7 @@ import { Anchor, Box, ResponsiveContext, Text } from 'grommet';
 import { useLocation } from 'react-router-dom';
 
 import React, { useContext, useEffect, useState } from 'react';
-import {
-  FiGithub as Github,
-  FiBookOpen as Docs,
-  FiFileText as Terms,
-} from 'react-icons/fi';
+import { FiGithub as Github, FiBookOpen as Docs, FiFileText as Terms } from 'react-icons/fi';
 import { FaDiscord as Discord } from 'react-icons/fa';
 
 import { ChainContext } from '../contexts/ChainContext';
@@ -66,7 +62,6 @@ const YieldInfo = () => {
           </Anchor>
         </BoxWrap>
 
-<<<<<<< HEAD
         <BoxWrap>
           <Anchor
             color="grey"
@@ -81,16 +76,6 @@ const YieldInfo = () => {
         <BoxWrap>
           <Anchor color="grey" href="/terms" target="_blank" onClick={() => handleExternal('Terms')}>
             <Terms size={IconSize} />
-=======
-        <BoxWrap>
-          <Anchor
-            color="grey"
-            href="https://discord.gg/JAFfDj5"
-            target="_blank"
-            onClick={() => handleExternal('Discord')}
-          >
-            <Discord size={IconSize} />
->>>>>>> RC11
           </Anchor>
         </BoxWrap>
       </Box>
