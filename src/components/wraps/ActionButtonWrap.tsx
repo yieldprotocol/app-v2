@@ -1,16 +1,8 @@
 import React, { useContext } from 'react';
-import { Button, Box, Text, Layer, ResponsiveContext } from 'grommet';
-import { ChainContext } from '../../contexts/ChainContext';
+import { Box, Layer, ResponsiveContext } from 'grommet';
 
 function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-
-  const {
-    chainState: {
-      connection: { account },
-    },
-    chainActions: { connect },
-  } = useContext(ChainContext);
 
   return mobile ? (
     <Layer position="bottom" background="white" modal={false} responsive={false} full="horizontal" animate={false}>
