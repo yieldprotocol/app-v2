@@ -399,7 +399,9 @@ const VaultPosition = () => {
                             placeholder={`Enter ${vaultBase?.symbol} amount to Repay`}
                             // ref={(el:any) => { el && !repayOpen && !rateLockOpen && !mobile && el.focus(); setInputRef(el); }}
                             value={repayInput || ''}
-                            onChange={(event: any) => setRepayInput(cleanValue(event.target.value))}
+                            onChange={(event: any) =>
+                              setRepayInput(cleanValue(event.target.value, vaultBase?.decimals))
+                            }
                             icon={<>{vaultBase?.image}</>}
                           />
                           <MaxButton
@@ -436,21 +438,23 @@ const VaultPosition = () => {
                           actionType={ActionType.BORROW}
                           cardLayout={false}
                         />
-                        { rollToSeries &&
-                        <Box fill="horizontal">
-                          {rollPossible ?
-                            <InputInfoWrap>
-                              <Text color="text-weak" size="xsmall">
-                                All debt {cleanValue(maxRoll_, 2)} {vaultBase?.symbol} will be rolled.
-                              </Text>
-                            </InputInfoWrap>
-                            :
-                            <InputInfoWrap>
-                              <Text color="text-weak" size="xsmall">
-                                It is not currently possible to roll debt to this series.
-                              </Text>
-                            </InputInfoWrap>}
-                        </Box>}
+                        {rollToSeries && (
+                          <Box fill="horizontal">
+                            {rollPossible ? (
+                              <InputInfoWrap>
+                                <Text color="text-weak" size="xsmall">
+                                  All debt {cleanValue(maxRoll_, 2)} {vaultBase?.symbol} will be rolled.
+                                </Text>
+                              </InputInfoWrap>
+                            ) : (
+                              <InputInfoWrap>
+                                <Text color="text-weak" size="xsmall">
+                                  It is not currently possible to roll debt to this series.
+                                </Text>
+                              </InputInfoWrap>
+                            )}
+                          </Box>
+                        )}
                       </Box>
                     )}
 
@@ -474,41 +478,43 @@ const VaultPosition = () => {
                   <>
                     {stepPosition[actionActive.index] === 0 && (
                       <Box margin={{ top: 'medium' }}>
-                          <InputWrap
-                            action={() => console.log('maxAction')}
-                            isError={addCollatError}
-                            message={
-                              !addCollatInput ? (
-                                <InputInfoWrap action={() => setAddCollatInput(maxCollateral)}>
-                                  <Text size="xsmall" color="text-weak">
-                                    Max collateral available: {vaultIlk?.balance_!} {vaultIlk?.symbol!}{' '}
-                                  </Text>
-                                </InputInfoWrap>
-                              ) : (
-                                <InputInfoWrap>
-                                  <Text color="gray" alignSelf="end" size="xsmall">
-                                    New collateralization ratio will be: {nFormatter(parseFloat(addCollEst!), 2)}%
-                                  </Text>
-                                </InputInfoWrap>
-                              )
+                        <InputWrap
+                          action={() => console.log('maxAction')}
+                          isError={addCollatError}
+                          message={
+                            !addCollatInput ? (
+                              <InputInfoWrap action={() => setAddCollatInput(maxCollateral)}>
+                                <Text size="xsmall" color="text-weak">
+                                  Max collateral available: {vaultIlk?.balance_!} {vaultIlk?.symbol!}{' '}
+                                </Text>
+                              </InputInfoWrap>
+                            ) : (
+                              <InputInfoWrap>
+                                <Text color="gray" alignSelf="end" size="xsmall">
+                                  New collateralization ratio will be: {nFormatter(parseFloat(addCollEst!), 2)}%
+                                </Text>
+                              </InputInfoWrap>
+                            )
+                          }
+                        >
+                          <TextInput
+                            // disabled={removeCollatInput}
+                            plain
+                            type="number"
+                            placeholder="Collateral to add"
+                            value={addCollatInput || ''}
+                            onChange={(event: any) =>
+                              setAddCollatInput(cleanValue(event.target.value, vaultIlk?.decimals))
                             }
-                          >
-                            <TextInput
-                              // disabled={removeCollatInput}
-                              plain
-                              type="number"
-                              placeholder="Collateral to add"
-                              value={addCollatInput || ''}
-                              onChange={(event: any) => setAddCollatInput(cleanValue(event.target.value))}
-                              icon={<>{vaultIlk?.image}</>}
-                            />
-                            <MaxButton
-                              // disabled={removeCollatInput}
-                              action={() => setAddCollatInput(maxCollateral)}
-                              clearAction={() => setAddCollatInput('')}
-                              showingMax={!!addCollatInput && addCollatInput === maxCollateral}
-                            />
-                          </InputWrap>
+                            icon={<>{vaultIlk?.image}</>}
+                          />
+                          <MaxButton
+                            // disabled={removeCollatInput}
+                            action={() => setAddCollatInput(maxCollateral)}
+                            clearAction={() => setAddCollatInput('')}
+                            showingMax={!!addCollatInput && addCollatInput === maxCollateral}
+                          />
+                        </InputWrap>
                       </Box>
                     )}
 
@@ -557,7 +563,9 @@ const VaultPosition = () => {
                             type="number"
                             placeholder="Collateral to remove"
                             value={removeCollatInput || ''}
-                            onChange={(event: any) => setRemoveCollatInput(cleanValue(event.target.value))}
+                            onChange={(event: any) =>
+                              setRemoveCollatInput(cleanValue(event.target.value, vaultIlk?.decimals))
+                            }
                             icon={<>{vaultIlk?.image}</>}
                           />
                           <MaxButton
