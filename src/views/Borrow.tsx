@@ -432,9 +432,11 @@ const Borrow = () => {
                   primary
                   label={
                     <Text size={mobile ? 'small' : undefined}>
-                      {`Borrow${borrowProcess?.processActive ? `ing` : ''} ${
-                        nFormatter(Number(borrowInput), selectedBase?.digitFormat!) || ''
-                      } ${selectedBase?.symbol || ''}`}
+                      {!activeAccount
+                        ? 'Connect Wallet'
+                        : `Borrow${borrowProcess?.processActive ? `ing` : ''} ${
+                            nFormatter(Number(borrowInput), selectedBase?.digitFormat!) || ''
+                          } ${selectedBase?.symbol || ''}`}
                     </Text>
                   }
                   onClick={() => handleBorrow()}
