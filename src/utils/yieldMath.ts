@@ -924,7 +924,7 @@ export const strategyTokenValue = (
  strategyTokenAmount: BigNumber | string, 
  strategyTotalSupply: BigNumber,
  poolBaseReserves: BigNumber,
- poolFyTokenReserves: BigNumber,
+ poolFyTokenRealReserves: BigNumber,
  poolTotalSupply: BigNumber,
  poolTimeToMaturity: string | BigNumber,
  decimals: number,
@@ -937,12 +937,12 @@ export const strategyTokenValue = (
  const lpReceived = burnFromStrategy(poolTotalSupply!, strategyTotalSupply!, strategyTokenAmount);
  const [_baseTokenReceived, _fyTokenReceived] = burn(
    poolBaseReserves,
-   poolFyTokenReserves,
+   poolFyTokenRealReserves,
    poolTotalSupply,
    lpReceived
  );
  const newBaseReserves = poolBaseReserves.sub(_baseTokenReceived);
- const newFyTokenReserves = poolFyTokenReserves.sub(_fyTokenReceived);
+ const newFyTokenReserves = poolFyTokenRealReserves.sub(_fyTokenReceived);
  const sellValue = sellFYToken(
    newBaseReserves,
    newFyTokenReserves,
