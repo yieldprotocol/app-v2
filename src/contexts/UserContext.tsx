@@ -345,7 +345,7 @@ const UserProvider = ({ children }: any) => {
         return [min, max];
       } catch (error) {
         console.log('Error getting limits', error);
-        updateState({ type: 'limitsLoading', payload: false });
+        updateState({ type: 'pricesLoading', payload: false });
         return [ethers.constants.Zero, ethers.constants.Zero];
       }
     },
