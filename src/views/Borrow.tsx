@@ -142,10 +142,14 @@ const Borrow = () => {
 
   /* if ANY of the following conditions are met: block next step action */
   useEffect(() => {
-    !activeAccount || !borrowInput || !selectedSeries || borrowInputError || selectedSeries?.seriesIsMature
+    !borrowInput ||
+    !selectedSeries ||
+    borrowInputError ||
+    selectedSeries?.seriesIsMature ||
+    (stepPosition === 1 && !collatInput && undercollateralized)
       ? setStepDisabled(true)
       : setStepDisabled(false); /* else if all pass, then unlock borrowing */
-  }, [borrowInput, borrowInputError, selectedSeries, activeAccount]);
+  }, [borrowInput, borrowInputError, selectedSeries, activeAccount, stepPosition, collatInput, undercollateralized]);
 
   /* CHECK the list of current vaults which match the current series/ilk selection */ // TODO look at moving this to helper hook?
   useEffect(() => {
@@ -428,7 +432,7 @@ const Borrow = () => {
                       : 'Next Step'
                   }
                   onClick={() => setStepPosition(stepPosition + 1)}
-                  disabled={stepPosition === 0 ? stepDisabled : borrowDisabled}
+                  disabled={stepDisabled}
                   errorLabel={stepPosition === 0 ? borrowInputError : collatInputError}
                 />
               )}
@@ -438,9 +442,11 @@ const Borrow = () => {
                   primary
                   label={
                     <Text size={mobile ? 'small' : undefined}>
-                      {`Borrow${borrowProcess?.processActive ? `ing` : ''} ${
-                        nFormatter(Number(borrowInput), selectedBase?.digitFormat!) || ''
-                      } ${selectedBase?.symbol || ''}`}
+                      {!activeAccount
+                        ? 'Connect Wallet'
+                        : `Borrow${borrowProcess?.processActive ? `ing` : ''} ${
+                            nFormatter(Number(borrowInput), selectedBase?.digitFormat!) || ''
+                          } ${selectedBase?.symbol || ''}`}
                     </Text>
                   }
                   onClick={() => handleBorrow()}

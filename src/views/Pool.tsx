@@ -46,6 +46,7 @@ function Pool() {
   const [poolDisabled, setPoolDisabled] = useState<boolean>(true);
   const [poolMethod, setPoolMethod] = useState<AddLiquidityType>(AddLiquidityType.BUY); // BUY default
   const [stepPosition, setStepPosition] = useState<number>(0);
+  const [stepDisabled, setStepDisabled] = useState<boolean>(true);
 
   /* HOOK FNS */
   const addLiquidity = useAddLiquidity();
@@ -71,6 +72,7 @@ function Pool() {
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
   useEffect(() => {
     !activeAccount || !poolInput || poolError || !selectedStrategy ? setPoolDisabled(true) : setPoolDisabled(false);
+    !poolInput || poolError || !selectedStrategy ? setStepDisabled(true) : setStepDisabled(false);
   }, [poolInput, activeAccount, poolError, selectedStrategy]);
 
   const resetInputs = useCallback(() => {
@@ -240,9 +242,9 @@ function Pool() {
           {stepPosition !== 1 && (
             <NextButton
               secondary
-              label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
+              label={<Text size={mobile ? 'small' : undefined}>Next step</Text>}
               onClick={() => setStepPosition(stepPosition + 1)}
-              disabled={poolDisabled}
+              disabled={stepDisabled}
               errorLabel={poolError}
             />
           )}
@@ -250,11 +252,15 @@ function Pool() {
             <TransactButton
               primary
               label={
-                <Text size={mobile ? 'small' : undefined}>
-                  {`Pool${poolProcess?.processActive ? `ing` : ''} ${
-                    nFormatter(Number(poolInput), selectedBase?.digitFormat!) || ''
-                  } ${selectedBase?.symbol || ''}`}
-                </Text>
+                !activeAccount ? (
+                  'Connect Wallet'
+                ) : (
+                  <Text size={mobile ? 'small' : undefined}>
+                    {`Pool${poolProcess?.processActive ? `ing` : ''} ${
+                      nFormatter(Number(poolInput), selectedBase?.digitFormat!) || ''
+                    } ${selectedBase?.symbol || ''}`}
+                  </Text>
+                )
               }
               onClick={() => handleAdd()}
               disabled={poolDisabled || poolProcess?.processActive}

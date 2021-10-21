@@ -26,7 +26,7 @@ const StyledBox = styled(Box)`
 function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const { userState, userActions } = useContext(UserContext);
-  const { selectedIlkId, selectedSeriesId, selectedBaseId, assetMap, seriesMap } = userState;
+  const { selectedIlkId, selectedSeriesId, selectedBaseId, assetMap, seriesMap, activeAccount } = userState;
 
   const { setSelectedIlk, setSelectedBase } = userActions;
 
@@ -58,12 +58,20 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   /* update options on any changes */
   useEffect(() => {
     const opts = Array.from(assetMap.values()) as IAsset[];
-
-    const filteredOptions = selectCollateral
-      ? opts.filter((a: IAsset) => a.id !== selectedBaseId).filter((a: IAsset) => a.balance?.gt(ethers.constants.Zero))
-      : opts.filter((a: IAsset) => a.isYieldBase);
+    let filteredOptions;
+    if (!activeAccount) {
+      filteredOptions = selectCollateral
+        ? opts.filter((a: IAsset) => a.id !== selectedBaseId) // show all available collateral assets if the user is not connected
+        : opts.filter((a: IAsset) => a.isYieldBase);
+    } else {
+      filteredOptions = selectCollateral
+        ? opts
+            .filter((a: IAsset) => a.id !== selectedBaseId)
+            .filter((a: IAsset) => a.balance?.gt(ethers.constants.Zero))
+        : opts.filter((a: IAsset) => a.isYieldBase);
+    }
     setOptions(filteredOptions);
-  }, [assetMap, selectCollateral, selectedSeriesId, selectedBaseId]);
+  }, [assetMap, selectCollateral, selectedSeriesId, selectedBaseId, activeAccount]);
 
   /* initiate base selector to Dai available asset and selected ilk ETH */
   useEffect(() => {

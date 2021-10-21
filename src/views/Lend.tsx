@@ -55,6 +55,7 @@ const Lend = () => {
   // const [maxLend, setMaxLend] = useState<string | undefined>();
   const [lendDisabled, setLendDisabled] = useState<boolean>(true);
   const [stepPosition, setStepPosition] = useState<number>(0);
+  const [stepDisabled, setStepDisabled] = useState<boolean>(true);
 
   /* HOOK FNS */
   const { maxLend_, protocolBaseIn, userBaseAvailable } = useLendHelpers(selectedSeries, lendInput);
@@ -83,7 +84,7 @@ const Lend = () => {
   /* ACTION DISABLING LOGIC  - if conditions are met: allow action */
   useEffect(() => {
     activeAccount && lendInput && selectedSeries && !lendError ? setLendDisabled(false) : setLendDisabled(true);
-    // setLendDisabled(false)
+    lendInput && selectedSeries && !lendError ? setStepDisabled(false) : setStepDisabled(true);
   }, [lendInput, activeAccount, lendError, selectedSeries]);
 
   /* Watch process timeouts */
@@ -228,8 +229,8 @@ const Lend = () => {
           {stepPosition !== 1 && !selectedSeries?.seriesIsMature && (
             <NextButton
               secondary
-              disabled={lendDisabled}
-              label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
+              disabled={stepDisabled}
+              label={<Text size={mobile ? 'small' : undefined}>Next step</Text>}
               key="ONE"
               onClick={() => setStepPosition(stepPosition + 1)}
               errorLabel={lendError}
@@ -243,9 +244,11 @@ const Lend = () => {
                 primary
                 label={
                   <Text size={mobile ? 'small' : undefined}>
-                    {`Lend${lendProcess?.processActive ? `ing` : ''} ${
-                      nFormatter(Number(lendInput), selectedBase?.digitFormat!) || ''
-                    } ${selectedBase?.symbol || ''}`}
+                    {!activeAccount
+                      ? 'Connect Wallet'
+                      : `Lend${lendProcess?.processActive ? `ing` : ''} ${
+                          nFormatter(Number(lendInput), selectedBase?.digitFormat!) || ''
+                        } ${selectedBase?.symbol || ''}`}
                   </Text>
                 }
                 onClick={() => handleLend()}

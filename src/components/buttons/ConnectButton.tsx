@@ -1,6 +1,5 @@
-import { Box, Button, ResponsiveContext, Text } from 'grommet';
-import React, { useContext, useState } from 'react';
-import { FiArrowLeft, FiMenu } from 'react-icons/fi';
+import React from 'react';
+import { Box, Text } from 'grommet';
 import styled from 'styled-components';
 
 const StyledBox = styled(Box)`
@@ -15,18 +14,12 @@ const StyledBox = styled(Box)`
   }
 `;
 
-function ConnectButton({ action }: { action: () => void }) {
-  const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-
-  return (
-    <StyledBox round="xsmall" elevation="xsmall" onClick={() => action()} pad="small">
-      <Text size="small" color="text">
-        {mobile ? <FiMenu /> : 'Connect Wallet'}
-      </Text>
-    </StyledBox>
-  );
-}
-
-// BackButton.defaultProps = { color: 'grey' };
+const ConnectButton = ({ action }: { action: () => void }) => (
+  <StyledBox round="xsmall" elevation="xsmall" onClick={() => action()} pad="small">
+    <Text size="small" color="text">
+      Connect Wallet
+    </Text>
+  </StyledBox>
+);
 
 export default ConnectButton;
