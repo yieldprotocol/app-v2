@@ -242,9 +242,11 @@ const Lend = () => {
                 primary
                 label={
                   <Text size={mobile ? 'small' : undefined}>
-                    {`Lend${lendProcess?.processActive ? `ing` : ''} ${
-                      nFormatter(Number(lendInput), selectedBase?.digitFormat!) || ''
-                    } ${selectedBase?.symbol || ''}`}
+                    {!activeAccount
+                      ? 'Connect Wallet'
+                      : `Lend${lendProcess?.processActive ? `ing` : ''} ${
+                          nFormatter(Number(lendInput), selectedBase?.digitFormat!) || ''
+                        } ${selectedBase?.symbol || ''}`}
                   </Text>
                 }
                 onClick={() => handleLend()}
