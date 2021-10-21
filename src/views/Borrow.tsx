@@ -286,7 +286,7 @@ const Borrow = () => {
             )}
 
             {stepPosition === 1 && ( // ADD COLLATERAL
-              <Box gap="medium">
+              <Box gap={mobile ? undefined : 'medium'}>
                 <YieldCardHeader>
                   <BackButton action={() => setStepPosition(0)} />
                 </YieldCardHeader>
@@ -375,7 +375,7 @@ const Borrow = () => {
             )}
 
             {stepPosition === 2 && ( // REVIEW
-              <Box gap="large">
+              <Box gap={mobile ? 'medium' : 'large'}>
                 <YieldCardHeader>
                   {borrowProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
                     <BackButton action={() => setStepPosition(1)} />

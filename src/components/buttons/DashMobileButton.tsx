@@ -12,16 +12,17 @@ const StyledBox = styled(Box)`
   z-index: 500;
 `;
 
-function DashMobileButton( { transparent }: { transparent?: boolean }) {
+function DashMobileButton({ transparent }: { transparent?: boolean }) {
   const routerHistory = useHistory();
 
   return (
     <StyledBox align="center" direction="row">
-      <Avatar 
-        size="medium" 
-        background= { transparent ? "gradient-transparent": "gradient"} 
-        elevation="small" 
-        onClick={() => routerHistory.push(`/dashboard`)}>
+      <Avatar
+        size="medium"
+        background={transparent ? 'gradient-transparent' : 'gradient'}
+        elevation="small"
+        onClick={() => routerHistory.push(`/dashboard`)}
+      >
         {/* <RiDashboard3Line size={mobile ? '2em' : '2em'} /> */}
         <Text size="xsmall"> Dash </Text>
       </Avatar>
