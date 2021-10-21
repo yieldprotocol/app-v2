@@ -151,7 +151,7 @@ export const usePoolHelpers = (input: string | undefined) => {
         slippageTolerance, 
       );
 
-      /* check if buy and pool option is allowed */
+      /* Check if buy and pool option is allowed */
       const buyAndPoolAllowed = _fyTokenToBuy.gt(ethers.constants.Zero) && _fyTokenToBuy.lt(_maxFyTokenOut);
 
       console.log('fTokenToBuy, maxFyTokenOut ', _fyTokenToBuy.toString(), _maxFyTokenOut);
@@ -165,21 +165,16 @@ export const usePoolHelpers = (input: string | undefined) => {
     }
   }, [_input, strategySeries]);
 
-  /* CHECK FOR ANY VAULTS WITH THE SAME BASE/ILK */
+  /* Check for any vaults with the same series/ilk/base */
   useEffect(() => {
     if (strategySeries && strategyBase && strategySeries) {
-      const [, _fyTokenPortion] = splitLiquidity(
-        strategySeries?.baseReserves!,
-        strategySeries?.fyTokenReserves,
-        strategy?.accountBalance || ethers.constants.Zero // _input
-      );
+
       const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
       const _matchingVault = arr.find(
         (v: IVault) =>
           v.ilkId === strategyBase.id &&
           v.baseId === strategyBase.id &&
           v.seriesId === strategySeries.id &&
-          v.art.gte(_fyTokenPortion) &&
           v.isActive
       );
       setMatchingVault(_matchingVault);
@@ -210,7 +205,9 @@ export const usePoolHelpers = (input: string | undefined) => {
     maxPool,
     poolPercentPreview,
     canBuyAndPool,
+
     matchingVault,
+    
     maxRemoveNoVault,
     maxRemoveWithVault,
 
