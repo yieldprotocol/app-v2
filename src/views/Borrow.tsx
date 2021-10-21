@@ -142,7 +142,7 @@ const Borrow = () => {
 
   /* if ANY of the following conditions are met: block next step action */
   useEffect(() => {
-    !activeAccount || !borrowInput || !selectedSeries || borrowInputError || selectedSeries?.seriesIsMature
+    !borrowInput || !selectedSeries || borrowInputError || selectedSeries?.seriesIsMature
       ? setStepDisabled(true)
       : setStepDisabled(false); /* else if all pass, then unlock borrowing */
   }, [borrowInput, borrowInputError, selectedSeries, activeAccount]);
