@@ -64,7 +64,7 @@ const PoolPosition = () => {
     // addTradePossible,
     inputTradeValue,
     inputTradeValue_,
-    removeTradePossible
+    removeTradePossible,
   } = usePoolHelpers(removeInput, true);
 
   /* TX data */
@@ -103,15 +103,13 @@ const PoolPosition = () => {
   /* SET MAX VALUES */
   useEffect(() => {
     /* Checks the max available to remove */
-    (selectedStrategy && matchingVault)
-      ? setMaxRemove(maxRemoveWithVault)
-      : setMaxRemove(maxRemoveNoVault);
+    selectedStrategy && matchingVault ? setMaxRemove(maxRemoveWithVault) : setMaxRemove(maxRemoveNoVault);
   }, [selectedStrategy, matchingVault, maxRemoveNoVault, maxRemoveWithVault, setMaxRemove]);
 
   /* ACTION DISABLING LOGIC - if ANY conditions are met: block action */
   useEffect(() => {
-    !removeInput || removeError ? setRemoveDisabled(true) : setRemoveDisabled(false);
-  }, [activeAccount, removeError, removeInput]);
+    !removeInput || removeError || !removeTradePossible ? setRemoveDisabled(true) : setRemoveDisabled(false);
+  }, [activeAccount, removeError, removeInput, removeTradePossible]);
 
   useEffect(() => {
     !selectedStrategyAddr && idFromUrl && userActions.setSelectedStrategy(idFromUrl);
@@ -120,8 +118,7 @@ const PoolPosition = () => {
   /* watch process timeouts */
   useEffect(() => {
     removeProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs(ActionCodes.REMOVE_LIQUIDITY);
-  }, [ removeProcess?.stage ]);
-
+  }, [removeProcess?.stage]);
 
   /* INTERNAL COMPONENTS */
   const CompletedTx = (props: any) => (
@@ -276,10 +273,10 @@ const PoolPosition = () => {
                           <MaxButton
                             action={() => setRemoveInput(maxRemove)}
                             disabled={
-                              maxRemove === '0.0'||
+                              maxRemove === '0.0' ||
                               !selectedSeries ||
                               selectedSeries.seriesIsMature ||
-                              !removeTradePossible 
+                              !removeTradePossible
                             }
                             clearAction={() => setRemoveInput('')}
                             showingMax={!!removeInput && removeInput === maxRemove}
@@ -313,9 +310,7 @@ const PoolPosition = () => {
                   label={<Text size={mobile ? 'small' : undefined}> Next Step</Text>}
                   onClick={() => handleStepper()}
                   key="next"
-                  disabled={
-                    (actionActive.index === 0 && removeDisabled)
-                  }
+                  disabled={actionActive.index === 0 && removeDisabled}
                   errorLabel={actionActive.index === 0 && removeError}
                 />
               )}
