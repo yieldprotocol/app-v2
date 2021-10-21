@@ -109,7 +109,7 @@ export const useBorrowHelpers = (
 
   /* Check if the rollToSeries have sufficient base value AND won't be undercollaterallised */
   useEffect(() => {
-    if (futureSeries && vault) {
+    if (futureSeries && vault && vault.art) {
       const _maxFyTokenIn = maxFyTokenIn(
         futureSeries.baseReserves,
         futureSeries.fyTokenReserves,
