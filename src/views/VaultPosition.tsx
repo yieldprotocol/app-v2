@@ -441,7 +441,7 @@ const VaultPosition = () => {
                           {rollPossible ?
                             <InputInfoWrap>
                               <Text color="text-weak" size="xsmall">
-                                All debt {cleanValue(maxRoll_, 2)} {vaultBase?.symbol} can be rolled.
+                                All debt {cleanValue(maxRoll_, 2)} {vaultBase?.symbol} will be rolled.
                               </Text>
                             </InputInfoWrap>
                             :
