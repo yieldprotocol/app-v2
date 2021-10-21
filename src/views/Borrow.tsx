@@ -148,10 +148,21 @@ const Borrow = () => {
     !selectedSeries ||
     borrowInputError ||
     selectedSeries?.seriesIsMature ||
-    (stepPosition === 1 && undercollateralized)
+    (stepPosition === 1 && undercollateralized) ||
+    borrowInputError ||
+    collatInputError
       ? setStepDisabled(true)
       : setStepDisabled(false); /* else if all pass, then unlock borrowing */
-  }, [borrowInput, borrowInputError, selectedSeries, activeAccount, stepPosition, collatInput, undercollateralized]);
+  }, [
+    borrowInput,
+    borrowInputError,
+    selectedSeries,
+    activeAccount,
+    stepPosition,
+    collatInput,
+    undercollateralized,
+    collatInputError,
+  ]);
 
   /* CHECK the list of current vaults which match the current series/ilk selection */ // TODO look at moving this to helper hook?
   useEffect(() => {
