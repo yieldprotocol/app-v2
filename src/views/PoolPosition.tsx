@@ -277,7 +277,9 @@ const PoolPosition = () => {
                             type="number"
                             placeholder="Tokens to remove"
                             value={removeInput || ''}
-                            onChange={(event: any) => setRemoveInput(cleanValue(event.target.value))}
+                            onChange={(event: any) =>
+                              setRemoveInput(cleanValue(event.target.value, selectedSeries?.decimals))
+                            }
                           />
                           <MaxButton
                             action={() => setRemoveInput(maxRemove)}
@@ -318,10 +320,8 @@ const PoolPosition = () => {
                   onClick={() => handleStepper()}
                   key="next"
                   disabled={
-                    actionActive.index === 0 && 
-                    removeDisabled &&
-                    ( !fyTokenTradePossible || selectedSeries?.isMature())
-                    // (!fyTokenTradePossible && selectedSeries?.isMature())
+                    (actionActive.index === 0 && removeDisabled) ||
+                    (!fyTokenTradePossible && selectedSeries?.isMature())
                   }
                   errorLabel={actionActive.index === 0 && removeError}
                 />

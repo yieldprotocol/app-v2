@@ -3,7 +3,9 @@ import { ChainContext } from '../contexts/ChainContext';
 
 export const useTimeTravel = () => {
   const {
-    chainState: { fallbackProvider },
+    chainState: {
+      connection: { fallbackProvider },
+    },
   } = useContext(ChainContext);
 
   const [snapshotNumber, setSnapshotNumber] = useState<any>('0x1');

@@ -3,13 +3,7 @@ import { ethers, BigNumber } from 'ethers';
 import { UserContext } from '../../contexts/UserContext';
 import { IAsset, ISeries, IStrategy, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
-import {
-  fyTokenForMint,
-  maxBaseToSpend,
-  splitLiquidity,
-  checkPoolTrade,
-  getPoolPercent,
-} from '../../utils/yieldMath';
+import { fyTokenForMint, splitLiquidity, checkPoolTrade, getPoolPercent, maxFyTokenOut } from '../../utils/yieldMath';
 import { ZERO_BN } from '../../utils/constants';
 
 export const usePoolHelpers = (input: string | undefined) => {
@@ -24,6 +18,7 @@ export const usePoolHelpers = (input: string | undefined) => {
       vaultMap,
       assetMap,
       activeAccount,
+      slippageTolerance
     },
   } = useContext(UserContext);
 
@@ -38,7 +33,7 @@ export const usePoolHelpers = (input: string | undefined) => {
   const [poolPercentPreview, setPoolPercentPreview] = useState<string | undefined>();
 
   const [maxPool, setMaxPool] = useState<string | undefined>();
-  const [canBuyAndPool, setCanBuyAndPool] = useState<boolean | undefined>(true);
+  const [canBuyAndPool, setCanBuyAndPool] = useState<boolean | undefined>(false);
 
   /* remove liquidity helpers */
   const [matchingVault, setMatchingVault] = useState<IVault | undefined>();
@@ -72,51 +67,54 @@ export const usePoolHelpers = (input: string | undefined) => {
   useEffect(() => {
     if (strategy && strategySeries) {
       const tradeable = checkPoolTrade(
-        strategy.accountBalance!, 
+        strategy.accountBalance || ethers.constants.Zero,
         strategySeries.baseReserves,
         strategySeries.fyTokenReserves,
         strategySeries.totalSupply,
         strategySeries.getTimeTillMaturity(),
         strategySeries.decimals
+      )[0].gt(ethers.constants.Zero);
 
-      ).gt(ethers.constants.Zero);
       setHealthyBaseReserves(tradeable);
-      setMaxRemoveNoVault(ethers.utils.formatUnits(strategy?.accountBalance!, strategySeries.decimals));
+      setMaxRemoveNoVault(
+        ethers.utils.formatUnits(strategy?.accountBalance! || ethers.constants.Zero, strategySeries.decimals)
+      );
     }
   }, [strategy, strategySeries]);
 
   /* Set the trade value and check if base reserves are too low for specific input  */
   useEffect(() => {
     if (strategySeries) {
-      const _tradeValue = checkPoolTrade(
+      const [_sellValue, _totalValue] = checkPoolTrade(
         _input,
         strategySeries.baseReserves,
         strategySeries.fyTokenReserves,
         strategySeries.totalSupply,
         strategySeries.getTimeTillMaturity(),
         strategySeries.decimals
-        );
-      const tradeable = _tradeValue.gt(ethers.constants.Zero);
+      );
+      const tradeable = _sellValue.gt(ethers.constants.Zero);
+
       console.log('Is tradeable:', tradeable);
       setFyTokenTradePossible(tradeable);
-      setInputTradeValue(_tradeValue);
-      setInputTradeValue_(ethers.utils.formatUnits(_tradeValue, strategySeries.decimals));
+      setInputTradeValue(_sellValue);
+      setInputTradeValue_(ethers.utils.formatUnits(_sellValue, strategySeries.decimals));
     }
   }, [_input, strategySeries]);
 
   /* check account token trade value */
   useEffect(() => {
     if (strategySeries && strategy?.accountBalance?.gt(ZERO_BN)) {
-      const _tradeValue = checkPoolTrade(
-        strategy?.accountBalance,
+      const [_sellValue, _totalValue] = checkPoolTrade(
+        strategy?.accountBalance || ethers.constants.Zero,
         strategySeries.baseReserves,
         strategySeries.fyTokenReserves,
         strategySeries.totalSupply,
         strategySeries.getTimeTillMaturity(),
         strategySeries.decimals
       );
-      const tradeable = _tradeValue.gt(ethers.constants.Zero);
-      tradeable && setAccountTradeValue(ethers.utils.formatUnits(_tradeValue, strategy.decimals));
+      const tradeable = _sellValue.gt(ethers.constants.Zero);
+      tradeable && setAccountTradeValue(ethers.utils.formatUnits(_sellValue, strategy.decimals));
     }
   }, [strategy?.accountBalance, strategy?.decimals, strategySeries]);
 
@@ -126,7 +124,9 @@ export const usePoolHelpers = (input: string | undefined) => {
     strategy &&
       strategySeries &&
       matchingVault &&
-      setMaxRemoveWithVault(ethers.utils.formatUnits(strategy?.accountBalance!, strategySeries.decimals));
+      setMaxRemoveWithVault(
+        ethers.utils.formatUnits(strategy?.accountBalance! || ethers.constants.Zero, strategySeries.decimals)
+      );
   }, [_input, matchingVault, strategy, strategySeries, vaultMap]);
 
   /* Check if can use 'buy and pool' method to get liquidity */
@@ -134,27 +134,34 @@ export const usePoolHelpers = (input: string | undefined) => {
     if (strategySeries && _input.gt(ethers.constants.Zero)) {
       let _fyTokenToBuy = ethers.constants.Zero;
 
-      const _maxProtocol = maxBaseToSpend(
+      const _maxFyTokenOut = maxFyTokenOut(
         strategySeries.baseReserves,
         strategySeries.fyTokenReserves,
         strategySeries.getTimeTillMaturity(),
         strategySeries.decimals
       );
 
-      // console.log( strategySeries.baseReserves.toString() )
       _fyTokenToBuy = fyTokenForMint(
         strategySeries.baseReserves,
         strategySeries.fyTokenRealReserves,
         strategySeries.fyTokenReserves,
         _input,
         strategySeries.getTimeTillMaturity(),
-        strategySeries.decimals
+        strategySeries.decimals, 
+        slippageTolerance, 
       );
 
-      console.log('Can BuyAndPool? ', _maxProtocol.lt(_fyTokenToBuy));
-      setCanBuyAndPool(_maxProtocol.lt(_fyTokenToBuy));
+      /* check if buy and pool option is allowed */
+      const buyAndPoolAllowed = _fyTokenToBuy.gt(ethers.constants.Zero) && _fyTokenToBuy.lt(_maxFyTokenOut);
+
+      console.log('fTokenToBuy, maxFyTokenOut ', _fyTokenToBuy.toString(), _maxFyTokenOut);
+      setCanBuyAndPool(buyAndPoolAllowed);
+      console.log('Can BuyAndPool?', buyAndPoolAllowed);
+      console.log('fTokenToBuy: ', _fyTokenToBuy.toString());
+      console.log('maxFyTokenOut: ', _maxFyTokenOut.toString());
     } else {
-      setCanBuyAndPool(true);
+      /* allowed by default */
+      setCanBuyAndPool(false);
     }
   }, [_input, strategySeries]);
 
@@ -162,9 +169,9 @@ export const usePoolHelpers = (input: string | undefined) => {
   useEffect(() => {
     if (strategySeries && strategyBase && strategySeries) {
       const [, _fyTokenPortion] = splitLiquidity(
-        strategySeries?.baseReserves,
+        strategySeries?.baseReserves!,
         strategySeries?.fyTokenReserves,
-        strategy?.accountBalance! // _input
+        strategy?.accountBalance || ethers.constants.Zero // _input
       );
       const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
       const _matchingVault = arr.find(
@@ -195,7 +202,7 @@ export const usePoolHelpers = (input: string | undefined) => {
 
   useEffect(() => {
     if (_input !== ethers.constants.Zero && strategy) {
-      setPoolPercentPreview(getPoolPercent(_input, strategy?.strategyTotalSupply!));
+      setPoolPercentPreview(cleanValue(getPoolPercent(_input, strategy?.strategyTotalSupply!), 3));
     }
   }, [_input, strategy]);
 

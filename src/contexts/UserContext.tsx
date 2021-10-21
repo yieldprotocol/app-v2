@@ -63,13 +63,13 @@ const initState: IUserContextState = {
   selectedVaultId: null,
   selectedStrategyAddr: null,
 
-  /* User Settings */
-  approvalMethod: ApprovalType.SIG,
-  dudeSalt: 20,
-  slippageTolerance: 0.01 as number,
+  /* User Settings ( getting from the cache first ) */
+  approvalMethod: (JSON.parse(localStorage.getItem('cachedApprovalMethod')!) as ApprovalType) || ApprovalType.SIG,
+  slippageTolerance: (JSON.parse(localStorage.getItem('slippageTolerance')!) as number) || (0.01 as number),
+  dudeSalt: 21,
+
   dashSettings: {
     hideEmptyVaults: false,
-    showInactiveVaults: false,
     hideInactiveVaults: false,
     hideVaultPositions: false,
     hideLendPositions: false,
@@ -151,7 +151,15 @@ const UserProvider = ({ children }: any) => {
   /* STATE FROM CONTEXT */
   // TODO const [cachedVaults, setCachedVaults] = useCachedState('vaults', { data: [], lastBlock: Number(process.env.REACT_APP_DEPLOY_BLOCK) });
   const { chainState } = useContext(ChainContext);
-  const { contractMap, account, chainLoading, seriesRootMap, assetRootMap, strategyRootMap, chainId } = chainState;
+  // const { contractMap, account, chainLoading, seriesRootMap, assetRootMap, strategyRootMap } = chainState;
+  const {
+    contractMap,
+    connection: { account },
+    chainLoading,
+    seriesRootMap,
+    assetRootMap,
+    strategyRootMap,
+  } = chainState;
 
   /* LOCAL STATE */
   const [userState, updateState] = useReducer(userReducer, initState);
@@ -239,6 +247,8 @@ const UserProvider = ({ children }: any) => {
           };
         })
       );
+
+      console.log('PUBLIC DATA', _publicData);
 
       /* add in the dynamic asset data of the assets in the list */
       if (account) {
@@ -377,6 +387,7 @@ const UserProvider = ({ children }: any) => {
           return {
             ...series,
             baseReserves,
+            baseReserves_: ethers.utils.formatUnits(baseReserves, series.decimals),
             fyTokenReserves,
             fyTokenRealReserves,
             totalSupply,
@@ -518,15 +529,15 @@ const UserProvider = ({ children }: any) => {
               currentSeries.poolContract.totalSupply(),
               currentSeries.poolContract.balanceOf(_strategy.address),
             ]);
-    
+
             const [currentInvariant, initInvariant] = currentSeries.seriesIsMature
               ? [ZERO_BN, ZERO_BN]
-              : [ZERO_BN, ZERO_BN]
-              // TODO Re-include invariant
-              // : await Promise.all([
-              //     currentSeries.poolContract.invariant(),
-              //     _strategy.strategyContract.invariants(currentPoolAddr),
-              //   ]);
+              : [ZERO_BN, ZERO_BN];
+            // TODO Re-include invariant
+            // : await Promise.all([
+            //     currentSeries.poolContract.invariant(),
+            //     _strategy.strategyContract.invariants(currentPoolAddr),
+            //   ]);
 
             const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
             const returnRate = currentInvariant && currentInvariant.sub(initInvariant)!;
@@ -659,11 +670,9 @@ const UserProvider = ({ children }: any) => {
     // TODO To reduce exposure, maybe we have a single 'change setting' function?  > that handles all the below? not urgent.
     setApprovalMethod: (type: ApprovalType) => updateState({ type: 'approvalMethod', payload: type }),
     updateDudeSalt: () => updateState({ type: 'dudeSalt', payload: userState.dudeSalt + 3 }),
+
     setSlippageTolerance: (slippageTolerance: number) =>
       updateState({ type: 'setSlippageTolerance', payload: slippageTolerance }),
-
-    setShowInactiveVaults: (showInactiveVaults: boolean) =>
-      updateState({ type: 'showInactiveVaults', payload: showInactiveVaults }),
 
     setDashSettings: (name: any, value: any) =>
       updateState({ type: 'dashSettings', payload: { ...userState.dashSettings, [name]: value } }),

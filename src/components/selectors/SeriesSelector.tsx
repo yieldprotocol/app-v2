@@ -1,15 +1,14 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Avatar, Box, Carousel, Grid, ResponsiveContext, Select, Stack, Text, ThemeContext } from 'grommet';
+import { Avatar, Box, Grid, ResponsiveContext, Select, Text } from 'grommet';
 
 import Skeleton from 'react-loading-skeleton';
 import { ethers } from 'ethers';
 import styled from 'styled-components';
-import { FiClock } from 'react-icons/fi';
 import { ActionType, ISeries } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
-import { calculateAPR, maxBaseToSpend } from '../../utils/yieldMath';
+import { maxBaseIn, maxBaseOut, maxFyTokenIn, maxFyTokenOut } from '../../utils/yieldMath';
 import { useApr } from '../../hooks/useApr';
-import { chunkArray, cleanValue, nFormatter } from '../../utils/appUtils';
+import { cleanValue } from '../../utils/appUtils';
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
@@ -24,7 +23,6 @@ background 0.3s ease-in-out;
 }
 `;
 
-// TODO shaebox
 const ShadeBox = styled(Box)`
   /* -webkit-box-shadow: inset 0px ${(props) => (props ? '-50px' : '50px')} 30px -30px rgba(0,0,0,0.30); 
   box-shadow: inset 0px ${(props) => (props ? '-50px' : '50px')} 30px -30px rgba(0,0,0,0.30); */
@@ -70,29 +68,59 @@ const AprText = ({
   series: ISeries;
   actionType: ActionType;
 }) => {
-
-  const _inputValue = cleanValue(inputValue, series.decimals)
+  const _inputValue = cleanValue(inputValue, series.decimals);
 
   const { apr } = useApr(_inputValue, actionType, series);
   const [limitHit, setLimitHit] = useState<boolean>(false);
-  
-  const maxBase = maxBaseToSpend(
+
+  const baseIn = maxBaseIn(
     series.baseReserves,
     series.fyTokenReserves,
     series.getTimeTillMaturity(),
     series.decimals
-  )
+  );
+
+  const baseOut = maxBaseOut(
+    series.baseReserves,
+    series.fyTokenReserves,
+    series.getTimeTillMaturity(),
+    series.decimals
+  );
+
+  const tokenOut = maxFyTokenOut(
+    series.baseReserves,
+    series.fyTokenReserves,
+    series.getTimeTillMaturity(),
+    series.decimals
+  );
+
+  const tokenIn = maxFyTokenIn(
+    series.baseReserves,
+    series.fyTokenReserves,
+    series.getTimeTillMaturity(),
+    series.decimals
+  );
+
+  // console.log( series.id, ' maxbaseIn', baseIn.toString() )
+  // console.log( series.id, ' maxbaseOut', baseOut.toString() )
+  // console.log( series.id, ' tokenIn', tokenIn.toString() )
+  // console.log( series.id, ' tokenOut', tokenOut.toString() )
 
   useEffect(() => {
-    if (
-      !series?.seriesIsMature &&
-      _inputValue 
-    )  
-      actionType === ActionType.LEND 
-        ? setLimitHit( (ethers.utils.parseUnits(_inputValue, series?.decimals)).gt(maxBase) ) // lending max
-        : setLimitHit( ethers.utils.parseUnits(_inputValue, series?.decimals).gt(series?.baseReserves) ) //  TODO borrow max 
-
-  }, [_inputValue, actionType, maxBase, series.baseReserves, series.decimals, series?.seriesIsMature, setLimitHit]);
+    if (!series?.seriesIsMature && _inputValue)
+      actionType === ActionType.LEND
+        ? setLimitHit(ethers.utils.parseUnits(_inputValue, series?.decimals).gt(baseIn)) // lending max
+        : setLimitHit(ethers.utils.parseUnits(_inputValue, series?.decimals).gt(series.baseReserves)); // borrow max
+  }, [
+    _inputValue,
+    actionType,
+    baseIn,
+    baseOut,
+    series.baseReserves,
+    series?.decimals,
+    series?.seriesIsMature,
+    setLimitHit,
+  ]);
 
   return (
     <>
@@ -154,7 +182,9 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
           <Text size="xsmall"> Mature </Text>
         </Box>
       )}
-      {_series && actionType !== 'POOL' && <AprText inputValue={_inputValue} series={_series} actionType={actionType} />}
+      {_series && actionType !== 'POOL' && (
+        <AprText inputValue={_inputValue} series={_series} actionType={actionType} />
+      )}
     </Box>
   );
 
@@ -164,7 +194,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
     /* filter out options based on base Id and if mature */
     let filteredOpts = opts.filter(
-      (_series: ISeries) => _series.baseId === selectedBaseId  && !_series.seriesIsMature
+      (_series: ISeries) => _series.baseId === selectedBaseId && !_series.seriesIsMature
       // !ignoredSeries?.includes(_series.baseId)
     );
 
@@ -178,7 +208,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     if (
       selectedSeries &&
       // (filteredOpts.findIndex((_series: ISeries) => _series.id !== selectedSeriesId) < 0 ||
-        selectedSeries.baseId !== selectedBaseId // )
+      selectedSeries.baseId !== selectedBaseId // )
     )
       userActions.setSelectedSeries(null);
 
@@ -267,13 +297,11 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
                   <Box pad="small" width="small" direction="row" align="center" gap="small">
                     <Avatar
                       background={series.id === selectedSeriesId ? 'solid' : series.endColor.toString().concat('10')}
-                      // border={series.id === selectedSeriesId ? undefined : { color: series.endColor.toString().concat('25')} }
                       style={{
                         boxShadow:
                           series.id === selectedSeriesId
                             ? `inset 1px 1px 2px ${series.endColor.toString().concat('69')}`
-                            : // : `-1px -1px 1px ${ series.endColor.toString().concat('30') }, 1px 1px 1px ${ series.endColor.toString().concat('30') }`
-                              undefined,
+                            : undefined,
                       }}
                     >
                       {series.seriesMark}

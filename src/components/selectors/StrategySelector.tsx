@@ -9,7 +9,7 @@ import styled from 'styled-components';
 import { IStrategy } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { getPoolPercent } from '../../utils/yieldMath';
-import { formatStrategyName } from '../../utils/appUtils';
+import { cleanValue, formatStrategyName } from '../../utils/appUtils';
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
@@ -22,6 +22,11 @@ background 0.3s ease-in-out;
 :active {
   transform: scale(1);
 }
+`;
+
+const ShadeBox = styled(Box)`
+  /* -webkit-box-shadow: inset 0px ${(props) => (props ? '-50px' : '50px')} 30px -30px rgba(0,0,0,0.30); 
+  box-shadow: inset 0px ${(props) => (props ? '-50px' : '50px')} 30px -30px rgba(0,0,0,0.30); */
 `;
 
 const InsetBox = styled(Box)`
@@ -85,7 +90,11 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
       {strategiesLoading && <Skeleton width={180} />}
 
       {cardLayout && (
-        <Box overflow={mobile ? undefined : 'auto'} height={mobile ? undefined : '250px'} pad="xsmall">
+        <ShadeBox 
+          overflow={mobile ? 'auto' : 'auto'}
+          height={mobile ? undefined : '250px'}
+          pad={{ vertical: 'small', horizontal: 'xsmall' }}
+        >
           <Grid columns={mobile ? '100%' : '40%'} gap="small">
             {strategiesLoading ? (
               <>
@@ -105,7 +114,17 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
                   align="center"
                 >
                   <Box pad="small" width="small" direction="row" align="center" gap="small">
-                    <Avatar background="solid">{strategy.currentSeries?.seriesMark || <FiSlash />}</Avatar>
+                  <Avatar
+                      background={strategy.address === selectedStrategyAddr? 'solid' : strategy.currentSeries?.endColor.toString().concat('10')}
+                      style={{
+                        boxShadow:
+                        strategy.address === selectedStrategyAddr
+                            ? `inset 1px 1px 2px ${strategy.currentSeries?.endColor.toString().concat('69')}`
+                            : undefined,
+                      }}
+                    >
+                      {strategy.currentSeries?.seriesMark || <FiSlash />}
+                    </Avatar>
                     <Box>
                       {(!selectedStrategyAddr || !inputValue) && (
                         <>
@@ -136,10 +155,10 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
                               strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined
                             }
                           >
-                            {getPoolPercent(
-                              ethers.utils.parseUnits(inputValue, strategy.decimals),
+                            {cleanValue ( getPoolPercent(
+                              ethers.utils.parseUnits(cleanValue(inputValue, strategy.decimals) , strategy.decimals),
                               strategy.strategyTotalSupply!
-                            )}
+                            ), 3) }
                             %
                           </Text>
                           <Text
@@ -158,7 +177,7 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
               ))
             )}
           </Grid>
-        </Box>
+        </ShadeBox>
       )}
     </>
   );

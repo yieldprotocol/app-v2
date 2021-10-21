@@ -70,7 +70,8 @@ export const getSeason = (dateInSecs: number): SeasonType => {
 export const cleanValue = (input: string | undefined, decimals: number = 18) => {
   const re = new RegExp(`(\\d+\\.\\d{${decimals}})(\\d)`);
   if (input !== undefined) {
-    const inpu = input?.match(re); // inpu = truncated 'input'... get it?
+    const input_ = input![0] === '.' ? '0'.concat(input!) : input; 
+    const inpu = input_?.match(re); // inpu = truncated 'input'... get it?
     if (inpu) {
       return inpu[1];
     }
@@ -210,14 +211,14 @@ export const getPositionPath = (txCode: string, receipt: any, contractMap?: any,
 
 export const getVaultIdFromReceipt = (receipt: any, contractMap: any) => {
   if (!receipt) return '';
-  const cauldronAddr = contractMap.get('Cauldron').address;
-  const vaultIdHex = receipt.events.filter((e: any) => e.address === cauldronAddr)[0].topics[1];
-  return vaultIdHex.slice(0, 26);
+  const cauldronAddr = contractMap?.get('Cauldron')?.address!;
+  const vaultIdHex = receipt.events?.filter((e: any) => e.address === cauldronAddr)[0]?.topics[1]!;
+  return vaultIdHex?.slice(0, 26) || '';
 };
 
 export const getSeriesAfterRollPosition = (receipt: any, seriesMap: any) => {
   if (!receipt) return '';
-  const contractAddress = receipt.events[7].address;
+  const contractAddress = receipt.events[7]?.address!;
   const series = [...seriesMap.values()].filter((s) => s.address === contractAddress)[0];
   return series?.id! || '';
 };

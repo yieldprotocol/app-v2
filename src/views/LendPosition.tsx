@@ -54,6 +54,7 @@ const LendPosition = () => {
   /* HOOK FNS */
   const { fyTokenMarketValue, maxClose_, maxClose } = useLendHelpers(selectedSeries!, closeInput);
   const { maxLend_, maxLend } = useLendHelpers(rollToSeries!, rollInput);
+  // const { maxLend_, maxLend } = useLendHelpers(selectedSeries!, rollInput);
 
   const closePosition = useClosePosition();
   const rollPosition = useRollPosition();
@@ -239,9 +240,11 @@ const LendPosition = () => {
                           <TextInput
                             plain
                             type="number"
-                            placeholder="Amount to reclaim"
+                            placeholder="Amount to redeem"
                             value={closeInput || ''}
-                            onChange={(event: any) => setCloseInput(cleanValue(event.target.value))}
+                            onChange={(event: any) =>
+                              setCloseInput(cleanValue(event.target.value, selectedSeries.decimals))
+                            }
                             disabled={!selectedSeries}
                             icon={<>{selectedBase?.image}</>}
                           />
@@ -286,7 +289,9 @@ const LendPosition = () => {
                             type="number"
                             placeholder={`Amount of ${selectedBase?.symbol} to roll`}
                             value={rollInput || ''}
-                            onChange={(event: any) => setRollInput(cleanValue(event.target.value))}
+                            onChange={(event: any) =>
+                              setRollInput(cleanValue(event.target.value, selectedSeries.decimals))
+                            }
                             disabled={!selectedSeries}
                             icon={<>{selectedBase?.image}</>}
                           />

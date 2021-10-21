@@ -32,6 +32,4 @@ function CancelButton({ action }: { action: () => void }) {
   );
 }
 
-// CancelButton.defaultProps = { action : () => console.log('234') };
-
 export default CancelButton;

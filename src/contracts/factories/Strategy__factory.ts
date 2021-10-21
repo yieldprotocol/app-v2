@@ -1137,7 +1137,18 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "minRatio",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "maxRatio",
+        type: "uint256",
+      },
+    ],
     name: "startPool",
     outputs: [],
     stateMutability: "nonpayable",

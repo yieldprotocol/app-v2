@@ -1,6 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Box, RadioButtonGroup, ResponsiveContext, Text, TextInput, Tip } from 'grommet';
-
 import { FiPercent } from 'react-icons/fi';
 import { BiMessageSquareAdd } from 'react-icons/bi';
 import { MdAutorenew } from 'react-icons/md';
@@ -12,7 +11,7 @@ import InfoBite from '../components/InfoBite';
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
 import { UserContext } from '../contexts/UserContext';
-import { ActionCodes, IUserContext, ProcessStage, TxState } from '../types';
+import { ActionCodes, AddLiquidityType, IUserContext, ProcessStage, TxState } from '../types';
 import MaxButton from '../components/buttons/MaxButton';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
@@ -38,15 +37,14 @@ function Pool() {
 
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, assetMap, seriesMap, selectedBaseId, selectedStrategyAddr, strategyMap } = userState;
-  // const selectedSeries = seriesMap.get(selectedSeriesId!);
+  const { activeAccount, assetMap, selectedBaseId, selectedStrategyAddr, strategyMap } = userState;
   const selectedBase = assetMap.get(selectedBaseId!);
   const selectedStrategy = strategyMap.get(selectedStrategyAddr!);
 
   /* LOCAL STATE */
   const [poolInput, setPoolInput] = useState<string | undefined>(undefined);
   const [poolDisabled, setPoolDisabled] = useState<boolean>(true);
-  const [poolMethod, setPoolMethod] = useState<'BUY' | 'BORROW'>('BUY'); // BUY default
+  const [poolMethod, setPoolMethod] = useState<AddLiquidityType>(AddLiquidityType.BUY); // BUY default
   const [stepPosition, setStepPosition] = useState<number>(0);
 
   /* HOOK FNS */
@@ -65,7 +63,8 @@ function Pool() {
 
   /* LOCAL ACTION FNS */
   const handleAdd = () => {
-    const _method = !canBuyAndPool ? 'BORROW' : poolMethod;
+    console.log('POOLING METHOD: ', poolMethod);
+    const _method = !canBuyAndPool ? AddLiquidityType.BORROW : poolMethod; // double check
     selectedStrategy && addLiquidity(poolInput!, selectedStrategy, _method);
   };
 
@@ -85,7 +84,7 @@ function Pool() {
   }, [poolProcess, resetInputs]);
 
   useEffect(() => {
-    !canBuyAndPool && setPoolMethod('BORROW');
+    canBuyAndPool ? setPoolMethod(AddLiquidityType.BUY) : setPoolMethod(AddLiquidityType.BORROW);
   }, [canBuyAndPool]);
 
   return (
@@ -126,7 +125,9 @@ function Pool() {
                           type="number"
                           placeholder="Enter amount"
                           value={poolInput || ''}
-                          onChange={(event: any) => setPoolInput(cleanValue(event.target.value))}
+                          onChange={(event: any) =>
+                            setPoolInput(cleanValue(event.target.value, selectedBase?.decimals))
+                          }
                         />
                         <MaxButton
                           action={() => setPoolInput(maxPool)}

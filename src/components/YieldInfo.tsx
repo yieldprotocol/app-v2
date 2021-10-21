@@ -1,21 +1,15 @@
-import { Anchor, Box, Collapsible, ResponsiveContext, Text } from 'grommet';
+import { Anchor, Box, ResponsiveContext, Text } from 'grommet';
 import { useLocation } from 'react-router-dom';
 
 import React, { useContext, useEffect, useState } from 'react';
 import {
-  FiMenu,
   FiGithub as Github,
   FiBookOpen as Docs,
-  FiSun as Sun,
-  FiMoon as Moon,
-  FiClock as Clock,
   FiFileText as Terms,
 } from 'react-icons/fi';
 import { FaDiscord as Discord } from 'react-icons/fa';
 
 import { ChainContext } from '../contexts/ChainContext';
-import { TxContext } from '../contexts/TxContext';
-import { UserContext } from '../contexts/UserContext';
 import BoxWrap from './wraps/BoxWrap';
 
 const IconSize = '1.15rem';
@@ -23,13 +17,14 @@ const IconGap = 'small';
 
 const YieldInfo = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
+
   const {
-    chainState: { account, chainId, chainData, appVersion },
+    chainState: {
+      connection: { account, currentChainInfo },
+      appVersion,
+    },
     chainActions: { connect, disconnect },
   } = useContext(ChainContext);
-  const {
-    txState: { txPending, signPending, processPending },
-  } = useContext(TxContext);
 
   const { pathname } = useLocation();
   const [path, setPath] = useState<string>();
@@ -37,13 +32,6 @@ const YieldInfo = () => {
   useEffect(() => {
     pathname && setPath(pathname.split('/')[1]);
   }, [pathname]);
-
-  const {
-    userState: { assetMap, selectedBaseId, selectedIlkId },
-  } = useContext(UserContext);
-
-  const selectedBase = assetMap.get(selectedBaseId);
-  const selectedIlk = assetMap.get(selectedIlkId);
 
   const handleExternal = (destination: string) => {
     // analyticsLogEvent('external_link', {
@@ -78,6 +66,7 @@ const YieldInfo = () => {
           </Anchor>
         </BoxWrap>
 
+<<<<<<< HEAD
         <BoxWrap>
           <Anchor
             color="grey"
@@ -92,6 +81,16 @@ const YieldInfo = () => {
         <BoxWrap>
           <Anchor color="grey" href="/terms" target="_blank" onClick={() => handleExternal('Terms')}>
             <Terms size={IconSize} />
+=======
+        <BoxWrap>
+          <Anchor
+            color="grey"
+            href="https://discord.gg/JAFfDj5"
+            target="_blank"
+            onClick={() => handleExternal('Discord')}
+          >
+            <Discord size={IconSize} />
+>>>>>>> RC11
           </Anchor>
         </BoxWrap>
       </Box>
@@ -100,8 +99,8 @@ const YieldInfo = () => {
         <Box direction="row-responsive" gap="small">
           <Text size="xsmall">
             {`Connected to: `}
-            <Text size="xsmall" color={chainData.color}>
-              {chainData.name}
+            <Text size="xsmall" color={currentChainInfo?.color}>
+              {currentChainInfo?.name}
             </Text>
           </Text>
           <Box onClick={() => disconnect()}>

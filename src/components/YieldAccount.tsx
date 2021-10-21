@@ -37,7 +37,7 @@ const StyledBox = styled(Box)`
 const YieldAccount = (props: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
-    chainState: { account },
+    chainState: { connection: { account } },
   } = useContext(ChainContext);
 
   const {

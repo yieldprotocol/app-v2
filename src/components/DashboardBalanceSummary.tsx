@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Box, Text } from 'grommet';
 import Skeleton from 'react-loading-skeleton';
 import { FiPlus, FiMinus } from 'react-icons/fi';
@@ -18,6 +18,12 @@ const DashboardBalanceSummary = ({ debt, collateral, lendBalance, poolBalance, d
   const {
     userState: { vaultsLoading, seriesLoading, pricesLoading, strategiesLoading },
   } = useContext(UserContext);
+
+  const [totalBalance, setTotalBalance] = useState<number>();
+
+  useEffect(() => {
+    setTotalBalance(Number(collateral) - Number(debt) + Number(lendBalance) + Number(poolBalance));
+  }, [collateral, debt, lendBalance, poolBalance]);
 
   return (
     <Box gap="medium">
@@ -78,15 +84,12 @@ const DashboardBalanceSummary = ({ debt, collateral, lendBalance, poolBalance, d
       </Box>
       <Box direction="row" justify="between">
         <Text size="small">Total:</Text>
-        {vaultsLoading || seriesLoading || strategiesLoading || pricesLoading ? (
+        {vaultsLoading || seriesLoading || strategiesLoading || (pricesLoading && !totalBalance) ? (
           <Skeleton width={50} />
         ) : (
           <Text size="medium">
             {symbol}
-            {cleanValue(
-              (Number(collateral) - Number(debt) + Number(lendBalance) + Number(poolBalance)).toString(),
-              digits
-            )}
+            {cleanValue(totalBalance?.toString(), digits)}
           </Text>
         )}
       </Box>
