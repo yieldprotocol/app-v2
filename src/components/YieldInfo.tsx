@@ -2,7 +2,7 @@ import { Anchor, Box, ResponsiveContext, Text } from 'grommet';
 import { useLocation } from 'react-router-dom';
 
 import React, { useContext, useEffect, useState } from 'react';
-import { FiGithub as Github, FiBookOpen as Docs, FiFileText as Terms } from 'react-icons/fi';
+import { FiGithub as Github, FiBookOpen as Docs, FiFileText as Terms, FiKey as Privacy } from 'react-icons/fi';
 import { FaDiscord as Discord } from 'react-icons/fa';
 
 import { ChainContext } from '../contexts/ChainContext';
@@ -74,8 +74,24 @@ const YieldInfo = () => {
         </BoxWrap>
 
         <BoxWrap>
-          <Anchor color="grey" href="/terms" target="_blank" onClick={() => handleExternal('Terms')}>
+          <Anchor
+            color="grey"
+            href="https://yieldprotocol.com/terms/"
+            target="_blank"
+            onClick={() => handleExternal('Terms')}
+          >
             <Terms size={IconSize} />
+          </Anchor>
+        </BoxWrap>
+
+        <BoxWrap>
+          <Anchor
+            color="grey"
+            href="https://yieldprotocol.com/privacy/"
+            target="_blank"
+            onClick={() => handleExternal('Privacy')}
+          >
+            <Privacy size={IconSize} />
           </Anchor>
         </BoxWrap>
       </Box>
