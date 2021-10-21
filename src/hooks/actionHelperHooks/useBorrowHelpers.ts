@@ -4,7 +4,8 @@ import { UserContext } from '../../contexts/UserContext';
 import { IVault, ISeries, IAsset } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 
-import { maxBaseIn, sellBase } from '../../utils/yieldMath';
+import { buyBase, calculateMinCollateral, maxBaseIn, maxFyTokenIn, sellBase, sellFYToken } from '../../utils/yieldMath';
+import { useCollateralHelpers } from './useCollateralHelpers';
 
 /* Collateralization hook calculates collateralization metrics */
 export const useBorrowHelpers = (
@@ -15,7 +16,16 @@ export const useBorrowHelpers = (
 ) => {
   /* STATE FROM CONTEXT */
   const {
-    userState: { activeAccount, selectedBaseId, selectedIlkId, assetMap, seriesMap, limitMap, selectedSeriesId },
+    userState: {
+      activeAccount,
+      selectedBaseId,
+      selectedIlkId,
+      assetMap,
+      seriesMap,
+      limitMap,
+      priceMap,
+      selectedSeriesId,
+    },
     userActions: { updateLimit },
   } = useContext(UserContext);
 
@@ -97,19 +107,47 @@ export const useBorrowHelpers = (
     }
   }, [input, futureSeries]);
 
-  /* Check if the rollToSeries have sufficient base value */
+  /* Check if the rollToSeries have sufficient base value AND won't be undercollaterallised */
   useEffect(() => {
     if (futureSeries && vault) {
-      setMaxRoll(futureSeries.baseReserves);
-      setMaxRoll_(ethers.utils.formatUnits(futureSeries.baseReserves, futureSeries.decimals).toString());
-      setRollPossible(vault.art?.lt(futureSeries.baseReserves));
+      const _maxFyTokenIn = maxFyTokenIn(
+        futureSeries.baseReserves,
+        futureSeries.fyTokenReserves,
+        futureSeries.getTimeTillMaturity(),
+        futureSeries.decimals
+      );
+      setMaxRoll(_maxFyTokenIn);
+      setMaxRoll_(ethers.utils.formatUnits(_maxFyTokenIn, futureSeries.decimals).toString());
 
-      if (vault.art?.lt(futureSeries.baseReserves)) {
+      const newDebt = buyBase(
+        futureSeries.baseReserves,
+        futureSeries.fyTokenReserves,
+        vault.art,
+        futureSeries.getTimeTillMaturity(),
+        futureSeries.decimals
+      );
+
+      const price = priceMap?.get(vault.ilkId)?.get(vault.baseId)
+      const minCollat = calculateMinCollateral(
+        price, 
+        newDebt,
+        undefined,
+        undefined,
+        true
+      );
+      console.log('min Collat', minCollat.toString());
+
+      const rollable = vault.art.lt(_maxFyTokenIn) && vault.ink.gt(minCollat);
+
+      console.log('Roll possible: ', rollable);
+      setRollPossible(rollable);
+
+      if (vault.art?.lt(_maxFyTokenIn)) {
         setMaxRoll(vault.art);
         setMaxRoll_(ethers.utils.formatUnits(vault.art, futureSeries.decimals).toString());
       }
     }
-  }, [futureSeries, vault]);
+  }, [futureSeries, priceMap, vault]);
 
   /* Update the min max repayable amounts */
   useEffect(() => {
