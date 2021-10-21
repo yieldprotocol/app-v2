@@ -148,7 +148,7 @@ const Borrow = () => {
     !selectedSeries ||
     borrowInputError ||
     selectedSeries?.seriesIsMature ||
-    (stepPosition === 1 && !collatInput && undercollateralized)
+    (stepPosition === 1 && undercollateralized)
       ? setStepDisabled(true)
       : setStepDisabled(false); /* else if all pass, then unlock borrowing */
   }, [borrowInput, borrowInputError, selectedSeries, activeAccount, stepPosition, collatInput, undercollateralized]);
