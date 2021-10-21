@@ -42,7 +42,7 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
         {[...CONNECTORS.keys()].map((name: string) => {
           const currentConnector = CONNECTORS.get(name);
           const activating = currentConnector === activatingConnector;
-          const connected = name === connectionName;
+          const connected = account && name === connectionName;
 
           return (
             <Button
