@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect, useCallback } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { Box, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import { ethers } from 'ethers';
 import { useHistory, useParams } from 'react-router-dom';
@@ -10,7 +10,7 @@ import { abbreviateHash, cleanValue, nFormatter } from '../utils/appUtils';
 import SectionWrap from '../components/wraps/SectionWrap';
 
 import { UserContext } from '../contexts/UserContext';
-import { ActionCodes, ActionType, ISeries, IUserContext, ProcessStage } from '../types';
+import { ActionCodes, ActionType, IUserContext, ProcessStage } from '../types';
 import MaxButton from '../components/buttons/MaxButton';
 import InfoBite from '../components/InfoBite';
 import ActiveTransaction from '../components/ActiveTransaction';
@@ -246,7 +246,7 @@ const PoolPosition = () => {
                               {(!removeTradePossible &&
                                 removeInput &&
                                 selectedSeries &&
-                                !selectedSeries.isMature()) ||
+                                !selectedSeries.seriesIsMature) ||
                                 (inputTradeValue?.eq(ethers.constants.Zero) && (
                                   <InputInfoWrap>
                                     <Text color="text-weak" alignSelf="end" size="xsmall">
@@ -278,7 +278,8 @@ const PoolPosition = () => {
                             disabled={
                               maxRemove === '0.0'||
                               !selectedSeries ||
-                              selectedSeries.seriesIsMature 
+                              selectedSeries.seriesIsMature ||
+                              !removeTradePossible 
                             }
                             clearAction={() => setRemoveInput('')}
                             showingMax={!!removeInput && removeInput === maxRemove}
@@ -313,8 +314,7 @@ const PoolPosition = () => {
                   onClick={() => handleStepper()}
                   key="next"
                   disabled={
-                    (actionActive.index === 0 && removeDisabled) ||
-                    selectedSeries?.isMature()
+                    (actionActive.index === 0 && removeDisabled)
                   }
                   errorLabel={actionActive.index === 0 && removeError}
                 />

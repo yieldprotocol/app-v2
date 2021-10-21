@@ -14,7 +14,7 @@ import { ZERO_BN, DAI, WETH } from '../utils/constants';
 import { cleanValue } from '../utils/appUtils';
 import DashboardPositionList from '../components/DashboardPositionList';
 import CurrencyToggle from '../components/CurrencyToggle';
-import { sellFYToken, checkPoolTrade } from '../utils/yieldMath';
+import { sellFYToken, strategyTokenValue } from '../utils/yieldMath';
 
 const StyledBox = styled(Box)`
   * {
@@ -107,10 +107,12 @@ const Dashboard = () => {
     const _strategyPositions: IStrategy[] = Array.from(strategyMap.values())
       .map((_strategy: IStrategy) => {
         const currentStrategySeries: any = seriesMap.get(_strategy.currentSeriesId);
-        const [, currentValue] = checkPoolTrade(
-          _strategy.accountBalance || ethers.constants.Zero,
+
+        const [, currentValue] = strategyTokenValue(
+          _strategy?.accountBalance || ethers.constants.Zero,
+          _strategy?.strategyTotalSupply || ethers.constants.Zero,
           currentStrategySeries.baseReserves,
-          currentStrategySeries.fyTokenReserves,
+          currentStrategySeries.fyTokenRealReserves,
           currentStrategySeries.totalSupply,
           currentStrategySeries.getTimeTillMaturity(),
           currentStrategySeries.decimals

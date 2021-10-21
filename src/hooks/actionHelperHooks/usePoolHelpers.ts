@@ -6,7 +6,7 @@ import { cleanValue } from '../../utils/appUtils';
 import {
   fyTokenForMint,
   splitLiquidity,
-  checkPoolTrade,
+  strategyTokenValue,
   getPoolPercent,
   maxFyTokenOut,
   burnFromStrategy,
@@ -14,6 +14,7 @@ import {
   sellFYToken,
 } from '../../utils/yieldMath';
 import { ZERO_BN } from '../../utils/constants';
+import { Strategy } from '../../contracts';
 
 export const usePoolHelpers = (input: string | undefined, removeLiquidityView: boolean = false) => {
   /* STATE FROM CONTEXT */
@@ -82,11 +83,17 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
 
   /* check account token trade value */
   useEffect(() => {
-    if (strategySeries && strategy?.accountBalance?.gt(ZERO_BN)) {
-      const [_sellValue] = checkPoolTrade(
+    if (
+      strategy &&
+      strategySeries &&
+      strategy?.accountBalance?.gt(ZERO_BN) &&
+      strategy?.strategyTotalSupply?.gt(ZERO_BN)
+    ) {
+      const [_sellValue] = strategyTokenValue(
         strategy?.accountBalance || ethers.constants.Zero,
+        strategy?.strategyTotalSupply,
         strategySeries.baseReserves,
-        strategySeries.fyTokenReserves,
+        strategySeries.fyTokenRealReserves,
         strategySeries.totalSupply,
         strategySeries.getTimeTillMaturity(),
         strategySeries.decimals
@@ -94,15 +101,16 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
       const tradeable = _sellValue.gt(ethers.constants.Zero);
       tradeable && setAccountTradeValue(ethers.utils.formatUnits(_sellValue, strategy.decimals));
     }
-  }, [strategy?.accountBalance, strategy?.decimals, strategySeries]);
+  }, [strategy, strategySeries]);
 
   /* Set the trade value and check if base reserves are too low for specific input  */
   useEffect(() => {
-    if (strategySeries ) {
-      const [_sellValue] = checkPoolTrade(
+    if (strategySeries) {
+      const [_sellValue] = strategyTokenValue(
         _input,
+        strategy?.strategyTotalSupply!,
         strategySeries.baseReserves,
-        strategySeries.fyTokenReserves,
+        strategySeries.fyTokenRealReserves,
         strategySeries.totalSupply,
         strategySeries.getTimeTillMaturity(),
         strategySeries.decimals
@@ -113,7 +121,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
       setInputTradeValue(_sellValue);
       setInputTradeValue_(ethers.utils.formatUnits(_sellValue, strategySeries.decimals));
     }
-  }, [_input, strategySeries]);
+  }, [_input, strategy?.strategyTotalSupply, strategySeries]);
 
   /* Check if can use 'buy and pool' method to get liquidity */
   useEffect(() => {
@@ -203,21 +211,17 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
 
   useEffect(() => {
     if (_input !== ethers.constants.Zero && strategy && strategySeries && removeLiquidityView) {
-      const lpReceived = burnFromStrategy(strategy.poolTotalSupply!, strategy.strategyTotalSupply!, _input);
-      const [, _fyTokenReceived] = burn(
+      const [sellTokenValue, ] = strategyTokenValue(
+        _input,
+        strategy.strategyTotalSupply!,
         strategySeries.baseReserves,
-        strategySeries.fyTokenReserves,
+        strategySeries.fyTokenRealReserves,
         strategySeries.totalSupply,
-        lpReceived
-      );
-      const fyTokenTrade: BigNumber = sellFYToken(
-        strategySeries.baseReserves,
-        strategySeries.fyTokenReserves,
-        _fyTokenReceived,
         strategySeries.getTimeTillMaturity(),
         strategySeries.decimals
-      );
-      setRemoveTradePossible(fyTokenTrade.gt(ethers.constants.Zero));
+      )
+      console.log( 'sellValue: ', sellTokenValue.toString())
+      setRemoveTradePossible(sellTokenValue.gt(ethers.constants.Zero));
     }
   }, [_input, removeLiquidityView, strategy, strategySeries]);
 

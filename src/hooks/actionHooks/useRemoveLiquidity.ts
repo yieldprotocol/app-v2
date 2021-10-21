@@ -6,7 +6,7 @@ import { getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
-import { burn, burnFromStrategy, calcPoolRatios, checkPoolTrade, sellFYToken } from '../../utils/yieldMath';
+import { burn, burnFromStrategy, calcPoolRatios, sellFYToken } from '../../utils/yieldMath';
 import { ZERO_BN } from '../../utils/constants';
 
 export const usePool = (input: string | undefined) => {
@@ -22,7 +22,7 @@ export const useRemoveLiquidity = () => {
   const ladleAddress = contractMap?.get('Ladle')?.address;
 
   const { userState, userActions } = useContext(UserContext);
-  const { activeAccount: account, assetMap, selectedStrategyAddr, strategyMap, slippageTolerance } = userState;
+  const { activeAccount: account, assetMap, selectedStrategyAddr, strategyMap } = userState;
   const { updateSeries, updateAssets, updateStrategies } = userActions;
   const { sign, transact } = useChain();
 
