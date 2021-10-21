@@ -422,7 +422,7 @@ const Borrow = () => {
                       : 'Next Step'
                   }
                   onClick={() => setStepPosition(stepPosition + 1)}
-                  disabled={stepPosition === 0 ? stepDisabled : borrowDisabled}
+                  disabled={stepDisabled}
                   errorLabel={stepPosition === 0 ? borrowInputError : collatInputError}
                 />
               )}
