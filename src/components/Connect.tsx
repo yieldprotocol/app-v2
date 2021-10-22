@@ -38,6 +38,14 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
         )}
         <Button icon={<FiX size="1.5rem" />} onClick={() => setConnectOpen(false)} plain />
       </Box>
+      {!disclaimerChecked && (
+        <Box border={{ color: 'brand' }} round="xsmall">
+          <Disclaimer
+            checked={disclaimerChecked}
+            onChange={(event: any) => setDisclaimerChecked(event.target.checked)}
+          />
+        </Box>
+      )}
       <Box gap="xsmall">
         {[...CONNECTORS.keys()].map((name: string) => {
           const currentConnector = CONNECTORS.get(name);
@@ -63,14 +71,6 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
           );
         })}
       </Box>
-      {!disclaimerChecked && (
-        <Box border={{ color: 'brand' }} round="xsmall">
-          <Disclaimer
-            checked={disclaimerChecked}
-            onChange={(event: any) => setDisclaimerChecked(event.target.checked)}
-          />
-        </Box>
-      )}
     </Box>
   );
 };

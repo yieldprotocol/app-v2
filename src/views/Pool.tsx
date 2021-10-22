@@ -63,7 +63,7 @@ function Pool() {
 
   /* LOCAL ACTION FNS */
   const handleAdd = () => {
-    console.log('POOLING METHOD: ', poolMethod)
+    console.log('POOLING METHOD: ', poolMethod);
     const _method = !canBuyAndPool ? AddLiquidityType.BORROW : poolMethod; // double check
     selectedStrategy && addLiquidity(poolInput!, selectedStrategy, _method);
   };
@@ -84,9 +84,7 @@ function Pool() {
   }, [poolProcess, resetInputs]);
 
   useEffect(() => {
-    canBuyAndPool 
-      ? setPoolMethod(AddLiquidityType.BUY)
-      : setPoolMethod(AddLiquidityType.BORROW);
+    canBuyAndPool ? setPoolMethod(AddLiquidityType.BUY) : setPoolMethod(AddLiquidityType.BORROW);
   }, [canBuyAndPool]);
 
   return (
@@ -127,7 +125,9 @@ function Pool() {
                           type="number"
                           placeholder="Enter amount"
                           value={poolInput || ''}
-                          onChange={(event: any) => setPoolInput(cleanValue(event.target.value))}
+                          onChange={(event: any) =>
+                            setPoolInput(cleanValue(event.target.value, selectedBase?.decimals))
+                          }
                         />
                         <MaxButton
                           action={() => setPoolInput(maxPool)}
@@ -240,7 +240,7 @@ function Pool() {
           {stepPosition !== 1 && (
             <NextButton
               secondary
-              label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
+              label={<Text size={mobile ? 'small' : undefined}>Next Step</Text>}
               onClick={() => setStepPosition(stepPosition + 1)}
               disabled={poolDisabled}
               errorLabel={poolError}

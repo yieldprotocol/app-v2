@@ -1,7 +1,7 @@
 import React, { useContext, useState, useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 import { Box, ResponsiveContext, Text } from 'grommet';
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import Skeleton from 'react-loading-skeleton';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
@@ -133,25 +133,14 @@ const Dashboard = () => {
   /* get a single position's ink or art in dai or eth (input the asset id): value can be art, ink, fyToken, or pooToken balances */
   const getPositionValue = useCallback(
     (baseOrIlkId: string, value: string, assetId = DAI) => {
-      let positionValue;
       const base = assetMap?.get(baseOrIlkId);
       if (!priceMap.get(baseOrIlkId)?.has(assetId)) updatePrice(baseOrIlkId, assetId, base?.decimals!);
 
-      if (assetId === WETH && baseOrIlkId !== WETH) {
-        // calculate DAIWETH price
-        const daiWethPrice = priceMap?.get(WETH)?.get(DAI);
-        const daiWethPrice_ = ethers.utils.formatEther(daiWethPrice);
-        // calculate WETHDAI price for 'ETH' currency setting
-        const wethDaiPrice = 1 / Number(daiWethPrice_);
-        positionValue = Number(wethDaiPrice) * Number(value);
-      } else {
-        const assetPrice = baseOrIlkId !== assetId && priceMap?.get(baseOrIlkId)?.get(assetId);
-        const assetPrice_ = assetPrice ? ethers.utils.formatEther(assetPrice) : '1';
-        positionValue = Number(assetPrice_) * Number(value);
-      }
-      return positionValue;
+      const assetPrice = priceMap.get(baseOrIlkId)?.get(assetId);
+      const assetValue = Number(ethers.utils.formatUnits(assetPrice || ethers.constants.Zero, 18)) * Number(value);
+      return assetValue;
     },
-    [priceMap, assetMap]
+    [priceMap, assetMap, updatePrice]
   );
 
   /* get vault, lend, and pool position total debt, collateral, and balances */

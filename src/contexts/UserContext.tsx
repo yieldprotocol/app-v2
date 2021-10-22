@@ -65,7 +65,7 @@ const initState: IUserContextState = {
 
   /* User Settings ( getting from the cache first ) */
   approvalMethod: (JSON.parse(localStorage.getItem('cachedApprovalMethod')!) as ApprovalType) || ApprovalType.SIG,
-  slippageTolerance: (JSON.parse(localStorage.getItem('slippageTolerance')!) as number) || (0.01 as number),
+  slippageTolerance: (JSON.parse(localStorage.getItem('slippageTolerance')!) as number) || (0.0005 as number),
   dudeSalt: 21,
 
   dashSettings: {
@@ -345,7 +345,7 @@ const UserProvider = ({ children }: any) => {
         return [min, max];
       } catch (error) {
         console.log('Error getting limits', error);
-        updateState({ type: 'limitsLoading', payload: false });
+        updateState({ type: 'pricesLoading', payload: false });
         return [ethers.constants.Zero, ethers.constants.Zero];
       }
     },

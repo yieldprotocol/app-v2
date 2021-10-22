@@ -28,14 +28,13 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
     chainState: {
-      connection: { account, provider, CONNECTOR_NAMES, currentChainInfo },
+      connection: { account, CONNECTOR_NAMES, currentChainInfo, connectionName },
     },
   } = useContext(ChainContext);
   const {
     txState: { transactions },
   } = useContext(TxContext);
 
-  const connectorName = CONNECTOR_NAMES.get(provider.connection.url);
   const [transactionsOpen, toggleTransactionsOpen] = useState<boolean>(false);
 
   const handleChangeConnectType = () => {
@@ -84,7 +83,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
           )}
         </Box>
         <Box justify="between" align="center" direction="row">
-          {connectorName && <Text size="small">Connected with {connectorName}</Text>}
+          {connectionName && <Text size="small">Connected with {CONNECTOR_NAMES.get(connectionName)}</Text>}
           <StyledButton onClick={handleChangeConnectType}>Change</StyledButton>
         </Box>
       </Box>

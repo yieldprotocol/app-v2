@@ -148,7 +148,9 @@ const Lend = () => {
                           type="number"
                           placeholder="Enter amount"
                           value={lendInput || ''}
-                          onChange={(event: any) => setLendInput(cleanValue(event.target.value))}
+                          onChange={(event: any) =>
+                            setLendInput(cleanValue(event.target.value, selectedSeries?.decimals))
+                          }
                           disabled={selectedSeries?.seriesIsMature}
                         />
                         <MaxButton
@@ -227,7 +229,7 @@ const Lend = () => {
             <NextButton
               secondary
               disabled={lendDisabled}
-              label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
+              label={<Text size={mobile ? 'small' : undefined}>Next Step</Text>}
               key="ONE"
               onClick={() => setStepPosition(stepPosition + 1)}
               errorLabel={lendError}
