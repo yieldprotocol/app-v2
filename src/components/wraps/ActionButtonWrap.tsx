@@ -13,6 +13,7 @@ function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
   } = useContext(ChainContext);
 
   const [connectOpen, setConnectOpen] = useState<boolean>(false);
+  const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
 
   return mobile ? (
     <Layer position="bottom" background="white" modal={false} responsive={false} full="horizontal" animate={false}>
@@ -37,7 +38,12 @@ function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
           />
         )}
       </Box>
-      {connectOpen && <SidebarSettings connectOpen={connectOpen} setConnectOpen={setConnectOpen} />}
+      <SidebarSettings
+        connectOpen={connectOpen}
+        setConnectOpen={setConnectOpen}
+        setSettingsOpen={setSettingsOpen}
+        settingsOpen={settingsOpen}
+      />
     </>
   );
 }
