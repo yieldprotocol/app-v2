@@ -16,11 +16,12 @@ const YieldInfo = () => {
 
   const {
     chainState: {
-      connection: { account, CHAIN_INFO, fallbackChainId },
+      connection: { CHAIN_INFO, fallbackChainId },
       appVersion,
     },
-    chainActions: { connect, disconnect },
   } = useContext(ChainContext);
+
+  const connectedChain = CHAIN_INFO?.get(fallbackChainId!);
 
   const { pathname } = useLocation();
   const [path, setPath] = useState<string>();
@@ -96,7 +97,7 @@ const YieldInfo = () => {
         </BoxWrap>
       </Box>
 
-      {account ? (
+      {connectedChain && (
         <Box direction="row-responsive" gap="small">
           <Text size="xsmall">
             {`Connected to: `}
@@ -104,22 +105,6 @@ const YieldInfo = () => {
               {CHAIN_INFO.get(fallbackChainId)?.name}
             </Text>
           </Text>
-          <Box onClick={() => disconnect()}>
-            <Text size="xsmall" color="text-xweak">
-              Disconnect
-            </Text>
-          </Box>
-        </Box>
-      ) : (
-        <Box direction="row-responsive" gap="small">
-          <Text size="xsmall" color="pink">
-            Disconnected
-          </Text>
-          <Box onClick={() => connect()}>
-            <Text size="xsmall" color={account ? 'text-xweak' : 'text-weak'}>
-              Connect
-            </Text>
-          </Box>
         </Box>
       )}
     </Box>
