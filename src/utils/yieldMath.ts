@@ -952,10 +952,13 @@ export const strategyTokenValue = (
    newFyTokenVirtualReserves,
    _fyTokenReceived,
    poolTimeToMaturity.toString(),
-   decimals
+   decimals,
  );
 
  const totalValue = sellValue.add(_baseTokenReceived);
+ console.log( 'SellPortion : ', sellValue.toString() )
+ console.log( 'TotalValue : ', totalValue.toString() )
+
  return [sellValue, totalValue];
 };
 

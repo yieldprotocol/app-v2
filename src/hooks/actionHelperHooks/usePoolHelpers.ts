@@ -105,7 +105,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
 
   /* Set the trade value and check if base reserves are too low for specific input  */
   useEffect(() => {
-    if (strategySeries) {
+    if (_input !== ethers.constants.Zero && strategySeries) {
       const [_sellValue] = strategyTokenValue(
         _input,
         strategy?.strategyTotalSupply!,
@@ -116,7 +116,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         strategySeries.decimals
       );
       const tradeable = _sellValue.gt(ethers.constants.Zero);
-      console.log('Is tradeable:', tradeable);
+      // console.log('Is tradeable:', tradeable);
       setAddTradePossible(tradeable);
       setInputTradeValue(_sellValue);
       setInputTradeValue_(ethers.utils.formatUnits(_sellValue, strategySeries.decimals));
