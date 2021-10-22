@@ -116,8 +116,8 @@ const ChainProvider = ({ children }: any) => {
   /* CACHED VARIABLES */
   const [lastAppVersion, setLastAppVersion] = useCachedState('lastAppVersion', '');
 
-  const [lastAssetUpdate, setLastAssetUpdate] = useCachedState('lastAssetUpdate', 0);
-  const [lastSeriesUpdate, setLastSeriesUpdate] = useCachedState('lastSeriesUpdate', 0);
+  const [lastAssetUpdate, setLastAssetUpdate] = useCachedState('lastAssetUpdate', 13450000);
+  const [lastSeriesUpdate, setLastSeriesUpdate] = useCachedState('lastSeriesUpdate', 13450000);
 
   const [cachedAssets, setCachedAssets] = useCachedState('assets', []);
   const [cachedSeries, setCachedSeries] = useCachedState('series', []);
@@ -153,7 +153,7 @@ const ChainProvider = ({ children }: any) => {
         );
         Witch = contracts.Witch__factory.connect(addrs.Witch, fallbackProvider);
       } catch (e) {
-        console.log(e, 'could not connect to contracts');
+        console.log(e, 'Could not connect to contracts');
       }
 
       if (!Cauldron || !Ladle || !ChainlinkMultiOracle || !CompositeMultiOracle || !Witch) return;
@@ -211,7 +211,6 @@ const ChainProvider = ({ children }: any) => {
           assetAddedEvents.map(async (x: any) => {
             const { assetId: id, asset: address } = Cauldron.interface.parseLog(x).args;
             const ERC20 = contracts.ERC20Permit__factory.connect(address, fallbackProvider);
-            /* Add in any extra static asset Data */ // TODO is there any other fixed asset data needed?
             const [name, symbol, decimals, version] = await Promise.all([
               ERC20.name(),
               ERC20.symbol(),
