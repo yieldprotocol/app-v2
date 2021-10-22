@@ -1,7 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { Button, Box, Text, Layer, ResponsiveContext } from 'grommet';
 import { ChainContext } from '../../contexts/ChainContext';
-import Connect from '../Connect';
 import SidebarSettings from '../SidebarSettings';
 
 function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
@@ -11,7 +10,6 @@ function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
     chainState: {
       connection: { account },
     },
-    chainActions: { connect },
   } = useContext(ChainContext);
 
   const [connectOpen, setConnectOpen] = useState<boolean>(false);
