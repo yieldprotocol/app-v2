@@ -62,14 +62,7 @@ CONNECTORS.set(
     pollingInterval: POLLING_INTERVAL,
   })
 );
-// CONNECTORS.set(
-//   'ledger',
-//   new LedgerConnector({
-//     chainId: 1,
-//     url: RPC_URLS[1],
-//     pollingInterval: POLLING_INTERVAL,
-//   })
-// );
+
 CONNECTORS.set(
   'ledgerWithMetamask',
   new InjectedConnector({
@@ -86,7 +79,7 @@ export const useConnection = () => {
   const [fallbackErrorMessage, setFallbackErrorMessage] = useState<string | undefined>(undefined);
 
   /* CACHED VARIABLES */
-  const [lastChainId, setLastChainId] = useCachedState('lastChainId', process.env.REACT_APP_DEFAULT_CHAINID);
+  const [lastChainId, setLastChainId] = useCachedState('lastChainId', 1);
 
   const primaryConnection = useWeb3React<ethers.providers.Web3Provider>();
   const { connector, library: provider, chainId, account, activate, deactivate, active, error } = primaryConnection;
@@ -102,7 +95,6 @@ export const useConnection = () => {
 
   /* extra hooks */
   const { handleErrorMessage } = useWeb3Errors();
-
   useInactiveListener(); // inactive listener for when a wallet is availble, but not connected.
 
   const isConnected = (connection: string) => CONNECTORS.get(connection) === connector;
@@ -123,7 +115,7 @@ export const useConnection = () => {
   // const connect = (connection: string) => console.log('Connecting: ', connection);
 
   /**
-   * FIRST STEP > Try to connect automatically to an injected provider on first load using DEFAULT chainID
+   * FIRST STEP > Try to connect automatically to an injected provider on first load
    * */
   useEffect(() => {
     if (!tried && !active) {
@@ -145,11 +137,8 @@ export const useConnection = () => {
           }
         });
     }
-
     /* if active, set tried to true */
-    if (!tried && active) {
-      setTried(true);
-    }
+    !tried && active && setTried(true);
   }, [activate, active, handleErrorMessage, tried]);
 
   /*
@@ -176,7 +165,7 @@ export const useConnection = () => {
 
     /* Case: Auto Connection SUCCESS > set the fallback connector to the same as the chainId */
     if (tried && chainId) {
-      console.log('Connecting fallback Provider to the same network as connected wallet ');
+      console.log('Connecting fallback Provider to the same network as connected wallet');
       setFallbackErrorMessage(undefined);
       fallbackActivate(
         new NetworkConnector({
@@ -199,9 +188,16 @@ export const useConnection = () => {
     activatingConnector && activatingConnector === connector && setActivatingConnector(undefined);
   }, [activatingConnector, connector]);
 
+  /* handle chain changes */
   useEffect(() => {
-    chainId && setCurrentChainInfo(CHAIN_INFO.get(chainId));
-  }, [chainId]);
+    fallbackChainId && setCurrentChainInfo(CHAIN_INFO.get(fallbackChainId));
+    if (fallbackChainId && lastChainId && fallbackChainId !== lastChainId) {
+      localStorage.clear();
+      setLastChainId(fallbackChainId);
+      // eslint-disable-next-line no-restricted-globals
+      location.reload();
+    }
+  }, [fallbackChainId, lastChainId, setLastChainId]);
 
   return {
     connectionState: {
@@ -217,6 +213,7 @@ export const useConnection = () => {
       fallbackProvider,
       chainId,
       fallbackChainId,
+      lastChainId,
 
       currentChainInfo,
       errorMessage,
@@ -261,7 +258,7 @@ const useWeb3Errors = () => {
 
 const useInactiveListener = (suppress: boolean = false) => {
   const { active, error, activate, chainId: _chainId } = useWeb3React();
-  const [lastChainId] = useCachedState('lastChainId', null);
+  const [lastChainId, setLastChainId] = useCachedState('lastChainId', null);
 
   // eslint-disable-next-line consistent-return
   useEffect((): any => {
@@ -279,9 +276,10 @@ const useInactiveListener = (suppress: boolean = false) => {
         // }
       };
 
-      const handleChainChanged = (chainId: string | number) => {
-        console.log("Handling 'CHAIN CHANGED' event with payload", chainId);
-        // if (_chainId !== lastChainId) localStorage.clear();
+      const handleChainChanged = (chainId: string) => {
+        console.log('CHAIN CHANGED in the background with payload: ', chainId);
+        window.localStorage.clear();
+        setLastChainId(parseInt(chainId, 16));
         // eslint-disable-next-line no-restricted-globals
         location.reload();
       };

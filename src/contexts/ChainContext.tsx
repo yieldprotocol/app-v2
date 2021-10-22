@@ -45,9 +45,12 @@ const initState = {
   appVersion: '0.0.0' as string,
 
   connection: {
-    chainId: Number(process.env.REACT_APP_DEFAULT_CHAINID) as number | null,
     provider: null as ethers.providers.Web3Provider | null,
+    chainId: null as number | null,
+
     fallbackProvider: null as ethers.providers.Web3Provider | null,
+    fallbackChainId: Number(process.env.REACT_APP_DEFAULT_CHAINID) as number | null,
+
     signer: null as ethers.providers.JsonRpcSigner | null,
     account: null as string | null,
     web3Active: false as boolean,
@@ -110,9 +113,6 @@ function chainReducer(state: any, action: any) {
 const ChainProvider = ({ children }: any) => {
   const [chainState, updateState] = React.useReducer(chainReducer, initState);
 
-  const { connectionState, connectionActions } = useConnection();
-  const { fallbackProvider, fallbackChainId } = connectionState;
-
   /* CACHED VARIABLES */
   const [lastAppVersion, setLastAppVersion] = useCachedState('lastAppVersion', '');
 
@@ -123,13 +123,17 @@ const ChainProvider = ({ children }: any) => {
   const [cachedSeries, setCachedSeries] = useCachedState('series', []);
   const [cachedStrategies, setCachedStrategies] = useCachedState('strategies', []);
 
+  /* Connection hook */
+  const { connectionState, connectionActions } = useConnection();
+  const { chainId, fallbackProvider, fallbackChainId, lastChainId } = connectionState;
+
   /**
    * Update on FALLBACK connection/state on network changes (id/library)
    */
   useEffect(() => {
     if (fallbackProvider && fallbackChainId) {
       console.log('Fallback ChainId: ', fallbackChainId);
-      console.log('Primary ChainId: ', connectionState.chainId);
+      console.log('Primary ChainId: ', chainId);
 
       /* Get the instances of the Base contracts */
       const addrs = (yieldEnv.addresses as any)[fallbackChainId];
@@ -183,7 +187,7 @@ const ChainProvider = ({ children }: any) => {
           /* baked in token fns */
           getBalance: async (acc: string) =>
             ETH_BASED_ASSETS.includes(asset.id) ? fallbackProvider?.getBalance(acc) : ERC20Permit.balanceOf(acc),
-          getAllowance: async (acc: string, spender: string) => ERC20Permit.allowance(acc, spender)
+          getAllowance: async (acc: string, spender: string) => ERC20Permit.allowance(acc, spender),
         };
       };
 
@@ -419,7 +423,7 @@ const ChainProvider = ({ children }: any) => {
   useEffect(() => {
     updateState({ type: 'appVersion', payload: process.env.REACT_APP_VERSION });
     console.log('APP VERSION: ', process.env.REACT_APP_VERSION);
-    if (process.env.REACT_APP_VERSION !== lastAppVersion) {
+    if (lastAppVersion && process.env.REACT_APP_VERSION !== lastAppVersion) {
       window.localStorage.clear();
       // eslint-disable-next-line no-restricted-globals
       location.reload();
