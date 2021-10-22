@@ -148,7 +148,7 @@ const Dashboard = () => {
       }
       return positionValue;
     },
-    [priceMap, assetMap]
+    [priceMap, assetMap, updatePrice]
   );
 
   /* get vault, lend, and pool position total debt, collateral, and balances */

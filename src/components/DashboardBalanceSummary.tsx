@@ -57,7 +57,7 @@ const DashboardBalanceSummary = ({ debt, collateral, lendBalance, poolBalance, d
         <Box gap="xsmall">
           <Box direction="row" justify="between">
             <Text size="xsmall">Total Collateral:</Text>
-            {vaultsLoading ? (
+            {vaultsLoading || pricesLoading ? (
               <Skeleton width={50} />
             ) : (
               <Text size="small">
@@ -71,7 +71,7 @@ const DashboardBalanceSummary = ({ debt, collateral, lendBalance, poolBalance, d
         <Box gap="xsmall">
           <Box direction="row" justify="between">
             <Text size="xsmall">Total Debt:</Text>
-            {vaultsLoading ? (
+            {vaultsLoading || pricesLoading ? (
               <Skeleton width={50} />
             ) : (
               <Text size="small">
