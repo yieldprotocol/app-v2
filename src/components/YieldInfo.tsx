@@ -16,7 +16,7 @@ const YieldInfo = () => {
 
   const {
     chainState: {
-      connection: { account, currentChainInfo },
+      connection: { account, CHAIN_INFO, fallbackChainId },
       appVersion,
     },
     chainActions: { connect, disconnect },
@@ -100,8 +100,8 @@ const YieldInfo = () => {
         <Box direction="row-responsive" gap="small">
           <Text size="xsmall">
             {`Connected to: `}
-            <Text size="xsmall" color={currentChainInfo?.color}>
-              {currentChainInfo?.name}
+            <Text size="xsmall" color={CHAIN_INFO.get(fallbackChainId)?.color}>
+              {CHAIN_INFO.get(fallbackChainId)?.name}
             </Text>
           </Text>
           <Box onClick={() => disconnect()}>
