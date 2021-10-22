@@ -72,7 +72,9 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
         <Box align="center" direction="row" gap="small" justify="center">
           {currentChainInfo?.name && (
             <Anchor
-              href={`https://${currentChainInfo.name}.etherscan.io/address/${account}`}
+              href={`https://${
+                currentChainInfo.name === 'Mainnet' ? '' : `${currentChainInfo.name}.`
+              }etherscan.io/address/${account}`}
               margin="xsmall"
               target="_blank"
             >
