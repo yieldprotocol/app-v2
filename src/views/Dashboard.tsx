@@ -111,6 +111,7 @@ const Dashboard = () => {
         const [, currentValue] = strategyTokenValue(
           _strategy?.accountBalance || ethers.constants.Zero,
           _strategy?.strategyTotalSupply || ethers.constants.Zero,
+          _strategy?.strategyPoolBalance || ethers.constants.Zero,
           currentStrategySeries.baseReserves,
           currentStrategySeries.fyTokenRealReserves,
           currentStrategySeries.totalSupply,
