@@ -942,10 +942,14 @@ export const strategyTokenValue = (
    lpReceived
  );
  const newBaseReserves = poolBaseReserves.sub(_baseTokenReceived);
- const newFyTokenReserves = poolFyTokenRealReserves.sub(_fyTokenReceived);
+ const newFyTokenRealReserves = poolFyTokenRealReserves.sub(_fyTokenReceived);
+ const newTotalSupply = poolTotalSupply.sub(_fyTokenReceived)
+ // virtualReserves  = totalsupply + realBalance  
+ const newFyTokenVirtualReserves = newTotalSupply.add( newFyTokenRealReserves );
+
  const sellValue = sellFYToken(
    newBaseReserves,
-   newFyTokenReserves,
+   newFyTokenVirtualReserves,
    _fyTokenReceived,
    poolTimeToMaturity.toString(),
    decimals
