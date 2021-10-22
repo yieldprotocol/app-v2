@@ -602,7 +602,7 @@ const VaultPosition = () => {
             <ActionButtonWrap pad>
               {stepPosition[actionActive.index] === 0 && actionActive.index !== 4 && (
                 <NextButton
-                  label={<Text size={mobile ? 'small' : undefined}> Next Step </Text>}
+                  label={<Text size={mobile ? 'small' : undefined}>Next Step</Text>}
                   onClick={() => handleStepper()}
                   key="next"
                   disabled={

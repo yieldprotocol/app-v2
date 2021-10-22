@@ -229,7 +229,7 @@ const Lend = () => {
             <NextButton
               secondary
               disabled={lendDisabled}
-              label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
+              label={<Text size={mobile ? 'small' : undefined}>Next Step</Text>}
               key="ONE"
               onClick={() => setStepPosition(stepPosition + 1)}
               errorLabel={lendError}
