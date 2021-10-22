@@ -912,6 +912,7 @@ export const calculateBorrowingPower = (
 /**
 *  @param {BigNumber}  strategyTokenAmount
 * @param {BigNumber}  strategyTotalSupply
+* @param {BigNumber}  poolStrategyBalance
 * @param {BigNumber}  poolBaseReserves
 * @param {BigNumber}  poolFyTokenReserves
 * @param {BigNumber}  poolTotalSupply
@@ -923,6 +924,8 @@ export const calculateBorrowingPower = (
 export const strategyTokenValue = (
  strategyTokenAmount: BigNumber | string, 
  strategyTotalSupply: BigNumber,
+ strategyPoolBalance: BigNumber,
+
  poolBaseReserves: BigNumber,
  poolFyTokenRealReserves: BigNumber,
  poolTotalSupply: BigNumber,
@@ -934,7 +937,7 @@ export const strategyTokenValue = (
  // 2. calculate new reserves (baseReserves and fyTokenReserevs)
  // 3. try trade with new reserves
  // 4. add the estimated base derived from selling fyTokens and the current base tokens of the poolToken
- const lpReceived = burnFromStrategy(poolTotalSupply!, strategyTotalSupply!, strategyTokenAmount);
+ const lpReceived = burnFromStrategy(strategyPoolBalance, strategyTotalSupply!, strategyTokenAmount);
  const [_baseTokenReceived, _fyTokenReceived] = burn(
    poolBaseReserves,
    poolFyTokenRealReserves,

@@ -86,12 +86,14 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
     if (
       strategy &&
       strategySeries &&
+      strategy?.strategyPoolBalance?.gt(ZERO_BN) &&
       strategy?.accountBalance?.gt(ZERO_BN) &&
       strategy?.strategyTotalSupply?.gt(ZERO_BN)
     ) {
-      const [_sellValue] = strategyTokenValue(
+      const [_sellValue, _tokenValue] = strategyTokenValue(
         strategy?.accountBalance || ethers.constants.Zero,
         strategy?.strategyTotalSupply,
+        strategy?.strategyPoolBalance,
         strategySeries.baseReserves,
         strategySeries.fyTokenRealReserves,
         strategySeries.totalSupply,
@@ -99,16 +101,17 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         strategySeries.decimals
       );
       const tradeable = _sellValue.gt(ethers.constants.Zero);
-      tradeable && setAccountTradeValue(ethers.utils.formatUnits(_sellValue, strategy.decimals));
+      tradeable && setAccountTradeValue(ethers.utils.formatUnits(_tokenValue, strategy.decimals));
     }
   }, [strategy, strategySeries]);
 
   /* Set the trade value and check if base reserves are too low for specific input  */
   useEffect(() => {
     if (_input !== ethers.constants.Zero && strategySeries) {
-      const [_sellValue] = strategyTokenValue(
+      const [_sellValue , _tokenValue] = strategyTokenValue(
         _input,
         strategy?.strategyTotalSupply!,
+        strategy?.strategyPoolBalance!,
         strategySeries.baseReserves,
         strategySeries.fyTokenRealReserves,
         strategySeries.totalSupply,
@@ -118,10 +121,10 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
       const tradeable = _sellValue.gt(ethers.constants.Zero);
       // console.log('Is tradeable:', tradeable);
       setAddTradePossible(tradeable);
-      setInputTradeValue(_sellValue);
-      setInputTradeValue_(ethers.utils.formatUnits(_sellValue, strategySeries.decimals));
+      setInputTradeValue(_tokenValue);
+      setInputTradeValue_(ethers.utils.formatUnits(_tokenValue, strategySeries.decimals));
     }
-  }, [_input, strategy?.strategyTotalSupply, strategySeries]);
+  }, [_input, strategy, strategySeries]);
 
   /* Check if can use 'buy and pool' method to get liquidity */
   useEffect(() => {
@@ -211,16 +214,16 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
 
   useEffect(() => {
     if (_input !== ethers.constants.Zero && strategy && strategySeries && removeLiquidityView) {
-      const [sellTokenValue, ] = strategyTokenValue(
+      const [sellTokenValue] = strategyTokenValue(
         _input,
         strategy.strategyTotalSupply!,
+        strategy.strategyPoolBalance!,
         strategySeries.baseReserves,
         strategySeries.fyTokenRealReserves,
         strategySeries.totalSupply,
         strategySeries.getTimeTillMaturity(),
         strategySeries.decimals
       )
-      console.log( 'sellValue: ', sellTokenValue.toString())
       setRemoveTradePossible(sellTokenValue.gt(ethers.constants.Zero));
     }
   }, [_input, removeLiquidityView, strategy, strategySeries]);
