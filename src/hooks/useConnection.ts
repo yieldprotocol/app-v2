@@ -9,7 +9,6 @@ import {
   UserRejectedRequestError as UserRejectedRequestErrorWalletConnect,
 } from '@web3-react/walletconnect-connector';
 
-import { LedgerConnector } from '@web3-react/ledger-connector';
 import { NetworkConnector } from '@web3-react/network-connector';
 import { ethers } from 'ethers';
 import { useEffect, useState } from 'react';
@@ -51,7 +50,7 @@ const CONNECTORS = new Map();
 CONNECTORS.set(
   INIT_INJECTED,
   new InjectedConnector({
-    supportedChainIds: [42],
+    supportedChainIds: [1, 42],
   })
 );
 CONNECTORS.set(
@@ -74,7 +73,7 @@ CONNECTORS.set(
 CONNECTORS.set(
   'ledgerWithMetamask',
   new InjectedConnector({
-    supportedChainIds: [42],
+    supportedChainIds: [1, 42],
   })
 );
 
