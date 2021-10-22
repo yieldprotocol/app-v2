@@ -17,7 +17,7 @@ import { useCachedState } from './generalHooks';
 
 const NO_BROWSER_EXT =
   'No Ethereum browser extension detected, install MetaMask on desktop or visit from a dApp browser on mobile.';
-const UNSUPPORTED_NETWORK = 'Your Wallet is connected to an unsupported network.';
+const UNSUPPORTED_NETWORK = 'Your Wallet or Browser is connected to an unsupported network.';
 const UNAUTHORISED_SITE = 'Please authorize this website to access your Ethereum account.';
 const UNKNOWN_ERROR = 'An unknown error occurred. Check the console for more details.';
 
@@ -159,7 +159,7 @@ export const useConnection = () => {
         (e: Error) => {
           setFallbackErrorMessage(handleErrorMessage(e));
         },
-        true
+        false
       );
     }
 
@@ -175,7 +175,7 @@ export const useConnection = () => {
         (e: Error) => {
           setFallbackErrorMessage(handleErrorMessage(e));
         },
-        true
+        false
       );
     }
 
