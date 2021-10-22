@@ -309,7 +309,7 @@ const PoolPosition = () => {
             <ActionButtonGroup pad>
               {stepPosition[actionActive.index] === 0 && actionActive.index !== 1 && (
                 <NextButton
-                  label={<Text size={mobile ? 'small' : undefined}> Next Step</Text>}
+                  label={<Text size={mobile ? 'small' : undefined}>Next Step</Text>}
                   onClick={() => handleStepper()}
                   key="next"
                   disabled={actionActive.index === 0 && removeDisabled}

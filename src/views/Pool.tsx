@@ -240,7 +240,7 @@ function Pool() {
           {stepPosition !== 1 && (
             <NextButton
               secondary
-              label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
+              label={<Text size={mobile ? 'small' : undefined}>Next Step</Text>}
               onClick={() => setStepPosition(stepPosition + 1)}
               disabled={poolDisabled}
               errorLabel={poolError}
