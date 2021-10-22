@@ -459,13 +459,11 @@ const Borrow = () => {
             {stepPosition === 2 &&
               borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
               borrowProcess?.tx.status === TxState.FAILED && (
-                <ActionButtonWrap>
-                  <NextButton
-                    size="xsmall"
-                    label={<Text size={mobile ? 'xsmall' : undefined}> Report and go back</Text>}
-                    onClick={() => resetInputs()}
-                  />
-                </>
+                <NextButton
+                  size="xsmall"
+                  label={<Text size={mobile ? 'xsmall' : undefined}>Report and go back</Text>}
+                  onClick={() => resetInputs()}
+                />
               )}
           </ActionButtonWrap>
         </CenterPanelWrap>
