@@ -183,296 +183,298 @@ const Borrow = () => {
   }, [borrowProcess, resetInputs]);
 
   return (
-    <MainViewWrap>
-      {mobile && <DashMobileButton transparent={!!borrowInput} />}
-      {!mobile && (
-        <PanelWrap>
-          <Box margin={{ top: '35%' }} />
-          <YieldInfo />
-        </PanelWrap>
-      )}
+    <Keyboard onEsc={() => setCollatInput('')} onEnter={() => console.log('ENTER smashed')} target="document">
+      <MainViewWrap>
+        {mobile && <DashMobileButton transparent={!!borrowInput} />}
+        {!mobile && (
+          <PanelWrap>
+            <Box margin={{ top: '35%' }} />
+            <YieldInfo />
+          </PanelWrap>
+        )}
 
-      <CenterPanelWrap series={selectedSeries || undefined}>
-        <Box height="100%" pad={mobile ? 'medium' : { top: 'large', horizontal: 'large' }}>
-          {stepPosition === 0 && ( // INITIAL STEP
-            <Box fill gap="large">
-              <YieldCardHeader>
-                <Box gap={mobile ? undefined : 'xsmall'}>
-                  <ColorText size={mobile ? 'medium' : '2rem'}>BORROW</ColorText>
-                  <AltText color="text-weak" size="xsmall">
-                    Borrow popular ERC20 tokens at a{' '}
-                    <Text size="small" color="text">
-                      {' '}
-                      fixed rate{' '}
-                    </Text>
-                  </AltText>
-                </Box>
-              </YieldCardHeader>
-
-              <SectionWrap>
-                <Box direction="row-responsive" gap="small">
-                  <Box basis={mobile ? undefined : '60%'}>
-                    <InputWrap
-                      action={() => console.log('maxAction')}
-                      isError={borrowInputError}
-                      message={
-                        <>
-                          {borrowInput && !borrowPossible && selectedSeries && (
-                            <InputInfoWrap action={() => setBorrowInput(selectedSeries?.baseReserves_!)}>
-                              <Text size="xsmall" color="text-weak">
-                                Max borrow is{' '}
-                                <Text size="small" color="text-weak">
-                                  {cleanValue(selectedSeries?.baseReserves_!, 2)} {selectedBase?.symbol}
-                                </Text>{' '}
-                                (limited by protocol liquidity)
-                              </Text>
-                            </InputInfoWrap>
-                          )}
-                          {borrowInput && borrowPossible && selectedSeries && (
-                            <InputInfoWrap>
-                              <Text size="small" color="text-weak">
-                                Requires equivalent of {cleanValue(minCollateral_, selectedIlk?.digitFormat)}{' '}
-                                {selectedIlk?.symbol} collateral
-                              </Text>
-                            </InputInfoWrap>
-                          )}
-                        </>
-                      }
-                    >
-                      <TextInput
-                        plain
-                        type="number"
-                        placeholder="Enter amount"
-                        value={borrowInput}
-                        onChange={(event: any) =>
-                          setBorrowInput(cleanValue(event.target.value, selectedSeries?.decimals))
-                        }
-                        autoFocus={!mobile}
-                      />
-                    </InputWrap>
+        <CenterPanelWrap series={selectedSeries || undefined}>
+          <Box height="100%" pad={mobile ? 'medium' : { top: 'large', horizontal: 'large' }}>
+            {stepPosition === 0 && ( // INITIAL STEP
+              <Box fill gap="large">
+                <YieldCardHeader>
+                  <Box gap={mobile ? undefined : 'xsmall'}>
+                    <ColorText size={mobile ? 'medium' : '2rem'}>BORROW</ColorText>
+                    <AltText color="text-weak" size="xsmall">
+                      Borrow popular ERC20 tokens at a{' '}
+                      <Text size="small" color="text">
+                        {' '}
+                        fixed rate{' '}
+                      </Text>
+                    </AltText>
                   </Box>
-                  <Box basis={mobile ? undefined : '40%'}>
-                    <AssetSelector />
-                  </Box>
-                </Box>
-              </SectionWrap>
+                </YieldCardHeader>
 
-              <SectionWrap
-                title={
-                  seriesMap.size > 0
-                    ? `Available ${selectedBase?.symbol}${selectedBase && '-based'} maturity dates`
-                    : ''
-                }
-              >
-                <SeriesSelector inputValue={borrowInput} actionType={ActionType.BORROW} />
-              </SectionWrap>
-            </Box>
-          )}
-
-          {stepPosition === 1 && ( // ADD COLLATERAL
-            <Box gap="medium">
-              <YieldCardHeader>
-                <BackButton action={() => setStepPosition(0)} />
-              </YieldCardHeader>
-
-              <Box gap="large" height="400px">
                 <SectionWrap>
-                  <Box direction="row" gap="large" margin={{ vertical: 'medium' }}>
-                    <Box>
-                      <Gauge value={parseFloat(collateralizationPercent!)} size={mobile ? '6em' : '8em'} />
-                    </Box>
-
-                    <Box align="center">
-                      <Text size={mobile ? 'xsmall' : 'medium'} color="text-weak">
-                        Collateralization
-                      </Text>
-                      <Text size={mobile ? 'large' : 'xlarge'}>
-                        {parseFloat(collateralizationPercent!) > 10000
-                          ? nFormatter(parseFloat(collateralizationPercent!), 2)
-                          : parseFloat(collateralizationPercent!)}
-                        %
-                      </Text>
-                    </Box>
-                  </Box>
-                </SectionWrap>
-
-                <SectionWrap title="Amount of collateral to add">
-                  <Box direction="row-responsive" gap="medium">
-                    <Box basis={mobile ? undefined : '60%'} fill="horizontal">
+                  <Box direction="row-responsive" gap="small">
+                    <Box basis={mobile ? undefined : '60%'}>
                       <InputWrap
                         action={() => console.log('maxAction')}
-                        disabled={!selectedSeries}
-                        isError={collatInputError}
+                        isError={borrowInputError}
                         message={
-                          borrowInput &&
-                          minSafeCollateral && (
-                            <InputInfoWrap
-                              action={() => setCollatInput(cleanValue(minSafeCollateral, selectedIlk?.decimals))}
-                            >
-                              <Text size="small" color="text-weak">
-                                Use Safe Minimum{': '}
-                                {cleanValue(minSafeCollateral, selectedIlk?.digitFormat)} {selectedIlk?.symbol}
-                              </Text>
-                            </InputInfoWrap>
-                          )
+                          <>
+                            {borrowInput && !borrowPossible && selectedSeries && (
+                              <InputInfoWrap action={() => setBorrowInput(selectedSeries?.baseReserves_!)}>
+                                <Text size="xsmall" color="text-weak">
+                                  Max borrow is{' '}
+                                  <Text size="small" color="text-weak">
+                                    {cleanValue(selectedSeries?.baseReserves_!, 2)} {selectedBase?.symbol}
+                                  </Text>{' '}
+                                  (limited by protocol liquidity)
+                                </Text>
+                              </InputInfoWrap>
+                            )}
+                            {borrowInput && borrowPossible && selectedSeries && (
+                              <InputInfoWrap>
+                                <Text size="small" color="text-weak">
+                                  Requires equivalent of {cleanValue(minCollateral_, selectedIlk?.digitFormat)}{' '}
+                                  {selectedIlk?.symbol} collateral
+                                </Text>
+                              </InputInfoWrap>
+                            )}
+                          </>
                         }
                       >
                         <TextInput
                           plain
                           type="number"
                           placeholder="Enter amount"
-                          // ref={(el:any) => { el && el.focus(); }}
-                          value={collatInput}
+                          value={borrowInput}
                           onChange={(event: any) =>
-                            setCollatInput(cleanValue(event.target.value, selectedIlk?.decimals))
+                            setBorrowInput(cleanValue(event.target.value, selectedSeries?.decimals))
                           }
-                          disabled={!selectedSeries || selectedSeries.seriesIsMature}
-                        />
-                        <MaxButton
-                          action={() => maxCollateral && setCollatInput(maxCollateral)}
-                          disabled={!selectedSeries || collatInput === maxCollateral || selectedSeries.seriesIsMature}
-                          clearAction={() => setCollatInput('')}
-                          showingMax={!!collatInput && collatInput === maxCollateral}
+                          autoFocus={!mobile}
                         />
                       </InputWrap>
                     </Box>
                     <Box basis={mobile ? undefined : '40%'}>
-                      <AssetSelector selectCollateral />
+                      <AssetSelector />
                     </Box>
                   </Box>
                 </SectionWrap>
 
-                {matchingVaults.length > 0 && (
-                  <SectionWrap title="Add to an exisiting vault" disabled={matchingVaults.length < 1}>
-                    <VaultDropSelector
-                      vaults={matchingVaults}
-                      handleSelect={(option: any) => setVaultToUse(option)}
-                      itemSelected={vaultToUse}
-                      displayName="Create New Vault"
-                      placeholder="Create New Vault"
-                      defaultOptionValue="Create New Vault"
-                    />
-                  </SectionWrap>
-                )}
-              </Box>
-            </Box>
-          )}
-
-          {stepPosition === 2 && ( // REVIEW
-            <Box gap="large">
-              <YieldCardHeader>
-                {borrowProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
-                  <BackButton action={() => setStepPosition(1)} />
-                ) : (
-                  <Box pad="1em" />
-                )}
-              </YieldCardHeader>
-
-              <ActiveTransaction full txProcess={borrowProcess}>
-                <Box
-                  gap="small"
-                  pad={{ horizontal: 'large', vertical: 'medium' }}
-                  round="xsmall"
-                  animation={{ type: 'zoomIn', size: 'small' }}
+                <SectionWrap
+                  title={
+                    seriesMap.size > 0
+                      ? `Available ${selectedBase?.symbol}${selectedBase && '-based'} maturity dates`
+                      : ''
+                  }
                 >
-                  <InfoBite
-                    label="Amount to be Borrowed"
-                    icon={<FiPocket />}
-                    value={`${cleanValue(borrowInput, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
-                  />
-                  <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
-                  <InfoBite
-                    label="Vault Debt Payable @ Maturity"
-                    icon={<FiTrendingUp />}
-                    value={`${cleanValue(borrowEstimate_, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
-                  />
-                  <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
-                  <InfoBite
-                    label="Total Supporting Collateral"
-                    icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
-                    value={`${cleanValue(collatInput, selectedIlk?.digitFormat!)} ${
-                      selectedIlk?.symbol
-                    } (${collateralizationPercent}% )`}
-                  />
-                  {vaultToUse?.id && (
-                    <InfoBite
-                      label="Adding to Existing Vault"
-                      icon={<PositionAvatar position={vaultToUse} condensed actionType={ActionType.BORROW} />}
-                      value={`${vaultToUse.displayName}`}
-                    />
-                  )}
-                </Box>
-              </ActiveTransaction>
-            </Box>
-          )}
-
-          {stepPosition === 2 &&
-            borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
-            borrowProcess?.tx.status === TxState.SUCCESSFUL && (
-              <Box pad="large" gap="small">
-                <Text size="small"> View Vault: </Text>
-                {newVaultId && <DummyVaultItem series={selectedSeries!} vaultId={newVaultId!} condensed />}
+                  <SeriesSelector inputValue={borrowInput} actionType={ActionType.BORROW} />
+                </SectionWrap>
               </Box>
             )}
-        </Box>
 
-        <ActionButtonWrap pad>
-          {(stepPosition === 0 || stepPosition === 1) && (
-            <NextButton
-              // label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
-              label={
-                borrowInput && !selectedSeries
-                  ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} Maturity`
-                  : 'Next Step'
-              }
-              onClick={() => setStepPosition(stepPosition + 1)}
-              disabled={stepPosition === 0 ? stepDisabled : borrowDisabled}
-              errorLabel={stepPosition === 0 ? borrowInputError : collatInputError}
-            />
-          )}
+            {stepPosition === 1 && ( // ADD COLLATERAL
+              <Box gap="medium">
+                <YieldCardHeader>
+                  <BackButton action={() => setStepPosition(0)} />
+                </YieldCardHeader>
 
-          {stepPosition === 2 && borrowProcess?.stage !== ProcessStage.PROCESS_COMPLETE && (
-            <TransactButton
-              primary
-              label={
-                <Text size={mobile ? 'small' : undefined}>
-                  {`Borrow${borrowProcess?.processActive ? `ing` : ''} ${
-                    nFormatter(Number(borrowInput), selectedBase?.digitFormat!) || ''
-                  } ${selectedBase?.symbol || ''}`}
-                </Text>
-              }
-              onClick={() => handleBorrow()}
-              disabled={borrowDisabled || borrowProcess?.processActive}
-            />
-          )}
+                <Box gap="large" height="400px">
+                  <SectionWrap>
+                    <Box direction="row" gap="large" margin={{ vertical: 'medium' }}>
+                      <Box>
+                        <Gauge value={parseFloat(collateralizationPercent!)} size={mobile ? '6em' : '8em'} />
+                      </Box>
 
-          {stepPosition === 2 &&
-            borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
-            borrowProcess?.tx.status === TxState.SUCCESSFUL && (
+                      <Box align="center">
+                        <Text size={mobile ? 'xsmall' : 'medium'} color="text-weak">
+                          Collateralization
+                        </Text>
+                        <Text size={mobile ? 'large' : 'xlarge'}>
+                          {parseFloat(collateralizationPercent!) > 10000
+                            ? nFormatter(parseFloat(collateralizationPercent!), 2)
+                            : parseFloat(collateralizationPercent!)}
+                          %
+                        </Text>
+                      </Box>
+                    </Box>
+                  </SectionWrap>
+
+                  <SectionWrap title="Amount of collateral to add">
+                    <Box direction="row-responsive" gap="medium">
+                      <Box basis={mobile ? undefined : '60%'} fill="horizontal">
+                        <InputWrap
+                          action={() => console.log('maxAction')}
+                          disabled={!selectedSeries}
+                          isError={collatInputError}
+                          message={
+                            borrowInput &&
+                            minSafeCollateral && (
+                              <InputInfoWrap
+                                action={() => setCollatInput(cleanValue(minSafeCollateral, selectedIlk?.decimals))}
+                              >
+                                <Text size="small" color="text-weak">
+                                  Use Safe Minimum{': '}
+                                  {cleanValue(minSafeCollateral, selectedIlk?.digitFormat)} {selectedIlk?.symbol}
+                                </Text>
+                              </InputInfoWrap>
+                            )
+                          }
+                        >
+                          <TextInput
+                            plain
+                            type="number"
+                            placeholder="Enter amount"
+                            // ref={(el:any) => { el && el.focus(); }}
+                            value={collatInput}
+                            onChange={(event: any) =>
+                              setCollatInput(cleanValue(event.target.value, selectedIlk?.decimals))
+                            }
+                            disabled={!selectedSeries || selectedSeries.seriesIsMature}
+                          />
+                          <MaxButton
+                            action={() => maxCollateral && setCollatInput(maxCollateral)}
+                            disabled={!selectedSeries || collatInput === maxCollateral || selectedSeries.seriesIsMature}
+                            clearAction={() => setCollatInput('')}
+                            showingMax={!!collatInput && collatInput === maxCollateral}
+                          />
+                        </InputWrap>
+                      </Box>
+                      <Box basis={mobile ? undefined : '40%'}>
+                        <AssetSelector selectCollateral />
+                      </Box>
+                    </Box>
+                  </SectionWrap>
+
+                  {matchingVaults.length > 0 && (
+                    <SectionWrap title="Add to an exisiting vault" disabled={matchingVaults.length < 1}>
+                      <VaultDropSelector
+                        vaults={matchingVaults}
+                        handleSelect={(option: any) => setVaultToUse(option)}
+                        itemSelected={vaultToUse}
+                        displayName="Create New Vault"
+                        placeholder="Create New Vault"
+                        defaultOptionValue="Create New Vault"
+                      />
+                    </SectionWrap>
+                  )}
+                </Box>
+              </Box>
+            )}
+
+            {stepPosition === 2 && ( // REVIEW
+              <Box gap="large">
+                <YieldCardHeader>
+                  {borrowProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
+                    <BackButton action={() => setStepPosition(1)} />
+                  ) : (
+                    <Box pad="1em" />
+                  )}
+                </YieldCardHeader>
+
+                <ActiveTransaction full txProcess={borrowProcess}>
+                  <Box
+                    gap="small"
+                    pad={{ horizontal: 'large', vertical: 'medium' }}
+                    round="xsmall"
+                    animation={{ type: 'zoomIn', size: 'small' }}
+                  >
+                    <InfoBite
+                      label="Amount to be Borrowed"
+                      icon={<FiPocket />}
+                      value={`${cleanValue(borrowInput, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
+                    />
+                    <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
+                    <InfoBite
+                      label="Vault Debt Payable @ Maturity"
+                      icon={<FiTrendingUp />}
+                      value={`${cleanValue(borrowEstimate_, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
+                    />
+                    <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
+                    <InfoBite
+                      label="Total Supporting Collateral"
+                      icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
+                      value={`${cleanValue(collatInput, selectedIlk?.digitFormat!)} ${
+                        selectedIlk?.symbol
+                      } (${collateralizationPercent}% )`}
+                    />
+                    {vaultToUse?.id && (
+                      <InfoBite
+                        label="Adding to Existing Vault"
+                        icon={<PositionAvatar position={vaultToUse} condensed actionType={ActionType.BORROW} />}
+                        value={`${vaultToUse.displayName}`}
+                      />
+                    )}
+                  </Box>
+                </ActiveTransaction>
+              </Box>
+            )}
+
+            {stepPosition === 2 &&
+              borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
+              borrowProcess?.tx.status === TxState.SUCCESSFUL && (
+                <Box pad="large" gap="small">
+                  <Text size="small"> View Vault: </Text>
+                  {newVaultId && <DummyVaultItem series={selectedSeries!} vaultId={newVaultId!} condensed />}
+                </Box>
+              )}
+          </Box>
+
+          <ActionButtonWrap pad>
+            {(stepPosition === 0 || stepPosition === 1) && (
               <NextButton
-                label={<Text size={mobile ? 'small' : undefined}>Borrow more</Text>}
-                onClick={() => resetInputs()}
+                // label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
+                label={
+                  borrowInput && !selectedSeries
+                    ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} Maturity`
+                    : 'Next Step'
+                }
+                onClick={() => setStepPosition(stepPosition + 1)}
+                disabled={stepPosition === 0 ? stepDisabled : borrowDisabled}
+                errorLabel={stepPosition === 0 ? borrowInputError : collatInputError}
               />
             )}
 
-          {stepPosition === 2 &&
-            borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
-            borrowProcess?.tx.status === TxState.FAILED && (
-              <>
+            {stepPosition === 2 && borrowProcess?.stage !== ProcessStage.PROCESS_COMPLETE && (
+              <TransactButton
+                primary
+                label={
+                  <Text size={mobile ? 'small' : undefined}>
+                    {`Borrow${borrowProcess?.processActive ? `ing` : ''} ${
+                      nFormatter(Number(borrowInput), selectedBase?.digitFormat!) || ''
+                    } ${selectedBase?.symbol || ''}`}
+                  </Text>
+                }
+                onClick={() => handleBorrow()}
+                disabled={borrowDisabled || borrowProcess?.processActive}
+              />
+            )}
+
+            {stepPosition === 2 &&
+              borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
+              borrowProcess?.tx.status === TxState.SUCCESSFUL && (
                 <NextButton
-                  size="xsmall"
-                  label={<Text size={mobile ? 'xsmall' : undefined}> Report and go back</Text>}
+                  label={<Text size={mobile ? 'small' : undefined}>Borrow more</Text>}
                   onClick={() => resetInputs()}
                 />
-              </>
-            )}
-        </ActionButtonWrap>
-      </CenterPanelWrap>
+              )}
 
-      <PanelWrap right basis="40%">
-        {!mobile && <VaultSelector />}
-      </PanelWrap>
-    </MainViewWrap>
+            {stepPosition === 2 &&
+              borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
+              borrowProcess?.tx.status === TxState.FAILED && (
+                <ActionButtonWrap>
+                  <NextButton
+                    size="xsmall"
+                    label={<Text size={mobile ? 'xsmall' : undefined}> Report and go back</Text>}
+                    onClick={() => resetInputs()}
+                  />
+                </>
+              )}
+          </ActionButtonWrap>
+        </CenterPanelWrap>
+
+        <PanelWrap right basis="40%">
+          {!mobile && <VaultSelector />}
+        </PanelWrap>
+      </MainViewWrap>
+    </Keyboard>
   );
 };
 
