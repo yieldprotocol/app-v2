@@ -116,8 +116,8 @@ const ChainProvider = ({ children }: any) => {
   /* CACHED VARIABLES */
   const [lastAppVersion, setLastAppVersion] = useCachedState('lastAppVersion', '');
 
-  const [lastAssetUpdate, setLastAssetUpdate] = useCachedState('lastAssetUpdate', 13450000);
-  const [lastSeriesUpdate, setLastSeriesUpdate] = useCachedState('lastSeriesUpdate', 13450000);
+  const [lastAssetUpdate, setLastAssetUpdate] = useCachedState('lastAssetUpdate', 0);
+  const [lastSeriesUpdate, setLastSeriesUpdate] = useCachedState('lastSeriesUpdate', 0);
 
   const [cachedAssets, setCachedAssets] = useCachedState('assets', []);
   const [cachedSeries, setCachedSeries] = useCachedState('series', []);

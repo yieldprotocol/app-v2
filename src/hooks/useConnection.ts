@@ -86,7 +86,7 @@ export const useConnection = () => {
   const [fallbackErrorMessage, setFallbackErrorMessage] = useState<string | undefined>(undefined);
 
   /* CACHED VARIABLES */
-  const [lastChainId, setLastChainId] = useCachedState('lastChainId', 42);
+  const [lastChainId, setLastChainId] = useCachedState('lastChainId', process.env.REACT_APP_DEFAULT_CHAINID);
 
   const primaryConnection = useWeb3React<ethers.providers.Web3Provider>();
   const { connector, library: provider, chainId, account, activate, deactivate, active, error } = primaryConnection;
