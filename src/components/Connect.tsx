@@ -21,6 +21,7 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
     setConnectionName(connectorName);
     connect(connectorName);
     setConnectOpen(false);
+    setSettingsOpen(false);
   };
 
   return (
