@@ -30,6 +30,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
     chainState: {
       connection: { account, CONNECTOR_NAMES, currentChainInfo, connectionName },
     },
+    chainActions: { disconnect },
   } = useContext(ChainContext);
   const {
     txState: { transactions },
@@ -84,7 +85,10 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
         </Box>
         <Box justify="between" align="center" direction="row">
           {connectionName && <Text size="small">Connected with {CONNECTOR_NAMES.get(connectionName)}</Text>}
-          <StyledButton onClick={handleChangeConnectType}>Change</StyledButton>
+          <Box direction="row" gap="xsmall">
+            <StyledButton onClick={handleChangeConnectType}>Change</StyledButton>
+            <StyledButton onClick={() => disconnect()}>Disconnect</StyledButton>
+          </Box>
         </Box>
       </Box>
       <Box
