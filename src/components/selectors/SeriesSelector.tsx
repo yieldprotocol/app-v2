@@ -73,12 +73,7 @@ const AprText = ({
   const { apr } = useApr(_inputValue, actionType, series);
   const [limitHit, setLimitHit] = useState<boolean>(false);
 
-  const baseIn = maxBaseIn(
-    series.baseReserves,
-    series.fyTokenReserves,
-    series.getTimeTillMaturity(),
-    series.decimals
-  );
+  const baseIn = maxBaseIn(series.baseReserves, series.fyTokenReserves, series.getTimeTillMaturity(), series.decimals);
 
   const baseOut = maxBaseOut(
     series.baseReserves,
@@ -193,10 +188,12 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     const opts = Array.from(seriesMap.values()) as ISeries[];
 
     /* filter out options based on base Id and if mature */
-    let filteredOpts = opts.filter(
-      (_series: ISeries) => _series.baseId === selectedBaseId && !_series.seriesIsMature
-      // !ignoredSeries?.includes(_series.baseId)
-    );
+    let filteredOpts = opts
+      .filter(
+        (_series: ISeries) => _series.baseId === selectedBaseId && !_series.seriesIsMature
+        // !ignoredSeries?.includes(_series.baseId)
+      )
+      .sort((a: ISeries, b: ISeries) => b.maturity! - a.maturity!);
 
     /* if required, filter out the globally selected asset and */
     if (selectSeriesLocally) {
