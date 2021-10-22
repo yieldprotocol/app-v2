@@ -183,15 +183,7 @@ const ChainProvider = ({ children }: any) => {
           /* baked in token fns */
           getBalance: async (acc: string) =>
             ETH_BASED_ASSETS.includes(asset.id) ? fallbackProvider?.getBalance(acc) : ERC20Permit.balanceOf(acc),
-          getAllowance: async (acc: string, spender: string) => ERC20Permit.allowance(acc, spender),
-
-          /* TODO remove for prod */
-          /* @ts-ignore */
-          mintTest: async () =>
-            contracts.ERC20Mock__factory.connect(asset.address, connectionState.provider?.getSigner()!).mint(
-              connectionState.account!,
-              ethers.utils.parseUnits('100', asset.decimals)
-            ),
+          getAllowance: async (acc: string, spender: string) => ERC20Permit.allowance(acc, spender)
         };
       };
 
