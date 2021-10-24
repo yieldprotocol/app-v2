@@ -6,14 +6,14 @@ import { ChainContext } from '../contexts/ChainContext';
 const NetworkError = () => {
   const {
     chainState: { connection },
-    chainActions: { disconnect },
+    chainActions: { disconnect, connect },
   } = useContext(ChainContext);
 
   const [showError, setShowError] = useState<boolean>(false);
 
   useEffect(() => {
-    connection.errorMessage ? setShowError(true) : setShowError(false);
-  }, [connection.errorMessage]);
+    connection.errorMessage || connection.fallbackErrorMessage ? setShowError(true) : setShowError(false);
+  }, [connection.errorMessage, connection.fallbackErrorMessage]);
 
   return (
     <>
@@ -21,14 +21,15 @@ const NetworkError = () => {
         <Layer>
           <Box pad="medium" round="small" gap="small" align="center" width="600px">
             <FiAlertCircle size="2em" /> <Text size="large">Oops. There was a connection error.</Text>
-            <Text size="small"> {connection.errorMessage} </Text>
-            <Button
-              label="Continue on default network without connecting a wallet"
+            <Text size="small"> {connection.errorMessage || connection.fallbackErrorMessage } </Text>
+
+            { !connection.fallbackErrorMessage && <Button
+              label="Continue without connecting a wallet"
               onClick={() => {
                 setShowError(false);
                 disconnect();
               }}
-            />
+            />}
           </Box>
         </Layer>
       )}

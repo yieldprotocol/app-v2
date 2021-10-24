@@ -33,7 +33,7 @@ function InputWrap({ action, disabled, isError, showErrorText, message, children
         {children}
       </InsetBox>
 
-      <Box >
+      <Box>
         {!mobile && (
           <Text style={{ position: 'absolute' }} size="xsmall">
             {showErrorText && isError}

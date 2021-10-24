@@ -54,9 +54,10 @@ const CardSkeleton = () => (
 interface IStrategySelectorProps {
   inputValue?: string | undefined /* accepts an inpout value for possible dynamic Return  calculations */;
   cardLayout?: boolean;
+  setOpen?: any /* used with modal */;
 }
 
-function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
+function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelectorProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const { userState, userActions } = useContext(UserContext);
@@ -67,9 +68,11 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
   /* Keeping options/selection fresh and valid: */
   useEffect(() => {
     const opts = Array.from(strategyMap.values()) as IStrategy[];
-    const filteredOpts = opts.filter(
-      (_st: IStrategy) => _st.baseId === selectedBaseId && !_st.currentSeries?.seriesIsMature
-    );
+    const filteredOpts = 
+    opts
+    .filter((_st: IStrategy) => _st.baseId === selectedBaseId && !_st.currentSeries?.seriesIsMature)
+    .sort((a:IStrategy,b:IStrategy) => b.currentSeries?.maturity! - a.currentSeries?.maturity! )
+    ;
     // .filter((_st: IStrategy) => _st.currentSeries);
     setOptions(filteredOpts);
   }, [selectedBaseId, strategyMap]);
@@ -83,6 +86,8 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
       toast.info('Strategy coming soon');
       console.log('strategy not yet active');
     }
+
+    mobile && setOpen(false);
   };
 
   return (
@@ -90,7 +95,7 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
       {strategiesLoading && <Skeleton width={180} />}
 
       {cardLayout && (
-        <ShadeBox 
+        <ShadeBox
           overflow={mobile ? 'auto' : 'auto'}
           height={mobile ? undefined : '250px'}
           pad={{ vertical: 'small', horizontal: 'xsmall' }}
@@ -114,11 +119,15 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
                   align="center"
                 >
                   <Box pad="small" width="small" direction="row" align="center" gap="small">
-                  <Avatar
-                      background={strategy.address === selectedStrategyAddr? 'solid' : strategy.currentSeries?.endColor.toString().concat('10')}
+                    <Avatar
+                      background={
+                        strategy.address === selectedStrategyAddr
+                          ? 'solid'
+                          : strategy.currentSeries?.endColor.toString().concat('10')
+                      }
                       style={{
                         boxShadow:
-                        strategy.address === selectedStrategyAddr
+                          strategy.address === selectedStrategyAddr
                             ? `inset 1px 1px 2px ${strategy.currentSeries?.endColor.toString().concat('69')}`
                             : undefined,
                       }}
@@ -155,10 +164,13 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
                               strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined
                             }
                           >
-                            {cleanValue ( getPoolPercent(
-                              ethers.utils.parseUnits(cleanValue(inputValue, strategy.decimals) , strategy.decimals),
-                              strategy.strategyTotalSupply!
-                            ), 3) }
+                            {cleanValue(
+                              getPoolPercent(
+                                ethers.utils.parseUnits(cleanValue(inputValue, strategy.decimals), strategy.decimals),
+                                strategy.strategyTotalSupply!
+                              ),
+                              3
+                            )}
                             %
                           </Text>
                           <Text
@@ -186,6 +198,7 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
 StrategySelector.defaultProps = {
   inputValue: undefined,
   cardLayout: true,
+  setOpen: () => null,
 };
 
 export default StrategySelector;

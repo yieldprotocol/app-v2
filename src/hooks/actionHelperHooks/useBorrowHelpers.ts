@@ -90,7 +90,7 @@ export const useBorrowHelpers = (
     }
   }, [input, selectedSeries]);
 
-  /* calculate an estimated sale based on the input and future stragey, assuming correct collateralisation */
+  /* calculate an estimated sale based on the input and future strategy, assuming correct collateralisation */
   useEffect(() => {
     if (input && futureSeries && parseFloat(input) > 0) {
       const cleanedInput = cleanValue(input, futureSeries?.decimals);
@@ -109,7 +109,7 @@ export const useBorrowHelpers = (
 
   /* Check if the rollToSeries have sufficient base value AND won't be undercollaterallised */
   useEffect(() => {
-    if (futureSeries && vault) {
+    if (futureSeries && vault && vault.art) {
       const _maxFyTokenIn = maxFyTokenIn(
         futureSeries.baseReserves,
         futureSeries.fyTokenReserves,
@@ -127,14 +127,8 @@ export const useBorrowHelpers = (
         futureSeries.decimals
       );
 
-      const price = priceMap?.get(vault.ilkId)?.get(vault.baseId)
-      const minCollat = calculateMinCollateral(
-        price, 
-        newDebt,
-        undefined,
-        undefined,
-        true
-      );
+      const price = priceMap?.get(vault.ilkId)?.get(vault.baseId);
+      const minCollat = calculateMinCollateral(price, newDebt, undefined, undefined, true);
       console.log('min Collat', minCollat.toString());
 
       const rollable = vault.art.lt(_maxFyTokenIn) && vault.ink.gt(minCollat);

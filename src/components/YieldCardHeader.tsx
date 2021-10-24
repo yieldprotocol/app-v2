@@ -10,7 +10,7 @@ const YieldCardHeader = ({ children }: IYieldHeaderProps) => {
 
   return (
     <Box
-      pad={mobile ? { bottom: 'large', top: 'xlarge' } : { bottom: 'small' }}
+      pad={mobile ? { bottom: 'medium', top: 'medium' } : { bottom: 'small' }}
       direction="row"
       align="center"
       justify="between"
