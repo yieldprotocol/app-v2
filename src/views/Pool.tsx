@@ -11,7 +11,7 @@ import InfoBite from '../components/InfoBite';
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
 import { UserContext } from '../contexts/UserContext';
-import { ActionCodes, AddLiquidityType, IUserContext, ProcessStage, TxState } from '../types';
+import { ActionCodes, ActionType, AddLiquidityType, IUserContext, ProcessStage, TxState } from '../types';
 import MaxButton from '../components/buttons/MaxButton';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
@@ -31,6 +31,7 @@ import { usePoolHelpers } from '../hooks/actionHelperHooks/usePoolHelpers';
 import { useProcess } from '../hooks/useProcess';
 import StrategyItem from '../components/positionItems/StrategyItem';
 import DashMobileButton from '../components/buttons/DashMobileButton';
+import SeriesOrStrategySelectorModal from '../components/selectors/SeriesOrStrategySelectorModal';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -42,10 +43,12 @@ function Pool() {
   const selectedStrategy = strategyMap.get(selectedStrategyAddr!);
 
   /* LOCAL STATE */
+  const [modalOpen, toggleModal] = useState<boolean>(false);
   const [poolInput, setPoolInput] = useState<string | undefined>(undefined);
   const [poolDisabled, setPoolDisabled] = useState<boolean>(true);
   const [poolMethod, setPoolMethod] = useState<AddLiquidityType>(AddLiquidityType.BUY); // BUY default
   const [stepPosition, setStepPosition] = useState<number>(0);
+  const [stepDisabled, setStepDisabled] = useState<boolean>(true);
 
   /* HOOK FNS */
   const addLiquidity = useAddLiquidity();
@@ -71,6 +74,7 @@ function Pool() {
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
   useEffect(() => {
     !activeAccount || !poolInput || poolError || !selectedStrategy ? setPoolDisabled(true) : setPoolDisabled(false);
+    !poolInput || poolError || !selectedStrategy ? setStepDisabled(true) : setStepDisabled(false);
   }, [poolInput, activeAccount, poolError, selectedStrategy]);
 
   const resetInputs = useCallback(() => {
@@ -144,13 +148,22 @@ function Pool() {
                   </Box>
                 </SectionWrap>
 
-                <SectionWrap
-                  title={
-                    strategyMap.size > 0 ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} strategy` : ''
-                  }
-                >
-                  <StrategySelector inputValue={poolInput} />
-                </SectionWrap>
+                {mobile ? (
+                  <SeriesOrStrategySelectorModal
+                    inputValue={poolInput!}
+                    actionType={ActionType.POOL}
+                    open={modalOpen}
+                    setOpen={toggleModal}
+                  />
+                ) : (
+                  <SectionWrap
+                    title={
+                      strategyMap.size > 0 ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} strategy` : ''
+                    }
+                  >
+                    <StrategySelector inputValue={poolInput} />
+                  </SectionWrap>
+                )}
               </Box>
             </Box>
           )}
@@ -242,7 +255,7 @@ function Pool() {
               secondary
               label={<Text size={mobile ? 'small' : undefined}>Next Step</Text>}
               onClick={() => setStepPosition(stepPosition + 1)}
-              disabled={poolDisabled}
+              disabled={stepDisabled}
               errorLabel={poolError}
             />
           )}
@@ -250,11 +263,15 @@ function Pool() {
             <TransactButton
               primary
               label={
-                <Text size={mobile ? 'small' : undefined}>
-                  {`Pool${poolProcess?.processActive ? `ing` : ''} ${
-                    nFormatter(Number(poolInput), selectedBase?.digitFormat!) || ''
-                  } ${selectedBase?.symbol || ''}`}
-                </Text>
+                !activeAccount ? (
+                  'Connect Wallet'
+                ) : (
+                  <Text size={mobile ? 'small' : undefined}>
+                    {`Pool${poolProcess?.processActive ? `ing` : ''} ${
+                      nFormatter(Number(poolInput), selectedBase?.digitFormat!) || ''
+                    } ${selectedBase?.symbol || ''}`}
+                  </Text>
+                )
               }
               onClick={() => handleAdd()}
               disabled={poolDisabled || poolProcess?.processActive}
@@ -287,10 +304,12 @@ function Pool() {
         </ActionButtonGroup>
       </CenterPanelWrap>
 
-      <PanelWrap right basis="40%">
-        {/* <YieldLiquidity input={poolInput} /> */}
-        {!mobile && <StrategyPositionSelector />}
-      </PanelWrap>
+      {!mobile && (
+        <PanelWrap right basis="40%">
+          {/* <YieldLiquidity input={poolInput} /> */}
+          <StrategyPositionSelector />
+        </PanelWrap>
+      )}
     </MainViewWrap>
   );
 }

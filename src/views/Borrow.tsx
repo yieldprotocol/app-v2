@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Box, Keyboard, ResponsiveContext, Text, TextInput } from 'grommet';
+import { Box, Keyboard, Layer, ResponsiveContext, Text, TextInput } from 'grommet';
 
 import { FiClock, FiPocket, FiPercent, FiTrendingUp } from 'react-icons/fi';
 
@@ -43,6 +43,7 @@ import { useProcess } from '../hooks/useProcess';
 import { ChainContext } from '../contexts/ChainContext';
 import DummyVaultItem from '../components/positionItems/DummyVaultItem';
 import DashMobileButton from '../components/buttons/DashMobileButton';
+import SeriesOrStrategySelectorModal from '../components/selectors/SeriesOrStrategySelectorModal';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -59,6 +60,7 @@ const Borrow = () => {
   const selectedSeries = seriesMap.get(selectedSeriesId!);
 
   /* LOCAL STATE */
+  const [modalOpen, toggleModal] = useState<boolean>(false);
   const [stepPosition, setStepPosition] = useState<number>(0);
 
   const [borrowInput, setBorrowInput] = useState<string>('');
@@ -142,10 +144,25 @@ const Borrow = () => {
 
   /* if ANY of the following conditions are met: block next step action */
   useEffect(() => {
-    !activeAccount || !borrowInput || !selectedSeries || borrowInputError || selectedSeries?.seriesIsMature
+    !borrowInput ||
+    !selectedSeries ||
+    borrowInputError ||
+    selectedSeries?.seriesIsMature ||
+    (stepPosition === 1 && undercollateralized) ||
+    borrowInputError ||
+    collatInputError
       ? setStepDisabled(true)
       : setStepDisabled(false); /* else if all pass, then unlock borrowing */
-  }, [borrowInput, borrowInputError, selectedSeries, activeAccount]);
+  }, [
+    borrowInput,
+    borrowInputError,
+    selectedSeries,
+    activeAccount,
+    stepPosition,
+    collatInput,
+    undercollateralized,
+    collatInputError,
+  ]);
 
   /* CHECK the list of current vaults which match the current series/ilk selection */ // TODO look at moving this to helper hook?
   useEffect(() => {
@@ -258,20 +275,29 @@ const Borrow = () => {
                   </Box>
                 </SectionWrap>
 
-                <SectionWrap
-                  title={
-                    seriesMap.size > 0
-                      ? `Available ${selectedBase?.symbol}${selectedBase && '-based'} maturity dates`
-                      : ''
-                  }
-                >
-                  <SeriesSelector inputValue={borrowInput} actionType={ActionType.BORROW} />
-                </SectionWrap>
+                {mobile ? (
+                  <SeriesOrStrategySelectorModal
+                    inputValue={borrowInput}
+                    actionType={ActionType.BORROW}
+                    open={modalOpen}
+                    setOpen={toggleModal}
+                  />
+                ) : (
+                  <SectionWrap
+                    title={
+                      seriesMap.size > 0
+                        ? `Available ${selectedBase?.symbol}${selectedBase && '-based'} maturity dates`
+                        : ''
+                    }
+                  >
+                    <SeriesSelector inputValue={borrowInput} actionType={ActionType.BORROW} />
+                  </SectionWrap>
+                )}
               </Box>
             )}
 
             {stepPosition === 1 && ( // ADD COLLATERAL
-              <Box gap="medium">
+              <Box gap={mobile ? undefined : 'medium'}>
                 <YieldCardHeader>
                   <BackButton action={() => setStepPosition(0)} />
                 </YieldCardHeader>
@@ -360,7 +386,7 @@ const Borrow = () => {
             )}
 
             {stepPosition === 2 && ( // REVIEW
-              <Box gap="large">
+              <Box gap={mobile ? 'medium' : 'large'}>
                 <YieldCardHeader>
                   {borrowProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
                     <BackButton action={() => setStepPosition(1)} />
@@ -432,29 +458,32 @@ const Borrow = () => {
               />
             )}
 
-            {stepPosition === 2 && borrowProcess?.stage !== ProcessStage.PROCESS_COMPLETE && (
-              <TransactButton
-                primary
-                label={
-                  <Text size={mobile ? 'small' : undefined}>
-                    {`Borrow${borrowProcess?.processActive ? `ing` : ''} ${
-                      nFormatter(Number(borrowInput), selectedBase?.digitFormat!) || ''
-                    } ${selectedBase?.symbol || ''}`}
-                  </Text>
-                }
-                onClick={() => handleBorrow()}
-                disabled={borrowDisabled || borrowProcess?.processActive}
-              />
-            )}
+              {stepPosition === 2 && borrowProcess?.stage !== ProcessStage.PROCESS_COMPLETE && (
+                <TransactButton
+                  primary
+                  label={
+                    <Text size={mobile ? 'small' : undefined}>
+                      {!activeAccount
+                        ? 'Connect Wallet'
+                        : `Borrow${borrowProcess?.processActive ? `ing` : ''} ${
+                            nFormatter(Number(borrowInput), selectedBase?.digitFormat!) || ''
+                          } ${selectedBase?.symbol || ''}`}
+                    </Text>
+                  }
+                  onClick={() => handleBorrow()}
+                  disabled={borrowDisabled || borrowProcess?.processActive}
+                />
+              )}
 
-            {stepPosition === 2 &&
+              {stepPosition === 2 &&
               borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
               borrowProcess?.tx.status === TxState.SUCCESSFUL && (
                 <NextButton
+                  size="xsmall"
                   label={<Text size={mobile ? 'small' : undefined}>Borrow more</Text>}
                   onClick={() => resetInputs()}
                 />
-              )}
+              )}      
 
             {stepPosition === 2 &&
               borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
@@ -468,9 +497,11 @@ const Borrow = () => {
           </ActionButtonWrap>
         </CenterPanelWrap>
 
-        <PanelWrap right basis="40%">
-          {!mobile && <VaultSelector />}
-        </PanelWrap>
+        {!mobile && (
+          <PanelWrap right basis="40%">
+            <VaultSelector />
+          </PanelWrap>
+        )}
       </MainViewWrap>
     </Keyboard>
   );
