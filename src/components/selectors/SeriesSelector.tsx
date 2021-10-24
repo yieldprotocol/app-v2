@@ -33,7 +33,7 @@ const InsetBox = styled(Box)`
   box-shadow: inset 1px 1px 1px #ddd, inset -0.25px -0.25px 0.25px #ddd;
 `;
 
-const CardSkeleton = () => (
+export const CardSkeleton = () => (
   <StyledBox
     // border={series.id === selectedSeriesId}
     pad="xsmall"
@@ -57,6 +57,7 @@ interface ISeriesSelectorProps {
   ) => void /* select series locally filters out the global selection from the list and returns the selected ISeries */;
   inputValue?: string | undefined /* accepts an inpout value for dynamic APR calculations */;
   cardLayout?: boolean;
+  setOpen?: any /* used with modal */;
 }
 
 const AprText = ({
@@ -147,7 +148,7 @@ const AprText = ({
   );
 };
 
-function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayout }: ISeriesSelectorProps) {
+function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayout, setOpen }: ISeriesSelectorProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const { userState, userActions } = useContext(UserContext);
@@ -222,11 +223,13 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
       selectSeriesLocally(_series);
       setLocalSeries(_series);
     }
+
+    mobile && setOpen(false);
   };
 
   return (
     <>
-      {seriesLoading && <Skeleton width={180} />}
+      {seriesLoading && !mobile && <Skeleton width={180} />}
       {!cardLayout && (
         <InsetBox fill="horizontal" round="xsmall" background={mobile ? 'white' : undefined}>
           <Select
@@ -245,7 +248,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
                 </Box>
               ) : (
                 <Box pad={mobile ? 'medium' : '0.55em'}>
-                  <Text color="text-weak"> No available series yet.</Text>
+                  <Text color="text-weak">No available series yet.</Text>
                 </Box>
               )
             }
@@ -327,6 +330,7 @@ SeriesSelector.defaultProps = {
   selectSeriesLocally: null,
   inputValue: undefined,
   cardLayout: true,
+  setOpen: () => null,
 };
 
 export default SeriesSelector;

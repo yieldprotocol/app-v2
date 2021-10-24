@@ -40,6 +40,7 @@ import LendItem from '../components/positionItems/LendItem';
 import InputInfoWrap from '../components/wraps/InputInfoWrap';
 import DashButton from '../components/buttons/DashButton';
 import DashMobileButton from '../components/buttons/DashMobileButton';
+import SeriesOrStrategySelectorModal from '../components/selectors/SeriesOrStrategySelectorModal';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -51,10 +52,12 @@ const Lend = () => {
   const selectedBase = assetMap.get(selectedBaseId!);
 
   /* LOCAL STATE */
+  const [modalOpen, toggleModal] = useState<boolean>(false);
   const [lendInput, setLendInput] = useState<string | undefined>(undefined);
   // const [maxLend, setMaxLend] = useState<string | undefined>();
   const [lendDisabled, setLendDisabled] = useState<boolean>(true);
   const [stepPosition, setStepPosition] = useState<number>(0);
+  const [stepDisabled, setStepDisabled] = useState<boolean>(true);
 
   /* HOOK FNS */
   const { maxLend_, protocolBaseIn, userBaseAvailable } = useLendHelpers(selectedSeries, lendInput);
@@ -83,7 +86,7 @@ const Lend = () => {
   /* ACTION DISABLING LOGIC  - if conditions are met: allow action */
   useEffect(() => {
     activeAccount && lendInput && selectedSeries && !lendError ? setLendDisabled(false) : setLendDisabled(true);
-    // setLendDisabled(false)
+    lendInput && selectedSeries && !lendError ? setStepDisabled(false) : setStepDisabled(true);
   }, [lendInput, activeAccount, lendError, selectedSeries]);
 
   /* Watch process timeouts */
@@ -167,21 +170,30 @@ const Lend = () => {
                   </Box>
                 </SectionWrap>
 
-                <SectionWrap
-                  title={
-                    seriesMap.size > 0
-                      ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} maturity date`
-                      : ''
-                  }
-                >
-                  <SeriesSelector inputValue={lendInput} actionType={ActionType.LEND} />
-                </SectionWrap>
+                {mobile ? (
+                  <SeriesOrStrategySelectorModal
+                    inputValue={lendInput!}
+                    actionType={ActionType.LEND}
+                    open={modalOpen}
+                    setOpen={toggleModal}
+                  />
+                ) : (
+                  <SectionWrap
+                    title={
+                      seriesMap.size > 0
+                        ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} maturity date`
+                        : ''
+                    }
+                  >
+                    <SeriesSelector inputValue={lendInput} actionType={ActionType.LEND} />
+                  </SectionWrap>
+                )}
               </Box>
             </Box>
           )}
 
           {stepPosition === 1 && (
-            <Box gap="large">
+            <Box gap={mobile ? 'medium' : 'large'}>
               <YieldCardHeader>
                 {lendProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
                   <BackButton action={() => setStepPosition(0)} />
@@ -228,7 +240,7 @@ const Lend = () => {
           {stepPosition !== 1 && !selectedSeries?.seriesIsMature && (
             <NextButton
               secondary
-              disabled={lendDisabled}
+              disabled={stepDisabled}
               label={<Text size={mobile ? 'small' : undefined}>Next Step</Text>}
               key="ONE"
               onClick={() => setStepPosition(stepPosition + 1)}
@@ -243,9 +255,11 @@ const Lend = () => {
                 primary
                 label={
                   <Text size={mobile ? 'small' : undefined}>
-                    {`Lend${lendProcess?.processActive ? `ing` : ''} ${
-                      nFormatter(Number(lendInput), selectedBase?.digitFormat!) || ''
-                    } ${selectedBase?.symbol || ''}`}
+                    {!activeAccount
+                      ? 'Connect Wallet'
+                      : `Lend${lendProcess?.processActive ? `ing` : ''} ${
+                          nFormatter(Number(lendInput), selectedBase?.digitFormat!) || ''
+                        } ${selectedBase?.symbol || ''}`}
                   </Text>
                 }
                 onClick={() => handleLend()}
@@ -279,9 +293,11 @@ const Lend = () => {
         </ActionButtonGroup>
       </CenterPanelWrap>
 
-      <PanelWrap right basis="40%">
-        {!mobile && <PositionSelector actionType={ActionType.LEND} />}
-      </PanelWrap>
+      {!mobile && (
+        <PanelWrap right basis="40%">
+          <PositionSelector actionType={ActionType.LEND} />
+        </PanelWrap>
+      )}
     </MainViewWrap>
   );
 };
