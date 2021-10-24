@@ -3,10 +3,10 @@ import { signDaiPermit, signERC2612Permit } from 'eth-permit';
 import { useContext } from 'react';
 import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
-import { MAX_256 } from '../utils/constants';
-import { ICallData, ISignData, LadleActions } from '../types';
+import { MAX_256, NON_PERMIT_ASSETS } from '../utils/constants';
+import { ApprovalType, ICallData, ISignData, LadleActions } from '../types';
 import { ERC20Permit__factory, Ladle } from '../contracts';
-import { UserContext } from '../contexts/UserContext';
+import { useApprovalMethod } from './useApprovalMethod';
 
 /* Get ETH value from JOIN_ETHER OPCode, else zero -> N.B. other values sent in with other OPS are ignored for now */
 const _getCallValue = (calls: ICallData[]): BigNumber => {
@@ -17,14 +17,17 @@ const _getCallValue = (calls: ICallData[]): BigNumber => {
 /* Generic hook for chain transactions */
 export const useChain = () => {
   const {
-    chainState: { account, provider, contractMap, chainId },
+    chainState: {
+      connection: { account, provider, chainId },
+      contractMap,
+    },
   } = useContext(ChainContext);
-  const {
-    userState: { approvalMethod },
-  } = useContext(UserContext);
+
   const {
     txActions: { handleTx, handleSign },
   } = useContext(TxContext);
+
+  const approvalMethod = useApprovalMethod();
 
   /**
    * TRANSACTING
@@ -62,8 +65,15 @@ export const useChain = () => {
     console.log('Batch value sent:', batchValue.toString());
 
     /* calculate the gas required */
-    const gasEst = await _contract.estimateGas.batch(encodedCalls, { value: batchValue } as PayableOverrides)
-    console.log('Auto gas estimate:',  gasEst.mul(120).div(100).toString() ) ;
+    let gasEst: BigNumber;
+    try {
+      gasEst = await _contract.estimateGas.batch(encodedCalls, { value: batchValue } as PayableOverrides);
+    } catch (e) {
+      gasEst = BigNumber.from('300000');
+      console.log('Failed to get gas estimate', e);
+      // throw( Error('Transaction will always revert.'));
+    }
+    console.log('Auto gas estimate:', gasEst.mul(120).div(100).toString());
 
     /* Finally, send out the transaction */
     return handleTx(
@@ -80,6 +90,7 @@ export const useChain = () => {
    * @param { ISignData[] } requestedSignatures
    * @param { string } txCode
    * @param { boolean } viaPoolRouter DEFAULT: false
+   *
    * @returns { Promise<ICallData[]> }
    */
   const sign = async (requestedSignatures: ISignData[], txCode: string): Promise<ICallData[]> => {
@@ -178,7 +189,8 @@ export const useChain = () => {
           () => handleTx(() => tokenContract.approve(_spender, MAX_256), txCode, true),
           reqSig,
           txCode,
-          approvalMethod
+          // TODO extract this out to ( also possibly use asset id)
+          NON_PERMIT_ASSETS.includes(reqSig.target.symbol) ? ApprovalType.TX : approvalMethod
         );
 
         const args = [

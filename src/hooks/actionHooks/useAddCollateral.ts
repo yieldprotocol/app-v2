@@ -9,10 +9,11 @@ import { useChain } from '../useChain';
 
 export const useAddCollateral = () => {
   const {
-    chainState: { account, contractMap },
+    chainState: { contractMap },
   } = useContext(ChainContext);
+  
   const { userState, userActions } = useContext(UserContext);
-  const { selectedBaseId, selectedIlkId, selectedSeriesId, seriesMap, assetMap } = userState;
+  const { activeAccount: account, selectedBaseId, selectedIlkId, selectedSeriesId, seriesMap, assetMap } = userState;
   const { updateAssets, updateVaults } = userActions;
 
   const { sign, transact } = useChain();

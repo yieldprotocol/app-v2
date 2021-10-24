@@ -1,7 +1,9 @@
+import { useWeb3React } from '@web3-react/core';
 import { ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../contexts/UserContext';
 import { ActionCodes, ISeries, IUserContext, IVault } from '../types';
+import { useCachedState } from './generalHooks';
 
 /* Provides input validation for each ActionCode */
 export const useInputValidation = (
@@ -29,8 +31,10 @@ export const useInputValidation = (
       const belowMin: boolean = !!limits[0] && _inputAsFloat < parseFloat(limits[0].toString());
 
       // General input validation here:
-      if (parseFloat(input) < 0 && actionCode !== ActionCodes.TRANSFER_VAULT) {
+      if (parseFloat(input) < 0 && actionCode !== ActionCodes.TRANSFER_VAULT)  {
         setInputError('Amount should be expressed as a positive value');
+      } else if (parseFloat(input) === 0 && actionCode !== ActionCodes.ADD_COLLATERAL  ) {
+        setInputError('Transaction amount should be greater than 0');
       } else if (aboveMax) {
         setInputError('Amount exceeds available balance');
       } else setInputError(null);

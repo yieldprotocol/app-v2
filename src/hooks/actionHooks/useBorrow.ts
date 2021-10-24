@@ -10,12 +10,9 @@ import { useChain } from '../useChain';
 import { useAddCollateral } from './useAddCollateral';
 
 export const useBorrow = () => {
-  const {
-    chainState: { account },
-  } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
-  const { selectedIlkId, selectedSeriesId, seriesMap, assetMap, slippageTolerance } = userState;
-  const { updateVaults, updateAssets } = userActions;
+  const { activeAccount: account, selectedIlkId, selectedSeriesId, seriesMap, assetMap, slippageTolerance } = userState;
+  const { updateVaults, updateAssets, updateSeries } = userActions;
 
   const { addEth } = useAddCollateral();
   const { sign, transact } = useChain();
@@ -33,13 +30,11 @@ export const useBorrow = () => {
     const ilk = vault ? assetMap.get(vault.ilkId) : assetMap.get(selectedIlkId);
 
     /* parse inputs  ( clean down to base/ilk decimals so that there is never an underlow)  */
-    const cleanInput = cleanValue(input, base.decimals)
+    const cleanInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanInput, base.decimals) : ethers.constants.Zero;
 
     const cleanCollInput = cleanValue(collInput, ilk.decimals);
-    const _collInput = collInput
-      ? ethers.utils.parseUnits(cleanCollInput, ilk.decimals)
-      : ethers.constants.Zero;
+    const _collInput = collInput ? ethers.utils.parseUnits(cleanCollInput, ilk.decimals) : ethers.constants.Zero;
 
     /* Calculate expected debt(fytokens) */
     const _expectedFyToken = buyBase(
@@ -57,7 +52,7 @@ export const useBorrow = () => {
         {
           target: ilk,
           spender: ilk.joinAddress,
-          ignoreIf: ETH_BASED_ASSETS.includes(selectedIlkId), // ignore if an ETH-BASED asset
+          ignoreIf: ETH_BASED_ASSETS.includes(selectedIlkId) || _collInput.eq(ethers.constants.Zero), // ignore if an ETH-BASED asset
           message: `Allow Yield Protocol to move ${ilk.symbol}`,
           amount: _input,
         },
@@ -95,6 +90,7 @@ export const useBorrow = () => {
     */
     updateVaults([]);
     updateAssets([base, ilk]);
+    updateSeries([series]);
   };
 
   return borrow;

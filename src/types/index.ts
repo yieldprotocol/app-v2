@@ -148,6 +148,7 @@ export interface IPoolRoot extends ISignable {}
 export interface ISeries extends ISeriesRoot {
   apr: string;
   baseReserves: BigNumber;
+  baseReserves_: string;
   fyTokenReserves: BigNumber;
   fyTokenRealReserves: BigNumber;
   totalSupply: BigNumber;
@@ -324,6 +325,13 @@ export enum ActionType {
   LEND = 'LEND',
   POOL = 'POOL',
 }
+
+export enum AddLiquidityType {
+  BUY = 'BUY',
+  BORROW = 'BORROW',
+}
+
+export enum ContractNames {}
 
 export enum YieldColors {
   SUCCESS = 'green',

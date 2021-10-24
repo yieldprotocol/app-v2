@@ -52,7 +52,7 @@ const DropContent = ({ assetMap }: { assetMap: any }) => (
               <Text size="small">{asset.balance_}</Text>
             </StyledTableCell>
             <StyledTableCell plain>
-              <AddTokenToMetamask address={asset.address} symbol={asset.symbol} decimals={18} image="" />
+              <AddTokenToMetamask address={asset.address} symbol={asset.symbol} decimals={asset.decimals} image="" />
             </StyledTableCell>
           </TableRow>
         ))}
@@ -76,20 +76,20 @@ const SettingsBalances = () => {
   };
 
   return (
-    <Box pad="medium" hoverIndicator={ { background: 'hover' }}>
-      <BoxWrap >
-      <DropButton
-        open={open}
-        onOpen={onOpen}
-        onClose={onClose}
-        dropContent={<DropContent assetMap={assetMap} />}
-        dropProps={{ align: { top: 'bottom', right: 'right' } }}
-        // hoverIndicator={{ border: 'tailwind-blue-50' }}
-        style={{ borderRadius: '6px' }}
-        hoverIndicator='hover'
-      >
-        <YieldBalances />
-      </DropButton>
+    <Box pad="medium" hoverIndicator={{ background: 'hover' }}>
+      <BoxWrap>
+        <DropButton
+          open={open}
+          onOpen={onOpen}
+          onClose={onClose}
+          dropContent={<DropContent assetMap={assetMap} />}
+          dropProps={{ align: { top: 'bottom', right: 'right' } }}
+          // hoverIndicator={{ border: 'tailwind-blue-50' }}
+          style={{ borderRadius: '6px' }}
+          hoverIndicator="hover"
+        >
+          <YieldBalances />
+        </DropButton>
       </BoxWrap>
     </Box>
   );

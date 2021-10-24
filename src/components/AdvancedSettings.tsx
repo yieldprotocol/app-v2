@@ -1,15 +1,33 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import { Box, CheckBox, Text } from 'grommet';
 import { UserContext } from '../contexts/UserContext';
 import SlippageSettings from './SlippageSettings';
 import { ApprovalType } from '../types';
+import { useCachedState } from '../hooks/generalHooks';
+import { ChainContext } from '../contexts/ChainContext';
 
 const AdvancedSettings = () => {
   const {
-    userState: { showInactiveVaults, approvalMethod },
-    userActions: { setShowInactiveVaults, setApprovalMethod },
+    userState: { approvalMethod },
+    userActions: { setApprovalMethod },
   } = useContext(UserContext);
 
+  const {
+    chainState: {
+      connection: { connectionName },
+    },
+  } = useContext(ChainContext);
+
+  const [, setCachedApprovalMethod] = useCachedState('cachedApprovalMethod', approvalMethod);
+
+  const handleApprovalToggle = (type: ApprovalType) => {
+    /* set for current session */
+    setApprovalMethod(type);
+    /* set cached for future sessions */
+    setCachedApprovalMethod(type);
+  };
+
+  if (connectionName === 'ledgerWithMetamask') return null;
   return (
     <Box fill="horizontal" gap="medium">
       <Box gap="small" pad={{ vertical: 'small' }} border={{ color: 'tailwind-blue-100', side: 'bottom' }}>
@@ -19,16 +37,8 @@ const AdvancedSettings = () => {
             toggle
             checked={approvalMethod === ApprovalType.TX}
             onChange={(event) =>
-              event?.target.checked ? setApprovalMethod(ApprovalType.TX) : setApprovalMethod(ApprovalType.SIG)
+              event?.target.checked ? handleApprovalToggle(ApprovalType.TX) : handleApprovalToggle(ApprovalType.SIG)
             }
-          />
-        </Box>
-        <Box direction="row" justify="between">
-          <Text size="small">Show Inactive Vaults</Text>
-          <CheckBox
-            toggle
-            checked={showInactiveVaults}
-            onChange={(event) => setShowInactiveVaults(event?.target.checked)}
           />
         </Box>
       </Box>

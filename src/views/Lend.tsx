@@ -57,7 +57,7 @@ const Lend = () => {
   const [stepPosition, setStepPosition] = useState<number>(0);
 
   /* HOOK FNS */
-  const { maxLend_, protocolBaseAvailable, userBaseAvailable } = useLendHelpers(selectedSeries, lendInput);
+  const { maxLend_, protocolBaseIn, userBaseAvailable } = useLendHelpers(selectedSeries, lendInput);
 
   const lend = useLend();
   const { apr } = useApr(lendInput, ActionType.LEND, selectedSeries);
@@ -82,10 +82,7 @@ const Lend = () => {
 
   /* ACTION DISABLING LOGIC  - if conditions are met: allow action */
   useEffect(() => {
-    activeAccount && 
-    lendInput && 
-    selectedSeries && 
-    !lendError ? setLendDisabled(false) : setLendDisabled(true);
+    activeAccount && lendInput && selectedSeries && !lendError ? setLendDisabled(false) : setLendDisabled(true);
     // setLendDisabled(false)
   }, [lendInput, activeAccount, lendError, selectedSeries]);
 
@@ -131,18 +128,18 @@ const Lend = () => {
                         isError={lendError}
                         disabled={selectedSeries?.seriesIsMature}
                         message={
-                          selectedSeries && (
+                          selectedSeries && userBaseAvailable.gt(protocolBaseIn) ? (
                             <InputInfoWrap action={() => setLendInput(maxLend_)}>
                               <Text size="xsmall" color="text-weak">
                                 Max lend is{' '}
                                 <Text size="small" color="text-weak">
                                   {cleanValue(maxLend_, 2)} {selectedBase?.symbol}
                                 </Text>{' '}
-                                {userBaseAvailable.lt(protocolBaseAvailable)
-                                  ? ' (your token balance)'
-                                  : ' (limited by protocol liquidity)'}
+                                (limited by protocol liquidity)
                               </Text>
                             </InputInfoWrap>
+                          ) : (
+                            <></>
                           )
                         }
                       >
@@ -151,7 +148,9 @@ const Lend = () => {
                           type="number"
                           placeholder="Enter amount"
                           value={lendInput || ''}
-                          onChange={(event: any) => setLendInput(cleanValue(event.target.value))}
+                          onChange={(event: any) =>
+                            setLendInput(cleanValue(event.target.value, selectedSeries?.decimals))
+                          }
                           disabled={selectedSeries?.seriesIsMature}
                         />
                         <MaxButton
@@ -230,7 +229,7 @@ const Lend = () => {
             <NextButton
               secondary
               disabled={lendDisabled}
-              label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
+              label={<Text size={mobile ? 'small' : undefined}>Next Step</Text>}
               key="ONE"
               onClick={() => setStepPosition(stepPosition + 1)}
               errorLabel={lendError}
