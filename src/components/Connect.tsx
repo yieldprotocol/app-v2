@@ -10,7 +10,7 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
     chainState: {
-      connection: { account, activatingConnector, CONNECTORS, CONNECTOR_NAMES, connectionName },
+      connection: { account, activatingConnector, CONNECTORS, CONNECTOR_NAMES, connectionName, connector },
     },
     chainActions: { connect, setConnectionName },
   } = useContext(ChainContext);
@@ -21,6 +21,7 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
     setConnectionName(connectorName);
     connect(connectorName);
     setConnectOpen(false);
+    setSettingsOpen(false);
   };
 
   return (
@@ -50,7 +51,7 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
         {[...CONNECTORS.keys()].map((name: string) => {
           const currentConnector = CONNECTORS.get(name);
           const activating = currentConnector === activatingConnector;
-          const connected = account && name === connectionName;
+          const connected = connector && name === connectionName;
 
           return (
             <Button

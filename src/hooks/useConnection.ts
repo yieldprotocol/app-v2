@@ -132,6 +132,7 @@ export const useConnection = () => {
               },
               false
             );
+            _setConnectionName(INIT_INJECTED);
           } else {
             setTried(true); // not authorsied, move on
           }
@@ -139,7 +140,7 @@ export const useConnection = () => {
     }
     /* if active, set tried to true */
     !tried && active && setTried(true);
-  }, [activate, active, handleErrorMessage, tried]);
+  }, [activate, active, handleErrorMessage, tried, _setConnectionName]);
 
   /*
       Watch the chainId for changes (most likely instigated by metamask),
