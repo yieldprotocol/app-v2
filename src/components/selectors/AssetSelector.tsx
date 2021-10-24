@@ -58,6 +58,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   /* update options on any changes */
   useEffect(() => {
     const opts = Array.from(assetMap.values()) as IAsset[];
+<<<<<<< fix/mobile-mm
     let filteredOptions;
     if (!activeAccount) {
       filteredOptions = selectCollateral
@@ -70,6 +71,12 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
             .filter((a: IAsset) => a.balance?.gt(ethers.constants.Zero))
         : opts.filter((a: IAsset) => a.isYieldBase);
     }
+=======
+
+    const filteredOptions = selectCollateral
+      ? opts.filter((a: IAsset) => a.id !== selectedBaseId) // .filter((a: IAsset) => a.balance?.gt(ethers.constants.Zero))
+      : opts.filter((a: IAsset) => a.isYieldBase);
+>>>>>>> MRC3
     setOptions(filteredOptions);
   }, [assetMap, selectCollateral, selectedSeriesId, selectedBaseId, activeAccount]);
 

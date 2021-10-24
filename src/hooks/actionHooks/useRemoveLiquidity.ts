@@ -6,7 +6,7 @@ import { getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
-import { burn, burnFromStrategy, calcPoolRatios } from '../../utils/yieldMath';
+import { burn, burnFromStrategy, calcPoolRatios, sellFYToken } from '../../utils/yieldMath';
 import { ZERO_BN } from '../../utils/constants';
 
 export const usePool = (input: string | undefined) => {
@@ -22,7 +22,7 @@ export const useRemoveLiquidity = () => {
   const ladleAddress = contractMap?.get('Ladle')?.address;
 
   const { userState, userActions } = useContext(UserContext);
-  const { activeAccount: account, assetMap, selectedStrategyAddr, strategyMap, slippageTolerance } = userState;
+  const { activeAccount: account, assetMap, selectedStrategyAddr, strategyMap } = userState;
   const { updateSeries, updateAssets, updateStrategies } = userActions;
   const { sign, transact } = useChain();
 
@@ -30,24 +30,24 @@ export const useRemoveLiquidity = () => {
     historyActions: { updateStrategyHistory },
   } = useContext(HistoryContext);
 
-  const removeLiquidity = async (input: string, series: ISeries, matchingVault: IVault | undefined) => {
+  const removeLiquidity = async (
+    input: string,
+    series: ISeries,
+    matchingVault: IVault | undefined,
+    tradeFyToken: boolean = true
+  ) => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.REMOVE_LIQUIDITY, series.id);
 
-    const base = assetMap.get(series.baseId);
-    const _input = ethers.utils.parseUnits(input, base.decimals);
+    const _base = assetMap.get(series.baseId);
     const _strategy = strategyMap.get(selectedStrategyAddr);
-    const lpReceived = burnFromStrategy(_strategy.poolTotalSupply!, _strategy.strategyTotalSupply!, _input);
+    const _input = ethers.utils.parseUnits(input, _base.decimals);
 
     const [cachedBaseReserves, cachedFyTokenReserves] = await series.poolContract.getCache();
     const cachedRealReserves = cachedFyTokenReserves.sub(series.totalSupply);
 
-    const [_baseTokenReceived, _fyTokenReceived] = burn(
-      series.baseReserves,
-      series.fyTokenReserves,
-      series.totalSupply,
-      lpReceived
-    );
+    const lpReceived = burnFromStrategy(_strategy.poolTotalSupply!, _strategy.strategyTotalSupply!, _input);
+    const [, _fyTokenReceived] = burn(series.baseReserves, series.fyTokenReserves, series.totalSupply, lpReceived);
 
     const matchingVaultId: string | undefined = matchingVault?.id;
     const matchingVaultDebt: BigNumber = matchingVault?.art || ZERO_BN;
@@ -56,6 +56,14 @@ export const useRemoveLiquidity = () => {
 
     const [minRatio, maxRatio] = calcPoolRatios(cachedBaseReserves, cachedRealReserves);
     const fyTokenReceivedGreaterThanDebt: boolean = _fyTokenReceived.gt(matchingVaultDebt);
+    const fyTokenTrade: BigNumber = sellFYToken(
+      series.baseReserves,
+      series.fyTokenReserves,
+      _fyTokenReceived,
+      series.getTimeTillMaturity(),
+      series.decimals
+    );
+    const fyTokenTradePossible = fyTokenTrade.gt(ethers.constants.Zero) && tradeFyToken;
 
     console.log('Strategy: ', _strategy);
     console.log('Vault to use for removal: ', matchingVaultId);
@@ -65,6 +73,8 @@ export const useRemoveLiquidity = () => {
     console.log('fyToken recieved from lpTokenburn: ', _fyTokenReceived.toString());
     console.log('Debt: ', matchingVaultDebt?.toString());
     console.log('Is FyToken Recieved Greater Than Debt: ', fyTokenReceivedGreaterThanDebt);
+    console.log('Is FyToken tradable?: ', fyTokenTradePossible);
+    console.log('fyTokentrade value: ', fyTokenTrade);
 
     const permits: ICallData[] = await sign(
       [
@@ -122,9 +132,8 @@ export const useRemoveLiquidity = () => {
        *
        * */
 
-      /* OPTION 1. Remove liquidity and repay - BEFORE MATURITY  */ // use if fytokenRecieved > debt
+      /* OPTION 1. Remove liquidity and repay - BEFORE MATURITY  */ // If fytokenRecieved > debt
       // (ladle.transferAction(pool, pool, lpTokensBurnt),  ^^^^ DONE ABOVE^^^^)
-
       // ladle.routeAction(pool, ['burn', [ladle, ladle, minBaseReceived, minFYTokenReceived]),
       // ladle.repayFromLadleAction(vaultId, receiver),
       // ladle.closeFromLadleAction(vaultId, receiver),
@@ -160,7 +169,10 @@ export const useRemoveLiquidity = () => {
       },
       {
         operation: LadleActions.Fn.REPAY_FROM_LADLE,
-        args: [matchingVaultId, account] as LadleActions.Args.REPAY_FROM_LADLE,
+        args: [
+          matchingVaultId,
+          fyTokenTradePossible ? series.poolAddress : account,
+        ] as LadleActions.Args.REPAY_FROM_LADLE,
         ignoreIf: fyTokenReceivedGreaterThanDebt || series.seriesIsMature || !useMatchingVault,
       },
       {
@@ -168,7 +180,7 @@ export const useRemoveLiquidity = () => {
         args: [account, ethers.constants.Zero] as RoutedActions.Args.SELL_FYTOKEN, // TODO slippage
         fnName: RoutedActions.Fn.SELL_FYTOKEN,
         targetContract: series.poolContract,
-        ignoreIf: fyTokenReceivedGreaterThanDebt || series.seriesIsMature || !useMatchingVault,
+        ignoreIf: !fyTokenTradePossible || fyTokenReceivedGreaterThanDebt || series.seriesIsMature || !useMatchingVault,
       },
 
       /* OPTION 4. Remove Liquidity and sell  - BEFORE MATURITY */
@@ -176,7 +188,7 @@ export const useRemoveLiquidity = () => {
       // ladle.routeAction(pool, ['burnForBase', [receiver, minBaseReceived]),
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [account, minRatio, maxRatio] as RoutedActions.Args.BURN_FOR_BASE, // TODO slippage minBase Recieved
+        args: [account, minRatio, maxRatio] as RoutedActions.Args.BURN_FOR_BASE,
         fnName: RoutedActions.Fn.BURN_FOR_BASE,
         targetContract: series.poolContract,
         ignoreIf: series.seriesIsMature || useMatchingVault,
@@ -243,7 +255,7 @@ export const useRemoveLiquidity = () => {
 
     await transact(calls, txCode);
     updateSeries([series]);
-    updateAssets([base]);
+    updateAssets([_base]);
     updateStrategies([_strategy]);
     updateStrategyHistory([_strategy]);
   };

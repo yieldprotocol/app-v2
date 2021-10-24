@@ -28,14 +28,13 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
     chainState: {
-      connection: { account, provider, CONNECTOR_NAMES, currentChainInfo },
+      connection: { account, CONNECTOR_NAMES, currentChainInfo, connectionName },
     },
   } = useContext(ChainContext);
   const {
     txState: { transactions },
   } = useContext(TxContext);
 
-  const connectorName = CONNECTOR_NAMES.get(provider.connection.url);
   const [transactionsOpen, toggleTransactionsOpen] = useState<boolean>(false);
 
   const handleChangeConnectType = () => {
@@ -72,7 +71,9 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
         <Box align="center" direction="row" gap="small" justify="center">
           {currentChainInfo?.name && (
             <Anchor
-              href={`https://${currentChainInfo.name}.etherscan.io/address/${account}`}
+              href={`https://${
+                currentChainInfo.name === 'Mainnet' ? '' : `${currentChainInfo.name}.`
+              }etherscan.io/address/${account}`}
               margin="xsmall"
               target="_blank"
             >
@@ -84,7 +85,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
           )}
         </Box>
         <Box justify="between" align="center" direction="row">
-          {connectorName && <Text size="small">Connected with {connectorName}</Text>}
+          {connectionName && <Text size="small">Connected with {CONNECTOR_NAMES.get(connectionName)}</Text>}
           <StyledButton onClick={handleChangeConnectType}>Change</StyledButton>
         </Box>
       </Box>

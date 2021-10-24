@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect, useCallback } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { Box, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import { ethers } from 'ethers';
 import { useHistory, useParams } from 'react-router-dom';
@@ -10,7 +10,7 @@ import { abbreviateHash, cleanValue, nFormatter } from '../utils/appUtils';
 import SectionWrap from '../components/wraps/SectionWrap';
 
 import { UserContext } from '../contexts/UserContext';
-import { ActionCodes, ActionType, ISeries, IUserContext, ProcessStage } from '../types';
+import { ActionCodes, ActionType, IUserContext, ProcessStage } from '../types';
 import MaxButton from '../components/buttons/MaxButton';
 import InfoBite from '../components/InfoBite';
 import ActiveTransaction from '../components/ActiveTransaction';
@@ -48,9 +48,6 @@ const PoolPosition = () => {
   /* LOCAL STATE */
   const [removeInput, setRemoveInput] = useState<string | undefined>(undefined);
   const [maxRemove, setMaxRemove] = useState<string | undefined>();
-
-  const [ignoreVault, setIgnoreVault] = useState<boolean>(false);
-
   const [removeDisabled, setRemoveDisabled] = useState<boolean>(true);
 
   // multi-tracking stepper
@@ -64,11 +61,11 @@ const PoolPosition = () => {
     matchingVault,
     maxRemoveWithVault,
     maxRemoveNoVault,
-    healthyBaseReserves,
-    fyTokenTradePossible,
+    // addTradePossible,
     inputTradeValue,
     inputTradeValue_,
-  } = usePoolHelpers(removeInput);
+    removeTradePossible,
+  } = usePoolHelpers(removeInput, true);
 
   /* TX data */
   const { txProcess: removeProcess, resetProcess: resetRemoveProcess } = useProcess(
@@ -92,8 +89,7 @@ const PoolPosition = () => {
 
   const handleRemove = () => {
     // !removeDisabled &&
-    const _vault = ignoreVault ? undefined : matchingVault;
-    selectedSeries && removeLiquidity(removeInput!, selectedSeries, _vault);
+    selectedSeries && removeLiquidity(removeInput!, selectedSeries, matchingVault);
   };
 
   const resetInputs = (actionCode: ActionCodes) => {
@@ -106,17 +102,14 @@ const PoolPosition = () => {
 
   /* SET MAX VALUES */
   useEffect(() => {
-    /* Checks the max available to roll or move */
-    selectedStrategy && matchingVault
-      ? // ? setMaxRemove( maxRemoveWithVault )
-        setMaxRemove(maxRemoveNoVault)
-      : setMaxRemove(maxRemoveNoVault);
+    /* Checks the max available to remove */
+    selectedStrategy && matchingVault ? setMaxRemove(maxRemoveWithVault) : setMaxRemove(maxRemoveNoVault);
   }, [selectedStrategy, matchingVault, maxRemoveNoVault, maxRemoveWithVault, setMaxRemove]);
 
   /* ACTION DISABLING LOGIC - if ANY conditions are met: block action */
   useEffect(() => {
-    !removeInput || removeError ? setRemoveDisabled(true) : setRemoveDisabled(false);
-  }, [activeAccount, removeError, removeInput]);
+    !removeInput || removeError || !removeTradePossible ? setRemoveDisabled(true) : setRemoveDisabled(false);
+  }, [activeAccount, removeError, removeInput, removeTradePossible]);
 
   useEffect(() => {
     !selectedStrategyAddr && idFromUrl && userActions.setSelectedStrategy(idFromUrl);
@@ -127,7 +120,6 @@ const PoolPosition = () => {
     removeProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs(ActionCodes.REMOVE_LIQUIDITY);
   }, [removeProcess?.stage]);
 
-  // console.log('mature', selectedStrategy?.series.isMature());
   /* INTERNAL COMPONENTS */
   const CompletedTx = (props: any) => (
     <>
@@ -237,7 +229,7 @@ const PoolPosition = () => {
                           isError={removeError}
                           message={
                             <>
-                              {!healthyBaseReserves &&
+                              {/* {!removeTradePossible &&
                                 !removeInput &&
                                 selectedStrategy?.accountBalance?.gt(ZERO_BN) &&
                                 !selectedSeries?.isMature() && (
@@ -247,12 +239,11 @@ const PoolPosition = () => {
                                       tokens are redeemable for the base.
                                     </Text>
                                   </InputInfoWrap>
-                                )}
-                              {(!healthyBaseReserves &&
+                                )} */}
+                              {(!removeTradePossible &&
                                 removeInput &&
-                                !fyTokenTradePossible &&
                                 selectedSeries &&
-                                !selectedSeries.isMature()) ||
+                                !selectedSeries.seriesIsMature) ||
                                 (inputTradeValue?.eq(ethers.constants.Zero) && (
                                   <InputInfoWrap>
                                     <Text color="text-weak" alignSelf="end" size="xsmall">
@@ -261,7 +252,7 @@ const PoolPosition = () => {
                                   </InputInfoWrap>
                                 ))}
 
-                              {removeInput && fyTokenTradePossible && (
+                              {removeInput && removeTradePossible && (
                                 <InputInfoWrap>
                                   <Text color="text-weak" alignSelf="end" size="small">
                                     Approx. return {cleanValue(inputTradeValue_, selectedBase?.digitFormat)}{' '}
@@ -285,7 +276,9 @@ const PoolPosition = () => {
                             action={() => setRemoveInput(maxRemove)}
                             disabled={
                               maxRemove === '0.0' ||
-                              (!healthyBaseReserves && selectedSeries && !selectedSeries.isMature())
+                              !selectedSeries ||
+                              selectedSeries.seriesIsMature ||
+                              !removeTradePossible
                             }
                             clearAction={() => setRemoveInput('')}
                             showingMax={!!removeInput && removeInput === maxRemove}
@@ -316,13 +309,10 @@ const PoolPosition = () => {
             <ActionButtonGroup pad>
               {stepPosition[actionActive.index] === 0 && actionActive.index !== 1 && (
                 <NextButton
-                  label={<Text size={mobile ? 'small' : undefined}> Next Step</Text>}
+                  label={<Text size={mobile ? 'small' : undefined}>Next Step</Text>}
                   onClick={() => handleStepper()}
                   key="next"
-                  disabled={
-                    (actionActive.index === 0 && removeDisabled) ||
-                    (!fyTokenTradePossible && selectedSeries?.isMature())
-                  }
+                  disabled={actionActive.index === 0 && removeDisabled}
                   errorLabel={actionActive.index === 0 && removeError}
                 />
               )}
