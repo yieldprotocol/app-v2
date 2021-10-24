@@ -60,7 +60,6 @@ CONNECTORS.set(
     rpc: { 1: RPC_URLS[1], 42: RPC_URLS[42] },
     bridge: 'https://bridge.walletconnect.org',
     qrcode: true,
-    pollingInterval: POLLING_INTERVAL,
   })
 );
 // CONNECTORS.set(
