@@ -329,7 +329,6 @@ const UserProvider = ({ children }: any) => {
   /* Updates the prices from the oracle with latest data */ // TODO reduce redundant calls
   const updateLimit = useCallback(
     async (ilk: string, base: string): Promise<[BigNumber, BigNumber]> => {
-      updateState({ type: 'pricesLoading', payload: true });
       const Cauldron = contractMap.get('Cauldron');
       try {
         const _limitMap = userState.limitMap;
@@ -340,12 +339,10 @@ const UserProvider = ({ children }: any) => {
 
         updateState({ type: 'priceMap', payload: _limitMap });
         console.log('Limit checked: ', ilk, ' ->', base, ':', min.toString(), max.toString());
-        updateState({ type: 'pricesLoading', payload: false });
 
         return [min, max];
       } catch (error) {
         console.log('Error getting limits', error);
-        updateState({ type: 'pricesLoading', payload: false });
         return [ethers.constants.Zero, ethers.constants.Zero];
       }
     },
