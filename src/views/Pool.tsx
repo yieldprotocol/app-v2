@@ -203,29 +203,28 @@ function Pool() {
                         icon={<FiPercent />}
                         value={`${cleanValue(poolPercentPreview, 2)}%`}
                       />
-
                     </Box>
                   </SectionWrap>
                   <SectionWrap>
-                        <Box direction="row" justify="between" fill align="center">
-                          {!mobile && (
-                            <Box direction="row" gap="xsmall">
-                              <Text size="xsmall">Pooling method:</Text>
-                            </Box>
-                          )}
-                          <RadioButtonGroup
-                            name="strategy"
-                            options={[
-                              { label: <Text size="xsmall"> Buy & pool</Text>, value: 'BUY', disabled: !canBuyAndPool },
-                              { label: <Text size="xsmall"> Borrow & Pool </Text>, value: 'BORROW' },
-                            ]}
-                            value={poolMethod}
-                            onChange={(event: any) => setPoolMethod(event.target.value)}
-                            direction="row"
-                            justify="between"
-                          />
+                    <Box direction="row" justify="between" fill align="center">
+                      {!mobile && (
+                        <Box direction="row" gap="xsmall">
+                          <Text size="xsmall">Pooling method:</Text>
                         </Box>
-                      </SectionWrap>
+                      )}
+                      <RadioButtonGroup
+                        name="strategy"
+                        options={[
+                          { label: <Text size="xsmall">Buy & pool</Text>, value: 'BUY', disabled: !canBuyAndPool },
+                          { label: <Text size="xsmall">Borrow & Pool</Text>, value: 'BORROW' },
+                        ]}
+                        value={poolMethod}
+                        onChange={(event: any) => setPoolMethod(event.target.value)}
+                        direction="row"
+                        justify="between"
+                      />
+                    </Box>
+                  </SectionWrap>
                 </Box>
               </ActiveTransaction>
             </Box>

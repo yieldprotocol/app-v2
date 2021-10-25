@@ -426,16 +426,20 @@ const VaultPosition = () => {
                         />
 
                         {repayInput === maxDebt_ && (
-                          <Box fill='horizontal' align='end'>
+                          <Box fill="horizontal" align="end">
                             <CheckBox
                               reverse
                               size={0.5}
-                              label={<Text size="xsmall" color="text-weak"> Remove collateral in the same transaction </Text>}
+                              label={
+                                <Text size="xsmall" color="text-weak">
+                                  Remove collateral in the same transaction
+                                </Text>
+                              }
                               checked={reclaimCollateral}
                               onChange={() => setReclaimCollateral(!reclaimCollateral)}
                             />
                           </Box>
-                        )} 
+                        )}
                       </ActiveTransaction>
                     )}
                   </>
@@ -649,7 +653,6 @@ const VaultPosition = () => {
                     }
                     onClick={() => handleRepay()}
                     disabled={repayDisabled || repayProcess?.processActive}
-          
                   />
                 )}
 
@@ -685,7 +688,7 @@ const VaultPosition = () => {
                       </Text>
                     }
                     onClick={() => handleCollateral('ADD')}
-                    disabled={addCollateralProcess?.processActive}                                     
+                    disabled={addCollateralProcess?.processActive}
                   />
                 )}
 

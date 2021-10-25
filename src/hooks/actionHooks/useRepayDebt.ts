@@ -100,10 +100,10 @@ export const useRepayDebt = () => {
       {
         operation: LadleActions.Fn.REPAY_VAULT,
         args: [
-          vault.id, 
-           (reclaimCollateral && isEthBased) ? ladleAddress : account, 
-          _collateralToRemove, 
-          _input
+          vault.id,
+          reclaimCollateral && isEthBased ? ladleAddress : account,
+          _collateralToRemove,
+          _input,
         ] as LadleActions.Args.REPAY_VAULT,
         ignoreIf:
           series.seriesIsMature ||
@@ -115,10 +115,10 @@ export const useRepayDebt = () => {
       {
         operation: LadleActions.Fn.CLOSE,
         args: [
-          vault.id, 
-          (reclaimCollateral && isEthBased) ? ladleAddress : account,  
-          _collateralToRemove, 
-          _input.mul(-1)
+          vault.id,
+          reclaimCollateral && isEthBased ? ladleAddress : account,
+          _collateralToRemove,
+          _input.mul(-1),
         ] as LadleActions.Args.CLOSE,
         ignoreIf: !series.seriesIsMature,
       },
