@@ -6,11 +6,18 @@ import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import { calculateSlippage, maxBaseIn, secondsToFrom, sellBase } from '../../utils/yieldMath';
 import { useRemoveCollateral } from './useRemoveCollateral';
+import { ChainContext } from '../../contexts/ChainContext';
+import { ETH_BASED_ASSETS } from '../../utils/constants';
 
 export const useRepayDebt = () => {
   const { userState, userActions } = useContext(UserContext);
   const { activeAccount: account, seriesMap, assetMap } = userState;
   const { updateVaults, updateAssets } = userActions;
+
+  const {
+    chainState: { contractMap },
+  } = useContext(ChainContext);
+  const ladleAddress = contractMap.get('Ladle').address;
 
   const { removeEth } = useRemoveCollateral();
   const { sign, transact } = useChain();
@@ -47,9 +54,9 @@ export const useRepayDebt = () => {
 
     const inputGreaterThanDebt: boolean = ethers.BigNumber.from(_inputAsFyToken).gte(vault.art);
     const inputGreaterThanMaxBaseIn = _input.gt(_MaxBaseIn);
-
     /* if requested, and all debt will be repaid, automatically remove collateral */
     const _collateralToRemove = reclaimCollateral && inputGreaterThanDebt ? vault.ink.mul(-1) : ethers.constants.Zero;
+    const isEthBased = ETH_BASED_ASSETS.includes(vault.ilkId);
 
     const permits: ICallData[] = await sign(
       [
@@ -93,10 +100,10 @@ export const useRepayDebt = () => {
       {
         operation: LadleActions.Fn.REPAY_VAULT,
         args: [
-          vault.id,
-          account,
-          _collateralToRemove,
-          _input,
+          vault.id, 
+           (reclaimCollateral && isEthBased) ? ladleAddress : account, 
+          _collateralToRemove, 
+          _input
         ] as LadleActions.Args.REPAY_VAULT,
         ignoreIf:
           series.seriesIsMature ||
@@ -107,7 +114,12 @@ export const useRepayDebt = () => {
       /* AFTER MATURITY */
       {
         operation: LadleActions.Fn.CLOSE,
-        args: [vault.id, account, _collateralToRemove, _input.mul(-1)] as LadleActions.Args.CLOSE,
+        args: [
+          vault.id, 
+          (reclaimCollateral && isEthBased) ? ladleAddress : account,  
+          _collateralToRemove, 
+          _input.mul(-1)
+        ] as LadleActions.Args.CLOSE,
         ignoreIf: !series.seriesIsMature,
       },
 
