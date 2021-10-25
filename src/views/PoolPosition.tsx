@@ -264,7 +264,8 @@ const PoolPosition = () => {
                                       label={
                                         <Text size="xsmall">
                                           Force Removal (receive{' '}
-                                          {cleanValue(forceFyTokenReceived_, selectedBase?.digitFormat)} fyTokens{' '}
+                                          {cleanValue(forceFyTokenReceived_, selectedBase?.digitFormat)} fy
+                                          {selectedBase?.symbol}{' '}
                                           {parseFloat(forceFyTokenReceived_!) > 0 &&
                                             ` and ${cleanValue(forceBaseReceived_, selectedBase?.digitFormat)} ${
                                               selectedBase?.symbol
