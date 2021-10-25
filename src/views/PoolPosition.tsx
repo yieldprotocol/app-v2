@@ -63,6 +63,8 @@ const PoolPosition = () => {
     maxRemoveWithVault,
     maxRemoveNoVault,
     // addTradePossible,
+    forceBaseReceived_,
+    forceFyTokenReceived_,
     inputTradeValue,
     inputTradeValue_,
     removeTradePossible,
@@ -89,7 +91,7 @@ const PoolPosition = () => {
   };
 
   const handleRemove = () => {
-    selectedSeries && removeLiquidity(removeInput!, selectedSeries, matchingVault, !forceRemove); // !forceRemove => tradeFyToken 
+    selectedSeries && removeLiquidity(removeInput!, selectedSeries, matchingVault, !forceRemove); // !forceRemove => tradeFyToken
   };
 
   const resetInputs = (actionCode: ActionCodes) => {
@@ -259,7 +261,16 @@ const PoolPosition = () => {
                                     </Text>
                                     <CheckBox
                                       reverse
-                                      label={<Text size="xsmall">Force Removal (receive fyTokens)</Text>}
+                                      label={
+                                        <Text size="xsmall">
+                                          Force Removal (receive{' '}
+                                          {cleanValue(forceFyTokenReceived_, selectedBase?.digitFormat)} fyTokens{' '}
+                                          {parseFloat(forceFyTokenReceived_!) > 0 &&
+                                            ` and ${cleanValue(forceBaseReceived_, selectedBase?.digitFormat)} ${
+                                              selectedBase?.symbol
+                                            }`}
+                                        </Text>
+                                      }
                                       checked={forceRemove}
                                       onChange={() => setForceRemove(!forceRemove)}
                                     />
@@ -299,8 +310,6 @@ const PoolPosition = () => {
                           icon={<FiArrowRight />}
                           value={`${cleanValue(removeInput, selectedBase?.digitFormat!)} tokens `}
                         />
-
-                        
                       </ActiveTransaction>
                     )}
                   </>
@@ -315,7 +324,7 @@ const PoolPosition = () => {
                   label={<Text size={mobile ? 'small' : undefined}>Next Step</Text>}
                   onClick={() => handleStepper()}
                   key="next"
-                  disabled={actionActive.index === 0 && removeDisabled || (!removeTradePossible && !forceRemove) }
+                  disabled={(actionActive.index === 0 && removeDisabled) || (!removeTradePossible && !forceRemove)}
                   errorLabel={actionActive.index === 0 && removeError}
                 />
               )}

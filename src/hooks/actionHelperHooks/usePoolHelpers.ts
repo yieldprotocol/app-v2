@@ -58,6 +58,8 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   const [maxRemoveNoVault, setMaxRemoveNoVault] = useState<string | undefined>();
   const [maxRemoveWithVault, setMaxRemoveWithVault] = useState<string | undefined>();
   const [removeTradePossible, setRemoveTradePossible] = useState<boolean>(true);
+  const [forceBaseReceived_, setForceBaseReceived_] = useState<string | undefined>();
+  const [forceFyTokenReceived_, setForceFyTokenReceived_] = useState<string | undefined>();
 
   /* Set input (need to make sure we can parse the input value) */
   useEffect(() => {
@@ -150,14 +152,13 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
       );
 
       /* Check if buy and pool option is allowed */
-      const buyAndPoolAllowed = 
-      _fyTokenToBuy.gt(ethers.constants.Zero) && 
-      _fyTokenToBuy.lt(_maxFyTokenOut) &&
-      parseFloat(strategySeries.apr) > 0.25;
+      const buyAndPoolAllowed =
+        _fyTokenToBuy.gt(ethers.constants.Zero) &&
+        _fyTokenToBuy.lt(_maxFyTokenOut) &&
+        parseFloat(strategySeries.apr) > 0.25;
 
       setCanBuyAndPool(buyAndPoolAllowed);
       console.log('Can BuyAndPool?', buyAndPoolAllowed);
-
     } else {
       /* Don't allow by default */
       setCanBuyAndPool(false);
@@ -230,6 +231,21 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
     }
   }, [_input, removeLiquidityView, strategy, strategySeries]);
 
+  /* For use when using force removal, to calculate how much will be received in base and fyToken */
+  useEffect(() => {
+    if (_input !== ethers.constants.Zero && strategySeries) {
+      const lpReceived = burnFromStrategy(strategy?.poolTotalSupply!, strategy?.strategyTotalSupply!, _input);
+      const [_forceBaseReceived, _forceFyTokenReceived] = burn(
+        strategySeries?.baseReserves!,
+        strategySeries?.fyTokenReserves!,
+        strategySeries?.totalSupply!,
+        lpReceived
+      );
+      setForceBaseReceived_(ethers.utils.formatUnits(_forceBaseReceived, strategySeries?.decimals));
+      setForceFyTokenReceived_(ethers.utils.formatUnits(_forceFyTokenReceived, strategySeries?.decimals));
+    }
+  }, [strategy, _input, strategySeries]);
+
   return {
     maxPool,
     poolPercentPreview,
@@ -242,6 +258,8 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
 
     addTradePossible,
     removeTradePossible,
+    forceBaseReceived_,
+    forceFyTokenReceived_,
 
     inputTradeValue,
     inputTradeValue_,
