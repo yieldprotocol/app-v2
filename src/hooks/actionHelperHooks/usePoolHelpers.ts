@@ -103,12 +103,14 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
       const tradeable = _sellValue.gt(ethers.constants.Zero);
       tradeable && setAccountTradeValue(ethers.utils.formatUnits(_tokenValue, strategy.decimals));
     }
+
+    strategy?.accountBalance?.eq(ethers.constants.Zero) && setAccountTradeValue('0');
   }, [strategy, strategySeries]);
 
   /* Set the trade value and check if base reserves are too low for specific input  */
   useEffect(() => {
     if (_input !== ethers.constants.Zero && strategySeries) {
-      const [_sellValue , _tokenValue] = strategyTokenValue(
+      const [_sellValue, _tokenValue] = strategyTokenValue(
         _input,
         strategy?.strategyTotalSupply!,
         strategy?.strategyPoolBalance!,
@@ -223,7 +225,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         strategySeries.totalSupply,
         strategySeries.getTimeTillMaturity(),
         strategySeries.decimals
-      )
+      );
       setRemoveTradePossible(sellTokenValue.gt(ethers.constants.Zero));
     }
   }, [_input, removeLiquidityView, strategy, strategySeries]);
