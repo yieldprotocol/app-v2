@@ -65,7 +65,7 @@ const initState: IUserContextState = {
 
   /* User Settings ( getting from the cache first ) */
   approvalMethod: (JSON.parse(localStorage.getItem('cachedApprovalMethod')!) as ApprovalType) || ApprovalType.SIG,
-  slippageTolerance: (JSON.parse(localStorage.getItem('slippageTolerance')!) as number) || (0.0005 as number),
+  slippageTolerance: (JSON.parse(localStorage.getItem('slippageTolerance')!) as number) || (0.005 as number),
   dudeSalt: 21,
 
   dashSettings: {
@@ -329,7 +329,6 @@ const UserProvider = ({ children }: any) => {
   /* Updates the prices from the oracle with latest data */ // TODO reduce redundant calls
   const updateLimit = useCallback(
     async (ilk: string, base: string): Promise<[BigNumber, BigNumber]> => {
-      updateState({ type: 'pricesLoading', payload: true });
       const Cauldron = contractMap.get('Cauldron');
       try {
         const _limitMap = userState.limitMap;
@@ -340,12 +339,10 @@ const UserProvider = ({ children }: any) => {
 
         updateState({ type: 'priceMap', payload: _limitMap });
         console.log('Limit checked: ', ilk, ' ->', base, ':', min.toString(), max.toString());
-        updateState({ type: 'pricesLoading', payload: false });
 
         return [min, max];
       } catch (error) {
         console.log('Error getting limits', error);
-        updateState({ type: 'pricesLoading', payload: false });
         return [ethers.constants.Zero, ethers.constants.Zero];
       }
     },

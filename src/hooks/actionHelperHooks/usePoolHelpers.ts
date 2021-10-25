@@ -55,7 +55,6 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   const [accountTradeValue, setAccountTradeValue] = useState<string | undefined>();
 
   /* remove liquidity helpers */
-
   const [maxRemoveNoVault, setMaxRemoveNoVault] = useState<string | undefined>();
   const [maxRemoveWithVault, setMaxRemoveWithVault] = useState<string | undefined>();
   const [removeTradePossible, setRemoveTradePossible] = useState<boolean>(true);
@@ -149,15 +148,16 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
       );
 
       /* Check if buy and pool option is allowed */
-      const buyAndPoolAllowed = _fyTokenToBuy.gt(ethers.constants.Zero) && _fyTokenToBuy.lt(_maxFyTokenOut);
+      const buyAndPoolAllowed = 
+      _fyTokenToBuy.gt(ethers.constants.Zero) && 
+      _fyTokenToBuy.lt(_maxFyTokenOut) &&
+      parseFloat(strategySeries.apr) > 0.25;
 
-      console.log('fTokenToBuy, maxFyTokenOut ', _fyTokenToBuy.toString(), _maxFyTokenOut);
       setCanBuyAndPool(buyAndPoolAllowed);
       console.log('Can BuyAndPool?', buyAndPoolAllowed);
-      console.log('fTokenToBuy: ', _fyTokenToBuy.toString());
-      console.log('maxFyTokenOut: ', _maxFyTokenOut.toString());
+
     } else {
-      /* allowed by default */
+      /* Don't allow by default */
       setCanBuyAndPool(false);
     }
   }, [_input, strategySeries, removeLiquidityView, slippageTolerance]);

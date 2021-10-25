@@ -25,7 +25,7 @@ const SlippageSettings = () => {
   const [input, setInput] = useState((slippageTolerance * 100).toString());
   const [, setCachedSlippageTolerance] = useCachedState('slippageTolerance', (slippageTolerance * 100).toString());
 
-  const tolerances: number[] = [0.0001, 0.0005, 0.001];
+  const tolerances: number[] = [0.001, 0.005, 0.01];
   const validateInput = (tolerance: number) => (tolerance > 0 && tolerance < 1 ? tolerance : slippageTolerance);
   const customTolerance = !tolerances.includes(slippageTolerance);
 
