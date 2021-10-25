@@ -93,8 +93,6 @@ const VaultPosition = () => {
     selectedVault && !selectedVault.isActive ? { index: 3 } : { index: 0 }
   );
 
-  const parsedInput = repayInput ? ethers.utils.parseUnits(repayInput, vaultBase?.decimals) : ethers.constants.Zero;
-
   /* HOOK FNS */
   const repay = useRepayDebt();
   const rollDebt = useRollDebt();
