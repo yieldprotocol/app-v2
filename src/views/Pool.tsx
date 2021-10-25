@@ -178,35 +178,6 @@ function Pool() {
                 )}
               </YieldCardHeader>
 
-              <SectionWrap>
-                <Box direction="row" justify="between" fill align="center">
-                  {!mobile && (
-                    <Box direction="row" gap="xsmall">
-                      <Text size="small">Pooling method:</Text>
-                      {/* <Tip
-                              content={<Text size="xsmall">some info</Text>}
-                              dropProps={{ align: { bottom: 'top' } }}
-                            >
-                              <Text size="small">
-                                <FiInfo />
-                              </Text>
-                            </Tip> */}
-                    </Box>
-                  )}
-                  <RadioButtonGroup
-                    name="strategy"
-                    options={[
-                      { label: <Text size="small"> Buy & pool</Text>, value: 'BUY', disabled: !canBuyAndPool },
-                      { label: <Text size="small"> Borrow & Pool </Text>, value: 'BORROW' },
-                    ]}
-                    value={poolMethod}
-                    onChange={(event: any) => setPoolMethod(event.target.value)}
-                    direction="row"
-                    justify="between"
-                  />
-                </Box>
-              </SectionWrap>
-
               <ActiveTransaction full txProcess={poolProcess}>
                 <Box gap="large">
                   <SectionWrap>
@@ -232,8 +203,29 @@ function Pool() {
                         icon={<FiPercent />}
                         value={`${cleanValue(poolPercentPreview, 2)}%`}
                       />
+
                     </Box>
                   </SectionWrap>
+                  <SectionWrap>
+                        <Box direction="row" justify="between" fill align="center">
+                          {!mobile && (
+                            <Box direction="row" gap="xsmall">
+                              <Text size="xsmall">Pooling method:</Text>
+                            </Box>
+                          )}
+                          <RadioButtonGroup
+                            name="strategy"
+                            options={[
+                              { label: <Text size="xsmall"> Buy & pool</Text>, value: 'BUY', disabled: !canBuyAndPool },
+                              { label: <Text size="xsmall"> Borrow & Pool </Text>, value: 'BORROW' },
+                            ]}
+                            value={poolMethod}
+                            onChange={(event: any) => setPoolMethod(event.target.value)}
+                            direction="row"
+                            justify="between"
+                          />
+                        </Box>
+                      </SectionWrap>
                 </Box>
               </ActiveTransaction>
             </Box>

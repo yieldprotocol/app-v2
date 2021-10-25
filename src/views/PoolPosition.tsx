@@ -229,17 +229,6 @@ const PoolPosition = () => {
                           isError={removeError}
                           message={
                             <>
-                              {/* {!removeTradePossible &&
-                                !removeInput &&
-                                selectedStrategy?.accountBalance?.gt(ZERO_BN) &&
-                                !selectedSeries?.isMature() && (
-                                  <InputInfoWrap>
-                                    <Text color="text-weak" alignSelf="end" size="xsmall">
-                                      Pools aren't as healthy as they could be. Currently, not all of your liquidity
-                                      tokens are redeemable for the base.
-                                    </Text>
-                                  </InputInfoWrap>
-                                )} */}
                               {(!removeTradePossible &&
                                 removeInput &&
                                 selectedSeries &&
@@ -298,6 +287,8 @@ const PoolPosition = () => {
                           icon={<FiArrowRight />}
                           value={`${cleanValue(removeInput, selectedBase?.digitFormat!)} liquidity tokens`}
                         />
+
+                        
                       </ActiveTransaction>
                     )}
                   </>
