@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
-import { Box, ResponsiveContext, Select, Text, TextInput } from 'grommet';
+import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 
 import { ethers } from 'ethers';
 
@@ -424,6 +424,22 @@ const VaultPosition = () => {
                           icon={<FiArrowRight />}
                           value={`${cleanValue(repayInput, vaultBase?.digitFormat!)} ${vaultBase?.symbol}`}
                         />
+
+                        {repayInput === maxDebt_ && (
+                          <Box fill="horizontal" align="end">
+                            <CheckBox
+                              reverse
+                              size={0.5}
+                              label={
+                                <Text size="xsmall" color="text-weak">
+                                  Remove collateral in the same transaction
+                                </Text>
+                              }
+                              checked={reclaimCollateral}
+                              onChange={() => setReclaimCollateral(!reclaimCollateral)}
+                            />
+                          </Box>
+                        )}
                       </ActiveTransaction>
                     )}
                   </>
