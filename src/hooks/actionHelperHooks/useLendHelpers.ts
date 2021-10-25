@@ -22,7 +22,7 @@ export const useLendHelpers = (
   const [maxClose_, setMaxClose_] = useState<string>();
 
   const [userBaseAvailable, setUserBaseAvailable] = useState<BigNumber>(ethers.constants.Zero);
-  
+
   const [protocolBaseOut, setProtocolBaseOut] = useState<BigNumber>(ethers.constants.Zero);
   const [protocolBaseIn, setProtocolBaseIn] = useState<BigNumber>(ethers.constants.Zero);
 
@@ -33,22 +33,12 @@ export const useLendHelpers = (
     if (series) {
       const timeTillMaturity = series.getTimeTillMaturity();
 
-      const _maxBaseOut = maxBaseOut(
-        series.baseReserves,
-        series.fyTokenReserves,
-        timeTillMaturity,
-        series.decimals
-      );
+      const _maxBaseOut = maxBaseOut(series.baseReserves, series.fyTokenReserves, timeTillMaturity, series.decimals);
       _maxBaseOut && setProtocolBaseOut(_maxBaseOut);
 
-      const _maxBaseIn = maxBaseIn(
-        series.baseReserves,
-        series.fyTokenReserves,
-        timeTillMaturity,
-        series.decimals
-      );
+      const _maxBaseIn = maxBaseIn(series.baseReserves, series.fyTokenReserves, timeTillMaturity, series.decimals);
 
-      console.log('BASE IN : ',  _maxBaseIn.toString() )
+      console.log('BASE IN : ', _maxBaseIn.toString());
       _maxBaseIn && setProtocolBaseIn(_maxBaseIn);
     }
   }, [series]);
@@ -62,7 +52,7 @@ export const useLendHelpers = (
         userMax && setUserBaseAvailable(userMax);
       })();
     }
-  }, [activeAccount, selectedBase, series ]);
+  }, [activeAccount, selectedBase, series]);
 
   /* set maxLend based on either max user or max protocol */
   useEffect(() => {
@@ -91,7 +81,7 @@ export const useLendHelpers = (
       );
 
       value.lte(ethers.constants.Zero)
-        ? setFyTokenMarketValue('Low liquidity: unable to redeem all ')
+        ? setFyTokenMarketValue('Low liquidity')
         : setFyTokenMarketValue(ethers.utils.formatUnits(value, series.decimals));
 
       /* set max Closing */

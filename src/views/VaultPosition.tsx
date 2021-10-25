@@ -35,6 +35,7 @@ import { useBorrowHelpers } from '../hooks/actionHelperHooks/useBorrowHelpers';
 import InputInfoWrap from '../components/wraps/InputInfoWrap';
 import CopyWrap from '../components/wraps/CopyWrap';
 import { useProcess } from '../hooks/useProcess';
+import ExitButton from '../components/buttons/ExitButton';
 
 const VaultPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -257,7 +258,7 @@ const VaultPosition = () => {
                       </CopyWrap>
                     </Box>
                   </Box>
-                  {/* <ExitButton action={() => history.goBack()} /> */}
+                  <ExitButton action={() => history.goBack()} />
                 </Box>
 
                 {selectedVault?.isActive && (

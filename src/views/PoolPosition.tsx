@@ -28,7 +28,7 @@ import CopyWrap from '../components/wraps/CopyWrap';
 import { useProcess } from '../hooks/useProcess';
 import { usePoolHelpers } from '../hooks/actionHelperHooks/usePoolHelpers';
 import InputInfoWrap from '../components/wraps/InputInfoWrap';
-import { ZERO_BN } from '../utils/constants';
+import ExitButton from '../components/buttons/ExitButton';
 
 const PoolPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -157,6 +157,7 @@ const PoolPosition = () => {
                       </CopyWrap>
                     </Box>
                   </Box>
+                  <ExitButton action={() => history.goBack()} />
                 </Box>
 
                 <SectionWrap>

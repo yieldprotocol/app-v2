@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Box, ResponsiveContext, Select, Text, TextInput } from 'grommet';
-import { useParams } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 import { FiArrowRight, FiClock, FiTool, FiTrendingUp } from 'react-icons/fi';
 
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
@@ -27,13 +27,14 @@ import { useRollPosition } from '../hooks/actionHooks/useRollPosition';
 import CopyWrap from '../components/wraps/CopyWrap';
 import { useProcess } from '../hooks/useProcess';
 import InputInfoWrap from '../components/wraps/InputInfoWrap';
+import ExitButton from '../components/buttons/ExitButton';
 
 const LendPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
+  const history = useHistory();
   const { id: idFromUrl } = useParams<{ id: string }>();
 
   /* STATE FROM CONTEXT */
-
   const { userState, userActions } = useContext(UserContext) as IUserContext;
   const { selectedSeriesId, seriesMap, assetMap, seriesLoading } = userState;
   const selectedSeries = seriesMap.get(selectedSeriesId || idFromUrl);
@@ -167,6 +168,7 @@ const LendPosition = () => {
                       </CopyWrap>
                     </Box>
                   </Box>
+                  <ExitButton action={() => history.goBack()} />
                 </Box>
 
                 <SectionWrap>
@@ -187,7 +189,11 @@ const LendPosition = () => {
                     />
                     <InfoBite
                       label="Current value"
-                      value={`${cleanValue(fyTokenMarketValue, selectedBase?.digitFormat!)} ${selectedBase?.symbol!}`}
+                      value={
+                        fyTokenMarketValue === 'Low liquidity'
+                          ? 'Low Liquidity'
+                          : `${cleanValue(fyTokenMarketValue, selectedBase?.digitFormat!)}${selectedBase?.symbol!}`
+                      }
                       icon={selectedBase?.image}
                       loading={seriesLoading}
                     />
