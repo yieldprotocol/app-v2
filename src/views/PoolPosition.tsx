@@ -254,7 +254,7 @@ const PoolPosition = () => {
 
                               {removeInput && !removeTradePossible && !removeError && (
                                 <InputInfoWrap>
-                                  <Box gap="xsmall" pad={{ right: 'medium' }}>
+                                  <Box gap="xsmall" pad={{ right: 'medium' }} justify="between">
                                     <Text color="text-weak" alignSelf="end" size="xsmall">
                                       Removing that amount of tokens and trading immediately for {selectedBase?.symbol}{' '}
                                       is currently not possible.
