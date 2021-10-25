@@ -925,7 +925,6 @@ export const strategyTokenValue = (
  strategyTokenAmount: BigNumber | string, 
  strategyTotalSupply: BigNumber,
  strategyPoolBalance: BigNumber,
-
  poolBaseReserves: BigNumber,
  poolFyTokenRealReserves: BigNumber,
  poolTotalSupply: BigNumber,
@@ -959,8 +958,6 @@ export const strategyTokenValue = (
  );
 
  const totalValue = sellValue.add(_baseTokenReceived);
- console.log( 'SellPortion : ', sellValue.toString() )
- console.log( 'TotalValue : ', totalValue.toString() )
 
  return [sellValue, totalValue];
 };
@@ -1009,8 +1006,5 @@ export const calcPoolRatios = (
   const min = toBn(ratio.sub(ratioSlippage));
   const max = toBn(ratio.add(ratioSlippage));
 
-  console.log('ratio: ', toBn(ratio).toString());
-
   return [min, max];
-  // return [toBn(ZERO), toBn(MAX) ]
 };
