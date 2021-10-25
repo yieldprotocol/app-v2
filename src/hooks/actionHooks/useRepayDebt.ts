@@ -93,7 +93,7 @@ export const useRepayDebt = () => {
 
       {
         operation: LadleActions.Fn.REPAY_VAULT,
-        args: [vault.id, account, ethers.constants.Zero, _input] as LadleActions.Args.REPAY_VAULT,
+        args: [vault.id, account, _collateralToRemove, _input] as LadleActions.Args.REPAY_VAULT,
         ignoreIf:
           series.seriesIsMature ||
           !inputGreaterThanDebt || // use if input IS more than debt OR
@@ -103,7 +103,7 @@ export const useRepayDebt = () => {
       /* AFTER MATURITY */
       {
         operation: LadleActions.Fn.CLOSE,
-        args: [vault.id, account, ethers.constants.Zero, _input.mul(-1)] as LadleActions.Args.CLOSE,
+        args: [vault.id, account, _collateralToRemove, _input.mul(-1)] as LadleActions.Args.CLOSE,
         ignoreIf: !series.seriesIsMature,
       },
 
