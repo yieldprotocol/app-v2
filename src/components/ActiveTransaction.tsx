@@ -1,11 +1,8 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import React from 'react';
 import { Box, Spinner, Text } from 'grommet';
 import { BiWallet } from 'react-icons/bi';
 import { FiCheckCircle, FiPenTool, FiX } from 'react-icons/fi';
-
-import { UserContext } from '../contexts/UserContext';
-import { ApprovalType, ISeries, IYieldProcess, ProcessStage, TxState } from '../types';
+import { ApprovalType, IYieldProcess, ProcessStage, TxState } from '../types';
 import EtherscanButton from './buttons/EtherscanButton';
 import CancelButton from './buttons/CancelButton';
 import { useApprovalMethod } from '../hooks/useApprovalMethod';
@@ -69,26 +66,10 @@ const ActiveTransaction = ({
   full?: boolean;
   pad?: boolean;
 }) => {
-  const {
-    userState: { selectedSeriesId, seriesMap },
-  } = useContext(UserContext);
 
   const approvalMethod =  useApprovalMethod();
-
-  const { pathname } = useLocation();
-
-  const [series, setSeries] = useState<ISeries>();
-  // const [iconSize, setIconSize] = useState<string>(full ? '1.5em' : '1.5em');
-
   const iconSize = '1.5em';
-
   const activeProcess = txProcess;
-
-  console.log(approvalMethod)
-
-  useEffect(() => {
-    selectedSeriesId && setSeries(seriesMap.get(selectedSeriesId));
-  }, [selectedSeriesId, seriesMap]);
 
   return (
     <Box pad={pad ? { vertical: 'medium' } : undefined}>

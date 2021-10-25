@@ -110,7 +110,7 @@ const TxProvider = ({ children }: any) => {
     _resetProcess(txCode);
     /* If user cancelled/rejected the tx */
     if (err.code === 4001) {
-      toast.warning('Transaction rejected by user');
+      toast.info('Transaction rejected by user');
     } else {
       /* Else, the transaction was cancelled by the wallet/provider before getting submitted */
       try {
