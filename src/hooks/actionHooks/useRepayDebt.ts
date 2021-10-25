@@ -8,7 +8,6 @@ import { calculateSlippage, maxBaseIn, secondsToFrom, sellBase } from '../../uti
 import { useRemoveCollateral } from './useRemoveCollateral';
 
 export const useRepayDebt = () => {
-
   const { userState, userActions } = useContext(UserContext);
   const { activeAccount: account, seriesMap, assetMap } = userState;
   const { updateVaults, updateAssets } = userActions;
@@ -24,9 +23,6 @@ export const useRepayDebt = () => {
     /* Parse inputs */
     const cleanInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanInput, base.decimals) : ethers.constants.Zero;
-
-    /* if requested, and all debt will be repaid, automatically remove collateral */
-    const _collateralToRemove = reclaimCollateral && _input >= vault.art ? vault.ink : ethers.constants.Zero;
 
     const _MaxBaseIn = maxBaseIn(
       series.baseReserves,
@@ -51,6 +47,9 @@ export const useRepayDebt = () => {
 
     const inputGreaterThanDebt: boolean = ethers.BigNumber.from(_inputAsFyToken).gte(vault.art);
     const inputGreaterThanMaxBaseIn = _input.gt(_MaxBaseIn);
+
+    /* if requested, and all debt will be repaid, automatically remove collateral */
+    const _collateralToRemove = reclaimCollateral && inputGreaterThanDebt ? vault.ink.mul(-1) : ethers.constants.Zero;
 
     const permits: ICallData[] = await sign(
       [
@@ -93,7 +92,12 @@ export const useRepayDebt = () => {
 
       {
         operation: LadleActions.Fn.REPAY_VAULT,
-        args: [vault.id, account, ethers.constants.Zero, _input] as LadleActions.Args.REPAY_VAULT,
+        args: [
+          vault.id,
+          account,
+          _collateralToRemove,
+          _input,
+        ] as LadleActions.Args.REPAY_VAULT,
         ignoreIf:
           series.seriesIsMature ||
           !inputGreaterThanDebt || // use if input IS more than debt OR
@@ -103,7 +107,7 @@ export const useRepayDebt = () => {
       /* AFTER MATURITY */
       {
         operation: LadleActions.Fn.CLOSE,
-        args: [vault.id, account, ethers.constants.Zero, _input.mul(-1)] as LadleActions.Args.CLOSE,
+        args: [vault.id, account, _collateralToRemove, _input.mul(-1)] as LadleActions.Args.CLOSE,
         ignoreIf: !series.seriesIsMature,
       },
 

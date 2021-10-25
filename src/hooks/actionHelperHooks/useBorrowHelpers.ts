@@ -158,10 +158,10 @@ export const useBorrowHelpers = (
         const _maxUser = _maxToken && _maxDebt?.gt(_maxToken) ? _maxToken : _maxDebt;
         const _maxDust = _maxUser.sub(minDebt);
         const _maxBaseIn = maxBaseIn(
-          vaultSeries.baseReserves,
-          vaultSeries.fyTokenReserves,
-          vaultSeries.getTimeTillMaturity(),
-          vaultSeries.decimals
+          vaultSeries?.baseReserves,
+          vaultSeries?.fyTokenReserves,
+          vaultSeries?.getTimeTillMaturity(),
+          vaultSeries?.decimals
         );
 
         /* set the dust limit */
