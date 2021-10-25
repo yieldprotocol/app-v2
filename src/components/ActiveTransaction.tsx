@@ -73,7 +73,7 @@ const ActiveTransaction = ({
     userState: { selectedSeriesId, seriesMap },
   } = useContext(UserContext);
 
-  const [approvalMethod] =  useApprovalMethod();
+  const approvalMethod =  useApprovalMethod();
 
   const { pathname } = useLocation();
 
@@ -83,6 +83,8 @@ const ActiveTransaction = ({
   const iconSize = '1.5em';
 
   const activeProcess = txProcess;
+
+  console.log(approvalMethod)
 
   useEffect(() => {
     selectedSeriesId && setSeries(seriesMap.get(selectedSeriesId));
@@ -110,7 +112,7 @@ const ActiveTransaction = ({
 
         {activeProcess?.stage === ProcessStage.SIGNING_REQUESTED && (
           <InfoBlock
-            title={approvalMethod === ApprovalType.SIG ? 'Signature required' : 'Approval transaction required'}
+            title={ approvalMethod === ApprovalType.SIG ? 'Signature required' : 'Approval transaction required'}
             subTitle={
               approvalMethod === ApprovalType.SIG
                 ? 'Please check your wallet/provider'
