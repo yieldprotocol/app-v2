@@ -92,6 +92,8 @@ export const useAddLiquidity = () => {
     //   maxRatio.toString()
     // );
 
+    console.log('in usePool', matchingVaultId); 
+
     /**
      * GET SIGNTURE/APPROVAL DATA
      * */

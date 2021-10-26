@@ -190,7 +190,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
     } else {
       setMatchingVault(undefined);
     }
-  }, [vaultMap, strategyBase, strategySeries, removeLiquidityView]);
+  }, [vaultMap, strategy, strategyBase, strategySeries]);
 
   /**
    * Remove Liquidity specific section
