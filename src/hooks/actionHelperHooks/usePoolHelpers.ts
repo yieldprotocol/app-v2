@@ -5,16 +5,13 @@ import { IAsset, ISeries, IStrategy, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import {
   fyTokenForMint,
-  splitLiquidity,
   strategyTokenValue,
   getPoolPercent,
   maxFyTokenOut,
   burnFromStrategy,
   burn,
-  sellFYToken,
 } from '../../utils/yieldMath';
 import { ZERO_BN } from '../../utils/constants';
-import { Strategy } from '../../contracts';
 
 export const usePoolHelpers = (input: string | undefined, removeLiquidityView: boolean = false) => {
   /* STATE FROM CONTEXT */
@@ -36,6 +33,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   const strategySeries: ISeries | undefined = seriesMap?.get(
     selectedStrategyAddr ? strategy?.currentSeriesId : selectedSeries
   );
+  const selectedBase: IAsset | undefined = assetMap?.get(selectedBaseId);
   const strategyBase: IAsset | undefined = assetMap?.get(selectedStrategyAddr ? strategy?.baseId : selectedBaseId);
 
   /* LOCAL STATE */
@@ -170,11 +168,11 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
     if (activeAccount && !removeLiquidityView) {
       /* Checks asset selection and sets the max available value */
       (async () => {
-        const max = await strategyBase?.getBalance(activeAccount);
-        if (max) setMaxPool(ethers.utils.formatUnits(max, strategyBase?.decimals).toString());
+        const max = await selectedBase?.getBalance(activeAccount);
+        if (max) setMaxPool(ethers.utils.formatUnits(max, selectedBase?.decimals).toString());
       })();
     }
-  }, [input, activeAccount, strategyBase, removeLiquidityView]);
+  }, [input, activeAccount, removeLiquidityView, selectedBase]);
 
   /**
    * Remove liquidity specific section
