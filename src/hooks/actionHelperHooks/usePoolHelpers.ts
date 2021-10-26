@@ -236,13 +236,15 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   /* For use when using force removal, to calculate how much will be received in base and fyToken */
   useEffect(() => {
     if (_input !== ethers.constants.Zero && strategySeries) {
-      const lpReceived = burnFromStrategy(strategy?.poolTotalSupply!, strategy?.strategyTotalSupply!, _input);
+      
+      const lpReceived = burnFromStrategy(strategy?.strategyPoolBalance!, strategy?.strategyTotalSupply!, _input);
       const [_forceBaseReceived, _forceFyTokenReceived] = burn(
         strategySeries?.baseReserves!,
         strategySeries?.fyTokenReserves!,
         strategySeries?.totalSupply!,
         lpReceived
       );
+
       setForceBaseReceived_(ethers.utils.formatUnits(_forceBaseReceived, strategySeries?.decimals));
       setForceFyTokenReceived_(ethers.utils.formatUnits(_forceFyTokenReceived, strategySeries?.decimals));
     }
