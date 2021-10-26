@@ -4,6 +4,7 @@ import styled, { CSSProperties } from 'styled-components';
 import { Text, Box, ThemeContext, ResponsiveContext, Layer } from 'grommet';
 import AltText from './texts/AltText';
 import NavText from './texts/NavText';
+import { ChainContext } from '../contexts/ChainContext';
 
 const StyledLink = styled(NavLink)`
   text-decoration: none;
@@ -36,6 +37,12 @@ const YieldNavigation = ({ callbackFn }: IYieldNavigation) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const loc = useLocation();
 
+  const {
+    chainState: {
+      connection: { account },
+    },
+  } = useContext(ChainContext);
+
   const theme = useContext<any>(ThemeContext);
   const textColor = theme.global.colors.text.light;
 
@@ -47,12 +54,12 @@ const YieldNavigation = ({ callbackFn }: IYieldNavigation) => {
   } as CSSProperties;
 
   const linksArr = [
-    { label: 'BORROW', to: '/borrow' },
-    { label: 'LEND', to: '/lend' },
-    { label: 'POOL', to: '/pool' },
-    { label: 'DASHBOARD', to: '/dashboard' },
-    // { label: 'Markets', to: '/markets' },
-  ];
+        { label: 'BORROW', to: '/borrow' },
+        { label: 'LEND', to: '/lend' },
+        { label: 'POOL', to: '/pool' },
+        { label: 'DASHBOARD', to: '/dashboard', disabled: !account },
+        // { label: 'Markets', to: '/markets' },
+      ]
 
   return (
     <Box direction={mobile ? 'column' : 'row'} gap="medium" align="center" justify="center" fill={mobile}>
