@@ -392,7 +392,7 @@ const Borrow = () => {
             )}
 
             {stepPosition === 2 && ( // REVIEW
-              <Box gap={mobile ? 'medium' : 'large'}>
+              <Box gap='medium'>
                 <YieldCardHeader>
                   {borrowProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
                     <BackButton action={() => setStepPosition(1)} />

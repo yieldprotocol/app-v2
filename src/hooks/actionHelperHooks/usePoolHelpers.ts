@@ -26,6 +26,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
       assetMap,
       activeAccount,
       slippageTolerance,
+      diagnostics,
     },
   } = useContext(UserContext);
 
@@ -38,14 +39,10 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
 
   /* LOCAL STATE */
   const [_input, setInput] = useState<BigNumber>(ethers.constants.Zero);
-
   const [matchingVault, setMatchingVault] = useState<IVault | undefined>();
-
   const [poolPercentPreview, setPoolPercentPreview] = useState<string | undefined>();
-
   const [maxPool, setMaxPool] = useState<string | undefined>();
   const [canBuyAndPool, setCanBuyAndPool] = useState<boolean | undefined>(false);
-  // const [healthyBaseReserves, setHealthyBaseReserves] = useState<boolean>();
 
   const [addTradePossible, setAddTradePossible] = useState<boolean>();
   const [inputTradeValue, setInputTradeValue] = useState<BigNumber | undefined>();
@@ -85,9 +82,9 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
     if (
       strategy &&
       strategySeries &&
-      strategy?.strategyPoolBalance?.gt(ZERO_BN) &&
-      strategy?.accountBalance?.gt(ZERO_BN) &&
-      strategy?.strategyTotalSupply?.gt(ZERO_BN)
+      strategy?.strategyPoolBalance?.gt(ethers.constants.Zero) &&
+      strategy?.accountBalance?.gt(ethers.constants.Zero) &&
+      strategy?.strategyTotalSupply?.gt(ethers.constants.Zero)
     ) {
       const [_sellValue, _tokenValue] = strategyTokenValue(
         strategy?.accountBalance || ethers.constants.Zero,
@@ -120,7 +117,6 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         strategySeries.decimals
       );
       const tradeable = _sellValue.gt(ethers.constants.Zero);
-      // console.log('Is tradeable:', tradeable);
       setAddTradePossible(tradeable);
       setInputTradeValue(_tokenValue);
       setInputTradeValue_(ethers.utils.formatUnits(_tokenValue, strategySeries.decimals));
@@ -156,12 +152,13 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         parseFloat(strategySeries.apr) > 0.25;
 
       setCanBuyAndPool(buyAndPoolAllowed);
-      console.log('Can BuyAndPool?', buyAndPoolAllowed);
+      diagnostics && console.log('Can BuyAndPool?', buyAndPoolAllowed);
+
     } else {
       /* Don't allow by default */
       setCanBuyAndPool(false);
     }
-  }, [_input, strategySeries, removeLiquidityView, slippageTolerance]);
+  }, [_input, strategySeries, removeLiquidityView, slippageTolerance, diagnostics]);
 
   /* SET MAX VALUES */
   useEffect(() => {
@@ -174,30 +171,31 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
     }
   }, [input, activeAccount, removeLiquidityView, selectedBase]);
 
-  /**
-   * Remove liquidity specific section
-   * */
-
-  /* Check for any vaults with the same series/ilk/base for REMOVEING LIQUIDITY -> temporary */ // TODO remove when vaults have been deleted
+  /* Check for any vaults with the same series/ilk/base for REMOVING LIQUIDITY -> */
   useEffect(() => {
-    if (strategySeries && strategyBase && strategySeries && removeLiquidityView) {
+    if (strategySeries && strategyBase) {
       const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
       const _matchingVault = arr
-      .sort((a: IVault, b:IVault) =>  (b.art!).gt(a.art!)? -1:1 )
-      .find(
-        (v: IVault) =>
-          v.ilkId === strategyBase.id &&
-          v.baseId === strategyBase.id &&
-          v.seriesId === strategySeries.id &&
-          v.art.gt(ethers.constants.Zero) &&
-          v.isActive
-      );
+        .sort((vaultA: IVault, vaultB: IVault) => (vaultA.id > vaultB.id ? 1 : -1))
+        .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1))
+        .find(
+          (v: IVault) =>
+            v.ilkId === strategyBase.id &&
+            v.baseId === strategyBase.id &&
+            v.seriesId === strategySeries.id &&
+            v.isActive
+        );
       setMatchingVault(_matchingVault);
-      console.log('Matching Vault:', _matchingVault?.id || 'No matching vault.');
+      diagnostics && console.log('Matching Vault:', _matchingVault?.id || 'No matching vault.');
     } else {
       setMatchingVault(undefined);
     }
-  }, [vaultMap, strategyBase, strategySeries, removeLiquidityView]);
+    
+  }, [vaultMap, strategy, strategyBase, strategySeries, removeLiquidityView, diagnostics]);
+
+  /**
+   * Remove Liquidity specific section
+   * */
 
   /* set max for removal with/without a vault  */
 

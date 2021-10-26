@@ -193,7 +193,7 @@ const Lend = () => {
           )}
 
           {stepPosition === 1 && (
-            <Box gap={mobile ? 'medium' : 'large'}>
+            <Box gap='medium'>
               <YieldCardHeader>
                 {lendProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
                   <BackButton action={() => setStepPosition(0)} />

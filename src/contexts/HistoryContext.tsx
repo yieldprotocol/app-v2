@@ -79,7 +79,7 @@ const HistoryProvider = ({ children }: any) => {
   } = chainState;
 
   const { userState } = useContext(UserContext);
-  const { activeAccount: account, vaultMap, seriesMap, strategyMap } = userState;
+  const { activeAccount: account, vaultMap, seriesMap, strategyMap, diagnostics } = userState;
 
   const [historyState, updateState] = useReducer(historyReducer, initState);
 
@@ -190,7 +190,7 @@ const HistoryProvider = ({ children }: any) => {
 
       const combinedStrategyMap = new Map([...historyState.strategyHistory, ...liqHistMap]);
       updateState({ type: 'strategyHistory', payload: combinedStrategyMap });
-      console.log('Strategy History updated: ', combinedStrategyMap);
+      diagnostics && console.log('Strategy History updated: ', combinedStrategyMap);
     },
 
     [account, fallbackProvider]
@@ -242,7 +242,7 @@ const HistoryProvider = ({ children }: any) => {
         })
       );
       updateState({ type: 'poolHistory', payload: liqHistMap });
-      console.log('Pool History updated: ', liqHistMap);
+      diagnostics && console.log('Pool History updated: ', liqHistMap);
     },
     [account, fallbackProvider]
   );
@@ -300,7 +300,7 @@ const HistoryProvider = ({ children }: any) => {
 
       const combinedTradeMap = new Map([...historyState.tradeHistory, ...tradeHistMap]);
       updateState({ type: 'tradeHistory', payload: combinedTradeMap });
-      console.log('Trade history updated: ', combinedTradeMap);
+      diagnostics && console.log('Trade history updated: ', combinedTradeMap);
     },
     [account, assetRootMap, fallbackProvider, historyState.tradeHistory]
   );
@@ -493,7 +493,7 @@ const HistoryProvider = ({ children }: any) => {
       );
 
       updateState({ type: 'vaultHistory', payload: new Map([...historyState.vaultHistory, ...vaultHistMap]) });
-      console.log('Vault history updated: ', vaultHistMap);
+      diagnostics && console.log('Vault history updated: ', vaultHistMap);
     },
     [_parseGivenLogs, _parsePourLogs, _parseRolledLogs, contractMap, historyState.vaultHistory, seriesRootMap]
   );

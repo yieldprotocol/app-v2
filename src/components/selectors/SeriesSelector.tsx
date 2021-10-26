@@ -97,10 +97,10 @@ const AprText = ({
     series.decimals
   );
 
-  // console.log( series.id, ' maxbaseIn', baseIn.toString() )
-  // console.log( series.id, ' maxbaseOut', baseOut.toString() )
-  // console.log( series.id, ' tokenIn', tokenIn.toString() )
-  // console.log( series.id, ' tokenOut', tokenOut.toString() )
+  // diagnostics && console.log( series.id, ' maxbaseIn', baseIn.toString() )
+  // diagnostics && console.log( series.id, ' maxbaseOut', baseOut.toString() )
+  // diagnostics && console.log( series.id, ' tokenIn', tokenIn.toString() )
+  // diagnostics && console.log( series.id, ' tokenOut', tokenOut.toString() )
 
   useEffect(() => {
     if (!series?.seriesIsMature && _inputValue)

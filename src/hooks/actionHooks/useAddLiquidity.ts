@@ -21,8 +21,10 @@ import { HistoryContext } from '../../contexts/HistoryContext';
 
 export const useAddLiquidity = () => {
   const { userState, userActions } = useContext(UserContext);
-  const { activeAccount: account, assetMap, seriesMap, slippageTolerance } = userState;
+
+  const { activeAccount: account, assetMap, seriesMap, slippageTolerance, diagnostics } = userState;
   const { updateVaults, updateSeries, updateAssets, updateStrategies } = userActions;
+
   const { sign, transact } = useChain();
   const {
     historyActions: { updateStrategyHistory },
@@ -38,8 +40,7 @@ export const useAddLiquidity = () => {
     const series: ISeries = seriesMap.get(strategy.currentSeriesId);
     const base: IAsset = assetMap.get(series.baseId);
 
-    const matchingVaultId: string | undefined = matchingVault?.id;
-
+    const matchingVaultId: string | undefined = matchingVault ? matchingVault.id : undefined;
     const cleanInput = cleanValue(input, base.decimals);
 
     const _input = ethers.utils.parseUnits(cleanInput, base.decimals);
@@ -69,29 +70,31 @@ export const useAddLiquidity = () => {
 
     const _baseToPoolWithSlippage = BigNumber.from(calculateSlippage(_baseToPool, slippageTolerance));
 
-    // /* DIAGNOSITCS */
-    // console.log(
-    //   'input: ',
-    //   _input.toString(),
-    //   'inputLessSlippage: ',
-    //   _inputLessSlippage.toString(),
-    //   'base: ',
-    //   cachedBaseReserves.toString(),
-    //   'real: ',
-    //   cachedRealReserves.toString(),
-    //   'virtual: ',
-    //   cachedFyTokenReserves.toString(),
-    //   '>> baseSplit: ',
-    //   _baseToPool.toString(),
-    //   '>> fyTokenSplit: ',
-    //   _baseToFyToken.toString(),
-    //   '>> baseSplitWithSlippage: ',
-    //   _baseToPoolWithSlippage.toString(),
-    //   '>> minRatio',
-    //   minRatio.toString(),
-    //   '>> maxRatio',
-    //   maxRatio.toString()
-    // );
+    /* DIAGNOSITCS */
+    diagnostics && console.log(
+      'input: ',
+      _input.toString(),
+      'inputLessSlippage: ',
+      _inputLessSlippage.toString(),
+      'base: ',
+      cachedBaseReserves.toString(),
+      'real: ',
+      cachedRealReserves.toString(),
+      'virtual: ',
+      cachedFyTokenReserves.toString(),
+      '>> baseSplit: ',
+      _baseToPool.toString(),
+      '>> fyTokenSplit: ',
+      _baseToFyToken.toString(),
+      '>> baseSplitWithSlippage: ',
+      _baseToPoolWithSlippage.toString(),
+      '>> minRatio',
+      minRatio.toString(),
+      '>> maxRatio',
+      maxRatio.toString()
+    );
+
+    console.log('in usePool', matchingVaultId); 
 
     /**
      * GET SIGNTURE/APPROVAL DATA
@@ -141,7 +144,7 @@ export const useAddLiquidity = () => {
       {
         operation: LadleActions.Fn.BUILD,
         args: [series.id, base.id, '0'] as LadleActions.Args.BUILD,
-        ignoreIf: method !== AddLiquidityType.BORROW, // ingore if not BORROW and POOL
+        ignoreIf: !!matchingVaultId && method !== AddLiquidityType.BORROW, // ingore if not BORROW and POOL
       },
       {
         operation: LadleActions.Fn.TRANSFER,
@@ -155,7 +158,12 @@ export const useAddLiquidity = () => {
       },
       {
         operation: LadleActions.Fn.POUR,
-        args: [BLANK_VAULT, series.poolAddress, _baseToFyToken, _baseToFyToken] as LadleActions.Args.POUR,
+        args: [
+          matchingVaultId || BLANK_VAULT,
+          series.poolAddress,
+          _baseToFyToken,
+          _baseToFyToken,
+        ] as LadleActions.Args.POUR,
         ignoreIf: method !== AddLiquidityType.BORROW,
       },
       {

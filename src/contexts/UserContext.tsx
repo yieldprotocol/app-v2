@@ -64,9 +64,11 @@ const initState: IUserContextState = {
   selectedStrategyAddr: null,
 
   /* User Settings ( getting from the cache first ) */
+
   approvalMethod: (JSON.parse(localStorage.getItem('cachedApprovalMethod')!) as ApprovalType) || ApprovalType.SIG,
   slippageTolerance: (JSON.parse(localStorage.getItem('slippageTolerance')!) as number) || (0.005 as number),
   dudeSalt: 21,
+  diagnostics: false,
 
   dashSettings: {
     hideEmptyVaults: false,
@@ -180,10 +182,12 @@ const UserProvider = ({ children }: any) => {
       const Cauldron = contractMap.get('Cauldron');
       const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account);
       const vaultsReceivedfilter = Cauldron.filters.VaultGiven(null, account);
+      const vaultsDestroyedfilter = Cauldron.filters.VaultDestroyed(null);
 
-      const [vaultsBuilt, vaultsReceived] = await Promise.all([
+      const [vaultsBuilt, vaultsReceived, vaultsDestroyed] = await Promise.all([
         Cauldron.queryFilter(vaultsBuiltFilter, fromBlock),
         Cauldron.queryFilter(vaultsReceivedfilter, fromBlock),
+        Cauldron.queryFilter(vaultsDestroyedfilter, fromBlock),
       ]);
 
       const buildEventList: IVaultRoot[] = vaultsBuilt.map((x: any): IVaultRoot => {
@@ -215,7 +219,13 @@ const UserProvider = ({ children }: any) => {
         })
       );
 
-      const vaultList: IVaultRoot[] = [...buildEventList, ...recievedEventsList];
+      const destroyedEventsList: string[] = vaultsDestroyed.map((x: any) => Cauldron.interface.parseLog(x).args[0]);
+      console.log('DESTROYED VAULTS: ', destroyedEventsList);
+
+      /* all vault excluing deleted vaults */
+      const vaultList: IVaultRoot[] = [...buildEventList, ...recievedEventsList].filter(
+        (x: IVaultRoot) => !destroyedEventsList.includes(x.id)
+      );
 
       const newVaultMap = vaultList.reduce((acc: any, item: any) => {
         const _map = acc;
@@ -471,8 +481,8 @@ const UserProvider = ({ children }: any) => {
             ilkId, // refreshed in case ilkId has been updated
             ink,
             art,
-            ink_: cleanValue(ethers.utils.formatUnits(ink, ilkRoot.decimals), ilkRoot.digitFormat), // for display purposes only
-            art_: cleanValue(ethers.utils.formatUnits(art, baseRoot.decimals), baseRoot.digitFormat), // for display purposes only
+            ink_: cleanValue(ethers.utils.formatUnits(ink, ilkRoot?.decimals), ilkRoot?.digitFormat), // for display purposes only
+            art_: cleanValue(ethers.utils.formatUnits(art, baseRoot?.decimals), baseRoot?.digitFormat), // for display purposes only
             minDebt,
             maxDebt,
           };

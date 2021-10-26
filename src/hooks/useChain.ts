@@ -74,7 +74,6 @@ export const useChain = () => {
       console.log('Failed to get gas estimate', e);
       // throw( Error('Transaction will always revert.'));
       toast.warning('It appears the transaction will likely fail. Proceed with caution...');
-      // return console.log('Failed to get gas estimate', e);
     }
     console.log('Auto gas estimate:', gasEst.mul(120).div(100).toString());
 
