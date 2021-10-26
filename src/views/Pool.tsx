@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Box, RadioButtonGroup, ResponsiveContext, Text, TextInput, Tip } from 'grommet';
+import { Box, RadioButtonGroup, ResponsiveContext, Text, TextInput, CheckBox } from 'grommet';
 import { FiPercent } from 'react-icons/fi';
 import { BiMessageSquareAdd } from 'react-icons/bi';
 import { MdAutorenew } from 'react-icons/md';
@@ -50,6 +50,8 @@ function Pool() {
   const [stepPosition, setStepPosition] = useState<number>(0);
   const [stepDisabled, setStepDisabled] = useState<boolean>(true);
 
+  const [disclaimerChecked, setDisclaimerChecked] = useState<boolean>(false);
+
   /* HOOK FNS */
   const addLiquidity = useAddLiquidity();
   const { maxPool, poolPercentPreview, canBuyAndPool, matchingVault } = usePoolHelpers(poolInput);
@@ -66,7 +68,7 @@ function Pool() {
 
   /* LOCAL ACTION FNS */
   const handleAdd = () => {
-    console.log('POOLING METHOD: ', poolMethod , 'Matching vault', matchingVault?.id );
+    console.log('POOLING METHOD: ', poolMethod, 'Matching vault', matchingVault?.id);
     const _method = !canBuyAndPool ? AddLiquidityType.BORROW : poolMethod; // double check
     selectedStrategy && addLiquidity(poolInput!, selectedStrategy, _method, matchingVault);
   };
@@ -230,6 +232,19 @@ function Pool() {
             </Box>
           )}
 
+          {stepPosition === 1 &&              
+          <CheckBox
+            pad={{vertical:'small'}}
+            label={
+              <Text size="xsmall">
+                I understand that providing liquidity into Yield Protocol may result in impermanent loss, result in the
+                payment of fees, and that under certain conditions I may not be able to withdraw all liquidity on
+                demand.
+              </Text>
+            }
+            onChange={()=> setDisclaimerChecked( !disclaimerChecked)}
+          />}   
+
           {stepPosition === 1 &&
             poolProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
             poolProcess?.tx.status === TxState.SUCCESSFUL && (
@@ -265,7 +280,7 @@ function Pool() {
                 )
               }
               onClick={() => handleAdd()}
-              disabled={poolDisabled || poolProcess?.processActive}
+              disabled={poolDisabled || poolProcess?.processActive || disclaimerChecked}
             />
           )}
 
