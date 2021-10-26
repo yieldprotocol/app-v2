@@ -70,18 +70,18 @@ export const useAddCollateral = () => {
       txCode
     );
 
+    /**
+     * BUILD CALL DATA ARRAY
+     * */
     const calls: ICallData[] = [
       /* If vault is null, build a new vault, else ignore */
       {
         operation: LadleActions.Fn.BUILD,
         args: [selectedSeriesId, selectedIlkId, '0'] as LadleActions.Args.BUILD,
-        ignoreIf: !!vault,
+        ignoreIf: !!vault, // ignore if vault exists 
       },
-      // ladle.joinEtherAction(ethId),
       ...addEth(_input, series),
-      // ladle.forwardPermitAction(ilkId, true, ilkJoin.address, posted, deadline, v, r, s)
       ...permits,
-      // ladle.pourAction(vaultId, ignored, posted, 0)
       {
         operation: LadleActions.Fn.POUR,
         args: [
@@ -90,10 +90,11 @@ export const useAddCollateral = () => {
           _input,
           ethers.constants.Zero,
         ] as LadleActions.Args.POUR,
-        ignoreIf: false,
+        ignoreIf: false, // never ignore
       },
     ];
 
+    /* TRANSACT */
     await transact(calls, txCode);
     updateVaults([vault]);
     updateAssets([base, ilk]);

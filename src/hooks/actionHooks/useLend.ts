@@ -22,7 +22,7 @@ export const useLend = () => {
   const lend = async (input: string | undefined, series: ISeries) => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.LEND, series.id);
-
+    
     const base = assetMap.get(series.baseId);
     const cleanedInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanedInput, base.decimals) : ethers.constants.Zero;

@@ -49,7 +49,6 @@ export const useRemoveCollateral = () => {
     const _pourTo = ETH_BASED_ASSETS.includes(ilk.id) ? contractMap.get('Ladle').address : account;
 
     const calls: ICallData[] = [
-      // ladle.pourAction(vaultId, ignored, -posted, 0)
       {
         operation: LadleActions.Fn.POUR,
         args: [
