@@ -217,7 +217,6 @@ const UserProvider = ({ children }: any) => {
 
       const vaultList: IVaultRoot[] = [...buildEventList, ...recievedEventsList];
 
-      // TODO const _combined: IVaultRoot[] = [...vaultList, ...cachedVaults];
       const newVaultMap = vaultList.reduce((acc: any, item: any) => {
         const _map = acc;
         _map.set(item.id, item);
