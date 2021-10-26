@@ -54,22 +54,24 @@ const YieldNavigation = ({ callbackFn }: IYieldNavigation) => {
   } as CSSProperties;
 
   const linksArr = [
-        { label: 'BORROW', to: '/borrow' },
-        { label: 'LEND', to: '/lend' },
-        { label: 'POOL', to: '/pool' },
-        { label: 'DASHBOARD', to: '/dashboard', disabled: !account },
-        // { label: 'Markets', to: '/markets' },
-      ]
+    { label: 'BORROW', to: '/borrow' },
+    { label: 'LEND', to: '/lend' },
+    { label: 'POOL', to: '/pool' },
+    { label: 'DASHBOARD', to: '/dashboard', disabled: !account },
+    // { label: 'Markets', to: '/markets' },
+  ];
 
   return (
     <Box direction={mobile ? 'column' : 'row'} gap="medium" align="center" justify="center" fill={mobile}>
-      {linksArr.map((x: any) => (
-        <StyledLink to={x.to} activeStyle={activeStyle} key={x.label} onClick={() => callbackFn()}>
-          <NavText color={mobile ? 'text-weak' : undefined} size={mobile ? 'medium' : 'small'}>
-            {x.label}
-          </NavText>
-        </StyledLink>
-      ))}
+      {linksArr.map((x: any) =>
+        !x.disabled ? (
+          <StyledLink to={x.to} activeStyle={activeStyle} key={x.label} onClick={() => callbackFn()}>
+            <NavText color={mobile ? 'text-weak' : undefined} size={mobile ? 'medium' : 'small'}>
+              {x.label}
+            </NavText>
+          </StyledLink>
+        ) : null
+      )}
     </Box>
   );
 };
