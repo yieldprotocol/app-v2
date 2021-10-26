@@ -150,14 +150,13 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
       );
 
       /* Check if buy and pool option is allowed */
-      const buyAndPoolAllowed = 
-      _fyTokenToBuy.gt(ethers.constants.Zero) && 
-      _fyTokenToBuy.lt(_maxFyTokenOut) &&
-      parseFloat(strategySeries.apr) > 0.25;
+      const buyAndPoolAllowed =
+        _fyTokenToBuy.gt(ethers.constants.Zero) &&
+        _fyTokenToBuy.lt(_maxFyTokenOut) &&
+        parseFloat(strategySeries.apr) > 0.25;
 
       setCanBuyAndPool(buyAndPoolAllowed);
       console.log('Can BuyAndPool?', buyAndPoolAllowed);
-
     } else {
       /* Don't allow by default */
       setCanBuyAndPool(false);
@@ -179,13 +178,19 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
    * Remove liquidity specific section
    * */
 
-  /* Check for any vaults with the same series/ilk/base */
+  /* Check for any vaults with the same series/ilk/base for REMOVEING LIQUIDITY -> temporary */ // TODO remove when vaults have been deleted
   useEffect(() => {
     if (strategySeries && strategyBase && strategySeries && removeLiquidityView) {
       const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
-      const _matchingVault = arr.find(
+      const _matchingVault = arr
+      .sort((a: IVault, b:IVault) =>  (b.art!).gt(a.art!)? -1:1 )
+      .find(
         (v: IVault) =>
-          v.ilkId === strategyBase.id && v.baseId === strategyBase.id && v.seriesId === strategySeries.id && v.isActive
+          v.ilkId === strategyBase.id &&
+          v.baseId === strategyBase.id &&
+          v.seriesId === strategySeries.id &&
+          v.art.gt(ethers.constants.Zero) &&
+          v.isActive
       );
       setMatchingVault(_matchingVault);
       console.log('Matching Vault:', _matchingVault?.id || 'No matching vault.');
