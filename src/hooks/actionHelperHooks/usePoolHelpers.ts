@@ -174,22 +174,15 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
     }
   }, [input, activeAccount, removeLiquidityView, selectedBase]);
 
-  /**
-   * Remove liquidity specific section
-   * */
-
-  /* Check for any vaults with the same series/ilk/base for REMOVEING LIQUIDITY -> temporary */ // TODO remove when vaults have been deleted
+  /* Check for any vaults with the same series/ilk/base for REMOVING LIQUIDITY -> */
   useEffect(() => {
-    if (strategySeries && strategyBase && strategySeries && removeLiquidityView) {
+    if (strategySeries && strategyBase ) {
       const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
-      const _matchingVault = arr
-      .sort((a: IVault, b:IVault) =>  (b.art!).gt(a.art!)? -1:1 )
-      .find(
+      const _matchingVault = arr.find(
         (v: IVault) =>
           v.ilkId === strategyBase.id &&
           v.baseId === strategyBase.id &&
           v.seriesId === strategySeries.id &&
-          v.art.gt(ethers.constants.Zero) &&
           v.isActive
       );
       setMatchingVault(_matchingVault);
@@ -198,6 +191,10 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
       setMatchingVault(undefined);
     }
   }, [vaultMap, strategyBase, strategySeries, removeLiquidityView]);
+
+  /**
+   * Remove Liquidity specific section
+   * */
 
   /* set max for removal with/without a vault  */
 
