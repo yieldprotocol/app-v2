@@ -129,7 +129,7 @@ function Pool() {
                         <TextInput
                           plain
                           type="number"
-                          placeholder="Enter amount"
+                          placeholder="Enter maximum amount to pool"
                           value={poolInput || ''}
                           onChange={(event: any) =>
                             setPoolInput(cleanValue(event.target.value, selectedBase?.decimals))
@@ -171,7 +171,7 @@ function Pool() {
           )}
 
           {stepPosition === 1 && (
-            <Box gap="large">
+            <Box gap="medium">
               <YieldCardHeader>
                 {poolProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
                   <BackButton action={() => setStepPosition(0)} />
@@ -190,7 +190,7 @@ function Pool() {
                       animation={{ type: 'zoomIn', size: 'small' }}
                     >
                       <InfoBite
-                        label="Amount to pool"
+                        label="Maximum Amount to Pool"
                         icon={<BiMessageSquareAdd />}
                         value={`${cleanValue(poolInput, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
                       />
@@ -232,7 +232,8 @@ function Pool() {
             </Box>
           )}
 
-          {stepPosition === 1 &&              
+          {stepPosition === 1 &&
+            !poolProcess?.processActive &&
           <CheckBox
             pad={{vertical:'small'}}
             label={
@@ -242,7 +243,8 @@ function Pool() {
                 demand.
               </Text>
             }
-            onChange={()=> setDisclaimerChecked( !disclaimerChecked)}
+            checked={disclaimerChecked}
+            onChange={()=> setDisclaimerChecked(!disclaimerChecked)}
           />}   
 
           {stepPosition === 1 &&
@@ -256,12 +258,13 @@ function Pool() {
         </Box>
 
         <ActionButtonGroup pad>
+
           {stepPosition !== 1 && (
             <NextButton
               secondary
               label={<Text size={mobile ? 'small' : undefined}>Next Step</Text>}
               onClick={() => setStepPosition(stepPosition + 1)}
-              disabled={stepDisabled}
+              disabled={stepDisabled || !selectedStrategy}
               errorLabel={poolError}
             />
           )}
@@ -280,7 +283,7 @@ function Pool() {
                 )
               }
               onClick={() => handleAdd()}
-              disabled={poolDisabled || poolProcess?.processActive || disclaimerChecked}
+              disabled={poolDisabled || poolProcess?.processActive || !disclaimerChecked}
             />
           )}
 
