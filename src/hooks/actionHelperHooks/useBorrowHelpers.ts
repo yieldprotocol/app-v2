@@ -42,7 +42,9 @@ export const useBorrowHelpers = (
 
   const [maxRepay, setMaxRepay] = useState<BigNumber>(ethers.constants.Zero);
   const [maxRepay_, setMaxRepay_] = useState<string | undefined>();
-  const [maxRepayDustLimit, setMaxRepayDustLimit] = useState<string | undefined>();
+
+  const [minRepay, setMinRepay] = useState<BigNumber>(ethers.constants.Zero);
+  const [minRepay_, setMinRepay_] = useState<string | undefined>();
 
   const [maxRoll, setMaxRoll] = useState<BigNumber>(ethers.constants.Zero);
   const [maxRoll_, setMaxRoll_] = useState<string | undefined>();
@@ -156,7 +158,7 @@ export const useBorrowHelpers = (
 
         /* max user is either the max tokens they have or max debt */
         const _maxUser = _maxToken && _maxDebt?.gt(_maxToken) ? _maxToken : _maxDebt;
-        const _maxDust = _maxUser.sub(minDebt);
+        const _maxToDust = _maxUser.sub(minDebt);
         const _maxBaseIn = maxBaseIn(
           vaultSeries?.baseReserves,
           vaultSeries?.fyTokenReserves,
@@ -165,7 +167,9 @@ export const useBorrowHelpers = (
         );
 
         /* set the dust limit */
-        _maxDust && setMaxRepayDustLimit(ethers.utils.formatUnits(_maxDust, vaultBase?.decimals)?.toString());
+        _maxToDust && setMinRepay(_maxToDust);
+        _maxToDust && setMinRepay_(ethers.utils.formatUnits(_maxToDust, vaultBase?.decimals)?.toString());
+        
         _maxBaseIn && setProtocolBaseAvailable(_maxBaseIn);
 
         /* set the maxBase available for both user and protocol */
@@ -197,11 +201,12 @@ export const useBorrowHelpers = (
     maxRepay_,
     maxRepay,
 
+    minRepay,
+    minRepay_,
+
     maxRoll,
     maxRoll_,
     rollPossible,
-
-    maxRepayDustLimit,
 
     userBaseAvailable,
     protocolBaseAvailable,

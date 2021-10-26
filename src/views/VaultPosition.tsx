@@ -124,7 +124,7 @@ const VaultPosition = () => {
   const {
     maxRepay,
     maxRepay_,
-    maxRepayDustLimit,
+    minRepay_,
     protocolBaseAvailable,
     userBaseAvailable,
     maxRoll,
@@ -134,7 +134,7 @@ const VaultPosition = () => {
   } = useBorrowHelpers(undefined, undefined, selectedVault, rollToSeries);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries, [
-    maxRepayDustLimit, // this is the max pay to get to dust limit. note different logic in input validation hook.
+    minRepay_, // this is the max pay to get to dust limit. note different logic in input validation hook.
     maxRepay_,
   ]);
 
