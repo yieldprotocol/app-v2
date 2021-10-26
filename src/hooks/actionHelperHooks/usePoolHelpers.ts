@@ -185,7 +185,10 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
       const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
       const _matchingVault = arr.find(
         (v: IVault) =>
-          v.ilkId === strategyBase.id && v.baseId === strategyBase.id && v.seriesId === strategySeries.id && v.isActive
+          v.ilkId === strategyBase.id && 
+          v.baseId === strategyBase.id && 
+          v.seriesId === strategySeries.id && 
+          v.isActive
       );
       setMatchingVault(_matchingVault);
       console.log('Matching Vault:', _matchingVault?.id || 'No matching vault.');
