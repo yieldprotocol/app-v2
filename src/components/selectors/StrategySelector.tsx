@@ -61,7 +61,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelector
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const { userState, userActions } = useContext(UserContext);
-  const { selectedStrategyAddr, selectedBaseId, strategiesLoading, strategyMap, seriesMap } = userState;
+  const { selectedStrategyAddr, selectedBaseId, strategiesLoading, strategyMap, seriesMap, diagnostics } = userState;
 
   const [options, setOptions] = useState<IStrategy[]>([]);
 
@@ -79,12 +79,11 @@ function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelector
 
   const handleSelect = (_strategy: IStrategy) => {
     if (_strategy.active) {
-      console.log('Strategy selected: ', _strategy.address);
+      diagnostics && console.log('Strategy selected: ', _strategy.address);
       userActions.setSelectedStrategy(_strategy.address);
       userActions.setSelectedSeries(_strategy.currentSeries?.id);
     } else {
       toast.info('Strategy coming soon');
-      console.log('strategy not yet active');
     }
 
     mobile && setOpen(false);

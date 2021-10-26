@@ -21,7 +21,7 @@ import { HistoryContext } from '../../contexts/HistoryContext';
 
 export const useAddLiquidity = () => {
   const { userState, userActions } = useContext(UserContext);
-  const { activeAccount: account, assetMap, seriesMap, slippageTolerance } = userState;
+  const { activeAccount: account, assetMap, seriesMap, slippageTolerance, diagnostics } = userState;
   const { updateSeries, updateAssets, updateStrategies } = userActions;
   const { sign, transact } = useChain();
 
@@ -63,29 +63,29 @@ export const useAddLiquidity = () => {
 
     const _baseToPoolWithSlippage = BigNumber.from(calculateSlippage(_baseToPool, slippageTolerance));
 
-    // /* DIAGNOSITCS */
-    // console.log(
-    //   'input: ',
-    //   _input.toString(),
-    //   'inputLessSlippage: ',
-    //   _inputLessSlippage.toString(),
-    //   'base: ',
-    //   cachedBaseReserves.toString(),
-    //   'real: ',
-    //   cachedRealReserves.toString(),
-    //   'virtual: ',
-    //   cachedFyTokenReserves.toString(),
-    //   '>> baseSplit: ',
-    //   _baseToPool.toString(),
-    //   '>> fyTokenSplit: ',
-    //   _baseToFyToken.toString(),
-    //   '>> baseSplitWithSlippage: ',
-    //   _baseToPoolWithSlippage.toString(),
-    //   '>> minRatio',
-    //   minRatio.toString(),
-    //   '>> maxRatio',
-    //   maxRatio.toString()
-    // );
+    /* DIAGNOSITCS */
+    diagnostics && console.log(
+      'input: ',
+      _input.toString(),
+      'inputLessSlippage: ',
+      _inputLessSlippage.toString(),
+      'base: ',
+      cachedBaseReserves.toString(),
+      'real: ',
+      cachedRealReserves.toString(),
+      'virtual: ',
+      cachedFyTokenReserves.toString(),
+      '>> baseSplit: ',
+      _baseToPool.toString(),
+      '>> fyTokenSplit: ',
+      _baseToFyToken.toString(),
+      '>> baseSplitWithSlippage: ',
+      _baseToPoolWithSlippage.toString(),
+      '>> minRatio',
+      minRatio.toString(),
+      '>> maxRatio',
+      maxRatio.toString()
+    );
 
 
     /**

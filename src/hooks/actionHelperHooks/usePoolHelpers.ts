@@ -5,16 +5,10 @@ import { IAsset, ISeries, IStrategy, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import {
   fyTokenForMint,
-  splitLiquidity,
   strategyTokenValue,
   getPoolPercent,
   maxFyTokenOut,
-  burnFromStrategy,
-  burn,
-  sellFYToken,
 } from '../../utils/yieldMath';
-import { ZERO_BN } from '../../utils/constants';
-import { Strategy } from '../../contracts';
 
 export const usePoolHelpers = (input: string | undefined, removeLiquidityView: boolean = false) => {
   /* STATE FROM CONTEXT */
@@ -29,6 +23,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
       assetMap,
       activeAccount,
       slippageTolerance,
+      diagnostics,
     },
   } = useContext(UserContext);
 
@@ -40,14 +35,10 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
 
   /* LOCAL STATE */
   const [_input, setInput] = useState<BigNumber>(ethers.constants.Zero);
-
   const [matchingVault, setMatchingVault] = useState<IVault | undefined>();
-
   const [poolPercentPreview, setPoolPercentPreview] = useState<string | undefined>();
-
   const [maxPool, setMaxPool] = useState<string | undefined>();
   const [canBuyAndPool, setCanBuyAndPool] = useState<boolean | undefined>(false);
-  // const [healthyBaseReserves, setHealthyBaseReserves] = useState<boolean>();
 
   const [addTradePossible, setAddTradePossible] = useState<boolean>();
   const [inputTradeValue, setInputTradeValue] = useState<BigNumber | undefined>();
@@ -85,9 +76,9 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
     if (
       strategy &&
       strategySeries &&
-      strategy?.strategyPoolBalance?.gt(ZERO_BN) &&
-      strategy?.accountBalance?.gt(ZERO_BN) &&
-      strategy?.strategyTotalSupply?.gt(ZERO_BN)
+      strategy?.strategyPoolBalance?.gt(ethers.constants.Zero) &&
+      strategy?.accountBalance?.gt(ethers.constants.Zero) &&
+      strategy?.strategyTotalSupply?.gt(ethers.constants.Zero)
     ) {
       const [_sellValue, _tokenValue] = strategyTokenValue(
         strategy?.accountBalance || ethers.constants.Zero,
@@ -120,7 +111,6 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         strategySeries.decimals
       );
       const tradeable = _sellValue.gt(ethers.constants.Zero);
-      // console.log('Is tradeable:', tradeable);
       setAddTradePossible(tradeable);
       setInputTradeValue(_tokenValue);
       setInputTradeValue_(ethers.utils.formatUnits(_tokenValue, strategySeries.decimals));
@@ -156,13 +146,13 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
       parseFloat(strategySeries.apr) > 0.25;
 
       setCanBuyAndPool(buyAndPoolAllowed);
-      console.log('Can BuyAndPool?', buyAndPoolAllowed);
+      diagnostics && console.log('Can BuyAndPool?', buyAndPoolAllowed);
 
     } else {
       /* Don't allow by default */
       setCanBuyAndPool(false);
     }
-  }, [_input, strategySeries, removeLiquidityView, slippageTolerance]);
+  }, [_input, strategySeries, removeLiquidityView, slippageTolerance, diagnostics]);
 
   /* SET MAX VALUES */
   useEffect(() => {
@@ -188,11 +178,11 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
           v.ilkId === strategyBase.id && v.baseId === strategyBase.id && v.seriesId === strategySeries.id && v.isActive
       );
       setMatchingVault(_matchingVault);
-      console.log('Matching Vault:', _matchingVault?.id || 'No matching vault.');
+      diagnostics && console.log('Matching Vault:', _matchingVault?.id || 'No matching vault.');
     } else {
       setMatchingVault(undefined);
     }
-  }, [vaultMap, strategyBase, strategySeries, removeLiquidityView]);
+  }, [vaultMap, strategyBase, strategySeries, removeLiquidityView, diagnostics ]);
 
   /* set max for removal with/without a vault  */
 
