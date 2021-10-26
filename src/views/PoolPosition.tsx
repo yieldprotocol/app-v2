@@ -296,7 +296,7 @@ const PoolPosition = () => {
                         <InfoBite
                           label="Remove Liquidity Tokens"
                           icon={<FiArrowRight />}
-                          value={`${cleanValue(removeInput, selectedBase?.digitFormat!)} tokens `}
+                          value={`${cleanValue(removeInput, selectedBase?.digitFormat!)} tokens`}
                         />
                       </ActiveTransaction>
                     )}
@@ -308,16 +308,16 @@ const PoolPosition = () => {
 
             <ActionButtonGroup pad>
               {stepPosition[actionActive.index] === 0 && removeInput && !removeTradePossible && !removeError && (
-                <Box fill="horizontal" pad={{ vertical: 'small', horizontal:'xsmall' }}>
+                <Box fill="horizontal" pad={{ vertical: 'small', horizontal: 'xsmall' }}>
                   <CheckBox
                     label={
                       <Box>
                         <Text size="xsmall">Force Removal: </Text>
                         <Text size="xsmall">
-                          {`(receive `}
+                          {`( You will receive `}
                           {cleanValue(forceFyTokenReceived_, 2)} fy{selectedBase?.symbol}{' '}
                           {parseFloat(forceFyTokenReceived_!) > 0 &&
-                            ` and ${cleanValue(forceBaseReceived_, 2)} ${selectedBase?.symbol})`}
+                            ` and ${cleanValue(forceBaseReceived_, 2)} ${selectedBase?.symbol} )`}
                         </Text>
                       </Box>
                     }
