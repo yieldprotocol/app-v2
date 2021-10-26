@@ -7,7 +7,7 @@ import BoxWrap from './BoxWrap';
 function InputInfoWrap({ action, index, children }: { children: any; index?: number; action?: () => void }) {
   return (
     <BoxWrap
-      pad="small"
+      pad="xsmall"
       direction="row"
       gap="small"
       align="center"
@@ -15,8 +15,17 @@ function InputInfoWrap({ action, index, children }: { children: any; index?: num
       onClick={action ? () => action() : undefined}
       fill="horizontal"
     >
-      {action ? <FiPlayCircle size="1.25rem" color="green" /> : <FiInfo size="1.25rem" color="orange" />}
-      {children}
+      {action ? (
+        <Box>
+          {' '}
+          <FiPlayCircle size="1.5rem" color="green" />{' '}
+        </Box>
+      ) : (
+        <Box>
+          <FiInfo size="1.5rem" color="orange" />
+        </Box>
+      )}
+      <Box pad='small'>{children}</Box>
     </BoxWrap>
   );
 }

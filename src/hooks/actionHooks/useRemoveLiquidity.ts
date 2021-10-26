@@ -51,8 +51,9 @@ export const useRemoveLiquidity = () => {
 
     const matchingVaultId: string | undefined = matchingVault?.id;
     const matchingVaultDebt: BigNumber = matchingVault?.art || ZERO_BN;
-    // Choose use use matching vault or not : matchign vaults is undefined or debt less than required fyToken
-    const useMatchingVault: boolean = !!matchingVault && _fyTokenReceived.lte(matchingVaultDebt);
+    
+    // Choose use use matching vault : matchign vaults is not undefined  AND ( debt less than required fyToken OR not tradeing After )
+    const useMatchingVault: boolean = !!matchingVault && ( _fyTokenReceived.lte(matchingVaultDebt) || !tradeFyToken) ;
 
     const [minRatio, maxRatio] = calcPoolRatios(cachedBaseReserves, cachedRealReserves);
     const fyTokenReceivedGreaterThanDebt: boolean = _fyTokenReceived.gt(matchingVaultDebt);
@@ -63,6 +64,7 @@ export const useRemoveLiquidity = () => {
       series.getTimeTillMaturity(),
       series.decimals
     );
+    /* set trade possible if valid trade > 0 and user selected tradeFyToken */
     const fyTokenTradePossible = fyTokenTrade.gt(ethers.constants.Zero) && tradeFyToken;
 
     console.log('Strategy: ', _strategy);

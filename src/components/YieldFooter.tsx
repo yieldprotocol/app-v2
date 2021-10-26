@@ -1,8 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { ethers, utils } from 'ethers';
-
-import { Text, Box, Button, ResponsiveContext, Footer, Collapsible, Select, Layer } from 'grommet';
-import { toast } from 'react-toastify';
+import { Text, Box, Button, Layer } from 'grommet';
 import { ChainContext } from '../contexts/ChainContext';
 
 import { useTimeTravel } from '../hooks/useTimeTravel';
@@ -11,7 +8,6 @@ import { ApprovalType, IAsset } from '../types';
 import { useApprovalMethod } from '../hooks/useApprovalMethod';
 
 const YieldFooter = (props: any) => {
-  const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   
   const { chainState, chainActions } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);

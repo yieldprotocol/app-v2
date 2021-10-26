@@ -10,7 +10,6 @@ import Pool from './views/Pool';
 import Dashboard from './views/Dashboard';
 
 import MenuLayer from './layers/MenuLayer';
-import YieldFooter from './components/YieldFooter';
 import VaultPosition from './views/VaultPosition';
 import YieldHeader from './components/YieldHeader';
 import NetworkError from './components/NetworkError';
@@ -33,7 +32,7 @@ function App() {
         <NetworkError />
 
         <Box flex={!mobile} overflow="hidden">
-          <ToastContainer position="top-center" />
+          <ToastContainer position="top-right" />
           {menuLayerOpen && <MenuLayer toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} />}
           <Switch>
             <Route path="/borrow/:series?/:asset?/:amnt?">
