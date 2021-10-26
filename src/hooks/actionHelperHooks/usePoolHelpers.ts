@@ -176,17 +176,18 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
 
   /* Check for any vaults with the same series/ilk/base for REMOVING LIQUIDITY -> */
   useEffect(() => {
-    if (strategySeries && strategyBase ) {
+    if (strategySeries && strategyBase) {
       const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
       const _matchingVault = arr
-      .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1))
-      .find(
-        (v: IVault) =>
-          v.ilkId === strategyBase.id &&
-          v.baseId === strategyBase.id &&
-          v.seriesId === strategySeries.id &&
-          v.isActive
-      );
+        .sort((vaultA: IVault, vaultB: IVault) => (vaultA.id > vaultB.id ? 1 : -1))
+        .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1))
+        .find(
+          (v: IVault) =>
+            v.ilkId === strategyBase.id &&
+            v.baseId === strategyBase.id &&
+            v.seriesId === strategySeries.id &&
+            v.isActive
+        );
       setMatchingVault(_matchingVault);
       console.log('Matching Vault:', _matchingVault?.id || 'No matching vault.');
     } else {
