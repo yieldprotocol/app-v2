@@ -3,6 +3,7 @@ import React, { useContext, useState } from 'react';
 import { RiDashboard3Line } from 'react-icons/ri';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
+import { ChainContext } from '../../contexts/ChainContext';
 
 // look to see if there is a better way
 const StyledBox = styled(Box)`
@@ -14,8 +15,13 @@ const StyledBox = styled(Box)`
 
 function DashMobileButton({ transparent }: { transparent?: boolean }) {
   const routerHistory = useHistory();
+  const {
+    chainState: {
+      connection: { account },
+    },
+  } = useContext(ChainContext);
 
-  return (
+  return account ? (
     <StyledBox align="center" direction="row">
       <Avatar
         size="medium"
@@ -27,7 +33,7 @@ function DashMobileButton({ transparent }: { transparent?: boolean }) {
         <Text size="xsmall"> Dash </Text>
       </Avatar>
     </StyledBox>
-  );
+  ) : null;
 }
 
 DashMobileButton.defaultProps = { transparent: false };

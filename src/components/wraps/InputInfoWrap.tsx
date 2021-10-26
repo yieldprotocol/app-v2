@@ -9,7 +9,7 @@ function InputInfoWrap({ action, index, children }: { children: any; index?: num
     <BoxWrap
       pad="xsmall"
       direction="row"
-      gap="small"
+      gap="xsmall"
       align="center"
       animation={action ? undefined : 'zoomIn'}
       onClick={action ? () => action() : undefined}
@@ -17,8 +17,7 @@ function InputInfoWrap({ action, index, children }: { children: any; index?: num
     >
       {action ? (
         <Box>
-          {' '}
-          <FiPlayCircle size="1.5rem" color="green" />{' '}
+          <FiPlayCircle size="1.5rem" color="green" />
         </Box>
       ) : (
         <Box>
