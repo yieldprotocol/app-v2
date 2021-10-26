@@ -52,7 +52,7 @@ function Pool() {
 
   /* HOOK FNS */
   const addLiquidity = useAddLiquidity();
-  const { maxPool, poolPercentPreview, canBuyAndPool } = usePoolHelpers(poolInput);
+  const { maxPool, poolPercentPreview, canBuyAndPool, matchingVault } = usePoolHelpers(poolInput);
 
   /* input validation hooks */
   const { inputError: poolError } = useInputValidation(
@@ -66,9 +66,9 @@ function Pool() {
 
   /* LOCAL ACTION FNS */
   const handleAdd = () => {
-    console.log('POOLING METHOD: ', poolMethod);
+    console.log('POOLING METHOD: ', poolMethod , 'Matching vault', matchingVault);
     const _method = !canBuyAndPool ? AddLiquidityType.BORROW : poolMethod; // double check
-    selectedStrategy && addLiquidity(poolInput!, selectedStrategy, _method);
+    selectedStrategy && addLiquidity(poolInput!, selectedStrategy, _method, matchingVault);
   };
 
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */

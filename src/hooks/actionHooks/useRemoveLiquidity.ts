@@ -39,7 +39,7 @@ export const useRemoveLiquidity = () => {
   } = useContext(ChainContext);
   const ladleAddress = contractMap?.get('Ladle')?.address;
 
-  const { vaultMap, userState, userActions } = useContext(UserContext);
+  const { userState, userActions } = useContext(UserContext);
   const { activeAccount: account, assetMap, selectedStrategyAddr, strategyMap } = userState;
   const { updateSeries, updateAssets, updateStrategies } = userActions;
   const { sign, transact } = useChain();
