@@ -10,6 +10,7 @@ import {
   IAsset,
   IStrategy,
   AddLiquidityType,
+  IVault,
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { BLANK_VAULT } from '../../utils/constants';
@@ -18,21 +19,28 @@ import { useChain } from '../useChain';
 import { calcPoolRatios, calculateSlippage, fyTokenForMint, splitLiquidity } from '../../utils/yieldMath';
 import { HistoryContext } from '../../contexts/HistoryContext';
 
-
 export const useAddLiquidity = () => {
   const { userState, userActions } = useContext(UserContext);
-  const { activeAccount: account, assetMap, seriesMap, slippageTolerance, diagnostics } = userState;
-  const { updateSeries, updateAssets, updateStrategies } = userActions;
-  const { sign, transact } = useChain();
 
+  const { activeAccount: account, assetMap, seriesMap, slippageTolerance, diagnostics } = userState;
+  const { updateVaults, updateSeries, updateAssets, updateStrategies } = userActions;
+
+  const { sign, transact } = useChain();
   const {
     historyActions: { updateStrategyHistory },
   } = useContext(HistoryContext);
 
-  const addLiquidity = async (input: string, strategy: IStrategy, method: AddLiquidityType = AddLiquidityType.BUY) => {
+  const addLiquidity = async (
+    input: string,
+    strategy: IStrategy,
+    method: AddLiquidityType = AddLiquidityType.BUY,
+    matchingVault: IVault | undefined = undefined
+  ) => {
     const txCode = getTxCode(ActionCodes.ADD_LIQUIDITY, strategy.id);
     const series: ISeries = seriesMap.get(strategy.currentSeriesId);
     const base: IAsset = assetMap.get(series.baseId);
+
+    const matchingVaultId: string | undefined = matchingVault?.id;
 
     const cleanInput = cleanValue(input, base.decimals);
 
@@ -86,7 +94,6 @@ export const useAddLiquidity = () => {
       '>> maxRatio',
       maxRatio.toString()
     );
-
 
     /**
      * GET SIGNTURE/APPROVAL DATA
@@ -182,6 +189,7 @@ export const useAddLiquidity = () => {
     updateAssets([base]);
     updateStrategies([strategy]);
     updateStrategyHistory([strategy]);
+    updateVaults([]);
   };
 
   return addLiquidity;

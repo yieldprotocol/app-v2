@@ -234,33 +234,33 @@ const Borrow = () => {
                         action={() => console.log('maxAction')}
                         isError={borrowInputError}
                         message={
-                          <>
-                            {borrowInput && !borrowPossible && selectedSeries && (
-                              <InputInfoWrap action={() => setBorrowInput(selectedSeries?.baseReserves_!)}>
-                                <Text size="xsmall" color="text-weak">
-                                  Max borrow is{' '}
+                          !mobile ? (
+                            <>
+                              {borrowInput && !borrowPossible && selectedSeries && (
+                                <InputInfoWrap action={() => setBorrowInput(selectedSeries?.baseReserves_!)}>
+                                  <Text size="xsmall" color="text-weak">
+                                    Max borrow is{' '}
+                                    <Text size="small" color="text-weak">
+                                      {cleanValue(selectedSeries?.baseReserves_!, 2)} {selectedBase?.symbol}
+                                    </Text>{' '}
+                                    (limited by protocol liquidity)
+                                  </Text>
+                                </InputInfoWrap>
+                              )}
+                              {borrowInput && borrowPossible && selectedSeries && (
+                                // minCollateral.gt(selectedSeries.) &&
+                                <InputInfoWrap>
                                   <Text size="small" color="text-weak">
-                                    {cleanValue(selectedSeries?.baseReserves_!, 2)} {selectedBase?.symbol}
-                                  </Text>{' '}
-                                  (limited by protocol liquidity)
-                                </Text>
-                              </InputInfoWrap>
-                            )}
-                            {
-                            borrowInput && 
-                            borrowPossible && 
-                            selectedSeries &&
-                            
-                            (
-                              // minCollateral.gt(selectedSeries.) &&
-                              <InputInfoWrap>
-                                <Text size="small" color="text-weak">
-                                  Requires equivalent of {nFormatter(parseFloat(minCollateral_!), selectedIlk?.digitFormat!)}{' '}
-                                  {selectedIlk?.symbol} collateral
-                                </Text>
-                              </InputInfoWrap>
-                            )}
-                          </>
+                                    Requires equivalent of{' '}
+                                    {nFormatter(parseFloat(minCollateral_!), selectedIlk?.digitFormat!)}{' '}
+                                    {selectedIlk?.symbol} collateral
+                                  </Text>
+                                </InputInfoWrap>
+                              )}
+                            </>
+                          ) : (
+                            <></>
+                          )
                         }
                       >
                         <TextInput

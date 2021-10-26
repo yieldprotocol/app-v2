@@ -131,7 +131,7 @@ const Lend = () => {
                         isError={lendError}
                         disabled={selectedSeries?.seriesIsMature}
                         message={
-                          selectedSeries && userBaseAvailable.gt(protocolBaseIn) ? (
+                          selectedSeries && userBaseAvailable.gt(protocolBaseIn) && !mobile ? (
                             <InputInfoWrap action={() => setLendInput(maxLend_)}>
                               <Text size="xsmall" color="text-weak">
                                 Max lend is{' '}

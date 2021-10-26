@@ -9,13 +9,37 @@ import { HistoryContext } from '../../contexts/HistoryContext';
 import { burn, burnFromStrategy, calcPoolRatios, sellFYToken } from '../../utils/yieldMath';
 import { ZERO_BN } from '../../utils/constants';
 
+/*
+                                                                            +---------+
+                                                                       +--> |OPTION 2 |  ( unique call: SELL_FYTOKEN) 
+                                                                     Y |    +---------+
+                                                                       |
+                                 +------------------> sell Token supported
+                                 |Y                                    |
+                                 |                                   N |    +--------------------+
+               +------> FyTokenRecieved >= Debt                        +--->|OPTION 2 (no trade) | (unique call:  none of others ) 
+               |                 |                    +-----------+         +--------------------+
+               |Y                +------------------> | OPTION 1  |
+               |                  N                   +-----------+
+               |                                             ( unique call: CLOSE_FROM_LADLE)
+    +----> has Vault?
+    |N         |        +--------+
+    |          +------> |OPTION 4|. (unique call: BURN_FOR_BASE )
+is Mature?        N     +--------+
+    |
+    |
+    |Y         +-----------+
+    +--------->| OPTION 3  | (unique call: REDEEM )
+               +-----------+
+ */
+
 export const useRemoveLiquidity = () => {
   const {
     chainState: { contractMap },
   } = useContext(ChainContext);
   const ladleAddress = contractMap?.get('Ladle')?.address;
-
-  const { userState, userActions } = useContext(UserContext);
+  
+  const { vaultMap, userState, userActions } = useContext(UserContext);
   const { activeAccount: account, assetMap, selectedStrategyAddr, strategyMap, diagnostics } = userState;
   const { updateSeries, updateAssets, updateStrategies } = userActions;
   const { sign, transact } = useChain();
@@ -62,12 +86,13 @@ export const useRemoveLiquidity = () => {
     const doTrade = fyTokenTrade.gt(ethers.constants.Zero) && tradeFyToken;
 
     /* Diagnostics */
-    diagnostics &&  console.log('Strategy: ', _strategy);
-    diagnostics &&  console.log('Vault to use for removal: ', matchingVaultId);
-    diagnostics &&  console.log(useMatchingVault);
-    diagnostics &&  console.log('input', _input.toString());
-    diagnostics &&  console.log('lpTokens recieved from strategy token burn:', lpReceived.toString());
-    diagnostics &&  console.log('fyToken recieved from lpTokenburn: ', _fyTokenReceived.toString());
+    diagnostics && console.log('Strategy: ', _strategy);
+    diagnostics && console.log('Vault to use for removal: ', matchingVaultId);
+    diagnostics && console.log( 'vaultDebt',matchingVaultDebt.toString() );
+    diagnostics && console.log(useMatchingVault);
+    diagnostics && console.log('input', _input.toString());
+    diagnostics && console.log('lpTokens recieved from strategy token burn:', lpReceived.toString());
+    diagnostics && console.log('fyToken recieved from lpTokenburn: ', _fyTokenReceived.toString());
     diagnostics && console.log('Debt: ', matchingVaultDebt?.toString());
     diagnostics && console.log('Is FyToken Recieved Greater Than Debt: ', fyTokenReceivedGreaterThanDebt);
     diagnostics && console.log('Is FyToken tradable?: ', doTrade);

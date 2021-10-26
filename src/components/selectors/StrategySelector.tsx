@@ -68,11 +68,10 @@ function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelector
   /* Keeping options/selection fresh and valid: */
   useEffect(() => {
     const opts = Array.from(strategyMap.values()) as IStrategy[];
-    const filteredOpts = 
-    opts
-    .filter((_st: IStrategy) => _st.baseId === selectedBaseId && !_st.currentSeries?.seriesIsMature)
-    .sort((a:IStrategy,b:IStrategy) => b.currentSeries?.maturity! - a.currentSeries?.maturity! )
-    ;
+    const filteredOpts = opts
+      .filter((_st: IStrategy) => _st.baseId === selectedBaseId && !_st.currentSeries?.seriesIsMature)
+      .sort((a: IStrategy, b: IStrategy) => a.currentSeries?.maturity! - b.currentSeries?.maturity!);
+
     // .filter((_st: IStrategy) => _st.currentSeries);
     setOptions(filteredOpts);
   }, [selectedBaseId, strategyMap]);
