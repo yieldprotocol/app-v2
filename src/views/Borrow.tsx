@@ -337,16 +337,20 @@ const Borrow = () => {
                           disabled={!selectedSeries}
                           isError={collatInputError}
                           message={
-                            borrowInput &&
-                            minSafeCollateral && (
-                              <InputInfoWrap
-                                action={() => setCollatInput(cleanValue(minSafeCollateral, selectedIlk?.decimals))}
-                              >
-                                <Text size="small" color="text-weak">
-                                  Use Safe Minimum{': '}
-                                  {cleanValue(minSafeCollateral, selectedIlk?.digitFormat)} {selectedIlk?.symbol}
-                                </Text>
-                              </InputInfoWrap>
+                            !mobile ? (
+                              borrowInput &&
+                              minSafeCollateral && (
+                                <InputInfoWrap
+                                  action={() => setCollatInput(cleanValue(minSafeCollateral, selectedIlk?.decimals))}
+                                >
+                                  <Text size="small" color="text-weak">
+                                    Use Safe Minimum{': '}
+                                    {cleanValue(minSafeCollateral, selectedIlk?.digitFormat)} {selectedIlk?.symbol}
+                                  </Text>
+                                </InputInfoWrap>
+                              )
+                            ) : (
+                              <></>
                             )
                           }
                         >
@@ -392,7 +396,7 @@ const Borrow = () => {
             )}
 
             {stepPosition === 2 && ( // REVIEW
-              <Box gap='medium'>
+              <Box gap="medium">
                 <YieldCardHeader>
                   {borrowProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
                     <BackButton action={() => setStepPosition(1)} />
