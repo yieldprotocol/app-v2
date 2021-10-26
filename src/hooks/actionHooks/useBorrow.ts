@@ -1,6 +1,5 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
-import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, IVault, ActionCodes, LadleActions, ISeries } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
@@ -77,7 +76,7 @@ export const useBorrow = () => {
       {
         operation: LadleActions.Fn.SERVE,
         args: [vaultId, account, _collInput, _input, _expectedFyTokenWithSlippage] as LadleActions.Args.SERVE,
-        ignoreIf: false,
+        ignoreIf: false, // never ignore
       },
     ];
 

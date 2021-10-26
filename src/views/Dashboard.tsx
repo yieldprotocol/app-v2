@@ -195,9 +195,9 @@ const Dashboard = () => {
     <MainViewWrap>
       {!mobile && (
         <PanelWrap justify="between" basis="40%">
-          <Box margin={{ top: '35%' }} gap="medium" fill>
+          <Box margin={{ top: '35%' }} gap="medium" fill="horizontal">
             {account && (
-              <>
+              <Box gap="small">
                 <Box width="5rem" height="2rem">
                   <CurrencyToggle />
                 </Box>
@@ -209,7 +209,7 @@ const Dashboard = () => {
                   digits={currencySettingDigits}
                   symbol={currencySettingSymbol}
                 />
-              </>
+              </Box>
             )}
           </Box>
           <YieldInfo />

@@ -5,16 +5,13 @@ import { IAsset, ISeries, IStrategy, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import {
   fyTokenForMint,
-  splitLiquidity,
   strategyTokenValue,
   getPoolPercent,
   maxFyTokenOut,
   burnFromStrategy,
   burn,
-  sellFYToken,
 } from '../../utils/yieldMath';
 import { ZERO_BN } from '../../utils/constants';
-import { Strategy } from '../../contracts';
 
 export const usePoolHelpers = (input: string | undefined, removeLiquidityView: boolean = false) => {
   /* STATE FROM CONTEXT */
@@ -29,6 +26,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
       assetMap,
       activeAccount,
       slippageTolerance,
+      diagnostics,
     },
   } = useContext(UserContext);
 
@@ -36,18 +34,15 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   const strategySeries: ISeries | undefined = seriesMap?.get(
     selectedStrategyAddr ? strategy?.currentSeriesId : selectedSeries
   );
+  const selectedBase: IAsset | undefined = assetMap?.get(selectedBaseId);
   const strategyBase: IAsset | undefined = assetMap?.get(selectedStrategyAddr ? strategy?.baseId : selectedBaseId);
 
   /* LOCAL STATE */
   const [_input, setInput] = useState<BigNumber>(ethers.constants.Zero);
-
   const [matchingVault, setMatchingVault] = useState<IVault | undefined>();
-
   const [poolPercentPreview, setPoolPercentPreview] = useState<string | undefined>();
-
   const [maxPool, setMaxPool] = useState<string | undefined>();
   const [canBuyAndPool, setCanBuyAndPool] = useState<boolean | undefined>(false);
-  // const [healthyBaseReserves, setHealthyBaseReserves] = useState<boolean>();
 
   const [addTradePossible, setAddTradePossible] = useState<boolean>();
   const [inputTradeValue, setInputTradeValue] = useState<BigNumber | undefined>();
@@ -55,10 +50,11 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   const [accountTradeValue, setAccountTradeValue] = useState<string | undefined>();
 
   /* remove liquidity helpers */
-
   const [maxRemoveNoVault, setMaxRemoveNoVault] = useState<string | undefined>();
   const [maxRemoveWithVault, setMaxRemoveWithVault] = useState<string | undefined>();
   const [removeTradePossible, setRemoveTradePossible] = useState<boolean>(true);
+  const [forceBaseReceived_, setForceBaseReceived_] = useState<string | undefined>();
+  const [forceFyTokenReceived_, setForceFyTokenReceived_] = useState<string | undefined>();
 
   /* Set input (need to make sure we can parse the input value) */
   useEffect(() => {
@@ -86,9 +82,9 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
     if (
       strategy &&
       strategySeries &&
-      strategy?.strategyPoolBalance?.gt(ZERO_BN) &&
-      strategy?.accountBalance?.gt(ZERO_BN) &&
-      strategy?.strategyTotalSupply?.gt(ZERO_BN)
+      strategy?.strategyPoolBalance?.gt(ethers.constants.Zero) &&
+      strategy?.accountBalance?.gt(ethers.constants.Zero) &&
+      strategy?.strategyTotalSupply?.gt(ethers.constants.Zero)
     ) {
       const [_sellValue, _tokenValue] = strategyTokenValue(
         strategy?.accountBalance || ethers.constants.Zero,
@@ -103,12 +99,14 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
       const tradeable = _sellValue.gt(ethers.constants.Zero);
       tradeable && setAccountTradeValue(ethers.utils.formatUnits(_tokenValue, strategy.decimals));
     }
+
+    strategy?.accountBalance?.eq(ethers.constants.Zero) && setAccountTradeValue('0');
   }, [strategy, strategySeries]);
 
   /* Set the trade value and check if base reserves are too low for specific input  */
   useEffect(() => {
     if (_input !== ethers.constants.Zero && strategySeries) {
-      const [_sellValue , _tokenValue] = strategyTokenValue(
+      const [_sellValue, _tokenValue] = strategyTokenValue(
         _input,
         strategy?.strategyTotalSupply!,
         strategy?.strategyPoolBalance!,
@@ -119,7 +117,6 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         strategySeries.decimals
       );
       const tradeable = _sellValue.gt(ethers.constants.Zero);
-      // console.log('Is tradeable:', tradeable);
       setAddTradePossible(tradeable);
       setInputTradeValue(_tokenValue);
       setInputTradeValue_(ethers.utils.formatUnits(_tokenValue, strategySeries.decimals));
@@ -149,48 +146,56 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
       );
 
       /* Check if buy and pool option is allowed */
-      const buyAndPoolAllowed = _fyTokenToBuy.gt(ethers.constants.Zero) && _fyTokenToBuy.lt(_maxFyTokenOut);
+      const buyAndPoolAllowed =
+        _fyTokenToBuy.gt(ethers.constants.Zero) &&
+        _fyTokenToBuy.lt(_maxFyTokenOut) &&
+        parseFloat(strategySeries.apr) > 0.25;
 
-      console.log('fTokenToBuy, maxFyTokenOut ', _fyTokenToBuy.toString(), _maxFyTokenOut);
       setCanBuyAndPool(buyAndPoolAllowed);
-      console.log('Can BuyAndPool?', buyAndPoolAllowed);
-      console.log('fTokenToBuy: ', _fyTokenToBuy.toString());
-      console.log('maxFyTokenOut: ', _maxFyTokenOut.toString());
+      diagnostics && console.log('Can BuyAndPool?', buyAndPoolAllowed);
+
     } else {
-      /* allowed by default */
+      /* Don't allow by default */
       setCanBuyAndPool(false);
     }
-  }, [_input, strategySeries, removeLiquidityView, slippageTolerance]);
+  }, [_input, strategySeries, removeLiquidityView, slippageTolerance, diagnostics]);
 
   /* SET MAX VALUES */
   useEffect(() => {
     if (activeAccount && !removeLiquidityView) {
       /* Checks asset selection and sets the max available value */
       (async () => {
-        const max = await strategyBase?.getBalance(activeAccount);
-        if (max) setMaxPool(ethers.utils.formatUnits(max, strategyBase?.decimals).toString());
+        const max = await selectedBase?.getBalance(activeAccount);
+        if (max) setMaxPool(ethers.utils.formatUnits(max, selectedBase?.decimals).toString());
       })();
     }
-  }, [input, activeAccount, strategyBase, removeLiquidityView]);
+  }, [input, activeAccount, removeLiquidityView, selectedBase]);
 
-  /**
-   * Remove liquidity specific section
-   * */
-
-  /* Check for any vaults with the same series/ilk/base */
+  /* Check for any vaults with the same series/ilk/base for REMOVING LIQUIDITY -> */
   useEffect(() => {
-    if (strategySeries && strategyBase && strategySeries && removeLiquidityView) {
+    if (strategySeries && strategyBase) {
       const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
-      const _matchingVault = arr.find(
-        (v: IVault) =>
-          v.ilkId === strategyBase.id && v.baseId === strategyBase.id && v.seriesId === strategySeries.id && v.isActive
-      );
+      const _matchingVault = arr
+        .sort((vaultA: IVault, vaultB: IVault) => (vaultA.id > vaultB.id ? 1 : -1))
+        .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1))
+        .find(
+          (v: IVault) =>
+            v.ilkId === strategyBase.id &&
+            v.baseId === strategyBase.id &&
+            v.seriesId === strategySeries.id &&
+            v.isActive
+        );
       setMatchingVault(_matchingVault);
-      console.log('Matching Vault:', _matchingVault?.id || 'No matching vault.');
+      diagnostics && console.log('Matching Vault:', _matchingVault?.id || 'No matching vault.');
     } else {
       setMatchingVault(undefined);
     }
-  }, [vaultMap, strategyBase, strategySeries, removeLiquidityView]);
+    
+  }, [vaultMap, strategy, strategyBase, strategySeries, removeLiquidityView, diagnostics]);
+
+  /**
+   * Remove Liquidity specific section
+   * */
 
   /* set max for removal with/without a vault  */
 
@@ -223,10 +228,25 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         strategySeries.totalSupply,
         strategySeries.getTimeTillMaturity(),
         strategySeries.decimals
-      )
+      );
       setRemoveTradePossible(sellTokenValue.gt(ethers.constants.Zero));
     }
   }, [_input, removeLiquidityView, strategy, strategySeries]);
+
+  /* For use when using force removal, to calculate how much will be received in base and fyToken */
+  useEffect(() => {
+    if (_input !== ethers.constants.Zero && strategySeries) {
+      const lpReceived = burnFromStrategy(strategy?.poolTotalSupply!, strategy?.strategyTotalSupply!, _input);
+      const [_forceBaseReceived, _forceFyTokenReceived] = burn(
+        strategySeries?.baseReserves!,
+        strategySeries?.fyTokenReserves!,
+        strategySeries?.totalSupply!,
+        lpReceived
+      );
+      setForceBaseReceived_(ethers.utils.formatUnits(_forceBaseReceived, strategySeries?.decimals));
+      setForceFyTokenReceived_(ethers.utils.formatUnits(_forceFyTokenReceived, strategySeries?.decimals));
+    }
+  }, [strategy, _input, strategySeries]);
 
   return {
     maxPool,
@@ -240,6 +260,8 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
 
     addTradePossible,
     removeTradePossible,
+    forceBaseReceived_,
+    forceFyTokenReceived_,
 
     inputTradeValue,
     inputTradeValue_,

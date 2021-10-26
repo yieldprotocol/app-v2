@@ -53,7 +53,8 @@ const Borrow = () => {
     chainState: { contractMap },
   } = useContext(ChainContext);
   const { userState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, assetMap, vaultMap, seriesMap, selectedSeriesId, selectedIlkId, selectedBaseId } = userState;
+  const { activeAccount, assetMap, vaultMap, seriesMap, selectedSeriesId, selectedIlkId, selectedBaseId, limitMap } =
+    userState;
 
   const selectedBase = assetMap.get(selectedBaseId!);
   const selectedIlk = assetMap.get(selectedIlkId!);
@@ -78,8 +79,14 @@ const Borrow = () => {
   const borrow = useBorrow();
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
 
-  const { collateralizationPercent, undercollateralized, minCollateral_, minSafeCollateral, maxCollateral } =
-    useCollateralHelpers(borrowInput, collatInput, vaultToUse);
+  const {
+    collateralizationPercent,
+    undercollateralized,
+    minCollateral,
+    minCollateral_,
+    minSafeCollateral,
+    maxCollateral,
+  } = useCollateralHelpers(borrowInput, collatInput, vaultToUse);
 
   const { maxAllowedBorrow, minAllowedBorrow, borrowPossible, borrowEstimate_ } = useBorrowHelpers(
     borrowInput,
@@ -127,8 +134,7 @@ const Borrow = () => {
     collatInputError ||
     selectedSeries?.seriesIsMature
       ? setBorrowDisabled(true)
-      : /* else if all pass, then unlock borrowing */
-        setBorrowDisabled(false);
+      : setBorrowDisabled(false); /* else if all pass, then unlock borrowing */
   }, [
     borrowInput,
     collatInput,
@@ -176,16 +182,10 @@ const Borrow = () => {
     }
   }, [vaultMap, selectedBase, selectedIlk, selectedSeries]);
 
-  /* reset the selected vault on every component change */
+  /* reset the selected vault, and get limits on every component change */
   useEffect(() => {
     setVaultToUse(undefined);
   }, [selectedIlk, selectedBase, selectedSeries]);
-
-  // // IS THIS VALUE IS ACTIUALLY JUST the fytoken value:
-  // const borrowOutput = cleanValue(
-  //   (Number(borrowInput) * (1 + Number(apr) / 100)).toString(),
-  //   selectedBase?.digitFormat!
-  // );
 
   useEffect(() => {
     if (
@@ -234,27 +234,33 @@ const Borrow = () => {
                         action={() => console.log('maxAction')}
                         isError={borrowInputError}
                         message={
-                          <>
-                            {borrowInput && !borrowPossible && selectedSeries && (
-                              <InputInfoWrap action={() => setBorrowInput(selectedSeries?.baseReserves_!)}>
-                                <Text size="xsmall" color="text-weak">
-                                  Max borrow is{' '}
+                          !mobile ? (
+                            <>
+                              {borrowInput && !borrowPossible && selectedSeries && (
+                                <InputInfoWrap action={() => setBorrowInput(selectedSeries?.baseReserves_!)}>
+                                  <Text size="xsmall" color="text-weak">
+                                    Max borrow is{' '}
+                                    <Text size="small" color="text-weak">
+                                      {cleanValue(selectedSeries?.baseReserves_!, 2)} {selectedBase?.symbol}
+                                    </Text>{' '}
+                                    (limited by protocol liquidity)
+                                  </Text>
+                                </InputInfoWrap>
+                              )}
+                              {borrowInput && borrowPossible && selectedSeries && (
+                                // minCollateral.gt(selectedSeries.) &&
+                                <InputInfoWrap>
                                   <Text size="small" color="text-weak">
-                                    {cleanValue(selectedSeries?.baseReserves_!, 2)} {selectedBase?.symbol}
-                                  </Text>{' '}
-                                  (limited by protocol liquidity)
-                                </Text>
-                              </InputInfoWrap>
-                            )}
-                            {borrowInput && borrowPossible && selectedSeries && (
-                              <InputInfoWrap>
-                                <Text size="small" color="text-weak">
-                                  Requires equivalent of {cleanValue(minCollateral_, selectedIlk?.digitFormat)}{' '}
-                                  {selectedIlk?.symbol} collateral
-                                </Text>
-                              </InputInfoWrap>
-                            )}
-                          </>
+                                    Requires equivalent of{' '}
+                                    {nFormatter(parseFloat(minCollateral_!), selectedIlk?.digitFormat!)}{' '}
+                                    {selectedIlk?.symbol} collateral
+                                  </Text>
+                                </InputInfoWrap>
+                              )}
+                            </>
+                          ) : (
+                            <></>
+                          )
                         }
                       >
                         <TextInput
@@ -386,7 +392,7 @@ const Borrow = () => {
             )}
 
             {stepPosition === 2 && ( // REVIEW
-              <Box gap={mobile ? 'medium' : 'large'}>
+              <Box gap='medium'>
                 <YieldCardHeader>
                   {borrowProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
                     <BackButton action={() => setStepPosition(1)} />
@@ -458,24 +464,24 @@ const Borrow = () => {
               />
             )}
 
-              {stepPosition === 2 && borrowProcess?.stage !== ProcessStage.PROCESS_COMPLETE && (
-                <TransactButton
-                  primary
-                  label={
-                    <Text size={mobile ? 'small' : undefined}>
-                      {!activeAccount
-                        ? 'Connect Wallet'
-                        : `Borrow${borrowProcess?.processActive ? `ing` : ''} ${
-                            nFormatter(Number(borrowInput), selectedBase?.digitFormat!) || ''
-                          } ${selectedBase?.symbol || ''}`}
-                    </Text>
-                  }
-                  onClick={() => handleBorrow()}
-                  disabled={borrowDisabled || borrowProcess?.processActive}
-                />
-              )}
+            {stepPosition === 2 && borrowProcess?.stage !== ProcessStage.PROCESS_COMPLETE && (
+              <TransactButton
+                primary
+                label={
+                  <Text size={mobile ? 'small' : undefined}>
+                    {!activeAccount
+                      ? 'Connect Wallet'
+                      : `Borrow${borrowProcess?.processActive ? `ing` : ''} ${
+                          nFormatter(Number(borrowInput), selectedBase?.digitFormat!) || ''
+                        } ${selectedBase?.symbol || ''}`}
+                  </Text>
+                }
+                onClick={() => handleBorrow()}
+                disabled={borrowDisabled || borrowProcess?.processActive}
+              />
+            )}
 
-              {stepPosition === 2 &&
+            {stepPosition === 2 &&
               borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
               borrowProcess?.tx.status === TxState.SUCCESSFUL && (
                 <NextButton
@@ -483,7 +489,7 @@ const Borrow = () => {
                   label={<Text size={mobile ? 'small' : undefined}>Borrow more</Text>}
                   onClick={() => resetInputs()}
                 />
-              )}      
+              )}
 
             {stepPosition === 2 &&
               borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE &&

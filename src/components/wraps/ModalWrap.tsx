@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { NavLink, useHistory } from 'react-router-dom';
 import styled from 'styled-components';
-import { Avatar, Box, Button, Grid, Header, Keyboard, Layer, ResponsiveContext, Text } from 'grommet';
+import { Avatar, Box, Button, Grid, Header, Keyboard, Layer, ResponsiveContext, Stack, Text } from 'grommet';
 
 import { FiLogOut } from 'react-icons/fi';
 import MainViewWrap from './MainViewWrap';

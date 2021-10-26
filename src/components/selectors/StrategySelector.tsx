@@ -61,30 +61,28 @@ function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelector
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const { userState, userActions } = useContext(UserContext);
-  const { selectedStrategyAddr, selectedBaseId, strategiesLoading, strategyMap, seriesMap } = userState;
+  const { selectedStrategyAddr, selectedBaseId, strategiesLoading, strategyMap, seriesMap, diagnostics } = userState;
 
   const [options, setOptions] = useState<IStrategy[]>([]);
 
   /* Keeping options/selection fresh and valid: */
   useEffect(() => {
     const opts = Array.from(strategyMap.values()) as IStrategy[];
-    const filteredOpts = 
-    opts
-    .filter((_st: IStrategy) => _st.baseId === selectedBaseId && !_st.currentSeries?.seriesIsMature)
-    .sort((a:IStrategy,b:IStrategy) => b.currentSeries?.maturity! - a.currentSeries?.maturity! )
-    ;
+    const filteredOpts = opts
+      .filter((_st: IStrategy) => _st.baseId === selectedBaseId && !_st.currentSeries?.seriesIsMature)
+      .sort((a: IStrategy, b: IStrategy) => a.currentSeries?.maturity! - b.currentSeries?.maturity!);
+
     // .filter((_st: IStrategy) => _st.currentSeries);
     setOptions(filteredOpts);
   }, [selectedBaseId, strategyMap]);
 
   const handleSelect = (_strategy: IStrategy) => {
     if (_strategy.active) {
-      console.log('Strategy selected: ', _strategy.address);
+      diagnostics && console.log('Strategy selected: ', _strategy.address);
       userActions.setSelectedStrategy(_strategy.address);
       userActions.setSelectedSeries(_strategy.currentSeries?.id);
     } else {
       toast.info('Strategy coming soon');
-      console.log('strategy not yet active');
     }
 
     mobile && setOpen(false);

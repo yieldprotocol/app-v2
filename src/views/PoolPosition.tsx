@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { Box, ResponsiveContext, Select, Text, TextInput } from 'grommet';
+import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import { ethers } from 'ethers';
 import { useHistory, useParams } from 'react-router-dom';
 import { FiArrowRight, FiPercent, FiSlash, FiTrendingUp } from 'react-icons/fi';
@@ -28,7 +28,7 @@ import CopyWrap from '../components/wraps/CopyWrap';
 import { useProcess } from '../hooks/useProcess';
 import { usePoolHelpers } from '../hooks/actionHelperHooks/usePoolHelpers';
 import InputInfoWrap from '../components/wraps/InputInfoWrap';
-import { ZERO_BN } from '../utils/constants';
+import ExitButton from '../components/buttons/ExitButton';
 
 const PoolPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -50,6 +50,8 @@ const PoolPosition = () => {
   const [maxRemove, setMaxRemove] = useState<string | undefined>();
   const [removeDisabled, setRemoveDisabled] = useState<boolean>(true);
 
+  const [forceRemove, setForceRemove] = useState<boolean>(false);
+
   // multi-tracking stepper
   const [actionActive, setActionActive] = useState<any>({ text: 'Close Position', index: 0 });
   const [stepPosition, setStepPosition] = useState<number[]>([0, 0, 0]);
@@ -62,6 +64,8 @@ const PoolPosition = () => {
     maxRemoveWithVault,
     maxRemoveNoVault,
     // addTradePossible,
+    forceBaseReceived_,
+    forceFyTokenReceived_,
     inputTradeValue,
     inputTradeValue_,
     removeTradePossible,
@@ -88,8 +92,7 @@ const PoolPosition = () => {
   };
 
   const handleRemove = () => {
-    // !removeDisabled &&
-    selectedSeries && removeLiquidity(removeInput!, selectedSeries, matchingVault);
+    selectedSeries && removeLiquidity(removeInput!, selectedSeries, matchingVault, !forceRemove); // !forceRemove => tradeFyToken
   };
 
   const resetInputs = (actionCode: ActionCodes) => {
@@ -108,8 +111,8 @@ const PoolPosition = () => {
 
   /* ACTION DISABLING LOGIC - if ANY conditions are met: block action */
   useEffect(() => {
-    !removeInput || removeError || !removeTradePossible ? setRemoveDisabled(true) : setRemoveDisabled(false);
-  }, [activeAccount, removeError, removeInput, removeTradePossible]);
+    !removeInput || removeError ? setRemoveDisabled(true) : setRemoveDisabled(false);
+  }, [activeAccount, forceRemove, removeError, removeInput]);
 
   useEffect(() => {
     !selectedStrategyAddr && idFromUrl && userActions.setSelectedStrategy(idFromUrl);
@@ -157,6 +160,7 @@ const PoolPosition = () => {
                       </CopyWrap>
                     </Box>
                   </Box>
+                  <ExitButton action={() => history.goBack()} />
                 </Box>
 
                 <SectionWrap>
@@ -208,7 +212,7 @@ const PoolPosition = () => {
                       plain
                       dropProps={{ round: 'xsmall' }}
                       options={[
-                        { text: 'Remove Liquidity', index: 0 },
+                        { text: 'Remove Liquidity Tokens', index: 0 },
                         { text: 'View Transaction History', index: 1 },
                         // { text: 'Roll Liquidity', index: 2 },
                       ]}
@@ -229,17 +233,6 @@ const PoolPosition = () => {
                           isError={removeError}
                           message={
                             <>
-                              {/* {!removeTradePossible &&
-                                !removeInput &&
-                                selectedStrategy?.accountBalance?.gt(ZERO_BN) &&
-                                !selectedSeries?.isMature() && (
-                                  <InputInfoWrap>
-                                    <Text color="text-weak" alignSelf="end" size="xsmall">
-                                      Pools aren't as healthy as they could be. Currently, not all of your liquidity
-                                      tokens are redeemable for the base.
-                                    </Text>
-                                  </InputInfoWrap>
-                                )} */}
                               {(!removeTradePossible &&
                                 removeInput &&
                                 selectedSeries &&
@@ -260,6 +253,17 @@ const PoolPosition = () => {
                                   </Text>
                                 </InputInfoWrap>
                               )}
+
+                              {removeInput && !removeTradePossible && !removeError && (
+                                <InputInfoWrap>
+                                  <Box gap="xsmall" pad={{ right: 'medium' }} justify="between">
+                                    <Text color="text-weak" alignSelf="end" size="xsmall">
+                                      Removing that amount of tokens and trading immediately for {selectedBase?.symbol}{' '}
+                                      is currently not possible due to liquidity limitations.
+                                    </Text>
+                                  </Box>
+                                </InputInfoWrap>
+                              )}
                             </>
                           }
                         >
@@ -271,15 +275,11 @@ const PoolPosition = () => {
                             onChange={(event: any) =>
                               setRemoveInput(cleanValue(event.target.value, selectedSeries?.decimals))
                             }
+                            icon={<YieldMark height="1em" colors={[selectedSeries?.startColor!]} />}
                           />
                           <MaxButton
                             action={() => setRemoveInput(maxRemove)}
-                            disabled={
-                              maxRemove === '0.0' ||
-                              !selectedSeries ||
-                              selectedSeries.seriesIsMature ||
-                              !removeTradePossible
-                            }
+                            disabled={maxRemove === '0.0' || !selectedSeries || selectedSeries.seriesIsMature}
                             clearAction={() => setRemoveInput('')}
                             showingMax={!!removeInput && removeInput === maxRemove}
                           />
@@ -294,9 +294,9 @@ const PoolPosition = () => {
                         cancelAction={() => resetInputs(ActionCodes.REMOVE_LIQUIDITY)}
                       >
                         <InfoBite
-                          label="Remove Liquidity"
+                          label="Remove Liquidity Tokens"
                           icon={<FiArrowRight />}
-                          value={`${cleanValue(removeInput, selectedBase?.digitFormat!)} liquidity tokens`}
+                          value={`${cleanValue(removeInput, selectedBase?.digitFormat!)} tokens`}
                         />
                       </ActiveTransaction>
                     )}
@@ -307,12 +307,32 @@ const PoolPosition = () => {
             </Box>
 
             <ActionButtonGroup pad>
+              {stepPosition[actionActive.index] === 0 && removeInput && !removeTradePossible && !removeError && (
+                <Box fill="horizontal" pad={{ vertical: 'small', horizontal: 'xsmall' }}>
+                  <CheckBox
+                    label={
+                      <Box>
+                        <Text size="xsmall">Force Removal: </Text>
+                        <Text size="xsmall">
+                          {`( You will receive `}
+                          {cleanValue(forceFyTokenReceived_, 2)} fy{selectedBase?.symbol}{' '}
+                          {parseFloat(forceFyTokenReceived_!) > 0 &&
+                            ` and ${cleanValue(forceBaseReceived_, 2)} ${selectedBase?.symbol} )`}
+                        </Text>
+                      </Box>
+                    }
+                    checked={forceRemove}
+                    onChange={() => setForceRemove(!forceRemove)}
+                  />
+                </Box>
+              )}
+
               {stepPosition[actionActive.index] === 0 && actionActive.index !== 1 && (
                 <NextButton
                   label={<Text size={mobile ? 'small' : undefined}>Next Step</Text>}
                   onClick={() => handleStepper()}
                   key="next"
-                  disabled={actionActive.index === 0 && removeDisabled}
+                  disabled={(actionActive.index === 0 && removeDisabled) || (!removeTradePossible && !forceRemove)}
                   errorLabel={actionActive.index === 0 && removeError}
                 />
               )}

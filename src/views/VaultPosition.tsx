@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
-import { Box, ResponsiveContext, Select, Text, TextInput } from 'grommet';
+import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 
 import { ethers } from 'ethers';
 
@@ -35,6 +35,7 @@ import { useBorrowHelpers } from '../hooks/actionHelperHooks/useBorrowHelpers';
 import InputInfoWrap from '../components/wraps/InputInfoWrap';
 import CopyWrap from '../components/wraps/CopyWrap';
 import { useProcess } from '../hooks/useProcess';
+import ExitButton from '../components/buttons/ExitButton';
 
 const VaultPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -93,8 +94,6 @@ const VaultPosition = () => {
     selectedVault && !selectedVault.isActive ? { index: 3 } : { index: 0 }
   );
 
-  const parsedInput = repayInput ? ethers.utils.parseUnits(repayInput, vaultBase?.decimals) : ethers.constants.Zero;
-
   /* HOOK FNS */
   const repay = useRepayDebt();
   const rollDebt = useRollDebt();
@@ -123,7 +122,7 @@ const VaultPosition = () => {
   const {
     maxRepay,
     maxRepay_,
-    maxRepayDustLimit,
+    minRepay_,
     protocolBaseAvailable,
     userBaseAvailable,
     maxRoll,
@@ -133,7 +132,7 @@ const VaultPosition = () => {
   } = useBorrowHelpers(undefined, undefined, selectedVault, rollToSeries);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries, [
-    maxRepayDustLimit, // this is the max pay to get to dust limit. note different logic in input validation hook.
+    minRepay_, // this is the max pay to get to dust limit. note different logic in input validation hook.
     maxRepay_,
   ]);
 
@@ -257,7 +256,7 @@ const VaultPosition = () => {
                       </CopyWrap>
                     </Box>
                   </Box>
-                  {/* <ExitButton action={() => history.goBack()} /> */}
+                  <ExitButton action={() => history.goBack()} />
                 </Box>
 
                 {selectedVault?.isActive && (
@@ -424,6 +423,22 @@ const VaultPosition = () => {
                           icon={<FiArrowRight />}
                           value={`${cleanValue(repayInput, vaultBase?.digitFormat!)} ${vaultBase?.symbol}`}
                         />
+
+                        {repayInput === maxDebt_ && (
+                          <Box fill="horizontal" align="end">
+                            <CheckBox
+                              reverse
+                              size={0.5}
+                              label={
+                                <Text size="xsmall" color="text-weak">
+                                  Remove collateral in the same transaction
+                                </Text>
+                              }
+                              checked={reclaimCollateral}
+                              onChange={() => setReclaimCollateral(!reclaimCollateral)}
+                            />
+                          </Box>
+                        )}
                       </ActiveTransaction>
                     )}
                   </>

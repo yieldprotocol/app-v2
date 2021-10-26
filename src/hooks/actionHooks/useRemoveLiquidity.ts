@@ -9,20 +9,39 @@ import { HistoryContext } from '../../contexts/HistoryContext';
 import { burn, burnFromStrategy, calcPoolRatios, sellFYToken } from '../../utils/yieldMath';
 import { ZERO_BN } from '../../utils/constants';
 
-export const usePool = (input: string | undefined) => {
-  const poolMax = input;
-  return { poolMax };
-};
+/*
+                                                                            +---------+
+                                                                       +--> |OPTION 2 |  ( unique call: SELL_FYTOKEN) 
+                                                                     Y |    +---------+
+                                                                       |
+                                 +------------------> sell Token supported
+                                 |Y                                    |
+                                 |                                   N |    +--------------------+
+               +------> FyTokenRecieved >= Debt                        +--->|OPTION 2 (no trade) | (unique call:  none of others ) 
+               |                 |                    +-----------+         +--------------------+
+               |Y                +------------------> | OPTION 1  |
+               |                  N                   +-----------+
+               |                                             ( unique call: CLOSE_FROM_LADLE)
+    +----> has Vault?
+    |N         |        +--------+
+    |          +------> |OPTION 4|. (unique call: BURN_FOR_BASE )
+is Mature?        N     +--------+
+    |
+    |
+    |Y         +-----------+
+    +--------->| OPTION 3  | (unique call: REDEEM )
+               +-----------+
+ */
 
-/* Hook for chain transactions */
 export const useRemoveLiquidity = () => {
   const {
     chainState: { contractMap },
   } = useContext(ChainContext);
   const ladleAddress = contractMap?.get('Ladle')?.address;
+  
+  const { vaultMap, userState, userActions } = useContext(UserContext);
+  const { activeAccount: account, assetMap, selectedStrategyAddr, strategyMap, diagnostics } = userState;
 
-  const { userState, userActions } = useContext(UserContext);
-  const { activeAccount: account, assetMap, selectedStrategyAddr, strategyMap } = userState;
   const { updateSeries, updateAssets, updateStrategies } = userActions;
   const { sign, transact } = useChain();
 
@@ -51,8 +70,9 @@ export const useRemoveLiquidity = () => {
 
     const matchingVaultId: string | undefined = matchingVault?.id;
     const matchingVaultDebt: BigNumber = matchingVault?.art || ZERO_BN;
-    // Choose use use matching vault or not : matchign vaults is undefined or debt less than required fyToken
-    const useMatchingVault: boolean = !!matchingVault && _fyTokenReceived.lte(matchingVaultDebt);
+    // Choose use use matching vault:
+    const useMatchingVault: boolean = !!matchingVault && matchingVaultDebt.gt(ethers.constants.Zero)
+    // const useMatchingVault: boolean = !!matchingVault && ( _fyTokenReceived.lte(matchingVaultDebt) || !tradeFyToken) ;
 
     const [minRatio, maxRatio] = calcPoolRatios(cachedBaseReserves, cachedRealReserves);
     const fyTokenReceivedGreaterThanDebt: boolean = _fyTokenReceived.gt(matchingVaultDebt);
@@ -63,18 +83,21 @@ export const useRemoveLiquidity = () => {
       series.getTimeTillMaturity(),
       series.decimals
     );
-    const fyTokenTradePossible = fyTokenTrade.gt(ethers.constants.Zero) && tradeFyToken;
+    /* if valid trade > 0 and user selected to tradeFyToken */
+    const doTrade = fyTokenTrade.gt(ethers.constants.Zero) && tradeFyToken;
 
-    console.log('Strategy: ', _strategy);
-    console.log('Vault to use for removal: ', matchingVaultId);
-    console.log(useMatchingVault);
-    console.log('input', _input.toString());
-    console.log('lpTokens recieved from strategy token burn:', lpReceived.toString());
-    console.log('fyToken recieved from lpTokenburn: ', _fyTokenReceived.toString());
-    console.log('Debt: ', matchingVaultDebt?.toString());
-    console.log('Is FyToken Recieved Greater Than Debt: ', fyTokenReceivedGreaterThanDebt);
-    console.log('Is FyToken tradable?: ', fyTokenTradePossible);
-    console.log('fyTokentrade value: ', fyTokenTrade);
+    /* Diagnostics */
+    diagnostics && console.log('Strategy: ', _strategy);
+    diagnostics && console.log('Vault to use for removal: ', matchingVaultId);
+    diagnostics && console.log( 'vaultDebt',matchingVaultDebt.toString() );
+    diagnostics && console.log(useMatchingVault);
+    diagnostics && console.log('input', _input.toString());
+    diagnostics && console.log('lpTokens recieved from strategy token burn:', lpReceived.toString());
+    diagnostics && console.log('fyToken recieved from lpTokenburn: ', _fyTokenReceived.toString());
+    diagnostics && console.log('Debt: ', matchingVaultDebt?.toString());
+    diagnostics && console.log('Is FyToken Recieved Greater Than Debt: ', fyTokenReceivedGreaterThanDebt);
+    diagnostics && console.log('Is FyToken tradable?: ', doTrade);
+    diagnostics && console.log('fyTokentrade value: ', fyTokenTrade);
 
     const permits: ICallData[] = await sign(
       [
@@ -132,7 +155,8 @@ export const useRemoveLiquidity = () => {
        *
        * */
 
-      /* OPTION 1. Remove liquidity and repay - BEFORE MATURITY  */ // If fytokenRecieved > debt
+      /* OPTION 1. Remove liquidity and repay - BEFORE MATURITY + VAULT + FYTOKEN>DEBT */
+
       // (ladle.transferAction(pool, pool, lpTokensBurnt),  ^^^^ DONE ABOVE^^^^)
       // ladle.routeAction(pool, ['burn', [ladle, ladle, minBaseReceived, minFYTokenReceived]),
       // ladle.repayFromLadleAction(vaultId, receiver),
@@ -142,20 +166,21 @@ export const useRemoveLiquidity = () => {
         args: [ladleAddress, ladleAddress, minRatio, maxRatio] as RoutedActions.Args.BURN_POOL_TOKENS,
         fnName: RoutedActions.Fn.BURN_POOL_TOKENS,
         targetContract: series.poolContract,
-        ignoreIf: !fyTokenReceivedGreaterThanDebt || series.seriesIsMature || !useMatchingVault,
+        ignoreIf: series.seriesIsMature || !fyTokenReceivedGreaterThanDebt ||  !useMatchingVault,
       },
       {
         operation: LadleActions.Fn.REPAY_FROM_LADLE,
         args: [matchingVaultId, account] as LadleActions.Args.REPAY_FROM_LADLE,
-        ignoreIf: !fyTokenReceivedGreaterThanDebt || series.seriesIsMature || !useMatchingVault,
+        ignoreIf: series.seriesIsMature || !fyTokenReceivedGreaterThanDebt || !useMatchingVault,
       },
       {
         operation: LadleActions.Fn.CLOSE_FROM_LADLE,
         args: [matchingVaultId, account] as LadleActions.Args.CLOSE_FROM_LADLE,
-        ignoreIf: !fyTokenReceivedGreaterThanDebt || series.seriesIsMature || !useMatchingVault,
+        ignoreIf: series.seriesIsMature || !fyTokenReceivedGreaterThanDebt || !useMatchingVault,
       },
 
-      /* OPTION 2.Remove liquidity, repay and sell - BEFORE MATURITY */
+      /* OPTION 2.Remove liquidity, repay and sell - BEFORE MATURITY  + VAULT + FYTOKEN<DEBT */
+
       // (ladle.transferAction(pool, pool, lpTokensBurnt),  ^^^^ DONE ABOVE^^^^)
       // ladle.routeAction(pool, ['burn', [receiver, ladle, 0, 0]),
       // ladle.repayFromLadleAction(vaultId, pool),
@@ -165,25 +190,26 @@ export const useRemoveLiquidity = () => {
         args: [account, ladleAddress, minRatio, maxRatio] as RoutedActions.Args.BURN_POOL_TOKENS,
         fnName: RoutedActions.Fn.BURN_POOL_TOKENS,
         targetContract: series.poolContract,
-        ignoreIf: fyTokenReceivedGreaterThanDebt || series.seriesIsMature || !useMatchingVault,
+        ignoreIf: series.seriesIsMature || fyTokenReceivedGreaterThanDebt || !useMatchingVault,
       },
       {
         operation: LadleActions.Fn.REPAY_FROM_LADLE,
         args: [
           matchingVaultId,
-          fyTokenTradePossible ? series.poolAddress : account,
+          doTrade ? series.poolAddress : account,
         ] as LadleActions.Args.REPAY_FROM_LADLE,
-        ignoreIf: fyTokenReceivedGreaterThanDebt || series.seriesIsMature || !useMatchingVault,
+        ignoreIf: series.seriesIsMature || fyTokenReceivedGreaterThanDebt || !useMatchingVault,
       },
       {
         operation: LadleActions.Fn.ROUTE,
         args: [account, ethers.constants.Zero] as RoutedActions.Args.SELL_FYTOKEN, // TODO slippage
         fnName: RoutedActions.Fn.SELL_FYTOKEN,
         targetContract: series.poolContract,
-        ignoreIf: !fyTokenTradePossible || fyTokenReceivedGreaterThanDebt || series.seriesIsMature || !useMatchingVault,
+        ignoreIf: series.seriesIsMature || !doTrade || fyTokenReceivedGreaterThanDebt || !useMatchingVault,
       },
 
-      /* OPTION 4. Remove Liquidity and sell  - BEFORE MATURITY */
+      /* OPTION 4. Remove Liquidity and sell  - BEFORE MATURITY +  NO VAULT */
+
       // (ladle.transferAction(pool, pool, lpTokensBurnt),  ^^^^ DONE ABOVE^^^^)
       // ladle.routeAction(pool, ['burnForBase', [receiver, minBaseReceived]),
       {
@@ -196,61 +222,28 @@ export const useRemoveLiquidity = () => {
 
       /**
        *
-       * AFTER MATURITY  ( DIRECT POOL REMOVES ONLY )
+       * AFTER MATURITY 
        *
        * */
 
       /* OPTION 3. remove Liquidity and redeem  - AFTER MATURITY */ // FIRST CHOICE after maturity
+
       // (ladle.transferAction(pool, pool, lpTokensBurnt),  ^^^^ DONE ABOVE^^^^)
       // ladle.routeAction(pool, ['burn', [receiver, fyToken, minBaseReceived, minFYTokenReceived]),
       // ladle.redeemAction(seriesId, receiver, 0),
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [account, series.fyTokenAddress, minRatio, maxRatio] as RoutedActions.Args.BURN_POOL_TOKENS, // TODO slippages
+        args: [account, series.fyTokenAddress, minRatio, maxRatio] as RoutedActions.Args.BURN_POOL_TOKENS,
         fnName: RoutedActions.Fn.BURN_POOL_TOKENS,
         targetContract: series.poolContract,
         ignoreIf: !series.seriesIsMature,
       },
       {
         operation: LadleActions.Fn.REDEEM,
-        args: [series.id, account, '0'] as LadleActions.Args.REDEEM, // TODO slippage
+        args: [series.id, account, '0'] as LadleActions.Args.REDEEM,
         ignoreIf: !series.seriesIsMature,
       },
 
-      /* OPTION 5. NOT USED FOR NOW  remove Liquidity, redeem and Close - AFTER MATURITY */
-      // (ladle.transferAction(pool, pool, lpTokensBurnt),  ^^^^ DONE ABOVE^^^^)
-      // ladle.routeAction(pool, ['burn', [ladle, fyToken, minBaseReceived, minFYTokenReceived]),
-      // ladle.redeemAction(seriesId, ladle, 0),
-      // ladle.closeFromLadleAction(vaultId, receiver),
-      {
-        operation: LadleActions.Fn.ROUTE,
-        args: [
-          ladleAddress,
-          series.fyTokenAddress,
-          ethers.constants.Zero,
-          ethers.constants.Zero,
-        ] as RoutedActions.Args.BURN_POOL_TOKENS,
-        fnName: RoutedActions.Fn.BURN_POOL_TOKENS,
-        targetContract: series.poolContract,
-        ignoreIf: true || _strategy || !series.seriesIsMature,
-      },
-      {
-        operation: LadleActions.Fn.ROUTE,
-        args: [account, minRatio, maxRatio] as RoutedActions.Args.BURN_FOR_BASE,
-        fnName: RoutedActions.Fn.BURN_FOR_BASE,
-        targetContract: series.poolContract,
-        ignoreIf: true || _strategy || !series.seriesIsMature,
-      },
-      {
-        operation: LadleActions.Fn.REDEEM,
-        args: [series.id, ladleAddress, '0'] as LadleActions.Args.REDEEM,
-        ignoreIf: true || _strategy || !series.seriesIsMature,
-      },
-      {
-        operation: LadleActions.Fn.CLOSE_FROM_LADLE,
-        args: [matchingVaultId, account] as LadleActions.Args.CLOSE_FROM_LADLE,
-        ignoreIf: true || _strategy || !series.seriesIsMature,
-      },
     ];
 
     await transact(calls, txCode);

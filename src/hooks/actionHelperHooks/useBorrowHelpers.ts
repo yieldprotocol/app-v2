@@ -25,6 +25,7 @@ export const useBorrowHelpers = (
       limitMap,
       priceMap,
       selectedSeriesId,
+      diagnostics
     },
     userActions: { updateLimit },
   } = useContext(UserContext);
@@ -42,7 +43,9 @@ export const useBorrowHelpers = (
 
   const [maxRepay, setMaxRepay] = useState<BigNumber>(ethers.constants.Zero);
   const [maxRepay_, setMaxRepay_] = useState<string | undefined>();
-  const [maxRepayDustLimit, setMaxRepayDustLimit] = useState<string | undefined>();
+
+  const [minRepay, setMinRepay] = useState<BigNumber>(ethers.constants.Zero);
+  const [minRepay_, setMinRepay_] = useState<string | undefined>();
 
   const [maxRoll, setMaxRoll] = useState<BigNumber>(ethers.constants.Zero);
   const [maxRoll_, setMaxRoll_] = useState<string | undefined>();
@@ -58,10 +61,10 @@ export const useBorrowHelpers = (
   useEffect(() => {
     if (limitMap.get(selectedBaseId)?.has(selectedIlkId!)) {
       const _limit = limitMap.get(selectedBaseId).get(selectedIlkId); // get the limit from the map
-      console.log('limit', _limit);
+      diagnostics && console.log('limit', _limit);
       _limit[1] && setMinAllowedBorrow(_limit[1].toString());
       _limit[0] && setMaxAllowedBorrow(_limit[0].toString());
-      console.log(
+      diagnostics && console.log(
         'Cached:',
         'MIN LIMIT:',
         _limit[1] && _limit[1].toString(),
@@ -75,11 +78,11 @@ export const useBorrowHelpers = (
           const _limit = await updateLimit(selectedBaseId, selectedIlkId);
           setMinAllowedBorrow(_limit[1].toString());
           setMaxAllowedBorrow(_limit[0].toString());
-          console.log('External call:', 'MIN LIMIT:', _limit[1].toString(), 'MAX LIMIT:', _limit[0].toString());
+          diagnostics && console.log('External call:', 'MIN LIMIT:', _limit[1].toString(), 'MAX LIMIT:', _limit[0].toString());
         }
       })();
     }
-  }, [limitMap, selectedBaseId, selectedIlkId, updateLimit]);
+  }, [limitMap, selectedBaseId, selectedIlkId, updateLimit, diagnostics ]);
 
   /* check if the user can borrow the specified amount based on protocol base reserves */
   useEffect(() => {
@@ -129,11 +132,11 @@ export const useBorrowHelpers = (
 
       const price = priceMap?.get(vault.ilkId)?.get(vault.baseId);
       const minCollat = calculateMinCollateral(price, newDebt, undefined, undefined, true);
-      console.log('min Collat', minCollat.toString());
+      diagnostics && console.log('min Collat', minCollat.toString());
 
       const rollable = vault.art.lt(_maxFyTokenIn) && vault.ink.gt(minCollat);
 
-      console.log('Roll possible: ', rollable);
+      diagnostics &&  console.log('Roll possible: ', rollable);
       setRollPossible(rollable);
 
       if (vault.art?.lt(_maxFyTokenIn)) {
@@ -141,7 +144,7 @@ export const useBorrowHelpers = (
         setMaxRoll_(ethers.utils.formatUnits(vault.art, futureSeries.decimals).toString());
       }
     }
-  }, [futureSeries, priceMap, vault]);
+  }, [futureSeries, priceMap, vault, diagnostics]);
 
   /* Update the min max repayable amounts */
   useEffect(() => {
@@ -156,16 +159,18 @@ export const useBorrowHelpers = (
 
         /* max user is either the max tokens they have or max debt */
         const _maxUser = _maxToken && _maxDebt?.gt(_maxToken) ? _maxToken : _maxDebt;
-        const _maxDust = _maxUser.sub(minDebt);
+        const _maxToDust = _maxUser.sub(minDebt);
         const _maxBaseIn = maxBaseIn(
-          vaultSeries.baseReserves,
-          vaultSeries.fyTokenReserves,
-          vaultSeries.getTimeTillMaturity(),
-          vaultSeries.decimals
+          vaultSeries?.baseReserves,
+          vaultSeries?.fyTokenReserves,
+          vaultSeries?.getTimeTillMaturity(),
+          vaultSeries?.decimals
         );
 
         /* set the dust limit */
-        _maxDust && setMaxRepayDustLimit(ethers.utils.formatUnits(_maxDust, vaultBase?.decimals)?.toString());
+        _maxToDust && setMinRepay(_maxToDust);
+        _maxToDust && setMinRepay_(ethers.utils.formatUnits(_maxToDust, vaultBase?.decimals)?.toString());
+        
         _maxBaseIn && setProtocolBaseAvailable(_maxBaseIn);
 
         /* set the maxBase available for both user and protocol */
@@ -197,11 +202,12 @@ export const useBorrowHelpers = (
     maxRepay_,
     maxRepay,
 
+    minRepay,
+    minRepay_,
+
     maxRoll,
     maxRoll_,
     rollPossible,
-
-    maxRepayDustLimit,
 
     userBaseAvailable,
     protocolBaseAvailable,

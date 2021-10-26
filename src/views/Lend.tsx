@@ -131,7 +131,7 @@ const Lend = () => {
                         isError={lendError}
                         disabled={selectedSeries?.seriesIsMature}
                         message={
-                          selectedSeries && userBaseAvailable.gt(protocolBaseIn) ? (
+                          selectedSeries && userBaseAvailable.gt(protocolBaseIn) && !mobile ? (
                             <InputInfoWrap action={() => setLendInput(maxLend_)}>
                               <Text size="xsmall" color="text-weak">
                                 Max lend is{' '}
@@ -193,7 +193,7 @@ const Lend = () => {
           )}
 
           {stepPosition === 1 && (
-            <Box gap={mobile ? 'medium' : 'large'}>
+            <Box gap='medium'>
               <YieldCardHeader>
                 {lendProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
                   <BackButton action={() => setStepPosition(0)} />

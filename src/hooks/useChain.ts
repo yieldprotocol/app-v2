@@ -1,6 +1,7 @@
 import { BigNumber, Contract, ethers, PayableOverrides } from 'ethers';
 import { signDaiPermit, signERC2612Permit } from 'eth-permit';
 import { useContext } from 'react';
+import { toast } from 'react-toastify';
 import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
 import { MAX_256, NON_PERMIT_ASSETS } from '../utils/constants';
@@ -72,6 +73,7 @@ export const useChain = () => {
       gasEst = BigNumber.from('300000');
       console.log('Failed to get gas estimate', e);
       // throw( Error('Transaction will always revert.'));
+      toast.warning('It appears the transaction will likely fail. Proceed with caution...');
     }
     console.log('Auto gas estimate:', gasEst.mul(120).div(100).toString());
 

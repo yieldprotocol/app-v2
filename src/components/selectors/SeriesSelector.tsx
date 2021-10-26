@@ -97,10 +97,10 @@ const AprText = ({
     series.decimals
   );
 
-  // console.log( series.id, ' maxbaseIn', baseIn.toString() )
-  // console.log( series.id, ' maxbaseOut', baseOut.toString() )
-  // console.log( series.id, ' tokenIn', tokenIn.toString() )
-  // console.log( series.id, ' tokenOut', tokenOut.toString() )
+  // diagnostics && console.log( series.id, ' maxbaseIn', baseIn.toString() )
+  // diagnostics && console.log( series.id, ' maxbaseOut', baseOut.toString() )
+  // diagnostics && console.log( series.id, ' tokenIn', tokenIn.toString() )
+  // diagnostics && console.log( series.id, ' tokenOut', tokenOut.toString() )
 
   useEffect(() => {
     if (!series?.seriesIsMature && _inputValue)
@@ -170,12 +170,12 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
   };
 
   const optionExtended = (_series: ISeries | undefined) => (
-    <Box fill="horizontal" direction="row" justify="between" gap="small">
-      <Box align="center">{_series?.seriesMark} </Box>
+    <Box fill="horizontal" direction="row" justify="between" gap="small" align="center">
+      <Box align="center">{_series?.seriesMark}</Box>
       {optionText(_series)}
       {_series?.seriesIsMature && (
         <Box round="large" border pad={{ horizontal: 'small' }}>
-          <Text size="xsmall"> Mature </Text>
+          <Text size="xsmall">Mature</Text>
         </Box>
       )}
       {_series && actionType !== 'POOL' && (
@@ -257,7 +257,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
             // eslint-disable-next-line react/no-children-prop
             children={(x: any) => (
               <Box pad={mobile ? 'medium' : 'small'} gap="small" direction="row">
-                <Text color="text"> {optionExtended(x)}</Text>
+                <Text color="text">{optionExtended(x)}</Text>
               </Box>
             )}
           />

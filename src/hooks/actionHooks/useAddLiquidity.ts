@@ -10,35 +10,37 @@ import {
   IAsset,
   IStrategy,
   AddLiquidityType,
+  IVault,
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { BLANK_VAULT } from '../../utils/constants';
 import { useChain } from '../useChain';
 
 import { calcPoolRatios, calculateSlippage, fyTokenForMint, splitLiquidity } from '../../utils/yieldMath';
-import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
 
-/* Hook for chain transactions */
 export const useAddLiquidity = () => {
-  const {
-    chainState: { strategyRootMap },
-  } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
-  const { activeAccount: account, assetMap, seriesMap, slippageTolerance } = userState;
-  const { updateSeries, updateAssets, updateStrategies } = userActions;
-  const { sign, transact } = useChain();
 
+  const { activeAccount: account, assetMap, seriesMap, slippageTolerance, diagnostics } = userState;
+  const { updateVaults, updateSeries, updateAssets, updateStrategies } = userActions;
+
+  const { sign, transact } = useChain();
   const {
     historyActions: { updateStrategyHistory },
   } = useContext(HistoryContext);
 
-  const addLiquidity = async (input: string, strategy: IStrategy, method: AddLiquidityType = AddLiquidityType.BUY) => {
-    // const ladleAddress = contractMap.get('Ladle').address;
+  const addLiquidity = async (
+    input: string,
+    strategy: IStrategy,
+    method: AddLiquidityType = AddLiquidityType.BUY,
+    matchingVault: IVault | undefined = undefined
+  ) => {
     const txCode = getTxCode(ActionCodes.ADD_LIQUIDITY, strategy.id);
     const series: ISeries = seriesMap.get(strategy.currentSeriesId);
     const base: IAsset = assetMap.get(series.baseId);
 
+    const matchingVaultId: string | undefined = matchingVault ? matchingVault.id : undefined;
     const cleanInput = cleanValue(input, base.decimals);
 
     const _input = ethers.utils.parseUnits(cleanInput, base.decimals);
@@ -54,10 +56,10 @@ export const useAddLiquidity = () => {
       _inputLessSlippage,
       series.getTimeTillMaturity(),
       series.decimals,
-      slippageTolerance,
+      slippageTolerance
     );
 
-    const [minRatio, maxRatio] = calcPoolRatios(cachedBaseReserves, cachedRealReserves,);
+    const [minRatio, maxRatio] = calcPoolRatios(cachedBaseReserves, cachedRealReserves);
 
     const [_baseToPool, _baseToFyToken] = splitLiquidity(
       cachedBaseReserves,
@@ -68,7 +70,8 @@ export const useAddLiquidity = () => {
 
     const _baseToPoolWithSlippage = BigNumber.from(calculateSlippage(_baseToPool, slippageTolerance));
 
-    console.log(
+    /* DIAGNOSITCS */
+    diagnostics && console.log(
       'input: ',
       _input.toString(),
       'inputLessSlippage: ',
@@ -91,18 +94,26 @@ export const useAddLiquidity = () => {
       maxRatio.toString()
     );
 
+    console.log('in usePool', matchingVaultId); 
+
+    /**
+     * GET SIGNTURE/APPROVAL DATA
+     * */
     const permits: ICallData[] = await sign(
       [
         {
           target: base,
           spender: 'LADLE',
           amount: _input,
-          ignoreIf: false,
+          ignoreIf: false, // never ignore
         },
       ],
       txCode
     );
 
+    /**
+     * BUILD CALL DATA ARRAY
+     * */
     const calls: ICallData[] = [
       ...permits,
       /**
@@ -111,20 +122,20 @@ export const useAddLiquidity = () => {
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [base.address, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
-        ignoreIf: method !== AddLiquidityType.BUY,
+        ignoreIf: method !== AddLiquidityType.BUY, // ingore if not BUY and POOL
       },
       {
         operation: LadleActions.Fn.ROUTE,
         args: [
           strategy.id || account, // receiver is _strategyAddress (if it exists) or else account
-          account, // check with @alberto
+          account,
           _fyTokenToBeMinted,
           minRatio,
           maxRatio,
         ] as RoutedActions.Args.MINT_WITH_BASE,
         fnName: RoutedActions.Fn.MINT_WITH_BASE,
         targetContract: series.poolContract,
-        ignoreIf: method !== AddLiquidityType.BUY,
+        ignoreIf: method !== AddLiquidityType.BUY, // ingore if not BUY and POOL
       },
 
       /**
@@ -133,7 +144,7 @@ export const useAddLiquidity = () => {
       {
         operation: LadleActions.Fn.BUILD,
         args: [series.id, base.id, '0'] as LadleActions.Args.BUILD,
-        ignoreIf: method !== AddLiquidityType.BORROW,
+        ignoreIf: !!matchingVaultId && method !== AddLiquidityType.BORROW, // ingore if not BORROW and POOL
       },
       {
         operation: LadleActions.Fn.TRANSFER,
@@ -147,7 +158,12 @@ export const useAddLiquidity = () => {
       },
       {
         operation: LadleActions.Fn.POUR,
-        args: [BLANK_VAULT, series.poolAddress, _baseToFyToken, _baseToFyToken] as LadleActions.Args.POUR,
+        args: [
+          matchingVaultId || BLANK_VAULT,
+          series.poolAddress,
+          _baseToFyToken,
+          _baseToFyToken,
+        ] as LadleActions.Args.POUR,
         ignoreIf: method !== AddLiquidityType.BORROW,
       },
       {
@@ -158,7 +174,13 @@ export const useAddLiquidity = () => {
         ignoreIf: method !== AddLiquidityType.BORROW,
       },
 
-      // /* STRATEGY TOKEN MINTING  (for all AddLiquididy recipes that use strategy > if strategy address is provided, and is found in the strategyMap, use that address */
+      /**
+       *
+       * STRATEGY TOKEN MINTING
+       * (for all AddLiquididy recipes that use strategy >
+       *  if strategy address is provided, and is found in the strategyMap, use that address
+       *
+       * */
       {
         operation: LadleActions.Fn.ROUTE,
         args: [account] as RoutedActions.Args.MINT_STRATEGY_TOKENS,
@@ -171,8 +193,9 @@ export const useAddLiquidity = () => {
     await transact(calls, txCode);
     updateSeries([series]);
     updateAssets([base]);
-    updateStrategies([strategyRootMap.get(strategy.id)]);
-    updateStrategyHistory([strategyRootMap.get(strategy.id)]);
+    updateStrategies([strategy]);
+    updateStrategyHistory([strategy]);
+    updateVaults([]);
   };
 
   return addLiquidity;
