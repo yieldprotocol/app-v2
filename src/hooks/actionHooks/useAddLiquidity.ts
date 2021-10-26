@@ -38,8 +38,7 @@ export const useAddLiquidity = () => {
     const series: ISeries = seriesMap.get(strategy.currentSeriesId);
     const base: IAsset = assetMap.get(series.baseId);
 
-    const matchingVaultId: string | undefined = matchingVault?.id;
-
+    const matchingVaultId: string | undefined = matchingVault ? matchingVault.id : undefined;
     const cleanInput = cleanValue(input, base.decimals);
 
     const _input = ethers.utils.parseUnits(cleanInput, base.decimals);
@@ -141,7 +140,7 @@ export const useAddLiquidity = () => {
       {
         operation: LadleActions.Fn.BUILD,
         args: [series.id, base.id, '0'] as LadleActions.Args.BUILD,
-        ignoreIf: method !== AddLiquidityType.BORROW, // ingore if not BORROW and POOL
+        ignoreIf: !!matchingVaultId && method !== AddLiquidityType.BORROW, // ingore if not BORROW and POOL
       },
       {
         operation: LadleActions.Fn.TRANSFER,
@@ -155,7 +154,12 @@ export const useAddLiquidity = () => {
       },
       {
         operation: LadleActions.Fn.POUR,
-        args: [BLANK_VAULT, series.poolAddress, _baseToFyToken, _baseToFyToken] as LadleActions.Args.POUR,
+        args: [
+          matchingVaultId || BLANK_VAULT,
+          series.poolAddress,
+          _baseToFyToken,
+          _baseToFyToken,
+        ] as LadleActions.Args.POUR,
         ignoreIf: method !== AddLiquidityType.BORROW,
       },
       {
