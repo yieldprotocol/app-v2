@@ -85,17 +85,18 @@ export const useRemoveLiquidity = () => {
     /* if valid trade > 0 and user selected to tradeFyToken */
     const doTrade = fyTokenTrade.gt(ethers.constants.Zero) && tradeFyToken;
 
-    // /* Diagnostics */
-    // console.log('Strategy: ', _strategy);
-    // console.log('Vault to use for removal: ', matchingVaultId);
-    // console.log(useMatchingVault);
-    // console.log('input', _input.toString());
-    // console.log('lpTokens recieved from strategy token burn:', lpReceived.toString());
-    // console.log('fyToken recieved from lpTokenburn: ', _fyTokenReceived.toString());
-    // console.log('Debt: ', matchingVaultDebt?.toString());
-    // console.log('Is FyToken Recieved Greater Than Debt: ', fyTokenReceivedGreaterThanDebt);
-    // console.log('Is FyToken tradable?: ', fyTokenTradePossible);
-    // console.log('fyTokentrade value: ', fyTokenTrade);
+    /* Diagnostics */
+    console.log('Strategy: ', _strategy);
+    console.log('Vault to use for removal: ', matchingVaultId);
+    console.log( 'vaultDebt',matchingVaultDebt.toString() );
+    console.log(useMatchingVault);
+    console.log('input', _input.toString());
+    console.log('lpTokens recieved from strategy token burn:', lpReceived.toString());
+    console.log('fyToken recieved from lpTokenburn: ', _fyTokenReceived.toString());
+    console.log('Debt: ', matchingVaultDebt?.toString());
+    console.log('Is FyToken Recieved Greater Than Debt: ', fyTokenReceivedGreaterThanDebt);
+    console.log('Is FyToken tradable?: ', doTrade);
+    console.log('fyTokentrade value: ', fyTokenTrade);
 
     const permits: ICallData[] = await sign(
       [
