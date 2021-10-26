@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Box, RadioButtonGroup, ResponsiveContext, Text, TextInput, Tip } from 'grommet';
+import { Box, RadioButtonGroup, ResponsiveContext, Text, TextInput, CheckBox } from 'grommet';
 import { FiPercent } from 'react-icons/fi';
 import { BiMessageSquareAdd } from 'react-icons/bi';
 import { MdAutorenew } from 'react-icons/md';
@@ -32,6 +32,7 @@ import { useProcess } from '../hooks/useProcess';
 import StrategyItem from '../components/positionItems/StrategyItem';
 import DashMobileButton from '../components/buttons/DashMobileButton';
 import SeriesOrStrategySelectorModal from '../components/selectors/SeriesOrStrategySelectorModal';
+import InputInfoWrap from '../components/wraps/InputInfoWrap';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -50,9 +51,11 @@ function Pool() {
   const [stepPosition, setStepPosition] = useState<number>(0);
   const [stepDisabled, setStepDisabled] = useState<boolean>(true);
 
+  const [disclaimerChecked, setDisclaimerChecked] = useState<boolean>(false);
+
   /* HOOK FNS */
   const addLiquidity = useAddLiquidity();
-  const { maxPool, poolPercentPreview, canBuyAndPool } = usePoolHelpers(poolInput);
+  const { maxPool, poolPercentPreview, canBuyAndPool, matchingVault } = usePoolHelpers(poolInput);
 
   /* input validation hooks */
   const { inputError: poolError } = useInputValidation(
@@ -66,9 +69,10 @@ function Pool() {
 
   /* LOCAL ACTION FNS */
   const handleAdd = () => {
-    diagnostics && console.log('POOLING METHOD: ', poolMethod);
+
+    console.log('POOLING METHOD: ', poolMethod, 'Matching vault', matchingVault?.id);
     const _method = !canBuyAndPool ? AddLiquidityType.BORROW : poolMethod; // double check
-    selectedStrategy && addLiquidity(poolInput!, selectedStrategy, _method);
+    selectedStrategy && addLiquidity(poolInput!, selectedStrategy, _method, matchingVault);
   };
 
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
@@ -123,11 +127,21 @@ function Pool() {
                 <SectionWrap>
                   <Box direction="row-responsive" gap="small">
                     <Box basis={mobile ? '50%' : '60%'}>
-                      <InputWrap action={() => console.log('maxAction')} isError={poolError}>
+                      <InputWrap 
+                        action={() => console.log('maxAction')} 
+                        isError={poolError}
+                        // message={ poolInput &&
+                        //   <InputInfoWrap>
+                        //   <Text size="small" color="text-weak">
+                        //     The actual amount used to pool may be less.
+                        //   </Text>
+                        // </InputInfoWrap>
+                        // }
+                        >
                         <TextInput
                           plain
                           type="number"
-                          placeholder="Enter amount"
+                          placeholder="Enter Amount"
                           value={poolInput || ''}
                           onChange={(event: any) =>
                             setPoolInput(cleanValue(event.target.value, selectedBase?.decimals))
@@ -169,7 +183,7 @@ function Pool() {
           )}
 
           {stepPosition === 1 && (
-            <Box gap="large">
+            <Box gap="medium">
               <YieldCardHeader>
                 {poolProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
                   <BackButton action={() => setStepPosition(0)} />
@@ -188,7 +202,7 @@ function Pool() {
                       animation={{ type: 'zoomIn', size: 'small' }}
                     >
                       <InfoBite
-                        label="Amount to pool"
+                        label="Maximum Amount to Pool"
                         icon={<BiMessageSquareAdd />}
                         value={`${cleanValue(poolInput, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
                       />
@@ -231,6 +245,21 @@ function Pool() {
           )}
 
           {stepPosition === 1 &&
+            !poolProcess?.processActive &&
+          <CheckBox
+            pad={{vertical:'small'}}
+            label={
+              <Text size="xsmall">
+                I understand that providing liquidity into Yield Protocol may result in impermanent loss, result in the
+                payment of fees, and that under certain conditions I may not be able to withdraw all liquidity on
+                demand.
+              </Text>
+            }
+            checked={disclaimerChecked}
+            onChange={()=> setDisclaimerChecked(!disclaimerChecked)}
+          />}   
+
+          {stepPosition === 1 &&
             poolProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
             poolProcess?.tx.status === TxState.SUCCESSFUL && (
               <Box pad="large" gap="small">
@@ -241,12 +270,13 @@ function Pool() {
         </Box>
 
         <ActionButtonGroup pad>
+
           {stepPosition !== 1 && (
             <NextButton
               secondary
               label={<Text size={mobile ? 'small' : undefined}>Next Step</Text>}
               onClick={() => setStepPosition(stepPosition + 1)}
-              disabled={stepDisabled}
+              disabled={stepDisabled || !selectedStrategy}
               errorLabel={poolError}
             />
           )}
@@ -265,7 +295,7 @@ function Pool() {
                 )
               }
               onClick={() => handleAdd()}
-              disabled={poolDisabled || poolProcess?.processActive}
+              disabled={poolDisabled || poolProcess?.processActive || !disclaimerChecked}
             />
           )}
 

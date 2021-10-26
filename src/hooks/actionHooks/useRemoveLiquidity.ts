@@ -41,6 +41,7 @@ export const useRemoveLiquidity = () => {
   
   const { vaultMap, userState, userActions } = useContext(UserContext);
   const { activeAccount: account, assetMap, selectedStrategyAddr, strategyMap, diagnostics } = userState;
+
   const { updateSeries, updateAssets, updateStrategies } = userActions;
   const { sign, transact } = useChain();
 

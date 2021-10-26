@@ -171,30 +171,31 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
     }
   }, [input, activeAccount, removeLiquidityView, selectedBase]);
 
-  /**
-   * Remove liquidity specific section
-   * */
-
-  /* Check for any vaults with the same series/ilk/base for REMOVEING LIQUIDITY -> temporary */ // TODO remove when vaults have been deleted
+  /* Check for any vaults with the same series/ilk/base for REMOVING LIQUIDITY -> */
   useEffect(() => {
-    if (strategySeries && strategyBase && strategySeries && removeLiquidityView) {
+    if (strategySeries && strategyBase) {
       const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
       const _matchingVault = arr
-      .sort((a: IVault, b:IVault) =>  (b.art!).gt(a.art!)? -1:1 )
-      .find(
-        (v: IVault) =>
-          v.ilkId === strategyBase.id &&
-          v.baseId === strategyBase.id &&
-          v.seriesId === strategySeries.id &&
-          v.art.gt(ethers.constants.Zero) &&
-          v.isActive
-      );
+        .sort((vaultA: IVault, vaultB: IVault) => (vaultA.id > vaultB.id ? 1 : -1))
+        .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1))
+        .find(
+          (v: IVault) =>
+            v.ilkId === strategyBase.id &&
+            v.baseId === strategyBase.id &&
+            v.seriesId === strategySeries.id &&
+            v.isActive
+        );
       setMatchingVault(_matchingVault);
       diagnostics && console.log('Matching Vault:', _matchingVault?.id || 'No matching vault.');
     } else {
       setMatchingVault(undefined);
     }
-  }, [vaultMap, strategyBase, strategySeries, removeLiquidityView, diagnostics ]);
+    
+  }, [vaultMap, strategy, strategyBase, strategySeries, removeLiquidityView, diagnostics]);
+
+  /**
+   * Remove Liquidity specific section
+   * */
 
   /* set max for removal with/without a vault  */
 
