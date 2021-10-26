@@ -53,19 +53,13 @@ const YieldNavigation = ({ callbackFn }: IYieldNavigation) => {
     color: `${textColor}`,
   } as CSSProperties;
 
-  const linksArr = account
-    ? [
+  const linksArr = [
         { label: 'BORROW', to: '/borrow' },
         { label: 'LEND', to: '/lend' },
         { label: 'POOL', to: '/pool' },
-        { label: 'DASHBOARD', to: '/dashboard' },
+        { label: 'DASHBOARD', to: '/dashboard', disabled: !account },
         // { label: 'Markets', to: '/markets' },
       ]
-    : [
-        { label: 'BORROW', to: '/borrow' },
-        { label: 'LEND', to: '/lend' },
-        { label: 'POOL', to: '/pool' },
-      ];
 
   return (
     <Box direction={mobile ? 'column' : 'row'} gap="medium" align="center" justify="center" fill={mobile}>
