@@ -257,24 +257,8 @@ const PoolPosition = () => {
                                   <Box gap="xsmall" pad={{ right: 'medium' }} justify="between">
                                     <Text color="text-weak" alignSelf="end" size="xsmall">
                                       Removing that amount of tokens and trading immediately for {selectedBase?.symbol}{' '}
-                                      is currently not possible.
+                                      is currently not possible due to liquidity limitations.
                                     </Text>
-                                    <CheckBox
-                                      reverse
-                                      label={
-                                        <Text size="xsmall">
-                                          Force Removal (receive{' '}
-                                          {cleanValue(forceFyTokenReceived_, selectedBase?.digitFormat)} fy
-                                          {selectedBase?.symbol}{' '}
-                                          {parseFloat(forceFyTokenReceived_!) > 0 &&
-                                            ` and ${cleanValue(forceBaseReceived_, selectedBase?.digitFormat)} ${
-                                              selectedBase?.symbol
-                                            }`}
-                                        </Text>
-                                      }
-                                      checked={forceRemove}
-                                      onChange={() => setForceRemove(!forceRemove)}
-                                    />
                                   </Box>
                                 </InputInfoWrap>
                               )}
@@ -289,6 +273,7 @@ const PoolPosition = () => {
                             onChange={(event: any) =>
                               setRemoveInput(cleanValue(event.target.value, selectedSeries?.decimals))
                             }
+                            icon={<YieldMark height="1em" colors={[selectedSeries?.startColor!]} />}
                           />
                           <MaxButton
                             action={() => setRemoveInput(maxRemove)}
@@ -320,6 +305,26 @@ const PoolPosition = () => {
             </Box>
 
             <ActionButtonGroup pad>
+              {stepPosition[actionActive.index] === 0 && removeInput && !removeTradePossible && !removeError && (
+                <Box fill="horizontal" pad={{ vertical: 'small', horizontal:'xsmall' }}>
+                  <CheckBox
+                    label={
+                      <Box>
+                        <Text size="xsmall">Force Removal: </Text>
+                        <Text size="xsmall">
+                          {`(receive `}
+                          {cleanValue(forceFyTokenReceived_, 2)} fy{selectedBase?.symbol}{' '}
+                          {parseFloat(forceFyTokenReceived_!) > 0 &&
+                            ` and ${cleanValue(forceBaseReceived_, 2)} ${selectedBase?.symbol})`}
+                        </Text>
+                      </Box>
+                    }
+                    checked={forceRemove}
+                    onChange={() => setForceRemove(!forceRemove)}
+                  />
+                </Box>
+              )}
+
               {stepPosition[actionActive.index] === 0 && actionActive.index !== 1 && (
                 <NextButton
                   label={<Text size={mobile ? 'small' : undefined}>Next Step</Text>}
