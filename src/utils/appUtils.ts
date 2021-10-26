@@ -28,17 +28,6 @@ export const toLog = (message: string, type: string = 'info') => {
 /* creates internal tracking code of a transaction type */
 export const getTxCode = (txType: ActionCodes, vaultOrSeriesId: string | null) => `${txType}_${vaultOrSeriesId}`;
 
-// /* google analytics log event */
-// export const analyticsLogEvent = (eventName: string, eventParams: any ) => {
-//   if (eventName) {
-//     try {
-//     window?.gtag('event', eventName, eventParams);
-//     } catch (e) {
-//       // eslint-disable-next-line no-console
-//       console.log(e);
-//     }
-//   }
-// };
 
 // TODO make it change based on hemisphere ( ie swap winter and summer)
 export enum SeasonType {

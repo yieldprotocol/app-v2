@@ -64,9 +64,11 @@ const initState: IUserContextState = {
   selectedStrategyAddr: null,
 
   /* User Settings ( getting from the cache first ) */
+
   approvalMethod: (JSON.parse(localStorage.getItem('cachedApprovalMethod')!) as ApprovalType) || ApprovalType.SIG,
   slippageTolerance: (JSON.parse(localStorage.getItem('slippageTolerance')!) as number) || (0.005 as number),
   dudeSalt: 21,
+  diagnostics: false,
 
   dashSettings: {
     hideEmptyVaults: false,
