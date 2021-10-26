@@ -38,7 +38,7 @@ function Pool() {
 
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, assetMap, selectedBaseId, selectedStrategyAddr, strategyMap } = userState;
+  const { activeAccount, assetMap, selectedBaseId, selectedStrategyAddr, strategyMap, diagnostics } = userState;
   const selectedBase = assetMap.get(selectedBaseId!);
   const selectedStrategy = strategyMap.get(selectedStrategyAddr!);
 
@@ -66,7 +66,7 @@ function Pool() {
 
   /* LOCAL ACTION FNS */
   const handleAdd = () => {
-    console.log('POOLING METHOD: ', poolMethod);
+    diagnostics && console.log('POOLING METHOD: ', poolMethod);
     const _method = !canBuyAndPool ? AddLiquidityType.BORROW : poolMethod; // double check
     selectedStrategy && addLiquidity(poolInput!, selectedStrategy, _method);
   };

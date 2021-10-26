@@ -111,8 +111,6 @@ export const useConnection = () => {
   };
   const setConnectionName = (name: string) => CONNECTORS.has(name) && _setConnectionName(name);
 
-  // const connect = (connection: string) => console.log('Connecting: ', connection);
-
   /**
    * FIRST STEP > Try to connect automatically to an injected provider on first load
    * */

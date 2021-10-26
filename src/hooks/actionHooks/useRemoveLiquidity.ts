@@ -38,9 +38,9 @@ export const useRemoveLiquidity = () => {
     chainState: { contractMap },
   } = useContext(ChainContext);
   const ladleAddress = contractMap?.get('Ladle')?.address;
-
+  
   const { vaultMap, userState, userActions } = useContext(UserContext);
-  const { activeAccount: account, assetMap, selectedStrategyAddr, strategyMap } = userState;
+  const { activeAccount: account, assetMap, selectedStrategyAddr, strategyMap, diagnostics } = userState;
   const { updateSeries, updateAssets, updateStrategies } = userActions;
   const { sign, transact } = useChain();
 
@@ -86,17 +86,17 @@ export const useRemoveLiquidity = () => {
     const doTrade = fyTokenTrade.gt(ethers.constants.Zero) && tradeFyToken;
 
     /* Diagnostics */
-    console.log('Strategy: ', _strategy);
-    console.log('Vault to use for removal: ', matchingVaultId);
-    console.log( 'vaultDebt',matchingVaultDebt.toString() );
-    console.log(useMatchingVault);
-    console.log('input', _input.toString());
-    console.log('lpTokens recieved from strategy token burn:', lpReceived.toString());
-    console.log('fyToken recieved from lpTokenburn: ', _fyTokenReceived.toString());
-    console.log('Debt: ', matchingVaultDebt?.toString());
-    console.log('Is FyToken Recieved Greater Than Debt: ', fyTokenReceivedGreaterThanDebt);
-    console.log('Is FyToken tradable?: ', doTrade);
-    console.log('fyTokentrade value: ', fyTokenTrade);
+    diagnostics && console.log('Strategy: ', _strategy);
+    diagnostics && console.log('Vault to use for removal: ', matchingVaultId);
+    diagnostics && console.log( 'vaultDebt',matchingVaultDebt.toString() );
+    diagnostics && console.log(useMatchingVault);
+    diagnostics && console.log('input', _input.toString());
+    diagnostics && console.log('lpTokens recieved from strategy token burn:', lpReceived.toString());
+    diagnostics && console.log('fyToken recieved from lpTokenburn: ', _fyTokenReceived.toString());
+    diagnostics && console.log('Debt: ', matchingVaultDebt?.toString());
+    diagnostics && console.log('Is FyToken Recieved Greater Than Debt: ', fyTokenReceivedGreaterThanDebt);
+    diagnostics && console.log('Is FyToken tradable?: ', doTrade);
+    diagnostics && console.log('fyTokentrade value: ', fyTokenTrade);
 
     const permits: ICallData[] = await sign(
       [

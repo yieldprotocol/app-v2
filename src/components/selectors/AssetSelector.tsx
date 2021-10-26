@@ -26,7 +26,8 @@ const StyledBox = styled(Box)`
 function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const { userState, userActions } = useContext(UserContext);
-  const { selectedIlkId, selectedSeriesId, selectedBaseId, assetMap, seriesMap, activeAccount } = userState;
+  const { selectedIlkId, selectedSeriesId, selectedBaseId, assetMap, seriesMap, activeAccount, diagnostics } =
+    userState;
 
   const { setSelectedIlk, setSelectedBase } = userActions;
 
@@ -47,10 +48,10 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
 
   const handleSelect = (asset: IAsset) => {
     if (selectCollateral) {
-      console.log('Collateral selected: ', asset.id);
+      diagnostics && console.log('Collateral selected: ', asset.id);
       setSelectedIlk(asset.id);
     } else {
-      console.log('Base selected: ', asset.id);
+      diagnostics && console.log('Base selected: ', asset.id);
       setSelectedBase(asset.id);
     }
   };
@@ -116,11 +117,6 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
           (selectCollateral && options.filter((o, i) => (o.balance?.eq(ethers.constants.Zero) ? i : null))) ||
           (selectCollateral ? selectedSeries?.mature || !selectedSeries : null)
 
-          // ( options.map((x:any, i:number) => {
-          //   if (x.isYieldBase) { return i }
-          //   return null
-          // }
-          // ).filter( (x:number|null) => { console.log(x); return isNull(x) } )
         }
         // eslint-disable-next-line react/no-children-prop
         children={(x: any) => (

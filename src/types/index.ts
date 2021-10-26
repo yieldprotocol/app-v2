@@ -47,6 +47,7 @@ export interface IUserContextState {
   approvalMethod: ApprovalType;
   dudeSalt: number;
   slippageTolerance: number;
+  diagnostics: boolean;
 
   dashSettings: IDashSettings;
 }

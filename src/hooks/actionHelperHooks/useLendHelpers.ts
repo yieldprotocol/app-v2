@@ -11,7 +11,7 @@ export const useLendHelpers = (
   rollToSeries: ISeries | undefined = undefined
 ) => {
   const { userState } = useContext(UserContext);
-  const { assetMap, activeAccount, selectedBaseId } = userState;
+  const { assetMap, activeAccount, selectedBaseId, diagnostics } = userState;
   const selectedBase = assetMap.get(selectedBaseId!);
 
   /* clean to prevent underflow */
@@ -38,10 +38,10 @@ export const useLendHelpers = (
 
       const _maxBaseIn = maxBaseIn(series.baseReserves, series.fyTokenReserves, timeTillMaturity, series.decimals);
 
-      console.log('BASE IN : ', _maxBaseIn.toString());
+      diagnostics &&  console.log('BASE IN : ', _maxBaseIn.toString());
       _maxBaseIn && setProtocolBaseIn(_maxBaseIn);
     }
-  }, [series]);
+  }, [series, diagnostics ]);
 
   /* Check and set Max available lend by user (only if activeAccount).   */
   useEffect(() => {
