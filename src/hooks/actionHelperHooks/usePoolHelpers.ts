@@ -178,7 +178,9 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   useEffect(() => {
     if (strategySeries && strategyBase ) {
       const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
-      const _matchingVault = arr.find(
+      const _matchingVault = arr
+      .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1))
+      .find(
         (v: IVault) =>
           v.ilkId === strategyBase.id &&
           v.baseId === strategyBase.id &&

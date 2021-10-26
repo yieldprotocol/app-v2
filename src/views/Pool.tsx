@@ -32,6 +32,7 @@ import { useProcess } from '../hooks/useProcess';
 import StrategyItem from '../components/positionItems/StrategyItem';
 import DashMobileButton from '../components/buttons/DashMobileButton';
 import SeriesOrStrategySelectorModal from '../components/selectors/SeriesOrStrategySelectorModal';
+import InputInfoWrap from '../components/wraps/InputInfoWrap';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -125,11 +126,21 @@ function Pool() {
                 <SectionWrap>
                   <Box direction="row-responsive" gap="small">
                     <Box basis={mobile ? '50%' : '60%'}>
-                      <InputWrap action={() => console.log('maxAction')} isError={poolError}>
+                      <InputWrap 
+                        action={() => console.log('maxAction')} 
+                        isError={poolError}
+                        // message={ poolInput &&
+                        //   <InputInfoWrap>
+                        //   <Text size="small" color="text-weak">
+                        //     The actual amount used to pool may be less.
+                        //   </Text>
+                        // </InputInfoWrap>
+                        // }
+                        >
                         <TextInput
                           plain
                           type="number"
-                          placeholder="Enter maximum amount to pool"
+                          placeholder="Enter Amount"
                           value={poolInput || ''}
                           onChange={(event: any) =>
                             setPoolInput(cleanValue(event.target.value, selectedBase?.decimals))
