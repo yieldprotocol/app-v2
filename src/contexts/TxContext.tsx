@@ -132,7 +132,6 @@ const TxProvider = ({ children }: any) => {
     const _tx = { tx, txCode, receipt: undefined, status: TxState.FAILED };
     updateState({ type: 'transactions', payload: _tx });
     console.log('txHash: ', tx?.hash);
-    console.log('txCode: ', txCode);
   };
 
   /* Handle a tx */
@@ -151,7 +150,6 @@ const TxProvider = ({ children }: any) => {
       /* try the transaction with connected wallet and catch any 'pre-chain'/'pre-tx' errors */
       try {
         tx = await txFn();
-        console.log('TX: ', tx);
         updateState({ type: 'transactions', payload: { tx, txCode, receipt: null, status: TxState.PENDING } });
         _setProcessStage(
           txCode,

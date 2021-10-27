@@ -91,10 +91,9 @@ export const useAddLiquidity = () => {
       '>> minRatio',
       minRatio.toString(),
       '>> maxRatio',
-      maxRatio.toString()
+      maxRatio.toString(),
+      'matching vault id', matchingVaultId
     );
-
-    console.log('in usePool', matchingVaultId); 
 
     /**
      * GET SIGNTURE/APPROVAL DATA

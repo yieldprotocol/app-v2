@@ -68,7 +68,7 @@ const initState: IUserContextState = {
   approvalMethod: (JSON.parse(localStorage.getItem('cachedApprovalMethod')!) as ApprovalType) || ApprovalType.SIG,
   slippageTolerance: (JSON.parse(localStorage.getItem('slippageTolerance')!) as number) || (0.005 as number),
   dudeSalt: 21,
-  diagnostics: true,
+  diagnostics: false,
 
   dashSettings: {
     hideEmptyVaults: false,
