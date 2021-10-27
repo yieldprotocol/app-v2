@@ -10,14 +10,14 @@ import { burn, burnFromStrategy, calcPoolRatios, newPoolState, sellFYToken } fro
 import { ZERO_BN } from '../../utils/constants';
 
 /*
-                                                                            +---------+
-                                                                       +--> |OPTION 2 |  ( unique call: SELL_FYTOKEN) 
-                                                                     Y |    +---------+
+                                                                            +---------+  DEFUNCT PATH
+                                                                       +--> |OPTION 2.1 |  ( unique call: SELL_FYTOKEN) 
+                                                                NEVER  |    +---------+
                                                                        |
                                  +------------------> sell Token supported
                                  |Y                                    |
-                                 |                                   N |    +--------------------+
-               +------> FyTokenRecieved > Debt                        +--->|OPTION 2 (no trade) | (unique call:  none of others ) 
+                                 |                               Y/  N |    +--------------------+
+               +------> FyTokenRecieved > Debt                        +--->|OPTION 2.2 (no trade) | (unique call:  none of others ) 
                |                 |                    +-----------+         +--------------------+
                |Y                +------------------> | OPTION 1  |
                |                  N                   +-----------+
@@ -224,17 +224,18 @@ export const useRemoveLiquidity = () => {
         operation: LadleActions.Fn.REPAY_FROM_LADLE,
         args: [
           matchingVaultId,
-          extraTradeSupported ? series.poolAddress : account,
+          account, 
         ] as LadleActions.Args.REPAY_FROM_LADLE,
         ignoreIf: series.seriesIsMature || !fyTokenReceivedGreaterThanDebt || !useMatchingVault,
       },
-      {
-        operation: LadleActions.Fn.ROUTE,
-        args: [account, ethers.constants.Zero] as RoutedActions.Args.SELL_FYTOKEN, // TODO slippage
-        fnName: RoutedActions.Fn.SELL_FYTOKEN,
-        targetContract: series.poolContract,
-        ignoreIf: series.seriesIsMature || !extraTradeSupported || !fyTokenReceivedGreaterThanDebt || !useMatchingVault,
-      },
+      // {
+      //   operation: LadleActions.Fn.ROUTE,
+      //   args: [account, ethers.constants.Zero] as RoutedActions.Args.SELL_FYTOKEN,
+      //   fnName: RoutedActions.Fn.SELL_FYTOKEN,
+      //   targetContract: series.poolContract,
+      //   ignoreIf:
+      //     true || series.seriesIsMature || !extraTradeSupported || !fyTokenReceivedGreaterThanDebt || !useMatchingVault,
+      // },
 
       /* OPTION 4. Remove Liquidity and sell  - BEFORE MATURITY +  NO VAULT */
 
@@ -249,7 +250,7 @@ export const useRemoveLiquidity = () => {
         ignoreIf: series.seriesIsMature || useMatchingVault || !fyTokenTradeSupported,
       },
 
-      // 4.2 
+      // 4.2
       // (ladle.transferAction(pool, pool, lpTokensBurnt),  ^^^^ DONE ABOVE^^^^)
       // ladle.routeAction(pool, ['burnForBase', [receiver, minBaseReceived]),
       {
