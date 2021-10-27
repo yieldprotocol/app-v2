@@ -90,7 +90,7 @@ export const useRemoveLiquidity = () => {
       series.decimals
     );
 
-    console.log('fyTokenTrade value: ', fyTokenTrade.toString());
+    diagnostics && console.log('fyTokenTrade value: ', fyTokenTrade.toString());
     const fyTokenTradeSupported = fyTokenTrade.gt(ethers.constants.Zero);
 
     const matchingVaultId: string | undefined = matchingVault?.id;
