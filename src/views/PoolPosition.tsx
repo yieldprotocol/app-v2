@@ -328,10 +328,10 @@ const PoolPosition = () => {
                           </Text> */}
                           <Text size="xsmall">
                             Force Removal:
-                            {` ( You will receive at least ${cleanValue(removeBaseReceived_, 2)} ${
+                            {` ( You will receive about ${cleanValue(removeBaseReceived_, 2)} ${
                               selectedBase?.symbol
                             } `}
-                            {`and then rest will be in tradeable fy${selectedBase?.symbol} )`}
+                            {`and then rest will be in redeemable fy${selectedBase?.symbol} )`}
                           </Text>
                         </Box>
                       }
