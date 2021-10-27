@@ -69,8 +69,8 @@ const PoolPosition = () => {
     removeBaseReceived_,
     removeFyTokenReceived_,
 
-    removeExtraTradeRequired, // case = remove option 2
-    removeExtraTradePossible,
+    partialRemoveRequired,
+
   } = usePoolHelpers(removeInput, true);
 
   /* TX data */
@@ -95,7 +95,7 @@ const PoolPosition = () => {
 
   const handleRemove = () => {
     const shouldTradeExtra =
-      removeExtraTradeRequired && !removeExtraTradePossible && forceDisclaimerChecked ? false : undefined; 
+      partialRemoveRequired && forceDisclaimerChecked ? false : undefined; 
     selectedSeries && removeLiquidity(removeInput!, selectedSeries, matchingVault, shouldTradeExtra); 
   };
 
@@ -249,7 +249,7 @@ const PoolPosition = () => {
                                   </InputInfoWrap>
                                 ))} */}
 
-                              {removeInput && !(removeExtraTradeRequired && !removeExtraTradePossible) && !removeError && (
+                              {removeInput && !partialRemoveRequired && !removeError && (
                                 <InputInfoWrap>
                                   <Text color="text-weak" alignSelf="end" size="small">
                                     Approx. return {cleanValue(removeBaseReceived_, selectedBase?.digitFormat)}{' '}
@@ -258,7 +258,7 @@ const PoolPosition = () => {
                                 </InputInfoWrap>
                               )}
 
-                              {removeInput && removeExtraTradeRequired && !removeExtraTradePossible && !removeError && (
+                              {removeInput && partialRemoveRequired && !removeError && (
                                 <InputInfoWrap>
                                   <Box gap="xsmall" pad={{ right: 'medium' }} justify="between">
                                     <Text color="text-weak" alignSelf="end" size="xsmall">
@@ -313,8 +313,7 @@ const PoolPosition = () => {
             <ActionButtonGroup pad>
               {stepPosition[actionActive.index] === 0 &&
                 removeInput &&
-                removeExtraTradeRequired &&
-                !removeExtraTradePossible &&
+                partialRemoveRequired &&
                 !removeError && (
                   <Box fill="horizontal" pad={{ vertical: 'small', horizontal: 'xsmall' }}>
                     <CheckBox
@@ -349,7 +348,7 @@ const PoolPosition = () => {
                   key="next"
                   disabled={
                     (actionActive.index === 0 && removeDisabled) ||
-                    (removeExtraTradeRequired && !removeExtraTradePossible && !forceDisclaimerChecked)
+                    (partialRemoveRequired && !forceDisclaimerChecked)
                   }
                   errorLabel={actionActive.index === 0 && removeError}
                 />
