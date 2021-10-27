@@ -69,8 +69,10 @@ const AprText = ({
   series: ISeries;
   actionType: ActionType;
 }) => {
+  const {
+    userState: { diagnostics },
+  } = useContext(UserContext);
   const _inputValue = cleanValue(inputValue, series.decimals);
-
   const { apr } = useApr(_inputValue, actionType, series);
   const [limitHit, setLimitHit] = useState<boolean>(false);
 
@@ -83,24 +85,24 @@ const AprText = ({
     series.decimals
   );
 
-  const tokenOut = maxFyTokenOut(
-    series.baseReserves,
-    series.fyTokenReserves,
-    series.getTimeTillMaturity(),
-    series.decimals
-  );
+  // const tokenOut = maxFyTokenOut(
+  //   series.baseReserves,
+  //   series.fyTokenReserves,
+  //   series.getTimeTillMaturity(),
+  //   series.decimals
+  // );
 
-  const tokenIn = maxFyTokenIn(
-    series.baseReserves,
-    series.fyTokenReserves,
-    series.getTimeTillMaturity(),
-    series.decimals
-  );
+  // const tokenIn = maxFyTokenIn(
+  //   series.baseReserves,
+  //   series.fyTokenReserves,
+  //   series.getTimeTillMaturity(),
+  //   series.decimals
+  // );
 
-  // diagnostics && console.log( series.id, ' maxbaseIn', baseIn.toString() )
-  // diagnostics && console.log( series.id, ' maxbaseOut', baseOut.toString() )
-  // diagnostics && console.log( series.id, ' tokenIn', tokenIn.toString() )
-  // diagnostics && console.log( series.id, ' tokenOut', tokenOut.toString() )
+  diagnostics && console.log(series.id, ' maxbaseIn', baseIn.toString());
+  diagnostics && console.log(series.id, ' maxbaseOut', baseOut.toString());
+  // diagnostics && console.log(series.id, ' maxtokenIn', tokenIn.toString());
+  // diagnostics && console.log(series.id, ' maxtokenOut', tokenOut.toString());
 
   useEffect(() => {
     if (!series?.seriesIsMature && _inputValue)
@@ -152,7 +154,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const { userState, userActions } = useContext(UserContext);
-  const { selectedSeriesId, selectedBaseId, seriesMap, assetMap, seriesLoading } = userState;
+  const { selectedSeriesId, selectedBaseId, seriesMap, assetMap, seriesLoading, diagnostics } = userState;
   const [localSeries, setLocalSeries] = useState<ISeries | null>();
   const [options, setOptions] = useState<ISeries[]>([]);
 
@@ -215,11 +217,11 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
   const handleSelect = (_series: ISeries) => {
     if (!selectSeriesLocally) {
-      console.log('Series selected globally: ', _series.id);
+      diagnostics && console.log('Series selected globally: ', _series.id);
       userActions.setSelectedSeries(_series.id);
     } else {
       /* used for passing a selected series to the parent component */
-      console.log('Series set locally: ', _series.id);
+      diagnostics && console.log('Series set locally: ', _series.id);
       selectSeriesLocally(_series);
       setLocalSeries(_series);
     }

@@ -648,7 +648,6 @@ export function fyTokenForMint(
   const fyTokenVirtualReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenVirtualReserves), decimals);
   const base18 = decimalNToDecimal18(BigNumber.from(base), decimals);
 
-
   const baseReserves_ = new Decimal(baseReserves18.toString());
   const fyDaiRealReserves_ = new Decimal(fyTokenRealReserves18.toString());
   const base_ = new Decimal(base18.toString());
@@ -683,9 +682,9 @@ export function fyTokenForMint(
     const pz = z_1.div(z_1.add(y_1)); // base proportion in my assets
     const PZ = Z_1.div(Z_1.add(Y_1)); // base proportion in the balances
 
-    const slippageAllowance = PZ.mul(slippage_) // PZ with slippage
-    const PZ_min =  PZ.add(slippageAllowance)  // should be 100% (PZ) + slippage
-    const PZ_max =  PZ.add(slippageAllowance).mul(new Decimal(1.00001))  // should be 100.01% () + slippage
+    const slippageAllowance = PZ.mul(slippage_); // PZ with slippage
+    const PZ_min = PZ.add(slippageAllowance); // should be 100% (PZ) + slippage
+    const PZ_max = PZ.add(slippageAllowance).mul(new Decimal(1.00001)); // should be 100.01% () + slippage
 
     // The base proportion in my assets needs to be higher than but very close to the
     // base proportion in the balances, to make sure all the fyToken is used.
@@ -908,58 +907,98 @@ export const calculateBorrowingPower = (
 };
 
 /**
-*  @param {BigNumber}  strategyTokenAmount
-* @param {BigNumber}  strategyTotalSupply
-* @param {BigNumber}  poolStrategyBalance
-* @param {BigNumber}  poolBaseReserves
-* @param {BigNumber}  poolFyTokenReserves
-* @param {BigNumber}  poolTotalSupply
-* @param {number}  poolTimeToMaturity
-* @param {number}  decimals
-*
-* @returns {BigNumber} [soldValue, totalValue] 
-*/
-export const strategyTokenValue = (
- strategyTokenAmount: BigNumber | string, 
- strategyTotalSupply: BigNumber,
- strategyPoolBalance: BigNumber,
- poolBaseReserves: BigNumber,
- poolFyTokenRealReserves: BigNumber,
- poolTotalSupply: BigNumber,
- poolTimeToMaturity: string | BigNumber,
- decimals: number,
-): [BigNumber, BigNumber] => {
- // 0. Calc amount of lpTokens from strat token burn
- // 1. calc amount base/fyToken recieved from burn
- // 2. calculate new reserves (baseReserves and fyTokenReserevs)
- // 3. try trade with new reserves
- // 4. add the estimated base derived from selling fyTokens and the current base tokens of the poolToken
- const lpReceived = burnFromStrategy(strategyPoolBalance, strategyTotalSupply!, strategyTokenAmount);
- const [_baseTokenReceived, _fyTokenReceived] = burn(
-   poolBaseReserves,
-   poolFyTokenRealReserves,
-   poolTotalSupply,
-   lpReceived
- );
- const newBaseReserves = poolBaseReserves.sub(_baseTokenReceived);
- const newFyTokenRealReserves = poolFyTokenRealReserves.sub(_fyTokenReceived);
- const newTotalSupply = poolTotalSupply.sub(_fyTokenReceived)
- // virtualReserves  = totalsupply + realBalance  
- const newFyTokenVirtualReserves = newTotalSupply.add( newFyTokenRealReserves );
-
- const sellValue = sellFYToken(
-   newBaseReserves,
-   newFyTokenVirtualReserves,
-   _fyTokenReceived,
-   poolTimeToMaturity.toString(),
-   decimals,
- );
-
- const totalValue = sellValue.add(_baseTokenReceived);
-
- return [sellValue, totalValue];
+ *  @param {BigNumber}  baseChange
+ * @param {BigNumber}  fyTokenChange
+ * @param {BigNumber}  poolBaseReserves
+ * @param {BigNumber}  poolFyTokenRealReserves
+ * @param {BigNumber}  poolTotalSupply
+ *
+ * @returns {BigNumber[]} [newBaseReserves, newFyTokenRealReserves, newTotalSupply, newFyTokenVirtualReserves]
+ */
+export const newPoolState = (
+  baseChange: BigNumber,
+  fyTokenChange: BigNumber,
+  poolBaseReserves: BigNumber,
+  poolFyTokenRealReserves: BigNumber,
+  poolTotalSupply: BigNumber
+): {
+  baseReserves: BigNumber;
+  fyTokenRealReserves: BigNumber;
+  totalSupply: BigNumber;
+  fyTokenVirtualReserves: BigNumber;
+} => {
+  const newBaseReserves = poolBaseReserves.add(baseChange);
+  const newFyTokenRealReserves = poolFyTokenRealReserves.add(fyTokenChange);
+  const newTotalSupply = poolTotalSupply.add(fyTokenChange);
+  const newFyTokenVirtualReserves = newTotalSupply.add(newFyTokenRealReserves); // virtualReserves  = totalsupply + realBalance
+  return {
+    baseReserves: newBaseReserves,
+    fyTokenRealReserves: newFyTokenRealReserves,
+    totalSupply: newTotalSupply,
+    fyTokenVirtualReserves: newFyTokenVirtualReserves,
+  };
 };
 
+/**
+ *  @param {BigNumber}  strategyTokenAmount
+ * @param {BigNumber}  strategyTotalSupply
+ * @param {BigNumber}  poolStrategyBalance
+ * @param {BigNumber}  poolBaseReserves
+ * @param {BigNumber}  poolFyTokenReserves
+ * @param {BigNumber}  poolTotalSupply
+ * @param {number}  poolTimeToMaturity
+ * @param {number}  decimals
+ *
+ * @returns {BigNumber} [soldValue, totalValue]
+ */
+export const strategyTokenValue = (
+  strategyTokenAmount: BigNumber | string,
+  strategyTotalSupply: BigNumber,
+  strategyPoolBalance: BigNumber,
+  poolBaseReserves: BigNumber,
+  poolFyTokenRealReserves: BigNumber,
+  poolTotalSupply: BigNumber,
+  poolTimeToMaturity: string | BigNumber,
+  decimals: number
+): [BigNumber, BigNumber] => {
+  // 0. Calc amount of lpTokens from strat token burn
+  // 1. calc amount base/fyToken recieved from burn
+  // 2. calculate new reserves (baseReserves and fyTokenReserevs)
+  // 3. try trade with new reserves
+  // 4. add the estimated base derived from selling fyTokens and the current base tokens of the poolToken
+  const lpReceived = burnFromStrategy(strategyPoolBalance, strategyTotalSupply!, strategyTokenAmount);
+  const [_baseTokenReceived, _fyTokenReceived] = burn(
+    poolBaseReserves,
+    poolFyTokenRealReserves,
+    poolTotalSupply,
+    lpReceived
+  );
+
+  const newPool = newPoolState(
+    _baseTokenReceived.mul(-1),
+    _fyTokenReceived.mul(-1),
+    poolBaseReserves,
+    poolFyTokenRealReserves,
+    poolTotalSupply
+  );
+  //  const newBaseReserves = poolBaseReserves.sub(_baseTokenReceived);
+  //  const newFyTokenRealReserves = poolFyTokenRealReserves.sub(_fyTokenReceived);
+  //  const newTotalSupply = poolTotalSupply.sub(_fyTokenReceived)
+  //  // virtualReserves  = totalsupply + realBalance
+  //  const newFyTokenVirtualReserves = newTotalSupply.add( newFyTokenRealReserves );
+
+  const sellValue = sellFYToken(
+    newPool.baseReserves,
+    newPool.fyTokenVirtualReserves,
+    _fyTokenReceived,
+    poolTimeToMaturity.toString(),
+    decimals
+  );
+
+  const totalValue = sellValue.add(_baseTokenReceived);
+
+  return [sellValue, totalValue];
+};
 
 /**
  * Calculates the estimated percentage of the pool given an inputted base amount.

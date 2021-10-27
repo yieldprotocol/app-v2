@@ -50,7 +50,7 @@ const PoolPosition = () => {
   const [maxRemove, setMaxRemove] = useState<string | undefined>();
   const [removeDisabled, setRemoveDisabled] = useState<boolean>(true);
 
-  const [forceRemove, setForceRemove] = useState<boolean>(false);
+  const [forceDisclaimerChecked, setForceDisclaimerChecked] = useState<boolean>(false);
 
   // multi-tracking stepper
   const [actionActive, setActionActive] = useState<any>({ text: 'Close Position', index: 0 });
@@ -59,16 +59,18 @@ const PoolPosition = () => {
   /* HOOK FNS */
   const removeLiquidity = useRemoveLiquidity();
   const {
-    accountTradeValue,
+    // accountTradeValue,
     matchingVault,
     maxRemoveWithVault,
     maxRemoveNoVault,
-    // addTradePossible,
-    forceBaseReceived_,
-    forceFyTokenReceived_,
-    inputTradeValue,
-    inputTradeValue_,
-    removeTradePossible,
+
+    removeBaseReceived,
+    removeFyTokenReceived,
+    removeBaseReceived_,
+    removeFyTokenReceived_,
+
+    partialRemoveRequired,
+
   } = usePoolHelpers(removeInput, true);
 
   /* TX data */
@@ -92,7 +94,9 @@ const PoolPosition = () => {
   };
 
   const handleRemove = () => {
-    selectedSeries && removeLiquidity(removeInput!, selectedSeries, matchingVault, !forceRemove); // !forceRemove => tradeFyToken
+    const shouldTradeExtra =
+      partialRemoveRequired && forceDisclaimerChecked ? false : undefined; 
+    selectedSeries && removeLiquidity(removeInput!, selectedSeries, matchingVault, shouldTradeExtra); 
   };
 
   const resetInputs = (actionCode: ActionCodes) => {
@@ -112,7 +116,7 @@ const PoolPosition = () => {
   /* ACTION DISABLING LOGIC - if ANY conditions are met: block action */
   useEffect(() => {
     !removeInput || removeError ? setRemoveDisabled(true) : setRemoveDisabled(false);
-  }, [activeAccount, forceRemove, removeError, removeInput]);
+  }, [activeAccount, forceDisclaimerChecked, removeError, removeInput]);
 
   useEffect(() => {
     !selectedStrategyAddr && idFromUrl && userActions.setSelectedStrategy(idFromUrl);
@@ -193,14 +197,14 @@ const PoolPosition = () => {
                       />
                     )}
 
-                    {selectedStrategy.currentSeries && accountTradeValue && (
+                    {/* {selectedStrategy.currentSeries && accountTradeValue && (
                       <InfoBite
                         label="Strategy Token Value"
                         value={`${cleanValue(accountTradeValue!, selectedBase?.digitFormat)} ${selectedBase?.symbol}`}
                         icon={<FiTrendingUp />}
                         loading={seriesLoading}
                       />
-                    )}
+                    )} */}
                   </Box>
                 </SectionWrap>
               </Box>
@@ -233,7 +237,7 @@ const PoolPosition = () => {
                           isError={removeError}
                           message={
                             <>
-                              {(!removeTradePossible &&
+                              {/* {(!removeTradePossible &&
                                 removeInput &&
                                 selectedSeries &&
                                 !selectedSeries.seriesIsMature) ||
@@ -243,18 +247,18 @@ const PoolPosition = () => {
                                       Input amount exceeds maximum currently tradeable.
                                     </Text>
                                   </InputInfoWrap>
-                                ))}
+                                ))} */}
 
-                              {removeInput && removeTradePossible && (
+                              {removeInput && !partialRemoveRequired && !removeError && (
                                 <InputInfoWrap>
                                   <Text color="text-weak" alignSelf="end" size="small">
-                                    Approx. return {cleanValue(inputTradeValue_, selectedBase?.digitFormat)}{' '}
+                                    Approx. return {cleanValue(removeBaseReceived_, selectedBase?.digitFormat)}{' '}
                                     {selectedBase?.symbol}
                                   </Text>
                                 </InputInfoWrap>
                               )}
 
-                              {removeInput && !removeTradePossible && !removeError && (
+                              {removeInput && partialRemoveRequired && !removeError && (
                                 <InputInfoWrap>
                                   <Box gap="xsmall" pad={{ right: 'medium' }} justify="between">
                                     <Text color="text-weak" alignSelf="end" size="xsmall">
@@ -307,32 +311,45 @@ const PoolPosition = () => {
             </Box>
 
             <ActionButtonGroup pad>
-              {stepPosition[actionActive.index] === 0 && removeInput && !removeTradePossible && !removeError && (
-                <Box fill="horizontal" pad={{ vertical: 'small', horizontal: 'xsmall' }}>
-                  <CheckBox
-                    label={
-                      <Box>
-                        <Text size="xsmall">Force Removal: </Text>
-                        <Text size="xsmall">
-                          {`( You will receive `}
-                          {cleanValue(forceFyTokenReceived_, 2)} fy{selectedBase?.symbol}{' '}
-                          {parseFloat(forceFyTokenReceived_!) > 0 &&
-                            ` and ${cleanValue(forceBaseReceived_, 2)} ${selectedBase?.symbol} )`}
-                        </Text>
-                      </Box>
-                    }
-                    checked={forceRemove}
-                    onChange={() => setForceRemove(!forceRemove)}
-                  />
-                </Box>
-              )}
+              {stepPosition[actionActive.index] === 0 &&
+                removeInput &&
+                partialRemoveRequired &&
+                !removeError && (
+                  <Box fill="horizontal" pad={{ vertical: 'small', horizontal: 'xsmall' }}>
+                    <CheckBox
+                      label={
+                        <Box>
+                          {/* <Text size="xsmall">Force Removal: </Text> */}
+                          {/* <Text size="xsmall">
+                            {`( You will receive `}
+                            {cleanValue(removeFyTokenReceived_, 2)} fy{selectedBase?.symbol}{' '}
+                            {removeFyTokenReceived?.gt(ethers.constants.Zero) &&
+                              ` and ${cleanValue(removeBaseReceived_, 2)} ${selectedBase?.symbol} )`}
+                          </Text> */}
+                          <Text size="xsmall">
+                            Force Removal:
+                            {` ( You will receive about ${cleanValue(removeBaseReceived_, 2)} ${
+                              selectedBase?.symbol
+                            } `}
+                            {`and then rest will be in redeemable fy${selectedBase?.symbol} )`}
+                          </Text>
+                        </Box>
+                      }
+                      checked={forceDisclaimerChecked}
+                      onChange={() => setForceDisclaimerChecked(!forceDisclaimerChecked)}
+                    />
+                  </Box>
+                )}
 
               {stepPosition[actionActive.index] === 0 && actionActive.index !== 1 && (
                 <NextButton
                   label={<Text size={mobile ? 'small' : undefined}>Next Step</Text>}
                   onClick={() => handleStepper()}
                   key="next"
-                  disabled={(actionActive.index === 0 && removeDisabled) || (!removeTradePossible && !forceRemove)}
+                  disabled={
+                    (actionActive.index === 0 && removeDisabled) ||
+                    (partialRemoveRequired && !forceDisclaimerChecked)
+                  }
                   errorLabel={actionActive.index === 0 && removeError}
                 />
               )}
