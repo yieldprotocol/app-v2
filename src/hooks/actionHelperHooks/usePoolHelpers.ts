@@ -182,12 +182,9 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
       );
   }, [matchingVault, strategy, strategySeries, removeLiquidityView]);
 
-
   /* Remove liquidity flow decision tree */
   useEffect(() => {
-
     if (_input !== ethers.constants.Zero && strategySeries && removeLiquidityView) {
-      
       if (matchingVault) {
         /* Matching vault (with debt) exists: USE 1 , 2.1 or 2.2 */
 
@@ -195,15 +192,19 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         const lpReceived = burnFromStrategy(strategy?.strategyPoolBalance!, strategy?.strategyTotalSupply!, _input);
         const [_baseReceived, _fyTokenReceived] = burn(
           strategySeries?.baseReserves!,
-          strategySeries?.fyTokenReserves!,
+          strategySeries?.fyTokenRealReserves!,
           strategySeries?.totalSupply!,
           lpReceived
         );
 
+        diagnostics && console.log('burnt (base, fytokens)', _baseReceived.toString(), _fyTokenReceived.toString());
+
         if (_fyTokenReceived.gt(matchingVault?.art!)) {
           /* Fytoken received greater than debt : USE REMOVE OPTION 2.1 or 2.2 */
           diagnostics &&
-            console.log('FyTokens received will be greater than debt: an extra sellFytoken trade is required ');
+            console.log(
+              'FyTokens received will be greater than debt: an extra sellFytoken trade is required: REMOVE OPTION 2.1 or 2.2 '
+            );
 
           const _extraFyTokensToSell = _fyTokenReceived.sub(matchingVault.art);
           diagnostics && console.log(_extraFyTokensToSell.toString(), 'FyTokens Need to be sold');
@@ -220,9 +221,8 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
 
           if (sellValue.gt(ethers.constants.Zero)) {
             /* CASE> positive sell value (ie. all recieved can be sold) : USE REMOVE OPTION 2.1 */
-            diagnostics &&
-              console.log('Extra FyTokens can be sold in the market');
-              setPartialRemoveRequired(false);
+            diagnostics && console.log('Extra FyTokens can be sold in the market : USE REMOVE OPTION 2.1');
+            setPartialRemoveRequired(false);
 
             const _val = _baseReceived.add(matchingVault.art).add(sellValue);
 
@@ -230,40 +230,46 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
             setRemoveBaseReceived_(ethers.utils.formatUnits(_val, strategySeries.decimals));
             setRemoveFyTokenReceived(ethers.constants.Zero);
             setRemoveFyTokenReceived_('0');
-
           } else {
-
-            /* CASE> fyToken TRADE NOT POSSIBLE ( limited by protocol ): USE REMOVE OPTION 2.2 */
+            /* CASE> extra fyToken TRADE NOT POSSIBLE ( limited by protocol ): USE REMOVE OPTION 2.2 */
             diagnostics &&
-              console.log('The trading of the extra fyTokens is NOT possible in the market');
-              setPartialRemoveRequired(true);
+              console.log('The trading of the extra fyTokens is NOT possible in the market : USE REMOVE OPTION 2.2');
+            setPartialRemoveRequired(true);
 
             const _fyTokenVal = _fyTokenReceived.sub(matchingVault.art);
-            const _baseVal = _baseReceived.add(matchingVault.art)
+            const _baseVal = _baseReceived.add(matchingVault.art);
 
             setRemoveBaseReceived(_baseVal);
             setRemoveBaseReceived_(ethers.utils.formatUnits(_baseVal, strategySeries.decimals));
             setRemoveFyTokenReceived(_fyTokenVal);
             setRemoveFyTokenReceived_(ethers.utils.formatUnits(_fyTokenVal, strategySeries.decimals));
           }
-
         } else {
           /* CASE> fytokenReceived less than debt : USE REMOVE OPTION 1 */
-          diagnostics && console.log('FyTokens received will Less than debt: straight No extra trading is required');
+          diagnostics &&
+            console.log(
+              'FyTokens received will Less than debt: straight No extra trading is required : USE REMOVE OPTION 1 '
+            );
           setPartialRemoveRequired(false);
 
-          // If certain base + fytoken received > debt  ==>  use pour call
-          const _val = _baseReceived.add(_fyTokenReceived)
+          const _val = _baseReceived.add(_fyTokenReceived);
 
           setRemoveBaseReceived(_val);
           setRemoveBaseReceived_(ethers.utils.formatUnits(_val, strategySeries.decimals));
           setRemoveFyTokenReceived(ethers.constants.Zero);
           setRemoveFyTokenReceived_('0');
         }
-
       } else {
-
         /* CASE > No matching vault exists : USE REMOVE OPTION 4 */
+
+        /* Check the amount of fyTokens potentially recieved */
+        const lpReceived = burnFromStrategy(strategy?.strategyPoolBalance!, strategy?.strategyTotalSupply!, _input);
+        const [_baseReceived, _fyTokenReceived] = burn(
+          strategySeries?.baseReserves!,
+          strategySeries?.fyTokenRealReserves!,
+          strategySeries?.totalSupply!,
+          lpReceived
+        );
 
         /* Calculate the token Value */
         const [tokenSellValue, totalTokenValue] = strategyTokenValue(
@@ -277,29 +283,33 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
           strategySeries.decimals
         );
 
-        if (tokenSellValue.gt(ethers.constants.Zero)) { 
-
+        if (tokenSellValue.gt(ethers.constants.Zero)) {
+          diagnostics &&
+            console.log(
+              'NO VAULT : pool trade is possible  : USE REMOVE OPTION 4.1 '
+            );
           setPartialRemoveRequired(false);
-          
-          const _val = totalTokenValue; 
-          setRemoveBaseReceived(_val);
-          setRemoveBaseReceived_(ethers.utils.formatUnits(_val, strategySeries.decimals));
-          setRemoveFyTokenReceived(ethers.constants.Zero);
-          setRemoveFyTokenReceived_('0');
 
-        } else {
-
-          // TODO improve this SOMEHOW!??
-          setPartialRemoveRequired(true);
           const _val = totalTokenValue;
           setRemoveBaseReceived(_val);
           setRemoveBaseReceived_(ethers.utils.formatUnits(_val, strategySeries.decimals));
           setRemoveFyTokenReceived(ethers.constants.Zero);
           setRemoveFyTokenReceived_('0');
+        } else {
+          diagnostics &&
+            console.log(
+              'NO VAULT : trade not possible : USE REMOVE OPTION 4.2 '
+            );
+          setPartialRemoveRequired(true);
+
+          setRemoveBaseReceived(_baseReceived);
+          setRemoveBaseReceived_(ethers.utils.formatUnits(_baseReceived, strategySeries.decimals));
+          setRemoveFyTokenReceived(_fyTokenReceived);
+          setRemoveFyTokenReceived_(ethers.utils.formatUnits(_fyTokenReceived, strategySeries.decimals));
         }
       }
     }
-  }, [strategy, _input, strategySeries, matchingVault, removeLiquidityView]);
+  }, [strategy, _input, strategySeries, matchingVault, removeLiquidityView, diagnostics]);
 
   return {
     maxPool,

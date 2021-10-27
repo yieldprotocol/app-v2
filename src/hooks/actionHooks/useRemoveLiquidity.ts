@@ -82,6 +82,17 @@ export const useRemoveLiquidity = () => {
       series.totalSupply
     );
 
+    const fyTokenTrade = sellFYToken(
+      _newPool.baseReserves,
+      _newPool.fyTokenVirtualReserves,
+      _fyTokenReceived,
+      series.getTimeTillMaturity(),
+      series.decimals
+    );
+
+    console.log('fyTokenTrade value: ', fyTokenTrade.toString());
+    const fyTokenTradeSupported = fyTokenTrade.gt(ethers.constants.Zero);
+
     const matchingVaultId: string | undefined = matchingVault?.id;
     const matchingVaultDebt: BigNumber = matchingVault?.art || ZERO_BN;
     // Choose use use matching vault:
@@ -99,7 +110,7 @@ export const useRemoveLiquidity = () => {
       series.decimals
     );
     /* if valid extraTrade > 0 and user selected to tradeFyToken */
-    const doExtraTrade = extrafyTokenTrade.gt(ethers.constants.Zero) && tradeFyToken;
+    const extraTradeSupported = extrafyTokenTrade.gt(ethers.constants.Zero) && tradeFyToken;
 
     /* Diagnostics */
     diagnostics && console.log('Strategy: ', _strategy);
@@ -111,7 +122,7 @@ export const useRemoveLiquidity = () => {
     diagnostics && console.log('fyToken recieved from lpTokenburn: ', _fyTokenReceived.toString());
     diagnostics && console.log('Debt: ', matchingVaultDebt?.toString());
     diagnostics && console.log('Is FyToken Recieved Greater Than Debt: ', fyTokenReceivedGreaterThanDebt);
-    diagnostics && console.log('Is FyToken tradable?: ', doExtraTrade);
+    diagnostics && console.log('Is FyToken tradable?: ', extraTradeSupported);
     diagnostics && console.log('extrafyTokentrade value: ', extrafyTokenTrade);
 
     const permits: ICallData[] = await sign(
@@ -211,26 +222,18 @@ export const useRemoveLiquidity = () => {
       },
       {
         operation: LadleActions.Fn.REPAY_FROM_LADLE,
-        args: [matchingVaultId, doExtraTrade ? series.poolAddress : account] as LadleActions.Args.REPAY_FROM_LADLE,
+        args: [
+          matchingVaultId,
+          extraTradeSupported ? series.poolAddress : account,
+        ] as LadleActions.Args.REPAY_FROM_LADLE,
         ignoreIf: series.seriesIsMature || !fyTokenReceivedGreaterThanDebt || !useMatchingVault,
       },
-      // remove when repaying all debt
-      // {
-      //   operation: LadleActions.Fn.POUR,
-      //   args: [
-      //     matchingVaultId,
-      //     account,
-      //     -debt, // debt
-      //     ethers.constants.Zero,
-      //   ] as LadleActions.Args.POUR,
-      //   ignoreIf: series.seriesIsMature || !useMatchingVault || !fyTokenPlusBaseGreaterThanDebt,
-      // },
       {
         operation: LadleActions.Fn.ROUTE,
         args: [account, ethers.constants.Zero] as RoutedActions.Args.SELL_FYTOKEN, // TODO slippage
         fnName: RoutedActions.Fn.SELL_FYTOKEN,
         targetContract: series.poolContract,
-        ignoreIf: series.seriesIsMature || !doExtraTrade || !fyTokenReceivedGreaterThanDebt || !useMatchingVault,
+        ignoreIf: series.seriesIsMature || !extraTradeSupported || !fyTokenReceivedGreaterThanDebt || !useMatchingVault,
       },
 
       /* OPTION 4. Remove Liquidity and sell  - BEFORE MATURITY +  NO VAULT */
@@ -243,18 +246,18 @@ export const useRemoveLiquidity = () => {
         args: [account, minRatio, maxRatio] as RoutedActions.Args.BURN_FOR_BASE,
         fnName: RoutedActions.Fn.BURN_FOR_BASE,
         targetContract: series.poolContract,
-        ignoreIf: series.seriesIsMature || useMatchingVault,
+        ignoreIf: series.seriesIsMature || useMatchingVault || !fyTokenTradeSupported,
       },
 
-      // 4.2
+      // 4.2 
       // (ladle.transferAction(pool, pool, lpTokensBurnt),  ^^^^ DONE ABOVE^^^^)
       // ladle.routeAction(pool, ['burnForBase', [receiver, minBaseReceived]),
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [account, minRatio, maxRatio] as RoutedActions.Args.BURN_FOR_BASE,
-        fnName: RoutedActions.Fn.BURN_FOR_BASE,
+        args: [account, account, minRatio, maxRatio] as RoutedActions.Args.BURN_POOL_TOKENS,
+        fnName: RoutedActions.Fn.BURN_POOL_TOKENS,
         targetContract: series.poolContract,
-        ignoreIf: true || series.seriesIsMature || useMatchingVault,
+        ignoreIf: series.seriesIsMature || useMatchingVault || fyTokenTradeSupported,
       },
 
       /**
