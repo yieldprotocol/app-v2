@@ -134,11 +134,15 @@ const Dashboard = () => {
   const getPositionValue = useCallback(
     (baseOrIlkId: string, value: string, assetId = DAI) => {
       const base = assetMap?.get(baseOrIlkId);
-      if (!priceMap.get(baseOrIlkId)?.has(assetId)) updatePrice(baseOrIlkId, assetId, base?.decimals!);
-
-      const assetPrice = priceMap.get(baseOrIlkId)?.get(assetId);
-      const assetValue = Number(ethers.utils.formatUnits(assetPrice || ethers.constants.Zero, 18)) * Number(value);
-      return assetValue;
+      try {
+        if (!priceMap.get(baseOrIlkId)?.has(assetId)) updatePrice(baseOrIlkId, assetId, base?.decimals!);
+        const assetPrice = priceMap.get(baseOrIlkId)?.get(assetId);
+        const assetValue = Number(ethers.utils.formatUnits(assetPrice || ethers.constants.Zero, 18)) * Number(value);
+        return assetValue;
+      } catch (e) {
+        console.log(e);
+        return 0;
+      }
     },
     [priceMap, assetMap, updatePrice]
   );
