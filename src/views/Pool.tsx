@@ -70,7 +70,7 @@ function Pool() {
   /* LOCAL ACTION FNS */
   const handleAdd = () => {
 
-    console.log('POOLING METHOD: ', poolMethod, 'Matching vault', matchingVault?.id);
+    diagnostics && console.log('POOLING METHOD: ', poolMethod, 'Matching vault', matchingVault?.id);
     const _method = !canBuyAndPool ? AddLiquidityType.BORROW : poolMethod; // double check
     selectedStrategy && addLiquidity(poolInput!, selectedStrategy, _method, matchingVault);
   };
