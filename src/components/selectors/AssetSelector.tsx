@@ -68,7 +68,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
       filteredOptions = selectCollateral
         ? opts
             .filter((a: IAsset) => a.id !== selectedBaseId)
-            .filter((a: IAsset) => a.balance?.gt(ethers.constants.Zero))
+            // .filter((a: IAsset) => a.balance?.gt(ethers.constants.Zero))
         : opts.filter((a: IAsset) => a.isYieldBase);
     }
     setOptions(filteredOptions);
