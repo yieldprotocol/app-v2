@@ -25,6 +25,8 @@ const UNKNOWN_ERROR = 'An unknown error occurred. Check the console for more det
 const RPC_URLS: { [chainId: number]: string } = {
   1: process.env.REACT_APP_RPC_URL_1 as string,
   42: process.env.REACT_APP_RPC_URL_42 as string,
+  10: process.env.REACT_APP_RPC_URL_10 as string,
+  69: process.env.REACT_APP_RPC_URL_69 as string,
   42161: process.env.REACT_APP_RPC_URL_42161 as string,
   421611: process.env.REACT_APP_RPC_URL_421611 as string,
 };
@@ -36,7 +38,7 @@ CHAIN_INFO.set(4, { name: 'Rinkeby', color: '#f6c343' });
 CHAIN_INFO.set(5, { name: 'Goerli', color: '#3099f2' });
 CHAIN_INFO.set(42, { name: 'Kovan', color: '#7F7FFE' });
 CHAIN_INFO.set(10, { name: 'Optimism', color: '#EB0822', bridge: 'https://gateway.optimism.io/' });
-CHAIN_INFO.set(10, { name: 'Optimism Kovan', color: '#EB0822', bridge: 'https://gateway.optimism.io/' });
+CHAIN_INFO.set(69, { name: 'Optimism Kovan', color: '#EB0822', bridge: 'https://gateway.optimism.io/' });
 CHAIN_INFO.set(42161, { name: 'Arbitrum', color: '#1F2937', bridge: 'https://bridge.arbitrum.io/' });
 CHAIN_INFO.set(421611, { name: 'Arbitrum Testnet', color: '#1F2937', bridge: 'https://bridge.arbitrum.io/' });
 
@@ -54,7 +56,7 @@ const CONNECTORS = new Map();
 CONNECTORS.set(
   INIT_INJECTED,
   new InjectedConnector({
-    supportedChainIds: [1, 42, 421611],
+    supportedChainIds: [1, 42, 10, 69, 42161, 421611],
   })
 );
 CONNECTORS.set(
@@ -166,12 +168,11 @@ export const useConnection = () => {
 
     /* Case: Auto Connection SUCCESS > set the fallback connector to the same as the chainId */
     if (tried && chainId) {
-      console.log(RPC_URLS);
       console.log('Connecting fallback Provider to the same network as connected wallet');
       setFallbackErrorMessage(undefined);
       fallbackActivate(
         new NetworkConnector({
-          urls: { 1: RPC_URLS[1], 42: RPC_URLS[42], 421611: RPC_URLS[421611] },
+          urls: { 1: RPC_URLS[1], 10: RPC_URLS[10], 69: RPC_URLS[69], 42: RPC_URLS[42], 421611: RPC_URLS[421611] },
           defaultChainId: chainId,
         }),
         (e: Error) => {

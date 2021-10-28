@@ -30,6 +30,9 @@ function getFallbackLibrary(provider: any, connector: any) {
   if (provider.chainId === 421611) {
     return new ethers.providers.JsonRpcProvider('http://ArbNodeUrl.com');
   }
+  if (provider.chainId === 69) {
+    return new ethers.providers.JsonRpcProvider('https://kovan.optimism.io');
+  }
   const library: ethers.providers.JsonRpcProvider = new ethers.providers.InfuraProvider(
     provider.chainId,
     '2af222f674024a0f84b5f0aad0da72a2'

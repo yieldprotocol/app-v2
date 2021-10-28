@@ -18,7 +18,7 @@ const NetworkBanner = () => {
       connection: { currentChainInfo, fallbackChainId },
     },
   } = useContext(ChainContext);
-  const showableChains = [421611];
+  const showableChains = [421611, 69];
   const [show, setShow] = useState<boolean>(true);
 
   return show && currentChainInfo && showableChains.includes(fallbackChainId) ? (
