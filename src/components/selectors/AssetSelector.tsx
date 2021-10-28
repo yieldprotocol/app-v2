@@ -7,7 +7,7 @@ import Skeleton from 'react-loading-skeleton';
 import styled from 'styled-components';
 import { IAsset } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
-import { DAI, WETH } from '../../utils/constants';
+import { DAI, WETH, USDC, WBTC } from '../../utils/constants';
 
 interface IAssetSelectorProps {
   selectCollateral?: boolean;
@@ -77,7 +77,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   /* initiate base selector to Dai available asset and selected ilk ETH */
   useEffect(() => {
     if (Array.from(assetMap.values()).length) {
-      !selectedBaseId && setSelectedBase(DAI);
+      !selectedBaseId && setSelectedBase(USDC);
       !selectedIlkId && setSelectedIlk(WETH);
     }
   }, [assetMap, selectedBaseId, selectedIlkId]);
