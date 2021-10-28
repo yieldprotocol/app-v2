@@ -304,7 +304,7 @@ const UserProvider = ({ children }: any) => {
     [account]
   );
 
-  /* Updates the prices from the oracle with latest data */ // TODO reduce redundant calls
+  /* Updates the prices from the oracle with latest data */
   const updatePrice = useCallback(
     async (priceBase: string, quote: string, decimals: number = 18): Promise<BigNumber> => {
       updateState({ type: 'pricesLoading', payload: true });
@@ -335,24 +335,24 @@ const UserProvider = ({ children }: any) => {
     [contractMap, userState.priceMap]
   );
 
-  /* Updates the prices from the oracle with latest data */ // TODO reduce redundant calls
+  /* Updates the prices from the oracle with latest data */
   const updateLimit = useCallback(
-    async (ilk: string, base: string): Promise<[BigNumber, BigNumber]> => {
+    async (ilk: string, base: string): Promise<[BigNumber, BigNumber, BigNumber, BigNumber]> => {
       const Cauldron = contractMap.get('Cauldron');
       try {
         const _limitMap = userState.limitMap;
         const _baseLimitMap = _limitMap.get(ilk) || new Map<string, any>();
-        const [min, max] = await Cauldron.debt(ilk, base);
-        _baseLimitMap.set(base, [min, max]);
+        const [min, max, digits, sum] = await Cauldron.debt(ilk, base);
+
+        _baseLimitMap.set(base, [min, max, digits, sum]);
         _limitMap.set(ilk, _baseLimitMap);
 
         updateState({ type: 'priceMap', payload: _limitMap });
-        console.log('Limit checked: ', ilk, ' ->', base, ':', min.toString(), max.toString());
-
-        return [min, max];
+        console.log('Limit checked: ', ilk, ' ->', base, ':', min.toString(), max.toString(), sum.toString() );
+        return [min, max, digits, sum];
       } catch (error) {
         console.log('Error getting limits', error);
-        return [ethers.constants.Zero, ethers.constants.Zero];
+        return [ethers.constants.Zero, ethers.constants.Zero, ethers.constants.Zero, ethers.constants.Zero ];
       }
     },
     [contractMap, userState.limitMap]
@@ -369,12 +369,12 @@ const UserProvider = ({ children }: any) => {
       _publicData = await Promise.all(
         seriesList.map(async (series: ISeriesRoot): Promise<ISeries> => {
           /* Get all the data simultanenously in a promise.all */
-          const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves, mature] = await Promise.all([
+          const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves, mature, ] = await Promise.all([
             series.poolContract.getBaseBalance(),
             series.poolContract.getFYTokenBalance(),
             series.poolContract.totalSupply(),
             series.fyTokenContract.balanceOf(series.poolAddress),
-            series.isMature(),
+            series.isMature()
           ]);
 
           /* Calculates the base/fyToken unit selling price */
@@ -462,7 +462,7 @@ const UserProvider = ({ children }: any) => {
       const vaultListMod = await Promise.all(
         _vaultList.map(async (vault: IVaultRoot): Promise<IVault> => {
           /* update balance and series  ( series - because a vault can have been rolled to another series) */
-          const [{ ink, art }, { owner, seriesId, ilkId }, { min: minDebt, max: maxDebt, sum: baseTotalDebt }] =
+          const [{ ink, art }, { owner, seriesId, ilkId }, { min: minDebt, max: maxDebt, sum: totalDebt }] =
             await Promise.all([
               await Cauldron.balances(vault.id),
               await Cauldron.vaults(vault.id),
