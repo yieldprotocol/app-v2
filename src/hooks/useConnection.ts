@@ -25,15 +25,19 @@ const UNKNOWN_ERROR = 'An unknown error occurred. Check the console for more det
 const RPC_URLS: { [chainId: number]: string } = {
   1: process.env.REACT_APP_RPC_URL_1 as string,
   42: process.env.REACT_APP_RPC_URL_42 as string,
+  42161: process.env.REACT_APP_RPC_URL_42161 as string,
+  421611: process.env.REACT_APP_RPC_URL_421611 as string,
 };
 
-const CHAIN_INFO = new Map<number, { name: string; color: string }>();
+const CHAIN_INFO = new Map<number, { name: string; color: string; bridge?: string }>();
 CHAIN_INFO.set(1, { name: 'Mainnet', color: '#29b6af' });
 CHAIN_INFO.set(3, { name: 'Ropsten', color: '#ff4a8d' });
 CHAIN_INFO.set(4, { name: 'Rinkeby', color: '#f6c343' });
 CHAIN_INFO.set(5, { name: 'Goerli', color: '#3099f2' });
-CHAIN_INFO.set(10, { name: 'Optimism', color: '#EB0822' });
 CHAIN_INFO.set(42, { name: 'Kovan', color: '#7F7FFE' });
+CHAIN_INFO.set(10, { name: 'Optimism', color: '#EB0822' });
+CHAIN_INFO.set(42161, { name: 'Arbitrum', color: '#1F2937' });
+CHAIN_INFO.set(421611, { name: 'Arbitrum Testnet', color: '#1F2937', bridge: 'https://bridge.arbitrum.io/' });
 
 // Map the provider connection url name to a nicer format
 const CONNECTOR_NAMES = new Map([
@@ -49,7 +53,7 @@ const CONNECTORS = new Map();
 CONNECTORS.set(
   INIT_INJECTED,
   new InjectedConnector({
-    supportedChainIds: [1, 42],
+    supportedChainIds: [1, 42, 421611],
   })
 );
 CONNECTORS.set(
@@ -146,11 +150,10 @@ export const useConnection = () => {
   useEffect(() => {
     /* Case: Auto Connection FAILURE > Set the fallback connector to the lastChainId */
     if (tried && !chainId) {
-      console.log('Connecting fallback Provider to the default network');
       setFallbackErrorMessage(undefined);
       fallbackActivate(
         new NetworkConnector({
-          urls: { 1: RPC_URLS[1], 42: RPC_URLS[42] },
+          urls: { 1: RPC_URLS[1], 42: RPC_URLS[42], 421611: RPC_URLS[421611] },
           defaultChainId: lastChainId,
         }),
         (e: Error) => {
@@ -162,11 +165,12 @@ export const useConnection = () => {
 
     /* Case: Auto Connection SUCCESS > set the fallback connector to the same as the chainId */
     if (tried && chainId) {
+      console.log(RPC_URLS);
       console.log('Connecting fallback Provider to the same network as connected wallet');
       setFallbackErrorMessage(undefined);
       fallbackActivate(
         new NetworkConnector({
-          urls: { 1: RPC_URLS[1], 42: RPC_URLS[42] },
+          urls: { 1: RPC_URLS[1], 42: RPC_URLS[42], 421611: RPC_URLS[421611] },
           defaultChainId: chainId,
         }),
         (e: Error) => {

@@ -27,6 +27,9 @@ const Web3FallbackProvider = createWeb3ReactRoot('fallback');
 
 function getFallbackLibrary(provider: any, connector: any) {
   // library = new ethers.providers.JsonRpcProvider(process.env.REACT_APP_RPC_URL_1 as string);
+  if (provider.chainId === 421611) {
+    return new ethers.providers.JsonRpcProvider('http://ArbNodeUrl.com');
+  }
   const library: ethers.providers.JsonRpcProvider = new ethers.providers.InfuraProvider(
     provider.chainId,
     '2af222f674024a0f84b5f0aad0da72a2'

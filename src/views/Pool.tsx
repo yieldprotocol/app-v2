@@ -326,9 +326,6 @@ function Pool() {
 
       {!mobile && (
         <PanelWrap right basis="40%">
-          {/* <Box margin={{ top: '20%' }} pad="small" fill>
-            <NetworkBanner />
-          </Box> */}
           {/* <YieldLiquidity input={poolInput} /> */}
           <StrategyPositionSelector />
         </PanelWrap>

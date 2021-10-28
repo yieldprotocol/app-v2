@@ -16,6 +16,7 @@ import NetworkError from './components/NetworkError';
 import LendPosition from './views/LendPosition';
 import PoolPosition from './views/PoolPosition';
 import TransactionWidget from './components/TransactionWidget';
+import NetworkBanner from './components/NetworkBanner';
 
 function App() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -26,9 +27,9 @@ function App() {
   return (
     <>
       <Box fill>
-        
         <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
         <TransactionWidget />
+        <NetworkBanner />
         <NetworkError />
 
         <Box flex={!mobile} overflow="hidden">
