@@ -29,7 +29,7 @@ function getFallbackLibrary(provider: any, connector: any) {
   // library = new ethers.providers.JsonRpcProvider(process.env.REACT_APP_RPC_URL_1 as string);
   const library: ethers.providers.JsonRpcProvider = new ethers.providers.InfuraProvider(
     provider.chainId,
-    '646dc0f33d2449878b28e0afa25267f6'
+    '2af222f674024a0f84b5f0aad0da72a2'
   );
   library.pollingInterval = 6000;
   return library;
