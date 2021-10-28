@@ -58,7 +58,7 @@ const YieldInfo = () => {
         </BoxWrap>
 
         <BoxWrap>
-          <Anchor color="grey" href="http://docs.yield.is" target="_blank" onClick={() => handleExternal('Docs')}>
+          <Anchor color="grey" href="http://docs.yieldprotocol.com" target="_blank" onClick={() => handleExternal('Docs')}>
             <Docs size={IconSize} />
           </Anchor>
         </BoxWrap>
