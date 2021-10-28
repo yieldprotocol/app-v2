@@ -88,7 +88,7 @@ const Borrow = () => {
     maxCollateral,
   } = useCollateralHelpers(borrowInput, collatInput, vaultToUse);
 
-  const { maxAllowedBorrow, minAllowedBorrow, borrowPossible, borrowEstimate_ } = useBorrowHelpers(
+  const { minDebt_, maxDebt_, borrowPossible, borrowEstimate_, aboveDebtLimit } = useBorrowHelpers(
     borrowInput,
     collatInput,
     vaultToUse,
@@ -97,8 +97,8 @@ const Borrow = () => {
 
   /* input validation hooks */
   const { inputError: borrowInputError } = useInputValidation(borrowInput, ActionCodes.BORROW, selectedSeries, [
-    minAllowedBorrow,
-    maxAllowedBorrow,
+    minDebt_,
+    maxDebt_,
   ]);
 
   const { inputError: collatInputError } = useInputValidation(collatInput, ActionCodes.ADD_COLLATERAL, selectedSeries, [
