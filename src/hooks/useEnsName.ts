@@ -5,19 +5,19 @@ import { ChainContext } from '../contexts/ChainContext';
 export const useEnsName = () => {
   const {
     chainState: {
-      connection: { account, provider },
+      connection: { account, provider, chainId },
     },
   } = useContext(ChainContext);
 
   const [ensName, setEnsName] = useState<string | null>(null);
 
   useEffect(() => {
-    if (provider && account) {
+    if (provider && account && chainId===1) {
       (async () => {
         setEnsName(await provider.lookupAddress(account));
       })();
     }
-  }, [account, provider]);
+  }, [account, provider, chainId]);
 
   return ensName;
 };
