@@ -35,8 +35,9 @@ CHAIN_INFO.set(3, { name: 'Ropsten', color: '#ff4a8d' });
 CHAIN_INFO.set(4, { name: 'Rinkeby', color: '#f6c343' });
 CHAIN_INFO.set(5, { name: 'Goerli', color: '#3099f2' });
 CHAIN_INFO.set(42, { name: 'Kovan', color: '#7F7FFE' });
-CHAIN_INFO.set(10, { name: 'Optimism', color: '#EB0822' });
-CHAIN_INFO.set(42161, { name: 'Arbitrum', color: '#1F2937' });
+CHAIN_INFO.set(10, { name: 'Optimism', color: '#EB0822', bridge: 'https://gateway.optimism.io/' });
+CHAIN_INFO.set(10, { name: 'Optimism Kovan', color: '#EB0822', bridge: 'https://gateway.optimism.io/' });
+CHAIN_INFO.set(42161, { name: 'Arbitrum', color: '#1F2937', bridge: 'https://bridge.arbitrum.io/' });
 CHAIN_INFO.set(421611, { name: 'Arbitrum Testnet', color: '#1F2937', bridge: 'https://bridge.arbitrum.io/' });
 
 // Map the provider connection url name to a nicer format
