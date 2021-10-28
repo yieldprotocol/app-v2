@@ -9,6 +9,7 @@ import AdvancedSettings from './AdvancedSettings';
 import { TxContext } from '../contexts/TxContext';
 import CopyWrap from './wraps/CopyWrap';
 import TransactionItem from './TransactionItem';
+import { useEnsName } from '../hooks/useEnsName';
 
 const StyledButton = styled(Button)`
   background: #dbeafe;
@@ -35,6 +36,8 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
   const {
     txState: { transactions },
   } = useContext(TxContext);
+
+  const ensName = useEnsName();
 
   const [transactionsOpen, toggleTransactionsOpen] = useState<boolean>(false);
 
@@ -65,7 +68,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
         <Box align="center" gap="medium">
           <YieldAvatar address={account} size={5} />
           <CopyWrap hash={account}>
-            <Text size="xlarge">{abbreviateHash(account, 6)}</Text>
+            <Text size="xlarge">{ensName || abbreviateHash(account, 6)}</Text>
           </CopyWrap>
         </Box>
 
