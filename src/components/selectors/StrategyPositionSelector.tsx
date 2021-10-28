@@ -17,13 +17,12 @@ interface IStrategyFilter {
 }
 
 function StrategyPositionSelector() {
-  const history = useHistory();
 
   /* STATE FROM CONTEXT */
-  const { userState, userActions } = useContext(UserContext) as IUserContext;
-  const { assetMap, seriesMap, strategyMap, selectedSeriesId, selectedBaseId, selectedStrategyAddr } = userState;
+  const { userState } = useContext(UserContext) as IUserContext;
+  const { activeAccount, assetMap, strategyMap, selectedBaseId, selectedStrategyAddr } =
+    userState;
 
-  const selectedSeries = seriesMap.get(selectedSeriesId!);
   const selectedBase = assetMap.get(selectedBaseId!);
   const selectedStrategy = strategyMap.get(selectedStrategyAddr!);
 
@@ -33,22 +32,6 @@ function StrategyPositionSelector() {
   const [currentFilter, setCurrentFilter] = useState<IStrategyFilter>();
   const [filterLabels, setFilterLabels] = useState<(string | undefined)[]>([]);
   const [filteredSeries, setFilteredSeries] = useState<IStrategy[]>([]);
-
-  const handleFilter = useCallback(
-    ({ base, series, strategy }: IStrategyFilter) => {
-      /* filter all positions by base if base is selected */
-      const _filteredStrategies: IStrategy[] = Array.from(strategyMap.values());
-      /* filters */
-      // .filter((_strategy: IStrategy) => _strategy.balance?.gt(ZERO_BN))
-      // .filter((_strategy: IStrategy) => (base ? _strategy.baseId === base.id : true))
-      // .filter((_strategy: IStrategy) => (strategy ? _strategy.address === strategy.address : true));
-
-      setCurrentFilter({ base, series, strategy });
-      setFilterLabels([base?.symbol, series?.displayNameMobile]);
-      setFilteredSeries(_filteredStrategies);
-    },
-    [strategyMap]
-  );
 
   /* CHECK the list of current vaults which match the current base series selection */
   useEffect(() => {
@@ -71,7 +54,7 @@ function StrategyPositionSelector() {
 
   return (
     <Box justify="end" fill>
-      {allPositions.length !== 0 && (
+      {activeAccount && allPositions.length !== 0 && (
         <Box justify="between" alignSelf="end" gap="small" pad="small" background="hover" round="xsmall">
           <Box
             animation="fadeIn"
@@ -115,10 +98,6 @@ function StrategyPositionSelector() {
                     size="xsmall"
                     onClick={
                       () => null
-                      // handleFilter({
-                      //   ...currentFilter,
-                      //   base: undefined,
-                      // } as IPositionFilter)
                     }
                   >
                     <Button plain icon={<FiX style={{ verticalAlign: 'middle' }} />} />
@@ -138,10 +117,6 @@ function StrategyPositionSelector() {
                     size="xsmall"
                     onClick={
                       () => null
-                      // handleFilter({
-                      //   ...currentFilter,
-                      //   series: undefined,
-                      // } as IPositionFilter)
                     }
                   >
                     <Button plain icon={<FiX style={{ verticalAlign: 'middle' }} />} />

@@ -17,13 +17,14 @@ import {
 import { BytesLike } from "@ethersproject/bytes";
 import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
-import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
+import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 
 interface UniswapV3OracleInterface extends ethers.utils.Interface {
   functions: {
     "LOCK()": FunctionFragment;
+    "LOCK8605463013()": FunctionFragment;
     "ROOT()": FunctionFragment;
-    "decimals()": FunctionFragment;
+    "ROOT4146650865()": FunctionFragment;
     "get(bytes32,bytes32,uint256)": FunctionFragment;
     "getRoleAdmin(bytes4)": FunctionFragment;
     "grantRole(bytes4,address)": FunctionFragment;
@@ -38,14 +39,20 @@ interface UniswapV3OracleInterface extends ethers.utils.Interface {
     "setRoleAdmin(bytes4,bytes4)": FunctionFragment;
     "setSecondsAgo(uint32)": FunctionFragment;
     "setSource(bytes6,bytes6,address)": FunctionFragment;
-    "setSources(bytes6[],bytes6[],address[])": FunctionFragment;
     "sources(bytes6,bytes6)": FunctionFragment;
     "sourcesData(address)": FunctionFragment;
   };
 
   encodeFunctionData(functionFragment: "LOCK", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "LOCK8605463013",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "ROOT", values?: undefined): string;
-  encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "ROOT4146650865",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "get",
     values: [BytesLike, BytesLike, BigNumberish]
@@ -100,18 +107,21 @@ interface UniswapV3OracleInterface extends ethers.utils.Interface {
     values: [BytesLike, BytesLike, string]
   ): string;
   encodeFunctionData(
-    functionFragment: "setSources",
-    values: [BytesLike[], BytesLike[], string[]]
-  ): string;
-  encodeFunctionData(
     functionFragment: "sources",
     values: [BytesLike, BytesLike]
   ): string;
   encodeFunctionData(functionFragment: "sourcesData", values: [string]): string;
 
   decodeFunctionResult(functionFragment: "LOCK", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "LOCK8605463013",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "ROOT", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "ROOT4146650865",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "get", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getRoleAdmin",
@@ -141,7 +151,6 @@ interface UniswapV3OracleInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "setSource", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "setSources", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "sources", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "sourcesData",
@@ -162,6 +171,24 @@ interface UniswapV3OracleInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "SecondsAgoSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SourceSet"): EventFragment;
 }
+
+export type RoleAdminChangedEvent = TypedEvent<
+  [string, string] & { role: string; newAdminRole: string }
+>;
+
+export type RoleGrantedEvent = TypedEvent<
+  [string, string, string] & { role: string; account: string; sender: string }
+>;
+
+export type RoleRevokedEvent = TypedEvent<
+  [string, string, string] & { role: string; account: string; sender: string }
+>;
+
+export type SecondsAgoSetEvent = TypedEvent<[number] & { secondsAgo: number }>;
+
+export type SourceSetEvent = TypedEvent<
+  [string, string, string] & { base: string; quote: string; source: string }
+>;
 
 export class UniswapV3Oracle extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -209,9 +236,11 @@ export class UniswapV3Oracle extends BaseContract {
   functions: {
     LOCK(overrides?: CallOverrides): Promise<[string]>;
 
+    LOCK8605463013(overrides?: CallOverrides): Promise<[string]>;
+
     ROOT(overrides?: CallOverrides): Promise<[string]>;
 
-    decimals(overrides?: CallOverrides): Promise<[number]>;
+    ROOT4146650865(overrides?: CallOverrides): Promise<[string]>;
 
     get(
       base: BytesLike,
@@ -292,13 +321,6 @@ export class UniswapV3Oracle extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    setSources(
-      bases: BytesLike[],
-      quotes: BytesLike[],
-      sources_: string[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     sources(
       arg0: BytesLike,
       arg1: BytesLike,
@@ -320,9 +342,11 @@ export class UniswapV3Oracle extends BaseContract {
 
   LOCK(overrides?: CallOverrides): Promise<string>;
 
+  LOCK8605463013(overrides?: CallOverrides): Promise<string>;
+
   ROOT(overrides?: CallOverrides): Promise<string>;
 
-  decimals(overrides?: CallOverrides): Promise<number>;
+  ROOT4146650865(overrides?: CallOverrides): Promise<string>;
 
   get(
     base: BytesLike,
@@ -403,13 +427,6 @@ export class UniswapV3Oracle extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  setSources(
-    bases: BytesLike[],
-    quotes: BytesLike[],
-    sources_: string[],
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   sources(
     arg0: BytesLike,
     arg1: BytesLike,
@@ -431,9 +448,11 @@ export class UniswapV3Oracle extends BaseContract {
   callStatic: {
     LOCK(overrides?: CallOverrides): Promise<string>;
 
+    LOCK8605463013(overrides?: CallOverrides): Promise<string>;
+
     ROOT(overrides?: CallOverrides): Promise<string>;
 
-    decimals(overrides?: CallOverrides): Promise<number>;
+    ROOT4146650865(overrides?: CallOverrides): Promise<string>;
 
     get(
       base: BytesLike,
@@ -513,13 +532,6 @@ export class UniswapV3Oracle extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setSources(
-      bases: BytesLike[],
-      quotes: BytesLike[],
-      sources_: string[],
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     sources(
       arg0: BytesLike,
       arg1: BytesLike,
@@ -540,6 +552,14 @@ export class UniswapV3Oracle extends BaseContract {
   };
 
   filters: {
+    "RoleAdminChanged(bytes4,bytes4)"(
+      role?: BytesLike | null,
+      newAdminRole?: BytesLike | null
+    ): TypedEventFilter<
+      [string, string],
+      { role: string; newAdminRole: string }
+    >;
+
     RoleAdminChanged(
       role?: BytesLike | null,
       newAdminRole?: BytesLike | null
@@ -548,7 +568,25 @@ export class UniswapV3Oracle extends BaseContract {
       { role: string; newAdminRole: string }
     >;
 
+    "RoleGranted(bytes4,address,address)"(
+      role?: BytesLike | null,
+      account?: string | null,
+      sender?: string | null
+    ): TypedEventFilter<
+      [string, string, string],
+      { role: string; account: string; sender: string }
+    >;
+
     RoleGranted(
+      role?: BytesLike | null,
+      account?: string | null,
+      sender?: string | null
+    ): TypedEventFilter<
+      [string, string, string],
+      { role: string; account: string; sender: string }
+    >;
+
+    "RoleRevoked(bytes4,address,address)"(
       role?: BytesLike | null,
       account?: string | null,
       sender?: string | null
@@ -566,9 +604,22 @@ export class UniswapV3Oracle extends BaseContract {
       { role: string; account: string; sender: string }
     >;
 
+    "SecondsAgoSet(uint32)"(
+      secondsAgo?: BigNumberish | null
+    ): TypedEventFilter<[number], { secondsAgo: number }>;
+
     SecondsAgoSet(
       secondsAgo?: BigNumberish | null
     ): TypedEventFilter<[number], { secondsAgo: number }>;
+
+    "SourceSet(bytes6,bytes6,address)"(
+      base?: BytesLike | null,
+      quote?: BytesLike | null,
+      source?: string | null
+    ): TypedEventFilter<
+      [string, string, string],
+      { base: string; quote: string; source: string }
+    >;
 
     SourceSet(
       base?: BytesLike | null,
@@ -583,9 +634,11 @@ export class UniswapV3Oracle extends BaseContract {
   estimateGas: {
     LOCK(overrides?: CallOverrides): Promise<BigNumber>;
 
+    LOCK8605463013(overrides?: CallOverrides): Promise<BigNumber>;
+
     ROOT(overrides?: CallOverrides): Promise<BigNumber>;
 
-    decimals(overrides?: CallOverrides): Promise<BigNumber>;
+    ROOT4146650865(overrides?: CallOverrides): Promise<BigNumber>;
 
     get(
       base: BytesLike,
@@ -667,13 +720,6 @@ export class UniswapV3Oracle extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    setSources(
-      bases: BytesLike[],
-      quotes: BytesLike[],
-      sources_: string[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     sources(
       arg0: BytesLike,
       arg1: BytesLike,
@@ -686,9 +732,11 @@ export class UniswapV3Oracle extends BaseContract {
   populateTransaction: {
     LOCK(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    LOCK8605463013(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     ROOT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    ROOT4146650865(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     get(
       base: BytesLike,
@@ -767,13 +815,6 @@ export class UniswapV3Oracle extends BaseContract {
       base: BytesLike,
       quote: BytesLike,
       source: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setSources(
-      bases: BytesLike[],
-      quotes: BytesLike[],
-      sources_: string[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

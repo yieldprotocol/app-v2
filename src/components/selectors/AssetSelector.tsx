@@ -7,7 +7,7 @@ import Skeleton from 'react-loading-skeleton';
 import styled from 'styled-components';
 import { IAsset } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
-import { DAI, WETH } from '../../utils/constants';
+import { DAI, WETH, USDC, WBTC } from '../../utils/constants';
 
 interface IAssetSelectorProps {
   selectCollateral?: boolean;
@@ -26,7 +26,10 @@ const StyledBox = styled(Box)`
 function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const { userState, userActions } = useContext(UserContext);
-  const { selectedIlkId, selectedSeriesId, selectedBaseId, assetMap, seriesMap } = userState;
+  const { selectedIlkId, selectedSeriesId, selectedBaseId, assetMap, seriesMap, activeAccount, diagnostics } =
+    userState;
+
+  const { setSelectedIlk, setSelectedBase } = userActions;
 
   const selectedSeries = seriesMap.get(selectedSeriesId!);
   const selectedBase = assetMap.get(selectedBaseId!);
@@ -45,36 +48,45 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
 
   const handleSelect = (asset: IAsset) => {
     if (selectCollateral) {
-      console.log('Collateral selected: ', asset.id);
-      userActions.setSelectedIlk(asset.id);
+      diagnostics && console.log('Collateral selected: ', asset.id);
+      setSelectedIlk(asset.id);
     } else {
-      console.log('Base selected: ', asset.id);
-      userActions.setSelectedBase(asset.id);
+      diagnostics && console.log('Base selected: ', asset.id);
+      setSelectedBase(asset.id);
     }
   };
 
   /* update options on any changes */
   useEffect(() => {
     const opts = Array.from(assetMap.values()) as IAsset[];
-    const filteredOptions = selectCollateral
-      ? opts.filter((a: IAsset) => a.id !== selectedBaseId)
-      : opts.filter((a: IAsset) => a.isYieldBase);
+    let filteredOptions;
+    if (!activeAccount) {
+      filteredOptions = selectCollateral
+        ? opts.filter((a: IAsset) => a.id !== selectedBaseId) // show all available collateral assets if the user is not connected
+        : opts.filter((a: IAsset) => a.isYieldBase);
+    } else {
+      filteredOptions = selectCollateral
+        ? opts
+            .filter((a: IAsset) => a.id !== selectedBaseId)
+            // .filter((a: IAsset) => a.balance?.gt(ethers.constants.Zero))
+        : opts.filter((a: IAsset) => a.isYieldBase);
+    }
     setOptions(filteredOptions);
-  }, [assetMap, selectCollateral, selectedSeriesId, selectedBaseId]);
+  }, [assetMap, selectCollateral, selectedSeriesId, selectedBaseId, activeAccount]);
 
   /* initiate base selector to Dai available asset and selected ilk ETH */
   useEffect(() => {
     if (Array.from(assetMap.values()).length) {
-      !selectedBaseId && userActions.setSelectedBase(assetMap.get(DAI).id);
-      !selectedIlkId && userActions.setSelectedIlk(assetMap.get(WETH).id);
+      !selectedBaseId && setSelectedBase(USDC);
+      !selectedIlkId && setSelectedIlk(WETH);
     }
-  }, [assetMap]);
+  }, [assetMap, selectedBaseId, selectedIlkId]);
 
   /* make sure ilk (collateral) never matches baseId */
   useEffect(() => {
     if (selectedIlk === selectedBase) {
       const firstNotBaseIlk = options.find((asset: IAsset) => asset.id !== selectedIlk?.id)?.id;
-      userActions.setSelectedIlk(firstNotBaseIlk);
+      setSelectedIlk(firstNotBaseIlk);
     }
   }, [options, selectedIlk, selectedBase]);
 
@@ -105,11 +117,6 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
           (selectCollateral && options.filter((o, i) => (o.balance?.eq(ethers.constants.Zero) ? i : null))) ||
           (selectCollateral ? selectedSeries?.mature || !selectedSeries : null)
 
-          // ( options.map((x:any, i:number) => {
-          //   if (x.isYieldBase) { return i }
-          //   return null
-          // }
-          // ).filter( (x:number|null) => { console.log(x); return isNull(x) } )
         }
         // eslint-disable-next-line react/no-children-prop
         children={(x: any) => (

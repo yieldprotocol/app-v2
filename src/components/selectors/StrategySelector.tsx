@@ -1,16 +1,15 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Avatar, Box, Grid, ResponsiveContext, Select, Text } from 'grommet';
+import { ethers } from 'ethers';
+import { Avatar, Box, Grid, ResponsiveContext, Text } from 'grommet';
 import { toast } from 'react-toastify';
 import { FiSlash } from 'react-icons/fi';
 
 import Skeleton from 'react-loading-skeleton';
-import { ethers } from 'ethers';
 import styled from 'styled-components';
-import { ActionType, ISeries, IStrategy } from '../../types';
+import { IStrategy } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
-import { useApr } from '../../hooks/useApr';
-import { nFormatter } from '../../utils/appUtils';
-
+import { getPoolPercent } from '../../utils/yieldMath';
+import { cleanValue, formatStrategyName } from '../../utils/appUtils';
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
@@ -23,6 +22,11 @@ background 0.3s ease-in-out;
 :active {
   transform: scale(1);
 }
+`;
+
+const ShadeBox = styled(Box)`
+  /* -webkit-box-shadow: inset 0px ${(props) => (props ? '-50px' : '50px')} 30px -30px rgba(0,0,0,0.30); 
+  box-shadow: inset 0px ${(props) => (props ? '-50px' : '50px')} 30px -30px rgba(0,0,0,0.30); */
 `;
 
 const InsetBox = styled(Box)`
@@ -50,135 +54,140 @@ const CardSkeleton = () => (
 interface IStrategySelectorProps {
   inputValue?: string | undefined /* accepts an inpout value for possible dynamic Return  calculations */;
   cardLayout?: boolean;
+  setOpen?: any /* used with modal */;
 }
 
-function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
+function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelectorProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const { userState, userActions } = useContext(UserContext);
-  const { selectedStrategyAddr, selectedBaseId, seriesMap, assetMap, strategiesLoading, strategyMap } = userState;
+  const { selectedStrategyAddr, selectedBaseId, strategiesLoading, strategyMap, seriesMap, diagnostics } = userState;
 
   const [options, setOptions] = useState<IStrategy[]>([]);
-
-  // const selectedBase = assetMap.get(selectedBaseId!);
-  // const selectedStrategy: IStrategy = strategyMap.get(selectedStrategyAddr);
-  // const series: ISeries = seriesMap.get(selectedStrategy?.currentSeries);
-
-  const optionText = (_series: ISeries | undefined) => {
-    if (_series) {
-      return `${mobile ? _series?.displayNameMobile : _series?.displayName}`;
-    }
-    return 'Select a maturity date';
-  };
-
-  const optionExtended = (_series: ISeries | undefined) => (
-    <Box fill="horizontal" direction="row" justify="between" gap="small">
-      <Box align="center">{_series?.seriesMark} </Box>
-      {optionText(_series)}
-      {_series?.seriesIsMature && (
-        <Box round="large" border pad={{ horizontal: 'small' }}>
-          <Text size="xsmall"> Mature </Text>
-        </Box>
-      )}
-      {/* <AprText inputValue={inputValue} series={_series!} actionType={ActionType.POOL} /> */}
-    </Box>
-  );
 
   /* Keeping options/selection fresh and valid: */
   useEffect(() => {
     const opts = Array.from(strategyMap.values()) as IStrategy[];
+    const filteredOpts = opts
+      .filter((_st: IStrategy) => _st.baseId === selectedBaseId && !_st.currentSeries?.seriesIsMature)
+      .sort((a: IStrategy, b: IStrategy) => a.currentSeries?.maturity! - b.currentSeries?.maturity!);
 
-    const filteredOpts = opts.filter((_st: IStrategy) => _st.baseId === selectedBaseId && _st.currentSeries );
     // .filter((_st: IStrategy) => _st.currentSeries);
     setOptions(filteredOpts);
   }, [selectedBaseId, strategyMap]);
 
   const handleSelect = (_strategy: IStrategy) => {
     if (_strategy.active) {
-      console.log('Strategy selected: ', _strategy.address);
+      diagnostics && console.log('Strategy selected: ', _strategy.address);
       userActions.setSelectedStrategy(_strategy.address);
       userActions.setSelectedSeries(_strategy.currentSeries?.id);
-    } else { 
-      toast.info('Strategy coming soon')
-      console.log('strategy not yet active')
+    } else {
+      toast.info('Strategy coming soon');
     }
+
+    mobile && setOpen(false);
   };
 
   return (
     <>
       {strategiesLoading && <Skeleton width={180} />}
-      {/* 
-      {!cardLayout && (
-        <InsetBox fill="horizontal" round="xsmall">
-          <Select
-            plain
-            dropProps={{ round: 'xsmall' }}
-            id="seriesSelect"
-            name="seriesSelect"
-            placeholder="Select Series"
-            options={options}
-            value={selectedSeries}
-            labelKey={(x: any) => optionText(x)}
-            valueLabel={
-              options.length ? (
-                <Box pad={mobile ? 'medium' : '0.55em'}>
-                  <Text color="text"> {optionExtended(selectedSeries)}</Text>
-                </Box>
-              ) : (
-                <Box pad={mobile ? 'medium' : '0.55em'}>
-                  <Text color="text-weak"> No available series yet.</Text>
-                </Box>
-              )
-            }
-            disabled={options.length === 0}
-            onChange={({ option }: any) => handleSelect(option)}
-            // eslint-disable-next-line react/no-children-prop
-            children={(x: any) => (
-              <Box pad={mobile ? 'medium' : 'small'} gap="small" direction="row">
-                <Text color="text"> {optionExtended(x)}</Text>
-              </Box>
-            )}
-          />
-        </InsetBox>
-      )} */}
 
       {cardLayout && (
+        <ShadeBox
+          overflow={mobile ? 'auto' : 'auto'}
+          height={mobile ? undefined : '250px'}
+          pad={{ vertical: 'small', horizontal: 'xsmall' }}
+        >
+          <Grid columns={mobile ? '100%' : '40%'} gap="small">
+            {strategiesLoading ? (
+              <>
+                <CardSkeleton />
+                <CardSkeleton />
+              </>
+            ) : (
+              options.map((strategy: IStrategy) => (
+                <StyledBox
+                  // border={series.id === selectedSeriesId}
+                  key={strategy.address}
+                  pad="xsmall"
+                  round="xsmall"
+                  onClick={() => handleSelect(strategy)}
+                  background={strategy.address === selectedStrategyAddr ? strategy.currentSeries?.color : 'solid'}
+                  elevation="xsmall"
+                  align="center"
+                >
+                  <Box pad="small" width="small" direction="row" align="center" gap="small">
+                    <Avatar
+                      background={
+                        strategy.address === selectedStrategyAddr
+                          ? 'solid'
+                          : strategy.currentSeries?.endColor.toString().concat('10')
+                      }
+                      style={{
+                        boxShadow:
+                          strategy.address === selectedStrategyAddr
+                            ? `inset 1px 1px 2px ${strategy.currentSeries?.endColor.toString().concat('69')}`
+                            : undefined,
+                      }}
+                    >
+                      {strategy.currentSeries?.seriesMark || <FiSlash />}
+                    </Avatar>
+                    <Box>
+                      {(!selectedStrategyAddr || !inputValue) && (
+                        <>
+                          <Text
+                            size="small"
+                            color={
+                              strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined
+                            }
+                          >
+                            {formatStrategyName(strategy.name)}
+                          </Text>
+                          <Text
+                            size="xsmall"
+                            color={
+                              strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined
+                            }
+                          >
+                            Rolling {seriesMap.get(strategy.currentSeriesId)?.displayName}
+                          </Text>
+                        </>
+                      )}
 
-<Box overflow={mobile?undefined:"auto"} height={mobile?undefined:"250px"} pad="xsmall" >
-        <Grid columns={mobile ? '100%' : '40%'} gap="small" >
-          {strategiesLoading ? (
-            <>
-              <CardSkeleton />
-              <CardSkeleton />
-            </>
-          ) : (
-            options.map((strategy: IStrategy) => (
-              <StyledBox
-                // border={series.id === selectedSeriesId}
-                key={strategy.address}
-                pad="xsmall"
-                round="xsmall"
-                onClick={() => handleSelect(strategy)}
-                background={strategy.address === selectedStrategyAddr ? strategy.currentSeries?.color :'solid'}
-                elevation="xsmall"
-                align="center"
-              >
-                <Box pad="small" width="small" direction="row" align="center" gap="small">
-                  <Avatar background="solid"> {strategy.currentSeries?.seriesMark || <FiSlash />}</Avatar>
-                  <Box>
-                    <Text size="medium" color={strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined}>
-                        {strategy.name}
-                     </Text>
-                    <Text size="small" color={strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined}>
-                        {!strategy.active ? 'Coming soon' : '0.14% returns'}
-                    </Text>
+                      {selectedStrategyAddr && inputValue && (
+                        <>
+                          <Text
+                            size="small"
+                            color={
+                              strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined
+                            }
+                          >
+                            {cleanValue(
+                              getPoolPercent(
+                                ethers.utils.parseUnits(cleanValue(inputValue, strategy.decimals), strategy.decimals),
+                                strategy.strategyTotalSupply!
+                              ),
+                              3
+                            )}
+                            %
+                          </Text>
+                          <Text
+                            size="xsmall"
+                            color={
+                              strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined
+                            }
+                          >
+                            of strategy
+                          </Text>
+                        </>
+                      )}
+                    </Box>
                   </Box>
-                </Box>
-              </StyledBox>
-            ))
-          )}
-        </Grid>
-        </Box>
+                </StyledBox>
+              ))
+            )}
+          </Grid>
+        </ShadeBox>
       )}
     </>
   );
@@ -187,6 +196,7 @@ function StrategySelector({ inputValue, cardLayout }: IStrategySelectorProps) {
 StrategySelector.defaultProps = {
   inputValue: undefined,
   cardLayout: true,
+  setOpen: () => null,
 };
 
 export default StrategySelector;

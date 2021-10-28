@@ -1,25 +1,13 @@
 import { BigNumber, Contract, ethers, PayableOverrides } from 'ethers';
 import { signDaiPermit, signERC2612Permit } from 'eth-permit';
 import { useContext } from 'react';
+import { toast } from 'react-toastify';
 import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
-import { MAX_256 } from '../utils/constants';
-import { ICallData, ISignData, LadleActions } from '../types';
+import { MAX_256, NON_PERMIT_ASSETS } from '../utils/constants';
+import { ApprovalType, ICallData, ISignData, LadleActions } from '../types';
 import { ERC20Permit__factory, Ladle } from '../contracts';
-import { UserContext } from '../contexts/UserContext';
-
-/*  💨 Calculate the accumulative gas limit (IF ALL calls have a gaslimit then set the total, else undefined ) */
-const _getCallGas = (calls: ICallData[]): BigNumber | undefined => {
-  const allCallsHaveGas = calls.length && calls.every((_c: ICallData) => _c.overrides && _c.overrides.gasLimit);
-  if (allCallsHaveGas) {
-    const accumulatedGas = calls.reduce(
-      (_t: BigNumber, _c: ICallData) => BigNumber.from(_c.overrides?.gasLimit).add(_t),
-      ethers.constants.Zero
-    );
-    return accumulatedGas.gt(ethers.constants.Zero) ? accumulatedGas : undefined;
-  }
-  return undefined;
-};
+import { useApprovalMethod } from './useApprovalMethod';
 
 /* Get ETH value from JOIN_ETHER OPCode, else zero -> N.B. other values sent in with other OPS are ignored for now */
 const _getCallValue = (calls: ICallData[]): BigNumber => {
@@ -30,14 +18,17 @@ const _getCallValue = (calls: ICallData[]): BigNumber => {
 /* Generic hook for chain transactions */
 export const useChain = () => {
   const {
-    chainState: { account, provider, contractMap, chainId },
+    chainState: {
+      connection: { account, provider, chainId },
+      contractMap,
+    },
   } = useContext(ChainContext);
-  const {
-    userState: { approvalMethod },
-  } = useContext(UserContext);
+
   const {
     txActions: { handleTx, handleSign },
   } = useContext(TxContext);
+
+  const approvalMethod = useApprovalMethod();
 
   /**
    * TRANSACTING
@@ -75,13 +66,21 @@ export const useChain = () => {
     console.log('Batch value sent:', batchValue.toString());
 
     /* calculate the gas required */
-    const batchGas = _getCallGas(_calls);
-    console.log('Batch gas sent: ', batchGas?.toString());
+    let gasEst: BigNumber;
+    try {
+      gasEst = await _contract.estimateGas.batch(encodedCalls, { value: batchValue } as PayableOverrides);
+    } catch (e) {
+      gasEst = BigNumber.from('300000');
+      console.log('Failed to get gas estimate', e);
+      // throw( Error('Transaction will always revert.'));
+      toast.warning('It appears the transaction will likely fail. Proceed with caution...');
+    }
+    console.log('Auto gas estimate:', gasEst.mul(120).div(100).toString());
 
     /* Finally, send out the transaction */
     return handleTx(
       () =>
-        _contract.batch(encodedCalls, { value: batchValue, gasLimit: BigNumber.from('750000') } as PayableOverrides),
+        _contract.batch(encodedCalls, { value: batchValue, gasLimit: gasEst.mul(120).div(100) } as PayableOverrides),
       txCode
     );
   };
@@ -93,6 +92,7 @@ export const useChain = () => {
    * @param { ISignData[] } requestedSignatures
    * @param { string } txCode
    * @param { boolean } viaPoolRouter DEFAULT: false
+   *
    * @returns { Promise<ICallData[]> }
    */
   const sign = async (requestedSignatures: ISignData[], txCode: string): Promise<ICallData[]> => {
@@ -112,13 +112,10 @@ export const useChain = () => {
     const signedList = await Promise.all(
       _requestedSigs.map(async (reqSig: ISignData) => {
         const _spender = getSpender(reqSig.spender);
-
         /* get an ERC20 contract instance. This is only used in the case of fallback tx (when signing is not available) */
         const tokenContract = ERC20Permit__factory.connect(reqSig.target.address, signer) as any;
 
-        /*
-          Request the signature if using DaiType permit style
-        */
+        /* Request the signature if using DaiType permit style */
         if (reqSig.target.symbol === 'DAI') {
           const { v, r, s, nonce, expiry, allowed } = await handleSign(
             /* We are pass over the generated signFn and sigData to the signatureHandler for tracking/tracing/fallback handling */
@@ -148,7 +145,7 @@ export const useChain = () => {
             _spender,
             nonce,
             expiry,
-            reqSig.amount || allowed, // use amount if provided, else defaults to MAX.
+            allowed, // TODO check use amount if provided, else defaults to MAX.
             v,
             r,
             s,
@@ -157,7 +154,7 @@ export const useChain = () => {
           if (reqSig.asRoute) {
             return {
               operation: 'route',
-              args: [account, _spender, nonce, expiry, reqSig.amount || allowed, v, r, s],
+              args: [account, _spender, nonce, expiry, allowed, v, r, s],
               fnName: 'permit',
               targetContract: tokenContract,
               ignoreIf: !(v && r && s),
@@ -194,7 +191,8 @@ export const useChain = () => {
           () => handleTx(() => tokenContract.approve(_spender, MAX_256), txCode, true),
           reqSig,
           txCode,
-          approvalMethod
+          // TODO extract this out to ( also possibly use asset id)
+          NON_PERMIT_ASSETS.includes(reqSig.target.symbol) ? ApprovalType.TX : approvalMethod
         );
 
         const args = [

@@ -20,7 +20,7 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "address",
+        internalType: "contract IWitchGov",
         name: "witch_",
         type: "address",
       },
@@ -42,6 +42,25 @@ const _abi = [
     ],
     stateMutability: "nonpayable",
     type: "constructor",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "param",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "value",
+        type: "address",
+      },
+    ],
+    name: "Point",
+    type: "event",
   },
   {
     anonymous: false,
@@ -166,6 +185,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "LOCK8605463013",
+    outputs: [
+      {
+        internalType: "bytes4",
+        name: "",
+        type: "bytes4",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "MINT",
     outputs: [
       {
@@ -180,6 +212,19 @@ const _abi = [
   {
     inputs: [],
     name: "ROOT",
+    outputs: [
+      {
+        internalType: "bytes4",
+        name: "",
+        type: "bytes4",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "ROOT4146650865",
     outputs: [
       {
         internalType: "bytes4",
@@ -402,16 +447,6 @@ const _abi = [
         name: "oracle",
         type: "address",
       },
-      {
-        internalType: "address",
-        name: "rateSource",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "chiSource",
-        type: "address",
-      },
     ],
     name: "makeBase",
     outputs: [],
@@ -436,11 +471,6 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "address",
-        name: "spotSource",
-        type: "address",
-      },
-      {
         internalType: "uint32",
         name: "ratio",
         type: "uint32",
@@ -462,6 +492,24 @@ const _abi = [
       },
     ],
     name: "makeIlk",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "param",
+        type: "bytes32",
+      },
+      {
+        internalType: "address",
+        name: "value",
+        type: "address",
+      },
+    ],
+    name: "point",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -556,7 +604,7 @@ const _abi = [
     name: "witch",
     outputs: [
       {
-        internalType: "address",
+        internalType: "contract IWitchGov",
         name: "",
         type: "address",
       },

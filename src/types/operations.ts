@@ -89,22 +89,28 @@ export namespace RoutedActions {
 
     MINT_STRATEGY_TOKENS = 'mint',
     BURN_STRATEGY_TOKENS = 'burn',
-
   }
 
   export namespace Args {
     export type SELL_BASE = [receiver: string, min: BigNumberish];
     export type SELL_FYTOKEN = [receiver: string, min: BigNumberish];
 
-    export type MINT_POOL_TOKENS = [receiver: string, calcFromBase: boolean, minLpReceived: BigNumberish];
-    export type BURN_POOL_TOKENS = [
-      baseTo: string,
-      fyTokenTo: string,
-      minBaseOut: BigNumberish,
-      minFYTokenOut: BigNumberish
+    export type MINT_POOL_TOKENS = [
+      to: string,
+      remainderTo: string,
+      minRatio: BigNumberish,
+      maxRatio: BigNumberish
     ];
-    export type MINT_WITH_BASE = [receiver: string, fyTokenToBuy: BigNumberish, minTokensMinted: BigNumberish];
-    export type BURN_FOR_BASE = [receiver: string, minBaseOut: BigNumberish];
+    export type BURN_POOL_TOKENS = [baseTo: string, fyTokenTo: string, minRatio: BigNumberish, maxRatio: BigNumberish];
+    
+    export type MINT_WITH_BASE = [
+      to: string,
+      remainderTo: string,
+      fyTokenToBuy: BigNumberish,
+      minRatio: BigNumberish,
+      maxRatio: BigNumberish
+    ];
+    export type BURN_FOR_BASE = [receiver: string, minRatio: BigNumberish, maxRatio: BigNumberish];
 
     export type MINT_STRATEGY_TOKENS = [receiver: string];
     export type BURN_STRATEGY_TOKENS = [receiver: string];

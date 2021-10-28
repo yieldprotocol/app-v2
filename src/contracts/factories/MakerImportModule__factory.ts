@@ -18,6 +18,11 @@ const _abi = [
         type: "address",
       },
       {
+        internalType: "contract IWETH9",
+        name: "weth_",
+        type: "address",
+      },
+      {
         internalType: "contract IMakerJoin",
         name: "makerDaiJoin_",
         type: "address",
@@ -90,6 +95,25 @@ const _abi = [
     inputs: [
       {
         indexed: true,
+        internalType: "address",
+        name: "integration",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "bool",
+        name: "set",
+        type: "bool",
+      },
+    ],
+    name: "IntegrationAdded",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
         internalType: "bytes6",
         name: "assetId",
         type: "bytes6",
@@ -120,7 +144,7 @@ const _abi = [
         type: "bool",
       },
     ],
-    name: "ModuleSet",
+    name: "ModuleAdded",
     type: "event",
   },
   {
@@ -140,6 +164,25 @@ const _abi = [
       },
     ],
     name: "PoolAdded",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "token",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "bool",
+        name: "set",
+        type: "bool",
+      },
+    ],
+    name: "TokenAdded",
     type: "event",
   },
   {
@@ -321,6 +364,25 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "integrations",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes6",
         name: "",
         type: "bytes6",
@@ -403,10 +465,55 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "router",
+    outputs: [
+      {
+        internalType: "contract Router",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "tokens",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "vat",
     outputs: [
       {
         internalType: "contract IVat",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "weth",
+    outputs: [
+      {
+        internalType: "contract IWETH9",
         name: "",
         type: "address",
       },

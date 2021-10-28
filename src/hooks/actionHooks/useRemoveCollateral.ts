@@ -1,26 +1,24 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
-import { HistoryContext } from '../../contexts/HistoryContext';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, IVault, ISeries, ActionCodes, LadleActions } from '../../types';
-import { getTxCode } from '../../utils/appUtils';
+import { ICallData, IVault, ActionCodes, LadleActions } from '../../types';
+import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { ETH_BASED_ASSETS } from '../../utils/constants';
 import { useChain } from '../useChain';
 
+// TODO will fail if balance of join is less than amount
 export const useRemoveCollateral = () => {
   const {
-    chainState: { account, contractMap },
+    chainState: { contractMap },
   } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
-  const { selectedIlkId, seriesMap, assetMap } = userState;
+  const { activeAccount: account, selectedIlkId, assetMap } = userState;
   const { updateAssets, updateVaults } = userActions;
 
-  const { historyActions: { updateVaultHistory } } = useContext(HistoryContext);
+  const { transact } = useChain();
 
-  const { sign, transact } = useChain();
-
-  const removeEth = (value: BigNumber, series: ISeries): ICallData[] => {
+  const removeEth = (value: BigNumber ): ICallData[] => {
     /* First check if the selected Ilk is, in fact, an ETH variety */
     if (ETH_BASED_ASSETS.includes(selectedIlkId)) {
       /* return the remove ETH OP */
@@ -41,17 +39,16 @@ export const useRemoveCollateral = () => {
     const txCode = getTxCode(ActionCodes.REMOVE_COLLATERAL, vault.id);
 
     /* get associated series and ilk */
-    const series = seriesMap.get(vault.seriesId);
     const ilk = assetMap.get(vault.ilkId);
 
     /* parse inputs to BigNumber in Wei, and NEGATE */
-    const _input = ethers.utils.parseUnits(input, ilk.decimals).mul(-1);
+    const cleanedInput = cleanValue(input, ilk.decimals);
+    const _input = ethers.utils.parseUnits(cleanedInput, ilk.decimals).mul(-1);
 
     /* check if the ilk/asset is an eth asset variety, if so pour to Ladle */
     const _pourTo = ETH_BASED_ASSETS.includes(ilk.id) ? contractMap.get('Ladle').address : account;
 
     const calls: ICallData[] = [
-      // ladle.pourAction(vaultId, ignored, -posted, 0)
       {
         operation: LadleActions.Fn.POUR,
         args: [
@@ -62,7 +59,7 @@ export const useRemoveCollateral = () => {
         ] as LadleActions.Args.POUR,
         ignoreIf: false,
       },
-      ...removeEth(_input, series),
+      ...removeEth(_input),
     ];
 
     await transact(calls, txCode);

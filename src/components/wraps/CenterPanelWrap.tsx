@@ -72,7 +72,7 @@ function CenterPanelWrap({ children, series }: IPanelWrap) {
   return (
     <>
       {mobile ? (
-        <Box ref={domTarget} height={{ min: '500px' }}>
+        <Box ref={domTarget} height="100%" margin={{ top: mobile ? 'xlarge' : undefined }}>
           {children}
         </Box>
       ) : (

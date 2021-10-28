@@ -1,24 +1,24 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { ethers, utils } from 'ethers';
-
-import { Text, Box, Button, ResponsiveContext, Footer, Collapsible, Select, Layer } from 'grommet';
-import { toast } from 'react-toastify';
+import { Text, Box, Button, Layer } from 'grommet';
 import { ChainContext } from '../contexts/ChainContext';
 
 import { useTimeTravel } from '../hooks/useTimeTravel';
 import { UserContext } from '../contexts/UserContext';
 import { ApprovalType, IAsset } from '../types';
+import { useApprovalMethod } from '../hooks/useApprovalMethod';
 
 const YieldFooter = (props: any) => {
-  const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
+  
   const { chainState, chainActions } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
-  const { account, fallbackProvider } = chainState;
+  const { connection: { account, fallbackProvider } } = chainState;
 
   const [testOpen, setTestOpen] = useState<boolean>(false);
   const { advanceTimeAndBlock, takeSnapshot, revertToT0 } = useTimeTravel();
 
   const [timestamp, setTimestamp] = useState<number | null>(null);
+
+  const approvalMethod = useApprovalMethod();
 
   useEffect(() => {
     fallbackProvider &&
@@ -97,7 +97,7 @@ const YieldFooter = (props: any) => {
                   }
                   label="Toggle approval method"
                 />
-                Approval Method: {userState.approvalMethod}
+                Approval Method: {approvalMethod}
               </Box>
             </Box>
 

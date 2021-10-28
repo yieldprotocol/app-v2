@@ -119,6 +119,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "LOCK8605463013",
+    outputs: [
+      {
+        internalType: "bytes4",
+        name: "",
+        type: "bytes4",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "ROOT",
     outputs: [
       {
@@ -132,25 +145,12 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "SCALE_FACTOR",
+    name: "ROOT4146650865",
     outputs: [
       {
-        internalType: "uint256",
+        internalType: "bytes4",
         name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "decimals",
-    outputs: [
-      {
-        internalType: "uint8",
-        name: "",
-        type: "uint8",
+        type: "bytes4",
       },
     ],
     stateMutability: "view",
@@ -170,7 +170,7 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "amount",
+        name: "",
         type: "uint256",
       },
     ],
@@ -178,7 +178,7 @@ const _abi = [
     outputs: [
       {
         internalType: "uint256",
-        name: "value",
+        name: "accumulator",
         type: "uint256",
       },
       {
@@ -296,7 +296,7 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "amount",
+        name: "",
         type: "uint256",
       },
     ],
@@ -304,7 +304,7 @@ const _abi = [
     outputs: [
       {
         internalType: "uint256",
-        name: "value",
+        name: "accumulator",
         type: "uint256",
       },
       {
@@ -407,29 +407,6 @@ const _abi = [
       },
     ],
     name: "setSource",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes6[]",
-        name: "bases",
-        type: "bytes6[]",
-      },
-      {
-        internalType: "bytes6[]",
-        name: "kinds",
-        type: "bytes6[]",
-      },
-      {
-        internalType: "address[]",
-        name: "sources_",
-        type: "address[]",
-      },
-    ],
-    name: "setSources",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

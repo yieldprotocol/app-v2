@@ -18,7 +18,7 @@ import { HistoryProvider } from './contexts/HistoryContext';
 /* Init the signing web3 environment */
 function getLibrary(provider: ethers.providers.ExternalProvider, connector: any) {
   const library = new ethers.providers.Web3Provider(provider);
-  library.pollingInterval = 12000;
+  library.pollingInterval = 6000;
   return library;
 }
 
@@ -26,20 +26,12 @@ function getLibrary(provider: ethers.providers.ExternalProvider, connector: any)
 const Web3FallbackProvider = createWeb3ReactRoot('fallback');
 
 function getFallbackLibrary(provider: any, connector: any) {
-  let library: ethers.providers.JsonRpcProvider | undefined;
-  if (provider.chainId === 31337) {
-    library = new ethers.providers.JsonRpcProvider(process.env.REACT_APP_RPC_URL_31337 as string);
-    library.pollingInterval = 12000;
-  } else if (
-    // don't get fallback for polygon networks
-    provider.chainId === (137 || 80001)
-  ) {
-    library = undefined;
-  } else {
-    // library = new ethers.providers.JsonRpcProvider(process.env.REACT_APP_RPC_URL_1 as string);
-    library = new ethers.providers.InfuraProvider(provider.chainId, '646dc0f33d2449878b28e0afa25267f6');
-    library.pollingInterval = 12000;
-  }
+  // library = new ethers.providers.JsonRpcProvider(process.env.REACT_APP_RPC_URL_1 as string);
+  const library: ethers.providers.JsonRpcProvider = new ethers.providers.InfuraProvider(
+    provider.chainId,
+    '2af222f674024a0f84b5f0aad0da72a2'
+  );
+  library.pollingInterval = 6000;
   return library;
 }
 

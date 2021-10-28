@@ -1,15 +1,14 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Avatar, Box, Carousel, Grid, ResponsiveContext, Select, Stack, Text, ThemeContext } from 'grommet';
+import { Avatar, Box, Grid, ResponsiveContext, Select, Text } from 'grommet';
 
 import Skeleton from 'react-loading-skeleton';
 import { ethers } from 'ethers';
 import styled from 'styled-components';
-import { FiClock } from 'react-icons/fi';
 import { ActionType, ISeries } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
-import { calculateAPR } from '../../utils/yieldMath';
+import { maxBaseIn, maxBaseOut, maxFyTokenIn, maxFyTokenOut } from '../../utils/yieldMath';
 import { useApr } from '../../hooks/useApr';
-import { chunkArray, nFormatter } from '../../utils/appUtils';
+import { cleanValue } from '../../utils/appUtils';
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
@@ -24,7 +23,6 @@ background 0.3s ease-in-out;
 }
 `;
 
-// TODO shaebox
 const ShadeBox = styled(Box)`
   /* -webkit-box-shadow: inset 0px ${(props) => (props ? '-50px' : '50px')} 30px -30px rgba(0,0,0,0.30); 
   box-shadow: inset 0px ${(props) => (props ? '-50px' : '50px')} 30px -30px rgba(0,0,0,0.30); */
@@ -35,7 +33,7 @@ const InsetBox = styled(Box)`
   box-shadow: inset 1px 1px 1px #ddd, inset -0.25px -0.25px 0.25px #ddd;
 `;
 
-const CardSkeleton = () => (
+export const CardSkeleton = () => (
   <StyledBox
     // border={series.id === selectedSeriesId}
     pad="xsmall"
@@ -59,6 +57,7 @@ interface ISeriesSelectorProps {
   ) => void /* select series locally filters out the global selection from the list and returns the selected ISeries */;
   inputValue?: string | undefined /* accepts an inpout value for dynamic APR calculations */;
   cardLayout?: boolean;
+  setOpen?: any /* used with modal */;
 }
 
 const AprText = ({
@@ -70,39 +69,73 @@ const AprText = ({
   series: ISeries;
   actionType: ActionType;
 }) => {
-  const { apr } = useApr(inputValue, actionType, series);
-
-  // const { poolPercent } = usePool(inputValue, series);
-
+  const {
+    userState: { diagnostics },
+  } = useContext(UserContext);
+  const _inputValue = cleanValue(inputValue, series.decimals);
+  const { apr } = useApr(_inputValue, actionType, series);
   const [limitHit, setLimitHit] = useState<boolean>(false);
 
+  const baseIn = maxBaseIn(series.baseReserves, series.fyTokenReserves, series.getTimeTillMaturity(), series.decimals);
+
+  const baseOut = maxBaseOut(
+    series.baseReserves,
+    series.fyTokenReserves,
+    series.getTimeTillMaturity(),
+    series.decimals
+  );
+
+  // const tokenOut = maxFyTokenOut(
+  //   series.baseReserves,
+  //   series.fyTokenReserves,
+  //   series.getTimeTillMaturity(),
+  //   series.decimals
+  // );
+
+  // const tokenIn = maxFyTokenIn(
+  //   series.baseReserves,
+  //   series.fyTokenReserves,
+  //   series.getTimeTillMaturity(),
+  //   series.decimals
+  // );
+
+  diagnostics && console.log(series.id, ' maxbaseIn', baseIn.toString());
+  diagnostics && console.log(series.id, ' maxbaseOut', baseOut.toString());
+  // diagnostics && console.log(series.id, ' maxtokenIn', tokenIn.toString());
+  // diagnostics && console.log(series.id, ' maxtokenOut', tokenOut.toString());
+
   useEffect(() => {
-    if (
-      !series?.seriesIsMature &&
-      inputValue &&
-      ethers.utils.parseUnits(inputValue, series.decimals).gt(series.baseReserves)
-    ) {
-      setLimitHit(true);
-    } else {
-      setLimitHit(false);
-    }
-  }, [inputValue, series.baseReserves, series?.seriesIsMature, setLimitHit]);
+    if (!series?.seriesIsMature && _inputValue)
+      actionType === ActionType.LEND
+        ? setLimitHit(ethers.utils.parseUnits(_inputValue, series?.decimals).gt(baseIn)) // lending max
+        : setLimitHit(ethers.utils.parseUnits(_inputValue, series?.decimals).gt(series.baseReserves)); // borrow max
+  }, [
+    _inputValue,
+    actionType,
+    baseIn,
+    baseOut,
+    series.baseReserves,
+    series?.decimals,
+    series?.seriesIsMature,
+    setLimitHit,
+  ]);
 
   return (
     <>
-      {actionType !== ActionType.POOL && !series.seriesIsMature && !inputValue && (
+      {!series.seriesIsMature && !_inputValue && !limitHit && (
         <Text size="medium">
-          {series?.apr}% <Text size="xsmall">APR</Text>
+          {series?.apr}%{' '}
+          <Text size="xsmall">{[ActionType.LEND, ActionType.POOL].includes(actionType) ? 'APY' : 'APR'}</Text>
         </Text>
       )}
 
-      {actionType !== ActionType.POOL && !limitHit && !series?.seriesIsMature && inputValue && (
+      {!series?.seriesIsMature && _inputValue && !limitHit && (
         <Text size="medium">
-          {apr}% <Text size="xsmall">APR</Text>
+          {apr}% <Text size="xsmall">{[ActionType.LEND, ActionType.POOL].includes(actionType) ? 'APY' : 'APR'}</Text>
         </Text>
       )}
 
-      {actionType !== ActionType.POOL && limitHit && (
+      {limitHit && (
         <Text size="xsmall" color="pink">
           low liquidity
         </Text>
@@ -117,16 +150,19 @@ const AprText = ({
   );
 };
 
-function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayout }: ISeriesSelectorProps) {
+function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayout, setOpen }: ISeriesSelectorProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const { userState, userActions } = useContext(UserContext);
-  const { selectedSeriesId, selectedBaseId, seriesMap, assetMap, seriesLoading } = userState;
+  const { selectedSeriesId, selectedBaseId, seriesMap, assetMap, seriesLoading, diagnostics } = userState;
   const [localSeries, setLocalSeries] = useState<ISeries | null>();
   const [options, setOptions] = useState<ISeries[]>([]);
 
   const selectedSeries = selectSeriesLocally ? localSeries : seriesMap.get(selectedSeriesId!);
   const selectedBase = assetMap.get(selectedBaseId!);
+
+  /* prevent underflow */
+  const _inputValue = cleanValue(inputValue, selectedSeries?.decimals);
 
   const optionText = (_series: ISeries | undefined) => {
     if (_series) {
@@ -136,15 +172,17 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
   };
 
   const optionExtended = (_series: ISeries | undefined) => (
-    <Box fill="horizontal" direction="row" justify="between" gap="small">
-      <Box align="center">{_series?.seriesMark} </Box>
+    <Box fill="horizontal" direction="row" justify="between" gap="small" align="center">
+      <Box align="center">{_series?.seriesMark}</Box>
       {optionText(_series)}
       {_series?.seriesIsMature && (
         <Box round="large" border pad={{ horizontal: 'small' }}>
-          <Text size="xsmall"> Mature </Text>
+          <Text size="xsmall">Mature</Text>
         </Box>
       )}
-      {_series && actionType !== 'POOL' && <AprText inputValue={inputValue} series={_series} actionType={actionType} />}
+      {_series && actionType !== 'POOL' && (
+        <AprText inputValue={_inputValue} series={_series} actionType={actionType} />
+      )}
     </Box>
   );
 
@@ -153,10 +191,12 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     const opts = Array.from(seriesMap.values()) as ISeries[];
 
     /* filter out options based on base Id and if mature */
-    let filteredOpts = opts.filter(
-      (_series: ISeries) => _series.baseId === selectedBaseId && !_series.seriesIsMature
-      // !ignoredSeries?.includes(_series.baseId)
-    );
+    let filteredOpts = opts
+      .filter(
+        (_series: ISeries) => _series.baseId === selectedBaseId && !_series.seriesIsMature
+        // !ignoredSeries?.includes(_series.baseId)
+      )
+      .sort((a: ISeries, b: ISeries) => b.maturity! - a.maturity!);
 
     /* if required, filter out the globally selected asset and */
     if (selectSeriesLocally) {
@@ -167,31 +207,33 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     set the selected series to null. */
     if (
       selectedSeries &&
-      (filteredOpts.findIndex((_series: ISeries) => _series.id !== selectedSeriesId) < 0 ||
-        selectedSeries.baseId !== selectedBaseId)
+      // (filteredOpts.findIndex((_series: ISeries) => _series.id !== selectedSeriesId) < 0 ||
+      selectedSeries.baseId !== selectedBaseId // )
     )
       userActions.setSelectedSeries(null);
 
     setOptions(filteredOpts.sort((a: ISeries, b: ISeries) => a.maturity - b.maturity));
-  }, [seriesMap, selectedBase, selectSeriesLocally, selectedSeries, userActions]);
+  }, [seriesMap, selectedBase, selectSeriesLocally, selectedSeries, userActions, selectedBaseId, selectedSeriesId]);
 
   const handleSelect = (_series: ISeries) => {
     if (!selectSeriesLocally) {
-      console.log('Series selected globally: ', _series.id);
+      diagnostics && console.log('Series selected globally: ', _series.id);
       userActions.setSelectedSeries(_series.id);
     } else {
       /* used for passing a selected series to the parent component */
-      console.log('Series set locally: ', _series.id);
+      diagnostics && console.log('Series set locally: ', _series.id);
       selectSeriesLocally(_series);
       setLocalSeries(_series);
     }
+
+    mobile && setOpen(false);
   };
 
   return (
     <>
-      {seriesLoading && <Skeleton width={180} />}
+      {seriesLoading && !mobile && <Skeleton width={180} />}
       {!cardLayout && (
-        <InsetBox fill="horizontal" round="xsmall">
+        <InsetBox fill="horizontal" round="xsmall" background={mobile ? 'white' : undefined}>
           <Select
             plain
             dropProps={{ round: 'xsmall' }}
@@ -208,7 +250,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
                 </Box>
               ) : (
                 <Box pad={mobile ? 'medium' : '0.55em'}>
-                  <Text color="text-weak"> No available series yet.</Text>
+                  <Text color="text-weak">No available series yet.</Text>
                 </Box>
               )
             }
@@ -217,7 +259,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
             // eslint-disable-next-line react/no-children-prop
             children={(x: any) => (
               <Box pad={mobile ? 'medium' : 'small'} gap="small" direction="row">
-                <Text color="text"> {optionExtended(x)}</Text>
+                <Text color="text">{optionExtended(x)}</Text>
               </Box>
             )}
           />
@@ -226,18 +268,21 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
       {cardLayout && (
         <ShadeBox
-          overflow={mobile ? undefined : 'auto'}
+          overflow={mobile ? 'auto' : 'auto'}
           height={mobile ? undefined : '250px'}
           pad={{ vertical: 'small', horizontal: 'xsmall' }}
-
         >
           <Grid columns={mobile ? '100%' : '40%'} gap="small">
             {seriesLoading ? (
               <>
                 <CardSkeleton />
                 <CardSkeleton />
-                <CardSkeleton />
-                <CardSkeleton />
+                {!mobile && (
+                  <>
+                    <CardSkeleton />
+                    <CardSkeleton />
+                  </>
+                )}
               </>
             ) : (
               options.map((series: ISeries) => (
@@ -253,22 +298,20 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
                 >
                   <Box pad="small" width="small" direction="row" align="center" gap="small">
                     <Avatar
-                      background={ series.id === selectedSeriesId ? 'solid' : series.endColor.toString().concat('10') }
-                      // border={series.id === selectedSeriesId ? undefined : { color: series.endColor.toString().concat('25')} }
+                      background={series.id === selectedSeriesId ? 'solid' : series.endColor.toString().concat('10')}
                       style={{
-                        boxShadow: 
-                          series.id === selectedSeriesId 
-                          ? `inset 1px 1px 2px ${ series.endColor.toString().concat('69') }`
-                          // : `-1px -1px 1px ${ series.endColor.toString().concat('30') }, 1px 1px 1px ${ series.endColor.toString().concat('30') }`
-                          : undefined
-                       }}
+                        boxShadow:
+                          series.id === selectedSeriesId
+                            ? `inset 1px 1px 2px ${series.endColor.toString().concat('69')}`
+                            : undefined,
+                      }}
                     >
                       {series.seriesMark}
                     </Avatar>
 
                     <Box>
                       <Text size="medium" color={series.id === selectedSeriesId ? series.textColor : undefined}>
-                        <AprText inputValue={inputValue} series={series} actionType={actionType} />
+                        <AprText inputValue={_inputValue} series={series} actionType={actionType} />
                       </Text>
                       <Text size="small" color={series.id === selectedSeriesId ? series.textColor : undefined}>
                         {series.displayName}
@@ -289,6 +332,7 @@ SeriesSelector.defaultProps = {
   selectSeriesLocally: null,
   inputValue: undefined,
   cardLayout: true,
+  setOpen: () => null,
 };
 
 export default SeriesSelector;

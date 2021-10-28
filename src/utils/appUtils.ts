@@ -1,6 +1,4 @@
 import { format, getMonth, subDays } from 'date-fns';
-import { BigNumber, BigNumberish, ethers } from 'ethers';
-import Identicon, { IdenticonOptions } from 'identicon.js';
 import { ActionCodes } from '../types';
 
 export const copyToClipboard = (str: string) => {
@@ -11,34 +9,6 @@ export const copyToClipboard = (str: string) => {
   document.execCommand('copy');
   document.body.removeChild(el);
 };
-
-/**
- * Convert bytesX to bytes32 (BigEndian?)
- * @param x string to convert.
- * @param n current bytes value eg. bytes6 or bytes12
- * @returns string bytes32
- */
-export function bytesToBytes32(x: string, n: number): string {
-  return x + '00'.repeat(32 - n);
-}
-
-/**
- * Convert a bignumber with any decimal to a bn with decimal of 18
- * @param x bn to convert.
- * @param decimals of the current bignumber
- * @returns BigNumber
- */
-export const decimalNToDecimal18 = (x: BigNumber, decimals: number): BigNumber =>
-  BigNumber.from(x.toString() + '0'.repeat(18 - decimals));
-
-/**
- * Convert a decimal18 to a bn of any decimal
- * @param x 18 decimal to reduce
- * @param decimals required
- * @returns BigNumber
- */
-export const decimal18ToDecimalN = (x: BigNumber, decimals: number): BigNumber =>
-  BigNumber.from(x.toString().substring(0, 18 - decimals));
 
 /**
  * Convert array to chunks of arrays with size n
@@ -58,17 +28,6 @@ export const toLog = (message: string, type: string = 'info') => {
 /* creates internal tracking code of a transaction type */
 export const getTxCode = (txType: ActionCodes, vaultOrSeriesId: string | null) => `${txType}_${vaultOrSeriesId}`;
 
-// /* google analytics log event */
-// export const analyticsLogEvent = (eventName: string, eventParams: any ) => {
-//   if (eventName) {
-//     try {
-//     window?.gtag('event', eventName, eventParams);
-//     } catch (e) {
-//       // eslint-disable-next-line no-console
-//       console.log(e);
-//     }
-//   }
-// };
 
 // TODO make it change based on hemisphere ( ie swap winter and summer)
 export enum SeasonType {
@@ -100,7 +59,8 @@ export const getSeason = (dateInSecs: number): SeasonType => {
 export const cleanValue = (input: string | undefined, decimals: number = 18) => {
   const re = new RegExp(`(\\d+\\.\\d{${decimals}})(\\d)`);
   if (input !== undefined) {
-    const inpu = input?.match(re); // inpu = truncated 'input'... get it?
+    const input_ = input![0] === '.' ? '0'.concat(input!) : input; 
+    const inpu = input_?.match(re); // inpu = truncated 'input'... get it?
     if (inpu) {
       return inpu[1];
     }
@@ -121,18 +81,6 @@ export const abbreviateHash = (addr: string, buffer: number = 4) =>
  * */
 export const nameFromMaturity = (maturity: number, style: string = 'MMMM yyyy') =>
   format(subDays(new Date(maturity * 1000), 2), style);
-
-export const genVaultImage = (id: string) => {
-  const options = {
-    foreground: [0, 0, 255, 255], // rgba black
-    background: [255, 255, 255, 255], // rgba white
-    margin: 0.2, // 20% margin
-    size: 16,
-    format: 'svg', // use SVG instead of PNG
-  } as IdenticonOptions;
-  const data = new Identicon(id, options).toString();
-  return `data:image/svg+xml;base64,${data}`;
-};
 
 /**
  * Number formatting if reqd.
@@ -218,36 +166,56 @@ export const buildGradient = (colorFrom: string, colorTo: string) => `linear-gra
       ${modColor(colorTo, 0)})
     `;
 
-export const getPositionPathPrefix = (txCode: string) => {
+export const getPositionPath = (txCode: string, receipt: any, contractMap?: any, seriesMap?: any) => {
   const action = txCode.split('_')[0];
+  const positionId = txCode.split('_')[1];
+
   switch (action) {
     // BORROW
     case ActionCodes.BORROW:
+    case ActionCodes.ADD_COLLATERAL:
     case ActionCodes.REMOVE_COLLATERAL:
     case ActionCodes.REPAY:
     case ActionCodes.ROLL_DEBT:
     case ActionCodes.TRANSFER_VAULT:
     case ActionCodes.MERGE_VAULT:
-      return 'vaultposition';
+      return `/vaultposition/${getVaultIdFromReceipt(receipt, contractMap)}`;
     // LEND
     case ActionCodes.LEND:
     case ActionCodes.CLOSE_POSITION:
-    case ActionCodes.ROLL_POSITION:
     case ActionCodes.REDEEM:
-      return 'lendposition';
+      return `/lendposition/${positionId}`;
+    case ActionCodes.ROLL_POSITION:
+      return `/lendposition/${getSeriesAfterRollPosition(receipt, seriesMap)}`;
     // POOL
     case ActionCodes.ADD_LIQUIDITY:
     case ActionCodes.REMOVE_LIQUIDITY:
     case ActionCodes.ROLL_LIQUIDITY:
-      return 'poolposition';
+      return `/poolposition/${positionId}`;
 
     default:
-      return `${action.toLowerCase()}position`;
+      return '/';
   }
 };
 
 export const getVaultIdFromReceipt = (receipt: any, contractMap: any) => {
-  const cauldronAddr = contractMap.get('Cauldron').address;
-  const vaultIdHex = receipt.events.filter((e: any) => e.address === cauldronAddr)[0].topics[1];
-  return vaultIdHex.slice(0, 26);
+  if (!receipt) return '';
+  const cauldronAddr = contractMap?.get('Cauldron')?.address!;
+  const vaultIdHex = receipt.events?.filter((e: any) => e.address === cauldronAddr)[0]?.topics[1]!;
+  return vaultIdHex?.slice(0, 26) || '';
 };
+
+export const getSeriesAfterRollPosition = (receipt: any, seriesMap: any) => {
+  if (!receipt) return '';
+  const contractAddress = receipt.events[7]?.address!;
+  const series = [...seriesMap.values()].filter((s) => s.address === contractAddress)[0];
+  return series?.id! || '';
+};
+
+export const formatStrategyName = (name: string) => {
+  const name_ = name.toLowerCase();
+  const timeFrame = name_.slice(-2) === 'q2' ? '3 Month' : '6 Month';
+  return `${timeFrame}`;
+};
+
+export const getStrategySymbol = (name: string) => name.slice(2).slice(0, -2);

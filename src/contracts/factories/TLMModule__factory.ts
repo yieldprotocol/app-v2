@@ -15,6 +15,11 @@ const _abi = [
         type: "address",
       },
       {
+        internalType: "contract IWETH9",
+        name: "weth_",
+        type: "address",
+      },
+      {
         internalType: "contract DssTlmAbstract",
         name: "tlm_",
         type: "address",
@@ -34,6 +39,25 @@ const _abi = [
       },
     ],
     name: "FeeSet",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "integration",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "bool",
+        name: "set",
+        type: "bool",
+      },
+    ],
+    name: "IntegrationAdded",
     type: "event",
   },
   {
@@ -71,7 +95,7 @@ const _abi = [
         type: "bool",
       },
     ],
-    name: "ModuleSet",
+    name: "ModuleAdded",
     type: "event",
   },
   {
@@ -113,6 +137,25 @@ const _abi = [
     type: "event",
   },
   {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "token",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "bool",
+        name: "set",
+        type: "bool",
+      },
+    ],
+    name: "TokenAdded",
+    type: "event",
+  },
+  {
     inputs: [
       {
         internalType: "bytes6",
@@ -146,6 +189,25 @@ const _abi = [
         internalType: "contract ICauldron",
         name: "",
         type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "integrations",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
       },
     ],
     stateMutability: "view",
@@ -227,6 +289,19 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "router",
+    outputs: [
+      {
+        internalType: "contract Router",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "bytes6",
@@ -293,6 +368,38 @@ const _abi = [
     outputs: [
       {
         internalType: "contract TLMModule",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "tokens",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "weth",
+    outputs: [
+      {
+        internalType: "contract IWETH9",
         name: "",
         type: "address",
       },

@@ -20,11 +20,6 @@ const _abi = [
         type: "string",
       },
       {
-        internalType: "uint8",
-        name: "decimals",
-        type: "uint8",
-      },
-      {
         internalType: "contract ILadle",
         name: "ladle_",
         type: "address",
@@ -91,32 +86,6 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "burnt",
-        type: "uint256",
-      },
-    ],
-    name: "Divest",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "minted",
-        type: "uint256",
-      },
-    ],
-    name: "Invest",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
         indexed: true,
         internalType: "contract IPool",
         name: "pool",
@@ -176,12 +145,6 @@ const _abi = [
     inputs: [
       {
         indexed: false,
-        internalType: "contract IERC20",
-        name: "rewardsToken",
-        type: "address",
-      },
-      {
-        indexed: false,
         internalType: "uint32",
         name: "start",
         type: "uint32",
@@ -200,6 +163,19 @@ const _abi = [
       },
     ],
     name: "RewardsSet",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "contract IERC20",
+        name: "token",
+        type: "address",
+      },
+    ],
+    name: "RewardsTokenSet",
     type: "event",
   },
   {
@@ -733,6 +709,25 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "invariants",
+    outputs: [
+      {
+        internalType: "uint128",
+        name: "",
+        type: "uint128",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "ladle",
     outputs: [
@@ -1064,11 +1059,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "contract IERC20",
-        name: "rewardsToken_",
-        type: "address",
-      },
-      {
         internalType: "uint32",
         name: "start",
         type: "uint32",
@@ -1085,6 +1075,19 @@ const _abi = [
       },
     ],
     name: "setRewards",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "contract IERC20",
+        name: "rewardsToken_",
+        type: "address",
+      },
+    ],
+    name: "setRewardsToken",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -1127,11 +1130,6 @@ const _abi = [
         name: "ladle_",
         type: "address",
       },
-      {
-        internalType: "contract ICauldron",
-        name: "cauldron_",
-        type: "address",
-      },
     ],
     name: "setYield",
     outputs: [],
@@ -1139,7 +1137,18 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "minRatio",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "maxRatio",
+        type: "uint256",
+      },
+    ],
     name: "startPool",
     outputs: [],
     stateMutability: "nonpayable",
@@ -1222,19 +1231,6 @@ const _abi = [
       },
     ],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "vaultId",
-    outputs: [
-      {
-        internalType: "bytes12",
-        name: "",
-        type: "bytes12",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {

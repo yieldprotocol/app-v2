@@ -90,44 +90,6 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
-        indexed: true,
-        internalType: "address",
-        name: "oldOwner",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "newOwner",
-        type: "address",
-      },
-    ],
-    name: "OwnershipTransferred",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "bytes32",
-        name: "parameter",
-        type: "bytes32",
-      },
-      {
-        indexed: false,
-        internalType: "int128",
-        name: "k",
-        type: "int128",
-      },
-    ],
-    name: "ParameterSet",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
         indexed: false,
         internalType: "uint112",
         name: "baseCached",
@@ -331,12 +293,12 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "minBaseOut",
+        name: "minRatio",
         type: "uint256",
       },
       {
         internalType: "uint256",
-        name: "minFYTokenOut",
+        name: "maxRatio",
         type: "uint256",
       },
     ],
@@ -370,7 +332,12 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "minBaseOut",
+        name: "minRatio",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "maxRatio",
         type: "uint256",
       },
     ],
@@ -540,6 +507,32 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "g1",
+    outputs: [
+      {
+        internalType: "int128",
+        name: "",
+        type: "int128",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "g2",
+    outputs: [
+      {
+        internalType: "int128",
+        name: "",
+        type: "int128",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "getBaseBalance",
     outputs: [
       {
@@ -589,45 +582,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "getG1",
-    outputs: [
-      {
-        internalType: "int128",
-        name: "",
-        type: "int128",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "getG2",
-    outputs: [
-      {
-        internalType: "int128",
-        name: "",
-        type: "int128",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "getK",
-    outputs: [
-      {
-        internalType: "int128",
-        name: "",
-        type: "int128",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
     name: "maturity",
     outputs: [
       {
@@ -647,13 +601,18 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "bool",
-        name: "calculateFromBase",
-        type: "bool",
+        internalType: "address",
+        name: "remainder",
+        type: "address",
       },
       {
         internalType: "uint256",
-        name: "minTokensMinted",
+        name: "minRatio",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "maxRatio",
         type: "uint256",
       },
     ],
@@ -686,13 +645,23 @@ const _abi = [
         type: "address",
       },
       {
+        internalType: "address",
+        name: "remainder",
+        type: "address",
+      },
+      {
         internalType: "uint256",
         name: "fyTokenToBuy",
         type: "uint256",
       },
       {
         internalType: "uint256",
-        name: "minTokensMinted",
+        name: "minRatio",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "maxRatio",
         type: "uint256",
       },
     ],
@@ -744,19 +713,6 @@ const _abi = [
         internalType: "uint256",
         name: "",
         type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "owner",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
       },
     ],
     stateMutability: "view",
@@ -841,6 +797,19 @@ const _abi = [
       },
     ],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "scaleFactor",
+    outputs: [
+      {
+        internalType: "uint96",
+        name: "",
+        type: "uint96",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -930,24 +899,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "parameter",
-        type: "bytes32",
-      },
-      {
-        internalType: "int128",
-        name: "value",
-        type: "int128",
-      },
-    ],
-    name: "setParameter",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     inputs: [],
     name: "symbol",
     outputs: [
@@ -1034,16 +985,16 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
+    inputs: [],
+    name: "ts",
+    outputs: [
       {
-        internalType: "address",
-        name: "newOwner",
-        type: "address",
+        internalType: "int128",
+        name: "",
+        type: "int128",
       },
     ],
-    name: "transferOwnership",
-    outputs: [],
-    stateMutability: "nonpayable",
+    stateMutability: "view",
     type: "function",
   },
   {

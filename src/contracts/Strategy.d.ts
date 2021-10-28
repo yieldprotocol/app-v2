@@ -17,7 +17,7 @@ import {
 import { BytesLike } from "@ethersproject/bytes";
 import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
-import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
+import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 
 interface StrategyInterface extends ethers.utils.Interface {
   functions: {
@@ -44,6 +44,7 @@ interface StrategyInterface extends ethers.utils.Interface {
     "grantRole(bytes4,address)": FunctionFragment;
     "grantRoles(bytes4[],address)": FunctionFragment;
     "hasRole(bytes4,address)": FunctionFragment;
+    "invariants(address)": FunctionFragment;
     "ladle()": FunctionFragment;
     "lockRole(bytes4)": FunctionFragment;
     "mint(address)": FunctionFragment;
@@ -63,16 +64,16 @@ interface StrategyInterface extends ethers.utils.Interface {
     "rewardsToken()": FunctionFragment;
     "seriesId()": FunctionFragment;
     "setNextPool(address,bytes6)": FunctionFragment;
-    "setRewards(address,uint32,uint32,uint96)": FunctionFragment;
+    "setRewards(uint32,uint32,uint96)": FunctionFragment;
+    "setRewardsToken(address)": FunctionFragment;
     "setRoleAdmin(bytes4,bytes4)": FunctionFragment;
     "setTokenId(bytes6)": FunctionFragment;
-    "setYield(address,address)": FunctionFragment;
-    "startPool()": FunctionFragment;
+    "setYield(address)": FunctionFragment;
+    "startPool(uint256,uint256)": FunctionFragment;
     "symbol()": FunctionFragment;
     "totalSupply()": FunctionFragment;
     "transfer(address,uint256)": FunctionFragment;
     "transferFrom(address,address,uint256)": FunctionFragment;
-    "vaultId()": FunctionFragment;
     "version()": FunctionFragment;
   };
 
@@ -126,6 +127,7 @@ interface StrategyInterface extends ethers.utils.Interface {
     functionFragment: "hasRole",
     values: [BytesLike, string]
   ): string;
+  encodeFunctionData(functionFragment: "invariants", values: [string]): string;
   encodeFunctionData(functionFragment: "ladle", values?: undefined): string;
   encodeFunctionData(functionFragment: "lockRole", values: [BytesLike]): string;
   encodeFunctionData(functionFragment: "mint", values: [string]): string;
@@ -185,7 +187,11 @@ interface StrategyInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "setRewards",
-    values: [string, BigNumberish, BigNumberish, BigNumberish]
+    values: [BigNumberish, BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setRewardsToken",
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "setRoleAdmin",
@@ -195,11 +201,11 @@ interface StrategyInterface extends ethers.utils.Interface {
     functionFragment: "setTokenId",
     values: [BytesLike]
   ): string;
+  encodeFunctionData(functionFragment: "setYield", values: [string]): string;
   encodeFunctionData(
-    functionFragment: "setYield",
-    values: [string, string]
+    functionFragment: "startPool",
+    values: [BigNumberish, BigNumberish]
   ): string;
-  encodeFunctionData(functionFragment: "startPool", values?: undefined): string;
   encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "totalSupply",
@@ -213,7 +219,6 @@ interface StrategyInterface extends ethers.utils.Interface {
     functionFragment: "transferFrom",
     values: [string, string, BigNumberish]
   ): string;
-  encodeFunctionData(functionFragment: "vaultId", values?: undefined): string;
   encodeFunctionData(functionFragment: "version", values?: undefined): string;
 
   decodeFunctionResult(
@@ -254,6 +259,7 @@ interface StrategyInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "grantRoles", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "invariants", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "ladle", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "lockRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
@@ -299,6 +305,10 @@ interface StrategyInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "setRewards", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "setRewardsToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setRoleAdmin",
     data: BytesLike
   ): Result;
@@ -315,19 +325,17 @@ interface StrategyInterface extends ethers.utils.Interface {
     functionFragment: "transferFrom",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "vaultId", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "version", data: BytesLike): Result;
 
   events: {
     "Approval(address,address,uint256)": EventFragment;
     "Claimed(address,uint256)": EventFragment;
-    "Divest(uint256)": EventFragment;
-    "Invest(uint256)": EventFragment;
     "NextPoolSet(address,bytes6)": EventFragment;
     "PoolEnded(address)": EventFragment;
     "PoolStarted(address)": EventFragment;
     "RewardsPerTokenUpdated(uint256)": EventFragment;
-    "RewardsSet(address,uint32,uint32,uint256)": EventFragment;
+    "RewardsSet(uint32,uint32,uint256)": EventFragment;
+    "RewardsTokenSet(address)": EventFragment;
     "RoleAdminChanged(bytes4,bytes4)": EventFragment;
     "RoleGranted(bytes4,address,address)": EventFragment;
     "RoleRevoked(bytes4,address,address)": EventFragment;
@@ -340,13 +348,12 @@ interface StrategyInterface extends ethers.utils.Interface {
 
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Claimed"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Divest"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Invest"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NextPoolSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PoolEnded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PoolStarted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RewardsPerTokenUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RewardsSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RewardsTokenSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleRevoked"): EventFragment;
@@ -356,6 +363,68 @@ interface StrategyInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "UserRewardsUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "YieldSet"): EventFragment;
 }
+
+export type ApprovalEvent = TypedEvent<
+  [string, string, BigNumber] & {
+    owner: string;
+    spender: string;
+    value: BigNumber;
+  }
+>;
+
+export type ClaimedEvent = TypedEvent<
+  [string, BigNumber] & { receiver: string; claimed: BigNumber }
+>;
+
+export type NextPoolSetEvent = TypedEvent<
+  [string, string] & { pool: string; seriesId: string }
+>;
+
+export type PoolEndedEvent = TypedEvent<[string] & { pool: string }>;
+
+export type PoolStartedEvent = TypedEvent<[string] & { pool: string }>;
+
+export type RewardsPerTokenUpdatedEvent = TypedEvent<
+  [BigNumber] & { accumulated: BigNumber }
+>;
+
+export type RewardsSetEvent = TypedEvent<
+  [number, number, BigNumber] & { start: number; end: number; rate: BigNumber }
+>;
+
+export type RewardsTokenSetEvent = TypedEvent<[string] & { token: string }>;
+
+export type RoleAdminChangedEvent = TypedEvent<
+  [string, string] & { role: string; newAdminRole: string }
+>;
+
+export type RoleGrantedEvent = TypedEvent<
+  [string, string, string] & { role: string; account: string; sender: string }
+>;
+
+export type RoleRevokedEvent = TypedEvent<
+  [string, string, string] & { role: string; account: string; sender: string }
+>;
+
+export type TokenIdSetEvent = TypedEvent<[string] & { id: string }>;
+
+export type TokenJoinResetEvent = TypedEvent<[string] & { join: string }>;
+
+export type TransferEvent = TypedEvent<
+  [string, string, BigNumber] & { from: string; to: string; value: BigNumber }
+>;
+
+export type UserRewardsUpdatedEvent = TypedEvent<
+  [string, BigNumber, BigNumber] & {
+    user: string;
+    userRewards: BigNumber;
+    paidRewardPerToken: BigNumber;
+  }
+>;
+
+export type YieldSetEvent = TypedEvent<
+  [string, string] & { ladle: string; cauldron: string }
+>;
 
 export class Strategy extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -478,6 +547,8 @@ export class Strategy extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    invariants(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
+
     ladle(overrides?: CallOverrides): Promise<[string]>;
 
     lockRole(
@@ -565,10 +636,14 @@ export class Strategy extends BaseContract {
     ): Promise<ContractTransaction>;
 
     setRewards(
-      rewardsToken_: string,
       start: BigNumberish,
       end: BigNumberish,
       rate: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setRewardsToken(
+      rewardsToken_: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -585,11 +660,12 @@ export class Strategy extends BaseContract {
 
     setYield(
       ladle_: string,
-      cauldron_: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     startPool(
+      minRatio: BigNumberish,
+      maxRatio: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -609,8 +685,6 @@ export class Strategy extends BaseContract {
       wad: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    vaultId(overrides?: CallOverrides): Promise<[string]>;
 
     version(overrides?: CallOverrides): Promise<[string]>;
   };
@@ -691,6 +765,8 @@ export class Strategy extends BaseContract {
     account: string,
     overrides?: CallOverrides
   ): Promise<boolean>;
+
+  invariants(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
   ladle(overrides?: CallOverrides): Promise<string>;
 
@@ -779,10 +855,14 @@ export class Strategy extends BaseContract {
   ): Promise<ContractTransaction>;
 
   setRewards(
-    rewardsToken_: string,
     start: BigNumberish,
     end: BigNumberish,
     rate: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setRewardsToken(
+    rewardsToken_: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -799,11 +879,12 @@ export class Strategy extends BaseContract {
 
   setYield(
     ladle_: string,
-    cauldron_: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   startPool(
+    minRatio: BigNumberish,
+    maxRatio: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -823,8 +904,6 @@ export class Strategy extends BaseContract {
     wad: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
-
-  vaultId(overrides?: CallOverrides): Promise<string>;
 
   version(overrides?: CallOverrides): Promise<string>;
 
@@ -894,6 +973,8 @@ export class Strategy extends BaseContract {
       account: string,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    invariants(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     ladle(overrides?: CallOverrides): Promise<string>;
 
@@ -974,10 +1055,14 @@ export class Strategy extends BaseContract {
     ): Promise<void>;
 
     setRewards(
-      rewardsToken_: string,
       start: BigNumberish,
       end: BigNumberish,
       rate: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setRewardsToken(
+      rewardsToken_: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -989,13 +1074,13 @@ export class Strategy extends BaseContract {
 
     setTokenId(baseId_: BytesLike, overrides?: CallOverrides): Promise<void>;
 
-    setYield(
-      ladle_: string,
-      cauldron_: string,
+    setYield(ladle_: string, overrides?: CallOverrides): Promise<void>;
+
+    startPool(
+      minRatio: BigNumberish,
+      maxRatio: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    startPool(overrides?: CallOverrides): Promise<void>;
 
     symbol(overrides?: CallOverrides): Promise<string>;
 
@@ -1014,12 +1099,19 @@ export class Strategy extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    vaultId(overrides?: CallOverrides): Promise<string>;
-
     version(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {
+    "Approval(address,address,uint256)"(
+      owner?: string | null,
+      spender?: string | null,
+      value?: null
+    ): TypedEventFilter<
+      [string, string, BigNumber],
+      { owner: string; spender: string; value: BigNumber }
+    >;
+
     Approval(
       owner?: string | null,
       spender?: string | null,
@@ -1027,6 +1119,14 @@ export class Strategy extends BaseContract {
     ): TypedEventFilter<
       [string, string, BigNumber],
       { owner: string; spender: string; value: BigNumber }
+    >;
+
+    "Claimed(address,uint256)"(
+      receiver?: null,
+      claimed?: null
+    ): TypedEventFilter<
+      [string, BigNumber],
+      { receiver: string; claimed: BigNumber }
     >;
 
     Claimed(
@@ -1037,31 +1137,68 @@ export class Strategy extends BaseContract {
       { receiver: string; claimed: BigNumber }
     >;
 
-    Divest(burnt?: null): TypedEventFilter<[BigNumber], { burnt: BigNumber }>;
-
-    Invest(minted?: null): TypedEventFilter<[BigNumber], { minted: BigNumber }>;
+    "NextPoolSet(address,bytes6)"(
+      pool?: string | null,
+      seriesId?: BytesLike | null
+    ): TypedEventFilter<[string, string], { pool: string; seriesId: string }>;
 
     NextPoolSet(
       pool?: string | null,
       seriesId?: BytesLike | null
     ): TypedEventFilter<[string, string], { pool: string; seriesId: string }>;
 
+    "PoolEnded(address)"(
+      pool?: null
+    ): TypedEventFilter<[string], { pool: string }>;
+
     PoolEnded(pool?: null): TypedEventFilter<[string], { pool: string }>;
 
+    "PoolStarted(address)"(
+      pool?: null
+    ): TypedEventFilter<[string], { pool: string }>;
+
     PoolStarted(pool?: null): TypedEventFilter<[string], { pool: string }>;
+
+    "RewardsPerTokenUpdated(uint256)"(
+      accumulated?: null
+    ): TypedEventFilter<[BigNumber], { accumulated: BigNumber }>;
 
     RewardsPerTokenUpdated(
       accumulated?: null
     ): TypedEventFilter<[BigNumber], { accumulated: BigNumber }>;
 
-    RewardsSet(
-      rewardsToken?: null,
+    "RewardsSet(uint32,uint32,uint256)"(
       start?: null,
       end?: null,
       rate?: null
     ): TypedEventFilter<
-      [string, number, number, BigNumber],
-      { rewardsToken: string; start: number; end: number; rate: BigNumber }
+      [number, number, BigNumber],
+      { start: number; end: number; rate: BigNumber }
+    >;
+
+    RewardsSet(
+      start?: null,
+      end?: null,
+      rate?: null
+    ): TypedEventFilter<
+      [number, number, BigNumber],
+      { start: number; end: number; rate: BigNumber }
+    >;
+
+    "RewardsTokenSet(address)"(
+      token?: null
+    ): TypedEventFilter<[string], { token: string }>;
+
+    RewardsTokenSet(
+      token?: null
+    ): TypedEventFilter<[string], { token: string }>;
+
+    "RoleAdminChanged(bytes4,bytes4)"(
+      role?: BytesLike | null,
+      newAdminRole?: BytesLike | null
+    ): TypedEventFilter<
+      [string, string],
+      { role: string; newAdminRole: string }
     >;
 
     RoleAdminChanged(
@@ -1072,7 +1209,25 @@ export class Strategy extends BaseContract {
       { role: string; newAdminRole: string }
     >;
 
+    "RoleGranted(bytes4,address,address)"(
+      role?: BytesLike | null,
+      account?: string | null,
+      sender?: string | null
+    ): TypedEventFilter<
+      [string, string, string],
+      { role: string; account: string; sender: string }
+    >;
+
     RoleGranted(
+      role?: BytesLike | null,
+      account?: string | null,
+      sender?: string | null
+    ): TypedEventFilter<
+      [string, string, string],
+      { role: string; account: string; sender: string }
+    >;
+
+    "RoleRevoked(bytes4,address,address)"(
       role?: BytesLike | null,
       account?: string | null,
       sender?: string | null
@@ -1090,9 +1245,24 @@ export class Strategy extends BaseContract {
       { role: string; account: string; sender: string }
     >;
 
+    "TokenIdSet(bytes6)"(id?: null): TypedEventFilter<[string], { id: string }>;
+
     TokenIdSet(id?: null): TypedEventFilter<[string], { id: string }>;
 
+    "TokenJoinReset(address)"(
+      join?: null
+    ): TypedEventFilter<[string], { join: string }>;
+
     TokenJoinReset(join?: null): TypedEventFilter<[string], { join: string }>;
+
+    "Transfer(address,address,uint256)"(
+      from?: string | null,
+      to?: string | null,
+      value?: null
+    ): TypedEventFilter<
+      [string, string, BigNumber],
+      { from: string; to: string; value: BigNumber }
+    >;
 
     Transfer(
       from?: string | null,
@@ -1103,6 +1273,15 @@ export class Strategy extends BaseContract {
       { from: string; to: string; value: BigNumber }
     >;
 
+    "UserRewardsUpdated(address,uint256,uint256)"(
+      user?: null,
+      userRewards?: null,
+      paidRewardPerToken?: null
+    ): TypedEventFilter<
+      [string, BigNumber, BigNumber],
+      { user: string; userRewards: BigNumber; paidRewardPerToken: BigNumber }
+    >;
+
     UserRewardsUpdated(
       user?: null,
       userRewards?: null,
@@ -1111,6 +1290,11 @@ export class Strategy extends BaseContract {
       [string, BigNumber, BigNumber],
       { user: string; userRewards: BigNumber; paidRewardPerToken: BigNumber }
     >;
+
+    "YieldSet(address,address)"(
+      ladle?: null,
+      cauldron?: null
+    ): TypedEventFilter<[string, string], { ladle: string; cauldron: string }>;
 
     YieldSet(
       ladle?: null,
@@ -1199,6 +1383,8 @@ export class Strategy extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    invariants(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
     ladle(overrides?: CallOverrides): Promise<BigNumber>;
 
     lockRole(
@@ -1271,10 +1457,14 @@ export class Strategy extends BaseContract {
     ): Promise<BigNumber>;
 
     setRewards(
-      rewardsToken_: string,
       start: BigNumberish,
       end: BigNumberish,
       rate: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setRewardsToken(
+      rewardsToken_: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1291,11 +1481,12 @@ export class Strategy extends BaseContract {
 
     setYield(
       ladle_: string,
-      cauldron_: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     startPool(
+      minRatio: BigNumberish,
+      maxRatio: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1315,8 +1506,6 @@ export class Strategy extends BaseContract {
       wad: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
-
-    vaultId(overrides?: CallOverrides): Promise<BigNumber>;
 
     version(overrides?: CallOverrides): Promise<BigNumber>;
   };
@@ -1405,6 +1594,11 @@ export class Strategy extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    invariants(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     ladle(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     lockRole(
@@ -1483,10 +1677,14 @@ export class Strategy extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     setRewards(
-      rewardsToken_: string,
       start: BigNumberish,
       end: BigNumberish,
       rate: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setRewardsToken(
+      rewardsToken_: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1503,11 +1701,12 @@ export class Strategy extends BaseContract {
 
     setYield(
       ladle_: string,
-      cauldron_: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     startPool(
+      minRatio: BigNumberish,
+      maxRatio: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1527,8 +1726,6 @@ export class Strategy extends BaseContract {
       wad: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
-
-    vaultId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     version(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };

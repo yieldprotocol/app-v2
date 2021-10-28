@@ -20,7 +20,8 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
   /* STATE FROM CONTEXT */
 
   const { userState, userActions } = useContext(UserContext) as IUserContext;
-  const { assetMap, seriesMap, strategyMap, selectedSeriesId, selectedBaseId, selectedStrategyAddr } = userState;
+  const { activeAccount, assetMap, seriesMap, strategyMap, selectedSeriesId, selectedBaseId, selectedStrategyAddr } =
+    userState;
 
   const selectedSeries = seriesMap.get(selectedSeriesId!);
   const selectedBase = assetMap.get(selectedBaseId!);
@@ -41,7 +42,7 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
         .filter((_series: ISeries) => (actionType === 'LEND' && _series ? _series.fyTokenBalance?.gt(ZERO_BN) : true))
         .filter((_series: ISeries) => (actionType === 'POOL' && _series ? _series.poolTokens?.gt(ZERO_BN) : true))
         .filter((_series: ISeries) => (base ? _series.baseId === base.id : true))
-        .filter((_series: ISeries) => (series ? _series.id === series.id : true));
+        .filter((_series: ISeries) => (series ? _series.id === series.id : true))
 
       setCurrentFilter({ base, series });
       setFilterLabels([base?.symbol, series?.displayNameMobile]);
@@ -77,19 +78,22 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
 
   return (
     <Box justify="end" fill>
-      {allPositions.length !== 0 && (
+      {activeAccount && allPositions.length !== 0 && (
         <Box justify="between" alignSelf="end" gap="small" pad="small" background="hover" round="xsmall">
-
-          <Box animation="fadeIn" justify="between" direction="row" gap="small" pad={{ horizontal: 'medium', vertical:'xsmall' }}>
-              <Text size="small" color="text-weak" textAlign="center">
-              {showAllPositions
-                ? `All Lending Positions`
-                : `Filtered Lending Positions`}
-              </Text>
-              <Text color="text-weak" textAlign="center">
-                <DashButton />
-              </Text>
-            </Box>
+          <Box
+            animation="fadeIn"
+            justify="between"
+            direction="row"
+            gap="small"
+            pad={{ horizontal: 'medium', vertical: 'xsmall' }}
+          >
+            <Text size="small" color="text-weak" textAlign="center">
+              {showAllPositions ? `All Lending Positions` : `Filtered Lending Positions`}
+            </Text>
+            <Text color="text-weak" textAlign="center">
+              <DashButton />
+            </Text>
+          </Box>
 
           <ListWrap overflow="auto">
             {filteredSeries.length === 0 && !showAllPositions && (

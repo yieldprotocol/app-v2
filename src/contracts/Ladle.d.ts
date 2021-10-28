@@ -18,12 +18,14 @@ import {
 import { BytesLike } from "@ethersproject/bytes";
 import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
-import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
+import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 
 interface LadleInterface extends ethers.utils.Interface {
   functions: {
     "LOCK()": FunctionFragment;
+    "LOCK8605463013()": FunctionFragment;
     "ROOT()": FunctionFragment;
+    "ROOT4146650865()": FunctionFragment;
     "addIntegration(address,bool)": FunctionFragment;
     "addJoin(bytes6,address)": FunctionFragment;
     "addModule(address,bool)": FunctionFragment;
@@ -74,7 +76,15 @@ interface LadleInterface extends ethers.utils.Interface {
   };
 
   encodeFunctionData(functionFragment: "LOCK", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "LOCK8605463013",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "ROOT", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "ROOT4146650865",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "addIntegration",
     values: [string, boolean]
@@ -249,7 +259,15 @@ interface LadleInterface extends ethers.utils.Interface {
   encodeFunctionData(functionFragment: "weth", values?: undefined): string;
 
   decodeFunctionResult(functionFragment: "LOCK", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "LOCK8605463013",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "ROOT", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "ROOT4146650865",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "addIntegration",
     data: BytesLike
@@ -354,6 +372,40 @@ interface LadleInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "TokenAdded"): EventFragment;
 }
 
+export type FeeSetEvent = TypedEvent<[BigNumber] & { fee: BigNumber }>;
+
+export type IntegrationAddedEvent = TypedEvent<
+  [string, boolean] & { integration: string; set: boolean }
+>;
+
+export type JoinAddedEvent = TypedEvent<
+  [string, string] & { assetId: string; join: string }
+>;
+
+export type ModuleAddedEvent = TypedEvent<
+  [string, boolean] & { module: string; set: boolean }
+>;
+
+export type PoolAddedEvent = TypedEvent<
+  [string, string] & { seriesId: string; pool: string }
+>;
+
+export type RoleAdminChangedEvent = TypedEvent<
+  [string, string] & { role: string; newAdminRole: string }
+>;
+
+export type RoleGrantedEvent = TypedEvent<
+  [string, string, string] & { role: string; account: string; sender: string }
+>;
+
+export type RoleRevokedEvent = TypedEvent<
+  [string, string, string] & { role: string; account: string; sender: string }
+>;
+
+export type TokenAddedEvent = TypedEvent<
+  [string, boolean] & { token: string; set: boolean }
+>;
+
 export class Ladle extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
@@ -400,7 +452,11 @@ export class Ladle extends BaseContract {
   functions: {
     LOCK(overrides?: CallOverrides): Promise<[string]>;
 
+    LOCK8605463013(overrides?: CallOverrides): Promise<[string]>;
+
     ROOT(overrides?: CallOverrides): Promise<[string]>;
+
+    ROOT4146650865(overrides?: CallOverrides): Promise<[string]>;
 
     addIntegration(
       integration: string,
@@ -671,7 +727,11 @@ export class Ladle extends BaseContract {
 
   LOCK(overrides?: CallOverrides): Promise<string>;
 
+  LOCK8605463013(overrides?: CallOverrides): Promise<string>;
+
   ROOT(overrides?: CallOverrides): Promise<string>;
+
+  ROOT4146650865(overrides?: CallOverrides): Promise<string>;
 
   addIntegration(
     integration: string,
@@ -942,7 +1002,11 @@ export class Ladle extends BaseContract {
   callStatic: {
     LOCK(overrides?: CallOverrides): Promise<string>;
 
+    LOCK8605463013(overrides?: CallOverrides): Promise<string>;
+
     ROOT(overrides?: CallOverrides): Promise<string>;
+
+    ROOT4146650865(overrides?: CallOverrides): Promise<string>;
 
     addIntegration(
       integration: string,
@@ -1234,7 +1298,19 @@ export class Ladle extends BaseContract {
   };
 
   filters: {
+    "FeeSet(uint256)"(
+      fee?: null
+    ): TypedEventFilter<[BigNumber], { fee: BigNumber }>;
+
     FeeSet(fee?: null): TypedEventFilter<[BigNumber], { fee: BigNumber }>;
+
+    "IntegrationAdded(address,bool)"(
+      integration?: string | null,
+      set?: boolean | null
+    ): TypedEventFilter<
+      [string, boolean],
+      { integration: string; set: boolean }
+    >;
 
     IntegrationAdded(
       integration?: string | null,
@@ -1244,20 +1320,43 @@ export class Ladle extends BaseContract {
       { integration: string; set: boolean }
     >;
 
+    "JoinAdded(bytes6,address)"(
+      assetId?: BytesLike | null,
+      join?: string | null
+    ): TypedEventFilter<[string, string], { assetId: string; join: string }>;
+
     JoinAdded(
       assetId?: BytesLike | null,
       join?: string | null
     ): TypedEventFilter<[string, string], { assetId: string; join: string }>;
+
+    "ModuleAdded(address,bool)"(
+      module?: string | null,
+      set?: boolean | null
+    ): TypedEventFilter<[string, boolean], { module: string; set: boolean }>;
 
     ModuleAdded(
       module?: string | null,
       set?: boolean | null
     ): TypedEventFilter<[string, boolean], { module: string; set: boolean }>;
 
+    "PoolAdded(bytes6,address)"(
+      seriesId?: BytesLike | null,
+      pool?: string | null
+    ): TypedEventFilter<[string, string], { seriesId: string; pool: string }>;
+
     PoolAdded(
       seriesId?: BytesLike | null,
       pool?: string | null
     ): TypedEventFilter<[string, string], { seriesId: string; pool: string }>;
+
+    "RoleAdminChanged(bytes4,bytes4)"(
+      role?: BytesLike | null,
+      newAdminRole?: BytesLike | null
+    ): TypedEventFilter<
+      [string, string],
+      { role: string; newAdminRole: string }
+    >;
 
     RoleAdminChanged(
       role?: BytesLike | null,
@@ -1267,7 +1366,25 @@ export class Ladle extends BaseContract {
       { role: string; newAdminRole: string }
     >;
 
+    "RoleGranted(bytes4,address,address)"(
+      role?: BytesLike | null,
+      account?: string | null,
+      sender?: string | null
+    ): TypedEventFilter<
+      [string, string, string],
+      { role: string; account: string; sender: string }
+    >;
+
     RoleGranted(
+      role?: BytesLike | null,
+      account?: string | null,
+      sender?: string | null
+    ): TypedEventFilter<
+      [string, string, string],
+      { role: string; account: string; sender: string }
+    >;
+
+    "RoleRevoked(bytes4,address,address)"(
       role?: BytesLike | null,
       account?: string | null,
       sender?: string | null
@@ -1285,6 +1402,11 @@ export class Ladle extends BaseContract {
       { role: string; account: string; sender: string }
     >;
 
+    "TokenAdded(address,bool)"(
+      token?: string | null,
+      set?: boolean | null
+    ): TypedEventFilter<[string, boolean], { token: string; set: boolean }>;
+
     TokenAdded(
       token?: string | null,
       set?: boolean | null
@@ -1294,7 +1416,11 @@ export class Ladle extends BaseContract {
   estimateGas: {
     LOCK(overrides?: CallOverrides): Promise<BigNumber>;
 
+    LOCK8605463013(overrides?: CallOverrides): Promise<BigNumber>;
+
     ROOT(overrides?: CallOverrides): Promise<BigNumber>;
+
+    ROOT4146650865(overrides?: CallOverrides): Promise<BigNumber>;
 
     addIntegration(
       integration: string,
@@ -1569,7 +1695,11 @@ export class Ladle extends BaseContract {
   populateTransaction: {
     LOCK(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    LOCK8605463013(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     ROOT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    ROOT4146650865(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     addIntegration(
       integration: string,

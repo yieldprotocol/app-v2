@@ -3,8 +3,8 @@ import styled from 'styled-components';
 import { Box, Grid, Text, TextInput } from 'grommet';
 import { FiPercent } from 'react-icons/fi';
 import { UserContext } from '../contexts/UserContext';
-import InputWrap from './wraps/InputWrap';
 import { cleanValue } from '../utils/appUtils';
+import { useCachedState } from '../hooks/generalHooks';
 
 const Input = styled(TextInput)`
   padding-left: 0;
@@ -23,13 +23,17 @@ const SlippageSettings = () => {
   } = useContext(UserContext);
 
   const [input, setInput] = useState((slippageTolerance * 100).toString());
+  const [, setCachedSlippageTolerance] = useCachedState('slippageTolerance', (slippageTolerance * 100).toString());
 
   const tolerances: number[] = [0.001, 0.005, 0.01];
   const validateInput = (tolerance: number) => (tolerance > 0 && tolerance < 1 ? tolerance : slippageTolerance);
   const customTolerance = !tolerances.includes(slippageTolerance);
 
+  /* sets the slippage tolerance on input */
   useEffect(() => {
-    setSlippageTolerance(validateInput(Number(cleanValue(input, 4)) / 100));
+    const _slippageTolerance = validateInput(Number(cleanValue(input, 4)) / 100);
+    setSlippageTolerance(_slippageTolerance);
+    setCachedSlippageTolerance(_slippageTolerance);
   }, [input]);
 
   return (
@@ -47,11 +51,13 @@ const SlippageSettings = () => {
           {tolerances.map((tolerance) => (
             <StyledBox
               fill
-              border={{ color: tolerance === slippageTolerance ? 'tailwind-blue' : ' #dfe8f9' }}
+              border={{ color: tolerance === slippageTolerance ? 'tailwind-blue' : '#BFDBFE' }}
               round="xsmall"
               key={tolerance}
-              hoverIndicator={{}}
-              onClick={() => setSlippageTolerance(tolerance)}
+              onClick={() => {
+                setSlippageTolerance(tolerance);
+                setCachedSlippageTolerance(tolerance);
+              }}
               align="center"
               justify="center"
             >

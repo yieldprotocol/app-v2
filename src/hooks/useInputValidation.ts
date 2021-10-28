@@ -1,7 +1,9 @@
+import { useWeb3React } from '@web3-react/core';
 import { ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../contexts/UserContext';
 import { ActionCodes, ISeries, IUserContext, IVault } from '../types';
+import { useCachedState } from './generalHooks';
 
 /* Provides input validation for each ActionCode */
 export const useInputValidation = (
@@ -29,8 +31,10 @@ export const useInputValidation = (
       const belowMin: boolean = !!limits[0] && _inputAsFloat < parseFloat(limits[0].toString());
 
       // General input validation here:
-      if (parseFloat(input) <= 0 && actionCode !== ActionCodes.TRANSFER_VAULT) {
+      if (parseFloat(input) < 0 && actionCode !== ActionCodes.TRANSFER_VAULT)  {
         setInputError('Amount should be expressed as a positive value');
+      } else if (parseFloat(input) === 0 && actionCode !== ActionCodes.ADD_COLLATERAL  ) {
+        setInputError('Transaction amount should be greater than 0');
       } else if (aboveMax) {
         setInputError('Amount exceeds available balance');
       } else setInputError(null);
@@ -43,7 +47,7 @@ export const useInputValidation = (
             ethers.utils.parseUnits(input, selectedSeries.decimals).gt(selectedSeries.baseReserves) &&
             setInputError(`Amount exceeds the ${selectedBase?.symbol} currently available in pool`);
           aboveMax && setInputError('Exceeds the max allowable debt for this series');
-          belowMin && setInputError('A minimum debt of 0.5 is required');
+          belowMin && setInputError(`A minimum debt of ${limits[0]} ${selectedBase?.symbol} is required for this series`);
           break;
 
         case ActionCodes.REPAY:
@@ -55,7 +59,7 @@ export const useInputValidation = (
             _inputAsFloat !== parseFloat(limits[1].toString()) &&
             setInputError('Remaining debt below dust levels');
           /* set dustError between 0 and dustLimit */
-          aboveMax && setInputError('Amount exceeds your current debt');
+          aboveMax && setInputError('Amount exceeds the maximum repayable');
           break;
 
         case ActionCodes.ADD_COLLATERAL:
@@ -63,18 +67,21 @@ export const useInputValidation = (
           break;
 
         case ActionCodes.REMOVE_COLLATERAL:
-          belowMin && setInputError('Vault will be undercollateralised');
-          aboveMax && setInputError('Vault will be undercollateralised');
+          belowMin && setInputError('Vault will be undercollateralized');
+          aboveMax && setInputError('Vault will be undercollateralized');
           break;
 
         case ActionCodes.TRANSFER_VAULT:
           input && !ethers.utils.isAddress(input) && setInputError('Not a valid Address');
           break;
 
+        case ActionCodes.ROLL_POSITION:
+          aboveMax && setInputError('Rolling is limited by protocol liquidity');
+          break;
+
         case ActionCodes.LEND:
         case ActionCodes.ADD_LIQUIDITY:
         case ActionCodes.CLOSE_POSITION:
-        case ActionCodes.ROLL_POSITION:
         case ActionCodes.REMOVE_LIQUIDITY:
         case ActionCodes.ROLL_LIQUIDITY:
           aboveMax && setInputError('Amount exceeds available balance');

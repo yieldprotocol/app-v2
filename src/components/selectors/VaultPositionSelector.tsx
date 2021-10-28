@@ -1,8 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Box, Button, Text } from 'grommet';
 import { FiX } from 'react-icons/fi';
-import { RiDashboard2Line } from 'react-icons/ri';
-import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
 import { IAsset, ISeries, IUserContext, IVault } from '../../types';
 import VaultListItem from '../positionItems/VaultItem';
@@ -18,10 +16,16 @@ interface IVaultFilter {
 function VaultPositionSelector(target: any) {
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext) as IUserContext;
+
   const {
-    chainState: { account },
-  } = useContext(ChainContext);
-  const { assetMap, vaultMap, seriesMap, selectedSeriesId, selectedBaseId, showInactiveVaults } = userState;
+    activeAccount: account,
+    assetMap,
+    vaultMap,
+    seriesMap,
+    selectedSeriesId,
+    selectedBaseId,
+    dashSettings,
+  } = userState;
 
   const selectedBase = assetMap.get(selectedBaseId!);
   const selectedSeries = seriesMap.get(selectedSeriesId!);
@@ -36,20 +40,24 @@ function VaultPositionSelector(target: any) {
   const handleFilter = useCallback(
     ({ base, series, ilk }: IVaultFilter) => {
       const _filteredVaults: IVault[] = Array.from(vaultMap.values())
-        .filter((vault: IVault) => showInactiveVaults || vault.isActive)
+        .filter((vault: IVault) => dashSettings.showInactiveVaults || vault.isActive)
         .filter((vault: IVault) => (base ? vault.baseId === base.id : true))
         .filter((vault: IVault) => (series ? vault.seriesId === series.id : true))
         .filter((vault: IVault) => (ilk ? vault.ilkId === ilk.id : true))
+        .filter((vault: IVault) => vault.baseId !== vault.ilkId)
         .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1));
       setFilter({ base, series, ilk });
       setFilteredVaults(_filteredVaults);
     },
-    [vaultMap, showInactiveVaults]
+    [vaultMap, dashSettings.showInactiveVaults]
   );
 
   /* CHECK the list of current vaults which match the current series/ilk selection */
   useEffect(() => {
     const _allVaults: IVault[] = (Array.from(vaultMap.values()) as IVault[])
+      // filter out vaults that have same base and ilk (borrow and pool liquidity positions)
+      .filter((vault: IVault) => vault.baseId !== vault.ilkId)
+
       // sorting by debt balance
       .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1))
       // sorting to prioritize active vaults
@@ -69,11 +77,18 @@ function VaultPositionSelector(target: any) {
   }, [allVaults]);
 
   return (
-    account && (
+    <>
+    { account && (
       <Box justify="end" fill>
-        {allVaults.length > 0 && (
+        {account && allVaults.length > 0 && (
           <Box justify="between" alignSelf="end" gap="small" pad="small" background="hover" round="xsmall">
-            <Box animation="fadeIn" justify="between" direction="row" gap="small" pad={{ horizontal: 'medium', vertical:'xsmall' }}>
+            <Box
+              animation="fadeIn"
+              justify="between"
+              direction="row"
+              gap="small"
+              pad={{ horizontal: 'medium', vertical: 'xsmall' }}
+            >
               <Text size="small" color="text-weak" textAlign="center">
                 {showAllVaults ? 'All vaults' : 'Filtered vaults '}
               </Text>
@@ -149,7 +164,8 @@ function VaultPositionSelector(target: any) {
           </Box>
         )}
       </Box>
-    )
+    )}
+    </>
   );
 }
 

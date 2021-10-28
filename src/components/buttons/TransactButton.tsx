@@ -7,8 +7,9 @@ const StyledButton = styled(Button)`
 `;
 
 const TransactButton = (props: any) => (
-  <Box>
-    <StyledButton {...props} />
+  <Box gap='xsmall'>
+    {props.confirmationElement}
+    <StyledButton {...props} color='gradient' />
   </Box>
 );
 

@@ -96,12 +96,43 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "uint128",
+        internalType: "uint96",
+        name: "line",
+        type: "uint96",
+      },
+      {
+        indexed: false,
+        internalType: "uint24",
         name: "dust",
-        type: "uint128",
+        type: "uint24",
+      },
+      {
+        indexed: false,
+        internalType: "uint8",
+        name: "dec",
+        type: "uint8",
       },
     ],
     name: "IlkSet",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "param",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "value",
+        type: "address",
+      },
+    ],
+    name: "Point",
     type: "event",
   },
   {
@@ -188,7 +219,33 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "LOCK8605463013",
+    outputs: [
+      {
+        internalType: "bytes4",
+        name: "",
+        type: "bytes4",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "ROOT",
+    outputs: [
+      {
+        internalType: "bytes4",
+        name: "",
+        type: "bytes4",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "ROOT4146650865",
     outputs: [
       {
         internalType: "bytes4",
@@ -377,11 +434,6 @@ const _abi = [
         name: "initialOffer",
         type: "uint64",
       },
-      {
-        internalType: "uint128",
-        name: "dust",
-        type: "uint128",
-      },
     ],
     stateMutability: "view",
     type: "function",
@@ -394,6 +446,40 @@ const _abi = [
         internalType: "contract ILadle",
         name: "",
         type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes6",
+        name: "",
+        type: "bytes6",
+      },
+    ],
+    name: "limits",
+    outputs: [
+      {
+        internalType: "uint96",
+        name: "line",
+        type: "uint96",
+      },
+      {
+        internalType: "uint24",
+        name: "dust",
+        type: "uint24",
+      },
+      {
+        internalType: "uint8",
+        name: "dec",
+        type: "uint8",
+      },
+      {
+        internalType: "uint128",
+        name: "sum",
+        type: "uint128",
       },
     ],
     stateMutability: "view",
@@ -433,6 +519,24 @@ const _abi = [
         type: "uint256",
       },
     ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "param",
+        type: "bytes32",
+      },
+      {
+        internalType: "address",
+        name: "value",
+        type: "address",
+      },
+    ],
+    name: "point",
+    outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },
@@ -508,9 +612,19 @@ const _abi = [
         type: "uint64",
       },
       {
-        internalType: "uint128",
+        internalType: "uint96",
+        name: "line",
+        type: "uint96",
+      },
+      {
+        internalType: "uint24",
         name: "dust",
-        type: "uint128",
+        type: "uint24",
+      },
+      {
+        internalType: "uint8",
+        name: "dec",
+        type: "uint8",
       },
     ],
     name: "setIlk",

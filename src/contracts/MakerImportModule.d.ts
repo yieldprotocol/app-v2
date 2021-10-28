@@ -17,11 +17,11 @@ import {
 import { BytesLike } from "@ethersproject/bytes";
 import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
-import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
+import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 
 interface MakerImportModuleInterface extends ethers.utils.Interface {
   functions: {
-    "_importCdpPosition(bytes12,tuple,uint256,uint128,uint128,uint128)": FunctionFragment;
+    "_importCdpPosition(bytes12,(address,bytes6,bytes6),uint256,uint128,uint128,uint128)": FunctionFragment;
     "borrowingFee()": FunctionFragment;
     "cauldron()": FunctionFragment;
     "cdpMgr()": FunctionFragment;
@@ -29,12 +29,16 @@ interface MakerImportModuleInterface extends ethers.utils.Interface {
     "ilkRegistry()": FunctionFragment;
     "importCdp(bytes12,uint256,uint128)": FunctionFragment;
     "importCdpPosition(bytes12,uint256,uint128,uint128,uint128)": FunctionFragment;
+    "integrations(address)": FunctionFragment;
     "joins(bytes6)": FunctionFragment;
     "makerDaiJoin()": FunctionFragment;
     "modules(address)": FunctionFragment;
     "pools(bytes6)": FunctionFragment;
     "proxyRegistry()": FunctionFragment;
+    "router()": FunctionFragment;
+    "tokens(address)": FunctionFragment;
     "vat()": FunctionFragment;
+    "weth()": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -67,6 +71,10 @@ interface MakerImportModuleInterface extends ethers.utils.Interface {
     functionFragment: "importCdpPosition",
     values: [BytesLike, BigNumberish, BigNumberish, BigNumberish, BigNumberish]
   ): string;
+  encodeFunctionData(
+    functionFragment: "integrations",
+    values: [string]
+  ): string;
   encodeFunctionData(functionFragment: "joins", values: [BytesLike]): string;
   encodeFunctionData(
     functionFragment: "makerDaiJoin",
@@ -78,7 +86,10 @@ interface MakerImportModuleInterface extends ethers.utils.Interface {
     functionFragment: "proxyRegistry",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "router", values?: undefined): string;
+  encodeFunctionData(functionFragment: "tokens", values: [string]): string;
   encodeFunctionData(functionFragment: "vat", values?: undefined): string;
+  encodeFunctionData(functionFragment: "weth", values?: undefined): string;
 
   decodeFunctionResult(
     functionFragment: "_importCdpPosition",
@@ -100,6 +111,10 @@ interface MakerImportModuleInterface extends ethers.utils.Interface {
     functionFragment: "importCdpPosition",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "integrations",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "joins", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "makerDaiJoin",
@@ -111,22 +126,60 @@ interface MakerImportModuleInterface extends ethers.utils.Interface {
     functionFragment: "proxyRegistry",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "router", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "tokens", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "vat", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "weth", data: BytesLike): Result;
 
   events: {
     "FeeSet(uint256)": EventFragment;
     "ImportedFromMaker(bytes12,uint256,uint256,uint256)": EventFragment;
+    "IntegrationAdded(address,bool)": EventFragment;
     "JoinAdded(bytes6,address)": EventFragment;
-    "ModuleSet(address,bool)": EventFragment;
+    "ModuleAdded(address,bool)": EventFragment;
     "PoolAdded(bytes6,address)": EventFragment;
+    "TokenAdded(address,bool)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "FeeSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ImportedFromMaker"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "IntegrationAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "JoinAdded"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ModuleSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ModuleAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PoolAdded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "TokenAdded"): EventFragment;
 }
+
+export type FeeSetEvent = TypedEvent<[BigNumber] & { fee: BigNumber }>;
+
+export type ImportedFromMakerEvent = TypedEvent<
+  [string, BigNumber, BigNumber, BigNumber] & {
+    vaultId: string;
+    cdp: BigNumber;
+    ilkAmount: BigNumber;
+    daiDebt: BigNumber;
+  }
+>;
+
+export type IntegrationAddedEvent = TypedEvent<
+  [string, boolean] & { integration: string; set: boolean }
+>;
+
+export type JoinAddedEvent = TypedEvent<
+  [string, string] & { assetId: string; join: string }
+>;
+
+export type ModuleAddedEvent = TypedEvent<
+  [string, boolean] & { module: string; set: boolean }
+>;
+
+export type PoolAddedEvent = TypedEvent<
+  [string, string] & { seriesId: string; pool: string }
+>;
+
+export type TokenAddedEvent = TypedEvent<
+  [string, boolean] & { token: string; set: boolean }
+>;
 
 export class MakerImportModule extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -208,6 +261,8 @@ export class MakerImportModule extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    integrations(arg0: string, overrides?: CallOverrides): Promise<[boolean]>;
+
     joins(arg0: BytesLike, overrides?: CallOverrides): Promise<[string]>;
 
     makerDaiJoin(overrides?: CallOverrides): Promise<[string]>;
@@ -218,7 +273,13 @@ export class MakerImportModule extends BaseContract {
 
     proxyRegistry(overrides?: CallOverrides): Promise<[string]>;
 
+    router(overrides?: CallOverrides): Promise<[string]>;
+
+    tokens(arg0: string, overrides?: CallOverrides): Promise<[boolean]>;
+
     vat(overrides?: CallOverrides): Promise<[string]>;
+
+    weth(overrides?: CallOverrides): Promise<[string]>;
   };
 
   _importCdpPosition(
@@ -257,6 +318,8 @@ export class MakerImportModule extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  integrations(arg0: string, overrides?: CallOverrides): Promise<boolean>;
+
   joins(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
 
   makerDaiJoin(overrides?: CallOverrides): Promise<string>;
@@ -267,7 +330,13 @@ export class MakerImportModule extends BaseContract {
 
   proxyRegistry(overrides?: CallOverrides): Promise<string>;
 
+  router(overrides?: CallOverrides): Promise<string>;
+
+  tokens(arg0: string, overrides?: CallOverrides): Promise<boolean>;
+
   vat(overrides?: CallOverrides): Promise<string>;
+
+  weth(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
     _importCdpPosition(
@@ -306,6 +375,8 @@ export class MakerImportModule extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    integrations(arg0: string, overrides?: CallOverrides): Promise<boolean>;
+
     joins(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
 
     makerDaiJoin(overrides?: CallOverrides): Promise<string>;
@@ -316,11 +387,36 @@ export class MakerImportModule extends BaseContract {
 
     proxyRegistry(overrides?: CallOverrides): Promise<string>;
 
+    router(overrides?: CallOverrides): Promise<string>;
+
+    tokens(arg0: string, overrides?: CallOverrides): Promise<boolean>;
+
     vat(overrides?: CallOverrides): Promise<string>;
+
+    weth(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {
+    "FeeSet(uint256)"(
+      fee?: null
+    ): TypedEventFilter<[BigNumber], { fee: BigNumber }>;
+
     FeeSet(fee?: null): TypedEventFilter<[BigNumber], { fee: BigNumber }>;
+
+    "ImportedFromMaker(bytes12,uint256,uint256,uint256)"(
+      vaultId?: BytesLike | null,
+      cdp?: BigNumberish | null,
+      ilkAmount?: null,
+      daiDebt?: null
+    ): TypedEventFilter<
+      [string, BigNumber, BigNumber, BigNumber],
+      {
+        vaultId: string;
+        cdp: BigNumber;
+        ilkAmount: BigNumber;
+        daiDebt: BigNumber;
+      }
+    >;
 
     ImportedFromMaker(
       vaultId?: BytesLike | null,
@@ -337,20 +433,61 @@ export class MakerImportModule extends BaseContract {
       }
     >;
 
+    "IntegrationAdded(address,bool)"(
+      integration?: string | null,
+      set?: boolean | null
+    ): TypedEventFilter<
+      [string, boolean],
+      { integration: string; set: boolean }
+    >;
+
+    IntegrationAdded(
+      integration?: string | null,
+      set?: boolean | null
+    ): TypedEventFilter<
+      [string, boolean],
+      { integration: string; set: boolean }
+    >;
+
+    "JoinAdded(bytes6,address)"(
+      assetId?: BytesLike | null,
+      join?: string | null
+    ): TypedEventFilter<[string, string], { assetId: string; join: string }>;
+
     JoinAdded(
       assetId?: BytesLike | null,
       join?: string | null
     ): TypedEventFilter<[string, string], { assetId: string; join: string }>;
 
-    ModuleSet(
+    "ModuleAdded(address,bool)"(
       module?: string | null,
       set?: boolean | null
     ): TypedEventFilter<[string, boolean], { module: string; set: boolean }>;
+
+    ModuleAdded(
+      module?: string | null,
+      set?: boolean | null
+    ): TypedEventFilter<[string, boolean], { module: string; set: boolean }>;
+
+    "PoolAdded(bytes6,address)"(
+      seriesId?: BytesLike | null,
+      pool?: string | null
+    ): TypedEventFilter<[string, string], { seriesId: string; pool: string }>;
 
     PoolAdded(
       seriesId?: BytesLike | null,
       pool?: string | null
     ): TypedEventFilter<[string, string], { seriesId: string; pool: string }>;
+
+    "TokenAdded(address,bool)"(
+      token?: string | null,
+      set?: boolean | null
+    ): TypedEventFilter<[string, boolean], { token: string; set: boolean }>;
+
+    TokenAdded(
+      token?: string | null,
+      set?: boolean | null
+    ): TypedEventFilter<[string, boolean], { token: string; set: boolean }>;
   };
 
   estimateGas: {
@@ -390,6 +527,8 @@ export class MakerImportModule extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    integrations(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
     joins(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
 
     makerDaiJoin(overrides?: CallOverrides): Promise<BigNumber>;
@@ -400,7 +539,13 @@ export class MakerImportModule extends BaseContract {
 
     proxyRegistry(overrides?: CallOverrides): Promise<BigNumber>;
 
+    router(overrides?: CallOverrides): Promise<BigNumber>;
+
+    tokens(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
     vat(overrides?: CallOverrides): Promise<BigNumber>;
+
+    weth(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -440,6 +585,11 @@ export class MakerImportModule extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    integrations(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     joins(
       arg0: BytesLike,
       overrides?: CallOverrides
@@ -459,6 +609,15 @@ export class MakerImportModule extends BaseContract {
 
     proxyRegistry(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    router(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    tokens(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     vat(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    weth(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

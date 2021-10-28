@@ -17,12 +17,14 @@ import {
 import { BytesLike } from "@ethersproject/bytes";
 import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
-import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
+import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 
 interface WitchInterface extends ethers.utils.Interface {
   functions: {
     "LOCK()": FunctionFragment;
+    "LOCK8605463013()": FunctionFragment;
     "ROOT()": FunctionFragment;
+    "ROOT4146650865()": FunctionFragment;
     "auction(bytes12)": FunctionFragment;
     "auctions(bytes12)": FunctionFragment;
     "buy(bytes12,uint128,uint128)": FunctionFragment;
@@ -33,17 +35,27 @@ interface WitchInterface extends ethers.utils.Interface {
     "hasRole(bytes4,address)": FunctionFragment;
     "ilks(bytes6)": FunctionFragment;
     "ladle()": FunctionFragment;
+    "limits(bytes6)": FunctionFragment;
     "lockRole(bytes4)": FunctionFragment;
     "payAll(bytes12,uint128)": FunctionFragment;
+    "point(bytes32,address)": FunctionFragment;
     "renounceRole(bytes4,address)": FunctionFragment;
     "revokeRole(bytes4,address)": FunctionFragment;
     "revokeRoles(bytes4[],address)": FunctionFragment;
-    "setIlk(bytes6,uint32,uint64,uint128)": FunctionFragment;
+    "setIlk(bytes6,uint32,uint64,uint96,uint24,uint8)": FunctionFragment;
     "setRoleAdmin(bytes4,bytes4)": FunctionFragment;
   };
 
   encodeFunctionData(functionFragment: "LOCK", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "LOCK8605463013",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "ROOT", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "ROOT4146650865",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "auction", values: [BytesLike]): string;
   encodeFunctionData(functionFragment: "auctions", values: [BytesLike]): string;
   encodeFunctionData(
@@ -69,10 +81,15 @@ interface WitchInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "ilks", values: [BytesLike]): string;
   encodeFunctionData(functionFragment: "ladle", values?: undefined): string;
+  encodeFunctionData(functionFragment: "limits", values: [BytesLike]): string;
   encodeFunctionData(functionFragment: "lockRole", values: [BytesLike]): string;
   encodeFunctionData(
     functionFragment: "payAll",
     values: [BytesLike, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "point",
+    values: [BytesLike, string]
   ): string;
   encodeFunctionData(
     functionFragment: "renounceRole",
@@ -88,7 +105,14 @@ interface WitchInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "setIlk",
-    values: [BytesLike, BigNumberish, BigNumberish, BigNumberish]
+    values: [
+      BytesLike,
+      BigNumberish,
+      BigNumberish,
+      BigNumberish,
+      BigNumberish,
+      BigNumberish
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "setRoleAdmin",
@@ -96,7 +120,15 @@ interface WitchInterface extends ethers.utils.Interface {
   ): string;
 
   decodeFunctionResult(functionFragment: "LOCK", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "LOCK8605463013",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "ROOT", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "ROOT4146650865",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "auction", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "auctions", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "buy", data: BytesLike): Result;
@@ -110,8 +142,10 @@ interface WitchInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "ilks", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "ladle", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "limits", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "lockRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "payAll", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "point", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "renounceRole",
     data: BytesLike
@@ -130,7 +164,8 @@ interface WitchInterface extends ethers.utils.Interface {
   events: {
     "Auctioned(bytes12,uint256)": EventFragment;
     "Bought(bytes12,address,uint256,uint256)": EventFragment;
-    "IlkSet(bytes6,uint32,uint64,uint128)": EventFragment;
+    "IlkSet(bytes6,uint32,uint64,uint96,uint24,uint8)": EventFragment;
+    "Point(bytes32,address)": EventFragment;
     "RoleAdminChanged(bytes4,bytes4)": EventFragment;
     "RoleGranted(bytes4,address,address)": EventFragment;
     "RoleRevoked(bytes4,address,address)": EventFragment;
@@ -139,10 +174,51 @@ interface WitchInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Auctioned"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Bought"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "IlkSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Point"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleRevoked"): EventFragment;
 }
+
+export type AuctionedEvent = TypedEvent<
+  [string, BigNumber] & { vaultId: string; start: BigNumber }
+>;
+
+export type BoughtEvent = TypedEvent<
+  [string, string, BigNumber, BigNumber] & {
+    vaultId: string;
+    buyer: string;
+    ink: BigNumber;
+    art: BigNumber;
+  }
+>;
+
+export type IlkSetEvent = TypedEvent<
+  [string, number, BigNumber, BigNumber, number, number] & {
+    ilkId: string;
+    duration: number;
+    initialOffer: BigNumber;
+    line: BigNumber;
+    dust: number;
+    dec: number;
+  }
+>;
+
+export type PointEvent = TypedEvent<
+  [string, string] & { param: string; value: string }
+>;
+
+export type RoleAdminChangedEvent = TypedEvent<
+  [string, string] & { role: string; newAdminRole: string }
+>;
+
+export type RoleGrantedEvent = TypedEvent<
+  [string, string, string] & { role: string; account: string; sender: string }
+>;
+
+export type RoleRevokedEvent = TypedEvent<
+  [string, string, string] & { role: string; account: string; sender: string }
+>;
 
 export class Witch extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -190,7 +266,11 @@ export class Witch extends BaseContract {
   functions: {
     LOCK(overrides?: CallOverrides): Promise<[string]>;
 
+    LOCK8605463013(overrides?: CallOverrides): Promise<[string]>;
+
     ROOT(overrides?: CallOverrides): Promise<[string]>;
+
+    ROOT4146650865(overrides?: CallOverrides): Promise<[string]>;
 
     auction(
       vaultId: BytesLike,
@@ -235,14 +315,22 @@ export class Witch extends BaseContract {
       arg0: BytesLike,
       overrides?: CallOverrides
     ): Promise<
-      [number, BigNumber, BigNumber] & {
-        duration: number;
-        initialOffer: BigNumber;
-        dust: BigNumber;
-      }
+      [number, BigNumber] & { duration: number; initialOffer: BigNumber }
     >;
 
     ladle(overrides?: CallOverrides): Promise<[string]>;
+
+    limits(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<
+      [BigNumber, number, number, BigNumber] & {
+        line: BigNumber;
+        dust: number;
+        dec: number;
+        sum: BigNumber;
+      }
+    >;
 
     lockRole(
       role: BytesLike,
@@ -252,6 +340,12 @@ export class Witch extends BaseContract {
     payAll(
       vaultId: BytesLike,
       min: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    point(
+      param: BytesLike,
+      value: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -277,7 +371,9 @@ export class Witch extends BaseContract {
       ilkId: BytesLike,
       duration: BigNumberish,
       initialOffer: BigNumberish,
+      line: BigNumberish,
       dust: BigNumberish,
+      dec: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -290,7 +386,11 @@ export class Witch extends BaseContract {
 
   LOCK(overrides?: CallOverrides): Promise<string>;
 
+  LOCK8605463013(overrides?: CallOverrides): Promise<string>;
+
   ROOT(overrides?: CallOverrides): Promise<string>;
+
+  ROOT4146650865(overrides?: CallOverrides): Promise<string>;
 
   auction(
     vaultId: BytesLike,
@@ -335,14 +435,22 @@ export class Witch extends BaseContract {
     arg0: BytesLike,
     overrides?: CallOverrides
   ): Promise<
-    [number, BigNumber, BigNumber] & {
-      duration: number;
-      initialOffer: BigNumber;
-      dust: BigNumber;
-    }
+    [number, BigNumber] & { duration: number; initialOffer: BigNumber }
   >;
 
   ladle(overrides?: CallOverrides): Promise<string>;
+
+  limits(
+    arg0: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<
+    [BigNumber, number, number, BigNumber] & {
+      line: BigNumber;
+      dust: number;
+      dec: number;
+      sum: BigNumber;
+    }
+  >;
 
   lockRole(
     role: BytesLike,
@@ -352,6 +460,12 @@ export class Witch extends BaseContract {
   payAll(
     vaultId: BytesLike,
     min: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  point(
+    param: BytesLike,
+    value: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -377,7 +491,9 @@ export class Witch extends BaseContract {
     ilkId: BytesLike,
     duration: BigNumberish,
     initialOffer: BigNumberish,
+    line: BigNumberish,
     dust: BigNumberish,
+    dec: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -390,7 +506,11 @@ export class Witch extends BaseContract {
   callStatic: {
     LOCK(overrides?: CallOverrides): Promise<string>;
 
+    LOCK8605463013(overrides?: CallOverrides): Promise<string>;
+
     ROOT(overrides?: CallOverrides): Promise<string>;
+
+    ROOT4146650865(overrides?: CallOverrides): Promise<string>;
 
     auction(vaultId: BytesLike, overrides?: CallOverrides): Promise<void>;
 
@@ -432,14 +552,22 @@ export class Witch extends BaseContract {
       arg0: BytesLike,
       overrides?: CallOverrides
     ): Promise<
-      [number, BigNumber, BigNumber] & {
-        duration: number;
-        initialOffer: BigNumber;
-        dust: BigNumber;
-      }
+      [number, BigNumber] & { duration: number; initialOffer: BigNumber }
     >;
 
     ladle(overrides?: CallOverrides): Promise<string>;
+
+    limits(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<
+      [BigNumber, number, number, BigNumber] & {
+        line: BigNumber;
+        dust: number;
+        dec: number;
+        sum: BigNumber;
+      }
+    >;
 
     lockRole(role: BytesLike, overrides?: CallOverrides): Promise<void>;
 
@@ -448,6 +576,12 @@ export class Witch extends BaseContract {
       min: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    point(
+      param: BytesLike,
+      value: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     renounceRole(
       role: BytesLike,
@@ -471,7 +605,9 @@ export class Witch extends BaseContract {
       ilkId: BytesLike,
       duration: BigNumberish,
       initialOffer: BigNumberish,
+      line: BigNumberish,
       dust: BigNumberish,
+      dec: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -483,12 +619,30 @@ export class Witch extends BaseContract {
   };
 
   filters: {
+    "Auctioned(bytes12,uint256)"(
+      vaultId?: BytesLike | null,
+      start?: BigNumberish | null
+    ): TypedEventFilter<
+      [string, BigNumber],
+      { vaultId: string; start: BigNumber }
+    >;
+
     Auctioned(
       vaultId?: BytesLike | null,
       start?: BigNumberish | null
     ): TypedEventFilter<
       [string, BigNumber],
       { vaultId: string; start: BigNumber }
+    >;
+
+    "Bought(bytes12,address,uint256,uint256)"(
+      vaultId?: BytesLike | null,
+      buyer?: string | null,
+      ink?: null,
+      art?: null
+    ): TypedEventFilter<
+      [string, string, BigNumber, BigNumber],
+      { vaultId: string; buyer: string; ink: BigNumber; art: BigNumber }
     >;
 
     Bought(
@@ -501,19 +655,60 @@ export class Witch extends BaseContract {
       { vaultId: string; buyer: string; ink: BigNumber; art: BigNumber }
     >;
 
-    IlkSet(
+    "IlkSet(bytes6,uint32,uint64,uint96,uint24,uint8)"(
       ilkId?: BytesLike | null,
       duration?: null,
       initialOffer?: null,
-      dust?: null
+      line?: null,
+      dust?: null,
+      dec?: null
     ): TypedEventFilter<
-      [string, number, BigNumber, BigNumber],
+      [string, number, BigNumber, BigNumber, number, number],
       {
         ilkId: string;
         duration: number;
         initialOffer: BigNumber;
-        dust: BigNumber;
+        line: BigNumber;
+        dust: number;
+        dec: number;
       }
+    >;
+
+    IlkSet(
+      ilkId?: BytesLike | null,
+      duration?: null,
+      initialOffer?: null,
+      line?: null,
+      dust?: null,
+      dec?: null
+    ): TypedEventFilter<
+      [string, number, BigNumber, BigNumber, number, number],
+      {
+        ilkId: string;
+        duration: number;
+        initialOffer: BigNumber;
+        line: BigNumber;
+        dust: number;
+        dec: number;
+      }
+    >;
+
+    "Point(bytes32,address)"(
+      param?: BytesLike | null,
+      value?: null
+    ): TypedEventFilter<[string, string], { param: string; value: string }>;
+
+    Point(
+      param?: BytesLike | null,
+      value?: null
+    ): TypedEventFilter<[string, string], { param: string; value: string }>;
+
+    "RoleAdminChanged(bytes4,bytes4)"(
+      role?: BytesLike | null,
+      newAdminRole?: BytesLike | null
+    ): TypedEventFilter<
+      [string, string],
+      { role: string; newAdminRole: string }
     >;
 
     RoleAdminChanged(
@@ -524,7 +719,25 @@ export class Witch extends BaseContract {
       { role: string; newAdminRole: string }
     >;
 
+    "RoleGranted(bytes4,address,address)"(
+      role?: BytesLike | null,
+      account?: string | null,
+      sender?: string | null
+    ): TypedEventFilter<
+      [string, string, string],
+      { role: string; account: string; sender: string }
+    >;
+
     RoleGranted(
+      role?: BytesLike | null,
+      account?: string | null,
+      sender?: string | null
+    ): TypedEventFilter<
+      [string, string, string],
+      { role: string; account: string; sender: string }
+    >;
+
+    "RoleRevoked(bytes4,address,address)"(
       role?: BytesLike | null,
       account?: string | null,
       sender?: string | null
@@ -546,7 +759,11 @@ export class Witch extends BaseContract {
   estimateGas: {
     LOCK(overrides?: CallOverrides): Promise<BigNumber>;
 
+    LOCK8605463013(overrides?: CallOverrides): Promise<BigNumber>;
+
     ROOT(overrides?: CallOverrides): Promise<BigNumber>;
+
+    ROOT4146650865(overrides?: CallOverrides): Promise<BigNumber>;
 
     auction(
       vaultId: BytesLike,
@@ -591,6 +808,8 @@ export class Witch extends BaseContract {
 
     ladle(overrides?: CallOverrides): Promise<BigNumber>;
 
+    limits(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
+
     lockRole(
       role: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -599,6 +818,12 @@ export class Witch extends BaseContract {
     payAll(
       vaultId: BytesLike,
       min: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    point(
+      param: BytesLike,
+      value: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -624,7 +849,9 @@ export class Witch extends BaseContract {
       ilkId: BytesLike,
       duration: BigNumberish,
       initialOffer: BigNumberish,
+      line: BigNumberish,
       dust: BigNumberish,
+      dec: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -638,7 +865,11 @@ export class Witch extends BaseContract {
   populateTransaction: {
     LOCK(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    LOCK8605463013(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     ROOT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    ROOT4146650865(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     auction(
       vaultId: BytesLike,
@@ -689,6 +920,11 @@ export class Witch extends BaseContract {
 
     ladle(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    limits(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     lockRole(
       role: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -697,6 +933,12 @@ export class Witch extends BaseContract {
     payAll(
       vaultId: BytesLike,
       min: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    point(
+      param: BytesLike,
+      value: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -722,7 +964,9 @@ export class Witch extends BaseContract {
       ilkId: BytesLike,
       duration: BigNumberish,
       initialOffer: BigNumberish,
+      line: BigNumberish,
       dust: BigNumberish,
+      dec: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
