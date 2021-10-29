@@ -1,15 +1,16 @@
-import React from 'react';
-import { Box, Text } from 'grommet';
+import React, { useContext } from 'react';
+import { Box } from 'grommet';
 import { FiInfo, FiPlayCircle } from 'react-icons/fi';
-import styled from 'styled-components';
+import { ThemeContext } from 'styled-components';
 import BoxWrap from './BoxWrap';
 
 function InputInfoWrap({ action, index, children }: { children: any; index?: number; action?: () => void }) {
+  const theme = useContext<any>(ThemeContext);
+  const { green, orange } = theme.global.colors;
   return (
     <BoxWrap
       pad="xsmall"
       direction="row"
-      gap="xsmall"
       align="center"
       animation={action ? undefined : 'zoomIn'}
       onClick={action ? () => action() : undefined}
@@ -17,14 +18,14 @@ function InputInfoWrap({ action, index, children }: { children: any; index?: num
     >
       {action ? (
         <Box>
-          <FiPlayCircle size="1.5rem" color="green" />
+          <FiPlayCircle size="1.2rem" color={green} />
         </Box>
       ) : (
         <Box>
-          <FiInfo size="1.5rem" color="orange" />
+          <FiInfo size="1.2rem" color={orange} />
         </Box>
       )}
-      <Box pad='small'>{children}</Box>
+      <Box pad="small">{children}</Box>
     </BoxWrap>
   );
 }

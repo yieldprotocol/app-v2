@@ -459,9 +459,11 @@ const Borrow = () => {
               <NextButton
                 // label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
                 label={
-                  borrowInput && !selectedSeries
-                    ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} Maturity`
-                    : 'Next Step'
+                  <Text size={mobile ? 'small' : undefined}>
+                    {borrowInput && !selectedSeries
+                      ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} Maturity`
+                      : 'Next Step'}
+                  </Text>
                 }
                 onClick={() => setStepPosition(stepPosition + 1)}
                 disabled={stepPosition === 0 ? stepDisabled : borrowDisabled}

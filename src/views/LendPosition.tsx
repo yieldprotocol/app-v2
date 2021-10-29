@@ -174,7 +174,7 @@ const LendPosition = () => {
                 <SectionWrap>
                   <Box gap="small">
                     <InfoBite
-                      label="Maturity date:"
+                      label="Maturity date"
                       value={`${selectedSeries?.fullDate}`}
                       icon={<FiClock color={selectedSeries?.color} />}
                     />
