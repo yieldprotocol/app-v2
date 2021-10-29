@@ -38,10 +38,10 @@ export const useLendHelpers = (
 
       const _maxBaseIn = maxBaseIn(series.baseReserves, series.fyTokenReserves, timeTillMaturity, series.decimals);
 
-      diagnostics &&  console.log('BASE IN : ', _maxBaseIn.toString());
+      diagnostics && console.log('BASE IN : ', _maxBaseIn.toString());
       _maxBaseIn && setProtocolBaseIn(_maxBaseIn);
     }
-  }, [series, diagnostics ]);
+  }, [series, diagnostics]);
 
   /* Check and set Max available lend by user (only if activeAccount).   */
   useEffect(() => {
@@ -85,13 +85,14 @@ export const useLendHelpers = (
         : setFyTokenMarketValue(ethers.utils.formatUnits(value, series.decimals));
 
       /* set max Closing */
+      const baseReservesWithMargin = series.baseReserves.mul(9999).div(10000); // TODO figure out why we can't use the base reserves exactly (margin added to facilitate transaction)
       value.lte(ethers.constants.Zero) && series.fyTokenBalance?.gt(series.baseReserves)
-        ? setMaxClose(series.baseReserves)
+        ? setMaxClose(baseReservesWithMargin)
         : setMaxClose(value);
 
       /* set max Closing human readable */
       value.lte(ethers.constants.Zero) && series.fyTokenBalance?.gt(series.baseReserves)
-        ? setMaxClose_(ethers.utils.formatUnits(series.baseReserves, series.decimals).toString())
+        ? setMaxClose_(ethers.utils.formatUnits(baseReservesWithMargin, series.decimals).toString())
         : setMaxClose_(ethers.utils.formatUnits(value, series.decimals).toString());
 
       /* explicitly set max close to 0 when applicable */
