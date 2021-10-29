@@ -127,7 +127,7 @@ const VaultPosition = () => {
     userBaseAvailable,
     maxRoll,
     maxRoll_,
-    maxDebt_,
+    vaultDebt_,
     rollPossible,
   } = useBorrowHelpers(undefined, undefined, selectedVault, rollToSeries);
 
@@ -367,7 +367,7 @@ const VaultPosition = () => {
 
                               {repayInput && !repayError && (
                                 <InputInfoWrap>
-                                  {repayCollEst && parseFloat(repayCollEst) > 10000 && repayInput !== maxDebt_ && (
+                                  {repayCollEst && parseFloat(repayCollEst) > 10000 && repayInput !== vaultDebt_ && (
                                     <Text color="text-weak" alignSelf="end" size="xsmall">
                                       Repaying this amount will leave a small amount of debt.
                                     </Text>
@@ -375,14 +375,14 @@ const VaultPosition = () => {
                                   {repayCollEst &&
                                     parseFloat(repayCollEst) < 10000 &&
                                     parseFloat(repayCollEst) !== 0 &&
-                                    repayInput !== maxDebt_ && (
+                                    repayInput !== vaultDebt_ && (
                                       <Text color="text-weak" alignSelf="end" size="xsmall">
                                         Collateralization ratio after repayment:{' '}
                                         {repayCollEst && nFormatter(parseFloat(repayCollEst), 2)}%
                                       </Text>
                                     )}
 
-                                  {repayInput === maxDebt_ && (
+                                  {repayInput === vaultDebt_ && (
                                     <Text color="text-weak" alignSelf="end" size="xsmall">
                                       All debt will be repaid.
                                     </Text>
@@ -424,7 +424,7 @@ const VaultPosition = () => {
                           value={`${cleanValue(repayInput, vaultBase?.digitFormat!)} ${vaultBase?.symbol}`}
                         />
 
-                        {repayInput === maxDebt_ && (
+                        {repayInput === vaultDebt_ && (
                           <Box fill="horizontal" align="end">
                             <CheckBox
                               reverse

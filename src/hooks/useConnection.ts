@@ -22,7 +22,6 @@ const UNAUTHORISED_SITE = 'Please authorize this website to access your Ethereum
 const UNKNOWN_ERROR = 'An unknown error occurred. Check the console for more details.';
 
 /* Set up web3react config */
-const POLLING_INTERVAL = 12000;
 const RPC_URLS: { [chainId: number]: string } = {
   1: process.env.REACT_APP_RPC_URL_1 as string,
   42: process.env.REACT_APP_RPC_URL_42 as string,

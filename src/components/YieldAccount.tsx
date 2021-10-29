@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import styled from 'styled-components';
 import { Text, Box, ResponsiveContext } from 'grommet';
 import { FiSettings } from 'react-icons/fi';
@@ -13,6 +13,7 @@ import EthMark from './logos/EthMark';
 import { UserContext } from '../contexts/UserContext';
 import { WETH } from '../utils/constants';
 import SettingsBalances from './SettingsBalances';
+import { useEnsName } from '../hooks/useEnsName';
 
 const StyledText = styled(Text)`
   svg,
@@ -37,13 +38,16 @@ const StyledBox = styled(Box)`
 const YieldAccount = (props: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
-    chainState: { connection: { account } },
+    chainState: {
+      connection: { account },
+    },
   } = useContext(ChainContext);
 
   const {
     userState: { assetMap, assetsLoading },
   } = useContext(UserContext);
 
+  const ensName = useEnsName();
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
   const [connectOpen, setConnectOpen] = useState<boolean>(false);
 
@@ -76,7 +80,7 @@ const YieldAccount = (props: any) => {
               <Box direction="row" align="center" gap="small">
                 <Box>
                   <Text color="text" size="small">
-                    {abbreviateHash(account, 5)}
+                    {ensName || abbreviateHash(account, 5)}
                   </Text>
 
                   <Box direction="row" align="center" gap="small">
