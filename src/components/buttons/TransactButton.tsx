@@ -7,7 +7,6 @@ const StyledButton = styled(Button)`
   /* border: none; */
   padding: 6px;
   border: 2px solid white;
-  position: relative;
 `;
 
 const TransactButton = (props: any) => (
