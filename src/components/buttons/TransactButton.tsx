@@ -4,7 +4,13 @@ import styled from 'styled-components';
 
 const StyledButton = styled(Button)`
   /* height: ${(props: any) => (props.mobile ? '3rem' : '3rem')}; */
-  border: none;
+  /* border: none; */
+  border: 1px solid;
+  position: relative;
+
+  :hover {
+    opacity: 0.9;
+  }
 `;
 
 const TransactButton = (props: any) => (
