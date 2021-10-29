@@ -8,12 +8,14 @@ export const yieldTheme = {
       // brand: '#3f53d9',
       // focus: '#3f53d999',
       // selected: '#3f53d9',
-
+      green: '#10B981',
+      orange: '#F59E0B',
+      red: '#EF4444',
       brand: '#2563EB',
       focus: '#2563EB99',
       selected: '#2563EB',
-      'hover' : '#ffffff69', 
-      'solid' :'#ffffff',
+      hover: '#ffffff69',
+      solid: '#ffffff',
 
       'accent-1': '#FFCA58',
       'accent-2': '#81FCED',
@@ -21,14 +23,15 @@ export const yieldTheme = {
       'tailwind-blue-50': '#EFF6FF',
       'tailwind-blue-100': '#DBEAFE',
 
-      'gradient': {
+      gradient: {
         dark: 'linear-gradient(135deg, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82)',
         light: 'linear-gradient(135deg, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82)',
       },
 
       'gradient-transparent': {
         dark: '-webkit-linear-gradient(135deg, #f7953380, #f3705580, #ef4e7b80, #a166ab80, #5073b880, #1098ad80, #07b39b80, #6fba8280)',
-        light: '-webkit-linear-gradient(135deg, #f7953340, #f3705540, #ef4e7b40, #a166ab40, #5073b840, #1098ad40, #07b39b40, #6fba8240)',
+        light:
+          '-webkit-linear-gradient(135deg, #f7953340, #f3705540, #ef4e7b40, #a166ab40, #5073b840, #1098ad40, #07b39b40, #6fba8240)',
       },
 
       text: {
@@ -125,9 +128,8 @@ export const yieldTheme = {
 
     // @ts-ignore
     extend: () => css`
-
-    backdrop-filter: ${(props: LayerProps) => (props.responsive ? 'blur(3px)' : 'none')};
-    -webkit-backdrop-filter: ${(props: LayerProps) => (props.responsive? 'blur(3px)' : 'none')};
+      backdrop-filter: ${(props: LayerProps) => (props.responsive ? 'blur(3px)' : 'none')};
+      -webkit-backdrop-filter: ${(props: LayerProps) => (props.responsive ? 'blur(3px)' : 'none')};
 
       input::-webkit-outer-spin-button,
       input::-webkit-inner-spin-button {
