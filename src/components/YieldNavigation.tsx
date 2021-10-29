@@ -49,7 +49,7 @@ const YieldNavigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) 
   const activeStyle = {
     transform: !sideNavigation ? 'scale(1.3)' : 'scale(1.3)',
     color: `${textColor}`,
-    marginLeft: '1em',
+    marginLeft: !mobile && sideNavigation  ? '1em' : undefined,
   } as CSSProperties;
 
   const linksArr = [
