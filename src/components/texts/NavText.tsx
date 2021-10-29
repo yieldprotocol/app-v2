@@ -1,5 +1,5 @@
-import { Text } from 'grommet';
 import React from 'react';
+import { Text } from 'grommet';
 import styled from 'styled-components';
 
 const StyledText = styled(Text)`
@@ -10,7 +10,6 @@ const StyledText = styled(Text)`
   -webkit-background-clip: text; 
   -webkit-text-fill-color: transparent;
   filter: drop-shadow(2px 2px 2px #ddd);  */
-
 `;
 
 const NavText = (props: any) => <StyledText {...props} selected={props.selected}>{props.children}</StyledText>;
