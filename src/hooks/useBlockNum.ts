@@ -5,19 +5,19 @@ import { ChainContext } from '../contexts/ChainContext';
 export const useBlockNum = () => {
   const {
     chainState: {
-      connection: { provider },
+      connection: { fallbackProvider },
     },
   } = useContext(ChainContext);
 
   const [blockNum, setBlockNum] = useState<string | null>(null);
 
   useEffect(() => {
-    if (provider) {
+    if (fallbackProvider) {
       (async () => {
         setBlockNum((await provider.getBlockNumber()).toString());
       })();
     }
-  }, [provider]);
+  }, [fallbackProvider]);
 
   return blockNum;
 };
