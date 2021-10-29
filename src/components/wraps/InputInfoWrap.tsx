@@ -7,7 +7,6 @@ import BoxWrap from './BoxWrap';
 function InputInfoWrap({ action, index, children }: { children: any; index?: number; action?: () => void }) {
   const theme = useContext<any>(ThemeContext);
   const { green, orange } = theme.global.colors;
-  console.log(green);
   return (
     <BoxWrap
       pad="xsmall"
