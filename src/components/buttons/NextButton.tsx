@@ -1,5 +1,5 @@
 import { Box, Button, Text } from 'grommet';
-import React, { useState } from 'react';
+import React from 'react';
 import { FiAlertTriangle } from 'react-icons/fi';
 import styled from 'styled-components';
 
@@ -8,6 +8,9 @@ const StyledButton = styled(Button)`
   padding: 6px;
   :hover {
     box-shadow: 0px 0px 0px 1px;
+  }
+  :disabled {
+    box-shadow: none;
   }
 `;
 
