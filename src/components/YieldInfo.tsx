@@ -7,6 +7,7 @@ import { FaDiscord as Discord } from 'react-icons/fa';
 
 import { ChainContext } from '../contexts/ChainContext';
 import BoxWrap from './wraps/BoxWrap';
+import { useBlockNum } from '../hooks/useBlockNum';
 
 const IconSize = '1.15rem';
 const IconGap = 'small';
@@ -16,7 +17,7 @@ const YieldInfo = () => {
 
   const {
     chainState: {
-      connection: { CHAIN_INFO, fallbackChainId },
+      connection: { CHAIN_INFO, fallbackChainId, currentChainInfo },
       appVersion,
     },
   } = useContext(ChainContext);
@@ -24,6 +25,7 @@ const YieldInfo = () => {
   const connectedChain = CHAIN_INFO?.get(fallbackChainId!);
 
   const { pathname } = useLocation();
+  const blockNum = useBlockNum();
   const [path, setPath] = useState<string>();
   /* If the url references a series/vault...set that one as active */
   useEffect(() => {
@@ -58,7 +60,12 @@ const YieldInfo = () => {
         </BoxWrap>
 
         <BoxWrap>
-          <Anchor color="grey" href="http://docs.yieldprotocol.com" target="_blank" onClick={() => handleExternal('Docs')}>
+          <Anchor
+            color="grey"
+            href="http://docs.yieldprotocol.com"
+            target="_blank"
+            onClick={() => handleExternal('Docs')}
+          >
             <Docs size={IconSize} />
           </Anchor>
         </BoxWrap>
@@ -98,13 +105,23 @@ const YieldInfo = () => {
       </Box>
 
       {connectedChain && (
-        <Box direction="row-responsive" gap="small">
-          <Text size="xsmall">
-            {`Connected to: `}
-            <Text size="xsmall" color={CHAIN_INFO.get(fallbackChainId)?.color}>
-              {CHAIN_INFO.get(fallbackChainId)?.name}
-            </Text>
+        <Box direction="row" gap="xsmall" align="center" flex>
+          <Text size="xsmall" color={CHAIN_INFO.get(fallbackChainId)?.color}>
+            {CHAIN_INFO.get(fallbackChainId)?.name}
           </Text>
+          {blockNum && currentChainInfo?.name && (
+            <Anchor
+              style={{ lineHeight: '0' }}
+              href={`https://${
+                currentChainInfo.name === 'Mainnet' ? '' : `${currentChainInfo.name}.`
+              }etherscan.io/block/${blockNum}`}
+              target="_blank"
+            >
+              <Text size="xsmall" color={CHAIN_INFO.get(fallbackChainId)?.color}>
+                {blockNum}
+              </Text>
+            </Anchor>
+          )}
         </Box>
       )}
     </Box>
