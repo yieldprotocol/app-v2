@@ -14,7 +14,7 @@ export const useBlockNum = () => {
   useEffect(() => {
     if (fallbackProvider) {
       (async () => {
-        setBlockNum((await provider.getBlockNumber()).toString());
+        setBlockNum((await fallbackProvider.getBlockNumber()).toString());
       })();
     }
   }, [fallbackProvider]);
