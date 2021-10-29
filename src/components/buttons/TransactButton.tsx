@@ -7,10 +7,6 @@ const StyledButton = styled(Button)`
   /* border: none; */
   border: 1px solid;
   position: relative;
-
-  :hover {
-    opacity: 0.9;
-  }
 `;
 
 const TransactButton = (props: any) => (
