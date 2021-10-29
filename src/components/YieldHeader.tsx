@@ -81,8 +81,9 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
           </Box>
           <Box />
 
-          <Box align="end">
-            <YieldAccount />
+          <Box align="end" direction='row'>
+            {/* {mobile && <Box> Dash </Box>}  */}
+            <YieldAccount />        
           </Box>
         </Grid>
       </Header>

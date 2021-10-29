@@ -15,6 +15,7 @@ import { cleanValue } from '../utils/appUtils';
 import DashboardPositionList from '../components/DashboardPositionList';
 import CurrencyToggle from '../components/CurrencyToggle';
 import { sellFYToken, strategyTokenValue } from '../utils/yieldMath';
+import YieldNavigation from '../components/YieldNavigation';
 
 const StyledBox = styled(Box)`
   * {
@@ -199,23 +200,7 @@ const Dashboard = () => {
     <MainViewWrap>
       {!mobile && (
         <PanelWrap justify="between" basis="40%">
-          <Box margin={{ top: '35%' }} gap="medium" fill="horizontal">
-            {account && (
-              <Box gap="small">
-                <Box width="5rem" height="2rem">
-                  <CurrencyToggle />
-                </Box>
-                <DashboardBalanceSummary
-                  debt={totalDebt!}
-                  collateral={totalCollateral!}
-                  lendBalance={totalLendBalance}
-                  poolBalance={totalStrategyBalance}
-                  digits={currencySettingDigits}
-                  symbol={currencySettingSymbol}
-                />
-              </Box>
-            )}
-          </Box>
+          <YieldNavigation sideNavigation={true} />
           <YieldInfo />
         </PanelWrap>
       )}
@@ -317,7 +302,28 @@ const Dashboard = () => {
           </Box>
         )}
       </StyledBox>
-      {!mobile && <PanelWrap basis="40%"> </PanelWrap>}
+      {!mobile && (
+        <PanelWrap basis="40%">
+          <Box />
+          <Box margin={{ bottom: '10%' }} fill="horizontal">
+            {account && (
+              <Box gap="small">
+                <Box width="5rem" height="2rem">
+                  <CurrencyToggle />
+                </Box>
+                <DashboardBalanceSummary
+                  debt={totalDebt!}
+                  collateral={totalCollateral!}
+                  lendBalance={totalLendBalance}
+                  poolBalance={totalStrategyBalance}
+                  digits={currencySettingDigits}
+                  symbol={currencySettingSymbol}
+                />
+              </Box>
+            )}
+          </Box>
+        </PanelWrap>
+      )}
     </MainViewWrap>
   );
 };

@@ -149,7 +149,7 @@ const PoolPosition = () => {
             <Box fill pad={mobile ? 'medium' : 'large'} gap="small">
               <Box height={{ min: '250px' }} gap="2em">
                 <Box
-                  direction="row-responsive"
+                  direction="row"
                   justify="between"
                   fill="horizontal"
                   align="center"

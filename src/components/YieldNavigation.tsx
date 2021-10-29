@@ -1,14 +1,14 @@
 import React, { useContext } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import styled, { CSSProperties } from 'styled-components';
-import { Text, Box, ThemeContext, ResponsiveContext, Layer } from 'grommet';
-import AltText from './texts/AltText';
+import { Box, ThemeContext, ResponsiveContext } from 'grommet';
 import NavText from './texts/NavText';
 import { ChainContext } from '../contexts/ChainContext';
+import { useWindowSize } from '../hooks/generalHooks';
 
 const StyledLink = styled(NavLink)`
   text-decoration: none;
-  padding: 8px;
+  /* padding: 8px; */
   border-radius: 5px;
 
   -webkit-transition: background 0.3s ease-in-out;
@@ -29,14 +29,14 @@ const StyledLink = styled(NavLink)`
   }
 `;
 
-interface IYieldNavigation {
+interface IYieldNavigationProps {
+  sideNavigation?: boolean;
   callbackFn?: any;
 }
 
-const YieldNavigation = ({ callbackFn }: IYieldNavigation) => {
+const YieldNavigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-  const loc = useLocation();
-
+  const [height] = useWindowSize();
   const {
     chainState: {
       connection: { account },
@@ -46,11 +46,10 @@ const YieldNavigation = ({ callbackFn }: IYieldNavigation) => {
   const theme = useContext<any>(ThemeContext);
   const textColor = theme.global.colors.text.light;
 
-  const textBack = theme.global.colors['light-1'];
-
   const activeStyle = {
-    transform: 'scale(1.3)',
+    transform: !sideNavigation ? 'scale(1.3)' : 'scale(1.3)',
     color: `${textColor}`,
+    marginLeft: !mobile && sideNavigation  ? '1em' : undefined,
   } as CSSProperties;
 
   const linksArr = [
@@ -58,24 +57,46 @@ const YieldNavigation = ({ callbackFn }: IYieldNavigation) => {
     { label: 'LEND', to: '/lend' },
     { label: 'POOL', to: '/pool' },
     { label: 'DASHBOARD', to: '/dashboard', disabled: !account },
-    // { label: 'Markets', to: '/markets' },
   ];
 
+  const Link = ({ link }: { link: any }) => (
+    <StyledLink to={link.to} activeStyle={activeStyle} onClick={() => callbackFn()} style={{ color: 'grey' }}>
+      <NavText size={mobile ? 'medium' : 'small'}>{link.label}</NavText>
+    </StyledLink>
+  );
+
   return (
-    <Box direction={mobile ? 'column' : 'row'} gap="medium" align="center" justify="center" fill={mobile}>
-      {linksArr.map((x: any) =>
-        !x.disabled ? (
-          <StyledLink to={x.to} activeStyle={activeStyle} key={x.label} onClick={() => callbackFn()}>
-            <NavText color={mobile ? 'text-weak' : undefined} size={mobile ? 'medium' : 'small'}>
-              {x.label}
-            </NavText>
-          </StyledLink>
-        ) : null
+    <>
+      {!mobile && !sideNavigation && height > 800 && (
+        <Box
+          direction={mobile ? 'column' : 'row'}
+          gap="2em"
+          pad={mobile ? { vertical: 'xlarge' } : undefined}
+          align="center"
+          justify={mobile ? undefined : 'center'}
+          fill={mobile}
+        >
+          {linksArr.map((x: any) => (!x.disabled ? <Link link={x} key={x.label} /> : null))}
+        </Box>
       )}
-    </Box>
+
+      {mobile && (
+        <Box direction="column" gap="medium" pad={{ vertical: 'xlarge' }} align="center" fill>
+          {linksArr.map((x: any) => (!x.disabled ? <Link link={x} key={x.label} /> : null))}
+        </Box>
+      )}
+
+      {!mobile && sideNavigation && height < 800 ? (
+        <Box pad={{ vertical: '3em' }} direction="column" gap="small">
+          {linksArr.map((x: any) => (!x.disabled ? <Link link={x} key={x.label} /> : null))}
+        </Box>
+      ) : (
+        <Box />
+      )}
+    </>
   );
 };
 
-YieldNavigation.defaultProps = { callbackFn: () => null };
+YieldNavigation.defaultProps = { sideNavigation: false, callbackFn: () => null };
 
 export default YieldNavigation;

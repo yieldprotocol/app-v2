@@ -44,6 +44,7 @@ import { ChainContext } from '../contexts/ChainContext';
 import DummyVaultItem from '../components/positionItems/DummyVaultItem';
 import DashMobileButton from '../components/buttons/DashMobileButton';
 import SeriesOrStrategySelectorModal from '../components/selectors/SeriesOrStrategySelectorModal';
+import YieldNavigation from '../components/YieldNavigation';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -205,7 +206,7 @@ const Borrow = () => {
         {mobile && <DashMobileButton transparent={!!borrowInput} />}
         {!mobile && (
           <PanelWrap>
-            <Box margin={{ top: '35%' }} />
+            <YieldNavigation sideNavigation={true} />
             <YieldInfo />
           </PanelWrap>
         )}
