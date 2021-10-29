@@ -1,21 +1,22 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, Suspense, lazy } from 'react';
 import { Box, ResponsiveContext } from 'grommet';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Redirect, Route, Switch } from 'react-router-dom';
 
-import Borrow from './views/Borrow';
-import Lend from './views/Lend';
-import Pool from './views/Pool';
-import Dashboard from './views/Dashboard';
-
 import MenuLayer from './layers/MenuLayer';
-import VaultPosition from './views/VaultPosition';
 import YieldHeader from './components/YieldHeader';
 import NetworkError from './components/NetworkError';
-import LendPosition from './views/LendPosition';
-import PoolPosition from './views/PoolPosition';
 import TransactionWidget from './components/TransactionWidget';
+
+const Borrow= lazy(() => import('./views/Borrow'));
+const Lend = lazy(() => import('./views/Lend'));
+const Pool = lazy(() => import('./views/Pool'));
+const Dashboard = lazy(() => import('./views/Dashboard'));
+
+const VaultPosition = lazy(() => import('./views/VaultPosition'));
+const LendPosition = lazy(() => import('./views/LendPosition'));
+const PoolPosition = lazy(() => import('./views/PoolPosition'));
 
 function App() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -34,6 +35,8 @@ function App() {
         <Box flex={!mobile} overflow="hidden">
           <ToastContainer position="top-right" />
           {menuLayerOpen && <MenuLayer toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} />}
+
+          <Suspense fallback={<div>Loading...</div>}>
           <Switch>
             <Route path="/borrow/:series?/:asset?/:amnt?">
               <Borrow />
@@ -69,6 +72,7 @@ function App() {
 
             <Route path="/*"> 404 </Route>
           </Switch>
+          </Suspense>
         </Box>
         {/* <YieldFooter /> */}
       </Box>
