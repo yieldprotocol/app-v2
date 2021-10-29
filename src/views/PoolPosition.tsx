@@ -70,7 +70,6 @@ const PoolPosition = () => {
     removeFyTokenReceived_,
 
     partialRemoveRequired,
-
   } = usePoolHelpers(removeInput, true);
 
   /* TX data */
@@ -94,9 +93,8 @@ const PoolPosition = () => {
   };
 
   const handleRemove = () => {
-    const shouldTradeExtra =
-      partialRemoveRequired && forceDisclaimerChecked ? false : undefined; 
-    selectedSeries && removeLiquidity(removeInput!, selectedSeries, matchingVault, shouldTradeExtra); 
+    const shouldTradeExtra = partialRemoveRequired && forceDisclaimerChecked ? false : undefined;
+    selectedSeries && removeLiquidity(removeInput!, selectedSeries, matchingVault, shouldTradeExtra);
   };
 
   const resetInputs = (actionCode: ActionCodes) => {
@@ -311,35 +309,30 @@ const PoolPosition = () => {
             </Box>
 
             <ActionButtonGroup pad>
-              {stepPosition[actionActive.index] === 0 &&
-                removeInput &&
-                partialRemoveRequired &&
-                !removeError && (
-                  <Box fill="horizontal" pad={{ vertical: 'small', horizontal: 'xsmall' }}>
-                    <CheckBox
-                      label={
-                        <Box>
-                          {/* <Text size="xsmall">Force Removal: </Text> */}
-                          {/* <Text size="xsmall">
+              {stepPosition[actionActive.index] === 0 && removeInput && partialRemoveRequired && !removeError && (
+                <Box fill="horizontal" pad={{ vertical: 'small', horizontal: 'xsmall' }}>
+                  <CheckBox
+                    label={
+                      <Box>
+                        {/* <Text size="xsmall">Force Removal: </Text> */}
+                        {/* <Text size="xsmall">
                             {`( You will receive `}
                             {cleanValue(removeFyTokenReceived_, 2)} fy{selectedBase?.symbol}{' '}
                             {removeFyTokenReceived?.gt(ethers.constants.Zero) &&
                               ` and ${cleanValue(removeBaseReceived_, 2)} ${selectedBase?.symbol} )`}
                           </Text> */}
-                          <Text size="xsmall">
-                            Force Removal:
-                            {` ( You will receive about ${cleanValue(removeBaseReceived_, 2)} ${
-                              selectedBase?.symbol
-                            } `}
-                            {`and then rest will be in redeemable fy${selectedBase?.symbol} )`}
-                          </Text>
-                        </Box>
-                      }
-                      checked={forceDisclaimerChecked}
-                      onChange={() => setForceDisclaimerChecked(!forceDisclaimerChecked)}
-                    />
-                  </Box>
-                )}
+                        <Text size="xsmall">
+                          Force Removal:
+                          {` (You will receive about ${cleanValue(removeBaseReceived_, 2)} ${selectedBase?.symbol} `}
+                          {`and then rest will be in redeemable fy${selectedBase?.symbol})`}
+                        </Text>
+                      </Box>
+                    }
+                    checked={forceDisclaimerChecked}
+                    onChange={() => setForceDisclaimerChecked(!forceDisclaimerChecked)}
+                  />
+                </Box>
+              )}
 
               {stepPosition[actionActive.index] === 0 && actionActive.index !== 1 && (
                 <NextButton
@@ -347,8 +340,7 @@ const PoolPosition = () => {
                   onClick={() => handleStepper()}
                   key="next"
                   disabled={
-                    (actionActive.index === 0 && removeDisabled) ||
-                    (partialRemoveRequired && !forceDisclaimerChecked)
+                    (actionActive.index === 0 && removeDisabled) || (partialRemoveRequired && !forceDisclaimerChecked)
                   }
                   errorLabel={actionActive.index === 0 && removeError}
                 />
