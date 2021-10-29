@@ -153,7 +153,7 @@ const LendPosition = () => {
             <Box fill gap="small" pad={mobile ? 'medium' : 'large'}>
               <Box height={{ min: '250px' }} gap="2em">
                 <Box
-                  direction="row-responsive"
+                  direction="row"
                   justify="between"
                   fill="horizontal"
                   align="center"

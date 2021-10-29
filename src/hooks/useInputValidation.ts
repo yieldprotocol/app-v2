@@ -1,9 +1,7 @@
-import { useWeb3React } from '@web3-react/core';
 import { ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../contexts/UserContext';
 import { ActionCodes, ISeries, IUserContext, IVault } from '../types';
-import { useCachedState } from './generalHooks';
 
 /* Provides input validation for each ActionCode */
 export const useInputValidation = (

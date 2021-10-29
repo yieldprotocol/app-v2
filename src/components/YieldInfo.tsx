@@ -1,7 +1,6 @@
-import { Anchor, Box, ResponsiveContext, Text } from 'grommet';
-import { useLocation } from 'react-router-dom';
+import { Anchor, Box, Text } from 'grommet';
 
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, } from 'react';
 import { FiGithub as Github, FiBookOpen as Docs, FiFileText as Terms, FiKey as Privacy } from 'react-icons/fi';
 import { FaDiscord as Discord } from 'react-icons/fa';
 
@@ -12,7 +11,6 @@ const IconSize = '1.15rem';
 const IconGap = 'small';
 
 const YieldInfo = () => {
-  const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const {
     chainState: {
@@ -22,13 +20,6 @@ const YieldInfo = () => {
   } = useContext(ChainContext);
 
   const connectedChain = CHAIN_INFO?.get(fallbackChainId!);
-
-  const { pathname } = useLocation();
-  const [path, setPath] = useState<string>();
-  /* If the url references a series/vault...set that one as active */
-  useEffect(() => {
-    pathname && setPath(pathname.split('/')[1]);
-  }, [pathname]);
 
   const handleExternal = (destination: string) => {
     // analyticsLogEvent('external_link', {
@@ -42,7 +33,6 @@ const YieldInfo = () => {
         <Text size="xsmall" color="grey">
           App version: v{appVersion}
         </Text>
-        {/* <Text size="xsmall" color="grey"> Having issues? Try an app <Anchor onClick={() => resetApp()}>RESET</Anchor>, or get hold of us via <Anchor href="https://discord.gg/JAFfDj5" target="_blank" onClick={() => handleExternal('Discord')}>discord</Anchor>. </Text> */}
       </Box>
 
       <Box direction="row" gap={IconGap}>

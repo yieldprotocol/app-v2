@@ -41,6 +41,7 @@ import InputInfoWrap from '../components/wraps/InputInfoWrap';
 import DashButton from '../components/buttons/DashButton';
 import DashMobileButton from '../components/buttons/DashMobileButton';
 import SeriesOrStrategySelectorModal from '../components/selectors/SeriesOrStrategySelectorModal';
+import YieldNavigation from '../components/YieldNavigation';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -99,7 +100,7 @@ const Lend = () => {
       {mobile && <DashMobileButton transparent={!!lendInput} />}
       {!mobile && (
         <PanelWrap>
-          <Box margin={{ top: '35%' }} />
+          <YieldNavigation sideNavigation={true} />
           <YieldInfo />
         </PanelWrap>
       )}
@@ -193,7 +194,7 @@ const Lend = () => {
           )}
 
           {stepPosition === 1 && (
-            <Box gap='medium'>
+            <Box gap="medium">
               <YieldCardHeader>
                 {lendProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
                   <BackButton action={() => setStepPosition(0)} />

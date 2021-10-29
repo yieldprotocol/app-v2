@@ -9,13 +9,13 @@ import Lend from './views/Lend';
 import Pool from './views/Pool';
 import Dashboard from './views/Dashboard';
 
-import MenuLayer from './layers/MenuLayer';
 import VaultPosition from './views/VaultPosition';
 import YieldHeader from './components/YieldHeader';
 import NetworkError from './components/NetworkError';
 import LendPosition from './views/LendPosition';
 import PoolPosition from './views/PoolPosition';
 import TransactionWidget from './components/TransactionWidget';
+import YieldMobileMenu from './components/YieldMobileMenu';
 
 function App() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -33,7 +33,7 @@ function App() {
 
         <Box flex={!mobile} overflow="hidden">
           <ToastContainer position="top-right" />
-          {menuLayerOpen && <MenuLayer toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} />}
+          {menuLayerOpen && <YieldMobileMenu toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} />}
           <Switch>
             <Route path="/borrow/:series?/:asset?/:amnt?">
               <Borrow />

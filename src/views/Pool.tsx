@@ -33,6 +33,7 @@ import StrategyItem from '../components/positionItems/StrategyItem';
 import DashMobileButton from '../components/buttons/DashMobileButton';
 import SeriesOrStrategySelectorModal from '../components/selectors/SeriesOrStrategySelectorModal';
 import InputInfoWrap from '../components/wraps/InputInfoWrap';
+import YieldNavigation from '../components/YieldNavigation';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -100,7 +101,7 @@ function Pool() {
       {mobile && <DashMobileButton transparent={!!poolInput} />}
       {!mobile && (
         <PanelWrap>
-          <Box margin={{ top: '35%' }} />
+          <YieldNavigation sideNavigation={true} />
           <YieldInfo />
         </PanelWrap>
       )}
@@ -327,7 +328,6 @@ function Pool() {
 
       {!mobile && (
         <PanelWrap right basis="40%">
-          {/* <YieldLiquidity input={poolInput} /> */}
           <StrategyPositionSelector />
         </PanelWrap>
       )}
