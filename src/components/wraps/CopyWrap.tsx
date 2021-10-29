@@ -19,7 +19,7 @@ const CopyWrap = ({ children, hash }: any) => {
   return (
     <Box direction="row" gap="small" align="center" onClick={(e: any) => copy(e)}>
       {children}
-      {copied ? <Check /> : <Copy />}
+      {copied ? <Check size="1rem" /> : <Copy size="1rem" />}
     </Box>
   );
 };
