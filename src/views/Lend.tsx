@@ -193,7 +193,7 @@ const Lend = () => {
           )}
 
           {stepPosition === 1 && (
-            <Box gap='medium'>
+            <Box gap="medium">
               <YieldCardHeader>
                 {lendProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
                   <BackButton action={() => setStepPosition(0)} />
@@ -271,24 +271,20 @@ const Lend = () => {
             !selectedSeries?.seriesIsMature &&
             lendProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
             lendProcess?.tx.status === TxState.SUCCESSFUL && ( // lendTx.success && (
-              <>
-                <NextButton
-                  label={<Text size={mobile ? 'small' : undefined}>Lend some more</Text>}
-                  onClick={() => resetInputs()}
-                />
-              </>
+              <NextButton
+                label={<Text size={mobile ? 'small' : undefined}>Lend some more</Text>}
+                onClick={() => resetInputs()}
+              />
             )}
 
           {stepPosition === 1 &&
             lendProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
             lendProcess?.tx.status === TxState.FAILED && (
-              <>
-                <NextButton
-                  size="xsmall"
-                  label={<Text size={mobile ? 'xsmall' : undefined}> Report and go back</Text>}
-                  onClick={() => resetInputs()}
-                />
-              </>
+              <NextButton
+                size="xsmall"
+                label={<Text size={mobile ? 'xsmall' : undefined}> Report and go back</Text>}
+                onClick={() => resetInputs()}
+              />
             )}
         </ActionButtonGroup>
       </CenterPanelWrap>

@@ -4,8 +4,6 @@ import styled from 'styled-components';
 
 const StyledButton = styled(Button)`
   /* height: ${(props: any) => (props.mobile ? '3rem' : '3rem')}; */
-  /* border: none; */
-  padding: 6px;
   border: 2px solid white;
 `;
 

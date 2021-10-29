@@ -5,7 +5,6 @@ import styled from 'styled-components';
 
 const StyledButton = styled(Button)`
   /* height: ${(props: any) => (props.mobile ? '2em' : '4.5em')}; */
-  padding: 6px;
   :hover {
     box-shadow: 0px 0px 0px 1px;
   }

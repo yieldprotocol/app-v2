@@ -69,7 +69,6 @@ function Pool() {
 
   /* LOCAL ACTION FNS */
   const handleAdd = () => {
-
     diagnostics && console.log('POOLING METHOD: ', poolMethod, 'Matching vault', matchingVault?.id);
     const _method = !canBuyAndPool ? AddLiquidityType.BORROW : poolMethod; // double check
     selectedStrategy && addLiquidity(poolInput!, selectedStrategy, _method, matchingVault);
@@ -127,8 +126,8 @@ function Pool() {
                 <SectionWrap>
                   <Box direction="row-responsive" gap="small">
                     <Box basis={mobile ? '50%' : '60%'}>
-                      <InputWrap 
-                        action={() => console.log('maxAction')} 
+                      <InputWrap
+                        action={() => console.log('maxAction')}
                         isError={poolError}
                         // message={ poolInput &&
                         //   <InputInfoWrap>
@@ -137,7 +136,7 @@ function Pool() {
                         //   </Text>
                         // </InputInfoWrap>
                         // }
-                        >
+                      >
                         <TextInput
                           plain
                           type="number"
@@ -244,20 +243,20 @@ function Pool() {
             </Box>
           )}
 
-          {stepPosition === 1 &&
-            !poolProcess?.processActive &&
-          <CheckBox
-            pad={{vertical:'small'}}
-            label={
-              <Text size="xsmall">
-                I understand that providing liquidity into Yield Protocol may result in impermanent loss, result in the
-                payment of fees, and that under certain conditions I may not be able to withdraw all liquidity on
-                demand.
-              </Text>
-            }
-            checked={disclaimerChecked}
-            onChange={()=> setDisclaimerChecked(!disclaimerChecked)}
-          />}   
+          {stepPosition === 1 && !poolProcess?.processActive && (
+            <CheckBox
+              pad={{ vertical: 'small' }}
+              label={
+                <Text size="xsmall">
+                  I understand that providing liquidity into Yield Protocol may result in impermanent loss, result in
+                  the payment of fees, and that under certain conditions I may not be able to withdraw all liquidity on
+                  demand.
+                </Text>
+              }
+              checked={disclaimerChecked}
+              onChange={() => setDisclaimerChecked(!disclaimerChecked)}
+            />
+          )}
 
           {stepPosition === 1 &&
             poolProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
@@ -270,7 +269,6 @@ function Pool() {
         </Box>
 
         <ActionButtonGroup pad>
-
           {stepPosition !== 1 && (
             <NextButton
               secondary
@@ -302,25 +300,19 @@ function Pool() {
           {stepPosition === 1 &&
             poolProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
             poolProcess?.tx.status === TxState.SUCCESSFUL && (
-              <>
-                {/* <PositionListItem series={selectedSeries!} actionType={ActionType.POOL} /> */}
-                <NextButton
-                  label={<Text size={mobile ? 'small' : undefined}>Add more Liquidity</Text>}
-                  onClick={() => resetInputs()}
-                />
-              </>
+              <NextButton
+                label={<Text size={mobile ? 'small' : undefined}>Add more Liquidity</Text>}
+                onClick={() => resetInputs()}
+              />
             )}
 
           {stepPosition === 1 &&
             poolProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
             poolProcess?.tx.status === TxState.FAILED && (
-              <>
-                {/* <PositionListItem series={selectedSeries!} actionType={ActionType.POOL} /> */}
-                <NextButton
-                  label={<Text size={mobile ? 'small' : undefined}>Report and go back</Text>}
-                  onClick={() => resetInputs()}
-                />
-              </>
+              <NextButton
+                label={<Text size={mobile ? 'small' : undefined}>Report and go back</Text>}
+                onClick={() => resetInputs()}
+              />
             )}
         </ActionButtonGroup>
       </CenterPanelWrap>
