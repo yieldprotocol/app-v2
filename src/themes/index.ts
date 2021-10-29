@@ -8,6 +8,7 @@ export const yieldTheme = {
       // brand: '#3f53d9',
       // focus: '#3f53d999',
       // selected: '#3f53d9',
+      pink: '#FECACA',
       green: '#10B981',
       orange: '#F59E0B',
       red: '#EF4444',
