@@ -1,6 +1,6 @@
 import { Anchor, Box, Text } from 'grommet';
 
-import React, { useContext, } from 'react';
+import React, { useContext } from 'react';
 import { FiGithub as Github, FiBookOpen as Docs, FiFileText as Terms, FiKey as Privacy } from 'react-icons/fi';
 import { FaDiscord as Discord } from 'react-icons/fa';
 
@@ -12,7 +12,6 @@ const IconSize = '1.15rem';
 const IconGap = 'small';
 
 const YieldInfo = () => {
-
   const {
     chainState: {
       connection: { CHAIN_INFO, fallbackChainId, currentChainInfo },
@@ -22,13 +21,7 @@ const YieldInfo = () => {
 
   const connectedChain = CHAIN_INFO?.get(fallbackChainId!);
 
-  const { pathname } = useLocation();
   const blockNum = useBlockNum();
-  const [path, setPath] = useState<string>();
-  /* If the url references a series/vault...set that one as active */
-  useEffect(() => {
-    pathname && setPath(pathname.split('/')[1]);
-  }, [pathname]);
 
   const handleExternal = (destination: string) => {
     // analyticsLogEvent('external_link', {
