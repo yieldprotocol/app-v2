@@ -1,40 +1,25 @@
 import React, { useContext, useState } from 'react';
-import { NavLink, useHistory } from 'react-router-dom';
-import styled from 'styled-components';
-import { Avatar, Box, Button, Grid, Header, Keyboard, Layer, ResponsiveContext, Stack, Text } from 'grommet';
+import { useHistory } from 'react-router-dom';
+import { Box, Header, Keyboard, Layer, ResponsiveContext, Text } from 'grommet';
 
 import { FiLogOut } from 'react-icons/fi';
 import MainViewWrap from './MainViewWrap';
 import PanelWrap from './PanelWrap';
 
 import { UserContext } from '../../contexts/UserContext';
-import YieldMark from '../logos/YieldMark';
-import { useCachedState } from '../../hooks/generalHooks';
 import { ISeries } from '../../types';
 import YieldHeader from '../YieldHeader';
-import MenuLayer from '../../layers/MenuLayer';
 import ItemWrap from './ItemWrap';
+import YieldMobileMenu from '../YieldMobileMenu';
 
 interface IModalWrap {
   children: any;
   series?: ISeries | undefined;
 }
 
-const StyledBox = styled(Box)`
--webkit-transition: transform 0.3s ease-in-out;
--moz-transition: transform 0.3s ease-in-out;
-transition: transform 0.3s ease-in-out;
-background 0.3s ease-in-out;
-background-color: white;
-:hover {
-  transform: scale(1.1);
-}
-`;
-
 function ModalWrap({ children, series }: IModalWrap) {
   const history = useHistory();
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-  const prevLoc = useCachedState('lastVisit', '')[0].slice(1).split('/')[0];
 
   const {
     userState: { selectedSeriesId, seriesMap },
@@ -81,7 +66,7 @@ function ModalWrap({ children, series }: IModalWrap) {
             </Header>
 
             <Box flex={!mobile} overflow="auto">
-              <MainViewWrap pad={mobile ? 'medium' : 'large'}>
+              <MainViewWrap >
                 <PanelWrap>
                   <Box />
                 </PanelWrap>
@@ -101,7 +86,7 @@ function ModalWrap({ children, series }: IModalWrap) {
         {mobile && (
           <Box>
             <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
-            {menuLayerOpen ? <MenuLayer toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} /> : children}
+            {menuLayerOpen ? <YieldMobileMenu toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} /> : children}
           </Box>
         )}
       </Layer>
