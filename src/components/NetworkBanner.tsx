@@ -18,31 +18,38 @@ const NetworkBanner = () => {
       connection: { currentChainInfo, fallbackChainId },
     },
   } = useContext(ChainContext);
-  const showableChains = [421611, 69];
+  const showableChains = [421611, 69, 10];
   const [show, setShow] = useState<boolean>(true);
 
   return show && currentChainInfo && showableChains.includes(fallbackChainId) ? (
-    <StyledBox pad="small" background={currentChainInfo.color} round="xsmall" gap="small">
+    <StyledBox pad="small" background={{ color: currentChainInfo.color, opacity: 0.9 }} round="xsmall" gap="small">
       <Box direction="row" justify="between">
         <Box>Yield on {currentChainInfo.name}</Box>
         <Button onClick={() => setShow(false)}>
           <FiX color="white" />
         </Button>
       </Box>
-      <Box gap="xsmall">
+      <Box
+        gap="xsmall"
+        background={{ color: currentChainInfo.color, opacity: 0.5 }}
+        color="black"
+        round="xsmall"
+        pad="small"
+      >
         <Text size="xsmall">This is a beta release of Yield on the {currentChainInfo.name} network</Text>
-        <Text size="xsmall">
+        <Text size="xsmall" weight="bold">
           You must bridge assets from Ethereum Mainnet to {currentChainInfo.name} before using Yield on{' '}
           {currentChainInfo.name}
         </Text>
       </Box>
       {currentChainInfo.bridge && (
-        <Box pad="small" background="white" round="xsmall">
+        <Box pad="small" background="gradient" round="xsmall">
           <Anchor
+            style={{ textDecorationColor: 'white' }}
             href={currentChainInfo.bridge}
             label={
               <Box align="center">
-                <Text size="medium" color="black">
+                <Text size="medium" weight="bold" color="white">
                   Deposit to {currentChainInfo.name}
                   <FiArrowUpRight />
                 </Text>

@@ -27,11 +27,14 @@ const Web3FallbackProvider = createWeb3ReactRoot('fallback');
 
 function getFallbackLibrary(provider: any, connector: any) {
   // library = new ethers.providers.JsonRpcProvider(process.env.REACT_APP_RPC_URL_1 as string);
-  if (provider.chainId === 421611) {
+  if (provider.chainId === (421611 || 42161)) {
     return new ethers.providers.JsonRpcProvider('http://ArbNodeUrl.com');
   }
   if (provider.chainId === 69) {
     return new ethers.providers.JsonRpcProvider('https://kovan.optimism.io');
+  }
+  if (provider.chainId === 10) {
+    return new ethers.providers.JsonRpcProvider('https://optimism.io');
   }
   const library: ethers.providers.JsonRpcProvider = new ethers.providers.InfuraProvider(
     provider.chainId,
