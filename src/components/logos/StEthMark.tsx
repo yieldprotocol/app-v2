@@ -1,8 +1,8 @@
 import * as React from 'react';
 
-function EthMark(props: React.SVGProps<SVGSVGElement>) {
+function StEthMark(props: React.SVGProps<SVGSVGElement>) {
   return (
-    <svg width="14" height="20" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg width="14" height="20" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
       <path
         d="M7.007 0l4.95 7.748-4.95 2.884-4.95-2.884L7.007 0zM3.572 7.381l3.435-5.376 3.434 5.376-3.435 2.002L3.572 7.38z"
         fill="#00A3FF"
@@ -15,4 +15,4 @@ function EthMark(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
-export default EthMark;
+export default StEthMark;
