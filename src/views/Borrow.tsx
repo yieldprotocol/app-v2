@@ -44,7 +44,7 @@ import { ChainContext } from '../contexts/ChainContext';
 import DummyVaultItem from '../components/positionItems/DummyVaultItem';
 import DashMobileButton from '../components/buttons/DashMobileButton';
 import SeriesOrStrategySelectorModal from '../components/selectors/SeriesOrStrategySelectorModal';
-import NetworkBanner from '../components/NetworkBanner';
+import YieldNavigation from '../components/YieldNavigation';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -206,7 +206,7 @@ const Borrow = () => {
         {mobile && <DashMobileButton transparent={!!borrowInput} />}
         {!mobile && (
           <PanelWrap>
-            <Box margin={{ top: '35%' }} />
+            <YieldNavigation sideNavigation={true} />
             <YieldInfo />
           </PanelWrap>
         )}
@@ -459,9 +459,11 @@ const Borrow = () => {
               <NextButton
                 // label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
                 label={
-                  borrowInput && !selectedSeries
-                    ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} Maturity`
-                    : 'Next Step'
+                  <Text size={mobile ? 'small' : undefined}>
+                    {borrowInput && !selectedSeries
+                      ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} Maturity`
+                      : 'Next Step'}
+                  </Text>
                 }
                 onClick={() => setStepPosition(stepPosition + 1)}
                 disabled={stepPosition === 0 ? stepDisabled : borrowDisabled}

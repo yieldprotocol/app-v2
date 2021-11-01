@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState, useRef } from 'react';
 
 /* Simple Hook for caching & retrieved data */
-export const useCachedState = (key: string, initialValue: any, account?:string) => {
-  const genKey = account ? `${account  }_${  key}` : key;
+export const useCachedState = (key: string, initialValue: any, account?: string) => {
+  const genKey = account ? `${account}_${key}` : key;
   const [storedValue, setStoredValue] = useState(() => {
     try {
       const item = window.localStorage.getItem(genKey);
@@ -26,7 +26,7 @@ export const useCachedState = (key: string, initialValue: any, account?:string) 
     }
   };
   const clearAll = () => window.localStorage.clear();
-  
+
   return [storedValue, setValue, clearAll] as const;
 };
 
@@ -74,3 +74,29 @@ export const useTimeout = (
 
   return cancel;
 };
+
+export const useWindowSize = () => {
+
+  const [width, setWidth] = useState<number>(window.innerWidth);
+  const [height, setHeight] = useState<number>(window.innerHeight);
+
+  window.addEventListener(
+    "resize", 
+    ()=> { 
+      setWidth(window.innerWidth);
+      setHeight(window.innerHeight);   
+    },   
+    true
+  );
+  return [height, width];
+
+};
+
+
+export const useCurrentRoute = () => {
+
+  
+
+
+
+}

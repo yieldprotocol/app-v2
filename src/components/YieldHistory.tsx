@@ -2,8 +2,6 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Box, Collapsible, Text } from 'grommet';
 import { HistoryContext } from '../contexts/HistoryContext';
 import { IBaseHistItem, ISeries, IStrategy, IVault } from '../types';
-import { modColor } from '../utils/appUtils';
-import { UserContext } from '../contexts/UserContext';
 import EtherscanButton from './buttons/EtherscanButton';
 
 interface IYieldHistory {
@@ -14,12 +12,7 @@ interface IYieldHistory {
 const YieldHistory = ({ seriesOrVault, view }: IYieldHistory) => {
   /* STATE FROM CONTEXT */
   const { historyState, historyActions } = useContext(HistoryContext);
-  // const {
-  //   userState: { seriesMap },
-  // } = useContext(UserContext);
   const { vaultHistory, tradeHistory, strategyHistory } = historyState;
-
-  const isVault = seriesOrVault && seriesOrVault.id.length > 12; // is a vault or a series.
 
   /* LOCAL STATE */
   const [histList, setHistList] = useState<IBaseHistItem[]>([]);
@@ -30,7 +23,7 @@ const YieldHistory = ({ seriesOrVault, view }: IYieldHistory) => {
     if (view.includes('POOL') && strategyHistory.size) setHistList(strategyHistory.get(seriesOrVault.id));
     if (view.includes('VAULT') && vaultHistory.size) setHistList(vaultHistory.get(seriesOrVault.id));
     if (view.includes('TRADE') && tradeHistory.size) setHistList(tradeHistory.get(seriesOrVault.id));
-  }, [isVault, strategyHistory, seriesOrVault.id, tradeHistory, vaultHistory, view]);
+  }, [strategyHistory, seriesOrVault.id, tradeHistory, vaultHistory, view]);
 
   return (
     <Box margin={{ top: 'medium' }} height={{ max: '200px' }} style={{ overflow: 'auto' }}>
@@ -55,7 +48,6 @@ const YieldHistory = ({ seriesOrVault, view }: IYieldHistory) => {
                   <Text size="xsmall" weight={900}>
                     {x.actionCode}
                   </Text>
-                  {/* <Text size="xsmall"> {x.ink_ || x.bases_} </Text> */}
                   <Text size="xsmall"> {x.primaryInfo} </Text>
                 </Box>
               </Box>

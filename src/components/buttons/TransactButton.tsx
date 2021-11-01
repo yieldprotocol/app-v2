@@ -1,15 +1,16 @@
-import { Box, Button, Text } from 'grommet';
-import React, { useState } from 'react';
+import React from 'react';
+import { Box, Button } from 'grommet';
 import styled from 'styled-components';
 
 const StyledButton = styled(Button)`
-  /* height: ${(props: any) => (props.mobile ? '2em' : '4.5em')}; */
+  /* height: ${(props: any) => (props.mobile ? '3rem' : '3rem')}; */
+  border: 2px solid white;
 `;
 
 const TransactButton = (props: any) => (
-  <Box gap='xsmall'>
+  <Box gap="xsmall">
     {props.confirmationElement}
-    <StyledButton {...props} color='gradient' />
+    <StyledButton {...props} color="gradient" />
   </Box>
 );
 

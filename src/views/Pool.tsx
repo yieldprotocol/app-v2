@@ -33,7 +33,7 @@ import StrategyItem from '../components/positionItems/StrategyItem';
 import DashMobileButton from '../components/buttons/DashMobileButton';
 import SeriesOrStrategySelectorModal from '../components/selectors/SeriesOrStrategySelectorModal';
 import InputInfoWrap from '../components/wraps/InputInfoWrap';
-import NetworkBanner from '../components/NetworkBanner';
+import YieldNavigation from '../components/YieldNavigation';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -100,7 +100,7 @@ function Pool() {
       {mobile && <DashMobileButton transparent={!!poolInput} />}
       {!mobile && (
         <PanelWrap>
-          <Box margin={{ top: '35%' }} />
+          <YieldNavigation sideNavigation={true} />
           <YieldInfo />
         </PanelWrap>
       )}
@@ -301,32 +301,25 @@ function Pool() {
           {stepPosition === 1 &&
             poolProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
             poolProcess?.tx.status === TxState.SUCCESSFUL && (
-              <>
-                {/* <PositionListItem series={selectedSeries!} actionType={ActionType.POOL} /> */}
-                <NextButton
-                  label={<Text size={mobile ? 'small' : undefined}>Add more Liquidity</Text>}
-                  onClick={() => resetInputs()}
-                />
-              </>
+              <NextButton
+                label={<Text size={mobile ? 'small' : undefined}>Add more Liquidity</Text>}
+                onClick={() => resetInputs()}
+              />
             )}
 
           {stepPosition === 1 &&
             poolProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
             poolProcess?.tx.status === TxState.FAILED && (
-              <>
-                {/* <PositionListItem series={selectedSeries!} actionType={ActionType.POOL} /> */}
-                <NextButton
-                  label={<Text size={mobile ? 'small' : undefined}>Report and go back</Text>}
-                  onClick={() => resetInputs()}
-                />
-              </>
+              <NextButton
+                label={<Text size={mobile ? 'small' : undefined}>Report and go back</Text>}
+                onClick={() => resetInputs()}
+              />
             )}
         </ActionButtonGroup>
       </CenterPanelWrap>
 
       {!mobile && (
         <PanelWrap right basis="40%">
-          {/* <YieldLiquidity input={poolInput} /> */}
           <StrategyPositionSelector />
         </PanelWrap>
       )}
