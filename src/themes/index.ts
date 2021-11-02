@@ -4,6 +4,15 @@ import { css } from 'styled-components';
 export const yieldTheme = {
   global: {
     focus: 'none',
+    elevation: {
+      dark: {
+        xsmall: 'inset 1px 1px 1px #202A30, inset -0.25px -0.25px 0.25px #202A30',
+        small: 'inset 1px 1px 1px #202A30, inset -0.25px -0.25px 0.25px #202A30',
+        medium: 'inset 1px 1px 1px #202A30, inset -0.25px -0.25px 0.25px #202A30',
+        large: 'inset 1px 1px 1px #202A30, inset -0.25px -0.25px 0.25px #202A30',
+        xlarge: '0px 10px 24px rgba(255, 255, 255, 0.20)',
+      },
+    },
     colors: {
       // brand: '#3f53d9',
       // focus: '#3f53d999',
