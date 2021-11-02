@@ -47,7 +47,7 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
         style={{ position: 'fixed', top: '0px' }}
         direction="row"
         fill="horizontal"
-        background="white"
+        background="background"
         elevation={mobile && isPositionPath ? 'small' : undefined}
       >
         <Grid columns={['auto', '1fr', 'auto']} fill="horizontal">
@@ -81,9 +81,9 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
           </Box>
           <Box />
 
-          <Box align="end" direction='row'>
+          <Box align="end" direction="row">
             {/* {mobile && <Box> Dash </Box>}  */}
-            <YieldAccount />        
+            <YieldAccount />
           </Box>
         </Grid>
       </Header>
