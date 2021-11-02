@@ -4,10 +4,6 @@ import { HashRouter as Router } from 'react-router-dom';
 import { ethers } from 'ethers';
 import { createWeb3ReactRoot, Web3ReactProvider } from '@web3-react/core';
 
-import { Grommet, base } from 'grommet';
-import { deepMerge } from 'grommet/utils';
-import { yieldTheme } from './themes';
-
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { ChainProvider } from './contexts/ChainContext';
@@ -34,7 +30,7 @@ function getFallbackLibrary(provider: any, connector: any) {
   library.pollingInterval = 6000;
   return library;
 }
-
+console.log(JSON.parse(localStorage.getItem('darkMode')!));
 ReactDOM.render(
   <React.StrictMode>
     <Router>
@@ -44,9 +40,7 @@ ReactDOM.render(
             <UserProvider>
               <TxProvider>
                 <HistoryProvider>
-                  <Grommet theme={deepMerge(base, yieldTheme)} full>
-                    <App />
-                  </Grommet>
+                  <App />
                 </HistoryProvider>
               </TxProvider>
             </UserProvider>
