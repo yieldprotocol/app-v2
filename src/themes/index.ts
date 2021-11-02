@@ -33,6 +33,10 @@ export const yieldTheme = {
         dark: 'gray-4',
         light: '#ffffff',
       },
+      light: {
+        dark: '#F1F5F9',
+        light: '#ffffff',
+      },
       gray: {
         dark: 'text-weak',
         light: 'gray',

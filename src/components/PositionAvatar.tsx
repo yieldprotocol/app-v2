@@ -40,7 +40,7 @@ function PositionAvatar({
         </Avatar>
 
         {actionType === ActionType.BORROW && (
-          <Avatar background="solid" size={condensed ? '0.75rem' : 'xsmall'}>
+          <Avatar background="light" size={condensed ? '0.75rem' : 'xsmall'}>
             {ilk?.image}
           </Avatar>
         )}
