@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Box, CheckBox, Text } from 'grommet';
-import { FiMoon, FiSun } from 'react-icons/fi';
+import { FiCheck, FiMoon, FiSun, FiX } from 'react-icons/fi';
 import { ThemeContext } from 'styled-components';
 import Switch from 'react-switch';
 import { UserContext } from '../contexts/UserContext';
@@ -45,12 +45,20 @@ const AdvancedSettings = () => {
       <Box gap="small" pad={{ vertical: 'small' }} border={{ color: 'tailwind-blue-100', side: 'bottom' }}>
         <Box direction="row" justify="between">
           <Text size="small">Use Approval Method</Text>
-          <CheckBox
-            toggle
+          <Switch
+            width={55}
             checked={approvalMethod === ApprovalType.TX}
-            onChange={(event) =>
-              event?.target.checked ? handleApprovalToggle(ApprovalType.TX) : handleApprovalToggle(ApprovalType.SIG)
+            offColor="#BFDBFE"
+            onColor="#60A5FA"
+            uncheckedIcon={false}
+            checkedIcon={
+              <Box align="center" justify="center" fill pad="xsmall">
+                <FiCheck color="#34D399" fontWeight="100" />
+              </Box>
             }
+            onChange={(val) => (val ? handleApprovalToggle(ApprovalType.TX) : handleApprovalToggle(ApprovalType.SIG))}
+            handleDiameter={20}
+            borderRadius={20}
           />
         </Box>
         <Box direction="row" justify="between">
@@ -60,16 +68,16 @@ const AdvancedSettings = () => {
             checked={darkMode}
             uncheckedIcon={
               <Box align="center" justify="center" fill pad="xsmall">
-                <FiSun color="gray" />
+                <FiSun color="gray" style={{ strokeWidth: '3' }} />
               </Box>
             }
             checkedIcon={
               <Box align="center" justify="center" fill pad="xsmall">
-                <FiMoon color={purple} />
+                <FiMoon color={purple} style={{ strokeWidth: '3', fill: 'Background' }} />
               </Box>
             }
-            offColor="#EFF6FF"
-            onColor="#BFDBFE"
+            offColor="#BFDBFE"
+            onColor="#60A5FA"
             onChange={handleDarkModeToggle}
             handleDiameter={20}
             borderRadius={20}
