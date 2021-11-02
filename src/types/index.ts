@@ -48,6 +48,7 @@ export interface IUserContextState {
   dudeSalt: number;
   slippageTolerance: number;
   diagnostics: boolean;
+  darkMode: boolean;
 
   dashSettings: IDashSettings;
 }

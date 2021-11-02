@@ -11,12 +11,14 @@ export const yieldTheme = {
       pink: '#FECACA',
       green: '#10B981',
       orange: '#F59E0B',
+      purple: '#8B5CF6',
       red: '#EF4444',
       brand: '#2563EB',
       focus: '#2563EB99',
       selected: '#2563EB',
       hover: '#ffffff69',
       solid: '#ffffff',
+      darkGray: '#141a1e',
 
       'accent-1': '#FFCA58',
       'accent-2': '#81FCED',
@@ -51,10 +53,10 @@ export const yieldTheme = {
       darkBackground: {
         text: '#AAAAAA',
       },
-      // background: {
-      //   dark: '#DDDDDD',
-      //   light: '#FFFFFF',
-      // },
+      background: {
+        dark: 'darkGray',
+        light: '#FFFFFF',
+      },
     },
     // input: { weight: 700 },
   },

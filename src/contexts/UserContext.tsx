@@ -69,6 +69,7 @@ const initState: IUserContextState = {
   slippageTolerance: (JSON.parse(localStorage.getItem('slippageTolerance')!) as number) || (0.005 as number),
   dudeSalt: 21,
   diagnostics: false,
+  darkMode: (JSON.parse(localStorage.getItem('darkMode')!) as boolean) || false,
 
   dashSettings: {
     hideEmptyVaults: false,
@@ -127,6 +128,8 @@ function userReducer(state: any, action: any) {
       return { ...state, dudeSalt: onlyIfChanged(action) };
     case 'setSlippageTolerance':
       return { ...state, slippageTolerance: onlyIfChanged(action) };
+    case 'darkMode':
+      return { ...state, darkMode: onlyIfChanged(action) };
 
     case 'pricesLoading':
       return { ...state, pricesLoading: onlyIfChanged(action) };
@@ -348,11 +351,11 @@ const UserProvider = ({ children }: any) => {
         _limitMap.set(ilk, _baseLimitMap);
 
         updateState({ type: 'priceMap', payload: _limitMap });
-        console.log('Limit checked: ', ilk, ' ->', base, ':', min.toString(), max.toString(), sum.toString() );
+        console.log('Limit checked: ', ilk, ' ->', base, ':', min.toString(), max.toString(), sum.toString());
         return [min, max, digits, sum];
       } catch (error) {
         console.log('Error getting limits', error);
-        return [ethers.constants.Zero, ethers.constants.Zero, ethers.constants.Zero, ethers.constants.Zero ];
+        return [ethers.constants.Zero, ethers.constants.Zero, ethers.constants.Zero, ethers.constants.Zero];
       }
     },
     [contractMap, userState.limitMap]
@@ -369,12 +372,12 @@ const UserProvider = ({ children }: any) => {
       _publicData = await Promise.all(
         seriesList.map(async (series: ISeriesRoot): Promise<ISeries> => {
           /* Get all the data simultanenously in a promise.all */
-          const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves, mature, ] = await Promise.all([
+          const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves, mature] = await Promise.all([
             series.poolContract.getBaseBalance(),
             series.poolContract.getFYTokenBalance(),
             series.poolContract.totalSupply(),
             series.fyTokenContract.balanceOf(series.poolAddress),
-            series.isMature()
+            series.isMature(),
           ]);
 
           /* Calculates the base/fyToken unit selling price */
@@ -676,6 +679,7 @@ const UserProvider = ({ children }: any) => {
     // TODO To reduce exposure, maybe we have a single 'change setting' function?  > that handles all the below? not urgent.
     setApprovalMethod: (type: ApprovalType) => updateState({ type: 'approvalMethod', payload: type }),
     updateDudeSalt: () => updateState({ type: 'dudeSalt', payload: userState.dudeSalt + 3 }),
+    toggleDarkMode: (darkMode: boolean) => updateState({ type: 'darkMode', payload: darkMode }),
 
     setSlippageTolerance: (slippageTolerance: number) =>
       updateState({ type: 'setSlippageTolerance', payload: slippageTolerance }),
