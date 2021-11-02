@@ -430,7 +430,7 @@ const Borrow = () => {
                       icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
                       value={`${cleanValue(collatInput, selectedIlk?.digitFormat!)} ${
                         selectedIlk?.symbol
-                      } (${collateralizationPercent}% )`}
+                      } (${collateralizationPercent}%)`}
                     />
                     {vaultToUse?.id && (
                       <InfoBite

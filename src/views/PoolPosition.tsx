@@ -209,7 +209,7 @@ const PoolPosition = () => {
 
               <Box height={{ min: '300px' }}>
                 <SectionWrap title="Position Actions">
-                  <Box elevation="xsmall" round="xsmall" background={mobile ? 'white' : undefined}>
+                  <Box elevation="xsmall" round="xsmall" background={mobile ? 'hover' : 'hover'}>
                     <Select
                       plain
                       dropProps={{ round: 'xsmall' }}
