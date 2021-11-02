@@ -49,7 +49,6 @@ const YieldNavigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) 
 
   const theme = useContext<any>(ThemeContext);
   const textColor = theme.global.colors.text;
-
   const activeStyle = {
     transform: !sideNavigation ? 'scale(1.3)' : 'scale(1.3)',
     color: darkMode ? `${textColor.dark}` : `${textColor.light}`,
@@ -68,7 +67,7 @@ const YieldNavigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) 
       to={link.to}
       activeStyle={activeStyle}
       onClick={() => callbackFn()}
-      style={{ color: darkMode ? 'white' : 'grey' }}
+      style={{ color: darkMode ? 'gray' : 'gray' }}
     >
       <NavText size={mobile ? 'medium' : 'small'}>{link.label}</NavText>
     </StyledLink>

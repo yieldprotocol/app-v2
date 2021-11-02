@@ -30,7 +30,10 @@ const ShadeBox = styled(Box)`
 
 const InsetBox = styled(Box)`
   border-radius: 8px;
-  box-shadow: inset 1px 1px 1px #ddd, inset -0.25px -0.25px 0.25px #ddd;
+  box-shadow: ${(props) =>
+    props.theme.dark
+      ? 'inset 1px 1px 1px #202A30, inset -0.25px -0.25px 0.25px #202A30'
+      : 'inset 1px 1px 1px #ddd, inset -0.25px -0.25px 0.25px #ddd'};
 `;
 
 export const CardSkeleton = () => (
@@ -233,7 +236,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     <>
       {seriesLoading && !mobile && <Skeleton width={180} />}
       {!cardLayout && (
-        <InsetBox fill="horizontal" round="xsmall" background={mobile ? 'white' : undefined}>
+        <InsetBox fill="horizontal" round="xsmall" background={mobile ? 'hover' : undefined}>
           <Select
             plain
             dropProps={{ round: 'xsmall' }}
