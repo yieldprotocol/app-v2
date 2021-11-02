@@ -200,7 +200,7 @@ const ChainProvider = ({ children }: any) => {
           Cauldron.queryFilter('AssetAdded' as any, lastAssetUpdate),
           Ladle.queryFilter('JoinAdded' as any, lastAssetUpdate),
         ]);
-        console.log('asset added events', assetAddedEvents);
+
         /* Create a map from the joinAdded event data */
         const joinMap: Map<string, string> = new Map(
           joinAddedEvents.map((log: any) => Ladle.interface.parseLog(log).args) as [[string, string]]

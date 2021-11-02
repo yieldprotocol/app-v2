@@ -2,7 +2,7 @@ import React, { useContext, useState, useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 import { Box, ResponsiveContext, Text } from 'grommet';
 import { BigNumber, ethers } from 'ethers';
-import Skeleton from 'react-loading-skeleton';
+import Skeleton from '../components/wraps/SkeletonWrap';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
 import { ActionType, IUserContext, IVault, ISeries, IStrategy } from '../types';

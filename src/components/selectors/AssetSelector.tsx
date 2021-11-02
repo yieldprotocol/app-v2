@@ -2,9 +2,8 @@ import React, { useContext, useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import { Box, ResponsiveContext, Select, Text } from 'grommet';
 
-import Skeleton from 'react-loading-skeleton';
-
 import styled from 'styled-components';
+import Skeleton from '../wraps/SkeletonWrap';
 import { IAsset } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { DAI, WETH, USDC, WBTC } from '../../utils/constants';

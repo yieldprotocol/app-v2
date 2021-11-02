@@ -4,12 +4,12 @@ import { Avatar, Box, Grid, ResponsiveContext, Text } from 'grommet';
 import { toast } from 'react-toastify';
 import { FiSlash } from 'react-icons/fi';
 
-import Skeleton from 'react-loading-skeleton';
 import styled from 'styled-components';
 import { IStrategy } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { getPoolPercent } from '../../utils/yieldMath';
 import { cleanValue, formatStrategyName } from '../../utils/appUtils';
+import Skeleton from '../wraps/SkeletonWrap';
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;

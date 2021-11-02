@@ -30,7 +30,7 @@ function getFallbackLibrary(provider: any, connector: any) {
   library.pollingInterval = 6000;
   return library;
 }
-console.log(JSON.parse(localStorage.getItem('darkMode')!));
+
 ReactDOM.render(
   <React.StrictMode>
     <Router>

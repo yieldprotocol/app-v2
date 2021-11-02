@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Avatar, Box, Grid, ResponsiveContext, Select, Text } from 'grommet';
 
-import Skeleton from 'react-loading-skeleton';
 import { ethers } from 'ethers';
 import styled from 'styled-components';
 import { ActionType, ISeries } from '../../types';
@@ -9,6 +8,7 @@ import { UserContext } from '../../contexts/UserContext';
 import { maxBaseIn, maxBaseOut, maxFyTokenIn, maxFyTokenOut } from '../../utils/yieldMath';
 import { useApr } from '../../hooks/useApr';
 import { cleanValue } from '../../utils/appUtils';
+import Skeleton from '../wraps/SkeletonWrap';
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
