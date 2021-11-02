@@ -3,6 +3,7 @@ import { Box, Collapsible, Text } from 'grommet';
 import { HistoryContext } from '../contexts/HistoryContext';
 import { IBaseHistItem, ISeries, IStrategy, IVault } from '../types';
 import EtherscanButton from './buttons/EtherscanButton';
+import { UserContext } from '../contexts/UserContext';
 
 interface IYieldHistory {
   seriesOrVault: IVault | ISeries | IStrategy;
@@ -12,6 +13,9 @@ interface IYieldHistory {
 const YieldHistory = ({ seriesOrVault, view }: IYieldHistory) => {
   /* STATE FROM CONTEXT */
   const { historyState, historyActions } = useContext(HistoryContext);
+  const {
+    userState: { darkMode },
+  } = useContext(UserContext);
   const { vaultHistory, tradeHistory, strategyHistory } = historyState;
 
   /* LOCAL STATE */
@@ -34,7 +38,7 @@ const YieldHistory = ({ seriesOrVault, view }: IYieldHistory) => {
             <Box
               key={key_}
               gap="small"
-              hoverIndicator="#f9f9f9"
+              hoverIndicator={darkMode ? 'hover' : '#f9f9f9'}
               background={itemOpen === key_ ? '#f9f9f9' : undefined}
               onClick={itemOpen === key_ ? () => setItemOpen(null) : () => setItemOpen(key_)}
               round="xsmall"

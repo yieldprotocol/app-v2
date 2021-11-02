@@ -25,7 +25,15 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
   };
 
   return (
-    <Box fill="vertical" basis="auto" width={mobile ? undefined : '400px'} pad="medium" gap="small" elevation="xlarge">
+    <Box
+      fill="vertical"
+      basis="auto"
+      width={mobile ? undefined : '400px'}
+      pad="medium"
+      gap="small"
+      elevation="xlarge"
+      background="background"
+    >
       <Box justify="between" align="center" direction="row">
         {account && CONNECTORS ? (
           <BackButton

@@ -319,7 +319,7 @@ const VaultPosition = () => {
 
               <Box height={{ min: '300px' }}>
                 <SectionWrap title="Vault Actions">
-                  <Box elevation="xsmall" round="xsmall" background={mobile ? 'white' : undefined}>
+                  <Box elevation="xsmall" round="xsmall" background={mobile ? 'background' : 'hover'}>
                     <Select
                       dropProps={{ round: 'xsmall' }}
                       plain

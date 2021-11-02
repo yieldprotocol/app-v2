@@ -86,7 +86,6 @@ const SettingsBalances = () => {
           dropProps={{ align: { top: 'bottom', right: 'right' } }}
           // hoverIndicator={{ border: 'tailwind-blue-50' }}
           style={{ borderRadius: '6px' }}
-          hoverIndicator="hover"
         >
           <YieldBalances />
         </DropButton>

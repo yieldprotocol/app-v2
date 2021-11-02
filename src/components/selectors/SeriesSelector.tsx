@@ -292,7 +292,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
                   pad="xsmall"
                   round="xsmall"
                   onClick={() => handleSelect(series)}
-                  background={series.id === selectedSeriesId ? series?.color : 'solid'}
+                  background={series.id === selectedSeriesId ? series?.color : 'hover'}
                   elevation="xsmall"
                   align="center"
                 >

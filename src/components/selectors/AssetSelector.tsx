@@ -66,10 +66,9 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
         : opts.filter((a: IAsset) => a.isYieldBase);
     } else {
       filteredOptions = selectCollateral
-        ? opts
-            .filter((a: IAsset) => a.id !== selectedBaseId)
-            // .filter((a: IAsset) => a.balance?.gt(ethers.constants.Zero))
-        : opts.filter((a: IAsset) => a.isYieldBase);
+        ? opts.filter((a: IAsset) => a.id !== selectedBaseId)
+        : // .filter((a: IAsset) => a.balance?.gt(ethers.constants.Zero))
+          opts.filter((a: IAsset) => a.isYieldBase);
     }
     setOptions(filteredOptions);
   }, [assetMap, selectCollateral, selectedSeriesId, selectedBaseId, activeAccount]);
@@ -96,7 +95,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
       round="xsmall"
       // border={(selectCollateral && !selectedSeries) ? { color: 'text-xweak' } : true}
       elevation="xsmall"
-      background="solid"
+      background="hover"
     >
       <Select
         plain
@@ -116,7 +115,6 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
         disabled={
           (selectCollateral && options.filter((o, i) => (o.balance?.eq(ethers.constants.Zero) ? i : null))) ||
           (selectCollateral ? selectedSeries?.mature || !selectedSeries : null)
-
         }
         // eslint-disable-next-line react/no-children-prop
         children={(x: any) => (

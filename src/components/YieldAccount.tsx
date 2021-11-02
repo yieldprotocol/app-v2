@@ -65,13 +65,7 @@ const YieldAccount = (props: any) => {
       {account ? (
         <Box direction="row" gap="xsmall" align="center">
           {!mobile && <SettingsBalances />}
-          <StyledBox
-            round="xsmall"
-            onClick={() => setSettingsOpen(true)}
-            pad="xsmall"
-            justify="center"
-            hoverIndicator={{ background: 'hover' }}
-          >
+          <StyledBox round="xsmall" onClick={() => setSettingsOpen(true)} pad="xsmall" justify="center">
             {mobile ? (
               <Box>
                 <FiSettings />

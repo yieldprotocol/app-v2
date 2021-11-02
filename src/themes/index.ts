@@ -16,15 +16,37 @@ export const yieldTheme = {
       brand: '#2563EB',
       focus: '#2563EB99',
       selected: '#2563EB',
-      hover: '#ffffff69',
-      solid: '#ffffff',
-      darkGray: '#141a1e',
+      hover: {
+        dark: 'gray-3',
+        light: '#FFFFFF',
+      },
+      solid: {
+        dark: 'gray-4',
+        light: '#ffffff',
+      },
+      gray: {
+        dark: 'text-weak',
+        light: 'gray',
+      },
+      'gray-1': '#64748B',
+      'gray-2': '#292524',
+      'gray-3': '#202A30',
+      'gray-4': '#141a1e',
 
-      'accent-1': '#FFCA58',
+      'accent-1': {
+        light: '#FFCA58',
+        dark: 'brand',
+      },
       'accent-2': '#81FCED',
       'tailwind-blue': '#2563EB',
-      'tailwind-blue-50': '#EFF6FF',
-      'tailwind-blue-100': '#DBEAFE',
+      'tailwind-blue-50': {
+        light: '#EFF6FF',
+        dark: 'gray-3',
+      },
+      'tailwind-blue-100': {
+        light: '#DBEAFE',
+        dark: 'gray-3',
+      },
 
       gradient: {
         dark: 'linear-gradient(135deg, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82)',
@@ -38,11 +60,11 @@ export const yieldTheme = {
       },
 
       text: {
-        dark: '#EEEEEE',
+        dark: '#FFFFFF',
         light: '#555555',
       },
       'text-weak': {
-        dark: '#DDDDDD',
+        dark: '#C7D2DA',
         light: '#999999',
       },
       'text-xweak': {
@@ -50,16 +72,20 @@ export const yieldTheme = {
         light: '#DDDDDD',
       },
       placeholder: 'text-xweak',
-      darkBackground: {
-        text: '#AAAAAA',
+      lightBackground: {
+        dark: '#202A30',
+        light: '#FFFFFF',
       },
       background: {
-        dark: 'darkGray',
+        dark: 'gray-4',
         light: '#FFFFFF',
       },
     },
     // input: { weight: 700 },
   },
+
+  anchor: { color: 'brand' },
+  select: { hover: { color: 'solid' } },
 
   grommet: {
     // @ts-ignore

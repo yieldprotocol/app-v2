@@ -14,7 +14,7 @@ const DashboardSettings = ({ actionType }: { actionType: string }) => {
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
 
   const dropContentRender = (
-    <Box pad="xsmall" round="xsmall" fill>
+    <Box pad="xsmall" round="xsmall" fill background="solid">
       {actionType === ActionType.BORROW && (
         <Box gap="xxsmall">
           <Button
@@ -25,7 +25,7 @@ const DashboardSettings = ({ actionType }: { actionType: string }) => {
             plain
             hoverIndicator={{ color: 'tailwind-blue-50' }}
           >
-            <Box pad="xsmall" round="xsmall">
+            <Box pad="xsmall" round="xsmall" background="solid" hoverIndicator={{ background: 'hover' }}>
               <Text size="small">{hideEmptyVaults ? 'Show Empty Vaults' : 'Hide Empty Vaults'}</Text>
             </Box>
           </Button>

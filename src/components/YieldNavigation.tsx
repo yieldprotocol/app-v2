@@ -5,6 +5,7 @@ import { Box, ThemeContext, ResponsiveContext } from 'grommet';
 import NavText from './texts/NavText';
 import { ChainContext } from '../contexts/ChainContext';
 import { useWindowSize } from '../hooks/generalHooks';
+import { UserContext } from '../contexts/UserContext';
 
 const StyledLink = styled(NavLink)`
   text-decoration: none;
@@ -25,7 +26,7 @@ const StyledLink = styled(NavLink)`
 
   :hover {
     transform: scale(1.2);
-    background: #ffffff69;
+    /* background: #ffffff69; */
   }
 `;
 
@@ -42,14 +43,17 @@ const YieldNavigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) 
       connection: { account },
     },
   } = useContext(ChainContext);
+  const {
+    userState: { darkMode },
+  } = useContext(UserContext);
 
   const theme = useContext<any>(ThemeContext);
-  const textColor = theme.global.colors.text.light;
+  const textColor = theme.global.colors.text;
 
   const activeStyle = {
     transform: !sideNavigation ? 'scale(1.3)' : 'scale(1.3)',
-    color: `${textColor}`,
-    marginLeft: !mobile && sideNavigation  ? '1em' : undefined,
+    color: darkMode ? `${textColor.dark}` : `${textColor.light}`,
+    marginLeft: !mobile && sideNavigation ? '1em' : undefined,
   } as CSSProperties;
 
   const linksArr = [
@@ -60,7 +64,12 @@ const YieldNavigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) 
   ];
 
   const Link = ({ link }: { link: any }) => (
-    <StyledLink to={link.to} activeStyle={activeStyle} onClick={() => callbackFn()} style={{ color: 'grey' }}>
+    <StyledLink
+      to={link.to}
+      activeStyle={activeStyle}
+      onClick={() => callbackFn()}
+      style={{ color: darkMode ? 'white' : 'grey' }}
+    >
       <NavText size={mobile ? 'medium' : 'small'}>{link.label}</NavText>
     </StyledLink>
   );
