@@ -18,11 +18,16 @@ import { useChain } from '../useChain';
 
 import { calcPoolRatios, calculateSlippage, fyTokenForMint, splitLiquidity } from '../../utils/yieldMath';
 import { HistoryContext } from '../../contexts/HistoryContext';
+import { SettingsContext } from '../../contexts/SettingsContex';
 
 export const useAddLiquidity = () => {
-  const { userState, userActions } = useContext(UserContext);
 
-  const { activeAccount: account, assetMap, seriesMap, slippageTolerance, diagnostics } = userState;
+  const {
+    settingsState: { slippageTolerance, diagnostics },
+  } = useContext(SettingsContext) ;
+
+  const { userState, userActions } = useContext(UserContext);
+  const { activeAccount: account, assetMap, seriesMap } = userState;
   const { updateVaults, updateSeries, updateAssets, updateStrategies } = userActions;
 
   const { sign, transact } = useChain();

@@ -1,6 +1,7 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { HistoryContext } from '../../contexts/HistoryContext';
+import { SettingsContext } from '../../contexts/SettingsContex';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
@@ -9,8 +10,13 @@ import { useChain } from '../useChain';
 
 /* Lend Actions Hook */
 export const useRollPosition = () => {
+
+  const {
+    settingsState: { slippageTolerance },
+  } = useContext(SettingsContext);
+
   const { userState, userActions } = useContext(UserContext);
-  const { activeAccount: account, assetMap, slippageTolerance } = userState;
+  const { activeAccount: account, assetMap } = userState;
   const { updateSeries, updateAssets } = userActions;
 
   const { historyActions: { updateTradeHistory } } = useContext(HistoryContext);

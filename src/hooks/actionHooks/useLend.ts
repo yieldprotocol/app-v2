@@ -1,6 +1,7 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { HistoryContext } from '../../contexts/HistoryContext';
+import { SettingsContext } from '../../contexts/SettingsContex';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
@@ -9,8 +10,12 @@ import { useChain } from '../useChain';
 
 /* Lend Actions Hook */
 export const useLend = () => {
+  const {
+    settingsState: { slippageTolerance },
+  } = useContext(SettingsContext);
+
   const { userState, userActions } = useContext(UserContext);
-  const { activeAccount: account, assetMap, slippageTolerance } = userState;
+  const { activeAccount: account, assetMap } = userState;
   const { updateSeries, updateAssets } = userActions;
 
   const {
@@ -22,7 +27,7 @@ export const useLend = () => {
   const lend = async (input: string | undefined, series: ISeries) => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.LEND, series.id);
-    
+
     const base = assetMap.get(series.baseId);
     const cleanedInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanedInput, base.decimals) : ethers.constants.Zero;

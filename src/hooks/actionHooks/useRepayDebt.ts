@@ -8,8 +8,14 @@ import { calculateSlippage, maxBaseIn, secondsToFrom, sellBase } from '../../uti
 import { useRemoveCollateral } from './useRemoveCollateral';
 import { ChainContext } from '../../contexts/ChainContext';
 import { ETH_BASED_ASSETS } from '../../utils/constants';
+import { SettingsContext } from '../../contexts/SettingsContex';
 
 export const useRepayDebt = () => {
+
+  const {
+    settingsState: { slippageTolerance },
+  } = useContext(SettingsContext);
+  
   const { userState, userActions } = useContext(UserContext);
   const { activeAccount: account, seriesMap, assetMap } = userState;
   const { updateVaults, updateAssets } = userActions;
@@ -48,7 +54,7 @@ export const useRepayDebt = () => {
 
     const _inputAsFyTokenWithSlippage = calculateSlippage(
       _inputAsFyToken,
-      userState.slippageTolerance.toString(),
+      slippageTolerance.toString(),
       true // minimize
     );
 
