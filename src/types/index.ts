@@ -36,6 +36,7 @@ export interface IUserContextState {
   assetsLoading: boolean;
   strategiesLoading: boolean;
   pricesLoading: boolean;
+  limitsLoading: boolean;
 
   selectedSeriesId: string | null;
   selectedIlkId: string | null;
