@@ -1,6 +1,7 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { HistoryContext } from '../../contexts/HistoryContext';
+import { SettingsContext } from '../../contexts/SettingsContex';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
@@ -9,6 +10,11 @@ import { useChain } from '../useChain';
 
 /* Lend Actions Hook */
 export const useClosePosition = () => {
+
+  const {
+    settingsState: { slippageTolerance },
+  } = useContext(SettingsContext) ;
+  
   const { userState, userActions } = useContext(UserContext);
   const { activeAccount: account, assetMap } = userState;
   const { updateSeries, updateAssets } = userActions;
@@ -32,7 +38,7 @@ export const useClosePosition = () => {
     /* calculate slippage on the base token expected to recieve ie. input */ 
     const _inputWithSlippage = calculateSlippage(
       _input,
-      userState.slippageTolerance.toString(),
+      slippageTolerance.toString(),
       true
     );
 
