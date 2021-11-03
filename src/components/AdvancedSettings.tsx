@@ -43,11 +43,7 @@ const AdvancedSettings = () => {
             offColor="#BFDBFE"
             onColor="#60A5FA"
             uncheckedIcon={false}
-            checkedIcon={
-              <Box align="center" justify="center" fill pad="xsmall">
-                <FiCheck color="#34D399" fontWeight="100" />
-              </Box>
-            }
+            checkedIcon={false}
             onChange={(val) => (val ? handleApprovalToggle(ApprovalType.TX) : handleApprovalToggle(ApprovalType.SIG))}
             handleDiameter={20}
             borderRadius={20}
@@ -80,19 +76,31 @@ const AdvancedSettings = () => {
 
       <Box direction="row" justify="between">
         <Text size="small">PowerUser</Text>
-        <CheckBox
-          toggle
+        <Switch
           checked={powerUser}
-          onChange={(event: any) => updateSetting('powerUser', event?.target.checked)}
+          onChange={(val: boolean) => updateSetting('powerUser', val)}
+          width={55}
+          offColor="#BFDBFE"
+          onColor="#60A5FA"
+          uncheckedIcon={false}
+          checkedIcon={false}
+          handleDiameter={20}
+          borderRadius={20}
         />
       </Box>
 
       <Box direction="row" justify="between">
         <Text size="small">Approve Max</Text>
-        <CheckBox
-          toggle
+        <Switch
           checked={approveMax}
-          onChange={(event: any) => updateSetting('approveMax', event?.target.checked)}
+          onChange={(val: boolean) => updateSetting('approveMax', val)}
+          width={55}
+          offColor="#BFDBFE"
+          onColor="#60A5FA"
+          uncheckedIcon={false}
+          checkedIcon={false}
+          handleDiameter={20}
+          borderRadius={20}
         />
       </Box>
     </Box>
