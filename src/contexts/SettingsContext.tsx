@@ -11,6 +11,8 @@ const initState: ISettingsContextState = {
   diagnostics: (JSON.parse(localStorage.getItem('diagnostics')!) as boolean) || (false as boolean),
   darkMode: (JSON.parse(localStorage.getItem('darkMode')!) as boolean) || (false as boolean),
   approveMax: (JSON.parse(localStorage.getItem('approveMax')!) as boolean) || false,
+  disclaimerChecked: (JSON.parse(localStorage.getItem('disclaimerChecked')!) as boolean) || (false as boolean), 
+  powerUser: (JSON.parse(localStorage.getItem('powerUser')!) as boolean) || (false as boolean),
 
   dashHideEmptyVaults: (JSON.parse(localStorage.getItem('dashHideEmptyVaults')!) as boolean) || false,
   dashHideInactiveVaults: (JSON.parse(localStorage.getItem('dashHideInactiveVaults')!) as boolean) || false,

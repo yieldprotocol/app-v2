@@ -70,6 +70,8 @@ export interface ISettingsContextState {
   dudeSalt: number;
   darkMode: boolean;
   approveMax: boolean;
+  disclaimerChecked:boolean;
+  powerUser:boolean;
 
   /* DashSettings */
   dashHideEmptyVaults: boolean;
