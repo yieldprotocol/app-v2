@@ -30,22 +30,7 @@ function settingsReducer(state: any, action: any) {
     localStorage.setItem(_action.type, JSON.stringify(_action.payload));
     return _action.payload;
   };
-
   return { ...state, [action.type]: cacheAndUpdate(action) }
-
-  // /* Reducer switch */
-  // switch (action.type) {
-  //   case 'approvalMethod':
-  //     return { ...state, approvalMethod: cacheAndUpdate(action) };
-  //   case 'dudeSalt':
-  //     return { ...state, dudeSalt: cacheAndUpdate(action) };
-  //   case 'slippageTolerance':
-  //     return { ...state, slippageTolerance: cacheAndUpdate(action) };
-  //   case 'diagnostics':
-  //     return { ...state, diagnostics: cacheAndUpdate(action) };
-  //   default:
-  //     return state;
-  // }
 }
 
 const SettingsProvider = ({ children }: any) => {
