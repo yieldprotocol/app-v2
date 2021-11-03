@@ -7,7 +7,7 @@ import { ApprovalType } from '../types';
 export const useApprovalMethod = (): ApprovalType => {
   
   const {
-    setttingsState: { approvalMethod },
+    settingsState: { approvalMethod },
   } = useContext(SettingsContext);
 
   const {
