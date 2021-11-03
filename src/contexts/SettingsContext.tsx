@@ -10,6 +10,8 @@ const initState: ISettingsContextState = {
   dudeSalt: 21, // (JSON.parse(localStorage.getItem('dudeSalt')!) as number) || (21 as number),
   diagnostics: (JSON.parse(localStorage.getItem('diagnostics')!) as boolean) || (false as boolean),
   darkMode: (JSON.parse(localStorage.getItem('darkMode')!) as boolean) || (false as boolean),
+  approveMax: (JSON.parse(localStorage.getItem('approveMax')!) as boolean) || false,
+
 };
 
 function settingsReducer(state: any, action: any) {
@@ -22,22 +24,23 @@ function settingsReducer(state: any, action: any) {
     return _action.payload;
   };
 
-  /* Reducer switch */
-  switch (action.type) {
-    case 'approvalMethod':
-      return { ...state, approvalMethod: cacheAndUpdate(action) };
-    case 'dudeSalt':
-      return { ...state, dudeSalt: cacheAndUpdate(action) };
-    case 'slippageTolerance':
-      return { ...state, slippageTolerance: cacheAndUpdate(action) };
-    case 'diagnostics':
-      return { ...state, diagnostics: cacheAndUpdate(action) };
+  return { ...state, [action.type]: cacheAndUpdate(action) }
 
-    // case 'dashSettings':
-    //   return { ...state, dashSettings: onlyIfChanged(action) };
-    default:
-      return state;
-  }
+  // /* Reducer switch */
+  // switch (action.type) {
+  //   case 'approvalMethod':
+  //     return { ...state, approvalMethod: cacheAndUpdate(action) };
+  //   case 'dudeSalt':
+  //     return { ...state, dudeSalt: cacheAndUpdate(action) };
+  //   case 'slippageTolerance':
+  //     return { ...state, slippageTolerance: cacheAndUpdate(action) };
+  //   case 'diagnostics':
+  //     return { ...state, diagnostics: cacheAndUpdate(action) };
+  //   // case 'dashSettings':
+  //   //   return { ...state, dashSettings: onlyIfChanged(action) };
+  //   default:
+  //     return state;
+  // }
 }
 
 const SettingsProvider = ({ children }: any) => {

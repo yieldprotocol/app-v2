@@ -71,6 +71,10 @@ export interface ISettingsContextState {
     diagnostics: boolean,
     dudeSalt: number,
     darkMode: boolean,
+    approveMax:boolean,
+
+    // dashSettings: IDashSettings,
+
 }
 
 export interface ISignable {
@@ -132,7 +136,7 @@ export interface IAssetRoot extends ISignable {
   // baked in token fns
   getBalance: (account: string) => Promise<BigNumber>;
   getAllowance: (account: string, spender: string) => Promise<BigNumber>;
-  mintTest: () => Promise<VoidFunction>;
+
 }
 
 export interface IStrategyRoot extends ISignable {
