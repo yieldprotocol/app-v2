@@ -1,11 +1,10 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import styled from 'styled-components';
 import { Text, Box, ResponsiveContext } from 'grommet';
 import { FiSettings } from 'react-icons/fi';
 import Skeleton from 'react-loading-skeleton';
 import { ChainContext } from '../contexts/ChainContext';
 import { abbreviateHash } from '../utils/appUtils';
-import YieldBalances from './YieldBalances';
 import YieldAvatar from './YieldAvatar';
 import ConnectButton from './buttons/ConnectButton';
 import SidebarSettings from './SidebarSettings';
