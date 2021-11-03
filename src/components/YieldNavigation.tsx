@@ -6,6 +6,7 @@ import NavText from './texts/NavText';
 import { ChainContext } from '../contexts/ChainContext';
 import { useWindowSize } from '../hooks/generalHooks';
 import { UserContext } from '../contexts/UserContext';
+import { SettingsContext } from '../contexts/SettingsContext';
 
 const StyledLink = styled(NavLink)`
   text-decoration: none;
@@ -44,8 +45,8 @@ const YieldNavigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) 
     },
   } = useContext(ChainContext);
   const {
-    userState: { darkMode },
-  } = useContext(UserContext);
+    settingsState: { darkMode },
+  } = useContext(SettingsContext);
 
   const theme = useContext<any>(ThemeContext);
   const textColor = theme.global.colors.text;
