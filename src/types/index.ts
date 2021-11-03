@@ -19,7 +19,6 @@ export interface IUserContext {
   userState: IUserContextState;
   userActions: IUserContextActions;
 }
-
 export interface IUserContextState {
   userLoading: boolean;
   activeAccount: string | null;
@@ -44,14 +43,13 @@ export interface IUserContextState {
   selectedVaultId: string | null;
   selectedStrategyAddr: string | null;
 
-  approvalMethod: ApprovalType;
-  dudeSalt: number;
-  slippageTolerance: number;
-  diagnostics: boolean;
+  // approvalMethod: ApprovalType;
+  // dudeSalt: number;
+  // slippageTolerance: number;
+  // diagnostics: boolean;
 
   dashSettings: IDashSettings;
 }
-
 export interface IUserContextActions {
   updateVaults: (vaultList: IVault[]) => void;
   updateSeries: (seriesList: ISeries[]) => void;
@@ -65,6 +63,19 @@ export interface IUserContextActions {
   setSelectedStrategy: (strategyAddr: string | null) => void;
   setDashSettings: (settingName: any, settingValue: any) => void;
 }
+
+export interface ISettingsContext {
+  settingsState: ISettingsContextState;
+  settingsActions: any;
+}
+export interface ISettingsContextState {
+    /* User Settings ( getting from the cache first ) */
+    approvalMethod: ApprovalType,
+    slippageTolerance: number,
+    diagnostics: boolean,
+    dudeSalt: number,
+}
+
 
 export interface ISignable {
   name: string;
