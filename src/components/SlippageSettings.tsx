@@ -5,7 +5,7 @@ import { FiPercent } from 'react-icons/fi';
 import { UserContext } from '../contexts/UserContext';
 import { cleanValue } from '../utils/appUtils';
 import { useCachedState } from '../hooks/generalHooks';
-import { SettingsContext } from '../contexts/SettingsContex';
+import { SettingsContext } from '../contexts/SettingsContext';
 
 const Input = styled(TextInput)`
   padding-left: 0;

@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import styled from 'styled-components';
 import multiavatar from '@multiavatar/multiavatar';
 import { Avatar, Box, Image } from 'grommet';
-import { SettingsContext } from '../contexts/SettingsContex';
+import { SettingsContext } from '../contexts/SettingsContext';
 
 const StyledBox = styled(Box)`
   -webkit-transition: transform 0.3s ease-in-out;

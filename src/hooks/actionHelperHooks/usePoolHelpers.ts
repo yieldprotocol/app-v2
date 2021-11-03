@@ -11,7 +11,7 @@ import {
   burnFromStrategy,
   burn,
 } from '../../utils/yieldMath';
-import { SettingsContext } from '../../contexts/SettingsContex';
+import { SettingsContext } from '../../contexts/SettingsContext';
 
 export const usePoolHelpers = (input: string | undefined, removeLiquidityView: boolean = false) => {
   /* STATE FROM CONTEXT */

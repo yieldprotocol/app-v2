@@ -70,8 +70,8 @@ export interface ISettingsContextState {
     slippageTolerance: number,
     diagnostics: boolean,
     dudeSalt: number,
+    darkMode: boolean,
 }
-
 
 export interface ISignable {
   name: string;

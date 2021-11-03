@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { Button, CheckBox, DropButton, Text, Box } from 'grommet';
+import { Button, DropButton, Text, Box } from 'grommet';
 import { FiMoreVertical } from 'react-icons/fi';
 import { UserContext } from '../contexts/UserContext';
 import { ActionType, IUserContext } from '../types';
@@ -9,7 +9,10 @@ const DashboardSettings = ({ actionType }: { actionType: string }) => {
     userState: { dashSettings },
     userActions: { setDashSettings },
   } = useContext(UserContext) as IUserContext;
-  const { hideEmptyVaults, hideInactiveVaults } = dashSettings;
+  const { hideEmptyVaults } = dashSettings;
+
+
+  
 
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
 

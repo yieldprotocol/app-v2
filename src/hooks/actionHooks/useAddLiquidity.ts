@@ -18,7 +18,7 @@ import { useChain } from '../useChain';
 
 import { calcPoolRatios, calculateSlippage, fyTokenForMint, splitLiquidity } from '../../utils/yieldMath';
 import { HistoryContext } from '../../contexts/HistoryContext';
-import { SettingsContext } from '../../contexts/SettingsContex';
+import { SettingsContext } from '../../contexts/SettingsContext';
 
 export const useAddLiquidity = () => {
 

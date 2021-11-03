@@ -5,7 +5,7 @@ import SlippageSettings from './SlippageSettings';
 import { ApprovalType } from '../types';
 import { useCachedState } from '../hooks/generalHooks';
 import { ChainContext } from '../contexts/ChainContext';
-import { SettingsContext } from '../contexts/SettingsContex';
+import { SettingsContext } from '../contexts/SettingsContext';
 
 const AdvancedSettings = () => {
   const {

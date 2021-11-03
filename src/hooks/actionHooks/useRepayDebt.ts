@@ -8,7 +8,7 @@ import { calculateSlippage, maxBaseIn, secondsToFrom, sellBase } from '../../uti
 import { useRemoveCollateral } from './useRemoveCollateral';
 import { ChainContext } from '../../contexts/ChainContext';
 import { ETH_BASED_ASSETS } from '../../utils/constants';
-import { SettingsContext } from '../../contexts/SettingsContex';
+import { SettingsContext } from '../../contexts/SettingsContext';
 
 export const useRepayDebt = () => {
 

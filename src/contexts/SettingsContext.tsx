@@ -9,6 +9,9 @@ const initState: ISettingsContextState = {
   slippageTolerance: (JSON.parse(localStorage.getItem('slippageTolerance')!) as number) || (0.005 as number),
   dudeSalt: 21, // (JSON.parse(localStorage.getItem('dudeSalt')!) as number) || (21 as number),
   diagnostics: (JSON.parse(localStorage.getItem('diagnostics')!) as boolean) || (false as boolean),
+  darkMode: (JSON.parse(localStorage.getItem('darkMode')!) as boolean) || (false as boolean),
+
+
 };
 
 function settingsReducer(state: any, action: any) {
@@ -31,6 +34,7 @@ function settingsReducer(state: any, action: any) {
       return { ...state, slippageTolerance: cacheAndUpdate(action) };
     case 'diagnostics':
       return { ...state, diagnostics: cacheAndUpdate(action) };
+
     // case 'dashSettings':
     //   return { ...state, dashSettings: onlyIfChanged(action) };
     default:

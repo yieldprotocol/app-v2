@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { HistoryContext } from '../../contexts/HistoryContext';
-import { SettingsContext } from '../../contexts/SettingsContex';
+import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';

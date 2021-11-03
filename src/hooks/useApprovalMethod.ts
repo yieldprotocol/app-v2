@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { ChainContext } from '../contexts/ChainContext';
-import { SettingsContext } from '../contexts/SettingsContex';
+import { SettingsContext } from '../contexts/SettingsContext';
 import { UserContext } from '../contexts/UserContext';
 import { ApprovalType } from '../types';
 
