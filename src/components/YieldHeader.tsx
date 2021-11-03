@@ -1,4 +1,4 @@
-import React, { useContext, useState, useRef } from 'react';
+import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { NavLink, useHistory, useLocation } from 'react-router-dom';
 import { FiMenu } from 'react-icons/fi';
@@ -10,7 +10,7 @@ import YieldMark from './logos/YieldMark';
 
 import { useCachedState } from '../hooks/generalHooks';
 import BackButton from './buttons/BackButton';
-import { UserContext } from '../contexts/UserContext';
+import { SettingsContext } from '../contexts/SettingsContext';
 
 const StyledAvatar = styled(Avatar)`
   -webkit-transition: background 0.3s ease-in-out;
@@ -36,8 +36,8 @@ interface IYieldHeaderProps {
 const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
-    userState: { darkMode },
-  } = useContext(UserContext);
+    settingsState: { darkMode },
+  } = useContext(SettingsContext);
   const history = useHistory();
   const prevLoc = useCachedState('lastVisit', '')[0].slice(1).split('/')[0];
   const isPositionPath = useLocation().pathname.includes('position');
