@@ -1,11 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, Text } from 'grommet';
-import Skeleton from 'react-loading-skeleton';
 import { useLocation } from 'react-router-dom';
 
 import styled from 'styled-components';
 import { UserContext } from '../contexts/UserContext';
 import { WETH } from '../utils/constants';
+import Skeleton from './wraps/SkeletonWrap';
 
 const StyledText = styled(Text)`
   svg,
