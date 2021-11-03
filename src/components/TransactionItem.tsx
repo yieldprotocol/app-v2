@@ -9,6 +9,7 @@ import { getPositionPath } from '../utils/appUtils';
 import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
 import { UserContext } from '../contexts/UserContext';
+import { SettingsContext } from '../contexts/SettingsContext';
 
 interface ITransactionItem {
   tx: any;
@@ -32,8 +33,8 @@ const TransactionItem = ({ tx, wide }: ITransactionItem) => {
     txActions: { updateTxStage },
   } = useContext(TxContext);
   const {
-    userState: { darkMode },
-  } = useContext(UserContext);
+    settingsState: { darkMode },
+  } = useContext(SettingsContext);
   const theme = useContext<any>(ThemeContext);
   const textColor = theme.global.colors.text;
 

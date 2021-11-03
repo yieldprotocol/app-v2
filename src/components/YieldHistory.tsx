@@ -14,7 +14,7 @@ const YieldHistory = ({ seriesOrVault, view }: IYieldHistory) => {
   /* STATE FROM CONTEXT */
   const { historyState } = useContext(HistoryContext);
   const {
-    settings: { darkMode },
+    settingsState: { darkMode },
   } = useContext(SettingsContext);
   const { vaultHistory, tradeHistory, strategyHistory } = historyState;
 
