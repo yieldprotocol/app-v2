@@ -24,11 +24,9 @@ const StyledText = styled(Text)`
 const StyledBox = styled(Box)`
   text-decoration: none;
   padding: 8px;
-
   -webkit-transition: transform 0.3s ease-in-out;
   -moz-transition: transform 0.3s ease-in-out;
   transition: transform 0.3s ease-in-out;
-
   :hover {
     transform: scale(1.1);
   }

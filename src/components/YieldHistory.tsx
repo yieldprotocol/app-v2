@@ -11,7 +11,7 @@ interface IYieldHistory {
 
 const YieldHistory = ({ seriesOrVault, view }: IYieldHistory) => {
   /* STATE FROM CONTEXT */
-  const { historyState, historyActions } = useContext(HistoryContext);
+  const { historyState } = useContext(HistoryContext);
   const { vaultHistory, tradeHistory, strategyHistory } = historyState;
 
   /* LOCAL STATE */
