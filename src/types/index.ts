@@ -43,11 +43,6 @@ export interface IUserContextState {
   selectedVaultId: string | null;
   selectedStrategyAddr: string | null;
 
-  // approvalMethod: ApprovalType;
-  // dudeSalt: number;
-  // slippageTolerance: number;
-  // diagnostics: boolean;
-
   dashSettings: IDashSettings;
 }
 export interface IUserContextActions {

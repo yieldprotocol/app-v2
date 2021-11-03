@@ -5,12 +5,13 @@ import SlippageSettings from './SlippageSettings';
 import { ApprovalType } from '../types';
 import { useCachedState } from '../hooks/generalHooks';
 import { ChainContext } from '../contexts/ChainContext';
+import { SettingsContext } from '../contexts/SettingsContex';
 
 const AdvancedSettings = () => {
   const {
-    userState: { approvalMethod },
-    userActions: { setApprovalMethod },
-  } = useContext(UserContext);
+    settingsState: { approvalMethod },
+    settingsActions: { updateSetting },
+  } = useContext(SettingsContext);
 
   const {
     chainState: {
@@ -18,13 +19,9 @@ const AdvancedSettings = () => {
     },
   } = useContext(ChainContext);
 
-  const [, setCachedApprovalMethod] = useCachedState('cachedApprovalMethod', approvalMethod);
-
   const handleApprovalToggle = (type: ApprovalType) => {
     /* set for current session */
-    setApprovalMethod(type);
-    /* set cached for future sessions */
-    setCachedApprovalMethod(type);
+    updateSetting('approvalMethod', type);
   };
 
   if (connectionName === 'ledgerWithMetamask') return null;

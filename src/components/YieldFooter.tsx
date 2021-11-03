@@ -92,7 +92,7 @@ const YieldFooter = (props: any) => {
                 <Button
                   onClick={() =>
                     userActions.setApprovalMethod(
-                      userState.approvalMethod === ApprovalType.SIG ? ApprovalType.TX : ApprovalType.SIG
+                      approvalMethod === ApprovalType.SIG ? ApprovalType.TX : ApprovalType.SIG
                     )
                   }
                   label="Toggle approval method"

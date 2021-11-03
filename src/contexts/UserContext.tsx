@@ -65,11 +65,6 @@ const initState: IUserContextState = {
 
   /* User Settings ( getting from the cache first ) */
 
-  approvalMethod: (JSON.parse(localStorage.getItem('cachedApprovalMethod')!) as ApprovalType) || ApprovalType.SIG,
-  slippageTolerance: (JSON.parse(localStorage.getItem('slippageTolerance')!) as number) || (0.005 as number),
-  dudeSalt: 21,
-  diagnostics: false,
-
   dashSettings: {
     hideEmptyVaults: false,
     hideInactiveVaults: false,
@@ -120,13 +115,6 @@ function userReducer(state: any, action: any) {
       return { ...state, strategyMap: onlyIfChanged(action) };
     case 'priceMap':
       return { ...state, priceMap: onlyIfChanged(action) };
-
-    case 'approvalMethod':
-      return { ...state, approvalMethod: onlyIfChanged(action) };
-    case 'dudeSalt':
-      return { ...state, dudeSalt: onlyIfChanged(action) };
-    case 'setSlippageTolerance':
-      return { ...state, slippageTolerance: onlyIfChanged(action) };
 
     case 'pricesLoading':
       return { ...state, pricesLoading: onlyIfChanged(action) };
@@ -672,13 +660,6 @@ const UserProvider = ({ children }: any) => {
     setSelectedBase: (assetId: string | null) => updateState({ type: 'selectedBaseId', payload: assetId }),
     setSelectedStrategy: (strategyAddr: string | null) =>
       updateState({ type: 'selectedStrategyAddr', payload: strategyAddr }),
-
-    // TODO To reduce exposure, maybe we have a single 'change setting' function?  > that handles all the below? not urgent.
-    setApprovalMethod: (type: ApprovalType) => updateState({ type: 'approvalMethod', payload: type }),
-    updateDudeSalt: () => updateState({ type: 'dudeSalt', payload: userState.dudeSalt + 3 }),
-
-    setSlippageTolerance: (slippageTolerance: number) =>
-      updateState({ type: 'setSlippageTolerance', payload: slippageTolerance }),
 
     setDashSettings: (name: any, value: any) =>
       updateState({ type: 'dashSettings', payload: { ...userState.dashSettings, [name]: value } }),

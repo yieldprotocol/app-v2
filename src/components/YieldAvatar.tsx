@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import styled from 'styled-components';
 import multiavatar from '@multiavatar/multiavatar';
 import { Avatar, Box, Image } from 'grommet';
-import { UserContext } from '../contexts/UserContext';
+import { SettingsContext } from '../contexts/SettingsContex';
 
 const StyledBox = styled(Box)`
   -webkit-transition: transform 0.3s ease-in-out;
@@ -15,19 +15,19 @@ const StyledBox = styled(Box)`
 
 function YieldAvatar(props: any) {
   const {
-    userState: { dudeSalt },
-  } = useContext(UserContext);
+    settingsState: { dudeSalt },
+  } = useContext(SettingsContext);
 
   const _avatar = multiavatar(props.address.concat(dudeSalt));
-
   const _size = props.size.toString().concat('em');
-  const _outerSize = (props.size + 0.5).toString().concat('em');
 
   return (
     <StyledBox>
       <Avatar border={{ color: '#000' }} size={_size || '2em'} hoverIndicator={{ elevation: 'small' }}>
         <Box width="100%" height="100%" pad="2px">
-          <span dangerouslySetInnerHTML={{ __html: _avatar }} />
+          { // eslint-disable-next-line react/no-danger 
+            <span dangerouslySetInnerHTML={{ __html: _avatar }} />
+          }
         </Box>
       </Avatar>
     </StyledBox>
