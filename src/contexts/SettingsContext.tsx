@@ -10,8 +10,6 @@ const initState: ISettingsContextState = {
   dudeSalt: 21, // (JSON.parse(localStorage.getItem('dudeSalt')!) as number) || (21 as number),
   diagnostics: (JSON.parse(localStorage.getItem('diagnostics')!) as boolean) || (false as boolean),
   darkMode: (JSON.parse(localStorage.getItem('darkMode')!) as boolean) || (false as boolean),
-
-
 };
 
 function settingsReducer(state: any, action: any) {
@@ -20,7 +18,7 @@ function settingsReducer(state: any, action: any) {
     if (state[action.type] === _action.payload) {
       return state[action.type];
     }
-    localStorage.setItem(_action.type, _action.payload);
+    localStorage.setItem(_action.type, JSON.stringify(_action.payload));
     return _action.payload;
   };
 
