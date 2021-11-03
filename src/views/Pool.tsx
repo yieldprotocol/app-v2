@@ -11,7 +11,7 @@ import InfoBite from '../components/InfoBite';
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
 import { UserContext } from '../contexts/UserContext';
-import { ActionCodes, ActionType, AddLiquidityType, IUserContext, ProcessStage, TxState } from '../types';
+import { ActionCodes, ActionType, AddLiquidityType, ISettingsContext, IUserContext, ProcessStage, TxState } from '../types';
 import MaxButton from '../components/buttons/MaxButton';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
@@ -32,15 +32,19 @@ import { useProcess } from '../hooks/useProcess';
 import StrategyItem from '../components/positionItems/StrategyItem';
 import DashMobileButton from '../components/buttons/DashMobileButton';
 import SeriesOrStrategySelectorModal from '../components/selectors/SeriesOrStrategySelectorModal';
-import InputInfoWrap from '../components/wraps/InputInfoWrap';
+
 import YieldNavigation from '../components/YieldNavigation';
+import { SettingsContext } from '../contexts/SettingsContex';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   /* STATE FROM CONTEXT */
+  const { settingsState : { diagnostics } } = useContext(SettingsContext);
+
   const { userState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, assetMap, selectedBaseId, selectedStrategyAddr, strategyMap, diagnostics } = userState;
+  const { activeAccount, assetMap, selectedBaseId, selectedStrategyAddr, strategyMap } = userState;
+  
   const selectedBase = assetMap.get(selectedBaseId!);
   const selectedStrategy = strategyMap.get(selectedStrategyAddr!);
 
