@@ -25,12 +25,9 @@ const PoolPosition = lazy(() => import('./views/PoolPosition'));
 
 function App() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-  const {
-    userState: { darkMode },
-  } = useContext(UserContext);
 
   const {
-    settingsState: { approvalMethod, slippageTolerance },
+    settingsState: { approvalMethod, slippageTolerance, darkMode },
   } = useContext(SettingsContext);
 
   /* LOCAL STATE */
