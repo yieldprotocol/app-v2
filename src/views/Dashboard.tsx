@@ -16,6 +16,7 @@ import DashboardPositionList from '../components/DashboardPositionList';
 import CurrencyToggle from '../components/CurrencyToggle';
 import { sellFYToken, strategyTokenValue } from '../utils/yieldMath';
 import YieldNavigation from '../components/YieldNavigation';
+import { SettingsContext } from '../contexts/SettingsContext';
 
 const StyledBox = styled(Box)`
   * {
@@ -30,6 +31,18 @@ const Dashboard = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   /* STATE FROM CONTEXT */
+  const {
+    settingsState: {
+      dashHideEmptyVaults,
+      dashHideInactiveVaults,
+      dashHideVaults,
+      dashHideLendPositions,
+      dashHidePoolPositions,
+      dashCurrency,
+    },
+    settingsActions: { updateSettings },
+  } = useContext(SettingsContext);
+
   const {
     chainState: {
       connection: { account },
@@ -46,18 +59,9 @@ const Dashboard = () => {
       vaultsLoading,
       seriesLoading,
       strategiesLoading,
-      dashSettings,
     },
-    userActions: { setDashSettings, updatePrice },
+    userActions: { updatePrice },
   } = useContext(UserContext) as IUserContext;
-  const {
-    hideEmptyVaults,
-    hideInactiveVaults,
-    hideVaultPositions,
-    hideLendPositions,
-    hidePoolPositions,
-    currencySetting,
-  } = dashSettings;
 
   const [vaultPositions, setVaultPositions] = useState<IVault[]>([]);
   const [lendPositions, setLendPositions] = useState<ISeries[]>([]);
@@ -69,18 +73,18 @@ const Dashboard = () => {
   const [totalStrategyBalance, setTotalStrategyBalance] = useState<string>('');
 
   // currency settings
-  const currencySettingAssetId = currencySetting === 'ETH' ? WETH : DAI;
-  const currencySettingDigits = currencySetting === 'ETH' ? 4 : 2;
-  const currencySettingSymbol = currencySetting === 'ETH' ? 'Ξ' : '$';
+  const currencySettingAssetId = dashCurrency === 'ETH' ? WETH : DAI;
+  const currencySettingDigits = dashCurrency === 'ETH' ? 4 : 2;
+  const currencySettingSymbol = dashCurrency === 'ETH' ? 'Ξ' : '$';
 
   useEffect(() => {
     const _vaultPositions: IVault[] = Array.from(vaultMap.values())
-      .filter((vault: IVault) => (hideInactiveVaults ? vault.isActive : true))
-      .filter((vault: IVault) => (hideEmptyVaults ? vault.ink.gt(ZERO_BN) || vault.art.gt(ZERO_BN) : true))
+      .filter((vault: IVault) => (dashHideInactiveVaults ? vault.isActive : true))
+      .filter((vault: IVault) => (dashHideEmptyVaults ? vault.ink.gt(ZERO_BN) || vault.art.gt(ZERO_BN) : true))
       .filter((vault: IVault) => vault.baseId !== vault.ilkId)
       .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1));
     setVaultPositions(_vaultPositions);
-  }, [vaultMap, hideEmptyVaults, hideInactiveVaults]);
+  }, [vaultMap, dashHideInactiveVaults, dashHideEmptyVaults]);
 
   useEffect(() => {
     const _lendPositions: ISeries[] = Array.from(seriesMap.values())
@@ -102,7 +106,7 @@ const Dashboard = () => {
       .filter((_series: ISeries) => _series.fyTokenBalance?.gt(ZERO_BN))
       .sort((_seriesA: ISeries, _seriesB: ISeries) => (_seriesA.fyTokenBalance?.gt(_seriesB.fyTokenBalance!) ? 1 : -1));
     setLendPositions(_lendPositions);
-  }, [seriesMap, hideLendPositions]);
+  }, [ seriesMap ]);
 
   useEffect(() => {
     const _strategyPositions: IStrategy[] = Array.from(strategyMap.values())
@@ -129,7 +133,7 @@ const Dashboard = () => {
         _strategyA.accountBalance?.lt(_strategyB.accountBalance!) ? 1 : -1
       );
     setStrategyPositions(_strategyPositions);
-  }, [strategyMap, hidePoolPositions, seriesMap]);
+  }, [strategyMap, seriesMap]);
 
   /* get a single position's ink or art in dai or eth (input the asset id): value can be art, ink, fyToken, or pooToken balances */
   const getPositionValue = useCallback(
@@ -211,9 +215,9 @@ const Dashboard = () => {
             <Box gap="medium">
               <Box justify="between" direction="row" align="center">
                 <Text size="medium">Vaults</Text>
-                <Box onClick={() => setDashSettings('hideVaultPositions', !hideVaultPositions)} pad="xsmall">
+                <Box onClick={() => updateSettings('dashHideVaults', !dashHideVaults)} pad="xsmall">
                   {/* {hideVaultPositions ? <FiEyeOff size="0.75em" /> : <FiEye color="grey" size="0.75em" />} */}
-                  {hideVaultPositions ? (
+                  {dashHideVaults ? (
                     <Text size="xsmall" color="text-weak">
                       show
                     </Text>
@@ -224,7 +228,7 @@ const Dashboard = () => {
                   )}
                 </Box>
               </Box>
-              {!hideVaultPositions && (
+              {!dashHideVaults && (
                 <>
                   {vaultsLoading ? (
                     <Skeleton width={mobile ? 300 : 500} count={1} height={40} />
@@ -242,9 +246,9 @@ const Dashboard = () => {
             <Box gap="medium">
               <Box justify="between" direction="row" align="center">
                 <Text size="medium">Lend Positions</Text>
-                <Box onClick={() => setDashSettings('hideLendPositions', !hideLendPositions)} pad="xsmall">
+                <Box onClick={() => updateSettings('dashHideLendPositions', !dashHideLendPositions)} pad="xsmall">
                   {/* {hideLendPositions ? <FiEyeOff size="0.75em" /> : <FiEye color="grey" size="0.75em" />} */}
-                  {hideLendPositions ? (
+                  {dashHideLendPositions ? (
                     <Text size="xsmall" color="text-weak">
                       show
                     </Text>
@@ -255,7 +259,7 @@ const Dashboard = () => {
                   )}
                 </Box>
               </Box>
-              {!hideLendPositions && (
+              {!dashHideLendPositions && (
                 <>
                   {seriesLoading ? (
                     <Skeleton width={mobile ? 300 : 500} count={1} height={40} />
@@ -272,9 +276,9 @@ const Dashboard = () => {
             <Box gap="medium">
               <Box justify="between" direction="row" align="center">
                 <Text size="medium">Pool Positions</Text>
-                <Box onClick={() => setDashSettings('hidePoolPositions', !hidePoolPositions)} pad="xsmall">
+                <Box onClick={() => updateSettings('dashHidePoolPositions', !dashHidePoolPositions)} pad="xsmall">
                   {/* {hidePoolPositions ? <FiEyeOff size="0.75em" /> : <FiEye color="grey" size="0.75em" />} */}
-                  {hidePoolPositions ? (
+                  {dashHidePoolPositions ? (
                     <Text size="xsmall" color="text-weak">
                       show
                     </Text>
@@ -285,7 +289,7 @@ const Dashboard = () => {
                   )}
                 </Box>
               </Box>
-              {!hidePoolPositions && (
+              {!dashHidePoolPositions && (
                 <>
                   {strategiesLoading ? (
                     <Skeleton width={mobile ? 300 : 500} count={1} height={40} />

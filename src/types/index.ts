@@ -1,6 +1,6 @@
 import { ethers, BigNumber, BigNumberish, ContractTransaction } from 'ethers';
 import React from 'react';
-import { ERC20, ERC20Permit, FYToken, Pool, Strategy } from '../contracts';
+import { ERC20Permit, FYToken, Pool, Strategy } from '../contracts';
 
 export { LadleActions, RoutedActions } from './operations';
 
@@ -43,9 +43,8 @@ export interface IUserContextState {
   selectedBaseId: string | null;
   selectedVaultId: string | null;
   selectedStrategyAddr: string | null;
-
-  dashSettings: IDashSettings;
 }
+
 export interface IUserContextActions {
   updateVaults: (vaultList: IVault[]) => void;
   updateSeries: (seriesList: ISeries[]) => void;
@@ -57,24 +56,28 @@ export interface IUserContextActions {
   setSelectedBase: (baseId: string | null) => void;
   setSelectedVault: (vaultId: string | null) => void;
   setSelectedStrategy: (strategyAddr: string | null) => void;
-  setDashSettings: (settingName: any, settingValue: any) => void;
 }
 
 export interface ISettingsContext {
   settingsState: ISettingsContextState;
-  settingsActions: any;
+  settingsActions: { updateSetting: (setting: string, value: string | number) => void };
 }
 export interface ISettingsContextState {
-    /* User Settings ( getting from the cache first ) */
-    approvalMethod: ApprovalType,
-    slippageTolerance: number,
-    diagnostics: boolean,
-    dudeSalt: number,
-    darkMode: boolean,
-    approveMax:boolean,
+  /* User Settings ( getting from the cache first ) */
+  approvalMethod: ApprovalType;
+  slippageTolerance: number;
+  diagnostics: boolean;
+  dudeSalt: number;
+  darkMode: boolean;
+  approveMax: boolean;
 
-    // dashSettings: IDashSettings,
-
+  /* DashSettings */
+  dashHideEmptyVaults: boolean;
+  dashHideInactiveVaults: boolean;
+  dashHideVaults: boolean;
+  dashHideLendPostions: boolean;
+  dashHidePoolPositions: boolean;
+  dashCurrency: string;
 }
 
 export interface ISignable {
@@ -136,7 +139,6 @@ export interface IAssetRoot extends ISignable {
   // baked in token fns
   getBalance: (account: string) => Promise<BigNumber>;
   getAllowance: (account: string, spender: string) => Promise<BigNumber>;
-
 }
 
 export interface IStrategyRoot extends ISignable {

@@ -61,16 +61,6 @@ const initState: IUserContextState = {
   selectedBaseId: null, // initial base
   selectedVaultId: null,
   selectedStrategyAddr: null,
-
-  /* User Settings ( getting from the cache first ) */
-  dashSettings: {
-    hideEmptyVaults: false,
-    hideInactiveVaults: false,
-    hideVaultPositions: false,
-    hideLendPositions: false,
-    hidePoolPositions: false,
-    currencySetting: 'DAI',
-  } as IDashSettings,
 };
 
 function userReducer(state: any, action: any) {
@@ -118,11 +108,6 @@ function userReducer(state: any, action: any) {
       return { ...state, assetsLoading: onlyIfChanged(action) };
     case 'strategiesLoading':
       return { ...state, strategiesLoading: onlyIfChanged(action) };
-
-    case 'showInactiveVaults':
-      return { ...state, showInactiveVaults: onlyIfChanged(action) };
-    case 'dashSettings':
-      return { ...state, dashSettings: onlyIfChanged(action) };
 
     default:
       return state;
@@ -650,9 +635,6 @@ const UserProvider = ({ children }: any) => {
     setSelectedBase: (assetId: string | null) => updateState({ type: 'selectedBaseId', payload: assetId }),
     setSelectedStrategy: (strategyAddr: string | null) =>
       updateState({ type: 'selectedStrategyAddr', payload: strategyAddr }),
-
-    setDashSettings: (name: any, value: any) =>
-      updateState({ type: 'dashSettings', payload: { ...userState.dashSettings, [name]: value } }),
   };
 
   return <UserContext.Provider value={{ userState, userActions } as IUserContext}>{children}</UserContext.Provider>;
