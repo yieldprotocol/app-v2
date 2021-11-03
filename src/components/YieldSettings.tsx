@@ -96,6 +96,8 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
           </Box>
         </Box>
       </Box>
+
+
       <Box
         direction="row"
         align="center"
@@ -104,6 +106,8 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
       >
         <AdvancedSettings />
       </Box>
+
+
       <Box border={{ color: 'tailwind-blue-100', size: 'xsmall', side: 'top' }} pad="medium">
         <Box alignSelf="end">
           <Tip
@@ -125,22 +129,25 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
         background="tailwind-blue-50"
       >
         <Box align="center" direction="row" justify="between" onClick={() => toggleTransactionsOpen(!transactionsOpen)}>
-          <Text>Transactions</Text>
+          <Text size='small'>Recent Transactions</Text>
           {transactionsOpen ? (
-            <FiChevronDown size="1.5rem" color="tailwind-blue" />
+            <FiChevronDown size="1rem" color="tailwind-blue" />
           ) : (
-            <FiChevronUp size="1.5rem" color="tailwind-blue" />
+            <FiChevronUp size="1rem" color="tailwind-blue" />
           )}
         </Box>
 
+
         <Collapsible open={transactionsOpen}>
-          {!transactions.size && <Text size="small">Your transactions will appear here...</Text>}
+          {!transactions.size && <Text size="xsmall">Your transactions will appear here...</Text>}
           <Box>
             {[...transactions.values()].map((tx: any) => (
               <TransactionItem tx={tx} key={tx.tx.hash} wide={true} />
             ))}
           </Box>
         </Collapsible>
+
+
       </Box>
     </Box>
   );

@@ -1,10 +1,9 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, Collapsible, ResponsiveContext, Text } from 'grommet';
+import { Box, Text } from 'grommet';
+import Skeleton from 'react-loading-skeleton';
 import { useLocation } from 'react-router-dom';
 
 import styled from 'styled-components';
-import { FiMenu } from 'react-icons/fi';
-import Skeleton from './wraps/SkeletonWrap';
 import { UserContext } from '../contexts/UserContext';
 import { WETH } from '../utils/constants';
 
@@ -27,8 +26,6 @@ const Balance = ({ image, balance, loading }: { image: any; balance: string; loa
 );
 
 const Balances = () => {
-  const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-
   const {
     userState: { assetMap, selectedBaseId, selectedIlkId, assetsLoading },
   } = useContext(UserContext);

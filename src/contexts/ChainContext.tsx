@@ -128,7 +128,7 @@ const ChainProvider = ({ children }: any) => {
 
   /* Connection hook */
   const { connectionState, connectionActions } = useConnection();
-  const { chainId, fallbackProvider, fallbackChainId, lastChainId } = connectionState;
+  const { chainId, fallbackProvider, fallbackChainId } = connectionState;
 
   /**
    * Update on FALLBACK connection/state on network changes (id/library)

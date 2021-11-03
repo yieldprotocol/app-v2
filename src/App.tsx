@@ -12,6 +12,7 @@ import NetworkError from './components/NetworkError';
 import TransactionWidget from './components/TransactionWidget';
 import YieldMobileMenu from './components/YieldMobileMenu';
 import { UserContext } from './contexts/UserContext';
+import { SettingsContext } from './contexts/SettingsContext';
 
 const Borrow = lazy(() => import('./views/Borrow'));
 const Lend = lazy(() => import('./views/Lend'));
@@ -27,6 +28,10 @@ function App() {
   const {
     userState: { darkMode },
   } = useContext(UserContext);
+
+  const {
+    settingsState: { approvalMethod, slippageTolerance },
+  } = useContext(SettingsContext);
 
   /* LOCAL STATE */
   const [menuLayerOpen, setMenuLayerOpen] = useState<boolean>(false);
@@ -81,6 +86,9 @@ function App() {
             </Suspense>
           </Box>
           {/* <YieldFooter /> */}
+        </Box>
+        <Box>
+          {approvalMethod} {slippageTolerance}{' '}
         </Box>
       </Grommet>
     </>

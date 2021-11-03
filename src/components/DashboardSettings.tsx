@@ -1,15 +1,14 @@
 import React, { useState, useContext } from 'react';
-import { Button, CheckBox, DropButton, Text, Box } from 'grommet';
+import { Button, DropButton, Text, Box } from 'grommet';
 import { FiMoreVertical } from 'react-icons/fi';
-import { UserContext } from '../contexts/UserContext';
-import { ActionType, IUserContext } from '../types';
+import { ActionType } from '../types';
+import { SettingsContext } from '../contexts/SettingsContext';
 
 const DashboardSettings = ({ actionType }: { actionType: string }) => {
   const {
-    userState: { dashSettings },
-    userActions: { setDashSettings },
-  } = useContext(UserContext) as IUserContext;
-  const { hideEmptyVaults, hideInactiveVaults } = dashSettings;
+    settingsState: { dashHideEmptyVaults },
+    settingsActions: { updateSetting },
+  } = useContext(SettingsContext);
 
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
 
@@ -19,14 +18,14 @@ const DashboardSettings = ({ actionType }: { actionType: string }) => {
         <Box gap="xxsmall">
           <Button
             onClick={() => {
-              setDashSettings('hideEmptyVaults', !hideEmptyVaults);
+              updateSetting('dashHideEmptyVaults', !dashHideEmptyVaults);
               setSettingsOpen(false);
             }}
             plain
             hoverIndicator={{ color: 'tailwind-blue-50' }}
           >
-            <Box pad="xsmall" round="xsmall" background="solid" hoverIndicator={{ background: 'hover' }}>
-              <Text size="small">{hideEmptyVaults ? 'Show Empty Vaults' : 'Hide Empty Vaults'}</Text>
+            <Box pad="xsmall" round="xsmall">
+              <Text size="small">{dashHideEmptyVaults ? 'Show Empty Vaults' : 'Hide Empty Vaults'}</Text>
             </Box>
           </Button>
         </Box>

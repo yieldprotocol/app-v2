@@ -2,8 +2,6 @@ import React, { useContext, useEffect, useReducer, useCallback, useState } from 
 import { useLocation } from 'react-router-dom';
 import { BigNumber, ethers } from 'ethers';
 
-import { uniqueNamesGenerator, Config, adjectives, animals } from 'unique-names-generator';
-
 import {
   IAssetRoot,
   ISeriesRoot,
@@ -13,14 +11,13 @@ import {
   IVault,
   IUserContextState,
   IUserContext,
-  ApprovalType,
   IStrategyRoot,
   IStrategy,
   IDashSettings,
 } from '../types';
 
 import { ChainContext } from './ChainContext';
-import { cleanValue } from '../utils/appUtils';
+import { cleanValue, generateVaultName } from '../utils/appUtils';
 import {
   calculateAPR,
   divDecimal,
@@ -46,7 +43,8 @@ const initState: IUserContextState = {
   seriesMap: new Map<string, ISeries>(),
   vaultMap: new Map<string, IVault>(),
   strategyMap: new Map<string, IStrategy>(),
-  /* map of asset prices */
+
+  /* map of asset prices/limits  */
   priceMap: new Map<string, Map<string, any>>(),
   limitMap: new Map<string, Map<string, any>>(),
 
@@ -55,6 +53,7 @@ const initState: IUserContextState = {
   assetsLoading: true as boolean,
   strategiesLoading: true as boolean,
   pricesLoading: true as boolean,
+  limitsLoading: true as boolean,
 
   /* Current User selections */
   selectedSeriesId: null,
@@ -62,29 +61,6 @@ const initState: IUserContextState = {
   selectedBaseId: null, // initial base
   selectedVaultId: null,
   selectedStrategyAddr: null,
-
-  /* User Settings ( getting from the cache first ) */
-
-  approvalMethod: (JSON.parse(localStorage.getItem('cachedApprovalMethod')!) as ApprovalType) || ApprovalType.SIG,
-  slippageTolerance: (JSON.parse(localStorage.getItem('slippageTolerance')!) as number) || (0.005 as number),
-  dudeSalt: 21,
-  diagnostics: false,
-  darkMode: (JSON.parse(localStorage.getItem('darkMode')!) as boolean) || false,
-
-  dashSettings: {
-    hideEmptyVaults: false,
-    hideInactiveVaults: false,
-    hideVaultPositions: false,
-    hideLendPositions: false,
-    hidePoolPositions: false,
-    currencySetting: 'DAI',
-  } as IDashSettings,
-};
-
-const vaultNameConfig: Config = {
-  dictionaries: [adjectives, animals],
-  separator: ' ',
-  length: 2,
 };
 
 function userReducer(state: any, action: any) {
@@ -122,15 +98,6 @@ function userReducer(state: any, action: any) {
     case 'priceMap':
       return { ...state, priceMap: onlyIfChanged(action) };
 
-    case 'approvalMethod':
-      return { ...state, approvalMethod: onlyIfChanged(action) };
-    case 'dudeSalt':
-      return { ...state, dudeSalt: onlyIfChanged(action) };
-    case 'setSlippageTolerance':
-      return { ...state, slippageTolerance: onlyIfChanged(action) };
-    case 'darkMode':
-      return { ...state, darkMode: onlyIfChanged(action) };
-
     case 'pricesLoading':
       return { ...state, pricesLoading: onlyIfChanged(action) };
     case 'vaultsLoading':
@@ -142,11 +109,6 @@ function userReducer(state: any, action: any) {
     case 'strategiesLoading':
       return { ...state, strategiesLoading: onlyIfChanged(action) };
 
-    case 'showInactiveVaults':
-      return { ...state, showInactiveVaults: onlyIfChanged(action) };
-    case 'dashSettings':
-      return { ...state, dashSettings: onlyIfChanged(action) };
-
     default:
       return state;
   }
@@ -154,9 +116,7 @@ function userReducer(state: any, action: any) {
 
 const UserProvider = ({ children }: any) => {
   /* STATE FROM CONTEXT */
-  // TODO const [cachedVaults, setCachedVaults] = useCachedState('vaults', { data: [], lastBlock: Number(process.env.REACT_APP_DEPLOY_BLOCK) });
   const { chainState } = useContext(ChainContext);
-  // const { contractMap, account, chainLoading, seriesRootMap, assetRootMap, strategyRootMap } = chainState;
   const {
     contractMap,
     connection: { account },
@@ -201,7 +161,7 @@ const UserProvider = ({ children }: any) => {
           seriesId,
           baseId: series?.baseId!,
           ilkId,
-          displayName: uniqueNamesGenerator({ seed: parseInt(id.substring(14), 16), ...vaultNameConfig }),
+          displayName: generateVaultName(id),
           decimals: series?.decimals!,
         };
       });
@@ -216,7 +176,7 @@ const UserProvider = ({ children }: any) => {
             seriesId,
             baseId: series?.baseId!,
             ilkId,
-            displayName: uniqueNamesGenerator({ seed: parseInt(id.substring(14), 16), ...vaultNameConfig }), // TODO Marco move uniquNames generator into utils
+            displayName: generateVaultName(id),
             decimals: series?.decimals!,
           };
         })
@@ -675,17 +635,6 @@ const UserProvider = ({ children }: any) => {
     setSelectedBase: (assetId: string | null) => updateState({ type: 'selectedBaseId', payload: assetId }),
     setSelectedStrategy: (strategyAddr: string | null) =>
       updateState({ type: 'selectedStrategyAddr', payload: strategyAddr }),
-
-    // TODO To reduce exposure, maybe we have a single 'change setting' function?  > that handles all the below? not urgent.
-    setApprovalMethod: (type: ApprovalType) => updateState({ type: 'approvalMethod', payload: type }),
-    updateDudeSalt: () => updateState({ type: 'dudeSalt', payload: userState.dudeSalt + 3 }),
-    toggleDarkMode: (darkMode: boolean) => updateState({ type: 'darkMode', payload: darkMode }),
-
-    setSlippageTolerance: (slippageTolerance: number) =>
-      updateState({ type: 'setSlippageTolerance', payload: slippageTolerance }),
-
-    setDashSettings: (name: any, value: any) =>
-      updateState({ type: 'dashSettings', payload: { ...userState.dashSettings, [name]: value } }),
   };
 
   return <UserContext.Provider value={{ userState, userActions } as IUserContext}>{children}</UserContext.Provider>;
