@@ -5,6 +5,7 @@ import { FiPercent } from 'react-icons/fi';
 import { UserContext } from '../contexts/UserContext';
 import { cleanValue } from '../utils/appUtils';
 import { useCachedState } from '../hooks/generalHooks';
+import { SettingsContext } from '../contexts/SettingsContex';
 
 const Input = styled(TextInput)`
   padding-left: 0;
@@ -18,12 +19,11 @@ const StyledBox = styled(Box)`
 
 const SlippageSettings = () => {
   const {
-    userState: { slippageTolerance },
-    userActions: { setSlippageTolerance },
-  } = useContext(UserContext);
+    settingsState: { slippageTolerance },
+    settingsActions: { updateSetting },
+  } = useContext(SettingsContext);
 
   const [input, setInput] = useState((slippageTolerance * 100).toString());
-  const [, setCachedSlippageTolerance] = useCachedState('slippageTolerance', (slippageTolerance * 100).toString());
 
   const tolerances: number[] = [0.001, 0.005, 0.01];
   const validateInput = (tolerance: number) => (tolerance > 0 && tolerance < 1 ? tolerance : slippageTolerance);
@@ -32,8 +32,7 @@ const SlippageSettings = () => {
   /* sets the slippage tolerance on input */
   useEffect(() => {
     const _slippageTolerance = validateInput(Number(cleanValue(input, 4)) / 100);
-    setSlippageTolerance(_slippageTolerance);
-    setCachedSlippageTolerance(_slippageTolerance);
+    updateSetting( 'slippageTolerance', _slippageTolerance);
   }, [input]);
 
   return (
@@ -54,10 +53,7 @@ const SlippageSettings = () => {
               border={{ color: tolerance === slippageTolerance ? 'tailwind-blue' : '#BFDBFE' }}
               round="xsmall"
               key={tolerance}
-              onClick={() => {
-                setSlippageTolerance(tolerance);
-                setCachedSlippageTolerance(tolerance);
-              }}
+              onClick={() => updateSetting( 'slippageTolerance', tolerance)}
               align="center"
               justify="center"
             >
