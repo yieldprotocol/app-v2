@@ -27,10 +27,6 @@ const AdvancedSettings = () => {
     updateSetting('approvalMethod', type);
   };
 
-  const handleDarkModeToggle = (isDark: boolean) => {
-    updateSetting('darkMode', isDark);
-  };
-
   if (connectionName === 'ledgerWithMetamask') return null;
   return (
     <Box fill="horizontal" gap="medium">
@@ -44,7 +40,9 @@ const AdvancedSettings = () => {
             onColor="#60A5FA"
             uncheckedIcon={false}
             checkedIcon={false}
-            onChange={(val) => (val ? handleApprovalToggle(ApprovalType.TX) : handleApprovalToggle(ApprovalType.SIG))}
+            onChange={(val: boolean) =>
+              val ? handleApprovalToggle(ApprovalType.TX) : handleApprovalToggle(ApprovalType.SIG)
+            }
             handleDiameter={20}
             borderRadius={20}
           />
@@ -66,7 +64,7 @@ const AdvancedSettings = () => {
             }
             offColor="#BFDBFE"
             onColor="#60A5FA"
-            onChange={handleDarkModeToggle}
+            onChange={(val: boolean) => updateSetting('darkMode', val)}
             handleDiameter={20}
             borderRadius={20}
           />
