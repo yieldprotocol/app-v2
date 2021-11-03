@@ -60,7 +60,7 @@ export interface IUserContextActions {
 
 export interface ISettingsContext {
   settingsState: ISettingsContextState;
-  settingsActions: { updateSetting: (setting: string, value: string | number) => void };
+  settingsActions: { updateSetting: (setting: string, value: string | number | boolean) => void };
 }
 export interface ISettingsContextState {
   /* User Settings ( getting from the cache first ) */
@@ -75,7 +75,7 @@ export interface ISettingsContextState {
   dashHideEmptyVaults: boolean;
   dashHideInactiveVaults: boolean;
   dashHideVaults: boolean;
-  dashHideLendPostions: boolean;
+  dashHideLendPositions: boolean;
   dashHidePoolPositions: boolean;
   dashCurrency: string;
 }

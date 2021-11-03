@@ -15,7 +15,7 @@ const initState: ISettingsContextState = {
   dashHideEmptyVaults: (JSON.parse(localStorage.getItem('dashHideEmptyVaults')!) as boolean) || false,
   dashHideInactiveVaults: (JSON.parse(localStorage.getItem('dashHideInactiveVaults')!) as boolean) || false,
   dashHideVaults: (JSON.parse(localStorage.getItem('dashHideVaults')!) as boolean) || false,
-  dashHideLendPostions: (JSON.parse(localStorage.getItem('dashHideLendPostions')!) as boolean) || false,
+  dashHideLendPositions: (JSON.parse(localStorage.getItem('dashHideLendPostions')!) as boolean) || false,
   dashHidePoolPositions: (JSON.parse(localStorage.getItem('dashHidePoolPositions')!) as boolean) || false,
   dashCurrency: (JSON.parse(localStorage.getItem('dashCurrency')!) as string) || 'DAI',
 

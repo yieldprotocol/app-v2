@@ -5,7 +5,7 @@ import { BigNumber, ethers } from 'ethers';
 import Skeleton from 'react-loading-skeleton';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
-import { ActionType, IUserContext, IVault, ISeries, IStrategy } from '../types';
+import { ActionType, IUserContext, IVault, ISeries, IStrategy, ISettingsContext } from '../types';
 import YieldInfo from '../components/YieldInfo';
 import DashboardBalanceSummary from '../components/DashboardBalanceSummary';
 import MainViewWrap from '../components/wraps/MainViewWrap';
@@ -40,8 +40,8 @@ const Dashboard = () => {
       dashHidePoolPositions,
       dashCurrency,
     },
-    settingsActions: { updateSettings },
-  } = useContext(SettingsContext);
+    settingsActions: { updateSetting },
+  } = useContext(SettingsContext) as ISettingsContext;
 
   const {
     chainState: {
@@ -215,7 +215,7 @@ const Dashboard = () => {
             <Box gap="medium">
               <Box justify="between" direction="row" align="center">
                 <Text size="medium">Vaults</Text>
-                <Box onClick={() => updateSettings('dashHideVaults', !dashHideVaults)} pad="xsmall">
+                <Box onClick={() => updateSetting('dashHideVaults', !dashHideVaults)} pad="xsmall">
                   {/* {hideVaultPositions ? <FiEyeOff size="0.75em" /> : <FiEye color="grey" size="0.75em" />} */}
                   {dashHideVaults ? (
                     <Text size="xsmall" color="text-weak">
@@ -246,7 +246,7 @@ const Dashboard = () => {
             <Box gap="medium">
               <Box justify="between" direction="row" align="center">
                 <Text size="medium">Lend Positions</Text>
-                <Box onClick={() => updateSettings('dashHideLendPositions', !dashHideLendPositions)} pad="xsmall">
+                <Box onClick={() => updateSetting('dashHideLendPositions', !dashHideLendPositions)} pad="xsmall">
                   {/* {hideLendPositions ? <FiEyeOff size="0.75em" /> : <FiEye color="grey" size="0.75em" />} */}
                   {dashHideLendPositions ? (
                     <Text size="xsmall" color="text-weak">
@@ -276,7 +276,7 @@ const Dashboard = () => {
             <Box gap="medium">
               <Box justify="between" direction="row" align="center">
                 <Text size="medium">Pool Positions</Text>
-                <Box onClick={() => updateSettings('dashHidePoolPositions', !dashHidePoolPositions)} pad="xsmall">
+                <Box onClick={() => updateSetting('dashHidePoolPositions', !dashHidePoolPositions)} pad="xsmall">
                   {/* {hidePoolPositions ? <FiEyeOff size="0.75em" /> : <FiEye color="grey" size="0.75em" />} */}
                   {dashHidePoolPositions ? (
                     <Text size="xsmall" color="text-weak">
