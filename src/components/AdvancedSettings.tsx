@@ -54,7 +54,7 @@ const AdvancedSettings = () => {
             checked={darkMode}
             uncheckedIcon={
               <Box align="center" justify="center" fill pad="xsmall">
-                <FiSun color="gray" style={{ strokeWidth: '3' }} />
+                <FiSun color="text" style={{ strokeWidth: '3' }} />
               </Box>
             }
             checkedIcon={

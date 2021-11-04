@@ -344,14 +344,14 @@ const VaultPosition = () => {
                               {!repayInput && maxRepay_ && (
                                 <InputInfoWrap action={() => setRepayInput(maxRepay_)}>
                                   {selectedVault.art.gt(maxRepay) ? (
-                                    <Text color="gray" alignSelf="end" size="xsmall">
+                                    <Text color="text" alignSelf="end" size="xsmall">
                                       Maximum repayable is {cleanValue(maxRepay_!, 2)} {vaultBase?.symbol!}{' '}
                                       {userBaseAvailable.lt(protocolBaseAvailable)
                                         ? '(based on your token balance)'
                                         : '(limited by protocol reserves)'}
                                     </Text>
                                   ) : (
-                                    <Text color="gray" alignSelf="end" size="xsmall">
+                                    <Text color="text" alignSelf="end" size="xsmall">
                                       Max debt repayable ({selectedVault?.art_!} {vaultBase?.symbol!})
                                     </Text>
                                   )}
@@ -498,7 +498,7 @@ const VaultPosition = () => {
                               </InputInfoWrap>
                             ) : (
                               <InputInfoWrap>
-                                <Text color="gray" alignSelf="end" size="xsmall">
+                                <Text color="text" alignSelf="end" size="xsmall">
                                   New collateralization ratio will be: {nFormatter(parseFloat(addCollEst!), 2)}%
                                 </Text>
                               </InputInfoWrap>
@@ -558,7 +558,7 @@ const VaultPosition = () => {
                               </InputInfoWrap>
                             ) : (
                               <InputInfoWrap>
-                                <Text color="gray" alignSelf="end" size="xsmall">
+                                <Text color="text" alignSelf="end" size="xsmall">
                                   Your collateralization ratio will be: {nFormatter(parseFloat(removeCollEst!), 2)}%
                                 </Text>
                               </InputInfoWrap>

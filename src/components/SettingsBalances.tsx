@@ -31,7 +31,7 @@ const DropContent = ({ assetMap }: { assetMap: any }) => (
             <Text size="xsmall"> </Text>
           </StyledTableCell>
           <StyledTableCell align="center" plain>
-            <Text color="gray" size="xsmall">
+            <Text color="text" size="xsmall">
               Add To Metamask
             </Text>
           </StyledTableCell>
@@ -44,7 +44,7 @@ const DropContent = ({ assetMap }: { assetMap: any }) => (
               <Text size="medium">{asset.image}</Text>
             </StyledTableCell>
             <StyledTableCell plain>
-              <Text size="small" color="gray">
+              <Text size="small" color="text">
                 {asset.symbol}
               </Text>
             </StyledTableCell>

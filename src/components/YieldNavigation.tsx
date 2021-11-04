@@ -64,7 +64,7 @@ const YieldNavigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) 
   ];
 
   const Link = ({ link }: { link: any }) => (
-    <StyledLink to={link.to} activeStyle={activeStyle} onClick={() => callbackFn()} style={{ color: 'gray' }}>
+    <StyledLink to={link.to} activeStyle={activeStyle} onClick={() => callbackFn()} style={{ color: 'text' }}>
       <NavText size={mobile ? 'medium' : 'small'}>{link.label}</NavText>
     </StyledLink>
   );
