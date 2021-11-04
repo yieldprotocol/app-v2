@@ -1,4 +1,4 @@
-import { BigNumber, ethers } from 'ethers';
+import { BigNumber,  BigNumberish,  ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../contexts/UserContext';
 import { IVault, ISeries, IAsset } from '../../types';
@@ -67,7 +67,7 @@ export const useBorrowHelpers = (
 
   /* Update the borrow limits if ilk or base changes */
   useEffect(() => {
-    const setLimits = (max: BigNumber, min: BigNumber, decimals: BigNumber, total: BigNumber) => {
+    const setLimits = (max: BigNumber, min: BigNumber, decimals: BigNumberish, total: BigNumber) => {
       
       const _decimals = decimals.toString();
       const _max = ethers.utils.parseUnits(max.toString(), _decimals) || ethers.constants.Zero;

@@ -177,6 +177,10 @@ const ChainProvider = ({ children }: any) => {
       /* Get the hardcoded strategy addresses */
       const strategyAddresses = (yieldEnv.strategies as any)[fallbackChainId];
 
+      const _assetSymbols = () => {
+
+      }
+
       /* add on extra/calculated ASSET info  and contract instances */
       const _chargeAsset = (asset: any) => {
         const ERC20Permit = contracts.ERC20Permit__factory.connect(asset.address, fallbackProvider);
@@ -218,11 +222,19 @@ const ChainProvider = ({ children }: any) => {
               id === USDC ? '2' : '1', // TODO  ERC20.version()
             ]);
 
+            const symbolSwitch = (sym: string) => {
+              switch (sym) {
+                case 'WETH' : return 'ETH';
+                case 'wstETH' : return 'STETH';
+                default: return sym;
+              }
+            }
+
             const newAsset = {
               id,
               address,
               name,
-              symbol: symbol !== 'WETH' ? symbol : 'ETH',
+              symbol: symbolSwitch(symbol),
               decimals,
               version,
               joinAddress: joinMap.get(id),
