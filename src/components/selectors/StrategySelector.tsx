@@ -107,7 +107,6 @@ function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelector
             ) : (
               options.map((strategy: IStrategy) => (
                 <StyledBox
-                  // border={series.id === selectedSeriesId}
                   key={strategy.address}
                   pad="xsmall"
                   round="xsmall"
