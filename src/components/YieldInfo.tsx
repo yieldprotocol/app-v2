@@ -100,13 +100,7 @@ const YieldInfo = () => {
             {CHAIN_INFO.get(fallbackChainId)?.name}
           </Text>
           {blockNum && currentChainInfo?.name && currentChainInfo?.explorer && (
-            <Anchor
-              style={{ lineHeight: '0' }}
-              href={`${currentChainInfo.explorer}/${
-                currentChainInfo.name.includes('Optimism') ? 'batch' : 'block'
-              }/${blockNum}`}
-              target="_blank"
-            >
+            <Anchor style={{ lineHeight: '0' }} href={`${currentChainInfo.explorer}/${blockNum}`} target="_blank">
               <Text size="xsmall" color={CHAIN_INFO.get(fallbackChainId)?.color}>
                 {blockNum}
               </Text>
