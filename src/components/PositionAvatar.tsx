@@ -40,12 +40,12 @@ function PositionAvatar({
         </Avatar>
 
         {actionType === ActionType.BORROW && (
-          <Avatar background="light" size={condensed ? '0.75rem' : 'xsmall'}>
+          <Avatar background="lightBackground" size={condensed ? '0.75rem' : 'xsmall'}>
             {ilk?.image}
           </Avatar>
         )}
         {actionType === ActionType.POOL && (
-          <Avatar background="solid" size={condensed ? '0.75rem' : 'xsmall'}>
+          <Avatar background="lightBackground" size={condensed ? '0.75rem' : 'xsmall'}>
             {series?.seriesIsMature ? <FiClock /> : <MdAutorenew />}
           </Avatar>
         )}

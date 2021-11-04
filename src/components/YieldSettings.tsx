@@ -56,7 +56,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
     <Box
       fill="vertical"
       width={mobile ? undefined : '400px'}
-      background="background"
+      background="lightBackground"
       // border={{ side: 'left', color: 'tailwind-blue-100' }}
       elevation="xlarge"
     >

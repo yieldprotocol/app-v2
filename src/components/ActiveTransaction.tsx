@@ -80,7 +80,6 @@ const ActiveTransaction = ({
         </Box>
       )}
       <Box
-        // background={ `linear-gradient( ${series?.startColor?.toString().concat('80')} , ${series?.endColor?.toString().concat('80')} )`}
         background="gradient-transparent"
         round="xsmall"
       >

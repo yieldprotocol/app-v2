@@ -14,52 +14,53 @@ export const yieldTheme = {
       },
     },
     colors: {
+
       // brand: '#3f53d9',
       // focus: '#3f53d999',
       // selected: '#3f53d9',
-      pink: '#FECACA',
-      green: '#10B981',
-      orange: '#F59E0B',
-      purple: '#8B5CF6',
-      red: '#EF4444',
-      brand: '#2563EB',
-      focus: '#2563EB99',
-      selected: '#2563EB',
-      hover: {
-        dark: 'gray-3',
-        light: '#FFFFFF',
-      },
-      solid: {
-        dark: 'gray-4',
-        light: '#ffffff',
-      },
-      light: {
-        dark: '#F1F5F9',
-        light: '#ffffff',
-      },
-      gray: {
-        dark: 'text-weak',
-        light: 'gray',
-      },
-      'gray-1': '#64748B',
-      'gray-2': '#292524',
-      'gray-3': '#202A30',
-      'gray-4': '#141a1e',
 
-      'accent-1': {
-        light: '#FFCA58',
-        dark: 'brand',
-      },
-      'accent-2': '#81FCED',
-      'tailwind-blue': '#2563EB',
-      'tailwind-blue-50': {
-        light: '#EFF6FF',
-        dark: 'gray-3',
-      },
-      'tailwind-blue-100': {
-        light: '#DBEAFE',
-        dark: 'gray-3',
-      },
+      // pink: '#FECACA',
+      // green: '#10B981',
+      // orange: '#F59E0B',
+      // purple: '#8B5CF6',
+      // red: '#EF4444',
+
+      // brand: '#2563EB',
+      // focus: '#2563EB99',
+      // selected: '#2563EB',
+
+      // 'gray-1': '#64748B',
+      // 'gray-2': '#292524',
+      // 'gray-3': '#202A30',
+      // 'gray-4': '#141A1E',
+   
+      // hover: {
+      //   dark: 'gray-3',
+      //   light: '#FFFFFF',
+      // },
+      // light: {
+      //   dark: '#F1F5F9',
+      //   light: '#ffffff',
+      // },
+      // gray: {
+      //   dark: 'text-weak',
+      //   light: 'gray',
+      // },
+
+      // 'accent-1': {
+      //   light: '#FFCA58',
+      //   dark: 'brand',
+      // },
+      // 'accent-2': '#81FCED',
+      // 'tailwind-blue': '#2563EB',
+      // 'tailwind-blue-50': {
+      //   light: '#EFF6FF',
+      //   dark: 'gray-3',
+      // },
+      // 'tailwind-blue-100': {
+      //   light: '#DBEAFE',
+      //   dark: 'gray-3',
+      // },
 
       gradient: {
         dark: 'linear-gradient(135deg, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82)',
@@ -85,20 +86,22 @@ export const yieldTheme = {
         light: '#DDDDDD',
       },
       placeholder: 'text-xweak',
+
       lightBackground: {
-        dark: '#202A30',
+        dark: '#222222E6',
         light: '#FFFFFF',
       },
       background: {
-        dark: 'gray-4',
+        dark: '#111111',
         light: '#FFFFFF',
       },
+
     },
     // input: { weight: 700 },
   },
 
   anchor: { color: 'brand' },
-  select: { hover: { color: 'solid' } },
+  select: { hover: { color: 'lightBackground' } },
 
   grommet: {
     // @ts-ignore
@@ -150,7 +153,7 @@ export const yieldTheme = {
   list: {
     item: {
       pad: { horizontal: 'xsmall', vertical: undefined },
-      background: 'background',
+      background: 'lightBackground',
       border: false,
     },
   },

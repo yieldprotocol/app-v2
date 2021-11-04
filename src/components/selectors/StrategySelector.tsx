@@ -120,7 +120,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelector
                     <Avatar
                       background={
                         strategy.address === selectedStrategyAddr
-                          ? 'solid'
+                          ? 'lightBackground'
                           : strategy.currentSeries?.endColor.toString().concat('10')
                       }
                       style={{

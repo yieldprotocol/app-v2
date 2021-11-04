@@ -37,7 +37,7 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
       pad="medium"
       gap="small"
       elevation="xlarge"
-      background="background"
+      background="lightBackground"
     >
       <Box justify="between" align="center" direction="row">
         {account && CONNECTORS ? (

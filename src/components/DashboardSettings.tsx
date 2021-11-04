@@ -13,7 +13,7 @@ const DashboardSettings = ({ actionType }: { actionType: string }) => {
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
 
   const dropContentRender = (
-    <Box pad="xsmall" round="xsmall" fill background="solid">
+    <Box pad="xsmall" round="xsmall" fill background="lightBackground">
       {actionType === ActionType.BORROW && (
         <Box gap="xxsmall">
           <Button

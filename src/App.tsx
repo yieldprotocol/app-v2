@@ -36,7 +36,7 @@ function App() {
   return (
     <>
       <Grommet theme={deepMerge(base, yieldTheme)} full themeMode={darkMode ? 'dark' : 'light'}>
-        <Box fill background="">
+        <Box fill background="background">
           <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
           <TransactionWidget />
           <NetworkError />

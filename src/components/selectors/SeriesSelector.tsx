@@ -301,7 +301,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
                 >
                   <Box pad="small" width="small" direction="row" align="center" gap="small">
                     <Avatar
-                      background={series.id === selectedSeriesId ? 'solid' : series.endColor.toString().concat('10')}
+                      background={series.id === selectedSeriesId ? 'lightBackground' : series.endColor.toString().concat('10')}
                       style={{
                         boxShadow:
                           series.id === selectedSeriesId

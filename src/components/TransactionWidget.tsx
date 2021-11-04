@@ -65,7 +65,7 @@ const TransactionWidget = () => {
                 // elevation="small"
                 gap="small"
                 pad="small"
-                background="background"
+                background="lightBackground"
                 round="xsmall"
               >
                 <Box width="3rem" align="center">
