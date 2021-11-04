@@ -5,7 +5,7 @@ import { ethers } from 'ethers';
 import styled from 'styled-components';
 import { ActionType, ISeries } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
-import { maxBaseIn, maxBaseOut, maxFyTokenIn, maxFyTokenOut } from '../../utils/yieldMath';
+import { maxBaseIn, maxBaseOut } from '../../utils/yieldMath';
 import { useApr } from '../../hooks/useApr';
 import { cleanValue } from '../../utils/appUtils';
 import Skeleton from '../wraps/SkeletonWrap';
@@ -38,7 +38,6 @@ const InsetBox = styled(Box)`
 
 export const CardSkeleton = () => (
   <StyledBox
-    // border={series.id === selectedSeriesId}
     pad="xsmall"
     round="xsmall"
     elevation="xsmall"
@@ -88,24 +87,8 @@ const AprText = ({
     series.decimals
   );
 
-  // const tokenOut = maxFyTokenOut(
-  //   series.baseReserves,
-  //   series.fyTokenReserves,
-  //   series.getTimeTillMaturity(),
-  //   series.decimals
-  // );
-
-  // const tokenIn = maxFyTokenIn(
-  //   series.baseReserves,
-  //   series.fyTokenReserves,
-  //   series.getTimeTillMaturity(),
-  //   series.decimals
-  // );
-
   diagnostics && console.log(series.id, ' maxbaseIn', baseIn.toString());
   diagnostics && console.log(series.id, ' maxbaseOut', baseOut.toString());
-  // diagnostics && console.log(series.id, ' maxtokenIn', tokenIn.toString());
-  // diagnostics && console.log(series.id, ' maxtokenOut', tokenOut.toString());
 
   useEffect(() => {
     if (!series?.seriesIsMature && _inputValue)
@@ -301,7 +284,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
                 >
                   <Box pad="small" width="small" direction="row" align="center" gap="small">
                     <Avatar
-                      background={series.id === selectedSeriesId ? 'lightBackground' : series.endColor.toString().concat('10')}
+                      background={series.id === selectedSeriesId ? 'lightBackground' : series.endColor.toString().concat('20')}
                       style={{
                         boxShadow:
                           series.id === selectedSeriesId
