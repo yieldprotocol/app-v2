@@ -99,7 +99,7 @@ const YieldInfo = () => {
           <Text size="xsmall" color={CHAIN_INFO.get(fallbackChainId)?.color}>
             {CHAIN_INFO.get(fallbackChainId)?.name}
           </Text>
-          {blockNum && currentChainInfo?.name && currentChainInfo?.explorer && (
+          {blockNum && currentChainInfo?.explorer && (
             <Anchor style={{ lineHeight: '0' }} href={`${currentChainInfo.explorer}/${blockNum}`} target="_blank">
               <Text size="xsmall" color={CHAIN_INFO.get(fallbackChainId)?.color}>
                 {blockNum}
