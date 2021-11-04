@@ -23,12 +23,15 @@ export const useRepayDebt = () => {
   const {
     chainState: { contractMap },
   } = useContext(ChainContext);
-  const ladleAddress = contractMap.get('Ladle').address;
+  
 
   const { removeEth } = useRemoveCollateral();
   const { sign, transact } = useChain();
 
   const repay = async (vault: IVault, input: string | undefined, reclaimCollateral: boolean) => {
+
+    const ladleAddress = contractMap.get('Ladle').address;
+    
     const txCode = getTxCode(ActionCodes.REPAY, vault.id);
     const series: ISeries = seriesMap.get(vault.seriesId);
     const base: IAsset = assetMap.get(vault.baseId);
