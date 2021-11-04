@@ -15,33 +15,26 @@ export const yieldTheme = {
     },
     colors: {
 
-
-
       error : { 
-        light: '#FECACA',
-        dark: '#FECACA',
+        light: '#ffcccc',
+        dark: '#ff8080',
       },
-
       success : { 
-        light: '#10B981',
+        light: '#00cc44',
         dark: '#10B981',
       },
-
       warning : { 
         light: '#F59E0B',
-        dark: '#F59E0B',
+        dark: '#red',
       },
-
       brand: {
         light: '#2563EB',
         dark: '#8aacf4',
       },
-
       gradient: {
         dark: 'linear-gradient(135deg, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82)',
         light: 'linear-gradient(135deg, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82)',
       },
-
       'gradient-transparent': {
         dark: '-webkit-linear-gradient(135deg, #f7953380, #f3705580, #ef4e7b80, #a166ab80, #5073b880, #1098ad80, #07b39b80, #6fba8280)',
         light:

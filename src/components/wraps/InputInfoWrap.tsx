@@ -18,11 +18,11 @@ function InputInfoWrap({ action, index, children }: { children: any; index?: num
     >
       {action ? (
         <Box>
-          <FiPlayCircle size="1.2rem" color={success} />
+          <FiPlayCircle size="1.2rem" color='green' />
         </Box>
       ) : (
         <Box>
-          <FiInfo size="1.2rem" color={warning} />
+          <FiInfo size="1.2rem" color='orange' />
         </Box>
       )}
       <Box pad="small">{children}</Box>

@@ -201,7 +201,7 @@ const Dashboard = () => {
   ]);
 
   return (
-    <MainViewWrap>
+    <MainViewWrap >
       {!mobile && (
         <PanelWrap justify="between" basis="40%">
           <YieldNavigation sideNavigation={true} />
@@ -307,11 +307,18 @@ const Dashboard = () => {
         )}
       </StyledBox>
       {!mobile && (
-        <PanelWrap basis="40%">
+        <PanelWrap basis="40%" >
           <Box />
-          <Box margin={{ bottom: '10%' }} fill="horizontal">
+          
+          <Box 
+          margin={{ bottom: '10%' }} 
+          fill="horizontal" 
+          background='gradient-transparent'
+          round='xsmall'
+          pad='xsmall'
+          >
             {account && (
-              <Box gap="small">
+              <Box gap="small" >
                 <Box width="5rem" height="2rem">
                   <CurrencyToggle />
                 </Box>

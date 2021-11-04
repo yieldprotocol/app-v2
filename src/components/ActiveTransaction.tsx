@@ -140,7 +140,7 @@ const ActiveTransaction = ({
             title="Transaction Complete"
             // subTitle={<CopyWrap hash={activeProcess.txHash}> {abbreviateHash(activeProcess.txHash, 3)} </CopyWrap>}
             subTitle={null}
-            icon={<FiCheckCircle size={iconSize} color="success" />}
+            icon={<FiCheckCircle size={iconSize} color="green" />}
             button={<EtherscanButton txHash={activeProcess.txHash} />}
             full={full}
           />

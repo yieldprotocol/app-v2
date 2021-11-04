@@ -53,12 +53,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
   };
 
   return (
-    <Box
-      fill="vertical"
-      width={mobile ? undefined : '400px'}
-      background="lightBackground"
-      elevation="xlarge"
-    >
+    <Box fill="vertical" width={mobile ? undefined : '400px'} background="lightBackground" elevation="xlarge">
       <Box gap="small" pad="medium">
         <Box alignSelf="end" onClick={() => setSettingsOpen(false)} pad="xsmall">
           <FiX size="1.5rem" />
@@ -96,20 +91,11 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
         </Box>
       </Box>
 
-
-      <Box
-        direction="row"
-        align="center"
-        border={{ color: 'brand', size: 'xsmall', side: 'top' }}
-        pad="medium"
-      >
+      <Box direction="row" align="center" border={{ color: 'brand', size: 'xsmall', side: 'top' }} pad="medium">
         <AdvancedSettings />
       </Box>
 
-
-      <Box 
-        pad="medium"     
-      >
+      <Box pad="medium">
         <Box alignSelf="end">
           <Tip
             content={<Text size="xsmall">Having issues? Try resetting the app.</Text>}
@@ -127,14 +113,11 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
         pad="medium"
         gap="small"
         background="gradient-transparent"
+        round={{ size: 'xsmall', corner:'top' }}
       >
         <Box align="center" direction="row" justify="between" onClick={() => toggleTransactionsOpen(!transactionsOpen)}>
-          <Text size='small'>Recent Transactions</Text>
-          {transactionsOpen ? (
-            <FiChevronDown size="1.25rem" />
-          ) : (
-            <FiChevronUp size="1.25rem"  />
-          )}
+          <Text size="small">Recent Transactions</Text>
+          {transactionsOpen ? <FiChevronDown size="1.25rem" /> : <FiChevronUp size="1.25rem" />}
         </Box>
 
         <Collapsible open={transactionsOpen}>
@@ -145,8 +128,6 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
             ))}
           </Box>
         </Collapsible>
-
-
       </Box>
     </Box>
   );
