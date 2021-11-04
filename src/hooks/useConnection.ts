@@ -1,59 +1,22 @@
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
 import {
-  InjectedConnector,
   NoEthereumProviderError,
   UserRejectedRequestError as UserRejectedRequestErrorInjected,
 } from '@web3-react/injected-connector';
-import {
-  WalletConnectConnector,
-  UserRejectedRequestError as UserRejectedRequestErrorWalletConnect,
-} from '@web3-react/walletconnect-connector';
+import { UserRejectedRequestError as UserRejectedRequestErrorWalletConnect } from '@web3-react/walletconnect-connector';
 
 import { NetworkConnector } from '@web3-react/network-connector';
 import { ethers } from 'ethers';
 import { useEffect, useState } from 'react';
 import { useCachedState } from './generalHooks';
-import { CHAIN_INFO, SUPPORTED_CHAIN_IDS, SUPPORTED_RPC_URLS } from '../config/chainData';
+import { CHAIN_INFO, SUPPORTED_RPC_URLS } from '../config/chainData';
+import { CONNECTORS, CONNECTOR_NAMES, INIT_INJECTED } from '../config/connectors';
 
 const NO_BROWSER_EXT =
   'No Ethereum browser extension detected, install MetaMask on desktop or visit from a dApp browser on mobile.';
 const UNSUPPORTED_NETWORK = 'Your Wallet or Browser is connected to an unsupported network.';
 const UNAUTHORISED_SITE = 'Please authorize this website to access your Ethereum account.';
 const UNKNOWN_ERROR = 'An unknown error occurred. Check the console for more details.';
-
-/* Set up web3react config */
-// Map the provider connection url name to a nicer format
-const CONNECTOR_NAMES = new Map([
-  ['metamask', 'Metamask'],
-  ['ledgerWithMetamask', 'Ledger (with Metamask)'],
-  ['ledger', 'Ledger'],
-  ['walletconnect', 'WalletConnect'],
-]);
-
-const INIT_INJECTED = 'metamask';
-
-const CONNECTORS = new Map();
-CONNECTORS.set(
-  INIT_INJECTED,
-  new InjectedConnector({
-    supportedChainIds: SUPPORTED_CHAIN_IDS,
-  })
-);
-CONNECTORS.set(
-  'walletconnect',
-  new WalletConnectConnector({
-    rpc: SUPPORTED_RPC_URLS,
-    bridge: 'https://bridge.walletconnect.org',
-    qrcode: true,
-  })
-);
-
-CONNECTORS.set(
-  'ledgerWithMetamask',
-  new InjectedConnector({
-    supportedChainIds: SUPPORTED_CHAIN_IDS,
-  })
-);
 
 export const useConnection = () => {
   const [tried, setTried] = useState<boolean>(false);
