@@ -108,7 +108,7 @@ const ActiveTransaction = ({
           <InfoBlock
             title="Token Approval"
             subTitle="Transaction Pending..."
-            icon={<Spinner color="tailwind-blue" size="small" />}
+            icon={<Spinner color="brand" size="small" />}
             button={<EtherscanButton txHash={activeProcess.txHash} />}
             full={full}
           />
@@ -129,7 +129,7 @@ const ActiveTransaction = ({
             title="Transaction Pending..."
             // subTitle={<CopyWrap hash={activeProcess.txHash}> {abbreviateHash(activeProcess.txHash, 3)} </CopyWrap>}
             subTitle={null}
-            icon={<Spinner color="tailwind-blue" size="small" />}
+            icon={<Spinner color="brand" size="small" />}
             button={<EtherscanButton txHash={activeProcess.txHash} />}
             full={full}
           />
@@ -140,7 +140,7 @@ const ActiveTransaction = ({
             title="Transaction Complete"
             // subTitle={<CopyWrap hash={activeProcess.txHash}> {abbreviateHash(activeProcess.txHash, 3)} </CopyWrap>}
             subTitle={null}
-            icon={<FiCheckCircle size={iconSize} color="green" />}
+            icon={<FiCheckCircle size={iconSize} color="success" />}
             button={<EtherscanButton txHash={activeProcess.txHash} />}
             full={full}
           />

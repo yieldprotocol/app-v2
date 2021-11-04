@@ -48,7 +48,8 @@ const SlippageSettings = () => {
           {tolerances.map((tolerance) => (
             <StyledBox
               fill
-              border={{ color: tolerance === slippageTolerance ? 'tailwind-blue' : '#BFDBFE' }}
+              border={{ color: tolerance === slippageTolerance ? 'brand' : 'lightBackground' }}
+              background ={ tolerance === slippageTolerance ? 'gradient-transparent' : 'lightBackground' }
               round="xsmall"
               key={tolerance}
               onClick={() => updateSetting('slippageTolerance', tolerance)}
@@ -58,7 +59,12 @@ const SlippageSettings = () => {
               <Text>{`${tolerance * 100} %`}</Text>
             </StyledBox>
           ))}
-          <Box direction="row" round="xsmall" border={{ color: customTolerance ? 'tailwind-blue' : '#dfe8f9' }}>
+          <Box 
+            direction="row" 
+            round="xsmall" 
+            border={{ color: customTolerance ? 'brand' : '#dfe8f9' }}
+            background ={ customTolerance ? 'gradient-transparent' : 'lightBackground' }
+            >
             <Input
               textAlign="center"
               style={{ paddingLeft: 'none', paddingRight: 'none' }}

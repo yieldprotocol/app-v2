@@ -14,7 +14,7 @@ const CurrencyToggle = () => {
       <Box
         fill
         pad="small"
-        background={dashCurrency === 'DAI' ? 'tailwind-blue' : 'tailwind-blue-100'}
+        background={dashCurrency === 'DAI' ? 'gradient' : 'gradient-transparent'}
         round={{ corner: 'left', size: 'xsmall' }}
         onClick={() => updateSetting('dashCurrency', 'DAI')}
         align="center"
@@ -25,7 +25,7 @@ const CurrencyToggle = () => {
       <Box
         fill
         pad="small"
-        background={dashCurrency === 'ETH' ? 'tailwind-blue' : 'tailwind-blue-100'}
+        background={dashCurrency === 'ETH' ? 'gradient' : 'gradient-transparent'}
         round={{ corner: 'right', size: 'xsmall' }}
         onClick={() => updateSetting('dashCurrency', 'ETH')}
         align="center"

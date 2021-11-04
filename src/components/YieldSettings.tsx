@@ -57,7 +57,6 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
       fill="vertical"
       width={mobile ? undefined : '400px'}
       background="lightBackground"
-      // border={{ side: 'left', color: 'tailwind-blue-100' }}
       elevation="xlarge"
     >
       <Box gap="small" pad="medium">
@@ -101,14 +100,16 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
       <Box
         direction="row"
         align="center"
-        border={{ color: 'tailwind-blue-100', size: 'xsmall', side: 'top' }}
+        border={{ color: 'brand', size: 'xsmall', side: 'top' }}
         pad="medium"
       >
         <AdvancedSettings />
       </Box>
 
 
-      <Box border={{ color: 'tailwind-blue-100', size: 'xsmall', side: 'top' }} pad="medium">
+      <Box 
+        pad="medium"     
+      >
         <Box alignSelf="end">
           <Tip
             content={<Text size="xsmall">Having issues? Try resetting the app.</Text>}
@@ -123,20 +124,18 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
 
       <Box
         margin={{ top: 'auto' }}
-        border={{ color: 'tailwind-blue-100', size: 'xsmall', side: 'top' }}
         pad="medium"
         gap="small"
-        background="tailwind-blue-50"
+        background="gradient-transparent"
       >
         <Box align="center" direction="row" justify="between" onClick={() => toggleTransactionsOpen(!transactionsOpen)}>
           <Text size='small'>Recent Transactions</Text>
           {transactionsOpen ? (
-            <FiChevronDown size="1rem" color="tailwind-blue" />
+            <FiChevronDown size="1.25rem" />
           ) : (
-            <FiChevronUp size="1rem" color="tailwind-blue" />
+            <FiChevronUp size="1.25rem"  />
           )}
         </Box>
-
 
         <Collapsible open={transactionsOpen}>
           {!transactions.size && <Text size="xsmall">Your transactions will appear here...</Text>}

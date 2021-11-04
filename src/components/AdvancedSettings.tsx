@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
-import { Box, CheckBox, Text } from 'grommet';
-import { FiCheck, FiMoon, FiSun, FiX } from 'react-icons/fi';
+import { Box, Text } from 'grommet';
+import { FiMoon, FiSun } from 'react-icons/fi';
 import { ThemeContext } from 'styled-components';
 import Switch from 'react-switch';
 import SlippageSettings from './SlippageSettings';
@@ -15,7 +15,7 @@ const AdvancedSettings = () => {
   } = useContext(SettingsContext);
 
   const theme = useContext<any>(ThemeContext);
-  const { purple } = theme.global.colors;
+  const { brand } = theme.global.colors;
 
   const {
     chainState: {
@@ -30,7 +30,7 @@ const AdvancedSettings = () => {
   if (connectionName === 'ledgerWithMetamask') return null;
   return (
     <Box fill="horizontal" gap="medium">
-      <Box gap="small" pad={{ vertical: 'small' }} border={{ color: 'tailwind-blue-100', side: 'bottom' }}>
+      <Box gap="small" pad={{ vertical: 'small' }} border={{ color: 'brand', side: 'bottom' }}>
         <Box direction="row" justify="between">
           <Text size="small">Use Approval by Transactions</Text>
           <Switch
@@ -59,7 +59,7 @@ const AdvancedSettings = () => {
             }
             checkedIcon={
               <Box align="center" justify="center" fill pad="xsmall">
-                <FiMoon color={purple} style={{ strokeWidth: '3', fill: 'Background' }} />
+                <FiMoon color={brand} style={{ strokeWidth: '3', fill: 'Background' }} />
               </Box>
             }
             offColor="#BFDBFE"
