@@ -1,12 +1,17 @@
 import { useContext, useEffect, useState } from 'react';
 import { ChainContext } from '../contexts/ChainContext';
+import { SettingsContext } from '../contexts/SettingsContext';
 import { UserContext } from '../contexts/UserContext';
 import { ApprovalType } from '../types';
 
 export const useApprovalMethod = (): ApprovalType => {
+  
   const {
-    userState: { approvalMethod, selectedIlkId },
-    // userActions: { setApprovalMethod },
+    settingsState: { approvalMethod },
+  } = useContext(SettingsContext);
+
+  const {
+    userState: { selectedIlkId },
   } = useContext(UserContext);
 
   const {

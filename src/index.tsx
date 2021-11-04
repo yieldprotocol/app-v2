@@ -14,6 +14,7 @@ import { ChainProvider } from './contexts/ChainContext';
 import { TxProvider } from './contexts/TxContext';
 import { UserProvider } from './contexts/UserContext';
 import { HistoryProvider } from './contexts/HistoryContext';
+import { SettingsProvider } from './contexts/SettingsContext';
 
 /* Init the signing web3 environment */
 function getLibrary(provider: ethers.providers.ExternalProvider, connector: any) {
@@ -46,9 +47,10 @@ function getFallbackLibrary(provider: any, connector: any) {
 
 ReactDOM.render(
   <React.StrictMode>
+    <SettingsProvider>
     <Router>
       <Web3FallbackProvider getLibrary={getFallbackLibrary}>
-        <Web3ReactProvider getLibrary={getLibrary}>
+        <Web3ReactProvider getLibrary={getLibrary}> 
           <ChainProvider>
             <UserProvider>
               <TxProvider>
@@ -58,11 +60,12 @@ ReactDOM.render(
                   </Grommet>
                 </HistoryProvider>
               </TxProvider>
-            </UserProvider>
+            </UserProvider> 
           </ChainProvider>
         </Web3ReactProvider>
       </Web3FallbackProvider>
     </Router>
+    </SettingsProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );

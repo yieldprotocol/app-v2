@@ -10,11 +10,15 @@ import {
   maxFyTokenOut,
   burnFromStrategy,
   burn,
-  sellFYToken,
 } from '../../utils/yieldMath';
+import { SettingsContext } from '../../contexts/SettingsContext';
 
 export const usePoolHelpers = (input: string | undefined, removeLiquidityView: boolean = false) => {
   /* STATE FROM CONTEXT */
+  const {
+    settingsState: { slippageTolerance, diagnostics },
+  } = useContext(SettingsContext) ;
+
   const {
     userState: {
       selectedSeries,
@@ -24,9 +28,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
       seriesMap,
       vaultMap,
       assetMap,
-      activeAccount,
-      slippageTolerance,
-      diagnostics,
+      activeAccount
     },
   } = useContext(UserContext);
 
