@@ -11,7 +11,6 @@ import YieldHeader from './components/YieldHeader';
 import NetworkError from './components/NetworkError';
 import TransactionWidget from './components/TransactionWidget';
 import YieldMobileMenu from './components/YieldMobileMenu';
-import { UserContext } from './contexts/UserContext';
 import { SettingsContext } from './contexts/SettingsContext';
 
 const Borrow = lazy(() => import('./views/Borrow'));
@@ -27,7 +26,7 @@ function App() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const {
-    settingsState: { approvalMethod, slippageTolerance, darkMode },
+    settingsState: { darkMode },
   } = useContext(SettingsContext);
 
   /* LOCAL STATE */
@@ -40,7 +39,6 @@ function App() {
           <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
           <TransactionWidget />
           <NetworkError />
-
           <Box flex={!mobile} overflow="hidden">
             <ToastContainer position="top-right" />
             {menuLayerOpen && <YieldMobileMenu toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} />}
@@ -82,10 +80,6 @@ function App() {
               </Switch>
             </Suspense>
           </Box>
-          {/* <YieldFooter /> */}
-        </Box>
-        <Box>
-          {approvalMethod} {slippageTolerance}{' '}
         </Box>
       </Grommet>
     </>

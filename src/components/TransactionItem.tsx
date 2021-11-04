@@ -57,7 +57,7 @@ const TransactionItem = ({ tx, wide }: ITransactionItem) => {
       elevation={wide ? undefined : 'small'}
       pad={wide ? 'xsmall' : 'medium'}
       key={t.hash}
-      background={wide ? 'tailwind-blue-50' : 'hoverBackground'}
+      background={wide ? 'gradient-transparent' : 'hoverBackground'}
       round={{ size: 'xsmall', corner: 'left' }}
     >
       {!wide && (

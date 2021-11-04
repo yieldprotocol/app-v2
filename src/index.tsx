@@ -35,21 +35,21 @@ function getFallbackLibrary(provider: any, connector: any) {
 ReactDOM.render(
   <React.StrictMode>
     <SettingsProvider>
-    <Router>
-      <Web3FallbackProvider getLibrary={getFallbackLibrary}>
-        <Web3ReactProvider getLibrary={getLibrary}> 
-          <ChainProvider>
-            <UserProvider>
-              <TxProvider>
-                <HistoryProvider>
-                  <App />
-                </HistoryProvider>
-              </TxProvider>
-            </UserProvider> 
-          </ChainProvider>
-        </Web3ReactProvider>
-      </Web3FallbackProvider>
-    </Router>
+      <Router>
+        <Web3FallbackProvider getLibrary={getFallbackLibrary}>
+          <Web3ReactProvider getLibrary={getLibrary}>
+            <ChainProvider>
+              <UserProvider>
+                <TxProvider>
+                  <HistoryProvider>
+                    <App />
+                  </HistoryProvider>
+                </TxProvider>
+              </UserProvider>
+            </ChainProvider>
+          </Web3ReactProvider>
+        </Web3FallbackProvider>
+      </Router>
     </SettingsProvider>
   </React.StrictMode>,
   document.getElementById('root')

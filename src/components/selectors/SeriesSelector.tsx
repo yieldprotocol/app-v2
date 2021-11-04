@@ -139,7 +139,7 @@ const AprText = ({
       )}
 
       {limitHit && (
-        <Text size="xsmall" color="pink">
+        <Text size="xsmall" color="error">
           low liquidity
         </Text>
       )}

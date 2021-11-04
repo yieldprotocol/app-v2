@@ -31,7 +31,7 @@ function InputWrap({ action, disabled, isError, showErrorText, message, children
         direction="row"
         round="xsmall"
         align="center"
-        background={isError ? 'pink' : 'hoverBackground'}
+        background={isError ? 'error' : 'hoverBackground'}
         pad={{ horizontal: 'small' }}
       >
         {children}

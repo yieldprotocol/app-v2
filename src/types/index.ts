@@ -350,9 +350,9 @@ export enum AddLiquidityType {
 export enum ContractNames {}
 
 export enum YieldColors {
-  SUCCESS = 'green',
-  FAILED = 'red',
-  WARNING = 'orange',
+  SUCCESS = 'success',
+  FAILED = 'error',
+  WARNING = 'warning',
   GRADIENT = '',
   GRADIENT_TRANSPARENT = '',
   PRIMARY = '',
