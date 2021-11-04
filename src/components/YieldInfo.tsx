@@ -32,7 +32,7 @@ const YieldInfo = () => {
   return (
     <Box gap="small">
       <Box>
-        <Text size="xsmall" color="grey">
+        <Text size="xsmall" color="text-weak">
           App version: v{appVersion}
         </Text>
       </Box>
@@ -40,7 +40,7 @@ const YieldInfo = () => {
       <Box direction="row" gap={IconGap}>
         <BoxWrap>
           <Anchor
-            color="grey"
+            color="text-weak"
             href="https://github.com/yieldprotocol"
             target="_blank"
             onClick={() => handleExternal('Github')}
@@ -51,7 +51,7 @@ const YieldInfo = () => {
 
         <BoxWrap>
           <Anchor
-            color="grey"
+            color="text-weak"
             href="http://docs.yieldprotocol.com"
             target="_blank"
             onClick={() => handleExternal('Docs')}
@@ -62,7 +62,7 @@ const YieldInfo = () => {
 
         <BoxWrap>
           <Anchor
-            color="grey"
+            color="text-weak"
             href="https://discord.gg/JAFfDj5"
             target="_blank"
             onClick={() => handleExternal('Discord')}
@@ -73,7 +73,7 @@ const YieldInfo = () => {
 
         <BoxWrap>
           <Anchor
-            color="grey"
+            color="text-weak"
             href="https://yieldprotocol.com/terms/"
             target="_blank"
             onClick={() => handleExternal('Terms')}
@@ -84,7 +84,7 @@ const YieldInfo = () => {
 
         <BoxWrap>
           <Anchor
-            color="grey"
+            color="text-weak"
             href="https://yieldprotocol.com/privacy/"
             target="_blank"
             onClick={() => handleExternal('Privacy')}
