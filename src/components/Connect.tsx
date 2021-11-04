@@ -4,18 +4,23 @@ import { FiCheckSquare, FiX } from 'react-icons/fi';
 import { ChainContext } from '../contexts/ChainContext';
 import BackButton from './buttons/BackButton';
 import Disclaimer from './Disclaimer';
-import { useCachedState } from '../hooks/generalHooks';
+import { SettingsContext } from '../contexts/SettingsContext';
+import { ISettingsContext } from '../types';
 
 const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
+
+  const {
+    settingsState: { disclaimerChecked },
+    settingsActions: { updateSetting }
+  } = useContext(SettingsContext) as ISettingsContext;
+
   const {
     chainState: {
       connection: { account, activatingConnector, CONNECTORS, CONNECTOR_NAMES, connectionName, connector },
     },
     chainActions: { connect, setConnectionName },
   } = useContext(ChainContext);
-
-  const [disclaimerChecked, setDisclaimerChecked] = useCachedState('disclaimerChecked', false);
 
   const handleConnect = (connectorName: string) => {
     setConnectionName(connectorName);
@@ -39,11 +44,11 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
         )}
         <Button icon={<FiX size="1.5rem" />} onClick={() => setConnectOpen(false)} plain />
       </Box>
-      {!disclaimerChecked && (
+      {disclaimerChecked === false && (
         <Box border={{ color: 'brand' }} round="xsmall">
           <Disclaimer
             checked={disclaimerChecked}
-            onChange={(event: any) => setDisclaimerChecked(event.target.checked)}
+            onChange={(event: any) => updateSetting('disclaimerChecked', event.target.checked)}
           />
         </Box>
       )}
@@ -58,7 +63,7 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
               key={name}
               plain
               onClick={() => !connected && handleConnect(name)}
-              disabled={!disclaimerChecked}
+              disabled={disclaimerChecked === false}
               primary={connected}
               secondary={!connected}
               style={{ border: '#2563EB solid 1px', borderRadius: '6px', padding: '12px' }}

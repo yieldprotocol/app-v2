@@ -1,6 +1,6 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import { Box } from 'grommet';
-import { ActionType, ISeries, IStrategy, IUserContext, IVault } from '../types';
+import { ActionType, IUserContext } from '../types';
 import { UserContext } from '../contexts/UserContext';
 import VaultItem from './positionItems/VaultItem';
 import LendItem from './positionItems/LendItem';

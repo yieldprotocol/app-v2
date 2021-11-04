@@ -2,10 +2,11 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Box, Button, Text } from 'grommet';
 import { FiX } from 'react-icons/fi';
 import { UserContext } from '../../contexts/UserContext';
-import { IAsset, ISeries, IUserContext, IVault } from '../../types';
+import { IAsset, ISeries, ISettingsContext, IUserContext, IVault } from '../../types';
 import VaultListItem from '../positionItems/VaultItem';
 import ListWrap from '../wraps/ListWrap';
 import DashButton from '../buttons/DashButton';
+import { SettingsContext } from '../../contexts/SettingsContext';
 
 interface IVaultFilter {
   base: IAsset | undefined;
@@ -15,8 +16,9 @@ interface IVaultFilter {
 
 function VaultPositionSelector(target: any) {
   /* STATE FROM CONTEXT */
-  const { userState } = useContext(UserContext) as IUserContext;
 
+  const { settingsState: { dashHideInactiveVaults } } = useContext(SettingsContext) as ISettingsContext;
+  const { userState } = useContext(UserContext) as IUserContext;
   const {
     activeAccount: account,
     assetMap,
@@ -24,7 +26,6 @@ function VaultPositionSelector(target: any) {
     seriesMap,
     selectedSeriesId,
     selectedBaseId,
-    dashSettings,
   } = userState;
 
   const selectedBase = assetMap.get(selectedBaseId!);
@@ -40,7 +41,7 @@ function VaultPositionSelector(target: any) {
   const handleFilter = useCallback(
     ({ base, series, ilk }: IVaultFilter) => {
       const _filteredVaults: IVault[] = Array.from(vaultMap.values())
-        .filter((vault: IVault) => dashSettings.showInactiveVaults || vault.isActive)
+        .filter((vault: IVault) => !dashHideInactiveVaults || vault.isActive)
         .filter((vault: IVault) => (base ? vault.baseId === base.id : true))
         .filter((vault: IVault) => (series ? vault.seriesId === series.id : true))
         .filter((vault: IVault) => (ilk ? vault.ilkId === ilk.id : true))
@@ -49,7 +50,7 @@ function VaultPositionSelector(target: any) {
       setFilter({ base, series, ilk });
       setFilteredVaults(_filteredVaults);
     },
-    [vaultMap, dashSettings.showInactiveVaults]
+    [vaultMap, dashHideInactiveVaults]
   );
 
   /* CHECK the list of current vaults which match the current series/ilk selection */

@@ -32,7 +32,7 @@ import { useProcess } from '../hooks/useProcess';
 import StrategyItem from '../components/positionItems/StrategyItem';
 import DashMobileButton from '../components/buttons/DashMobileButton';
 import SeriesOrStrategySelectorModal from '../components/selectors/SeriesOrStrategySelectorModal';
-import InputInfoWrap from '../components/wraps/InputInfoWrap';
+
 import YieldNavigation from '../components/YieldNavigation';
 
 function Pool() {
@@ -40,7 +40,8 @@ function Pool() {
 
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, assetMap, selectedBaseId, selectedStrategyAddr, strategyMap, diagnostics } = userState;
+  const { activeAccount, assetMap, selectedBaseId, selectedStrategyAddr, strategyMap } = userState;
+  
   const selectedBase = assetMap.get(selectedBaseId!);
   const selectedStrategy = strategyMap.get(selectedStrategyAddr!);
 
@@ -70,7 +71,7 @@ function Pool() {
 
   /* LOCAL ACTION FNS */
   const handleAdd = () => {
-    diagnostics && console.log('POOLING METHOD: ', poolMethod, 'Matching vault', matchingVault?.id);
+    console.log('POOLING METHOD: ', poolMethod, 'Matching vault', matchingVault?.id);
     const _method = !canBuyAndPool ? AddLiquidityType.BORROW : poolMethod; // double check
     selectedStrategy && addLiquidity(poolInput!, selectedStrategy, _method, matchingVault);
   };

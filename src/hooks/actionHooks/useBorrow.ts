@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
+import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, IVault, ActionCodes, LadleActions, ISeries } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
@@ -9,8 +10,13 @@ import { useChain } from '../useChain';
 import { useAddCollateral } from './useAddCollateral';
 
 export const useBorrow = () => {
+
+  const {
+    settingsState: { slippageTolerance },
+  } = useContext(SettingsContext) ;
+
   const { userState, userActions } = useContext(UserContext);
-  const { activeAccount: account, selectedIlkId, selectedSeriesId, seriesMap, assetMap, slippageTolerance } = userState;
+  const { activeAccount: account, selectedIlkId, selectedSeriesId, seriesMap, assetMap} = userState;
   const { updateVaults, updateAssets, updateSeries } = userActions;
 
   const { addEth } = useAddCollateral();

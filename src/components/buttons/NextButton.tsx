@@ -1,5 +1,5 @@
-import { Box, Button, Text } from 'grommet';
 import React from 'react';
+import { Box, Button, Text } from 'grommet';
 import { FiAlertTriangle } from 'react-icons/fi';
 import styled from 'styled-components';
 

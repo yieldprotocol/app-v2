@@ -30,10 +30,7 @@ function PositionAvatar({
   return (
     <>
       <Stack anchor="top-right">
-
-        
-        <Avatar background={ series?.seriesIsMature ? 'lightGrey' : series?.color } size={condensed ? '1.5rem' : undefined}>
-      
+        <Avatar background={ series?.seriesIsMature ? 'lightGrey' : series?.color } size={condensed ? '1.5rem' : undefined}>      
           <Box round="large" background={base?.color || 'grey'} pad={condensed ? 'none' : 'xsmall'} align="center">
             {base?.image }
           </Box>
