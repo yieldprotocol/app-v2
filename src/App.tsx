@@ -1,8 +1,11 @@
 import React, { useContext, useState, Suspense, lazy } from 'react';
-import { Box, ResponsiveContext } from 'grommet';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Redirect, Route, Switch } from 'react-router-dom';
+
+import { Box, ResponsiveContext, Grommet, base } from 'grommet';
+import { deepMerge } from 'grommet/utils';
+import { yieldTheme } from './themes';
 
 import YieldHeader from './components/YieldHeader';
 import NetworkError from './components/NetworkError';
@@ -23,7 +26,7 @@ function App() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const {
-    settingsState: { approvalMethod, slippageTolerance },
+    settingsState: { darkMode },
   } = useContext(SettingsContext);
 
   /* LOCAL STATE */
@@ -31,56 +34,54 @@ function App() {
 
   return (
     <>
-      <Box fill>
-        <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
-        <TransactionWidget />
-        <NetworkError />
+      <Grommet theme={deepMerge(base, yieldTheme)} full themeMode={darkMode ? 'dark' : 'light'}>
+        <Box fill background="background">
+          <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
+          <TransactionWidget />
+          <NetworkError />
+          <Box flex={!mobile} overflow="hidden">
+            <ToastContainer position="top-right" />
+            {menuLayerOpen && <YieldMobileMenu toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} />}
+            <Suspense fallback={<div>Loading...</div>}>
+              <Switch>
+                <Route path="/borrow/:series?/:asset?/:amnt?">
+                  <Borrow />
+                </Route>
 
-        <Box flex={!mobile} overflow="hidden">
-          <ToastContainer position="top-right" />
-          {menuLayerOpen && <YieldMobileMenu toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} />}
-          <Suspense fallback={<div>Loading...</div>}>
-            <Switch>
-              <Route path="/borrow/:series?/:asset?/:amnt?">
-                <Borrow />
-              </Route>
+                <Route path="/lend/:series?/:asset?/:amnt?">
+                  <Lend />
+                </Route>
 
-              <Route path="/lend/:series?/:asset?/:amnt?">
-                <Lend />
-              </Route>
+                <Route path="/pool/:series?/:asset?/:amnt?">
+                  <Pool />
+                </Route>
 
-              <Route path="/pool/:series?/:asset?/:amnt?">
-                <Pool />
-              </Route>
+                <Route path="/dashboard">
+                  <Dashboard />
+                </Route>
 
-              <Route path="/dashboard">
-                <Dashboard />
-              </Route>
+                <Route exact path="/">
+                  <Redirect to="/borrow" />
+                </Route>
 
-              <Route exact path="/">
-                <Redirect to="/borrow" />
-              </Route>
+                <Route path="/vaultposition/:id">
+                  <VaultPosition />
+                </Route>
 
-              <Route path="/vaultposition/:id">
-                <VaultPosition />
-              </Route>
+                <Route path="/lendposition/:id">
+                  <LendPosition />
+                </Route>
 
-              <Route path="/lendposition/:id">
-                <LendPosition />
-              </Route>
+                <Route path="/poolposition/:id">
+                  <PoolPosition />
+                </Route>
 
-              <Route path="/poolposition/:id">
-                <PoolPosition />
-              </Route>
-
-              <Route path="/*"> 404 </Route>
-            </Switch>
-          </Suspense>
+                <Route path="/*"> 404 </Route>
+              </Switch>
+            </Suspense>
+          </Box>
         </Box>
-        <Box>
-          {approvalMethod} {slippageTolerance}{' '}
-        </Box>
-      </Box>
+      </Grommet>
     </>
   );
 }

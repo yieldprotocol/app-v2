@@ -70,8 +70,8 @@ export interface ISettingsContextState {
   dudeSalt: number;
   darkMode: boolean;
   approveMax: boolean;
-  disclaimerChecked:boolean;
-  powerUser:boolean;
+  disclaimerChecked: boolean;
+  powerUser: boolean;
 
   /* DashSettings */
   dashHideEmptyVaults: boolean;
@@ -350,9 +350,9 @@ export enum AddLiquidityType {
 export enum ContractNames {}
 
 export enum YieldColors {
-  SUCCESS = 'green',
-  FAILED = 'red',
-  WARNING = 'orange',
+  SUCCESS = 'success',
+  FAILED = 'error',
+  WARNING = 'warning',
   GRADIENT = '',
   GRADIENT_TRANSPARENT = '',
   PRIMARY = '',

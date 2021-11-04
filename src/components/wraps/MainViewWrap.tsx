@@ -7,7 +7,6 @@ interface IMainViewWrapProps extends BoxTypes {
 
 const MainViewWrap = ({ children, background }: IMainViewWrapProps) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-
   return mobile ? (
     <Box>{children}</Box>
   ) : (

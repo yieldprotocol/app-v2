@@ -2,7 +2,7 @@ import React, { useContext, useState, useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 import { Box, ResponsiveContext, Text } from 'grommet';
 import { ethers } from 'ethers';
-import Skeleton from 'react-loading-skeleton';
+import Skeleton from '../components/wraps/SkeletonWrap';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
 import { ActionType, IUserContext, IVault, ISeries, IStrategy, ISettingsContext } from '../types';
@@ -106,7 +106,7 @@ const Dashboard = () => {
       .filter((_series: ISeries) => _series.fyTokenBalance?.gt(ZERO_BN))
       .sort((_seriesA: ISeries, _seriesB: ISeries) => (_seriesA.fyTokenBalance?.gt(_seriesB.fyTokenBalance!) ? 1 : -1));
     setLendPositions(_lendPositions);
-  }, [ seriesMap ]);
+  }, [seriesMap]);
 
   useEffect(() => {
     const _strategyPositions: IStrategy[] = Array.from(strategyMap.values())
@@ -201,7 +201,7 @@ const Dashboard = () => {
   ]);
 
   return (
-    <MainViewWrap>
+    <MainViewWrap >
       {!mobile && (
         <PanelWrap justify="between" basis="40%">
           <YieldNavigation sideNavigation={true} />
@@ -307,11 +307,18 @@ const Dashboard = () => {
         )}
       </StyledBox>
       {!mobile && (
-        <PanelWrap basis="40%">
+        <PanelWrap basis="40%" >
           <Box />
-          <Box margin={{ bottom: '10%' }} fill="horizontal">
+          
+          <Box 
+          margin={{ bottom: '10%' }} 
+          fill="horizontal" 
+          background='gradient-transparent'
+          round='xsmall'
+          pad='xsmall'
+          >
             {account && (
-              <Box gap="small">
+              <Box gap="small" >
                 <Box width="5rem" height="2rem">
                   <CurrencyToggle />
                 </Box>

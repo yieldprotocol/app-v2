@@ -1,6 +1,6 @@
 import { Box, ResponsiveContext, Text } from 'grommet';
 import React, { useContext } from 'react';
-import Skeleton from 'react-loading-skeleton';
+import Skeleton from './wraps/SkeletonWrap';
 
 interface IInfoBite {
   label: string;

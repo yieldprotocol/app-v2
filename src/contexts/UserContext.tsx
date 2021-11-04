@@ -43,7 +43,7 @@ const initState: IUserContextState = {
   seriesMap: new Map<string, ISeries>(),
   vaultMap: new Map<string, IVault>(),
   strategyMap: new Map<string, IStrategy>(),
-  
+
   /* map of asset prices/limits  */
   priceMap: new Map<string, Map<string, any>>(),
   limitMap: new Map<string, Map<string, any>>(),
@@ -161,7 +161,7 @@ const UserProvider = ({ children }: any) => {
           seriesId,
           baseId: series?.baseId!,
           ilkId,
-          displayName: generateVaultName(id), 
+          displayName: generateVaultName(id),
           decimals: series?.decimals!,
         };
       });
@@ -311,11 +311,11 @@ const UserProvider = ({ children }: any) => {
         _limitMap.set(ilk, _baseLimitMap);
 
         updateState({ type: 'priceMap', payload: _limitMap });
-        console.log('Limit checked: ', ilk, ' ->', base, ':', min.toString(), max.toString(), sum.toString() );
+        console.log('Limit checked: ', ilk, ' ->', base, ':', min.toString(), max.toString(), sum.toString());
         return [min, max, digits, sum];
       } catch (error) {
         console.log('Error getting limits', error);
-        return [ethers.constants.Zero, ethers.constants.Zero, ethers.constants.Zero, ethers.constants.Zero ];
+        return [ethers.constants.Zero, ethers.constants.Zero, ethers.constants.Zero, ethers.constants.Zero];
       }
     },
     [contractMap, userState.limitMap]
@@ -332,12 +332,12 @@ const UserProvider = ({ children }: any) => {
       _publicData = await Promise.all(
         seriesList.map(async (series: ISeriesRoot): Promise<ISeries> => {
           /* Get all the data simultanenously in a promise.all */
-          const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves, mature, ] = await Promise.all([
+          const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves, mature] = await Promise.all([
             series.poolContract.getBaseBalance(),
             series.poolContract.getFYTokenBalance(),
             series.poolContract.totalSupply(),
             series.fyTokenContract.balanceOf(series.poolAddress),
-            series.isMature()
+            series.isMature(),
           ]);
 
           /* Calculates the base/fyToken unit selling price */

@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Avatar, Box, Grid, ResponsiveContext, Select, Text } from 'grommet';
 
-import Skeleton from 'react-loading-skeleton';
 import { ethers } from 'ethers';
 import styled from 'styled-components';
 import { ActionType, ISeries } from '../../types';
@@ -9,6 +8,7 @@ import { UserContext } from '../../contexts/UserContext';
 import { maxBaseIn, maxBaseOut, maxFyTokenIn, maxFyTokenOut } from '../../utils/yieldMath';
 import { useApr } from '../../hooks/useApr';
 import { cleanValue } from '../../utils/appUtils';
+import Skeleton from '../wraps/SkeletonWrap';
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
@@ -30,7 +30,10 @@ const ShadeBox = styled(Box)`
 
 const InsetBox = styled(Box)`
   border-radius: 8px;
-  box-shadow: inset 1px 1px 1px #ddd, inset -0.25px -0.25px 0.25px #ddd;
+  box-shadow: ${(props) =>
+    props.theme.dark
+      ? 'inset 1px 1px 1px #202A30, inset -0.25px -0.25px 0.25px #202A30'
+      : 'inset 1px 1px 1px #ddd, inset -0.25px -0.25px 0.25px #ddd'};
 `;
 
 export const CardSkeleton = () => (
@@ -136,7 +139,7 @@ const AprText = ({
       )}
 
       {limitHit && (
-        <Text size="xsmall" color="pink">
+        <Text size="xsmall" color="error">
           low liquidity
         </Text>
       )}
@@ -233,7 +236,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     <>
       {seriesLoading && !mobile && <Skeleton width={180} />}
       {!cardLayout && (
-        <InsetBox fill="horizontal" round="xsmall" background={mobile ? 'white' : undefined}>
+        <InsetBox fill="horizontal" round="xsmall" background={mobile ? 'hoverBackground' : undefined}>
           <Select
             plain
             dropProps={{ round: 'xsmall' }}
@@ -292,13 +295,13 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
                   pad="xsmall"
                   round="xsmall"
                   onClick={() => handleSelect(series)}
-                  background={series.id === selectedSeriesId ? series?.color : 'solid'}
+                  background={series.id === selectedSeriesId ? series?.color : 'hoverBackground'}
                   elevation="xsmall"
                   align="center"
                 >
                   <Box pad="small" width="small" direction="row" align="center" gap="small">
                     <Avatar
-                      background={series.id === selectedSeriesId ? 'solid' : series.endColor.toString().concat('10')}
+                      background={series.id === selectedSeriesId ? 'lightBackground' : series.endColor.toString().concat('10')}
                       style={{
                         boxShadow:
                           series.id === selectedSeriesId

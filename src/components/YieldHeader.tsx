@@ -1,4 +1,4 @@
-import React, { useContext, useState, useRef } from 'react';
+import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { NavLink, useHistory, useLocation } from 'react-router-dom';
 import { FiMenu } from 'react-icons/fi';
@@ -10,6 +10,7 @@ import YieldMark from './logos/YieldMark';
 
 import { useCachedState } from '../hooks/generalHooks';
 import BackButton from './buttons/BackButton';
+import { SettingsContext } from '../contexts/SettingsContext';
 
 const StyledAvatar = styled(Avatar)`
   -webkit-transition: background 0.3s ease-in-out;
@@ -34,6 +35,9 @@ interface IYieldHeaderProps {
 
 const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
+  const {
+    settingsState: { darkMode },
+  } = useContext(SettingsContext);
   const history = useHistory();
   const prevLoc = useCachedState('lastVisit', '')[0].slice(1).split('/')[0];
   const isPositionPath = useLocation().pathname.includes('position');
@@ -47,7 +51,7 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
         style={{ position: 'fixed', top: '0px' }}
         direction="row"
         fill="horizontal"
-        background="white"
+        background="background"
         elevation={mobile && isPositionPath ? 'small' : undefined}
       >
         <Grid columns={['auto', '1fr', 'auto']} fill="horizontal">
@@ -60,7 +64,7 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
             {mobile && isPositionPath && <BackButton action={() => history.goBack()} />}
             {!mobile && (
               <StyledAvatar
-                background="hover"
+                background="hoverBackground"
                 size="3rem"
                 onMouseEnter={() => setYieldMarkHover(true)}
                 onMouseLeave={() => setYieldMarkHover(false)}
@@ -72,7 +76,7 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
                       colors={['#f79533', '#f37055', '#ef4e7b', '#a166ab', '#5073b8', '#1098ad', '#07b39b', '#6fba82']}
                     />
                   ) : (
-                    <YieldMark color="black" height="1.75rem" />
+                    <YieldMark colors={darkMode ? ['white'] : ['black']} height="1.75rem" />
                   )}
                 </NavLink>
               </StyledAvatar>
@@ -81,9 +85,9 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
           </Box>
           <Box />
 
-          <Box align="end" direction='row'>
+          <Box align="end" direction="row">
             {/* {mobile && <Box> Dash </Box>}  */}
-            <YieldAccount />        
+            <YieldAccount />
           </Box>
         </Grid>
       </Header>

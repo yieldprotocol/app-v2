@@ -16,7 +16,7 @@ function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
 
   return mobile ? (
-    <Layer position="bottom" background="white" modal={false} responsive={false} full="horizontal" animate={false}>
+    <Layer position="bottom" background="background" modal={false} responsive={false} full="horizontal" animate={false}>
       <Box gap="small" fill="horizontal" pad="small">
         {children}
       </Box>

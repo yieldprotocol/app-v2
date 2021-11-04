@@ -80,7 +80,6 @@ const ActiveTransaction = ({
         </Box>
       )}
       <Box
-        // background={ `linear-gradient( ${series?.startColor?.toString().concat('80')} , ${series?.endColor?.toString().concat('80')} )`}
         background="gradient-transparent"
         round="xsmall"
       >
@@ -109,7 +108,7 @@ const ActiveTransaction = ({
           <InfoBlock
             title="Token Approval"
             subTitle="Transaction Pending..."
-            icon={<Spinner color="tailwind-blue" size="small" />}
+            icon={<Spinner color="brand" size="small" />}
             button={<EtherscanButton txHash={activeProcess.txHash} />}
             full={full}
           />
@@ -130,7 +129,7 @@ const ActiveTransaction = ({
             title="Transaction Pending..."
             // subTitle={<CopyWrap hash={activeProcess.txHash}> {abbreviateHash(activeProcess.txHash, 3)} </CopyWrap>}
             subTitle={null}
-            icon={<Spinner color="tailwind-blue" size="small" />}
+            icon={<Spinner color="brand" size="small" />}
             button={<EtherscanButton txHash={activeProcess.txHash} />}
             full={full}
           />

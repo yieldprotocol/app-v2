@@ -15,7 +15,7 @@ const StyledBox = styled(Box)`
 
 function YieldAvatar(props: any) {
   const {
-    settingsState: { dudeSalt },
+    settingsState: { dudeSalt, darkMode },
   } = useContext(SettingsContext);
 
   const _avatar = multiavatar(props.address.concat(dudeSalt));
@@ -23,9 +23,14 @@ function YieldAvatar(props: any) {
 
   return (
     <StyledBox>
-      <Avatar border={{ color: '#000' }} size={_size || '2em'} hoverIndicator={{ elevation: 'small' }}>
+      <Avatar
+        border={{ color: darkMode ? '#FFFFF' : '#000' }}
+        size={_size || '2em'}
+        hoverIndicator={{ elevation: 'small' }}
+      >
         <Box width="100%" height="100%" pad="2px">
-          { // eslint-disable-next-line react/no-danger 
+          {
+            // eslint-disable-next-line react/no-danger
             <span dangerouslySetInnerHTML={{ __html: _avatar }} />
           }
         </Box>

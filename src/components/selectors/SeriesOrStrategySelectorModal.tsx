@@ -24,7 +24,7 @@ const SeriesOrStrategySelectorModal = ({
     )}
     {open && (
       <Layer>
-        <Box gap="small" pad="medium" fill>
+        <Box gap="small" pad="medium" fill background="background">
           <Box alignSelf="end" onClick={() => setOpen(false)} pad="xsmall">
             <FiX size="1.5rem" />
           </Box>

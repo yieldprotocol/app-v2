@@ -1,10 +1,8 @@
-import React, { useContext, useState, useEffect, useCallback } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 
-import { ethers } from 'ethers';
-
-import { FiClock, FiTrendingUp, FiAlertTriangle, FiArrowRight, FiPlusCircle, FiMinusCircle } from 'react-icons/fi';
+import { FiClock, FiTrendingUp, FiAlertTriangle, FiArrowRight } from 'react-icons/fi';
 import { abbreviateHash, cleanValue, nFormatter } from '../utils/appUtils';
 import { UserContext } from '../contexts/UserContext';
 import InputWrap from '../components/wraps/InputWrap';
@@ -45,7 +43,6 @@ const VaultPosition = () => {
   const { id: idFromUrl } = useParams<{ id: string }>();
 
   /* STATE FROM CONTEXT */
-
   const { userState, userActions } = useContext(UserContext) as IUserContext;
   const { activeAccount: account, assetMap, seriesMap, vaultMap, selectedVaultId, vaultsLoading } = userState;
 
@@ -69,9 +66,6 @@ const VaultPosition = () => {
     ActionCodes.REMOVE_COLLATERAL,
     selectedVaultId!
   );
-
-  // const { tx: transferTx, resetTx: resetTransferTx } = useTx(ActionCodes.TRANSFER_VAULT, selectedVaultId!, true);
-  // const { tx: mergeTx, resetTx: resetMergeTx } = useTx(ActionCodes.MERGE_VAULT, selectedVaultId!);
 
   /* LOCAL STATE */
   // stepper for stepping within multiple tabs
@@ -125,7 +119,6 @@ const VaultPosition = () => {
     minRepay_,
     protocolBaseAvailable,
     userBaseAvailable,
-    maxRoll,
     maxRoll_,
     vaultDebt_,
     rollPossible,
@@ -319,7 +312,7 @@ const VaultPosition = () => {
 
               <Box height={{ min: '300px' }}>
                 <SectionWrap title="Vault Actions">
-                  <Box elevation="xsmall" round="xsmall" background={mobile ? 'white' : undefined}>
+                  <Box elevation="xsmall" round="xsmall" background={mobile ? 'hoverBackground' : 'hoverBackground'}>
                     <Select
                       dropProps={{ round: 'xsmall' }}
                       plain
@@ -351,14 +344,14 @@ const VaultPosition = () => {
                               {!repayInput && maxRepay_ && (
                                 <InputInfoWrap action={() => setRepayInput(maxRepay_)}>
                                   {selectedVault.art.gt(maxRepay) ? (
-                                    <Text color="gray" alignSelf="end" size="xsmall">
+                                    <Text color="text" alignSelf="end" size="xsmall">
                                       Maximum repayable is {cleanValue(maxRepay_!, 2)} {vaultBase?.symbol!}{' '}
                                       {userBaseAvailable.lt(protocolBaseAvailable)
                                         ? '(based on your token balance)'
                                         : '(limited by protocol reserves)'}
                                     </Text>
                                   ) : (
-                                    <Text color="gray" alignSelf="end" size="xsmall">
+                                    <Text color="text" alignSelf="end" size="xsmall">
                                       Max debt repayable ({selectedVault?.art_!} {vaultBase?.symbol!})
                                     </Text>
                                   )}
@@ -505,7 +498,7 @@ const VaultPosition = () => {
                               </InputInfoWrap>
                             ) : (
                               <InputInfoWrap>
-                                <Text color="gray" alignSelf="end" size="xsmall">
+                                <Text color="text" alignSelf="end" size="xsmall">
                                   New collateralization ratio will be: {nFormatter(parseFloat(addCollEst!), 2)}%
                                 </Text>
                               </InputInfoWrap>
@@ -565,7 +558,7 @@ const VaultPosition = () => {
                               </InputInfoWrap>
                             ) : (
                               <InputInfoWrap>
-                                <Text color="gray" alignSelf="end" size="xsmall">
+                                <Text color="text" alignSelf="end" size="xsmall">
                                   Your collateralization ratio will be: {nFormatter(parseFloat(removeCollEst!), 2)}%
                                 </Text>
                               </InputInfoWrap>
