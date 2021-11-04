@@ -28,10 +28,7 @@ function EtherscanButton({ txHash }: { txHash: string }) {
       direction="row"
       onClick={(e: any) => {
         e.stopPropagation();
-        window.open(
-          `https://${currentChainInfo.name === 'Mainnet' ? '' : `${currentChainInfo.name}.`}etherscan.io/tx/${txHash}`,
-          '_blank'
-        );
+        window.open(`${currentChainInfo.explorer}/tx/${txHash}`, '_blank');
       }}
       gap="xsmall"
       align="center"
