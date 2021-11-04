@@ -71,7 +71,7 @@ CONNECTORS.set(
 CONNECTORS.set(
   'ledgerWithMetamask',
   new InjectedConnector({
-    supportedChainIds: [1, 42],
+    supportedChainIds: [1, 42, 10, 69, 42161, 421611],
   })
 );
 
