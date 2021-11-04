@@ -236,7 +236,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     <>
       {seriesLoading && !mobile && <Skeleton width={180} />}
       {!cardLayout && (
-        <InsetBox fill="horizontal" round="xsmall" background={mobile ? 'hover' : undefined}>
+        <InsetBox fill="horizontal" round="xsmall" background={mobile ? 'hoverBackground' : undefined}>
           <Select
             plain
             dropProps={{ round: 'xsmall' }}
@@ -295,7 +295,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
                   pad="xsmall"
                   round="xsmall"
                   onClick={() => handleSelect(series)}
-                  background={series.id === selectedSeriesId ? series?.color : 'hover'}
+                  background={series.id === selectedSeriesId ? series?.color : 'hoverBackground'}
                   elevation="xsmall"
                   align="center"
                 >

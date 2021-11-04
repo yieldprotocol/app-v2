@@ -94,7 +94,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
       round="xsmall"
       // border={(selectCollateral && !selectedSeries) ? { color: 'text-xweak' } : true}
       elevation="xsmall"
-      background="hover"
+      background="hoverBackground"
     >
       <Select
         plain

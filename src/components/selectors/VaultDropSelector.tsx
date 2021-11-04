@@ -28,7 +28,7 @@ function VaultDropSelector({
   } = useContext(UserContext);
 
   return (
-    <Box round="xsmall" gap="small" justify="between" elevation="xsmall" background="hover">
+    <Box round="xsmall" gap="small" justify="between" elevation="xsmall" background="hoverBackground">
       <Select
         defaultValue={undefined}
         plain

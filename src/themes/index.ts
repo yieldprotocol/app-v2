@@ -34,14 +34,8 @@ export const yieldTheme = {
       // 'gray-3': '#202A30',
       // 'gray-4': '#141A1E',
    
-      // hover: {
-      //   dark: 'gray-3',
-      //   light: '#FFFFFF',
-      // },
-      // light: {
-      //   dark: '#F1F5F9',
-      //   light: '#ffffff',
-      // },
+
+
       // gray: {
       //   dark: 'text-weak',
       //   light: 'gray',
@@ -95,13 +89,18 @@ export const yieldTheme = {
         dark: '#111111',
         light: '#FFFFFF',
       },
+      hoverBackground: {
+        dark: '#262626',
+        light: '#FFFFFF',
+      },
+
 
     },
     // input: { weight: 700 },
   },
 
   anchor: { color: 'brand' },
-  select: { hover: { color: 'lightBackground' } },
+  select: { hover: { color: 'hoverBackground' } },
 
   grommet: {
     // @ts-ignore

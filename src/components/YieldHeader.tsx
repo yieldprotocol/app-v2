@@ -64,7 +64,7 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
             {mobile && isPositionPath && <BackButton action={() => history.goBack()} />}
             {!mobile && (
               <StyledAvatar
-                background="hover"
+                background="hoverBackground"
                 size="3rem"
                 onMouseEnter={() => setYieldMarkHover(true)}
                 onMouseLeave={() => setYieldMarkHover(false)}

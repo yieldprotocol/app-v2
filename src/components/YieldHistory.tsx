@@ -38,7 +38,7 @@ const YieldHistory = ({ seriesOrVault, view }: IYieldHistory) => {
             <Box
               key={key_}
               gap="small"
-              hoverIndicator={darkMode ? 'hover' : '#f9f9f9'}
+              hoverIndicator={darkMode ? 'hoverBackground' : '#f9f9f9'}
               background={itemOpen === key_ ? '#f9f9f9' : undefined}
               onClick={itemOpen === key_ ? () => setItemOpen(null) : () => setItemOpen(key_)}
               round="xsmall"
