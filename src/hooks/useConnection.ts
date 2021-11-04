@@ -31,6 +31,14 @@ const RPC_URLS: { [chainId: number]: string } = {
   421611: process.env.REACT_APP_RPC_URL_421611 as string,
 };
 
+const SUPPORTED_RPC_URLS: { [chainId: number]: string } = {
+  1: RPC_URLS[1],
+  42: RPC_URLS[42],
+  42161: RPC_URLS[42161],
+  421611: RPC_URLS[421611],
+};
+const SUPPORTED_CHAIN_IDS = Object.keys(SUPPORTED_RPC_URLS).map((chainId: string) => +chainId);
+
 const CHAIN_INFO = new Map<number, { name: string; color: string; bridge?: string }>();
 CHAIN_INFO.set(1, { name: 'Mainnet', color: '#29b6af' });
 CHAIN_INFO.set(3, { name: 'Ropsten', color: '#ff4a8d' });
@@ -56,13 +64,13 @@ const CONNECTORS = new Map();
 CONNECTORS.set(
   INIT_INJECTED,
   new InjectedConnector({
-    supportedChainIds: [1, 42, 10, 69, 42161, 421611],
+    supportedChainIds: SUPPORTED_CHAIN_IDS,
   })
 );
 CONNECTORS.set(
   'walletconnect',
   new WalletConnectConnector({
-    rpc: { 1: RPC_URLS[1], 42: RPC_URLS[42] },
+    rpc: SUPPORTED_RPC_URLS,
     bridge: 'https://bridge.walletconnect.org',
     qrcode: true,
   })
@@ -71,7 +79,7 @@ CONNECTORS.set(
 CONNECTORS.set(
   'ledgerWithMetamask',
   new InjectedConnector({
-    supportedChainIds: [1, 42, 10, 69, 42161, 421611],
+    supportedChainIds: SUPPORTED_CHAIN_IDS,
   })
 );
 
@@ -156,7 +164,7 @@ export const useConnection = () => {
       setFallbackErrorMessage(undefined);
       fallbackActivate(
         new NetworkConnector({
-          urls: { 1: RPC_URLS[1], 42: RPC_URLS[42], 421611: RPC_URLS[421611] },
+          urls: SUPPORTED_RPC_URLS,
           defaultChainId: lastChainId,
         }),
         (e: Error) => {
@@ -172,7 +180,7 @@ export const useConnection = () => {
       setFallbackErrorMessage(undefined);
       fallbackActivate(
         new NetworkConnector({
-          urls: { 1: RPC_URLS[1], 10: RPC_URLS[10], 69: RPC_URLS[69], 42: RPC_URLS[42], 421611: RPC_URLS[421611] },
+          urls: SUPPORTED_RPC_URLS,
           defaultChainId: chainId,
         }),
         (e: Error) => {
