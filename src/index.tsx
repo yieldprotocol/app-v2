@@ -27,19 +27,8 @@ function getLibrary(provider: ethers.providers.ExternalProvider, connector: any)
 const Web3FallbackProvider = createWeb3ReactRoot('fallback');
 
 function getFallbackLibrary(provider: any, connector: any) {
-  // library = new ethers.providers.JsonRpcProvider(process.env.REACT_APP_RPC_URL_1 as string);
-  if (provider.chainId === (421611 || 42161)) {
-    return new ethers.providers.JsonRpcProvider('http://ArbNodeUrl.com');
-  }
-  if (provider.chainId === 69) {
-    return new ethers.providers.JsonRpcProvider('https://kovan.optimism.io');
-  }
-  if (provider.chainId === 10) {
-    return new ethers.providers.JsonRpcProvider('https://optimism.io');
-  }
-  const library: ethers.providers.JsonRpcProvider = new ethers.providers.InfuraProvider(
-    provider.chainId,
-    '2af222f674024a0f84b5f0aad0da72a2'
+  const library: ethers.providers.JsonRpcProvider = new ethers.providers.JsonRpcProvider(
+    process.env[`REACT_APP_RPC_URL_${provider.chainId}`]
   );
   library.pollingInterval = 6000;
   return library;
@@ -48,23 +37,23 @@ function getFallbackLibrary(provider: any, connector: any) {
 ReactDOM.render(
   <React.StrictMode>
     <SettingsProvider>
-    <Router>
-      <Web3FallbackProvider getLibrary={getFallbackLibrary}>
-        <Web3ReactProvider getLibrary={getLibrary}> 
-          <ChainProvider>
-            <UserProvider>
-              <TxProvider>
-                <HistoryProvider>
-                  <Grommet theme={deepMerge(base, yieldTheme)} full>
-                    <App />
-                  </Grommet>
-                </HistoryProvider>
-              </TxProvider>
-            </UserProvider> 
-          </ChainProvider>
-        </Web3ReactProvider>
-      </Web3FallbackProvider>
-    </Router>
+      <Router>
+        <Web3FallbackProvider getLibrary={getFallbackLibrary}>
+          <Web3ReactProvider getLibrary={getLibrary}>
+            <ChainProvider>
+              <UserProvider>
+                <TxProvider>
+                  <HistoryProvider>
+                    <Grommet theme={deepMerge(base, yieldTheme)} full>
+                      <App />
+                    </Grommet>
+                  </HistoryProvider>
+                </TxProvider>
+              </UserProvider>
+            </ChainProvider>
+          </Web3ReactProvider>
+        </Web3FallbackProvider>
+      </Router>
     </SettingsProvider>
   </React.StrictMode>,
   document.getElementById('root')
