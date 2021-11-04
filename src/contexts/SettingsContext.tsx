@@ -6,11 +6,16 @@ const SettingsContext = React.createContext<any>({});
 const initState: ISettingsContextState = {
   /* User Settings ( getting from the cache first ) */
   approvalMethod: (JSON.parse(localStorage.getItem('approvalMethod')!) as ApprovalType) || ApprovalType.SIG,
+  approveMax: (JSON.parse(localStorage.getItem('approveMax')!) as boolean) || (false as boolean),
+
   slippageTolerance: (JSON.parse(localStorage.getItem('slippageTolerance')!) as number) || (0.005 as number),
   dudeSalt: 21, // (JSON.parse(localStorage.getItem('dudeSalt')!) as number) || (21 as number),
   diagnostics: (JSON.parse(localStorage.getItem('diagnostics')!) as boolean) || (false as boolean),
+  
   darkMode: (JSON.parse(localStorage.getItem('darkMode')!) as boolean) || (false as boolean),
-  approveMax: (JSON.parse(localStorage.getItem('approveMax')!) as boolean) || (false as boolean),
+  autoTheme: (JSON.parse(localStorage.getItem('autoTheme')!) as boolean) || (true as boolean),
+
+  
   disclaimerChecked: (JSON.parse(localStorage.getItem('disclaimerChecked')!) as boolean) || (false as boolean), 
   powerUser: (JSON.parse(localStorage.getItem('powerUser')!) as boolean) || (false as boolean),
 

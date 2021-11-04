@@ -9,6 +9,7 @@ const Input = styled(TextInput)`
   padding-left: 0;
   padding-right: 0;
 `;
+
 const StyledBox = styled(Box)`
   :hover {
     border: 1px solid #1d4ed8;
@@ -59,7 +60,7 @@ const SlippageSettings = () => {
               <Text>{`${tolerance * 100} %`}</Text>
             </StyledBox>
           ))}
-          <Box 
+          <Box
             direction="row" 
             round="xsmall" 
             border={{ color: customTolerance ? 'brand' : '#dfe8f9' }}

@@ -69,6 +69,7 @@ export interface ISettingsContextState {
   diagnostics: boolean;
   dudeSalt: number;
   darkMode: boolean;
+  autoTheme:boolean;
   approveMax: boolean;
   disclaimerChecked: boolean;
   powerUser: boolean;

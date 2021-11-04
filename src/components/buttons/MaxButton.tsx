@@ -17,7 +17,6 @@ const StyledBox = styled(Box)`
   -webkit-transition: transform 0.3s ease-in-out;
   -moz-transition: transform 0.3s ease-in-out;
   transition: transform 0.3s ease-in-out;
-
   padding: 0;
   :hover {
     transform: scale(1.1);
@@ -42,7 +41,7 @@ function MaxButton({ action, clearAction, showingMax, disabled, customText }: IM
           align="center"
           width="xxsmall"
         >
-          <Text size="xsmall" color={disabled ? 'text-xweak' : 'text-weak'}>
+          <Text size="xsmall" color={disabled ? 'text-weak' : 'text'}>
             {showingMax ? 'Clear' : customText || 'Max' }
           </Text>
         </StyledBox>

@@ -1,4 +1,4 @@
-import React, { useContext, useState, Suspense, lazy } from 'react';
+import React, { useContext, useState, Suspense, lazy, useEffect } from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Redirect, Route, Switch } from 'react-router-dom';
@@ -25,16 +25,10 @@ const PoolPosition = lazy(() => import('./views/PoolPosition'));
 function App() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
-  const {
-    settingsState: { darkMode },
-  } = useContext(SettingsContext);
-
   /* LOCAL STATE */
   const [menuLayerOpen, setMenuLayerOpen] = useState<boolean>(false);
 
   return (
-    <>
-      <Grommet theme={deepMerge(base, yieldTheme)} full themeMode={darkMode ? 'dark' : 'light'}>
         <Box fill background="background">
           <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
           <TransactionWidget />
@@ -81,9 +75,38 @@ function App() {
             </Suspense>
           </Box>
         </Box>
-      </Grommet>
-    </>
   );
 }
 
-export default App;
+
+const WrappedApp = () => {
+ 
+  const [ colorScheme, setColorScheme ] = useState<'light'|'dark'>('light');
+  const { settingsState: { autoTheme, darkMode } } = useContext(SettingsContext);
+
+  useEffect(()=>{
+    if (autoTheme) {
+      (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? setColorScheme('dark') : setColorScheme('light');
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+        const newColorScheme = e.matches ? 'dark' : 'light';
+        autoTheme && setColorScheme(newColorScheme);
+      });
+    } else {
+      setColorScheme( darkMode ? 'dark' : 'light' );
+    }
+  }, [autoTheme, darkMode]); 
+
+  return (
+    <Suspense fallback={null}>
+      <Grommet
+        theme={deepMerge(base, yieldTheme)}
+        themeMode={colorScheme === 'dark'? 'dark':'light' || 'light'}
+        full
+      >
+          <App />
+      </Grommet>
+    </Suspense>
+  );
+};
+
+export default WrappedApp;

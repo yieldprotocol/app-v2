@@ -12,8 +12,8 @@ import TransactionItem from './TransactionItem';
 import { useEnsName } from '../hooks/useEnsName';
 
 const StyledButton = styled(Button)`
-  background: #dbeafe;
-  border: 2px solid #3b82f6;
+  /* background: #dbeafe;
+  border: 2px solid #3b82f6; */
   border-radius: 6px;
   font-size: 0.6rem;
   text-align: center;
@@ -54,44 +54,57 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
 
   return (
     <Box fill="vertical" width={mobile ? undefined : '400px'} background="lightBackground" elevation="xlarge">
-      <Box gap="small" pad="medium">
-        <Box alignSelf="end" onClick={() => setSettingsOpen(false)} pad="xsmall">
+      <Box gap="small" pad="medium" background="gradient-transparent">
+        
+        <Box alignSelf="end" onClick={() => setSettingsOpen(false)} pad="small">
           <FiX size="1.5rem" />
         </Box>
 
-        <Box align="center" gap="medium">
-          <YieldAvatar address={account} size={5} />
+        <Box align="end">
           <CopyWrap hash={account}>
             <Text size="xlarge">{ensName || abbreviateHash(account, 6)}</Text>
           </CopyWrap>
+
+          <Box align="center" direction="row" gap="small" justify="center">
+            {currentChainInfo?.name && (
+              <Anchor
+                href={`https://${
+                  currentChainInfo.name === 'Mainnet' ? '' : `${currentChainInfo.name}.`
+                }etherscan.io/address/${account}`}
+                margin="xsmall"
+                target="_blank"
+              >
+                <FiExternalLink size="1rem" style={{ verticalAlign: 'middle' }} />
+                <Text margin="xxsmall" size="xsmall">
+                  View on Explorer
+                </Text>
+              </Anchor>
+            )}
+          </Box>
         </Box>
 
-        <Box align="center" direction="row" gap="small" justify="center">
-          {currentChainInfo?.name && (
-            <Anchor
-              href={`https://${
-                currentChainInfo.name === 'Mainnet' ? '' : `${currentChainInfo.name}.`
-              }etherscan.io/address/${account}`}
-              margin="xsmall"
-              target="_blank"
-            >
-              <FiExternalLink size="1rem" style={{ verticalAlign: 'middle' }} />
-              <Text margin="xxsmall" size="xsmall">
-                View on Explorer
-              </Text>
-            </Anchor>
-          )}
+        <Box
+          gap="small"
+          style={!mobile ? { position: 'absolute' } : undefined}
+          margin={!mobile ? { left: '-60px', top: '10%' } : undefined}
+          direction="row-responsive"
+          alignSelf="start"
+          animation="slideLeft"
+        >
+          <YieldAvatar address={account} size={7} />
         </Box>
-        <Box justify="between" align="center" direction="row">
+
+        <Box justify="between" align="end" >
           {connectionName && <Text size="small">Connected with {CONNECTOR_NAMES.get(connectionName)}</Text>}
           <Box direction="row" gap="xsmall">
             <StyledButton onClick={handleChangeConnectType}>Change</StyledButton>
             <StyledButton onClick={() => disconnect()}>Disconnect</StyledButton>
           </Box>
         </Box>
+
       </Box>
 
-      <Box direction="row" align="center" border={{ color: 'brand', size: 'xsmall', side: 'top' }} pad="medium">
+      <Box direction="row" align="center" pad="medium">
         <AdvancedSettings />
       </Box>
 
@@ -113,7 +126,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
         pad="medium"
         gap="small"
         background="gradient-transparent"
-        round={{ size: 'xsmall', corner:'top' }}
+        round={{ size: 'xsmall', corner: 'top' }}
       >
         <Box align="center" direction="row" justify="between" onClick={() => toggleTransactionsOpen(!transactionsOpen)}>
           <Text size="small">Recent Transactions</Text>

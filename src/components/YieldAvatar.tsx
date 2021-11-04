@@ -9,7 +9,7 @@ const StyledBox = styled(Box)`
   -moz-transition: transform 0.3s ease-in-out;
   transition: transform 0.3s ease-in-out;
   :hover {
-    transform: scale(1.75);
+    transform: scale(1.5);
   }
 `;
 
@@ -24,9 +24,8 @@ function YieldAvatar(props: any) {
   return (
     <StyledBox>
       <Avatar
-        border={{ color: darkMode ? '#FFFFF' : '#000' }}
+        border={{ color: darkMode ? '#FFF' : '#000' }}
         size={_size || '2em'}
-        hoverIndicator={{ elevation: 'small' }}
       >
         <Box width="100%" height="100%" pad="2px">
           {
