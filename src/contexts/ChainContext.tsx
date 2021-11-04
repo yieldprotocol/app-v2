@@ -222,7 +222,7 @@ const ChainProvider = ({ children }: any) => {
               id === USDC ? '2' : '1', // TODO  ERC20.version()
             ]);
 
-            const getSymbol = (sym: string) => {
+            const symbolSwitch = (sym: string) => {
               switch (sym) {
                 case 'WETH' : return 'ETH';
                 case 'wstETH' : return 'STETH';
@@ -234,7 +234,7 @@ const ChainProvider = ({ children }: any) => {
               id,
               address,
               name,
-              symbol: getSymbol(symbol),
+              symbol: symbolSwitch(symbol),
               decimals,
               version,
               joinAddress: joinMap.get(id),

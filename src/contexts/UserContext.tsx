@@ -13,7 +13,6 @@ import {
   IUserContext,
   IStrategyRoot,
   IStrategy,
-  IDashSettings,
 } from '../types';
 
 import { ChainContext } from './ChainContext';
@@ -272,10 +271,15 @@ const UserProvider = ({ children }: any) => {
     async (priceBase: string, quote: string, decimals: number = 18): Promise<BigNumber> => {
       updateState({ type: 'pricesLoading', payload: true });
 
+      const Oracle =
+        (priceBase === '0x303400000000' || quote === '0x303400000000')
+          ? contractMap.get('CompositeMultiOracle')
+          : contractMap.get('ChainlinkMultiOracle');
+
       try {
         const _quoteMap = userState.priceMap;
         const _basePriceMap = _quoteMap.get(priceBase) || new Map<string, any>();
-        const Oracle = contractMap.get('ChainlinkMultiOracle');
+        // const Oracle = oracleSwitch();
         const [price] = await Oracle.peek(
           bytesToBytes32(priceBase, 6),
           bytesToBytes32(quote, 6),
@@ -311,7 +315,7 @@ const UserProvider = ({ children }: any) => {
         _limitMap.set(ilk, _baseLimitMap);
 
         updateState({ type: 'priceMap', payload: _limitMap });
-        console.log('Limit checked: ', ilk, ' ->', base, ':', min.toString(), max.toString(), sum.toString());
+        console.log('Limit checked: ', ilk, ' ->', base, ':', min.toString(), max.toString(), digits.toString(), sum.toString());
         return [min, max, digits, sum];
       } catch (error) {
         console.log('Error getting limits', error);
