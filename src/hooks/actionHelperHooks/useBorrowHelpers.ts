@@ -4,8 +4,7 @@ import { UserContext } from '../../contexts/UserContext';
 import { IVault, ISeries, IAsset } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 
-import { buyBase, calculateMinCollateral, maxBaseIn, maxFyTokenIn, sellBase, sellFYToken } from '../../utils/yieldMath';
-import { useCollateralHelpers } from './useCollateralHelpers';
+import { buyBase, calculateMinCollateral, maxBaseIn, maxFyTokenIn, sellBase } from '../../utils/yieldMath';
 
 /* Collateralization hook calculates collateralization metrics */
 export const useBorrowHelpers = (
@@ -37,9 +36,6 @@ export const useBorrowHelpers = (
   /* LOCAL STATE */
   const [borrowEstimate, setBorrowEstimate] = useState<BigNumber>(ethers.constants.Zero);
   const [borrowEstimate_, setBorrowEstimate_] = useState<string>();
-
-  const [minAllowedBorrow, setMinAllowedBorrow] = useState<string | undefined>();
-  const [maxAllowedBorrow, setMaxAllowedBorrow] = useState<string | undefined>();
 
   const [vaultDebt_, setVaultDebt_] = useState<string | undefined>();
 
@@ -86,9 +82,10 @@ export const useBorrowHelpers = (
       setMaxDebt(maxLessTotal);
       setMinDebt(_min);
       setTotalDebt(_total);
-
+      
       setMaxDebt_(ethers.utils.formatUnits(maxLessTotal, _decimals)?.toString());
       setMinDebt_(ethers.utils.formatUnits(_min, _decimals)?.toString());
+      setTotalDebt_(ethers.utils.formatUnits(_total, _decimals)?.toString());
 
     };
 
@@ -229,9 +226,6 @@ export const useBorrowHelpers = (
   return {
     borrowEstimate,
     borrowEstimate_,
-
-    minAllowedBorrow,
-    maxAllowedBorrow,
     borrowPossible,
 
     maxRepay_,
@@ -249,6 +243,7 @@ export const useBorrowHelpers = (
     userBaseAvailable_,
 
     vaultDebt_,
+    totalDebt_,
 
     maxDebt_,
     minDebt_,
