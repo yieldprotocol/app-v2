@@ -1,23 +1,11 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import styled from 'styled-components';
 import { Box, Grid, Text, TextInput } from 'grommet';
 import { FiPercent } from 'react-icons/fi';
-import { cleanValue } from '../utils/appUtils';
-import { SettingsContext } from '../contexts/SettingsContext';
-import BoxWrap from './wraps/BoxWrap';
+import { cleanValue } from '../../utils/appUtils';
+import { SettingsContext } from '../../contexts/SettingsContext';
+import BoxWrap from '../wraps/BoxWrap';
 
-const Input = styled(TextInput)`
-  padding-left: 0;
-  padding-right: 0;
-`;
-
-const StyledBox = styled(Box)`
-  :hover {
-    border: 1px solid #1d4ed8;
-  }
-`;
-
-const SlippageSettings = () => {
+const SlippageSetting = () => {
   const {
     settingsState: { slippageTolerance },
     settingsActions: { updateSetting },
@@ -26,7 +14,6 @@ const SlippageSettings = () => {
   const [input, setInput] = useState((slippageTolerance * 100).toString());
 
   const tolerances: number[] = [0.001, 0.005, 0.01];
-
   const customTolerance = !tolerances.includes(slippageTolerance);
 
   const validateInput = useCallback(
@@ -40,13 +27,15 @@ const SlippageSettings = () => {
     updateSetting('slippageTolerance', _slippageTolerance);
   }, [input]); // purppose ignore updateSetting
 
+  /* handle slection - clear input on slection of preset */
   const handlePresetChange = (slippage:number) => {
     setInput('');
     updateSetting('slippageTolerance', slippage);
   }
 
   return (
-    <Box gap="small">
+    <Box gap="small" pad={{ vertical: 'small' }} border={{ side: 'bottom', color: 'text-xweak' }}>
+
       <Text size="small">Slippage Tolerance</Text>
       <Box direction="row" justify="between">
         <Grid
@@ -59,8 +48,6 @@ const SlippageSettings = () => {
         >
           {tolerances.map((tolerance) => (
             <BoxWrap
-              // fill
-              // border={{ color: tolerance === slippageTolerance ? 'brand' : 'lightBackground' }}
               background={tolerance === slippageTolerance ? 'gradient-transparent' : 'lightBackground'}
               round="xsmall"
               key={tolerance}
@@ -80,7 +67,7 @@ const SlippageSettings = () => {
               background={customTolerance ? 'gradient-transparent' : 'lightBackground'}
               pad="0.25em"
             >
-              <Input
+              <TextInput
                 textAlign="center"
                 style={{ fontSize: '0.75em', padding: '0px' }}
                 reverse
@@ -100,4 +87,4 @@ const SlippageSettings = () => {
   );
 };
 
-export default SlippageSettings;
+export default SlippageSetting;

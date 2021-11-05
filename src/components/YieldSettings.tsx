@@ -1,15 +1,18 @@
 import React, { useContext, useState } from 'react';
-import { Anchor, Box, Button, Collapsible, ResponsiveContext, Text, Tip } from 'grommet';
-import { FiChevronUp, FiChevronDown, FiExternalLink, FiX } from 'react-icons/fi';
+import { Anchor, Box, Button, Collapsible, DropButton, ResponsiveContext, Text, Tip } from 'grommet';
+import { FiChevronUp, FiChevronDown, FiExternalLink, FiX, FiMoreVertical, FiMenu } from 'react-icons/fi';
 import styled from 'styled-components';
 import { ChainContext } from '../contexts/ChainContext';
 import { abbreviateHash } from '../utils/appUtils';
 import YieldAvatar from './YieldAvatar';
-import AdvancedSettings from './AdvancedSettings';
 import { TxContext } from '../contexts/TxContext';
 import CopyWrap from './wraps/CopyWrap';
 import TransactionItem from './TransactionItem';
 import { useEnsName } from '../hooks/useEnsName';
+import BoxWrap from './wraps/BoxWrap';
+import SlippageSetting from './settings/SlippageSetting';
+import ApprovalSetting from './settings/ApprovalSetting';
+import ThemeSetting from './settings/ThemeSetting';
 
 const StyledButton = styled(Button)`
   /* background: #dbeafe;
@@ -39,7 +42,8 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
 
   const ensName = useEnsName();
 
-  const [transactionsOpen, toggleTransactionsOpen] = useState<boolean>(false);
+  const [transactionsOpen, setTransactionsOpen] = useState<boolean>(false);
+  const [connectionSettingsOpen, setConnectionSettingsOpen] = useState<boolean>(false);
 
   const handleChangeConnectType = () => {
     setSettingsOpen(false);
@@ -55,7 +59,6 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
   return (
     <Box fill="vertical" width={mobile ? undefined : '400px'} background="lightBackground" elevation="xlarge">
       <Box gap="small" pad="medium" background="gradient-transparent">
-        
         <Box alignSelf="end" onClick={() => setSettingsOpen(false)} pad="small">
           <FiX size="1.5rem" />
         </Box>
@@ -94,18 +97,31 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
           <YieldAvatar address={account} size={7} />
         </Box>
 
-        <Box justify="between" align="end" >
-          {connectionName && <Text size="small">Connected with {CONNECTOR_NAMES.get(connectionName)}</Text>}
+        <Box 
+          direction='row' 
+          justify="end" 
+          onClick={() => setConnectionSettingsOpen(!connectionSettingsOpen)}
+          gap='small'
+        >
+          <BoxWrap direction='row' gap='small'>
+          {connectionName && <Text size="xsmall">Connected with {CONNECTOR_NAMES.get(connectionName)}</Text>}
+            <FiChevronDown />
+          </BoxWrap>
+          
+        </Box>
+
+        <Collapsible open={connectionSettingsOpen} >
           <Box direction="row" gap="xsmall">
             <StyledButton onClick={handleChangeConnectType}>Change</StyledButton>
             <StyledButton onClick={() => disconnect()}>Disconnect</StyledButton>
-          </Box>
-        </Box>
-
+          </Box> 
+        </Collapsible>
       </Box>
 
-      <Box direction="row" align="center" pad="medium">
-        <AdvancedSettings />
+      <Box pad='medium' gap='medium'>
+        <ThemeSetting />
+        <ApprovalSetting />
+        <SlippageSetting />
       </Box>
 
       <Box pad="medium">
@@ -128,7 +144,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
         background="gradient-transparent"
         round={{ size: 'xsmall', corner: 'top' }}
       >
-        <Box align="center" direction="row" justify="between" onClick={() => toggleTransactionsOpen(!transactionsOpen)}>
+        <Box align="center" direction="row" justify="between" onClick={() => setTransactionsOpen(!transactionsOpen)}>
           <Text size="small">Recent Transactions</Text>
           {transactionsOpen ? <FiChevronDown size="1.25rem" /> : <FiChevronUp size="1.25rem" />}
         </Box>
