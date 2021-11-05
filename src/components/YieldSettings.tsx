@@ -140,8 +140,9 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
         <SlippageSetting />
       </Box>
 
-      <Box pad="medium" align="end" alignSelf="end" flex={false}>
-        <GeneralButton action={handleResetApp}>
+      <Box pad="medium" gap="small" flex={false}>
+        <Text size="small"> Troubleshooting </Text>
+        <GeneralButton action={handleResetApp} background="background">
           <Tip
             content={<Text size="xsmall">Having issues? Try resetting the app.</Text>}
             dropProps={{

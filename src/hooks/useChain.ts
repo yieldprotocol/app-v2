@@ -113,7 +113,8 @@ export const useChain = () => {
     };
 
     /* First, filter out any ignored calls */
-    const _requestedSigs = requestedSignatures.filter((_rs: ISignData) => !_rs.ignoreIf);
+    const _requestedSigs = requestedSignatures.filter((_rs: ISignData) => !_rs.ignoreIf)
+
     const signedList = await Promise.all(
       _requestedSigs.map(async (reqSig: ISignData) => {
 

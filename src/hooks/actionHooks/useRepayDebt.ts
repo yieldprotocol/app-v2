@@ -67,6 +67,10 @@ export const useRepayDebt = () => {
     const _collateralToRemove = reclaimCollateral && inputGreaterThanDebt ? vault.ink.mul(-1) : ethers.constants.Zero;
     const isEthBased = ETH_BASED_ASSETS.includes(vault.ilkId);
 
+    const alreadyApproved = approveMax
+    ? (await base.baseContract.allowance(account, series.seriesIsMature ? base.joinAddress : ladleAddress) ).gt(_input)
+    : false;
+
     const permits: ICallData[] = await sign(
       [
         {
@@ -74,14 +78,14 @@ export const useRepayDebt = () => {
           target: base,
           spender: 'LADLE',
           amount: _input,
-          ignoreIf: series.seriesIsMature,
+          ignoreIf: series.seriesIsMature || alreadyApproved,
         },
         {
           // after maturity
           target: base,
           spender: base.joinAddress,
           amount: _input,
-          ignoreIf: !series.seriesIsMature,
+          ignoreIf: !series.seriesIsMature || alreadyApproved,
         },
       ],
       txCode

@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
+import { ChainContext } from '../../contexts/ChainContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, IVault, ActionCodes, LadleActions, ISettingsContext } from '../../types';
@@ -9,8 +10,12 @@ import { useChain } from '../useChain';
 /* Generic hook for chain transactions */
 export const useVaultAdmin = () => {
   const { userState, userActions } = useContext(UserContext);
-  const { seriesMap, assetMap } = userState;
+  const { activeAccount: account, seriesMap, assetMap } = userState;
   const { updateVaults } = userActions;
+
+  const {
+    chainState: { contractMap },
+  } = useContext(ChainContext);
 
   const {
     settingsState: { approveMax },
@@ -22,6 +27,11 @@ export const useVaultAdmin = () => {
     const txCode = getTxCode(ActionCodes.TRANSFER_VAULT, vault.id);
     const series = seriesMap.get(vault.seriesId);
     const base = assetMap.get(vault.baseId);
+    const ladleAddress = contractMap.get('Ladle').address;
+
+    const alreadyApproved = approveMax
+    ? (await base.baseContract.allowance(account, ladleAddress) ).gt(vault.art)
+    : false;
 
     const permits: ICallData[] = await sign(
       [
@@ -29,7 +39,7 @@ export const useVaultAdmin = () => {
           target: base,
           spender: 'LADLE',
           message: 'Signing Dai Approval',
-          ignoreIf: series.seriesIsMature || base.hasLadleAuth,
+          ignoreIf: series.seriesIsMature || alreadyApproved,
         },
       ],
       txCode

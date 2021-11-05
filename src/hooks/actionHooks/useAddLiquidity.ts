@@ -19,12 +19,16 @@ import { useChain } from '../useChain';
 import { calcPoolRatios, calculateSlippage, fyTokenForMint, splitLiquidity } from '../../utils/yieldMath';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
+import { ChainContext } from '../../contexts/ChainContext';
 
 export const useAddLiquidity = () => {
-
   const {
     settingsState: { slippageTolerance, diagnostics, approveMax },
-  } = useContext(SettingsContext) ;
+  } = useContext(SettingsContext);
+
+  const {
+    chainState: { contractMap },
+  } = useContext(ChainContext);
 
   const { userState, userActions } = useContext(UserContext);
   const { activeAccount: account, assetMap, seriesMap } = userState;
@@ -44,6 +48,8 @@ export const useAddLiquidity = () => {
     const txCode = getTxCode(ActionCodes.ADD_LIQUIDITY, strategy.id);
     const series: ISeries = seriesMap.get(strategy.currentSeriesId);
     const base: IAsset = assetMap.get(series.baseId);
+
+    const ladleAddress = contractMap.get('Ladle').address;
 
     const matchingVaultId: string | undefined = matchingVault ? matchingVault.id : undefined;
     const cleanInput = cleanValue(input, base.decimals);
@@ -75,30 +81,35 @@ export const useAddLiquidity = () => {
 
     const _baseToPoolWithSlippage = BigNumber.from(calculateSlippage(_baseToPool, slippageTolerance));
 
+    /* if approveMAx, check if signature is still required */
+    const alreadyApproved = approveMax ? (await base.baseContract.allowance(account, ladleAddress)).gt(_input) : false;
+
     /* DIAGNOSITCS */
-    diagnostics && console.log(
-      'input: ',
-      _input.toString(),
-      'inputLessSlippage: ',
-      _inputLessSlippage.toString(),
-      'base: ',
-      cachedBaseReserves.toString(),
-      'real: ',
-      cachedRealReserves.toString(),
-      'virtual: ',
-      cachedFyTokenReserves.toString(),
-      '>> baseSplit: ',
-      _baseToPool.toString(),
-      '>> fyTokenSplit: ',
-      _baseToFyToken.toString(),
-      '>> baseSplitWithSlippage: ',
-      _baseToPoolWithSlippage.toString(),
-      '>> minRatio',
-      minRatio.toString(),
-      '>> maxRatio',
-      maxRatio.toString(),
-      'matching vault id', matchingVaultId
-    );
+    diagnostics &&
+      console.log(
+        'input: ',
+        _input.toString(),
+        'inputLessSlippage: ',
+        _inputLessSlippage.toString(),
+        'base: ',
+        cachedBaseReserves.toString(),
+        'real: ',
+        cachedRealReserves.toString(),
+        'virtual: ',
+        cachedFyTokenReserves.toString(),
+        '>> baseSplit: ',
+        _baseToPool.toString(),
+        '>> fyTokenSplit: ',
+        _baseToFyToken.toString(),
+        '>> baseSplitWithSlippage: ',
+        _baseToPoolWithSlippage.toString(),
+        '>> minRatio',
+        minRatio.toString(),
+        '>> maxRatio',
+        maxRatio.toString(),
+        'matching vault id',
+        matchingVaultId
+      );
 
     /**
      * GET SIGNTURE/APPROVAL DATA
@@ -109,7 +120,7 @@ export const useAddLiquidity = () => {
           target: base,
           spender: 'LADLE',
           amount: _input,
-          ignoreIf: false, // never ignore
+          ignoreIf: alreadyApproved,
         },
       ],
       txCode

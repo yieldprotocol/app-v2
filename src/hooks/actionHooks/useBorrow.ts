@@ -10,13 +10,12 @@ import { useChain } from '../useChain';
 import { useAddCollateral } from './useAddCollateral';
 
 export const useBorrow = () => {
-
   const {
     settingsState: { slippageTolerance, approveMax },
-  } = useContext(SettingsContext) ;
+  } = useContext(SettingsContext);
 
   const { userState, userActions } = useContext(UserContext);
-  const { activeAccount: account, selectedIlkId, selectedSeriesId, seriesMap, assetMap} = userState;
+  const { activeAccount: account, selectedIlkId, selectedSeriesId, seriesMap, assetMap } = userState;
   const { updateVaults, updateAssets, updateSeries } = userActions;
 
   const { addEth } = useAddCollateral();
@@ -51,15 +50,20 @@ export const useBorrow = () => {
     );
     const _expectedFyTokenWithSlippage = calculateSlippage(_expectedFyToken, slippageTolerance);
 
+    /* if approveMAx, check if signature is required */
+    const alreadyApproved = approveMax
+      ? (await ilk.baseContract.allowance(account, ilk.joinAddress)).gt(_input)
+      : false;
+
     /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
     const permits: ICallData[] = await sign(
       [
         {
           target: ilk,
           spender: ilk.joinAddress,
-          ignoreIf: ETH_BASED_ASSETS.includes(selectedIlkId) || _collInput.eq(ethers.constants.Zero), // ignore if an ETH-BASED asset
           message: `Allow Yield Protocol to move ${ilk.symbol}`,
           amount: _input,
+          ignoreIf: alreadyApproved || ETH_BASED_ASSETS.includes(selectedIlkId) || _collInput.eq(ethers.constants.Zero),
         },
       ],
       txCode

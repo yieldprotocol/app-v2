@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
+import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
@@ -13,6 +14,10 @@ export const useLend = () => {
   const {
     settingsState: { slippageTolerance, approveMax },
   } = useContext(SettingsContext);
+
+  const {
+    chainState: { contractMap },
+  } = useContext(ChainContext);
 
   const { userState, userActions } = useContext(UserContext);
   const { activeAccount: account, assetMap } = userState;
@@ -32,6 +37,8 @@ export const useLend = () => {
     const cleanedInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanedInput, base.decimals) : ethers.constants.Zero;
 
+    const ladleAddress = contractMap.get('Ladle').address;
+
     const _inputAsFyToken = sellBase(
       series.baseReserves,
       series.fyTokenReserves,
@@ -41,13 +48,16 @@ export const useLend = () => {
     );
     const _inputAsFyTokenWithSlippage = calculateSlippage(_inputAsFyToken, slippageTolerance.toString(), true);
 
+    /* if approveMAx, check if signature is required */
+    const alreadyApproved = approveMax ? (await base.allowance(account, ladleAddress)).gt(_input) : false;
+
     const permits: ICallData[] = await sign(
       [
         {
           target: base,
           spender: 'LADLE',
           amount: _input,
-          ignoreIf: false,
+          ignoreIf: alreadyApproved,
         },
       ],
       txCode
