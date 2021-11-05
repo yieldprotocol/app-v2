@@ -59,8 +59,15 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
   };
 
   return (
-    <Box fill="vertical" width={mobile ? undefined : '400px'} background="lightBackground" elevation="xlarge">
-      <Box gap="small" pad="medium" background="gradient-transparent">
+    <Box
+      fill
+      width={mobile ? undefined : '400px'}
+      background="lightBackground"
+      elevation="xlarge"
+      justify="between"
+      style={{ overflow: 'auto' }}
+    >
+      <Box gap="small" pad="medium" background="gradient-transparent" flex={false}>
         <Box alignSelf="end" onClick={() => setSettingsOpen(false)} pad="small">
           <FiX size="1.5rem" />
         </Box>
@@ -68,7 +75,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
         {!mobile && (
           <Box
             gap="small"
-            style={{ position: 'absolute' }}
+            style={{ position: 'fixed' }}
             margin={{ left: '-60px', top: '10%' }}
             animation="slideLeft"
           >
@@ -113,43 +120,40 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
         >
           <BoxWrap direction="row" gap="small">
             {connectionName && <Text size="xsmall">Connected with {CONNECTOR_NAMES.get(connectionName)}</Text>}
-            { connectionSettingsOpen ? <FiChevronUp /> : <FiChevronDown />}
+            {connectionSettingsOpen ? <FiChevronUp /> : <FiChevronDown />}
           </BoxWrap>
         </Box>
 
         <Collapsible open={connectionSettingsOpen}>
           <Box gap="xsmall">
-          <GeneralButton action={handleChangeConnectType} background='gradient-transparent'>
-            <Text size='xsmall'> Change Connection</Text>
-          </GeneralButton>
+            <GeneralButton action={handleChangeConnectType} background="gradient-transparent">
+              <Text size="xsmall"> Change Connection</Text>
+            </GeneralButton>
 
-          <GeneralButton action={() => disconnect()} background='gradient-transparent'>
-            <Text size='xsmall'> Disconnect </Text>
-          </GeneralButton>
-
+            <GeneralButton action={() => disconnect()} background="gradient-transparent">
+              <Text size="xsmall"> Disconnect </Text>
+            </GeneralButton>
           </Box>
         </Collapsible>
       </Box>
 
-      <Box pad="medium" gap="medium">
+      <Box pad="medium" gap="medium" flex={false}>
         <ThemeSetting />
         <ApprovalSetting />
         <SlippageSetting />
       </Box>
 
-      <Box pad="medium">
-        <Box alignSelf="end">
-          <GeneralButton action={handleResetApp} >
+      <Box pad="medium" align="end" alignSelf="end" flex={false}>
+        <GeneralButton action={handleResetApp}>
           <Tip
             content={<Text size="xsmall">Having issues? Try resetting the app.</Text>}
             dropProps={{
               align: { right: 'left' },
             }}
           >
-            <Text size='xsmall'> Reset App </Text>
+            <Text size="xsmall"> Reset App </Text>
           </Tip>
-          </GeneralButton>
-        </Box>
+        </GeneralButton>
       </Box>
 
       <Box
@@ -158,6 +162,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
         gap="small"
         background="gradient-transparent"
         round={{ size: 'xsmall', corner: 'top' }}
+        flex={false}
       >
         <Box align="center" direction="row" justify="between" onClick={() => setTransactionsOpen(!transactionsOpen)}>
           <Text size="small">Recent Transactions</Text>
