@@ -12,7 +12,7 @@ import { useAddCollateral } from './useAddCollateral';
 export const useBorrow = () => {
 
   const {
-    settingsState: { slippageTolerance },
+    settingsState: { slippageTolerance, approveMax },
   } = useContext(SettingsContext) ;
 
   const { userState, userActions } = useContext(UserContext);

@@ -1,7 +1,8 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
+import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, IVault, ActionCodes, LadleActions } from '../../types';
+import { ICallData, IVault, ActionCodes, LadleActions, ISettingsContext } from '../../types';
 import { getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 
@@ -10,6 +11,10 @@ export const useVaultAdmin = () => {
   const { userState, userActions } = useContext(UserContext);
   const { seriesMap, assetMap } = userState;
   const { updateVaults } = userActions;
+
+  const {
+    settingsState: { approveMax },
+  } = useContext(SettingsContext) as ISettingsContext;
 
   const { sign, transact } = useChain();
 

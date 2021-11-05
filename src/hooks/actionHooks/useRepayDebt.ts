@@ -13,7 +13,7 @@ import { SettingsContext } from '../../contexts/SettingsContext';
 export const useRepayDebt = () => {
 
   const {
-    settingsState: { slippageTolerance },
+    settingsState: { slippageTolerance, approveMax },
   } = useContext(SettingsContext);
   
   const { userState, userActions } = useContext(UserContext);

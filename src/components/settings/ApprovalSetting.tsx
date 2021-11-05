@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Box, Text } from 'grommet';
 import Switch from 'react-switch';
 import { ApprovalType } from '../../types';
@@ -13,6 +13,11 @@ const AdvancedSetting = () => {
   const handleApprovalToggle = (type: ApprovalType) => {
     updateSetting('approvalMethod', type);
   };
+
+  /* double check not max with permits */
+  useEffect(()=>{
+    approvalMethod !== ApprovalType.TX && updateSetting('approveMax', false);
+  },[approvalMethod])
 
   return (
     // <Box gap="small" pad={{ vertical: 'small' }} border={{ side: 'bottom', color: 'text-xweak' }}>

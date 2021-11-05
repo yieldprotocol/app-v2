@@ -12,7 +12,7 @@ import { useChain } from '../useChain';
 export const useRollPosition = () => {
 
   const {
-    settingsState: { slippageTolerance },
+    settingsState: { slippageTolerance, approveMax },
   } = useContext(SettingsContext);
 
   const { userState, userActions } = useContext(UserContext);

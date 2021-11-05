@@ -23,7 +23,7 @@ import { SettingsContext } from '../../contexts/SettingsContext';
 export const useAddLiquidity = () => {
 
   const {
-    settingsState: { slippageTolerance, diagnostics },
+    settingsState: { slippageTolerance, diagnostics, approveMax },
   } = useContext(SettingsContext) ;
 
   const { userState, userActions } = useContext(UserContext);
