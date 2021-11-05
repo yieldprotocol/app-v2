@@ -1,4 +1,4 @@
-import React, { useContext, useState, Suspense, lazy, useEffect } from 'react';
+import React, { useContext, useState, Suspense, lazy } from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Redirect, Route, Switch } from 'react-router-dom';
@@ -11,7 +11,6 @@ import YieldHeader from './components/YieldHeader';
 import NetworkError from './components/NetworkError';
 import TransactionWidget from './components/TransactionWidget';
 import YieldMobileMenu from './components/YieldMobileMenu';
-import { SettingsContext } from './contexts/SettingsContext';
 import { useColorScheme } from './hooks/useColorScheme';
 
 const Borrow = lazy(() => import('./views/Borrow'));
