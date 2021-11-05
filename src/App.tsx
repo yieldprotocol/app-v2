@@ -11,7 +11,7 @@ import YieldHeader from './components/YieldHeader';
 import NetworkError from './components/NetworkError';
 import TransactionWidget from './components/TransactionWidget';
 import YieldMobileMenu from './components/YieldMobileMenu';
-import { SettingsContext } from './contexts/SettingsContext';
+import { useColorScheme } from './hooks/useColorScheme';
 
 const Borrow = lazy(() => import('./views/Borrow'));
 const Lend = lazy(() => import('./views/Lend'));
@@ -25,65 +25,68 @@ const PoolPosition = lazy(() => import('./views/PoolPosition'));
 function App() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
-  const {
-    settingsState: { darkMode },
-  } = useContext(SettingsContext);
-
   /* LOCAL STATE */
   const [menuLayerOpen, setMenuLayerOpen] = useState<boolean>(false);
 
   return (
-    <>
-      <Grommet theme={deepMerge(base, yieldTheme)} full themeMode={darkMode ? 'dark' : 'light'}>
-        <Box fill background="background">
-          <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
-          <TransactionWidget />
-          <NetworkError />
-          <Box flex={!mobile} overflow="hidden">
-            <ToastContainer position="top-right" />
-            {menuLayerOpen && <YieldMobileMenu toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} />}
-            <Suspense fallback={<div>Loading...</div>}>
-              <Switch>
-                <Route path="/borrow/:series?/:asset?/:amnt?">
-                  <Borrow />
-                </Route>
+    <Box fill background="background">
+      <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
+      <TransactionWidget />
+      <NetworkError />
+      <Box flex={!mobile} overflow="hidden">
+        <ToastContainer position="top-right" />
+        {menuLayerOpen && <YieldMobileMenu toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} />}
+        <Suspense fallback={<div>Loading...</div>}>
+          <Switch>
+            <Route path="/borrow/:series?/:asset?/:amnt?">
+              <Borrow />
+            </Route>
 
-                <Route path="/lend/:series?/:asset?/:amnt?">
-                  <Lend />
-                </Route>
+            <Route path="/lend/:series?/:asset?/:amnt?">
+              <Lend />
+            </Route>
 
-                <Route path="/pool/:series?/:asset?/:amnt?">
-                  <Pool />
-                </Route>
+            <Route path="/pool/:series?/:asset?/:amnt?">
+              <Pool />
+            </Route>
 
-                <Route path="/dashboard">
-                  <Dashboard />
-                </Route>
+            <Route path="/dashboard">
+              <Dashboard />
+            </Route>
 
-                <Route exact path="/">
-                  <Redirect to="/borrow" />
-                </Route>
+            <Route exact path="/">
+              <Redirect to="/borrow" />
+            </Route>
 
-                <Route path="/vaultposition/:id">
-                  <VaultPosition />
-                </Route>
+            <Route path="/vaultposition/:id">
+              <VaultPosition />
+            </Route>
 
-                <Route path="/lendposition/:id">
-                  <LendPosition />
-                </Route>
+            <Route path="/lendposition/:id">
+              <LendPosition />
+            </Route>
 
-                <Route path="/poolposition/:id">
-                  <PoolPosition />
-                </Route>
+            <Route path="/poolposition/:id">
+              <PoolPosition />
+            </Route>
 
-                <Route path="/*"> 404 </Route>
-              </Switch>
-            </Suspense>
-          </Box>
-        </Box>
-      </Grommet>
-    </>
+            <Route path="/*"> 404 </Route>
+          </Switch>
+        </Suspense>
+      </Box>
+    </Box>
   );
 }
 
-export default App;
+const WrappedApp = () => {
+  const colorScheme = useColorScheme();
+  return (
+    <Suspense fallback={null}>
+      <Grommet theme={deepMerge(base, yieldTheme)} themeMode={colorScheme} full>
+        <App />
+      </Grommet>
+    </Suspense>
+  );
+};
+
+export default WrappedApp;

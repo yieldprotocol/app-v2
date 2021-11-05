@@ -10,7 +10,7 @@ import YieldMark from './logos/YieldMark';
 
 import { useCachedState } from '../hooks/generalHooks';
 import BackButton from './buttons/BackButton';
-import { SettingsContext } from '../contexts/SettingsContext';
+import { useColorScheme } from '../hooks/useColorScheme';
 
 const StyledAvatar = styled(Avatar)`
   -webkit-transition: background 0.3s ease-in-out;
@@ -35,9 +35,7 @@ interface IYieldHeaderProps {
 
 const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-  const {
-    settingsState: { darkMode },
-  } = useContext(SettingsContext);
+  const colorScheme = useColorScheme();
   const history = useHistory();
   const prevLoc = useCachedState('lastVisit', '')[0].slice(1).split('/')[0];
   const isPositionPath = useLocation().pathname.includes('position');
@@ -76,7 +74,7 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
                       colors={['#f79533', '#f37055', '#ef4e7b', '#a166ab', '#5073b8', '#1098ad', '#07b39b', '#6fba82']}
                     />
                   ) : (
-                    <YieldMark colors={darkMode ? ['white'] : ['black']} height="1.75rem" />
+                    <YieldMark colors={colorScheme === 'dark' ? ['white'] : ['black']} height="1.75rem" />
                   )}
                 </NavLink>
               </StyledAvatar>

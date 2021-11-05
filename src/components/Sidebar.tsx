@@ -4,7 +4,7 @@ import { ChainContext } from '../contexts/ChainContext';
 import YieldSettings from './YieldSettings';
 import Connect from './Connect';
 
-const SidebarSettings = ({ settingsOpen, setSettingsOpen, connectOpen, setConnectOpen }: any) => {
+const Sidebar = ({ settingsOpen, setSettingsOpen, connectOpen, setConnectOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
     chainState: {
@@ -43,4 +43,4 @@ const SidebarSettings = ({ settingsOpen, setSettingsOpen, connectOpen, setConnec
   );
 };
 
-export default SidebarSettings;
+export default Sidebar;

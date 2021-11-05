@@ -34,6 +34,4 @@ function DashButton() {
   );
 }
 
-// BackButton.defaultProps = { color: 'grey' };
-
 export default DashButton;

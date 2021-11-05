@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { Button, Box, Text, Layer, ResponsiveContext } from 'grommet';
 import { ChainContext } from '../../contexts/ChainContext';
-import SidebarSettings from '../SidebarSettings';
+import SidebarSettings from '../Sidebar';
 
 function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
