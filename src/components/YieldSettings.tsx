@@ -13,6 +13,8 @@ import BoxWrap from './wraps/BoxWrap';
 import SlippageSetting from './settings/SlippageSetting';
 import ApprovalSetting from './settings/ApprovalSetting';
 import ThemeSetting from './settings/ThemeSetting';
+import ConnectButton from './buttons/ConnectButton';
+import GeneralButton from './buttons/GeneralButton';
 
 const StyledButton = styled(Button)`
   /* background: #dbeafe;
@@ -63,62 +65,73 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
           <FiX size="1.5rem" />
         </Box>
 
-        <Box align="end">
-          <CopyWrap hash={account}>
-            <Text size="xlarge">{ensName || abbreviateHash(account, 6)}</Text>
-          </CopyWrap>
-
-          <Box align="center" direction="row" gap="small" justify="center">
-            {currentChainInfo?.name && (
-              <Anchor
-                href={`https://${
-                  currentChainInfo.name === 'Mainnet' ? '' : `${currentChainInfo.name}.`
-                }etherscan.io/address/${account}`}
-                margin="xsmall"
-                target="_blank"
-              >
-                <FiExternalLink size="1rem" style={{ verticalAlign: 'middle' }} />
-                <Text margin="xxsmall" size="xsmall">
-                  View on Explorer
-                </Text>
-              </Anchor>
-            )}
+        {!mobile && (
+          <Box
+            gap="small"
+            style={{ position: 'absolute' }}
+            margin={{ left: '-60px', top: '10%' }}
+            animation="slideLeft"
+          >
+            <YieldAvatar address={account} size={7} />
           </Box>
+        )}
+
+        <Box align="end">
+          <Box direction="row" gap="small" fill align="center" justify={mobile ? 'between' : 'end'}>
+            {mobile && <YieldAvatar address={account} size={2} />}
+            <CopyWrap hash={account}>
+              <Text size={mobile ? 'medium' : 'xlarge'}>{ensName || abbreviateHash(account, 6)}</Text>
+            </CopyWrap>
+          </Box>
+
+          {!mobile && (
+            <Box align="center" direction="row" gap="small" justify="center">
+              {currentChainInfo?.name && (
+                <Anchor
+                  href={`https://${
+                    currentChainInfo.name === 'Mainnet' ? '' : `${currentChainInfo.name}.`
+                  }etherscan.io/address/${account}`}
+                  margin="xsmall"
+                  target="_blank"
+                >
+                  <FiExternalLink size="1rem" style={{ verticalAlign: 'middle' }} />
+                  <Text margin="xxsmall" size="xsmall">
+                    View on Explorer
+                  </Text>
+                </Anchor>
+              )}
+            </Box>
+          )}
         </Box>
 
         <Box
-          gap="small"
-          style={!mobile ? { position: 'absolute' } : undefined}
-          margin={!mobile ? { left: '-60px', top: '10%' } : undefined}
-          direction="row-responsive"
-          alignSelf="start"
-          animation="slideLeft"
-        >
-          <YieldAvatar address={account} size={7} />
-        </Box>
-
-        <Box 
-          direction='row' 
-          justify="end" 
+          direction="row"
+          justify="end"
           onClick={() => setConnectionSettingsOpen(!connectionSettingsOpen)}
-          gap='small'
+          gap="small"
+          margin={{ top: 'large' }}
         >
-          <BoxWrap direction='row' gap='small'>
-          {connectionName && <Text size="xsmall">Connected with {CONNECTOR_NAMES.get(connectionName)}</Text>}
-            <FiChevronDown />
+          <BoxWrap direction="row" gap="small">
+            {connectionName && <Text size="xsmall">Connected with {CONNECTOR_NAMES.get(connectionName)}</Text>}
+            { connectionSettingsOpen ? <FiChevronUp /> : <FiChevronDown />}
           </BoxWrap>
-          
         </Box>
 
-        <Collapsible open={connectionSettingsOpen} >
-          <Box direction="row" gap="xsmall">
-            <StyledButton onClick={handleChangeConnectType}>Change</StyledButton>
-            <StyledButton onClick={() => disconnect()}>Disconnect</StyledButton>
-          </Box> 
+        <Collapsible open={connectionSettingsOpen}>
+          <Box gap="xsmall">
+          <GeneralButton action={handleChangeConnectType} background='gradient-transparent'>
+            <Text size='xsmall'> Change Connection</Text>
+          </GeneralButton>
+
+          <GeneralButton action={() => disconnect()} background='gradient-transparent'>
+            <Text size='xsmall'> Disconnect </Text>
+          </GeneralButton>
+
+          </Box>
         </Collapsible>
       </Box>
 
-      <Box pad='medium' gap='medium'>
+      <Box pad="medium" gap="medium">
         <ThemeSetting />
         <ApprovalSetting />
         <SlippageSetting />
@@ -126,14 +139,16 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
 
       <Box pad="medium">
         <Box alignSelf="end">
+          <GeneralButton action={handleResetApp} >
           <Tip
             content={<Text size="xsmall">Having issues? Try resetting the app.</Text>}
             dropProps={{
               align: { right: 'left' },
             }}
           >
-            <StyledButton onClick={handleResetApp}>App Reset</StyledButton>
+            <Text size='xsmall'> Reset App </Text>
           </Tip>
+          </GeneralButton>
         </Box>
       </Box>
 
