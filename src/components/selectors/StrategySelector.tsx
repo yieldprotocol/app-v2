@@ -10,6 +10,7 @@ import { UserContext } from '../../contexts/UserContext';
 import { getPoolPercent } from '../../utils/yieldMath';
 import { cleanValue, formatStrategyName } from '../../utils/appUtils';
 import Skeleton from '../wraps/SkeletonWrap';
+import { SettingsContext } from '../../contexts/SettingsContext';
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
@@ -60,8 +61,12 @@ interface IStrategySelectorProps {
 function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelectorProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
+  const {
+    settingsState: { diagnostics },
+  } = useContext(SettingsContext);
+
   const { userState, userActions } = useContext(UserContext);
-  const { selectedStrategyAddr, selectedBaseId, strategiesLoading, strategyMap, seriesMap, diagnostics } = userState;
+  const { selectedStrategyAddr, selectedBaseId, strategiesLoading, strategyMap, seriesMap } = userState;
 
   const [options, setOptions] = useState<IStrategy[]>([]);
 
@@ -111,7 +116,9 @@ function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelector
                   pad="xsmall"
                   round="xsmall"
                   onClick={() => handleSelect(strategy)}
-                  background={strategy.address === selectedStrategyAddr ? strategy.currentSeries?.color : 'hoverBackground'}
+                  background={
+                    strategy.address === selectedStrategyAddr ? strategy.currentSeries?.color : 'hoverBackground'
+                  }
                   elevation="xsmall"
                   align="center"
                 >

@@ -1,5 +1,6 @@
 import { BigNumber,  BigNumberish,  ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
+import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
 import { IVault, ISeries, IAsset } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
@@ -15,6 +16,10 @@ export const useBorrowHelpers = (
 ) => {
   /* STATE FROM CONTEXT */
   const {
+    settingsState: { diagnostics },
+  } = useContext(SettingsContext);
+
+  const {
     userState: {
       activeAccount,
       selectedBaseId,
@@ -24,7 +29,6 @@ export const useBorrowHelpers = (
       limitMap,
       priceMap,
       selectedSeriesId,
-      diagnostics,
     },
     userActions: { updateLimit },
   } = useContext(UserContext);

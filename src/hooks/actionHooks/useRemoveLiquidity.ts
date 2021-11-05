@@ -36,15 +36,15 @@ is Mature?        N     +--------+
 
 export const useRemoveLiquidity = () => {
   const {
-    settingsState: { approveMax },
+    settingsState: { approveMax, diagnostics },
   } = useContext(SettingsContext) as ISettingsContext;
 
   const {
     chainState: { contractMap },
   } = useContext(ChainContext);
 
-  const { userState, userActions } = useContext(UserContext);
-  const { activeAccount: account, assetMap, selectedStrategyAddr, strategyMap, diagnostics } = userState;
+  const { vaultMap, userState, userActions } = useContext(UserContext);
+  const { activeAccount: account, assetMap, selectedStrategyAddr, strategyMap } = userState;
 
   const { updateSeries, updateAssets, updateStrategies } = userActions;
   const { sign, transact } = useChain();

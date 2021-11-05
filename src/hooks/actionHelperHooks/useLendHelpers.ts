@@ -1,8 +1,8 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
+import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ISeries } from '../../types';
-import { ZERO_BN } from '../../utils/constants';
 import { maxBaseIn, maxBaseOut, sellFYToken } from '../../utils/yieldMath';
 
 export const useLendHelpers = (
@@ -10,8 +10,13 @@ export const useLendHelpers = (
   input: string | undefined,
   rollToSeries: ISeries | undefined = undefined
 ) => {
+
+  const {
+    settingsState: { diagnostics },
+  } = useContext(SettingsContext);
+
   const { userState } = useContext(UserContext);
-  const { assetMap, activeAccount, selectedBaseId, diagnostics } = userState;
+  const { assetMap, activeAccount, selectedBaseId } = userState;
   const selectedBase = assetMap.get(selectedBaseId!);
 
   /* clean to prevent underflow */
