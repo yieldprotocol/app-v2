@@ -28,14 +28,14 @@ const SlippageSetting = () => {
   }, [input]); // purppose ignore updateSetting
 
   /* handle slection - clear input on slection of preset */
-  const handlePresetChange = (slippage:number) => {
+  const handlePresetChange = (slippage: number) => {
     setInput('');
     updateSetting('slippageTolerance', slippage);
-  }
+  };
 
   return (
-    <Box gap="small" pad={{ vertical: 'small' }} border={{ side: 'bottom', color: 'text-xweak' }}>
-
+    // <Box gap="small" pad={{ vertical: 'small' }} border={{ side: 'bottom', color: 'text-xweak' }}>
+    <Box gap="small" pad={{ vertical: 'small' }}>
       <Text size="small">Slippage Tolerance</Text>
       <Box direction="row" justify="between">
         <Grid
