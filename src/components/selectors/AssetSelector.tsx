@@ -7,6 +7,7 @@ import Skeleton from '../wraps/SkeletonWrap';
 import { IAsset } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { DAI, WETH, USDC, WBTC } from '../../utils/constants';
+import { SettingsContext } from '../../contexts/SettingsContext';
 
 interface IAssetSelectorProps {
   selectCollateral?: boolean;
@@ -24,8 +25,13 @@ const StyledBox = styled(Box)`
 
 function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
+
+  const {
+    settingsState: { diagnostics },
+  } = useContext(SettingsContext);
+
   const { userState, userActions } = useContext(UserContext);
-  const { selectedIlkId, selectedSeriesId, selectedBaseId, assetMap, seriesMap, activeAccount, diagnostics } =
+  const { selectedIlkId, selectedSeriesId, selectedBaseId, assetMap, seriesMap, activeAccount} =
     userState;
 
   const { setSelectedIlk, setSelectedBase } = userActions;

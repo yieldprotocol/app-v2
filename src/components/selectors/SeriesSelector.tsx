@@ -9,6 +9,7 @@ import { maxBaseIn, maxBaseOut } from '../../utils/yieldMath';
 import { useApr } from '../../hooks/useApr';
 import { cleanValue } from '../../utils/appUtils';
 import Skeleton from '../wraps/SkeletonWrap';
+import { SettingsContext } from '../../contexts/SettingsContext';
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
@@ -72,8 +73,9 @@ const AprText = ({
   actionType: ActionType;
 }) => {
   const {
-    userState: { diagnostics },
-  } = useContext(UserContext);
+    settingsState: { diagnostics },
+  } = useContext(SettingsContext);
+
   const _inputValue = cleanValue(inputValue, series.decimals);
   const { apr } = useApr(_inputValue, actionType, series);
   const [limitHit, setLimitHit] = useState<boolean>(false);
@@ -139,8 +141,12 @@ const AprText = ({
 function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayout, setOpen }: ISeriesSelectorProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
+  const {
+    settingsState: { diagnostics },
+  } = useContext(SettingsContext);
+
   const { userState, userActions } = useContext(UserContext);
-  const { selectedSeriesId, selectedBaseId, seriesMap, assetMap, seriesLoading, diagnostics } = userState;
+  const { selectedSeriesId, selectedBaseId, seriesMap, assetMap, seriesLoading } = userState;
   const [localSeries, setLocalSeries] = useState<ISeries | null>();
   const [options, setOptions] = useState<ISeries[]>([]);
 

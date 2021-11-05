@@ -8,6 +8,7 @@ import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { burn, burnFromStrategy, calcPoolRatios, newPoolState, sellFYToken } from '../../utils/yieldMath';
 import { ZERO_BN } from '../../utils/constants';
+import { SettingsContext } from '../../contexts/SettingsContext';
 
 /*
                                                                             +---------+  DEFUNCT PATH
@@ -37,10 +38,13 @@ export const useRemoveLiquidity = () => {
   const {
     chainState: { contractMap },
   } = useContext(ChainContext);
-  const ladleAddress = contractMap?.get('Ladle')?.address;
+  
+  const {
+    settingsState: { diagnostics },
+  } = useContext(SettingsContext);
 
   const { vaultMap, userState, userActions } = useContext(UserContext);
-  const { activeAccount: account, assetMap, selectedStrategyAddr, strategyMap, diagnostics } = userState;
+  const { activeAccount: account, assetMap, selectedStrategyAddr, strategyMap } = userState;
 
   const { updateSeries, updateAssets, updateStrategies } = userActions;
   const { sign, transact } = useChain();
@@ -61,6 +65,8 @@ export const useRemoveLiquidity = () => {
     const _base = assetMap.get(series.baseId);
     const _strategy = strategyMap.get(selectedStrategyAddr);
     const _input = ethers.utils.parseUnits(input, _base.decimals);
+
+    const ladleAddress = contractMap.get('Ladle').address;
 
     const [cachedBaseReserves, cachedFyTokenReserves] = await series.poolContract.getCache();
     const cachedRealReserves = cachedFyTokenReserves.sub(series.totalSupply);
