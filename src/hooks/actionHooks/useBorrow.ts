@@ -24,7 +24,6 @@ export const useBorrow = () => {
   const borrow = async (vault: IVault | undefined, input: string | undefined, collInput: string | undefined) => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.BORROW, selectedSeriesId);
-
     /* use the vault id provided OR 0 if new/ not provided */
     const vaultId = vault?.id || BLANK_VAULT;
 
@@ -36,7 +35,6 @@ export const useBorrow = () => {
     /* parse inputs  ( clean down to base/ilk decimals so that there is never an underlow)  */
     const cleanInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanInput, base.decimals) : ethers.constants.Zero;
-
     const cleanCollInput = cleanValue(collInput, ilk.decimals);
     const _collInput = collInput ? ethers.utils.parseUnits(cleanCollInput, ilk.decimals) : ethers.constants.Zero;
 
