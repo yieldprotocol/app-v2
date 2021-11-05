@@ -1,9 +1,10 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Box, Grid, Text, TextInput } from 'grommet';
 import { FiPercent } from 'react-icons/fi';
 import { cleanValue } from '../utils/appUtils';
 import { SettingsContext } from '../contexts/SettingsContext';
+import BoxWrap from './wraps/BoxWrap';
 
 const Input = styled(TextInput)`
   padding-left: 0;
@@ -25,14 +26,24 @@ const SlippageSettings = () => {
   const [input, setInput] = useState((slippageTolerance * 100).toString());
 
   const tolerances: number[] = [0.001, 0.005, 0.01];
-  const validateInput = (tolerance: number): number => (tolerance > 0 && tolerance < 1) ? tolerance : slippageTolerance;
+
   const customTolerance = !tolerances.includes(slippageTolerance);
+
+  const validateInput = useCallback(
+    (tolerance: number): number => (tolerance > 0 && tolerance < 1 ? tolerance : slippageTolerance),
+    [slippageTolerance]
+  );
 
   /* Sets the slippage tolerance on input */
   useEffect(() => {
     const _slippageTolerance = validateInput(Number(cleanValue(input, 4)) / 100);
     updateSetting('slippageTolerance', _slippageTolerance);
-  }, [input]);
+  }, [input]); // purppose ignore updateSetting
+
+  const handlePresetChange = (slippage:number) => {
+    setInput('');
+    updateSetting('slippageTolerance', slippage);
+  }
 
   return (
     <Box gap="small">
@@ -47,37 +58,40 @@ const SlippageSettings = () => {
           }}
         >
           {tolerances.map((tolerance) => (
-            <StyledBox
-              fill
-              border={{ color: tolerance === slippageTolerance ? 'brand' : 'lightBackground' }}
-              background ={ tolerance === slippageTolerance ? 'gradient-transparent' : 'lightBackground' }
+            <BoxWrap
+              // fill
+              // border={{ color: tolerance === slippageTolerance ? 'brand' : 'lightBackground' }}
+              background={tolerance === slippageTolerance ? 'gradient-transparent' : 'lightBackground'}
               round="xsmall"
               key={tolerance}
-              onClick={() => updateSetting('slippageTolerance', tolerance)}
+              onClick={() => handlePresetChange(tolerance)}
               align="center"
               justify="center"
+              pad="xsmall"
             >
-              <Text>{`${tolerance * 100} %`}</Text>
-            </StyledBox>
+              <Text size="small">{`${tolerance * 100} %`}</Text>
+            </BoxWrap>
           ))}
-          <Box
-            direction="row" 
-            round="xsmall" 
-            border={{ color: customTolerance ? 'brand' : '#dfe8f9' }}
-            background ={ customTolerance ? 'gradient-transparent' : 'lightBackground' }
+          <Box>
+            <Box
+              direction="row"
+              round="xsmall"
+              border={{ color: 'lightgrey' }}
+              background={customTolerance ? 'gradient-transparent' : 'lightBackground'}
+              pad="0.25em"
             >
-            <Input
-              textAlign="center"
-              style={{ paddingLeft: 'none', paddingRight: 'none' }}
-              reverse
-              plain
-              type="number"
-              placeholder=""
-              value={input || ''}
-              onChange={(event: any) => setInput(event.target.value)}
-            />
-            <Box pad="xsmall" align="center" justify="center">
-              <FiPercent />
+              <Input
+                textAlign="center"
+                style={{ fontSize: '0.75em', padding: '0px' }}
+                reverse
+                plain
+                type="number"
+                value={input || ''}
+                onChange={(event: any) => setInput(event.target.value)}
+              />
+              <Box align="center" justify="center" pad={{ horizontal: 'xsmall' }}>
+                <FiPercent size="0.75em" />
+              </Box>
             </Box>
           </Box>
         </Grid>
