@@ -11,10 +11,12 @@ const SlippageSetting = () => {
     settingsActions: { updateSetting },
   } = useContext(SettingsContext);
 
-  const [input, setInput] = useState((slippageTolerance * 100).toString());
-
   const tolerances: number[] = [0.001, 0.005, 0.01];
   const customTolerance = !tolerances.includes(slippageTolerance);
+
+  const [input, setInput] = useState(
+    !tolerances.includes(slippageTolerance) ? (slippageTolerance * 100).toString() : ''
+  );
 
   const validateInput = useCallback(
     (tolerance: number): number => (tolerance > 0 && tolerance < 1 ? tolerance : slippageTolerance),
@@ -49,6 +51,7 @@ const SlippageSetting = () => {
           {tolerances.map((tolerance) => (
             <BoxWrap
               background={tolerance === slippageTolerance ? 'gradient-transparent' : 'lightBackground'}
+              elevation={tolerance === slippageTolerance ? 'small' : undefined}
               round="xsmall"
               key={tolerance}
               onClick={() => handlePresetChange(tolerance)}
