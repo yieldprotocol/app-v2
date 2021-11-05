@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import multiavatar from '@multiavatar/multiavatar';
 import { Avatar, Box, Image } from 'grommet';
 import { SettingsContext } from '../contexts/SettingsContext';
+import { useColorScheme } from '../hooks/useColorScheme';
 
 const StyledBox = styled(Box)`
   -webkit-transition: transform 0.3s ease-in-out;
@@ -15,18 +16,16 @@ const StyledBox = styled(Box)`
 
 function YieldAvatar(props: any) {
   const {
-    settingsState: { dudeSalt, darkMode },
+    settingsState: { dudeSalt },
   } = useContext(SettingsContext);
+  const colorScheme = useColorScheme();
 
   const _avatar = multiavatar(props.address.concat(dudeSalt));
   const _size = props.size.toString().concat('em');
 
   return (
     <StyledBox>
-      <Avatar
-        border={{ color: darkMode ? '#FFF' : '#000' }}
-        size={_size || '2em'}
-      >
+      <Avatar border={{ color: colorScheme === 'dark' ? '#FFF' : '#000' }} size={_size || '2em'}>
         <Box width="100%" height="100%" pad="2px">
           {
             // eslint-disable-next-line react/no-danger
