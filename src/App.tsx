@@ -12,6 +12,7 @@ import NetworkError from './components/NetworkError';
 import TransactionWidget from './components/TransactionWidget';
 import YieldMobileMenu from './components/YieldMobileMenu';
 import { SettingsContext } from './contexts/SettingsContext';
+import { useColorScheme } from './hooks/useColorScheme';
 
 const Borrow = lazy(() => import('./views/Borrow'));
 const Lend = lazy(() => import('./views/Lend'));
@@ -29,81 +30,61 @@ function App() {
   const [menuLayerOpen, setMenuLayerOpen] = useState<boolean>(false);
 
   return (
-        <Box fill background="background">
-          <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
-          <TransactionWidget />
-          <NetworkError />
-          <Box flex={!mobile} overflow="hidden">
-            <ToastContainer position="top-right" />
-            {menuLayerOpen && <YieldMobileMenu toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} />}
-            <Suspense fallback={<div>Loading...</div>}>
-              <Switch>
-                <Route path="/borrow/:series?/:asset?/:amnt?">
-                  <Borrow />
-                </Route>
+    <Box fill background="background">
+      <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
+      <TransactionWidget />
+      <NetworkError />
+      <Box flex={!mobile} overflow="hidden">
+        <ToastContainer position="top-right" />
+        {menuLayerOpen && <YieldMobileMenu toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} />}
+        <Suspense fallback={<div>Loading...</div>}>
+          <Switch>
+            <Route path="/borrow/:series?/:asset?/:amnt?">
+              <Borrow />
+            </Route>
 
-                <Route path="/lend/:series?/:asset?/:amnt?">
-                  <Lend />
-                </Route>
+            <Route path="/lend/:series?/:asset?/:amnt?">
+              <Lend />
+            </Route>
 
-                <Route path="/pool/:series?/:asset?/:amnt?">
-                  <Pool />
-                </Route>
+            <Route path="/pool/:series?/:asset?/:amnt?">
+              <Pool />
+            </Route>
 
-                <Route path="/dashboard">
-                  <Dashboard />
-                </Route>
+            <Route path="/dashboard">
+              <Dashboard />
+            </Route>
 
-                <Route exact path="/">
-                  <Redirect to="/borrow" />
-                </Route>
+            <Route exact path="/">
+              <Redirect to="/borrow" />
+            </Route>
 
-                <Route path="/vaultposition/:id">
-                  <VaultPosition />
-                </Route>
+            <Route path="/vaultposition/:id">
+              <VaultPosition />
+            </Route>
 
-                <Route path="/lendposition/:id">
-                  <LendPosition />
-                </Route>
+            <Route path="/lendposition/:id">
+              <LendPosition />
+            </Route>
 
-                <Route path="/poolposition/:id">
-                  <PoolPosition />
-                </Route>
+            <Route path="/poolposition/:id">
+              <PoolPosition />
+            </Route>
 
-                <Route path="/*"> 404 </Route>
-              </Switch>
-            </Suspense>
-          </Box>
-        </Box>
+            <Route path="/*"> 404 </Route>
+          </Switch>
+        </Suspense>
+      </Box>
+    </Box>
   );
 }
 
-
 const WrappedApp = () => {
- 
-  const [ colorScheme, setColorScheme ] = useState<'light'|'dark'>('light');
-  const { settingsState: { autoTheme, darkMode } } = useContext(SettingsContext);
-
-  useEffect(()=>{
-    if (autoTheme) {
-      (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? setColorScheme('dark') : setColorScheme('light');
-      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-        const newColorScheme = e.matches ? 'dark' : 'light';
-        autoTheme && setColorScheme(newColorScheme);
-      });
-    } else {
-      setColorScheme( darkMode ? 'dark' : 'light' );
-    }
-  }, [autoTheme, darkMode]); 
-
+  const colorScheme = useColorScheme();
   return (
     <Suspense fallback={null}>
-      <Grommet
-        theme={deepMerge(base, yieldTheme)}
-        themeMode={colorScheme === 'dark'? 'dark':'light' || 'light'}
-        full
-      >
-          <App />
+      <Grommet theme={deepMerge(base, yieldTheme)} themeMode={colorScheme} full>
+        <App />
       </Grommet>
     </Suspense>
   );
