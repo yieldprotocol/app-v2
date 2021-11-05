@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import Switch from 'react-switch';
 
 import { Box, Text } from 'grommet';
@@ -12,8 +12,10 @@ const ThemeSettings = () => {
     settingsActions: { updateSetting },
   } = useContext(SettingsContext);
 
-  const theme = useContext<any>(ThemeContext);
-  const { colors } = theme.global;
+  // const theme = useContext<any>(ThemeContext);
+  // const { colors } = theme.global;
+
+  useEffect(()=> console.log(autoTheme),[autoTheme])
 
   return (
     <Box gap="small" pad={{ vertical: 'small' }} border={{ side: 'bottom', color: 'text-xweak' }}>
@@ -61,7 +63,7 @@ const ThemeSettings = () => {
                 false
               ) : (
                 <Box align="center" justify="center" fill pad="xsmall">
-                  <FiMoon color={colors.brand} style={{ strokeWidth: '3', fill: 'Background' }} />
+                  <FiMoon color="text" style={{ strokeWidth: '3', fill: 'Background' }} />
                 </Box>
               )
             }

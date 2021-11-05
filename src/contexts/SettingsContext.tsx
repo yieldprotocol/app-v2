@@ -13,8 +13,7 @@ const initState: ISettingsContextState = {
   diagnostics: (JSON.parse(localStorage.getItem('diagnostics')!) as boolean) || (false as boolean),
   
   darkMode: (JSON.parse(localStorage.getItem('darkMode')!) as boolean) || (false as boolean),
-  autoTheme: (JSON.parse(localStorage.getItem('autoTheme')!) as boolean) || (true as boolean),
-
+  autoTheme: (JSON.parse(localStorage.getItem('autoTheme')!) as boolean) || (false as boolean),
   
   disclaimerChecked: (JSON.parse(localStorage.getItem('disclaimerChecked')!) as boolean) || (false as boolean), 
   powerUser: (JSON.parse(localStorage.getItem('powerUser')!) as boolean) || (false as boolean),
