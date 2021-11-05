@@ -212,9 +212,14 @@ const UserProvider = ({ children }: any) => {
       _publicData = await Promise.all(
         assetList.map(async (asset: IAssetRoot): Promise<IAssetRoot> => {
           const isYieldBase = !!Array.from(seriesRootMap.values()).find((x: any) => x.baseId === asset.id);
+
+          const hasActiveJoin =
+            ethers.utils.isAddress(asset.joinAddress) && asset.joinAddress !== ethers.constants.AddressZero;
+
           return {
             ...asset,
             isYieldBase,
+            hasActiveJoin,
           };
         })
       );
@@ -226,16 +231,9 @@ const UserProvider = ({ children }: any) => {
         try {
           _accountData = await Promise.all(
             _publicData.map(async (asset: IAssetRoot): Promise<IAsset> => {
-              const [balance, ladleAllowance, joinAllowance] = await Promise.all([
-                asset.getBalance(account),
-                asset.getAllowance(account, contractMap.get('Ladle').address),
-                asset.getAllowance(account, asset.joinAddress),
-              ]);
-
+              const balance = await asset.getBalance(account);
               return {
                 ...asset,
-                hasLadleAuth: ladleAllowance.gt(ethers.constants.Zero),
-                hasJoinAuth: joinAllowance.gt(ethers.constants.Zero),
                 balance: balance || ethers.constants.Zero,
                 balance_: balance
                   ? cleanValue(ethers.utils.formatUnits(balance, asset.decimals), 2)
@@ -247,16 +245,17 @@ const UserProvider = ({ children }: any) => {
           console.log(e);
         }
       }
-
       const _combinedData = _accountData.length ? _accountData : _publicData;
 
       /* get the previous version (Map) of the vaultMap and update it */
       const newAssetMap = new Map(
-        _combinedData.reduce((acc: any, item: any) => {
-          const _map = acc;
-          _map.set(item.id, item);
-          return _map;
-        }, userState.assetMap)
+        _combinedData
+          .filter((asset: IAssetRoot) => asset.hasActiveJoin)
+          .reduce((acc: any, item: any) => {
+            const _map = acc;
+            _map.set(item.id, item);
+            return _map;
+          }, userState.assetMap)
       );
 
       updateState({ type: 'assetMap', payload: newAssetMap });
@@ -272,7 +271,7 @@ const UserProvider = ({ children }: any) => {
       updateState({ type: 'pricesLoading', payload: true });
 
       const Oracle =
-        (priceBase === '0x303400000000' || quote === '0x303400000000')
+        priceBase === '0x303400000000' || quote === '0x303400000000'
           ? contractMap.get('CompositeMultiOracle')
           : contractMap.get('ChainlinkMultiOracle');
 
@@ -315,7 +314,17 @@ const UserProvider = ({ children }: any) => {
         _limitMap.set(ilk, _baseLimitMap);
 
         updateState({ type: 'priceMap', payload: _limitMap });
-        console.log('Limit checked: ', ilk, ' ->', base, ':', min.toString(), max.toString(), digits.toString(), sum.toString());
+        console.log(
+          'Limit checked: ',
+          ilk,
+          ' ->',
+          base,
+          ':',
+          min.toString(),
+          max.toString(),
+          digits.toString(),
+          sum.toString()
+        );
         return [min, max, digits, sum];
       } catch (error) {
         console.log('Error getting limits', error);
