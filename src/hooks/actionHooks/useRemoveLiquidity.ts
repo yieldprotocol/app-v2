@@ -1,13 +1,14 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions, IVault } from '../../types';
+import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions, IVault, ISettingsContext } from '../../types';
 import { getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { burn, burnFromStrategy, calcPoolRatios, newPoolState, sellFYToken } from '../../utils/yieldMath';
 import { ZERO_BN } from '../../utils/constants';
+import { SettingsContext } from '../../contexts/SettingsContext';
 
 /*
                                                                             +---------+  DEFUNCT PATH
@@ -34,6 +35,11 @@ is Mature?        N     +--------+
  */
 
 export const useRemoveLiquidity = () => {
+
+  const {
+    settingsState: { approveMax },
+  } = useContext(SettingsContext) as ISettingsContext;
+  
   const {
     chainState: { contractMap },
   } = useContext(ChainContext);

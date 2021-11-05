@@ -1,8 +1,9 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
+import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, IVault, ISeries, ActionCodes, LadleActions } from '../../types';
+import { ICallData, IVault, ISeries, ActionCodes, LadleActions, ISettingsContext, IUserContext } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { BLANK_VAULT, ETH_BASED_ASSETS } from '../../utils/constants';
 import { useChain } from '../useChain';
@@ -11,7 +12,11 @@ export const useAddCollateral = () => {
   const {
     chainState: { contractMap },
   } = useContext(ChainContext);
-  
+
+  const {
+    settingsState: { approveMax },
+  } = useContext(SettingsContext) as ISettingsContext;
+
   const { userState, userActions } = useContext(UserContext);
   const { activeAccount: account, selectedBaseId, selectedIlkId, selectedSeriesId, seriesMap, assetMap } = userState;
   const { updateAssets, updateVaults } = userActions;
@@ -37,7 +42,6 @@ export const useAddCollateral = () => {
   };
 
   const addCollateral = async (vault: IVault | undefined, input: string) => {
-
     /* use the vault id provided OR 0 if new/ not provided */
     const vaultId = vault?.id || BLANK_VAULT;
 
@@ -78,7 +82,7 @@ export const useAddCollateral = () => {
       {
         operation: LadleActions.Fn.BUILD,
         args: [selectedSeriesId, selectedIlkId, '0'] as LadleActions.Args.BUILD,
-        ignoreIf: !!vault, // ignore if vault exists 
+        ignoreIf: !!vault, // ignore if vault exists
       },
       ...addEth(_input, series),
       ...permits,

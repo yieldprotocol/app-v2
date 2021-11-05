@@ -12,7 +12,7 @@ import { useChain } from '../useChain';
 export const useClosePosition = () => {
 
   const {
-    settingsState: { slippageTolerance },
+    settingsState: { slippageTolerance, approveMax },
   } = useContext(SettingsContext) ;
   
   const { userState, userActions } = useContext(UserContext);

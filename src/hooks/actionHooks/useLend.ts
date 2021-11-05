@@ -11,7 +11,7 @@ import { useChain } from '../useChain';
 /* Lend Actions Hook */
 export const useLend = () => {
   const {
-    settingsState: { slippageTolerance },
+    settingsState: { slippageTolerance, approveMax },
   } = useContext(SettingsContext);
 
   const { userState, userActions } = useContext(UserContext);
