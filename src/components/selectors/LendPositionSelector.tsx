@@ -79,7 +79,7 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
   return (
     <Box justify="end" fill>
       {activeAccount && allPositions.length !== 0 && (
-        <Box justify="between" alignSelf="end" gap="small" pad="small" background="hover" round="xsmall">
+        <Box justify="between" alignSelf="end" gap="small" pad="small" round="xsmall">
           <Box
             animation="fadeIn"
             justify="between"

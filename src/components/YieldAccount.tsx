@@ -1,14 +1,13 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import styled from 'styled-components';
 import { Text, Box, ResponsiveContext } from 'grommet';
 import { FiSettings } from 'react-icons/fi';
-import Skeleton from 'react-loading-skeleton';
+import Skeleton from './wraps/SkeletonWrap';
 import { ChainContext } from '../contexts/ChainContext';
 import { abbreviateHash } from '../utils/appUtils';
-import YieldBalances from './YieldBalances';
 import YieldAvatar from './YieldAvatar';
 import ConnectButton from './buttons/ConnectButton';
-import SidebarSettings from './SidebarSettings';
+import SidebarSettings from './Sidebar';
 import EthMark from './logos/EthMark';
 import { UserContext } from '../contexts/UserContext';
 import { WETH } from '../utils/constants';
@@ -25,11 +24,9 @@ const StyledText = styled(Text)`
 const StyledBox = styled(Box)`
   text-decoration: none;
   padding: 8px;
-
   -webkit-transition: transform 0.3s ease-in-out;
   -moz-transition: transform 0.3s ease-in-out;
   transition: transform 0.3s ease-in-out;
-
   :hover {
     transform: scale(1.1);
   }
@@ -65,13 +62,7 @@ const YieldAccount = (props: any) => {
       {account ? (
         <Box direction="row" gap="xsmall" align="center">
           {!mobile && <SettingsBalances />}
-          <StyledBox
-            round="xsmall"
-            onClick={() => setSettingsOpen(true)}
-            pad="xsmall"
-            justify="center"
-            hoverIndicator={{ background: 'hover' }}
-          >
+          <StyledBox round="xsmall" onClick={() => setSettingsOpen(true)} pad="xsmall" justify="center">
             {mobile ? (
               <Box>
                 <FiSettings />

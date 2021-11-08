@@ -1,5 +1,5 @@
-import React, { useContext, useState } from 'react';
-import { Box, Collapsible, Heading, ResponsiveContext, Text } from 'grommet';
+import React, { useContext } from 'react';
+import { Box, ResponsiveContext } from 'grommet';
 import { BorderType } from 'grommet/utils';
 import AltText from '../texts/AltText';
 
@@ -19,13 +19,10 @@ function SectionWrap({ icon, title, border, disabled, children, rightAction }: I
     <Box border={border} justify="center">
       {title && (
         <Box pad={{ vertical: 'xsmall' }} direction="row" fill="horizontal" justify="between" align="center">
-          <Box direction="row" gap='xsmall' align='center' >
-          {/* <AltText size={mobile ? 'xsmall' : 'small'} color={disabled ? 'text-xweak' : 'text-weak'} >
-            {icon}
-          </AltText> */}
-          <AltText size={mobile ? 'xsmall' : 'xsmall'} color={disabled ? 'text-xweak' : 'text-weak'} >
-           {title}
-          </AltText>
+          <Box direction="row" gap="xsmall" align="center">
+            <AltText size={mobile ? 'xsmall' : 'xsmall'} color={disabled ? 'text-xweak' : 'text-weak'}>
+              {title}
+            </AltText>
           </Box>
           {rightAction}
         </Box>
@@ -40,6 +37,6 @@ SectionWrap.defaultProps = {
   border: undefined,
   disabled: false,
   rightAction: undefined,
-  icon:undefined,
+  icon: undefined,
 };
 export default SectionWrap;

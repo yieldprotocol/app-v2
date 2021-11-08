@@ -1,4 +1,6 @@
 import { format, getMonth, subDays } from 'date-fns';
+import { uniqueNamesGenerator, Config, adjectives, animals } from 'unique-names-generator';
+
 import { ActionCodes } from '../types';
 
 export const copyToClipboard = (str: string) => {
@@ -27,6 +29,18 @@ export const toLog = (message: string, type: string = 'info') => {
 
 /* creates internal tracking code of a transaction type */
 export const getTxCode = (txType: ActionCodes, vaultOrSeriesId: string | null) => `${txType}_${vaultOrSeriesId}`;
+
+
+export const generateVaultName = (id:string) => {
+
+  const vaultNameConfig: Config = {
+    dictionaries: [adjectives, animals],
+    separator: ' ',
+    length: 2,
+  };
+  return uniqueNamesGenerator({ seed: parseInt(id.substring(14), 16), ...vaultNameConfig })
+  
+};
 
 
 // TODO make it change based on hemisphere ( ie swap winter and summer)

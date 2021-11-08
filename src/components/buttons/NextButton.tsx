@@ -1,5 +1,5 @@
-import { Box, Button, Text } from 'grommet';
 import React from 'react';
+import { Box, Button, Text } from 'grommet';
 import { FiAlertTriangle } from 'react-icons/fi';
 import styled from 'styled-components';
 
@@ -17,14 +17,14 @@ const NextButton = (props: any) => (
   <Box>
     <StyledButton
       {...props}
-      color={props.errorLabel ? 'red' : undefined}
+      color={props.errorLabel ? 'error' : undefined}
       label={
         props.errorLabel ? (
           <Box direction="row" gap="small" align="center" fill justify="center">
-            <Text color="red">
+            <Text color="error">
               <FiAlertTriangle style={{ verticalAlign: 'middle' }} />
             </Text>
-            <Text color="red" size="xsmall">
+            <Text color="error" size="xsmall">
               {props.errorLabel}
             </Text>
           </Box>

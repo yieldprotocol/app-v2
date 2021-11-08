@@ -1,6 +1,8 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
+import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
+import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
@@ -9,8 +11,16 @@ import { useChain } from '../useChain';
 
 /* Lend Actions Hook */
 export const useLend = () => {
+  const {
+    settingsState: { slippageTolerance, approveMax },
+  } = useContext(SettingsContext);
+
+  const {
+    chainState: { contractMap },
+  } = useContext(ChainContext);
+
   const { userState, userActions } = useContext(UserContext);
-  const { activeAccount: account, assetMap, slippageTolerance } = userState;
+  const { activeAccount: account, assetMap } = userState;
   const { updateSeries, updateAssets } = userActions;
 
   const {
@@ -22,10 +32,12 @@ export const useLend = () => {
   const lend = async (input: string | undefined, series: ISeries) => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.LEND, series.id);
-    
+
     const base = assetMap.get(series.baseId);
     const cleanedInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanedInput, base.decimals) : ethers.constants.Zero;
+
+    const ladleAddress = contractMap.get('Ladle').address;
 
     const _inputAsFyToken = sellBase(
       series.baseReserves,
@@ -36,13 +48,16 @@ export const useLend = () => {
     );
     const _inputAsFyTokenWithSlippage = calculateSlippage(_inputAsFyToken, slippageTolerance.toString(), true);
 
+    /* if approveMAx, check if signature is required */
+    const alreadyApproved = approveMax ? (await base.allowance(account, ladleAddress)).gt(_input) : false;
+
     const permits: ICallData[] = await sign(
       [
         {
           target: base,
           spender: 'LADLE',
           amount: _input,
-          ignoreIf: false,
+          ignoreIf: alreadyApproved,
         },
       ],
       txCode

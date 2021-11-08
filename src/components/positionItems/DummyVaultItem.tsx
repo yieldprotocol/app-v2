@@ -1,9 +1,8 @@
 import React, { useContext } from 'react';
 import { useHistory } from 'react-router-dom';
-import styled from 'styled-components';
 
 import { Box, Text } from 'grommet';
-import { ActionType, ISeries, IUserContext, IVault } from '../../types';
+import { ActionType, ISeries, IUserContext } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 
 import PositionAvatar from '../PositionAvatar';

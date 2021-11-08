@@ -1,6 +1,6 @@
 import React, { useEffect, useContext, useState } from 'react';
 import { Link } from 'react-router-dom';
-import styled from 'styled-components';
+import styled, { ThemeContext } from 'styled-components';
 import { Box, Text, Spinner } from 'grommet';
 import { FiX, FiCheckCircle, FiXCircle } from 'react-icons/fi';
 import { ActionCodes, ProcessStage, TxState } from '../types';
@@ -8,6 +8,8 @@ import EtherscanButton from './buttons/EtherscanButton';
 import { getPositionPath } from '../utils/appUtils';
 import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
+import { UserContext } from '../contexts/UserContext';
+import { SettingsContext } from '../contexts/SettingsContext';
 
 interface ITransactionItem {
   tx: any;
@@ -19,6 +21,7 @@ const StyledLink = styled(Link)`
   vertical-align: middle;
   :hover {
     text-decoration: underline;
+    text-decoration-color: ${(props) => props.color};
   }
 `;
 
@@ -29,6 +32,11 @@ const TransactionItem = ({ tx, wide }: ITransactionItem) => {
   const {
     txActions: { updateTxStage },
   } = useContext(TxContext);
+  const {
+    settingsState: { darkMode },
+  } = useContext(SettingsContext);
+  const theme = useContext<any>(ThemeContext);
+  const textColor = theme.global.colors.text;
 
   const { status, txCode, tx: t, receipt } = tx;
   const action = txCode.split('_')[0];
@@ -49,7 +57,7 @@ const TransactionItem = ({ tx, wide }: ITransactionItem) => {
       elevation={wide ? undefined : 'small'}
       pad={wide ? 'xsmall' : 'medium'}
       key={t.hash}
-      background={wide ? 'tailwind-blue-50' : 'white'}
+      background={wide ? 'gradient-transparent' : 'hoverBackground'}
       round={{ size: 'xsmall', corner: 'left' }}
     >
       {!wide && (
@@ -69,13 +77,19 @@ const TransactionItem = ({ tx, wide }: ITransactionItem) => {
             {status === TxState.FAILED && <FiXCircle size="1.5rem" color="#F87171" />}
           </Box>
           {status === TxState.SUCCESSFUL && link ? (
-            <StyledLink to={link}>
-              <Text size="small" style={{ color: 'black', verticalAlign: 'middle' }}>
+            <StyledLink to={link} color={darkMode ? textColor.dark : textColor.light}>
+              <Text
+                size="small"
+                style={{
+                  color: darkMode ? textColor.dark : textColor.light,
+                  verticalAlign: 'middle',
+                }}
+              >
                 {action}
               </Text>
             </StyledLink>
           ) : (
-            <Text size="small" color="black">
+            <Text size="small" color={textColor}>
               {action}
             </Text>
           )}

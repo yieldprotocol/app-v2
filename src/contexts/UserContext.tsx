@@ -2,8 +2,6 @@ import React, { useContext, useEffect, useReducer, useCallback, useState } from 
 import { useLocation } from 'react-router-dom';
 import { BigNumber, ethers } from 'ethers';
 
-import { uniqueNamesGenerator, Config, adjectives, animals } from 'unique-names-generator';
-
 import {
   IAssetRoot,
   ISeriesRoot,
@@ -13,14 +11,12 @@ import {
   IVault,
   IUserContextState,
   IUserContext,
-  ApprovalType,
   IStrategyRoot,
   IStrategy,
-  IDashSettings,
 } from '../types';
 
 import { ChainContext } from './ChainContext';
-import { cleanValue } from '../utils/appUtils';
+import { cleanValue, generateVaultName } from '../utils/appUtils';
 import {
   calculateAPR,
   divDecimal,
@@ -46,7 +42,8 @@ const initState: IUserContextState = {
   seriesMap: new Map<string, ISeries>(),
   vaultMap: new Map<string, IVault>(),
   strategyMap: new Map<string, IStrategy>(),
-  /* map of asset prices */
+
+  /* map of asset prices/limits  */
   priceMap: new Map<string, Map<string, any>>(),
   limitMap: new Map<string, Map<string, any>>(),
 
@@ -55,6 +52,7 @@ const initState: IUserContextState = {
   assetsLoading: true as boolean,
   strategiesLoading: true as boolean,
   pricesLoading: true as boolean,
+  limitsLoading: true as boolean,
 
   /* Current User selections */
   selectedSeriesId: null,
@@ -62,28 +60,6 @@ const initState: IUserContextState = {
   selectedBaseId: null, // initial base
   selectedVaultId: null,
   selectedStrategyAddr: null,
-
-  /* User Settings ( getting from the cache first ) */
-
-  approvalMethod: (JSON.parse(localStorage.getItem('cachedApprovalMethod')!) as ApprovalType) || ApprovalType.SIG,
-  slippageTolerance: (JSON.parse(localStorage.getItem('slippageTolerance')!) as number) || (0.005 as number),
-  dudeSalt: 21,
-  diagnostics: false,
-
-  dashSettings: {
-    hideEmptyVaults: false,
-    hideInactiveVaults: false,
-    hideVaultPositions: false,
-    hideLendPositions: false,
-    hidePoolPositions: false,
-    currencySetting: 'DAI',
-  } as IDashSettings,
-};
-
-const vaultNameConfig: Config = {
-  dictionaries: [adjectives, animals],
-  separator: ' ',
-  length: 2,
 };
 
 function userReducer(state: any, action: any) {
@@ -121,13 +97,6 @@ function userReducer(state: any, action: any) {
     case 'priceMap':
       return { ...state, priceMap: onlyIfChanged(action) };
 
-    case 'approvalMethod':
-      return { ...state, approvalMethod: onlyIfChanged(action) };
-    case 'dudeSalt':
-      return { ...state, dudeSalt: onlyIfChanged(action) };
-    case 'setSlippageTolerance':
-      return { ...state, slippageTolerance: onlyIfChanged(action) };
-
     case 'pricesLoading':
       return { ...state, pricesLoading: onlyIfChanged(action) };
     case 'vaultsLoading':
@@ -139,11 +108,6 @@ function userReducer(state: any, action: any) {
     case 'strategiesLoading':
       return { ...state, strategiesLoading: onlyIfChanged(action) };
 
-    case 'showInactiveVaults':
-      return { ...state, showInactiveVaults: onlyIfChanged(action) };
-    case 'dashSettings':
-      return { ...state, dashSettings: onlyIfChanged(action) };
-
     default:
       return state;
   }
@@ -151,9 +115,7 @@ function userReducer(state: any, action: any) {
 
 const UserProvider = ({ children }: any) => {
   /* STATE FROM CONTEXT */
-  // TODO const [cachedVaults, setCachedVaults] = useCachedState('vaults', { data: [], lastBlock: Number(process.env.REACT_APP_DEPLOY_BLOCK) });
   const { chainState } = useContext(ChainContext);
-  // const { contractMap, account, chainLoading, seriesRootMap, assetRootMap, strategyRootMap } = chainState;
   const {
     contractMap,
     connection: { account },
@@ -198,7 +160,7 @@ const UserProvider = ({ children }: any) => {
           seriesId,
           baseId: series?.baseId!,
           ilkId,
-          displayName: uniqueNamesGenerator({ seed: parseInt(id.substring(14), 16), ...vaultNameConfig }),
+          displayName: generateVaultName(id),
           decimals: series?.decimals!,
         };
       });
@@ -213,7 +175,7 @@ const UserProvider = ({ children }: any) => {
             seriesId,
             baseId: series?.baseId!,
             ilkId,
-            displayName: uniqueNamesGenerator({ seed: parseInt(id.substring(14), 16), ...vaultNameConfig }), // TODO Marco move uniquNames generator into utils
+            displayName: generateVaultName(id),
             decimals: series?.decimals!,
           };
         })
@@ -250,9 +212,14 @@ const UserProvider = ({ children }: any) => {
       _publicData = await Promise.all(
         assetList.map(async (asset: IAssetRoot): Promise<IAssetRoot> => {
           const isYieldBase = !!Array.from(seriesRootMap.values()).find((x: any) => x.baseId === asset.id);
+
+          const hasActiveJoin =
+            ethers.utils.isAddress(asset.joinAddress) && asset.joinAddress !== ethers.constants.AddressZero;
+
           return {
             ...asset,
             isYieldBase,
+            hasActiveJoin,
           };
         })
       );
@@ -264,16 +231,9 @@ const UserProvider = ({ children }: any) => {
         try {
           _accountData = await Promise.all(
             _publicData.map(async (asset: IAssetRoot): Promise<IAsset> => {
-              const [balance, ladleAllowance, joinAllowance] = await Promise.all([
-                asset.getBalance(account),
-                asset.getAllowance(account, contractMap.get('Ladle').address),
-                asset.getAllowance(account, asset.joinAddress),
-              ]);
-
+              const balance = await asset.getBalance(account);
               return {
                 ...asset,
-                hasLadleAuth: ladleAllowance.gt(ethers.constants.Zero),
-                hasJoinAuth: joinAllowance.gt(ethers.constants.Zero),
                 balance: balance || ethers.constants.Zero,
                 balance_: balance
                   ? cleanValue(ethers.utils.formatUnits(balance, asset.decimals), 2)
@@ -285,16 +245,17 @@ const UserProvider = ({ children }: any) => {
           console.log(e);
         }
       }
-
       const _combinedData = _accountData.length ? _accountData : _publicData;
 
       /* get the previous version (Map) of the vaultMap and update it */
       const newAssetMap = new Map(
-        _combinedData.reduce((acc: any, item: any) => {
-          const _map = acc;
-          _map.set(item.id, item);
-          return _map;
-        }, userState.assetMap)
+        _combinedData
+          .filter((asset: IAssetRoot) => asset.hasActiveJoin)
+          .reduce((acc: any, item: any) => {
+            const _map = acc;
+            _map.set(item.id, item);
+            return _map;
+          }, userState.assetMap)
       );
 
       updateState({ type: 'assetMap', payload: newAssetMap });
@@ -309,10 +270,15 @@ const UserProvider = ({ children }: any) => {
     async (priceBase: string, quote: string, decimals: number = 18): Promise<BigNumber> => {
       updateState({ type: 'pricesLoading', payload: true });
 
+      const Oracle =
+        priceBase === '0x303400000000' || quote === '0x303400000000'
+          ? contractMap.get('CompositeMultiOracle')
+          : contractMap.get('ChainlinkMultiOracle');
+
       try {
         const _quoteMap = userState.priceMap;
         const _basePriceMap = _quoteMap.get(priceBase) || new Map<string, any>();
-        const Oracle = contractMap.get('ChainlinkMultiOracle');
+        // const Oracle = oracleSwitch();
         const [price] = await Oracle.peek(
           bytesToBytes32(priceBase, 6),
           bytesToBytes32(quote, 6),
@@ -348,11 +314,21 @@ const UserProvider = ({ children }: any) => {
         _limitMap.set(ilk, _baseLimitMap);
 
         updateState({ type: 'priceMap', payload: _limitMap });
-        console.log('Limit checked: ', ilk, ' ->', base, ':', min.toString(), max.toString(), sum.toString() );
+        console.log(
+          'Limit checked: ',
+          ilk,
+          ' ->',
+          base,
+          ':',
+          min.toString(),
+          max.toString(),
+          digits.toString(),
+          sum.toString()
+        );
         return [min, max, digits, sum];
       } catch (error) {
         console.log('Error getting limits', error);
-        return [ethers.constants.Zero, ethers.constants.Zero, ethers.constants.Zero, ethers.constants.Zero ];
+        return [ethers.constants.Zero, ethers.constants.Zero, ethers.constants.Zero, ethers.constants.Zero];
       }
     },
     [contractMap, userState.limitMap]
@@ -369,12 +345,12 @@ const UserProvider = ({ children }: any) => {
       _publicData = await Promise.all(
         seriesList.map(async (series: ISeriesRoot): Promise<ISeries> => {
           /* Get all the data simultanenously in a promise.all */
-          const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves, mature, ] = await Promise.all([
+          const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves, mature] = await Promise.all([
             series.poolContract.getBaseBalance(),
             series.poolContract.getFYTokenBalance(),
             series.poolContract.totalSupply(),
             series.fyTokenContract.balanceOf(series.poolAddress),
-            series.isMature()
+            series.isMature(),
           ]);
 
           /* Calculates the base/fyToken unit selling price */
@@ -672,16 +648,6 @@ const UserProvider = ({ children }: any) => {
     setSelectedBase: (assetId: string | null) => updateState({ type: 'selectedBaseId', payload: assetId }),
     setSelectedStrategy: (strategyAddr: string | null) =>
       updateState({ type: 'selectedStrategyAddr', payload: strategyAddr }),
-
-    // TODO To reduce exposure, maybe we have a single 'change setting' function?  > that handles all the below? not urgent.
-    setApprovalMethod: (type: ApprovalType) => updateState({ type: 'approvalMethod', payload: type }),
-    updateDudeSalt: () => updateState({ type: 'dudeSalt', payload: userState.dudeSalt + 3 }),
-
-    setSlippageTolerance: (slippageTolerance: number) =>
-      updateState({ type: 'setSlippageTolerance', payload: slippageTolerance }),
-
-    setDashSettings: (name: any, value: any) =>
-      updateState({ type: 'dashSettings', payload: { ...userState.dashSettings, [name]: value } }),
   };
 
   return <UserContext.Provider value={{ userState, userActions } as IUserContext}>{children}</UserContext.Provider>;

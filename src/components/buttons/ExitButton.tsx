@@ -26,11 +26,9 @@ function ExitButton({ action }: { action: () => void }) {
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
-      <FiLogOut color={hover ? '#333333' : 'grey'} />
+      <FiLogOut color={hover ? 'text' : 'text-weak'} />
     </StyledBox>
   );
 }
-
-// BackButton.defaultProps = { color: 'grey' };
 
 export default ExitButton;

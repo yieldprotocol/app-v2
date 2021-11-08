@@ -8,8 +8,14 @@ import { calculateSlippage, maxBaseIn, secondsToFrom, sellBase } from '../../uti
 import { useRemoveCollateral } from './useRemoveCollateral';
 import { ChainContext } from '../../contexts/ChainContext';
 import { ETH_BASED_ASSETS } from '../../utils/constants';
+import { SettingsContext } from '../../contexts/SettingsContext';
 
 export const useRepayDebt = () => {
+
+  const {
+    settingsState: { slippageTolerance, approveMax },
+  } = useContext(SettingsContext);
+  
   const { userState, userActions } = useContext(UserContext);
   const { activeAccount: account, seriesMap, assetMap } = userState;
   const { updateVaults, updateAssets } = userActions;
@@ -17,12 +23,15 @@ export const useRepayDebt = () => {
   const {
     chainState: { contractMap },
   } = useContext(ChainContext);
-  const ladleAddress = contractMap.get('Ladle').address;
+  
 
   const { removeEth } = useRemoveCollateral();
   const { sign, transact } = useChain();
 
   const repay = async (vault: IVault, input: string | undefined, reclaimCollateral: boolean) => {
+
+    const ladleAddress = contractMap.get('Ladle').address;
+    
     const txCode = getTxCode(ActionCodes.REPAY, vault.id);
     const series: ISeries = seriesMap.get(vault.seriesId);
     const base: IAsset = assetMap.get(vault.baseId);
@@ -48,7 +57,7 @@ export const useRepayDebt = () => {
 
     const _inputAsFyTokenWithSlippage = calculateSlippage(
       _inputAsFyToken,
-      userState.slippageTolerance.toString(),
+      slippageTolerance.toString(),
       true // minimize
     );
 
@@ -58,6 +67,10 @@ export const useRepayDebt = () => {
     const _collateralToRemove = reclaimCollateral && inputGreaterThanDebt ? vault.ink.mul(-1) : ethers.constants.Zero;
     const isEthBased = ETH_BASED_ASSETS.includes(vault.ilkId);
 
+    const alreadyApproved = approveMax
+    ? (await base.baseContract.allowance(account, series.seriesIsMature ? base.joinAddress : ladleAddress) ).gt(_input)
+    : false;
+
     const permits: ICallData[] = await sign(
       [
         {
@@ -65,14 +78,14 @@ export const useRepayDebt = () => {
           target: base,
           spender: 'LADLE',
           amount: _input,
-          ignoreIf: series.seriesIsMature,
+          ignoreIf: series.seriesIsMature || alreadyApproved,
         },
         {
           // after maturity
           target: base,
           spender: base.joinAddress,
           amount: _input,
-          ignoreIf: !series.seriesIsMature,
+          ignoreIf: !series.seriesIsMature || alreadyApproved,
         },
       ],
       txCode

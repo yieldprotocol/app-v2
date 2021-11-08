@@ -17,7 +17,7 @@ const StyledTableCell = styled(TableCell)`
 `;
 
 const DropContent = ({ assetMap }: { assetMap: any }) => (
-  <Box pad="small">
+  <Box pad="small" round="xsmall" background="hoverBackground">
     <Table>
       <TableHeader>
         <TableRow>
@@ -31,7 +31,7 @@ const DropContent = ({ assetMap }: { assetMap: any }) => (
             <Text size="xsmall"> </Text>
           </StyledTableCell>
           <StyledTableCell align="center" plain>
-            <Text color="gray" size="xsmall">
+            <Text color="text" size="xsmall">
               Add To Metamask
             </Text>
           </StyledTableCell>
@@ -44,7 +44,7 @@ const DropContent = ({ assetMap }: { assetMap: any }) => (
               <Text size="medium">{asset.image}</Text>
             </StyledTableCell>
             <StyledTableCell plain>
-              <Text size="small" color="gray">
+              <Text size="small" color="text">
                 {asset.symbol}
               </Text>
             </StyledTableCell>
@@ -76,7 +76,7 @@ const SettingsBalances = () => {
   };
 
   return (
-    <Box pad="medium" hoverIndicator={{ background: 'hover' }}>
+    <Box pad="medium">
       <BoxWrap>
         <DropButton
           open={open}
@@ -84,9 +84,7 @@ const SettingsBalances = () => {
           onClose={onClose}
           dropContent={<DropContent assetMap={assetMap} />}
           dropProps={{ align: { top: 'bottom', right: 'right' } }}
-          // hoverIndicator={{ border: 'tailwind-blue-50' }}
           style={{ borderRadius: '6px' }}
-          hoverIndicator="hover"
         >
           <YieldBalances />
         </DropButton>

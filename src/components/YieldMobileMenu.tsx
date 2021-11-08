@@ -15,13 +15,14 @@ interface ILayerProps {
 
 const YieldMobileMenu = ({ toggleMenu, callback }: ILayerProps) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-  
+
   return mobile ? (
     <Layer position="right" full="vertical" responsive modal animation="none">
       <Box
         flex
         fill
         style={mobile ? { minWidth: undefined, maxWidth: undefined } : { minWidth: '400px', maxWidth: '400px' }}
+        background="background"
       >
         <Box justify="between" fill>
           <Header pad="medium" justify="between">

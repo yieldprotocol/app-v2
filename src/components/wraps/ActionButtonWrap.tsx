@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { Button, Box, Text, Layer, ResponsiveContext } from 'grommet';
 import { ChainContext } from '../../contexts/ChainContext';
-import SidebarSettings from '../SidebarSettings';
+import SidebarSettings from '../Sidebar';
 
 function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -16,7 +16,7 @@ function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
 
   return mobile ? (
-    <Layer position="bottom" background="white" modal={false} responsive={false} full="horizontal" animate={false}>
+    <Layer position="bottom" background="background" modal={false} responsive={false} full="horizontal" animate={false}>
       <Box gap="small" fill="horizontal" pad="small">
         {children}
       </Box>

@@ -28,6 +28,4 @@ function BackButton({ action }: { action: () => void }) {
   );
 }
 
-// BackButton.defaultProps = { color: 'grey' };
-
 export default BackButton;

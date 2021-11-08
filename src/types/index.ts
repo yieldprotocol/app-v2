@@ -1,6 +1,6 @@
 import { ethers, BigNumber, BigNumberish, ContractTransaction } from 'ethers';
 import React from 'react';
-import { ERC20, ERC20Permit, FYToken, Pool, Strategy } from '../contracts';
+import { ERC20Permit, FYToken, Pool, Strategy } from '../contracts';
 
 export { LadleActions, RoutedActions } from './operations';
 
@@ -19,7 +19,6 @@ export interface IUserContext {
   userState: IUserContextState;
   userActions: IUserContextActions;
 }
-
 export interface IUserContextState {
   userLoading: boolean;
   activeAccount: string | null;
@@ -37,19 +36,13 @@ export interface IUserContextState {
   assetsLoading: boolean;
   strategiesLoading: boolean;
   pricesLoading: boolean;
+  limitsLoading: boolean;
 
   selectedSeriesId: string | null;
   selectedIlkId: string | null;
   selectedBaseId: string | null;
   selectedVaultId: string | null;
   selectedStrategyAddr: string | null;
-
-  approvalMethod: ApprovalType;
-  dudeSalt: number;
-  slippageTolerance: number;
-  diagnostics: boolean;
-
-  dashSettings: IDashSettings;
 }
 
 export interface IUserContextActions {
@@ -63,7 +56,31 @@ export interface IUserContextActions {
   setSelectedBase: (baseId: string | null) => void;
   setSelectedVault: (vaultId: string | null) => void;
   setSelectedStrategy: (strategyAddr: string | null) => void;
-  setDashSettings: (settingName: any, settingValue: any) => void;
+}
+
+export interface ISettingsContext {
+  settingsState: ISettingsContextState;
+  settingsActions: { updateSetting: (setting: string, value: string | number | boolean) => void };
+}
+export interface ISettingsContextState {
+  /* User Settings ( getting from the cache first ) */
+  approvalMethod: ApprovalType;
+  slippageTolerance: number;
+  diagnostics: boolean;
+  dudeSalt: number;
+  darkMode: boolean;
+  autoTheme:boolean;
+  approveMax: boolean;
+  disclaimerChecked: boolean;
+  powerUser: boolean;
+
+  /* DashSettings */
+  dashHideEmptyVaults: boolean;
+  dashHideInactiveVaults: boolean;
+  dashHideVaults: boolean;
+  dashHideLendPositions: boolean;
+  dashHidePoolPositions: boolean;
+  dashCurrency: string;
 }
 
 export interface ISignable {
@@ -120,12 +137,13 @@ export interface IAssetRoot extends ISignable {
   digitFormat: number;
 
   baseContract: ERC20Permit;
+
   isYieldBase: boolean;
+  hasActiveJoin: boolean;
 
   // baked in token fns
   getBalance: (account: string) => Promise<BigNumber>;
   getAllowance: (account: string, spender: string) => Promise<BigNumber>;
-  mintTest: () => Promise<VoidFunction>;
 }
 
 export interface IStrategyRoot extends ISignable {
@@ -143,8 +161,6 @@ export interface IVaultRoot {
   displayName: string;
   decimals: number;
 }
-
-export interface IPoolRoot extends ISignable {}
 
 export interface ISeries extends ISeriesRoot {
   apr: string;
@@ -168,8 +184,6 @@ export interface ISeries extends ISeriesRoot {
 export interface IAsset extends IAssetRoot {
   balance: BigNumber;
   balance_: string;
-  hasLadleAuth: boolean;
-  hasJoinAuth: boolean;
 }
 
 export interface IVault extends IVaultRoot {
@@ -216,8 +230,6 @@ export interface IStrategy extends IStrategyRoot {
   accountPoolBalance_?: string;
   accountPoolPercent?: string | undefined;
 }
-
-export interface IPool extends IPoolRoot {}
 
 export interface ICallData {
   args: (string | BigNumberish | boolean)[];
@@ -335,9 +347,9 @@ export enum AddLiquidityType {
 export enum ContractNames {}
 
 export enum YieldColors {
-  SUCCESS = 'green',
-  FAILED = 'red',
-  WARNING = 'orange',
+  SUCCESS = 'success',
+  FAILED = 'error',
+  WARNING = 'warning',
   GRADIENT = '',
   GRADIENT_TRANSPARENT = '',
   PRIMARY = '',

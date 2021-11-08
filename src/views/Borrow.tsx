@@ -54,7 +54,7 @@ const Borrow = () => {
     chainState: { contractMap },
   } = useContext(ChainContext);
   const { userState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, assetMap, vaultMap, seriesMap, selectedSeriesId, selectedIlkId, selectedBaseId, limitMap } =
+  const { activeAccount, assetMap, vaultMap, seriesMap, selectedSeriesId, selectedIlkId, selectedBaseId } =
     userState;
 
   const selectedBase = assetMap.get(selectedBaseId!);
@@ -430,7 +430,7 @@ const Borrow = () => {
                       icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
                       value={`${cleanValue(collatInput, selectedIlk?.digitFormat!)} ${
                         selectedIlk?.symbol
-                      } (${collateralizationPercent}% )`}
+                      } (${collateralizationPercent}%)`}
                     />
                     {vaultToUse?.id && (
                       <InfoBite

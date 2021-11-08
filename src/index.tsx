@@ -4,16 +4,13 @@ import { HashRouter as Router } from 'react-router-dom';
 import { ethers } from 'ethers';
 import { createWeb3ReactRoot, Web3ReactProvider } from '@web3-react/core';
 
-import { Grommet, base } from 'grommet';
-import { deepMerge } from 'grommet/utils';
-import { yieldTheme } from './themes';
-
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { ChainProvider } from './contexts/ChainContext';
 import { TxProvider } from './contexts/TxContext';
 import { UserProvider } from './contexts/UserContext';
 import { HistoryProvider } from './contexts/HistoryContext';
+import { SettingsProvider } from './contexts/SettingsContext';
 
 /* Init the signing web3 environment */
 function getLibrary(provider: ethers.providers.ExternalProvider, connector: any) {
@@ -37,23 +34,23 @@ function getFallbackLibrary(provider: any, connector: any) {
 
 ReactDOM.render(
   <React.StrictMode>
-    <Router>
-      <Web3FallbackProvider getLibrary={getFallbackLibrary}>
-        <Web3ReactProvider getLibrary={getLibrary}>
-          <ChainProvider>
-            <UserProvider>
-              <TxProvider>
-                <HistoryProvider>
-                  <Grommet theme={deepMerge(base, yieldTheme)} full>
+    <SettingsProvider>
+      <Router>
+        <Web3FallbackProvider getLibrary={getFallbackLibrary}>
+          <Web3ReactProvider getLibrary={getLibrary}>
+            <ChainProvider>
+              <UserProvider>
+                <TxProvider>
+                  <HistoryProvider>
                     <App />
-                  </Grommet>
-                </HistoryProvider>
-              </TxProvider>
-            </UserProvider>
-          </ChainProvider>
-        </Web3ReactProvider>
-      </Web3FallbackProvider>
-    </Router>
+                  </HistoryProvider>
+                </TxProvider>
+              </UserProvider>
+            </ChainProvider>
+          </Web3ReactProvider>
+        </Web3FallbackProvider>
+      </Router>
+    </SettingsProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );

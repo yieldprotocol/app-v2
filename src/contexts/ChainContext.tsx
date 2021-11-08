@@ -20,6 +20,7 @@ import USDCMark from '../components/logos/USDCMark';
 import WBTCMark from '../components/logos/WBTCMark';
 import USDTMark from '../components/logos/USDTMark';
 import YieldMark from '../components/logos/YieldMark';
+import StEthMark from '../components/logos/StEthMark';
 
 const markMap = new Map([
   ['DAI', <DaiMark key="dai" />],
@@ -28,6 +29,7 @@ const markMap = new Map([
   ['TST', <TSTMark key="tst" />],
   ['ETH', <EthMark key="eth" />],
   ['USDT', <USDTMark key="eth" />],
+  ['STETH', <StEthMark key="steth" />],
 ]);
 
 const assetDigitFormatMap = new Map([
@@ -36,6 +38,7 @@ const assetDigitFormatMap = new Map([
   ['DAI', 2],
   ['USDC', 2],
   ['USDT', 2],
+  ['STETH', 6],
 ]);
 
 /* Build the context */
@@ -125,7 +128,7 @@ const ChainProvider = ({ children }: any) => {
 
   /* Connection hook */
   const { connectionState, connectionActions } = useConnection();
-  const { chainId, fallbackProvider, fallbackChainId, lastChainId } = connectionState;
+  const { chainId, fallbackProvider, fallbackChainId } = connectionState;
 
   /**
    * Update on FALLBACK connection/state on network changes (id/library)
@@ -197,6 +200,7 @@ const ChainProvider = ({ children }: any) => {
           Cauldron.queryFilter('AssetAdded' as any, lastAssetUpdate),
           Ladle.queryFilter('JoinAdded' as any, lastAssetUpdate),
         ]);
+
         /* Create a map from the joinAdded event data */
         const joinMap: Map<string, string> = new Map(
           joinAddedEvents.map((log: any) => Ladle.interface.parseLog(log).args) as [[string, string]]
@@ -214,11 +218,19 @@ const ChainProvider = ({ children }: any) => {
               id === USDC ? '2' : '1', // TODO  ERC20.version()
             ]);
 
+            const symbolSwitch = (sym: string) => {
+              switch (sym) {
+                case 'WETH' : return 'ETH';
+                case 'wstETH' : return 'STETH';
+                default: return sym;
+              }
+            }
+
             const newAsset = {
               id,
               address,
               name,
-              symbol: symbol !== 'WETH' ? symbol : 'ETH',
+              symbol: symbolSwitch(symbol),
               decimals,
               version,
               joinAddress: joinMap.get(id),

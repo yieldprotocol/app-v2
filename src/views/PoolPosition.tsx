@@ -59,16 +59,10 @@ const PoolPosition = () => {
   /* HOOK FNS */
   const removeLiquidity = useRemoveLiquidity();
   const {
-    // accountTradeValue,
     matchingVault,
     maxRemoveWithVault,
     maxRemoveNoVault,
-
-    removeBaseReceived,
-    removeFyTokenReceived,
     removeBaseReceived_,
-    removeFyTokenReceived_,
-
     partialRemoveRequired,
   } = usePoolHelpers(removeInput, true);
 
@@ -209,7 +203,7 @@ const PoolPosition = () => {
 
               <Box height={{ min: '300px' }}>
                 <SectionWrap title="Position Actions">
-                  <Box elevation="xsmall" round="xsmall" background={mobile ? 'white' : undefined}>
+                  <Box elevation="xsmall" round="xsmall" background={mobile ? 'hoverBackground' : 'hoverBackground'}>
                     <Select
                       plain
                       dropProps={{ round: 'xsmall' }}
