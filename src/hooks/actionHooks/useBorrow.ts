@@ -4,7 +4,7 @@ import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, IVault, ActionCodes, LadleActions, ISeries } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { ETH_BASED_ASSETS, BLANK_VAULT } from '../../utils/constants';
+import { ETH_BASED_ASSETS, BLANK_VAULT, MAX_256 } from '../../utils/constants';
 import { buyBase, calculateSlippage } from '../../utils/yieldMath';
 import { useChain } from '../useChain';
 import { useAddCollateral } from './useAddCollateral';
@@ -50,7 +50,7 @@ export const useBorrow = () => {
 
     /* if approveMAx, check if signature is required */
     const alreadyApproved = approveMax
-      ? (await ilk.baseContract.allowance(account, ilk.joinAddress)).gt(_input)
+      ? (await ilk.baseContract.allowance(account, ilk.joinAddress)).gt(_collInput)
       : false;
 
     /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
@@ -60,7 +60,7 @@ export const useBorrow = () => {
           target: ilk,
           spender: ilk.joinAddress,
           message: `Allow Yield Protocol to move ${ilk.symbol}`,
-          amount: _input,
+          amount: _collInput,
           ignoreIf: alreadyApproved || ETH_BASED_ASSETS.includes(selectedIlkId) || _collInput.eq(ethers.constants.Zero),
         },
       ],
