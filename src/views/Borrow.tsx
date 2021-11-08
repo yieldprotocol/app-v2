@@ -54,8 +54,7 @@ const Borrow = () => {
     chainState: { contractMap },
   } = useContext(ChainContext);
   const { userState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, assetMap, vaultMap, seriesMap, selectedSeriesId, selectedIlkId, selectedBaseId } =
-    userState;
+  const { activeAccount, assetMap, vaultMap, seriesMap, selectedSeriesId, selectedIlkId, selectedBaseId } = userState;
 
   const selectedBase = assetMap.get(selectedBaseId!);
   const selectedIlk = assetMap.get(selectedIlkId!);
@@ -87,6 +86,8 @@ const Borrow = () => {
     minCollateral_,
     minSafeCollateral,
     maxCollateral,
+    minCollatRatioPct,
+    minSafeCollatRatioPct,
   } = useCollateralHelpers(borrowInput, collatInput, vaultToUse);
 
   const { minDebt_, maxDebt_, borrowPossible, borrowEstimate_, aboveDebtLimit } = useBorrowHelpers(
