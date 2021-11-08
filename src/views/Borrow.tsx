@@ -82,11 +82,9 @@ const Borrow = () => {
   const {
     collateralizationPercent,
     undercollateralized,
-    minCollateral,
     minCollateral_,
     minSafeCollateral,
     maxCollateral,
-    minCollatRatioPct,
     minSafeCollatRatioPct,
   } = useCollateralHelpers(borrowInput, collatInput, vaultToUse);
 
@@ -314,7 +312,11 @@ const Borrow = () => {
                   <SectionWrap>
                     <Box direction="row" gap="large" margin={{ vertical: 'medium' }}>
                       <Box>
-                        <Gauge value={parseFloat(collateralizationPercent!)} size={mobile ? '6em' : '8em'} />
+                        <Gauge
+                          value={parseFloat(collateralizationPercent!)}
+                          size={mobile ? '6em' : '8em'}
+                          mean={parseFloat(minSafeCollatRatioPct!) * 0.9}
+                        />
                       </Box>
 
                       <Box align="center">
@@ -428,7 +430,13 @@ const Borrow = () => {
                     <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
                     <InfoBite
                       label="Total Supporting Collateral"
-                      icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
+                      icon={
+                        <Gauge
+                          value={parseFloat(collateralizationPercent!)}
+                          size="1em"
+                          mean={parseFloat(minSafeCollatRatioPct!) * 0.9}
+                        />
+                      }
                       value={`${cleanValue(collatInput, selectedIlk?.digitFormat!)} ${
                         selectedIlk?.symbol
                       } (${collateralizationPercent}%)`}
