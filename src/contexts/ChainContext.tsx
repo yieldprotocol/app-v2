@@ -177,10 +177,6 @@ const ChainProvider = ({ children }: any) => {
       /* Get the hardcoded strategy addresses */
       const strategyAddresses = (yieldEnv.strategies as any)[fallbackChainId];
 
-      const _assetSymbols = () => {
-
-      }
-
       /* add on extra/calculated ASSET info  and contract instances */
       const _chargeAsset = (asset: any) => {
         const ERC20Permit = contracts.ERC20Permit__factory.connect(asset.address, fallbackProvider);

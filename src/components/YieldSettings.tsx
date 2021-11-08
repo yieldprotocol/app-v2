@@ -73,12 +73,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
         </Box>
 
         {!mobile && (
-          <Box
-            gap="small"
-            style={{ position: 'fixed' }}
-            margin={{ left: '-60px', top: '10%' }}
-            animation="slideLeft"
-          >
+          <Box gap="small" style={{ position: 'fixed' }} margin={{ left: '-60px', top: '10%' }} animation="slideLeft">
             <YieldAvatar address={account} size={7} />
           </Box>
         )}
@@ -111,30 +106,32 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
           )}
         </Box>
 
-        <Box
-          direction="row"
-          justify="end"
-          onClick={() => setConnectionSettingsOpen(!connectionSettingsOpen)}
-          gap="small"
-          margin={{ top: 'large' }}
-        >
-          <BoxWrap direction="row" gap="small">
-            {connectionName && <Text size="xsmall">Connected with {CONNECTOR_NAMES.get(connectionName)}</Text>}
-            {connectionSettingsOpen ? <FiChevronUp /> : <FiChevronDown />}
-          </BoxWrap>
-        </Box>
-
-        <Collapsible open={connectionSettingsOpen}>
-          <Box gap="xsmall">
-            <GeneralButton action={handleChangeConnectType} background="gradient-transparent">
-              <Text size="xsmall"> Change Connection</Text>
-            </GeneralButton>
-
-            <GeneralButton action={() => disconnect()} background="gradient-transparent">
-              <Text size="xsmall"> Disconnect </Text>
-            </GeneralButton>
+        <Box gap="medium">
+          <Box
+            direction="row"
+            justify="end"
+            onClick={() => setConnectionSettingsOpen(!connectionSettingsOpen)}
+            gap="medium"
+            margin={{ top: 'large' }}
+          >
+            <BoxWrap direction="row" gap="small">
+              {connectionName && <Text size="xsmall">Connected with {CONNECTOR_NAMES.get(connectionName)}</Text>}
+              {connectionSettingsOpen ? <FiChevronUp /> : <FiChevronDown />}
+            </BoxWrap>
           </Box>
-        </Collapsible>
+
+          <Collapsible open={connectionSettingsOpen}>
+            <Box gap="xsmall">
+              <GeneralButton action={handleChangeConnectType} background="gradient-transparent">
+                <Text size="xsmall"> Change Connection</Text>
+              </GeneralButton>
+
+              <GeneralButton action={() => disconnect()} background="gradient-transparent">
+                <Text size="xsmall"> Disconnect </Text>
+              </GeneralButton>
+            </Box>
+          </Collapsible>
+        </Box>
       </Box>
 
       <Box pad="medium" gap="medium" flex={false}>
@@ -143,8 +140,9 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
         <SlippageSetting />
       </Box>
 
-      <Box pad="medium" align="end" alignSelf="end" flex={false}>
-        <GeneralButton action={handleResetApp}>
+      <Box pad="medium" gap="small" flex={false}>
+        <Text size="small"> Troubleshooting </Text>
+        <GeneralButton action={handleResetApp} background="background">
           <Tip
             content={<Text size="xsmall">Having issues? Try resetting the app.</Text>}
             dropProps={{

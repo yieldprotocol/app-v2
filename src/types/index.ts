@@ -137,7 +137,9 @@ export interface IAssetRoot extends ISignable {
   digitFormat: number;
 
   baseContract: ERC20Permit;
+
   isYieldBase: boolean;
+  hasActiveJoin: boolean;
 
   // baked in token fns
   getBalance: (account: string) => Promise<BigNumber>;
@@ -159,8 +161,6 @@ export interface IVaultRoot {
   displayName: string;
   decimals: number;
 }
-
-export interface IPoolRoot extends ISignable {}
 
 export interface ISeries extends ISeriesRoot {
   apr: string;
@@ -184,8 +184,6 @@ export interface ISeries extends ISeriesRoot {
 export interface IAsset extends IAssetRoot {
   balance: BigNumber;
   balance_: string;
-  hasLadleAuth: boolean;
-  hasJoinAuth: boolean;
 }
 
 export interface IVault extends IVaultRoot {
@@ -232,8 +230,6 @@ export interface IStrategy extends IStrategyRoot {
   accountPoolBalance_?: string;
   accountPoolPercent?: string | undefined;
 }
-
-export interface IPool extends IPoolRoot {}
 
 export interface ICallData {
   args: (string | BigNumberish | boolean)[];

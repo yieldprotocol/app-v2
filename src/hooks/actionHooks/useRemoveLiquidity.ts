@@ -1,7 +1,7 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions, IVault } from '../../types';
+import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions, IVault, ISettingsContext, IStrategy, IAsset } from '../../types';
 import { getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import { ChainContext } from '../../contexts/ChainContext';
@@ -36,12 +36,12 @@ is Mature?        N     +--------+
 
 export const useRemoveLiquidity = () => {
   const {
+    settingsState: { approveMax, diagnostics },
+  } = useContext(SettingsContext) as ISettingsContext;
+
+  const {
     chainState: { contractMap },
   } = useContext(ChainContext);
-  
-  const {
-    settingsState: { diagnostics },
-  } = useContext(SettingsContext);
 
   const { vaultMap, userState, userActions } = useContext(UserContext);
   const { activeAccount: account, assetMap, selectedStrategyAddr, strategyMap } = userState;
@@ -62,7 +62,7 @@ export const useRemoveLiquidity = () => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.REMOVE_LIQUIDITY, series.id);
 
-    const _base = assetMap.get(series.baseId);
+    const _base: IAsset = assetMap.get(series.baseId);
     const _strategy = strategyMap.get(selectedStrategyAddr);
     const _input = ethers.utils.parseUnits(input, _base.decimals);
 
@@ -131,6 +131,13 @@ export const useRemoveLiquidity = () => {
     diagnostics && console.log('Is FyToken tradable?: ', extraTradeSupported);
     diagnostics && console.log('extrafyTokentrade value: ', extrafyTokenTrade);
 
+    const alreadyApprovedStrategy = approveMax && !!_strategy 
+      ? (await _strategy.strategyContract.allowance(account, ladleAddress)).gt(_input)
+      : false;
+    const alreadyApprovedPool = approveMax && !_strategy 
+      ? (await series.poolContract.allowance(account, ladleAddress)).gt(_input)
+      : false;
+
     const permits: ICallData[] = await sign(
       [
         /* give strategy permission to sell tokens to pool */
@@ -138,7 +145,7 @@ export const useRemoveLiquidity = () => {
           target: _strategy!,
           spender: 'LADLE',
           amount: _input,
-          ignoreIf: !_strategy,
+          ignoreIf: !_strategy || alreadyApprovedStrategy,
         },
 
         /* give pool permission to sell tokens */
@@ -151,7 +158,7 @@ export const useRemoveLiquidity = () => {
           },
           spender: 'LADLE',
           amount: _input,
-          ignoreIf: !!_strategy,
+          ignoreIf: !!_strategy || alreadyApprovedPool,
         },
       ],
       txCode
@@ -228,10 +235,7 @@ export const useRemoveLiquidity = () => {
       },
       {
         operation: LadleActions.Fn.REPAY_FROM_LADLE,
-        args: [
-          matchingVaultId,
-          account, 
-        ] as LadleActions.Args.REPAY_FROM_LADLE,
+        args: [matchingVaultId, account] as LadleActions.Args.REPAY_FROM_LADLE,
         ignoreIf: series.seriesIsMature || !fyTokenReceivedGreaterThanDebt || !useMatchingVault,
       },
       // {
