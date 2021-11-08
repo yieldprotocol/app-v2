@@ -36,8 +36,9 @@ export const useCollateralHelpers = (
   const [minCollateral, setMinCollateral] = useState<BigNumber>();
   const [minCollateral_, setMinCollateral_] = useState<string | undefined>();
 
-  const [minCollatRatio, setMinCollatRatio] = useState<string | undefined>();
+  const [minCollatRatio, setMinCollatRatio] = useState<number | undefined>();
   const [minCollatRatioPct, setMinCollatRatioPct] = useState<string | undefined>();
+  const [minSafeCollatRatio, setMinSafeCollatRatio] = useState<number | undefined>();
   const [minSafeCollatRatioPct, setMinSafeCollatRatioPct] = useState<string | undefined>();
   const [minSafeCollateral, setMinSafeCollateral] = useState<string | undefined>();
   const [maxRemovableCollateral, setMaxRemovableCollateral] = useState<string | undefined>();
@@ -98,14 +99,12 @@ export const useCollateralHelpers = (
 
     /* check minimum collateral required base on debt */
     if (oraclePrice.gt(ethers.constants.Zero)) {
-      const min = calculateMinCollateral(oraclePrice, totalDebt, minCollatRatio, existingCollateralAsWei);
-      const minSafeCollatRatio = Math.round(parseFloat(minCollatRatio!) + 0.5) || 2.5;
-      setMinSafeCollatRatioPct(minSafeCollatRatio.toString());
-
+      const min = calculateMinCollateral(oraclePrice, totalDebt, minCollatRatio?.toString(), existingCollateralAsWei);
+      console.log('min', min);
       const minSafeCalc = calculateMinCollateral(
         oraclePrice,
         totalDebt,
-        minSafeCollatRatio.toString(),
+        (minSafeCollatRatio || 2.5).toString(),
         existingCollateralAsWei
       );
 
@@ -127,23 +126,39 @@ export const useCollateralHelpers = (
       setMinCollateral(ZERO_BN);
       setMinCollateral_('0');
     }
-  }, [priceMap, collInput, debtInput, ilk, oraclePrice, vault, collateralizationRatio, base, minCollatRatio]);
+  }, [
+    priceMap,
+    collInput,
+    debtInput,
+    ilk,
+    oraclePrice,
+    vault,
+    collateralizationRatio,
+    base,
+    minCollatRatio,
+    minSafeCollatRatio,
+  ]);
 
   /* Monitor for undercollaterization */
   useEffect(() => {
-    parseFloat(collateralizationRatio!) >= parseFloat(minCollatRatio!)
+    parseFloat(collateralizationRatio!) >= minCollatRatio!
       ? setUndercollateralized(false)
       : setUndercollateralized(true);
   }, [collateralizationRatio, minCollatRatio]);
 
-  /* Get the min collateral ratio */
+  /* Get and set the min (and safe min) collateral ratio for this base/ilk pair */
   useEffect(() => {
     if (selectedBaseId && selectedIlkId && contractMap.has('Cauldron')) {
       (async () => {
         const { ratio } = await contractMap.get('Cauldron').spotOracles(selectedBaseId, selectedIlkId);
         if (ratio) {
-          setMinCollatRatio(ethers.utils.formatUnits(ratio, 6));
+          const _minCollatRatio = parseFloat(ethers.utils.formatUnits(ratio, 6));
+          setMinCollatRatio(_minCollatRatio);
           setMinCollatRatioPct(`${ethers.utils.formatUnits(ratio * 100, 6)}%`);
+
+          const _minSafeCollatRatio = _minCollatRatio < 1.4 ? 1.5 : _minCollatRatio + 1;
+          setMinSafeCollatRatio(_minSafeCollatRatio);
+          setMinSafeCollatRatioPct((_minSafeCollatRatio * 100).toString());
         }
       })();
     }
