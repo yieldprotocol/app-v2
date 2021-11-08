@@ -1,18 +1,19 @@
 import React, { useContext } from 'react';
 import { Box, Button, ResponsiveContext, Text } from 'grommet';
-import { FiCheckSquare, FiX } from 'react-icons/fi';
+import { FiCheckCircle, FiCheckSquare, FiX } from 'react-icons/fi';
 import { ChainContext } from '../contexts/ChainContext';
 import BackButton from './buttons/BackButton';
 import Disclaimer from './Disclaimer';
 import { SettingsContext } from '../contexts/SettingsContext';
 import { ISettingsContext } from '../types';
+import GeneralButton from './buttons/GeneralButton';
 
 const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const {
-    settingsState: { disclaimerChecked },
-    settingsActions: { updateSetting }
+    settingsState: { disclaimerChecked, darkMode },
+    settingsActions: { updateSetting },
   } = useContext(SettingsContext) as ISettingsContext;
 
   const {
@@ -36,7 +37,7 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
       width={mobile ? undefined : '400px'}
       pad="medium"
       gap="small"
-      elevation="xlarge"
+      elevation={darkMode ? undefined : 'small'}
       background="lightBackground"
     >
       <Box justify="between" align="center" direction="row">
@@ -60,28 +61,32 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
           />
         </Box>
       )}
-      <Box gap="xsmall">
+      <Box gap="xsmall" pad={{ vertical: 'large' }}>
         {[...CONNECTORS.keys()].map((name: string) => {
           const currentConnector = CONNECTORS.get(name);
           const activating = currentConnector === activatingConnector;
           const connected = connector && name === connectionName;
 
           return (
-            <Button
+            <GeneralButton
               key={name}
-              plain
-              onClick={() => !connected && handleConnect(name)}
+              action={() => !connected && handleConnect(name)}
+              background={connected ? 'gradient' : 'gradient-transparent'}
               disabled={disclaimerChecked === false}
-              primary={connected}
-              secondary={!connected}
-              style={{ border: '#2563EB solid 1px', borderRadius: '6px', padding: '12px' }}
-              hoverIndicator={{ color: 'brand' }}
             >
               <Box direction="row" gap="xsmall">
-                {connected && <FiCheckSquare color="#34D399" />}
-                {activating ? 'Connecting' : CONNECTOR_NAMES.get(name)}
+                {connected && <FiCheckCircle color="#34D399" />}
+                {activating ? (
+                  <Text size="small" color={connected ? 'white' : 'text'}>
+                    'Connecting'
+                  </Text>
+                ) : (
+                  <Text size="small" color={connected ? 'white' : 'text'}>
+                    {CONNECTOR_NAMES.get(name)}
+                  </Text>
+                )}
               </Box>
-            </Button>
+            </GeneralButton>
           );
         })}
       </Box>

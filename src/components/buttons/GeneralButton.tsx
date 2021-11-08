@@ -19,7 +19,7 @@ const GeneralButton = (props: any) => (
     background={props.background} 
     round="xsmall" 
     elevation="xsmall" 
-    onClick={() => props.action()} 
+    onClick={props.disabled ? ()=>null: () => props.action()} 
     pad="small"
     align='center'
   >
