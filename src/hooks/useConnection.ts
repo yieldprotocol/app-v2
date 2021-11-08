@@ -50,7 +50,7 @@ const INIT_INJECTED = 'metamask';
 
 const CONNECTORS = new Map();
 CONNECTORS.set(
-  INIT_INJECTED,
+  'ledgerWithMetamask',
   new InjectedConnector({
     supportedChainIds: [1, 42],
   })
@@ -64,11 +64,12 @@ CONNECTORS.set(
   })
 );
 CONNECTORS.set(
-  'ledgerWithMetamask',
+  INIT_INJECTED,
   new InjectedConnector({
     supportedChainIds: [1, 42],
   })
 );
+
 
 export const useConnection = () => {
   const [tried, setTried] = useState<boolean>(false);
