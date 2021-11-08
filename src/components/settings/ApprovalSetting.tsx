@@ -3,8 +3,16 @@ import { Box, Text } from 'grommet';
 import Switch from 'react-switch';
 import { ApprovalType } from '../../types';
 import { SettingsContext } from '../../contexts/SettingsContext';
+import { ChainContext } from '../../contexts/ChainContext';
 
 const AdvancedSetting = () => {
+
+  const {
+    chainState: {
+      connection: { connectionName },
+    },
+  } = useContext(ChainContext);
+
   const {
     settingsState: { approvalMethod, approveMax },
     settingsActions: { updateSetting },
@@ -17,16 +25,16 @@ const AdvancedSetting = () => {
   /* double check not max with permits */
   useEffect(()=>{
     approvalMethod !== ApprovalType.TX && updateSetting('approveMax', false);
-  },[approvalMethod])
+  },[ approvalMethod ])
 
   return (
     // <Box gap="small" pad={{ vertical: 'small' }} border={{ side: 'bottom', color: 'text-xweak' }}>
     <Box gap="small" pad={{ vertical: 'small' }}>
       <Box direction="row" justify="between">
-        <Text size="small">Use Approval by Transactions</Text>
+        <Text size="small" color={connectionName !== 'ledgerWithMetamask' ? undefined : 'text-xweak'} >Use Approval by Transactions</Text>
         <Switch
           width={55}
-          checked={approvalMethod === ApprovalType.TX}
+          checked={approvalMethod === ApprovalType.TX || connectionName === 'ledgerWithMetamask' }
           offColor="#BFDBFE"
           onColor="#60A5FA"
           uncheckedIcon={false}
@@ -36,6 +44,7 @@ const AdvancedSetting = () => {
           }
           handleDiameter={20}
           borderRadius={20}
+          disabled={ connectionName === 'ledgerWithMetamask' }
         />
       </Box>
 
