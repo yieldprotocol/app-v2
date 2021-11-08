@@ -47,7 +47,7 @@ export const useClosePosition = () => {
 
     /* if approveMAx, check if signature is required */
     const alreadyApproved = approveMax
-      ? (await series.fyTokenContract.allowance(account, ladleAddress)).gt(_input)
+      ? (await series.fyTokenContract.allowance(account, ladleAddress)).gt(_fyTokenValueOfInput)
       : false;
 
     const permits: ICallData[] = await sign(
