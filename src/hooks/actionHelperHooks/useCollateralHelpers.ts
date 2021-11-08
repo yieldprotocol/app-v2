@@ -100,7 +100,6 @@ export const useCollateralHelpers = (
     /* check minimum collateral required base on debt */
     if (oraclePrice.gt(ethers.constants.Zero)) {
       const min = calculateMinCollateral(oraclePrice, totalDebt, minCollatRatio?.toString(), existingCollateralAsWei);
-      console.log('min', min);
       const minSafeCalc = calculateMinCollateral(
         oraclePrice,
         totalDebt,
