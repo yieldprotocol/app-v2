@@ -29,7 +29,7 @@ const markMap = new Map([
   ['TST', <TSTMark key="tst" />],
   ['ETH', <EthMark key="eth" />],
   ['USDT', <USDTMark key="eth" />],
-  ['STETH', <StEthMark key="steth" />],
+  ['wSTETH', <StEthMark key="steth" />],
 ]);
 
 const assetDigitFormatMap = new Map([
@@ -38,7 +38,7 @@ const assetDigitFormatMap = new Map([
   ['DAI', 2],
   ['USDC', 2],
   ['USDT', 2],
-  ['STETH', 6],
+  ['wSTETH', 6],
 ]);
 
 /* Build the context */
@@ -221,7 +221,7 @@ const ChainProvider = ({ children }: any) => {
             const symbolSwitch = (sym: string) => {
               switch (sym) {
                 case 'WETH' : return 'ETH';
-                case 'wstETH' : return 'STETH';
+                case 'wstETH' : return 'wSTETH';
                 default: return sym;
               }
             }
