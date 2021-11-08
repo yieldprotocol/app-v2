@@ -38,7 +38,7 @@
     "TST": "#D15034",
     "WETH": "#FFFFFF",
     "USDT": "#50af95",
-    "wSTETH": "#00A3FF"
+    "wstETH": "#00A3FF"
   },
   "seasonColors": {
     "WINTER": ["#D9D9D9", "#67F2FC", "#333333"],
