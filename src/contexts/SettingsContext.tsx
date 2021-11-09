@@ -59,9 +59,8 @@ const SettingsProvider = ({ children }: any) => {
     if (connection.connectionName && connection.connectionName !== 'metamask') {
       console.log('Using approval transactions');
       updateState( { type: 'approvalMethod', payload: ApprovalType.TX } )
-    }
-    /* On metamask default to SIG (even on reload) */ 
-    if (connection.connectionName === 'metamask' ) {
+    } else if (connection.connectionName === 'metamask' ) {
+      /* On metamask default to SIG */ 
       updateState( { type: 'approvalMethod', payload: ApprovalType.SIG } )
     }
 
