@@ -153,7 +153,7 @@ export const useCollateralHelpers = (
         if (ratio) {
           const _minCollatRatio = parseFloat(ethers.utils.formatUnits(ratio, 6));
           setMinCollatRatio(_minCollatRatio);
-          setMinCollatRatioPct(`${ethers.utils.formatUnits(ratio * 100, 6)}%`);
+          setMinCollatRatioPct(`${parseFloat(ethers.utils.formatUnits(ratio * 100, 6)).toFixed(0)}`);
 
           const _minSafeCollatRatio = _minCollatRatio < 1.4 ? 1.5 : _minCollatRatio + 1;
           setMinSafeCollatRatio(_minSafeCollatRatio);
