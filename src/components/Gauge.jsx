@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { arc } from 'd3-shape';
 import { scaleLinear } from 'd3-scale';
 
@@ -44,9 +44,12 @@ export const Gauge = ({ value = 50, min = 150, max = 750, mean = 200, size = '1e
       color = '#3B82F6';
     }
 
-    setColor(color);
     return color;
   };
+
+  useEffect(() => {
+    setColor(_color());
+  }, [_color]);
 
   return (
     <svg style={{ overflow: 'visible' }} width={size} viewBox={[-1, -1, 2, 1].join(' ')}>
