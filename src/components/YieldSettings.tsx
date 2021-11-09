@@ -13,7 +13,6 @@ import BoxWrap from './wraps/BoxWrap';
 import SlippageSetting from './settings/SlippageSetting';
 import ApprovalSetting from './settings/ApprovalSetting';
 import ThemeSetting from './settings/ThemeSetting';
-import ConnectButton from './buttons/ConnectButton';
 import GeneralButton from './buttons/GeneralButton';
 
 const StyledButton = styled(Button)`
@@ -34,7 +33,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
     chainState: {
-      connection: { account, CONNECTOR_NAMES, currentChainInfo, connectionName },
+      connection: { account, CONNECTOR_INFO, currentChainInfo, connectionName },
     },
     chainActions: { disconnect },
   } = useContext(ChainContext);
@@ -115,7 +114,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
             margin={{ top: 'large' }}
           >
             <BoxWrap direction="row" gap="small">
-              {connectionName && <Text size="xsmall">Connected with {CONNECTOR_NAMES.get(connectionName)}</Text>}
+              {connectionName && <Text size="xsmall">Connected with {CONNECTOR_INFO.get(connectionName).displayName}</Text>}
               {connectionSettingsOpen ? <FiChevronUp /> : <FiChevronDown />}
             </BoxWrap>
           </Box>

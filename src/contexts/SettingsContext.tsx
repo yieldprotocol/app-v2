@@ -43,10 +43,6 @@ const SettingsProvider = ({ children }: any) => {
   /* LOCAL STATE */
   const [settingsState, updateState] = useReducer(settingsReducer, initState);
 
-  /* action that is always performed on component load */
-  // useEffect(() => {
-  // }, [chainLoading]);
-
   /* Exposed userActions */
   const settingsActions = {
     updateSetting: (setting: string, value: string) => updateState({ type: setting, payload: value }),
