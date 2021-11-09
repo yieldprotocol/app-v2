@@ -57,10 +57,11 @@ const SettingsProvider = ({ children }: any) => {
 
   useEffect(() => {
     if (connection.connectionName && connection.connectionName !== 'metamask') {
-      console.log('Using approval transactions');
+      console.log('Using manual ERC20 approval transactions');
       updateState( { type: 'approvalMethod', payload: ApprovalType.TX } )
     } else if (connection.connectionName === 'metamask' ) {
       /* On metamask default to SIG */ 
+      console.log('Using ERC20Permit signing (EIP-2612) ');
       updateState( { type: 'approvalMethod', payload: ApprovalType.SIG } )
     }
 
