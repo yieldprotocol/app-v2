@@ -46,7 +46,9 @@ CONNECTOR_INFO.set('ledgerWithMetamask', { displayName: 'Ledger (with Metamask)'
 CONNECTOR_INFO.set('ledger', { displayName: 'Ledger', image: LedgerMark });
 CONNECTOR_INFO.set('walletconnect', { displayName: 'WalletConnect', image: WalletconnectMark });
 
-const INIT_INJECTED = 'metamask';
+const INIT_INJECTED =  (JSON.parse(localStorage.getItem('connectionName')!) as string) || 'metamask';
+
+// const INIT_INJECTED = 'metamask';
 
 const CONNECTORS = new Map();
 CONNECTORS.set(
@@ -64,7 +66,7 @@ CONNECTORS.set(
   })
 );
 CONNECTORS.set(
-  INIT_INJECTED,
+  'metamask',
   new InjectedConnector({
     supportedChainIds: [1, 42],
   })
