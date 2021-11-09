@@ -61,7 +61,10 @@ export const useBorrow = () => {
           spender: ilk.joinAddress,
           message: `Allow Yield Protocol to move ${ilk.symbol}`,
           amount: _collInput,
-          ignoreIf: alreadyApproved || ETH_BASED_ASSETS.includes(selectedIlkId) || _collInput.eq(ethers.constants.Zero),
+          ignoreIf:
+            alreadyApproved === true ||
+            ETH_BASED_ASSETS.includes(selectedIlkId) ||
+            _collInput.eq(ethers.constants.Zero),
         },
       ],
       txCode
