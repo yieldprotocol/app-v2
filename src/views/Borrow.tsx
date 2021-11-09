@@ -339,15 +339,10 @@ const Borrow = () => {
                           </Text>
                         </Box>
                         <Box align="center">
-                          {/* <Tip
-                            content="A collatateralization ratio at or under this level will be in danger of liquidation."
-                            dropProps={{ align: { left: 'right' } }}
-                          > */}
                           <Text size={mobile ? 'xsmall' : 'medium'} color="text-weak">
                             Minimum
                           </Text>
                           <Text size={mobile ? 'large' : 'xlarge'}>{minCollatRatioPct}%</Text>
-                          {/* </Tip> */}
                         </Box>
                       </Box>
                     </Box>
