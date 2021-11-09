@@ -96,7 +96,7 @@ const VaultPosition = () => {
   const { addCollateral } = useAddCollateral();
   const { removeCollateral } = useRemoveCollateral();
 
-  const { maxCollateral, collateralizationPercent, maxRemovableCollateral } = useCollateralHelpers(
+  const { maxCollateral, collateralizationPercent, maxRemovableCollateral, minCollatRatioPct } = useCollateralHelpers(
     '0',
     '0',
     selectedVault
@@ -277,6 +277,11 @@ const VaultPosition = () => {
                       />
                     </Box>
                   </SectionWrap>
+                )}
+                {parseFloat(collateralizationPercent!) < parseFloat(minCollatRatioPct!) + 20 && (
+                  <Text size="xsmall" color="red">
+                    Vault is in danger of liquidation. Minimum collateralization needed is {minCollatRatioPct}%
+                  </Text>
                 )}
                 {!selectedVault?.isActive && !selectedVault?.isWitchOwner && (
                   <SectionWrap>
