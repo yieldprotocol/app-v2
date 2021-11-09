@@ -75,6 +75,7 @@ const Borrow = () => {
   const [newVaultId, setNewVaultId] = useState<string | undefined>(undefined);
 
   const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
+  const [currentGaugeColor, setCurrentGaugeColor] = useState<string>('#EF4444');
 
   const borrow = useBorrow();
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
@@ -114,6 +115,10 @@ const Borrow = () => {
   const handleBorrow = () => {
     const _vault = vaultToUse?.id ? vaultToUse : undefined; // if vaultToUse has id property, use it
     !borrowDisabled && borrow(_vault, borrowInput, collatInput);
+  };
+
+  const handleGaugeColorChange: any = (val: string) => {
+    setCurrentGaugeColor(val);
   };
 
   const resetInputs = useCallback(() => {
@@ -317,6 +322,7 @@ const Borrow = () => {
                           value={parseFloat(collateralizationPercent!)}
                           size={mobile ? '6em' : '8em'}
                           mean={parseFloat(minSafeCollatRatioPct!) * 0.9}
+                          setColor={handleGaugeColorChange}
                         />
                       </Box>
 
@@ -325,7 +331,7 @@ const Borrow = () => {
                           <Text size={mobile ? 'xsmall' : 'medium'} color="text-weak">
                             Collateralization
                           </Text>
-                          <Text size={mobile ? 'large' : 'xlarge'} color="brand">
+                          <Text size={mobile ? 'large' : 'xlarge'} color={currentGaugeColor}>
                             {parseFloat(collateralizationPercent!) > 10000
                               ? nFormatter(parseFloat(collateralizationPercent!), 2)
                               : parseFloat(collateralizationPercent!)}

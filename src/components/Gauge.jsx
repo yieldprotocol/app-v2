@@ -2,7 +2,7 @@ import React from 'react';
 import { arc } from 'd3-shape';
 import { scaleLinear } from 'd3-scale';
 
-export const Gauge = ({ value = 50, min = 150, max = 750, mean = 200, size = '1em' }) => {
+export const Gauge = ({ value = 50, min = 150, max = 750, mean = 200, size = '1em', setColor = () => '' }) => {
   const backgroundArc = arc()
     .innerRadius(0.65)
     .outerRadius(1)
@@ -33,10 +33,19 @@ export const Gauge = ({ value = 50, min = 150, max = 750, mean = 200, size = '1e
   };
 
   const _color = () => {
-    if (percent < 0.15) return '#EF4444';
-    if (percent >= 0.15 && percent < 0.5) return '#FCD34D';
-    if (percent >= 0.5 && percent < 0.9) return '#10B981';
-    return '#3B82F6';
+    let color;
+    if (percent < 0.15) {
+      color = '#EF4444';
+    } else if (percent >= 0.15 && percent < 0.5) {
+      color = '#FCD34D';
+    } else if (percent >= 0.5 && percent < 0.9) {
+      color = '#10B981';
+    } else {
+      color = '#3B82F6';
+    }
+
+    setColor(color);
+    return color;
   };
 
   return (
