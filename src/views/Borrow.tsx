@@ -326,7 +326,7 @@ const Borrow = () => {
                         />
                       </Box>
 
-                      <Box align="center" gap="medium">
+                      <Box align="center" gap="small">
                         <Box align="center">
                           <Text size={mobile ? 'xsmall' : 'medium'} color="text-weak">
                             Collateralization
