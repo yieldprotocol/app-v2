@@ -2,7 +2,7 @@ import React from 'react';
 import { arc } from 'd3-shape';
 import { scaleLinear } from 'd3-scale';
 
-export const Gauge = ({ value = 50, min = 150, max = 750, size = '1em' }) => {
+export const Gauge = ({ value = 50, min = 150, max = 750, mean = 200, size = '1em' }) => {
   const backgroundArc = arc()
     .innerRadius(0.65)
     .outerRadius(1)
@@ -10,7 +10,7 @@ export const Gauge = ({ value = 50, min = 150, max = 750, size = '1em' }) => {
     .endAngle(Math.PI * 0.5)
     .cornerRadius(0.05)();
 
-  const percentScale = scaleLinear().domain([0, min, 200, 500, max]).range([0, 0.1, 0.5, 0.9, 1]);
+  const percentScale = scaleLinear().domain([0, min, mean, 500, max]).range([0, 0.1, 0.5, 0.9, 1]);
 
   const percent = percentScale(value);
 
