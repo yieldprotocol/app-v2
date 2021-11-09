@@ -86,6 +86,7 @@ const Borrow = () => {
     minSafeCollateral,
     maxCollateral,
     minSafeCollatRatioPct,
+    minCollatRatioPct,
   } = useCollateralHelpers(borrowInput, collatInput, vaultToUse);
 
   const { minDebt_, maxDebt_, borrowPossible, borrowEstimate_, aboveDebtLimit } = useBorrowHelpers(
@@ -319,16 +320,24 @@ const Borrow = () => {
                         />
                       </Box>
 
-                      <Box align="center">
-                        <Text size={mobile ? 'xsmall' : 'medium'} color="text-weak">
-                          Collateralization
-                        </Text>
-                        <Text size={mobile ? 'large' : 'xlarge'}>
-                          {parseFloat(collateralizationPercent!) > 10000
-                            ? nFormatter(parseFloat(collateralizationPercent!), 2)
-                            : parseFloat(collateralizationPercent!)}
-                          %
-                        </Text>
+                      <Box align="center" gap="medium">
+                        <Box align="center">
+                          <Text size={mobile ? 'xsmall' : 'medium'} color="text-weak">
+                            Collateralization
+                          </Text>
+                          <Text size={mobile ? 'large' : 'xlarge'}>
+                            {parseFloat(collateralizationPercent!) > 10000
+                              ? nFormatter(parseFloat(collateralizationPercent!), 2)
+                              : parseFloat(collateralizationPercent!)}
+                            %
+                          </Text>
+                        </Box>
+                        <Box align="center">
+                          <Text size={mobile ? 'xsmall' : 'medium'} color="text-weak">
+                            Minimum
+                          </Text>
+                          <Text size={mobile ? 'large' : 'xlarge'}>{minCollatRatioPct}%</Text>
+                        </Box>
                       </Box>
                     </Box>
                   </SectionWrap>
@@ -348,7 +357,7 @@ const Borrow = () => {
                                   action={() => setCollatInput(cleanValue(minSafeCollateral, selectedIlk?.decimals))}
                                 >
                                   <Text size="small" color="text-weak">
-                                    Use Safe Minimum{': '}
+                                    Use Safe Collateralization{': '}
                                     {cleanValue(minSafeCollateral, selectedIlk?.digitFormat)} {selectedIlk?.symbol}
                                   </Text>
                                 </InputInfoWrap>
