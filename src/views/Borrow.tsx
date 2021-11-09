@@ -311,7 +311,7 @@ const Borrow = () => {
 
                 <Box gap="large" height="400px">
                   <SectionWrap>
-                    <Box direction="row" gap="large" margin={{ vertical: 'medium' }}>
+                    <Box direction="row" gap="large" margin={{ vertical: 'xsmall' }} justify="center">
                       <Box>
                         <Gauge
                           value={parseFloat(collateralizationPercent!)}
