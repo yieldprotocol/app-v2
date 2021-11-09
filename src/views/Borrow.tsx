@@ -325,7 +325,7 @@ const Borrow = () => {
                           <Text size={mobile ? 'xsmall' : 'medium'} color="text-weak">
                             Collateralization
                           </Text>
-                          <Text size={mobile ? 'large' : 'xlarge'}>
+                          <Text size={mobile ? 'large' : 'xlarge'} color="brand">
                             {parseFloat(collateralizationPercent!) > 10000
                               ? nFormatter(parseFloat(collateralizationPercent!), 2)
                               : parseFloat(collateralizationPercent!)}
