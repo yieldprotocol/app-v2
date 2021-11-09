@@ -145,7 +145,7 @@ export const useRemoveLiquidity = () => {
           target: _strategy!,
           spender: 'LADLE',
           amount: _input,
-          ignoreIf: !_strategy || alreadyApprovedStrategy,
+          ignoreIf: !_strategy || alreadyApprovedStrategy===true,
         },
 
         /* give pool permission to sell tokens */
@@ -158,7 +158,7 @@ export const useRemoveLiquidity = () => {
           },
           spender: 'LADLE',
           amount: _input,
-          ignoreIf: !!_strategy || alreadyApprovedPool,
+          ignoreIf: !!_strategy || alreadyApprovedPool===true,
         },
       ],
       txCode
