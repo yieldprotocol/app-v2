@@ -1,5 +1,6 @@
-import React, { useReducer } from 'react';
+import React, { useContext, useEffect, useReducer } from 'react';
 import { ApprovalType, ISettingsContextState } from '../types';
+import { ChainContext } from './ChainContext';
 
 const SettingsContext = React.createContext<any>({});
 
@@ -11,11 +12,11 @@ const initState: ISettingsContextState = {
   slippageTolerance: (JSON.parse(localStorage.getItem('slippageTolerance')!) as number) || (0.005 as number),
   dudeSalt: 21, // (JSON.parse(localStorage.getItem('dudeSalt')!) as number) || (21 as number),
   diagnostics: (JSON.parse(localStorage.getItem('diagnostics')!) as boolean) || (false as boolean),
-  
+
   darkMode: (JSON.parse(localStorage.getItem('darkMode')!) as boolean) || (false as boolean),
   autoTheme: (JSON.parse(localStorage.getItem('autoTheme')!) as boolean) || (false as boolean),
-  
-  disclaimerChecked: (JSON.parse(localStorage.getItem('disclaimerChecked')!) as boolean) || (false as boolean), 
+
+  disclaimerChecked: (JSON.parse(localStorage.getItem('disclaimerChecked')!) as boolean) || (false as boolean),
   powerUser: (JSON.parse(localStorage.getItem('powerUser')!) as boolean) || (false as boolean),
 
   dashHideEmptyVaults: (JSON.parse(localStorage.getItem('dashHideEmptyVaults')!) as boolean) || false,
@@ -24,7 +25,6 @@ const initState: ISettingsContextState = {
   dashHideLendPositions: (JSON.parse(localStorage.getItem('dashHideLendPostions')!) as boolean) || false,
   dashHidePoolPositions: (JSON.parse(localStorage.getItem('dashHidePoolPositions')!) as boolean) || false,
   dashCurrency: (JSON.parse(localStorage.getItem('dashCurrency')!) as string) || 'DAI',
-
 };
 
 function settingsReducer(state: any, action: any) {
@@ -36,12 +36,31 @@ function settingsReducer(state: any, action: any) {
     localStorage.setItem(_action.type, JSON.stringify(_action.payload));
     return _action.payload;
   };
-  return { ...state, [action.type]: cacheAndUpdate(action) }
+  return { ...state, [action.type]: cacheAndUpdate(action) };
 }
 
 const SettingsProvider = ({ children }: any) => {
   /* LOCAL STATE */
   const [settingsState, updateState] = useReducer(settingsReducer, initState);
+
+  /* STATE FROM CONTEXT */
+  const {
+    chainState: { connection },
+  } = useContext(ChainContext);
+
+  /* handle linked approval settings */
+  useEffect(() => { 
+    if (settingsState.approvalMethod === ApprovalType.SIG) {
+      updateState({ type: 'approveMax', payload: false });
+    }
+  }, [ settingsState.approvalMethod  ]);
+
+  useEffect(() => {
+    if (connection.connectionName && connection.connectionName !== 'metamask') {
+      console.log('Using approval transactions');
+      updateState( { type: 'approvalMethod', payload: ApprovalType.TX } )
+    }
+  }, [connection.connectionName]);
 
   /* Exposed userActions */
   const settingsActions = {
