@@ -60,6 +60,11 @@ const SettingsProvider = ({ children }: any) => {
       console.log('Using approval transactions');
       updateState( { type: 'approvalMethod', payload: ApprovalType.TX } )
     }
+    /* On metamask default to SIG (even on reload) */ 
+    if (connection.connectionName === 'metamask' ) {
+      updateState( { type: 'approvalMethod', payload: ApprovalType.SIG } )
+    }
+
   }, [connection.connectionName]);
 
   /* Exposed userActions */
