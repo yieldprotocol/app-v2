@@ -71,7 +71,7 @@ export const useBorrowHelpers = (
 
   /* Update the borrow limits if ilk or base changes */
   useEffect(() => {
-    const setLimits = (max: BigNumber, min: BigNumber, decimals: BigNumberish, total: BigNumber) => {
+    const setLimits = (max: BigNumber, min: BigNumber, decimals: BigNumber|string, total: BigNumber) => {
       
       const _decimals = decimals.toString();
       const _max = ethers.utils.parseUnits(max.toString(), _decimals) || ethers.constants.Zero;

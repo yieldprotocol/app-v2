@@ -53,15 +53,15 @@ export const Gauge = ({ value = 50, min = 150, max = 750, mean = 200, size = '1e
         </linearGradient>
       </defs>
 
-      <path d={backgroundArc} fill="#dbdbe746" />
+      <path d={backgroundArc} fill="#FFFFFF50" />
       <path d={getArc(0)} fill="#EF4444" />
       <path d={getArc(1)} fill="#FCD34D" />
       <path d={getArc(2)} fill="#10B981" />
       <path d={getArc(3)} fill="#3B82F6" />
 
-      <line y1="-1" y2="-0.65" stroke="white" strokeWidth="0.027" />
-      <line y1="-1" y2="-0.65" stroke="white" strokeWidth="0.027" transform={`rotate(${-1.0 * (180 / Math.PI)})`} />
-      <line y1="-1" y2="-0.65" stroke="white" strokeWidth="0.027" transform={`rotate(${1.25 * (180 / Math.PI)})`} />
+      <line y1="-1" y2="-0.65" stroke="#FFFFFF50" strokeWidth="0.027" />
+      <line y1="-1" y2="-0.65" stroke="#FFFFFF50" strokeWidth="0.027" transform={`rotate(${-1.0 * (180 / Math.PI)})`} />
+      <line y1="-1" y2="-0.65" stroke="#FFFFFF50" strokeWidth="0.027" transform={`rotate(${1.25 * (180 / Math.PI)})`} />
       <path d="M 60,100" strokeWidth="1" />
 
       <path

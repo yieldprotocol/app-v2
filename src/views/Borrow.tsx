@@ -316,7 +316,14 @@ const Borrow = () => {
 
                 <Box gap="large" height="400px">
                   <SectionWrap>
-                    <Box direction="row" gap="large" justify="center">
+                    <Box
+                      pad="medium"
+                      direction="row"
+                      gap="large"
+                      justify="center"
+                      round="small"
+                      background="gradient-transparent"
+                    >
                       <Box justify="center">
                         <Gauge
                           value={parseFloat(collateralizationPercent!)}
@@ -338,11 +345,11 @@ const Borrow = () => {
                             %
                           </Text>
                         </Box>
-                        <Box align="center">
-                          <Text size={mobile ? 'xsmall' : 'medium'} color="text-weak">
-                            Minimum
+                        <Box align="center" direction="row-responsive" gap="small">
+                          <Text size={mobile ? 'xsmall' : 'xsmall'} color="text-weak">
+                            Minimum reqd. :
                           </Text>
-                          <Text size={mobile ? 'large' : 'xlarge'}>{minCollatRatioPct}%</Text>
+                          <Text size={mobile ? 'xsmall' : 'xsmall'}>{minCollatRatioPct}%</Text>
                         </Box>
                       </Box>
                     </Box>
