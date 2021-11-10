@@ -11,9 +11,14 @@ import {
 
 import { NetworkConnector } from '@web3-react/network-connector';
 import { ethers } from 'ethers';
-import { useEffect, useState } from 'react';
+import { ReactComponentElement, ReactElement, ReactSVGElement, useEffect, useState } from 'react';
 import { useCachedState } from './generalHooks';
 // import { ChainContext } from '../contexts/ChainContext';
+
+import MetamaskMark from '../components/logos/MetamaskMark';
+import LedgerMark from '../components/logos/LedgerMark';
+import WalletconnectMark from '../components/logos/WalletconnectMark';
+// import TrezorMark from '../components/logos/TrezorMark';
 
 const NO_BROWSER_EXT =
   'No Ethereum browser extension detected, install MetaMask on desktop or visit from a dApp browser on mobile.';
@@ -35,19 +40,19 @@ CHAIN_INFO.set(5, { name: 'Goerli', color: '#3099f2' });
 CHAIN_INFO.set(10, { name: 'Optimism', color: '#EB0822' });
 CHAIN_INFO.set(42, { name: 'Kovan', color: '#7F7FFE' });
 
-// Map the provider connection url name to a nicer format
-const CONNECTOR_NAMES = new Map([
-  ['metamask', 'Metamask'],
-  ['ledgerWithMetamask', 'Ledger (with Metamask)'],
-  ['ledger', 'Ledger'],
-  ['walletconnect', 'WalletConnect'],
-]);
+const CONNECTOR_INFO = new Map<string, { displayName: string; image: any }>();
+CONNECTOR_INFO.set('metamask', { displayName: 'Metamask', image: MetamaskMark });
+CONNECTOR_INFO.set('ledgerWithMetamask', { displayName: 'Ledger (with Metamask)', image: LedgerMark});
+CONNECTOR_INFO.set('ledger', { displayName: 'Ledger', image: LedgerMark });
+CONNECTOR_INFO.set('walletconnect', { displayName: 'WalletConnect', image: WalletconnectMark });
 
-const INIT_INJECTED = 'metamask';
+const INIT_INJECTED =  (JSON.parse(localStorage.getItem('connectionName')!) as string) || 'metamask';
+
+// const INIT_INJECTED = 'metamask';
 
 const CONNECTORS = new Map();
 CONNECTORS.set(
-  INIT_INJECTED,
+  'ledgerWithMetamask',
   new InjectedConnector({
     supportedChainIds: [1, 42],
   })
@@ -60,13 +65,13 @@ CONNECTORS.set(
     qrcode: true,
   })
 );
-
 CONNECTORS.set(
-  'ledgerWithMetamask',
+  'metamask',
   new InjectedConnector({
     supportedChainIds: [1, 42],
   })
 );
+
 
 export const useConnection = () => {
   const [tried, setTried] = useState<boolean>(false);
@@ -201,7 +206,7 @@ export const useConnection = () => {
       /* constants */
       CONNECTORS,
       CHAIN_INFO,
-      CONNECTOR_NAMES,
+      CONNECTOR_INFO,
 
       /* connections */
       connectionName,

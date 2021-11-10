@@ -78,14 +78,14 @@ export const useRepayDebt = () => {
           target: base,
           spender: 'LADLE',
           amount: _input,
-          ignoreIf: series.seriesIsMature || alreadyApproved,
+          ignoreIf: series.seriesIsMature || alreadyApproved===true,
         },
         {
           // after maturity
           target: base,
           spender: base.joinAddress,
           amount: _input,
-          ignoreIf: !series.seriesIsMature || alreadyApproved,
+          ignoreIf: !series.seriesIsMature || alreadyApproved===true,
         },
       ],
       txCode

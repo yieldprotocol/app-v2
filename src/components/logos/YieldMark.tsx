@@ -6,7 +6,7 @@ interface ISvgProps extends React.SVGProps<SVGSVGElement> {
 
 function YieldMark(props: ISvgProps) {
 
-  const getProportion = (i:number) => i * 100/(props.colors?.length!-1)
+  const getProportion = (i:number) => i * 100/(props.colors?.length!-1) || 0;
 
   return (
     <svg

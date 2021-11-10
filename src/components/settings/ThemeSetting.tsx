@@ -11,11 +11,6 @@ const ThemeSettings = () => {
     settingsActions: { updateSetting },
   } = useContext(SettingsContext);
 
-  // const theme = useContext<any>(ThemeContext);
-  // const { colors } = theme.global;
-
-  useEffect(() => console.log(autoTheme), [autoTheme]);
-
   return (
     // <Box gap="small" pad={{ vertical: 'small' }} border={{ side: 'bottom', color: 'text-xweak' }}>
     <Box gap="small" pad={{ vertical: 'small' }}>

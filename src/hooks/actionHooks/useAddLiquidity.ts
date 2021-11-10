@@ -120,7 +120,7 @@ export const useAddLiquidity = () => {
           target: base,
           spender: 'LADLE',
           amount: _input,
-          ignoreIf: alreadyApproved,
+          ignoreIf: alreadyApproved===true,
         },
       ],
       txCode
