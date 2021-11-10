@@ -9,12 +9,11 @@ import { NetworkConnector } from '@web3-react/network-connector';
 import { ethers } from 'ethers';
 import { useEffect, useState } from 'react';
 import { useCachedState } from './generalHooks';
-import { CHAIN_INFO, RPC_URLS } from '../config/chainData';
+import { CHAIN_INFO, RPC_URLS, SUPPORTED_RPC_URLS } from '../config/chainData';
 import { CONNECTORS, CONNECTOR_INFO, INIT_INJECTED } from '../config/connectors';
 import { clearCachedItems } from '../utils/appUtils';
 // import TrezorMark from '../components/logos/TrezorMark';
 
-console.log(RPC_URLS);
 const NO_BROWSER_EXT =
   'No Ethereum browser extension detected, install MetaMask on desktop or visit from a dApp browser on mobile.';
 const UNSUPPORTED_NETWORK = 'Your Wallet or Browser is connected to an unsupported network.';
@@ -103,7 +102,7 @@ export const useConnection = () => {
       setFallbackErrorMessage(undefined);
       fallbackActivate(
         new NetworkConnector({
-          urls: { 1: RPC_URLS[1], 42: RPC_URLS[42] },
+          urls: SUPPORTED_RPC_URLS,
           defaultChainId: lastChainId,
         }),
         (e: Error) => {
@@ -119,7 +118,7 @@ export const useConnection = () => {
       setFallbackErrorMessage(undefined);
       fallbackActivate(
         new NetworkConnector({
-          urls: { 1: RPC_URLS[1], 42: RPC_URLS[42] },
+          urls: SUPPORTED_RPC_URLS,
           defaultChainId: chainId,
         }),
         (e: Error) => {
