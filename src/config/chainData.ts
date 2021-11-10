@@ -16,7 +16,7 @@ export const SUPPORTED_RPC_URLS: { [chainId: number]: string } = {
   421611: RPC_URLS[421611],
 };
 
-export const SUPPORTED_CHAIN_IDS = Object.keys(SUPPORTED_RPC_URLS).map((chainId: string) => +chainId);
+export const SUPPORTED_CHAIN_IDS: number[] = Object.keys(SUPPORTED_RPC_URLS).map((chainId: string) => +chainId);
 
 export const CHAIN_INFO = new Map<number, { name: string; color: string; bridge?: string; explorer?: string }>();
 CHAIN_INFO.set(1, { name: 'Mainnet', color: '#29b6af', explorer: 'https://etherscan.io' });
