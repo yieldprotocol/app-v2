@@ -24,13 +24,15 @@ const TransactionError = () => {
       {txState.txWillFail && (
         <Layer onClickOutside={() => txActions.handleTxWillFail()} responsive>
           <Box pad="large" round="small" gap="small" width="600px">
-            <Box fill="horizontal" align="center" direction="row" gap="medium">
+            <Box fill="horizontal" align="center" direction="row" gap="medium" pad="small">
               <FiAlertTriangle size="2em" /> Transaction aborted
             </Box>
 
-            <Text size="small">
-              It seems your transaction was likely to fail, and so it was aborted before being submitted.{' '}
-            </Text>
+            <Box pad="small">
+              <Text size="small">
+                It seems your transaction was likely to fail, and so it was aborted before being submitted.{' '}
+              </Text>
+            </Box>
 
             <Box pad="small" gap="medium">
               <Box gap="xsmall">
