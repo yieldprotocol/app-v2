@@ -12,6 +12,14 @@ export const copyToClipboard = (str: string) => {
   document.body.removeChild(el);
 };
 
+export const clearCachedItems = (keys: string[]) => {
+  if (keys.length > 0) {
+    keys.forEach((k: string) => {
+      window.localStorage.removeItem(k);
+    });
+  } else window.localStorage.clear();
+};
+
 /**
  * Convert array to chunks of arrays with size n
  * @param a any array
@@ -30,18 +38,14 @@ export const toLog = (message: string, type: string = 'info') => {
 /* creates internal tracking code of a transaction type */
 export const getTxCode = (txType: ActionCodes, vaultOrSeriesId: string | null) => `${txType}_${vaultOrSeriesId}`;
 
-
-export const generateVaultName = (id:string) => {
-
+export const generateVaultName = (id: string) => {
   const vaultNameConfig: Config = {
     dictionaries: [adjectives, animals],
     separator: ' ',
     length: 2,
   };
-  return uniqueNamesGenerator({ seed: parseInt(id.substring(14), 16), ...vaultNameConfig })
-  
+  return uniqueNamesGenerator({ seed: parseInt(id.substring(14), 16), ...vaultNameConfig });
 };
-
 
 // TODO make it change based on hemisphere ( ie swap winter and summer)
 export enum SeasonType {
@@ -73,7 +77,7 @@ export const getSeason = (dateInSecs: number): SeasonType => {
 export const cleanValue = (input: string | undefined, decimals: number = 18) => {
   const re = new RegExp(`(\\d+\\.\\d{${decimals}})(\\d)`);
   if (input !== undefined) {
-    const input_ = input![0] === '.' ? '0'.concat(input!) : input; 
+    const input_ = input![0] === '.' ? '0'.concat(input!) : input;
     const inpu = input_?.match(re); // inpu = truncated 'input'... get it?
     if (inpu) {
       return inpu[1];

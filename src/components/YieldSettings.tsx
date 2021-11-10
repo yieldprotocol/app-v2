@@ -3,7 +3,7 @@ import { Anchor, Box, Button, Collapsible, DropButton, ResponsiveContext, Text, 
 import { FiChevronUp, FiChevronDown, FiExternalLink, FiX, FiMoreVertical, FiMenu } from 'react-icons/fi';
 import styled from 'styled-components';
 import { ChainContext } from '../contexts/ChainContext';
-import { abbreviateHash } from '../utils/appUtils';
+import { abbreviateHash, clearCachedItems } from '../utils/appUtils';
 import YieldAvatar from './YieldAvatar';
 import { TxContext } from '../contexts/TxContext';
 import CopyWrap from './wraps/CopyWrap';
@@ -23,7 +23,6 @@ const StyledButton = styled(Button)`
   text-align: center;
   color: #2563eb;
   width: 4rem;
-
   :hover {
     border: 2px solid #1d4ed8;
   }
@@ -52,7 +51,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
   };
 
   const handleResetApp = () => {
-    localStorage.clear();
+    clearCachedItems([]);
     // eslint-disable-next-line no-restricted-globals
     location.reload();
   };

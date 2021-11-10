@@ -17,6 +17,7 @@ import { useCachedState } from './generalHooks';
 import MetamaskMark from '../components/logos/MetamaskMark';
 import LedgerMark from '../components/logos/LedgerMark';
 import WalletconnectMark from '../components/logos/WalletconnectMark';
+import { clearCachedItems } from '../utils/appUtils';
 // import TrezorMark from '../components/logos/TrezorMark';
 
 const NO_BROWSER_EXT =
@@ -41,13 +42,11 @@ CHAIN_INFO.set(42, { name: 'Kovan', color: '#7F7FFE' });
 
 const CONNECTOR_INFO = new Map<string, { displayName: string; image: any }>();
 CONNECTOR_INFO.set('metamask', { displayName: 'Metamask', image: MetamaskMark });
-CONNECTOR_INFO.set('ledgerWithMetamask', { displayName: 'Hardware Wallet (with Metamask)', image: LedgerMark});
+CONNECTOR_INFO.set('ledgerWithMetamask', { displayName: 'Hardware Wallet (with Metamask)', image: LedgerMark });
 CONNECTOR_INFO.set('ledger', { displayName: 'Ledger', image: LedgerMark });
 CONNECTOR_INFO.set('walletconnect', { displayName: 'WalletConnect', image: WalletconnectMark });
 
 const INIT_INJECTED = (JSON.parse(localStorage.getItem('connectionName')!) as string) || 'metamask';
-
-// const INIT_INJECTED = 'metamask';
 
 const CONNECTORS = new Map();
 CONNECTORS.set(
@@ -110,32 +109,32 @@ export const useConnection = () => {
       },
       false
     );
-    CONNECTORS.has(connection) && setConnectionName(connection)
+    CONNECTORS.has(connection) && setConnectionName(connection);
   };
 
   /**
    * FIRST STEP > Try to connect automatically to an injected provider on first load
    * */
   useEffect(() => {
-    if (!tried && !active) {
+    if (!tried && !active && INIT_INJECTED !== 'walletconnect') {
       setErrorMessage(undefined);
-      CONNECTORS.get(INIT_INJECTED)
-        .isAuthorized()
-        .then((isAuthorized: boolean) => {
-          if (isAuthorized) {
-            activate(
-              CONNECTORS.get(INIT_INJECTED),
-              (e: Error) => {
-                setErrorMessage(handleErrorMessage(e));
-                setTried(true); // tried, failed, move on.
-              },
-              false
-            );
-            setConnectionName(INIT_INJECTED);
-          } else {
-            setTried(true); // not authorsied, move on
-          }
-        });
+      if (INIT_INJECTED !== 'walletconnect') {
+        CONNECTORS.get(INIT_INJECTED)
+          .isAuthorized()
+          .then((isAuthorized: boolean) => {
+            if (isAuthorized) {
+              activate(
+                CONNECTORS.get(INIT_INJECTED),
+                (e: Error) => {
+                  setErrorMessage(handleErrorMessage(e));
+                  setTried(true); // tried, failed, move on.
+                },
+                false
+              );
+              setConnectionName(INIT_INJECTED);
+            } else setTried(true); // not authorsied, move on
+          });
+      } else setTried(true); // metamask not authorised, move on
     }
     /* if active, set tried to true */
     !tried && active && setTried(true);
@@ -192,7 +191,16 @@ export const useConnection = () => {
   useEffect(() => {
     fallbackChainId && setCurrentChainInfo(CHAIN_INFO.get(fallbackChainId));
     if (fallbackChainId && lastChainId && fallbackChainId !== lastChainId) {
-      localStorage.clear();
+      // localStorage.clear();
+      clearCachedItems([
+        'lastChainId',
+        'assets',
+        'series',
+        'lastAssetUpdate',
+        'lastSeriesUpdate',
+        'strategies',
+        'lastStrategiesUpdate',
+      ]);
       setLastChainId(fallbackChainId);
       // eslint-disable-next-line no-restricted-globals
       location.reload();
@@ -277,7 +285,15 @@ const useInactiveListener = (suppress: boolean = false) => {
 
       const handleChainChanged = (chainId: string) => {
         console.log('CHAIN CHANGED in the background with payload: ', chainId);
-        window.localStorage.clear();
+        // window.localStorage.clear();
+        clearCachedItems([
+          'assets',
+          'series',
+          'lastAssetUpdate',
+          'lastSeriesUpdate',
+          'strategies',
+          'lastStrategiesUpdate',
+        ]);
         setLastChainId(parseInt(chainId, 16));
         // eslint-disable-next-line no-restricted-globals
         location.reload();
