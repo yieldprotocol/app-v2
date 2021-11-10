@@ -33,6 +33,7 @@ function App() {
   return (
     <Box fill background="background">
       <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
+      <NetworkBanner />
       <TransactionWidget />
       <NetworkError />
       <TransactionError />
