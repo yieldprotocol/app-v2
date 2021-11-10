@@ -3,6 +3,7 @@ import { Box, ResponsiveContext, Select, Text } from 'grommet';
 import styled from 'styled-components';
 import { ChainContext } from '../../contexts/ChainContext';
 import { SUPPORTED_CHAIN_IDS, CHAIN_INFO } from '../../config/chainData';
+import { useNetworkSelect } from '../../hooks/useNetworkSelect';
 
 const StyledBox = styled(Box)`
   -webkit-transition: transform 0.3s ease-in-out;
@@ -17,19 +18,25 @@ const NetworkSelector = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
     chainState: {
-      connection: { currentChainInfo },
+      connection: { currentChainInfo, fallbackChainId },
     },
   } = useContext(ChainContext);
 
   const [options, setOptions] = useState<string[]>([]);
+  const [selectedChainId, setSelectedChainId] = useState<number | undefined>();
+
+  useNetworkSelect(selectedChainId!);
 
   const handleNetworkChange = (chainName: string) => {
-    console.log('changing network', chainName);
+    setSelectedChainId([...CHAIN_INFO.entries()].find(([id, chainInfo]: any) => chainInfo.name === chainName)![0]);
   };
 
   useEffect(() => {
-    setOptions(SUPPORTED_CHAIN_IDS.map((chainId: number) => CHAIN_INFO.get(chainId)?.name!));
-  }, []);
+    setOptions(
+      SUPPORTED_CHAIN_IDS.filter((chainId: number) => ![fallbackChainId, 42].includes(chainId)) // filter out test networks and currently selected network
+        .map((chainId: number) => CHAIN_INFO.get(chainId)?.name!)
+    );
+  }, [fallbackChainId]);
 
   if (!currentChainInfo) return null;
 
