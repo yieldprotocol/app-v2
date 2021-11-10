@@ -11,9 +11,8 @@ import {
 
 import { NetworkConnector } from '@web3-react/network-connector';
 import { ethers } from 'ethers';
-import { ReactComponentElement, ReactElement, ReactSVGElement, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useCachedState } from './generalHooks';
-// import { ChainContext } from '../contexts/ChainContext';
 
 import MetamaskMark from '../components/logos/MetamaskMark';
 import LedgerMark from '../components/logos/LedgerMark';
@@ -42,17 +41,17 @@ CHAIN_INFO.set(42, { name: 'Kovan', color: '#7F7FFE' });
 
 const CONNECTOR_INFO = new Map<string, { displayName: string; image: any }>();
 CONNECTOR_INFO.set('metamask', { displayName: 'Metamask', image: MetamaskMark });
-CONNECTOR_INFO.set('ledgerWithMetamask', { displayName: 'Ledger (with Metamask)', image: LedgerMark});
+CONNECTOR_INFO.set('ledgerWithMetamask', { displayName: 'Hardware Wallet (with Metamask)', image: LedgerMark});
 CONNECTOR_INFO.set('ledger', { displayName: 'Ledger', image: LedgerMark });
 CONNECTOR_INFO.set('walletconnect', { displayName: 'WalletConnect', image: WalletconnectMark });
 
-const INIT_INJECTED =  (JSON.parse(localStorage.getItem('connectionName')!) as string) || 'metamask';
+const INIT_INJECTED = (JSON.parse(localStorage.getItem('connectionName')!) as string) || 'metamask';
 
 // const INIT_INJECTED = 'metamask';
 
 const CONNECTORS = new Map();
 CONNECTORS.set(
-  'ledgerWithMetamask',
+  'metamask',
   new InjectedConnector({
     supportedChainIds: [1, 42],
   })
@@ -66,17 +65,16 @@ CONNECTORS.set(
   })
 );
 CONNECTORS.set(
-  'metamask',
+  'ledgerWithMetamask',
   new InjectedConnector({
     supportedChainIds: [1, 42],
   })
 );
 
-
 export const useConnection = () => {
   const [tried, setTried] = useState<boolean>(false);
 
-  const [connectionName, _setConnectionName] = useCachedState('connectionName', '');
+  const [connectionName, setConnectionName] = useCachedState('connectionName', '');
   const [currentChainInfo, setCurrentChainInfo] = useState<any>();
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
   const [fallbackErrorMessage, setFallbackErrorMessage] = useState<string | undefined>(undefined);
@@ -112,8 +110,8 @@ export const useConnection = () => {
       },
       false
     );
+    CONNECTORS.has(connection) && setConnectionName(connection)
   };
-  const setConnectionName = (name: string) => CONNECTORS.has(name) && _setConnectionName(name);
 
   /**
    * FIRST STEP > Try to connect automatically to an injected provider on first load
@@ -133,7 +131,7 @@ export const useConnection = () => {
               },
               false
             );
-            _setConnectionName(INIT_INJECTED);
+            setConnectionName(INIT_INJECTED);
           } else {
             setTried(true); // not authorsied, move on
           }
@@ -141,7 +139,7 @@ export const useConnection = () => {
     }
     /* if active, set tried to true */
     !tried && active && setTried(true);
-  }, [activate, active, handleErrorMessage, tried, _setConnectionName]);
+  }, [activate, active, handleErrorMessage, tried, setConnectionName]);
 
   /*
       Watch the chainId for changes (most likely instigated by metamask),
@@ -230,7 +228,6 @@ export const useConnection = () => {
       connect,
       disconnect,
       isConnected,
-      setConnectionName,
     },
   };
 };
