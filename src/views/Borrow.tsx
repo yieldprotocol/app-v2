@@ -160,9 +160,9 @@ const Borrow = () => {
     !selectedSeries ||
     borrowInputError ||
     selectedSeries?.seriesIsMature ||
-    (stepPosition === 1 && undercollateralized) ||
     borrowInputError ||
-    collatInputError
+    (stepPosition === 1 && undercollateralized) ||
+    (stepPosition === 1 && collatInputError)
       ? setStepDisabled(true)
       : setStepDisabled(false); /* else if all pass, then unlock borrowing */
   }, [
@@ -314,7 +314,7 @@ const Borrow = () => {
                   <BackButton action={() => setStepPosition(0)} />
                 </YieldCardHeader>
 
-                <Box gap="large" height="400px">
+                <Box gap="large" height="100%">
                   <SectionWrap>
                     <Box
                       pad="medium"
@@ -345,9 +345,9 @@ const Borrow = () => {
                             %
                           </Text>
                         </Box>
-                        <Box align="center" direction="row-responsive" gap="small">
+                        <Box align="center" direction="row" gap="xsmall">
                           <Text size={mobile ? 'xsmall' : 'xsmall'} color="text-weak">
-                            Minimum reqd. :
+                            {mobile ? 'Min reqd. :' : 'Minimum reqd. :'}{' '}
                           </Text>
                           <Text size={mobile ? 'xsmall' : 'xsmall'}>{minCollatRatioPct}%</Text>
                         </Box>
