@@ -21,7 +21,7 @@ const TransactionError = () => {
 
   return (
     <>
-      {(true || txState.txWillFail) && (
+      {txState.txWillFail && (
         <Layer onClickOutside={() => txActions.handleTxWillFail()} responsive>
           <Box pad="large" round="small" gap="small" width="600px">
             <Box fill="horizontal" align="center" direction="row" gap="medium">
