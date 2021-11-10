@@ -146,6 +146,7 @@ const ChainProvider = ({ children }: any) => {
       let ChainlinkMultiOracle: any;
       let CompositeMultiOracle: any;
       let Witch: any;
+      let LidoWrapHandler: any;
 
       try {
         Cauldron = contracts.Cauldron__factory.connect(addrs.Cauldron, fallbackProvider);
@@ -159,6 +160,7 @@ const ChainProvider = ({ children }: any) => {
           fallbackProvider
         );
         Witch = contracts.Witch__factory.connect(addrs.Witch, fallbackProvider);
+        LidoWrapHandler = contracts.LidoWrapHandler__factory.connect(addrs.LidoWrapHandler, fallbackProvider);
       } catch (e) {
         console.log(e, 'Could not connect to contracts');
       }
@@ -172,6 +174,7 @@ const ChainProvider = ({ children }: any) => {
       newContractMap.set('Witch', Witch);
       newContractMap.set('ChainlinkMultiOracle', ChainlinkMultiOracle);
       newContractMap.set('CompositeMultiOracle', CompositeMultiOracle);
+      newContractMap.set('LidoWrapHandler', LidoWrapHandler); 
       updateState({ type: 'contractMap', payload: newContractMap });
 
       /* Get the hardcoded strategy addresses */
