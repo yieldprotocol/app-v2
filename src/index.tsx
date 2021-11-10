@@ -22,7 +22,7 @@ function getLibrary(provider: ethers.providers.ExternalProvider, connector: any)
 /* Init the calling web3 environment */
 const Web3FallbackProvider = createWeb3ReactRoot('fallback');
 
-function getFallbackLibrary(provider: any, connector: any) {
+function getFallbackLibrary(provider: any) {
   const library: ethers.providers.JsonRpcProvider = new ethers.providers.JsonRpcProvider(
     process.env[`REACT_APP_RPC_URL_${provider.chainId}`]
   );
