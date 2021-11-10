@@ -84,7 +84,7 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
           </Box>
           <Box />
 
-          <Box align="center" direction="row">
+          <Box align="center" direction="row" gap="small">
             <NetworkSelector />
             <YieldAccount />
           </Box>
