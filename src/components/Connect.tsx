@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Box, Button, ResponsiveContext, Text } from 'grommet';
-import { FiCheckCircle, FiCheckSquare, FiX } from 'react-icons/fi';
+import { FiX } from 'react-icons/fi';
 import { ChainContext } from '../contexts/ChainContext';
 import BackButton from './buttons/BackButton';
 import Disclaimer from './Disclaimer';
@@ -18,13 +18,12 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
 
   const {
     chainState: {
-      connection: { account, activatingConnector, CONNECTORS, CONNECTOR_NAMES, connectionName, connector },
+      connection: { account, activatingConnector, CONNECTORS, CONNECTOR_INFO, connectionName, connector },
     },
-    chainActions: { connect, setConnectionName },
+    chainActions: { connect },
   } = useContext(ChainContext);
 
   const handleConnect = (connectorName: string) => {
-    setConnectionName(connectorName);
     connect(connectorName);
     setConnectOpen(false);
     setSettingsOpen(false);
@@ -63,6 +62,7 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
       )}
       <Box gap="xsmall" pad={{ vertical: 'large' }}>
         {[...CONNECTORS.keys()].map((name: string) => {
+          const { displayName, image } = CONNECTOR_INFO.get(name);
           const currentConnector = CONNECTORS.get(name);
           const activating = currentConnector === activatingConnector;
           const connected = connector && name === connectionName;
@@ -75,15 +75,18 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
               disabled={disclaimerChecked === false}
             >
               <Box direction="row" gap="xsmall">
-                {connected && <FiCheckCircle color="#34D399" />}
+                {/* {connected && <FiCheckCircle color="#34D399" />} */}
                 {activating ? (
                   <Text size="small" color={connected ? 'white' : 'text'}>
                     'Connecting'
                   </Text>
                 ) : (
-                  <Text size="small" color={connected ? 'white' : 'text'}>
-                    {CONNECTOR_NAMES.get(name)}
-                  </Text>
+                  <Box direction="row" gap='small'>
+                    <Text size="small" color={connected ? 'white' : 'text'} textAlign="center">
+                      {displayName}
+                    </Text>
+                    {image()}
+                  </Box>
                 )}
               </Box>
             </GeneralButton>

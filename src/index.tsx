@@ -34,11 +34,11 @@ function getFallbackLibrary(provider: any, connector: any) {
 
 ReactDOM.render(
   <React.StrictMode>
-    <SettingsProvider>
-      <Router>
-        <Web3FallbackProvider getLibrary={getFallbackLibrary}>
-          <Web3ReactProvider getLibrary={getLibrary}>
-            <ChainProvider>
+    <Router>
+      <Web3FallbackProvider getLibrary={getFallbackLibrary}>
+        <Web3ReactProvider getLibrary={getLibrary}>
+          <ChainProvider>
+            <SettingsProvider>
               <UserProvider>
                 <TxProvider>
                   <HistoryProvider>
@@ -46,11 +46,11 @@ ReactDOM.render(
                   </HistoryProvider>
                 </TxProvider>
               </UserProvider>
-            </ChainProvider>
-          </Web3ReactProvider>
-        </Web3FallbackProvider>
-      </Router>
-    </SettingsProvider>
+            </SettingsProvider>
+          </ChainProvider>
+        </Web3ReactProvider>
+      </Web3FallbackProvider>
+    </Router>
   </React.StrictMode>,
   document.getElementById('root')
 );

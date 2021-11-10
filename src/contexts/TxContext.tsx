@@ -13,9 +13,7 @@ const initState = {
 
   /* process active flags for convenience */
   anyProcessActive: false as boolean,
-
-  /* user settings */
-  useFallbackTxs: false as boolean,
+  txWillFail: false as boolean,
 };
 
 interface IYieldSignature {
@@ -83,6 +81,12 @@ function txReducer(_state: any, action: any) {
         processActive: _onlyIfChanged(action),
       };
 
+    case 'txWillFail':
+      return {
+        ..._state,
+        txWillFail: _onlyIfChanged(action),
+      };
+
     default:
       return _state;
   }
@@ -132,6 +136,18 @@ const TxProvider = ({ children }: any) => {
     const _tx = { tx, txCode, receipt: undefined, status: TxState.FAILED };
     updateState({ type: 'transactions', payload: _tx });
     console.log('txHash: ', tx?.hash);
+  };
+
+  const handleTxWillFail = (txCode?: string | undefined) => {
+    /* simply toggles the txWillFail txState */
+    if (txState.txWillFail === false) {
+      updateState({ type: 'txWillFail', payload: true });
+      /* extra actions */
+      toast.error('Transaction Aborted. It appears the transaction would have more than likely failed.');
+      txCode && updateState({ type: 'resetProcess', payload: txCode });
+    } else {
+      updateState({ type: 'txWillFail', payload: false });
+    }
   };
 
   /* Handle a tx */
@@ -251,6 +267,7 @@ const TxProvider = ({ children }: any) => {
   const txActions = {
     handleTx,
     handleSign,
+    handleTxWillFail,
     resetProcess: (txCode: string) => updateState({ type: 'resetProcess', payload: txCode }),
     updateTxStage: (txCode: string, stage: ProcessStage) =>
       updateState({ type: 'processes', payload: { ...txState.processes.get(txCode), stage } }),

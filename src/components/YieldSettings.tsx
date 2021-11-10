@@ -3,7 +3,7 @@ import { Anchor, Box, Button, Collapsible, DropButton, ResponsiveContext, Text, 
 import { FiChevronUp, FiChevronDown, FiExternalLink, FiX, FiMoreVertical, FiMenu } from 'react-icons/fi';
 import styled from 'styled-components';
 import { ChainContext } from '../contexts/ChainContext';
-import { abbreviateHash } from '../utils/appUtils';
+import { abbreviateHash, clearCachedItems } from '../utils/appUtils';
 import YieldAvatar from './YieldAvatar';
 import { TxContext } from '../contexts/TxContext';
 import CopyWrap from './wraps/CopyWrap';
@@ -13,7 +13,6 @@ import BoxWrap from './wraps/BoxWrap';
 import SlippageSetting from './settings/SlippageSetting';
 import ApprovalSetting from './settings/ApprovalSetting';
 import ThemeSetting from './settings/ThemeSetting';
-import ConnectButton from './buttons/ConnectButton';
 import GeneralButton from './buttons/GeneralButton';
 
 const StyledButton = styled(Button)`
@@ -24,7 +23,6 @@ const StyledButton = styled(Button)`
   text-align: center;
   color: #2563eb;
   width: 4rem;
-
   :hover {
     border: 2px solid #1d4ed8;
   }
@@ -34,7 +32,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
     chainState: {
-      connection: { account, CONNECTOR_NAMES, currentChainInfo, connectionName },
+      connection: { account, CONNECTOR_INFO, currentChainInfo, connectionName },
     },
     chainActions: { disconnect },
   } = useContext(ChainContext);
@@ -53,7 +51,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
   };
 
   const handleResetApp = () => {
-    localStorage.clear();
+    clearCachedItems([]);
     // eslint-disable-next-line no-restricted-globals
     location.reload();
   };
@@ -115,7 +113,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
             margin={{ top: 'large' }}
           >
             <BoxWrap direction="row" gap="small">
-              {connectionName && <Text size="xsmall">Connected with {CONNECTOR_NAMES.get(connectionName)}</Text>}
+              {connectionName && <Text size="xsmall">Connected with {CONNECTOR_INFO.get(connectionName).displayName}</Text>}
               {connectionSettingsOpen ? <FiChevronUp /> : <FiChevronDown />}
             </BoxWrap>
           </Box>

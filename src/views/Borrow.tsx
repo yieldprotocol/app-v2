@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Box, Keyboard, Layer, ResponsiveContext, Text, TextInput } from 'grommet';
+import { Box, Keyboard, Layer, ResponsiveContext, Text, TextInput, Tip } from 'grommet';
 
-import { FiClock, FiPocket, FiPercent, FiTrendingUp } from 'react-icons/fi';
+import { FiClock, FiPocket, FiPercent, FiTrendingUp, FiInfo } from 'react-icons/fi';
 
 import SeriesSelector from '../components/selectors/SeriesSelector';
 import MainViewWrap from '../components/wraps/MainViewWrap';
@@ -54,8 +54,7 @@ const Borrow = () => {
     chainState: { contractMap },
   } = useContext(ChainContext);
   const { userState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, assetMap, vaultMap, seriesMap, selectedSeriesId, selectedIlkId, selectedBaseId } =
-    userState;
+  const { activeAccount, assetMap, vaultMap, seriesMap, selectedSeriesId, selectedIlkId, selectedBaseId } = userState;
 
   const selectedBase = assetMap.get(selectedBaseId!);
   const selectedIlk = assetMap.get(selectedIlkId!);
@@ -76,6 +75,7 @@ const Borrow = () => {
   const [newVaultId, setNewVaultId] = useState<string | undefined>(undefined);
 
   const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
+  const [currentGaugeColor, setCurrentGaugeColor] = useState<string>('#EF4444');
 
   const borrow = useBorrow();
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
@@ -83,10 +83,11 @@ const Borrow = () => {
   const {
     collateralizationPercent,
     undercollateralized,
-    minCollateral,
     minCollateral_,
     minSafeCollateral,
     maxCollateral,
+    minSafeCollatRatioPct,
+    minCollatRatioPct,
   } = useCollateralHelpers(borrowInput, collatInput, vaultToUse);
 
   const { minDebt_, maxDebt_, borrowPossible, borrowEstimate_, aboveDebtLimit } = useBorrowHelpers(
@@ -114,6 +115,10 @@ const Borrow = () => {
   const handleBorrow = () => {
     const _vault = vaultToUse?.id ? vaultToUse : undefined; // if vaultToUse has id property, use it
     !borrowDisabled && borrow(_vault, borrowInput, collatInput);
+  };
+
+  const handleGaugeColorChange: any = (val: string) => {
+    setCurrentGaugeColor(val);
   };
 
   const resetInputs = useCallback(() => {
@@ -155,9 +160,9 @@ const Borrow = () => {
     !selectedSeries ||
     borrowInputError ||
     selectedSeries?.seriesIsMature ||
-    (stepPosition === 1 && undercollateralized) ||
     borrowInputError ||
-    collatInputError
+    (stepPosition === 1 && undercollateralized) ||
+    (stepPosition === 1 && collatInputError)
       ? setStepDisabled(true)
       : setStepDisabled(false); /* else if all pass, then unlock borrowing */
   }, [
@@ -309,23 +314,43 @@ const Borrow = () => {
                   <BackButton action={() => setStepPosition(0)} />
                 </YieldCardHeader>
 
-                <Box gap="large" height="400px">
+                <Box gap="large" height="100%">
                   <SectionWrap>
-                    <Box direction="row" gap="large" margin={{ vertical: 'medium' }}>
-                      <Box>
-                        <Gauge value={parseFloat(collateralizationPercent!)} size={mobile ? '6em' : '8em'} />
+                    <Box
+                      pad="medium"
+                      direction="row"
+                      gap="large"
+                      justify="center"
+                      round="small"
+                      background="gradient-transparent"
+                    >
+                      <Box justify="center">
+                        <Gauge
+                          value={parseFloat(collateralizationPercent!)}
+                          size={mobile ? '6em' : '8em'}
+                          mean={parseFloat(minSafeCollatRatioPct!) * 0.9}
+                          setColor={handleGaugeColorChange}
+                        />
                       </Box>
 
-                      <Box align="center">
-                        <Text size={mobile ? 'xsmall' : 'medium'} color="text-weak">
-                          Collateralization
-                        </Text>
-                        <Text size={mobile ? 'large' : 'xlarge'}>
-                          {parseFloat(collateralizationPercent!) > 10000
-                            ? nFormatter(parseFloat(collateralizationPercent!), 2)
-                            : parseFloat(collateralizationPercent!)}
-                          %
-                        </Text>
+                      <Box align="center" gap="small">
+                        <Box align="center">
+                          <Text size={mobile ? 'xsmall' : 'medium'} color="text-weak">
+                            Collateralization
+                          </Text>
+                          <Text size={mobile ? 'large' : 'xlarge'} color={currentGaugeColor}>
+                            {parseFloat(collateralizationPercent!) > 10000
+                              ? nFormatter(parseFloat(collateralizationPercent!), 2)
+                              : parseFloat(collateralizationPercent!)}
+                            %
+                          </Text>
+                        </Box>
+                        <Box align="center" direction="row" gap="xsmall">
+                          <Text size={mobile ? 'xsmall' : 'xsmall'} color="text-weak">
+                            {mobile ? 'Min reqd. :' : 'Minimum reqd. :'}{' '}
+                          </Text>
+                          <Text size={mobile ? 'xsmall' : 'xsmall'}>{minCollatRatioPct}%</Text>
+                        </Box>
                       </Box>
                     </Box>
                   </SectionWrap>
@@ -345,7 +370,7 @@ const Borrow = () => {
                                   action={() => setCollatInput(cleanValue(minSafeCollateral, selectedIlk?.decimals))}
                                 >
                                   <Text size="small" color="text-weak">
-                                    Use Safe Minimum{': '}
+                                    Use Safe Collateralization{': '}
                                     {cleanValue(minSafeCollateral, selectedIlk?.digitFormat)} {selectedIlk?.symbol}
                                   </Text>
                                 </InputInfoWrap>
@@ -427,7 +452,13 @@ const Borrow = () => {
                     <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
                     <InfoBite
                       label="Total Supporting Collateral"
-                      icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
+                      icon={
+                        <Gauge
+                          value={parseFloat(collateralizationPercent!)}
+                          size="1em"
+                          mean={parseFloat(minSafeCollatRatioPct!) * 0.9}
+                        />
+                      }
                       value={`${cleanValue(collatInput, selectedIlk?.digitFormat!)} ${
                         selectedIlk?.symbol
                       } (${collateralizationPercent}%)`}
