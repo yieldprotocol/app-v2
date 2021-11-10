@@ -18,7 +18,16 @@ export const SUPPORTED_RPC_URLS: { [chainId: number]: string } = {
 
 export const SUPPORTED_CHAIN_IDS: number[] = Object.keys(SUPPORTED_RPC_URLS).map((chainId: string) => +chainId);
 
-export const CHAIN_INFO = new Map<number, { name: string; color: string; bridge?: string; explorer?: string }>();
+interface InativeCurrency {
+  name: string;
+  symbol: string; // 2-6 characters long
+  decimals: 18;
+}
+
+export const CHAIN_INFO = new Map<
+  number,
+  { name: string; color: string; bridge?: string; explorer?: string; rpcUrl?: string; nativeCurrency?: InativeCurrency }
+>();
 CHAIN_INFO.set(1, { name: 'Mainnet', color: '#29b6af', explorer: 'https://etherscan.io' });
 CHAIN_INFO.set(3, { name: 'Ropsten', color: '#ff4a8d', explorer: 'https://ropsten.etherscan.io' });
 CHAIN_INFO.set(4, { name: 'Rinkeby', color: '#f6c343', explorer: 'https://rinkeby.etherscan.io' });
@@ -29,22 +38,46 @@ CHAIN_INFO.set(10, {
   color: '#EB0822',
   bridge: 'https://gateway.optimism.io',
   explorer: 'https://optimistic.etherscan.io',
+  rpcUrl: 'https://mainnet.optimism.io',
+  nativeCurrency: {
+    name: 'ETH',
+    symbol: 'ETH',
+    decimals: 18,
+  },
 });
 CHAIN_INFO.set(69, {
   name: 'Optimism Kovan',
   color: '#EB0822',
   bridge: 'https://gateway.optimism.io',
   explorer: 'https://kovan-optimistic.etherscan.io',
+  rpcUrl: 'https://kovan.optimism.io',
+  nativeCurrency: {
+    name: 'ETH',
+    symbol: 'ETH',
+    decimals: 18,
+  },
 });
 CHAIN_INFO.set(42161, {
   name: 'Arbitrum',
   color: '#1F2937',
   bridge: 'https://bridge.arbitrum.io',
   explorer: 'https://explorer.arbitrum.io',
+  rpcUrl: 'https://arb1.arbitrum.io/rpc',
+  nativeCurrency: {
+    name: 'ETH',
+    symbol: 'ETH',
+    decimals: 18,
+  },
 });
 CHAIN_INFO.set(421611, {
   name: 'Arbitrum Testnet',
   color: '#1F2937',
   bridge: 'https://bridge.arbitrum.io',
   explorer: 'https://rinkeby-explorer.arbitrum.io/#',
+  rpcUrl: 'https://rinkeby.arbitrum.io/rpc',
+  nativeCurrency: {
+    name: 'ETH',
+    symbol: 'ETH',
+    decimals: 18,
+  },
 });
