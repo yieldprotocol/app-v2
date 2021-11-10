@@ -9,7 +9,7 @@ import { NetworkConnector } from '@web3-react/network-connector';
 import { ethers } from 'ethers';
 import { useEffect, useState } from 'react';
 import { useCachedState } from './generalHooks';
-import { CHAIN_INFO, RPC_URLS, SUPPORTED_RPC_URLS } from '../config/chainData';
+import { CHAIN_INFO, SUPPORTED_RPC_URLS } from '../config/chainData';
 import { CONNECTORS, CONNECTOR_INFO, INIT_INJECTED } from '../config/connectors';
 import { clearCachedItems } from '../utils/appUtils';
 // import TrezorMark from '../components/logos/TrezorMark';
