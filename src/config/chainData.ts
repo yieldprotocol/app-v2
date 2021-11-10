@@ -28,7 +28,7 @@ export const CHAIN_INFO = new Map<
   number,
   { name: string; color: string; bridge?: string; explorer?: string; rpcUrl?: string; nativeCurrency?: InativeCurrency }
 >();
-CHAIN_INFO.set(1, { name: 'Mainnet', color: '#29b6af', explorer: 'https://etherscan.io' });
+CHAIN_INFO.set(1, { name: 'Ethereum', color: '#29b6af', explorer: 'https://etherscan.io' });
 CHAIN_INFO.set(3, { name: 'Ropsten', color: '#ff4a8d', explorer: 'https://ropsten.etherscan.io' });
 CHAIN_INFO.set(4, { name: 'Rinkeby', color: '#f6c343', explorer: 'https://rinkeby.etherscan.io' });
 CHAIN_INFO.set(5, { name: 'Goerli', color: '#3099f2', explorer: 'https://goerli.etherscan.io' });
