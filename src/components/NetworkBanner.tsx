@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Anchor, Box, Button, Text } from 'grommet';
 import styled from 'styled-components';
 import { FiArrowUpRight, FiX } from 'react-icons/fi';
@@ -18,10 +18,14 @@ const NetworkBanner = () => {
       connection: { currentChainInfo, fallbackChainId },
     },
   } = useContext(ChainContext);
-  const showableChains = [42161, 421611, 69, 10];
-  const [show, setShow] = useState<boolean>(true);
+  const [show, setShow] = useState<boolean>(false);
 
-  return show && currentChainInfo && showableChains.includes(fallbackChainId) ? (
+  useEffect(() => {
+    const showableChains = [42161, 421611, 69, 10];
+    currentChainInfo && showableChains.includes(Number(fallbackChainId)) && setShow(true);
+  }, [currentChainInfo, fallbackChainId]);
+
+  return show ? (
     <StyledBox pad="small" background={{ color: currentChainInfo.color, opacity: 0.9 }} round="xsmall" gap="small">
       <Box direction="row" justify="between">
         <Box>Yield on {currentChainInfo.name}</Box>
