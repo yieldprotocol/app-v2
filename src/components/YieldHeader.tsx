@@ -11,6 +11,7 @@ import YieldMark from './logos/YieldMark';
 import { useCachedState } from '../hooks/generalHooks';
 import BackButton from './buttons/BackButton';
 import { useColorScheme } from '../hooks/useColorScheme';
+import NetworkSelector from './selectors/NetworkSelector';
 
 const StyledAvatar = styled(Avatar)`
   -webkit-transition: background 0.3s ease-in-out;
@@ -83,8 +84,8 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
           </Box>
           <Box />
 
-          <Box align="end" direction="row">
-            {/* {mobile && <Box> Dash </Box>}  */}
+          <Box align="center" direction="row">
+            <NetworkSelector />
             <YieldAccount />
           </Box>
         </Grid>
