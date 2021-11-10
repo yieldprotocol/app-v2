@@ -30,6 +30,7 @@ export const useCollateralHelpers = (
   const [collateralizationRatio, setCollateralizationRatio] = useState<string | undefined>();
   const [collateralizationPercent, setCollateralizationPercent] = useState<string | undefined>();
   const [undercollateralized, setUndercollateralized] = useState<boolean>(true);
+  const [unhealthyCollatRatio, setUnhealthyCollatRatio] = useState<boolean>(false);
 
   const [oraclePrice, setOraclePrice] = useState<ethers.BigNumber>(ethers.constants.Zero);
 
@@ -143,7 +144,11 @@ export const useCollateralHelpers = (
     parseFloat(collateralizationRatio!) >= minCollatRatio!
       ? setUndercollateralized(false)
       : setUndercollateralized(true);
-  }, [collateralizationRatio, minCollatRatio]);
+
+    parseFloat(collateralizationRatio!) < minCollatRatio! + 0.2 && vault?.art.gt(ethers.constants.Zero)
+      ? setUnhealthyCollatRatio(true)
+      : setUnhealthyCollatRatio(false);
+  }, [collateralizationRatio, minCollatRatio, vault?.art]);
 
   /* Get and set the min (and safe min) collateral ratio for this base/ilk pair */
   useEffect(() => {
@@ -153,7 +158,7 @@ export const useCollateralHelpers = (
         if (ratio) {
           const _minCollatRatio = parseFloat(ethers.utils.formatUnits(ratio, 6));
           setMinCollatRatio(_minCollatRatio);
-          setMinCollatRatioPct(`${ethers.utils.formatUnits(ratio * 100, 6)}%`);
+          setMinCollatRatioPct(`${parseFloat(ethers.utils.formatUnits(ratio * 100, 6)).toFixed(0)}`);
 
           const _minSafeCollatRatio = _minCollatRatio < 1.4 ? 1.5 : _minCollatRatio + 1;
           setMinSafeCollatRatio(_minSafeCollatRatio);
@@ -174,5 +179,6 @@ export const useCollateralHelpers = (
     minSafeCollateral,
     maxCollateral,
     maxRemovableCollateral,
+    unhealthyCollatRatio,
   };
 };
