@@ -4,12 +4,13 @@ import { Avatar, Box, Grid, ResponsiveContext, Text } from 'grommet';
 import { toast } from 'react-toastify';
 import { FiSlash } from 'react-icons/fi';
 
-import Skeleton from 'react-loading-skeleton';
 import styled from 'styled-components';
 import { IStrategy } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { getPoolPercent } from '../../utils/yieldMath';
 import { cleanValue, formatStrategyName } from '../../utils/appUtils';
+import Skeleton from '../wraps/SkeletonWrap';
+import { SettingsContext } from '../../contexts/SettingsContext';
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
@@ -60,8 +61,12 @@ interface IStrategySelectorProps {
 function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelectorProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
+  const {
+    settingsState: { diagnostics },
+  } = useContext(SettingsContext);
+
   const { userState, userActions } = useContext(UserContext);
-  const { selectedStrategyAddr, selectedBaseId, strategiesLoading, strategyMap, seriesMap, diagnostics } = userState;
+  const { selectedStrategyAddr, selectedBaseId, strategiesLoading, strategyMap, seriesMap } = userState;
 
   const [options, setOptions] = useState<IStrategy[]>([]);
 
@@ -107,12 +112,13 @@ function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelector
             ) : (
               options.map((strategy: IStrategy) => (
                 <StyledBox
-                  // border={series.id === selectedSeriesId}
                   key={strategy.address}
                   pad="xsmall"
                   round="xsmall"
                   onClick={() => handleSelect(strategy)}
-                  background={strategy.address === selectedStrategyAddr ? strategy.currentSeries?.color : 'solid'}
+                  background={
+                    strategy.address === selectedStrategyAddr ? strategy.currentSeries?.color : 'hoverBackground'
+                  }
                   elevation="xsmall"
                   align="center"
                 >
@@ -120,7 +126,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelector
                     <Avatar
                       background={
                         strategy.address === selectedStrategyAddr
-                          ? 'solid'
+                          ? 'lightBackground'
                           : strategy.currentSeries?.endColor.toString().concat('10')
                       }
                       style={{

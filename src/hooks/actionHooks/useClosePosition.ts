@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
+import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
@@ -10,37 +11,44 @@ import { useChain } from '../useChain';
 
 /* Lend Actions Hook */
 export const useClosePosition = () => {
+  const {
+    settingsState: { slippageTolerance, approveMax },
+  } = useContext(SettingsContext);
 
   const {
-    settingsState: { slippageTolerance },
-  } = useContext(SettingsContext) ;
-  
+    chainState: { contractMap },
+  } = useContext(ChainContext);
+
   const { userState, userActions } = useContext(UserContext);
   const { activeAccount: account, assetMap } = userState;
   const { updateSeries, updateAssets } = userActions;
-  const { historyActions: { updateTradeHistory } } = useContext(HistoryContext);
+  const {
+    historyActions: { updateTradeHistory },
+  } = useContext(HistoryContext);
 
   const { sign, transact } = useChain();
 
   const closePosition = async (input: string | undefined, series: ISeries) => {
     const txCode = getTxCode(ActionCodes.CLOSE_POSITION, series.id);
     const base = assetMap.get(series.baseId);
-    const cleanedInput = cleanValue(input, base.decimals)
+    const cleanedInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanedInput, base.decimals) : ethers.constants.Zero;
 
     const { fyTokenAddress, poolAddress, seriesIsMature } = series;
+    const ladleAddress = contractMap.get('Ladle').address;
 
     /* buy fyToken value ( after maturity  fytoken === base value ) */
     const _fyTokenValueOfInput = seriesIsMature
       ? _input
       : buyBase(series.baseReserves, series.fyTokenReserves, _input, series.getTimeTillMaturity(), series.decimals);
 
-    /* calculate slippage on the base token expected to recieve ie. input */ 
-    const _inputWithSlippage = calculateSlippage(
-      _input,
-      slippageTolerance.toString(),
-      true
-    );
+    /* calculate slippage on the base token expected to recieve ie. input */
+    const _inputWithSlippage = calculateSlippage(_input, slippageTolerance.toString(), true);
+
+    /* if approveMAx, check if signature is required */
+    const alreadyApproved = approveMax
+      ? (await series.fyTokenContract.allowance(account, ladleAddress)).gt(_fyTokenValueOfInput)
+      : false;
 
     const permits: ICallData[] = await sign(
       [
@@ -48,7 +56,7 @@ export const useClosePosition = () => {
           target: series,
           spender: 'LADLE',
           amount: _fyTokenValueOfInput,
-          ignoreIf: false, // never ignore
+          ignoreIf: alreadyApproved===true,
         },
       ],
       txCode

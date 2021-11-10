@@ -28,7 +28,7 @@ function VaultDropSelector({
   } = useContext(UserContext);
 
   return (
-    <Box round="xsmall" gap="small" justify="between" elevation="xsmall">
+    <Box round="xsmall" gap="small" justify="between" elevation="xsmall" background="hoverBackground">
       <Select
         defaultValue={undefined}
         plain
@@ -44,7 +44,7 @@ function VaultDropSelector({
         valueLabel={
           itemSelected?.id ? (
             <Box pad={mobile ? 'medium' : 'small'} direction="row" gap="medium" align="center">
-              <PositionAvatar position={itemSelected} condensed actionType={ActionType.BORROW}/>
+              <PositionAvatar position={itemSelected} condensed actionType={ActionType.BORROW} />
               <Text>{itemSelected?.displayName}</Text>
             </Box>
           ) : (
@@ -60,7 +60,7 @@ function VaultDropSelector({
         children={(x: IVault) => (
           <>
             {x.id ? (
-              <Box pad="small" direction="row" gap="small" align="center">
+              <Box pad="small" direction="row" gap="small" align="center" background="">
                 <PositionAvatar position={x} condensed actionType={ActionType.BORROW} />
                 <Box>
                   <Text size="small" weight={700}>
@@ -75,7 +75,7 @@ function VaultDropSelector({
                 </Box>
               </Box>
             ) : (
-              <Box pad="small" direction="row" gap="small" align="center">
+              <Box pad="small" direction="row" gap="small" align="center" background="">
                 <FiPlusCircle color="lightgrey" />
                 <Text color="text-weak" size="medium">
                   {x.displayName}

@@ -34,7 +34,7 @@ function ModalWrap({ children, series }: IModalWrap) {
     <Keyboard onEsc={() => history.goBack()}>
       <Layer
         full
-        background={`linear-gradient( 45deg ,  ${_series?.startColor?.toString().concat('80')} , ${_series?.endColor
+        background={`linear-gradient( 45deg ,  ${_series?.startColor?.toString()} , ${_series?.endColor
           ?.toString()
           .concat('80')} )`}
         animation="fadeIn"

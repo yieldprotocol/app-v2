@@ -2,12 +2,12 @@ import React, { useContext, useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import { Box, ResponsiveContext, Select, Text } from 'grommet';
 
-import Skeleton from 'react-loading-skeleton';
-
 import styled from 'styled-components';
+import Skeleton from '../wraps/SkeletonWrap';
 import { IAsset } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { DAI, WETH, USDC, WBTC } from '../../utils/constants';
+import { SettingsContext } from '../../contexts/SettingsContext';
 
 interface IAssetSelectorProps {
   selectCollateral?: boolean;
@@ -25,8 +25,13 @@ const StyledBox = styled(Box)`
 
 function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
+
+  const {
+    settingsState: { diagnostics },
+  } = useContext(SettingsContext);
+
   const { userState, userActions } = useContext(UserContext);
-  const { selectedIlkId, selectedSeriesId, selectedBaseId, assetMap, seriesMap, activeAccount, diagnostics } =
+  const { selectedIlkId, selectedSeriesId, selectedBaseId, assetMap, seriesMap, activeAccount} =
     userState;
 
   const { setSelectedIlk, setSelectedBase } = userActions;
@@ -66,10 +71,9 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
         : opts.filter((a: IAsset) => a.isYieldBase);
     } else {
       filteredOptions = selectCollateral
-        ? opts
-            .filter((a: IAsset) => a.id !== selectedBaseId)
-            // .filter((a: IAsset) => a.balance?.gt(ethers.constants.Zero))
-        : opts.filter((a: IAsset) => a.isYieldBase);
+        ? opts.filter((a: IAsset) => a.id !== selectedBaseId)
+        : // .filter((a: IAsset) => a.balance?.gt(ethers.constants.Zero))
+          opts.filter((a: IAsset) => a.isYieldBase);
     }
     setOptions(filteredOptions);
   }, [assetMap, selectCollateral, selectedSeriesId, selectedBaseId, activeAccount]);
@@ -96,7 +100,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
       round="xsmall"
       // border={(selectCollateral && !selectedSeries) ? { color: 'text-xweak' } : true}
       elevation="xsmall"
-      background="solid"
+      background="hoverBackground"
     >
       <Select
         plain
@@ -116,7 +120,6 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
         disabled={
           (selectCollateral && options.filter((o, i) => (o.balance?.eq(ethers.constants.Zero) ? i : null))) ||
           (selectCollateral ? selectedSeries?.mature || !selectedSeries : null)
-
         }
         // eslint-disable-next-line react/no-children-prop
         children={(x: any) => (

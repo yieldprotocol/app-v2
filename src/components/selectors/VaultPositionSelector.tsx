@@ -79,93 +79,96 @@ function VaultPositionSelector(target: any) {
 
   return (
     <>
-    { account && (
-      <Box justify="end" fill>
-        {account && allVaults.length > 0 && (
-          <Box justify="between" alignSelf="end" gap="small" pad="small" background="hover" round="xsmall">
-            <Box
-              animation="fadeIn"
-              justify="between"
-              direction="row"
-              gap="small"
-              pad={{ horizontal: 'medium', vertical: 'xsmall' }}
-            >
-              <Text size="small" color="text-weak" textAlign="center">
-                {showAllVaults ? 'All vaults' : 'Filtered vaults '}
-              </Text>
-              <Text color="text-weak" textAlign="center">
-                <DashButton />
-              </Text>
-            </Box>
-
-            <ListWrap overflow="auto">
-              {allVaults.length > 0 && filteredVaults.length === 0 && !showAllVaults && (
-                <Text weight={450} size="small">
-                  No suggested vaults
+      {account && (
+        <Box justify="end" fill>
+          {account && allVaults.length > 0 && (
+            <Box justify="between" alignSelf="end" gap="small" pad="small" round="xsmall">
+              <Box
+                animation="fadeIn"
+                justify="between"
+                direction="row"
+                gap="small"
+                pad={{ horizontal: 'medium', vertical: 'xsmall' }}
+              >
+                <Text size="small" color="text-weak" textAlign="center">
+                  {showAllVaults ? 'All vaults' : 'Filtered vaults '}
                 </Text>
+                <Text color="text-weak" textAlign="center">
+                  <DashButton />
+                </Text>
+              </Box>
+
+              <ListWrap overflow="auto">
+                {allVaults.length > 0 && filteredVaults.length === 0 && !showAllVaults && (
+                  <Text weight={450} size="small">
+                    No suggested vaults
+                  </Text>
+                )}
+
+                {(showAllVaults ? allVaults : filteredVaults).map((x: IVault, i: number) => (
+                  <VaultListItem vault={x} index={i} key={x.id} />
+                ))}
+              </ListWrap>
+
+              {!showAllVaults && (
+                <Box direction="row" gap="small" justify="end" align="center">
+                  {filter?.base && (
+                    <Box
+                      gap="xsmall"
+                      border
+                      direction="row"
+                      round="xsmall"
+                      pad={{ horizontal: 'xsmall', vertical: 'xsmall' }}
+                      animation={{ type: 'zoomIn', duration: 1500 }}
+                    >
+                      <Text size="xsmall">{filter.base.symbol}-based</Text>
+                      <Text
+                        size="xsmall"
+                        onClick={() =>
+                          handleFilter({
+                            ...filter,
+                            base: undefined,
+                            series: filter.series,
+                          } as IVaultFilter)
+                        }
+                      >
+                        <Button plain icon={<FiX style={{ verticalAlign: 'middle' }} />} />
+                      </Text>
+                    </Box>
+                  )}
+
+                  {filter?.series && (
+                    <Box
+                      gap="xsmall"
+                      direction="row"
+                      border
+                      round="xsmall"
+                      pad={{ horizontal: 'xsmall', vertical: 'xsmall' }}
+                      animation={{ type: 'zoomIn', duration: 1500 }}
+                    >
+                      <Text size="xsmall">{filter.series.displayNameMobile}</Text>
+                      <Text
+                        size="xsmall"
+                        onClick={() => handleFilter({ ...filter, series: undefined } as IVaultFilter)}
+                      >
+                        <Button plain icon={<FiX style={{ verticalAlign: 'middle' }} />} />
+                      </Text>
+                    </Box>
+                  )}
+                </Box>
               )}
 
-              {(showAllVaults ? allVaults : filteredVaults).map((x: IVault, i: number) => (
-                <VaultListItem vault={x} index={i} key={x.id} />
-              ))}
-            </ListWrap>
-
-            {!showAllVaults && (
-              <Box direction="row" gap="small" justify="end" align="center">
-                {filter?.base && (
-                  <Box
-                    gap="xsmall"
-                    border
-                    direction="row"
-                    round="xsmall"
-                    pad={{ horizontal: 'xsmall', vertical: 'xsmall' }}
-                    animation={{ type: 'zoomIn', duration: 1500 }}
-                  >
-                    <Text size="xsmall">{filter.base.symbol}-based</Text>
-                    <Text
-                      size="xsmall"
-                      onClick={() =>
-                        handleFilter({
-                          ...filter,
-                          base: undefined,
-                          series: filter.series,
-                        } as IVaultFilter)
-                      }
-                    >
-                      <Button plain icon={<FiX style={{ verticalAlign: 'middle' }} />} />
-                    </Text>
-                  </Box>
-                )}
-
-                {filter?.series && (
-                  <Box
-                    gap="xsmall"
-                    direction="row"
-                    border
-                    round="xsmall"
-                    pad={{ horizontal: 'xsmall', vertical: 'xsmall' }}
-                    animation={{ type: 'zoomIn', duration: 1500 }}
-                  >
-                    <Text size="xsmall">{filter.series.displayNameMobile}</Text>
-                    <Text size="xsmall" onClick={() => handleFilter({ ...filter, series: undefined } as IVaultFilter)}>
-                      <Button plain icon={<FiX style={{ verticalAlign: 'middle' }} />} />
-                    </Text>
-                  </Box>
-                )}
-              </Box>
-            )}
-
-            {allVaults.length > 5 && (
-              <Box align="end" onClick={() => setShowAllVaults(!showAllVaults)}>
-                <Text size="xsmall" color="text-xweak">
-                  {showAllVaults ? 'Auto-filter vaults' : `Show all ${allVaults.length} vaults`}
-                </Text>
-              </Box>
-            )}
-          </Box>
-        )}
-      </Box>
-    )}
+              {allVaults.length > 5 && (
+                <Box align="end" onClick={() => setShowAllVaults(!showAllVaults)}>
+                  <Text size="xsmall" color="text-xweak">
+                    {showAllVaults ? 'Auto-filter vaults' : `Show all ${allVaults.length} vaults`}
+                  </Text>
+                </Box>
+              )}
+            </Box>
+          )}
+        </Box>
+      )}
     </>
   );
 }

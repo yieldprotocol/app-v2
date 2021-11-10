@@ -1,5 +1,6 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
+import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
 import { IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
@@ -18,6 +19,9 @@ export const useCollateralHelpers = (
     userState: { activeAccount, selectedBaseId, selectedIlkId, assetMap, priceMap },
     userActions: { updatePrice },
   } = useContext(UserContext);
+  const {
+    chainState: { contractMap },
+  } = useContext(ChainContext);
 
   const base = assetMap.get(selectedBaseId);
   const ilk = assetMap.get(selectedIlkId);
@@ -26,12 +30,17 @@ export const useCollateralHelpers = (
   const [collateralizationRatio, setCollateralizationRatio] = useState<string | undefined>();
   const [collateralizationPercent, setCollateralizationPercent] = useState<string | undefined>();
   const [undercollateralized, setUndercollateralized] = useState<boolean>(true);
+  const [unhealthyCollatRatio, setUnhealthyCollatRatio] = useState<boolean>(false);
 
   const [oraclePrice, setOraclePrice] = useState<ethers.BigNumber>(ethers.constants.Zero);
 
   const [minCollateral, setMinCollateral] = useState<BigNumber>();
   const [minCollateral_, setMinCollateral_] = useState<string | undefined>();
 
+  const [minCollatRatio, setMinCollatRatio] = useState<number | undefined>();
+  const [minCollatRatioPct, setMinCollatRatioPct] = useState<string | undefined>();
+  const [minSafeCollatRatio, setMinSafeCollatRatio] = useState<number | undefined>();
+  const [minSafeCollatRatioPct, setMinSafeCollatRatioPct] = useState<string | undefined>();
   const [minSafeCollateral, setMinSafeCollateral] = useState<string | undefined>();
   const [maxRemovableCollateral, setMaxRemovableCollateral] = useState<string | undefined>();
   const [maxCollateral, setMaxCollateral] = useState<string | undefined>();
@@ -91,8 +100,13 @@ export const useCollateralHelpers = (
 
     /* check minimum collateral required base on debt */
     if (oraclePrice.gt(ethers.constants.Zero)) {
-      const min = calculateMinCollateral(oraclePrice, totalDebt, '1.5', existingCollateralAsWei);
-      const minSafeCalc = calculateMinCollateral(oraclePrice, totalDebt, '2.5', existingCollateralAsWei);
+      const min = calculateMinCollateral(oraclePrice, totalDebt, minCollatRatio?.toString(), existingCollateralAsWei);
+      const minSafeCalc = calculateMinCollateral(
+        oraclePrice,
+        totalDebt,
+        (minSafeCollatRatio || 2.5).toString(),
+        existingCollateralAsWei
+      );
 
       /* Check max collateral that is removable (based on exisiting debt) */
       const _max = existingCollateralAsWei.sub(min);
@@ -112,12 +126,47 @@ export const useCollateralHelpers = (
       setMinCollateral(ZERO_BN);
       setMinCollateral_('0');
     }
-  }, [priceMap, collInput, debtInput, ilk, oraclePrice, vault, collateralizationRatio, base]);
+  }, [
+    priceMap,
+    collInput,
+    debtInput,
+    ilk,
+    oraclePrice,
+    vault,
+    collateralizationRatio,
+    base,
+    minCollatRatio,
+    minSafeCollatRatio,
+  ]);
 
   /* Monitor for undercollaterization */
   useEffect(() => {
-    parseFloat(collateralizationRatio!) >= 1.5 ? setUndercollateralized(false) : setUndercollateralized(true);
-  }, [collateralizationRatio]);
+    parseFloat(collateralizationRatio!) >= minCollatRatio!
+      ? setUndercollateralized(false)
+      : setUndercollateralized(true);
+
+    parseFloat(collateralizationRatio!) < minCollatRatio! + 0.2 && vault?.art.gt(ethers.constants.Zero)
+      ? setUnhealthyCollatRatio(true)
+      : setUnhealthyCollatRatio(false);
+  }, [collateralizationRatio, minCollatRatio, vault?.art]);
+
+  /* Get and set the min (and safe min) collateral ratio for this base/ilk pair */
+  useEffect(() => {
+    if (selectedBaseId && selectedIlkId && contractMap.has('Cauldron')) {
+      (async () => {
+        const { ratio } = await contractMap.get('Cauldron').spotOracles(selectedBaseId, selectedIlkId);
+        if (ratio) {
+          const _minCollatRatio = parseFloat(ethers.utils.formatUnits(ratio, 6));
+          setMinCollatRatio(_minCollatRatio);
+          setMinCollatRatioPct(`${parseFloat(ethers.utils.formatUnits(ratio * 100, 6)).toFixed(0)}`);
+
+          const _minSafeCollatRatio = _minCollatRatio < 1.4 ? 1.5 : _minCollatRatio + 1;
+          setMinSafeCollatRatio(_minSafeCollatRatio);
+          setMinSafeCollatRatioPct((_minSafeCollatRatio * 100).toString());
+        }
+      })();
+    }
+  }, [selectedBaseId, selectedIlkId, contractMap]);
 
   return {
     collateralizationRatio,
@@ -125,8 +174,11 @@ export const useCollateralHelpers = (
     undercollateralized,
     minCollateral,
     minCollateral_,
+    minCollatRatioPct,
+    minSafeCollatRatioPct,
     minSafeCollateral,
     maxCollateral,
     maxRemovableCollateral,
+    unhealthyCollatRatio,
   };
 };

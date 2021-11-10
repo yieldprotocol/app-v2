@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
+import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
@@ -12,8 +13,12 @@ import { useChain } from '../useChain';
 export const useRollPosition = () => {
 
   const {
-    settingsState: { slippageTolerance },
+    settingsState: { slippageTolerance, approveMax },
   } = useContext(SettingsContext);
+  
+  const {
+    chainState: { contractMap },
+  } = useContext(ChainContext);
 
   const { userState, userActions } = useContext(UserContext);
   const { activeAccount: account, assetMap } = userState;
@@ -30,6 +35,8 @@ export const useRollPosition = () => {
     const cleanInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanInput, base.decimals) : ethers.constants.Zero;
 
+    const ladleAddress = contractMap.get('Ladle').address;
+
     const _fyTokenValueOfInput = fromSeries.seriesIsMature
       ? _input
       : buyBase(
@@ -42,13 +49,17 @@ export const useRollPosition = () => {
 
     const _minimumFYTokenReceived = calculateSlippage(_fyTokenValueOfInput, slippageTolerance.toString(), true);
 
+    const alreadyApproved = approveMax
+    ? (await fromSeries.fyTokenContract.allowance(account, ladleAddress) ).gt(_input)
+    : false;
+
     const permits: ICallData[] = await sign(
       [
         {
           target: fromSeries,
           spender: 'LADLE',
           amount: _fyTokenValueOfInput,
-          ignoreIf: false,
+          ignoreIf: alreadyApproved===true,
         },
       ],
       txCode

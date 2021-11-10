@@ -39,7 +39,7 @@ const TransactionWidget = () => {
                 elevation="small"
                 // background='gradient-transparent'
                 animation={{ type: 'slideLeft', size: 'large' }}
-                background="white"
+                background="hoverBackground"
                 round={{ size: 'xsmall', corner: 'left' }}
               >
                 <Box width="3rem" align="center">
@@ -65,7 +65,7 @@ const TransactionWidget = () => {
                 // elevation="small"
                 gap="small"
                 pad="small"
-                background="white"
+                background="lightBackground"
                 round="xsmall"
               >
                 <Box width="3rem" align="center">

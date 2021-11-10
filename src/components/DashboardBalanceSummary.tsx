@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, Text } from 'grommet';
-import Skeleton from 'react-loading-skeleton';
 import { FiPlus, FiMinus } from 'react-icons/fi';
+import Skeleton from './wraps/SkeletonWrap';
 import { cleanValue } from '../utils/appUtils';
 import { UserContext } from '../contexts/UserContext';
 

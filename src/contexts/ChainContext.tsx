@@ -11,7 +11,7 @@ import * as contracts from '../contracts';
 import { IAssetRoot, ISeriesRoot, IStrategyRoot } from '../types';
 
 import { ETH_BASED_ASSETS, USDC } from '../utils/constants';
-import { nameFromMaturity, getSeason, SeasonType } from '../utils/appUtils';
+import { nameFromMaturity, getSeason, SeasonType, clearCachedItems } from '../utils/appUtils';
 
 import DaiMark from '../components/logos/DaiMark';
 import EthMark from '../components/logos/EthMark';
@@ -20,6 +20,7 @@ import USDCMark from '../components/logos/USDCMark';
 import WBTCMark from '../components/logos/WBTCMark';
 import USDTMark from '../components/logos/USDTMark';
 import YieldMark from '../components/logos/YieldMark';
+import StEthMark from '../components/logos/StEthMark';
 
 const markMap = new Map([
   ['DAI', <DaiMark key="dai" />],
@@ -28,6 +29,7 @@ const markMap = new Map([
   ['TST', <TSTMark key="tst" />],
   ['ETH', <EthMark key="eth" />],
   ['USDT', <USDTMark key="eth" />],
+  ['wstETH', <StEthMark key="steth" />],
 ]);
 
 const assetDigitFormatMap = new Map([
@@ -36,6 +38,7 @@ const assetDigitFormatMap = new Map([
   ['DAI', 2],
   ['USDC', 2],
   ['USDT', 2],
+  ['wstETH', 6],
 ]);
 
 /* Build the context */
@@ -197,6 +200,7 @@ const ChainProvider = ({ children }: any) => {
           Cauldron.queryFilter('AssetAdded' as any, lastAssetUpdate),
           Ladle.queryFilter('JoinAdded' as any, lastAssetUpdate),
         ]);
+
         /* Create a map from the joinAdded event data */
         const joinMap: Map<string, string> = new Map(
           joinAddedEvents.map((log: any) => Ladle.interface.parseLog(log).args) as [[string, string]]
@@ -214,11 +218,18 @@ const ChainProvider = ({ children }: any) => {
               id === USDC ? '2' : '1', // TODO  ERC20.version()
             ]);
 
+            const symbolSwitch = (sym: string) => {
+              switch (sym) {
+                case 'WETH' : return 'ETH';
+                default: return sym;
+              }
+            }
+
             const newAsset = {
               id,
               address,
               name,
-              symbol: symbol !== 'WETH' ? symbol : 'ETH',
+              symbol: symbolSwitch(symbol),
               decimals,
               version,
               joinAddress: joinMap.get(id),
@@ -424,7 +435,18 @@ const ChainProvider = ({ children }: any) => {
     updateState({ type: 'appVersion', payload: process.env.REACT_APP_VERSION });
     console.log('APP VERSION: ', process.env.REACT_APP_VERSION);
     if (lastAppVersion && process.env.REACT_APP_VERSION !== lastAppVersion) {
-      window.localStorage.clear();
+      // window.localStorage.clear();
+      clearCachedItems([
+        'lastAppVersion',
+        'lastChainId',
+        'assets',
+        'series',
+        'lastAssetUpdate',
+        'lastSeriesUpdate',
+        'strategies',
+        'lastStrategiesUpdate',
+      ]);
+
       // eslint-disable-next-line no-restricted-globals
       location.reload();
     }

@@ -13,7 +13,7 @@ import { SettingsContext } from '../../contexts/SettingsContext';
 export const useRepayDebt = () => {
 
   const {
-    settingsState: { slippageTolerance },
+    settingsState: { slippageTolerance, approveMax },
   } = useContext(SettingsContext);
   
   const { userState, userActions } = useContext(UserContext);
@@ -23,12 +23,15 @@ export const useRepayDebt = () => {
   const {
     chainState: { contractMap },
   } = useContext(ChainContext);
-  const ladleAddress = contractMap.get('Ladle').address;
+  
 
   const { removeEth } = useRemoveCollateral();
   const { sign, transact } = useChain();
 
   const repay = async (vault: IVault, input: string | undefined, reclaimCollateral: boolean) => {
+
+    const ladleAddress = contractMap.get('Ladle').address;
+    
     const txCode = getTxCode(ActionCodes.REPAY, vault.id);
     const series: ISeries = seriesMap.get(vault.seriesId);
     const base: IAsset = assetMap.get(vault.baseId);
@@ -64,6 +67,10 @@ export const useRepayDebt = () => {
     const _collateralToRemove = reclaimCollateral && inputGreaterThanDebt ? vault.ink.mul(-1) : ethers.constants.Zero;
     const isEthBased = ETH_BASED_ASSETS.includes(vault.ilkId);
 
+    const alreadyApproved = approveMax
+    ? (await base.baseContract.allowance(account, series.seriesIsMature ? base.joinAddress : ladleAddress) ).gt(_input)
+    : false;
+
     const permits: ICallData[] = await sign(
       [
         {
@@ -71,14 +78,14 @@ export const useRepayDebt = () => {
           target: base,
           spender: 'LADLE',
           amount: _input,
-          ignoreIf: series.seriesIsMature,
+          ignoreIf: series.seriesIsMature || alreadyApproved===true,
         },
         {
           // after maturity
           target: base,
           spender: base.joinAddress,
           amount: _input,
-          ignoreIf: !series.seriesIsMature,
+          ignoreIf: !series.seriesIsMature || alreadyApproved===true,
         },
       ],
       txCode

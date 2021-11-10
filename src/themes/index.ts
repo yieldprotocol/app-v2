@@ -4,31 +4,37 @@ import { css } from 'styled-components';
 export const yieldTheme = {
   global: {
     focus: 'none',
+    elevation: {
+      dark: {
+        xsmall: 'inset 1px 1px 1px #202A30, inset -0.25px -0.25px 0.25px #202A30',
+        small: 'inset 1px 1px 1px #202A30, inset -0.25px -0.25px 0.25px #202A30',
+        medium: 'inset 1px 1px 1px #202A30, inset -0.25px -0.25px 0.25px #202A30',
+        large: 'inset 1px 1px 1px #202A30, inset -0.25px -0.25px 0.25px #202A30',
+        xlarge: '0px 10px 24px rgba(255, 255, 255, 0.20)',
+      },
+    },
     colors: {
-      // brand: '#3f53d9',
-      // focus: '#3f53d999',
-      // selected: '#3f53d9',
-      pink: '#FECACA',
-      green: '#10B981',
-      orange: '#F59E0B',
-      red: '#EF4444',
-      brand: '#2563EB',
-      focus: '#2563EB99',
-      selected: '#2563EB',
-      hover: '#ffffff69',
-      solid: '#ffffff',
 
-      'accent-1': '#FFCA58',
-      'accent-2': '#81FCED',
-      'tailwind-blue': '#2563EB',
-      'tailwind-blue-50': '#EFF6FF',
-      'tailwind-blue-100': '#DBEAFE',
-
+      error : { 
+        light: '#ffcccc',
+        dark: '#ff8080',
+      },
+      success : { 
+        light: '#00cc44',
+        dark: '#10B981',
+      },
+      warning : { 
+        light: '#F59E0B',
+        dark: '#red',
+      },
+      brand: {
+        light: '#2563EB',
+        dark: '#8aacf4',
+      },
       gradient: {
         dark: 'linear-gradient(135deg, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82)',
         light: 'linear-gradient(135deg, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82)',
       },
-
       'gradient-transparent': {
         dark: '-webkit-linear-gradient(135deg, #f7953380, #f3705580, #ef4e7b80, #a166ab80, #5073b880, #1098ad80, #07b39b80, #6fba8280)',
         light:
@@ -36,11 +42,11 @@ export const yieldTheme = {
       },
 
       text: {
-        dark: '#EEEEEE',
+        dark: '#FFFFFF',
         light: '#555555',
       },
       'text-weak': {
-        dark: '#DDDDDD',
+        dark: '#C7D2DA',
         light: '#999999',
       },
       'text-xweak': {
@@ -48,15 +54,29 @@ export const yieldTheme = {
         light: '#DDDDDD',
       },
       placeholder: 'text-xweak',
-      darkBackground: {
-        text: '#AAAAAA',
+
+      lightBackground: {
+        dark: '#1a1a1a',
+        light: '#FFFFFF',
       },
-      // background: {
-      //   dark: '#DDDDDD',
-      //   light: '#FFFFFF',
-      // },
+      background: {
+        dark: '#111111',
+        light: '#FFFFFF',
+      },
+      hoverBackground: {
+        dark: '#262626',
+        light: '#FFFFFF',
+      },
     },
-    // input: { weight: 700 },
+    // input: { weight: 400 },
+  },
+
+  anchor: { color: 'brand' },
+
+  select: {
+    // options: {
+    //   container: { align:"end" }
+    // }
   },
 
   grommet: {
@@ -109,7 +129,7 @@ export const yieldTheme = {
   list: {
     item: {
       pad: { horizontal: 'xsmall', vertical: undefined },
-      background: 'background',
+      background: 'lightBackground',
       border: false,
     },
   },

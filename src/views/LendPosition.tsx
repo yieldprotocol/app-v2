@@ -203,7 +203,7 @@ const LendPosition = () => {
 
               <Box height={{ min: '300px' }}>
                 <SectionWrap title="Position Actions" icon={<FiTool />}>
-                  <Box elevation="xsmall" round="xsmall" background={mobile ? 'white' : undefined}>
+                  <Box elevation="xsmall" round="xsmall" background={mobile ? 'hoverBackground' : 'hoverBackground'}>
                     <Select
                       plain
                       dropProps={{ round: 'xsmall' }}
@@ -234,7 +234,7 @@ const LendPosition = () => {
                             <>
                               {maxClose.lt(selectedSeries?.fyTokenBalance!) && (
                                 <InputInfoWrap action={() => setCloseInput(maxClose_)}>
-                                  <Text color="gray" alignSelf="end" size="xsmall">
+                                  <Text color="text" alignSelf="end" size="xsmall">
                                     Max redeemable is {cleanValue(maxClose_, 2)} {selectedBase?.symbol}
                                     {selectedSeries.baseReserves.eq(maxClose) && ' (limited by protocol)'}
                                   </Text>

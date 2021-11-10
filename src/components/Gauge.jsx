@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { arc } from 'd3-shape';
 import { scaleLinear } from 'd3-scale';
 
-export const Gauge = ({ value = 50, min = 150, max = 750, size = '1em' }) => {
+export const Gauge = ({ value = 50, min = 150, max = 750, mean = 200, size = '1em', setColor = () => '' }) => {
   const backgroundArc = arc()
     .innerRadius(0.65)
     .outerRadius(1)
@@ -10,7 +10,7 @@ export const Gauge = ({ value = 50, min = 150, max = 750, size = '1em' }) => {
     .endAngle(Math.PI * 0.5)
     .cornerRadius(0.05)();
 
-  const percentScale = scaleLinear().domain([0, min, 200, 500, max]).range([0, 0.1, 0.5, 0.9, 1]);
+  const percentScale = scaleLinear().domain([0, min, mean, 500, max]).range([0, 0.1, 0.5, 0.9, 1]);
 
   const percent = percentScale(value);
 
@@ -39,6 +39,10 @@ export const Gauge = ({ value = 50, min = 150, max = 750, size = '1em' }) => {
     return '#3B82F6';
   };
 
+  useEffect(() => {
+    setColor(_color());
+  }, [_color]);
+
   return (
     <svg style={{ overflow: 'visible' }} width={size} viewBox={[-1, -1, 2, 1].join(' ')}>
       <defs>
@@ -49,15 +53,15 @@ export const Gauge = ({ value = 50, min = 150, max = 750, size = '1em' }) => {
         </linearGradient>
       </defs>
 
-      <path d={backgroundArc} fill="#dbdbe746" />
+      <path d={backgroundArc} fill="#FFFFFF50" />
       <path d={getArc(0)} fill="#EF4444" />
       <path d={getArc(1)} fill="#FCD34D" />
       <path d={getArc(2)} fill="#10B981" />
       <path d={getArc(3)} fill="#3B82F6" />
 
-      <line y1="-1" y2="-0.65" stroke="white" strokeWidth="0.027" />
-      <line y1="-1" y2="-0.65" stroke="white" strokeWidth="0.027" transform={`rotate(${-1.0 * (180 / Math.PI)})`} />
-      <line y1="-1" y2="-0.65" stroke="white" strokeWidth="0.027" transform={`rotate(${1.25 * (180 / Math.PI)})`} />
+      <line y1="-1" y2="-0.65" stroke="#FFFFFF50" strokeWidth="0.027" />
+      <line y1="-1" y2="-0.65" stroke="#FFFFFF50" strokeWidth="0.027" transform={`rotate(${-1.0 * (180 / Math.PI)})`} />
+      <line y1="-1" y2="-0.65" stroke="#FFFFFF50" strokeWidth="0.027" transform={`rotate(${1.25 * (180 / Math.PI)})`} />
       <path d="M 60,100" strokeWidth="1" />
 
       <path

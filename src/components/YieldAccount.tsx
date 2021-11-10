@@ -2,12 +2,12 @@ import React, { useState, useContext } from 'react';
 import styled from 'styled-components';
 import { Text, Box, ResponsiveContext } from 'grommet';
 import { FiSettings } from 'react-icons/fi';
-import Skeleton from 'react-loading-skeleton';
+import Skeleton from './wraps/SkeletonWrap';
 import { ChainContext } from '../contexts/ChainContext';
 import { abbreviateHash } from '../utils/appUtils';
 import YieldAvatar from './YieldAvatar';
 import ConnectButton from './buttons/ConnectButton';
-import SidebarSettings from './SidebarSettings';
+import SidebarSettings from './Sidebar';
 import EthMark from './logos/EthMark';
 import { UserContext } from '../contexts/UserContext';
 import { WETH } from '../utils/constants';
@@ -62,13 +62,7 @@ const YieldAccount = (props: any) => {
       {account ? (
         <Box direction="row" gap="xsmall" align="center">
           {!mobile && <SettingsBalances />}
-          <StyledBox
-            round="xsmall"
-            onClick={() => setSettingsOpen(true)}
-            pad="xsmall"
-            justify="center"
-            hoverIndicator={{ background: 'hover' }}
-          >
+          <StyledBox round="xsmall" onClick={() => setSettingsOpen(true)} pad="xsmall" justify="center">
             {mobile ? (
               <Box>
                 <FiSettings />

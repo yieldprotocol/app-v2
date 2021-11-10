@@ -12,6 +12,7 @@ import { UserContext } from './UserContext';
 import { ZERO_BN } from '../utils/constants';
 import { Cauldron } from '../contracts';
 import { calculateAPR, bytesToBytes32 } from '../utils/yieldMath';
+import { SettingsContext } from './SettingsContext';
 
 const dateFormat = (dateInSecs: number) => format(new Date(dateInSecs * 1000), 'dd MMM yyyy');
 
@@ -69,7 +70,6 @@ const HistoryProvider = ({ children }: any) => {
   /* STATE FROM CONTEXT */
   // TODO const [cachedVaults, setCachedVaults] = useCachedState('vaults', { data: [], lastBlock: Number(process.env.REACT_APP_DEPLOY_BLOCK) });
   const { chainState } = useContext(ChainContext);
-
   const {
     chainLoading,
     contractMap,
@@ -79,51 +79,13 @@ const HistoryProvider = ({ children }: any) => {
   } = chainState;
 
   const { userState } = useContext(UserContext);
-  const { activeAccount: account, vaultMap, seriesMap, strategyMap, diagnostics } = userState;
+  const { activeAccount: account, vaultMap, seriesMap, strategyMap } = userState;
 
   const [historyState, updateState] = useReducer(historyReducer, initState);
 
-  /* parse individual pool log data: */
-  const _parsePoolLogs = useCallback(
-    async (strategyAddress: string, poolAddress: string, decimals: number) => {
-      const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackProvider);
-      // event Liquidity(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens, int256 poolTokens);
-      const _liqFilter = poolContract.filters.Liquidity(null, null, account, null, null, null);
-      const eventList = await poolContract.queryFilter(_liqFilter, 0);
-      const poolLogs = await Promise.all(
-        eventList.map(async (log: any) => {
-          const { blockNumber, transactionHash } = log;
-          const { maturity, bases, fyTokens, poolTokens } = poolContract.interface.parseLog(log).args;
-          const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
-          const type_ = poolTokens.gt(ZERO_BN) ? ActionCodes.ADD_LIQUIDITY : ActionCodes.REMOVE_LIQUIDITY;
-
-          return {
-            initiator: account,
-            blockNumber,
-            date,
-            transactionHash,
-            maturity,
-            bases,
-            fyTokens,
-            poolTokens,
-            poolAddress,
-
-            /* inferred trade type */
-            actionCode: type_,
-            primaryInfo: `${cleanValue(ethers.utils.formatUnits(poolTokens, decimals), 2)} Pool tokens`,
-
-            /* Formatted values:  */
-            poolTokens_: ethers.utils.formatUnits(poolTokens, decimals),
-            fyTokens_: ethers.utils.formatUnits(fyTokens, decimals),
-            bases_: ethers.utils.formatUnits(bases, decimals),
-            date_: dateFormat(date),
-          };
-        })
-      );
-      return poolLogs;
-    },
-    [account, fallbackProvider]
-  );
+  const {
+    settingsState: { diagnostics },
+  } = useContext(SettingsContext);
 
   /* update Pool Historical data */
   const updateStrategyHistory = useCallback(

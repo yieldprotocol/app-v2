@@ -8,6 +8,7 @@ import { MAX_256, NON_PERMIT_ASSETS } from '../utils/constants';
 import { ApprovalType, ICallData, ISignData, LadleActions } from '../types';
 import { ERC20Permit__factory, Ladle } from '../contracts';
 import { useApprovalMethod } from './useApprovalMethod';
+import { SettingsContext } from '../contexts/SettingsContext';
 
 /* Get ETH value from JOIN_ETHER OPCode, else zero -> N.B. other values sent in with other OPS are ignored for now */
 const _getCallValue = (calls: ICallData[]): BigNumber => {
@@ -18,6 +19,10 @@ const _getCallValue = (calls: ICallData[]): BigNumber => {
 /* Generic hook for chain transactions */
 export const useChain = () => {
   const {
+    settingsState: { approveMax },
+  } = useContext(SettingsContext);
+
+  const {
     chainState: {
       connection: { account, provider, chainId },
       contractMap,
@@ -25,7 +30,7 @@ export const useChain = () => {
   } = useContext(ChainContext);
 
   const {
-    txActions: { handleTx, handleSign },
+    txActions: { handleTx, handleSign, handleTxWillFail },
   } = useContext(TxContext);
 
   const approvalMethod = useApprovalMethod();
@@ -67,15 +72,19 @@ export const useChain = () => {
 
     /* calculate the gas required */
     let gasEst: BigNumber;
+    let gasEstFail: boolean = false;
     try {
       gasEst = await _contract.estimateGas.batch(encodedCalls, { value: batchValue } as PayableOverrides);
+      console.log('Auto gas estimate:', gasEst.mul(120).div(100).toString());
     } catch (e) {
-      gasEst = BigNumber.from('300000');
       console.log('Failed to get gas estimate', e);
-      // throw( Error('Transaction will always revert.'));
-      toast.warning('It appears the transaction will likely fail. Proceed with caution...');
+      // toast.warning('It appears the transaction will likely fail. Proceed with caution...');
+      gasEstFail = true;
     }
-    console.log('Auto gas estimate:', gasEst.mul(120).div(100).toString());
+
+    if (gasEstFail) {
+      return handleTxWillFail(txCode);
+    }
 
     /* Finally, send out the transaction */
     return handleTx(
@@ -109,9 +118,12 @@ export const useChain = () => {
 
     /* First, filter out any ignored calls */
     const _requestedSigs = requestedSignatures.filter((_rs: ISignData) => !_rs.ignoreIf);
+
     const signedList = await Promise.all(
       _requestedSigs.map(async (reqSig: ISignData) => {
         const _spender = getSpender(reqSig.spender);
+        /* set as MAX if apporve max is selected */
+        const _amount = approveMax ? MAX_256 : reqSig.amount?.toString();
         /* get an ERC20 contract instance. This is only used in the case of fallback tx (when signing is not available) */
         const tokenContract = ERC20Permit__factory.connect(reqSig.target.address, signer) as any;
 
@@ -132,7 +144,6 @@ export const useChain = () => {
                 account,
                 _spender
               ),
-
             /* This is the function  to call if using fallback approvals */
             () => handleTx(() => tokenContract.approve(_spender, MAX_256), txCode, true),
             reqSig,
@@ -185,10 +196,10 @@ export const useChain = () => {
               },
               account,
               _spender,
-              reqSig.amount?.toString() || MAX_256
+              _amount
             ),
           /* this is the function for if using fallback approvals */
-          () => handleTx(() => tokenContract.approve(_spender, MAX_256), txCode, true),
+          () => handleTx(() => tokenContract.approve(_spender, _amount), txCode, true),
           reqSig,
           txCode,
           // TODO extract this out to ( also possibly use asset id)

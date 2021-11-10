@@ -76,27 +76,18 @@ export const useTimeout = (
 };
 
 export const useWindowSize = () => {
-
   const [width, setWidth] = useState<number>(window.innerWidth);
   const [height, setHeight] = useState<number>(window.innerHeight);
 
   window.addEventListener(
-    "resize", 
-    ()=> { 
+    'resize',
+    () => {
       setWidth(window.innerWidth);
-      setHeight(window.innerHeight);   
-    },   
+      setHeight(window.innerHeight);
+    },
     true
   );
   return [height, width];
-
 };
 
-
-export const useCurrentRoute = () => {
-
-  
-
-
-
-}
+export const useCurrentRoute = () => {};

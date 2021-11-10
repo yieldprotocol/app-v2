@@ -35,10 +35,10 @@ function EtherscanButton({ txHash }: { txHash: string }) {
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
-      <Text size="xsmall" color={hover ? '#333333' : 'grey'}>
+      <Text size="xsmall" color={hover ? 'text' : 'text-weak'}>
         View on Etherscan
       </Text>
-      <Text size="xsmall" color={hover ? '#333333' : 'grey'}>
+      <Text size="xsmall" color={hover ? 'text' : 'text-weak'}>
         <FiExternalLink style={{ verticalAlign: 'top' }} />
       </Text>
       {/* <EtherscanMark /> */}
