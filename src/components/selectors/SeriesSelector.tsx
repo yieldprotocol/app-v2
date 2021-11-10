@@ -38,12 +38,7 @@ const InsetBox = styled(Box)`
 `;
 
 export const CardSkeleton = () => (
-  <StyledBox
-    pad="xsmall"
-    round="xsmall"
-    elevation="xsmall"
-    align="center"
-  >
+  <StyledBox pad="xsmall" round="xsmall" elevation="xsmall" align="center">
     <Box pad="small" width="small" direction="row" align="center" gap="small">
       <Skeleton circle width={45} height={45} />
       <Box>
@@ -223,7 +218,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
   return (
     <>
-      {seriesLoading && !mobile && <Skeleton width={180} />}
+      {seriesLoading && !mobile && !selectedBaseId && <Skeleton width={180} />}
       {!cardLayout && (
         <InsetBox fill="horizontal" round="xsmall" background={mobile ? 'hoverBackground' : undefined}>
           <Select
@@ -290,7 +285,9 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
                 >
                   <Box pad="small" width="small" direction="row" align="center" gap="small">
                     <Avatar
-                      background={series.id === selectedSeriesId ? 'lightBackground' : series.endColor.toString().concat('20')}
+                      background={
+                        series.id === selectedSeriesId ? 'lightBackground' : series.endColor.toString().concat('20')
+                      }
                       style={{
                         boxShadow:
                           series.id === selectedSeriesId
