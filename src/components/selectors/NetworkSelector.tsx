@@ -53,7 +53,7 @@ const NetworkSelector = () => {
         labelKey={currentChainInfo.name}
         valueLabel={
           <Box pad={mobile ? 'medium' : { vertical: '0.55em', horizontal: 'small' }}>
-            <Text color={currentChainInfo.color} size="small">
+            <Text color="text" size="small">
               {currentChainInfo.name}
             </Text>
           </Box>
