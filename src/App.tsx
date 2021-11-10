@@ -12,6 +12,7 @@ import NetworkError from './components/NetworkError';
 import TransactionWidget from './components/TransactionWidget';
 import YieldMobileMenu from './components/YieldMobileMenu';
 import { useColorScheme } from './hooks/useColorScheme';
+import TransactionError from './components/TransactionError';
 
 const Borrow = lazy(() => import('./views/Borrow'));
 const Lend = lazy(() => import('./views/Lend'));
@@ -33,6 +34,7 @@ function App() {
       <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
       <TransactionWidget />
       <NetworkError />
+      <TransactionError /> 
       <Box flex={!mobile} overflow="hidden">
         <ToastContainer position="top-right" />
         {menuLayerOpen && <YieldMobileMenu toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} />}

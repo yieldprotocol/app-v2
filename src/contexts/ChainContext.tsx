@@ -11,7 +11,7 @@ import * as contracts from '../contracts';
 import { IAssetRoot, ISeriesRoot, IStrategyRoot } from '../types';
 
 import { ETH_BASED_ASSETS, USDC } from '../utils/constants';
-import { nameFromMaturity, getSeason, SeasonType } from '../utils/appUtils';
+import { nameFromMaturity, getSeason, SeasonType, clearCachedItems } from '../utils/appUtils';
 
 import DaiMark from '../components/logos/DaiMark';
 import EthMark from '../components/logos/EthMark';
@@ -435,7 +435,18 @@ const ChainProvider = ({ children }: any) => {
     updateState({ type: 'appVersion', payload: process.env.REACT_APP_VERSION });
     console.log('APP VERSION: ', process.env.REACT_APP_VERSION);
     if (lastAppVersion && process.env.REACT_APP_VERSION !== lastAppVersion) {
-      window.localStorage.clear();
+      // window.localStorage.clear();
+      clearCachedItems([
+        'lastAppVersion',
+        'lastChainId',
+        'assets',
+        'series',
+        'lastAssetUpdate',
+        'lastSeriesUpdate',
+        'strategies',
+        'lastStrategiesUpdate',
+      ]);
+
       // eslint-disable-next-line no-restricted-globals
       location.reload();
     }

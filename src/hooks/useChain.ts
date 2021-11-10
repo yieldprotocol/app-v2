@@ -30,7 +30,7 @@ export const useChain = () => {
   } = useContext(ChainContext);
 
   const {
-    txActions: { handleTx, handleSign },
+    txActions: { handleTx, handleSign, handleTxWillFail },
   } = useContext(TxContext);
 
   const approvalMethod = useApprovalMethod();
@@ -72,15 +72,19 @@ export const useChain = () => {
 
     /* calculate the gas required */
     let gasEst: BigNumber;
+    let gasEstFail: boolean = false;
     try {
       gasEst = await _contract.estimateGas.batch(encodedCalls, { value: batchValue } as PayableOverrides);
+      console.log('Auto gas estimate:', gasEst.mul(120).div(100).toString());
     } catch (e) {
-      gasEst = BigNumber.from('300000');
       console.log('Failed to get gas estimate', e);
-      // throw( Error('Transaction will always revert.'));
-      toast.warning('It appears the transaction will likely fail. Proceed with caution...');
+      // toast.warning('It appears the transaction will likely fail. Proceed with caution...');
+      gasEstFail = true;
     }
-    console.log('Auto gas estimate:', gasEst.mul(120).div(100).toString());
+
+    if (gasEstFail) {
+      return handleTxWillFail(txCode);
+    }
 
     /* Finally, send out the transaction */
     return handleTx(
@@ -113,11 +117,10 @@ export const useChain = () => {
     };
 
     /* First, filter out any ignored calls */
-    const _requestedSigs = requestedSignatures.filter((_rs: ISignData) => !_rs.ignoreIf)
+    const _requestedSigs = requestedSignatures.filter((_rs: ISignData) => !_rs.ignoreIf);
 
     const signedList = await Promise.all(
       _requestedSigs.map(async (reqSig: ISignData) => {
-
         const _spender = getSpender(reqSig.spender);
         /* set as MAX if apporve max is selected */
         const _amount = approveMax ? MAX_256 : reqSig.amount?.toString();
