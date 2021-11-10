@@ -12,8 +12,8 @@
       "Ladle": "0x655dbA2509fB82f8aE962891427Ac6A17bb3fED7",
       "ChainlinkMultiOracle": "0xBcdc8bad83ca8053DFA6B1CBAEB7E71699254a3b",
       "CompositeMultiOracle": "0x4a7e8eb5f3872974ffb5021ADCbe34affe4bc81A",
-      "LidoOracle": "0xE1697f685Ce360231742C586A6774E94F29Bc0ff",
-      "Witch": "0x4552dCA91a4e2213EEd67A6981a63B1D39Ec2Eaf"
+      "Witch": "0x4552dCA91a4e2213EEd67A6981a63B1D39Ec2Eaf",
+      "lidoWrapHandler" : "0x491aB93faa921C8E634F891F96512Be14fD3DbB1"
     }
   },
   "strategies": {
