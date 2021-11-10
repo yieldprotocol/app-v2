@@ -59,10 +59,8 @@ export const useNetworkSelect = (chainId: number) => {
               });
             } catch (addError) {
               console.log(addError);
-              // handle "add" error
             }
           }
-          // handle other "switch" errors
           console.log(switchError);
         }
       })();
