@@ -30,7 +30,7 @@ const markMap = new Map([
   ['TST', <TSTMark key="tst" />],
   ['ETH', <EthMark key="eth" />],
   ['USDT', <USDTMark key="eth" />],
-  ['LINK', <LINKMark key="steth" />],
+  ['LINK', <LINKMark key="link" />],
   ['wstETH', <StEthMark key="steth" />],
 ]);
 
@@ -176,7 +176,7 @@ const ChainProvider = ({ children }: any) => {
       newContractMap.set('Witch', Witch);
       newContractMap.set('ChainlinkMultiOracle', ChainlinkMultiOracle);
       newContractMap.set('CompositeMultiOracle', CompositeMultiOracle);
-      newContractMap.set('LidoWrapHandler', LidoWrapHandler); 
+      newContractMap.set('LidoWrapHandler', LidoWrapHandler);
       updateState({ type: 'contractMap', payload: newContractMap });
 
       /* Get the hardcoded strategy addresses */
@@ -225,10 +225,12 @@ const ChainProvider = ({ children }: any) => {
 
             const symbolSwitch = (sym: string) => {
               switch (sym) {
-                case 'WETH' : return 'ETH';
-                default: return sym;
+                case 'WETH':
+                  return 'ETH';
+                default:
+                  return sym;
               }
-            }
+            };
 
             const newAsset = {
               id,
