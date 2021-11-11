@@ -41,6 +41,7 @@ const assetDigitFormatMap = new Map([
   ['USDC', 2],
   ['USDT', 2],
   ['wstETH', 6],
+  ['LINK', 2],
 ]);
 
 /* Build the context */
