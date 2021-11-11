@@ -59,7 +59,7 @@ export const useRollPosition = () => {
           target: fromSeries,
           spender: 'LADLE',
           amount: _fyTokenValueOfInput,
-          ignoreIf: alreadyApproved,
+          ignoreIf: alreadyApproved===true,
         },
       ],
       txCode

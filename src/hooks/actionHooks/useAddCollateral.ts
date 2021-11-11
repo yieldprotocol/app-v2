@@ -73,7 +73,7 @@ export const useAddCollateral = () => {
           target: ilk,
           spender: ilk.joinAddress,
           amount: _input,
-          ignoreIf: _isEthBased || alreadyApproved,
+          ignoreIf: _isEthBased || alreadyApproved===true,
         },
       ],
       txCode

@@ -20,11 +20,10 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
     chainState: {
       connection: { account, activatingConnector, CONNECTORS, CONNECTOR_INFO, connectionName, connector },
     },
-    chainActions: { connect, setConnectionName },
+    chainActions: { connect },
   } = useContext(ChainContext);
 
   const handleConnect = (connectorName: string) => {
-    setConnectionName(connectorName);
     connect(connectorName);
     setConnectOpen(false);
     setSettingsOpen(false);

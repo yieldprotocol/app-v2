@@ -39,7 +39,7 @@ export const useVaultAdmin = () => {
           target: base,
           spender: 'LADLE',
           message: 'Signing Dai Approval',
-          ignoreIf: series.seriesIsMature || alreadyApproved,
+          ignoreIf: series.seriesIsMature || alreadyApproved===true,
         },
       ],
       txCode

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Box, Text } from 'grommet';
 import Switch from 'react-switch';
 import { ApprovalType } from '../../types';
@@ -6,7 +6,6 @@ import { SettingsContext } from '../../contexts/SettingsContext';
 import { ChainContext } from '../../contexts/ChainContext';
 
 const AdvancedSetting = () => {
-
   const {
     chainState: {
       connection: { connectionName },
@@ -18,33 +17,26 @@ const AdvancedSetting = () => {
     settingsActions: { updateSetting },
   } = useContext(SettingsContext);
 
-  const handleApprovalToggle = (type: ApprovalType) => {
-    updateSetting('approvalMethod', type);
-  };
-
-  /* double check not max with permits */
-  useEffect(()=>{
-    approvalMethod !== ApprovalType.TX && updateSetting('approveMax', false);
-  },[ approvalMethod ])
-
   return (
     // <Box gap="small" pad={{ vertical: 'small' }} border={{ side: 'bottom', color: 'text-xweak' }}>
     <Box gap="small" pad={{ vertical: 'small' }}>
       <Box direction="row" justify="between">
-        <Text size="small" color={connectionName !== 'ledgerWithMetamask' ? undefined : 'text-xweak'} >Use Approval by Transactions</Text>
+        <Text size="small" color={connectionName === 'metamask' ? undefined : 'text-xweak'}>
+          Use Approval by Transactions
+        </Text>
         <Switch
           width={55}
-          checked={approvalMethod === ApprovalType.TX || connectionName === 'ledgerWithMetamask' }
+          checked={approvalMethod === ApprovalType.TX}
           offColor="#BFDBFE"
           onColor="#60A5FA"
           uncheckedIcon={false}
           checkedIcon={false}
           onChange={(val: boolean) =>
-            val ? handleApprovalToggle(ApprovalType.TX) : handleApprovalToggle(ApprovalType.SIG)
+            val ? updateSetting('approvalMethod', ApprovalType.TX) : updateSetting('approvalMethod', ApprovalType.SIG)
           }
           handleDiameter={20}
           borderRadius={20}
-          disabled={ connectionName === 'ledgerWithMetamask' }
+          disabled={connectionName !== 'metamask'}
         />
       </Box>
 
@@ -53,7 +45,7 @@ const AdvancedSetting = () => {
           Approve Max
         </Text>
         <Switch
-          checked={approvalMethod !== ApprovalType.TX ? false : approveMax}
+          checked={approveMax}
           onChange={(val: boolean) => updateSetting('approveMax', val)}
           width={55}
           offColor="#BFDBFE"
@@ -62,7 +54,7 @@ const AdvancedSetting = () => {
           checkedIcon={false}
           handleDiameter={20}
           borderRadius={20}
-          disabled={approvalMethod !== ApprovalType.TX}
+          disabled={!(approvalMethod === ApprovalType.TX)}
         />
       </Box>
     </Box>

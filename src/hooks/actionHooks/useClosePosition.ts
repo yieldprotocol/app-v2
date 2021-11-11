@@ -56,7 +56,7 @@ export const useClosePosition = () => {
           target: series,
           spender: 'LADLE',
           amount: _fyTokenValueOfInput,
-          ignoreIf: alreadyApproved,
+          ignoreIf: alreadyApproved===true,
         },
       ],
       txCode
