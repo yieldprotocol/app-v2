@@ -10,7 +10,9 @@ export const Gauge = ({ value = 50, min = 150, max = 750, mean = 200, size = '1e
     .endAngle(Math.PI * 0.5)
     .cornerRadius(0.05)();
 
-  const percentScale = scaleLinear().domain([0, min, mean, 500, max]).range([0, 0.1, 0.5, 0.9, 1]);
+  const percentScale = scaleLinear()
+    .domain([0, mean ? mean * 0.75 : min, mean, mean ? mean * 1.5 : 500, mean ? mean * 2 : max]) // scale relative to mean
+    .range([0, 0.1, 0.5, 0.9, 1]);
 
   const percent = percentScale(value);
 
