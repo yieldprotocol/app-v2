@@ -21,6 +21,7 @@ import WBTCMark from '../components/logos/WBTCMark';
 import USDTMark from '../components/logos/USDTMark';
 import YieldMark from '../components/logos/YieldMark';
 import StEthMark from '../components/logos/StEthMark';
+import LINKMark from '../components/logos/LinkMark';
 
 const markMap = new Map([
   ['DAI', <DaiMark key="dai" />],
@@ -29,6 +30,7 @@ const markMap = new Map([
   ['TST', <TSTMark key="tst" />],
   ['ETH', <EthMark key="eth" />],
   ['USDT', <USDTMark key="eth" />],
+  ['LINK', <LINKMark key="steth" />],
   ['wstETH', <StEthMark key="steth" />],
 ]);
 
