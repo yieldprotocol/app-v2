@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Box, Keyboard, Layer, ResponsiveContext, Text, TextInput, Tip } from 'grommet';
+import { Box, Keyboard, ResponsiveContext, Text, TextInput, } from 'grommet';
 
-import { FiClock, FiPocket, FiPercent, FiTrendingUp, FiInfo } from 'react-icons/fi';
+import { FiClock, FiPocket, FiPercent, FiTrendingUp, } from 'react-icons/fi';
 
 import SeriesSelector from '../components/selectors/SeriesSelector';
 import MainViewWrap from '../components/wraps/MainViewWrap';
