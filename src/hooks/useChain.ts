@@ -39,6 +39,8 @@ export const useChain = () => {
    * TRANSACTING
    * @param { ICallsData[] } calls list of callData as ICallData
    * @param { string } txCode internal transaction code
+   * 
+   * * @returns { Promise<void> }
    */
   const transact = async (calls: ICallData[], txCode: string): Promise<void> => {
     const signer = account ? provider.getSigner(account) : provider.getSigner(0);
@@ -100,7 +102,6 @@ export const useChain = () => {
    * 2. Sends off the approval tx, on completion of all txs, returns an empty array.
    * @param { ISignData[] } requestedSignatures
    * @param { string } txCode
-   * @param { boolean } viaPoolRouter DEFAULT: false
    *
    * @returns { Promise<ICallData[]> }
    */
@@ -146,7 +147,6 @@ export const useChain = () => {
               ),
             /* This is the function  to call if using fallback approvals */
             () => handleTx(() => tokenContract.approve(_spender, MAX_256), txCode, true),
-            reqSig,
             txCode,
             approvalMethod
           );
@@ -162,15 +162,6 @@ export const useChain = () => {
             s,
           ] as LadleActions.Args.FORWARD_DAI_PERMIT;
 
-          if (reqSig.asRoute) {
-            return {
-              operation: 'route',
-              args: [account, _spender, nonce, expiry, allowed, v, r, s],
-              fnName: 'permit',
-              targetContract: tokenContract,
-              ignoreIf: !(v && r && s),
-            };
-          }
           return {
             operation: LadleActions.Fn.FORWARD_DAI_PERMIT,
             args,
@@ -200,9 +191,7 @@ export const useChain = () => {
             ),
           /* this is the function for if using fallback approvals */
           () => handleTx(() => tokenContract.approve(_spender, _amount), txCode, true),
-          reqSig,
           txCode,
-          // TODO extract this out to ( also possibly use asset id)
           NON_PERMIT_ASSETS.includes(reqSig.target.symbol) ? ApprovalType.TX : approvalMethod
         );
 
@@ -216,15 +205,6 @@ export const useChain = () => {
           s,
         ] as LadleActions.Args.FORWARD_PERMIT;
 
-        if (reqSig.asRoute) {
-          return {
-            operation: 'route',
-            args: [account, _spender, value, deadline, v, r, s],
-            fnName: 'permit',
-            targetContract: tokenContract,
-            ignoreIf: !(v && r && s),
-          };
-        }
         return {
           operation: LadleActions.Fn.FORWARD_PERMIT,
           args,

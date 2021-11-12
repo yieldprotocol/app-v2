@@ -244,14 +244,13 @@ export interface ICallData {
 
 export interface ISignData {
   target: ISignable;
-  spender: 'LADLE' | string;
+  spender: string;
 
   /* optional Extention/advanced use-case options */
   amount?: BigNumberish;
   message?: string; // optional messaging for UI
   domain?: IDomain; // optional Domain if required
   ignoreIf?: boolean; // conditional for ignoring
-  asRoute?: boolean; // is the sign via a route call
 }
 
 export interface IDaiPermitMessage {
