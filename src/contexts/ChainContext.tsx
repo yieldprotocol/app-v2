@@ -166,6 +166,7 @@ const ChainProvider = ({ children }: any) => {
       } catch (e) {
         console.log(e, 'Could not connect to contracts');
       }
+      
 
       if (!Cauldron || !Ladle || !ChainlinkMultiOracle || !CompositeMultiOracle || !Witch) return;
 

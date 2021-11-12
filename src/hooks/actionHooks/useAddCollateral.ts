@@ -3,7 +3,17 @@ import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, IVault, ISeries, ActionCodes, LadleActions, ISettingsContext, IUserContext, IAsset } from '../../types';
+import {
+  ICallData,
+  IVault,
+  ISeries,
+  ActionCodes,
+  LadleActions,
+  ISettingsContext,
+  IUserContext,
+  IAsset,
+  RoutedActions,
+} from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { BLANK_VAULT, ETH_BASED_ASSETS } from '../../utils/constants';
 import { useChain } from '../useChain';
@@ -24,9 +34,8 @@ export const useAddCollateral = () => {
   const { sign, transact } = useChain();
 
   const addEth = (value: BigNumber, series: ISeries): ICallData[] => {
-    const isPositive = value.gte(ethers.constants.Zero);
-    /* Check if the selected Ilk is, in fact, an ETH variety */
-    if (ETH_BASED_ASSETS.includes(selectedIlkId) && isPositive) {
+    /* Check if the selected Ilk is, in fact, an ETH variety (and +ve)  */
+    if (ETH_BASED_ASSETS.includes(selectedIlkId) && value.gte(ethers.constants.Zero)) {
       /* return the add ETH OP */
       return [
         {
@@ -47,8 +56,10 @@ export const useAddCollateral = () => {
 
     /* set the series and ilk based on if a vault has been selected or it's a new vault */
     const series = vault ? seriesMap.get(vault.seriesId) : seriesMap.get(selectedSeriesId);
-    const ilk:IAsset = vault ? assetMap.get(vault.ilkId) : assetMap.get(selectedIlkId);
-    const base:IAsset = vault ? assetMap.get(vault.baseId) : assetMap.get(selectedBaseId);
+    const ilk: IAsset = vault ? assetMap.get(vault.ilkId) : assetMap.get(selectedIlkId);
+    const base: IAsset = vault ? assetMap.get(vault.baseId) : assetMap.get(selectedBaseId);
+
+    const ladleAddress = contractMap.get('Ladle').address;
 
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.ADD_COLLATERAL, vaultId);
@@ -59,11 +70,11 @@ export const useAddCollateral = () => {
 
     /* check if the ilk/asset is an eth asset variety, if so pour to Ladle */
     const _isEthBased = ETH_BASED_ASSETS.includes(ilk.id);
-    const _pourTo = _isEthBased ? contractMap.get('Ladle').address : account;
+    const _pourTo = _isEthBased ? ladleAddress : account;
 
     /* if approveMAx, check if signature is required */
-    const alreadyApproved = approveMax 
-      ? (await ilk.baseContract.allowance(account,ilk.joinAddress)).gt(_input)
+    const alreadyApproved = approveMax
+      ? (await ilk.baseContract.allowance(account, ilk.joinAddress)).gt(_input)
       : false;
 
     /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
