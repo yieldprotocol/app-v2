@@ -38,7 +38,7 @@ const NetworkSelector = () => {
     );
   }, [fallbackChainId]);
 
-  if (!currentChainInfo) return null;
+  if (!currentChainInfo || options.length <= 1) return null;
 
   return (
     <StyledBox round="xsmall" elevation="xsmall" background="hoverBackground">
