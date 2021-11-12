@@ -198,7 +198,16 @@ const VaultPosition = () => {
     !rollToSeries || rollError ? setRollDisabled(true) : setRollDisabled(false);
     !addCollatInput || addCollatError ? setAddCollateralDisabled(true) : setAddCollateralDisabled(false);
     !removeCollatInput || removeCollatError ? setRemoveCollateralDisabled(true) : setRemoveCollateralDisabled(false);
-  }, [repayInput, repayError, rollToSeries, addCollatInput, removeCollatInput, addCollatError, removeCollatError]);
+  }, [
+    repayInput,
+    repayError,
+    rollToSeries,
+    addCollatInput,
+    removeCollatInput,
+    addCollatError,
+    removeCollatError,
+    rollError,
+  ]);
 
   /* EXTRA INITIATIONS */
 
