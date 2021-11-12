@@ -10,7 +10,6 @@ const initState: ISettingsContextState = {
   approveMax: (JSON.parse(localStorage.getItem('approveMax')!) as boolean) || (false as boolean),
 
   slippageTolerance: (JSON.parse(localStorage.getItem('slippageTolerance')!) as number) || (0.005 as number),
-  dudeSalt: 21, // (JSON.parse(localStorage.getItem('dudeSalt')!) as number) || (21 as number),
   diagnostics: (JSON.parse(localStorage.getItem('diagnostics')!) as boolean) || (false as boolean),
 
   darkMode: (JSON.parse(localStorage.getItem('darkMode')!) as boolean) || (false as boolean),
@@ -48,23 +47,23 @@ const SettingsProvider = ({ children }: any) => {
     chainState: { connection },
   } = useContext(ChainContext);
 
-  /* handle linked approval settings */
-  useEffect(() => { 
+  /* watch & handle linked approval and effect appropriate settings */
+  useEffect(() => {
     if (settingsState.approvalMethod === ApprovalType.SIG) {
       updateState({ type: 'approveMax', payload: false });
     }
-  }, [ settingsState.approvalMethod  ]);
+  }, [settingsState.approvalMethod]);
 
+  /* watch & handle connection changes and effect appropriate settings */
   useEffect(() => {
     if (connection.connectionName && connection.connectionName !== 'metamask') {
       console.log('Using manual ERC20 approval transactions');
-      updateState( { type: 'approvalMethod', payload: ApprovalType.TX } )
-    } else if (connection.connectionName === 'metamask' ) {
-      /* On metamask default to SIG */ 
+      updateState({ type: 'approvalMethod', payload: ApprovalType.TX });
+    } else if (connection.connectionName === 'metamask') {
+      /* On metamask default to SIG */
       console.log('Using ERC20Permit signing (EIP-2612) ');
-      updateState( { type: 'approvalMethod', payload: ApprovalType.SIG } )
+      updateState({ type: 'approvalMethod', payload: ApprovalType.SIG });
     }
-
   }, [connection.connectionName]);
 
   /* Exposed userActions */

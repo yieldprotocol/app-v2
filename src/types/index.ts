@@ -67,7 +67,6 @@ export interface ISettingsContextState {
   approvalMethod: ApprovalType;
   slippageTolerance: number;
   diagnostics: boolean;
-  dudeSalt: number;
   darkMode: boolean;
   autoTheme:boolean;
   approveMax: boolean;
