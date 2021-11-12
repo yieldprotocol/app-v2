@@ -1,10 +1,9 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { FiX } from 'react-icons/fi';
-import { useHistory } from 'react-router-dom';
 import { Box, Button, Text } from 'grommet';
 
 import { UserContext } from '../../contexts/UserContext';
-import { ActionType, IAsset, ISeries, IStrategy, IUserContext } from '../../types';
+import { ActionType, IAsset, ISeries, IUserContext } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
 import LendItem from '../positionItems/LendItem';
 import ListWrap from '../wraps/ListWrap';
@@ -16,16 +15,13 @@ interface IPositionFilter {
 }
 
 function PositionSelector({ actionType }: { actionType: ActionType }) {
-  const history = useHistory();
   /* STATE FROM CONTEXT */
 
-  const { userState, userActions } = useContext(UserContext) as IUserContext;
-  const { activeAccount, assetMap, seriesMap, strategyMap, selectedSeriesId, selectedBaseId, selectedStrategyAddr } =
-    userState;
+  const { userState } = useContext(UserContext) as IUserContext;
+  const { activeAccount, assetMap, seriesMap, selectedSeriesId, selectedBaseId } = userState;
 
   const selectedSeries = seriesMap.get(selectedSeriesId!);
   const selectedBase = assetMap.get(selectedBaseId!);
-  const selectedStrategy = strategyMap.get(selectedStrategyAddr!);
 
   const [allPositions, setAllPositions] = useState<ISeries[]>([]);
   const [showAllPositions, setShowAllPositions] = useState<boolean>(false);
@@ -42,7 +38,7 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
         .filter((_series: ISeries) => (actionType === 'LEND' && _series ? _series.fyTokenBalance?.gt(ZERO_BN) : true))
         .filter((_series: ISeries) => (actionType === 'POOL' && _series ? _series.poolTokens?.gt(ZERO_BN) : true))
         .filter((_series: ISeries) => (base ? _series.baseId === base.id : true))
-        .filter((_series: ISeries) => (series ? _series.id === series.id : true))
+        .filter((_series: ISeries) => (series ? _series.id === series.id : true));
 
       setCurrentFilter({ base, series });
       setFilterLabels([base?.symbol, series?.displayNameMobile]);

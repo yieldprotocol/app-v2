@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import Skeleton from '../wraps/SkeletonWrap';
 import { IAsset } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
-import { DAI, WETH, USDC, WBTC } from '../../utils/constants';
+import { WETH, USDC } from '../../utils/constants';
 import { SettingsContext } from '../../contexts/SettingsContext';
 
 interface IAssetSelectorProps {
@@ -31,8 +31,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   } = useContext(SettingsContext);
 
   const { userState, userActions } = useContext(UserContext);
-  const { selectedIlkId, selectedSeriesId, selectedBaseId, assetMap, seriesMap, activeAccount} =
-    userState;
+  const { selectedIlkId, selectedSeriesId, selectedBaseId, assetMap, seriesMap, activeAccount } = userState;
 
   const { setSelectedIlk, setSelectedBase } = userActions;
 

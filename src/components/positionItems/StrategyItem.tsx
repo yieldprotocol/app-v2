@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Box, Text } from 'grommet';
-import { ActionType, ISeries, IStrategy, IUserContext } from '../../types';
+import { ActionType, IStrategy, IUserContext } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { cleanValue, nFormatter } from '../../utils/appUtils';
 import PositionAvatar from '../PositionAvatar';
@@ -10,7 +10,7 @@ import ItemWrap from '../wraps/ItemWrap';
 function StrategyItem({ strategy, index, condensed }: { strategy: IStrategy; index: number; condensed?: boolean }) {
   const history = useHistory();
 
-  const { userState, userActions } = useContext(UserContext) as IUserContext;
+  const { userActions } = useContext(UserContext) as IUserContext;
 
   const handleSelect = (_series: IStrategy) => {
     userActions.setSelectedBase(strategy.baseId);

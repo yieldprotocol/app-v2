@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Text } from 'grommet';
+import { Box } from 'grommet';
 import styled from 'styled-components';
 
 const StyledBox = styled(Box)`
@@ -15,13 +15,13 @@ const StyledBox = styled(Box)`
 `;
 
 const GeneralButton = (props: any) => (
-  <StyledBox 
-    background={props.background} 
-    round="xsmall" 
-    elevation="xsmall" 
-    onClick={props.disabled ? ()=>null: () => props.action()} 
+  <StyledBox
+    background={props.background}
+    round="xsmall"
+    elevation="xsmall"
+    onClick={props.disabled ? () => null : () => props.action()}
     pad="small"
-    align='center'
+    align="center"
   >
     {props.children}
   </StyledBox>
