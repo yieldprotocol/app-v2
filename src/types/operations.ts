@@ -89,6 +89,9 @@ export namespace RoutedActions {
 
     MINT_STRATEGY_TOKENS = 'mint',
     BURN_STRATEGY_TOKENS = 'burn',
+
+    WRAP = 'wrap',
+    UNWRAP = 'unwrap',
   }
 
   export namespace Args {
@@ -114,5 +117,8 @@ export namespace RoutedActions {
 
     export type MINT_STRATEGY_TOKENS = [receiver: string];
     export type BURN_STRATEGY_TOKENS = [receiver: string];
+
+    export type WRAP = [receiver:string];
+    export type UNWRAP = [receiver:string];
   }
 }
