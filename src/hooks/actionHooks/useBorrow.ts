@@ -4,7 +4,7 @@ import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, IVault, ActionCodes, LadleActions, ISeries } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { ETH_BASED_ASSETS, BLANK_VAULT, MAX_256 } from '../../utils/constants';
+import { ETH_BASED_ASSETS, BLANK_VAULT } from '../../utils/constants';
 import { buyBase, calculateSlippage } from '../../utils/yieldMath';
 import { useChain } from '../useChain';
 import { useAddCollateral } from './useAddCollateral';

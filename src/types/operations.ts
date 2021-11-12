@@ -1,4 +1,4 @@
-import { BigNumber, BigNumberish } from 'ethers';
+import { BigNumberish } from 'ethers';
 
 export namespace LadleActions {
   export enum Fn {
@@ -95,14 +95,9 @@ export namespace RoutedActions {
     export type SELL_BASE = [receiver: string, min: BigNumberish];
     export type SELL_FYTOKEN = [receiver: string, min: BigNumberish];
 
-    export type MINT_POOL_TOKENS = [
-      to: string,
-      remainderTo: string,
-      minRatio: BigNumberish,
-      maxRatio: BigNumberish
-    ];
+    export type MINT_POOL_TOKENS = [to: string, remainderTo: string, minRatio: BigNumberish, maxRatio: BigNumberish];
     export type BURN_POOL_TOKENS = [baseTo: string, fyTokenTo: string, minRatio: BigNumberish, maxRatio: BigNumberish];
-    
+
     export type MINT_WITH_BASE = [
       to: string,
       remainderTo: string,

@@ -90,7 +90,7 @@ const Borrow = () => {
     minCollatRatioPct,
   } = useCollateralHelpers(borrowInput, collatInput, vaultToUse);
 
-  const { minDebt_, maxDebt_, borrowPossible, borrowEstimate_, aboveDebtLimit } = useBorrowHelpers(
+  const { minDebt_, maxDebt_, borrowPossible, borrowEstimate_, } = useBorrowHelpers(
     borrowInput,
     collatInput,
     vaultToUse,

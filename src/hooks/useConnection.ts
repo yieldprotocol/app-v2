@@ -32,16 +32,10 @@ export const useConnection = () => {
   const [lastChainId, setLastChainId] = useCachedState('lastChainId', 1);
 
   const primaryConnection = useWeb3React<ethers.providers.Web3Provider>();
-  const { connector, library: provider, chainId, account, activate, deactivate, active, error } = primaryConnection;
+  const { connector, library: provider, chainId, account, activate, deactivate, active } = primaryConnection;
 
   const fallbackConnection = useWeb3React<ethers.providers.JsonRpcProvider>('fallback');
-  const {
-    library: fallbackProvider,
-    chainId: fallbackChainId,
-    activate: fallbackActivate,
-    active: fallbackActive,
-    error: fallbackError,
-  } = fallbackConnection;
+  const { library: fallbackProvider, chainId: fallbackChainId, activate: fallbackActivate } = fallbackConnection;
 
   /* extra hooks */
   const { handleErrorMessage } = useWeb3Errors();

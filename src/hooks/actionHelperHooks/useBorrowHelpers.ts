@@ -1,4 +1,4 @@
-import { BigNumber,  BigNumberish,  ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
@@ -71,8 +71,7 @@ export const useBorrowHelpers = (
 
   /* Update the borrow limits if ilk or base changes */
   useEffect(() => {
-    const setLimits = (max: BigNumber, min: BigNumber, decimals: BigNumber|string, total: BigNumber) => {
-      
+    const setLimits = (max: BigNumber, min: BigNumber, decimals: BigNumber | string, total: BigNumber) => {
       const _decimals = decimals.toString();
       const _max = ethers.utils.parseUnits(max.toString(), _decimals) || ethers.constants.Zero;
       const _min = ethers.utils.parseUnits(min.toString(), _decimals) || ethers.constants.Zero;
@@ -82,15 +81,14 @@ export const useBorrowHelpers = (
 
       setMaxDebt_(ethers.utils.formatUnits(_max, _decimals)?.toString());
       setMinDebt_(ethers.utils.formatUnits(_min, _decimals)?.toString());
-       
+
       setMaxDebt(maxLessTotal);
       setMinDebt(_min);
       setTotalDebt(_total);
-      
+
       setMaxDebt_(ethers.utils.formatUnits(maxLessTotal, _decimals)?.toString());
       setMinDebt_(ethers.utils.formatUnits(_min, _decimals)?.toString());
       setTotalDebt_(ethers.utils.formatUnits(_total, _decimals)?.toString());
-
     };
 
     if (limitMap.get(selectedBaseId)?.has(selectedIlkId!)) {

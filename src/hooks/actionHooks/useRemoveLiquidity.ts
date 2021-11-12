@@ -1,7 +1,16 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions, IVault, ISettingsContext, IStrategy, IAsset } from '../../types';
+import {
+  ICallData,
+  ISeries,
+  ActionCodes,
+  LadleActions,
+  RoutedActions,
+  IVault,
+  ISettingsContext,
+  IAsset,
+} from '../../types';
 import { getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import { ChainContext } from '../../contexts/ChainContext';
@@ -43,7 +52,7 @@ export const useRemoveLiquidity = () => {
     chainState: { contractMap },
   } = useContext(ChainContext);
 
-  const { vaultMap, userState, userActions } = useContext(UserContext);
+  const { userState, userActions } = useContext(UserContext);
   const { activeAccount: account, assetMap, selectedStrategyAddr, strategyMap } = userState;
 
   const { updateSeries, updateAssets, updateStrategies } = userActions;
@@ -131,12 +140,12 @@ export const useRemoveLiquidity = () => {
     diagnostics && console.log('Is FyToken tradable?: ', extraTradeSupported);
     diagnostics && console.log('extrafyTokentrade value: ', extrafyTokenTrade);
 
-    const alreadyApprovedStrategy = approveMax && !!_strategy 
-      ? (await _strategy.strategyContract.allowance(account, ladleAddress)).gt(_input)
-      : false;
-    const alreadyApprovedPool = approveMax && !_strategy 
-      ? (await series.poolContract.allowance(account, ladleAddress)).gt(_input)
-      : false;
+    const alreadyApprovedStrategy =
+      approveMax && !!_strategy
+        ? (await _strategy.strategyContract.allowance(account, ladleAddress)).gt(_input)
+        : false;
+    const alreadyApprovedPool =
+      approveMax && !_strategy ? (await series.poolContract.allowance(account, ladleAddress)).gt(_input) : false;
 
     const permits: ICallData[] = await sign(
       [
@@ -145,7 +154,7 @@ export const useRemoveLiquidity = () => {
           target: _strategy!,
           spender: 'LADLE',
           amount: _input,
-          ignoreIf: !_strategy || alreadyApprovedStrategy===true,
+          ignoreIf: !_strategy || alreadyApprovedStrategy === true,
         },
 
         /* give pool permission to sell tokens */
@@ -158,7 +167,7 @@ export const useRemoveLiquidity = () => {
           },
           spender: 'LADLE',
           amount: _input,
-          ignoreIf: !!_strategy || alreadyApprovedPool===true,
+          ignoreIf: !!_strategy || alreadyApprovedPool === true,
         },
       ],
       txCode

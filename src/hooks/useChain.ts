@@ -1,7 +1,6 @@
 import { BigNumber, Contract, ethers, PayableOverrides } from 'ethers';
 import { signDaiPermit, signERC2612Permit } from 'eth-permit';
 import { useContext } from 'react';
-import { toast } from 'react-toastify';
 import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
 import { MAX_256, NON_PERMIT_ASSETS } from '../utils/constants';

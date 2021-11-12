@@ -1,10 +1,8 @@
-import React, { useContext, useEffect, useReducer, useCallback, useState } from 'react';
+import React, { useContext, useEffect, useReducer, useCallback } from 'react';
 import { BigNumber, ethers } from 'ethers';
 import { format } from 'date-fns';
 
 import { ISeries, IVault, IHistItemPosition, ActionCodes, IBaseHistItem, IAsset, IStrategy } from '../types';
-
-import * as contracts from '../contracts';
 
 import { ChainContext } from './ChainContext';
 import { abbreviateHash, cleanValue } from '../utils/appUtils';
