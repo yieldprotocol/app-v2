@@ -1,5 +1,5 @@
-import { Box, ResponsiveContext, Text } from 'grommet';
-import React, { useContext } from 'react';
+import React from 'react';
+import { Box, Text } from 'grommet';
 import Skeleton from './wraps/SkeletonWrap';
 
 interface IInfoBite {
@@ -9,20 +9,17 @@ interface IInfoBite {
   loading?: boolean;
 }
 
-const InfoBite = ({ label, value, icon, loading }: IInfoBite) => {
-  const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-  return (
-    <Box direction="row" align="center" pad={{ left: 'small', vertical: 'none' }} gap="medium">
-      {icon && <Box>{icon}</Box>}
-      <Box>
-        <Text size="xsmall" color="text-weak">
-          {label}
-        </Text>
-        <Text size="medium"> {loading ? <Skeleton width={80} height={20} /> : value} </Text>
-      </Box>
+const InfoBite = ({ label, value, icon, loading }: IInfoBite) => (
+  <Box direction="row" align="center" pad={{ left: 'small', vertical: 'none' }} gap="medium">
+    {icon && <Box>{icon}</Box>}
+    <Box>
+      <Text size="xsmall" color="text-weak">
+        {label}
+      </Text>
+      <Text size="medium"> {loading ? <Skeleton width={80} height={20} /> : value} </Text>
     </Box>
-  );
-};
+  </Box>
+);
 
 InfoBite.defaultProps = { icon: undefined, loading: false };
 
