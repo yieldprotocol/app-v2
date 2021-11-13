@@ -14,6 +14,15 @@
       "CompositeMultiOracle": "0x4a7e8eb5f3872974ffb5021ADCbe34affe4bc81A",
       "LidoOracle": "0xE1697f685Ce360231742C586A6774E94F29Bc0ff",
       "Witch": "0x4552dCA91a4e2213EEd67A6981a63B1D39Ec2Eaf"
+    },
+    "421611": {
+      "Cauldron": "0x589fb605D165D0cd32608cC44dAcB87151d3B913",
+      "Ladle": "0x75aD7c0461eE87Ca87D86DD1F33C7419c11f5b05",
+      "ChainlinkMultiOracle": "",
+      "ChainlinkUSDOracle": "0x2c6966F0CeEb633ce8ece0972f4c4d28841dBbDD",
+      "CompositeMultiOracle": "",
+      "Witch": "0x7257575992431d7e55F0ccCD4253e7D77b6CD7E4",
+      "AccumulatorMultiOracle": "0x7eD45E73A6c6381a7F6E9778643134f0a8E07Abc"
     }
   },
   "strategies": {
