@@ -154,30 +154,40 @@ const ChainProvider = ({ children }: any) => {
       try {
         Cauldron = contracts.Cauldron__factory.connect(addrs.Cauldron, fallbackProvider);
         Ladle = contracts.Ladle__factory.connect(addrs.Ladle, fallbackProvider);
-        ChainlinkMultiOracle = contracts.ChainlinkMultiOracle__factory.connect(
-          addrs.ChainlinkMultiOracle,
-          fallbackProvider
-        );
-        CompositeMultiOracle = contracts.CompositeMultiOracle__factory.connect(
-          addrs.CompositeMultiOracle,
-          fallbackProvider
-        );
         Witch = contracts.Witch__factory.connect(addrs.Witch, fallbackProvider);
+
+        if ([1, 42].includes(fallbackChainId)) {
+          ChainlinkMultiOracle = contracts.ChainlinkMultiOracle__factory.connect(
+            addrs.ChainlinkMultiOracle,
+            fallbackProvider
+          );
+          CompositeMultiOracle = contracts.CompositeMultiOracle__factory.connect(
+            addrs.CompositeMultiOracle,
+            fallbackProvider
+          );
+        }
+
+        // arbitrum
+        if ([421611].includes(fallbackChainId)) {
+          ChainlinkUSDOracle = '';
+          AccumulatorMultiOracle = '';
+        }
       } catch (e) {
         console.log(e, 'Could not connect to contracts');
       }
 
       if (
-        ([1, 42].includes(fallbackChainId) && !Cauldron) ||
-        !Ladle ||
-        !ChainlinkMultiOracle ||
-        !CompositeMultiOracle ||
-        !Witch
+        [1, 42].includes(fallbackChainId) &&
+        (!Cauldron || !Ladle || !ChainlinkUSDOracle || !AccumulatorMultiOracle || !Witch)
       )
         return;
 
       // arbitrum
-      if (([421611].includes(fallbackChainId) && !Cauldron) || !Ladle || !Witch) return;
+      if (
+        [421611].includes(fallbackChainId) &&
+        (!Cauldron || !Ladle || ChainlinkUSDOracle || AccumulatorMultiOracle || !Witch)
+      )
+        return;
 
       /* Update the baseContracts state : ( hardcoded based on networkId ) */
       const newContractMap = chainState.contractMap;
@@ -213,7 +223,7 @@ const ChainProvider = ({ children }: any) => {
       const _getAssets = async () => {
         /* get all the assetAdded, oracleAdded and joinAdded events and series events at the same time */
         const blockNum = await fallbackProvider.getBlockNumber();
-        const blockNumForUse = blockNum - 10000; // use last 1000 blocks if too much (arbitrum limit)
+        const blockNumForUse = blockNum - 20000; // use last 1000 blocks if too much (arbitrum limit)
 
         const [assetAddedEvents, joinAddedEvents] = await Promise.all([
           // Cauldron.queryFilter('AssetAdded' as any, lastAssetUpdate),
