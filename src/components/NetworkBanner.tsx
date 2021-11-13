@@ -15,15 +15,15 @@ const StyledBox = styled(Box)`
 const NetworkBanner = () => {
   const {
     chainState: {
-      connection: { currentChainInfo, fallbackChainId },
+      connection: { currentChainInfo, chainId },
     },
   } = useContext(ChainContext);
   const [show, setShow] = useState<boolean>(false);
 
   useEffect(() => {
     const showableChains = [421611];
-    currentChainInfo && showableChains.includes(Number(fallbackChainId)) && setShow(true);
-  }, [currentChainInfo, fallbackChainId]);
+    currentChainInfo && showableChains.includes(Number(chainId)) && setShow(true);
+  }, [currentChainInfo, chainId]);
 
   return show ? (
     <StyledBox pad="small" background={{ color: currentChainInfo.color, opacity: 0.9 }} round="xsmall" gap="small">
