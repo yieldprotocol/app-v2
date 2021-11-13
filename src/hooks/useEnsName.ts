@@ -12,9 +12,13 @@ export const useEnsName = () => {
   const [ensName, setEnsName] = useState<string | null>(null);
 
   useEffect(() => {
-    if (provider && account && chainId===1) {
+    if (provider && account && chainId === 1) {
       (async () => {
-        setEnsName(await provider.lookupAddress(account));
+        try {
+          setEnsName(await provider.lookupAddress(account));
+        } catch (e) {
+          console.log(e);
+        }
       })();
     }
   }, [account, provider, chainId]);
