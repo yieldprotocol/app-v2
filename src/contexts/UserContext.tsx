@@ -29,6 +29,7 @@ import {
 } from '../utils/yieldMath';
 
 import { WAD_BN, ZERO_BN } from '../utils/constants';
+import { useBlockNum } from '../hooks/useBlockNum';
 
 const UserContext = React.createContext<any>({});
 
@@ -128,6 +129,7 @@ const UserProvider = ({ children }: any) => {
   /* LOCAL STATE */
   const [userState, updateState] = useReducer(userReducer, initState);
   const [vaultFromUrl, setVaultFromUrl] = useState<string | null>(null);
+  const blockNumForUse = Number(useBlockNum()) - 5000;
 
   /* HOOKS */
   const { pathname } = useLocation();
@@ -432,7 +434,7 @@ const UserProvider = ({ children }: any) => {
       const Witch = contractMap.get('Witch');
 
       /* if vaultList is empty, fetch complete Vaultlist from chain via _getVaults */
-      if (vaultList.length === 0) _vaultList = Array.from((await _getVaults()).values());
+      if (vaultList.length === 0) _vaultList = Array.from((await _getVaults(blockNumForUse)).values());
 
       /* Add in the dynamic vault data by mapping the vaults list */
       const vaultListMod = await Promise.all(
@@ -490,6 +492,7 @@ const UserProvider = ({ children }: any) => {
   /* Updates the assets with relevant *user* data */
   const updateStrategies = useCallback(
     async (strategyList: IStrategyRoot[]) => {
+      if (!strategyList.length) return new Map();
       updateState({ type: 'strategiesLoading', payload: true });
       let _publicData: IStrategy[] = [];
       let _accountData: IStrategy[] = [];
