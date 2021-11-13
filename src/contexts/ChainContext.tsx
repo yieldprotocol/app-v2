@@ -178,7 +178,7 @@ const ChainProvider = ({ children }: any) => {
 
       if (
         [1, 42].includes(fallbackChainId) &&
-        (!Cauldron || !Ladle || !ChainlinkUSDOracle || !AccumulatorMultiOracle || !Witch)
+        (!Cauldron || !Ladle || !ChainlinkMultiOracle || !CompositeMultiOracle || !Witch)
       )
         return;
 
@@ -223,7 +223,7 @@ const ChainProvider = ({ children }: any) => {
       const _getAssets = async () => {
         /* get all the assetAdded, oracleAdded and joinAdded events and series events at the same time */
         const blockNum = await fallbackProvider.getBlockNumber();
-        const blockNumForUse = blockNum - 20000; // use last 1000 blocks if too much (arbitrum limit)
+        const blockNumForUse = blockNum - 10000; // use last 1000 blocks if too much (arbitrum limit)
 
         const [assetAddedEvents, joinAddedEvents] = await Promise.all([
           // Cauldron.queryFilter('AssetAdded' as any, lastAssetUpdate),
