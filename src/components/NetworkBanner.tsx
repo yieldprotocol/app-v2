@@ -21,7 +21,7 @@ const NetworkBanner = () => {
   const [show, setShow] = useState<boolean>(false);
 
   useEffect(() => {
-    const showableChains = [42161, 421611, 69, 10];
+    const showableChains = [421611];
     currentChainInfo && showableChains.includes(Number(fallbackChainId)) && setShow(true);
   }, [currentChainInfo, fallbackChainId]);
 
