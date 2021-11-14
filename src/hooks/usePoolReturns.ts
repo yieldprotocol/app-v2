@@ -62,6 +62,7 @@ export const usePoolReturns = (series: ISeries, previousBlocks: number) => {
       }
     };
 
+    /* Compare base per share value for the current block versus the previous to compute apy */
     const _getPoolReturns = async () => {
       if (series && currentBlock && previousBlock && currBlockTimestamp && previousBlockTimestamp) {
         try {
@@ -86,6 +87,7 @@ export const usePoolReturns = (series: ISeries, previousBlocks: number) => {
     _getPoolReturns();
   }, [series, currentBlock, previousBlock, currBlockTimestamp, previousBlockTimestamp]);
 
+  /* Get blocks to use for comparison, and corresponding timestamps */
   useEffect(() => {
     (async () => {
       if (currentBlock && provider) {
