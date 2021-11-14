@@ -7,6 +7,8 @@ import { ISeries } from '../types';
 
 /**
  * returns the series' corresponding pool's apy estimated based on the current block num and a previous block num (using last 7-8 days)
+ * @param series
+ * @param previousBlocks number of blocks to use for comparison (lookback window)
  */
 export const usePoolReturns = (series: ISeries, previousBlocks: number) => {
   const {
