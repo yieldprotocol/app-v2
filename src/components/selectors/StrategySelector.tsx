@@ -1,16 +1,18 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, createRef, useState } from 'react';
 import { ethers } from 'ethers';
-import { Avatar, Box, Grid, ResponsiveContext, Text } from 'grommet';
+import { formatDistanceStrict } from 'date-fns';
+import { Avatar, Box, Grid, ResponsiveContext, Text, Tip } from 'grommet';
 import { toast } from 'react-toastify';
-import { FiSlash } from 'react-icons/fi';
+import { FiInfo, FiSlash } from 'react-icons/fi';
 
 import styled from 'styled-components';
-import { IStrategy } from '../../types';
+import { ISeries, IStrategy } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { getPoolPercent } from '../../utils/yieldMath';
 import { cleanValue, formatStrategyName } from '../../utils/appUtils';
 import Skeleton from '../wraps/SkeletonWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
+import { usePoolReturns } from '../../hooks/usePoolReturns';
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
@@ -66,7 +68,13 @@ function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelector
   } = useContext(SettingsContext);
 
   const { userState, userActions } = useContext(UserContext);
-  const { selectedStrategyAddr, selectedBaseId, strategiesLoading, strategyMap, seriesMap } = userState;
+  const { selectedStrategyAddr, selectedBaseId, strategiesLoading, strategyMap, seriesMap, selectedSeriesId } =
+    userState;
+  const selectedSeries: ISeries = seriesMap.get(selectedSeriesId);
+  const { poolReturns, secondsCompare } = usePoolReturns(selectedSeries, 45000); // previous 45k blocks is around 7 days
+  const secondsToDays = formatDistanceStrict(new Date(1, 1, 0, 0, 0, 0), new Date(1, 1, 0, 0, 0, secondsCompare || 0), {
+    unit: 'day',
+  }); // for visualizing how many days were used in the pool returns calculation
 
   const [options, setOptions] = useState<IStrategy[]>([]);
 
@@ -185,6 +193,21 @@ function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelector
                           >
                             of strategy
                           </Text>
+                          {strategy.address === selectedStrategyAddr && poolReturns && (
+                            <Box direction="row">
+                              <Text size="small" color={strategy.currentSeries?.textColor}>
+                                {cleanValue(poolReturns, 2)}% APY
+                              </Text>
+                              <Tip
+                                content={<Text size="xsmall">using last {secondsToDays} days estimated returns</Text>}
+                                dropProps={{
+                                  align: { left: 'right' },
+                                }}
+                              >
+                                <FiInfo size=".6em" />
+                              </Tip>
+                            </Box>
+                          )}
                         </>
                       )}
                     </Box>
