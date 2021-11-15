@@ -68,7 +68,7 @@ export interface ISettingsContextState {
   slippageTolerance: number;
   diagnostics: boolean;
   darkMode: boolean;
-  autoTheme:boolean;
+  autoTheme: boolean;
   approveMax: boolean;
   disclaimerChecked: boolean;
   powerUser: boolean;
@@ -124,7 +124,15 @@ export interface ISeriesRoot extends ISignable {
   getBaseAddress: () => string; // antipattern, but required here because app simulatneoulsy gets assets and series
 }
 
-export interface IAssetRoot extends ISignable {
+export interface IAssetHandling {
+  showToken: boolean; // should it be displayed on the app
+  useWrappedVersion: boolean; // is it a yieldwrapped token
+  wrappedTokenId: string; // wrapped token Id 
+  wrappedTokenAddress: string; // wrapped token address
+  wrapHandlerAddress: string; // asset wrapHandler address (contract that does the wrapping)
+}
+
+export interface IAssetRoot extends IAssetHandling, ISignable {
   // fixed/static:
   id: string;
   decimals: number;
@@ -133,8 +141,8 @@ export interface IAssetRoot extends ISignable {
   displayName: string;
   displayNameMobile: string;
   joinAddress: string;
-  digitFormat: number;
 
+  digitFormat: number;
   baseContract: ERC20Permit;
 
   isYieldBase: boolean;
@@ -235,7 +243,7 @@ export interface ICallData {
   operation: string | [number, string[]];
 
   /* optionals */
-  targetContract?: Strategy | Pool | ERC20Permit;
+  targetContract?: ethers.Contract;
   fnName?: string;
   ignoreIf?: boolean;
   overrides?: ethers.CallOverrides;
