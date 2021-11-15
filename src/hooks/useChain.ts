@@ -3,7 +3,7 @@ import { signDaiPermit, signERC2612Permit } from 'eth-permit';
 import { useContext } from 'react';
 import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
-import { MAX_256, NON_PERMIT_ASSETS } from '../utils/constants';
+import { DAI_PERMIT_ASSETS, MAX_256, NON_PERMIT_ASSETS } from '../utils/constants';
 import { ApprovalType, ICallData, ISignData, LadleActions } from '../types';
 import { ERC20Permit__factory, Ladle } from '../contracts';
 import { useApprovalMethod } from './useApprovalMethod';
@@ -127,7 +127,7 @@ export const useChain = () => {
         const tokenContract = ERC20Permit__factory.connect(reqSig.target.address, signer) as any;
 
         /* Request the signature if using DaiType permit style */
-        if (reqSig.target.symbol === 'DAI') {
+        if (DAI_PERMIT_ASSETS.includes( reqSig.target.symbol)) {
           const { v, r, s, nonce, expiry, allowed } = await handleSign(
             /* We are pass over the generated signFn and sigData to the signatureHandler for tracking/tracing/fallback handling */
             () =>
