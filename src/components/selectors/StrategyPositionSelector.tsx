@@ -20,11 +20,8 @@ function StrategyPositionSelector() {
 
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, assetMap, strategyMap, selectedBaseId, selectedStrategyAddr } =
+  const { activeAccount, strategyMap, selectedBase } =
     userState;
-
-  const selectedBase = assetMap.get(selectedBaseId!);
-  const selectedStrategy = strategyMap.get(selectedStrategyAddr!);
 
   const [allPositions, setAllPositions] = useState<IStrategy[]>([]);
   const [showAllPositions, setShowAllPositions] = useState<boolean>(false);

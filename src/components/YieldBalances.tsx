@@ -28,9 +28,9 @@ const Balance = ({ image, balance, loading }: { image: any; balance: string; loa
 
 const Balances = () => {
   const {
-    userState: { assetMap, selectedBaseId, selectedIlkId, assetsLoading },
+    userState: { selectedBase, selectedIlk, assetsLoading },
   } = useContext(UserContext);
-
+  
   const { pathname } = useLocation();
   const [path, setPath] = useState<string>();
   /* If the url references a series/vault...set that one as active */
@@ -38,14 +38,11 @@ const Balances = () => {
     pathname && setPath(pathname.split('/')[1]);
   }, [pathname]);
 
-  const selectedBase :IAsset = assetMap.get(selectedBaseId);
-  const selectedIlk: IAsset = assetMap.get(selectedIlkId);
-
   return (
     <Box pad="small" justify="center" align="start">
       <Box>
         <Balance image={selectedBase?.image} balance={selectedBase?.balance_} loading={assetsLoading} />
-        {path === 'borrow' && selectedBase?.assetIdToUse !== selectedIlk?.assetIdToUse&& selectedIlk?.assetIdToUse !== WETH && (
+        {path === 'borrow' && selectedBase?.assetId !== selectedIlk?.assetId && selectedIlk?.assetIdToUse !== WETH && (
           <Balance image={selectedIlk?.image} balance={selectedIlk?.balance_} loading={assetsLoading} />
         )}
       </Box>

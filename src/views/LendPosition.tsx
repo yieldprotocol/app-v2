@@ -36,8 +36,9 @@ const LendPosition = () => {
 
   /* STATE FROM CONTEXT */
   const { userState, userActions } = useContext(UserContext) as IUserContext;
-  const { selectedSeriesId, seriesMap, assetMap, seriesLoading } = userState;
-  const selectedSeries = seriesMap.get(selectedSeriesId || idFromUrl);
+  const { selectedSeries, seriesMap, assetMap, seriesLoading } = userState;
+
+  // const selectedSeries = seriesMap.get(selectedSeriesId || idFromUrl);
   const selectedBase = assetMap.get(selectedSeries?.baseId!);
 
   /* LOCAL STATE */
@@ -68,23 +69,27 @@ const LendPosition = () => {
   /* Processes to watch */
   const { txProcess: closeProcess, resetProcess: resetCloseProcess } = useProcess(
     ActionCodes.CLOSE_POSITION,
-    selectedSeries?.id
+    selectedSeries?.id!
   );
   const { txProcess: rollProcess, resetProcess: resetRollProcess } = useProcess(
     ActionCodes.ROLL_POSITION,
-    selectedSeries?.id
+    selectedSeries?.id!
   );
 
   /* input validation hooks */
-  const { inputError: closeError } = useInputValidation(closeInput, ActionCodes.CLOSE_POSITION, selectedSeries, [
-    0,
-    maxClose_,
-  ]);
+  const { inputError: closeError } = useInputValidation(
+    closeInput,
+    ActionCodes.CLOSE_POSITION,
+    selectedSeries,
+    [0, maxClose_]
+  );
 
-  const { inputError: rollError } = useInputValidation(rollInput, ActionCodes.ROLL_POSITION, selectedSeries, [
-    0,
-    maxRoll_,
-  ]);
+  const { inputError: rollError } = useInputValidation(
+    rollInput,
+    ActionCodes.ROLL_POSITION,
+    selectedSeries,
+    [0, maxRoll_]
+  );
 
   /* LOCAL FNS */
   const handleStepper = (back: boolean = false) => {
@@ -128,8 +133,9 @@ const LendPosition = () => {
   }, [closeProcess?.stage, rollProcess?.stage]);
 
   useEffect(() => {
-    idFromUrl && userActions.setSelectedSeries(idFromUrl);
-  }, [idFromUrl]);
+    const _series = seriesMap.get(idFromUrl) || null;
+    idFromUrl && userActions.setSelectedSeries(_series);
+  }, [idFromUrl, seriesMap, userActions]);
 
   /* INTERNAL COMPONENTS */
   const CompletedTx = (props: any) => (

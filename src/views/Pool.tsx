@@ -40,10 +40,7 @@ function Pool() {
 
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, assetMap, selectedBaseId, selectedStrategyAddr, strategyMap } = userState;
-  
-  const selectedBase = assetMap.get(selectedBaseId!);
-  const selectedStrategy = strategyMap.get(selectedStrategyAddr!);
+  const { activeAccount, selectedBase, selectedStrategy, strategyMap } = userState;
 
   /* LOCAL STATE */
   const [modalOpen, toggleModal] = useState<boolean>(false);
@@ -63,11 +60,11 @@ function Pool() {
   const { inputError: poolError } = useInputValidation(
     poolInput,
     ActionCodes.ADD_LIQUIDITY,
-    selectedStrategy?.currentSeries,
+    selectedStrategy?.currentSeries || null,
     [0, maxPool]
   );
 
-  const { txProcess: poolProcess, resetProcess } = useProcess(ActionCodes.ADD_LIQUIDITY, selectedStrategy?.id);
+  const { txProcess: poolProcess, resetProcess } = useProcess(ActionCodes.ADD_LIQUIDITY, selectedStrategy?.id!);
 
   /* LOCAL ACTION FNS */
   const handleAdd = () => {

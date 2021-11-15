@@ -23,12 +23,11 @@ function LendItem({
 
   const { userState, userActions } = useContext(UserContext) as IUserContext;
   const { fyTokenMarketValue } = useLendHelpers(series!, '0');
-  const selectedBase = userState.assetMap?.get(series?.baseId!);
+  const selectedBase = userState.assetMap?.get(series?.baseId!) || null;
 
   const handleSelect = (_series: ISeries) => {
-    userActions.setSelectedBase(_series.baseId);
-    userActions.setSelectedSeries(_series.id);
-
+    userActions.setSelectedBase(selectedBase);
+    userActions.setSelectedSeries(_series);
     history.push(`/${actionType.toLowerCase()}position/${_series.id}`);
   };
 

@@ -22,7 +22,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   const {
     userState: {
       selectedSeries,
-      selectedBaseId,
+      selectedBase,
       selectedStrategyAddr,
       strategyMap,
       seriesMap,
@@ -36,8 +36,8 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   const strategySeries: ISeries | undefined = seriesMap?.get(
     selectedStrategyAddr ? strategy?.currentSeriesId : selectedSeries
   );
-  const selectedBase: IAsset | undefined = assetMap?.get(selectedBaseId);
-  const strategyBase: IAsset | undefined = assetMap?.get(selectedStrategyAddr ? strategy?.baseId : selectedBaseId);
+
+  const strategyBase: IAsset | undefined = assetMap?.get(selectedStrategyAddr ? strategy?.baseId : selectedBase?.assetIdToUse);
 
   /* LOCAL STATE */
 

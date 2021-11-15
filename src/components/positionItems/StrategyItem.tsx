@@ -12,11 +12,13 @@ function StrategyItem({ strategy, index, condensed }: { strategy: IStrategy; ind
 
   const { userState, userActions } = useContext(UserContext) as IUserContext;
 
-  const handleSelect = (_series: IStrategy) => {
-    userActions.setSelectedBase(strategy.baseId);
-    userActions.setSelectedSeries(strategy.currentSeriesId);
-    userActions.setSelectedStrategy(strategy.address);
+  const base = userState.assetMap.get(strategy.baseId) || null ;
+  const series = userState.seriesMap.get(strategy.currentSeriesId) || null;
 
+  const handleSelect = (_series: IStrategy) => {
+    userActions.setSelectedBase(base);
+    userActions.setSelectedSeries(series);
+    userActions.setSelectedStrategy(strategy);
     history.push(`/poolposition/${strategy.address}`);
   };
 

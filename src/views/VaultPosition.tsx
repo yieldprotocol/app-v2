@@ -44,27 +44,37 @@ const VaultPosition = () => {
 
   /* STATE FROM CONTEXT */
   const { userState, userActions } = useContext(UserContext) as IUserContext;
-  const { activeAccount: account, assetMap, seriesMap, vaultMap, selectedVaultId, vaultsLoading } = userState;
+  const {
+    activeAccount: account,
+    assetMap,
+    seriesMap,
+    vaultMap,
+    selectedVault: _selectedVault,
+    vaultsLoading,
+  } = userState;
 
-  const selectedVault: IVault | undefined = vaultMap && vaultMap.get(selectedVaultId || idFromUrl);
+  const selectedVault: IVault | undefined = _selectedVault || vaultMap.get(idFromUrl);
 
-  const vaultBase: IAsset | undefined = assetMap.get(selectedVault?.baseId!);
-  const vaultIlk: IAsset | undefined = assetMap.get(selectedVault?.ilkId!);
-  const vaultSeries: ISeries | undefined = seriesMap.get(selectedVault?.seriesId!);
+  const vaultBase: IAsset | undefined = assetMap.get(_selectedVault?.baseId!);
+  const vaultIlk: IAsset | undefined = assetMap.get(_selectedVault?.ilkId!);
+  const vaultSeries: ISeries | undefined = seriesMap.get(_selectedVault?.seriesId!);
 
   /* TX info (for disabling buttons) */
-  const { txProcess: repayProcess, resetProcess: resetRepayProcess } = useProcess(ActionCodes.REPAY, selectedVaultId!);
+  const { txProcess: repayProcess, resetProcess: resetRepayProcess } = useProcess(
+    ActionCodes.REPAY,
+    selectedVault?.id!
+  );
   const { txProcess: rollProcess, resetProcess: resetRollProcess } = useProcess(
     ActionCodes.ROLL_DEBT,
-    selectedVaultId!
+    selectedVault?.id!
   );
   const { txProcess: addCollateralProcess, resetProcess: resetAddCollateralProcess } = useProcess(
     ActionCodes.ADD_COLLATERAL,
-    selectedVaultId!
+    selectedVault?.id!
   );
   const { txProcess: removeCollateralProcess, resetProcess: resetRemoveCollateralProcess } = useProcess(
     ActionCodes.REMOVE_COLLATERAL,
-    selectedVaultId!
+    selectedVault?.id!
   );
 
   /* LOCAL STATE */
@@ -121,12 +131,12 @@ const VaultPosition = () => {
     rollPossible,
   } = useBorrowHelpers(undefined, undefined, selectedVault, rollToSeries);
 
-  const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries, [
+  const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries!, [
     minRepay_, // this is the max pay to get to dust limit. note different logic in input validation hook.
     maxRepay_,
   ]);
 
-  const { inputError: addCollatError } = useInputValidation(addCollatInput, ActionCodes.ADD_COLLATERAL, vaultSeries, [
+  const { inputError: addCollatError } = useInputValidation(addCollatInput, ActionCodes.ADD_COLLATERAL, vaultSeries!, [
     0,
     maxCollateral,
   ]);
@@ -134,11 +144,11 @@ const VaultPosition = () => {
   const { inputError: removeCollatError } = useInputValidation(
     removeCollatInput,
     ActionCodes.REMOVE_COLLATERAL,
-    vaultSeries,
+    vaultSeries!,
     [0, maxRemovableCollateral]
   );
 
-  const { inputError: rollError } = useInputValidation(selectedVault?.art_, ActionCodes.ROLL_DEBT, vaultSeries, [
+  const { inputError: rollError } = useInputValidation(selectedVault?.art_, ActionCodes.ROLL_DEBT, vaultSeries!, [
     0,
     maxRoll_,
   ]);
@@ -204,10 +214,15 @@ const VaultPosition = () => {
 
   useEffect(() => {
     /* set global series, base and ilk */
-    selectedVault && userActions.setSelectedSeries(selectedVault.seriesId);
-    selectedVault && userActions.setSelectedBase(selectedVault.baseId);
-    selectedVault && userActions.setSelectedIlk(selectedVault.ilkId);
-  }, [vaultMap, selectedVault]);
+
+    const _series = seriesMap.get(selectedVault?.seriesId!) || null;
+    const _base = assetMap.get(selectedVault?.baseId!) || null;
+    const _ilk = assetMap.get(selectedVault?.ilkId!) || null;
+
+    selectedVault && userActions.setSelectedSeries(_series);
+    selectedVault && userActions.setSelectedBase(_base);
+    selectedVault && userActions.setSelectedIlk(_ilk);
+  }, [vaultMap, selectedVault, seriesMap, assetMap, userActions]);
 
   useEffect(() => {
     if (selectedVault && account !== selectedVault?.owner) history.push(prevLoc);

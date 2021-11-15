@@ -35,13 +35,13 @@ function VaultItem({
   const { userState: { seriesMap }, userActions } = useContext(UserContext) as IUserContext;
   const { setSelectedVault } = userActions;
 
-  const handleSelect = (_vaultId: string) => {
-    setSelectedVault(_vaultId);
-    history.push(`/vaultposition/${_vaultId}`);
+  const handleSelect = (_vault: IVault) => {
+    setSelectedVault(_vault);
+    history.push(`/vaultposition/${_vault.id}`);
   };
 
   return (
-    <ItemWrap action={() => handleSelect(vault.id)} index={index}>
+    <ItemWrap action={() => handleSelect(vault)} index={index}>
       <Box direction="row" gap="small" align="center" pad="small" height={condensed ? '3rem' : undefined}>
         <PositionAvatar position={vault} condensed={condensed} actionType={ActionType.BORROW} />
         <Box

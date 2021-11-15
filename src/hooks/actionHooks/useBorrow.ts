@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, IVault, ActionCodes, LadleActions, ISeries } from '../../types';
+import { ICallData, IVault, ActionCodes, LadleActions, ISeries, IAsset } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { ETH_BASED_ASSETS, BLANK_VAULT, MAX_256 } from '../../utils/constants';
 import { buyBase, calculateSlippage } from '../../utils/yieldMath';
@@ -16,7 +16,7 @@ export const useBorrow = () => {
   } = useContext(SettingsContext);
 
   const { userState, userActions } = useContext(UserContext);
-  const { activeAccount: account, selectedIlkId, selectedSeriesId, seriesMap, assetMap } = userState;
+  const { activeAccount: account, selectedIlk, selectedSeries, seriesMap, assetMap } = userState;
   const { updateVaults, updateAssets, updateSeries } = userActions;
 
   const { addEth } = useAddCollateral();
@@ -25,14 +25,14 @@ export const useBorrow = () => {
 
   const borrow = async (vault: IVault | undefined, input: string | undefined, collInput: string | undefined) => {
     /* generate the reproducible txCode for tx tracking and tracing */
-    const txCode = getTxCode(ActionCodes.BORROW, selectedSeriesId);
+    const txCode = getTxCode(ActionCodes.BORROW, selectedSeries.assetId);
     /* use the vault id provided OR 0 if new/ not provided */
     const vaultId = vault?.id || BLANK_VAULT;
 
     /* Set the series and ilk based on the vault that has been selected or if it's a new vault, get from the globally selected SeriesId */
-    const series: ISeries = vault ? seriesMap.get(vault.seriesId) : seriesMap.get(selectedSeriesId);
+    const series: ISeries = vault ? seriesMap.get(vault.seriesId) : selectedSeries;
     const base = assetMap.get(series.baseId);
-    const ilk = vault ? assetMap.get(vault.ilkId) : assetMap.get(selectedIlkId);
+    const ilk = vault ? assetMap.get(vault.ilkId) : assetMap.get(selectedIlk.assetIdToUse);
 
     /* parse inputs  ( clean down to base/ilk decimals so that there is never an underlow)  */
     const cleanInput = cleanValue(input, base.decimals);
@@ -65,7 +65,7 @@ export const useBorrow = () => {
           amount: _collInput,
           ignoreIf:
             alreadyApproved === true ||
-            ETH_BASED_ASSETS.includes(selectedIlkId) ||
+            ETH_BASED_ASSETS.includes(selectedIlk.assetIdToUse) ||
             _collInput.eq(ethers.constants.Zero),
         },
       ],
@@ -88,7 +88,7 @@ export const useBorrow = () => {
       /* If vault is null, build a new vault, else ignore */
       {
         operation: LadleActions.Fn.BUILD,
-        args: [selectedSeriesId, selectedIlkId, '0'] as LadleActions.Args.BUILD,
+        args: [selectedSeries.id, selectedIlk.assetIdToUse, '0'] as LadleActions.Args.BUILD,
         ignoreIf: !!vault,
       },
       {

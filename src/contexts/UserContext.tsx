@@ -55,11 +55,11 @@ const initState: IUserContextState = {
   limitsLoading: true as boolean,
 
   /* Current User selections */
-  selectedSeriesId: null,
-  selectedIlkId: null, // initial ilk
-  selectedBaseId: null, // initial base
-  selectedVaultId: null,
-  selectedStrategyAddr: null,
+  selectedSeries: null,
+  selectedIlk: null, // initial ilk
+  selectedBase: null, // initial base
+  selectedVault: null,
+  selectedStrategy: null,
 };
 
 function userReducer(state: any, action: any) {
@@ -74,17 +74,6 @@ function userReducer(state: any, action: any) {
 
     case 'activeAccount':
       return { ...state, activeAccount: onlyIfChanged(action) };
-
-    case 'selectedVaultId':
-      return { ...state, selectedVaultId: onlyIfChanged(action) };
-    case 'selectedSeriesId':
-      return { ...state, selectedSeriesId: onlyIfChanged(action) };
-    case 'selectedIlkId':
-      return { ...state, selectedIlkId: onlyIfChanged(action) };
-    case 'selectedBaseId':
-      return { ...state, selectedBaseId: onlyIfChanged(action) };
-    case 'selectedStrategyAddr':
-      return { ...state, selectedStrategyAddr: onlyIfChanged(action) };
 
     case 'assetMap':
       return { ...state, assetMap: onlyIfChanged(action) };
@@ -107,6 +96,17 @@ function userReducer(state: any, action: any) {
       return { ...state, assetsLoading: onlyIfChanged(action) };
     case 'strategiesLoading':
       return { ...state, strategiesLoading: onlyIfChanged(action) };
+
+    case 'selectedVault':
+      return { ...state, selectedVault: onlyIfChanged(action) };
+    case 'selectedSeries':
+      return { ...state, selectedSeries: onlyIfChanged(action) };
+    case 'selectedIlk':
+      return { ...state, selectedIlk: onlyIfChanged(action) };
+    case 'selectedBase':
+      return { ...state, selectedBase: onlyIfChanged(action) };
+    case 'selectedStrategy':
+      return { ...state, selectedStrategy: onlyIfChanged(action) };
 
     default:
       return state;
@@ -637,12 +637,12 @@ const UserProvider = ({ children }: any) => {
     updatePrice,
     updateLimit,
 
-    setSelectedVault: (vaultId: string | null) => updateState({ type: 'selectedVaultId', payload: vaultId }),
-    setSelectedIlk: (assetId: string | null) => updateState({ type: 'selectedIlkId', payload: assetId }),
-    setSelectedSeries: (seriesId: string | null) => updateState({ type: 'selectedSeriesId', payload: seriesId }),
-    setSelectedBase: (assetId: string | null) => updateState({ type: 'selectedBaseId', payload: assetId }),
-    setSelectedStrategy: (strategyAddr: string | null) =>
-      updateState({ type: 'selectedStrategyAddr', payload: strategyAddr }),
+    setSelectedVault: (vault: IVault | null) => updateState({ type: 'selectedVault', payload: vault }),
+    setSelectedIlk: (asset: IAsset | null) => updateState({ type: 'selectedIlk', payload: asset }),
+    setSelectedSeries: (series: ISeries | null) => updateState({ type: 'selectedSeries', payload: series }),
+    setSelectedBase: (asset: IAsset | null) => updateState({ type: 'selectedBase', payload: asset }),
+    setSelectedStrategy: (strategy: IStrategy | null) =>
+      updateState({ type: 'selectedStrategy', payload: strategy }),
   };
 
   return <UserContext.Provider value={{ userState, userActions } as IUserContext}>{children}</UserContext.Provider>;

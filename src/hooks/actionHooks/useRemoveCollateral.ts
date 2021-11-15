@@ -13,14 +13,15 @@ export const useRemoveCollateral = () => {
     chainState: { contractMap },
   } = useContext(ChainContext);
   const { userState, userActions } = useContext(UserContext);
-  const { activeAccount: account, selectedIlkId, assetMap } = userState;
+  const { activeAccount: account, selectedIlk, assetMap } = userState;
   const { updateAssets, updateVaults } = userActions;
 
   const { transact } = useChain();
 
-  const removeEth = (value: BigNumber ): ICallData[] => {
+  const removeEth = (value: BigNumber): ICallData[] => {
+
     /* First check if the selected Ilk is, in fact, an ETH variety */
-    if (ETH_BASED_ASSETS.includes(selectedIlkId)) {
+    if (ETH_BASED_ASSETS.includes(selectedIlk.assetIdToUse)) {
       /* return the remove ETH OP */
       return [
         {

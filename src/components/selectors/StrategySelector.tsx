@@ -66,7 +66,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelector
   } = useContext(SettingsContext);
 
   const { userState, userActions } = useContext(UserContext);
-  const { selectedStrategyAddr, selectedBaseId, strategiesLoading, strategyMap, seriesMap } = userState;
+  const { selectedStrategyAddr, selectedBase, strategiesLoading, strategyMap, seriesMap } = userState;
 
   const [options, setOptions] = useState<IStrategy[]>([]);
 
@@ -74,12 +74,12 @@ function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelector
   useEffect(() => {
     const opts = Array.from(strategyMap.values()) as IStrategy[];
     const filteredOpts = opts
-      .filter((_st: IStrategy) => _st.baseId === selectedBaseId && !_st.currentSeries?.seriesIsMature)
+      .filter((_st: IStrategy) => _st.baseId === selectedBase?.assetIdToUse && !_st.currentSeries?.seriesIsMature)
       .sort((a: IStrategy, b: IStrategy) => a.currentSeries?.maturity! - b.currentSeries?.maturity!);
 
     // .filter((_st: IStrategy) => _st.currentSeries);
     setOptions(filteredOpts);
-  }, [selectedBaseId, strategyMap]);
+  }, [selectedBase, strategyMap]);
 
   const handleSelect = (_strategy: IStrategy) => {
     if (_strategy.active) {

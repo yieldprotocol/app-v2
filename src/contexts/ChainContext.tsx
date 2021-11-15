@@ -225,23 +225,24 @@ const ChainProvider = ({ children }: any) => {
         const newAssetList: any[] = [];
         await Promise.all(
           assetAddedEvents.map(async (x: any) => {
-            const { assetId: id, asset: address } = Cauldron.interface.parseLog(x).args;
+            const { assetId , asset: address } = Cauldron.interface.parseLog(x).args;
             const ERC20 = contracts.ERC20Permit__factory.connect(address, fallbackProvider);
             const [name, symbol, decimals, version] = await Promise.all([
               ERC20.name(),
               ERC20.symbol(),
               ERC20.decimals(),
-              id === USDC ? '2' : '1', // TODO  ERC20.version()
+              assetId === USDC ? '2' : '1', // TODO  ERC20.version()
             ]);
 
             const { showToken, wrapHandlerAddress, useWrappedVersion, wrappedTokenId, wrappedTokenAddress } =
               assetHandling[symbol] as IAssetHandling;
 
-            const assetIdToUse = useWrappedVersion ? wrappedTokenId : id;
+            const assetIdToUse = useWrappedVersion ? wrappedTokenId : assetId;
             const joinAddress = joinMap.get(assetIdToUse);
 
             const newAsset = {
-              id,
+
+              assetId,
               address,
               name,
               symbol: symbol === 'WETH' ? 'ETH' : symbol, // if the symbol is WETH, then simply use ETH. (for all others use token symbol)

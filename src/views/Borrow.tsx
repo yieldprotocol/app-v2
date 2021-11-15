@@ -54,11 +54,7 @@ const Borrow = () => {
     chainState: { contractMap },
   } = useContext(ChainContext);
   const { userState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, assetMap, vaultMap, seriesMap, selectedSeriesId, selectedIlkId, selectedBaseId } = userState;
-
-  const selectedBase = assetMap.get(selectedBaseId!);
-  const selectedIlk = assetMap.get(selectedIlkId!);
-  const selectedSeries = seriesMap.get(selectedSeriesId!);
+  const { activeAccount, vaultMap, seriesMap, selectedSeries, selectedIlk, selectedBase } = userState;
 
   /* LOCAL STATE */
   const [modalOpen, toggleModal] = useState<boolean>(false);
@@ -109,7 +105,7 @@ const Borrow = () => {
   ]);
 
   /* TX info (for disabling buttons) */
-  const { txProcess: borrowProcess, resetProcess } = useProcess(ActionCodes.BORROW, selectedSeriesId!);
+  const { txProcess: borrowProcess, resetProcess } = useProcess(ActionCodes.BORROW, selectedSeries?.id!);
 
   /** LOCAL ACTION FNS */
   const handleBorrow = () => {

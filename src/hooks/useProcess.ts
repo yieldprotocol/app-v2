@@ -7,7 +7,7 @@ import { getTxCode } from '../utils/appUtils';
 /* the return tx looks like any object of {txCode, isPending, isSuccess, isFailed, isRejected} */
 export const useProcess = (
   actionCode: ActionCodes | undefined,
-  seriesOrVaultId: string | undefined,
+  seriesOrVaultId: string | null,
   transactionCode: string | undefined = undefined,
   shouldRedirect: boolean = false
 ) => {

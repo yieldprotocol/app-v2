@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import { Box, Text } from 'grommet';
-import { ActionType, ISeries, IUserContext } from '../../types';
+import { ActionType, IDummyVault, ISeries, IUserContext } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 
 import PositionAvatar from '../PositionAvatar';
@@ -27,7 +27,15 @@ function DummyVaultItem({
   const { setSelectedVault } = userActions;
 
   const handleSelect = (_vaultId: string) => {
-    setSelectedVault(_vaultId);
+    const dummyVault : IDummyVault = {
+      id: _vaultId,
+      ilkId: '',
+      baseId: '',
+      seriesId: '',
+      displayName: '',
+      decimals: 18
+    }
+    setSelectedVault(dummyVault);
     history.push(`/vaultposition/${_vaultId}`);
   };
 

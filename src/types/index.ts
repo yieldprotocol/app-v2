@@ -38,11 +38,12 @@ export interface IUserContextState {
   pricesLoading: boolean;
   limitsLoading: boolean;
 
-  selectedSeriesId: string | null;
-  selectedIlkId: string | null;
-  selectedBaseId: string | null;
-  selectedVaultId: string | null;
-  selectedStrategyAddr: string | null;
+  selectedSeries: ISeries | null;
+  selectedIlk: IAsset | null;
+  selectedBase: IAsset | null;
+  selectedVault: IVault | null;
+  selectedStrategy: IStrategy | null;
+
 }
 
 export interface IUserContextActions {
@@ -51,11 +52,19 @@ export interface IUserContextActions {
   updateAssets: (assetList: IAsset[]) => void;
   updatePrice: (ilkId: string, baseId: string, decimals: number) => void;
   updateLimit: (ilkId: string, baseId: string) => void;
-  setSelectedSeries: (seriesId: string) => void;
-  setSelectedIlk: (ilkId: string | null) => void;
-  setSelectedBase: (baseId: string | null) => void;
-  setSelectedVault: (vaultId: string | null) => void;
-  setSelectedStrategy: (strategyAddr: string | null) => void;
+  
+  setSelectedSeries: (series: ISeries | null) => void;
+  setSelectedIlk: (ilk: IAsset | null) => void;
+  setSelectedBase: (base: IAsset | null) => void;
+  setSelectedVault: (vault: IVault | IDummyVault | null) => void;
+  setSelectedStrategy: (strategy: IStrategy | null) => void;
+
+  // setSelectedSeriesId: (seriesId: string) => void;
+  // setSelectedIlkId: (ilkId: string | null) => void;
+  // setSelectedBaseId: (baseId: string | null) => void;
+  // setSelectedVaultId: (vaultId: string | null) => void;
+  // setSelectedStrategyId: (strategyAddr: string | null) => void;
+
 }
 
 export interface ISettingsContext {
@@ -133,6 +142,7 @@ export interface IAssetHandling {
 }
 
 export interface IAssetRoot extends IAssetHandling, ISignable {
+  
   // fixed/static:
   assetId: string;
   decimals: number;
@@ -193,6 +203,7 @@ export interface IAsset extends IAssetRoot {
   balance_: string;
 }
 
+export interface IDummyVault extends IVaultRoot {}
 export interface IVault extends IVaultRoot {
   owner: string;
   isWitchOwner: boolean;
