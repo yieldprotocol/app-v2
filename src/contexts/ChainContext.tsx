@@ -185,7 +185,7 @@ const ChainProvider = ({ children }: any) => {
       /* Get the hardcoded strategy addresses */
       const strategyAddresses = (yieldEnv.strategies as any)[fallbackChainId];
 
-      /* add on extra/calculated ASSET info and contract instances */
+      /* add on extra/calculated ASSET info and contract instances  (no async) */
       const _chargeAsset = (asset: any) => {
         /* attach either contract, (or contract of the wrappedToken ) */
         let baseContract = contracts.ERC20Permit__factory.connect(asset.address, fallbackProvider);

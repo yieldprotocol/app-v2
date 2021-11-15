@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import Skeleton from '../wraps/SkeletonWrap';
 import { IAsset } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
-import { DAI, WETH, USDC, WBTC } from '../../utils/constants';
+import { WETH, USDC } from '../../utils/constants';
 import { SettingsContext } from '../../contexts/SettingsContext';
 
 interface IAssetSelectorProps {
@@ -78,7 +78,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
     setOptions(filteredOptions);
   }, [assetMap, selectCollateral, selectedSeriesId, selectedBaseId, activeAccount]);
 
-  /* initiate base selector to Dai available asset and selected ilk ETH */
+  /* initiate base selector to USDC available asset and selected ilk ETH */
   useEffect(() => {
     if (Array.from(assetMap.values()).length) {
       !selectedBaseId && setSelectedBase(USDC);
