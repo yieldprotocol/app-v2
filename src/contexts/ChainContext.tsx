@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { ContractFactory, ethers } from 'ethers';
+import { ContractFactory, Contract, ethers } from 'ethers';
 
 import { format } from 'date-fns';
 
@@ -8,7 +8,7 @@ import { useConnection } from '../hooks/useConnection';
 
 import * as yieldEnv from './yieldEnv.json';
 import * as contracts from '../contracts';
-import { IAssetRoot, ISeriesRoot, IStrategyRoot } from '../types';
+import { IAssetHandling, IAssetRoot, ISeriesRoot, IStrategyRoot } from '../types';
 
 import { ETH_BASED_ASSETS, USDC } from '../utils/constants';
 import { nameFromMaturity, getSeason, SeasonType, clearCachedItems } from '../utils/appUtils';
@@ -32,6 +32,7 @@ const markMap = new Map([
   ['USDT', <USDTMark key="eth" />],
   ['LINK', <LINKMark key="steth" />],
   ['wstETH', <StEthMark key="steth" />],
+  ['stETH', <StEthMark key="steth" />],
 ]);
 
 const assetDigitFormatMap = new Map([
@@ -41,6 +42,7 @@ const assetDigitFormatMap = new Map([
   ['USDC', 2],
   ['USDT', 2],
   ['wstETH', 6],
+  ['stETH', 6],
 ]);
 
 /* Build the context */
@@ -67,7 +69,7 @@ const initState = {
   chainLoading: true,
 
   /* Connected Contract Maps */
-  contractMap: new Map<string, ContractFactory>(),
+  contractMap: new Map<string, Contract>(),
   assetRootMap: new Map<string, IAssetRoot>(),
   seriesRootMap: new Map<string, ISeriesRoot>(),
   strategyRootMap: new Map<string, IStrategyRoot>(),
@@ -142,6 +144,7 @@ const ChainProvider = ({ children }: any) => {
 
       /* Get the instances of the Base contracts */
       const addrs = (yieldEnv.addresses as any)[fallbackChainId];
+      const assetHandling = yieldEnv.assetHandling as any;
 
       let Cauldron: any;
       let Ladle: any;
@@ -162,11 +165,10 @@ const ChainProvider = ({ children }: any) => {
           fallbackProvider
         );
         Witch = contracts.Witch__factory.connect(addrs.Witch, fallbackProvider);
-        LidoWrapHandler = contracts.LidoWrapHandler__factory.connect(addrs.LidoWrapHandler, fallbackProvider);
+        // LidoWrapHandler = contracts.LidoWrapHandler__factory.connect(addrs.LidoWrapHandler, fallbackProvider);
       } catch (e) {
         console.log(e, 'Could not connect to contracts');
       }
-      
 
       if (!Cauldron || !Ladle || !ChainlinkMultiOracle || !CompositeMultiOracle || !Witch) return;
 
@@ -177,26 +179,32 @@ const ChainProvider = ({ children }: any) => {
       newContractMap.set('Witch', Witch);
       newContractMap.set('ChainlinkMultiOracle', ChainlinkMultiOracle);
       newContractMap.set('CompositeMultiOracle', CompositeMultiOracle);
-      newContractMap.set('LidoWrapHandler', LidoWrapHandler); 
+      newContractMap.set('LidoWrapHandler', LidoWrapHandler);
       updateState({ type: 'contractMap', payload: newContractMap });
 
       /* Get the hardcoded strategy addresses */
       const strategyAddresses = (yieldEnv.strategies as any)[fallbackChainId];
 
-      /* add on extra/calculated ASSET info  and contract instances */
+      /* add on extra/calculated ASSET info and contract instances */
       const _chargeAsset = (asset: any) => {
+        /* attach either contract, (or contract of the wrappedToken ) */
+        let baseContract = contracts.ERC20Permit__factory.connect(asset.address, fallbackProvider);
+        if (asset.useWrappedVersion) {
+          baseContract = contracts.ERC20Permit__factory.connect(asset.wrappedTokenAddress, fallbackProvider);
+        }
         const ERC20Permit = contracts.ERC20Permit__factory.connect(asset.address, fallbackProvider);
+
         return {
           ...asset,
           digitFormat: assetDigitFormatMap.has(asset.symbol) ? assetDigitFormatMap.get(asset.symbol) : 6,
           image: markMap.get(asset.symbol),
           color: (yieldEnv.assetColors as any)[asset.symbol],
-          baseContract: ERC20Permit,
-
+          baseContract,
           /* baked in token fns */
           getBalance: async (acc: string) =>
+            /* if eth based get provider balance, if token based, get toknen balance (NOT of wrappedToken ) */
             ETH_BASED_ASSETS.includes(asset.id) ? fallbackProvider?.getBalance(acc) : ERC20Permit.balanceOf(acc),
-          getAllowance: async (acc: string, spender: string) => ERC20Permit.allowance(acc, spender),
+          getAllowance: async (acc: string, spender: string) => baseContract.allowance(acc, spender),
         };
       };
 
@@ -224,21 +232,24 @@ const ChainProvider = ({ children }: any) => {
               id === USDC ? '2' : '1', // TODO  ERC20.version()
             ]);
 
-            const symbolSwitch = (sym: string) => {
-              switch (sym) {
-                case 'WETH' : return 'ETH';
-                default: return sym;
-              }
-            }
+            const { showToken, wrapHandlerAddress, useWrappedVersion, wrappedTokenId, wrappedTokenAddress } =
+              assetHandling[symbol] as IAssetHandling;
+            const joinAddress = joinMap.get(useWrappedVersion ? wrappedTokenId : id);
 
             const newAsset = {
               id,
               address,
               name,
-              symbol: symbolSwitch(symbol),
+              symbol: symbol === 'WETH' ? 'ETH' : symbol, // if the symbol is WETH, then simply use ETH. (for all others use token symbol)
               decimals,
               version,
-              joinAddress: joinMap.get(id),
+              joinAddress,
+
+              wrapHandlerAddress,
+              useWrappedVersion,
+              wrappedTokenId,
+              wrappedTokenAddress,
+              showToken,
             };
             // Update state and cache
             updateState({ type: 'addAsset', payload: _chargeAsset(newAsset) });
