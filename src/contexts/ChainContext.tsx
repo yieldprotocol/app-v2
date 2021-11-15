@@ -21,6 +21,7 @@ import WBTCMark from '../components/logos/WBTCMark';
 import USDTMark from '../components/logos/USDTMark';
 import YieldMark from '../components/logos/YieldMark';
 import StEthMark from '../components/logos/StEthMark';
+import LINKMark from '../components/logos/LinkMark';
 
 const markMap = new Map([
   ['DAI', <DaiMark key="dai" />],
@@ -29,6 +30,7 @@ const markMap = new Map([
   ['TST', <TSTMark key="tst" />],
   ['ETH', <EthMark key="eth" />],
   ['USDT', <USDTMark key="eth" />],
+  ['LINK', <LINKMark key="link" />],
   ['wstETH', <StEthMark key="steth" />],
 ]);
 
@@ -39,6 +41,7 @@ const assetDigitFormatMap = new Map([
   ['USDC', 2],
   ['USDT', 2],
   ['wstETH', 6],
+  ['LINK', 2],
 ]);
 
 /* Build the context */
@@ -146,6 +149,7 @@ const ChainProvider = ({ children }: any) => {
       let ChainlinkMultiOracle: any;
       let CompositeMultiOracle: any;
       let Witch: any;
+      let LidoWrapHandler: any;
 
       try {
         Cauldron = contracts.Cauldron__factory.connect(addrs.Cauldron, fallbackProvider);
@@ -159,6 +163,7 @@ const ChainProvider = ({ children }: any) => {
           fallbackProvider
         );
         Witch = contracts.Witch__factory.connect(addrs.Witch, fallbackProvider);
+        LidoWrapHandler = contracts.LidoWrapHandler__factory.connect(addrs.LidoWrapHandler, fallbackProvider);
       } catch (e) {
         console.log(e, 'Could not connect to contracts');
       }
@@ -172,6 +177,7 @@ const ChainProvider = ({ children }: any) => {
       newContractMap.set('Witch', Witch);
       newContractMap.set('ChainlinkMultiOracle', ChainlinkMultiOracle);
       newContractMap.set('CompositeMultiOracle', CompositeMultiOracle);
+      newContractMap.set('LidoWrapHandler', LidoWrapHandler);
       updateState({ type: 'contractMap', payload: newContractMap });
 
       /* Get the hardcoded strategy addresses */
@@ -220,10 +226,12 @@ const ChainProvider = ({ children }: any) => {
 
             const symbolSwitch = (sym: string) => {
               switch (sym) {
-                case 'WETH' : return 'ETH';
-                default: return sym;
+                case 'WETH':
+                  return 'ETH';
+                default:
+                  return sym;
               }
-            }
+            };
 
             const newAsset = {
               id,
