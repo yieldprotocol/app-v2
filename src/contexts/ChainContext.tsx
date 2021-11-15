@@ -22,6 +22,7 @@ import USDTMark from '../components/logos/USDTMark';
 import YieldMark from '../components/logos/YieldMark';
 import StEthMark from '../components/logos/StEthMark';
 import LINKMark from '../components/logos/LinkMark';
+import ENSMark from '../components/logos/ENSMark';
 
 const markMap = new Map([
   ['DAI', <DaiMark key="dai" />],
@@ -32,6 +33,7 @@ const markMap = new Map([
   ['USDT', <USDTMark key="eth" />],
   ['LINK', <LINKMark key="link" />],
   ['wstETH', <StEthMark key="steth" />],
+  ['ENS', <ENSMark key="ens" />],
 ]);
 
 const assetDigitFormatMap = new Map([
@@ -42,6 +44,7 @@ const assetDigitFormatMap = new Map([
   ['USDT', 2],
   ['wstETH', 6],
   ['LINK', 2],
+  ['ENS', 2],
 ]);
 
 /* Build the context */
