@@ -203,7 +203,9 @@ const ChainProvider = ({ children }: any) => {
           /* baked in token fns */
           getBalance: async (acc: string) =>
             /* if eth based get provider balance, if token based, get toknen balance (NOT of wrappedToken ) */
-            ETH_BASED_ASSETS.includes(asset.id) ? fallbackProvider?.getBalance(acc) : ERC20Permit.balanceOf(acc),
+            ETH_BASED_ASSETS.includes(asset.assetIdToUse)
+              ? fallbackProvider?.getBalance(acc)
+              : ERC20Permit.balanceOf(acc),
           getAllowance: async (acc: string, spender: string) => baseContract.allowance(acc, spender),
         };
       };
@@ -234,7 +236,7 @@ const ChainProvider = ({ children }: any) => {
 
             const { showToken, wrapHandlerAddress, useWrappedVersion, wrappedTokenId, wrappedTokenAddress } =
               assetHandling[symbol] as IAssetHandling;
-            
+
             const assetIdToUse = useWrappedVersion ? wrappedTokenId : id;
             const joinAddress = joinMap.get(assetIdToUse);
 
@@ -245,7 +247,7 @@ const ChainProvider = ({ children }: any) => {
               symbol: symbol === 'WETH' ? 'ETH' : symbol, // if the symbol is WETH, then simply use ETH. (for all others use token symbol)
               decimals,
               version,
-              
+
               joinAddress,
               assetIdToUse,
 
@@ -255,7 +257,7 @@ const ChainProvider = ({ children }: any) => {
               wrappedTokenAddress,
               showToken,
             };
-            
+
             // Update state and cache
             updateState({ type: 'addAsset', payload: _chargeAsset(newAsset) });
             newAssetList.push(newAsset);

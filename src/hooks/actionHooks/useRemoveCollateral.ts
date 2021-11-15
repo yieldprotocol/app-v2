@@ -46,7 +46,7 @@ export const useRemoveCollateral = () => {
     const _input = ethers.utils.parseUnits(cleanedInput, ilk.decimals).mul(-1);
 
     /* check if the ilk/asset is an eth asset variety, if so pour to Ladle */
-    const _pourTo = ETH_BASED_ASSETS.includes(ilk.id) ? contractMap.get('Ladle').address : account;
+    const _pourTo = ETH_BASED_ASSETS.includes(ilk.assetIdToUse) ? contractMap.get('Ladle').address : account;
 
     const calls: ICallData[] = [
       {
