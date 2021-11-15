@@ -198,14 +198,14 @@ function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelector
                               <Text size="small" color={strategy.currentSeries?.textColor}>
                                 {cleanValue(poolReturns, 2)}% APY
                               </Text>
-                              <Tip
+                              {/* <Tip
                                 content={<Text size="xsmall">using last {secondsToDays} days estimated returns</Text>}
                                 dropProps={{
                                   align: { left: 'right' },
                                 }}
                               >
                                 <FiInfo size=".6em" />
-                              </Tip>
+                              </Tip> */}
                             </Box>
                           )}
                         </>
