@@ -31,8 +31,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   } = useContext(SettingsContext);
 
   const { userState, userActions } = useContext(UserContext);
-  const { selectedIlkId, selectedSeriesId, selectedBaseId, assetMap, seriesMap, activeAccount} =
-    userState;
+  const { selectedIlkId, selectedSeriesId, selectedBaseId, assetMap, seriesMap, activeAccount } = userState;
 
   const { setSelectedIlk, setSelectedBase } = userActions;
 
@@ -53,11 +52,11 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
 
   const handleSelect = (asset: IAsset) => {
     if (selectCollateral) {
-      diagnostics && console.log('Collateral selected: ', asset.id);
-      setSelectedIlk(asset.id);
+      diagnostics && console.log('Collateral selected: ', asset.assetIdToUse);
+      setSelectedIlk(asset.assetIdToUse);
     } else {
-      diagnostics && console.log('Base selected: ', asset.id);
-      setSelectedBase(asset.id);
+      diagnostics && console.log('Base selected: ', asset.assetIdToUse);
+      setSelectedBase(asset.assetIdToUse);
     }
   };
 
@@ -67,11 +66,11 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
     let filteredOptions;
     if (!activeAccount) {
       filteredOptions = selectCollateral
-        ? opts.filter((a: IAsset) => a.id !== selectedBaseId) // show all available collateral assets if the user is not connected
+        ? opts.filter((a: IAsset) => a.assetIdToUse !== selectedBaseId) // show all available collateral assets if the user is not connected
         : opts.filter((a: IAsset) => a.isYieldBase);
     } else {
       filteredOptions = selectCollateral
-        ? opts.filter((a: IAsset) => a.id !== selectedBaseId)
+        ? opts.filter((a: IAsset) => a.assetIdToUse !== selectedBaseId)
         : // .filter((a: IAsset) => a.balance?.gt(ethers.constants.Zero))
           opts.filter((a: IAsset) => a.isYieldBase);
     }
@@ -89,7 +88,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   /* make sure ilk (collateral) never matches baseId */
   useEffect(() => {
     if (selectedIlk === selectedBase) {
-      const firstNotBaseIlk = options.find((asset: IAsset) => asset.id !== selectedIlk?.id)?.id;
+      const firstNotBaseIlk = options.find((asset: IAsset) => asset.assetIdToUse !== selectedIlk?.id)?.assetIdToUse;
       setSelectedIlk(firstNotBaseIlk);
     }
   }, [options, selectedIlk, selectedBase]);

@@ -53,7 +53,7 @@
     "ETH" : { "showToken": false },
 
     "USDT": { "showToken": true },
-    "LINK": { "showToken": false },
+    "LINK": { "showToken": true },
     "ENS": { "showToken": false },
     
     "wstETH": { "showToken": false },

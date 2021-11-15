@@ -211,15 +211,10 @@ const UserProvider = ({ children }: any) => {
 
       _publicData = await Promise.all(
         assetList.map(async (asset: IAssetRoot): Promise<IAssetRoot> => {
-          const isYieldBase = !!Array.from(seriesRootMap.values()).find((x: any) => x.baseId === asset.id);
-
-          const hasActiveJoin =
-            ethers.utils.isAddress(asset.joinAddress) && asset.joinAddress !== ethers.constants.AddressZero;
-
+          const isYieldBase = !!Array.from(seriesRootMap.values()).find((x: any) => x.baseId === asset.assetIdToUse);
           return {
             ...asset,
             isYieldBase,
-            hasActiveJoin,
           };
         })
       );

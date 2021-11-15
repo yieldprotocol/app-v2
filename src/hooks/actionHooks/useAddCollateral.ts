@@ -69,7 +69,7 @@ export const useAddCollateral = () => {
     const _input = ethers.utils.parseUnits(cleanedInput, ilk.decimals);
 
     /* check if the ilk/asset is an eth asset variety, if so pour to Ladle */
-    const _isEthBased = ETH_BASED_ASSETS.includes(ilk.id);
+    const _isEthBased = ETH_BASED_ASSETS.includes(ilk.assetId);
     const _pourTo = _isEthBased ? ladleAddress : account;
 
     /* if approveMAx, check if signature is required */

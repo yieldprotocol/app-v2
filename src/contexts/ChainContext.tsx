@@ -234,7 +234,9 @@ const ChainProvider = ({ children }: any) => {
 
             const { showToken, wrapHandlerAddress, useWrappedVersion, wrappedTokenId, wrappedTokenAddress } =
               assetHandling[symbol] as IAssetHandling;
-            const joinAddress = joinMap.get(useWrappedVersion ? wrappedTokenId : id);
+            
+            const assetIdToUse = useWrappedVersion ? wrappedTokenId : id;
+            const joinAddress = joinMap.get(assetIdToUse);
 
             const newAsset = {
               id,
@@ -243,7 +245,9 @@ const ChainProvider = ({ children }: any) => {
               symbol: symbol === 'WETH' ? 'ETH' : symbol, // if the symbol is WETH, then simply use ETH. (for all others use token symbol)
               decimals,
               version,
+              
               joinAddress,
+              assetIdToUse,
 
               wrapHandlerAddress,
               useWrappedVersion,
@@ -251,6 +255,7 @@ const ChainProvider = ({ children }: any) => {
               wrappedTokenAddress,
               showToken,
             };
+            
             // Update state and cache
             updateState({ type: 'addAsset', payload: _chargeAsset(newAsset) });
             newAssetList.push(newAsset);

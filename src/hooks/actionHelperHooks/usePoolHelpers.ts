@@ -77,8 +77,8 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1))
         .find(
           (v: IVault) =>
-            v.ilkId === strategyBase.id &&
-            v.baseId === strategyBase.id &&
+            v.ilkId === strategyBase.assetIdToUse &&
+            v.baseId === strategyBase.assetIdToUse &&
             v.seriesId === strategySeries.id &&
             v.isActive
         );
