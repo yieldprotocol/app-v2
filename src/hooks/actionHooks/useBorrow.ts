@@ -8,6 +8,7 @@ import { ETH_BASED_ASSETS, BLANK_VAULT, MAX_256 } from '../../utils/constants';
 import { buyBase, calculateSlippage } from '../../utils/yieldMath';
 import { useChain } from '../useChain';
 import { useAddCollateral } from './useAddCollateral';
+import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 
 export const useBorrow = () => {
   const {
@@ -19,6 +20,7 @@ export const useBorrow = () => {
   const { updateVaults, updateAssets, updateSeries } = userActions;
 
   const { addEth } = useAddCollateral();
+  const { wrapAssetToJoin } = useWrapUnwrapAsset();
   const { sign, transact } = useChain();
 
   const borrow = async (vault: IVault | undefined, input: string | undefined, collInput: string | undefined) => {
@@ -70,10 +72,15 @@ export const useBorrow = () => {
       txCode
     );
 
+    const wrapping: ICallData[] = await wrapAssetToJoin(_input, ilk, txCode);
+
     /* Collate all the calls required for the process (including depositing ETH, signing permits, and building vault if needed) */
     const calls: ICallData[] = [
       /* Include all the signatures gathered, if required */
       ...permits,
+
+      /* handle wrapped token deposit, if required */
+      ...wrapping,
 
       /* handle ETH deposit, if required */
       ...addEth(_collInput, series),
