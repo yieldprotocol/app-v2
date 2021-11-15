@@ -162,7 +162,6 @@ const ChainProvider = ({ children }: any) => {
         Cauldron = contracts.Cauldron__factory.connect(addrs.Cauldron, fallbackProvider);
         Ladle = contracts.Ladle__factory.connect(addrs.Ladle, fallbackProvider);
         Witch = contracts.Witch__factory.connect(addrs.Witch, fallbackProvider);
-        LidoWrapHandler = contracts.LidoWrapHandler__factory.connect(addrs.LidoWrapHandler, fallbackProvider);
 
         if ([1, 42].includes(fallbackChainId)) {
           ChainlinkMultiOracle = contracts.ChainlinkMultiOracle__factory.connect(
@@ -173,6 +172,7 @@ const ChainProvider = ({ children }: any) => {
             addrs.CompositeMultiOracle,
             fallbackProvider
           );
+          LidoWrapHandler = contracts.LidoWrapHandler__factory.connect(addrs.LidoWrapHandler, fallbackProvider);
         }
 
         // arbitrum
