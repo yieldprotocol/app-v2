@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { UserContext } from '../contexts/UserContext';
 import { WETH } from '../utils/constants';
 import Skeleton from './wraps/SkeletonWrap';
+import { IAsset } from '../types';
 
 const StyledText = styled(Text)`
   svg,
@@ -37,14 +38,14 @@ const Balances = () => {
     pathname && setPath(pathname.split('/')[1]);
   }, [pathname]);
 
-  const selectedBase = assetMap.get(selectedBaseId);
-  const selectedIlk = assetMap.get(selectedIlkId);
+  const selectedBase :IAsset = assetMap.get(selectedBaseId);
+  const selectedIlk: IAsset = assetMap.get(selectedIlkId);
 
   return (
     <Box pad="small" justify="center" align="start">
       <Box>
         <Balance image={selectedBase?.image} balance={selectedBase?.balance_} loading={assetsLoading} />
-        {path === 'borrow' && selectedBase?.id !== selectedIlk?.id && selectedIlk?.id !== WETH && (
+        {path === 'borrow' && selectedBase?.assetIdToUse !== selectedIlk?.assetIdToUse&& selectedIlk?.assetIdToUse !== WETH && (
           <Balance image={selectedIlk?.image} balance={selectedIlk?.balance_} loading={assetsLoading} />
         )}
       </Box>
