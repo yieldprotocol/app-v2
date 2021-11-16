@@ -242,12 +242,11 @@ const UserProvider = ({ children }: any) => {
 
       /* get the previous version (Map) of the vaultMap and update it */
       const newAssetMap = new Map(
-        _combinedData
-          .reduce((acc: any, item: any) => {
-            const _map = acc;
-            _map.set(item.id, item);
-            return _map;
-          }, userState.assetMap)
+        _combinedData.reduce((acc: any, item: any) => {
+          const _map = acc;
+          _map.set(item.id, item);
+          return _map;
+        }, userState.assetMap)
       );
 
       updateState({ type: 'assetMap', payload: newAssetMap });
@@ -634,12 +633,17 @@ const UserProvider = ({ children }: any) => {
     updatePrice,
     updateLimit,
 
-    setSelectedVault: (vault: IVault | null) => updateState({ type: 'selectedVault', payload: vault }),
-    setSelectedIlk: (asset: IAsset | null) => updateState({ type: 'selectedIlk', payload: asset }),
-    setSelectedSeries: (series: ISeries | null) => updateState({ type: 'selectedSeries', payload: series }),
-    setSelectedBase: (asset: IAsset | null) => updateState({ type: 'selectedBase', payload: asset }),
-    setSelectedStrategy: (strategy: IStrategy | null) =>
-      updateState({ type: 'selectedStrategy', payload: strategy }),
+    setSelectedVault: useCallback((vault: IVault | null) => updateState({ type: 'selectedVault', payload: vault }), []),
+    setSelectedIlk: useCallback((asset: IAsset | null) => updateState({ type: 'selectedIlk', payload: asset }), []),
+    setSelectedSeries: useCallback(
+      (series: ISeries | null) => updateState({ type: 'selectedSeries', payload: series }),
+      []
+    ),
+    setSelectedBase: useCallback((asset: IAsset | null) => updateState({ type: 'selectedBase', payload: asset }), []),
+    setSelectedStrategy: useCallback(
+      (strategy: IStrategy | null) => updateState({ type: 'selectedStrategy', payload: strategy }),
+      []
+    ),
   };
 
   return <UserContext.Provider value={{ userState, userActions } as IUserContext}>{children}</UserContext.Provider>;

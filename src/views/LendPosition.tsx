@@ -35,7 +35,10 @@ const LendPosition = () => {
   const { id: idFromUrl } = useParams<{ id: string }>();
 
   /* STATE FROM CONTEXT */
-  const { userState, userActions } = useContext(UserContext) as IUserContext;
+  const {
+    userState,
+    userActions: { setSelectedSeries },
+  } = useContext(UserContext) as IUserContext;
   const { selectedSeries, seriesMap, assetMap, seriesLoading } = userState;
 
   // const selectedSeries = seriesMap.get(selectedSeriesId || idFromUrl);
@@ -77,19 +80,15 @@ const LendPosition = () => {
   );
 
   /* input validation hooks */
-  const { inputError: closeError } = useInputValidation(
-    closeInput,
-    ActionCodes.CLOSE_POSITION,
-    selectedSeries,
-    [0, maxClose_]
-  );
+  const { inputError: closeError } = useInputValidation(closeInput, ActionCodes.CLOSE_POSITION, selectedSeries, [
+    0,
+    maxClose_,
+  ]);
 
-  const { inputError: rollError } = useInputValidation(
-    rollInput,
-    ActionCodes.ROLL_POSITION,
-    selectedSeries,
-    [0, maxRoll_]
-  );
+  const { inputError: rollError } = useInputValidation(rollInput, ActionCodes.ROLL_POSITION, selectedSeries, [
+    0,
+    maxRoll_,
+  ]);
 
   /* LOCAL FNS */
   const handleStepper = (back: boolean = false) => {
@@ -134,8 +133,8 @@ const LendPosition = () => {
 
   useEffect(() => {
     const _series = seriesMap.get(idFromUrl) || null;
-    idFromUrl && userActions.setSelectedSeries(_series);
-  }, [idFromUrl, seriesMap ]);
+    idFromUrl && setSelectedSeries(_series);
+  }, [idFromUrl, seriesMap, setSelectedSeries]);
 
   /* INTERNAL COMPONENTS */
   const CompletedTx = (props: any) => (
