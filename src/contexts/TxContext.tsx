@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import { ApprovalType, ISignData, TxState, ProcessStage, IYieldProcess } from '../types';
 import { analyticsLogEvent } from '../utils/appUtils';
 import { UserContext } from './UserContext';
+import { ChainContext } from './ChainContext';
 
 const TxContext = React.createContext<any>({});
 
@@ -104,6 +105,9 @@ const TxProvider = ({ children }: any) => {
     });
   };
 
+  const { chainState } = useContext(ChainContext);
+  const { connection : { chainId } } = chainState;
+
   const { userState } = useContext(UserContext);
   const { activeAccount: account } = userState;
 
@@ -184,7 +188,7 @@ const TxProvider = ({ children }: any) => {
         /* this case is when user rejects tx OR wallet rejects tx */
         _handleTxRejection(e, txCode);
 
-        analyticsLogEvent('TX_REJECTED', { user: account?.substring(2), txCode });
+        chainId === 1 && analyticsLogEvent('TX_REJECTED', { user: account?.substring(2), txCode });
 
         return null;
       }
@@ -203,7 +207,7 @@ const TxProvider = ({ children }: any) => {
         // txSuccess ? toast.success('Transaction successfull') : toast.error('Transaction failed :| ');
         _setProcessStage(txCode, ProcessStage.PROCESS_COMPLETE);
 
-        analyticsLogEvent('TX_COMPLETE', { user: account?.substring(2), txCode });
+        chainId === 1 &&  analyticsLogEvent('TX_COMPLETE', { user: account?.substring(2), txCode });
         return res;
       }
       /* this is the case when the tx was a fallback from a permit/allowance tx */
@@ -213,7 +217,7 @@ const TxProvider = ({ children }: any) => {
       /* catch tx errors */
       _handleTxError('Transaction failed', e.transaction, txCode);
 
-      analyticsLogEvent('TX_ERROR', { user: account?.substring(2), txCode });
+      chainId === 1 &&  analyticsLogEvent('TX_ERROR', { user: account?.substring(2), txCode });
 
       return null;
     }
