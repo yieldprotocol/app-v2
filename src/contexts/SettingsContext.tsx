@@ -18,6 +18,8 @@ const initState: ISettingsContextState = {
   disclaimerChecked: (JSON.parse(localStorage.getItem('disclaimerChecked')!) as boolean) || (false as boolean),
   powerUser: (JSON.parse(localStorage.getItem('powerUser')!) as boolean) || (false as boolean),
 
+  forceTransactions: (JSON.parse(localStorage.getItem('forceTransactions')!) as boolean) || (true as boolean),
+
   dashHideEmptyVaults: (JSON.parse(localStorage.getItem('dashHideEmptyVaults')!) as boolean) || false,
   dashHideInactiveVaults: (JSON.parse(localStorage.getItem('dashHideInactiveVaults')!) as boolean) || false,
   dashHideVaults: (JSON.parse(localStorage.getItem('dashHideVaults')!) as boolean) || false,

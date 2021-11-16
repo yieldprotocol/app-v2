@@ -82,6 +82,8 @@ export interface ISettingsContextState {
   disclaimerChecked: boolean;
   powerUser: boolean;
 
+  forceTransactions: boolean;
+
   /* DashSettings */
   dashHideEmptyVaults: boolean;
   dashHideInactiveVaults: boolean;
