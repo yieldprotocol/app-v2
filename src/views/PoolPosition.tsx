@@ -113,8 +113,7 @@ const PoolPosition = () => {
   useEffect(() => {
     const _strategy = strategyMap.get(idFromUrl) || null;
     idFromUrl && setSelectedStrategy(_strategy);
-    // !selectedStrategyAddr && idFromUrl && userActions.setSelectedStrategy(idFromUrl);
-  }, [idFromUrl, setSelectedStrategy]);
+  }, [idFromUrl, setSelectedStrategy, strategyMap]);
 
   /* watch process timeouts */
   useEffect(() => {
