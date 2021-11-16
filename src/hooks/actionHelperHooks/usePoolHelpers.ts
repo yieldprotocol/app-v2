@@ -20,26 +20,15 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   } = useContext(SettingsContext);
 
   const {
-    userState: {
-      selectedSeries,
-      selectedBase,
-      selectedStrategyAddr,
-      strategyMap,
-      seriesMap,
-      vaultMap,
-      assetMap,
-      activeAccount,
-    },
+    userState: { selectedSeries, selectedBase, selectedStrategy, seriesMap, vaultMap, assetMap, activeAccount },
   } = useContext(UserContext);
 
-  const strategy: IStrategy | undefined = strategyMap?.get(selectedStrategyAddr);
+  const strategy: IStrategy | undefined = selectedStrategy;
   const strategySeries: ISeries | undefined = seriesMap?.get(
-    selectedStrategyAddr ? strategy?.currentSeriesId : selectedSeries
+    selectedStrategy ? strategy?.currentSeriesId : selectedSeries
   );
 
-  const strategyBase: IAsset | undefined = assetMap?.get(
-    selectedStrategyAddr ? strategy?.baseId : selectedBase?.idToUse
-  );
+  const strategyBase: IAsset | undefined = assetMap?.get(selectedStrategy ? strategy?.baseId : selectedBase?.idToUse);
 
   /* LOCAL STATE */
 
