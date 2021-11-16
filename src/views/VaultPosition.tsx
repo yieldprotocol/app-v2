@@ -49,12 +49,12 @@ const VaultPosition = () => {
     assetMap,
     seriesMap,
     vaultMap,
-    selectedVault: _selectedVault,
+    selectedVault,
     vaultsLoading,
   } = userState;
   const { setSelectedBase, setSelectedIlk, setSelectedSeries } = userActions;
 
-  const selectedVault: IVault | undefined = _selectedVault || vaultMap.get(idFromUrl);
+  const _selectedVault: IVault| undefined = selectedVault || vaultMap.get(idFromUrl);
 
   const vaultBase: IAsset | undefined = assetMap.get(_selectedVault?.baseId!);
   const vaultIlk: IAsset | undefined = assetMap.get(_selectedVault?.ilkId!);
@@ -63,19 +63,19 @@ const VaultPosition = () => {
   /* TX info (for disabling buttons) */
   const { txProcess: repayProcess, resetProcess: resetRepayProcess } = useProcess(
     ActionCodes.REPAY,
-    selectedVault?.id!
+    _selectedVault?.id!
   );
   const { txProcess: rollProcess, resetProcess: resetRollProcess } = useProcess(
     ActionCodes.ROLL_DEBT,
-    selectedVault?.id!
+    _selectedVault?.id!
   );
   const { txProcess: addCollateralProcess, resetProcess: resetAddCollateralProcess } = useProcess(
     ActionCodes.ADD_COLLATERAL,
-    selectedVault?.id!
+    _selectedVault?.id!
   );
   const { txProcess: removeCollateralProcess, resetProcess: resetRemoveCollateralProcess } = useProcess(
     ActionCodes.REMOVE_COLLATERAL,
-    selectedVault?.id!
+    _selectedVault?.id!
   );
 
   /* LOCAL STATE */
@@ -96,7 +96,7 @@ const VaultPosition = () => {
   const [addCollateralDisabled, setAddCollateralDisabled] = useState<boolean>(true);
 
   const [actionActive, setActionActive] = useState<any>(
-    selectedVault && !selectedVault.isActive ? { index: 3 } : { index: 0 }
+    _selectedVault && !_selectedVault.isActive ? { index: 3 } : { index: 0 }
   );
 
   /* HOOK FNS */
@@ -108,17 +108,17 @@ const VaultPosition = () => {
   const { removeCollateral } = useRemoveCollateral();
 
   const { maxCollateral, collateralizationPercent, maxRemovableCollateral, minCollatRatioPct, unhealthyCollatRatio } =
-    useCollateralHelpers('0', '0', selectedVault);
-  const { collateralizationPercent: repayCollEst } = useCollateralHelpers(`-${repayInput! || '0'}`, '0', selectedVault);
+    useCollateralHelpers('0', '0', _selectedVault);
+  const { collateralizationPercent: repayCollEst } = useCollateralHelpers(`-${repayInput! || '0'}`, '0', _selectedVault);
   const { collateralizationPercent: removeCollEst } = useCollateralHelpers(
     '0',
     `-${removeCollatInput! || '0'}`,
-    selectedVault
+    _selectedVault
   );
   const { collateralizationPercent: addCollEst } = useCollateralHelpers(
     '0',
     `${addCollatInput! || '0'}`,
-    selectedVault
+    _selectedVault
   );
 
   const {
@@ -130,7 +130,7 @@ const VaultPosition = () => {
     maxRoll_,
     vaultDebt_,
     rollPossible,
-  } = useBorrowHelpers(undefined, undefined, selectedVault, rollToSeries);
+  } = useBorrowHelpers(undefined, undefined, _selectedVault, rollToSeries);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries!, [
     minRepay_, // this is the max pay to get to dust limit. note different logic in input validation hook.
@@ -149,7 +149,7 @@ const VaultPosition = () => {
     [0, maxRemovableCollateral]
   );
 
-  const { inputError: rollError } = useInputValidation(selectedVault?.art_, ActionCodes.ROLL_DEBT, vaultSeries!, [
+  const { inputError: rollError } = useInputValidation(_selectedVault?.art_, ActionCodes.ROLL_DEBT, vaultSeries!, [
     0,
     maxRoll_,
   ]);
@@ -163,18 +163,18 @@ const VaultPosition = () => {
   };
 
   const handleRepay = () => {
-    selectedVault && repay(selectedVault, repayInput?.toString(), reclaimCollateral);
+    _selectedVault && repay(_selectedVault, repayInput?.toString(), reclaimCollateral);
   };
 
   const handleRoll = () => {
-    rollToSeries && selectedVault && rollDebt(selectedVault, rollToSeries);
+    rollToSeries && _selectedVault && rollDebt(_selectedVault, rollToSeries);
   };
 
   const handleCollateral = (action: 'ADD' | 'REMOVE') => {
     const remove: boolean = action === 'REMOVE';
-    if (selectedVault) {
-      !remove && addCollateral(selectedVault, addCollatInput);
-      remove && removeCollateral(selectedVault, removeCollatInput);
+    if (_selectedVault) {
+      !remove && addCollateral(_selectedVault, addCollatInput);
+      remove && removeCollateral(_selectedVault, removeCollatInput);
     }
   };
 
@@ -215,19 +215,18 @@ const VaultPosition = () => {
 
   useEffect(() => {
     /* set global series, base and ilk */
+    const _series = seriesMap.get(_selectedVault?.seriesId!) || null;
+    const _base = assetMap.get(_selectedVault?.baseId!) || null;
+    const _ilk = assetMap.get(_selectedVault?.ilkId!) || null;
 
-    const _series = seriesMap.get(selectedVault?.seriesId!) || null;
-    const _base = assetMap.get(selectedVault?.baseId!) || null;
-    const _ilk = assetMap.get(selectedVault?.ilkId!) || null;
-
-    selectedVault && setSelectedSeries(_series);
-    selectedVault && setSelectedBase(_base);
-    selectedVault && setSelectedIlk(_ilk);
-  }, [vaultMap, selectedVault, seriesMap, assetMap]);
+    _selectedVault && setSelectedSeries(_series);
+    _selectedVault && setSelectedBase(_base);
+    _selectedVault && setSelectedIlk(_ilk);
+  }, [vaultMap, _selectedVault, seriesMap, assetMap, setSelectedSeries, setSelectedBase, setSelectedIlk]);
 
   useEffect(() => {
-    if (selectedVault && account !== selectedVault?.owner) history.push(prevLoc);
-  }, [account, selectedVault, history, prevLoc]);
+    if (_selectedVault && account !== _selectedVault?.owner) history.push(prevLoc);
+  }, [account, _selectedVault, history, prevLoc]);
 
   /* watch if the processes timeout - if so, reset() */
   useEffect(() => {
@@ -241,7 +240,7 @@ const VaultPosition = () => {
 
   return (
     <>
-      {selectedVault && (
+      {_selectedVault && (
         <ModalWrap>
           <CenterPanelWrap>
             <Box fill pad={mobile ? 'medium' : 'large'} gap="small">
@@ -254,18 +253,18 @@ const VaultPosition = () => {
                   pad={{ top: mobile ? 'medium' : undefined }}
                 >
                   <Box direction="row" align="center" gap="medium">
-                    <PositionAvatar position={selectedVault!} actionType={ActionType.BORROW} />
+                    <PositionAvatar position={_selectedVault!} actionType={ActionType.BORROW} />
                     <Box>
-                      <Text size={mobile ? 'medium' : 'large'}> {selectedVault?.displayName} </Text>
-                      <CopyWrap hash={selectedVault?.id}>
-                        <Text size="small"> {abbreviateHash(selectedVault?.id, 6)} </Text>
+                      <Text size={mobile ? 'medium' : 'large'}> {_selectedVault?.displayName} </Text>
+                      <CopyWrap hash={_selectedVault?.id}>
+                        <Text size="small"> {abbreviateHash(_selectedVault?.id, 6)} </Text>
                       </CopyWrap>
                     </Box>
                   </Box>
                   <ExitButton action={() => history.goBack()} />
                 </Box>
 
-                {selectedVault?.isActive && (
+                {_selectedVault?.isActive && (
                   <SectionWrap>
                     <Box gap="small">
                       <InfoBite
@@ -276,13 +275,13 @@ const VaultPosition = () => {
                       />
                       <InfoBite
                         label="Vault debt + interest"
-                        value={`${cleanValue(selectedVault?.art_, vaultBase?.digitFormat!)} ${vaultBase?.symbol}`}
+                        value={`${cleanValue(_selectedVault?.art_, vaultBase?.digitFormat!)} ${vaultBase?.symbol}`}
                         icon={<FiTrendingUp />}
                         loading={vaultsLoading}
                       />
                       <InfoBite
                         label="Collateral posted"
-                        value={`${cleanValue(selectedVault?.ink_, vaultIlk?.decimals!)} ${
+                        value={`${cleanValue(_selectedVault?.ink_, vaultIlk?.decimals!)} ${
                           vaultIlk?.symbol
                         } (${collateralizationPercent} %)`}
                         icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
@@ -296,7 +295,7 @@ const VaultPosition = () => {
                     Vault is in danger of liquidation. Minimum collateralization needed is {minCollatRatioPct}%
                   </Text>
                 )}
-                {!selectedVault?.isActive && !selectedVault?.isWitchOwner && (
+                {!_selectedVault?.isActive && !_selectedVault?.isWitchOwner && (
                   <SectionWrap>
                     <Box fill align="center" justify="center">
                       <Box direction="row" pad="medium" gap="small" align="center">
@@ -307,12 +306,12 @@ const VaultPosition = () => {
                       </Box>
 
                       <Box pad={{ horizontal: 'medium' }}>
-                        <Text size="xsmall">Vault {selectedVault?.id} has either been transfered or deleted.</Text>
+                        <Text size="xsmall">Vault {_selectedVault?.id} has either been transfered or deleted.</Text>
                       </Box>
                     </Box>
                   </SectionWrap>
                 )}
-                {selectedVault?.isWitchOwner && (
+                {_selectedVault?.isWitchOwner && (
                   <SectionWrap>
                     <Box fill align="center" justify="center">
                       <Box direction="row" pad="medium" gap="small" align="center">
@@ -345,7 +344,7 @@ const VaultPosition = () => {
                       valueKey="index"
                       value={actionActive}
                       onChange={({ option }) => setActionActive(option)}
-                      disabled={selectedVault?.isActive ? undefined : [0, 1, 2, 4, 5]}
+                      disabled={_selectedVault?.isActive ? undefined : [0, 1, 2, 4, 5]}
                     />
                   </Box>
                 </SectionWrap>
@@ -361,7 +360,7 @@ const VaultPosition = () => {
                             <>
                               {!repayInput && maxRepay_ && (
                                 <InputInfoWrap action={() => setRepayInput(maxRepay_)}>
-                                  {selectedVault.art.gt(maxRepay) ? (
+                                  {_selectedVault.art.gt(maxRepay) ? (
                                     <Text color="text" alignSelf="end" size="xsmall">
                                       Maximum repayable is {cleanValue(maxRepay_!, 2)} {vaultBase?.symbol!}{' '}
                                       {userBaseAvailable.lt(protocolBaseAvailable)
@@ -370,7 +369,7 @@ const VaultPosition = () => {
                                     </Text>
                                   ) : (
                                     <Text color="text" alignSelf="end" size="xsmall">
-                                      Max debt repayable ({selectedVault?.art_!} {vaultBase?.symbol!})
+                                      Max debt repayable ({_selectedVault?.art_!} {vaultBase?.symbol!})
                                     </Text>
                                   )}
                                 </InputInfoWrap>
@@ -621,7 +620,7 @@ const VaultPosition = () => {
                   </>
                 )}
 
-                {actionActive.index === 4 && <YieldHistory seriesOrVault={selectedVault!} view={['VAULT']} />}
+                {actionActive.index === 4 && <YieldHistory seriesOrVault={_selectedVault!} view={['VAULT']} />}
               </Box>
             </Box>
 
