@@ -11,6 +11,7 @@ import {
   ActionCodes,
   ActionType,
   IAsset,
+  IDummyVault,
   ISeries,
   IUserContext,
   IUserContextActions,

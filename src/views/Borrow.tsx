@@ -45,6 +45,7 @@ import DummyVaultItem from '../components/positionItems/DummyVaultItem';
 import DashMobileButton from '../components/buttons/DashMobileButton';
 import SeriesOrStrategySelectorModal from '../components/selectors/SeriesOrStrategySelectorModal';
 import YieldNavigation from '../components/YieldNavigation';
+import VaultItem from '../components/positionItems/VaultItem';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -53,7 +54,7 @@ const Borrow = () => {
   const {
     chainState: { contractMap },
   } = useContext(ChainContext);
-  const { userState } : { userState: IUserContextState } = useContext(UserContext) as IUserContext;
+  const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
   const { activeAccount, vaultMap, seriesMap, selectedSeries, selectedIlk, selectedBase } = userState;
 
   /* LOCAL STATE */
@@ -86,7 +87,7 @@ const Borrow = () => {
     minCollatRatioPct,
   } = useCollateralHelpers(borrowInput, collatInput, vaultToUse);
 
-  const { minDebt_, maxDebt_, borrowPossible, borrowEstimate_, aboveDebtLimit } = useBorrowHelpers(
+  const { minDebt_, maxDebt_, borrowPossible, borrowEstimate_ } = useBorrowHelpers(
     borrowInput,
     collatInput,
     vaultToUse,
@@ -479,7 +480,10 @@ const Borrow = () => {
               borrowProcess?.tx.status === TxState.SUCCESSFUL && (
                 <Box pad="large" gap="small">
                   <Text size="small"> View Vault: </Text>
-                  {newVaultId && <DummyVaultItem series={selectedSeries!} vaultId={newVaultId!} condensed />}
+                  {vaultToUse && <VaultItem vault={vaultToUse!} condensed index={1} />}
+                  {!vaultToUse && newVaultId && (
+                    <DummyVaultItem series={selectedSeries!} vaultId={newVaultId!} condensed />
+                  )}
                 </Box>
               )}
           </Box>
