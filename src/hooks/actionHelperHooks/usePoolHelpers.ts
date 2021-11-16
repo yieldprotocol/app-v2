@@ -17,7 +17,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   /* STATE FROM CONTEXT */
   const {
     settingsState: { slippageTolerance, diagnostics },
-  } = useContext(SettingsContext) ;
+  } = useContext(SettingsContext);
 
   const {
     userState: {
@@ -28,7 +28,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
       seriesMap,
       vaultMap,
       assetMap,
-      activeAccount
+      activeAccount,
     },
   } = useContext(UserContext);
 
@@ -37,7 +37,9 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
     selectedStrategyAddr ? strategy?.currentSeriesId : selectedSeries
   );
 
-  const strategyBase: IAsset | undefined = assetMap?.get(selectedStrategyAddr ? strategy?.baseId : selectedBase?.idToUse);
+  const strategyBase: IAsset | undefined = assetMap?.get(
+    selectedStrategyAddr ? strategy?.baseId : selectedBase?.idToUse
+  );
 
   /* LOCAL STATE */
 
