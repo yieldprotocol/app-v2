@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
 import { MAX_256, NON_PERMIT_ASSETS } from '../utils/constants';
-import { ApprovalType, ICallData, ISignData, LadleActions } from '../types';
+import { ApprovalType, ICallData, ISettingsContext, ISignData, LadleActions } from '../types';
 import { ERC20Permit__factory, Ladle } from '../contracts';
 import { useApprovalMethod } from './useApprovalMethod';
 import { SettingsContext } from '../contexts/SettingsContext';
@@ -19,8 +19,8 @@ const _getCallValue = (calls: ICallData[]): BigNumber => {
 /* Generic hook for chain transactions */
 export const useChain = () => {
   const {
-    settingsState: { approveMax },
-  } = useContext(SettingsContext);
+    settingsState: { approveMax, forceTransactions },
+  } = useContext(SettingsContext) as ISettingsContext;
 
   const {
     chainState: {
@@ -84,7 +84,8 @@ export const useChain = () => {
       gasEstFail = true;
     }
 
-    if (gasEstFail) {
+    /* handle if the tx if going to fail and transactions aren't forced */
+    if (gasEstFail && !forceTransactions) {
       return handleTxWillFail(txCode);
     }
 
