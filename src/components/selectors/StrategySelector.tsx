@@ -84,8 +84,8 @@ function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelector
   const handleSelect = (_strategy: IStrategy) => {
     if (_strategy.active) {
       diagnostics && console.log('Strategy selected: ', _strategy.address);
-      userActions.setSelectedStrategy(_strategy.address);
-      userActions.setSelectedSeries(_strategy.currentSeries?.id);
+      userActions.setSelectedStrategy(_strategy);
+      userActions.setSelectedSeries(_strategy.currentSeries);
     } else {
       toast.info('Strategy coming soon');
     }

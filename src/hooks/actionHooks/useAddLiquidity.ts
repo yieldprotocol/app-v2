@@ -47,7 +47,7 @@ export const useAddLiquidity = () => {
   ) => {
     const txCode = getTxCode(ActionCodes.ADD_LIQUIDITY, strategy.id);
     const series: ISeries = seriesMap.get(strategy.currentSeriesId);
-    const base: IAsset = assetMap.get(series.baseId);
+    const base: IAsset = assetMap.get(series?.baseId);
 
     const ladleAddress = contractMap.get('Ladle').address;
 
