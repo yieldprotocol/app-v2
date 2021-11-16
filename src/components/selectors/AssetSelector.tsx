@@ -30,7 +30,9 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
     settingsState: { diagnostics },
   } = useContext(SettingsContext);
 
-  const { userState, userActions } = useContext(UserContext);
+    const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
+    UserContext
+  ) as IUserContext;;
   const {
     assetMap,
     activeAccount,

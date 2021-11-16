@@ -27,7 +27,9 @@ export const useAddCollateral = () => {
     settingsState: { approveMax },
   } = useContext(SettingsContext) as ISettingsContext;
 
-  const { userState, userActions } = useContext(UserContext);
+    const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
+    UserContext
+  ) as IUserContext;;
   const { activeAccount: account, selectedBase, selectedIlk, selectedSeriesId, seriesMap, assetMap } = userState;
   const { updateAssets, updateVaults } = userActions;
 

@@ -43,7 +43,9 @@ const VaultPosition = () => {
   const { id: idFromUrl } = useParams<{ id: string }>();
 
   /* STATE FROM CONTEXT */
-  const { userState, userActions } = useContext(UserContext) as IUserContext;
+    const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
+    UserContext
+  ) as IUserContext; as IUserContext;
   const {
     activeAccount: account,
     assetMap,

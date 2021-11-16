@@ -37,7 +37,6 @@ const InsetBox = styled(Box)`
 
 const CardSkeleton = () => (
   <StyledBox
-    // border={series.id === selectedSeriesId}
     pad="xsmall"
     round="xsmall"
     elevation="xsmall"
@@ -65,7 +64,9 @@ function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelector
     settingsState: { diagnostics },
   } = useContext(SettingsContext);
 
-  const { userState, userActions } = useContext(UserContext);
+    const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
+    UserContext
+  ) as IUserContext;;
   const { selectedStrategyAddr, selectedBase, strategiesLoading, strategyMap, seriesMap } = userState;
 
   const [options, setOptions] = useState<IStrategy[]>([]);

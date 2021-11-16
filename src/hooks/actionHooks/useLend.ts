@@ -19,7 +19,9 @@ export const useLend = () => {
     chainState: { contractMap },
   } = useContext(ChainContext);
 
-  const { userState, userActions } = useContext(UserContext);
+    const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
+    UserContext
+  ) as IUserContext;;
   const { activeAccount: account, assetMap } = userState;
   const { updateSeries, updateAssets } = userActions;
 

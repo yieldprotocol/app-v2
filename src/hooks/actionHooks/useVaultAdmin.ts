@@ -9,7 +9,9 @@ import { useChain } from '../useChain';
 
 /* Generic hook for chain transactions */
 export const useVaultAdmin = () => {
-  const { userState, userActions } = useContext(UserContext);
+    const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
+    UserContext
+  ) as IUserContext;;
   const { activeAccount: account, seriesMap, assetMap } = userState;
   const { updateVaults } = userActions;
 

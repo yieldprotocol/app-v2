@@ -15,7 +15,9 @@ export const useBorrow = () => {
     settingsState: { slippageTolerance, approveMax },
   } = useContext(SettingsContext);
 
-  const { userState, userActions } = useContext(UserContext);
+    const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
+    UserContext
+  ) as IUserContext;;
   const { activeAccount: account, selectedIlk, selectedSeries, seriesMap, assetMap } = userState;
   const { updateVaults, updateAssets, updateSeries } = userActions;
 

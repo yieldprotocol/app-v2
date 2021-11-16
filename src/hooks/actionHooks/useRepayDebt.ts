@@ -16,7 +16,9 @@ export const useRepayDebt = () => {
     settingsState: { slippageTolerance, approveMax },
   } = useContext(SettingsContext);
   
-  const { userState, userActions } = useContext(UserContext);
+    const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
+    UserContext
+  ) as IUserContext;;
   const { activeAccount: account, seriesMap, assetMap } = userState;
   const { updateVaults, updateAssets } = userActions;
 

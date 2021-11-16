@@ -10,7 +10,9 @@ import ItemWrap from '../wraps/ItemWrap';
 function StrategyItem({ strategy, index, condensed }: { strategy: IStrategy; index: number; condensed?: boolean }) {
   const history = useHistory();
 
-  const { userState, userActions } = useContext(UserContext) as IUserContext;
+    const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
+    UserContext
+  ) as IUserContext; as IUserContext;
 
   const base = userState.assetMap.get(strategy.baseId) || null ;
   const series = userState.seriesMap.get(strategy.currentSeriesId) || null;

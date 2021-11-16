@@ -7,7 +7,9 @@ import { useChain } from '../useChain';
 
 /* Generic hook for chain transactions */
 export const useRollDebt = () => {
-  const { userState, userActions } = useContext(UserContext);
+    const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
+    UserContext
+  ) as IUserContext;;
   const { seriesMap, assetMap } = userState;
   const { updateVaults, updateAssets } = userActions;
 

@@ -184,7 +184,6 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     set the selected series to null. */
     if (
       _selectedSeries &&
-      // (filteredOpts.findIndex((_series: ISeries) => _series.id !== selectedSeriesId) < 0 ||
       _selectedSeries.baseId !== selectedBase?.idToUse // )
     )
       userActions.setSelectedSeries(null);
