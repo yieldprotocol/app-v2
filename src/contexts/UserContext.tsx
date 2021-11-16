@@ -219,8 +219,6 @@ const UserProvider = ({ children }: any) => {
         })
       );
 
-      console.log('PUBLIC ASSET DATA', _publicData);
-
       /* add in the dynamic asset data of the assets in the list */
       if (account) {
         try {
