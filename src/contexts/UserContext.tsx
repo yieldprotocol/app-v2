@@ -127,15 +127,15 @@ const UserProvider = ({ children }: any) => {
 
   /* LOCAL STATE */
   const [userState, updateState] = useReducer(userReducer, initState);
-  const [vaultFromUrl, setVaultFromUrl] = useState<string | null>(null);
+  const [vaultFromUrl, setVaultFromUrl] = useState<IVault | null>(null);
 
   /* HOOKS */
   const { pathname } = useLocation();
 
   /* If the url references a series/vault...set that one as active */
   useEffect(() => {
-    pathname && setVaultFromUrl(pathname.split('/')[2]);
-  }, [pathname]);
+    pathname && setVaultFromUrl(userState.vaultMap.get(pathname.split('/')[2]));
+  }, [pathname, userState.vaultMap]);
 
   /* internal function for getting the users vaults */
   const _getVaults = useCallback(
