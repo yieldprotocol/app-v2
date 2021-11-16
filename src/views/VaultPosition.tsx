@@ -52,6 +52,7 @@ const VaultPosition = () => {
     selectedVault: _selectedVault,
     vaultsLoading,
   } = userState;
+  const { setSelectedBase, setSelectedIlk, setSelectedSeries } = userActions;
 
   const selectedVault: IVault | undefined = _selectedVault || vaultMap.get(idFromUrl);
 
@@ -219,10 +220,10 @@ const VaultPosition = () => {
     const _base = assetMap.get(selectedVault?.baseId!) || null;
     const _ilk = assetMap.get(selectedVault?.ilkId!) || null;
 
-    selectedVault && userActions.setSelectedSeries(_series);
-    selectedVault && userActions.setSelectedBase(_base);
-    selectedVault && userActions.setSelectedIlk(_ilk);
-  }, [vaultMap, selectedVault, seriesMap, assetMap ]);
+    selectedVault && setSelectedSeries(_series);
+    selectedVault && setSelectedBase(_base);
+    selectedVault && setSelectedIlk(_ilk);
+  }, [vaultMap, selectedVault, seriesMap, assetMap]);
 
   useEffect(() => {
     if (selectedVault && account !== selectedVault?.owner) history.push(prevLoc);

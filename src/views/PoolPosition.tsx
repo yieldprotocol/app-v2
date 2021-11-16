@@ -36,7 +36,10 @@ const PoolPosition = () => {
   const { id: idFromUrl } = useParams<{ id: string }>();
 
   /* STATE FROM CONTEXT */
-  const { userState, userActions } = useContext(UserContext) as IUserContext;
+  const {
+    userState,
+    userActions: { setSelectedStrategy },
+  } = useContext(UserContext) as IUserContext;
   const { activeAccount, selectedStrategy, strategyMap, assetMap, seriesLoading } = userState;
 
   // const selectedSeries = seriesMap.get(selectedSeriesId || idFromUrl);
@@ -60,13 +63,8 @@ const PoolPosition = () => {
 
   /* HOOK FNS */
   const removeLiquidity = useRemoveLiquidity();
-  const {
-    matchingVault,
-    maxRemoveWithVault,
-    maxRemoveNoVault,
-    removeBaseReceived_,
-    partialRemoveRequired,
-  } = usePoolHelpers(removeInput, true);
+  const { matchingVault, maxRemoveWithVault, maxRemoveNoVault, removeBaseReceived_, partialRemoveRequired } =
+    usePoolHelpers(removeInput, true);
 
   /* TX data */
   const { txProcess: removeProcess, resetProcess: resetRemoveProcess } = useProcess(
@@ -114,9 +112,9 @@ const PoolPosition = () => {
 
   useEffect(() => {
     const _strategy = strategyMap.get(idFromUrl) || null;
-    idFromUrl && userActions.setSelectedStrategy(_strategy);
+    idFromUrl && setSelectedStrategy(_strategy);
     // !selectedStrategyAddr && idFromUrl && userActions.setSelectedStrategy(idFromUrl);
-  }, [idFromUrl]);
+  }, [idFromUrl, setSelectedStrategy]);
 
   /* watch process timeouts */
   useEffect(() => {
