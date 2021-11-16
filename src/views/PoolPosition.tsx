@@ -113,10 +113,10 @@ const PoolPosition = () => {
   }, [activeAccount, forceDisclaimerChecked, removeError, removeInput]);
 
   useEffect(() => {
-    const _strategy = strategyMap.get( idFromUrl) || null;
+    const _strategy = strategyMap.get(idFromUrl) || null;
     idFromUrl && userActions.setSelectedStrategy(_strategy);
     // !selectedStrategyAddr && idFromUrl && userActions.setSelectedStrategy(idFromUrl);
-  }, [idFromUrl, userActions.setSelectedStrategy]);
+  }, [idFromUrl]);
 
   /* watch process timeouts */
   useEffect(() => {
