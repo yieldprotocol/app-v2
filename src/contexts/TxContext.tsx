@@ -1,7 +1,9 @@
-import React, { useReducer, useEffect, useState } from 'react';
+import React, { useReducer, useEffect, useState, useContext } from 'react';
 import { ethers, ContractTransaction } from 'ethers';
 import { toast } from 'react-toastify';
 import { ApprovalType, ISignData, TxState, ProcessStage, IYieldProcess } from '../types';
+import { analyticsLogEvent } from '../utils/appUtils';
+import { UserContext } from './UserContext';
 
 const TxContext = React.createContext<any>({});
 
@@ -102,6 +104,9 @@ const TxProvider = ({ children }: any) => {
     });
   };
 
+  const { userState } = useContext(UserContext);
+  const { activeAccount: account } = userState;
+
   const _resetProcess = (txCode: string) => updateState({ type: 'resetProcess', payload: txCode });
 
   const _startProcessTimer = async (txCode: string) => {
@@ -136,6 +141,8 @@ const TxProvider = ({ children }: any) => {
     const _tx = { tx, txCode, receipt: undefined, status: TxState.FAILED };
     updateState({ type: 'transactions', payload: _tx });
     console.log('txHash: ', tx?.hash);
+
+    analyticsLogEvent('TX_FAILED', { user: account?.substring(2), hash: tx?.hash.substring(2), txCode });
   };
 
   const handleTxWillFail = (txCode?: string | undefined) => {
@@ -147,6 +154,8 @@ const TxProvider = ({ children }: any) => {
       txCode && updateState({ type: 'resetProcess', payload: txCode });
     } else {
       updateState({ type: 'txWillFail', payload: false });
+
+      analyticsLogEvent('TX_WILL_FAIL', { user: account?.substring(2), txCode });
     }
   };
 
@@ -174,6 +183,9 @@ const TxProvider = ({ children }: any) => {
       } catch (e) {
         /* this case is when user rejects tx OR wallet rejects tx */
         _handleTxRejection(e, txCode);
+
+        analyticsLogEvent('TX_REJECTED', { user: account?.substring(2), txCode });
+
         return null;
       }
 
@@ -190,6 +202,8 @@ const TxProvider = ({ children }: any) => {
         /* transaction completion : success OR failure */
         // txSuccess ? toast.success('Transaction successfull') : toast.error('Transaction failed :| ');
         _setProcessStage(txCode, ProcessStage.PROCESS_COMPLETE);
+
+        analyticsLogEvent('TX_COMPLETE', { user: account?.substring(2), txCode });
         return res;
       }
       /* this is the case when the tx was a fallback from a permit/allowance tx */
@@ -198,6 +212,9 @@ const TxProvider = ({ children }: any) => {
     } catch (e: any) {
       /* catch tx errors */
       _handleTxError('Transaction failed', e.transaction, txCode);
+
+      analyticsLogEvent('TX_ERROR', { user: account?.substring(2), txCode });
+
       return null;
     }
   };

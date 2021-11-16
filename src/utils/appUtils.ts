@@ -237,3 +237,16 @@ export const formatStrategyName = (name: string) => {
 };
 
 export const getStrategySymbol = (name: string) => name.slice(2).slice(0, -2);
+
+
+/* google analytics log event */
+export const analyticsLogEvent = (eventName: string, eventParams: any ) => {
+  if (eventName) {
+    try {
+    window?.gtag('event', eventName, eventParams);
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.log(e);
+    }
+  }
+};
