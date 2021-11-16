@@ -34,7 +34,7 @@ function ModalWrap({ children, series }: IModalWrap) {
     <Keyboard onEsc={() => history.goBack()}>
       <Layer
         full
-        background={`linear-gradient( 45deg ,  ${_series.startColor.toString()} , ${_series.endColor
+        background={`linear-gradient( 45deg ,  ${_series?.startColor.toString()} , ${_series?.endColor
           ?.toString()
           .concat('80')} )`}
         animation="fadeIn"
@@ -52,12 +52,12 @@ function ModalWrap({ children, series }: IModalWrap) {
                   <ItemWrap action={() => history.goBack()} index={1}>
                     <Box direction="row" align="center">
                       <Box pad="xsmall">
-                        <Text size="small" color={_series.startColor || 'black'}>
+                        <Text size="small" color={_series?.startColor || 'black'}>
                           Close{' '}
                         </Text>
                       </Box>
                       <Box pad="xsmall">
-                        <FiLogOut color={_series.startColor || 'black'} />
+                        <FiLogOut color={_series?.startColor || 'black'} />
                       </Box>
                     </Box>
                   </ItemWrap>

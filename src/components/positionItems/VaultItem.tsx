@@ -36,6 +36,9 @@ function VaultItem({
   const { setSelectedVault } = userActions;
 
   const handleSelect = (_vault: IVault) => {
+
+    console.log(_vault);
+    
     setSelectedVault(_vault);
     history.push(`/vaultposition/${_vault.id}`);
   };
@@ -56,7 +59,7 @@ function VaultItem({
           {vault.isActive ? (
             <Box direction="column">
               <Text weight={450} size="xsmall">
-                {seriesMap.get(vault.seriesId!)?.displayName}
+                {seriesMap.get(vault.seriesId)?.displayName}
               </Text>
               <Text weight={450} size="xsmall">
                 Debt: {vault.art_}
