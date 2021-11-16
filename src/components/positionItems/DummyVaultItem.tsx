@@ -10,7 +10,6 @@ import PositionAvatar from '../PositionAvatar';
 import ItemWrap from '../wraps/ItemWrap';
 import { abbreviateHash } from '../../utils/appUtils';
 
-
 function DummyVaultItem({
   series,
   vaultId,
@@ -28,10 +27,7 @@ function DummyVaultItem({
   const { selectedSeries, selectedBase, selectedIlk } = userState;
   const { setSelectedVault } = userActions;
 
-
-
   const handleSelect = (_vaultId: string) => {
-
     const dummyVault: IVault = {
       id: _vaultId,
       seriesId: selectedSeries?.id!,
@@ -49,7 +45,7 @@ function DummyVaultItem({
       minDebt: ethers.BigNumber.from(0),
       maxDebt: ethers.BigNumber.from(0),
     };
-    setSelectedVault(dummyVault);
+    // setSelectedVault(dummyVault);
     history.push(`/vaultposition/${_vaultId}`);
   };
 
