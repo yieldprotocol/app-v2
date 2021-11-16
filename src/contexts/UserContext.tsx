@@ -470,7 +470,7 @@ const UserProvider = ({ children }: any) => {
 
       /* update state */
       updateState({ type: 'vaultMap', payload: combinedVaultMap });
-      vaultFromUrl && updateState({ type: 'selectedVaultId', payload: vaultFromUrl });
+      vaultFromUrl && updateState({ type: 'selectedVault', payload: vaultFromUrl });
       updateState({ type: 'vaultsLoading', payload: false });
 
       console.log('VAULTS: ', combinedVaultMap);
