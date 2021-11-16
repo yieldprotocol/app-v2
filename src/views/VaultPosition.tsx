@@ -222,7 +222,7 @@ const VaultPosition = () => {
     selectedVault && userActions.setSelectedSeries(_series);
     selectedVault && userActions.setSelectedBase(_base);
     selectedVault && userActions.setSelectedIlk(_ilk);
-  }, [vaultMap, selectedVault, seriesMap, assetMap, userActions]);
+  }, [vaultMap, selectedVault, seriesMap, assetMap ]);
 
   useEffect(() => {
     if (selectedVault && account !== selectedVault?.owner) history.push(prevLoc);
