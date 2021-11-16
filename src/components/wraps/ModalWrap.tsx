@@ -7,7 +7,7 @@ import MainViewWrap from './MainViewWrap';
 import PanelWrap from './PanelWrap';
 
 import { UserContext } from '../../contexts/UserContext';
-import { ISeries } from '../../types';
+import { ISeries, IUserContextState } from '../../types';
 import YieldHeader from '../YieldHeader';
 import ItemWrap from './ItemWrap';
 import YieldMobileMenu from '../YieldMobileMenu';
@@ -23,9 +23,9 @@ function ModalWrap({ children, series }: IModalWrap) {
 
   const {
     userState: { selectedSeries, seriesMap },
-  } = useContext(UserContext);
+  }: { userState: IUserContextState } = useContext(UserContext);
 
-  const _series = series || seriesMap.get(selectedSeries.id);
+  const _series: ISeries = series! || seriesMap.get(selectedSeries?.id!);
 
   /* LOCAL STATE */
   const [menuLayerOpen, setMenuLayerOpen] = useState<boolean>(false);
@@ -34,7 +34,7 @@ function ModalWrap({ children, series }: IModalWrap) {
     <Keyboard onEsc={() => history.goBack()}>
       <Layer
         full
-        background={`linear-gradient( 45deg ,  ${_series?.startColor?.toString()} , ${_series?.endColor
+        background={`linear-gradient( 45deg ,  ${_series.startColor.toString()} , ${_series.endColor
           ?.toString()
           .concat('80')} )`}
         animation="fadeIn"
@@ -52,12 +52,12 @@ function ModalWrap({ children, series }: IModalWrap) {
                   <ItemWrap action={() => history.goBack()} index={1}>
                     <Box direction="row" align="center">
                       <Box pad="xsmall">
-                        <Text size="small" color={_series?.startColor || 'black'}>
+                        <Text size="small" color={_series.startColor || 'black'}>
                           Close{' '}
                         </Text>
                       </Box>
                       <Box pad="xsmall">
-                        <FiLogOut color={_series?.startColor || 'black'} />
+                        <FiLogOut color={_series.startColor || 'black'} />
                       </Box>
                     </Box>
                   </ItemWrap>
@@ -66,7 +66,7 @@ function ModalWrap({ children, series }: IModalWrap) {
             </Header>
 
             <Box flex={!mobile} overflow="auto">
-              <MainViewWrap >
+              <MainViewWrap>
                 <PanelWrap>
                   <Box />
                 </PanelWrap>

@@ -62,12 +62,6 @@ export interface IUserContextActions {
   setSelectedVault: (vault: IVault | IDummyVault | null) => void;
   setSelectedStrategy: (strategy: IStrategy | null) => void;
 
-  // setSelectedSeriesId: (seriesId: string) => void;
-  // setSelectedIlkId: (ilkId: string | null) => void;
-  // setSelectedBaseId: (baseId: string | null) => void;
-  // setSelectedVaultId: (vaultId: string | null) => void;
-  // setSelectedStrategyId: (strategyAddr: string | null) => void;
-
 }
 
 export interface ISettingsContext {
