@@ -10,7 +10,7 @@ const initState: ISettingsContextState = {
   approveMax: (JSON.parse(localStorage.getItem('approveMax')!) as boolean) || (false as boolean),
 
   slippageTolerance: (JSON.parse(localStorage.getItem('slippageTolerance')!) as number) || (0.005 as number),
-  diagnostics: (JSON.parse(localStorage.getItem('diagnostics')!) as boolean) || (false as boolean),
+  diagnostics: (JSON.parse(localStorage.getItem('diagnostics')!) as boolean) || (true as boolean),
 
   darkMode: (JSON.parse(localStorage.getItem('darkMode')!) as boolean) || (false as boolean),
   autoTheme: (JSON.parse(localStorage.getItem('autoTheme')!) as boolean) || (false as boolean),

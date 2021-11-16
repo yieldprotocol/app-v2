@@ -44,10 +44,10 @@ export const useCollateralHelpers = (
 
   /* update the prices if anything changes */
   useEffect(() => {
+
     if (selectedBase && selectedIlk && priceMap.get(selectedIlk.idToUse)?.has(selectedBase.idToUse)) {
       const _price = priceMap.get(selectedIlk.idToUse).get(selectedBase.idToUse); // get the price
-      console.log('price: ', _price[0], 'decimals:', _price[3]);
-      setOraclePrice(decimalNToDecimal18(_price[0], _price[2])); // make sure the price is 18decimals based
+      setOraclePrice(decimalNToDecimal18(_price, selectedBase.decimals)); // make sure the price is 18decimals based
     } else {
       (async () => {
         if (selectedBase && selectedIlk) {
@@ -57,7 +57,7 @@ export const useCollateralHelpers = (
         }
       })();
     }
-  }, [priceMap, updatePrice, selectedBase?.decimals, selectedIlk?.decimals]);
+  }, [priceMap, updatePrice, selectedBase, selectedIlk]);
 
   /* CHECK collateral selection and sets the max available collateral a user can add */
   useEffect(() => {
