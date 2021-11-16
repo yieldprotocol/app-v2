@@ -243,7 +243,6 @@ const UserProvider = ({ children }: any) => {
       /* get the previous version (Map) of the vaultMap and update it */
       const newAssetMap = new Map(
         _combinedData
-          .filter((asset: IAssetRoot) => asset.showToken)
           .reduce((acc: any, item: any) => {
             const _map = acc;
             _map.set(item.id, item);

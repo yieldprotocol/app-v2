@@ -76,16 +76,7 @@ const AprText = ({
   const [limitHit, setLimitHit] = useState<boolean>(false);
 
   const baseIn = maxBaseIn(series.baseReserves, series.fyTokenReserves, series.getTimeTillMaturity(), series.decimals);
-
-  const baseOut = maxBaseOut(
-    series.baseReserves,
-    series.fyTokenReserves,
-    series.getTimeTillMaturity(),
-    series.decimals
-  );
-
-  diagnostics && console.log(series.id, ' maxbaseIn', baseIn.toString());
-  diagnostics && console.log(series.id, ' maxbaseOut', baseOut.toString());
+  // diagnostics && console.log(series.id, ' maxbaseIn', baseIn.toString());
 
   useEffect(() => {
     if (!series?.seriesIsMature && _inputValue)
@@ -96,7 +87,6 @@ const AprText = ({
     _inputValue,
     actionType,
     baseIn,
-    baseOut,
     series.baseReserves,
     series?.decimals,
     series?.seriesIsMature,

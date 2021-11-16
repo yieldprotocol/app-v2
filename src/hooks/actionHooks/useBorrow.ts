@@ -31,11 +31,10 @@ export const useBorrow = () => {
 
     /* Set the series and ilk based on the vault that has been selected or if it's a new vault, get from the globally selected SeriesId */
     const series: ISeries = vault ? seriesMap.get(vault.seriesId) : selectedSeries;
-
     const base = assetMap.get(series.baseId);
-    const ilk = vault ? assetMap.get(vault.ilkId) : selectedIlk;
+    const ilk = vault ? assetMap.get(vault.ilkId) : assetMap.get(selectedIlk.idToUse); // note: we use the wrapped version if required
 
-    console.log( ilk )
+    // const ilkToUse = assetMap.get(selectedIlk.idToUse);
 
     /* parse inputs  ( clean down to base/ilk decimals so that there is never an underlow)  */
     const cleanInput = cleanValue(input, base.decimals);
@@ -58,13 +57,14 @@ export const useBorrow = () => {
       ? (await ilk.getAllowance(account, ilk.joinAddress)).gt(_collInput)
       : false;
 
+    const wrapping: ICallData[] = await wrapAssetToJoin(_collInput, selectedIlk, txCode); // note: selected ilk used here, not wrapped version
+
     /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
     const permits: ICallData[] = await sign(
       [
         {
           target: ilk,
           spender: ilk.joinAddress,
-          message: `Allow Yield Protocol to move ${ilk.symbol}`,
           amount: _collInput,
           ignoreIf:
             alreadyApproved === true ||
@@ -75,15 +75,14 @@ export const useBorrow = () => {
       txCode
     );
 
-    const wrapping: ICallData[] = await wrapAssetToJoin(_input, ilk, txCode);
-
     /* Collate all the calls required for the process (including depositing ETH, signing permits, and building vault if needed) */
     const calls: ICallData[] = [
-      /* Include all the signatures gathered, if required */
-      ...permits,
 
       /* handle wrapped token deposit, if required */
       ...wrapping,
+
+      /* Include all the signatures gathered, if required */
+      ...permits,
 
       /* handle ETH deposit, if required */
       ...addEth(_collInput, series),

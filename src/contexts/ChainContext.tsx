@@ -189,10 +189,10 @@ const ChainProvider = ({ children }: any) => {
       const _chargeAsset = (asset: any) => {
         /* attach either contract, (or contract of the wrappedToken ) */
         let baseContract = contracts.ERC20Permit__factory.connect(asset.address, fallbackProvider);
-        // if (asset.useWrappedVersion) {
-        //   baseContract = contracts.ERC20Permit__factory.connect(asset.wrappedTokenAddress, fallbackProvider);
-        // }
-        // const ERC20Permit = contracts.ERC20Permit__factory.connect(asset.address, fallbackProvider);
+        if (asset.useWrappedVersion) {
+          baseContract = contracts.ERC20Permit__factory.connect(asset.wrappedTokenAddress, fallbackProvider);
+        }
+        const ERC20Permit = contracts.ERC20Permit__factory.connect(asset.address, fallbackProvider);
 
         return {
           ...asset,
@@ -205,8 +205,9 @@ const ChainProvider = ({ children }: any) => {
             /* if eth based get provider balance, if token based, get toknen balance (NOT of wrappedToken ) */
             ETH_BASED_ASSETS.includes(asset.idToUse)
               ? fallbackProvider?.getBalance(acc)
-              : baseContract.balanceOf(acc),
+              : ERC20Permit.balanceOf(acc),
           getAllowance: async (acc: string, spender: string) => baseContract.allowance(acc, spender),
+          // getAllowance: async (acc: string, spender: string) => ERC20Permit.allowance(acc, spender),
         };
       };
 

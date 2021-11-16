@@ -18,7 +18,7 @@ const _getCallValue = (calls: ICallData[]): BigNumber => {
 /* Generic hook for chain transactions */
 export const useChain = () => {
   const {
-    settingsState: { approveMax, forceTransactions },
+    settingsState: { approveMax, forceTransactions, diagnostics },
   } = useContext(SettingsContext) as ISettingsContext;
 
   const {
@@ -125,13 +125,15 @@ export const useChain = () => {
     const signedList = await Promise.all(
       _requestedSigs.map(async (reqSig: ISignData) => {
 
-        console.log('SignTarget',  reqSig.target);
-
         const _spender = getSpender(reqSig.spender);
         /* set as MAX if apporve max is selected */
         const _amount = approveMax ? MAX_256 : reqSig.amount?.toString();
         /* get an ERC20 contract instance. This is only used in the case of fallback tx (when signing is not available) */
         const tokenContract = ERC20Permit__factory.connect(reqSig.target.address, signer) as any;
+
+        diagnostics && console.log('Sign: Target',  reqSig.target.symbol);
+        diagnostics && console.log('Sign: Spender',  _spender);
+        diagnostics && console.log('Sign: Amount',  _amount?.toString());
 
         /* Request the signature if using DaiType permit style */
         if (reqSig.target.symbol === 'DAI') {
