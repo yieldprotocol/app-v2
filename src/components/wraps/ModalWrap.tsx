@@ -22,10 +22,10 @@ function ModalWrap({ children, series }: IModalWrap) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const {
-    userState: { selectedSeriesId, seriesMap },
+    userState: { selectedSeries, seriesMap },
   } = useContext(UserContext);
 
-  const _series = series || seriesMap.get(selectedSeriesId);
+  const _series = series || seriesMap.get(selectedSeries.id);
 
   /* LOCAL STATE */
   const [menuLayerOpen, setMenuLayerOpen] = useState<boolean>(false);
