@@ -30,7 +30,7 @@ export const useVaultAdmin = () => {
     const ladleAddress = contractMap.get('Ladle').address;
 
     const alreadyApproved = approveMax
-    ? (await base.baseContract.allowance(account, ladleAddress) ).gt(vault.art)
+    ? (await base.getAllowance(account, ladleAddress) ).gt(vault.art)
     : false;
 
     const permits: ICallData[] = await sign(

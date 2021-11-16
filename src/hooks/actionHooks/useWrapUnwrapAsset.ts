@@ -1,9 +1,6 @@
-import { BigNumber, ethers, Contract } from 'ethers';
+import { BigNumber, Contract } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
-import { SettingsContext } from '../../contexts/SettingsContext';
-import { UserContext } from '../../contexts/UserContext';
-import { LidoWrapHandler } from '../../contracts';
 
 import {
   ICallData,
@@ -11,6 +8,7 @@ import {
   IAsset,
   RoutedActions,
 } from '../../types';
+import { MAX_256 } from '../../utils/constants';
 
 import { useChain } from '../useChain';
 
@@ -27,12 +25,12 @@ export const useWrapUnwrapAsset = () => {
   const { sign } = useChain();
 
   const wrapHandlerAbi = ['function wrap(address to)', 'function unwrap(address to)'];
-
+  
   const wrapAssetToJoin = async (value: BigNumber, asset: IAsset, txCode: string) : Promise<ICallData[]> => {
     const ladleAddress = contractMap.get('Ladle').address;
     
-    if (asset.useWrappedVersion) {
-      const wrappedAsset = assetRootMap.get(asset.symbol);
+    if (asset.useWrappedVersion) { 
+      const wrappedAsset = assetRootMap.get(asset.idToUse);
       const wraphandlerContract: Contract = new Contract(
         asset.wrapHandlerAddress,
         wrapHandlerAbi,
@@ -45,7 +43,7 @@ export const useWrapUnwrapAsset = () => {
           {
             target: asset,
             spender: ladleAddress,
-            amount: value,
+            amount: MAX_256,
             ignoreIf: false,
           },
         ],
@@ -54,21 +52,21 @@ export const useWrapUnwrapAsset = () => {
       // console.log('here');
       return [
         ...permits,
-        {
-          operation: LadleActions.Fn.TRANSFER,
-          args: [asset.address, asset.wrapHandlerAddress, value] as LadleActions.Args.TRANSFER,
-          ignoreIf: false,
-        },
-        {
-          operation: LadleActions.Fn.ROUTE,
-          args: [wrappedAsset.joinAddress] as RoutedActions.Args.WRAP,
-          fnName: RoutedActions.Fn.WRAP,
-          targetContract: wraphandlerContract,
-          ignoreIf: false,
-        },
+        // {
+        //   operation: LadleActions.Fn.TRANSFER,
+        //   args: [asset.address, asset.wrapHandlerAddress, value] as LadleActions.Args.TRANSFER,
+        //   ignoreIf: false,
+        // },
+        // {
+        //   operation: LadleActions.Fn.ROUTE,
+        //   args: [wrappedAsset.joinAddress] as RoutedActions.Args.WRAP,
+        //   fnName: RoutedActions.Fn.WRAP,
+        //   targetContract: wraphandlerContract,
+        //   ignoreIf: false,
+        // },
       ];
     }
-    /* else return empty array */
+    /* else  if not a wrapped asset simply return empty array */
     return [];
   };
 

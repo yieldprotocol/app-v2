@@ -1,7 +1,6 @@
 import { BigNumber, Contract, ethers, PayableOverrides } from 'ethers';
 import { signDaiPermit, signERC2612Permit } from 'eth-permit';
 import { useContext } from 'react';
-import { toast } from 'react-toastify';
 import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
 import { MAX_256, NON_PERMIT_ASSETS } from '../utils/constants';
@@ -79,6 +78,8 @@ export const useChain = () => {
       gasEst = await _contract.estimateGas.batch(encodedCalls, { value: batchValue } as PayableOverrides);
       console.log('Auto gas estimate:', gasEst.mul(120).div(100).toString());
     } catch (e) {
+
+      gasEst= BigNumber.from(500000);
       console.log('Failed to get gas estimate', e);
       // toast.warning('It appears the transaction will likely fail. Proceed with caution...');
       gasEstFail = true;
@@ -123,6 +124,9 @@ export const useChain = () => {
 
     const signedList = await Promise.all(
       _requestedSigs.map(async (reqSig: ISignData) => {
+
+        console.log('SignTarget',  reqSig.target);
+
         const _spender = getSpender(reqSig.spender);
         /* set as MAX if apporve max is selected */
         const _amount = approveMax ? MAX_256 : reqSig.amount?.toString();

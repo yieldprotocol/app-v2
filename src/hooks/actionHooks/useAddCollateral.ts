@@ -75,7 +75,7 @@ export const useAddCollateral = () => {
 
     /* if approveMAx, check if signature is required */
     const alreadyApproved = approveMax
-      ? (await ilk.baseContract.allowance(account, ilk.joinAddress)).gt(_input)
+      ? (await ilk.getAllowance(account, ilk.joinAddress)).gt(_input)
       : false;
 
     /* Gather all the required signatures - sign() processes them and returns them as ICallData types */

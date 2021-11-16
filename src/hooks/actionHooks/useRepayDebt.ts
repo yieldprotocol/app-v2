@@ -68,7 +68,7 @@ export const useRepayDebt = () => {
     const isEthBased = ETH_BASED_ASSETS.includes(vault.ilkId);
 
     const alreadyApproved = approveMax
-    ? (await base.baseContract.allowance(account, series.seriesIsMature ? base.joinAddress : ladleAddress) ).gt(_input)
+    ? (await base.getAllowance(account, series.seriesIsMature ? base.joinAddress : ladleAddress) ).gt(_input)
     : false;
 
     const permits: ICallData[] = await sign(

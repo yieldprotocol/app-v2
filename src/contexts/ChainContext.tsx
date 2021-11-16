@@ -189,10 +189,10 @@ const ChainProvider = ({ children }: any) => {
       const _chargeAsset = (asset: any) => {
         /* attach either contract, (or contract of the wrappedToken ) */
         let baseContract = contracts.ERC20Permit__factory.connect(asset.address, fallbackProvider);
-        if (asset.useWrappedVersion) {
-          baseContract = contracts.ERC20Permit__factory.connect(asset.wrappedTokenAddress, fallbackProvider);
-        }
-        const ERC20Permit = contracts.ERC20Permit__factory.connect(asset.address, fallbackProvider);
+        // if (asset.useWrappedVersion) {
+        //   baseContract = contracts.ERC20Permit__factory.connect(asset.wrappedTokenAddress, fallbackProvider);
+        // }
+        // const ERC20Permit = contracts.ERC20Permit__factory.connect(asset.address, fallbackProvider);
 
         return {
           ...asset,
@@ -205,7 +205,7 @@ const ChainProvider = ({ children }: any) => {
             /* if eth based get provider balance, if token based, get toknen balance (NOT of wrappedToken ) */
             ETH_BASED_ASSETS.includes(asset.idToUse)
               ? fallbackProvider?.getBalance(acc)
-              : ERC20Permit.balanceOf(acc),
+              : baseContract.balanceOf(acc),
           getAllowance: async (acc: string, spender: string) => baseContract.allowance(acc, spender),
         };
       };
@@ -341,7 +341,6 @@ const ChainProvider = ({ children }: any) => {
                 const poolAddress: string = poolMap.get(id) as string;
                 const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackProvider);
                 const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackProvider);
-                // const baseContract = contracts.ERC20__factory.connect(fyToken, fallbackLibrary);
                 const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol] = await Promise.all([
                   fyTokenContract.name(),
                   fyTokenContract.symbol(),

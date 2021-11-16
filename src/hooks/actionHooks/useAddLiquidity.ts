@@ -82,7 +82,7 @@ export const useAddLiquidity = () => {
     const _baseToPoolWithSlippage = BigNumber.from(calculateSlippage(_baseToPool, slippageTolerance));
 
     /* if approveMAx, check if signature is still required */
-    const alreadyApproved = approveMax ? (await base.baseContract.allowance(account, ladleAddress)).gt(_input) : false;
+    const alreadyApproved = approveMax ? (await base.getAllowance(account, ladleAddress)).gt(_input) : false;
 
     /* DIAGNOSITCS */
     diagnostics &&

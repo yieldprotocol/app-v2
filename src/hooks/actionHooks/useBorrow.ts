@@ -55,7 +55,7 @@ export const useBorrow = () => {
 
     /* if approveMAx, check if signature is required */
     const alreadyApproved = approveMax
-      ? (await ilk.baseContract.allowance(account, ilk.joinAddress)).gt(_collInput)
+      ? (await ilk.getAllowance(account, ilk.joinAddress)).gt(_collInput)
       : false;
 
     /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
