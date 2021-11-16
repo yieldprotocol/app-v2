@@ -3,15 +3,26 @@ import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, IVault, ActionCodes, LadleActions, ISettingsContext, IUserContext, IUserContextActions, IUserContextState, IAsset, ISeries } from '../../types';
+import {
+  ICallData,
+  IVault,
+  ActionCodes,
+  LadleActions,
+  ISettingsContext,
+  IUserContext,
+  IUserContextActions,
+  IUserContextState,
+  IAsset,
+  ISeries,
+} from '../../types';
 import { getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 
 /* Generic hook for chain transactions */
 export const useVaultAdmin = () => {
-    const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
+  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
-  ) as IUserContext;;
+  ) as IUserContext;
   const { activeAccount: account, seriesMap, assetMap } = userState;
   const { updateVaults } = userActions;
 
@@ -27,13 +38,11 @@ export const useVaultAdmin = () => {
 
   const transfer = async (vault: IVault, to: string) => {
     const txCode = getTxCode(ActionCodes.TRANSFER_VAULT, vault.id);
-    const series : ISeries = seriesMap.get(vault.seriesId)!;
-    const base :IAsset = assetMap.get(vault.baseId)!;
+    const series: ISeries = seriesMap.get(vault.seriesId)!;
+    const base: IAsset = assetMap.get(vault.baseId)!;
     const ladleAddress = contractMap.get('Ladle').address;
 
-    const alreadyApproved = approveMax
-    ? (await base.getAllowance(account!, ladleAddress) ).gt(vault.art)
-    : false;
+    const alreadyApproved = approveMax ? (await base.getAllowance(account!, ladleAddress)).gt(vault.art) : false;
 
     const permits: ICallData[] = await sign(
       [
@@ -41,7 +50,7 @@ export const useVaultAdmin = () => {
           target: base,
           spender: 'LADLE',
           message: 'Signing Dai Approval',
-          ignoreIf: series.seriesIsMature || alreadyApproved===true,
+          ignoreIf: series.seriesIsMature || alreadyApproved === true,
         },
       ],
       txCode
