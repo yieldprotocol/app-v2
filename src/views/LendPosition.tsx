@@ -135,7 +135,7 @@ const LendPosition = () => {
   useEffect(() => {
     const _series = seriesMap.get(idFromUrl) || null;
     idFromUrl && userActions.setSelectedSeries(_series);
-  }, [idFromUrl, seriesMap, userActions]);
+  }, [idFromUrl, seriesMap ]);
 
   /* INTERNAL COMPONENTS */
   const CompletedTx = (props: any) => (
