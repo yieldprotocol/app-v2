@@ -146,7 +146,7 @@ const TxProvider = ({ children }: any) => {
     updateState({ type: 'transactions', payload: _tx });
     console.log('txHash: ', tx?.hash);
 
-    analyticsLogEvent('TX_FAILED', { user: account?.substring(2), hash: tx?.hash.substring(2), txCode });
+    chainId === 1 && analyticsLogEvent('TX_FAILED', { txCode });
   };
 
   const handleTxWillFail = (txCode?: string | undefined) => {
@@ -158,8 +158,7 @@ const TxProvider = ({ children }: any) => {
       txCode && updateState({ type: 'resetProcess', payload: txCode });
     } else {
       updateState({ type: 'txWillFail', payload: false });
-
-      analyticsLogEvent('TX_WILL_FAIL', { user: account?.substring(2), txCode });
+      chainId === 1 && analyticsLogEvent('TX_WILL_FAIL', { txCode });
     }
   };
 
@@ -187,9 +186,7 @@ const TxProvider = ({ children }: any) => {
       } catch (e) {
         /* this case is when user rejects tx OR wallet rejects tx */
         _handleTxRejection(e, txCode);
-
-        chainId === 1 && analyticsLogEvent('TX_REJECTED', { user: account?.substring(2), txCode });
-
+        chainId === 1 && analyticsLogEvent('TX_REJECTED', { txCode });
         return null;
       }
 
@@ -204,10 +201,8 @@ const TxProvider = ({ children }: any) => {
       /* if the handleTx is NOT a fallback tx (from signing) - then end the process */
       if (_isfallback === false) {
         /* transaction completion : success OR failure */
-        // txSuccess ? toast.success('Transaction successfull') : toast.error('Transaction failed :| ');
         _setProcessStage(txCode, ProcessStage.PROCESS_COMPLETE);
-
-        chainId === 1 &&  analyticsLogEvent('TX_COMPLETE', { user: account?.substring(2), txCode });
+        chainId === 1 &&  analyticsLogEvent('TX_COMPLETE', { txCode });
         return res;
       }
       /* this is the case when the tx was a fallback from a permit/allowance tx */
@@ -216,8 +211,6 @@ const TxProvider = ({ children }: any) => {
     } catch (e: any) {
       /* catch tx errors */
       _handleTxError('Transaction failed', e.transaction, txCode);
-
-      chainId === 1 &&  analyticsLogEvent('TX_ERROR', { user: account?.substring(2), txCode });
 
       return null;
     }
