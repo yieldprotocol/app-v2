@@ -30,8 +30,8 @@ const markMap = new Map([
   ['TST', <TSTMark key="tst" />],
   ['ETH', <EthMark key="eth" />],
   ['USDT', <USDTMark key="eth" />],
-  ['LINK', <LINKMark key="steth" />],
-  ['wstETH', <StEthMark key="steth" />],
+  ['LINK', <LINKMark key="link" />],
+  ['wstETH', <StEthMark key="wsteth" />],
   ['stETH', <StEthMark key="steth" />],
 ]);
 
@@ -203,9 +203,7 @@ const ChainProvider = ({ children }: any) => {
           /* baked in token fns */
           getBalance: async (acc: string) =>
             /* if eth based get provider balance, if token based, get toknen balance (NOT of wrappedToken ) */
-            ETH_BASED_ASSETS.includes(asset.idToUse)
-              ? fallbackProvider?.getBalance(acc)
-              : ERC20Permit.balanceOf(acc),
+            ETH_BASED_ASSETS.includes(asset.idToUse) ? fallbackProvider?.getBalance(acc) : ERC20Permit.balanceOf(acc),
           getAllowance: async (acc: string, spender: string) => baseContract.allowance(acc, spender),
           // getAllowance: async (acc: string, spender: string) => ERC20Permit.allowance(acc, spender),
         };
@@ -226,7 +224,7 @@ const ChainProvider = ({ children }: any) => {
         const newAssetList: any[] = [];
         await Promise.all(
           assetAddedEvents.map(async (x: any) => {
-            const { assetId: id , asset: address } = Cauldron.interface.parseLog(x).args;
+            const { assetId: id, asset: address } = Cauldron.interface.parseLog(x).args;
             const ERC20 = contracts.ERC20Permit__factory.connect(address, fallbackProvider);
             const [name, symbol, decimals, version] = await Promise.all([
               ERC20.name(),
@@ -242,7 +240,6 @@ const ChainProvider = ({ children }: any) => {
             const joinAddress = joinMap.get(idToUse);
 
             const newAsset = {
-
               id,
               address,
               name,
