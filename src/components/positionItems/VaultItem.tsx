@@ -36,9 +36,6 @@ function VaultItem({
   const { setSelectedVault } = userActions;
 
   const handleSelect = (_vault: IVault) => {
-
-    console.log(_vault);
-    
     setSelectedVault(_vault);
     history.push(`/vaultposition/${_vault.id}`);
   };
