@@ -1,7 +1,20 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions, IVault, ISettingsContext, IStrategy, IAsset } from '../../types';
+import {
+  ICallData,
+  ISeries,
+  ActionCodes,
+  LadleActions,
+  RoutedActions,
+  IVault,
+  ISettingsContext,
+  IStrategy,
+  IAsset,
+  IUserContext,
+  IUserContextState,
+  IUserContextActions,
+} from '../../types';
 import { getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import { ChainContext } from '../../contexts/ChainContext';
@@ -43,8 +56,10 @@ export const useRemoveLiquidity = () => {
     chainState: { contractMap },
   } = useContext(ChainContext);
 
-  const { vaultMap, userState, userActions } = useContext(UserContext);
-  const { activeAccount: account, assetMap, selectedStrategyAddr, strategyMap } = userState;
+  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
+    UserContext
+  ) as IUserContext;
+  const { activeAccount: account, assetMap, selectedStrategy } = userState;
 
   const { updateSeries, updateAssets, updateStrategies } = userActions;
   const { sign, transact } = useChain();
@@ -62,8 +77,8 @@ export const useRemoveLiquidity = () => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.REMOVE_LIQUIDITY, series.id);
 
-    const _base: IAsset = assetMap.get(series.baseId);
-    const _strategy = strategyMap.get(selectedStrategyAddr);
+    const _base: IAsset = assetMap.get(series.baseId)!;
+    const _strategy: any = selectedStrategy!; // #TODO actually use correct typing
     const _input = ethers.utils.parseUnits(input, _base.decimals);
 
     const ladleAddress = contractMap.get('Ladle').address;
@@ -131,21 +146,21 @@ export const useRemoveLiquidity = () => {
     diagnostics && console.log('Is FyToken tradable?: ', extraTradeSupported);
     diagnostics && console.log('extrafyTokentrade value: ', extrafyTokenTrade);
 
-    const alreadyApprovedStrategy = approveMax && !!_strategy 
-      ? (await _strategy.strategyContract.allowance(account, ladleAddress)).gt(_input)
-      : false;
-    const alreadyApprovedPool = approveMax && !_strategy 
-      ? (await series.poolContract.allowance(account, ladleAddress)).gt(_input)
-      : false;
+    const alreadyApprovedStrategy =
+      approveMax && !!_strategy
+        ? (await _strategy.strategyContract.allowance(account!, ladleAddress)).gt(_input)
+        : false;
+    const alreadyApprovedPool =
+      approveMax && !_strategy ? (await series.poolContract.allowance(account!, ladleAddress)).gt(_input) : false;
 
     const permits: ICallData[] = await sign(
       [
         /* give strategy permission to sell tokens to pool */
         {
-          target: _strategy!,
+          target: _strategy,
           spender: 'LADLE',
           amount: _input,
-          ignoreIf: !_strategy || alreadyApprovedStrategy===true,
+          ignoreIf: !_strategy || alreadyApprovedStrategy === true,
         },
 
         /* give pool permission to sell tokens */
@@ -158,7 +173,7 @@ export const useRemoveLiquidity = () => {
           },
           spender: 'LADLE',
           amount: _input,
-          ignoreIf: !!_strategy || alreadyApprovedPool===true,
+          ignoreIf: !!_strategy || alreadyApprovedPool === true,
         },
       ],
       txCode
@@ -170,7 +185,7 @@ export const useRemoveLiquidity = () => {
       /* FOR ALL REMOVES (when using a strategy) > move tokens from strategy to pool tokens  */
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [selectedStrategyAddr, selectedStrategyAddr, _input] as LadleActions.Args.TRANSFER,
+        args: [_strategy.address, _strategy.address, _input] as LadleActions.Args.TRANSFER,
         ignoreIf: !_strategy,
       },
       {
