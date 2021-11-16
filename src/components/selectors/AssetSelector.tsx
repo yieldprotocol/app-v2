@@ -4,7 +4,7 @@ import { Box, ResponsiveContext, Select, Text } from 'grommet';
 
 import styled from 'styled-components';
 import Skeleton from '../wraps/SkeletonWrap';
-import { IAsset } from '../../types';
+import { IAsset, IUserContext, IUserContextActions, IUserContextState } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { WETH, USDC } from '../../utils/constants';
 import { SettingsContext } from '../../contexts/SettingsContext';
@@ -32,7 +32,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
 
     const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
-  ) as IUserContext;;
+  ) as IUserContext;
   const {
     assetMap,
     activeAccount,
@@ -40,7 +40,6 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
     selectedBase,
     selectedSeries
   } = userState;
-
   const { setSelectedIlk, setSelectedBase } = userActions;
 
   const [options, setOptions] = useState<IAsset[]>([]);
@@ -71,11 +70,11 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
     let filteredOptions;
     if (!activeAccount) {
       filteredOptions = selectCollateral
-        ? opts.filter((a: IAsset) => a.id !== selectedBase.id) // show all available collateral assets if the user is not connected
+        ? opts.filter((a: IAsset) => a.id !== selectedBase?.id) // show all available collateral assets if the user is not connected
         : opts.filter((a: IAsset) => a.isYieldBase);
     } else {
       filteredOptions = selectCollateral
-        ? opts.filter((a: IAsset) => a.id !== selectedBase.id)
+        ? opts.filter((a: IAsset) => a.id !== selectedBase?.id)
         : // .filter((a: IAsset) => a.balance?.gt(ethers.constants.Zero))
           opts.filter((a: IAsset) => a.isYieldBase);
     }
@@ -85,8 +84,8 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   /* initiate base selector to USDC available asset and selected ilk ETH */
   useEffect(() => {
     if (Array.from(assetMap.values()).length) {
-      !selectedBase && setSelectedBase( assetMap.get(USDC) );
-      !selectedIlk && setSelectedIlk( assetMap.get(WETH) );
+      !selectedBase && setSelectedBase( assetMap.get(USDC)! );
+      !selectedIlk && setSelectedIlk( assetMap.get(WETH)! );
     }
   }, [assetMap, selectedBase, selectedIlk]);
 
@@ -94,9 +93,9 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   useEffect(() => {
     if (selectedIlk?.idToUse === selectedBase?.idToUse) {
       const firstNotBaseIlk = options.find((asset: IAsset) => asset.id !== selectedIlk?.idToUse);
-      setSelectedIlk(firstNotBaseIlk);
+      setSelectedIlk(firstNotBaseIlk!);
     }
-  }, [options, selectedIlk, selectedBase]);
+  }, [options, selectedIlk, selectedBase, setSelectedIlk]);
 
   return (
     <StyledBox
@@ -113,17 +112,17 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
         name="assetSelect"
         placeholder="Select Asset"
         options={options}
-        value={selectCollateral ? selectedIlk : selectedBase}
+        value={selectCollateral ? selectedIlk! : selectedBase!}
         labelKey={(x: IAsset | undefined) => optionText(x)}
         valueLabel={
           <Box pad={mobile ? 'medium' : { vertical: '0.55em', horizontal: 'small' }}>
-            <Text color="text"> {optionText(selectCollateral ? selectedIlk : selectedBase)} </Text>
+            <Text color="text"> {optionText(selectCollateral ? selectedIlk! : selectedBase!)} </Text>
           </Box>
         }
         onChange={({ option }: any) => handleSelect(option)}
         disabled={
           (selectCollateral && options.filter((o, i) => (o.balance?.eq(ethers.constants.Zero) ? i : null))) ||
-          (selectCollateral ? selectedSeries?.mature || !selectedSeries : null)
+          (selectCollateral ? (selectedSeries?.seriesIsMature || !selectedSeries) : undefined)
         }
         // eslint-disable-next-line react/no-children-prop
         children={(x: any) => (

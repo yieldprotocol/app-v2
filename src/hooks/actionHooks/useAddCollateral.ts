@@ -13,6 +13,8 @@ import {
   IUserContext,
   IAsset,
   RoutedActions,
+  IUserContextState,
+  IUserContextActions,
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { BLANK_VAULT, ETH_BASED_ASSETS } from '../../utils/constants';
@@ -30,7 +32,7 @@ export const useAddCollateral = () => {
     const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;;
-  const { activeAccount: account, selectedBase, selectedIlk, selectedSeriesId, seriesMap, assetMap } = userState;
+  const { activeAccount: account, selectedBase, selectedIlk, selectedSeries, seriesMap, assetMap } = userState;
   const { updateAssets, updateVaults } = userActions;
 
   const { sign, transact } = useChain();
@@ -38,12 +40,12 @@ export const useAddCollateral = () => {
   const addEth = (value: BigNumber, series: ISeries): ICallData[] => {
 
     /* Check if the selected Ilk is, in fact, an ETH variety (and +ve)  */
-    if (ETH_BASED_ASSETS.includes(selectedIlk.idToUse) && value.gte(ethers.constants.Zero)) {
+    if (ETH_BASED_ASSETS.includes(selectedIlk?.idToUse!) && value.gte(ethers.constants.Zero)) {
       /* return the add ETH OP */
       return [
         {
           operation: LadleActions.Fn.JOIN_ETHER,
-          args: [selectedIlk.idToUse] as LadleActions.Args.JOIN_ETHER,
+          args: [selectedIlk?.idToUse] as LadleActions.Args.JOIN_ETHER,
           ignoreIf: false,
           overrides: { value },
         },
@@ -58,9 +60,9 @@ export const useAddCollateral = () => {
     const vaultId = vault?.id || BLANK_VAULT;
 
     /* set the series and ilk based on if a vault has been selected or it's a new vault */
-    const series = vault ? seriesMap.get(vault.seriesId) : seriesMap.get(selectedSeriesId);
-    const ilk: IAsset = vault ? assetMap.get(vault.ilkId) : assetMap.get(selectedIlk.idToUse);
-    const base: IAsset = vault ? assetMap.get(vault.baseId) : assetMap.get(selectedBase.idToUse);
+    const series = vault ? seriesMap.get(vault.seriesId) : selectedSeries;
+    const ilk: IAsset | null | undefined = vault ? assetMap.get(vault.ilkId) : selectedIlk;
+    const base: IAsset | null | undefined = vault ? assetMap.get(vault.baseId) : selectedBase;
 
     const ladleAddress = contractMap.get('Ladle').address;
 
@@ -68,24 +70,24 @@ export const useAddCollateral = () => {
     const txCode = getTxCode(ActionCodes.ADD_COLLATERAL, vaultId);
 
     /* parse inputs to BigNumber in Wei */
-    const cleanedInput = cleanValue(input, ilk.decimals);
-    const _input = ethers.utils.parseUnits(cleanedInput, ilk.decimals);
+    const cleanedInput = cleanValue(input, ilk?.decimals);
+    const _input = ethers.utils.parseUnits(cleanedInput, ilk?.decimals);
 
     /* check if the ilk/asset is an eth asset variety, if so pour to Ladle */
-    const _isEthBased = ETH_BASED_ASSETS.includes(ilk.id);
+    const _isEthBased = ETH_BASED_ASSETS.includes(ilk?.id!);
     const _pourTo = _isEthBased ? ladleAddress : account;
 
     /* if approveMAx, check if signature is required */
     const alreadyApproved = approveMax
-      ? (await ilk.getAllowance(account, ilk.joinAddress)).gt(_input)
+      ? (await ilk?.getAllowance(account!, ilk?.joinAddress)!).gt(_input)
       : false;
 
     /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
     const permits: ICallData[] = await sign(
       [
         {
-          target: ilk,
-          spender: ilk.joinAddress,
+          target: ilk!,
+          spender: ilk?.joinAddress!,
           amount: _input,
           ignoreIf: _isEthBased || alreadyApproved===true,
         },
@@ -100,10 +102,10 @@ export const useAddCollateral = () => {
       /* If vault is null, build a new vault, else ignore */
       {
         operation: LadleActions.Fn.BUILD,
-        args: [selectedSeriesId, selectedIlk.idToUse, '0'] as LadleActions.Args.BUILD,
+        args: [selectedSeries?.id, selectedIlk?.idToUse, '0'] as LadleActions.Args.BUILD,
         ignoreIf: !!vault, // ignore if vault exists
       },
-      ...addEth(_input, series),
+      ...addEth(_input, series!),
       ...permits,
       {
         operation: LadleActions.Fn.POUR,
@@ -119,8 +121,8 @@ export const useAddCollateral = () => {
 
     /* TRANSACT */
     await transact(calls, txCode);
-    updateVaults([vault]);
-    updateAssets([base, ilk]);
+    updateVaults([vault!]);
+    updateAssets([base!, ilk!]);
   };
 
   return { addEth, addCollateral };

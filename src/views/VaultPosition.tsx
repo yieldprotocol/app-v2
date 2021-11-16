@@ -7,7 +7,17 @@ import { abbreviateHash, cleanValue, nFormatter } from '../utils/appUtils';
 import { UserContext } from '../contexts/UserContext';
 import InputWrap from '../components/wraps/InputWrap';
 import InfoBite from '../components/InfoBite';
-import { ActionCodes, ActionType, IAsset, ISeries, IUserContext, IVault, ProcessStage } from '../types';
+import {
+  ActionCodes,
+  ActionType,
+  IAsset,
+  ISeries,
+  IUserContext,
+  IUserContextActions,
+  IUserContextState,
+  IVault,
+  ProcessStage,
+} from '../types';
 
 import ActionButtonWrap from '../components/wraps/ActionButtonWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
@@ -43,20 +53,13 @@ const VaultPosition = () => {
   const { id: idFromUrl } = useParams<{ id: string }>();
 
   /* STATE FROM CONTEXT */
-    const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
+  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
-  ) as IUserContext; as IUserContext;
-  const {
-    activeAccount: account,
-    assetMap,
-    seriesMap,
-    vaultMap,
-    selectedVault,
-    vaultsLoading,
-  } = userState;
+  ) as IUserContext;
+  const { activeAccount: account, assetMap, seriesMap, vaultMap, selectedVault, vaultsLoading } = userState;
   const { setSelectedBase, setSelectedIlk, setSelectedSeries } = userActions;
 
-  const _selectedVault: IVault| undefined = selectedVault || vaultMap.get(idFromUrl);
+  const _selectedVault: IVault | undefined = selectedVault || vaultMap.get(idFromUrl);
 
   const vaultBase: IAsset | undefined = assetMap.get(_selectedVault?.baseId!);
   const vaultIlk: IAsset | undefined = assetMap.get(_selectedVault?.ilkId!);
@@ -111,7 +114,11 @@ const VaultPosition = () => {
 
   const { maxCollateral, collateralizationPercent, maxRemovableCollateral, minCollatRatioPct, unhealthyCollatRatio } =
     useCollateralHelpers('0', '0', _selectedVault);
-  const { collateralizationPercent: repayCollEst } = useCollateralHelpers(`-${repayInput! || '0'}`, '0', _selectedVault);
+  const { collateralizationPercent: repayCollEst } = useCollateralHelpers(
+    `-${repayInput! || '0'}`,
+    '0',
+    _selectedVault
+  );
   const { collateralizationPercent: removeCollEst } = useCollateralHelpers(
     '0',
     `-${removeCollatInput! || '0'}`,

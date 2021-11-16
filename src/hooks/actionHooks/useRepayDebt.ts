@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, IVault, ISeries, ActionCodes, LadleActions, IAsset } from '../../types';
+import { ICallData, IVault, ISeries, ActionCodes, LadleActions, IAsset, IUserContext, IUserContextActions, IUserContextState } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import { calculateSlippage, maxBaseIn, secondsToFrom, sellBase } from '../../utils/yieldMath';
@@ -35,8 +35,8 @@ export const useRepayDebt = () => {
     const ladleAddress = contractMap.get('Ladle').address;
     
     const txCode = getTxCode(ActionCodes.REPAY, vault.id);
-    const series: ISeries = seriesMap.get(vault.seriesId);
-    const base: IAsset = assetMap.get(vault.baseId);
+    const series: ISeries = seriesMap.get(vault.seriesId)!;
+    const base: IAsset = assetMap.get(vault.baseId)!;
 
     /* Parse inputs */
     const cleanInput = cleanValue(input, base.decimals);
@@ -70,7 +70,7 @@ export const useRepayDebt = () => {
     const isEthBased = ETH_BASED_ASSETS.includes(vault.ilkId);
 
     const alreadyApproved = approveMax
-    ? (await base.getAllowance(account, series.seriesIsMature ? base.joinAddress : ladleAddress) ).gt(_input)
+    ? (await base.getAllowance(account!, series.seriesIsMature ? base.joinAddress : ladleAddress) ).gt(_input)
     : false;
 
     const permits: ICallData[] = await sign(

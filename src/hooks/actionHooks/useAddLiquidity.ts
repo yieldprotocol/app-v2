@@ -11,6 +11,9 @@ import {
   IStrategy,
   AddLiquidityType,
   IVault,
+  IUserContext,
+  IUserContextActions,
+  IUserContextState,
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { BLANK_VAULT } from '../../utils/constants';
@@ -29,10 +32,9 @@ export const useAddLiquidity = () => {
   const {
     chainState: { contractMap },
   } = useContext(ChainContext);
-
     const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
-  ) as IUserContext;;
+  ) as IUserContext;
   const { activeAccount: account, assetMap, seriesMap } = userState;
   const { updateVaults, updateSeries, updateAssets, updateStrategies } = userActions;
 
@@ -48,19 +50,19 @@ export const useAddLiquidity = () => {
     matchingVault: IVault | undefined = undefined
   ) => {
     const txCode = getTxCode(ActionCodes.ADD_LIQUIDITY, strategy.id);
-    const series: ISeries = seriesMap.get(strategy.currentSeriesId);
-    const base: IAsset = assetMap.get(series?.baseId);
+    const series: ISeries = seriesMap.get(strategy.currentSeriesId)!;
+    const base: IAsset = assetMap.get(series?.baseId!)!;
 
     const ladleAddress = contractMap.get('Ladle').address;
 
     const matchingVaultId: string | undefined = matchingVault ? matchingVault.id : undefined;
-    const cleanInput = cleanValue(input, base.decimals);
+    const cleanInput = cleanValue(input, base?.decimals!);
 
-    const _input = ethers.utils.parseUnits(cleanInput, base.decimals);
+    const _input = ethers.utils.parseUnits(cleanInput, base?.decimals);
     const _inputLessSlippage = calculateSlippage(_input, slippageTolerance, true);
 
-    const [cachedBaseReserves, cachedFyTokenReserves] = await series.poolContract.getCache();
-    const cachedRealReserves = cachedFyTokenReserves.sub(series.totalSupply);
+    const [cachedBaseReserves, cachedFyTokenReserves] = await series?.poolContract.getCache()!;
+    const cachedRealReserves = cachedFyTokenReserves.sub(series?.totalSupply!);
 
     const _fyTokenToBeMinted = fyTokenForMint(
       cachedBaseReserves,
@@ -84,7 +86,7 @@ export const useAddLiquidity = () => {
     const _baseToPoolWithSlippage = BigNumber.from(calculateSlippage(_baseToPool, slippageTolerance));
 
     /* if approveMAx, check if signature is still required */
-    const alreadyApproved = approveMax ? (await base.getAllowance(account, ladleAddress)).gt(_input) : false;
+    const alreadyApproved = approveMax ? (await base.getAllowance(account!, ladleAddress)).gt(_input) : false;
 
     /* DIAGNOSITCS */
     diagnostics &&

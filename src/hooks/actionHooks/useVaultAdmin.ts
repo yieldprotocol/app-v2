@@ -3,7 +3,7 @@ import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, IVault, ActionCodes, LadleActions, ISettingsContext } from '../../types';
+import { ICallData, IVault, ActionCodes, LadleActions, ISettingsContext, IUserContext, IUserContextActions, IUserContextState, IAsset, ISeries } from '../../types';
 import { getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 
@@ -27,12 +27,12 @@ export const useVaultAdmin = () => {
 
   const transfer = async (vault: IVault, to: string) => {
     const txCode = getTxCode(ActionCodes.TRANSFER_VAULT, vault.id);
-    const series = seriesMap.get(vault.seriesId);
-    const base = assetMap.get(vault.baseId);
+    const series : ISeries = seriesMap.get(vault.seriesId)!;
+    const base :IAsset = assetMap.get(vault.baseId)!;
     const ladleAddress = contractMap.get('Ladle').address;
 
     const alreadyApproved = approveMax
-    ? (await base.getAllowance(account, ladleAddress) ).gt(vault.art)
+    ? (await base.getAllowance(account!, ladleAddress) ).gt(vault.art)
     : false;
 
     const permits: ICallData[] = await sign(
@@ -52,7 +52,7 @@ export const useVaultAdmin = () => {
       {
         operation: LadleActions.Fn.GIVE,
         args: [vault.id, to] as LadleActions.Args.GIVE,
-        ignoreIf: series.seriesIsmature,
+        ignoreIf: series.seriesIsMature,
       },
     ];
 
@@ -71,7 +71,7 @@ export const useVaultAdmin = () => {
         args: [vault.id, to.id, vault.ink, vault.art] as LadleActions.Args.STIR,
         // TODO: #82 refactor to actually allow for custom ink and art values (right now seems like formatting issues) @marcomariscal
         // args: [vault.id, to.id, _ink, _art] as LadleActions.Args.STIR,
-        ignoreIf: series.seriesIsMature,
+        ignoreIf: series?.seriesIsMature,
       },
       {
         operation: LadleActions.Fn.DESTROY,

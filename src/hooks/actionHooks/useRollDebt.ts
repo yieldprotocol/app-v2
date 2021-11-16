@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, IVault, ISeries, ActionCodes, LadleActions } from '../../types';
+import { ICallData, IVault, ISeries, ActionCodes, LadleActions, IUserContext, IUserContextActions, IUserContextState } from '../../types';
 import { getTxCode } from '../../utils/appUtils';
 import { MAX_128 } from '../../utils/constants';
 import { useChain } from '../useChain';
@@ -25,12 +25,12 @@ export const useRollDebt = () => {
         // ladle.rollAction(vaultId: string, newSeriesId: string, max: BigNumberish)
         operation: LadleActions.Fn.ROLL,
         args: [vault.id, toSeries.id, '2', MAX_128] as LadleActions.Args.ROLL,
-        ignoreIf: series.seriesIsMature,
+        ignoreIf: series?.seriesIsMature,
       },
     ];
     await transact(calls, txCode);
     updateVaults([vault]);
-    updateAssets([base]);
+    updateAssets([base!]);
   };
 
   return rollDebt;

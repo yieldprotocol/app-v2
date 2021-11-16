@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Box, Text } from 'grommet';
-import { ActionType, ISeries, IStrategy, IUserContext } from '../../types';
+import { ActionType, ISeries, IStrategy, IUserContext, IUserContextActions, IUserContextState } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { cleanValue, nFormatter } from '../../utils/appUtils';
 import PositionAvatar from '../PositionAvatar';
@@ -12,7 +12,7 @@ function StrategyItem({ strategy, index, condensed }: { strategy: IStrategy; ind
 
     const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
-  ) as IUserContext; as IUserContext;
+  ) as IUserContext;
 
   const base = userState.assetMap.get(strategy.baseId) || null ;
   const series = userState.seriesMap.get(strategy.currentSeriesId) || null;

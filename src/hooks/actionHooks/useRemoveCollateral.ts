@@ -2,7 +2,7 @@ import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, IVault, ActionCodes, LadleActions } from '../../types';
+import { ICallData, IVault, ActionCodes, LadleActions, IUserContext, IUserContextActions, IUserContextState } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { ETH_BASED_ASSETS } from '../../utils/constants';
 import { useChain } from '../useChain';
@@ -23,7 +23,7 @@ export const useRemoveCollateral = () => {
   const removeEth = (value: BigNumber): ICallData[] => {
 
     /* First check if the selected Ilk is, in fact, an ETH variety */
-    if (ETH_BASED_ASSETS.includes(selectedIlk.idToUse)) {
+    if (ETH_BASED_ASSETS.includes(selectedIlk?.idToUse!)) {
       /* return the remove ETH OP */
       return [
         {
@@ -42,7 +42,7 @@ export const useRemoveCollateral = () => {
     const txCode = getTxCode(ActionCodes.REMOVE_COLLATERAL, vault.id);
 
     /* get associated series and ilk */
-    const ilk = assetMap.get(vault.ilkId);
+    const ilk = assetMap.get(vault.ilkId)!;
 
     /* parse inputs to BigNumber in Wei, and NEGATE */
     const cleanedInput = cleanValue(input, ilk.decimals);
