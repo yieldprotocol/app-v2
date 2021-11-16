@@ -203,7 +203,7 @@ const ChainProvider = ({ children }: any) => {
           /* baked in token fns */
           getBalance: async (acc: string) =>
             /* if eth based get provider balance, if token based, get toknen balance (NOT of wrappedToken ) */
-            ETH_BASED_ASSETS.includes(asset.assetIdToUse)
+            ETH_BASED_ASSETS.includes(asset.idToUse)
               ? fallbackProvider?.getBalance(acc)
               : ERC20Permit.balanceOf(acc),
           getAllowance: async (acc: string, spender: string) => baseContract.allowance(acc, spender),
@@ -225,24 +225,24 @@ const ChainProvider = ({ children }: any) => {
         const newAssetList: any[] = [];
         await Promise.all(
           assetAddedEvents.map(async (x: any) => {
-            const { assetId , asset: address } = Cauldron.interface.parseLog(x).args;
+            const { assetId: id , asset: address } = Cauldron.interface.parseLog(x).args;
             const ERC20 = contracts.ERC20Permit__factory.connect(address, fallbackProvider);
             const [name, symbol, decimals, version] = await Promise.all([
               ERC20.name(),
               ERC20.symbol(),
               ERC20.decimals(),
-              assetId === USDC ? '2' : '1', // TODO  ERC20.version()
+              id === USDC ? '2' : '1', // TODO  ERC20.version()
             ]);
 
             const { showToken, wrapHandlerAddress, useWrappedVersion, wrappedTokenId, wrappedTokenAddress } =
               assetHandling[symbol] as IAssetHandling;
 
-            const assetIdToUse = useWrappedVersion ? wrappedTokenId : assetId;
-            const joinAddress = joinMap.get(assetIdToUse);
+            const idToUse = useWrappedVersion ? wrappedTokenId : id;
+            const joinAddress = joinMap.get(idToUse);
 
             const newAsset = {
 
-              assetId,
+              id,
               address,
               name,
               symbol: symbol === 'WETH' ? 'ETH' : symbol, // if the symbol is WETH, then simply use ETH. (for all others use token symbol)
@@ -250,7 +250,7 @@ const ChainProvider = ({ children }: any) => {
               version,
 
               joinAddress,
-              assetIdToUse,
+              idToUse,
 
               wrapHandlerAddress,
               useWrappedVersion,

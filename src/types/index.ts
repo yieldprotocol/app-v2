@@ -144,7 +144,7 @@ export interface IAssetHandling {
 export interface IAssetRoot extends IAssetHandling, ISignable {
   
   // fixed/static:
-  assetId: string;
+  id: string;
   decimals: number;
   color: string;
   image: React.FC;
@@ -156,7 +156,7 @@ export interface IAssetRoot extends IAssetHandling, ISignable {
   baseContract: ERC20Permit;
 
   isYieldBase: boolean;
-  assetIdToUse: string;
+  idToUse: string;
 
   // baked in token fns
   getBalance: (account: string) => Promise<BigNumber>;

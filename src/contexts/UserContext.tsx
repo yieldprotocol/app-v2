@@ -211,7 +211,7 @@ const UserProvider = ({ children }: any) => {
 
       _publicData = await Promise.all(
         assetList.map(async (asset: IAssetRoot): Promise<IAssetRoot> => {
-          const isYieldBase = !!Array.from(seriesRootMap.values()).find((x: any) => x.baseId === asset.assetIdToUse);
+          const isYieldBase = !!Array.from(seriesRootMap.values()).find((x: any) => x.baseId === asset.idToUse);
           return {
             ...asset,
             isYieldBase,
@@ -219,7 +219,7 @@ const UserProvider = ({ children }: any) => {
         })
       );
 
-      console.log('PUBLIC DATA', _publicData);
+      console.log('PUBLIC ASSET DATA', _publicData);
 
       /* add in the dynamic asset data of the assets in the list */
       if (account) {

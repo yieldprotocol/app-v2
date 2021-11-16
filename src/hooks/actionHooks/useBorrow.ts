@@ -25,14 +25,14 @@ export const useBorrow = () => {
 
   const borrow = async (vault: IVault | undefined, input: string | undefined, collInput: string | undefined) => {
     /* generate the reproducible txCode for tx tracking and tracing */
-    const txCode = getTxCode(ActionCodes.BORROW, selectedSeries.assetId);
+    const txCode = getTxCode(ActionCodes.BORROW, selectedSeries.id);
     /* use the vault id provided OR 0 if new/ not provided */
     const vaultId = vault?.id || BLANK_VAULT;
 
     /* Set the series and ilk based on the vault that has been selected or if it's a new vault, get from the globally selected SeriesId */
     const series: ISeries = vault ? seriesMap.get(vault.seriesId) : selectedSeries;
     const base = assetMap.get(series.baseId);
-    const ilk = vault ? assetMap.get(vault.ilkId) : assetMap.get(selectedIlk.assetIdToUse);
+    const ilk = vault ? assetMap.get(vault.ilkId) : assetMap.get(selectedIlk.idToUse);
 
     /* parse inputs  ( clean down to base/ilk decimals so that there is never an underlow)  */
     const cleanInput = cleanValue(input, base.decimals);
@@ -65,7 +65,7 @@ export const useBorrow = () => {
           amount: _collInput,
           ignoreIf:
             alreadyApproved === true ||
-            ETH_BASED_ASSETS.includes(selectedIlk.assetIdToUse) ||
+            ETH_BASED_ASSETS.includes(selectedIlk.idToUse) ||
             _collInput.eq(ethers.constants.Zero),
         },
       ],
@@ -88,7 +88,7 @@ export const useBorrow = () => {
       /* If vault is null, build a new vault, else ignore */
       {
         operation: LadleActions.Fn.BUILD,
-        args: [selectedSeries.id, selectedIlk.assetIdToUse, '0'] as LadleActions.Args.BUILD,
+        args: [selectedSeries.id, selectedIlk.idToUse, '0'] as LadleActions.Args.BUILD,
         ignoreIf: !!vault,
       },
       {

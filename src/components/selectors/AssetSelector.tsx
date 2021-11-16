@@ -55,10 +55,10 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
 
   const handleSelect = (asset: IAsset) => {
     if (selectCollateral) {
-      diagnostics && console.log('Collateral selected: ', asset.assetId);
+      diagnostics && console.log('Collateral selected: ', asset.id);
       setSelectedIlk(asset);
     } else {
-      diagnostics && console.log('Base selected: ', asset.assetId);
+      diagnostics && console.log('Base selected: ', asset.id);
       setSelectedBase(asset);
     }
   };
@@ -69,11 +69,11 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
     let filteredOptions;
     if (!activeAccount) {
       filteredOptions = selectCollateral
-        ? opts.filter((a: IAsset) => a.assetId !== selectedBase.assetId) // show all available collateral assets if the user is not connected
+        ? opts.filter((a: IAsset) => a.id !== selectedBase.id) // show all available collateral assets if the user is not connected
         : opts.filter((a: IAsset) => a.isYieldBase);
     } else {
       filteredOptions = selectCollateral
-        ? opts.filter((a: IAsset) => a.assetId !== selectedBase.assetId)
+        ? opts.filter((a: IAsset) => a.id !== selectedBase.id)
         : // .filter((a: IAsset) => a.balance?.gt(ethers.constants.Zero))
           opts.filter((a: IAsset) => a.isYieldBase);
     }
@@ -90,8 +90,8 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
 
   /* make sure ilk (collateral) never matches baseId */
   useEffect(() => {
-    if (selectedIlk?.assetIdToUse === selectedBase?.assetIdToUse) {
-      const firstNotBaseIlk = options.find((asset: IAsset) => asset.assetId !== selectedIlk?.assetIdToUse);
+    if (selectedIlk?.idToUse === selectedBase?.idToUse) {
+      const firstNotBaseIlk = options.find((asset: IAsset) => asset.id !== selectedIlk?.idToUse);
       setSelectedIlk(firstNotBaseIlk);
     }
   }, [options, selectedIlk, selectedBase]);

@@ -44,15 +44,15 @@ export const useCollateralHelpers = (
 
   /* update the prices if anything changes */
   useEffect(() => {
-    if (selectedBase && selectedIlk && priceMap.get(selectedIlk.assetIdToUse)?.has(selectedBase.assetIdToUse)) {
-      const _price = priceMap.get(selectedIlk.assetIdToUse).get(selectedBase.assetIdToUse); // get the price
+    if (selectedBase && selectedIlk && priceMap.get(selectedIlk.idToUse)?.has(selectedBase.idToUse)) {
+      const _price = priceMap.get(selectedIlk.idToUse).get(selectedBase.idToUse); // get the price
       console.log('price: ', _price[0], 'decimals:', _price[3]);
       setOraclePrice(decimalNToDecimal18(_price[0], _price[2])); // make sure the price is 18decimals based
     } else {
       (async () => {
         if (selectedBase && selectedIlk) {
           /* Update Price before setting */
-          const _price = await updatePrice(selectedIlk.assetIdToUse, selectedBase.assetIdToUse, selectedIlk.decimals);
+          const _price = await updatePrice(selectedIlk.idToUse, selectedBase.idToUse, selectedIlk.decimals);
           setOraclePrice(decimalNToDecimal18(_price, selectedBase.decimals)); // make sure the price is 18decimals based
         }
       })();
@@ -152,7 +152,7 @@ export const useCollateralHelpers = (
   useEffect(() => {
     if (selectedBase && selectedIlk && contractMap.has('Cauldron')) {
       (async () => {
-        const { ratio } = await contractMap.get('Cauldron').spotOracles(selectedBase.assetIdToUse, selectedIlk.assetIdToUse);
+        const { ratio } = await contractMap.get('Cauldron').spotOracles(selectedBase.idToUse, selectedIlk.idToUse);
         if (ratio) {
           const _minCollatRatio = parseFloat(ethers.utils.formatUnits(ratio, 6));
           setMinCollatRatio(_minCollatRatio);

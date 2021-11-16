@@ -36,12 +36,12 @@ export const useAddCollateral = () => {
   const addEth = (value: BigNumber, series: ISeries): ICallData[] => {
 
     /* Check if the selected Ilk is, in fact, an ETH variety (and +ve)  */
-    if (ETH_BASED_ASSETS.includes(selectedIlk.assetIdToUse) && value.gte(ethers.constants.Zero)) {
+    if (ETH_BASED_ASSETS.includes(selectedIlk.idToUse) && value.gte(ethers.constants.Zero)) {
       /* return the add ETH OP */
       return [
         {
           operation: LadleActions.Fn.JOIN_ETHER,
-          args: [selectedIlk.assetIdToUse] as LadleActions.Args.JOIN_ETHER,
+          args: [selectedIlk.idToUse] as LadleActions.Args.JOIN_ETHER,
           ignoreIf: false,
           overrides: { value },
         },
@@ -57,8 +57,8 @@ export const useAddCollateral = () => {
 
     /* set the series and ilk based on if a vault has been selected or it's a new vault */
     const series = vault ? seriesMap.get(vault.seriesId) : seriesMap.get(selectedSeriesId);
-    const ilk: IAsset = vault ? assetMap.get(vault.ilkId) : assetMap.get(selectedIlk.assetIdToUse);
-    const base: IAsset = vault ? assetMap.get(vault.baseId) : assetMap.get(selectedBase.assetIdToUse);
+    const ilk: IAsset = vault ? assetMap.get(vault.ilkId) : assetMap.get(selectedIlk.idToUse);
+    const base: IAsset = vault ? assetMap.get(vault.baseId) : assetMap.get(selectedBase.idToUse);
 
     const ladleAddress = contractMap.get('Ladle').address;
 
@@ -70,7 +70,7 @@ export const useAddCollateral = () => {
     const _input = ethers.utils.parseUnits(cleanedInput, ilk.decimals);
 
     /* check if the ilk/asset is an eth asset variety, if so pour to Ladle */
-    const _isEthBased = ETH_BASED_ASSETS.includes(ilk.assetId);
+    const _isEthBased = ETH_BASED_ASSETS.includes(ilk.id);
     const _pourTo = _isEthBased ? ladleAddress : account;
 
     /* if approveMAx, check if signature is required */
@@ -98,7 +98,7 @@ export const useAddCollateral = () => {
       /* If vault is null, build a new vault, else ignore */
       {
         operation: LadleActions.Fn.BUILD,
-        args: [selectedSeriesId, selectedIlk.assetIdToUse, '0'] as LadleActions.Args.BUILD,
+        args: [selectedSeriesId, selectedIlk.idToUse, '0'] as LadleActions.Args.BUILD,
         ignoreIf: !!vault, // ignore if vault exists
       },
       ...addEth(_input, series),

@@ -178,8 +178,8 @@ const Borrow = () => {
       const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
       const _matchingVaults = arr.filter(
         (v: IVault) =>
-          v.ilkId === selectedIlk.assetIdToUse &&
-          v.baseId === selectedBase.assetIdToUse &&
+          v.ilkId === selectedIlk.idToUse &&
+          v.baseId === selectedBase.idToUse &&
           v.seriesId === selectedSeries.id &&
           v.isActive
       );

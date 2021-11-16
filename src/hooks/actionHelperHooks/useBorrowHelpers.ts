@@ -89,15 +89,15 @@ export const useBorrowHelpers = (
       setTotalDebt_(ethers.utils.formatUnits(_total, _decimals)?.toString());
     };
 
-    if (selectedBase && selectedIlk && limitMap.get(selectedBase.assetIdToUse)?.has(selectedIlk.assetIdToUse)) {
-      const _limit = limitMap.get(selectedBase.assetIdToUse).get(selectedIlk.assetIdToUse); // get the limit from the map
+    if (selectedBase && selectedIlk && limitMap.get(selectedBase.idToUse)?.has(selectedIlk.idToUse)) {
+      const _limit = limitMap.get(selectedBase.idToUse).get(selectedIlk.idToUse); // get the limit from the map
       setLimits(_limit[0], _limit[1], _limit[2], _limit[3]);
       diagnostics && console.log('Cached Limit:', _limit[1].toString(), _limit[0].toString());
     } else {
       (async () => {
         if (selectedBase && selectedIlk) {
           /* Update Price before setting */
-          const _limit = await updateLimit(selectedBase.assetIdToUse, selectedIlk.assetIdToUse);
+          const _limit = await updateLimit(selectedBase.idToUse, selectedIlk.idToUse);
           setLimits(_limit[0], _limit[1], _limit[2], _limit[3]);
           diagnostics &&
             console.log('External call:', 'MIN LIMIT:', _limit[1].toString(), 'MAX LIMIT:', _limit[0].toString());

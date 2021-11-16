@@ -21,7 +21,7 @@ export const useRemoveCollateral = () => {
   const removeEth = (value: BigNumber): ICallData[] => {
 
     /* First check if the selected Ilk is, in fact, an ETH variety */
-    if (ETH_BASED_ASSETS.includes(selectedIlk.assetIdToUse)) {
+    if (ETH_BASED_ASSETS.includes(selectedIlk.idToUse)) {
       /* return the remove ETH OP */
       return [
         {
@@ -47,7 +47,7 @@ export const useRemoveCollateral = () => {
     const _input = ethers.utils.parseUnits(cleanedInput, ilk.decimals).mul(-1);
 
     /* check if the ilk/asset is an eth asset variety, if so pour to Ladle */
-    const _pourTo = ETH_BASED_ASSETS.includes(ilk.assetIdToUse) ? contractMap.get('Ladle').address : account;
+    const _pourTo = ETH_BASED_ASSETS.includes(ilk.idToUse) ? contractMap.get('Ladle').address : account;
 
     const calls: ICallData[] = [
       {

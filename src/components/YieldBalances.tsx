@@ -42,7 +42,7 @@ const Balances = () => {
     <Box pad="small" justify="center" align="start">
       <Box>
         <Balance image={selectedBase?.image} balance={selectedBase?.balance_} loading={assetsLoading} />
-        {path === 'borrow' && selectedBase?.assetId !== selectedIlk?.assetId && selectedIlk?.assetIdToUse !== WETH && (
+        {path === 'borrow' && selectedBase?.id !== selectedIlk?.id && selectedIlk?.idToUse !== WETH && (
           <Balance image={selectedIlk?.image} balance={selectedIlk?.balance_} loading={assetsLoading} />
         )}
       </Box>
