@@ -11,7 +11,7 @@ import InfoBite from '../components/InfoBite';
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
 import { UserContext } from '../contexts/UserContext';
-import { ActionCodes, ActionType, AddLiquidityType, IUserContext, ProcessStage, TxState } from '../types';
+import { ActionCodes, ActionType, AddLiquidityType, IUserContext, IUserContextState, ProcessStage, TxState } from '../types';
 import MaxButton from '../components/buttons/MaxButton';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
@@ -39,7 +39,7 @@ function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   /* STATE FROM CONTEXT */
-  const { userState } = useContext(UserContext) as IUserContext;
+  const { userState } : { userState: IUserContextState } = useContext(UserContext) as IUserContext;
   const { activeAccount, selectedBase, selectedStrategy, strategyMap } = userState;
 
   /* LOCAL STATE */

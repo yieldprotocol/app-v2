@@ -1,14 +1,14 @@
 import { ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../contexts/UserContext';
-import { ActionType, ISeries, IUserContext } from '../types';
+import { ActionType, ISeries, IUserContext, IUserContextState } from '../types';
 import { cleanValue } from '../utils/appUtils';
 import { sellBase, buyBase, calculateAPR } from '../utils/yieldMath';
 
 /* APR hook calculatess APR, min and max aprs for selected series and BORROW or LEND type */
 export const useApr = (input: string | undefined, actionType: ActionType, series: ISeries | null) => {
   /* STATE FROM CONTEXT */
-  const { userState } = useContext(UserContext) as IUserContext;
+  const { userState } : { userState: IUserContextState } = useContext(UserContext) as IUserContext;
   const { seriesMap, selectedSeries, selectedBase } = userState;
   
   const _selectedSeries = series || selectedSeries;

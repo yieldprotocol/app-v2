@@ -13,7 +13,7 @@ import SectionWrap from '../components/wraps/SectionWrap';
 import MaxButton from '../components/buttons/MaxButton';
 
 import { UserContext } from '../contexts/UserContext';
-import { ActionCodes, ActionType, IUserContext, IVault, ProcessStage, TxState } from '../types';
+import { ActionCodes, ActionType, IUserContext, IUserContextState, IVault, ProcessStage, TxState } from '../types';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import VaultSelector from '../components/selectors/VaultPositionSelector';
@@ -53,7 +53,7 @@ const Borrow = () => {
   const {
     chainState: { contractMap },
   } = useContext(ChainContext);
-  const { userState } = useContext(UserContext) as IUserContext;
+  const { userState } : { userState: IUserContextState } = useContext(UserContext) as IUserContext;
   const { activeAccount, vaultMap, seriesMap, selectedSeries, selectedIlk, selectedBase } = userState;
 
   /* LOCAL STATE */

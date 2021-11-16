@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useReducer, useCallback, useState } from 
 import { BigNumber, ethers } from 'ethers';
 import { format } from 'date-fns';
 
-import { ISeries, IVault, IHistItemPosition, ActionCodes, IBaseHistItem, IAsset, IStrategy } from '../types';
+import { ISeries, IVault, IHistItemPosition, ActionCodes, IBaseHistItem, IAsset, IStrategy, IUserContextState } from '../types';
 
 import * as contracts from '../contracts';
 
@@ -78,7 +78,7 @@ const HistoryProvider = ({ children }: any) => {
     assetRootMap,
   } = chainState;
 
-  const { userState } = useContext(UserContext);
+  const { userState } : { userState: IUserContextState } = useContext(UserContext);
   const { activeAccount: account, vaultMap, seriesMap, strategyMap } = userState;
 
   const [historyState, updateState] = useReducer(historyReducer, initState);

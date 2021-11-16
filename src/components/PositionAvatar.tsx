@@ -4,7 +4,7 @@ import { FiClock, FiSlash } from 'react-icons/fi';
 import { MdAutorenew } from 'react-icons/md';
 import Skeleton from './wraps/SkeletonWrap';
 import { UserContext } from '../contexts/UserContext';
-import { IVault, ISeries, IAsset, IUserContext, IStrategy, ActionType } from '../types';
+import { IVault, ISeries, IAsset, IUserContext, IStrategy, ActionType, IUserContextState } from '../types';
 
 function PositionAvatar({
   position,
@@ -18,7 +18,7 @@ function PositionAvatar({
   const isVault = position?.id.length > 15;
 
   /* STATE FROM CONTEXT */
-  const { userState } = useContext(UserContext) as IUserContext;
+  const { userState } : { userState: IUserContextState } = useContext(UserContext) as IUserContext;
   const { assetMap, seriesMap } = userState;
 
   const base: IAsset | undefined = assetMap.get(position?.baseId!); // same for both series and vaults

@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../contexts/UserContext';
-import { ActionCodes, ISeries, IUserContext, IVault } from '../types';
+import { ActionCodes, ISeries, IUserContext, IUserContextState, IVault } from '../types';
 
 /* Provides input validation for each ActionCode */
 export const useInputValidation = (
@@ -12,7 +12,7 @@ export const useInputValidation = (
   vault?: IVault | undefined
 ) => {
   /* STATE FROM CONTEXT */
-  const { userState } = useContext(UserContext) as IUserContext;
+  const { userState } : { userState: IUserContextState } = useContext(UserContext) as IUserContext;
   const { assetMap, seriesMap, selectedSeries, selectedBase, activeAccount } = userState;
   const _selectedSeries = series || selectedSeries;
   const _selectedBase = assetMap.get(series?.baseId!) || selectedBase;

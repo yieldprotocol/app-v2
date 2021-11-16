@@ -12,7 +12,7 @@ import { cleanValue, nFormatter } from '../utils/appUtils';
 import SectionWrap from '../components/wraps/SectionWrap';
 
 import { UserContext } from '../contexts/UserContext';
-import { ActionCodes, ActionType, IUserContext, ProcessStage, TxState } from '../types';
+import { ActionCodes, ActionType, IUserContext, IUserContextState, ProcessStage, TxState } from '../types';
 import MaxButton from '../components/buttons/MaxButton';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
@@ -47,7 +47,7 @@ const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   /* STATE FROM CONTEXT */
-  const { userState } = useContext(UserContext) as IUserContext;
+  const { userState } : { userState: IUserContextState } = useContext(UserContext) as IUserContext;
   const { activeAccount, selectedSeries, selectedBase, seriesMap } = userState;
 
   /* LOCAL STATE */

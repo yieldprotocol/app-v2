@@ -4,7 +4,7 @@ import { useHistory } from 'react-router-dom';
 import { Box, Button, Text } from 'grommet';
 
 import { UserContext } from '../../contexts/UserContext';
-import { ActionType, IAsset, ISeries, IStrategy, IUserContext } from '../../types';
+import { ActionType, IAsset, ISeries, IStrategy, IUserContext, IUserContextState } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
 import LendItem from '../positionItems/LendItem';
 import ListWrap from '../wraps/ListWrap';
@@ -16,10 +16,9 @@ interface IPositionFilter {
 }
 
 function PositionSelector({ actionType }: { actionType: ActionType }) {
-  const history = useHistory();
-  /* STATE FROM CONTEXT */
 
-  const { userState, userActions } = useContext(UserContext) as IUserContext;
+  /* STATE FROM CONTEXT */
+  const { userState } : { userState: IUserContextState } = useContext(UserContext) as IUserContext;
   const { activeAccount, seriesMap, selectedSeries, selectedBase } =
     userState;
 

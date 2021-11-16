@@ -4,7 +4,7 @@ import { useHistory } from 'react-router-dom';
 import { Box, Button, Text } from 'grommet';
 
 import { UserContext } from '../../contexts/UserContext';
-import { IAsset, ISeries, IStrategy, IUserContext } from '../../types';
+import { IAsset, ISeries, IStrategy, IUserContext, IUserContextState } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
 import StrategyItem from '../positionItems/StrategyItem';
 import ListWrap from '../wraps/ListWrap';
@@ -19,7 +19,7 @@ interface IStrategyFilter {
 function StrategyPositionSelector() {
 
   /* STATE FROM CONTEXT */
-  const { userState } = useContext(UserContext) as IUserContext;
+  const { userState } : { userState: IUserContextState } = useContext(UserContext) as IUserContext;
   const { activeAccount, strategyMap, selectedBase } =
     userState;
 

@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Box, Button, Text } from 'grommet';
 import { FiX } from 'react-icons/fi';
 import { UserContext } from '../../contexts/UserContext';
-import { IAsset, ISeries, ISettingsContext, IUserContext, IVault } from '../../types';
+import { IAsset, ISeries, ISettingsContext, IUserContext, IUserContextState, IVault } from '../../types';
 import VaultListItem from '../positionItems/VaultItem';
 import ListWrap from '../wraps/ListWrap';
 import DashButton from '../buttons/DashButton';
@@ -18,7 +18,7 @@ function VaultPositionSelector(target: any) {
   /* STATE FROM CONTEXT */
 
   const { settingsState: { dashHideInactiveVaults } } = useContext(SettingsContext) as ISettingsContext;
-  const { userState } = useContext(UserContext) as IUserContext;
+  const { userState } : { userState: IUserContextState } = useContext(UserContext) as IUserContext;
   const {
     activeAccount: account,
     vaultMap,
