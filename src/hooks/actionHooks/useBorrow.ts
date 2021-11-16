@@ -31,8 +31,11 @@ export const useBorrow = () => {
 
     /* Set the series and ilk based on the vault that has been selected or if it's a new vault, get from the globally selected SeriesId */
     const series: ISeries = vault ? seriesMap.get(vault.seriesId) : selectedSeries;
+
     const base = assetMap.get(series.baseId);
-    const ilk = vault ? assetMap.get(vault.ilkId) : assetMap.get(selectedIlk.idToUse);
+    const ilk = vault ? assetMap.get(vault.ilkId) : selectedIlk;
+
+    console.log( ilk )
 
     /* parse inputs  ( clean down to base/ilk decimals so that there is never an underlow)  */
     const cleanInput = cleanValue(input, base.decimals);

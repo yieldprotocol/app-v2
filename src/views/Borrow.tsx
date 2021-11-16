@@ -522,7 +522,6 @@ const Borrow = () => {
               borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
               borrowProcess?.tx.status === TxState.SUCCESSFUL && (
                 <NextButton
-                  size="xsmall"
                   label={<Text size={mobile ? 'small' : undefined}>Borrow more</Text>}
                   onClick={() => resetInputs()}
                 />
@@ -532,7 +531,6 @@ const Borrow = () => {
               borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
               borrowProcess?.tx.status === TxState.FAILED && (
                 <NextButton
-                  size="xsmall"
                   label={<Text size={mobile ? 'xsmall' : undefined}>Report and go back</Text>}
                   onClick={() => resetInputs()}
                 />
