@@ -11,7 +11,6 @@ import {
   ActionCodes,
   ActionType,
   IAsset,
-  IDummyVault,
   ISeries,
   IUserContext,
   IUserContextActions,
@@ -60,8 +59,8 @@ const VaultPosition = () => {
   const { activeAccount: account, assetMap, seriesMap, vaultMap, selectedVault, vaultsLoading } = userState;
   const { setSelectedBase, setSelectedIlk, setSelectedSeries } = userActions;
 
-  const _selectedVault: IVault | undefined = selectedVault || vaultMap.get(idFromUrl);
-
+  const _selectedVault: IVault = selectedVault! || vaultMap.get(idFromUrl)!;
+  
   const vaultBase: IAsset | undefined = assetMap.get(_selectedVault?.baseId!);
   const vaultIlk: IAsset | undefined = assetMap.get(_selectedVault?.ilkId!);
   const vaultSeries: ISeries | undefined = seriesMap.get(_selectedVault?.seriesId!);

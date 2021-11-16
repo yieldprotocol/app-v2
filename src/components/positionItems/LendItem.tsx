@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Box, Text } from 'grommet';
-import { ActionType, ISeries, IUserContext, IUserContextActions, IUserContextState } from '../../types';
+import { ActionType, IAsset, ISeries, IUserContext, IUserContextActions, IUserContextState } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { cleanValue } from '../../utils/appUtils';
 import PositionAvatar from '../PositionAvatar';
@@ -25,7 +25,7 @@ function LendItem({
     UserContext
   ) as IUserContext;
   const { fyTokenMarketValue } = useLendHelpers(series!, '0');
-  const selectedBase = userState.assetMap?.get(series?.baseId!) || null;
+  const selectedBase : IAsset = userState.assetMap.get(series.baseId)!;
 
   const handleSelect = (_series: ISeries) => {
     userActions.setSelectedBase(selectedBase);

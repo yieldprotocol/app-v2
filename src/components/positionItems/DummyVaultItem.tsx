@@ -28,7 +28,10 @@ function DummyVaultItem({
   const { selectedSeries, selectedBase, selectedIlk } = userState;
   const { setSelectedVault } = userActions;
 
+
+
   const handleSelect = (_vaultId: string) => {
+
     const dummyVault: IVault = {
       id: _vaultId,
       seriesId: selectedSeries?.id!,
@@ -38,7 +41,7 @@ function DummyVaultItem({
       decimals: selectedBase?.decimals!,
       owner: '',
       isWitchOwner: false,
-      isActive: false,
+      isActive: true,
       ink: ethers.BigNumber.from(0),
       art: ethers.BigNumber.from(0),
       ink_: '',
