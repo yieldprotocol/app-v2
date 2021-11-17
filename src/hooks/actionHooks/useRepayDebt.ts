@@ -1,7 +1,17 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, IVault, ISeries, ActionCodes, LadleActions, IAsset, IUserContext, IUserContextActions, IUserContextState } from '../../types';
+import {
+  ICallData,
+  IVault,
+  ISeries,
+  ActionCodes,
+  LadleActions,
+  IAsset,
+  IUserContext,
+  IUserContextActions,
+  IUserContextState,
+} from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import { calculateSlippage, maxBaseIn, secondsToFrom, sellBase } from '../../utils/yieldMath';
@@ -11,32 +21,30 @@ import { ETH_BASED_ASSETS } from '../../utils/constants';
 import { SettingsContext } from '../../contexts/SettingsContext';
 
 export const useRepayDebt = () => {
-
   const {
     settingsState: { slippageTolerance, approveMax },
   } = useContext(SettingsContext);
-  
-    const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
+
+  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
-  ) as IUserContext;;
+  ) as IUserContext;
   const { activeAccount: account, seriesMap, assetMap } = userState;
   const { updateVaults, updateAssets } = userActions;
 
   const {
     chainState: { contractMap },
   } = useContext(ChainContext);
-  
 
   const { removeEth } = useRemoveCollateral();
   const { sign, transact } = useChain();
 
   const repay = async (vault: IVault, input: string | undefined, reclaimCollateral: boolean) => {
-
     const ladleAddress = contractMap.get('Ladle').address;
-    
+
     const txCode = getTxCode(ActionCodes.REPAY, vault.id);
     const series: ISeries = seriesMap.get(vault.seriesId)!;
     const base: IAsset = assetMap.get(vault.baseId)!;
+    const ilk: IAsset = assetMap.get(vault.ilkId)!;
 
     /* Parse inputs */
     const cleanInput = cleanValue(input, base.decimals);
@@ -70,8 +78,8 @@ export const useRepayDebt = () => {
     const isEthBased = ETH_BASED_ASSETS.includes(vault.ilkId);
 
     const alreadyApproved = approveMax
-    ? (await base.getAllowance(account!, series.seriesIsMature ? base.joinAddress : ladleAddress) ).gt(_input)
-    : false;
+      ? (await base.getAllowance(account!, series.seriesIsMature ? base.joinAddress : ladleAddress)).gt(_input)
+      : false;
 
     const permits: ICallData[] = await sign(
       [
@@ -80,14 +88,14 @@ export const useRepayDebt = () => {
           target: base,
           spender: 'LADLE',
           amount: _input,
-          ignoreIf: series.seriesIsMature || alreadyApproved===true,
+          ignoreIf: series.seriesIsMature || alreadyApproved === true,
         },
         {
           // after maturity
           target: base,
           spender: base.joinAddress,
           amount: _input,
-          ignoreIf: !series.seriesIsMature || alreadyApproved===true,
+          ignoreIf: !series.seriesIsMature || alreadyApproved === true,
         },
       ],
       txCode
@@ -142,7 +150,7 @@ export const useRepayDebt = () => {
     ];
     await transact(calls, txCode);
     updateVaults([vault]);
-    updateAssets([base]);
+    updateAssets([base, ilk]);
   };
 
   return repay;
