@@ -22,6 +22,7 @@ import { HistoryContext } from '../../contexts/HistoryContext';
 import { burn, burnFromStrategy, calcPoolRatios, newPoolState, sellFYToken } from '../../utils/yieldMath';
 import { ZERO_BN } from '../../utils/constants';
 import { SettingsContext } from '../../contexts/SettingsContext';
+import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 
 /*
                                                                             +---------+  DEFUNCT PATH
@@ -179,6 +180,8 @@ export const useRemoveLiquidity = () => {
       txCode
     );
 
+    // const unwrapping: ICallData[] = await unwrapAsset(_base, account)
+
     const calls: ICallData[] = [
       ...permits,
 
@@ -253,14 +256,7 @@ export const useRemoveLiquidity = () => {
         args: [matchingVaultId, account] as LadleActions.Args.REPAY_FROM_LADLE,
         ignoreIf: series.seriesIsMature || !fyTokenReceivedGreaterThanDebt || !useMatchingVault,
       },
-      // {
-      //   operation: LadleActions.Fn.ROUTE,
-      //   args: [account, ethers.constants.Zero] as RoutedActions.Args.SELL_FYTOKEN,
-      //   fnName: RoutedActions.Fn.SELL_FYTOKEN,
-      //   targetContract: series.poolContract,
-      //   ignoreIf:
-      //     true || series.seriesIsMature || !extraTradeSupported || !fyTokenReceivedGreaterThanDebt || !useMatchingVault,
-      // },
+
 
       /* OPTION 4. Remove Liquidity and sell  - BEFORE MATURITY +  NO VAULT */
 
@@ -309,6 +305,8 @@ export const useRemoveLiquidity = () => {
         args: [series.id, account, '0'] as LadleActions.Args.REDEEM,
         ignoreIf: !series.seriesIsMature,
       },
+
+      // ...unwrapping, 
     ];
 
     await transact(calls, txCode);

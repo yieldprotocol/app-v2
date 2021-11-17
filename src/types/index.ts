@@ -80,6 +80,7 @@ export interface ISettingsContextState {
   powerUser: boolean;
 
   forceTransactions: boolean;
+  unwrapTokens: boolean;
 
   /* DashSettings */
   dashHideEmptyVaults: boolean;

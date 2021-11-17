@@ -1,6 +1,7 @@
 import { BigNumber, Contract } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
+import { SettingsContext } from '../../contexts/SettingsContext';
 
 import {
   ICallData,
@@ -21,6 +22,10 @@ export const useWrapUnwrapAsset = () => {
       assetRootMap,
     },
   } = useContext(ChainContext);
+
+  const {
+    settingsState: { unwrapTokens },
+  } = useContext(SettingsContext);
 
   const signer = account ? provider?.getSigner(account) : provider?.getSigner(0);
   const { sign } = useChain();
@@ -83,8 +88,9 @@ export const useWrapUnwrapAsset = () => {
       wrapHandlerAbi,
       signer
     );
-
-    if (asset.useWrappedVersion) {
+    
+    if (asset.wrapHandlerAddress && unwrapTokens) {
+      console.log('Unwrapping token');
       /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
       return [
         {
@@ -97,6 +103,7 @@ export const useWrapUnwrapAsset = () => {
       ];
     }
     /* else return empty array */
+    console.log('No token unwrapping.')
     return [];
   };
 

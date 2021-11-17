@@ -24,6 +24,7 @@ export const DAI = '0x303100000000'; // 0x444149000000';
 export const USDC = '0x303200000000'; // '0x555344430000';
 export const WBTC = '0x303300000000';
 
+export const BLANK_ADDRESS = ethers.constants.AddressZero;
 export const BLANK_VAULT = '0x000000000000000000000000';
 export const BLANK_SERIES = '0x000000000000'
 

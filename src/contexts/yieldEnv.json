@@ -56,7 +56,13 @@
     "LINK": { "showToken": true },
     "ENS": { "showToken": false },
     
-    "wstETH": { "showToken": false },
+    "wstETH": { 
+      "showToken": false,
+      "wrapHandlerAddress": "0x491aB93faa921C8E634F891F96512Be14fD3DbB1",
+      "wrappedTokenId": "",
+      "wrappedTokenAddress": "",
+      "useWrappedVersion": false
+    },
     "stETH": {  
       "useWrappedVersion": true,
       "wrappedTokenId": "0x303400000000",
