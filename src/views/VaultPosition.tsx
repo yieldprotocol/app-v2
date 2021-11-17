@@ -56,7 +56,15 @@ const VaultPosition = () => {
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
-  const { activeAccount: account, assetMap, seriesMap, vaultMap, selectedVault, vaultsLoading } = userState;
+  const {
+    activeAccount: account,
+    assetMap,
+    seriesMap,
+    vaultMap,
+    selectedVault,
+    vaultsLoading,
+    selectedIlk,
+  } = userState;
   const { setSelectedBase, setSelectedIlk, setSelectedSeries } = userActions;
 
   const _selectedVault: IVault = selectedVault! || vaultMap.get(idFromUrl)!;
@@ -522,7 +530,7 @@ const VaultPosition = () => {
                             !addCollatInput ? (
                               <InputInfoWrap action={() => setAddCollatInput(maxCollateral)}>
                                 <Text size="xsmall" color="text-weak">
-                                  Max collateral available: {vaultIlk?.balance_!} {vaultIlk?.displaySymbol!}{' '}
+                                  Max collateral available: {selectedIlk?.balance_!} {selectedIlk?.displaySymbol!}{' '}
                                 </Text>
                               </InputInfoWrap>
                             ) : (
