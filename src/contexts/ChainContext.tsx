@@ -243,6 +243,7 @@ const ChainProvider = ({ children }: any) => {
               wrappedTokenId,
               wrappedTokenAddress,
               displaySymbol,
+              unwrappedTokenId,
             } = assetHandling[symbol] as IAssetHandling;
 
             const idToUse = wrappedTokenId || id;
@@ -263,6 +264,7 @@ const ChainProvider = ({ children }: any) => {
               wrapHandlerAddress,
               wrappedTokenId,
               wrappedTokenAddress,
+              unwrappedTokenId,
 
               showToken,
             };
@@ -275,7 +277,7 @@ const ChainProvider = ({ children }: any) => {
 
         // set the 'last checked' block
         setLastAssetUpdate(await fallbackProvider?.getBlockNumber());
-        
+
         // log the new assets in the cache
         setCachedAssets([...cachedAssets, ...newAssetList]);
         console.log('Yield Protocol Asset data updated.');
