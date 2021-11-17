@@ -13,6 +13,7 @@ import { cleanValue, formatStrategyName } from '../../utils/appUtils';
 import Skeleton from '../wraps/SkeletonWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { usePoolReturns } from '../../hooks/usePoolReturns';
+import { useStrategyReturns } from '../../hooks/useStrategyReturns';
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
@@ -70,8 +71,8 @@ function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelector
   const { userState, userActions } = useContext(UserContext);
   const { selectedStrategyAddr, selectedBaseId, strategiesLoading, strategyMap, seriesMap, selectedSeriesId } =
     userState;
-  const selectedSeries: ISeries = seriesMap.get(selectedSeriesId);
-  const { poolReturns, secondsCompare } = usePoolReturns(selectedSeries, 45000); // previous 45k blocks is around 7 days
+  const selectedStrategy: IStrategy = strategyMap.get(selectedStrategyAddr);
+  const { strategyReturns, secondsCompare } = useStrategyReturns(selectedStrategy, 45000); // previous 45k blocks is around 7 days
   const secondsToDays = formatDistanceStrict(new Date(1, 1, 0, 0, 0, 0), new Date(1, 1, 0, 0, 0, secondsCompare || 0), {
     unit: 'day',
   }); // for visualizing how many days were used in the pool returns calculation
@@ -193,10 +194,10 @@ function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelector
                           >
                             of strategy
                           </Text>
-                          {strategy.address === selectedStrategyAddr && poolReturns && (
+                          {strategy.address === selectedStrategyAddr && strategyReturns && (
                             <Box direction="row">
                               <Text size="small" color={strategy.currentSeries?.textColor}>
-                                {cleanValue(poolReturns, 2)}% APY
+                                {cleanValue(strategyReturns, 2)}% APY
                               </Text>
                               {/* <Tip
                                 content={<Text size="xsmall">using last {secondsToDays} days estimated returns</Text>}
