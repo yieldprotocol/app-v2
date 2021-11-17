@@ -43,7 +43,6 @@ export interface IUserContextState {
   selectedBase: IAsset | null;
   selectedVault: IVault | null;
   selectedStrategy: IStrategy | null;
-
 }
 
 export interface IUserContextActions {
@@ -55,13 +54,11 @@ export interface IUserContextActions {
   updatePrice: (ilkId: string, baseId: string, decimals: number) => void;
   updateLimit: (ilkId: string, baseId: string) => void;
 
-  
   setSelectedSeries: (series: ISeries | null) => void;
   setSelectedIlk: (ilk: IAsset | null) => void;
   setSelectedBase: (base: IAsset | null) => void;
   setSelectedVault: (vault: IVault | IDummyVault | null) => void;
   setSelectedStrategy: (strategy: IStrategy | null) => void;
-
 }
 
 export interface ISettingsContext {
@@ -81,7 +78,7 @@ export interface ISettingsContextState {
   diagnostics: boolean;
   /* Token wrapping */
   showWrappedTokens: boolean;
-  unwrapTokens: boolean; 
+  unwrapTokens: boolean;
   /* DashSettings */
   dashHideEmptyVaults: boolean;
   dashHideInactiveVaults: boolean;
@@ -134,20 +131,18 @@ export interface ISeriesRoot extends ISignable {
 }
 
 export interface IAssetHandling {
-
   displaySymbol: string; // alternative symbol for UI display
   showToken: boolean; // should it be displayed on the app
 
-  isWrappedToken: boolean // is the token a wrapped version of another token
-  
-  wrappedTokenId: string; // wrapped token Id 
+  isWrappedToken: boolean; // is the token a wrapped version of another token
+
+  wrappedTokenId: string; // wrapped token Id
   wrappedTokenAddress: string; // wrapped token address
   wrapHandlerAddress: string;
-
+  unwrappedTokenId: string; // unwrapped token Id
 }
 
 export interface IAssetRoot extends IAssetHandling, ISignable {
-  
   // fixed/static:
   id: string;
   decimals: number;
