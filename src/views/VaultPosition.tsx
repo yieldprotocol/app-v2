@@ -227,10 +227,11 @@ const VaultPosition = () => {
     const _series = seriesMap.get(_selectedVault?.seriesId!) || null;
     const _base = assetMap.get(_selectedVault?.baseId!) || null;
     const _ilk = assetMap.get(_selectedVault?.ilkId!) || null;
+    const _ilkToUse = _ilk?.isWrappedToken ? assetMap.get(_ilk.unwrappedTokenId) : _ilk; // use the unwrapped token if applicable
 
     _selectedVault && setSelectedSeries(_series);
     _selectedVault && setSelectedBase(_base);
-    _selectedVault && setSelectedIlk(_ilk);
+    _selectedVault && setSelectedIlk(_ilkToUse!);
   }, [vaultMap, _selectedVault, seriesMap, assetMap, setSelectedSeries, setSelectedBase, setSelectedIlk]);
 
   useEffect(() => {
