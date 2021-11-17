@@ -34,7 +34,7 @@ export const useWrapUnwrapAsset = () => {
 
     const ladleAddress = contractMap.get('Ladle').address;
     
-    if (asset.useWrappedVersion) {
+    if (asset.wrappedTokenId) {
       const wraphandlerContract: Contract = new Contract(
         asset.wrapHandlerAddress,
         wrapHandlerAbi,

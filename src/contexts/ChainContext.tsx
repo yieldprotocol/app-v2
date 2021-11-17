@@ -189,7 +189,7 @@ const ChainProvider = ({ children }: any) => {
       const _chargeAsset = (asset: any) => {
         /* attach either contract, (or contract of the wrappedToken ) */
         let baseContract = contracts.ERC20Permit__factory.connect(asset.address, fallbackProvider);
-        if (asset.useWrappedVersion) {
+        if (asset.wrappedTokenAddress) {
           baseContract = contracts.ERC20Permit__factory.connect(asset.wrappedTokenAddress, fallbackProvider);
         }
         const ERC20Permit = contracts.ERC20Permit__factory.connect(asset.address, fallbackProvider);
@@ -238,14 +238,14 @@ const ChainProvider = ({ children }: any) => {
             /* bring in any extra hardcoded handling info required */
             const {
               showToken,
-              useWrappedVersion,
+              isWrappedToken,
               wrapHandlerAddress,
               wrappedTokenId,
-              unwrappedTokenId,
+              wrappedTokenAddress,
               displaySymbol,
             } = assetHandling[symbol] as IAssetHandling;
 
-            const idToUse = useWrappedVersion ? wrappedTokenId : id;
+            const idToUse = wrappedTokenId || id;
 
             const newAsset = {
               id,
@@ -259,10 +259,10 @@ const ChainProvider = ({ children }: any) => {
               joinAddress: joinMap.get(idToUse),
               idToUse,
 
-              useWrappedVersion,
+              isWrappedToken,
               wrapHandlerAddress,
               wrappedTokenId,
-              unwrappedTokenId,
+              wrappedTokenAddress,
 
               showToken,
             };

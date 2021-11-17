@@ -137,15 +137,13 @@ export interface IAssetHandling {
 
   displaySymbol: string; // alternative symbol for UI display
   showToken: boolean; // should it be displayed on the app
-  useWrappedVersion: boolean; // does it use a yieldwrapped token
+
+  isWrappedToken: boolean // is the token a wrapped version of another token
   
   wrappedTokenId: string; // wrapped token Id 
   wrappedTokenAddress: string; // wrapped token address
   wrapHandlerAddress: string;
 
-  unwrappedTokenId: string;
-  unwrappedTokenAddress: string;
-  unwrapHandlerAddress: string;
 }
 
 export interface IAssetRoot extends IAssetHandling, ISignable {
