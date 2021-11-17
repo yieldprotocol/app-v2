@@ -70,18 +70,18 @@ export interface ISettingsContext {
 }
 export interface ISettingsContextState {
   /* User Settings ( getting from the cache first ) */
-  approvalMethod: ApprovalType;
   slippageTolerance: number;
-  diagnostics: boolean;
   darkMode: boolean;
   autoTheme: boolean;
+  forceTransactions: boolean;
+  approvalMethod: ApprovalType;
   approveMax: boolean;
   disclaimerChecked: boolean;
   powerUser: boolean;
-
-  forceTransactions: boolean;
-  unwrapTokens: boolean;
-
+  diagnostics: boolean;
+  /* Token wrapping */
+  showWrappedTokens: boolean;
+  unwrapTokens: boolean; 
   /* DashSettings */
   dashHideEmptyVaults: boolean;
   dashHideInactiveVaults: boolean;
@@ -135,10 +135,13 @@ export interface ISeriesRoot extends ISignable {
 
 export interface IAssetHandling {
   showToken: boolean; // should it be displayed on the app
-  useWrappedVersion: boolean; // is it a yieldwrapped token
+
+  useWrappedVersion: boolean; // does it use a yieldwrapped token
+  unwrapHandlerAddress: string;
+  wrapHandlerAddress: string;
+
   wrappedTokenId: string; // wrapped token Id 
   wrappedTokenAddress: string; // wrapped token address
-  wrapHandlerAddress: string; // asset wrapHandler address (contract that does the wrapping)
 }
 
 export interface IAssetRoot extends IAssetHandling, ISignable {

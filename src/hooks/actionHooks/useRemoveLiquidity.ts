@@ -79,7 +79,7 @@ export const useRemoveLiquidity = () => {
     const txCode = getTxCode(ActionCodes.REMOVE_LIQUIDITY, series.id);
 
     const _base: IAsset = assetMap.get(series.baseId)!;
-    const _strategy: any = selectedStrategy!; // #TODO actually use correct typing
+    const _strategy: any = selectedStrategy!; 
     const _input = ethers.utils.parseUnits(input, _base.decimals);
 
     const ladleAddress = contractMap.get('Ladle').address;
@@ -306,7 +306,6 @@ export const useRemoveLiquidity = () => {
         ignoreIf: !series.seriesIsMature,
       },
 
-      // ...unwrapping, 
     ];
 
     await transact(calls, txCode);

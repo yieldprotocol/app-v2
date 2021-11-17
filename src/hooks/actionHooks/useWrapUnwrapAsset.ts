@@ -84,12 +84,12 @@ export const useWrapUnwrapAsset = () => {
   ) : Promise<ICallData[]> => {
 
     const wraphandlerContract: Contract = new Contract(
-      asset.wrapHandlerAddress,
+      asset.unwrapHandlerAddress,
       wrapHandlerAbi,
       signer
     );
     
-    if (asset.wrapHandlerAddress && unwrapTokens) {
+    if (asset.unwrapHandlerAddress && unwrapTokens) {
       console.log('Unwrapping token');
       /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
       return [

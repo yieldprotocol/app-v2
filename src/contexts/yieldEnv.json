@@ -56,18 +56,20 @@
     "LINK": { "showToken": true },
     "ENS": { "showToken": false },
     
-    "wstETH": { 
-      "showToken": false,
-      "wrapHandlerAddress": "0x491aB93faa921C8E634F891F96512Be14fD3DbB1",
+    "wstETH": {
+      "useWrappedVersion": false, 
+      "wrapHandlerAddress": "",
+      "unwrapHandlerAddress": "0x491aB93faa921C8E634F891F96512Be14fD3DbB1",
       "wrappedTokenId": "",
-      "wrappedTokenAddress": "",
-      "useWrappedVersion": false
+      "wrappedTokenAddress": "", 
+      "showToken": false
     },
     "stETH": {  
       "useWrappedVersion": true,
-      "wrappedTokenId": "0x303400000000",
-      "wrappedTokenAddress": "0xB12C63eD91e901995E68023293AC1A308ffA6c3c", 
       "wrapHandlerAddress": "0x491aB93faa921C8E634F891F96512Be14fD3DbB1",
+      "unwrapHandlerAddress": "",
+      "wrappedTokenId": "0x303400000000",
+      "wrappedTokenAddress": "0xB12C63eD91e901995E68023293AC1A308ffA6c3c",
       "showToken": true
     }
   },

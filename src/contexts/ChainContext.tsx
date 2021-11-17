@@ -202,7 +202,7 @@ const ChainProvider = ({ children }: any) => {
           baseContract,
           /* baked in token fns */
           getBalance: async (acc: string) =>
-            /* if eth based get provider balance, if token based, get toknen balance (NOT of wrappedToken ) */
+            /* if eth based get provider balance, if token based, get token balance (NOT of wrappedToken ) */
             ETH_BASED_ASSETS.includes(asset.idToUse) ? fallbackProvider?.getBalance(acc) : ERC20Permit.balanceOf(acc),
           getAllowance: async (acc: string, spender: string) => baseContract.allowance(acc, spender),
           // getAllowance: async (acc: string, spender: string) => ERC20Permit.allowance(acc, spender),
@@ -233,7 +233,7 @@ const ChainProvider = ({ children }: any) => {
               id === USDC ? '2' : '1', // TODO  ERC20.version()
             ]);
 
-            const { showToken, wrapHandlerAddress, useWrappedVersion, wrappedTokenId, wrappedTokenAddress } =
+            const { showToken, wrapHandlerAddress, useWrappedVersion, wrappedTokenId } =
               assetHandling[symbol] as IAssetHandling;
 
             const idToUse = useWrappedVersion ? wrappedTokenId : id;
@@ -252,8 +252,6 @@ const ChainProvider = ({ children }: any) => {
 
               wrapHandlerAddress,
               useWrappedVersion,
-              wrappedTokenId,
-              wrappedTokenAddress,
               showToken,
             };
 
