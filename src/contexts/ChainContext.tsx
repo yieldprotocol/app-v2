@@ -225,6 +225,8 @@ const ChainProvider = ({ children }: any) => {
         await Promise.all(
           assetAddedEvents.map(async (x: any) => {
             const { assetId: id, asset: address } = Cauldron.interface.parseLog(x).args;
+
+            /* Get the basic token info */
             const ERC20 = contracts.ERC20Permit__factory.connect(address, fallbackProvider);
             const [name, symbol, decimals, version] = await Promise.all([
               ERC20.name(),
@@ -233,25 +235,35 @@ const ChainProvider = ({ children }: any) => {
               id === USDC ? '2' : '1', // TODO  ERC20.version()
             ]);
 
-            const { showToken, wrapHandlerAddress, useWrappedVersion, wrappedTokenId } =
-              assetHandling[symbol] as IAssetHandling;
+            /* bring in any extra hardcoded handling info required */
+            const {
+              showToken,
+              useWrappedVersion,
+              wrapHandlerAddress,
+              wrappedTokenId,
+              unwrappedTokenId,
+              displaySymbol,
+            } = assetHandling[symbol] as IAssetHandling;
 
             const idToUse = useWrappedVersion ? wrappedTokenId : id;
-            const joinAddress = joinMap.get(idToUse);
 
             const newAsset = {
               id,
               address,
               name,
-              symbol: symbol === 'WETH' ? 'ETH' : symbol, // if the symbol is WETH, then simply use ETH. (for all others use token symbol)
+              displaySymbol: displaySymbol || symbol,
+              symbol,
               decimals,
               version,
 
-              joinAddress,
+              joinAddress: joinMap.get(idToUse),
               idToUse,
 
-              wrapHandlerAddress,
               useWrappedVersion,
+              wrapHandlerAddress,
+              wrappedTokenId,
+              unwrappedTokenId,
+
               showToken,
             };
 
@@ -263,6 +275,7 @@ const ChainProvider = ({ children }: any) => {
 
         // set the 'last checked' block
         setLastAssetUpdate(await fallbackProvider?.getBlockNumber());
+        
         // log the new assets in the cache
         setCachedAssets([...cachedAssets, ...newAssetList]);
         console.log('Yield Protocol Asset data updated.');

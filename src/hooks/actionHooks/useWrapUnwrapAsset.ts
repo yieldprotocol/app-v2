@@ -2,7 +2,6 @@ import { BigNumber, Contract } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
-
 import {
   ICallData,
   LadleActions,
@@ -10,7 +9,6 @@ import {
   RoutedActions,
 } from '../../types';
 import { MAX_256 } from '../../utils/constants';
-
 import { useChain } from '../useChain';
 
 export const useWrapUnwrapAsset = () => {
@@ -24,7 +22,7 @@ export const useWrapUnwrapAsset = () => {
   } = useContext(ChainContext);
 
   const {
-    settingsState: { unwrapTokens },
+    settingsState: { unwrapTokens, diagnostics },
   } = useContext(SettingsContext);
 
   const signer = account ? provider?.getSigner(account) : provider?.getSigner(0);
@@ -43,7 +41,7 @@ export const useWrapUnwrapAsset = () => {
         signer
       );
       const unwrappedAssetContract = assetRootMap.get(asset.id)
-      console.log('asset Contract to be signed for wrapping:', unwrappedAssetContract  )
+      diagnostics && console.log('Asset Contract to be signed for wrapping: ', unwrappedAssetContract  )
 
       /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
       const permit: ICallData[] = await sign(
@@ -84,13 +82,13 @@ export const useWrapUnwrapAsset = () => {
   ) : Promise<ICallData[]> => {
 
     const wraphandlerContract: Contract = new Contract(
-      asset.unwrapHandlerAddress,
+      asset.wrapHandlerAddress,
       wrapHandlerAbi,
       signer
     );
     
-    if (asset.unwrapHandlerAddress && unwrapTokens) {
-      console.log('Unwrapping token');
+    if (asset.wrapHandlerAddress && unwrapTokens) {
+      diagnostics && console.log('Unwrapping tokens before return');
       /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
       return [
         {
@@ -103,7 +101,7 @@ export const useWrapUnwrapAsset = () => {
       ];
     }
     /* else return empty array */
-    console.log('No token unwrapping.')
+    diagnostics && console.log('NOT unwrapping tokens before return')
     return [];
   };
 

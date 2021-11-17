@@ -48,28 +48,34 @@
     "USDC": {"showToken": true },
     "WBTC": { "showToken": true },
     "TST": { "showToken": true },
-
-    "WETH": { "showToken": true },
-    "ETH" : { "showToken": false },
-
     "USDT": { "showToken": true },
     "LINK": { "showToken": true },
     "ENS": { "showToken": false },
+
+    "WETH": { "displaySymbol": "ETH", "showToken": true },
     
     "wstETH": {
+      "displaySymbol": "stETH",
+
       "useWrappedVersion": false, 
-      "wrapHandlerAddress": "",
-      "unwrapHandlerAddress": "0x491aB93faa921C8E634F891F96512Be14fD3DbB1",
+      "wrapHandlerAddress": "0x491aB93faa921C8E634F891F96512Be14fD3DbB1",
       "wrappedTokenId": "",
-      "wrappedTokenAddress": "", 
+      "wrappedTokenAddress": "",
+      "unwrappedTokenId": "0x303500000000",
+      "unwrappedTokenAddress": "0x2296ab4f92f7fadc78ed02a9576b9a779caa91be",
+
       "showToken": false
     },
-    "stETH": {  
+
+    "stETH": { 
       "useWrappedVersion": true,
       "wrapHandlerAddress": "0x491aB93faa921C8E634F891F96512Be14fD3DbB1",
-      "unwrapHandlerAddress": "",
+
       "wrappedTokenId": "0x303400000000",
       "wrappedTokenAddress": "0xB12C63eD91e901995E68023293AC1A308ffA6c3c",
+      "unwrappedTokenId": "",
+      "unwrappedTokenAddress": "",
+
       "showToken": true
     }
   },
