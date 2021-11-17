@@ -640,6 +640,13 @@ const UserProvider = ({ children }: any) => {
       updateState({ type: 'selectedIlk', payload: userState.assetMap.get(userState.selectedIlk.id) as IAsset });
   }, [userState.assetMap, userState.selectedIlk]);
 
+  useEffect(() => {
+    /* Update selected vault if vault map changes */
+    userState.selectedVault &&
+      updateState({ type: 'selectedVault', payload: userState.vaultMap.get(userState.selectedVault.id) as IVault });
+  }, [userState.vaultMap, userState.selectedVault]);
+
+
   /* Exposed userActions */
   const userActions = {
     updateSeries,
