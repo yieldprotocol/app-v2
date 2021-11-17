@@ -2,7 +2,16 @@ import React, { useContext, useEffect, useReducer, useCallback, useState } from 
 import { BigNumber, ethers } from 'ethers';
 import { format } from 'date-fns';
 
-import { ISeries, IVault, IHistItemPosition, ActionCodes, IBaseHistItem, IAsset, IStrategy, IUserContextState } from '../types';
+import {
+  ISeries,
+  IVault,
+  IHistItemPosition,
+  ActionCodes,
+  IBaseHistItem,
+  IAsset,
+  IStrategy,
+  IUserContextState,
+} from '../types';
 
 import * as contracts from '../contracts';
 
@@ -78,7 +87,7 @@ const HistoryProvider = ({ children }: any) => {
     assetRootMap,
   } = chainState;
 
-  const { userState } : { userState: IUserContextState } = useContext(UserContext);
+  const { userState }: { userState: IUserContextState } = useContext(UserContext);
   const { activeAccount: account, vaultMap, seriesMap, strategyMap } = userState;
 
   const [historyState, updateState] = useReducer(historyReducer, initState);
@@ -246,7 +255,9 @@ const HistoryProvider = ({ children }: any) => {
                   /* inferred trade type */
                   actionCode: type_,
 
-                  primaryInfo: `${cleanValue(ethers.utils.formatUnits(bases.abs(), decimals), 2)} ${base.symbol}`,
+                  primaryInfo: `${cleanValue(ethers.utils.formatUnits(bases.abs(), decimals), 2)} ${
+                    base.displaySymbol
+                  }`,
                   secondaryInfo: `${cleanValue(tradeApr, 2)}% APY`,
 
                   /* Formatted values:  */
@@ -305,15 +316,20 @@ const HistoryProvider = ({ children }: any) => {
           let primaryInfo: string = '';
           if (actionCode === ActionCodes.BORROW)
             primaryInfo = `
-          ${cleanValue(ethers.utils.formatUnits(baseTraded, base_.decimals), base_.digitFormat!)} ${base_?.symbol!} @
+          ${cleanValue(
+            ethers.utils.formatUnits(baseTraded, base_.decimals),
+            base_.digitFormat!
+          )} ${base_?.displaySymbol!} @
           ${cleanValue(tradeApr, 2)}%`;
           else if (actionCode === ActionCodes.REPAY)
             primaryInfo = `${cleanValue(
               ethers.utils.formatUnits(baseTraded.abs(), base_.decimals),
               base_.digitFormat!
-            )} ${base_?.symbol!}`;
+            )} ${base_?.displaySymbol!}`;
           else if (actionCode === ActionCodes.ADD_COLLATERAL || actionCode === ActionCodes.REMOVE_COLLATERAL)
-            primaryInfo = `${cleanValue(ethers.utils.formatUnits(ink, ilk.decimals), ilk.digitFormat!)} ${ilk.symbol}`;
+            primaryInfo = `${cleanValue(ethers.utils.formatUnits(ink, ilk.decimals), ilk.digitFormat!)} ${
+              ilk.displaySymbol
+            }`;
 
           return {
             /* histItem base */
@@ -327,7 +343,7 @@ const HistoryProvider = ({ children }: any) => {
               ink.gt(ethers.constants.Zero) &&
               actionCode === ActionCodes.BORROW &&
               `added (${cleanValue(ethers.utils.formatUnits(ink, ilk.decimals), ilk.digitFormat!)} ${
-                ilk.symbol
+                ilk.displaySymbol
               } collateral)`,
 
             /* args info */
