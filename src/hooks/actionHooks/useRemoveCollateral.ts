@@ -65,13 +65,13 @@ export const useRemoveCollateral = () => {
 
     /* check if the ilk/asset is an eth asset variety OR if it is wrapped token, if so pour to Ladle */
     let _pourTo = ETH_BASED_ASSETS.includes(ilk.id) ? contractMap.get('Ladle').address : account;
-    
+
     /* handle wrapped tokens:  */
     let unwrap: ICallData[] = [];
     if (ilk.wrapHandlerAddress && unwrapTokens) {
       _pourTo = ilk.wrapHandlerAddress;
       unwrap = await unwrapAsset(ilk, account!);
-    };
+    }
 
     const calls: ICallData[] = [
       {
@@ -90,7 +90,7 @@ export const useRemoveCollateral = () => {
 
     await transact(calls, txCode);
     updateVaults([vault]);
-    updateAssets([ilk]);
+    updateAssets([ilk, selectedIlk!]);
   };
 
   return {
