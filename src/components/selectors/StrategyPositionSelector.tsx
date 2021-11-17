@@ -127,7 +127,7 @@ function StrategyPositionSelector() {
             <Box align="end" onClick={() => setShowAllPositions(!showAllPositions)}>
               <Text size="xsmall" color="text-weak">
                 {showAllPositions
-                  ? `Show suggested ${selectedBase?.symbol || ''} positions only`
+                  ? `Show suggested ${selectedBase?.displaySymbol || ''} positions only`
                   : `Show all ${allPositions.length} positions`}
               </Text>
             </Box>

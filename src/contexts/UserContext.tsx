@@ -29,6 +29,7 @@ import {
 } from '../utils/yieldMath';
 
 import { WAD_BN, ZERO_BN } from '../utils/constants';
+import { SettingsContext } from './SettingsContext';
 
 const UserContext = React.createContext<any>({});
 
@@ -125,6 +126,8 @@ const UserProvider = ({ children }: any) => {
     strategyRootMap,
   } = chainState;
 
+  const { showWrappedTokens } = useContext(SettingsContext);
+
   /* LOCAL STATE */
   const [userState, updateState] = useReducer(userReducer, initState);
   const [vaultFromUrl, setVaultFromUrl] = useState<IVault | null>(null);
@@ -215,6 +218,7 @@ const UserProvider = ({ children }: any) => {
           return {
             ...asset,
             isYieldBase,
+            displaySymbol : showWrappedTokens? asset.symbol : asset.displaySymbol, // if showing wrapped tokens, show the true token names
           };
         })
       );

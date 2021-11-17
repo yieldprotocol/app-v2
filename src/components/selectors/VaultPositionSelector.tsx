@@ -116,7 +116,7 @@ function VaultPositionSelector(target: any) {
                       pad={{ horizontal: 'xsmall', vertical: 'xsmall' }}
                       animation={{ type: 'zoomIn', duration: 1500 }}
                     >
-                      <Text size="xsmall">{filter.base.symbol}-based</Text>
+                      <Text size="xsmall">{filter.base.displaySymbol}-based</Text>
                       <Text
                         size="xsmall"
                         onClick={() =>

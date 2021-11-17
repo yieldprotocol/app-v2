@@ -284,14 +284,14 @@ const VaultPosition = () => {
                       />
                       <InfoBite
                         label="Vault debt + interest"
-                        value={`${cleanValue(_selectedVault?.art_, vaultBase?.digitFormat!)} ${vaultBase?.symbol}`}
+                        value={`${cleanValue(_selectedVault?.art_, vaultBase?.digitFormat!)} ${vaultBase?.displaySymbol}`}
                         icon={<FiTrendingUp />}
                         loading={vaultsLoading}
                       />
                       <InfoBite
                         label="Collateral posted"
                         value={`${cleanValue(_selectedVault?.ink_, vaultIlk?.decimals!)} ${
-                          vaultIlk?.symbol
+                          vaultIlk?.displaySymbol
                         } (${collateralizationPercent} %)`}
                         icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
                         loading={vaultsLoading}
@@ -371,14 +371,14 @@ const VaultPosition = () => {
                                 <InputInfoWrap action={() => setRepayInput(maxRepay_)}>
                                   {_selectedVault.art.gt(maxRepay) ? (
                                     <Text color="text" alignSelf="end" size="xsmall">
-                                      Maximum repayable is {cleanValue(maxRepay_!, 2)} {vaultBase?.symbol!}{' '}
+                                      Maximum repayable is {cleanValue(maxRepay_!, 2)} {vaultBase?.displaySymbol!}{' '}
                                       {userBaseAvailable.lt(protocolBaseAvailable)
                                         ? '(based on your token balance)'
                                         : '(limited by protocol reserves)'}
                                     </Text>
                                   ) : (
                                     <Text color="text" alignSelf="end" size="xsmall">
-                                      Max debt repayable ({_selectedVault?.art_!} {vaultBase?.symbol!})
+                                      Max debt repayable ({_selectedVault?.art_!} {vaultBase?.displaySymbol!})
                                     </Text>
                                   )}
                                 </InputInfoWrap>
@@ -414,7 +414,7 @@ const VaultPosition = () => {
                           <TextInput
                             plain
                             type="number"
-                            placeholder={`Enter ${vaultBase?.symbol} amount to Repay`}
+                            placeholder={`Enter ${vaultBase?.displaySymbol} amount to Repay`}
                             // ref={(el:any) => { el && !repayOpen && !rateLockOpen && !mobile && el.focus(); setInputRef(el); }}
                             value={repayInput || ''}
                             onChange={(event: any) =>
@@ -440,7 +440,7 @@ const VaultPosition = () => {
                         <InfoBite
                           label="Repay Debt"
                           icon={<FiArrowRight />}
-                          value={`${cleanValue(repayInput, vaultBase?.digitFormat!)} ${vaultBase?.symbol}`}
+                          value={`${cleanValue(repayInput, vaultBase?.digitFormat!)} ${vaultBase?.displaySymbol}`}
                         />
 
                         {repayInput === vaultDebt_ && (
@@ -477,7 +477,7 @@ const VaultPosition = () => {
                             {rollPossible ? (
                               <InputInfoWrap>
                                 <Text color="text-weak" size="xsmall">
-                                  All debt {cleanValue(maxRoll_, 2)} {vaultBase?.symbol} will be rolled.
+                                  All debt {cleanValue(maxRoll_, 2)} {vaultBase?.displaySymbol} will be rolled.
                                 </Text>
                               </InputInfoWrap>
                             ) : (
@@ -519,7 +519,7 @@ const VaultPosition = () => {
                             !addCollatInput ? (
                               <InputInfoWrap action={() => setAddCollatInput(maxCollateral)}>
                                 <Text size="xsmall" color="text-weak">
-                                  Max collateral available: {vaultIlk?.balance_!} {vaultIlk?.symbol!}{' '}
+                                  Max collateral available: {vaultIlk?.balance_!} {vaultIlk?.displaySymbol!}{' '}
                                 </Text>
                               </InputInfoWrap>
                             ) : (
@@ -561,7 +561,7 @@ const VaultPosition = () => {
                         <InfoBite
                           label="Add Collateral"
                           icon={<FiArrowRight />}
-                          value={`${cleanValue(addCollatInput, vaultIlk?.digitFormat!)} ${vaultIlk?.symbol}`}
+                          value={`${cleanValue(addCollatInput, vaultIlk?.digitFormat!)} ${vaultIlk?.displaySymbol}`}
                         />
                       </ActiveTransaction>
                     )}
@@ -579,7 +579,7 @@ const VaultPosition = () => {
                             !removeCollatInput ? (
                               <InputInfoWrap action={() => setRemoveCollatInput(maxRemovableCollateral)}>
                                 <Text size="xsmall" color="text-weak">
-                                  Max removable collateral: {cleanValue(maxRemovableCollateral, 6)} {vaultIlk?.symbol!}
+                                  Max removable collateral: {cleanValue(maxRemovableCollateral, 6)} {vaultIlk?.displaySymbol!}
                                 </Text>
                               </InputInfoWrap>
                             ) : (
@@ -621,7 +621,7 @@ const VaultPosition = () => {
                           <InfoBite
                             label="Remove Collateral"
                             icon={<FiArrowRight />}
-                            value={`${cleanValue(removeCollatInput, vaultIlk?.digitFormat!)} ${vaultIlk?.symbol}`}
+                            value={`${cleanValue(removeCollatInput, vaultIlk?.digitFormat!)} ${vaultIlk?.displaySymbol}`}
                           />
                         </Box>
                       </ActiveTransaction>
@@ -666,7 +666,7 @@ const VaultPosition = () => {
                             Number(cleanValue(repayInput, vaultBase?.digitFormat!)),
                             vaultBase?.digitFormat!
                           ) || ''
-                        } ${vaultBase?.symbol}`}
+                        } ${vaultBase?.displaySymbol}`}
                       </Text>
                     }
                     onClick={() => handleRepay()}
@@ -702,7 +702,7 @@ const VaultPosition = () => {
                             Number(cleanValue(addCollatInput, vaultIlk?.digitFormat!)),
                             vaultIlk?.digitFormat!
                           ) || ''
-                        } ${vaultIlk?.symbol}`}
+                        } ${vaultIlk?.displaySymbol}`}
                       </Text>
                     }
                     onClick={() => handleCollateral('ADD')}
@@ -720,7 +720,7 @@ const VaultPosition = () => {
                       <Text size={mobile ? 'small' : undefined}>
                         {`${removeCollateralProcess?.processActive ? 'Removing' : 'Remove'} ${
                           Number(cleanValue(removeCollatInput, vaultIlk?.digitFormat!)) || ''
-                        } ${vaultIlk?.symbol}`}
+                        } ${vaultIlk?.displaySymbol}`}
                       </Text>
                     }
                     onClick={() => handleCollateral('REMOVE')}

@@ -135,7 +135,7 @@ const Lend = () => {
                               <Text size="xsmall" color="text-weak">
                                 Max lend is{' '}
                                 <Text size="small" color="text-weak">
-                                  {cleanValue(maxLend_, 2)} {selectedBase?.symbol}
+                                  {cleanValue(maxLend_, 2)} {selectedBase?.displaySymbol}
                                 </Text>{' '}
                                 (limited by protocol liquidity)
                               </Text>
@@ -180,7 +180,7 @@ const Lend = () => {
                   <SectionWrap
                     title={
                       seriesMap.size > 0
-                        ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} maturity date`
+                        ? `Select a ${selectedBase?.displaySymbol}${selectedBase && '-based'} maturity date`
                         : ''
                     }
                   >
@@ -211,13 +211,13 @@ const Lend = () => {
                   <InfoBite
                     label="Amount to lend"
                     icon={<BiMessageSquareAdd />}
-                    value={`${cleanValue(lendInput, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
+                    value={`${cleanValue(lendInput, selectedBase?.digitFormat!)} ${selectedBase?.displaySymbol}`}
                   />
                   <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
                   <InfoBite
                     label="Redeemable @ Maturity"
                     icon={<FiTrendingUp />}
-                    value={`${lendOutput} ${selectedBase?.symbol}`}
+                    value={`${lendOutput} ${selectedBase?.displaySymbol}`}
                   />
                   <InfoBite label="Effective APY" icon={<FiPercent />} value={`${apr}%`} />
                 </Box>
@@ -258,7 +258,7 @@ const Lend = () => {
                       ? 'Connect Wallet'
                       : `Lend${lendProcess?.processActive ? `ing` : ''} ${
                           nFormatter(Number(lendInput), selectedBase?.digitFormat!) || ''
-                        } ${selectedBase?.symbol || ''}`}
+                        } ${selectedBase?.displaySymbol || ''}`}
                   </Text>
                 }
                 onClick={() => handleLend()}

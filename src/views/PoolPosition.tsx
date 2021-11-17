@@ -193,7 +193,7 @@ const PoolPosition = () => {
                     {/* {selectedStrategy.currentSeries && accountTradeValue && (
                       <InfoBite
                         label="Strategy Token Value"
-                        value={`${cleanValue(accountTradeValue!, selectedBase?.digitFormat)} ${selectedBase?.symbol}`}
+                        value={`${cleanValue(accountTradeValue!, selectedBase?.digitFormat)} ${selectedBase?.displaySymbol}`}
                         icon={<FiTrendingUp />}
                         loading={seriesLoading}
                       />
@@ -246,7 +246,7 @@ const PoolPosition = () => {
                                 <InputInfoWrap>
                                   <Text color="text-weak" alignSelf="end" size="small">
                                     Approx. return {cleanValue(removeBaseReceived_, selectedBase?.digitFormat)}{' '}
-                                    {selectedBase?.symbol}
+                                    {selectedBase?.displaySymbol}
                                   </Text>
                                 </InputInfoWrap>
                               )}
@@ -255,7 +255,7 @@ const PoolPosition = () => {
                                 <InputInfoWrap>
                                   <Box gap="xsmall" pad={{ right: 'medium' }} justify="between">
                                     <Text color="text-weak" alignSelf="end" size="xsmall">
-                                      Removing that amount of tokens and trading immediately for {selectedBase?.symbol}{' '}
+                                      Removing that amount of tokens and trading immediately for {selectedBase?.displaySymbol}{' '}
                                       is currently not possible due to liquidity limitations.
                                     </Text>
                                   </Box>
@@ -312,14 +312,14 @@ const PoolPosition = () => {
                         {/* <Text size="xsmall">Force Removal: </Text> */}
                         {/* <Text size="xsmall">
                             {`( You will receive `}
-                            {cleanValue(removeFyTokenReceived_, 2)} fy{selectedBase?.symbol}{' '}
+                            {cleanValue(removeFyTokenReceived_, 2)} fy{selectedBase?.displaySymbol}{' '}
                             {removeFyTokenReceived?.gt(ethers.constants.Zero) &&
-                              ` and ${cleanValue(removeBaseReceived_, 2)} ${selectedBase?.symbol} )`}
+                              ` and ${cleanValue(removeBaseReceived_, 2)} ${selectedBase?.displaySymbol} )`}
                           </Text> */}
                         <Text size="xsmall">
                           Force Removal:
-                          {` (You will receive about ${cleanValue(removeBaseReceived_, 2)} ${selectedBase?.symbol} `}
-                          {`and then rest will be in redeemable fy${selectedBase?.symbol})`}
+                          {` (You will receive about ${cleanValue(removeBaseReceived_, 2)} ${selectedBase?.displaySymbol} `}
+                          {`and then rest will be in redeemable fy${selectedBase?.displaySymbol})`}
                         </Text>
                       </Box>
                     }

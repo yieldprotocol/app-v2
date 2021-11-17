@@ -247,7 +247,7 @@ const Borrow = () => {
                                   <Text size="xsmall" color="text-weak">
                                     Max borrow is{' '}
                                     <Text size="small" color="text-weak">
-                                      {cleanValue(selectedSeries?.baseReserves_!, 2)} {selectedBase?.symbol}
+                                      {cleanValue(selectedSeries?.baseReserves_!, 2)} {selectedBase?.displaySymbol}
                                     </Text>{' '}
                                     (limited by protocol liquidity)
                                   </Text>
@@ -259,7 +259,7 @@ const Borrow = () => {
                                   <Text size="small" color="text-weak">
                                     Requires equivalent of{' '}
                                     {nFormatter(parseFloat(minCollateral_!), selectedIlk?.digitFormat!)}{' '}
-                                    {selectedIlk?.symbol} collateral
+                                    {selectedIlk?.displaySymbol} collateral
                                   </Text>
                                 </InputInfoWrap>
                               )}
@@ -298,7 +298,7 @@ const Borrow = () => {
                   <SectionWrap
                     title={
                       seriesMap.size > 0
-                        ? `Available ${selectedBase?.symbol}${selectedBase && '-based'} maturity dates`
+                        ? `Available ${selectedBase?.displaySymbol}${selectedBase && '-based'} maturity dates`
                         : ''
                     }
                   >
@@ -371,7 +371,7 @@ const Borrow = () => {
                                 >
                                   <Text size="small" color="text-weak">
                                     Use Safe Collateralization{': '}
-                                    {cleanValue(minSafeCollateral, selectedIlk?.digitFormat)} {selectedIlk?.symbol}
+                                    {cleanValue(minSafeCollateral, selectedIlk?.digitFormat)} {selectedIlk?.displaySymbol}
                                   </Text>
                                 </InputInfoWrap>
                               )
@@ -441,13 +441,13 @@ const Borrow = () => {
                     <InfoBite
                       label="Amount to be Borrowed"
                       icon={<FiPocket />}
-                      value={`${cleanValue(borrowInput, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
+                      value={`${cleanValue(borrowInput, selectedBase?.digitFormat!)} ${selectedBase?.displaySymbol}`}
                     />
                     <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
                     <InfoBite
                       label="Vault Debt Payable @ Maturity"
                       icon={<FiTrendingUp />}
-                      value={`${cleanValue(borrowEstimate_, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
+                      value={`${cleanValue(borrowEstimate_, selectedBase?.digitFormat!)} ${selectedBase?.displaySymbol}`}
                     />
                     <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
                     <InfoBite
@@ -460,7 +460,7 @@ const Borrow = () => {
                         />
                       }
                       value={`${cleanValue(collatInput, selectedIlk?.digitFormat!)} ${
-                        selectedIlk?.symbol
+                        selectedIlk?.displaySymbol
                       } (${collateralizationPercent}%)`}
                     />
                     {vaultToUse?.id && (
@@ -495,7 +495,7 @@ const Borrow = () => {
                 label={
                   <Text size={mobile ? 'small' : undefined}>
                     {borrowInput && !selectedSeries
-                      ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} Maturity`
+                      ? `Select a ${selectedBase?.displaySymbol}${selectedBase && '-based'} Maturity`
                       : 'Next Step'}
                   </Text>
                 }
@@ -514,7 +514,7 @@ const Borrow = () => {
                       ? 'Connect Wallet'
                       : `Borrow${borrowProcess?.processActive ? `ing` : ''} ${
                           nFormatter(Number(borrowInput), selectedBase?.digitFormat!) || ''
-                        } ${selectedBase?.symbol || ''}`}
+                        } ${selectedBase?.displaySymbol || ''}`}
                   </Text>
                 }
                 onClick={() => handleBorrow()}

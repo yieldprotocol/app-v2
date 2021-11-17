@@ -170,7 +170,7 @@ function Pool() {
                 ) : (
                   <SectionWrap
                     title={
-                      strategyMap.size > 0 ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} strategy` : ''
+                      strategyMap.size > 0 ? `Select a ${selectedBase?.displaySymbol}${selectedBase && '-based'} strategy` : ''
                     }
                   >
                     <StrategySelector inputValue={poolInput} />
@@ -202,7 +202,7 @@ function Pool() {
                       <InfoBite
                         label="Maximum Amount to Pool"
                         icon={<BiMessageSquareAdd />}
-                        value={`${cleanValue(poolInput, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
+                        value={`${cleanValue(poolInput, selectedBase?.digitFormat!)} ${selectedBase?.displaySymbol}`}
                       />
                       <InfoBite label="Strategy" icon={<MdAutorenew />} value={`${selectedStrategy?.name}`} />
                       {/* <InfoBite
@@ -287,7 +287,7 @@ function Pool() {
                   <Text size={mobile ? 'small' : undefined}>
                     {`Pool${poolProcess?.processActive ? `ing` : ''} ${
                       nFormatter(Number(poolInput), selectedBase?.digitFormat!) || ''
-                    } ${selectedBase?.symbol || ''}`}
+                    } ${selectedBase?.displaySymbol || ''}`}
                   </Text>
                 )
               }
