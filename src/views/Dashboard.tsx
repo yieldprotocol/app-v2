@@ -1,7 +1,6 @@
 import React, { useContext, useState, useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 import { Box, ResponsiveContext, Text } from 'grommet';
-import { ethers } from 'ethers';
 import Skeleton from '../components/wraps/SkeletonWrap';
 import { ChainContext } from '../contexts/ChainContext';
 import { ActionType, ISettingsContext, IUserContextState } from '../types';

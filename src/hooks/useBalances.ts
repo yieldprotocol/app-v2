@@ -3,6 +3,7 @@ import { useCallback, useContext, useEffect, useState } from 'react';
 import { SettingsContext } from '../contexts/SettingsContext';
 import { UserContext } from '../contexts/UserContext';
 import {
+  IAsset,
   ISeries,
   ISettingsContext,
   IStrategy,
@@ -101,33 +102,35 @@ const useBalances = () => {
   }, [strategyMap, seriesMap]);
 
   /* get a single position's ink or art in dai or eth (input the asset id): value can be art, ink, fyToken, or pooToken balances */
-  const getPositionValue = useCallback(
-    (baseOrIlkId: string, value: string, id = DAI) => {
-      const base = assetMap?.get(baseOrIlkId);
+  const convertValue = useCallback(
+    (fromAssetId: string, toAssetId: string = DAI, value: string) => {
+      const fromAsset: IAsset = assetMap?.get(fromAssetId)!;
       try {
-        if (!priceMap.get(baseOrIlkId)?.has(id)) updatePrice(baseOrIlkId, id, base?.decimals!);
-        const assetPrice = priceMap.get(baseOrIlkId)?.get(id);
+        if (!priceMap.get(fromAssetId)?.has(toAssetId)) {
+          updatePrice(fromAssetId, toAssetId, fromAsset?.decimals!);
+        }
+        const assetPrice = priceMap.get(fromAssetId)?.get(toAssetId);
         const assetValue = Number(ethers.utils.formatUnits(assetPrice || ethers.constants.Zero, 18)) * Number(value);
         return assetValue;
       } catch (e) {
         console.log(e);
-        return 0;
       }
+      return 0;
     },
-    [priceMap, assetMap, updatePrice]
+    [assetMap, priceMap, updatePrice]
   );
 
   /* get vault, lend, and pool position total debt, collateral, and balances */
   useEffect(() => {
     const _debts = vaultPositions?.map((position: any) =>
-      getPositionValue(position.baseId, position.art_, currencySettingAssetId)
+      convertValue(position.baseId, currencySettingAssetId, position.art_)
     );
     setTotalDebt(
       cleanValue(_debts.reduce((sum: number, debt: number) => sum + debt, 0).toString(), currencySettingDigits)
     );
-
+    console.log('updating debt and collat');
     const _collaterals = vaultPositions?.map((vault: IVault) =>
-      getPositionValue(vault.ilkId, vault.ink_, currencySettingAssetId)
+      convertValue(vault.ilkId, currencySettingAssetId, vault.ink_)
     );
     setTotalCollateral(
       cleanValue(
@@ -137,7 +140,7 @@ const useBalances = () => {
     );
 
     const _lendBalances = lendPositions?.map((_series: any) =>
-      getPositionValue(_series.baseId, _series.currentValue_!, currencySettingAssetId)
+      convertValue(_series.baseId, currencySettingAssetId, _series.currentValue_!)
     );
 
     // using the current fyToken Value denominated in currency setting
@@ -146,7 +149,7 @@ const useBalances = () => {
     );
 
     const _strategyBalances = strategyPositions?.map((strategy: any) =>
-      getPositionValue(strategy.baseId, strategy.currentValue_!, currencySettingAssetId)
+      convertValue(strategy.baseId, currencySettingAssetId, strategy.currentValue_!)
     );
 
     setTotalStrategyBalance(
@@ -158,12 +161,16 @@ const useBalances = () => {
   }, [
     priceMap,
     currencySettingAssetId,
-    getPositionValue,
+    convertValue,
     currencySettingDigits,
     vaultPositions,
     lendPositions,
     strategyPositions,
   ]);
+
+  useEffect(() => {
+    console.log('price map', priceMap);
+  }, [priceMap]);
 
   return {
     vaultPositions,
