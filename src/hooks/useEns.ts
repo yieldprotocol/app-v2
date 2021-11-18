@@ -25,7 +25,7 @@ export const useEns = () => {
           // get ens avatar uri
           if (_ensName) {
             const resolver = await (provider as ethers.providers.JsonRpcProvider).getResolver(_ensName);
-            const avatar = await resolver.getText('avatar');
+            const avatar = await resolver?.getText('avatar');
             avatar && setEnsAvatarUrl(avatarImageUrl(_ensName));
           } else {
             setEnsName(null);
