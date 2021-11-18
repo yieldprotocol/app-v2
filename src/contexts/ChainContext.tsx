@@ -197,7 +197,7 @@ const ChainProvider = ({ children }: any) => {
         return {
           ...asset,
           digitFormat: assetDigitFormatMap.has(asset.symbol) ? assetDigitFormatMap.get(asset.symbol) : 6,
-          image: markMap.get(asset.symbol),
+          image: markMap.get(asset.displaySymbol),
           color: (yieldEnv.assetColors as any)[asset.symbol],
           baseContract,
           /* baked in token fns */
