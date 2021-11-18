@@ -13,21 +13,28 @@ export const SUPPORTED_RPC_URLS: { [chainId: number]: string } = {
   // 10: RPC_URLS[10],
   // 69: RPC_URLS[69],
   // 42161: RPC_URLS[42161],
-  421611: RPC_URLS[421611],
+  // 421611: RPC_URLS[421611],
 };
 
 export const SUPPORTED_CHAIN_IDS: number[] = Object.keys(SUPPORTED_RPC_URLS).map((chainId: string) => +chainId);
 
-interface InativeCurrency {
+interface INativeCurrency {
   name: string;
   symbol: string; // 2-6 characters long
   decimals: 18;
 }
 
-export const CHAIN_INFO = new Map<
-  number,
-  { name: string; color: string; bridge?: string; explorer?: string; rpcUrl?: string; nativeCurrency?: InativeCurrency }
->();
+interface IChainInfo {
+  name: string;
+  color: string;
+  bridge?: string;
+  explorer?: string;
+  rpcUrl?: string;
+  nativeCurrency?: INativeCurrency;
+}
+
+export const CHAIN_INFO = new Map<number, IChainInfo>();
+
 CHAIN_INFO.set(1, { name: 'Ethereum', color: '#29b6af', explorer: 'https://etherscan.io' });
 CHAIN_INFO.set(3, { name: 'Ropsten', color: '#ff4a8d', explorer: 'https://ropsten.etherscan.io' });
 CHAIN_INFO.set(4, { name: 'Rinkeby', color: '#f6c343', explorer: 'https://rinkeby.etherscan.io' });

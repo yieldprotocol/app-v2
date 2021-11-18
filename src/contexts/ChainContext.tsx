@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { ContractFactory, Contract, ethers } from 'ethers';
+import { Contract, ethers } from 'ethers';
 
 import { format } from 'date-fns';
 
@@ -9,6 +9,8 @@ import { useConnection } from '../hooks/useConnection';
 import * as yieldEnv from './yieldEnv.json';
 import * as contracts from '../contracts';
 import { IAssetHandling, IAssetRoot, ISeriesRoot, IStrategyRoot } from '../types';
+
+import { ASSET_INFO } from '../config/assetData';
 
 import { ETH_BASED_ASSETS, USDC } from '../utils/constants';
 import { nameFromMaturity, getSeason, SeasonType, clearCachedItems } from '../utils/appUtils';
@@ -35,18 +37,6 @@ const markMap = new Map([
   ['wstETH', <StEthMark key="wsteth" />],
   ['stETH', <StEthMark key="steth" />],
   ['ENS', <ENSMark key="ens" />],
-]);
-
-const assetDigitFormatMap = new Map([
-  ['ETH', 6],
-  ['WBTC', 6],
-  ['DAI', 2],
-  ['USDC', 2],
-  ['USDT', 2],
-  ['wstETH', 6],
-  ['stETH', 6],
-  ['LINK', 2],
-  ['ENS', 2],
 ]);
 
 /* Build the context */
@@ -175,7 +165,6 @@ const ChainProvider = ({ children }: any) => {
             addrs.CompositeMultiOracle,
             fallbackProvider
           );
-          LidoWrapHandler = contracts.LidoWrapHandler__factory.connect(addrs.LidoWrapHandler, fallbackProvider);
         }
 
         // arbitrum
@@ -183,7 +172,6 @@ const ChainProvider = ({ children }: any) => {
           ChainlinkUSDOracle = '';
           AccumulatorMultiOracle = '';
         }
-
       } catch (e) {
         console.log(e, 'Could not connect to contracts');
       }
@@ -227,9 +215,9 @@ const ChainProvider = ({ children }: any) => {
 
         return {
           ...asset,
-          digitFormat: assetDigitFormatMap.has(asset.symbol) ? assetDigitFormatMap.get(asset.symbol) : 6,
+          digitFormat: ASSET_INFO.get(asset.symbol)?.digitFormat || 6,
           image: markMap.get(asset.displaySymbol),
-          color: (yieldEnv.assetColors as any)[asset.symbol],
+          color: ASSET_INFO.get(asset.symbol)?.color || '#FFFFFF', // (yieldEnv.assetColors as any)[asset.symbol],
           baseContract,
           /* baked in token fns */
           getBalance: async (acc: string) =>
