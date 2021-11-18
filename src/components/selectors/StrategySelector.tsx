@@ -30,11 +30,6 @@ const ShadeBox = styled(Box)`
   box-shadow: inset 0px ${(props) => (props ? '-50px' : '50px')} 30px -30px rgba(0,0,0,0.30); */
 `;
 
-const InsetBox = styled(Box)`
-  border-radius: 8px;
-  box-shadow: inset 1px 1px 1px #ddd, inset -0.25px -0.25px 0.25px #ddd;
-`;
-
 const CardSkeleton = () => (
   <StyledBox pad="xsmall" round="xsmall" elevation="xsmall" align="center">
     <Box pad="small" width="small" direction="row" align="center" gap="small">

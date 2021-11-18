@@ -1,9 +1,6 @@
 import React, { useContext } from 'react';
 import { Box, Header, Layer, ResponsiveContext } from 'grommet';
-import { CSSProperties, ThemeContext } from 'styled-components';
-import { useHistory } from 'react-router-dom';
 import { FiX } from 'react-icons/fi';
-import { UserContext } from '../contexts/UserContext';
 
 import YieldMark from './logos/YieldMark';
 import YieldNavigation from './YieldNavigation';

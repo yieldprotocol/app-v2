@@ -1,7 +1,7 @@
+import { ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { ChainContext } from '../contexts/ChainContext';
 
-/* Simple Hook for caching & retrieved data */
 export const useEnsName = () => {
   const {
     chainState: {
@@ -12,9 +12,14 @@ export const useEnsName = () => {
   const [ensName, setEnsName] = useState<string | null>(null);
 
   useEffect(() => {
-    if (provider && account && chainId===1) {
+    if (provider && ethers.utils.isAddress(account) && Number(chainId) === 1) {
       (async () => {
-        setEnsName(await provider.lookupAddress(account));
+        try {
+          setEnsName(await provider.lookupAddress(account));
+        } catch (e) {
+          setEnsName(null);
+          console.log(e);
+        }
       })();
     }
   }, [account, provider, chainId]);

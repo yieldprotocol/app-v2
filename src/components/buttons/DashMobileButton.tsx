@@ -1,6 +1,5 @@
-import { Avatar, Box, Button, ResponsiveContext, Text } from 'grommet';
-import React, { useContext, useState } from 'react';
-import { RiDashboard3Line } from 'react-icons/ri';
+import React, { useContext } from 'react';
+import { Avatar, Box, Text } from 'grommet';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { ChainContext } from '../../contexts/ChainContext';

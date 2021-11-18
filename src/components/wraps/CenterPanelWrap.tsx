@@ -1,7 +1,7 @@
 import React, { useContext, useRef, useState } from 'react';
 import { Box, ResponsiveContext, Stack } from 'grommet';
 
-import { useSpring, animated, to, a } from 'react-spring';
+import { useSpring, animated, to } from 'react-spring';
 import { useGesture } from 'react-use-gesture';
 import styled from 'styled-components';
 

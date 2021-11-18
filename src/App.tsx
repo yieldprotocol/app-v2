@@ -10,6 +10,7 @@ import { yieldTheme } from './themes';
 import YieldHeader from './components/YieldHeader';
 import NetworkError from './components/NetworkError';
 import TransactionWidget from './components/TransactionWidget';
+import NetworkBanner from './components/NetworkBanner';
 import YieldMobileMenu from './components/YieldMobileMenu';
 import { useColorScheme } from './hooks/useColorScheme';
 import TransactionError from './components/TransactionError';
@@ -32,9 +33,10 @@ function App() {
   return (
     <Box fill background="background">
       <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
+      <NetworkBanner />
       <TransactionWidget />
       <NetworkError />
-      <TransactionError /> 
+      <TransactionError />
       <Box flex={!mobile} overflow="hidden">
         <ToastContainer position="top-right" />
         {menuLayerOpen && <YieldMobileMenu toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} />}

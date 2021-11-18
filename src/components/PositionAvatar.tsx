@@ -1,8 +1,7 @@
-import { Stack, Avatar, Box, Text } from 'grommet';
 import React, { useContext } from 'react';
-import { FiClock, FiSlash } from 'react-icons/fi';
+import { Stack, Avatar, Box } from 'grommet';
+import { FiClock } from 'react-icons/fi';
 import { MdAutorenew } from 'react-icons/md';
-import Skeleton from './wraps/SkeletonWrap';
 import { UserContext } from '../contexts/UserContext';
 import { IVault, ISeries, IAsset, IUserContext, IStrategy, ActionType, IUserContextState } from '../types';
 
@@ -34,7 +33,12 @@ function PositionAvatar({
           background={series?.seriesIsMature ? 'lightGrey' : series?.color}
           size={condensed ? '1.5rem' : undefined}
         >
-          <Box round="large" background={base?.color || 'lightBackground'} pad={condensed ? 'none' : 'xsmall'} align="center">
+          <Box
+            round="large"
+            background={base?.color || 'lightBackground'}
+            pad={condensed ? 'none' : 'xsmall'}
+            align="center"
+          >
             {base?.image}
           </Box>
         </Avatar>

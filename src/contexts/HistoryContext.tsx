@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useReducer, useCallback, useState } from 'react';
+import React, { useContext, useEffect, useReducer, useCallback } from 'react';
 import { BigNumber, ethers } from 'ethers';
 import { format } from 'date-fns';
 
@@ -13,8 +13,6 @@ import {
   IUserContextState,
 } from '../types';
 
-import * as contracts from '../contracts';
-
 import { ChainContext } from './ChainContext';
 import { abbreviateHash, cleanValue } from '../utils/appUtils';
 import { UserContext } from './UserContext';
@@ -22,6 +20,7 @@ import { ZERO_BN } from '../utils/constants';
 import { Cauldron } from '../contracts';
 import { calculateAPR, bytesToBytes32 } from '../utils/yieldMath';
 import { SettingsContext } from './SettingsContext';
+import { useBlockNum } from '../hooks/useBlockNum';
 
 const dateFormat = (dateInSecs: number) => format(new Date(dateInSecs * 1000), 'dd MMM yyyy');
 
@@ -89,7 +88,7 @@ const HistoryProvider = ({ children }: any) => {
 
   const { userState }: { userState: IUserContextState } = useContext(UserContext);
   const { activeAccount: account, vaultMap, seriesMap, strategyMap } = userState;
-
+  const blockNumForUse = Number(useBlockNum()) - 10000;
   const [historyState, updateState] = useReducer(historyReducer, initState);
 
   const {
@@ -114,8 +113,8 @@ const HistoryProvider = ({ children }: any) => {
           // const startEventList = await strategyContract.queryFilter(_startedFilter, 0);
           // const endEventList = await strategyContract.queryFilter(_endedFilter, 0);
 
-          const inEventList = await strategyContract.queryFilter(_transferInFilter, 0);
-          const outEventList = await strategyContract.queryFilter(_transferOutFilter, 0);
+          const inEventList = await strategyContract.queryFilter(_transferInFilter, blockNumForUse); // originally 0
+          const outEventList = await strategyContract.queryFilter(_transferOutFilter, blockNumForUse); // originally 0
 
           const events = await Promise.all([
             ...inEventList.map(async (log: any) => {
@@ -177,7 +176,7 @@ const HistoryProvider = ({ children }: any) => {
           const { poolContract, id: seriesId, decimals } = series;
           // event Liquidity(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens, int256 poolTokens);
           const _liqFilter = poolContract.filters.Liquidity(null, null, account, null, null, null);
-          const eventList = await poolContract.queryFilter(_liqFilter, 0);
+          const eventList = await poolContract.queryFilter(_liqFilter, blockNumForUse);
 
           const liqLogs = await Promise.all(
             eventList.map(async (log: any) => {
@@ -229,7 +228,7 @@ const HistoryProvider = ({ children }: any) => {
           const base: IAsset = assetRootMap.get(baseId);
           // event Trade(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens);
           const _filter = poolContract.filters.Trade(null, null, account, null, null);
-          const eventList = await poolContract.queryFilter(_filter, 0);
+          const eventList = await poolContract.queryFilter(_filter, blockNumForUse);
 
           const tradeLogs = await Promise.all(
             eventList
@@ -445,9 +444,9 @@ const HistoryProvider = ({ children }: any) => {
           const [pourEventList, givenEventList, rolledEventList]: // destroyedEventList,
           // stirredEventList,
           ethers.Event[][] = await Promise.all([
-            cauldronContract.queryFilter(pourFilter, 0),
-            cauldronContract.queryFilter(givenFilter, 0),
-            cauldronContract.queryFilter(rolledFilter, 0),
+            cauldronContract.queryFilter(pourFilter, blockNumForUse),
+            cauldronContract.queryFilter(givenFilter, blockNumForUse),
+            cauldronContract.queryFilter(rolledFilter, blockNumForUse),
             // cauldronContract.queryFilter(destroyedFilter, 0),
             // cauldronContract.queryFilter(stirredFilter, 0),
           ]);

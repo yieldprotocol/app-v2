@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import { Box, Text } from 'grommet';
 import Switch from 'react-switch';
 import { ApprovalType } from '../../types';

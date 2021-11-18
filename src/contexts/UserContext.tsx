@@ -29,6 +29,8 @@ import {
 } from '../utils/yieldMath';
 
 import { WAD_BN, ZERO_BN } from '../utils/constants';
+
+import { useBlockNum } from '../hooks/useBlockNum';
 import { SettingsContext } from './SettingsContext';
 
 const UserContext = React.createContext<any>({});
@@ -130,7 +132,8 @@ const UserProvider = ({ children }: any) => {
 
   /* LOCAL STATE */
   const [userState, updateState] = useReducer(userReducer, initState);
-  const [vaultFromUrl, setVaultFromUrl] = useState<IVault | null>(null);
+  const [vaultFromUrl, setVaultFromUrl] = useState<string | null>(null);
+  const blockNumForUse = Number(useBlockNum()) - 10000;
 
   /* HOOKS */
   const { pathname } = useLocation();
@@ -265,10 +268,21 @@ const UserProvider = ({ children }: any) => {
     async (priceBase: string, quote: string, decimals: number = 18): Promise<BigNumber> => {
       updateState({ type: 'pricesLoading', payload: true });
 
-      const Oracle =
-        priceBase === '0x303400000000' || quote === '0x303400000000'
-          ? contractMap.get('CompositeMultiOracle')
-          : contractMap.get('ChainlinkMultiOracle');
+      let Oracle;
+      switch (chainState.connection.fallbackChainId) {
+        case 1:
+        case 42:
+          Oracle =
+            priceBase === '0x303400000000' || quote === '0x303400000000'
+              ? contractMap.get('CompositeMultiOracle')
+              : contractMap.get('ChainlinkMultiOracle');
+          break;
+        case 421611:
+          contractMap.get('ChainlinkUSDOracle');
+          break;
+        default:
+          break;
+      }
 
       try {
         const _quoteMap = userState.priceMap;
@@ -427,7 +441,10 @@ const UserProvider = ({ children }: any) => {
       const Witch = contractMap.get('Witch');
 
       /* if vaultList is empty, fetch complete Vaultlist from chain via _getVaults */
-      if (vaultList.length === 0) _vaultList = Array.from((await _getVaults()).values());
+      if (vaultList.length === 0)
+        _vaultList = Array.from(
+          (await _getVaults([1, 42].includes(chainState.connection.fallbackChainId) ? 0 : blockNumForUse)).values()
+        );
 
       /* Add in the dynamic vault data by mapping the vaults list */
       const vaultListMod = await Promise.all(

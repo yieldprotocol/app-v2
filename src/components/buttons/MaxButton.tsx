@@ -42,7 +42,7 @@ function MaxButton({ action, clearAction, showingMax, disabled, customText }: IM
           width="xxsmall"
         >
           <Text size="xsmall" color={disabled ? 'text-weak' : 'text'}>
-            {showingMax ? 'Clear' : customText || 'Max' }
+            {showingMax ? 'Clear' : customText || 'Max'}
           </Text>
         </StyledBox>
       )}
@@ -50,6 +50,6 @@ function MaxButton({ action, clearAction, showingMax, disabled, customText }: IM
   );
 }
 
-MaxButton.defaultProps = { disabled: false, clearAction: () => null, showingMax: false , customText: undefined};
+MaxButton.defaultProps = { disabled: false, clearAction: () => null, showingMax: false, customText: undefined };
 
 export default MaxButton;

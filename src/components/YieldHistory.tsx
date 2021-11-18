@@ -3,7 +3,6 @@ import { Box, Collapsible, Text } from 'grommet';
 import { HistoryContext } from '../contexts/HistoryContext';
 import { IBaseHistItem, ISeries, IStrategy, IVault } from '../types';
 import EtherscanButton from './buttons/EtherscanButton';
-import { SettingsContext } from '../contexts/SettingsContext';
 import { useColorScheme } from '../hooks/useColorScheme';
 
 interface IYieldHistory {

@@ -22,6 +22,7 @@ import USDTMark from '../components/logos/USDTMark';
 import YieldMark from '../components/logos/YieldMark';
 import StEthMark from '../components/logos/StEthMark';
 import LINKMark from '../components/logos/LinkMark';
+import ENSMark from '../components/logos/ENSMark';
 
 const markMap = new Map([
   ['DAI', <DaiMark key="dai" />],
@@ -33,6 +34,7 @@ const markMap = new Map([
   ['LINK', <LINKMark key="link" />],
   ['wstETH', <StEthMark key="wsteth" />],
   ['stETH', <StEthMark key="steth" />],
+  ['ENS', <ENSMark key="ens" />],
 ]);
 
 const assetDigitFormatMap = new Map([
@@ -43,6 +45,8 @@ const assetDigitFormatMap = new Map([
   ['USDT', 2],
   ['wstETH', 6],
   ['stETH', 6],
+  ['LINK', 2],
+  ['ENS', 2],
 ]);
 
 /* Build the context */
@@ -153,24 +157,49 @@ const ChainProvider = ({ children }: any) => {
       let Witch: any;
       let LidoWrapHandler: any;
 
+      // arbitrum
+      let ChainlinkUSDOracle: any;
+      let AccumulatorMultiOracle: any;
+
       try {
         Cauldron = contracts.Cauldron__factory.connect(addrs.Cauldron, fallbackProvider);
         Ladle = contracts.Ladle__factory.connect(addrs.Ladle, fallbackProvider);
-        ChainlinkMultiOracle = contracts.ChainlinkMultiOracle__factory.connect(
-          addrs.ChainlinkMultiOracle,
-          fallbackProvider
-        );
-        CompositeMultiOracle = contracts.CompositeMultiOracle__factory.connect(
-          addrs.CompositeMultiOracle,
-          fallbackProvider
-        );
         Witch = contracts.Witch__factory.connect(addrs.Witch, fallbackProvider);
-        // LidoWrapHandler = contracts.LidoWrapHandler__factory.connect(addrs.LidoWrapHandler, fallbackProvider);
+
+        if ([1, 42].includes(fallbackChainId)) {
+          ChainlinkMultiOracle = contracts.ChainlinkMultiOracle__factory.connect(
+            addrs.ChainlinkMultiOracle,
+            fallbackProvider
+          );
+          CompositeMultiOracle = contracts.CompositeMultiOracle__factory.connect(
+            addrs.CompositeMultiOracle,
+            fallbackProvider
+          );
+          LidoWrapHandler = contracts.LidoWrapHandler__factory.connect(addrs.LidoWrapHandler, fallbackProvider);
+        }
+
+        // arbitrum
+        if ([421611].includes(fallbackChainId)) {
+          ChainlinkUSDOracle = '';
+          AccumulatorMultiOracle = '';
+        }
+
       } catch (e) {
         console.log(e, 'Could not connect to contracts');
       }
 
-      if (!Cauldron || !Ladle || !ChainlinkMultiOracle || !CompositeMultiOracle || !Witch) return;
+      if (
+        [1, 42].includes(fallbackChainId) &&
+        (!Cauldron || !Ladle || !ChainlinkMultiOracle || !CompositeMultiOracle || !Witch)
+      )
+        return;
+
+      // arbitrum
+      if (
+        [421611].includes(fallbackChainId) &&
+        (!Cauldron || !Ladle || ChainlinkUSDOracle || AccumulatorMultiOracle || !Witch)
+      )
+        return;
 
       /* Update the baseContracts state : ( hardcoded based on networkId ) */
       const newContractMap = chainState.contractMap;
@@ -179,6 +208,8 @@ const ChainProvider = ({ children }: any) => {
       newContractMap.set('Witch', Witch);
       newContractMap.set('ChainlinkMultiOracle', ChainlinkMultiOracle);
       newContractMap.set('CompositeMultiOracle', CompositeMultiOracle);
+      newContractMap.set('ChainlinkUSDOracle', ChainlinkUSDOracle);
+      newContractMap.set('AccumulatorMultiOracle', AccumulatorMultiOracle);
       newContractMap.set('LidoWrapHandler', LidoWrapHandler);
       updateState({ type: 'contractMap', payload: newContractMap });
 
@@ -197,7 +228,7 @@ const ChainProvider = ({ children }: any) => {
         return {
           ...asset,
           digitFormat: assetDigitFormatMap.has(asset.symbol) ? assetDigitFormatMap.get(asset.symbol) : 6,
-          image: markMap.get(asset.symbol),
+          image: markMap.get(asset.displaySymbol),
           color: (yieldEnv.assetColors as any)[asset.symbol],
           baseContract,
           /* baked in token fns */
@@ -210,10 +241,15 @@ const ChainProvider = ({ children }: any) => {
       };
 
       const _getAssets = async () => {
-        /* get all the assetAdded, roacleAdded and joinAdded events and series events at the same time */
+        /* get all the assetAdded, oracleAdded and joinAdded events and series events at the same time */
+        const blockNum = await fallbackProvider.getBlockNumber();
+        const blockNumForUse = [1, 42].includes(fallbackChainId) ? lastAssetUpdate : blockNum - 20000; // use last 1000 blocks if too much (arbitrum limit)
+
         const [assetAddedEvents, joinAddedEvents] = await Promise.all([
-          Cauldron.queryFilter('AssetAdded' as any, lastAssetUpdate),
-          Ladle.queryFilter('JoinAdded' as any, lastAssetUpdate),
+          // Cauldron.queryFilter('AssetAdded' as any, lastAssetUpdate),
+          // Ladle.queryFilter('JoinAdded' as any, lastAssetUpdate),
+          Cauldron.queryFilter('AssetAdded' as any, blockNumForUse),
+          Ladle.queryFilter('JoinAdded' as any, blockNumForUse),
         ]);
 
         /* Create a map from the joinAdded event data */
@@ -276,7 +312,7 @@ const ChainProvider = ({ children }: any) => {
         );
 
         // set the 'last checked' block
-        setLastAssetUpdate(await fallbackProvider?.getBlockNumber());
+        setLastAssetUpdate(blockNum);
 
         // log the new assets in the cache
         setCachedAssets([...cachedAssets, ...newAssetList]);
@@ -327,10 +363,15 @@ const ChainProvider = ({ children }: any) => {
       };
 
       const _getSeries = async () => {
+        const blockNum = await fallbackProvider.getBlockNumber();
+        const blockNumForUse = [1, 42].includes(fallbackChainId) ? lastSeriesUpdate : blockNum - 20000; // use last 1000 blocks if too much (arbitrum limit)
+
         /* get poolAdded events and series events at the same time */
         const [seriesAddedEvents, poolAddedEvents] = await Promise.all([
-          Cauldron.queryFilter('SeriesAdded' as any, lastSeriesUpdate),
-          Ladle.queryFilter('PoolAdded' as any, lastSeriesUpdate),
+          // Cauldron.queryFilter('SeriesAdded' as any, lastSeriesUpdate),
+          // Ladle.queryFilter('PoolAdded' as any, lastSeriesUpdate),
+          Cauldron.queryFilter('SeriesAdded' as any, blockNumForUse),
+          Ladle.queryFilter('PoolAdded' as any, blockNumForUse),
         ]);
 
         /* build a map from the poolAdded event data */
@@ -402,37 +443,41 @@ const ChainProvider = ({ children }: any) => {
       /* Iterate through the strategies list and update accordingly */
       const _getStrategies = async () => {
         const newStrategyList: any[] = [];
-        await Promise.all(
-          strategyAddresses.map(async (strategyAddr: string) => {
-            /* if the strategy is already in the cache : */
-            if (cachedStrategies.findIndex((_s: any) => _s.address === strategyAddr) === -1) {
-              const Strategy = contracts.Strategy__factory.connect(strategyAddr, fallbackProvider);
-              const [name, symbol, baseId, decimals, version] = await Promise.all([
-                Strategy.name(),
-                Strategy.symbol(),
-                Strategy.baseId(),
-                Strategy.decimals(),
-                Strategy.version(),
-              ]);
+        try {
+          await Promise.all(
+            strategyAddresses.map(async (strategyAddr: string) => {
+              /* if the strategy is already in the cache : */
+              if (cachedStrategies.findIndex((_s: any) => _s.address === strategyAddr) === -1) {
+                const Strategy = contracts.Strategy__factory.connect(strategyAddr, fallbackProvider);
+                const [name, symbol, baseId, decimals, version] = await Promise.all([
+                  Strategy.name(),
+                  Strategy.symbol(),
+                  Strategy.baseId(),
+                  Strategy.decimals(),
+                  Strategy.version(),
+                ]);
 
-              const newStrategy = {
-                id: strategyAddr,
-                address: strategyAddr,
-                symbol,
-                name,
-                version,
-                baseId,
-                decimals,
-              };
-              // update state and cache
-              updateState({ type: 'addStrategy', payload: _chargeStrategy(newStrategy) });
-              newStrategyList.push(newStrategy);
-            }
-          })
-        );
+                const newStrategy = {
+                  id: strategyAddr,
+                  address: strategyAddr,
+                  symbol,
+                  name,
+                  version,
+                  baseId,
+                  decimals,
+                };
+                // update state and cache
+                updateState({ type: 'addStrategy', payload: _chargeStrategy(newStrategy) });
+                newStrategyList.push(newStrategy);
+              }
+            })
+          );
+        } catch (e) {
+          console.log('Error getching strategies', e);
+        }
 
         setCachedStrategies([...cachedStrategies, ...newStrategyList]);
-        console.log('Yield Protocol Series data updated.');
+        console.log('Yield Protocol Strategy data updated.');
       };
 
       /* LOAD the Series and Assets */

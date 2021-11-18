@@ -154,6 +154,7 @@ export const useRemoveLiquidity = () => {
     const alreadyApprovedPool =
       approveMax && !_strategy ? (await series.poolContract.allowance(account!, ladleAddress)).gt(_input) : false;
 
+
     const permits: ICallData[] = await sign(
       [
         /* give strategy permission to sell tokens to pool */

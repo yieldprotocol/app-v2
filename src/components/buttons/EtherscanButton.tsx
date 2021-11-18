@@ -1,9 +1,8 @@
+import React, { useState, useContext } from 'react';
 import { Box, Text } from 'grommet';
-import React, { useState, useEffect, useContext } from 'react';
-import { FiArrowLeftCircle, FiExternalLink, FiLink } from 'react-icons/fi';
+import { FiExternalLink } from 'react-icons/fi';
 import styled from 'styled-components';
 import { ChainContext } from '../../contexts/ChainContext';
-import EtherscanMark from '../logos/EtherscanMark';
 
 const StyledBox = styled(Box)`
   -webkit-transition: transform 0.3s ease-in-out;
@@ -28,10 +27,7 @@ function EtherscanButton({ txHash }: { txHash: string }) {
       direction="row"
       onClick={(e: any) => {
         e.stopPropagation();
-        window.open(
-          `https://${currentChainInfo.name === 'Mainnet' ? '' : `${currentChainInfo.name}.`}etherscan.io/tx/${txHash}`,
-          '_blank'
-        );
+        window.open(`${currentChainInfo.explorer}/tx/${txHash}`, '_blank');
       }}
       gap="xsmall"
       align="center"

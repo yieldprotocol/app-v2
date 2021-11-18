@@ -2,6 +2,8 @@ import React, { useContext } from 'react';
 import styled from 'styled-components';
 import multiavatar from '@multiavatar/multiavatar';
 import { Avatar, Box } from 'grommet';
+
+import { SettingsContext } from '../contexts/SettingsContext';
 import { useColorScheme } from '../hooks/useColorScheme';
 
 const StyledBox = styled(Box)`

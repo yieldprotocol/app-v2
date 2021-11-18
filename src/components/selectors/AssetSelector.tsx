@@ -27,7 +27,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const {
-    settingsState: { diagnostics },
+    settingsState: { showWrappedTokens, diagnostics },
   } = useContext(SettingsContext);
 
     const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
@@ -40,6 +40,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
     selectedBase,
     selectedSeries
   } = userState;
+
   const { setSelectedIlk, setSelectedBase } = userActions;
 
   const [options, setOptions] = useState<IAsset[]>([]);
@@ -48,7 +49,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
     asset ? (
       <Box direction="row" align="center" gap="xsmall">
         <Box flex={false}>{asset.image}</Box>
-        {asset?.symbol}
+        {asset?.displaySymbol}
       </Box>
     ) : (
       <Skeleton width={50} />
@@ -66,7 +67,10 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
 
   /* update options on any changes */
   useEffect(() => {
-    const opts = Array.from(assetMap.values()) as IAsset[];
+    const opts : IAsset[] = Array
+    .from(assetMap.values())
+    .filter((a: IAsset) =>  showWrappedTokens ? true : !a.isWrappedToken ) // filter based on whether wrapped tokens are shown or not
+
     let filteredOptions;
     if (!activeAccount) {
       filteredOptions = selectCollateral
@@ -91,8 +95,8 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
 
   /* make sure ilk (collateral) never matches baseId */
   useEffect(() => {
-    if (selectedIlk?.idToUse === selectedBase?.idToUse) {
-      const firstNotBaseIlk = options.find((asset: IAsset) => asset.id !== selectedIlk?.idToUse);
+    if (selectedIlk?.id === selectedBase?.id) {
+      const firstNotBaseIlk = options.find((asset: IAsset) => asset.id !== selectedIlk?.id);
       setSelectedIlk(firstNotBaseIlk!);
     }
   }, [options, selectedIlk, selectedBase, setSelectedIlk]);

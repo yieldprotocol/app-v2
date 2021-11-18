@@ -1,7 +1,6 @@
 import React, { ReactElement, useContext } from 'react';
-import { Box, BoxProps, Text, ResponsiveContext } from 'grommet';
-import styled, { css, ThemeContext } from 'styled-components';
-import { modColor } from '../../utils/appUtils';
+import { Box, BoxProps, Text } from 'grommet';
+import styled, { ThemeContext } from 'styled-components';
 
 interface IInputWrap extends BoxProps {
   action?: () => void;
@@ -21,7 +20,6 @@ const InsetBox = styled(Box)`
 `;
 
 function InputWrap({ action, disabled, isError, showErrorText, message, children, ...props }: IInputWrap) {
-  const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const theme = useContext<any>(ThemeContext);
   return (
     <Box height={{ min: '3em' }} gap="small">
