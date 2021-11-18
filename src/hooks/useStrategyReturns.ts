@@ -1,9 +1,10 @@
 import { useContext, useEffect, useState } from 'react';
-import { BigNumber, ethers } from 'ethers';
+import { BigNumber } from 'ethers';
+import { formatDistanceStrict } from 'date-fns';
+import { ISeries, IStrategy } from '../types';
 import { useBlockNum } from './useBlockNum';
 import { burnFromStrategy, SECONDS_PER_YEAR } from '../utils/yieldMath';
 import { ChainContext } from '../contexts/ChainContext';
-import { ISeries, IStrategy } from '../types';
 
 /**
  * returns the strategy's corresponding apy estimated based on the base value per share of the current block num and a previous block num (using last 7-8 days)
@@ -23,6 +24,7 @@ export const useStrategyReturns = (strategy: IStrategy, previousBlocks: number) 
   const [strategyReturns, setStrategyReturns] = useState<string | null>(null);
   // number of seconds between comparison timeframe curr and pre
   const [secondsCompare, setSecondsCompare] = useState<number | null>(null);
+  const [secondsToDays, setSecondsToDays] = useState<string | null>(null);
   const [previousBlockTimestamp, setPreviousBlockTimestamp] = useState<any>();
   const [currBlockTimestamp, setCurrBlockTimestamp] = useState<any>();
 
@@ -112,5 +114,17 @@ export const useStrategyReturns = (strategy: IStrategy, previousBlocks: number) 
     })();
   }, [currentBlock, provider, previousBlocks]);
 
-  return { strategyReturns, secondsCompare };
+  /* translate the comparison seconds to days */
+  useEffect(() => {
+    const _secondsToDays = formatDistanceStrict(
+      new Date(1, 1, 0, 0, 0, 0),
+      new Date(1, 1, 0, 0, 0, secondsCompare || 0),
+      {
+        unit: 'day',
+      }
+    );
+    setSecondsToDays(_secondsToDays);
+  }, [secondsCompare]);
+
+  return { strategyReturns, secondsToDays };
 };

@@ -12,7 +12,6 @@ import { getPoolPercent } from '../../utils/yieldMath';
 import { cleanValue, formatStrategyName } from '../../utils/appUtils';
 import Skeleton from '../wraps/SkeletonWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
-import { usePoolReturns } from '../../hooks/usePoolReturns';
 import { useStrategyReturns } from '../../hooks/useStrategyReturns';
 
 const StyledBox = styled(Box)`
@@ -72,10 +71,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelector
   const { selectedStrategyAddr, selectedBaseId, strategiesLoading, strategyMap, seriesMap, selectedSeriesId } =
     userState;
   const selectedStrategy: IStrategy = strategyMap.get(selectedStrategyAddr);
-  const { strategyReturns, secondsCompare } = useStrategyReturns(selectedStrategy, 45000); // previous 45k blocks is around 7 days
-  const secondsToDays = formatDistanceStrict(new Date(1, 1, 0, 0, 0, 0), new Date(1, 1, 0, 0, 0, secondsCompare || 0), {
-    unit: 'day',
-  }); // for visualizing how many days were used in the pool returns calculation
+  const { strategyReturns, secondsToDays } = useStrategyReturns(selectedStrategy, 45000); // previous 45k blocks is around 7 days
 
   const [options, setOptions] = useState<IStrategy[]>([]);
 
