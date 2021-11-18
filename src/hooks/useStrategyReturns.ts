@@ -5,6 +5,7 @@ import { ISeries, IStrategy } from '../types';
 import { useBlockNum } from './useBlockNum';
 import { burnFromStrategy, SECONDS_PER_YEAR } from '../utils/yieldMath';
 import { ChainContext } from '../contexts/ChainContext';
+import { cleanValue } from '../utils/appUtils';
 
 /**
  * returns the strategy's corresponding apy estimated based on the base value per share of the current block num and a previous block num (using last 7-8 days)
@@ -86,7 +87,7 @@ export const useStrategyReturns = (strategy: IStrategy, previousBlocks: number) 
           const periods = SECONDS_PER_YEAR / secondsBetween;
 
           const apy = (1 + returns / periods) ** periods - 1;
-          const apy_ = (apy * 100).toString();
+          const apy_ = cleanValue((apy * 100).toString(), 1);
           setStrategyReturns(apy_);
           return apy_;
         } catch (e) {
