@@ -663,7 +663,6 @@ const UserProvider = ({ children }: any) => {
       updateState({ type: 'selectedVault', payload: userState.vaultMap.get(userState.selectedVault.id) as IVault });
   }, [userState.vaultMap, userState.selectedVault]);
 
-
   /* Exposed userActions */
   const userActions = {
     updateSeries,
