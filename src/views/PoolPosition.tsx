@@ -1,8 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput } from 'grommet';
-import { ethers } from 'ethers';
 import { useHistory, useParams } from 'react-router-dom';
-import { FiArrowRight, FiPercent, FiSlash, FiTrendingUp } from 'react-icons/fi';
+import { FiArrowRight, FiPercent, FiSlash } from 'react-icons/fi';
 
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import InputWrap from '../components/wraps/InputWrap';

@@ -1,9 +1,7 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { Box, Button, Layer, Text } from 'grommet';
-import { FiAlertCircle, FiAlertTriangle } from 'react-icons/fi';
+import React, { useContext } from 'react';
+import { Box, Layer, Text } from 'grommet';
+import { FiAlertTriangle } from 'react-icons/fi';
 import { TxContext } from '../contexts/TxContext';
-import { UserContext } from '../contexts/UserContext';
-import { useConnection } from '../hooks/useConnection';
 import { ChainContext } from '../contexts/ChainContext';
 import GeneralButton from './buttons/GeneralButton';
 

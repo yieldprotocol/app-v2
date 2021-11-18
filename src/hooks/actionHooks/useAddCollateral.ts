@@ -3,6 +3,7 @@ import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
+
 import {
   ICallData,
   IVault,
@@ -16,6 +17,7 @@ import {
   IUserContextState,
   IUserContextActions,
 } from '../../types';
+
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { BLANK_VAULT, ETH_BASED_ASSETS } from '../../utils/constants';
 import { useChain } from '../useChain';
@@ -63,7 +65,6 @@ export const useAddCollateral = () => {
     const series = vault ? seriesMap.get(vault.seriesId) : selectedSeries;
     const ilk: IAsset | null | undefined = vault ? assetMap.get(vault.ilkId) : selectedIlk;
     const base: IAsset | null | undefined = vault ? assetMap.get(vault.baseId) : selectedBase;
-
     const ladleAddress = contractMap.get('Ladle').address;
 
     /* generate the reproducible txCode for tx tracking and tracing */
@@ -89,7 +90,7 @@ export const useAddCollateral = () => {
           target: ilk!,
           spender: ilk?.joinAddress!,
           amount: _input,
-          ignoreIf: _isEthBased || alreadyApproved===true,
+          ignoreIf: _isEthBased || alreadyApproved === true,
         },
       ],
       txCode

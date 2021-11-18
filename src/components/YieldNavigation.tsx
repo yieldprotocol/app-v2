@@ -5,7 +5,6 @@ import { Box, ThemeContext, ResponsiveContext } from 'grommet';
 import NavText from './texts/NavText';
 import { ChainContext } from '../contexts/ChainContext';
 import { useWindowSize } from '../hooks/generalHooks';
-import { UserContext } from '../contexts/UserContext';
 import { SettingsContext } from '../contexts/SettingsContext';
 
 const StyledLink = styled(NavLink)`

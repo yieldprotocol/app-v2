@@ -11,10 +11,14 @@ interface ITokenData {
 }
 
 const AddTokenToMetamsk = ({ address, symbol, decimals, image }: ITokenData) => {
-  const { chainState: { connection: { provider } } } = useContext(ChainContext); 
+  const {
+    chainState: {
+      connection: { provider },
+    },
+  } = useContext(ChainContext);
   const [metamask, setMetamask] = useState<any>(null);
-  const [success, setSuccess] = useState<boolean>(false);
-  const [failed, setFailed] = useState<boolean>(false);
+  const [, setSuccess] = useState<boolean>(false);
+  const [, setFailed] = useState<boolean>(false);
 
   const handleAddToken = () => {
     metamask

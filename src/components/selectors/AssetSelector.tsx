@@ -40,6 +40,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
     selectedBase,
     selectedSeries
   } = userState;
+
   const { setSelectedIlk, setSelectedBase } = userActions;
 
   const [options, setOptions] = useState<IAsset[]>([]);
